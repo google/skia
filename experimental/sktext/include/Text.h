@@ -206,8 +206,10 @@ class FormattedText : public SkRefCnt {
 public:
     SkSize actualSize() const { return fActualSize; }
 
+    // Operations starting from mouse/cursor require repositioning and adjusting by the screen
     Position adjustedPosition(PositionType positionType, SkPoint point) const;
 
+    // Operations of the text (adding, removing) require repositioning and adjusting by the text
     Position adjustedPosition(PositionType positionType, TextIndex textIndex) const;
 
     bool recalculateBoundaries(Position& position) const;
@@ -274,19 +276,6 @@ public:
     void visit(Visitor*) const;
     // Visit chunked runs
     void visit(Visitor*, SkSpan<size_t> blocks) const;
-
-    void paint(SkCanvas* canvas, SkPaint& foreground, SkPoint xy, bool rebuild = true) {
-        if (fVisitor == nullptr) {
-            fVisitor = std::make_unique<Visitor>();
-            rebuild = true;
-        }
-        if (rebuild) {
-            fVisitor->buildTextBlobs(this);
-        }
-        for (auto& textBlob : fVisitor->getTextBlobs()) {
-            canvas->drawTextBlob(textBlob, xy.fX, xy.fY, foreground);
-        }
-    }
 
 private:
     void adjustTextRange(Position* position) const;

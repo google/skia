@@ -136,6 +136,11 @@ std::unique_ptr<ShapedText> UnicodeText::shape(SkSpan<FontBlock> fontBlocks,
 void UnicodeText::commitRunBuffer(const RunInfo&) {
     fCurrentRun->commit();
 
+    // Convert utf8 range into utf16 range
+    fCurrentRun->convertUtf16Range([this](unsigned long index) {
+        return this->fUTF16FromUTF8[index + fParagraphTextStart];
+    });
+
     // Convert all utf8 indexes into utf16 indexes (and also shift them to be on the entire text scale, too)
     fCurrentRun->convertClusterIndexes([this](TextIndex clusterIndex) {
         auto converted = this->fUTF16FromUTF8[clusterIndex + fParagraphTextStart];
@@ -144,11 +149,6 @@ void UnicodeText::commitRunBuffer(const RunInfo&) {
             fShapedText->fGlyphUnitProperties[converted] |= GlyphUnitFlags::kGraphemeClusterStart;
         }
         return converted;
-    });
-
-    // Convert utf8 range into utf16 range
-    fCurrentRun->convertUtf16Range([this](unsigned long index) {
-        return this->fUTF16FromUTF8[index + fParagraphTextStart];
     });
 
     fShapedText->fRuns.emplace_back(std::move(*fCurrentRun));
@@ -340,9 +340,7 @@ void FormattedText::visit(Visitor* visitor) const {
             auto runIndex = line.visualRun(index);
             auto& run = this->fRuns[runIndex];
 
-            GlyphRange glyphRange(line.glyphRange(runIndex, run.size()));
-            SkScalar runWidth = run.calculateWidth(glyphRange);
-
+            GlyphRange glyphRange(line.glyphRange(runIndex, run.size(), false /* excluding trailing spaces */));
             // Update positions
             SkAutoSTMalloc<256, SkPoint> positions(glyphRange.width() + 1);
             SkPoint shift = SkPoint::Make(-run.fPositions[glyphRange.fStart].fX, line.baseline());
@@ -351,25 +349,21 @@ void FormattedText::visit(Visitor* visitor) const {
             }
             SkRect boundingRect = SkRect::MakeXYWH(shift.fX + offset.fX, offset.fY, run.fPositions[glyphRange.fEnd].fX  , run.fTextMetrics.height());
             visitor->onGlyphRun(run.fFont, run.getTextRange(glyphRange), boundingRect, glyphRange.width(), run.fGlyphs.data() + glyphRange.fStart, positions.data(), run.fOffsets.data() + glyphRange.fStart);
-            offset.fX += runWidth;
+            offset.fX += run.calculateWidth(glyphRange);
         }
         visitor->onEndLine(line.text());
         offset.fY += line.height();
     }
 }
 
-void FormattedText::visit(Visitor* visitor, SkSpan<size_t> chunks) const {
+void FormattedText::visit(Visitor* visitor, SkSpan<TextIndex> textChunks) const {
     // Decor blocks have to be sorted by text cannot intersect but can skip some parts of the text
     // (in which case we use default text style from paragraph style)
     // The edges of the decor blocks don't have to match glyph, grapheme or even unicode code point edges
     // It's out responsibility to adjust them to some reasonable values
     // [a:b) -> [c:d) where
     // c is closest GG cluster edge to a from the left and d is closest GG cluster edge to b from the left
-
-    size_t* currentBlock = &chunks[0];
-    size_t currentStart = 0;
     SkPoint offset = SkPoint::Make(0 , 0);
-    size_t lineIndex = 0;
     for (auto& line : this->fLines) {
         offset.fX = 0;
         visitor->onBeginLine(line.text());
@@ -380,7 +374,7 @@ void FormattedText::visit(Visitor* visitor, SkSpan<size_t> chunks) const {
                 continue;
             }
 
-            GlyphRange runGlyphRange(line.glyphRange(runIndex, run.size()));
+            GlyphRange runGlyphRange(line.glyphRange(runIndex, run.size(), false /* excluding trailing spaces */));
             SkPoint shift = SkPoint::Make(-run.fPositions[runGlyphRange.fStart].fX, line.baseline());
             // The run edges are good (aligned to GGC)
             // "ABCdef" -> "defCBA"
@@ -389,40 +383,19 @@ void FormattedText::visit(Visitor* visitor, SkSpan<size_t> chunks) const {
             // "ef": blue
             // green[d] blue[ef] green [C] red [BA]
 
-            GlyphRange glyphRange(runGlyphRange);
-            SkScalar runWidth = run.calculateWidth(glyphRange);
-            size_t currentEnd = *currentBlock;
-            for (auto glyphIndex = runGlyphRange.fStart; glyphIndex <= runGlyphRange.fEnd; ++glyphIndex) {
-
-                SkASSERT(currentBlock < chunks.end());
-                auto textIndex = run.fRunStart + run.fClusters[glyphIndex];
-                if (glyphIndex == runGlyphRange.fEnd) {
-                    // last piece of the text
-                } else if (run.leftToRight() && textIndex < currentEnd) {
-                    continue;
-                } else if (!run.leftToRight() && textIndex >= currentStart) {
-                    continue;
-                }
-                glyphRange.fEnd = glyphIndex;
-
+            // chunks[text index] -> chunks [glyph index] -> walk through in glyph index order (the visual order)
+            run.forEachTextChunkInGlyphRange(textChunks, runGlyphRange, [&](TextRange textRange, GlyphRange glyphRange){
                 // Update positions & calculate the bounding rect
                 SkAutoSTMalloc<256, SkPoint> positions(glyphRange.width() + 1);
-                for (size_t i = glyphRange.fStart; i <= glyphRange.fEnd; ++i) {
+                for (GlyphIndex i = glyphRange.fStart; i <= glyphRange.fEnd; ++i) {
                     positions[i - glyphRange.fStart] = run.fPositions[i] + shift + offset + SkPoint::Make(line.horizontalOffset(), 0.0f);
                 }
                 SkRect boundingRect = SkRect::MakeXYWH(positions[0].fX + line.horizontalOffset(), offset.fY, positions[glyphRange.width()].fX - positions[0].fX, run.fTextMetrics.height());
                 visitor->onGlyphRun(run.fFont, run.getTextRange(glyphRange), boundingRect, glyphRange.width(), run.fGlyphs.data() + glyphRange.fStart, positions.data(), run.fOffsets.data() + glyphRange.fStart);
 
-                glyphRange.fStart = glyphIndex;
+            });
 
-                if (glyphIndex != runGlyphRange.fEnd) {
-                    // We are here because we reached the end of the block
-                    ++currentBlock;
-                    currentStart = currentEnd;
-                    currentEnd = *currentBlock;
-                }
-            }
-            offset.fX += runWidth;
+            offset.fX += run.calculateWidth(runGlyphRange);
         }
         visitor->onEndLine(line.text());
         offset.fY += line.height();
@@ -445,7 +418,7 @@ Position FormattedText::adjustedPosition(PositionType positionType, TextIndex te
             auto runIndex = line.visualRun(index);
             auto& run = fRuns[runIndex];
 
-            GlyphRange runGlyphRange(line.glyphRange(runIndex, run.size()));
+            GlyphRange runGlyphRange(line.glyphRange(runIndex, run.size(), true /* including trailing spaces */));
             auto runWidth = run.calculateWidth(runGlyphRange);
 
             if (!run.fUtf16Range.contains(textIndex)) {
@@ -453,15 +426,8 @@ Position FormattedText::adjustedPosition(PositionType positionType, TextIndex te
                 continue;
             }
 
-            // This is the run
-            GlyphIndex found = runGlyphRange.fStart;
-            for (auto i = runGlyphRange.fStart; i <= runGlyphRange.fEnd; ++i) {
-                if ((run.leftToRight() && run.fClusters[i] > textIndex) ||
-                    (!run.leftToRight() && run.fClusters[i] < textIndex)) {
-                    break;
-                }
-                found = i;
-            }
+            // Find the position left
+            GlyphIndex found = run.findGlyphIndexLeftOf(runGlyphRange, textIndex);
 
             position.fLineIndex = lineIndex(&line);
             position.fRun = &run;
@@ -511,7 +477,7 @@ Position FormattedText::adjustedPosition(PositionType positionType, SkPoint xy) 
         for (auto index = 0; index < line.runsNumber(); ++index) {
             auto runIndex = line.visualRun(index);
             auto& run = fRuns[runIndex];
-            GlyphRange runGlyphRangeInLine = line.glyphRange(runIndex, run.size());
+            GlyphRange runGlyphRangeInLine = line.glyphRange(runIndex, run.size(), true /* including trailing space */);
             SkScalar runWidthInLine = run.calculateWidth(runGlyphRangeInLine);
             position.fRun = &run;
             if (runOffsetInLine > xy.fX) {
@@ -547,7 +513,7 @@ Position FormattedText::adjustedPosition(PositionType positionType, SkPoint xy) 
     position.fRun = this->visuallyLastRun(position.fLineIndex);
     auto line = this->line(position.fLineIndex);
     position.fGlyphRange.fStart =
-    position.fGlyphRange.fEnd = line->glyphRange(this->runIndex(position.fRun), position.fRun->size()).fEnd;
+    position.fGlyphRange.fEnd = line->glyphRange(this->runIndex(position.fRun), position.fRun->size(), true /* including trailing spaces */).fEnd;
     position.fTextRange = position.fRun->getTextRange(position.fGlyphRange);
     this->adjustTextRange(&position);
     position.fBoundaries.fLeft =

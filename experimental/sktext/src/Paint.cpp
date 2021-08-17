@@ -32,6 +32,9 @@ namespace text {
         size_t textSize = text.size();
         sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>(fontFamily.c_str(), fontSize, fontStyle);
         FontBlock fontBlock(text.size(), fontChain);
+        if (fontChain->getTypeface() == nullptr || fontChain->getTypeface().get() == nullptr) {
+            return false;
+        }
 
         auto formattedText = Paint::layout(std::move(text), textDirection, textAlign, reqSize, SkSpan<FontBlock>(&fontBlock, 1));
         if (formattedText == nullptr) {

@@ -31,6 +31,8 @@ namespace text {
         }
         float size() const override { return fSize; }
 
+        sk_sp<SkTypeface> getTypeface() const { return fTypeface; }
+
     private:
         sk_sp<SkTypeface> fTypeface;
         SkScalar fSize;

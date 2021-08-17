@@ -58,5 +58,13 @@ TextRange TextRun::getTextRange(GlyphRange glyphRange) const {
     return TextRange(this->fClusters[glyphRange.fStart], this->fClusters[glyphRange.fEnd]);
 }
 
+GlyphRange TextRun::getGlyphRange(TextRange textRange) const {
+    return GlyphRange(getGlyphIndex(textRange.fStart), getGlyphIndex(textRange.fEnd));
+}
+
+GlyphIndex TextRun::getGlyphIndex(TextIndex textIndex) const {
+    return fGlyphByText[textIndex];
+}
+
 } // namespace text
 } // namespace skia
