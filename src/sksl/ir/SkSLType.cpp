@@ -50,6 +50,10 @@ public:
         return this->componentType().bitWidth();
     }
 
+    bool allowedInES2() const override {
+        return fComponentType.allowedInES2();
+    }
+
 private:
     using INHERITED = Type;
 
@@ -128,7 +132,7 @@ class ScalarType final : public Type {
 public:
     static constexpr TypeKind kTypeKind = TypeKind::kScalar;
 
-    ScalarType(const char* name, const char* abbrev, NumberKind numberKind, int8_t priority,
+    ScalarType(skstd::string_view name, const char* abbrev, NumberKind numberKind, int8_t priority,
                int8_t bitWidth)
         : INHERITED(name, abbrev, kTypeKind)
         , fNumberKind(numberKind)
@@ -157,6 +161,10 @@ public:
 
     bool isScalar() const override {
         return true;
+    }
+
+    bool allowedInES2() const override {
+        return fNumberKind != NumberKind::kUnsigned;
     }
 
 private:
@@ -199,6 +207,10 @@ public:
 
     bool isMatrix() const override {
         return true;
+    }
+
+    bool allowedInES2() const override {
+        return fColumns == fRows;
     }
 
 private:
@@ -306,6 +318,12 @@ public:
         return true;
     }
 
+    bool allowedInES2() const override {
+        return std::all_of(fFields.begin(), fFields.end(), [](const Field& f) {
+            return f.fType->allowedInES2();
+        });
+    }
+
 private:
     using INHERITED = Type;
 
@@ -344,6 +362,10 @@ public:
         return true;
     }
 
+    bool allowedInES2() const override {
+        return fComponentType.allowedInES2();
+    }
+
 private:
     using INHERITED = Type;
 
@@ -373,7 +395,7 @@ std::unique_ptr<Type> Type::MakeLiteralType(const char* name, const Type& scalar
     return std::make_unique<LiteralType>(name, scalarType, priority);
 }
 
-std::unique_ptr<Type> Type::MakeMatrixType(const char* name, const char* abbrev,
+std::unique_ptr<Type> Type::MakeMatrixType(skstd::string_view name, const char* abbrev,
                                            const Type& componentType, int columns, int8_t rows) {
     return std::make_unique<MatrixType>(name, abbrev, componentType, columns, rows);
 }
@@ -387,7 +409,7 @@ std::unique_ptr<Type> Type::MakeSpecialType(const char* name, const char* abbrev
     return std::unique_ptr<Type>(new Type(name, abbrev, typeKind));
 }
 
-std::unique_ptr<Type> Type::MakeScalarType(const char* name, const char* abbrev,
+std::unique_ptr<Type> Type::MakeScalarType(skstd::string_view name, const char* abbrev,
                                            Type::NumberKind numberKind, int8_t priority,
                                            int8_t bitWidth) {
     return std::make_unique<ScalarType>(name, abbrev, numberKind, priority, bitWidth);
@@ -406,7 +428,7 @@ std::unique_ptr<Type> Type::MakeTextureType(const char* name, SpvDim_ dimensions
                                          isMultisampled, isSampled);
 }
 
-std::unique_ptr<Type> Type::MakeVectorType(const char* name, const char* abbrev,
+std::unique_ptr<Type> Type::MakeVectorType(skstd::string_view name, const char* abbrev,
                                            const Type& componentType, int columns) {
     return std::make_unique<VectorType>(name, abbrev, componentType, columns);
 }

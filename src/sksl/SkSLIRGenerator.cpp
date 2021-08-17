@@ -1113,14 +1113,14 @@ void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
     }
 }
 
-bool IRGenerator::typeContainsPrivateFields(const Type& type) {
+static bool type_contains_private_fields(const Type& type) {
     // Checks for usage of private types, including fields inside a struct.
     if (type.isPrivate()) {
         return true;
     }
     if (type.isStruct()) {
         for (const auto& f : type.fields()) {
-            if (this->typeContainsPrivateFields(*f.fType)) {
+            if (type_contains_private_fields(*f.fType)) {
                 return true;
             }
         }
@@ -1142,9 +1142,15 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
                                     "type '" + name + "' not allowed in this context");
         return nullptr;
     }
-    if (!fIsBuiltinCode && this->typeContainsPrivateFields(*result)) {
-        this->errorReporter().error(type.fOffset, "type '" + name + "' is private");
-        return nullptr;
+    if (!fIsBuiltinCode) {
+        if (type_contains_private_fields(*result)) {
+            this->errorReporter().error(type.fOffset, "type '" + name + "' is private");
+            return nullptr;
+        }
+        if (this->strictES2Mode() && !result->allowedInES2()) {
+            this->errorReporter().error(type.fOffset, "type '" + name + "' is not supported");
+            return nullptr;
+        }
     }
     if (isArray) {
         auto iter = type.begin();

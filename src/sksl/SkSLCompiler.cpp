@@ -149,15 +149,30 @@ std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTable() {
         TYPE( Float), TYPE( Float2), TYPE( Float3), TYPE( Float4),
         TYPE(  Half), TYPE(  Half2), TYPE(  Half3), TYPE(  Half4),
         TYPE(   Int), TYPE(   Int2), TYPE(   Int3), TYPE(   Int4),
+        TYPE(  UInt), TYPE(  UInt2), TYPE(  UInt3), TYPE(  UInt4),
+        TYPE( Short), TYPE( Short2), TYPE( Short3), TYPE( Short4),
+        TYPE(UShort), TYPE(UShort2), TYPE(UShort3), TYPE(UShort4),
         TYPE(  Bool), TYPE(  Bool2), TYPE(  Bool3), TYPE(  Bool4),
 
-        TYPE(Float2x2), TYPE(Float3x3), TYPE(Float4x4),
-        TYPE( Half2x2), TYPE( Half3x3), TYPE(Half4x4),
+        TYPE(Float2x2), TYPE(Float2x3), TYPE(Float2x4),
+        TYPE(Float3x2), TYPE(Float3x3), TYPE(Float3x4),
+        TYPE(Float4x2), TYPE(Float4x3), TYPE(Float4x4),
+
+        TYPE(Half2x2),  TYPE(Half2x3),  TYPE(Half2x4),
+        TYPE(Half3x2),  TYPE(Half3x3),  TYPE(Half3x4),
+        TYPE(Half4x2),  TYPE(Half4x3),  TYPE(Half4x4),
 
         TYPE(SquareMat), TYPE(SquareHMat),
+        TYPE(Mat),       TYPE(HMat),
 
-        TYPE(GenType), TYPE(GenHType), TYPE(GenIType), TYPE(GenBType),
-        TYPE(Vec),     TYPE(HVec),     TYPE(IVec),     TYPE(BVec),
+        // TODO(skia:12349): generic short/ushort
+        TYPE(GenType),   TYPE(GenIType), TYPE(GenUType),
+        TYPE(GenHType),   /* (GenSType)      (GenUSType) */
+        TYPE(GenBType),
+
+        TYPE(Vec),     TYPE(IVec),     TYPE(UVec),
+        TYPE(HVec),    TYPE(SVec),     TYPE(USVec),
+        TYPE(BVec),
 
         TYPE(ColorFilter),
         TYPE(Shader),
@@ -175,23 +190,6 @@ std::shared_ptr<SymbolTable> Compiler::makePrivateSymbolTable(std::shared_ptr<Sy
     auto privateSymbolTable = std::make_shared<SymbolTable>(parent, /*builtin=*/true);
 
     const SkSL::Symbol* privateTypes[] = {
-        TYPE(  UInt), TYPE(  UInt2), TYPE(  UInt3), TYPE(  UInt4),
-        TYPE( Short), TYPE( Short2), TYPE( Short3), TYPE( Short4),
-        TYPE(UShort), TYPE(UShort2), TYPE(UShort3), TYPE(UShort4),
-
-        TYPE(GenUType), TYPE(UVec),
-        TYPE(SVec),     TYPE(USVec),
-
-        TYPE(Float2x3), TYPE(Float2x4),
-        TYPE(Float3x2), TYPE(Float3x4),
-        TYPE(Float4x2), TYPE(Float4x3),
-
-        TYPE(Half2x3),  TYPE(Half2x4),
-        TYPE(Half3x2),  TYPE(Half3x4),
-        TYPE(Half4x2),  TYPE(Half4x3),
-
-        TYPE(Mat), TYPE(HMat),
-
         TYPE(Sampler1D), TYPE(Sampler2D), TYPE(Sampler3D),
         TYPE(SamplerExternalOES),
         TYPE(Sampler2DRect),
