@@ -494,8 +494,6 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/GrAuditTrail.cpp",
   "$_src/gpu/GrBlurUtils.cpp",
   "$_src/gpu/GrBlurUtils.h",
-  "$_src/gpu/GrClipStack.cpp",
-  "$_src/gpu/GrClipStack.h",
   "$_src/gpu/GrDrawOpTest.cpp",
   "$_src/gpu/GrDrawOpTest.h",
   "$_src/gpu/GrOpsTask.cpp",
@@ -589,6 +587,8 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/tessellate/GrTessellationPathRenderer.cpp",
 
   # v1
+  "$_src/gpu/v1/ClipStack.cpp",
+  "$_src/gpu/v1/ClipStack.h",
   "$_src/gpu/v1/Device.cpp",
   "$_src/gpu/v1/Device_drawTexture.cpp",
   "$_src/gpu/v1/Device_v1.h",

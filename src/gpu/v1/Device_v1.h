@@ -14,8 +14,8 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/BaseDevice.h"
-#include "src/gpu/GrClipStack.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/v1/ClipStack.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 class SkSpecialImage;
@@ -178,14 +178,14 @@ protected:
     bool onClipIsAA() const override;
 
     bool onClipIsWideOpen() const override {
-        return fClip.clipState() == GrClipStack::ClipState::kWideOpen;
+        return fClip.clipState() == ClipStack::ClipState::kWideOpen;
     }
     SkIRect onDevClipBounds() const override { return fClip.getConservativeBounds(); }
 
 private:
     std::unique_ptr<SurfaceDrawContext> fSurfaceDrawContext;
 
-    GrClipStack fClip;
+    ClipStack fClip;
 
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear

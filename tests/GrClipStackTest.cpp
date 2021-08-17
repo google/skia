@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrClipStack.h"
+#include "src/gpu/v1/ClipStack.h"
 #include "tests/Test.h"
 
 #include "include/core/SkPath.h"
@@ -39,6 +39,8 @@ enum class SavePolicy {
 
 class TestCase {
 public:
+    using ClipStack = skgpu::v1::ClipStack;
+
     // Provides fluent API to describe actual clip commands and expected clip elements:
     // TestCase test = TestCase::Build("example", deviceBounds)
     //                          .actual().rect(r, GrAA::kYes, SkClipOp::kIntersect)
@@ -58,18 +60,18 @@ public:
     void run(const std::vector<int>& order, SavePolicy policy, skiatest::Reporter* reporter) const;
 
     const SkIRect& deviceBounds() const { return fDeviceBounds; }
-    GrClipStack::ClipState expectedState() const { return fExpectedState; }
-    const std::vector<GrClipStack::Element>& initialElements() const { return fElements; }
-    const std::vector<GrClipStack::Element>& expectedElements() const { return fExpectedElements; }
+    ClipStack::ClipState expectedState() const { return fExpectedState; }
+    const std::vector<ClipStack::Element>& initialElements() const { return fElements; }
+    const std::vector<ClipStack::Element>& expectedElements() const { return fExpectedElements; }
 
 private:
     friend class TestCaseBuilder;
 
     TestCase(SkString name,
              const SkIRect& deviceBounds,
-             GrClipStack::ClipState expectedState,
-             std::vector<GrClipStack::Element> actual,
-             std::vector<GrClipStack::Element> expected)
+             ClipStack::ClipState expectedState,
+             std::vector<ClipStack::Element> actual,
+             std::vector<ClipStack::Element> expected)
         : fName(name)
         , fElements(std::move(actual))
         , fDeviceBounds(deviceBounds)
@@ -78,25 +80,27 @@ private:
 
     SkString getTestName(const std::vector<int>& order, SavePolicy policy) const;
 
-    // This may be tighter than GrClipStack::getConservativeBounds() because this always accounts
-    // for difference ops, whereas GrClipStack only sometimes can subtract the inner bounds for a
+    // This may be tighter than ClipStack::getConservativeBounds() because this always accounts
+    // for difference ops, whereas ClipStack only sometimes can subtract the inner bounds for a
     // difference op.
     std::pair<SkIRect, bool> getOptimalBounds() const;
 
     SkString fName;
 
-    // The input shapes+state to GrClipStack
-    std::vector<GrClipStack::Element> fElements;
+    // The input shapes+state to ClipStack
+    std::vector<ClipStack::Element> fElements;
     SkIRect fDeviceBounds;
 
-    // The expected output of iterating over the GrClipStack after all fElements are added, although
+    // The expected output of iterating over the ClipStack after all fElements are added, although
     // order is not important
-    std::vector<GrClipStack::Element> fExpectedElements;
-    GrClipStack::ClipState fExpectedState;
+    std::vector<ClipStack::Element> fExpectedElements;
+    ClipStack::ClipState fExpectedState;
 };
 
 class ElementsBuilder {
 public:
+    using ClipStack = skgpu::v1::ClipStack;
+
     // Update the default matrix, aa, and op state for elements that are added.
     ElementsBuilder& localToDevice(const SkMatrix& m) {  fLocalToDevice = m; return *this; }
     ElementsBuilder& aa() { fAA = GrAA::kYes; return *this; }
@@ -147,7 +151,7 @@ public:
 private:
     friend class TestCaseBuilder;
 
-    ElementsBuilder(TestCaseBuilder* builder, std::vector<GrClipStack::Element>* elements)
+    ElementsBuilder(TestCaseBuilder* builder, std::vector<ClipStack::Element>* elements)
             : fBuilder(builder)
             , fElements(elements) {}
 
@@ -155,12 +159,14 @@ private:
     GrAA     fAA = GrAA::kNo;
     SkClipOp fOp = SkClipOp::kIntersect;
 
-    TestCaseBuilder*                   fBuilder;
-    std::vector<GrClipStack::Element>* fElements;
+    TestCaseBuilder*                 fBuilder;
+    std::vector<ClipStack::Element>* fElements;
 };
 
 class TestCaseBuilder {
 public:
+    using ClipStack = skgpu::v1::ClipStack;
+
     ElementsBuilder actual() { return ElementsBuilder(this, &fActualElements); }
     ElementsBuilder expect() { return ElementsBuilder(this, &fExpectedElements); }
 
@@ -169,7 +175,7 @@ public:
         return *this;
     }
 
-    TestCaseBuilder& state(GrClipStack::ClipState state) {
+    TestCaseBuilder& state(ClipStack::ClipState state) {
         fExpectedState = state;
         return *this;
     }
@@ -178,7 +184,7 @@ public:
         TestCase test(fName, fDeviceBounds, fExpectedState,
                       std::move(fActualElements), std::move(fExpectedElements));
 
-        fExpectedState = GrClipStack::ClipState::kWideOpen;
+        fExpectedState = ClipStack::ClipState::kWideOpen;
         return test;
     }
 
@@ -188,14 +194,14 @@ private:
     explicit TestCaseBuilder(const char* name, const SkIRect& deviceBounds)
             : fName(name)
             , fDeviceBounds(deviceBounds)
-            , fExpectedState(GrClipStack::ClipState::kWideOpen) {}
+            , fExpectedState(ClipStack::ClipState::kWideOpen) {}
 
     SkString fName;
     SkIRect  fDeviceBounds;
-    GrClipStack::ClipState fExpectedState;
+    ClipStack::ClipState fExpectedState;
 
-    std::vector<GrClipStack::Element> fActualElements;
-    std::vector<GrClipStack::Element> fExpectedElements;
+    std::vector<ClipStack::Element> fActualElements;
+    std::vector<ClipStack::Element> fExpectedElements;
 };
 
 TestCaseBuilder TestCase::Build(const char* name, const SkIRect& deviceBounds) {
@@ -233,13 +239,13 @@ SkString TestCase::getTestName(const std::vector<int>& order, SavePolicy policy)
 }
 
 std::pair<SkIRect, bool> TestCase::getOptimalBounds() const {
-    if (fExpectedState == GrClipStack::ClipState::kEmpty) {
+    if (fExpectedState == ClipStack::ClipState::kEmpty) {
         return {SkIRect::MakeEmpty(), true};
     }
 
     bool expectOptimal = true;
     SkRegion region(fDeviceBounds);
-    for (const GrClipStack::Element& e : fExpectedElements) {
+    for (const ClipStack::Element& e : fExpectedElements) {
         bool intersect = (e.fOp == SkClipOp::kIntersect && !e.fShape.inverted()) ||
                          (e.fOp == SkClipOp::kDifference && e.fShape.inverted());
 
@@ -269,7 +275,8 @@ std::pair<SkIRect, bool> TestCase::getOptimalBounds() const {
     return {region.getBounds(), expectOptimal};
 }
 
-static bool compare_elements(const GrClipStack::Element& a, const GrClipStack::Element& b) {
+static bool compare_elements(const skgpu::v1::ClipStack::Element& a,
+                             const skgpu::v1::ClipStack::Element& b) {
     if (a.fAA != b.fAA || a.fOp != b.fOp || a.fLocalToDevice != b.fLocalToDevice ||
         a.fShape.type() != b.fShape.type()) {
         return false;
@@ -293,12 +300,13 @@ static bool compare_elements(const GrClipStack::Element& a, const GrClipStack::E
     }
 }
 
-void TestCase::run(const std::vector<int>& order, SavePolicy policy,
+void TestCase::run(const std::vector<int>& order,
+                   SavePolicy policy,
                    skiatest::Reporter* reporter) const {
     SkASSERT(fElements.size() == order.size());
 
     SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
-    GrClipStack cs(fDeviceBounds, &matrixProvider, false);
+    ClipStack cs(fDeviceBounds, &matrixProvider, false);
 
     if (policy == SavePolicy::kAtStart) {
         cs.save();
@@ -308,7 +316,7 @@ void TestCase::run(const std::vector<int>& order, SavePolicy policy,
         if (policy == SavePolicy::kBetweenEveryOp) {
             cs.save();
         }
-        const GrClipStack::Element& e = fElements[i];
+        const ClipStack::Element& e = fElements[i];
         switch(e.fShape.type()) {
             case GrShape::Type::kRect:
                 cs.clipRect(e.fLocalToDevice, e.fShape.rect(), e.fAA, e.fOp);
@@ -355,9 +363,9 @@ void TestCase::run(const std::vector<int>& order, SavePolicy policy,
     }
 
     size_t matchedElements = 0;
-    for (const GrClipStack::Element& a : cs) {
+    for (const ClipStack::Element& a : cs) {
         bool found = false;
-        for (const GrClipStack::Element& e : fExpectedElements) {
+        for (const ClipStack::Element& e : fExpectedElements) {
             if (compare_elements(a, e)) {
                 // shouldn't match multiple expected elements or it's a bad test case
                 SkASSERT(!found);
@@ -376,7 +384,7 @@ void TestCase::run(const std::vector<int>& order, SavePolicy policy,
 
     // Validate restoration behavior
     if (policy == SavePolicy::kAtEnd) {
-        GrClipStack::ClipState oldState = cs.clipState();
+        ClipStack::ClipState oldState = cs.clipState();
         cs.restore();
         REPORTER_ASSERT(reporter, cs.clipState() == oldState,
                         "%s, restoring an empty save record should not change clip state: "
@@ -387,7 +395,7 @@ void TestCase::run(const std::vector<int>& order, SavePolicy policy,
             cs.restore();
         }
         // Should be wide open if everything is restored to base state
-        REPORTER_ASSERT(reporter, cs.clipState() == GrClipStack::ClipState::kWideOpen,
+        REPORTER_ASSERT(reporter, cs.clipState() == ClipStack::ClipState::kWideOpen,
                         "%s, restore should make stack become wide-open, not %d",
                         (int) cs.clipState());
     }
@@ -490,13 +498,15 @@ private:
 // associated expectations.
 
 // Tests that the initialized state of the clip stack is wide-open
-DEF_TEST(GrClipStack_InitialState, r) {
+DEF_TEST(ClipStack_InitialState, r) {
     run_test_case(r, TestCase::Build("initial-state", SkIRect::MakeWH(100, 100)).finishTest());
 }
 
 // Tests that intersection of rects combine to a single element when they have the same AA type,
 // or are pixel-aligned.
-DEF_TEST(GrClipStack_RectRectAACombine, r) {
+DEF_TEST(ClipStack_RectRectAACombine, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect pixelAligned = {0, 0, 10, 10};
     SkRect fracRect1 = pixelAligned.makeOffset(5.3f, 3.7f);
     SkRect fracRect2 = {fracRect1.fLeft + 0.75f * fracRect1.width(),
@@ -514,7 +524,7 @@ DEF_TEST(GrClipStack_RectRectAACombine, r) {
                                        .rect(fracRect1).rect(fracRect2)
                                        .finishElements()
                               .expect().aa().intersect().rect(fracIntersect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // Both non-AA combine to one element
@@ -523,7 +533,7 @@ DEF_TEST(GrClipStack_RectRectAACombine, r) {
                                        .rect(fracRect1).rect(fracRect2)
                                        .finishElements()
                               .expect().nonAA().intersect().rect(fracIntersect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // Pixel-aligned AA and non-AA combine
@@ -532,7 +542,7 @@ DEF_TEST(GrClipStack_RectRectAACombine, r) {
                                       .aa().rect(pixelAligned).nonAA().rect(fracRect1)
                                       .finishElements()
                              .expect().nonAA().intersect().rect(alignedIntersect).finishElements()
-                             .state(GrClipStack::ClipState::kDeviceRect)
+                             .state(ClipState::kDeviceRect)
                              .finishTest());
 
     // AA and pixel-aligned non-AA combine
@@ -541,7 +551,7 @@ DEF_TEST(GrClipStack_RectRectAACombine, r) {
                                        .aa().rect(fracRect1).nonAA().rect(pixelAligned)
                                        .finishElements()
                               .expect().aa().intersect().rect(alignedIntersect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // Other mixed AA modes do not combine
@@ -550,13 +560,15 @@ DEF_TEST(GrClipStack_RectRectAACombine, r) {
                                        .aa().rect(fracRect1).nonAA().rect(fracRect2)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that an intersection and a difference op do not combine, even if they would have if both
 // were intersection ops.
-DEF_TEST(GrClipStack_DifferenceNoCombine, r) {
+DEF_TEST(ClipStack_DifferenceNoCombine, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect r1 = {15.f, 14.f, 23.22f, 58.2f};
     SkRect r2 = r1.makeOffset(5.f, 8.f);
     SkASSERT(r1.intersects(r2));
@@ -566,13 +578,15 @@ DEF_TEST(GrClipStack_DifferenceNoCombine, r) {
                                        .difference().rect(r2)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that intersection of rects in the same coordinate space can still be combined, but do not
 // when the spaces differ.
-DEF_TEST(GrClipStack_RectRectNonAxisAligned, r) {
+DEF_TEST(ClipStack_RectRectNonAxisAligned, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect pixelAligned = {0, 0, 10, 10};
     SkRect fracRect1 = pixelAligned.makeOffset(5.3f, 3.7f);
     SkRect fracRect2 = {fracRect1.fLeft + 0.75f * fracRect1.width(),
@@ -591,7 +605,7 @@ DEF_TEST(GrClipStack_RectRectNonAxisAligned, r) {
                                        .finishElements()
                               .expect().aa().intersect().localToDevice(lm)
                                        .rect(fracIntersect).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Both non-AA combine
@@ -601,7 +615,7 @@ DEF_TEST(GrClipStack_RectRectNonAxisAligned, r) {
                                        .finishElements()
                               .expect().nonAA().intersect().localToDevice(lm)
                                        .rect(fracIntersect).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Integer-aligned coordinates under a local matrix with mixed AA don't combine, though
@@ -610,13 +624,15 @@ DEF_TEST(GrClipStack_RectRectNonAxisAligned, r) {
                                        .aa().rect(pixelAligned).nonAA().rect(fracRect1)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that intersection of two round rects can simplify to a single round rect when they have
 // the same AA type.
-DEF_TEST(GrClipStack_RRectRRectAACombine, r) {
+DEF_TEST(ClipStack_RRectRRectAACombine, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRRect r1 = SkRRect::MakeRectXY(SkRect::MakeWH(12, 12), 2.f, 2.f);
     SkRRect r2 = r1.makeOffset(6.f, 6.f);
 
@@ -629,7 +645,7 @@ DEF_TEST(GrClipStack_RRectRRectAACombine, r) {
                                        .rrect(r1).rrect(r2)
                                        .finishElements()
                               .expect().aa().intersect().rrect(intersect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // Both non-AA combine
@@ -638,7 +654,7 @@ DEF_TEST(GrClipStack_RRectRRectAACombine, r) {
                                        .rrect(r1).rrect(r2)
                                        .finishElements()
                               .expect().nonAA().intersect().rrect(intersect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // Mixed do not combine
@@ -647,7 +663,7 @@ DEF_TEST(GrClipStack_RRectRRectAACombine, r) {
                                        .aa().rrect(r1).nonAA().rrect(r2)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Same AA state can combine in the same local coordinate space
@@ -658,7 +674,7 @@ DEF_TEST(GrClipStack_RRectRRectAACombine, r) {
                                        .finishElements()
                               .expect().aa().intersect().localToDevice(lm)
                                        .rrect(intersect).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("local-nonaa", kDeviceBounds)
                               .actual().nonAA().intersect().localToDevice(lm)
@@ -666,12 +682,14 @@ DEF_TEST(GrClipStack_RRectRRectAACombine, r) {
                                        .finishElements()
                               .expect().nonAA().intersect().localToDevice(lm)
                                        .rrect(intersect).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that intersection of a round rect and rect can simplify to a new round rect or even a rect.
-DEF_TEST(GrClipStack_RectRRectCombine, r) {
+DEF_TEST(ClipStack_RectRRectCombine, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRRect rrect = SkRRect::MakeRectXY({0, 0, 10, 10}, 2.f, 2.f);
     SkRect cutTop = {-10, -10, 10, 4};
     SkRect cutMid = {-10, 3, 10, 7};
@@ -683,7 +701,7 @@ DEF_TEST(GrClipStack_RectRRectCombine, r) {
     run_test_case(r, TestCase::Build("still-rrect", kDeviceBounds)
                               .actual().intersect().aa().rrect(rrect).rect(cutTop).finishElements()
                               .expect().intersect().aa().rrect(cutRRect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // Rect + RRect becomes a rect
@@ -691,7 +709,7 @@ DEF_TEST(GrClipStack_RectRRectCombine, r) {
     run_test_case(r, TestCase::Build("to-rect", kDeviceBounds)
                                .actual().intersect().aa().rrect(rrect).rect(cutMid).finishElements()
                                .expect().intersect().aa().rect(cutRect).finishElements()
-                               .state(GrClipStack::ClipState::kDeviceRect)
+                               .state(ClipState::kDeviceRect)
                                .finishTest());
 
     // But they can only combine when the intersecting shape is representable as a [r]rect.
@@ -699,12 +717,14 @@ DEF_TEST(GrClipStack_RectRRectCombine, r) {
     run_test_case(r, TestCase::Build("no-combine", kDeviceBounds)
                               .actual().intersect().aa().rrect(rrect).rect(cutRect).finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that a rect shape is actually pre-clipped to the device bounds
-DEF_TEST(GrClipStack_RectDeviceClip, r) {
+DEF_TEST(ClipStack_RectDeviceClip, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect crossesDeviceEdge = {20.f, kDeviceBounds.fTop - 13.2f,
                                 kDeviceBounds.fRight + 15.5f, 30.f};
     SkRect insideDevice = {20.f, kDeviceBounds.fTop, kDeviceBounds.fRight, 30.f};
@@ -712,18 +732,20 @@ DEF_TEST(GrClipStack_RectDeviceClip, r) {
     run_test_case(r, TestCase::Build("device-aa-rect", kDeviceBounds)
                               .actual().intersect().aa().rect(crossesDeviceEdge).finishElements()
                               .expect().intersect().aa().rect(insideDevice).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     run_test_case(r, TestCase::Build("device-nonaa-rect", kDeviceBounds)
                               .actual().intersect().nonAA().rect(crossesDeviceEdge).finishElements()
                               .expect().intersect().nonAA().rect(insideDevice).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 }
 
 // Tests that other shapes' bounds are contained by the device bounds, even if their shape is not.
-DEF_TEST(GrClipStack_ShapeDeviceBoundsClip, r) {
+DEF_TEST(ClipStack_ShapeDeviceBoundsClip, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect crossesDeviceEdge = {20.f, kDeviceBounds.fTop - 13.2f,
                                 kDeviceBounds.fRight + 15.5f, 30.f};
 
@@ -733,7 +755,7 @@ DEF_TEST(GrClipStack_ShapeDeviceBoundsClip, r) {
                                        .rrect(SkRRect::MakeRectXY(crossesDeviceEdge, 4.f, 4.f))
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // Path
@@ -742,23 +764,25 @@ DEF_TEST(GrClipStack_ShapeDeviceBoundsClip, r) {
                                        .path(make_octagon(crossesDeviceEdge))
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that a simplifiable path turns into a simpler element type
-DEF_TEST(GrClipStack_PathSimplify, r) {
+DEF_TEST(ClipStack_PathSimplify, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     // Empty, point, and line paths -> empty
     SkPath empty;
     run_test_case(r, TestCase::Build("empty", kDeviceBounds)
                               .actual().path(empty).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     SkPath point;
     point.moveTo({0.f, 0.f});
     run_test_case(r, TestCase::Build("point", kDeviceBounds)
                               .actual().path(point).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
 
     SkPath line;
@@ -766,7 +790,7 @@ DEF_TEST(GrClipStack_PathSimplify, r) {
     line.lineTo({10.f, 5.f});
     run_test_case(r, TestCase::Build("line", kDeviceBounds)
                               .actual().path(line).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
 
     // Rect path -> rect element
@@ -776,7 +800,7 @@ DEF_TEST(GrClipStack_PathSimplify, r) {
     run_test_case(r, TestCase::Build("rect", kDeviceBounds)
                               .actual().path(rectPath).finishElements()
                               .expect().rect(rect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // Oval path -> rrect element
@@ -785,7 +809,7 @@ DEF_TEST(GrClipStack_PathSimplify, r) {
     run_test_case(r, TestCase::Build("oval", kDeviceBounds)
                               .actual().path(ovalPath).finishElements()
                               .expect().rrect(SkRRect::MakeOval(rect)).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // RRect path -> rrect element
@@ -795,18 +819,20 @@ DEF_TEST(GrClipStack_PathSimplify, r) {
     run_test_case(r, TestCase::Build("rrect", kDeviceBounds)
                               .actual().path(rrectPath).finishElements()
                               .expect().rrect(rrect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 }
 
 // Tests that repeated identical clip operations are idempotent
-DEF_TEST(GrClipStack_RepeatElement, r) {
+DEF_TEST(ClipStack_RepeatElement, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     // Same rect
     SkRect rect = {5.3f, 62.f, 20.f, 85.f};
     run_test_case(r, TestCase::Build("same-rects", kDeviceBounds)
                               .actual().rect(rect).rect(rect).rect(rect).finishElements()
                               .expect().rect(rect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
     SkMatrix lm;
     lm.setRotate(30.f, rect.centerX(), rect.centerY());
@@ -814,7 +840,7 @@ DEF_TEST(GrClipStack_RepeatElement, r) {
                               .actual().localToDevice(lm).rect(rect).rect(rect).rect(rect)
                                        .finishElements()
                               .expect().localToDevice(lm).rect(rect).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Same rrect
@@ -822,13 +848,13 @@ DEF_TEST(GrClipStack_RepeatElement, r) {
     run_test_case(r, TestCase::Build("same-rrects", kDeviceBounds)
                               .actual().rrect(rrect).rrect(rrect).rrect(rrect).finishElements()
                               .expect().rrect(rrect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
     run_test_case(r, TestCase::Build("same-local-rrects", kDeviceBounds)
                               .actual().localToDevice(lm).rrect(rrect).rrect(rrect).rrect(rrect)
                                        .finishElements()
                               .expect().localToDevice(lm).rrect(rrect).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Same convex path, by ==
@@ -836,7 +862,7 @@ DEF_TEST(GrClipStack_RepeatElement, r) {
                               .actual().path(make_octagon(rect)).path(make_octagon(rect))
                                        .finishElements()
                               .expect().path(make_octagon(rect)).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("same-local-convex", kDeviceBounds)
                               .actual().localToDevice(lm)
@@ -844,7 +870,7 @@ DEF_TEST(GrClipStack_RepeatElement, r) {
                                        .finishElements()
                               .expect().localToDevice(lm).path(make_octagon(rect))
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Same complicated path by gen-id but not ==
@@ -858,19 +884,21 @@ DEF_TEST(GrClipStack_RepeatElement, r) {
     run_test_case(r, TestCase::Build("same-path", kDeviceBounds)
                               .actual().path(path).path(path).path(path).finishElements()
                               .expect().path(path).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("same-local-path", kDeviceBounds)
                               .actual().localToDevice(lm)
                                        .path(path).path(path).path(path).finishElements()
                               .expect().localToDevice(lm).path(path)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that inverse-filled paths are canonicalized to a regular fill and a swapped clip op
-DEF_TEST(GrClipStack_InverseFilledPath, r) {
+DEF_TEST(ClipStack_InverseFilledPath, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect rect = {0.f, 0.f, 16.f, 17.f};
     SkPath rectPath;
     rectPath.addRect(rect);
@@ -886,33 +914,35 @@ DEF_TEST(GrClipStack_InverseFilledPath, r) {
     run_test_case(r, TestCase::Build("inverse-rect-intersect", kDeviceBounds)
                               .actual().aa().intersect().path(inverseRectPath).finishElements()
                               .expect().aa().difference().rect(rect).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Inverse filled rect + difference -> int. rect
     run_test_case(r, TestCase::Build("inverse-rect-difference", kDeviceBounds)
                               .actual().aa().difference().path(inverseRectPath).finishElements()
                               .expect().aa().intersect().rect(rect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // Inverse filled path + intersect -> diff path
     run_test_case(r, TestCase::Build("inverse-path-intersect", kDeviceBounds)
                               .actual().aa().intersect().path(inverseComplexPath).finishElements()
                               .expect().aa().difference().path(complexPath).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Inverse filled path + difference -> int. path
     run_test_case(r, TestCase::Build("inverse-path-difference", kDeviceBounds)
                               .actual().aa().difference().path(inverseComplexPath).finishElements()
                               .expect().aa().intersect().path(complexPath).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that clip operations that are offscreen either make the clip empty or stay wide open
-DEF_TEST(GrClipStack_Offscreen, r) {
+DEF_TEST(ClipStack_Offscreen, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect offscreenRect = {kDeviceBounds.fRight + 10.f, kDeviceBounds.fTop + 20.f,
                             kDeviceBounds.fRight + 40.f, kDeviceBounds.fTop + 60.f};
     SkASSERT(!offscreenRect.intersects(SkRect::Make(kDeviceBounds)));
@@ -927,25 +957,25 @@ DEF_TEST(GrClipStack_Offscreen, r) {
                                        .rrect(offscreenRRect)
                                        .path(offscreenPath)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("intersect-rect", kDeviceBounds)
                               .actual().aa().intersect()
                                        .rect(offscreenRect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("intersect-rrect", kDeviceBounds)
                               .actual().aa().intersect()
                                        .rrect(offscreenRRect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("intersect-path", kDeviceBounds)
                               .actual().aa().intersect()
                                        .path(offscreenPath)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
 
     // Difference -> wide open
@@ -955,40 +985,42 @@ DEF_TEST(GrClipStack_Offscreen, r) {
                                        .rrect(offscreenRRect)
                                        .path(offscreenPath)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kWideOpen)
+                              .state(ClipState::kWideOpen)
                               .finishTest());
     run_test_case(r, TestCase::Build("difference-rect", kDeviceBounds)
                               .actual().aa().difference()
                                        .rect(offscreenRect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kWideOpen)
+                              .state(ClipState::kWideOpen)
                               .finishTest());
     run_test_case(r, TestCase::Build("difference-rrect", kDeviceBounds)
                               .actual().aa().difference()
                                        .rrect(offscreenRRect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kWideOpen)
+                              .state(ClipState::kWideOpen)
                               .finishTest());
     run_test_case(r, TestCase::Build("difference-path", kDeviceBounds)
                               .actual().aa().difference()
                                        .path(offscreenPath)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kWideOpen)
+                              .state(ClipState::kWideOpen)
                               .finishTest());
 }
 
 // Tests that an empty shape updates the clip state directly without needing an element
-DEF_TEST(GrClipStack_EmptyShape, r) {
+DEF_TEST(ClipStack_EmptyShape, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     // Intersect -> empty
     run_test_case(r, TestCase::Build("empty-intersect", kDeviceBounds)
                               .actual().intersect().rect(SkRect::MakeEmpty()).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
 
     // Difference -> no-op
     run_test_case(r, TestCase::Build("empty-difference", kDeviceBounds)
                               .actual().difference().rect(SkRect::MakeEmpty()).finishElements()
-                              .state(GrClipStack::ClipState::kWideOpen)
+                              .state(ClipState::kWideOpen)
                               .finishTest());
 
     SkRRect rrect = SkRRect::MakeRectXY({4.f, 10.f, 16.f, 32.f}, 2.f, 2.f);
@@ -996,12 +1028,14 @@ DEF_TEST(GrClipStack_EmptyShape, r) {
                               .actual().difference().rrect(rrect).rect(SkRect::MakeEmpty())
                                        .finishElements()
                               .expect().difference().rrect(rrect).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that sufficiently large difference operations can shrink the conservative bounds
-DEF_TEST(GrClipStack_DifferenceBounds, r) {
+DEF_TEST(ClipStack_DifferenceBounds, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect rightSide = {50.f, -10.f, 2.f * kDeviceBounds.fRight, kDeviceBounds.fBottom + 10.f};
     SkRect clipped = rightSide;
     SkAssertResult(clipped.intersect(SkRect::Make(kDeviceBounds)));
@@ -1009,12 +1043,14 @@ DEF_TEST(GrClipStack_DifferenceBounds, r) {
     run_test_case(r, TestCase::Build("difference-cut", kDeviceBounds)
                               .actual().nonAA().difference().rect(rightSide).finishElements()
                               .expect().nonAA().difference().rect(clipped).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that intersections can combine even if there's a difference operation in the middle
-DEF_TEST(GrClipStack_NoDifferenceInterference, r) {
+DEF_TEST(ClipStack_NoDifferenceInterference, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect intR1 = {0.f, 0.f, 30.f, 30.f};
     SkRect intR2 = {15.f, 15.f, 45.f, 45.f};
     SkRect intCombo = {15.f, 15.f, 30.f, 30.f};
@@ -1028,14 +1064,16 @@ DEF_TEST(GrClipStack_NoDifferenceInterference, r) {
                               .expect().rect(intCombo, GrAA::kYes, SkClipOp::kIntersect)
                                        .rect(diff, GrAA::kYes, SkClipOp::kDifference)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that multiple path operations are all recorded, but not otherwise consolidated
-DEF_TEST(GrClipStack_MultiplePaths, r) {
+DEF_TEST(ClipStack_MultiplePaths, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     // Chosen to be greater than the number of inline-allocated elements and save records of the
-    // GrClipStack so that we test heap allocation as well.
+    // ClipStack so that we test heap allocation as well.
     static constexpr int kNumOps = 16;
 
     auto b = TestCase::Build("many-paths-difference", kDeviceBounds);
@@ -1052,7 +1090,7 @@ DEF_TEST(GrClipStack_MultiplePaths, r) {
     }
 
     run_test_case(r, b.expectActual()
-                      .state(GrClipStack::ClipState::kComplex)
+                      .state(ClipState::kComplex)
                       .finishTest());
 
     b = TestCase::Build("many-paths-intersect", kDeviceBounds);
@@ -1063,18 +1101,20 @@ DEF_TEST(GrClipStack_MultiplePaths, r) {
     }
 
     run_test_case(r, b.expectActual()
-                      .state(GrClipStack::ClipState::kComplex)
+                      .state(ClipState::kComplex)
                       .finishTest());
 }
 
 // Tests that a single rect is treated as kDeviceRect state when it's axis-aligned and intersect.
-DEF_TEST(GrClipStack_DeviceRect, r) {
+DEF_TEST(ClipStack_DeviceRect, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     // Axis-aligned + intersect -> kDeviceRect
     SkRect rect = {0, 0, 20, 20};
     run_test_case(r, TestCase::Build("device-rect", kDeviceBounds)
                               .actual().intersect().aa().rect(rect).finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // Not axis-aligned -> kComplex
@@ -1083,26 +1123,28 @@ DEF_TEST(GrClipStack_DeviceRect, r) {
                               .actual().localToDevice(lm).intersect().aa().rect(rect)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Not intersect -> kComplex
     run_test_case(r, TestCase::Build("diff-rect", kDeviceBounds)
                               .actual().difference().aa().rect(rect).finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that a single rrect is treated as kDeviceRRect state when it's axis-aligned and intersect.
-DEF_TEST(GrClipStack_DeviceRRect, r) {
+DEF_TEST(ClipStack_DeviceRRect, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     // Axis-aligned + intersect -> kDeviceRRect
     SkRect rect = {0, 0, 20, 20};
     SkRRect rrect = SkRRect::MakeRectXY(rect, 5.f, 5.f);
     run_test_case(r, TestCase::Build("device-rrect", kDeviceBounds)
                               .actual().intersect().aa().rrect(rrect).finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // Not axis-aligned -> kComplex
@@ -1111,21 +1153,23 @@ DEF_TEST(GrClipStack_DeviceRRect, r) {
                               .actual().localToDevice(lm).intersect().aa().rrect(rrect)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Not intersect -> kComplex
     run_test_case(r, TestCase::Build("diff-rrect", kDeviceBounds)
                               .actual().difference().aa().rrect(rrect).finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that scale+translate matrices are pre-applied to rects and rrects, which also then allows
 // elements with different scale+translate matrices to be consolidated as if they were in the same
 // coordinate space.
-DEF_TEST(GrClipStack_ScaleTranslate, r) {
+DEF_TEST(ClipStack_ScaleTranslate, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkMatrix lm = SkMatrix::Scale(2.f, 4.f);
     lm.postTranslate(15.5f, 14.3f);
     SkASSERT(lm.preservesAxisAlignment() && lm.isScaleTranslate());
@@ -1137,7 +1181,7 @@ DEF_TEST(GrClipStack_ScaleTranslate, r) {
                                        .finishElements()
                               .expect().rect(lm.mapRect(rect), GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // RRect -> matrix is applied up front
@@ -1149,7 +1193,7 @@ DEF_TEST(GrClipStack_ScaleTranslate, r) {
                                        .finishElements()
                               .expect().rrect(deviceRRect, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // Path -> matrix is NOT applied
@@ -1157,12 +1201,14 @@ DEF_TEST(GrClipStack_ScaleTranslate, r) {
                               .actual().intersect().localToDevice(lm).path(make_octagon(rect))
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that rect-stays-rect matrices that are not scale+translate matrices are pre-applied.
-DEF_TEST(GrClipStack_PreserveAxisAlignment, r) {
+DEF_TEST(ClipStack_PreserveAxisAlignment, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkMatrix lm = SkMatrix::RotateDeg(90.f);
     lm.postTranslate(15.5f, 14.3f);
     SkASSERT(lm.preservesAxisAlignment() && !lm.isScaleTranslate());
@@ -1174,7 +1220,7 @@ DEF_TEST(GrClipStack_PreserveAxisAlignment, r) {
                                        .finishElements()
                               .expect().rect(lm.mapRect(rect), GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // RRect -> matrix is applied up front
@@ -1186,7 +1232,7 @@ DEF_TEST(GrClipStack_PreserveAxisAlignment, r) {
                                        .finishElements()
                               .expect().rrect(deviceRRect, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // Path -> matrix is NOT applied
@@ -1194,13 +1240,15 @@ DEF_TEST(GrClipStack_PreserveAxisAlignment, r) {
                               .actual().intersect().localToDevice(lm).path(make_octagon(rect))
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that a convex path element can contain a rect or round rect, allowing the stack to be
 // simplified
-DEF_TEST(GrClipStack_ConvexPathContains, r) {
+DEF_TEST(ClipStack_ConvexPathContains, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect rect = {15.f, 15.f, 30.f, 30.f};
     SkRRect rrect = SkRRect::MakeRectXY(rect, 5.f, 5.f);
     SkPath bigPath = make_octagon(rect.makeOutset(10.f, 10.f), 5.f, 5.f);
@@ -1209,37 +1257,37 @@ DEF_TEST(GrClipStack_ConvexPathContains, r) {
     run_test_case(r, TestCase::Build("convex+rect-intersect", kDeviceBounds)
                               .actual().aa().intersect().rect(rect).path(bigPath).finishElements()
                               .expect().aa().intersect().rect(rect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
     run_test_case(r, TestCase::Build("convex+rrect-intersect", kDeviceBounds)
                               .actual().aa().intersect().rrect(rrect).path(bigPath).finishElements()
                               .expect().aa().intersect().rrect(rrect).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // Difference -> path element is the only one left
     run_test_case(r, TestCase::Build("convex+rect-difference", kDeviceBounds)
                               .actual().aa().difference().rect(rect).path(bigPath).finishElements()
                               .expect().aa().difference().path(bigPath).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("convex+rrect-difference", kDeviceBounds)
                               .actual().aa().difference().rrect(rrect).path(bigPath)
                                        .finishElements()
                               .expect().aa().difference().path(bigPath).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Intersect small shape + difference big path -> empty
     run_test_case(r, TestCase::Build("convex-diff+rect-int", kDeviceBounds)
                               .actual().aa().intersect().rect(rect)
                                        .difference().path(bigPath).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("convex-diff+rrect-int", kDeviceBounds)
                               .actual().aa().intersect().rrect(rrect)
                                        .difference().path(bigPath).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
 
     // Diff small shape + intersect big path -> both
@@ -1247,19 +1295,21 @@ DEF_TEST(GrClipStack_ConvexPathContains, r) {
                               .actual().aa().intersect().path(bigPath).difference().rect(rect)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("convex-int+rrect-diff", kDeviceBounds)
                               .actual().aa().intersect().path(bigPath).difference().rrect(rrect)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that rects/rrects in different coordinate spaces can be consolidated when one is fully
 // contained by the other.
-DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
+DEF_TEST(ClipStack_NonAxisAlignedContains, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkMatrix lm1 = SkMatrix::RotateDeg(45.f);
     SkRect bigR = {-20.f, -20.f, 20.f, 20.f};
     SkRRect bigRR = SkRRect::MakeRectXY(bigR, 1.f, 1.f);
@@ -1275,7 +1325,7 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .finishElements()
                               .expect().rect(smR, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrect-rrect-ii", kDeviceBounds)
                               .actual().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kIntersect)
@@ -1283,7 +1333,7 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .finishElements()
                               .expect().rrect(smRR, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rect-rrect-ii", kDeviceBounds)
                               .actual().rect(bigR, lm1, GrAA::kYes, SkClipOp::kIntersect)
@@ -1291,7 +1341,7 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .finishElements()
                               .expect().rrect(smRR, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrect-rect-ii", kDeviceBounds)
                               .actual().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kIntersect)
@@ -1299,7 +1349,7 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .finishElements()
                               .expect().rect(smR, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // D+D should select the larger shape (r1 or rr1)
@@ -1309,7 +1359,7 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .finishElements()
                               .expect().rect(bigR, lm1, GrAA::kYes, SkClipOp::kDifference)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrect-rrect-dd", kDeviceBounds)
                               .actual().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kDifference)
@@ -1317,7 +1367,7 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .finishElements()
                               .expect().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kDifference)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rect-rrect-dd", kDeviceBounds)
                               .actual().rect(bigR, lm1, GrAA::kYes, SkClipOp::kDifference)
@@ -1325,7 +1375,7 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .finishElements()
                               .expect().rect(bigR, lm1, GrAA::kYes, SkClipOp::kDifference)
                                          .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrect-rect-dd", kDeviceBounds)
                               .actual().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kDifference)
@@ -1333,7 +1383,7 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .finishElements()
                               .expect().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kDifference)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // D(1)+I(2) should result in empty
@@ -1341,25 +1391,25 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                               .actual().rect(bigR, lm1, GrAA::kYes, SkClipOp::kDifference)
                                        .rect(smR, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrectD-rrectI", kDeviceBounds)
                               .actual().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kDifference)
                                        .rrect(smRR, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("rectD-rrectI", kDeviceBounds)
                               .actual().rect(bigR, lm1, GrAA::kYes, SkClipOp::kDifference)
                                        .rrect(smRR, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrectD-rectI", kDeviceBounds)
                               .actual().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kDifference)
                                        .rect(smR, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
 
     // I(1)+D(2) should result in both shapes
@@ -1368,34 +1418,36 @@ DEF_TEST(GrClipStack_NonAxisAlignedContains, r) {
                                        .rect(smR, lm2, GrAA::kYes, SkClipOp::kDifference)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrectI+rrectD", kDeviceBounds)
                               .actual().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kIntersect)
                                        .rrect(smRR, lm2, GrAA::kYes, SkClipOp::kDifference)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrectI+rectD", kDeviceBounds)
                               .actual().rrect(bigRR, lm1, GrAA::kYes, SkClipOp::kIntersect)
                                        .rect(smR, lm2, GrAA::kYes, SkClipOp::kDifference)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("rectI+rrectD", kDeviceBounds)
                               .actual().rect(bigR, lm1, GrAA::kYes, SkClipOp::kIntersect)
                                        .rrect(smRR, lm2, GrAA::kYes, SkClipOp::kDifference)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that shapes with mixed AA state that contain each other can still be consolidated,
 // unless they are too close to the edge and non-AA snapping can't be predicted
-DEF_TEST(GrClipStack_MixedAAContains, r) {
+DEF_TEST(ClipStack_MixedAAContains, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkMatrix lm1 = SkMatrix::RotateDeg(45.f);
     SkRect r1 = {-20.f, -20.f, 20.f, 20.f};
 
@@ -1410,7 +1462,7 @@ DEF_TEST(GrClipStack_MixedAAContains, r) {
                                        .finishElements()
                               .expect().rect(r2Safe, lm2, GrAA::kNo, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     // Vice versa
     run_test_case(r, TestCase::Build("mixed-inneraa-combine", kDeviceBounds)
@@ -1419,7 +1471,7 @@ DEF_TEST(GrClipStack_MixedAAContains, r) {
                                        .finishElements()
                               .expect().rect(r2Safe, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // Non-AA too close to AA edges keeps both
@@ -1428,19 +1480,21 @@ DEF_TEST(GrClipStack_MixedAAContains, r) {
                                        .rect(r2Unsafe, lm2, GrAA::kNo, SkClipOp::kIntersect)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
     run_test_case(r, TestCase::Build("mixed-inneraa-nocombine", kDeviceBounds)
                               .actual().rect(r1, lm1, GrAA::kNo, SkClipOp::kIntersect)
                                        .rect(r2Unsafe, lm2, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
 // Tests that a shape that contains the device bounds updates the clip state directly
-DEF_TEST(GrClipStack_ShapeContainsDevice, r) {
+DEF_TEST(ClipStack_ShapeContainsDevice, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect rect = SkRect::Make(kDeviceBounds).makeOutset(10.f, 10.f);
     SkRRect rrect = SkRRect::MakeRectXY(rect, 10.f, 10.f);
     SkPath convex = make_octagon(rect, 10.f, 10.f);
@@ -1448,35 +1502,37 @@ DEF_TEST(GrClipStack_ShapeContainsDevice, r) {
     // Intersect -> no-op
     run_test_case(r, TestCase::Build("rect-intersect", kDeviceBounds)
                               .actual().intersect().rect(rect).finishElements()
-                              .state(GrClipStack::ClipState::kWideOpen)
+                              .state(ClipState::kWideOpen)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrect-intersect", kDeviceBounds)
                               .actual().intersect().rrect(rrect).finishElements()
-                              .state(GrClipStack::ClipState::kWideOpen)
+                              .state(ClipState::kWideOpen)
                               .finishTest());
     run_test_case(r, TestCase::Build("convex-intersect", kDeviceBounds)
                               .actual().intersect().path(convex).finishElements()
-                              .state(GrClipStack::ClipState::kWideOpen)
+                              .state(ClipState::kWideOpen)
                               .finishTest());
 
     // Difference -> empty
     run_test_case(r, TestCase::Build("rect-difference", kDeviceBounds)
                               .actual().difference().rect(rect).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("rrect-difference", kDeviceBounds)
                               .actual().difference().rrect(rrect).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
     run_test_case(r, TestCase::Build("convex-difference", kDeviceBounds)
                               .actual().difference().path(convex).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
 }
 
 // Tests that shapes that do not overlap make for an empty clip (when intersecting), pick just the
 // intersecting op (when mixed), or are all kept (when diff'ing).
-DEF_TEST(GrClipStack_DisjointShapes, r) {
+DEF_TEST(ClipStack_DisjointShapes, r) {
+    using ClipState = skgpu::v1::ClipStack::ClipState;
+
     SkRect rt = {10.f, 10.f, 20.f, 20.f};
     SkRRect rr = SkRRect::MakeOval(rt.makeOffset({20.f, 0.f}));
     SkPath p = make_octagon(rt.makeOffset({0.f, 20.f}));
@@ -1484,7 +1540,7 @@ DEF_TEST(GrClipStack_DisjointShapes, r) {
     // I+I
     run_test_case(r, TestCase::Build("iii", kDeviceBounds)
                               .actual().aa().intersect().rect(rt).rrect(rr).path(p).finishElements()
-                              .state(GrClipStack::ClipState::kEmpty)
+                              .state(ClipState::kEmpty)
                               .finishTest());
 
     // D+D
@@ -1492,7 +1548,7 @@ DEF_TEST(GrClipStack_DisjointShapes, r) {
                               .actual().nonAA().difference().rect(rt).rrect(rr).path(p)
                                        .finishElements()
                               .expectActual()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 
     // I+D from rect
@@ -1501,7 +1557,7 @@ DEF_TEST(GrClipStack_DisjointShapes, r) {
                                        .nonAA().difference().rrect(rr).path(p)
                                        .finishElements()
                               .expect().aa().intersect().rect(rt).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .state(ClipState::kDeviceRect)
                               .finishTest());
 
     // I+D from rrect
@@ -1510,7 +1566,7 @@ DEF_TEST(GrClipStack_DisjointShapes, r) {
                                        .nonAA().difference().rect(rt).path(p)
                                        .finishElements()
                               .expect().aa().intersect().rrect(rr).finishElements()
-                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .state(ClipState::kDeviceRRect)
                               .finishTest());
 
     // I+D from path
@@ -1519,11 +1575,13 @@ DEF_TEST(GrClipStack_DisjointShapes, r) {
                                        .nonAA().difference().rect(rt).rrect(rr)
                                        .finishElements()
                               .expect().aa().intersect().path(p).finishElements()
-                              .state(GrClipStack::ClipState::kComplex)
+                              .state(ClipState::kComplex)
                               .finishTest());
 }
 
-DEF_TEST(GrClipStack_ComplexClip, reporter) {
+DEF_TEST(ClipStack_ComplexClip, reporter) {
+    using ClipStack = skgpu::v1::ClipStack;
+
     static constexpr float kN = 10.f;
     static constexpr float kR = kN / 3.f;
 
@@ -1583,7 +1641,7 @@ DEF_TEST(GrClipStack_ComplexClip, reporter) {
             }
 
             // The expectations differ depending on the shape type
-            GrClipStack::ClipState state = GrClipStack::ClipState::kComplex;
+            ClipStack::ClipState state = ClipStack::ClipState::kComplex;
             if (type == kConvex) {
                 // The simplest case is when the paths cannot be combined together, so we expect
                 // the actual elements to be unmodified (both intersect and difference).
@@ -1596,7 +1654,7 @@ DEF_TEST(GrClipStack_ComplexClip, reporter) {
                              !expectedRectIntersection.isEmpty());
                     b.expect().rect(expectedRectIntersection, GrAA::kYes, SkClipOp::kIntersect);
                     if (opBits == 0xf) {
-                        state = GrClipStack::ClipState::kDeviceRect;
+                        state = ClipStack::ClipState::kDeviceRect;
                     }
                 } else {
                     SkASSERT(expectedRRectIntersection !=
@@ -1604,7 +1662,7 @@ DEF_TEST(GrClipStack_ComplexClip, reporter) {
                              !expectedRRectIntersection.isEmpty());
                     b.expect().rrect(expectedRRectIntersection, GrAA::kYes, SkClipOp::kIntersect);
                     if (opBits == 0xf) {
-                        state = GrClipStack::ClipState::kDeviceRRect;
+                        state = ClipStack::ClipState::kDeviceRRect;
                     }
                 }
             }
@@ -1616,11 +1674,13 @@ DEF_TEST(GrClipStack_ComplexClip, reporter) {
 
 // ///////////////////////////////////////////////////////////////////////////////
 // // These tests do not use the TestCase infrastructure and manipulate a
-// // GrClipStack directly.
+// // ClipStack directly.
 
 // Tests that replaceClip() works as expected across save/restores
-DEF_TEST(GrClipStack_ReplaceClip, r) {
-    GrClipStack cs(kDeviceBounds, nullptr, false);
+DEF_TEST(ClipStack_ReplaceClip, r) {
+    using ClipStack = skgpu::v1::ClipStack;
+
+    ClipStack cs(kDeviceBounds, nullptr, false);
 
     SkRRect rrect = SkRRect::MakeRectXY({15.f, 12.25f, 40.3f, 23.5f}, 4.f, 6.f);
     cs.clipRRect(SkMatrix::I(), rrect, GrAA::kYes, SkClipOp::kIntersect);
@@ -1629,10 +1689,10 @@ DEF_TEST(GrClipStack_ReplaceClip, r) {
     cs.save();
     cs.replaceClip(replace);
 
-    REPORTER_ASSERT(r, cs.clipState() == GrClipStack::ClipState::kDeviceRect,
+    REPORTER_ASSERT(r, cs.clipState() == ClipStack::ClipState::kDeviceRect,
                     "Clip did not become a device rect");
     REPORTER_ASSERT(r, cs.getConservativeBounds() == replace, "Unexpected replaced clip bounds");
-    const GrClipStack::Element& replaceElement = *cs.begin();
+    const ClipStack::Element& replaceElement = *cs.begin();
     REPORTER_ASSERT(r, replaceElement.fShape.rect() == SkRect::Make(replace) &&
                        replaceElement.fAA == GrAA::kNo &&
                        replaceElement.fOp == SkClipOp::kIntersect &&
@@ -1641,9 +1701,9 @@ DEF_TEST(GrClipStack_ReplaceClip, r) {
 
     // Restore should undo the replaced clip and bring back the rrect
     cs.restore();
-    REPORTER_ASSERT(r, cs.clipState() == GrClipStack::ClipState::kDeviceRRect,
+    REPORTER_ASSERT(r, cs.clipState() == ClipStack::ClipState::kDeviceRRect,
                     "Unexpected state after restore, not kDeviceRRect");
-    const GrClipStack::Element& rrectElem = *cs.begin();
+    const ClipStack::Element& rrectElem = *cs.begin();
     REPORTER_ASSERT(r, rrectElem.fShape.rrect() == rrect &&
                        rrectElem.fAA == GrAA::kYes &&
                        rrectElem.fOp == SkClipOp::kIntersect &&
@@ -1652,17 +1712,20 @@ DEF_TEST(GrClipStack_ReplaceClip, r) {
 }
 
 // Try to overflow the number of allowed window rects (see skbug.com/10989)
-DEF_TEST(GrClipStack_DiffRects, r) {
+DEF_TEST(ClipStack_DiffRects, r) {
+    using ClipStack = skgpu::v1::ClipStack;
+    using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+
     GrMockOptions options;
     options.fMaxWindowRectangles = 8;
 
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&options);
-    std::unique_ptr<skgpu::v1::SurfaceDrawContext> sdc = skgpu::v1::SurfaceDrawContext::Make(
+    std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
             SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
 
-    GrClipStack cs(kDeviceBounds, &matrixProvider, false);
+    ClipStack cs(kDeviceBounds, &matrixProvider, false);
 
     cs.save();
     for (int y = 0; y < 10; ++y) {
@@ -1684,8 +1747,10 @@ DEF_TEST(GrClipStack_DiffRects, r) {
 }
 
 // Tests that when a stack is forced to always be AA, non-AA elements become AA
-DEF_TEST(GrClipStack_ForceAA, r) {
-    GrClipStack cs(kDeviceBounds, nullptr, true);
+DEF_TEST(ClipStack_ForceAA, r) {
+    using ClipStack = skgpu::v1::ClipStack;
+
+    ClipStack cs(kDeviceBounds, nullptr, true);
 
     // AA will remain AA
     SkRect aaRect = {0.25f, 12.43f, 25.2f, 23.f};
@@ -1703,7 +1768,7 @@ DEF_TEST(GrClipStack_ForceAA, r) {
     // the first aa rect, so we should see nonAAPath as AA, and then the intersection of rects.
     auto elements = cs.begin();
 
-    const GrClipStack::Element& nonAARectElement = *elements;
+    const ClipStack::Element& nonAARectElement = *elements;
     REPORTER_ASSERT(r, nonAARectElement.fShape.isRect(), "Expected rect element");
     REPORTER_ASSERT(r, nonAARectElement.fAA == GrAA::kNo,
                     "Axis-aligned non-AA rect ignores forceAA");
@@ -1711,13 +1776,13 @@ DEF_TEST(GrClipStack_ForceAA, r) {
                     "Mixed AA rects should not combine");
 
     ++elements;
-    const GrClipStack::Element& aaPathElement = *elements;
+    const ClipStack::Element& aaPathElement = *elements;
     REPORTER_ASSERT(r, aaPathElement.fShape.isPath(), "Expected path element");
     REPORTER_ASSERT(r, aaPathElement.fShape.path() == nonAAPath, "Wrong path element");
     REPORTER_ASSERT(r, aaPathElement.fAA == GrAA::kYes, "Path element not promoted to AA");
 
     ++elements;
-    const GrClipStack::Element& aaRectElement = *elements;
+    const ClipStack::Element& aaRectElement = *elements;
     REPORTER_ASSERT(r, aaRectElement.fShape.isRect(), "Expected rect element");
     REPORTER_ASSERT(r, aaRectElement.fShape.rect() == aaRect,
                     "Mixed AA rects should not combine");
@@ -1729,8 +1794,10 @@ DEF_TEST(GrClipStack_ForceAA, r) {
 
 // Tests preApply works as expected for device rects, rrects, and reports clipped-out, etc. as
 // expected.
-DEF_TEST(GrClipStack_PreApply, r) {
-    GrClipStack cs(kDeviceBounds, nullptr, false);
+DEF_TEST(ClipStack_PreApply, r) {
+    using ClipStack = skgpu::v1::ClipStack;
+
+    ClipStack cs(kDeviceBounds, nullptr, false);
 
     // Offscreen is kClippedOut
     GrClip::PreClipResult result = cs.preApply({-10.f, -10.f, -1.f, -1.f}, GrAA::kYes);
@@ -1800,20 +1867,23 @@ DEF_TEST(GrClipStack_PreApply, r) {
 }
 
 // Tests the clip shader entry point
-DEF_TEST(GrClipStack_Shader, r) {
+DEF_TEST(ClipStack_Shader, r) {
+    using ClipStack = skgpu::v1::ClipStack;
+    using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+
     sk_sp<SkShader> shader = SkShaders::Color({0.f, 0.f, 0.f, 0.5f}, nullptr);
 
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
-    std::unique_ptr<skgpu::v1::SurfaceDrawContext> sdc = skgpu::v1::SurfaceDrawContext::Make(
+    std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
             SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
 
-    GrClipStack cs(kDeviceBounds, &matrixProvider, false);
+    ClipStack cs(kDeviceBounds, &matrixProvider, false);
     cs.save();
     cs.clipShader(shader);
 
-    REPORTER_ASSERT(r, cs.clipState() == GrClipStack::ClipState::kComplex,
+    REPORTER_ASSERT(r, cs.clipState() == ClipStack::ClipState::kComplex,
                     "A clip shader should be reported as a complex clip");
 
     GrAppliedClip out(kDeviceBounds.size());
@@ -1834,14 +1904,14 @@ DEF_TEST(GrClipStack_Shader, r) {
                     "apply() should still discard offscreen draws with a clip shader");
 
     cs.restore();
-    REPORTER_ASSERT(r, cs.clipState() == GrClipStack::ClipState::kWideOpen,
+    REPORTER_ASSERT(r, cs.clipState() == ClipStack::ClipState::kWideOpen,
                     "restore() should get rid of the clip shader");
 
 
     // Adding a clip shader on top of a device rect clip should prevent preApply from reporting
     // it as a device rect
     cs.clipRect(SkMatrix::I(), {10, 15, 30, 30}, GrAA::kNo, SkClipOp::kIntersect);
-    SkASSERT(cs.clipState() == GrClipStack::ClipState::kDeviceRect); // test precondition
+    SkASSERT(cs.clipState() == ClipStack::ClipState::kDeviceRect); // test precondition
     cs.clipShader(shader);
     GrClip::PreClipResult result = cs.preApply(SkRect::Make(kDeviceBounds), GrAA::kYes);
     REPORTER_ASSERT(r, result.fEffect == GrClip::Effect::kClipped && !result.fIsRRect,
@@ -1852,14 +1922,17 @@ DEF_TEST(GrClipStack_Shader, r) {
 // atlases. This lets us define the test regularly instead of a GPU-only test.
 // - This is not exhaustive and is challenging to unit test, so apply() is predominantly tested by
 //   the GMs instead.
-DEF_TEST(GrClipStack_SimpleApply, r) {
+DEF_TEST(ClipStack_SimpleApply, r) {
+    using ClipStack = skgpu::v1::ClipStack;
+    using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
-    std::unique_ptr<skgpu::v1::SurfaceDrawContext> sdc = skgpu::v1::SurfaceDrawContext::Make(
+    std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
             SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
 
-    GrClipStack cs(kDeviceBounds, &matrixProvider, false);
+    ClipStack cs(kDeviceBounds, &matrixProvider, false);
 
     // Offscreen draw is kClippedOut
     {
@@ -1981,16 +2054,19 @@ static void disable_tessellation_atlas(GrContextOptions* options) {
     options->fAvoidStencilBuffers = true;
 }
 
-DEF_GPUTEST_FOR_CONTEXTS(GrClipStack_SWMask,
+DEF_GPUTEST_FOR_CONTEXTS(ClipStack_SWMask,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
                          r, ctxInfo, disable_tessellation_atlas) {
+    using ClipStack = skgpu::v1::ClipStack;
+    using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+
     GrDirectContext* context = ctxInfo.directContext();
-    std::unique_ptr<skgpu::v1::SurfaceDrawContext> sdc = skgpu::v1::SurfaceDrawContext::Make(
+    std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, kDeviceBounds.size(),
             SkSurfaceProps());
 
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
-    std::unique_ptr<GrClipStack> cs(new GrClipStack(kDeviceBounds, &matrixProvider, false));
+    std::unique_ptr<ClipStack> cs(new ClipStack(kDeviceBounds, &matrixProvider, false));
 
     auto addMaskRequiringClip = [&](SkScalar x, SkScalar y, SkScalar radius) {
         SkPath path;

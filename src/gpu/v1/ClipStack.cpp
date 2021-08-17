@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrClipStack.h"
+#include "src/gpu/v1/ClipStack.h"
 
 #include "include/core/SkMatrix.h"
 #include "src/core/SkMatrixProvider.h"
@@ -44,7 +44,7 @@ enum class ClipGeometry {
 // A and B can be Element, SaveRecord, or Draw. Supported combinations are, order not mattering,
 // (Element, Element), (Element, SaveRecord), (Element, Draw), and (SaveRecord, Draw).
 template<typename A, typename B>
-static ClipGeometry get_clip_geometry(const A& a, const B& b) {
+ClipGeometry get_clip_geometry(const A& a, const B& b) {
     // NOTE: SkIRect::Intersects() returns false when two rectangles touch at an edge (so the result
     // is empty). This behavior is desired for the following clip effect policies.
     if (a.op() == SkClipOp::kIntersect) {
@@ -117,9 +117,8 @@ static ClipGeometry get_clip_geometry(const A& a, const B& b) {
 // Automatically takes into account if the anti-aliasing policies differ. When the policies match,
 // we assume that coverage AA or GPU's non-AA rasterization will apply to A and B equivalently, so
 // we can compare the original shapes. When the modes are mixed, we outset B in device space first.
-static bool shape_contains_rect(
-        const GrShape& a, const SkMatrix& aToDevice, const SkMatrix& deviceToA,
-        const SkRect& b, const SkMatrix& bToDevice, bool mixedAAMode) {
+bool shape_contains_rect(const GrShape& a, const SkMatrix& aToDevice, const SkMatrix& deviceToA,
+                         const SkRect& b, const SkMatrix& bToDevice, bool mixedAAMode) {
     if (!a.convex()) {
         return false;
     }
@@ -163,7 +162,7 @@ static bool shape_contains_rect(
     return true;
 }
 
-static SkIRect subtract(const SkIRect& a, const SkIRect& b, bool exact) {
+SkIRect subtract(const SkIRect& a, const SkIRect& b, bool exact) {
     SkIRect diff;
     if (SkRectPriv::Subtract(a, b, &diff) || !exact) {
         // Either A-B is exactly the rectangle stored in diff, or we don't need an exact answer
@@ -175,7 +174,7 @@ static SkIRect subtract(const SkIRect& a, const SkIRect& b, bool exact) {
     }
 }
 
-static GrClipEdgeType get_clip_edge_type(SkClipOp op, GrAA aa) {
+GrClipEdgeType get_clip_edge_type(SkClipOp op, GrAA aa) {
     if (op == SkClipOp::kIntersect) {
         return aa == GrAA::kYes ? GrClipEdgeType::kFillAA : GrClipEdgeType::kFillBW;
     } else {
@@ -187,7 +186,7 @@ static uint32_t kInvalidGenID  = 0;
 static uint32_t kEmptyGenID    = 1;
 static uint32_t kWideOpenGenID = 2;
 
-static uint32_t next_gen_id() {
+uint32_t next_gen_id() {
     // 0-2 are reserved for invalid, empty & wide-open
     static const uint32_t kFirstUnreservedGenID = 3;
     static std::atomic<uint32_t> nextID{kFirstUnreservedGenID};
@@ -209,9 +208,9 @@ static uint32_t next_gen_id() {
 //    in parallel.
 static constexpr GrSurfaceOrigin kMaskOrigin = kTopLeft_GrSurfaceOrigin;
 
-static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
-                                   const GrShaderCaps& caps,
-                                   std::unique_ptr<GrFragmentProcessor> fp) {
+GrFPResult analytic_clip_fp(const skgpu::v1::ClipStack::Element& e,
+                            const GrShaderCaps& caps,
+                            std::unique_ptr<GrFragmentProcessor> fp) {
     // All analytic clip shape FPs need to be in device space
     GrClipEdgeType edgeType = get_clip_edge_type(e.fOp, e.fAA);
     if (e.fLocalToDevice.isIdentity()) {
@@ -237,12 +236,12 @@ static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
 // TODO: Currently this only works with tessellation because the tessellation path renderer owns and
 // manages the atlas. The high-level concept could be generalized to support any path renderer going
 // into a shared atlas.
-static GrFPResult clip_atlas_fp(const skgpu::v1::SurfaceDrawContext* sdc,
-                                const GrOp* opBeingClipped,
-                                GrAtlasPathRenderer* atlasPathRenderer,
-                                const SkIRect& scissorBounds,
-                                const GrClipStack::Element& e,
-                                std::unique_ptr<GrFragmentProcessor> inputFP) {
+GrFPResult clip_atlas_fp(const skgpu::v1::SurfaceDrawContext* sdc,
+                         const GrOp* opBeingClipped,
+                         GrAtlasPathRenderer* atlasPathRenderer,
+                         const SkIRect& scissorBounds,
+                         const skgpu::v1::ClipStack::Element& e,
+                         std::unique_ptr<GrFragmentProcessor> inputFP) {
     if (e.fAA != GrAA::kYes) {
         return GrFPFailure(std::move(inputFP));
     }
@@ -257,7 +256,9 @@ static GrFPResult clip_atlas_fp(const skgpu::v1::SurfaceDrawContext* sdc,
                                                   scissorBounds, e.fLocalToDevice, path);
 }
 
-static void draw_to_sw_mask(GrSWMaskHelper* helper, const GrClipStack::Element& e, bool clearMask) {
+void draw_to_sw_mask(GrSWMaskHelper* helper,
+                     const skgpu::v1::ClipStack::Element& e,
+                     bool clearMask) {
     // If the first element to draw is an intersect, we clear to 0 and will draw it directly with
     // coverage 1 (subsequent intersect elements will be inverse-filled and draw 0 outside).
     // If the first element to draw is a difference, we clear to 1, and in all cases we draw the
@@ -303,8 +304,10 @@ static void draw_to_sw_mask(GrSWMaskHelper* helper, const GrClipStack::Element& 
     }
 }
 
-static GrSurfaceProxyView render_sw_mask(GrRecordingContext* context, const SkIRect& bounds,
-                                         const GrClipStack::Element** elements, int count) {
+GrSurfaceProxyView render_sw_mask(GrRecordingContext* context,
+                                  const SkIRect& bounds,
+                                  const skgpu::v1::ClipStack::Element** elements,
+                                  int count) {
     SkASSERT(count > 0);
 
     SkTaskGroup* taskGroup = nullptr;
@@ -327,7 +330,7 @@ static GrSurfaceProxyView render_sw_mask(GrRecordingContext* context, const SkIR
 
         // Since this will be rendered on another thread, make a copy of the elements in case
         // the clip stack is modified on the main thread
-        using Uploader = GrTDeferredProxyUploader<SkTArray<GrClipStack::Element>>;
+        using Uploader = GrTDeferredProxyUploader<SkTArray<skgpu::v1::ClipStack::Element>>;
         std::unique_ptr<Uploader> uploader = std::make_unique<Uploader>(count);
         for (int i = 0; i < count; ++i) {
             uploader->data().push_back(*(elements[i]));
@@ -365,20 +368,20 @@ static GrSurfaceProxyView render_sw_mask(GrRecordingContext* context, const SkIR
     }
 }
 
-static void render_stencil_mask(GrRecordingContext* rContext,
-                                skgpu::v1::SurfaceDrawContext* sdc,
-                                uint32_t genID,
-                                const SkIRect& bounds,
-                                const GrClipStack::Element** elements,
-                                int count,
-                                GrAppliedClip* out) {
+void render_stencil_mask(GrRecordingContext* rContext,
+                         skgpu::v1::SurfaceDrawContext* sdc,
+                         uint32_t genID,
+                         const SkIRect& bounds,
+                         const skgpu::v1::ClipStack::Element** elements,
+                         int count,
+                         GrAppliedClip* out) {
     GrStencilMaskHelper helper(rContext, sdc);
     if (helper.init(bounds, genID, out->windowRectsState().windows(), 0)) {
         // This follows the same logic as in draw_sw_mask
         bool startInside = elements[0]->fOp == SkClipOp::kDifference;
         helper.clear(startInside);
         for (int i = 0; i < count; ++i) {
-            const GrClipStack::Element& e = *(elements[i]);
+            const skgpu::v1::ClipStack::Element& e = *(elements[i]);
             SkRegion::Op op;
             if (e.fOp == SkClipOp::kIntersect) {
                 op = (i == 0) ? SkRegion::kReplace_Op : SkRegion::kIntersect_Op;
@@ -394,7 +397,9 @@ static void render_stencil_mask(GrRecordingContext* rContext,
 
 } // anonymous namespace
 
-class GrClipStack::Draw {
+namespace skgpu::v1 {
+
+class ClipStack::Draw {
 public:
     Draw(const SkRect& drawBounds, GrAA aa)
             : fBounds(GrClip::GetPixelIBounds(drawBounds, aa, BoundsType::kExterior))
@@ -428,10 +433,10 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// GrClipStack::Element
+// ClipStack::Element
 
-GrClipStack::RawElement::RawElement(const SkMatrix& localToDevice, const GrShape& shape,
-                                    GrAA aa, SkClipOp op)
+ClipStack::RawElement::RawElement(const SkMatrix& localToDevice, const GrShape& shape,
+                                  GrAA aa, SkClipOp op)
         : Element{shape, localToDevice, op, aa}
         , fInnerBounds(SkIRect::MakeEmpty())
         , fOuterBounds(SkIRect::MakeEmpty())
@@ -443,18 +448,18 @@ GrClipStack::RawElement::RawElement(const SkMatrix& localToDevice, const GrShape
     }
 }
 
-void GrClipStack::RawElement::markInvalid(const SaveRecord& current) {
+void ClipStack::RawElement::markInvalid(const SaveRecord& current) {
     SkASSERT(!this->isInvalid());
     fInvalidatedByIndex = current.firstActiveElementIndex();
 }
 
-void GrClipStack::RawElement::restoreValid(const SaveRecord& current) {
+void ClipStack::RawElement::restoreValid(const SaveRecord& current) {
     if (current.firstActiveElementIndex() < fInvalidatedByIndex) {
         fInvalidatedByIndex = -1;
     }
 }
 
-bool GrClipStack::RawElement::contains(const Draw& d) const {
+bool ClipStack::RawElement::contains(const Draw& d) const {
     if (fInnerBounds.contains(d.outerBounds())) {
         return true;
     } else {
@@ -466,7 +471,7 @@ bool GrClipStack::RawElement::contains(const Draw& d) const {
     }
 }
 
-bool GrClipStack::RawElement::contains(const SaveRecord& s) const {
+bool ClipStack::RawElement::contains(const SaveRecord& s) const {
     if (fInnerBounds.contains(s.outerBounds())) {
         return true;
     } else {
@@ -477,7 +482,7 @@ bool GrClipStack::RawElement::contains(const SaveRecord& s) const {
     }
 }
 
-bool GrClipStack::RawElement::contains(const RawElement& e) const {
+bool ClipStack::RawElement::contains(const RawElement& e) const {
     // This is similar to how RawElement checks containment for a Draw, except that both the tester
     // and testee have a transform that needs to be considered.
     if (fInnerBounds.contains(e.fOuterBounds)) {
@@ -505,7 +510,7 @@ bool GrClipStack::RawElement::contains(const RawElement& e) const {
 
 }
 
-void GrClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA) {
+void ClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA) {
     // Make sure the shape is not inverted. An inverted shape is equivalent to a non-inverted shape
     // with the clip op toggled.
     if (fShape.inverted()) {
@@ -590,7 +595,7 @@ void GrClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA
     SkASSERT(fShape.isEmpty() || fInnerBounds.isEmpty() || fOuterBounds.contains(fInnerBounds));
 }
 
-bool GrClipStack::RawElement::combine(const RawElement& other, const SaveRecord& current) {
+bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& current) {
     // To reduce the number of possibilities, only consider intersect+intersect. Difference and
     // mixed op cases could be analyzed to simplify one of the shapes, but that is a rare
     // occurrence and the math is much more complicated.
@@ -669,7 +674,7 @@ bool GrClipStack::RawElement::combine(const RawElement& other, const SaveRecord&
     }
 }
 
-void GrClipStack::RawElement::updateForElement(RawElement* added, const SaveRecord& current) {
+void ClipStack::RawElement::updateForElement(RawElement* added, const SaveRecord& current) {
     if (this->isInvalid()) {
         // Already doesn't do anything, so skip this element
         return;
@@ -704,7 +709,7 @@ void GrClipStack::RawElement::updateForElement(RawElement* added, const SaveReco
     }
 }
 
-GrClipStack::ClipState GrClipStack::RawElement::clipType() const {
+ClipStack::ClipState ClipStack::RawElement::clipType() const {
     // Map from the internal shape kind to the clip state enum
     switch (fShape.type()) {
         case GrShape::Type::kEmpty:
@@ -732,9 +737,9 @@ GrClipStack::ClipState GrClipStack::RawElement::clipType() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GrClipStack::Mask
+// ClipStack::Mask
 
-GrClipStack::Mask::Mask(const SaveRecord& current, const SkIRect& drawBounds)
+ClipStack::Mask::Mask(const SaveRecord& current, const SkIRect& drawBounds)
         : fBounds(drawBounds)
         , fGenID(current.genID()) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
@@ -753,14 +758,14 @@ GrClipStack::Mask::Mask(const SaveRecord& current, const SkIRect& drawBounds)
     SkDEBUGCODE(fOwner = &current;)
 }
 
-bool GrClipStack::Mask::appliesToDraw(const SaveRecord& current, const SkIRect& drawBounds) const {
+bool ClipStack::Mask::appliesToDraw(const SaveRecord& current, const SkIRect& drawBounds) const {
     // For the same save record, a larger mask will have the same or more elements
     // baked into it, so it can be reused to clip the smaller draw.
     SkASSERT(fGenID != current.genID() || &current == fOwner);
     return fGenID == current.genID() && fBounds.contains(drawBounds);
 }
 
-void GrClipStack::Mask::invalidate(GrProxyProvider* proxyProvider) {
+void ClipStack::Mask::invalidate(GrProxyProvider* proxyProvider) {
     SkASSERT(proxyProvider);
     SkASSERT(fKey.isValid()); // Should only be invalidated once
     proxyProvider->processInvalidUniqueKey(
@@ -769,9 +774,9 @@ void GrClipStack::Mask::invalidate(GrProxyProvider* proxyProvider) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GrClipStack::SaveRecord
+// ClipStack::SaveRecord
 
-GrClipStack::SaveRecord::SaveRecord(const SkIRect& deviceBounds)
+ClipStack::SaveRecord::SaveRecord(const SkIRect& deviceBounds)
         : fInnerBounds(deviceBounds)
         , fOuterBounds(deviceBounds)
         , fShader(nullptr)
@@ -783,9 +788,9 @@ GrClipStack::SaveRecord::SaveRecord(const SkIRect& deviceBounds)
         , fState(ClipState::kWideOpen)
         , fGenID(kInvalidGenID) {}
 
-GrClipStack::SaveRecord::SaveRecord(const SaveRecord& prior,
-                                    int startingMaskIndex,
-                                    int startingElementIndex)
+ClipStack::SaveRecord::SaveRecord(const SaveRecord& prior,
+                                  int startingMaskIndex,
+                                  int startingElementIndex)
         : fInnerBounds(prior.fInnerBounds)
         , fOuterBounds(prior.fOuterBounds)
         , fShader(prior.fShader)
@@ -803,7 +808,7 @@ GrClipStack::SaveRecord::SaveRecord(const SaveRecord& prior,
     SkASSERT(startingElementIndex >= prior.fStartingElementIndex);
 }
 
-uint32_t GrClipStack::SaveRecord::genID() const {
+uint32_t ClipStack::SaveRecord::genID() const {
     if (fState == ClipState::kEmpty) {
         return kEmptyGenID;
     } else if (fState == ClipState::kWideOpen) {
@@ -816,7 +821,7 @@ uint32_t GrClipStack::SaveRecord::genID() const {
     }
 }
 
-GrClipStack::ClipState GrClipStack::SaveRecord::state() const {
+ClipStack::ClipState ClipStack::SaveRecord::state() const {
     if (fShader && fState != ClipState::kEmpty) {
         return ClipState::kComplex;
     } else {
@@ -824,21 +829,21 @@ GrClipStack::ClipState GrClipStack::SaveRecord::state() const {
     }
 }
 
-bool GrClipStack::SaveRecord::contains(const GrClipStack::Draw& draw) const {
+bool ClipStack::SaveRecord::contains(const ClipStack::Draw& draw) const {
     return fInnerBounds.contains(draw.outerBounds());
 }
 
-bool GrClipStack::SaveRecord::contains(const GrClipStack::RawElement& element) const {
+bool ClipStack::SaveRecord::contains(const ClipStack::RawElement& element) const {
     return fInnerBounds.contains(element.outerBounds());
 }
 
-void GrClipStack::SaveRecord::removeElements(RawElement::Stack* elements) {
+void ClipStack::SaveRecord::removeElements(RawElement::Stack* elements) {
     while (elements->count() > fStartingElementIndex) {
         elements->pop_back();
     }
 }
 
-void GrClipStack::SaveRecord::restoreElements(RawElement::Stack* elements) {
+void ClipStack::SaveRecord::restoreElements(RawElement::Stack* elements) {
     // Presumably this SaveRecord is the new top of the stack, and so it owns the elements
     // from its starting index to restoreCount - 1. Elements from the old save record have
     // been destroyed already, so their indices would have been >= restoreCount, and any
@@ -853,8 +858,8 @@ void GrClipStack::SaveRecord::restoreElements(RawElement::Stack* elements) {
     }
 }
 
-void GrClipStack::SaveRecord::invalidateMasks(GrProxyProvider* proxyProvider,
-                                              Mask::Stack* masks) {
+void ClipStack::SaveRecord::invalidateMasks(GrProxyProvider* proxyProvider,
+                                            Mask::Stack* masks) {
     // Must explicitly invalidate the key before removing the mask object from the stack
     while (masks->count() > fStartingMaskIndex) {
         SkASSERT(masks->back().owner() == this && proxyProvider);
@@ -864,7 +869,7 @@ void GrClipStack::SaveRecord::invalidateMasks(GrProxyProvider* proxyProvider,
     SkASSERT(masks->empty() || masks->back().genID() != fGenID);
 }
 
-void GrClipStack::SaveRecord::reset(const SkIRect& bounds) {
+void ClipStack::SaveRecord::reset(const SkIRect& bounds) {
     SkASSERT(this->canBeUpdated());
     fOldestValidIndex = fStartingElementIndex;
     fOuterBounds = bounds;
@@ -874,7 +879,7 @@ void GrClipStack::SaveRecord::reset(const SkIRect& bounds) {
     fShader = nullptr;
 }
 
-void GrClipStack::SaveRecord::addShader(sk_sp<SkShader> shader) {
+void ClipStack::SaveRecord::addShader(sk_sp<SkShader> shader) {
     SkASSERT(shader);
     SkASSERT(this->canBeUpdated());
     if (!fShader) {
@@ -887,7 +892,7 @@ void GrClipStack::SaveRecord::addShader(sk_sp<SkShader> shader) {
     }
 }
 
-bool GrClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* elements) {
+bool ClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* elements) {
     // Validity check the element's state first; if the shape class isn't empty, the outer bounds
     // shouldn't be empty; if the inner bounds are not empty, they must be contained in outer.
     SkASSERT((toAdd.shape().isEmpty() || !toAdd.outerBounds().isEmpty()) &&
@@ -984,7 +989,7 @@ bool GrClipStack::SaveRecord::addElement(RawElement&& toAdd, RawElement::Stack* 
     return this->appendElement(std::move(toAdd), elements);
 }
 
-bool GrClipStack::SaveRecord::appendElement(RawElement&& toAdd, RawElement::Stack* elements) {
+bool ClipStack::SaveRecord::appendElement(RawElement&& toAdd, RawElement::Stack* elements) {
     // Update past elements to account for the new element
     int i = elements->count() - 1;
 
@@ -1072,12 +1077,12 @@ bool GrClipStack::SaveRecord::appendElement(RawElement&& toAdd, RawElement::Stac
         elements->back() = std::move(toAdd);
     }
 
-    // Changing this will prompt GrClipStack to invalidate any masks associated with this record.
+    // Changing this will prompt ClipStack to invalidate any masks associated with this record.
     fGenID = next_gen_id();
     return true;
 }
 
-void GrClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd, RawElement::Stack* elements) {
+void ClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd, RawElement::Stack* elements) {
     // The aggregate state of the save record mirrors the element
     fInnerBounds = toAdd.innerBounds();
     fOuterBounds = toAdd.outerBounds();
@@ -1103,11 +1108,11 @@ void GrClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd, RawElement:
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GrClipStack
+// ClipStack
 
 // NOTE: Based on draw calls in all GMs, SKPs, and SVGs as of 08/20, 98% use a clip stack with
 // one Element and up to two SaveRecords, thus the inline size for RawElement::Stack and
-// SaveRecord::Stack (this conveniently keeps the size of GrClipStack manageable). The max
+// SaveRecord::Stack (this conveniently keeps the size of ClipStack manageable). The max
 // encountered element stack depth was 5 and the max save depth was 6. Using an increment of 8 for
 // these stacks means that clip management will incur a single allocation for the remaining 2%
 // of the draws, with extra head room for more complex clips encountered in the wild.
@@ -1127,8 +1132,8 @@ static constexpr int kMaxAnalyticFPs = 4;
 // across our set of GMs, SKPs, and SVGs used for testing.
 static constexpr int kNumStackMasks = 4;
 
-GrClipStack::GrClipStack(const SkIRect& deviceBounds, const SkMatrixProvider* matrixProvider,
-                         bool forceAA)
+ClipStack::ClipStack(const SkIRect& deviceBounds, const SkMatrixProvider* matrixProvider,
+                     bool forceAA)
         : fElements(kElementStackIncrement)
         , fSaves(kSaveStackIncrement)
         , fMasks(kMaskStackIncrement)
@@ -1140,7 +1145,7 @@ GrClipStack::GrClipStack(const SkIRect& deviceBounds, const SkMatrixProvider* ma
     fSaves.emplace_back(deviceBounds);
 }
 
-GrClipStack::~GrClipStack() {
+ClipStack::~ClipStack() {
     // Invalidate all mask keys that remain. Since we're tearing the clip stack down, we don't need
     // to go through SaveRecord.
     SkASSERT(fProxyProvider || fMasks.empty());
@@ -1151,12 +1156,12 @@ GrClipStack::~GrClipStack() {
     }
 }
 
-void GrClipStack::save() {
+void ClipStack::save() {
     SkASSERT(!fSaves.empty());
     fSaves.back().pushSave();
 }
 
-void GrClipStack::restore() {
+void ClipStack::restore() {
     SkASSERT(!fSaves.empty());
     SaveRecord& current = fSaves.back();
     if (current.popSave()) {
@@ -1176,7 +1181,7 @@ void GrClipStack::restore() {
     fSaves.back().restoreElements(&fElements);
 }
 
-SkIRect GrClipStack::getConservativeBounds() const {
+SkIRect ClipStack::getConservativeBounds() const {
     const SaveRecord& current = this->currentSaveRecord();
     if (current.state() == ClipState::kEmpty) {
         return SkIRect::MakeEmpty();
@@ -1194,7 +1199,7 @@ SkIRect GrClipStack::getConservativeBounds() const {
     }
 }
 
-GrClip::PreClipResult GrClipStack::preApply(const SkRect& bounds, GrAA aa) const {
+GrClip::PreClipResult ClipStack::preApply(const SkRect& bounds, GrAA aa) const {
     Draw draw(bounds, fForceAA ? GrAA::kYes : aa);
     if (!draw.applyDeviceBounds(fDeviceBounds)) {
         return GrClip::Effect::kClippedOut;
@@ -1248,12 +1253,12 @@ GrClip::PreClipResult GrClipStack::preApply(const SkRect& bounds, GrAA aa) const
     SkUNREACHABLE;
 }
 
-GrClip::Effect GrClipStack::apply(GrRecordingContext* rContext,
-                                  skgpu::v1::SurfaceDrawContext* sdc,
-                                  GrDrawOp* op,
-                                  GrAAType aa,
-                                  GrAppliedClip* out,
-                                  SkRect* bounds) const {
+GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
+                                SurfaceDrawContext* sdc,
+                                GrDrawOp* op,
+                                GrAAType aa,
+                                GrAppliedClip* out,
+                                SkRect* bounds) const {
     // TODO: Once we no longer store SW masks, we don't need to sneak the provider in like this
     if (!fProxyProvider) {
         fProxyProvider = rContext->priv().proxyProvider();
@@ -1497,7 +1502,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* rContext,
     return Effect::kClipped;
 }
 
-GrClipStack::SaveRecord& GrClipStack::writableSaveRecord(bool* wasDeferred) {
+ClipStack::SaveRecord& ClipStack::writableSaveRecord(bool* wasDeferred) {
     SaveRecord& current = fSaves.back();
     if (current.canBeUpdated()) {
         // Current record is still open, so it can be modified directly
@@ -1511,7 +1516,7 @@ GrClipStack::SaveRecord& GrClipStack::writableSaveRecord(bool* wasDeferred) {
     }
 }
 
-void GrClipStack::clipShader(sk_sp<SkShader> shader) {
+void ClipStack::clipShader(sk_sp<SkShader> shader) {
     // Shaders can't bring additional coverage
     if (this->currentSaveRecord().state() == ClipState::kEmpty) {
         return;
@@ -1522,7 +1527,7 @@ void GrClipStack::clipShader(sk_sp<SkShader> shader) {
     // Masks and geometry elements are not invalidated by updating the clip shader
 }
 
-void GrClipStack::replaceClip(const SkIRect& rect) {
+void ClipStack::replaceClip(const SkIRect& rect) {
     bool wasDeferred;
     SaveRecord& save = this->writableSaveRecord(&wasDeferred);
 
@@ -1537,7 +1542,7 @@ void GrClipStack::replaceClip(const SkIRect& rect) {
     }
 }
 
-void GrClipStack::clip(RawElement&& element) {
+void ClipStack::clip(RawElement&& element) {
     if (this->currentSaveRecord().state() == ClipState::kEmpty) {
         return;
     }
@@ -1585,10 +1590,10 @@ void GrClipStack::clip(RawElement&& element) {
     }
 }
 
-GrFPResult GrClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* masks,
-                                    const SaveRecord& current, const SkIRect& bounds,
-                                    const Element** elements, int count,
-                                    std::unique_ptr<GrFragmentProcessor> clipFP) {
+GrFPResult ClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* masks,
+                                  const SaveRecord& current, const SkIRect& bounds,
+                                  const Element** elements, int count,
+                                  std::unique_ptr<GrFragmentProcessor> clipFP) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrSurfaceProxyView maskProxy;
 
@@ -1643,3 +1648,5 @@ GrFPResult GrClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* ma
     fp = GrBlendFragmentProcessor::Make(std::move(fp), std::move(clipFP), SkBlendMode::kDstIn);
     return GrFPSuccess(std::move(fp));
 }
+
+} // namespace skgpu::v1

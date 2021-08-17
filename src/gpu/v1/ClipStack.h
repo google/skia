@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GrClipStack_DEFINED
 
-#define GrClipStack_DEFINED
+#ifndef ClipStack_DEFINED
+#define ClipStack_DEFINED
 
 #include "include/core/SkClipOp.h"
 #include "include/core/SkMatrix.h"
@@ -24,7 +24,9 @@ namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrSWMaskHelper;
 class SkMatrixProvider;
 
-class GrClipStack final : public GrClip {
+namespace skgpu::v1 {
+
+class ClipStack final : public GrClip {
 public:
     enum class ClipState : uint8_t {
         kEmpty, kWideOpen, kDeviceRect, kDeviceRRect, kComplex
@@ -38,13 +40,13 @@ public:
         GrAA     fAA;
     };
 
-    // The SkMatrixProvider must outlive the GrClipStack.
-    GrClipStack(const SkIRect& deviceBounds, const SkMatrixProvider* matrixProvider, bool forceAA);
+    // The SkMatrixProvider must outlive the ClipStack.
+    ClipStack(const SkIRect& deviceBounds, const SkMatrixProvider* matrixProvider, bool forceAA);
 
-    ~GrClipStack() override;
+    ~ClipStack() override;
 
-    GrClipStack(const GrClipStack&) = delete;
-    GrClipStack& operator=(const GrClipStack&) = delete;
+    ClipStack(const ClipStack&) = delete;
+    ClipStack& operator=(const ClipStack&) = delete;
 
     ClipState clipState() const { return this->currentSaveRecord().state(); }
 
@@ -162,7 +164,7 @@ private:
     // Represents an alpha mask with the rasterized coverage from elements in a draw query that
     // could not be converted to analytic coverage FPs.
     // TODO: This is only required for SW masks. Stencil masks and atlas masks don't have resources
-    // owned by the GrClipStack. Once SW masks are no longer needed, this can go away.
+    // owned by the ClipStack. Once SW masks are no longer needed, this can go away.
     class Mask {
     public:
         using Stack = GrTBlockList<Mask, 1>;
@@ -226,7 +228,7 @@ private:
             SkASSERT(fDeferredSaveCount >= 0);
             fDeferredSaveCount++;
         }
-        // Returns true if the record should stay alive. False means the GrClipStack must delete it
+        // Returns true if the record should stay alive. False means the ClipStack must delete it
         bool popSave() {
             fDeferredSaveCount--;
             SkASSERT(fDeferredSaveCount >= -1);
@@ -315,7 +317,7 @@ private:
 };
 
 // Clip element iteration
-class GrClipStack::ElementIter {
+class ClipStack::ElementIter {
 public:
     bool operator!=(const ElementIter& o) const {
         return o.fItem != fItem && o.fRemaining != fRemaining;
@@ -338,10 +340,10 @@ public:
     RawElement::Stack::CRIter::Item fItem;
     int fRemaining;
 
-    friend class GrClipStack;
+    friend class ClipStack;
 };
 
-GrClipStack::ElementIter GrClipStack::begin() const {
+ClipStack::ElementIter ClipStack::begin() const {
     if (this->currentSaveRecord().state() == ClipState::kEmpty ||
         this->currentSaveRecord().state() == ClipState::kWideOpen) {
         // No visible clip elements when empty or wide open
@@ -351,8 +353,10 @@ GrClipStack::ElementIter GrClipStack::begin() const {
     return ElementIter(fElements.ritems().begin(), count);
 }
 
-GrClipStack::ElementIter GrClipStack::end() const {
+ClipStack::ElementIter ClipStack::end() const {
     return ElementIter(fElements.ritems().end(), 0);
 }
 
-#endif
+} // namespace skgpu::v1
+
+#endif // ClipStack_DEFINED

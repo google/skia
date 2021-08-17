@@ -333,7 +333,7 @@ void Device::onAsRgnClip(SkRegion* region) const {
     // Assume wide open and then perform intersect/difference operations reducing the region
     region->setRect(bounds);
     const SkRegion deviceBounds(bounds);
-    for (const GrClipStack::Element& e : fClip) {
+    for (const ClipStack::Element& e : fClip) {
         SkRegion tmp;
         if (e.fShape.isRect() && e.fLocalToDevice.isIdentity()) {
             tmp.setRect(e.fShape.rect().roundOut());
@@ -349,7 +349,7 @@ void Device::onAsRgnClip(SkRegion* region) const {
 }
 
 bool Device::onClipIsAA() const {
-    for (const GrClipStack::Element& e : fClip) {
+    for (const ClipStack::Element& e : fClip) {
         if (e.fAA == GrAA::kYes) {
             return true;
         }
@@ -359,11 +359,11 @@ bool Device::onClipIsAA() const {
 }
 
 SkBaseDevice::ClipType Device::onGetClipType() const {
-    GrClipStack::ClipState state = fClip.clipState();
-    if (state == GrClipStack::ClipState::kEmpty) {
+    ClipStack::ClipState state = fClip.clipState();
+    if (state == ClipStack::ClipState::kEmpty) {
         return ClipType::kEmpty;
-    } else if (state == GrClipStack::ClipState::kDeviceRect ||
-               state == GrClipStack::ClipState::kWideOpen) {
+    } else if (state == ClipStack::ClipState::kDeviceRect ||
+               state == ClipStack::ClipState::kWideOpen) {
         return ClipType::kRect;
     } else {
         return ClipType::kComplex;
