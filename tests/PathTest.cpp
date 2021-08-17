@@ -3241,10 +3241,10 @@ static void test_range_iter(skiatest::Reporter* reporter) {
         SkPoint lastPt;
         lastMoveTo.set(0, 0);
         lastPt.set(0, 0);
-        for (auto [nextVerb, pts, w] : SkPathPriv::Iterate(path)) {
-            REPORTER_ASSERT(reporter, nextVerb == expectedVerbs[numIterVerbs]);
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+            REPORTER_ASSERT(reporter, verb == expectedVerbs[numIterVerbs]);
             numIterVerbs++;
-            switch (nextVerb) {
+            switch (verb) {
                 case SkPathVerb::kMove:
                     REPORTER_ASSERT(reporter, numIterPts < numPoints);
                     REPORTER_ASSERT(reporter, pts[0] == expectedPts[numIterPts]);

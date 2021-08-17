@@ -271,9 +271,9 @@ public:
     /**
      * Called on a background thread. Here we can only modify fBackPaths.
      */
-    void runAnimationTask(double t, double dt, int w, int h) override {
+    void runAnimationTask(double t, double dt, int width, int height) override {
         const float tsec = static_cast<float>(t);
-        this->MovingGlyphAnimator::runAnimationTask(t, 0.5 * dt, w, h);
+        this->MovingGlyphAnimator::runAnimationTask(t, 0.5 * dt, width, height);
 
         for (int i = 0; i < kNumPaths; ++i) {
             const Glyph& glyph = fGlyphs[i];
