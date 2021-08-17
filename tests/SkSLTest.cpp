@@ -123,11 +123,9 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
 }
 
 static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
-    // We don't have an ES2 caps bit, so we check the caps bits for features that ES2 explicitly
-    // doesn't support. Our ES2 bots should return false for these.
-    if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport() ||
-        !ctx->priv().caps()->shaderCaps()->integerSupport() ||
-        !ctx->priv().caps()->shaderCaps()->nonsquareMatrixSupport()) {
+    // All of our ES3-related needs (non-square matrices, unsigned ints, etc.) should be available
+    // in desktop GLSL 1.30 or better.
+    if (ctx->priv().caps()->shaderCaps()->generation() < k130_GrGLSLGeneration) {
         return;
     }
     // ES3-only tests never run on the CPU, because SkVM lacks support for many non-ES2 features.
