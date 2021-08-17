@@ -121,6 +121,20 @@ $genHType refract($genHType I, $genHType N, half eta);
 // 8.5 : Matrix Functions
 $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
 $squareHMat matrixCompMult($squareHMat x, $squareHMat y);
+$es3 $squareMat  transpose($squareMat  m);
+$es3 $squareHMat transpose($squareHMat m);
+$es3 float2x3    transpose(float3x2 m);
+$es3 half2x3     transpose(half3x2  m);
+$es3 float2x4    transpose(float4x2 m);
+$es3 half2x4     transpose(half4x2  m);
+$es3 float3x2    transpose(float2x3 m);
+$es3 half3x2     transpose(half2x3  m);
+$es3 float3x4    transpose(float4x3 m);
+$es3 half3x4     transpose(half4x3  m);
+$es3 float4x2    transpose(float2x4 m);
+$es3 half4x2     transpose(half2x4  m);
+$es3 float4x3    transpose(float3x4 m);
+$es3 half4x3     transpose(half3x4  m);
 
 // Not supported until GLSL 1.40. Poly-filled by SkSL:
 $squareMat  inverse($squareMat  m);
