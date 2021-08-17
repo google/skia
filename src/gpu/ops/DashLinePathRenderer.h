@@ -5,17 +5,22 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDashLinePathRenderer_DEFINED
-#define GrDashLinePathRenderer_DEFINED
+#ifndef DashLinePathRenderer_DEFINED
+#define DashLinePathRenderer_DEFINED
 
 #include "src/gpu/GrPathRenderer.h"
 
 class GrGpu;
 
-class GrDashLinePathRenderer : public GrPathRenderer {
-private:
-    const char* name() const final { return "DashLine"; }
+namespace skgpu::v1 {
 
+class DashLinePathRenderer final : public GrPathRenderer {
+public:
+    DashLinePathRenderer() = default;
+
+    const char* name() const override { return "DashLine"; }
+
+private:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 
     StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
@@ -25,8 +30,10 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
     sk_sp<GrGpu> fGpu;
+
     using INHERITED = GrPathRenderer;
 };
 
+} // namespace skgpu::v1
 
-#endif
+#endif // DashLinePathRenderer_DEFINED

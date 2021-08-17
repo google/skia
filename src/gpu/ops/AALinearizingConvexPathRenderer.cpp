@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrAALinearizingConvexPathRenderer.h"
+#include "src/gpu/ops/AALinearizingConvexPathRenderer.h"
 
 #include "include/core/SkString.h"
 #include "src/core/SkGeometry.h"
@@ -28,71 +28,22 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
+///////////////////////////////////////////////////////////////////////////////
+namespace {
+
 static const int DEFAULT_BUFFER_SIZE = 100;
 
 // The thicker the stroke, the harder it is to produce high-quality results using tessellation. For
 // the time being, we simply drop back to software rendering above this stroke width.
 static const SkScalar kMaxStrokeWidth = 20.0;
 
-GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() = default;
-
-///////////////////////////////////////////////////////////////////////////////
-
-GrPathRenderer::CanDrawPath
-GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (GrAAType::kCoverage != args.fAAType) {
-        return CanDrawPath::kNo;
-    }
-    if (!args.fShape->knownToBeConvex()) {
-        return CanDrawPath::kNo;
-    }
-    if (args.fShape->style().pathEffect()) {
-        return CanDrawPath::kNo;
-    }
-    if (args.fShape->inverseFilled()) {
-        return CanDrawPath::kNo;
-    }
-    if (args.fShape->bounds().width() <= 0 && args.fShape->bounds().height() <= 0) {
-        // Stroked zero length lines should draw, but this PR doesn't handle that case
-        return CanDrawPath::kNo;
-    }
-    const SkStrokeRec& stroke = args.fShape->style().strokeRec();
-
-    if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
-        stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
-        if (!args.fViewMatrix->isSimilarity()) {
-            return CanDrawPath::kNo;
-        }
-        SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();
-        if (strokeWidth < 1.0f && stroke.getStyle() == SkStrokeRec::kStroke_Style) {
-            return CanDrawPath::kNo;
-        }
-        if (strokeWidth > kMaxStrokeWidth ||
-            !args.fShape->knownToBeClosed() ||
-            stroke.getJoin() == SkPaint::Join::kRound_Join) {
-            return CanDrawPath::kNo;
-        }
-        return CanDrawPath::kYes;
-    }
-    if (stroke.getStyle() != SkStrokeRec::kFill_Style) {
-        return CanDrawPath::kNo;
-    }
-    // This can almost handle perspective. It would need to use 3 component explicit local coords
-    // when there are FPs that require them. This is difficult to test because AAConvexPathRenderer
-    // takes almost all filled paths that could get here. So just avoid perspective fills.
-    if (args.fViewMatrix->hasPerspective()) {
-        return CanDrawPath::kNo;
-    }
-    return CanDrawPath::kYes;
-}
-
 // extract the result vertices and indices from the GrAAConvexTessellator
-static void extract_verts(const GrAAConvexTessellator& tess,
-                          const SkMatrix* localCoordsMatrix,
-                          void* vertData,
-                          const GrVertexColor& color,
-                          uint16_t firstIndex,
-                          uint16_t* idxs) {
+void extract_verts(const GrAAConvexTessellator& tess,
+                   const SkMatrix* localCoordsMatrix,
+                   void* vertData,
+                   const GrVertexColor& color,
+                   uint16_t firstIndex,
+                   uint16_t* idxs) {
     GrVertexWriter verts{vertData};
     for (int i = 0; i < tess.numPts(); ++i) {
         SkPoint lc;
@@ -108,10 +59,10 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     }
 }
 
-static GrGeometryProcessor* create_lines_only_gp(SkArenaAlloc* arena,
-                                                 bool tweakAlphaForCoverage,
-                                                 bool usesLocalCoords,
-                                                 bool wideColor) {
+GrGeometryProcessor* create_lines_only_gp(SkArenaAlloc* arena,
+                                          bool tweakAlphaForCoverage,
+                                          bool usesLocalCoords,
+                                          bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
 
     Coverage::Type coverageType =
@@ -123,8 +74,6 @@ static GrGeometryProcessor* create_lines_only_gp(SkArenaAlloc* arena,
 
     return Make(arena, colorType, coverageType, localCoordsType, SkMatrix::I());
 }
-
-namespace {
 
 class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
 private:
@@ -388,28 +337,6 @@ private:
 
 }  // anonymous namespace
 
-bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrAALinearizingConvexPathRenderer::onDrawPath");
-    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
-    SkASSERT(!args.fShape->isEmpty());
-    SkASSERT(!args.fShape->style().pathEffect());
-
-    SkPath path;
-    args.fShape->asPath(&path);
-    bool fill = args.fShape->style().isSimpleFill();
-    const SkStrokeRec& stroke = args.fShape->style().strokeRec();
-    SkScalar strokeWidth = fill ? -1.0f : stroke.getWidth();
-    SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
-    SkScalar miterLimit = stroke.getMiter();
-
-    GrOp::Owner op = AAFlatteningConvexPathOp::Make(
-            args.fContext, std::move(args.fPaint), *args.fViewMatrix, path, strokeWidth,
-            stroke.getStyle(), join, miterLimit, args.fUserStencilSettings);
-    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
@@ -443,3 +370,79 @@ GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::v1 {
+
+GrPathRenderer::CanDrawPath
+AALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    if (GrAAType::kCoverage != args.fAAType) {
+        return CanDrawPath::kNo;
+    }
+    if (!args.fShape->knownToBeConvex()) {
+        return CanDrawPath::kNo;
+    }
+    if (args.fShape->style().pathEffect()) {
+        return CanDrawPath::kNo;
+    }
+    if (args.fShape->inverseFilled()) {
+        return CanDrawPath::kNo;
+    }
+    if (args.fShape->bounds().width() <= 0 && args.fShape->bounds().height() <= 0) {
+        // Stroked zero length lines should draw, but this PR doesn't handle that case
+        return CanDrawPath::kNo;
+    }
+    const SkStrokeRec& stroke = args.fShape->style().strokeRec();
+
+    if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
+        stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
+        if (!args.fViewMatrix->isSimilarity()) {
+            return CanDrawPath::kNo;
+        }
+        SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();
+        if (strokeWidth < 1.0f && stroke.getStyle() == SkStrokeRec::kStroke_Style) {
+            return CanDrawPath::kNo;
+        }
+        if (strokeWidth > kMaxStrokeWidth ||
+            !args.fShape->knownToBeClosed() ||
+            stroke.getJoin() == SkPaint::Join::kRound_Join) {
+            return CanDrawPath::kNo;
+        }
+        return CanDrawPath::kYes;
+    }
+    if (stroke.getStyle() != SkStrokeRec::kFill_Style) {
+        return CanDrawPath::kNo;
+    }
+    // This can almost handle perspective. It would need to use 3 component explicit local coords
+    // when there are FPs that require them. This is difficult to test because AAConvexPathRenderer
+    // takes almost all filled paths that could get here. So just avoid perspective fills.
+    if (args.fViewMatrix->hasPerspective()) {
+        return CanDrawPath::kNo;
+    }
+    return CanDrawPath::kYes;
+}
+
+bool AALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
+                              "AALinearizingConvexPathRenderer::onDrawPath");
+    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
+    SkASSERT(!args.fShape->isEmpty());
+    SkASSERT(!args.fShape->style().pathEffect());
+
+    SkPath path;
+    args.fShape->asPath(&path);
+    bool fill = args.fShape->style().isSimpleFill();
+    const SkStrokeRec& stroke = args.fShape->style().strokeRec();
+    SkScalar strokeWidth = fill ? -1.0f : stroke.getWidth();
+    SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
+    SkScalar miterLimit = stroke.getMiter();
+
+    GrOp::Owner op = AAFlatteningConvexPathOp::Make(
+            args.fContext, std::move(args.fPaint), *args.fViewMatrix, path, strokeWidth,
+            stroke.getStyle(), join, miterLimit, args.fUserStencilSettings);
+    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+    return true;
+}
+
+} // namespace skgpu::v1

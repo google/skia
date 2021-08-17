@@ -5,22 +5,24 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDefaultPathRenderer_DEFINED
-#define GrDefaultPathRenderer_DEFINED
+#ifndef DefaultPathRenderer_DEFINED
+#define DefaultPathRenderer_DEFINED
 
 #include "include/core/SkTypes.h"
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/ops/GrPathStencilSettings.h"
 
+namespace skgpu::v1 {
+
 /**
  *  Subclass that renders the path using the stencil buffer to resolve fill rules
  * (e.g. winding, even-odd)
  */
-class GrDefaultPathRenderer : public GrPathRenderer {
+class DefaultPathRenderer final : public GrPathRenderer {
 public:
-    GrDefaultPathRenderer();
+    DefaultPathRenderer() = default;
 
-    const char* name() const final { return "Default"; }
+    const char* name() const override { return "Default"; }
 
 private:
     StencilSupport onGetStencilSupport(const GrStyledShape&) const override;
@@ -43,4 +45,6 @@ private:
     using INHERITED = GrPathRenderer;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // DefaultPathRenderer_DEFINED

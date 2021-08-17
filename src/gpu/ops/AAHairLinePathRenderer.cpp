@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrAAHairLinePathRenderer.h"
+#include "src/gpu/ops/AAHairLinePathRenderer.h"
 
 #include "include/core/SkPoint3.h"
 #include "include/private/SkTemplates.h"
@@ -33,6 +33,12 @@
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
+
+using PtArray = SkTArray<SkPoint, true>;
+using IntArray = SkTArray<int, true>;
+using FloatArray = SkTArray<float, true>;
+
+namespace {
 
 // quadratics are rendered as 5-sided polys in order to bound the
 // AA stroke around the center-curve. See comments in push_quad_index_buffer and
@@ -71,7 +77,7 @@ static const int kQuadNumVertices = 5;
 static const int kQuadsNumInIdxBuffer = 256;
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
 
-static sk_sp<const GrBuffer> get_quads_index_buffer(GrResourceProvider* resourceProvider) {
+sk_sp<const GrBuffer> get_quads_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
     return resourceProvider->findOrCreatePatternedIndexBuffer(
         kQuadIdxBufPattern, kIdxsPerQuad, kQuadsNumInIdxBuffer, kQuadNumVertices,
@@ -105,7 +111,7 @@ static const int kLineSegsNumInIdxBuffer = 256;
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
 
-static sk_sp<const GrBuffer> get_lines_index_buffer(GrResourceProvider* resourceProvider) {
+sk_sp<const GrBuffer> get_lines_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
     return resourceProvider->findOrCreatePatternedIndexBuffer(
         kLineSegIdxBufPattern, kIdxsPerLineSeg,  kLineSegsNumInIdxBuffer, kLineSegNumVertices,
@@ -113,7 +119,7 @@ static sk_sp<const GrBuffer> get_lines_index_buffer(GrResourceProvider* resource
 }
 
 // Takes 178th time of logf on Z600 / VC2010
-static int get_float_exp(float x) {
+int get_float_exp(float x) {
     static_assert(sizeof(int) == sizeof(float));
 #ifdef SK_DEBUG
     static bool tested;
@@ -141,7 +147,7 @@ static int get_float_exp(float x) {
 // found along the curve segment it will return 1 and
 // dst[0] is the original conic. If it returns 2 the dst[0]
 // and dst[1] are the two new conics.
-static int split_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
+int split_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
     SkScalar t = SkFindQuadMaxCurvature(src);
     if (t == 0 || t == 1) {
         if (dst) {
@@ -164,7 +170,7 @@ static int split_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weig
 // Calls split_conic on the entire conic and then once more on each subsection.
 // Most cases will result in either 1 conic (chop point is not within t range)
 // or 3 points (split once and then one subsection is split again).
-static int chop_conic(const SkPoint src[3], SkConic dst[4], const SkScalar weight) {
+int chop_conic(const SkPoint src[3], SkConic dst[4], const SkScalar weight) {
     SkConic dstTemp[2];
     int conicCnt = split_conic(src, dstTemp, weight);
     if (2 == conicCnt) {
@@ -179,7 +185,7 @@ static int chop_conic(const SkPoint src[3], SkConic dst[4], const SkScalar weigh
 // returns 0 if quad/conic is degen or close to it
 // in this case approx the path with lines
 // otherwise returns 1
-static int is_degen_quad_or_conic(const SkPoint p[3], SkScalar* dsqd) {
+int is_degen_quad_or_conic(const SkPoint p[3], SkScalar* dsqd) {
     static const SkScalar gDegenerateToLineTol = GrPathUtils::kDefaultTolerance;
     static const SkScalar gDegenerateToLineTolSqd =
         gDegenerateToLineTol * gDegenerateToLineTol;
@@ -200,14 +206,14 @@ static int is_degen_quad_or_conic(const SkPoint p[3], SkScalar* dsqd) {
     return 0;
 }
 
-static int is_degen_quad_or_conic(const SkPoint p[3]) {
+int is_degen_quad_or_conic(const SkPoint p[3]) {
     SkScalar dsqd;
     return is_degen_quad_or_conic(p, &dsqd);
 }
 
 // we subdivide the quads to avoid huge overfill
 // if it returns -1 then should be drawn as lines
-static int num_quad_subdivs(const SkPoint p[3]) {
+int num_quad_subdivs(const SkPoint p[3]) {
     SkScalar dsqd;
     if (is_degen_quad_or_conic(p, &dsqd)) {
         return -1;
@@ -243,16 +249,16 @@ static int num_quad_subdivs(const SkPoint p[3]) {
  * subdivide large quads to reduce over-fill. This subdivision has to be
  * performed before applying the perspective matrix.
  */
-static int gather_lines_and_quads(const SkPath& path,
-                                  const SkMatrix& m,
-                                  const SkIRect& devClipBounds,
-                                  SkScalar capLength,
-                                  bool convertConicsToQuads,
-                                  GrAAHairLinePathRenderer::PtArray* lines,
-                                  GrAAHairLinePathRenderer::PtArray* quads,
-                                  GrAAHairLinePathRenderer::PtArray* conics,
-                                  GrAAHairLinePathRenderer::IntArray* quadSubdivCnts,
-                                  GrAAHairLinePathRenderer::FloatArray* conicWeights) {
+int gather_lines_and_quads(const SkPath& path,
+                           const SkMatrix& m,
+                           const SkIRect& devClipBounds,
+                           SkScalar capLength,
+                           bool convertConicsToQuads,
+                           PtArray* lines,
+                           PtArray* quads,
+                           PtArray* conics,
+                           IntArray* quadSubdivCnts,
+                           FloatArray* conicWeights) {
     SkPath::Iter iter(path, false);
 
     int totalQuadCount = 0;
@@ -492,9 +498,9 @@ struct BezierVertex {
 
 static_assert(sizeof(BezierVertex) == 3 * sizeof(SkPoint));
 
-static void intersect_lines(const SkPoint& ptA, const SkVector& normA,
-                            const SkPoint& ptB, const SkVector& normB,
-                            SkPoint* result) {
+void intersect_lines(const SkPoint& ptA, const SkVector& normA,
+                     const SkPoint& ptB, const SkVector& normB,
+                     SkPoint* result) {
 
     SkScalar lineAW = -normA.dot(ptA);
     SkScalar lineBW = -normB.dot(ptB);
@@ -514,14 +520,16 @@ static void intersect_lines(const SkPoint& ptA, const SkVector& normA,
     }
 }
 
-static void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kQuadNumVertices]) {
+void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kQuadNumVertices]) {
     // this should be in the src space, not dev coords, when we have perspective
     GrPathUtils::QuadUVMatrix DevToUV(qpts);
     DevToUV.apply(verts, kQuadNumVertices, sizeof(BezierVertex), sizeof(SkPoint));
 }
 
-static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
-                       const SkMatrix* toSrc, BezierVertex verts[kQuadNumVertices]) {
+void bloat_quad(const SkPoint qpts[3],
+                const SkMatrix* toDevice,
+                const SkMatrix* toSrc,
+                BezierVertex verts[kQuadNumVertices]) {
     SkASSERT(!toDevice == !toSrc);
     // original quad is specified by tri a,b,c
     SkPoint a = qpts[0];
@@ -610,8 +618,9 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
 // f(x, y, w) = f(P) = K^2 - LM
 // K = dot(k, P), L = dot(l, P), M = dot(m, P)
 // k, l, m are calculated in function GrPathUtils::getConicKLM
-static void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kQuadNumVertices],
-                             const SkScalar weight) {
+void set_conic_coeffs(const SkPoint p[3],
+                      BezierVertex verts[kQuadNumVertices],
+                      const SkScalar weight) {
     SkMatrix klm;
 
     GrPathUtils::getConicKLM(p, weight, &klm);
@@ -622,21 +631,21 @@ static void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kQuadNumVert
     }
 }
 
-static void add_conics(const SkPoint p[3],
-                       const SkScalar weight,
-                       const SkMatrix* toDevice,
-                       const SkMatrix* toSrc,
-                       BezierVertex** vert) {
+void add_conics(const SkPoint p[3],
+                const SkScalar weight,
+                const SkMatrix* toDevice,
+                const SkMatrix* toSrc,
+                BezierVertex** vert) {
     bloat_quad(p, toDevice, toSrc, *vert);
     set_conic_coeffs(p, *vert, weight);
     *vert += kQuadNumVertices;
 }
 
-static void add_quads(const SkPoint p[3],
-                      int subdiv,
-                      const SkMatrix* toDevice,
-                      const SkMatrix* toSrc,
-                      BezierVertex** vert) {
+void add_quads(const SkPoint p[3],
+               int subdiv,
+               const SkMatrix* toDevice,
+               const SkMatrix* toSrc,
+               BezierVertex** vert) {
     SkASSERT(subdiv >= 0);
     // temporary vertex storage to avoid reading the vertex buffer
     BezierVertex outVerts[kQuadNumVertices] = {};
@@ -670,10 +679,10 @@ static void add_quads(const SkPoint p[3],
     *vert += kQuadNumVertices;
 }
 
-static void add_line(const SkPoint p[2],
-                     const SkMatrix* toSrc,
-                     uint8_t coverage,
-                     LineVertex** vert) {
+void add_line(const SkPoint p[2],
+              const SkMatrix* toSrc,
+              uint8_t coverage,
+              LineVertex** vert) {
     const SkPoint& a = p[0];
     const SkPoint& b = p[1];
 
@@ -735,66 +744,6 @@ static void add_line(const SkPoint p[2],
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrPathRenderer::CanDrawPath
-GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (GrAAType::kCoverage != args.fAAType) {
-        return CanDrawPath::kNo;
-    }
-
-    if (!GrIsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr)) {
-        return CanDrawPath::kNo;
-    }
-
-    // We don't currently handle dashing in this class though perhaps we should.
-    if (args.fShape->style().pathEffect()) {
-        return CanDrawPath::kNo;
-    }
-
-    if (SkPath::kLine_SegmentMask == args.fShape->segmentMask() ||
-        args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
-        return CanDrawPath::kYes;
-    }
-
-    return CanDrawPath::kNo;
-}
-
-template <class VertexType>
-bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* vertices, int vCount)
-{
-    SkRect tolDevBounds = devBounds;
-    // The bounds ought to be tight, but in perspective the below code runs the verts
-    // through the view matrix to get back to dev coords, which can introduce imprecision.
-    if (viewMatrix.hasPerspective()) {
-        tolDevBounds.outset(SK_Scalar1 / 1000, SK_Scalar1 / 1000);
-    } else {
-        // Non-persp matrices cause this path renderer to draw in device space.
-        SkASSERT(viewMatrix.isIdentity());
-    }
-    SkRect actualBounds;
-
-    VertexType* verts = reinterpret_cast<VertexType*>(vertices);
-    bool first = true;
-    for (int i = 0; i < vCount; ++i) {
-        SkPoint pos = verts[i].fPos;
-        // This is a hack to workaround the fact that we move some degenerate segments offscreen.
-        if (SK_ScalarMax == pos.fX) {
-            continue;
-        }
-        viewMatrix.mapPoints(&pos, 1);
-        if (first) {
-            actualBounds.setLTRB(pos.fX, pos.fY, pos.fX, pos.fY);
-            first = false;
-        } else {
-            SkRectPriv::GrowToInclude(&actualBounds, pos);
-        }
-    }
-    if (!first) {
-        return tolDevBounds.contains(actualBounds);
-    }
-
-    return true;
-}
 
 class AAHairlineOp final : public GrMeshDrawOp {
 private:
@@ -869,11 +818,11 @@ public:
                                           nullptr);
     }
 
-    enum Program : uint8_t {
-        kNone_Program  = 0x0,
-        kLine_Program  = 0x1,
-        kQuad_Program  = 0x2,
-        kConic_Program = 0x4,
+    enum class Program : uint8_t {
+        kNone  = 0x0,
+        kLine  = 0x1,
+        kQuad  = 0x2,
+        kConic = 0x4,
     };
 
 private:
@@ -923,10 +872,6 @@ private:
 
     void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
-
-    typedef SkTArray<SkPoint, true> PtArray;
-    typedef SkTArray<int, true> IntArray;
-    typedef SkTArray<float, true> FloatArray;
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         AAHairlineOp* that = t->cast<AAHairlineOp>();
@@ -989,14 +934,14 @@ private:
     SkPMColor4f fColor;
     uint8_t fCoverage;
 
-    Program        fCharacterization = kNone_Program;       // holds a mask of required programs
+    Program        fCharacterization = Program::kNone;       // holds a mask of required programs
     GrSimpleMesh*  fMeshes[3] = { nullptr };
     GrProgramInfo* fProgramInfos[3] = { nullptr };
 
     using INHERITED = GrMeshDrawOp;
 };
 
-GR_MAKE_BITFIELD_OPS(AAHairlineOp::Program)
+GR_MAKE_BITFIELD_CLASS_OPS(AAHairlineOp::Program)
 
 void AAHairlineOp::makeLineProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
                                        const GrPipeline* pipeline,
@@ -1087,19 +1032,19 @@ AAHairlineOp::Program AAHairlineOp::predictPrograms(const GrCaps* caps) const {
     // When predicting the programs we always include the lineProgram bc it is used as a fallback
     // for quads and conics. In non-DDL mode there are cases where it sometimes isn't needed for a
     // given path.
-    Program neededPrograms = kLine_Program;
+    Program neededPrograms = Program::kLine;
 
     for (int i = 0; i < fPaths.count(); i++) {
         uint32_t mask = fPaths[i].fPath.getSegmentMasks();
 
         if (mask & (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)) {
-            neededPrograms |= kQuad_Program;
+            neededPrograms |= Program::kQuad;
         }
         if (mask & SkPath::kConic_SegmentMask) {
             if (convertConicsToQuads) {
-                neededPrograms |= kQuad_Program;
+                neededPrograms |= Program::kQuad;
             } else {
-                neededPrograms |= kConic_Program;
+                neededPrograms |= Program::kConic;
             }
         }
     }
@@ -1133,17 +1078,17 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
     auto pipeline = fHelper.createPipeline(caps, arena, writeView.swizzle(),
                                            std::move(appliedClip), dstProxyView);
 
-    if (fCharacterization & kLine_Program) {
+    if (fCharacterization & Program::kLine) {
         this->makeLineProgramInfo(*caps, arena, pipeline, writeView,
                                   geometryProcessorViewM, geometryProcessorLocalM,
                                   renderPassXferBarriers, colorLoadOp);
     }
-    if (fCharacterization & kQuad_Program) {
+    if (fCharacterization & Program::kQuad) {
         this->makeQuadProgramInfo(*caps, arena, pipeline, writeView,
                                   geometryProcessorViewM, geometryProcessorLocalM,
                                   renderPassXferBarriers, colorLoadOp);
     }
-    if (fCharacterization & kConic_Program) {
+    if (fCharacterization & Program::kConic) {
         this->makeConicProgramInfo(*caps, arena, pipeline, writeView,
                                    geometryProcessorViewM, geometryProcessorLocalM,
                                    renderPassXferBarriers, colorLoadOp);
@@ -1193,7 +1138,7 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     }
 
     SkDEBUGCODE(Program predictedPrograms = this->predictPrograms(&target->caps()));
-    Program actualPrograms = kNone_Program;
+    Program actualPrograms = Program::kNone;
 
     // This is hand inlined for maximum performance.
     PREALLOC_PTARRAY(128) lines;
@@ -1224,8 +1169,8 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
     // do lines first
     if (lineCount) {
-        SkASSERT(predictedPrograms & kLine_Program);
-        actualPrograms |= kLine_Program;
+        SkASSERT(predictedPrograms & Program::kLine);
+        actualPrograms |= Program::kLine;
 
         sk_sp<const GrBuffer> linesIndexBuffer = get_lines_index_buffer(target->resourceProvider());
 
@@ -1279,8 +1224,8 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
         }
 
         if (quadCount > 0) {
-            SkASSERT(predictedPrograms & kQuad_Program);
-            actualPrograms |= kQuad_Program;
+            SkASSERT(predictedPrograms & Program::kQuad);
+            actualPrograms |= Program::kQuad;
 
             fMeshes[1] = target->allocMesh();
             fMeshes[1]->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, quadCount,
@@ -1290,8 +1235,8 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
         }
 
         if (conicCount > 0) {
-            SkASSERT(predictedPrograms & kConic_Program);
-            actualPrograms |= kConic_Program;
+            SkASSERT(predictedPrograms & Program::kConic);
+            actualPrograms |= Program::kConic;
 
             fMeshes[2] = target->allocMesh();
             fMeshes[2]->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, conicCount,
@@ -1318,20 +1263,7 @@ void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
     }
 }
 
-bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrAAHairlinePathRenderer::onDrawPath");
-    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
-
-    SkPath path;
-    args.fShape->asPath(&path);
-    GrOp::Owner op =
-            AAHairlineOp::Make(args.fContext, std::move(args.fPaint), *args.fViewMatrix, path,
-                               args.fShape->style(), *args.fClipConservativeBounds,
-                               args.fUserStencilSettings);
-    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
-    return true;
-}
+} // anonymous namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1348,3 +1280,49 @@ GR_DRAW_OP_TEST_DEFINE(AAHairlineOp) {
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::v1 {
+
+GrPathRenderer::CanDrawPath
+AAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    if (GrAAType::kCoverage != args.fAAType) {
+        return CanDrawPath::kNo;
+    }
+
+    if (!GrIsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr)) {
+        return CanDrawPath::kNo;
+    }
+
+    // We don't currently handle dashing in this class though perhaps we should.
+    if (args.fShape->style().pathEffect()) {
+        return CanDrawPath::kNo;
+    }
+
+    if (SkPath::kLine_SegmentMask == args.fShape->segmentMask() ||
+        args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
+        return CanDrawPath::kYes;
+    }
+
+    return CanDrawPath::kNo;
+}
+
+
+bool AAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
+                              "AAHairlinePathRenderer::onDrawPath");
+    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
+
+    SkPath path;
+    args.fShape->asPath(&path);
+    GrOp::Owner op =
+            AAHairlineOp::Make(args.fContext, std::move(args.fPaint), *args.fViewMatrix, path,
+                               args.fShape->style(), *args.fClipConservativeBounds,
+                               args.fUserStencilSettings);
+    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+    return true;
+}
+
+} // namespace skgpu::v1
+

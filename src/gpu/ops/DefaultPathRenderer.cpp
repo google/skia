@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrDefaultPathRenderer.h"
+#include "src/gpu/ops/DefaultPathRenderer.h"
 
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
@@ -30,15 +30,14 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
-GrDefaultPathRenderer::GrDefaultPathRenderer() {
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
 
+namespace {
+
 #define STENCIL_OFF     0   // Always disable stencil (even when needed)
 
-static inline bool single_pass_shape(const GrStyledShape& shape) {
+inline bool single_pass_shape(const GrStyledShape& shape) {
 #if STENCIL_OFF
     return true;
 #else
@@ -55,17 +54,6 @@ static inline bool single_pass_shape(const GrStyledShape& shape) {
     return true;
 #endif
 }
-
-GrPathRenderer::StencilSupport
-GrDefaultPathRenderer::onGetStencilSupport(const GrStyledShape& shape) const {
-    if (single_pass_shape(shape)) {
-        return GrPathRenderer::kNoRestriction_StencilSupport;
-    } else {
-        return GrPathRenderer::kStencilOnly_StencilSupport;
-    }
-}
-
-namespace {
 
 class PathGeoBuilder {
 public:
@@ -253,7 +241,7 @@ private:
                                                                           &fFirstVertex,
                                                                           &fVerticesInChunk));
         if (!fVertices) {
-            SkDebugf("WARNING: Failed to allocate vertex buffer for GrDefaultPathRenderer.\n");
+            SkDebugf("WARNING: Failed to allocate vertex buffer for DefaultPathRenderer.\n");
             fCurVert = nullptr;
             fCurIdx = fIndices = nullptr;
             fSubpathIndexStart = 0;
@@ -272,7 +260,7 @@ private:
                                                       &fIndexBuffer, &fFirstIndex,
                                                       &fIndicesInChunk);
             if (!fIndices) {
-                SkDebugf("WARNING: Failed to allocate index buffer for GrDefaultPathRenderer.\n");
+                SkDebugf("WARNING: Failed to allocate index buffer for DefaultPathRenderer.\n");
                 fVertices = nullptr;
                 fValid = false;
             }
@@ -592,14 +580,47 @@ private:
 
 }  // anonymous namespace
 
-bool GrDefaultPathRenderer::internalDrawPath(skgpu::v1::SurfaceDrawContext* sdc,
-                                             GrPaint&& paint,
-                                             GrAAType aaType,
-                                             const GrUserStencilSettings& userStencilSettings,
-                                             const GrClip* clip,
-                                             const SkMatrix& viewMatrix,
-                                             const GrStyledShape& shape,
-                                             bool stencilOnly) {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if GR_TEST_UTILS
+
+GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+
+    // For now just hairlines because the other types of draws require two ops.
+    // TODO we should figure out a way to combine the stencil and cover steps into one op.
+    GrStyle style(SkStrokeRec::kHairline_InitStyle);
+    const SkPath& path = GrTest::TestPath(random);
+
+    // Compute srcSpaceTol
+    SkRect bounds = path.getBounds();
+    SkScalar tol = GrPathUtils::kDefaultTolerance;
+    SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, bounds);
+
+    viewMatrix.mapRect(&bounds);
+    uint8_t coverage = GrRandomCoverage(random);
+    GrAAType aaType = GrAAType::kNone;
+    if (numSamples > 1 && random->nextBool()) {
+        aaType = GrAAType::kMSAA;
+    }
+    return DefaultPathOp::Make(context, std::move(paint), path, srcSpaceTol, coverage, viewMatrix,
+                               true, aaType, bounds, GrGetRandomStencil(random, context));
+}
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::v1 {
+
+bool DefaultPathRenderer::internalDrawPath(skgpu::v1::SurfaceDrawContext* sdc,
+                                           GrPaint&& paint,
+                                           GrAAType aaType,
+                                           const GrUserStencilSettings& userStencilSettings,
+                                           const GrClip* clip,
+                                           const SkMatrix& viewMatrix,
+                                           const GrStyledShape& shape,
+                                           bool stencilOnly) {
     auto context = sdc->recordingContext();
 
     SkASSERT(GrAAType::kCoverage != aaType);
@@ -737,8 +758,17 @@ bool GrDefaultPathRenderer::internalDrawPath(skgpu::v1::SurfaceDrawContext* sdc,
     return true;
 }
 
-GrPathRenderer::CanDrawPath
-GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+
+GrPathRenderer::StencilSupport
+DefaultPathRenderer::onGetStencilSupport(const GrStyledShape& shape) const {
+    if (single_pass_shape(shape)) {
+        return GrPathRenderer::kNoRestriction_StencilSupport;
+    } else {
+        return GrPathRenderer::kStencilOnly_StencilSupport;
+    }
+}
+
+GrPathRenderer::CanDrawPath DefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     bool isHairline = GrIsStrokeHairlineOrEquivalent(
             args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
@@ -758,9 +788,9 @@ GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     return CanDrawPath::kAsBackup;
 }
 
-bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
+bool DefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrDefaultPathRenderer::onDrawPath");
+                              "DefaultPathRenderer::onDrawPath");
     GrAAType aaType = (GrAAType::kNone != args.fAAType) ? GrAAType::kMSAA : GrAAType::kNone;
 
     return this->internalDrawPath(
@@ -768,9 +798,9 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
             args.fClip, *args.fViewMatrix, *args.fShape, false);
 }
 
-void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
+void DefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrDefaultPathRenderer::onStencilPath");
+                              "DefaultPathRenderer::onStencilPath");
     SkASSERT(!args.fShape->inverseFilled());
 
     GrPaint paint;
@@ -783,31 +813,4 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
             args.fClip, *args.fViewMatrix, *args.fShape, true);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if GR_TEST_UTILS
-
-GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
-    SkMatrix viewMatrix = GrTest::TestMatrix(random);
-
-    // For now just hairlines because the other types of draws require two ops.
-    // TODO we should figure out a way to combine the stencil and cover steps into one op.
-    GrStyle style(SkStrokeRec::kHairline_InitStyle);
-    const SkPath& path = GrTest::TestPath(random);
-
-    // Compute srcSpaceTol
-    SkRect bounds = path.getBounds();
-    SkScalar tol = GrPathUtils::kDefaultTolerance;
-    SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, bounds);
-
-    viewMatrix.mapRect(&bounds);
-    uint8_t coverage = GrRandomCoverage(random);
-    GrAAType aaType = GrAAType::kNone;
-    if (numSamples > 1 && random->nextBool()) {
-        aaType = GrAAType::kMSAA;
-    }
-    return DefaultPathOp::Make(context, std::move(paint), path, srcSpaceTol, coverage, viewMatrix,
-                               true, aaType, bounds, GrGetRandomStencil(random, context));
-}
-
-#endif
+} // namespace skgpu::v1

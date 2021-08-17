@@ -114,7 +114,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834, reporter, ctxInfo) {
-    // GrAAHairlinePathRenderer chops this path to quads that include infinities (and then NaNs).
+    // AAHairlinePathRenderer chops this path to quads that include infinities (and then NaNs).
     // It used to trigger asserts, now the degenerate quad segments should cause it to be rejected.
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));

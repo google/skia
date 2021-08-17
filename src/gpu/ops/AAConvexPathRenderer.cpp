@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrAAConvexPathRenderer.h"
+#include "src/gpu/ops/AAConvexPathRenderer.h"
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
@@ -31,8 +31,7 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
-GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
-}
+namespace {
 
 struct Segment {
     enum {
@@ -65,7 +64,7 @@ struct Segment {
 
 typedef SkTArray<Segment, true> SegmentArray;
 
-static bool center_of_mass(const SegmentArray& segments, SkPoint* c) {
+bool center_of_mass(const SegmentArray& segments, SkPoint* c) {
     SkScalar area = 0;
     SkPoint center = {0, 0};
     int count = segments.count();
@@ -115,11 +114,11 @@ static bool center_of_mass(const SegmentArray& segments, SkPoint* c) {
     return !SkScalarIsNaN(c->fX) && !SkScalarIsNaN(c->fY) && c->isFinite();
 }
 
-static bool compute_vectors(SegmentArray* segments,
-                            SkPoint* fanPt,
-                            SkPathFirstDirection dir,
-                            int* vCount,
-                            int* iCount) {
+bool compute_vectors(SegmentArray* segments,
+                     SkPoint* fanPt,
+                     SkPathFirstDirection dir,
+                     int* vCount,
+                     int* iCount) {
     if (!center_of_mass(*segments, fanPt)) {
         return false;
     }
@@ -195,7 +194,7 @@ struct DegenerateTestData {
 static const SkScalar kClose = (SK_Scalar1 / 16);
 static const SkScalar kCloseSqd = kClose * kClose;
 
-static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) {
+void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) {
     switch (data->fStage) {
         case DegenerateTestData::kInitial:
             data->fFirstPoint = pt;
@@ -222,8 +221,7 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
     }
 }
 
-static inline bool get_direction(const SkPath& path, const SkMatrix& m,
-                                 SkPathFirstDirection* dir) {
+inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPathFirstDirection* dir) {
     // At this point, we've already returned true from canDraw(), which checked that the path's
     // direction could be determined, so this should just be fetching the cached direction.
     // However, if perspective is involved, we're operating on a transformed path, which may no
@@ -244,15 +242,13 @@ static inline bool get_direction(const SkPath& path, const SkMatrix& m,
     return true;
 }
 
-static inline void add_line_to_segment(const SkPoint& pt,
-                                       SegmentArray* segments) {
+inline void add_line_to_segment(const SkPoint& pt, SegmentArray* segments) {
     segments->push_back();
     segments->back().fType = Segment::kLine;
     segments->back().fPts[0] = pt;
 }
 
-static inline void add_quad_segment(const SkPoint pts[3],
-                                    SegmentArray* segments) {
+inline void add_quad_segment(const SkPoint pts[3], SegmentArray* segments) {
     if (SkPointPriv::DistanceToLineSegmentBetweenSqd(pts[1], pts[0], pts[2]) < kCloseSqd) {
         if (pts[0] != pts[2]) {
             add_line_to_segment(pts[2], segments);
@@ -265,9 +261,9 @@ static inline void add_quad_segment(const SkPoint pts[3],
     }
 }
 
-static inline void add_cubic_segments(const SkPoint pts[4],
-                                      SkPathFirstDirection dir,
-                                      SegmentArray* segments) {
+inline void add_cubic_segments(const SkPoint pts[4],
+                               SkPathFirstDirection dir,
+                               SegmentArray* segments) {
     SkSTArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuadsConstrainToTangents(pts, SK_Scalar1, dir, &quads);
     int count = quads.count();
@@ -276,12 +272,12 @@ static inline void add_cubic_segments(const SkPoint pts[4],
     }
 }
 
-static bool get_segments(const SkPath& path,
-                         const SkMatrix& m,
-                         SegmentArray* segments,
-                         SkPoint* fanPt,
-                         int* vCount,
-                         int* iCount) {
+bool get_segments(const SkPath& path,
+                  const SkMatrix& m,
+                  SegmentArray* segments,
+                  SkPoint* fanPt,
+                  int* vCount,
+                  int* iCount) {
     SkPath::Iter iter(path, true);
     // This renderer over-emphasizes very thin path regions. We use the distance
     // to the path from the sample to compute coverage. Every pixel intersected
@@ -364,13 +360,13 @@ struct Draw {
 
 typedef SkTArray<Draw, true> DrawArray;
 
-static void create_vertices(const SegmentArray& segments,
-                            const SkPoint& fanPt,
-                            const GrVertexColor& color,
-                            DrawArray* draws,
-                            GrVertexWriter& verts,
-                            uint16_t* idxs,
-                            size_t vertexStride) {
+void create_vertices(const SegmentArray& segments,
+                     const SkPoint& fanPt,
+                     const GrVertexColor& color,
+                     DrawArray* draws,
+                     GrVertexWriter& verts,
+                     uint16_t* idxs,
+                     size_t vertexStride) {
     Draw* draw = &draws->push_back();
     // alias just to make vert/index assignments easier to read.
     int* v = &draw->fVertexCnt;
@@ -682,23 +678,6 @@ GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 }
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
-
-GrPathRenderer::CanDrawPath
-GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // This check requires convexity and known direction, since the direction is used to build
-    // the geometry segments. Degenerate convex paths will fall through to some other path renderer.
-    if (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&
-        (GrAAType::kCoverage == args.fAAType) && args.fShape->style().isSimpleFill() &&
-        !args.fShape->inverseFilled() && args.fShape->knownToBeConvex() &&
-        args.fShape->knownDirection()) {
-        return CanDrawPath::kYes;
-    }
-    return CanDrawPath::kNo;
-}
-
-namespace {
-
 class AAConvexPathOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
@@ -912,23 +891,7 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
-}  // anonymous namespace
-
-bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrAAConvexPathRenderer::onDrawPath");
-    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
-    SkASSERT(!args.fShape->isEmpty());
-
-    SkPath path;
-    args.fShape->asPath(&path);
-
-    GrOp::Owner op = AAConvexPathOp::Make(args.fContext, std::move(args.fPaint),
-                                          *args.fViewMatrix,
-                                          path, args.fUserStencilSettings);
-    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
-    return true;
-}
+} // anonymous namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -942,3 +905,37 @@ GR_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::v1 {
+
+GrPathRenderer::CanDrawPath AAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // This check requires convexity and known direction, since the direction is used to build
+    // the geometry segments. Degenerate convex paths will fall through to some other path renderer.
+    if (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&
+        (GrAAType::kCoverage == args.fAAType) && args.fShape->style().isSimpleFill() &&
+        !args.fShape->inverseFilled() && args.fShape->knownToBeConvex() &&
+        args.fShape->knownDirection()) {
+        return CanDrawPath::kYes;
+    }
+    return CanDrawPath::kNo;
+}
+
+bool AAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
+                              "AAConvexPathRenderer::onDrawPath");
+    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
+    SkASSERT(!args.fShape->isEmpty());
+
+    SkPath path;
+    args.fShape->asPath(&path);
+
+    GrOp::Owner op = AAConvexPathOp::Make(args.fContext, std::move(args.fPaint),
+                                          *args.fViewMatrix,
+                                          path, args.fUserStencilSettings);
+    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+    return true;
+}
+
+} // namespace skgpu::v1

@@ -16,12 +16,12 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/ops/GrAAConvexPathRenderer.h"
-#include "src/gpu/ops/GrAAHairLinePathRenderer.h"
-#include "src/gpu/ops/GrAALinearizingConvexPathRenderer.h"
+#include "src/gpu/ops/AAConvexPathRenderer.h"
+#include "src/gpu/ops/AAHairLinePathRenderer.h"
+#include "src/gpu/ops/AALinearizingConvexPathRenderer.h"
+#include "src/gpu/ops/DashLinePathRenderer.h"
+#include "src/gpu/ops/DefaultPathRenderer.h"
 #include "src/gpu/ops/GrAtlasPathRenderer.h"
-#include "src/gpu/ops/GrDashLinePathRenderer.h"
-#include "src/gpu/ops/GrDefaultPathRenderer.h"
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 #include "src/gpu/ops/SmallPathRenderer.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
@@ -29,16 +29,16 @@
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
-        fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
+        fChain.push_back(sk_make_sp<skgpu::v1::DashLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
-        fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
+        fChain.push_back(sk_make_sp<skgpu::v1::AAConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAHairline) {
-        fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
+        fChain.push_back(sk_make_sp<skgpu::v1::AAHairLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAALinearizing) {
-        fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
+        fChain.push_back(sk_make_sp<skgpu::v1::AALinearizingConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAtlas) {
         if (auto atlasPathRenderer = GrAtlasPathRenderer::Make(context)) {
@@ -62,7 +62,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     }
 
     // We always include the default path renderer (as well as SW), so we can draw any path
-    fChain.push_back(sk_make_sp<GrDefaultPathRenderer>());
+    fChain.push_back(sk_make_sp<skgpu::v1::DefaultPathRenderer>());
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(

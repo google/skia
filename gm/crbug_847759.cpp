@@ -11,7 +11,7 @@
 #include "include/core/SkPathBuilder.h"
 
 DEF_SIMPLE_GM(crbug_847759, canvas, 500, 500) {
-    // This path exposed an issue in GrAAHairlinePathRenderer. When converting from cubics to quads
+    // This path exposed an issue in AAHairlinePathRenderer. When converting from cubics to quads
     // we produced quads where the previously vertical tangents at the left and right tips of the
     // squashed oval-like path became slightly non-vertical. This caused a missed pixel of AA just
     // outside each tip.

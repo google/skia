@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrDashLinePathRenderer.h"
+#include "src/gpu/ops/DashLinePathRenderer.h"
 
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrGpu.h"
@@ -14,8 +14,9 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
-GrPathRenderer::CanDrawPath
-GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+namespace skgpu::v1 {
+
+GrPathRenderer::CanDrawPath DashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
     bool inverted;
     if (args.fShape->style().isDashed() && args.fShape->asLine(pts, &inverted)) {
@@ -29,9 +30,9 @@ GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     return CanDrawPath::kNo;
 }
 
-bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
+bool DashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrDashLinePathRenderer::onDrawPath");
+                              "DashLinePathRenderer::onDrawPath");
     GrDashOp::AAMode aaMode;
     switch (args.fAAType) {
         case GrAAType::kNone:
@@ -57,3 +58,5 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
+
+} // namespace skgpu::v1

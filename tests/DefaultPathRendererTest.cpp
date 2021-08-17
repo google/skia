@@ -72,7 +72,7 @@ static const int kPad = 3;
 //   create a new render target context that will reuse the prior GrSurface
 //   draw a normally wound concave path that touches outside of the approx fit RTC's content rect
 //
-// When the bug manifests the GrDefaultPathRenderer/GrMSAAPathRenderer is/was leaving the stencil
+// When the bug manifests the DefaultPathRenderer/GrMSAAPathRenderer is/was leaving the stencil
 // buffer outside of the first content rect in a bad state and the second draw would be incorrect.
 
 static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
@@ -130,7 +130,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     }
 }
 
-DEF_GPUTEST_FOR_CONTEXTS(GrDefaultPathRendererTest,
+DEF_GPUTEST_FOR_CONTEXTS(DefaultPathRendererTest,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
                          reporter, ctxInfo, only_allow_default) {
     auto ctx = ctxInfo.directContext();

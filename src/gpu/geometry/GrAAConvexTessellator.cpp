@@ -623,7 +623,7 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
                         this->addTri(originalIdx, perp1Idx, perp2Idx);
                         break;
                     default:
-                        // kRound_Join is unsupported for now. GrAALinearizingConvexPathRenderer is
+                        // kRound_Join is unsupported for now. AALinearizingConvexPathRenderer is
                         // only willing to draw mitered or beveled, so we should never get here.
                         SkASSERT(false);
                 }

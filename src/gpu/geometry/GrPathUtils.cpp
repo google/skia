@@ -357,7 +357,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
             // This introduced a large performance regression for tiny paths for no noticeable
             // quality improvement. However, we aren't quite fulfilling our contract of guaranteeing
             // the two tangent vectors and this could introduce a missed pixel in
-            // GrAAHairlinePathRenderer.
+            // AAHairlinePathRenderer.
             newC = (c0 + c1) * 0.5f;
         } else if (preserveFirstTangent) {
             newC = c0;
