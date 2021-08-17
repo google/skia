@@ -3126,7 +3126,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -3218,7 +3218,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -3310,7 +3310,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -3402,7 +3402,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -3596,7 +3596,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -3688,7 +3688,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -3780,7 +3780,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -3974,7 +3974,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4066,7 +4066,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4158,7 +4158,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4250,7 +4250,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4342,7 +4342,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4434,7 +4434,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4526,7 +4526,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4618,7 +4618,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4710,7 +4710,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4802,7 +4802,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -4894,7 +4894,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -5087,7 +5087,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -5179,7 +5179,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -5271,7 +5271,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -5363,7 +5363,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -10545,7 +10545,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
@@ -10742,7 +10742,7 @@
         {
           "name": "skia/bots/android_ndk_darwin",
           "path": "android_ndk_darwin",
-          "version": "version:11"
+          "version": "version:10"
         }
       ],
       "command": [
@@ -13612,7 +13612,7 @@
         {
           "name": "skia/bots/android_ndk_windows",
           "path": "n",
-          "version": "version:12"
+          "version": "version:11"
         }
       ],
       "command": [
@@ -19314,7 +19314,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:17"
+          "version": "version:16"
         }
       ],
       "command": [
