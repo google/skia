@@ -570,19 +570,11 @@ private:
                 SkASSERT(mm == netMM ||
                          (netMM == GrSamplerState::MipmapMode::kNone && mm > netMM));
                 auto [mustFilter, mustMM] = filter_and_mm_have_effect(quad.fLocal, quad.fDevice);
-                if (filter != GrSamplerState::Filter::kNearest) {
-                    if (mustFilter) {
-                        netFilter = filter; // upgrade batch to higher filter level
-                    } else {
-                        filter = GrSamplerState::Filter::kNearest; // downgrade entry to lower level
-                    }
+                if (mustFilter && filter != GrSamplerState::Filter::kNearest) {
+                    netFilter = filter;
                 }
-                if (mm != GrSamplerState::MipmapMode::kNone) {
-                    if (mustMM) {
-                        netMM = mm; // promote batch
-                    } else {
-                        mm = GrSamplerState::MipmapMode::kNone; // downgrade entry
-                    }
+                if (mustMM && mm != GrSamplerState::MipmapMode::kNone) {
+                    netMM = mm;
                 }
             }
 
@@ -619,7 +611,8 @@ private:
             normalize_src_quad(proxyParams, &quad.fLocal);
 
             // This subset may represent a no-op, otherwise it will have the origin and dimensions
-            // of the texture applied to it.
+            // of the texture applied to it. Insetting for bilinear filtering is deferred until
+            // on[Pre]Prepare so that the overall filter can be lazily determined.
             SkRect subset = normalize_and_inset_subset(filter, proxyParams, subsetForQuad);
 
             // Always append a quad (or 2 if perspective clipped), it just may refer back to a prior
