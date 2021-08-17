@@ -423,7 +423,8 @@ double evaluate_round(double a, double, double)        { return std::round(a / 2
 
 static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
                                                            IntrinsicKind intrinsic,
-                                                           const ExpressionArray& arguments) {
+                                                           const ExpressionArray& arguments,
+                                                           const Type& returnType) {
     // Helper function for accessing a matrix argument by column and row.
     const Expression* matrix = nullptr;
     auto M = [&](int c, int r) -> float {
@@ -617,6 +618,19 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_matrixCompMult_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
                                                Intrinsics::evaluate_matrixCompMult);
+        case k_transpose_IntrinsicKind: {
+            matrix = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
+            ExpressionArray array;
+            array.reserve_back(returnType.slotCount());
+            for (int c = 0; c < returnType.columns(); ++c) {
+                for (int r = 0; r < returnType.rows(); ++r) {
+                    array.push_back(FloatLiteral::Make(matrix->fOffset, M(r, c),
+                                                       &returnType.componentType()));
+                }
+            }
+            return ConstructorCompound::Make(context, matrix->fOffset, returnType,
+                                             std::move(array));
+        }
         case k_inverse_IntrinsicKind: {
             matrix = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
             switch (arguments[0]->type().slotCount()) {
@@ -818,8 +832,10 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
         // We might be able to optimize built-in intrinsics.
         if (function.isIntrinsic() && has_compile_time_constant_arguments(arguments)) {
             // The function is an intrinsic and all inputs are compile-time constants. Optimize it.
-            if (std::unique_ptr<Expression> expr =
-                        optimize_intrinsic_call(context, function.intrinsicKind(), arguments)) {
+            if (std::unique_ptr<Expression> expr = optimize_intrinsic_call(context,
+                                                                           function.intrinsicKind(),
+                                                                           arguments,
+                                                                           *returnType)) {
                 return expr;
             }
         }
