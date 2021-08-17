@@ -318,10 +318,6 @@ skia_gpu_sources = [
   "$_src/gpu/geometry/GrTriangulator.cpp",
   "$_src/gpu/geometry/GrTriangulator.h",
   "$_src/gpu/geometry/GrWangsFormula.h",
-  "$_src/gpu/ops/GrSmallPathAtlasMgr.cpp",
-  "$_src/gpu/ops/GrSmallPathAtlasMgr.h",
-  "$_src/gpu/ops/GrSmallPathShapeData.cpp",
-  "$_src/gpu/ops/GrSmallPathShapeData.h",
 
   # gradients
   "$_src/gpu/gradients/GrGradientBitmapCache.cpp",
@@ -564,6 +560,10 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.cpp",
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h",
+  "$_src/gpu/ops/GrSmallPathAtlasMgr.cpp",
+  "$_src/gpu/ops/GrSmallPathAtlasMgr.h",
+  "$_src/gpu/ops/GrSmallPathShapeData.cpp",
+  "$_src/gpu/ops/GrSmallPathShapeData.h",
   "$_src/gpu/ops/GrStrokeRectOp.cpp",
   "$_src/gpu/ops/GrStrokeRectOp.h",
   "$_src/gpu/ops/GrTextureOp.cpp",

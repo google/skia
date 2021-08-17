@@ -19,7 +19,6 @@ class GrCaps;
 class GrMeshDrawTarget;
 class GrOpFlushState;
 struct GrSimpleMesh;
-class GrSmallPathAtlasMgr;
 class GrStrikeCache;
 
 /**
