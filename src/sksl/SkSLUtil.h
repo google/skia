@@ -174,6 +174,11 @@ public:
         return fNonsquareMatrixSupport;
     }
 
+    bool fInverseHyperbolicSupport = false;
+    bool inverseHyperbolicSupport() const {
+        return fInverseHyperbolicSupport;
+    }
+
     bool fBuiltinFMASupport = false;
     bool builtinFMASupport() const {
         return fBuiltinFMASupport;

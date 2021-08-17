@@ -22,6 +22,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fDualSourceBlendingSupport = false;
     fIntegerSupport = false;
     fNonsquareMatrixSupport = false;
+    fInverseHyperbolicSupport = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
     fUsesPrecisionModifiers = false;
@@ -95,6 +96,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Dual Source Blending Support", fDualSourceBlendingSupport);
     writer->appendBool("Integer Support", fIntegerSupport);
     writer->appendBool("Nonsquare Matrix Support", fNonsquareMatrixSupport);
+    writer->appendBool("Inverse Hyperbolic Support", fInverseHyperbolicSupport);
 
     static const char* kAdvBlendEqInteractionStr[] = {
         "Not Supported",
