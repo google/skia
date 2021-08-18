@@ -264,11 +264,11 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
         flags |= kLocalCoordAttribute_GPFlag;
     }
 
-    GrColor color = GrRandomColor(d->fRandom);
+    GrColor color = GrTest::RandomColor(d->fRandom);
     SkMatrix viewMtx = GrTest::TestMatrix(d->fRandom);
     SkMatrix localMtx = GrTest::TestMatrix(d->fRandom);
     bool readsLocalCoords = d->fRandom->nextBool();
-    uint8_t coverage = GrRandomCoverage(d->fRandom);
+    uint8_t coverage = GrTest::RandomCoverage(d->fRandom);
     return DefaultGeoProc::Make(d->allocator(),
                                 flags,
                                 SkPMColor4f::FromBytes_RGBA(color),

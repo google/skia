@@ -598,7 +598,7 @@ GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     SkScalar srcSpaceTol = GrPathUtils::scaleToleranceToSrc(tol, viewMatrix, bounds);
 
     viewMatrix.mapRect(&bounds);
-    uint8_t coverage = GrRandomCoverage(random);
+    uint8_t coverage = GrTest::RandomCoverage(random);
     GrAAType aaType = GrAAType::kNone;
     if (numSamples > 1 && random->nextBool()) {
         aaType = GrAAType::kMSAA;

@@ -351,6 +351,67 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
 
 TestAsFPArgs::~TestAsFPArgs() {}
 
+GrColor RandomColor(SkRandom* random) {
+    // There are only a few cases of random colors which interest us
+    enum ColorMode {
+        kAllOnes_ColorMode,
+        kAllZeros_ColorMode,
+        kAlphaOne_ColorMode,
+        kRandom_ColorMode,
+        kLast_ColorMode = kRandom_ColorMode
+    };
+
+    ColorMode colorMode = ColorMode(random->nextULessThan(kLast_ColorMode + 1));
+    GrColor color SK_INIT_TO_AVOID_WARNING;
+    switch (colorMode) {
+        case kAllOnes_ColorMode:
+            color = GrColorPackRGBA(0xFF, 0xFF, 0xFF, 0xFF);
+            break;
+        case kAllZeros_ColorMode:
+            color = GrColorPackRGBA(0, 0, 0, 0);
+            break;
+        case kAlphaOne_ColorMode:
+            color = GrColorPackRGBA(random->nextULessThan(256),
+                                    random->nextULessThan(256),
+                                    random->nextULessThan(256),
+                                    0xFF);
+            break;
+        case kRandom_ColorMode: {
+                uint8_t alpha = random->nextULessThan(256);
+                color = GrColorPackRGBA(random->nextRangeU(0, alpha),
+                                        random->nextRangeU(0, alpha),
+                                        random->nextRangeU(0, alpha),
+                                        alpha);
+            break;
+        }
+    }
+    return color;
+}
+
+uint8_t RandomCoverage(SkRandom* random) {
+    enum CoverageMode {
+        kZero_CoverageMode,
+        kAllOnes_CoverageMode,
+        kRandom_CoverageMode,
+        kLast_CoverageMode = kRandom_CoverageMode
+    };
+
+    CoverageMode colorMode = CoverageMode(random->nextULessThan(kLast_CoverageMode + 1));
+    uint8_t coverage SK_INIT_TO_AVOID_WARNING;
+    switch (colorMode) {
+        case kZero_CoverageMode:
+            coverage = 0;
+            break;
+        case kAllOnes_CoverageMode:
+            coverage = 0xff;
+            break;
+        case kRandom_CoverageMode:
+            coverage = random->nextULessThan(256);
+            break;
+    }
+    return coverage;
+}
+
 }  // namespace GrTest
 
 #endif

@@ -186,7 +186,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
-    GrColor color = GrRandomColor(d->fRandom);
+    GrColor color = GrTest::RandomColor(d->fRandom);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
     bool usesLocalCoords = d->fRandom->nextBool();
@@ -341,7 +341,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
-    GrColor color = GrRandomColor(d->fRandom);
+    GrColor color = GrTest::RandomColor(d->fRandom);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
     bool usesLocalCoords = d->fRandom->nextBool();

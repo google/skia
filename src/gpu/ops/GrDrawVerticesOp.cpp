@@ -655,7 +655,7 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
             texCoords->push_back(random_point(random, min, max));
         }
         if (hasColors) {
-            colors->push_back(GrRandomColor(random));
+            colors->push_back(GrTest::RandomColor(random));
         }
         if (hasIndices) {
             SkASSERT(maxVertex <= UINT16_MAX);

@@ -357,7 +357,7 @@ static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXfor
         xforms->push_back(random_xform(random));
         texRects->push_back(random_texRect(random));
         if (hasColors) {
-            colors->push_back(GrRandomColor(random));
+            colors->push_back(GrTest::RandomColor(random));
         }
     }
 }

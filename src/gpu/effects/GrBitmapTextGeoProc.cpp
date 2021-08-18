@@ -221,7 +221,7 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
             break;
     }
 
-    GrColor color = GrRandomColor(d->fRandom);
+    GrColor color = GrTest::RandomColor(d->fRandom);
     bool wideColor = d->fRandom->nextBool();
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
     bool usesW = d->fRandom->nextBool();
