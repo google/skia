@@ -488,11 +488,11 @@ private:
     TextureOp(GrTextureSetEntry set[],
               int cnt,
               int proxyRunCnt,
-              GrSamplerState::Filter filter,
-              GrSamplerState::MipmapMode mm,
-              GrTextureOp::Saturate saturate,
-              GrAAType aaType,
-              SkCanvas::SrcRectConstraint constraint,
+              const GrSamplerState::Filter filter,
+              const GrSamplerState::MipmapMode mm,
+              const GrTextureOp::Saturate saturate,
+              const GrAAType aaType,
+              const SkCanvas::SrcRectConstraint constraint,
               const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
@@ -561,6 +561,9 @@ private:
                 quad.fLocal = GrQuad(set[q].fSrcRect);
             }
 
+            // This may be reduced per-quad from the requested aggregate filtering level, and used
+            // to determine if the subset is needed for the entry as well.
+            GrSamplerState::Filter filterForQuad = filter;
             if (netFilter != filter || netMM != mm) {
                 // The only way netFilter != filter is if linear is requested and we haven't yet
                 // found a quad that requires linear (so net is still nearest). Similar for mip
@@ -570,8 +573,12 @@ private:
                 SkASSERT(mm == netMM ||
                          (netMM == GrSamplerState::MipmapMode::kNone && mm > netMM));
                 auto [mustFilter, mustMM] = filter_and_mm_have_effect(quad.fLocal, quad.fDevice);
-                if (mustFilter && filter != GrSamplerState::Filter::kNearest) {
-                    netFilter = filter;
+                if (filter != GrSamplerState::Filter::kNearest) {
+                    if (mustFilter) {
+                        netFilter = filter; // upgrade batch to higher filter level
+                    } else {
+                        filterForQuad = GrSamplerState::Filter::kNearest; // downgrade entry
+                    }
                 }
                 if (mustMM && mm != GrSamplerState::MipmapMode::kNone) {
                     netMM = mm;
@@ -598,7 +605,7 @@ private:
                 // Check (briefly) if the subset rect is actually needed for this set entry.
                 SkRect* subsetRect = &set[q].fSrcRect;
                 if (!subsetRect->contains(curProxy->backingStoreBoundsRect())) {
-                    if (!safe_to_ignore_subset_rect(aaForQuad, filter, quad, *subsetRect)) {
+                    if (!safe_to_ignore_subset_rect(aaForQuad, filterForQuad, quad, *subsetRect)) {
                         netSubset = Subset::kYes;
                         subsetForQuad = subsetRect;
                     }
@@ -611,8 +618,7 @@ private:
             normalize_src_quad(proxyParams, &quad.fLocal);
 
             // This subset may represent a no-op, otherwise it will have the origin and dimensions
-            // of the texture applied to it. Insetting for bilinear filtering is deferred until
-            // on[Pre]Prepare so that the overall filter can be lazily determined.
+            // of the texture applied to it.
             SkRect subset = normalize_and_inset_subset(filter, proxyParams, subsetForQuad);
 
             // Always append a quad (or 2 if perspective clipped), it just may refer back to a prior
