@@ -5,25 +5,26 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStencilMaskHelper_DEFINED
-#define GrStencilMaskHelper_DEFINED
+#ifndef StencilMaskHelper_DEFINED
+#define StencilMaskHelper_DEFINED
 
-#include "include/core/SkRect.h"
-#include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrStencilClip.h"
-#include "src/gpu/GrWindowRectsState.h"
+#include "src/gpu/v1/StencilClip.h"
 
 class GrShape;
 class GrRecordingContext;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class SkMatrix;
+struct SkRect;
 class SkRRect;
 
+namespace skgpu::v1 {
+
+class SurfaceDrawContext;
+
 /**
- * The GrStencilMaskHelper helps generate clip masks using the stencil buffer.
+ * The StencilMaskHelper helps generate clip masks using the stencil buffer.
  * It is intended to be used as:
  *
- *   GrStencilMaskHelper helper;
+ *   StencilMaskHelper helper;
  *   helper.init(...);
  *
  *      draw one or more paths/rects specifying the required boolean ops
@@ -32,12 +33,12 @@ class SkRRect;
  *
  * The result of this process will be the mask stored in the clip bits of the stencil buffer.
  */
-class GrStencilMaskHelper : SkNoncopyable {
+class StencilMaskHelper : SkNoncopyable {
 public:
     // Configure the helper to update the stencil mask within the given rectangle, respecting the
     // set window rectangles. It will use the provided context and render target to draw into, both
     // of which must outlive the helper.
-    GrStencilMaskHelper(GrRecordingContext*, skgpu::v1::SurfaceDrawContext*);
+    StencilMaskHelper(GrRecordingContext*, SurfaceDrawContext*);
 
     // Returns true if the stencil mask must be redrawn
     bool init(const SkIRect& maskBounds, uint32_t genID,
@@ -59,12 +60,14 @@ public:
     void finish();
 
 private:
-    GrRecordingContext*            fContext;
-    skgpu::v1::SurfaceDrawContext* fSDC;
-    GrStencilClip                  fClip;
-    int                            fNumFPs;
+    GrRecordingContext* fContext;
+    SurfaceDrawContext* fSDC;
+    StencilClip         fClip;
+    int                 fNumFPs;
 
     using INHERITED = SkNoncopyable;
 };
 
-#endif // GrStencilMaskHelper_DEFINED
+} // namespace skgpu::v1
+
+#endif // StencilMaskHelper_DEFINED

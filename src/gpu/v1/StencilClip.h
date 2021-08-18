@@ -5,23 +5,26 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStencilClip_DEFINED
-#define GrStencilClip_DEFINED
+#ifndef StencilClip_DEFINED
+#define StencilClip_DEFINED
 
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrFixedClip.h"
 
+namespace skgpu::v1 {
+
 /**
  * Implements GrHardClip with the currently-existing stencil buffer contents and GrFixedClip.
  */
-class GrStencilClip final : public GrHardClip {
+class StencilClip final : public GrHardClip {
 public:
-    explicit GrStencilClip(const SkISize& rtDims, uint32_t stencilStackID = SK_InvalidGenID)
+    explicit StencilClip(const SkISize& rtDims, uint32_t stencilStackID = SK_InvalidGenID)
             : fFixedClip(rtDims)
             , fStencilStackID(stencilStackID) {}
 
-    GrStencilClip(const SkISize& rtDims, const SkIRect& scissorRect,
-                  uint32_t stencilStackID = SK_InvalidGenID)
+    StencilClip(const SkISize& rtDims,
+                const SkIRect& scissorRect,
+                uint32_t stencilStackID = SK_InvalidGenID)
             : fFixedClip(rtDims, scissorRect)
             , fStencilStackID(stencilStackID) {}
 
@@ -58,10 +61,12 @@ public:
     }
 
 private:
-    GrFixedClip   fFixedClip;
-    uint32_t      fStencilStackID;
+    GrFixedClip fFixedClip;
+    uint32_t    fStencilStackID;
 
     using INHERITED = GrClip;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // StencilClip_DEFINED

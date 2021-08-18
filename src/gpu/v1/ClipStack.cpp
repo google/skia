@@ -20,7 +20,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
-#include "src/gpu/GrStencilMaskHelper.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
@@ -28,6 +27,7 @@
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/ops/GrAtlasPathRenderer.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/v1/StencilMaskHelper.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {
@@ -375,7 +375,7 @@ void render_stencil_mask(GrRecordingContext* rContext,
                          const skgpu::v1::ClipStack::Element** elements,
                          int count,
                          GrAppliedClip* out) {
-    GrStencilMaskHelper helper(rContext, sdc);
+    skgpu::v1::StencilMaskHelper helper(rContext, sdc);
     if (helper.init(bounds, genID, out->windowRectsState().windows(), 0)) {
         // This follows the same logic as in draw_sw_mask
         bool startInside = elements[0]->fOp == SkClipOp::kDifference;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrStencilMaskHelper.h"
+#include "src/gpu/v1/StencilMaskHelper.h"
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
@@ -253,8 +253,10 @@ static constexpr GrUserStencilSettings gDrawToStencil(
 // caller should use those stencil settings while drawing the element directly.
 //
 // This returns a null-terminated list of const GrUserStencilSettings*
-static GrUserStencilSettings const* const* get_stencil_passes(
-        SkRegion::Op op, GrPathRenderer::StencilSupport stencilSupport, bool fillInverted,
+GrUserStencilSettings const* const* get_stencil_passes(
+        SkRegion::Op op,
+        GrPathRenderer::StencilSupport stencilSupport,
+        bool fillInverted,
         bool* drawDirectToClip) {
     bool canRenderDirectToStencil =
             GrPathRenderer::kNoRestriction_StencilSupport == stencilSupport;
@@ -274,19 +276,24 @@ static GrUserStencilSettings const* const* get_stencil_passes(
     return gUserToClipTable[fillInverted][op];
 }
 
-static void draw_stencil_rect(skgpu::v1::SurfaceDrawContext* sdc, const GrHardClip& clip,
-                              const GrUserStencilSettings* ss, const SkMatrix& matrix,
-                              const SkRect& rect, GrAA aa) {
+void draw_stencil_rect(skgpu::v1::SurfaceDrawContext* sdc,
+                       const GrHardClip& clip,
+                       const GrUserStencilSettings* ss,
+                       const SkMatrix& matrix,
+                       const SkRect& rect, GrAA aa) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
     sdc->stencilRect(&clip, ss, std::move(paint), aa, matrix, rect);
 }
 
-static void draw_path(GrRecordingContext* rContext,
-                      skgpu::v1::SurfaceDrawContext* sdc,
-                      GrPathRenderer* pr, const GrHardClip& clip, const SkIRect& bounds,
-                      const GrUserStencilSettings* ss,  const SkMatrix& matrix,
-                      const GrStyledShape& shape, GrAA aa) {
+void draw_path(GrRecordingContext* rContext,
+               skgpu::v1::SurfaceDrawContext* sdc,
+               GrPathRenderer* pr,
+               const GrHardClip& clip,
+               const SkIRect& bounds,
+               const GrUserStencilSettings* ss,
+               const SkMatrix& matrix,
+               const GrStyledShape& shape, GrAA aa) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
 
@@ -306,13 +313,13 @@ static void draw_path(GrRecordingContext* rContext,
     pr->drawPath(args);
 }
 
-static void stencil_path(GrRecordingContext* rContext,
-                         skgpu::v1::SurfaceDrawContext* sdc,
-                         GrPathRenderer* pr,
-                         const GrFixedClip& clip,
-                         const SkMatrix& matrix,
-                         const GrStyledShape& shape,
-                         GrAA aa) {
+void stencil_path(GrRecordingContext* rContext,
+                  skgpu::v1::SurfaceDrawContext* sdc,
+                  GrPathRenderer* pr,
+                  const GrFixedClip& clip,
+                  const SkMatrix& matrix,
+                  const GrStyledShape& shape,
+                  GrAA aa) {
     GrPathRenderer::StencilPathArgs args;
     args.fContext = rContext;
     args.fSurfaceDrawContext = sdc;
@@ -325,7 +332,7 @@ static void stencil_path(GrRecordingContext* rContext,
     pr->stencilPath(args);
 }
 
-static GrAA supported_aa(skgpu::v1::SurfaceDrawContext* sdc, GrAA aa) {
+GrAA supported_aa(skgpu::v1::SurfaceDrawContext* sdc, GrAA aa) {
     if (sdc->canUseDynamicMSAA()) {
         return GrAA::kYes;
     }
@@ -342,15 +349,17 @@ static GrAA supported_aa(skgpu::v1::SurfaceDrawContext* sdc, GrAA aa) {
 
 }  // namespace
 
-GrStencilMaskHelper::GrStencilMaskHelper(GrRecordingContext* rContext,
-                                         skgpu::v1::SurfaceDrawContext* sdc)
+namespace skgpu::v1 {
+
+StencilMaskHelper::StencilMaskHelper(GrRecordingContext* rContext,
+                                     SurfaceDrawContext* sdc)
         : fContext(rContext)
         , fSDC(sdc)
         , fClip(sdc->dimensions()) {
 }
 
-bool GrStencilMaskHelper::init(const SkIRect& bounds, uint32_t genID,
-                               const GrWindowRectangles& windowRects, int numFPs) {
+bool StencilMaskHelper::init(const SkIRect& bounds, uint32_t genID,
+                             const GrWindowRectangles& windowRects, int numFPs) {
     if (!fSDC->mustRenderClip(genID, bounds, numFPs)) {
         return false;
     }
@@ -366,10 +375,10 @@ bool GrStencilMaskHelper::init(const SkIRect& bounds, uint32_t genID,
     return true;
 }
 
-void GrStencilMaskHelper::drawRect(const SkRect& rect,
-                                   const SkMatrix& matrix,
-                                   SkRegion::Op op,
-                                   GrAA aa) {
+void StencilMaskHelper::drawRect(const SkRect& rect,
+                                 const SkMatrix& matrix,
+                                 SkRegion::Op op,
+                                 GrAA aa) {
     if (rect.isEmpty()) {
         return;
     }
@@ -396,10 +405,10 @@ void GrStencilMaskHelper::drawRect(const SkRect& rect,
     }
 }
 
-bool GrStencilMaskHelper::drawPath(const SkPath& path,
-                                   const SkMatrix& matrix,
-                                   SkRegion::Op op,
-                                   GrAA aa) {
+bool StencilMaskHelper::drawPath(const SkPath& path,
+                                 const SkMatrix& matrix,
+                                 SkRegion::Op op,
+                                 GrAA aa) {
     if (path.isEmpty()) {
         return true;
     }
@@ -470,10 +479,10 @@ bool GrStencilMaskHelper::drawPath(const SkPath& path,
     return true;
 }
 
-bool GrStencilMaskHelper::drawShape(const GrShape& shape,
-                                    const SkMatrix& matrix,
-                                    SkRegion::Op op,
-                                    GrAA aa) {
+bool StencilMaskHelper::drawShape(const GrShape& shape,
+                                  const SkMatrix& matrix,
+                                  SkRegion::Op op,
+                                  GrAA aa) {
     if (shape.isRect() && !shape.inverted()) {
         this->drawRect(shape.rect(), matrix, op, aa);
         return true;
@@ -484,7 +493,7 @@ bool GrStencilMaskHelper::drawShape(const GrShape& shape,
     }
 }
 
-void GrStencilMaskHelper::clear(bool insideStencil) {
+void StencilMaskHelper::clear(bool insideStencil) {
     if (fClip.fixedClip().hasWindowRectangles()) {
         // Use a draw to benefit from window rectangles when resetting the stencil buffer; for
         // large buffers with MSAA this can be significant.
@@ -496,6 +505,8 @@ void GrStencilMaskHelper::clear(bool insideStencil) {
     }
 }
 
-void GrStencilMaskHelper::finish() {
+void StencilMaskHelper::finish() {
     fSDC->setLastClip(fClip.stencilStackID(), fClip.fixedClip().scissorRect(), fNumFPs);
 }
+
+} // namespace skgpu::v1
