@@ -111,7 +111,7 @@ static int calculate_window(double sigma) {
 }
 
 struct WindowSpec {
-    size_t bufferSize;
+    size_t bufferSizeBytes;
     int window;
 };
 
@@ -151,8 +151,8 @@ public:
         //     bbBbbb
         //    cccCccc
         //       D
-        size_t bufferSize = (window & 1) == 1 ? 3 * onePassSize : 3 * onePassSize + 1;
-        return {bufferSize, window};
+        size_t bufferCount = (window & 1) == 1 ? 3 * onePassSize : 3 * onePassSize + 1;
+        return {bufferCount * sizeof(skvx::Vec<4, uint32_t>), window};
     }
 
     static GaussPass Make(WindowSpec windowSpec, void* buffers) {
@@ -497,8 +497,8 @@ static sk_sp<SkSpecialImage> cpu_blur(
     // The amount 1024 is enough for buffers up to 10 sigma. The tmp bitmap will be
     // allocated on the heap.
     SkSTArenaAlloc<1024> alloc;
-    auto bufferSize = std::max(windowSpecX.bufferSize, windowSpecY.bufferSize);
-    auto buffer = alloc.makeArrayDefault<skvx::Vec<4, uint32_t>>(bufferSize);
+    size_t bufferSizeBytes = std::max(windowSpecX.bufferSizeBytes, windowSpecY.bufferSizeBytes);
+    auto buffer = alloc.makeBytesAlignedTo(bufferSizeBytes, alignof(skvx::Vec<4, uint32_t>));
 
     // Basic Plan: The three cases to handle
     // * Horizontal and Vertical - blur horizontally while copying values from the source to
@@ -545,7 +545,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
         uint32_t* dstCursor = intermediateSrc;
         for (auto y = 0; y < srcH; y++) {
             pass.blur(srcBounds.left(), srcBounds.right(), dstBounds.right(),
-                       srcCursor, 1, dstCursor, 1);
+                      srcCursor, 1, dstCursor, 1);
             srcCursor += src.rowBytesAsPixels();
             dstCursor += intermediateRowBytesAsPixels;
         }
