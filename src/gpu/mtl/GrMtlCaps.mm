@@ -153,7 +153,7 @@ bool GrMtlCaps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
 
 bool GrMtlCaps::getGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
 #if GR_METAL_SDK_VERSION >= 220
-    if (@available(macOS 10.15, iOS 13.0, macCatalyst 13.0, tvOS 13.0, *)) {
+    if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         // Apple Silicon
 #if GR_METAL_SDK_VERSION >= 230
         if ([device supportsFamily:MTLGPUFamilyApple7]) {
