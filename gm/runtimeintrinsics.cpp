@@ -18,6 +18,9 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkRuntimeEffectPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -109,12 +112,15 @@ static void plot(SkCanvas* canvas,
                  float xMax,
                  float yMin,
                  float yMax,
-                 const char* label = nullptr) {
+                 const char* label = nullptr,
+                 bool requireES3 = false) {
     canvas->save();
 
     draw_label(canvas, label ? label : fn);
 
-    auto [effect, error] = SkRuntimeEffect::MakeForShader(make_unary_sksl_1d(fn));
+    auto [effect, error] = SkRuntimeEffect::MakeForShader(
+            make_unary_sksl_1d(fn),
+            requireES3 ? SkRuntimeEffectPriv::ES3Options() : SkRuntimeEffect::Options{});
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
         return;
@@ -141,6 +147,16 @@ static void plot(SkCanvas* canvas,
 
     canvas->restore();
     next_column(canvas);
+}
+
+static void plot_es3(SkCanvas* canvas,
+                     const char* fn,
+                     float xMin,
+                     float xMax,
+                     float yMin,
+                     float yMax,
+                     const char* label = nullptr) {
+    plot(canvas, fn, xMin, xMax, yMin, yMax, label, /*requireES3=*/true);
 }
 
 // The OpenGL ES Shading Language, Version 1.00, Section 8.1
@@ -174,6 +190,38 @@ DEF_SIMPLE_GM(runtime_intrinsics_trig,
     plot(canvas, "atan(x,  0.1)", -1.0f, 1.0f, -kPIOverTwo, kPIOverTwo);
     plot(canvas, "atan(x, -0.1)", -1.0f, 1.0f,        -kPI,        kPI);
     next_row(canvas);
+}
+
+// The OpenGL ES Shading Language, Version 3.00, Section 8.1
+DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_trig_es3,
+                           ctx, canvas, errorMsg,
+                           columns_to_width(3),
+                           rows_to_height(2)) {
+    // We don't have an ES2 caps bit, so we check the caps bits for features that ES2 explicitly
+    // doesn't support. Our ES2 bots should return false for these.
+    if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport() ||
+        !ctx->priv().caps()->shaderCaps()->integerSupport() ||
+        !ctx->priv().caps()->shaderCaps()->nonsquareMatrixSupport()) {
+        *errorMsg = "ES3 features are required.";
+        return skiagm::DrawResult::kSkip;
+    }
+
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    plot_es3(canvas, "sinh(x)", -2.0f,  2.0f, -4.0f, 4.0f);
+    plot_es3(canvas, "cosh(x)", -2.0f,  2.0f,  0.0f, 4.0f);
+    plot_es3(canvas, "tanh(x)", -2.0f,  2.0f, -1.0f, 1.0f);
+    next_row(canvas);
+
+    if (ctx->priv().caps()->shaderCaps()->inverseHyperbolicSupport()) {
+        plot_es3(canvas, "asinh(x)", -2.0f, 2.0f, -2.0f, 2.0f);
+        plot_es3(canvas, "acosh(x)",  0.0f, 5.0f,  0.0f, 3.0f);
+        plot_es3(canvas, "atanh(x)", -1.0f, 1.0f, -4.0f, 4.0f);
+    }
+    next_row(canvas);
+
+    return skiagm::DrawResult::kOk;
 }
 
 // The OpenGL ES Shading Language, Version 1.00, Section 8.2
