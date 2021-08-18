@@ -86,12 +86,12 @@ protected:
             fYInc += pts[0].fY;
         };
 
-        SkPath::Verb verb;
-        SkPoint      pts[4];
         switch (fType) {
             case PathIterType::kIter:
                 for (int i = 0; i < loops; ++i) {
                     SkPath::Iter iter(fPath, true);
+                    SkPath::Verb verb;
+                    SkPoint      pts[4];
                     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
                         handle(verb, pts);
                     }
