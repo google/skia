@@ -6012,6 +6012,22 @@ DEF_TEST(SkParagraph_PositionInsideEmoji, reporter) {
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 0, 0);
 
+    // UTF8       UTF16
+    // 4          [0:2)
+    // 3 + 4      [2:5)
+    // 3 + 4      [5:8)
+    // 3 + 4      [8:11)
+    // 4          [11:13)
+    // 4          [13:15)
+    // 4          [15:17)
+    // 4          [17:19)
+
+    auto family = paragraph->getRectsForRange(0, 11, RectHeightStyle::kTight, RectWidthStyle::kTight);  // 00.0000000 + 17.4699993
+    auto face01 = paragraph->getRectsForRange(11, 13, RectHeightStyle::kTight, RectWidthStyle::kTight); // 17.4699993 + 17.4699993
+    auto face02 = paragraph->getRectsForRange(13, 15, RectHeightStyle::kTight, RectWidthStyle::kTight); // 34.9399986 + 17.4699993
+    auto face03 = paragraph->getRectsForRange(15, 17, RectHeightStyle::kTight, RectWidthStyle::kTight); // 52.4099998 + 17.4699993
+    auto face04 = paragraph->getRectsForRange(17, 19, RectHeightStyle::kTight, RectWidthStyle::kTight); // 69.8799973 + 17.4699993
+
     int32_t words[] = { 11, 13, 15, 17, 19, 21};
     auto j = 0;
     for (auto i :  words) {
@@ -6019,11 +6035,13 @@ DEF_TEST(SkParagraph_PositionInsideEmoji, reporter) {
         if (rects.empty()) {
             continue;
         }
-        auto X = rects[0].rect.fRight;
-        auto Y = rects[0].rect.fTop;
-        auto res = paragraph->getGlyphPositionAtCoordinate(X, Y);
-        //SkDebugf("[%d:%d) @%f,%f: %d %s\n", j, i, X, Y, res.position, res.affinity == Affinity::kDownstream ? "D" : "U");
-        REPORTER_ASSERT(reporter, i == res.position);
+        auto X = rects[0].rect.centerX();
+        auto Y = rects[0].rect.centerY();
+        auto res1 = paragraph->getGlyphPositionAtCoordinate(X - 5, Y);
+        //SkDebugf("[%d:%d) @%f,%f: %d %s\n", j, i, X - 5, Y, res1.position, res1.affinity == Affinity::kDownstream ? "D" : "U");
+        auto res2 = paragraph->getGlyphPositionAtCoordinate(X + 5, Y);
+        //SkDebugf("[%d:%d) @%f,%f: %d %s\n\n", j, i, X + 5, Y, res2.position, res2.affinity == Affinity::kDownstream ? "D" : "U");
+        REPORTER_ASSERT(reporter, i == res2.position && res1.position == j);
         j = i;
     }
 }
@@ -6452,7 +6470,7 @@ DEF_TEST(SkParagraph_PlaceholderPosition, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
 
-    TestCanvas canvas("SkParagraph_PlaceholderPosition");
+    TestCanvas canvas("SkParagraph_PlaceholderPosition.png");
     canvas.get()->translate(100, 100);
 
     TextStyle text_style;
@@ -6474,6 +6492,7 @@ DEF_TEST(SkParagraph_PlaceholderPosition, reporter) {
 
     auto paragraph = builder.Build();
     paragraph->layout(500);
+    paragraph->paint(canvas.get(), 0, 0);
 
     auto result = paragraph->getGlyphPositionAtCoordinate(41.0f, 0.0f);
     REPORTER_ASSERT(reporter, result.position == 4 && result.affinity == Affinity::kDownstream);

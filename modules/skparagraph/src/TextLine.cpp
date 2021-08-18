@@ -602,6 +602,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                                        run->calculateHeight(this->fAscentStyle,this->fDescentStyle));
         return result;
     } else if (run->isPlaceholder()) {
+        result.fTextShift = runOffsetInLine;
         if (SkScalarIsFinite(run->fFontMetrics.fAscent)) {
           result.clip = SkRect::MakeXYWH(runOffsetInLine,
                                          sizes().runTop(run, this->fAscentStyle),
@@ -1227,30 +1228,14 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 // Find the grapheme range that contains the point
                 auto clusterIndex8 = context.run->globalClusterIndex(found);
                 auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
-                TextIndex graphemeUtf8Start =
-                    fOwner->findPreviousGraphemeBoundary(clusterIndex8);
-                TextIndex graphemeUtf8Width =
-                    fOwner->findNextGraphemeBoundary(clusterEnd8) - graphemeUtf8Start;
-                size_t utf16Index = fOwner->getUTF16Index(clusterIndex8);
 
                 SkScalar center = glyphemePosLeft + glyphemePosWidth / 2;
-                bool insideGlypheme = false;
-                if (graphemeUtf8Width > 1) {
-                    // TODO: the average width of a code unit (especially UTF-8) is meaningless.
-                    // Probably want the average width of a grapheme or codepoint?
-                    SkScalar averageUtf8Width = glyphemePosWidth / graphemeUtf8Width;
-                    SkScalar delta = dx - glyphemePosLeft;
-                    int insideUtf8Offset = SkScalarNearlyZero(averageUtf8Width)
-                                         ? 0
-                                         : SkScalarFloorToInt(delta / averageUtf8Width);
-                    insideGlypheme = averageUtf8Width < delta && delta < glyphemePosWidth - averageUtf8Width;
-                    center = glyphemePosLeft + averageUtf8Width * insideUtf8Offset + averageUtf8Width / 2;
-                    // Keep UTF16 index as is
-                }
-                if ((dx < center) == context.run->leftToRight() || insideGlypheme) {
+                if ((dx < center) == context.run->leftToRight()) {
+                    size_t utf16Index = fOwner->getUTF16Index(clusterIndex8);
                     result = { SkToS32(utf16Index), kDownstream };
                 } else {
-                    result = { SkToS32(utf16Index + 1), kUpstream };
+                    size_t utf16Index = fOwner->getUTF16Index(clusterEnd8);
+                    result = { SkToS32(utf16Index), kUpstream };
                 }
 
                 return keepLooking = false;
