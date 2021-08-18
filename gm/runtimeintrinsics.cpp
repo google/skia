@@ -197,12 +197,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_trig_es3,
                            ctx, canvas, errorMsg,
                            columns_to_width(3),
                            rows_to_height(2)) {
-    // We don't have an ES2 caps bit, so we check the caps bits for features that ES2 explicitly
-    // doesn't support. Our ES2 bots should return false for these.
-    if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport() ||
-        !ctx->priv().caps()->shaderCaps()->integerSupport() ||
-        !ctx->priv().caps()->shaderCaps()->nonsquareMatrixSupport()) {
-        *errorMsg = "ES3 features are required.";
+    if (!ctx->priv().caps()->shaderCaps()->supportsSkSLES3()) {
+        *errorMsg = "SkSL ES3 is not supported.";
         return skiagm::DrawResult::kSkip;
     }
 
