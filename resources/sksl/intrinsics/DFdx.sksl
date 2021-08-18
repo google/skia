@@ -6,11 +6,8 @@ half4 main(float2 coords) {
     return (dFdx(testInputs.x)    == expected.x     &&
             dFdx(testInputs.xy)   == expected.xy    &&
             dFdx(testInputs.xyz)  == expected.xyz   &&
-            dFdx(testInputs.xyzw) == expected.xyzw) ? colorGreen : colorRed;
-/*
-            // TODO(skia:12340): This test triggers an RTFlip bug in the SPIR-V code generator
+            dFdx(testInputs.xyzw) == expected.xyzw  &&
             sign(dFdx(coords.xx)) == half2(1, 1)    &&
             sign(dFdx(coords.yy)) == half2(0, 0)    &&
-            sign(dFdx(coords.xy)) == half2(1, 0)
-*/
+            sign(dFdx(coords.xy)) == half2(1, 0)) ? colorGreen : colorRed;
 }

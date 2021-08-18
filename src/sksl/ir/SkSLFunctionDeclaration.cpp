@@ -108,9 +108,9 @@ static bool check_parameters(const Context& context,
             } else if (context.fConfig->fKind == ProgramKind::kFragment) {
                 // For testing purposes, we have .sksl inputs that are treated as both runtime
                 // effects and fragment shaders. To make that work, fragment shaders are allowed to
-                // have a coords parameter. We turn it into sk_FragCoord.
+                // have a coords parameter.
                 if (type == *context.fTypes.fFloat2) {
-                    m.fLayout.fBuiltin = SK_FRAGCOORD_BUILTIN;
+                    m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
                     param->setModifiers(context.fModifiersPool->add(m));
                 }
             }
@@ -133,9 +133,7 @@ static bool check_main_signature(const Context& context, int offset, const Type&
         const Variable& p = *parameters[idx];
         return p.type() == *context.fTypes.fFloat2 &&
                p.modifiers().fFlags == 0 &&
-               p.modifiers().fLayout.fBuiltin == (kind == ProgramKind::kFragment
-                                                           ? SK_FRAGCOORD_BUILTIN
-                                                           : SK_MAIN_COORDS_BUILTIN);
+               p.modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
     };
 
     auto paramIsBuiltinColor = [&](int idx, int builtinID) {

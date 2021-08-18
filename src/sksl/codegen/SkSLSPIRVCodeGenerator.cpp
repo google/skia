@@ -2007,7 +2007,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 typeId = this->getType(type, this->memoryLayoutForVariable(var));
             }
             auto entry = fVariableMap.find(&var);
-            SkASSERT(entry != fVariableMap.end());
+            SkASSERTF(entry != fVariableMap.end(), "%s", expr.description().c_str());
             return std::make_unique<PointerLValue>(*this, entry->second,
                                                    /*isMemoryObjectPointer=*/true,
                                                    typeId, precision);
@@ -2069,14 +2069,15 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
 }
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
-    if (ref.variable()->modifiers().fLayout.fBuiltin == DEVICE_FRAGCOORDS_BUILTIN) {
+    const Variable* variable = ref.variable();
+    if (variable->modifiers().fLayout.fBuiltin == DEVICE_FRAGCOORDS_BUILTIN) {
         // Down below, we rewrite raw references to sk_FragCoord with expressions that reference
         // DEVICE_FRAGCOORDS_BUILTIN. This is a fake variable that means we need to directly access
         // the fragcoord; do so now.
         dsl::DSLGlobalVar fragCoord("sk_FragCoord");
         return this->getLValue(*dsl::DSLExpression(fragCoord).release(), out)->load(out);
     }
-    if (ref.variable()->modifiers().fLayout.fBuiltin == DEVICE_CLOCKWISE_BUILTIN) {
+    if (variable->modifiers().fLayout.fBuiltin == DEVICE_CLOCKWISE_BUILTIN) {
         // Down below, we rewrite raw references to sk_Clockwise with expressions that reference
         // DEVICE_CLOCKWISE_BUILTIN. This is a fake variable that means we need to directly
         // access front facing; do so now.
@@ -2085,7 +2086,6 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
     }
 
     // Handle inserting use of uniform to flip y when referencing sk_FragCoord.
-    const Variable* variable = ref.variable();
     if (variable->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
         this->addRTFlipUniform(ref.fOffset);
         // Use sk_RTAdjust to compute the flipped coordinate
