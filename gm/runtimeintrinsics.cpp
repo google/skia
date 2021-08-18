@@ -18,6 +18,9 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkRuntimeEffectPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -55,25 +58,28 @@ static void draw_label(SkCanvas* canvas, const char* label) {
     canvas->translate(0, kLabelHeight);
 }
 
-static SkBitmap draw_shader(SkCanvas* canvas, sk_sp<SkShader> shader) {
+static SkBitmap draw_shader(SkCanvas* canvas, sk_sp<SkShader> shader,
+                            bool allowRasterFallback = true) {
     SkPaint paint;
     paint.setShader(std::move(shader));
 
+    SkBitmap bitmap;
     SkImageInfo info = SkImageInfo::MakeN32Premul({kBoxSize, kBoxSize});
     auto surface = canvas->makeSurface(info);
-    if (!surface) {
+    if (allowRasterFallback && !surface) {
         surface = SkSurface::MakeRaster(info);
     }
 
-    surface->getCanvas()->clear(SK_ColorWHITE);
-    surface->getCanvas()->scale(kBoxSize, kBoxSize);
-    surface->getCanvas()->drawRect({0, 0, 1, 1}, paint);
+    if (surface) {
+        surface->getCanvas()->clear(SK_ColorWHITE);
+        surface->getCanvas()->scale(kBoxSize, kBoxSize);
+        surface->getCanvas()->drawRect({0, 0, 1, 1}, paint);
 
-    SkBitmap bitmap;
-    bitmap.allocPixels(info);
-    surface->readPixels(bitmap, 0, 0);
+        bitmap.allocPixels(info);
+        surface->readPixels(bitmap, 0, 0);
 
-    canvas->drawImage(bitmap.asImage(), 0, 0);
+        canvas->drawImage(bitmap.asImage(), 0, 0);
+    }
     return bitmap;
 }
 
@@ -109,12 +115,15 @@ static void plot(SkCanvas* canvas,
                  float xMax,
                  float yMin,
                  float yMax,
-                 const char* label = nullptr) {
+                 const char* label = nullptr,
+                 bool requireES3 = false) {
     canvas->save();
 
     draw_label(canvas, label ? label : fn);
 
-    auto [effect, error] = SkRuntimeEffect::MakeForShader(make_unary_sksl_1d(fn));
+    auto [effect, error] = SkRuntimeEffect::MakeForShader(
+            make_unary_sksl_1d(fn),
+            requireES3 ? SkRuntimeEffectPriv::ES3Options() : SkRuntimeEffect::Options{});
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
         return;
@@ -126,21 +135,33 @@ static void plot(SkCanvas* canvas,
     builder.uniform("yScale") = 1.0f  / (yMax - yMin);
     builder.uniform("yBias")  = -yMin / (yMax - yMin);
 
-    SkBitmap bitmap =
-            draw_shader(canvas, builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false));
-
-    // Plot...
-    SkPaint plotPaint({ 0.0f, 0.5f, 0.0f, 1.0f });
-    SkPoint pts[kBoxSize];
-    for (int x = 0; x < kBoxSize; ++x) {
-        SkColor c = bitmap.getColor(x, 0);
-        SkScalar y = (1 - (SkColorGetR(c) / 255.0f)) * kBoxSize;
-        pts[x].set(x + 0.5f, y);
+    SkBitmap bitmap = draw_shader(canvas,
+                                  builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false),
+                                  /*allowRasterFallback=*/!requireES3);
+    if (!bitmap.empty()) {
+        // Plot.
+        SkPaint plotPaint({ 0.0f, 0.5f, 0.0f, 1.0f });
+        SkPoint pts[kBoxSize];
+        for (int x = 0; x < kBoxSize; ++x) {
+            SkColor c = bitmap.getColor(x, 0);
+            SkScalar y = (1 - (SkColorGetR(c) / 255.0f)) * kBoxSize;
+            pts[x].set(x + 0.5f, y);
+        }
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, kBoxSize, pts, plotPaint);
     }
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, kBoxSize, pts, plotPaint);
 
     canvas->restore();
     next_column(canvas);
+}
+
+static void plot_es3(SkCanvas* canvas,
+                     const char* fn,
+                     float xMin,
+                     float xMax,
+                     float yMin,
+                     float yMax,
+                     const char* label = nullptr) {
+    plot(canvas, fn, xMin, xMax, yMin, yMax, label, /*requireES3=*/true);
 }
 
 // The OpenGL ES Shading Language, Version 1.00, Section 8.1
@@ -174,6 +195,34 @@ DEF_SIMPLE_GM(runtime_intrinsics_trig,
     plot(canvas, "atan(x,  0.1)", -1.0f, 1.0f, -kPIOverTwo, kPIOverTwo);
     plot(canvas, "atan(x, -0.1)", -1.0f, 1.0f,        -kPI,        kPI);
     next_row(canvas);
+}
+
+// The OpenGL ES Shading Language, Version 3.00, Section 8.1
+DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_trig_es3,
+                           ctx, canvas, errorMsg,
+                           columns_to_width(3),
+                           rows_to_height(2)) {
+    if (!ctx->priv().caps()->shaderCaps()->supportsSkSLES3()) {
+        *errorMsg = "SkSL ES3 is not supported.";
+        return skiagm::DrawResult::kSkip;
+    }
+
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    plot_es3(canvas, "sinh(x)", -2.0f,  2.0f, -4.0f, 4.0f);
+    plot_es3(canvas, "cosh(x)", -2.0f,  2.0f,  0.0f, 4.0f);
+    plot_es3(canvas, "tanh(x)", -2.0f,  2.0f, -1.0f, 1.0f);
+    next_row(canvas);
+
+    if (ctx->priv().caps()->shaderCaps()->inverseHyperbolicSupport()) {
+        plot_es3(canvas, "asinh(x)", -2.0f, 2.0f, -2.0f, 2.0f);
+        plot_es3(canvas, "acosh(x)",  0.0f, 5.0f,  0.0f, 3.0f);
+        plot_es3(canvas, "atanh(x)", -1.0f, 1.0f, -4.0f, 4.0f);
+    }
+    next_row(canvas);
+
+    return skiagm::DrawResult::kOk;
 }
 
 // The OpenGL ES Shading Language, Version 1.00, Section 8.2
