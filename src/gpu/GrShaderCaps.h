@@ -46,10 +46,12 @@ public:
     bool gsInvocationsSupport() const { return fGSInvocationsSupport; }
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
-    bool integerSupport() const { return fIntegerSupport; }
     bool nonsquareMatrixSupport() const { return fNonsquareMatrixSupport; }
 
-    // asinh(), acosh(), atanh()
+    /** Indicates true 32-bit integer support, with unsigned types and bitwise operations */
+    bool integerSupport() const { return fIntegerSupport; }
+
+    /** asinh(), acosh(), atanh() */
     bool inverseHyperbolicSupport() const { return fInverseHyperbolicSupport; }
 
     /**
