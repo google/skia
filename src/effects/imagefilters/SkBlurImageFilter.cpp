@@ -408,6 +408,265 @@ private:
     const uint32_t fHalf;
 };
 
+// Implement a scanline processor that uses a two-box filter to approximate a Tent filter.
+// The TentPass is limit to processing sigmas < 2183.
+class TentPass : public Pass {
+public:
+    // NB 136 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
+    // using the Gauss filter. It also limits the size of buffers used hold intermediate values.
+    // Explanation of maximums:
+    //   sum0 = window * 255
+    //   sum1 = window * sum0 -> window * window * 255
+    //
+    //   The value window^2 * 255 must fit in a uint32_t. So,
+    //      window^2 < 2^32. window = 4104.
+    //
+    //   window = floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5)
+    //   For window <= 4104, the largest value for sigma is 2183.
+    static PassMaker* MakeMaker(double sigma, SkArenaAlloc* alloc) {
+        SkASSERT(0 <= sigma);
+        int gaussianWindow = calculate_window(sigma);
+        // This is a naive method of using the window size for the Gaussian blur to calculate the
+        // window size for the Tent blur. This seems to work well in practice.
+        //
+        // We can use a single pixel to generate the effective blur area given a window size. For
+        // the Gaussian blur this is 3 * window size. For the Tent filter this is 2 * window size.
+        int tentWindow = 3 * gaussianWindow / 2;
+        if (tentWindow >= 4104) {
+            return nullptr;
+        }
+
+        class Maker : public PassMaker {
+        public:
+            Maker(int window) : PassMaker{window} {}
+            Pass* makePass(void* buffer, SkArenaAlloc* alloc) const override {
+                return TentPass::Make(this->window(), buffer, alloc);
+            }
+
+            size_t bufferSizeBytes() const override {
+                size_t onePassSize = this->window() - 1;
+                // If the window is odd, then there is an obvious middle element. For even sizes 2
+                // passes are shifted, and the last pass has an extra element. Like this:
+                //       S
+                //    aaaAaa
+                //     bbBbbb
+                //       D
+                size_t bufferCount = 2 * onePassSize;
+                return bufferCount * sizeof(skvx::Vec<4, uint32_t>);
+            }
+        };
+
+        return alloc->make<Maker>(tentWindow);
+    }
+
+    static TentPass* Make(int window, void* buffers, SkArenaAlloc* alloc) {
+        if (window > 4104) {
+            return nullptr;
+        }
+
+        // We don't need to store the trailing edge pixel in the buffer;
+        int passSize = window - 1;
+        skvx::Vec<4, uint32_t>* buffer0 = static_cast<skvx::Vec<4, uint32_t>*>(buffers);
+        skvx::Vec<4, uint32_t>* buffer1 = buffer0 + passSize;
+        skvx::Vec<4, uint32_t>* buffersEnd = buffer1 + passSize;
+
+        // Calculating the border is tricky. The border is the distance in pixels between the first
+        // dst pixel and the first src pixel (or the last src pixel and the last dst pixel).
+        // I will go through the odd case which is simpler, and then through the even case. Given a
+        // stack of filters seven wide for the odd case of three passes.
+        //
+        //        S
+        //     aaaAaaa
+        //     bbbBbbb
+        //        D
+        //
+        // The furthest changed pixel is when the filters are in the following configuration.
+        //
+        //              S
+        //        aaaAaaa
+        //     bbbBbbb
+        //        D
+        //
+        // The A pixel is calculated using the value S, the B uses A, and the D uses B.
+        // So, with a window size of seven the border is nine. In the odd case, the border is
+        // window - 1.
+        //
+        // For even cases the filter stack is more complicated. It uses two passes
+        // of even filters offset from each other. A stack for a width of six looks like
+        // this.
+        //
+        //       S
+        //    aaaAaa
+        //     bbBbbb
+        //       D
+        //
+        // The furthest pixel looks like this.
+        //
+        //            S
+        //       aaaAaa
+        //     bbBbbb
+        //       D
+        //
+        // For a window of six, the border value is 5. In the even case the border is
+        // window - 1.
+        int border = window - 1;
+
+        int divisor = window * window;
+
+        // NB the sums in the blur code use the following technique to avoid
+        // adding 1/2 to round the divide.
+        //
+        //   Sum/d + 1/2 == (Sum + h) / d
+        //   Sum + d(1/2) ==  Sum + h
+        //     h == (1/2)d
+        //
+        // But the d/2 it self should be rounded.
+        //    h == d/2 + 1/2 == (d + 1) / 2
+        //
+        // divisorFactor = (1 / d) * 2 ^ 32
+        auto divisorFactor = static_cast<uint32_t>(round((1.0 / divisor) * (1ull << 32)));
+        auto half = static_cast<uint32_t>((divisor + 1) / 2);
+        return alloc->make<TentPass>(buffer0, buffer1, buffersEnd, border, divisorFactor, half);
+    }
+
+    TentPass(skvx::Vec<4, uint32_t>* buffer0,
+             skvx::Vec<4, uint32_t>* buffer1,
+             skvx::Vec<4, uint32_t>* buffersEnd,
+             int border,
+             uint32_t divisorFactor,
+             uint32_t half)
+         : fBuffer0{buffer0}
+         , fBuffer1{buffer1}
+         , fBuffersEnd{buffersEnd}
+         , fBorder{border}
+         , fDivisorFactor{divisorFactor}
+         , fHalf{half} {}
+
+    // TentPass implements the common two pass box filter approximation of Tent filter,
+    // but combines all both passes into a single pass. This approach is facilitated by two
+    // circular buffers the width of the window which track values for trailing edges of each of
+    // both passes. This allows the algorithm to use more precision in the calculation
+    // because the values are not rounded each pass. And this implementation also avoids a trap
+    // that's easy to fall into resulting in blending in too many zeroes near the edge.
+    //
+    // In general, a window sum has the form:
+    //     sum_n+1 = sum_n + leading_edge - trailing_edge.
+    // If instead we do the subtraction at the end of the previous iteration, we can just
+    // calculate the sums instead of having to do the subtractions too.
+    //
+    //      In previous iteration:
+    //      sum_n+1 = sum_n - trailing_edge.
+    //
+    //      In this iteration:
+    //      sum_n+1 = sum_n + leading_edge.
+    //
+    // Now we can stack all three sums and do them at once. Sum0 gets its leading edge from the
+    // actual data. Sum1's leading edge is just Sum0, and Sum2's leading edge is Sum1. So, doing the
+    // three passes at the same time has the form:
+    //
+    //    sum0_n+1 = sum0_n + leading edge
+    //    sum1_n+1 = sum1_n + sum0_n+1
+    //
+    //    sum1_n+1 / window^2 is the new value of the destination pixel.
+    //
+    // Reduce the sums by the trailing edges which were stored in the circular buffers for the
+    // next go around.
+    //
+    //    sum1_n+2 = sum1_n+1 - buffer1[i];
+    //    buffer1[i] = sum0;
+    //    sum0_n+2 = sum0_n+1 - buffer0[i];
+    //    buffer0[i] = leading edge
+    void blur(int srcLeft, int srcRight, int dstRight,
+              const uint32_t* src, int srcXStride,
+              uint32_t* dst, int dstXStride) override {
+        skvx::Vec<4, uint32_t> sum0{0u, 0u, 0u, 0u};
+        skvx::Vec<4, uint32_t> sum1{fHalf, fHalf, fHalf, fHalf};
+        sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
+
+        skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0;
+        skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1;
+
+        // Given an expanded input pixel, move the window ahead using the leadingEdge value.
+        auto processValue = [&](const skvx::Vec<4, uint32_t>& leadingEdge) {
+            sum0 += leadingEdge;
+            sum1 += sum0;
+
+            skvx::Vec<4, uint64_t> w = skvx::cast<uint64_t>(sum1) * fDivisorFactor;
+            skvx::Vec<4, uint32_t> value = skvx::cast<uint32_t>(w >> 32);
+
+            sum1 -= *buffer1Cursor;
+            *buffer1Cursor = sum0;
+            buffer1Cursor = (buffer1Cursor + 1) < fBuffersEnd ? buffer1Cursor + 1 : fBuffer1;
+            sum0 -= *buffer0Cursor;
+            *buffer0Cursor = leadingEdge;
+            buffer0Cursor = (buffer0Cursor + 1) < fBuffer1 ? buffer0Cursor + 1 : fBuffer0;
+
+            return value;
+        };
+
+        auto srcStart = srcLeft - fBorder,
+                srcEnd   = srcRight - fBorder,
+                dstEnd   = dstRight,
+                srcIdx   = srcStart,
+                dstIdx   = 0;
+
+        const uint32_t* srcCursor = src;
+        uint32_t* dstCursor = dst;
+
+        // The destination pixels are not effected by the src pixels,
+        // change to zero as per the spec.
+        // https://drafts.fxtf.org/filter-effects/#FilterPrimitivesOverviewIntro
+        while (dstIdx < srcIdx) {
+            *dstCursor = 0;
+            dstCursor += dstXStride;
+            SK_PREFETCH(dstCursor);
+            dstIdx++;
+        }
+
+        // The edge of the source is before the edge of the destination. Calculate the sums for
+        // the pixels before the start of the destination.
+        while (dstIdx > srcIdx) {
+            skvx::Vec<4, uint32_t> leadingEdge =
+                    srcIdx < srcEnd ? skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor))
+                                    : 0;
+            (void) processValue(leadingEdge);
+            srcCursor += srcXStride;
+            srcIdx++;
+        }
+
+        // The dstIdx and srcIdx are in sync now; the code just uses the dstIdx for both now.
+        // Consume the source generating pixels to dst.
+        auto loopEnd = std::min(dstEnd, srcEnd);
+        while (dstIdx < loopEnd) {
+            skvx::Vec<4, uint32_t> leadingEdge =
+                    skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor));
+            skvx::cast<uint8_t>(processValue(leadingEdge)).store(dstCursor);
+            srcCursor += srcXStride;
+            dstCursor += dstXStride;
+            SK_PREFETCH(dstCursor);
+            dstIdx++;
+        }
+
+        // The leading edge is beyond the end of the source. Assume that the pixels
+        // are now 0x0000 until the end of the destination.
+        loopEnd = dstEnd;
+        while (dstIdx < loopEnd) {
+            skvx::cast<uint8_t>(processValue(0u)).store(dstCursor);
+            dstCursor += dstXStride;
+            SK_PREFETCH(dstCursor);
+            dstIdx++;
+        }
+    }
+
+private:
+    skvx::Vec<4, uint32_t>* const fBuffer0;
+    skvx::Vec<4, uint32_t>* const fBuffer1;
+    skvx::Vec<4, uint32_t>* const fBuffersEnd;
+    const int fBorder;
+    const uint32_t fDivisorFactor;
+    const uint32_t fHalf;
+};
+
 static sk_sp<SkSpecialImage> copy_image_with_bounds(
         const SkImageFilter_Base::Context& ctx, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
@@ -479,16 +738,18 @@ static sk_sp<SkSpecialImage> cpu_blur(
         SkVector sigma, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
     // TODO: this is temporary until we can handle larger sigma.
-    SkVector limitedSigma = {SkTPin(sigma.x(), 0.0f, 135.0f), SkTPin(sigma.y(), 0.0f, 135.0f)};
+    SkVector limitedSigma = {SkTPin(sigma.x(), 0.0f, 2183.0f), SkTPin(sigma.y(), 0.0f, 2183.0f)};
 
     SkSTArenaAlloc<1024> alloc;
     auto makeMaker = [&](double sigma) -> PassMaker* {
-        SkASSERT(0 <= sigma && sigma <= 135);
+        SkASSERT(0 <= sigma && sigma <= 2183);
         if (PassMaker* maker = GaussPass::MakeMaker(sigma, &alloc)) {
             return maker;
         }
-
-        return nullptr;
+        if (PassMaker* maker = TentPass::MakeMaker(sigma, &alloc)) {
+            return maker;
+        }
+        SK_ABORT("Sigma is out of range.");
     };
 
     PassMaker* makerX = makeMaker(limitedSigma.x());
@@ -659,22 +920,11 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
     } else
 #endif
     {
-        // NB 135 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
-        // using the Gauss filter. It also limits the size of buffers used hold intermediate values. The
-        // additional + 1 added to window represents adding one more leading element before subtracting the
-        // trailing element.
-        // Explanation of maximums:
-        //   sum0 = (window + 1) * 255
-        //   sum1 = (window + 1) * sum0 -> (window + 1) * (window + 1) * 255
-        //   sum2 = (window + 1) * sum1 -> (window + 1) * (window + 1) * (window + 1) * 255 -> window^3 * 255
-        //
-        //   The value (window + 1)^3 * 255 must fit in a uint32_t. So,
-        //      (window + 1)^3 * 255 < 2^32. window = 255.
-        //
-        //   window = floor(sigma * 3 * sqrt(2 * kPi) / 4)
-        //   For window <= 255, the largest value for sigma is 135.
-        sigma.fX = SkTPin(sigma.fX, 0.0f, 135.0f);
-        sigma.fY = SkTPin(sigma.fY, 0.0f, 135.0f);
+        // Please see the comment on TentPass::MakeMaker for how the limit of 2183 for sigma is
+        // calculated. The effective limit of blur is 532 which is set by the GPU above in
+        // map_sigma.
+        sigma.fX = SkTPin(sigma.fX, 0.0f, 2183.0f);
+        sigma.fY = SkTPin(sigma.fY, 0.0f, 2183.0f);
 
         result = cpu_blur(ctx, sigma, input, inputBounds, dstBounds);
     }
