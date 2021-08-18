@@ -979,7 +979,7 @@ GrAtlasPathRenderer* GrDrawingManager::getAtlasPathRenderer() {
     return fPathRendererChain->getAtlasPathRenderer();
 }
 
-GrTessellationPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
+GrPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     if (!fPathRendererChain) {
         fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,
                                                                    fOptionsForPathRendererChain);

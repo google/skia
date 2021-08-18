@@ -8,7 +8,7 @@
 #ifndef GrPathTessellationShader_DEFINED
 #define GrPathTessellationShader_DEFINED
 
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/tessellate/GrTessTypes.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 // This is the base class for shaders in the GPU tessellator that fill paths.
@@ -154,7 +154,7 @@ public:
     // Creates a pipeline that does not write to the color buffer.
     static const GrPipeline* MakeStencilOnlyPipeline(const ProgramArgs&,
                                                      GrAAType,
-                                                     GrTessellationPathRenderer::PathFlags,
+                                                     GrTessellationPathFlags,
                                                      const GrAppliedHardClip&);
 
 protected:

@@ -64,7 +64,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
 
 static GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
                                            SkArenaAlloc* arena,
-                                           GrTessellationPathRenderer::PathFlags pathFlags,
+                                           GrTessellationPathFlags pathFlags,
                                            GrAAType aaType,
                                            const SkRect& drawBounds,
                                            const SkMatrix& viewMatrix,
@@ -144,7 +144,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
             : pathDevBounds;
     auto op = make_non_convex_fill_op(args.fContext,
                                       args.fSurfaceDrawContext->arenaAlloc(),
-                                      PathFlags::kNone,
+                                      GrTessellationPathFlags::kNone,
                                       args.fAAType,
                                       drawBounds,
                                       *args.fViewMatrix,
@@ -188,7 +188,7 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     auto op = make_non_convex_fill_op(args.fContext,
                                       args.fSurfaceDrawContext->arenaAlloc(),
-                                      PathFlags::kStencilOnly,
+                                      GrTessellationPathFlags::kStencilOnly,
                                       aaType,
                                       pathDevBounds,
                                       *args.fViewMatrix,

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGrAtlasRenderTask_DEFINED
-#define GrGrAtlasRenderTask_DEFINED
+#ifndef GrAtlasRenderTask_DEFINED
+#define GrAtlasRenderTask_DEFINED
 
 #include "include/core/SkPath.h"
 #include "src/gpu/GrDynamicAtlas.h"

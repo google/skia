@@ -10,7 +10,7 @@
 
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/tessellate/GrTessTypes.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 // Draws paths using a standard Redbook "stencil then cover" method. Curves get linearized by either
@@ -29,7 +29,7 @@ private:
                          const SkPath& path,
                          GrPaint&& paint,
                          GrAAType aaType,
-                         GrTessellationPathRenderer::PathFlags pathFlags,
+                         GrTessellationPathFlags pathFlags,
                          const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathDrawList(arena->make<PathDrawList>(viewMatrix, path))
@@ -51,7 +51,7 @@ private:
                          int pathCount,
                          GrPaint&& paint,
                          GrAAType aaType,
-                         GrTessellationPathRenderer::PathFlags pathFlags,
+                         GrTessellationPathFlags pathFlags,
                          const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathDrawList(pathDrawList)
@@ -87,7 +87,7 @@ private:
     const PathDrawList* fPathDrawList;
     const int fTotalCombinedPathVerbCnt;
     const int fPathCount;
-    const GrTessellationPathRenderer::PathFlags fPathFlags;
+    const GrTessellationPathFlags fPathFlags;
     const GrAAType fAAType;
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;

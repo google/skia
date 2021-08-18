@@ -10,7 +10,7 @@
 
 #include "src/gpu/geometry/GrInnerFanTriangulator.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/tessellate/GrTessTypes.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 class GrPathCurveTessellator;
@@ -28,8 +28,8 @@ private:
     DEFINE_OP_CLASS_ID
 
     GrPathInnerTriangulateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
-                       GrAAType aaType, GrTessellationPathRenderer::PathFlags pathFlags,
-                       const SkRect& drawBounds)
+                             GrAAType aaType, GrTessellationPathFlags pathFlags,
+                             const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathFlags(pathFlags)
             , fViewMatrix(viewMatrix)
@@ -57,7 +57,7 @@ private:
     void onPrepare(GrOpFlushState*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    const GrTessellationPathRenderer::PathFlags fPathFlags;
+    const GrTessellationPathFlags fPathFlags;
     const SkMatrix fViewMatrix;
     const SkPath fPath;
     const GrAAType fAAType;

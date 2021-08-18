@@ -56,7 +56,7 @@ public:
 
     /** Returns a direct pointer to the tessellation path renderer, or null if it is not in the
         chain. */
-    GrTessellationPathRenderer* getTessellationPathRenderer() {
+    GrPathRenderer* getTessellationPathRenderer() {
         return fTessellationPathRenderer;
     }
 
@@ -64,9 +64,9 @@ private:
     enum {
         kPreAllocCount = 8,
     };
-    SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
-    GrAtlasPathRenderer*                                fAtlasPathRenderer = nullptr;
-    GrTessellationPathRenderer*                         fTessellationPathRenderer = nullptr;
+    SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>> fChain;
+    GrAtlasPathRenderer*                             fAtlasPathRenderer = nullptr;
+    GrPathRenderer*                                  fTessellationPathRenderer = nullptr;
 };
 
 #endif

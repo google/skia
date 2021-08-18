@@ -13,7 +13,6 @@
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 // Tessellates a batch of stroke patches directly to the canvas. Tessellated stroking works by
 // creating stroke-width, orthogonal edges at set locations along the curve and then connecting them

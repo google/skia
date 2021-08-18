@@ -37,7 +37,6 @@ class GrRenderTask;
 class GrResourceAllocator;
 class GrSemaphore;
 class GrSurfaceProxyView;
-class GrTessellationPathRenderer;
 class GrTextureResolveRenderTask;
 class SkDeferredDisplayList;
 namespace skgpu { namespace v1 { class SoftwarePathRenderer; }}
@@ -125,7 +124,7 @@ public:
 
     // Returns a direct pointer to the tessellation path renderer, or null if it is not supported
     // and turned on.
-    GrTessellationPathRenderer* getTessellationPathRenderer();
+    GrPathRenderer* getTessellationPathRenderer();
 #endif
 
     void flushIfNecessary();

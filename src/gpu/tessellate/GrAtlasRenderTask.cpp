@@ -99,7 +99,7 @@ GrRenderTask::ExpectedOutcome GrAtlasRenderTask::onMakeClosed(GrRecordingContext
                     pathList->pathCount(),
                     GrPaint(),
                     GrAAType::kMSAA,
-                    GrTessellationPathRenderer::PathFlags::kStencilOnly,
+                    GrTessellationPathFlags::kStencilOnly,
                     drawRect);
             this->addAtlasDrawOp(std::move(op), caps);
         }

@@ -18,6 +18,7 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
 #include "src/gpu/tessellate/GrPathWedgeTessellator.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
