@@ -13,9 +13,9 @@
 
 namespace SkSL {
 
-static IntrinsicKind identify_intrinsic(const String& functionName) {
+static IntrinsicKind identify_intrinsic(skstd::string_view functionName) {
     #define SKSL_INTRINSIC(name) {#name, k_##name##_IntrinsicKind},
-    static const auto* kAllIntrinsics = new std::unordered_map<String, IntrinsicKind>{
+    static const auto* kAllIntrinsics = new std::unordered_map<skstd::string_view, IntrinsicKind>{
         SKSL_INTRINSIC_LIST
     };
     #undef SKSL_INTRINSIC
@@ -303,7 +303,7 @@ FunctionDeclaration::FunctionDeclaration(int offset,
         , fReturnType(returnType)
         , fBuiltin(builtin)
         , fIsMain(name == "main")
-        , fIntrinsicKind(builtin ? identify_intrinsic(String(name)) : kNotIntrinsic) {}
+        , fIntrinsicKind(builtin ? identify_intrinsic(name) : kNotIntrinsic) {}
 
 const FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
         SymbolTable& symbols, int offset, const Modifiers* modifiers,
