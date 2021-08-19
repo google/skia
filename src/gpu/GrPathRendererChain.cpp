@@ -19,11 +19,11 @@
 #include "src/gpu/ops/AAConvexPathRenderer.h"
 #include "src/gpu/ops/AAHairLinePathRenderer.h"
 #include "src/gpu/ops/AALinearizingConvexPathRenderer.h"
+#include "src/gpu/ops/AtlasPathRenderer.h"
 #include "src/gpu/ops/DashLinePathRenderer.h"
 #include "src/gpu/ops/DefaultPathRenderer.h"
-#include "src/gpu/ops/GrAtlasPathRenderer.h"
-#include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 #include "src/gpu/ops/SmallPathRenderer.h"
+#include "src/gpu/ops/TriangulatingPathRenderer.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
@@ -41,7 +41,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<skgpu::v1::AALinearizingConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAtlas) {
-        if (auto atlasPathRenderer = GrAtlasPathRenderer::Make(context)) {
+        if (auto atlasPathRenderer = skgpu::v1::AtlasPathRenderer::Make(context)) {
             fAtlasPathRenderer = atlasPathRenderer.get();
             context->priv().addOnFlushCallbackObject(atlasPathRenderer.get());
             fChain.push_back(std::move(atlasPathRenderer));
@@ -51,7 +51,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<skgpu::v1::SmallPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
-        fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
+        fChain.push_back(sk_make_sp<skgpu::v1::TriangulatingPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
         if (GrTessellationPathRenderer::IsSupported(caps)) {

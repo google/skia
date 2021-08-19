@@ -31,7 +31,6 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderUtils.h"
-#include "src/gpu/ops/GrAtlasPathRenderer.h"
 #include "src/image/SkImage_Base.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/utils/SkJSONWriter.h"
@@ -54,6 +53,7 @@
 #include "tools/viewer/SvgSlide.h"
 
 #if SK_GPU_V1
+#include "src/gpu/ops/AtlasPathRenderer.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #endif
 
@@ -1979,17 +1979,17 @@ void Viewer::drawImGui() {
                         ImGui::RadioButton("Software", true);
                     } else {
                         prButton(GpuPathRenderers::kDefault);
+#if SK_GPU_V1
                         if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
-                            if (GrAtlasPathRenderer::IsSupported(ctx)) {
+                            const auto* caps = ctx->priv().caps();
+                            if (skgpu::v1::AtlasPathRenderer::IsSupported(ctx)) {
                                 prButton(GpuPathRenderers::kAtlas);
                             }
-#if SK_GPU_V1
-                            const auto* caps = ctx->priv().caps();
                             if (GrTessellationPathRenderer::IsSupported(*caps)) {
                                 prButton(GpuPathRenderers::kTessellation);
                             }
-#endif
                         }
+#endif
                         if (1 == fWindow->sampleCount()) {
                             prButton(GpuPathRenderers::kSmall);
                         }
@@ -2820,19 +2820,19 @@ void Viewer::updateUIState() {
                 writer.appendString("Software");
             } else {
                 writer.appendString(gPathRendererNames[GpuPathRenderers::kDefault].c_str());
+#if SK_GPU_V1
                 if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
-                    if (GrAtlasPathRenderer::IsSupported(ctx)) {
+                    const auto* caps = ctx->priv().caps();
+                    if (skgpu::v1::AtlasPathRenderer::IsSupported(ctx)) {
                         writer.appendString(
                                 gPathRendererNames[GpuPathRenderers::kAtlas].c_str());
                     }
-#if SK_GPU_V1
-                    const auto* caps = ctx->priv().caps();
                     if (GrTessellationPathRenderer::IsSupported(*caps)) {
                         writer.appendString(
                                 gPathRendererNames[GpuPathRenderers::kTessellation].c_str());
                     }
-#endif
                 }
+#endif
                 if (1 == fWindow->sampleCount()) {
                     writer.appendString(gPathRendererNames[GpuPathRenderers::kSmall].c_str());
                 }

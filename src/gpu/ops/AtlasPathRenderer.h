@@ -5,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAtlasPathRenderer_DEFINED
-#define GrAtlasPathRenderer_DEFINED
+#ifndef AtlasPathRenderer_DEFINED
+#define AtlasPathRenderer_DEFINED
 
 #include "include/gpu/GrTypes.h"
-
-#if SK_GPU_V1
-
 #include "include/private/SkTHash.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrDynamicAtlas.h"
@@ -23,23 +20,17 @@ class GrAtlasRenderTask;
 class GrOp;
 class GrRecordingContext;
 
+namespace skgpu::v1 {
+
 // Draws paths by first rendering their coverage mask into an offscreen atlas.
-class GrAtlasPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
+class AtlasPathRenderer final : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
     static bool IsSupported(GrRecordingContext*);
 
     // Returns a GrAtlasPathRenderer if it is supported, otherwise null.
-    static sk_sp<GrAtlasPathRenderer> Make(GrRecordingContext* rContext);
+    static sk_sp<AtlasPathRenderer> Make(GrRecordingContext* rContext);
 
-    const char* name() const final { return "GrAtlasPathRenderer"; }
-
-    StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
-        return kNoSupport_StencilSupport;
-    }
-
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
-
-    bool onDrawPath(const DrawPathArgs&) override;
+    const char* name() const override { return "GrAtlasPathRenderer"; }
 
     // Returns a fragment processor that modulates inputFP by the given deviceSpacePath's coverage,
     // implemented using an internal atlas.
@@ -59,7 +50,15 @@ public:
 
 private:
     // The atlas is not compatible with DDL. We can only use it on direct contexts.
-    GrAtlasPathRenderer(GrDirectContext*);
+    AtlasPathRenderer(GrDirectContext*);
+
+    StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
+        return kNoSupport_StencilSupport;
+    }
+
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+
+    bool onDrawPath(const DrawPathArgs&) override;
 
     // Returns true if the given device-space path bounds are small enough to fit in an atlas and to
     // benefit from atlasing. (Currently, "small enough" means no larger than fMaxAtlasSize in
@@ -113,13 +112,6 @@ private:
     SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
 };
 
-#else // SK_GPU_V1
-
-class GrAtlasPathRenderer {
-public:
-    static bool IsSupported(GrRecordingContext*) { return false; }
-};
-
-#endif // SK_GPU_V1
+} // namespace skgpu::v1
 
 #endif // GrAtlasPathRenderer_DEFINED

@@ -25,7 +25,7 @@
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
-#include "src/gpu/ops/GrAtlasPathRenderer.h"
+#include "src/gpu/ops/AtlasPathRenderer.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/v1/StencilMaskHelper.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
@@ -238,7 +238,7 @@ GrFPResult analytic_clip_fp(const skgpu::v1::ClipStack::Element& e,
 // into a shared atlas.
 GrFPResult clip_atlas_fp(const skgpu::v1::SurfaceDrawContext* sdc,
                          const GrOp* opBeingClipped,
-                         GrAtlasPathRenderer* atlasPathRenderer,
+                         skgpu::v1::AtlasPathRenderer* atlasPathRenderer,
                          const SkIRect& scissorBounds,
                          const skgpu::v1::ClipStack::Element& e,
                          std::unique_ptr<GrFragmentProcessor> inputFP) {
@@ -1354,7 +1354,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
     SkSTArray<kNumStackMasks, const Element*> elementsForMask;
 
     bool maskRequiresAA = false;
-    auto* atlasPathRenderer = rContext->priv().drawingManager()->getAtlasPathRenderer();
+    auto atlasPathRenderer = rContext->priv().drawingManager()->getAtlasPathRenderer();
 
     int i = fElements.count();
     for (const RawElement& e : fElements.ritems()) {

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrAtlasPathRenderer.h"
+#include "src/gpu/ops/AtlasPathRenderer.h"
 
 #include "include/private/SkVx.h"
 #include "src/core/SkIPoint16.h"
@@ -22,6 +22,65 @@
 
 using grvx::float2;
 using grvx::int2;
+
+namespace {
+
+// Returns the rect [topLeftFloor, botRightCeil], which is the rect [r] rounded out to integer
+// boundaries.
+std::tuple<float2,float2> round_out(const SkRect& r) {
+    return {skvx::floor(float2::Load(&r.fLeft)), skvx::ceil(float2::Load(&r.fRight))};
+}
+
+// Returns whether the given proxyOwner uses the atlasProxy.
+template<typename T> bool refs_atlas(const T* proxyOwner, const GrSurfaceProxy* atlasProxy) {
+    bool refsAtlas = false;
+    auto checkForAtlasRef = [atlasProxy, &refsAtlas](GrSurfaceProxy* proxy, GrMipmapped) {
+        if (proxy == atlasProxy) {
+            refsAtlas = true;
+        }
+    };
+    if (proxyOwner) {
+        proxyOwner->visitProxies(checkForAtlasRef);
+    }
+    return refsAtlas;
+}
+
+bool is_visible(const SkRect& pathDevBounds, const SkIRect& clipBounds) {
+    float2 pathTopLeft = float2::Load(&pathDevBounds.fLeft);
+    float2 pathBotRight = float2::Load(&pathDevBounds.fRight);
+    // Empty paths are never visible. Phrase this as a NOT of positive logic so we also return false
+    // in the case of NaN.
+    if (!skvx::all(pathTopLeft < pathBotRight)) {
+        return false;
+    }
+    float2 clipTopLeft = skvx::cast<float>(int2::Load(&clipBounds.fLeft));
+    float2 clipBotRight = skvx::cast<float>(int2::Load(&clipBounds.fRight));
+    static_assert(sizeof(clipBounds) == sizeof(clipTopLeft) + sizeof(clipBotRight));
+    return skvx::all(pathTopLeft < clipBotRight) && skvx::all(pathBotRight > clipTopLeft);
+}
+
+#ifdef SK_DEBUG
+// Ensures the atlas dependencies are set up such that each atlas will be totally out of service
+// before we render the next one in line. This means there will only ever be one atlas active at a
+// time and that they can all share the same texture.
+void validate_atlas_dependencies(const SkTArray<sk_sp<GrAtlasRenderTask>>& atlasTasks) {
+    for (int i = atlasTasks.count() - 1; i >= 1; --i) {
+        GrAtlasRenderTask* atlasTask = atlasTasks[i].get();
+        GrAtlasRenderTask* previousAtlasTask = atlasTasks[i - 1].get();
+        // Double check that atlasTask depends on every dependent of its previous atlas. If this
+        // fires it might mean previousAtlasTask gained a new dependent after atlasTask came into
+        // service (maybe by an op that hadn't yet been added to an opsTask when we registered the
+        // new atlas with the drawingManager).
+        for (GrRenderTask* previousAtlasUser : previousAtlasTask->dependents()) {
+            SkASSERT(atlasTask->dependsOn(previousAtlasUser));
+        }
+    }
+}
+#endif
+
+} // anonymous namespace
+
+namespace skgpu::v1 {
 
 constexpr static auto kAtlasAlpha8Type = GrColorType::kAlpha_8;
 constexpr static int kAtlasInitialSize = 512;
@@ -43,7 +102,7 @@ constexpr static int kAtlasMaxPathHeightWithMSAAFallback = 128;
 // until it's resolved.
 constexpr static int kAtlasMaxPathWidth = 1024;
 
-bool GrAtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
+bool AtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
 #ifdef SK_BUILD_FOR_IOS
     // b/195095846: There is a bug with the atlas path renderer on OpenGL iOS. Disable until we can
     // investigate.
@@ -60,13 +119,13 @@ bool GrAtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
            GrTessellationPathRenderer::IsSupported(caps);
 }
 
-sk_sp<GrAtlasPathRenderer> GrAtlasPathRenderer::Make(GrRecordingContext* rContext) {
+sk_sp<AtlasPathRenderer> AtlasPathRenderer::Make(GrRecordingContext* rContext) {
     return IsSupported(rContext)
-            ? sk_sp<GrAtlasPathRenderer>(new GrAtlasPathRenderer(rContext->asDirectContext()))
+            ? sk_sp<AtlasPathRenderer>(new AtlasPathRenderer(rContext->asDirectContext()))
             : nullptr;
 }
 
-GrAtlasPathRenderer::GrAtlasPathRenderer(GrDirectContext* dContext) {
+AtlasPathRenderer::AtlasPathRenderer(GrDirectContext* dContext) {
     SkASSERT(IsSupported(dContext));
     const GrCaps& caps = *dContext->priv().caps();
 #if GR_TEST_UTILS
@@ -79,14 +138,8 @@ GrAtlasPathRenderer::GrAtlasPathRenderer(GrDirectContext* dContext) {
     fAtlasInitialSize = SkNextPow2(std::min(kAtlasInitialSize, (int)fAtlasMaxSize));
 }
 
-// Returns the rect [topLeftFloor, botRightCeil], which is the rect [r] rounded out to integer
-// boundaries.
-static std::tuple<float2,float2> round_out(const SkRect& r) {
-    return {skvx::floor(float2::Load(&r.fLeft)), skvx::ceil(float2::Load(&r.fRight))};
-}
-
-bool GrAtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
-                                          GrAAType fallbackAAType) const {
+bool AtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
+                                        GrAAType fallbackAAType) const {
     SkASSERT(fallbackAAType != GrAAType::kNone);  // The atlas doesn't support non-AA.
     float atlasMaxPathHeight_pow2 = (fallbackAAType == GrAAType::kMSAA)
             ? kAtlasMaxPathHeightWithMSAAFallback * kAtlasMaxPathHeightWithMSAAFallback
@@ -101,7 +154,7 @@ bool GrAtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
            size[0] * size[1] <= atlasMaxPathHeight_pow2;
 }
 
-void GrAtlasPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& path) {
+void AtlasPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& path) {
     using grvx::float2;
     fPathGenID = path.getGenerationID();
     fAffineMatrix[0] = m.getScaleX();
@@ -116,14 +169,14 @@ void GrAtlasPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& pat
     fFillRule = (uint16_t)GrFillRuleForSkPath(path);  // Fill rule doesn't affect the path's genID.
 }
 
-bool GrAtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
-                                         const SkMatrix& viewMatrix,
-                                         const SkPath& path,
-                                         const SkRect& pathDevBounds,
-                                         SkIRect* devIBounds,
-                                         SkIPoint16* locationInAtlas,
-                                         bool* transposedInAtlas,
-                                         const DrawRefsAtlasCallback& drawRefsAtlasCallback) {
+bool AtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
+                                       const SkMatrix& viewMatrix,
+                                       const SkPath& path,
+                                       const SkRect& pathDevBounds,
+                                       SkIRect* devIBounds,
+                                       SkIPoint16* locationInAtlas,
+                                       bool* transposedInAtlas,
+                                       const DrawRefsAtlasCallback& drawRefsAtlasCallback) {
     SkASSERT(!viewMatrix.hasPerspective());  // See onCanDrawPath().
 
     pathDevBounds.roundOut(devIBounds);
@@ -201,21 +254,7 @@ bool GrAtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
     return true;
 }
 
-// Returns whether the given proxyOwner uses the atlasProxy.
-template<typename T> bool refs_atlas(const T* proxyOwner, const GrSurfaceProxy* atlasProxy) {
-    bool refsAtlas = false;
-    auto checkForAtlasRef = [atlasProxy, &refsAtlas](GrSurfaceProxy* proxy, GrMipmapped) {
-        if (proxy == atlasProxy) {
-            refsAtlas = true;
-        }
-    };
-    if (proxyOwner) {
-        proxyOwner->visitProxies(checkForAtlasRef);
-    }
-    return refsAtlas;
-}
-
-GrPathRenderer::CanDrawPath GrAtlasPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrPathRenderer::CanDrawPath AtlasPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 #ifdef SK_DEBUG
     if (!fAtlasRenderTasks.empty()) {
         // args.fPaint should NEVER reference our current atlas. If it does, it means somebody
@@ -241,21 +280,7 @@ GrPathRenderer::CanDrawPath GrAtlasPathRenderer::onCanDrawPath(const CanDrawPath
     return canDrawPath ? CanDrawPath::kYes : CanDrawPath::kNo;
 }
 
-static bool is_visible(const SkRect& pathDevBounds, const SkIRect& clipBounds) {
-    float2 pathTopLeft = float2::Load(&pathDevBounds.fLeft);
-    float2 pathBotRight = float2::Load(&pathDevBounds.fRight);
-    // Empty paths are never visible. Phrase this as a NOT of positive logic so we also return false
-    // in the case of NaN.
-    if (!skvx::all(pathTopLeft < pathBotRight)) {
-        return false;
-    }
-    float2 clipTopLeft = skvx::cast<float>(int2::Load(&clipBounds.fLeft));
-    float2 clipBotRight = skvx::cast<float>(int2::Load(&clipBounds.fRight));
-    static_assert(sizeof(clipBounds) == sizeof(clipTopLeft) + sizeof(clipBotRight));
-    return skvx::all(pathTopLeft < clipBotRight) && skvx::all(pathBotRight > clipTopLeft);
-}
-
-bool GrAtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
+bool AtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
@@ -295,12 +320,12 @@ bool GrAtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(const skgpu::v1::SurfaceDrawContext* sdc,
-                                                    const GrOp* opBeingClipped,
-                                                    std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                    const SkIRect& drawBounds,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkPath& path) {
+GrFPResult AtlasPathRenderer::makeAtlasClipEffect(const SurfaceDrawContext* sdc,
+                                                  const GrOp* opBeingClipped,
+                                                  std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                  const SkIRect& drawBounds,
+                                                  const SkMatrix& viewMatrix,
+                                                  const SkPath& path) {
     if (viewMatrix.hasPerspective()) {
         return GrFPFailure(std::move(inputFP));
     }
@@ -361,27 +386,8 @@ GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(const skgpu::v1::SurfaceDraw
                                                                        atlasMatrix, devIBounds));
 }
 
-#ifdef SK_DEBUG
-// Ensures the atlas dependencies are set up such that each atlas will be totally out of service
-// before we render the next one in line. This means there will only ever be one atlas active at a
-// time and that they can all share the same texture.
-static void validate_atlas_dependencies(const SkTArray<sk_sp<GrAtlasRenderTask>>& atlasTasks) {
-    for (int i = atlasTasks.count() - 1; i >= 1; --i) {
-        GrAtlasRenderTask* atlasTask = atlasTasks[i].get();
-        GrAtlasRenderTask* previousAtlasTask = atlasTasks[i - 1].get();
-        // Double check that atlasTask depends on every dependent of its previous atlas. If this
-        // fires it might mean previousAtlasTask gained a new dependent after atlasTask came into
-        // service (maybe by an op that hadn't yet been added to an opsTask when we registered the
-        // new atlas with the drawingManager).
-        for (GrRenderTask* previousAtlasUser : previousAtlasTask->dependents()) {
-            SkASSERT(atlasTask->dependsOn(previousAtlasUser));
-        }
-    }
-}
-#endif
-
-void GrAtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
-                                          SkSpan<const uint32_t> /* taskIDs */) {
+void AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
+                                 SkSpan<const uint32_t> /* taskIDs */) {
     if (fAtlasRenderTasks.empty()) {
         SkASSERT(fAtlasPathCache.count() == 0);
         return;
@@ -414,3 +420,5 @@ void GrAtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
     fAtlasRenderTasks.reset();
     fAtlasPathCache.reset();
 }
+
+} // namespace skgpu::v1

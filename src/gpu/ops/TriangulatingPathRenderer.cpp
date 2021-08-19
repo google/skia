@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrTriangulatingPathRenderer.h"
+#include "src/gpu/ops/TriangulatingPathRenderer.h"
 
 #include "include/private/SkIDChangeListener.h"
 #include "src/core/SkGeometry.h"
@@ -157,51 +157,6 @@ private:
     void* fVertices = nullptr;
     size_t fLockStride = 0;
 };
-
-}  // namespace
-
-//-------------------------------------------------------------------------------------------------
-GrTriangulatingPathRenderer::GrTriangulatingPathRenderer()
-  : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
-}
-
-GrPathRenderer::CanDrawPath
-GrTriangulatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // Don't use this path renderer with dynamic MSAA. DMSAA tries to not rely on caching.
-    if (args.fSurfaceProps->flags() & SkSurfaceProps::kDynamicMSAA_Flag) {
-        return CanDrawPath::kNo;
-    }
-    // This path renderer can draw fill styles, and can do screenspace antialiasing via a
-    // one-pixel coverage ramp. It can do convex and concave paths, but we'll leave the convex
-    // ones to simpler algorithms. We pass on paths that have styles, though they may come back
-    // around after applying the styling information to the geometry to create a filled path.
-    if (!args.fShape->style().isSimpleFill() || args.fShape->knownToBeConvex()) {
-        return CanDrawPath::kNo;
-    }
-    switch (args.fAAType) {
-        case GrAAType::kNone:
-        case GrAAType::kMSAA:
-            // Prefer MSAA, if any antialiasing. In the non-analytic-AA case, We skip paths that
-            // don't have a key since the real advantage of this path renderer comes from caching
-            // the tessellated geometry.
-            if (!args.fShape->hasUnstyledKey()) {
-                return CanDrawPath::kNo;
-            }
-            break;
-        case GrAAType::kCoverage:
-            // Use analytic AA if we don't have MSAA. In this case, we do not cache, so we accept
-            // paths without keys.
-            SkPath path;
-            args.fShape->asPath(&path);
-            if (path.countVerbs() > fMaxVerbCount) {
-                return CanDrawPath::kNo;
-            }
-            break;
-    }
-    return CanDrawPath::kYes;
-}
-
-namespace {
 
 class TriangulatingPathOp final : public GrMeshDrawOp {
 private:
@@ -583,17 +538,6 @@ private:
 
 }  // anonymous namespace
 
-bool GrTriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrTriangulatingPathRenderer::onDrawPath");
-
-    GrOp::Owner op = TriangulatingPathOp::Make(
-            args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix,
-            *args.fClipConservativeBounds, args.fAAType, args.fUserStencilSettings);
-    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
@@ -619,3 +563,60 @@ GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::v1 {
+
+TriangulatingPathRenderer::TriangulatingPathRenderer()
+    : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
+}
+
+GrPathRenderer::CanDrawPath
+TriangulatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // Don't use this path renderer with dynamic MSAA. DMSAA tries to not rely on caching.
+    if (args.fSurfaceProps->flags() & SkSurfaceProps::kDynamicMSAA_Flag) {
+        return CanDrawPath::kNo;
+    }
+    // This path renderer can draw fill styles, and can do screenspace antialiasing via a
+    // one-pixel coverage ramp. It can do convex and concave paths, but we'll leave the convex
+    // ones to simpler algorithms. We pass on paths that have styles, though they may come back
+    // around after applying the styling information to the geometry to create a filled path.
+    if (!args.fShape->style().isSimpleFill() || args.fShape->knownToBeConvex()) {
+        return CanDrawPath::kNo;
+    }
+    switch (args.fAAType) {
+        case GrAAType::kNone:
+        case GrAAType::kMSAA:
+            // Prefer MSAA, if any antialiasing. In the non-analytic-AA case, We skip paths that
+            // don't have a key since the real advantage of this path renderer comes from caching
+            // the tessellated geometry.
+            if (!args.fShape->hasUnstyledKey()) {
+                return CanDrawPath::kNo;
+            }
+            break;
+        case GrAAType::kCoverage:
+            // Use analytic AA if we don't have MSAA. In this case, we do not cache, so we accept
+            // paths without keys.
+            SkPath path;
+            args.fShape->asPath(&path);
+            if (path.countVerbs() > fMaxVerbCount) {
+                return CanDrawPath::kNo;
+            }
+            break;
+    }
+    return CanDrawPath::kYes;
+}
+
+bool TriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
+                              "GrTriangulatingPathRenderer::onDrawPath");
+
+    GrOp::Owner op = TriangulatingPathOp::Make(
+            args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix,
+            *args.fClipConservativeBounds, args.fAAType, args.fUserStencilSettings);
+    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+    return true;
+}
+
+} // namespace skgpu::v1

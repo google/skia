@@ -971,7 +971,7 @@ GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
     return fSoftwarePathRenderer.get();
 }
 
-GrAtlasPathRenderer* GrDrawingManager::getAtlasPathRenderer() {
+skgpu::v1::AtlasPathRenderer* GrDrawingManager::getAtlasPathRenderer() {
     if (!fPathRendererChain) {
         fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,
                                                                    fOptionsForPathRendererChain);
