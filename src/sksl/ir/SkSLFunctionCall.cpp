@@ -637,7 +637,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                 case 4: {
                     float mat2[4] = {M(0, 0), M(0, 1),
                                      M(1, 0), M(1, 1)};
-                    if (!SkInvert2x2Matrix(mat2, mat2)) {
+                    if (SkInvert2x2Matrix(mat2, mat2) == 0.0f) {
                         return nullptr;
                     }
                     return DSLType::Construct(&arguments[0]->type(),
@@ -648,7 +648,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     float mat3[9] = {M(0, 0), M(0, 1), M(0, 2),
                                      M(1, 0), M(1, 1), M(1, 2),
                                      M(2, 0), M(2, 1), M(2, 2)};
-                    if (!SkInvert3x3Matrix(mat3, mat3)) {
+                    if (SkInvert3x3Matrix(mat3, mat3) == 0.0f) {
                         return nullptr;
                     }
                     return DSLType::Construct(&arguments[0]->type(),
@@ -661,7 +661,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                                       M(1, 0), M(1, 1), M(1, 2), M(1, 3),
                                       M(2, 0), M(2, 1), M(2, 2), M(2, 3),
                                       M(3, 0), M(3, 1), M(3, 2), M(3, 3)};
-                    if (!SkInvert4x4Matrix(mat4, mat4)) {
+                    if (SkInvert4x4Matrix(mat4, mat4) == 0.0f) {
                         return nullptr;
                     }
                     return DSLType::Construct(&arguments[0]->type(),

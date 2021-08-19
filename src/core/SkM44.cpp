@@ -247,7 +247,7 @@ void SkM44::normalizePerspective() {
  */
 bool SkM44::invert(SkM44* inverse) const {
     SkScalar tmp[16];
-    if (!SkInvert4x4Matrix(fMat, tmp)) {
+    if (SkInvert4x4Matrix(fMat, tmp) == 0.0f) {
         return false;
     }
     memcpy(inverse->fMat, tmp, sizeof(tmp));
