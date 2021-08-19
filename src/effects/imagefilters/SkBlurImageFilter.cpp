@@ -110,11 +110,6 @@ static int calculate_window(double sigma) {
     return std::max(1, possibleWindow);
 }
 
-struct WindowSpec {
-    size_t bufferSizeBytes;
-    int window;
-};
-
 class Pass {
 public:
     virtual ~Pass() = default;
@@ -122,6 +117,18 @@ public:
     virtual void blur(int srcLeft, int srcRight, int dstRight,
                       const uint32_t* src, int srcXStride,
                       uint32_t* dst, int dstXStride) = 0;
+};
+
+class PassMaker {
+public:
+    PassMaker(int window) : fWindow{window} {}
+    virtual ~PassMaker() = default;
+    virtual Pass* makePass(void* buffer, SkArenaAlloc* alloc) const = 0;
+    virtual size_t bufferSizeBytes() const = 0;
+    int window() const {return fWindow;}
+
+private:
+    const int fWindow;
 };
 
 // Implement a scanline processor that uses a three-box filter to approximate a Gaussian blur.
@@ -140,24 +147,39 @@ public:
     //
     //   window = floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5)
     //   For window <= 255, the largest value for sigma is 136.
-    static WindowSpec FromSigma(double sigma) {
-        SkASSERT(0 <= sigma && sigma < 136);
+    static PassMaker* MakeMaker(double sigma, SkArenaAlloc* alloc) {
+        SkASSERT(0 <= sigma);
         int window = calculate_window(sigma);
-        size_t onePassSize = window - 1;
-        // If the window is odd, then there is an obvious middle element. For even sizes 2 passes
-        // are shifted, and the last pass has an extra element. Like this:
-        //       S
-        //    aaaAaa
-        //     bbBbbb
-        //    cccCccc
-        //       D
-        size_t bufferCount = (window & 1) == 1 ? 3 * onePassSize : 3 * onePassSize + 1;
-        return {bufferCount * sizeof(skvx::Vec<4, uint32_t>), window};
+        if (255 <= window) {
+            return nullptr;
+        }
+
+        class Maker : public PassMaker {
+        public:
+            Maker(int window) : PassMaker{window} {}
+            Pass* makePass(void* buffer, SkArenaAlloc* alloc) const override {
+                return GaussPass::Make(this->window(), buffer, alloc);
+            }
+
+            size_t bufferSizeBytes() const override {
+                int window = this->window();
+                size_t onePassSize = window - 1;
+                // If the window is odd, then there is an obvious middle element. For even sizes
+                // 2 passes are shifted, and the last pass has an extra element. Like this:
+                //       S
+                //    aaaAaa
+                //     bbBbbb
+                //    cccCccc
+                //       D
+                size_t bufferCount = (window & 1) == 1 ? 3 * onePassSize : 3 * onePassSize + 1;
+                return bufferCount * sizeof(skvx::Vec<4, uint32_t>);
+            }
+        };
+
+        return alloc->make<Maker>(window);
     }
 
-    static GaussPass Make(WindowSpec windowSpec, void* buffers) {
-        int window = windowSpec.window;
-
+    static GaussPass* Make(int window, void* buffers, SkArenaAlloc* alloc) {
         // We don't need to store the trailing edge pixel in the buffer;
         int passSize = window - 1;
         skvx::Vec<4, uint32_t>* buffer0 = static_cast<skvx::Vec<4, uint32_t>*>(buffers);
@@ -231,7 +253,8 @@ public:
         // divisorFactor = (1 / d) * 2 ^ 32
         auto divisorFactor = static_cast<uint32_t>(round((1.0 / divisor) * (1ull << 32)));
         auto half = static_cast<uint32_t>((divisor + 1) / 2);
-        return {buffer0, buffer1, buffer2, buffersEnd, border, divisorFactor, half};
+        return alloc->make<GaussPass>(
+                buffer0, buffer1, buffer2, buffersEnd, border, divisorFactor, half);
     }
 
     GaussPass(skvx::Vec<4, uint32_t>* buffer0,
@@ -458,10 +481,20 @@ static sk_sp<SkSpecialImage> cpu_blur(
     // TODO: this is temporary until we can handle larger sigma.
     SkVector limitedSigma = {SkTPin(sigma.x(), 0.0f, 135.0f), SkTPin(sigma.y(), 0.0f, 135.0f)};
 
-    auto windowSpecX = GaussPass::FromSigma(limitedSigma.x()),
-         windowSpecY = GaussPass::FromSigma(limitedSigma.y());
+    SkSTArenaAlloc<1024> alloc;
+    auto makeMaker = [&](double sigma) -> PassMaker* {
+        SkASSERT(0 <= sigma && sigma <= 135);
+        if (PassMaker* maker = GaussPass::MakeMaker(sigma, &alloc)) {
+            return maker;
+        }
 
-    if (windowSpecX.window <= 1 && windowSpecY.window <= 1) {
+        return nullptr;
+    };
+
+    PassMaker* makerX = makeMaker(limitedSigma.x());
+    PassMaker* makerY = makeMaker(limitedSigma.y());
+
+    if (makerX->window() <= 1 && makerY->window() <= 1) {
         return copy_image_with_bounds(ctx, input, srcBounds, dstBounds);
     }
 
@@ -494,10 +527,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
         return nullptr;
     }
 
-    // The amount 1024 is enough for buffers up to 10 sigma. The tmp bitmap will be
-    // allocated on the heap.
-    SkSTArenaAlloc<1024> alloc;
-    size_t bufferSizeBytes = std::max(windowSpecX.bufferSizeBytes, windowSpecY.bufferSizeBytes);
+    size_t bufferSizeBytes = std::max(makerX->bufferSizeBytes(), makerY->bufferSizeBytes());
     auto buffer = alloc.makeBytesAlignedTo(bufferSizeBytes, alignof(skvx::Vec<4, uint32_t>));
 
     // Basic Plan: The three cases to handle
@@ -523,12 +553,12 @@ static sk_sp<SkSpecialImage> cpu_blur(
     // page. If sigma is small but not zero then shared GPU/CPU border calculation
     // code adds extra pixels for the border. Just clear everything to clear those pixels.
     // This solution is overkill, but very simple.
-    if (windowSpecX.window == 1 || windowSpecY.window == 1) {
+    if (makerX->window() == 1 || makerY->window() == 1) {
         dst.eraseColor(0);
     }
 
-    if (windowSpecX.window > 1) {
-        GaussPass pass = GaussPass::Make(windowSpecX, buffer);
+    if (makerX->window() > 1) {
+        Pass* pass = makerX->makePass(buffer, &alloc);
         // Make int64 to avoid overflow in multiplication below.
         int64_t shift = srcBounds.top() - dstBounds.top();
 
@@ -544,21 +574,21 @@ static sk_sp<SkSpecialImage> cpu_blur(
         const uint32_t* srcCursor = static_cast<uint32_t*>(src.getPixels());
         uint32_t* dstCursor = intermediateSrc;
         for (auto y = 0; y < srcH; y++) {
-            pass.blur(srcBounds.left(), srcBounds.right(), dstBounds.right(),
+            pass->blur(srcBounds.left(), srcBounds.right(), dstBounds.right(),
                       srcCursor, 1, dstCursor, 1);
             srcCursor += src.rowBytesAsPixels();
             dstCursor += intermediateRowBytesAsPixels;
         }
     }
 
-    if (windowSpecY.window > 1) {
-        GaussPass pass = GaussPass::Make(windowSpecY, buffer);
+    if (makerY->window() > 1) {
+        Pass* pass = makerY->makePass(buffer, &alloc);
         const uint32_t* srcCursor = intermediateSrc;
         uint32_t* dstCursor = intermediateDst;
         for (auto x = 0; x < intermediateWidth; x++) {
-            pass.blur(srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
-                      srcCursor, intermediateRowBytesAsPixels,
-                      dstCursor, dst.rowBytesAsPixels());
+            pass->blur(srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
+                       srcCursor, intermediateRowBytesAsPixels,
+                       dstCursor, dst.rowBytesAsPixels());
             srcCursor += 1;
             dstCursor += 1;
         }
