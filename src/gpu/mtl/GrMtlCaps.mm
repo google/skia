@@ -28,12 +28,11 @@
 
 GR_NORETAIN_BEGIN
 
-GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device,
-                     MTLFeatureSet featureSet)
+GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device)
         : INHERITED(contextOptions) {
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
-    this->initFeatureSet(featureSet);
+    this->initGPUFamily(device);
     this->initGrCaps(device);
     this->initShaderCaps();
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
@@ -46,94 +45,190 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     this->finishInitialization(contextOptions);
 }
 
-void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
-    // Mac OSX
-#ifdef SK_BUILD_FOR_MAC
+// translates from older MTLFeatureSet interface to MTLGPUFamily interface
+bool GrMtlCaps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
+                                           GPUFamily* gpuFamily,
+                                           int* group) {
+#if defined(SK_BUILD_FOR_MAC)
+    // Apple Silicon is only available in later OSes
+    *gpuFamily = GPUFamily::kMac;
+    // Mac OSX 14
+    if (@available(macOS 10.14, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily2_v1]) {
+            *group = 2;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v4]) {
+            *group = 1;
+            return true;
+        }
+    }
+    // Mac OSX 13
+    if (@available(macOS 10.13, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v3]) {
+            *group = 1;
+            return true;
+        }
+    }
+    // Mac OSX 12
     if (@available(macOS 10.12, *)) {
-        if (MTLFeatureSet_OSX_GPUFamily1_v2 == featureSet) {
-            fPlatform = Platform::kMac;
-            fFamilyGroup = 1;
-            fVersion = 2;
-            return;
+        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v2]) {
+            *group = 1;
+            return true;
         }
     }
-    if (MTLFeatureSet_OSX_GPUFamily1_v1 == featureSet) {
-        fPlatform = Platform::kMac;
-        fFamilyGroup = 1;
-        fVersion = 1;
-        return;
+    // Mac OSX 11
+    if (@available(macOS 10.11, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v1]) {
+            *group = 1;
+            return true;
+        }
     }
+#elif defined(SK_BUILD_FOR_IOS)
+    // TODO: support tvOS
+   *gpuFamily = GPUFamily::kApple;
+    // iOS 12
+    if (@available(iOS 12.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily5_v1]) {
+            *group = 5;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily4_v2]) {
+            *group = 4;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v4]) {
+            *group = 3;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v5]) {
+            *group = 2;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v5]) {
+            *group = 1;
+            return true;
+        }
+    }
+    // iOS 11
+    if (@available(iOS 11.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily4_v1]) {
+            *group = 4;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v3]) {
+            *group = 3;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v4]) {
+            *group = 2;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v4]) {
+            *group = 1;
+            return true;
+        }
+    }
+    // iOS 10
+    if (@available(iOS 10.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v2]) {
+            *group = 3;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v3]) {
+            *group = 2;
+            return true;
+        }
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v3]) {
+            *group = 1;
+            return true;
+        }
+    }
+    // We don't support earlier OSes
 #endif
 
-    // iOS Family group 3
+    // No supported GPU families were found
+    return false;
+}
+
+bool GrMtlCaps::getGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
+#if GR_METAL_SDK_VERSION >= 220
+    if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
+        // Apple Silicon
+#if GR_METAL_SDK_VERSION >= 230
+        if ([device supportsFamily:MTLGPUFamilyApple7]) {
+            *gpuFamily = GPUFamily::kApple;
+            *group = 7;
+            return true;
+        }
+#endif
 #ifdef SK_BUILD_FOR_IOS
-    if (@available(iOS 10.0, *)) {
-        if (MTLFeatureSet_iOS_GPUFamily3_v2 == featureSet) {
-            fPlatform = Platform::kIOS;
-            fFamilyGroup = 3;
-            fVersion = 2;
-            return;
+        if ([device supportsFamily:MTLGPUFamilyApple6]) {
+            *gpuFamily = GPUFamily::kApple;
+            *group = 6;
+            return true;
         }
-    }
-    if (@available(iOS 9.0, *)) {
-        if (MTLFeatureSet_iOS_GPUFamily3_v1 == featureSet) {
-            fPlatform = Platform::kIOS;
-            fFamilyGroup = 3;
-            fVersion = 1;
-            return;
+        if ([device supportsFamily:MTLGPUFamilyApple5]) {
+            *gpuFamily = GPUFamily::kApple;
+            *group = 5;
+            return true;
         }
-    }
+        if ([device supportsFamily:MTLGPUFamilyApple4]) {
+            *gpuFamily = GPUFamily::kApple;
+            *group = 4;
+            return true;
+        }
+        if ([device supportsFamily:MTLGPUFamilyApple3]) {
+            *gpuFamily = GPUFamily::kApple;
+            *group = 3;
+            return true;
+        }
+        if ([device supportsFamily:MTLGPUFamilyApple2]) {
+            *gpuFamily = GPUFamily::kApple;
+            *group = 2;
+            return true;
+        }
+        if ([device supportsFamily:MTLGPUFamilyApple1]) {
+            *gpuFamily = GPUFamily::kApple;
+            *group = 1;
+            return true;
+        }
+#endif
 
-    // iOS Family group 2
-    if (@available(iOS 10.0, *)) {
-        if (MTLFeatureSet_iOS_GPUFamily2_v3 == featureSet) {
-            fPlatform = Platform::kIOS;
-            fFamilyGroup = 2;
-            fVersion = 3;
-            return;
+        // Older Macs
+        // At the moment MacCatalyst families have the same features as Mac,
+        // so we treat them the same
+        if ([device supportsFamily:MTLGPUFamilyMac2] ||
+            [device supportsFamily:MTLGPUFamilyMacCatalyst2]) {
+            *gpuFamily = GPUFamily::kMac;
+            *group = 2;
+            return true;
         }
-    }
-    if (@available(iOS 9.0, *)) {
-        if (MTLFeatureSet_iOS_GPUFamily2_v2 == featureSet) {
-            fPlatform = Platform::kIOS;
-            fFamilyGroup = 2;
-            fVersion = 2;
-            return;
+        if ([device supportsFamily:MTLGPUFamilyMac1] ||
+            [device supportsFamily:MTLGPUFamilyMacCatalyst1]) {
+            *gpuFamily = GPUFamily::kMac;
+            *group = 1;
+            return true;
         }
-    }
-    if (MTLFeatureSet_iOS_GPUFamily2_v1 == featureSet) {
-        fPlatform = Platform::kIOS;
-        fFamilyGroup = 2;
-        fVersion = 1;
-        return;
-    }
-
-    // iOS Family group 1
-    if (@available(iOS 10.0, *)) {
-        if (MTLFeatureSet_iOS_GPUFamily1_v3 == featureSet) {
-            fPlatform = Platform::kIOS;
-            fFamilyGroup = 1;
-            fVersion = 3;
-            return;
-        }
-    }
-    if (@available(iOS 9.0, *)) {
-        if (MTLFeatureSet_iOS_GPUFamily1_v2 == featureSet) {
-            fPlatform = Platform::kIOS;
-            fFamilyGroup = 1;
-            fVersion = 2;
-            return;
-        }
-    }
-    if (MTLFeatureSet_iOS_GPUFamily1_v1 == featureSet) {
-        fPlatform = Platform::kIOS;
-        fFamilyGroup = 1;
-        fVersion = 1;
-        return;
     }
 #endif
-    // No supported feature sets were found
-    SK_ABORT("Requested an unsupported feature set");
+
+    // No supported GPU families were found
+    return false;
+}
+
+void GrMtlCaps::initGPUFamily(id<MTLDevice> device) {
+    if (!this->getGPUFamily(device, &fGPUFamily, &fFamilyGroup) &&
+        !this->getGPUFamilyFromFeatureSet(device, &fGPUFamily, &fFamilyGroup)) {
+        // We don't know what this is, fall back to minimum defaults
+#ifdef SK_BUILD_FOR_MAC
+        fGPUFamily = GPUFamily::kMac;
+        fFamilyGroup = 1;
+#else
+        fGPUFamily = GPUFamily::kApple;
+        fFamilyGroup = 1;
+#endif
+    }
 }
 
 static int get_surface_sample_cnt(GrSurface* surf) {
@@ -278,19 +373,10 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     fTransferPixelsToRowBytesSupport = true;
 
     // RenderTarget and Texture size
-    if (this->isMac()) {
+    if (this->isMac() || fFamilyGroup >= 3) {
         fMaxRenderTargetSize = 16384;
     } else {
-        if (3 == fFamilyGroup) {
-            fMaxRenderTargetSize = 16384;
-        } else {
-            // Family group 1 and 2 support 8192 for version 2 and above, 4096 for v1
-            if (1 == fVersion) {
-                fMaxRenderTargetSize = 4096;
-            } else {
-                fMaxRenderTargetSize = 8192;
-            }
-        }
+        fMaxRenderTargetSize = 8192;
     }
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
     fMaxTextureSize = fMaxRenderTargetSize;
@@ -337,7 +423,7 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     fSampleLocationsSupport = false;
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        if (this->isMac() || 3 == fFamilyGroup) {
+        if (this->isMac() || fFamilyGroup >= 3) {
             fDrawInstancedSupport = true;
             fNativeDrawIndirectSupport = true;
         }
@@ -1183,20 +1269,18 @@ void GrMtlCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("total bytes", GrMtlFormatBytesPerBlock(fPreferredStencilFormat));
     writer->endObject();
 
-    switch (fPlatform) {
-        case Platform::kMac:
-            writer->appendString("Platform", "Mac");
+    switch (fGPUFamily) {
+        case GPUFamily::kMac:
+            writer->appendString("GPU Family", "Mac");
             break;
-        case Platform::kIOS:
-            writer->appendString("Platform", "iOS");
+        case GPUFamily::kApple:
+            writer->appendString("GPU Family", "Apple");
             break;
         default:
-            writer->appendString("Platform", "unknown");
+            writer->appendString("GPU Family", "unknown");
             break;
     }
-
     writer->appendS32("Family Group", fFamilyGroup);
-    writer->appendS32("Version", fVersion);
 
     writer->beginArray("Sample Counts");
     for (int v : fSampleCounts) {
