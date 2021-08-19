@@ -3111,18 +3111,19 @@ skiasharp_build("HarfBuzzSharp") {
   ]
 
   defines = [
-    "HAVE_FT_GET_VAR_BLEND_COORDINATES",
-    "HAVE_FT_SET_VAR_BLEND_COORDINATES",
+    "HAVE_ATEXIT",
+    "HAVE_CXX11",
     "HAVE_GETPAGESIZE",
-    "HAVE_INTEL_ATOMIC_PRIMITIVES",
+    "HAVE_ISATTY",
+    "HAVE_MEMORY_H",
     "HAVE_MMAP",
     "HAVE_MPROTECT",
-    "HAVE_NEWLOCALE",
     "HAVE_PTHREAD",
-    "HAVE_STRTOD_L",
-    "HAVE_SYSCONF",
     "HAVE_SYS_MMAN_H",
-    "HAVE_UNISTD_H",
+    "HAVE_SYS_STAT_H",
+    "HAVE_SYS_TYPES_H",
+    "HAVE_SYSCONF",
+    "HAVE_UNISTD_H"
   ]
 
   _src = "third_party/externals/harfbuzz/src"
@@ -3133,10 +3134,12 @@ skiasharp_build("HarfBuzzSharp") {
     "$_src/hb-buffer-serialize.cc",
     "$_src/hb-buffer.cc",
     "$_src/hb-common.cc",
+    "$_src/hb-draw.cc",
     "$_src/hb-face.cc",
     "$_src/hb-fallback-shape.cc",
     "$_src/hb-font.cc",
     "$_src/hb-map.cc",
+    "$_src/hb-number.cc",
     "$_src/hb-ot-cff1-table.cc",
     "$_src/hb-ot-cff2-table.cc",
     "$_src/hb-ot-color.cc",
@@ -3156,8 +3159,8 @@ skiasharp_build("HarfBuzzSharp") {
     "$_src/hb-ot-shape-complex-indic.cc",
     "$_src/hb-ot-shape-complex-khmer.cc",
     "$_src/hb-ot-shape-complex-myanmar.cc",
+    "$_src/hb-ot-shape-complex-syllabic.cc",
     "$_src/hb-ot-shape-complex-thai.cc",
-    "$_src/hb-ot-shape-complex-use-table.cc",
     "$_src/hb-ot-shape-complex-use.cc",
     "$_src/hb-ot-shape-complex-vowel-constraints.cc",
     "$_src/hb-ot-shape-fallback.cc",
@@ -3170,6 +3173,7 @@ skiasharp_build("HarfBuzzSharp") {
     "$_src/hb-shape.cc",
     "$_src/hb-shaper.cc",
     "$_src/hb-static.cc",
+    "$_src/hb-style.cc",
     "$_src/hb-subset-cff-common.cc",
     "$_src/hb-subset-cff1.cc",
     "$_src/hb-subset-cff2.cc",
