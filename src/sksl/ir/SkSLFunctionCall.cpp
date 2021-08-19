@@ -661,48 +661,38 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         }
         case k_inverse_IntrinsicKind: {
             matrix = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
-            switch (arguments[0]->type().slotCount()) {
-                case 4: {
-                    float mat2[4] = {M(0, 0), M(0, 1),
-                                     M(1, 0), M(1, 1)};
-                    if (SkInvert2x2Matrix(mat2, mat2) == 0.0f) {
+            float m[16];
+            extract_matrix(matrix, m);
+            switch (matrix->type().slotCount()) {
+                case 4:
+                    if (SkInvert2x2Matrix(m, m) == 0.0f) {
                         return nullptr;
                     }
-                    return DSLType::Construct(&arguments[0]->type(),
-                                              mat2[0], mat2[1],
-                                              mat2[2], mat2[3]).release();
-                }
-                case 9: {
-                    float mat3[9] = {M(0, 0), M(0, 1), M(0, 2),
-                                     M(1, 0), M(1, 1), M(1, 2),
-                                     M(2, 0), M(2, 1), M(2, 2)};
-                    if (SkInvert3x3Matrix(mat3, mat3) == 0.0f) {
+                    return DSLType::Construct(&matrix->type(),
+                                              m[0], m[1],
+                                              m[2], m[3]).release();
+                case 9:
+                    if (SkInvert3x3Matrix(m, m) == 0.0f) {
                         return nullptr;
                     }
-                    return DSLType::Construct(&arguments[0]->type(),
-                                              mat3[0], mat3[1], mat3[2],
-                                              mat3[3], mat3[4], mat3[5],
-                                              mat3[6], mat3[7], mat3[8]).release();
-                }
-                case 16: {
-                    float mat4[16] = {M(0, 0), M(0, 1), M(0, 2), M(0, 3),
-                                      M(1, 0), M(1, 1), M(1, 2), M(1, 3),
-                                      M(2, 0), M(2, 1), M(2, 2), M(2, 3),
-                                      M(3, 0), M(3, 1), M(3, 2), M(3, 3)};
-                    if (SkInvert4x4Matrix(mat4, mat4) == 0.0f) {
+                    return DSLType::Construct(&matrix->type(),
+                                              m[0], m[1], m[2],
+                                              m[3], m[4], m[5],
+                                              m[6], m[7], m[8]).release();
+                    break;
+                case 16:
+                    if (SkInvert4x4Matrix(m, m) == 0.0f) {
                         return nullptr;
                     }
-                    return DSLType::Construct(&arguments[0]->type(),
-                                              mat4[0],  mat4[1],  mat4[2],  mat4[3],
-                                              mat4[4],  mat4[5],  mat4[6],  mat4[7],
-                                              mat4[8],  mat4[9],  mat4[10], mat4[11],
-                                              mat4[12], mat4[13], mat4[14], mat4[15]).release();
-                }
+                    return DSLType::Construct(&matrix->type(),
+                                              m[0],  m[1],  m[2],  m[3],
+                                              m[4],  m[5],  m[6],  m[7],
+                                              m[8],  m[9],  m[10], m[11],
+                                              m[12], m[13], m[14], m[15]).release();
             }
-            SkDEBUGFAILF("unsupported type %s", arguments[0]->type().description().c_str());
+            SkDEBUGFAILF("unsupported type %s", matrix->type().description().c_str());
             return nullptr;
         }
-
         // 8.6 : Vector Relational Functions
         case k_lessThan_IntrinsicKind:
             return optimize_comparison(context, arguments, Intrinsics::compare_lessThan);
