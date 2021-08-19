@@ -393,7 +393,7 @@ public:
     // Should we disable the clip mask atlas due to a faulty driver?
     bool driverDisableMSAAClipAtlas() const { return fDriverDisableMSAAClipAtlas; }
 
-    // Should we disable GrTessellationPathRenderer due to a faulty driver?
+    // Should we disable TessellationPathRenderer due to a faulty driver?
     bool disableTessellationPathRenderer() const { return fDisableTessellationPathRenderer; }
 
     // Returns how to sample the dst values for the passed in GrRenderTargetProxy.

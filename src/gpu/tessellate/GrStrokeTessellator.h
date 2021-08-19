@@ -65,7 +65,7 @@ struct GrStrokeTolerances {
     // Decides the number of parametric segments the tessellator adds for each curve. (Uniform
     // steps in parametric space.) The tessellator will add enough parametric segments so that,
     // once transformed into device space, they never deviate by more than
-    // 1/GrTessellationPathRenderer::kLinearizationPrecision pixels from the true curve.
+    // 1/TessellationPathRenderer::kLinearizationPrecision pixels from the true curve.
     constexpr static float CalcParametricPrecision(float matrixMaxScale) {
         return matrixMaxScale * GrTessellationShader::kLinearizationPrecision;
     }

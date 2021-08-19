@@ -182,8 +182,8 @@ void SamplePathTessellators::onDrawContent(SkCanvas* canvas) {
     SkString error;
     if (!sdc || !ctx) {
         error = "GPU Only.";
-    } else if (!GrTessellationPathRenderer::IsSupported(*ctx->priv().caps())) {
-        error = "GrTessellationPathRenderer not supported.";
+    } else if (!skgpu::v1::TessellationPathRenderer::IsSupported(*ctx->priv().caps())) {
+        error = "TessellationPathRenderer not supported.";
     } else if (fMode >= Mode::kWedgeTessellate &&
                !ctx->priv().caps()->shaderCaps()->tessellationSupport()) {
         error.printf("%s requires hardware tessellation support.", ModeName(fMode));

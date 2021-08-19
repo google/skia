@@ -116,7 +116,7 @@ bool AtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
            caps.internalMultisampleCount(atlasFormat) > 1 &&
            // GrAtlasRenderTask currently requires tessellation. In the future it could use the
            // default path renderer when tessellation isn't available.
-           GrTessellationPathRenderer::IsSupported(caps);
+           TessellationPathRenderer::IsSupported(caps);
 }
 
 sk_sp<AtlasPathRenderer> AtlasPathRenderer::Make(GrRecordingContext* rContext) {

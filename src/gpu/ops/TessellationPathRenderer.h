@@ -5,19 +5,21 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTessellationPathRenderer_DEFINED
-#define GrTessellationPathRenderer_DEFINED
+#ifndef TessellationPathRenderer_DEFINED
+#define TessellationPathRenderer_DEFINED
 
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/v1/PathRenderer.h"
 
 class GrCaps;
 
+namespace skgpu::v1 {
+
 // This is the tie-in point for path rendering via GrPathTessellateOp. This path renderer draws
 // paths using a hybrid Red Book "stencil, then cover" method. Curves get linearized by GPU
 // tessellation shaders. This path renderer doesn't apply analytic AA, so it requires MSAA if AA is
 // desired.
-class GrTessellationPathRenderer final : public skgpu::v1::PathRenderer {
+class TessellationPathRenderer final : public PathRenderer {
 public:
     static bool IsSupported(const GrCaps&);
 
@@ -30,4 +32,6 @@ private:
     void onStencilPath(const StencilPathArgs&) override;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // TessellationPathRenderer_DEFINED

@@ -1985,7 +1985,7 @@ void Viewer::drawImGui() {
                             if (skgpu::v1::AtlasPathRenderer::IsSupported(ctx)) {
                                 prButton(GpuPathRenderers::kAtlas);
                             }
-                            if (GrTessellationPathRenderer::IsSupported(*caps)) {
+                            if (skgpu::v1::TessellationPathRenderer::IsSupported(*caps)) {
                                 prButton(GpuPathRenderers::kTessellation);
                             }
                         }
@@ -2827,7 +2827,7 @@ void Viewer::updateUIState() {
                         writer.appendString(
                                 gPathRendererNames[GpuPathRenderers::kAtlas].c_str());
                     }
-                    if (GrTessellationPathRenderer::IsSupported(*caps)) {
+                    if (skgpu::v1::TessellationPathRenderer::IsSupported(*caps)) {
                         writer.appendString(
                                 gPathRendererNames[GpuPathRenderers::kTessellation].c_str());
                     }

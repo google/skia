@@ -15,10 +15,9 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 
-namespace skgpu { namespace v1 { class AtlasPathRenderer; }}
-class GrTessellationPathRenderer;
-
 namespace skgpu::v1 {
+
+class AtlasPathRenderer;
 
 /**
  * Keeps track of an ordered list of path renderers. When a path needs to be

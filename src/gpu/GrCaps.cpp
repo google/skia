@@ -237,7 +237,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Read pixels row bytes support", fReadPixelsRowBytesSupport);
     writer->appendBool("Disable msaa clip mask atlas on current driver [workaround]",
                        fDriverDisableMSAAClipAtlas);
-    writer->appendBool("Disable GrTessellationPathRenderer current driver [workaround]",
+    writer->appendBool("Disable TessellationPathRenderer current driver [workaround]",
                        fDisableTessellationPathRenderer);
     writer->appendBool("Clamp-to-border", fClampToBorderSupport);
 

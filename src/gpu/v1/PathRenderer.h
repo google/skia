@@ -90,7 +90,7 @@ public:
         const SkSurfaceProps*       fSurfaceProps;
         GrAAType                    fAAType;
 
-        // This is only used by GrTessellationPathRenderer
+        // This is only used by TessellationPathRenderer
         bool                        fHasUserStencilSettings;
 
 #ifdef SK_DEBUG

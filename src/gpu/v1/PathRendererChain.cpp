@@ -56,8 +56,8 @@ PathRendererChain::PathRendererChain(GrRecordingContext* context, const Options&
         fChain.push_back(sk_make_sp<TriangulatingPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
-        if (GrTessellationPathRenderer::IsSupported(caps)) {
-            auto tess = sk_make_sp<GrTessellationPathRenderer>();
+        if (TessellationPathRenderer::IsSupported(caps)) {
+            auto tess = sk_make_sp<TessellationPathRenderer>();
             fTessellationPathRenderer = tess.get();
             fChain.push_back(std::move(tess));
         }
