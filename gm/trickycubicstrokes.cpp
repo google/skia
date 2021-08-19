@@ -182,7 +182,7 @@ DEF_SIMPLE_GM(trickycubicstrokes_roundcaps, canvas, kTestWidth, kTestHeight) {
 }
 
 #if SK_GPU_V1
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/ops/TessellationPathRenderer.h"
 
 class TrickyCubicStrokes_tess_segs_5 : public skiagm::GM {
     SkString onShortName() override {

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/ops/TessellationPathRenderer.h"
 
 #include "include/private/SkVx.h"
 #include "src/core/SkPathPriv.h"
@@ -15,10 +15,10 @@
 #include "src/gpu/GrVx.h"
 #include "src/gpu/effects/GrDisableColorXP.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
-#include "src/gpu/tessellate/GrPathStencilCoverOp.h"
-#include "src/gpu/tessellate/GrPathTessellateOp.h"
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
+#include "src/gpu/ops/PathInnerTriangulateOp.h"
+#include "src/gpu/ops/PathStencilCoverOp.h"
+#include "src/gpu/ops/PathTessellateOp.h"
+#include "src/gpu/ops/StrokeTessellateOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {

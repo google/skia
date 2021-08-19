@@ -23,8 +23,8 @@
 #include "src/gpu/ops/DashLinePathRenderer.h"
 #include "src/gpu/ops/DefaultPathRenderer.h"
 #include "src/gpu/ops/SmallPathRenderer.h"
+#include "src/gpu/ops/TessellationPathRenderer.h"
 #include "src/gpu/ops/TriangulatingPathRenderer.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 namespace skgpu::v1 {
 

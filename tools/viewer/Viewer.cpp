@@ -54,7 +54,7 @@
 
 #if SK_GPU_V1
 #include "src/gpu/ops/AtlasPathRenderer.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/ops/TessellationPathRenderer.h"
 #endif
 
 #include <cstdlib>

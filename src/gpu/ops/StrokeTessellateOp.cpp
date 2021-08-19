@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
+#include "src/gpu/ops/StrokeTessellateOp.h"
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrAppliedClip.h"

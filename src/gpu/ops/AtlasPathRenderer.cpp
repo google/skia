@@ -15,8 +15,8 @@
 #include "src/gpu/effects/GrModulateAtlasCoverageEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrDrawAtlasPathOp.h"
+#include "src/gpu/ops/TessellationPathRenderer.h"
 #include "src/gpu/tessellate/GrAtlasRenderTask.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrPathStencilCoverOp.h"
+#include "src/gpu/ops/PathStencilCoverOp.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrGpu.h"
