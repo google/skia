@@ -6,7 +6,7 @@
  */
 
 
-#include "src/gpu/GrPathRendererChain.h"
+#include "src/gpu/v1/PathRendererChain.h"
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -26,32 +26,34 @@
 #include "src/gpu/ops/TriangulatingPathRenderer.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
-GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
+namespace skgpu::v1 {
+
+PathRendererChain::PathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
-        fChain.push_back(sk_make_sp<skgpu::v1::DashLinePathRenderer>());
+        fChain.push_back(sk_make_sp<DashLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
-        fChain.push_back(sk_make_sp<skgpu::v1::AAConvexPathRenderer>());
+        fChain.push_back(sk_make_sp<AAConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAHairline) {
-        fChain.push_back(sk_make_sp<skgpu::v1::AAHairLinePathRenderer>());
+        fChain.push_back(sk_make_sp<AAHairLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAALinearizing) {
-        fChain.push_back(sk_make_sp<skgpu::v1::AALinearizingConvexPathRenderer>());
+        fChain.push_back(sk_make_sp<AALinearizingConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAtlas) {
-        if (auto atlasPathRenderer = skgpu::v1::AtlasPathRenderer::Make(context)) {
+        if (auto atlasPathRenderer = AtlasPathRenderer::Make(context)) {
             fAtlasPathRenderer = atlasPathRenderer.get();
             context->priv().addOnFlushCallbackObject(atlasPathRenderer.get());
             fChain.push_back(std::move(atlasPathRenderer));
         }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
-        fChain.push_back(sk_make_sp<skgpu::v1::SmallPathRenderer>());
+        fChain.push_back(sk_make_sp<SmallPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
-        fChain.push_back(sk_make_sp<skgpu::v1::TriangulatingPathRenderer>());
+        fChain.push_back(sk_make_sp<TriangulatingPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
         if (GrTessellationPathRenderer::IsSupported(caps)) {
@@ -62,55 +64,56 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     }
 
     // We always include the default path renderer (as well as SW), so we can draw any path
-    fChain.push_back(sk_make_sp<skgpu::v1::DefaultPathRenderer>());
+    fChain.push_back(sk_make_sp<DefaultPathRenderer>());
 }
 
-GrPathRenderer* GrPathRendererChain::getPathRenderer(
-        const GrPathRenderer::CanDrawPathArgs& args,
-        DrawType drawType,
-        GrPathRenderer::StencilSupport* stencilSupport) {
-    static_assert(GrPathRenderer::kNoSupport_StencilSupport <
-                  GrPathRenderer::kStencilOnly_StencilSupport);
-    static_assert(GrPathRenderer::kStencilOnly_StencilSupport <
-                  GrPathRenderer::kNoRestriction_StencilSupport);
-    GrPathRenderer::StencilSupport minStencilSupport;
+PathRenderer* PathRendererChain::getPathRenderer(const PathRenderer::CanDrawPathArgs& args,
+                                                 DrawType drawType,
+                                                 PathRenderer::StencilSupport* stencilSupport) {
+    static_assert(PathRenderer::kNoSupport_StencilSupport <
+                  PathRenderer::kStencilOnly_StencilSupport);
+    static_assert(PathRenderer::kStencilOnly_StencilSupport <
+                  PathRenderer::kNoRestriction_StencilSupport);
+    PathRenderer::StencilSupport minStencilSupport;
     if (DrawType::kStencil == drawType) {
-        minStencilSupport = GrPathRenderer::kStencilOnly_StencilSupport;
+        minStencilSupport = PathRenderer::kStencilOnly_StencilSupport;
     } else if (DrawType::kStencilAndColor == drawType) {
-        minStencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
+        minStencilSupport = PathRenderer::kNoRestriction_StencilSupport;
     } else {
-        minStencilSupport = GrPathRenderer::kNoSupport_StencilSupport;
+        minStencilSupport = PathRenderer::kNoSupport_StencilSupport;
     }
-    if (minStencilSupport != GrPathRenderer::kNoSupport_StencilSupport) {
+    if (minStencilSupport != PathRenderer::kNoSupport_StencilSupport) {
         // We don't support (and shouldn't need) stenciling of non-fill paths.
         if (!args.fShape->style().isSimpleFill()) {
             return nullptr;
         }
     }
 
-    GrPathRenderer* bestPathRenderer = nullptr;
-    for (const sk_sp<GrPathRenderer>& pr : fChain) {
-        GrPathRenderer::StencilSupport support = GrPathRenderer::kNoSupport_StencilSupport;
-        if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
+    PathRenderer* bestPathRenderer = nullptr;
+    for (const sk_sp<PathRenderer>& pr : fChain) {
+        PathRenderer::StencilSupport support = PathRenderer::kNoSupport_StencilSupport;
+        if (PathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
             support = pr->getStencilSupport(*args.fShape);
             if (support < minStencilSupport) {
                 continue;
             }
         }
-        GrPathRenderer::CanDrawPath canDrawPath = pr->canDrawPath(args);
-        if (GrPathRenderer::CanDrawPath::kNo == canDrawPath) {
+        PathRenderer::CanDrawPath canDrawPath = pr->canDrawPath(args);
+        if (PathRenderer::CanDrawPath::kNo == canDrawPath) {
             continue;
         }
-        if (GrPathRenderer::CanDrawPath::kAsBackup == canDrawPath && bestPathRenderer) {
+        if (PathRenderer::CanDrawPath::kAsBackup == canDrawPath && bestPathRenderer) {
             continue;
         }
         if (stencilSupport) {
             *stencilSupport = support;
         }
         bestPathRenderer = pr.get();
-        if (GrPathRenderer::CanDrawPath::kYes == canDrawPath) {
+        if (PathRenderer::CanDrawPath::kYes == canDrawPath) {
             break;
         }
     }
     return bestPathRenderer;
 }
+
+} // namespace skgpu::v1

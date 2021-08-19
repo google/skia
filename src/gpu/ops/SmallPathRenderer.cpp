@@ -668,7 +668,7 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
 
 namespace skgpu::v1 {
 
-GrPathRenderer::CanDrawPath SmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+PathRenderer::CanDrawPath SmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
         return CanDrawPath::kNo;
     }

@@ -375,7 +375,7 @@ GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
 
 namespace skgpu::v1 {
 
-GrPathRenderer::CanDrawPath
+PathRenderer::CanDrawPath
 AALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (GrAAType::kCoverage != args.fAAType) {
         return CanDrawPath::kNo;

@@ -8,15 +8,13 @@
 #ifndef SmallPathRenderer_DEFINED
 #define SmallPathRenderer_DEFINED
 
-#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/v1/PathRenderer.h"
 
-class GrDrawOp;
-class GrRecordingContext;
 class GrStyledShape;
 
 namespace skgpu::v1 {
 
-class SmallPathRenderer final : public GrPathRenderer {
+class SmallPathRenderer final : public PathRenderer {
 public:
     SmallPathRenderer() = default;
 
@@ -24,14 +22,12 @@ public:
 
 private:
     StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
-        return GrPathRenderer::kNoSupport_StencilSupport;
+        return PathRenderer::kNoSupport_StencilSupport;
     }
 
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
-
-    using INHERITED = GrPathRenderer;
 };
 
 } // namespace skgpu::v1

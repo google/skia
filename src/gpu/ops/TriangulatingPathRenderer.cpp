@@ -572,8 +572,9 @@ TriangulatingPathRenderer::TriangulatingPathRenderer()
     : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
 }
 
-GrPathRenderer::CanDrawPath
-TriangulatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+PathRenderer::CanDrawPath TriangulatingPathRenderer::onCanDrawPath(
+        const CanDrawPathArgs& args) const {
+
     // Don't use this path renderer with dynamic MSAA. DMSAA tries to not rely on caching.
     if (args.fSurfaceProps->flags() & SkSurfaceProps::kDynamicMSAA_Flag) {
         return CanDrawPath::kNo;

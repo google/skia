@@ -8,7 +8,7 @@
 #ifndef TriangulatingPathRenderer_DEFINED
 #define TriangulatingPathRenderer_DEFINED
 
-#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/v1/PathRenderer.h"
 
 namespace skgpu::v1 {
 
@@ -16,7 +16,7 @@ namespace skgpu::v1 {
  *  Subclass that renders the path by converting to screen-space trapezoids plus
  *  extra 1-pixel geometry for AA.
  */
-class TriangulatingPathRenderer final : public GrPathRenderer {
+class TriangulatingPathRenderer final : public PathRenderer {
 public:
     TriangulatingPathRenderer();
 #if GR_TEST_UTILS

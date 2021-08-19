@@ -254,7 +254,7 @@ bool AtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
     return true;
 }
 
-GrPathRenderer::CanDrawPath AtlasPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+PathRenderer::CanDrawPath AtlasPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 #ifdef SK_DEBUG
     if (!fAtlasRenderTasks.empty()) {
         // args.fPaint should NEVER reference our current atlas. If it does, it means somebody

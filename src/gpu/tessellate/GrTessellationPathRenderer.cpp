@@ -27,7 +27,7 @@ bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
            !caps.disableTessellationPathRenderer();
 }
 
-GrPathRenderer::StencilSupport GrTessellationPathRenderer::onGetStencilSupport(
+skgpu::v1::PathRenderer::StencilSupport GrTessellationPathRenderer::onGetStencilSupport(
         const GrStyledShape& shape) const {
     if (!shape.style().isSimpleFill() || shape.inverseFilled()) {
         // Don't bother with stroke stencilling or inverse fills yet. The Skia API doesn't support
@@ -37,7 +37,7 @@ GrPathRenderer::StencilSupport GrTessellationPathRenderer::onGetStencilSupport(
     return shape.knownToBeConvex() ? kNoRestriction_StencilSupport : kStencilOnly_StencilSupport;
 }
 
-GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
+skgpu::v1::PathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
     const GrStyledShape& shape = *args.fShape;
     if (args.fAAType == GrAAType::kCoverage ||

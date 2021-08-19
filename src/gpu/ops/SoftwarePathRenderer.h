@@ -8,8 +8,8 @@
 #ifndef SoftwarePathRenderer_DEFINED
 #define SoftwarePathRenderer_DEFINED
 
-#include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrSurfaceProxyView.h"
+#include "src/gpu/v1/PathRenderer.h"
 
 class GrProxyProvider;
 
@@ -19,7 +19,7 @@ namespace skgpu::v1 {
  * This class uses the software side to render a path to an SkBitmap and
  * then uploads the result to the gpu
  */
-class SoftwarePathRenderer final : public GrPathRenderer {
+class SoftwarePathRenderer final : public PathRenderer {
 public:
     const char* name() const override { return "SW"; }
 
@@ -65,7 +65,7 @@ private:
                                           const SkIRect& deviceSpaceRectToDraw);
 
     StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
-        return GrPathRenderer::kNoSupport_StencilSupport;
+        return PathRenderer::kNoSupport_StencilSupport;
     }
 
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
@@ -75,8 +75,6 @@ private:
 private:
     GrProxyProvider* fProxyProvider;
     bool             fAllowCaching;
-
-    using INHERITED = GrPathRenderer;
 };
 
 } // namespace skgpu::v1

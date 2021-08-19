@@ -14,7 +14,7 @@
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
-#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/v1/PathRenderer.h"
 
 class GrAtlasRenderTask;
 class GrOp;
@@ -23,7 +23,7 @@ class GrRecordingContext;
 namespace skgpu::v1 {
 
 // Draws paths by first rendering their coverage mask into an offscreen atlas.
-class AtlasPathRenderer final : public GrPathRenderer, public GrOnFlushCallbackObject {
+class AtlasPathRenderer final : public PathRenderer, public GrOnFlushCallbackObject {
 public:
     static bool IsSupported(GrRecordingContext*);
 

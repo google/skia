@@ -33,7 +33,7 @@ static SkPath create_concave_path() {
 static void draw_path(GrRecordingContext* rContext,
                       skgpu::v1::SurfaceDrawContext* sdc,
                       const SkPath& path,
-                      GrPathRenderer* pr,
+                      skgpu::v1::PathRenderer* pr,
                       GrAAType aaType,
                       const GrStyle& style,
                       float scaleX = 1.f) {
@@ -48,16 +48,16 @@ static void draw_path(GrRecordingContext* rContext,
     }
     SkMatrix matrix = SkMatrix::I();
     matrix.setScaleX(scaleX);
-    GrPathRenderer::DrawPathArgs args{rContext,
-                                      std::move(paint),
-                                      &GrUserStencilSettings::kUnused,
-                                      sdc,
-                                      nullptr,
-                                      &clipConservativeBounds,
-                                      &matrix,
-                                      &shape,
-                                      aaType,
-                                      false};
+    skgpu::v1::PathRenderer::DrawPathArgs args{rContext,
+                                               std::move(paint),
+                                               &GrUserStencilSettings::kUnused,
+                                               sdc,
+                                               nullptr,
+                                               &clipConservativeBounds,
+                                               &matrix,
+                                               &shape,
+                                               aaType,
+                                               false};
     pr->drawPath(args);
 }
 
@@ -73,7 +73,7 @@ static bool cache_non_scratch_resources_equals(GrResourceCache* cache, int expec
 
 static void test_path(skiatest::Reporter* reporter,
                       std::function<SkPath(void)> createPath,
-                      std::function<GrPathRenderer*(GrRecordingContext*)> createPathRenderer,
+                      std::function<skgpu::v1::PathRenderer*(GrRecordingContext*)> makePathRenderer,
                       int expected,
                       bool checkListeners,
                       GrAAType aaType = GrAAType::kNone,
@@ -90,7 +90,7 @@ static void test_path(skiatest::Reporter* reporter,
         return;
     }
 
-    sk_sp<GrPathRenderer> pathRenderer(createPathRenderer(dContext.get()));
+    sk_sp<skgpu::v1::PathRenderer> pathRenderer(makePathRenderer(dContext.get()));
     SkPath path = createPath();
 
     // Initially, cache only has the render target context

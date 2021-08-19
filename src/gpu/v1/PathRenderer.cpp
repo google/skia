@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/v1/PathRenderer.h"
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDrawProcs.h"
@@ -14,10 +14,14 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/geometry/GrStyledShape.h"
+#ifdef SK_DEBUG
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#endif
+
+namespace skgpu::v1 {
 
 #ifdef SK_DEBUG
-void GrPathRenderer::StencilPathArgs::validate() const {
+void PathRenderer::StencilPathArgs::validate() const {
     SkASSERT(fContext);
     SkASSERT(fSurfaceDrawContext);
     SkASSERT(fClipConservativeBounds);
@@ -32,9 +36,7 @@ void GrPathRenderer::StencilPathArgs::validate() const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrPathRenderer::GrPathRenderer() {}
-
-GrPathRenderer::StencilSupport GrPathRenderer::getStencilSupport(const GrStyledShape& shape) const {
+PathRenderer::StencilSupport PathRenderer::getStencilSupport(const GrStyledShape& shape) const {
     SkDEBUGCODE(SkPath path;)
     SkDEBUGCODE(shape.asPath(&path);)
     SkASSERT(shape.style().isSimpleFill());
@@ -42,7 +44,7 @@ GrPathRenderer::StencilSupport GrPathRenderer::getStencilSupport(const GrStyledS
     return this->onGetStencilSupport(shape);
 }
 
-bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
+bool PathRenderer::drawPath(const DrawPathArgs& args) {
 #ifdef SK_DEBUG
     args.validate();
     CanDrawPathArgs canArgs;
@@ -68,10 +70,10 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
     return this->onDrawPath(args);
 }
 
-void GrPathRenderer::GetPathDevBounds(const SkPath& path,
-                                      SkISize devSize,
-                                      const SkMatrix& matrix,
-                                      SkRect* bounds) {
+void PathRenderer::GetPathDevBounds(const SkPath& path,
+                                    SkISize devSize,
+                                    const SkMatrix& matrix,
+                                    SkRect* bounds) {
     if (path.isInverseFillType()) {
         *bounds = SkRect::Make(devSize);
         return;
@@ -80,7 +82,7 @@ void GrPathRenderer::GetPathDevBounds(const SkPath& path,
     matrix.mapRect(bounds);
 }
 
-void GrPathRenderer::onStencilPath(const StencilPathArgs& args) {
+void PathRenderer::onStencilPath(const StencilPathArgs& args) {
     static constexpr GrUserStencilSettings kIncrementStencil(
             GrUserStencilSettings::StaticInit<
                     0xffff,
@@ -104,3 +106,5 @@ void GrPathRenderer::onStencilPath(const StencilPathArgs& args) {
                           false};
     this->drawPath(drawArgs);
 }
+
+} // namespace skgpu::v1

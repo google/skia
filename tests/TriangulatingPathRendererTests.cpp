@@ -727,16 +727,16 @@ static void test_path(GrRecordingContext* rContext,
     SkIRect clipConservativeBounds = SkIRect::MakeWH(sdc->width(), sdc->height());
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrStyledShape shape(path, style);
-    GrPathRenderer::DrawPathArgs args{rContext,
-                                      std::move(paint),
-                                      &GrUserStencilSettings::kUnused,
-                                      sdc,
-                                      nullptr,
-                                      &clipConservativeBounds,
-                                      &matrix,
-                                      &shape,
-                                      aaType,
-                                      false};
+    skgpu::v1::PathRenderer::DrawPathArgs args{rContext,
+                                               std::move(paint),
+                                               &GrUserStencilSettings::kUnused,
+                                               sdc,
+                                               nullptr,
+                                               &clipConservativeBounds,
+                                               &matrix,
+                                               &shape,
+                                               aaType,
+                                               false};
     pr.drawPath(args);
 }
 

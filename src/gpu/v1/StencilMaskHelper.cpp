@@ -255,11 +255,11 @@ static constexpr GrUserStencilSettings gDrawToStencil(
 // This returns a null-terminated list of const GrUserStencilSettings*
 GrUserStencilSettings const* const* get_stencil_passes(
         SkRegion::Op op,
-        GrPathRenderer::StencilSupport stencilSupport,
+        skgpu::v1::PathRenderer::StencilSupport stencilSupport,
         bool fillInverted,
         bool* drawDirectToClip) {
     bool canRenderDirectToStencil =
-            GrPathRenderer::kNoRestriction_StencilSupport == stencilSupport;
+            skgpu::v1::PathRenderer::kNoRestriction_StencilSupport == stencilSupport;
 
     // TODO: inverse fill + intersect op can be direct.
     // TODO: this can be greatly simplified when we only need intersect and difference ops and
@@ -288,39 +288,40 @@ void draw_stencil_rect(skgpu::v1::SurfaceDrawContext* sdc,
 
 void draw_path(GrRecordingContext* rContext,
                skgpu::v1::SurfaceDrawContext* sdc,
-               GrPathRenderer* pr,
+               skgpu::v1::PathRenderer* pr,
                const GrHardClip& clip,
                const SkIRect& bounds,
                const GrUserStencilSettings* ss,
                const SkMatrix& matrix,
-               const GrStyledShape& shape, GrAA aa) {
+               const GrStyledShape& shape,
+               GrAA aa) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
 
     // kMSAA is the only type of AA that's possible on a stencil buffer.
     GrAAType pathAAType = aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone;
 
-    GrPathRenderer::DrawPathArgs args{rContext,
-                                      std::move(paint),
-                                      ss,
-                                      sdc,
-                                      &clip,
-                                      &bounds,
-                                      &matrix,
-                                      &shape,
-                                      pathAAType,
-                                      false};
+    skgpu::v1::PathRenderer::DrawPathArgs args{rContext,
+                                               std::move(paint),
+                                               ss,
+                                               sdc,
+                                               &clip,
+                                               &bounds,
+                                               &matrix,
+                                               &shape,
+                                               pathAAType,
+                                               false};
     pr->drawPath(args);
 }
 
 void stencil_path(GrRecordingContext* rContext,
                   skgpu::v1::SurfaceDrawContext* sdc,
-                  GrPathRenderer* pr,
+                  skgpu::v1::PathRenderer* pr,
                   const GrFixedClip& clip,
                   const SkMatrix& matrix,
                   const GrStyledShape& shape,
                   GrAA aa) {
-    GrPathRenderer::StencilPathArgs args;
+    skgpu::v1::PathRenderer::StencilPathArgs args;
     args.fContext = rContext;
     args.fSurfaceDrawContext = sdc;
     args.fClip = &clip;
@@ -373,8 +374,8 @@ void StencilMaskHelper::drawRect(const SkRect& rect,
     }
 
     bool drawDirectToClip;
-    auto passes = get_stencil_passes(op, GrPathRenderer::kNoRestriction_StencilSupport, false,
-                                     &drawDirectToClip);
+    auto passes = get_stencil_passes(op, PathRenderer::kNoRestriction_StencilSupport,
+                                     false, &drawDirectToClip);
     aa = supported_aa(fSDC, aa);
 
     if (!drawDirectToClip) {
@@ -411,7 +412,7 @@ bool StencilMaskHelper::drawPath(const SkPath& path,
 
     // This will be used to determine whether the clip shape can be rendered into the
     // stencil with arbitrary stencil settings.
-    GrPathRenderer::StencilSupport stencilSupport;
+    PathRenderer::StencilSupport stencilSupport;
 
     // Make path canonical with regards to fill type (inverse handled by stencil settings).
     bool fillInverted = path.isInverseFillType();
@@ -423,7 +424,7 @@ bool StencilMaskHelper::drawPath(const SkPath& path,
     GrStyledShape shape(*clipPath, GrStyle::SimpleFill());
     SkASSERT(!shape.inverseFilled());
 
-    GrPathRenderer::CanDrawPathArgs canDrawArgs;
+    PathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = fContext->priv().caps();
     canDrawArgs.fProxy = fSDC->asRenderTargetProxy();
     canDrawArgs.fClipConservativeBounds = &fClip.fixedClip().scissorRect();
@@ -434,8 +435,8 @@ bool StencilMaskHelper::drawPath(const SkPath& path,
     canDrawArgs.fAAType = pathAAType;
     canDrawArgs.fHasUserStencilSettings = false;
 
-    GrPathRenderer* pr =  fContext->priv().drawingManager()->getPathRenderer(
-            canDrawArgs, false, GrPathRendererChain::DrawType::kStencil, &stencilSupport);
+    auto pr =  fContext->priv().drawingManager()->getPathRenderer(
+            canDrawArgs, false, PathRendererChain::DrawType::kStencil, &stencilSupport);
     if (!pr) {
         return false;
     }
@@ -445,7 +446,7 @@ bool StencilMaskHelper::drawPath(const SkPath& path,
 
     // Write to client bits if necessary
     if (!drawDirectToClip) {
-        if (stencilSupport == GrPathRenderer::kNoRestriction_StencilSupport) {
+        if (stencilSupport == PathRenderer::kNoRestriction_StencilSupport) {
             draw_path(fContext, fSDC, pr, fClip.fixedClip(), fClip.fixedClip().scissorRect(),
                       &gDrawToStencil, matrix, shape, aa);
         } else {

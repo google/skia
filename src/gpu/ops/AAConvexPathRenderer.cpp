@@ -910,7 +910,7 @@ GR_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
 
 namespace skgpu::v1 {
 
-GrPathRenderer::CanDrawPath AAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+PathRenderer::CanDrawPath AAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This check requires convexity and known direction, since the direction is used to build
     // the geometry segments. Degenerate convex paths will fall through to some other path renderer.
     if (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&

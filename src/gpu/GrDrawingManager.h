@@ -19,8 +19,8 @@
 #include "src/gpu/GrSurfaceProxy.h"
 
 #if SK_GPU_V1
-#include "src/gpu/GrPathRenderer.h"
-#include "src/gpu/GrPathRendererChain.h"
+#include "src/gpu/v1/PathRenderer.h"
+#include "src/gpu/v1/PathRendererChain.h"
 #endif
 
 // Enabling this will print out which path renderers are being chosen
@@ -111,12 +111,15 @@ public:
     GrRecordingContext* getContext() { return fContext; }
 
 #if SK_GPU_V1
-    GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                    bool allowSW,
-                                    GrPathRendererChain::DrawType drawType,
-                                    GrPathRenderer::StencilSupport* stencilSupport = nullptr);
+    using PathRenderer = skgpu::v1::PathRenderer;
+    using PathRendererChain = skgpu::v1::PathRendererChain;
 
-    GrPathRenderer* getSoftwarePathRenderer();
+    PathRenderer* getPathRenderer(const PathRenderer::CanDrawPathArgs&,
+                                  bool allowSW,
+                                  PathRendererChain::DrawType,
+                                  PathRenderer::StencilSupport* = nullptr);
+
+    PathRenderer* getSoftwarePathRenderer();
 
     // Returns a direct pointer to the atlas path renderer, or null if it is not supported and
     // turned on.
@@ -124,7 +127,7 @@ public:
 
     // Returns a direct pointer to the tessellation path renderer, or null if it is not supported
     // and turned on.
-    GrPathRenderer* getTessellationPathRenderer();
+    PathRenderer* getTessellationPathRenderer();
 #endif
 
     void flushIfNecessary();
@@ -141,7 +144,7 @@ public:
 #if GR_TEST_UTILS
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #if SK_GPU_V1
-    GrPathRendererChain::Options testingOnly_getOptionsForPathRendererChain() {
+    PathRendererChain::Options testingOnly_getOptionsForPathRendererChain() {
         return fOptionsForPathRendererChain;
     }
 #endif
@@ -159,7 +162,7 @@ public:
 private:
 #if SK_GPU_V1
     GrDrawingManager(GrRecordingContext*,
-                     const GrPathRendererChain::Options&,
+                     const PathRendererChain::Options&,
                      bool reduceOpsTaskSplitting);
 #else
     GrDrawingManager(GrRecordingContext*, bool reduceOpsTaskSplitting);
@@ -219,8 +222,8 @@ private:
     SkSTArray<4, sk_sp<GrRenderTask>>        fOnFlushRenderTasks;
 
 #if SK_GPU_V1
-    GrPathRendererChain::Options             fOptionsForPathRendererChain;
-    std::unique_ptr<GrPathRendererChain>     fPathRendererChain;
+    PathRendererChain::Options               fOptionsForPathRendererChain;
+    std::unique_ptr<PathRendererChain>       fPathRendererChain;
     sk_sp<skgpu::v1::SoftwarePathRenderer>   fSoftwarePathRenderer;
 #endif
 

@@ -27,6 +27,7 @@
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrPathStencilSettings.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
@@ -759,16 +760,16 @@ bool DefaultPathRenderer::internalDrawPath(skgpu::v1::SurfaceDrawContext* sdc,
 }
 
 
-GrPathRenderer::StencilSupport
+PathRenderer::StencilSupport
 DefaultPathRenderer::onGetStencilSupport(const GrStyledShape& shape) const {
     if (single_pass_shape(shape)) {
-        return GrPathRenderer::kNoRestriction_StencilSupport;
+        return kNoRestriction_StencilSupport;
     } else {
-        return GrPathRenderer::kStencilOnly_StencilSupport;
+        return kStencilOnly_StencilSupport;
     }
 }
 
-GrPathRenderer::CanDrawPath DefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+PathRenderer::CanDrawPath DefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     bool isHairline = GrIsStrokeHairlineOrEquivalent(
             args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.

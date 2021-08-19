@@ -104,7 +104,7 @@ GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* rContext,
 namespace skgpu::v1 {
 
 ////////////////////////////////////////////////////////////////////////////////
-GrPathRenderer::CanDrawPath SoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+PathRenderer::CanDrawPath SoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // Pass on any style that applies. The caller will apply the style if a suitable renderer is
     // not found and try again with the new GrStyledShape.
     if (!args.fShape->style().applies() && SkToBool(fProxyProvider) &&

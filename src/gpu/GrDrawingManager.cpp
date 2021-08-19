@@ -51,7 +51,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #if SK_GPU_V1
 GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext,
-                                   const GrPathRendererChain::Options& optionsForPathRendererChain,
+                                   const PathRendererChain::Options& optionsForPathRendererChain,
                                    bool reduceOpsTaskSplitting)
         : fContext(rContext)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
@@ -936,20 +936,21 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
  * Due to its expense, the software path renderer has split out so it can
  * can be individually allowed/disallowed via the "allowSW" boolean.
  */
-GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                                  bool allowSW,
-                                                  GrPathRendererChain::DrawType drawType,
-                                                  GrPathRenderer::StencilSupport* stencilSupport) {
+skgpu::v1::PathRenderer* GrDrawingManager::getPathRenderer(
+        const PathRenderer::CanDrawPathArgs& args,
+        bool allowSW,
+        PathRendererChain::DrawType drawType,
+        PathRenderer::StencilSupport* stencilSupport) {
 
     if (!fPathRendererChain) {
         fPathRendererChain =
-                std::make_unique<GrPathRendererChain>(fContext, fOptionsForPathRendererChain);
+                std::make_unique<PathRendererChain>(fContext, fOptionsForPathRendererChain);
     }
 
-    GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
+    auto pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
     if (!pr && allowSW) {
         auto swPR = this->getSoftwarePathRenderer();
-        if (GrPathRenderer::CanDrawPath::kNo != swPR->canDrawPath(args)) {
+        if (PathRenderer::CanDrawPath::kNo != swPR->canDrawPath(args)) {
             pr = swPR;
         }
     }
@@ -963,7 +964,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
-GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
+skgpu::v1::PathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
     if (!fSoftwarePathRenderer) {
         fSoftwarePathRenderer.reset(new skgpu::v1::SoftwarePathRenderer(
             fContext->priv().proxyProvider(), fOptionsForPathRendererChain.fAllowPathMaskCaching));
@@ -973,16 +974,16 @@ GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
 
 skgpu::v1::AtlasPathRenderer* GrDrawingManager::getAtlasPathRenderer() {
     if (!fPathRendererChain) {
-        fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,
-                                                                   fOptionsForPathRendererChain);
+        fPathRendererChain = std::make_unique<PathRendererChain>(fContext,
+                                                                 fOptionsForPathRendererChain);
     }
     return fPathRendererChain->getAtlasPathRenderer();
 }
 
-GrPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
+skgpu::v1::PathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     if (!fPathRendererChain) {
-        fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,
-                                                                   fOptionsForPathRendererChain);
+        fPathRendererChain = std::make_unique<PathRendererChain>(fContext,
+                                                                 fOptionsForPathRendererChain);
     }
     return fPathRendererChain->getTessellationPathRenderer();
 }

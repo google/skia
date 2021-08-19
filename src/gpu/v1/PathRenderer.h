@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathRenderer_DEFINED
-#define GrPathRenderer_DEFINED
+#ifndef PathRenderer_DEFINED
+#define PathRenderer_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
@@ -17,7 +17,6 @@ class GrClip;
 class GrHardClip;
 class GrPaint;
 class GrRecordingContext;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrRenderTargetProxy;
 class GrStyledShape;
 class GrStyle;
@@ -27,12 +26,16 @@ class SkMatrix;
 class SkPath;
 class SkSurfaceProps;
 
+namespace skgpu::v1 {
+
+class SurfaceDrawContext;
+
 /**
  *  Base class for drawing paths into a GrOpsTask.
  */
-class GrPathRenderer : public SkRefCnt {
+class PathRenderer : public SkRefCnt {
 public:
-    GrPathRenderer();
+    PathRenderer() = default;
 
     virtual const char* name() const = 0;
 
@@ -43,7 +46,7 @@ public:
      * covered by bounding geometry but outside the path. These exterior pixels would still be
      * rendered into the stencil.
      *
-     * A GrPathRenderer can provide three levels of support for stenciling paths:
+     * A PathRenderer can provide three levels of support for stenciling paths:
      * 1) kNoRestriction: This is the most general. The caller passes a GrPaint and calls drawPath().
      *                    The path is rendered exactly as the draw state indicates including support
      *                    for simultaneous color and stenciling with arbitrary stenciling rules.
@@ -113,16 +116,16 @@ public:
     }
 
     struct DrawPathArgs {
-        GrRecordingContext*            fContext;
-        GrPaint&&                      fPaint;
-        const GrUserStencilSettings*   fUserStencilSettings;
-        skgpu::v1::SurfaceDrawContext* fSurfaceDrawContext;
-        const GrClip*                  fClip;
-        const SkIRect*                 fClipConservativeBounds;
-        const SkMatrix*                fViewMatrix;
-        const GrStyledShape*           fShape;
-        GrAAType                       fAAType;
-        bool                           fGammaCorrect;
+        GrRecordingContext*          fContext;
+        GrPaint&&                    fPaint;
+        const GrUserStencilSettings* fUserStencilSettings;
+        SurfaceDrawContext*          fSurfaceDrawContext;
+        const GrClip*                fClip;
+        const SkIRect*               fClipConservativeBounds;
+        const SkMatrix*              fViewMatrix;
+        const GrStyledShape*         fShape;
+        GrAAType                     fAAType;
+        bool                         fGammaCorrect;
 #ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fContext);
@@ -146,13 +149,13 @@ public:
     struct StencilPathArgs {
         SkDEBUGCODE(StencilPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
-        GrRecordingContext*            fContext;
-        skgpu::v1::SurfaceDrawContext* fSurfaceDrawContext;
-        const GrHardClip*              fClip;
-        const SkIRect*                 fClipConservativeBounds;
-        const SkMatrix*                fViewMatrix;
-        const GrStyledShape*           fShape;
-        GrAA                           fDoStencilMSAA;
+        GrRecordingContext*  fContext;
+        SurfaceDrawContext*  fSurfaceDrawContext;
+        const GrHardClip*    fClip;
+        const SkIRect*       fClipConservativeBounds;
+        const SkMatrix*      fViewMatrix;
+        const GrStyledShape* fShape;
+        GrAA                 fDoStencilMSAA;
 
         SkDEBUGCODE(void validate() const);
     };
@@ -202,4 +205,6 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // PathRenderer_DEFINED

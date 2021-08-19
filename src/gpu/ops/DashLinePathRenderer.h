@@ -8,13 +8,13 @@
 #ifndef DashLinePathRenderer_DEFINED
 #define DashLinePathRenderer_DEFINED
 
-#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/v1/PathRenderer.h"
 
 class GrGpu;
 
 namespace skgpu::v1 {
 
-class DashLinePathRenderer final : public GrPathRenderer {
+class DashLinePathRenderer final : public PathRenderer {
 public:
     DashLinePathRenderer() = default;
 
@@ -30,8 +30,6 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
     sk_sp<GrGpu> fGpu;
-
-    using INHERITED = GrPathRenderer;
 };
 
 } // namespace skgpu::v1

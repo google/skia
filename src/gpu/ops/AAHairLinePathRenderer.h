@@ -8,11 +8,11 @@
 #ifndef AAHairLinePathRenderer_DEFINED
 #define AAHairLinePathRenderer_DEFINED
 
-#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/v1/PathRenderer.h"
 
 namespace skgpu::v1 {
 
-class AAHairLinePathRenderer final : public GrPathRenderer {
+class AAHairLinePathRenderer final : public PathRenderer {
 public:
     AAHairLinePathRenderer() = default;
 
@@ -22,8 +22,6 @@ private:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
-
-    using INHERITED = GrPathRenderer;
 };
 
 } // namespace skgpu::v1

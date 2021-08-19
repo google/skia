@@ -37,7 +37,6 @@
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
-#include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -69,6 +68,7 @@
 #include "src/gpu/ops/GrTextureOp.h"
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
+#include "src/gpu/v1/PathRenderer.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -925,7 +925,7 @@ bool SurfaceDrawContext::stencilPath(const GrHardClip* clip,
                               : SkIRect::MakeSize(this->dimensions());
     GrStyledShape shape(path, GrStyledShape::DoSimplify::kNo);
 
-    GrPathRenderer::CanDrawPathArgs canDrawArgs;
+    PathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = fContext->priv().caps();
     canDrawArgs.fProxy = this->asRenderTargetProxy();
     canDrawArgs.fClipConservativeBounds = &clipBounds;
@@ -935,14 +935,15 @@ bool SurfaceDrawContext::stencilPath(const GrHardClip* clip,
     canDrawArgs.fSurfaceProps = &fSurfaceProps;
     canDrawArgs.fAAType = (doStencilMSAA == GrAA::kYes) ? GrAAType::kMSAA : GrAAType::kNone;
     canDrawArgs.fHasUserStencilSettings = false;
-    GrPathRenderer* pr = this->drawingManager()->getPathRenderer(
-            canDrawArgs, false, GrPathRendererChain::DrawType::kStencil);
+    auto pr = this->drawingManager()->getPathRenderer(canDrawArgs,
+                                                      false,
+                                                      PathRendererChain::DrawType::kStencil);
     if (!pr) {
         SkDebugf("WARNING: No path renderer to stencil path.\n");
         return false;
     }
 
-    GrPathRenderer::StencilPathArgs args;
+    PathRenderer::StencilPathArgs args;
     args.fContext = fContext;
     args.fSurfaceDrawContext = this;
     args.fClip = clip;
@@ -1629,7 +1630,7 @@ bool SurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
     paint.setCoverageSetOpXPFactory(op, invert);
 
     GrStyledShape shape(path, GrStyle::SimpleFill());
-    GrPathRenderer::CanDrawPathArgs canDrawArgs;
+    PathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = this->caps();
     canDrawArgs.fProxy = this->asRenderTargetProxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
@@ -1640,23 +1641,26 @@ bool SurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
     canDrawArgs.fAAType = aaType;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
+    using DrawType = PathRendererChain::DrawType;
+
     // Don't allow the SW renderer
-    GrPathRenderer* pr = this->drawingManager()->getPathRenderer(
-            canDrawArgs, false, GrPathRendererChain::DrawType::kStencilAndColor);
+    auto pr = this->drawingManager()->getPathRenderer(canDrawArgs,
+                                                      false,
+                                                      DrawType::kStencilAndColor);
     if (!pr) {
         return false;
     }
 
-    GrPathRenderer::DrawPathArgs args{this->drawingManager()->getContext(),
-                                      std::move(paint),
-                                      ss,
-                                      this,
-                                      clip,
-                                      &clipConservativeBounds,
-                                      &viewMatrix,
-                                      &shape,
-                                      aaType,
-                                      this->colorInfo().isLinearlyBlended()};
+    PathRenderer::DrawPathArgs args{this->drawingManager()->getContext(),
+                                    std::move(paint),
+                                    ss,
+                                    this,
+                                    clip,
+                                    &clipConservativeBounds,
+                                    &viewMatrix,
+                                    &shape,
+                                    aaType,
+                                    this->colorInfo().isLinearlyBlended()};
     pr->drawPath(args);
     return true;
 }
@@ -1801,7 +1805,7 @@ void SurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     // Always allow paths to trigger DMSAA.
     GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(aa);
 
-    GrPathRenderer::CanDrawPathArgs canDrawArgs;
+    PathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = this->caps();
     canDrawArgs.fProxy = this->asRenderTargetProxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
@@ -1814,14 +1818,14 @@ void SurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
 
     constexpr static bool kDisallowSWPathRenderer = false;
     constexpr static bool kAllowSWPathRenderer = true;
-    using DrawType = GrPathRendererChain::DrawType;
+    using DrawType = PathRendererChain::DrawType;
 
-    GrPathRenderer* pr = nullptr;
+    PathRenderer* pr = nullptr;
 
     if (!shape.style().strokeRec().isFillStyle() && !shape.isEmpty()) {
         // Give the tessellation path renderer a chance to claim this stroke before we simplify it.
-        GrPathRenderer* tess = this->drawingManager()->getTessellationPathRenderer();
-        if (tess && tess->canDrawPath(canDrawArgs) == GrPathRenderer::CanDrawPath::kYes) {
+        PathRenderer* tess = this->drawingManager()->getTessellationPathRenderer();
+        if (tess && tess->canDrawPath(canDrawArgs) == PathRenderer::CanDrawPath::kYes) {
             pr = tess;
         }
     }
@@ -1886,16 +1890,16 @@ void SurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
         return;
     }
 
-    GrPathRenderer::DrawPathArgs args{this->drawingManager()->getContext(),
-                                      std::move(paint),
-                                      &GrUserStencilSettings::kUnused,
-                                      this,
-                                      clip,
-                                      &clipConservativeBounds,
-                                      &viewMatrix,
-                                      canDrawArgs.fShape,
-                                      aaType,
-                                      this->colorInfo().isLinearlyBlended()};
+    PathRenderer::DrawPathArgs args{this->drawingManager()->getContext(),
+                                    std::move(paint),
+                                    &GrUserStencilSettings::kUnused,
+                                    this,
+                                    clip,
+                                    &clipConservativeBounds,
+                                    &viewMatrix,
+                                    canDrawArgs.fShape,
+                                    aaType,
+                                    this->colorInfo().isLinearlyBlended()};
     pr->drawPath(args);
 }
 

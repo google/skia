@@ -8,11 +8,11 @@
 #ifndef AALinearizingConvexPathRenderer_DEFINED
 #define AALinearizingConvexPathRenderer_DEFINED
 
-#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/v1/PathRenderer.h"
 
 namespace skgpu::v1 {
 
-class AALinearizingConvexPathRenderer final : public GrPathRenderer {
+class AALinearizingConvexPathRenderer final : public PathRenderer {
 public:
     AALinearizingConvexPathRenderer() = default;
 
@@ -22,8 +22,6 @@ private:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
-
-    using INHERITED = GrPathRenderer;
 };
 
 } // namespace skgpu::v1

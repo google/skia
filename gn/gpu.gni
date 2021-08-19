@@ -498,10 +498,6 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/GrDrawOpTest.h",
   "$_src/gpu/GrOpsTask.cpp",
   "$_src/gpu/GrOpsTask.h",
-  "$_src/gpu/GrPathRenderer.cpp",
-  "$_src/gpu/GrPathRenderer.h",
-  "$_src/gpu/GrPathRendererChain.cpp",
-  "$_src/gpu/GrPathRendererChain.h",
 
   # Ops
   "$_src/gpu/ops/AAConvexPathRenderer.cpp",
@@ -590,6 +586,10 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/v1/Device.cpp",
   "$_src/gpu/v1/Device_drawTexture.cpp",
   "$_src/gpu/v1/Device_v1.h",
+  "$_src/gpu/v1/PathRenderer.cpp",
+  "$_src/gpu/v1/PathRenderer.h",
+  "$_src/gpu/v1/PathRendererChain.cpp",
+  "$_src/gpu/v1/PathRendererChain.h",
   "$_src/gpu/v1/StencilClip.h",
   "$_src/gpu/v1/StencilMaskHelper.cpp",
   "$_src/gpu/v1/StencilMaskHelper.h",
