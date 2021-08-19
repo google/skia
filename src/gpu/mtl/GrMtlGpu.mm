@@ -37,6 +37,76 @@
 
 GR_NORETAIN_BEGIN
 
+static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
+    // Mac OSX
+#ifdef SK_BUILD_FOR_MAC
+    if (@available(macOS 10.12, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_OSX_GPUFamily1_v2]) {
+            *featureSet = MTLFeatureSet_OSX_GPUFamily1_v2;
+            return true;
+        }
+    }
+    if ([device supportsFeatureSet:MTLFeatureSet_OSX_GPUFamily1_v1]) {
+        *featureSet = MTLFeatureSet_OSX_GPUFamily1_v1;
+        return true;
+    }
+#endif
+
+    // iOS Family group 3
+#ifdef SK_BUILD_FOR_IOS
+    if (@available(iOS 10.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v2]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily3_v2;
+            return true;
+        }
+    }
+    if (@available(iOS 9.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v1]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily3_v1;
+            return true;
+        }
+    }
+
+    // iOS Family group 2
+    if (@available(iOS 10.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v3]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily2_v3;
+            return true;
+        }
+    }
+    if (@available(iOS 9.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v2]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily2_v2;
+            return true;
+        }
+    }
+    if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v1]) {
+        *featureSet = MTLFeatureSet_iOS_GPUFamily2_v1;
+        return true;
+    }
+
+    // iOS Family group 1
+    if (@available(iOS 10.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v3]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily1_v3;
+            return true;
+        }
+    }
+    if (@available(iOS 9.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v2]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily1_v2;
+            return true;
+        }
+    }
+    if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v1]) {
+        *featureSet = MTLFeatureSet_iOS_GPUFamily1_v1;
+        return true;
+    }
+#endif
+    // No supported feature sets were found
+    return false;
+}
+
 sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextOptions& options,
                             GrDirectContext* direct) {
     if (!context.fDevice || !context.fQueue) {
@@ -57,7 +127,13 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
     id<MTLDevice> GR_NORETAIN device = (__bridge id<MTLDevice>)(context.fDevice.get());
     id<MTLCommandQueue> GR_NORETAIN queue = (__bridge id<MTLCommandQueue>)(context.fQueue.get());
 
-    return sk_sp<GrGpu>(new GrMtlGpu(direct, options, device, queue, context.fBinaryArchive.get()));
+
+    MTLFeatureSet featureSet;
+    if (!get_feature_set(device, &featureSet)) {
+        return nullptr;
+    }
+    return sk_sp<GrGpu>(new GrMtlGpu(direct, options, device, queue, context.fBinaryArchive.get(),
+                                     featureSet));
 }
 
 // This constant determines how many OutstandingCommandBuffers are allocated together as a block in
@@ -67,7 +143,8 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
 static const int kDefaultOutstandingAllocCnt = 8;
 
 GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
-                   id<MTLDevice> device, id<MTLCommandQueue> queue, GrMTLHandle binaryArchive)
+                   id<MTLDevice> device, id<MTLCommandQueue> queue, GrMTLHandle binaryArchive,
+                   MTLFeatureSet featureSet)
         : INHERITED(direct)
         , fDevice(device)
         , fQueue(queue)
@@ -76,7 +153,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fStagingBufferManager(this)
         , fUniformsRingBuffer(this, 128 * 1024, 256, GrGpuBufferType::kUniform)
         , fDisconnected(false) {
-    fMtlCaps.reset(new GrMtlCaps(options, fDevice));
+    fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     this->initCapsAndCompiler(fMtlCaps);
     fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
 #if GR_METAL_SDK_VERSION >= 230

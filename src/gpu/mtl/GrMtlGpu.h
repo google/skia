@@ -120,7 +120,7 @@ public:
 
 private:
     GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,
-             id<MTLCommandQueue>, GrMTLHandle binaryArchive);
+             id<MTLCommandQueue>, GrMTLHandle binaryArchive, MTLFeatureSet);
 
     void destroyResources();
 

@@ -21,7 +21,8 @@ class GrShaderCaps;
  */
 class GrMtlCaps : public GrCaps {
 public:
-    GrMtlCaps(const GrContextOptions& contextOptions, id<MTLDevice> device);
+    GrMtlCaps(const GrContextOptions& contextOptions, id<MTLDevice> device,
+              MTLFeatureSet featureSet);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
 
@@ -101,7 +102,7 @@ public:
     void onDumpJSON(SkJSONWriter*) const override;
 
 private:
-    void initGPUFamily(id<MTLDevice> device);
+    void initFeatureSet(MTLFeatureSet featureSet);
 
     void initStencilFormat(id<MTLDevice> device);
 
@@ -178,18 +179,16 @@ private:
     MTLPixelFormat fColorTypeToFormatTable[kGrColorTypeCnt];
     void setColorType(GrColorType, std::initializer_list<MTLPixelFormat> formats);
 
-    enum class GPUFamily {
+    enum class Platform {
         kMac,
-        kApple,
+        kIOS
     };
-    bool isMac() { return fGPUFamily == GPUFamily::kMac; }
-    bool isApple() { return fGPUFamily == GPUFamily::kApple; }
-    bool getGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group);
-    bool getGPUFamilyFromFeatureSet(id<MTLDevice> device, GrMtlCaps::GPUFamily* gpuFamily,
-                                    int* group);
+    bool isMac() { return Platform::kMac == fPlatform; }
+    bool isIOS() { return Platform::kIOS == fPlatform; }
 
-    GPUFamily fGPUFamily;
+    Platform fPlatform;
     int fFamilyGroup;
+    int fVersion;
 
     SkTDArray<int> fSampleCounts;
 
