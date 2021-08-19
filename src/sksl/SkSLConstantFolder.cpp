@@ -160,30 +160,25 @@ static bool is_constant_scalar_value(const Expression& inExpr, float match) {
 }
 
 static bool contains_constant_zero(const Expression& expr) {
-    if (expr.isAnyConstructor()) {
-        for (const auto& arg : expr.asAnyConstructor().argumentSpan()) {
-            if (contains_constant_zero(*arg)) {
-                return true;
-            }
+    int numSlots = expr.type().slotCount();
+    for (int index = 0; index < numSlots; ++index) {
+        const Expression* subexpr = expr.getConstantSubexpression(index);
+        if (subexpr && is_constant_scalar_value(*subexpr, 0.0f)) {
+            return true;
         }
-        return false;
     }
-    return is_constant_scalar_value(expr, 0.0);
+    return false;
 }
 
 static bool is_constant_value(const Expression& expr, float value) {
-    // This check only supports scalars and vectors (and in particular, not matrices).
-    SkASSERT(expr.type().isScalar() || expr.type().isVector());
-
-    if (expr.isAnyConstructor()) {
-        for (const auto& arg : expr.asAnyConstructor().argumentSpan()) {
-            if (!is_constant_value(*arg, value)) {
-                return false;
-            }
+    int numSlots = expr.type().slotCount();
+    for (int index = 0; index < numSlots; ++index) {
+        const Expression* subexpr = expr.getConstantSubexpression(index);
+        if (!subexpr || !is_constant_scalar_value(*subexpr, value)) {
+            return false;
         }
-        return true;
     }
-    return is_constant_scalar_value(expr, value);
+    return true;
 }
 
 bool ConstantFolder::ErrorOnDivideByZero(const Context& context, int offset, Operator op,

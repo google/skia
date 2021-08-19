@@ -1,3 +1,4 @@
+uniform float2x2 testMatrix2x2;
 uniform half4 colorRed, colorGreen;
 uniform half unknownInput;
 
@@ -32,6 +33,11 @@ bool test() {
     ok = ok &&  (float2x2(float4(1.0, 0.0, 0.0, 1.0)) == float2x2(1.0));
     ok = ok &&  (float2x2(1.0, 0.0, float2(0.0, 1.0)) == float2x2(1.0));
     ok = ok &&  (float2x2(float2(1.0, 0.0), 0.0, 1.0) == float2x2(1.0));
+
+    ok = ok &&  (float4(testMatrix2x2) * float4(1)) == float4(1, 2, 3, 4);
+    ok = ok &&  (float4(testMatrix2x2) * float4(1)) == float4(testMatrix2x2);
+    ok = ok &&  (float4(testMatrix2x2) * float4(0)) == float4(0);
+
     return ok;
 }
 
