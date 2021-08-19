@@ -41,12 +41,6 @@ public:
     enum class InputFlags : uint8_t {
         kNone = 0,
         /**
-         * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
-         * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
-         * the 3D API.
-         */
-        kHWAntialias = (1 << 0),
-        /**
          * Cause every pixel to be rasterized that is touched by the triangle anywhere (not just at
          * pixel center). Additionally, if using MSAA, the sample mask will always have 100%
          * coverage.
@@ -170,7 +164,6 @@ public:
 
     const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
-    bool isHWAntialiasState() const { return fFlags & InputFlags::kHWAntialias; }
     bool usesConservativeRaster() const { return fFlags & InputFlags::kConservativeRaster; }
     bool isWireframe() const { return fFlags & InputFlags::kWireframe; }
     bool snapVerticesToPixelCenters() const {

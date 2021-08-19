@@ -51,7 +51,6 @@ public:
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
-    bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool drawInstancedSupport() const { return fDrawInstancedSupport; }
     // Is there hardware support for indirect draws? (Ganesh always supports indirect draws as long
     // as it can polyfill them with instanced calls, but this cap tells us if they are supported
@@ -534,7 +533,6 @@ protected:
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
-    bool fMultisampleDisableSupport                  : 1;
     bool fDrawInstancedSupport                       : 1;
     bool fNativeDrawIndirectSupport                  : 1;
     bool fUseClientSideIndirectBuffers               : 1;

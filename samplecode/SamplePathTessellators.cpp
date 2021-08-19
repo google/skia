@@ -165,8 +165,7 @@ private:
     SkString name() override { return SkString("PathTessellators"); }
 
     SkPath fPath;
-    GrPipeline::InputFlags fPipelineFlags = GrPipeline::InputFlags::kHWAntialias |
-                                            GrPipeline::InputFlags::kWireframe;
+    GrPipeline::InputFlags fPipelineFlags = GrPipeline::InputFlags::kWireframe;
     Mode fMode = Mode::kWedgeMiddleOut;
 
     float fConicWeight = .5;

@@ -335,7 +335,6 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     fTextureBarrierSupport = false; // Need to figure out if we can do this
 
     fSampleLocationsSupport = false;
-    fMultisampleDisableSupport = false;
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
         if (this->isMac() || 3 == fFamilyGroup) {

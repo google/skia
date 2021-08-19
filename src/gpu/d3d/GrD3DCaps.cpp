@@ -181,17 +181,6 @@ void GrD3DCaps::initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc,
     // Can use standard sample locations
     fSampleLocationsSupport = true;
 
-#if 0
-    D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2Desc;
-    if (SUCCEEDED(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2Desc,
-                                              sizeof(options2Desc))) &&
-        options2Desc.ProgrammableSamplePositionsTier !=
-                D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER_NOT_SUPPORTED) {
-        // We "disable" multisample by colocating all samples at pixel center.
-        fMultisampleDisableSupport = true;
-    }
-#endif
-
     if (D3D12_CONSERVATIVE_RASTERIZATION_TIER_NOT_SUPPORTED !=
             optionsDesc.ConservativeRasterizationTier) {
         fConservativeRasterSupport = true;

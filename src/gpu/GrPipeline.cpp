@@ -77,10 +77,6 @@ GrPipeline::GrPipeline(GrScissorTest scissorTest,
 void GrPipeline::genKey(GrProcessorKeyBuilder* b, const GrCaps& caps) const {
     // kSnapVerticesToPixelCenters is implemented in a shader.
     InputFlags ignoredFlags = InputFlags::kSnapVerticesToPixelCenters;
-    if (!caps.multisampleDisableSupport()) {
-        // Ganesh will omit kHWAntialias regardless of multisampleDisableSupport.
-        ignoredFlags |= InputFlags::kHWAntialias;
-    }
     b->add32((uint32_t)fFlags & ~(uint32_t)ignoredFlags, "flags");
 
     const GrXferProcessor::BlendInfo& blendInfo = this->getXferProcessor().getBlendInfo();

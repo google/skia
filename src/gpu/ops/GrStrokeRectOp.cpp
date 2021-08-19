@@ -600,22 +600,15 @@ void AAStrokeRectOp::onCreateProgramInfo(const GrCaps* caps,
         return;
     }
 
-    GrPipeline::InputFlags pipelineFlags = fHelper.pipelineFlags();
-    if (usesMSAASurface) {
-        pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
-    }
-
-    fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps,
-                                                               arena,
-                                                               writeView,
-                                                               std::move(appliedClip),
-                                                               dstProxyView,
-                                                               gp,
-                                                               fHelper.detachProcessorSet(),
-                                                               GrPrimitiveType::kTriangles,
-                                                               renderPassXferBarriers,
-                                                               colorLoadOp,
-                                                               pipelineFlags);
+    fProgramInfo = fHelper.createProgramInfo(caps,
+                                             arena,
+                                             writeView,
+                                             std::move(appliedClip),
+                                             dstProxyView,
+                                             gp,
+                                             GrPrimitiveType::kTriangles,
+                                             renderPassXferBarriers,
+                                             colorLoadOp);
 }
 
 void AAStrokeRectOp::onPrepareDraws(GrMeshDrawTarget* target) {

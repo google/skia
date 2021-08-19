@@ -333,18 +333,7 @@ void stencil_path(GrRecordingContext* rContext,
 }
 
 GrAA supported_aa(skgpu::v1::SurfaceDrawContext* sdc, GrAA aa) {
-    if (sdc->canUseDynamicMSAA()) {
-        return GrAA::kYes;
-    }
-    if (sdc->numSamples() > 1) {
-        if (sdc->caps()->multisampleDisableSupport()) {
-            return aa;
-        } else {
-            return GrAA::kYes;
-        }
-    } else {
-        return GrAA::kNo;
-    }
+    return GrAA(sdc->numSamples() > 1 || sdc->canUseDynamicMSAA());
 }
 
 }  // namespace

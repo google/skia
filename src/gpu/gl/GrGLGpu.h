@@ -457,9 +457,6 @@ private:
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();
 
-    // rt is used only if useHWAA is true.
-    void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
-
     void flushConservativeRasterState(bool enable);
 
     void flushWireframeState(bool enable);
@@ -721,7 +718,6 @@ private:
         }
     }                                       fHWBlendState;
 
-    TriState                                fMSAAEnabled;
     TriState                                fHWConservativeRasterEnabled;
 
     TriState                                fHWWireframeEnabled;

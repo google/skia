@@ -346,11 +346,6 @@ private:
             return;
         }
 
-        auto pipelineFlags = GrPipeline::InputFlags::kNone;
-        if (AAMode::kCoverageWithMSAA == fAAMode) {
-            pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
-        }
-
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps,
                                                                    arena,
                                                                    writeView,
@@ -361,7 +356,7 @@ private:
                                                                    GrPrimitiveType::kTriangles,
                                                                    renderPassXferBarriers,
                                                                    colorLoadOp,
-                                                                   pipelineFlags,
+                                                                   GrPipeline::InputFlags::kNone,
                                                                    fStencilSettings);
     }
 

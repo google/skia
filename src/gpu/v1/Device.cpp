@@ -62,8 +62,7 @@ SkImageInfo make_info(skgpu::v1::SurfaceDrawContext* sdc, bool opaque) {
 }
 
 bool force_aa_clip(const skgpu::v1::SurfaceDrawContext* sdc) {
-    return (sdc->numSamples() > 1 && !sdc->caps()->multisampleDisableSupport()) ||
-           sdc->alwaysAntialias();
+    return sdc->numSamples() > 1 || sdc->alwaysAntialias();
 }
 
 inline GrPrimitiveType point_mode_to_primitive_type(SkCanvas::PointMode mode) {

@@ -323,20 +323,12 @@ void SurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* next
 }
 
 inline GrAAType SurfaceDrawContext::chooseAAType(GrAA aa) {
-    if (fCanUseDynamicMSAA) {
+    if (this->numSamples() > 1 || fCanUseDynamicMSAA) {
         // Always trigger DMSAA when it's available. The coverage ops that know how to handle both
         // single and multisample targets without popping will do so without calling chooseAAType.
         return GrAAType::kMSAA;
     }
-    if (GrAA::kNo == aa) {
-        // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
-        // that.
-        if (this->numSamples() > 1 && !this->caps()->multisampleDisableSupport()) {
-            return GrAAType::kMSAA;
-        }
-        return GrAAType::kNone;
-    }
-    return (this->numSamples() > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
+    return (aa == GrAA::kYes) ? GrAAType::kCoverage : GrAAType::kNone;
 }
 
 void SurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
@@ -1366,8 +1358,7 @@ void SurfaceDrawContext::drawRegion(const GrClip* clip,
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
-    GrAAType aaType = (this->numSamples() > 1 &&
-                       !this->caps()->multisampleDisableSupport())
+    GrAAType aaType = (this->numSamples() > 1)
                     ? GrAAType::kMSAA
                     : GrAAType::kNone;
     GrOp::Owner op = GrRegionOp::Make(fContext, std::move(paint), viewMatrix, region, aaType, ss);

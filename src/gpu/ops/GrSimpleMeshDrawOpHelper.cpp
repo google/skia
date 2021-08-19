@@ -24,9 +24,6 @@ GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(GrProcessorSet* processorSet,
         , fCompatibleWithCoverageAsAlpha(false) {
     SkDEBUGCODE(fDidAnalysis = false);
     SkDEBUGCODE(fMadePipeline = false);
-    if (GrAATypeIsHW(aaType)) {
-        fPipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
-    }
 }
 
 GrSimpleMeshDrawOpHelper::~GrSimpleMeshDrawOpHelper() {
@@ -237,9 +234,6 @@ static void dump_pipeline_flags(GrPipeline::InputFlags flags, SkString* result) 
     if (GrPipeline::InputFlags::kNone != flags) {
         if (flags & GrPipeline::InputFlags::kSnapVerticesToPixelCenters) {
             result->append("Snap vertices to pixel center.\n");
-        }
-        if (flags & GrPipeline::InputFlags::kHWAntialias) {
-            result->append("HW Antialiasing enabled.\n");
         }
         if (flags & GrPipeline::InputFlags::kWireframe) {
             result->append("Wireframe enabled.\n");

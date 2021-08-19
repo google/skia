@@ -688,13 +688,10 @@ private:
             SkASSERT(fDesc->fVertexSpec.vertexSize() == gp->vertexStride());
         }
 
-        auto pipelineFlags = (GrAAType::kMSAA == fMetadata.aaType()) ?
-                GrPipeline::InputFlags::kHWAntialias : GrPipeline::InputFlags::kNone;
-
         fDesc->fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                 caps, arena, writeView, std::move(appliedClip), dstProxyView, gp,
                 GrProcessorSet::MakeEmptySet(), fDesc->fVertexSpec.primitiveType(),
-                renderPassXferBarriers, colorLoadOp, pipelineFlags);
+                renderPassXferBarriers, colorLoadOp, GrPipeline::InputFlags::kNone);
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,

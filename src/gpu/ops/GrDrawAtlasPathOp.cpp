@@ -151,9 +151,6 @@ void GrDrawAtlasPathOp::prepareProgram(const GrCaps& caps, SkArenaAlloc* arena,
                                        GrLoadOp colorLoadOp) {
     SkASSERT(!fProgram);
     GrPipeline::InitArgs initArgs;
-    if (usesMSAASurface) {
-        initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
-    }
     initArgs.fCaps = &caps;
     initArgs.fDstProxyView = dstProxyView;
     initArgs.fWriteSwizzle = writeView.swizzle();
@@ -189,10 +186,6 @@ void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
                              flushState->colorLoadOp());
         SkASSERT(fProgram);
     }
-
-    // FIXME(skbug.com/12201): Our draw's MSAA state should match the render target, but DDL doesn't
-    // yet communicate DMSAA state to onPrePrepare.
-    SkASSERT(fProgram->pipeline().isHWAntialiasState() == flushState->usesMSAASurface());
 
     if (GrVertexWriter instanceWriter = flushState->makeVertexSpace(
                 fProgram->geomProc().instanceStride(), fInstanceCount, &fInstanceBuffer,

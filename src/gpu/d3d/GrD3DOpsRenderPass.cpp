@@ -185,12 +185,6 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
 
     fGpu->currentCommandList()->setGraphicsRootSignature(fCurrentPipelineState->rootSignature());
     fGpu->currentCommandList()->setPipelineState(fCurrentPipelineState->pipeline());
-    if (info.pipeline().isHWAntialiasState()) {
-        fGpu->currentCommandList()->setDefaultSamplePositions();
-    } else {
-        fGpu->currentCommandList()->setCenteredSamplePositions(fRenderTarget->numSamples());
-    }
-
     fCurrentPipelineState->setAndBindConstants(fGpu, fRenderTarget, info);
 
     set_stencil_ref(fGpu, info);

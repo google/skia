@@ -60,9 +60,6 @@ const GrPipeline* GrPathTessellationShader::MakeStencilOnlyPipeline(
         const GrAppliedHardClip& hardClip) {
     using PathFlags = GrTessellationPathFlags;
     GrPipeline::InitArgs pipelineArgs;
-    if (aaType == GrAAType::kMSAA) {
-        pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
-    }
     if (args.fCaps->wireframeSupport() && (pathFlags & PathFlags::kWireframe)) {
         pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kWireframe;
     }

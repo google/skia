@@ -611,14 +611,6 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
         fSampleLocationsSupport = true;
     }
 
-    // See skbug.com/10346
-#if 0
-    if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
-        // We "disable" multisample by colocating all samples at pixel center.
-        fMultisampleDisableSupport = true;
-    }
-#endif
-
     if (extensions.hasExtension(VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME, 1)) {
         fConservativeRasterSupport = true;
     }

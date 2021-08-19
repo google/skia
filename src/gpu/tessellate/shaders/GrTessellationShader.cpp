@@ -13,8 +13,6 @@ const GrPipeline* GrTessellationShader::MakePipeline(const ProgramArgs& args,
                                                      GrProcessorSet&& processors) {
     GrPipeline::InitArgs pipelineArgs;
 
-    pipelineArgs.fInputFlags = aaType == GrAAType::kMSAA ? GrPipeline::InputFlags::kHWAntialias
-                                                         : GrPipeline::InputFlags::kNone;
     pipelineArgs.fCaps = args.fCaps;
     pipelineArgs.fDstProxyView = *args.fDstProxyView;
     pipelineArgs.fWriteSwizzle = args.fWriteView.swizzle();

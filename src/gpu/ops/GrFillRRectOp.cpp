@@ -515,10 +515,6 @@ void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
         this->createProgramInfo(target);
     }
 
-    // FIXME(skbug.com/12201): Our draw's MSAA state should match the render target, but DDL doesn't
-    // yet communicate DMSAA state to onPrePrepare.
-    SkASSERT(fProgramInfo->pipeline().isHWAntialiasState() == target->usesMSAASurface());
-
     size_t instanceStride = fProgramInfo->geomProc().instanceStride();
 
     if (GrVertexWriter instanceWrter = target->makeVertexSpace(instanceStride, fInstanceCount,
@@ -773,16 +769,13 @@ void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                       const GrDstProxyView& dstProxyView,
                                       GrXferBarrierFlags renderPassXferBarriers,
                                       GrLoadOp colorLoadOp) {
-    GrPipeline::InputFlags pipelineFlags = fHelper.pipelineFlags();
     if (usesMSAASurface) {
-        pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
         fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
     }
     GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags);
-    fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
-            caps, arena, writeView, std::move(appliedClip), dstProxyView, gp,
-            fHelper.detachProcessorSet(), GrPrimitiveType::kTriangles, renderPassXferBarriers,
-            colorLoadOp, pipelineFlags);
+    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
+                                             dstProxyView, gp, GrPrimitiveType::kTriangles,
+                                             renderPassXferBarriers, colorLoadOp);
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
