@@ -121,6 +121,8 @@ $genHType refract($genHType I, $genHType N, half eta);
 // 8.5 : Matrix Functions
 $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
 $squareHMat matrixCompMult($squareHMat x, $squareHMat y);
+$es3 float  determinant($squareMat m);
+$es3 half   determinant($squareHMat m);
 $es3 $squareMat  transpose($squareMat  m);
 $es3 $squareHMat transpose($squareHMat m);
 $es3 float2x3    transpose(float3x2 m);

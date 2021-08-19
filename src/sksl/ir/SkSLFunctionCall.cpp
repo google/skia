@@ -421,6 +421,13 @@ double evaluate_round(double a, double, double)        { return std::round(a / 2
 }  // namespace
 }  // namespace Intrinsics
 
+static void extract_matrix(const Expression* expr, float mat[16]) {
+    size_t numSlots = expr->type().slotCount();
+    for (size_t index = 0; index < numSlots; ++index) {
+        mat[index] = expr->getConstantSubexpression(index)->as<FloatLiteral>().value();
+    }
+}
+
 static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
                                                            IntrinsicKind intrinsic,
                                                            const ExpressionArray& arguments,
@@ -630,6 +637,27 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             }
             return ConstructorCompound::Make(context, matrix->fOffset, returnType,
                                              std::move(array));
+        }
+        case k_determinant_IntrinsicKind: {
+            matrix = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
+            float m[16];
+            extract_matrix(matrix, m);
+            float determinant;
+            switch (matrix->type().slotCount()) {
+                case 4:
+                    determinant = SkInvert2x2Matrix(m, /*outMatrix=*/nullptr);
+                    break;
+                case 9:
+                    determinant = SkInvert3x3Matrix(m, /*outMatrix=*/nullptr);
+                    break;
+                case 16:
+                    determinant = SkInvert4x4Matrix(m, /*outMatrix=*/nullptr);
+                    break;
+                default:
+                    SkDEBUGFAILF("unsupported type %s", matrix->type().description().c_str());
+                    return nullptr;
+            }
+            return FloatLiteral::Make(matrix->fOffset, determinant, &returnType);
         }
         case k_inverse_IntrinsicKind: {
             matrix = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
