@@ -101,7 +101,8 @@ public:
      * SkSL ES3 requires support for derivatives, nonsquare matrices and bitwise integer operations.
      */
     bool supportsSkSLES3() const {
-        return fShaderDerivativeSupport && fNonsquareMatrixSupport && fIntegerSupport;
+        return fShaderDerivativeSupport && fNonsquareMatrixSupport && fIntegerSupport &&
+               fGLSLGeneration >= k330_GrGLSLGeneration;
     }
 
     // SkSL only.
