@@ -42,10 +42,6 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     this->initFormatTable();
     this->initStencilFormat(device);
 
-    // TODO: we may not want to use this on Apple chips regardless because of perf
-    fStoreAndMultisampleResolveSupport = (fGPUFamily == GPUFamily::kMac ||
-                                          fFamilyGroup >= 3);
-
     this->finishInitialization(contextOptions);
 }
 

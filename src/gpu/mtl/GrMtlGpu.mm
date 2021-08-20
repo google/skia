@@ -147,12 +147,6 @@ GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
     // TODO: Make use of discardable MSAA
     bool withResolve = false;
 
-    // Figure out if we can use a Resolve store action for this render pass.
-    if (useMSAASurface && mtlRT->resolveAttachment() &&
-        this->mtlCaps().storeAndMultisampleResolveSupport()) {
-        withResolve = true;
-    }
-
     sk_sp<GrMtlFramebuffer> framebuffer =
             sk_ref_sp(mtlRT->getFramebuffer(withResolve, SkToBool(stencil)));
     if (!framebuffer) {
@@ -1501,14 +1495,6 @@ void GrMtlGpu::waitSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&) {
-    SkASSERT(target->numSamples() > 1);
-    GrMtlRenderTarget* rt = static_cast<GrMtlRenderTarget*>(target);
-
-    if (rt->resolveAttachment() && this->mtlCaps().storeAndMultisampleResolveSupport()) {
-        // We would have resolved the RT during the render pass.
-        return;
-    }
-
     this->resolve(static_cast<GrMtlRenderTarget*>(target)->resolveAttachment(),
                   static_cast<GrMtlRenderTarget*>(target)->colorAttachment());
 }

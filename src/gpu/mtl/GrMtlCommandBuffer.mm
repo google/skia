@@ -78,8 +78,7 @@ static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
                             second.loadAction == MTLLoadActionDontCare;
     bool secondDoesntSampleFirst = (!pipelineState ||
                                     pipelineState->doesntSampleAttachment(first)) &&
-                                   second.storeAction != MTLStoreActionMultisampleResolve &&
-                                   second.storeAction != MTLStoreActionStoreAndMultisampleResolve;
+                                   second.storeAction != MTLStoreActionMultisampleResolve;
 
     return renderTargetsMatch &&
            (nil == first.texture ||
