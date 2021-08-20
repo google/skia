@@ -3,7 +3,6 @@
 // See "The OpenGL ES Shading Language, Section 8"
 
 // 8.1 : Angle and Trigonometry Functions (Version 1.0)
-
 $genType  radians($genType  degrees);
 $genHType radians($genHType degrees);
 $genType  degrees($genType  radians);
@@ -26,7 +25,6 @@ $genType  atan($genType  y_over_x);
 $genHType atan($genHType y_over_x);
 
 // 8.1 : Angle and Trigonometry Functions (Version 3.0)
-
 $es3 $genType  sinh($genType x);
 $es3 $genHType sinh($genHType x);
 $es3 $genType  cosh($genType x);
@@ -99,6 +97,12 @@ $genType  smoothstep($genType  edge0, $genType  edge1, $genType  x);
 $genType  smoothstep(float     edge0, float     edge1, $genType  x);
 $genHType smoothstep($genHType edge0, $genHType edge1, $genHType x);
 $genHType smoothstep(half      edge0, half      edge1, $genHType x);
+
+// 8.3 : Common Functions (Version 3.0)
+$es3 $genIType floatBitsToInt ($genType  value);
+$es3 $genUType floatBitsToUint($genType  value);
+$es3 $genType  intBitsToFloat ($genIType value);
+$es3 $genType  uintBitsToFloat($genUType value);
 
 // 8.4 : Geometric Functions
 float length($genType  x);

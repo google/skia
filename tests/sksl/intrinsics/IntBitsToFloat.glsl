@@ -1,6 +1,11 @@
 
 out vec4 sk_FragColor;
-uniform int a;
-void main() {
-    sk_FragColor.x = intBitsToFloat(a);
+uniform float testInput;
+uniform mat2 testMatrix2x2;
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+vec4 main() {
+    vec4 input = vec4(testMatrix2x2) * vec4(1.0, 1.0, -1.0, -1.0);
+    ivec4 expectedB = ivec4(1065353216, 1073741824, -1069547520, -1065353216);
+    return ((input.x == intBitsToFloat(expectedB.x) && input.xy == intBitsToFloat(expectedB.xy)) && input.xyz == intBitsToFloat(expectedB.xyz)) && input == intBitsToFloat(expectedB) ? colorGreen : colorRed;
 }

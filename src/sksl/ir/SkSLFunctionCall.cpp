@@ -351,6 +351,18 @@ static std::unique_ptr<Expression> evaluate_3_way_intrinsic(const Context& conte
                                     arguments[2].get(), returnType, eval);
 }
 
+template <typename T1, typename T2>
+static double pun_value(double val) {
+    // Interpret `val` as a value of type T1.
+    static_assert(sizeof(T1) == sizeof(T2));
+    T1 inputValue = (T1)val;
+    // Reinterpret those bits as a value of type T2.
+    T2 outputValue;
+    memcpy(&outputValue, &inputValue, sizeof(T2));
+    // Return the value-of-type-T2 as a double. (Non-finite values will prohibit optimization.)
+    return (double)outputValue;
+}
+
 // Helper functions for optimizing all of our intrinsics.
 namespace Intrinsics {
 namespace {
@@ -419,6 +431,10 @@ double evaluate_cosh(double a, double, double)         { return std::cosh(a); }
 double evaluate_tanh(double a, double, double)         { return std::tanh(a); }
 double evaluate_trunc(double a, double, double)        { return std::trunc(a); }
 double evaluate_round(double a, double, double)        { return std::round(a / 2) * 2; }
+double evaluate_floatBitsToInt(double a, double, double)  { return pun_value<float, int32_t> (a); }
+double evaluate_floatBitsToUint(double a, double, double) { return pun_value<float, uint32_t>(a); }
+double evaluate_intBitsToFloat(double a, double, double)  { return pun_value<int32_t,  float>(a); }
+double evaluate_uintBitsToFloat(double a, double, double) { return pun_value<uint32_t, float>(a); }
 
 }  // namespace
 }  // namespace Intrinsics
@@ -741,6 +757,18 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_roundEven_IntrinsicKind:  // and is allowed to behave identically to `roundEven`.
             return evaluate_intrinsic<float>(context, arguments, returnType,
                                              Intrinsics::evaluate_round);
+        case k_floatBitsToInt_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_floatBitsToInt);
+        case k_floatBitsToUint_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_floatBitsToUint);
+        case k_intBitsToFloat_IntrinsicKind:
+            return evaluate_intrinsic<SKSL_INT>(context, arguments, returnType,
+                                                Intrinsics::evaluate_intBitsToFloat);
+        case k_uintBitsToFloat_IntrinsicKind:
+            return evaluate_intrinsic<SKSL_INT>(context, arguments, returnType,
+                                                Intrinsics::evaluate_uintBitsToFloat);
         default:
             return nullptr;
     }

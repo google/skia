@@ -1,1 +1,20 @@
-uniform uint a; void main() { sk_FragColor.x = half(uintBitsToFloat(a)); }
+uniform float testInput;
+uniform float2x2 testMatrix2x2;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const float4 constVal = float4(-1, 0, 1, 2);
+    const uint4 expectedA = uint4(0xBF800000, 0x00000000, 0x3F800000, 0x40000000);
+
+    float4 input = float4(testMatrix2x2) * float4(1, 1, -1, -1);
+    uint4 expectedB = uint4(0x3F800000, 0x40000000, 0xC0400000, 0xC0800000);
+
+    return (constVal.x    == uintBitsToFloat(expectedA.x)    &&
+            constVal.xy   == uintBitsToFloat(expectedA.xy)   &&
+            constVal.xyz  == uintBitsToFloat(expectedA.xyz)  &&
+            constVal.xyzw == uintBitsToFloat(expectedA.xyzw) &&
+            input.x       == uintBitsToFloat(expectedB.x)    &&
+            input.xy      == uintBitsToFloat(expectedB.xy)   &&
+            input.xyz     == uintBitsToFloat(expectedB.xyz)  &&
+            input.xyzw    == uintBitsToFloat(expectedB.xyzw)) ? colorGreen : colorRed;
+}
