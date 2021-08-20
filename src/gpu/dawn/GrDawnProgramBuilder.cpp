@@ -192,8 +192,8 @@ static wgpu::BlendState create_blend_state(const GrDawnGpu* gpu, const GrPipelin
     return blendState;
 }
 
-static wgpu::StencilStateFaceDescriptor to_stencil_state_face(const GrStencilSettings::Face& face) {
-     wgpu::StencilStateFaceDescriptor desc;
+static wgpu::StencilFaceState to_stencil_state_face(const GrStencilSettings::Face& face) {
+     wgpu::StencilFaceState desc;
      desc.compare = to_dawn_compare_function(face.fTest);
      desc.failOp = desc.depthFailOp = to_dawn_stencil_operation(face.fFailOp);
      desc.passOp = to_dawn_stencil_operation(face.fPassOp);
@@ -337,15 +337,15 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
 #endif
     depthStencilState = create_depth_stencil_state(programInfo, depthStencilFormat);
 
-    std::vector<wgpu::VertexBufferLayoutDescriptor> inputs;
+    std::vector<wgpu::VertexBufferLayout> inputs;
 
-    std::vector<wgpu::VertexAttributeDescriptor> vertexAttributes;
+    std::vector<wgpu::VertexAttribute> vertexAttributes;
     const GrGeometryProcessor& geomProc = programInfo.geomProc();
     int i = 0;
     if (geomProc.numVertexAttributes() > 0) {
         size_t offset = 0;
         for (const auto& attrib : geomProc.vertexAttributes()) {
-            wgpu::VertexAttributeDescriptor attribute;
+            wgpu::VertexAttribute attribute;
             attribute.shaderLocation = i;
             attribute.offset = offset;
             attribute.format = to_dawn_vertex_format(attrib.cpuType());
@@ -353,18 +353,18 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
             offset += attrib.sizeAlign4();
             i++;
         }
-        wgpu::VertexBufferLayoutDescriptor input;
+        wgpu::VertexBufferLayout input;
         input.arrayStride = offset;
         input.stepMode = wgpu::InputStepMode::Vertex;
         input.attributeCount = vertexAttributes.size();
         input.attributes = &vertexAttributes.front();
         inputs.push_back(input);
     }
-    std::vector<wgpu::VertexAttributeDescriptor> instanceAttributes;
+    std::vector<wgpu::VertexAttribute> instanceAttributes;
     if (geomProc.numInstanceAttributes() > 0) {
         size_t offset = 0;
         for (const auto& attrib : geomProc.instanceAttributes()) {
-            wgpu::VertexAttributeDescriptor attribute;
+            wgpu::VertexAttribute attribute;
             attribute.shaderLocation = i;
             attribute.offset = offset;
             attribute.format = to_dawn_vertex_format(attrib.cpuType());
@@ -372,7 +372,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
             offset += attrib.sizeAlign4();
             i++;
         }
-        wgpu::VertexBufferLayoutDescriptor input;
+        wgpu::VertexBufferLayout input;
         input.arrayStride = offset;
         input.stepMode = wgpu::InputStepMode::Instance;
         input.attributeCount = instanceAttributes.size();
