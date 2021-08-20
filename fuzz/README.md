@@ -21,7 +21,8 @@ it finds issues.
 
 There is a [Skia folder](https://github.com/google/oss-fuzz/tree/master/projects/skia)
 in the OSS-Fuzz repo that we make changes to when we want to add/remove/change the fuzzers that
-are automatically run.
+are automatically run. [This](https://google.github.io/oss-fuzz/advanced-topics/code-coverage/)
+describes how to use Docker to test the oss-fuzz build and fuzzers locally.
 
 When enabling a fuzzer in oss-fuzz, we typically need to follow these steps:
   1. *Add a seed corpus to `gs://skia-fuzzer/oss-fuzz/` (in the
