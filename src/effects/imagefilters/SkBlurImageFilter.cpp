@@ -113,11 +113,77 @@ int calculate_window(double sigma) {
 
 class Pass {
 public:
+    explicit Pass(int border) : fBorder(border) {}
     virtual ~Pass() = default;
 
-    virtual void blur(int srcLeft, int srcRight, int dstRight,
-                      const uint32_t* src, int srcXStride,
-                      uint32_t* dst, int dstXStride) = 0;
+    void blur(int srcLeft, int srcRight, int dstRight,
+              const uint32_t* src, int srcStride,
+              uint32_t* dst, int dstStride) {
+        this->startBlur();
+
+        auto srcStart = srcLeft - fBorder,
+                srcEnd   = srcRight - fBorder,
+                dstEnd   = dstRight,
+                srcIdx   = srcStart,
+                dstIdx   = 0;
+
+        const uint32_t* srcCursor = src;
+        uint32_t* dstCursor = dst;
+
+        if (dstIdx < srcIdx) {
+            // The destination pixels are not effected by the src pixels,
+            // change to zero as per the spec.
+            // https://drafts.fxtf.org/filter-effects/#FilterPrimitivesOverviewIntro
+            while (dstIdx < srcIdx) {
+                *dstCursor = 0;
+                dstCursor += dstStride;
+                SK_PREFETCH(dstCursor);
+                dstIdx++;
+            }
+        } else if (srcIdx < dstIdx) {
+            // The edge of the source is before the edge of the destination. Calculate the sums for
+            // the pixels before the start of the destination.
+            if (int commonEnd = std::min(dstIdx, srcEnd); srcIdx < commonEnd) {
+                // Preload the blur with values from src before dst is entered.
+                int n = commonEnd - srcIdx;
+                this->blurSegment(n, srcCursor, srcStride, nullptr, 0);
+                srcIdx += n;
+                srcCursor += n * srcStride;
+            }
+            if (srcIdx < dstIdx) {
+                // The weird case where src is out of pixels before dst is even started.
+                int n = dstIdx - srcIdx;
+                this->blurSegment(n, nullptr, 0, nullptr, 0);
+                srcIdx += n;
+            }
+        }
+
+        // Both srcIdx and dstIdx are in sync now, and can run in a 1:1 fashion. This is the
+        // normal mode of operation.
+        SkASSERT(srcIdx == dstIdx);
+        if (int commonEnd = std::min(dstEnd, srcEnd); dstIdx < commonEnd) {
+            int n = commonEnd - dstIdx;
+            this->blurSegment(n, srcCursor, srcStride, dstCursor, dstStride);
+            srcCursor += n * srcStride;
+            dstCursor += n * dstStride;
+            dstIdx += n;
+            srcIdx += n;
+        }
+
+        // Drain the remaining blur values into dst assuming 0's for the leading edge.
+        if (dstIdx < dstEnd) {
+            int n = dstEnd - dstIdx;
+            this->blurSegment(n, nullptr, 0, dstCursor, dstStride);
+        }
+    }
+
+protected:
+    virtual void startBlur() = 0;
+    virtual void blurSegment(
+            int n, const uint32_t* src, int srcStride, uint32_t* dst, int dstStride) = 0;
+
+private:
+    const int fBorder;
 };
 
 class PassMaker {
@@ -265,13 +331,25 @@ public:
               int border,
               uint32_t divisorFactor,
               uint32_t half)
-        : fBuffer0{buffer0}
+        : Pass{border}
+        , fBuffer0{buffer0}
         , fBuffer1{buffer1}
         , fBuffer2{buffer2}
         , fBuffersEnd{buffersEnd}
-        , fBorder{border}
         , fDivisorFactor{divisorFactor}
         , fHalf{half} {}
+
+private:
+    void startBlur() override {
+        fSum0 = {0u, 0u, 0u, 0u};
+        fSum1 = {0u, 0u, 0u, 0u};
+        fSum2 = {fHalf, fHalf, fHalf, fHalf};
+        sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
+
+        fBuffer0Cursor = fBuffer0;
+        fBuffer1Cursor = fBuffer1;
+        fBuffer2Cursor = fBuffer2;
+    }
 
     // GaussPass implements the common three pass box filter approximation of Gaussian blur,
     // but combines all three passes into a single pass. This approach is facilitated by three
@@ -311,17 +389,14 @@ public:
     //    buffer1[i] = sum0;
     //    sum0_n+2 = sum0_n+1 - buffer0[i];
     //    buffer0[i] = leading edge
-    void blur(int srcLeft, int srcRight, int dstRight,
-              const uint32_t* src, int srcXStride,
-              uint32_t* dst, int dstXStride) override {
-        skvx::Vec<4, uint32_t> sum0{0u, 0u, 0u, 0u};
-        skvx::Vec<4, uint32_t> sum1{0u, 0u, 0u, 0u};
-        skvx::Vec<4, uint32_t> sum2{fHalf, fHalf, fHalf, fHalf};
-        sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
-
-        skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0;
-        skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1;
-        skvx::Vec<4, uint32_t>* buffer2Cursor = fBuffer2;
+    void blurSegment(
+            int n, const uint32_t* src, int srcStride, uint32_t* dst, int dstStride) override {
+        skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0Cursor;
+        skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1Cursor;
+        skvx::Vec<4, uint32_t>* buffer2Cursor = fBuffer2Cursor;
+        skvx::Vec<4, uint32_t> sum0 = fSum0;
+        skvx::Vec<4, uint32_t> sum1 = fSum1;
+        skvx::Vec<4, uint32_t> sum2 = fSum2;
 
         // Given an expanded input pixel, move the window ahead using the leadingEdge value.
         auto processValue = [&](const skvx::Vec<4, uint32_t>& leadingEdge) {
@@ -342,71 +417,56 @@ public:
             *buffer0Cursor = leadingEdge;
             buffer0Cursor = (buffer0Cursor + 1) < fBuffer1 ? buffer0Cursor + 1 : fBuffer0;
 
-            return value;
+            return skvx::cast<uint8_t>(value);
         };
 
-        auto srcStart = srcLeft - fBorder,
-             srcEnd   = srcRight - fBorder,
-             dstEnd   = dstRight,
-             srcIdx   = srcStart,
-             dstIdx   = 0;
+        auto loadEdge = [&](const uint32_t* srcCursor) {
+            return skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor));
+        };
 
-        const uint32_t* srcCursor = src;
-        uint32_t* dstCursor = dst;
-
-        // The destination pixels are not effected by the src pixels,
-        // change to zero as per the spec.
-        // https://drafts.fxtf.org/filter-effects/#FilterPrimitivesOverviewIntro
-        while (dstIdx < srcIdx) {
-            *dstCursor = 0;
-            dstCursor += dstXStride;
-            SK_PREFETCH(dstCursor);
-            dstIdx++;
+        if (!src && !dst) {
+            while (n --> 0) {
+                (void)processValue(0);
+            }
+        } else if (src && !dst) {
+            while (n --> 0) {
+                (void)processValue(loadEdge(src));
+                src += srcStride;
+            }
+        } else if (!src && dst) {
+            while (n --> 0) {
+                processValue(0u).store(dst);
+                dst += dstStride;
+            }
+        } else if (src && dst) {
+            while (n --> 0) {
+                processValue(loadEdge(src)).store(dst);
+                src += srcStride;
+                dst += dstStride;
+            }
         }
 
-        // The edge of the source is before the edge of the destination. Calculate the sums for
-        // the pixels before the start of the destination.
-        while (dstIdx > srcIdx) {
-            skvx::Vec<4, uint32_t> leadingEdge =
-                    srcIdx < srcEnd ? skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor))
-                                    : 0;
-            (void) processValue(leadingEdge);
-            srcCursor += srcXStride;
-            srcIdx++;
-        }
-
-        // The dstIdx and srcIdx are in sync now; the code just uses the dstIdx for both now.
-        // Consume the source generating pixels to dst.
-        auto loopEnd = std::min(dstEnd, srcEnd);
-        while (dstIdx < loopEnd) {
-            skvx::Vec<4, uint32_t> leadingEdge =
-                    skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor));
-            skvx::cast<uint8_t>(processValue(leadingEdge)).store(dstCursor);
-            srcCursor += srcXStride;
-            dstCursor += dstXStride;
-            SK_PREFETCH(dstCursor);
-            dstIdx++;
-        }
-
-        // The leading edge is beyond the end of the source. Assume that the pixels
-        // are now 0x0000 until the end of the destination.
-        loopEnd = dstEnd;
-        while (dstIdx < loopEnd) {
-            skvx::cast<uint8_t>(processValue(0u)).store(dstCursor);
-            dstCursor += dstXStride;
-            SK_PREFETCH(dstCursor);
-            dstIdx++;
-        }
+        // Store the state
+        fBuffer0Cursor = buffer0Cursor;
+        fBuffer1Cursor = buffer1Cursor;
+        fBuffer2Cursor = buffer2Cursor;
+        fSum0 = sum0;
+        fSum1 = sum1;
+        fSum2 = sum2;
     }
 
-private:
     skvx::Vec<4, uint32_t>* const fBuffer0;
     skvx::Vec<4, uint32_t>* const fBuffer1;
     skvx::Vec<4, uint32_t>* const fBuffer2;
     skvx::Vec<4, uint32_t>* const fBuffersEnd;
-    const int fBorder;
     const uint32_t fDivisorFactor;
     const uint32_t fHalf;
+
+    // blur state
+    skvx::Vec<4, uint32_t> fSum0, fSum1, fSum2;
+    skvx::Vec<4, uint32_t>* fBuffer0Cursor;
+    skvx::Vec<4, uint32_t>* fBuffer1Cursor;
+    skvx::Vec<4, uint32_t>* fBuffer2Cursor;
 };
 
 // Implement a scanline processor that uses a two-box filter to approximate a Tent filter.
@@ -536,12 +596,22 @@ public:
              int border,
              uint32_t divisorFactor,
              uint32_t half)
-         : fBuffer0{buffer0}
+         : Pass{border}
+         , fBuffer0{buffer0}
          , fBuffer1{buffer1}
          , fBuffersEnd{buffersEnd}
-         , fBorder{border}
          , fDivisorFactor{divisorFactor}
          , fHalf{half} {}
+
+private:
+    void startBlur() override {
+        fSum0 = {0u, 0u, 0u, 0u};
+        fSum1 = {fHalf, fHalf, fHalf, fHalf};
+        sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
+
+        fBuffer0Cursor = fBuffer0;
+        fBuffer1Cursor = fBuffer1;
+    }
 
     // TentPass implements the common two pass box filter approximation of Tent filter,
     // but combines all both passes into a single pass. This approach is facilitated by two
@@ -577,15 +647,12 @@ public:
     //    buffer1[i] = sum0;
     //    sum0_n+2 = sum0_n+1 - buffer0[i];
     //    buffer0[i] = leading edge
-    void blur(int srcLeft, int srcRight, int dstRight,
-              const uint32_t* src, int srcXStride,
-              uint32_t* dst, int dstXStride) override {
-        skvx::Vec<4, uint32_t> sum0{0u, 0u, 0u, 0u};
-        skvx::Vec<4, uint32_t> sum1{fHalf, fHalf, fHalf, fHalf};
-        sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
-
-        skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0;
-        skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1;
+    void blurSegment(
+            int n, const uint32_t* src, int srcStride, uint32_t* dst, int dstStride) override {
+        skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0Cursor;
+        skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1Cursor;
+        skvx::Vec<4, uint32_t> sum0 = fSum0;
+        skvx::Vec<4, uint32_t> sum1 = fSum1;
 
         // Given an expanded input pixel, move the window ahead using the leadingEdge value.
         auto processValue = [&](const skvx::Vec<4, uint32_t>& leadingEdge) {
@@ -602,70 +669,52 @@ public:
             *buffer0Cursor = leadingEdge;
             buffer0Cursor = (buffer0Cursor + 1) < fBuffer1 ? buffer0Cursor + 1 : fBuffer0;
 
-            return value;
+            return skvx::cast<uint8_t>(value);
         };
 
-        auto srcStart = srcLeft - fBorder,
-                srcEnd   = srcRight - fBorder,
-                dstEnd   = dstRight,
-                srcIdx   = srcStart,
-                dstIdx   = 0;
+        auto loadEdge = [&](const uint32_t* srcCursor) {
+            return skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor));
+        };
 
-        const uint32_t* srcCursor = src;
-        uint32_t* dstCursor = dst;
-
-        // The destination pixels are not effected by the src pixels,
-        // change to zero as per the spec.
-        // https://drafts.fxtf.org/filter-effects/#FilterPrimitivesOverviewIntro
-        while (dstIdx < srcIdx) {
-            *dstCursor = 0;
-            dstCursor += dstXStride;
-            SK_PREFETCH(dstCursor);
-            dstIdx++;
+        if (!src && !dst) {
+            while (n --> 0) {
+                (void)processValue(0);
+            }
+        } else if (src && !dst) {
+            while (n --> 0) {
+                (void)processValue(loadEdge(src));
+                src += srcStride;
+            }
+        } else if (!src && dst) {
+            while (n --> 0) {
+                processValue(0u).store(dst);
+                dst += dstStride;
+            }
+        } else if (src && dst) {
+            while (n --> 0) {
+                processValue(loadEdge(src)).store(dst);
+                src += srcStride;
+                dst += dstStride;
+            }
         }
 
-        // The edge of the source is before the edge of the destination. Calculate the sums for
-        // the pixels before the start of the destination.
-        while (dstIdx > srcIdx) {
-            skvx::Vec<4, uint32_t> leadingEdge =
-                    srcIdx < srcEnd ? skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor))
-                                    : 0;
-            (void) processValue(leadingEdge);
-            srcCursor += srcXStride;
-            srcIdx++;
-        }
-
-        // The dstIdx and srcIdx are in sync now; the code just uses the dstIdx for both now.
-        // Consume the source generating pixels to dst.
-        auto loopEnd = std::min(dstEnd, srcEnd);
-        while (dstIdx < loopEnd) {
-            skvx::Vec<4, uint32_t> leadingEdge =
-                    skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor));
-            skvx::cast<uint8_t>(processValue(leadingEdge)).store(dstCursor);
-            srcCursor += srcXStride;
-            dstCursor += dstXStride;
-            SK_PREFETCH(dstCursor);
-            dstIdx++;
-        }
-
-        // The leading edge is beyond the end of the source. Assume that the pixels
-        // are now 0x0000 until the end of the destination.
-        loopEnd = dstEnd;
-        while (dstIdx < loopEnd) {
-            skvx::cast<uint8_t>(processValue(0u)).store(dstCursor);
-            dstCursor += dstXStride;
-            SK_PREFETCH(dstCursor);
-            dstIdx++;
-        }
+        // Store the state
+        fBuffer0Cursor = buffer0Cursor;
+        fBuffer1Cursor = buffer1Cursor;
+        fSum0 = sum0;
+        fSum1 = sum1;
     }
 
-private:
     skvx::Vec<4, uint32_t>* const fBuffer0;
     skvx::Vec<4, uint32_t>* const fBuffer1;
     skvx::Vec<4, uint32_t>* const fBuffersEnd;
-    const int fBorder;
     const uint32_t fDivisorFactor;
     const uint32_t fHalf;
+
+    // blur state
+    skvx::Vec<4, uint32_t> fSum0, fSum1;
+    skvx::Vec<4, uint32_t>* fBuffer0Cursor;
+    skvx::Vec<4, uint32_t>* fBuffer1Cursor;
 };
 
 sk_sp<SkSpecialImage> copy_image_with_bounds(
