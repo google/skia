@@ -2478,6 +2478,7 @@ if (skia_enable_tools) {
         "modules/androidkit/src/Surface.h",
         "modules/androidkit/src/SurfaceThread.cpp",
         "modules/androidkit/src/SurfaceThread.h",
+        "modules/androidkit/src/Text.cpp",
         "modules/androidkit/src/Utils.cpp",
       ]
       libs = [
@@ -2488,6 +2489,7 @@ if (skia_enable_tools) {
       deps = [
         ":sk_app",
         ":skia",
+        "experimental/sktext:sktext",
         "modules/skottie:skottie",
       ]
     }
