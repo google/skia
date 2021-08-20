@@ -95,6 +95,9 @@ public:
                            ProgramDescOverrideFlags) const override;
     MTLPixelFormat getStencilPixelFormat(const GrProgramDesc& desc);
 
+    // if true, MTLStoreActionStoreAndMultiplesampleResolve is available
+    bool storeAndMultisampleResolveSupport() const { return fStoreAndMultisampleResolveSupport; }
+
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
@@ -194,6 +197,8 @@ private:
     SkTDArray<int> fSampleCounts;
 
     MTLPixelFormat fPreferredStencilFormat;
+
+    bool fStoreAndMultisampleResolveSupport;
 
     using INHERITED = GrCaps;
 };

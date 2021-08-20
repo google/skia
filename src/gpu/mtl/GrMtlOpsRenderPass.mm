@@ -252,6 +252,16 @@ void GrMtlOpsRenderPass::setupRenderPass(
     colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
     colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
+    auto* resolve = fFramebuffer->resolveAttachment();
+    if (resolve) {
+        colorAttachment.resolveTexture = resolve->mtlTexture();
+        if (colorInfo.fStoreOp == GrStoreOp::kStore) {
+            colorAttachment.storeAction = MTLStoreActionStoreAndMultisampleResolve;
+        } else {
+            colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
+        }
+    }
+
     auto* stencil = fFramebuffer->stencilAttachment();
     auto mtlStencil = fRenderPassDesc.stencilAttachment;
     if (stencil) {
