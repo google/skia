@@ -411,10 +411,12 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         std::unique_ptr<Expression> value;
         auto iter = varDecl.begin();
         if (iter != varDecl.end() && varData.fIsArray) {
-            if (*iter) {
-                arraySize = this->convertExpression(*iter++);
-            } else {
+            if (!*iter) {
                 this->errorReporter().error(decls.fOffset, "array must have a size");
+                continue;
+            }
+            arraySize = this->convertExpression(*iter++);
+            if (!arraySize) {
                 continue;
             }
         }
