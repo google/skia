@@ -717,7 +717,10 @@ V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4
 }
 
 int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEdgeDistances,
-                                                             V4f* x2d, V4f* y2d) const {
+                                                             V4f* x2d, V4f* y2d,
+                                                             M4f* aaMask) const {
+    *aaMask = signedEdgeDistances != 0.f;
+
     // Move the edge by the signed edge adjustment.
     V4f oc = fC + signedEdgeDistances;
 
@@ -792,10 +795,19 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
         if (SkScalarAbs(eDenom[0]) > kTolerance) {
             px = if_then_else(d1v0, V4f(ex[0]), px);
             py = if_then_else(d1v0, V4f(ey[0]), py);
+            // If we replace a vertex with an intersection then it will not fall along the
+            // edges that intersect at the original vertex. When we apply AA later to the
+            // original points we move along the original 3d edges to move towards the 2d
+            // points we're computing here. If we have an AA edge and a non-AA edge we
+            // can only move along 1 edge, but now the point we're moving toward isn't
+            // on that edge. Thus, we provide an additional degree of freedom by turning
+            // AA on for both edges if either edge is AA.
+            *aaMask = *aaMask | (d1v0 & skvx::shuffle<2, 0, 3, 1>(*aaMask));
         }
         if (SkScalarAbs(eDenom[1]) > kTolerance) {
             px = if_then_else(d2v0, V4f(ex[1]), px);
             py = if_then_else(d2v0, V4f(ey[1]), py);
+            *aaMask = *aaMask | (d2v0 & skvx::shuffle<2, 0, 3, 1>(*aaMask));
         }
 
         *x2d = px;
@@ -1172,9 +1184,11 @@ int TessellationHelper::adjustDegenerateVertices(const skvx::Vec<4, float>& sign
         // handles perspective).
         V4f x2d = fEdgeVectors.fX2D;
         V4f y2d = fEdgeVectors.fY2D;
+
+        M4f aaMask;
         int vertexCount = this->getEdgeEquations().computeDegenerateQuad(signedEdgeDistances,
-                                                                         &x2d, &y2d);
-        vertices->moveTo(x2d, y2d, signedEdgeDistances != 0.f);
+                                                                         &x2d, &y2d, &aaMask);
+        vertices->moveTo(x2d, y2d, aaMask);
         return vertexCount;
     }
 }
