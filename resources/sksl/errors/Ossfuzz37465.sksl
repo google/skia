@@ -1,0 +1,1 @@
+float f(const float x) { 5+x; }

@@ -2,7 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
-float foo_ff2(vec2 v) {
+float foo_ff2(const vec2 v) {
     return v.x * v.y;
 }
 void bar_vf(inout float x) {
