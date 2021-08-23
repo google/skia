@@ -780,4 +780,38 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
     return foundError;
 }
 
+SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expression> size) const {
+    size = context.fTypes.fInt->coerceExpression(std::move(size), context);
+    if (!size) {
+        return 0;
+    }
+    if (this->isArray()) {
+        context.errors().error(size->fOffset, "multi-dimensional arrays are not supported");
+        return 0;
+    }
+    if (this->isVoid()) {
+        context.errors().error(size->fOffset, "type 'void' may not be used in an array");
+        return 0;
+    }
+    if (this->isOpaque()) {
+        context.errors().error(size->fOffset, "opaque type '" + this->name() +
+                                              "' may not be used in an array");
+        return 0;
+    }
+    if (!size->is<IntLiteral>()) {
+        context.errors().error(size->fOffset, "array size must be an integer");
+        return 0;
+    }
+    SKSL_INT count = size->as<IntLiteral>().value();
+    if (count <= 0) {
+        context.errors().error(size->fOffset, "array size must be positive");
+        return 0;
+    }
+    if (!SkTFitsIn<int32_t>(count)) {
+        context.errors().error(size->fOffset, "array size is too large");
+        return 0;
+    }
+    return static_cast<int>(count);
+}
+
 }  // namespace SkSL

@@ -538,6 +538,12 @@ public:
     /** Detects any IntLiterals in the expression which can't fit in this type. */
     bool checkForOutOfRangeLiteral(const Context& context, const Expression& expr) const;
 
+    /**
+     * Verifies that the expression is a valid constant array size for this type. Returns the array
+     * size, or zero if the expression isn't a valid literal value.
+     */
+    SKSL_INT convertArraySize(const Context& context, std::unique_ptr<Expression> size) const;
+
 protected:
     Type(skstd::string_view name, const char* abbrev, TypeKind kind, int offset = -1)
         : INHERITED(offset, kSymbolKind, name)

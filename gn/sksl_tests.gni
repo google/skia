@@ -9,6 +9,7 @@ sksl_error_tests = [
   "/sksl/errors/ArgumentModifiers.sksl",
   "/sksl/errors/ArrayConstructorElementCount.sksl",
   "/sksl/errors/ArrayIndexOutOfRange.sksl",
+  "/sksl/errors/ArrayOfInvalidSize.sksl",
   "/sksl/errors/ArrayOfVoid.sksl",
   "/sksl/errors/ArrayOfVoidInStruct.sksl",
   "/sksl/errors/ArrayReturnTypes.sksl",

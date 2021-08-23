@@ -1,4 +1,4 @@
-// Expect 7 errors
+// Expect 6 errors
 
 void a[2];
 void[2] b;
@@ -6,3 +6,4 @@ void[2] b;
 void[2] funcF() {}
 void funcG() { void g[2]; }
 void funcH() { void[2] h; }
+void funcI() { void[2]; }

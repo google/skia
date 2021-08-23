@@ -216,37 +216,7 @@ int IRGenerator::convertArraySize(const Type& type, int offset, const ASTNode& s
     if (!size) {
         return 0;
     }
-    return this->convertArraySize(type, std::move(size));
-}
-
-int IRGenerator::convertArraySize(const Type& type, std::unique_ptr<Expression> size) {
-    size = this->coerce(std::move(size), *fContext.fTypes.fInt);
-    if (!size) {
-        return 0;
-    }
-    if (type.isVoid()) {
-        this->errorReporter().error(size->fOffset, "type 'void' may not be used in an array");
-        return 0;
-    }
-    if (type.isOpaque()) {
-        this->errorReporter().error(
-                size->fOffset, "opaque type '" + type.name() + "' may not be used in an array");
-        return 0;
-    }
-    if (!size->is<IntLiteral>()) {
-        this->errorReporter().error(size->fOffset, "array size must be an integer");
-        return 0;
-    }
-    SKSL_INT count = size->as<IntLiteral>().value();
-    if (count <= 0) {
-        this->errorReporter().error(size->fOffset, "array size must be positive");
-        return 0;
-    }
-    if (!SkTFitsIn<int>(count)) {
-        this->errorReporter().error(size->fOffset, "array size is too large");
-        return 0;
-    }
-    return static_cast<int>(count);
+    return type.convertArraySize(fContext, std::move(size));
 }
 
 void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
@@ -320,7 +290,7 @@ std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& m
     int arraySizeValue = 0;
     if (isArray) {
         SkASSERT(arraySize);
-        arraySizeValue = this->convertArraySize(*type, std::move(arraySize));
+        arraySizeValue = type->convertArraySize(fContext, std::move(arraySize));
         if (!arraySizeValue) {
             return {};
         }

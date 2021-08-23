@@ -1,0 +1,18 @@
+void a() { float[-2]; }
+void b() { float[-1]; }
+void c() { float[0]; }
+void d() { float[1.5]; }
+void e() { float[4000000000]; }
+void f() { float[true]; }
+void g() { float[false]; }
+void h() { float[int2(2, 2)]; }
+void i() { float[]; }
+void j() { float x[-2]; }
+void k() { float x[-1]; }
+void l() { float x[0]; }
+void m() { float x[1.5]; }
+void n() { float x[4000000000]; }
+void o() { float x[true]; }
+void p() { float x[false]; }
+void q() { float x[int2(2, 2)]; }
+void r() { float x[]; }
