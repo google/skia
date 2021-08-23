@@ -103,9 +103,10 @@ void SkBlurImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
 // This is defined by the SVG spec:
 // https://drafts.fxtf.org/filter-effects/#feGaussianBlurElement
-static int calculate_window(double sigma) {
+int calculate_window(double sigma) {
     auto possibleWindow = static_cast<int>(floor(sigma * 3 * sqrt(2 * SK_DoublePI) / 4 + 0.5));
     return std::max(1, possibleWindow);
 }
@@ -121,7 +122,7 @@ public:
 
 class PassMaker {
 public:
-    PassMaker(int window) : fWindow{window} {}
+    explicit PassMaker(int window) : fWindow{window} {}
     virtual ~PassMaker() = default;
     virtual Pass* makePass(void* buffer, SkArenaAlloc* alloc) const = 0;
     virtual size_t bufferSizeBytes() const = 0;
@@ -133,7 +134,7 @@ private:
 
 // Implement a scanline processor that uses a three-box filter to approximate a Gaussian blur.
 // The GaussPass is limit to processing sigmas < 135.
-class GaussPass : public Pass {
+class GaussPass final : public Pass {
 public:
     // NB 136 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
     // using the Gauss filter. It also limits the size of buffers used hold intermediate values.
@@ -156,7 +157,7 @@ public:
 
         class Maker : public PassMaker {
         public:
-            Maker(int window) : PassMaker{window} {}
+            explicit Maker(int window) : PassMaker{window} {}
             Pass* makePass(void* buffer, SkArenaAlloc* alloc) const override {
                 return GaussPass::Make(this->window(), buffer, alloc);
             }
@@ -410,7 +411,7 @@ private:
 
 // Implement a scanline processor that uses a two-box filter to approximate a Tent filter.
 // The TentPass is limit to processing sigmas < 2183.
-class TentPass : public Pass {
+class TentPass final : public Pass {
 public:
     // NB 136 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
     // using the Gauss filter. It also limits the size of buffers used hold intermediate values.
@@ -438,7 +439,7 @@ public:
 
         class Maker : public PassMaker {
         public:
-            Maker(int window) : PassMaker{window} {}
+            explicit Maker(int window) : PassMaker{window} {}
             Pass* makePass(void* buffer, SkArenaAlloc* alloc) const override {
                 return TentPass::Make(this->window(), buffer, alloc);
             }
@@ -667,7 +668,7 @@ private:
     const uint32_t fHalf;
 };
 
-static sk_sp<SkSpecialImage> copy_image_with_bounds(
+sk_sp<SkSpecialImage> copy_image_with_bounds(
         const SkImageFilter_Base::Context& ctx, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
     SkBitmap inputBM;
@@ -733,11 +734,10 @@ static sk_sp<SkSpecialImage> copy_image_with_bounds(
 }
 
 // TODO: Implement CPU backend for different fTileMode.
-static sk_sp<SkSpecialImage> cpu_blur(
+sk_sp<SkSpecialImage> cpu_blur(
         const SkImageFilter_Base::Context& ctx,
         SkVector sigma, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
-    // TODO: this is temporary until we can handle larger sigma.
     SkVector limitedSigma = {SkTPin(sigma.x(), 0.0f, 2183.0f), SkTPin(sigma.y(), 0.0f, 2183.0f)};
 
     SkSTArenaAlloc<1024> alloc;
@@ -859,6 +859,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
                                                           dstBounds.height()),
                                           dst, ctx.surfaceProps());
 }
+}  // namespace
 
 // This rather arbitrary-looking value results in a maximum box blur kernel size
 // of 1000 pixels on the raster path, which matches the WebKit and Firefox
