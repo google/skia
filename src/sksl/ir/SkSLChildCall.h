@@ -26,13 +26,6 @@ public:
             , fChild(*child)
             , fArguments(std::move(arguments)) {}
 
-    // Performs type conversion on arguments, determines return type, and reports errors via the
-    // ErrorReporter.
-    static std::unique_ptr<Expression> Convert(const Context& context,
-                                               int offset,
-                                               const Variable& child,
-                                               ExpressionArray arguments);
-
     // Creates the child call; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             int offset,

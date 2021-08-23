@@ -1947,8 +1947,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
                            SkSL::ProgramKind::kRuntimeShader);
-    DSLGlobalVar shader(kUniform_Modifier, kShader_Type, "shader");
-    EXPECT_EQUAL(Sample(shader, Float2(0, 0)), "shader(float2(0.0, 0.0))");
+    DSLGlobalVar shader(kUniform_Modifier, kShader_Type, "child");
+    EXPECT_EQUAL(Sample(shader, Float2(0, 0)), "shade(child, float2(0.0, 0.0))");
 
     {
         ExpectError error(r, "no match for sample(shader, half4)");

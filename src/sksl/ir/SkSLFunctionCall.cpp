@@ -10,6 +10,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
@@ -867,6 +868,26 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                 return nullptr;
             }
         }
+    }
+
+    switch (function.intrinsicKind()) {
+        case k_blend_IntrinsicKind:
+        case k_sample_IntrinsicKind:
+        case k_shade_IntrinsicKind:
+        case k_filter_IntrinsicKind: {
+            if (arguments.size() >= 1 && arguments[0]->type().isEffectChild()) {
+                // Translate these intrinsic calls into a ChildCall, which simplifies handling in
+                // the generators and analysis code
+                SkASSERT(arguments[0]->is<VariableReference>());
+                const Variable& child = *arguments[0]->as<VariableReference>().variable();
+                std::rotate(arguments.begin(), arguments.begin() + 1, arguments.end());
+                arguments.pop_back();
+                return ChildCall::Make(context, offset, returnType, child, std::move(arguments));
+            }
+            break;
+        }
+        default:
+            break;
     }
 
     return Make(context, offset, returnType, function, std::move(arguments));

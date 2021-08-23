@@ -12,4 +12,28 @@ error: 20: no match for sample(blender)
 error: 21: no match for sample(blender, half4)
 error: 22: no match for sample(blender, float2)
 error: 23: no match for sample(blender, float2, half4)
-12 errors
+error: 27: call to 'shade' expected 2 arguments, but found 3
+error: 28: expected 'float2', but found 'half4'
+error: 29: call to 'shade' expected 2 arguments, but found 3
+error: 30: call to 'shade' expected 2 arguments, but found 1
+error: 31: expected 'float2', but found 'float3x3'
+error: 33: call to 'filter' expected 2 arguments, but found 1
+error: 34: expected 'half4', but found 'float2'
+error: 35: call to 'filter' expected 2 arguments, but found 3
+error: 37: call to 'blend' expected 3 arguments, but found 1
+error: 38: call to 'blend' expected 3 arguments, but found 2
+error: 39: call to 'blend' expected 3 arguments, but found 2
+error: 40: expected 'half4', but found 'float2'
+error: 45: expected 'blender', but found 'shader'
+error: 46: call to 'blend' expected 3 arguments, but found 2
+error: 47: expected 'colorFilter', but found 'shader'
+error: 48: expected 'colorFilter', but found 'shader'
+error: 50: expected 'blender', but found 'colorFilter'
+error: 51: call to 'blend' expected 3 arguments, but found 2
+error: 52: expected 'shader', but found 'colorFilter'
+error: 53: expected 'shader', but found 'colorFilter'
+error: 55: expected 'colorFilter', but found 'blender'
+error: 56: call to 'filter' expected 2 arguments, but found 3
+error: 57: expected 'shader', but found 'blender'
+error: 58: call to 'shade' expected 2 arguments, but found 3
+36 errors

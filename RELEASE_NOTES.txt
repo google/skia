@@ -19,10 +19,10 @@ Milestone 94
 
   * There is a new syntax for invoking (sampling) child effects in SkSL. Previously, children
     (shaders, colorFilters, blenders) were invoked using different overloads of `sample`. That
-    syntax is deprecated (but still supported). Now, the child object can be invoked directly,
-    like a function. The arguments to these invocations are the same as the arguments that followed
-    the child in calls to `sample`.
-    https://review.skia.org/436517
+    syntax is deprecated (but still supported). Now, the name of the intrinsic used is dependent on
+    the type of the child: 'shade' for shaders, 'filter' for colorFilters, and 'blend' for blenders.
+    The arguments to these invocations are the same as the arguments in the old overloads of sample.
+    https://review.skia.org/441457
 
 * * *
 

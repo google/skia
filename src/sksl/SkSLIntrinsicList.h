@@ -21,6 +21,7 @@
     SKSL_INTRINSIC(atanh)            \
     SKSL_INTRINSIC(atan)             \
     SKSL_INTRINSIC(bitCount)         \
+    SKSL_INTRINSIC(blend)            \
     SKSL_INTRINSIC(ceil)             \
     SKSL_INTRINSIC(clamp)            \
     SKSL_INTRINSIC(cosh)             \
@@ -38,6 +39,7 @@
     SKSL_INTRINSIC(exp2)             \
     SKSL_INTRINSIC(exp)              \
     SKSL_INTRINSIC(faceforward)      \
+    SKSL_INTRINSIC(filter)           \
     SKSL_INTRINSIC(findLSB)          \
     SKSL_INTRINSIC(findMSB)          \
     SKSL_INTRINSIC(floatBitsToInt)   \
@@ -86,6 +88,7 @@
     SKSL_INTRINSIC(round)            \
     SKSL_INTRINSIC(sample)           \
     SKSL_INTRINSIC(saturate)         \
+    SKSL_INTRINSIC(shade)            \
     SKSL_INTRINSIC(sign)             \
     SKSL_INTRINSIC(sinh)             \
     SKSL_INTRINSIC(sin)              \
