@@ -42,7 +42,6 @@
   {"name": "Build-Debian10-Clang-x86-Debug-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-x86-Release-Android"},
   {"name": "Build-Debian10-Clang-x86-Release-Android_Vulkan"},
-  {"name": "Build-Debian10-Clang-x86-devrel-Android_SKQP"},
   {"name": "Build-Debian10-Clang-x86_64-Debug",
    "cq_config": {}
    },
@@ -476,7 +475,6 @@
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan"},
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All"},
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"},
-  {"name": "Test-Debian10-Clang-NUC7i5BNK-CPU-Emulator-x86-devrel-All-Android_SKQP"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All",
    "cq_config": {}
    },
