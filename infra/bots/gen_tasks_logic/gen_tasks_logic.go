@@ -57,7 +57,7 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEFAULT_OS_DEBIAN              = "Debian-10.3"
+	DEFAULT_OS_DEBIAN              = "Debian-10.10"
 	DEFAULT_OS_LINUX_GCE           = "Debian-10.3"
 	OLD_OS_LINUX_GCE               = "Debian-9.8"
 	COMPILE_TASK_NAME_OS_LINUX     = "Debian10"
@@ -905,6 +905,12 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					log.Fatalf("Entry %q not found in Ubuntu GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
+
+				// The Debian10 machines in the skolo are 10.10, not 10.3.
+				if b.matchOs("Debian") {
+					d["os"] = DEFAULT_OS_DEBIAN
+				}
+
 			} else if b.matchOs("Mac") {
 				gpu, ok := map[string]string{
 					"AppleM1":       "AppleM1",
