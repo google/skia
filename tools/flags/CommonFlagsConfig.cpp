@@ -61,9 +61,7 @@ static const struct {
     { "gles1010102",           "gpu", "api=gles,color=1010102" },
     { "glf16",                 "gpu", "api=gl,color=f16" },
     { "glf16norm",             "gpu", "api=gl,color=f16norm" },
-    { "glsrgba",               "gpu", "api=gl,color=srgba" },
     { "glesf16",               "gpu", "api=gles,color=f16" },
-    { "glessrgba",             "gpu", "api=gles,color=srgba" },
     { "glnostencils",          "gpu", "api=gl,stencils=false" },
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
@@ -341,9 +339,9 @@ static bool parse_option_gpu_api(const SkString&                      value,
     return false;
 }
 
-static bool parse_option_gpu_color(const SkString& value,
-                                   SkColorType*    outColorType,
-                                   SkAlphaType*    alphaType) {
+static bool parse_option_gpu_color(const SkString&      value,
+                                   SkColorType*         outColorType,
+                                   SkAlphaType*         alphaType) {
     // We always use premul unless the color type is 565.
     *alphaType = kPremul_SkAlphaType;
 
@@ -364,8 +362,6 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorType  = kRGBA_F16_SkColorType;
     } else if (value.equals("f16norm")) {
         *outColorType  = kRGBA_F16Norm_SkColorType;
-    } else if (value.equals("srgba")) {
-        *outColorType = kSRGBA_8888_SkColorType;
     } else {
         return false;
     }

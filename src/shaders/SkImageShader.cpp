@@ -539,11 +539,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
             case kBGRA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx);
                                             p->append(SkRasterPipeline::swap_rb            ); break;
 
-            case kSRGBA_8888_SkColorType:
-                p->append(SkRasterPipeline::gather_8888, ctx);
-                p->append_transfer_function(*skcms_sRGB_TransferFunction());
-                break;
-
             case kUnknown_SkColorType: SkASSERT(false);
         }
         if (decal_ctx) {

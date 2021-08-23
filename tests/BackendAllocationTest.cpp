@@ -573,7 +573,6 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
         { kRGB_565_SkColorType,           SkColors::kRed           },
         { kARGB_4444_SkColorType,         SkColors::kGreen         },
         { kRGBA_8888_SkColorType,         SkColors::kBlue          },
-        { kSRGBA_8888_SkColorType,        { 0.25f, 0.5f, 0.75f, 1.0f}},
         { kRGB_888x_SkColorType,          SkColors::kCyan          },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
         { kBGRA_8888_SkColorType,         { 1, 0, 0, 1.0f }        },

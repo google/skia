@@ -489,7 +489,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
     }
     sampleCnt = std::max(1, sampleCnt);
 
-    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
+    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(rContext->priv().caps(), colorType,
+                                                                tex.getBackendFormat());
     if (grColorType == GrColorType::kUnknown) {
         return nullptr;
     }
@@ -606,7 +607,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* rCon
         return nullptr;
     }
 
-    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
+    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(rContext->priv().caps(), colorType,
+                                                                rt.getBackendFormat());
     if (grColorType == GrColorType::kUnknown) {
         return nullptr;
     }

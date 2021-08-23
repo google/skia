@@ -530,13 +530,12 @@ static skstd::optional<Config> create_config(const SkCommandLineConfig* config) 
 
     CPU_CONFIG("nonrendering", kNonRendering_Backend, kUnknown_SkColorType, kUnpremul_SkAlphaType)
 
-    CPU_CONFIG("a8",    kRaster_Backend,    kAlpha_8_SkColorType, kPremul_SkAlphaType)
-    CPU_CONFIG("565",   kRaster_Backend,    kRGB_565_SkColorType, kOpaque_SkAlphaType)
-    CPU_CONFIG("8888",  kRaster_Backend,        kN32_SkColorType, kPremul_SkAlphaType)
-    CPU_CONFIG("rgba",  kRaster_Backend,  kRGBA_8888_SkColorType, kPremul_SkAlphaType)
-    CPU_CONFIG("bgra",  kRaster_Backend,  kBGRA_8888_SkColorType, kPremul_SkAlphaType)
-    CPU_CONFIG("f16",   kRaster_Backend,   kRGBA_F16_SkColorType, kPremul_SkAlphaType)
-    CPU_CONFIG("srgba", kRaster_Backend, kSRGBA_8888_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("a8",   kRaster_Backend,   kAlpha_8_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("565",  kRaster_Backend,   kRGB_565_SkColorType, kOpaque_SkAlphaType)
+    CPU_CONFIG("8888", kRaster_Backend,       kN32_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("rgba", kRaster_Backend, kRGBA_8888_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("bgra", kRaster_Backend, kBGRA_8888_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("f16",  kRaster_Backend,  kRGBA_F16_SkColorType, kPremul_SkAlphaType)
 
 #undef CPU_CONFIG
 
