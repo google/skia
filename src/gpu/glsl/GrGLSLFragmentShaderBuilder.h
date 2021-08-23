@@ -38,9 +38,6 @@ public:
         kInsideLoop = (1 << 2)
     };
 
-    void writeProcessorFunction(GrFragmentProcessor::ProgramImpl*,
-                                GrFragmentProcessor::ProgramImpl::EmitArgs&);
-
     virtual void forceHighPrecision() = 0;
 
     /** Returns the variable name that holds the color of the destination pixel. This may be nullptr
@@ -48,14 +45,6 @@ public:
     virtual const char* dstColor() = 0;
 
 private:
-    /**
-     * These are called before/after calling emitCode on a child proc to update mangling.
-     */
-    virtual void onBeforeChildProcEmitCode() = 0;
-    virtual void onAfterChildProcEmitCode() = 0;
-
-    virtual const SkString& getMangleString() const = 0;
-
     // WARNING: LIke GrRenderTargetProxy, changes to this can cause issues in ASAN. This is caused
     // by GrGLSLProgramBuilder's GrTBlockLists requiring 16 byte alignment, but since
     // GrGLSLFragmentShaderBuilder has a virtual diamond hierarchy, ASAN requires all this pointers
@@ -107,11 +96,6 @@ public:
     void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
 
 private:
-    // GrGLSLFPFragmentBuilder private interface.
-    void onBeforeChildProcEmitCode() override;
-    void onAfterChildProcEmitCode() override;
-    const SkString& getMangleString() const override { return fMangleString; }
-
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader
     void enableCustomOutput();
     void enableSecondaryOutput();
@@ -137,26 +121,6 @@ private:
     void onFinalize() override;
 
     static constexpr const char kDstColorName[] = "_dstColor";
-
-    /*
-     * State that tracks which child proc in the proc tree is currently emitting code.  This is
-     * used to update the fMangleString, which is used to mangle the names of uniforms and functions
-     * emitted by the proc.  fSubstageIndices is a stack: its count indicates how many levels deep
-     * we are in the tree, and its second-to-last value is the index of the child proc at that
-     * level which is currently emitting code. For example, if fSubstageIndices = [3, 1, 2, 0], that
-     * means we're currently emitting code for the base proc's 3rd child's 1st child's 2nd child.
-     */
-    SkTArray<int> fSubstageIndices;
-
-    /*
-     * The mangle string is used to mangle the names of uniforms/functions emitted by the child
-     * procs so no duplicate uniforms/functions appear in the generated shader program. The mangle
-     * string is simply based on fSubstageIndices. For example, if fSubstageIndices = [3, 1, 2, 0],
-     * then the manglestring will be "_c3_c1_c2", and any uniform/function emitted by that proc will
-     * have "_c3_c1_c2" appended to its name, which can be interpreted as "base proc's 3rd child's
-     * 1st child's 2nd child".
-     */
-    SkString fMangleString;
 
     GrShaderVar* fCustomColorOutput = nullptr;
 

@@ -565,8 +565,6 @@ public:
         return fFunctionName.c_str();
     }
 
-    void emitChildFunctions(EmitArgs& parentArgs);
-
     // Invoke the child with the default input and destination colors (solid white)
     inline SkString invokeChild(int childIndex,
                                 EmitArgs& parentArgs,

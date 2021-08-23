@@ -935,27 +935,6 @@ void ProgramImpl::setData(const GrGLSLProgramDataManager& pdman,
     this->onSetData(pdman, processor);
 }
 
-void ProgramImpl::emitChildFunctions(EmitArgs& args) {
-    for (int i = 0; i < this->numChildProcessors(); ++i) {
-        ProgramImpl* childGLSLFP = this->childProcessor(i);
-        if (!childGLSLFP) {
-            continue;
-        }
-
-        const GrFragmentProcessor* childFP = args.fFp.childProcessor(i);
-        SkASSERT(childFP);
-
-        EmitArgs childArgs(args.fFragBuilder,
-                           args.fUniformHandler,
-                           args.fShaderCaps,
-                           *childFP,
-                           childFP->isBlendFunction() ? "_src" : "_input",
-                           "_dst",
-                           "_coords");
-        args.fFragBuilder->writeProcessorFunction(childGLSLFP, childArgs);
-    }
-}
-
 SkString ProgramImpl::invokeChild(int childIndex,
                                   const char* inputColor,
                                   const char* destColor,

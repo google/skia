@@ -78,13 +78,6 @@ public:
     SkString nameVariable(char prefix, const char* name, bool mangle = true);
 
     /**
-     * If computation of a FP's input coords have been lifted to the vertex shader, this method
-     * retrieves the name of the coords varying in the FS. The FP code should read this directly
-     * rather than writing a function that takes a float2 coord.
-     */
-    GrShaderVar varyingCoordsForFragmentProcessor(const GrFragmentProcessor*);
-
-    /**
      * If the FP's coords are unused or all uses have been lifted to interpolated varyings then
      * don't put coords in the FP's function signature or call sites.
      */
@@ -105,8 +98,6 @@ public:
     GrGLSLVertexBuilder          fVS;
     GrGLSLGeometryBuilder        fGS;
     GrGLSLFragmentShaderBuilder  fFS;
-
-    int fStageIndex;
 
     const GrProgramDesc&         fDesc;
     const GrProgramInfo&         fProgramInfo;
@@ -132,38 +123,34 @@ protected:
     bool fragColorIsInOut() const { return fFS.primaryColorOutputIsInOut(); }
 
 private:
-    // reset is called by program creator between each processor's emit code.  It increments the
-    // stage offset for variable name mangling, and also ensures verfication variables in the
+    // advanceStage is called by program creator between each processor's emit code.  It increments
+    // the stage index for variable name mangling, and also ensures verification variables in the
     // fragment shader are cleared.
-    void reset() {
-        this->addStage();
+    void advanceStage() {
+        fStageIndex++;
         SkDEBUGCODE(fFS.debugOnly_resetPerStageVerification();)
+        fFS.nextStage();
     }
-    void addStage() { fStageIndex++; }
 
-    class AutoStageAdvance {
-    public:
-        AutoStageAdvance(GrGLSLProgramBuilder* pb)
-            : fPB(pb) {
-            fPB->reset();
-            // Each output to the fragment processor gets its own code section
-            fPB->fFS.nextStage();
-        }
-        ~AutoStageAdvance() {}
-    private:
-        GrGLSLProgramBuilder* fPB;
-    };
+    SkString getMangleSuffix() const;
 
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
     void nameExpression(SkString*, const char* baseName);
 
     bool emitAndInstallPrimProc(SkString* outputColor, SkString* outputCoverage);
     bool emitAndInstallDstTexture();
+    /** Adds the root FPs */
     bool emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
+    /** Adds a single root FP tree. */
     SkString emitFragProc(const GrFragmentProcessor&,
                           GrFragmentProcessor::ProgramImpl&,
                           const SkString& input,
                           SkString output);
+    /** Recursive step to write out children FPs' functions before parent's. */
+    void writeChildFPFunctions(const GrFragmentProcessor& fp,
+                               GrFragmentProcessor::ProgramImpl& impl);
+    /** Adds the SkSL function that implements an FP assuming its children are already written. */
+    void writeFPFunction(const GrFragmentProcessor& fp, GrFragmentProcessor::ProgramImpl& impl);
     bool emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     SamplerHandle emitSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
                               const char* name);
@@ -176,9 +163,25 @@ private:
     void verify(const GrXferProcessor&);
 #endif
 
-    // These are used to check that we don't excede the allowable number of resources in a shader.
+    // This is used to check that we don't excede the allowable number of resources in a shader.
     int fNumFragmentSamplers;
+
     GrGeometryProcessor::ProgramImpl::FPCoordsMap fFPCoordsMap;
+
+    /**
+     * Each root processor has an stage index. The GP is stage 0. The first root FP is stage 1,
+     * the second root FP is stage 2, etc. The XP's stage index is last and its value depends on
+     * how many root FPs there are. Names are mangled by appending _S<stage-index>.
+     */
+    int fStageIndex = -1;
+
+    /**
+     * When emitting FP stages we track the children FPs as "substages" and do additional name
+     * mangling based on where in the FP hierarchy we are. The first FP is stage index 1. It's first
+     * child would be substage 0 of stage 1. If that FP also has three children then its third child
+     * would be substage 2 of stubstage 0 of stage 1 and would be mangled as "_S1_c0_c2".
+     */
+    SkTArray<int> fSubstageIndices;
 };
 
 #endif
