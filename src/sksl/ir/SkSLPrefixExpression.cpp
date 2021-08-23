@@ -135,7 +135,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
     switch (op.kind()) {
         case Token::Kind::TK_PLUS:
             if (!baseType.componentType().isNumber()) {
-                context.errors().error(base->fOffset,
+                context.fErrors->error(base->fOffset,
                                        "'+' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -143,7 +143,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
 
         case Token::Kind::TK_MINUS:
             if (!baseType.componentType().isNumber()) {
-                context.errors().error(base->fOffset,
+                context.fErrors->error(base->fOffset,
                                        "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -152,20 +152,20 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_PLUSPLUS:
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
-                context.errors().error(base->fOffset,
+                context.fErrors->error(base->fOffset,
                                        String("'") + op.operatorName() + "' cannot operate on '" +
                                        baseType.displayName() + "'");
                 return nullptr;
             }
             if (!Analysis::MakeAssignmentExpr(base.get(), VariableReference::RefKind::kReadWrite,
-                                              &context.errors())) {
+                                              context.fErrors)) {
                 return nullptr;
             }
             break;
 
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
-                context.errors().error(base->fOffset,
+                context.fErrors->error(base->fOffset,
                                        String("'") + op.operatorName() + "' cannot operate on '" +
                                        baseType.displayName() + "'");
                 return nullptr;
@@ -175,13 +175,13 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_BITWISENOT:
             if (context.fConfig->strictES2Mode()) {
                 // GLSL ES 1.00, Section 5.1
-                context.errors().error(
+                context.fErrors->error(
                         base->fOffset,
                         String("operator '") + op.operatorName() + "' is not allowed");
                 return nullptr;
             }
             if (!baseType.isInteger()) {
-                context.errors().error(base->fOffset,
+                context.fErrors->error(base->fOffset,
                                        String("'") + op.operatorName() + "' cannot operate on '" +
                                        baseType.displayName() + "'");
                 return nullptr;

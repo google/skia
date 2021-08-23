@@ -21,12 +21,6 @@ namespace SkSL {
 
 struct ProgramConfig;
 
-namespace dsl {
-
-class DSLWriter;
-
-} // namespace dsl
-
 /**
  * Contains compiler-wide objects, which currently means the core types.
  */
@@ -37,9 +31,6 @@ public:
     ~Context() {
         SkASSERT(!Pool::IsAttached());
     }
-
-    // Returns the current error reporter
-    ErrorReporter& errors() const { return *fErrors; }
 
     // The Context holds all of the built-in types.
     BuiltinTypes fTypes;
@@ -53,11 +44,8 @@ public:
     // The Context holds a pointer to the configuration of the program being compiled.
     ProgramConfig* fConfig = nullptr;
 
-private:
-    // The current error reporter
+    // The Context holds a reference to our error reporter.
     ErrorReporter* fErrors;
-
-    friend class dsl::DSLWriter;
 };
 
 }  // namespace SkSL

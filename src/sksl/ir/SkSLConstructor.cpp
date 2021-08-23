@@ -47,7 +47,7 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
                 default: swizzleHint = ""; SkDEBUGFAIL("unexpected slicing cast"); break;
             }
 
-            context.errors().error(offset, "'" + argument->type().displayName() +
+            context.fErrors->error(offset, "'" + argument->type().displayName() +
                                            "' is not a valid parameter to '" + type.displayName() +
                                            "' constructor" + swizzleHint);
             return nullptr;
@@ -112,7 +112,7 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
     int actual = 0;
     for (std::unique_ptr<Expression>& arg : args) {
         if (!arg->type().isScalar() && !arg->type().isVector()) {
-            context.errors().error(offset, "'" + arg->type().displayName() +
+            context.fErrors->error(offset, "'" + arg->type().displayName() +
                                            "' is not a valid parameter to '" +
                                            type.displayName() + "' constructor");
             return nullptr;
@@ -135,7 +135,7 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
     }
 
     if (actual != expected) {
-        context.errors().error(offset, "invalid arguments to '" + type.displayName() +
+        context.fErrors->error(offset, "invalid arguments to '" + type.displayName() +
                                        "' constructor (expected " + to_string(expected) +
                                        " scalars, but found " + to_string(actual) + ")");
         return nullptr;
@@ -166,7 +166,7 @@ std::unique_ptr<Expression> Constructor::Convert(const Context& context,
         return ConstructorStruct::Convert(context, offset, type, std::move(args));
     }
 
-    context.errors().error(offset, "cannot construct '" + type.displayName() + "'");
+    context.fErrors->error(offset, "cannot construct '" + type.displayName() + "'");
     return nullptr;
 }
 

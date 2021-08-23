@@ -439,7 +439,7 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
         const Type::Field& field = type.fields()[i];
         if (!MemoryLayout::LayoutIsSupported(*field.fType)) {
-            fContext.errors().error(type.fOffset, "type '" + field.fType->name() +
+            fContext.fErrors->error(type.fOffset, "type '" + field.fType->name() +
                                     "' is not permitted here");
             return;
         }
@@ -448,12 +448,12 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         const Layout& fieldLayout = field.fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
             if (fieldLayout.fOffset < (int) offset) {
-                fContext.errors().error(type.fOffset,
+                fContext.fErrors->error(type.fOffset,
                                         "offset of field '" + field.fName + "' must be at "
                                         "least " + to_string((int) offset));
             }
             if (fieldLayout.fOffset % alignment) {
-                fContext.errors().error(type.fOffset,
+                fContext.fErrors->error(type.fOffset,
                                         "offset of field '" + field.fName + "' must be a multiple"
                                         " of " + to_string((int) alignment));
             }
@@ -582,7 +582,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 break;
             case Type::TypeKind::kArray: {
                 if (!MemoryLayout::LayoutIsSupported(*type)) {
-                    fContext.errors().error(type->fOffset,
+                    fContext.fErrors->error(type->fOffset,
                                             "type '" + type->name() + "' is not permitted here");
                     return this->nextId(nullptr);
                 }
@@ -598,7 +598,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                            fDecorationBuffer);
                 } else {
                     // We shouldn't have any runtime-sized arrays right now
-                    fContext.errors().error(type->fOffset,
+                    fContext.fErrors->error(type->fOffset,
                                             "runtime-sized arrays are not supported in SPIR-V");
                     this->writeInstruction(SpvOpTypeRuntimeArray, result,
                                            this->getType(type->componentType(), layout),
@@ -788,7 +788,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
     const FunctionDeclaration& function = c.function();
     auto intrinsic = fIntrinsicMap.find(function.intrinsicKind());
     if (intrinsic == fIntrinsicMap.end()) {
-        fContext.errors().error(c.fOffset, "unsupported intrinsic '" + function.description() +
+        fContext.fErrors->error(c.fOffset, "unsupported intrinsic '" + function.description() +
                                            "'");
         return -1;
     }
@@ -863,7 +863,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
         case kSpecial_IntrinsicOpcodeKind:
             return this->writeSpecialIntrinsic(c, (SpecialIntrinsic) intrinsicId, out);
         default:
-            fContext.errors().error(c.fOffset, "unsupported intrinsic '" + function.description() +
+            fContext.fErrors->error(c.fOffset, "unsupported intrinsic '" + function.description() +
                                                "'");
             return -1;
     }
@@ -1179,7 +1179,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     const ExpressionArray& arguments = c.arguments();
     const auto& entry = fFunctionMap.find(&function);
     if (entry == fFunctionMap.end()) {
-        fContext.errors().error(c.fOffset, "function '" + function.description() +
+        fContext.fErrors->error(c.fOffset, "function '" + function.description() +
                                            "' is not defined");
         return -1;
     }
@@ -1286,7 +1286,7 @@ SpvId SPIRVCodeGenerator::castScalarToType(SpvId inputExprId,
         return this->castScalarToBoolean(inputExprId, inputType, outputType, out);
     }
 
-    fContext.errors().error(-1, "unsupported cast: " + inputType.description() +
+    fContext.fErrors->error(-1, "unsupported cast: " + inputType.description() +
                                 " to " + outputType.description());
     return inputExprId;
 }
@@ -2033,7 +2033,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             }
             SpvId base = lvalue->getPointer();
             if (base == (SpvId) -1) {
-                fContext.errors().error(swizzle.fOffset, "unable to retrieve lvalue from swizzle");
+                fContext.fErrors->error(swizzle.fOffset, "unable to retrieve lvalue from swizzle");
             }
             if (swizzle.components().size() == 1) {
                 SpvId member = this->nextId(nullptr);
@@ -2207,7 +2207,7 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
     } else if (is_bool(fContext, operandType)) {
         this->writeInstruction(ifBool, this->getType(resultType), result, lhs, rhs, out);
     } else {
-        fContext.errors().error(operandType.fOffset,
+        fContext.fErrors->error(operandType.fOffset,
                 "unsupported operand for binary expression: " + operandType.description());
     }
     return result;
@@ -2424,7 +2424,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                    resultType, out);
             }
         } else {
-            fContext.errors().error(leftType.fOffset, "unsupported mixed-type expression");
+            fContext.fErrors->error(leftType.fOffset, "unsupported mixed-type expression");
             return -1;
         }
     } else {
@@ -2555,7 +2555,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpBitwiseXor, SpvOpBitwiseXor, SpvOpUndef, out);
         default:
-            fContext.errors().error(0, "unsupported token");
+            fContext.fErrors->error(0, "unsupported token");
             return -1;
     }
 }
@@ -3046,7 +3046,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     const Variable& intfVar = intf.variable();
     const Type& type = intfVar.type();
     if (!MemoryLayout::LayoutIsSupported(type)) {
-        fContext.errors().error(type.fOffset, "type '" + type.name() + "' is not permitted here");
+        fContext.fErrors->error(type.fOffset, "type '" + type.name() + "' is not permitted here");
         return this->nextId(nullptr);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
@@ -3494,14 +3494,14 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
                                                               VariableReference::RefKind::kWrite);
     // Synthesize a call to the `main()` function.
     if (main.returnType() != skFragColorRef->type()) {
-        fContext.errors().error(main.fOffset, "SPIR-V does not support returning '" +
+        fContext.fErrors->error(main.fOffset, "SPIR-V does not support returning '" +
                                               main.returnType().description() + "' from main()");
         return {};
     }
     ExpressionArray args;
     if (main.parameters().size() == 1) {
         if (main.parameters()[0]->type() != *fContext.fTypes.fFloat2) {
-            fContext.errors().error(main.fOffset,
+            fContext.fErrors->error(main.fOffset,
                     "SPIR-V does not support parameter of type '" +
                     main.parameters()[0]->type().description() + "' to main()");
             return {};
@@ -3594,7 +3594,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
     fWroteRTFlip = true;
     std::vector<Type::Field> fields;
     if (fProgram.fConfig->fSettings.fRTFlipOffset < 0) {
-        fContext.errors().error(offset, "RTFlipOffset is negative");
+        fContext.fErrors->error(offset, "RTFlipOffset is negative");
     }
     fields.emplace_back(Modifiers(Layout(/*flags=*/0,
                                          /*location=*/-1,
@@ -3615,11 +3615,11 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
             fSynthetics.takeOwnershipOfSymbol(Type::MakeStructType(/*offset=*/-1, name, fields));
     int binding = fProgram.fConfig->fSettings.fRTFlipBinding;
     if (binding == -1) {
-        fContext.errors().error(offset, "layout(binding=...) is required in SPIR-V");
+        fContext.fErrors->error(offset, "layout(binding=...) is required in SPIR-V");
     }
     int set = fProgram.fConfig->fSettings.fRTFlipSet;
     if (set == -1) {
-        fContext.errors().error(offset, "layout(set=...) is required in SPIR-V");
+        fContext.fErrors->error(offset, "layout(set=...) is required in SPIR-V");
     }
     bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
     int flags = usePushConstants ? Layout::Flag::kPushConstant_Flag : 0;
@@ -3657,7 +3657,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                         name,
                         /*instanceName=*/"",
                         /*arraySize=*/0,
-                        std::make_shared<SymbolTable>(&fContext.errors(), /*builtin=*/false));
+                        std::make_shared<SymbolTable>(fContext.fErrors, /*builtin=*/false));
 
     this->writeInterfaceBlock(intf, false);
 }
@@ -3679,7 +3679,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     // Make sure we have a main() function.
     if (!main) {
-        fContext.errors().error(/*offset=*/0, "program does not contain a main() function");
+        fContext.fErrors->error(/*offset=*/0, "program does not contain a main() function");
         return;
     }
     // Emit interface blocks.
@@ -3780,7 +3780,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
 }
 
 bool SPIRVCodeGenerator::generateCode() {
-    SkASSERT(!fContext.errors().errorCount());
+    SkASSERT(!fContext.fErrors->errorCount());
     this->writeWord(SpvMagicNumber, *fOut);
     this->writeWord(SpvVersion, *fOut);
     this->writeWord(SKSL_MAGIC, *fOut);
@@ -3789,7 +3789,7 @@ bool SPIRVCodeGenerator::generateCode() {
     this->writeWord(fIdCount, *fOut);
     this->writeWord(0, *fOut); // reserved, always zero
     write_stringstream(buffer, *fOut);
-    return fContext.errors().errorCount() == 0;
+    return fContext.fErrors->errorCount() == 0;
 }
 
 }  // namespace SkSL

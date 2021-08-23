@@ -30,18 +30,18 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!equalityOp.determineBinaryType(context, ifTrue->type(), ifFalse->type(),
                                         &trueType, &falseType, &resultType) ||
         (*trueType != *falseType)) {
-        context.errors().error(offset, "ternary operator result mismatch: '" +
+        context.fErrors->error(offset, "ternary operator result mismatch: '" +
                                        ifTrue->type().displayName() + "', '" +
                                        ifFalse->type().displayName() + "'");
         return nullptr;
     }
     if (trueType->componentType().isOpaque()) {
-        context.errors().error(offset, "ternary expression of opaque type '" +
+        context.fErrors->error(offset, "ternary expression of opaque type '" +
                                        trueType->displayName() + "' not allowed");
         return nullptr;
     }
     if (context.fConfig->strictES2Mode() && trueType->isOrContainsArray()) {
-        context.errors().error(offset, "ternary operator result may not be an array (or struct "
+        context.fErrors->error(offset, "ternary operator result may not be an array (or struct "
                                        "containing an array)");
         return nullptr;
     }

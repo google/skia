@@ -73,7 +73,7 @@ std::unique_ptr<Expression> ChildCall::Convert(const Context& context,
             msg += "s";
         }
         msg += ", but found " + to_string(arguments.count());
-        context.errors().error(offset, msg);
+        context.fErrors->error(offset, msg);
         return nullptr;
     }
 

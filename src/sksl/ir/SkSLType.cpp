@@ -487,12 +487,12 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
     if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
         // We want to discourage precision modifiers internally. Instead, use the type that
         // corresponds to the precision you need. (e.g. half vs float, short vs int)
-        context.errors().error(offset, "precision qualifiers are not allowed");
+        context.fErrors->error(offset, "precision qualifiers are not allowed");
         return nullptr;
     }
 
     if ((int(lowp) + int(mediump) + int(highp)) != 1) {
-        context.errors().error(offset, "only one precision qualifier can be used");
+        context.fErrors->error(offset, "only one precision qualifier can be used");
         return nullptr;
     }
 
@@ -531,7 +531,7 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
         }
     }
 
-    context.errors().error(offset, "type '" + this->displayName() +
+    context.fErrors->error(offset, "type '" + this->displayName() +
                                    "' does not support precision qualifiers");
     return nullptr;
 }
@@ -706,11 +706,11 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     }
     const int offset = expr->fOffset;
     if (expr->is<FunctionReference>()) {
-        context.errors().error(offset, "expected '(' to begin function call");
+        context.fErrors->error(offset, "expected '(' to begin function call");
         return nullptr;
     }
     if (expr->is<TypeReference>()) {
-        context.errors().error(offset, "expected '(' to begin constructor invocation");
+        context.fErrors->error(offset, "expected '(' to begin constructor invocation");
         return nullptr;
     }
     if (expr->type() == *this) {
@@ -719,7 +719,7 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
 
     const Program::Settings& settings = context.fConfig->fSettings;
     if (!expr->coercionCost(*this).isPossible(settings.fAllowNarrowingConversions)) {
-        context.errors().error(offset, "expected '" + this->displayName() + "', but found '" +
+        context.fErrors->error(offset, "expected '" + this->displayName() + "', but found '" +
                                        expr->type().displayName() + "'");
         return nullptr;
     }
@@ -733,7 +733,7 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     if (this->isArray()) {
         return ConstructorArrayCast::Make(context, offset, *this, std::move(expr));
     }
-    context.errors().error(offset, "cannot construct '" + this->displayName() + "'");
+    context.fErrors->error(offset, "cannot construct '" + this->displayName() + "'");
     return nullptr;
 }
 
@@ -768,7 +768,7 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
             SKSL_INT value = subexpr->as<IntLiteral>().value();
             if (value < baseType.minimumValue() || value > baseType.maximumValue()) {
                 // We found a value that can't fit in the type. Flag it as an error.
-                context.errors().error(expr.fOffset,
+                context.fErrors->error(expr.fOffset,
                                        String("integer is out of range for type '") +
                                        this->displayName().c_str() + "': " + to_string(value));
                 foundError = true;
@@ -786,29 +786,29 @@ SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expressi
         return 0;
     }
     if (this->isArray()) {
-        context.errors().error(size->fOffset, "multi-dimensional arrays are not supported");
+        context.fErrors->error(size->fOffset, "multi-dimensional arrays are not supported");
         return 0;
     }
     if (this->isVoid()) {
-        context.errors().error(size->fOffset, "type 'void' may not be used in an array");
+        context.fErrors->error(size->fOffset, "type 'void' may not be used in an array");
         return 0;
     }
     if (this->isOpaque()) {
-        context.errors().error(size->fOffset, "opaque type '" + this->name() +
+        context.fErrors->error(size->fOffset, "opaque type '" + this->name() +
                                               "' may not be used in an array");
         return 0;
     }
     if (!size->is<IntLiteral>()) {
-        context.errors().error(size->fOffset, "array size must be an integer");
+        context.fErrors->error(size->fOffset, "array size must be an integer");
         return 0;
     }
     SKSL_INT count = size->as<IntLiteral>().value();
     if (count <= 0) {
-        context.errors().error(size->fOffset, "array size must be positive");
+        context.fErrors->error(size->fOffset, "array size must be positive");
         return 0;
     }
     if (!SkTFitsIn<int32_t>(count)) {
-        context.errors().error(size->fOffset, "array size is too large");
+        context.fErrors->error(size->fOffset, "array size is too large");
         return 0;
     }
     return static_cast<int>(count);

@@ -189,7 +189,7 @@ bool ConstantFolder::ErrorOnDivideByZero(const Context& context, int offset, Ope
         case Token::Kind::TK_PERCENT:
         case Token::Kind::TK_PERCENTEQ:
             if (contains_constant_zero(right)) {
-                context.errors().error(offset, "division by zero");
+                context.fErrors->error(offset, "division by zero");
                 return true;
             }
             return false;
@@ -455,13 +455,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_STAR:       return URESULT(*);
             case Token::Kind::TK_SLASH:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
-                    context.errors().error(offset, "arithmetic overflow");
+                    context.fErrors->error(offset, "arithmetic overflow");
                     return nullptr;
                 }
                 return RESULT(/);
             case Token::Kind::TK_PERCENT:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
-                    context.errors().error(offset, "arithmetic overflow");
+                    context.fErrors->error(offset, "arithmetic overflow");
                     return nullptr;
                 }
                 return RESULT(%);
@@ -480,13 +480,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                     // in C++, but not GLSL. Do the shift on unsigned values, to avoid UBSAN.
                     return URESULT(<<);
                 }
-                context.errors().error(offset, "shift value out of range");
+                context.fErrors->error(offset, "shift value out of range");
                 return nullptr;
             case Token::Kind::TK_SHR:
                 if (rightVal >= 0 && rightVal <= 31) {
                     return RESULT(>>);
                 }
-                context.errors().error(offset, "shift value out of range");
+                context.fErrors->error(offset, "shift value out of range");
                 return nullptr;
 
             default:

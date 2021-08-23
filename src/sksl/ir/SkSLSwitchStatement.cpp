@@ -173,7 +173,7 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
                                                     std::shared_ptr<SymbolTable> symbolTable) {
     SkASSERT(caseValues.size() == caseStatements.size());
     if (context.fConfig->strictES2Mode()) {
-        context.errors().error(offset, "switch statements are not supported");
+        context.fErrors->error(offset, "switch statements are not supported");
         return nullptr;
     }
 
@@ -197,7 +197,7 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
             // Case values must be a literal integer or a `const int` variable reference.
             SKSL_INT intValue;
             if (!ConstantFolder::GetConstantInt(*caseValue, &intValue)) {
-                context.errors().error(caseValue->fOffset, "case value must be a constant integer");
+                context.fErrors->error(caseValue->fOffset, "case value must be a constant integer");
                 return nullptr;
             }
         } else {
@@ -215,10 +215,10 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
         duplicateCases.reverse();
         for (const SwitchCase* sc : duplicateCases) {
             if (sc->value() != nullptr) {
-                context.errors().error(sc->fOffset,
+                context.fErrors->error(sc->fOffset,
                                        "duplicate case value '" + sc->value()->description() + "'");
             } else {
-                context.errors().error(sc->fOffset, "duplicate default case");
+                context.fErrors->error(sc->fOffset, "duplicate default case");
             }
         }
         return nullptr;
@@ -288,7 +288,7 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
 
             // Report an error if this was a static switch and BlockForCase failed us.
             if (isStatic && !context.fConfig->fSettings.fPermitInvalidStaticTests) {
-                context.errors().error(value->fOffset,
+                context.fErrors->error(value->fOffset,
                                        "static switch contains non-static conditional exit");
                 return nullptr;
             }

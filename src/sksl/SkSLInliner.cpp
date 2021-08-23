@@ -713,7 +713,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // returned anything on any path! This should have been detected in the function finalizer.
         // Still, discard our output and generate an error.
         SkDEBUGFAIL("inliner found non-void function that fails to return a value on any path");
-        fContext->errors().error(function.fOffset, "inliner found non-void function '" +
+        fContext->fErrors->error(function.fOffset, "inliner found non-void function '" +
                                                    function.declaration().name() +
                                                    "' that fails to return a value on any path");
         inlinedCall = {};

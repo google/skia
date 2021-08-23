@@ -18,7 +18,7 @@ std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,
 
     // ES2 doesn't support first-class array types.
     if (context.fConfig->strictES2Mode()) {
-        context.errors().error(offset, "construction of array type '" + type.displayName() +
+        context.fErrors->error(offset, "construction of array type '" + type.displayName() +
                                        "' is not supported");
         return nullptr;
     }
@@ -39,7 +39,7 @@ std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,
 
     // Check that the number of constructor arguments matches the array size.
     if (type.columns() != args.count()) {
-        context.errors().error(offset, String::printf("invalid arguments to '%s' constructor "
+        context.fErrors->error(offset, String::printf("invalid arguments to '%s' constructor "
                                                       "(expected %d elements, but found %d)",
                                                       type.displayName().c_str(), type.columns(),
                                                       args.count()));

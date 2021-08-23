@@ -77,7 +77,7 @@ public:
                                                       std::move(instance.fPool),
                                                       bundle.fInputs);
         bool success = false;
-        if (DSLWriter::Context().errors().errorCount()) {
+        if (DSLWriter::Context().fErrors->errorCount()) {
             DSLWriter::ReportErrors();
             // Do not return programs that failed to compile.
         } else if (!DSLWriter::Compiler().optimize(*result)) {

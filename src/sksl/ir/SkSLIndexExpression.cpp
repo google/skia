@@ -49,7 +49,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
     const Type& baseType = base->type();
     if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
-        context.errors().error(base->fOffset,
+        context.fErrors->error(base->fOffset,
                                "expected array, but found '" + baseType.displayName() + "'");
         return nullptr;
     }
@@ -67,7 +67,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
                                        ? INT_MAX
                                        : baseType.columns();
         if (indexValue < 0 || indexValue >= upperBound) {
-            context.errors().error(base->fOffset, "index " + to_string(indexValue) +
+            context.fErrors->error(base->fOffset, "index " + to_string(indexValue) +
                                                   " out of range for '" + baseType.displayName() +
                                                   "'");
             return nullptr;

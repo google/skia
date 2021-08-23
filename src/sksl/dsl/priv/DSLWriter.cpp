@@ -36,7 +36,7 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
                      const SkSL::ProgramSettings& settings, SkSL::ParsedModule module,
                      bool isModule)
     : fCompiler(compiler)
-    , fOldErrorReporter(fCompiler->fContext->errors())
+    , fOldErrorReporter(*fCompiler->fContext->fErrors)
     , fSettings(settings)
     , fIsModule(isModule) {
     fOldModifiersPool = fCompiler->fContext->fModifiersPool;

@@ -1546,7 +1546,7 @@ bool GLSLCodeGenerator::generateCode() {
     }
     write_stringstream(fExtraFunctions, *rawOut);
     write_stringstream(body, *rawOut);
-    return fContext.errors().errorCount() == 0;
+    return fContext.fErrors->errorCount() == 0;
 }
 
 }  // namespace SkSL

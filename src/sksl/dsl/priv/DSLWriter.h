@@ -227,7 +227,7 @@ public:
      * when any DSL errors occur.
      */
     static ErrorReporter& GetErrorReporter() {
-        return Context().errors();
+        return *Context().fErrors;
     }
 
     static void SetErrorReporter(ErrorReporter* errorReporter);

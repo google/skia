@@ -27,7 +27,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
         return Setting::Convert(context, base->fOffset, field);
     }
 
-    context.errors().error(base->fOffset, "type '" + baseType.displayName() +
+    context.fErrors->error(base->fOffset, "type '" + baseType.displayName() +
                                           "' does not have a field named '" + field + "'");
     return nullptr;
 }

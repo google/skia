@@ -722,7 +722,7 @@ void IRGenerator::CheckModifiers(const Context& context,
     for (const auto& f : kModifierFlags) {
         if (modifierFlags & f.flag) {
             if (!(permittedModifierFlags & f.flag)) {
-                context.errors().error(offset, "'" + String(f.name) + "' is not permitted here");
+                context.fErrors->error(offset, "'" + String(f.name) + "' is not permitted here");
             }
             modifierFlags &= ~f.flag;
         }
@@ -750,7 +750,7 @@ void IRGenerator::CheckModifiers(const Context& context,
     for (const auto& lf : kLayoutFlags) {
         if (layoutFlags & lf.flag) {
             if (!(permittedLayoutFlags & lf.flag)) {
-                context.errors().error(
+                context.fErrors->error(
                         offset, "layout qualifier '" + String(lf.name) + "' is not permitted here");
             }
             layoutFlags &= ~lf.flag;

@@ -164,9 +164,9 @@ public:
 
     String errorText(bool showCount = true);
 
-    ErrorReporter& errorReporter() { return fContext->errors(); }
+    ErrorReporter& errorReporter() { return *fContext->fErrors; }
 
-    int errorCount() const { return fContext->errors().errorCount(); }
+    int errorCount() const { return fContext->fErrors->errorCount(); }
 
     void writeErrorCount();
 

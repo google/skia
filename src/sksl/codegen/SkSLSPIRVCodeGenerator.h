@@ -137,7 +137,7 @@ public:
             , fBoolFalse(0)
             , fSetupFragPosition(false)
             , fCurrentBlock(0)
-            , fSynthetics(&fContext.errors(), /*builtin=*/true) {
+            , fSynthetics(fContext.fErrors, /*builtin=*/true) {
         this->setupIntrinsics();
     }
 

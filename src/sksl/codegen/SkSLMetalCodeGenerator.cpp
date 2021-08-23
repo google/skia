@@ -1045,7 +1045,7 @@ void MetalCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
     } else if (c.type().isMatrix()) {
         this->writeConstructorCompoundMatrix(c, parentPrecedence);
     } else {
-        fContext.errors().error(c.fOffset, "unsupported compound constructor");
+        fContext.fErrors->error(c.fOffset, "unsupported compound constructor");
     }
 }
 
@@ -1697,7 +1697,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 this->write("vertex Outputs vertexMain");
                 break;
             default:
-                fContext.errors().error(-1, "unsupported kind of program");
+                fContext.fErrors->error(-1, "unsupported kind of program");
                 return false;
         }
         this->write("(Inputs _in [[stage_in]]");
@@ -1711,13 +1711,13 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 const VarDeclaration& var = decls.declaration()->as<VarDeclaration>();
                 if (var.var().type().typeKind() == Type::TypeKind::kSampler) {
                     if (var.var().modifiers().fLayout.fBinding < 0) {
-                        fContext.errors().error(decls.fOffset,
+                        fContext.fErrors->error(decls.fOffset,
                                                 "Metal samplers must have 'layout(binding=...)'");
                         return false;
                     }
                     if (var.var().type().dimensions() != SpvDim2D) {
                         // Not yet implemented--Skia currently only uses 2D textures.
-                        fContext.errors().error(decls.fOffset, "Unsupported texture dimensions");
+                        fContext.fErrors->error(decls.fOffset, "Unsupported texture dimensions");
                         return false;
                     }
                     this->write(", texture2d<float> ");
@@ -1905,13 +1905,13 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
         if (!MemoryLayout::LayoutIsSupported(*fieldType)) {
-            fContext.errors().error(parentOffset, "type '" + fieldType->name() +
+            fContext.fErrors->error(parentOffset, "type '" + fieldType->name() +
                                                   "' is not permitted here");
             return;
         }
         if (fieldOffset != -1) {
             if (currentOffset > fieldOffset) {
-                fContext.errors().error(parentOffset,
+                fContext.fErrors->error(parentOffset,
                         "offset of field '" + field.fName + "' must be at least " +
                         to_string((int) currentOffset));
                 return;
@@ -1925,7 +1925,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             }
             int alignment = memoryLayout.alignment(*fieldType);
             if (fieldOffset % alignment) {
-                fContext.errors().error(parentOffset,
+                fContext.fErrors->error(parentOffset,
                         "offset of field '" + field.fName + "' must be a multiple of " +
                         to_string((int) alignment));
                 return;
@@ -1933,7 +1933,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
         }
         size_t fieldSize = memoryLayout.size(*fieldType);
         if (fieldSize > static_cast<size_t>(std::numeric_limits<int>::max() - currentOffset)) {
-            fContext.errors().error(parentOffset, "field offset overflow");
+            fContext.fErrors->error(parentOffset, "field offset overflow");
             return;
         }
         currentOffset += fieldSize;
@@ -2128,7 +2128,7 @@ void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
                 this->writeExpression(*r.expression(), Precedence::kTopLevel);
                 this->writeLine(";");
             } else {
-                fContext.errors().error(r.fOffset,
+                fContext.fErrors->error(r.fOffset,
                         "Metal does not support returning '" +
                         r.expression()->type().description() + "' from main()");
             }
@@ -2164,7 +2164,7 @@ void MetalCodeGenerator::writeUniformStruct() {
                     this->write("struct Uniforms {\n");
                     fUniformBuffer = uniformSet;
                 } else if (uniformSet != fUniformBuffer) {
-                    fContext.errors().error(decls.fOffset,
+                    fContext.fErrors->error(decls.fOffset,
                             "Metal backend requires all uniforms to have the same "
                             "'layout(set=...)'");
                 }
@@ -2229,7 +2229,7 @@ void MetalCodeGenerator::writeOutputStruct() {
 
                 int location = var.modifiers().fLayout.fLocation;
                 if (location < 0) {
-                    fContext.errors().error(var.fOffset,
+                    fContext.fErrors->error(var.fOffset,
                             "Metal out variables must have 'layout(location=...)'");
                 } else if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
                     this->write(" [[user(locn" + to_string(location) + ")]]");
@@ -2614,7 +2614,7 @@ bool MetalCodeGenerator::generateCode() {
     write_stringstream(fExtraFunctionPrototypes, *fOut);
     write_stringstream(fExtraFunctions, *fOut);
     write_stringstream(body, *fOut);
-    return fContext.errors().errorCount() == 0;
+    return fContext.fErrors->errorCount() == 0;
 }
 
 }  // namespace SkSL

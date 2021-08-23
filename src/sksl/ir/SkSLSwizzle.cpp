@@ -200,7 +200,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              std::unique_ptr<Expression> base,
                                              skstd::string_view maskString) {
     if (!validate_swizzle_domain(maskString)) {
-        context.errors().error(base->fOffset, "invalid swizzle mask '" + maskString + "'");
+        context.fErrors->error(base->fOffset, "invalid swizzle mask '" + maskString + "'");
         return nullptr;
     }
 
@@ -267,7 +267,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     const Type& baseType = base->type();
 
     if (!baseType.isVector() && !baseType.isScalar()) {
-        context.errors().error(
+        context.fErrors->error(
                 offset, "cannot swizzle value of type '" + baseType.displayName() + "'");
         return nullptr;
     }
@@ -277,7 +277,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
         if (!maskString.empty()) {
             error += " '" + maskString + "'";
         }
-        context.errors().error(offset, error.c_str());
+        context.fErrors->error(offset, error.c_str());
         return nullptr;
     }
 
@@ -316,7 +316,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 [[fallthrough]];
             default:
                 // The swizzle component references a field that doesn't exist in the base type.
-                context.errors().error(offset,
+                context.fErrors->error(offset,
                         maskString.empty() ? "invalid swizzle component"
                                            : String::printf("invalid swizzle component '%c'",
                                                             maskString[i]));
@@ -325,7 +325,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     }
 
     if (!foundXYZW) {
-        context.errors().error(offset, "swizzle must refer to base expression");
+        context.fErrors->error(offset, "swizzle must refer to base expression");
         return nullptr;
     }
 
