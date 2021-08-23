@@ -252,6 +252,21 @@ void GrMtlOpsRenderPass::setupRenderPass(
     colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
     colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
+        // For the moment we won't do any of this if MTLStoreActionStoreAndMultisampleResolve
+        // isn't available. Once we can copy the resolve back to MSAA then we'll have another
+        // path to manage the store (or more accurately, the following load).
+        auto* resolve = fFramebuffer->resolveAttachment();
+        if (resolve) {
+            colorAttachment.resolveTexture = resolve->mtlTexture();
+            if (colorInfo.fStoreOp == GrStoreOp::kStore) {
+                colorAttachment.storeAction = MTLStoreActionStoreAndMultisampleResolve;
+            } else {
+                colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
+            }
+        }
+    }
+
     auto* stencil = fFramebuffer->stencilAttachment();
     auto mtlStencil = fRenderPassDesc.stencilAttachment;
     if (stencil) {

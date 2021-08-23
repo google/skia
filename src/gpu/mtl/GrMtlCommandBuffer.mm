@@ -76,9 +76,15 @@ static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
                              first.storeAction == MTLStoreActionDontCare;
     bool loadActionsValid = second.loadAction == MTLLoadActionLoad ||
                             second.loadAction == MTLLoadActionDontCare;
+    bool secondStoreActionStoreAndMultisampleResolve = false;
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
+        secondStoreActionStoreAndMultisampleResolve =
+                (second.storeAction == MTLStoreActionStoreAndMultisampleResolve);
+    }
     bool secondDoesntSampleFirst = (!pipelineState ||
                                     pipelineState->doesntSampleAttachment(first)) &&
-                                   second.storeAction != MTLStoreActionMultisampleResolve;
+                                   second.storeAction != MTLStoreActionMultisampleResolve &&
+                                   !secondStoreActionStoreAndMultisampleResolve;
 
     return renderTargetsMatch &&
            (nil == first.texture ||
