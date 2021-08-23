@@ -188,6 +188,7 @@ sksl_spirv_tests = [
   "/sksl/spirv/Ossfuzz35916.sksl",
   "/sksl/workarounds/RewriteMatrixVectorMultiply.sksl",
   "/sksl/errors/Ossfuzz36850.sksl",
+  "/sksl/errors/Ossfuzz37469.sksl",
   "/sksl/errors/UndefinedFunction.sksl",
   "/sksl/errors/UnusedInterfaceBlock.sksl",
 ]
