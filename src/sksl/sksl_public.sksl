@@ -103,6 +103,12 @@ $es3 $genIType floatBitsToInt ($genType  value);
 $es3 $genUType floatBitsToUint($genType  value);
 $es3 $genType  intBitsToFloat ($genIType value);
 $es3 $genType  uintBitsToFloat($genUType value);
+$es3 $genType  trunc($genType  x);
+$es3 $genHType trunc($genHType x);
+$es3 $genType  round($genType  x);
+$es3 $genHType round($genHType x);
+$es3 $genType  roundEven($genType  x);
+$es3 $genHType roundEven($genHType x);
 
 // 8.4 : Geometric Functions
 float length($genType  x);

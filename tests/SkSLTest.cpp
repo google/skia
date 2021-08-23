@@ -221,8 +221,11 @@ SKSL_TEST(SkSLIntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
 // skbug.com/11919: Fails on Adreno + Vulkan
 SKSL_TEST_CPU(SkSLIntrinsicMixFloat,           "intrinsics/MixFloat.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicRound,              "intrinsics/Round.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicRoundEven,          "intrinsics/RoundEven.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
 SKSL_TEST(SkSLIntrinsicStep,                   "intrinsics/Step.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicTrunc,              "intrinsics/Trunc.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicTranspose,          "intrinsics/Transpose.sksl")
 
 SKSL_TEST_ES3(SkSLArrayNarrowingConversions,   "runtime/ArrayNarrowingConversions.rts")

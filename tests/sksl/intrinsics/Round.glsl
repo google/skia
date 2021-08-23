@@ -1,9 +1,9 @@
 
 out vec4 sk_FragColor;
-uniform vec4 input;
-uniform vec4 expected;
+uniform vec4 testInputs;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 main() {
-    return ((((((round(input.x) == expected.x && round(input.xy) == expected.xy) && round(input.xyz) == expected.xyz) && round(input) == expected) && -2.0 == expected.x) && vec2(-2.0, -0.0) == expected.xy) && vec3(-2.0, -0.0, 0.0) == expected.xyz) && vec4(-2.0, -0.0, 0.0, 2.0) == expected ? colorGreen : colorRed;
+    const vec4 expectedA = vec4(-1.0, 0.0, 1.0, 2.0);
+    return ((round(testInputs.x) == -1.0 && round(testInputs.xy) == vec2(-1.0, 0.0)) && round(testInputs.xyz) == vec3(-1.0, 0.0, 1.0)) && round(testInputs) == expectedA ? colorGreen : colorRed;
 }

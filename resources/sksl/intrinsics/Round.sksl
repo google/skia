@@ -1,14 +1,17 @@
-uniform half4 input, expected;
+uniform half4 testInputs;  // -1.25, 0, 0.75, 2.25
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    const half4 constVal = half4(-1.5, -0.5, 0.5, 1.5);
-    return (round(input.x)       == expected.x     &&
-            round(input.xy)      == expected.xy    &&
-            round(input.xyz)     == expected.xyz   &&
-            round(input.xyzw)    == expected.xyzw  &&
-            round(constVal.x)    == expected.x     &&
-            round(constVal.xy)   == expected.xy    &&
-            round(constVal.xyz)  == expected.xyz   &&
-            round(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+    const float4 expectedA = half4(-1.0, 0.0, 1.0, 2.0);
+
+    const float4 constVal = half4(-6.75, -0.475, 3.525, 1.25);
+    const float4 expectedB = half4(-7.0, -0.0, 4.0, 1.0);
+    return (round(testInputs.x)    == expectedA.x     &&
+            round(testInputs.xy)   == expectedA.xy    &&
+            round(testInputs.xyz)  == expectedA.xyz   &&
+            round(testInputs.xyzw) == expectedA.xyzw  &&
+            round(constVal.x)      == expectedB.x     &&
+            round(constVal.xy)     == expectedB.xy    &&
+            round(constVal.xyz)    == expectedB.xyz   &&
+            round(constVal.xyzw)   == expectedB.xyzw) ? colorGreen : colorRed;
 }
