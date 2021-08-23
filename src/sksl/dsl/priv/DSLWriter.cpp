@@ -36,6 +36,7 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
                      const SkSL::ProgramSettings& settings, SkSL::ParsedModule module,
                      bool isModule)
     : fCompiler(compiler)
+    , fOldErrorReporter(fCompiler->fContext->errors())
     , fSettings(settings)
     , fIsModule(isModule) {
     fOldModifiersPool = fCompiler->fContext->fModifiersPool;
@@ -57,6 +58,7 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
     fCompiler->fContext->fConfig = fConfig.get();
 
     fCompiler->fIRGenerator->start(module, isModule, &fProgramElements, &fSharedElements);
+    fCompiler->fContext->fErrors = &fDefaultErrorReporter;
 }
 
 DSLWriter::~DSLWriter() {
@@ -67,6 +69,7 @@ DSLWriter::~DSLWriter() {
         // We should only be here with a null symbol table if ReleaseProgram was called
         SkASSERT(fProgramElements.empty());
     }
+    fCompiler->fContext->fErrors = &fOldErrorReporter;
     fCompiler->fContext->fConfig = fOldConfig;
     fCompiler->fContext->fModifiersPool = fOldModifiersPool;
     if (fPool) {
@@ -207,8 +210,13 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                     IRGenerator().fSymbolTable);
 }
 
+void DSLWriter::SetErrorReporter(ErrorReporter* errorReporter) {
+    SkASSERT(errorReporter);
+    Compiler().fContext->fErrors = errorReporter;
+}
+
 void DSLWriter::ReportError(const char* msg, PositionInfo info) {
-    Instance().fErrorReporter->error(msg, info);
+    GetErrorReporter().error(msg, info);
 }
 
 void DSLWriter::DefaultErrorReporter::handleError(const char* msg, PositionInfo pos) {
@@ -282,7 +290,7 @@ void DSLWriter::MarkDeclared(DSLVarBase& var) {
 }
 
 void DSLWriter::ReportErrors(PositionInfo pos) {
-    GetErrorReporter()->reportPendingErrors(pos);
+    GetErrorReporter().reportPendingErrors(pos);
 }
 
 #if SKSL_USE_THREAD_LOCAL

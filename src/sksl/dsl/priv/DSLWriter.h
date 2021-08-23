@@ -224,21 +224,17 @@ public:
 
     /**
      * Returns the ErrorReporter associated with the current thread. This object will be notified
-     * when any DSL errors occur. With a null ErrorReporter (the default), any errors will be dumped
-     * to stderr and a fatal exception will be generated.
+     * when any DSL errors occur.
      */
-    static ErrorReporter* GetErrorReporter() {
-        return Instance().fErrorReporter;
+    static ErrorReporter& GetErrorReporter() {
+        return Context().errors();
     }
 
-    static void SetErrorReporter(ErrorReporter* errorReporter) {
-        SkASSERT(errorReporter);
-        Instance().fErrorReporter = errorReporter;
-    }
+    static void SetErrorReporter(ErrorReporter* errorReporter);
 
     /**
-     * Notifies the current ErrorReporter that a DSL error has occurred. With a null ErrorReporter
-     * (the default), any errors will be dumped to stderr and a fatal exception will be generated.
+     * Notifies the current ErrorReporter that a DSL error has occurred. The default error handler
+     * prints the message to stderr and aborts.
      */
     static void ReportError(const char* msg, PositionInfo info = PositionInfo::Capture());
 
@@ -295,7 +291,7 @@ private:
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     std::vector<const SkSL::ProgramElement*> fSharedElements;
     DefaultErrorReporter fDefaultErrorReporter;
-    ErrorReporter* fErrorReporter = &fDefaultErrorReporter;
+    ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;
     Mangler fMangler;
     bool fIsModule;

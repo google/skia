@@ -21,6 +21,12 @@ namespace SkSL {
 
 struct ProgramConfig;
 
+namespace dsl {
+
+class DSLWriter;
+
+} // namespace dsl
+
 /**
  * Contains compiler-wide objects, which currently means the core types.
  */
@@ -33,7 +39,7 @@ public:
     }
 
     // Returns the current error reporter
-    ErrorReporter& errors() const;
+    ErrorReporter& errors() const { return *fErrors; }
 
     // The Context holds all of the built-in types.
     BuiltinTypes fTypes;
@@ -48,9 +54,10 @@ public:
     ProgramConfig* fConfig = nullptr;
 
 private:
-    // The default error reporter to use outside of DSL code (between Start() and End(), the DSL
-    // error reporter is used instead)
-    ErrorReporter& fErrors;
+    // The current error reporter
+    ErrorReporter* fErrors;
+
+    friend class dsl::DSLWriter;
 };
 
 }  // namespace SkSL

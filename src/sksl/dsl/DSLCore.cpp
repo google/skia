@@ -52,7 +52,7 @@ void End() {
 }
 
 ErrorReporter& GetErrorReporter() {
-    return *DSLWriter::GetErrorReporter();
+    return DSLWriter::GetErrorReporter();
 }
 
 void SetErrorReporter(ErrorReporter* errorReporter) {
