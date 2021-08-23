@@ -9,20 +9,28 @@ half4 main(float2 coords) {
     ok = ok && half2x2(testInputs)         == half2x2(-1.25, 0, 0.75, 2.25);
     ok = ok && half2x2(half4(1, 2, 3, 4))  == half2x2(1, 2, 3, 4);
     ok = ok && half2x2(vec1234)            == half2x2(1, 2, 3, 4);
+    ok = ok && half2x2(half4(2, 0, 0, 2))  == half2x2(2);
+    ok = ok && half2x2(half4(2))           == half2x2(2, 2, 2, 2);
 
     ok = ok && float2x2(testInputs)        == float2x2(-1.25, 0, 0.75, 2.25);
     ok = ok && float2x2(half4(1, 2, 3, 4)) == float2x2(1, 2, 3, 4);
     ok = ok && float2x2(vec1234)           == float2x2(1, 2, 3, 4);
+    ok = ok && float2x2(half4(4, 0, 0, 4)) == float2x2(4);
+    ok = ok && float2x2(half4(4))          == float2x2(4, 4, 4, 4);
 
     ok = ok && half2x2(colorGreen)         == half2x2(0, 1, 0, 1);
     ok = ok && half2x2(colorGreen)         == half2x2(int4(0, 1, 0, 1));
     ok = ok && half2x2(int4(colorGreen))   == half2x2(int4(0, 1, 0, 1));
     ok = ok && half2x2(0, 1, 0, 1)         == half2x2(int4(0, 1, 0, 1));
+    ok = ok && half2x2(8, 8, 8, 8)         == half2x2(int4(8));
+    ok = ok && half2x2(8)                  == half2x2(int4(8, 0, 0, 8));
 
     ok = ok && half2x2(colorGreen)               == half2x2(false, true, false, true);
     ok = ok && half2x2(colorGreen)               == half2x2(bool4(false, true, false, true));
     ok = ok && half2x2(bool4(colorGreen))        == half2x2(bool4(false, true, false, true));
     ok = ok && half2x2(false, true, false, true) == half2x2(bool4(false, true, false, true));
+    ok = ok && half2x2(true, false, false, true) == half2x2(bool4(true, false, false, true));
+    ok = ok && half2x2(true, true, true, true)   == half2x2(bool4(true));
 
     return ok ? colorGreen : colorRed;
 }

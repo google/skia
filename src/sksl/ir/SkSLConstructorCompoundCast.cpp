@@ -20,8 +20,12 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
                                                            const Type& destType,
                                                            std::unique_ptr<Expression> constCtor) {
     const Type& scalarType = destType.componentType();
+
+    // We generate nicer code for splats and diagonal matrices by handling them separately instead
+    // of relying on the constant-subexpression code below. This is not truly necessary but it makes
+    // our output look a little better; human beings prefer `half4(0)` to `half4(0, 0, 0, 0)`.
     if (constCtor->is<ConstructorSplat>()) {
-        // This is a composite-cast of a splat containing a constant value, e.g. `half4(7)`. We can
+        // This is a typecast of a splat containing a constant value, e.g. `half4(7)`. We can
         // replace it with a splat of a different type, e.g. `int4(7)`.
         ConstructorSplat& splat = constCtor->as<ConstructorSplat>();
         return ConstructorSplat::Make(
@@ -30,34 +34,26 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
                                             std::move(splat.argument())));
     }
 
-    if (constCtor->is<ConstructorDiagonalMatrix>()) {
-        // This is a composite-cast of a diagonal matrix, e.g. `float3x3(2)`. We can
-        // replace it with a splat of a different type, e.g. `half3x3(2)`.
-        ConstructorDiagonalMatrix& splat = constCtor->as<ConstructorDiagonalMatrix>();
+    if (constCtor->is<ConstructorDiagonalMatrix>() && destType.isMatrix()) {
+        // This is a typecast of a constant diagonal matrix, e.g. `float3x3(2)`. We can replace it
+        // with a diagonal matrix of a different type, e.g. `half3x3(2)`.
+        ConstructorDiagonalMatrix& matrixCtor = constCtor->as<ConstructorDiagonalMatrix>();
         return ConstructorDiagonalMatrix::Make(
                 context, constCtor->fOffset, destType,
                 ConstructorScalarCast::Make(context, constCtor->fOffset, scalarType,
-                                            std::move(splat.argument())));
+                                            std::move(matrixCtor.argument())));
     }
 
-    // Create a composite Constructor(literal, ...) which typecasts each argument inside.
-    auto inputArgs = constCtor->asAnyConstructor().argumentSpan();
+    // Create a compound Constructor(literal, ...) which typecasts each scalar value inside.
+    size_t numSlots = destType.slotCount();
+    SkASSERT(numSlots == constCtor->type().slotCount());
+
     ExpressionArray typecastArgs;
-    typecastArgs.reserve_back(inputArgs.size());
-    for (std::unique_ptr<Expression>& arg : inputArgs) {
-        const Type& argType = arg->type();
-        if (argType.isScalar()) {
-            int offset = arg->fOffset;
-            typecastArgs.push_back(ConstructorScalarCast::Make(context, offset, scalarType,
-                                                               std::move(arg)));
-        } else {
-            // Convert inner constant-composites recursively.
-            SkASSERT(argType.isVector() || (argType.isMatrix() && argType.slotCount() == 4));
-            typecastArgs.push_back(cast_constant_composite(
-                    context,
-                    scalarType.toCompound(context, /*columns=*/argType.slotCount(), /*rows=*/1),
-                    std::move(arg)));
-        }
+    typecastArgs.reserve_back(numSlots);
+    for (size_t index = 0; index < numSlots; ++index) {
+        const Expression* arg = constCtor->getConstantSubexpression(index);
+        typecastArgs.push_back(ConstructorScalarCast::Make(context, constCtor->fOffset, scalarType,
+                                                           arg->clone()));
     }
 
     return ConstructorCompound::Make(context, constCtor->fOffset, destType,

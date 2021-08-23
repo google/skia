@@ -17,6 +17,7 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
                                                             const Type& type,
                                                             std::unique_ptr<Expression> arg) {
     SkASSERT(type.isMatrix());
+    SkASSERT(arg->type().isScalar());
     SkASSERT(arg->type() == type.componentType());
     return std::make_unique<ConstructorDiagonalMatrix>(offset, type, std::move(arg));
 }

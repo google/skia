@@ -10,18 +10,26 @@ half4 main(float2 coords) {
     ok = ok && half4(testMatrix2x2)        == half4(1, 2, 3, 4);
     ok = ok && half4(half2x2(1, 2, 3, 4))  == half4(1, 2, 3, 4);
     ok = ok && half4(mat1234)              == half4(1, 2, 3, 4);
+    ok = ok && half4(half2x2(2))           == half4(2, 0, 0, 2);
+    ok = ok && half4(half2x2(2, 2, 2, 2))  == half4(2);
 
     ok = ok && float4(testMatrix2x2)       == float4(1, 2, 3, 4);
     ok = ok && float4(half2x2(1, 2, 3, 4)) == float4(1, 2, 3, 4);
     ok = ok && float4(mat1234)             == float4(1, 2, 3, 4);
+    ok = ok && float4(float2x2(4))         == float4(4, 0, 0, 4);
+    ok = ok && float4(float2x2(2, 2, 2, 2)) == float4(2);
 
     ok = ok && int4(testMatrix2x2)         == int4(1, 2, 3, 4);
     ok = ok && int4(half2x2(1, 2, 3, 4))   == int4(1, 2, 3, 4);
     ok = ok && int4(mat1234)               == int4(1, 2, 3, 4);
+    ok = ok && int4(float2x2(8))           == int4(8, 0, 0, 8);
+    ok = ok && int4(float2x2(8, 8, 8, 8))  == int4(8);
 
     ok = ok && bool4(testMatrix2x2)        == bool4(true, true, true, true);
     ok = ok && bool4(half2x2(0, 1, 0, 1))  == bool4(false, true, false, true);
     ok = ok && bool4(bmat1234)             == bool4(true, false, true, false);
+    ok = ok && bool4(half2x2(1))           == bool4(true, false, false, true);
+    ok = ok && bool4(half2x2(1, 1, 1, 1))  == bool4(true);
 
     return ok ? colorGreen : colorRed;
 }
