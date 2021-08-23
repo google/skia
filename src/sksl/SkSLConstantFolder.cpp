@@ -219,9 +219,6 @@ const Expression* ConstantFolder::GetConstantValueForVariable(const Expression& 
         if (expr->isCompileTimeConstant()) {
             return expr;
         }
-        if (!expr->is<VariableReference>()) {
-            break;
-        }
     }
     // We didn't find a compile-time constant at the end. Return the expression as-is.
     return &inExpr;
