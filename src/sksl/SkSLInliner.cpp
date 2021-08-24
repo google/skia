@@ -608,9 +608,14 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
                                           type,
                                           isBuiltinCode,
                                           Variable::Storage::kLocal);
-
+    // If we are creating an array type, reduce it to base type plus array-size.
+    int arraySize = 0;
+    if (type->isArray()) {
+        arraySize = type->columns();
+        type = &type->componentType();
+    }
     // Create our variable declaration.
-    result.fVarDecl = VarDeclaration::Make(*fContext, var.get(), type, /*arraySize=*/0,
+    result.fVarDecl = VarDeclaration::Make(*fContext, var.get(), type, arraySize,
                                            std::move(*initialValue));
     result.fVarSymbol = symbolTable->add(std::move(var));
     return result;
