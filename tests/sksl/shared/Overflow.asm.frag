@@ -114,7 +114,7 @@ OpDecorate %196 RelaxedPrecision
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %23 = OpTypeFunction %v4float %_ptr_Function_v2float
 %_ptr_Function_float = OpTypePointer Function %float
-%float_9_99999962e_35 = OpConstant %float 9.99999962e+35
+%float_9_00000076e_35 = OpConstant %float 9.00000076e+35
 %float_1e_09 = OpConstant %float 1e+09
 %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
@@ -149,7 +149,7 @@ OpFunctionEnd
 %hugeUS = OpVariable %_ptr_Function_uint Function
 %hugeNI = OpVariable %_ptr_Function_int Function
 %hugeNS = OpVariable %_ptr_Function_int Function
-%30 = OpFMul %float %float_9_99999962e_35 %float_1e_09
+%30 = OpFMul %float %float_9_00000076e_35 %float_1e_09
 %31 = OpFMul %float %30 %float_1e_09
 %32 = OpFMul %float %31 %float_1e_09
 %33 = OpFMul %float %32 %float_1e_09
