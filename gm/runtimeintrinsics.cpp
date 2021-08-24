@@ -147,7 +147,8 @@ static void plot(SkCanvas* canvas,
             SkScalar y = (1 - (SkColorGetR(c) / 255.0f)) * kBoxSize;
             pts[x].set(x + 0.5f, y);
         }
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, kBoxSize, pts, plotPaint);
+        plotPaint.setAntiAlias(true);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, kBoxSize, pts, plotPaint);
     }
 
     canvas->restore();
