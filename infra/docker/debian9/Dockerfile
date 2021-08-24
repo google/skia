@@ -27,4 +27,5 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y  \
   libglu-dev \
   python3 \
   git \
+  curl \
   && rm -rf /var/lib/apt/lists/*

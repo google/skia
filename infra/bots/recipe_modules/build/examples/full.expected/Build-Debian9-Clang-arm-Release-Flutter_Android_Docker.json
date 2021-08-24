@@ -83,7 +83,7 @@
       "type=bind,source=[START_DIR],target=[START_DIR]",
       "--mount",
       "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release,target=[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release",
-      "gcr.io/skia-public/debian9@sha256:7bdcb25e8c37597acd254b0c5b4ff8d004745eddede3363213bcc06fb0feace3",
+      "gcr.io/skia-public/debian9@sha256:5541f5674eee0a1558f1335c711f674f85f96b9ae8fb6c289f42dd81479a768e",
       "RECIPE_MODULE[skia::build]/resources/docker-flutter-compile.sh",
       "[START_DIR]",
       "[START_DIR]/cache/work/src",
