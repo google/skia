@@ -9,8 +9,8 @@
 #define GrGLSLVarying_DEFINED
 
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
 class GrGeometryProcessor;
@@ -159,8 +159,8 @@ protected:
         GrShaderFlags    fVisibility;
     };
 
-    typedef GrTBlockList<VaryingInfo> VaryingList;
-    typedef GrTBlockList<GrShaderVar> VarArray;
+    typedef SkTBlockList<VaryingInfo> VaryingList;
+    typedef SkTBlockList<GrShaderVar> VarArray;
 
     VaryingList    fVaryings;
     VarArray       fVertexInputs;

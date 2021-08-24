@@ -8,7 +8,7 @@
 #ifndef GrMemoryPool_DEFINED
 #define GrMemoryPool_DEFINED
 
-#include "src/gpu/GrBlockAllocator.h"
+#include "src/core/SkBlockAllocator.h"
 
 #ifdef SK_DEBUG
 #include "include/private/SkTHash.h"
@@ -42,7 +42,7 @@ public:
      * time and keep around until pool destruction. The min alloc size is
      * the smallest allowed size of additional allocations. Both sizes are
      * adjusted to ensure that they are at least as large as kMinAllocationSize
-     * and less than GrBlockAllocator::kMaxAllocationSize.
+     * and less than SkBlockAllocator::kMaxAllocationSize.
      *
      * Both sizes are what the pool will end up allocating from the system, and
      * portions of the allocated memory is used for internal bookkeeping.
@@ -123,6 +123,6 @@ private:
     int              fAllocationCount;
 #endif
 
-    GrBlockAllocator fAllocator; // Must be the last field, in order to use extra allocated space
+    SkBlockAllocator fAllocator; // Must be the last field, in order to use extra allocated space
 };
 #endif

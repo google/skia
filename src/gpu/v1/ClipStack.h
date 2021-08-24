@@ -12,9 +12,9 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
 #include "include/private/GrResourceKey.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrSurfaceProxyView.h"
-#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/geometry/GrShape.h"
 
 class GrAppliedClip;
@@ -100,7 +100,7 @@ private:
     // Wraps the geometric Element data with logic for containment and bounds testing.
     class RawElement : private Element {
     public:
-        using Stack = GrTBlockList<RawElement, 1>;
+        using Stack = SkTBlockList<RawElement, 1>;
 
         RawElement(const SkMatrix& localToDevice, const GrShape& shape, GrAA aa, SkClipOp op);
 
@@ -167,7 +167,7 @@ private:
     // owned by the ClipStack. Once SW masks are no longer needed, this can go away.
     class Mask {
     public:
-        using Stack = GrTBlockList<Mask, 1>;
+        using Stack = SkTBlockList<Mask, 1>;
 
         Mask(const SaveRecord& current, const SkIRect& bounds);
 
@@ -201,7 +201,7 @@ private:
     // given a draw query.
     class SaveRecord {
     public:
-        using Stack = GrTBlockList<SaveRecord, 2>;
+        using Stack = SkTBlockList<SaveRecord, 2>;
 
         explicit SaveRecord(const SkIRect& deviceBounds);
 

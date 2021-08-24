@@ -618,6 +618,7 @@ if (skia_compile_sksl_tests) {
       "SK_ENABLE_SPIRV_VALIDATION",
     ]
     sources = [
+      "src/core/SkBlockAllocator.cpp",
       "src/core/SkCpu.cpp",
       "src/core/SkData.cpp",
       "src/core/SkHalf.cpp",
@@ -632,7 +633,6 @@ if (skia_compile_sksl_tests) {
       "src/core/SkThreadID.cpp",
       "src/core/SkUtils.cpp",
       "src/core/SkVM.cpp",
-      "src/gpu/GrBlockAllocator.cpp",
       "src/gpu/GrMemoryPool.cpp",
       "src/gpu/GrShaderUtils.cpp",
       "src/ports/SkMemory_malloc.cpp",

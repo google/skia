@@ -5,17 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrBlockAllocator.h"
+#include "src/core/SkBlockAllocator.h"
 #include "tests/Test.h"
 
 #include <cstring>
 
-using Block = GrBlockAllocator::Block;
-using GrowthPolicy = GrBlockAllocator::GrowthPolicy;
+using Block = SkBlockAllocator::Block;
+using GrowthPolicy = SkBlockAllocator::GrowthPolicy;
+
+class BlockAllocatorTestAccess {
+public:
+    template<size_t N>
+    static size_t ScratchBlockSize(SkSBlockAllocator<N>& pool) {
+        return (size_t) pool->scratchBlockSize();
+    }
+};
 
 // Helper functions for modifying the allocator in a controlled manner
 template<size_t N>
-static int block_count(const GrSBlockAllocator<N>& pool) {
+static int block_count(const SkSBlockAllocator<N>& pool) {
     int ct = 0;
     for (const Block* b : pool->blocks()) {
         (void) b;
@@ -25,7 +33,7 @@ static int block_count(const GrSBlockAllocator<N>& pool) {
 }
 
 template<size_t N>
-static Block* get_block(GrSBlockAllocator<N>& pool, int blockIndex) {
+static Block* get_block(SkSBlockAllocator<N>& pool, int blockIndex) {
     Block* found = nullptr;
     int i = 0;
     for (Block* b: pool->blocks()) {
@@ -40,18 +48,18 @@ static Block* get_block(GrSBlockAllocator<N>& pool, int blockIndex) {
     return found;
 }
 
-// GrBlockAllocator holds on to the largest last-released block to reuse for new allocations,
+// SkBlockAllocator holds on to the largest last-released block to reuse for new allocations,
 // and this is still counted in its totalSize(). However, it's easier to reason about size - scratch
 // in many of these tests.
 template<size_t N>
-static size_t total_size(GrSBlockAllocator<N>& pool) {
-    return pool->totalSize() - pool->testingOnly_scratchBlockSize();
+static size_t total_size(SkSBlockAllocator<N>& pool) {
+    return pool->totalSize() - BlockAllocatorTestAccess::ScratchBlockSize(pool);
 }
 
 template<size_t N>
-static size_t add_block(GrSBlockAllocator<N>& pool) {
+static size_t add_block(SkSBlockAllocator<N>& pool) {
     size_t currentSize = total_size(pool);
-    GrBlockAllocator::Block* current = pool->currentBlock();
+    SkBlockAllocator::Block* current = pool->currentBlock();
     while(pool->currentBlock() == current) {
         pool->template allocate<4>(pool->preallocSize() / 2);
     }
@@ -59,44 +67,44 @@ static size_t add_block(GrSBlockAllocator<N>& pool) {
 }
 
 template<size_t N>
-static void* alloc_byte(GrSBlockAllocator<N>& pool) {
+static void* alloc_byte(SkSBlockAllocator<N>& pool) {
     auto br = pool->template allocate<1>(1);
     return br.fBlock->ptr(br.fAlignedOffset);
 }
 
-DEF_TEST(GrBlockAllocatorPreallocSize, r) {
+DEF_TEST(SkBlockAllocatorPreallocSize, r) {
     // Tests stack/member initialization, option #1 described in doc
-    GrBlockAllocator stack{GrowthPolicy::kFixed, 2048};
+    SkBlockAllocator stack{GrowthPolicy::kFixed, 2048};
     SkDEBUGCODE(stack.validate();)
 
-    REPORTER_ASSERT(r, stack.preallocSize() == sizeof(GrBlockAllocator));
+    REPORTER_ASSERT(r, stack.preallocSize() == sizeof(SkBlockAllocator));
     REPORTER_ASSERT(r, stack.preallocUsableSpace() == (size_t) stack.currentBlock()->avail());
 
     // Tests placement new initialization to increase head block size, option #2
     void* mem = operator new(1024);
-    GrBlockAllocator* placement = new (mem) GrBlockAllocator(GrowthPolicy::kLinear, 1024,
-                                                             1024 - sizeof(GrBlockAllocator));
+    SkBlockAllocator* placement = new (mem) SkBlockAllocator(GrowthPolicy::kLinear, 1024,
+                                                             1024 - sizeof(SkBlockAllocator));
     REPORTER_ASSERT(r, placement->preallocSize() == 1024);
     REPORTER_ASSERT(r, placement->preallocUsableSpace() < 1024 &&
-                       placement->preallocUsableSpace() >= (1024 - sizeof(GrBlockAllocator)));
+                       placement->preallocUsableSpace() >= (1024 - sizeof(SkBlockAllocator)));
     delete placement;
 
     // Tests inline increased preallocation, option #3
-    GrSBlockAllocator<2048> inlined{};
+    SkSBlockAllocator<2048> inlined{};
     SkDEBUGCODE(inlined->validate();)
     REPORTER_ASSERT(r, inlined->preallocSize() == 2048);
     REPORTER_ASSERT(r, inlined->preallocUsableSpace() < 2048 &&
-                       inlined->preallocUsableSpace() >= (2048 - sizeof(GrBlockAllocator)));
+                       inlined->preallocUsableSpace() >= (2048 - sizeof(SkBlockAllocator)));
 }
 
-DEF_TEST(GrBlockAllocatorAlloc, r) {
-    GrSBlockAllocator<1024> pool{};
+DEF_TEST(SkBlockAllocatorAlloc, r) {
+    SkSBlockAllocator<1024> pool{};
     SkDEBUGCODE(pool->validate();)
 
     // Assumes the previous pointer was in the same block
     auto validate_ptr = [&](int align, int size,
-                            GrBlockAllocator::ByteRange br,
-                            GrBlockAllocator::ByteRange* prevBR) {
+                            SkBlockAllocator::ByteRange br,
+                            SkBlockAllocator::ByteRange* prevBR) {
         uintptr_t pt = reinterpret_cast<uintptr_t>(br.fBlock->ptr(br.fAlignedOffset));
         // Matches the requested align
         REPORTER_ASSERT(r, pt % align == 0);
@@ -170,12 +178,12 @@ DEF_TEST(GrBlockAllocatorAlloc, r) {
     SkDEBUGCODE(pool->validate();)
 }
 
-DEF_TEST(GrBlockAllocatorResize, r) {
-    GrSBlockAllocator<1024> pool{};
+DEF_TEST(SkBlockAllocatorResize, r) {
+    SkSBlockAllocator<1024> pool{};
     SkDEBUGCODE(pool->validate();)
 
     // Fixed resize from 16 to 32
-    GrBlockAllocator::ByteRange p = pool->allocate<4>(16);
+    SkBlockAllocator::ByteRange p = pool->allocate<4>(16);
     REPORTER_ASSERT(r, p.fBlock->avail<4>() > 16);
     REPORTER_ASSERT(r, p.fBlock->resize(p.fStart, p.fEnd, 16));
     p.fEnd += 16;
@@ -223,8 +231,8 @@ DEF_TEST(GrBlockAllocatorResize, r) {
     REPORTER_ASSERT(r, pNext.fBlock->resize(pNext.fStart, pNext.fEnd, shrinkTo0));
 }
 
-DEF_TEST(GrBlockAllocatorRelease, r) {
-    GrSBlockAllocator<1024> pool{};
+DEF_TEST(SkBlockAllocatorRelease, r) {
+    SkSBlockAllocator<1024> pool{};
     SkDEBUGCODE(pool->validate();)
 
     // Successful allocate and release
@@ -255,13 +263,13 @@ DEF_TEST(GrBlockAllocatorRelease, r) {
     SkDEBUGCODE(pool->validate();)
 }
 
-DEF_TEST(GrBlockAllocatorRewind, r) {
+DEF_TEST(SkBlockAllocatorRewind, r) {
     // Confirm that a bunch of allocations and then releases in stack order fully goes back to the
     // start of the block (i.e. unwinds the entire stack, and not just the last cursor position)
-    GrSBlockAllocator<1024> pool{};
+    SkSBlockAllocator<1024> pool{};
     SkDEBUGCODE(pool->validate();)
 
-    std::vector<GrBlockAllocator::ByteRange> ptrs;
+    std::vector<SkBlockAllocator::ByteRange> ptrs;
     for (int i = 0; i < 32; ++i) {
         ptrs.push_back(pool->allocate<4>(16));
     }
@@ -279,10 +287,10 @@ DEF_TEST(GrBlockAllocatorRewind, r) {
     REPORTER_ASSERT(r, pool->allocate<4>(16).fStart == ptrs[0].fStart);
 }
 
-DEF_TEST(GrBlockAllocatorGrowthPolicy, r) {
+DEF_TEST(SkBlockAllocatorGrowthPolicy, r) {
     static constexpr int kInitSize = 128;
     static constexpr int kBlockCount = 5;
-    static constexpr size_t kExpectedSizes[GrBlockAllocator::kGrowthPolicyCount][kBlockCount] = {
+    static constexpr size_t kExpectedSizes[SkBlockAllocator::kGrowthPolicyCount][kBlockCount] = {
         // kFixed -> kInitSize per block
         { kInitSize, kInitSize, kInitSize, kInitSize, kInitSize },
         // kLinear -> (block ct + 1) * kInitSize for next block
@@ -293,8 +301,8 @@ DEF_TEST(GrBlockAllocatorGrowthPolicy, r) {
         { kInitSize, 2 * kInitSize, 4 * kInitSize, 8 * kInitSize, 16 * kInitSize },
     };
 
-    for (int gp = 0; gp < GrBlockAllocator::kGrowthPolicyCount; ++gp) {
-        GrSBlockAllocator<kInitSize> pool{(GrowthPolicy) gp};
+    for (int gp = 0; gp < SkBlockAllocator::kGrowthPolicyCount; ++gp) {
+        SkSBlockAllocator<kInitSize> pool{(GrowthPolicy) gp};
         SkDEBUGCODE(pool->validate();)
 
         REPORTER_ASSERT(r, kExpectedSizes[gp][0] == total_size(pool));
@@ -306,10 +314,10 @@ DEF_TEST(GrBlockAllocatorGrowthPolicy, r) {
     }
 }
 
-DEF_TEST(GrBlockAllocatorReset, r) {
+DEF_TEST(SkBlockAllocatorReset, r) {
     static constexpr int kBlockIncrement = 1024;
 
-    GrSBlockAllocator<kBlockIncrement> pool{GrowthPolicy::kLinear};
+    SkSBlockAllocator<kBlockIncrement> pool{GrowthPolicy::kLinear};
     SkDEBUGCODE(pool->validate();)
 
     void* firstAlloc = alloc_byte(pool);
@@ -339,11 +347,11 @@ DEF_TEST(GrBlockAllocatorReset, r) {
     SkDEBUGCODE(pool->validate();)
 }
 
-DEF_TEST(GrBlockAllocatorReleaseBlock, r) {
+DEF_TEST(SkBlockAllocatorReleaseBlock, r) {
     // This loops over all growth policies to make sure that the incremental releases update the
     // sequence correctly for each policy.
-    for (int gp = 0; gp < GrBlockAllocator::kGrowthPolicyCount; ++gp) {
-        GrSBlockAllocator<1024> pool{(GrowthPolicy) gp};
+    for (int gp = 0; gp < SkBlockAllocator::kGrowthPolicyCount; ++gp) {
+        SkSBlockAllocator<1024> pool{(GrowthPolicy) gp};
         SkDEBUGCODE(pool->validate();)
 
         void* firstAlloc = alloc_byte(pool);
@@ -400,8 +408,8 @@ DEF_TEST(GrBlockAllocatorReleaseBlock, r) {
     }
 }
 
-DEF_TEST(GrBlockAllocatorIterateAndRelease, r) {
-    GrSBlockAllocator<256> pool;
+DEF_TEST(SkBlockAllocatorIterateAndRelease, r) {
+    SkSBlockAllocator<256> pool;
 
     pool->headBlock()->setMetadata(1);
     add_block(pool);
@@ -437,21 +445,21 @@ DEF_TEST(GrBlockAllocatorIterateAndRelease, r) {
     REPORTER_ASSERT(r, block_count(pool) == 1);
 }
 
-DEF_TEST(GrBlockAllocatorScratchBlockReserve, r) {
-    GrSBlockAllocator<256> pool;
+DEF_TEST(SkBlockAllocatorScratchBlockReserve, r) {
+    SkSBlockAllocator<256> pool;
 
     size_t added = add_block(pool);
-    REPORTER_ASSERT(r, pool->testingOnly_scratchBlockSize() == 0);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) == 0);
     size_t total = pool->totalSize();
     pool->releaseBlock(pool->currentBlock());
 
     // Total size shouldn't have changed, the released block should become scratch
     REPORTER_ASSERT(r, pool->totalSize() == total);
-    REPORTER_ASSERT(r, (size_t) pool->testingOnly_scratchBlockSize() == added);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) == added);
 
     // But a reset definitely deletes any scratch block
     pool->reset();
-    REPORTER_ASSERT(r, pool->testingOnly_scratchBlockSize() == 0);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) == 0);
 
     // Reserving more than what's available adds a scratch block, and current block remains avail.
     size_t avail = pool->currentBlock()->avail();
@@ -459,50 +467,50 @@ DEF_TEST(GrBlockAllocatorScratchBlockReserve, r) {
     pool->reserve(reserve);
     REPORTER_ASSERT(r, (size_t) pool->currentBlock()->avail() == avail);
     // And rounds up to the fixed size of this pool's growth policy
-    REPORTER_ASSERT(r, (size_t) pool->testingOnly_scratchBlockSize() >= reserve &&
-                       pool->testingOnly_scratchBlockSize() % 256 == 0);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) >= reserve &&
+                       BlockAllocatorTestAccess::ScratchBlockSize(pool) % 256 == 0);
 
     // Allocating more than avail activates the scratch block (so totalSize doesn't change)
     size_t preAllocTotalSize = pool->totalSize();
     pool->allocate<1>(avail + 1);
-    REPORTER_ASSERT(r, (size_t) pool->testingOnly_scratchBlockSize() == 0);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) == 0);
     REPORTER_ASSERT(r, pool->totalSize() == preAllocTotalSize);
 
     // When reserving less than what's still available in the current block, no scratch block is
     // added.
     pool->reserve(pool->currentBlock()->avail());
-    REPORTER_ASSERT(r, pool->testingOnly_scratchBlockSize() == 0);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) == 0);
 
     // Unless checking available bytes is disabled
-    pool->reserve(pool->currentBlock()->avail(), GrBlockAllocator::kIgnoreExistingBytes_Flag);
-    REPORTER_ASSERT(r, pool->testingOnly_scratchBlockSize() > 0);
+    pool->reserve(pool->currentBlock()->avail(), SkBlockAllocator::kIgnoreExistingBytes_Flag);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) > 0);
 
     // If kIgnoreGrowthPolicy is specified, the new scratch block should not have been updated to
     // follow the size (which in this case is a fixed 256 bytes per block).
     pool->resetScratchSpace();
-    pool->reserve(32, GrBlockAllocator::kIgnoreGrowthPolicy_Flag);
-    REPORTER_ASSERT(r, pool->testingOnly_scratchBlockSize() > 0 &&
-                       pool->testingOnly_scratchBlockSize() < 256);
+    pool->reserve(32, SkBlockAllocator::kIgnoreGrowthPolicy_Flag);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) > 0 &&
+                       BlockAllocatorTestAccess::ScratchBlockSize(pool) < 256);
 
     // When requesting an allocation larger than the current block and the scratch block, a new
     // block is added, and the scratch block remains scratch.
-    GrBlockAllocator::Block* oldTail = pool->currentBlock();
+    SkBlockAllocator::Block* oldTail = pool->currentBlock();
     avail = oldTail->avail();
     size_t scratchAvail = 2 * avail;
     pool->reserve(scratchAvail);
-    REPORTER_ASSERT(r, (size_t) pool->testingOnly_scratchBlockSize() >= scratchAvail);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) >= scratchAvail);
 
     // This allocation request is higher than oldTail's available, and the scratch size so we
     // should add a new block and scratch size should stay the same.
-    scratchAvail = pool->testingOnly_scratchBlockSize();
+    scratchAvail = BlockAllocatorTestAccess::ScratchBlockSize(pool);
     pool->allocate<1>(scratchAvail + 1);
     REPORTER_ASSERT(r, pool->currentBlock() != oldTail);
-    REPORTER_ASSERT(r, (size_t) pool->testingOnly_scratchBlockSize() == scratchAvail);
+    REPORTER_ASSERT(r, BlockAllocatorTestAccess::ScratchBlockSize(pool) == scratchAvail);
 }
 
-DEF_TEST(GrBlockAllocatorStealBlocks, r) {
-    GrSBlockAllocator<256> poolA;
-    GrSBlockAllocator<128> poolB;
+DEF_TEST(SkBlockAllocatorStealBlocks, r) {
+    SkSBlockAllocator<256> poolA;
+    SkSBlockAllocator<128> poolB;
 
     add_block(poolA);
     add_block(poolA);
@@ -514,7 +522,7 @@ DEF_TEST(GrBlockAllocatorStealBlocks, r) {
     char* bAlloc = (char*) alloc_byte(poolB);
     *bAlloc = 't';
 
-    const GrBlockAllocator::Block* allocOwner = poolB->findOwningBlock(bAlloc);
+    const SkBlockAllocator::Block* allocOwner = poolB->findOwningBlock(bAlloc);
 
     REPORTER_ASSERT(r, block_count(poolA) == 4);
     REPORTER_ASSERT(r, block_count(poolB) == 3);
@@ -550,8 +558,8 @@ struct alignas(32) TestMetaBig {
     int fX2;
 };
 
-DEF_TEST(GrBlockAllocatorMetadata, r) {
-    GrSBlockAllocator<1024> pool{};
+DEF_TEST(SkBlockAllocatorMetadata, r) {
+    SkSBlockAllocator<1024> pool{};
     SkDEBUGCODE(pool->validate();)
 
     // Allocation where alignment of user data > alignment of metadata
@@ -588,8 +596,8 @@ DEF_TEST(GrBlockAllocatorMetadata, r) {
     REPORTER_ASSERT(r, metaBig->fX1 == 3 && metaBig->fX2 == 6);
 }
 
-DEF_TEST(GrBlockAllocatorAllocatorMetadata, r) {
-    GrSBlockAllocator<256> pool{};
+DEF_TEST(SkBlockAllocatorAllocatorMetadata, r) {
+    SkSBlockAllocator<256> pool{};
     SkDEBUGCODE(pool->validate();)
 
     REPORTER_ASSERT(r, pool->metadata() == 0); // initial value
@@ -608,7 +616,7 @@ DEF_TEST(GrBlockAllocatorAllocatorMetadata, r) {
 }
 
 template<size_t Align, size_t Padding>
-static void run_owning_block_test(skiatest::Reporter* r, GrBlockAllocator* pool) {
+static void run_owning_block_test(skiatest::Reporter* r, SkBlockAllocator* pool) {
     auto br = pool->allocate<Align, Padding>(1);
 
     void* userPtr = br.fBlock->ptr(br.fAlignedOffset);
@@ -625,7 +633,7 @@ static void run_owning_block_test(skiatest::Reporter* r, GrBlockAllocator* pool)
 }
 
 template<size_t Padding>
-static void run_owning_block_tests(skiatest::Reporter* r, GrBlockAllocator* pool) {
+static void run_owning_block_tests(skiatest::Reporter* r, SkBlockAllocator* pool) {
     run_owning_block_test<1, Padding>(r, pool);
     run_owning_block_test<2, Padding>(r, pool);
     run_owning_block_test<4, Padding>(r, pool);
@@ -636,8 +644,8 @@ static void run_owning_block_tests(skiatest::Reporter* r, GrBlockAllocator* pool
     run_owning_block_test<128, Padding>(r, pool);
 }
 
-DEF_TEST(GrBlockAllocatorOwningBlock, r) {
-    GrSBlockAllocator<1024> pool{};
+DEF_TEST(SkBlockAllocatorOwningBlock, r) {
+    SkSBlockAllocator<1024> pool{};
     SkDEBUGCODE(pool->validate();)
 
     run_owning_block_tests<1>(r, pool.allocator());

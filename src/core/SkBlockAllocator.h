@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrBlockAllocator_DEFINED
-#define GrBlockAllocator_DEFINED
+#ifndef SkBlockAllocator_DEFINED
+#define SkBlockAllocator_DEFINED
 
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkNoncopyable.h"
@@ -16,34 +16,36 @@
 #include <cstddef> // max_align_t
 
 /**
- * GrBlockAllocator provides low-level support for a block allocated arena with a dynamic tail that
+ * SkBlockAllocator provides low-level support for a block allocated arena with a dynamic tail that
  * tracks space reservations within each block. Its APIs provide the ability to reserve space,
  * resize reservations, and release reservations. It will automatically create new blocks if needed
  * and destroy all remaining blocks when it is destructed. It assumes that anything allocated within
- * its blocks has its destructors called externally. It is recommended that GrBlockAllocator is
+ * its blocks has its destructors called externally. It is recommended that SkBlockAllocator is
  * wrapped by a higher-level allocator that uses the low-level APIs to implement a simpler,
  * purpose-focused API w/o having to worry as much about byte-level concerns.
  *
- * GrBlockAllocator has no limit to its total size, but each allocation is limited to 512MB (which
- * should be sufficient for Ganesh's use cases). This upper allocation limit allows all internal
+ * SkBlockAllocator has no limit to its total size, but each allocation is limited to 512MB (which
+ * should be sufficient for Skia's use cases). This upper allocation limit allows all internal
  * operations to be performed using 'int' and avoid many overflow checks. Static asserts are used
  * to ensure that those operations would not overflow when using the largest possible values.
  *
  * Possible use modes:
  * 1. No upfront allocation, either on the stack or as a field
- *    GrBlockAllocator allocator(policy, heapAllocSize);
+ *    SkBlockAllocator allocator(policy, heapAllocSize);
  *
  * 2. In-place new'd
  *    void* mem = operator new(totalSize);
- *    GrBlockAllocator* allocator = new (mem) GrBlockAllocator(policy, heapAllocSize,
- *                                                             totalSize- sizeof(GrBlockAllocator));
+ *    SkBlockAllocator* allocator = new (mem) SkBlockAllocator(policy, heapAllocSize,
+ *                                                             totalSize- sizeof(SkBlockAllocator));
  *    delete allocator;
  *
- * 3. Use GrSBlockAllocator to increase the preallocation size
- *    GrSBlockAllocator<1024> allocator(policy, heapAllocSize);
+ * 3. Use SkSBlockAllocator to increase the preallocation size
+ *    SkSBlockAllocator<1024> allocator(policy, heapAllocSize);
  *    sizeof(allocator) == 1024;
  */
-class GrBlockAllocator final : SkNoncopyable {
+// TODO(michaelludwig) - While API is different, this shares similarities to SkArenaAlloc and
+// SkFibBlockSizes, so we should work to integrate them.
+class SkBlockAllocator final : SkNoncopyable {
 public:
     // Largest size that can be requested from allocate(), chosen because it's the largest pow-2
     // that is less than int32_t::max()/2.
@@ -122,7 +124,7 @@ public:
         inline bool resize(int start, int end, int deltaBytes);
 
     private:
-        friend class GrBlockAllocator;
+        friend class SkBlockAllocator;
 
         Block(Block* prev, int allocationSize);
 
@@ -173,17 +175,17 @@ public:
     // after the allocator can be used by its inline head block. This is useful when the allocator
     // is in-place new'ed into a larger block of memory, but it should remain set to 0 if stack
     // allocated or if the class layout does not guarantee that space is present.
-    GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementBytes,
+    SkBlockAllocator(GrowthPolicy policy, size_t blockIncrementBytes,
                      size_t additionalPreallocBytes = 0);
 
-    ~GrBlockAllocator() { this->reset(); }
+    ~SkBlockAllocator() { this->reset(); }
     void operator delete(void* p) { ::operator delete(p); }
 
     /**
      * Helper to calculate the minimum number of bytes needed for heap block size, under the
      * assumption that Align will be the requested alignment of the first call to allocate().
      * Ex. To store N instances of T in a heap block, the 'blockIncrementBytes' should be set to
-     *   BlockOverhead<alignof(T)>() + N * sizeof(T) when making the GrBlockAllocator.
+     *   BlockOverhead<alignof(T)>() + N * sizeof(T) when making the SkBlockAllocator.
      */
     template<size_t Align = 1, size_t Padding = 0>
     static constexpr size_t BlockOverhead();
@@ -191,7 +193,7 @@ public:
     /**
      * Helper to calculate the minimum number of bytes needed for a preallocation, under the
      * assumption that Align will be the requested alignment of the first call to allocate().
-     * Ex. To preallocate a GrSBlockAllocator to hold N instances of T, its arge should be
+     * Ex. To preallocate a SkSBlockAllocator to hold N instances of T, its arge should be
      *   Overhead<alignof(T)>() + N * sizeof(T)
      */
     template<size_t Align = 1, size_t Padding = 0>
@@ -215,13 +217,13 @@ public:
     size_t totalSpaceInUse() const;
 
     /**
-     * Return the total number of bytes that were pre-allocated for the GrBlockAllocator. This will
+     * Return the total number of bytes that were pre-allocated for the SkBlockAllocator. This will
      * include 'additionalPreallocBytes' passed to the constructor, and represents what the total
      * size would become after a call to reset().
      */
     size_t preallocSize() const {
-        // Don't double count fHead's Block overhead in both sizeof(GrBlockAllocator) and fSize.
-        return sizeof(GrBlockAllocator) + fHead.fSize - BaseHeadBlockSize();
+        // Don't double count fHead's Block overhead in both sizeof(SkBlockAllocator) and fSize.
+        return sizeof(SkBlockAllocator) + fHead.fSize - BaseHeadBlockSize();
     }
     /**
      * Return the usable size of the inline head block; this will be equal to
@@ -235,7 +237,7 @@ public:
     /**
      * Get the current value of the allocator-level metadata (a user-oriented slot). This is
      * separate from any block-level metadata, but can serve a similar purpose to compactly support
-     * data collections on top of GrBlockAllocator.
+     * data collections on top of SkBlockAllocator.
      */
     int metadata() const { return fHead.fAllocatorMetadata; }
 
@@ -276,7 +278,7 @@ public:
 
     enum ReserveFlags : unsigned {
         // If provided to reserve(), the input 'size' will be rounded up to the next size determined
-        // by the growth policy of the GrBlockAllocator. If not, 'size' will be aligned to max_align
+        // by the growth policy of the SkBlockAllocator. If not, 'size' will be aligned to max_align
         kIgnoreGrowthPolicy_Flag  = 0b01,
         // If provided to reserve(), the number of available bytes of the current block  will not
         // be used to satisfy the reservation (assuming the contiguous range was long enough to
@@ -327,7 +329,7 @@ public:
 
     template <size_t Align, size_t Padding = 0>
     const Block* owningBlock(const void* ptr, int start) const {
-        return const_cast<GrBlockAllocator*>(this)->owningBlock<Align, Padding>(ptr, start);
+        return const_cast<SkBlockAllocator*>(this)->owningBlock<Align, Padding>(ptr, start);
     }
 
     /**
@@ -336,12 +338,12 @@ public:
      */
     Block* findOwningBlock(const void* ptr);
     const Block* findOwningBlock(const void* ptr) const {
-        return const_cast<GrBlockAllocator*>(this)->findOwningBlock(ptr);
+        return const_cast<SkBlockAllocator*>(this)->findOwningBlock(ptr);
     }
 
     /**
      * Explicitly free an entire block, invalidating any remaining allocations from the block.
-     * GrBlockAllocator will release all alive blocks automatically when it is destroyed, but this
+     * SkBlockAllocator will release all alive blocks automatically when it is destroyed, but this
      * function can be used to reclaim memory over the lifetime of the allocator. The provided
      * 'block' pointer must have previously come from a call to currentBlock() or allocate().
      *
@@ -358,14 +360,14 @@ public:
      * Detach every heap-allocated block owned by 'other' and concatenate them to this allocator's
      * list of blocks. This memory is now managed by this allocator. Since this only transfers
      * ownership of a Block, and a Block itself does not move, any previous allocations remain
-     * valid and associated with their original Block instances. GrBlockAllocator-level functions
+     * valid and associated with their original Block instances. SkBlockAllocator-level functions
      * that accept allocated pointers (e.g. findOwningBlock), must now use this allocator and not
      * 'other' for these allocations.
      *
      * The head block of 'other' cannot be stolen, so higher-level allocators and memory structures
      * must handle that data differently.
      */
-    void stealHeapBlocks(GrBlockAllocator* other);
+    void stealHeapBlocks(SkBlockAllocator* other);
 
     /**
      * Explicitly free all blocks (invalidating all allocations), and resets the head block to its
@@ -381,7 +383,7 @@ public:
     template <bool Forward, bool Const> class BlockIter;
 
     /**
-     * Clients can iterate over all active Blocks in the GrBlockAllocator using for loops:
+     * Clients can iterate over all active Blocks in the SkBlockAllocator using for loops:
      *
      * Forward iteration from head to tail block (or non-const variant):
      *   for (const Block* b : this->blocks()) { }
@@ -402,18 +404,17 @@ public:
     void validate() const;
 #endif
 
-#if GR_TEST_UTILS
-    int testingOnly_scratchBlockSize() const { return this->scratchBlockSize(); }
-#endif
-
 private:
+    friend class BlockAllocatorTestAccess;
+    friend class TBlockListTestAccess;
+
     static constexpr int kDataStart = sizeof(Block);
     #ifdef SK_FORCE_8_BYTE_ALIGNMENT
         // This is an issue for WASM builds using emscripten, which had std::max_align_t = 16, but
         // was returning pointers only aligned to 8 bytes.
         // https://github.com/emscripten-core/emscripten/issues/10072
         //
-        // Setting this to 8 will let GrBlockAllocator properly correct for the pointer address if
+        // Setting this to 8 will let SkBlockAllocator properly correct for the pointer address if
         // a 16-byte aligned allocation is requested in wasm (unlikely since we don't use long
         // doubles).
         static constexpr size_t kAddressAlign = 8;
@@ -429,19 +430,19 @@ private:
     static constexpr size_t MaxBlockSize();
 
     static constexpr int BaseHeadBlockSize() {
-        return sizeof(GrBlockAllocator) - offsetof(GrBlockAllocator, fHead);
+        return sizeof(SkBlockAllocator) - offsetof(SkBlockAllocator, fHead);
     }
 
     // Append a new block to the end of the block linked list, updating fTail. 'minSize' must
     // have enough room for sizeof(Block). 'maxSize' is the upper limit of fSize for the new block
-    // that will preserve the static guarantees GrBlockAllocator makes.
+    // that will preserve the static guarantees SkBlockAllocator makes.
     void addBlock(int minSize, int maxSize);
 
     int scratchBlockSize() const { return fHead.fPrev ? fHead.fPrev->fSize : 0; }
 
     Block* fTail; // All non-head blocks are heap allocated; tail will never be null.
 
-    // All remaining state is packed into 64 bits to keep GrBlockAllocator at 16 bytes + head block
+    // All remaining state is packed into 64 bits to keep SkBlockAllocator at 16 bytes + head block
     // (on a 64-bit system).
 
     // Growth of the block size is controlled by four factors: BlockIncrement, N0 and N1, and a
@@ -450,7 +451,7 @@ private:
     // N0' = N1' (exponential). The size of the new block is N1' * BlockIncrement * MaxAlign,
     // after which fN0 and fN1 store N0' and N1' clamped into 23 bits. With current bit allocations,
     // N1' is limited to 2^24, and assuming MaxAlign=16, then BlockIncrement must be '2' in order to
-    // eventually reach the hard 2^29 size limit of GrBlockAllocator.
+    // eventually reach the hard 2^29 size limit of SkBlockAllocator.
 
     // Next heap block size = (fBlockIncrement * alignof(std::max_align_t) * (fN0 + fN1))
     uint64_t fBlockIncrement : 16;
@@ -468,64 +469,64 @@ private:
     static_assert(kGrowthPolicyCount <= 4);
 };
 
-// A wrapper around GrBlockAllocator that includes preallocated storage for the head block.
+// A wrapper around SkBlockAllocator that includes preallocated storage for the head block.
 // N will be the preallocSize() reported by the allocator.
 template<size_t N>
-class GrSBlockAllocator : SkNoncopyable {
+class SkSBlockAllocator : SkNoncopyable {
 public:
-    using GrowthPolicy = GrBlockAllocator::GrowthPolicy;
+    using GrowthPolicy = SkBlockAllocator::GrowthPolicy;
 
-    GrSBlockAllocator() {
-        new (fStorage) GrBlockAllocator(GrowthPolicy::kFixed, N, N - sizeof(GrBlockAllocator));
+    SkSBlockAllocator() {
+        new (fStorage) SkBlockAllocator(GrowthPolicy::kFixed, N, N - sizeof(SkBlockAllocator));
     }
-    explicit GrSBlockAllocator(GrowthPolicy policy) {
-        new (fStorage) GrBlockAllocator(policy, N, N - sizeof(GrBlockAllocator));
-    }
-
-    GrSBlockAllocator(GrowthPolicy policy, size_t blockIncrementBytes) {
-        new (fStorage) GrBlockAllocator(policy, blockIncrementBytes, N - sizeof(GrBlockAllocator));
+    explicit SkSBlockAllocator(GrowthPolicy policy) {
+        new (fStorage) SkBlockAllocator(policy, N, N - sizeof(SkBlockAllocator));
     }
 
-    ~GrSBlockAllocator() {
-        this->allocator()->~GrBlockAllocator();
+    SkSBlockAllocator(GrowthPolicy policy, size_t blockIncrementBytes) {
+        new (fStorage) SkBlockAllocator(policy, blockIncrementBytes, N - sizeof(SkBlockAllocator));
     }
 
-    GrBlockAllocator* operator->() { return this->allocator(); }
-    const GrBlockAllocator* operator->() const { return this->allocator(); }
+    ~SkSBlockAllocator() {
+        this->allocator()->~SkBlockAllocator();
+    }
 
-    GrBlockAllocator* allocator() { return reinterpret_cast<GrBlockAllocator*>(fStorage); }
-    const GrBlockAllocator* allocator() const {
-        return reinterpret_cast<const GrBlockAllocator*>(fStorage);
+    SkBlockAllocator* operator->() { return this->allocator(); }
+    const SkBlockAllocator* operator->() const { return this->allocator(); }
+
+    SkBlockAllocator* allocator() { return reinterpret_cast<SkBlockAllocator*>(fStorage); }
+    const SkBlockAllocator* allocator() const {
+        return reinterpret_cast<const SkBlockAllocator*>(fStorage);
     }
 
 private:
-    static_assert(N >= sizeof(GrBlockAllocator));
+    static_assert(N >= sizeof(SkBlockAllocator));
 
     // Will be used to placement new the allocator
-    alignas(GrBlockAllocator) char fStorage[N];
+    alignas(SkBlockAllocator) char fStorage[N];
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Template and inline implementations
 
-GR_MAKE_BITFIELD_OPS(GrBlockAllocator::ReserveFlags)
+GR_MAKE_BITFIELD_OPS(SkBlockAllocator::ReserveFlags)
 
 template<size_t Align, size_t Padding>
-constexpr size_t GrBlockAllocator::BlockOverhead() {
+constexpr size_t SkBlockAllocator::BlockOverhead() {
     static_assert(GrAlignTo(kDataStart + Padding, Align) >= sizeof(Block));
     return GrAlignTo(kDataStart + Padding, Align);
 }
 
 template<size_t Align, size_t Padding>
-constexpr size_t GrBlockAllocator::Overhead() {
-    // NOTE: On most platforms, GrBlockAllocator is packed; this is not the case on debug builds
+constexpr size_t SkBlockAllocator::Overhead() {
+    // NOTE: On most platforms, SkBlockAllocator is packed; this is not the case on debug builds
     // due to extra fields, or on WASM due to 4byte pointers but 16byte max align.
-    return std::max(sizeof(GrBlockAllocator),
-                    offsetof(GrBlockAllocator, fHead) + BlockOverhead<Align, Padding>());
+    return std::max(sizeof(SkBlockAllocator),
+                    offsetof(SkBlockAllocator, fHead) + BlockOverhead<Align, Padding>());
 }
 
 template<size_t Align, size_t Padding>
-constexpr size_t GrBlockAllocator::MaxBlockSize() {
+constexpr size_t SkBlockAllocator::MaxBlockSize() {
     // Without loss of generality, assumes 'align' will be the largest encountered alignment for the
     // allocator (if it's not, the largest align will be encountered by the compiler and pass/fail
     // the same set of static asserts).
@@ -533,7 +534,7 @@ constexpr size_t GrBlockAllocator::MaxBlockSize() {
 }
 
 template<size_t Align, size_t Padding>
-void GrBlockAllocator::reserve(size_t size, ReserveFlags flags) {
+void SkBlockAllocator::reserve(size_t size, ReserveFlags flags) {
     if (size > kMaxAllocationSize) {
         SK_ABORT("Allocation too large (%zu bytes requested)", size);
     }
@@ -556,7 +557,7 @@ void GrBlockAllocator::reserve(size_t size, ReserveFlags flags) {
 }
 
 template <size_t Align, size_t Padding>
-GrBlockAllocator::ByteRange GrBlockAllocator::allocate(size_t size) {
+SkBlockAllocator::ByteRange SkBlockAllocator::allocate(size_t size) {
     // Amount of extra space for a new block to make sure the allocation can succeed.
     static constexpr int kBlockOverhead = (int) BlockOverhead<Align, Padding>();
 
@@ -596,7 +597,7 @@ GrBlockAllocator::ByteRange GrBlockAllocator::allocate(size_t size) {
 }
 
 template <size_t Align, size_t Padding>
-GrBlockAllocator::Block* GrBlockAllocator::owningBlock(const void* p, int start) {
+SkBlockAllocator::Block* SkBlockAllocator::owningBlock(const void* p, int start) {
     // 'p' was originally formed by aligning 'block + start + Padding', producing the inequality:
     //     block + start + Padding <= p <= block + start + Padding + Align-1
     // Rearranging this yields:
@@ -617,7 +618,7 @@ GrBlockAllocator::Block* GrBlockAllocator::owningBlock(const void* p, int start)
 }
 
 template <size_t Align, size_t Padding>
-int GrBlockAllocator::Block::alignedOffset(int offset) const {
+int SkBlockAllocator::Block::alignedOffset(int offset) const {
     static_assert(SkIsPow2(Align));
     // Aligning adds (Padding + Align - 1) as an intermediate step, so ensure that can't overflow
     static_assert(MaxBlockSize<Align, Padding>() + Padding + Align - 1
@@ -636,7 +637,7 @@ int GrBlockAllocator::Block::alignedOffset(int offset) const {
     }
 }
 
-bool GrBlockAllocator::Block::resize(int start, int end, int deltaBytes) {
+bool SkBlockAllocator::Block::resize(int start, int end, int deltaBytes) {
     SkASSERT(fSentinel == kAssignedMarker);
     SkASSERT(start >= kDataStart && end <= fSize && start < end);
 
@@ -667,7 +668,7 @@ bool GrBlockAllocator::Block::resize(int start, int end, int deltaBytes) {
 // NOTE: release is equivalent to resize(start, end, start - end), and the compiler can optimize
 // most of the operations away, but it wasn't able to remove the unnecessary branch comparing the
 // new cursor to the block size or old start, so release() gets a specialization.
-bool GrBlockAllocator::Block::release(int start, int end) {
+bool SkBlockAllocator::Block::release(int start, int end) {
     SkASSERT(fSentinel == kAssignedMarker);
     SkASSERT(start >= kDataStart && end <= fSize && start < end);
 
@@ -683,11 +684,11 @@ bool GrBlockAllocator::Block::release(int start, int end) {
 
 ///////// Block iteration
 template <bool Forward, bool Const>
-class GrBlockAllocator::BlockIter {
+class SkBlockAllocator::BlockIter {
 private:
     using BlockT = typename std::conditional<Const, const Block, Block>::type;
     using AllocatorT =
-            typename std::conditional<Const, const GrBlockAllocator, GrBlockAllocator>::type;
+            typename std::conditional<Const, const SkBlockAllocator, SkBlockAllocator>::type;
 
 public:
     BlockIter(AllocatorT* allocator) : fAllocator(allocator) {}
@@ -731,17 +732,17 @@ private:
     AllocatorT* fAllocator;
 };
 
-GrBlockAllocator::BlockIter<true, false> GrBlockAllocator::blocks() {
+SkBlockAllocator::BlockIter<true, false> SkBlockAllocator::blocks() {
     return BlockIter<true, false>(this);
 }
-GrBlockAllocator::BlockIter<true, true> GrBlockAllocator::blocks() const {
+SkBlockAllocator::BlockIter<true, true> SkBlockAllocator::blocks() const {
     return BlockIter<true, true>(this);
 }
-GrBlockAllocator::BlockIter<false, false> GrBlockAllocator::rblocks() {
+SkBlockAllocator::BlockIter<false, false> SkBlockAllocator::rblocks() {
     return BlockIter<false, false>(this);
 }
-GrBlockAllocator::BlockIter<false, true> GrBlockAllocator::rblocks() const {
+SkBlockAllocator::BlockIter<false, true> SkBlockAllocator::rblocks() const {
     return BlockIter<false, true>(this);
 }
 
-#endif // GrBlockAllocator_DEFINED
+#endif // SkBlockAllocator_DEFINED

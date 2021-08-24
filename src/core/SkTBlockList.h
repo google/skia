@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTBlockList_DEFINED
-#define GrTBlockList_DEFINED
+#ifndef SkTBlockList_DEFINED
+#define SkTBlockList_DEFINED
 
-#include "src/gpu/GrBlockAllocator.h"
+#include "src/core/SkBlockAllocator.h"
 
 #include <type_traits>
 
-// Forward declarations for the iterators used by GrTBlockList
-using IndexFn = int (*)(const GrBlockAllocator::Block*);
-using NextFn = int (*)(const GrBlockAllocator::Block*, int);
+// Forward declarations for the iterators used by SkTBlockList
+using IndexFn = int (*)(const SkBlockAllocator::Block*);
+using NextFn = int (*)(const SkBlockAllocator::Block*, int);
 template<typename T, typename B> using ItemFn = T (*)(B*, int);
 template <typename T, bool Forward, bool Const, IndexFn Start, IndexFn End, NextFn Next,
-          ItemFn<T, typename std::conditional<Const, const GrBlockAllocator::Block,
-                                                     GrBlockAllocator::Block>::type> Resolve>
+          ItemFn<T, typename std::conditional<Const, const SkBlockAllocator::Block,
+                                                     SkBlockAllocator::Block>::type> Resolve>
 class BlockIndexIterator;
 
 /**
- * GrTBlockList manages dynamic storage for instances of T, reserving fixed blocks such that
+ * SkTBlockList manages dynamic storage for instances of T, reserving fixed blocks such that
  * allocation is amortized across every N instances. In this way it is a hybrid of an array-based
  * vector and a linked-list. T can be any type and non-trivial destructors are automatically
- * invoked when the GrTBlockList is destructed. The addresses of instances are guaranteed
+ * invoked when the SkTBlockList is destructed. The addresses of instances are guaranteed
  * not to move except when a list is concatenated to another.
  *
  * The collection supports storing a templated number of elements inline before heap-allocated
@@ -47,25 +47,25 @@ class BlockIndexIterator;
  * acting as a stack, or simply using it as a typed allocator.
  */
 template <typename T, int StartingItems = 1>
-class GrTBlockList {
+class SkTBlockList {
 public:
     /**
      * Create an allocator that defaults to using StartingItems as heap increment.
      */
-    GrTBlockList() : GrTBlockList(StartingItems) {}
+    SkTBlockList() : SkTBlockList(StartingItems) {}
 
     /**
      * Create an allocator
      *
      * @param   itemsPerBlock   the number of items to allocate at once
      */
-    explicit GrTBlockList(int itemsPerBlock,
-                          GrBlockAllocator::GrowthPolicy policy =
-                                  GrBlockAllocator::GrowthPolicy::kFixed)
+    explicit SkTBlockList(int itemsPerBlock,
+                          SkBlockAllocator::GrowthPolicy policy =
+                                  SkBlockAllocator::GrowthPolicy::kFixed)
             : fAllocator(policy,
-                         GrBlockAllocator::BlockOverhead<alignof(T)>() + sizeof(T)*itemsPerBlock) {}
+                         SkBlockAllocator::BlockOverhead<alignof(T)>() + sizeof(T)*itemsPerBlock) {}
 
-    ~GrTBlockList() { this->reset(); }
+    ~SkTBlockList() { this->reset(); }
 
     /**
      * Adds an item and returns it.
@@ -94,7 +94,7 @@ public:
      * this is O(StartingItems) and not O(N). All other items are concatenated in O(1).
      */
     template <int SI>
-    void concat(GrTBlockList<T, SI>&& other);
+    void concat(SkTBlockList<T, SI>&& other);
 
     /**
      * Allocate, if needed, space to hold N more Ts before another malloc will occur.
@@ -105,7 +105,7 @@ public:
             int reserved = n - avail;
             // Don't consider existing bytes since we've already determined how to split the N items
             fAllocator->template reserve<alignof(T)>(
-                    reserved * sizeof(T), GrBlockAllocator::kIgnoreExistingBytes_Flag);
+                    reserved * sizeof(T), SkBlockAllocator::kIgnoreExistingBytes_Flag);
         }
     }
 
@@ -115,7 +115,7 @@ public:
     void pop_back() {
         SkASSERT(this->count() > 0);
 
-        GrBlockAllocator::Block* block = fAllocator->currentBlock();
+        SkBlockAllocator::Block* block = fAllocator->currentBlock();
 
         // Run dtor for the popped item
         int releaseIndex = Last(block);
@@ -220,33 +220,34 @@ public:
         SkUNREACHABLE;
     }
     const T& item(int i) const {
-        return const_cast<GrTBlockList*>(this)->item(i);
+        return const_cast<SkTBlockList*>(this)->item(i);
     }
 
 private:
-    // Let other GrTBlockLists have access (only ever used when T and S are the same but you
+    // Let other SkTBlockLists have access (only ever used when T and S are the same but you
     // cannot have partial specializations declared as a friend...)
-    template<typename S, int N> friend class GrTBlockList;
+    template<typename S, int N> friend class SkTBlockList;
+    friend class TBlockListTestAccess;  // for fAllocator
 
     static constexpr size_t StartingSize =
-            GrBlockAllocator::Overhead<alignof(T)>() + StartingItems * sizeof(T);
+            SkBlockAllocator::Overhead<alignof(T)>() + StartingItems * sizeof(T);
 
-    static T& GetItem(GrBlockAllocator::Block* block, int index) {
+    static T& GetItem(SkBlockAllocator::Block* block, int index) {
         return *static_cast<T*>(block->ptr(index));
     }
-    static const T& GetItem(const GrBlockAllocator::Block* block, int index) {
+    static const T& GetItem(const SkBlockAllocator::Block* block, int index) {
         return *static_cast<const T*>(block->ptr(index));
     }
-    static int First(const GrBlockAllocator::Block* b) {
+    static int First(const SkBlockAllocator::Block* b) {
         return b->firstAlignedOffset<alignof(T)>();
     }
-    static int Last(const GrBlockAllocator::Block* b) {
+    static int Last(const SkBlockAllocator::Block* b) {
         return b->metadata();
     }
-    static int Increment(const GrBlockAllocator::Block* b, int index) {
+    static int Increment(const SkBlockAllocator::Block* b, int index) {
         return index + sizeof(T);
     }
-    static int Decrement(const GrBlockAllocator::Block* b, int index) {
+    static int Decrement(const SkBlockAllocator::Block* b, int index) {
         return index - sizeof(T);
     }
 
@@ -260,12 +261,12 @@ private:
         return br.fBlock->ptr(br.fAlignedOffset);
     }
 
-    // N represents the number of items, whereas GrSBlockAllocator takes total bytes, so must
+    // N represents the number of items, whereas SkSBlockAllocator takes total bytes, so must
     // account for the block allocator's size too.
     //
-    // This class uses the GrBlockAllocator's metadata to track total count of items, and per-block
+    // This class uses the SkBlockAllocator's metadata to track total count of items, and per-block
     // metadata to track the index of the last allocated item within each block.
-    GrSBlockAllocator<StartingSize> fAllocator;
+    SkSBlockAllocator<StartingSize> fAllocator;
 
 public:
     using Iter   = BlockIndexIterator<T&,       true,  false, &First, &Last,  &Increment, &GetItem>;
@@ -284,16 +285,11 @@ public:
     // Iterate from newest to oldest using a for-range loop.
     RIter  ritems() { return RIter(fAllocator.allocator()); }
     CRIter ritems() const { return CRIter(fAllocator.allocator()); }
-
-#if GR_TEST_UTILS
-    // For introspection
-    const GrBlockAllocator* allocator() const { return fAllocator.allocator(); }
-#endif
 };
 
 template <typename T, int SI1>
 template <int SI2>
-void GrTBlockList<T, SI1>::concat(GrTBlockList<T, SI2>&& other) {
+void SkTBlockList<T, SI1>::concat(SkTBlockList<T, SI2>&& other) {
     // Optimize the common case where the list to append only has a single item
     if (other.empty()) {
         return;
@@ -306,7 +302,7 @@ void GrTBlockList<T, SI1>::concat(GrTBlockList<T, SI2>&& other) {
     // Manually move all items in other's head block into this list; all heap blocks from 'other'
     // will be appended to the block linked list (no per-item moves needed then).
     int headItemCount = 0;
-    GrBlockAllocator::Block* headBlock = other.fAllocator->headBlock();
+    SkBlockAllocator::Block* headBlock = other.fAllocator->headBlock();
     SkDEBUGCODE(int oldCount = this->count();)
     if (headBlock->metadata() > 0) {
         int headStart = First(headBlock);
@@ -318,14 +314,14 @@ void GrTBlockList<T, SI1>::concat(GrTBlockList<T, SI2>&& other) {
             // kIgnoreGrowthPolicy_Flag to make this reservation as tight as possible since
             // 'other's heap blocks will be appended after it and any extra space is wasted.
             fAllocator->template reserve<alignof(T)>((headItemCount - avail) * sizeof(T),
-                                                     GrBlockAllocator::kIgnoreExistingBytes_Flag |
-                                                     GrBlockAllocator::kIgnoreGrowthPolicy_Flag);
+                                                     SkBlockAllocator::kIgnoreExistingBytes_Flag |
+                                                     SkBlockAllocator::kIgnoreGrowthPolicy_Flag);
         }
 
         if constexpr (std::is_trivially_copy_constructible<T>::value) {
             // memcpy all items at once (or twice between current and reserved space).
             SkASSERT(std::is_trivially_destructible<T>::value);
-            auto copy = [](GrBlockAllocator::Block* src, int start, GrBlockAllocator* dst, int n) {
+            auto copy = [](SkBlockAllocator::Block* src, int start, SkBlockAllocator* dst, int n) {
                 auto target = dst->template allocate<alignof(T)>(n * sizeof(T));
                 memcpy(target.fBlock->ptr(target.fAlignedOffset), src->ptr(start), n * sizeof(T));
                 target.fBlock->setMetadata(target.fAlignedOffset + (n - 1) * sizeof(T));
@@ -366,7 +362,7 @@ void GrTBlockList<T, SI1>::concat(GrTBlockList<T, SI2>&& other) {
 
 /**
  * BlockIndexIterator provides a reusable iterator template for collections built on top of a
- * GrBlockAllocator, where each item is of the same type, and the index to an item can be iterated
+ * SkBlockAllocator, where each item is of the same type, and the index to an item can be iterated
  * over in a known manner. It supports const and non-const, and forward and reverse, assuming it's
  * provided with proper functions for starting, ending, and advancing.
  */
@@ -376,10 +372,10 @@ template <typename T,    // The element type (including any modifiers)
           IndexFn Start, // Returns the index of the first valid item in a block
           IndexFn End,   // Returns the index of the last valid item (so it is inclusive)
           NextFn Next,   // Returns the next index given the current index
-          ItemFn<T, typename std::conditional<Const, const GrBlockAllocator::Block,
-                                                     GrBlockAllocator::Block>::type> Resolve>
+          ItemFn<T, typename std::conditional<Const, const SkBlockAllocator::Block,
+                                                     SkBlockAllocator::Block>::type> Resolve>
 class BlockIndexIterator {
-    using BlockIter = typename GrBlockAllocator::BlockIter<Forward, Const>;
+    using BlockIter = typename SkBlockAllocator::BlockIter<Forward, Const>;
 public:
     BlockIndexIterator(BlockIter iter) : fBlockIter(iter) {}
 

@@ -9,9 +9,9 @@
 #define GrAtlasRenderTask_DEFINED
 
 #include "include/core/SkPath.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrOpsTask.h"
-#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
 
 struct SkIPoint16;
@@ -59,8 +59,8 @@ private:
     const std::unique_ptr<GrDynamicAtlas> fDynamicAtlas;
 
     // Allocate enough inline entries for 16 atlas path draws, then spill to the heap.
-    using PathDrawAllocator = GrTBlockList<GrPathTessellator::PathDrawList, 16>;
-    PathDrawAllocator fPathDrawAllocator{64, GrBlockAllocator::GrowthPolicy::kFibonacci};
+    using PathDrawAllocator = SkTBlockList<GrPathTessellator::PathDrawList, 16>;
+    PathDrawAllocator fPathDrawAllocator{64, SkBlockAllocator::GrowthPolicy::kFibonacci};
 
     class AtlasPathList : SkNoncopyable {
     public:

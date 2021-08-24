@@ -46,7 +46,7 @@ public:
 
 private:
     // WARNING: LIke GrRenderTargetProxy, changes to this can cause issues in ASAN. This is caused
-    // by GrGLSLProgramBuilder's GrTBlockLists requiring 16 byte alignment, but since
+    // by GrGLSLProgramBuilder's SkTBlockLists requiring 16 byte alignment, but since
     // GrGLSLFragmentShaderBuilder has a virtual diamond hierarchy, ASAN requires all this pointers
     // to start aligned, even though clang is already correctly offsetting the individual fields
     // that require the larger alignment. In the current world, this extra padding is sufficient to

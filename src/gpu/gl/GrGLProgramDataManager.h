@@ -9,8 +9,8 @@
 #define GrGLProgramDataManager_DEFINED
 
 #include "include/gpu/gl/GrGLTypes.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
@@ -35,11 +35,11 @@ public:
         GrGLint     fLocation;
     };
 
-    // This uses a GrTBlockList rather than SkTArray/std::vector so that the GrShaderVars
+    // This uses a SkTBlockList rather than SkTArray/std::vector so that the GrShaderVars
     // don't move in memory after they are inserted. Users of GrGLShaderBuilder get refs to the vars
     // and ptrs to their name strings. Otherwise, we'd have to hand out copies.
-    typedef GrTBlockList<GLUniformInfo> UniformInfoArray;
-    typedef GrTBlockList<VaryingInfo>   VaryingInfoArray;
+    typedef SkTBlockList<GLUniformInfo> UniformInfoArray;
+    typedef SkTBlockList<VaryingInfo>   VaryingInfoArray;
 
     GrGLProgramDataManager(GrGLGpu*, const UniformInfoArray&);
 

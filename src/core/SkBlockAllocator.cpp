@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrBlockAllocator.h"
+#include "src/core/SkBlockAllocator.h"
 
 #ifdef SK_DEBUG
 #include <vector>
 #endif
 
-GrBlockAllocator::GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementBytes,
+SkBlockAllocator::SkBlockAllocator(GrowthPolicy policy, size_t blockIncrementBytes,
                                    size_t additionalPreallocBytes)
         : fTail(&fHead)
         // Round up to the nearest max-aligned value, and then divide so that fBlockSizeIncrement
@@ -21,14 +21,14 @@ GrBlockAllocator::GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementByt
         , fGrowthPolicy(static_cast<uint64_t>(policy))
         , fN0((policy == GrowthPolicy::kLinear || policy == GrowthPolicy::kExponential) ? 1 : 0)
         , fN1(1)
-        // The head block always fills remaining space from GrBlockAllocator's size, because it's
+        // The head block always fills remaining space from SkBlockAllocator's size, because it's
         // inline, but can take over the specified number of bytes immediately after it.
         , fHead(/*prev=*/nullptr, additionalPreallocBytes + BaseHeadBlockSize()) {
     SkASSERT(fBlockIncrement >= 1);
     SkASSERT(additionalPreallocBytes <= kMaxAllocationSize);
 }
 
-GrBlockAllocator::Block::Block(Block* prev, int allocationSize)
+SkBlockAllocator::Block::Block(Block* prev, int allocationSize)
          : fNext(nullptr)
          , fPrev(prev)
          , fSize(allocationSize)
@@ -41,16 +41,16 @@ GrBlockAllocator::Block::Block(Block* prev, int allocationSize)
     this->poisonRange(kDataStart, fSize);
 }
 
-GrBlockAllocator::Block::~Block() {
+SkBlockAllocator::Block::~Block() {
     this->unpoisonRange(kDataStart, fSize);
 
     SkASSERT(fSentinel == kAssignedMarker);
     SkDEBUGCODE(fSentinel = kFreedMarker;) // FWIW
 }
 
-size_t GrBlockAllocator::totalSize() const {
+size_t SkBlockAllocator::totalSize() const {
     // Use size_t since the sum across all blocks could exceed 'int', even though each block won't
-    size_t size = offsetof(GrBlockAllocator, fHead) + this->scratchBlockSize();
+    size_t size = offsetof(SkBlockAllocator, fHead) + this->scratchBlockSize();
     for (const Block* b : this->blocks()) {
         size += b->fSize;
     }
@@ -58,7 +58,7 @@ size_t GrBlockAllocator::totalSize() const {
     return size;
 }
 
-size_t GrBlockAllocator::totalUsableSpace() const {
+size_t SkBlockAllocator::totalUsableSpace() const {
     size_t size = this->scratchBlockSize();
     if (size > 0) {
         size -= kDataStart; // scratchBlockSize reports total block size, not usable size
@@ -70,7 +70,7 @@ size_t GrBlockAllocator::totalUsableSpace() const {
     return size;
 }
 
-size_t GrBlockAllocator::totalSpaceInUse() const {
+size_t SkBlockAllocator::totalSpaceInUse() const {
     size_t size = 0;
     for (const Block* b : this->blocks()) {
         size += (b->fCursor - kDataStart);
@@ -79,7 +79,7 @@ size_t GrBlockAllocator::totalSpaceInUse() const {
     return size;
 }
 
-GrBlockAllocator::Block* GrBlockAllocator::findOwningBlock(const void* p) {
+SkBlockAllocator::Block* SkBlockAllocator::findOwningBlock(const void* p) {
     // When in doubt, search in reverse to find an overlapping block.
     uintptr_t ptr = reinterpret_cast<uintptr_t>(p);
     for (Block* b : this->rblocks()) {
@@ -93,7 +93,7 @@ GrBlockAllocator::Block* GrBlockAllocator::findOwningBlock(const void* p) {
     return nullptr;
 }
 
-void GrBlockAllocator::releaseBlock(Block* block) {
+void SkBlockAllocator::releaseBlock(Block* block) {
      if (block == &fHead) {
         // Reset the cursor of the head block so that it can be reused if it becomes the new tail
         block->fCursor = kDataStart;
@@ -147,7 +147,7 @@ void GrBlockAllocator::releaseBlock(Block* block) {
     SkASSERT(fN1 >= 1 && fN0 >= 0);
 }
 
-void GrBlockAllocator::stealHeapBlocks(GrBlockAllocator* other) {
+void SkBlockAllocator::stealHeapBlocks(SkBlockAllocator* other) {
     Block* toSteal = other->fHead.fNext;
     if (toSteal) {
         // The other's next block connects back to this allocator's current tail, and its new tail
@@ -162,7 +162,7 @@ void GrBlockAllocator::stealHeapBlocks(GrBlockAllocator* other) {
     } // else no block to steal
 }
 
-void GrBlockAllocator::reset() {
+void SkBlockAllocator::reset() {
     for (Block* b : this->rblocks()) {
         if (b == &fHead) {
             // Reset metadata and cursor, tail points to the head block again
@@ -187,14 +187,14 @@ void GrBlockAllocator::reset() {
     fN1 = 1;
 }
 
-void GrBlockAllocator::resetScratchSpace() {
+void SkBlockAllocator::resetScratchSpace() {
     if (fHead.fPrev) {
         delete fHead.fPrev;
         fHead.fPrev = nullptr;
     }
 }
 
-void GrBlockAllocator::addBlock(int minimumSize, int maxSize) {
+void SkBlockAllocator::addBlock(int minimumSize, int maxSize) {
     SkASSERT(minimumSize > (int) sizeof(Block) && minimumSize <= maxSize);
 
     // Max positive value for uint:23 storage (decltype(fN0) picks up uint64_t, not uint:23).
@@ -259,7 +259,7 @@ void GrBlockAllocator::addBlock(int minimumSize, int maxSize) {
 }
 
 #ifdef SK_DEBUG
-void GrBlockAllocator::validate() const {
+void SkBlockAllocator::validate() const {
     std::vector<const Block*> blocks;
     const Block* prev = nullptr;
     for (const Block* block : this->blocks()) {

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrTBlockList.h"
+#include "src/core/SkTBlockList.h"
 #include "tests/Test.h"
 
 namespace {
@@ -22,7 +22,7 @@ struct C {
 
     int fID;
 
-    // Under the hood, GrTBlockList and GrBlockAllocator round up to max_align_t. If 'C' was
+    // Under the hood, SkTBlockList and SkBlockAllocator round up to max_align_t. If 'C' was
     // just 4 bytes, that often means the internal blocks can squeeze a few extra instances in. This
     // is fine, but makes predicting a little trickier, so make sure C is a bit bigger.
     int fPadding[4];
@@ -37,10 +37,23 @@ struct D {
 
 }  // namespace
 
+class TBlockListTestAccess {
+public:
+    template<int N>
+    static size_t ScratchBlockSize(SkTBlockList<C, N>& list) {
+        return (size_t) list.fAllocator->scratchBlockSize();
+    }
+
+    template<int N>
+    static size_t TotalSize(SkTBlockList<C, N>& list) {
+        return list.fAllocator->totalSize();
+    }
+};
+
 // Checks that the allocator has the correct count, etc and that the element IDs are correct.
 // Then pops popCnt items and checks again.
 template<int N>
-static void check_allocator_helper(GrTBlockList<C, N>* allocator, int cnt, int popCnt,
+static void check_allocator_helper(SkTBlockList<C, N>* allocator, int cnt, int popCnt,
                                    skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, (0 == cnt) == allocator->empty());
     REPORTER_ASSERT(reporter, cnt == allocator->count());
@@ -67,10 +80,10 @@ static void check_allocator_helper(GrTBlockList<C, N>* allocator, int cnt, int p
 }
 
 template<int N>
-static void check_iterator_helper(GrTBlockList<C, N>* allocator,
+static void check_iterator_helper(SkTBlockList<C, N>* allocator,
                                   const std::vector<C*>& expected,
                                   skiatest::Reporter* reporter) {
-    const GrTBlockList<C, N>* cAlloc = allocator;
+    const SkTBlockList<C, N>* cAlloc = allocator;
     REPORTER_ASSERT(reporter, (size_t) allocator->count() == expected.size());
     // Forward+const
     int i = 0;
@@ -114,7 +127,7 @@ static void check_iterator_helper(GrTBlockList<C, N>* allocator,
 // Adds cnt items to the allocator, tests the cnts and iterators, pops popCnt items and checks
 // again. Finally it resets the allocator and checks again.
 template<int N>
-static void check_allocator(GrTBlockList<C, N>* allocator, int cnt, int popCnt,
+static void check_allocator(SkTBlockList<C, N>* allocator, int cnt, int popCnt,
                             skiatest::Reporter* reporter) {
     enum ItemInitializer : int {
         kCopyCtor,
@@ -156,7 +169,7 @@ static void check_allocator(GrTBlockList<C, N>* allocator, int cnt, int popCnt,
 }
 
 template<int N>
-static void run_allocator_test(GrTBlockList<C, N>* allocator, skiatest::Reporter* reporter) {
+static void run_allocator_test(SkTBlockList<C, N>* allocator, skiatest::Reporter* reporter) {
     check_allocator(allocator, 0, 0, reporter);
     check_allocator(allocator, 1, 1, reporter);
     check_allocator(allocator, 2, 2, reporter);
@@ -169,8 +182,8 @@ static void run_allocator_test(GrTBlockList<C, N>* allocator, skiatest::Reporter
 template<int N1, int N2>
 static void run_concat_test(skiatest::Reporter* reporter, int aCount, int bCount) {
 
-    GrTBlockList<C, N1> listA;
-    GrTBlockList<C, N2> listB;
+    SkTBlockList<C, N1> listA;
+    SkTBlockList<C, N2> listB;
 
     for (int i = 0; i < aCount; ++i) {
         listA.emplace_back(i);
@@ -185,7 +198,7 @@ static void run_concat_test(skiatest::Reporter* reporter, int aCount, int bCount
     // Concatenate B into A and verify.
     listA.concat(std::move(listB));
     REPORTER_ASSERT(reporter, listA.count() == aCount + bCount);
-    // GrTBlockList guarantees the moved list is empty, but clang-tidy doesn't know about it;
+    // SkTBlockList guarantees the moved list is empty, but clang-tidy doesn't know about it;
     // in practice we won't really be using moved lists so this won't pollute our main code base
     // with lots of warning disables.
     REPORTER_ASSERT(reporter, listB.count() == 0); // NOLINT(bugprone-use-after-move)
@@ -206,8 +219,8 @@ static void run_concat_trivial_test(skiatest::Reporter* reporter, int aCount, in
 
     // This is similar to run_concat_test(), except since D is trivial we can't verify the instant
     // counts that are tracked via ctor/dtor.
-    GrTBlockList<D, N1> listA;
-    GrTBlockList<D, N2> listB;
+    SkTBlockList<D, N1> listA;
+    SkTBlockList<D, N2> listB;
 
     for (int i = 0; i < aCount; ++i) {
         listA.push_back({i});
@@ -235,24 +248,24 @@ template<int N>
 static void run_reserve_test(skiatest::Reporter* reporter) {
     constexpr int kItemsPerBlock = N + 4; // Make this a number > 1, even if N starting items == 1
 
-    GrTBlockList<C, N> list(kItemsPerBlock);
-    size_t initialSize = list.allocator()->totalSize();
+    SkTBlockList<C, N> list(kItemsPerBlock);
+    size_t initialSize = TBlockListTestAccess::TotalSize(list);
     // Should be able to add N instances of T w/o changing size from initialSize
     for (int i = 0; i < N; ++i) {
         list.push_back(C(i));
     }
-    REPORTER_ASSERT(reporter, initialSize == list.allocator()->totalSize());
+    REPORTER_ASSERT(reporter, initialSize == TBlockListTestAccess::TotalSize(list));
 
     // Reserve room for 2*kItemsPerBlock items
     list.reserve(2 * kItemsPerBlock);
     REPORTER_ASSERT(reporter, list.count() == N); // count shouldn't change though
 
-    size_t reservedSize = list.allocator()->totalSize();
+    size_t reservedSize = TBlockListTestAccess::TotalSize(list);
     REPORTER_ASSERT(reporter, reservedSize >= initialSize + 2 * kItemsPerBlock * sizeof(C));
     for (int i = 0; i < 2 * kItemsPerBlock; ++i) {
         list.push_back(C(i));
     }
-    REPORTER_ASSERT(reporter, reservedSize == list.allocator()->totalSize());
+    REPORTER_ASSERT(reporter, reservedSize == TBlockListTestAccess::TotalSize(list));
 
     // Make the next block partially fully (N > 0 but < kItemsPerBlock)
     for (int i = 0; i < N; ++i) {
@@ -263,20 +276,20 @@ static void run_reserve_test(skiatest::Reporter* reporter) {
     // (kItemsPerBlock-N) that are still available in the active block
     list.reserve(2 * kItemsPerBlock);
     int extraReservedCount = kItemsPerBlock + N;
-    // Because GrTBlockList normally allocates blocks in fixed sizes, and extraReservedCount >
+    // Because SkTBlockList normally allocates blocks in fixed sizes, and extraReservedCount >
     // items-per-block, it will always use that size and not that of the growth policy.
-    REPORTER_ASSERT(reporter, (size_t) list.allocator()->testingOnly_scratchBlockSize() >=
+    REPORTER_ASSERT(reporter, TBlockListTestAccess::ScratchBlockSize(list) >=
                                        extraReservedCount * sizeof(C));
 
-    reservedSize = list.allocator()->totalSize();
+    reservedSize = TBlockListTestAccess::TotalSize(list);
     for (int i = 0; i < 2 * kItemsPerBlock; ++i) {
         list.push_back(C(i));
     }
-    REPORTER_ASSERT(reporter, reservedSize == list.allocator()->totalSize());
+    REPORTER_ASSERT(reporter, reservedSize == TBlockListTestAccess::TotalSize(list));
 
     // If we reserve a count < items-per-block, it will use the fixed size from the growth policy.
     list.reserve(2);
-    REPORTER_ASSERT(reporter, (size_t) list.allocator()->testingOnly_scratchBlockSize() >=
+    REPORTER_ASSERT(reporter, TBlockListTestAccess::ScratchBlockSize(list) >=
                                        kItemsPerBlock * sizeof(C));
 
     // Ensure the reservations didn't initialize any more D's than anticipated
@@ -287,24 +300,24 @@ static void run_reserve_test(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == C::gInstCnt);
 }
 
-DEF_TEST(GrTBlockList, reporter) {
+DEF_TEST(SkTBlockList, reporter) {
     // Test combinations of allocators with and without stack storage and with different block sizes
-    GrTBlockList<C> a1(1);
+    SkTBlockList<C> a1(1);
     run_allocator_test(&a1, reporter);
 
-    GrTBlockList<C> a2(2);
+    SkTBlockList<C> a2(2);
     run_allocator_test(&a2, reporter);
 
-    GrTBlockList<C> a5(5);
+    SkTBlockList<C> a5(5);
     run_allocator_test(&a5, reporter);
 
-    GrTBlockList<C, 1> sa1;
+    SkTBlockList<C, 1> sa1;
     run_allocator_test(&sa1, reporter);
 
-    GrTBlockList<C, 3> sa3;
+    SkTBlockList<C, 3> sa3;
     run_allocator_test(&sa3, reporter);
 
-    GrTBlockList<C, 4> sa4;
+    SkTBlockList<C, 4> sa4;
     run_allocator_test(&sa4, reporter);
 
     run_reserve_test<1>(reporter);

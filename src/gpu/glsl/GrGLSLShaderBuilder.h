@@ -12,8 +12,8 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkTDArray.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 #include <stdarg.h>
@@ -179,7 +179,7 @@ public:
     };
 
 protected:
-    typedef GrTBlockList<GrShaderVar> VarArray;
+    typedef SkTBlockList<GrShaderVar> VarArray;
     void appendDecls(const VarArray& vars, SkString* out) const;
 
     void appendFunctionDecl(GrSLType returnType,

@@ -9,9 +9,9 @@
 #define GrVkUniformHandler_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/vk/GrVkSampler.h"
@@ -60,7 +60,7 @@ public:
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
     };
-    typedef GrTBlockList<VkUniformInfo> UniformInfoArray;
+    typedef SkTBlockList<VkUniformInfo> UniformInfoArray;
 
     ~GrVkUniformHandler() override;
 

@@ -8,7 +8,7 @@
 #ifndef GrSPIRVUniformHandler_DEFINED
 #define GrSPIRVUniformHandler_DEFINED
 
-#include "src/gpu/GrTBlockList.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 /*
@@ -27,7 +27,7 @@ public:
     struct SPIRVUniformInfo : public UniformInfo {
         int fUBOOffset;
     };
-    typedef GrTBlockList<SPIRVUniformInfo> UniformInfoArray;
+    typedef SkTBlockList<SPIRVUniformInfo> UniformInfoArray;
     enum {
         kUniformBinding = 0,
         kUniformDescriptorSet = 0,
