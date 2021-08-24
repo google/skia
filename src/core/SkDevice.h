@@ -496,16 +496,16 @@ protected:
     void onClipRegion(const SkRegion& globalRgn, SkClipOp op) override;
     void onClipShader(sk_sp<SkShader> shader) override;
     void onReplaceClip(const SkIRect& rect) override;
-    bool onClipIsAA() const override { return this->clip().isAA(); }
+    bool onClipIsAA() const override { return this->clip().fIsAA; }
     bool onClipIsWideOpen() const override {
-        return this->clip().isRect() &&
+        return this->clip().fIsRect &&
                this->onDevClipBounds() == this->bounds();
     }
     void onAsRgnClip(SkRegion* rgn) const override {
         rgn->setRect(this->onDevClipBounds());
     }
     ClipType onGetClipType() const override;
-    SkIRect onDevClipBounds() const override { return this->clip().getBounds(); }
+    SkIRect onDevClipBounds() const override { return this->clip().fClipBounds; }
 
     void drawPaint(const SkPaint& paint) override {}
     void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&) override {}
@@ -529,20 +529,27 @@ protected:
 
 private:
     struct ClipState {
-        SkConservativeClip fClip;
-        int fDeferredSaveCount = 0;
+        SkIRect fClipBounds;
+        int fDeferredSaveCount;
+        bool fIsAA;
+        bool fIsRect;
 
-        ClipState() = default;
-        explicit ClipState(const SkConservativeClip& clip) : fClip(clip) {}
+        ClipState(const SkIRect& bounds, bool isAA, bool isRect)
+                : fClipBounds(bounds)
+                , fDeferredSaveCount(0)
+                , fIsAA(isAA)
+                , fIsRect(isRect) {}
+
+        void op(SkClipOp op, const SkM44& transform, const SkRect& bounds,
+                bool isAA, bool fillsBounds);
     };
 
-    const SkConservativeClip& clip() const { return fClipStack.back().fClip; }
-    SkConservativeClip& writableClip();
+    const ClipState& clip() const { return fClipStack.back(); }
+    ClipState& writableClip();
 
     void resetClipStack() {
         fClipStack.reset();
-        ClipState& state = fClipStack.push_back();
-        state.fClip.setRect(this->bounds());
+        fClipStack.emplace_back(this->bounds(), /*isAA=*/false, /*isRect=*/true);
     }
 
     SkSTArray<4, ClipState> fClipStack;

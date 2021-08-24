@@ -15,42 +15,6 @@
 
 class SkRRect;
 
-class SkConservativeClip {
-    SkIRect         fBounds = SkIRect::MakeEmpty();
-    bool            fIsRect = true;
-    bool            fAA = false;
-
-    enum class ClipAA : bool { kNo = false, kYes = true };
-    enum class IsRect : bool { kNo = false, kYes = true };
-
-    inline void applyOpParams(SkRegion::Op op, ClipAA aa, IsRect rect) {
-        fAA |= (bool) aa;
-        fIsRect &= (op == SkRegion::kIntersect_Op && (bool) rect);
-    }
-
-public:
-    bool isEmpty() const { return fBounds.isEmpty(); }
-    bool isRect() const { return fIsRect; }
-    bool isAA() const { return fAA; }
-    const SkIRect& getBounds() const { return fBounds; }
-
-    void setEmpty() { this->setRect(SkIRect::MakeEmpty()); }
-    void setRect(const SkIRect& r) {
-        fBounds = r;
-        fIsRect = true;
-        fAA = false;
-    }
-
-    void opShader(sk_sp<SkShader>) {
-        fIsRect = false;
-    }
-    void opRect(const SkRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void opRRect(const SkRRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void opPath(const SkPath&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void opRegion(const SkRegion&, SkRegion::Op);
-    void opIRect(const SkIRect&, SkRegion::Op);
-};
-
 /**
  *  Wraps a SkRegion and SkAAClip, so we have a single object that can represent either our
  *  BW or antialiased clips.

@@ -1297,6 +1297,18 @@ public:
         this->roundOut(&ir);
         return ir;
     }
+    /** Sets SkIRect by rounding up fLeft and fTop; and discarding the fractional portion
+        of fRight and fBottom, using
+        (SkScalarCeilToInt(fLeft), SkScalarCeilToInt(fTop),
+         SkScalarFloorToInt(fRight), SkScalarFloorToInt(fBottom)).
+
+        @return  rounded SkIRect
+    */
+    SkIRect roundIn() const {
+        SkIRect ir;
+        this->roundIn(&ir);
+        return ir;
+    }
 
     /** Swaps fLeft and fRight if fLeft is greater than fRight; and swaps
         fTop and fBottom if fTop is greater than fBottom. Result may be empty;
