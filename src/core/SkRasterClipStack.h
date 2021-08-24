@@ -11,7 +11,6 @@
 #include "include/core/SkClipOp.h"
 #include "include/private/SkDeque.h"
 #include "src/core/SkRasterClip.h"
-#include "src/core/SkScan.h"
 #include <new>
 
 template <typename T> class SkTStack {
@@ -67,7 +66,6 @@ public:
     SkRasterClipStack(int width, int height)
         : fStack(fStorage, sizeof(fStorage))
         , fRootBounds(SkIRect::MakeWH(width, height))
-        , fDisableAA(SkScan::DowngradeClipAA(fRootBounds))
     {
         Rec& rec = fStack.push();
         rec.fRC.setRect(fRootBounds);
@@ -102,19 +100,19 @@ public:
     }
 
     void clipRect(const SkMatrix& ctm, const SkRect& rect, SkClipOp op, bool aa) {
-        this->writable_rc().op(rect, ctm, fRootBounds, (SkRegion::Op)op, this->finalAA(aa));
+        this->writable_rc().op(rect, ctm, fRootBounds, (SkRegion::Op)op, aa);
         this->trimIfExpanding(op);
         this->validate();
     }
 
     void clipRRect(const SkMatrix& ctm, const SkRRect& rrect, SkClipOp op, bool aa) {
-        this->writable_rc().op(rrect, ctm, fRootBounds, (SkRegion::Op)op, this->finalAA(aa));
+        this->writable_rc().op(rrect, ctm, fRootBounds, (SkRegion::Op)op, aa);
         this->trimIfExpanding(op);
         this->validate();
     }
 
     void clipPath(const SkMatrix& ctm, const SkPath& path, SkClipOp op, bool aa) {
-        this->writable_rc().op(path, ctm, fRootBounds, (SkRegion::Op)op, this->finalAA(aa));
+        this->writable_rc().op(path, ctm, fRootBounds, (SkRegion::Op)op, aa);
         this->trimIfExpanding(op);
         this->validate();
     }
@@ -163,7 +161,6 @@ private:
     void*           fStorage[PTR_COUNT];
     SkTStack<Rec>   fStack;
     SkIRect         fRootBounds;
-    bool            fDisableAA;
 
     SkRasterClip& writable_rc() {
         SkASSERT(fStack.top().fDeferredCount >= 0);
@@ -174,8 +171,6 @@ private:
         }
         return fStack.top().fRC;
     }
-
-    bool finalAA(bool aa) const { return aa && !fDisableAA; }
 
     void trimIfExpanding(SkClipOp op) {
         if ((int)op > (int)SkClipOp::kIntersect) {
