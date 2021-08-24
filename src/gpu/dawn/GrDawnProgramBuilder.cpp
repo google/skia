@@ -263,11 +263,6 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         return nullptr;
     }
 
-    builder.fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
-    builder.fFS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
-    builder.fVS.extensions().appendf("#extension GL_ARB_shading_language_420pack : enable\n");
-    builder.fFS.extensions().appendf("#extension GL_ARB_shading_language_420pack : enable\n");
-
     builder.finalizeShaders();
 
     SkSL::Program::Inputs vertInputs, fragInputs;

@@ -549,11 +549,6 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
     } else {
         id<MTLLibrary> shaderLibraries[kGrShaderTypeCount];
 
-        fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
-        fFS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
-        fVS.extensions().appendf("#extension GL_ARB_shading_language_420pack : enable\n");
-        fFS.extensions().appendf("#extension GL_ARB_shading_language_420pack : enable\n");
-
         this->finalizeShaders();
 
         SkSL::Program::Settings settings;

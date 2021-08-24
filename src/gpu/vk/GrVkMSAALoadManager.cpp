@@ -33,9 +33,6 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     SkSL::String vertShaderText;
     vertShaderText.append(
-            "#extension GL_ARB_separate_shader_objects : enable\n"
-            "#extension GL_ARB_shading_language_420pack : enable\n"
-
             "layout(set = 0, binding = 0) uniform vertexUniformBuffer {"
             "half4 uPosXform;"
             "};"
@@ -49,9 +46,6 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     SkSL::String fragShaderText;
     fragShaderText.append(
-            "#extension GL_ARB_separate_shader_objects : enable\n"
-            "#extension GL_ARB_shading_language_420pack : enable\n"
-
             "layout(input_attachment_index = 0, set = 2, binding = 0) uniform subpassInput uInput;"
 
             "// MSAA Load Program FS\n"

@@ -571,13 +571,6 @@ static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
-    // We need to enable the following extensions so that the compiler can correctly make spir-v
-    // from our glsl shaders.
-    fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
-    fFS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
-    fVS.extensions().appendf("#extension GL_ARB_shading_language_420pack : enable\n");
-    fFS.extensions().appendf("#extension GL_ARB_shading_language_420pack : enable\n");
-
     this->finalizeShaders();
 
     SkSL::Program::Settings settings;
