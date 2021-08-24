@@ -67,12 +67,7 @@ public:
     SkRasterClipStack(int width, int height)
         : fStack(fStorage, sizeof(fStorage))
         , fRootBounds(SkIRect::MakeWH(width, height))
-#if !defined(SK_PRESERVE_RC_AA)
-        , fDisableAA(SkScan::DowngradeClipAA(fRootBounds))
-#else
-        , fDisableAA(false)
-#endif
-    {
+        , fDisableAA(SkScan::DowngradeClipAA(fRootBounds)) {
         Rec& rec = fStack.push();
         rec.fRC.setRect(fRootBounds);
         rec.fDeferredCount = 0;
