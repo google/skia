@@ -1,0 +1,23 @@
+// Expect 12 errors
+
+uniform shader      s;
+uniform colorFilter f;
+uniform blender     b;
+
+uniform float2 xy;
+uniform half4  color;
+
+half4 shader_xy_color()  { return sample(s, xy, color); }
+half4 shader_color()     { return sample(s, color); }
+half4 shader_color_xy()  { return sample(s, color, xy); }
+half4 shader_empty()     { return sample(s); }
+half4 shader_matrix()    { return sample(s, float3x3(1)); }
+
+half4 filter_empty()     { return sample(f); }
+half4 filter_xy()        { return sample(f, xy); }
+half4 filter_xy_color()  { return sample(f, xy, color); }
+
+half4 blender_empty()    { return sample(b); }
+half4 blender_color()    { return sample(b, color); }
+half4 blender_xy()       { return sample(b, xy); }
+half4 blender_xy_color() { return sample(b, xy, color); }

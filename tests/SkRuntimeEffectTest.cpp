@@ -121,43 +121,14 @@ DEF_TEST(SkRuntimeEffectForColorFilter, r) {
     // Sampling a child shader requires that we pass explicit coords
     test_valid("uniform shader child;"
                "half4 main(half4 c) { return sample(child, c.rg); }");
-    // Trying to pass a color as well. (Works internally with FPs, but not in runtime effects).
-    test_invalid("uniform shader child;"
-                 "half4 main(half4 c) { return sample(child, c.rg, c); }",
-                 "no match for sample(shader, half2, half4)");
 
-    // Shader with just a color
-    test_invalid("uniform shader child;"
-                 "half4 main(half4 c) { return sample(child, c); }",
-                 "no match for sample(shader, half4)");
-    // Coords and color in a different order
-    test_invalid("uniform shader child;"
-                 "half4 main(half4 c) { return sample(child, c, c.rg); }",
-                 "no match for sample(shader, half4, half2)");
-
-    // Older variants that are no longer allowed
-    test_invalid(
-            "uniform shader child;"
-            "half4 main(half4 c) { return sample(child); }",
-            "no match for sample(shader)");
-    test_invalid(
-            "uniform shader child;"
-            "half4 main(half4 c) { return sample(child, float3x3(1)); }",
-            "no match for sample(shader, float3x3)");
-
-    // Sampling a colorFilter requires a color. No other signatures are valid.
+    // Sampling a colorFilter requires a color
     test_valid("uniform colorFilter child;"
                "half4 main(half4 c) { return sample(child, c); }");
 
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(half4 c) { return sample(child); }",
-                 "sample(colorFilter)");
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(half4 c) { return sample(child, c.rg); }",
-                 "sample(colorFilter, half2)");
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(half4 c) { return sample(child, c.rg, c); }",
-                 "sample(colorFilter, half2, half4)");
+    // Sampling a blender requires two colors
+    test_valid("uniform blender child;"
+               "half4 main(half4 c) { return sample(child, c, c); }");
 }
 
 DEF_TEST(SkRuntimeEffectForBlender, r) {
@@ -206,41 +177,14 @@ DEF_TEST(SkRuntimeEffectForBlender, r) {
     // Sampling a child shader requires that we pass explicit coords
     test_valid("uniform shader child;"
                "half4 main(half4 s, half4 d) { return sample(child, s.rg); }");
-    // Trying to pass a color as well. (Works internally with FPs, but not in runtime effects).
-    test_invalid("uniform shader child;"
-                 "half4 main(half4 s, half4 d) { return sample(child, s.rg, d); }",
-                 "no match for sample(shader, half2, half4)");
 
-    // Shader with just a color
-    test_invalid("uniform shader child;"
-                 "half4 main(half4 s, half4 d) { return sample(child, s); }",
-                 "no match for sample(shader, half4)");
-    // Coords and color in a different order
-    test_invalid("uniform shader child;"
-                 "half4 main(half4 s, half4 d) { return sample(child, s, d.rg); }",
-                 "no match for sample(shader, half4, half2)");
-
-    // Older variants that are no longer allowed
-    test_invalid("uniform shader child;"
-                 "half4 main(half4 s, half4 d) { return sample(child); }",
-                 "no match for sample(shader)");
-    test_invalid("uniform shader child;"
-                 "half4 main(half4 s, half4 d) { return sample(child, float3x3(1)); }",
-                 "no match for sample(shader, float3x3)");
-
-    // Sampling a colorFilter requires a color. No other signatures are valid.
+    // Sampling a colorFilter requires a color
     test_valid("uniform colorFilter child;"
                "half4 main(half4 s, half4 d) { return sample(child, d); }");
 
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(half4 s, half4 d) { return sample(child); }",
-                 "sample(colorFilter)");
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(half4 s, half4 d) { return sample(child, d.rg); }",
-                 "sample(colorFilter, half2)");
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(half4 s, half4 d) { return sample(child, d.rg, s); }",
-                 "sample(colorFilter, half2, half4)");
+    // Sampling a blender requires two colors
+    test_valid("uniform blender child;"
+               "half4 main(half4 s, half4 d) { return sample(child, s, d); }");
 }
 
 DEF_TEST(SkRuntimeEffectForShader, r) {
@@ -296,43 +240,13 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
     test_valid("uniform shader child;"
                "half4 main(float2 p) { return sample(child, p); }");
 
-    // Trying to pass a color as well. (Works internally with FPs, but not in runtime effects).
-    test_invalid("uniform shader child;"
-                 "half4 main(float2 p, half4 c) { return sample(child, p, c); }",
-                 "no match for sample(shader, float2, half4)");
-
-    // Shader with just a color
-    test_invalid("uniform shader child;"
-                 "half4 main(float2 p, half4 c) { return sample(child, c); }",
-                 "no match for sample(shader, half4)");
-    // Coords and color in a different order
-    test_invalid("uniform shader child;"
-                 "half4 main(float2 p, half4 c) { return sample(child, c, p); }",
-                 "no match for sample(shader, half4, float2)");
-
-    // Older variants that are no longer allowed
-    test_invalid(
-            "uniform shader child;"
-            "half4 main(float2 p) { return sample(child); }",
-            "no match for sample(shader)");
-    test_invalid(
-            "uniform shader child;"
-            "half4 main(float2 p) { return sample(child, float3x3(1)); }",
-            "no match for sample(shader, float3x3)");
-
-    // Sampling a colorFilter requires a color. No other signatures are valid.
+    // Sampling a colorFilter requires a color
     test_valid("uniform colorFilter child;"
                "half4 main(float2 p, half4 c) { return sample(child, c); }");
 
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(float2 p) { return sample(child); }",
-                 "sample(colorFilter)");
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(float2 p) { return sample(child, p); }",
-                 "sample(colorFilter, float2)");
-    test_invalid("uniform colorFilter child;"
-                 "half4 main(float2 p, half4 c) { return sample(child, p, c); }",
-                 "sample(colorFilter, float2, half4)");
+    // Sampling a blender requires two colors
+    test_valid("uniform blender child;"
+               "half4 main(float2 p, half4 c) { return sample(child, c, c); }");
 }
 
 using PreTestFn = std::function<void(SkCanvas*, SkPaint*)>;

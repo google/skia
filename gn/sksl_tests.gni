@@ -550,6 +550,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/IllegalRecursionComplex.rts",
   "/sksl/runtime_errors/IllegalRecursionMutual.rts",
   "/sksl/runtime_errors/IllegalRecursionSimple.rts",
+  "/sksl/runtime_errors/IllegalShaderSampling.rts",
   "/sksl/runtime_errors/IllegalShaderUse.rts",
   "/sksl/runtime_errors/IllegalStatements.rts",
   "/sksl/runtime_errors/InvalidBlendMain.rtb",

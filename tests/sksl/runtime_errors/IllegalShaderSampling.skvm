@@ -1,0 +1,15 @@
+### Compilation failed:
+
+error: 10: no match for sample(shader, float2, half4)
+error: 11: no match for sample(shader, half4)
+error: 12: no match for sample(shader, half4, float2)
+error: 13: no match for sample(shader)
+error: 14: no match for sample(shader, float3x3)
+error: 16: no match for sample(colorFilter)
+error: 17: no match for sample(colorFilter, float2)
+error: 18: no match for sample(colorFilter, float2, half4)
+error: 20: no match for sample(blender)
+error: 21: no match for sample(blender, half4)
+error: 22: no match for sample(blender, float2)
+error: 23: no match for sample(blender, float2, half4)
+12 errors
