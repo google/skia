@@ -402,10 +402,10 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
         return nullptr;
     }
     static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
-        uniform colorFilter fp;  // Declared as colorFilter so we can use sample(..., color)
+        uniform colorFilter fp;  // Declared as colorFilter so we can pass a color
         uniform half4 color;
         half4 main(half4 inColor) {
-            return sample(fp, color);
+            return filter(fp, color);
         }
     )");
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
@@ -421,9 +421,9 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::UseDestColorAsInput(
         std::unique_ptr<GrFragmentProcessor> fp) {
     static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForBlender, R"(
-        uniform colorFilter fp;  // Declared as colorFilter so we can use sample(..., color)
+        uniform colorFilter fp;  // Declared as colorFilter so we can pass a color
         half4 main(half4 src, half4 dst) {
-            return sample(fp, dst);
+            return filter(fp, dst);
         }
     )");
     return GrSkSLFP::Make(effect, "UseDestColorAsInput", /*inputFP=*/nullptr,
@@ -438,9 +438,9 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputOpaqueAndPost
         return nullptr;
     }
     static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
-        uniform colorFilter fp;  // Declared as colorFilter so we can use sample(..., color)
+        uniform colorFilter fp;  // Declared as colorFilter so we can pass a color
         half4 main(half4 inColor) {
-            return inColor.a * sample(fp, unpremul(inColor).rgb1);
+            return inColor.a * filter(fp, unpremul(inColor).rgb1);
         }
     )");
     return GrSkSLFP::Make(effect,

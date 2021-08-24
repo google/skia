@@ -569,10 +569,10 @@ public:
 // Analysis
 
 SampleUsage Analysis::GetSampleUsage(const Program& program,
-                                     const Variable& fp,
+                                     const Variable& child,
                                      bool writesToSampleCoords,
                                      int* elidedSampleCoordCount) {
-    MergeSampleUsageVisitor visitor(*program.fContext, fp, writesToSampleCoords);
+    MergeSampleUsageVisitor visitor(*program.fContext, child, writesToSampleCoords);
     SampleUsage result = visitor.visit(program);
     if (elidedSampleCoordCount) {
         *elidedSampleCoordCount += visitor.elidedSampleCoordCount();

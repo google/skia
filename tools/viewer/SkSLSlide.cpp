@@ -43,7 +43,7 @@ SkSLSlide::SkSLSlide() {
         "uniform shader child;\n"
         "\n"
         "half4 main(float2 p) {\n"
-        "    return sample(child, p);\n"
+        "    return shade(child, p);\n"
         "}\n";
 
     fCodeIsDirty = true;

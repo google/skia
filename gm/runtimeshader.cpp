@@ -137,10 +137,10 @@ public:
         }
 
         half4 main(float2 xy) {
-            half4 before = sample(before_map, xy);
-            half4 after = sample(after_map, xy);
+            half4 before = shade(before_map, xy);
+            half4 after = shade(after_map, xy);
 
-            float m = smooth_cutoff(sample(threshold_map, xy).a);
+            float m = smooth_cutoff(shade(threshold_map, xy).a);
             return mix(before, after, m);
         }
     )", kAnimate_RTFlag | kBench_RTFlag) {}
@@ -228,11 +228,11 @@ public:
     UnsharpRT() : RuntimeShaderGM("unsharp_rt", {512, 256}, R"(
         uniform shader input;
         half4 main(float2 xy) {
-            half4 c = sample(input, xy) * 5;
-            c -= sample(input, xy + float2( 1,  0));
-            c -= sample(input, xy + float2(-1,  0));
-            c -= sample(input, xy + float2( 0,  1));
-            c -= sample(input, xy + float2( 0, -1));
+            half4 c = shade(input, xy) * 5;
+            c -= shade(input, xy + float2( 1,  0));
+            c -= shade(input, xy + float2(-1,  0));
+            c -= shade(input, xy + float2( 0,  1));
+            c -= shade(input, xy + float2( 0, -1));
             return c;
         }
     )") {}
@@ -273,7 +273,7 @@ public:
         uniform float inv_size;
 
         half4 main(float2 xy) {
-            float4 c = unpremul(sample(input, xy));
+            float4 c = unpremul(shade(input, xy));
 
             // Map to cube coords:
             float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
@@ -283,7 +283,7 @@ public:
             float2 coords2 = float2(( ceil(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
 
             // Two bilinear fetches, plus a manual lerp for the third axis:
-            half4 color = mix(sample(color_cube, coords1), sample(color_cube, coords2),
+            half4 color = mix(shade(color_cube, coords1), shade(color_cube, coords2),
                               fract(cubeCoords.b));
 
             // Premul again
@@ -366,7 +366,7 @@ public:
             float2 coords2 = float2(( ceil(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
 
             // Two bilinear fetches, plus a manual lerp for the third axis:
-            half4 color = mix(sample(color_cube, coords1), sample(color_cube, coords2),
+            half4 color = mix(shade(color_cube, coords1), shade(color_cube, coords2),
                               fract(cubeCoords.b));
 
             // Premul again
@@ -429,7 +429,7 @@ public:
     DefaultColorRT() : RuntimeShaderGM("default_color_rt", {512, 256}, R"(
         uniform shader input;
         half4 main(float2 xy) {
-            return sample(input, xy);
+            return shade(input, xy);
         }
     )") {}
 
@@ -624,7 +624,7 @@ DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     static constexpr char scale[] =
         "uniform shader child;"
         "half4 main(float2 xy) {"
-        "    return sample(child, xy*0.1);"
+        "    return shade(child, xy*0.1);"
         "}";
 
     SkPaint p;

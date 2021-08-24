@@ -13,7 +13,7 @@ sk_sp<SkBlender> GetRuntimeBlendForBlendMode(SkBlendMode mode) {
     static auto result = SkRuntimeEffect::MakeForBlender(SkString(R"(
         uniform blender b;
         half4 main(half4 src, half4 dst) {
-            return sample(b, src, dst);
+            return blend(b, src, dst);
         }
     )"));
 

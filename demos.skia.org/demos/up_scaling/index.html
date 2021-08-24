@@ -64,10 +64,10 @@ function init() {
       float h = nearly_center(p) ? 0.0 : 0.5;
 
       // Manual bilerp logic
-      half4 pa = sample(image, float2(p.x-h, p.y-h));
-      half4 pb = sample(image, float2(p.x+h, p.y-h));
-      half4 pc = sample(image, float2(p.x-h, p.y+h));
-      half4 pd = sample(image, float2(p.x+h, p.y+h));
+      half4 pa = shade(image, float2(p.x-h, p.y-h));
+      half4 pb = shade(image, float2(p.x+h, p.y-h));
+      half4 pc = shade(image, float2(p.x-h, p.y+h));
+      half4 pd = shade(image, float2(p.x+h, p.y+h));
 
       // Now 'sharpen' the weighting. This is the magic sauce where we different
       // from a normal bilerp

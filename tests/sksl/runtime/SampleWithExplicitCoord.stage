@@ -1,4 +1,4 @@
 half4 main(float2 p)
 {
-	return half4(sample(child_0, _coords.yx));
+	return half4(shade(child_0, _coords.yx));
 }

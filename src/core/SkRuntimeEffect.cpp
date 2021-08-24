@@ -557,18 +557,9 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
         return nullptr;
     }
 
-    // We allocate a uniform color for the input color, and one for each call to sample(). When we
-    // encounter a sample call, we record the index of the child being sampled, as well as the color
-    // being passed. In most cases, we can record enough information to perfectly re-create that
-    // call when we're later running the program. (We support calls that pass the original input
-    // color, an immediate color, or the results of a previous sample call). If the color is none
-    // of those, we are unable to use this per-effect program, and callers will need to fall back
-    // to another (slower) implementation.
-
-    // We also require that any children are *also* color filters (not shaders or blenders). In
-    // theory we could detect the coords being passed to shader children, and replicate those calls,
-    // but that's very complicated, and has diminishing returns. (eg, for table lookup color
-    // filters).
+    // We require that any children are color filters (not shaders or blenders). In theory, we could
+    // detect the coords being passed to shader children, and replicate those calls, but that's very
+    // complicated, and has diminishing returns. (eg, for table lookup color filters).
     if (!std::all_of(effect->fChildren.begin(),
                      effect->fChildren.end(),
                      [](const SkRuntimeEffect::Child& c) {
@@ -605,10 +596,13 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
                ua.offset == ur.offset + 12;
     };
 
-    // We reserve a uniform color for each call to sample(). While processing the SkSL, we record
-    // the index of the child being sampled, and the color being filtered (in a SampleCall struct).
+    // We reserve a uniform color for each child invocation. While processing the SkSL, we record
+    // the index of the child, and the color being filtered (in a SampleCall struct).
     // When we run this program later, we use the SampleCall to evaluate the correct child, and
     // populate these uniform values. These Uniform ids are loads from the *second* arg ptr.
+    // If the color being passed is too complex for us to describe and re-create using SampleCall,
+    // we are unable to use this per-effect program, and callers will need to fall back to another
+    // (slower) implementation.
     skvm::Uniforms childColorUniforms{p.uniform(), 0};
     skvm::Color inputColor = p.uniformColor(/*placeholder*/ SkColors::kWhite, &childColorUniforms);
     std::vector<SkFilterColorProgram::SampleCall> sampleCalls;

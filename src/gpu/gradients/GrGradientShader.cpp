@@ -425,7 +425,7 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
         uniform int layoutPreservesOpacity;  // specialized
 
         half4 main(float2 coord) {
-            half4 t = sample(gradLayout, coord);
+            half4 t = shade(gradLayout, coord);
             half4 outColor;
 
             // If t.x is below 0, use the left border color without invoking the child processor.
@@ -442,7 +442,7 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
             } else {
                 // Always sample from (x, 0), discarding y, since the layout FP can use y as a
                 // side-channel.
-                outColor = sample(colorizer, t.x0);
+                outColor = shade(colorizer, t.x0);
             }
             if (bool(makePremul)) {
                 outColor.rgb *= outColor.a;
@@ -487,7 +487,7 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
         uniform int useFloorAbsWorkaround;   // specialized
 
         half4 main(float2 coord) {
-            half4 t = sample(gradLayout, coord);
+            half4 t = shade(gradLayout, coord);
 
             if (!bool(layoutPreservesOpacity) && t.y < 0) {
                 // layout has rejected this fragment (rely on sksl to remove this branch if the
@@ -511,7 +511,7 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
 
                 // Always sample from (x, 0), discarding y, since the layout FP can use y as a
                 // side-channel.
-                half4 outColor = sample(colorizer, t.x0);
+                half4 outColor = shade(colorizer, t.x0);
                 if (bool(makePremul)) {
                     outColor.rgb *= outColor.a;
                 }

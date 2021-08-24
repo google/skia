@@ -27,7 +27,7 @@ static sk_sp<SkImageFilter> make_filter() {
         uniform shader input;
         half4 main(float2 coord) {
             coord.x += sin(coord.y / 3) * 4;
-            return sample(input, coord);
+            return shade(input, coord);
         }
     )")).effect;
     return SkMakeRuntimeImageFilter(std::move(effect),

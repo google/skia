@@ -559,7 +559,7 @@ half4 main(float2 p) {
       }
 
       half4 main(float2 p) {
-        float3 norm = convert_normal_sample(sample(normal_map, p));
+        float3 norm = convert_normal_sample(shade(normal_map, p));
         float3 plane_norm = normalize(localToWorldAdjInv * float4(norm, 0)).xyz;
 
         float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
@@ -569,7 +569,7 @@ half4 main(float2 p) {
         float dp = dot(plane_norm, light_dir);
         float scale = min(ambient + max(dp, 0), 1);
 
-        return sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+        return shade(color_map, p) * half4(float4(scale, scale, scale, 1));
       }
 `;
 

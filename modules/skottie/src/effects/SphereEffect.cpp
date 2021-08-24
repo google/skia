@@ -77,7 +77,7 @@ static constexpr char gSphereSkSL[] = R"(
             0.5 + kRPI * asin(RN.y)
         );
 
-        return apply_light(EYE, N, sample(child, UV*child_scale));
+        return apply_light(EYE, N, shade(child, UV*child_scale));
     }
 )";
 

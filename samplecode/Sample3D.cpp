@@ -389,7 +389,7 @@ public:
             }
 
             half4 main(float2 p) {
-                float3 norm = convert_normal_sample(sample(normal_map, p));
+                float3 norm = convert_normal_sample(shade(normal_map, p));
                 float3 plane_norm = normalize(localToWorldAdjInv * norm.xyz0).xyz;
 
                 float3 plane_pos = (localToWorld * p.xy01).xyz;
@@ -399,7 +399,7 @@ public:
                 float dp = dot(plane_norm, light_dir);
                 float scale = min(ambient + max(dp, 0), 1);
 
-                return sample(color_map, p) * scale.xxx1;
+                return shade(color_map, p) * scale.xxx1;
             }
         )";
         auto [effect, error] = SkRuntimeEffect::MakeForShader(SkString(code));

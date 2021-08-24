@@ -145,7 +145,7 @@ static std::unique_ptr<GrFragmentProcessor> make_alpha_threshold_fp(
         uniform half outerThreshold;
 
         half4 main(float2 xy, half4 color) {
-            half4 mask_color = sample(maskFP, xy);
+            half4 mask_color = shade(maskFP, xy);
             if (mask_color.a < 0.5) {
                 if (color.a > outerThreshold) {
                     half scale = outerThreshold / color.a;
