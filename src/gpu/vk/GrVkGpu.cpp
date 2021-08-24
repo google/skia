@@ -321,9 +321,10 @@ GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
 
     SkASSERT(!useMSAASurface ||
-             (rt->numSamples() > 1 ||
-              (this->vkCaps().preferDiscardableMSAAAttachment() && vkRT->resolveAttachment() &&
-               vkRT->resolveAttachment()->supportsInputAttachmentUsage())));
+             rt->numSamples() > 1 ||
+             (this->vkCaps().supportsDiscardableMSAAForDMSAA() &&
+              vkRT->resolveAttachment() &&
+              vkRT->resolveAttachment()->supportsInputAttachmentUsage()));
 
     // Covert the GrXferBarrierFlags into render pass self dependency flags
     GrVkRenderPass::SelfDependencyFlags selfDepFlags = GrVkRenderPass::SelfDependencyFlags::kNone;
@@ -342,8 +343,7 @@ GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
     bool withResolve = false;
     GrVkRenderPass::LoadFromResolve loadFromResolve = GrVkRenderPass::LoadFromResolve::kNo;
     GrOpsRenderPass::LoadAndStoreInfo resolveInfo{GrLoadOp::kLoad, GrStoreOp::kStore, {}};
-    if (useMSAASurface && this->vkCaps().preferDiscardableMSAAAttachment() &&
-        vkRT->resolveAttachment() && vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+    if (useMSAASurface && this->vkCaps().renderTargetSupportsDiscardableMSAA(vkRT)) {
         withResolve = true;
         localColorInfo.fStoreOp = GrStoreOp::kDiscard;
         if (colorInfo.fLoadOp == GrLoadOp::kLoad) {
@@ -730,8 +730,7 @@ void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
     SkASSERT(rt->colorAttachmentView() && rt->resolveAttachmentView());
 
-    if (this->vkCaps().preferDiscardableMSAAAttachment() && rt->resolveAttachment() &&
-        rt->resolveAttachment()->supportsInputAttachmentUsage()) {
+    if (this->vkCaps().renderTargetSupportsDiscardableMSAA(rt)) {
         // We would have resolved the RT during the render pass;
         return;
     }
@@ -1899,8 +1898,8 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
     }
 
     GrVkRenderPass::LoadFromResolve loadFromResolve = GrVkRenderPass::LoadFromResolve::kNo;
-    if (programInfo.targetSupportsVkResolveLoad() && programInfo.colorLoadOp() == GrLoadOp::kLoad &&
-        this->vkCaps().preferDiscardableMSAAAttachment()) {
+    if (this->vkCaps().programInfoWillUseDiscardableMSAA(programInfo) &&
+        programInfo.colorLoadOp() == GrLoadOp::kLoad) {
         loadFromResolve = GrVkRenderPass::LoadFromResolve::kLoad;
     }
     sk_sp<const GrVkRenderPass> renderPass(this->resourceProvider().findCompatibleRenderPass(
@@ -2273,8 +2272,6 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         return false;
     }
 
-    bool useDiscardableMSAA = this->vkCaps().preferDiscardableMSAAAttachment();
-
     GrVkImage* dstImage;
     GrVkImage* srcImage;
     GrRenderTarget* dstRT = dst->asRenderTarget();
@@ -2283,8 +2280,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         if (vkRT->wrapsSecondaryCommandBuffer()) {
             return false;
         }
-        if (useDiscardableMSAA && vkRT->resolveAttachment() &&
-            vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+        // This will technically return true for single sample rts that used DMSAA in which case we
+        // don't have to pick the resolve attachment. But in that case the resolve and color
+        // attachments will be the same anyways.
+        if (this->vkCaps().renderTargetSupportsDiscardableMSAA(vkRT)) {
             dstImage = vkRT->resolveAttachment();
         } else {
             dstImage = vkRT->colorAttachment();
@@ -2298,8 +2297,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     GrRenderTarget* srcRT = src->asRenderTarget();
     if (srcRT) {
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(srcRT);
-        if (useDiscardableMSAA && vkRT->resolveAttachment() &&
-            vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+        // This will technically return true for single sample rts that used DMSAA in which case we
+        // don't have to pick the resolve attachment. But in that case the resolve and color
+        // attachments will be the same anyways.
+        if (this->vkCaps().renderTargetSupportsDiscardableMSAA(vkRT)) {
             srcImage = vkRT->resolveAttachment();
         } else {
             srcImage = vkRT->colorAttachment();

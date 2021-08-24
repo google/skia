@@ -76,9 +76,10 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         bool overrideSubpassForResolveLoad) {
 #ifdef SK_DEBUG
     if (programInfo.isStencilEnabled()) {
-        SkASSERT(renderTarget->getStencilAttachment());
-        SkASSERT(renderTarget->numStencilBits(renderTarget->numSamples() > 1) == 8);
-        SkASSERT(renderTarget->getStencilAttachment()->numSamples() == programInfo.numSamples());
+        SkASSERT(renderTarget->getStencilAttachment(programInfo.numSamples() > 1));
+        SkASSERT(renderTarget->numStencilBits(programInfo.numSamples() > 1) == 8);
+        SkASSERT(renderTarget->getStencilAttachment(programInfo.numSamples() > 1)->numSamples() ==
+                 programInfo.numSamples());
     }
 #endif
 

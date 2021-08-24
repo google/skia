@@ -102,6 +102,7 @@ static const struct {
 #endif
 #ifdef SK_VULKAN
     { "vk",                    "gpu", "api=vulkan" },
+    { "vkdmsaa",               "gpu", "api=vulkan,dmsaa=true" },
     { "vknostencils",          "gpu", "api=vulkan,stencils=false" },
     { "vk1010102",             "gpu", "api=vulkan,color=1010102" },
     { "vkf16",                 "gpu", "api=vulkan,color=f16" },

@@ -71,9 +71,6 @@ public:
         return fResolveAttachment->framebufferView();
     }
 
-    const GrManagedResource* stencilImageResource() const;
-    const GrVkImageView* stencilAttachmentView() const;
-
     // Returns the GrVkAttachment of the non-msaa attachment. If the color attachment has 1 sample,
     // then the color attachment will be returned. Otherwise, the resolve attachment is returned.
     // Note that in this second case the resolve attachment may be null if this was created by
@@ -100,12 +97,7 @@ public:
     bool wrapsSecondaryCommandBuffer() const { return SkToBool(fExternalFramebuffer); }
     sk_sp<GrVkFramebuffer> externalFramebuffer() const;
 
-    bool canAttemptStencilAttachment(bool useMSAASurface) const override {
-        SkASSERT(useMSAASurface == (this->numSamples() > 1));
-        // We don't know the status of the stencil attachment for wrapped external secondary command
-        // buffers so we just assume we don't have one.
-        return !this->wrapsSecondaryCommandBuffer();
-    }
+    bool canAttemptStencilAttachment(bool useMSAASurface) const override;
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 

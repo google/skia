@@ -1630,6 +1630,34 @@ GrBackendFormat GrVkCaps::onGetDefaultBackendFormat(GrColorType ct) const {
     return GrBackendFormat::MakeVk(format);
 }
 
+bool GrVkCaps::onSupportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
+    // TODO: Once we fix up GrProgramInfo to store the actual numSamples for the draw instead of the
+    // render targets sample count, we can enable DMSAA for vulkan here.
+    return false;
+#if 0
+    // We must be able to use the rtProxy as an input attachment to load into the discardable msaa
+    // attachment. Also the rtProxy should have a sample count of 1 so that it can be used as a
+    // resolve attachment.
+    return this->supportsDiscardableMSAAForDMSAA() &&
+           rtProxy->supportsVkInputAttachment() &&
+           rtProxy->numSamples() == 1;
+#endif
+}
+
+bool GrVkCaps::renderTargetSupportsDiscardableMSAA(const GrVkRenderTarget* rt) const {
+    return rt->resolveAttachment() &&
+           rt->resolveAttachment()->supportsInputAttachmentUsage() &&
+           ((rt->numSamples() > 1 && this->preferDiscardableMSAAAttachment()) ||
+            (rt->numSamples() == 1 && this->supportsDiscardableMSAAForDMSAA()));
+}
+
+bool GrVkCaps::programInfoWillUseDiscardableMSAA(const GrProgramInfo& programInfo) const {
+    return programInfo.targetHasVkResolveAttachmentWithInput() &&
+           programInfo.numSamples() > 1 &&
+           ((programInfo.targetsNumSamples() > 1 && this->preferDiscardableMSAAAttachment()) ||
+            (programInfo.targetsNumSamples() == 1 && this->supportsDiscardableMSAAForDMSAA()));
+}
+
 GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
         SkImage::CompressionType compressionType) const {
     switch (compressionType) {
@@ -1813,8 +1841,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
         selfDepFlags |= GrVkRenderPass::SelfDependencyFlags::kForInputAttachment;
     }
 
-    bool needsResolve = programInfo.targetSupportsVkResolveLoad() &&
-                        this->preferDiscardableMSAAAttachment();
+    bool needsResolve = this->programInfoWillUseDiscardableMSAA(programInfo);
 
     bool forceLoadFromResolve =
             overrideFlags & GrCaps::ProgramDescOverrideFlags::kVulkanHasResolveLoadSubpass;

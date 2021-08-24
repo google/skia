@@ -341,8 +341,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     uint32_t subpass = 0;
     if (overrideSubpassForResolveLoad ||
         (fProgramInfo.colorLoadOp() == GrLoadOp::kLoad &&
-         fProgramInfo.targetSupportsVkResolveLoad() &&
-         fGpu->vkCaps().preferDiscardableMSAAAttachment())) {
+         fGpu->vkCaps().programInfoWillUseDiscardableMSAA(fProgramInfo))) {
         subpass = 1;
     }
     sk_sp<const GrVkPipeline> pipeline = resourceProvider.makePipeline(
