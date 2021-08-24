@@ -54,7 +54,7 @@ vec4 main() {
     _1_ok = _1_ok && _2_x == 0;
     _2_x = _0_unknown;
     _1_ok = _1_ok && _2_x == _0_unknown;
-    _2_x = 0;
+    _2_x = 0 / _0_unknown;
     _1_ok = _1_ok && _2_x == 0;
     _2_x += 1;
     _1_ok = _1_ok && _2_x == 1;

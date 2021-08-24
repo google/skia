@@ -56,7 +56,7 @@ bool test() {
     ok = ok && (x == 0);
     x = half(unknown / 1);
     ok = ok && (x == unknown);
-    x = half(0 / unknown);
+    x = half(0 / unknown);  // this should NOT optimize away
     ok = ok && (x == 0);
     x += 1;
     ok = ok && (x == 1);

@@ -64,7 +64,7 @@ bool test_half() {
     ok = ok && (x == half4(unknown));
     x = 0 * half4(unknown);
     ok = ok && (x == half4(0));
-    x = 0 / half4(unknown);
+    x = 0 / half4(unknown);  // this should NOT optimize away
     ok = ok && (x == half4(0));
     x = 1 * half4(unknown);
     ok = ok && (x == half4(unknown));

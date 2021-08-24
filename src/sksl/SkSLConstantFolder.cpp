@@ -287,11 +287,6 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
             if (is_constant_value(right, 1.0)) {  // x / 1
                 return cast_expression(context, left, resultType);
             }
-            if (is_constant_value(left, 0.0) &&
-                !is_constant_value(right, 0.0) &&
-                !right.hasSideEffects()) {        // 0 / x (where x is not 0)
-                return cast_expression(context, left, resultType);
-            }
             break;
 
         case Token::Kind::TK_PLUSEQ:
