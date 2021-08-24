@@ -1,1 +1,16 @@
-uniform half a; void main() { sk_FragColor.x = isinf(a) ? 1 : 0; }
+uniform half2x2 testMatrix2x2;  // equals (1, 2, 3, 4)
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    half4 infiniteValue = half4(testMatrix2x2) / colorGreen.r;
+    half4   finiteValue = half4(testMatrix2x2) / colorGreen.g;
+
+    return (    (isinf(infiniteValue.x))     &&
+             all(isinf(infiniteValue.xy))    &&
+             all(isinf(infiniteValue.xyz))   &&
+             all(isinf(infiniteValue.xyzw))  &&
+            !   (isinf(finiteValue  .x))     &&
+            !any(isinf(finiteValue  .xy))    &&
+            !any(isinf(finiteValue  .xyz))   &&
+            !any(isinf(finiteValue  .xyzw))) ? colorGreen : colorRed;
+}

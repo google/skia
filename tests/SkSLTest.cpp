@@ -214,7 +214,7 @@ SKSL_TEST_ES3(SkSLIntrinsicDFdy,               "intrinsics/DFdy.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicFloatBitsToInt,     "intrinsics/FloatBitsToInt.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicFloatBitsToUint,    "intrinsics/FloatBitsToUint.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicIntBitsToFloat,     "intrinsics/IntBitsToFloat.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicUintBitsToFloat,    "intrinsics/UintBitsToFloat.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicIsInf,              "intrinsics/IsInf.sksl")
 // TODO(johnstiles): test broken on Adreno 6xx + Vulkan
 //SKSL_TEST(SkSLIntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
@@ -227,6 +227,7 @@ SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
 SKSL_TEST(SkSLIntrinsicStep,                   "intrinsics/Step.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicTrunc,              "intrinsics/Trunc.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicTranspose,          "intrinsics/Transpose.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicUintBitsToFloat,    "intrinsics/UintBitsToFloat.sksl")
 
 SKSL_TEST_ES3(SkSLArrayNarrowingConversions,   "runtime/ArrayNarrowingConversions.rts")
 
