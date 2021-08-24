@@ -19,5 +19,9 @@ vec4 main() {
     bool _15_n = false;
     bool _16_o = true;
     bool _17_p = false;
-    return ((((((((((((((_0_a && !_1_b) && _2_c) && !_3_d) && _4_e) && !_5_f) && _6_g) && !_7_h) && _8_i) && !_9_j) && _12_k) && !_13_l) && _14_m) && !_15_n) && _16_o) && !_17_p ? colorGreen : colorRed;
+    bool _18_q = true;
+    bool _19_r = false;
+    bool _20_s = true;
+    bool _21_t = false;
+    return ((((((((((((((((((_0_a && !_1_b) && _2_c) && !_3_d) && _4_e) && !_5_f) && _6_g) && !_7_h) && _8_i) && !_9_j) && _12_k) && !_13_l) && _14_m) && !_15_n) && _16_o) && !_17_p) && _18_q) && !_19_r) && _20_s) && !_21_t ? colorGreen : colorRed;
 }

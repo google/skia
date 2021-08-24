@@ -21,7 +21,13 @@ bool test() {
     bool o = any(not(bool2(0 == 1, FALSE)));                   // all true
     bool p = all(not(bool4(1 == 1, !false, 123 > 12, TRUE)));  // none are true
 
-    return a && !b && c && !d && e && !f && g && !h && i && !j && k && !l && m && !n && o && !p;
+    bool q = bool4(true) == bool4(true, true, true, true);
+    bool r = bool4(true) == bool4(true, false, true, true);
+    bool s = bool4(true, true, true, true) == bool4(true);
+    bool t = bool4(true, true, true, false) == bool4(true);
+
+    return a && !b && c && !d && e && !f && g && !h && i && !j && k && !l && m && !n && o && !p
+             && q && !r && s && !t;
 }
 
 half4 main(float2 coords) {

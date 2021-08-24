@@ -63,6 +63,28 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
     return eliminate_no_op_boolean(right, op, left);
 }
 
+static std::unique_ptr<Expression> simplify_vector_equality(const Context& context,
+                                                            const Expression& left,
+                                                            Operator op,
+                                                            const Expression& right) {
+    if (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ) {
+        bool equality = (op.kind() == Token::Kind::TK_EQEQ);
+
+        switch (left.compareConstant(right)) {
+            case Expression::ComparisonResult::kNotEqual:
+                equality = !equality;
+                [[fallthrough]];
+
+            case Expression::ComparisonResult::kEqual:
+                return BoolLiteral::Make(context, left.fOffset, equality);
+
+            case Expression::ComparisonResult::kUnknown:
+                break;
+        }
+    }
+    return nullptr;
+}
+
 // 'T' is the actual stored type of the literal data (SKSL_FLOAT or SKSL_INT).
 // 'U' is an unsigned version of that, used to perform addition, subtraction, and multiplication,
 // to avoid signed-integer overflow errors. This mimics the use of URESULT vs. RESULT when doing
@@ -76,21 +98,9 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     SkASSERT(left.type() == right.type());
     const Type& type = left.type();
 
-    // Handle boolean operations: == !=
-    if (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ) {
-        bool equality = (op.kind() == Token::Kind::TK_EQEQ);
-
-        switch (left.compareConstant(right)) {
-            case Expression::ComparisonResult::kNotEqual:
-                equality = !equality;
-                [[fallthrough]];
-
-            case Expression::ComparisonResult::kEqual:
-                return BoolLiteral::Make(context, left.fOffset, equality);
-
-            case Expression::ComparisonResult::kUnknown:
-                return nullptr;
-        }
+    // Handle equality operations: == !=
+    if (std::unique_ptr<Expression> result = simplify_vector_equality(context, left, op, right)) {
+        return result;
     }
 
     // Handle floating-point arithmetic: + - * /
@@ -522,6 +532,9 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         if (leftType.componentType().isInteger()) {
             return simplify_vector<SKSL_INT, SKSL_UINT>(context, *left, op, *right);
         }
+        if (leftType.componentType().isBoolean()) {
+            return simplify_vector_equality(context, *left, op, *right);
+        }
         return nullptr;
     }
 
@@ -535,6 +548,10 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             return simplify_vector<SKSL_INT, SKSL_UINT>(context, *left, op,
                                                         splat_scalar(*right, left->type()));
         }
+        if (rightType.isBoolean()) {
+            return simplify_vector_equality(context, *left, op,
+                                            splat_scalar(*right, left->type()));
+        }
         return nullptr;
     }
 
@@ -547,6 +564,10 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         if (leftType.isInteger()) {
             return simplify_vector<SKSL_INT, SKSL_UINT>(context, splat_scalar(*left, right->type()),
                                                         op, *right);
+        }
+        if (leftType.isBoolean()) {
+            return simplify_vector_equality(context, splat_scalar(*left, right->type()),
+                                            op, *right);
         }
         return nullptr;
     }
