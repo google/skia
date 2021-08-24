@@ -162,6 +162,14 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	args = append(args, "--config")
 	args = append(args, configs...)
 
+	// Use 4 internal msaa samples on mobile and AppleM1, otherwise 8.
+	args = append(args, "--internalSamples")
+	if b.os("Android") || b.os("iOS") || b.matchGpu("AppleM1") {
+		args = append(args, "4")
+	} else {
+		args = append(args, "8")
+	}
+
 	// By default, we test with GPU threading enabled, unless specifically
 	// disabled.
 	if b.extraConfig("NoGPUThreads") {
