@@ -109,6 +109,14 @@ $es3 $genType  round($genType  x);
 $es3 $genHType round($genHType x);
 $es3 $genType  roundEven($genType  x);
 $es3 $genHType roundEven($genHType x);
+$es3 $genIType min($genIType x, $genIType y);
+$es3 $genIType min($genIType x, int y);
+$es3 $genIType max($genIType x, $genIType y);
+$es3 $genIType max($genIType x, int y);
+$es3 $genIType clamp($genIType x, $genIType minVal, $genIType maxVal);
+$es3 $genIType clamp($genIType x, int minVal, int maxVal);
+$es3 $genType  mix($genType  x, $genType  y, $genBType a);
+$es3 $genHType mix($genHType x, $genHType y, $genBType a);
 
 // 8.4 : Geometric Functions
 float length($genType  x);

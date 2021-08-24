@@ -88,7 +88,9 @@ static SkBitmap draw_shader(SkCanvas* canvas, sk_sp<SkShader> shader,
   produce a single float. It can reference:
 
     'x'  : float  in [xMin, xMax]
+    'xi' : int    in [xMin, xMax]
     'p'  : float2 in [xMin, xMax]  Lerps from (xMax, xMin) to (xMin, xMax)
+    'pi' : int2   in [xMin, xMax]  Lerps from (xMax, xMin) to (xMin, xMax)
                                    (helpful for intrinsics with a mix of scalar/vector params)
     'v1' : float2(1)
     'v2' : float2(2)
@@ -98,11 +100,13 @@ static SkString make_unary_sksl_1d(const char* fn) {
             "uniform float xScale; uniform float xBias;"
             "uniform float yScale; uniform float yBias;"
             "half4 main(float2 p) {"
-            "    float2 v1 = float2(1);"
-            "    float2 v2 = float2(2);"
+            "    const float2 v1 = float2(1);"
+            "    const float2 v2 = float2(2);"
             "    p = float2(p.x, 1 - p.x) * xScale + xBias;"
             "    float x = p.x;"
-            "    float y = %s  * yScale + yBias;"
+            "    int2  pi = int2(floor(p));"
+            "    int   xi = pi.x;"
+            "    float y = float(%s) * yScale + yBias;"
             "    return y.xxx1;"
             "}",
             fn);
@@ -308,6 +312,66 @@ DEF_SIMPLE_GM(runtime_intrinsics_common,
     plot(canvas, "ceil(p).y",  -3.0f, 3.0f, -4.0f, 4.0f);
     next_row(canvas);
 }
+
+// The OpenGL ES Shading Language, Version 3.00, Section 8.1
+DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_common_es3,
+                           ctx, canvas, errorMsg,
+                           columns_to_width(6),
+                           rows_to_height(5)) {
+    if (!ctx->priv().caps()->shaderCaps()->supportsSkSLES3()) {
+        *errorMsg = "SkSL ES3 is not supported.";
+        return skiagm::DrawResult::kSkip;
+    }
+
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    plot_es3(canvas, "floatBitsToInt(x)",    -2, 2, -2'000'000'000, 2'000'000'000,
+                                             "floatBitsToInt(s)");
+    plot_es3(canvas, "floatBitsToInt(p).x",  -2, 2, -2'000'000'000, 2'000'000'000,
+                                             "floatBitsToInt(v)");
+    plot_es3(canvas, "floatBitsToUint(x)",   -2, 2, 0, 4'000'000'000,
+                                             "floatBitsToUint(s)");
+    plot_es3(canvas, "floatBitsToUint(p).x", -2, 2, 0, 4'000'000'000,
+                                             "floatBitsToUint(v)");
+    next_row(canvas);
+
+    plot_es3(canvas, "intBitsToFloat(xi)",           -2'000'000'000, 2'000'000'000, -2, 2,
+                                                     "intBitsToFloat(s)");
+    plot_es3(canvas, "intBitsToFloat(pi).x",         -2'000'000'000, 2'000'000'000, -2, 2,
+                                                     "intBitsToFloat(v)");
+    plot_es3(canvas, "uintBitsToFloat(uint(xi))",    0, 4'000'000'000, -2, 2,
+                                                     "uintBitsToFloat(s)");
+    plot_es3(canvas, "uintBitsToFloat(uint2(pi)).x", 0, 4'000'000'000, -2, 2,
+                                                     "uintBitsToFloat(v)");
+    next_row(canvas);
+
+    plot_es3(canvas, "trunc(x)",           -2, 2, -3, 3);
+    plot_es3(canvas, "trunc(p).x",         -2, 2, -3, 3);
+    plot_es3(canvas, "round(x)",           -2, 2, -3, 3);
+    plot_es3(canvas, "round(p).x",         -2, 2, -3, 3);
+    plot_es3(canvas, "roundEven(x)",       -2, 2, -3, 3);
+    plot_es3(canvas, "roundEven(p).x",     -2, 2, -3, 3);
+    next_row(canvas);
+
+    plot_es3(canvas, "min(xi, 1)",         -2, 5, -3, 5, "min(int-scalar)");
+    plot_es3(canvas, "min(pi, 1).x",       -2, 5, -3, 5, "min(int-mixed)" );
+    plot_es3(canvas, "min(pi, int2(1)).x", -2, 5, -3, 5, "min(int-vector)");
+    plot_es3(canvas, "max(xi, 1)",         -2, 5, -3, 5, "max(int-scalar)");
+    plot_es3(canvas, "max(pi, 1).x",       -2, 5, -3, 5, "max(int-mixed)" );
+    plot_es3(canvas, "max(pi, int2(1)).x", -2, 5, -3, 5, "max(int-vector)");
+    next_row(canvas);
+
+    plot_es3(canvas, "clamp(xi, 1, 3)",               -1, 5, -1, 5, "clamp(int-scalar)");
+    plot_es3(canvas, "clamp(pi, 1, 3).x",             -1, 5, -1, 5, "clamp(int-mixed)" );
+    plot_es3(canvas, "clamp(pi, int2(1), int2(3)).x", -1, 5, -1, 5, "clamp(int-vector)");
+    plot_es3(canvas, "mix(p.x,  p.y, (x>0)   )",      -1, 2, 0, 3,  "mix(scalar, bool)");
+    plot_es3(canvas, "mix(p.yx, p,   (x>0).xx).x",    -1, 2, 0, 3,  "mix(vector, bool)");
+    next_row(canvas);
+
+    return skiagm::DrawResult::kOk;
+}
+
 
 // The OpenGL ES Shading Language, Version 1.00, Section 8.4
 DEF_SIMPLE_GM(runtime_intrinsics_geometric,
