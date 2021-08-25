@@ -16,9 +16,6 @@
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
 
-// Temporary guard for Chromium
-#define SK_HAS_SRGBA_COLOR_TYPE
-
 class SkReadBuffer;
 class SkWriteBuffer;
 
