@@ -44,7 +44,7 @@
 #include "src/image/SkSurface_Gpu.h"
 
 #if SK_GPU_V1
-#include "src/gpu/GrOpsTask.h"
+#include "src/gpu/ops/OpsTask.h"
 #include "src/gpu/ops/SoftwarePathRenderer.h"
 #endif
 
@@ -374,9 +374,9 @@ void GrDrawingManager::sortTasks() {
     // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
     // could have merged it means the opsTask was artificially split.
     if (!fDAG.empty()) {
-        GrOpsTask* prevOpsTask = fDAG[0]->asOpsTask();
+        auto prevOpsTask = fDAG[0]->asOpsTask();
         for (int i = 1; i < fDAG.count(); ++i) {
-            GrOpsTask* curOpsTask = fDAG[i]->asOpsTask();
+            auto curOpsTask = fDAG[i]->asOpsTask();
 
             if (prevOpsTask && curOpsTask) {
                 SkASSERT(!prevOpsTask->canMerge(curOpsTask));
@@ -575,7 +575,7 @@ GrRenderTask* GrDrawingManager::getLastRenderTask(const GrSurfaceProxy* proxy) c
     return entry ? *entry : nullptr;
 }
 
-GrOpsTask* GrDrawingManager::getLastOpsTask(const GrSurfaceProxy* proxy) const {
+skgpu::v1::OpsTask* GrDrawingManager::getLastOpsTask(const GrSurfaceProxy* proxy) const {
     GrRenderTask* task = this->getLastRenderTask(proxy);
     return task ? task->asOpsTask() : nullptr;
 }
@@ -699,18 +699,18 @@ void GrDrawingManager::closeActiveOpsTask() {
 }
 
 #if SK_GPU_V1
-sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
-                                              sk_sp<GrArenas> arenas,
-                                              bool flushTimeOpsTask) {
+sk_sp<skgpu::v1::OpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
+                                                       sk_sp<GrArenas> arenas,
+                                                       bool flushTimeOpsTask) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     this->closeActiveOpsTask();
 
-    sk_sp<GrOpsTask> opsTask(new GrOpsTask(this,
-                                           std::move(surfaceView),
-                                           fContext->priv().auditTrail(),
-                                           std::move(arenas)));
+    sk_sp<skgpu::v1::OpsTask> opsTask(new skgpu::v1::OpsTask(this,
+                                                             std::move(surfaceView),
+                                                             fContext->priv().auditTrail(),
+                                                             std::move(arenas)));
 
     SkASSERT(this->getLastRenderTask(opsTask->target(0)) == opsTask.get());
 

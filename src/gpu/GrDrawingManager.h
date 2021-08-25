@@ -30,7 +30,6 @@ class GrArenas;
 class GrGpuBuffer;
 class GrOnFlushCallbackObject;
 class GrOpFlushState;
-class GrOpsTask;
 class GrRecordingContext;
 class GrRenderTargetProxy;
 class GrRenderTask;
@@ -39,7 +38,10 @@ class GrSemaphore;
 class GrSurfaceProxyView;
 class GrTextureResolveRenderTask;
 class SkDeferredDisplayList;
-namespace skgpu { namespace v1 { class SoftwarePathRenderer; }}
+namespace skgpu { namespace v1 {
+    class OpsTask;
+    class SoftwarePathRenderer;
+}}
 
 class GrDrawingManager {
 public:
@@ -49,9 +51,9 @@ public:
 
 #if SK_GPU_V1
     // OpsTasks created at flush time are stored and handled different from the others.
-    sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView,
-                                sk_sp<GrArenas> arenas,
-                                bool flushTimeOpsTask);
+    sk_sp<skgpu::v1::OpsTask> newOpsTask(GrSurfaceProxyView,
+                                         sk_sp<GrArenas> arenas,
+                                         bool flushTimeOpsTask);
 
     // Adds 'atlasTask' to the DAG and leaves it open.
     //
@@ -151,7 +153,7 @@ public:
 #endif
 
     GrRenderTask* getLastRenderTask(const GrSurfaceProxy*) const;
-    GrOpsTask* getLastOpsTask(const GrSurfaceProxy*) const;
+    skgpu::v1::OpsTask* getLastOpsTask(const GrSurfaceProxy*) const;
     void setLastRenderTask(const GrSurfaceProxy*, GrRenderTask*);
 
     void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
@@ -214,7 +216,7 @@ private:
     sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
 
     SkTArray<sk_sp<GrRenderTask>>            fDAG;
-    GrOpsTask*                               fActiveOpsTask = nullptr;
+    skgpu::v1::OpsTask*                      fActiveOpsTask = nullptr;
     // These are the IDs of the opsTask currently being flushed (in internalFlush). They are
     // only stored here to prevent memory thrashing.
     SkSTArray<8, uint32_t, true>             fFlushingRenderTaskIDs;

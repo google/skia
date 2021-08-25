@@ -34,8 +34,8 @@ private:
 namespace skgpu::v1 {
 
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
-// GrOpsTask to be picked up and added to by SurfaceFillContext lower in the call
-// stack. When this occurs with a closed GrOpsTask, a new one will be allocated
+// OpsTask to be picked up and added to by SurfaceFillContext lower in the call
+// stack. When this occurs with a closed OpsTask, a new one will be allocated
 // when the SurfaceFillContext attempts to use it (via getOpsTask).
 SurfaceFillContext::SurfaceFillContext(GrRecordingContext* rContext,
                                        GrSurfaceProxyView readView,
@@ -118,7 +118,7 @@ void SurfaceFillContext::addOp(GrOp::Owner op) {
                               *this->caps());
 }
 
-GrOpsTask* SurfaceFillContext::getOpsTask() {
+OpsTask* SurfaceFillContext::getOpsTask() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
@@ -133,8 +133,8 @@ sk_sp<GrRenderTask> SurfaceFillContext::refRenderTask() {
     return sk_ref_sp(this->getOpsTask());
 }
 
-GrOpsTask* SurfaceFillContext::replaceOpsTask() {
-    sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(
+OpsTask* SurfaceFillContext::replaceOpsTask() {
+    sk_sp<OpsTask> newOpsTask = this->drawingManager()->newOpsTask(
             this->writeSurfaceView(), this->arenas(), fFlushTimeOpsTask);
     this->willReplaceOpsTask(fOpsTask.get(), newOpsTask.get());
     fOpsTask = std::move(newOpsTask);
@@ -197,7 +197,7 @@ void SurfaceFillContext::internalClear(const SkIRect* scissor,
     if (!scissorState.enabled()) {
         // This is a fullscreen clear, so could be handled as a load op. Regardless, we can also
         // discard all prior ops in the current task since the color buffer will be overwritten.
-        GrOpsTask* opsTask = this->getOpsTask();
+        auto opsTask = this->getOpsTask();
         if (opsTask->resetForFullscreenClear(this->canDiscardPreviousOpsOnFullClear()) &&
             !this->caps()->performColorClearsAsDraws()) {
             color = this->writeSurfaceView().swizzle().applyTo(color);

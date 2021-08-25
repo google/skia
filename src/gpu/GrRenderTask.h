@@ -17,9 +17,9 @@
 
 class GrMockRenderTask;
 class GrOpFlushState;
-class GrOpsTask;
 class GrResourceAllocator;
 class GrTextureResolveRenderTask;
+namespace skgpu { namespace v1 { class OpsTask; }}
 
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's
@@ -97,9 +97,9 @@ public:
     GrSurfaceProxy* target(int i) const { return fTargets[i].get(); }
 
     /*
-     * Safely cast this GrRenderTask to a GrOpsTask (if possible).
+     * Safely cast this GrRenderTask to a OpsTask (if possible).
      */
-    virtual GrOpsTask* asOpsTask() { return nullptr; }
+    virtual skgpu::v1::OpsTask* asOpsTask() { return nullptr; }
 
 #if GR_TEST_UTILS
     /*
@@ -254,8 +254,8 @@ private:
     };
 
     virtual void onMakeSkippable() {}
-    virtual void onPrePrepare(GrRecordingContext*) {} // Only GrOpsTask currently overrides this
-    virtual void onPrepare(GrOpFlushState*) {} // GrOpsTask and GrDDLTask override this
+    virtual void onPrePrepare(GrRecordingContext*) {} // Only OpsTask currently overrides this
+    virtual void onPrepare(GrOpFlushState*) {} // OpsTask and GrDDLTask override this
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;

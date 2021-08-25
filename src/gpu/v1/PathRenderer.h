@@ -31,7 +31,7 @@ namespace skgpu::v1 {
 class SurfaceDrawContext;
 
 /**
- *  Base class for drawing paths into a GrOpsTask.
+ *  Base class for drawing paths into a OpsTask.
  */
 class PathRenderer : public SkRefCnt {
 public:

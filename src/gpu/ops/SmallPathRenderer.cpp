@@ -156,7 +156,7 @@ private:
         int numActiveProxies;
         const GrSurfaceProxyView* views = atlasMgr->getViews(&numActiveProxies);
         for (int i = 0; i < numActiveProxies; ++i) {
-            // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
+            // This op does not know its atlas proxies when it is added to a OpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
             flushInfo.fPrimProcProxies[i] = views[i].proxy();
             target->sampledProxyArray()->push_back(views[i].proxy());
@@ -540,7 +540,7 @@ private:
         if (gp->numTextureSamplers() != numActiveProxies) {
             for (int i = gp->numTextureSamplers(); i < numActiveProxies; ++i) {
                 flushInfo->fPrimProcProxies[i] = views[i].proxy();
-                // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
+                // This op does not know its atlas proxies when it is added to a OpsTasks, so the
                 // proxies don't get added during the visitProxies call. Thus we add them here.
                 target->sampledProxyArray()->push_back(views[i].proxy());
             }

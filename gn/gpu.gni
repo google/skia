@@ -493,8 +493,6 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/GrBlurUtils.h",
   "$_src/gpu/GrDrawOpTest.cpp",
   "$_src/gpu/GrDrawOpTest.h",
-  "$_src/gpu/GrOpsTask.cpp",
-  "$_src/gpu/GrOpsTask.h",
 
   # Ops
   "$_src/gpu/ops/AAConvexPathRenderer.cpp",
@@ -556,6 +554,8 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/ops/GrStrokeRectOp.h",
   "$_src/gpu/ops/GrTextureOp.cpp",
   "$_src/gpu/ops/GrTextureOp.h",
+  "$_src/gpu/ops/OpsTask.cpp",
+  "$_src/gpu/ops/OpsTask.h",
   "$_src/gpu/ops/PathInnerTriangulateOp.cpp",
   "$_src/gpu/ops/PathInnerTriangulateOp.h",
   "$_src/gpu/ops/PathStencilCoverOp.cpp",

@@ -279,8 +279,8 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::MakeFromBackendTexture(
 }
 
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
-// GrOpsTask to be picked up and added to by SurfaceDrawContexts lower in the call
-// stack. When this occurs with a closed GrOpsTask, a new one will be allocated
+// OpsTask to be picked up and added to by SurfaceDrawContexts lower in the call
+// stack. When this occurs with a closed OpsTask, a new one will be allocated
 // when the surfaceDrawContext attempts to use it (via getOpsTask).
 SurfaceDrawContext::SurfaceDrawContext(GrRecordingContext* rContext,
                                        GrSurfaceProxyView readView,
@@ -306,14 +306,14 @@ SurfaceDrawContext::~SurfaceDrawContext() {
     ASSERT_SINGLE_OWNER
 }
 
-void SurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {
+void SurfaceDrawContext::willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask) {
     if (prevTask && fNeedsStencil) {
         // Store the stencil values in memory upon completion of fOpsTask.
         prevTask->setMustPreserveStencil();
         // Reload the stencil buffer content at the beginning of newOpsTask.
         // FIXME: Could the topo sort insert a task between these two that modifies the stencil
         // values?
-        nextTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
+        nextTask->setInitialStencilContent(OpsTask::StencilContent::kPreserved);
     }
 #if GR_GPU_STATS && GR_TEST_UTILS
     if (fCanUseDynamicMSAA) {
@@ -859,10 +859,10 @@ int SurfaceDrawContext::maxWindowRectangles() const {
     return this->asRenderTargetProxy()->maxWindowRectangles(*this->caps());
 }
 
-GrOpsTask::CanDiscardPreviousOps SurfaceDrawContext::canDiscardPreviousOpsOnFullClear() const {
+OpsTask::CanDiscardPreviousOps SurfaceDrawContext::canDiscardPreviousOpsOnFullClear() const {
 #if GR_TEST_UTILS
     if (fPreserveOpsOnFullClear_TestingOnly) {
-        return GrOpsTask::CanDiscardPreviousOps::kNo;
+        return OpsTask::CanDiscardPreviousOps::kNo;
     }
 #endif
     // Regardless of how the clear is implemented (native clear or a fullscreen quad), all prior ops
@@ -871,7 +871,7 @@ GrOpsTask::CanDiscardPreviousOps SurfaceDrawContext::canDiscardPreviousOpsOnFull
     // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
     // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
     // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
-    return GrOpsTask::CanDiscardPreviousOps(!fNeedsStencil);
+    return OpsTask::CanDiscardPreviousOps(!fNeedsStencil);
 }
 
 void SurfaceDrawContext::setNeedsStencil() {
@@ -887,7 +887,7 @@ void SurfaceDrawContext::setNeedsStencil() {
             this->internalStencilClear(nullptr, /* inside mask */ false);
         } else {
             this->getOpsTask()->setInitialStencilContent(
-                    GrOpsTask::StencilContent::kUserBitsCleared);
+                    OpsTask::StencilContent::kUserBitsCleared);
         }
     }
 }
@@ -1501,7 +1501,7 @@ void SurfaceDrawContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler
 void SurfaceDrawContext::setLastClip(uint32_t clipStackGenID,
                                      const SkIRect& devClipBounds,
                                      int numClipAnalyticElements) {
-    GrOpsTask* opsTask = this->getOpsTask();
+    auto opsTask = this->getOpsTask();
     opsTask->fLastClipStackGenID = clipStackGenID;
     opsTask->fLastDevClipBounds = devClipBounds;
     opsTask->fLastClipNumAnalyticElements = numClipAnalyticElements;
@@ -1510,7 +1510,7 @@ void SurfaceDrawContext::setLastClip(uint32_t clipStackGenID,
 bool SurfaceDrawContext::mustRenderClip(uint32_t clipStackGenID,
                                         const SkIRect& devClipBounds,
                                         int numClipAnalyticElements) {
-    GrOpsTask* opsTask = this->getOpsTask();
+    auto opsTask = this->getOpsTask();
     return opsTask->fLastClipStackGenID != clipStackGenID ||
            !opsTask->fLastDevClipBounds.contains(devClipBounds) ||
            opsTask->fLastClipNumAnalyticElements != numClipAnalyticElements;
@@ -2032,12 +2032,12 @@ bool SurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
         return false;
     }
 
-    // First get the dstSampleFlags as if we will put the draw into the current GrOpsTask
+    // First get the dstSampleFlags as if we will put the draw into the current OpsTask
     auto dstSampleFlags = this->caps()->getDstSampleFlagsForProxy(
             this->asRenderTargetProxy(), this->getOpsTask()->usesMSAASurface() || opRequiresMSAA);
 
-    // If we don't have barriers for this draw then we will definitely be breaking up the GrOpsTask.
-    // However, if using dynamic MSAA, the new GrOpsTask will not have MSAA already enabled on it
+    // If we don't have barriers for this draw then we will definitely be breaking up the OpsTask.
+    // However, if using dynamic MSAA, the new OpsTask will not have MSAA already enabled on it
     // and that may allow us to use texture barriers. So we check if we can use barriers on the new
     // ops task and then break it up if so.
     if (!(dstSampleFlags & GrDstSampleFlags::kRequiresTextureBarrier) &&
@@ -2057,7 +2057,7 @@ bool SurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
     if (dstSampleFlags & GrDstSampleFlags::kRequiresTextureBarrier) {
         // If we require a barrier to sample the dst it means we are sampling the RT itself
         // either as a texture or input attachment. In this case we don't need to break up the
-        // GrOpsTask.
+        // OpsTask.
         dstProxyView->setProxyView(this->readSurfaceView());
         dstProxyView->setOffset(0, 0);
         dstProxyView->setDstSampleFlags(dstSampleFlags);
@@ -2124,7 +2124,7 @@ bool SurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
     return true;
 }
 
-GrOpsTask* SurfaceDrawContext::replaceOpsTaskIfModifiesColor() {
+OpsTask* SurfaceDrawContext::replaceOpsTaskIfModifiesColor() {
     if (!this->getOpsTask()->isColorNoOp()) {
         this->replaceOpsTask();
     }

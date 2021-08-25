@@ -23,7 +23,7 @@ class GrGpu;
 class GrOpsRenderPass;
 class GrResourceProvider;
 
-/** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpsTask flush. */
+/** Tracks the state across all the GrOps (really just the GrDrawOps) in a OpsTask flush. */
 class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawTarget {
 public:
     // vertexSpace and indexSpace may either be null or an alloation of size
@@ -307,7 +307,7 @@ private:
     // an op is not currently preparing of executing.
     OpArgs* fOpArgs = nullptr;
 
-    // This field is only transiently set during flush. Each GrOpsTask will set it to point to an
+    // This field is only transiently set during flush. Each OpsTask will set it to point to an
     // array of proxies it uses before call onPrepare and onExecute.
     SkTArray<GrSurfaceProxy*, true>* fSampledProxies;
 

@@ -17,7 +17,6 @@
 
 class GrCaps;
 class GrContext_Base;
-class GrOpsTask;
 class GrRecordingContext;
 class GrRenderTargetProxy;
 class GrRenderTask;

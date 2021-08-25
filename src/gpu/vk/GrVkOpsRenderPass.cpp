@@ -486,7 +486,7 @@ void GrVkOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float,
     // means we missed an opportunity higher up the stack to set the load op to be a clear. However,
     // there are situations where higher up we couldn't discard the previous ops and set a clear
     // load op (e.g. if we needed to execute a wait op). Thus we also have the empty check here.
-    // TODO: Make the waitOp a RenderTask instead so we can clear out the GrOpsTask for a clear. We
+    // TODO: Make the waitOp a RenderTask instead so we can clear out the OpsTask for a clear. We
     // can then reenable this assert assuming we can't get messed up by a waitOp.
     //SkASSERT(!fCurrentCBIsEmpty || scissor);
 

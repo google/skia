@@ -15,12 +15,12 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkGlyphRunPainter.h"
-#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/ops/OpsTask.h"
 #include "src/gpu/v1/SurfaceFillContext_v1.h"
 
 class GrBackendSemaphore;
@@ -626,11 +626,11 @@ public:
 private:
     enum class QuadOptimization;
 
-    void willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) override;
+    void willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask) override;
 
     GrAAType chooseAAType(GrAA);
 
-    GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
+    OpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
     void setNeedsStencil();
 
     void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
@@ -694,7 +694,7 @@ private:
                                                  bool opRequiresMSAA,
                                                  GrDstProxyView* result);
 
-    GrOpsTask* replaceOpsTaskIfModifiesColor();
+    OpsTask* replaceOpsTaskIfModifiesColor();
 
     SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 

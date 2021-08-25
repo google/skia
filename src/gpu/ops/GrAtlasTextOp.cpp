@@ -224,7 +224,7 @@ void GrAtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     auto primProcProxies = target->allocPrimProcProxyPtrs(kMaxTextures);
     for (unsigned i = 0; i < numActiveViews; ++i) {
         primProcProxies[i] = views[i].proxy();
-        // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the proxies
+        // This op does not know its atlas proxies when it is added to a OpsTasks, so the proxies
         // don't get added during the visitProxies call. Thus we add them here.
         target->sampledProxyArray()->push_back(views[i].proxy());
     }
@@ -354,7 +354,7 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
         // Update the proxies used in the GP to match.
         for (unsigned i = gp->numTextureSamplers(); i < numActiveViews; ++i) {
             flushInfo->fPrimProcProxies[i] = views[i].proxy();
-            // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
+            // This op does not know its atlas proxies when it is added to a OpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
             target->sampledProxyArray()->push_back(views[i].proxy());
             // These will get unreffed when the previously recorded draws destruct.

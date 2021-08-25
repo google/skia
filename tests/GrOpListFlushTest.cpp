@@ -26,7 +26,7 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& bitmap) {
     return result;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrOpsTaskFlushCount, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(OpsTaskFlushCount, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
     GrGpu* gpu = context->priv().getGpu();
 

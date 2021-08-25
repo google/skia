@@ -250,10 +250,10 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             // This should combine w/ the prior combined clear and overwrite the color
             sdc->clear(kScissorRect, SK_PMColor4fBLACK);
 
-            GrOpsTask* ops = sdc->getOpsTask();
-            REPORTER_ASSERT(reporter, ops->numOpChains() == 1);
+            auto opsTask = sdc->getOpsTask();
+            REPORTER_ASSERT(reporter, opsTask->numOpChains() == 1);
 
-            const GrClearOp& clearOp = ops->getChain(0)->cast<GrClearOp>();
+            const GrClearOp& clearOp = opsTask->getChain(0)->cast<GrClearOp>();
 
             constexpr std::array<float, 4> kExpected { 0, 0, 0, 1 };
             REPORTER_ASSERT(reporter, clearOp.color() == kExpected);
@@ -276,10 +276,10 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             // field
             sdc->clearStencilClip(kScissorRect, false);
 
-            GrOpsTask* ops = sdc->getOpsTask();
-            REPORTER_ASSERT(reporter, ops->numOpChains() == 1);
+            auto opsTask = sdc->getOpsTask();
+            REPORTER_ASSERT(reporter, opsTask->numOpChains() == 1);
 
-            const GrClearOp& clearOp = ops->getChain(0)->cast<GrClearOp>();
+            const GrClearOp& clearOp = opsTask->getChain(0)->cast<GrClearOp>();
 
             constexpr std::array<float, 4> kExpected { 1, 1, 1, 1 };
             REPORTER_ASSERT(reporter, clearOp.color() == kExpected);

@@ -2052,7 +2052,7 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
 #else
     // we could just clear the clip bit but when we go through
     // ANGLE a partial stencil mask will cause clears to be
-    // turned into draws. Our contract on GrOpsTask says that
+    // turned into draws. Our contract on OpsTask says that
     // changing the clip between stencil passes may or may not
     // zero the client's clip bits. So we just clear the whole thing.
     static const GrGLint clipStencilMask  = ~0;

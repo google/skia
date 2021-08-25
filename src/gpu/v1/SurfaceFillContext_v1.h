@@ -11,9 +11,9 @@
 #include "include/core/SkSize.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/SurfaceFillContext.h"
+#include "src/gpu/ops/OpsTask.h"
 
 #include <array>
 #include <tuple>
@@ -44,7 +44,7 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint) override;
 
-    GrOpsTask* getOpsTask();
+    OpsTask* getOpsTask();
     sk_sp<GrRenderTask> refRenderTask() override;
 
     int numSamples() const { return this->asRenderTargetProxy()->numSamples(); }
@@ -54,7 +54,7 @@ public:
     GrSubRunAllocator* subRunAlloc() { return this->arenas()->subRunAlloc(); }
 
 #if GR_TEST_UTILS
-    GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
+    OpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
 
     const GrSurfaceProxyView& writeSurfaceView() const { return fWriteView; }
@@ -67,20 +67,20 @@ protected:
 
     void addOp(GrOp::Owner);
 
-    GrOpsTask* replaceOpsTask();
+    OpsTask* replaceOpsTask();
 
 private:
     sk_sp<GrArenas> arenas() { return fWriteView.proxy()->asRenderTargetProxy()->arenas(); }
 
     /** Override to be notified in subclass before the current ops task is replaced. */
-    virtual void willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {}
+    virtual void willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask) {}
 
     /**
      * Override to be called to participate in the decision to discard all previous ops if a
      * fullscreen clear occurs.
      */
-    virtual GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const {
-        return GrOpsTask::CanDiscardPreviousOps::kYes;
+    virtual OpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const {
+        return OpsTask::CanDiscardPreviousOps::kYes;
     }
 
     void internalClear(const SkIRect* scissor,
@@ -91,9 +91,9 @@ private:
 
     SkDEBUGCODE(void onValidate() const override;)
 
-    // The GrOpsTask can be closed by some other surface context that has picked it up. For this
-    // reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
-    sk_sp<GrOpsTask> fOpsTask;
+    // The OpsTask can be closed by some other surface context that has picked it up. For this
+    // reason, the OpsTask should only ever be accessed via 'getOpsTask'.
+    sk_sp<OpsTask> fOpsTask;
 
     bool fFlushTimeOpsTask;
 

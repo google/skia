@@ -62,7 +62,7 @@ class GrDirectContext;
  * How does instantiation failure handling work when explicitly allocating?
  *
  * In the gather usage intervals pass all the GrSurfaceProxies used in the flush should be
- * gathered (i.e., in GrOpsTask::gatherProxyIntervals).
+ * gathered (i.e., in OpsTask::gatherProxyIntervals).
  *
  * During addInterval, read-only lazy proxies are instantiated. If that fails, the resource
  * allocator will note the failure and ignore pretty much anything else until `reset`.

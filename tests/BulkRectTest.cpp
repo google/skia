@@ -73,7 +73,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
     GrFillRectOp::AddFillRectOps(sdc.get(), nullptr, dContext, std::move(paint), overallAA,
                                  SkMatrix::I(), quads, requestedTotNumQuads);
 
-    GrOpsTask* opsTask = sdc->testingOnly_PeekLastOpsTask();
+    auto opsTask = sdc->testingOnly_PeekLastOpsTask();
     int actualNumOps = opsTask->numOpChains();
 
     int actualTotNumQuads = 0;
@@ -178,7 +178,7 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
                                       nullptr);
     }
 
-    GrOpsTask* opsTask = sdc->testingOnly_PeekLastOpsTask();
+    auto opsTask = sdc->testingOnly_PeekLastOpsTask();
     int actualNumOps = opsTask->numOpChains();
 
     int actualTotNumQuads = 0;

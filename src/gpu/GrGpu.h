@@ -257,7 +257,7 @@ public:
      *                           sampling. This is currently only used by Vulkan for inline uploads
      *                           to set that layout back to sampled after doing the upload. Inline
      *                           uploads currently can happen between draws in a single op so it is
-     *                           not trivial to break up the GrOpsTask into two tasks when we see
+     *                           not trivial to break up the OpsTask into two tasks when we see
      *                           an inline upload. However, once we are able to support doing that
      *                           we can remove this parameter.
      *
@@ -350,7 +350,7 @@ public:
     bool copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
-    // Returns a GrOpsRenderPass which GrOpsTasks send draw commands to instead of directly
+    // Returns a GrOpsRenderPass which OpsTasks send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the renderTarget.
     // If a 'stencil' is provided it will be the one bound to 'renderTarget'. If one is not
     // provided but 'renderTarget' has a stencil buffer then that is a signal that the
