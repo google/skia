@@ -1,11 +1,9 @@
 // Copyright 2021 Google LLC.
-#ifndef Text_DEFINED
-#define Text_DEFINED
+#ifndef Interface_DEFINED
+#define Interface_DEFINED
 #include <string>
 #include "experimental/sktext/include/Types.h"
 #include "experimental/sktext/src/Line.h"
-#include "experimental/sktext/src/LogicalRun.h"
-#include "experimental/sktext/src/VisualRun.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
@@ -16,11 +14,9 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skunicode/include/SkUnicode.h"
 
+using namespace skia::text;
 namespace skia {
-namespace text {
-
-class ShapedText;
-
+namespace API {
 /**
  * This class contains all the SKUnicode/ICU information.
  */
@@ -38,28 +34,14 @@ public:
 
     UnicodeText(std::unique_ptr<SkUnicode> unicode, SkSpan<uint16_t> utf16);
     UnicodeText(std::unique_ptr<SkUnicode> unicode, const SkString& utf8);
-    ~UnicodeText() = default;
 
-    bool hasProperty(TextIndex index, CodeUnitFlags flag) const {
-        return (fCodeUnitProperties[index] & flag) == flag;
-    }
-    bool isHardLineBreak(TextIndex index) const {
-        return this->hasProperty(index, CodeUnitFlags::kHardLineBreakBefore);
-    }
-    bool isSoftLineBreak(TextIndex index) const {
-        return index != 0 && this->hasProperty(index, CodeUnitFlags::kSoftLineBreakBefore);
-    }
+    bool hasProperty(TextIndex index, CodeUnitFlags flag) const
+    bool isHardLineBreak(TextIndex index) const ;
+    bool isSoftLineBreak(TextIndex index) const;
     bool isWhitespaces(TextRange range) const;
 
-    SkUnicode* getUnicode() const { return fUnicode.get(); }
-    SkSpan<const char16_t> getText16() const { return SkSpan<const char16_t>(fText16.data(), fText16.size());}
-
-private:
-    void initialize(SkSpan<uint16_t> utf16);
-
-    SkTArray<CodeUnitFlags, true> fCodeUnitProperties;
-    std::u16string fText16;
-    std::unique_ptr<SkUnicode> fUnicode;
+    SkUnicode* getUnicode() const;
+    SkSpan<const char16_t> getText16() const;
 };
 
 class WrappedText;
@@ -68,7 +50,7 @@ class WrappedText;
  * It does require a single existing font for each codepoint.
  */
  // Question: do we provide a visitor for ShapedText?
-class ShapedText : public SkShaper::RunHandler {
+class ShapedText {
 public:
     /** Break text by lines with a given width (and possible new lines).
         @param unicodeText    a reference to UnicodeText that is used to query Unicode information
@@ -77,43 +59,7 @@ public:
         @return               an object that contains the result of shaping operations (wrapping and formatting).
     */
     std::unique_ptr<WrappedText> wrap(UnicodeText* unicodeText, float width, float height);
-
-    ShapedText()
-    : fCurrentRun(nullptr)
-    , fParagraphTextStart(0)
-    , fRunGlyphStart(0.0f)
-    , fTextHeight(0.0f) { }
-
-    void beginLine() override {}
-    void runInfo(const RunInfo&) override {}
-    void commitRunInfo() override {}
-    void commitLine() override {}
-    void commitRunBuffer(const RunInfo&) override {
-        fCurrentRun->commit();
-        fLogicalRuns.emplace_back(std::move(*fCurrentRun));
-        fRunGlyphStart += fCurrentRun->width();
-    }
-    Buffer runBuffer(const RunInfo& info) override {
-        fCurrentRun = std::make_unique<LogicalRun>(info, fParagraphTextStart, fRunGlyphStart);
-        return fCurrentRun->newRunBuffer();
-    }
-
-    SkSpan<const LogicalRun> getLogicalRuns() const { return SkSpan<const LogicalRun>(fLogicalRuns.begin(), fLogicalRuns.size()); }
-private:
-    friend class UnicodeText;
-
-    void addLine(WrappedText* wrappedText, SkUnicode* unicode, Stretch& stretch, Stretch& spaces, bool hardLineBreak);
-
-    SkTArray<int32_t> getVisualOrder(SkUnicode* unicode, RunIndex start, RunIndex end);
-
-    // This is all the results from shaping
-    SkTArray<LogicalRun, false> fLogicalRuns;
-
-    // Temporary values
-    std::unique_ptr<LogicalRun> fCurrentRun;
-    TextIndex fParagraphTextStart;
-    SkScalar fRunGlyphStart;
-    SkScalar fTextHeight;
+    SkSpan<const LogicalRun> getLogicalRuns() const;
 };
 
 /**
@@ -168,9 +114,6 @@ public:
     */
     void decorate(UnicodeText* unicodeText, SkSpan<TextIndex> chunks);
 
-    SkSize actualSize() const { return fActualSize; }
-    size_t countLines() const { return fVisualLines.size(); }
-
     /** Walks though the data structures and makes certain callbacks on visitor so the visitor can collect all the information.
         @param visitor      a reference to Visitor object
     */
@@ -183,15 +126,6 @@ public:
         @param blocks       a range of text indices that cause an additional run breaking to be used for styling
     */
     void visit(UnicodeText* unicodeText, Visitor* visitor, PositionType positionType, SkSpan<TextIndex> blocks) const;
-
-private:
-    friend class ShapedText;
-    WrappedText() : fActualSize(SkSize::MakeEmpty()), fAligned(TextAlign::kNothing) { }
-    GlyphRange textToGlyphs(UnicodeText* unicodeText, PositionType positionType, RunIndex runIndex, TextRange textRange) const;
-    SkTArray<VisualRun, true> fVisualRuns;    // Broken by lines
-    SkTArray<VisualLine, false> fVisualLines;
-    SkSize fActualSize;
-    TextAlign fAligned;
 };
 
 /** This class contains all the data that allows easily paint the text on canvas.
@@ -200,38 +134,12 @@ private:
 */
 class DrawableText : public Visitor {
 public:
-    DrawableText() = default;
-
-    void onGlyphRun(const SkFont& font,
-                            TextRange textRange,
-                            SkRect bounds,
-                            int trailingSpaces,
-                            int glyphCount,
-                            const uint16_t glyphs[],
-                            const SkPoint positions[],
-                            const TextIndex clusters[]) override {
-        SkTextBlobBuilder builder;
-        const auto& blobBuffer = builder.allocRunPos(font, SkToInt(glyphCount));
-        sk_careful_memcpy(blobBuffer.glyphs, glyphs, glyphCount * sizeof(uint16_t));
-        sk_careful_memcpy(blobBuffer.points(), positions, glyphCount * sizeof(SkPoint));
-        fTextBlobs.emplace_back(builder.make());
-    }
-    std::vector<sk_sp<SkTextBlob>>& getTextBlobs() { return fTextBlobs; }
-private:
-    std::vector<sk_sp<SkTextBlob>> fTextBlobs;
+    std::vector<sk_sp<SkTextBlob>>& getTextBlobs();
 };
 
 struct Position {
-    Position(PositionType positionType, size_t lineIndex, GlyphRange glyphRange, TextRange textRange, SkRect rect)
-        : fPositionType(positionType)
-        , fLineIndex(lineIndex)
-        , fGlyphRange(glyphRange)
-        , fTextRange(textRange)
-        , fBoundaries(rect) { }
-
-    Position(PositionType positionType)
-        : Position(positionType, EMPTY_INDEX, EMPTY_RANGE, EMPTY_RANGE, SkRect::MakeEmpty()) { }
-
+    Position(PositionType positionType, size_t lineIndex, GlyphRange glyphRange, TextRange textRange, SkRect rect);
+    Position(PositionType positionType);
     PositionType fPositionType;
     size_t fLineIndex;
     GlyphRange fGlyphRange;
@@ -239,11 +147,9 @@ struct Position {
     SkRect fBoundaries;
 };
 struct BoxLine {
-    BoxLine(size_t index, TextRange text, bool hardBreak, SkRect bounds)
-        : fTextRange(text), fIndex(index), fIsHardBreak(hardBreak), fBounds(bounds) { }
+    BoxLine(size_t index, TextRange text, bool hardBreak, SkRect bounds);
     SkTArray<SkRect, true> fBoxGlyphs;
     SkTArray<TextIndex, true> fTextByGlyph; // by glyph cluster
-    //SkTArray<GlyphRange, true> fRuns; // by glyph cluster
     GlyphIndex fTextEnd;
     GlyphIndex fTrailingSpacesEnd;
     TextRange fTextRange;
@@ -268,57 +174,18 @@ public:
 
     Position previousPosition(Position current) const;
     Position nextPosition(Position current) const;
-    Position upPosition(Position current) const;
-    Position downPosition(Position current) const;
     Position firstPosition(PositionType positionType) const;
     Position lastPosition(PositionType positionType) const;
     Position firstInLinePosition(PositionType positionType, LineIndex lineIndex) const;
     Position lastInLinePosition(PositionType positionType, LineIndex lineIndex) const;
 
-    bool isFirstOnTheLine(Position element) const {
-        return (element.fGlyphRange.fStart == 0);
-    }
-    bool isLastOnTheLine(Position element) const {
-        return (element.fGlyphRange.fEnd == fBoxLines.back().fBoxGlyphs.size());
-    }
+    bool isFirstOnTheLine(Position element) const;
+    bool isLastOnTheLine(Position element) const;
 
-    size_t countLines() const { return fBoxLines.size(); }
-    BoxLine getLine(size_t lineIndex) const {
-        SkASSERT(lineIndex < fBoxLines.size());
-        return fBoxLines[lineIndex];
-    }
-
-    bool hasProperty(TextIndex index, GlyphUnitFlags flag) const {
-        return (fGlyphUnitProperties[index] & flag) == flag;
-    }
-
-    void onBeginLine(size_t index, TextRange lineText, bool hardBreak, SkRect bounds) override;
-    void onEndLine(size_t index, TextRange lineText, GlyphRange trailingSpaces, size_t glyphCount) override;
-
-    void onGlyphRun(const SkFont& font,
-                    TextRange textRange,
-                    SkRect bounds,
-                    int trailingSpaces,
-                    int glyphCount,
-                    const uint16_t glyphs[],
-                    const SkPoint positions[],
-                    const TextIndex clusters[]) override;
-
-private:
-    friend class WrappedText;
-
-    Position findPosition(PositionType positionType, const BoxLine& line, SkScalar x) const;
-    // Just in theory a random glyph range can be represented by multiple text ranges (because of LTR/RTL)
-    // Currently we only support this method for a glyph, grapheme or grapheme cluster
-    // So it's guaranteed to be one text range
-    TextRange glyphsToText(Position position) const;
-
-    SkTArray<BoxLine, true> fBoxLines;
-    SkTArray<GlyphUnitFlags, true> fGlyphUnitProperties;
-    SkSize fActualSize;
+    size_t countLines() const;
+    BoxLine getLine(size_t lineIndex) const;
 };
-
 }  // namespace text
 }  // namespace skia
 
-#endif  // Text_DEFINED
+#endif  // Processor_DEFINED

@@ -153,7 +153,7 @@ protected:
             result += ch;
         }
         result += u"\u202C";
-        return fUnicode->convertUtf16ToUtf8(result);
+        return SkUnicode::convertUtf16ToUtf8(result);
     }
 
     void onDrawContent(SkCanvas* canvas) override {

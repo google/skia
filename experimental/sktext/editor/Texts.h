@@ -8,7 +8,6 @@
 #include "experimental/sktext/editor/Selection.h"
 #include "experimental/sktext/include/Text.h"
 #include "experimental/sktext/include/Types.h"
-#include "experimental/sktext/src/Paint.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
@@ -30,10 +29,12 @@ public:
         fSize = size;
         fFontBlocks = fontBlocks;
         fText = std::move(text);
-        fUnicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
+
+        auto unicode = SkUnicode::Make();
+        fUnicodeText = std::make_unique<UnicodeText>(std::move(unicode), SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
         fShapedText = fUnicodeText->shape(fontBlocks, DEFAULT_TEXT_DIRECTION);
-        fWrappedText = fShapedText->wrap(size.width(), size.height(), fUnicodeText->getUnicode());
-        fFormattedText = fWrappedText->format(DEFAULT_TEXT_ALIGN, DEFAULT_TEXT_DIRECTION);
+        fWrappedText = fShapedText->wrap(fUnicodeText.get(), size.width(), size.height());
+        fWrappedText->format(DEFAULT_TEXT_ALIGN, DEFAULT_TEXT_DIRECTION);
     }
 
     virtual ~StaticText() = default;
@@ -44,7 +45,6 @@ public:
     std::unique_ptr<UnicodeText> fUnicodeText;
     std::unique_ptr<ShapedText> fShapedText;
     std::unique_ptr<WrappedText> fWrappedText;
-    sk_sp<FormattedText> fFormattedText;
     SkSize fSize;
     SkPoint fOffset;
     SkSpan<FontBlock> fFontBlocks;
@@ -65,11 +65,12 @@ public:
         fTextAlign = textAlign;
         fTextDirection = textDirection;
         fText = std::move(text);
-        fUnicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
+
+        auto unicode = SkUnicode::Make();
+        fUnicodeText = std::make_unique<UnicodeText>(std::move(unicode), SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
         fShapedText = fUnicodeText->shape(fontBlocks, fTextDirection);
-        fWrappedText = fShapedText->wrap(size.width(), size.height(), fUnicodeText->getUnicode());
-        fFormattedText = fWrappedText->format(fTextAlign, fTextDirection);
-        fInvalidated = false;
+        fWrappedText = fShapedText->wrap(fUnicodeText.get(), size.width(), size.height());
+        fWrappedText->format(fTextAlign, fTextDirection);
     }
 
     virtual ~DynamicText() = default;
@@ -78,8 +79,10 @@ public:
         return SkRect::MakeXYWH(fOffset.fX, fOffset.fY, fRequiredSize.fWidth, fRequiredSize.fHeight).contains(x, y);
     }
 
-    void invalidate() { fInvalidated = true; }
-    bool isInvalidated() { return fInvalidated; }
+    void invalidate() { fDrawableText = nullptr; }
+    bool isValid() { return fDrawableText != nullptr; }
+
+    std::vector<TextIndex> getDecorationChunks(SkSpan<DecoratedBlock> decorations) const;
 
     bool rebuild(std::u16string text) {
         if (!this->fFontBlocks.empty()) {
@@ -87,18 +90,24 @@ public:
             this->fFontBlocks[0].charCount = text.size();
         }
         this->fText = std::move(text);
-        this->fUnicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)this->fText.data(), this->fText.size()));
-        this->fShapedText = fUnicodeText->shape(this->fFontBlocks, fTextDirection);
-        this->fWrappedText = fShapedText->wrap(this->fRequiredSize.fWidth, this->fRequiredSize.fHeight, this->fUnicodeText->getUnicode());
-        this->fFormattedText = fWrappedText->format(fTextAlign, fTextDirection);
-        this->fActualSize = fFormattedText->actualSize();
-        this->fInvalidated = false;
+
+        auto unicode = SkUnicode::Make();
+        fUnicodeText = std::make_unique<UnicodeText>(std::move(unicode), SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
+        fShapedText = fUnicodeText->shape(this->fFontBlocks, fTextDirection);
+        fWrappedText = fShapedText->wrap(fUnicodeText.get(), this->fRequiredSize.fWidth, this->fRequiredSize.fHeight);
+        fWrappedText->format(fTextAlign, fTextDirection);
+        fSelectableText = fWrappedText->prepareToEdit(fUnicodeText.get());
+        fDrawableText = nullptr;
+        fActualSize = fWrappedText->actualSize();
 
         return true;
     }
 
-    SkScalar lineHeight(size_t index) const { return fFormattedText->line(index)->height(); }
-    size_t lineCount() const { return fFormattedText->countLines(); }
+    size_t lineCount() const { return fSelectableText->countLines(); }
+    BoxLine getLine(size_t lineIndex) {
+        SkASSERT(lineIndex < fSelectableText->countLines());
+        return fSelectableText->getLine(lineIndex);
+    }
 
     SkRect actualSize() const {
         return SkRect::MakeXYWH(fOffset.fX, fOffset.fY, fActualSize.fWidth, fActualSize.fHeight);
@@ -111,7 +120,8 @@ protected:
     std::unique_ptr<UnicodeText> fUnicodeText;
     std::unique_ptr<ShapedText> fShapedText;
     std::unique_ptr<WrappedText> fWrappedText;
-    sk_sp<FormattedText> fFormattedText;
+    std::unique_ptr<DrawableText> fDrawableText;
+    std::unique_ptr<SelectableText> fSelectableText;
     SkSize fRequiredSize;
     SkSize fActualSize;
     SkPoint fOffset;
@@ -119,7 +129,6 @@ protected:
     SkSpan<DecoratedBlock> fDecorations;
     TextAlign fTextAlign;
     TextDirection fTextDirection;
-    bool fInvalidated;
 };
 
 // Text can change;  supports select/copy/paste
@@ -133,26 +142,20 @@ public:
     bool isEmpty() { return fText.empty(); }
 
     Position adjustedPosition(PositionType positionType, SkPoint point) const {
-        return fFormattedText->adjustedPosition(positionType, point - fOffset);
+        return fSelectableText->adjustedPosition(positionType, point - fOffset);
     }
 
-    Position adjustedPosition(PositionType positionType, TextIndex textIndex) const {
-        return fFormattedText->adjustedPosition(positionType, textIndex);
-    }
+    //Position adjustedPosition(PositionType positionType, TextIndex textIndex) const {
+    //    return fSelectableText->adjustedPosition(positionType, textIndex);
+    //}
 
-    bool recalculateBoundaries(Position& position) const {
-        return fFormattedText->recalculateBoundaries(position);
-    }
+    Position previousElement(Position element) const { return fSelectableText->previousPosition(element); }
+    Position nextElement(Position current) const { return fSelectableText->nextPosition(current); }
+    Position firstElement(PositionType positionType) const { return fSelectableText->firstPosition(positionType); }
+    Position lastElement(PositionType positionType) const { return fSelectableText->lastPosition(positionType); }
 
-    const Line* line(size_t index) const { return fFormattedText->line(index); }
-
-    Position previousElement(Position element) const { return fFormattedText->previousElement(element); }
-    Position nextElement(Position current) const { return fFormattedText->nextElement(current); }
-    Position firstElement(PositionType positionType) const { return fFormattedText->firstElement(positionType); }
-    Position lastElement(PositionType positionType) const { return fFormattedText->lastElement(positionType); }
-
-    bool isFirstOnTheLine(Position element) const { return fFormattedText->isFirstOnTheLine(element); }
-    bool isLastOnTheLine(Position element) const { return fFormattedText->isLastOnTheLine(element); }
+    bool isFirstOnTheLine(Position element) const { return fSelectableText->isFirstOnTheLine(element); }
+    bool isLastOnTheLine(Position element) const { return fSelectableText->isLastOnTheLine(element); }
 
     void removeElement(TextRange toRemove) {
         std::u16string text;
