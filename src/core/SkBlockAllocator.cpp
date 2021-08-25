@@ -194,8 +194,8 @@ void SkBlockAllocator::resetScratchSpace() {
     }
 }
 
-void SkBlockAllocator::addBlock(int minimumSize, int maxSize) {
-    SkASSERT(minimumSize > (int) sizeof(Block) && minimumSize <= maxSize);
+void SkBlockAllocator::addBlock(int minSize, int maxSize) {
+    SkASSERT(minSize > (int) sizeof(Block) && minSize <= maxSize);
 
     // Max positive value for uint:23 storage (decltype(fN0) picks up uint64_t, not uint:23).
     static constexpr int kMaxN = (1 << 23) - 1;
@@ -211,13 +211,13 @@ void SkBlockAllocator::addBlock(int minimumSize, int maxSize) {
 
     int allocSize;
     void* mem = nullptr;
-    if (this->scratchBlockSize() >= minimumSize) {
+    if (this->scratchBlockSize() >= minSize) {
         // Activate the scratch block instead of making a new block
         SkASSERT(fHead.fPrev->isScratch());
         allocSize = fHead.fPrev->fSize;
         mem = fHead.fPrev;
         fHead.fPrev = nullptr;
-    } else if (minimumSize < maxSize) {
+    } else if (minSize < maxSize) {
         // Calculate the 'next' size per growth policy sequence
         GrowthPolicy gp = static_cast<GrowthPolicy>(fGrowthPolicy);
         int nextN1 = fN0 + fN1;
@@ -241,13 +241,13 @@ void SkBlockAllocator::addBlock(int minimumSize, int maxSize) {
             // maxSize will be sufficient for the requested minimumSize
             allocSize = maxSize;
         } else {
-            allocSize = std::min(alignAllocSize(std::max(minimumSize, sizeIncrement * nextN1)),
+            allocSize = std::min(alignAllocSize(std::max(minSize, sizeIncrement * nextN1)),
                                  maxSize);
         }
     } else {
-        SkASSERT(minimumSize == maxSize);
+        SkASSERT(minSize == maxSize);
         // Still align on a nice boundary, no max clamping since that would just undo the alignment
-        allocSize = alignAllocSize(minimumSize);
+        allocSize = alignAllocSize(minSize);
     }
 
     // Create new block and append to the linked list of blocks in this allocator
@@ -284,7 +284,7 @@ void SkBlockAllocator::validate() const {
         prev = block;
     }
     SkASSERT(prev == fTail);
-    SkASSERT(blocks.size() > 0);
+    SkASSERT(!blocks.empty());
     SkASSERT(blocks[0] == &fHead);
 
     // Confirm reverse iteration matches forward iteration

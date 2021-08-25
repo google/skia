@@ -270,6 +270,7 @@ DEF_TEST(SkBlockAllocatorRewind, r) {
     SkDEBUGCODE(pool->validate();)
 
     std::vector<SkBlockAllocator::ByteRange> ptrs;
+    ptrs.reserve(32); // silence clang-tidy performance warning
     for (int i = 0; i < 32; ++i) {
         ptrs.push_back(pool->allocate<4>(16));
     }
