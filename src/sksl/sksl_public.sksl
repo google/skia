@@ -118,12 +118,6 @@ $es3 $genIType clamp($genIType x, int minVal, int maxVal);
 $es3 $genType  mix($genType  x, $genType  y, $genBType a);
 $es3 $genHType mix($genHType x, $genHType y, $genBType a);
 
-// 8.3 : Common Functions (Version 3.0) -- cannot be used in constant-expressions
-$es3 $genBType isnan($genType  x);
-$es3 $genBType isnan($genHType x);
-$es3 $genBType isinf($genType  x);
-$es3 $genBType isinf($genHType x);
-
 // 8.4 : Geometric Functions
 float length($genType  x);
 half  length($genHType x);
