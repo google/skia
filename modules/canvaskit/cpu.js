@@ -73,6 +73,7 @@
     // For GPU builds, simply proxies to native code flush.  For CPU builds,
     // also updates the underlying HTML canvas, optionally with dirtyRect.
     CanvasKit.Surface.prototype.flush = function(dirtyRect) {
+      CanvasKit.setCurrentContext(this._context);
       this._flush();
       // Do we have an HTML canvas to write the pixels to?
       // We will not have a canvas if this a GPU build, for example.
@@ -98,10 +99,6 @@
         CanvasKit._free(this._pixelPtr);
       }
       this.delete();
-    };
-
-    CanvasKit.currentContext = CanvasKit.currentContext || function() {
-      // no op if this is a cpu-only build.
     };
 
     CanvasKit.setCurrentContext = CanvasKit.setCurrentContext || function() {

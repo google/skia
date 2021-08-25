@@ -15,10 +15,6 @@ function getSurface(CanvasKit, webglversion) {
       window._error = 'fell back to CPU';
       return null;
     }
-    if (webglversion !== surface.openGLversion) {
-      window._error = 'Want WebGL version '+webglversion+' but got '+surface.openGLversion;
-      return null;
-    }
   } else {
     surface = CanvasKit.MakeSWCanvasSurface('anim');
     if (!surface) {

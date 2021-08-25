@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<title>CanvasKit (Skia via Web Assembly)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas, img {
+    border: 1px dashed #AAA;
+  }
+
+</style>
+
+<canvas id=api1 width=300 height=300></canvas>
+<canvas id=api2 width=300 height=300></canvas>
+<canvas id=api3 width=300 height=300></canvas>
+
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+<script type="text/javascript" charset="utf-8">
+  const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+  const loadTestImage = fetch(cdn + 'test.png').then((response) => response.arrayBuffer());
+
+  Promise.all([ckLoaded, loadTestImage]).then((results) => {MultiCanvasExample(...results)});
+
+  // This example shows how CanvasKit can automatically switch between multiple canvases
+  // with different WebGL contexts.
+  function MultiCanvasExample(CanvasKit, imgBytes) {
+    const paint = new CanvasKit.Paint();
+
+    const surfOne = CanvasKit.MakeWebGLCanvasSurface("api1");
+    const canvasOne = surfOne.getCanvas();
+    const surfTwo = CanvasKit.MakeWebGLCanvasSurface("api2");
+    const canvasTwo = surfTwo.getCanvas();
+    const surfThree = CanvasKit.MakeWebGLCanvasSurface("api3");
+    const canvasThree = surfThree.getCanvas();
+
+    function firstFrame() {
+      paint.setColor(CanvasKit.Color4f(1, 0, 0, 1)); // red
+      canvasOne.drawRect(CanvasKit.LTRBRect(0, 0, 300, 300), paint);
+      surfOne.flush();
+
+      paint.setColor(CanvasKit.Color4f(0, 1, 0, 1)); // green
+      canvasTwo.drawRect(CanvasKit.LTRBRect(0, 0, 300, 300), paint);
+      surfTwo.flush();
+
+      paint.setColor(CanvasKit.Color4f(0, 0, 1, 1)); // blue
+      canvasThree.drawRect(CanvasKit.LTRBRect(0, 0, 300, 300), paint);
+      surfThree.flush();
+
+      window.requestAnimationFrame(secondFrame);
+    }
+
+    let img;
+    function secondFrame() {
+      img = CanvasKit.MakeImageFromEncoded(imgBytes);
+
+      canvasOne.drawImageCubic(img, 10, 10, 0.3, 0.3, null);
+      surfOne.flush();
+
+      canvasTwo.drawImageCubic(img, 10, 10, 0.3, 0.3, null);
+      surfTwo.flush();
+
+      canvasThree.drawImageCubic(img, 10, 10, 0.3, 0.3, null);
+      surfThree.flush();
+
+      window.requestAnimationFrame(thirdFrame);
+    }
+
+    function thirdFrame() {
+      canvasOne.drawImageCubic(img, 100, 100, 0.3, 0.3, null);
+      surfOne.flush();
+
+      canvasTwo.drawImageCubic(img, 100, 100, 0.3, 0.3, null);
+      surfTwo.flush();
+
+      canvasThree.drawImageCubic(img, 100, 100, 0.3, 0.3, null);
+      surfThree.flush();
+    }
+
+    window.requestAnimationFrame(firstFrame);
+
+  }
+</script>

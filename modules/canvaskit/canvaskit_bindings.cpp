@@ -65,8 +65,7 @@
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/gl/GrGLDefines.h"
 
-#include <GLES3/gl3.h>
-#include <emscripten/html5.h>
+#include "webgl/webgl1.h"
 #endif
 
 #ifndef SK_NO_FONTS
@@ -134,24 +133,21 @@ struct ColorSettings {
     ColorSettings(sk_sp<SkColorSpace> colorSpace) {
         if (colorSpace == nullptr || colorSpace->isSRGB()) {
             colorType = kRGBA_8888_SkColorType;
-            pixFormat = GL_RGBA8;
+            pixFormat = GR_GL_RGBA8;
         } else {
             colorType = kRGBA_F16_SkColorType;
-            pixFormat = GL_RGBA16F;
+            pixFormat = GR_GL_RGBA16F;
         }
     };
     SkColorType colorType;
     GrGLenum pixFormat;
 };
 
-sk_sp<GrDirectContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
+sk_sp<GrDirectContext> MakeGrContext()
 {
-    EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
-    if (r < 0) {
-        printf("failed to make webgl context current %d\n", r);
-        return nullptr;
-    }
-    // setup interface
+    // We assume that any calls we make to GL for the remainder of this function will go to the
+    // desired WebGL Context.
+    // setup interface.
     auto interface = GrGLMakeNativeInterface();
     // setup context
     return GrDirectContext::MakeGL(interface);
@@ -161,10 +157,10 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int widt
                                        sk_sp<SkColorSpace> colorSpace) {
     // WebGL should already be clearing the color and stencil buffers, but do it again here to
     // ensure Skia receives them in the expected state.
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0, 0, 0, 0);
-    glClearStencil(0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    emscripten_glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    emscripten_glClearColor(0, 0, 0, 0);
+    emscripten_glClearStencil(0);
+    emscripten_glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     dContext->resetContext(kRenderTarget_GrGLBackendState | kMisc_GrGLBackendState);
 
     // The on-screen canvas is FBO 0. Wrap it in a Skia render target so Skia can render to it.
@@ -172,10 +168,10 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int widt
     info.fFBOID = 0;
 
     GrGLint sampleCnt;
-    glGetIntegerv(GL_SAMPLES, &sampleCnt);
+    emscripten_glGetIntegerv(GL_SAMPLES, &sampleCnt);
 
     GrGLint stencil;
-    glGetIntegerv(GL_STENCIL_BITS, &stencil);
+    emscripten_glGetIntegerv(GL_STENCIL_BITS, &stencil);
 
     const auto colorSettings = ColorSettings(colorSpace);
     info.fFormat = colorSettings.pixFormat;
@@ -719,12 +715,10 @@ void deleteJSTexture(SkImage::ReleaseContext rc) {
 
 EMSCRIPTEN_BINDINGS(Skia) {
 #ifdef SK_GL
-    function("currentContext", &emscripten_webgl_get_current_context);
-    function("setCurrentContext", &emscripten_webgl_make_context_current);
-    function("MakeGrContext", &MakeGrContext);
-    function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
-    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrDirectContext>, int, int)>(&MakeRenderTarget));
-    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrDirectContext>, SimpleImageInfo)>(&MakeRenderTarget));
+    function("_MakeGrContext", &MakeGrContext);
+    function("_MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
+    function("_MakeRenderTargetWH", select_overload<sk_sp<SkSurface>(sk_sp<GrDirectContext>, int, int)>(&MakeRenderTarget));
+    function("_MakeRenderTargetII", select_overload<sk_sp<SkSurface>(sk_sp<GrDirectContext>, SimpleImageInfo)>(&MakeRenderTarget));
 
     constant("gpu", true);
 #endif
@@ -889,17 +883,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawAtlas(atlas.get(), dstXforms, srcRects, colors, count, mode, sampling,
                            nullptr, paint);
         }), allow_raw_pointers())
-        .function("drawCircle", select_overload<void (SkScalar, SkScalar, SkScalar, const SkPaint& paint)>(&SkCanvas::drawCircle))
+        .function("_drawCircle", select_overload<void (SkScalar, SkScalar, SkScalar, const SkPaint& paint)>(&SkCanvas::drawCircle))
         .function("_drawColor", optional_override([](SkCanvas& self, WASMPointerF32 cPtr) {
             self.drawColor(ptrToSkColor4f(cPtr));
         }))
         .function("_drawColor", optional_override([](SkCanvas& self, WASMPointerF32 cPtr, SkBlendMode mode) {
             self.drawColor(ptrToSkColor4f(cPtr), mode);
         }))
-        .function("drawColorInt", optional_override([](SkCanvas& self, SkColor color) {
-            self.drawColor(color);
-        }))
-        .function("drawColorInt", optional_override([](SkCanvas& self, SkColor color, SkBlendMode mode) {
+        .function("_drawColorInt", optional_override([](SkCanvas& self, SkColor color, SkBlendMode mode) {
             self.drawColor(color, mode);
         }))
         .function("_drawDRRect", optional_override([](SkCanvas& self, WASMPointerF32 outerPtr,
@@ -919,17 +910,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
                             {x, y}, font, paint);
         }))
         // TODO: deprecate this version, and require sampling
-        .function("drawImage", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
+        .function("_drawImage", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                     SkScalar x, SkScalar y, const SkPaint* paint) {
             self.drawImage(image.get(), x, y, SkSamplingOptions(), paint);
         }), allow_raw_pointers())
-        .function("drawImageCubic",  optional_override([](SkCanvas& self, const sk_sp<SkImage>& img,
+        .function("_drawImageCubic",  optional_override([](SkCanvas& self, const sk_sp<SkImage>& img,
                                                           SkScalar left, SkScalar top,
                                                           float B, float C, // See SkSamplingOptions.h for docs.
                                                           const SkPaint* paint)->void {
             self.drawImage(img.get(), left, top, SkSamplingOptions({B, C}), paint);
         }), allow_raw_pointers())
-        .function("drawImageOptions",  optional_override([](SkCanvas& self, const sk_sp<SkImage>& img,
+        .function("_drawImageOptions",  optional_override([](SkCanvas& self, const sk_sp<SkImage>& img,
                                                           SkScalar left, SkScalar top,
                                                           SkFilterMode filter, SkMipmapMode mipmap,
                                                           const SkPaint* paint)->void {
@@ -972,20 +963,20 @@ EMSCRIPTEN_BINDINGS(Skia) {
             auto constraint = SkCanvas::kStrict_SrcRectConstraint;  // TODO: get from caller
             self.drawImageRect(image.get(), *src, *dst, {filter, mipmap}, paint, constraint);
         }), allow_raw_pointers())
-        .function("drawLine", select_overload<void (SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawLine))
+        .function("_drawLine", select_overload<void (SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawLine))
         .function("_drawOval", optional_override([](SkCanvas& self, WASMPointerF32 fPtr,
                                                     const SkPaint& paint)->void {
             const SkRect* oval = reinterpret_cast<const SkRect*>(fPtr);
             self.drawOval(*oval, paint);
         }))
-        .function("drawPaint", &SkCanvas::drawPaint)
+        .function("_drawPaint", &SkCanvas::drawPaint)
 #ifdef SK_INCLUDE_PARAGRAPH
-        .function("drawParagraph", optional_override([](SkCanvas& self, skia::textlayout::Paragraph* p,
+        .function("_drawParagraph", optional_override([](SkCanvas& self, skia::textlayout::Paragraph* p,
                                                         SkScalar x, SkScalar y) {
             p->paint(&self, x, y);
         }), allow_raw_pointers())
 #endif
-        .function("drawPath", &SkCanvas::drawPath)
+        .function("_drawPath", &SkCanvas::drawPath)
         .function("_drawPatch", optional_override([](SkCanvas& self,
                                                      WASMPointerF32 cubics,
                                                      WASMPointerU32 colors,
@@ -999,7 +990,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         // Of note, picture is *not* what is colloquially thought of as a "picture", what we call
         // a bitmap. An SkPicture is a series of draw commands.
-        .function("drawPicture", select_overload<void (const sk_sp<SkPicture>&)>(&SkCanvas::drawPicture))
+        .function("_drawPicture", select_overload<void (const sk_sp<SkPicture>&)>(&SkCanvas::drawPicture))
         .function("_drawPoints", optional_override([](SkCanvas& self, SkCanvas::PointMode mode,
                                                      WASMPointerF32 pptr,
                                                      int count, SkPaint& paint)->void {
@@ -1014,7 +1005,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             const SkRect* rect = reinterpret_cast<const SkRect*>(fPtr);
             self.drawRect(*rect, paint);
         }))
-        .function("drawRect4f", optional_override([](SkCanvas& self, SkScalar left, SkScalar top,
+        .function("_drawRect4f", optional_override([](SkCanvas& self, SkScalar left, SkScalar top,
                                                      SkScalar right, SkScalar bottom,
                                                      const SkPaint& paint)->void {
             const SkRect rect = SkRect::MakeLTRB(left, top, right, bottom);
@@ -1043,9 +1034,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
             self.drawSimpleText(str, len, SkTextEncoding::kUTF8, x, y, font, paint);
         }))
-        .function("drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
+        .function("_drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
 #endif
-        .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
+        .function("_drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("_findMarkedCTM", optional_override([](SkCanvas& self, std::string marker, WASMPointerF32 mPtr) -> bool {
             SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
             if (!sixteenMatrixValues) {
@@ -1081,7 +1072,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkMatrix m = self.getTotalMatrix();
             m.get9(nineMatrixValues);
         }))
-        .function("makeSurface", optional_override([](SkCanvas& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
+        .function("_makeSurface", optional_override([](SkCanvas& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
             return self.makeSurface(toSkImageInfo(sii), nullptr);
         }), allow_raw_pointers())
         .function("markCTM", optional_override([](SkCanvas& self, std::string marker) {
@@ -1780,7 +1771,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_flush", optional_override([](SkSurface& self) {
             self.flushAndSubmit(false);
         }))
-        .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers())
+        .function("_getCanvas", &SkSurface::getCanvas, allow_raw_pointers())
         .function("imageInfo", optional_override([](SkSurface& self)->SimpleImageInfo {
             const auto& ii = self.imageInfo();
             return {ii.width(), ii.height(), ii.colorType(), ii.alphaType(), ii.refColorSpace()};
@@ -1814,7 +1805,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return self.makeImageSnapshot(*bounds);
         }))
-        .function("makeSurface", optional_override([](SkSurface& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
+        .function("_makeSurface", optional_override([](SkSurface& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
             return self.makeSurface(toSkImageInfo(sii));
         }), allow_raw_pointers())
 #ifdef SK_GL

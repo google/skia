@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+ - `Surface.grContext` and `Surface.openGLversion` - these had been undocumented and are no longer
+   exposed.
+ - `CanvasKit.setCurrentContext` and `CanvasKit.currentContext`. Existing calls can be deleted.
+
+### Changed
+ - CanvasKit APIs now handle switching between WebGL contexts automatically.
+ - Reduced overhead when switching between WebGL contexts.
+
+### Type Changes (index.d.ts)
+ - `Canvas.drawImage*` calls are correctly documented as accepting an optional `Paint` or null.
+
 ## [0.29.0] - 2021-08-06
 
 ### Added

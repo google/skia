@@ -238,7 +238,7 @@ export interface CanvasKit {
      * Creates a GrDirectContext from the given WebGL Context.
      * @param ctx
      */
-    MakeGrContext(ctx: WebGLContextHandle): GrDirectContext;
+    MakeGrContext(ctx: WebGLContextHandle): GrDirectContext | null;
 
     /**
      * Creates a Surface that will be drawn to the given GrDirectContext (and show up on screen).
@@ -266,23 +266,6 @@ export interface CanvasKit {
      * @param info
      */
     MakeRenderTarget(ctx: GrDirectContext, info: ImageInfo): Surface | null;
-
-    /**
-     * Returns the current WebGLContext that the wasm code is configured to draw to. It is
-     * recommended to capture this value after creating a new WebGL surface if there are multiple
-     * surfaces on the screen.
-     */
-    currentContext(): WebGLContextHandle;
-
-    /**
-     * Sets the WebGLContext that the wasm code will draw to.
-     *
-     * When a WebGL call is made on the C++ side, it is routed to the JS side to target a specific
-     * WebGL context. WebGL calls are methods on a WebGL context, so CanvasKit needs to know which
-     * context to send the calls to.
-     * @param ctx
-     */
-    setCurrentContext(ctx: WebGLContextHandle): void;
 
     /**
      * Deletes the associated WebGLContext. Function not available on the CPU version.
@@ -1192,7 +1175,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param top
      * @param paint
      */
-    drawImage(img: Image, left: number, top: number, paint?: Paint): void;
+    drawImage(img: Image, left: number, top: number, paint?: Paint | null): void;
 
     /**
      * Draws the given image with its top-left corner at (left, top) using the current clip,
@@ -1205,7 +1188,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      */
     drawImageCubic(img: Image, left: number, top: number, B: number, C: number,
-                   paint: Paint | null): void;
+                   paint?: Paint | null): void;
 
     /**
      * Draws the given image with its top-left corner at (left, top) using the current clip,
@@ -1219,7 +1202,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      */
     drawImageOptions(img: Image, left: number, top: number, fm: FilterMode,
-                     mm: MipmapMode, paint: Paint | null): void;
+                     mm: MipmapMode, paint?: Paint | null): void;
 
     /**
      *  Draws the provided image stretched proportionally to fit into dst rectangle.
@@ -1232,7 +1215,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      */
     drawImageNine(img: Image, center: InputIRect, dest: InputRect, filter: FilterMode,
-                  paint?: Paint): void;
+                  paint?: Paint | null): void;
 
     /**
      * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.
@@ -1256,7 +1239,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      */
     drawImageRectCubic(img: Image, src: InputRect, dest: InputRect,
-                       B: number, C: number, paint?: Paint): void;
+                       B: number, C: number, paint?: Paint | null): void;
 
     /**
      * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.
@@ -1270,7 +1253,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      */
     drawImageRectOptions(img: Image, src: InputRect, dest: InputRect, fm: FilterMode,
-                         mm: MipmapMode, paint?: Paint): void;
+                         mm: MipmapMode, paint?: Paint | null): void;
 
     /**
      * Draws line segment from (x0, y0) to (x1, y1) using the current clip, current matrix,
