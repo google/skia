@@ -1,1 +1,18 @@
-uniform half a; void main() { sk_FragColor.x = isnan(a) ? 1 : 0; }
+uniform half4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    // NOTE: the ES3 spec does not mandate NaN support. This test may not succeed on some GPUs.
+
+    half4 valueIsNaN    = 0 / testInputs.yyyy;
+    half4 valueIsNumber = 1 / testInputs;
+
+    return (    (isnan(valueIsNaN.x))       &&
+             all(isnan(valueIsNaN.xy))      &&
+             all(isnan(valueIsNaN.xyz))     &&
+             all(isnan(valueIsNaN.xyzw))    &&
+            !   (isnan(valueIsNumber.x))    &&
+            !any(isnan(valueIsNumber.xy))   &&
+            !any(isnan(valueIsNumber.xyz))  &&
+            !any(isnan(valueIsNumber.xyzw))) ? colorGreen : colorRed;
+}
