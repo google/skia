@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrAtlasRenderTask.h"
+#include "src/gpu/ops/AtlasRenderTask.h"
 
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkIPoint16.h"
@@ -15,9 +15,11 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/PathStencilCoverOp.h"
 
-GrAtlasRenderTask::GrAtlasRenderTask(GrRecordingContext* rContext,
-                                     sk_sp<GrArenas> arenas,
-                                     std::unique_ptr<GrDynamicAtlas> dynamicAtlas)
+namespace skgpu::v1 {
+
+AtlasRenderTask::AtlasRenderTask(GrRecordingContext* rContext,
+                                 sk_sp<GrArenas> arenas,
+                                 std::unique_ptr<GrDynamicAtlas> dynamicAtlas)
         : OpsTask(rContext->priv().drawingManager(),
                   dynamicAtlas->writeView(*rContext->priv().caps()),
                   rContext->priv().auditTrail(),
@@ -25,9 +27,9 @@ GrAtlasRenderTask::GrAtlasRenderTask(GrRecordingContext* rContext,
         , fDynamicAtlas(std::move(dynamicAtlas)) {
 }
 
-bool GrAtlasRenderTask::addPath(const SkMatrix& viewMatrix, const SkPath& path,
-                                SkIPoint pathDevTopLeft, int widthInAtlas, int heightInAtlas,
-                                bool transposedInAtlas, SkIPoint16* locationInAtlas) {
+bool AtlasRenderTask::addPath(const SkMatrix& viewMatrix, const SkPath& path,
+                              SkIPoint pathDevTopLeft, int widthInAtlas, int heightInAtlas,
+                              bool transposedInAtlas, SkIPoint16* locationInAtlas) {
     SkASSERT(!this->isClosed());
     SkASSERT(this->isEmpty());
     SkASSERT(!fDynamicAtlas->isInstantiated());  // Paths can't be added after instantiate().
@@ -56,8 +58,8 @@ bool GrAtlasRenderTask::addPath(const SkMatrix& viewMatrix, const SkPath& path,
     return true;
 }
 
-GrRenderTask::ExpectedOutcome GrAtlasRenderTask::onMakeClosed(GrRecordingContext* rContext,
-                                                              SkIRect* targetUpdateBounds) {
+GrRenderTask::ExpectedOutcome AtlasRenderTask::onMakeClosed(GrRecordingContext* rContext,
+                                                            SkIRect* targetUpdateBounds) {
     // We don't add our ops until now, at which point we know the atlas is done being built.
     SkASSERT(this->isEmpty());
     SkASSERT(!fDynamicAtlas->isInstantiated());  // Instantiation happens after makeClosed().
@@ -144,9 +146,9 @@ GrRenderTask::ExpectedOutcome GrAtlasRenderTask::onMakeClosed(GrRecordingContext
     return ExpectedOutcome::kTargetUnchanged;
 }
 
-void GrAtlasRenderTask::stencilAtlasRect(GrRecordingContext* rContext, const SkRect& rect,
-                                         const SkPMColor4f& color,
-                                         const GrUserStencilSettings* stencil) {
+void AtlasRenderTask::stencilAtlasRect(GrRecordingContext* rContext, const SkRect& rect,
+                                       const SkPMColor4f& color,
+                                       const GrUserStencilSettings* stencil) {
     GrPaint paint;
     paint.setColor4f(color);
     paint.setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
@@ -156,7 +158,7 @@ void GrAtlasRenderTask::stencilAtlasRect(GrRecordingContext* rContext, const SkR
     this->addAtlasDrawOp(std::move(op), *rContext->priv().caps());
 }
 
-void GrAtlasRenderTask::addAtlasDrawOp(GrOp::Owner op, const GrCaps& caps) {
+void AtlasRenderTask::addAtlasDrawOp(GrOp::Owner op, const GrCaps& caps) {
     SkASSERT(!this->isClosed());
 
     auto drawOp = static_cast<GrDrawOp*>(op.get());
@@ -171,7 +173,7 @@ void GrAtlasRenderTask::addAtlasDrawOp(GrOp::Owner op, const GrCaps& caps) {
     this->recordOp(std::move(op), true/*usesMSAA*/, processorAnalysis, nullptr, nullptr, caps);
 }
 
-bool GrAtlasRenderTask::onExecute(GrOpFlushState* flushState) {
+bool AtlasRenderTask::onExecute(GrOpFlushState* flushState) {
     if (!this->OpsTask::onExecute(flushState)) {
         return false;
     }
@@ -186,3 +188,5 @@ bool GrAtlasRenderTask::onExecute(GrOpFlushState* flushState) {
     }
     return true;
 }
+
+} // namespace skgpu::v1

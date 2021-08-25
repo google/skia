@@ -16,11 +16,12 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/v1/PathRenderer.h"
 
-class GrAtlasRenderTask;
 class GrOp;
 class GrRecordingContext;
 
 namespace skgpu::v1 {
+
+class AtlasRenderTask;
 
 // Draws paths by first rendering their coverage mask into an offscreen atlas.
 class AtlasPathRenderer final : public PathRenderer, public GrOnFlushCallbackObject {
@@ -94,7 +95,7 @@ private:
 
     // A collection of all atlases we've created and used since the last flush. We instantiate these
     // at flush time during preFlush().
-    SkSTArray<4, sk_sp<GrAtlasRenderTask>> fAtlasRenderTasks;
+    SkSTArray<4, sk_sp<AtlasRenderTask>> fAtlasRenderTasks;
 
     // This simple cache remembers the locations of cacheable path masks in the most recent atlas.
     // Its main motivation is for clip paths.

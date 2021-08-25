@@ -14,9 +14,9 @@
 #include "src/gpu/GrVx.h"
 #include "src/gpu/effects/GrModulateAtlasCoverageEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/ops/AtlasRenderTask.h"
 #include "src/gpu/ops/GrDrawAtlasPathOp.h"
 #include "src/gpu/ops/TessellationPathRenderer.h"
-#include "src/gpu/tessellate/GrAtlasRenderTask.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
@@ -63,10 +63,10 @@ bool is_visible(const SkRect& pathDevBounds, const SkIRect& clipBounds) {
 // Ensures the atlas dependencies are set up such that each atlas will be totally out of service
 // before we render the next one in line. This means there will only ever be one atlas active at a
 // time and that they can all share the same texture.
-void validate_atlas_dependencies(const SkTArray<sk_sp<GrAtlasRenderTask>>& atlasTasks) {
+void validate_atlas_dependencies(const SkTArray<sk_sp<skgpu::v1::AtlasRenderTask>>& atlasTasks) {
     for (int i = atlasTasks.count() - 1; i >= 1; --i) {
-        GrAtlasRenderTask* atlasTask = atlasTasks[i].get();
-        GrAtlasRenderTask* previousAtlasTask = atlasTasks[i - 1].get();
+        auto atlasTask = atlasTasks[i].get();
+        auto previousAtlasTask = atlasTasks[i - 1].get();
         // Double check that atlasTask depends on every dependent of its previous atlas. If this
         // fires it might mean previousAtlasTask gained a new dependent after atlasTask came into
         // service (maybe by an op that hadn't yet been added to an opsTask when we registered the
@@ -223,8 +223,8 @@ bool AtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
         !fAtlasRenderTasks.back()->addPath(viewMatrix, path, devIBounds->topLeft(), widthInAtlas,
                                            heightInAtlas, *transposedInAtlas, locationInAtlas)) {
         // We either don't have an atlas yet or the current one is full. Try to replace it.
-        GrAtlasRenderTask* currentAtlasTask = (!fAtlasRenderTasks.empty())
-                ? fAtlasRenderTasks.back().get() : nullptr;
+        auto currentAtlasTask = (!fAtlasRenderTasks.empty()) ? fAtlasRenderTasks.back().get()
+                                                             : nullptr;
         if (currentAtlasTask &&
             drawRefsAtlasCallback &&
             drawRefsAtlasCallback(currentAtlasTask->atlasProxy())) {
@@ -237,9 +237,9 @@ bool AtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
                 kAtlasAlpha8Type, GrDynamicAtlas::InternalMultisample::kYes,
                 SkISize{fAtlasInitialSize, fAtlasInitialSize}, fAtlasMaxSize,
                 *rContext->priv().caps(), kAtlasAlgorithm);
-        auto newAtlasTask = sk_make_sp<GrAtlasRenderTask>(rContext,
-                                                          sk_make_sp<GrArenas>(),
-                                                          std::move(dynamicAtlas));
+        auto newAtlasTask = sk_make_sp<AtlasRenderTask>(rContext,
+                                                        sk_make_sp<GrArenas>(),
+                                                        std::move(dynamicAtlas));
         rContext->priv().drawingManager()->addAtlasTask(newAtlasTask, currentAtlasTask);
         SkAssertResult(newAtlasTask->addPath(viewMatrix, path, devIBounds->topLeft(), widthInAtlas,
                                              heightInAtlas, *transposedInAtlas, locationInAtlas));
@@ -403,7 +403,7 @@ void AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
     GrTexture* firstAtlasTexture = fAtlasRenderTasks[0]->atlasProxy()->peekTexture();
     SkASSERT(firstAtlasTexture);
     for (int i = 1; i < fAtlasRenderTasks.count(); ++i) {
-        GrAtlasRenderTask* atlasTask = fAtlasRenderTasks[i].get();
+        auto atlasTask = fAtlasRenderTasks[i].get();
         if (atlasTask->atlasProxy()->backingStoreDimensions() == firstAtlasTexture->dimensions()) {
             atlasTask->instantiate(onFlushRP, sk_ref_sp(firstAtlasTexture));
         } else {

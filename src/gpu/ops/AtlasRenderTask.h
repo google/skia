@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAtlasRenderTask_DEFINED
-#define GrAtlasRenderTask_DEFINED
+#ifndef AtlasRenderTask_DEFINED
+#define AtlasRenderTask_DEFINED
 
 #include "include/core/SkPath.h"
 #include "src/core/SkTBlockList.h"
@@ -16,17 +16,19 @@
 
 struct SkIPoint16;
 
+namespace skgpu::v1 {
+
 // Represents a GrRenderTask that draws paths into an atlas. This task gets added the DAG and left
 // open, lays out its atlas while future tasks call addPath(), and finally adds its internal draw
 // ops during onMakeClosed().
 //
 // The atlas texture does not get instantiated automatically. It is the creator's responsibility to
 // call instantiate() at flush time.
-class GrAtlasRenderTask : public skgpu::v1::OpsTask {
+class AtlasRenderTask : public OpsTask {
 public:
-    GrAtlasRenderTask(GrRecordingContext*,
-                      sk_sp<GrArenas>,
-                      std::unique_ptr<GrDynamicAtlas>);
+    AtlasRenderTask(GrRecordingContext*,
+                    sk_sp<GrArenas>,
+                    std::unique_ptr<GrDynamicAtlas>);
 
     const GrTextureProxy* atlasProxy() const { return fDynamicAtlas->textureProxy(); }
     GrSurfaceProxyView readView(const GrCaps& caps) const { return fDynamicAtlas->readView(caps); }
@@ -87,4 +89,6 @@ private:
     AtlasPathList fEvenOddPathList;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // AtlasRenderTask_DEFINED
