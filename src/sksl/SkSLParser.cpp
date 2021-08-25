@@ -473,6 +473,7 @@ ASTNode::ID Parser::structDeclaration() {
             const ASTNode::VarData& vd = var.getVarData();
 
             // Read array size if one is present.
+            const Type* fieldType = type;
             if (vd.fIsArray) {
                 const ASTNode& size = *var.begin();
                 if (!size || size.fKind != ASTNode::Kind::kInt) {
@@ -485,10 +486,10 @@ ASTNode::ID Parser::structDeclaration() {
                 }
                 // Add the array dimensions to our type.
                 int arraySize = size.getInt();
-                type = fSymbols.addArrayDimension(type, arraySize);
+                fieldType = fSymbols.addArrayDimension(fieldType, arraySize);
             }
 
-            fields.push_back(Type::Field(modifiers, vd.fName, type));
+            fields.push_back(Type::Field(modifiers, vd.fName, fieldType));
             if (vd.fIsArray ? var.begin()->fNext : var.fFirstChild) {
                 this->error(declsNode.fOffset, "initializers are not permitted on struct fields");
             }

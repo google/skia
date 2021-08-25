@@ -284,6 +284,7 @@ SKSL_TEST_ES3(SkSLScalarConversionConstructorsES3, "shared/ScalarConversionConst
 SKSL_TEST(SkSLStackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(SkSLStaticIf,                        "shared/StaticIf.sksl")
 SKSL_TEST_ES3(SkSLStaticSwitch,                "shared/StaticSwitch.sksl")
+SKSL_TEST(SkSLStructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
 SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
 SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(SkSLSwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
