@@ -15,9 +15,13 @@ public class Text {
         mRawText = text;
     }
 
-    public void renderText(Canvas canvas, float x, float y) {
-        nRenderText(mRawText, canvas.getNativeInstance(), x, y);
+    public void setText(String text) {
+        mRawText = text;
     }
 
-    private static native void nRenderText(String text, long nativeCanvas, float x, float y);
+    public void renderText(Canvas canvas, Paint foreground, float x, float y) {
+        nRenderText(mRawText, canvas.getNativeInstance(), foreground.getNativeInstance(), x, y);
+    }
+
+    private static native void nRenderText(String text, long nativeCanvas, long foreground, float x, float y);
 }

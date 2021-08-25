@@ -24,12 +24,16 @@ static std::u16string JStringToU16String(JNIEnv* env, const jstring& jstr) {
 }
 
 static void Text_RenderText(JNIEnv* env, jobject, jstring jtext,
-                            jlong native_canvas, jfloat x, jfloat y) {
+                            jlong native_canvas, jlong native_fg_paint,
+                            jfloat x, jfloat y) {
+    auto* canvas = reinterpret_cast<SkCanvas*>(native_canvas);
+    auto foreground = reinterpret_cast<SkPaint*>(native_fg_paint);
     std::u16string u16str = JStringToU16String(env, jtext);
-    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_canvas)) {
+    if (canvas && foreground) {
+        SkPaint background(SkColors::kTransparent);
         Paint::drawText(u16str, canvas,
                         skia::text::TextDirection::kLtr, skia::text::TextAlign::kLeft,
-                        0xffff0000, 0xff00ff00, SkString("arial"), 50, SkFontStyle::Bold(), x, y);
+                        *foreground, background, SkString("arial"), 50, SkFontStyle::Bold(), x, y);
     }
 }
 
@@ -37,7 +41,7 @@ static void Text_RenderText(JNIEnv* env, jobject, jstring jtext,
 
 int register_androidkit_Text(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nRenderText", "(Ljava/lang/String;JFF)V", reinterpret_cast<void*>(Text_RenderText)},
+        {"nRenderText", "(Ljava/lang/String;JJFF)V", reinterpret_cast<void*>(Text_RenderText)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Text");

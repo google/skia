@@ -47,12 +47,12 @@ namespace text {
         static bool drawText(std::u16string text, SkCanvas* canvas, SkScalar width);
         static bool drawText(std::u16string text, SkCanvas* canvas,
                              TextDirection textDirection, TextAlign textAlign,
-                             SkColor foreground, SkColor background,
+                             SkPaint foreground, SkPaint background,
                              const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
                              SkScalar x, SkScalar y);
         static bool drawText(std::u16string text, SkCanvas* canvas,
                              TextDirection textDirection, TextAlign textAlign,
-                             SkColor foreground, SkColor background,
+                             SkPaint foreground, SkPaint background,
                              const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
                              SkSize reqSize, SkScalar x, SkScalar y);
 

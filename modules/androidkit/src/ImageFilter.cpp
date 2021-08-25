@@ -23,7 +23,7 @@ static long ImageFilter_DistantLitDiffuse(JNIEnv* env, jobject, jfloat x, jfloat
                                                                 jfloat surfaceScale, jfloat kd,
                                                                 jlong native_input) {
     SkPoint3 direction = SkPoint3::Make(x, y, z);
-      auto color = SkColor4f{r, g, b, 1}.toSkColor();
+    auto color = SkColor4f{r, g, b, 1}.toSkColor();
     auto input = sk_ref_sp(reinterpret_cast<SkImageFilter*>(native_input));
     auto filter = SkImageFilters::DistantLitDiffuse(direction, color, surfaceScale, kd, std::move(input));
     return reinterpret_cast<jlong>(filter.release());

@@ -47,7 +47,6 @@ protected:
                   const std::u16string& text,
                   TextAlign align,
                   TextDirection direction = TextDirection::kLtr) {
-        SkColor background = SK_ColorGRAY;
         const std::u16string& ellipsis = u"\u2026";
         SkScalar margin = 20;
 
@@ -56,10 +55,12 @@ protected:
         canvas->clipRect(SkRect::MakeWH(w, h));
         canvas->drawColor(SK_ColorWHITE);
 
+        SkPaint foregroundPaint(SkColors::kBlack);
+        SkPaint backgroundPaint(SkColors::kLtGray);
         Paint::drawText(direction == TextDirection::kRtl ? mirror(text) : normal(text),
                         canvas,
                         direction, align,
-                        SK_ColorBLACK, SK_ColorLTGRAY,
+                        foregroundPaint, backgroundPaint,
                         SkString("Roboto"), 12.0f, SkFontStyle::Normal(),
                         0, 0);
     }
