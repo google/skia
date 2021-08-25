@@ -508,10 +508,6 @@ struct ASTNode {
         return iterator(fNodes, ID(-1));
     }
 
-#ifdef SK_DEBUG
-    String description() const;
-#endif
-
     std::vector<ASTNode>* fNodes;
 
     NodeData fData;

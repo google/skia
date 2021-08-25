@@ -1159,7 +1159,7 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
         case ASTNode::Kind::kTernary:
             return this->convertTernaryExpression(expr);
         default:
-            SkDEBUGFAILF("unsupported expression: %s\n", expr.description().c_str());
+            SkDEBUGFAIL("unsupported expression");
             return nullptr;
     }
 }
@@ -1746,7 +1746,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
                     break;
                 }
                 default:
-                    SkDEBUGFAILF("unsupported declaration: %s\n", decl.description().c_str());
+                    SkDEBUGFAIL("unsupported declaration");
                     break;
             }
         }

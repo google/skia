@@ -33,7 +33,6 @@ skia_sksl_sources = [
   "$_include/sksl/DSLVar.h",
   "$_include/sksl/SkSLErrorReporter.h",
   "$_src/sksl/SkSLASTFile.h",
-  "$_src/sksl/SkSLASTNode.cpp",
   "$_src/sksl/SkSLASTNode.h",
   "$_src/sksl/SkSLAnalysis.cpp",
   "$_src/sksl/SkSLAnalysis.h",
