@@ -2796,7 +2796,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         SpvId expr = this->writeExpression(*p.operand(), out);
         if (is_float(fContext, type)) {
             this->writeInstruction(SpvOpFNegate, typeId, result, expr, out);
-        } else if (is_signed(fContext, type)) {
+        } else if (is_signed(fContext, type) || is_unsigned(fContext, type)) {
             this->writeInstruction(SpvOpSNegate, typeId, result, expr, out);
         } else {
             SkDEBUGFAILF("unsupported prefix expression %s", p.description().c_str());

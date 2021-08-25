@@ -187,6 +187,7 @@ sksl_spirv_tests = [
   "/sksl/spirv/LayoutOutOfOrder.sksl",
   "/sksl/spirv/OpaqueTypeInArray.sksl",
   "/sksl/spirv/Ossfuzz35916.sksl",
+  "/sksl/spirv/Ossfuzz37627.sksl",
   "/sksl/workarounds/RewriteMatrixVectorMultiply.sksl",
   "/sksl/errors/Ossfuzz36850.sksl",
   "/sksl/errors/Ossfuzz37469.sksl",
