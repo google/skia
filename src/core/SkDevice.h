@@ -423,7 +423,6 @@ private:
 
     virtual bool forceConservativeRasterClip() const { return false; }
 
-
     // Configure the device's coordinate spaces, specifying both how its device image maps back to
     // the global space (via 'deviceToGlobal') and the initial CTM of the device (via
     // 'localToDevice', i.e. what geometry drawn into this device will be transformed with).
@@ -432,12 +431,16 @@ private:
     // is anchored in the device space. The final device-to-global matrix stored by the SkDevice
     // will include a pre-translation by T(deviceOriginX, deviceOriginY), and the final
     // local-to-device matrix will have a post-translation of T(-deviceOriginX, -deviceOriginY).
-    void setDeviceCoordinateSystem(const SkM44& deviceToGlobal, const SkM44& localToDevice,
-                                   int bufferOriginX, int bufferOriginY);
+    //
+    // Returns false if the final device coordinate space is invalid, in which case the canvas
+    // should discard the device
+    bool SK_WARN_UNUSED_RESULT setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
+                                                         const SkM44& localToDevice,
+                                                         int bufferOriginX, int bufferOriginY);
     // Convenience to configure the device to be axis-aligned with the root canvas, but with a
     // unique origin.
     void setOrigin(const SkM44& globalCTM, int x, int y) {
-        this->setDeviceCoordinateSystem(SkM44(), globalCTM, x, y);
+        SkAssertResult(this->setDeviceCoordinateSystem(SkM44(), globalCTM, x, y));
     }
 
     virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }

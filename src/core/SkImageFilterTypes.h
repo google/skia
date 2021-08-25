@@ -417,17 +417,19 @@ public:
     Mapping() = default;
 
     // This constructor allows the decomposition to be explicitly provided, requires
-    // layerToDev to be invertable.
+    // layerToDev to be invertible.
     Mapping(const SkMatrix& layerToDev, const SkMatrix& paramToLayer)
             : fLayerToDevMatrix(layerToDev)
             , fParamToLayerMatrix(paramToLayer) {
         SkAssertResult(fLayerToDevMatrix.invert(&fDevToLayerMatrix));
     }
 
-    // Make the default decomposition Mapping, given the total CTM and the root image filter.
-    // Requires 'ctm' to be invertible.
-    static Mapping DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
-                                const skif::ParameterSpace<SkPoint>& representativePoint);
+    // Sets this Mapping to the default decomposition of the canvas's total transform, given the
+    // requirements of the 'filter'. Returns false if the decomposition failed or would produce an
+    // invalid device matrix. Assumes 'ctm' is invertible.
+    bool SK_WARN_UNUSED_RESULT decomposeCTM(const SkMatrix& ctm,
+                                            const SkImageFilter* filter,
+                                            const skif::ParameterSpace<SkPoint>& representativePt);
 
     // Update the mapping's parameter-to-layer matrix to be pre-concatenated with the specified
     // local space transformation. This changes the definition of parameter space, any

@@ -42,13 +42,15 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     fGlobalToDevice.setIdentity();
 }
 
-void SkBaseDevice::setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
+bool SkBaseDevice::setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
                                              const SkM44& localToDevice,
                                              int bufferOriginX,
                                              int bufferOriginY) {
     fDeviceToGlobal = deviceToGlobal;
     fDeviceToGlobal.normalizePerspective();
-    SkAssertResult(deviceToGlobal.invert(&fGlobalToDevice));
+    if (!fDeviceToGlobal.invert(&fGlobalToDevice)) {
+        return false;
+    }
 
     fLocalToDevice = localToDevice;
     fLocalToDevice.normalizePerspective();
@@ -58,6 +60,7 @@ void SkBaseDevice::setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
         fLocalToDevice.postTranslate(-bufferOriginX, -bufferOriginY);
     }
     fLocalToDevice33 = fLocalToDevice.asM33();
+    return true;
 }
 
 void SkBaseDevice::setGlobalCTM(const SkM44& ctm) {
@@ -103,7 +106,7 @@ bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
     if (fMarkerStack && (id == 0 || fMarkerStack->findMarkerInverse(id, &globalToMarker))) {
         if (localToMarker) {
             // globalToMarker will still be the identity if id is zero
-            *localToMarker = globalToMarker * SkM44(fDeviceToGlobal) * fLocalToDevice;
+            *localToMarker = globalToMarker * fDeviceToGlobal * fLocalToDevice;
         }
         return true;
     }

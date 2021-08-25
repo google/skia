@@ -122,7 +122,8 @@ static FilterNode build_dag(const SkMatrix& ctm, const SkRect& rect,
     // Emulate SkCanvas::internalSaveLayer's decomposition of the CTM.
     skif::ParameterSpace<SkRect> content(rect);
     skif::ParameterSpace<SkPoint> center({rect.centerX(), rect.centerY()});
-    skif::Mapping mapping = skif::Mapping::DecomposeCTM(ctm, rootFilter, center);
+    skif::Mapping mapping;
+    SkAssertResult(mapping.decomposeCTM(ctm, rootFilter, center));
     return FilterNode(rootFilter, mapping, content, 0);
 }
 
