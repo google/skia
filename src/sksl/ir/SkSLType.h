@@ -21,7 +21,6 @@
 
 namespace SkSL {
 
-class BuiltinTypes;
 class Context;
 class SymbolTable;
 
@@ -553,8 +552,6 @@ protected:
     }
 
 private:
-    friend class BuiltinTypes;
-
     using INHERITED = Symbol;
 
     char fAbbreviatedName[kMaxAbbrevLength + 1] = {};
