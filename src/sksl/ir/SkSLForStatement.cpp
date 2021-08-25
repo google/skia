@@ -92,6 +92,16 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
         }
     }
 
+    if (next) {
+        // The type of the next-expression doesn't matter, but it needs to be a complete expression.
+        // Report an error on intermediate expressions like FunctionReference or TypeReference.
+        const Type& nextType = next->type();
+        next = nextType.coerceExpression(std::move(next), context);
+        if (!next) {
+            return nullptr;
+        }
+    }
+
     if (context.fConfig->strictES2Mode()) {
         if (!Analysis::ForLoopIsValidForES2(offset, initializer.get(), test.get(), next.get(),
                                             statement.get(), /*outLoopInfo=*/nullptr,

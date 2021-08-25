@@ -1,0 +1,1 @@
+void n() { for(;;exp); }
