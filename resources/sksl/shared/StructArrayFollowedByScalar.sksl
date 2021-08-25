@@ -1,0 +1,12 @@
+struct S {
+    half rgb[3], a;
+};
+
+half4 main(float2 coords) {
+    S s;
+    s.rgb[0] = 0;
+    s.rgb[1] = 1;
+    s.rgb[2] = 0;
+    s.a = 1;
+    return half4(s.rgb[0], s.rgb[1], s.rgb[2], s.a);
+}
