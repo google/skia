@@ -65,7 +65,7 @@ public:
     template<typename... Args>
     optional(Args&&... args) {
         fHasValue = true;
-        new(&fPayload.fValue) T(std::forward<Args...>(args...));
+        new(&fPayload.fValue) T(std::forward<Args>(args)...);
     }
 
     ~optional() {
@@ -109,6 +109,22 @@ public:
                 }
             }
         }
+        return *this;
+    }
+
+    template<typename... Args>
+    optional& emplace(Args&&... args) {
+        this->reset();
+        fHasValue = true;
+        new(&fPayload.fValue) T(std::forward<Args>(args)...);
+        return *this;
+    }
+
+    template<typename U, typename... Args>
+    optional& emplace(std::initializer_list<U> il, Args&&... args) {
+        this->reset();
+        fHasValue = true;
+        new(&fPayload.fValue) T(il, std::forward<Args>(args)...);
         return *this;
     }
 

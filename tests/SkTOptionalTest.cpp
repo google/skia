@@ -269,6 +269,27 @@ DEF_TEST(SkTOptionalCopyAssignment, r) {
     REPORTER_ASSERT(r, !o);
 }
 
+DEF_TEST(SkTOptionalEmplace, r) {
+    skstd::optional<std::vector<int>> o;
+    REPORTER_ASSERT(r, !o);
+
+    // Emplace with the no-argument constructor
+    o.emplace();
+    REPORTER_ASSERT(r, o.has_value());
+    REPORTER_ASSERT(r, o->empty());
+
+    // Emplace with the initializer-list constructor
+    o.emplace({1, 2, 3});
+    REPORTER_ASSERT(r, o.has_value());
+    REPORTER_ASSERT(r, (*o == std::vector<int>{1, 2, 3}));
+
+    // Emplace with a normal constructor
+    std::vector<int> otherVec = {4, 5, 6};
+    o.emplace(otherVec.begin(), otherVec.end());
+    REPORTER_ASSERT(r, o.has_value());
+    REPORTER_ASSERT(r, (*o == std::vector<int>{4, 5, 6}));
+}
+
 DEF_TEST(SkTOptionalNoDefaultConstructor, r) {
     class NoDefaultConstructor {
     public:
