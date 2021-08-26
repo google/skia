@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathInnerTriangulateOp_DEFINED
-#define GrPathInnerTriangulateOp_DEFINED
+#ifndef PathInnerTriangulateOp_DEFINED
+#define PathInnerTriangulateOp_DEFINED
 
 #include "src/gpu/geometry/GrInnerFanTriangulator.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -14,6 +14,8 @@
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 class GrPathCurveTessellator;
+
+namespace skgpu::v1 {
 
 // This op is a 3-pass twist on the standard Redbook "stencil then cover" algorithm:
 //
@@ -23,13 +25,13 @@ class GrPathCurveTessellator;
 //
 // In practice, a path's inner fan takes up a large majority of its pixels. So from a GPU load
 // perspective, this op is effectively as fast as a single-pass algorithm.
-class GrPathInnerTriangulateOp : public GrDrawOp {
+class PathInnerTriangulateOp final : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
-    GrPathInnerTriangulateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
-                             GrAAType aaType, GrTessellationPathFlags pathFlags,
-                             const SkRect& drawBounds)
+    PathInnerTriangulateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
+                           GrAAType aaType, GrTessellationPathFlags pathFlags,
+                           const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathFlags(pathFlags)
             , fViewMatrix(viewMatrix)
@@ -41,7 +43,7 @@ private:
         this->setBounds(drawBounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
-    const char* name() const override { return "GrPathInnerTriangulateOp"; }
+    const char* name() const override { return "PathInnerTriangulateOp"; }
     void visitProxies(const GrVisitProxyFunc&) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
@@ -96,4 +98,6 @@ private:
     friend class GrOp;  // For ctor.
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // PathInnerTriangulateOp_DEFINED

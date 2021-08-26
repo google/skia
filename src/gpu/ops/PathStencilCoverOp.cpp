@@ -101,9 +101,11 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> BoundingBoxShader::makeProgram
     return std::make_unique<Impl>();
 }
 
-}  // namespace
+}  // anonymous namespace
 
-void GrPathStencilCoverOp::visitProxies(const GrVisitProxyFunc& func) const {
+namespace skgpu::v1 {
+
+void PathStencilCoverOp::visitProxies(const GrVisitProxyFunc& func) const {
     if (fCoverBBoxProgram) {
         fCoverBBoxProgram->pipeline().visitProxies(func);
     } else {
@@ -111,7 +113,7 @@ void GrPathStencilCoverOp::visitProxies(const GrVisitProxyFunc& func) const {
     }
 }
 
-GrDrawOp::FixedFunctionFlags GrPathStencilCoverOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags PathStencilCoverOp::fixedFunctionFlags() const {
     auto flags = FixedFunctionFlags::kUsesStencil;
     if (fAAType != GrAAType::kNone) {
         flags |= FixedFunctionFlags::kUsesHWAA;
@@ -119,15 +121,15 @@ GrDrawOp::FixedFunctionFlags GrPathStencilCoverOp::fixedFunctionFlags() const {
     return flags;
 }
 
-GrProcessorSet::Analysis GrPathStencilCoverOp::finalize(const GrCaps& caps,
-                                                        const GrAppliedClip* clip,
-                                                        GrClampType clampType) {
+GrProcessorSet::Analysis PathStencilCoverOp::finalize(const GrCaps& caps,
+                                                      const GrAppliedClip* clip,
+                                                      GrClampType clampType) {
     return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, nullptr, caps,
                                 clampType, &fColor);
 }
 
-void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramArgs& args,
-                                              GrAppliedClip&& appliedClip) {
+void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramArgs& args,
+                                            GrAppliedClip&& appliedClip) {
     SkASSERT(!fTessellator);
     SkASSERT(!fStencilFanProgram);
     SkASSERT(!fStencilPathProgram);
@@ -193,11 +195,11 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
     }
 }
 
-void GrPathStencilCoverOp::onPrePrepare(GrRecordingContext* context,
-                                        const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
-                                        const GrDstProxyView& dstProxyView,
-                                        GrXferBarrierFlags renderPassXferBarriers,
-                                        GrLoadOp colorLoadOp) {
+void PathStencilCoverOp::onPrePrepare(GrRecordingContext* context,
+                                      const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
+                                      const GrDstProxyView& dstProxyView,
+                                      GrXferBarrierFlags renderPassXferBarriers,
+                                      GrLoadOp colorLoadOp) {
     this->prePreparePrograms({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
                              renderPassXferBarriers, colorLoadOp, context->priv().caps()},
                              (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
@@ -214,7 +216,7 @@ void GrPathStencilCoverOp::onPrePrepare(GrRecordingContext* context,
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
 
-void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
+void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
         this->prePreparePrograms({flushState->allocator(), flushState->writeView(),
                                   &flushState->dstProxyView(), flushState->renderPassBarriers(),
@@ -301,7 +303,7 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-void GrPathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fTessellator) {
         return;
     }
@@ -332,3 +334,5 @@ void GrPathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& c
         flushState->drawInstanced(fPathCount, fBBoxBaseInstance, 4, 0);
     }
 }
+
+} // namespace skgpu::v1

@@ -15,7 +15,7 @@ class GrCaps;
 
 namespace skgpu::v1 {
 
-// This is the tie-in point for path rendering via GrPathTessellateOp. This path renderer draws
+// This is the tie-in point for path rendering via PathTessellateOp. This path renderer draws
 // paths using a hybrid Red Book "stencil, then cover" method. Curves get linearized by GPU
 // tessellation shaders. This path renderer doesn't apply analytic AA, so it requires MSAA if AA is
 // desired.

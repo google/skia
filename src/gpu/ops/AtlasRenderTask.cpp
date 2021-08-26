@@ -94,7 +94,7 @@ GrRenderTask::ExpectedOutcome AtlasRenderTask::onMakeClosed(GrRecordingContext* 
     // Add ops to stencil the atlas paths.
     for (const auto* pathList : {&fWindingPathList, &fEvenOddPathList}) {
         if (pathList->pathCount() > 0) {
-            auto op = GrOp::Make<GrPathStencilCoverOp>(
+            auto op = GrOp::Make<PathStencilCoverOp>(
                     rContext,
                     pathList->pathDrawList(),
                     pathList->totalCombinedPathVerbCnt(),

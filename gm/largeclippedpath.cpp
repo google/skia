@@ -11,7 +11,7 @@
 
 constexpr int kSize = 1000;
 
-// Makes sure GrPathInnerTriangulateOp uses correct stencil settings when there is a clip in the
+// Makes sure PathInnerTriangulateOp uses correct stencil settings when there is a clip in the
 // stencil buffer.
 static void draw_clipped_flower(SkCanvas* canvas, SkPathFillType fillType) {
     canvas->clear(SK_ColorCYAN);

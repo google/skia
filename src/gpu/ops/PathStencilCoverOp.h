@@ -5,18 +5,20 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathStencilCoverOp_DEFINED
-#define GrPathStencilCoverOp_DEFINED
+#ifndef PathStencilCoverOp_DEFINED
+#define PathStencilCoverOp_DEFINED
 
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
 #include "src/gpu/tessellate/GrTessTypes.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
+namespace skgpu::v1 {
+
 // Draws paths using a standard Redbook "stencil then cover" method. Curves get linearized by either
 // GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it requires
 // MSAA if AA is desired.
-class GrPathStencilCoverOp : public GrDrawOp {
+class PathStencilCoverOp final : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
@@ -24,13 +26,13 @@ private:
 
     // If the path is inverse filled, drawBounds must be the entire backing store dimensions of the
     // render target.
-    GrPathStencilCoverOp(SkArenaAlloc* arena,
-                         const SkMatrix& viewMatrix,
-                         const SkPath& path,
-                         GrPaint&& paint,
-                         GrAAType aaType,
-                         GrTessellationPathFlags pathFlags,
-                         const SkRect& drawBounds)
+    PathStencilCoverOp(SkArenaAlloc* arena,
+                       const SkMatrix& viewMatrix,
+                       const SkPath& path,
+                       GrPaint&& paint,
+                       GrAAType aaType,
+                       GrTessellationPathFlags pathFlags,
+                       const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathDrawList(arena->make<PathDrawList>(viewMatrix, path))
             , fTotalCombinedPathVerbCnt(path.countVerbs())
@@ -43,16 +45,16 @@ private:
         SkDEBUGCODE(fOriginalDrawBounds = drawBounds;)
     }
 
-    // Constructs a GrPathStencilCoverOp from an existing draw list.
+    // Constructs a PathStencilCoverOp from an existing draw list.
     // FIXME: The only user of this method is the atlas. We should move the GrProgramInfos into
     // GrPathTessellator so the atlas can use that directly instead of going through this class.
-    GrPathStencilCoverOp(const PathDrawList* pathDrawList,
-                         int totalCombinedVerbCnt,
-                         int pathCount,
-                         GrPaint&& paint,
-                         GrAAType aaType,
-                         GrTessellationPathFlags pathFlags,
-                         const SkRect& drawBounds)
+    PathStencilCoverOp(const PathDrawList* pathDrawList,
+                       int totalCombinedVerbCnt,
+                       int pathCount,
+                       GrPaint&& paint,
+                       GrAAType aaType,
+                       GrTessellationPathFlags pathFlags,
+                       const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathDrawList(pathDrawList)
             , fTotalCombinedPathVerbCnt(totalCombinedVerbCnt)
@@ -65,7 +67,7 @@ private:
         SkDEBUGCODE(fOriginalDrawBounds = drawBounds;)
     }
 
-    const char* name() const override { return "GrPathStencilCoverOp"; }
+    const char* name() const override { return "PathStencilCoverOp"; }
     void visitProxies(const GrVisitProxyFunc&) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
@@ -113,4 +115,6 @@ private:
     friend class GrOp;  // For ctor.
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // PathStencilCoverOp_DEFINED

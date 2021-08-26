@@ -17,9 +17,31 @@
 
 using DynamicStroke = GrStrokeTessellationShader::DynamicStroke;
 
-GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
-                                           const SkPath& path, const SkStrokeRec& stroke,
-                                           GrPaint&& paint)
+namespace {
+
+bool can_use_hardware_tessellation(int numVerbs, const GrPipeline& pipeline, const GrCaps& caps) {
+    if (!caps.shaderCaps()->tessellationSupport() ||
+        !caps.shaderCaps()->infinitySupport() /* The hw tessellation shaders use infinity. */) {
+        return false;
+    }
+    if (pipeline.usesLocalCoords()) {
+        // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
+        // the fragment shader, so if the processors have varyings, we need to use instanced draws
+        // instead.
+        return false;
+    }
+    // Only use hardware tessellation if we're drawing a somewhat large number of verbs. Otherwise
+    // we seem to be better off using instanced draws.
+    return numVerbs >= caps.minStrokeVerbsForHwTessellation();
+}
+
+} // anonymous namespace
+
+namespace skgpu::v1 {
+
+StrokeTessellateOp::StrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
+                                       const SkPath& path, const SkStrokeRec& stroke,
+                                       GrPaint&& paint)
         : GrDrawOp(ClassID())
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
@@ -45,7 +67,7 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
     this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
 }
 
-void GrStrokeTessellateOp::visitProxies(const GrVisitProxyFunc& func) const {
+void StrokeTessellateOp::visitProxies(const GrVisitProxyFunc& func) const {
     if (fFillProgram) {
         fFillProgram->visitFPProxies(func);
     } else if (fStencilProgram) {
@@ -55,9 +77,9 @@ void GrStrokeTessellateOp::visitProxies(const GrVisitProxyFunc& func) const {
     }
 }
 
-GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
-                                                        const GrAppliedClip* clip,
-                                                        GrClampType clampType) {
+GrProcessorSet::Analysis StrokeTessellateOp::finalize(const GrCaps& caps,
+                                                      const GrAppliedClip* clip,
+                                                      GrClampType clampType) {
     // Make sure the finalize happens before combining. We might change fNeedsStencil here.
     SkASSERT(fPathStrokeList.fNext == nullptr);
     const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
@@ -67,10 +89,10 @@ GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
     return analysis;
 }
 
-GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* alloc,
-                                                              const GrCaps& caps) {
+GrOp::CombineResult StrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* alloc,
+                                                            const GrCaps& caps) {
     SkASSERT(grOp->classID() == this->classID());
-    auto* op = static_cast<GrStrokeTessellateOp*>(grOp);
+    auto* op = static_cast<StrokeTessellateOp*>(grOp);
 
     // This must be called after finalize(). fNeedsStencil can change in finalize().
     SkASSERT(fProcessors.isFinalized());
@@ -148,24 +170,8 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kReplace,
         0xffff>());
 
-bool can_use_hardware_tessellation(int numVerbs, const GrPipeline& pipeline, const GrCaps& caps) {
-    if (!caps.shaderCaps()->tessellationSupport() ||
-        !caps.shaderCaps()->infinitySupport() /* The hw tessellation shaders use infinity. */) {
-        return false;
-    }
-    if (pipeline.usesLocalCoords()) {
-        // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
-        // the fragment shader, so if the processors have varyings, we need to use instanced draws
-        // instead.
-        return false;
-    }
-    // Only use hardware tessellation if we're drawing a somewhat large number of verbs. Otherwise
-    // we seem to be better off using instanced draws.
-    return numVerbs >= caps.minStrokeVerbsForHwTessellation();
-}
-
-void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs&& args,
-                                                 GrAppliedClip&& clip) {
+void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs&& args,
+                                               GrAppliedClip&& clip) {
     SkASSERT(!fTessellator);
     SkASSERT(!fFillProgram);
     SkASSERT(!fStencilProgram);
@@ -216,11 +222,11 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramAr
                                                      fillStencil);
 }
 
-void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
-                                        const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
-                                        const GrDstProxyView& dstProxyView,
-                                        GrXferBarrierFlags renderPassXferBarriers, GrLoadOp
-                                        colorLoadOp) {
+void StrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
+                                      const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
+                                      const GrDstProxyView& dstProxyView,
+                                      GrXferBarrierFlags renderPassXferBarriers, GrLoadOp
+                                      colorLoadOp) {
     this->prePrepareTessellator({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
                                 renderPassXferBarriers, colorLoadOp, context->priv().caps()},
                                 (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
@@ -232,7 +238,7 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
     }
 }
 
-void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
+void StrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
         this->prePrepareTessellator({flushState->allocator(), flushState->writeView(),
                                     &flushState->dstProxyView(), flushState->renderPassBarriers(),
@@ -243,7 +249,7 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     fTessellator->prepare(flushState, fTotalCombinedVerbCnt);
 }
 
-void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void StrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (fStencilProgram) {
         flushState->bindPipelineAndScissorClip(*fStencilProgram, chainBounds);
         flushState->bindTextures(fStencilProgram->geomProc(), nullptr, fStencilProgram->pipeline());
@@ -255,3 +261,5 @@ void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& c
         fTessellator->draw(flushState);
     }
 }
+
+} // namespace skgpu::v1

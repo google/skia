@@ -66,7 +66,7 @@ static SkPath make_conic_path() {
     return path;
 }
 
-// This serves as a base class for benchmarking individual methods on GrPathTessellateOp.
+// This serves as a base class for benchmarking individual methods on PathTessellateOp.
 class PathTessellateBenchmark : public Benchmark {
 public:
     PathTessellateBenchmark(const char* subName, const SkPath& p, const SkMatrix& m)

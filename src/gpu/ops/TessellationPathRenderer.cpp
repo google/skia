@@ -43,23 +43,23 @@ GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
         constexpr static float kCpuWeight = 512;
         constexpr static float kMinNumPixelsToTriangulate = 256 * 256;
         if (cpuTessellationWork * kCpuWeight + kMinNumPixelsToTriangulate < gpuFragmentWork) {
-            return GrOp::Make<GrPathInnerTriangulateOp>(rContext,
-                                                        viewMatrix,
-                                                        path,
-                                                        std::move(paint),
-                                                        aaType,
-                                                        pathFlags,
-                                                        drawBounds);
+            return GrOp::Make<skgpu::v1::PathInnerTriangulateOp>(rContext,
+                                                                 viewMatrix,
+                                                                 path,
+                                                                 std::move(paint),
+                                                                 aaType,
+                                                                 pathFlags,
+                                                                 drawBounds);
         }
     }
-    return GrOp::Make<GrPathStencilCoverOp>(rContext,
-                                            arena,
-                                            viewMatrix,
-                                            path,
-                                            std::move(paint),
-                                            aaType,
-                                            pathFlags,
-                                            drawBounds);
+    return GrOp::Make<skgpu::v1::PathStencilCoverOp>(rContext,
+                                                     arena,
+                                                     viewMatrix,
+                                                     path,
+                                                     std::move(paint),
+                                                     aaType,
+                                                     pathFlags,
+                                                     drawBounds);
 }
 
 } // anonymous namespace
@@ -119,8 +119,8 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkASSERT(args.fUserStencilSettings->isUnused());
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
         SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
-        auto op = GrOp::Make<GrStrokeTessellateOp>(args.fContext, args.fAAType, *args.fViewMatrix,
-                                                   path, stroke, std::move(args.fPaint));
+        auto op = GrOp::Make<StrokeTessellateOp>(args.fContext, args.fAAType, *args.fViewMatrix,
+                                                 path, stroke, std::move(args.fPaint));
         sdc->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -137,9 +137,9 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     // Handle convex paths.
     if (args.fShape->knownToBeConvex() && !path.isInverseFillType()) {
-        auto op = GrOp::Make<GrPathTessellateOp>(args.fContext, *args.fViewMatrix, path,
-                                                 std::move(args.fPaint), args.fAAType,
-                                                 args.fUserStencilSettings, pathDevBounds);
+        auto op = GrOp::Make<PathTessellateOp>(args.fContext, *args.fViewMatrix, path,
+                                               std::move(args.fPaint), args.fAAType,
+                                               args.fUserStencilSettings, pathDevBounds);
         sdc->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -185,9 +185,9 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
         GrPaint stencilPaint;
         stencilPaint.setXPFactory(GrDisableColorXPFactory::Get());
-        auto op = GrOp::Make<GrPathTessellateOp>(args.fContext, *args.fViewMatrix, path,
-                                                 std::move(stencilPaint), aaType, &kMarkStencil,
-                                                 pathDevBounds);
+        auto op = GrOp::Make<PathTessellateOp>(args.fContext, *args.fViewMatrix, path,
+                                               std::move(stencilPaint), aaType, &kMarkStencil,
+                                               pathDevBounds);
         sdc->addDrawOp(args.fClip, std::move(op));
         return;
     }

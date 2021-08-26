@@ -5,23 +5,25 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathTessellateOp_DEFINED
-#define GrPathTessellateOp_DEFINED
+#ifndef PathTessellateOp_DEFINED
+#define PathTessellateOp_DEFINED
 
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 class GrPathTessellator;
 
+namespace skgpu::v1 {
+
 // Tessellates a path directly to the color buffer, using one single render pass. This currently
 // only works for convex paths.
-class GrPathTessellateOp : public GrDrawOp {
+class PathTessellateOp final : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
-    GrPathTessellateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
-                       GrAAType aaType, const GrUserStencilSettings* stencil,
-                       const SkRect& drawBounds)
+    PathTessellateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
+                     GrAAType aaType, const GrUserStencilSettings* stencil,
+                     const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fViewMatrix(viewMatrix)
             , fPath(path)
@@ -33,7 +35,7 @@ private:
         this->setBounds(drawBounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
-    const char* name() const override { return "GrPathTessellateOp"; }
+    const char* name() const override { return "PathTessellateOp"; }
     bool usesMSAA() const override { return fAAType == GrAAType::kMSAA; }
     void visitProxies(const GrVisitProxyFunc&) const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
@@ -60,4 +62,6 @@ private:
     friend class GrOp;  // For ctor.
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // PathTessellateOp_DEFINED

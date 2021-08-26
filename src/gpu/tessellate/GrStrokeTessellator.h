@@ -133,7 +133,7 @@ public:
     }
 
     float fetchRadialSegmentsPerRadian(PathStrokeList* head) {
-        // GrStrokeTessellateOp::onCombineIfPossible does not allow hairlines to become dynamic. If
+        // StrokeTessellateOp::onCombineIfPossible does not allow hairlines to become dynamic. If
         // this changes, we will need to call GrStrokeTolerances::GetLocalStrokeWidth() for each
         // stroke.
         SkASSERT(!head->fStroke.isHairlineStyle());

@@ -158,9 +158,11 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
     return std::make_unique<Impl>();
 }
 
-}  // namespace
+}  // anonymous namespace
 
-void GrPathInnerTriangulateOp::visitProxies(const GrVisitProxyFunc& func) const {
+namespace skgpu::v1 {
+
+void PathInnerTriangulateOp::visitProxies(const GrVisitProxyFunc& func) const {
     if (fPipelineForFills) {
         fPipelineForFills->visitProxies(func);
     } else {
@@ -168,7 +170,7 @@ void GrPathInnerTriangulateOp::visitProxies(const GrVisitProxyFunc& func) const 
     }
 }
 
-GrDrawOp::FixedFunctionFlags GrPathInnerTriangulateOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags PathInnerTriangulateOp::fixedFunctionFlags() const {
     auto flags = FixedFunctionFlags::kUsesStencil;
     if (GrAAType::kNone != fAAType) {
         flags |= FixedFunctionFlags::kUsesHWAA;
@@ -176,24 +178,24 @@ GrDrawOp::FixedFunctionFlags GrPathInnerTriangulateOp::fixedFunctionFlags() cons
     return flags;
 }
 
-GrProcessorSet::Analysis GrPathInnerTriangulateOp::finalize(const GrCaps& caps,
-                                                            const GrAppliedClip* clip,
-                                                            GrClampType clampType) {
+GrProcessorSet::Analysis PathInnerTriangulateOp::finalize(const GrCaps& caps,
+                                                          const GrAppliedClip* clip,
+                                                          GrClampType clampType) {
     return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, nullptr, caps,
                                 clampType, &fColor);
 }
 
-void GrPathInnerTriangulateOp::pushFanStencilProgram(const GrTessellationShader::ProgramArgs& args,
-                                                     const GrPipeline* pipelineForStencils,
-                                                     const GrUserStencilSettings* stencil) {
+void PathInnerTriangulateOp::pushFanStencilProgram(const GrTessellationShader::ProgramArgs& args,
+                                                   const GrPipeline* pipelineForStencils,
+                                                   const GrUserStencilSettings* stencil) {
     SkASSERT(pipelineForStencils);
     auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(args.fArena, fViewMatrix,
                                                                      SK_PMColor4fTRANSPARENT);
     fFanPrograms.push_back(GrTessellationShader::MakeProgram(args, shader, pipelineForStencils,
                                                              stencil)); }
 
-void GrPathInnerTriangulateOp::pushFanFillProgram(const GrTessellationShader::ProgramArgs& args,
-                                                  const GrUserStencilSettings* stencil) {
+void PathInnerTriangulateOp::pushFanFillProgram(const GrTessellationShader::ProgramArgs& args,
+                                                const GrUserStencilSettings* stencil) {
     SkASSERT(fPipelineForFills);
     auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(args.fArena, fViewMatrix,
                                                                      fColor);
@@ -201,8 +203,8 @@ void GrPathInnerTriangulateOp::pushFanFillProgram(const GrTessellationShader::Pr
                                                              stencil));
 }
 
-void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::ProgramArgs& args,
-                                                  GrAppliedClip&& appliedClip) {
+void PathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::ProgramArgs& args,
+                                                GrAppliedClip&& appliedClip) {
     SkASSERT(!fFanTriangulator);
     SkASSERT(!fFanPolys);
     SkASSERT(!fPipelineForFills);
@@ -359,12 +361,12 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
     }
 }
 
-void GrPathInnerTriangulateOp::onPrePrepare(GrRecordingContext* context,
-                                            const GrSurfaceProxyView& writeView,
-                                            GrAppliedClip* clip,
-                                            const GrDstProxyView& dstProxyView,
-                                            GrXferBarrierFlags renderPassXferBarriers,
-                                            GrLoadOp colorLoadOp) {
+void PathInnerTriangulateOp::onPrePrepare(GrRecordingContext* context,
+                                          const GrSurfaceProxyView& writeView,
+                                          GrAppliedClip* clip,
+                                          const GrDstProxyView& dstProxyView,
+                                          GrXferBarrierFlags renderPassXferBarriers,
+                                          GrLoadOp colorLoadOp) {
     this->prePreparePrograms({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
                              renderPassXferBarriers, colorLoadOp, context->priv().caps()},
                              (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
@@ -381,7 +383,7 @@ void GrPathInnerTriangulateOp::onPrePrepare(GrRecordingContext* context,
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);
 
-void GrPathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
+void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fFanTriangulator) {
         this->prePreparePrograms({flushState->allocator(), flushState->writeView(),
                                  &flushState->dstProxyView(), flushState->renderPassBarriers(),
@@ -414,7 +416,7 @@ void GrPathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void PathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (fStencilCurvesProgram) {
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fStencilCurvesProgram, this->bounds());
@@ -439,3 +441,5 @@ void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRec
         fTessellator->drawHullInstances(flushState, fHullVertexBufferIfNoIDSupport);
     }
 }
+
+} // namespace skgpu::v1

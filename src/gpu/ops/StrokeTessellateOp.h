@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeTessellateOp_DEFINED
-#define GrStrokeTessellateOp_DEFINED
+#ifndef StrokeTessellateOp_DEFINED
+#define StrokeTessellateOp_DEFINED
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -15,11 +15,13 @@
 
 class GrRecordingContext;
 
+namespace skgpu::v1 {
+
 // Renders strokes by linearizing them into sorted "parametric" and "radial" edges. See
 // GrStrokeTessellationShader.
-class GrStrokeTessellateOp : public GrDrawOp {
+class StrokeTessellateOp final : public GrDrawOp {
 public:
-    GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
+    StrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
 
 private:
     using ShaderFlags = GrStrokeTessellationShader::ShaderFlags;
@@ -41,7 +43,7 @@ private:
         return allStatesEnabled || (fTotalCombinedVerbCnt <= kMaxVerbsToEnableDynamicState);
     }
 
-    const char* name() const override { return "GrStrokeTessellateOp"; }
+    const char* name() const override { return "StrokeTessellateOp"; }
     void visitProxies(const GrVisitProxyFunc&) const override;
     bool usesMSAA() const override { return fAAType == GrAAType::kMSAA; }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
@@ -77,4 +79,6 @@ private:
     const GrProgramInfo* fFillProgram = nullptr;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // StrokeTessellateOp_DEFINED

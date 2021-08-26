@@ -12,7 +12,9 @@
 #include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
-void GrPathTessellateOp::visitProxies(const GrVisitProxyFunc& func) const {
+namespace skgpu::v1 {
+
+void PathTessellateOp::visitProxies(const GrVisitProxyFunc& func) const {
     if (fTessellationProgram) {
         fTessellationProgram->pipeline().visitProxies(func);
     } else {
@@ -20,15 +22,15 @@ void GrPathTessellateOp::visitProxies(const GrVisitProxyFunc& func) const {
     }
 }
 
-GrProcessorSet::Analysis GrPathTessellateOp::finalize(const GrCaps& caps,
-                                                        const GrAppliedClip* clip,
-                                                        GrClampType clampType) {
+GrProcessorSet::Analysis PathTessellateOp::finalize(const GrCaps& caps,
+                                                    const GrAppliedClip* clip,
+                                                    GrClampType clampType) {
     return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, nullptr, caps,
                                 clampType, &fColor);
 }
 
-void GrPathTessellateOp::prepareTessellator(const GrTessellationShader::ProgramArgs& args,
-                                            GrAppliedClip&& appliedClip) {
+void PathTessellateOp::prepareTessellator(const GrTessellationShader::ProgramArgs& args,
+                                          GrAppliedClip&& appliedClip) {
     SkASSERT(!fTessellator);
     SkASSERT(!fTessellationProgram);
     auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(appliedClip),
@@ -39,11 +41,11 @@ void GrPathTessellateOp::prepareTessellator(const GrTessellationShader::ProgramA
                                                              fStencil);
 }
 
-void GrPathTessellateOp::onPrePrepare(GrRecordingContext* context,
-                                      const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
-                                      const GrDstProxyView& dstProxyView,
-                                      GrXferBarrierFlags renderPassXferBarriers,
-                                      GrLoadOp colorLoadOp) {
+void PathTessellateOp::onPrePrepare(GrRecordingContext* context,
+                                    const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
+                                    const GrDstProxyView& dstProxyView,
+                                    GrXferBarrierFlags renderPassXferBarriers,
+                                    GrLoadOp colorLoadOp) {
     this->prepareTessellator({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
                              renderPassXferBarriers, colorLoadOp, context->priv().caps()},
                              (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
@@ -51,7 +53,7 @@ void GrPathTessellateOp::onPrePrepare(GrRecordingContext* context,
     context->priv().recordProgramInfo(fTessellationProgram);
 }
 
-void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
+void PathTessellateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
         this->prepareTessellator({flushState->allocator(), flushState->writeView(),
                                   &flushState->dstProxyView(), flushState->renderPassBarriers(),
@@ -62,7 +64,7 @@ void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
     fTessellator->prepare(flushState, this->bounds(), {SkMatrix::I(), fPath}, fPath.countVerbs());
 }
 
-void GrPathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void PathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkASSERT(fTessellator);
     SkASSERT(fTessellationProgram);
     flushState->bindPipelineAndScissorClip(*fTessellationProgram, this->bounds());
@@ -71,3 +73,5 @@ void GrPathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
 
     fTessellator->draw(flushState);
 }
+
+} // namespace skgpu::v1
