@@ -104,6 +104,8 @@ std::unique_ptr<Statement> VarDeclaration::Make(const Context& context,
                                                 int arraySize,
                                                 std::unique_ptr<Expression> value) {
     SkASSERT(!baseType->isArray());
+    // function parameters cannot have variable declarations
+    SkASSERT(var->storage() != Variable::Storage::kParameter);
     // 'const' variables must be initialized
     SkASSERT(!(var->modifiers().fFlags & Modifiers::kConst_Flag) || value);
     // 'const' variable initializer must be a constant expression
