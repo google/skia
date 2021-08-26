@@ -341,9 +341,10 @@ public:
 
 private:
     void startBlur() override {
-        fSum0 = {0u, 0u, 0u, 0u};
-        fSum1 = {0u, 0u, 0u, 0u};
-        fSum2 = {fHalf, fHalf, fHalf, fHalf};
+        skvx::Vec<4, uint32_t> zero = {0u, 0u, 0u, 0u};
+        zero.store(fSum0);
+        zero.store(fSum1);
+        skvx::Vec<4, uint32_t>{fHalf, fHalf, fHalf, fHalf}.store(fSum2);
         sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
 
         fBuffer0Cursor = fBuffer0;
@@ -394,9 +395,9 @@ private:
         skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0Cursor;
         skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1Cursor;
         skvx::Vec<4, uint32_t>* buffer2Cursor = fBuffer2Cursor;
-        skvx::Vec<4, uint32_t> sum0 = fSum0;
-        skvx::Vec<4, uint32_t> sum1 = fSum1;
-        skvx::Vec<4, uint32_t> sum2 = fSum2;
+        skvx::Vec<4, uint32_t> sum0 = skvx::Vec<4, uint32_t>::Load(fSum0);
+        skvx::Vec<4, uint32_t> sum1 = skvx::Vec<4, uint32_t>::Load(fSum1);
+        skvx::Vec<4, uint32_t> sum2 = skvx::Vec<4, uint32_t>::Load(fSum2);
 
         // Given an expanded input pixel, move the window ahead using the leadingEdge value.
         auto processValue = [&](const skvx::Vec<4, uint32_t>& leadingEdge) {
@@ -450,9 +451,10 @@ private:
         fBuffer0Cursor = buffer0Cursor;
         fBuffer1Cursor = buffer1Cursor;
         fBuffer2Cursor = buffer2Cursor;
-        fSum0 = sum0;
-        fSum1 = sum1;
-        fSum2 = sum2;
+
+        sum0.store(fSum0);
+        sum1.store(fSum1);
+        sum2.store(fSum2);
     }
 
     skvx::Vec<4, uint32_t>* const fBuffer0;
@@ -463,7 +465,9 @@ private:
     const uint32_t fHalf;
 
     // blur state
-    skvx::Vec<4, uint32_t> fSum0, fSum1, fSum2;
+    char fSum0[sizeof(skvx::Vec<4, uint32_t>)];
+    char fSum1[sizeof(skvx::Vec<4, uint32_t>)];
+    char fSum2[sizeof(skvx::Vec<4, uint32_t>)];
     skvx::Vec<4, uint32_t>* fBuffer0Cursor;
     skvx::Vec<4, uint32_t>* fBuffer1Cursor;
     skvx::Vec<4, uint32_t>* fBuffer2Cursor;
@@ -605,8 +609,8 @@ public:
 
 private:
     void startBlur() override {
-        fSum0 = {0u, 0u, 0u, 0u};
-        fSum1 = {fHalf, fHalf, fHalf, fHalf};
+        skvx::Vec<4, uint32_t>{0u, 0u, 0u, 0u}.store(fSum0);
+        skvx::Vec<4, uint32_t>{fHalf, fHalf, fHalf, fHalf}.store(fSum1);
         sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
 
         fBuffer0Cursor = fBuffer0;
@@ -651,8 +655,8 @@ private:
             int n, const uint32_t* src, int srcStride, uint32_t* dst, int dstStride) override {
         skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0Cursor;
         skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1Cursor;
-        skvx::Vec<4, uint32_t> sum0 = fSum0;
-        skvx::Vec<4, uint32_t> sum1 = fSum1;
+        skvx::Vec<4, uint32_t> sum0 = skvx::Vec<4, uint32_t>::Load(fSum0);
+        skvx::Vec<4, uint32_t> sum1 = skvx::Vec<4, uint32_t>::Load(fSum1);
 
         // Given an expanded input pixel, move the window ahead using the leadingEdge value.
         auto processValue = [&](const skvx::Vec<4, uint32_t>& leadingEdge) {
@@ -701,8 +705,8 @@ private:
         // Store the state
         fBuffer0Cursor = buffer0Cursor;
         fBuffer1Cursor = buffer1Cursor;
-        fSum0 = sum0;
-        fSum1 = sum1;
+        sum0.store(fSum0);
+        sum1.store(fSum1);
     }
 
     skvx::Vec<4, uint32_t>* const fBuffer0;
@@ -712,7 +716,8 @@ private:
     const uint32_t fHalf;
 
     // blur state
-    skvx::Vec<4, uint32_t> fSum0, fSum1;
+    char fSum0[sizeof(skvx::Vec<4, uint32_t>)];
+    char fSum1[sizeof(skvx::Vec<4, uint32_t>)];
     skvx::Vec<4, uint32_t>* fBuffer0Cursor;
     skvx::Vec<4, uint32_t>* fBuffer1Cursor;
 };
