@@ -322,15 +322,6 @@ void SurfaceDrawContext::willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask
 #endif
 }
 
-inline GrAAType SurfaceDrawContext::chooseAAType(GrAA aa) {
-    if (this->numSamples() > 1 || fCanUseDynamicMSAA) {
-        // Always trigger DMSAA when it's available. The coverage ops that know how to handle both
-        // single and multisample targets without popping will do so without calling chooseAAType.
-        return GrAAType::kMSAA;
-    }
-    return (aa == GrAA::kYes) ? GrAAType::kCoverage : GrAAType::kNone;
-}
-
 void SurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
                                                  const SkMatrixProvider& viewMatrix,
                                                  const SkGlyphRunList& glyphRunList,

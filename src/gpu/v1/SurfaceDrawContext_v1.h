@@ -615,6 +615,16 @@ public:
         return GrAA(paint.isAntiAlias() || this->alwaysAntialias());
     }
 
+    GrAAType chooseAAType(GrAA aa) {
+        if (this->numSamples() > 1 || fCanUseDynamicMSAA) {
+            // Always trigger DMSAA when it's available. The coverage ops that know how to handle
+            // both single and multisample targets without popping will do so without calling
+            // chooseAAType.
+            return GrAAType::kMSAA;
+        }
+        return (aa == GrAA::kYes) ? GrAAType::kCoverage : GrAAType::kNone;
+    }
+
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
@@ -627,8 +637,6 @@ private:
     enum class QuadOptimization;
 
     void willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask) override;
-
-    GrAAType chooseAAType(GrAA);
 
     OpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
     void setNeedsStencil();

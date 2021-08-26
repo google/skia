@@ -417,9 +417,12 @@ void Device::drawPoints(SkCanvas::PointMode mode,
     bool isHairline = (0 == width) ||
                        (1 == width && this->localToDevice().getMinMaxScales(scales) &&
                         SkScalarNearlyEqual(scales[0], 1.f) && SkScalarNearlyEqual(scales[1], 1.f));
-    // we only handle non-antialiased hairlines and paints without path effects or mask filters,
+    // we only handle non-coverage-aa hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
-    if (!isHairline || paint.getPathEffect() || paint.getMaskFilter() || aa == GrAA::kYes) {
+    if (!isHairline ||
+        paint.getPathEffect() ||
+        paint.getMaskFilter() ||
+        fSurfaceDrawContext->chooseAAType(aa) == GrAAType::kCoverage) {
         SkRasterClip rc(this->devClipBounds());
         SkDraw draw;
         draw.fDst = SkPixmap(SkImageInfo::MakeUnknown(this->width(), this->height()), nullptr, 0);
