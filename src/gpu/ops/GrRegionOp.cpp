@@ -97,7 +97,7 @@ private:
             return;
         }
 
-        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
+        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView, usesMSAASurface,
                                                             std::move(appliedClip), dstProxyView,
                                                             gp, GrPrimitiveType::kTriangles,
                                                             renderPassXferBarriers, colorLoadOp);

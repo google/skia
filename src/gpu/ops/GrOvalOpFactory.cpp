@@ -1258,6 +1258,7 @@ private:
         fProgramInfo = fHelper.createProgramInfo(caps,
                                                  arena,
                                                  writeView,
+                                                 usesMSAASurface,
                                                  std::move(appliedClip),
                                                  dstProxyView,
                                                  gp,
@@ -1629,6 +1630,7 @@ private:
         fProgramInfo = fHelper.createProgramInfo(caps,
                                                  arena,
                                                  writeView,
+                                                 usesMSAASurface,
                                                  std::move(appliedClip),
                                                  dstProxyView,
                                                  gp,
@@ -1964,6 +1966,7 @@ private:
         fProgramInfo = fHelper.createProgramInfo(caps,
                                                  arena,
                                                  writeView,
+                                                 usesMSAASurface,
                                                  std::move(appliedClip),
                                                  dstProxyView,
                                                  gp,
@@ -2245,8 +2248,9 @@ private:
                                                                    this->viewMatrix(),
                                                                    this->style());
 
-        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
-                                                 dstProxyView, gp, GrPrimitiveType::kTriangles,
+        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, usesMSAASurface,
+                                                 std::move(appliedClip), dstProxyView, gp,
+                                                 GrPrimitiveType::kTriangles,
                                                  renderPassXferBarriers, colorLoadOp);
     }
 
@@ -2659,8 +2663,9 @@ private:
                                                                 false, false, false, false,
                                                                 fWideColor, localMatrix);
 
-        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
-                                                 dstProxyView, gp, GrPrimitiveType::kTriangles,
+        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, usesMSAASurface,
+                                                 std::move(appliedClip), dstProxyView, gp,
+                                                 GrPrimitiveType::kTriangles,
                                                  renderPassXferBarriers, colorLoadOp);
     }
 
@@ -2979,8 +2984,9 @@ private:
         GrGeometryProcessor* gp = EllipseGeometryProcessor::Make(arena, fStroked, fWideColor,
                                                                  fUseScale, localMatrix);
 
-        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
-                                                 dstProxyView, gp, GrPrimitiveType::kTriangles,
+        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, usesMSAASurface,
+                                                 std::move(appliedClip), dstProxyView, gp,
+                                                 GrPrimitiveType::kTriangles,
                                                  renderPassXferBarriers, colorLoadOp);
     }
 

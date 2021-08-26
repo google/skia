@@ -389,9 +389,10 @@ void DrawVerticesOp::onCreateProgramInfo(const GrCaps* caps,
                                          GrXferBarrierFlags renderPassXferBarriers,
                                          GrLoadOp colorLoadOp) {
     GrGeometryProcessor* gp = this->makeGP(arena);
-    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
-                                             dstProxyView, gp, this->primitiveType(),
-                                             renderPassXferBarriers, colorLoadOp);
+    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, usesMSAASurface,
+                                             std::move(appliedClip), dstProxyView, gp,
+                                             this->primitiveType(), renderPassXferBarriers,
+                                             colorLoadOp);
 }
 
 void DrawVerticesOp::onPrepareDraws(GrMeshDrawTarget* target) {

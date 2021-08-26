@@ -103,6 +103,7 @@ protected:
         GrPipeline::InputFlags flags = GrPipeline::InputFlags::kNone;
 
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
+                                                                   usesMSAASurface,
                                                                    std::move(appliedClip),
                                                                    dstProxyView, gp,
                                                                    std::move(fProcessorSet),

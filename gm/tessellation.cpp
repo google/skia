@@ -336,7 +336,8 @@ private:
             shader = std::make_unique<TessellationTestRectShader>(fViewMatrix);
         }
 
-        GrProgramInfo programInfo(state->writeView(), &pipeline, &GrUserStencilSettings::kUnused,
+        GrProgramInfo programInfo(state->caps(), state->writeView(), state->usesMSAASurface(),
+                                  &pipeline, &GrUserStencilSettings::kUnused,
                                   shader.get(), GrPrimitiveType::kPatches,
                                   tessellationPatchVertexCount, state->renderPassBarriers(),
                                   state->colorLoadOp());

@@ -24,7 +24,8 @@ public:
 
     GrProgramInfo* createProgramInfoWithStencil(const GrCaps*,
                                                 SkArenaAlloc*,
-                                                const GrSurfaceProxyView& writeViewSwizzle,
+                                                const GrSurfaceProxyView& writeView,
+                                                bool usesMSAASurface,
                                                 GrAppliedClip&&,
                                                 const GrDstProxyView&,
                                                 GrGeometryProcessor*,

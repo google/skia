@@ -537,6 +537,7 @@ private:
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
 
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
+                                                                   usesMSAASurface,
                                                                    std::move(appliedClip),
                                                                    dstProxyView, gp,
                                                                    GrProcessorSet::MakeEmptySet(),

@@ -184,9 +184,11 @@ void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramA
         auto* bboxStencil = GrPathTessellationShader::TestAndResetStencilSettings(
                 SkPathFillType_IsInverse(this->pathFillType()));
         fCoverBBoxProgram = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
+                args.fCaps,
                 args.fArena,
                 bboxPipeline,
                 args.fWriteView,
+                args.fUsesMSAASurface,
                 bboxShader,
                 GrPrimitiveType::kTriangleStrip,
                 args.fXferBarrierFlags,
@@ -200,8 +202,11 @@ void PathStencilCoverOp::onPrePrepare(GrRecordingContext* context,
                                       const GrDstProxyView& dstProxyView,
                                       GrXferBarrierFlags renderPassXferBarriers,
                                       GrLoadOp colorLoadOp) {
-    this->prePreparePrograms({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
-                             renderPassXferBarriers, colorLoadOp, context->priv().caps()},
+    // DMSAA is not supported on DDL.
+    bool usesMSAASurface = writeView.asRenderTargetProxy()->numSamples() > 1;
+    this->prePreparePrograms({context->priv().recordTimeAllocator(), writeView, usesMSAASurface,
+                             &dstProxyView, renderPassXferBarriers, colorLoadOp,
+                             context->priv().caps()},
                              (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
     if (fStencilFanProgram) {
         context->priv().recordProgramInfo(fStencilFanProgram);
@@ -219,9 +224,9 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
 void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
         this->prePreparePrograms({flushState->allocator(), flushState->writeView(),
-                                  &flushState->dstProxyView(), flushState->renderPassBarriers(),
-                                  flushState->colorLoadOp(), &flushState->caps()},
-                                  flushState->detachAppliedClip());
+                                 flushState->usesMSAASurface(), &flushState->dstProxyView(),
+                                 flushState->renderPassBarriers(), flushState->colorLoadOp(),
+                                 &flushState->caps()}, flushState->detachAppliedClip());
         if (!fTessellator) {
             return;
         }

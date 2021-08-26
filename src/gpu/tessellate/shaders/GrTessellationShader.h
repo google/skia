@@ -60,6 +60,7 @@ public:
     struct ProgramArgs {
         SkArenaAlloc* fArena;
         const GrSurfaceProxyView& fWriteView;
+        bool fUsesMSAASurface;
         const GrDstProxyView* fDstProxyView;
         GrXferBarrierFlags fXferBarrierFlags;
         GrLoadOp fColorLoadOp;
@@ -73,8 +74,8 @@ public:
                                       const GrTessellationShader* shader,
                                       const GrPipeline* pipeline,
                                       const GrUserStencilSettings* stencil) {
-        return args.fArena->make<GrProgramInfo>(args.fWriteView, pipeline, stencil, shader,
-                                                shader->fPrimitiveType,
+        return args.fArena->make<GrProgramInfo>(*args.fCaps, args.fWriteView, args.fUsesMSAASurface,
+                                                pipeline, stencil, shader, shader->fPrimitiveType,
                                                 shader->fTessellationPatchVertexCount,
                                                 args.fXferBarrierFlags, args.fColorLoadOp);
     }

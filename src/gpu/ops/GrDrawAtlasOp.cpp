@@ -214,9 +214,10 @@ void DrawAtlasOp::onCreateProgramInfo(const GrCaps* caps,
                                       this->color(),
                                       this->viewMatrix());
 
-    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
-                                             dstProxyView, gp, GrPrimitiveType::kTriangles,
-                                             renderPassXferBarriers, colorLoadOp);
+    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, usesMSAASurface,
+                                             std::move(appliedClip), dstProxyView, gp,
+                                             GrPrimitiveType::kTriangles, renderPassXferBarriers,
+                                             colorLoadOp);
 }
 
 void DrawAtlasOp::onPrepareDraws(GrMeshDrawTarget* target) {

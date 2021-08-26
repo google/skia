@@ -158,8 +158,9 @@ void GrDrawAtlasPathOp::prepareProgram(const GrCaps& caps, SkArenaAlloc* arena,
                                             std::move(appliedClip));
     auto shader = arena->make<DrawAtlasPathShader>(fUsesLocalCoords, &fAtlasHelper,
                                                    *caps.shaderCaps());
-    fProgram = arena->make<GrProgramInfo>(writeView, pipeline, &GrUserStencilSettings::kUnused,
-                                          shader, GrPrimitiveType::kTriangleStrip, 0,
+    fProgram = arena->make<GrProgramInfo>(caps, writeView, usesMSAASurface, pipeline,
+                                          &GrUserStencilSettings::kUnused, shader,
+                                          GrPrimitiveType::kTriangleStrip, 0,
                                           renderPassXferBarriers, colorLoadOp);
 }
 
@@ -168,10 +169,11 @@ void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext* rContext,
                                      GrAppliedClip* appliedClip, const GrDstProxyView& dstProxyView,
                                      GrXferBarrierFlags renderPassXferBarriers,
                                      GrLoadOp colorLoadOp) {
+    // DMSAA is not supported on DDL.
+    bool usesMSAASurface = writeView.asRenderTargetProxy()->numSamples() > 1;
     this->prepareProgram(*rContext->priv().caps(), rContext->priv().recordTimeAllocator(),
-                         writeView, writeView.asRenderTargetProxy()->numSamples() > 1,
-                         std::move(*appliedClip), dstProxyView, renderPassXferBarriers,
-                         colorLoadOp);
+                         writeView, usesMSAASurface, std::move(*appliedClip), dstProxyView,
+                         renderPassXferBarriers, colorLoadOp);
     SkASSERT(fProgram);
     rContext->priv().recordProgramInfo(fProgram);
 }

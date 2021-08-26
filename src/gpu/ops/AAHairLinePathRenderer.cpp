@@ -828,18 +828,21 @@ public:
 private:
     void makeLineProgramInfo(const GrCaps&, SkArenaAlloc*, const GrPipeline*,
                              const GrSurfaceProxyView& writeView,
+                             bool usesMSAASurface,
                              const SkMatrix* geometryProcessorViewM,
                              const SkMatrix* geometryProcessorLocalM,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp);
     void makeQuadProgramInfo(const GrCaps&, SkArenaAlloc*, const GrPipeline*,
                              const GrSurfaceProxyView& writeView,
+                             bool usesMSAASurface,
                              const SkMatrix* geometryProcessorViewM,
                              const SkMatrix* geometryProcessorLocalM,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp);
     void makeConicProgramInfo(const GrCaps&, SkArenaAlloc*, const GrPipeline*,
                               const GrSurfaceProxyView& writeView,
+                              bool usesMSAASurface,
                               const SkMatrix* geometryProcessorViewM,
                               const SkMatrix* geometryProcessorLocalM,
                               GrXferBarrierFlags renderPassXferBarriers,
@@ -946,6 +949,7 @@ GR_MAKE_BITFIELD_CLASS_OPS(AAHairlineOp::Program)
 void AAHairlineOp::makeLineProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
                                        const GrPipeline* pipeline,
                                        const GrSurfaceProxyView& writeView,
+                                       bool usesMSAASurface,
                                        const SkMatrix* geometryProcessorViewM,
                                        const SkMatrix* geometryProcessorLocalM,
                                        GrXferBarrierFlags renderPassXferBarriers,
@@ -972,13 +976,14 @@ void AAHairlineOp::makeLineProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
     }
 
     fProgramInfos[0] = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
-            arena, pipeline, writeView, lineGP, GrPrimitiveType::kTriangles,
+            &caps, arena, pipeline, writeView, usesMSAASurface, lineGP, GrPrimitiveType::kTriangles,
             renderPassXferBarriers, colorLoadOp, fHelper.stencilSettings());
 }
 
 void AAHairlineOp::makeQuadProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
                                        const GrPipeline* pipeline,
                                        const GrSurfaceProxyView& writeView,
+                                       bool usesMSAASurface,
                                        const SkMatrix* geometryProcessorViewM,
                                        const SkMatrix* geometryProcessorLocalM,
                                        GrXferBarrierFlags renderPassXferBarriers,
@@ -997,13 +1002,14 @@ void AAHairlineOp::makeQuadProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
     SkASSERT(sizeof(BezierVertex) == quadGP->vertexStride());
 
     fProgramInfos[1] = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
-            arena, pipeline, writeView, quadGP, GrPrimitiveType::kTriangles,
+            &caps, arena, pipeline, writeView, usesMSAASurface, quadGP, GrPrimitiveType::kTriangles,
             renderPassXferBarriers, colorLoadOp, fHelper.stencilSettings());
 }
 
 void AAHairlineOp::makeConicProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
                                         const GrPipeline* pipeline,
                                         const GrSurfaceProxyView& writeView,
+                                        bool usesMSAASurface,
                                         const SkMatrix* geometryProcessorViewM,
                                         const SkMatrix* geometryProcessorLocalM,
                                         GrXferBarrierFlags renderPassXferBarriers,
@@ -1022,8 +1028,9 @@ void AAHairlineOp::makeConicProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
     SkASSERT(sizeof(BezierVertex) == conicGP->vertexStride());
 
     fProgramInfos[2] = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
-            arena, pipeline, writeView, conicGP, GrPrimitiveType::kTriangles,
-            renderPassXferBarriers, colorLoadOp, fHelper.stencilSettings());
+            &caps, arena, pipeline, writeView, usesMSAASurface, conicGP,
+            GrPrimitiveType::kTriangles, renderPassXferBarriers, colorLoadOp,
+            fHelper.stencilSettings());
 }
 
 AAHairlineOp::Program AAHairlineOp::predictPrograms(const GrCaps* caps) const {
@@ -1079,17 +1086,17 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
                                            std::move(appliedClip), dstProxyView);
 
     if (fCharacterization & Program::kLine) {
-        this->makeLineProgramInfo(*caps, arena, pipeline, writeView,
+        this->makeLineProgramInfo(*caps, arena, pipeline, writeView, usesMSAASurface,
                                   geometryProcessorViewM, geometryProcessorLocalM,
                                   renderPassXferBarriers, colorLoadOp);
     }
     if (fCharacterization & Program::kQuad) {
-        this->makeQuadProgramInfo(*caps, arena, pipeline, writeView,
+        this->makeQuadProgramInfo(*caps, arena, pipeline, writeView, usesMSAASurface,
                                   geometryProcessorViewM, geometryProcessorLocalM,
                                   renderPassXferBarriers, colorLoadOp);
     }
     if (fCharacterization & Program::kConic) {
-        this->makeConicProgramInfo(*caps, arena, pipeline, writeView,
+        this->makeConicProgramInfo(*caps, arena, pipeline, writeView, usesMSAASurface,
                                    geometryProcessorViewM, geometryProcessorLocalM,
                                    renderPassXferBarriers, colorLoadOp);
 

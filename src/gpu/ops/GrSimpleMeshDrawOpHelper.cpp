@@ -166,6 +166,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             const GrCaps* caps,
             SkArenaAlloc* arena,
             const GrSurfaceProxyView& writeView,
+            bool usesMSAASurface,
             GrAppliedClip&& appliedClip,
             const GrDstProxyView& dstProxyView,
             GrGeometryProcessor* geometryProcessor,
@@ -183,19 +184,23 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                                    std::move(processorSet),
                                    pipelineFlags);
 
-    return CreateProgramInfo(arena, pipeline, writeView, geometryProcessor, primitiveType,
-                             renderPassXferBarriers, colorLoadOp, stencilSettings);
+    return CreateProgramInfo(caps, arena, pipeline, writeView, usesMSAASurface, geometryProcessor,
+                             primitiveType, renderPassXferBarriers, colorLoadOp, stencilSettings);
 }
 
-GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
+GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(const GrCaps* caps,
+                                                           SkArenaAlloc* arena,
                                                            const GrPipeline* pipeline,
                                                            const GrSurfaceProxyView& writeView,
+                                                           bool usesMSAASurface,
                                                            GrGeometryProcessor* geometryProcessor,
                                                            GrPrimitiveType primitiveType,
                                                            GrXferBarrierFlags xferBarrierFlags,
                                                            GrLoadOp colorLoadOp,
                                                            const GrUserStencilSettings* stencilSettings) {
-    auto tmp = arena->make<GrProgramInfo>(writeView,
+    auto tmp = arena->make<GrProgramInfo>(*caps,
+                                          writeView,
+                                          usesMSAASurface,
                                           pipeline,
                                           stencilSettings,
                                           geometryProcessor,
@@ -210,6 +215,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
                                             const GrCaps* caps,
                                             SkArenaAlloc* arena,
                                             const GrSurfaceProxyView& writeView,
+                                            bool usesMSAASurface,
                                             GrAppliedClip&& appliedClip,
                                             const GrDstProxyView& dstProxyView,
                                             GrGeometryProcessor* gp,
@@ -219,6 +225,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
     return CreateProgramInfo(caps,
                              arena,
                              writeView,
+                             usesMSAASurface,
                              std::move(appliedClip),
                              dstProxyView,
                              gp,

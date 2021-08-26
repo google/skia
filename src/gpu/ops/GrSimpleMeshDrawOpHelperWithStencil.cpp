@@ -45,7 +45,8 @@ bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
 GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil(
                                             const GrCaps* caps,
                                             SkArenaAlloc* arena,
-                                            const GrSurfaceProxyView& writeViewSwizzle,
+                                            const GrSurfaceProxyView& writeView,
+                                            bool usesMSAASurface,
                                             GrAppliedClip&& appliedClip,
                                             const GrDstProxyView& dstProxyView,
                                             GrGeometryProcessor* gp,
@@ -54,7 +55,8 @@ GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil
                                             GrLoadOp colorLoadOp) {
     return CreateProgramInfo(caps,
                              arena,
-                             writeViewSwizzle,
+                             writeView,
+                             usesMSAASurface,
                              std::move(appliedClip),
                              dstProxyView,
                              gp,

@@ -773,9 +773,10 @@ void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
         fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
     }
     GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags);
-    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
-                                             dstProxyView, gp, GrPrimitiveType::kTriangles,
-                                             renderPassXferBarriers, colorLoadOp);
+    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, usesMSAASurface,
+                                             std::move(appliedClip), dstProxyView, gp,
+                                             GrPrimitiveType::kTriangles, renderPassXferBarriers,
+                                             colorLoadOp);
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {

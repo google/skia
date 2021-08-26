@@ -689,7 +689,7 @@ private:
         }
 
         fDesc->fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
-                caps, arena, writeView, std::move(appliedClip), dstProxyView, gp,
+                caps, arena, writeView, usesMSAASurface, std::move(appliedClip), dstProxyView, gp,
                 GrProcessorSet::MakeEmptySet(), fDesc->fVertexSpec.primitiveType(),
                 renderPassXferBarriers, colorLoadOp, GrPipeline::InputFlags::kNone);
     }

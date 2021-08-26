@@ -46,8 +46,11 @@ void PathTessellateOp::onPrePrepare(GrRecordingContext* context,
                                     const GrDstProxyView& dstProxyView,
                                     GrXferBarrierFlags renderPassXferBarriers,
                                     GrLoadOp colorLoadOp) {
-    this->prepareTessellator({context->priv().recordTimeAllocator(), writeView, &dstProxyView,
-                             renderPassXferBarriers, colorLoadOp, context->priv().caps()},
+    // DMSAA is not supported on DDL.
+    bool usesMSAASurface = writeView.asRenderTargetProxy()->numSamples() > 1;
+    this->prepareTessellator({context->priv().recordTimeAllocator(), writeView, usesMSAASurface,
+                             &dstProxyView, renderPassXferBarriers, colorLoadOp,
+                             context->priv().caps()},
                              (clip) ? std::move(*clip) : GrAppliedClip::Disabled());
     SkASSERT(fTessellationProgram);
     context->priv().recordProgramInfo(fTessellationProgram);
@@ -56,9 +59,9 @@ void PathTessellateOp::onPrePrepare(GrRecordingContext* context,
 void PathTessellateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
         this->prepareTessellator({flushState->allocator(), flushState->writeView(),
-                                  &flushState->dstProxyView(), flushState->renderPassBarriers(),
-                                  flushState->colorLoadOp(), &flushState->caps()},
-                                  flushState->detachAppliedClip());
+                                 flushState->usesMSAASurface(), &flushState->dstProxyView(),
+                                 flushState->renderPassBarriers(), flushState->colorLoadOp(),
+                                 &flushState->caps()}, flushState->detachAppliedClip());
         SkASSERT(fTessellator);
     }
     fTessellator->prepare(flushState, this->bounds(), {SkMatrix::I(), fPath}, fPath.countVerbs());

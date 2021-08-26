@@ -191,8 +191,8 @@ private:
         GrPrimitiveType primType = (fStrokeWidth > 0) ? GrPrimitiveType::kTriangleStrip
                                                       : GrPrimitiveType::kLineStrip;
 
-        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(clip),
-                                                 dstProxyView, gp, primType,
+        fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, usesMSAASurface,
+                                                 std::move(clip), dstProxyView, gp, primType,
                                                  renderPassXferBarriers, colorLoadOp);
     }
 
@@ -603,6 +603,7 @@ void AAStrokeRectOp::onCreateProgramInfo(const GrCaps* caps,
     fProgramInfo = fHelper.createProgramInfo(caps,
                                              arena,
                                              writeView,
+                                             usesMSAASurface,
                                              std::move(appliedClip),
                                              dstProxyView,
                                              gp,

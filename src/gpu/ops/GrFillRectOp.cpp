@@ -213,7 +213,7 @@ private:
         GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(arena, vertexSpec);
         SkASSERT(gp->vertexStride() == vertexSpec.vertexSize());
 
-        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
+        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView, usesMSAASurface,
                                                             std::move(appliedClip),
                                                             dstProxyView, gp,
                                                             vertexSpec.primitiveType(),

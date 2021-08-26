@@ -486,8 +486,9 @@ private:
         SkASSERT(gp->vertexStride() == sizeof(SkPoint));
 
         fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, writeView,
-                                                             std::move(appliedClip),
-                                                             dstProxyView, gp, this->primType(),
+                                                             usesMSAASurface,
+                                                             std::move(appliedClip), dstProxyView,
+                                                             gp, this->primType(),
                                                              renderPassXferBarriers, colorLoadOp);
 
     }

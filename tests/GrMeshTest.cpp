@@ -570,9 +570,9 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
     GrGeometryProcessor* mtp = MeshTestProcessor::Make(fState->allocator(), isInstanced,
                                                        hasVertexBuffer);
 
-    GrProgramInfo programInfo(fState->writeView(), pipeline, &GrUserStencilSettings::kUnused,
-                              mtp, primitiveType, 0, fState->renderPassBarriers(),
-                              fState->colorLoadOp());
+    GrProgramInfo programInfo(fState->caps(), fState->writeView(), fState->usesMSAASurface(),
+                              pipeline, &GrUserStencilSettings::kUnused, mtp, primitiveType, 0,
+                              fState->renderPassBarriers(), fState->colorLoadOp());
 
     fState->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));
     return fState->opsRenderPass();

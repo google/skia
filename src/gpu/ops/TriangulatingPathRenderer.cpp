@@ -414,6 +414,7 @@ private:
                                                                : GrPrimitiveType::kTriangles;
 
         fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, writeView,
+                                                             usesMSAASurface,
                                                              std::move(appliedClip), dstProxyView,
                                                              gp, primitiveType,
                                                              renderPassXferBarriers, colorLoadOp);

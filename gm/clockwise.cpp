@@ -150,13 +150,14 @@ private:
     GrProgramInfo* createProgramInfo(const GrCaps* caps,
                                      SkArenaAlloc* arena,
                                      const GrSurfaceProxyView& writeView,
+                                     bool usesMSAASurface,
                                      GrAppliedClip&& appliedClip,
                                      const GrDstProxyView& dstProxyView,
                                      GrXferBarrierFlags renderPassXferBarriers,
                                      GrLoadOp colorLoadOp) const {
         GrGeometryProcessor* geomProc = ClockwiseTestProcessor::Make(arena, fReadSkFragCoord);
 
-        return sk_gpu_test::CreateProgramInfo(caps, arena, writeView,
+        return sk_gpu_test::CreateProgramInfo(caps, arena, writeView, usesMSAASurface,
                                               std::move(appliedClip), dstProxyView,
                                               geomProc, SkBlendMode::kPlus,
                                               GrPrimitiveType::kTriangleStrip,
@@ -167,6 +168,7 @@ private:
         return this->createProgramInfo(&flushState->caps(),
                                        flushState->allocator(),
                                        flushState->writeView(),
+                                       flushState->usesMSAASurface(),
                                        flushState->detachAppliedClip(),
                                        flushState->dstProxyView(),
                                        flushState->renderPassBarriers(),
@@ -181,12 +183,15 @@ private:
                       GrLoadOp colorLoadOp) final {
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
+        // DMSAA is not supported on DDL.
+        bool usesMSAASurface = writeView.asRenderTargetProxy()->numSamples() > 1;
+
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
         fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, writeView,
-                                               std::move(appliedClip), dstProxyView,
-                                               renderPassXferBarriers, colorLoadOp);
+                                               usesMSAASurface, std::move(appliedClip),
+                                               dstProxyView, renderPassXferBarriers, colorLoadOp);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }

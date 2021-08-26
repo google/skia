@@ -51,7 +51,9 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             ++fCurrUpload;
         }
 
-        GrProgramInfo programInfo(this->writeView(),
+        GrProgramInfo programInfo(this->caps(),
+                                  this->writeView(),
+                                  this->usesMSAASurface(),
                                   pipeline,
                                   userStencilSettings,
                                   fCurrDraw->fGeometryProcessor,

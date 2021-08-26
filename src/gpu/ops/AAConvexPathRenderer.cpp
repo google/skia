@@ -742,7 +742,7 @@ private:
                                                                   fHelper.usesLocalCoords(),
                                                                   fWideColor);
 
-        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
+        fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView, usesMSAASurface,
                                                             std::move(appliedClip),
                                                             dstProxyView, quadProcessor,
                                                             GrPrimitiveType::kTriangles,

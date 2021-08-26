@@ -95,6 +95,7 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
 GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                  SkArenaAlloc* arena,
                                  const GrSurfaceProxyView& writeView,
+                                 bool usesMSAASurface,
                                  GrAppliedClip&& appliedClip,
                                  const GrDstProxyView& dstProxyView,
                                  GrGeometryProcessor* geomProc,
@@ -115,7 +116,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                                      GrClampType::kAuto, &analysisColor);
     SkASSERT(!analysis.requiresDstTexture());
 
-    return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
+    return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView, usesMSAASurface,
                                                        std::move(appliedClip), dstProxyView,
                                                        geomProc, std::move(processors),
                                                        primitiveType, renderPassXferBarriers,

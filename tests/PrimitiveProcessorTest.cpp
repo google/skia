@@ -130,6 +130,7 @@ private:
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps,
                                                                    arena,
                                                                    writeView,
+                                                                   usesMSAASurface,
                                                                    std::move(appliedClip),
                                                                    dstProxyView,
                                                                    gp,

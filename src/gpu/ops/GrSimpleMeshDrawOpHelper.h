@@ -131,9 +131,11 @@ public:
                                      GrAppliedClip&&,
                                      const GrDstProxyView&);
 
-    static GrProgramInfo* CreateProgramInfo(SkArenaAlloc*,
+    static GrProgramInfo* CreateProgramInfo(const GrCaps*,
+                                            SkArenaAlloc*,
                                             const GrPipeline*,
                                             const GrSurfaceProxyView& writeView,
+                                            bool usesMSAASurface,
                                             GrGeometryProcessor*,
                                             GrPrimitiveType,
                                             GrXferBarrierFlags renderPassXferBarriers,
@@ -147,6 +149,7 @@ public:
     static GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                             SkArenaAlloc*,
                                             const GrSurfaceProxyView& writeView,
+                                            bool usesMSAASurface,
                                             GrAppliedClip&&,
                                             const GrDstProxyView&,
                                             GrGeometryProcessor*,
@@ -162,6 +165,7 @@ public:
     GrProgramInfo* createProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,
                                      const GrSurfaceProxyView& writeView,
+                                     bool usesMSAASurface,
                                      GrAppliedClip&&,
                                      const GrDstProxyView&,
                                      GrGeometryProcessor*,

@@ -160,7 +160,9 @@ private:
 
         auto geomProc = PipelineDynamicStateTestProcessor::Make(flushState->allocator());
 
-        GrProgramInfo programInfo(flushState->writeView(),
+        GrProgramInfo programInfo(flushState->caps(),
+                                  flushState->writeView(),
+                                  flushState->usesMSAASurface(),
                                   &pipeline,
                                   &GrUserStencilSettings::kUnused,
                                   geomProc,
