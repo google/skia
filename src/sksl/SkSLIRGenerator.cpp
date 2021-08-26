@@ -1005,11 +1005,6 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
             }
             for (const auto& decl : decls) {
                 const VarDeclaration& vd = decl->as<VarDeclaration>();
-                if (vd.var().type().isOpaque()) {
-                    this->errorReporter().error(decl->fOffset,
-                                                "opaque type '" + vd.var().type().name() +
-                                                "' is not permitted in an interface block");
-                }
                 if (&vd.var() == fRTAdjust) {
                     foundRTAdjust = true;
                     SkASSERT(vd.var().type() == *fContext.fTypes.fFloat4);
@@ -1017,11 +1012,6 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
                 }
                 fields.push_back(Type::Field(vd.var().modifiers(), vd.var().name(),
                                             &vd.var().type()));
-                if (vd.value()) {
-                    this->errorReporter().error(
-                            decl->fOffset,
-                            "initializers are not permitted on interface block fields");
-                }
             }
         }
     }
