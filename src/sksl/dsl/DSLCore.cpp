@@ -216,8 +216,10 @@ public:
         if (!DSLWriter::Settings().fDSLMarkVarsDeclared) {
             DSLWriter::MarkDeclared(var);
         }
-        DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
-                DSLWriter::Var(var), typeName, varName, arraySize, DSLWriter::SymbolTable()));
+        auto intf = std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
+                DSLWriter::Var(var), typeName, varName, arraySize, DSLWriter::SymbolTable());
+        DSLWriter::IRGenerator().scanInterfaceBlock(*intf);
+        DSLWriter::ProgramElements().push_back(std::move(intf));
         if (varName.empty()) {
             const std::vector<SkSL::Type::Field>& structFields = structType->fields();
             const SkSL::Variable* skslVar = DSLWriter::Var(var);
@@ -229,6 +231,7 @@ public:
         } else {
             AddToSymbolTable(var);
         }
+        GetErrorReporter().reportPendingErrors(pos);
         return var;
     }
 

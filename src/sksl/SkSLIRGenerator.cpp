@@ -801,6 +801,21 @@ std::unique_ptr<StructDefinition> IRGenerator::convertStructDefinition(const AST
     return std::make_unique<StructDefinition>(node.fOffset, *type);
 }
 
+void IRGenerator::scanInterfaceBlock(SkSL::InterfaceBlock& intf) {
+    const std::vector<Type::Field>& fields = intf.variable().type().componentType().fields();
+    for (size_t i = 0; i < fields.size(); ++i) {
+        const Type::Field& f = fields[i];
+        if (f.fName == Compiler::RTADJUST_NAME) {
+            if (*f.fType == *fContext.fTypes.fFloat4) {
+                fRTAdjustInterfaceBlock = &intf.variable();
+                fRTAdjustFieldIndex = i;
+            } else {
+                this->errorReporter().error(intf.fOffset, "sk_RTAdjust must have type 'float4'");
+            }
+        }
+    }
+}
+
 std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
     if (this->programKind() != ProgramKind::kFragment &&
         this->programKind() != ProgramKind::kVertex) {
@@ -813,7 +828,6 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
     std::shared_ptr<SymbolTable> old = fSymbolTable;
     std::shared_ptr<SymbolTable> symbols;
     std::vector<Type::Field> fields;
-    bool foundRTAdjust = false;
     auto iter = intf.begin();
     {
         AutoSymbolTable table(this);
@@ -826,11 +840,6 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
             }
             for (const auto& decl : decls) {
                 const VarDeclaration& vd = decl->as<VarDeclaration>();
-                if (&vd.var() == fRTAdjust) {
-                    foundRTAdjust = true;
-                    SkASSERT(vd.var().type() == *fContext.fTypes.fFloat4);
-                    fRTAdjustFieldIndex = fields.size();
-                }
                 fields.push_back(Type::Field(vd.var().modifiers(), vd.var().name(),
                                             &vd.var().type()));
             }
@@ -855,9 +864,6 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
                                        type,
                                        fIsBuiltinCode,
                                        Variable::Storage::kGlobal));
-    if (foundRTAdjust) {
-        fRTAdjustInterfaceBlock = var;
-    }
     if (id.fInstanceName.length()) {
         old->addWithoutOwnership(var);
     } else {
@@ -865,12 +871,10 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
             old->add(std::make_unique<Field>(intf.fOffset, var, (int)i));
         }
     }
-    return std::make_unique<SkSL::InterfaceBlock>(intf.fOffset,
-                                                  var,
-                                                  id.fTypeName,
-                                                  id.fInstanceName,
-                                                  arraySize,
-                                                  symbols);
+    std::unique_ptr<SkSL::InterfaceBlock> result = std::make_unique<SkSL::InterfaceBlock>(
+            intf.fOffset, var, id.fTypeName, id.fInstanceName, arraySize, symbols);
+    this->scanInterfaceBlock(*result);
+    return result;
 }
 
 void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {

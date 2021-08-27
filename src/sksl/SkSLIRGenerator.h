@@ -144,6 +144,10 @@ public:
 
     std::unique_ptr<Expression> convertIdentifier(int offset, skstd::string_view identifier);
 
+    bool haveRTAdjustInterfaceBlock() { return fRTAdjustInterfaceBlock != nullptr; }
+
+    int getRTAdjustFieldIndex() { return fRTAdjustFieldIndex; }
+
     const Context& fContext;
 
 private:
@@ -205,6 +209,7 @@ private:
     std::unique_ptr<Statement> convertFor(const ASTNode& f);
     std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);
     std::unique_ptr<Statement> convertIf(const ASTNode& s);
+    void scanInterfaceBlock(SkSL::InterfaceBlock& intf);
     std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTNode& s);
     Modifiers convertModifiers(const Modifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTNode& expression);
