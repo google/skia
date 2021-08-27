@@ -640,8 +640,11 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             std::vector<const Variable*>(),
             fContext.fTypes.fVoid.get(),
             fIsBuiltinCode));
-    auto invokeDef = std::make_unique<FunctionDefinition>(/*offset=*/-1, invokeDecl, fIsBuiltinCode,
-                                                          std::move(main));
+    IntrinsicSet referencedIntrinsics;
+    main = this->finalizeFunction(*invokeDecl, std::move(main), &referencedIntrinsics);
+    auto invokeDef = std::make_unique<FunctionDefinition>(/*offset=*/-1, invokeDecl,
+                                                          fIsBuiltinCode, std::move(main),
+                                                          std::move(referencedIntrinsics));
     invokeDecl->setDefinition(invokeDef.get());
     fProgramElements->push_back(std::move(invokeDef));
 
@@ -759,12 +762,15 @@ void IRGenerator::CheckModifiers(const Context& context,
 }
 
 std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl,
-                                                     std::unique_ptr<Block> body) {
+                                                     std::unique_ptr<Block> body,
+                                                     IntrinsicSet* referencedIntrinsics) {
     class Finalizer : public ProgramWriter {
     public:
-        Finalizer(IRGenerator* irGenerator, const FunctionDeclaration* function)
+        Finalizer(IRGenerator* irGenerator, const FunctionDeclaration* function,
+                  IntrinsicSet* referencedIntrinsics)
             : fIRGenerator(irGenerator)
-            , fFunction(function) {}
+            , fFunction(function)
+            , fReferencedIntrinsics(referencedIntrinsics) {}
 
         ~Finalizer() override {
             SkASSERT(!fBreakableLevel);
@@ -776,8 +782,13 @@ std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& 
         }
 
         bool visitExpression(Expression& expr) override {
-            // Do not recurse into expressions.
-            return false;
+            if (expr.is<FunctionCall>()) {
+                const FunctionDeclaration& func = expr.as<FunctionCall>().function();
+                if (func.isBuiltin() && func.definition()) {
+                    fReferencedIntrinsics->insert(&func);
+                }
+            }
+            return INHERITED::visitExpression(expr);
         }
 
         bool visitStatement(Statement& stmt) override {
@@ -850,6 +861,8 @@ std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& 
     private:
         IRGenerator* fIRGenerator;
         const FunctionDeclaration* fFunction;
+        // which intrinsics have we encountered in this function
+        IntrinsicSet* fReferencedIntrinsics;
         // how deeply nested we are in breakable constructs (for, do, switch).
         int fBreakableLevel = 0;
         // how deeply nested we are in continuable constructs (for, do).
@@ -868,7 +881,7 @@ std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& 
         body->children().push_back(this->getNormalizeSkPositionCode());
     }
 
-    Finalizer finalizer{this, &funcDecl};
+    Finalizer finalizer{this, &funcDecl, referencedIntrinsics};
     finalizer.visitStatement(*body);
 
     if (Analysis::CanExitWithoutReturningValue(funcDecl, *body)) {
@@ -879,9 +892,6 @@ std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& 
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
-    SkASSERT(fReferencedIntrinsics.empty());
-    SK_AT_SCOPE_EXIT(fReferencedIntrinsics.clear());
-
     auto iter = f.begin();
     const Type* returnType = this->convertType(*(iter++), /*allowVoid=*/true);
     if (returnType == nullptr) {
@@ -954,9 +964,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (!body) {
             return;
         }
-        body = this->finalizeFunction(*decl, std::move(body));
+        IntrinsicSet referencedIntrinsics;
+        body = this->finalizeFunction(*decl, std::move(body), &referencedIntrinsics);
         auto result = std::make_unique<FunctionDefinition>(
-                f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(fReferencedIntrinsics));
+                f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(referencedIntrinsics));
         decl->setDefinition(result.get());
         result->setSource(&f);
         fProgramElements->push_back(std::move(result));
@@ -1286,9 +1297,6 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
     if (function.isBuiltin()) {
         if (function.intrinsicKind() == k_dFdy_IntrinsicKind) {
             fInputs.fUseFlipRTUniform = true;
-        }
-        if (function.definition()) {
-            fReferencedIntrinsics.insert(&function);
         }
         if (!fIsBuiltinCode && fIntrinsics) {
             this->copyIntrinsicIfNeeded(function);

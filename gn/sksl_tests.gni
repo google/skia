@@ -64,6 +64,7 @@ sksl_error_tests = [
   "/sksl/errors/InterfaceBlockScope.sksl",
   "/sksl/errors/InterfaceBlockStorageModifiers.sksl",
   "/sksl/errors/InterfaceBlockWithNoMembers.sksl",
+  "/sksl/errors/IntrinsicInGlobalVariable.sksl",
   "/sksl/errors/InvalidAssignment.sksl",
   "/sksl/errors/InvalidOutParams.sksl",
   "/sksl/errors/InvalidToken.sksl",

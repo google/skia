@@ -279,7 +279,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             const FunctionDeclaration* decl = this->symbolRef<FunctionDeclaration>(
                                                                 Symbol::Kind::kFunctionDeclaration);
             std::unique_ptr<Statement> body = this->statement();
-            std::unordered_set<const FunctionDeclaration*> refs;
+            IntrinsicSet refs;
             uint8_t refCount = this->readU8();
             for (int i = 0; i < refCount; ++i) {
                 refs.insert(this->symbolRef<FunctionDeclaration>(

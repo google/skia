@@ -3542,8 +3542,8 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     // Define it.
     adapter.entrypointDef =
             std::make_unique<FunctionDefinition>(/*offset=*/-1, adapter.entrypointDecl.get(),
-                                                 /*builtin=*/false,
-                                                 /*body=*/std::move(entrypointBlock));
+                                                 /*builtin=*/false, std::move(entrypointBlock),
+                                                 IntrinsicSet{});
 
     adapter.entrypointDecl->setDefinition(adapter.entrypointDef.get());
     return adapter;

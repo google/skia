@@ -89,9 +89,12 @@ void DSLFunction::define(DSLBlock block) {
     }
     SkASSERTF(!fDecl->definition(), "function '%s' already defined", fDecl->description().c_str());
     std::unique_ptr<Block> body = block.release();
-    body = DSLWriter::IRGenerator().finalizeFunction(*fDecl, std::move(body));
+    IntrinsicSet referencedIntrinsics;
+    body = DSLWriter::IRGenerator().finalizeFunction(*fDecl, std::move(body),
+                                                     &referencedIntrinsics);
     auto function = std::make_unique<SkSL::FunctionDefinition>(/*offset=*/-1, fDecl,
-                                                               /*builtin=*/false, std::move(body));
+                                                               /*builtin=*/false, std::move(body),
+                                                               std::move(referencedIntrinsics));
     DSLWriter::ReportErrors();
     fDecl->fDefinition = function.get();
     DSLWriter::ProgramElements().push_back(std::move(function));

@@ -230,10 +230,12 @@ private:
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void findAndDeclareBuiltinVariables();
     bool detectVarDeclarationWithoutScope(const Statement& stmt);
-    // Coerces returns to correct type, detects invalid break / continue placement, and otherwise
+    // Coerces returns to correct type, detects invalid break / continue placement, identifies any
+    // built-in functions that will need to be added to the shared elements list, and otherwise
     // massages the function into its final form
     std::unique_ptr<Block> finalizeFunction(const FunctionDeclaration& funcDecl,
-                                            std::unique_ptr<Block> body);
+                                            std::unique_ptr<Block> body,
+                                            IntrinsicSet* referencedIntrinsics);
 
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).
@@ -260,7 +262,6 @@ private:
     std::shared_ptr<SymbolTable> fSymbolTable = nullptr;
     // Symbols which have definitions in the include files.
     IRIntrinsicMap* fIntrinsics = nullptr;
-    std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
     int fInvocations;
     std::unordered_set<const Type*> fDefinedStructs;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
