@@ -2908,6 +2908,8 @@ namespace lowp {
     using I16 =  int16_t __attribute__((ext_vector_type(16)));
     using I32 =  int32_t __attribute__((ext_vector_type(16)));
     using U32 = uint32_t __attribute__((ext_vector_type(16)));
+    using I64 =  int64_t __attribute__((ext_vector_type(16)));
+    using U64 = uint64_t __attribute__((ext_vector_type(16)));
     using F   = float    __attribute__((ext_vector_type(16)));
 #else
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
@@ -2915,6 +2917,8 @@ namespace lowp {
     using I16 =  int16_t __attribute__((ext_vector_type(8)));
     using I32 =  int32_t __attribute__((ext_vector_type(8)));
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
+    using I64 =  int64_t __attribute__((ext_vector_type(8)));
+    using U64 = uint64_t __attribute__((ext_vector_type(8)));
     using F   = float    __attribute__((ext_vector_type(8)));
 #endif
 
@@ -3122,6 +3126,12 @@ SI F if_then_else(I32 c, F t, F e) {
 SI F max(F x, F y) { return if_then_else(x < y, y, x); }
 SI F min(F x, F y) { return if_then_else(x < y, x, y); }
 
+SI I32 if_then_else(I32 c, I32 t, I32 e) {
+    return (t & c) | (e & ~c);
+}
+SI I32 max(I32 x, I32 y) { return if_then_else(x < y, y, x); }
+SI I32 min(I32 x, I32 y) { return if_then_else(x < y, x, y); }
+
 SI F mad(F f, F m, F a) { return f*m+a; }
 SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
@@ -3192,6 +3202,39 @@ SI F floor_(F x) {
     return roundtrip - if_then_else(roundtrip > x, F(1), F(0));
 #endif
 }
+
+// scaled_mult interprets a and b as number on [-1, 1) which are numbers in Q15 format. Functionally
+// this multiply is:
+//     (2 * a * b + (1 << 15)) >> 16
+// The result is a number on [-1, 1).
+// Note: on neon this is a saturating multiply while the others are not.
+SI I16 scaled_mult(I16 a, I16 b) {
+#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+    return _mm256_mulhrs_epi16(a, b);
+#elif defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
+    return _mm_mulhrs_epi16(a, b);
+#elif defined(SK_CPU_ARM64)
+    return vqrdmulhq_s16(a, b);
+#elif defined(JUMPER_IS_NEON)
+    return vqrdmulhq_s16(a, b);
+#else
+    const I32 roundingTerm = 1 << 14;
+    return cast<I16>((cast<I32>(a) * cast<I32>(b) + roundingTerm) >> 15);
+#endif
+}
+
+// This sum is to support lerp where the result will always be a positive number. In general,
+// a sum like this would require an additional bit, but because we know the range of the result
+// we know that the extra bit will always be zero.
+SI I16 constrained_add(I16 a, U16 b) {
+    for (size_t i = 0; i < N; i++) {
+        // Ensure that a + b is on the interval [0, UINT16_MAX]
+        SkASSERT(-b[i] <= a[i] && a[i] <= UINT16_MAX - b[i]);
+    }
+    U16 answer = (U16)a + b;
+    return (I16)answer;
+}
+
 SI F fract(F x) { return x - floor_(x); }
 SI F abs_(F x) { return sk_bit_cast<F>( sk_bit_cast<I32>(x) & 0x7fffffff ); }
 
@@ -3385,6 +3428,19 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
     return trunc_(y)*ctx->stride + trunc_(x);
 }
 
+template <typename T>
+SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, I32 x, I32 y) {
+    // Exclusive -> inclusive.
+    const I32 w =  ctx->width - 1,
+              h = ctx->height - 1;
+
+    U32 ax = cast<U32>(min(max(0, x), w)),
+        ay = cast<U32>(min(max(0, y), h));
+
+    *ptr = (const T*)ctx->pixels;
+    return ay * ctx->stride + ax;
+}
+
 template <typename V, typename T>
 SI V load(const T* ptr, size_t tail) {
     V v = 0;
@@ -3494,6 +3550,10 @@ SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
     *g = cast_U16(rgba & 65535) >>  8;
     *b = cast_U16(rgba >>   16) & 255;
     *a = cast_U16(rgba >>   16) >>  8;
+}
+
+SI void from_8888(U32 rgba, I16* r, I16* g, I16* b, I16* a) {
+    from_8888(rgba, (U16*)r, (U16*)g, (U16*)b, (U16*)a);
 }
 
 SI void load_8888_(const uint32_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
@@ -3991,6 +4051,111 @@ STAGE_GP(evenly_spaced_2_stop_gradient, const SkRasterPipeline_EvenlySpaced2Stop
                    &r,&g,&b,&a);
 }
 
+SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
+SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
+    *r = cast((_8888      ) & 0xff) * (1/255.0f);
+    *g = cast((_8888 >>  8) & 0xff) * (1/255.0f);
+    *b = cast((_8888 >> 16) & 0xff) * (1/255.0f);
+    *a = cast((_8888 >> 24)       ) * (1/255.0f);
+}
+
+#if !defined(SK_SUPPORT_LEGACY_BILERP_HIGHP)
+STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
+    // Quantize sample point and transform into lerp coordinates converting them to 16.16 fixed
+    // point number.
+    I32 qx = cast<I32>(floor_(65536.0f * x + 0.5f)) - 32768,
+        qy = cast<I32>(floor_(65536.0f * y + 0.5f)) - 32768;
+
+    // Calculate screen coordinates sx & sy by flooring qx and qy.
+    I32 sx = qx >> 16,
+        sy = qy >> 16;
+
+    // We are going to perform a change of parameters for qx on [0, 1) to tx on [-1, 1).
+    // This will put tx in Q15 format for use with q_mult.
+    // Calculate tx and ty on the interval of [-1, 1). Give {qx} and {qy} are on the interval
+    // [0, 1), where {v} is fract(v), we can transform to tx in the following manner ty follows
+    // the same math:
+    //     tx = 2 * {qx} - 1, so
+    //     {qx} = (tx + 1) / 2.
+    // Calculate {qx} - 1 and {qy} - 1 where the {} operation is handled by the cast, and the - 1
+    // is handled by the ^ 0x8000, dividing by 2 is deferred and handled in lerpX and lerpY in
+    // order to use the full 16-bit resolution.
+    I16 tx = cast<I16>(qx ^ 0x8000),
+        ty = cast<I16>(qy ^ 0x8000);
+
+    // Substituting the {qx} by the equation for tx from above into the lerp equation where v is
+    // the lerped value:
+    //         v = {qx}*(R - L) + L,
+    //         v = 1/2*(tx + 1)*(R - L) + L
+    //     2 * v = (tx + 1)*(R - L) + 2*L
+    //           = tx*R - tx*L + R - L + 2*L
+    //           = tx*(R - L) + (R + L).
+    // Since R and L are on [0, 255] we need them on the interval [0, 1/2] to get them into form
+    // for Q15_mult. If L and R where in 16.16 format, this would be done by dividing by 2^9. In
+    // code, we can multiply by 2^7 to get the value directly.
+    //            2 * v = tx*(R - L) + (R + L)
+    //     2^-9 * 2 * v = tx*(R - L)*2^-9 + (R + L)*2^-9
+    //         2^-8 * v = 2^-9 * (tx*(R - L) + (R + L))
+    //                v = 1/2 * (tx*(R - L) + (R + L))
+    auto lerpX = [&](I16 left, I16 right) -> I16 {
+        U16 middle = (U16)(right + left) << 7;
+        I16 width  = (right - left) << 7,
+        // The constrained_add is the most subtle part of lerp. The first term is on the interval
+        // [-1, 1), and the second term is on the interval is on the interval [0, 1) because
+        // both terms are too high by a factor of 2 which will be handled below. (Both R and L are
+        // on [0, 1/2), but the sum R + L is on the interval [0, 1).) Generally, the sum below
+        // should overflow, but because we know that sum produces an output on the
+        // interval [0, 1) we know that the extra bit that would be needed will always be 0. So
+        // we need to be careful to treat this sum as an unsigned positive number in the divide
+        // by 2 below.
+            v2  = constrained_add(scaled_mult(tx, width), middle);
+        // Divide by 2 to calculate v and at the same time bring the intermediate value onto the
+        // interval [0, 1/2] to set up for the lerpY.
+        return (I16)(((U16)(v2 + 1)) >> 1);
+    };
+
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, sx, sy);
+    I16 leftR, leftG, leftB, leftA;
+    from_8888(gather<U32>(ptr, ix), &leftR,&leftG,&leftB,&leftA);
+
+    ix = ix_and_ptr(&ptr, ctx, sx+1, sy);
+    I16 rightR, rightG, rightB, rightA;
+    from_8888(gather<U32>(ptr, ix), &rightR,&rightG,&rightB,&rightA);
+
+    I16 topR = lerpX(leftR, rightR),
+        topG = lerpX(leftG, rightG),
+        topB = lerpX(leftB, rightB),
+        topA = lerpX(leftA, rightA);
+
+    ix = ix_and_ptr(&ptr, ctx, sx, sy+1);
+    from_8888(gather<U32>(ptr, ix), &leftR,&leftG,&leftB,&leftA);
+
+    ix = ix_and_ptr(&ptr, ctx, sx+1, sy+1);
+    from_8888(gather<U32>(ptr, ix), &rightR,&rightG,&rightB,&rightA);
+
+    I16 bottomR = lerpX(leftR, rightR),
+        bottomG = lerpX(leftG, rightG),
+        bottomB = lerpX(leftB, rightB),
+        bottomA = lerpX(leftA, rightA);
+
+    // lerpY plays the same mathematical tricks as lerpX, but the final divide is by 256 resulting
+    // in a value on [0, 255].
+    auto lerpY = [&](I16 top, I16 bottom) -> U16 {
+        I16 width  = bottom - top,
+            middle = bottom + top,
+            blend  = scaled_mult(ty, width) + middle;
+
+        return ((U16)(blend + 0x80)) >> 8;
+    };
+
+    r = lerpY(topR, bottomR);
+    g = lerpY(topG, bottomG);
+    b = lerpY(topB, bottomB);
+    a = lerpY(topA, bottomA);
+}
+#endif  // SK_SUPPORT_LEGACY_BILERP_HIGHP
+
 STAGE_GG(xy_to_unit_angle, Ctx::None) {
     F xabs = abs_(x),
       yabs = abs_(y);
@@ -4121,7 +4286,9 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(repeat_y)
     NOT_IMPLEMENTED(negate_x)
     NOT_IMPLEMENTED(bilinear)
+#if defined(SK_SUPPORT_LEGACY_BILERP_HIGHP)
     NOT_IMPLEMENTED(bilerp_clamp_8888)
+#endif
     NOT_IMPLEMENTED(bicubic)
     NOT_IMPLEMENTED(bicubic_clamp_8888)
     NOT_IMPLEMENTED(bilinear_nx)
