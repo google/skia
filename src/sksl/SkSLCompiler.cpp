@@ -140,7 +140,7 @@ Compiler::~Compiler() {}
 #define TYPE(t) fContext->fTypes.f ## t .get()
 
 std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTable() {
-    auto rootSymbolTable = std::make_shared<SymbolTable>(&this->errorReporter(), /*builtin=*/true);
+    auto rootSymbolTable = std::make_shared<SymbolTable>(*fContext, /*builtin=*/true);
 
     const SkSL::Symbol* rootTypes[] = {
         TYPE(Void),

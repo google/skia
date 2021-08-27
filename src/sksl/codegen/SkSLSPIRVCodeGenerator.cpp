@@ -3527,7 +3527,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                         name,
                         /*instanceName=*/"",
                         /*arraySize=*/0,
-                        std::make_shared<SymbolTable>(fContext.fErrors, /*builtin=*/false));
+                        std::make_shared<SymbolTable>(fContext, /*builtin=*/false));
 
     this->writeInterfaceBlock(intf, false);
 }

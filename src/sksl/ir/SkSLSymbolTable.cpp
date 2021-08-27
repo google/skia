@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLSymbolAlias.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
@@ -101,7 +102,7 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
     }
 
     if (!symbol->is<FunctionDeclaration>()) {
-        fErrorReporter.error(symbol->fOffset, "symbol '" + name + "' was already defined");
+        fContext.fErrors->error(symbol->fOffset, "symbol '" + name + "' was already defined");
         return;
     }
 

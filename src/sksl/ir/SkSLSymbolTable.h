@@ -28,14 +28,14 @@ class FunctionDeclaration;
  */
 class SymbolTable {
 public:
-    SymbolTable(ErrorReporter* errorReporter, bool builtin)
+    SymbolTable(const Context& context, bool builtin)
     : fBuiltin(builtin)
-    , fErrorReporter(*errorReporter) {}
+    , fContext(context) {}
 
     SymbolTable(std::shared_ptr<SymbolTable> parent, bool builtin)
     : fParent(parent)
     , fBuiltin(builtin)
-    , fErrorReporter(parent->fErrorReporter) {}
+    , fContext(parent->fContext) {}
 
     /**
      * If the input is a built-in symbol table, returns a new empty symbol table as a child of the
@@ -141,7 +141,7 @@ private:
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
     std::forward_list<String> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
-    ErrorReporter& fErrorReporter;
+    const Context& fContext;
 
     friend class Dehydrator;
 };
