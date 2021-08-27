@@ -27,8 +27,10 @@
 
 #if SK_GPU_V1
 #include "src/gpu/GrBlurUtils.h"
-#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/ops/AtlasTextOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+
+using AtlasTextOp = skgpu::v1::AtlasTextOp;
 #else
 #include "src/gpu/SurfaceContext.h"
 #endif
@@ -69,11 +71,11 @@ struct ARGB3DVertex {
 
 #if SK_GPU_V1
 
-GrAtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
+AtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
     switch (grMaskFormat) {
-        case kA8_GrMaskFormat:   return GrAtlasTextOp::MaskType::kGrayscaleCoverage;
-        case kA565_GrMaskFormat: return GrAtlasTextOp::MaskType::kLCDCoverage;
-        case kARGB_GrMaskFormat: return GrAtlasTextOp::MaskType::kColorBitmap;
+        case kA8_GrMaskFormat:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
+        case kA565_GrMaskFormat: return AtlasTextOp::MaskType::kLCDCoverage;
+        case kARGB_GrMaskFormat: return AtlasTextOp::MaskType::kColorBitmap;
     }
     SkUNREACHABLE;
 }
@@ -688,23 +690,22 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
     const SkPMColor4f drawingColor =
             calculate_colors(sdc, paint, viewMatrix, fMaskFormat, &grPaint);
 
-    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
-            *this,
-            drawMatrix,
-            drawOrigin,
-            clipRect,
-            sk_ref_sp<GrTextBlob>(fBlob),
-            drawingColor,
-            sdc->arenaAlloc());
+    auto geometry = AtlasTextOp::Geometry::MakeForBlob(*this,
+                                                       drawMatrix,
+                                                       drawOrigin,
+                                                       clipRect,
+                                                       sk_ref_sp<GrTextBlob>(fBlob),
+                                                       drawingColor,
+                                                       sdc->arenaAlloc());
 
     GrRecordingContext* const rContext = sdc->recordingContext();
-    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(rContext,
-                                               op_mask_type(fMaskFormat),
-                                               false,
-                                               this->glyphCount(),
-                                               subRunBounds,
-                                               geometry,
-                                               std::move(grPaint));
+    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
+                                             op_mask_type(fMaskFormat),
+                                             false,
+                                             this->glyphCount(),
+                                             subRunBounds,
+                                             geometry,
+                                             std::move(grPaint));
 
     return {clip, std::move(op)};
 }
@@ -976,24 +977,22 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(sdc, paint, viewMatrix, fMaskFormat, &grPaint);
 
-    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
-            *this,
-            drawMatrix,
-            drawOrigin,
-            SkIRect::MakeEmpty(),
-            sk_ref_sp<GrTextBlob>(fBlob),
-            drawingColor,
-            sdc->arenaAlloc());
+    auto geometry = AtlasTextOp::Geometry::MakeForBlob(*this,
+                                                       drawMatrix,
+                                                       drawOrigin,
+                                                       SkIRect::MakeEmpty(),
+                                                       sk_ref_sp<GrTextBlob>(fBlob),
+                                                       drawingColor,
+                                                       sdc->arenaAlloc());
 
     GrRecordingContext* const rContext = sdc->recordingContext();
-    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
-            rContext,
-            op_mask_type(fMaskFormat),
-            true,
-            this->glyphCount(),
-            this->deviceRect(drawMatrix, drawOrigin),
-            geometry,
-            std::move(grPaint));
+    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
+                                             op_mask_type(fMaskFormat),
+                                             true,
+                                             this->glyphCount(),
+                                             this->deviceRect(drawMatrix, drawOrigin),
+                                             geometry,
+                                             std::move(grPaint));
     return {clip, std::move(op)};
 }
 #endif // SK_GPU_V1
@@ -1241,7 +1240,7 @@ void SDFTSubRun::draw(const GrClip* clip,
     }
 }
 
-static std::tuple<GrAtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameters(
+static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameters(
         const skgpu::v1::SurfaceDrawContext& sdc,
         const SkMatrix& drawMatrix,
         bool useLCDText,
@@ -1250,7 +1249,7 @@ static std::tuple<GrAtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_paramet
     const SkSurfaceProps& props = sdc.surfaceProps();
     bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
     bool isLCD = useLCDText && SkPixelGeometryIsH(props.pixelGeometry());
-    using MT = GrAtlasTextOp::MaskType;
+    using MT = AtlasTextOp::MaskType;
     MT maskType = !isAntiAliased ? MT::kAliasedDistanceField
                                  : isLCD ? (isBGR ? MT::kLCDBGRDistanceField
                                                   : MT::kLCDDistanceField)
@@ -1288,27 +1287,25 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
     auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
         calculate_sdf_parameters(*sdc, drawMatrix, fUseLCDText, fAntiAliased);
 
-    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
-            *this,
-            drawMatrix,
-            drawOrigin,
-            SkIRect::MakeEmpty(),
-            sk_ref_sp<GrTextBlob>(fBlob),
-            drawingColor,
-            sdc->arenaAlloc());
+    auto geometry = AtlasTextOp::Geometry::MakeForBlob(*this,
+                                                       drawMatrix,
+                                                       drawOrigin,
+                                                       SkIRect::MakeEmpty(),
+                                                       sk_ref_sp<GrTextBlob>(fBlob),
+                                                       drawingColor,
+                                                       sdc->arenaAlloc());
 
     GrRecordingContext* const rContext = sdc->recordingContext();
-    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
-            rContext,
-            maskType,
-            true,
-            this->glyphCount(),
-            this->deviceRect(drawMatrix, drawOrigin),
-            SkPaintPriv::ComputeLuminanceColor(paint),
-            useGammaCorrectDistanceTable,
-            DFGPFlags,
-            geometry,
-            std::move(grPaint));
+    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
+                                             maskType,
+                                             true,
+                                             this->glyphCount(),
+                                             this->deviceRect(drawMatrix, drawOrigin),
+                                             SkPaintPriv::ComputeLuminanceColor(paint),
+                                             useGammaCorrectDistanceTable,
+                                             DFGPFlags,
+                                             geometry,
+                                             std::move(grPaint));
 
     return {clip, std::move(op)};
 }
@@ -1713,7 +1710,7 @@ private:
 
 #if SK_GPU_V1
     // Space for geometry
-    alignas(alignof(GrAtlasTextOp::Geometry)) char fGeom[sizeof(GrAtlasTextOp::Geometry)];
+    alignas(alignof(AtlasTextOp::Geometry)) char fGeom[sizeof(AtlasTextOp::Geometry)];
 #endif
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
@@ -1831,7 +1828,7 @@ DirectMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
 
     GrRecordingContext* const rContext = sdc->recordingContext();
 
-    GrAtlasTextOp::Geometry* geometry = new ((void*)fGeom) GrAtlasTextOp::Geometry{
+    auto geometry = new ((void*)fGeom) AtlasTextOp::Geometry{
             *this,
             drawMatrix,
             drawOrigin,
@@ -1841,13 +1838,13 @@ DirectMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
             drawingColor
     };
 
-    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(rContext,
-                                               op_mask_type(fMaskFormat),
-                                               false,
-                                               this->glyphCount(),
-                                               fGlyphDeviceBounds,
-                                               geometry,
-                                               std::move(grPaint));
+    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
+                                             op_mask_type(fMaskFormat),
+                                             false,
+                                             this->glyphCount(),
+                                             fGlyphDeviceBounds,
+                                             geometry,
+                                             std::move(grPaint));
 
     return {clip, std::move(op)};
 }
@@ -1965,7 +1962,7 @@ private:
 
 #if SK_GPU_V1
     // Space for geometry
-    alignas(alignof(GrAtlasTextOp::Geometry)) char fGeom[sizeof(GrAtlasTextOp::Geometry)];
+    alignas(alignof(AtlasTextOp::Geometry)) char fGeom[sizeof(AtlasTextOp::Geometry)];
 #endif
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
@@ -2028,7 +2025,7 @@ TransformedMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
 
     // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
     // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
-    GrAtlasTextOp::Geometry* geometry = new ((void*)fGeom) GrAtlasTextOp::Geometry{
+    auto geometry = new ((void*)fGeom) AtlasTextOp::Geometry{
             *this,
             drawMatrix,
             drawOrigin,
@@ -2039,14 +2036,13 @@ TransformedMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
     };
 
     GrRecordingContext* rContext = sdc->recordingContext();
-    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
-            rContext,
-            op_mask_type(fMaskFormat),
-            true,
-            this->glyphCount(),
-            this->deviceRect(drawMatrix, drawOrigin),
-            geometry,
-            std::move(grPaint));
+    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
+                                             op_mask_type(fMaskFormat),
+                                             true,
+                                             this->glyphCount(),
+                                             this->deviceRect(drawMatrix, drawOrigin),
+                                             geometry,
+                                             std::move(grPaint));
     return {clip, std::move(op)};
 }
 #endif // SK_GPU_V1
@@ -2193,7 +2189,7 @@ private:
 
 #if SK_GPU_V1
     // Space for geometry
-    alignas(alignof(GrAtlasTextOp::Geometry)) char fGeom[sizeof(GrAtlasTextOp::Geometry)];
+    alignas(alignof(AtlasTextOp::Geometry)) char fGeom[sizeof(AtlasTextOp::Geometry)];
 #endif
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
@@ -2274,7 +2270,7 @@ SDFTSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
     auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
     calculate_sdf_parameters(*sdc, drawMatrix, fUseLCDText, fAntiAliased);
 
-    GrAtlasTextOp::Geometry* geometry = new ((void*)fGeom) GrAtlasTextOp::Geometry {
+    auto geometry = new ((void*)fGeom) AtlasTextOp::Geometry {
             *this,
             drawMatrix,
             drawOrigin,
@@ -2285,17 +2281,16 @@ SDFTSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
     };
 
     GrRecordingContext* rContext = sdc->recordingContext();
-    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
-            rContext,
-            maskType,
-            true,
-            this->glyphCount(),
-            this->deviceRect(drawMatrix, drawOrigin),
-            SkPaintPriv::ComputeLuminanceColor(paint),
-            useGammaCorrectDistanceTable,
-            DFGPFlags,
-            geometry,
-            std::move(grPaint));
+    GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
+                                             maskType,
+                                             true,
+                                             this->glyphCount(),
+                                             this->deviceRect(drawMatrix, drawOrigin),
+                                             SkPaintPriv::ComputeLuminanceColor(paint),
+                                             useGammaCorrectDistanceTable,
+                                             DFGPFlags,
+                                             geometry,
+                                             std::move(grPaint));
 
     return {clip, std::move(op)};
 }

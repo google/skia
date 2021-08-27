@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAtlasTextOp_DEFINED
-#define GrAtlasTextOp_DEFINED
+#ifndef AtlasTextOp_DEFINED
+#define AtlasTextOp_DEFINED
 
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
@@ -19,11 +19,13 @@
 
 class GrRecordingContext;
 
-class GrAtlasTextOp final : public GrMeshDrawOp {
+namespace skgpu::v1 {
+
+class AtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    ~GrAtlasTextOp() override {
+    ~AtlasTextOp() override {
         for (const Geometry* g = fHead; g != nullptr;) {
             const Geometry* next = g->fNext;
             g->~Geometry();
@@ -137,22 +139,22 @@ private:
         int fNumDraws = 0;
     };
 
-    GrAtlasTextOp(MaskType maskType,
-                  bool needsTransform,
-                  int glyphCount,
-                  SkRect deviceRect,
-                  Geometry* geo,
-                  GrPaint&& paint);
+    AtlasTextOp(MaskType maskType,
+                bool needsTransform,
+                int glyphCount,
+                SkRect deviceRect,
+                Geometry* geo,
+                GrPaint&& paint);
 
-    GrAtlasTextOp(MaskType maskType,
-                  bool needsTransform,
-                  int glyphCount,
-                  SkRect deviceRect,
-                  SkColor luminanceColor,
-                  bool useGammaCorrectDistanceTable,
-                  uint32_t DFGPFlags,
-                  Geometry* geo,
-                  GrPaint&& paint);
+    AtlasTextOp(MaskType maskType,
+                bool needsTransform,
+                int glyphCount,
+                SkRect deviceRect,
+                SkColor luminanceColor,
+                bool useGammaCorrectDistanceTable,
+                uint32_t DFGPFlags,
+                Geometry* geo,
+                GrPaint&& paint);
 
     GrProgramInfo* programInfo() override {
         // TODO [PI]: implement
@@ -175,7 +177,7 @@ private:
                              const GrDstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
-        // We cannot surface the GrAtlasTextOp's programInfo at record time. As currently
+        // We cannot surface the AtlasTextOp's programInfo at record time. As currently
         // implemented, the GP is modified at flush time based on the number of pages in the
         // atlas.
     }
@@ -262,4 +264,6 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // AtlasTextOp_DEFINED

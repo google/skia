@@ -24,7 +24,7 @@
 #include "src/gpu/text/GrTextBlobCache.h"
 
 #if SK_GPU_V1
-#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/ops/AtlasTextOp.h"
 #endif
 
 GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
@@ -49,7 +49,7 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy, bo
 
 GrRecordingContext::~GrRecordingContext() {
 #if SK_GPU_V1
-    GrAtlasTextOp::ClearCache();
+    skgpu::v1::AtlasTextOp::ClearCache();
 #endif
 }
 

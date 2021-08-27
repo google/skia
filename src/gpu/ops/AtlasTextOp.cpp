@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/ops/AtlasTextOp.h"
 
 #include "include/core/SkPoint3.h"
 #include "include/core/SkSpan.h"
@@ -25,17 +25,17 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrDistanceFieldAdjustTable.h"
-#if SK_GPU_V1
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
-#endif
 
 #include <new>
 #include <utility>
 
-// If we have thread local, then cache memory for a single GrAtlasTextOp.
+namespace skgpu::v1 {
+
+// If we have thread local, then cache memory for a single AtlasTextOp.
 #if defined(GR_HAS_THREAD_LOCAL)
 static thread_local void* gCache = nullptr;
-void* GrAtlasTextOp::operator new(size_t s) {
+void* AtlasTextOp::operator new(size_t s) {
     if (gCache != nullptr) {
         return std::exchange(gCache, nullptr);
     }
@@ -43,7 +43,7 @@ void* GrAtlasTextOp::operator new(size_t s) {
     return ::operator new(s);
 }
 
-void GrAtlasTextOp::operator delete(void* bytes) noexcept {
+void AtlasTextOp::operator delete(void* bytes) noexcept {
     if (gCache == nullptr) {
         gCache = bytes;
         return;
@@ -51,18 +51,18 @@ void GrAtlasTextOp::operator delete(void* bytes) noexcept {
     ::operator delete(bytes);
 }
 
-void GrAtlasTextOp::ClearCache() {
+void AtlasTextOp::ClearCache() {
     ::operator delete(gCache);
     gCache = nullptr;
 }
 #endif
 
-GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
-                             bool needsTransform,
-                             int glyphCount,
-                             SkRect deviceRect,
-                             Geometry* geo,
-                             GrPaint&& paint)
+AtlasTextOp::AtlasTextOp(MaskType maskType,
+                         bool needsTransform,
+                         int glyphCount,
+                         SkRect deviceRect,
+                         Geometry* geo,
+                         GrPaint&& paint)
         : INHERITED{ClassID()}
         , fProcessors(std::move(paint))
         , fNumGlyphs(glyphCount)
@@ -79,15 +79,15 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
 }
 
-GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
-                             bool needsTransform,
-                             int glyphCount,
-                             SkRect deviceRect,
-                             SkColor luminanceColor,
-                             bool useGammaCorrectDistanceTable,
-                             uint32_t DFGPFlags,
-                             Geometry* geo,
-                             GrPaint&& paint)
+AtlasTextOp::AtlasTextOp(MaskType maskType,
+                         bool needsTransform,
+                         int glyphCount,
+                         SkRect deviceRect,
+                         SkColor luminanceColor,
+                         bool useGammaCorrectDistanceTable,
+                         uint32_t DFGPFlags,
+                         Geometry* geo,
+                         GrPaint&& paint)
         : INHERITED{ClassID()}
         , fProcessors(std::move(paint))
         , fNumGlyphs(glyphCount)
@@ -105,13 +105,13 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
 }
 
-auto GrAtlasTextOp::Geometry::MakeForBlob(const GrAtlasSubRun& subRun,
-                                          const SkMatrix& drawMatrix,
-                                          SkPoint drawOrigin,
-                                          SkIRect clipRect,
-                                          sk_sp<GrTextBlob> blob,
-                                          const SkPMColor4f& color,
-                                          SkArenaAlloc* alloc) -> Geometry* {
+auto AtlasTextOp::Geometry::MakeForBlob(const GrAtlasSubRun& subRun,
+                                        const SkMatrix& drawMatrix,
+                                        SkPoint drawOrigin,
+                                        SkIRect clipRect,
+                                        sk_sp<GrTextBlob> blob,
+                                        const SkPMColor4f& color,
+                                        SkArenaAlloc* alloc) -> Geometry* {
     // Bypass the automatic dtor behavior in SkArenaAlloc. I'm leaving this up to the Op to run
     // all geometry dtors for now.
     void* geo = alloc->makeBytesAlignedTo(sizeof(Geometry), alignof(Geometry));
@@ -124,19 +124,19 @@ auto GrAtlasTextOp::Geometry::MakeForBlob(const GrAtlasSubRun& subRun,
                              color};
 }
 
-void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
+void AtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
     SkMatrix positionMatrix = fDrawMatrix;
     positionMatrix.preTranslate(fDrawOrigin.x(), fDrawOrigin.y());
     fSubRun.fillVertexData(
             dst, offset, count, fColor.toBytes_RGBA(), positionMatrix, fClipRect);
 }
 
-void GrAtlasTextOp::visitProxies(const GrVisitProxyFunc& func) const {
+void AtlasTextOp::visitProxies(const GrVisitProxyFunc& func) const {
     fProcessors.visitProxies(func);
 }
 
 #if GR_TEST_UTILS
-SkString GrAtlasTextOp::onDumpInfo() const {
+SkString AtlasTextOp::onDumpInfo() const {
     SkString str;
     int i = 0;
     for(Geometry* geom = fHead; geom != nullptr; geom = geom->fNext) {
@@ -152,12 +152,13 @@ SkString GrAtlasTextOp::onDumpInfo() const {
 }
 #endif
 
-GrDrawOp::FixedFunctionFlags GrAtlasTextOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags AtlasTextOp::fixedFunctionFlags() const {
     return FixedFunctionFlags::kNone;
 }
 
-GrProcessorSet::Analysis GrAtlasTextOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                                 GrClampType clampType) {
+GrProcessorSet::Analysis AtlasTextOp::finalize(const GrCaps& caps,
+                                               const GrAppliedClip* clip,
+                                               GrClampType clampType) {
     GrProcessorAnalysisCoverage coverage;
     GrProcessorAnalysisColor color;
     if (this->maskType() == MaskType::kColorBitmap) {
@@ -193,7 +194,7 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(const GrCaps& caps, const GrApp
     return analysis;
 }
 
-void GrAtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
+void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     auto resourceProvider = target->resourceProvider();
 
     // If we need local coordinates, compute an inverse view matrix. If this is solid color, the
@@ -322,7 +323,7 @@ void GrAtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     }
 }
 
-void GrAtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void AtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
                                                              std::move(fProcessors),
                                                              GrPipeline::InputFlags::kNone);
@@ -331,8 +332,8 @@ void GrAtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
                                                     &GrUserStencilSettings::kUnused);
 }
 
-void GrAtlasTextOp::createDrawForGeneratedGlyphs(
-        GrMeshDrawTarget* target, FlushInfo* flushInfo) const {
+void AtlasTextOp::createDrawForGeneratedGlyphs(GrMeshDrawTarget* target,
+                                               FlushInfo* flushInfo) const {
     if (!flushInfo->fGlyphsToFlush) {
         return;
     }
@@ -388,8 +389,8 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
     ++flushInfo->fNumDraws;
 }
 
-GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
-    GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
+GrOp::CombineResult AtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
+    auto that = t->cast<AtlasTextOp>();
 
     if (fDFGPFlags != that->fDFGPFlags ||
         fMaskType != that->fMaskType ||
@@ -437,11 +438,11 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, c
 }
 
 // TODO trying to figure out why lcd is so whack
-GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
-                                                     const GrShaderCaps& caps,
-                                                     const SkMatrix& localMatrix,
-                                                     const GrSurfaceProxyView* views,
-                                                     unsigned int numActiveViews) const {
+GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
+                                                   const GrShaderCaps& caps,
+                                                   const SkMatrix& localMatrix,
+                                                   const GrSurfaceProxyView* views,
+                                                   unsigned int numActiveViews) const {
     static constexpr int kDistanceAdjustLumShift = 5;
     auto dfAdjustTable = GrDistanceFieldAdjustTable::Get();
 
@@ -482,16 +483,16 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
     }
 }
 
-#if GR_TEST_UTILS && SK_GPU_V1
+#if GR_TEST_UTILS
 #include "src/gpu/GrDrawOpTest.h"
 
-GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext* sdc,
-                                               const SkPaint& skPaint,
-                                               const SkFont& font,
-                                               const SkMatrixProvider& mtxProvider,
-                                               const char* text,
-                                               int x,
-                                               int y) {
+GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
+                                             const SkPaint& skPaint,
+                                             const SkFont& font,
+                                             const SkMatrixProvider& mtxProvider,
+                                             const char* text,
+                                             int x,
+                                             int y) {
     size_t textLen = (int)strlen(text);
 
     SkMatrix drawMatrix(mtxProvider.localToDevice());
@@ -522,7 +523,13 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext* sd
     return op;
 }
 
-GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
+#endif
+
+} // namespace skgpu::v1
+
+#if GR_TEST_UTILS
+
+GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
     SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
 
     SkPaint skPaint;
@@ -545,7 +552,8 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     int xInt = (random->nextU() % kMaxTrans) * xPos;
     int yInt = (random->nextU() % kMaxTrans) * yPos;
 
-    return GrAtlasTextOp::CreateOpTestingOnly(sdc, skPaint, font, matrixProvider, text, xInt, yInt);
+    return skgpu::v1::AtlasTextOp::CreateOpTestingOnly(sdc, skPaint, font, matrixProvider,
+                                                       text, xInt, yInt);
 }
 
 #endif

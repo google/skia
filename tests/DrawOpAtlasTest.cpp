@@ -30,7 +30,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrXferProcessor.h"
-#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/ops/AtlasTextOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
@@ -189,7 +189,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
 #if SK_GPU_V1
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
-// This test verifies that the GrAtlasTextOp::onPrepare method correctly handles a failure
+// This test verifies that the AtlasTextOp::onPrepare method correctly handles a failure
 // when allocating an atlas page.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) {
 
@@ -211,13 +211,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     const char* text = "a";
     SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
 
-    GrOp::Owner op = GrAtlasTextOp::CreateOpTestingOnly(sdc.get(), paint, font, matrixProvider,
-                                                        text, 16, 16);
+    GrOp::Owner op = skgpu::v1::AtlasTextOp::CreateOpTestingOnly(sdc.get(), paint,
+                                                                 font, matrixProvider,
+                                                                 text, 16, 16);
     if (!op) {
         return;
     }
 
-    GrAtlasTextOp* atlasTextOp = (GrAtlasTextOp*)op.get();
+    auto atlasTextOp = (skgpu::v1::AtlasTextOp*)op.get();
     atlasTextOp->finalize(*dContext->priv().caps(), nullptr, GrClampType::kAuto);
 
     TestingUploadTarget uploadTarget;

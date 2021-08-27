@@ -28,7 +28,6 @@
 #endif
 
 class GrAtlasManager;
-class GrAtlasTextOp;
 class GrDeferredUploadTarget;
 class GrGlyph;
 class GrMeshDrawTarget;
@@ -43,7 +42,7 @@ class SkTextBlobRunIterator;
 namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
-// GrAtlasSubRun is the API that GrAtlasTextOp uses to generate vertex data for drawing.
+// GrAtlasSubRun is the API that AtlasTextOp uses to generate vertex data for drawing.
 //     There are three different ways GrAtlasSubRun is specialized.
 //      * DirectMaskSubRun - this is by far the most common type of SubRun. The mask pixels are
 //        in 1:1 correspondence with the pixels on the device. The destination rectangles in this
