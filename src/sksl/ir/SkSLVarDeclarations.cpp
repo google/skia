@@ -37,6 +37,32 @@ String VarDeclaration::description() const {
 std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
                                                    Variable* var,
                                                    std::unique_ptr<Expression> value) {
+    if (value) {
+        if (var->type().isOpaque()) {
+            context.fErrors->error(value->fOffset, "opaque type '" + var->type().name() +
+                                                   "' cannot use initializer expressions");
+            return nullptr;
+        }
+        if (var->modifiers().fFlags & Modifiers::kIn_Flag) {
+            context.fErrors->error(value->fOffset,
+                                   "'in' variables cannot use initializer expressions");
+            return nullptr;
+        }
+        if (var->modifiers().fFlags & Modifiers::kUniform_Flag) {
+            context.fErrors->error(value->fOffset,
+                                   "'uniform' variables cannot use initializer expressions");
+            return nullptr;
+        }
+        if (var->storage() == Variable::Storage::kInterfaceBlock) {
+            context.fErrors->error(value->fOffset,
+                                   "initializers are not permitted on interface block fields");
+            return nullptr;
+        }
+        value = var->type().coerceExpression(std::move(value), context);
+        if (!value) {
+            return nullptr;
+        }
+    }
     if (var->modifiers().fFlags & Modifiers::kConst_Flag) {
         if (!value) {
             context.fErrors->error(var->fOffset, "'const' variables must be initialized");
@@ -54,38 +80,11 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
                                                  "' is not permitted in an interface block");
             return nullptr;
         }
-        if (value) {
-            context.fErrors->error(value->fOffset,
-                                   "initializers are not permitted on interface block fields");
-            return nullptr;
-        }
     }
     if (var->storage() == Variable::Storage::kGlobal) {
         if (value && !Analysis::IsConstantExpression(*value)) {
             context.fErrors->error(value->fOffset,
                                    "global variable initializer must be a constant expression");
-            return nullptr;
-        }
-    }
-    if (value) {
-        if (var->type().isOpaque()) {
-            context.fErrors->error(
-                    value->fOffset,
-                    "opaque type '" + var->type().name() + "' cannot use initializer expressions");
-            return nullptr;
-        }
-        if (var->modifiers().fFlags & Modifiers::kIn_Flag) {
-            context.fErrors->error(value->fOffset,
-                                   "'in' variables cannot use initializer expressions");
-            return nullptr;
-        }
-        if (var->modifiers().fFlags & Modifiers::kUniform_Flag) {
-            context.fErrors->error(value->fOffset,
-                                   "'uniform' variables cannot use initializer expressions");
-            return nullptr;
-        }
-        value = var->type().coerceExpression(std::move(value), context);
-        if (!value) {
             return nullptr;
         }
     }

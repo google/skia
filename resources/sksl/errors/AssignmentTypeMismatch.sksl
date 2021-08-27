@@ -3,3 +3,6 @@ void statement_assign_float_to_int() { int x; x = 1.0; }
 void times_equals_int3_by_float()    { int3 x = int3(0); x *= 1.0; }
 void function_ref_in_comma_expr()    { int x = (radians, 1); }
 void type_ref_in_comma_expr()        { int x = (bool4, 1); }
+int function_ref_in_global_variable = mix;
+float3x3 type_ref_in_global_variable = float3x3;
+
