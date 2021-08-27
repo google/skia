@@ -61,7 +61,7 @@ DRAW_OP_TEST_EXTERN(RegionOp);
 DRAW_OP_TEST_EXTERN(RRectOp);
 DRAW_OP_TEST_EXTERN(ShadowRRectOp);
 DRAW_OP_TEST_EXTERN(SmallPathOp);
-DRAW_OP_TEST_EXTERN(TextureOp);
+DRAW_OP_TEST_EXTERN(TextureOpImpl);
 DRAW_OP_TEST_EXTERN(TriangulatingPathOp);
 
 void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPaint&& paint) {
@@ -92,7 +92,7 @@ void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPain
             DRAW_OP_TEST_ENTRY(RRectOp),
             DRAW_OP_TEST_ENTRY(ShadowRRectOp),
             DRAW_OP_TEST_ENTRY(SmallPathOp),
-            DRAW_OP_TEST_ENTRY(TextureOp),
+            DRAW_OP_TEST_ENTRY(TextureOpImpl),
             DRAW_OP_TEST_ENTRY(TriangulatingPathOp),
     };
 

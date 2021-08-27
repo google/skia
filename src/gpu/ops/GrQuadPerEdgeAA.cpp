@@ -771,7 +771,7 @@ public:
     }
 
 private:
-    using Saturate = GrTextureOp::Saturate;
+    using Saturate = skgpu::v1::TextureOp::Saturate;
 
     QuadPerEdgeAAGeometryProcessor(const VertexSpec& spec)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)

@@ -41,10 +41,8 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
-#include "src/gpu/ops/GrTextureOp.h"
-#if SK_GPU_V1
+#include "src/gpu/ops/TextureOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
-#endif
 
 namespace {
 
@@ -54,7 +52,7 @@ using ColorType = GrQuadPerEdgeAA::ColorType;
 
 // Extracts lengths of vertical and horizontal edges of axis-aligned quad. "width" is the edge
 // between v0 and v2 (or v1 and v3), "height" is the edge between v0 and v1 (or v2 and v3).
-static SkSize axis_aligned_quad_size(const GrQuad& quad) {
+SkSize axis_aligned_quad_size(const GrQuad& quad) {
     SkASSERT(quad.quadType() == GrQuad::Type::kAxisAligned);
     // Simplification of regular edge length equation, since it's axis aligned and can avoid sqrt
     float dw = sk_float_abs(quad.x(2) - quad.x(0)) + sk_float_abs(quad.y(2) - quad.y(0));
@@ -62,8 +60,8 @@ static SkSize axis_aligned_quad_size(const GrQuad& quad) {
     return {dw, dh};
 }
 
-static std::tuple<bool /* filter */,
-                  bool /* mipmap */>
+std::tuple<bool /* filter */,
+           bool /* mipmap */>
 filter_and_mm_have_effect(const GrQuad& srcQuad, const GrQuad& dstQuad) {
     // If not axis-aligned in src or dst, then always say it has an effect
     if (srcQuad.quadType() != GrQuad::Type::kAxisAligned ||
@@ -107,8 +105,8 @@ struct NormalizationParams {
     float fInvH; // 1 / height of texture, or 1.0 for tex rects, X -1 if bottom-left origin
     float fYOffset; // 0 for top-left origin, height of [normalized] tex if bottom-left
 };
-static NormalizationParams proxy_normalization_params(const GrSurfaceProxy* proxy,
-                                                      GrSurfaceOrigin origin) {
+NormalizationParams proxy_normalization_params(const GrSurfaceProxy* proxy,
+                                               GrSurfaceOrigin origin) {
     // Whether or not the proxy is instantiated, this is the size its texture will be, so we can
     // normalize the src coordinates up front.
     SkISize dimensions = proxy->backingStoreDimensions();
@@ -133,9 +131,9 @@ static NormalizationParams proxy_normalization_params(const GrSurfaceProxy* prox
 // so a sufficiently large rect is returned even if the quad ends up batched with an op that uses
 // subsets overall. When there is a subset it will be inset based on the filter mode. Normalization
 // and y-flipping are applied as indicated by NormalizationParams.
-static SkRect normalize_and_inset_subset(GrSamplerState::Filter filter,
-                                         const NormalizationParams& params,
-                                         const SkRect* subsetRect) {
+SkRect normalize_and_inset_subset(GrSamplerState::Filter filter,
+                                  const NormalizationParams& params,
+                                  const SkRect* subsetRect) {
     static constexpr SkRect kLargeRect = {-100000, -100000, 1000000, 1000000};
     if (!subsetRect) {
         // Either the quad has no subset constraint and is batched with a subset constrained op
@@ -169,8 +167,8 @@ static SkRect normalize_and_inset_subset(GrSamplerState::Filter filter,
 }
 
 // Normalizes logical src coords and corrects for origin
-static void normalize_src_quad(const NormalizationParams& params,
-                               GrQuad* srcQuad) {
+void normalize_src_quad(const NormalizationParams& params,
+                        GrQuad* srcQuad) {
     // The src quad should not have any perspective
     SkASSERT(!srcQuad->hasPerspective());
     skvx::Vec<4, float> xs = srcQuad->x4f() * params.fIW;
@@ -179,12 +177,10 @@ static void normalize_src_quad(const NormalizationParams& params,
     ys.store(srcQuad->ys());
 }
 
-#if SK_GPU_V1
-
 // Count the number of proxy runs in the entry set. This usually is already computed by
 // SkGpuDevice, but when the BatchLengthLimiter chops the set up it must determine a new proxy count
 // for each split.
-static int proxy_run_count(const GrTextureSetEntry set[], int count) {
+int proxy_run_count(const GrTextureSetEntry set[], int count) {
     int actualProxyRunCount = 0;
     const GrSurfaceProxy* lastProxy = nullptr;
     for (int i = 0; i < count; ++i) {
@@ -195,10 +191,9 @@ static int proxy_run_count(const GrTextureSetEntry set[], int count) {
     }
     return actualProxyRunCount;
 }
-#endif
 
-static bool safe_to_ignore_subset_rect(GrAAType aaType, GrSamplerState::Filter filter,
-                                       const DrawQuad& quad, const SkRect& subsetRect) {
+bool safe_to_ignore_subset_rect(GrAAType aaType, GrSamplerState::Filter filter,
+                                const DrawQuad& quad, const SkRect& subsetRect) {
     // If both the device and local quad are both axis-aligned, and filtering is off, the local quad
     // can push all the way up to the edges of the the subset rect and the sampler shouldn't
     // overshoot. Unfortunately, antialiasing adds enough jitter that we can only rely on this in
@@ -227,21 +222,23 @@ static bool safe_to_ignore_subset_rect(GrAAType aaType, GrSamplerState::Filter f
  * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
  * the texture by color. The blend with the destination is always src-over. The edges are non-AA.
  */
-class TextureOp final : public GrMeshDrawOp {
+class TextureOpImpl final : public GrMeshDrawOp {
 public:
+    using Saturate = skgpu::v1::TextureOp::Saturate;
+
     static GrOp::Owner Make(GrRecordingContext* context,
                             GrSurfaceProxyView proxyView,
                             sk_sp<GrColorSpaceXform> textureXform,
                             GrSamplerState::Filter filter,
                             GrSamplerState::MipmapMode mm,
                             const SkPMColor4f& color,
-                            GrTextureOp::Saturate saturate,
+                            Saturate saturate,
                             GrAAType aaType,
                             DrawQuad* quad,
                             const SkRect* subset) {
 
-        return GrOp::Make<TextureOp>(context, std::move(proxyView), std::move(textureXform),
-                                     filter, mm, color, saturate, aaType, quad, subset);
+        return GrOp::Make<TextureOpImpl>(context, std::move(proxyView), std::move(textureXform),
+                                         filter, mm, color, saturate, aaType, quad, subset);
     }
 
     static GrOp::Owner Make(GrRecordingContext* context,
@@ -250,20 +247,20 @@ public:
                             int proxyRunCnt,
                             GrSamplerState::Filter filter,
                             GrSamplerState::MipmapMode mm,
-                            GrTextureOp::Saturate saturate,
+                            Saturate saturate,
                             GrAAType aaType,
                             SkCanvas::SrcRectConstraint constraint,
                             const SkMatrix& viewMatrix,
                             sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         // Allocate size based on proxyRunCnt, since that determines number of ViewCountPairs.
         SkASSERT(proxyRunCnt <= cnt);
-        return GrOp::MakeWithExtraMemory<TextureOp>(
+        return GrOp::MakeWithExtraMemory<TextureOpImpl>(
                 context, sizeof(ViewCountPair) * (proxyRunCnt - 1),
                 set, cnt, proxyRunCnt, filter, mm, saturate, aaType, constraint,
                 viewMatrix, std::move(textureColorSpaceXform));
     }
 
-    ~TextureOp() override {
+    ~TextureOpImpl() override {
         for (unsigned p = 1; p < fMetadata.fProxyCount; ++p) {
             fViewCountPairs[p].~ViewCountPair();
         }
@@ -355,7 +352,7 @@ private:
                  GrSamplerState::Filter filter,
                  GrSamplerState::MipmapMode mm,
                  GrQuadPerEdgeAA::Subset subset,
-                 GrTextureOp::Saturate saturate)
+                 Saturate saturate)
                 : fSwizzle(swizzle)
                 , fProxyCount(1)
                 , fTotalQuadCount(1)
@@ -389,9 +386,7 @@ private:
         GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
         ColorType colorType() const { return static_cast<ColorType>(fColorType); }
         Subset subset() const { return static_cast<Subset>(fSubset); }
-        GrTextureOp::Saturate saturate() const {
-            return static_cast<GrTextureOp::Saturate>(fSaturate);
-        }
+        Saturate saturate() const { return static_cast<Saturate>(fSaturate); }
 
         static_assert(GrSamplerState::kFilterCount <= 4);
         static_assert(kGrAATypeCount <= 4);
@@ -437,15 +432,15 @@ private:
         }
     };
     // If subsetRect is not null it will be used to apply a strict src rect-style constraint.
-    TextureOp(GrSurfaceProxyView proxyView,
-              sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-              GrSamplerState::Filter filter,
-              GrSamplerState::MipmapMode mm,
-              const SkPMColor4f& color,
-              GrTextureOp::Saturate saturate,
-              GrAAType aaType,
-              DrawQuad* quad,
-              const SkRect* subsetRect)
+    TextureOpImpl(GrSurfaceProxyView proxyView,
+                  sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                  GrSamplerState::Filter filter,
+                  GrSamplerState::MipmapMode mm,
+                  const SkPMColor4f& color,
+                  Saturate saturate,
+                  GrAAType aaType,
+                  DrawQuad* quad,
+                  const SkRect* subsetRect)
             : INHERITED(ClassID())
             , fQuads(1, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
@@ -485,16 +480,16 @@ private:
         fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
     }
 
-    TextureOp(GrTextureSetEntry set[],
-              int cnt,
-              int proxyRunCnt,
-              const GrSamplerState::Filter filter,
-              const GrSamplerState::MipmapMode mm,
-              const GrTextureOp::Saturate saturate,
-              const GrAAType aaType,
-              const SkCanvas::SrcRectConstraint constraint,
-              const SkMatrix& viewMatrix,
-              sk_sp<GrColorSpaceXform> textureColorSpaceXform)
+    TextureOpImpl(GrTextureSetEntry set[],
+                  int cnt,
+                  int proxyRunCnt,
+                  const GrSamplerState::Filter filter,
+                  const GrSamplerState::MipmapMode mm,
+                  const Saturate saturate,
+                  const GrAAType aaType,
+                  const SkCanvas::SrcRectConstraint constraint,
+                  const SkMatrix& viewMatrix,
+                  sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
             , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
@@ -717,7 +712,10 @@ private:
                                            renderPassXferBarriers, colorLoadOp);
     }
 
-    static void FillInVertices(const GrCaps& caps, TextureOp* texOp, Desc* desc, char* vertexData) {
+    static void FillInVertices(const GrCaps& caps,
+                               TextureOpImpl* texOp,
+                               Desc* desc,
+                               char* vertexData) {
         SkASSERT(vertexData);
 
         SkDEBUGCODE(int totQuadsSeen = 0;)
@@ -725,7 +723,7 @@ private:
         SkDEBUGCODE(const size_t vertexSize = desc->fVertexSpec.vertexSize());
 
         GrQuadPerEdgeAA::Tessellator tessellator(desc->fVertexSpec, vertexData);
-        for (const auto& op : ChainRange<TextureOp>(texOp)) {
+        for (const auto& op : ChainRange<TextureOpImpl>(texOp)) {
             auto iter = op.fQuads.iterator();
             for (unsigned p = 0; p < op.fMetadata.fProxyCount; ++p) {
                 const int quadCnt = op.fViewCountPairs[p].fQuadCnt;
@@ -761,7 +759,7 @@ private:
     static int validate_op(GrTextureType textureType,
                            GrAAType aaType,
                            GrSwizzle swizzle,
-                           const TextureOp* op) {
+                           const TextureOpImpl* op) {
         SkASSERT(op->fMetadata.fSwizzle == swizzle);
 
         int quadCount = 0;
@@ -786,12 +784,12 @@ private:
 
         for (const GrOp* tmp = this->prevInChain(); tmp; tmp = tmp->prevInChain()) {
             quadCount += validate_op(textureType, aaType, swizzle,
-                                     static_cast<const TextureOp*>(tmp));
+                                     static_cast<const TextureOpImpl*>(tmp));
         }
 
         for (const GrOp* tmp = this->nextInChain(); tmp; tmp = tmp->nextInChain()) {
             quadCount += validate_op(textureType, aaType, swizzle,
-                                     static_cast<const TextureOp*>(tmp));
+                                     static_cast<const TextureOpImpl*>(tmp));
         }
 
         SkASSERT(quadCount == this->numChainedQuads());
@@ -816,7 +814,7 @@ private:
         desc->fNumTotalQuads = 0;
         int maxQuadsPerMesh = 0;
 
-        for (const auto& op : ChainRange<TextureOp>(this)) {
+        for (const auto& op : ChainRange<TextureOpImpl>(this)) {
             if (op.fQuads.deviceQuadType() > quadType) {
                 quadType = op.fQuads.deviceQuadType();
             }
@@ -869,11 +867,11 @@ private:
         int numChainedQuads = this->totNumQuads();
 
         for (const GrOp* tmp = this->prevInChain(); tmp; tmp = tmp->prevInChain()) {
-            numChainedQuads += ((const TextureOp*)tmp)->totNumQuads();
+            numChainedQuads += ((const TextureOpImpl*)tmp)->totNumQuads();
         }
 
         for (const GrOp* tmp = this->nextInChain(); tmp; tmp = tmp->nextInChain()) {
-            numChainedQuads += ((const TextureOp*)tmp)->totNumQuads();
+            numChainedQuads += ((const TextureOpImpl*)tmp)->totNumQuads();
         }
 
         return numChainedQuads;
@@ -939,7 +937,7 @@ private:
 
         int totQuadsSeen = 0;
         SkDEBUGCODE(int numDraws = 0;)
-        for (const auto& op : ChainRange<TextureOp>(this)) {
+        for (const auto& op : ChainRange<TextureOpImpl>(this)) {
             for (unsigned p = 0; p < op.fMetadata.fProxyCount; ++p) {
                 const int quadCnt = op.fViewCountPairs[p].fQuadCnt;
                 SkASSERT(numDraws < fDesc->fNumProxies);
@@ -962,14 +960,14 @@ private:
         fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
 
         for (GrOp* tmp = this->prevInChain(); tmp; tmp = tmp->prevInChain()) {
-            TextureOp* tex = static_cast<TextureOp*>(tmp);
+            auto tex = static_cast<TextureOpImpl*>(tmp);
             SkASSERT(tex->fMetadata.aaType() == GrAAType::kCoverage ||
                      tex->fMetadata.aaType() == GrAAType::kNone);
             tex->fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
         }
 
         for (GrOp* tmp = this->nextInChain(); tmp; tmp = tmp->nextInChain()) {
-            TextureOp* tex = static_cast<TextureOp*>(tmp);
+            auto tex = static_cast<TextureOpImpl*>(tmp);
             SkASSERT(tex->fMetadata.aaType() == GrAAType::kCoverage ||
                      tex->fMetadata.aaType() == GrAAType::kNone);
             tex->fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
@@ -978,7 +976,7 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        auto* that = t->cast<TextureOp>();
+        auto that = t->cast<TextureOpImpl>();
 
         SkDEBUGCODE(this->validate();)
         SkDEBUGCODE(that->validate();)
@@ -1120,24 +1118,26 @@ private:
 
 }  // anonymous namespace
 
+namespace skgpu::v1 {
+
 #if GR_TEST_UTILS
-uint32_t GrTextureOp::ClassID() {
-    return TextureOp::ClassID();
+uint32_t TextureOp::ClassID() {
+    return TextureOpImpl::ClassID();
 }
 #endif
 
-GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
-                              GrSurfaceProxyView proxyView,
-                              SkAlphaType alphaType,
-                              sk_sp<GrColorSpaceXform> textureXform,
-                              GrSamplerState::Filter filter,
-                              GrSamplerState::MipmapMode mm,
-                              const SkPMColor4f& color,
-                              Saturate saturate,
-                              SkBlendMode blendMode,
-                              GrAAType aaType,
-                              DrawQuad* quad,
-                              const SkRect* subset) {
+GrOp::Owner TextureOp::Make(GrRecordingContext* context,
+                            GrSurfaceProxyView proxyView,
+                            SkAlphaType alphaType,
+                            sk_sp<GrColorSpaceXform> textureXform,
+                            GrSamplerState::Filter filter,
+                            GrSamplerState::MipmapMode mm,
+                            const SkPMColor4f& color,
+                            Saturate saturate,
+                            SkBlendMode blendMode,
+                            GrAAType aaType,
+                            DrawQuad* quad,
+                            const SkRect* subset) {
     // Apply optimizations that are valid whether or not using GrTextureOp or GrFillRectOp
     if (subset && subset->contains(proxyView.proxy()->backingStoreBoundsRect())) {
         // No need for a shader-based subset if hardware clamping achieves the same effect
@@ -1155,8 +1155,8 @@ GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
     }
 
     if (blendMode == SkBlendMode::kSrcOver) {
-        return TextureOp::Make(context, std::move(proxyView), std::move(textureXform), filter, mm,
-                               color, saturate, aaType, std::move(quad), subset);
+        return TextureOpImpl::Make(context, std::move(proxyView), std::move(textureXform), filter,
+                                   mm, color, saturate, aaType, std::move(quad), subset);
     } else {
         // Emulate complex blending using GrFillRectOp
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClamp, filter, mm);
@@ -1181,7 +1181,7 @@ GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
-        if (saturate == GrTextureOp::Saturate::kYes) {
+        if (saturate == Saturate::kYes) {
             fp = GrFragmentProcessor::ClampOutput(std::move(fp));
         }
         paint.setColorFragmentProcessor(std::move(fp));
@@ -1189,18 +1189,16 @@ GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
     }
 }
 
-#if SK_GPU_V1
-
 // A helper class that assists in breaking up bulk API quad draws into manageable chunks.
-class GrTextureOp::BatchSizeLimiter {
+class TextureOp::BatchSizeLimiter {
 public:
-    BatchSizeLimiter(skgpu::v1::SurfaceDrawContext* sdc,
+    BatchSizeLimiter(SurfaceDrawContext* sdc,
                      const GrClip* clip,
                      GrRecordingContext* rContext,
                      int numEntries,
                      GrSamplerState::Filter filter,
                      GrSamplerState::MipmapMode mm,
-                     GrTextureOp::Saturate saturate,
+                     Saturate saturate,
                      SkCanvas::SrcRectConstraint constraint,
                      const SkMatrix& viewMatrix,
                      sk_sp<GrColorSpaceXform> textureColorSpaceXform)
@@ -1218,17 +1216,17 @@ public:
     void createOp(GrTextureSetEntry set[], int clumpSize, GrAAType aaType) {
 
         int clumpProxyCount = proxy_run_count(&set[fNumClumped], clumpSize);
-        GrOp::Owner op = TextureOp::Make(fContext,
-                                         &set[fNumClumped],
-                                         clumpSize,
-                                         clumpProxyCount,
-                                         fFilter,
-                                         fMipmapMode,
-                                         fSaturate,
-                                         aaType,
-                                         fConstraint,
-                                         fViewMatrix,
-                                         fTextureColorSpaceXform);
+        GrOp::Owner op = TextureOpImpl::Make(fContext,
+                                             &set[fNumClumped],
+                                             clumpSize,
+                                             clumpProxyCount,
+                                             fFilter,
+                                             fMipmapMode,
+                                             fSaturate,
+                                             aaType,
+                                             fConstraint,
+                                             fViewMatrix,
+                                             fTextureColorSpaceXform);
         fSDC->addDrawOp(fClip, std::move(op));
 
         fNumLeft -= clumpSize;
@@ -1239,38 +1237,38 @@ public:
     int baseIndex() const { return fNumClumped; }
 
 private:
-    skgpu::v1::SurfaceDrawContext* fSDC;
-    const GrClip*                  fClip;
-    GrRecordingContext*            fContext;
-    GrSamplerState::Filter         fFilter;
-    GrSamplerState::MipmapMode     fMipmapMode;
-    GrTextureOp::Saturate          fSaturate;
-    SkCanvas::SrcRectConstraint    fConstraint;
-    const SkMatrix&                fViewMatrix;
-    sk_sp<GrColorSpaceXform>       fTextureColorSpaceXform;
+    SurfaceDrawContext*         fSDC;
+    const GrClip*               fClip;
+    GrRecordingContext*         fContext;
+    GrSamplerState::Filter      fFilter;
+    GrSamplerState::MipmapMode  fMipmapMode;
+    Saturate                    fSaturate;
+    SkCanvas::SrcRectConstraint fConstraint;
+    const SkMatrix&             fViewMatrix;
+    sk_sp<GrColorSpaceXform>    fTextureColorSpaceXform;
 
-    int                            fNumLeft;
-    int                            fNumClumped = 0; // also the offset for the start of the next clump
+    int                         fNumLeft;
+    int                         fNumClumped = 0; // also the offset for the start of the next clump
 };
 
 // Greedily clump quad draws together until the index buffer limit is exceeded.
-void GrTextureOp::AddTextureSetOps(skgpu::v1::SurfaceDrawContext* sdc,
-                                   const GrClip* clip,
-                                   GrRecordingContext* context,
-                                   GrTextureSetEntry set[],
-                                   int cnt,
-                                   int proxyRunCnt,
-                                   GrSamplerState::Filter filter,
-                                   GrSamplerState::MipmapMode mm,
-                                   Saturate saturate,
-                                   SkBlendMode blendMode,
-                                   GrAAType aaType,
-                                   SkCanvas::SrcRectConstraint constraint,
-                                   const SkMatrix& viewMatrix,
-                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+void TextureOp::AddTextureSetOps(SurfaceDrawContext* sdc,
+                                 const GrClip* clip,
+                                 GrRecordingContext* context,
+                                 GrTextureSetEntry set[],
+                                 int cnt,
+                                 int proxyRunCnt,
+                                 GrSamplerState::Filter filter,
+                                 GrSamplerState::MipmapMode mm,
+                                 Saturate saturate,
+                                 SkBlendMode blendMode,
+                                 GrAAType aaType,
+                                 SkCanvas::SrcRectConstraint constraint,
+                                 const SkMatrix& viewMatrix,
+                                 sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
     // Ensure that the index buffer limits are lower than the proxy and quad count limits of
     // the op's metadata so we don't need to worry about overflow.
-    SkDEBUGCODE(TextureOp::ValidateResourceLimits();)
+    SkDEBUGCODE(TextureOpImpl::ValidateResourceLimits();)
     SkASSERT(proxy_run_count(set, cnt) == proxyRunCnt);
 
     // First check if we can support batches as a single op
@@ -1313,8 +1311,8 @@ void GrTextureOp::AddTextureSetOps(skgpu::v1::SurfaceDrawContext* sdc,
     // needed to clump things together.
     if (cnt <= std::min(GrResourceProvider::MaxNumNonAAQuads(),
                       GrResourceProvider::MaxNumAAQuads())) {
-        auto op = TextureOp::Make(context, set, cnt, proxyRunCnt, filter, mm, saturate, aaType,
-                                  constraint, viewMatrix, std::move(textureColorSpaceXform));
+        auto op = TextureOpImpl::Make(context, set, cnt, proxyRunCnt, filter, mm, saturate, aaType,
+                                      constraint, viewMatrix, std::move(textureColorSpaceXform));
         sdc->addDrawOp(clip, std::move(op));
         return;
     }
@@ -1381,14 +1379,15 @@ void GrTextureOp::AddTextureSetOps(skgpu::v1::SurfaceDrawContext* sdc,
         }
     }
 }
-#endif
+
+} // namespace skgpu::v1
 
 #if GR_TEST_UTILS
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
-GR_DRAW_OP_TEST_DEFINE(TextureOp) {
+GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     SkISize dims;
     dims.fHeight = random->nextULessThan(90) + 10;
     dims.fWidth = random->nextULessThan(90) + 10;
@@ -1433,7 +1432,8 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kRight : GrQuadAAFlags::kNone;
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
     bool useSubset = random->nextBool();
-    auto saturate = random->nextBool() ? GrTextureOp::Saturate::kYes : GrTextureOp::Saturate::kNo;
+    auto saturate = random->nextBool() ? skgpu::v1::TextureOp::Saturate::kYes
+                                       : skgpu::v1::TextureOp::Saturate::kNo;
     GrSurfaceProxyView proxyView(
             std::move(proxy), origin,
             context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888));
@@ -1441,9 +1441,10 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
             random->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
 
     DrawQuad quad = {GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(srcRect), aaFlags};
-    return GrTextureOp::Make(context, std::move(proxyView), alphaType, std::move(texXform), filter,
-                             mm, color, saturate, SkBlendMode::kSrcOver, aaType, &quad,
-                             useSubset ? &srcRect : nullptr);
+    return skgpu::v1::TextureOp::Make(context, std::move(proxyView), alphaType,
+                                      std::move(texXform), filter, mm, color, saturate,
+                                      SkBlendMode::kSrcOver, aaType, &quad,
+                                      useSubset ? &srcRect : nullptr);
 }
 
-#endif
+#endif // GR_TEST_UTILS

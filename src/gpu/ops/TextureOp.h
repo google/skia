@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef GrTextureOp_DEFINED
-#define GrTextureOp_DEFINED
+#ifndef TextureOp_DEFINED
+#define TextureOp_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
@@ -18,13 +18,16 @@ struct DrawQuad;
 class GrClip;
 class GrColorSpaceXform;
 class GrDrawOp;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrTextureProxy;
 struct GrTextureSetEntry;
 struct SkRect;
 class SkMatrix;
 
-class GrTextureOp {
+namespace skgpu::v1 {
+
+class SurfaceDrawContext;
+
+class TextureOp {
 public:
 
     /**
@@ -85,4 +88,6 @@ private:
     class BatchSizeLimiter;
 };
 
-#endif  // GrTextureOp_DEFINED
+} // namespace skgpu::v1
+
+#endif  // TextureOp_DEFINED

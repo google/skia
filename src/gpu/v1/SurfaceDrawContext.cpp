@@ -65,7 +65,7 @@
 #include "src/gpu/ops/GrRegionOp.h"
 #include "src/gpu/ops/GrShadowRRectOp.h"
 #include "src/gpu/ops/GrStrokeRectOp.h"
-#include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/ops/TextureOp.h"
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #include "src/gpu/v1/PathRenderer.h"
@@ -714,14 +714,14 @@ void SurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
         const GrClip* finalClip = opt == QuadOptimization::kClipApplied ? nullptr : clip;
         GrAAType aaType = this->chooseAAType(aa);
         auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
-        auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
-                                                          : GrTextureOp::Saturate::kNo;
+        auto saturate = clampType == GrClampType::kManual ? TextureOp::Saturate::kYes
+                                                          : TextureOp::Saturate::kNo;
         // Use the provided subset, although hypothetically we could detect that the cropped local
         // quad is sufficiently inside the subset and the constraint could be dropped.
         this->addDrawOp(finalClip,
-                        GrTextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
-                                          std::move(textureXform), filter, mm, color, saturate,
-                                          blendMode, aaType, quad, subset));
+                        TextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
+                                        std::move(textureXform), filter, mm, color, saturate,
+                                        blendMode, aaType, quad, subset));
     }
 }
 
@@ -967,10 +967,10 @@ void SurfaceDrawContext::drawTextureSet(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
     GrAAType aaType = this->chooseAAType(aa);
     auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
-    auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
-                                                      : GrTextureOp::Saturate::kNo;
-    GrTextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, proxyRunCnt, filter, mm, saturate,
-                                  mode, aaType, constraint, viewMatrix, std::move(texXform));
+    auto saturate = clampType == GrClampType::kManual ? TextureOp::Saturate::kYes
+                                                      : TextureOp::Saturate::kNo;
+    TextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, proxyRunCnt, filter, mm, saturate,
+                                mode, aaType, constraint, viewMatrix, std::move(texXform));
 }
 
 void SurfaceDrawContext::drawVertices(const GrClip* clip,

@@ -17,7 +17,7 @@
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
-#include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/ops/TextureOp.h"
 
 class GrCaps;
 class GrColorSpaceXform;
@@ -26,7 +26,7 @@ class GrShaderCaps;
 struct GrVertexWriter;
 
 namespace GrQuadPerEdgeAA {
-    using Saturate = GrTextureOp::Saturate;
+    using Saturate = skgpu::v1::TextureOp::Saturate;
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
     enum class Subset : bool { kNo = false, kYes = true };

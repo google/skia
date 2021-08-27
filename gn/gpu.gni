@@ -554,8 +554,6 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/ops/GrSmallPathShapeData.h",
   "$_src/gpu/ops/GrStrokeRectOp.cpp",
   "$_src/gpu/ops/GrStrokeRectOp.h",
-  "$_src/gpu/ops/GrTextureOp.cpp",
-  "$_src/gpu/ops/GrTextureOp.h",
   "$_src/gpu/ops/OpsTask.cpp",
   "$_src/gpu/ops/OpsTask.h",
   "$_src/gpu/ops/PathInnerTriangulateOp.cpp",
@@ -572,6 +570,8 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/ops/StrokeTessellateOp.h",
   "$_src/gpu/ops/TessellationPathRenderer.cpp",
   "$_src/gpu/ops/TessellationPathRenderer.h",
+  "$_src/gpu/ops/TextureOp.cpp",
+  "$_src/gpu/ops/TextureOp.h",
   "$_src/gpu/ops/TriangulatingPathRenderer.cpp",
   "$_src/gpu/ops/TriangulatingPathRenderer.h",
 
