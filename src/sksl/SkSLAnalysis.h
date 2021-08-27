@@ -91,13 +91,11 @@ struct Analysis {
     static bool IsAssignable(Expression& expr, AssignmentInfo* info = nullptr,
                              ErrorReporter* errors = nullptr);
 
-    // Updates the `refKind` field of exactly one VariableReference inside `expr`.
-    // `expr` must be `IsAssignable`; returns an error otherwise.
-    static bool MakeAssignmentExpr(Expression* expr, VariableRefKind kind, ErrorReporter* errors);
-
-    // Updates the `refKind` field of every VariableReference found within `expr`.
-    // `expr` is allowed to have zero, one, or multiple VariableReferences.
-    static void UpdateRefKind(Expression* expr, VariableRefKind refKind);
+    // Updates the `refKind` field of the VariableReference at the top level of `expr`.
+    // If `expr` can be assigned to (`IsAssignable`), true is returned and no errors are reported.
+    // If not, false is returned. and an error is reported if `errors` is non-null.
+    static bool UpdateVariableRefKind(Expression* expr, VariableRefKind kind,
+                                      ErrorReporter* errors = nullptr);
 
     // A "trivial" expression is one where we'd feel comfortable cloning it multiple times in
     // the code, without worrying about incurring a performance penalty. Examples:

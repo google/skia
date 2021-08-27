@@ -162,7 +162,7 @@ static std::unique_ptr<Statement>* find_parent_statement(
 std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
                                                 VariableReference::RefKind refKind) {
     std::unique_ptr<Expression> clone = expr.clone();
-    Analysis::UpdateRefKind(clone.get(), refKind);
+    Analysis::UpdateVariableRefKind(clone.get(), refKind);
     return clone;
 }
 

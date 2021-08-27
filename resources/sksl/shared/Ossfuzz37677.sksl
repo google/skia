@@ -1,0 +1,20 @@
+uniform half4 colorGreen;
+
+void original_fuzzer_output() {
+    float y[8],z;
+    z,y[3 .1L[y[7]=y[3],4]]+=0;
+}
+
+half4 main(float2 coords) {
+    int x[1], y=0, z=0;
+
+    // This line triggers two optimizations:
+    // 1 - No-op arithmetic simplification removes the `+= 0` and changes the ref-kind of `x` from
+    //     "write" to "read". Crucially, the ref-kind of `y` must remain "write."
+    // 2 - Comma-operator simplification detects that the leftmost `0, ` has no side effect and
+    //     eliminates it. This is done by returning a clone of the right-side expression. The act of
+    //     cloning the right-side expression can lead to an assertion if `y` has the wrong ref-kind.
+    0, x[y=z] += 0;
+
+    return colorGreen;
+}

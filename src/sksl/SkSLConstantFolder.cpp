@@ -293,7 +293,7 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
         case Token::Kind::TK_MINUSEQ:
             if (is_constant_value(right, 0.0)) {  // x += 0, x -= 0
                 std::unique_ptr<Expression> result = cast_expression(context, left, resultType);
-                Analysis::UpdateRefKind(result.get(), VariableRefKind::kRead);
+                Analysis::UpdateVariableRefKind(result.get(), VariableRefKind::kRead);
                 return result;
             }
             break;
@@ -302,7 +302,7 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
         case Token::Kind::TK_SLASHEQ:
             if (is_constant_value(right, 1.0)) {  // x *= 1, x /= 1
                 std::unique_ptr<Expression> result = cast_expression(context, left, resultType);
-                Analysis::UpdateRefKind(result.get(), VariableRefKind::kRead);
+                Analysis::UpdateVariableRefKind(result.get(), VariableRefKind::kRead);
                 return result;
             }
             break;

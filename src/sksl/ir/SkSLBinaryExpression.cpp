@@ -88,11 +88,11 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
 
     bool isAssignment = op.isAssignment();
     if (isAssignment &&
-        !Analysis::MakeAssignmentExpr(left.get(),
-                                      op.kind() != Token::Kind::TK_EQ
-                                              ? VariableReference::RefKind::kReadWrite
-                                              : VariableReference::RefKind::kWrite,
-                                      context.fErrors)) {
+        !Analysis::UpdateVariableRefKind(left.get(),
+                                         op.kind() != Token::Kind::TK_EQ
+                                                 ? VariableReference::RefKind::kReadWrite
+                                                 : VariableReference::RefKind::kWrite,
+                                         context.fErrors)) {
         return nullptr;
     }
 

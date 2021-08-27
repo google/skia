@@ -157,8 +157,8 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
                                        baseType.displayName() + "'");
                 return nullptr;
             }
-            if (!Analysis::MakeAssignmentExpr(base.get(), VariableReference::RefKind::kReadWrite,
-                                              context.fErrors)) {
+            if (!Analysis::UpdateVariableRefKind(base.get(), VariableReference::RefKind::kReadWrite,
+                                                 context.fErrors)) {
                 return nullptr;
             }
             break;

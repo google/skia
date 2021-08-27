@@ -22,7 +22,8 @@ std::unique_ptr<Expression> PostfixExpression::Convert(const Context& context,
                                baseType.displayName() + "'");
         return nullptr;
     }
-    if (!Analysis::MakeAssignmentExpr(base.get(), VariableRefKind::kReadWrite, context.fErrors)) {
+    if (!Analysis::UpdateVariableRefKind(base.get(), VariableRefKind::kReadWrite,
+                                         context.fErrors)) {
         return nullptr;
     }
     return PostfixExpression::Make(context, std::move(base), op);

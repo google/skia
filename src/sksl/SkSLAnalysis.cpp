@@ -288,6 +288,7 @@ private:
 // If a caller doesn't care about errors, we can use this trivial reporter that just counts up.
 class TrivialErrorReporter : public ErrorReporter {
 public:
+    ~TrivialErrorReporter() override { this->reportPendingErrors({}); }
     void handleError(const char*, PositionInfo) override {}
 };
 
@@ -808,36 +809,18 @@ bool Analysis::IsAssignable(Expression& expr, AssignmentInfo* info, ErrorReporte
     return IsAssignableVisitor{errors ? errors : &trivialErrors}.visit(expr, info);
 }
 
-void Analysis::UpdateRefKind(Expression* expr, VariableRefKind refKind) {
-    class RefKindWriter : public ProgramWriter {
-    public:
-        RefKindWriter(VariableReference::RefKind refKind) : fRefKind(refKind) {}
-
-        bool visitExpression(Expression& expr) override {
-            if (expr.is<VariableReference>()) {
-                expr.as<VariableReference>().setRefKind(fRefKind);
-            }
-            return INHERITED::visitExpression(expr);
-        }
-
-    private:
-        VariableReference::RefKind fRefKind;
-
-        using INHERITED = ProgramWriter;
-    };
-
-    RefKindWriter{refKind}.visitExpression(*expr);
-}
-
-bool Analysis::MakeAssignmentExpr(Expression* expr,
-                                  VariableReference::RefKind kind,
-                                  ErrorReporter* errors) {
+bool Analysis::UpdateVariableRefKind(Expression* expr,
+                                     VariableReference::RefKind kind,
+                                     ErrorReporter* errors) {
     Analysis::AssignmentInfo info;
     if (!Analysis::IsAssignable(*expr, &info, errors)) {
         return false;
     }
     if (!info.fAssignedVar) {
-        errors->error(expr->fOffset, "can't assign to expression '" + expr->description() + "'");
+        if (errors) {
+            errors->error(expr->fOffset, "can't assign to expression '" +
+                                          expr->description() + "'");
+        }
         return false;
     }
     info.fAssignedVar->setRefKind(kind);

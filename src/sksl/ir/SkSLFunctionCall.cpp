@@ -864,7 +864,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
             const VariableRefKind refKind = paramModifiers.fFlags & Modifiers::kIn_Flag
                                                     ? VariableReference::RefKind::kReadWrite
                                                     : VariableReference::RefKind::kPointer;
-            if (!Analysis::MakeAssignmentExpr(arguments[i].get(), refKind, context.fErrors)) {
+            if (!Analysis::UpdateVariableRefKind(arguments[i].get(), refKind, context.fErrors)) {
                 return nullptr;
             }
         }

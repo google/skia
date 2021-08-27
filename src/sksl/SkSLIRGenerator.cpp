@@ -1420,8 +1420,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
     if (!converted) {
         return nullptr;
     }
-    return IndexExpression::Convert(fContext, *fSymbolTable, std::move(base),
-                                    std::move(converted));
+    return IndexExpression::Convert(fContext, *fSymbolTable, std::move(base), std::move(converted));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertCallExpression(const ASTNode& callNode) {
