@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
+#include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -705,7 +706,7 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
         return nullptr;
     }
     const int offset = expr->fOffset;
-    if (expr->is<FunctionReference>()) {
+    if (expr->is<FunctionReference>() || expr->is<ExternalFunctionReference>()) {
         context.fErrors->error(offset, "expected '(' to begin function call");
         return nullptr;
     }
