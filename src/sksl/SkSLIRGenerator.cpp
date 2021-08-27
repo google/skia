@@ -764,113 +764,6 @@ void IRGenerator::CheckModifiers(const Context& context,
 std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl,
                                                      std::unique_ptr<Block> body,
                                                      IntrinsicSet* referencedIntrinsics) {
-    class Finalizer : public ProgramWriter {
-    public:
-        Finalizer(IRGenerator* irGenerator, const FunctionDeclaration* function,
-                  IntrinsicSet* referencedIntrinsics)
-            : fIRGenerator(irGenerator)
-            , fFunction(function)
-            , fReferencedIntrinsics(referencedIntrinsics) {}
-
-        ~Finalizer() override {
-            SkASSERT(!fBreakableLevel);
-            SkASSERT(!fContinuableLevel);
-        }
-
-        bool functionReturnsValue() const {
-            return !fFunction->returnType().isVoid();
-        }
-
-        bool visitExpression(Expression& expr) override {
-            if (expr.is<FunctionCall>()) {
-                const FunctionDeclaration& func = expr.as<FunctionCall>().function();
-                if (func.isBuiltin() && func.definition()) {
-                    fReferencedIntrinsics->insert(&func);
-                }
-            }
-            return INHERITED::visitExpression(expr);
-        }
-
-        bool visitStatement(Statement& stmt) override {
-            switch (stmt.kind()) {
-                case Statement::Kind::kReturn: {
-                    // early returns from a vertex main function will bypass the sk_Position
-                    // normalization, so SkASSERT that we aren't doing that. It is of course
-                    // possible to fix this by adding a normalization before each return, but it
-                    // will probably never actually be necessary.
-                    SkASSERT(fIRGenerator->programKind() != ProgramKind::kVertex ||
-                             !fIRGenerator->fRTAdjust ||
-                             !fFunction->isMain());
-
-                    // Verify that the return statement matches the function's return type.
-                    ReturnStatement& returnStmt = stmt.as<ReturnStatement>();
-                    const Type& returnType = fFunction->returnType();
-                    if (returnStmt.expression()) {
-                        if (this->functionReturnsValue()) {
-                            // Coerce return expression to the function's return type.
-                            returnStmt.setExpression(fIRGenerator->coerce(
-                                    std::move(returnStmt.expression()), returnType));
-                        } else {
-                            // Returning something from a function with a void return type.
-                            returnStmt.setExpression(nullptr);
-                            fIRGenerator->errorReporter().error(returnStmt.fOffset,
-                                                     "may not return a value from a void function");
-                        }
-                    } else {
-                        if (this->functionReturnsValue()) {
-                            // Returning nothing from a function with a non-void return type.
-                            fIRGenerator->errorReporter().error(returnStmt.fOffset,
-                                  "expected function to return '" + returnType.displayName() + "'");
-                        }
-                    }
-                    break;
-                }
-                case Statement::Kind::kDo:
-                case Statement::Kind::kFor: {
-                    ++fBreakableLevel;
-                    ++fContinuableLevel;
-                    bool result = INHERITED::visitStatement(stmt);
-                    --fContinuableLevel;
-                    --fBreakableLevel;
-                    return result;
-                }
-                case Statement::Kind::kSwitch: {
-                    ++fBreakableLevel;
-                    bool result = INHERITED::visitStatement(stmt);
-                    --fBreakableLevel;
-                    return result;
-                }
-                case Statement::Kind::kBreak:
-                    if (!fBreakableLevel) {
-                        fIRGenerator->errorReporter().error(stmt.fOffset,
-                                                 "break statement must be inside a loop or switch");
-                    }
-                    break;
-                case Statement::Kind::kContinue:
-                    if (!fContinuableLevel) {
-                        fIRGenerator->errorReporter().error(stmt.fOffset,
-                                                        "continue statement must be inside a loop");
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return INHERITED::visitStatement(stmt);
-        }
-
-    private:
-        IRGenerator* fIRGenerator;
-        const FunctionDeclaration* fFunction;
-        // which intrinsics have we encountered in this function
-        IntrinsicSet* fReferencedIntrinsics;
-        // how deeply nested we are in breakable constructs (for, do, switch).
-        int fBreakableLevel = 0;
-        // how deeply nested we are in continuable constructs (for, do).
-        int fContinuableLevel = 0;
-
-        using INHERITED = ProgramWriter;
-    };
-
     bool isMain = funcDecl.isMain();
     bool needInvocationIDWorkaround = fInvocations != -1 && isMain &&
                                       !this->caps().gsInvocationsSupport();
@@ -881,13 +774,7 @@ std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& 
         body->children().push_back(this->getNormalizeSkPositionCode());
     }
 
-    Finalizer finalizer{this, &funcDecl, referencedIntrinsics};
-    finalizer.visitStatement(*body);
-
-    if (Analysis::CanExitWithoutReturningValue(funcDecl, *body)) {
-        this->errorReporter().error(funcDecl.fOffset, "function '" + funcDecl.name() +
-                                                      "' can exit without returning a value");
-    }
+    FunctionDefinition::FinalizeFunctionBody(fContext, funcDecl, body.get(), referencedIntrinsics);
     return body;
 }
 

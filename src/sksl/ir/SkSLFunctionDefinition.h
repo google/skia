@@ -34,6 +34,18 @@ public:
         , fReferencedIntrinsics(std::move(referencedIntrinsics))
         , fSource(nullptr) {}
 
+    /**
+     * Coerces `return` statements to the return type of the function, and reports errors in the
+     * function that can't be detected at the individual statement level:
+     *     - `break` and `continue` statements must be in reasonable places.
+     *     - non-void functions are required to return a value on all paths.
+     *     - vertex main() functions don't allow early returns.
+     */
+    static void FinalizeFunctionBody(const Context& context,
+                                     const FunctionDeclaration& function,
+                                     Statement* body,
+                                     IntrinsicSet* referencedIntrinsics);
+
     const FunctionDeclaration& declaration() const {
         return *fDeclaration;
     }

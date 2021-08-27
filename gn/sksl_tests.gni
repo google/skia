@@ -151,6 +151,7 @@ sksl_error_tests = [
   "/sksl/errors/UnscopedVariableInWhile.sksl",
   "/sksl/errors/UsingInvalidValue.sksl",
   "/sksl/errors/VectorSlice.sksl",
+  "/sksl/errors/VertexEarlyReturn.vert",
   "/sksl/errors/WhileTypeMismatch.sksl",
 ]
 
@@ -414,7 +415,6 @@ sksl_shared_tests = [
   "/sksl/shared/VectorConstructors.sksl",
   "/sksl/shared/VectorScalarMath.sksl",
   "/sksl/shared/VectorToMatrixCast.sksl",
-  "/sksl/shared/VertexEarlyReturn.vert",
   "/sksl/shared/VertexID.vert",
   "/sksl/shared/WhileLoopControlFlow.sksl",
 ]
