@@ -1,1 +1,3 @@
-void main() { return true; }
+void a() { return true; }
+void b() { return b; }
+void c() { return int; }

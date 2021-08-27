@@ -801,6 +801,7 @@ std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& 
                                     std::move(returnStmt.expression()), returnType));
                         } else {
                             // Returning something from a function with a void return type.
+                            returnStmt.setExpression(nullptr);
                             fIRGenerator->errorReporter().error(returnStmt.fOffset,
                                                      "may not return a value from a void function");
                         }
