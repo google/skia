@@ -1217,18 +1217,19 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     // rendered from.
     if (sampleCount <= 1) {
         rtIDs->fMultisampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    } else if (this->glCaps().usesImplicitMSAAResolve()) {
+        // GrGLRenderTarget target will configure the FBO as multisample or not base on need.
+        rtIDs->fMultisampleFBOID = rtIDs->fSingleSampleFBOID;
     } else {
         GL_CALL(GenFramebuffers(1, &rtIDs->fMultisampleFBOID));
         if (!rtIDs->fMultisampleFBOID) {
             goto FAILED;
         }
-        if (!this->glCaps().usesImplicitMSAAResolve()) {
-            GL_CALL(GenRenderbuffers(1, &rtIDs->fMSColorRenderbufferID));
-            if (!rtIDs->fMSColorRenderbufferID) {
-                goto FAILED;
-            }
-            colorRenderbufferFormat = this->glCaps().getRenderbufferInternalFormat(desc.fFormat);
+        GL_CALL(GenRenderbuffers(1, &rtIDs->fMSColorRenderbufferID));
+        if (!rtIDs->fMSColorRenderbufferID) {
+            goto FAILED;
         }
+        colorRenderbufferFormat = this->glCaps().getRenderbufferInternalFormat(desc.fFormat);
     }
 
     // below here we may bind the FBO
@@ -1246,16 +1247,6 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                         GR_GL_RENDERBUFFER,
                                         rtIDs->fMSColorRenderbufferID));
         rtIDs->fTotalMemorySamplesPerPixel += sampleCount;
-    } else if (sampleCount > 1) {
-        // multisampled_render_to_texture
-        SkASSERT(this->glCaps().usesImplicitMSAAResolve());  // Otherwise fMSColorRenderbufferID!=0.
-        this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fMultisampleFBOID);
-        GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
-                                                GR_GL_COLOR_ATTACHMENT0,
-                                                desc.fTarget,
-                                                desc.fID,
-                                                0,
-                                                sampleCount));
     }
 
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fSingleSampleFBOID);
