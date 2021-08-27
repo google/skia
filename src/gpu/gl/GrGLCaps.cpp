@@ -364,18 +364,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
         shaderCaps->fShaderDerivativeSupport = true;
 
-        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
-        shaderCaps->fGeometryShaderSupport = version >= GR_GL_VER(3, 2) &&
-            ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
-        if (shaderCaps->fGeometryShaderSupport) {
-            if (ctxInfo.glslGeneration() >= k400_GrGLSLGeneration) {
-                shaderCaps->fGSInvocationsSupport = true;
-            } else if (ctxInfo.hasExtension("GL_ARB_gpu_shader5")) {
-                shaderCaps->fGSInvocationsSupport = true;
-                shaderCaps->fGSInvocationsExtensionString = "GL_ARB_gpu_shader5";
-            }
-        }
-
         shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
 
@@ -386,22 +374,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
-
-        // Mali and early Adreno both have support for geometry shaders, but they appear to be
-        // implemented in software. In practice with ccpr, they were slower than the backup impl
-        // that only uses vertex shaders.
-        if (ctxInfo.vendor()   != GrGLVendor::kARM         &&
-            ctxInfo.renderer() != GrGLRenderer::kAdreno3xx &&
-            ctxInfo.renderer() != GrGLRenderer::kAdreno4xx_other) {
-
-            if (version >= GR_GL_VER(3,2)) {
-                shaderCaps->fGeometryShaderSupport = true;
-            } else if (ctxInfo.hasExtension("GL_EXT_geometry_shader")) {
-                shaderCaps->fGeometryShaderSupport = true;
-                shaderCaps->fGeometryShaderExtensionString = "GL_EXT_geometry_shader";
-            }
-            shaderCaps->fGSInvocationsSupport = shaderCaps->fGeometryShaderSupport;
-        }
 
         shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
@@ -3545,23 +3517,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (GR_IS_GR_GL(ctxInfo.standard()) && ctxInfo.driver() == GrGLDriver::kNVIDIA &&
         ctxInfo.driverVersion() < GR_GL_DRIVER_VER(367, 57, 0)) {
         fClearTextureSupport = false;
-    }
-
-#ifdef SK_BUILD_FOR_MAC
-    // Radeon MacBooks hit a crash in glReadPixels() when using geometry shaders.
-    // http://skbug.com/8097
-    if (ctxInfo.vendor() == GrGLVendor::kATI) {
-        shaderCaps->fGeometryShaderSupport = false;
-    }
-    // On at least some MacBooks, GLSL 4.0 geometry shaders break if we use invocations.
-    shaderCaps->fGSInvocationsSupport = false;
-#endif
-
-    // Qualcomm driver @103.0 has been observed to crash compiling ccpr geometry
-    // shaders. @127.0 is the earliest verified driver to not crash.
-    if (ctxInfo.driver() == GrGLDriver::kQualcomm &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(127, 0, 0)) {
-        shaderCaps->fGeometryShaderSupport = false;
     }
 
     // glBlitFramebuffer seems to produce incorrect results on QC, Mali400, and Tegra3 but

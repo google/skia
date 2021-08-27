@@ -86,9 +86,6 @@ static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
         case SkSL::ProgramKind::kVertex:
             compileTarget = "vs_5_1";
             break;
-        case SkSL::ProgramKind::kGeometry:
-            compileTarget = "gs_5_1";
-            break;
         case SkSL::ProgramKind::kFragment:
             compileTarget = "ps_5_1";
             break;
@@ -133,9 +130,7 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
     };
 
     return compile(SkSL::ProgramKind::kVertex, kVertex_GrShaderType) &&
-           compile(SkSL::ProgramKind::kFragment, kFragment_GrShaderType) &&
-           (hlsl[kGeometry_GrShaderType].empty() ||
-            compile(SkSL::ProgramKind::kGeometry, kGeometry_GrShaderType));
+           compile(SkSL::ProgramKind::kFragment, kFragment_GrShaderType);
 }
 
 gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
@@ -501,7 +496,7 @@ static D3D12_PRIMITIVE_TOPOLOGY_TYPE gr_primitive_type_to_d3d(GrPrimitiveType pr
 
 gr_cp<ID3D12PipelineState> create_pipeline_state(
         GrD3DGpu* gpu, const GrProgramInfo& programInfo, const sk_sp<GrD3DRootSignature>& rootSig,
-        gr_cp<ID3DBlob> vertexShader, gr_cp<ID3DBlob> geometryShader, gr_cp<ID3DBlob> pixelShader,
+        gr_cp<ID3DBlob> vertexShader, gr_cp<ID3DBlob> pixelShader,
         DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthStencilFormat,
         unsigned int sampleQualityPattern) {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -512,11 +507,6 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
                    vertexShader->GetBufferSize() };
     psoDesc.PS = { reinterpret_cast<UINT8*>(pixelShader->GetBufferPointer()),
                    pixelShader->GetBufferSize() };
-
-    if (geometryShader.get()) {
-        psoDesc.GS = { reinterpret_cast<UINT8*>(geometryShader->GetBufferPointer()),
-                       geometryShader->GetBufferSize() };
-    }
 
     psoDesc.StreamOutput = { nullptr, 0, nullptr, 0, 0 };
 
@@ -605,7 +595,6 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
         SkSL::Program::Inputs inputs[kGrShaderTypeCount];
         SkSL::String* sksl[kGrShaderTypeCount] = {
             &fVS.fCompilerString,
-            &fGS.fCompilerString,
             &fFS.fCompilerString,
         };
         SkSL::String cached_sksl[kGrShaderTypeCount];
@@ -629,12 +618,6 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
         if (!compile(SkSL::ProgramKind::kVertex, kVertex_GrShaderType) ||
             !compile(SkSL::ProgramKind::kFragment, kFragment_GrShaderType)) {
             return nullptr;
-        }
-
-        if (geomProc.willUseGeoShader()) {
-            if (!compile(SkSL::ProgramKind::kGeometry, kGeometry_GrShaderType)) {
-                return nullptr;
-            }
         }
 
         if (persistentCache && !cached) {
@@ -665,7 +648,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     const GrD3DRenderTarget* rt = static_cast<const GrD3DRenderTarget*>(fRenderTarget);
     gr_cp<ID3D12PipelineState> pipelineState = create_pipeline_state(
             fGpu, fProgramInfo, rootSig, std::move(shaders[kVertex_GrShaderType]),
-            std::move(shaders[kGeometry_GrShaderType]), std::move(shaders[kFragment_GrShaderType]),
+            std::move(shaders[kFragment_GrShaderType]),
             rt->dxgiFormat(), rt->stencilDxgiFormat(), rt->sampleQualityPattern());
     sk_sp<GrD3DPipeline> pipeline = GrD3DPipeline::Make(std::move(pipelineState));
 

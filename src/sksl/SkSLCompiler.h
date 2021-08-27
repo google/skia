@@ -24,8 +24,6 @@
 #endif
 
 #define SK_FRAGCOLOR_BUILTIN           10001
-#define SK_IN_BUILTIN                  10002
-#define SK_OUT_BUILTIN                 10007
 #define SK_LASTFRAGCOLOR_BUILTIN       10008
 #define SK_MAIN_COORDS_BUILTIN         10009
 #define SK_INPUT_COLOR_BUILTIN         10010
@@ -34,7 +32,6 @@
 #define SK_CLOCKWISE_BUILTIN              17
 #define SK_VERTEXID_BUILTIN               42
 #define SK_INSTANCEID_BUILTIN             43
-#define SK_INVOCATIONID_BUILTIN            8
 #define SK_POSITION_BUILTIN                0
 
 class SkBitSet;
@@ -222,7 +219,6 @@ private:
     const ParsedModule& loadGPUModule();
     const ParsedModule& loadFragmentModule();
     const ParsedModule& loadVertexModule();
-    const ParsedModule& loadGeometryModule();
     const ParsedModule& loadPublicModule();
     const ParsedModule& loadRuntimeColorFilterModule();
     const ParsedModule& loadRuntimeShaderModule();
@@ -261,7 +257,6 @@ private:
     ParsedModule fGPUModule;                 // [Private] + GPU intrinsics, helper functions
     ParsedModule fVertexModule;              // [GPU] + Vertex stage decls
     ParsedModule fFragmentModule;            // [GPU] + Fragment stage decls
-    ParsedModule fGeometryModule;            // [GPU] + Geometry stage decls
 
     ParsedModule fPublicModule;              // [Root] + Public features
     ParsedModule fRuntimeColorFilterModule;  // [Public] + Runtime shader decls

@@ -29,7 +29,6 @@ public:
         fSampleLocationsSupport = true;
 
         fShaderCaps.reset(new GrShaderCaps(contextOptions));
-        fShaderCaps->fGeometryShaderSupport = options.fGeometryShaderSupport;
         fShaderCaps->fIntegerSupport = options.fIntegerSupport;
         fShaderCaps->fFlatInterpolationSupport = options.fFlatInterpolationSupport;
         fShaderCaps->fMaxFragmentSamplers = options.fMaxFragmentSamplers;

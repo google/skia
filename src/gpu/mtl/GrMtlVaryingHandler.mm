@@ -39,8 +39,6 @@ static void finalize_helper(GrMtlVaryingHandler::VarArray& vars) {
 void GrMtlVaryingHandler::onFinalize() {
     finalize_helper(fVertexInputs);
     finalize_helper(fVertexOutputs);
-    finalize_helper(fGeomInputs);
-    finalize_helper(fGeomOutputs);
     finalize_helper(fFragInputs);
     finalize_helper(fFragOutputs);
 }

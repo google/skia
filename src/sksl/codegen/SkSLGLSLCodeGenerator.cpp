@@ -784,12 +784,6 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_INSTANCEID_BUILTIN:
             this->write("gl_InstanceID");
             break;
-        case SK_IN_BUILTIN:
-            this->write("gl_in");
-            break;
-        case SK_INVOCATIONID_BUILTIN:
-            this->write("gl_InvocationID");
-            break;
         case SK_LASTFRAGCOLOR_BUILTIN:
             this->write(this->caps().fbFetchColorName());
             break;
@@ -1448,12 +1442,6 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             break;
         case ProgramElement::Kind::kModifiers: {
             const Modifiers& modifiers = e.as<ModifiersDeclaration>().modifiers();
-            if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
-                if (this->caps().gsInvocationsExtensionString()) {
-                    this->writeExtension(this->caps().gsInvocationsExtensionString());
-                }
-                fFoundGSInvocations = true;
-            }
             this->writeModifiers(modifiers, true);
             this->writeLine(";");
             break;
@@ -1478,10 +1466,6 @@ void GLSLCodeGenerator::writeInputVars() {
 
 bool GLSLCodeGenerator::generateCode() {
     this->writeHeader();
-    if (fProgram.fConfig->fKind == ProgramKind::kGeometry &&
-        this->caps().geometryShaderExtensionString()) {
-        this->writeExtension(this->caps().geometryShaderExtensionString());
-    }
     OutputStream* rawOut = fOut;
     StringStream body;
     fOut = &body;

@@ -1,8 +1,0 @@
-layout (
-    points,
-    lines,
-    line_strip,
-    lines_adjacency,
-    triangles,
-    triangle_strip
-) in;

@@ -97,9 +97,6 @@ void Dehydrator::write(Layout l) {
         this->writeS8(l.fSet);
         this->writeS16(l.fBuiltin);
         this->writeS8(l.fInputAttachmentIndex);
-        this->writeS8(l.fPrimitive);
-        this->writeS8(l.fMaxVertices);
-        this->writeS8(l.fInvocations);
     }
 }
 

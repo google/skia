@@ -21,7 +21,6 @@
 #include <unordered_map>
 
 class GrGLSLFPFragmentBuilder;
-class GrGLSLGeometryBuilder;
 class GrGLSLVaryingHandler;
 class GrGLSLUniformHandler;
 class GrGLSLVertexBuilder;
@@ -186,10 +185,6 @@ public:
         return fShaders & (kTessControl_GrShaderFlag | kTessEvaluation_GrShaderFlag);
     }
 
-    bool willUseGeoShader() const {
-        return fShaders & kGeometry_GrShaderFlag;
-    }
-
     /**
      * Computes a key for the transforms owned by an FP based on the shader code that will be
      * emitted by the primitive processor to implement them.
@@ -249,7 +244,6 @@ protected:
     void setWillUseTessellationShaders() {
         fShaders |= kTessControl_GrShaderFlag | kTessEvaluation_GrShaderFlag;
     }
-    void setWillUseGeoShader() { fShaders |= kGeometry_GrShaderFlag; }
     void setTextureSamplerCnt(int cnt) {
         SkASSERT(cnt >= 0);
         fTextureSamplerCnt = cnt;
@@ -296,7 +290,6 @@ public:
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
-                 GrGLSLGeometryBuilder* geomBuilder,
                  GrGLSLFPFragmentBuilder* fragBuilder,
                  GrGLSLVaryingHandler* varyingHandler,
                  GrGLSLUniformHandler* uniformHandler,
@@ -306,7 +299,6 @@ public:
                  const char* outputCoverage,
                  const SamplerHandle* texSamplers)
                 : fVertBuilder(vertBuilder)
-                , fGeomBuilder(geomBuilder)
                 , fFragBuilder(fragBuilder)
                 , fVaryingHandler(varyingHandler)
                 , fUniformHandler(uniformHandler)
@@ -316,7 +308,6 @@ public:
                 , fOutputCoverage(outputCoverage)
                 , fTexSamplers(texSamplers) {}
         GrGLSLVertexBuilder* fVertBuilder;
-        GrGLSLGeometryBuilder* fGeomBuilder;
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
         GrGLSLUniformHandler* fUniformHandler;

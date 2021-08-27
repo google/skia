@@ -246,7 +246,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     SkSL::String glsl[kGrShaderTypeCount];
     SkSL::String* sksl[kGrShaderTypeCount] = {
         &fVS.fCompilerString,
-        &fGS.fCompilerString,
         &fFS.fCompilerString,
     };
     SkSL::String cached_sksl[kGrShaderTypeCount];
@@ -413,31 +412,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
             }
         }
 
-        /*
-           Geometry Shader
-        */
-        if (geomProc.willUseGeoShader()) {
-            if (glsl[kGeometry_GrShaderType].empty()) {
-                // Don't have cached GLSL, need to compile SkSL->GLSL
-                std::unique_ptr<SkSL::Program> gs;
-                gs = GrSkSLtoGLSL(this->gpu(),
-                                  SkSL::ProgramKind::kGeometry,
-                                  *sksl[kGeometry_GrShaderType],
-                                  settings,
-                                  &glsl[kGeometry_GrShaderType],
-                                  errorHandler);
-                if (!gs) {
-                    cleanup_program(fGpu, programID, shadersToDelete);
-                    return nullptr;
-                }
-            }
-            if (!this->compileAndAttachShaders(glsl[kGeometry_GrShaderType], programID,
-                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete,
-                                               errorHandler)) {
-                cleanup_program(fGpu, programID, shadersToDelete);
-                return nullptr;
-            }
-        }
         this->bindProgramResourceLocations(programID);
 
         {
@@ -499,16 +473,10 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
         SkSL::String allShaders;
         if (sksl) {
             allShaders.appendf("// Vertex SKSL\n%s\n", sksl[kVertex_GrShaderType]->c_str());
-            if (!sksl[kGeometry_GrShaderType]->empty()) {
-                allShaders.appendf("// Geometry SKSL\n%s\n", sksl[kGeometry_GrShaderType]->c_str());
-            }
             allShaders.appendf("// Fragment SKSL\n%s\n", sksl[kFragment_GrShaderType]->c_str());
         }
         if (glsl) {
             allShaders.appendf("// Vertex GLSL\n%s\n", glsl[kVertex_GrShaderType].c_str());
-            if (!glsl[kGeometry_GrShaderType].empty()) {
-                allShaders.appendf("// Geometry GLSL\n%s\n", glsl[kGeometry_GrShaderType].c_str());
-            }
             allShaders.appendf("// Fragment GLSL\n%s\n", glsl[kFragment_GrShaderType].c_str());
         }
         GrGLint infoLen = GR_GL_INIT_ZERO;
@@ -601,11 +569,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
                        GR_GL_FRAGMENT_SHADER) ||
         !compileShader(SkSL::ProgramKind::kVertex,
                        shaders[kVertex_GrShaderType],
-                       GR_GL_VERTEX_SHADER) ||
-        (!shaders[kGeometry_GrShaderType].empty() &&
-         !compileShader(SkSL::ProgramKind::kGeometry,
-                       shaders[kGeometry_GrShaderType],
-                       GR_GL_GEOMETRY_SHADER))) {
+                       GR_GL_VERTEX_SHADER)) {
         cleanup_program(glGpu, programID, shadersToDelete);
         return false;
     }

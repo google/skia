@@ -40,15 +40,6 @@ public:
         ORIGIN_UPPER_LEFT,
         BLEND_SUPPORT_ALL_EQUATIONS,
         PUSH_CONSTANT,
-        POINTS,
-        LINES,
-        LINE_STRIP,
-        LINES_ADJACENCY,
-        TRIANGLES,
-        TRIANGLE_STRIP,
-        TRIANGLES_ADJACENCY,
-        MAX_VERTICES,
-        INVOCATIONS,
         SRGB_UNPREMUL,
     };
 

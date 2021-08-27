@@ -139,18 +139,6 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_emulateAbsIntCaps = Factory::EmulateAbsIntFunction();
                     *caps = s_emulateAbsIntCaps.get();
                 }
-                if (settingsText.consumeSuffix(" GeometryShaderExtensionString")) {
-                    static auto s_geometryExtCaps = Factory::GeometryShaderExtensionString();
-                    *caps = s_geometryExtCaps.get();
-                }
-                if (settingsText.consumeSuffix(" GeometryShaderSupport")) {
-                    static auto s_geometryShaderCaps = Factory::GeometryShaderSupport();
-                    *caps = s_geometryShaderCaps.get();
-                }
-                if (settingsText.consumeSuffix(" GSInvocationsExtensionString")) {
-                    static auto s_gsInvocationCaps = Factory::GSInvocationsExtensionString();
-                    *caps = s_gsInvocationCaps.get();
-                }
                 if (settingsText.consumeSuffix(" IncompleteShortIntPrecision")) {
                     static auto s_incompleteShortIntCaps = Factory::IncompleteShortIntPrecision();
                     *caps = s_incompleteShortIntCaps.get();
@@ -167,10 +155,6 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_negativeLdexpCaps =
                             Factory::MustForceNegatedLdexpParamToMultiply();
                     *caps = s_negativeLdexpCaps.get();
-                }
-                if (settingsText.consumeSuffix(" NoGSInvocationsSupport")) {
-                    static auto s_noGSInvocations = Factory::NoGSInvocationsSupport();
-                    *caps = s_noGSInvocations.get();
                 }
                 if (settingsText.consumeSuffix(" RemovePowWithConstantExponent")) {
                     static auto s_powCaps = Factory::RemovePowWithConstantExponent();
@@ -281,8 +265,6 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         kind = SkSL::ProgramKind::kVertex;
     } else if (inputPath.ends_with(".frag") || inputPath.ends_with(".sksl")) {
         kind = SkSL::ProgramKind::kFragment;
-    } else if (inputPath.ends_with(".geom")) {
-        kind = SkSL::ProgramKind::kGeometry;
     } else if (inputPath.ends_with(".rtb")) {
         kind = SkSL::ProgramKind::kRuntimeBlender;
     } else if (inputPath.ends_with(".rtcf")) {
@@ -290,7 +272,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
     } else if (inputPath.ends_with(".rts")) {
         kind = SkSL::ProgramKind::kRuntimeShader;
     } else {
-        printf("input filename must end in '.vert', '.frag', '.geom', '.rtb', '.rtcf', "
+        printf("input filename must end in '.vert', '.frag', '.rtb', '.rtcf', "
                "'.rts', or '.sksl'\n");
         return ResultCode::kInputError;
     }
@@ -354,8 +336,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toSPIRV(program, out);
                 });
-    } else if (outputPath.ends_with(".asm.frag") || outputPath.ends_with(".asm.vert") ||
-               outputPath.ends_with(".asm.geom")) {
+    } else if (outputPath.ends_with(".asm.frag") || outputPath.ends_with(".asm.vert")) {
         return compileProgram(
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     // Compile program to SPIR-V assembly in a string-stream.
@@ -489,7 +470,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         }
     } else {
         printf("expected output path to end with one of: .glsl, .metal, .spirv, .asm.frag, .skvm, "
-               ".stage, .asm.vert, .asm.geom, .cpp, .h (got '%s')\n", outputPath.c_str());
+               ".stage, .asm.vert (got '%s')\n", outputPath.c_str());
         return ResultCode::kConfigurationError;
     }
     return ResultCode::kSuccess;

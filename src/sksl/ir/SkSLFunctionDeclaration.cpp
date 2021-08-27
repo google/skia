@@ -203,7 +203,6 @@ static bool check_main_signature(const Context& context, int offset, const Type&
             break;
         }
         case ProgramKind::kVertex:
-        case ProgramKind::kGeometry:
             if (parameters.size()) {
                 errors.error(offset, "shader 'main' must have zero parameters");
                 return false;

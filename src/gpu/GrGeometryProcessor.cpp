@@ -69,7 +69,7 @@ ProgramImpl::FPCoordsMap ProgramImpl::emitCode(EmitArgs& args, const GrPipeline&
 
     GrShaderVar positionVar = gpArgs.fPositionVar;
     // skia:12198
-    if (args.fGeomProc.willUseGeoShader() || args.fGeomProc.willUseTessellationShaders()) {
+    if (args.fGeomProc.willUseTessellationShaders()) {
         positionVar = {};
     }
     FPCoordsMap transformMap = this->collectTransforms(args.fVertBuilder,
@@ -86,38 +86,13 @@ ProgramImpl::FPCoordsMap ProgramImpl::emitCode(EmitArgs& args, const GrPipeline&
     }
 
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
-    if (!args.fGeomProc.willUseGeoShader()) {
-        // Emit the vertex position to the hardware in the normalized window coordinates it expects.
-        SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
-                 kFloat3_GrSLType == gpArgs.fPositionVar.getType());
-        vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(),
-                                           gpArgs.fPositionVar.getType());
-        if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
-            args.fVaryingHandler->setNoPerspective();
-        }
-    } else {
-        // Since we have a geometry shader, leave the vertex position in Skia device space for now.
-        // The geometry Shader will operate in device space, and then convert the final positions to
-        // normalized hardware window coordinates under the hood, once everything else has finished.
-        // The subclass must call setNoPerspective on the varying handler, if applicable.
-        vBuilder->codeAppendf("sk_Position = float4(%s", gpArgs.fPositionVar.c_str());
-        switch (gpArgs.fPositionVar.getType()) {
-            case kFloat_GrSLType:
-                vBuilder->codeAppend(", 0");
-                [[fallthrough]];
-            case kFloat2_GrSLType:
-                vBuilder->codeAppend(", 0");
-                [[fallthrough]];
-            case kFloat3_GrSLType:
-                vBuilder->codeAppend(", 1");
-                [[fallthrough]];
-            case kFloat4_GrSLType:
-                vBuilder->codeAppend(");");
-                break;
-            default:
-                SK_ABORT("Invalid position var type");
-                break;
-        }
+    // Emit the vertex position to the hardware in the normalized window coordinates it expects.
+    SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
+                kFloat3_GrSLType == gpArgs.fPositionVar.getType());
+    vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(),
+                                        gpArgs.fPositionVar.getType());
+    if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
+        args.fVaryingHandler->setNoPerspective();
     }
     return transformMap;
 }

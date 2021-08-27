@@ -121,7 +121,6 @@ struct GrMockOptions {
     ConfigOptions fCompressedOptions[SkImage::kCompressionTypeCount];
 
     // GrShaderCaps options.
-    bool fGeometryShaderSupport = false;
     bool fIntegerSupport = false;
     bool fFlatInterpolationSupport = false;
     int fMaxVertexSamplers = 0;

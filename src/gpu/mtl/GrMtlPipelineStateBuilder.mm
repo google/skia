@@ -486,9 +486,6 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
         const GrMtlPrecompiledLibraries* precompiledLibs) {
     TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
-    // Geometry shaders are not supported
-    SkASSERT(!this->geometryProcessor().willUseGeoShader());
-
     // Set up for cache if needed
     std::unique_ptr<SkBinaryWriteBuffer> writer;
 

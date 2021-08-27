@@ -543,7 +543,6 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fPreferFlatInterpolation = true;
 
     shaderCaps->fShaderDerivativeSupport = true;
-    shaderCaps->fGeometryShaderSupport = false;
 
     if (@available(macOS 10.12, iOS 11.0, *)) {
         shaderCaps->fDualSourceBlendingSupport = true;

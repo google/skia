@@ -667,7 +667,6 @@ if (skia_compile_sksl_tests) {
   copy("sksl_pre_includes") {
     sources = [
       "src/sksl/sksl_frag.sksl",
-      "src/sksl/sksl_geom.sksl",
       "src/sksl/sksl_gpu.sksl",
       "src/sksl/sksl_public.sksl",
       "src/sksl/sksl_rt_blend.sksl",
@@ -755,11 +754,9 @@ if (skia_compile_sksl_tests) {
         sources += [ src ]
 
         foreach(outExtension, invoker.outExtensions) {
-          # SPIR-V uses separate extensions for .vert and .geom shaders.
+          # SPIR-V uses separate extensions for .vert shaders.
           if (ext == "vert" && outExtension == ".asm.frag") {
             outExtension = ".asm.vert"
-          } else if (ext == "geom" && outExtension == ".asm.frag") {
-            outExtension = ".asm.geom"
           }
           outputs +=
               [ target_out_dir + "/" +

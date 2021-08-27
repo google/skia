@@ -96,7 +96,6 @@ public:
     static const int kVarsPerBlock;
 
     GrGLSLVertexBuilder          fVS;
-    GrGLSLGeometryBuilder        fGS;
     GrGLSLFragmentShaderBuilder  fFS;
 
     const GrProgramDesc&         fDesc;

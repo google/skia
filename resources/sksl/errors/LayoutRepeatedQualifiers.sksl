@@ -10,8 +10,6 @@ layout (
     set = 1,
     builtin = 1,
     input_attachment_index = 1,
-    max_vertices = 1,
-    invocations = 1,
 
     origin_upper_left,
     push_constant,
@@ -23,7 +21,5 @@ layout (
     index = 2,
     set = 2,
     builtin = 2,
-    input_attachment_index = 2,
-    max_vertices = 2,
-    invocations = 2
+    input_attachment_index = 2
 ) float x;

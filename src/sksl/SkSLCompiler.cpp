@@ -59,7 +59,6 @@
 
 // At runtime, we load the dehydrated sksl data files. The data is a (pointer, size) pair.
 #include "src/sksl/generated/sksl_frag.dehydrated.sksl"
-#include "src/sksl/generated/sksl_geom.dehydrated.sksl"
 #include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
 #include "src/sksl/generated/sksl_public.dehydrated.sksl"
 #include "src/sksl/generated/sksl_rt_blend.dehydrated.sksl"
@@ -242,14 +241,6 @@ const ParsedModule& Compiler::loadVertexModule() {
     return fVertexModule;
 }
 
-const ParsedModule& Compiler::loadGeometryModule() {
-    if (!fGeometryModule.fSymbols) {
-        fGeometryModule = this->parseModule(ProgramKind::kGeometry, MODULE_DATA(geom),
-                                            this->loadGPUModule());
-    }
-    return fGeometryModule;
-}
-
 const ParsedModule& Compiler::loadPublicModule() {
     if (!fPublicModule.fSymbols) {
         fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public), fRootModule);
@@ -308,7 +299,6 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
     switch (kind) {
         case ProgramKind::kVertex:             return this->loadVertexModule();             break;
         case ProgramKind::kFragment:           return this->loadFragmentModule();           break;
-        case ProgramKind::kGeometry:           return this->loadGeometryModule();           break;
         case ProgramKind::kRuntimeColorFilter: return this->loadRuntimeColorFilterModule(); break;
         case ProgramKind::kRuntimeShader:      return this->loadRuntimeShaderModule();      break;
         case ProgramKind::kRuntimeBlender:     return this->loadRuntimeBlenderModule();     break;

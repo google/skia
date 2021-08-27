@@ -99,8 +99,7 @@ public:
         // int32 value
         kIntLiteral_Command,
         // int32 flags, int8 location, int8 offset, int8 binding, int8 index, int8 set,
-        // int16 builtin, int8 inputAttachmentIndex, int8 format, int8 primitive, int8 maxVertices,
-        // int8 invocations, String marker, String when, int8 key, int8 ctype
+        // int16 builtin, int8 inputAttachmentIndex
         kLayout_Command,
         // Layout layout, uint8 flags
         kModifiers8Bit_Command,

@@ -100,15 +100,6 @@ void Parser::InitLayoutMap() {
     TOKEN(ORIGIN_UPPER_LEFT,            "origin_upper_left");
     TOKEN(BLEND_SUPPORT_ALL_EQUATIONS,  "blend_support_all_equations");
     TOKEN(PUSH_CONSTANT,                "push_constant");
-    TOKEN(POINTS,                       "points");
-    TOKEN(LINES,                        "lines");
-    TOKEN(LINE_STRIP,                   "line_strip");
-    TOKEN(LINES_ADJACENCY,              "lines_adjacency");
-    TOKEN(TRIANGLES,                    "triangles");
-    TOKEN(TRIANGLE_STRIP,               "triangle_strip");
-    TOKEN(TRIANGLES_ADJACENCY,          "triangles_adjacency");
-    TOKEN(MAX_VERTICES,                 "max_vertices");
-    TOKEN(INVOCATIONS,                  "invocations");
     TOKEN(SRGB_UNPREMUL,                "srgb_unpremul");
     #undef TOKEN
 }
@@ -684,13 +675,10 @@ Layout Parser::layout() {
     int set = -1;
     int builtin = -1;
     int inputAttachmentIndex = -1;
-    Layout::Primitive primitive = Layout::kUnspecified_Primitive;
-    int maxVertices = -1;
-    int invocations = -1;
     if (this->checkNext(Token::Kind::TK_LAYOUT)) {
         if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-            return Layout(flags, location, offset, binding, index, set, builtin,
-                          inputAttachmentIndex, primitive, maxVertices, invocations);
+            return Layout(
+                    flags, location, offset, binding, index, set, builtin, inputAttachmentIndex);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -700,13 +688,6 @@ Layout Parser::layout() {
                     this->error(t, "layout qualifier '" + text + "' appears more than once");
                 }
                 flags |= f;
-            };
-            auto setPrimitive = [&](Layout::Primitive p) {
-                if (flags & Layout::kPrimitive_Flag) {
-                    this->error(t, "only one primitive-type layout qualifier is allowed");
-                }
-                flags |= Layout::kPrimitive_Flag;
-                primitive = p;
             };
 
             auto found = layoutTokens->find(text);
@@ -752,35 +733,6 @@ Layout Parser::layout() {
                         setFlag(Layout::kInputAttachmentIndex_Flag);
                         inputAttachmentIndex = this->layoutInt();
                         break;
-                    case LayoutToken::POINTS:
-                        setPrimitive(Layout::kPoints_Primitive);
-                        break;
-                    case LayoutToken::LINES:
-                        setPrimitive(Layout::kLines_Primitive);
-                        break;
-                    case LayoutToken::LINE_STRIP:
-                        setPrimitive(Layout::kLineStrip_Primitive);
-                        break;
-                    case LayoutToken::LINES_ADJACENCY:
-                        setPrimitive(Layout::kLinesAdjacency_Primitive);
-                        break;
-                    case LayoutToken::TRIANGLES:
-                        setPrimitive(Layout::kTriangles_Primitive);
-                        break;
-                    case LayoutToken::TRIANGLE_STRIP:
-                        setPrimitive(Layout::kTriangleStrip_Primitive);
-                        break;
-                    case LayoutToken::TRIANGLES_ADJACENCY:
-                        setPrimitive(Layout::kTrianglesAdjacency_Primitive);
-                        break;
-                    case LayoutToken::MAX_VERTICES:
-                        setFlag(Layout::kMaxVertices_Flag);
-                        maxVertices = this->layoutInt();
-                        break;
-                    case LayoutToken::INVOCATIONS:
-                        setFlag(Layout::kInvocations_Flag);
-                        invocations = this->layoutInt();
-                        break;
                     default:
                         this->error(t, "'" + text + "' is not a valid layout qualifier");
                         break;
@@ -796,8 +748,7 @@ Layout Parser::layout() {
             }
         }
     }
-    return Layout(flags, location, offset, binding, index, set, builtin, inputAttachmentIndex,
-                  primitive, maxVertices, invocations);
+    return Layout(flags, location, offset, binding, index, set, builtin, inputAttachmentIndex);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | FLAT | NOPERSPECTIVE | INLINE)* */

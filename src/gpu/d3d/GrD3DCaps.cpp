@@ -229,8 +229,6 @@ void GrD3DCaps::initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTI
 
     shaderCaps->fShaderDerivativeSupport = true;
 
-    shaderCaps->fGeometryShaderSupport = shaderCaps->fGSInvocationsSupport = true;
-
     shaderCaps->fDualSourceBlendingSupport = true;
 
     shaderCaps->fIntegerSupport = true;

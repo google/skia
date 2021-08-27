@@ -9,9 +9,7 @@ layout (
     index = 1,
     set = 1,
     builtin = 1,
-    input_attachment_index = 1,
-    max_vertices = 1,
-    invocations = 1)
+    input_attachment_index = 1)
 void on_return() {}
 
 void on_param(
@@ -26,6 +24,4 @@ layout (
     index = 1,
     set = 1,
     builtin = 1,
-    input_attachment_index = 1,
-    max_vertices = 1,
-    invocations = 1) float x) {}
+    input_attachment_index = 1) float x) {}

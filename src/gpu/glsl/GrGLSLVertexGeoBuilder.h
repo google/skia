@@ -12,8 +12,8 @@
 #include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 
 /**
- * Base class for vertex and geometry shader builders. This is the stage that computes input
- * geometry for the rasterizer.
+ * Base class for vertex shader builder. This is the stage that computes input geometry for the
+ * rasterizer.
  */
 class GrGLSLVertexGeoBuilder : public GrGLSLShaderBuilder {
 public:
@@ -49,44 +49,6 @@ public:
 
 private:
     void onFinalize() override;
-
-    friend class GrGLProgramBuilder;
-
-    using INHERITED = GrGLSLVertexGeoBuilder;
-};
-
-
-class GrGLSLGeometryBuilder : public GrGLSLVertexGeoBuilder {
-public:
-    GrGLSLGeometryBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
-
-    enum class InputType {
-        kPoints,
-        kLines,
-        kTriangles,
-    };
-
-    enum class OutputType {
-        kPoints,
-        kLineStrip,
-        kTriangleStrip
-    };
-
-    void configure(InputType, OutputType, int maxVertices, int numInvocations = 1);
-    bool isConfigured() const { return fNumInvocations; }
-
-    void emitVertex(const char* devPos, GrSLType devPosType = GrSLType::kFloat2_GrSLType) {
-        this->emitVertex(&this->code(), devPos, devPosType);
-    }
-    void emitVertex(SkString* out, const char* devPos,
-                    GrSLType devPosType = GrSLType::kFloat2_GrSLType);
-
-    void endPrimitive();
-
-private:
-    void onFinalize() override;
-
-    int fNumInvocations = 0;
 
     friend class GrGLProgramBuilder;
 

@@ -27,7 +27,6 @@ const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrProgramDesc& desc,
                                            const GrProgramInfo& programInfo)
         : fVS(this)
-        , fGS(this)
         , fFS(this)
         , fDesc(desc)
         , fProgramInfo(programInfo)
@@ -40,10 +39,6 @@ void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
                                       const char* extensionName) {
     if (shaders & kVertex_GrShaderFlag) {
         fVS.addFeature(featureBit, extensionName);
-    }
-    if (shaders & kGeometry_GrShaderFlag) {
-        SkASSERT(this->geometryProcessor().willUseGeoShader());
-        fGS.addFeature(featureBit, extensionName);
     }
     if (shaders & kFragment_GrShaderFlag) {
         fFS.addFeature(featureBit, extensionName);
@@ -84,9 +79,7 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
 
     SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
     GrShaderFlags rtAdjustVisibility;
-    if (geomProc.willUseGeoShader()) {
-        rtAdjustVisibility = kGeometry_GrShaderFlag;
-    } else if (geomProc.willUseTessellationShaders()) {
+    if (geomProc.willUseTessellationShaders()) {
         rtAdjustVisibility = kTessEvaluation_GrShaderFlag;
     } else {
         rtAdjustVisibility = kVertex_GrShaderFlag;
@@ -115,7 +108,6 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
     }
 
     GrGeometryProcessor::ProgramImpl::EmitArgs args(&fVS,
-                                                    geomProc.willUseGeoShader() ? &fGS : nullptr,
                                                     &fFS,
                                                     this->varyingHandler(),
                                                     this->uniformHandler(),
@@ -493,9 +485,5 @@ bool GrGLSLProgramBuilder::fragmentProcessorHasCoordsParam(const GrFragmentProce
 void GrGLSLProgramBuilder::finalizeShaders() {
     this->varyingHandler()->finalize();
     fVS.finalize(kVertex_GrShaderFlag);
-    if (this->geometryProcessor().willUseGeoShader()) {
-        SkASSERT(this->shaderCaps()->geometryShaderSupport());
-        fGS.finalize(kGeometry_GrShaderFlag);
-    }
     fFS.finalize(kFragment_GrShaderFlag);
 }

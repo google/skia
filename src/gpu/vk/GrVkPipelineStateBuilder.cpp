@@ -130,15 +130,6 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(SkReadBuffer* cached,
                                                      shaders[kFragment_GrShaderType],
                                                      inputs[kFragment_GrShaderType]);
 
-    if (!shaders[kGeometry_GrShaderType].empty()) {
-        success = success && this->installVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
-                                                         fGS,
-                                                         &outShaderModules[kGeometry_GrShaderType],
-                                                         &outStageInfo[2],
-                                                         shaders[kGeometry_GrShaderType],
-                                                         inputs[kGeometry_GrShaderType]);
-    }
-
     if (!success) {
         for (int i = 0; i < kGrShaderTypeCount; ++i) {
             if (outShaderModules[i]) {
@@ -148,7 +139,7 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(SkReadBuffer* cached,
         }
         return 0;
     }
-    return shaders[kGeometry_GrShaderType].empty() ? 2 : 3;
+    return 2;
 }
 
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
@@ -177,7 +168,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
 
     VkDescriptorSetLayout dsLayout[GrVkUniformHandler::kDescSetCount];
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
-                                                         VK_NULL_HANDLE,
                                                          VK_NULL_HANDLE };
 
     GrVkResourceProvider& resourceProvider = fGpu->resourceProvider();
@@ -239,7 +229,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
 
         SkSL::String* sksl[kGrShaderTypeCount] = {
             &fVS.fCompilerString,
-            &fGS.fCompilerString,
             &fFS.fCompilerString,
         };
         SkSL::String cached_sksl[kGrShaderTypeCount];
@@ -267,17 +256,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                         settings,
                                                         &shaders[kFragment_GrShaderType],
                                                         &inputs[kFragment_GrShaderType]);
-
-        if (this->geometryProcessor().willUseGeoShader()) {
-            success = success && this->createVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
-                                                            *sksl[kGeometry_GrShaderType],
-                                                            &shaderModules[kGeometry_GrShaderType],
-                                                            &shaderStageInfo[2],
-                                                            settings,
-                                                            &shaders[kGeometry_GrShaderType],
-                                                            &inputs[kGeometry_GrShaderType]);
-            ++numShaderStages;
-        }
 
         if (!success) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {

@@ -171,8 +171,6 @@ void SPIRVCodeGenerator::setupIntrinsics() {
                                                                       SpvOpSGreaterThanEqual,
                                                                       SpvOpUGreaterThanEqual,
                                                                       SpvOpUndef);
-    fIntrinsicMap[k_EmitVertex_IntrinsicKind]       = ALL_SPIRV(EmitVertex);
-    fIntrinsicMap[k_EndPrimitive_IntrinsicKind]     = ALL_SPIRV(EndPrimitive);
 // interpolateAt* not yet supported...
 }
 
@@ -399,12 +397,7 @@ void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
             this->writeInstruction(SpvOpCapability, (SpvId) i, out);
         }
     }
-    if (fProgram.fConfig->fKind == ProgramKind::kGeometry) {
-        this->writeInstruction(SpvOpCapability, SpvCapabilityGeometry, out);
-    }
-    else {
-        this->writeInstruction(SpvOpCapability, SpvCapabilityShader, out);
-    }
+    this->writeInstruction(SpvOpCapability, SpvCapabilityShader, out);
 }
 
 SpvId SPIRVCodeGenerator::nextId(const Type* type) {
@@ -1999,13 +1992,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                                        /*isMemoryObjectPointer=*/true,
                                                        this->getType(type), precision);
             }
-            SpvId typeId;
-            if (var.modifiers().fLayout.fBuiltin == SK_IN_BUILTIN) {
-                typeId = this->getType(*Type::MakeArrayType("sk_in", var.type().componentType(),
-                                                            fSkInCount));
-            } else {
-                typeId = this->getType(type, this->memoryLayoutForVariable(var));
-            }
+            SpvId typeId = this->getType(type, this->memoryLayoutForVariable(var));
             auto entry = fVariableMap.find(&var);
             SkASSERTF(entry != fVariableMap.end(), "%s", expr.description().c_str());
             return std::make_unique<PointerLValue>(*this, entry->second,
@@ -2979,8 +2966,7 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
                                layout.fInputAttachmentIndex, fDecorationBuffer);
         fCapabilities |= (((uint64_t) 1) << SpvCapabilityInputAttachment);
     }
-    if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN &&
-        layout.fBuiltin != SK_IN_BUILTIN && layout.fBuiltin != SK_OUT_BUILTIN) {
+    if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin,
                                fDecorationBuffer);
     }
@@ -3018,28 +3004,6 @@ MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) cons
     return pushConstant ? MemoryLayout(MemoryLayout::k430_Standard) : fDefaultLayout;
 }
 
-static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
-    switch (m.fLayout.fPrimitive) {
-        case Layout::kPoints_Primitive:
-            *outSkInCount = 1;
-            break;
-        case Layout::kLines_Primitive:
-            *outSkInCount = 2;
-            break;
-        case Layout::kLinesAdjacency_Primitive:
-            *outSkInCount = 4;
-            break;
-        case Layout::kTriangles_Primitive:
-            *outSkInCount = 3;
-            break;
-        case Layout::kTrianglesAdjacency_Primitive:
-            *outSkInCount = 6;
-            break;
-        default:
-            return;
-    }
-}
-
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTFlip) {
     MemoryLayout memoryLayout = this->memoryLayoutForVariable(intf.variable());
     SpvId result = this->nextId(nullptr);
@@ -3063,10 +3027,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                              /*index=*/-1,
                                              /*set=*/-1,
                                              /*builtin=*/-1,
-                                             /*inputAttachmentIndex=*/-1,
-                                             Layout::kUnspecified_Primitive,
-                                             /*maxVertices=*/1,
-                                             /*invocations=*/-1),
+                                             /*inputAttachmentIndex=*/-1),
                                       /*flags=*/0),
                             SKSL_RTFLIP_NAME,
                             fContext.fTypes.fFloat2.get());
@@ -3096,20 +3057,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         fWroteRTFlip = true;
         return result;
     }
-    SpvId typeId;
     const Modifiers& intfModifiers = intfVar.modifiers();
-    if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
-        for (const ProgramElement* e : fProgram.elements()) {
-            if (e->is<ModifiersDeclaration>()) {
-                const Modifiers& m = e->as<ModifiersDeclaration>().modifiers();
-                update_sk_in_count(m, &fSkInCount);
-            }
-        }
-        typeId = this->getType(*Type::MakeArrayType("sk_in", type.componentType(), fSkInCount),
-                               memoryLayout);
-    } else {
-        typeId = this->getType(type, memoryLayout);
-    }
+    SpvId typeId = this->getType(type, memoryLayout);
     if (intfModifiers.fLayout.fBuiltin == -1) {
         this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBlock, fDecorationBuffer);
     }
@@ -3170,14 +3119,7 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
     }
     SpvId id = this->nextId(&type);
     fVariableMap[&var] = id;
-    SpvId typeId;
-    if (var.modifiers().fLayout.fBuiltin == SK_IN_BUILTIN) {
-        typeId = this->getPointerType(
-                *Type::MakeArrayType("sk_in", type.componentType(), fSkInCount),
-                storageClass);
-    } else {
-        typeId = this->getPointerType(type, storageClass);
-    }
+    SpvId typeId = this->getPointerType(type, storageClass);
     this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
     this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
     if (varDecl.value()) {
@@ -3407,72 +3349,6 @@ void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputSt
     }
 }
 
-void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out) {
-    SkASSERT(fProgram.fConfig->fKind == ProgramKind::kGeometry);
-    int invocations = 1;
-    for (const ProgramElement* e : fProgram.elements()) {
-        if (e->is<ModifiersDeclaration>()) {
-            const Modifiers& m = e->as<ModifiersDeclaration>().modifiers();
-            if (m.fFlags & Modifiers::kIn_Flag) {
-                if (m.fLayout.fInvocations != -1) {
-                    invocations = m.fLayout.fInvocations;
-                }
-                SpvId input;
-                switch (m.fLayout.fPrimitive) {
-                    case Layout::kPoints_Primitive:
-                        input = SpvExecutionModeInputPoints;
-                        break;
-                    case Layout::kLines_Primitive:
-                        input = SpvExecutionModeInputLines;
-                        break;
-                    case Layout::kLinesAdjacency_Primitive:
-                        input = SpvExecutionModeInputLinesAdjacency;
-                        break;
-                    case Layout::kTriangles_Primitive:
-                        input = SpvExecutionModeTriangles;
-                        break;
-                    case Layout::kTrianglesAdjacency_Primitive:
-                        input = SpvExecutionModeInputTrianglesAdjacency;
-                        break;
-                    default:
-                        input = 0;
-                        break;
-                }
-                update_sk_in_count(m, &fSkInCount);
-                if (input) {
-                    this->writeInstruction(SpvOpExecutionMode, entryPoint, input, out);
-                }
-            } else if (m.fFlags & Modifiers::kOut_Flag) {
-                SpvId output;
-                switch (m.fLayout.fPrimitive) {
-                    case Layout::kPoints_Primitive:
-                        output = SpvExecutionModeOutputPoints;
-                        break;
-                    case Layout::kLineStrip_Primitive:
-                        output = SpvExecutionModeOutputLineStrip;
-                        break;
-                    case Layout::kTriangleStrip_Primitive:
-                        output = SpvExecutionModeOutputTriangleStrip;
-                        break;
-                    default:
-                        output = 0;
-                        break;
-                }
-                if (output) {
-                    this->writeInstruction(SpvOpExecutionMode, entryPoint, output, out);
-                }
-                if (m.fLayout.fMaxVertices != -1) {
-                    this->writeInstruction(SpvOpExecutionMode, entryPoint,
-                                           SpvExecutionModeOutputVertices, m.fLayout.fMaxVertices,
-                                           out);
-                }
-            }
-        }
-    }
-    this->writeInstruction(SpvOpExecutionMode, entryPoint, SpvExecutionModeInvocations,
-                           invocations, out);
-}
-
 // Given any function, returns the top-level symbol table (OUTSIDE of the function's scope).
 static std::shared_ptr<SymbolTable> get_top_level_symbol_table(const FunctionDeclaration& anyFunc) {
     return anyFunc.definition()->body()->as<Block>().symbolTable()->fParent;
@@ -3603,10 +3479,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                                          /*index=*/-1,
                                          /*set=*/-1,
                                          /*builtin=*/-1,
-                                         /*inputAttachmentIndex=*/-1,
-                                         Layout::kUnspecified_Primitive,
-                                         /*maxVertices=*/1,
-                                         /*invocations=*/-1),
+                                         /*inputAttachmentIndex=*/-1),
                                   /*flags=*/0),
                         SKSL_RTFLIP_NAME,
                         fContext.fTypes.fFloat2.get());
@@ -3633,10 +3506,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                                    /*index=*/-1,
                                    set,
                                    /*builtin=*/-1,
-                                   /*inputAttachmentIndex=*/-1,
-                                   Layout::kUnspecified_Primitive,
-                                   /*maxVertices=*/-1,
-                                   /*invocations=*/-1),
+                                   /*inputAttachmentIndex=*/-1),
                             Modifiers::kUniform_Flag);
         modsPtr = fProgram.fModifiers->add(modifiers);
     }
@@ -3745,9 +3615,6 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         case ProgramKind::kFragment:
             this->writeWord(SpvExecutionModelFragment, out);
             break;
-        case ProgramKind::kGeometry:
-            this->writeWord(SpvExecutionModelGeometry, out);
-            break;
         default:
             SK_ABORT("cannot write this kind of program to SPIR-V\n");
     }
@@ -3756,9 +3623,6 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeString(main->name(), out);
     for (int var : interfaceVars) {
         this->writeWord(var, out);
-    }
-    if (program.fConfig->fKind == ProgramKind::kGeometry) {
-        this->writeGeometryShaderExecutionMode(entryPoint, out);
     }
     if (program.fConfig->fKind == ProgramKind::kFragment) {
         this->writeInstruction(SpvOpExecutionMode,

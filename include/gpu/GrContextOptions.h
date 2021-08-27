@@ -303,11 +303,6 @@ struct SK_API GrContextOptions {
     bool fSuppressFramebufferFetch = false;
 
     /**
-     * If true, the caps will never support geometry shaders.
-     */
-    bool fSuppressGeometryShaders = false;
-
-    /**
      * If greater than zero and less than the actual hardware limit, overrides the maximum number of
      * tessellation segments supported by the caps.
      */

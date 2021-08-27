@@ -32,24 +32,10 @@ struct Layout {
         kSet_Flag                        = 1 <<  8,
         kBuiltin_Flag                    = 1 <<  9,
         kInputAttachmentIndex_Flag       = 1 << 10,
-        kPrimitive_Flag                  = 1 << 11,
-        kMaxVertices_Flag                = 1 << 12,
-        kInvocations_Flag                = 1 << 13,
-    };
-
-    enum Primitive {
-        kUnspecified_Primitive = -1,
-        kPoints_Primitive,
-        kLines_Primitive,
-        kLineStrip_Primitive,
-        kLinesAdjacency_Primitive,
-        kTriangles_Primitive,
-        kTriangleStrip_Primitive,
-        kTrianglesAdjacency_Primitive
     };
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
-           int inputAttachmentIndex, Primitive primitive, int maxVertices, int invocations)
+           int inputAttachmentIndex)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -57,10 +43,7 @@ struct Layout {
     , fIndex(index)
     , fSet(set)
     , fBuiltin(builtin)
-    , fInputAttachmentIndex(inputAttachmentIndex)
-    , fPrimitive(primitive)
-    , fMaxVertices(maxVertices)
-    , fInvocations(invocations) {}
+    , fInputAttachmentIndex(inputAttachmentIndex) {}
 
     Layout()
     : fFlags(0)
@@ -70,10 +53,7 @@ struct Layout {
     , fIndex(-1)
     , fSet(-1)
     , fBuiltin(-1)
-    , fInputAttachmentIndex(-1)
-    , fPrimitive(kUnspecified_Primitive)
-    , fMaxVertices(-1)
-    , fInvocations(-1) {}
+    , fInputAttachmentIndex(-1) {}
 
     static Layout builtin(int builtin) {
         Layout result;
@@ -123,37 +103,6 @@ struct Layout {
         if (fFlags & kSRGBUnpremul_Flag) {
             result += separator() + "srgb_unpremul";
         }
-        switch (fPrimitive) {
-            case kPoints_Primitive:
-                result += separator() + "points";
-                break;
-            case kLines_Primitive:
-                result += separator() + "lines";
-                break;
-            case kLineStrip_Primitive:
-                result += separator() + "line_strip";
-                break;
-            case kLinesAdjacency_Primitive:
-                result += separator() + "lines_adjacency";
-                break;
-            case kTriangles_Primitive:
-                result += separator() + "triangles";
-                break;
-            case kTriangleStrip_Primitive:
-                result += separator() + "triangle_strip";
-                break;
-            case kTrianglesAdjacency_Primitive:
-                result += separator() + "triangles_adjacency";
-                break;
-            case kUnspecified_Primitive:
-                break;
-        }
-        if (fMaxVertices >= 0) {
-            result += separator() + "max_vertices = " + to_string(fMaxVertices);
-        }
-        if (fInvocations >= 0) {
-            result += separator() + "invocations = " + to_string(fInvocations);
-        }
         if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
@@ -168,10 +117,7 @@ struct Layout {
                fIndex                == other.fIndex &&
                fSet                  == other.fSet &&
                fBuiltin              == other.fBuiltin &&
-               fInputAttachmentIndex == other.fInputAttachmentIndex &&
-               fPrimitive            == other.fPrimitive &&
-               fMaxVertices          == other.fMaxVertices &&
-               fInvocations          == other.fInvocations;
+               fInputAttachmentIndex == other.fInputAttachmentIndex;
     }
 
     bool operator!=(const Layout& other) const {
@@ -190,9 +136,6 @@ struct Layout {
     // input_attachment_index comes from Vulkan/SPIR-V to connect a shader variable to the a
     // corresponding attachment on the subpass in which the shader is being used.
     int fInputAttachmentIndex;
-    Primitive fPrimitive;
-    int fMaxVertices;
-    int fInvocations;
 };
 
 }  // namespace SkSL

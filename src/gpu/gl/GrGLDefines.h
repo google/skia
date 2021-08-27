@@ -545,7 +545,6 @@
 /* Shaders */
 #define GR_GL_FRAGMENT_SHADER                          0x8B30
 #define GR_GL_VERTEX_SHADER                            0x8B31
-#define GR_GL_GEOMETRY_SHADER                          0x8DD9
 #define GR_GL_TESS_CONTROL_SHADER                      0x8E88
 #define GR_GL_TESS_EVALUATION_SHADER                   0x8E87
 #define GR_GL_MAX_VERTEX_ATTRIBS                       0x8869

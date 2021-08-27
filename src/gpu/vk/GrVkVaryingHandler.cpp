@@ -106,8 +106,6 @@ static void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
 void GrVkVaryingHandler::onFinalize() {
     finalize_helper(fVertexInputs);
     finalize_helper(fVertexOutputs);
-    finalize_helper(fGeomInputs);
-    finalize_helper(fGeomOutputs);
     finalize_helper(fFragInputs);
     finalize_helper(fFragOutputs);
 }

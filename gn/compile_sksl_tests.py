@@ -46,7 +46,7 @@ def makeEmptyFile(path):
         pass
 
 def extensionForSpirvAsm(ext):
-    return ext if (ext == '.frag' or ext == '.vert' or ext == '.geom') else '.frag'
+    return ext if (ext == '.frag' or ext == '.vert') else '.frag'
 
 if settings != "--settings" and settings != "--nosettings":
     sys.exit("### Expected --settings or --nosettings, got " + settings)

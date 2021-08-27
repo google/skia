@@ -109,8 +109,6 @@ static void finalize_helper(GrSPIRVVaryingHandler::VarArray& vars) {
 void GrSPIRVVaryingHandler::onFinalize() {
     finalize_helper(fVertexInputs);
     finalize_helper(fVertexOutputs);
-    finalize_helper(fGeomInputs);
-    finalize_helper(fGeomOutputs);
     finalize_helper(fFragInputs);
     finalize_helper(fFragOutputs);
 }

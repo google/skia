@@ -189,7 +189,6 @@ protected:
     bool fFoundDerivatives = false;
     bool fFoundExternalSamplerDecl = false;
     bool fFoundRectSamplerDecl = false;
-    bool fFoundGSInvocations = false;
     bool fSetupClockwise = false;
     bool fSetupFragPosition = false;
     bool fSetupFragCoordWorkaround = false;

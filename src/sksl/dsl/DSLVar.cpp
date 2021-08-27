@@ -115,9 +115,7 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
         const SkSL::Modifiers* modifiers = DSLWriter::Context().fModifiersPool->add(
                 SkSL::Modifiers(SkSL::Layout(/*flags=*/0, /*location=*/-1, /*offset=*/-1,
                                              /*binding=*/-1, /*index=*/-1, /*set=*/-1,
-                                             SK_MAIN_COORDS_BUILTIN, /*inputAttachmentIndex=*/-1,
-                                             Layout::kUnspecified_Primitive, /*maxVertices=*/1,
-                                             /*invocations=*/-1),
+                                             SK_MAIN_COORDS_BUILTIN, /*inputAttachmentIndex=*/-1),
                                 SkSL::Modifiers::kNo_Flag));
 
         fVar = DSLWriter::SymbolTable()->takeOwnershipOfIRNode(std::make_unique<SkSL::Variable>(

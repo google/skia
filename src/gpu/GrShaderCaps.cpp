@@ -16,8 +16,6 @@
 GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fGLSLGeneration = k330_GrGLSLGeneration;
     fShaderDerivativeSupport = false;
-    fGeometryShaderSupport = false;
-    fGSInvocationsSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
     fIntegerSupport = false;
@@ -70,8 +68,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
-    fGeometryShaderExtensionString = nullptr;
-    fGSInvocationsExtensionString = nullptr;
     fSecondaryOutputExtensionString = nullptr;
     fExternalTextureExtensionString = nullptr;
     fSecondExternalTextureExtensionString = nullptr;
@@ -90,8 +86,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 
     writer->appendBool("Shader Derivative Support", fShaderDerivativeSupport);
-    writer->appendBool("Geometry Shader Support", fGeometryShaderSupport);
-    writer->appendBool("Geometry Shader Invocations Support", fGSInvocationsSupport);
     writer->appendBool("Dst Read In Shader Support", fDstReadInShaderSupport);
     writer->appendBool("Dual Source Blending Support", fDualSourceBlendingSupport);
     writer->appendBool("Integer Support", fIntegerSupport);
@@ -201,9 +195,6 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     }
     if (options.fSuppressFramebufferFetch) {
         fFBFetchSupport = false;
-    }
-    if (options.fSuppressGeometryShaders) {
-        fGeometryShaderSupport = false;
     }
     if (options.fMaxTessellationSegmentsOverride > 0) {
         fMaxTessellationSegments = std::min(options.fMaxTessellationSegmentsOverride,

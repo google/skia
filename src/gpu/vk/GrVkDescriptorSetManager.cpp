@@ -19,9 +19,6 @@
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateUniformManager(GrVkGpu* gpu) {
     SkSTArray<1, uint32_t> visibilities;
     uint32_t stages = kVertex_GrShaderFlag | kFragment_GrShaderFlag;
-    if (gpu->vkCaps().shaderCaps()->geometryShaderSupport()) {
-        stages |= kGeometry_GrShaderFlag;
-    }
     visibilities.push_back(stages);
     SkTArray<const GrVkSampler*> samplers;
     return Create(gpu, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, visibilities, samplers);
@@ -57,9 +54,6 @@ VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
 
     if (visibility & kVertex_GrShaderFlag) {
         flags |= VK_SHADER_STAGE_VERTEX_BIT;
-    }
-    if (visibility & kGeometry_GrShaderFlag) {
-        flags |= VK_SHADER_STAGE_GEOMETRY_BIT;
     }
     if (visibility & kFragment_GrShaderFlag) {
         flags |= VK_SHADER_STAGE_FRAGMENT_BIT;

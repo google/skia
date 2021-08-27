@@ -354,7 +354,6 @@ enum class GrTextureType {
 
 enum GrShaderType {
     kVertex_GrShaderType,
-    kGeometry_GrShaderType,
     kFragment_GrShaderType,
 
     kLastkFragment_GrShaderType = kFragment_GrShaderType
@@ -366,8 +365,7 @@ enum GrShaderFlags {
     kVertex_GrShaderFlag         = 1 << 0,
     kTessControl_GrShaderFlag    = 1 << 1,
     kTessEvaluation_GrShaderFlag = 1 << 2,
-    kGeometry_GrShaderFlag       = 1 << 3,
-    kFragment_GrShaderFlag       = 1 << 4
+    kFragment_GrShaderFlag       = 1 << 3
 };
 GR_MAKE_BITFIELD_OPS(GrShaderFlags)
 

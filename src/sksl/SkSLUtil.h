@@ -75,11 +75,6 @@ public:
         return fMustForceNegatedLdexpParamToMultiply;
     }
 
-    bool fGeometryShaderSupport = true;
-    bool geometryShaderSupport() const {
-        return fGeometryShaderSupport;
-    }
-
     bool fShaderDerivativeSupport = true;
     bool shaderDerivativeSupport() const {
         return fShaderDerivativeSupport;
@@ -212,16 +207,6 @@ public:
         return fFragCoordConventionsExtensionString;
     }
 
-    const char* fGeometryShaderExtensionString = nullptr;
-    const char* geometryShaderExtensionString() const {
-        return fGeometryShaderExtensionString;
-    }
-
-    const char* fGSInvocationsExtensionString = nullptr;
-    const char* gsInvocationsExtensionString() const {
-        return fGSInvocationsExtensionString;
-    }
-
     const char* fExternalTextureExtensionString = nullptr;
     const char* externalTextureExtensionString() const {
         return fExternalTextureExtensionString;
@@ -235,11 +220,6 @@ public:
     const char* fVersionDeclString = "";
     const char* versionDeclString() const {
         return fVersionDeclString;
-    }
-
-    bool fGSInvocationsSupport = true;
-    bool gsInvocationsSupport() const {
-        return fGSInvocationsSupport;
     }
 
     bool fCanUseFractForNegativeValues = true;
@@ -366,32 +346,6 @@ public:
         return result;
     }
 
-    static ShaderCapsPointer GeometryShaderExtensionString() {
-        ShaderCapsPointer result = MakeShaderCaps();
-        result->fVersionDeclString = "#version 310es";
-        result->fGeometryShaderSupport = true;
-        result->fGeometryShaderExtensionString = "GL_EXT_geometry_shader";
-        result->fGSInvocationsSupport = true;
-        return result;
-    }
-
-    static ShaderCapsPointer GeometryShaderSupport() {
-        ShaderCapsPointer result = MakeShaderCaps();
-        result->fVersionDeclString = "#version 400";
-        result->fGeometryShaderSupport = true;
-        result->fGSInvocationsSupport = true;
-        return result;
-    }
-
-    static ShaderCapsPointer GSInvocationsExtensionString() {
-        ShaderCapsPointer result = MakeShaderCaps();
-        result->fVersionDeclString = "#version 400";
-        result->fGeometryShaderSupport = true;
-        result->fGSInvocationsSupport = true;
-        result->fGSInvocationsExtensionString = "GL_ARB_gpu_shader5";
-        return result;
-    }
-
     static ShaderCapsPointer IncompleteShortIntPrecision() {
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 310es";
@@ -417,14 +371,6 @@ public:
     static ShaderCapsPointer MustGuardDivisionEvenAfterExplicitZeroCheck() {
         ShaderCapsPointer result = MakeShaderCaps();
         result->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
-        return result;
-    }
-
-    static ShaderCapsPointer NoGSInvocationsSupport() {
-        ShaderCapsPointer result = MakeShaderCaps();
-        result->fVersionDeclString = "#version 400";
-        result->fGeometryShaderSupport = true;
-        result->fGSInvocationsSupport = false;
         return result;
     }
 
