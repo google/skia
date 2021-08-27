@@ -2064,7 +2064,8 @@ bool SurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
     // barrier between draws to flush the render target before being used as a texture in the next
     // draw. So in that case we just fall through to doing a copy.
     if (fCanUseDynamicMSAA && opRequiresMSAA && this->asTextureProxy() &&
-        !this->caps()->msaaResolvesAutomatically()) {
+        !this->caps()->msaaResolvesAutomatically() &&
+        this->caps()->dmsaaResolveCanBeUsedAsTextureInSameRenderPass()) {
         this->replaceOpsTaskIfModifiesColor()->setCannotMergeBackward();
         dstProxyView->setProxyView(this->readSurfaceView());
         dstProxyView->setOffset(0, 0);

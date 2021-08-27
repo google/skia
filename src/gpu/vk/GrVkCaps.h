@@ -266,6 +266,8 @@ public:
     bool renderTargetSupportsDiscardableMSAA(const GrVkRenderTarget*) const;
     bool programInfoWillUseDiscardableMSAA(const GrProgramInfo&) const;
 
+    bool dmsaaResolveCanBeUsedAsTextureInSameRenderPass() const override { return false; }
+
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif

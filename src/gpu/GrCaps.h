@@ -488,6 +488,8 @@ public:
 
     bool supportsDynamicMSAA(const GrRenderTargetProxy*) const;
 
+    virtual bool dmsaaResolveCanBeUsedAsTextureInSameRenderPass() const { return true; }
+
     // skbug.com/11935. Task reordering is disabled for some GPUs on GL due to driver bugs.
     bool avoidReorderingRenderTasks() const {
         return fAvoidReorderingRenderTasks;

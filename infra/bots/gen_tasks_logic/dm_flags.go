@@ -361,6 +361,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if !b.matchGpu("Intel") {
 				configs = append(configs, "vkmsaa4")
 			}
+			// Temporarily limit the bots we test dynamic MSAA on.
+			if b.gpu("QuadroP400", "MaliG77") {
+				configs = append(configs, "vkdmsaa")
+			}
 		}
 		if b.extraConfig("Metal") {
 			configs = []string{"mtl"}
