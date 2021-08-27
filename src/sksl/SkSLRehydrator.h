@@ -83,7 +83,7 @@ public:
         kFor_Command,
         // Type type, uint16 function, uint8 argCount, Expression[] arguments
         kFunctionCall_Command,
-        // uint16 declaration, Statement body, uint8 refCount, uint16[] referencedIntrinsics
+        // uint16 declaration, Statement body, uint8 refCount
         kFunctionDefinition_Command,
         // uint16 id, Modifiers modifiers, String name, uint8 parameterCount, uint16[] parameterIds,
         // Type returnType

@@ -247,7 +247,7 @@ public:
         // Note that because Return is called before the function in which it resides exists, at
         // this point we do not know the function's return type. We therefore do not check for
         // errors, or coerce the value to the correct type, until the return statement is actually
-        // added to a function. (This is done in IRGenerator::finalizeFunction.)
+        // added to a function. (This is done in FunctionDefinition::Convert.)
         return SkSL::ReturnStatement::Make(/*offset=*/-1, value.releaseIfValid());
     }
 

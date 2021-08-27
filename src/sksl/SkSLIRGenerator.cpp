@@ -594,40 +594,46 @@ std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
     return DiscardStatement::Make(d.fOffset);
 }
 
-std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
+void IRGenerator::appendRTAdjustFixupToVertexMain(const FunctionDeclaration& decl, Block* body) {
     using namespace SkSL::dsl;
     using SkSL::dsl::Swizzle;  // disambiguate from SkSL::Swizzle
+    using OwnerKind = SkSL::FieldAccess::OwnerKind;
 
-    const Variable* skPerVertex = nullptr;
-    if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
-        SkASSERT(perVertexDecl->is<SkSL::InterfaceBlock>());
-        skPerVertex = &perVertexDecl->as<SkSL::InterfaceBlock>().variable();
+    // If this is a vertex program that uses RTAdjust, and this is main()...
+    if (fRTAdjust && decl.isMain() && ProgramKind::kVertex == this->programKind()) {
+        // ... append a line to the end of the function body which fixes up sk_Position.
+        const Variable* skPerVertex = nullptr;
+        if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
+            SkASSERT(perVertexDecl->is<SkSL::InterfaceBlock>());
+            skPerVertex = &perVertexDecl->as<SkSL::InterfaceBlock>().variable();
+        }
+
+        SkASSERT(skPerVertex);
+        auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
+            return VariableReference::Make(/*offset=*/-1, var);
+        };
+        auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
+            return FieldAccess::Make(fContext, Ref(var), idx, OwnerKind::kAnonymousInterfaceBlock);
+        };
+        auto Pos = [&]() -> DSLExpression {
+            return DSLExpression(FieldAccess::Make(fContext, Ref(skPerVertex), /*fieldIndex=*/0,
+                                                   OwnerKind::kAnonymousInterfaceBlock));
+        };
+        auto Adjust = [&]() -> DSLExpression {
+            return DSLExpression(fRTAdjustInterfaceBlock
+                                         ? Field(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex)
+                                         : Ref(fRTAdjust));
+        };
+
+        auto fixupStmt = DSLStatement(
+            Pos() = Float4(Swizzle(Pos(), X, Y) * Swizzle(Adjust(), X, Z) +
+                           Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W),
+                           0,
+                           Pos().w())
+        );
+
+        body->children().push_back(fixupStmt.release());
     }
-
-    SkASSERT(skPerVertex && fRTAdjust);
-    auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
-        return VariableReference::Make(/*offset=*/-1, var);
-    };
-    auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
-        return FieldAccess::Make(fContext, Ref(var), idx,
-                                 FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
-    };
-    auto Pos = [&]() -> DSLExpression {
-        return DSLExpression(FieldAccess::Make(fContext, Ref(skPerVertex), /*fieldIndex=*/0,
-                                               FieldAccess::OwnerKind::kAnonymousInterfaceBlock));
-    };
-    auto Adjust = [&]() -> DSLExpression {
-        return DSLExpression(fRTAdjustInterfaceBlock
-                                     ? Field(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex)
-                                     : Ref(fRTAdjust));
-    };
-
-    return DSLStatement(
-        Pos() = Float4(Swizzle(Pos(), X, Y) * Swizzle(Adjust(), X, Z) +
-                       Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W),
-                       0,
-                       Pos().w())
-    ).release();
 }
 
 void IRGenerator::CheckModifiers(const Context& context,
@@ -687,18 +693,6 @@ void IRGenerator::CheckModifiers(const Context& context,
         }
     }
     SkASSERT(layoutFlags == 0);
-}
-
-std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl,
-                                                     std::unique_ptr<Block> body,
-                                                     IntrinsicSet* referencedIntrinsics) {
-    bool isMain = funcDecl.isMain();
-    if (ProgramKind::kVertex == this->programKind() && isMain && fRTAdjust) {
-        body->children().push_back(this->getNormalizeSkPositionCode());
-    }
-
-    FunctionDefinition::FinalizeFunctionBody(fContext, funcDecl, body.get(), referencedIntrinsics);
-    return body;
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
@@ -774,10 +768,9 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (!body) {
             return;
         }
-        IntrinsicSet referencedIntrinsics;
-        body = this->finalizeFunction(*decl, std::move(body), &referencedIntrinsics);
-        auto result = std::make_unique<FunctionDefinition>(
-                f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(referencedIntrinsics));
+        this->appendRTAdjustFixupToVertexMain(*decl, body.get());
+        std::unique_ptr<FunctionDefinition> result = FunctionDefinition::Convert(
+                fContext, f.fOffset, *decl, std::move(body), fIsBuiltinCode);
         decl->setDefinition(result.get());
         result->setSource(&f);
         fProgramElements->push_back(std::move(result));
