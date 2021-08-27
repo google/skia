@@ -362,12 +362,12 @@ enum GrShaderType {
 static const int kGrShaderTypeCount = kLastkFragment_GrShaderType + 1;
 
 enum GrShaderFlags {
-    kNone_GrShaderFlags = 0,
-    kVertex_GrShaderFlag = 1,
-    kTessControl_GrShaderFlag = 1 << 2,
+    kNone_GrShaderFlags          = 0,
+    kVertex_GrShaderFlag         = 1 << 0,
+    kTessControl_GrShaderFlag    = 1 << 1,
     kTessEvaluation_GrShaderFlag = 1 << 2,
-    kGeometry_GrShaderFlag = 1 << 3,
-    kFragment_GrShaderFlag = 1 << 4
+    kGeometry_GrShaderFlag       = 1 << 3,
+    kFragment_GrShaderFlag       = 1 << 4
 };
 GR_MAKE_BITFIELD_OPS(GrShaderFlags)
 
