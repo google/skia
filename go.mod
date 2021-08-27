@@ -18,6 +18,8 @@ require (
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/codegangsta/negroni v1.0.0 // indirect
 	github.com/daaku/go.zipexe v1.0.1 // indirect
+	github.com/dgraph-io/ristretto v0.0.3 // indirect
+	github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
@@ -47,7 +49,7 @@ require (
 	github.com/yosuke-furukawa/json5 v0.1.1 // indirect
 	go.chromium.org/gae v0.0.0-20190826183307-50a499513efa // indirect
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20210805161050-852830eb10cf
+	go.skia.org/infra v0.0.0-20210826161750-abfa88005ea2
 	go.starlark.net v0.0.0-20201118183435-e55f603d8c79 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect

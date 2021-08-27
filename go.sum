@@ -839,6 +839,8 @@ github.com/google/go-licenses v0.0.0-20210715153004-8751804a5b80 h1:LFxfYF9RntrK
 github.com/google/go-licenses v0.0.0-20210715153004-8751804a5b80/go.mod h1:yrUa7XR4KpFKeb+/N8/NokREkP3p25uqXDSfIFMO4fA=
 github.com/google/go-licenses v0.0.0-20210727195037-24e2421190d8 h1:witO2HVN17VLN3zqEkHqvgzUyz/G9nGDMGJccZBXPhA=
 github.com/google/go-licenses v0.0.0-20210727195037-24e2421190d8/go.mod h1:WkPB6PtjnM1pF4qeK8RcFmk7z+TIsrPYOng7OPlFDiw=
+github.com/google/go-licenses v0.0.0-20210816172045-3099c18c36e1 h1:ZK63Yns/0Y8hE5y50WuSsfFWNPmpYDQ9tzh/J2vWV8c=
+github.com/google/go-licenses v0.0.0-20210816172045-3099c18c36e1/go.mod h1:WkPB6PtjnM1pF4qeK8RcFmk7z+TIsrPYOng7OPlFDiw=
 github.com/google/go-querystring v1.0.0 h1:Xkwi/a1rcvNg1PPYe5vI8GbeBY/jrVuDX5ASuANWTrk=
 github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
@@ -2077,6 +2079,8 @@ go.skia.org/infra v0.0.0-20210805134743-b82de02ca21f h1:HFpFtcGMI3zt3r/FUTGtNngU
 go.skia.org/infra v0.0.0-20210805134743-b82de02ca21f/go.mod h1:GyZrul70Cfa4weHZsZewKFguAq/o2UzvrVxnU35Z+Yo=
 go.skia.org/infra v0.0.0-20210805161050-852830eb10cf h1:6Wl/2EAmBMbFCx5iVi1OejEXgd1gX6C/hVJUKGYaYjI=
 go.skia.org/infra v0.0.0-20210805161050-852830eb10cf/go.mod h1:GyZrul70Cfa4weHZsZewKFguAq/o2UzvrVxnU35Z+Yo=
+go.skia.org/infra v0.0.0-20210826161750-abfa88005ea2 h1:rtUkzTl262cTcNNXzb+2dtLo5kkKFmzAt8V6fCt5cas=
+go.skia.org/infra v0.0.0-20210826161750-abfa88005ea2/go.mod h1:BX7j5CR8GabRog5/v70hZ7QERcahOEUvzkDN/oBJSEM=
 go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5/go.mod h1:nmDLcffg48OtT/PSW0Hg7FvpRQsQh5OSqIylirxKC7o=
 go.starlark.net v0.0.0-20201118183435-e55f603d8c79 h1:JPjLPz44y2N9mkzh2N344kTk1Y4/V4yJAjTrXGmzv8I=
 go.starlark.net v0.0.0-20201118183435-e55f603d8c79/go.mod h1:5YFcFnRptTN+41758c2bMPiqpGg4zBfYji1IQz8wNFk=
