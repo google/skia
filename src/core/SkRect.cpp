@@ -174,7 +174,7 @@ template<typename R, typename C>
 static bool subtract(const R& a, const R& b, R* out) {
     static constexpr C kZero = C(0);
 
-    if (!R::Intersects(a, b)) {
+    if (a.isEmpty() || b.isEmpty() || !R::Intersects(a, b)) {
         // Either already empty, or subtracting the empty rect, or there's no intersection, so
         // in all cases the answer is A.
         *out = a;

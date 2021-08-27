@@ -12,6 +12,8 @@
 #include "src/core/SkRectPriv.h"
 #include "tests/Test.h"
 
+#include <limits.h>
+
 static bool has_green_pixels(const SkBitmap& bm) {
     for (int j = 0; j < bm.height(); ++j) {
         for (int i = 0; i < bm.width(); ++i) {
@@ -238,6 +240,32 @@ DEF_TEST(Rect_subtract, reporter) {
         REPORTER_ASSERT(reporter, exact == e.fExact);
         REPORTER_ASSERT(reporter, (df.isEmpty() && ef.isEmpty()) || (df == ef));
     }
+}
+
+DEF_TEST(Rect_subtract_overflow, reporter) {
+    // This rectangle is sorted but whose int32 width overflows and appears negative (so
+    // isEmpty() returns true).
+    SkIRect reallyBig = SkIRect::MakeLTRB(-INT_MAX + 1000, 0, INT_MAX - 1000, 100);
+    // However, because it's sorted, an intersection with a reasonably sized rectangle is still
+    // valid so the assumption that SkIRect::Intersects() returns false when either input is
+    // empty is invalid, leading to incorrect use of negative width (see crbug.com/1243206)
+    SkIRect reasonable = SkIRect::MakeLTRB(-50, -5, 50, 125);
+
+    // Ignoring overflow, "reallyBig - reasonable" should report exact = false and select either the
+    // left or right portion of 'reallyBig' that excludes 'reasonable', e.g.
+    // {-INT_MAX+1000, 0, -50, 100} or {150, 0, INT_MAX-1000, 100}.
+    // This used to assert, but now it should be detected that 'reallyBig' overflows and is
+    // technically empty, so the result should be itself and exact.
+    SkIRect difference;
+    bool exact = SkRectPriv::Subtract(reallyBig, reasonable, &difference);
+    REPORTER_ASSERT(reporter, exact);
+    REPORTER_ASSERT(reporter, difference == reallyBig);
+
+    // Similarly, if we subtract 'reallyBig', since it's technically empty then we expect the
+    // answer to remain 'reasonable'.
+    exact = SkRectPriv::Subtract(reasonable, reallyBig, &difference);
+    REPORTER_ASSERT(reporter, exact);
+    REPORTER_ASSERT(reporter, difference == reasonable);
 }
 
 #include "include/core/SkSurface.h"
