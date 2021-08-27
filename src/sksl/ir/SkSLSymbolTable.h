@@ -90,8 +90,8 @@ public:
 
     /**
      * Given type = `float` and arraySize = 5, creates the array type `float[5]` in the symbol
-     * table. The created array type is returned. `kUnsizedArray` can be passed as a `[]` dimension.
-     * If zero is passed, the base type is returned unchanged.
+     * table. The created array type is returned. If zero is passed, the base type is returned
+     * unchanged.
      */
     const Type* addArrayDimension(const Type* type, int arraySize);
 

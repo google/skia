@@ -409,9 +409,7 @@ String PipelineStageCodeGenerator::typeName(const Type& type) {
         // This is necessary so that name mangling on arrays-of-structs works properly.
         String arrayName = this->typeName(type.componentType());
         arrayName.push_back('[');
-        if (type.columns() != Type::kUnsizedArray) {
-            arrayName += to_string(type.columns());
-        }
+        arrayName += to_string(type.columns());
         arrayName.push_back(']');
         return arrayName;
     }

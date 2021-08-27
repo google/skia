@@ -106,7 +106,6 @@ public:
     Type(const Type& other) = delete;
 
     /** Creates an array type. */
-    static constexpr int kUnsizedArray = -1;
     static std::unique_ptr<Type> MakeArrayType(skstd::string_view name, const Type& componentType,
                                                int columns);
 

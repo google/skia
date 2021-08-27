@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: runtime-sized arrays are not supported in SPIR-V
+error: array must have a size
 1 error

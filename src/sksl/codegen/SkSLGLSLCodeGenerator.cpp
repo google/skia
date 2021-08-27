@@ -102,9 +102,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
         }
         case Type::TypeKind::kArray: {
             String baseTypeName = this->getTypeName(type.componentType());
-            return (type.columns() == Type::kUnsizedArray)
-                           ? String::printf("%s[]", baseTypeName.c_str())
-                           : String::printf("%s[%d]", baseTypeName.c_str(), type.columns());
+            return String::printf("%s[%d]", baseTypeName.c_str(), type.columns());
         }
         case Type::TypeKind::kScalar: {
             if (type == *fContext.fTypes.fHalf) {
@@ -1013,11 +1011,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         this->writeType(*type);
         this->write(" " + param->name());
         for (int s : sizes) {
-            if (s == Type::kUnsizedArray) {
-                this->write("[]");
-            } else {
-                this->write("[" + to_string(s) + "]");
-            }
+            this->write("[" + to_string(s) + "]");
         }
     }
     this->write(")");
@@ -1120,8 +1114,6 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
             this->write("[");
             this->write(to_string(intf.arraySize()));
             this->write("]");
-        } else if (intf.arraySize() == Type::kUnsizedArray){
-            this->write("[]");
         }
     }
     this->writeLine(";");
@@ -1175,8 +1167,6 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
         this->write("[");
         this->write(to_string(var.arraySize()));
         this->write("]");
-    } else if (var.arraySize() == Type::kUnsizedArray){
-        this->write("[]");
     }
     if (var.value()) {
         this->write(" = ");

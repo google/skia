@@ -85,8 +85,6 @@ public:
             result += " " + this->instanceName();
             if (this->arraySize() > 0) {
                 result.appendf("[%d]", this->arraySize());
-            } else if (this->arraySize() == Type::kUnsizedArray){
-                result += "[]";
             }
         }
         return result + ";";

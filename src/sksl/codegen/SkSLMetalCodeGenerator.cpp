@@ -1886,8 +1886,6 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
             this->write("[");
             this->write(to_string(intf.arraySize()));
             this->write("]");
-        } else if (intf.arraySize() == Type::kUnsizedArray){
-            this->write("[]");
         }
         fInterfaceBlockNameMap[&intf] = intf.instanceName();
     } else {

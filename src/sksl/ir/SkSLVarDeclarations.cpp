@@ -24,8 +24,6 @@ String VarDeclaration::description() const {
                     this->var().name();
     if (this->arraySize() > 0) {
         result.appendf("[%d]", this->arraySize());
-    } else if (this->arraySize() == Type::kUnsizedArray) {
-        result += "[]";
     }
     if (this->value()) {
         result += " = " + this->value()->description();

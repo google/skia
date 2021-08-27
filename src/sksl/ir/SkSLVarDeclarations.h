@@ -89,7 +89,7 @@ public:
 private:
     const Variable* fVar;
     const Type& fBaseType;
-    int fArraySize;  // zero means "not an array", Type::kUnsizedArray means var[]
+    int fArraySize;  // zero means "not an array"
     std::unique_ptr<Expression> fValue;
 
     friend class IRGenerator;

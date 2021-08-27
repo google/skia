@@ -1,5 +1,3 @@
-in Block { int x; } unsizedArray[];
-
 void array_neg1             () { int     a[123]; int     v = a[-1]; }
 void array_0                () { float   a[123]; float   v = a[0]; }
 void array_122              () { bool2   a[123]; bool2   v = a[122]; }
@@ -7,12 +5,6 @@ void array_123              () { half4x4 a[123]; half4x4 v = a[123]; }
 void array_huge             () { int4    a[123]; int4    v = a[1000000000]; }
 void array_overflow         () { half3   a[123]; half3   v = a[3000000000]; }
 void array_no_index         () { int     a[123]; int     v = a[]; }
-
-void unsized_array_neg1     () {                 int v = unsizedArray[-1].x; }
-void unsized_array_0        () {                 int v = unsizedArray[0].x; }
-void unsized_array_huge     () {                 int v = unsizedArray[1000000000].x; }
-void unsized_array_overflow () {                 int v = unsizedArray[3000000000].x; }
-void unsized_array_no_index () {                 int v = unsizedArray[].x; }
 
 void half4_neg1()              { half4 h;        half    v = h[-1]; }
 void half4_0()                 { half4 h;        half    v = h[0]; }

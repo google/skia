@@ -205,6 +205,7 @@ DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
 DSLType Array(const DSLType& base, int count) {
     if (count <= 0) {
         DSLWriter::ReportError("array size must be positive");
+        return base;
     }
     if (base.isArray()) {
         DSLWriter::ReportError("multidimensional arrays are not permitted");

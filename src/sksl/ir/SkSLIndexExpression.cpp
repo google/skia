@@ -63,10 +63,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
     if (indexExpr->is<IntLiteral>()) {
         SKSL_INT indexValue = indexExpr->as<IntLiteral>().value();
-        const int upperBound = (baseType.isArray() && baseType.columns() == Type::kUnsizedArray)
-                                       ? INT_MAX
-                                       : baseType.columns();
-        if (indexValue < 0 || indexValue >= upperBound) {
+        if (indexValue < 0 || indexValue >= baseType.columns()) {
             context.fErrors->error(base->fOffset, "index " + to_string(indexValue) +
                                                   " out of range for '" + baseType.displayName() +
                                                   "'");

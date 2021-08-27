@@ -96,10 +96,7 @@ static void finalize_helper(GrSPIRVVaryingHandler::VarArray& vars) {
 
         int elementSize = grsltype_to_location_size(var.getType());
         SkASSERT(elementSize > 0);
-        int numElements = 1;
-        if (var.isArray() && !var.isUnsizedArray()) {
-            numElements = var.getArrayCount();
-        }
+        int numElements = var.isArray() ? var.getArrayCount() : 1;
         SkASSERT(numElements > 0);
         locationIndex += elementSize * numElements;
     }

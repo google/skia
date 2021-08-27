@@ -29,8 +29,8 @@ public:
         : INHERITED(name, abbrev, kTypeKind)
         , fComponentType(componentType)
         , fCount(count) {
-        // Allow either explicitly-sized or unsized arrays.
-        SkASSERT(count > 0 || count == kUnsizedArray);
+        // Only allow explicitly-sized arrays.
+        SkASSERT(count > 0);
         // Disallow multi-dimensional arrays.
         SkASSERT(!componentType.is<ArrayType>());
     }
@@ -376,9 +376,7 @@ private:
 
 String Type::getArrayName(int arraySize) const {
     skstd::string_view name = this->name();
-    return (arraySize != kUnsizedArray)
-                   ? String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize)
-                   : String::printf("%.*s[]", (int)name.size(), name.data());
+    return String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize);
 }
 
 std::unique_ptr<Type> Type::MakeArrayType(skstd::string_view name, const Type& componentType,

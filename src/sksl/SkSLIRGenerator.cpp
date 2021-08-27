@@ -842,16 +842,9 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
     int arraySize = 0;
     if (id.fIsArray) {
         const ASTNode& size = *(iter++);
-        if (size) {
-            // convertArraySize rejects unsized arrays. This is the one place we allow those, but
-            // we've already checked for that, so this is verifying the other aspects (constant,
-            // positive, not too large).
-            arraySize = this->convertArraySize(*type, size.fOffset, size);
-            if (!arraySize) {
-                return nullptr;
-            }
-        } else {
-            arraySize = Type::kUnsizedArray;
+        arraySize = this->convertArraySize(*type, size.fOffset, size);
+        if (!arraySize) {
+            return nullptr;
         }
         type = symbols->addArrayDimension(type, arraySize);
     }
