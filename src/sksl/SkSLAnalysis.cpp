@@ -336,6 +336,9 @@ public:
                 this->visitExpression(*expr.as<IndexExpression>().base());
                 break;
 
+            case Expression::Kind::kPoison:
+                break;
+
             default:
                 fErrors->error(expr.fOffset, "cannot assign to this expression");
                 break;
