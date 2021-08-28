@@ -1496,12 +1496,12 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::swizzle(int offset, DSLExp
         return base.field(swizzleMask, this->position(offset));
     }
     int length = swizzleMask.length();
-    if (length > 4) {
-        this->error(offset, "too many components in swizzle mask");
-        return skstd::nullopt;
-    }
     SkSL::SwizzleComponent::Type components[4];
     for (int i = 0; i < length; ++i) {
+        if (i >= 4) {
+            this->error(offset, "too many components in swizzle mask");
+            return {{DSLExpression::Poison()}};
+        }
         switch (swizzleMask[i]) {
             case '0': components[i] = SwizzleComponent::ZERO; break;
             case '1': components[i] = SwizzleComponent::ONE;  break;
@@ -1524,7 +1524,7 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::swizzle(int offset, DSLExp
             default:
                 this->error(offset,
                         String::printf("invalid swizzle component '%c'", swizzleMask[i]).c_str());
-                return skstd::nullopt;
+                return {{DSLExpression::Poison()}};
         }
     }
     switch (length) {
