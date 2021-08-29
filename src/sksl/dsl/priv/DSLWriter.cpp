@@ -241,9 +241,13 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
         SkASSERT(!var.fVar);
         var.fInitialized = true;
         if (var.storage() != SkSL::VariableStorage::kParameter) {
+            const SkSL::Type* baseType = &var.fType.skslType();
+            if (baseType->isArray()) {
+                baseType = &baseType->componentType();
+            }
             DSLWriter::IRGenerator().checkVarDeclaration(var.fPosition.offset(),
                                                          var.fModifiers.fModifiers,
-                                                         &var.fType.skslType(),
+                                                         baseType,
                                                          var.storage());
         }
         std::unique_ptr<SkSL::Variable> skslvar = DSLWriter::IRGenerator().convertVar(
