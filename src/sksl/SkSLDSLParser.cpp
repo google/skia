@@ -533,7 +533,6 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
     if (fields.empty()) {
         this->error(name.fOffset,
                     "struct '" + this->text(name) + "' must contain at least one field");
-        return skstd::nullopt;
     }
     return dsl::Struct(this->text(name), SkMakeSpan(fields), this->position(name));
 }
