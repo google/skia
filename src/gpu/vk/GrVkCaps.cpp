@@ -515,6 +515,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // feature for those devices.
     if (properties.vendorID == kQualcomm_VkVendor && androidAPIVersion <= 28) {
         fPreferDiscardableMSAAAttachment = false;
+        fSupportsDiscardableMSAAForDMSAA = false;
     }
 
     // On Mali G series GPUs, applying transfer functions in the fragment shader with half-floats
