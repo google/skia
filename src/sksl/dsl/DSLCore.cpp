@@ -163,6 +163,7 @@ public:
             const SkSL::Symbol* alreadyDeclared = (*DSLWriter::SymbolTable())[var.fName];
             if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
                 var.fVar = &alreadyDeclared->as<Variable>();
+                var.fInitialized = true;
             }
         }
     }

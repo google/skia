@@ -128,6 +128,8 @@ protected:
     skstd::string_view fRawName; // for error reporting
     skstd::string_view fName;
     DSLExpression fInitialValue;
+    // true if we have attempted to create the SkSL var
+    bool fInitialized = false;
     bool fDeclared = false;
 
     friend class DSLCore;

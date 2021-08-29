@@ -60,6 +60,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
     if (fDecl) {
         for (size_t i = 0; i < params.size(); ++i) {
             params[i]->fVar = fDecl->parameters()[i];
+            params[i]->fInitialized = true;
         }
         // We don't know when this function is going to be defined; go ahead and add a prototype in
         // case the definition is delayed. If we end up defining the function immediately, we'll

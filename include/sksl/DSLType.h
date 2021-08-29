@@ -75,6 +75,7 @@ enum TypeConstant : uint8_t {
     kUShort3_Type,
     kUShort4_Type,
     kVoid_Type,
+    kPoison_Type,
 };
 
 class DSLType {
@@ -163,7 +164,7 @@ private:
 
     const SkSL::Type* fSkSLType = nullptr;
 
-    TypeConstant fTypeConstant;
+    TypeConstant fTypeConstant = kPoison_Type;
 
     friend DSLType Array(const DSLType& base, int count);
     friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields);

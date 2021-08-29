@@ -313,6 +313,7 @@ private:
 
         void restoreErrorReporter() {
             SkASSERT(fOldErrorReporter);
+            fErrorReporter.reportPendingErrors(PositionInfo());
             dsl::SetErrorReporter(fOldErrorReporter);
             fOldErrorReporter = nullptr;
         }

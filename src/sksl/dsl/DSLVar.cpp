@@ -90,6 +90,7 @@ void DSLVarBase::swap(DSLVarBase& other) {
     std::swap(fName, other.fName);
     std::swap(fInitialValue.fExpression, other.fInitialValue.fExpression);
     std::swap(fDeclared, other.fDeclared);
+    std::swap(fInitialized, other.fInitialized);
 }
 
 void DSLVar::swap(DSLVar& other) {
@@ -125,12 +126,14 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
                 DSLWriter::Context().fTypes.fFloat2.get(),
                 /*builtin=*/true,
                 SkSL::VariableStorage::kGlobal));
+        fInitialized = true;
         return;
     }
 #endif
     const SkSL::Symbol* result = (*DSLWriter::SymbolTable())[fName];
     SkASSERTF(result, "could not find '%.*s' in symbol table", (int)fName.length(), fName.data());
     fVar = &result->as<SkSL::Variable>();
+    fInitialized = true;
 }
 
 void DSLGlobalVar::swap(DSLGlobalVar& other) {

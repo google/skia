@@ -193,6 +193,8 @@ const SkSL::Type& DSLType::skslType() const {
             return *context.fTypes.fUShort4;
         case kVoid_Type:
             return *context.fTypes.fVoid;
+        case kPoison_Type:
+            return *context.fTypes.fPoison;
         default:
             SkUNREACHABLE;
     }

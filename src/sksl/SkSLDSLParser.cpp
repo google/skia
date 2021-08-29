@@ -193,43 +193,21 @@ void DSLParser::error(Token token, String msg) {
 }
 
 void DSLParser::error(int offset, String msg) {
-    fErrorReporter->error(offset, msg);
+    GetErrorReporter().error(msg.c_str(), PositionInfo());
 }
-
-class DSLParserErrorReporter final : public ErrorReporter {
-public:
-    DSLParserErrorReporter(ErrorReporter* reporter)
-        : fReporter(*reporter) {}
-
-    ~DSLParserErrorReporter() override {
-        for (const String& s : fErrors) {
-            fReporter.error(/*offset=*/-1, s.c_str());
-        }
-    }
-
-    void handleError(const char* msg, PositionInfo position) override {
-        fErrors.push_back(msg);
-    }
-
-private:
-    SkTArray<String> fErrors;
-    ErrorReporter& fReporter;
-
-    friend class DSLParser;
-};
 
 /* declaration* END_OF_FILE */
 std::unique_ptr<Program> DSLParser::program() {
+    ErrorReporter* errorReporter = &fCompiler.errorReporter();
     Start(&fCompiler, fKind, fSettings);
-    DSLParserErrorReporter errorReporter(&fCompiler.errorReporter());
-    SetErrorReporter(&errorReporter);
+    SetErrorReporter(errorReporter);
     std::unique_ptr<Program> result;
     bool done = false;
     while (!done) {
         switch (this->peek().fKind) {
             case Token::Kind::TK_END_OF_FILE:
                 done = true;
-                if (errorReporter.fErrors.empty()) {
+                if (!errorReporter->errorCount()) {
                     result = dsl::ReleaseProgram(std::make_unique<String>(std::move(fText)));
                 }
                 break;
@@ -535,7 +513,7 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
                     "struct '" + this->text(name) + "' must contain at least one field");
         return skstd::nullopt;
     }
-    return dsl::Struct(this->text(name), SkMakeSpan(fields.size()));
+    return dsl::Struct(this->text(name), SkMakeSpan(fields));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
@@ -802,8 +780,8 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     this->nextToken();
     SkTArray<dsl::Field> fields;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
-        DSLModifiers modifiers = this->modifiers();
-        skstd::optional<dsl::DSLType> type = this->type(modifiers);
+        DSLModifiers fieldModifiers = this->modifiers();
+        skstd::optional<dsl::DSLType> type = this->type(fieldModifiers);
         if (!type) {
             return false;
         }
