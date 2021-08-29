@@ -30,7 +30,7 @@ void   u_eq_float_literal_disallowed()     { u = 1.0; }
 void   i_eq_u_disallowed()                 { i = u; }
 void   i_eq_f_disallowed()                 { i = f; }
 float  f_eq_i_disallowed()                 { f = i; }
-float  f_eq_i_disallowed()                 { f = u; }
+float  f_eq_u_disallowed()                 { f = u; }
 void   u_eq_i_disallowed()                 { u = i; }
 void   u_eq_f_disallowed()                 { u = f; }
 void   i_plus_float_literal_disallowed()   { i + 1.0; }
