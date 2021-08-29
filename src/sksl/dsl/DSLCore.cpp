@@ -205,6 +205,13 @@ public:
         std::vector<SkSL::Type::Field> skslFields;
         skslFields.reserve(fields.count());
         for (const DSLField& field : fields) {
+            const SkSL::Type* baseType = &field.fType.skslType();
+            if (baseType->isArray()) {
+                baseType = &baseType->componentType();
+            }
+            DSLWriter::IRGenerator().checkVarDeclaration(/*offset=*/-1, field.fModifiers.fModifiers,
+                    baseType, Variable::Storage::kInterfaceBlock);
+            GetErrorReporter().reportPendingErrors(field.fPosition);
             skslFields.push_back(SkSL::Type::Field(field.fModifiers.fModifiers, field.fName,
                                                    &field.fType.skslType()));
         }

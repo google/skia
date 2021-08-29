@@ -216,18 +216,22 @@ DSLType Array(const DSLType& base, int count, PositionInfo pos = PositionInfo::C
 
 class DSLField {
 public:
-    DSLField(const DSLType type, skstd::string_view name)
-        : DSLField(DSLModifiers(), type, name) {}
+    DSLField(const DSLType type, skstd::string_view name,
+             PositionInfo pos = PositionInfo::Capture())
+        : DSLField(DSLModifiers(), type, name, pos) {}
 
-    DSLField(const DSLModifiers& modifiers, const DSLType type, skstd::string_view name)
+    DSLField(const DSLModifiers& modifiers, const DSLType type, skstd::string_view name,
+             PositionInfo pos = PositionInfo::Capture())
         : fModifiers(modifiers)
         , fType(type)
-        , fName(name) {}
+        , fName(name)
+        , fPosition(pos) {}
 
 private:
     DSLModifiers fModifiers;
     const DSLType fType;
     skstd::string_view fName;
+    PositionInfo fPosition;
 
     friend class DSLCore;
     friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos);

@@ -814,7 +814,8 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
             if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
                 return false;
             }
-            fields.push_back(dsl::Field(modifiers, std::move(actualType), this->text(fieldName)));
+            fields.push_back(dsl::Field(fieldModifiers, std::move(actualType),
+                    this->text(fieldName), this->position(fieldName)));
         }
         while (this->checkNext(Token::Kind::TK_COMMA));
     }
