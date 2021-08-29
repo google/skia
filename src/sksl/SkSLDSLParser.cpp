@@ -225,6 +225,7 @@ std::unique_ptr<Program> DSLParser::program() {
             case Token::Kind::TK_INVALID: {
                 this->nextToken();
                 this->error(this->peek(), String("invalid token"));
+                done = true;
                 break;
             }
             default:
