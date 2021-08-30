@@ -19,30 +19,30 @@
 
 namespace SkSL {
 
-static ExpressionArray negate_operands(const Context& context, ExpressionArray operands);
+static ExpressionArray negate_operands(const Context& context, const ExpressionArray& operands);
 
-static std::unique_ptr<Expression> negate_operand(const Context& context,
-                                                  std::unique_ptr<Expression> operand) {
-    const Expression* value = ConstantFolder::GetConstantValueForVariable(*operand);
+static std::unique_ptr<Expression> simplify_negation(const Context& context,
+                                                     const Expression& originalExpr) {
+    const Expression* value = ConstantFolder::GetConstantValueForVariable(originalExpr);
     switch (value->kind()) {
         case Expression::Kind::kFloatLiteral:
             // Convert -floatLiteral(1) to floatLiteral(-1).
-            return FloatLiteral::Make(operand->fOffset,
+            return FloatLiteral::Make(originalExpr.fOffset,
                                       -value->as<FloatLiteral>().value(),
                                       &value->type());
 
         case Expression::Kind::kIntLiteral:
             // Convert -intLiteral(1) to intLiteral(-1).
-            return IntLiteral::Make(operand->fOffset,
+            return IntLiteral::Make(originalExpr.fOffset,
                                     -value->as<IntLiteral>().value(),
                                     &value->type());
 
         case Expression::Kind::kPrefix:
             if (context.fConfig->fSettings.fOptimize) {
                 // Convert `-(-expression)` into `expression`.
-                PrefixExpression& prefix = operand->as<PrefixExpression>();
+                const PrefixExpression& prefix = value->as<PrefixExpression>();
                 if (prefix.getOperator().kind() == Token::Kind::TK_MINUS) {
-                    return std::move(prefix.operand());
+                    return prefix.operand()->clone();
                 }
             }
             break;
@@ -50,55 +50,69 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
         case Expression::Kind::kConstructorArray:
             // Convert `-array[N](literal, ...)` into `array[N](-literal, ...)`.
             if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
-                ConstructorArray& ctor = operand->as<ConstructorArray>();
-                return ConstructorArray::Make(
-                        context, ctor.fOffset, ctor.type(),
-                        negate_operands(context, std::move(ctor.arguments())));
+                const ConstructorArray& ctor = value->as<ConstructorArray>();
+                return ConstructorArray::Make(context, originalExpr.fOffset, ctor.type(),
+                                              negate_operands(context, ctor.arguments()));
             }
             break;
 
         case Expression::Kind::kConstructorDiagonalMatrix:
             // Convert `-matrix(literal)` into `matrix(-literal)`.
             if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
-                ConstructorDiagonalMatrix& ctor = operand->as<ConstructorDiagonalMatrix>();
-                return ConstructorDiagonalMatrix::Make(
-                        context, ctor.fOffset, ctor.type(),
-                        negate_operand(context, std::move(ctor.argument())));
+                const ConstructorDiagonalMatrix& ctor = value->as<ConstructorDiagonalMatrix>();
+                return ConstructorDiagonalMatrix::Make(context, originalExpr.fOffset, ctor.type(),
+                                                      simplify_negation(context, *ctor.argument()));
             }
             break;
 
         case Expression::Kind::kConstructorSplat:
             // Convert `-vector(literal)` into `vector(-literal)`.
             if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
-                ConstructorSplat& ctor = operand->as<ConstructorSplat>();
-                return ConstructorSplat::Make(context, ctor.fOffset, ctor.type(),
-                                              negate_operand(context, std::move(ctor.argument())));
+                const ConstructorSplat& ctor = value->as<ConstructorSplat>();
+                return ConstructorSplat::Make(context, originalExpr.fOffset, ctor.type(),
+                                              simplify_negation(context, *ctor.argument()));
             }
             break;
 
         case Expression::Kind::kConstructorCompound:
             // Convert `-vecN(literal, ...)` into `vecN(-literal, ...)`.
             if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
-                ConstructorCompound& ctor = operand->as<ConstructorCompound>();
-                return ConstructorCompound::Make(
-                        context, ctor.fOffset, ctor.type(),
-                        negate_operands(context, std::move(ctor.arguments())));
+                const ConstructorCompound& ctor = value->as<ConstructorCompound>();
+                return ConstructorCompound::Make(context, originalExpr.fOffset, ctor.type(),
+                                                 negate_operands(context, ctor.arguments()));
             }
             break;
 
         default:
             break;
     }
-
-    // No simplified form; convert expression to Prefix(TK_MINUS, expression).
-    return std::make_unique<PrefixExpression>(Token::Kind::TK_MINUS, std::move(operand));
+    return nullptr;
 }
 
-static ExpressionArray negate_operands(const Context& context, ExpressionArray operands) {
-    for (std::unique_ptr<Expression>& arg : operands) {
-        arg = negate_operand(context, std::move(arg));
+static ExpressionArray negate_operands(const Context& context, const ExpressionArray& array) {
+    ExpressionArray replacement;
+    replacement.reserve_back(array.size());
+    for (const std::unique_ptr<Expression>& expr : array) {
+        // The logic below is very similar to `negate_operand`, but with different ownership rules.
+        if (std::unique_ptr<Expression> simplified = simplify_negation(context, *expr)) {
+            replacement.push_back(std::move(simplified));
+        } else {
+            replacement.push_back(std::make_unique<PrefixExpression>(Token::Kind::TK_MINUS,
+                                                                     expr->clone()));
+        }
     }
-    return operands;
+    return replacement;
+}
+
+static std::unique_ptr<Expression> negate_operand(const Context& context,
+                                                  std::unique_ptr<Expression> value) {
+    // Attempt to simplify this negation (e.g. eliminate double negation, literal values)
+    if (std::unique_ptr<Expression> simplified = simplify_negation(context, *value)) {
+        return simplified;
+    }
+
+    // No simplified form; convert expression to Prefix(TK_MINUS, expression).
+    return std::make_unique<PrefixExpression>(Token::Kind::TK_MINUS, std::move(value));
 }
 
 static std::unique_ptr<Expression> logical_not_operand(const Context& context,

@@ -332,7 +332,7 @@ sksl_shared_tests = [
   "/sksl/shared/MatrixScalarSplat.sksl",
   "/sksl/shared/MatrixToVectorCast.sksl",
   "/sksl/shared/MultipleAssignments.sksl",
-  "/sksl/shared/NegatedVectorLiteral.sksl",
+  "/sksl/shared/Negation.sksl",
   "/sksl/shared/NoFragCoordsPos.vert",
   "/sksl/shared/NoFragCoordsPosRT.vert",
   "/sksl/shared/NormalizationVert.vert",

@@ -1,0 +1,67 @@
+uniform half4 colorGreen, colorRed;
+
+bool test_fvec() {
+    const float one = 1;
+    float two = 2;
+    const half4 one_splat = half4(1);
+    const half4 one_compound = half4(1, 1, 1, 1);
+
+    bool ok = true;
+    ok = ok && (half4(-1) == -one_splat);
+    ok = ok && (half4(-1, -1, -1, -1) == -one_splat);
+    ok = ok && (half4(-1) == -one_compound);
+    ok = ok && (half4(-1, -1, -1, -1) == -one_compound);
+    ok = ok && (-half4(1) == -one_splat);
+    ok = ok && (-half4(1, 1, 1, 1) == -one_splat);
+    ok = ok && (-half4(1) == -one_compound);
+    ok = ok && (-half4(1, 1, 1, 1) == -one_compound);
+    ok = ok && (half4(-1) == -one_compound);
+    ok = ok && (half4(-1) == -half4(-half2(-1), half2(1)));
+    ok = ok && (half4(1) != -half4(1));
+    ok = ok && (-half4(two) == half4(-two, half3(-two)));
+    ok = ok && (-half2(-one, one + one) == -half2(one - two, two));
+    return ok;
+}
+
+bool test_ivec() {
+    int one = 1;
+    const int two = 2;
+    const int4 one_splat = int4(1);
+    const int4 one_compound = int4(1, 1, 1, 1);
+
+    bool ok = true;
+    ok = ok && (int4(-1) == -one_splat);
+    ok = ok && (int4(-1, -1, -1, -1) == -one_splat);
+    ok = ok && (int4(-1) == -one_compound);
+    ok = ok && (int4(-1, -1, -1, -1) == -one_compound);
+    ok = ok && (-int4(1) == -one_splat);
+    ok = ok && (-int4(1, 1, 1, 1) == -one_splat);
+    ok = ok && (-int4(1) == -one_compound);
+    ok = ok && (-int4(1, 1, 1, 1) == -one_compound);
+    ok = ok && (int4(-1) == -int4(-int2(-1), int2(1)));
+    ok = ok && (int4(1) != -int4(1));
+    ok = ok && (-int4(two) == int4(-two, int3(-two)));
+    ok = ok && (-int2(-one, one + one) == -int2(one - two, two));
+    return ok;
+}
+
+bool test_mat() {
+    const float3x3 one_diagonal = float3x3(1);
+    const float3x3 one_compound = float3x3(1, 0, 0,
+                                           0, 1, 0,
+                                           0, 0, 1);
+    bool ok = true;
+    ok = ok && (float3x3(-1) == -one_diagonal);
+    ok = ok && (float3x3(-1, 0, 0, 0, -1, 0, 0, 0, -1) == -one_diagonal);
+    ok = ok && (float3x3(-1) == -one_compound);
+    ok = ok && (float3x3(-1, 0, 0, 0, -1, 0, 0, 0, -1) == -one_compound);
+    ok = ok && (-float3x3(1) == -one_diagonal);
+    ok = ok && (-float3x3(1, 0, 0, 0, 1, 0, 0, 0, 1) == -one_diagonal);
+    ok = ok && (-float3x3(1) == -one_compound);
+    ok = ok && (-float3x3(1, 0, 0, 0, 1, 0, 0, 0, 1) == -one_compound);
+    return ok;
+}
+
+half4 main(float2 coords) {
+    return test_fvec() && test_ivec() && test_mat() ? colorGreen : colorRed;
+}
