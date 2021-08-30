@@ -65,6 +65,7 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
 static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
                        const MTLRenderPassAttachmentDescriptor* second,
                        const GrMtlPipelineState* pipelineState) {
+    // From the Metal Best Practices Guide:
     // Check to see if the previous descriptor is compatible with the new one.
     // They are compatible if:
     // * they share the same rendertargets
@@ -82,13 +83,55 @@ static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
                 (second.storeAction == MTLStoreActionStoreAndMultisampleResolve);
     }
     bool secondDoesntSampleFirst = (!pipelineState ||
-                                    pipelineState->doesntSampleAttachment(first)) &&
-                                   second.storeAction != MTLStoreActionMultisampleResolve &&
-                                   !secondStoreActionStoreAndMultisampleResolve;
+                                    pipelineState->doesntSampleAttachment(first));
+
+    // Since we are trying to use the same encoder rather than merging two,
+    // we have to check to see if both store actions are mutually compatible.
+    bool secondStoreValid = true;
+    if (second.storeAction == MTLStoreActionDontCare) {
+        secondStoreValid = (first.storeAction == MTLStoreActionDontCare);
+        // TODO: if first.storeAction is Store and second.loadAction is Load,
+        // we could reset the active RenderCommandEncoder's store action to DontCare
+    } else if (second.storeAction == MTLStoreActionStore) {
+        if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
+            secondStoreValid = (first.storeAction == MTLStoreActionStore ||
+                                first.storeAction == MTLStoreActionStoreAndMultisampleResolve);
+        } else {
+            secondStoreValid = (first.storeAction == MTLStoreActionStore);
+        }
+        // TODO: if the first store action is DontCare we could reset the active
+        // RenderCommandEncoder's store action to Store, but it's not clear if it's worth it.
+    } else if (second.storeAction == MTLStoreActionMultisampleResolve) {
+        if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
+            secondStoreValid = (first.resolveTexture == second.resolveTexture) &&
+                               (first.storeAction == MTLStoreActionMultisampleResolve ||
+                                first.storeAction == MTLStoreActionStoreAndMultisampleResolve);
+        } else {
+            secondStoreValid = (first.resolveTexture == second.resolveTexture) &&
+                               (first.storeAction == MTLStoreActionMultisampleResolve);
+        }
+        // When we first check whether store actions are valid we don't consider resolves,
+        // so we need to reset that here.
+        storeActionsValid = secondStoreValid;
+    } else {
+        if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
+            if (second.storeAction == MTLStoreActionStoreAndMultisampleResolve) {
+                secondStoreValid = (first.resolveTexture == second.resolveTexture) &&
+                                   (first.storeAction == MTLStoreActionStoreAndMultisampleResolve);
+                // TODO: if the first store action is simply MultisampleResolve we could reset
+                // the active RenderCommandEncoder's store action to StoreAndMultisampleResolve,
+                // but it's not clear if it's worth it.
+
+                // When we first check whether store actions are valid we don't consider resolves,
+                // so we need to reset that here.
+                storeActionsValid = secondStoreValid;
+            }
+        }
+    }
 
     return renderTargetsMatch &&
            (nil == first.texture ||
-            (storeActionsValid && loadActionsValid && secondDoesntSampleFirst));
+            (storeActionsValid && loadActionsValid && secondDoesntSampleFirst && secondStoreValid));
 }
 
 GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
