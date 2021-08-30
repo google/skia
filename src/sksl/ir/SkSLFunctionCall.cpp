@@ -16,6 +16,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 
+#include "include/private/SkFloatingPoint.h"
 #include "include/sksl/DSLCore.h"
 #include "src/core/SkMatrixInvert.h"
 
@@ -404,22 +405,26 @@ double evaluate_log(double a, double, double)          { return std::log(a); }
 double evaluate_exp2(double a, double, double)         { return std::exp2(a); }
 double evaluate_log2(double a, double, double)         { return std::log2(a); }
 double evaluate_sqrt(double a, double, double)         { return std::sqrt(a); }
-double evaluate_inversesqrt(double a, double, double)  { return 1.0 / std::sqrt(a); }
+double evaluate_inversesqrt(double a, double, double) {
+    return sk_ieee_double_divide(1.0, std::sqrt(a));
+}
 
 double evaluate_abs(double a, double, double)          { return std::abs(a); }
 double evaluate_sign(double a, double, double)         { return (a > 0) - (a < 0); }
 double evaluate_floor(double a, double, double)        { return std::floor(a); }
 double evaluate_ceil(double a, double, double)         { return std::ceil(a); }
 double evaluate_fract(double a, double, double)        { return a - std::floor(a); }
-double evaluate_mod(double a, double b, double)        { return a - b * std::floor(a / b); }
 double evaluate_min(double a, double b, double)        { return (a < b) ? a : b; }
 double evaluate_max(double a, double b, double)        { return (a > b) ? a : b; }
 double evaluate_clamp(double x, double l, double h)    { return (x < l) ? l : (x > h) ? h : x; }
 double evaluate_saturate(double a, double, double)     { return (a < 0) ? 0 : (a > 1) ? 1 : a; }
 double evaluate_mix(double x, double y, double a)      { return x * (1 - a) + y * a; }
 double evaluate_step(double e, double x, double)       { return (x < e) ? 0 : 1; }
+double evaluate_mod(double a, double b, double) {
+    return a - b * std::floor(sk_ieee_double_divide(a, b));
+}
 double evaluate_smoothstep(double edge0, double edge1, double x) {
-    auto t = (x - edge0) / (edge1 - edge0);
+    double t = sk_ieee_double_divide(x - edge0, edge1 - edge0);
     t = (t < 0) ? 0 : (t > 1) ? 1 : t;
     return t * t * (3.0 - 2.0 * t);
 }
