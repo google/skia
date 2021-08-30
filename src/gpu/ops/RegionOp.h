@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrRegionOp_DEFINED
-#define GrRegionOp_DEFINED
+#ifndef RegionOp_DEFINED
+#define RegionOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
 
-class GrDrawOp;
+class GrPaint;
 class GrRecordingContext;
+struct GrUserStencilSettings;
 class SkMatrix;
 class SkRegion;
-class GrPaint;
-struct GrUserStencilSettings;
 
-namespace GrRegionOp {
+namespace skgpu::v1::RegionOp {
+
 /** GrAAType must be kNone or kMSAA. */
 GrOp::Owner Make(GrRecordingContext*,
                  GrPaint&&,
@@ -26,6 +26,7 @@ GrOp::Owner Make(GrRecordingContext*,
                  const SkRegion&,
                  GrAAType,
                  const GrUserStencilSettings* stencilSettings = nullptr);
-}  // namespace GrRegionOp
 
-#endif
+} // namespace skgpu::v1::RegionOp
+
+#endif // RegionOp_DEFINED

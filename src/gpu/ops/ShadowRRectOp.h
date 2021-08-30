@@ -5,20 +5,19 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrShadowRRectOp_DEFINED
-#define GrShadowRRectOp_DEFINED
+#ifndef ShadowRRectOp_DEFINED
+#define ShadowRRectOp_DEFINED
 
 #include <memory>
 #include "src/gpu/GrColor.h"
 #include "src/gpu/ops/GrOp.h"
 
-class GrDrawOp;
 class GrRecordingContext;
 
 class SkMatrix;
 class SkRRect;
 
-namespace GrShadowRRectOp {
+namespace skgpu::v1::ShadowRRectOp {
 
 GrOp::Owner Make(GrRecordingContext*,
                  GrColor,
@@ -26,6 +25,7 @@ GrOp::Owner Make(GrRecordingContext*,
                  const SkRRect&,
                  SkScalar blurWidth,
                  SkScalar insetWidth);
-}  // namespace GrShadowRRectOp
 
-#endif
+} // namespace skgpu::v1::ShadowRRectOp
+
+#endif // ShadowRRectOp_DEFINED

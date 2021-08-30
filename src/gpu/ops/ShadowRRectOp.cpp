@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrShadowRRectOp.h"
+#include "src/gpu/ops/ShadowRRectOp.h"
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRRectPriv.h"
-#include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -19,6 +18,8 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrShadowGeoProc.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+
+namespace {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Circle Data
@@ -56,15 +57,15 @@ static const int kIndicesPerStrokeCircle = SK_ARRAY_COUNT(gStrokeCircleIndices);
 static const int kVertsPerStrokeCircle = 16;
 static const int kVertsPerFillCircle = 9;
 
-static int circle_type_to_vert_count(bool stroked) {
+int circle_type_to_vert_count(bool stroked) {
     return stroked ? kVertsPerStrokeCircle : kVertsPerFillCircle;
 }
 
-static int circle_type_to_index_count(bool stroked) {
+int circle_type_to_index_count(bool stroked) {
     return stroked ? kIndicesPerStrokeCircle : kIndicesPerFillCircle;
 }
 
-static const uint16_t* circle_type_to_indices(bool stroked) {
+const uint16_t* circle_type_to_indices(bool stroked) {
     return stroked ? gStrokeCircleIndices : gFillCircleIndices;
 }
 
@@ -150,7 +151,7 @@ enum RRectType {
     kOverstroke_RRectType,
 };
 
-static int rrect_type_to_vert_count(RRectType type) {
+int rrect_type_to_vert_count(RRectType type) {
     switch (type) {
         case kFill_RRectType:
             return kVertsPerFillRRect;
@@ -162,7 +163,7 @@ static int rrect_type_to_vert_count(RRectType type) {
     SK_ABORT("Invalid type");
 }
 
-static int rrect_type_to_index_count(RRectType type) {
+int rrect_type_to_index_count(RRectType type) {
     switch (type) {
         case kFill_RRectType:
             return kIndicesPerFillRRect;
@@ -174,7 +175,7 @@ static int rrect_type_to_index_count(RRectType type) {
     SK_ABORT("Invalid type");
 }
 
-static const uint16_t* rrect_type_to_indices(RRectType type) {
+const uint16_t* rrect_type_to_indices(RRectType type) {
     switch (type) {
         case kFill_RRectType:
         case kStroke_RRectType:
@@ -186,7 +187,6 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace {
 
 class ShadowCircularRRectOp final : public GrMeshDrawOp {
 public:
@@ -663,7 +663,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace GrShadowRRectOp {
+namespace skgpu::v1::ShadowRRectOp {
 
 static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* rContext) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
@@ -703,7 +703,6 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* rContext) {
     return view;
 }
 
-
 GrOp::Owner Make(GrRecordingContext* context,
                  GrColor color,
                  const SkMatrix& viewMatrix,
@@ -742,11 +741,14 @@ GrOp::Owner Make(GrRecordingContext* context,
                                              scaledInsetWidth,
                                              std::move(falloffView));
 }
-}  // namespace GrShadowRRectOp
+
+}  // namespace skgpu::v1::ShadowRRectOp
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrDrawOpTest.h"
 
 GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     // We may choose matrix and inset values that cause the factory to fail. We loop until we find
@@ -769,7 +771,7 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
         if (isCircle) {
             SkRect circle = GrTest::TestSquare(random);
             SkRRect rrect = SkRRect::MakeOval(circle);
-            if (auto op = GrShadowRRectOp::Make(
+            if (auto op = skgpu::v1::ShadowRRectOp::Make(
                     context, color, viewMatrix, rrect, blurWidth, insetWidth)) {
                 return op;
             }
@@ -779,7 +781,7 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
                 // This may return a rrect with elliptical corners, which will cause an assert.
                 rrect = GrTest::TestRRectSimple(random);
             } while (!SkRRectPriv::IsSimpleCircular(rrect));
-            if (auto op = GrShadowRRectOp::Make(
+            if (auto op = skgpu::v1::ShadowRRectOp::Make(
                     context, color, viewMatrix, rrect, blurWidth, insetWidth)) {
                 return op;
             }
@@ -787,4 +789,4 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     } while (true);
 }
 
-#endif
+#endif // GR_TEST_UTILS

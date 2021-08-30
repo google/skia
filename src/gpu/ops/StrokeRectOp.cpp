@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrStrokeRectOp.h"
+#include "src/gpu/ops/StrokeRectOp.h"
 
 #include "include/core/SkStrokeRec.h"
 #include "include/private/GrResourceKey.h"
@@ -28,7 +28,7 @@ namespace {
 // We support all hairlines, bevels, and miters, but not round joins. Also, check whether the miter
 // limit makes a miter join effectively beveled. If the miter is effectively beveled, it is only
 // supported when using an AA stroke.
-inline static bool allowed_stroke(const SkStrokeRec& stroke, GrAA aa, bool* isMiter) {
+inline bool allowed_stroke(const SkStrokeRec& stroke, GrAA aa, bool* isMiter) {
     SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
              stroke.getStyle() == SkStrokeRec::kHairline_Style);
     // For hairlines, make bevel and round joins appear the same as mitered ones.
@@ -58,7 +58,7 @@ inline static bool allowed_stroke(const SkStrokeRec& stroke, GrAA aa, bool* isMi
     could use an indices array, and then only send 8 verts, but not sure that
     would be faster.
     */
-static void init_nonaa_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScalar width) {
+void init_nonaa_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScalar width) {
     const SkScalar rad = SkScalarHalf(width);
 
     verts[0].set(rect.fLeft + rad, rect.fTop + rad);
@@ -277,7 +277,7 @@ private:
 GR_DECLARE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
 
-static bool stroke_dev_half_size_supported(SkVector devHalfStrokeSize) {
+bool stroke_dev_half_size_supported(SkVector devHalfStrokeSize) {
     // Since the horizontal and vertical strokes share internal corners, the coverage value at that
     // corner needs to be equal for the horizontal and vertical strokes both.
     //
@@ -289,16 +289,16 @@ static bool stroke_dev_half_size_supported(SkVector devHalfStrokeSize) {
            std::min(devHalfStrokeSize.fX, devHalfStrokeSize.fY) >= .5f;
 }
 
-static bool compute_aa_rects(const GrCaps& caps,
-                             SkRect* devOutside,
-                             SkRect* devOutsideAssist,
-                             SkRect* devInside,
-                             bool* isDegenerate,
-                             const SkMatrix& viewMatrix,
-                             const SkRect& rect,
-                             SkScalar strokeWidth,
-                             bool miterStroke,
-                             SkVector* devHalfStrokeSize) {
+bool compute_aa_rects(const GrCaps& caps,
+                      SkRect* devOutside,
+                      SkRect* devOutsideAssist,
+                      SkRect* devInside,
+                      bool* isDegenerate,
+                      const SkMatrix& viewMatrix,
+                      const SkRect& rect,
+                      SkScalar strokeWidth,
+                      bool miterStroke,
+                      SkVector* devHalfStrokeSize) {
     SkVector devStrokeSize;
     if (strokeWidth > 0) {
         devStrokeSize.set(strokeWidth, strokeWidth);
@@ -361,12 +361,12 @@ static bool compute_aa_rects(const GrCaps& caps,
     return true;
 }
 
-static GrGeometryProcessor* create_aa_stroke_rect_gp(SkArenaAlloc* arena,
-                                                     bool usesMSAASurface,
-                                                     bool tweakAlphaForCoverage,
-                                                     const SkMatrix& viewMatrix,
-                                                     bool usesLocalCoords,
-                                                     bool wideColor) {
+GrGeometryProcessor* create_aa_stroke_rect_gp(SkArenaAlloc* arena,
+                                              bool usesMSAASurface,
+                                              bool tweakAlphaForCoverage,
+                                              const SkMatrix& viewMatrix,
+                                              bool usesLocalCoords,
+                                              bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
 
     // When MSAA is enabled, we have to extend our AA bloats and interpolate coverage values outside
@@ -932,7 +932,7 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
 
 }  // anonymous namespace
 
-namespace GrStrokeRectOp {
+namespace skgpu::v1::StrokeRectOp {
 
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,
@@ -982,7 +982,7 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
                                 devInside, SkVector{dx, dy} * .5f);
 }
 
-}  // namespace GrStrokeRectOp
+} // namespace skgpu::v1::StrokeRectOp
 
 #if GR_TEST_UTILS
 

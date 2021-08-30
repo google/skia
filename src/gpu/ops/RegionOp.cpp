@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrRegionOp.h"
+#include "src/gpu/ops/RegionOp.h"
 
 #include "include/core/SkRegion.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
-#include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -19,7 +18,9 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
-static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
+namespace {
+
+GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
                                     const SkMatrix& viewMatrix,
                                     bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
@@ -29,9 +30,7 @@ static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
                                          LocalCoords::kUsePosition_Type, viewMatrix);
 }
 
-namespace {
-
-class RegionOp final : public GrMeshDrawOp {
+class RegionOpImpl final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
@@ -44,13 +43,13 @@ public:
                             const SkRegion& region,
                             GrAAType aaType,
                             const GrUserStencilSettings* stencilSettings = nullptr) {
-        return Helper::FactoryHelper<RegionOp>(context, std::move(paint), viewMatrix, region,
-                                               aaType, stencilSettings);
+        return Helper::FactoryHelper<RegionOpImpl>(context, std::move(paint), viewMatrix, region,
+                                                   aaType, stencilSettings);
     }
 
-    RegionOp(GrProcessorSet* processorSet, const SkPMColor4f& color,
-             const SkMatrix& viewMatrix, const SkRegion& region, GrAAType aaType,
-             const GrUserStencilSettings* stencilSettings)
+    RegionOpImpl(GrProcessorSet* processorSet, const SkPMColor4f& color,
+                 const SkMatrix& viewMatrix, const SkRegion& region, GrAAType aaType,
+                 const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
             , fHelper(processorSet, aaType, stencilSettings)
             , fViewMatrix(viewMatrix) {
@@ -153,7 +152,7 @@ private:
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
-        RegionOp* that = t->cast<RegionOp>();
+        auto that = t->cast<RegionOpImpl>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return CombineResult::kCannotCombine;
         }
@@ -198,7 +197,7 @@ private:
 
 }  // anonymous namespace
 
-namespace GrRegionOp {
+namespace skgpu::v1::RegionOp {
 
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,
@@ -209,11 +208,15 @@ GrOp::Owner Make(GrRecordingContext* context,
     if (aaType != GrAAType::kNone && aaType != GrAAType::kMSAA) {
         return nullptr;
     }
-    return RegionOp::Make(context, std::move(paint), viewMatrix, region, aaType, stencilSettings);
+    return RegionOpImpl::Make(context, std::move(paint), viewMatrix, region, aaType,
+                              stencilSettings);
 }
-}  // namespace GrRegionOp
+
+} // namespace skgpu::v1::RegionOp
 
 #if GR_TEST_UTILS
+
+#include "src/gpu/GrDrawOpTest.h"
 
 GR_DRAW_OP_TEST_DEFINE(RegionOp) {
     SkRegion region;
@@ -240,8 +243,8 @@ GR_DRAW_OP_TEST_DEFINE(RegionOp) {
     if (numSamples > 1 && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return RegionOp::Make(context, std::move(paint), viewMatrix, region, aaType,
-                          GrGetRandomStencil(random, context));
+    return RegionOpImpl::Make(context, std::move(paint), viewMatrix, region, aaType,
+                              GrGetRandomStencil(random, context));
 }
 
-#endif
+#endif // GR_TEST_UTILS

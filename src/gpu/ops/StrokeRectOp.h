@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeRectOp_DEFINED
-#define GrStrokeRectOp_DEFINED
+#ifndef StrokeRectOp_DEFINED
+#define StrokeRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
 
-class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
 class SkMatrix;
@@ -24,23 +23,23 @@ class SkStrokeRec;
  * the GrPaint is only consumed by these methods if a valid op is returned. If null is returned then
  * the paint is unmodified and may still be used.
  */
-namespace GrStrokeRectOp {
+namespace skgpu::v1::StrokeRectOp {
 
-GrOp::Owner Make(GrRecordingContext* context,
-                 GrPaint&& paint,
-                 GrAAType aaType,
+GrOp::Owner Make(GrRecordingContext*,
+                 GrPaint&&,
+                 GrAAType,
                  const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkStrokeRec& stroke);
+                 const SkRect&,
+                 const SkStrokeRec&);
 
 // rects[0] == outer rectangle, rects[1] == inner rectangle. Null return means there is nothing to
 // draw rather than failure. The area between the rectangles will be filled by the paint, and it
 // will be anti-aliased with coverage AA. viewMatrix.rectStaysRect() must be true.
-GrOp::Owner MakeNested(GrRecordingContext* context,
-                       GrPaint&& paint,
+GrOp::Owner MakeNested(GrRecordingContext*,
+                       GrPaint&&,
                        const SkMatrix& viewMatrix,
                        const SkRect rects[2]);
 
-}  // namespace GrStrokeRectOp
+} // namespace skgpu::v1::StrokeRectOp
 
-#endif // GrStrokeRectOp_DEFINED
+#endif // StrokeRectOp_DEFINED

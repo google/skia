@@ -62,9 +62,9 @@
 #include "src/gpu/ops/GrLatticeOp.h"
 #include "src/gpu/ops/GrOp.h"
 #include "src/gpu/ops/GrOvalOpFactory.h"
-#include "src/gpu/ops/GrRegionOp.h"
-#include "src/gpu/ops/GrShadowRRectOp.h"
-#include "src/gpu/ops/GrStrokeRectOp.h"
+#include "src/gpu/ops/RegionOp.h"
+#include "src/gpu/ops/ShadowRRectOp.h"
+#include "src/gpu/ops/StrokeRectOp.h"
 #include "src/gpu/ops/TextureOp.h"
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
@@ -764,8 +764,8 @@ void SurfaceDrawContext::drawRect(const GrClip* clip,
                            stroke.getJoin() == SkPaint::kMiter_Join &&
                            stroke.getMiter() >= SK_ScalarSqrt2) ? GrAAType::kCoverage
                                                                 : this->chooseAAType(aa);
-        GrOp::Owner op = GrStrokeRectOp::Make(
-                fContext, std::move(paint), aaType, viewMatrix, rect, stroke);
+        GrOp::Owner op = StrokeRectOp::Make(fContext, std::move(paint), aaType, viewMatrix,
+                                            rect, stroke);
         // op may be null if the stroke is not supported or if using coverage aa and the view matrix
         // does not preserve rectangles.
         if (op) {
@@ -1199,12 +1199,12 @@ bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
             devSpaceInsetWidth = ambientRRect.width();
         }
 
-        GrOp::Owner op = GrShadowRRectOp::Make(fContext,
-                                               ambientColor,
-                                               viewMatrix,
-                                               ambientRRect,
-                                               devSpaceAmbientBlur,
-                                               devSpaceInsetWidth);
+        GrOp::Owner op = ShadowRRectOp::Make(fContext,
+                                             ambientColor,
+                                             viewMatrix,
+                                             ambientRRect,
+                                             devSpaceAmbientBlur,
+                                             devSpaceInsetWidth);
         if (op) {
             this->addDrawOp(clip, std::move(op));
         }
@@ -1304,12 +1304,12 @@ bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
 
         GrColor spotColor = SkColorToPremulGrColor(rec.fSpotColor);
 
-        GrOp::Owner op = GrShadowRRectOp::Make(fContext,
-                                               spotColor,
-                                               viewMatrix,
-                                               spotShadowRRect,
-                                               2.0f * devSpaceSpotBlur,
-                                               insetWidth);
+        GrOp::Owner op = ShadowRRectOp::Make(fContext,
+                                             spotColor,
+                                             viewMatrix,
+                                             spotShadowRRect,
+                                             2.0f * devSpaceSpotBlur,
+                                             insetWidth);
         if (op) {
             this->addDrawOp(clip, std::move(op));
         }
@@ -1350,10 +1350,8 @@ void SurfaceDrawContext::drawRegion(const GrClip* clip,
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
-    GrAAType aaType = (this->numSamples() > 1)
-                    ? GrAAType::kMSAA
-                    : GrAAType::kNone;
-    GrOp::Owner op = GrRegionOp::Make(fContext, std::move(paint), viewMatrix, region, aaType, ss);
+    GrAAType aaType = (this->numSamples() > 1) ? GrAAType::kMSAA : GrAAType::kNone;
+    GrOp::Owner op = RegionOp::Make(fContext, std::move(paint), viewMatrix, region, aaType, ss);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1764,8 +1762,8 @@ bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
             SkRect rects[2];
             if (shape.asNestedRects(rects)) {
                 // Concave AA paths are expensive - try to avoid them for special cases
-                GrOp::Owner op = GrStrokeRectOp::MakeNested(
-                                fContext, std::move(*paint), viewMatrix, rects);
+                GrOp::Owner op = StrokeRectOp::MakeNested(fContext, std::move(*paint),
+                                                          viewMatrix, rects);
                 if (op) {
                     this->addDrawOp(clip, std::move(op));
                 }
