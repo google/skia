@@ -296,7 +296,7 @@ protected:
 
     bool onClick(Click* click) override {
         ((MyClick*)click)->handleMove();
-        return false;
+        return true;
     }
 
 private:
