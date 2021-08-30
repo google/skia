@@ -168,6 +168,7 @@ bool DSLParser::expect(Token::Kind kind, const char* expected, Token* result) {
     } else {
         this->error(next, "expected " + String(expected) + ", but found '" +
                     this->text(next) + "'");
+        this->fEncounteredFatalError = true;
         return false;
     }
 }
@@ -179,6 +180,7 @@ bool DSLParser::expectIdentifier(Token* result) {
     if (IsType(this->text(*result))) {
         this->error(*result, "expected an identifier, but found type '" +
                              this->text(*result) + "'");
+        this->fEncounteredFatalError = true;
         return false;
     }
     return true;
@@ -201,6 +203,7 @@ std::unique_ptr<Program> DSLParser::program() {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     Start(&fCompiler, fKind, fSettings);
     SetErrorReporter(errorReporter);
+    fEncounteredFatalError = false;
     std::unique_ptr<Program> result;
     bool done = false;
     while (!done) {
@@ -216,12 +219,9 @@ std::unique_ptr<Program> DSLParser::program() {
                 done = true;
                 break;
             }
-            default: {
-                if (!this->declaration()) {
-                    done = true;
-                    break;
-                }
-            }
+            default:
+                this->declaration();
+                done = fEncounteredFatalError;
         }
     }
     End();

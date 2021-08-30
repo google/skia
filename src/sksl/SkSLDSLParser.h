@@ -266,6 +266,7 @@ private:
             fPushbackCheckpoint = fParser->fPushback;
             fLexerCheckpoint = fParser->fLexer.getCheckpoint();
             fOldErrorReporter = &dsl::GetErrorReporter();
+            fOldEncounteredFatalError = fParser->fEncounteredFatalError;
             SkASSERT(fOldErrorReporter);
             dsl::SetErrorReporter(&fErrorReporter);
         }
@@ -287,6 +288,7 @@ private:
             this->restoreErrorReporter();
             fParser->fPushback = fPushbackCheckpoint;
             fParser->fLexer.rewindToCheckpoint(fLexerCheckpoint);
+            fParser->fEncounteredFatalError = fOldEncounteredFatalError;
         }
 
     private:
@@ -323,6 +325,7 @@ private:
         int32_t fLexerCheckpoint;
         ForwardingErrorReporter fErrorReporter;
         ErrorReporter* fOldErrorReporter;
+        bool fOldEncounteredFatalError;
     };
 
     static std::unordered_map<skstd::string_view, LayoutToken>* layoutTokens;
@@ -330,6 +333,7 @@ private:
     Compiler& fCompiler;
     ProgramSettings fSettings;
     ErrorReporter* fErrorReporter;
+    bool fEncounteredFatalError;
     ProgramKind fKind;
     String fText;
     Lexer fLexer;
