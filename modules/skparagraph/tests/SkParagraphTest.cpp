@@ -6498,3 +6498,40 @@ DEF_TEST(SkParagraph_PlaceholderPosition, reporter) {
     REPORTER_ASSERT(reporter, result.position == 4 && result.affinity == Affinity::kDownstream);
 }
 
+DEF_TEST(SkParagraph_LineEnd, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_LineEnd.png");
+    canvas.get()->translate(100, 100);
+
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(10.0f);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText("Hello ");
+    builder.addText("hello   ");
+    builder.addText("hello\n");
+    builder.addText("hello   \n");
+    builder.addText("world");
+
+    auto paragraph = builder.Build();
+    paragraph->layout(60.0f);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    std::vector<LineMetrics> lm;
+    paragraph->getLineMetrics(lm);
+    /*
+    for (auto& lm : lm) {
+        SkDebugf("%d %d %d\n", (int)lm.fEndExcludingWhitespaces, (int)lm.fEndIndex, (int)lm.fEndIncludingNewline);
+    }
+    */
+    REPORTER_ASSERT(reporter, lm[0].fEndExcludingWhitespaces == 05 && lm[0].fEndIndex == 06 && lm[0].fEndIncludingNewline == 06);
+    REPORTER_ASSERT(reporter, lm[1].fEndExcludingWhitespaces == 11 && lm[1].fEndIndex == 14 && lm[1].fEndIncludingNewline == 14);
+    REPORTER_ASSERT(reporter, lm[2].fEndExcludingWhitespaces == 19 && lm[2].fEndIndex == 19 && lm[2].fEndIncludingNewline == 20);
+    REPORTER_ASSERT(reporter, lm[3].fEndExcludingWhitespaces == 25 && lm[3].fEndIndex == 28 && lm[3].fEndIncludingNewline == 29);
+}

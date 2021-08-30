@@ -26,7 +26,7 @@ class TextWrapper {
         void move(bool up) {
             fCluster += up ? 1 : -1;
             fPos = up ? 0 : fCluster->endPos();
-}
+        }
 
     private:
         Cluster* fCluster;
@@ -116,6 +116,10 @@ class TextWrapper {
         void restoreBreak() {
             fWidth = fWidthWithGhostSpaces;
             fEnd = fBreak;
+        }
+
+        void shiftBreak() {
+            fBreak.move(true);
         }
 
         void trim() {

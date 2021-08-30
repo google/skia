@@ -58,7 +58,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                 fClusters.extend(cluster);
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
                 fWords.extend(fClusters);
-                break;
+                continue;
             } else if (cluster->run().isPlaceholder()) {
                 if (!fClusters.empty()) {
                     // Placeholder ends the previous word
@@ -245,6 +245,13 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
     while (cluster < endOfClusters && cluster->isWhitespaceBreak()) {
         width += cluster->width();
         ++cluster;
+    }
+
+    if (fEndLine.breakCluster()->isWhitespaceBreak() && fEndLine.breakCluster() < endOfClusters) {
+        // In case of a soft line break by the whitespace
+        // fBreak should point to the beginning of the next line
+        // (it only matters when there are trailing spaces)
+        fEndLine.shiftBreak();
     }
 
     return std::make_tuple(cluster, 0, width);
