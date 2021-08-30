@@ -7,6 +7,11 @@
   "bugs": {
     "url": "https://bugs.chromium.org/p/skia/issues/entry"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google/skia.git",
+    "directory": "modules/pathkit/npm-wasm"
+  },
   "permsRepo": "skia-dev/.github",
   "publishConfig": {
     "registry":"https://wombat-dressing-room.appspot.com"
