@@ -1196,6 +1196,8 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             }
             return this->call(offset, *functions[0], std::move(arguments));
         }
+        case Expression::Kind::kPoison:
+            return functionValue;
         default:
             this->errorReporter().error(offset, "not a function");
             return nullptr;
