@@ -59,8 +59,8 @@
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-SwiftShader_MSAN/Debug/swiftshader_out",
-      "libEGL.so",
-      "libGLESv2.so"
+      "libEGL_deprecated.so",
+      "libGLESv2_deprecated.so"
     ],
     "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-SwiftShader_MSAN/Debug/swiftshader_out",
     "env": {
@@ -71,6 +71,38 @@
       "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
     },
     "name": "swiftshader ninja"
+  },
+  {
+    "cmd": [
+      "cp",
+      "libEGL_deprecated.so",
+      "libEGL.so"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-SwiftShader_MSAN/Debug/swiftshader_out",
+    "env": {
+      "CC": "[START_DIR]/clang_linux/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "[START_DIR]/clang_linux/bin/clang++",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
+      "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
+    },
+    "name": "rename legacy libEGL binary"
+  },
+  {
+    "cmd": [
+      "cp",
+      "libGLESv2_deprecated.so",
+      "libGLESv2.so"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-SwiftShader_MSAN/Debug/swiftshader_out",
+    "env": {
+      "CC": "[START_DIR]/clang_linux/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "[START_DIR]/clang_linux/bin/clang++",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
+      "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
+    },
+    "name": "rename legacy libGLESv2 binary"
   },
   {
     "cmd": [
