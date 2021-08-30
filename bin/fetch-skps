@@ -8,7 +8,7 @@ set -x
 set -e
 
 ROOT_DIR="$(cd $(dirname $0)/..; pwd)"
-python ${ROOT_DIR}/bin/fetch-sk
+python3 ${ROOT_DIR}/bin/fetch-sk
 case "$(uname -s)" in
   CYGWIN*) SK_EXE="sk.exe";;
   MINGW*)  SK_EXE="sk.exe";;
