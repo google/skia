@@ -6443,14 +6443,17 @@ DEF_TEST(SkParagraph_RTLLineMetricsDoesNotIncludeNewLine, reporter) {
         even = !even;
     }
 
+    // RTL codepoint u"\u202E" messes everything up
+    // (adds one invisible codepoint to the first line
+    // and shift all the indexes by 1 right)
     std::vector<std::tuple<int, int, int, int>> expected = {
-            { -3, 0, 4, 5 },                 //      { just spaces; the end of the text considered as a new line in libtxt?!? }
-            { 5, 21, 21, 22 },              // with spaces    \n
-            { 22, 32, 32, 33 },             // three four\n
-            { 33, 33, 33, 34 },             // \n
-            { 34, 41, 41, 42 },             // one two\n
-            { 42, 63, 63, 63 },             // _____________________
-            { 63, 64, 64, 64 }              // _
+            { 0, 1, 5, 6 },                 //      { just spaces; the end of the text considered as a new line in libtxt?!? }
+            { 6, 22, 22, 23  },             // with spaces    \n
+            { 23, 33, 33, 34 },             // three four\n
+            { 34, 34, 34, 35 },             // \n
+            { 35, 42, 42, 43 },             // one two\n
+            { 43, 64, 64, 64 },             // _____________________
+            { 64, 65, 65, 65 }              // _
     };
 
     std::vector<LineMetrics> metrics;
@@ -6458,11 +6461,10 @@ DEF_TEST(SkParagraph_RTLLineMetricsDoesNotIncludeNewLine, reporter) {
     for (auto& metric : metrics) {
         //SkDebugf("Line[%d:%d <= %d <=%d]\n", metric.fStartIndex, metric.fEndExcludingWhitespaces, metric.fEndIndex, metric.fEndIncludingNewline);
         auto result = expected[metric.fLineNumber];
-        //SkDebugf("expected: %d %d %d %d\n", 3 + std::get<0>(result), 3 + std::get<1>(result), 3 + std::get<2>(result), 3 + std::get<3>(result));
-        REPORTER_ASSERT(reporter, metric.fStartIndex == SkToU32(3 + std::get<0>(result)));
-        REPORTER_ASSERT(reporter, metric.fEndExcludingWhitespaces == SkToU32(3 + std::get<1>(result)));
-        REPORTER_ASSERT(reporter, metric.fEndIndex == SkToU32(3 + std::get<2>(result)));
-        REPORTER_ASSERT(reporter, metric.fEndIncludingNewline == SkToU32(3 + std::get<3>(result)));
+        REPORTER_ASSERT(reporter, metric.fStartIndex == SkToU32(std::get<0>(result)));
+        REPORTER_ASSERT(reporter, metric.fEndExcludingWhitespaces == SkToU32(std::get<1>(result)));
+        REPORTER_ASSERT(reporter, metric.fEndIndex == SkToU32(std::get<2>(result)));
+        REPORTER_ASSERT(reporter, metric.fEndIncludingNewline == SkToU32(std::get<3>(result)));
     }
 }
 
@@ -6534,4 +6536,32 @@ DEF_TEST(SkParagraph_LineEnd, reporter) {
     REPORTER_ASSERT(reporter, lm[1].fEndExcludingWhitespaces == 11 && lm[1].fEndIndex == 14 && lm[1].fEndIncludingNewline == 14);
     REPORTER_ASSERT(reporter, lm[2].fEndExcludingWhitespaces == 19 && lm[2].fEndIndex == 19 && lm[2].fEndIncludingNewline == 20);
     REPORTER_ASSERT(reporter, lm[3].fEndExcludingWhitespaces == 25 && lm[3].fEndIndex == 28 && lm[3].fEndIncludingNewline == 29);
+}
+
+DEF_TEST(SkParagraph_Utf16Indexes, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_Utf16Indexes.png");
+    canvas.get()->translate(100, 100);
+
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(10.0f);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText("áéíóú\nxxxx");
+    auto paragraph = builder.Build();
+    paragraph->layout(60.0f);
+    paragraph->paint(canvas.get(), 0, 0);
+    std::vector<LineMetrics> lm;
+    paragraph->getLineMetrics(lm);
+    //for (auto& lm : lm) {
+    //    SkDebugf("%d %d %d\n", (int)lm.fEndExcludingWhitespaces, (int)lm.fEndIndex, (int)lm.fEndIncludingNewline);
+    //}
+    REPORTER_ASSERT(reporter, lm[0].fEndExcludingWhitespaces == 05 && lm[0].fEndIndex == 05 && lm[0].fEndIncludingNewline == 06);
+    REPORTER_ASSERT(reporter, lm[1].fEndExcludingWhitespaces == 10 && lm[1].fEndIndex == 10 && lm[1].fEndIncludingNewline == 10);
 }

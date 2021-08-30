@@ -906,10 +906,11 @@ LineMetrics TextLine::getMetrics() const {
     LineMetrics result;
 
     // Fill out the metrics
-    result.fStartIndex = fTextExcludingSpaces.start;
-    result.fEndExcludingWhitespaces = fTextExcludingSpaces.end;
-    result.fEndIndex = fText.end;
-    result.fEndIncludingNewline = fTextIncludingNewlines.end;
+    fOwner->ensureUTF16Mapping();
+    result.fStartIndex = fOwner->getUTF16Index(fTextExcludingSpaces.start);
+    result.fEndExcludingWhitespaces = fOwner->getUTF16Index(fTextExcludingSpaces.end);
+    result.fEndIndex = fOwner->getUTF16Index(fText.end);
+    result.fEndIncludingNewline = fOwner->getUTF16Index(fTextIncludingNewlines.end);
     result.fHardBreak = endsWithHardLineBreak();
     result.fAscent = - fMaxRunMetrics.ascent();
     result.fDescent = fMaxRunMetrics.descent();
