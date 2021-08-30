@@ -220,9 +220,7 @@ private:
     const ParsedModule& loadFragmentModule();
     const ParsedModule& loadVertexModule();
     const ParsedModule& loadPublicModule();
-    const ParsedModule& loadRuntimeColorFilterModule();
     const ParsedModule& loadRuntimeShaderModule();
-    const ParsedModule& loadRuntimeBlenderModule();
 
     std::shared_ptr<SymbolTable> makeRootSymbolTable();
     std::shared_ptr<SymbolTable> makePrivateSymbolTable(std::shared_ptr<SymbolTable> parent);
@@ -259,9 +257,7 @@ private:
     ParsedModule fFragmentModule;            // [GPU] + Fragment stage decls
 
     ParsedModule fPublicModule;              // [Root] + Public features
-    ParsedModule fRuntimeColorFilterModule;  // [Public] + Runtime shader decls
-    ParsedModule fRuntimeShaderModule;       // [Public] + Runtime color filter decls
-    ParsedModule fRuntimeBlenderModule;      // [Public] + Runtime blender decls
+    ParsedModule fRuntimeShaderModule;       // [Public] + Runtime shader decls
 
     // holds ModifiersPools belonging to the core includes for lifetime purposes
     ModifiersPool fCoreModifiers;

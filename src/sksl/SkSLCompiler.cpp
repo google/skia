@@ -61,8 +61,6 @@
 #include "src/sksl/generated/sksl_frag.dehydrated.sksl"
 #include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
 #include "src/sksl/generated/sksl_public.dehydrated.sksl"
-#include "src/sksl/generated/sksl_rt_blend.dehydrated.sksl"
-#include "src/sksl/generated/sksl_rt_colorfilter.dehydrated.sksl"
 #include "src/sksl/generated/sksl_rt_shader.dehydrated.sksl"
 #include "src/sksl/generated/sksl_vert.dehydrated.sksl"
 
@@ -241,13 +239,6 @@ const ParsedModule& Compiler::loadVertexModule() {
     return fVertexModule;
 }
 
-const ParsedModule& Compiler::loadPublicModule() {
-    if (!fPublicModule.fSymbols) {
-        fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public), fRootModule);
-    }
-    return fPublicModule;
-}
-
 static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
     // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL
     symbols->addAlias("vec2", types.fFloat2.get());
@@ -267,42 +258,30 @@ static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Builti
     symbols->addAlias("mat4", types.fFloat4x4.get());
 }
 
-const ParsedModule& Compiler::loadRuntimeColorFilterModule() {
-    if (!fRuntimeColorFilterModule.fSymbols) {
-        fRuntimeColorFilterModule = this->parseModule(ProgramKind::kRuntimeColorFilter,
-                                                      MODULE_DATA(rt_colorfilter),
-                                                      this->loadPublicModule());
-        add_glsl_type_aliases(fRuntimeColorFilterModule.fSymbols.get(), fContext->fTypes);
+const ParsedModule& Compiler::loadPublicModule() {
+    if (!fPublicModule.fSymbols) {
+        fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public), fRootModule);
+        add_glsl_type_aliases(fPublicModule.fSymbols.get(), fContext->fTypes);
     }
-    return fRuntimeColorFilterModule;
+    return fPublicModule;
 }
 
 const ParsedModule& Compiler::loadRuntimeShaderModule() {
     if (!fRuntimeShaderModule.fSymbols) {
         fRuntimeShaderModule = this->parseModule(
                 ProgramKind::kRuntimeShader, MODULE_DATA(rt_shader), this->loadPublicModule());
-        add_glsl_type_aliases(fRuntimeShaderModule.fSymbols.get(), fContext->fTypes);
     }
     return fRuntimeShaderModule;
 }
 
-const ParsedModule& Compiler::loadRuntimeBlenderModule() {
-    if (!fRuntimeBlenderModule.fSymbols) {
-        fRuntimeBlenderModule = this->parseModule(
-                ProgramKind::kRuntimeBlender, MODULE_DATA(rt_blend), this->loadPublicModule());
-        add_glsl_type_aliases(fRuntimeBlenderModule.fSymbols.get(), fContext->fTypes);
-    }
-    return fRuntimeBlenderModule;
-}
-
 const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
     switch (kind) {
-        case ProgramKind::kVertex:             return this->loadVertexModule();             break;
-        case ProgramKind::kFragment:           return this->loadFragmentModule();           break;
-        case ProgramKind::kRuntimeColorFilter: return this->loadRuntimeColorFilterModule(); break;
-        case ProgramKind::kRuntimeShader:      return this->loadRuntimeShaderModule();      break;
-        case ProgramKind::kRuntimeBlender:     return this->loadRuntimeBlenderModule();     break;
-        case ProgramKind::kGeneric:            return this->loadPublicModule();             break;
+        case ProgramKind::kVertex:             return this->loadVertexModule();        break;
+        case ProgramKind::kFragment:           return this->loadFragmentModule();      break;
+        case ProgramKind::kRuntimeColorFilter: return this->loadPublicModule();        break;
+        case ProgramKind::kRuntimeShader:      return this->loadRuntimeShaderModule(); break;
+        case ProgramKind::kRuntimeBlender:     return this->loadPublicModule();        break;
+        case ProgramKind::kGeneric:            return this->loadPublicModule();        break;
     }
     SkUNREACHABLE;
 }
