@@ -21,10 +21,11 @@ it finds issues.
 
 There is a [Skia folder](https://github.com/google/oss-fuzz/tree/master/projects/skia)
 in the OSS-Fuzz repo that we make changes to when we want to add/remove/change the fuzzers that
-are automatically run. [This](https://google.github.io/oss-fuzz/advanced-topics/code-coverage/)
-describes how to use Docker to test the oss-fuzz build and fuzzers locally.
+are automatically run.
+[This](https://google.github.io/oss-fuzz/getting-started/new-project-guide/#testing-locally)
+describes how to test the OSS-Fuzz build and fuzzers locally using Docker.
 
-When enabling a fuzzer in oss-fuzz, we typically need to follow these steps:
+When enabling a fuzzer in OSS-Fuzz, we typically need to follow these steps:
   1. *Add a seed corpus to `gs://skia-fuzzer/oss-fuzz/` (in the
      [skia-public project](https://console.cloud.google.com/storage/browser/skia-fuzzer?project=skia-public)).
      Make sure the corpus file is public-readable. It is easiest to add this permission via the web
@@ -53,9 +54,10 @@ directly.
 shows things like executions per second (higher is better), edge coverage percent per fuzzer,
 what percent of fuzzing runs end in OOM/timeout/crash, the entire corpus of fuzzed inputs
 (corpus_backup), etc. Contact aarya@ to get permission to view this dashboard if necessary.
+Here are some example dashboards:
 
-[Per Fuzzer summary for all Skia fuzzers driven by libFuzzer](https://oss-fuzz.com/fuzzer-stats?group_by=by-fuzzer&date_start=2021-08-16&date_end=2021-08-22&fuzzer=libFuzzer&job=libfuzzer_asan_skia&project=skia)
-[Five day summary of sksl2glsl driven by afl-fuzz](https://oss-fuzz.com/fuzzer-stats?group_by=by-day&date_start=2021-08-16&date_end=2021-08-22&fuzzer=afl_skia_sksl2glsl&job=afl_asan_skia&project=skia)
+ - [Per Fuzzer summary for all Skia fuzzers driven by libFuzzer](https://oss-fuzz.com/fuzzer-stats?group_by=by-fuzzer&date_start=2021-08-16&date_end=2021-08-22&fuzzer=libFuzzer&job=libfuzzer_asan_skia&project=skia)
+ - [Five day summary of sksl2glsl driven by afl-fuzz](https://oss-fuzz.com/fuzzer-stats?group_by=by-day&date_start=2021-08-16&date_end=2021-08-22&fuzzer=afl_skia_sksl2glsl&job=afl_asan_skia&project=skia)
 
 That dashboard also has a Coverage Report. Even though it appears the Coverage report is per fuzzer,
 the reports always show the aggregated coverage from all fuzzers.
