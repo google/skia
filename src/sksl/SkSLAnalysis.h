@@ -26,6 +26,7 @@ struct Program;
 class ProgramElement;
 class ProgramUsage;
 class Statement;
+struct LoopUnrollInfo;
 class Variable;
 class VariableReference;
 enum class VariableRefKind : int8_t;
@@ -132,24 +133,17 @@ struct Analysis {
     //   of the texture lookup functions
     static bool IsConstantExpression(const Expression& expr);
 
-    struct UnrollableLoopInfo {
-        const Variable* fIndex;
-        double fStart;
-        double fDelta;
-        int fCount;
-    };
-
     // Ensures that a for-loop meets the strict requirements of The OpenGL ES Shading Language 1.00,
     // Appendix A, Section 4.
-    // Information about the loop's structure are placed in outLoopInfo (if not nullptr).
-    // If the function returns false, specific reasons are reported via errors (if not nullptr).
-    static bool ForLoopIsValidForES2(int offset,
-                                     const Statement* loopInitializer,
-                                     const Expression* loopTest,
-                                     const Expression* loopNext,
-                                     const Statement* loopStatement,
-                                     UnrollableLoopInfo* outLoopInfo,
-                                     ErrorReporter* errors);
+    // If the requirements are met, information about the loop's structure is returned.
+    // If the requirements are not met, the problem is reported via `errors` (if not nullptr), and
+    // null is returned.
+    static std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(int offset,
+                                                             const Statement* loopInitializer,
+                                                             const Expression* loopTest,
+                                                             const Expression* loopNext,
+                                                             const Statement* loopStatement,
+                                                             ErrorReporter* errors);
 
     static void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
 

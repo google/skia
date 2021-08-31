@@ -350,7 +350,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::shared_ptr<SymbolTable> symbols = this->symbolTable();
             return ForStatement::Make(fContext, /*offset=*/-1, std::move(initializer),
                                       std::move(test), std::move(next), std::move(body),
-                                      std::move(symbols));
+                                      /*unrollInfo=*/nullptr, std::move(symbols));
         }
         case Rehydrator::kIf_Command: {
             bool isStatic = this->readU8();

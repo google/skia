@@ -937,7 +937,7 @@ static const char* invalid_for_ES2(int offset,
                                    const Expression* loopTest,
                                    const Expression* loopNext,
                                    const Statement* loopStatement,
-                                   Analysis::UnrollableLoopInfo& loopInfo) {
+                                   LoopUnrollInfo& loopInfo) {
     //
     // init_declaration has the form: type_specifier identifier = constant_expression
     //
@@ -1093,23 +1093,21 @@ static const char* invalid_for_ES2(int offset,
     return nullptr;  // All checks pass
 }
 
-bool Analysis::ForLoopIsValidForES2(int offset,
-                                    const Statement* loopInitializer,
-                                    const Expression* loopTest,
-                                    const Expression* loopNext,
-                                    const Statement* loopStatement,
-                                    Analysis::UnrollableLoopInfo* outLoopInfo,
-                                    ErrorReporter* errors) {
-    UnrollableLoopInfo ignored,
-                       *loopInfo = outLoopInfo ? outLoopInfo : &ignored;
-    if (const char* msg = invalid_for_ES2(
-                offset, loopInitializer, loopTest, loopNext, loopStatement, *loopInfo)) {
+std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(int offset,
+                                                            const Statement* loopInitializer,
+                                                            const Expression* loopTest,
+                                                            const Expression* loopNext,
+                                                            const Statement* loopStatement,
+                                                            ErrorReporter* errors) {
+    auto result = std::make_unique<LoopUnrollInfo>();
+    if (const char* msg = invalid_for_ES2(offset, loopInitializer, loopTest, loopNext,
+                                          loopStatement, *result)) {
+        result = nullptr;
         if (errors) {
             errors->error(offset, msg);
         }
-        return false;
     }
-    return true;
+    return result;
 }
 
 // Checks for ES2 constant-expression rules, and (optionally) constant-index-expression rules

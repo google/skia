@@ -491,8 +491,10 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // need to ensure initializer is evaluated first so that we've already remapped its
             // declarations by the time we evaluate test & next
             std::unique_ptr<Statement> initializer = stmt(f.initializer());
+            // We can't reuse the unroll info from the original for loop, because it uses a
+            // different induction variable. Ours is a clone.
             return ForStatement::Make(*fContext, offset, std::move(initializer), expr(f.test()),
-                                      expr(f.next()), stmt(f.statement()),
+                                      expr(f.next()), stmt(f.statement()), /*unrollInfo=*/nullptr,
                                       SymbolTable::WrapIfBuiltin(f.symbols()));
         }
         case Statement::Kind::kIf: {
