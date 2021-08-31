@@ -30,7 +30,7 @@ DSLGlobalVar sk_SampleCoord() {
 }
 
 DSLExpression SampleChild(int index, DSLExpression sampleExpr) {
-    std::unique_ptr<SkSL::Expression> expr = sampleExpr.releaseIfValid();
+    std::unique_ptr<SkSL::Expression> expr = sampleExpr.releaseIfPossible();
     if (expr) {
         SkASSERT(expr->type().isVector());
         SkASSERT(expr->type().componentType().isFloat());

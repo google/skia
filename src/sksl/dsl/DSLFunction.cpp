@@ -39,7 +39,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         if (param->fDeclared) {
             DSLWriter::ReportError("parameter has already been used in another function");
         }
-        SkASSERT(!param->fInitialValue.valid());
+        SkASSERT(!param->fInitialValue.hasValue());
         SkASSERT(!param->fDeclaration);
         param->fDeclared = true;
         std::unique_ptr<SkSL::Variable> paramVar = DSLWriter::CreateParameterVar(*param);

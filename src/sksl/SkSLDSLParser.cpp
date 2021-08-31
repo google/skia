@@ -336,6 +336,10 @@ static skstd::optional<DSLStatement> declaration_statements(SkTArray<DSLVar> var
     return Declare(vars);
 }
 
+static bool is_valid(const skstd::optional<DSLWrapper<DSLExpression>>& expr) {
+    return expr && expr->get().isValid();
+}
+
 SKSL_INT DSLParser::arraySize() {
     Token next = this->peek();
     if (next.fKind == Token::Kind::TK_INT_LITERAL) {
@@ -357,8 +361,10 @@ SKSL_INT DSLParser::arraySize() {
         this->error(next, "array size must be positive");
         return 1;
     } else {
-        this->expression();
-        this->error(next, "expected int literal");
+        skstd::optional<DSLWrapper<DSLExpression>> expr = this->expression();
+        if (is_valid(expr)) {
+            this->error(next, "expected int literal");
+        }
         return 1;
     }
 }

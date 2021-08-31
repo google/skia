@@ -124,12 +124,17 @@ public:
 
     /**
      * Returns true if this object contains an expression. DSLExpressions which were created with
-     * the empty constructor or which have already been release()ed are not valid. DSLExpressions
-     * created with errors are still considered valid (but contain a poison value).
+     * the empty constructor or which have already been release()ed do not have a value.
+     * DSLExpressions created with errors are still considered to have a value (but contain poison).
      */
-    bool valid() const {
+    bool hasValue() const {
         return fExpression != nullptr;
     }
+
+    /**
+     * Returns true if this object contains an expression which is not poison.
+     */
+    bool isValid() const;
 
     void swap(DSLExpression& other);
 
@@ -141,9 +146,9 @@ public:
 
 private:
     /**
-     * Calls release if this expression is valid, otherwise returns null.
+     * Calls release if this expression has a value, otherwise returns null.
      */
-    std::unique_ptr<SkSL::Expression> releaseIfValid();
+    std::unique_ptr<SkSL::Expression> releaseIfPossible();
 
     /**
      * Invalidates this object and returns the SkSL expression it represents coerced to the

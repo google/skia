@@ -160,7 +160,7 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type, SkSpan<DSLExp
     args.reserve_back(rawArgs.size());
 
     for (DSLExpression& arg : rawArgs) {
-        if (!arg.valid()) {
+        if (!arg.hasValue()) {
             return DSLPossibleExpression(nullptr);
         }
         args.push_back(arg.release());
@@ -268,7 +268,7 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
             // of DSLParser we don't even need DSL variables to show up in the symbol table in the
             // first place.
             var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
-                    std::move(skslvar), var.fInitialValue.releaseIfValid(),
+                    std::move(skslvar), var.fInitialValue.releaseIfPossible(),
                     /*addToSymbolTable=*/false);
             if (var.fDeclaration) {
                 var.fVar = varPtr;
@@ -294,7 +294,7 @@ std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVarBase& var) {
     if (!var.fDeclaration) {
         // We should have already reported an error before ending up here, just clean up the
         // initial value so it doesn't assert and return a nop.
-        var.fInitialValue.releaseIfValid();
+        var.fInitialValue.releaseIfPossible();
         return SkSL::Nop::Make();
     }
     return std::move(var.fDeclaration);

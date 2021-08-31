@@ -37,12 +37,12 @@ DSLStatement::DSLStatement(DSLExpression expr) {
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
     : fStatement(SkSL::ExpressionStatement::Make(DSLWriter::Context(), std::move(expr))) {
-    SkASSERT(this->valid());
+    SkASSERT(this->hasValue());
 }
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     : fStatement(std::move(stmt)) {
-    SkASSERT(this->valid());
+    SkASSERT(this->hasValue());
 }
 
 DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)
@@ -50,7 +50,7 @@ DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)
 
 DSLStatement::DSLStatement(DSLPossibleStatement stmt, PositionInfo pos) {
     DSLWriter::ReportErrors(pos);
-    if (stmt.valid()) {
+    if (stmt.hasValue()) {
         fStatement = std::move(stmt.fStatement);
     } else {
         fStatement = SkSL::Nop::Make();

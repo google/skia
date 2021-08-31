@@ -185,15 +185,15 @@ public:
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
                                     DSLExpression next, DSLStatement stmt, PositionInfo pos) {
         return ForStatement::Convert(DSLWriter::Context(), /*offset=*/-1,
-                                     initializer.releaseIfValid(), test.releaseIfValid(),
-                                     next.releaseIfValid(), stmt.release(),
+                                     initializer.releaseIfPossible(), test.releaseIfPossible(),
+                                     next.releaseIfPossible(), stmt.release(),
                                      DSLWriter::SymbolTable());
     }
 
     static DSLPossibleStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
                                    bool isStatic) {
         return IfStatement::Convert(DSLWriter::Context(), /*offset=*/-1, isStatic, test.release(),
-                                    ifTrue.release(), ifFalse.releaseIfValid());
+                                    ifTrue.release(), ifFalse.releaseIfPossible());
     }
 
     static DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers, skstd::string_view typeName,
@@ -248,7 +248,7 @@ public:
         // this point we do not know the function's return type. We therefore do not check for
         // errors, or coerce the value to the correct type, until the return statement is actually
         // added to a function. (This is done in FunctionDefinition::Convert.)
-        return SkSL::ReturnStatement::Make(/*offset=*/-1, value.releaseIfValid());
+        return SkSL::ReturnStatement::Make(/*offset=*/-1, value.releaseIfPossible());
     }
 
     static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a,
@@ -301,7 +301,7 @@ public:
         SkTArray<StatementArray> statements;
         statements.reserve_back(cases.count());
         for (DSLCase& c : cases) {
-            values.push_back(c.fValue.releaseIfValid());
+            values.push_back(c.fValue.releaseIfPossible());
             statements.push_back(std::move(c.fStatements));
         }
         return DSLWriter::ConvertSwitch(value.release(), std::move(values), std::move(statements),
