@@ -5,18 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawableOp_DEFINED
-#define GrDrawableOp_DEFINED
-
-#include "src/gpu/ops/GrOp.h"
+#ifndef DrawableOp_DEFINED
+#define DrawableOp_DEFINED
 
 #include "include/core/SkDrawable.h"
-#include "include/core/SkMatrix.h"
-#include "src/gpu/GrSemaphore.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrRecordingContext;
 
-class GrDrawableOp final : public GrOp {
+namespace skgpu::v1 {
+
+class DrawableOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -29,7 +28,7 @@ public:
 private:
     friend class GrOp; // for ctor
 
-    GrDrawableOp(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
+    DrawableOp(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
     CombineResult onCombineIfPossible(GrOp* that, SkArenaAlloc*, const GrCaps& caps) override {
         return CombineResult::kCannotCombine;
@@ -47,9 +46,8 @@ private:
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     std::unique_ptr<SkDrawable::GpuDrawHandler> fDrawable;
-
-    using INHERITED = GrOp;
 };
 
-#endif
+} // namespace skgpu::v1
 
+#endif // DrawableOp_DEFINED

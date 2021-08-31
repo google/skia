@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrDrawVerticesOp.h"
+#include "src/gpu/ops/DrawVerticesOp.h"
 
 #include "include/core/SkM44.h"
 #include "include/effects/SkRuntimeEffect.h"
@@ -191,16 +191,16 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-class DrawVerticesOp final : public GrMeshDrawOp {
+class DrawVerticesOpImpl final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
 
 public:
     DEFINE_OP_CLASS_ID
 
-    DrawVerticesOp(GrProcessorSet*, const SkPMColor4f&, sk_sp<SkVertices>,
-                   GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrixProvider&,
-                   const SkRuntimeEffect*);
+    DrawVerticesOpImpl(GrProcessorSet*, const SkPMColor4f&, sk_sp<SkVertices>,
+                       GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrixProvider&,
+                       const SkRuntimeEffect*);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -293,14 +293,14 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
-DrawVerticesOp::DrawVerticesOp(GrProcessorSet* processorSet,
-                               const SkPMColor4f& color,
-                               sk_sp<SkVertices> vertices,
-                               GrPrimitiveType primitiveType,
-                               GrAAType aaType,
-                               sk_sp<GrColorSpaceXform> colorSpaceXform,
-                               const SkMatrixProvider& matrixProvider,
-                               const SkRuntimeEffect* effect)
+DrawVerticesOpImpl::DrawVerticesOpImpl(GrProcessorSet* processorSet,
+                                       const SkPMColor4f& color,
+                                       sk_sp<SkVertices> vertices,
+                                       GrPrimitiveType primitiveType,
+                                       GrAAType aaType,
+                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                       const SkMatrixProvider& matrixProvider,
+                                       const SkRuntimeEffect* effect)
         : INHERITED(ClassID())
         , fHelper(processorSet, aaType)
         , fPrimitiveType(primitiveType)
@@ -337,19 +337,20 @@ DrawVerticesOp::DrawVerticesOp(GrProcessorSet* processorSet,
 }
 
 #if GR_TEST_UTILS
-SkString DrawVerticesOp::onDumpInfo() const {
+SkString DrawVerticesOpImpl::onDumpInfo() const {
     return SkStringPrintf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n%s",
                           (int)fPrimitiveType, fMeshes.count(), fVertexCount, fIndexCount,
                           fHelper.dumpInfo().c_str());
 }
 #endif
 
-GrDrawOp::FixedFunctionFlags DrawVerticesOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags DrawVerticesOpImpl::fixedFunctionFlags() const {
     return fHelper.fixedFunctionFlags();
 }
 
-GrProcessorSet::Analysis DrawVerticesOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                                  GrClampType clampType) {
+GrProcessorSet::Analysis DrawVerticesOpImpl::finalize(const GrCaps& caps,
+                                                      const GrAppliedClip* clip,
+                                                      GrClampType clampType) {
     GrProcessorAnalysisColor gpColor;
     if (this->requiresPerVertexColors()) {
         gpColor.setToUnknown();
@@ -368,7 +369,7 @@ GrProcessorSet::Analysis DrawVerticesOp::finalize(const GrCaps& caps, const GrAp
     return result;
 }
 
-GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
+GrGeometryProcessor* DrawVerticesOpImpl::makeGP(SkArenaAlloc* arena) {
     const SkMatrix& vm = fMultipleViewMatrices ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
     sk_sp<GrColorSpaceXform> csxform =
@@ -380,14 +381,14 @@ GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena) {
     return gp;
 }
 
-void DrawVerticesOp::onCreateProgramInfo(const GrCaps* caps,
-                                         SkArenaAlloc* arena,
-                                         const GrSurfaceProxyView& writeView,
-                                         bool usesMSAASurface,
-                                         GrAppliedClip&& appliedClip,
-                                         const GrDstProxyView& dstProxyView,
-                                         GrXferBarrierFlags renderPassXferBarriers,
-                                         GrLoadOp colorLoadOp) {
+void DrawVerticesOpImpl::onCreateProgramInfo(const GrCaps* caps,
+                                             SkArenaAlloc* arena,
+                                             const GrSurfaceProxyView& writeView,
+                                             bool usesMSAASurface,
+                                             GrAppliedClip&& appliedClip,
+                                             const GrDstProxyView& dstProxyView,
+                                             GrXferBarrierFlags renderPassXferBarriers,
+                                             GrLoadOp colorLoadOp) {
     GrGeometryProcessor* gp = this->makeGP(arena);
     fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, usesMSAASurface,
                                              std::move(appliedClip), dstProxyView, gp,
@@ -395,7 +396,7 @@ void DrawVerticesOp::onCreateProgramInfo(const GrCaps* caps,
                                              colorLoadOp);
 }
 
-void DrawVerticesOp::onPrepareDraws(GrMeshDrawTarget* target) {
+void DrawVerticesOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
     // Allocate buffers.
     size_t vertexStride = this->vertexStride();
     sk_sp<const GrBuffer> vertexBuffer;
@@ -474,7 +475,7 @@ void DrawVerticesOp::onPrepareDraws(GrMeshDrawTarget* target) {
     }
 }
 
-void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void DrawVerticesOpImpl::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fProgramInfo) {
         this->createProgramInfo(flushState);
     }
@@ -488,9 +489,10 @@ void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBo
     flushState->drawMesh(*fMesh);
 }
 
-GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps)
-{
-    DrawVerticesOp* that = t->cast<DrawVerticesOp>();
+GrOp::CombineResult DrawVerticesOpImpl::onCombineIfPossible(GrOp* t,
+                                                            SkArenaAlloc*,
+                                                            const GrCaps& caps) {
+    auto that = t->cast<DrawVerticesOpImpl>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
         return CombineResult::kCannotCombine;
@@ -565,8 +567,6 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, 
     return CombineResult::kMerged;
 }
 
-} // anonymous namespace
-
 static GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode) {
     switch (mode) {
         case SkVertices::kTriangles_VertexMode:
@@ -579,22 +579,28 @@ static GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode
     SK_ABORT("Invalid mode");
 }
 
-GrOp::Owner GrDrawVerticesOp::Make(GrRecordingContext* context,
-                                   GrPaint&& paint,
-                                   sk_sp<SkVertices> vertices,
-                                   const SkMatrixProvider& matrixProvider,
-                                   GrAAType aaType,
-                                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                   GrPrimitiveType* overridePrimType,
-                                   const SkRuntimeEffect* effect) {
+} // anonymous namespace
+
+namespace skgpu::v1::DrawVerticesOp {
+
+GrOp::Owner Make(GrRecordingContext* context,
+                 GrPaint&& paint,
+                 sk_sp<SkVertices> vertices,
+                 const SkMatrixProvider& matrixProvider,
+                 GrAAType aaType,
+                 sk_sp<GrColorSpaceXform> colorSpaceXform,
+                 GrPrimitiveType* overridePrimType,
+                 const SkRuntimeEffect* effect) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType
                                        ? *overridePrimType
                                        : SkVertexModeToGrPrimitiveType(vertices->priv().mode());
-    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOpImpl>(
             context, std::move(paint), std::move(vertices), primType, aaType,
             std::move(colorSpaceXform), matrixProvider, effect);
 }
+
+} // namespace skgpu::v1::DrawVerticesOp
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -714,8 +720,9 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     if (numSamples > 1 && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices), matrixProvider,
-                                  aaType, std::move(colorSpaceXform), &type, nullptr);
+    return skgpu::v1::DrawVerticesOp::Make(context, std::move(paint), std::move(vertices),
+                                           matrixProvider, aaType, std::move(colorSpaceXform),
+                                           &type, nullptr);
 }
 
 #endif

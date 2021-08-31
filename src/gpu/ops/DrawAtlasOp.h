@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawAtlasOp_DEFINED
-#define GrDrawAtlasOp_DEFINED
+#ifndef DrawAtlasOp_DEFINED
+#define DrawAtlasOp_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
 
-class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
 class SkMatrix;
 
-namespace GrDrawAtlasOp {
+namespace skgpu::v1::DrawAtlasOp {
+
 GrOp::Owner Make(GrRecordingContext*,
                  GrPaint&&,
                  const SkMatrix& viewMatrix,
@@ -26,6 +26,7 @@ GrOp::Owner Make(GrRecordingContext*,
                  const SkRSXform* xforms,
                  const SkRect* rects,
                  const SkColor* colors);
-}  // namespace GrDrawAtlasOp
 
-#endif
+}  // namespace skgpu::v1::DrawAtlasOp
+
+#endif // DrawAtlasOp_DEFINED

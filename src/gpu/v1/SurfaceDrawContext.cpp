@@ -40,6 +40,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTracing.h"
@@ -52,11 +53,11 @@
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/ops/DrawAtlasOp.h"
+#include "src/gpu/ops/DrawVerticesOp.h"
+#include "src/gpu/ops/DrawableOp.h"
 #include "src/gpu/ops/GrClearOp.h"
-#include "src/gpu/ops/GrDrawAtlasOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/ops/GrDrawVerticesOp.h"
-#include "src/gpu/ops/GrDrawableOp.h"
 #include "src/gpu/ops/GrFillRRectOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrLatticeOp.h"
@@ -989,9 +990,9 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
     SkASSERT(vertices);
     GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(GrAA::kNo);
     GrOp::Owner op =
-            GrDrawVerticesOp::Make(fContext, std::move(paint), std::move(vertices), matrixProvider,
-                                   aaType, this->colorInfo().refColorSpaceXformFromSRGB(),
-                                   overridePrimType, effect);
+            DrawVerticesOp::Make(fContext, std::move(paint), std::move(vertices), matrixProvider,
+                                 aaType, this->colorInfo().refColorSpaceXformFromSRGB(),
+                                 overridePrimType, effect);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1012,8 +1013,8 @@ void SurfaceDrawContext::drawAtlas(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
-    GrOp::Owner op = GrDrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
-                                         aaType, spriteCount, xform, texRect, colors);
+    GrOp::Owner op = DrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
+                                       aaType, spriteCount, xform, texRect, colors);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1482,7 +1483,7 @@ void SurfaceDrawContext::drawImageLattice(const GrClip* clip,
 
 void SurfaceDrawContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
                                       const SkRect& bounds) {
-    GrOp::Owner op(GrDrawableOp::Make(fContext, std::move(drawable), bounds));
+    GrOp::Owner op(DrawableOp::Make(fContext, std::move(drawable), bounds));
     SkASSERT(op);
     this->addOp(std::move(op));
 }

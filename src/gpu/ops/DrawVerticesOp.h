@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawVerticesOp_DEFINED
-#define GrDrawVerticesOp_DEFINED
+#ifndef DrawVerticesOp_DEFINED
+#define DrawVerticesOp_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrColorSpaceXform;
-class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
 class SkMatrixProvider;
 class SkRuntimeEffect;
+class SkVertices;
 
-namespace GrDrawVerticesOp {
+namespace skgpu::v1::DrawVerticesOp {
 
     /**
      * Draw a SkVertices. The GrPaint param's color is used if the vertices lack per-vertex color.
@@ -37,6 +37,6 @@ namespace GrDrawVerticesOp {
                      GrPrimitiveType* overridePrimType,
                      const SkRuntimeEffect*);
 
-}  // namespace GrDrawVerticesOp
+}  // namespace skgpu::v1::DrawVerticesOp
 
-#endif
+#endif // DrawVerticesOp_DEFINED
