@@ -100,14 +100,13 @@ DSLParser::DSLParser(Compiler* compiler, const ProgramSettings& settings, Progra
                      String text)
     : fCompiler(*compiler)
     , fSettings(settings)
-    , fErrorReporter(&compiler->errorReporter())
     , fKind(kind)
-    , fText(std::move(text))
+    , fText(std::make_unique<String>(std::move(text)))
     , fPushback(Token::Kind::TK_NONE, -1, -1) {
     // We don't want to have to worry about manually releasing all of the objects in the event that
     // an error occurs
     fSettings.fAssertDSLObjectsReleased = false;
-    fLexer.start(fText);
+    fLexer.start(*fText);
     static const bool layoutMapInitialized = []{ InitLayoutMap(); return true; }();
     (void) layoutMapInitialized;
 }
@@ -187,7 +186,15 @@ bool DSLParser::expectIdentifier(Token* result) {
 }
 
 skstd::string_view DSLParser::text(Token token) {
-    return skstd::string_view(fText.data() + token.fOffset, token.fLength);
+    return skstd::string_view(fText->data() + token.fOffset, token.fLength);
+}
+
+PositionInfo DSLParser::position(Token t) {
+    return this->position(t.fOffset);
+}
+
+PositionInfo DSLParser::position(int offset) {
+    return PositionInfo::Offset("<unknown>", fText->c_str(), offset);
 }
 
 void DSLParser::error(Token token, String msg) {
@@ -195,7 +202,7 @@ void DSLParser::error(Token token, String msg) {
 }
 
 void DSLParser::error(int offset, String msg) {
-    GetErrorReporter().error(msg.c_str(), PositionInfo());
+    GetErrorReporter().error(msg.c_str(), this->position(offset));
 }
 
 /* declaration* END_OF_FILE */
@@ -203,6 +210,7 @@ std::unique_ptr<Program> DSLParser::program() {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     Start(&fCompiler, fKind, fSettings);
     SetErrorReporter(errorReporter);
+    errorReporter->setSource(fText->c_str());
     fEncounteredFatalError = false;
     std::unique_ptr<Program> result;
     bool done = false;
@@ -211,12 +219,12 @@ std::unique_ptr<Program> DSLParser::program() {
             case Token::Kind::TK_END_OF_FILE:
                 done = true;
                 if (!errorReporter->errorCount()) {
-                    result = dsl::ReleaseProgram(std::make_unique<String>(std::move(fText)));
+                    result = dsl::ReleaseProgram(std::move(fText));
                 }
                 break;
             case Token::Kind::TK_INVALID: {
+                this->nextToken();
                 this->error(this->peek(), String("invalid token"));
-                done = true;
                 break;
             }
             default:
@@ -225,6 +233,7 @@ std::unique_ptr<Program> DSLParser::program() {
         }
     }
     End();
+    errorReporter->setSource(nullptr);
     return result;
 }
 
@@ -234,6 +243,7 @@ bool DSLParser::declaration() {
     Token lookahead = this->peek();
     switch (lookahead.fKind) {
         case Token::Kind::TK_SEMICOLON:
+            this->nextToken();
             this->error(lookahead.fOffset, "expected a declaration, but found ';'");
             return false;
         default:
@@ -264,7 +274,8 @@ bool DSLParser::declaration() {
     if (this->checkNext(Token::Kind::TK_LPAREN)) {
         return this->functionDeclarationEnd(modifiers, *type, name);
     } else {
-        SkTArray<DSLGlobalVar> result = this->varDeclarationEnd<DSLGlobalVar>(modifiers, *type,
+        SkTArray<DSLGlobalVar> result = this->varDeclarationEnd<DSLGlobalVar>(this->position(name),
+                                                                              modifiers, *type,
                                                                               this->text(name));
         Declare(result);
         return true;
@@ -301,7 +312,7 @@ bool DSLParser::functionDeclarationEnd(const DSLModifiers& modifiers,
     for (DSLWrapper<DSLParameter>& param : parameters) {
         parameterPointers.push_back(&param.get());
     }
-    DSLFunction result(modifiers, type, this->text(name), parameterPointers);
+    DSLFunction result(modifiers, type, this->text(name), parameterPointers, this->position(name));
     if (!this->checkNext(Token::Kind::TK_SEMICOLON)) {
         AutoDSLSymbolTable symbols;
         for (DSLParameter* var : parameterPointers) {
@@ -324,26 +335,45 @@ static skstd::optional<DSLStatement> declaration_statements(SkTArray<DSLVar> var
     return Declare(vars);
 }
 
+SKSL_INT DSLParser::arraySize() {
+    Token next = this->peek();
+    if (next.fKind == Token::Kind::TK_INT_LITERAL) {
+        SKSL_INT size;
+        if (this->intLiteral(&size)) {
+            if (size > INT32_MAX) {
+                this->error(next, "array size out of bounds");
+                return 1;
+            }
+            if (size <= 0) {
+                this->error(next, "array size must be positive");
+                return 1;
+            }
+            return size;
+        }
+        return 1;
+    } else if (this->checkNext(Token::Kind::TK_MINUS) &&
+               this->checkNext(Token::Kind::TK_INT_LITERAL)) {
+        this->error(next, "array size must be positive");
+        return 1;
+    } else {
+        this->expression();
+        this->error(next, "expected int literal");
+        return 1;
+    }
+}
+
 template<class T>
-SkTArray<T> DSLParser::varDeclarationEnd(const dsl::DSLModifiers& mods, dsl::DSLType baseType,
-                                         skstd::string_view name) {
+SkTArray<T> DSLParser::varDeclarationEnd(PositionInfo pos, const dsl::DSLModifiers& mods,
+                                         dsl::DSLType baseType, skstd::string_view name) {
     using namespace dsl;
     SkTArray<T> result;
     int offset = this->peek().fOffset;
     auto parseArrayDimensions = [&](DSLType* type) -> bool {
         while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-            if (type->isArray()) {
-                this->error(this->peek(), "multi-dimensional arrays are not supported");
-                return {};
-            }
             if (this->checkNext(Token::Kind::TK_RBRACKET)) {
                 this->error(offset, "expected array dimension");
             } else {
-                SKSL_INT size;
-                if (!this->intLiteral(&size)) {
-                    return {};
-                }
-                *type = Array(*type, size);
+                *type = Array(*type, this->arraySize(), pos);
                 if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
                     return {};
                 }
@@ -367,10 +397,8 @@ SkTArray<T> DSLParser::varDeclarationEnd(const dsl::DSLModifiers& mods, dsl::DSL
     if (!parseArrayDimensions(&type)) {
         return {};
     }
-    if (!parseInitializer(&initializer)) {
-        return {};
-    }
-    result.push_back(T(mods, type, name, std::move(initializer)));
+    parseInitializer(&initializer);
+    result.push_back(T(mods, type, name, std::move(initializer), pos));
     AddToSymbolTable(result.back());
 
     while (this->checkNext(Token::Kind::TK_COMMA)) {
@@ -414,9 +442,10 @@ skstd::optional<DSLStatement> DSLParser::varDeclarationsOrExpressionStatement() 
         VarDeclarationsPrefix prefix;
         if (this->varDeclarationsPrefix(&prefix)) {
             checkpoint.accept();
-            return declaration_statements(this->varDeclarationEnd<DSLVar>(prefix.modifiers,
-                                                                          prefix.type,
-                                                                          this->text(prefix.name)),
+            return declaration_statements(this->varDeclarationEnd<DSLVar>(prefix.fPosition,
+                                                                          prefix.fModifiers,
+                                                                          prefix.fType,
+                                                                          this->text(prefix.fName)),
                                           this->symbols());
         }
 
@@ -430,13 +459,14 @@ skstd::optional<DSLStatement> DSLParser::varDeclarationsOrExpressionStatement() 
 // Helper function for varDeclarations(). If this function succeeds, we assume that the rest of the
 // statement is a variable-declaration statement, not an expression-statement.
 bool DSLParser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
-    prefixData->modifiers = this->modifiers();
-    skstd::optional<DSLType> type = this->type(prefixData->modifiers);
+    prefixData->fPosition = this->position(this->peek());
+    prefixData->fModifiers = this->modifiers();
+    skstd::optional<DSLType> type = this->type(prefixData->fModifiers);
     if (!type) {
         return false;
     }
-    prefixData->type = *type;
-    return this->expectIdentifier(&prefixData->name);
+    prefixData->fType = *type;
+    return this->expectIdentifier(&prefixData->fName);
 }
 
 /* modifiers type IDENTIFIER varDeclarationEnd */
@@ -445,8 +475,10 @@ skstd::optional<DSLStatement> DSLParser::varDeclarations() {
     if (!this->varDeclarationsPrefix(&prefix)) {
         return skstd::nullopt;
     }
-    return declaration_statements(this->varDeclarationEnd<DSLVar>(prefix.modifiers, prefix.type,
-                                                                  this->text(prefix.name)),
+    return declaration_statements(this->varDeclarationEnd<DSLVar>(prefix.fPosition,
+                                                                  prefix.fModifiers,
+                                                                  prefix.fType,
+                                                                  this->text(prefix.fName)),
                                   this->symbols());
 }
 
@@ -486,18 +518,8 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
                 return skstd::nullopt;
             }
 
-            if (this->checkNext(Token::Kind::TK_LBRACKET)) {
-                SKSL_INT arraySize;
-                Token sizeToken = this->peek();
-                if (!this->DSLParser::intLiteral(&arraySize)) {
-                    this->error(sizeToken.fOffset, "expected an integer array size");
-                    return skstd::nullopt;
-                }
-                if (arraySize <= 0 || arraySize > INT_MAX) {
-                    this->error(sizeToken.fOffset, "array size is invalid");
-                    return skstd::nullopt;
-                }
-                actualType = dsl::Array(actualType, arraySize);
+            while (this->checkNext(Token::Kind::TK_LBRACKET)) {
+                actualType = dsl::Array(actualType, this->arraySize(), this->position(memberName));
                 if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
                     return skstd::nullopt;
                 }
@@ -513,18 +535,20 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
                     "struct '" + this->text(name) + "' must contain at least one field");
         return skstd::nullopt;
     }
-    return dsl::Struct(this->text(name), SkMakeSpan(fields));
+    return dsl::Struct(this->text(name), SkMakeSpan(fields), this->position(name));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
 SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& modifiers) {
+    PositionInfo pos = this->position(this->peek());
     skstd::optional<DSLType> type = this->structDeclaration();
     if (!type) {
         return {};
     }
     Token name;
     if (this->checkNext(Token::Kind::TK_IDENTIFIER, &name)) {
-        return this->varDeclarationEnd<DSLGlobalVar>(modifiers, std::move(*type), this->text(name));
+        return this->varDeclarationEnd<DSLGlobalVar>(pos, modifiers, std::move(*type),
+                                                     this->text(name));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
     return {};
@@ -542,10 +566,6 @@ skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter() {
         return skstd::nullopt;
     }
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-        if (type->isArray()) {
-            this->error(this->peek(), "multi-dimensional arrays are not supported");
-            return skstd::nullopt;
-        }
         Token sizeToken;
         if (!this->expect(Token::Kind::TK_INT_LITERAL, "a positive integer", &sizeToken)) {
             return skstd::nullopt;
@@ -556,12 +576,12 @@ skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter() {
             this->error(sizeToken, "array size is too large: " + arraySizeFrag);
             return skstd::nullopt;
         }
-        type = Array(*type, arraySize);
+        type = Array(*type, arraySize, this->position(name));
         if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
             return skstd::nullopt;
         }
     }
-    return {{DSLParameter(modifiers, *type, this->text(name))}};
+    return {{DSLParameter(modifiers, *type, this->text(name), this->position(name))}};
 }
 
 /** EQ INT_LITERAL */
@@ -743,17 +763,8 @@ skstd::optional<DSLType> DSLParser::type(const DSLModifiers& modifiers) {
     }
     DSLType result(this->text(type), modifiers);
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-        if (result.isArray()) {
-            this->error(this->peek(), "multi-dimensional arrays are not supported");
-            return skstd::nullopt;
-        }
         if (this->peek().fKind != Token::Kind::TK_RBRACKET) {
-            SKSL_INT i;
-            if (this->intLiteral(&i)) {
-                result = Array(result,  i);
-            } else {
-                return skstd::nullopt;
-            }
+            result = Array(result, this->arraySize(), this->position(type));
         } else {
             this->error(this->peek(), "expected array dimension");
         }
@@ -794,15 +805,8 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
             if (this->checkNext(Token::Kind::TK_LBRACKET)) {
                 Token sizeToken = this->peek();
                 if (sizeToken.fKind != Token::Kind::TK_RBRACKET) {
-                    SKSL_INT arraySize = 0;
-                    if (this->DSLParser::intLiteral(&arraySize)) {
-                        if (arraySize <= 0) {
-                            this->error(sizeToken, "array size must be positive");
-                        }
-                        actualType = Array(std::move(actualType), arraySize);
-                    } else {
-                        return false;
-                    }
+                    actualType = Array(std::move(actualType), this->arraySize(),
+                                       this->position(typeName));
                 } else {
                     this->error(sizeToken, "unsized arrays are not permitted");
                 }
@@ -826,19 +830,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     if (this->checkNext(Token::Kind::TK_IDENTIFIER, &instanceNameToken)) {
         instanceName = this->text(instanceNameToken);
         if (this->checkNext(Token::Kind::TK_LBRACKET)) {
-            Token sizeToken = this->peek();
-            if (sizeToken.fKind != Token::Kind::TK_RBRACKET) {
-                if (this->DSLParser::intLiteral(&arraySize)) {
-                    if (arraySize <= 0) {
-                        this->error(sizeToken, "array size must be positive");
-                    }
-                } else {
-                    return false;
-                }
-            } else {
-                this->error(sizeToken, "unsized arrays are not permitted");
-                return false;
-            }
+            arraySize = this->arraySize();
             this->expect(Token::Kind::TK_RBRACKET, "']'");
         }
     }
@@ -880,10 +872,10 @@ skstd::optional<DSLStatement> DSLParser::ifStatement() {
     }
     if (isStatic) {
         return StaticIf(std::move(**test), std::move(*ifTrue),
-                        ifFalse ? std::move(*ifFalse) : DSLStatement());
+                        ifFalse ? std::move(*ifFalse) : DSLStatement(), this->position(start));
     } else {
         return If(std::move(**test), std::move(*ifTrue),
-                  ifFalse ? std::move(*ifFalse) : DSLStatement());
+                  ifFalse ? std::move(*ifFalse) : DSLStatement(), this->position(start));
     }
 }
 
@@ -1102,7 +1094,7 @@ skstd::optional<DSLStatement> DSLParser::breakStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return skstd::nullopt;
     }
-    return Break();
+    return Break(this->position(start));
 }
 
 /* CONTINUE SEMICOLON */
@@ -1114,7 +1106,7 @@ skstd::optional<DSLStatement> DSLParser::continueStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return skstd::nullopt;
     }
-    return Continue();
+    return Continue(this->position(start));
 }
 
 /* DISCARD SEMICOLON */
@@ -1503,7 +1495,7 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::swizzle(int offset, DSLExp
                                                               skstd::string_view swizzleMask) {
     SkASSERT(swizzleMask.length() > 0);
     if (!base.type().isVector() && !base.type().isScalar()) {
-        return base.field(swizzleMask);
+        return base.field(swizzleMask, this->position(offset));
     }
     int length = swizzleMask.length();
     if (length > 4) {
@@ -1549,7 +1541,7 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::swizzle(int offset, DSLExp
 
 skstd::optional<dsl::Wrapper<dsl::DSLExpression>> DSLParser::call(int offset,
         dsl::DSLExpression base, SkTArray<Wrapper<DSLExpression>> args) {
-    return {{base(std::move(args))}};
+    return {{DSLExpression(base(std::move(args), this->position(offset)), this->position(offset))}};
 }
 
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN arguments RPAREN |
@@ -1562,17 +1554,20 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::suffix(DSLExpression base)
     }
     switch (next.fKind) {
         case Token::Kind::TK_LBRACKET: {
+            if (this->checkNext(Token::Kind::TK_RBRACKET)) {
+                this->error(next, "missing index in '[]'");
+                return {{DSLExpression::Poison()}};
+            }
             skstd::optional<DSLWrapper<DSLExpression>> index = this->expression();
             if (!index) {
                 return skstd::nullopt;
             }
             this->expect(Token::Kind::TK_RBRACKET, "']' to complete array access expression");
             DSLPossibleExpression result = base[std::move(**index)];
-            if (result.valid()) {
-                return {{std::move(result)}};
+            if (!result.valid()) {
+                result.reportErrors(this->position(next));
             }
-            result.reportErrors(PositionInfo());
-            return skstd::nullopt;
+            return {{std::move(result)}};
         }
         case Token::Kind::TK_DOT: {
             int offset = this->peek().fOffset;
@@ -1633,21 +1628,21 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::term() {
         case Token::Kind::TK_IDENTIFIER: {
             skstd::string_view text;
             if (this->identifier(&text)) {
-                return dsl::Symbol(text);
+                return dsl::Symbol(text, this->position(t));
             }
             break;
         }
         case Token::Kind::TK_INT_LITERAL: {
             SKSL_INT i;
             if (this->intLiteral(&i)) {
-                return {{i}};
+                return {{DSLExpression(i, this->position(t))}};
             }
             break;
         }
         case Token::Kind::TK_FLOAT_LITERAL: {
             SKSL_FLOAT f;
             if (this->floatLiteral(&f)) {
-                return {{f}};
+                return {{DSLExpression(f, this->position(t))}};
             }
             break;
         }
@@ -1655,7 +1650,7 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::term() {
         case Token::Kind::TK_FALSE_LITERAL: {
             bool b;
             if (this->boolLiteral(&b)) {
-                return {{b}};
+                return {{DSLExpression(b, this->position(t))}};
             }
             break;
         }

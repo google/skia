@@ -191,13 +191,15 @@ public:
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
     static std::unique_ptr<SkSL::Expression> Call(const FunctionDeclaration& function,
-                                                  ExpressionArray arguments);
+                                                  ExpressionArray arguments,
+                                                  PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Invokes expr(arguments), where expr is a function or type reference.
      */
     static std::unique_ptr<SkSL::Expression> Call(std::unique_ptr<SkSL::Expression> expr,
-                                                  ExpressionArray arguments);
+                                                  ExpressionArray arguments,
+                                                  PositionInfo pos = PositionInfo::Capture());
 
     static DSLPossibleExpression Coerce(std::unique_ptr<Expression> expr, const SkSL::Type& type);
 

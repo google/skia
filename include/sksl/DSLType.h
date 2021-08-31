@@ -166,8 +166,8 @@ private:
 
     TypeConstant fTypeConstant = kPoison_Type;
 
-    friend DSLType Array(const DSLType& base, int count);
-    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields);
+    friend DSLType Array(const DSLType& base, int count, PositionInfo pos);
+    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLVarBase;
@@ -212,7 +212,7 @@ MATRIX_TYPE(Half)
 #undef VECTOR_TYPE
 #undef MATRIX_TYPE
 
-DSLType Array(const DSLType& base, int count);
+DSLType Array(const DSLType& base, int count, PositionInfo pos = PositionInfo::Capture());
 
 class DSLField {
 public:
@@ -230,15 +230,16 @@ private:
     skstd::string_view fName;
 
     friend class DSLCore;
-    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields);
+    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
 };
 
-DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields);
+DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields,
+               PositionInfo pos = PositionInfo::Capture());
 
 template<typename... Field>
 DSLType Struct(skstd::string_view name, Field... fields) {
     DSLField fieldTypes[] = {std::move(fields)...};
-    return Struct(name, SkMakeSpan(fieldTypes));
+    return Struct(name, SkMakeSpan(fieldTypes), PositionInfo());
 }
 
 } // namespace dsl

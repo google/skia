@@ -990,10 +990,6 @@ bool Compiler::toMetal(Program& program, String* out) {
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 void Compiler::handleError(const char* msg, PositionInfo pos) {
-    if (strstr(msg, POISON_TAG)) {
-        // don't report errors on poison values
-        return;
-    }
     fErrorText += "error: " + (pos.line() >= 1 ? to_string(pos.line()) + ": " : "") + msg + "\n";
 }
 

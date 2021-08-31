@@ -43,44 +43,46 @@ public:
     /**
      * Creates an expression representing a literal float.
      */
-    DSLExpression(float value);
+    DSLExpression(float value, PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Creates an expression representing a literal float.
      */
-    DSLExpression(double value)
+    DSLExpression(double value, PositionInfo pos = PositionInfo::Capture())
         : DSLExpression((float) value) {}
 
     /**
      * Creates an expression representing a literal int.
      */
-    DSLExpression(int value);
+    DSLExpression(int value, PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Creates an expression representing a literal int.
      */
-    DSLExpression(int64_t value);
+    DSLExpression(int64_t value, PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Creates an expression representing a literal uint.
      */
-    DSLExpression(unsigned int value);
+    DSLExpression(unsigned int value, PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Creates an expression representing a literal bool.
      */
-    DSLExpression(bool value);
+    DSLExpression(bool value, PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Creates an expression representing a variable reference.
      */
-    DSLExpression(DSLVarBase& var);
+    DSLExpression(DSLVarBase& var, PositionInfo pos = PositionInfo::Capture());
 
-    DSLExpression(DSLVarBase&& var);
+    DSLExpression(DSLVarBase&& var, PositionInfo pos = PositionInfo::Capture());
 
     DSLExpression(DSLPossibleExpression expr, PositionInfo pos = PositionInfo::Capture());
 
     explicit DSLExpression(std::unique_ptr<SkSL::Expression> expression);
+
+    static DSLExpression Poison(PositionInfo pos = PositionInfo::Capture());
 
     ~DSLExpression();
 
@@ -117,7 +119,8 @@ public:
      */
     DSLPossibleExpression operator[](DSLExpression index);
 
-    DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args);
+    DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args,
+                                     PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Returns true if this object contains an expression. DSLExpressions which were created with
@@ -258,7 +261,8 @@ public:
 
     DSLPossibleExpression operator[](DSLExpression index);
 
-    DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args);
+    DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args,
+                                     PositionInfo pos = PositionInfo::Capture());
 
     DSLPossibleExpression operator++();
 

@@ -78,12 +78,12 @@ DSLExpression sk_Position();
 /**
  * break;
  */
-DSLStatement Break();
+DSLStatement Break(PositionInfo pos = PositionInfo::Capture());
 
 /**
  * continue;
  */
-DSLStatement Continue();
+DSLStatement Continue(PositionInfo pos = PositionInfo::Capture());
 
 /**
  * Creates a local variable declaration statement.

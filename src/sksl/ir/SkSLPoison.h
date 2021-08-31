@@ -14,19 +14,19 @@ class Poison : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kPoison;
 
-    static std::unique_ptr<Expression> Make(const Context& context) {
-        return std::make_unique<Poison>(context.fTypes.fPoison.get());
+    static std::unique_ptr<Expression> Make(int offset, const Context& context) {
+        return std::make_unique<Poison>(offset, context.fTypes.fPoison.get());
     }
 
-    Poison(const Type* type)
-        : INHERITED(/*offset=*/-1, kExpressionKind, type) {}
+    Poison(int offset, const Type* type)
+        : INHERITED(offset, kExpressionKind, type) {}
 
     bool hasProperty(Property property) const override {
         return false;
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<Poison>(&this->type());
+        return std::make_unique<Poison>(fOffset, &this->type());
     }
 
     String description() const override {

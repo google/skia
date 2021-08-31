@@ -566,7 +566,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     }
 
     {
-        ExpectError error(r, "multidimensional arrays are not permitted");
+        ExpectError error(r, "multi-dimensional arrays are not supported");
         Array(Array(kFloat_Type, 2), 2);
     }
 }

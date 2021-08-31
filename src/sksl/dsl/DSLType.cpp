@@ -204,25 +204,25 @@ DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
     return DSLWriter::Construct(type.skslType(), std::move(argArray));
 }
 
-DSLType Array(const DSLType& base, int count) {
+DSLType Array(const DSLType& base, int count, PositionInfo pos) {
     if (count <= 0) {
-        DSLWriter::ReportError("array size must be positive");
+        DSLWriter::ReportError("array size must be positive", pos);
         return base;
     }
     if (base.isArray()) {
-        DSLWriter::ReportError("multidimensional arrays are not permitted");
-        return base;
+        DSLWriter::ReportError("multi-dimensional arrays are not supported", pos);
+        return kPoison_Type;
     }
     return DSLWriter::SymbolTable()->addArrayDimension(&base.skslType(), count);
 }
 
-DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields) {
+DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos) {
     std::vector<SkSL::Type::Field> skslFields;
     skslFields.reserve(fields.size());
     for (const DSLField& field : fields) {
         skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &field.fType.skslType());
     }
-    const SkSL::Type* result = DSLWriter::SymbolTable()->add(Type::MakeStructType(/*offset=*/-1,
+    const SkSL::Type* result = DSLWriter::SymbolTable()->add(Type::MakeStructType(pos.offset(),
                                                                                   name,
                                                                                   skslFields));
     DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*offset=*/-1,

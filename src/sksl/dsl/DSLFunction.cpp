@@ -20,7 +20,7 @@ namespace SkSL {
 namespace dsl {
 
 void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd::string_view name,
-                       SkTArray<DSLParameter*> params) {
+                       SkTArray<DSLParameter*> params, PositionInfo pos) {
     // Conservatively assume all user-defined functions have side effects.
     if (!DSLWriter::IsModule()) {
         modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
@@ -51,7 +51,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
     SkASSERT(paramVars.size() == params.size());
     fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),
                                                *DSLWriter::SymbolTable(),
-                                               /*offset=*/-1,
+                                               pos.offset(),
                                                DSLWriter::Modifiers(modifiers.fModifiers),
                                                name == "main" ? name : DSLWriter::Name(name),
                                                std::move(paramVars), &returnType.skslType(),
@@ -66,7 +66,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         // case the definition is delayed. If we end up defining the function immediately, we'll
         // remove the prototype in define().
         DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
-                /*offset=*/-1, fDecl, DSLWriter::IsModule()));
+                pos.offset(), fDecl, DSLWriter::IsModule()));
     }
 }
 

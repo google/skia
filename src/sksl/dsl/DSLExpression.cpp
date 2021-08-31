@@ -39,9 +39,9 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression)
     DSLWriter::ReportErrors();
 }
 
-DSLExpression::DSLExpression(float value)
+DSLExpression::DSLExpression(float value, PositionInfo pos)
     : fExpression(SkSL::FloatLiteral::Make(DSLWriter::Context(),
-                                           /*offset=*/-1,
+                                           pos.offset(),
                                            value)) {
     if (!isfinite(value)) {
         if (isinf(value)) {
@@ -52,32 +52,32 @@ DSLExpression::DSLExpression(float value)
     }
 }
 
-DSLExpression::DSLExpression(int value)
+DSLExpression::DSLExpression(int value, PositionInfo pos)
     : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
-                                         /*offset=*/-1,
+                                         pos.offset(),
                                          value)) {}
 
-DSLExpression::DSLExpression(int64_t value)
+DSLExpression::DSLExpression(int64_t value, PositionInfo pos)
     : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
-                                         /*offset=*/-1,
+                                         pos.offset(),
                                          value)) {}
 
-DSLExpression::DSLExpression(unsigned int value)
+DSLExpression::DSLExpression(unsigned int value, PositionInfo pos)
     : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
-                                         /*offset=*/-1,
+                                         pos.offset(),
                                          value)) {}
 
-DSLExpression::DSLExpression(bool value)
+DSLExpression::DSLExpression(bool value, PositionInfo pos)
     : fExpression(SkSL::BoolLiteral::Make(DSLWriter::Context(),
-                                          /*offset=*/-1,
+                                          pos.offset(),
                                           value)) {}
 
-DSLExpression::DSLExpression(DSLVarBase& var) {
-    fExpression = std::make_unique<SkSL::VariableReference>(/*offset=*/-1, DSLWriter::Var(var),
+DSLExpression::DSLExpression(DSLVarBase& var, PositionInfo pos) {
+    fExpression = std::make_unique<SkSL::VariableReference>(pos.offset(), DSLWriter::Var(var),
             SkSL::VariableReference::RefKind::kRead);
 }
 
-DSLExpression::DSLExpression(DSLVarBase&& var)
+DSLExpression::DSLExpression(DSLVarBase&& var, PositionInfo pos)
     : DSLExpression(var) {}
 
 DSLExpression::DSLExpression(DSLPossibleExpression expr, PositionInfo pos) {
@@ -85,8 +85,12 @@ DSLExpression::DSLExpression(DSLPossibleExpression expr, PositionInfo pos) {
     if (expr.valid()) {
         fExpression = std::move(expr.fExpression);
     } else {
-        fExpression = SkSL::Poison::Make(DSLWriter::Context());
+        fExpression = SkSL::Poison::Make(pos.offset(), DSLWriter::Context());
     }
+}
+
+DSLExpression DSLExpression::Poison(PositionInfo pos) {
+    return DSLExpression(SkSL::Poison::Make(pos.offset(), DSLWriter::Context()));
 }
 
 DSLExpression::~DSLExpression() {
@@ -166,13 +170,14 @@ DSLPossibleExpression DSLExpression::operator[](DSLExpression right) {
     return DSLWriter::ConvertIndex(this->release(), right.release());
 }
 
-DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args) {
+DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args,
+                                                PositionInfo pos) {
     ExpressionArray converted;
     converted.reserve_back(args.count());
     for (DSLWrapper<DSLExpression>& arg : args) {
         converted.push_back(arg->release());
     }
-    return DSLWriter::Call(this->release(), std::move(converted));
+    return DSLWriter::Call(this->release(), std::move(converted), pos);
 }
 
 #define OP(op, token)                                                                              \
@@ -338,8 +343,9 @@ DSLPossibleExpression DSLPossibleExpression::operator[](DSLExpression index) {
     return DSLExpression(this->release())[std::move(index)];
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args) {
-    return DSLExpression(this->release())(std::move(args));
+DSLPossibleExpression DSLPossibleExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args,
+                                                        PositionInfo pos) {
+    return DSLExpression(this->release())(std::move(args), pos);
 }
 
 DSLPossibleExpression DSLPossibleExpression::operator++() {

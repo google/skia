@@ -43,7 +43,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
         if (!arraySize) {
             return nullptr;
         }
-        return std::make_unique<TypeReference>(context, /*offset=*/-1,
+        return std::make_unique<TypeReference>(context, base->fOffset,
                                                symbolTable.addArrayDimension(&baseType, arraySize));
     }
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
