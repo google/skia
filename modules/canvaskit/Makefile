@@ -98,7 +98,7 @@ local-example:
 	mkdir -p node_modules
 	ln -s ../npm_build node_modules/canvaskit
 	echo "Go check out http://localhost:8000/npm_build/example.html"
-	python2 serve.py
+	python3 serve.py
 
 test-continuous:
 	echo "Assuming npm ci has been run by user"

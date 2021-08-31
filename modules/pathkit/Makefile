@@ -109,7 +109,7 @@ npm-debug:
 example:
 	npm install pathkit-asmjs pathkit-wasm
 	echo "Go check out localhost:8000/npm-wasm/example.html"
-	python serve.py
+	python3 serve.py
 
 local-example:
 	rm -rf node_modules/pathkit-wasm
@@ -119,7 +119,7 @@ local-example:
 	ln -s -T ../npm-asmjs node_modules/pathkit-asmjs
 	echo "Go check out http://localhost:8000/npm-wasm/example.html"
 	echo "or http://localhost:8000/npm-asmjs/example.html"
-	python serve.py
+	python3 serve.py
 
 local-example-test:
 	rm -rf node_modules/pathkit-wasm
@@ -130,7 +130,7 @@ local-example-test:
 	ln -s -T ../../npm-asmjs/bin/test node_modules/pathkit-asmjs/bin
 	echo "Go check out localhost:8000/npm-wasm/example.html"
 	echo "or http://localhost:8000/npm-asmjs/example.html"
-	python serve.py
+	python3 serve.py
 
 local-example-debug:
 	rm -rf node_modules/pathkit-wasm
@@ -141,5 +141,5 @@ local-example-debug:
 	ln -s -T ../../npm-asmjs/bin/debug node_modules/pathkit-asmjs/bin
 	echo "Go check out localhost:8000/npm-wasm/example.html"
 	echo "or http://localhost:8000/npm-asmjs/example.html"
-	python serve.py
+	python3 serve.py
 

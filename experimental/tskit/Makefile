@@ -16,7 +16,7 @@ release:
 
 serve:
 	echo "Go check out http://localhost:8000/npm_build/example.html"
-	python2 serve.py
+	python3 serve.py
 
 lint:
 	npx eslint . --ext .ts

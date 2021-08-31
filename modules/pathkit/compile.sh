@@ -127,6 +127,6 @@ ${BUILD_DIR}/libpathkit.a
 
 if [[ $@ == *serve* ]]; then
   pushd $BUILD_DIR
-  python serve.py
+  python3 serve.py
 fi
 
