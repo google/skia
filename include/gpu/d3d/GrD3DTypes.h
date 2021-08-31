@@ -22,7 +22,7 @@
 // prepared to rename those identifiers. Otherwise use GrD3DTypesMinimal.h.
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/d3d/GrD3DTypesMinimal.h"
+#include "include/gpu/GrTypes.h"
 #include <d3d12.h>
 #include <dxgi1_4.h>
 
@@ -206,10 +206,10 @@ struct GrD3DTextureResourceInfo {
             , fProtected(isProtected) {}
 
     GrD3DTextureResourceInfo(const GrD3DTextureResourceInfo& info,
-                             GrD3DResourceStateEnum resourceState)
+                             D3D12_RESOURCE_STATES resourceState)
             : fResource(info.fResource)
             , fAlloc(info.fAlloc)
-            , fResourceState(static_cast<D3D12_RESOURCE_STATES>(resourceState))
+            , fResourceState(resourceState)
             , fFormat(info.fFormat)
             , fSampleCount(info.fSampleCount)
             , fLevelCount(info.fLevelCount)

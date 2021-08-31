@@ -5,13 +5,22 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrD3DTypesPriv_DEFINED
-#define GrD3DTypesPriv_DEFINED
+#ifndef GrD3DTypesMinimal_DEFINED
+#define GrD3DTypesMinimal_DEFINED
+
+// Minimal definitions of Direct3D types, without including d3d12.h
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/d3d/GrD3DTypesMinimal.h"
 
+#include <dxgiformat.h>
+
+#include "include/gpu/GrTypes.h"
+
+struct ID3D12Resource;
 class GrD3DResourceState;
+typedef int GrD3DResourceStateEnum;
+struct GrD3DTextureResourceInfo;
+struct GrD3DFenceInfo;
 
 // This struct is to used to store the the actual information about the Direct3D backend image on
 // GrBackendTexture and GrBackendRenderTarget. When a client calls getD3DTextureInfo on a

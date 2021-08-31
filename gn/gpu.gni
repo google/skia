@@ -679,8 +679,7 @@ skia_vk_sources = [
 skia_direct3d_sources = [
   "$_include/gpu/d3d/GrD3DBackendContext.h",
   "$_include/gpu/d3d/GrD3DTypes.h",
-  "$_include/gpu/d3d/GrD3DTypesMinimal.h",
-  "$_include/private/GrD3DTypesPriv.h",
+  "$_include/private/GrD3DTypesMinimal.h",
   "$_src/gpu/d3d/GrD3DAMDMemoryAllocator.cpp",
   "$_src/gpu/d3d/GrD3DAMDMemoryAllocator.h",
   "$_src/gpu/d3d/GrD3DAttachment.cpp",
@@ -725,7 +724,7 @@ skia_direct3d_sources = [
   "$_src/gpu/d3d/GrD3DTextureRenderTarget.h",
   "$_src/gpu/d3d/GrD3DTextureResource.cpp",
   "$_src/gpu/d3d/GrD3DTextureResource.h",
-  "$_src/gpu/d3d/GrD3DTypesPriv.cpp",
+  "$_src/gpu/d3d/GrD3DTypesMinimal.cpp",
   "$_src/gpu/d3d/GrD3DUtil.cpp",
   "$_src/gpu/d3d/GrD3DUtil.h",
 ]

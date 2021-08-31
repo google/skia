@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/d3d/GrD3DTypes.h"
-#include "include/private/GrD3DTypesPriv.h"
+#include "include/private/GrD3DTypesMinimal.h"
 
+#include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/d3d/GrD3DResourceState.h"
 
 GrD3DBackendSurfaceInfo::GrD3DBackendSurfaceInfo(const GrD3DTextureResourceInfo& info,
@@ -44,7 +44,9 @@ sk_sp<GrD3DResourceState> GrD3DBackendSurfaceInfo::getGrD3DResourceState() const
 }
 
 GrD3DTextureResourceInfo GrD3DBackendSurfaceInfo::snapTextureResourceInfo() const {
-    return GrD3DTextureResourceInfo(*fTextureResourceInfo, fResourceState->getResourceState());
+    return GrD3DTextureResourceInfo(
+            *fTextureResourceInfo,
+            static_cast<D3D12_RESOURCE_STATES>(fResourceState->getResourceState()));
 }
 
 bool GrD3DBackendSurfaceInfo::isProtected() const {

@@ -14,7 +14,7 @@
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #ifdef SK_DIRECT3D
-#include "include/gpu/d3d/GrD3DTypesMinimal.h"
+#include "include/private/GrD3DTypesMinimal.h"
 #endif
 
 /**

@@ -34,8 +34,7 @@ class GrColorFormatDesc;
 #endif
 
 #ifdef SK_DIRECT3D
-#include "include/gpu/d3d/GrD3DTypesMinimal.h"
-#include "include/private/GrD3DTypesPriv.h"
+#include "include/private/GrD3DTypesMinimal.h"
 class GrD3DResourceState;
 #endif
 
