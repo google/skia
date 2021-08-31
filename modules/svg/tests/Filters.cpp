@@ -10,6 +10,7 @@
 #include "include/core/SkStream.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "modules/svg/include/SkSVGDOM.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "tests/Test.h"
 
 DEF_TEST(Svg_Filters_NonePaintInputs, r) {

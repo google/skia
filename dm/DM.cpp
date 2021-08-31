@@ -877,7 +877,7 @@ static bool gather_srcs() {
 #if defined(SK_ENABLE_SKRIVE)
     gather_file_srcs<SkRiveSrc>(FLAGS_rives, "flr", "rive");
 #endif
-#if defined(SK_XML)
+#if defined(SK_ENABLE_SVG)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
 #endif
     if (!FLAGS_bisect.isEmpty()) {
