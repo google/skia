@@ -525,7 +525,8 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
                     return skstd::nullopt;
                 }
             }
-            fields.push_back(DSLField(modifiers, std::move(actualType), this->text(memberName)));
+            fields.push_back(DSLField(modifiers, std::move(actualType), this->text(memberName),
+                    this->position(memberName)));
         } while (this->checkNext(Token::Kind::TK_COMMA));
         if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
             return skstd::nullopt;
