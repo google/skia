@@ -42,16 +42,16 @@ public:
     }
 
     void clipRect(const SkRect& r, SkClipOp op) override {
-        fRC.op(r, fCTM, fBounds, (SkRegion::Op)op, false);
+        fRC.op(r, fCTM, op, false);
         fCache.reset(nullptr);
     }
 
     void clipRRect(const SkRRect& rr, SkClipOp op) override {
-        fRC.op(rr, fCTM, fBounds, (SkRegion::Op)op, false);
+        fRC.op(rr, fCTM, op, false);
         fCache.reset(nullptr);
     }
     void clipPath(const SkPath& p, SkClipOp op) override {
-        fRC.op(p, fCTM, fBounds, (SkRegion::Op)op, false);
+        fRC.op(p, fCTM, op, false);
         fCache.reset(nullptr);
     }
 

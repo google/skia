@@ -356,7 +356,6 @@ static void test_really_a_rect(skiatest::Reporter* reporter) {
 
 static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],
                           size_t count, bool changed) {
-    const SkIRect baseBounds = SkIRect::MakeXYWH(0, 0, 10, 10);
     SkIRect ir = { 0, 0, 10, 10 };
 
     for (size_t i = 0; i < count; ++i) {
@@ -367,11 +366,11 @@ static void did_dx_affect(skiatest::Reporter* reporter, const SkScalar dx[],
         SkRasterClip rc1(ir);
         SkRasterClip rc2(ir);
 
-        rc0.op(r, SkMatrix::I(), baseBounds, SkRegion::kIntersect_Op, false);
+        rc0.op(r, SkMatrix::I(), SkClipOp::kIntersect, false);
         r.offset(dx[i], 0);
-        rc1.op(r, SkMatrix::I(), baseBounds, SkRegion::kIntersect_Op, true);
+        rc1.op(r, SkMatrix::I(), SkClipOp::kIntersect, true);
         r.offset(-2*dx[i], 0);
-        rc2.op(r, SkMatrix::I(), baseBounds, SkRegion::kIntersect_Op, true);
+        rc2.op(r, SkMatrix::I(), SkClipOp::kIntersect, true);
 
         REPORTER_ASSERT(reporter, changed != (rc0 == rc1));
         REPORTER_ASSERT(reporter, changed != (rc0 == rc2));
@@ -417,7 +416,7 @@ static void test_crbug_422693(skiatest::Reporter* reporter) {
     SkRasterClip rc(SkIRect::MakeLTRB(-25000, -25000, 25000, 25000));
     SkPath path;
     path.addCircle(50, 50, 50);
-    rc.op(path, SkMatrix::I(), rc.getBounds(), SkRegion::kIntersect_Op, true);
+    rc.op(path, SkMatrix::I(), SkClipOp::kIntersect, true);
 }
 
 static void test_huge(skiatest::Reporter* reporter) {
