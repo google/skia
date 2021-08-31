@@ -13,6 +13,7 @@ declare_args() {
 if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
     skia_use_harfbuzz) {
   config("public_config") {
+    defines = [ "SK_ENABLE_PARAGRAPH" ]
     include_dirs = [
       "include",
       "utils",

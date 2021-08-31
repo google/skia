@@ -7,6 +7,8 @@
 
 #include "fuzz/Fuzz.h"
 
+#if defined(SK_ENABLE_PARAGRAPH)
+
 void fuzz_SkParagraph(Fuzz* f);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
@@ -17,3 +19,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     fuzz_SkParagraph(&fuzz);
     return 0;
 }
+
+#endif
