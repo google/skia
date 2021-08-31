@@ -7,13 +7,12 @@
 
 #include "tools/viewer/SvgSlide.h"
 
-#if defined(SK_ENABLE_SVG)
+#if defined(SK_XML)
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkStream.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGDOM.h"
-#include "modules/svg/include/SkSVGNode.h"
 #include "src/utils/SkOSPath.h"
 
 SvgSlide::SvgSlide(const SkString& name, const SkString& path)
@@ -64,4 +63,4 @@ void SvgSlide::draw(SkCanvas* canvas) {
     }
 }
 
-#endif // defined(SK_ENABLE_SVG)
+#endif // SK_XML

@@ -7,7 +7,7 @@
 
 #include "tools/fonts/TestSVGTypeface.h"
 
-#if defined(SK_ENABLE_SVG)
+#ifdef SK_XML
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -30,7 +30,6 @@
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "modules/svg/include/SkSVGDOM.h"
-#include "modules/svg/include/SkSVGNode.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
@@ -1435,4 +1434,4 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
 
     out->writeText("</ttFont>\n");
 }
-#endif  // SK_ENABLE_SVG
+#endif  // SK_XML

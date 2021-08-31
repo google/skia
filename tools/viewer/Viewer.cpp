@@ -764,7 +764,7 @@ void Viewer::initSlides() {
                     return sk_make_sp<SkRiveSlide>(name, path);}
             },
     #endif
-#if defined(SK_ENABLE_SVG)
+#if defined(SK_XML)
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SvgSlide>(name, path);}

@@ -72,10 +72,9 @@
     #include "experimental/skrive/include/SkRive.h"
 #endif
 
-#if defined(SK_ENABLE_SVG)
+#if defined(SK_XML)
     #include "include/svg/SkSVGCanvas.h"
     #include "modules/svg/include/SkSVGDOM.h"
-    #include "modules/svg/include/SkSVGNode.h"
     #include "src/xml/SkXMLWriter.h"
 #endif
 
@@ -1305,7 +1304,7 @@ bool SkRiveSrc::veto(SinkFlags flags) const {
 #endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-#if defined(SK_ENABLE_SVG)
+#if defined(SK_XML)
 // Used when the image doesn't have an intrinsic size.
 static const SkSize kDefaultSVGSize = {1000, 1000};
 
@@ -1374,7 +1373,7 @@ bool SVGSrc::veto(SinkFlags flags) const {
     return !type_ok || flags.approach != SinkFlags::kDirect;
 }
 
-#endif // defined(SK_ENABLE_SVG)
+#endif // defined(SK_XML)
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 MSKPSrc::MSKPSrc(Path path) : fPath(path) {
@@ -2071,7 +2070,7 @@ Result DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) con
 SVGSink::SVGSink(int pageIndex) : fPageIndex(pageIndex) {}
 
 Result SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-#if defined(SK_ENABLE_SVG)
+#if defined(SK_XML)
     if (src.pageCount() > 1) {
         int pageCount = src.pageCount();
         if (fPageIndex > pageCount - 1) {
@@ -2087,7 +2086,7 @@ Result SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
 #else
     (void)fPageIndex;
     return Result::Fatal("SVG sink is disabled.");
-#endif // SK_ENABLE_SVG
+#endif // SK_XML
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

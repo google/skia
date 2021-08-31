@@ -95,7 +95,7 @@ public:
                 }
             }
         }
-#if defined(SK_ENABLE_SVG)
+#ifdef SK_XML
         fFamilies.emplace_back(sk_make_sp<FontStyleSet>("Emoji"));
         fFamilies.back()->fTypefaces.emplace_back(
                 TestSVGTypeface::Default(), SkFontStyle::Normal(), "Normal");
