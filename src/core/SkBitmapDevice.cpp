@@ -169,7 +169,7 @@ private:
                                                          SkIntToScalar(-fOrigin.y()));
         fDevice->fRCStack.rc().translate(-fOrigin.x(), -fOrigin.y(), &fTileRC);
         fTileRC.op(SkIRect::MakeWH(fDraw.fDst.width(), fDraw.fDst.height()),
-                   SkClipOp::kIntersect);
+                   SkRegion::kIntersect_Op);
     }
 };
 
@@ -708,7 +708,7 @@ SkBaseDevice::ClipType SkBitmapDevice::onGetClipType() const {
     const SkRasterClip& rc = fRCStack.rc();
     if (rc.isEmpty()) {
         return ClipType::kEmpty;
-    } else if (rc.isRect() && !SkToBool(rc.clipShader())) {
+    } else if (rc.isRect()) {
         return ClipType::kRect;
     } else {
         return ClipType::kComplex;
