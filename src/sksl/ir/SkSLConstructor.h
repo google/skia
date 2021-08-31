@@ -68,6 +68,7 @@ public:
         return true;
     }
 
+    bool allowsConstantSubexpressions() const override { return true; }
     const Expression* getConstantSubexpression(int n) const override;
 
     ComparisonResult compareConstant(const Expression& other) const override;

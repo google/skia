@@ -38,6 +38,10 @@ public:
         return std::make_unique<ConstructorSplat>(fOffset, this->type(), argument()->clone());
     }
 
+    bool allowsConstantSubexpressions() const override {
+        return true;
+    }
+
     const Expression* getConstantSubexpression(int n) const override {
         SkASSERT(n >= 0 && n < this->type().columns());
         return this->argument()->getConstantSubexpression(0);

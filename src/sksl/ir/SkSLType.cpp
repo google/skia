@@ -755,22 +755,23 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
     if (baseType.isInteger()) {
         // Replace constant expressions with their corresponding values.
         const Expression* valueExpr = ConstantFolder::GetConstantValueForVariable(expr);
-
-        // Iterate over every constant subexpression in the value.
-        int numSlots = valueExpr->type().slotCount();
-        for (int slot = 0; slot < numSlots; ++slot) {
-            const Expression* subexpr = valueExpr->getConstantSubexpression(slot);
-            if (!subexpr || !subexpr->is<IntLiteral>()) {
-                continue;
-            }
-            // Look for an IntLiteral value that is out of range for the corresponding type.
-            SKSL_INT value = subexpr->as<IntLiteral>().value();
-            if (value < baseType.minimumValue() || value > baseType.maximumValue()) {
-                // We found a value that can't fit in the type. Flag it as an error.
-                context.fErrors->error(expr.fOffset,
-                                       String("integer is out of range for type '") +
-                                       this->displayName().c_str() + "': " + to_string(value));
-                foundError = true;
+        if (valueExpr->allowsConstantSubexpressions()) {
+            // Iterate over every constant subexpression in the value.
+            int numSlots = valueExpr->type().slotCount();
+            for (int slot = 0; slot < numSlots; ++slot) {
+                const Expression* subexpr = valueExpr->getConstantSubexpression(slot);
+                if (!subexpr || !subexpr->is<IntLiteral>()) {
+                    continue;
+                }
+                // Look for an IntLiteral value that is out of range for the corresponding type.
+                SKSL_INT value = subexpr->as<IntLiteral>().value();
+                if (value < baseType.minimumValue() || value > baseType.maximumValue()) {
+                    // We found a value that can't fit in the type. Flag it as an error.
+                    context.fErrors->error(expr.fOffset,
+                                           String("integer is out of range for type '") +
+                                           this->displayName().c_str() + "': " + to_string(value));
+                    foundError = true;
+                }
             }
         }
     }

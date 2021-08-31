@@ -75,6 +75,10 @@ public:
         return std::make_unique<FloatLiteral>(fOffset, this->value(), &this->type());
     }
 
+    bool allowsConstantSubexpressions() const override {
+        return true;
+    }
+
     const Expression* getConstantSubexpression(int n) const override {
         SkASSERT(n == 0);
         return this;

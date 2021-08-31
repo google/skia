@@ -185,9 +185,13 @@ const Expression* AnyConstructor::getConstantSubexpression(int n) const {
 }
 
 Expression::ComparisonResult AnyConstructor::compareConstant(const Expression& other) const {
-    ComparisonResult result = ComparisonResult::kEqual;
     SkASSERT(this->type().slotCount() == other.type().slotCount());
 
+    if (!other.allowsConstantSubexpressions()) {
+        return ComparisonResult::kUnknown;
+    }
+
+    ComparisonResult result = ComparisonResult::kEqual;
     int exprs = this->type().slotCount();
     for (int n = 0; n < exprs; ++n) {
         // Get the n'th subexpression from each side. If either one is null, return "unknown."

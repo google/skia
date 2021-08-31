@@ -159,14 +159,29 @@ public:
     }
 
     /**
+     * Returns true if this expression type supports `getConstantSubexpression`. (This particular
+     * expression may or may not actually contain a constant value.) It's harmless to call
+     * `getConstantSubexpression` on expressions which don't allow constant subexpressions or don't
+     * contain any constant values, but if `allowsConstantSubexpressions` returns false, you can
+     * assume that `getConstantSubexpression` will return null for every slot of this expression.
+     * This allows for early-out opportunities in some cases. (Some expressions have tons of slots
+     * but never have a constant subexpression; e.g. a variable holding a very large array.)
+     */
+    virtual bool allowsConstantSubexpressions() const {
+        return false;
+    }
+
+    /**
      * Returns the n'th compile-time constant expression within a literal or constructor.
      * Use Type::slotCount to determine the number of subexpressions within an expression.
      * Subexpressions which are not compile-time constants will return null.
      * `vec4(1, vec2(2), 3)` contains four subexpressions: (1, 2, 2, 3)
      * `mat2(f)` contains four subexpressions: (null, 0,
      *                                          0, null)
+     * All classes which override this function must also implement `allowsConstantSubexpression`.
      */
     virtual const Expression* getConstantSubexpression(int n) const {
+        SkASSERT(!this->allowsConstantSubexpressions());
         return nullptr;
     }
 

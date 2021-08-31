@@ -40,6 +40,7 @@ public:
                                                            argument()->clone());
     }
 
+    bool allowsConstantSubexpressions() const override { return true; }
     const Expression* getConstantSubexpression(int n) const override;
 
 private:
