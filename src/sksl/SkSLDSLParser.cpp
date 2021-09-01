@@ -581,7 +581,7 @@ skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter() {
         SKSL_INT arraySize;
         if (!SkSL::stoi(arraySizeFrag, &arraySize)) {
             this->error(sizeToken, "array size is too large: " + arraySizeFrag);
-            return skstd::nullopt;
+            arraySize = 1;
         }
         type = Array(*type, arraySize, this->position(name));
         if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
