@@ -489,57 +489,6 @@ std::unique_ptr<Program> Compiler::convertProgram(
 #endif // SKSL_DSL_PARSER
 }
 
-void Compiler::verifyStaticTests(const Program& program) {
-    class StaticTestVerifier : public ProgramVisitor {
-    public:
-        StaticTestVerifier(ErrorReporter* r) : fReporter(r) {}
-
-        using ProgramVisitor::visitProgramElement;
-
-        bool visitStatement(const Statement& stmt) override {
-            switch (stmt.kind()) {
-                case Statement::Kind::kIf:
-                    if (stmt.as<IfStatement>().isStatic()) {
-                        fReporter->error(stmt.fOffset, "static if has non-static test");
-                    }
-                    break;
-
-                case Statement::Kind::kSwitch:
-                    if (stmt.as<SwitchStatement>().isStatic()) {
-                        fReporter->error(stmt.fOffset, "static switch has non-static test");
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-            return INHERITED::visitStatement(stmt);
-        }
-
-        bool visitExpression(const Expression&) override {
-            // We aren't looking for anything inside an Expression, so skip them entirely.
-            return false;
-        }
-
-    private:
-        using INHERITED = ProgramVisitor;
-        ErrorReporter* fReporter;
-    };
-
-    // If invalid static tests are permitted, we don't need to check anything.
-    if (fContext->fConfig->fSettings.fPermitInvalidStaticTests) {
-        return;
-    }
-
-    // Check all of the program's owned elements. (Built-in elements are assumed to be valid.)
-    StaticTestVerifier visitor{&this->errorReporter()};
-    for (const std::unique_ptr<ProgramElement>& element : program.ownedElements()) {
-        if (element->is<FunctionDefinition>()) {
-            visitor.visitProgramElement(*element);
-        }
-    }
-}
-
 bool Compiler::optimize(LoadedModule& module) {
     SkASSERT(!this->errorCount());
 
@@ -856,7 +805,7 @@ bool Compiler::optimize(Program& program) {
     }
 
     if (this->errorCount() == 0) {
-        this->verifyStaticTests(program);
+        Analysis::VerifyStaticTests(program);
     }
 
     return this->errorCount() == 0;

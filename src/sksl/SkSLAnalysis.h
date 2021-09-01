@@ -150,6 +150,10 @@ struct Analysis {
     // Detects functions that fail to return a value on at least one path.
     static bool CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl,
                                              const Statement& body);
+
+    // Reports leftover @if and @switch statements in a program as errors. These should have been
+    // optimized away during compilation, as their tests should be constant-evaluatable.
+    static void VerifyStaticTests(const Program& program);
 };
 
 /**
