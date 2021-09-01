@@ -5,7 +5,7 @@
 
 import("../../gn/skia.gni")
 
-if (skia_enable_svg) {
+if (skia_enable_svg && skia_use_expat) {
   config("public_config") {
     defines = [ "SK_ENABLE_SVG" ]
     include_dirs = [ "include" ]

@@ -12,7 +12,6 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTHash.h"
-#include "modules/svg/include/SkSVGDOM.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
@@ -37,6 +36,11 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#if defined(SK_ENABLE_SVG)
+#include "modules/svg/include/SkSVGDOM.h"
+#include "modules/svg/include/SkSVGNode.h"
+#endif
 
 #if defined(SK_ENABLE_SKOTTIE)
     #include "modules/skottie/include/Skottie.h"
@@ -186,6 +190,7 @@ static void init(Source* source, std::shared_ptr<SkCodec> codec) {
     };
 }
 
+#if defined(SK_ENABLE_SVG)
 static void init(Source* source, sk_sp<SkSVGDOM> svg) {
     if (svg->containerSize().isEmpty()) {
         svg->setContainerSize({1000,1000});
@@ -196,6 +201,7 @@ static void init(Source* source, sk_sp<SkSVGDOM> svg) {
         return ok;
     };
 }
+#endif
 
 #if defined(SK_ENABLE_SKOTTIE)
 static void init(Source* source, sk_sp<skottie::Animation> animation) {
@@ -454,13 +460,16 @@ int main(int argc, char** argv) {
                     init(source, pic);
                     continue;
                 }
-            } else if (name.endsWith(".svg")) {
+            }
+#if defined(SK_ENABLE_SVG)
+            else if (name.endsWith(".svg")) {
                 SkMemoryStream stream{blob};
                 if (sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream)) {
                     init(source, svg);
                     continue;
                 }
             }
+#endif
 #if defined(SK_ENABLE_SKOTTIE)
             else if (name.endsWith(".json")) {
                 const SkString dir  = SkOSPath::Dirname(name.c_str());

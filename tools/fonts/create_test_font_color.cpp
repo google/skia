@@ -14,6 +14,8 @@
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/TestSVGTypeface.h"
 
+#if defined(SK_ENABLE_SVG)
+
 static void export_ttx(sk_sp<TestSVGTypeface> typeface,
                        SkString               prefix,
                        SkSpan<unsigned>       cbdtStrikeSizes,
@@ -49,3 +51,12 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+#else
+
+int main(int argc, char** argv) {
+    SkDebugf("compile with SVG enabled\n");
+    return 1;
+}
+
+#endif // SK_ENABLE_SVG

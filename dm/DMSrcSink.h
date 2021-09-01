@@ -329,7 +329,7 @@ private:
 };
 #endif
 
-#if defined(SK_XML)
+#if defined(SK_ENABLE_SVG)
 } // namespace DM
 
 class SkSVGDOM;
@@ -352,7 +352,7 @@ private:
 
     using INHERITED = Src;
 };
-#endif // SK_XML
+#endif // SK_ENABLE_SVG
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 class MSKPSrc : public Src {
