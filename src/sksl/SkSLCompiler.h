@@ -228,6 +228,9 @@ private:
     /** Optimize every function in the program. */
     bool optimize(Program& program);
 
+    /** Performs final checks to confirm that a fully-assembled/optimized is valid. */
+    bool finalize(Program& program);
+
     /** Optimize the module. */
     bool optimize(LoadedModule& module);
 

@@ -1,6 +1,11 @@
 ### Compilation failed:
 
+error: 20: static if has non-static test
+error: 24: static if has non-static test
+error: 31: static if has non-static test
+error: 38: static if has non-static test
+error: 44: static if has non-static test
 error: 13: potential recursion (function call cycle) not allowed:
 	void X()
 	void X()
-1 error
+6 errors

@@ -473,7 +473,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
                                              ir.fInputs);
     this->errorReporter().reportPendingErrors(PositionInfo());
     bool success = false;
-    if (this->errorCount()) {
+    if (!this->finalize(*program)) {
         // Do not return programs that failed to compile.
     } else if (!this->optimize(*program)) {
         // Do not return programs that failed to optimize.
@@ -804,8 +804,25 @@ bool Compiler::optimize(Program& program) {
         this->removeDeadGlobalVariables(program, usage);
     }
 
-    if (this->errorCount() == 0) {
-        Analysis::VerifyStaticTests(program);
+    return this->errorCount() == 0;
+}
+
+bool Compiler::finalize(Program& program) {
+    // Do a pass looking for @if/@switch statements that didn't optimize away, or dangling
+    // FunctionReference or TypeReference expressions. Report these as errors.
+    Analysis::VerifyStaticTestsAndExpressions(program);
+
+    // If we're in ES2 mode (runtime effects), do a pass to enforce Appendix A, Section 5 of the
+    // GLSL ES 1.00 spec -- Indexing. Don't bother if we've already found errors - this logic
+    // assumes that all loops meet the criteria of Section 4, and if they don't, could crash.
+    if (fContext->fConfig->strictES2Mode() && this->errorCount() == 0) {
+        for (const auto& pe : program.ownedElements()) {
+            Analysis::ValidateIndexingForES2(*pe, this->errorReporter());
+        }
+    }
+
+    if (fContext->fConfig->strictES2Mode()) {
+        Analysis::DetectStaticRecursion(SkMakeSpan(program.ownedElements()), this->errorReporter());
     }
 
     return this->errorCount() == 0;

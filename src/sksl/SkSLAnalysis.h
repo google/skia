@@ -158,9 +158,9 @@ struct Analysis {
     static bool CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl,
                                              const Statement& body);
 
-    // Reports leftover @if and @switch statements in a program as errors. These should have been
-    // optimized away during compilation, as their tests should be constant-evaluatable.
-    static void VerifyStaticTests(const Program& program);
+    // Searches for @if/@switch statements that didn't optimize away, or dangling
+    // FunctionReference or TypeReference expressions, and reports them as errors.
+    static void VerifyStaticTestsAndExpressions(const Program& program);
 };
 
 /**

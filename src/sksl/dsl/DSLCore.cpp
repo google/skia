@@ -77,15 +77,16 @@ public:
                                                       std::move(instance.fPool),
                                                       bundle.fInputs);
         bool success = false;
-        if (DSLWriter::Context().fErrors->errorCount()) {
-            DSLWriter::ReportErrors(PositionInfo());
+        if (!DSLWriter::Compiler().finalize(*result)) {
             // Do not return programs that failed to compile.
         } else if (!DSLWriter::Compiler().optimize(*result)) {
-            DSLWriter::ReportErrors(PositionInfo());
             // Do not return programs that failed to optimize.
         } else {
             // We have a successful program!
             success = true;
+        }
+        if (!success) {
+            DSLWriter::ReportErrors(PositionInfo());
         }
         if (pool) {
             pool->detachFromThread();

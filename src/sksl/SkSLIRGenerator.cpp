@@ -1226,30 +1226,6 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(const ASTNode&
     return PostfixExpression::Convert(fContext, std::move(base), expression.getOperator());
 }
 
-void IRGenerator::checkValid(const Expression& expr) {
-    switch (expr.kind()) {
-        case Expression::Kind::kFunctionCall: {
-            const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
-            if (!decl.isBuiltin() && !decl.definition()) {
-                this->errorReporter().error(expr.fOffset,
-                                            "function '" + decl.description() + "' is not defined");
-            }
-            break;
-        }
-        case Expression::Kind::kExternalFunctionReference:
-        case Expression::Kind::kFunctionReference:
-        case Expression::Kind::kTypeReference:
-            SkDEBUGFAIL("invalid reference-expression, should have been reported by coerce()");
-            this->errorReporter().error(expr.fOffset, "invalid expression");
-            break;
-        default:
-            if (expr.type() == *fContext.fTypes.fInvalid) {
-                this->errorReporter().error(expr.fOffset, "invalid expression");
-            }
-            break;
-    }
-}
-
 void IRGenerator::findAndDeclareBuiltinVariables() {
     class BuiltinVariableScanner : public ProgramVisitor {
     public:
@@ -1392,37 +1368,6 @@ IRGenerator::IRBundle IRGenerator::finish() {
     // Variables defined in the pre-includes need their declaring elements added to the program
     if (!fIsBuiltinCode && fIntrinsics) {
         this->findAndDeclareBuiltinVariables();
-    }
-
-    // Do a pass looking for dangling FunctionReference or TypeReference expressions
-    class FindIllegalExpressions : public ProgramVisitor {
-    public:
-        FindIllegalExpressions(IRGenerator* generator) : fGenerator(generator) {}
-
-        bool visitExpression(const Expression& e) override {
-            fGenerator->checkValid(e);
-            return INHERITED::visitExpression(e);
-        }
-
-        IRGenerator* fGenerator;
-        using INHERITED = ProgramVisitor;
-        using INHERITED::visitProgramElement;
-    };
-    for (const auto& pe : *fProgramElements) {
-        FindIllegalExpressions{this}.visitProgramElement(*pe);
-    }
-
-    // If we're in ES2 mode (runtime effects), do a pass to enforce Appendix A, Section 5 of the
-    // GLSL ES 1.00 spec -- Indexing. Don't bother if we've already found errors - this logic
-    // assumes that all loops meet the criteria of Section 4, and if they don't, could crash.
-    if (this->strictES2Mode() && this->errorReporter().errorCount() == 0) {
-        for (const auto& pe : *fProgramElements) {
-            Analysis::ValidateIndexingForES2(*pe, this->errorReporter());
-        }
-    }
-
-    if (this->strictES2Mode()) {
-        Analysis::DetectStaticRecursion(SkMakeSpan(*fProgramElements), this->errorReporter());
     }
 
     return IRBundle{std::move(*fProgramElements),
