@@ -23,7 +23,7 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/ops/GrClearOp.h"
+#include "src/gpu/ops/ClearOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -31,8 +31,11 @@
 #include <cstdint>
 #include <memory>
 
+using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+using ClearOp = skgpu::v1::ClearOp;
+
 static bool check_rect(GrDirectContext* dContext,
-                       skgpu::v1::SurfaceDrawContext* sdc,
+                       SurfaceDrawContext* sdc,
                        const SkIRect& rect,
                        uint32_t expectedValue,
                        uint32_t* actualValue,
@@ -65,10 +68,9 @@ static bool check_rect(GrDirectContext* dContext,
     return true;
 }
 
-std::unique_ptr<skgpu::v1::SurfaceDrawContext> newSDC(GrRecordingContext* rContext, int w, int h) {
-    return skgpu::v1::SurfaceDrawContext::Make(
-            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {w, h},
-            SkSurfaceProps());
+std::unique_ptr<SurfaceDrawContext> newSDC(GrRecordingContext* rContext, int w, int h) {
+    return SurfaceDrawContext::Make(rContext, GrColorType::kRGBA_8888, nullptr,
+                                    SkBackingFit::kExact, {w, h}, SkSurfaceProps());
 }
 
 static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
@@ -76,7 +78,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
     static const int kH = 10;
 
     SkIRect fullRect = SkIRect::MakeWH(kW, kH);
-    std::unique_ptr<skgpu::v1::SurfaceDrawContext> sdc;
+    std::unique_ptr<SurfaceDrawContext> sdc;
 
     // A rectangle that is inset by one on all sides and the 1-pixel wide rectangles that surround
     // it.
@@ -253,7 +255,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             auto opsTask = sdc->getOpsTask();
             REPORTER_ASSERT(reporter, opsTask->numOpChains() == 1);
 
-            const GrClearOp& clearOp = opsTask->getChain(0)->cast<GrClearOp>();
+            const ClearOp& clearOp = opsTask->getChain(0)->cast<ClearOp>();
 
             constexpr std::array<float, 4> kExpected { 0, 0, 0, 1 };
             REPORTER_ASSERT(reporter, clearOp.color() == kExpected);
@@ -279,7 +281,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             auto opsTask = sdc->getOpsTask();
             REPORTER_ASSERT(reporter, opsTask->numOpChains() == 1);
 
-            const GrClearOp& clearOp = opsTask->getChain(0)->cast<GrClearOp>();
+            const ClearOp& clearOp = opsTask->getChain(0)->cast<ClearOp>();
 
             constexpr std::array<float, 4> kExpected { 1, 1, 1, 1 };
             REPORTER_ASSERT(reporter, clearOp.color() == kExpected);

@@ -13,7 +13,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrRect.h"
-#include "src/gpu/ops/GrClearOp.h"
+#include "src/gpu/ops/ClearOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
@@ -223,7 +223,7 @@ void SurfaceFillContext::internalClear(const SkIRect* scissor,
         this->addDrawOp(std::move(op));
     } else {
         color = this->writeSurfaceView().swizzle().applyTo(color);
-        this->addOp(GrClearOp::MakeColor(fContext, scissorState, color));
+        this->addOp(ClearOp::MakeColor(fContext, scissorState, color));
     }
 }
 
