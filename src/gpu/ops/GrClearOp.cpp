@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/ClearOp.h"
+#include "src/gpu/ops/GrClearOp.h"
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -14,37 +14,31 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
-namespace {
-
-bool contains_scissor(const GrScissorState& a, const GrScissorState& b) {
+static bool contains_scissor(const GrScissorState& a, const GrScissorState& b) {
     return !a.enabled() || (b.enabled() && a.rect().contains(b.rect()));
 }
 
-} // anonymous namespace
-
-namespace skgpu::v1 {
-
-GrOp::Owner ClearOp::MakeColor(GrRecordingContext* context,
-                               const GrScissorState& scissor,
-                               std::array<float, 4> color) {
-    return GrOp::Make<ClearOp>(context, Buffer::kColor, scissor, color, false);
+GrOp::Owner GrClearOp::MakeColor(GrRecordingContext* context,
+                                 const GrScissorState& scissor,
+                                 std::array<float, 4> color) {
+    return GrOp::Make<GrClearOp>(context, Buffer::kColor, scissor, color, false);
 }
 
-GrOp::Owner ClearOp::MakeStencilClip(GrRecordingContext* context,
-                                     const GrScissorState& scissor,
-                                     bool insideMask) {
-    return GrOp::Make<ClearOp>(context,
-                               Buffer::kStencilClip,
-                               scissor,
-                               std::array<float, 4>(),
-                               insideMask);
+GrOp::Owner GrClearOp::MakeStencilClip(GrRecordingContext* context,
+                                       const GrScissorState& scissor,
+                                       bool insideMask) {
+    return GrOp::Make<GrClearOp>(context,
+                                 Buffer::kStencilClip,
+                                 scissor,
+                                 std::array<float, 4>(),
+                                 insideMask);
 }
 
-ClearOp::ClearOp(Buffer buffer,
-                 const GrScissorState& scissor,
-                 std::array<float, 4> color,
-                 bool insideMask)
-        : GrOp(ClassID())
+GrClearOp::GrClearOp(Buffer buffer,
+                     const GrScissorState& scissor,
+                     std::array<float, 4> color,
+                     bool insideMask)
+        : INHERITED(ClassID())
         , fScissor(scissor)
         , fColor(color)
         , fStencilInsideMask(insideMask)
@@ -52,8 +46,8 @@ ClearOp::ClearOp(Buffer buffer,
     this->setBounds(SkRect::Make(scissor.rect()), HasAABloat::kNo, IsHairline::kNo);
 }
 
-GrOp::CombineResult ClearOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
-    auto other = t->cast<ClearOp>();
+GrOp::CombineResult GrClearOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
+    GrClearOp* other = t->cast<GrClearOp>();
 
     if (other->fBuffer == fBuffer) {
         // This could be much more complicated. Currently we look at cases where the new clear
@@ -83,7 +77,7 @@ GrOp::CombineResult ClearOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const G
     return CombineResult::kCannotCombine;
 }
 
-void ClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
+void GrClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(state->opsRenderPass());
     if (fBuffer & Buffer::kColor) {
         state->opsRenderPass()->clear(fScissor, fColor);
@@ -93,6 +87,3 @@ void ClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
         state->opsRenderPass()->clearStencilClip(fScissor, fStencilInsideMask);
     }
 }
-
-} // namespace skgpu::v1
-

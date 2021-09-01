@@ -5,24 +5,26 @@
  * found in the LICENSE file.
  */
 
-#ifndef DashOp_DEFINED
-#define DashOp_DEFINED
+#ifndef GrDashOp_DEFINED
+#define GrDashOp_DEFINED
 
+#include "include/core/SkPathEffect.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/ops/GrOp.h"
 
+class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
 class GrStyle;
 struct GrUserStencilSettings;
 
-namespace skgpu::v1::DashOp {
-
+namespace GrDashOp {
 enum class AAMode {
     kNone,
     kCoverage,
     kCoverageWithMSAA,
 };
+static const int kAAModeCnt = static_cast<int>(AAMode::kCoverageWithMSAA) + 1;
 
 GrOp::Owner MakeDashLineOp(GrRecordingContext*,
                            GrPaint&&,
@@ -32,7 +34,6 @@ GrOp::Owner MakeDashLineOp(GrRecordingContext*,
                            const GrStyle& style,
                            const GrUserStencilSettings*);
 bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix& viewMatrix);
+}  // namespace GrDashOp
 
-}  // namespace skgpu::v1::DashOp
-
-#endif // DashOp_DEFINED
+#endif

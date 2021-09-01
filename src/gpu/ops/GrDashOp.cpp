@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/DashOp.h"
+#include "src/gpu/ops/GrDashOp.h"
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMatrixPriv.h"
@@ -13,6 +13,7 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -31,14 +32,51 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-using AAMode = skgpu::v1::DashOp::AAMode;
+using AAMode = GrDashOp::AAMode;
 
-static const int kAAModeCnt = static_cast<int>(skgpu::v1::DashOp::AAMode::kCoverageWithMSAA) + 1;
+///////////////////////////////////////////////////////////////////////////////
 
-namespace {
+// Returns whether or not the gpu can fast path the dash line effect.
+bool GrDashOp::CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
+                               const SkMatrix& viewMatrix) {
+    // Pts must be either horizontal or vertical in src space
+    if (pts[0].fX != pts[1].fX && pts[0].fY != pts[1].fY) {
+        return false;
+    }
 
-void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
-                       const SkMatrix& viewMatrix, const SkPoint pts[2]) {
+    // May be able to relax this to include skew. As of now cannot do perspective
+    // because of the non uniform scaling of bloating a rect
+    if (!viewMatrix.preservesRightAngles()) {
+        return false;
+    }
+
+    if (!style.isDashed() || 2 != style.dashIntervalCnt()) {
+        return false;
+    }
+
+    const SkScalar* intervals = style.dashIntervals();
+    if (0 == intervals[0] && 0 == intervals[1]) {
+        return false;
+    }
+
+    SkPaint::Cap cap = style.strokeRec().getCap();
+    if (SkPaint::kRound_Cap == cap) {
+        // Current we don't support round caps unless the on interval is zero
+        if (intervals[0] != 0.f) {
+            return false;
+        }
+        // If the width of the circle caps in greater than the off interval we will pick up unwanted
+        // segments of circles at the start and end of the dash line.
+        if (style.strokeRec().getWidth() > intervals[1]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
+                            const SkMatrix& viewMatrix, const SkPoint pts[2]) {
     SkVector vecSrc = pts[1] - pts[0];
     if (pts[1] == pts[0]) {
         vecSrc.set(1.0, 0.0);
@@ -60,7 +98,7 @@ void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
 
 // calculates the rotation needed to aligned pts to the x axis with pts[0] < pts[1]
 // Stores the rotation matrix in rotMatrix, and the mapped points in ptsRot
-void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2] = nullptr) {
+static void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2] = nullptr) {
     SkVector vec = pts[1] - pts[0];
     if (pts[1] == pts[0]) {
         vec.set(1.0, 0.0);
@@ -78,7 +116,7 @@ void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2
 }
 
 // Assumes phase < sum of all intervals
-SkScalar calc_start_adjustment(const SkScalar intervals[2], SkScalar phase) {
+static SkScalar calc_start_adjustment(const SkScalar intervals[2], SkScalar phase) {
     SkASSERT(phase < intervals[0] + intervals[1]);
     if (phase >= intervals[0] && phase != 0) {
         SkScalar srcIntervalLen = intervals[0] + intervals[1];
@@ -87,8 +125,8 @@ SkScalar calc_start_adjustment(const SkScalar intervals[2], SkScalar phase) {
     return 0;
 }
 
-SkScalar calc_end_adjustment(const SkScalar intervals[2], const SkPoint pts[2],
-                             SkScalar phase, SkScalar* endingInt) {
+static SkScalar calc_end_adjustment(const SkScalar intervals[2], const SkPoint pts[2],
+                                    SkScalar phase, SkScalar* endingInt) {
     if (pts[1].fX <= pts[0].fX) {
         return 0;
     }
@@ -113,17 +151,17 @@ enum DashCap {
     kNonRound_DashCap,
 };
 
-void setup_dashed_rect(const SkRect& rect,
-                       GrVertexWriter& vertices,
-                       const SkMatrix& matrix,
-                       SkScalar offset,
-                       SkScalar bloatX,
-                       SkScalar len,
-                       SkScalar startInterval,
-                       SkScalar endInterval,
-                       SkScalar strokeWidth,
-                       SkScalar perpScale,
-                       DashCap cap) {
+static void setup_dashed_rect(const SkRect& rect,
+                              GrVertexWriter& vertices,
+                              const SkMatrix& matrix,
+                              SkScalar offset,
+                              SkScalar bloatX,
+                              SkScalar len,
+                              SkScalar startInterval,
+                              SkScalar endInterval,
+                              SkScalar strokeWidth,
+                              SkScalar perpScale,
+                              DashCap cap) {
     SkScalar intervalLength = startInterval + endInterval;
     // 'dashRect' gets interpolated over the rendered 'rect'. For y we want the perpendicular signed
     // distance from the stroke center line in device space. 'perpScale' is the scale factor applied
@@ -162,14 +200,14 @@ void setup_dashed_rect(const SkRect& rect,
  * Bounding geometry is rendered and the effect computes coverage based on the fragment's
  * position relative to the dashed line.
  */
-GrGeometryProcessor* make_dash_gp(SkArenaAlloc* arena,
-                                  const SkPMColor4f&,
-                                  AAMode aaMode,
-                                  DashCap cap,
-                                  const SkMatrix& localMatrix,
-                                  bool usesLocalCoords);
+static GrGeometryProcessor* make_dash_gp(SkArenaAlloc* arena,
+                                         const SkPMColor4f&,
+                                         AAMode aaMode,
+                                         DashCap cap,
+                                         const SkMatrix& localMatrix,
+                                         bool usesLocalCoords);
 
-class DashOpImpl final : public GrMeshDrawOp {
+class DashOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -190,8 +228,8 @@ public:
                             SkPaint::Cap cap,
                             AAMode aaMode, bool fullDash,
                             const GrUserStencilSettings* stencilSettings) {
-        return GrOp::Make<DashOpImpl>(context, std::move(paint), geometry, cap,
-                                      aaMode, fullDash, stencilSettings);
+        return GrOp::Make<DashOp>(context, std::move(paint), geometry, cap,
+                                  aaMode, fullDash, stencilSettings);
     }
 
     const char* name() const override { return "DashOp"; }
@@ -227,8 +265,8 @@ public:
 private:
     friend class GrOp; // for ctor
 
-    DashOpImpl(GrPaint&& paint, const LineData& geometry, SkPaint::Cap cap, AAMode aaMode,
-               bool fullDash, const GrUserStencilSettings* stencilSettings)
+    DashOp(GrPaint&& paint, const LineData& geometry, SkPaint::Cap cap, AAMode aaMode,
+           bool fullDash, const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
             , fColor(paint.getColor4f())
             , fFullDash(fullDash)
@@ -623,7 +661,7 @@ private:
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
-        auto that = t->cast<DashOpImpl>();
+        DashOp* that = t->cast<DashOp>();
         if (fProcessorSet != that->fProcessorSet) {
             return CombineResult::kCannotCombine;
         }
@@ -677,6 +715,9 @@ private:
     bool fullDash() const { return fFullDash; }
     SkPaint::Cap cap() const { return fCap; }
 
+    static const int kVertsPerDash = 4;
+    static const int kIndicesPerDash = 6;
+
     SkSTArray<1, LineData, true> fLines;
     SkPMColor4f fColor;
     bool fUsesLocalCoords : 1;
@@ -693,6 +734,68 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
+GrOp::Owner GrDashOp::MakeDashLineOp(GrRecordingContext* context,
+                                     GrPaint&& paint,
+                                     const SkMatrix& viewMatrix,
+                                     const SkPoint pts[2],
+                                     AAMode aaMode,
+                                     const GrStyle& style,
+                                     const GrUserStencilSettings* stencilSettings) {
+    SkASSERT(GrDashOp::CanDrawDashLine(pts, style, viewMatrix));
+    const SkScalar* intervals = style.dashIntervals();
+    SkScalar phase = style.dashPhase();
+
+    SkPaint::Cap cap = style.strokeRec().getCap();
+
+    DashOp::LineData lineData;
+    lineData.fSrcStrokeWidth = style.strokeRec().getWidth();
+
+    // the phase should be normalized to be [0, sum of all intervals)
+    SkASSERT(phase >= 0 && phase < intervals[0] + intervals[1]);
+
+    // Rotate the src pts so they are aligned horizontally with pts[0].fX < pts[1].fX
+    if (pts[0].fY != pts[1].fY || pts[0].fX > pts[1].fX) {
+        SkMatrix rotMatrix;
+        align_to_x_axis(pts, &rotMatrix, lineData.fPtsRot);
+        if (!rotMatrix.invert(&lineData.fSrcRotInv)) {
+            SkDebugf("Failed to create invertible rotation matrix!\n");
+            return nullptr;
+        }
+    } else {
+        lineData.fSrcRotInv.reset();
+        memcpy(lineData.fPtsRot, pts, 2 * sizeof(SkPoint));
+    }
+
+    // Scale corrections of intervals and stroke from view matrix
+    calc_dash_scaling(&lineData.fParallelScale, &lineData.fPerpendicularScale, viewMatrix, pts);
+    if (SkScalarNearlyZero(lineData.fParallelScale) ||
+        SkScalarNearlyZero(lineData.fPerpendicularScale)) {
+        return nullptr;
+    }
+
+    SkScalar offInterval = intervals[1] * lineData.fParallelScale;
+    SkScalar strokeWidth = lineData.fSrcStrokeWidth * lineData.fPerpendicularScale;
+
+    if (SkPaint::kSquare_Cap == cap && 0 != lineData.fSrcStrokeWidth) {
+        // add cap to on interval and remove from off interval
+        offInterval -= strokeWidth;
+    }
+
+    // TODO we can do a real rect call if not using fulldash(ie no off interval, not using AA)
+    bool fullDash = offInterval > 0.f || aaMode != AAMode::kNone;
+
+    lineData.fViewMatrix = viewMatrix;
+    lineData.fPhase = phase;
+    lineData.fIntervals[0] = intervals[0];
+    lineData.fIntervals[1] = intervals[1];
+
+    return DashOp::Make(context, std::move(paint), lineData, cap, aaMode, fullDash,
+                        stencilSettings);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace {
 /*
  * This effect will draw a dotted line (defined as a dashed lined with round caps and no on
  * interval). The radius of the dots is given by the strokeWidth and the spacing by the DashInfo.
@@ -737,6 +840,7 @@ private:
 
     using INHERITED = GrGeometryProcessor;
 };
+}  // anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -870,7 +974,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
-    AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(kAAModeCnt));
+    AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashOp::kAAModeCnt));
     GrColor color = GrTest::RandomColor(d->fRandom);
     SkMatrix matrix = GrTest::TestMatrix(d->fRandom);
     return DashingCircleEffect::Make(d->allocator(),
@@ -883,6 +987,7 @@ GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+namespace {
 /*
  * This effect will draw a dashed line. The width of the dash is given by the strokeWidth and the
  * length and spacing by the DashInfo. Both of the previous two parameters are in device space.
@@ -929,6 +1034,7 @@ private:
 
     using INHERITED = GrGeometryProcessor;
 };
+}  // anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1069,11 +1175,11 @@ DashingLineEffect::DashingLineEffect(const SkPMColor4f& color,
                                      AAMode aaMode,
                                      const SkMatrix& localMatrix,
                                      bool usesLocalCoords)
-        : INHERITED(kDashingLineEffect_ClassID)
-        , fColor(color)
-        , fLocalMatrix(localMatrix)
-        , fUsesLocalCoords(usesLocalCoords)
-        , fAAMode(aaMode) {
+    : INHERITED(kDashingLineEffect_ClassID)
+    , fColor(color)
+    , fLocalMatrix(localMatrix)
+    , fUsesLocalCoords(usesLocalCoords)
+    , fAAMode(aaMode) {
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInDashParams = {"inDashParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
     fInRect = {"inRect", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
@@ -1084,7 +1190,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DashingLineEffect::TestCreate(GrProcessorTestData* d) {
-    AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(kAAModeCnt));
+    AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashOp::kAAModeCnt));
     GrColor color = GrTest::RandomColor(d->fRandom);
     SkMatrix matrix = GrTest::TestMatrix(d->fRandom);
     return DashingLineEffect::Make(d->allocator(),
@@ -1097,12 +1203,12 @@ GrGeometryProcessor* DashingLineEffect::TestCreate(GrProcessorTestData* d) {
 #endif
 //////////////////////////////////////////////////////////////////////////////
 
-GrGeometryProcessor* make_dash_gp(SkArenaAlloc* arena,
-                                  const SkPMColor4f& color,
-                                  AAMode aaMode,
-                                  DashCap cap,
-                                  const SkMatrix& viewMatrix,
-                                  bool usesLocalCoords) {
+static GrGeometryProcessor* make_dash_gp(SkArenaAlloc* arena,
+                                         const SkPMColor4f& color,
+                                         AAMode aaMode,
+                                         DashCap cap,
+                                         const SkMatrix& viewMatrix,
+                                         bool usesLocalCoords) {
     SkMatrix invert;
     if (usesLocalCoords && !viewMatrix.invert(&invert)) {
         SkDebugf("Failed to invert\n");
@@ -1118,19 +1224,15 @@ GrGeometryProcessor* make_dash_gp(SkArenaAlloc* arena,
     return nullptr;
 }
 
-} // anonymous namespace
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
 
-#include "src/gpu/GrDrawOpTest.h"
-
-GR_DRAW_OP_TEST_DEFINE(DashOpImpl) {
+GR_DRAW_OP_TEST_DEFINE(DashOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     AAMode aaMode;
     do {
-        aaMode = static_cast<AAMode>(random->nextULessThan(kAAModeCnt));
+        aaMode = static_cast<AAMode>(random->nextULessThan(GrDashOp::kAAModeCnt));
     } while (AAMode::kCoverageWithMSAA == aaMode && numSamples <= 1);
 
     // We can only dash either horizontal or vertical lines
@@ -1196,111 +1298,8 @@ GR_DRAW_OP_TEST_DEFINE(DashOpImpl) {
 
     GrStyle style(p);
 
-    return skgpu::v1::DashOp::MakeDashLineOp(context, std::move(paint), viewMatrix, pts, aaMode,
-                                             style, GrGetRandomStencil(random, context));
+    return GrDashOp::MakeDashLineOp(context, std::move(paint), viewMatrix, pts, aaMode, style,
+                                    GrGetRandomStencil(random, context));
 }
 
-#endif // GR_TEST_UTILS
-
-///////////////////////////////////////////////////////////////////////////////
-
-namespace skgpu::v1::DashOp {
-
-GrOp::Owner MakeDashLineOp(GrRecordingContext* context,
-                           GrPaint&& paint,
-                           const SkMatrix& viewMatrix,
-                           const SkPoint pts[2],
-                           AAMode aaMode,
-                           const GrStyle& style,
-                           const GrUserStencilSettings* stencilSettings) {
-    SkASSERT(CanDrawDashLine(pts, style, viewMatrix));
-    const SkScalar* intervals = style.dashIntervals();
-    SkScalar phase = style.dashPhase();
-
-    SkPaint::Cap cap = style.strokeRec().getCap();
-
-    DashOpImpl::LineData lineData;
-    lineData.fSrcStrokeWidth = style.strokeRec().getWidth();
-
-    // the phase should be normalized to be [0, sum of all intervals)
-    SkASSERT(phase >= 0 && phase < intervals[0] + intervals[1]);
-
-    // Rotate the src pts so they are aligned horizontally with pts[0].fX < pts[1].fX
-    if (pts[0].fY != pts[1].fY || pts[0].fX > pts[1].fX) {
-        SkMatrix rotMatrix;
-        align_to_x_axis(pts, &rotMatrix, lineData.fPtsRot);
-        if (!rotMatrix.invert(&lineData.fSrcRotInv)) {
-            SkDebugf("Failed to create invertible rotation matrix!\n");
-            return nullptr;
-        }
-    } else {
-        lineData.fSrcRotInv.reset();
-        memcpy(lineData.fPtsRot, pts, 2 * sizeof(SkPoint));
-    }
-
-    // Scale corrections of intervals and stroke from view matrix
-    calc_dash_scaling(&lineData.fParallelScale, &lineData.fPerpendicularScale, viewMatrix, pts);
-    if (SkScalarNearlyZero(lineData.fParallelScale) ||
-        SkScalarNearlyZero(lineData.fPerpendicularScale)) {
-        return nullptr;
-    }
-
-    SkScalar offInterval = intervals[1] * lineData.fParallelScale;
-    SkScalar strokeWidth = lineData.fSrcStrokeWidth * lineData.fPerpendicularScale;
-
-    if (SkPaint::kSquare_Cap == cap && 0 != lineData.fSrcStrokeWidth) {
-        // add cap to on interval and remove from off interval
-        offInterval -= strokeWidth;
-    }
-
-    // TODO we can do a real rect call if not using fulldash(ie no off interval, not using AA)
-    bool fullDash = offInterval > 0.f || aaMode != AAMode::kNone;
-
-    lineData.fViewMatrix = viewMatrix;
-    lineData.fPhase = phase;
-    lineData.fIntervals[0] = intervals[0];
-    lineData.fIntervals[1] = intervals[1];
-
-    return DashOpImpl::Make(context, std::move(paint), lineData, cap, aaMode, fullDash,
-                            stencilSettings);
-}
-
-// Returns whether or not the gpu can fast path the dash line effect.
-bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix& viewMatrix) {
-    // Pts must be either horizontal or vertical in src space
-    if (pts[0].fX != pts[1].fX && pts[0].fY != pts[1].fY) {
-        return false;
-    }
-
-    // May be able to relax this to include skew. As of now cannot do perspective
-    // because of the non uniform scaling of bloating a rect
-    if (!viewMatrix.preservesRightAngles()) {
-        return false;
-    }
-
-    if (!style.isDashed() || 2 != style.dashIntervalCnt()) {
-        return false;
-    }
-
-    const SkScalar* intervals = style.dashIntervals();
-    if (0 == intervals[0] && 0 == intervals[1]) {
-        return false;
-    }
-
-    SkPaint::Cap cap = style.strokeRec().getCap();
-    if (SkPaint::kRound_Cap == cap) {
-        // Current we don't support round caps unless the on interval is zero
-        if (intervals[0] != 0.f) {
-            return false;
-        }
-        // If the width of the circle caps in greater than the off interval we will pick up unwanted
-        // segments of circles at the start and end of the dash line.
-        if (style.strokeRec().getWidth() > intervals[1]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-} // namespace skgpu::v1::DashOp
+#endif

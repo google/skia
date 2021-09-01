@@ -48,7 +48,7 @@ DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
 DRAW_OP_TEST_EXTERN(AtlasTextOp);
 DRAW_OP_TEST_EXTERN(ButtCapDashedCircleOp);
 DRAW_OP_TEST_EXTERN(CircleOp);
-DRAW_OP_TEST_EXTERN(DashOpImpl);
+DRAW_OP_TEST_EXTERN(DashOp);
 DRAW_OP_TEST_EXTERN(DefaultPathOp);
 DRAW_OP_TEST_EXTERN(DrawAtlasOp);
 DRAW_OP_TEST_EXTERN(DrawVerticesOp);
@@ -79,7 +79,7 @@ void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPain
             DRAW_OP_TEST_ENTRY(AtlasTextOp),
             DRAW_OP_TEST_ENTRY(ButtCapDashedCircleOp),
             DRAW_OP_TEST_ENTRY(CircleOp),
-            DRAW_OP_TEST_ENTRY(DashOpImpl),
+            DRAW_OP_TEST_ENTRY(DashOp),
             DRAW_OP_TEST_ENTRY(DefaultPathOp),
             DRAW_OP_TEST_ENTRY(DrawAtlasOp),
             DRAW_OP_TEST_ENTRY(DrawVerticesOp),

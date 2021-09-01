@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef ClearOp_DEFINED
-#define ClearOp_DEFINED
+#ifndef GrClearOp_DEFINED
+#define GrClearOp_DEFINED
 
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrScissorState.h"
@@ -15,9 +15,7 @@
 class GrOpFlushState;
 class GrRecordingContext;
 
-namespace skgpu::v1 {
-
-class ClearOp final : public GrOp {
+class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -45,10 +43,10 @@ private:
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Buffer);
 
-    ClearOp(Buffer buffer,
-            const GrScissorState& scissor,
-            std::array<float, 4> color,
-            bool stencil);
+    GrClearOp(Buffer buffer,
+              const GrScissorState& scissor,
+              std::array<float, 4> color,
+              bool stencil);
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override;
 
@@ -77,10 +75,10 @@ private:
     std::array<float, 4> fColor;
     bool                 fStencilInsideMask;
     Buffer               fBuffer;
+
+    using INHERITED = GrOp;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(ClearOp::Buffer)
+GR_MAKE_BITFIELD_CLASS_OPS(GrClearOp::Buffer)
 
-} // namespace skgpu::v1
-
-#endif // ClearOp_DEFINED
+#endif
