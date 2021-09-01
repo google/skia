@@ -1639,25 +1639,23 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::term() {
         }
         case Token::Kind::TK_INT_LITERAL: {
             SKSL_INT i;
-            if (this->intLiteral(&i)) {
-                return {{DSLExpression(i, this->position(t))}};
+            if (!this->intLiteral(&i)) {
+                i = 0;
             }
-            break;
+            return {{DSLExpression(i, this->position(t))}};
         }
         case Token::Kind::TK_FLOAT_LITERAL: {
             SKSL_FLOAT f;
-            if (this->floatLiteral(&f)) {
-                return {{DSLExpression(f, this->position(t))}};
+            if (!this->floatLiteral(&f)) {
+                f = 0.0f;
             }
-            break;
+            return {{DSLExpression(f, this->position(t))}};
         }
         case Token::Kind::TK_TRUE_LITERAL: // fall through
         case Token::Kind::TK_FALSE_LITERAL: {
             bool b;
-            if (this->boolLiteral(&b)) {
-                return {{DSLExpression(b, this->position(t))}};
-            }
-            break;
+            SkAssertResult(this->boolLiteral(&b));
+            return {{DSLExpression(b, this->position(t))}};
         }
         case Token::Kind::TK_LPAREN: {
             this->nextToken();
