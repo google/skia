@@ -233,7 +233,6 @@ private:
     bool setRefKind(Expression& expr, VariableReference::RefKind kind);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void findAndDeclareBuiltinVariables();
-    bool detectVarDeclarationWithoutScope(const Statement& stmt);
 
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).

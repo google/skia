@@ -91,38 +91,6 @@ void IRGenerator::popSymbolTable() {
     fSymbolTable = fSymbolTable->fParent;
 }
 
-bool IRGenerator::detectVarDeclarationWithoutScope(const Statement& stmt) {
-    // Parsing an AST node containing a single variable declaration creates a lone VarDeclaration
-    // statement. An AST with multiple variable declarations creates an unscoped Block containing
-    // multiple VarDeclaration statements. We need to detect either case.
-    const Variable* var;
-    if (stmt.is<VarDeclaration>()) {
-        // The single-variable case. No blocks at all.
-        var = &stmt.as<VarDeclaration>().var();
-    } else if (stmt.is<Block>()) {
-        // The multiple-variable case: an unscoped, non-empty block...
-        const Block& block = stmt.as<Block>();
-        if (block.isScope() || block.children().empty()) {
-            return false;
-        }
-        // ... holding a variable declaration.
-        const Statement& innerStmt = *block.children().front();
-        if (!innerStmt.is<VarDeclaration>()) {
-            return false;
-        }
-        var = &innerStmt.as<VarDeclaration>().var();
-    } else {
-        // This statement wasn't a variable declaration. No problem.
-        return false;
-    }
-
-    // Report an error.
-    SkASSERT(var);
-    this->errorReporter().error(stmt.fOffset,
-                                "variable '" + var->name() + "' must be created in a scope");
-    return true;
-}
-
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, skstd::string_view name) {
     if (this->programKind() != ProgramKind::kFragment &&
         this->programKind() != ProgramKind::kVertex) {
@@ -416,16 +384,10 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
     if (!ifTrue) {
         return nullptr;
     }
-    if (this->detectVarDeclarationWithoutScope(*ifTrue)) {
-        return nullptr;
-    }
     std::unique_ptr<Statement> ifFalse;
     if (iter != n.end()) {
         ifFalse = this->convertStatement(*(iter++));
         if (!ifFalse) {
-            return nullptr;
-        }
-        if (this->detectVarDeclarationWithoutScope(*ifFalse)) {
             return nullptr;
         }
     }
@@ -466,9 +428,6 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     if (!statement) {
         return nullptr;
     }
-    if (this->detectVarDeclarationWithoutScope(*statement)) {
-        return nullptr;
-    }
 
     return ForStatement::Convert(fContext, f.fOffset, std::move(initializer), std::move(test),
                                  std::move(next), std::move(statement), fSymbolTable);
@@ -485,9 +444,6 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     if (!statement) {
         return nullptr;
     }
-    if (this->detectVarDeclarationWithoutScope(*statement)) {
-        return nullptr;
-    }
     return ForStatement::ConvertWhile(fContext, w.fOffset, std::move(test), std::move(statement),
                                       fSymbolTable);
 }
@@ -501,9 +457,6 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     }
     std::unique_ptr<Expression> test = this->convertExpression(*(iter++));
     if (!test) {
-        return nullptr;
-    }
-    if (this->detectVarDeclarationWithoutScope(*statement)) {
         return nullptr;
     }
     return DoStatement::Convert(fContext, std::move(statement), std::move(test));

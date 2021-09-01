@@ -132,6 +132,10 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
         return Block::Make(offset, std::move(scope));
     }
 
+    if (Analysis::DetectVarDeclarationWithoutScope(*statement, context.fErrors)) {
+        return nullptr;
+    }
+
     return ForStatement::Make(context, offset, std::move(initializer), std::move(test),
                               std::move(next), std::move(statement), std::move(unrollInfo),
                               std::move(symbolTable));
@@ -159,6 +163,7 @@ std::unique_ptr<Statement> ForStatement::Make(const Context& context, int offset
     SkASSERT(is_simple_initializer(initializer.get()) ||
              is_vardecl_block_initializer(initializer.get()));
     SkASSERT(!test || test->type() == *context.fTypes.fBool);
+    SkASSERT(!Analysis::DetectVarDeclarationWithoutScope(*statement));
 
     // If the caller didn't provide us with unroll info, we can compute it here if needed.
     if (!unrollInfo && context.fConfig->strictES2Mode()) {

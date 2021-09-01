@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -42,6 +43,13 @@ std::unique_ptr<Statement> IfStatement::Convert(const Context& context, int offs
     if (!test) {
         return nullptr;
     }
+    SkASSERT(ifTrue);
+    if (Analysis::DetectVarDeclarationWithoutScope(*ifTrue, context.fErrors)) {
+        return nullptr;
+    }
+    if (ifFalse && Analysis::DetectVarDeclarationWithoutScope(*ifFalse, context.fErrors)) {
+        return nullptr;
+    }
     return IfStatement::Make(context, offset, isStatic, std::move(test),
                              std::move(ifTrue), std::move(ifFalse));
 }
@@ -57,6 +65,8 @@ std::unique_ptr<Statement> IfStatement::Make(const Context& context, int offset,
                                              std::unique_ptr<Statement> ifTrue,
                                              std::unique_ptr<Statement> ifFalse) {
     SkASSERT(test->type() == *context.fTypes.fBool);
+    SkASSERT(!Analysis::DetectVarDeclarationWithoutScope(*ifTrue));
+    SkASSERT(!ifFalse || !Analysis::DetectVarDeclarationWithoutScope(*ifFalse));
 
     const bool optimize = context.fConfig->fSettings.fOptimize;
     bool trueIsEmpty = false;
