@@ -11,7 +11,7 @@
 #include "src/gpu/GrOpsTypes.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/TextureOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
@@ -70,8 +70,8 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
     GrPaint paint;
     paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
-    GrFillRectOp::AddFillRectOps(sdc.get(), nullptr, dContext, std::move(paint), overallAA,
-                                 SkMatrix::I(), quads, requestedTotNumQuads);
+    skgpu::v1::FillRectOp::AddFillRectOps(sdc.get(), nullptr, dContext, std::move(paint), overallAA,
+                                          SkMatrix::I(), quads, requestedTotNumQuads);
 
     auto opsTask = sdc->testingOnly_PeekLastOpsTask();
     int actualNumOps = opsTask->numOpChains();
@@ -80,7 +80,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
 
     for (int i = 0; i < actualNumOps; ++i) {
         const GrOp* tmp = opsTask->getChain(i);
-        REPORTER_ASSERT(reporter, tmp->classID() == GrFillRectOp::ClassID());
+        REPORTER_ASSERT(reporter, tmp->classID() == skgpu::v1::FillRectOp::ClassID());
         REPORTER_ASSERT(reporter, tmp->isChainTail());
         actualTotNumQuads += ((GrDrawOp*) tmp)->numQuads();
     }
@@ -185,13 +185,13 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
 
     if (blendMode != SkBlendMode::kSrcOver ||
         !dContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
-        // In either of these two cases, GrTextureOp creates one op per quad instead. Since
+        // In either of these two cases, TextureOp creates one op per quad instead. Since
         // each entry alternates proxies but overlaps geometrically, this will prevent the ops
         // from being merged back into fewer ops.
         expectedNumOps = requestedTotNumQuads;
     }
     uint32_t expectedOpID = blendMode == SkBlendMode::kSrcOver ? skgpu::v1::TextureOp::ClassID()
-                                                               : GrFillRectOp::ClassID();
+                                                               : skgpu::v1::FillRectOp::ClassID();
     for (int i = 0; i < actualNumOps; ++i) {
         const GrOp* tmp = opsTask->getChain(i);
         REPORTER_ASSERT(reporter, allUniqueProxies || tmp->isChainTail());
@@ -267,8 +267,8 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter, Bu
              false, false, 2*GrResourceProvider::MaxNumAAQuads(), kNumExpectedOps);
     }
 
-    // In this case we use a blend mode other than src-over, which hits the GrFillRectOp fallback
-    // code path for GrTextureOp. We pass in the expected results if batching was successful, to
+    // In this case we use a blend mode other than src-over, which hits the FillRectOp fallback
+    // code path for TextureOp. We pass in the expected results if batching was successful, to
     // that bulk_fill_rect_create_test batches on all modes; bulk_texture_rect_create_test is
     // responsible for revising its expectations.
     {

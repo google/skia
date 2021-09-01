@@ -19,7 +19,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrVertexWriter.h"
-#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
@@ -975,7 +975,7 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
         }
         DrawQuad quad{GrQuad::MakeFromRect(rects[0], viewMatrix), GrQuad(rects[0]),
                       GrQuadAAFlags::kAll};
-        return GrFillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
+        return FillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
     }
 
     return AAStrokeRectOp::Make(context, std::move(paint), viewMatrix, devOutside,

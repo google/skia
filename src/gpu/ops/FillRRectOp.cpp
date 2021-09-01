@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrFillRRectOp.h"
+#include "src/gpu/ops/FillRRectOp.h"
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRRectPriv.h"
@@ -28,7 +28,7 @@
 
 namespace {
 
-class FillRRectOp : public GrMeshDrawOp {
+class FillRRectOpImpl final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
 
@@ -43,9 +43,9 @@ public:
                             const SkRect& localRect,
                             GrAA);
 
-    const char* name() const final { return "GrFillRRectOp"; }
+    const char* name() const override { return "FillRRectOp"; }
 
-    FixedFunctionFlags fixedFunctionFlags() const final { return fHelper.fixedFunctionFlags(); }
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
     ClipResult clipToShape(skgpu::v1::SurfaceDrawContext*,
                            SkClipOp,
@@ -53,8 +53,8 @@ public:
                            const GrShape&,
                            GrAA) override;
 
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) final;
-    CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) final;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
+    CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
         if (fProgramInfo) {
@@ -64,9 +64,9 @@ public:
         }
     }
 
-    void onPrepareDraws(GrMeshDrawTarget*) final;
+    void onPrepareDraws(GrMeshDrawTarget*) override;
 
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) final;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
 private:
     friend class ::GrSimpleMeshDrawOpHelper; // for access to ctor
@@ -86,15 +86,15 @@ private:
 
     class Processor;
 
-    FillRRectOp(GrProcessorSet*,
-                const SkPMColor4f& paintColor,
-                SkArenaAlloc*,
-                const SkMatrix& viewMatrix,
-                const SkRRect&,
-                const SkRect& localRect,
-                ProcessorFlags);
+    FillRRectOpImpl(GrProcessorSet*,
+                    const SkPMColor4f& paintColor,
+                    SkArenaAlloc*,
+                    const SkMatrix& viewMatrix,
+                    const SkRRect&,
+                    const SkRect& localRect,
+                    ProcessorFlags);
 
-    GrProgramInfo* programInfo() final { return fProgramInfo; }
+    GrProgramInfo* programInfo() override { return fProgramInfo; }
 
     // Create a GrProgramInfo object in the provided arena
     void onCreateProgramInfo(const GrCaps*,
@@ -104,7 +104,7 @@ private:
                              GrAppliedClip&&,
                              const GrDstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) final;
+                             GrLoadOp colorLoadOp) override;
 
     Helper         fHelper;
     ProcessorFlags fProcessorFlags;
@@ -132,25 +132,23 @@ private:
     // If this op is prePrepared the created programInfo will be stored here for use in
     // onExecute. In the prePrepared case it will have been stored in the record-time arena.
     GrProgramInfo* fProgramInfo = nullptr;
-
-    using INHERITED = GrMeshDrawOp;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(FillRRectOp::ProcessorFlags)
+GR_MAKE_BITFIELD_CLASS_OPS(FillRRectOpImpl::ProcessorFlags)
 
 // Hardware derivatives are not always accurate enough for highly elliptical corners. This method
 // checks to make sure the corners will still all look good if we use HW derivatives.
-static bool can_use_hw_derivatives_with_coverage(const GrShaderCaps&,
-                                                 const SkMatrix&,
-                                                 const SkRRect&);
+bool can_use_hw_derivatives_with_coverage(const GrShaderCaps&,
+                                          const SkMatrix&,
+                                          const SkRRect&);
 
-GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
-                              SkArenaAlloc* arena,
-                              GrPaint&& paint,
-                              const SkMatrix& viewMatrix,
-                              const SkRRect& rrect,
-                              const SkRect& localRect,
-                              GrAA aa) {
+GrOp::Owner FillRRectOpImpl::Make(GrRecordingContext* ctx,
+                                  SkArenaAlloc* arena,
+                                  GrPaint&& paint,
+                                  const SkMatrix& viewMatrix,
+                                  const SkRRect& rrect,
+                                  const SkRect& localRect,
+                                  GrAA aa) {
     const GrCaps* caps = ctx->priv().caps();
 
     if (!caps->drawInstancedSupport()) {
@@ -179,18 +177,18 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
         flags |= ProcessorFlags::kFakeNonAA;
     }
 
-    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), arena, viewMatrix, rrect,
-                                              localRect, flags);
+    return Helper::FactoryHelper<FillRRectOpImpl>(ctx, std::move(paint), arena, viewMatrix, rrect,
+                                                  localRect, flags);
 }
 
-FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
-                         const SkPMColor4f& paintColor,
-                         SkArenaAlloc* arena,
-                         const SkMatrix& viewMatrix,
-                         const SkRRect& rrect,
-                         const SkRect& localRect,
-                         ProcessorFlags processorFlags)
-        : INHERITED(ClassID())
+FillRRectOpImpl::FillRRectOpImpl(GrProcessorSet* processorSet,
+                                 const SkPMColor4f& paintColor,
+                                 SkArenaAlloc* arena,
+                                 const SkMatrix& viewMatrix,
+                                 const SkRRect& rrect,
+                                 const SkRect& localRect,
+                                 ProcessorFlags processorFlags)
+        : GrMeshDrawOp(ClassID())
         , fHelper(processorSet,
                   (processorFlags & ProcessorFlags::kFakeNonAA)
                           ? GrAAType::kNone
@@ -207,9 +205,11 @@ FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                     GrOp::IsHairline::kNo);
 }
 
-GrDrawOp::ClipResult FillRRectOp::clipToShape(skgpu::v1::SurfaceDrawContext* sdc, SkClipOp clipOp,
-                                              const SkMatrix& clipMatrix, const GrShape& shape,
-                                              GrAA aa) {
+GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::v1::SurfaceDrawContext* sdc,
+                                                  SkClipOp clipOp,
+                                                  const SkMatrix& clipMatrix,
+                                                  const GrShape& shape,
+                                                  GrAA aa) {
     SkASSERT(fInstanceCount == 1);  // This needs to be called before combining.
     SkASSERT(fHeadInstance->fNext == nullptr);
 
@@ -296,8 +296,8 @@ GrDrawOp::ClipResult FillRRectOp::clipToShape(skgpu::v1::SurfaceDrawContext* sdc
     return ClipResult::kFail;
 }
 
-GrProcessorSet::Analysis FillRRectOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                               GrClampType clampType) {
+GrProcessorSet::Analysis FillRRectOpImpl::finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                                   GrClampType clampType) {
     SkASSERT(fInstanceCount == 1);
     SkASSERT(fHeadInstance->fNext == nullptr);
 
@@ -314,20 +314,22 @@ GrProcessorSet::Analysis FillRRectOp::finalize(const GrCaps& caps, const GrAppli
     return analysis;
 }
 
-GrOp::CombineResult FillRRectOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps& caps) {
-    const auto& that = *op->cast<FillRRectOp>();
-    if (!fHelper.isCompatible(that.fHelper, caps, this->bounds(), that.bounds()) ||
-        fProcessorFlags != that.fProcessorFlags) {
+GrOp::CombineResult FillRRectOpImpl::onCombineIfPossible(GrOp* op,
+                                                         SkArenaAlloc*,
+                                                         const GrCaps& caps) {
+    auto that = op->cast<FillRRectOpImpl>();
+    if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds()) ||
+        fProcessorFlags != that->fProcessorFlags) {
         return CombineResult::kCannotCombine;
     }
 
-    *fTailInstance = that.fHeadInstance;
-    fTailInstance = that.fTailInstance;
-    fInstanceCount += that.fInstanceCount;
+    *fTailInstance = that->fHeadInstance;
+    fTailInstance = that->fTailInstance;
+    fInstanceCount += that->fInstanceCount;
     return CombineResult::kMerged;
 }
 
-class FillRRectOp::Processor : public GrGeometryProcessor {
+class FillRRectOpImpl::Processor final : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, GrAAType aaType, ProcessorFlags flags) {
         return arena->make([&](void* ptr) {
@@ -335,19 +337,19 @@ public:
         });
     }
 
-    const char* name() const final { return "GrFillRRectOp::Processor"; }
+    const char* name() const override { return "FillRRectOp::Processor"; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const final {
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->addBits(kNumProcessorFlags, (uint32_t)fFlags,  "flags");
     }
 
-    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
 private:
     class Impl;
 
     Processor(GrAAType aaType, ProcessorFlags flags)
-            : INHERITED(kGrFillRRectOp_Processor_ClassID)
+            : GrGeometryProcessor(kGrFillRRectOp_Processor_ClassID)
             , fFlags(flags) {
         this->setVertexAttributes(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
 
@@ -376,11 +378,9 @@ private:
     constexpr static int kMaxInstanceAttribs = 6;
     SkSTArray<kMaxInstanceAttribs, Attribute> fInstanceAttribs;
     const Attribute* fColorAttrib;
-
-    using INHERITED = GrGeometryProcessor;
 };
 
-constexpr GrGeometryProcessor::Attribute FillRRectOp::Processor::kVertexAttribs[];
+constexpr GrGeometryProcessor::Attribute FillRRectOpImpl::Processor::kVertexAttribs[];
 
 // Our coverage geometry consists of an inset octagon with solid coverage, surrounded by linear
 // coverage ramps on the horizontal and vertical edges, and "arc coverage" pieces on the diagonal
@@ -510,7 +510,7 @@ static constexpr uint16_t kIndexData[] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
-void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
+void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
     if (!fProgramInfo) {
         this->createProgramInfo(target);
     }
@@ -562,7 +562,7 @@ void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
                                                                       gVertexBufferKey);
 }
 
-class FillRRectOp::Processor::Impl : public ProgramImpl {
+class FillRRectOpImpl::Processor::Impl : public ProgramImpl {
 public:
     void setData(const GrGLSLProgramDataManager&,
                  const GrShaderCaps&,
@@ -756,19 +756,19 @@ private:
     }
 };
 
-std::unique_ptr<GrGeometryProcessor::ProgramImpl> FillRRectOp::Processor::makeProgramImpl(
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> FillRRectOpImpl::Processor::makeProgramImpl(
         const GrShaderCaps&) const {
     return std::make_unique<Impl>();
 }
 
-void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
-                                      SkArenaAlloc* arena,
-                                      const GrSurfaceProxyView& writeView,
-                                      bool usesMSAASurface,
-                                      GrAppliedClip&& appliedClip,
-                                      const GrDstProxyView& dstProxyView,
-                                      GrXferBarrierFlags renderPassXferBarriers,
-                                      GrLoadOp colorLoadOp) {
+void FillRRectOpImpl::onCreateProgramInfo(const GrCaps* caps,
+                                          SkArenaAlloc* arena,
+                                          const GrSurfaceProxyView& writeView,
+                                          bool usesMSAASurface,
+                                          GrAppliedClip&& appliedClip,
+                                          const GrDstProxyView& dstProxyView,
+                                          GrXferBarrierFlags renderPassXferBarriers,
+                                          GrLoadOp colorLoadOp) {
     if (usesMSAASurface) {
         fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
     }
@@ -779,7 +779,7 @@ void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                              colorLoadOp);
 }
 
-void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void FillRRectOpImpl::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fInstanceBuffer || !fIndexBuffer || !fVertexBuffer) {
         return;  // Setup failed.
     }
@@ -793,7 +793,7 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
 }
 
 // Will the given corner look good if we use HW derivatives?
-static bool can_use_hw_derivatives_with_coverage(const Sk2f& devScale, const Sk2f& cornerRadii) {
+bool can_use_hw_derivatives_with_coverage(const Sk2f& devScale, const Sk2f& cornerRadii) {
     Sk2f devRadii = devScale * cornerRadii;
     if (devRadii[1] < devRadii[0]) {
         devRadii = SkNx_shuffle<1,0>(devRadii);
@@ -804,14 +804,14 @@ static bool can_use_hw_derivatives_with_coverage(const Sk2f& devScale, const Sk2
     return minDevRadius * minDevRadius * 5 > devRadii[1];
 }
 
-static bool can_use_hw_derivatives_with_coverage(
-        const Sk2f& devScale, const SkVector& cornerRadii) {
+bool can_use_hw_derivatives_with_coverage(const Sk2f& devScale, const SkVector& cornerRadii) {
     return can_use_hw_derivatives_with_coverage(devScale, Sk2f::Load(&cornerRadii));
 }
 
 // Will the given round rect look good if we use HW derivatives?
-static bool can_use_hw_derivatives_with_coverage(
-        const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix, const SkRRect& rrect) {
+bool can_use_hw_derivatives_with_coverage(const GrShaderCaps& shaderCaps,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRRect& rrect) {
     if (!shaderCaps.shaderDerivativeSupport()) {
         return false;
     }
@@ -852,17 +852,19 @@ static bool can_use_hw_derivatives_with_coverage(
 
 } // anonymous namespace
 
+namespace skgpu::v1::FillRRectOp {
 
-GrOp::Owner GrFillRRectOp::Make(GrRecordingContext* ctx,
-                                SkArenaAlloc* arena,
-                                GrPaint&& paint,
-                                const SkMatrix& viewMatrix,
-                                const SkRRect& rrect,
-                                const SkRect& localRect,
-                                GrAA aa) {
-    return FillRRectOp::Make(ctx, arena, std::move(paint), viewMatrix, rrect, localRect, aa);
+GrOp::Owner Make(GrRecordingContext* ctx,
+                 SkArenaAlloc* arena,
+                 GrPaint&& paint,
+                 const SkMatrix& viewMatrix,
+                 const SkRRect& rrect,
+                 const SkRect& localRect,
+                 GrAA aa) {
+    return FillRRectOpImpl::Make(ctx, arena, std::move(paint), viewMatrix, rrect, localRect, aa);
 }
 
+} // namespace skgpu::v1::FillRRectOp
 
 #if GR_TEST_UTILS
 
@@ -881,13 +883,13 @@ GR_DRAW_OP_TEST_DEFINE(FillRRectOp) {
     // TODO: test out other rrect configurations
     rrect.setNinePatch(rect, w / 3.0f, h / 4.0f, w / 5.0f, h / 6.0);
 
-    return GrFillRRectOp::Make(context,
-                               &arena,
-                               std::move(paint),
-                               viewMatrix,
-                               rrect,
-                               rrect.rect(),
-                               aa);
+    return skgpu::v1::FillRRectOp::Make(context,
+                                        &arena,
+                                        std::move(paint),
+                                        viewMatrix,
+                                        rrect,
+                                        rrect.rect(),
+                                        aa);
 }
 
 #endif

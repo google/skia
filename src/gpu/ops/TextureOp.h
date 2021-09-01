@@ -43,9 +43,9 @@ public:
      * boundary for the strict src rect constraint. If GrAAType is kCoverage then AA is applied to
      * the edges indicated by GrQuadAAFlags. Otherwise, GrQuadAAFlags is ignored.
      *
-     * This is functionally very similar to GrFillRectOp::Make, except that the GrPaint has been
+     * This is functionally very similar to FillRectOp::Make, except that the GrPaint has been
      * deconstructed into the texture, filter, modulating color, and blend mode. When blend mode is
-     * src over, this will return a GrFillRectOp with a paint that samples the proxy.
+     * src over, this will return a FillRectOp with a paint that samples the proxy.
      */
     static GrOp::Owner Make(GrRecordingContext*,
                             GrSurfaceProxyView,
@@ -61,7 +61,7 @@ public:
                             const SkRect* subset = nullptr);
 
 #if SK_GPU_V1
-    // Automatically falls back to using one GrFillRectOp per entry if dynamic states are not
+    // Automatically falls back to using one FillRectOp per entry if dynamic states are not
     // supported, or if the blend mode is not src-over. 'cnt' is the size of the entry array.
     // 'proxyCnt' <= 'cnt' and represents the number of proxy switches within the array.
     static void AddTextureSetOps(skgpu::v1::SurfaceDrawContext*,

@@ -14,7 +14,7 @@
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/ClearOp.h"
-#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -64,8 +64,8 @@ void SurfaceFillContext::fillRectWithFP(const SkIRect& dstRect,
     GrPaint paint;
     paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    auto op = GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
-                                          SkRect::Make(dstRect));
+    auto op = FillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
+                                        SkRect::Make(dstRect));
     this->addDrawOp(std::move(op));
 }
 
@@ -218,8 +218,8 @@ void SurfaceFillContext::internalClear(const SkIRect* scissor,
     if (clearAsDraw) {
         GrPaint paint;
         ClearToGrPaint(color, &paint);
-        auto op = GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
-                                              SkRect::Make(scissorState.rect()));
+        auto op = FillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
+                                            SkRect::Make(scissorState.rect()));
         this->addDrawOp(std::move(op));
     } else {
         color = this->writeSurfaceView().swizzle().applyTo(color);

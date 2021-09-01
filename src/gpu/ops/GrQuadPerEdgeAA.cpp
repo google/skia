@@ -87,7 +87,7 @@ static void write_2d_color(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec
     SkASSERT(spec.hasVertexColors());
     SkASSERT(!spec.requiresGeometrySubset());
     SkASSERT(!spec.hasSubset());
-    // We don't assert that localQuad == nullptr, since it is possible for GrFillRectOp to
+    // We don't assert that localQuad == nullptr, since it is possible for FillRectOp to
     // accumulate local coords conservatively (paint not trivial), and then after analysis realize
     // the processors don't need local coordinates.
 
@@ -702,7 +702,7 @@ public:
                     args.fFragBuilder->codeAppend(");");
                 } else {
                     // Saturate is only intended for use with a proxy to account for the fact
-                    // that GrTextureOp skips SkPaint conversion, which normally handles this.
+                    // that TextureOp skips SkPaint conversion, which normally handles this.
                     SkASSERT(gp.fSaturate == Saturate::kNo);
                 }
 

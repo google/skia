@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrFillRRectOp_DEFINED
-#define GrFillRRectOp_DEFINED
+#ifndef FillRRectOp_DEFINED
+#define FillRRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrCaps;
-class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
 class SkMatrix;
-class SkRRect;
+struct SkRect;
 
-namespace GrFillRRectOp {
+namespace skgpu::v1::FillRRectOp {
+
     GrOp::Owner Make(GrRecordingContext*,
                      SkArenaAlloc*,
                      GrPaint&&,
@@ -26,6 +26,7 @@ namespace GrFillRRectOp {
                      const SkRRect&,
                      const SkRect& localRect,
                      GrAA);
-}  // namespace GrFillRRectOp
 
-#endif
+}  // namespace skgpu::v1::FillRRectOp
+
+#endif // FillRRectOp_DEFINED

@@ -57,9 +57,9 @@
 #include "src/gpu/ops/DrawAtlasOp.h"
 #include "src/gpu/ops/DrawVerticesOp.h"
 #include "src/gpu/ops/DrawableOp.h"
+#include "src/gpu/ops/FillRRectOp.h"
+#include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/ops/GrFillRRectOp.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrLatticeOp.h"
 #include "src/gpu/ops/GrOp.h"
 #include "src/gpu/ops/GrOvalOpFactory.h"
@@ -633,8 +633,8 @@ void SurfaceDrawContext::drawFilledQuad(const GrClip* clip,
         } else {
             aaType = this->chooseAAType(aa);
         }
-        this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType,
-                                                      quad, ss));
+        this->addDrawOp(finalClip, FillRectOp::Make(fContext, std::move(paint), aaType,
+                                                    quad, ss));
     }
     // All other optimization levels were completely handled inside attempt(), so no extra op needed
 }
@@ -653,7 +653,7 @@ void SurfaceDrawContext::drawTexture(const GrClip* clip,
                                      SkCanvas::SrcRectConstraint constraint,
                                      const SkMatrix& viewMatrix,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform) {
-    // If we are using dmsaa then go through GrFillRRectOp (via fillRectToRect).
+    // If we are using dmsaa then go through FillRRectOp (via fillRectToRect).
     if ((this->alwaysAntialias() || this->caps()->reducedShaderMode()) && aa == GrAA::kYes) {
         GrPaint paint;
         paint.setColor4f(color);
@@ -705,7 +705,7 @@ void SurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     // Functionally this is very similar to drawFilledQuad except that there's no constColor to
-    // enable the kSubmitted optimizations, no stencil settings support, and its a GrTextureOp.
+    // enable the kSubmitted optimizations, no stencil settings support, and its a TextureOp.
     QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &aa, quad,
                                                          nullptr/*paint*/);
 
@@ -788,11 +788,11 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
     DrawQuad quad{GrQuad::MakeFromRect(rectToDraw, viewMatrix), GrQuad(localRect),
                   aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
 
-    // If we are using dmsaa then attempt to draw the rect with GrFillRRectOp.
+    // If we are using dmsaa then attempt to draw the rect with FillRRectOp.
     if ((fContext->priv().caps()->reducedShaderMode() || this->alwaysAntialias()) &&
         this->caps()->drawInstancedSupport()                                      &&
         aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
-                             // GrFillRRectOp because it might require dual source blending.
+                             // FillRRectOp because it might require dual source blending.
                              // http://skbug.com/11756
         QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &aa, &quad,
                                                              &paint);
@@ -817,15 +817,15 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
                 optimizedClip = nullptr;
             }
         } else {
-            // Even if attemptQuadOptimization gave us an optimized quad, GrFillRRectOp needs a rect
+            // Even if attemptQuadOptimization gave us an optimized quad, FillRRectOp needs a rect
             // in pre-matrix space, so use the original rect. Also preserve the original clip.
             croppedRect = rectToDraw;
             croppedLocal = localRect;
         }
 
-        if (auto op = GrFillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint),
-                                          viewMatrix, SkRRect::MakeRect(croppedRect), croppedLocal,
-                                          GrAA::kYes)) {
+        if (auto op = FillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint),
+                                        viewMatrix, SkRRect::MakeRect(croppedRect), croppedLocal,
+                                        GrAA::kYes)) {
             this->addDrawOp(optimizedClip, std::move(op));
             return;
         }
@@ -843,8 +843,8 @@ void SurfaceDrawContext::drawQuadSet(const GrClip* clip,
                                      int cnt) {
     GrAAType aaType = this->chooseAAType(aa);
 
-    GrFillRectOp::AddFillRectOps(this, clip, fContext, std::move(paint), aaType, viewMatrix,
-                                 quads, cnt);
+    FillRectOp::AddFillRectOps(this, clip, fContext, std::move(paint), aaType, viewMatrix,
+                               quads, cnt);
 }
 
 int SurfaceDrawContext::maxWindowRectangles() const {
@@ -902,8 +902,8 @@ void SurfaceDrawContext::internalStencilClear(const SkIRect* scissor, bool insid
         GrPaint paint;
         paint.setXPFactory(GrDisableColorXPFactory::Get());
         this->addDrawOp(nullptr,
-                        GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
-                                                    SkRect::Make(scissorState.rect()), ss));
+                        FillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
+                                                  SkRect::Make(scissorState.rect()), ss));
     } else {
         this->addOp(ClearOp::MakeStencilClip(fContext, scissorState, insideStencilMask));
     }
@@ -1095,8 +1095,8 @@ void SurfaceDrawContext::drawRRect(const GrClip* origClip,
     }
     if (!op && style.isSimpleFill()) {
         assert_alive(paint);
-        op = GrFillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint), viewMatrix, rrect,
-                                 rrect.rect(), GrAA(aaType != GrAAType::kNone));
+        op = FillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint), viewMatrix, rrect,
+                               rrect.rect(), GrAA(aaType != GrAAType::kNone));
     }
     if (!op && (aaType == GrAAType::kCoverage || fCanUseDynamicMSAA)) {
         assert_alive(paint);
@@ -1395,14 +1395,14 @@ void SurfaceDrawContext::drawOval(const GrClip* clip,
                                            this->caps()->shaderCaps());
     }
     if (!op && style.isSimpleFill()) {
-        // GrFillRRectOp has special geometry and a fragment-shader branch to conditionally evaluate
+        // FillRRectOp has special geometry and a fragment-shader branch to conditionally evaluate
         // the arc equation. This same special geometry and fragment branch also turn out to be a
         // substantial optimization for drawing ovals (namely, by not evaluating the arc equation
         // inside the oval's inner diamond). Given these optimizations, it's a clear win to draw
         // ovals the exact same way we do round rects.
         assert_alive(paint);
-        op = GrFillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint), viewMatrix,
-                                 SkRRect::MakeOval(oval), oval, GrAA(aaType != GrAAType::kNone));
+        op = FillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint), viewMatrix,
+                               SkRRect::MakeOval(oval), oval, GrAA(aaType != GrAAType::kNone));
     }
     if (!op && (aaType == GrAAType::kCoverage || fCanUseDynamicMSAA)) {
         assert_alive(paint);

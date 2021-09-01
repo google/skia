@@ -12,7 +12,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsTypes.h"
-#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/PathStencilCoverOp.h"
 
 namespace skgpu::v1 {
@@ -154,7 +154,7 @@ void AtlasRenderTask::stencilAtlasRect(GrRecordingContext* rContext, const SkRec
     paint.setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
     GrQuad quad(rect);
     DrawQuad drawQuad{quad, quad, GrQuadAAFlags::kAll};
-    auto op = GrFillRectOp::Make(rContext, std::move(paint), GrAAType::kMSAA, &drawQuad, stencil);
+    auto op = FillRectOp::Make(rContext, std::move(paint), GrAAType::kMSAA, &drawQuad, stencil);
     this->addAtlasDrawOp(std::move(op), *rContext->priv().caps());
 }
 

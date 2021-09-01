@@ -14,7 +14,7 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
-/** Used by SDC::drawQuadSet and GrFillRectOp */
+/** Used by SDC::drawQuadSet and FillRectOp */
 struct GrQuadSetEntry {
     SkRect fRect;
     SkPMColor4f fColor; // Overrides any color on the GrPaint
@@ -22,7 +22,7 @@ struct GrQuadSetEntry {
     GrQuadAAFlags fAAFlags;
 };
 
-/** Used by SDC::drawTextureSet and GrTextureOp */
+/** Used by SDC::drawTextureSet and TextureOp */
 struct GrTextureSetEntry {
     GrSurfaceProxyView fProxyView;
     SkAlphaType fSrcAlphaType;

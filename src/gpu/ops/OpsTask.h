@@ -86,7 +86,7 @@ public:
     };
 
     // Perform book-keeping for a fullscreen clear, regardless of how the clear is implemented later
-    // (i.e. setColorLoadOp(), adding a ClearOp, or adding a GrFillRectOp that covers the device).
+    // (i.e. setColorLoadOp(), adding a ClearOp, or adding a FillRectOp that covers the device).
     // Returns true if the clear can be converted into a load op (barring device caps).
     bool resetForFullscreenClear(CanDiscardPreviousOps);
 

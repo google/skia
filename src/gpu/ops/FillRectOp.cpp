@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/FillRectOp.h"
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
@@ -23,9 +23,7 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
-#if SK_GPU_V1
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
-#endif
 
 namespace {
 
@@ -33,9 +31,9 @@ using VertexSpec = GrQuadPerEdgeAA::VertexSpec;
 using ColorType = GrQuadPerEdgeAA::ColorType;
 
 #if GR_TEST_UTILS
-static SkString dump_quad_info(int index, const GrQuad* deviceQuad,
-                               const GrQuad* localQuad, const SkPMColor4f& color,
-                               GrQuadAAFlags aaFlags) {
+SkString dump_quad_info(int index, const GrQuad* deviceQuad,
+                        const GrQuad* localQuad, const SkPMColor4f& color,
+                        GrQuadAAFlags aaFlags) {
     GrQuad safeLocal = localQuad ? *localQuad : GrQuad();
     SkString str;
     str.appendf("%d: Color: [%.2f, %.2f, %.2f, %.2f], Edge AA: l%u_t%u_r%u_b%u, \n"
@@ -60,7 +58,7 @@ static SkString dump_quad_info(int index, const GrQuad* deviceQuad,
 }
 #endif
 
-class FillRectOp final : public GrMeshDrawOp {
+class FillRectOpImpl final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
@@ -74,14 +72,15 @@ public:
         // Clean up deviations between aaType and edgeAA
         GrQuadUtils::ResolveAAType(aaType, quad->fEdgeFlags, quad->fDevice,
                                    &aaType, &quad->fEdgeFlags);
-        return Helper::FactoryHelper<FillRectOp>(context, std::move(paint), aaType, quad,
-                                                 stencilSettings, inputFlags);
+        return Helper::FactoryHelper<FillRectOpImpl>(context, std::move(paint), aaType, quad,
+                                                     stencilSettings, inputFlags);
     }
 
     // aaType is passed to Helper in the initializer list, so incongruities between aaType and
     // edgeFlags must be resolved prior to calling this constructor.
-    FillRectOp(GrProcessorSet* processorSet, SkPMColor4f paintColor, GrAAType aaType,
-               DrawQuad* quad, const GrUserStencilSettings* stencil, Helper::InputFlags inputFlags)
+    FillRectOpImpl(GrProcessorSet* processorSet, SkPMColor4f paintColor, GrAAType aaType,
+                   DrawQuad* quad, const GrUserStencilSettings* stencil,
+                   Helper::InputFlags inputFlags)
             : INHERITED(ClassID())
             , fHelper(processorSet, aaType, stencil, inputFlags)
             , fQuads(1, !fHelper.isTrivial()) {
@@ -180,7 +179,7 @@ public:
     DEFINE_OP_CLASS_ID
 
 private:
-    friend class ::GrFillRectOp; // for access to addQuad
+    friend class skgpu::v1::FillRectOp; // for access to addQuad
 
 #if GR_TEST_UTILS
     int numQuads() const final { return fQuads.count(); }
@@ -322,7 +321,7 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        const auto* that = t->cast<FillRectOp>();
+        auto that = t->cast<FillRectOpImpl>();
 
         bool upgradeToCoverageAAOnMerge = false;
         if (fHelper.aaType() != that->fHelper.aaType()) {
@@ -458,34 +457,36 @@ private:
 
 } // anonymous namespace
 
-GrOp::Owner GrFillRectOp::Make(GrRecordingContext* context,
+namespace skgpu::v1 {
+
+GrOp::Owner FillRectOp::Make(GrRecordingContext* context,
+                             GrPaint&& paint,
+                             GrAAType aaType,
+                             DrawQuad* quad,
+                             const GrUserStencilSettings* stencil,
+                             InputFlags inputFlags) {
+    return FillRectOpImpl::Make(context, std::move(paint), aaType, std::move(quad), stencil,
+                                inputFlags);
+}
+
+GrOp::Owner FillRectOp::MakeNonAARect(GrRecordingContext* context,
+                                      GrPaint&& paint,
+                                      const SkMatrix& view,
+                                      const SkRect& rect,
+                                      const GrUserStencilSettings* stencil) {
+    DrawQuad quad{GrQuad::MakeFromRect(rect, view), GrQuad(rect), GrQuadAAFlags::kNone};
+    return FillRectOpImpl::Make(context, std::move(paint), GrAAType::kNone, &quad, stencil,
+                                InputFlags::kNone);
+}
+
+GrOp::Owner FillRectOp::MakeOp(GrRecordingContext* context,
                                GrPaint&& paint,
                                GrAAType aaType,
-                               DrawQuad* quad,
-                               const GrUserStencilSettings* stencil,
-                               InputFlags inputFlags) {
-    return FillRectOp::Make(context, std::move(paint), aaType, std::move(quad), stencil,
-                            inputFlags);
-}
-
-GrOp::Owner GrFillRectOp::MakeNonAARect(GrRecordingContext* context,
-                                        GrPaint&& paint,
-                                        const SkMatrix& view,
-                                        const SkRect& rect,
-                                        const GrUserStencilSettings* stencil) {
-    DrawQuad quad{GrQuad::MakeFromRect(rect, view), GrQuad(rect), GrQuadAAFlags::kNone};
-    return FillRectOp::Make(context, std::move(paint), GrAAType::kNone, &quad, stencil,
-                            InputFlags::kNone);
-}
-
-GrOp::Owner GrFillRectOp::MakeOp(GrRecordingContext* context,
-                                 GrPaint&& paint,
-                                 GrAAType aaType,
-                                 const SkMatrix& viewMatrix,
-                                 const GrQuadSetEntry quads[],
-                                 int cnt,
-                                 const GrUserStencilSettings* stencilSettings,
-                                 int* numConsumed) {
+                               const SkMatrix& viewMatrix,
+                               const GrQuadSetEntry quads[],
+                               int cnt,
+                               const GrUserStencilSettings* stencilSettings,
+                               int* numConsumed) {
     // First make a draw op for the first quad in the set
     SkASSERT(cnt > 0);
 
@@ -495,7 +496,7 @@ GrOp::Owner GrFillRectOp::MakeOp(GrRecordingContext* context,
     paint.setColor4f(quads[0].fColor);
     GrOp::Owner op = FillRectOp::Make(context, std::move(paint), aaType,
                                       &quad, stencilSettings, InputFlags::kNone);
-    FillRectOp* fillRects = op->cast<FillRectOp>();
+    auto fillRects = op->cast<FillRectOpImpl>();
 
     *numConsumed = 1;
     // Accumulate remaining quads similar to onCombineIfPossible() without creating an op
@@ -518,16 +519,15 @@ GrOp::Owner GrFillRectOp::MakeOp(GrRecordingContext* context,
     return op;
 }
 
-#if SK_GPU_V1
-void GrFillRectOp::AddFillRectOps(skgpu::v1::SurfaceDrawContext* sdc,
-                                  const GrClip* clip,
-                                  GrRecordingContext* context,
-                                  GrPaint&& paint,
-                                  GrAAType aaType,
-                                  const SkMatrix& viewMatrix,
-                                  const GrQuadSetEntry quads[],
-                                  int cnt,
-                                  const GrUserStencilSettings* stencilSettings) {
+void FillRectOp::AddFillRectOps(skgpu::v1::SurfaceDrawContext* sdc,
+                                const GrClip* clip,
+                                GrRecordingContext* context,
+                                GrPaint&& paint,
+                                GrAAType aaType,
+                                const SkMatrix& viewMatrix,
+                                const GrQuadSetEntry quads[],
+                                int cnt,
+                                const GrUserStencilSettings* stencilSettings) {
 
     int offset = 0;
     int numLeft = cnt;
@@ -546,12 +546,13 @@ void GrFillRectOp::AddFillRectOps(skgpu::v1::SurfaceDrawContext* sdc,
 
     SkASSERT(offset == cnt);
 }
-#endif
+
+} // namespace skgpu::v1
 
 #if GR_TEST_UTILS
 
-uint32_t GrFillRectOp::ClassID() {
-    return FillRectOp::ClassID();
+uint32_t skgpu::v1::FillRectOp::ClassID() {
+    return FillRectOpImpl::ClassID();
 }
 
 #include "src/gpu/GrDrawOpTest.h"
@@ -580,18 +581,18 @@ GR_DRAW_OP_TEST_DEFINE(FillRectOp) {
             SkMatrix localMatrix = GrTest::TestMatrixInvertible(random);
             DrawQuad quad = {GrQuad::MakeFromRect(rect, viewMatrix),
                              GrQuad::MakeFromRect(rect, localMatrix), aaFlags};
-            return GrFillRectOp::Make(context, std::move(paint), aaType, &quad, stencil);
+            return skgpu::v1::FillRectOp::Make(context, std::move(paint), aaType, &quad, stencil);
         } else {
             // Pass local rect directly
             SkRect localRect = GrTest::TestRect(random);
             DrawQuad quad = {GrQuad::MakeFromRect(rect, viewMatrix),
                              GrQuad(localRect), aaFlags};
-            return GrFillRectOp::Make(context, std::move(paint), aaType, &quad, stencil);
+            return skgpu::v1::FillRectOp::Make(context, std::move(paint), aaType, &quad, stencil);
         }
     } else {
         // The simplest constructor
         DrawQuad quad = {GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(rect), aaFlags};
-        return GrFillRectOp::Make(context, std::move(paint), aaType, &quad, stencil);
+        return skgpu::v1::FillRectOp::Make(context, std::move(paint), aaType, &quad, stencil);
     }
 }
 

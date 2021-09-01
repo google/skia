@@ -159,7 +159,7 @@ DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */) {
     };
 
     // Software path renderer creates a mask texture and renders with a non-AA rect, but the flush
-    // only contains a single quad so GrFillRectOp doesn't need to use the shared index buffer.
+    // only contains a single quad so FillRectOp doesn't need to use the shared index buffer.
     const int kExpectedResources = 1;
 
     test_path(reporter, create_concave_path, createPR, kExpectedResources, true,

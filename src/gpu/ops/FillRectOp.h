@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrFillRectOp_DEFINED
-#define GrFillRectOp_DEFINED
+#ifndef FillRectOp_DEFINED
+#define FillRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
@@ -18,10 +18,13 @@ class GrPaint;
 class GrQuad;
 struct GrQuadSetEntry;
 class GrRecordingContext;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 struct GrUserStencilSettings;
 class SkMatrix;
 struct SkRect;
+
+namespace skgpu::v1 {
+
+class SurfaceDrawContext;
 
 /**
  * A set of factory functions for drawing filled rectangles either coverage-antialiased, or
@@ -29,7 +32,7 @@ struct SkRect;
  * the GrPaint is only consumed by these methods if a valid op is returned. If null is returned then
  * the paint is unmodified and may still be used.
  */
-class GrFillRectOp {
+class FillRectOp {
 public:
     using InputFlags = GrSimpleMeshDrawOpHelper::InputFlags;
 
@@ -49,11 +52,9 @@ public:
                                      const SkRect&,
                                      const GrUserStencilSettings* = nullptr);
 
-    // TODO: remove this guard once GrFillRectOp is made V1-only
-#if SK_GPU_V1
     // Bulk API for drawing quads with a single op
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
-    static void AddFillRectOps(skgpu::v1::SurfaceDrawContext*,
+    static void AddFillRectOps(SurfaceDrawContext*,
                                const GrClip*,
                                GrRecordingContext*,
                                GrPaint&&,
@@ -62,14 +63,13 @@ public:
                                const GrQuadSetEntry quads[],
                                int quadCount,
                                const GrUserStencilSettings* = nullptr);
-#endif
 
 #if GR_TEST_UTILS
     static uint32_t ClassID();
 #endif
 
 private:
-    // Create a GrFillRectOp that uses as many quads as possible from 'quads' w/o exceeding
+    // Create a FillRectOp that uses as many quads as possible from 'quads' w/o exceeding
     // any index buffer size limits.
     static GrOp::Owner MakeOp(GrRecordingContext*,
                               GrPaint&&,
@@ -81,4 +81,6 @@ private:
                               int* numConsumed);
 };
 
-#endif // GrFillRectOp_DEFINED
+} // namespace skgpu::v1
+
+#endif // FillRectOp_DEFINED

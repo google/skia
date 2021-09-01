@@ -87,7 +87,7 @@ public:
 #endif
 
 #if GR_TEST_UTILS
-    // This is really only intended for GrTextureOp and GrFillRectOp to override
+    // This is really only intended for TextureOp and FillRectOp to override
     virtual int numQuads() const { return -1; }
 #endif
 

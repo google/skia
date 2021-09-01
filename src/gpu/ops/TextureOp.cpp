@@ -37,7 +37,7 @@
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
-#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
@@ -219,7 +219,7 @@ bool safe_to_ignore_subset_rect(GrAAType aaType, GrSamplerState::Filter filter,
 }
 
 /**
- * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
+ * Op that implements TextureOp::Make. It draws textured quads. Each quad can modulate against a
  * the texture by color. The blend with the destination is always src-over. The edges are non-AA.
  */
 class TextureOpImpl final : public GrMeshDrawOp {
@@ -336,7 +336,7 @@ private:
     };
 
     struct ViewCountPair {
-        // Normally this would be a GrSurfaceProxyView, but GrTextureOp applies the GrOrigin right
+        // Normally this would be a GrSurfaceProxyView, but TextureOp applies the GrOrigin right
         // away so it doesn't need to be stored, and all ViewCountPairs in an op have the same
         // swizzle so that is stored in the op metadata.
         sk_sp<GrSurfaceProxy> fProxy;
@@ -522,7 +522,7 @@ private:
                       GrMipmapped::kYes));
             if (q == 0) {
                 // We do not placement new the first ViewCountPair since that one is allocated and
-                // initialized as part of the GrTextureOp creation.
+                // initialized as part of the TextureOp creation.
                 fViewCountPairs[0].fProxy = set[0].fProxyView.detachProxy();
                 fViewCountPairs[0].fQuadCnt = 0;
                 curProxy = fViewCountPairs[0].fProxy.get();
@@ -1138,7 +1138,7 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
                             GrAAType aaType,
                             DrawQuad* quad,
                             const SkRect* subset) {
-    // Apply optimizations that are valid whether or not using GrTextureOp or GrFillRectOp
+    // Apply optimizations that are valid whether or not using TextureOp or FillRectOp
     if (subset && subset->contains(proxyView.proxy()->backingStoreBoundsRect())) {
         // No need for a shader-based subset if hardware clamping achieves the same effect
         subset = nullptr;
@@ -1158,7 +1158,7 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
         return TextureOpImpl::Make(context, std::move(proxyView), std::move(textureXform), filter,
                                    mm, color, saturate, aaType, std::move(quad), subset);
     } else {
-        // Emulate complex blending using GrFillRectOp
+        // Emulate complex blending using FillRectOp
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClamp, filter, mm);
         GrPaint paint;
         paint.setColor4f(color);
@@ -1185,7 +1185,7 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
             fp = GrFragmentProcessor::ClampOutput(std::move(fp));
         }
         paint.setColorFragmentProcessor(std::move(fp));
-        return GrFillRectOp::Make(context, std::move(paint), aaType, quad);
+        return FillRectOp::Make(context, std::move(paint), aaType, quad);
     }
 }
 
@@ -1276,7 +1276,7 @@ void TextureOp::AddTextureSetOps(SurfaceDrawContext* sdc,
         !context->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
         // Append each entry as its own op; these may still be GrTextureOps if the blend mode is
         // src-over but the backend doesn't support dynamic state changes. Otherwise Make()
-        // automatically creates the appropriate GrFillRectOp to emulate GrTextureOp.
+        // automatically creates the appropriate FillRectOp to emulate TextureOp.
         SkMatrix ctm;
         for (int i = 0; i < cnt; ++i) {
             ctm = viewMatrix;
@@ -1362,7 +1362,7 @@ void TextureOp::AddTextureSetOps(SurfaceDrawContext* sdc,
 
                     if (i >= GrResourceProvider::MaxNumNonAAQuads()) {
                         // Here we've found a consistent batch of non-AA quads that has gotten too
-                        // large. Calve it off as its own GrTextureOp.
+                        // large. Calve it off as its own TextureOp.
                         state.createOp(set, GrResourceProvider::MaxNumNonAAQuads(),
                                        GrAAType::kNone); // definitely downgrading AA here
                         clumped = true;

@@ -25,8 +25,8 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrRRectEffect.h"
+#include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #include <memory>
@@ -135,7 +135,7 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            sdc->addDrawOp(GrFillRectOp::MakeNonAARect(
+                            sdc->addDrawOp(skgpu::v1::FillRectOp::MakeNonAARect(
                                     rContext, std::move(grPaint), SkMatrix::I(), bounds));
                         } else {
                             drew = false;
