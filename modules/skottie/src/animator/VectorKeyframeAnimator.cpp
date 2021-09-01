@@ -142,6 +142,33 @@ private:
     using INHERITED = KeyframeAnimator;
 };
 
+class VectorExpressionAnimator final : public Animator {
+public:
+    VectorExpressionAnimator(sk_sp<ExpressionEvaluator<std::vector<float>>> expression_evaluator,
+        std::vector<float>* target_value)
+        : fExpressionEvaluator(std::move(expression_evaluator))
+        , fTarget(target_value) {}
+
+private:
+
+    StateChanged onSeek(float t) override {
+        std::vector<float> result = fExpressionEvaluator->evaluate(t);
+        bool changed = false;
+        for (size_t i = 0; i < fTarget->size(); i++) {
+            // Use 0 as a default if the result is too small.
+            float val = i >= result.size() ? 0 : result[i];
+            if (!SkScalarNearlyEqual(val, (*fTarget)[i])) {
+                changed = true;
+            }
+            (*fTarget)[i] = val;
+        }
+
+        return changed;
+    }
+
+    sk_sp<ExpressionEvaluator<std::vector<float>>> fExpressionEvaluator;
+    std::vector<float>* fTarget;
+};
 } // namespace
 
 VectorAnimatorBuilder::VectorAnimatorBuilder(std::vector<float>* target,
@@ -189,8 +216,10 @@ sk_sp<KeyframeAnimator> VectorAnimatorBuilder::makeFromKeyframes(const Animation
                                            fTarget));
 }
 
-sk_sp<Animator> VectorAnimatorBuilder::makeFromExpression(ExpressionManager&, const char*) {
-    return nullptr;
+sk_sp<Animator> VectorAnimatorBuilder::makeFromExpression(ExpressionManager& em, const char* expr) {
+    sk_sp<ExpressionEvaluator<std::vector<SkScalar>>> expression_evaluator =
+            em.createArrayExpressionEvaluator(expr);
+    return sk_make_sp<VectorExpressionAnimator>(expression_evaluator, fTarget);
 }
 
 bool VectorAnimatorBuilder::parseValue(const AnimationBuilder&,
