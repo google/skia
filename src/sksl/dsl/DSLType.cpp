@@ -30,22 +30,23 @@ static const Type* find_type(skstd::string_view name) {
     return &symbol->as<Type>();
 }
 
-static const Type* find_type(skstd::string_view name, const Modifiers& modifiers) {
+static const Type* find_type(skstd::string_view name, const Modifiers& modifiers,
+        PositionInfo pos) {
     const Type* type = find_type(name);
     if (!type) {
         return nullptr;
     }
-    return type->applyPrecisionQualifiers(DSLWriter::Context(),
-                                          modifiers,
-                                          DSLWriter::SymbolTable().get(),
-                                          /*offset=*/-1);
+    const Type* result = type->applyPrecisionQualifiers(DSLWriter::Context(), modifiers,
+            DSLWriter::SymbolTable().get(), /*offset=*/-1);
+    DSLWriter::ReportErrors(pos);
+    return result;
 }
 
 DSLType::DSLType(skstd::string_view name)
         : fSkSLType(find_type(name)) {}
 
-DSLType::DSLType(skstd::string_view name, const DSLModifiers& modifiers)
-        : fSkSLType(find_type(name, modifiers.fModifiers)) {}
+DSLType::DSLType(skstd::string_view name, const DSLModifiers& modifiers, PositionInfo position)
+        : fSkSLType(find_type(name, modifiers.fModifiers, position)) {}
 
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();

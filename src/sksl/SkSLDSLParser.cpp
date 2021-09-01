@@ -768,7 +768,7 @@ skstd::optional<DSLType> DSLParser::type(const DSLModifiers& modifiers) {
         this->error(type, ("no type named '" + this->text(type) + "'").c_str());
         return skstd::nullopt;
     }
-    DSLType result(this->text(type), modifiers);
+    DSLType result(this->text(type), modifiers, this->position(type));
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
         if (this->peek().fKind != Token::Kind::TK_RBRACKET) {
             result = Array(result, this->arraySize(), this->position(type));
