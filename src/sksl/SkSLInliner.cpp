@@ -399,6 +399,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             const IndexExpression& idx = expression.as<IndexExpression>();
             return IndexExpression::Make(*fContext, expr(idx.base()), expr(idx.index()));
         }
+        case Expression::Kind::kMethodReference:
+            return expression.clone();
         case Expression::Kind::kPrefix: {
             const PrefixExpression& p = expression.as<PrefixExpression>();
             return PrefixExpression::Make(*fContext, p.getOperator(), expr(p.operand()));
@@ -948,6 +950,7 @@ public:
             case Expression::Kind::kFloatLiteral:
             case Expression::Kind::kFunctionReference:
             case Expression::Kind::kIntLiteral:
+            case Expression::Kind::kMethodReference:
             case Expression::Kind::kSetting:
             case Expression::Kind::kTypeReference:
             case Expression::Kind::kVariableReference:

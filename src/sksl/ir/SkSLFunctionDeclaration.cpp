@@ -20,6 +20,10 @@ static IntrinsicKind identify_intrinsic(skstd::string_view functionName) {
     };
     #undef SKSL_INTRINSIC
 
+    if (functionName.starts_with('$')) {
+        functionName.remove_prefix(1);
+    }
+
     auto iter = kAllIntrinsics->find(functionName);
     if (iter != kAllIntrinsics->end()) {
         return iter->second;

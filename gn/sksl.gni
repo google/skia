@@ -156,6 +156,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLInlineMarker.h",
   "$_src/sksl/ir/SkSLIntLiteral.h",
   "$_src/sksl/ir/SkSLInterfaceBlock.h",
+  "$_src/sksl/ir/SkSLMethodReference.h",
   "$_src/sksl/ir/SkSLModifiersDeclaration.h",
   "$_src/sksl/ir/SkSLNop.h",
   "$_src/sksl/ir/SkSLPoison.h",

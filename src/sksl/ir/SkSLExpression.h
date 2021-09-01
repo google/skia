@@ -48,6 +48,7 @@ public:
         kFunctionReference,
         kFunctionCall,
         kIndex,
+        kMethodReference,
         kPoison,
         kPostfix,
         kPrefix,

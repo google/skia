@@ -7,14 +7,44 @@
 
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLSetting.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 namespace SkSL {
 
 std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
+                                                 SymbolTable& symbolTable,
                                                  std::unique_ptr<Expression> base,
                                                  skstd::string_view field) {
     const Type& baseType = base->type();
+    if (baseType.isEffectChild()) {
+        // Turn the field name into a free function name, prefixed with '$':
+        String methodName = String("$") + field;
+        const Symbol* result = symbolTable[methodName];
+        if (result) {
+            switch (result->kind()) {
+                case Symbol::Kind::kFunctionDeclaration: {
+                    std::vector<const FunctionDeclaration*> f = {
+                            &result->as<FunctionDeclaration>()};
+                    return std::make_unique<MethodReference>(
+                            context, base->fOffset, std::move(base), f);
+                }
+                case Symbol::Kind::kUnresolvedFunction: {
+                    const UnresolvedFunction& f = result->as<UnresolvedFunction>();
+                    return std::make_unique<MethodReference>(
+                            context, base->fOffset, std::move(base), f.functions());
+                }
+                default:
+                    break;
+            }
+        }
+        context.fErrors->error(
+                base->fOffset,
+                "type '" + baseType.displayName() + "' has no method named '" + field + "'");
+        return nullptr;
+    }
     if (baseType.isStruct()) {
         const std::vector<Type::Field>& fields = baseType.fields();
         for (size_t i = 0; i < fields.size(); i++) {

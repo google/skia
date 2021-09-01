@@ -176,7 +176,7 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expre
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expression> base,
                                                           skstd::string_view name) {
-    return FieldAccess::Convert(Context(), std::move(base), name);
+    return FieldAccess::Convert(Context(), *SymbolTable(), std::move(base), name);
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expression> base,

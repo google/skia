@@ -45,6 +45,7 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -1050,7 +1051,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
  * the call is not valid.
  */
 CoercionCost IRGenerator::callCost(const FunctionDeclaration& function,
-                                   const ExpressionArray& arguments) {
+                                   const ExpressionArray& arguments) const {
     if (this->strictES2Mode() && (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
         return CoercionCost::Impossible();
     }
@@ -1067,6 +1068,24 @@ CoercionCost IRGenerator::callCost(const FunctionDeclaration& function,
         total = total + arguments[i]->coercionCost(*types[i]);
     }
     return total;
+}
+
+const FunctionDeclaration* IRGenerator::findBestFunctionForCall(
+        const std::vector<const FunctionDeclaration*>& functions,
+        const ExpressionArray& arguments) const {
+    if (functions.size() == 1) {
+        return functions.front();
+    }
+    CoercionCost bestCost = CoercionCost::Impossible();
+    const FunctionDeclaration* best = nullptr;
+    for (const auto& f : functions) {
+        CoercionCost cost = this->callCost(*f, arguments);
+        if (cost < bestCost) {
+            bestCost = cost;
+            best = f;
+        }
+    }
+    return best;
 }
 
 std::unique_ptr<Expression> IRGenerator::call(int offset,
@@ -1102,31 +1121,41 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         case Expression::Kind::kFunctionReference: {
             const FunctionReference& ref = functionValue->as<FunctionReference>();
             const std::vector<const FunctionDeclaration*>& functions = ref.functions();
-            CoercionCost bestCost = CoercionCost::Impossible();
-            const FunctionDeclaration* best = nullptr;
-            if (functions.size() > 1) {
-                for (const auto& f : functions) {
-                    CoercionCost cost = this->callCost(*f, arguments);
-                    if (cost < bestCost) {
-                        bestCost = cost;
-                        best = f;
-                    }
-                }
-                if (best) {
-                    return this->call(offset, *best, std::move(arguments));
-                }
-                String msg = "no match for " + functions[0]->name() + "(";
-                String separator;
-                for (size_t i = 0; i < arguments.size(); i++) {
-                    msg += separator;
-                    separator = ", ";
-                    msg += arguments[i]->type().displayName();
-                }
-                msg += ")";
-                this->errorReporter().error(offset, msg);
-                return nullptr;
+            const FunctionDeclaration* best = this->findBestFunctionForCall(functions, arguments);
+            if (best) {
+                return this->call(offset, *best, std::move(arguments));
             }
-            return this->call(offset, *functions[0], std::move(arguments));
+            String msg = "no match for " + functions[0]->name() + "(";
+            String separator;
+            for (size_t i = 0; i < arguments.size(); i++) {
+                msg += separator;
+                separator = ", ";
+                msg += arguments[i]->type().displayName();
+            }
+            msg += ")";
+            this->errorReporter().error(offset, msg);
+            return nullptr;
+        }
+        case Expression::Kind::kMethodReference: {
+            MethodReference& ref = functionValue->as<MethodReference>();
+            arguments.push_back(std::move(ref.self()));
+
+            const std::vector<const FunctionDeclaration*>& functions = ref.functions();
+            const FunctionDeclaration* best = this->findBestFunctionForCall(functions, arguments);
+            if (best) {
+                return this->call(offset, *best, std::move(arguments));
+            }
+            String msg = "no match for " + arguments.back()->type().displayName() +
+                         "::" + functions[0]->name().substr(1) + "(";
+            String separator;
+            for (size_t i = 0; i < arguments.size() - 1; i++) {
+                msg += separator;
+                separator = ", ";
+                msg += arguments[i]->type().displayName();
+            }
+            msg += ")";
+            this->errorReporter().error(offset, msg);
+            return nullptr;
         }
         case Expression::Kind::kPoison:
             return functionValue;
@@ -1197,8 +1226,8 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     }
     const skstd::string_view& field = fieldNode.getStringView();
     const Type& baseType = base->type();
-    if (baseType == *fContext.fTypes.fSkCaps || baseType.isStruct()) {
-        return FieldAccess::Convert(fContext, std::move(base), field);
+    if (baseType == *fContext.fTypes.fSkCaps || baseType.isStruct() || baseType.isEffectChild()) {
+        return FieldAccess::Convert(fContext, *fSymbolTable, std::move(base), field);
     }
     return this->convertSwizzle(std::move(base), field);
 }

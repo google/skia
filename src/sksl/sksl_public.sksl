@@ -214,3 +214,7 @@ half4 blend(blender b, half4 src, half4 dst);
 half4 sample(shader s, float2 coords);
 half4 sample(colorFilter f, half4 color);
 half4 sample(blender b, half4 src, half4 dst);
+
+half4 $eval(float2 coords, shader s);
+half4 $eval(half4 color, colorFilter f);
+half4 $eval(half4 src, half4 dst, blender b);
