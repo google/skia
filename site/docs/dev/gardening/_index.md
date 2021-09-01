@@ -46,6 +46,10 @@ Below is a brief summary of what the gardener does for each task:
 - Start watching the [status page](https://status.skia.org) for bot breakages.
 - Track down people responsible for breakages and revert broken changes if there
   is no easy fix. You can use [blamer](#blamer) to help track down such changes.
+   - For clean reverts, you need to add "Rubber Stamper" if the author isn't around to +1
+     the change. See [go/rubber-stamper-user-guide](http://go/rubber-stamper-user-guide) for more.
+   - For dirty reverts, you can use [go/skia-break-glass](http://go/skia-break-glass) to
+     move quickly.
 - Close and open the [tree](http://tree-status.skia.org).
 - Keep the builder comments on the [status page](https://status.skia.org) up to
   date.
