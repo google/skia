@@ -130,3 +130,29 @@ DEF_TEST(SkStringViewOperators, r) {
     REPORTER_ASSERT(r, !(str > str));
     REPORTER_ASSERT(r, !(str >= "b"));
 }
+
+DEF_TEST(SkStringViewSubstr, r) {
+    skstd::string_view xyz("xyz");
+    REPORTER_ASSERT(r, xyz.substr() == xyz);
+    REPORTER_ASSERT(r, xyz.substr(0, 1) == "x");
+    REPORTER_ASSERT(r, xyz.substr(0, 2) == "xy");
+    REPORTER_ASSERT(r, xyz.substr(0, 3) == "xyz");
+    REPORTER_ASSERT(r, xyz.substr(0, 4) == "xyz");
+
+    REPORTER_ASSERT(r, xyz.substr(1) == "yz");
+    REPORTER_ASSERT(r, xyz.substr(1, 1) == "y");
+    REPORTER_ASSERT(r, xyz.substr(1, 2) == "yz");
+    REPORTER_ASSERT(r, xyz.substr(1, 3) == "yz");
+
+    REPORTER_ASSERT(r, xyz.substr(2) == "z");
+    REPORTER_ASSERT(r, xyz.substr(2, 1) == "z");
+    REPORTER_ASSERT(r, xyz.substr(2, 2) == "z");
+
+    REPORTER_ASSERT(r, xyz.substr(0, 0).empty());
+    REPORTER_ASSERT(r, xyz.substr(1, 0).empty());
+    REPORTER_ASSERT(r, xyz.substr(2, 0).empty());
+    REPORTER_ASSERT(r, xyz.substr(3, 0).empty());
+
+    REPORTER_ASSERT(r, xyz.substr(3).empty());
+    REPORTER_ASSERT(r, xyz.substr(4).empty());
+}
