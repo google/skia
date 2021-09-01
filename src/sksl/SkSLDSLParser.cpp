@@ -1675,6 +1675,7 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::term() {
         default:
             this->nextToken();
             this->error(t.fOffset, "expected expression, but found '" + this->text(t) + "'");
+            fEncounteredFatalError = true;
     }
     return skstd::nullopt;
 }
