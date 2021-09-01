@@ -273,7 +273,7 @@ public:
     /**
      * Forwards any pending Compiler errors to the DSL ErrorReporter.
      */
-    static void ReportErrors(PositionInfo pos = PositionInfo::Capture());
+    static void ReportErrors(PositionInfo pos);
 
     static DSLWriter& Instance();
 

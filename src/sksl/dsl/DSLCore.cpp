@@ -78,10 +78,10 @@ public:
                                                       bundle.fInputs);
         bool success = false;
         if (DSLWriter::Context().fErrors->errorCount()) {
-            DSLWriter::ReportErrors();
+            DSLWriter::ReportErrors(PositionInfo());
             // Do not return programs that failed to compile.
         } else if (!DSLWriter::Compiler().optimize(*result)) {
-            DSLWriter::ReportErrors();
+            DSLWriter::ReportErrors(PositionInfo());
             // Do not return programs that failed to optimize.
         } else {
             // We have a successful program!

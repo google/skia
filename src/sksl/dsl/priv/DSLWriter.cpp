@@ -275,7 +275,7 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
                 var.fInitialized = true;
             }
         }
-        ReportErrors();
+        ReportErrors(var.fPosition);
     }
     return var.fVar;
 }

@@ -21,6 +21,7 @@ namespace dsl {
 
 void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd::string_view name,
                        SkTArray<DSLParameter*> params, PositionInfo pos) {
+    fPosition = pos;
     // Conservatively assume all user-defined functions have side effects.
     if (!DSLWriter::IsModule()) {
         modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
@@ -56,7 +57,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
                                                name == "main" ? name : DSLWriter::Name(name),
                                                std::move(paramVars), &returnType.skslType(),
                                                DSLWriter::IsModule());
-    DSLWriter::ReportErrors();
+    DSLWriter::ReportErrors(pos);
     if (fDecl) {
         for (size_t i = 0; i < params.size(); ++i) {
             params[i]->fVar = fDecl->parameters()[i];
@@ -97,7 +98,7 @@ void DSLFunction::define(DSLBlock block) {
                                                                                *fDecl,
                                                                                std::move(body),
                                                                                /*builtin=*/false);
-    DSLWriter::ReportErrors();
+    DSLWriter::ReportErrors(fPosition);
     fDecl->fDefinition = function.get();
     DSLWriter::ProgramElements().push_back(std::move(function));
 }

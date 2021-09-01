@@ -105,6 +105,7 @@ private:
               SkTArray<DSLParameter*> params, PositionInfo pos);
 
     const SkSL::FunctionDeclaration* fDecl = nullptr;
+    SkSL::PositionInfo fPosition;
 };
 
 } // namespace dsl
