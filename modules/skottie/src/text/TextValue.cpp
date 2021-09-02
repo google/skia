@@ -46,7 +46,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
         SkTextUtils::kCenter_Align // 'j': 2
     };
     v->fHAlign = gAlignMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
-                                          SK_ARRAY_COUNT(gAlignMap))];
+                                            SK_ARRAY_COUNT(gAlignMap) - 1)];
 
     // Optional text box size.
     if (const skjson::ArrayValue* jsz = (*jtxt)["sz"]) {
@@ -72,7 +72,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
     // TODO: remove "sk_rs" support after migrating clients.
     v->fResize = gResizeMap[std::min(std::max(ParseDefault<size_t>((*jtxt)[   "rs"], 0),
                                               ParseDefault<size_t>((*jtxt)["sk_rs"], 0)),
-                                     SK_ARRAY_COUNT(gResizeMap))];
+                                     SK_ARRAY_COUNT(gResizeMap) - 1)];
 
     // Optional min/max font size (used when aute-resizing)
     v->fMinTextSize = ParseDefault<SkScalar>((*jtxt)["mf"], 0.0f);
@@ -92,6 +92,14 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
                 ? Shaper::LinebreakPolicy::kExplicit   // 'm': 0 -> point text
                 : Shaper::LinebreakPolicy::kParagraph; // 'm': 1 -> paragraph text
     }
+
+    // Optional capitalization.
+    static constexpr Shaper::Capitalization gCapMap[] = {
+        Shaper::Capitalization::kNone,      // 'ca': 0
+        Shaper::Capitalization::kUpperCase, // 'ca': 1
+    };
+    v->fCapitalization = gCapMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["ca"], 0),
+                                                  SK_ARRAY_COUNT(gCapMap) - 1)];
 
     // In point mode, the text is baseline-aligned.
     v->fVAlign = v->fBox.isEmpty() ? Shaper::VAlign::kTopBaseline

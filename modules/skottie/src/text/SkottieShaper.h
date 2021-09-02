@@ -86,6 +86,11 @@ public:
     // Initial text direction.
     enum class Direction : uint8_t { kLTR, kRTL };
 
+    enum class Capitalization {
+        kNone,
+        kUpperCase,
+    };
+
     enum Flags : uint32_t {
         kNone                       = 0x00,
 
@@ -110,6 +115,7 @@ public:
         ResizePolicy              fResize;
         LinebreakPolicy           fLinebreak;
         Direction                 fDirection;
+        Capitalization            fCapitalization;
         uint32_t                  fFlags;
     };
 
