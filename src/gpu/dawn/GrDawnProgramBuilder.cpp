@@ -22,13 +22,13 @@ static wgpu::BlendFactor to_dawn_blend_factor(GrBlendCoeff coeff) {
         case kOne_GrBlendCoeff:
             return wgpu::BlendFactor::One;
         case kSC_GrBlendCoeff:
-            return wgpu::BlendFactor::SrcColor;
+            return wgpu::BlendFactor::Src;
         case kISC_GrBlendCoeff:
-            return wgpu::BlendFactor::OneMinusSrcColor;
+            return wgpu::BlendFactor::OneMinusSrc;
         case kDC_GrBlendCoeff:
-            return wgpu::BlendFactor::DstColor;
+            return wgpu::BlendFactor::Dst;
         case kIDC_GrBlendCoeff:
-            return wgpu::BlendFactor::OneMinusDstColor;
+            return wgpu::BlendFactor::OneMinusDst;
         case kSA_GrBlendCoeff:
             return wgpu::BlendFactor::SrcAlpha;
         case kISA_GrBlendCoeff:
