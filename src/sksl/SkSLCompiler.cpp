@@ -821,7 +821,6 @@ bool Compiler::finalize(Program& program) {
     }
 
     if (fContext->fConfig->strictES2Mode()) {
-        Analysis::DetectStaticRecursion(SkMakeSpan(program.ownedElements()), this->errorReporter());
         Analysis::CheckProgramUnrolledSize(program);
     }
 

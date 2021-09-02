@@ -55,11 +55,6 @@ struct Analysis {
     static bool CallsSampleOutsideMain(const Program& program);
 
     /**
-     * Does the function call graph of the program include any cycles? If so, emits an error.
-     */
-    static bool DetectStaticRecursion(SkSpan<std::unique_ptr<ProgramElement>> programElements,
-                                      ErrorReporter& errors);
-    /**
      * Computes the size of the program in a completely flattened state--loops fully unrolled,
      * function calls inlined--and rejects programs that exceed an arbitrary upper bound. This is
      * intended to prevent absurdly large programs from overwhemling SkVM. Only strict-ES2 mode is
