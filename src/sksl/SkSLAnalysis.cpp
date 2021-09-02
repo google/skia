@@ -741,12 +741,45 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
 
     class ProgramSizeVisitor : public ProgramVisitor {
     public:
-        ProgramSizeVisitor() {}
+        ProgramSizeVisitor(const Context& c) : fContext(c) {}
 
         using ProgramVisitor::visitProgramElement;
 
-        int programSize() const {
-            return fProgramSize;
+        int functionSize() const {
+            return fFunctionSize;
+        }
+
+        bool visitProgramElement(const ProgramElement& pe) override {
+            if (pe.is<FunctionDefinition>()) {
+                // Check the function-size cache map first. We don't need to visit this function if
+                // we already processed it before.
+                const FunctionDeclaration* decl = &pe.as<FunctionDefinition>().declaration();
+                auto [iter, wasInserted] = fFunctionCostMap.insert({decl, kUnknownCost});
+                if (!wasInserted) {
+                    // We already have this function in our map. We don't need to check it again.
+                    if (iter->second == kUnknownCost) {
+                        // If the function is present in the map with an unknown cost, we're
+                        // recursively processing it--in other words, we found a cycle in the code.
+
+                        /* fContext.fErrors->error(pe.fOffset, "potential recursion (function call "
+                                                               "cycle) not allowed:"); */
+                        fFunctionSize = iter->second = 0;
+                        return true;
+                    }
+                    // Set the size to its known value.
+                    fFunctionSize = iter->second;
+                    return false;
+                }
+
+                // Calculate the function cost and store it in our cache.
+                fFunctionSize = 0;
+                fUnrollFactor = 1;
+                bool result = INHERITED::visitProgramElement(pe);
+                iter->second = fFunctionSize;
+                return result;
+            }
+
+            return INHERITED::visitProgramElement(pe);
         }
 
         bool visitStatement(const Statement& stmt) override {
@@ -792,7 +825,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                     break;
 
                 default:
-                    fProgramSize += fUnrollFactor * kStatementCost;
+                    fFunctionSize += fUnrollFactor * kStatementCost;
                     break;
             }
 
@@ -801,67 +834,54 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
 
         bool visitExpression(const Expression& expr) override {
             // Other than function calls, all expressions are assumed to have a fixed unit cost.
+            bool earlyExit = false;
             int expressionCost = kExpressionCost;
 
             if (expr.is<FunctionCall>()) {
-                // Calculate the cost of this function call and cache it.
+                // Visit this function call to calculate its size. If we've already sized it, this
+                // will retrieve the size from our cache.
                 const FunctionCall& call = expr.as<FunctionCall>();
                 const FunctionDeclaration* decl = &call.function();
-
                 if (decl->definition() && !decl->isIntrinsic()) {
-                    auto [iter, wasInserted] = fFunctionCostMap.insert({decl, kUnknownCost});
-                    if (wasInserted) {
-                        // Calculate the cost of the called function in isolation.
-                        int originalProgramSize = fProgramSize;
-                        int originalUnrollFactor = fUnrollFactor;
+                    int originalFunctionSize = fFunctionSize;
+                    int originalUnrollFactor = fUnrollFactor;
 
-                        fProgramSize = 0;
-                        fUnrollFactor = 1;
-                        this->visitProgramElement(*decl->definition());
-                        iter->second = expressionCost = fProgramSize;
+                    earlyExit = this->visitProgramElement(*decl->definition());
+                    expressionCost = fFunctionSize;
 
-                        fProgramSize = originalProgramSize;
-                        fUnrollFactor = originalUnrollFactor;
-                    } else {
-                        if (iter->second != kUnknownCost) {
-                            expressionCost = iter->second;
-                        } else {
-                            // The function is present in the map but doesn't have a cost assigned
-                            // yet. That indicates that we found a cycle. This should've caused the
-                            // program to be rejected by Analysis::DetectStaticRecursion during
-                            // IRGenerator::finish.
-                            SkDEBUGFAIL("cycle detected in CheckProgramUnrolledSize");
-                        }
-                    }
+                    fFunctionSize = originalFunctionSize;
+                    fUnrollFactor = originalUnrollFactor;
                 }
             }
 
-            fProgramSize += fUnrollFactor * expressionCost;
-            return INHERITED::visitExpression(expr);
+            fFunctionSize += fUnrollFactor * expressionCost;
+            return earlyExit || INHERITED::visitExpression(expr);
         }
 
     private:
         using INHERITED = ProgramVisitor;
 
-        int fProgramSize = 0;
-        int fUnrollFactor = 1;
+        [[maybe_unused]] const Context& fContext;
+        int fFunctionSize;
+        int fUnrollFactor;
         std::unordered_map<const FunctionDeclaration*, int> fFunctionCostMap;
     };
 
-    ProgramSizeVisitor visitor;
+    // Process every function in our program.
+    ProgramSizeVisitor visitor{context};
     for (const std::unique_ptr<ProgramElement>& element : program.ownedElements()) {
-        if (element->is<FunctionDefinition>() &&
-            element->as<FunctionDefinition>().declaration().isMain()) {
-            // Determine the size of main(). Functions not referenced by main() don't cost anything.
+        if (element->is<FunctionDefinition>()) {
+            // Visit every function--we want to detect static recursion and report it as an error,
+            // even in unreferenced functions.
             visitor.visitProgramElement(*element);
-            break;
+            // Report an error when main()'s flattened size is larger than our program limit.
+            if (visitor.functionSize() > kProgramSizeLimit &&
+                element->as<FunctionDefinition>().declaration().isMain()) {
+                context.fErrors->error(/*offset=*/-1, "program is too large");
+            }
         }
     }
 
-    if (visitor.programSize() > kProgramSizeLimit) {
-        context.fErrors->error(/*offset=*/-1, "program is too large");
-        return false;
-    }
     return true;
 }
 
