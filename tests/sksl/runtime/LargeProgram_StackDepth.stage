@@ -1,0 +1,36 @@
+half4 color_0;
+half4 main(float2 xy)
+{
+	f2_0();
+	false;
+	return half4(color_0);
+}
+void f8_0()
+{
+	color_0 = half4(1.0);
+	false;
+}
+void f7_0()
+{
+	f8_0();
+}
+void f6_0()
+{
+	f7_0();
+}
+void f5_0()
+{
+	f6_0();
+}
+void f4_0()
+{
+	f5_0();
+}
+void f3_0()
+{
+	f4_0();
+}
+void f2_0()
+{
+	f3_0();
+}

@@ -618,6 +618,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
     static constexpr int kStatementCost = 1;
     static constexpr int kUnknownCost = -1;
     static constexpr int kProgramSizeLimit = 100000;
+    static constexpr int kProgramStackDepthLimit = 50;
 
     class ProgramSizeVisitor : public ProgramVisitor {
     public:
@@ -656,6 +657,18 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                     // Set the size to its known value.
                     fFunctionSize = iter->second;
                     return false;
+                }
+
+                // If the function-call stack has gotten too deep, stop the analysis.
+                if (fStack.size() >= kProgramStackDepthLimit) {
+                    String msg = "exceeded max function call depth:";
+                    for (auto unwind = fStack.begin(); unwind != fStack.end(); ++unwind) {
+                        msg += "\n\t" + (*unwind)->description();
+                    }
+                    msg += "\n\t" + decl->description();
+                    fContext.fErrors->error(pe.fOffset, std::move(msg));
+                    fFunctionSize = iter->second = 0;
+                    return true;
                 }
 
                 // Calculate the function cost and store it in our cache.
