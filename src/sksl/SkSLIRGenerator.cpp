@@ -553,7 +553,8 @@ void IRGenerator::appendRTAdjustFixupToVertexMain(const FunctionDeclaration& dec
     using OwnerKind = SkSL::FieldAccess::OwnerKind;
 
     // If this is a vertex program that uses RTAdjust, and this is main()...
-    if (fRTAdjust && decl.isMain() && ProgramKind::kVertex == this->programKind()) {
+    if ((fRTAdjust || fRTAdjustInterfaceBlock) && decl.isMain() &&
+        ProgramKind::kVertex == this->programKind()) {
         // ... append a line to the end of the function body which fixes up sk_Position.
         const Variable* skPerVertex = nullptr;
         if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
