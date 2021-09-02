@@ -55,6 +55,7 @@ DSLStatement::DSLStatement(DSLPossibleStatement stmt, PositionInfo pos) {
     } else {
         fStatement = SkSL::Nop::Make();
     }
+    fStatement->fOffset = pos.offset();
 }
 
 DSLStatement::~DSLStatement() {
