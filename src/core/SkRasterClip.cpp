@@ -161,9 +161,7 @@ bool SkRasterClip::op(const SkRect& localRect, const SkMatrix& matrix, SkClipOp 
 
     const bool isScaleTrans = matrix.isScaleTranslate();
     if (!isScaleTrans) {
-        SkPath path = SkPath::Rect(localRect);
-        path.setIsVolatile(true);
-        return this->op(path, matrix, op, doAA);
+        return this->op(SkPath::Rect(localRect), matrix, op, doAA);
     }
 
     SkRect devRect = matrix.mapRect(localRect);
@@ -194,19 +192,28 @@ bool SkRasterClip::op(const SkRRect& rrect, const SkMatrix& matrix, SkClipOp op,
 bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, SkClipOp op, bool doAA) {
     AUTO_RASTERCLIP_VALIDATE(*this);
 
-    // Transform into device space
     SkPath devPath;
-    if (matrix.isIdentity()) {
-        devPath = path;
-    } else {
-        path.transform(matrix, &devPath);
-        devPath.setIsVolatile(true);
-    }
+    path.transform(matrix, &devPath);
 
     // Since op is either intersect or difference, the clip is always shrinking; that means we can
-    // always use our current bounds as the limiting factor for region/aaclip operations
-    SkRasterClip clip(devPath, this->getBounds(), doAA);
-    return this->op(clip, op);
+    // always use our current bounds as the limiting factor for region/aaclip operations.
+    if (this->isRect() && op == SkClipOp::kIntersect) {
+        // However, in the relatively common case of intersecting a new path with a rectangular
+        // clip, it's faster to convert the path into a region/aa-mask in place than evaluate the
+        // actual intersection. See skbug.com/12398
+        SkRegion clip(this->getBounds());
+        if (doAA && fIsBW) {
+            this->convertToAA();
+        }
+        if (fIsBW) {
+            fBW.setPath(devPath, clip);
+        } else {
+            fAA.setPath(devPath, &clip, doAA);
+        }
+        return this->updateCacheAndReturnNonEmpty();
+    } else {
+        return this->op(SkRasterClip(devPath, this->getBounds(), doAA), op);
+    }
 }
 
 bool SkRasterClip::op(sk_sp<SkShader> sh) {
