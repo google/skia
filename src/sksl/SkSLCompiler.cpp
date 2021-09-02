@@ -11,7 +11,6 @@
 #include <unordered_set>
 
 #include "include/sksl/DSLCore.h"
-#include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
@@ -823,6 +822,7 @@ bool Compiler::finalize(Program& program) {
 
     if (fContext->fConfig->strictES2Mode()) {
         Analysis::DetectStaticRecursion(SkMakeSpan(program.ownedElements()), this->errorReporter());
+        Analysis::CheckProgramUnrolledSize(program);
     }
 
     return this->errorCount() == 0;

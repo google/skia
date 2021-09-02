@@ -1,0 +1,10 @@
+void d(inout int i) { for (int x=0; x<10; ++x) ++i;  } // 10000
+void c(inout int i) { for (int x=0; x<10; ++x) d(i); } // 1000
+void b(inout int i) { for (int x=0; x<10; ++x) c(i); } // 100
+void a(inout int i) { for (int x=0; x<10; ++x) b(i); } // 10
+
+half4 main(float2 xy) {
+    int i = 0;
+    a(i);
+    return half4(0);
+}

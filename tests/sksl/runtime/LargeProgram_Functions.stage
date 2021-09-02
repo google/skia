@@ -1,0 +1,58 @@
+void d_0(inout int i)
+{
+	++i;
+	++i;
+	++i;
+	++i;
+	++i;
+	++i;
+	++i;
+	++i;
+	++i;
+	++i;
+}
+void c_0(inout int i)
+{
+	d_0(i);
+	d_0(i);
+	d_0(i);
+	d_0(i);
+	d_0(i);
+	d_0(i);
+	d_0(i);
+	d_0(i);
+	d_0(i);
+	d_0(i);
+}
+void b_0(inout int i)
+{
+	c_0(i);
+	c_0(i);
+	c_0(i);
+	c_0(i);
+	c_0(i);
+	c_0(i);
+	c_0(i);
+	c_0(i);
+	c_0(i);
+	c_0(i);
+}
+void a_0(inout int i)
+{
+	b_0(i);
+	b_0(i);
+	b_0(i);
+	b_0(i);
+	b_0(i);
+	b_0(i);
+	b_0(i);
+	b_0(i);
+	b_0(i);
+	b_0(i);
+}
+half4 main(float2 xy)
+{
+	int i = 0;
+	a_0(i);
+	return half4(half4(0.0));
+}

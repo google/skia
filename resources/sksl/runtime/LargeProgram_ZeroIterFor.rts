@@ -1,0 +1,14 @@
+half4 main(float2 xy) {
+    int i = 0;
+
+    for (int a=0; a<10;  ++a) { // 10
+    for (int b=0; b<0;   ++b) { // 0
+    for (int c=0; c<100; ++c) { // 0
+    for (int d=0; d<100; ++d) { // 0
+    for (int e=0; e<100; ++e) { // 0
+    for (int f=0; f<100; ++f) { // 0
+        ++i;
+    }}}}}}
+
+    return half4(i);
+}

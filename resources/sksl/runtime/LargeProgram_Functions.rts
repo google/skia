@@ -1,0 +1,10 @@
+void d(inout int i) { ++i; ++i; ++i; ++i; ++i; ++i; ++i; ++i; ++i; ++i; }           // 10000
+void c(inout int i) { d(i); d(i); d(i); d(i); d(i); d(i); d(i); d(i); d(i); d(i); } // 1000
+void b(inout int i) { c(i); c(i); c(i); c(i); c(i); c(i); c(i); c(i); c(i); c(i); } // 100
+void a(inout int i) { b(i); b(i); b(i); b(i); b(i); b(i); b(i); b(i); b(i); b(i); } // 10
+
+half4 main(float2 xy) {
+    int i = 0;
+    a(i);
+    return half4(0);
+}
