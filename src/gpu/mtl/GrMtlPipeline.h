@@ -33,7 +33,7 @@ public:
         fPipelineState = nil;
     }
 
-    id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
+    id<MTLRenderPipelineState> mtlPipelineState() const { return fPipelineState; }
 
 private:
     GrMtlRenderPipeline(id<MTLRenderPipelineState> pso)

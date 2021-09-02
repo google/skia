@@ -17,11 +17,12 @@ GR_NORETAIN_BEGIN
 
 static void finalize_helper(GrMtlVaryingHandler::VarArray& vars) {
     int locationIndex = 0;
-    int componentCount = 0;
+
+    SkDEBUGCODE(int componentCount = 0);
     for (GrShaderVar& var : vars.items()) {
         // Metal only allows scalars (including bool and char) and vectors as varyings
         SkASSERT(GrSLTypeVecLength(var.getType()) != -1);
-        componentCount += GrSLTypeVecLength(var.getType());
+        SkDEBUGCODE(componentCount += GrSLTypeVecLength(var.getType()));
 
         SkString location;
         location.appendf("location = %d", locationIndex);
