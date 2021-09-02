@@ -412,20 +412,18 @@ SkTArray<T> DSLParser::varDeclarationEnd(PositionInfo pos, const dsl::DSLModifie
         type = baseType;
         Token identifierName;
         if (!this->expectIdentifier(&identifierName)) {
-            return {};
+            return result;
         }
         if (!parseArrayDimensions(&type)) {
-            return {};
+            return result;
         }
         if (!parseInitializer(&initializer)) {
-            return {};
+            return result;
         }
         result.push_back(T(mods, type, this->text(identifierName), std::move(initializer)));
         AddToSymbolTable(result.back());
     }
-    if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
-    }
+    this->expect(Token::Kind::TK_SEMICOLON, "';'");
     return result;
 }
 
