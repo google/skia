@@ -14,7 +14,7 @@
 
 namespace SkSL {
 
-static bool validate_swizzle_domain(skstd::string_view fields) {
+static bool validate_swizzle_domain(const ComponentArray& fields) {
     enum SwizzleDomain {
         kCoordinate,
         kColor,
@@ -24,35 +24,35 @@ static bool validate_swizzle_domain(skstd::string_view fields) {
 
     skstd::optional<SwizzleDomain> domain;
 
-    for (char field : fields) {
+    for (int8_t field : fields) {
         SwizzleDomain fieldDomain;
         switch (field) {
-            case 'x':
-            case 'y':
-            case 'z':
-            case 'w':
+            case SwizzleComponent::X:
+            case SwizzleComponent::Y:
+            case SwizzleComponent::Z:
+            case SwizzleComponent::W:
                 fieldDomain = kCoordinate;
                 break;
-            case 'r':
-            case 'g':
-            case 'b':
-            case 'a':
+            case SwizzleComponent::R:
+            case SwizzleComponent::G:
+            case SwizzleComponent::B:
+            case SwizzleComponent::A:
                 fieldDomain = kColor;
                 break;
-            case 's':
-            case 't':
-            case 'p':
-            case 'q':
+            case SwizzleComponent::S:
+            case SwizzleComponent::T:
+            case SwizzleComponent::P:
+            case SwizzleComponent::Q:
                 fieldDomain = kUV;
                 break;
-            case 'L':
-            case 'T':
-            case 'R':
-            case 'B':
+            case SwizzleComponent::UL:
+            case SwizzleComponent::UT:
+            case SwizzleComponent::UR:
+            case SwizzleComponent::UB:
                 fieldDomain = kRectangle;
                 break;
-            case '0':
-            case '1':
+            case SwizzleComponent::ZERO:
+            case SwizzleComponent::ONE:
                 continue;
             default:
                 return false;
@@ -66,6 +66,38 @@ static bool validate_swizzle_domain(skstd::string_view fields) {
     }
 
     return true;
+}
+
+static char mask_char(int8_t component) {
+    switch (component) {
+        case SwizzleComponent::X:    return 'x';
+        case SwizzleComponent::Y:    return 'y';
+        case SwizzleComponent::Z:    return 'z';
+        case SwizzleComponent::W:    return 'w';
+        case SwizzleComponent::R:    return 'r';
+        case SwizzleComponent::G:    return 'g';
+        case SwizzleComponent::B:    return 'b';
+        case SwizzleComponent::A:    return 'a';
+        case SwizzleComponent::S:    return 's';
+        case SwizzleComponent::T:    return 't';
+        case SwizzleComponent::P:    return 'p';
+        case SwizzleComponent::Q:    return 'q';
+        case SwizzleComponent::UL:   return 'L';
+        case SwizzleComponent::UT:   return 'T';
+        case SwizzleComponent::UR:   return 'R';
+        case SwizzleComponent::UB:   return 'B';
+        case SwizzleComponent::ZERO: return '0';
+        case SwizzleComponent::ONE:  return '1';
+        default: SkUNREACHABLE;
+    }
+}
+
+static String mask_string(const ComponentArray& components) {
+    String result;
+    for (int8_t component : components) {
+        result += mask_char(component);
+    }
+    return result;
 }
 
 static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& context,
@@ -199,58 +231,35 @@ static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& c
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              std::unique_ptr<Expression> base,
                                              skstd::string_view maskString) {
-    if (!validate_swizzle_domain(maskString)) {
-        context.fErrors->error(base->fOffset, "invalid swizzle mask '" + maskString + "'");
-        return nullptr;
-    }
-
     ComponentArray components;
     for (char field : maskString) {
         switch (field) {
-            case '0':
-                components.push_back(SwizzleComponent::ZERO);
-                break;
-            case '1':
-                components.push_back(SwizzleComponent::ONE);
-                break;
-            case 'x':
-            case 'r':
-            case 's':
-            case 'L':
-                components.push_back(SwizzleComponent::X);
-                break;
-            case 'y':
-            case 'g':
-            case 't':
-            case 'T':
-                components.push_back(SwizzleComponent::Y);
-                break;
-            case 'z':
-            case 'b':
-            case 'p':
-            case 'R':
-                components.push_back(SwizzleComponent::Z);
-                break;
-            case 'w':
-            case 'a':
-            case 'q':
-            case 'B':
-                components.push_back(SwizzleComponent::W);
-                break;
+            case '0': components.push_back(SwizzleComponent::ZERO); break;
+            case '1': components.push_back(SwizzleComponent::ONE);  break;
+            case 'x': components.push_back(SwizzleComponent::X);    break;
+            case 'r': components.push_back(SwizzleComponent::R);    break;
+            case 's': components.push_back(SwizzleComponent::S);    break;
+            case 'L': components.push_back(SwizzleComponent::UL);   break;
+            case 'y': components.push_back(SwizzleComponent::Y);    break;
+            case 'g': components.push_back(SwizzleComponent::G);    break;
+            case 't': components.push_back(SwizzleComponent::T);    break;
+            case 'T': components.push_back(SwizzleComponent::UT);   break;
+            case 'z': components.push_back(SwizzleComponent::Z);    break;
+            case 'b': components.push_back(SwizzleComponent::B);    break;
+            case 'p': components.push_back(SwizzleComponent::P);    break;
+            case 'R': components.push_back(SwizzleComponent::UR);   break;
+            case 'w': components.push_back(SwizzleComponent::W);    break;
+            case 'a': components.push_back(SwizzleComponent::A);    break;
+            case 'q': components.push_back(SwizzleComponent::Q);    break;
+            case 'B': components.push_back(SwizzleComponent::UB);   break;
             default:
-                SkDEBUGFAIL("unexpected swizzle component");
+                context.fErrors->error(base->fOffset,
+                        String::printf("invalid swizzle component '%c'", field));
                 return nullptr;
         }
     }
-    return Convert(context, std::move(base), std::move(components), maskString);
+    return Convert(context, std::move(base), std::move(components));
 }
-
-std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
-                                             std::unique_ptr<Expression> base,
-                                             ComponentArray inComponents) {
-    return Convert(context, std::move(base), std::move(inComponents), "");
-}
-
 
 // Swizzles are complicated due to constant components. The most difficult case is a mask like
 // '.x1w0'. A naive approach might turn that into 'float4(base.x, 1, base.w, 0)', but that evaluates
@@ -259,9 +268,12 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
 // 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              std::unique_ptr<Expression> base,
-                                             ComponentArray inComponents,
-                                             skstd::string_view maskString) {
-    SkASSERT(maskString.empty() || (int) maskString.length() == inComponents.count());
+                                             ComponentArray inComponents) {
+    if (!validate_swizzle_domain(inComponents)) {
+        context.fErrors->error(base->fOffset,
+                "invalid swizzle mask '" + mask_string(inComponents) + "'");
+        return nullptr;
+    }
 
     const int offset = base->fOffset;
     const Type& baseType = base->type();
@@ -273,11 +285,8 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     }
 
     if (inComponents.count() > 4) {
-        String error = "too many components in swizzle mask";
-        if (!maskString.empty()) {
-            error += " '" + maskString + "'";
-        }
-        context.fErrors->error(offset, error.c_str());
+        context.fErrors->error(offset,
+                "too many components in swizzle mask '" + mask_string(inComponents) + "'");
         return nullptr;
     }
 
@@ -290,10 +299,16 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 // Skip over constant fields for now.
                 break;
             case SwizzleComponent::X:
+            case SwizzleComponent::R:
+            case SwizzleComponent::S:
+            case SwizzleComponent::UL:
                 foundXYZW = true;
                 maskComponents.push_back(SwizzleComponent::X);
                 break;
             case SwizzleComponent::Y:
+            case SwizzleComponent::G:
+            case SwizzleComponent::T:
+            case SwizzleComponent::UT:
                 foundXYZW = true;
                 if (baseType.columns() >= 2) {
                     maskComponents.push_back(SwizzleComponent::Y);
@@ -301,6 +316,9 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 }
                 [[fallthrough]];
             case SwizzleComponent::Z:
+            case SwizzleComponent::B:
+            case SwizzleComponent::P:
+            case SwizzleComponent::UR:
                 foundXYZW = true;
                 if (baseType.columns() >= 3) {
                     maskComponents.push_back(SwizzleComponent::Z);
@@ -308,6 +326,9 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 }
                 [[fallthrough]];
             case SwizzleComponent::W:
+            case SwizzleComponent::A:
+            case SwizzleComponent::Q:
+            case SwizzleComponent::UB:
                 foundXYZW = true;
                 if (baseType.columns() >= 4) {
                     maskComponents.push_back(SwizzleComponent::W);
@@ -317,9 +338,8 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
             default:
                 // The swizzle component references a field that doesn't exist in the base type.
                 context.fErrors->error(offset,
-                        maskString.empty() ? "invalid swizzle component"
-                                           : String::printf("invalid swizzle component '%c'",
-                                                            maskString[i]));
+                       String::printf("invalid swizzle component '%c'",
+                            mask_char(inComponents[i])));
                 return nullptr;
         }
     }

@@ -1504,22 +1504,22 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::swizzle(int offset, DSLExp
         switch (swizzleMask[i]) {
             case '0': components[i] = SwizzleComponent::ZERO; break;
             case '1': components[i] = SwizzleComponent::ONE;  break;
-            case 'r':
-            case 'x':
-            case 's':
-            case 'L': components[i] = SwizzleComponent::R;    break;
-            case 'g':
-            case 'y':
-            case 't':
-            case 'T': components[i] = SwizzleComponent::G;    break;
-            case 'b':
-            case 'z':
-            case 'p':
-            case 'R': components[i] = SwizzleComponent::B;    break;
-            case 'a':
-            case 'w':
-            case 'q':
-            case 'B': components[i] = SwizzleComponent::A;    break;
+            case 'r': components[i] = SwizzleComponent::R;    break;
+            case 'x': components[i] = SwizzleComponent::X;    break;
+            case 's': components[i] = SwizzleComponent::S;    break;
+            case 'L': components[i] = SwizzleComponent::UL;   break;
+            case 'g': components[i] = SwizzleComponent::G;    break;
+            case 'y': components[i] = SwizzleComponent::Y;    break;
+            case 't': components[i] = SwizzleComponent::T;    break;
+            case 'T': components[i] = SwizzleComponent::UT;   break;
+            case 'b': components[i] = SwizzleComponent::B;    break;
+            case 'z': components[i] = SwizzleComponent::Z;    break;
+            case 'p': components[i] = SwizzleComponent::P;    break;
+            case 'R': components[i] = SwizzleComponent::UR;   break;
+            case 'a': components[i] = SwizzleComponent::A;    break;
+            case 'w': components[i] = SwizzleComponent::W;    break;
+            case 'q': components[i] = SwizzleComponent::Q;    break;
+            case 'B': components[i] = SwizzleComponent::UB;   break;
             default:
                 this->error(offset,
                         String::printf("invalid swizzle component '%c'", swizzleMask[i]).c_str());

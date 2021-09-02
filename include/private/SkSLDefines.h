@@ -44,8 +44,10 @@ static constexpr int kDefaultInlineThreshold = 50;
 namespace SwizzleComponent {
 
 enum Type : int8_t {
-    X = 0, Y = 1, Z = 2, W = 3,
-    R = 0, G = 1, B = 2, A = 3,
+    X  =  0,  Y =  1,  Z =  2,  W =  3,
+    R  =  4,  G =  5,  B =  6,  A =  7,
+    S  =  8,  T =  9,  P = 10,  Q = 11,
+    UL = 12, UT = 13, UR = 14, UB = 15,
     ZERO,
     ONE
 };
