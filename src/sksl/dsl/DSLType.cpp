@@ -246,6 +246,9 @@ DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo po
     const SkSL::Type* result = DSLWriter::SymbolTable()->add(Type::MakeStructType(pos.offset(),
                                                                                   name,
                                                                                   skslFields));
+    if (result->isTooDeeplyNested()) {
+        DSLWriter::ReportError(("struct '" + String(name) + "' is too deeply nested").c_str(), pos);
+    }
     DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*offset=*/-1,
                                                                                     *result));
     return result;

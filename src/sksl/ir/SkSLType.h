@@ -517,6 +517,11 @@ public:
     bool containsPrivateFields() const;
 
     /**
+     * Returns true if this type is a struct that is too deeply nested.
+     */
+    bool isTooDeeplyNested() const;
+
+    /**
      * Returns the corresponding vector or matrix type with the specified number of columns and
      * rows.
      */
@@ -557,6 +562,8 @@ protected:
     }
 
 private:
+    bool isTooDeeplyNested(int limit) const;
+
     using INHERITED = Symbol;
 
     char fAbbreviatedName[kMaxAbbrevLength + 1] = {};

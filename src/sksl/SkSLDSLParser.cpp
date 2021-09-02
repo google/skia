@@ -19,7 +19,6 @@ using namespace SkSL::dsl;
 namespace SkSL {
 
 static constexpr int kMaxParseDepth = 50;
-static constexpr int kMaxStructDepth = 8;
 
 static int parse_modifier_token(Token::Kind token) {
     switch (token) {
@@ -498,10 +497,6 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
     }
     Token name;
     if (!this->expectIdentifier(&name)) {
-        return skstd::nullopt;
-    }
-    if (fDepth > kMaxStructDepth) {
-        this->error(name.fOffset, "struct '" + this->text(name) + "' is too deeply nested");
         return skstd::nullopt;
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {

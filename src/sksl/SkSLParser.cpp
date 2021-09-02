@@ -22,23 +22,6 @@
 namespace SkSL {
 
 static constexpr int kMaxParseDepth = 50;
-static constexpr int kMaxStructDepth = 8;
-
-static bool struct_is_too_deeply_nested(const Type& type, int limit) {
-    if (limit < 0) {
-        return true;
-    }
-
-    if (type.isStruct()) {
-        for (const Type::Field& f : type.fields()) {
-            if (struct_is_too_deeply_nested(*f.fType, limit - 1)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
 
 static int parse_modifier_token(Token::Kind token) {
     switch (token) {
@@ -495,7 +478,7 @@ ASTNode::ID Parser::structDeclaration() {
         return ASTNode::ID::Invalid();
     }
     std::unique_ptr<Type> newType = Type::MakeStructType(name.fOffset, this->text(name), fields);
-    if (struct_is_too_deeply_nested(*newType, kMaxStructDepth)) {
+    if (newType->isTooDeeplyNested()) {
         this->error(name.fOffset, "struct '" + this->text(name) + "' is too deeply nested");
         return ASTNode::ID::Invalid();
     }
