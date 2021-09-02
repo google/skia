@@ -27,7 +27,18 @@ static const Type* find_type(skstd::string_view name) {
                                               (int)name.length(), name.data()).c_str());
         return nullptr;
     }
-    return &symbol->as<Type>();
+    const Type& result = symbol->as<Type>();
+    if (!DSLWriter::IsModule()) {
+        if (result.containsPrivateFields()) {
+            DSLWriter::ReportError(("type '" + String(name) + "' is private").c_str());
+            return nullptr;
+        }
+        if (DSLWriter::Context().fConfig->strictES2Mode() && !result.allowedInES2()) {
+            DSLWriter::ReportError(("type '" + String(name) + "' is not supported").c_str());
+            return nullptr;
+        }
+    }
+    return &result;
 }
 
 static const Type* find_type(skstd::string_view name, const Modifiers& modifiers,

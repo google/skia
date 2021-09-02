@@ -839,21 +839,6 @@ void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
     }
 }
 
-static bool type_contains_private_fields(const Type& type) {
-    // Checks for usage of private types, including fields inside a struct.
-    if (type.isPrivate()) {
-        return true;
-    }
-    if (type.isStruct()) {
-        for (const auto& f : type.fields()) {
-            if (type_contains_private_fields(*f.fType)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     skstd::string_view name = type.getStringView();
     const Symbol* symbol = (*fSymbolTable)[name];
@@ -869,7 +854,7 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
         return nullptr;
     }
     if (!fIsBuiltinCode) {
-        if (type_contains_private_fields(*result)) {
+        if (result->containsPrivateFields()) {
             this->errorReporter().error(type.fOffset, "type '" + name + "' is private");
             return nullptr;
         }

@@ -511,6 +511,12 @@ public:
     bool isOrContainsArray() const;
 
     /**
+     * Returns true if this type is either itself private or is a struct which contains private
+     * fields (recursively).
+     */
+    bool containsPrivateFields() const;
+
+    /**
      * Returns the corresponding vector or matrix type with the specified number of columns and
      * rows.
      */

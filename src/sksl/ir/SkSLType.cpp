@@ -749,6 +749,21 @@ bool Type::isOrContainsArray() const {
     return this->isArray();
 }
 
+
+bool Type::containsPrivateFields() const {
+    if (this->isPrivate()) {
+        return true;
+    }
+    if (this->isStruct()) {
+        for (const auto& f : this->fields()) {
+            if (f.fType->containsPrivateFields()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& expr) const {
     bool foundError = false;
     const Type& baseType = this->componentType();
