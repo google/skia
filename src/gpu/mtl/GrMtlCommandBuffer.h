@@ -51,8 +51,9 @@ public:
     }
 
     void addResource(sk_sp<const GrManagedResource> resource) {
-        SkASSERT(resource);
-        fTrackedResources.push_back(std::move(resource));
+// Disable generic resource tracking for now
+//        SkASSERT(resource);
+//        fTrackedResources.push_back(std::move(resource));
     }
 
     void addGrBuffer(sk_sp<const GrBuffer> buffer) {
