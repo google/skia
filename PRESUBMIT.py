@@ -35,7 +35,6 @@ PUBLIC_API_OWNERS = (
 AUTHORS_FILE_NAME = 'AUTHORS'
 RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
 
-DOCS_PREVIEW_URL = 'https://skia.org/?cl={issue}'
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
 SERVICE_ACCOUNT_SUFFIX = [
@@ -516,19 +515,6 @@ def PostUploadHook(gerrit, change, output_api):
         output_api.PresubmitNotifyResult(
             'This change has only doc changes. Automatically added '
             '\'No-Try: true\' to the CL\'s description'))
-
-  # If there is at least one docs change then add preview link in the CL's
-  # description if it does not already exist there.
-  docs_preview_link = DOCS_PREVIEW_URL.format(issue=change.issue)
-  if (at_least_one_docs_change
-      and docs_preview_link not in footers.get('Docs-Preview', [])):
-    # Automatically add a link to where the docs can be previewed.
-    description_changed = True
-    change.AddDescriptionFooter('Docs-Preview', docs_preview_link)
-    results.append(
-        output_api.PresubmitNotifyResult(
-            'Automatically added a link to preview the docs changes to the '
-            'CL\'s description'))
 
   # If the description has changed update it.
   if description_changed:
