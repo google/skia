@@ -66,10 +66,10 @@
     }
 
     half4 main(float2 p) {
-        half4 pa = shade(image, float2(p.x-0.5, p.y-0.5));
-        half4 pb = shade(image, float2(p.x+0.5, p.y-0.5));
-        half4 pc = shade(image, float2(p.x-0.5, p.y+0.5));
-        half4 pd = shade(image, float2(p.x+0.5, p.y+0.5));
+        half4 pa = image.eval(float2(p.x-0.5, p.y-0.5));
+        half4 pb = image.eval(float2(p.x+0.5, p.y-0.5));
+        half4 pc = image.eval(float2(p.x-0.5, p.y+0.5));
+        half4 pd = image.eval(float2(p.x+0.5, p.y+0.5));
         float2 w = sharpen(fract(p + 0.5));
         if (do_smooth > 0) {
             w = smooth(w);

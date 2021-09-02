@@ -315,8 +315,8 @@ std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
         uniform half4 k;
         uniform half pmClamp;
         half4 main(float2 xy) {
-            half4 src = shade(srcFP, xy);
-            half4 dst = shade(dstFP, xy);
+            half4 src = srcFP.eval(xy);
+            half4 dst = dstFP.eval(xy);
             half4 color = saturate(k.x * src * dst +
                                    k.y * src +
                                    k.z * dst +

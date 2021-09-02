@@ -7,58 +7,79 @@ uniform blender     b;
 uniform float2 xy;
 uniform half4  color;
 
-half4 shader_xy_color()  { return sample(s, xy, color); }
-half4 shader_color()     { return sample(s, color); }
-half4 shader_color_xy()  { return sample(s, color, xy); }
-half4 shader_empty()     { return sample(s); }
-half4 shader_matrix()    { return sample(s, float3x3(1)); }
+half4 sample_shader_xy_color() { return sample(s, xy, color); }
+half4 sample_shader_color()    { return sample(s, color); }
+half4 sample_shader_color_xy() { return sample(s, color, xy); }
+half4 sample_shader_empty()    { return sample(s); }
+half4 sample_shader_matrix()   { return sample(s, float3x3(1)); }
 
-half4 filter_empty()     { return sample(f); }
-half4 filter_xy()        { return sample(f, xy); }
-half4 filter_xy_color()  { return sample(f, xy, color); }
+half4 sample_colorFilter_empty()    { return sample(f); }
+half4 sample_colorFilter_xy()       { return sample(f, xy); }
+half4 sample_colorFilter_xy_color() { return sample(f, xy, color); }
 
-half4 blender_empty()    { return sample(b); }
-half4 blender_color()    { return sample(b, color); }
-half4 blender_xy()       { return sample(b, xy); }
-half4 blender_xy_color() { return sample(b, xy, color); }
+half4 sample_blender_empty()    { return sample(b); }
+half4 sample_blender_color()    { return sample(b, color); }
+half4 sample_blender_xy()       { return sample(b, xy); }
+half4 sample_blender_xy_color() { return sample(b, xy, color); }
 
 // Same as above, but using the type-specific functions (shade, filter, blend):
 
-half4 shader_xy_color()  { return shade(s, xy, color); }
-half4 shader_color()     { return shade(s, color); }
-half4 shader_color_xy()  { return shade(s, color, xy); }
-half4 shader_empty()     { return shade(s); }
-half4 shader_matrix()    { return shade(s, float3x3(1)); }
+half4 shade_shader_xy_color() { return shade(s, xy, color); }
+half4 shade_shader_color()    { return shade(s, color); }
+half4 shade_shader_color_xy() { return shade(s, color, xy); }
+half4 shade_shader_empty()    { return shade(s); }
+half4 shade_shader_matrix()   { return shade(s, float3x3(1)); }
 
-half4 filter_empty()     { return filter(f); }
-half4 filter_xy()        { return filter(f, xy); }
-half4 filter_xy_color()  { return filter(f, xy, color); }
+half4 filter_colorFilter_empty()    { return filter(f); }
+half4 filter_colorFilter_xy()       { return filter(f, xy); }
+half4 filter_colorFilter_xy_color() { return filter(f, xy, color); }
 
-half4 blender_empty()    { return blend(b); }
-half4 blender_color()    { return blend(b, color); }
-half4 blender_xy()       { return blend(b, xy); }
-half4 blender_xy_color() { return blend(b, xy, color); }
+half4 blend_blender_empty()    { return blend(b); }
+half4 blend_blender_color()    { return blend(b, color); }
+half4 blend_blender_xy()       { return blend(b, xy); }
+half4 blend_blender_xy_color() { return blend(b, xy, color); }
 
 // Try to invoke a child with the wrong type-specific function, with either
 // argument list (aligned to function, or child type):
 
-half4 blend_shader_b()   { return blend(s, color, color); }
-half4 blend_shader_s()   { return blend(s, xy); }
-half4 filter_shader_f()  { return filter(s, color); }
-half4 filter_shader_s()  { return filter(s, xy); }
+half4 blend_shader_b()  { return blend(s, color, color); }
+half4 blend_shader_s()  { return blend(s, xy); }
+half4 filter_shader_f() { return filter(s, color); }
+half4 filter_shader_s() { return filter(s, xy); }
 
-half4 blend_filter_b()   { return blend(f, color, color); }
-half4 blend_filter_f()   { return blend(f, color); }
-half4 shade_filter_s()   { return shade(f, xy); }
-half4 shade_filter_f()   { return shade(f, color); }
+half4 blend_colorFilter_b() { return blend(f, color, color); }
+half4 blend_colorFilter_f() { return blend(f, color); }
+half4 shade_colorFilter_s() { return shade(f, xy); }
+half4 shade_colorFilter_f() { return shade(f, color); }
 
 half4 filter_blender_f() { return filter(b, color); }
 half4 filter_blender_b() { return filter(b, color, color); }
 half4 shade_blender_s()  { return shade(b, xy); }
 half4 shade_blender_b()  { return shade(b, color, color); }
 
+// Using .eval()
+
+half4 eval_shader_xy_color() { return s.eval(xy, color); }
+half4 eval_shader_color()    { return s.eval(color); }
+half4 eval_shader_color_xy() { return s.eval(color, xy); }
+half4 eval_shader_empty()    { return s.eval(); }
+half4 eval_shader_matrix()   { return s.eval(float3x3(1)); }
+
+half4 eval_colorFilter_empty()    { return f.eval(); }
+half4 eval_colorFilter_xy()       { return f.eval(xy); }
+half4 eval_colorFilter_xy_color() { return f.eval(xy, color); }
+
+half4 eval_blender_empty()    { return b.eval(); }
+half4 eval_blender_color()    { return b.eval(color); }
+half4 eval_blender_xy()       { return b.eval(xy); }
+half4 eval_blender_xy_color() { return b.eval(xy, color); }
+
 // Correct usage (EXPECT NO ERRORS)
 
 half4 blend_blender() { return blend(b, color, color); }
-half4 filter_filter() { return filter(f, color); }
-half4 shade_shader()  { return shade(s, xy); }
+half4 filter_colorFilter() { return filter(f, color); }
+half4 shade_shader() { return shade(s, xy); }
+
+half4 eval_blender() { return b.eval(color, color); }
+half4 eval_colorFilter() { return f.eval(color); }
+half4 eval_shader() { return s.eval(xy); }

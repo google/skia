@@ -11,8 +11,8 @@ shader s3;
 in shader s4;
 
 // Various places that shaders should not be allowed:
-half4  local()             { shader s; return shade(s, xy); }
-half4  parameter(shader s) { return shade(s, xy); }
+half4  local()             { shader s; return s.eval(xy); }
+half4  parameter(shader s) { return s.eval(xy); }
 shader returned()          { return s1; }
-half4  constructed()       { return shade(shader(s1), xy); }
-half4  expression(bool b)  { return shade(b ? s1 : s2, xy); }
+half4  constructed()       { return shader(s1).eval(xy); }
+half4  expression(bool b)  { return (b ? s1 : s2).eval(xy); }

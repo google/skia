@@ -126,7 +126,7 @@ static std::unique_ptr<GrFragmentProcessor> make_magnifier_fp(
                 weight = min(min(delta_squared.x, delta_squared.y), 1.0);
             }
 
-            return shade(src, mix(coord, zoom_coord, weight));
+            return src.eval(mix(coord, zoom_coord, weight));
         }
     )");
 

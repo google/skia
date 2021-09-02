@@ -66,7 +66,7 @@ static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi, bool use
         auto [effect, error] = SkRuntimeEffect::MakeForColorFilter(SkString(R"(
             uniform colorFilter inner;
             uniform colorFilter outer;
-            half4 main(half4 c) { return filter(outer, filter(inner, c)); }
+            half4 main(half4 c) { return outer.eval(inner.eval(c)); }
         )"));
         SkASSERT(effect);
         SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));

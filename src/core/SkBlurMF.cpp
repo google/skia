@@ -850,7 +850,7 @@ static std::unique_ptr<GrFragmentProcessor> make_circle_blur(GrRecordingContext*
             // to rearrange to avoid passing large values to length() that would overflow.
             half2 vec = half2((sk_FragCoord.xy - circleData.xy) * circleData.w);
             half dist = length(vec) + (0.5 - circleData.z) * circleData.w;
-            return inColor * shade(blurProfile, half2(dist, 0.5)).a;
+            return inColor * blurProfile.eval(half2(dist, 0.5)).a;
         }
     )");
 
@@ -994,8 +994,8 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
                 // computations align the left edge of the integral texture with the inset rect's
                 // edge extending outward 6 * sigma from the inset rect.
                 half2 xy = max(half2(rect.LT - pos), half2(pos - rect.RB));
-                xCoverage = shade(integral, half2(xy.x, 0.5)).a;
-                yCoverage = shade(integral, half2(xy.y, 0.5)).a;
+                xCoverage = integral.eval(half2(xy.x, 0.5)).a;
+                yCoverage = integral.eval(half2(xy.y, 0.5)).a;
             } else {
                 // We just consider just the x direction here. In practice we compute x and y
                 // separately and multiply them together.
@@ -1013,10 +1013,10 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
                 // Also, our rect uniform was pre-inset by 3 sigma from the actual rect being
                 // blurred, also factored in.
                 half4 rect = half4(half2(rect.LT - pos), half2(pos - rect.RB));
-                xCoverage = 1 - shade(integral, half2(rect.L, 0.5)).a
-                              - shade(integral, half2(rect.R, 0.5)).a;
-                yCoverage = 1 - shade(integral, half2(rect.T, 0.5)).a
-                              - shade(integral, half2(rect.B, 0.5)).a;
+                xCoverage = 1 - integral.eval(half2(rect.L, 0.5)).a
+                              - integral.eval(half2(rect.R, 0.5)).a;
+                yCoverage = 1 - integral.eval(half2(rect.T, 0.5)).a
+                              - integral.eval(half2(rect.B, 0.5)).a;
             }
             return inColor * xCoverage * yCoverage;
         }
@@ -1426,7 +1426,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rrect_blur(GrRecordingContext* 
             half2 proxyDims = half2(2.0 * edgeSize);
             half2 texCoord = translatedFragPosHalf / proxyDims;
 
-            return inColor * shade(ninePatchFP, texCoord).a;
+            return inColor * ninePatchFP.eval(texCoord).a;
         }
     )");
 

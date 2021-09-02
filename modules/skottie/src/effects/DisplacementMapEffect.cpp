@@ -48,11 +48,11 @@ static constexpr char gDisplacementSkSL[] = R"(
     uniform half4   selector_offset;
 
     half4 main(float2 xy) {
-        half4 d = shade(displ, xy);
+        half4 d = displ.eval(xy);
 
         d = selector_matrix*unpremul(d) + selector_offset;
 
-        return shade(child, xy + d.xy*d.zw);
+        return child.eval(xy + d.xy*d.zw);
     }
 )";
 

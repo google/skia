@@ -37,7 +37,7 @@ enum class VariableRefKind : int8_t;
 struct Analysis {
     /**
      * Determines how `program` samples `child`. By default, assumes that the sample coords
-     * (SK_MAIN_COORDS_BUILTIN) might be modified, so `shade(fp, sampleCoords)` is treated as
+     * (SK_MAIN_COORDS_BUILTIN) might be modified, so `child.eval(sampleCoords)` is treated as
      * Explicit. If writesToSampleCoords is false, treats that as PassThrough, instead.
      * If elidedSampleCoordCount is provided, the pointed to value will be incremented by the
      * number of sample calls where the above rewrite was performed.

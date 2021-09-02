@@ -36,4 +36,16 @@ error: 55: expected 'colorFilter', but found 'blender'
 error: 56: call to 'filter' expected 2 arguments, but found 3
 error: 57: expected 'shader', but found 'blender'
 error: 58: call to 'shade' expected 2 arguments, but found 3
-36 errors
+error: 62: no match for shader::eval(float2, half4)
+error: 63: no match for shader::eval(half4)
+error: 64: no match for shader::eval(half4, float2)
+error: 65: no match for shader::eval()
+error: 66: no match for shader::eval(float3x3)
+error: 68: no match for colorFilter::eval()
+error: 69: no match for colorFilter::eval(float2)
+error: 70: no match for colorFilter::eval(float2, half4)
+error: 72: no match for blender::eval()
+error: 73: no match for blender::eval(half4)
+error: 74: no match for blender::eval(float2)
+error: 75: no match for blender::eval(float2, half4)
+48 errors

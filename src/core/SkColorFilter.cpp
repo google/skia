@@ -477,7 +477,7 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
         "uniform colorFilter cf1;"
         "uniform half   weight;"
         "half4 main(half4 color) {"
-            "return mix(filter(cf0, color), filter(cf1, color), weight);"
+            "return mix(cf0.eval(color), cf1.eval(color), weight);"
         "}"
     );
     SkASSERT(effect);
