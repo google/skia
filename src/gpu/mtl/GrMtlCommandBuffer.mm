@@ -22,7 +22,7 @@ GR_NORETAIN_BEGIN
 
 sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
     id<MTLCommandBuffer> mtlCommandBuffer;
-    mtlCommandBuffer = [queue commandBufferWithUnretainedReferences];
+    mtlCommandBuffer = [queue commandBuffer];
     if (nil == mtlCommandBuffer) {
         return nullptr;
     }
