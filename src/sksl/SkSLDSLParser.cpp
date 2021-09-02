@@ -545,15 +545,14 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
 SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& modifiers) {
-    PositionInfo pos = this->position(this->peek());
     skstd::optional<DSLType> type = this->structDeclaration();
     if (!type) {
         return {};
     }
     Token name;
     if (this->checkNext(Token::Kind::TK_IDENTIFIER, &name)) {
-        return this->varDeclarationEnd<DSLGlobalVar>(pos, modifiers, std::move(*type),
-                                                     this->text(name));
+        return this->varDeclarationEnd<DSLGlobalVar>(this->position(name), modifiers,
+                std::move(*type), this->text(name));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
     return {};
