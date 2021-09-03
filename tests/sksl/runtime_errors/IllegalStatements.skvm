@@ -1,7 +1,7 @@
 ### Compilation failed:
 
-error: 944: do-while loops are not supported
-error: 967: while loops are not supported
-error: 68: switch statements are not supported
+error: 5: do-while loops are not supported
+error: 7: while loops are not supported
+error: 9: switch statements are not supported
 error: 9: function 'switch_stmt' can exit without returning a value
 4 errors

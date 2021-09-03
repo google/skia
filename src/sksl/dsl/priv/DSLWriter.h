@@ -222,7 +222,8 @@ public:
     static DSLPossibleStatement ConvertSwitch(std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
                                               SkTArray<SkSL::StatementArray> caseStatements,
-                                              bool isStatic);
+                                              bool isStatic,
+                                              PositionInfo pos);
 
     /**
      * Returns the ErrorReporter associated with the current thread. This object will be notified

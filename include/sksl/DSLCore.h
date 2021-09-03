@@ -126,7 +126,7 @@ DSLCase Default(Statements... statements) {
 /**
  * discard;
  */
-DSLStatement Discard();
+DSLStatement Discard(PositionInfo pos = PositionInfo::Capture());
 
 /**
  * do stmt; while (test);
@@ -165,7 +165,8 @@ DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue,
                       DSLStatement ifFalse = DSLStatement(),
                       PositionInfo pos = PositionInfo::Capture());
 
-DSLPossibleStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases);
+DSLPossibleStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases,
+                                  PositionInfo info = PositionInfo::Capture());
 
 /**
  * @switch (value) { cases }
@@ -178,7 +179,8 @@ DSLPossibleStatement StaticSwitch(DSLExpression value, Cases... cases) {
     return StaticSwitch(std::move(value), std::move(caseArray));
 }
 
-DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases);
+DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
+                            PositionInfo info = PositionInfo::Capture());
 
 /**
  * switch (value) { cases }

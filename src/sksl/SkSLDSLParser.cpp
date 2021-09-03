@@ -941,7 +941,7 @@ skstd::optional<DSLStatement> DSLParser::doStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return skstd::nullopt;
     }
-    return Do(std::move(*statement), std::move(**test));
+    return Do(std::move(*statement), std::move(**test), this->position(start));
 }
 
 /* WHILE LPAREN expression RPAREN STATEMENT */
@@ -964,7 +964,7 @@ skstd::optional<DSLStatement> DSLParser::whileStatement() {
     if (!statement) {
         return skstd::nullopt;
     }
-    return While(std::move(**test), std::move(*statement));
+    return While(std::move(**test), std::move(*statement), this->position(start));
 }
 
 /* CASE expression COLON statement* */
@@ -1037,15 +1037,15 @@ skstd::optional<DSLStatement> DSLParser::switchStatement() {
             }
             statements.push_back(std::move(*s));
         }
-        cases.push_back(DSLCase(DSLExpression(), std::move(statements)));
+        cases.push_back(DSLCase(DSLExpression(), std::move(statements), this->position(start)));
     }
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return skstd::nullopt;
     }
     if (isStatic) {
-        return StaticSwitch(std::move(**value), std::move(cases));
+        return StaticSwitch(std::move(**value), std::move(cases), this->position(start));
     } else {
-        return Switch(std::move(**value), std::move(cases));
+        return Switch(std::move(**value), std::move(cases), this->position(start));
     }
 }
 
@@ -1099,7 +1099,8 @@ skstd::optional<dsl::DSLStatement> DSLParser::forStatement() {
     return For(initializer ? std::move(*initializer) : DSLStatement(),
                test ? std::move(**test) : DSLExpression(),
                next ? std::move(**next) : DSLExpression(),
-               std::move(*statement));
+               std::move(*statement),
+               this->position(start));
 }
 
 /* RETURN expression? SEMICOLON */
@@ -1118,7 +1119,7 @@ skstd::optional<DSLStatement> DSLParser::returnStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return skstd::nullopt;
     }
-    return Return(expression ? std::move(**expression) : DSLExpression());
+    return Return(expression ? std::move(**expression) : DSLExpression(), this->position(start));
 }
 
 /* BREAK SEMICOLON */
@@ -1154,7 +1155,7 @@ skstd::optional<DSLStatement> DSLParser::discardStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return skstd::nullopt;
     }
-    return Discard();
+    return Discard(this->position(start));
 }
 
 /* LBRACE statement* RBRACE */

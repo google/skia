@@ -13,12 +13,14 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLCase::DSLCase(DSLExpression value, SkSL::StatementArray statements)
+DSLCase::DSLCase(DSLExpression value, SkSL::StatementArray statements, PositionInfo pos)
     : fValue(std::move(value))
-    , fStatements(std::move(statements)) {}
+    , fStatements(std::move(statements))
+    , fPosition(pos) {}
 
-DSLCase::DSLCase(DSLExpression value, SkTArray<DSLStatement> statements)
-    : fValue(std::move(value)) {
+DSLCase::DSLCase(DSLExpression value, SkTArray<DSLStatement> statements, PositionInfo pos)
+    : fValue(std::move(value))
+    , fPosition(pos) {
     fStatements.reserve_back(statements.count());
     for (DSLStatement& stmt : statements) {
         fStatements.push_back(stmt.release());
