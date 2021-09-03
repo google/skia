@@ -764,7 +764,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
     private:
         using INHERITED = ProgramVisitor;
 
-        [[maybe_unused]] const Context& fContext;
+        const Context& fContext;
         int fFunctionSize = 0;
         int fUnrollFactor = 1;
         std::unordered_map<const FunctionDeclaration*, int> fFunctionCostMap;
