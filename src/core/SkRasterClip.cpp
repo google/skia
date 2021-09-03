@@ -82,20 +82,6 @@ SkRasterClip::~SkRasterClip() {
     SkDEBUGCODE(this->validate();)
 }
 
-bool SkRasterClip::operator==(const SkRasterClip& other) const {
-    if (fIsBW != other.fIsBW) {
-        return false;
-    }
-    bool isEqual = fIsBW ? fBW == other.fBW : fAA == other.fAA;
-#ifdef SK_DEBUG
-    if (isEqual) {
-        SkASSERT(fIsEmpty == other.fIsEmpty);
-        SkASSERT(fIsRect == other.fIsRect);
-    }
-#endif
-    return isEqual;
-}
-
 bool SkRasterClip::setEmpty() {
     AUTO_RASTERCLIP_VALIDATE(*this);
 

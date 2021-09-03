@@ -32,11 +32,6 @@ public:
 
     SkRasterClip& operator=(const SkRasterClip&);
 
-    bool operator==(const SkRasterClip&) const;
-    bool operator!=(const SkRasterClip& other) const {
-        return !(*this == other);
-    }
-
     bool isBW() const { return fIsBW; }
     bool isAA() const { return !fIsBW; }
     const SkRegion& bwRgn() const { SkASSERT(fIsBW); return fBW; }
