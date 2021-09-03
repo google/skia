@@ -107,10 +107,6 @@ public:
     void finishOutstandingGpuWork() override;
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
-    bool loadMSAAFromResolve(GrAttachment* dst,
-                             GrMtlAttachment* src,
-                             const SkIRect& srcRect);
-
     // When the Metal backend actually uses indirect command buffers, this function will actually do
     // what it says. For now, every command is encoded directly into the primary command buffer, so
     // this function is pretty useless, except for indicating that a render target has been drawn

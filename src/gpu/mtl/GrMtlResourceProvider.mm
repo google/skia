@@ -9,7 +9,6 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
@@ -67,93 +66,7 @@ GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(GrSamplerStat
     return sampler;
 }
 
-const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
-        MTLPixelFormat pixelFormat, int sampleCount) {
-    if (!fMSAALoadLibrary) {
-        TRACE_EVENT0("skia", TRACE_FUNC);
-
-        SkSL::String shaderText;
-        shaderText.append(
-                "#include <metal_stdlib>\n"
-                "#include <simd/simd.h>\n"
-                "using namespace metal;\n"
-                "\n"
-                "typedef struct {\n"
-                "    float4 position [[position]];\n"
-                "} VertexOutput;\n"
-                "\n"
-                "typedef struct {\n"
-                "    float4 uPosXform;\n"
-                "    uint2 uTextureSize;\n"
-                "} VertexUniforms;\n"
-                "\n"
-                "vertex VertexOutput vertexMain(constant VertexUniforms& uniforms [[buffer(0)]],\n"
-                "                               uint vertexID [[vertex_id]]) {\n"
-                "    VertexOutput out;\n"
-                "    float2 position = float2(float(vertexID >> 1), float(vertexID & 1));\n"
-                "    out.position.xy = position * uniforms.uPosXform.xy + uniforms.uPosXform.zw;\n"
-                "    out.position.zw = float2(0.0, 1.0);\n"
-                "    return out;\n"
-                "}\n"
-                "\n"
-                "fragment float4 fragmentMain(VertexOutput in [[stage_in]],\n"
-                "                             texture2d<half> colorMap [[texture(0)]]) {\n"
-                "    uint2 coords = uint2(in.position.x, in.position.y);"
-                "    half4 colorSample   = colorMap.read(coords);\n"
-                "    return float4(colorSample);\n"
-                "}"
-        );
-
-        auto errorHandler = fGpu->getContext()->priv().getShaderErrorHandler();
-        fMSAALoadLibrary = GrCompileMtlShaderLibrary(fGpu, shaderText, errorHandler);
-        if (!fMSAALoadLibrary) {
-            return nullptr;
-        }
-    }
-
-    for (int i = 0; i < fMSAALoadPipelines.count(); ++i) {
-        if (fMSAALoadPipelines[i].fPixelFormat == pixelFormat &&
-            fMSAALoadPipelines[i].fSampleCount == sampleCount) {
-            return fMSAALoadPipelines[i].fPipeline.get();
-        }
-    }
-
-    auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-
-    pipelineDescriptor.vertexFunction =
-            [fMSAALoadLibrary newFunctionWithName: @"vertexMain"];
-    pipelineDescriptor.fragmentFunction =
-            [fMSAALoadLibrary newFunctionWithName: @"fragmentMain"];
-
-    auto mtlColorAttachment = [[MTLRenderPipelineColorAttachmentDescriptor alloc] init];
-
-    mtlColorAttachment.pixelFormat = pixelFormat;
-    mtlColorAttachment.blendingEnabled = FALSE;
-    mtlColorAttachment.writeMask = MTLColorWriteMaskAll;
-
-    pipelineDescriptor.colorAttachments[0] = mtlColorAttachment;
-
-    pipelineDescriptor.sampleCount = sampleCount;
-
-    NSError* error;
-    auto pso =
-            [fGpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
-                                                          error: &error];
-    if (!pso) {
-        SkDebugf("Error creating pipeline: %s\n",
-                 [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
-    }
-
-    auto renderPipeline = GrMtlRenderPipeline::Make(pso);
-
-    fMSAALoadPipelines.push_back({renderPipeline, pixelFormat, sampleCount});
-    return fMSAALoadPipelines[fMSAALoadPipelines.count()-1].fPipeline.get();
-}
-
 void GrMtlResourceProvider::destroyResources() {
-    fMSAALoadLibrary = nil;
-    fMSAALoadPipelines.reset();
-
     fSamplers.foreach([&](GrMtlSampler* sampler) { sampler->unref(); });
     fSamplers.reset();
 
