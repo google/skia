@@ -69,6 +69,26 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
             "unknown identifier 'sk_Caps'");
 }
 
+DEF_TEST(SkRuntimeEffect_DeadCodeEliminationStackOverflow, r) {
+    // Verify that a deeply-nested loop does not cause stack overflow during SkVM dead-code
+    // elimination.
+    auto [effect, errorText] = SkRuntimeEffect::MakeForColorFilter(SkString(R"(
+        half4 main(half4 color) {
+            half value = color.r;
+
+            for (int a=0; a<10; ++a) { // 10
+            for (int b=0; b<10; ++b) { // 100
+            for (int c=0; c<10; ++c) { // 1000
+            for (int d=0; d<10; ++d) { // 10000
+                ++value;
+            }}}}
+
+            return value.xxxx;
+        }
+    )"));
+    REPORTER_ASSERT(r, effect, "%s", errorText.c_str());
+}
+
 DEF_TEST(SkRuntimeEffectCanDisableES2Restrictions, r) {
     auto test_valid_es3 = [](skiatest::Reporter* r, const char* sksl) {
         SkRuntimeEffect::Options opt = SkRuntimeEffectPriv::ES3Options();
