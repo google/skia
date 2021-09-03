@@ -334,7 +334,6 @@ void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping, SkSpecialImag
                                      const SkImageFilter* filter, const SkSamplingOptions& sampling,
                                      const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter() && !paint.getMaskFilter());
-    using For = skif::Usage;
 
     skif::LayerSpace<SkIRect> targetOutput = mapping.deviceToLayer(
             skif::DeviceSpace<SkIRect>(this->devClipBounds()));
@@ -351,7 +350,7 @@ void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping, SkSpecialImag
     // filter's filterImage(ctx) function returns.
     sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
     skif::Context ctx(mapping, targetOutput, cache.get(), colorType, this->imageInfo().colorSpace(),
-                      skif::FilterResult<For::kInput>(sk_ref_sp(src)));
+                      skif::FilterResult(sk_ref_sp(src)));
 
     SkIPoint offset;
     sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset);

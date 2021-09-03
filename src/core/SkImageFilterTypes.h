@@ -489,60 +489,21 @@ private:
     static T map(const T& geom, const SkMatrix& matrix);
 };
 
-// Usage is a template tag to improve the readability of filter implementations. It is attached to
-// images and geometry to group a collection of related variables and ensure that moving from one
-// use case to another is explicit.
-// NOTE: This can be aliased as 'For' when using the fluent type names.
-// TODO (michaelludwig) - If the primary motivation for Usage--enforcing layer to image space
-// transformations safely when multiple images are involved--can be handled entirely by helper
-// functions on FilterResult, then Usage can go away and FilterResult will not need to be templated
-enum class Usage {
-    // Designates the semantic purpose of the bounds, coordinate, or image as being an input
-    // to the image filter calculations. When this usage is used, it denotes a generic input,
-    // such as the current input in a dynamic loop, or some aggregate of all inputs. Because
-    // most image filters consume 1 or 2 filters only, the related kInput0 and kInput1 are
-    // also defined.
-    kInput,
-    // A more specific version of kInput, this marks the tagged variable as attached to the
-    // image filter of SkImageFilter_Base::getInput(0).
-    kInput0,
-    // A more specific version of kInput, this marks the tagged variable as attached to the
-    // image filter of SkImageFilter_Base::getInput(1).
-    kInput1,
-    // Designates the purpose of the bounds, coordinate, or image as being the output of the
-    // current image filter calculation. There is only ever one output for an image filter.
-    kOutput,
-};
-
-// Convenience macros to add 'using' declarations that rename the above enums to provide a more
-// fluent and readable API. This should only be used in a private or local scope to prevent leakage
-// of the names. Use the IN_CLASS variant at the start of a class declaration in those scenarios.
-// These macros enable the following simpler type names:
-//   skif::Image<skif::Usage::kInput> -> Image<For::kInput>
-#define SK_USE_FLUENT_IMAGE_FILTER_TYPES \
-    using For = skif::Usage;
-
-#define SK_USE_FLUENT_IMAGE_FILTER_TYPES_IN_CLASS \
-    protected: SK_USE_FLUENT_IMAGE_FILTER_TYPES public:
-
-// Wraps an SkSpecialImage and tags it with a corresponding usage, either as generic input (e.g. the
-// source image), or a specific input image from a filter's connected inputs. It also includes the
-// origin of the image in the layer space. This origin is used to draw the image in the correct
-// location. The 'layerBounds' rectangle of the filtered image is the layer-space bounding box of
-// the image. It has its top left corner at 'origin' and has the same dimensions as the underlying
-// special image subset. Transforming 'layerBounds' by the Context's layer matrix and painting it
-// with the subset rectangle will display the filtered results in the appropriate device-space
-// region.
+// Wraps an SkSpecialImage and its location in the shared layer coordinate space. This origin is
+// used to draw the image in the correct location. The 'layerBounds' rectangle of the filtered image
+// is the layer-space bounding box of the image. It has its top left corner at 'origin' and has the
+// same dimensions as the underlying special image subset. Transforming 'layerBounds' by the
+// Context's layer-to-device matrix and painting it with the subset rectangle will display the
+// filtered results in the appropriate device-space region.
 //
 // When filter implementations are processing intermediate FilterResult results, it can be assumed
 // that all FilterResult' layerBounds are in the same layer coordinate space defined by the shared
 // skif::Context.
 //
 // NOTE: This is named FilterResult since most instances will represent the output of an image
-// filter (even if that is then cast to be the input to the next filter). The main exception is the
+// filter (even if that is then used as an input to the next filter). The main exception is the
 // source input used when an input filter is null, but from a data-standpoint it is the same since
 // it is equivalent to the result of an identity filter.
-template<Usage kU>
 class FilterResult {
 public:
     FilterResult() : fImage(nullptr), fOrigin(SkIPoint::Make(0, 0)) {}
@@ -553,30 +514,6 @@ public:
     explicit FilterResult(sk_sp<SkSpecialImage> image)
             : fImage(std::move(image))
             , fOrigin{{0, 0}} {}
-
-    // Allow explicit moves/copies in order to cast from one use type to another, except kInput0
-    // and kInput1 can only be cast to kOutput (e.g. as part of a noop image filter).
-    template<Usage kI>
-    explicit FilterResult(FilterResult<kI>&& image)
-            : fImage(std::move(image.fImage))
-            , fOrigin(image.fOrigin) {
-        static_assert((kU != Usage::kInput) || (kI != Usage::kInput0 && kI != Usage::kInput1),
-                      "kInput0 and kInput1 cannot be moved to more generic kInput usage.");
-        static_assert((kU != Usage::kInput0 && kU != Usage::kInput1) ||
-                      (kI == kU || kI == Usage::kInput || kI == Usage::kOutput),
-                      "Can only move to specific input from the generic kInput or kOutput usage.");
-    }
-
-    template<Usage kI>
-    explicit FilterResult(const FilterResult<kI>& image)
-            : fImage(image.fImage)
-            , fOrigin(image.fOrigin) {
-        static_assert((kU != Usage::kInput) || (kI != Usage::kInput0 && kI != Usage::kInput1),
-                      "kInput0 and kInput1 cannot be copied to more generic kInput usage.");
-        static_assert((kU != Usage::kInput0 && kU != Usage::kInput1) ||
-                      (kI == kU || kI == Usage::kInput || kI == Usage::kOutput),
-                      "Can only copy to specific input from the generic kInput usage.");
-    }
 
     const SkSpecialImage* image() const { return fImage.get(); }
     sk_sp<SkSpecialImage> refImage() const { return fImage; }
@@ -607,10 +544,6 @@ public:
     }
 
 private:
-    // Allow all FilterResult templates access to each others members
-    template<Usage kO>
-    friend class FilterResult;
-
     sk_sp<SkSpecialImage> fImage;
     LayerSpace<SkIPoint> fOrigin;
 };
@@ -622,8 +555,6 @@ private:
 // that's similar/compatible to the final consumer of the DAG's output.
 class Context {
 public:
-    SK_USE_FLUENT_IMAGE_FILTER_TYPES_IN_CLASS
-
     // Creates a context with the given layer matrix and destination clip, reading from 'source'
     // with an origin of (0,0).
     Context(const SkMatrix& layerMatrix, const SkIRect& clipBounds, SkImageFilterCache* cache,
@@ -637,7 +568,7 @@ public:
 
     Context(const Mapping& mapping, const LayerSpace<SkIRect>& desiredOutput,
             SkImageFilterCache* cache, SkColorType colorType, SkColorSpace* colorSpace,
-            const FilterResult<For::kInput>& source)
+            const FilterResult& source)
         : fMapping(mapping)
         , fDesiredOutput(desiredOutput)
         , fCache(cache)
@@ -684,7 +615,7 @@ public:
     // from the SkDevice that holds either the saveLayer or the temporary rendered result. The
     // exception is composing two image filters (via SkImageFilters::Compose), which must use
     // the output of the inner DAG as the "source" for the outer DAG.
-    const FilterResult<For::kInput>& source() const { return fSource; }
+    const FilterResult& source() const { return fSource; }
     // DEPRECATED: Use source() instead to get both the image and its origin.
     const SkSpecialImage* sourceImage() const { return fSource.image(); }
 
@@ -725,14 +656,14 @@ public:
     }
 
 private:
-    Mapping                   fMapping;
-    LayerSpace<SkIRect>       fDesiredOutput;
-    SkImageFilterCache*       fCache;
-    SkColorType               fColorType;
+    Mapping             fMapping;
+    LayerSpace<SkIRect> fDesiredOutput;
+    SkImageFilterCache* fCache;
+    SkColorType         fColorType;
     // The pointed-to object is owned by the device controlling the filter process, and our lifetime
     // is bounded by the device, so this can be a bare pointer.
-    SkColorSpace*             fColorSpace;
-    FilterResult<For::kInput> fSource;
+    SkColorSpace*       fColorSpace;
+    FilterResult        fSource;
 };
 
 } // end namespace skif

@@ -23,8 +23,6 @@ class GrRecordingContext;
 // actual API surface that Skia will use to compute the filtered images.
 class SkImageFilter_Base : public SkImageFilter {
 public:
-    SK_USE_FLUENT_IMAGE_FILTER_TYPES_IN_CLASS
-
     // DEPRECATED - Use skif::Context directly.
     using Context = skif::Context;
 
@@ -39,7 +37,7 @@ public:
      *  TODO: Right now the imagefilters sometimes return empty result bitmaps/
      *        specialimages. That doesn't seem quite right.
      */
-    skif::FilterResult<For::kOutput> filterImage(const skif::Context& context) const;
+    skif::FilterResult filterImage(const skif::Context& context) const;
 
     /**
      *  Calculate the smallest-possible required layer bounds that would provide sufficient
@@ -215,9 +213,9 @@ protected:
     virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                        MapDirection, const SkIRect* inputRect) const;
 
-    // DEPRECRATED - Call the Context-only getInputFilteredImage()
+    // DEPRECRATED - Call the Context-only filterInput()
     sk_sp<SkSpecialImage> filterInput(int index, const Context& ctx, SkIPoint* offset) const {
-        return this->getInputFilteredImage(index, ctx).imageAndOffset(offset);
+        return this->filterInput(index, ctx).imageAndOffset(offset);
     }
 
     // Helper function to visit each of this filter's child filters and call their
@@ -232,25 +230,16 @@ protected:
     skif::LayerSpace<SkIRect> visitOutputLayerBounds(
             const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const;
 
-    // Helper function to help with recursing through the filter DAG. It invokes filter processing
-    // set to null, it returns the dynamic source image on the Context instead.
+    // Helper function for recursing through the filter DAG. It automatically evaluates the input
+    // image filter at 'index' using the given context. If the input image filter is null, it
+    // automatically returns the context's dynamic source image.
     //
     // Implementations must handle cases when the input filter was unable to compute an image and
-    // the returned skif::Image has a null SkSpecialImage. If the filter affect transparent black
-    // should explicitly handle nullptr results and press on. In the error case this behavior will
-    // produce a better result than nothing and is necessary for the clipped out case.
-    skif::FilterResult<For::kInput> getInputFilteredImage(int index,
-                                                          const skif::Context& context) const {
-        return this->filterInput<For::kInput>(index, context);
-    }
-    // Convenience that calls filterInput with index = 0 and the most specific usage.
-    skif::FilterResult<For::kInput0> getInputFilteredImage0(const skif::Context& context) const {
-        return this->filterInput<For::kInput0>(0, context);
-    }
-    // Convenience that calls filterInput with index = 1 and the most specific usage.
-    skif::FilterResult<For::kInput1> getInputFilteredImage1(const skif::Context& context) const {
-        return this->filterInput<For::kInput1>(1, context);
-    }
+    // the returned skif::Image has a null SkSpecialImage. If the filter affects transparent black,
+    // it should treat null results or images that do not fully cover the requested output bounds as
+    // being transparent black in those regions. Filters that do not affect transparent black can
+    // exit early since the null image would remain transparent.
+    skif::FilterResult filterInput(int index, const skif::Context& ctx) const;
 
     /**
      *  Returns whether any edges of the crop rect have been set. The crop
@@ -380,9 +369,7 @@ private:
     /**
      *  This is the virtual which should be overridden by the derived class to perform image
      *  filtering. Subclasses are responsible for recursing to their input filters, although the
-     *  getFilteredInputX() functions are provided to handle all necessary details of this. If the
-     *  filter has a fixed number of inputs, the getFilterInput0() and getFilteredInput1() functions
-     *  ensure the returned filtered Images have the most specific input usage.
+     *  filterInput() function is provided to handle all necessary details of this.
      *
      *  If the image cannot be created (either because of an error or if the result would be empty
      *  because it was clipped out), this should return a filtered Image with a null SkSpecialImage.
@@ -391,7 +378,7 @@ private:
      *  to safely handle these null and empty images and return an image filling the context's clip
      *  bounds as if its input filtered image were transparent black.
      */
-    virtual skif::FilterResult<For::kOutput> onFilterImage(const skif::Context& context) const;
+    virtual skif::FilterResult onFilterImage(const skif::Context& context) const;
 
     /**
      *  Calculates the necessary input layer size in order for the final output of the filter to
@@ -437,11 +424,6 @@ private:
     // onComputeFastBounds() instead of making filters implement the essentially the same calcs x2
     virtual skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
             const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const;
-
-    // The actual implementation of the protected getFilterInputX() functions, but don't expose the
-    // flexible templating to subclasses so it can't be abused.
-    template<skif::Usage kU>
-    skif::FilterResult<kU> filterInput(int index, const skif::Context& ctx) const;
 
     SkAutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 
