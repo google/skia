@@ -49,6 +49,21 @@ A Block is a descriptor for a run of text. Currently there are two specializatio
 added without breaking the design.
 
 ```WebIDL
+interface Typeface {
+    // Number or opaque object: Whatever is needed for the client to know exactly
+    // what font-resource (e.g. file, byte-array, etc.) is being used.
+    // Without this, the glyph IDs would be meaningless.
+    //
+    // This interface is really an “instance” of the font-resource. It includes
+    // any font-wide modifies that the client (or the shaper) may have requested:
+    //    e.g. variations, synthetic-bold, …
+    //
+    // Factories to create Typeface can be described elsewhere. The point here
+    // is that such a unique identifier exists for each font-asset-instance,
+    // and that they can be passed around (in/out of the browser), and compared
+    // to each other.
+};
+
 interface TextBlock {
     unsigned long length;  // number of codepoints in this block
 };
@@ -147,29 +162,35 @@ array of Runs (either Glyphs or Placeholders for now).
 
 ```WebIDL
 // Shared by all output runs, specifying the range of code-points that produced
-// this run.
+// this run. Known subclasses: TextRun, PlaceholderRun.
 interface TextRun {
     readonly attribute TextIndex startIndex;
     readonly attribute TextIndex endIndex;
 };
 
-interface OutFont {
-    attribute Typeface typeface;
-    attribute double size;
-    attribute double scaleX?;   // 1.0 if not specified
-    attribute double skewX?:    // 0.0 if not specified (for oblique)
+interface GlyphRunFont {
+    // Information to know which font-resource (typeface) to use,
+    // and at what transformation (size, etc.) to use it.
+    //
+    readonly attribute Typeface typeface;
+    readonly attribute double size;
+    readonly attribute double scaleX?;   // 1.0 if not specified
+    readonly attribute double skewX?:    // 0.0 if not specified (could be a bool)
 };
 
-// Corresponds to a FontBlock specified during shaping.
 interface GlyphRun : TextRun {
-    readonly attribute OutFont font;
+    readonly attribute GlyphRunFont font;
 
+    // Information to know what positioned glyphs are in the run,
+    // and what the corresponding text offsets are for those glyphs.
+    // These “offsets” are not needed to correctly draw the glyphs, but are needed
+    // during selections and editing, to know the mapping back to the original text.
+    //
     readonly attribute sequence<unsigned short> glyphs;     // N glyphs
     readonly attribute sequence<float> positions;           // N+1 x,y pairs
     readonly attribute sequence<TextIndex> indices;         // N+1 indices
 };
 
-// Corresponds to a PlaceholderBlock specified during shaping.
 interface PlaceholderRun : TextRun {
     readonly attribute Rect bounds;
 };
