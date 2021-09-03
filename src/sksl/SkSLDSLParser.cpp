@@ -292,7 +292,9 @@ bool DSLParser::declaration() {
         return this->interfaceBlock(modifiers);
     }
     if (lookahead.fKind == Token::Kind::TK_SEMICOLON) {
-        this->error(lookahead, "modifiers declarations are not yet supported");
+        this->nextToken();
+        Declare(modifiers, position(lookahead));
+        return true;
     }
     if (lookahead.fKind == Token::Kind::TK_STRUCT) {
         SkTArray<DSLGlobalVar> result = this->structVarDeclaration(modifiers);

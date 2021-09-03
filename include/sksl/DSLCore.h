@@ -91,6 +91,11 @@ DSLStatement Break(PositionInfo pos = PositionInfo::Capture());
 DSLStatement Continue(PositionInfo pos = PositionInfo::Capture());
 
 /**
+ * Adds a modifiers declaration to the current program.
+ */
+void Declare(const DSLModifiers& modifiers, PositionInfo pos = PositionInfo::Capture());
+
+/**
  * Creates a local variable declaration statement.
  */
 DSLStatement Declare(DSLVar& var, PositionInfo pos = PositionInfo::Capture());

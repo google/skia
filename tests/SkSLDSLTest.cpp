@@ -2130,3 +2130,10 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLExtension, r, ctxInfo) {
     REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
     EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "#extension test_extension : enable");
 }
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiersDeclaration, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    Declare(Modifiers(Layout().blendSupportAllEquations(), kOut_Modifier));
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "layout(blend_support_all_equations) out;");
+}

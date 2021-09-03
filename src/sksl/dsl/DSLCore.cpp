@@ -130,6 +130,11 @@ public:
         return SkSL::ContinueStatement::Make(pos.offset());
     }
 
+    static void Declare(const DSLModifiers& modifiers) {
+        DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::ModifiersDeclaration>(
+                DSLWriter::Modifiers(modifiers.fModifiers)));
+    }
+
     static DSLStatement Declare(DSLVar& var, PositionInfo pos) {
         if (var.fDeclared) {
             DSLWriter::ReportError("variable has already been declared", pos);
@@ -342,6 +347,16 @@ DSLStatement Break(PositionInfo pos) {
 
 DSLStatement Continue(PositionInfo pos) {
     return DSLCore::Continue(pos);
+}
+
+void Declare(const DSLModifiers& modifiers, PositionInfo pos) {
+    SkSL::ProgramKind kind = DSLWriter::GetProgramConfig()->fKind;
+    if (kind != ProgramKind::kFragment &&
+        kind != ProgramKind::kVertex) {
+        DSLWriter::ReportError("layout qualifiers are not allowed in this kind of program", pos);
+        return;
+    }
+    DSLCore::Declare(modifiers);
 }
 
 // Logically, we'd want the variable's initial value to appear on here in Declare, since that
