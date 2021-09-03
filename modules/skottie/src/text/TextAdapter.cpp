@@ -279,7 +279,6 @@ void TextAdapter::reshape() {
         fText->fResize,
         fText->fLineBreak,
         fText->fDirection,
-        fText->fCapitalization,
         this->shaperFlags(),
     };
     const auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);

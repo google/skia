@@ -23,7 +23,6 @@ if (skia_enable_skottie) {
       "../skresources",
       "../sksg",
       "../skshaper",
-      "../skunicode",
     ]
   }
 
