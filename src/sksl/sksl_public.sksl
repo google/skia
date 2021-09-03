@@ -207,10 +207,6 @@ $es3 $genHType dFdx($genHType p);
 $es3 $genHType dFdy($genHType p);
 
 // SkSL intrinsics that reflect Skia's C++ object model:
-half4 shade(shader s, float2 coords);
-half4 filter(colorFilter f, half4 color);
-half4 blend(blender b, half4 src, half4 dst);
-
 half4 sample(shader s, float2 coords);
 half4 sample(colorFilter f, half4 color);
 half4 sample(blender b, half4 src, half4 dst);

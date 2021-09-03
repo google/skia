@@ -876,10 +876,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
     }
 
     switch (function.intrinsicKind()) {
-        case k_blend_IntrinsicKind:
-        case k_sample_IntrinsicKind:
-        case k_shade_IntrinsicKind:
-        case k_filter_IntrinsicKind: {
+        case k_sample_IntrinsicKind: {
             if (arguments.size() >= 1 && arguments[0]->type().isEffectChild()) {
                 // Translate these intrinsic calls into a ChildCall, which simplifies handling in
                 // the generators and analysis code

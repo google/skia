@@ -12,40 +12,16 @@ error: 20: no match for sample(blender)
 error: 21: no match for sample(blender, half4)
 error: 22: no match for sample(blender, float2)
 error: 23: no match for sample(blender, float2, half4)
-error: 27: call to 'shade' expected 2 arguments, but found 3
-error: 28: expected 'float2', but found 'half4'
-error: 29: call to 'shade' expected 2 arguments, but found 3
-error: 30: call to 'shade' expected 2 arguments, but found 1
-error: 31: expected 'float2', but found 'float3x3'
-error: 33: call to 'filter' expected 2 arguments, but found 1
-error: 34: expected 'half4', but found 'float2'
-error: 35: call to 'filter' expected 2 arguments, but found 3
-error: 37: call to 'blend' expected 3 arguments, but found 1
-error: 38: call to 'blend' expected 3 arguments, but found 2
-error: 39: call to 'blend' expected 3 arguments, but found 2
-error: 40: expected 'half4', but found 'float2'
-error: 45: expected 'blender', but found 'shader'
-error: 46: call to 'blend' expected 3 arguments, but found 2
-error: 47: expected 'colorFilter', but found 'shader'
-error: 48: expected 'colorFilter', but found 'shader'
-error: 50: expected 'blender', but found 'colorFilter'
-error: 51: call to 'blend' expected 3 arguments, but found 2
-error: 52: expected 'shader', but found 'colorFilter'
-error: 53: expected 'shader', but found 'colorFilter'
-error: 55: expected 'colorFilter', but found 'blender'
-error: 56: call to 'filter' expected 2 arguments, but found 3
-error: 57: expected 'shader', but found 'blender'
-error: 58: call to 'shade' expected 2 arguments, but found 3
-error: 62: no match for shader::eval(float2, half4)
-error: 63: no match for shader::eval(half4)
-error: 64: no match for shader::eval(half4, float2)
-error: 65: no match for shader::eval()
-error: 66: no match for shader::eval(float3x3)
-error: 68: no match for colorFilter::eval()
-error: 69: no match for colorFilter::eval(float2)
-error: 70: no match for colorFilter::eval(float2, half4)
-error: 72: no match for blender::eval()
-error: 73: no match for blender::eval(half4)
-error: 74: no match for blender::eval(float2)
-error: 75: no match for blender::eval(float2, half4)
-48 errors
+error: 27: no match for shader::eval(float2, half4)
+error: 28: no match for shader::eval(half4)
+error: 29: no match for shader::eval(half4, float2)
+error: 30: no match for shader::eval()
+error: 31: no match for shader::eval(float3x3)
+error: 33: no match for colorFilter::eval()
+error: 34: no match for colorFilter::eval(float2)
+error: 35: no match for colorFilter::eval(float2, half4)
+error: 37: no match for blender::eval()
+error: 38: no match for blender::eval(half4)
+error: 39: no match for blender::eval(float2)
+error: 40: no match for blender::eval(float2, half4)
+24 errors
