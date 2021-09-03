@@ -1397,7 +1397,7 @@ int main(int argc, char** argv) {
 
             // Building stats.plot often shows up in profiles,
             // so skip building it when we're not going to print it anyway.
-            const bool want_plot = !FLAGS_quiet;
+            const bool want_plot = !FLAGS_quiet && !FLAGS_ms;
 
             Stats stats(samples, want_plot);
             log.beginObject(config);
