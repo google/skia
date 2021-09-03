@@ -811,16 +811,15 @@ bool Compiler::finalize(Program& program) {
     // FunctionReference or TypeReference expressions. Report these as errors.
     Analysis::VerifyStaticTestsAndExpressions(program);
 
-    // If we're in ES2 mode (runtime effects), do a pass to enforce Appendix A, Section 5 of the
-    // GLSL ES 1.00 spec -- Indexing. Don't bother if we've already found errors - this logic
-    // assumes that all loops meet the criteria of Section 4, and if they don't, could crash.
+    // Verify that the program conforms to ES2 limitations.
     if (fContext->fConfig->strictES2Mode() && this->errorCount() == 0) {
+        // Enforce Appendix A, Section 5 of the GLSL ES 1.00 spec -- Indexing. This logic assumes
+        // that all loops meet the criteria of Section 4, and if they don't, could crash.
         for (const auto& pe : program.ownedElements()) {
             Analysis::ValidateIndexingForES2(*pe, this->errorReporter());
         }
-    }
-
-    if (fContext->fConfig->strictES2Mode()) {
+        // Verify that the program size is reasonable after unrolling and inlining. This also
+        // issues errors for static recursion and overly-deep function-call chains.
         Analysis::CheckProgramUnrolledSize(program);
     }
 
