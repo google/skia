@@ -138,6 +138,8 @@ private:
 
     SKSL_INT arraySize();
 
+    void directive();
+
     bool declaration();
 
     bool functionDeclarationEnd(const dsl::DSLModifiers& modifiers,
