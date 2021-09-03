@@ -1,4 +1,5 @@
 ### Compilation failed:
 
 error: 2: expected ';', but found '('
-1 error
+error: 2: expected expression, but found ')'
+2 errors

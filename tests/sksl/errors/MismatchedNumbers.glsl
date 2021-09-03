@@ -5,7 +5,9 @@ error: 29: type mismatch: '=' cannot operate on 'uint', 'float'
 error: 30: type mismatch: '=' cannot operate on 'int', 'uint'
 error: 31: type mismatch: '=' cannot operate on 'int', 'float'
 error: 32: type mismatch: '=' cannot operate on 'float', 'int'
+error: 32: function 'f_eq_i_disallowed' can exit without returning a value
 error: 33: type mismatch: '=' cannot operate on 'float', 'uint'
+error: 33: function 'f_eq_u_disallowed' can exit without returning a value
 error: 34: type mismatch: '=' cannot operate on 'uint', 'int'
 error: 35: type mismatch: '=' cannot operate on 'uint', 'float'
 error: 36: type mismatch: '+' cannot operate on 'int', 'float'
@@ -48,4 +50,4 @@ error: 72: type mismatch: '+' cannot operate on 'uint', 'int'
 error: 73: type mismatch: '-' cannot operate on 'uint', 'int'
 error: 74: type mismatch: '*' cannot operate on 'uint', 'int'
 error: 75: type mismatch: '/' cannot operate on 'uint', 'int'
-48 errors
+50 errors

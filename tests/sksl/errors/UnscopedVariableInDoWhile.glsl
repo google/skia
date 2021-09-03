@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 2: variable 'foo' must be created in a scope
+error: 944: variable 'foo' must be created in a scope
 1 error

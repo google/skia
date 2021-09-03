@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 3: cannot swizzle value of type 'float2x2'
+error: 3: type 'float2x2' does not have a field named 'y'
 1 error

@@ -2,7 +2,13 @@
 
 error: 6: 'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
 error: 7: 'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
+error: 7: unknown identifier 'src'
 error: 8: 'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
+error: 8: unknown identifier 'src'
 error: 9: 'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
+error: 9: unknown identifier 'src'
+error: 9: unknown identifier 'dst'
 error: 10: 'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
-5 errors
+error: 10: unknown identifier 'src'
+error: 10: unknown identifier 'dst'
+11 errors

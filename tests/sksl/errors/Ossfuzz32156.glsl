@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: array size must be an integer
+error: 1: expected ']', but found '*'
 1 error

@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 5: potential recursion (function call cycle) not allowed:
+error: potential recursion (function call cycle) not allowed:
 	bool is_odd(int n)
 	bool is_even(int n)
 	bool is_odd(int n)

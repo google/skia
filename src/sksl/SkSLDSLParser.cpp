@@ -454,10 +454,11 @@ SkTArray<T> DSLParser::varDeclarationEnd(PositionInfo pos, const dsl::DSLModifie
         if (!parseArrayDimensions(&type)) {
             return result;
         }
-        if (!parseInitializer(&initializer)) {
+        DSLExpression anotherInitializer;
+        if (!parseInitializer(&anotherInitializer)) {
             return result;
         }
-        result.push_back(T(mods, type, this->text(identifierName), std::move(initializer)));
+        result.push_back(T(mods, type, this->text(identifierName), std::move(anotherInitializer)));
         AddToSymbolTable(result.back());
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");

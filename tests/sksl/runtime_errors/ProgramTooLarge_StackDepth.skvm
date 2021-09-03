@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 11: exceeded max function call depth:
+error: exceeded max function call depth:
 	half4 main(float2 xy)
 	void f1()
 	void f2()

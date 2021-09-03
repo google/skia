@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 2: unknown identifier '_'
+error: 2: expected ';', but found '='
 1 error
