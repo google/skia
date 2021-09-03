@@ -116,6 +116,7 @@ class SKUNICODE_API SkUnicode {
         virtual bool isWhitespace(SkUnichar utf8) = 0;
         virtual bool isSpace(SkUnichar utf8) = 0;
         virtual SkString convertUtf16ToUtf8(const std::u16string& utf16) = 0;
+        virtual SkString toUpper(const SkString&) = 0;
 
         // Methods used in SkShaper and SkText
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator

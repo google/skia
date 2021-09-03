@@ -39,24 +39,25 @@ enum class TextPaintOrder : uint8_t {
 struct TextPropertyValue {
     sk_sp<SkTypeface>       fTypeface;
     SkString                fText;
-    float                   fTextSize    = 0,
-                            fMinTextSize = 0,                                 // when auto-sizing
-                            fMaxTextSize = std::numeric_limits<float>::max(), // when auto-sizing
-                            fStrokeWidth = 0,
-                            fLineHeight  = 0,
-                            fLineShift   = 0,
-                            fAscent      = 0;
-    SkTextUtils::Align      fHAlign      = SkTextUtils::kLeft_Align;
-    Shaper::VAlign          fVAlign      = Shaper::VAlign::kTop;
-    Shaper::ResizePolicy    fResize      = Shaper::ResizePolicy::kNone;
-    Shaper::LinebreakPolicy fLineBreak   = Shaper::LinebreakPolicy::kExplicit;
-    Shaper::Direction       fDirection   = Shaper::Direction::kLTR;
-    SkRect                  fBox         = SkRect::MakeEmpty();
-    SkColor                 fFillColor   = SK_ColorTRANSPARENT,
-                            fStrokeColor = SK_ColorTRANSPARENT;
-    TextPaintOrder          fPaintOrder  = TextPaintOrder::kFillStroke;
-    bool                    fHasFill     = false,
-                            fHasStroke   = false;
+    float                   fTextSize       = 0,
+                            fMinTextSize    = 0,                                 // when auto-sizing
+                            fMaxTextSize    = std::numeric_limits<float>::max(), // when auto-sizing
+                            fStrokeWidth    = 0,
+                            fLineHeight     = 0,
+                            fLineShift      = 0,
+                            fAscent         = 0;
+    SkTextUtils::Align      fHAlign         = SkTextUtils::kLeft_Align;
+    Shaper::VAlign          fVAlign         = Shaper::VAlign::kTop;
+    Shaper::ResizePolicy    fResize         = Shaper::ResizePolicy::kNone;
+    Shaper::LinebreakPolicy fLineBreak      = Shaper::LinebreakPolicy::kExplicit;
+    Shaper::Direction       fDirection      = Shaper::Direction::kLTR;
+    Shaper::Capitalization  fCapitalization = Shaper::Capitalization::kNone;
+    SkRect                  fBox            = SkRect::MakeEmpty();
+    SkColor                 fFillColor      = SK_ColorTRANSPARENT,
+                            fStrokeColor    = SK_ColorTRANSPARENT;
+    TextPaintOrder          fPaintOrder     = TextPaintOrder::kFillStroke;
+    bool                    fHasFill        = false,
+                            fHasStroke      = false;
 
     bool operator==(const TextPropertyValue& other) const;
     bool operator!=(const TextPropertyValue& other) const;

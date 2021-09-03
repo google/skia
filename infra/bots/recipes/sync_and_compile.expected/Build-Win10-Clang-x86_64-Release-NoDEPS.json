@@ -139,7 +139,7 @@
       "[START_DIR]\\skia\\bin\\gn",
       "gen",
       "[START_DIR]\\skia\\out\\Build-Win10-Clang-x86_64-Release-NoDEPS\\Release_x64",
-      "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-DPLACEHOLDER_clang_win_version=42\"] is_debug=false is_official_build=true skia_enable_fontmgr_empty=true skia_enable_gpu=true skia_enable_pdf=false skia_use_expat=false skia_use_freetype=false skia_use_harfbuzz=false skia_use_libjpeg_turbo_decode=false skia_use_libjpeg_turbo_encode=false skia_use_libpng_decode=false skia_use_libpng_encode=false skia_use_libwebp_decode=false skia_use_libwebp_encode=false skia_use_vulkan=false skia_use_zlib=false target_cpu=\"x86_64\" werror=true win_sdk=\"[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"[START_DIR]\\win_toolchain/VC\""
+      "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-DPLACEHOLDER_clang_win_version=42\"] is_debug=false is_official_build=true skia_enable_fontmgr_empty=true skia_enable_gpu=true skia_enable_pdf=false skia_use_expat=false skia_use_freetype=false skia_use_harfbuzz=false skia_use_icu=false skia_use_libjpeg_turbo_decode=false skia_use_libjpeg_turbo_encode=false skia_use_libpng_decode=false skia_use_libpng_encode=false skia_use_libwebp_decode=false skia_use_libwebp_encode=false skia_use_vulkan=false skia_use_zlib=false target_cpu=\"x86_64\" werror=true win_sdk=\"[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"[START_DIR]\\win_toolchain/VC\""
     ],
     "cwd": "[START_DIR]\\skia",
     "env": {

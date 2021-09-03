@@ -281,6 +281,7 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_use_expat':                'false',
       'skia_use_freetype':             'false',
       'skia_use_harfbuzz':             'false',
+      'skia_use_icu':                  'false',
       'skia_use_libjpeg_turbo_decode': 'false',
       'skia_use_libjpeg_turbo_encode': 'false',
       'skia_use_libpng_decode':        'false',
