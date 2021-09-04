@@ -1,3 +1,5 @@
+uniform half4 colorRed;
+uniform half4 colorGreen;
 float return_loop_0()
 {
 	for (float i = 0.0;i < 10.0; ++i) 
@@ -9,30 +11,136 @@ float return_loop_0()
 	}
 	return 0.0;
 }
-half4 main(float2 xy)
+float continue_loop_0()
 {
-	float _0_sum = 0.0;
-	for (float _1_i = 0.0;_1_i < 10.0; ++_1_i) 
+	float sum = 0.0;
+	for (float i = 0.0;i < 10.0; ++i) 
 	{
-		if (_1_i < 5.0) 
+		if (i < 5.0) 
 		{
 			continue;
 		}
-		_0_sum += _1_i;
+		sum += i;
 	}
-	float _2_sum = 0.0;
-	for (float _3_i = 0.0;_3_i < 10.0; ++_3_i) 
+	return sum;
+}
+float break_loop_0()
+{
+	float sum = 0.0;
+	for (float i = 0.0;i < 10.0; ++i) 
 	{
-		if (_3_i > 5.0) 
+		if (i > 5.0) 
 		{
 			break;
 		}
-		_2_sum += _3_i;
+		sum += i;
 	}
-	float _4_sum = 0.0;
-	for (float _5_i = 0.12300000339746475;_5_i < 0.60000002384185791; _5_i += 0.11100000143051147) 
+	return sum;
+}
+float float_loop_0()
+{
+	float sum = 0.0;
+	for (float i = 0.12300000339746475;i < 0.60000002384185791; i += 0.11100000143051147) 
 	{
-		_4_sum += _5_i;
+		sum += i;
 	}
-	return half4(half4(half(return_loop_0()), half(_0_sum), half(_2_sum), half(_4_sum)));
+	return sum - 1.7250000238418579;
+}
+bool loop_operator_le_0()
+{
+	for (float i = 3.0;i <= 1.0; ++i) 
+	{
+		return false;
+	}
+	for (float i = 3.0;i <= 1.0; --i) 
+	{
+		return false;
+	}
+	float4 result = float4(9.0);
+	for (float i = 1.0;i <= 3.0; ++i) 
+	{
+		result = float4(result.yzw, i);
+	}
+	return result == float4(9.0, 1.0, 2.0, 3.0);
+}
+bool loop_operator_lt_0()
+{
+	for (float i = 4.0;i < 1.0; ++i) 
+	{
+		return false;
+	}
+	for (float i = 4.0;i < 1.0; --i) 
+	{
+		return false;
+	}
+	float4 result = float4(9.0);
+	for (float i = 1.0;i < 4.0; ++i) 
+	{
+		result = float4(result.yzw, i);
+	}
+	return result == float4(9.0, 1.0, 2.0, 3.0);
+}
+bool loop_operator_ge_0()
+{
+	for (float i = 1.0;i >= 3.0; ++i) 
+	{
+		return false;
+	}
+	for (float i = 1.0;i >= 3.0; --i) 
+	{
+		return false;
+	}
+	float4 result = float4(9.0);
+	for (float i = 3.0;i >= 1.0; --i) 
+	{
+		result = float4(result.yzw, i);
+	}
+	return result == float4(9.0, 3.0, 2.0, 1.0);
+}
+bool loop_operator_gt_0()
+{
+	for (float i = 0.0;i > 3.0; ++i) 
+	{
+		return false;
+	}
+	for (float i = 0.0;i > 3.0; --i) 
+	{
+		return false;
+	}
+	float4 result = float4(9.0);
+	for (float i = 3.0;i > 0.0; --i) 
+	{
+		result = float4(result.yzw, i);
+	}
+	return result == float4(9.0, 3.0, 2.0, 1.0);
+}
+bool loop_operator_ne_0()
+{
+	for (int i = 1;i != 1; ++i) 
+	{
+		return false;
+	}
+	float4 result = float4(9.0);
+	for (float i = 1.0;i != 4.0; ++i) 
+	{
+		result = float4(result.yzw, i);
+	}
+	return result == float4(9.0, 1.0, 2.0, 3.0);
+}
+bool loop_operator_eq_0()
+{
+	for (float i = 1.0;i == 2.0; ++i) 
+	{
+		return false;
+	}
+	float4 result = float4(9.0);
+	for (float i = 1.0;i == 1.0; ++i) 
+	{
+		result = float4(result.yzw, i);
+	}
+	return result == float4(9.0, 9.0, 9.0, 1.0);
+}
+half4 main(float2 xy)
+{
+	return half4(((((((((return_loop_0() == 5.0 && continue_loop_0() == 35.0) && break_loop_0() == 15.0) && abs(float_loop_0()) < 0.02500000037252903) && loop_operator_le_0()) && loop_operator_lt_0()) && loop_operator_ge_0()) && loop_operator_gt_0()) && loop_operator_eq_0()) && loop_operator_ne_0() ? colorGreen : colorRed);
 }

@@ -1,8 +1,18 @@
 ### Compilation failed:
 
 error: 4: loop must guarantee termination in fewer iterations
-error: 5: invalid loop expression
-error: 10: loop index must not be modified within body of the loop
-error: 11: loop index must not be modified within body of the loop
+error: 5: loop must guarantee termination in fewer iterations
+error: 6: loop must guarantee termination in fewer iterations
+error: 7: invalid loop expression
 error: 12: loop index must not be modified within body of the loop
-5 errors
+error: 13: loop index must not be modified within body of the loop
+error: 14: loop index must not be modified within body of the loop
+error: 16: loop must guarantee termination in fewer iterations
+error: 17: loop must guarantee termination in fewer iterations
+error: 18: loop must guarantee termination in fewer iterations
+error: 19: loop must guarantee termination in fewer iterations
+error: 20: invalid loop expression
+error: 21: invalid loop expression
+error: 22: loop must guarantee termination in fewer iterations
+error: 23: loop must guarantee termination in fewer iterations
+15 errors

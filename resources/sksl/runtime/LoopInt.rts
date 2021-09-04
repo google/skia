@@ -1,3 +1,5 @@
+uniform half4 colorRed, colorGreen;
+
 // Should return 5
 int return_loop() {
     for (int i = 0; i < 10; ++i) {
@@ -26,6 +28,79 @@ int break_loop() {
     return sum;
 }
 
+bool loop_operator_le() {
+    // These loops are inside-out and execute zero times.
+    for (int i = 3; i <= 1; ++i) { return false; }
+    for (int i = 3; i <= 1; --i) { return false; }
+
+    int4 result = int4(9);
+    for (int i = 1; i <= 3; ++i) {
+        result = int4(result.yzw, i);
+    }
+    return result == int4(9, 1, 2, 3);
+}
+
+bool loop_operator_lt() {
+    // These loops are inside-out and execute zero times.
+    for (int i = 4; i < 1; ++i) { return false; }
+    for (int i = 4; i < 1; --i) { return false; }
+
+    int4 result = int4(9);
+    for (int i = 1; i < 4; ++i) {
+        result = int4(result.yzw, i);
+    }
+    return result == int4(9, 1, 2, 3);
+}
+
+bool loop_operator_ge() {
+    // These loops are inside-out and execute zero times.
+    for (int i = 1; i >= 3; ++i) { return false; }
+    for (int i = 1; i >= 3; --i) { return false; }
+
+    int4 result = int4(9);
+    for (int i = 3; i >= 1; --i) {
+        result = int4(result.yzw, i);
+    }
+    return result == int4(9, 3, 2, 1);
+}
+
+bool loop_operator_gt() {
+    // These loops are inside-out and execute zero times.
+    for (int i = 0; i > 3; ++i) { return false; }
+    for (int i = 0; i > 3; --i) { return false; }
+
+    int4 result = int4(9);
+    for (int i = 3; i > 0; --i) {
+        result = int4(result.yzw, i);
+    }
+    return result == int4(9, 3, 2, 1);
+}
+
+bool loop_operator_ne() {
+    // This loop executes zero times.
+    for (int i = 1; i != 1; ++i) { return false; }
+
+    int4 result = int4(9);
+    for (int i = 1; i != 4; ++i) {
+        result = int4(result.yzw, i);
+    }
+    return result == int4(9, 1, 2, 3);
+}
+
+bool loop_operator_eq() {
+    // This loop executes zero times.
+    for (int i = 1; i == 2; ++i) { return false; }
+
+    int4 result = int4(9);
+    for (int i = 1; i == 1; ++i) {
+        result = int4(result.yzw, i);
+    }
+    return result == int4(9, 9, 9, 1);
+}
+
 half4 main(float2 xy) {
-    return half4(return_loop(), continue_loop(), break_loop(), 1);
+    return (return_loop() == 5 && continue_loop() == 35 && break_loop() == 15 &&
+            loop_operator_le() && loop_operator_lt() &&
+            loop_operator_ge() && loop_operator_gt() &&
+            loop_operator_eq() && loop_operator_ne()) ? colorGreen : colorRed;
 }

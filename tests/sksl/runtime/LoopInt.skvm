@@ -1,8 +1,8 @@
 4 registers, 8 instructions:
-0	r0 = splat 40A00000 (5)
-1	r1 = splat 420C0000 (35)
-2	r2 = splat 41700000 (15)
-3	r3 = splat 3F800000 (1)
+0	r0 = uniform32 ptr0 14
+1	r1 = uniform32 ptr0 18
+2	r2 = uniform32 ptr0 1C
+3	r3 = uniform32 ptr0 20
 loop:
 4	    store32 ptr1 r0
 5	    store32 ptr2 r1
