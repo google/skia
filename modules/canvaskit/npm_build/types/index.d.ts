@@ -521,7 +521,7 @@ export interface Camera {
 export interface EmbindObject<T extends EmbindObject<T>> {
     clone(): T;
     delete(): void;
-    deleteAfter(): void;
+    deleteLater(): void;
     isAliasOf(other: any): boolean;
     isDeleted(): boolean;
 }
