@@ -1768,7 +1768,7 @@ export interface FontMgr extends EmbindObject<FontMgr> {
      * Create a typeface for the specified bytes and return it.
      * @param fontData
      */
-    makeTypefaceFromData(fontData: ArrayBuffer): Typeface;
+    MakeTypefaceFromData(fontData: ArrayBuffer): Typeface;
 }
 
 /**
