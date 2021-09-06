@@ -919,6 +919,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
                                           paint.u.skew.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_COMPOSITE: {
+            canvas->saveLayer(nullptr, nullptr);
             traverse_result = colrv1_traverse_paint(
                     canvas, palette, face, paint.u.composite.backdrop_paint, visited_set);
             SkPaint blend_mode_paint;
@@ -928,6 +929,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
                     traverse_result &&
                     colrv1_traverse_paint(
                             canvas, palette, face, paint.u.composite.source_paint, visited_set);
+            canvas->restore();
             canvas->restore();
             break;
         }

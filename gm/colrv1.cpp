@@ -36,7 +36,8 @@ public:
     kColorFontsRepoRotate,
     kColorFontsRepoSkew,
     kColorFontsRepoTransform,
-    kColorFontsRepoClipBox
+    kColorFontsRepoClipBox,
+    kColorFontsRepoComposite
   };
 
   ColrV1GM(ColrV1TestType testType, SkScalar skewX, SkScalar rotateDeg)
@@ -61,6 +62,8 @@ protected:
                 return SkString("transform");
             case kColorFontsRepoClipBox:
                 return SkString("clipbox");
+            case kColorFontsRepoComposite:
+                return SkString("composite");
         }
         SkASSERT(false); /* not reached */
         return SkString();
@@ -105,6 +108,9 @@ protected:
                 break;
             case kColorFontsRepoClipBox:
                 fEmojiFont.fGlyphs = {35, 36, 37, 38, 39};
+                break;
+            case kColorFontsRepoComposite:
+                fEmojiFont.fGlyphs = {40, 41, 42, 43, 44, 45, 46};
                 break;
         }
     }
@@ -174,5 +180,6 @@ DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoSkew, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoTransform, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoClipBox, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoClipBox, -0.5f, 20.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoComposite, 0.f, 0.f);)
 
 }  // namespace skiagm
