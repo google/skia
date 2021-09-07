@@ -356,7 +356,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 
     int currentWidth = rect.width();
     int currentHeight = rect.height();
-    int layerHeight = tex->height();
+    SkDEBUGCODE(int layerHeight = tex->height();)
     MTLOrigin origin = MTLOriginMake(rect.left(), rect.top(), 0);
 
     auto cmdBuffer = this->commandBuffer();
@@ -387,7 +387,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
         }
         currentWidth = std::max(1, currentWidth/2);
         currentHeight = std::max(1, currentHeight/2);
-        layerHeight = currentHeight;
+        SkDEBUGCODE(layerHeight = currentHeight;)
     }
 #ifdef SK_BUILD_FOR_MAC
     [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
