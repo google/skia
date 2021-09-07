@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLAnalysis.h"
 
+#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLSampleUsage.h"
@@ -1165,30 +1166,83 @@ static const char* invalid_for_ES2(int offset,
     }
 
     // Finally, compute the iteration count, based on the bounds, and the termination operator.
-    constexpr int kMaxUnrollableLoopLength = 128;
+    static constexpr int kLoopTerminationLimit = 100000;
     loopInfo.fCount = 0;
 
-    double val = loopInfo.fStart;
-    auto evalCond = [&]() {
-        switch (cond.getOperator().kind()) {
-            case Token::Kind::TK_GT:   return val >  loopEnd;
-            case Token::Kind::TK_GTEQ: return val >= loopEnd;
-            case Token::Kind::TK_LT:   return val <  loopEnd;
-            case Token::Kind::TK_LTEQ: return val <= loopEnd;
-            case Token::Kind::TK_EQEQ: return val == loopEnd;
-            case Token::Kind::TK_NEQ:  return val != loopEnd;
-            default: SkUNREACHABLE;
+    auto calculateCount = [](double start, double end, double delta,
+                             bool forwards, bool inclusive) -> int {
+        if (forwards != (start < end)) {
+            // The loop starts in a completed state (the start has already advanced past the end).
+            return 0;
         }
+        if ((delta == 0.0) || forwards != (delta > 0.0)) {
+            // The loop does not progress toward a completed state, and will never terminate.
+            return kLoopTerminationLimit;
+        }
+        double iterations = sk_ieee_double_divide(end - start, delta);
+        double count = std::ceil(iterations);
+        if (inclusive && (count == iterations)) {
+            count += 1.0;
+        }
+        if (count > kLoopTerminationLimit || !std::isfinite(count)) {
+            // The loop runs for more iterations than we can safely unroll.
+            return kLoopTerminationLimit;
+        }
+        return (int)count;
     };
 
-    for (loopInfo.fCount = 0; loopInfo.fCount <= kMaxUnrollableLoopLength; ++loopInfo.fCount) {
-        if (!evalCond()) {
+    switch (cond.getOperator().kind()) {
+        case Token::Kind::TK_LT:
+            loopInfo.fCount = calculateCount(loopInfo.fStart, loopEnd, loopInfo.fDelta,
+                                             /*forwards=*/true, /*inclusive=*/false);
+            break;
+
+        case Token::Kind::TK_GT:
+            loopInfo.fCount = calculateCount(loopInfo.fStart, loopEnd, loopInfo.fDelta,
+                                             /*forwards=*/false, /*inclusive=*/false);
+            break;
+
+        case Token::Kind::TK_LTEQ:
+            loopInfo.fCount = calculateCount(loopInfo.fStart, loopEnd, loopInfo.fDelta,
+                                             /*forwards=*/true, /*inclusive=*/true);
+            break;
+
+        case Token::Kind::TK_GTEQ:
+            loopInfo.fCount = calculateCount(loopInfo.fStart, loopEnd, loopInfo.fDelta,
+                                             /*forwards=*/false, /*inclusive=*/true);
+            break;
+
+        case Token::Kind::TK_NEQ: {
+            float iterations = sk_ieee_double_divide(loopEnd - loopInfo.fStart, loopInfo.fDelta);
+            loopInfo.fCount = std::ceil(iterations);
+            if (loopInfo.fCount < 0 || loopInfo.fCount != iterations ||
+                !std::isfinite(iterations)) {
+                // The loop doesn't reach the exact endpoint and so will never terminate.
+                loopInfo.fCount = kLoopTerminationLimit;
+            }
             break;
         }
-        val += loopInfo.fDelta;
+        case Token::Kind::TK_EQEQ: {
+            if (loopInfo.fStart == loopEnd) {
+                // Start and end begin in the same place, so we can run one iteration...
+                if (loopInfo.fDelta) {
+                    // ... and then they diverge, so the loop terminates.
+                    loopInfo.fCount = 1;
+                } else {
+                    // ... but they never diverge, so the loop runs forever.
+                    loopInfo.fCount = kLoopTerminationLimit;
+                }
+            } else {
+                // Start never equals end, so the loop will not run a single iteration.
+                loopInfo.fCount = 0;
+            }
+            break;
+        }
+        default: SkUNREACHABLE;
     }
 
-    if (loopInfo.fCount > kMaxUnrollableLoopLength) {
+    SkASSERT(loopInfo.fCount >= 0);
+    if (loopInfo.fCount >= kLoopTerminationLimit) {
         return "loop must guarantee termination in fewer iterations";
     }
 
