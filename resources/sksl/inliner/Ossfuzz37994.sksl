@@ -1,0 +1,3 @@
+half4 colorGreen;
+float2 vector(float2 x,float2 y) { x=normalize(y); return x; }
+half4 main(float2 xy) { vector(float2(2),float2(4)); return colorGreen; }

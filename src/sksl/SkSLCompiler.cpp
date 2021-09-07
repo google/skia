@@ -503,7 +503,7 @@ bool Compiler::optimize(LoadedModule& module) {
 
     while (this->errorCount() == 0) {
         // Perform inline-candidate analysis and inline any functions deemed suitable.
-        if (!fInliner.analyze(module.fElements, module.fSymbols, usage.get())) {
+        if (!this->runInliner(module.fElements, module.fSymbols, usage.get())) {
             break;
         }
     }
@@ -789,7 +789,7 @@ bool Compiler::optimize(Program& program) {
     if (this->errorCount() == 0) {
         // Run the inliner only once; it is expensive! Multiple passes can occasionally shake out
         // more wins, but it's diminishing returns.
-        fInliner.analyze(program.ownedElements(), program.fSymbols, usage);
+        this->runInliner(program.ownedElements(), program.fSymbols, usage);
 
         while (this->removeDeadFunctions(program, usage)) {
             // Removing dead functions may cause more functions to become unreferenced. Try again.
@@ -804,6 +804,26 @@ bool Compiler::optimize(Program& program) {
     }
 
     return this->errorCount() == 0;
+}
+
+bool Compiler::runInliner(const std::vector<std::unique_ptr<ProgramElement>>& elements,
+                          std::shared_ptr<SymbolTable> symbols,
+                          ProgramUsage* usage) {
+    // The program's SymbolTable was taken out of the IRGenerator when the program was bundled, but
+    // the inliner relies (indirectly) on having a valid SymbolTable in the IRGenerator.
+    // In particular, inlining can turn a non-optimizable expression like `normalize(myVec)` into
+    // `normalize(vec2(7))`, which is now optimizable. The optimizer can use DSL to simplify this
+    // expression--e.g., in the case of normalize, using DSL's Length(). The DSL relies on
+    // irGenerator.convertIdentifier() to look up `length`. convertIdentifier() needs a valid symbol
+    // table to find the declaration of `length`. To allow this chain of events to succeed, we
+    // re-insert the program's symbol table back into the IRGenerator temporarily.
+    SkASSERT(!fIRGenerator->fSymbolTable);
+    fIRGenerator->fSymbolTable = symbols;
+
+    bool result = fInliner.analyze(elements, symbols, usage);
+
+    fIRGenerator->fSymbolTable = nullptr;
+    return result;
 }
 
 bool Compiler::finalize(Program& program) {

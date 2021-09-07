@@ -457,6 +457,7 @@ sksl_inliner_tests = [
   "/sksl/inliner/InlinerHonorsGLSLOutParamSemantics.sksl",
   "/sksl/inliner/InlinerManglesNames.sksl",
   "/sksl/inliner/NoInline.sksl",
+  "/sksl/inliner/Ossfuzz37994.sksl",
   "/sksl/inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl",
   "/sksl/inliner/StaticSwitch.sksl",
   "/sksl/inliner/StructsCanBeInlinedSafely.sksl",

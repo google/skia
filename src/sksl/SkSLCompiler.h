@@ -244,6 +244,11 @@ private:
     /** Eliminates unreachable statements from a Program. */
     void removeUnreachableCode(Program& program, ProgramUsage* usage);
 
+    /** Flattens out function calls when it is safe to do so. */
+    bool runInliner(const std::vector<std::unique_ptr<ProgramElement>>& elements,
+                    std::shared_ptr<SymbolTable> symbols,
+                    ProgramUsage* usage);
+
     Position position(int offset);
 
     CompilerErrorReporter fErrorReporter;
