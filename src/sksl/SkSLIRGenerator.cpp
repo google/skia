@@ -47,6 +47,7 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -141,10 +142,9 @@ std::unique_ptr<Block> IRGenerator::convertBlock(const ASTNode& block) {
     StatementArray statements;
     for (const auto& child : block) {
         std::unique_ptr<Statement> statement = this->convertStatement(child);
-        if (!statement) {
-            return nullptr;
+        if (statement) {
+            statements.push_back(std::move(statement));
         }
-        statements.push_back(std::move(statement));
     }
     return Block::Make(block.fOffset, std::move(statements), fSymbolTable);
 }
@@ -518,14 +518,14 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(int offset,
 std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
     SkASSERT(r.fKind == ASTNode::Kind::kReturn);
     if (r.begin() != r.end()) {
-        std::unique_ptr<Expression> value = this->convertExpression(*r.begin());
-        if (!value) {
-            return nullptr;
+        if (std::unique_ptr<Expression> value = this->convertExpression(*r.begin())) {
+            return this->convertReturn(r.fOffset, std::move(value));
+        } else {
+            return this->convertReturn(r.fOffset, Poison::Make(r.fOffset, fContext));
         }
-        return this->convertReturn(r.fOffset, std::move(value));
-    } else {
-        return this->convertReturn(r.fOffset, /*result=*/nullptr);
     }
+
+    return this->convertReturn(r.fOffset, /*result=*/nullptr);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertBreak(const ASTNode& b) {
