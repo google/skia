@@ -894,6 +894,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLIntrinsicDFdx_GPU")
 	}
 
+	if b.matchOs("Mac") && b.matchGpu("Intel(Iris5100|HD6000)") {
+		skip("_", "tests", "_", "SkSLLoopFloat_GPU") // skia:12426
+	}
+
 	match := []string{}
 	if b.extraConfig("Valgrind") { // skia:3021
 		match = append(match, "~Threaded")
