@@ -8,14 +8,14 @@ error: 5: array size is too large
 error: 6: expected 'int', but found 'bool'
 error: 7: expected 'int', but found 'bool'
 error: 8: expected 'int', but found 'int2'
-error: 9: missing index in '[]'
+error: 9: array must have a size
 error: 10: array size must be positive
 error: 11: array size must be positive
 error: 12: array size must be positive
-error: 13: expected int literal
-error: 14: array size out of bounds
-error: 15: expected int literal
-error: 16: expected int literal
-error: 17: expected int literal
-error: 18: expected array dimension
+error: 13: expected 'int', but found 'float'
+error: 14: array size is too large
+error: 15: expected 'int', but found 'bool'
+error: 16: expected 'int', but found 'bool'
+error: 17: expected 'int', but found 'int2'
+error: 18: array must have a size
 18 errors

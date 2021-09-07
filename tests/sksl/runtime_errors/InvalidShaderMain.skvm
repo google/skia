@@ -2,9 +2,6 @@
 
 error: 6: 'main' parameters must be (float2, (vec4|float4|half4)?)
 error: 7: 'main' parameters must be (float2, (vec4|float4|half4)?)
-error: 7: unknown identifier 'color'
 error: 8: 'main' parameters must be (float2, (vec4|float4|half4)?)
-error: 8: unknown identifier 'color'
 error: 9: 'main' parameters must be (float2, (vec4|float4|half4)?)
-error: 9: unknown identifier 'color'
-7 errors
+4 errors
