@@ -96,7 +96,7 @@ void IRGenerator::popSymbolTable() {
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, skstd::string_view name) {
     if (this->programKind() != ProgramKind::kFragment &&
         this->programKind() != ProgramKind::kVertex) {
-        this->errorReporter().error(offset, "extensions are not allowed here");
+        this->errorReporter().error(offset, "extensions are not allowed in this kind of program");
         return nullptr;
     }
 
@@ -365,7 +365,8 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
 std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(const ASTNode& m) {
     if (this->programKind() != ProgramKind::kFragment &&
         this->programKind() != ProgramKind::kVertex) {
-        this->errorReporter().error(m.fOffset, "layout qualifiers are not allowed here");
+        this->errorReporter().error(m.fOffset,
+                "layout qualifiers are not allowed in this kind of program");
         return nullptr;
     }
 
@@ -767,7 +768,8 @@ void IRGenerator::scanInterfaceBlock(SkSL::InterfaceBlock& intf) {
 std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
     if (this->programKind() != ProgramKind::kFragment &&
         this->programKind() != ProgramKind::kVertex) {
-        this->errorReporter().error(intf.fOffset, "interface block is not allowed here");
+        this->errorReporter().error(intf.fOffset,
+                "interface blocks are not allowed in this kind of program");
         return nullptr;
     }
 

@@ -874,7 +874,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
     dsl::InterfaceBlock(modifiers, this->text(typeName), std::move(fields), instanceName,
-                        arraySize);
+                        arraySize, this->position(typeName));
     return true;
 }
 
