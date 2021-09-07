@@ -335,12 +335,19 @@ private:
     // wait semaphores to the submission of this command buffer.
     bool submitCommandBuffer(SyncQueue sync);
 
-    void copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
-                                GrVkImage* srcImage, const SkIRect& srcRect,
+    void copySurfaceAsCopyImage(GrSurface* dst,
+                                GrSurface* src,
+                                GrVkAttachment* dstAttachment,
+                                GrVkAttachment* srcAttachment,
+                                const SkIRect& srcRect,
                                 const SkIPoint& dstPoint);
 
-    void copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstImage, GrVkImage* srcImage,
-                           const SkIRect& srcRect, const SkIPoint& dstPoint);
+    void copySurfaceAsBlit(GrSurface* dst,
+                           GrSurface* src,
+                           GrVkAttachment* dstAttachment,
+                           GrVkAttachment* srcAttachment,
+                           const SkIRect& srcRect,
+                           const SkIPoint& dstPoint);
 
     void copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                               const SkIPoint& dstPoint);

@@ -2119,19 +2119,22 @@ void GrVkGpu::onReportSubmitHistograms() {
 #endif
 }
 
-void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
-                                     GrVkImage* srcImage, const SkIRect& srcRect,
+void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
+                                     GrSurface* src,
+                                     GrVkAttachment* dstAttachment,
+                                     GrVkAttachment* srcAttachment,
+                                     const SkIRect& srcRect,
                                      const SkIPoint& dstPoint) {
     if (!this->currentCommandBuffer()) {
         return;
     }
 
 #ifdef SK_DEBUG
-    int dstSampleCnt = dstImage->vkImageInfo().fSampleCount;
-    int srcSampleCnt = srcImage->vkImageInfo().fSampleCount;
-    bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
-    bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
-    VkFormat dstFormat = dstImage->imageFormat();
+    int dstSampleCnt = dstAttachment->numSamples();
+    int srcSampleCnt = srcAttachment->numSamples();
+    bool dstHasYcbcr = dstAttachment->ycbcrConversionInfo().isValid();
+    bool srcHasYcbcr = srcAttachment->ycbcrConversionInfo().isValid();
+    VkFormat dstFormat = dstAttachment->imageFormat();
     VkFormat srcFormat;
     SkAssertResult(dst->backendFormat().asVkFormat(&srcFormat));
     SkASSERT(this->vkCaps().canCopyImage(dstFormat, dstSampleCnt, dstHasYcbcr,
@@ -2144,17 +2147,17 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
 
     // These flags are for flushing/invalidating caches and for the dst image it doesn't matter if
     // the cache is flushed since it is only being written to.
-    dstImage->setImageLayout(this,
-                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                             VK_ACCESS_TRANSFER_WRITE_BIT,
-                             VK_PIPELINE_STAGE_TRANSFER_BIT,
-                             false);
+    dstAttachment->setImageLayout(this,
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  VK_ACCESS_TRANSFER_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                  false);
 
-    srcImage->setImageLayout(this,
-                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                             VK_ACCESS_TRANSFER_READ_BIT,
-                             VK_PIPELINE_STAGE_TRANSFER_BIT,
-                             false);
+    srcAttachment->setImageLayout(this,
+                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                  VK_ACCESS_TRANSFER_READ_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                  false);
 
     VkImageCopy copyRegion;
     memset(&copyRegion, 0, sizeof(VkImageCopy));
@@ -2167,9 +2170,9 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
     this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(src));
     this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(dst));
     this->currentCommandBuffer()->copyImage(this,
-                                            srcImage,
+                                            srcAttachment,
                                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                            dstImage,
+                                            dstAttachment,
                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                             1,
                                             &copyRegion);
@@ -2180,24 +2183,32 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
     this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
 }
 
-void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
-                                GrVkImage* srcImage, const SkIRect& srcRect,
+void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
+                                GrSurface* src,
+                                GrVkAttachment* dstAttachment,
+                                GrVkAttachment* srcAttachment,
+                                const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) {
     if (!this->currentCommandBuffer()) {
         return;
     }
 
 #ifdef SK_DEBUG
-    int dstSampleCnt = dstImage->vkImageInfo().fSampleCount;
-    int srcSampleCnt = srcImage->vkImageInfo().fSampleCount;
-    bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
-    bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
-    VkFormat dstFormat = dstImage->imageFormat();
+    int dstSampleCnt = dstAttachment->numSamples();
+    int srcSampleCnt = srcAttachment->numSamples();
+    bool dstHasYcbcr = dstAttachment->ycbcrConversionInfo().isValid();
+    bool srcHasYcbcr = srcAttachment->ycbcrConversionInfo().isValid();
+    VkFormat dstFormat = dstAttachment->imageFormat();
     VkFormat srcFormat;
     SkAssertResult(dst->backendFormat().asVkFormat(&srcFormat));
-    SkASSERT(this->vkCaps().canCopyAsBlit(dstFormat, dstSampleCnt, dstImage->isLinearTiled(),
-                                          dstHasYcbcr, srcFormat, srcSampleCnt,
-                                          srcImage->isLinearTiled(), srcHasYcbcr));
+    SkASSERT(this->vkCaps().canCopyAsBlit(dstFormat,
+                                          dstSampleCnt,
+                                          dstAttachment->isLinearTiled(),
+                                          dstHasYcbcr,
+                                          srcFormat,
+                                          srcSampleCnt,
+                                          srcAttachment->isLinearTiled(),
+                                          srcHasYcbcr));
 
 #endif
     if (src->isProtected() && !dst->isProtected()) {
@@ -2205,17 +2216,17 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
         return;
     }
 
-    dstImage->setImageLayout(this,
-                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                             VK_ACCESS_TRANSFER_WRITE_BIT,
-                             VK_PIPELINE_STAGE_TRANSFER_BIT,
-                             false);
+    dstAttachment->setImageLayout(this,
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  VK_ACCESS_TRANSFER_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                  false);
 
-    srcImage->setImageLayout(this,
-                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                             VK_ACCESS_TRANSFER_READ_BIT,
-                             VK_PIPELINE_STAGE_TRANSFER_BIT,
-                             false);
+    srcAttachment->setImageLayout(this,
+                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                  VK_ACCESS_TRANSFER_READ_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                  false);
 
     // Flip rect if necessary
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, srcRect.width(),
@@ -2233,8 +2244,8 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
     this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(src));
     this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(dst));
     this->currentCommandBuffer()->blitImage(this,
-                                            *srcImage,
-                                            *dstImage,
+                                            *srcAttachment,
+                                            *dstAttachment,
                                             1,
                                             &blitRegion,
                                             VK_FILTER_NEAREST); // We never scale so any filter works here
@@ -2272,8 +2283,8 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         return false;
     }
 
-    GrVkImage* dstImage;
-    GrVkImage* srcImage;
+    GrVkAttachment* dstAttachment;
+    GrVkAttachment* srcAttachment;
     GrRenderTarget* dstRT = dst->asRenderTarget();
     if (dstRT) {
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(dstRT);
@@ -2284,15 +2295,15 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         // don't have to pick the resolve attachment. But in that case the resolve and color
         // attachments will be the same anyways.
         if (this->vkCaps().renderTargetSupportsDiscardableMSAA(vkRT)) {
-            dstImage = vkRT->resolveAttachment();
+            dstAttachment = vkRT->resolveAttachment();
         } else {
-            dstImage = vkRT->colorAttachment();
+            dstAttachment = vkRT->colorAttachment();
         }
     } else if (dst->asTexture()) {
-        dstImage = static_cast<GrVkTexture*>(dst->asTexture())->textureAttachment();
+        dstAttachment = static_cast<GrVkTexture*>(dst->asTexture())->textureAttachment();
     } else {
         // The surface in a GrAttachment already
-        dstImage = static_cast<GrVkAttachment*>(dst);
+        dstAttachment = static_cast<GrVkAttachment*>(dst);
     }
     GrRenderTarget* srcRT = src->asRenderTarget();
     if (srcRT) {
@@ -2301,26 +2312,26 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         // don't have to pick the resolve attachment. But in that case the resolve and color
         // attachments will be the same anyways.
         if (this->vkCaps().renderTargetSupportsDiscardableMSAA(vkRT)) {
-            srcImage = vkRT->resolveAttachment();
+            srcAttachment = vkRT->resolveAttachment();
         } else {
-            srcImage = vkRT->colorAttachment();
+            srcAttachment = vkRT->colorAttachment();
         }
     } else if (src->asTexture()) {
         SkASSERT(src->asTexture());
-        srcImage = static_cast<GrVkTexture*>(src->asTexture())->textureAttachment();
+        srcAttachment = static_cast<GrVkTexture*>(src->asTexture())->textureAttachment();
     } else {
         // The surface in a GrAttachment already
-        srcImage = static_cast<GrVkAttachment*>(src);
+        srcAttachment = static_cast<GrVkAttachment*>(src);
     }
 
-    VkFormat dstFormat = dstImage->imageFormat();
-    VkFormat srcFormat = srcImage->imageFormat();
+    VkFormat dstFormat = dstAttachment->imageFormat();
+    VkFormat srcFormat = srcAttachment->imageFormat();
 
-    int dstSampleCnt = dstImage->vkImageInfo().fSampleCount;
-    int srcSampleCnt = srcImage->vkImageInfo().fSampleCount;
+    int dstSampleCnt = dstAttachment->numSamples();
+    int srcSampleCnt = srcAttachment->numSamples();
 
-    bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
-    bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
+    bool dstHasYcbcr = dstAttachment->ycbcrConversionInfo().isValid();
+    bool srcHasYcbcr = srcAttachment->ycbcrConversionInfo().isValid();
 
     if (this->vkCaps().canCopyAsResolve(dstFormat, dstSampleCnt, dstHasYcbcr,
                                         srcFormat, srcSampleCnt, srcHasYcbcr)) {
@@ -2330,14 +2341,19 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
 
     if (this->vkCaps().canCopyImage(dstFormat, dstSampleCnt, dstHasYcbcr,
                                     srcFormat, srcSampleCnt, srcHasYcbcr)) {
-        this->copySurfaceAsCopyImage(dst, src, dstImage, srcImage, srcRect, dstPoint);
+        this->copySurfaceAsCopyImage(dst, src, dstAttachment, srcAttachment, srcRect, dstPoint);
         return true;
     }
 
-    if (this->vkCaps().canCopyAsBlit(dstFormat, dstSampleCnt, dstImage->isLinearTiled(),
-                                     dstHasYcbcr, srcFormat, srcSampleCnt,
-                                     srcImage->isLinearTiled(), srcHasYcbcr)) {
-        this->copySurfaceAsBlit(dst, src, dstImage, srcImage, srcRect, dstPoint);
+    if (this->vkCaps().canCopyAsBlit(dstFormat,
+                                     dstSampleCnt,
+                                     dstAttachment->isLinearTiled(),
+                                     dstHasYcbcr,
+                                     srcFormat,
+                                     srcSampleCnt,
+                                     srcAttachment->isLinearTiled(),
+                                     srcHasYcbcr)) {
+        this->copySurfaceAsBlit(dst, src, dstAttachment, srcAttachment, srcRect, dstPoint);
         return true;
     }
 
