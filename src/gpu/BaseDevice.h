@@ -24,9 +24,9 @@ namespace v1 { class SurfaceDrawContext; }
 
 class BaseDevice : public SkBaseDevice {
 public:
-    enum InitContents {
-        kClear_InitContents,
-        kUninit_InitContents
+    enum class InitContents {
+        kClear,
+        kUninit
     };
 
     BaseDevice(sk_sp<GrRecordingContext>, const SkImageInfo&, const SkSurfaceProps&);
@@ -78,11 +78,23 @@ public:
                                                  ReadPixelsContext context) = 0;
 
 protected:
+    enum class DeviceFlags {
+        kNone      = 0,
+        kNeedClear = 1 << 0,  //!< Surface requires an initial clear
+        kIsOpaque  = 1 << 1,  //!< Hint from client that rendering to this device will be
+                              //   opaque even if the config supports alpha.
+    };
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(DeviceFlags);
+
+    static bool CheckAlphaTypeAndGetFlags(SkAlphaType, InitContents, DeviceFlags*);
+
     sk_sp<GrRecordingContext> fContext;
 
 private:
     using INHERITED = SkBaseDevice;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(BaseDevice::DeviceFlags)
 
 } // namespace skgpu
 

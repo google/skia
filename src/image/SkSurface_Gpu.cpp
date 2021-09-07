@@ -407,7 +407,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
     auto device = rContext->priv().createDevice(budgeted, c.imageInfo(), SkBackingFit::kExact,
                                                 c.sampleCount(), GrMipmapped(c.isMipMapped()),
                                                 c.isProtected(), c.origin(), c.surfaceProps(),
-                                                skgpu::BaseDevice::kClear_InitContents);
+                                                skgpu::BaseDevice::InitContents::kClear);
     if (!device) {
         return nullptr;
     }
@@ -466,7 +466,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext, SkBud
     auto device = rContext->priv().createDevice(budgeted, info, SkBackingFit::kExact,
                                                 sampleCount, mipMapped, GrProtected::kNo, origin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                skgpu::BaseDevice::kClear_InitContents);
+                                                skgpu::BaseDevice::InitContents::kClear);
     if (!device) {
         return nullptr;
     }
@@ -508,7 +508,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
     auto device = rContext->priv().createDevice(grColorType, std::move(proxy),
                                                 std::move(colorSpace), origin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                skgpu::BaseDevice::kUninit_InitContents);
+                                                skgpu::BaseDevice::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }
@@ -624,7 +624,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* rCon
     auto device = rContext->priv().createDevice(grColorType, std::move(proxy),
                                                 std::move(colorSpace), origin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                skgpu::BaseDevice::kUninit_InitContents);
+                                                skgpu::BaseDevice::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }

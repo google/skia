@@ -165,7 +165,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* r
     auto device = rContext->priv().createDevice(SkBudgeted::kYes, ii, SkBackingFit::kApprox, 1,
                                                 GrMipmapped::kNo, GrProtected::kNo,
                                                 kBottomLeft_GrSurfaceOrigin, props,
-                                                skgpu::BaseDevice::kUninit_InitContents);
+                                                skgpu::BaseDevice::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }

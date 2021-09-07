@@ -47,7 +47,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
                                                 imageInfo.refColorSpace(),
                                                 kTopLeft_GrSurfaceOrigin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                skgpu::BaseDevice::kUninit_InitContents);
+                                                skgpu::BaseDevice::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }

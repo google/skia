@@ -88,7 +88,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
                                                 std::move(colorSpace),
                                                 origin,
                                                 SkSurfacePropsCopyOrDefault(surfaceProps),
-                                                skgpu::BaseDevice::kUninit_InitContents);
+                                                skgpu::BaseDevice::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }
@@ -157,7 +157,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
                                                 std::move(colorSpace),
                                                 origin,
                                                 SkSurfacePropsCopyOrDefault(surfaceProps),
-                                                skgpu::BaseDevice::kUninit_InitContents);
+                                                skgpu::BaseDevice::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }

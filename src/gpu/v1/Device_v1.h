@@ -187,19 +187,11 @@ private:
 
     ClipStack fClip;
 
-    enum Flags {
-        kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
-        kIsOpaque_Flag  = 1 << 1,  //!< Hint from client that rendering to this device will be
-                                   //   opaque even if the config supports alpha.
-    };
-    static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
-                                          unsigned* flags);
-
     static sk_sp<BaseDevice> Make(std::unique_ptr<SurfaceDrawContext>,
-                                  const SkImageInfo*,
+                                  SkAlphaType,
                                   InitContents);
 
-    Device(std::unique_ptr<SurfaceDrawContext>, unsigned flags);
+    Device(std::unique_ptr<SurfaceDrawContext>, DeviceFlags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 

@@ -123,29 +123,6 @@ bool init_vertices_paint(GrRecordingContext* rContext,
 
 namespace skgpu::v1 {
 
-/** Checks that the alpha type is legal and gets constructor flags. Returns false if device creation
-    should fail. */
-bool Device::CheckAlphaTypeAndGetFlags(const SkImageInfo* info,
-                                       Device::InitContents init,
-                                       unsigned* flags) {
-    *flags = 0;
-    if (info) {
-        switch (info->alphaType()) {
-            case kPremul_SkAlphaType:
-                break;
-            case kOpaque_SkAlphaType:
-                *flags |= Device::kIsOpaque_Flag;
-                break;
-            default: // If it is unpremul or unknown don't try to render
-                return false;
-        }
-    }
-    if (kClear_InitContents == init) {
-        *flags |= kNeedClear_Flag;
-    }
-    return true;
-}
-
 sk_sp<BaseDevice> Device::Make(GrRecordingContext* rContext,
                                GrColorType colorType,
                                sk_sp<GrSurfaceProxy> proxy,
@@ -160,11 +137,11 @@ sk_sp<BaseDevice> Device::Make(GrRecordingContext* rContext,
                                         origin,
                                         surfaceProps);
 
-    return Device::Make(std::move(sdc), nullptr, init);
+    return Device::Make(std::move(sdc), kPremul_SkAlphaType, init);
 }
 
 sk_sp<BaseDevice> Device::Make(std::unique_ptr<SurfaceDrawContext> sdc,
-                               const SkImageInfo* ii,
+                               SkAlphaType alphaType,
                                InitContents init) {
     if (!sdc) {
         return nullptr;
@@ -177,9 +154,9 @@ sk_sp<BaseDevice> Device::Make(std::unique_ptr<SurfaceDrawContext> sdc,
 
     SkColorType ct = GrColorTypeToSkColorType(sdc->colorInfo().colorType());
 
-    unsigned flags;
+    DeviceFlags flags;
     if (!rContext->colorTypeSupportedAsSurface(ct) ||
-        !CheckAlphaTypeAndGetFlags(ii, init, &flags)) {
+        !CheckAlphaTypeAndGetFlags(alphaType, init, &flags)) {
         return nullptr;
     }
     return sk_sp<Device>(new Device(std::move(sdc), flags));
@@ -205,18 +182,18 @@ sk_sp<BaseDevice> Device::Make(GrRecordingContext* rContext,
                                       origin,
                                       props);
 
-    return Device::Make(std::move(sdc), &ii, init);
+    return Device::Make(std::move(sdc), ii.alphaType(), init);
 }
 
-Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, unsigned flags)
+Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, DeviceFlags flags)
         : INHERITED(sk_ref_sp(sdc->recordingContext()),
-                    make_info(sdc.get(), SkToBool(flags & kIsOpaque_Flag)),
+                    make_info(sdc.get(), SkToBool(flags & DeviceFlags::kIsOpaque)),
                     sdc->surfaceProps())
         , fSurfaceDrawContext(std::move(sdc))
         , fClip(SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
                 &this->asMatrixProvider(),
                 force_aa_clip(fSurfaceDrawContext.get())) {
-    if (flags & kNeedClear_Flag) {
+    if (flags & DeviceFlags::kNeedClear) {
         this->clearAll();
     }
 }
@@ -1081,9 +1058,9 @@ SkBaseDevice* Device::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     }
 
     // Skia's convention is to only clear a device if it is non-opaque.
-    InitContents init = cinfo.fInfo.isOpaque() ? kUninit_InitContents : kClear_InitContents;
+    InitContents init = cinfo.fInfo.isOpaque() ? InitContents::kUninit : InitContents::kClear;
 
-    return Device::Make(std::move(sdc), &cinfo.fInfo, init).release();
+    return Device::Make(std::move(sdc), cinfo.fInfo.alphaType(), init).release();
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {

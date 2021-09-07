@@ -23,6 +23,27 @@ BaseDevice::BaseDevice(sk_sp<GrRecordingContext> rContext,
     , fContext(std::move(rContext)) {
 }
 
+/** Checks that the alpha type is legal and gets constructor flags. Returns false if device creation
+    should fail. */
+bool BaseDevice::CheckAlphaTypeAndGetFlags(SkAlphaType alphaType,
+                                           InitContents init,
+                                           DeviceFlags* flags) {
+    *flags = DeviceFlags::kNone;
+    switch (alphaType) {
+        case kPremul_SkAlphaType:
+            break;
+        case kOpaque_SkAlphaType:
+            *flags |= DeviceFlags::kIsOpaque;
+            break;
+        default: // If it is unpremul or unknown don't try to render
+            return false;
+    }
+    if (InitContents::kClear == init) {
+        *flags |= DeviceFlags::kNeedClear;
+    }
+    return true;
+}
+
 GrRenderTargetProxy* BaseDevice::targetProxy() {
     return this->readSurfaceView().asRenderTargetProxy();
 }
