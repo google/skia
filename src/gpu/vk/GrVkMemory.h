@@ -27,9 +27,8 @@ namespace GrVkMemory {
 
     bool AllocAndBindImageMemory(GrVkGpu* gpu,
                                  VkImage image,
-                                 bool linearTiling,
                                  GrVkAlloc* alloc);
-    void FreeImageMemory(const GrVkGpu* gpu, bool linearTiling, const GrVkAlloc& alloc);
+    void FreeImageMemory(const GrVkGpu* gpu, const GrVkAlloc& alloc);
 
     // Maps the entire GrVkAlloc and returns a pointer to the start of the allocation. Underneath
     // the hood, we may map more than the range of the GrVkAlloc (e.g. the entire VkDeviceMemory),

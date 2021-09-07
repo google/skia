@@ -188,8 +188,7 @@ private:
         Resource(const GrVkGpu* gpu, VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling)
             : fGpu(gpu)
             , fImage(image)
-            , fAlloc(alloc)
-            , fImageTiling(tiling) {}
+            , fAlloc(alloc) {}
 
         ~Resource() override {}
 
@@ -209,7 +208,6 @@ private:
         const GrVkGpu* fGpu;
         VkImage        fImage;
         GrVkAlloc      fAlloc;
-        VkImageTiling  fImageTiling;
 
         using INHERITED = GrTextureResource;
     };
