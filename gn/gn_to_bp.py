@@ -177,9 +177,6 @@ cc_library_static {
         ],
       },
       linux_glibc: {
-        cflags: [
-          "-mssse3",
-        ],
         srcs: [
           $linux_srcs
         ],
@@ -191,9 +188,6 @@ cc_library_static {
         ],
       },
       darwin: {
-        cflags: [
-          "-mssse3",
-        ],
         srcs: [
           $mac_srcs
         ],
@@ -207,7 +201,6 @@ cc_library_static {
       windows: {
         enabled: true,
         cflags: [
-          "-mssse3",
           "-Wno-unknown-pragmas",
         ],
         srcs: [
