@@ -49,27 +49,6 @@ static Q15 simulate_ssse3_mm_mulhrs_epi16(Q15 a, Q15 b) {
     return result;
 }
 
-#if defined(__SSSE3__)
-static void test_mm_mulhrs_epi16_simulation() {
-    for (int i = -32768; i < 32768; i++) {
-        for (int j = -32768; j < 32768; j++) {
-            Q15 a(i);
-            Q15 b(j);
-            Q15 simResult = simulate_ssse3_mm_mulhrs_epi16(a, b);
-            Q15 intrinsicResult = _mm_mulhrs_epi16(a, b);
-            for (int i = 0; i < 8; i++) {
-                if (simResult[i] != intrinsicResult[i]) {
-                    printf("simulate_ssse3_mm_mulhrs_epi16 broken\n");
-                    printf("i: %d, a: %hx b: %hx, intrinsic: %hx, sim: %hx\n",
-                           i, a[i], b[i], intrinsicResult[i], simResult[i]);
-                    exit(1);
-                }
-            }
-        }
-    }
-}
-#endif
-
 // A pure C version of the neon intrinsic vqrdmulhq_s16;
 static Q15 simulate_neon_vqrdmulhq_s16(Q15 a, Q15 b) {
     Q15 result;
@@ -89,6 +68,55 @@ static Q15 simulate_neon_vqrdmulhq_s16(Q15 a, Q15 b) {
     }
     return result;
 }
+
+#if defined(__SSSE3__)
+static void test_mm_mulhrs_epi16_simulation() {
+    for (int i = -32768; i < 32768; i++) {
+        for (int j = -32768; j < 32768; j++) {
+            Q15 a(i);
+            Q15 b(j);
+            Q15 simResult = simulate_ssse3_mm_mulhrs_epi16(a, b);
+            Q15 intrinsicResult = _mm_mulhrs_epi16(a, b);
+            for (int i = 0; i < 8; i++) {
+                if (simResult[i] != intrinsicResult[i]) {
+                    printf("simulate_ssse3_mm_mulhrs_epi16 broken\n");
+                    printf("i: %d, a: %hx b: %hx, intrinsic: %hx, sim: %hx\n",
+                           i, a[i], b[i], intrinsicResult[i], simResult[i]);
+                    exit(1);
+                }
+            }
+        }
+    }
+}
+
+// Use ssse3 to simulate saturating multiply on arm.
+static Q15 ssse3_vqrdmulhq_s16(Q15 a, Q15 b) {
+    constexpr Q15 limit(0x8000);
+    const Q15 product = _mm_mulhrs_epi16(a, b);
+    const Q15 eq = _mm_cmpeq_epi16(product, limit);
+    return _mm_xor_si128(eq, product);
+}
+
+static void test_ssse3_vqrdmulhq_s16() {
+    for (int i = -32768; i < 32768; i++) {
+        for (int j = -32768; j < 32768; j++) {
+            Q15 a(i);
+            Q15 b(j);
+            Q15 simResult = ssse3_vqrdmulhq_s16(a, b);
+            Q15 realVqrdmulhqS16 = simulate_neon_vqrdmulhq_s16(a, b);
+            for (int i = 0; i < 8; i++) {
+                if (simResult[i] != realVqrdmulhqS16[i]) {
+                    printf("simulating vqrdmulhq_s16 with ssse3 broken\n");
+                    printf("i: %d, a: %hx b: %hx, intrinsic: %hx, sim: %hx\n",
+                           i, a[i], b[i], realVqrdmulhqS16[i], simResult[i]);
+                    exit(1);
+                }
+            }
+        }
+    }
+}
+
+#endif
 
 #if defined(__ARM_NEON)
 static void test_neon_vqrdmulhq_s16_simulation() {
@@ -113,7 +141,8 @@ static void test_neon_vqrdmulhq_s16_simulation() {
 
 int main() {
     #if defined(__SSSE3__)
-        test_mm_mulhrs_epi16_simulation();
+        //test_mm_mulhrs_epi16_simulation();
+        test_ssse3_vqrdmulhq_s16();
     #endif
     #if defined(__ARM_NEON)
         test_neon_vqrdmulhq_s16_simulation();
