@@ -18,23 +18,23 @@ namespace dsl {
 static const Type* find_type(skstd::string_view name) {
     const Symbol* symbol = (*DSLWriter::SymbolTable())[name];
     if (!symbol) {
-        DSLWriter::ReportError(String::printf("no symbol named '%.*s'",
-                                              (int)name.length(), name.data()).c_str());
+        DSLWriter::ReportError(String::printf("no symbol named '%.*s'", (int)name.length(),
+                name.data()));
         return nullptr;
     }
     if (!symbol->is<Type>()) {
-        DSLWriter::ReportError(String::printf("symbol '%.*s' is not a type",
-                                              (int)name.length(), name.data()).c_str());
+        DSLWriter::ReportError(String::printf("symbol '%.*s' is not a type", (int)name.length(),
+                name.data()));
         return nullptr;
     }
     const Type& result = symbol->as<Type>();
     if (!DSLWriter::IsModule()) {
         if (result.containsPrivateFields()) {
-            DSLWriter::ReportError(("type '" + String(name) + "' is private").c_str());
+            DSLWriter::ReportError("type '" + String(name) + "' is private");
             return nullptr;
         }
         if (DSLWriter::Context().fConfig->strictES2Mode() && !result.allowedInES2()) {
-            DSLWriter::ReportError(("type '" + String(name) + "' is not supported").c_str());
+            DSLWriter::ReportError("type '" + String(name) + "' is not supported");
             return nullptr;
         }
     }
@@ -232,14 +232,14 @@ DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo po
         if (field.fModifiers.fModifiers.fFlags != Modifiers::kNo_Flag) {
             String desc = field.fModifiers.fModifiers.description();
             desc.pop_back();  // remove trailing space
-            DSLWriter::ReportError(("modifier '" + desc +
-                    "' is not permitted on a struct field").c_str(), field.fPosition);
+            DSLWriter::ReportError("modifier '" + desc + "' is not permitted on a struct field",
+                    field.fPosition);
         }
 
         const SkSL::Type& type = field.fType.skslType();
         if (type.isOpaque()) {
-            DSLWriter::ReportError(("opaque type '" + type.displayName() +
-                                    "' is not permitted in a struct").c_str(), field.fPosition);
+            DSLWriter::ReportError("opaque type '" + type.displayName() +
+                    "' is not permitted in a struct", field.fPosition);
         }
         skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &type);
     }
@@ -247,7 +247,7 @@ DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo po
                                                                                   name,
                                                                                   skslFields));
     if (result->isTooDeeplyNested()) {
-        DSLWriter::ReportError(("struct '" + String(name) + "' is too deeply nested").c_str(), pos);
+        DSLWriter::ReportError("struct '" + String(name) + "' is too deeply nested", pos);
     }
     DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*offset=*/-1,
                                                                                     *result));

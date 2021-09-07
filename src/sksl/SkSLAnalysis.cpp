@@ -290,7 +290,7 @@ private:
 class TrivialErrorReporter : public ErrorReporter {
 public:
     ~TrivialErrorReporter() override { this->reportPendingErrors({}); }
-    void handleError(const char*, PositionInfo) override {}
+    void handleError(skstd::string_view, PositionInfo) override {}
 };
 
 // This isn't actually using ProgramVisitor, because it only considers a subset of the fields for

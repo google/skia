@@ -8,7 +8,9 @@
 #ifndef SKSL_ERROR_REPORTER
 #define SKSL_ERROR_REPORTER
 
+#include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLString.h"
 
 #include <string>
 #include <vector>
@@ -82,29 +84,21 @@ public:
         SkASSERT(fPendingErrors.empty());
     }
 
-    void error(const char* msg, PositionInfo position);
+    void error(skstd::string_view msg, PositionInfo position);
 
     /**
      * Reports an error message at the given character offset of the source text. Errors reported
      * with an offset of -1 will be queued until line number information can be determined.
      */
-    void error(int offset, std::string msg) {
-        this->error(offset, msg.c_str());
-    }
-
-    /**
-     * Reports an error message at the given character offset of the source text. Errors reported
-     * with an offset of -1 will be queued until line number information can be determined.
-     */
-    void error(int offset, const char* msg);
+    void error(int offset, skstd::string_view msg);
 
     const char* source() const { return fSource; }
 
     void setSource(const char* source) { fSource = source; }
 
     void reportPendingErrors(PositionInfo pos) {
-        for (std::string& msg : fPendingErrors) {
-            this->handleError(msg.c_str(), pos);
+        for (const String& msg : fPendingErrors) {
+            this->handleError(msg, pos);
         }
         fPendingErrors.clear();
     }
@@ -119,15 +113,15 @@ public:
 
 protected:
     /**
-     * Reports an error. Position may not be available, in which case it will be null.
+     * Called when an error is reported.
      */
-    virtual void handleError(const char* msg, PositionInfo position) = 0;
+    virtual void handleError(skstd::string_view msg, PositionInfo position) = 0;
 
 private:
     PositionInfo position(int offset) const;
 
     const char* fSource = nullptr;
-    std::vector<std::string> fPendingErrors;
+    std::vector<String> fPendingErrors;
     int fErrorCount = 0;
 };
 
@@ -136,7 +130,9 @@ private:
  */
 class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
-    void handleError(const char* msg, PositionInfo pos) override { SK_ABORT("%s", msg); }
+    void handleError(skstd::string_view msg, PositionInfo pos) override {
+        SK_ABORT("%.*s", (int)msg.length(), msg.data());
+    }
 };
 
 } // namespace SkSL

@@ -277,7 +277,7 @@ private:
     private:
         class ForwardingErrorReporter : public ErrorReporter {
         public:
-            void handleError(const char* msg, PositionInfo pos) override {
+            void handleError(skstd::string_view msg, PositionInfo pos) override {
                 fErrors.push_back({String(msg), pos});
             }
 

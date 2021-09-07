@@ -65,10 +65,12 @@ public:
         SetErrorReporter(fOldReporter);
     }
 
-    void handleError(const char* msg, SkSL::PositionInfo pos) override {
-        REPORTER_ASSERT(fReporter, fMsg, "Received unexpected extra error: %s\n", msg);
-        REPORTER_ASSERT(fReporter, !fMsg || !strcmp(msg, fMsg),
-                        "Error mismatch: expected:\n%s\nbut received:\n%s", fMsg, msg);
+    void handleError(skstd::string_view msg, SkSL::PositionInfo pos) override {
+        REPORTER_ASSERT(fReporter, fMsg, "Received unexpected extra error: %.*s\n",
+                (int)msg.length(), msg.data());
+        REPORTER_ASSERT(fReporter, !fMsg || msg == fMsg,
+                "Error mismatch: expected:\n%s\nbut received:\n%.*s", fMsg, (int)msg.length(),
+                msg.data());
         fMsg = nullptr;
     }
 

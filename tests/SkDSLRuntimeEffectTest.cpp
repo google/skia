@@ -202,7 +202,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     {
         class SimpleErrorReporter : public SkSL::ErrorReporter {
         public:
-            void handleError(const char* msg, SkSL::PositionInfo pos) override {
+            void handleError(skstd::string_view msg, SkSL::PositionInfo pos) override {
                 fMsg += msg;
             }
 

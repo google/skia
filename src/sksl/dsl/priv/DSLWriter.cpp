@@ -218,17 +218,17 @@ void DSLWriter::SetErrorReporter(ErrorReporter* errorReporter) {
     Compiler().fContext->fErrors = errorReporter;
 }
 
-void DSLWriter::ReportError(const char* msg, PositionInfo info) {
+void DSLWriter::ReportError(skstd::string_view msg, PositionInfo info) {
     GetErrorReporter().error(msg, info);
 }
 
-void DSLWriter::DefaultErrorReporter::handleError(const char* msg, PositionInfo pos) {
+void DSLWriter::DefaultErrorReporter::handleError(skstd::string_view msg, PositionInfo pos) {
     if (pos.line() > -1) {
-        SK_ABORT("error: %s: %d: %sNo SkSL DSL error reporter configured, treating this as a fatal "
-                 "error\n", pos.file_name(), pos.line(), msg);
+        SK_ABORT("error: %s: %d: %.*sNo SkSL DSL error reporter configured, treating this as a "
+                 "fatal error\n", pos.file_name(), pos.line(), (int)msg.length(), msg.data());
     } else {
-        SK_ABORT("error: %s\nNo SkSL DSL error reporter configured, treating this as a fatal "
-                 "error\n", msg);
+        SK_ABORT("error: %.*s\nNo SkSL DSL error reporter configured, treating this as a fatal "
+                 "error\n", (int)msg.length(), msg.data());
     }
 
 }
