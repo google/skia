@@ -147,7 +147,7 @@ GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
     // TODO: Make use of discardable MSAA
     bool withResolve = false;
 
-    // Figure out if we can use a Resolve store action for this render pass.
+    // Figure out if we can use a Resolve store for this render pass
     if (useMSAASurface && mtlRT->resolveAttachment() &&
         this->mtlCaps().storeAndMultisampleResolveSupport()) {
         withResolve = true;
@@ -356,7 +356,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 
     int currentWidth = rect.width();
     int currentHeight = rect.height();
-    SkDEBUGCODE(int layerHeight = tex->height();)
+    SkDEBUGCODE(int layerHeight = tex->height());
     MTLOrigin origin = MTLOriginMake(rect.left(), rect.top(), 0);
 
     auto cmdBuffer = this->commandBuffer();
@@ -387,7 +387,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
         }
         currentWidth = std::max(1, currentWidth/2);
         currentHeight = std::max(1, currentHeight/2);
-        SkDEBUGCODE(layerHeight = currentHeight;)
+        SkDEBUGCODE(layerHeight = currentHeight);
     }
 #ifdef SK_BUILD_FOR_MAC
     [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
@@ -1528,6 +1528,80 @@ void GrMtlGpu::resolve(GrMtlAttachment* resolveAttachment,
     cmdEncoder->setLabel(@"resolveTexture");
     this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(resolveAttachment));
     this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(msaaAttachment));
+}
+
+bool GrMtlGpu::loadMSAAFromResolve(GrAttachment* dst,
+                                   GrMtlAttachment* src,
+                                   const SkIRect& srcRect) {
+    if (!dst) {
+        return false;
+    }
+    if (!src || src->framebufferOnly()) {
+        return false;
+    }
+
+    GrMtlAttachment* mtlDst = static_cast<GrMtlAttachment*>(dst);
+
+    auto renderPipeline = this->resourceProvider().findOrCreateMSAALoadPipeline(mtlDst->mtlFormat(),
+                                                                                dst->numSamples());
+
+    // Set up rendercommandencoder
+    auto renderPassDesc = [MTLRenderPassDescriptor new];
+    auto colorAttachment = renderPassDesc.colorAttachments[0];
+    colorAttachment.texture = mtlDst->mtlTexture();
+    colorAttachment.loadAction = MTLLoadActionDontCare;
+    colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
+    colorAttachment.resolveTexture = src->mtlTexture();
+
+    auto renderCmdEncoder =
+                this->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr, nullptr);
+
+    // Bind pipeline
+    renderCmdEncoder->setRenderPipelineState(renderPipeline->mtlPipelineState());
+    this->commandBuffer()->addResource(sk_ref_sp(renderPipeline));
+
+    // Bind src as input texture
+    renderCmdEncoder->setFragmentTexture(src->mtlTexture(), 0);
+    // No sampler needed
+    this->commandBuffer()->addGrSurface(sk_ref_sp<GrSurface>(src));
+
+    // Scissor and viewport should default to size of color attachment
+
+    // Update and bind uniform data
+    int w = srcRect.width();
+    int h = srcRect.height();
+
+    // dst rect edges in NDC (-1 to 1)
+    int dw = dst->width();
+    int dh = dst->height();
+    float dx0 = 2.f * srcRect.fLeft / dw - 1.f;
+    float dx1 = 2.f * (srcRect.fLeft + w) / dw - 1.f;
+    float dy0 = 2.f * srcRect.fTop / dh - 1.f;
+    float dy1 = 2.f * (srcRect.fTop + h) / dh - 1.f;
+
+    struct {
+        float posXform[4];
+        int textureSize[2];
+        int pad[2];
+    } uniData = {{dx1 - dx0, dy1 - dy0, dx0, dy0}, {dw, dh}, {0, 0}};
+
+    constexpr size_t uniformSize = 32;
+    if (@available(macOS 10.11, iOS 8.3, *)) {
+        SkASSERT(uniformSize <= this->caps()->maxPushConstantsSize());
+        renderCmdEncoder->setVertexBytes(&uniData, uniformSize, 0);
+    } else {
+        // upload the data
+        GrRingBuffer::Slice slice = this->uniformsRingBuffer()->suballocate(uniformSize);
+        GrMtlBuffer* buffer = (GrMtlBuffer*) slice.fBuffer;
+        char* destPtr = static_cast<char*>(slice.fBuffer->map()) + slice.fOffset;
+        memcpy(destPtr, &uniData, uniformSize);
+
+        renderCmdEncoder->setVertexBuffer(buffer->mtlBuffer(), slice.fOffset, 0);
+    }
+
+    renderCmdEncoder->drawPrimitives(MTLPrimitiveTypeTriangleStrip, (NSUInteger)0, (NSUInteger)4);
+
+    return true;
 }
 
 #if GR_TEST_UTILS
