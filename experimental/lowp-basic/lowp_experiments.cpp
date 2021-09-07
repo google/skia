@@ -10,10 +10,10 @@
 #include <cstdint>
 
 // Compile for x86_64 + ssse3 with:
-//     c++ -mssse3 experimental/lowp-basic/lowp_experiments.cpp -o lowp
+//     c++ -O3 --std=c++17 -mssse3 experimental/lowp-basic/lowp_experiments.cpp -o lowp
 //
 // Compile for aarch64 with (Mac os):
-//     c++ experimental/lowp-basic/lowp_experiments.cpp -o lowp
+//    c++ -O3 --std=c++17 -arch arm64 experimental/lowp-basic/lowp_experiments.cpp  -o lowp
 //
 // View assembly:
 //    dumpobj -d lowp | less
@@ -49,6 +49,7 @@ static Q15 simulate_ssse3_mm_mulhrs_epi16(Q15 a, Q15 b) {
     return result;
 }
 
+#if defined(__SSSE3__)
 static void test_mm_mulhrs_epi16_simulation() {
     for (int i = -32768; i < 32768; i++) {
         for (int j = -32768; j < 32768; j++) {
@@ -67,9 +68,56 @@ static void test_mm_mulhrs_epi16_simulation() {
         }
     }
 }
+#endif
+
+// A pure C version of the neon intrinsic vqrdmulhq_s16;
+static Q15 simulate_neon_vqrdmulhq_s16(Q15 a, Q15 b) {
+    Q15 result;
+    const int esize = 16;
+    auto m = [](int16_t r, int16_t s) {
+        const int64_t rounding = 1 << (esize - 1);
+        int64_t product = 2LL * (int64_t)r * (int64_t)s + rounding;
+        int64_t result = product >> esize;
+
+        // Saturate the result
+        if (int64_t limit =  (1LL << (esize - 1)) - 1; result > limit) { result = limit; }
+        if (int64_t limit = -(1LL << (esize - 1))    ; result < limit) { result = limit; }
+        return result;
+    };
+    for (int i = 0; i < 8; i++) {
+        result[i] = m(a[i], b[i]);
+    }
+    return result;
+}
+
+#if defined(__ARM_NEON)
+static void test_neon_vqrdmulhq_s16_simulation() {
+    for (int i = -32768; i < 32768; i++) {
+        for (int j = -32768; j < 32768; j++) {
+            Q15 a(i);
+            Q15 b(j);
+            Q15 simResult = simulate_neon_vqrdmulhq_s16(a, b);
+            Q15 intrinsicResult = vqrdmulhq_s16(a, b);
+            for (int i = 0; i < 8; i++) {
+                if (simResult[i] != intrinsicResult[i]) {
+                    printf("simulate_neon_vqrdmulhq_s16 broken\n");
+                    printf("i: %d, a: %hx b: %hx, intrinsic: %hx, sim: %hx\n",
+                           i, a[i], b[i], intrinsicResult[i], simResult[i]);
+                    exit(1);
+                }
+            }
+        }
+    }
+}
+#endif
 
 int main() {
-    test_mm_mulhrs_epi16_simulation();
+    #if defined(__SSSE3__)
+        test_mm_mulhrs_epi16_simulation();
+    #endif
+    #if defined(__ARM_NEON)
+        test_neon_vqrdmulhq_s16_simulation();
+    #endif
     printf("Done.\n");
     return 0;
 }
