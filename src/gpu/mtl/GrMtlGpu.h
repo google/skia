@@ -79,8 +79,9 @@ public:
 
     void copySurfaceAsResolve(GrSurface* dst, GrSurface* src);
 
-    void copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                           const SkIPoint& dstPoint);
+    void copySurfaceAsBlit(GrSurface* dst, GrSurface* src,
+                           GrMtlAttachment* dstAttachment, GrMtlAttachment* srcAttachment,
+                           const SkIRect& srcRect, const SkIPoint& dstPoint);
 
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;

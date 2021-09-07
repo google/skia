@@ -141,15 +141,16 @@ GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
     // framebuffer to use.
     GrMtlRenderTarget* mtlRT = static_cast<GrMtlRenderTarget*>(renderTarget);
 
+    // TODO: support DMSAA
     SkASSERT(!useMSAASurface ||
              (renderTarget->numSamples() > 1));
 
-    // TODO: Make use of discardable MSAA
     bool withResolve = false;
 
-    // Figure out if we can use a Resolve store for this render pass
-    if (useMSAASurface && mtlRT->resolveAttachment() &&
-        this->mtlCaps().storeAndMultisampleResolveSupport()) {
+    // Figure out if we can use a Resolve store action for this render pass. When we set up
+    // the render pass we'll update the color load/store ops since we don't want to ever load
+    // or store the msaa color attachment, but may need to for the resolve attachment.
+    if (useMSAASurface && this->mtlCaps().renderTargetSupportsDiscardableMSAA(mtlRT)) {
         withResolve = true;
     }
 
@@ -1179,13 +1180,16 @@ void GrMtlGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src) {
     this->resolve(dstAttachment, srcRT->colorAttachment());
 }
 
-void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                 const SkIPoint& dstPoint) {
+void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src,
+                                 GrMtlAttachment* dstAttachment, GrMtlAttachment* srcAttachment,
+                                 const SkIRect& srcRect, const SkIPoint& dstPoint) {
 #ifdef SK_DEBUG
-    SkASSERT(this->mtlCaps().canCopyAsBlit(dst, src, srcRect, dstPoint));
+    SkASSERT(this->mtlCaps().canCopyAsBlit(dstAttachment->mtlFormat(), dstAttachment->numSamples(),
+                                           srcAttachment->mtlFormat(), dstAttachment->numSamples(),
+                                           srcRect, dstPoint, dst == src));
 #endif
-    id<MTLTexture> GR_NORETAIN dstTex = GrGetMTLTextureFromSurface(dst);
-    id<MTLTexture> GR_NORETAIN srcTex = GrGetMTLTextureFromSurface(src);
+    id<MTLTexture> GR_NORETAIN dstTex = dstAttachment->mtlTexture();
+    id<MTLTexture> GR_NORETAIN srcTex = srcAttachment->mtlTexture();
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
@@ -1212,21 +1216,70 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcR
                              const SkIPoint& dstPoint) {
     SkASSERT(!src->isProtected() && !dst->isProtected());
 
-    bool success = false;
-    if (this->mtlCaps().canCopyAsBlit(dst, src, srcRect, dstPoint)) {
-       this->copySurfaceAsBlit(dst, src, srcRect, dstPoint);
-       success = true;
-    } else if (this->mtlCaps().canCopyAsResolve(dst, src, srcRect, dstPoint)) {
+    GrMtlAttachment* dstAttachment;
+    GrMtlAttachment* srcAttachment;
+    GrRenderTarget* dstRT = dst->asRenderTarget();
+    if (dstRT) {
+        GrMtlRenderTarget* mtlRT = static_cast<GrMtlRenderTarget*>(dstRT);
+        // This will technically return true for single sample rts that used DMSAA in which case we
+        // don't have to pick the resolve attachment. But in that case the resolve and color
+        // attachments will be the same anyways.
+        if (this->mtlCaps().renderTargetSupportsDiscardableMSAA(mtlRT)) {
+            dstAttachment = mtlRT->resolveAttachment();
+        } else {
+            dstAttachment = mtlRT->colorAttachment();
+        }
+    } else if (dst->asTexture()) {
+        dstAttachment = static_cast<GrMtlTexture*>(dst->asTexture())->attachment();
+    } else {
+        // The surface in a GrAttachment already
+        dstAttachment = static_cast<GrMtlAttachment*>(dst);
+    }
+    GrRenderTarget* srcRT = src->asRenderTarget();
+    if (srcRT) {
+        GrMtlRenderTarget* mtlRT = static_cast<GrMtlRenderTarget*>(srcRT);
+        // This will technically return true for single sample rts that used DMSAA in which case we
+        // don't have to pick the resolve attachment. But in that case the resolve and color
+        // attachments will be the same anyways.
+        if (this->mtlCaps().renderTargetSupportsDiscardableMSAA(mtlRT)) {
+            srcAttachment = mtlRT->resolveAttachment();
+        } else {
+            srcAttachment = mtlRT->colorAttachment();
+        }
+    } else if (src->asTexture()) {
+        SkASSERT(src->asTexture());
+        srcAttachment = static_cast<GrMtlTexture*>(src->asTexture())->attachment();
+    } else {
+        // The surface in a GrAttachment already
+        srcAttachment = static_cast<GrMtlAttachment*>(src);
+    }
+
+    MTLPixelFormat dstFormat = dstAttachment->mtlFormat();
+    MTLPixelFormat srcFormat = srcAttachment->mtlFormat();
+
+    int dstSampleCnt = dstAttachment->sampleCount();
+    int srcSampleCnt = srcAttachment->sampleCount();
+
+    if (this->mtlCaps().canCopyAsResolve(dstFormat, dstSampleCnt,
+                                         srcFormat, srcSampleCnt,
+                                         SkToBool(srcRT), src->dimensions(),
+                                         srcRect, dstPoint,
+                                         dstAttachment == srcAttachment)) {
         this->copySurfaceAsResolve(dst, src);
-        success = true;
+        return true;
     }
-    if (success) {
-        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.x(), dstPoint.y(),
-                                            srcRect.width(), srcRect.height());
-        // The rect is already in device space so we pass in kTopLeft so no flip is done.
-        this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+
+    if (srcAttachment->framebufferOnly() || dstAttachment->framebufferOnly()) {
+        return false;
     }
-    return success;
+
+    if (this->mtlCaps().canCopyAsBlit(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt,
+                                      srcRect, dstPoint, dstAttachment == srcAttachment)) {
+        this->copySurfaceAsBlit(dst, src, dstAttachment, srcAttachment, srcRect, dstPoint);
+        return true;
+    }
+
+    return false;
 }
 
 bool GrMtlGpu::onWritePixels(GrSurface* surface,
@@ -1504,7 +1557,7 @@ void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&) {
     SkASSERT(target->numSamples() > 1);
     GrMtlRenderTarget* rt = static_cast<GrMtlRenderTarget*>(target);
 
-    if (rt->resolveAttachment() && this->mtlCaps().storeAndMultisampleResolveSupport()) {
+    if (rt->resolveAttachment() && this->mtlCaps().renderTargetSupportsDiscardableMSAA(rt)) {
         // We would have resolved the RT during the render pass.
         return;
     }

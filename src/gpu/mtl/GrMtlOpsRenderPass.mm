@@ -244,7 +244,7 @@ void GrMtlOpsRenderPass::setupRenderPass(
 
     fRenderPassDesc = [MTLRenderPassDescriptor new];
     auto colorAttachment = fRenderPassDesc.colorAttachments[0];
-    auto* color = fFramebuffer->colorAttachment();
+    auto color = fFramebuffer->colorAttachment();
     colorAttachment.texture = color->mtlTexture();
     const std::array<float, 4>& clearColor = colorInfo.fClearColor;
     colorAttachment.clearColor =
@@ -252,22 +252,22 @@ void GrMtlOpsRenderPass::setupRenderPass(
     colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
     colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
-    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
-        // For the moment we won't do any of this if MTLStoreActionStoreAndMultisampleResolve
-        // isn't available. Once we can copy the resolve back to MSAA then we'll have another
-        // path to manage the store (or more accurately, the following load).
-        auto* resolve = fFramebuffer->resolveAttachment();
-        if (resolve) {
-            colorAttachment.resolveTexture = resolve->mtlTexture();
-            if (colorInfo.fStoreOp == GrStoreOp::kStore) {
-                colorAttachment.storeAction = MTLStoreActionStoreAndMultisampleResolve;
-            } else {
-                colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
-            }
+    auto resolve = fFramebuffer->resolveAttachment();
+    if (resolve) {
+        colorAttachment.resolveTexture = resolve->mtlTexture();
+        // TODO: For framebufferOnly attachments we should do StoreAndMultisampleResolve if
+        // the storeAction is Store. But for the moment they don't take this path.
+        colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
+        if (colorInfo.fLoadOp == GrLoadOp::kLoad) {
+            auto dimensions = color->dimensions();
+            // for now use the full bounds
+            auto nativeBounds = GrNativeRect::MakeIRectRelativeTo(
+                    fOrigin, dimensions.height(), SkIRect::MakeSize(dimensions));
+            fGpu->loadMSAAFromResolve(color, resolve, nativeBounds);
         }
     }
 
-    auto* stencil = fFramebuffer->stencilAttachment();
+    auto stencil = fFramebuffer->stencilAttachment();
     auto mtlStencil = fRenderPassDesc.stencilAttachment;
     if (stencil) {
         mtlStencil.texture = stencil->mtlTexture();

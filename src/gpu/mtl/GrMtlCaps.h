@@ -15,6 +15,7 @@
 #import <Metal/Metal.h>
 
 class GrShaderCaps;
+class GrMtlRenderTarget;
 
 /**
  * Stores some capabilities of a Mtl backend.
@@ -57,20 +58,10 @@ public:
         return fPreferredStencilFormat;
     }
 
-    bool canCopyAsBlit(GrSurface* dst,
-                       GrSurface* src,
-                       const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) const;
-
     bool canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount,
                        MTLPixelFormat srcFormat, int srcSampleCount,
                        const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
-
-    bool canCopyAsResolve(GrSurface* dst,
-                          GrSurface* src,
-                          const SkIRect& srcRect,
-                          const SkIPoint& dstPoint) const;
 
     bool canCopyAsResolve(MTLPixelFormat dstFormat, int dstSampleCount,
                           MTLPixelFormat srcFormat, int srcSampleCount,
@@ -97,6 +88,14 @@ public:
 
     // if true, MTLStoreActionStoreAndMultiplesampleResolve is available
     bool storeAndMultisampleResolveSupport() const { return fStoreAndMultisampleResolveSupport; }
+
+    // If true when doing MSAA draws, we will prefer to discard the MSAA attachment on load
+    // and stores. The use of this feature for specific draws depends on the render target having a
+    // resolve attachment, and if we need to load previous data the resolve attachment must
+    // be readable in a shader. Otherwise we will just write out and store the MSAA attachment
+    // like normal.
+    bool preferDiscardableMSAAAttachment() const { return fPreferDiscardableMSAAAttachment; }
+    bool renderTargetSupportsDiscardableMSAA(const GrMtlRenderTarget*) const;
 
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
@@ -198,7 +197,8 @@ private:
 
     MTLPixelFormat fPreferredStencilFormat;
 
-    bool fStoreAndMultisampleResolveSupport;
+    bool fStoreAndMultisampleResolveSupport : 1;
+    bool fPreferDiscardableMSAAAttachment : 1;
 
     using INHERITED = GrCaps;
 };
