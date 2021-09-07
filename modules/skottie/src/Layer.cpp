@@ -545,8 +545,10 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
     }
 
     // Optional matte.
-    size_t matte_mode;
-    if (prev_layer && Parse(fJlayer["tt"], &matte_mode)) {
+    const auto matte_mode = prev_layer
+            ? ParseDefault<size_t>(fJlayer["tt"], 0)
+            : 0;
+    if (matte_mode > 0) {
         static constexpr sksg::MaskEffect::Mode gMatteModes[] = {
             sksg::MaskEffect::Mode::kAlphaNormal, // tt: 1
             sksg::MaskEffect::Mode::kAlphaInvert, // tt: 2
@@ -554,7 +556,7 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
             sksg::MaskEffect::Mode::kLumaInvert,  // tt: 4
         };
 
-        if (matte_mode > 0 && matte_mode <= SK_ARRAY_COUNT(gMatteModes)) {
+        if (matte_mode <= SK_ARRAY_COUNT(gMatteModes)) {
             // The current layer is masked with the previous layer *content*.
             layer = sksg::MaskEffect::Make(std::move(layer),
                                            prev_layer->fContentTree,
