@@ -60,9 +60,9 @@
 #include "src/gpu/ops/FillRRectOp.h"
 #include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/ops/GrLatticeOp.h"
 #include "src/gpu/ops/GrOp.h"
 #include "src/gpu/ops/GrOvalOpFactory.h"
+#include "src/gpu/ops/LatticeOp.h"
 #include "src/gpu/ops/RegionOp.h"
 #include "src/gpu/ops/ShadowRRectOp.h"
 #include "src/gpu/ops/StrokeRectOp.h"
@@ -1476,7 +1476,7 @@ void SurfaceDrawContext::drawImageLattice(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     GrOp::Owner op =
-            GrLatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(view),
+              LatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(view),
                                    alphaType, std::move(csxf), filter, std::move(iter), dst);
     this->addDrawOp(clip, std::move(op));
 }

@@ -15,7 +15,7 @@
 #include "src/gpu/effects/GrModulateAtlasCoverageEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/AtlasRenderTask.h"
-#include "src/gpu/ops/GrDrawAtlasPathOp.h"
+#include "src/gpu/ops/DrawAtlasPathOp.h"
 #include "src/gpu/ops/TessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
@@ -309,13 +309,13 @@ bool AtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
                     : args.fSurfaceDrawContext->asSurfaceProxy()->backingStoreBoundsIRect())
             : devIBounds;
     const GrCaps& caps = *args.fSurfaceDrawContext->caps();
-    auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
-                                            args.fSurfaceDrawContext->arenaAlloc(),
-                                            fillBounds, *args.fViewMatrix,
-                                            std::move(args.fPaint), locationInAtlas,
-                                            devIBounds, transposedInAtlas,
-                                            fAtlasRenderTasks.back()->readView(caps),
-                                            args.fShape->inverseFilled());
+    auto op = GrOp::Make<DrawAtlasPathOp>(args.fContext,
+                                          args.fSurfaceDrawContext->arenaAlloc(),
+                                          fillBounds, *args.fViewMatrix,
+                                          std::move(args.fPaint), locationInAtlas,
+                                          devIBounds, transposedInAtlas,
+                                          fAtlasRenderTasks.back()->readView(caps),
+                                          args.fShape->inverseFilled());
     args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }

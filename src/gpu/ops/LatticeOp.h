@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrLatticeOp_DEFINED
-#define GrLatticeOp_DEFINED
+#ifndef LatticeOp_DEFINED
+#define LatticeOp_DEFINED
 
 #include <memory>
 #include "include/core/SkRefCnt.h"
@@ -14,7 +14,6 @@
 #include "src/gpu/ops/GrOp.h"
 
 class GrColorSpaceXform;
-class GrDrawOp;
 class GrPaint;
 class SkLatticeIter;
 class GrRecordingContext;
@@ -22,7 +21,8 @@ class GrTextureProxy;
 class SkMatrix;
 struct SkRect;
 
-namespace GrLatticeOp {
+namespace skgpu::v1::LatticeOp {
+
 GrOp::Owner MakeNonAA(GrRecordingContext*,
                       GrPaint&&,
                       const SkMatrix& viewMatrix,
@@ -32,6 +32,7 @@ GrOp::Owner MakeNonAA(GrRecordingContext*,
                       GrSamplerState::Filter,
                       std::unique_ptr<SkLatticeIter>,
                       const SkRect& dst);
-}  // namespace GrLatticeOp
 
-#endif
+}  // namespace skgpu::v1::LatticeOp
+
+#endif // LatticeOp_DEFINED

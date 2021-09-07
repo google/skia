@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrDrawAtlasPathOp.h"
+#include "src/gpu/ops/DrawAtlasPathOp.h"
 
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -117,10 +117,12 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> DrawAtlasPathShader::makeProgr
     return std::make_unique<Impl>();
 }
 
-}  // namespace
+}  // anonymous namespace
 
-GrProcessorSet::Analysis GrDrawAtlasPathOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                                     GrClampType clampType) {
+namespace skgpu::v1 {
+
+GrProcessorSet::Analysis DrawAtlasPathOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                                   GrClampType clampType) {
     const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
             fHeadInstance->fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip,
             &GrUserStencilSettings::kUnused, caps, clampType, &fHeadInstance->fColor);
@@ -128,8 +130,8 @@ GrProcessorSet::Analysis GrDrawAtlasPathOp::finalize(const GrCaps& caps, const G
     return analysis;
 }
 
-GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps&) {
-    auto* that = op->cast<GrDrawAtlasPathOp>();
+GrOp::CombineResult DrawAtlasPathOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps&) {
+    auto that = op->cast<DrawAtlasPathOp>();
 
     if (!fAtlasHelper.isCompatible(that->fAtlasHelper) ||
         fProcessors != that->fProcessors) {
@@ -143,12 +145,12 @@ GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(GrOp* op, SkArenaAllo
     return CombineResult::kMerged;
 }
 
-void GrDrawAtlasPathOp::prepareProgram(const GrCaps& caps, SkArenaAlloc* arena,
-                                       const GrSurfaceProxyView& writeView, bool usesMSAASurface,
-                                       GrAppliedClip&& appliedClip,
-                                       const GrDstProxyView& dstProxyView,
-                                       GrXferBarrierFlags renderPassXferBarriers,
-                                       GrLoadOp colorLoadOp) {
+void DrawAtlasPathOp::prepareProgram(const GrCaps& caps, SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView& writeView, bool usesMSAASurface,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrDstProxyView& dstProxyView,
+                                     GrXferBarrierFlags renderPassXferBarriers,
+                                     GrLoadOp colorLoadOp) {
     SkASSERT(!fProgram);
     GrPipeline::InitArgs initArgs;
     initArgs.fCaps = &caps;
@@ -164,11 +166,11 @@ void GrDrawAtlasPathOp::prepareProgram(const GrCaps& caps, SkArenaAlloc* arena,
                                           renderPassXferBarriers, colorLoadOp);
 }
 
-void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext* rContext,
-                                     const GrSurfaceProxyView& writeView,
-                                     GrAppliedClip* appliedClip, const GrDstProxyView& dstProxyView,
-                                     GrXferBarrierFlags renderPassXferBarriers,
-                                     GrLoadOp colorLoadOp) {
+void DrawAtlasPathOp::onPrePrepare(GrRecordingContext* rContext,
+                                   const GrSurfaceProxyView& writeView,
+                                   GrAppliedClip* appliedClip, const GrDstProxyView& dstProxyView,
+                                   GrXferBarrierFlags renderPassXferBarriers,
+                                   GrLoadOp colorLoadOp) {
     // DMSAA is not supported on DDL.
     bool usesMSAASurface = writeView.asRenderTargetProxy()->numSamples() > 1;
     this->prepareProgram(*rContext->priv().caps(), rContext->priv().recordTimeAllocator(),
@@ -180,7 +182,7 @@ void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext* rContext,
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
 
-void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
+void DrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
     if (!fProgram) {
         this->prepareProgram(flushState->caps(), flushState->allocator(), flushState->writeView(),
                              flushState->usesMSAASurface(), flushState->detachAppliedClip(),
@@ -212,9 +214,11 @@ void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-void GrDrawAtlasPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void DrawAtlasPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     flushState->bindPipelineAndScissorClip(*fProgram, this->bounds());
     flushState->bindTextures(fProgram->geomProc(), *fAtlasHelper.proxy(), fProgram->pipeline());
     flushState->bindBuffers(nullptr, std::move(fInstanceBuffer), fVertexBufferIfNoIDSupport);
     flushState->drawInstanced(fInstanceCount, fBaseInstance, 4, 0);
 }
+
+} // namespace skgpu::v1

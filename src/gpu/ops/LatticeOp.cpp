@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrLatticeOp.h"
+#include "src/gpu/ops/LatticeOp.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -394,7 +393,8 @@ private:
 
 }  // anonymous namespace
 
-namespace GrLatticeOp {
+namespace skgpu::v1::LatticeOp {
+
 GrOp::Owner MakeNonAA(GrRecordingContext* context,
                       GrPaint&& paint,
                       const SkMatrix& viewMatrix,
@@ -407,9 +407,11 @@ GrOp::Owner MakeNonAA(GrRecordingContext* context,
     return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view), alphaType,
                                 std::move(colorSpaceXform), filter, std::move(iter), dst);
 }
-}  // namespace GrLatticeOp
+
+}  // namespace skgpu::v1::LatticeOp
 
 #if GR_TEST_UTILS
+#include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 

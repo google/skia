@@ -5,21 +5,23 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawAtlasPathOp_DEFINED
-#define GrDrawAtlasPathOp_DEFINED
+#ifndef DrawAtlasPathOp_DEFINED
+#define DrawAtlasPathOp_DEFINED
 
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/ops/GrAtlasInstancedHelper.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
+namespace skgpu::v1 {
+
 // Fills a rectangle of pixels with a clip against coverage values from an atlas.
-class GrDrawAtlasPathOp : public GrDrawOp {
+class DrawAtlasPathOp final : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrDrawAtlasPathOp(SkArenaAlloc* arena, const SkIRect& fillBounds, const SkMatrix& localToDevice,
-                      GrPaint&& paint, SkIPoint16 locationInAtlas, const SkIRect& pathDevIBounds,
-                      bool transposedInAtlas, GrSurfaceProxyView atlasView, bool isInverseFill)
+    DrawAtlasPathOp(SkArenaAlloc* arena, const SkIRect& fillBounds, const SkMatrix& localToDevice,
+                    GrPaint&& paint, SkIPoint16 locationInAtlas, const SkIRect& pathDevIBounds,
+                    bool transposedInAtlas, GrSurfaceProxyView atlasView, bool isInverseFill)
             : GrDrawOp(ClassID())
             , fHeadInstance(arena->make<Instance>(fillBounds, localToDevice, paint.getColor4f(),
                                                   locationInAtlas, pathDevIBounds,
@@ -33,7 +35,7 @@ public:
         this->setBounds(SkRect::Make(fillBounds), HasAABloat::kYes, IsHairline::kNo);
     }
 
-    const char* name() const override { return "GrDrawAtlasPathOp"; }
+    const char* name() const override { return "DrawAtlasPathOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     void visitProxies(const GrVisitProxyFunc& func) const override {
         func(fAtlasHelper.proxy(), GrMipmapped::kNo);
@@ -89,4 +91,6 @@ private:
     GrProcessorSet fProcessors;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // DrawAtlasPathOp_DEFINED
