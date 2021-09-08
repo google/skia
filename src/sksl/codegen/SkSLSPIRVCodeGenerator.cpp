@@ -1218,7 +1218,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
         } else {
             // See getFunctionType for an explanation of why we're always using pointer parameters.
             tmpValueId = this->writeExpression(*arguments[i], out);
-            tmpVar = this->nextId(&arguments[i]->type());
+            tmpVar = this->nextId(nullptr);
         }
         this->writeInstruction(SpvOpVariable,
                                this->getPointerType(arguments[i]->type(), SpvStorageClassFunction),
