@@ -1,19 +1,20 @@
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    float4 value = colorGreen.gggg * 2.5;
+    float4 value                  = float4(2.5, -2.5, 8, -0.125);
+    const float4 expectedWhole    = float4(2,   -2,   8, 0);
+    const float4 expectedFraction = float4(0.5, -0.5, 0, -0.125);
+    bool4  ok = bool4(false);
     float4 whole, fraction;
-    bool4  ok;
 
-    // 2.5 equals 2 + 0.5.
     fraction.x    = modf(value.x,    whole.x);
-    ok.x          = whole.x == 2 && fraction.x == 0.5;
+    ok.x          = whole.x    == expectedWhole.x    && fraction.x    == expectedFraction.x;
     fraction.xy   = modf(value.xy,   whole.xy);
-    ok.y          = whole.y == 2 && fraction.y == 0.5;
+    ok.y          = whole.xy   == expectedWhole.xy   && fraction.xy   == expectedFraction.xy;
     fraction.xyz  = modf(value.xyz,  whole.xyz);
-    ok.z          = whole.z == 2 && fraction.z == 0.5;
+    ok.z          = whole.xyz  == expectedWhole.xyz  && fraction.xyz  == expectedFraction.xyz;
     fraction.xyzw = modf(value.xyzw, whole.xyzw);
-    ok.w          = whole.w == 2 && fraction.w == 0.5;
+    ok.w          = whole.xyzw == expectedWhole.xyzw && fraction.xyzw == expectedFraction.xyzw;
 
     return all(ok) ? colorGreen : colorRed;
 }

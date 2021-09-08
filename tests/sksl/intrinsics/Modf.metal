@@ -37,18 +37,20 @@ float4 _skOutParamHelper3_modf(float4 _var0, thread float4& whole) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 value = _uniforms.colorGreen.yyyy * 2.5;
+    float4 value = float4(2.5, -2.5, 8.0, -0.125);
+    const float4 expectedWhole = float4(2.0, -2.0, 8.0, 0.0);
+    const float4 expectedFraction = float4(0.5, -0.5, 0.0, -0.125);
+    bool4 ok = bool4(false);
     float4 whole;
     float4 fraction;
-    bool4 ok;
     fraction.x =     _skOutParamHelper0_modf(value.x, whole);
     ok.x = whole.x == 2.0 && fraction.x == 0.5;
     fraction.xy =     _skOutParamHelper1_modf(value.xy, whole);
-    ok.y = whole.y == 2.0 && fraction.y == 0.5;
+    ok.y = all(whole.xy == float2(2.0, -2.0)) && all(fraction.xy == float2(0.5, -0.5));
     fraction.xyz =     _skOutParamHelper2_modf(value.xyz, whole);
-    ok.z = whole.z == 2.0 && fraction.z == 0.5;
+    ok.z = all(whole.xyz == float3(2.0, -2.0, 8.0)) && all(fraction.xyz == float3(0.5, -0.5, 0.0));
     fraction =     _skOutParamHelper3_modf(value, whole);
-    ok.w = whole.w == 2.0 && fraction.w == 0.5;
+    ok.w = all(whole == expectedWhole) && all(fraction == expectedFraction);
     _out.sk_FragColor = all(ok) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

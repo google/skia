@@ -123,6 +123,8 @@ $es3 $genBType isnan($genType  x);
 $es3 $genBType isnan($genHType x);
 $es3 $genBType isinf($genType  x);
 $es3 $genBType isinf($genHType x);
+$es3 $genType  modf($genType  x, out $genType  i);
+$es3 $genHType modf($genHType x, out $genHType i);
 
 // 8.4 : Geometric Functions
 float length($genType  x);
