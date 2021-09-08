@@ -13,10 +13,10 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor.x = float(packHalf2x16(_uniforms.a));
-    _out.sk_FragColor.x = float(packUnorm2x16(_uniforms.a));
-    _out.sk_FragColor.x = float(packSnorm2x16(_uniforms.a));
-    _out.sk_FragColor.x = float(packUnorm4x8(_uniforms.b));
-    _out.sk_FragColor.x = float(packSnorm4x8(_uniforms.b));
+    _out.sk_FragColor.x = float(as_type<uint>(half2(_uniforms.a)));
+    _out.sk_FragColor.x = float(pack_float_to_unorm2x16(_uniforms.a));
+    _out.sk_FragColor.x = float(pack_float_to_snorm2x16(_uniforms.a));
+    _out.sk_FragColor.x = float(pack_float_to_unorm4x8(_uniforms.b));
+    _out.sk_FragColor.x = float(pack_float_to_snorm4x8(_uniforms.b));
     return _out;
 }
