@@ -172,6 +172,12 @@ private:
         kRelaxed,
     };
 
+    struct TempVar {
+        SpvId spvId;
+        const Type* type;
+        std::unique_ptr<SPIRVCodeGenerator::LValue> lvalue;
+    };
+
     void setupIntrinsics();
 
     /**
@@ -228,6 +234,13 @@ private:
     SpvId writeExpression(const Expression& expr, OutputStream& out);
 
     SpvId writeIntrinsicCall(const FunctionCall& c, OutputStream& out);
+
+    SpvId writeFunctionCallArgument(const Expression& arg,
+                                    const Modifiers& paramModifiers,
+                                    std::vector<TempVar>* tempVars,
+                                    OutputStream& out);
+
+    void copyBackTempVars(const std::vector<TempVar>& tempVars, OutputStream& out);
 
     SpvId writeFunctionCall(const FunctionCall& c, OutputStream& out);
 
