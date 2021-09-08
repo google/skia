@@ -428,6 +428,11 @@ DSLExpression Refract(DSLExpression i, DSLExpression n, DSLExpression eta,
                       PositionInfo pos = PositionInfo::Capture());
 
 /**
+ * Returns x, rounded to the nearest integer. If x is a vector, operates componentwise.
+ */
+DSLExpression Round(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+
+/**
  * Samples the child processor at the current coordinates.
  */
 DSLExpression Sample(DSLExpression fp, PositionInfo pos = PositionInfo::Capture());

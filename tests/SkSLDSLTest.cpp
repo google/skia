@@ -1806,6 +1806,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
     EXPECT_EQUAL(Radians(a),             "radians(a)");
     EXPECT_EQUAL(Reflect(a, b),          "reflect(a, b)");
     EXPECT_EQUAL(Refract(a, b, 1),       "refract(a, b, 1.0)");
+    EXPECT_EQUAL(Round(a),               "round(a)");
     EXPECT_EQUAL(Saturate(a),            "saturate(a)");
     EXPECT_EQUAL(Sign(a),                "sign(a)");
     EXPECT_EQUAL(Sin(a),                 "sin(a)");

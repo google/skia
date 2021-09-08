@@ -597,6 +597,10 @@ DSLExpression Refract(DSLExpression i, DSLExpression n, DSLExpression eta, Posit
     return DSLExpression(DSLCore::Call("refract", std::move(i), std::move(n), std::move(eta)), pos);
 }
 
+DSLExpression Round(DSLExpression x, PositionInfo pos) {
+    return DSLExpression(DSLCore::Call("round", std::move(x)), pos);
+}
+
 DSLExpression Sample(DSLExpression target, PositionInfo pos) {
     return DSLExpression(DSLCore::Call("sample", std::move(target)), pos);
 }
