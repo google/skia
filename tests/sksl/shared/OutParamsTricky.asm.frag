@@ -33,9 +33,12 @@ OpDecorate %36 RelaxedPrecision
 OpDecorate %37 RelaxedPrecision
 OpDecorate %38 RelaxedPrecision
 OpDecorate %t RelaxedPrecision
+OpDecorate %45 RelaxedPrecision
+OpDecorate %47 RelaxedPrecision
 OpDecorate %48 RelaxedPrecision
 OpDecorate %49 RelaxedPrecision
 OpDecorate %50 RelaxedPrecision
+OpDecorate %52 RelaxedPrecision
 OpDecorate %54 RelaxedPrecision
 OpDecorate %55 RelaxedPrecision
 OpDecorate %56 RelaxedPrecision

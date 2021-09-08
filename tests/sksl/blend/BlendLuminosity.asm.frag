@@ -110,8 +110,11 @@ OpDecorate %138 RelaxedPrecision
 OpDecorate %139 RelaxedPrecision
 OpDecorate %140 RelaxedPrecision
 OpDecorate %141 RelaxedPrecision
+OpDecorate %142 RelaxedPrecision
 OpDecorate %143 RelaxedPrecision
+OpDecorate %144 RelaxedPrecision
 OpDecorate %145 RelaxedPrecision
+OpDecorate %146 RelaxedPrecision
 OpDecorate %149 RelaxedPrecision
 OpDecorate %150 RelaxedPrecision
 OpDecorate %151 RelaxedPrecision
