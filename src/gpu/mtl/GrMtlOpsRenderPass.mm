@@ -193,12 +193,14 @@ void GrMtlOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUp
         auto mtlStencil = fRenderPassDesc.stencilAttachment;
         mtlStencil.loadAction = MTLLoadActionLoad;
     }
+    // If the previous renderCommandEncoder did a resolve without an MSAA store
+    // (e.g., if the color attachment is memoryless) we need to copy the contents of
+    // the resolve attachment to the MSAA attachment at this point.
+    this->setupResolve();
+
     // It's probably reasonable to create the new encoder at this point, though maybe not necessary.
     fActiveRenderCmdEncoder =
             fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
-    // TODO: If the previous renderCommandEncoder did a resolve without an MSAA store
-    // (e.g., if the color attachment is memoryless) we need to copy the contents of
-    // the resolve attachment to the MSAA attachment at this point.
 }
 
 void GrMtlOpsRenderPass::initRenderState(GrMtlRenderCommandEncoder* encoder) {
@@ -252,20 +254,7 @@ void GrMtlOpsRenderPass::setupRenderPass(
     colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
     colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
-    auto resolve = fFramebuffer->resolveAttachment();
-    if (resolve) {
-        colorAttachment.resolveTexture = resolve->mtlTexture();
-        // TODO: For framebufferOnly attachments we should do StoreAndMultisampleResolve if
-        // the storeAction is Store. But for the moment they don't take this path.
-        colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
-        if (colorInfo.fLoadOp == GrLoadOp::kLoad) {
-            auto dimensions = color->dimensions();
-            // for now use the full bounds
-            auto nativeBounds = GrNativeRect::MakeIRectRelativeTo(
-                    fOrigin, dimensions.height(), SkIRect::MakeSize(dimensions));
-            fGpu->loadMSAAFromResolve(color, resolve, nativeBounds);
-        }
-    }
+    this->setupResolve();
 
     auto stencil = fFramebuffer->stencilAttachment();
     auto mtlStencil = fRenderPassDesc.stencilAttachment;
@@ -289,6 +278,25 @@ void GrMtlOpsRenderPass::setupRenderPass(
         // when we've cleared a texture upon creation -- we'll subsequently discard the contents.
         // This can be removed when that ordering is fixed.
         fActiveRenderCmdEncoder = nil;
+    }
+}
+
+void GrMtlOpsRenderPass::setupResolve() {
+    auto resolve = fFramebuffer->resolveAttachment();
+    if (resolve) {
+        auto colorAttachment = fRenderPassDesc.colorAttachments[0];
+        colorAttachment.resolveTexture = resolve->mtlTexture();
+        // TODO: For framebufferOnly attachments we should do StoreAndMultisampleResolve if
+        // the storeAction is Store. But for the moment they don't take this path.
+        colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
+        if (colorAttachment.loadAction == MTLLoadActionLoad) {
+            auto color = fFramebuffer->colorAttachment();
+            auto dimensions = color->dimensions();
+            // for now use the full bounds
+            auto nativeBounds = GrNativeRect::MakeIRectRelativeTo(
+                    fOrigin, dimensions.height(), SkIRect::MakeSize(dimensions));
+            fGpu->loadMSAAFromResolve(color, resolve, nativeBounds);
+        }
     }
 }
 
