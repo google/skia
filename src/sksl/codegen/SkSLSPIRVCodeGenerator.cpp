@@ -1196,7 +1196,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
                 // copy it into a temp, call the function, read the value out of the temp, and then
                 // update the lvalue.
                 tmpValueId = lv->load(out);
-                tmpVar = this->nextId(nullptr);
+                tmpVar = this->nextId(&arguments[i]->type());
                 tempVars.push_back(TempVar{tmpVar, &arguments[i]->type(), std::move(lv)});
             }
         } else {
