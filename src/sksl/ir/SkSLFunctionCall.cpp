@@ -485,6 +485,15 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_tan_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments, returnType,
                                              Intrinsics::evaluate_tan);
+        case k_sinh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_sinh);
+        case k_cosh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_cosh);
+        case k_tanh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_tanh);
         case k_asin_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments, returnType,
                                              Intrinsics::evaluate_asin);
@@ -592,7 +601,28 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_smoothstep_IntrinsicKind:
             return evaluate_3_way_intrinsic(context, arguments, returnType,
                                             Intrinsics::evaluate_smoothstep);
-        // 8.4 : Geometric Functions
+        case k_trunc_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_trunc);
+        case k_round_IntrinsicKind:      // GLSL `round` documents its rounding mode as unspecified
+        case k_roundEven_IntrinsicKind:  // and is allowed to behave identically to `roundEven`.
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_round);
+        case k_floatBitsToInt_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_floatBitsToInt);
+        case k_floatBitsToUint_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, returnType,
+                                             Intrinsics::evaluate_floatBitsToUint);
+        case k_intBitsToFloat_IntrinsicKind:
+            return evaluate_intrinsic<SKSL_INT>(context, arguments, returnType,
+                                                Intrinsics::evaluate_intBitsToFloat);
+        case k_uintBitsToFloat_IntrinsicKind:
+            return evaluate_intrinsic<SKSL_INT>(context, arguments, returnType,
+                                                Intrinsics::evaluate_uintBitsToFloat);
+        // TODO(skia:12202): 8.4 : Floating-Point Pack and Unpack Functions
+
+        // 8.5 : Geometric Functions
         case k_length_IntrinsicKind:
             return coalesce_vector<float>(arguments, /*startingState=*/0, returnType,
                                           Intrinsics::coalesce_length,
@@ -648,7 +678,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                        (Eta() * I() - (Eta() * Dot(N(), I()) + std::sqrt(kValue)) * N())).release();
         }
 
-        // 8.5 : Matrix Functions
+        // 8.6 : Matrix Functions
         case k_matrixCompMult_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments, returnType,
                                                Intrinsics::evaluate_matrixCompMult);
@@ -720,7 +750,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             SkDEBUGFAILF("unsupported type %s", matrix->type().description().c_str());
             return nullptr;
         }
-        // 8.6 : Vector Relational Functions
+        // 8.7 : Vector Relational Functions
         case k_lessThan_IntrinsicKind:
             return optimize_comparison(context, arguments, Intrinsics::compare_lessThan);
 
@@ -750,35 +780,6 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_not_IntrinsicKind:
             return evaluate_intrinsic<bool>(context, arguments, returnType,
                                             Intrinsics::evaluate_not);
-        // Additional intrinsics not required by GLSL ES2:
-        case k_sinh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments, returnType,
-                                             Intrinsics::evaluate_sinh);
-        case k_cosh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments, returnType,
-                                             Intrinsics::evaluate_cosh);
-        case k_tanh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments, returnType,
-                                             Intrinsics::evaluate_tanh);
-        case k_trunc_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments, returnType,
-                                             Intrinsics::evaluate_trunc);
-        case k_round_IntrinsicKind:      // GLSL `round` documents its rounding mode as unspecified
-        case k_roundEven_IntrinsicKind:  // and is allowed to behave identically to `roundEven`.
-            return evaluate_intrinsic<float>(context, arguments, returnType,
-                                             Intrinsics::evaluate_round);
-        case k_floatBitsToInt_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments, returnType,
-                                             Intrinsics::evaluate_floatBitsToInt);
-        case k_floatBitsToUint_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments, returnType,
-                                             Intrinsics::evaluate_floatBitsToUint);
-        case k_intBitsToFloat_IntrinsicKind:
-            return evaluate_intrinsic<SKSL_INT>(context, arguments, returnType,
-                                                Intrinsics::evaluate_intBitsToFloat);
-        case k_uintBitsToFloat_IntrinsicKind:
-            return evaluate_intrinsic<SKSL_INT>(context, arguments, returnType,
-                                                Intrinsics::evaluate_uintBitsToFloat);
         default:
             return nullptr;
     }

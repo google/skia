@@ -2,7 +2,7 @@
 
 // See "The OpenGL ES Shading Language, Section 8"
 
-// 8.1 : Angle and Trigonometry Functions (Version 1.0)
+// 8.1 : Angle and Trigonometry Functions
 $genType  radians($genType  degrees);
 $genHType radians($genHType degrees);
 $genType  degrees($genType  radians);
@@ -24,7 +24,7 @@ $genHType atan($genHType y, $genHType x);
 $genType  atan($genType  y_over_x);
 $genHType atan($genHType y_over_x);
 
-// 8.1 : Angle and Trigonometry Functions (Version 3.0)
+// 8.1 : Angle and Trigonometry Functions (GLSL ES 3.0)
 $es3 $genType  sinh($genType x);
 $es3 $genHType sinh($genHType x);
 $es3 $genType  cosh($genType x);
@@ -98,7 +98,7 @@ $genType  smoothstep(float     edge0, float     edge1, $genType  x);
 $genHType smoothstep($genHType edge0, $genHType edge1, $genHType x);
 $genHType smoothstep(half      edge0, half      edge1, $genHType x);
 
-// 8.3 : Common Functions (Version 3.0)
+// 8.3 : Common Functions (GLSL ES 3.0)
 $es3 $genIType floatBitsToInt ($genType  value);
 $es3 $genUType floatBitsToUint($genType  value);
 $es3 $genType  intBitsToFloat ($genIType value);
@@ -118,7 +118,7 @@ $es3 $genIType clamp($genIType x, int minVal, int maxVal);
 $es3 $genType  mix($genType  x, $genType  y, $genBType a);
 $es3 $genHType mix($genHType x, $genHType y, $genBType a);
 
-// 8.3 : Common Functions (Version 3.0) -- cannot be used in constant-expressions
+// 8.3 : Common Functions (GLSL ES 3.0) -- cannot be used in constant-expressions
 $es3 $genBType isnan($genType  x);
 $es3 $genBType isnan($genHType x);
 $es3 $genBType isinf($genType  x);
@@ -126,7 +126,9 @@ $es3 $genBType isinf($genHType x);
 $es3 $genType  modf($genType  x, out $genType  i);
 $es3 $genHType modf($genHType x, out $genHType i);
 
-// 8.4 : Geometric Functions
+// TODO(skia:12202): 8.4 : Floating-Point Pack and Unpack Functions (GLSL ES 3.0)
+
+// 8.5 : Geometric Functions
 float length($genType  x);
 half  length($genHType x);
 float distance($genType  p0, $genType  p1);
@@ -144,7 +146,7 @@ $genHType reflect($genHType I, $genHType N);
 $genType  refract($genType  I, $genType  N, float eta);
 $genHType refract($genHType I, $genHType N, half eta);
 
-// 8.5 : Matrix Functions
+// 8.6 : Matrix Functions
 $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
 $squareHMat matrixCompMult($squareHMat x, $squareHMat y);
 $es3 float  determinant($squareMat m);
@@ -164,11 +166,11 @@ $es3 half4x2     transpose(half2x4  m);
 $es3 float4x3    transpose(float3x4 m);
 $es3 half4x3     transpose(half3x4  m);
 
-// Not supported until GLSL 1.40. Poly-filled by SkSL:
+// 8.6 : Matrix Functions (GLSL 1.4, poly-filled by SkSL as needed)
 $squareMat  inverse($squareMat  m);
 $squareHMat inverse($squareHMat m);
 
-// 8.6 : Vector Relational Functions
+// 8.7 : Vector Relational Functions
 $bvec lessThan($vec  x, $vec  y);
 $bvec lessThan($hvec x, $hvec y);
 $bvec lessThan($ivec x, $ivec y);
@@ -194,19 +196,17 @@ bool  any($bvec x);
 bool  all($bvec x);
 $bvec not($bvec x);
 
-// Miscellaneous SkSL intrinsics that are not part of GLSL:
-
-// The max() guards against division by zero when the incoming color is transparent black
-half4  unpremul(half4  color) { return half4 (color.rgb / max(color.a, 0.0001), color.a); }
-float4 unpremul(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
-
-// See "The OpenGL ES Shading Language, Version 3.00, Section 8"
-
-// 8.9 : Fragment Processing Functions
+// 8.9 : Fragment Processing Functions (GLSL ES 3.0)
 $es3 $genType dFdx($genType p);
 $es3 $genType dFdy($genType p);
 $es3 $genHType dFdx($genHType p);
 $es3 $genHType dFdy($genHType p);
+
+
+// SkSL intrinsics that are not part of GLSL:
+// The max() guards against division by zero when the incoming color is transparent black
+half4  unpremul(half4  color) { return half4 (color.rgb / max(color.a, 0.0001), color.a); }
+float4 unpremul(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
 
 // SkSL intrinsics that reflect Skia's C++ object model:
 half4 sample(shader s, float2 coords);
