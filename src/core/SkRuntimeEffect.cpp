@@ -317,8 +317,14 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
                 c.type  = child_type(varType);
                 c.index = children.size();
                 children.push_back(c);
-                sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(
-                        *program, var, sampleCoordsUsage.fWrite != 0, &elidedSampleCoords));
+                auto usage = SkSL::Analysis::GetSampleUsage(
+                        *program, var, sampleCoordsUsage.fWrite != 0, &elidedSampleCoords);
+                // If the child is never sampled, we pretend that it's actually in PassThrough mode.
+                // Otherwise, the GP code for collecting transforms and emitting transform code gets
+                // very confused, leading to asserts and bad (backend) shaders. There's an implicit
+                // assumption that every FP is used by its parent. (skbug.com/12429)
+                sampleUsages.push_back(usage.isSampled() ? usage
+                                                         : SkSL::SampleUsage::PassThrough());
             }
             // 'uniform' variables
             else if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {

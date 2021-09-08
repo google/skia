@@ -498,6 +498,13 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     effect.child("child") = rgbwShader;
     effect.test({0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF});
 
+    // Bind an image shader, but don't use it - ensure that we don't assert or generate bad shaders.
+    // (skbug.com/12429)
+    effect.build("uniform shader child;"
+                 "half4 main(float2 p) { return half4(0, 1, 0, 1); }");
+    effect.child("child") = rgbwShader;
+    effect.test(0xFF00FF00);
+
     //
     // Helper functions
     //
