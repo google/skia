@@ -17,6 +17,7 @@ SkCompatPaint::SkCompatPaint()
     , fTextEncoding(SkTextEncoding::kUTF8)
 {
     fFont.setLinearMetrics(true);
+    fFont.setEdging(SkFont::Edging::kAlias);
 }
 
 SkCompatPaint::SkCompatPaint(const SkCompatPaint& paint) = default;
