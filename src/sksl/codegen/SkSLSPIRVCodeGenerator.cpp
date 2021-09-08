@@ -199,6 +199,20 @@ static bool is_out(const Variable& var) {
     return (var.modifiers().fFlags & Modifiers::kOut_Flag) != 0;
 }
 
+static bool is_in(const Variable& var) {
+    switch (var.modifiers().fFlags & (Modifiers::kOut_Flag | Modifiers::kIn_Flag)) {
+        case Modifiers::kOut_Flag:                       // out
+            return false;
+
+        case 0:                                          // implicit in
+        case Modifiers::kIn_Flag:                        // explicit in
+        case Modifiers::kOut_Flag | Modifiers::kIn_Flag: // inout
+            return true;
+
+        default: SkUNREACHABLE;
+    }
+}
+
 void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& out) {
     SkASSERT(opCode != SpvOpLoad || &out != &fConstantBuffer);
     SkASSERT(opCode != SpvOpUndef);
@@ -1184,7 +1198,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
         // passed directly
         SpvId tmpVar;
         // if we need a temporary var to store this argument, this is the value to store in the var
-        SpvId tmpValueId;
+        SpvId tmpValueId = -1;
         if (is_out(*function.parameters()[i])) {
             std::unique_ptr<LValue> lv = this->getLValue(*arguments[i], out);
             SpvId ptr = lv->getPointer();
@@ -1195,7 +1209,9 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
                 // lvalue cannot simply be read and written via a pointer (e.g. a swizzle). Need to
                 // copy it into a temp, call the function, read the value out of the temp, and then
                 // update the lvalue.
-                tmpValueId = lv->load(out);
+                if (is_in(*function.parameters()[i])) {
+                    tmpValueId = lv->load(out);
+                }
                 tmpVar = this->nextId(&arguments[i]->type());
                 tempVars.push_back(TempVar{tmpVar, &arguments[i]->type(), std::move(lv)});
             }
@@ -1209,7 +1225,9 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
                                tmpVar,
                                SpvStorageClassFunction,
                                fVariableBuffer);
-        this->writeInstruction(SpvOpStore, tmpVar, tmpValueId, out);
+        if (tmpValueId != (SpvId)-1) {
+            this->writeInstruction(SpvOpStore, tmpVar, tmpValueId, out);
+        }
         argumentIds.push_back(tmpVar);
     }
     SpvId result = this->nextId(nullptr);
