@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 
     SkVideoEncoder encoder;
 
-    GrDirectContext* context = nullptr;
+    GrDirectContext* grctx = nullptr;
     sk_sp<SkSurface> surf;
     sk_sp<SkData> data;
 
@@ -109,15 +109,15 @@ int main(int argc, char** argv) {
         // lazily allocate the surfaces
         if (!surf) {
             if (FLAGS_gpu) {
-                context = factory.getContextInfo(contextType).directContext();
-                surf = SkSurface::MakeRenderTarget(context,
+                grctx = factory.getContextInfo(contextType).directContext();
+                surf = SkSurface::MakeRenderTarget(grctx,
                                                    SkBudgeted::kNo,
                                                    info,
                                                    0,
                                                    GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
                                                    nullptr);
                 if (!surf) {
-                    context = nullptr;
+                    grctx = nullptr;
                 }
             }
             if (!surf) {
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
             produce_frame(surf.get(), animation.get(), frame);
 
             AsyncRec asyncRec = { info, &encoder };
-            if (context) {
+            if (grctx) {
                 auto read_pixels_cb = [](SkSurface::ReadPixelsContext ctx,
                                          std::unique_ptr<const SkSurface::AsyncReadResult> result) {
                     if (result && result->count() == 1) {
@@ -147,12 +147,17 @@ int main(int argc, char** argv) {
                                                 SkSurface::RescaleGamma::kSrc,
                                                 SkImage::RescaleMode::kNearest,
                                                 read_pixels_cb, &asyncRec);
-                context->submit();
+                grctx->submit();
             } else {
                 SkPixmap pm;
                 SkAssertResult(surf->peekPixels(&pm));
                 encoder.addFrame(pm);
             }
+        }
+
+        if (grctx) {
+            // ensure all pending reads are completed
+            grctx->flushAndSubmit(true);
         }
         data = encoder.endRecording();
 
