@@ -185,6 +185,10 @@ DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpressio
     return DSLWriter::Call(this->release(), std::move(converted), pos);
 }
 
+DSLPossibleExpression DSLExpression::operator()(ExpressionArray args, PositionInfo pos) {
+    return DSLWriter::Call(this->release(), std::move(args), pos);
+}
+
 #define OP(op, token)                                                                              \
 DSLPossibleExpression operator op(DSLExpression left, DSLExpression right) {                       \
     return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::token, right.release());    \
@@ -350,6 +354,10 @@ DSLPossibleExpression DSLPossibleExpression::operator[](DSLExpression index) {
 
 DSLPossibleExpression DSLPossibleExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args,
                                                         PositionInfo pos) {
+    return DSLExpression(this->release())(std::move(args), pos);
+}
+
+DSLPossibleExpression DSLPossibleExpression::operator()(ExpressionArray args, PositionInfo pos) {
     return DSLExpression(this->release())(std::move(args), pos);
 }
 

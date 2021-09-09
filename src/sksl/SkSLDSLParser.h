@@ -250,7 +250,7 @@ private:
             skstd::string_view swizzleMask);
 
     skstd::optional<dsl::Wrapper<dsl::DSLExpression>> call(int offset, dsl::DSLExpression base,
-            SkTArray<dsl::Wrapper<dsl::DSLExpression>> args);
+            ExpressionArray args);
 
     skstd::optional<dsl::Wrapper<dsl::DSLExpression>> suffix(dsl::DSLExpression base);
 

@@ -113,7 +113,11 @@ DSLExpression DSLFunction::call(SkTArray<DSLWrapper<DSLExpression>> args) {
     for (DSLWrapper<DSLExpression>& arg : args) {
         released.push_back(arg->release());
     }
-    std::unique_ptr<SkSL::Expression> result = DSLWriter::Call(*fDecl, std::move(released));
+    return this->call(std::move(released));
+}
+
+DSLExpression DSLFunction::call(ExpressionArray args) {
+    std::unique_ptr<SkSL::Expression> result = DSLWriter::Call(*fDecl, std::move(args));
     return result ? DSLExpression(std::move(result)) : DSLExpression();
 }
 
