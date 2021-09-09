@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdint>
+#include "QMath.h"
 
 // Compile for x86_64 + ssse3 with:
 //     c++ -O3 --std=c++17 -mssse3 experimental/lowp-basic/lowp_experiments.cpp -o lowp
@@ -34,40 +35,6 @@ template <int N, typename T> using V = T __attribute__((ext_vector_type(N)));
 #endif
 
 using Q15 = V<8, uint16_t>;
-
-// A pure C version of the ssse3 intrinsic mm_mulhrs_epi16;
-static Q15 simulate_ssse3_mm_mulhrs_epi16(Q15 a, Q15 b) {
-    Q15 result;
-    auto m = [](int16_t r, int16_t s) {
-        const int32_t rounding = 1 << 14;
-        int32_t temp = (int32_t)r * (int32_t)s + rounding;
-        return (int16_t)(temp >> 15);
-    };
-    for (int i = 0; i < 8; i++) {
-        result[i] = m(a[i], b[i]);
-    }
-    return result;
-}
-
-// A pure C version of the neon intrinsic vqrdmulhq_s16;
-static Q15 simulate_neon_vqrdmulhq_s16(Q15 a, Q15 b) {
-    Q15 result;
-    const int esize = 16;
-    auto m = [](int16_t r, int16_t s) {
-        const int64_t rounding = 1 << (esize - 1);
-        int64_t product = 2LL * (int64_t)r * (int64_t)s + rounding;
-        int64_t result = product >> esize;
-
-        // Saturate the result
-        if (int64_t limit =  (1LL << (esize - 1)) - 1; result > limit) { result = limit; }
-        if (int64_t limit = -(1LL << (esize - 1))    ; result < limit) { result = limit; }
-        return result;
-    };
-    for (int i = 0; i < 8; i++) {
-        result[i] = m(a[i], b[i]);
-    }
-    return result;
-}
 
 #if defined(__SSSE3__)
 static void test_mm_mulhrs_epi16_simulation() {
