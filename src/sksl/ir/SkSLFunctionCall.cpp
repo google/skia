@@ -864,26 +864,12 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         }
     }
 
-    switch (function.intrinsicKind()) {
-        case k_sample_IntrinsicKind: {
-            if (arguments.size() >= 1 && arguments[0]->type().isEffectChild()) {
-                // Translate these intrinsic calls into a ChildCall, which simplifies handling in
-                // the generators and analysis code
-                const Variable& child = *arguments[0]->as<VariableReference>().variable();
-                std::rotate(arguments.begin(), arguments.begin() + 1, arguments.end());
-                arguments.pop_back();
-                return ChildCall::Make(context, offset, returnType, child, std::move(arguments));
-            }
-            break;
-        }
-        case k_eval_IntrinsicKind: {
-            // Similar, but this is a method call, so the argument ordering is different
-            const Variable& child = *arguments.back()->as<VariableReference>().variable();
-            arguments.pop_back();
-            return ChildCall::Make(context, offset, returnType, child, std::move(arguments));
-        }
-        default:
-            break;
+    if (function.intrinsicKind() == k_eval_IntrinsicKind) {
+        // This is a method call on an effect child. Translate it into a ChildCall, which simplifies
+        // handling in the generators and analysis code.
+        const Variable& child = *arguments.back()->as<VariableReference>().variable();
+        arguments.pop_back();
+        return ChildCall::Make(context, offset, returnType, child, std::move(arguments));
     }
 
     return Make(context, offset, returnType, function, std::move(arguments));

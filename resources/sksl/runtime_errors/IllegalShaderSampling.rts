@@ -1,4 +1,4 @@
-// Expect 24 errors
+// Expect 12 errors
 
 uniform shader      s;
 uniform colorFilter f;
@@ -6,23 +6,6 @@ uniform blender     b;
 
 uniform float2 xy;
 uniform half4  color;
-
-half4 sample_shader_xy_color() { return sample(s, xy, color); }
-half4 sample_shader_color()    { return sample(s, color); }
-half4 sample_shader_color_xy() { return sample(s, color, xy); }
-half4 sample_shader_empty()    { return sample(s); }
-half4 sample_shader_matrix()   { return sample(s, float3x3(1)); }
-
-half4 sample_colorFilter_empty()    { return sample(f); }
-half4 sample_colorFilter_xy()       { return sample(f, xy); }
-half4 sample_colorFilter_xy_color() { return sample(f, xy, color); }
-
-half4 sample_blender_empty()    { return sample(b); }
-half4 sample_blender_color()    { return sample(b, color); }
-half4 sample_blender_xy()       { return sample(b, xy); }
-half4 sample_blender_xy_color() { return sample(b, xy, color); }
-
-// Using .eval()
 
 half4 eval_shader_xy_color() { return s.eval(xy, color); }
 half4 eval_shader_color()    { return s.eval(color); }

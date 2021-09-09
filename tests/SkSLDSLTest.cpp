@@ -1954,7 +1954,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     EXPECT_EQUAL(Sample(shader, Float2(0, 0)), "child.eval(float2(0.0, 0.0))");
 
     {
-        ExpectError error(r, "no match for sample(shader, half4)");
+        ExpectError error(r, "no match for $eval(half4, shader)");
         Sample(shader, Half4(1)).release();
     }
 }
