@@ -1625,6 +1625,9 @@ skstd::optional<DSLWrapper<DSLExpression>> DSLParser::suffix(DSLExpression base)
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
                 return this->swizzle(next.fOffset, std::move(base), field + this->text(id));
+            } else if (field.empty()) {
+                this->error(next, "expected field name or swizzle mask after '.'");
+                return {{DSLExpression::Poison()}};
             }
             this->pushback(id);
             return this->swizzle(next.fOffset, std::move(base), field);
