@@ -208,7 +208,7 @@ bool safe_to_ignore_subset_rect(GrAAType aaType, GrSamplerState::Filter filter,
         return true;
     }
 
-    // If the subset rect is inset by at least 0.5 pixels into the local quad's bounds, the
+    // If the local quad is inset by at least 0.5 pixels into the subset rect's bounds, the
     // sampler shouldn't overshoot, even when antialiasing and filtering is taken into account.
     if (subsetRect.makeInset(0.5f, 0.5f).contains(localBounds)) {
         return true;
