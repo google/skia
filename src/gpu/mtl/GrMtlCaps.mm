@@ -46,7 +46,7 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     fStoreAndMultisampleResolveSupport = (fGPUFamily == GPUFamily::kApple &&
                                           fFamilyGroup >= 3);
     // TODO: only enable if memoryless attachments available?
-    fPreferDiscardableMSAAAttachment = false;  // still issues with framebuffers w/stencil
+    fPreferDiscardableMSAAAttachment = true;
 
     this->finishInitialization(contextOptions);
 }

@@ -108,10 +108,10 @@ public:
     void finishOutstandingGpuWork() override;
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
-    bool loadMSAAFromResolve(GrAttachment* dst,
-                             GrMtlAttachment* src,
-                             const SkIRect& srcRect,
-                             MTLRenderPassStencilAttachmentDescriptor*);
+    GrMtlRenderCommandEncoder* loadMSAAFromResolve(GrAttachment* dst,
+                                                   GrMtlAttachment* src,
+                                                   const SkIRect& srcRect,
+                                                   MTLRenderPassStencilAttachmentDescriptor*);
 
     // When the Metal backend actually uses indirect command buffers, this function will actually do
     // what it says. For now, every command is encoded directly into the primary command buffer, so

@@ -66,7 +66,7 @@ private:
     void setVertexBuffer(GrMtlRenderCommandEncoder*, const GrBuffer*, size_t offset,
                          size_t inputBufferIndex);
 
-    void setupResolve();
+    GrMtlRenderCommandEncoder* setupResolve();
 
     GrMtlGpu*                   fGpu;
 
