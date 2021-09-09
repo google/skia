@@ -60,6 +60,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMustSetAnyTexParameterToEnableMipmapping = false;
     fAllowBGRA8CopyTexSubImage = false;
     fDisallowDynamicMSAA = false;
+    fMustResetBlendFuncBetweenDualSourceAndDisable = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -3976,6 +3977,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
             // Disable color-burn on ARM until the fix is released.
             fAdvBlendEqDisableFlags |= (1 << kColorBurn_GrBlendEquation);
         }
+    }
+
+    // On Adreno 5xx devices, there is a bug where we first draw using dual source blending. Thus
+    // the dst blend func references the dst. Then the next draw we disable blending. However, on
+    // the second draw the driver has a bug where it tries to access the second color output again.
+    // This is fixed by reseting the blend function to anything that does not reference src2 when we
+    // disable blending.
+    if (ctxInfo.renderer() == GrGLRenderer::kAdreno530 ||
+        ctxInfo.renderer() == GrGLRenderer::kAdreno5xx_other) {
+        fMustResetBlendFuncBetweenDualSourceAndDisable = true;
     }
 
     // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
