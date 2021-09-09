@@ -14,6 +14,15 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+
+template <int C, int R>
+matrix<float, C, R> outerProduct(const vec<float, R> a, const vec<float, C> b) {
+    matrix<float, C, R> result;
+    for (int c = 0; c < C; ++c) {
+        result[c] = a * b[c];
+    }
+    return result;
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;

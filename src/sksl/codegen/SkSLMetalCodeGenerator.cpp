@@ -467,7 +467,8 @@ String MetalCodeGenerator::getInversePolyfill(const ExpressionArray& arguments) 
     return "inverse";
 }
 
-static constexpr char kMatrixCompMult[] = R"(
+void MetalCodeGenerator::writeMatrixCompMult() {
+    static constexpr char kMatrixCompMult[] = R"(
 template <int C, int R>
 matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, matrix<float, C, R> b) {
     matrix<float, C, R> result;
@@ -478,11 +479,29 @@ matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, matrix<float, C, R> b)
 }
 )";
 
-void MetalCodeGenerator::writeMatrixCompMult() {
     String name = "matrixCompMult";
     if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
         fWrittenIntrinsics.insert(name);
         fExtraFunctions.writeText(kMatrixCompMult);
+    }
+}
+
+void MetalCodeGenerator::writeOuterProduct() {
+    static constexpr char kOuterProduct[] = R"(
+template <int C, int R>
+matrix<float, C, R> outerProduct(const vec<float, R> a, const vec<float, C> b) {
+    matrix<float, C, R> result;
+    for (int c = 0; c < C; ++c) {
+        result[c] = a * b[c];
+    }
+    return result;
+}
+)";
+
+    String name = "outerProduct";
+    if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+        fWrittenIntrinsics.insert(name);
+        fExtraFunctions.writeText(kOuterProduct);
     }
 }
 
@@ -824,6 +843,11 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
         }
         case k_matrixCompMult_IntrinsicKind: {
             this->writeMatrixCompMult();
+            this->writeSimpleIntrinsic(c);
+            return true;
+        }
+        case k_outerProduct_IntrinsicKind: {
+            this->writeOuterProduct();
             this->writeSimpleIntrinsic(c);
             return true;
         }

@@ -172,6 +172,8 @@ protected:
 
     void writeMatrixCompMult();
 
+    void writeOuterProduct();
+
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
 
     void writeMatrixDivisionHelpers(const Type& type);
