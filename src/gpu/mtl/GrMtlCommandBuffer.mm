@@ -141,6 +141,12 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
         }
     }
 
+    return this->getRenderCommandEncoder(descriptor, opsRenderPass);
+}
+
+GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
+        MTLRenderPassDescriptor* descriptor,
+        GrMtlOpsRenderPass* opsRenderPass) {
     this->endAllEncoding();
     fActiveRenderCommandEncoder = GrMtlRenderCommandEncoder::Make(
             [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor]);

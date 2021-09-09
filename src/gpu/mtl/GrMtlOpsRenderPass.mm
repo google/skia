@@ -254,8 +254,6 @@ void GrMtlOpsRenderPass::setupRenderPass(
     colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
     colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
-    this->setupResolve();
-
     auto stencil = fFramebuffer->stencilAttachment();
     auto mtlStencil = fRenderPassDesc.stencilAttachment;
     if (stencil) {
@@ -264,6 +262,8 @@ void GrMtlOpsRenderPass::setupRenderPass(
     mtlStencil.clearStencil = 0;
     mtlStencil.loadAction = mtlLoadAction[static_cast<int>(stencilInfo.fLoadOp)];
     mtlStencil.storeAction = mtlStoreAction[static_cast<int>(stencilInfo.fStoreOp)];
+
+    this->setupResolve();
 
     // Manage initial clears
     if (colorInfo.fLoadOp == GrLoadOp::kClear || stencilInfo.fLoadOp == GrLoadOp::kClear)  {
@@ -295,7 +295,8 @@ void GrMtlOpsRenderPass::setupResolve() {
             // for now use the full bounds
             auto nativeBounds = GrNativeRect::MakeIRectRelativeTo(
                     fOrigin, dimensions.height(), SkIRect::MakeSize(dimensions));
-            fGpu->loadMSAAFromResolve(color, resolve, nativeBounds);
+            fGpu->loadMSAAFromResolve(color, resolve, nativeBounds,
+                                      fRenderPassDesc.stencilAttachment);
         }
     }
 }

@@ -40,7 +40,9 @@ public:
     // Finds or creates a compatible MTLSamplerState based on the GrSamplerState.
     GrMtlSampler* findOrCreateCompatibleSampler(GrSamplerState);
 
-    const GrMtlRenderPipeline* findOrCreateMSAALoadPipeline(MTLPixelFormat, int sampleCount);
+    const GrMtlRenderPipeline* findOrCreateMSAALoadPipeline(MTLPixelFormat colorFormat,
+                                                            int sampleCount,
+                                                            MTLPixelFormat stencilFormat);
 
     // Destroy any cached resources. To be called before releasing the MtlDevice.
     void destroyResources();
@@ -91,8 +93,9 @@ private:
 
     struct MSAALoadPipelineEntry {
         sk_sp<const GrMtlRenderPipeline> fPipeline;
-        MTLPixelFormat fPixelFormat;
+        MTLPixelFormat fColorFormat;
         int fSampleCount;
+        MTLPixelFormat fStencilFormat;
     };
     id<MTLLibrary> fMSAALoadLibrary;
     SkTArray<MSAALoadPipelineEntry> fMSAALoadPipelines;

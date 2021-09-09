@@ -68,7 +68,7 @@ GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(GrSamplerStat
 }
 
 const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
-        MTLPixelFormat pixelFormat, int sampleCount) {
+        MTLPixelFormat colorFormat, int sampleCount, MTLPixelFormat stencilFormat) {
     if (!fMSAALoadLibrary) {
         TRACE_EVENT0("skia", TRACE_FUNC);
 
@@ -112,8 +112,9 @@ const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
     }
 
     for (int i = 0; i < fMSAALoadPipelines.count(); ++i) {
-        if (fMSAALoadPipelines[i].fPixelFormat == pixelFormat &&
-            fMSAALoadPipelines[i].fSampleCount == sampleCount) {
+        if (fMSAALoadPipelines[i].fColorFormat == colorFormat &&
+            fMSAALoadPipelines[i].fSampleCount == sampleCount &&
+            fMSAALoadPipelines[i].fStencilFormat == stencilFormat) {
             return fMSAALoadPipelines[i].fPipeline.get();
         }
     }
@@ -127,13 +128,14 @@ const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
 
     auto mtlColorAttachment = [[MTLRenderPipelineColorAttachmentDescriptor alloc] init];
 
-    mtlColorAttachment.pixelFormat = pixelFormat;
+    mtlColorAttachment.pixelFormat = colorFormat;
     mtlColorAttachment.blendingEnabled = FALSE;
     mtlColorAttachment.writeMask = MTLColorWriteMaskAll;
 
     pipelineDescriptor.colorAttachments[0] = mtlColorAttachment;
-
     pipelineDescriptor.sampleCount = sampleCount;
+
+    pipelineDescriptor.stencilAttachmentPixelFormat = stencilFormat;
 
     NSError* error;
     auto pso =
@@ -146,7 +148,7 @@ const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
 
     auto renderPipeline = GrMtlRenderPipeline::Make(pso);
 
-    fMSAALoadPipelines.push_back({renderPipeline, pixelFormat, sampleCount});
+    fMSAALoadPipelines.push_back({renderPipeline, colorFormat, sampleCount, stencilFormat});
     return fMSAALoadPipelines[fMSAALoadPipelines.count()-1].fPipeline.get();
 }
 

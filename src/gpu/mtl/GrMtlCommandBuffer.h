@@ -42,9 +42,13 @@ public:
     }
 
     id<MTLBlitCommandEncoder> getBlitCommandEncoder();
+    // Tries to reuse current renderCommandEncoder if possible
     GrMtlRenderCommandEncoder* getRenderCommandEncoder(MTLRenderPassDescriptor*,
                                                        const GrMtlPipelineState*,
                                                        GrMtlOpsRenderPass* opsRenderPass);
+    // Replaces current renderCommandEncoder with new one
+    GrMtlRenderCommandEncoder* getRenderCommandEncoder(MTLRenderPassDescriptor*,
+                                                       GrMtlOpsRenderPass*);
 
     void addCompletedHandler(MTLCommandBufferHandler block) {
         [fCmdBuffer addCompletedHandler:block];

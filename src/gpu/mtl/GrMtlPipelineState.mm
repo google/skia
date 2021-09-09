@@ -227,7 +227,8 @@ void GrMtlPipelineState::SetDynamicScissorRectState(GrMtlRenderCommandEncoder* r
 bool GrMtlPipelineState::doesntSampleAttachment(
         const MTLRenderPassAttachmentDescriptor* attachment) const {
     for (int i = 0; i < fSamplerBindings.count(); ++i) {
-        if (attachment.texture == fSamplerBindings[i].fTexture) {
+        if (attachment.texture == fSamplerBindings[i].fTexture ||
+            attachment.resolveTexture == fSamplerBindings[i].fTexture) {
             return false;
         }
     }
