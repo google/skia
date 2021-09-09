@@ -36,7 +36,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     if ((supportRectangle = glGpu->glCaps().rectangleTextureSupport())) {
         targets.push_back({GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_BINDING_RECTANGLE});
     }
-    GrGLint numUnits;
+    GrGLint numUnits = 0;
     GL(GetIntegerv(GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &numUnits));
     SkTDArray<GrGLuint> claimedIDs;
     claimedIDs.setCount(numUnits * targets.count());
@@ -56,9 +56,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
         for (int u = 0; u < numUnits; ++u) {
             GL(ActiveTexture(GR_GL_TEXTURE0 + u));
             for (auto target : targets) {
-                GrGLuint boundID = ~0;
-                GL(GetIntegerv(target.fQuery, reinterpret_cast<GrGLint*>(&boundID)));
-                if (boundID != claimedIDs[i] && boundID != 0) {
+                GrGLint boundID = -1;
+                GL(GetIntegerv(target.fQuery, &boundID));
+                if (boundID != (int) claimedIDs[i] && boundID != 0) {
                     ERRORF(reporter, "Unit %d, target 0x%04x has ID %d bound. Expected %d or 0.", u,
                            target.fName, boundID, claimedIDs[i]);
                     return;
