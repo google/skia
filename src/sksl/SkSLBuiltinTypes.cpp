@@ -158,10 +158,10 @@ BuiltinTypes::BuiltinTypes()
                   "$hmat",
                   {fHalf2x2.get(), fHalf2x3.get(), fHalf2x4.get(), fHalf3x2.get(), fHalf3x3.get(),
                    fHalf3x4.get(), fHalf4x2.get(), fHalf4x3.get(), fHalf4x4.get()}))
-        , fSquareMat(Type::MakeGenericType("$squareMat", {fFloat2x2.get(), fFloat3x3.get(),
-                                                          fFloat4x4.get()}))
-        , fSquareHMat(Type::MakeGenericType("$squareHMat", {fHalf2x2.get(), fHalf3x3.get(),
-                                                            fHalf4x4.get()}))
+        , fSquareMat(Type::MakeGenericType("$squareMat", {fInvalid.get(), fFloat2x2.get(),
+                                                          fFloat3x3.get(), fFloat4x4.get()}))
+        , fSquareHMat(Type::MakeGenericType("$squareHMat", {fInvalid.get(), fHalf2x2.get(),
+                                                            fHalf3x3.get(), fHalf4x4.get()}))
         , fVec(Type::MakeGenericType("$vec", {fInvalid.get(), fFloat2.get(), fFloat3.get(),
                                               fFloat4.get()}))
         , fHVec(Type::MakeGenericType("$hvec", {fInvalid.get(), fHalf2.get(), fHalf3.get(),
