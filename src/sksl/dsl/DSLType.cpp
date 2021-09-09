@@ -103,6 +103,10 @@ bool DSLType::isStruct() const {
     return this->skslType().isStruct();
 }
 
+bool DSLType::isEffectChild() const {
+    return this->skslType().isEffectChild();
+}
+
 const SkSL::Type& DSLType::skslType() const {
     if (fSkSLType) {
         return *fSkSLType;

@@ -1951,11 +1951,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
                            SkSL::ProgramKind::kRuntimeShader);
     DSLGlobalVar shader(kUniform_Modifier, kShader_Type, "child");
-    EXPECT_EQUAL(Sample(shader, Float2(0, 0)), "child.eval(float2(0.0, 0.0))");
+    DSLGlobalVar notShader(kUniform_Modifier, kFloat_Type, "x");
+    EXPECT_EQUAL(shader.eval(Float2(0, 0)), "child.eval(float2(0.0, 0.0))");
 
     {
-        ExpectError error(r, "no match for $eval(half4, shader)");
-        Sample(shader, Half4(1)).release();
+        ExpectError error(r, "no match for shader::eval(half4)");
+        shader.eval(Half4(1)).release();
+    }
+
+    {
+        ExpectError error(r, "type does not support method calls");
+        notShader.eval(Half4(1)).release();
     }
 }
 

@@ -146,6 +146,11 @@ public:
      */
     bool isStruct() const;
 
+    /**
+     * Returns true if this is a Skia object type (shader, colorFilter, blender).
+     */
+    bool isEffectChild() const;
+
     template<typename... Args>
     static DSLExpression Construct(DSLType type, DSLVarBase& var, Args&&... args) {
         DSLExpression argArray[] = {var, args...};

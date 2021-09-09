@@ -433,26 +433,6 @@ DSLExpression Refract(DSLExpression i, DSLExpression n, DSLExpression eta,
 DSLExpression Round(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
 
 /**
- * Samples the child processor at the current coordinates.
- */
-DSLExpression Sample(DSLExpression fp, PositionInfo pos = PositionInfo::Capture());
-
-/**
- * Implements the following functions:
- *     half4 sample(fragmentProcessor fp, float2 coords);
- *     half4 sample(fragmentProcessor fp, half4 input);
- */
-DSLExpression Sample(DSLExpression target, DSLExpression x,
-                     PositionInfo pos = PositionInfo::Capture());
-
-/**
- * Implements the following functions:
- *     half4 sample(fragmentProcessor fp, float2 coords, half4 input);
- */
-DSLExpression Sample(DSLExpression childProcessor, DSLExpression x, DSLExpression y,
-                     PositionInfo pos = PositionInfo::Capture());
-
-/**
  * Returns x clamped to the range [0, 1]. If x is a vector, operates componentwise.
  */
 DSLExpression Saturate(DSLExpression x, PositionInfo pos = PositionInfo::Capture());

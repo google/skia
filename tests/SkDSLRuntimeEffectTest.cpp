@@ -256,7 +256,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
         Declare(child);
         Parameter p2(kFloat2_Type, "p");
         Function(kFloat4_Type, "main", p2).define(
-            Return(Sample(child, p2))
+            Return(child.eval(p2))
         );
         effect.end();
         effect.child(child.name()) = nullptr;

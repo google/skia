@@ -178,6 +178,34 @@ DSLPossibleExpression DSLParameter::operator=(DSLExpression expr) {
     return this->assign(std::move(expr));
 }
 
+std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(skstd::string_view methodName,
+                                                           PositionInfo pos) {
+    if (!this->fType.isEffectChild()) {
+        DSLWriter::ReportError("type does not support method calls", pos);
+        return nullptr;
+    }
+    return DSLWriter::ConvertField(DSLExpression(*this).release(), methodName);
+}
+
+DSLPossibleExpression DSLGlobalVar::eval(DSLExpression x, PositionInfo pos) {
+    ExpressionArray converted;
+    converted.push_back(x.release());
+
+    auto method = this->methodCall("eval", pos);
+    return DSLPossibleExpression(
+            method ? DSLWriter::Call(std::move(method), std::move(converted), pos) : nullptr);
+}
+
+DSLPossibleExpression DSLGlobalVar::eval(DSLExpression x, DSLExpression y, PositionInfo pos) {
+    ExpressionArray converted;
+    converted.push_back(x.release());
+    converted.push_back(y.release());
+
+    auto method = this->methodCall("eval", pos);
+    return DSLPossibleExpression(
+            method ? DSLWriter::Call(std::move(method), std::move(converted), pos) : nullptr);
+}
+
 } // namespace dsl
 
 } // namespace SkSL
