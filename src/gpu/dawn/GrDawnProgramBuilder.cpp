@@ -350,7 +350,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         }
         wgpu::VertexBufferLayout input;
         input.arrayStride = offset;
-        input.stepMode = wgpu::InputStepMode::Vertex;
+        input.stepMode = wgpu::VertexStepMode::Vertex;
         input.attributeCount = vertexAttributes.size();
         input.attributes = &vertexAttributes.front();
         inputs.push_back(input);
@@ -369,7 +369,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         }
         wgpu::VertexBufferLayout input;
         input.arrayStride = offset;
-        input.stepMode = wgpu::InputStepMode::Instance;
+        input.stepMode = wgpu::VertexStepMode::Instance;
         input.attributeCount = instanceAttributes.size();
         input.attributes = &instanceAttributes.front();
         inputs.push_back(input);

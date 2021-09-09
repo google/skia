@@ -768,12 +768,12 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         bgDesc.entryCount = 2;
         bgDesc.entries = bge;
         wgpu::BindGroup bindGroup = fDevice.CreateBindGroup(&bgDesc);
-        wgpu::RenderPassColorAttachmentDescriptor colorAttachment;
+        wgpu::RenderPassColorAttachment colorAttachment;
         colorAttachment.view = dstView;
         colorAttachment.clearColor = { 0.0f, 0.0f, 0.0f, 0.0f };
         colorAttachment.loadOp = wgpu::LoadOp::Load;
         colorAttachment.storeOp = wgpu::StoreOp::Store;
-        wgpu::RenderPassColorAttachmentDescriptor* colorAttachments = { &colorAttachment };
+        wgpu::RenderPassColorAttachment* colorAttachments = { &colorAttachment };
         wgpu::RenderPassDescriptor renderPassDesc;
         renderPassDesc.colorAttachmentCount = 1;
         renderPassDesc.colorAttachments = colorAttachments;
