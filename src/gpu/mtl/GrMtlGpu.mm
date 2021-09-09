@@ -37,6 +37,11 @@
 
 GR_NORETAIN_BEGIN
 
+#if GR_TEST_UTILS
+// set to 1 if you want to do GPU capture of each commandBuffer
+#define GR_METAL_CAPTURE_COMMANDBUFFER 0
+#endif
+
 sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextOptions& options,
                             GrDirectContext* direct) {
     if (!context.fDevice || !context.fQueue) {
@@ -78,6 +83,9 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice));
     this->initCapsAndCompiler(fMtlCaps);
+#if GR_METAL_CAPTURE_COMMANDBUFFER
+    this->testingOnly_startCapture();
+#endif
     fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
 #if GR_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, *)) {
@@ -111,6 +119,8 @@ sk_sp<GrThreadSafePipelineBuilder> GrMtlGpu::refPipelineBuilder() {
 
 void GrMtlGpu::destroyResources() {
     this->submitCommandBuffer(SyncQueue::kForce_SyncQueue);
+    // if there's no work we won't release the command buffer, so we do it here
+    fCurrentCmdBuffer = nil;
 
     // We used a placement new for each object in fOutstandingCommandBuffers, so we're responsible
     // for calling the destructor on each of them as well.
@@ -166,6 +176,9 @@ GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
 
 GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
     if (!fCurrentCmdBuffer) {
+#if GR_METAL_CAPTURE_COMMANDBUFFER
+        this->testingOnly_startCapture();
+#endif
         // Create a new command buffer for the next submit
         fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
     }
@@ -216,6 +229,9 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     // command buffer in commandBuffer(), above.
     this->checkForFinishedCommandBuffers();
 
+#if GR_METAL_CAPTURE_COMMANDBUFFER
+    this->testingOnly_endCapture();
+#endif
     return true;
 }
 
@@ -1670,14 +1686,30 @@ void GrMtlGpu::testingOnly_startCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         // TODO: add Metal 3 interface as well
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-        [captureManager startCaptureWithDevice: fDevice];
-    }
+        if (captureManager.isCapturing) {
+            return;
+        }
+        if (@available(macOS 10.15, iOS 13.0, *)) {
+            MTLCaptureDescriptor* captureDescriptor = [[MTLCaptureDescriptor alloc] init];
+            captureDescriptor.captureObject = fQueue;
+
+            NSError *error;
+            if (![captureManager startCaptureWithDescriptor: captureDescriptor error:&error])
+            {
+                NSLog(@"Failed to start capture, error %@", error);
+            }
+        } else {
+            [captureManager startCaptureWithCommandQueue: fQueue];
+        }
+     }
 }
 
 void GrMtlGpu::testingOnly_endCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-        [captureManager stopCapture];
+        if (captureManager.isCapturing) {
+            [captureManager stopCapture];
+        }
     }
 }
 #endif
