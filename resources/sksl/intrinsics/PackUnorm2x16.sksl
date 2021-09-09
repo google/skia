@@ -1,0 +1,18 @@
+uniform half4 colorGreen, colorRed;
+uniform float4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
+
+half4 main(float2 coords) {
+    const float4 constVal = float4(-1.25, 0, 0.75, 2.25);
+    const float4 expected = clamp(constVal, 0, 1);
+    const uint constXY = packUnorm2x16(constVal.xy);
+    const uint constZW = packUnorm2x16(constVal.zw);
+    uint xy = packUnorm2x16(testInputs.xy);
+    uint zw = packUnorm2x16(testInputs.zw);
+    const float2 tolerance = float2(0.015625);
+
+    return (all(lessThan(abs(unpackUnorm2x16(xy)      - float2(expected.xy)), tolerance)) &&
+            all(lessThan(abs(unpackUnorm2x16(zw)      - float2(expected.zw)), tolerance)) &&
+            all(lessThan(abs(unpackUnorm2x16(constXY) - float2(expected.xy)), tolerance)) &&
+            all(lessThan(abs(unpackUnorm2x16(constZW) - float2(expected.zw)), tolerance)))
+              ? colorGreen : colorRed;
+}

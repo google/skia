@@ -126,7 +126,9 @@ $es3 $genBType isinf($genHType x);
 $es3 $genType  modf($genType  x, out $genType  i);
 $es3 $genHType modf($genHType x, out $genHType i);
 
-// TODO(skia:12202): 8.4 : Floating-Point Pack and Unpack Functions (GLSL ES 3.0)
+// 8.4 : Floating-Point Pack and Unpack Functions (GLSL ES 3.0)
+$es3 uint packUnorm2x16(float2 v);
+$es3 float2 unpackUnorm2x16(uint p);
 
 // 8.5 : Geometric Functions
 float length($genType  x);

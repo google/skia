@@ -612,8 +612,20 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_uintBitsToFloat_IntrinsicKind:
             return evaluate_intrinsic<SKSL_INT>(context, arguments, returnType,
                                                 Intrinsics::evaluate_uintBitsToFloat);
-        // TODO(skia:12202): 8.4 : Floating-Point Pack and Unpack Functions
-
+        // 8.4 : Floating-Point Pack and Unpack Functions
+        case k_packUnorm2x16_IntrinsicKind: {
+            auto Pack = [&](int n) -> unsigned int {
+                double x = arguments[0]->getConstantSubexpression(n)->as<FloatLiteral>().value();
+                return (int)std::round(Intrinsics::evaluate_clamp(x, 0.0, 1.0) * 65535.0);
+            };
+            return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
+                        ((Pack(1) << 16) & 0xFFFF0000)).release();
+        }
+        case k_unpackUnorm2x16_IntrinsicKind: {
+            SKSL_INT x = arguments[0]->getConstantSubexpression(0)->as<IntLiteral>().value();
+            return Float2(double((x >> 0)  & 0x0000FFFF) / 65535.0,
+                          double((x >> 16) & 0x0000FFFF) / 65535.0).release();
+        }
         // 8.5 : Geometric Functions
         case k_length_IntrinsicKind:
             return coalesce_vector<float>(arguments, /*startingState=*/0, returnType,

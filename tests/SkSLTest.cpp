@@ -222,6 +222,7 @@ SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
 // skbug.com/11919: Fails on Adreno + Vulkan
 SKSL_TEST_CPU(SkSLIntrinsicMixFloat,           "intrinsics/MixFloat.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicModf,               "intrinsics/Modf.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicPackUnorm2x16,      "intrinsics/PackUnorm2x16.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicRound,              "intrinsics/Round.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicRoundEven,          "intrinsics/RoundEven.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
