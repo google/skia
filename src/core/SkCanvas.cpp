@@ -2413,7 +2413,7 @@ void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
     // drawable bounds are no longer reliable (e.g. android displaylist)
     // so don't use them for quick-reject
     this->predrawNotify();
-    this->baseDevice()->drawDrawable(dr, matrix, this);
+    this->topDevice()->drawDrawable(dr, matrix, this);
 }
 
 void SkCanvas::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],

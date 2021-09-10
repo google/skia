@@ -937,13 +937,14 @@ void Device::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas
 
     GrBackendApi api = this->recordingContext()->backend();
     if (GrBackendApi::kVulkan == api) {
-        const SkMatrix& ctm = canvas->getLocalToDeviceAs3x3();
+        const SkMatrix& ctm = this->localToDevice();
         const SkMatrix& combinedMatrix = matrix ? SkMatrix::Concat(ctm, *matrix) : ctm;
         std::unique_ptr<SkDrawable::GpuDrawHandler> gpuDraw =
-                drawable->snapGpuDrawHandler(api, combinedMatrix, canvas->getDeviceClipBounds(),
+                drawable->snapGpuDrawHandler(api, combinedMatrix, this->devClipBounds(),
                                              this->imageInfo());
         if (gpuDraw) {
-            fSurfaceDrawContext->drawDrawable(std::move(gpuDraw), drawable->getBounds());
+            fSurfaceDrawContext->drawDrawable(
+                    std::move(gpuDraw), combinedMatrix.mapRect(drawable->getBounds()));
             return;
         }
     }
