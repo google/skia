@@ -147,4 +147,40 @@ DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ false); )
 DEF_GM( return new NestedGM(/* doAA = */ true,  /* flipped = */ true); )
 DEF_GM( return new NestedGM(/* doAA = */ false, /* flipped = */ true); )
 
+DEF_SIMPLE_GM(nested_hairline_square, canvas, 64, 64) {
+    // See crbug.com/1234194 - This should draw 1 row of 3 stroked squares, with a second 0.5px
+    // shifted row of squares below it.
+    auto drawEllipses = [&]() {
+        canvas->save();
+        // Originally the SVG string "M5,14H0V9h5V14Z M1,13h3v-3H1V13Z" but that just specifies a
+        // 5px wide square outside a 3px wide square.
+        SkPath square;
+        square.addRect(SkRect::MakeLTRB(0.f, 9.f, 5.f, 14.f));
+        square.addRect(SkRect::MakeLTRB(1.f, 10.f, 4.f, 13.f), SkPathDirection::kCCW);
+
+        // From the bug, SVG viewbox was (0, 0, 24, 24), so the above coordinates are relative to
+        // that, but the svg was then the child of a div that was 16x16, so it's scaled down. This
+        // converts the 1px wide nested rects into subpixel nested rects.
+        canvas->scale(16.f / 24.f, 16.f / 24.f);
+
+        SkPaint paint;
+        paint.setColor(SkColorSetARGB(255, 70, 70, 70));
+        paint.setAntiAlias(true);
+
+        // The original SVG drew 3 separate paths, but these were just translations of the original
+        // path baked into a path string.
+        canvas->drawPath(square, paint);
+        canvas->translate(10.f, 0.f);
+        canvas->drawPath(square, paint);
+        canvas->translate(10.f, 0.f);
+        canvas->drawPath(square, paint);
+
+        canvas->restore();
+    };
+
+    drawEllipses();
+    canvas->translate(0.5f, 16.f);
+    drawEllipses();
+}
+
 }  // namespace skiagm
