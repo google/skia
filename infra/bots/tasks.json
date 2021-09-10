@@ -19952,12 +19952,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -20041,12 +20041,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -20753,12 +20753,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -20842,12 +20842,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -20931,12 +20931,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21020,12 +21020,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21109,12 +21109,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21198,12 +21198,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21287,12 +21287,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21376,12 +21376,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21470,12 +21470,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21559,12 +21559,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21653,12 +21653,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -21742,12 +21742,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22009,12 +22009,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22098,12 +22098,12 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22186,12 +22186,12 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22274,12 +22274,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22363,12 +22363,12 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22451,12 +22451,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22540,12 +22540,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22629,12 +22629,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22718,12 +22718,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22807,12 +22807,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22896,12 +22896,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -22985,12 +22985,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -23074,12 +23074,12 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -23162,12 +23162,12 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -23250,12 +23250,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -23339,12 +23339,12 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -23427,12 +23427,12 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -23515,12 +23515,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -23604,12 +23604,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -23693,12 +23693,12 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -33322,12 +33322,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -33417,12 +33417,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -33987,12 +33987,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34082,12 +34082,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34177,12 +34177,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34272,12 +34272,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34367,12 +34367,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34462,12 +34462,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34557,12 +34557,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34652,12 +34652,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34747,12 +34747,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34842,12 +34842,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -34937,12 +34937,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35032,12 +35032,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35127,12 +35127,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35222,12 +35222,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35317,12 +35317,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35412,12 +35412,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35507,12 +35507,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35602,12 +35602,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35697,12 +35697,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35792,12 +35792,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35887,12 +35887,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -35982,12 +35982,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -36077,12 +36077,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -36837,12 +36837,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -36927,12 +36927,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37022,12 +37022,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37112,12 +37112,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37207,12 +37207,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37302,12 +37302,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37397,12 +37397,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37492,12 +37492,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37587,12 +37587,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37682,12 +37682,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37777,12 +37777,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37872,12 +37872,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -37967,12 +37967,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38062,12 +38062,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38157,12 +38157,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38252,12 +38252,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38347,12 +38347,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38442,12 +38442,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38537,12 +38537,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38632,12 +38632,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38727,12 +38727,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38822,12 +38822,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -38917,12 +38917,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39012,12 +39012,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39107,12 +39107,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39202,12 +39202,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39297,12 +39297,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39392,12 +39392,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39487,12 +39487,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39582,12 +39582,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39677,12 +39677,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39772,12 +39772,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39867,12 +39867,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -39962,12 +39962,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -40057,12 +40057,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
@@ -40152,12 +40152,12 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-armv6l",
+          "name": "infra/3pp/tools/cpython/linux-arm64",
           "path": "cipd_bin_packages/cpython",
           "version": "version:2@2.7.18.chromium.39"
         },
         {
-          "name": "infra/3pp/tools/cpython3/linux-armv6l",
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
           "path": "cipd_bin_packages/cpython3",
           "version": "version:2@3.8.10.chromium.19"
         },
