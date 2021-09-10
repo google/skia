@@ -233,6 +233,7 @@ std::unique_ptr<Program> DSLParser::program() {
             default:
                 this->declaration();
                 done = fEncounteredFatalError;
+                break;
         }
     }
     End();
@@ -1184,6 +1185,7 @@ skstd::optional<DSLBlock> DSLParser::block() {
                     return skstd::nullopt;
                 }
                 statements.push_back(statement->release());
+                break;
             }
         }
     }

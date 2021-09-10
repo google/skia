@@ -199,6 +199,7 @@ void Dehydrator::write(const Symbol& s) {
                     this->writeCommand(Rehydrator::kSystemType_Command);
                     this->writeId(&t);
                     this->write(t.name());
+                    break;
             }
             break;
         }

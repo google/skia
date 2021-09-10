@@ -787,6 +787,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             break;
         default:
             this->write(ref.variable()->name());
+            break;
     }
 }
 

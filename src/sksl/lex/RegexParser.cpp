@@ -45,7 +45,7 @@ void RegexParser::term() {
         case '(': this->group();  break;
         case '[': this->set();    break;
         case '.': this->dot();    break;
-        default: this->literal();
+        default: this->literal(); break;
     }
 }
 
@@ -71,6 +71,7 @@ void RegexParser::sequence() {
                 RegexNode right = this->pop();
                 RegexNode left = this->pop();
                 fStack.emplace(RegexNode::kConcat_Kind, std::move(left), std::move(right));
+                break;
         }
     }
 }
@@ -152,6 +153,7 @@ void RegexParser::set() {
                 exit(1);
             default:
                 this->setItem();
+                break;
         }
     }
 }

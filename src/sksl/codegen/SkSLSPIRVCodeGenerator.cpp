@@ -305,6 +305,7 @@ void SPIRVCodeGenerator::writeString(skstd::string_view s, OutputStream& out) {
             break;
         default:
             this->writeWord(0, out);
+            break;
     }
 }
 
@@ -649,6 +650,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 } else {
                     SkDEBUGFAILF("invalid type: %s", type->description().c_str());
                 }
+                break;
         }
         fTypeMap[key] = result;
         return result;
@@ -1875,6 +1877,7 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
             SpvId id = this->getLValue(expr, out)->getPointer();
             SkASSERT(id != (SpvId) -1);
             chain.push_back(id);
+            break;
         }
     }
     return chain;
