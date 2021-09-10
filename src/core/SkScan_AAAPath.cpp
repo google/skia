@@ -1218,23 +1218,30 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
                                            fixed_to_alpha(SkFixedMul(partialBot, partialRite)));
                     }
                 }
-            } else {  // left and rite are within the same pixel
-                if (partialTop > 0) {
-                    blitter->blitAntiH(fullLeft - 1,
-                                       fullTop - 1,
-                                       1,
-                                       fixed_to_alpha(SkFixedMul(partialTop, rite - left)));
-                    blitter->flush_if_y_changed(y, y + partialTop);
-                }
-                if (fullBot > fullTop) {
-                    blitter->getRealBlitter()->blitV(
-                            fullLeft - 1, fullTop, fullBot - fullTop, fixed_to_alpha(rite - left));
-                }
-                if (partialBot > 0) {
-                    blitter->blitAntiH(fullLeft - 1,
-                                       fullBot,
-                                       1,
-                                       fixed_to_alpha(SkFixedMul(partialBot, rite - left)));
+            } else {
+                // Normal conditions, this means left and rite are within the same pixel, but if
+                // both left and rite were < leftBounds or > rightBounds, both edges are clipped and
+                // we should not do any blitting (particularly since the negative width saturates to
+                // full alpha).
+                SkFixed width = rite - left;
+                if (width > 0) {
+                    if (partialTop > 0) {
+                        blitter->blitAntiH(fullLeft - 1,
+                                           fullTop - 1,
+                                           1,
+                                           fixed_to_alpha(SkFixedMul(partialTop, width)));
+                        blitter->flush_if_y_changed(y, y + partialTop);
+                    }
+                    if (fullBot > fullTop) {
+                        blitter->getRealBlitter()->blitV(
+                                fullLeft - 1, fullTop, fullBot - fullTop, fixed_to_alpha(width));
+                    }
+                    if (partialBot > 0) {
+                        blitter->blitAntiH(fullLeft - 1,
+                                           fullBot,
+                                           1,
+                                           fixed_to_alpha(SkFixedMul(partialBot, width)));
+                    }
                 }
             }
 
