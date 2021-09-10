@@ -59,6 +59,20 @@ static int16_t ssse3_lerp(float t, int16_t a, int16_t b) {
     return (answer[0] + half) >> logPixelScale;
 }
 
+// Change of parameters on t from [0, 1) to [-1, 1). This cuts the number if differences in half.
+template <int logPixelScale>
+static int16_t balanced_lerp(float t, int16_t a, int16_t b) {
+    const int16_t half = 1 << logPixelScale;
+    // t on [-1, 1).
+    Q15 qt (floor(t * 65536.0f - 32768.0f + 0.5f));
+    // need to pick logPixelScale to scale by addition 1/2.
+    Q15 qw ((b - a) << logPixelScale);
+    Q15 qm ((a + b) << logPixelScale);
+    Q15 answer = simulate_ssse3_mm_mulhrs_epi16(qt, qw) + qm;
+    // Extra shift to divide by 2.
+    return (answer[0] + half) >> (logPixelScale + 1);
+}
+
 template <typename Lerp>
 static Stats check_lerp(Lerp lerp) {
     Stats stats;
@@ -110,6 +124,10 @@ int main() {
     printf("\nScaled using mm_mulhrs_epi16...\n");
     // Need one bit for rounding.
     stats = check_scaled_lerp(ssse3_lerp<1>);
+    stats.print();
+
+    printf("\nInterval [-1, 1) mm_mulhrs_epi16...\n");
+    stats = check_lerp(balanced_lerp<7>);
     stats.print();
 
     printf("Done.");
