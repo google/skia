@@ -1,26 +1,44 @@
-uniform half2 h2;
-uniform half3 h3;
-uniform half4 h4;
-uniform float2 f2;
-uniform float3 f3;
-uniform float4 f4;
-void main() {
-    sk_FragColor = half4(outerProduct(f2, f2)[1].xyyy);
-    sk_FragColor = half4(outerProduct(f3, f3)[2].xyzz);
-    sk_FragColor = half4(outerProduct(f4, f4)[3]);
-    sk_FragColor = half4(outerProduct(f3, f2)[1].xyzz);
-    sk_FragColor = half4(outerProduct(f2, f3)[2].xyyy);
-    sk_FragColor = half4(outerProduct(f4, f2)[1]);
-    sk_FragColor = half4(outerProduct(f2, f4)[3].xyyy);
-    sk_FragColor = half4(outerProduct(f4, f3)[2]);
-    sk_FragColor = half4(outerProduct(f3, f4)[3].xyzz);
-    sk_FragColor = outerProduct(h2, h2)[1].xyyy;
-    sk_FragColor = outerProduct(h3, h3)[2].xyzz;
-    sk_FragColor = outerProduct(h4, h4)[3];
-    sk_FragColor = outerProduct(h3, h2)[1].xyzz;
-    sk_FragColor = outerProduct(h2, h3)[2].xyyy;
-    sk_FragColor = outerProduct(h4, h2)[1];
-    sk_FragColor = outerProduct(h2, h4)[3].xyyy;
-    sk_FragColor = outerProduct(h4, h3)[2];
-    sk_FragColor = outerProduct(h3, h4)[3].xyzz;
+uniform half4 colorGreen, colorRed;
+uniform float2x2 testMatrix2x2;
+uniform float3x3 testMatrix3x3;
+uniform half4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
+
+half4 main(float2 coords) {
+    const float2 c12  = float2(1, 2);
+    const float2 c34  = float2(3, 4);
+    const float3 c123 = float3(1, 2, 3);
+    const float3 c456 = float3(4, 5, 6);
+
+    return  (outerProduct(testMatrix2x2[0], testMatrix2x2[1]) == float2x2(3, 6,
+                                                                          4, 8)
+          && outerProduct(c12, c34)                           == float2x2(3, 6,
+                                                                          4, 8)
+          && outerProduct(testMatrix3x3[0], testMatrix3x3[1]) == float3x3(4, 8,  12,
+                                                                          5, 10, 15,
+                                                                          6, 12, 18)
+          && outerProduct(c123, c456)                         == float3x3(4, 8,  12,
+                                                                          5, 10, 15,
+                                                                          6, 12, 18)
+          && outerProduct(testMatrix2x2[0], testMatrix3x3[1]) == float3x2(4, 8,
+                                                                          5, 10,
+                                                                          6, 12)
+          && outerProduct(c12, c456)                          == float3x2(4, 8,
+                                                                          5, 10,
+                                                                          6, 12)
+          && outerProduct(testInputs, half4(1, 0, 0, 2))      == float4x4(-1.25, 0.0, 0.75, 2.25,
+                                                                           0.0,  0.0, 0.0,  0.0,
+                                                                           0.0,  0.0, 0.0,  0.0,
+                                                                          -2.50, 0.0, 1.50, 4.50)
+          && outerProduct(half4(-1.25, 0, 0.75, 2.25), half4(1, 0, 0, 2))
+                                                              == float4x4(-1.25, 0.0, 0.75, 2.25,
+                                                                           0.0,  0.0, 0.0,  0.0,
+                                                                           0.0,  0.0, 0.0,  0.0,
+                                                                          -2.50, 0.0, 1.50, 4.50)
+          && outerProduct(testInputs, c12)                    == float2x4(-1.25, 0.0, 0.75, 2.25,
+                                                                          -2.50, 0.0, 1.50, 4.50)
+          && outerProduct(c12, testInputs)                    == float4x2(-1.25, -2.50,
+                                                                           0.0,   0.0,
+                                                                           0.75,  1.50,
+                                                                           2.25,  4.50))
+           ? colorGreen : colorRed;
 }
