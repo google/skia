@@ -1169,7 +1169,7 @@ skstd::optional<DSLBlock> DSLParser::block() {
         return skstd::nullopt;
     }
     AutoDSLSymbolTable symbols;
-    SkTArray<DSLStatement> statements;
+    StatementArray statements;
     for (;;) {
         switch (this->peek().fKind) {
             case Token::Kind::TK_RBRACE:
@@ -1183,7 +1183,7 @@ skstd::optional<DSLBlock> DSLParser::block() {
                 if (!statement) {
                     return skstd::nullopt;
                 }
-                statements.push_back(std::move(*statement));
+                statements.push_back(statement->release());
             }
         }
     }
