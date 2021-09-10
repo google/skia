@@ -2,6 +2,12 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 95
+------------
+  * Minimum supported iOS raised from 8 to 11. Skia may build back to iOS 9 but versions older
+    than 11 are not tested. Community contributions to support versions 9 and 10 of iOS may be
+    considered, but they may not be complex as they cannot be tested.
+
 * * *
 
 Milestone 94

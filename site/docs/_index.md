@@ -80,6 +80,6 @@ users.
 
 - Windows 7, 8, 8.1, 10
 - macOS 10.10.5 or later
-- iOS 8 or later
+- iOS 11 or later
 - Android 4.1 (JellyBean) or later
 - Ubuntu 18.04+, Debian 10+, openSUSE 15.2+, or Fedora Linux 32+
