@@ -336,14 +336,6 @@ int main(int argc, char** argv) {
         i = frame_count - 1 - i;
 
         const auto start = std::chrono::steady_clock::now();
-#if defined(SK_BUILD_FOR_IOS)
-        // iOS doesn't support thread_local on versions less than 9.0.
-        auto anim = skottie::Animation::Builder()
-                            .setResourceProvider(rp)
-                            .setPrecompInterceptor(precomp_interceptor)
-                            .make(static_cast<const char*>(data->data()), data->size());
-        auto sink = MakeSink(FLAGS_format[0], scale_matrix);
-#else
         thread_local static auto* anim =
                 skottie::Animation::Builder()
                     .setResourceProvider(rp)
@@ -351,7 +343,6 @@ int main(int argc, char** argv) {
                     .make(static_cast<const char*>(data->data()), data->size())
                     .release();
         thread_local static auto* sink = MakeSink(FLAGS_format[0], scale_matrix).release();
-#endif
 
         if (sink && anim) {
             anim->seekFrame(frame0 + i * fps_scale);

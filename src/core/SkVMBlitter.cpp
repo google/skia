@@ -579,14 +579,14 @@ SkVMBlitter::~SkVMBlitter() {
 }
 
 SkLRUCache<SkVMBlitter::Key, skvm::Program>* SkVMBlitter::TryAcquireProgramCache() {
-#if 1 && defined(SKVM_JIT)
+#if defined(SKVM_JIT)
     thread_local static SkLRUCache<Key, skvm::Program> cache{64};
     return &cache;
 #else
-    // iOS in particular does not support thread_local until iOS 9.0.
-        // On the other hand, we'll never be able to JIT there anyway.
-        // It's probably fine to not cache any interpreted programs, anywhere.
-        return nullptr;
+    // iOS now supports thread_local since iOS 9.
+    // On the other hand, we'll never be able to JIT there anyway.
+    // It's probably fine to not cache any interpreted programs, anywhere.
+    return nullptr;
 #endif
 }
 

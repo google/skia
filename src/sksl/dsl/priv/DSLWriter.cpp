@@ -25,10 +25,6 @@
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 
-#if !SKSL_USE_THREAD_LOCAL
-#include <pthread.h>
-#endif // !SKSL_USE_THREAD_LOCAL
-
 namespace SkSL {
 
 namespace dsl {
@@ -326,8 +322,6 @@ void DSLWriter::ReportErrors(PositionInfo pos) {
     GetErrorReporter().reportPendingErrors(pos);
 }
 
-#if SKSL_USE_THREAD_LOCAL
-
 thread_local DSLWriter* instance = nullptr;
 
 bool DSLWriter::IsActive() {
@@ -344,40 +338,6 @@ void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> newInstance) {
     delete instance;
     instance = newInstance.release();
 }
-
-#else
-
-static void destroy_dslwriter(void* dslWriter) {
-    delete static_cast<DSLWriter*>(dslWriter);
-}
-
-static pthread_key_t get_pthread_key() {
-    static pthread_key_t sKey = []{
-        pthread_key_t key;
-        int result = pthread_key_create(&key, destroy_dslwriter);
-        if (result != 0) {
-            SK_ABORT("pthread_key_create failure: %d", result);
-        }
-        return key;
-    }();
-    return sKey;
-}
-
-bool DSLWriter::IsActive() {
-    return pthread_getspecific(get_pthread_key()) != nullptr;
-}
-
-DSLWriter& DSLWriter::Instance() {
-    DSLWriter* instance = static_cast<DSLWriter*>(pthread_getspecific(get_pthread_key()));
-    SkASSERTF(instance, "dsl::Start() has not been called");
-    return *instance;
-}
-
-void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> instance) {
-    delete static_cast<DSLWriter*>(pthread_getspecific(get_pthread_key()));
-    pthread_setspecific(get_pthread_key(), instance.release());
-}
-#endif
 
 } // namespace dsl
 

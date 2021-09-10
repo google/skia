@@ -13,13 +13,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 
-#if defined(SK_BUILD_FOR_IOS) && \
-        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
-#define SKSL_USE_THREAD_LOCAL 0
-#else
-#define SKSL_USE_THREAD_LOCAL 1
-#endif
-
 using SKSL_INT = int64_t;
 using SKSL_FLOAT = float;
 

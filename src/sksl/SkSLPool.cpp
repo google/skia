@@ -13,8 +13,6 @@
 
 namespace SkSL {
 
-#if SKSL_USE_THREAD_LOCAL
-
 static thread_local MemoryPool* sMemPool = nullptr;
 
 static MemoryPool* get_thread_local_memory_pool() {
@@ -24,32 +22,6 @@ static MemoryPool* get_thread_local_memory_pool() {
 static void set_thread_local_memory_pool(MemoryPool* memPool) {
     sMemPool = memPool;
 }
-
-#else
-
-#include <pthread.h>
-
-static pthread_key_t get_pthread_key() {
-    static pthread_key_t sKey = []{
-        pthread_key_t key;
-        int result = pthread_key_create(&key, /*destructor=*/nullptr);
-        if (result != 0) {
-            SK_ABORT("pthread_key_create failure: %d", result);
-        }
-        return key;
-    }();
-    return sKey;
-}
-
-static MemoryPool* get_thread_local_memory_pool() {
-    return static_cast<MemoryPool*>(pthread_getspecific(get_pthread_key()));
-}
-
-static void set_thread_local_memory_pool(MemoryPool* poolData) {
-    pthread_setspecific(get_pthread_key(), poolData);
-}
-
-#endif // SKSL_USE_THREAD_LOCAL
 
 Pool::~Pool() {
     if (get_thread_local_memory_pool() == fMemPool.get()) {

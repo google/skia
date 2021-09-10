@@ -33,7 +33,6 @@
 namespace skgpu::v1 {
 
 // If we have thread local, then cache memory for a single AtlasTextOp.
-#if defined(GR_HAS_THREAD_LOCAL)
 static thread_local void* gCache = nullptr;
 void* AtlasTextOp::operator new(size_t s) {
     if (gCache != nullptr) {
@@ -55,7 +54,6 @@ void AtlasTextOp::ClearCache() {
     ::operator delete(gCache);
     gCache = nullptr;
 }
-#endif
 
 AtlasTextOp::AtlasTextOp(MaskType maskType,
                          bool needsTransform,
