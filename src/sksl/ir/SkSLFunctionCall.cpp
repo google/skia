@@ -703,6 +703,21 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return ConstructorCompound::Make(context, arguments[0]->fOffset, returnType,
                                              std::move(array));
         }
+        case k_outerProduct_IntrinsicKind: {
+            auto Vec = [&](int idx, int col) -> float {
+                return arguments[idx]->getConstantSubexpression(col)->as<FloatLiteral>().value();
+            };
+            ExpressionArray array;
+            array.reserve_back(returnType.slotCount());
+            for (int c = 0; c < returnType.columns(); ++c) {
+                for (int r = 0; r < returnType.rows(); ++r) {
+                    array.push_back(FloatLiteral::Make(arguments[0]->fOffset, Vec(0, r) * Vec(1, c),
+                                                       &returnType.componentType()));
+                }
+            }
+            return ConstructorCompound::Make(context, arguments[0]->fOffset, returnType,
+                                             std::move(array));
+        }
         case k_determinant_IntrinsicKind: {
             float m[16];
             extract_matrix(arguments[0], m);
