@@ -75,7 +75,7 @@ func setupDocker(ctx context.Context, isLocal bool) (*docker.Docker, error) {
 	ctx = td.StartStep(ctx, td.Props("setup docker").Infra())
 	defer td.EndStep(ctx)
 	// Create token source with scope for cloud registry (storage).
-	ts, err := auth_steps.Init(ctx, isLocal, auth.SCOPE_USERINFO_EMAIL, storage.ScopeReadOnly)
+	ts, err := auth_steps.Init(ctx, isLocal, auth.ScopeUserinfoEmail, storage.ScopeReadOnly)
 	if err != nil {
 		return nil, td.FailStep(ctx, err)
 	}

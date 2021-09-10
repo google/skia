@@ -61,7 +61,7 @@ func main() {
 	}
 
 	// Create token source with scope for datastore access.
-	ts, err := auth_steps.Init(ctx, *local, auth.SCOPE_USERINFO_EMAIL, datastore.ScopeDatastore)
+	ts, err := auth_steps.Init(ctx, *local, auth.ScopeUserinfoEmail, datastore.ScopeDatastore)
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
