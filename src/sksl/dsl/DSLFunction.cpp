@@ -71,7 +71,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
     }
 }
 
-void DSLFunction::define(DSLBlock block) {
+void DSLFunction::define(DSLBlock block, PositionInfo pos) {
     std::unique_ptr<SkSL::Block> body = block.release();
     if (!fDecl) {
         // Evidently we failed to create the declaration; error should already have been reported.
@@ -89,8 +89,12 @@ void DSLFunction::define(DSLBlock block) {
             }
         }
     }
-    SkASSERTF(!fDecl->definition(), "function '%s' already defined", fDecl->description().c_str());
-
+    if (fDecl->definition()) {
+        DSLWriter::ReportError(String::printf("function '%s' was already defined",
+                fDecl->description().c_str()), pos);
+        block.release();
+        return;
+    }
     // Append sk_Position fixup to the bottom of main() if this is a vertex program.
     DSLWriter::IRGenerator().appendRTAdjustFixupToVertexMain(*fDecl, body.get());
     std::unique_ptr<FunctionDefinition> function = FunctionDefinition::Convert(DSLWriter::Context(),

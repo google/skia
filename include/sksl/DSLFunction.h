@@ -66,7 +66,7 @@ public:
         this->define(std::move(block));
     }
 
-    void define(DSLBlock block);
+    void define(DSLBlock block, PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Invokes the function with the given arguments.

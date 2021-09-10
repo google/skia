@@ -360,7 +360,7 @@ bool DSLParser::functionDeclarationEnd(const DSLModifiers& modifiers,
         if (!body) {
             return false;
         }
-        result.define(std::move(*body));
+        result.define(std::move(*body), this->position(name));
     }
     return true;
 }
