@@ -53,6 +53,7 @@ public:
             }
             fLine = 1;
             for (int i = 0; i < fOffset; i++) {
+                SkASSERT(fText[i]);
                 if (fText[i] == '\n') {
                     ++fLine;
                 }
