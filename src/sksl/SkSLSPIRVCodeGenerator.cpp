@@ -1891,7 +1891,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                    Variable::Storage::kGlobal));
                 InterfaceBlock intf(/*offset=*/-1, intfVar, name, /*instanceName=*/"",
                                     /*sizes=*/ExpressionArray(),
-                                    std::make_shared<SymbolTable>(&fErrors, /*builtin=*/false));
+                                    sk_make_shared<SymbolTable>(&fErrors, /*builtin=*/false));
 
                 fRTHeightStructId = this->writeInterfaceBlock(intf, false);
                 fRTHeightFieldIndex = 0;

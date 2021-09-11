@@ -87,10 +87,10 @@ public:
 Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
 : fCaps(caps)
 , fFlags(flags)
-, fContext(std::make_shared<Context>())
+, fContext(sk_make_shared<Context>())
 , fErrorCount(0) {
-    fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
-    fPrivateSymbolTable = std::make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
+    fRootSymbolTable = sk_make_shared<SymbolTable>(this, /*builtin=*/true);
+    fPrivateSymbolTable = sk_make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
     fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), &fInliner, *this);
 
 #define TYPE(t) fContext->f##t##_Type.get()
@@ -319,7 +319,7 @@ ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const Pa
         return {symbols, base.fIntrinsics};
     }
 
-    auto intrinsics = std::make_shared<IRIntrinsicMap>(base.fIntrinsics.get());
+    auto intrinsics = sk_make_shared<IRIntrinsicMap>(base.fIntrinsics.get());
 
     // Now, transfer all of the program elements to an intrinsic map. This maps certain types of
     // global objects to the declaring ProgramElement.

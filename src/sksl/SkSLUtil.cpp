@@ -20,7 +20,7 @@ namespace SkSL {
 StandaloneShaderCaps standaloneCaps;
 
 ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {
-    return std::make_shared<StandaloneShaderCaps>();
+    return sk_make_shared<StandaloneShaderCaps>();
 }
 #else
 ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {

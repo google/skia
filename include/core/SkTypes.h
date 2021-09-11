@@ -612,4 +612,16 @@ enum class SkBackingFit {
     kExact
 };
 
+////////////////////////////////////////////////////////////////////////////////
+
+#if defined(SK_NO_MAKE_SHARED_PTR)
+#include <memory>
+template <class _Ty, class... _Types>
+std::shared_ptr<_Ty> sk_make_shared(_Types... _Args) {
+    return std::shared_ptr<_Ty>(new _Ty(_Args...));
+}
+#else
+#define sk_make_shared std::make_shared
+#endif
+
 #endif

@@ -41,7 +41,7 @@ public:
         if (!symbolTable->isBuiltin()) {
             return symbolTable;
         }
-        return std::make_shared<SymbolTable>(std::move(symbolTable), /*builtin=*/false);
+        return sk_make_shared<SymbolTable>(std::move(symbolTable), /*builtin=*/false);
     }
 
     const Symbol* operator[](StringFragment name);
