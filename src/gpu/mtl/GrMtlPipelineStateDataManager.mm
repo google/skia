@@ -17,9 +17,11 @@
 
 GR_NORETAIN_BEGIN
 
-GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                             uint32_t uniformSize)
-        : INHERITED(uniforms.count(), uniformSize) {
+GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(
+        GrUniformDataManager::ProgramUniforms programUniforms,
+        const UniformInfoArray& uniforms,
+        uint32_t uniformSize)
+        : INHERITED(std::move(programUniforms), Layout::kMetal, uniforms.count(), uniformSize) {
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
     int i = 0;

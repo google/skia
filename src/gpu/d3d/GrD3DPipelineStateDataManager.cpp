@@ -10,9 +10,11 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 
-GrD3DPipelineStateDataManager::GrD3DPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                             uint32_t uniformSize)
-    : INHERITED(uniforms.count(), uniformSize) {
+GrD3DPipelineStateDataManager::GrD3DPipelineStateDataManager(
+        GrUniformDataManager::ProgramUniforms programUniforms,
+        const UniformInfoArray& uniforms,
+        uint32_t uniformSize)
+        : INHERITED(std::move(programUniforms), Layout::kStd140, uniforms.count(), uniformSize) {
     // We must add uniforms in same order as the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
     int i = 0;

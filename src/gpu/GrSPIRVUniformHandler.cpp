@@ -293,7 +293,37 @@ GrSwizzle GrSPIRVUniformHandler::samplerSwizzle(GrGLSLUniformHandler::SamplerHan
     return fSamplerSwizzles[handle.toIndex()];
 }
 
-void GrSPIRVUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
+GrUniformDataManager::ProgramUniforms GrSPIRVUniformHandler::getNewProgramUniforms(
+        const GrUniformAggregator& aggregator) {
+    GrUniformDataManager::ProgramUniforms result;
+    result.reserve(aggregator.numProcessors());
+    for (int p = 0; p < aggregator.numProcessors(); ++p) {
+        GrUniformDataManager::ProcessorUniforms uniforms;
+        auto records = aggregator.processorRecords(p);
+        uniforms.reserve(records.size());
+        for (const GrUniformAggregator::Record& record : records) {
+            const GrProcessor::Uniform& u = record.uniform();
+            uint32_t offset = get_ubo_offset(&fCurrentUBOOffset, u.type(), u.count());
+            uniforms.push_back({record.indexInProcessor, u.type(), u.count(), offset});
+
+            // Add to fNewUniforms so that these get declared.
+            SPIRVUniformInfo& info = fNewUniforms.push_back();
+            GrShaderVar var(record.name, u.type(), u.count());
+            SkString qualifier = SkStringPrintf("offset = %d", offset);
+            var.addLayoutQualifier(qualifier.c_str());
+            info.fUBOOffset  = offset;
+            info.fVariable   = var;
+            info.fVisibility = u.visibility();
+            info.fOwner      = nullptr;
+        }
+        result.push_back(std::move(uniforms));
+    }
+    return result;
+}
+
+void GrSPIRVUniformHandler::appendUniformDecls(const GrUniformAggregator&,
+                                               GrShaderFlags visibility,
+                                               SkString* out) const {
     auto textures = fTextures.items().begin();
     for (const SPIRVUniformInfo& sampler : fSamplers.items()) {
         if (sampler.fVisibility & visibility) {
@@ -306,6 +336,12 @@ void GrSPIRVUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkStrin
     }
     SkString uniformsString;
     for (const UniformInfo& uniform : fUniforms.items()) {
+        if (uniform.fVisibility & visibility) {
+            uniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
+            uniformsString.append(";\n");
+        }
+    }
+    for (const UniformInfo& uniform : fNewUniforms.items()) {
         if (uniform.fVisibility & visibility) {
             uniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
             uniformsString.append(";\n");

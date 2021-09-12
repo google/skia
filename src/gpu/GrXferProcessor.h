@@ -14,6 +14,7 @@
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/GrSurfaceProxyView.h"
+#include "src/gpu/GrUniformAggregator.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class GrGLSLXPFragmentBuilder;
@@ -144,6 +145,8 @@ protected:
     GrXferProcessor(ClassID classID, bool willReadDstColor, GrProcessorAnalysisCoverage);
 
 private:
+    GrXferProcessor(const GrXferProcessor&) = delete;
+
     /**
      * Adds a key on the GrProcessorKeyBuilder that reflects any variety in the code that may be
      * emitted by the xfer processor subclass.
@@ -287,6 +290,7 @@ public:
 
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
+                 GrUniformAggregator::ProcessorUniforms uniforms,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrShaderCaps* caps,
                  const GrXferProcessor& xp,
@@ -298,6 +302,7 @@ public:
                  GrSurfaceOrigin dstTextureOrigin,
                  const GrSwizzle& writeSwizzle)
                 : fXPFragBuilder(fragBuilder)
+                , fUniforms(std::move(uniforms))
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
                 , fXP(xp)
@@ -309,6 +314,7 @@ public:
                 , fDstTextureOrigin(dstTextureOrigin)
                 , fWriteSwizzle(writeSwizzle) {}
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
+        GrUniformAggregator::ProcessorUniforms fUniforms;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
         const GrXferProcessor& fXP;

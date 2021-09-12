@@ -86,7 +86,9 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
-void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
+void GrGLUniformHandler::appendUniformDecls(const GrUniformAggregator& aggregator,
+                                            GrShaderFlags visibility,
+                                            SkString* out) const {
     for (const UniformInfo& uniform : fUniforms.items()) {
         if (uniform.fVisibility & visibility) {
             uniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
@@ -96,6 +98,14 @@ void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     for (const UniformInfo& sampler : fSamplers.items()) {
         if (sampler.fVisibility & visibility) {
             sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
+            out->append(";\n");
+        }
+    }
+    for (const auto& record : aggregator.records()) {
+        const GrProcessor::Uniform& u = record.uniform();
+        if (u.visibility() & visibility) {
+            GrShaderVar var(record.name, u.type(), GrShaderVar::TypeModifier::Uniform, u.count());
+            var.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
         }
     }

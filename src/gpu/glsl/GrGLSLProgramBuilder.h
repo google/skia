@@ -12,6 +12,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrUniformAggregator.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -111,6 +112,8 @@ public:
     GrSurfaceOrigin fDstTextureOrigin;
 
 protected:
+    GrUniformAggregator fUniformAggregator;
+
     explicit GrGLSLProgramBuilder(const GrProgramDesc&, const GrProgramInfo&);
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);

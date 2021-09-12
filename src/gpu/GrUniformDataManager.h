@@ -8,20 +8,41 @@
 #ifndef GrUniformDataManager_DEFINED
 #define GrUniformDataManager_DEFINED
 
-#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
-
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+
+#include <vector>
+
+class GrProgramInfo;
 
 /**
  * Subclass of GrGLSLProgramDataManager used to store uniforms for a program in a CPU buffer that
- * can be uploaded to a UBO. This currently assumes uniform layouts that are compatible with
- * Vulkan, Dawn, and D3D12. It could be used more broadly if this aspect was made configurable.
+ * can be uploaded to a UBO.
  */
 class GrUniformDataManager : public GrGLSLProgramDataManager {
 public:
-    GrUniformDataManager(uint32_t uniformCount, uint32_t uniformSize);
+    enum class Layout {
+        kStd140,
+        kStd430,
+        kMetal, /** This is our own self-imposed layout we use for Metal. */
+    };
+
+    struct NewUniform {
+        size_t   indexInProcessor = ~0;
+        GrSLType type             = kVoid_GrSLType;
+        int      count            = 0;
+        uint32_t offset           = 0;
+    };
+
+    using ProcessorUniforms = std::vector<NewUniform>;
+    using ProgramUniforms   = std::vector<ProcessorUniforms>;
+
+    GrUniformDataManager(ProgramUniforms,
+                         Layout layout,
+                         uint32_t uniformCount,
+                         uint32_t uniformSize);
 
     void set1i(UniformHandle, int32_t) const override;
     void set1iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
@@ -51,6 +72,8 @@ public:
     // For the uniform data to be dirty so that we will reupload on the next use.
     void markDirty() { fUniformsDirty = true; }
 
+    void setUniforms(const GrProgramInfo& info);
+
 protected:
     struct Uniform {
         uint32_t fOffset;
@@ -71,6 +94,19 @@ protected:
 
     mutable SkAutoMalloc fUniformData;
     mutable bool         fUniformsDirty;
+
+private:
+    class UniformManager {
+    public:
+        UniformManager(ProgramUniforms, Layout layout);
+        bool writeUniforms(const GrProgramInfo& info, void* buffer);
+
+    private:
+        ProgramUniforms fUniforms;
+        Layout          fLayout;
+    };
+
+    UniformManager fUniformManager;
 };
 
 #endif
