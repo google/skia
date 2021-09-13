@@ -13,14 +13,14 @@ namespace SkSL {
 
 using State = uint8_t;
 static const uint8_t INVALID_CHAR = 18;
-static int8_t mappings[127] = {
+static const int8_t kMappings[127] = {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  3,  1,  3,  3,  3,  3,  3,  3,  3,  3,
         3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  1,  4,  3,  5,  6,  7,  8,  3,  9,  10, 11, 12,
         13, 14, 15, 16, 17, 18, 18, 19, 18, 18, 18, 18, 18, 18, 20, 21, 22, 23, 24, 25, 26, 27,
         27, 27, 27, 28, 27, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
         29, 29, 29, 30, 3,  31, 32, 33, 3,  34, 35, 36, 37, 38, 39, 40, 41, 42, 29, 43, 44, 45,
         46, 47, 48, 29, 49, 50, 51, 52, 53, 54, 55, 56, 29, 57, 58, 59, 60};
-static State transitions[61][242] = {
+static const State kTransitions[61][242] = {
         {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -822,7 +822,7 @@ static State transitions[61][242] = {
         },
 };
 
-static int8_t accepts[242] = {
+static const int8_t kAccepts[242] = {
         -1, -1, 83, 83, 86, 61, 66, 86, 36, 35, 35, 35, 35, 34, 51, 75, 56, 60, 80, 37, 38, 49,
         73, 47, 45, 71, 44, 48, 46, 72, 82, 43, 1,  -1, -1, 1,  50, -1, -1, 85, 84, 74, 2,  1,
         1,  -1, -1, 1,  -1, -1, 1,  2,  -1, -1, 1,  -1, 2,  2,  63, 81, 68, 52, 76, 70, 64, 65,
@@ -849,7 +849,7 @@ Token Lexer::next() {
     State state = 1;
     for (;;) {
         if (fOffset >= (int32_t)fText.length()) {
-            if (accepts[state] == -1) {
+            if (kAccepts[state] == -1) {
                 return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
             }
             break;
@@ -858,14 +858,14 @@ Token Lexer::next() {
         if (c <= 8 || c >= 127) {
             c = INVALID_CHAR;
         }
-        State newState = transitions[mappings[c]][state];
+        State newState = kTransitions[kMappings[c]][state];
         if (!newState) {
             break;
         }
         state = newState;
         ++fOffset;
     }
-    Token::Kind kind = (Token::Kind)accepts[state];
+    Token::Kind kind = (Token::Kind)kAccepts[state];
     return Token(kind, startOffset, fOffset - startOffset);
 }
 

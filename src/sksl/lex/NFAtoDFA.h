@@ -80,8 +80,8 @@ private:
                 this->add(next, states);
             }
         } else {
-            for (int state : *states) {
-                if (nfaState == state) {
+            for (int entry : *states) {
+                if (nfaState == entry) {
                     return;
                 }
             }

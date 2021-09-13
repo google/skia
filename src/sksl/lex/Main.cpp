@@ -111,14 +111,15 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     // arbitrarily-chosen character which is greater than START_CHAR and should not appear in actual
     // input
     out << "static const uint8_t INVALID_CHAR = 18;";
-    out << "static int8_t mappings[" << dfa.fCharMappings.size() << "] = {\n    ";
+    out << "static const int8_t kMappings[" << dfa.fCharMappings.size() << "] = {\n    ";
     const char* separator = "";
     for (int m : dfa.fCharMappings) {
         out << separator << std::to_string(m);
         separator = ", ";
     }
     out << "\n};\n";
-    out << "static State transitions[" << dfa.fTransitions.size() << "][" << states << "] = {\n";
+    out << "static const State kTransitions[" << dfa.fTransitions.size() << "]["
+                                              << states << "] = {\n";
     for (size_t c = 0; c < dfa.fTransitions.size(); ++c) {
         out << "    {";
         for (size_t j = 0; j < states; ++j) {
@@ -133,7 +134,7 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "};\n";
     out << "\n";
 
-    out << "static int8_t accepts[" << states << "] = {";
+    out << "static const int8_t kAccepts[" << states << "] = {";
     for (size_t i = 0; i < states; ++i) {
         if (i < dfa.fAccepts.size()) {
             out << " " << dfa.fAccepts[i] << ",";
@@ -158,7 +159,7 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     State state = 1;
     for (;;) {
         if (fOffset >= (int32_t)fText.length()) {
-            if (accepts[state] == -1) {
+            if (kAccepts[state] == -1) {
                 return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
             }
             break;
@@ -167,14 +168,14 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
         if (c <= 8 || c >= )" << dfa.fCharMappings.size() << R"() {
             c = INVALID_CHAR;
         }
-        State newState = transitions[mappings[c]][state];
+        State newState = kTransitions[kMappings[c]][state];
         if (!newState) {
             break;
         }
         state = newState;
         ++fOffset;
     }
-    Token::Kind kind = ()" << token << R"(::Kind) accepts[state];
+    Token::Kind kind = ()" << token << R"(::Kind) kAccepts[state];
     return )" << token << R"((kind, startOffset, fOffset - startOffset);
 }
 
