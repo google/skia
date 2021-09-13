@@ -117,6 +117,10 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
         }
     }
 
+    if (Analysis::DetectVarDeclarationWithoutScope(*statement, context.fErrors)) {
+        return nullptr;
+    }
+
     if (isVardeclBlockInitializer) {
         // If the initializer statement of a for loop contains multiple variables, this causes
         // difficulties for several of our backends; e.g. Metal doesn't have a way to express arrays
@@ -130,10 +134,6 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
                                            std::move(test), std::move(next), std::move(statement),
                                            std::move(unrollInfo), std::move(symbolTable)));
         return Block::Make(offset, std::move(scope));
-    }
-
-    if (Analysis::DetectVarDeclarationWithoutScope(*statement, context.fErrors)) {
-        return nullptr;
     }
 
     return ForStatement::Make(context, offset, std::move(initializer), std::move(test),
