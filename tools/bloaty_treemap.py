@@ -78,7 +78,7 @@ def main():
 
         # Strip the leading ../../ from paths
         while filepath.startswith("../"):
-            filepath = filepath.removeprefix("../")
+            filepath = filepath[3:];
 
         # Files in third_party sometimes have absolute paths. Strip those:
         if filepath.startswith("/"):
