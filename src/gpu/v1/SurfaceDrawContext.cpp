@@ -130,18 +130,15 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(GrRecordingContext*
                                                              GrSurfaceOrigin origin,
                                                              const SkSurfaceProps& surfaceProps,
                                                              bool flushTimeOpsTask) {
-    if (!rContext || !proxy) {
+    if (!rContext || !proxy || colorType == GrColorType::kUnknown) {
         return nullptr;
     }
 
     const GrBackendFormat& format = proxy->backendFormat();
-    GrSwizzle readSwizzle, writeSwizzle;
-    if (colorType != GrColorType::kUnknown) {
-        readSwizzle = rContext->priv().caps()->getReadSwizzle(format, colorType);
-        writeSwizzle = rContext->priv().caps()->getWriteSwizzle(format, colorType);
-    }
+    GrSwizzle readSwizzle = rContext->priv().caps()->getReadSwizzle(format, colorType);
+    GrSwizzle writeSwizzle = rContext->priv().caps()->getWriteSwizzle(format, colorType);
 
-    GrSurfaceProxyView readView (           proxy, origin,  readSwizzle);
+    GrSurfaceProxyView readView (          proxy,  origin, readSwizzle);
     GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
     return std::make_unique<SurfaceDrawContext>(rContext,
