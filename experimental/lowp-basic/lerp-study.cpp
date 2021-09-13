@@ -59,6 +59,14 @@ static int16_t ssse3_lerp(float t, int16_t a, int16_t b) {
     return (answer[0] + half) >> logPixelScale;
 }
 
+static int16_t full_res_lerp(float t, int16_t a, int16_t b) {
+    int32_t ft(floor(t * 65536.0f + 0.5f));
+
+    int32_t temp = ft * (b - a) + a * 65536;
+    int32_t rounded = temp + 32768;
+    return rounded >> 16;
+}
+
 // Change of parameters on t from [0, 1) to [-1, 1). This cuts the number if differences in half.
 template <int logPixelScale>
 static int16_t balanced_lerp(float t, int16_t a, int16_t b) {
@@ -90,7 +98,11 @@ static Stats check_lerp(Lerp lerp) {
 int main() {
     Stats stats;
 
-    printf("Using vqrdmulhq_s16...\n");
+    printf("\nUsing full_res_lerp...\n");
+    stats = check_lerp(full_res_lerp);
+    stats.print();
+
+    printf("\nUsing vqrdmulhq_s16...\n");
     stats = check_lerp(saturating_lerp<7>);
     stats.print();
 
