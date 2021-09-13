@@ -213,6 +213,10 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
+    if (!rContext) {
+        return nullptr;
+    }
+
     auto format = rContext->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
     if (!format.isValid()) {
         return nullptr;

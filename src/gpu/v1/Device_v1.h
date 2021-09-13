@@ -219,16 +219,6 @@ private:
                          SkFilterMode,
                          const SkPaint&);
 
-    static std::unique_ptr<SurfaceDrawContext> MakeSurfaceDrawContext(GrRecordingContext*,
-                                                                      SkBudgeted,
-                                                                      const SkImageInfo&,
-                                                                      SkBackingFit,
-                                                                      int sampleCount,
-                                                                      GrMipmapped,
-                                                                      GrProtected,
-                                                                      GrSurfaceOrigin,
-                                                                      const SkSurfaceProps&);
-
     friend class ::SkSurface_Gpu;      // for access to surfaceProps
     using INHERITED = BaseDevice;
 };

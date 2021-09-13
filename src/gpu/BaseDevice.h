@@ -17,6 +17,7 @@ class GrSurfaceProxyView;
 
 namespace skgpu {
 
+class SurfaceContext;
 class SurfaceFillContext;
 #if SK_GPU_V1
 namespace v1 { class SurfaceDrawContext; }
@@ -87,6 +88,7 @@ protected:
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(DeviceFlags);
 
     static bool CheckAlphaTypeAndGetFlags(SkAlphaType, InitContents, DeviceFlags*);
+    static SkImageInfo MakeInfo(SurfaceContext*,  DeviceFlags);
 
     sk_sp<GrRecordingContext> fContext;
 

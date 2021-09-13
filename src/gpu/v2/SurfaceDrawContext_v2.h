@@ -12,18 +12,38 @@
 
 namespace skgpu::v2 {
 
-class SurfaceDrawContext : public SurfaceFillContext {
+class SurfaceDrawContext final : public SurfaceFillContext {
+public:
+    static std::unique_ptr<SurfaceDrawContext> Make(GrRecordingContext*,
+                                                    GrColorType,
+                                                    sk_sp<GrSurfaceProxy>,
+                                                    sk_sp<SkColorSpace>,
+                                                    GrSurfaceOrigin,
+                                                    const SkSurfaceProps&);
+
+    static std::unique_ptr<SurfaceDrawContext> Make(GrRecordingContext*,
+                                                    GrColorType,
+                                                    sk_sp<SkColorSpace>,
+                                                    SkBackingFit,
+                                                    SkISize dimensions,
+                                                    const SkSurfaceProps&,
+                                                    int sampleCnt,
+                                                    GrMipmapped,
+                                                    GrProtected,
+                                                    GrSurfaceOrigin,
+                                                    SkBudgeted);
+
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
+
 public:
     SurfaceDrawContext(GrRecordingContext*,
                        GrSurfaceProxyView readView,
                        GrSurfaceProxyView writeView,
                        GrColorType,
                        sk_sp<SkColorSpace>,
-                       const SkSurfaceProps&,
-                       bool flushTimeOpsTask = false);
+                       const SkSurfaceProps&);
 
-private:
-    using INHERITED = SurfaceFillContext;
+    const SkSurfaceProps fSurfaceProps;
 };
 
 } // namespace skgpu::v2

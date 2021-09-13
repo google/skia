@@ -11,18 +11,98 @@
 #include "src/core/SkImageFilterCache.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTracing.h"
+#include "src/gpu/v2/SurfaceDrawContext_v2.h"
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
 namespace skgpu::v2 {
 
-Device::Device(sk_sp<GrRecordingContext> rContext,
-               const SkImageInfo& ii,
-               const SkSurfaceProps& props)
-    : INHERITED(std::move(rContext), ii, props) {
+sk_sp<BaseDevice> Device::Make(std::unique_ptr<SurfaceDrawContext> sdc,
+                               SkAlphaType alphaType,
+                               InitContents init) {
+    if (!sdc) {
+        return nullptr;
+    }
+
+    GrRecordingContext* rContext = sdc->recordingContext();
+    if (rContext->abandoned()) {
+        return nullptr;
+    }
+
+    SkColorType ct = GrColorTypeToSkColorType(sdc->colorInfo().colorType());
+
+    DeviceFlags flags;
+    if (!rContext->colorTypeSupportedAsSurface(ct) ||
+        !CheckAlphaTypeAndGetFlags(alphaType, init, &flags)) {
+        return nullptr;
+    }
+    return sk_sp<Device>(new Device(std::move(sdc), flags));
+}
+
+sk_sp<BaseDevice> Device::Make(GrRecordingContext* rContext,
+                               GrColorType colorType,
+                               sk_sp<GrSurfaceProxy> proxy,
+                               sk_sp<SkColorSpace> colorSpace,
+                               GrSurfaceOrigin origin,
+                               const SkSurfaceProps& surfaceProps,
+                               InitContents init) {
+    if (!rContext || rContext->abandoned()) {
+        return nullptr;
+    }
+
+    std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(rContext,
+                                                                       colorType,
+                                                                       std::move(proxy),
+                                                                       std::move(colorSpace),
+                                                                       origin,
+                                                                       surfaceProps);
+
+    return Device::Make(std::move(sdc), kPremul_SkAlphaType, init);
+}
+
+sk_sp<BaseDevice> Device::Make(GrRecordingContext* rContext,
+                               SkBudgeted budgeted,
+                               const SkImageInfo& ii,
+                               SkBackingFit fit,
+                               int sampleCount,
+                               GrMipmapped mipMapped,
+                               GrProtected isProtected,
+                               GrSurfaceOrigin origin,
+                               const SkSurfaceProps& surfaceProps,
+                               InitContents init) {
+    if (!rContext || rContext->abandoned()) {
+        return nullptr;
+    }
+
+    auto sdc = SurfaceDrawContext::Make(rContext,
+                                        SkColorTypeToGrColorType(ii.colorType()),
+                                        ii.refColorSpace(),
+                                        fit,
+                                        ii.dimensions(),
+                                        surfaceProps,
+                                        sampleCount,
+                                        mipMapped,
+                                        isProtected,
+                                        origin,
+                                        budgeted);
+
+    return Device::Make(std::move(sdc), ii.alphaType(), init);
+}
+
+Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, DeviceFlags flags)
+        : BaseDevice(sk_ref_sp(sdc->recordingContext()),
+                     MakeInfo(sdc.get(), flags),
+                     sdc->surfaceProps())
+        , fSurfaceDrawContext(std::move(sdc)) {
+    if (flags & DeviceFlags::kNeedClear) {
+        // TODO: re-enable this once we decide what the V2 SDC does with clearAll calls
+//        this->clearAll();
+    }
 }
 
 Device::~Device() {}
+
+skgpu::SurfaceFillContext* Device::surfaceFillContext() { return fSurfaceDrawContext.get(); }
 
 GrSurfaceProxyView Device::readSurfaceView() { return {}; }
 

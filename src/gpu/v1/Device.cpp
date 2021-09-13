@@ -54,13 +54,6 @@
 
 namespace {
 
-SkImageInfo make_info(skgpu::v1::SurfaceDrawContext* sdc, bool opaque) {
-    SkColorType colorType = GrColorTypeToSkColorType(sdc->colorInfo().colorType());
-    return SkImageInfo::Make(sdc->width(), sdc->height(), colorType,
-                             opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
-                             sdc->colorInfo().refColorSpace());
-}
-
 bool force_aa_clip(const skgpu::v1::SurfaceDrawContext* sdc) {
     return sdc->numSamples() > 1 || sdc->alwaysAntialias();
 }
@@ -172,22 +165,28 @@ sk_sp<BaseDevice> Device::Make(GrRecordingContext* rContext,
                                GrSurfaceOrigin origin,
                                const SkSurfaceProps& props,
                                InitContents init) {
-    auto sdc = MakeSurfaceDrawContext(rContext,
-                                      budgeted,
-                                      ii,
-                                      fit,
-                                      sampleCount,
-                                      mipMapped,
-                                      isProtected,
-                                      origin,
-                                      props);
+    if (!rContext) {
+        return nullptr;
+    }
+
+    auto sdc = SurfaceDrawContext::Make(rContext,
+                                        SkColorTypeToGrColorType(ii.colorType()),
+                                        ii.refColorSpace(),
+                                        fit,
+                                        ii.dimensions(),
+                                        props,
+                                        sampleCount,
+                                        mipMapped,
+                                        isProtected,
+                                        origin,
+                                        budgeted);
 
     return Device::Make(std::move(sdc), ii.alphaType(), init);
 }
 
 Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, DeviceFlags flags)
         : INHERITED(sk_ref_sp(sdc->recordingContext()),
-                    make_info(sdc.get(), SkToBool(flags & DeviceFlags::kIsOpaque)),
+                    MakeInfo(sdc.get(), flags),
                     sdc->surfaceProps())
         , fSurfaceDrawContext(std::move(sdc))
         , fClip(SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
@@ -196,28 +195,6 @@ Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, DeviceFlags flags)
     if (flags & DeviceFlags::kNeedClear) {
         this->clearAll();
     }
-}
-
-std::unique_ptr<SurfaceDrawContext> Device::MakeSurfaceDrawContext(
-        GrRecordingContext* rContext,
-        SkBudgeted budgeted,
-        const SkImageInfo& origInfo,
-        SkBackingFit fit,
-        int sampleCount,
-        GrMipmapped mipmapped,
-        GrProtected isProtected,
-        GrSurfaceOrigin origin,
-        const SkSurfaceProps& surfaceProps) {
-    if (!rContext) {
-        return nullptr;
-    }
-
-    // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
-    // they need to be exact.
-    return SurfaceDrawContext::Make(
-            rContext, SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(),
-            fit, origInfo.dimensions(), surfaceProps,
-            sampleCount, mipmapped, isProtected, origin, budgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

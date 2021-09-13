@@ -60,7 +60,7 @@ namespace skgpu::v1 {
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class SurfaceDrawContext : public SurfaceFillContext {
+class SurfaceDrawContext final : public SurfaceFillContext {
 public:
     static std::unique_ptr<SurfaceDrawContext> Make(GrRecordingContext*,
                                                     GrColorType,
@@ -715,7 +715,6 @@ private:
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
     SkGlyphRunListPainter fGlyphPainter;
-    using INHERITED = SurfaceFillContext;
 };
 
 } // namespace skgpu::v1
