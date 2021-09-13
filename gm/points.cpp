@@ -74,9 +74,40 @@ protected:
 private:
     using INHERITED = GM;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
 DEF_GM( return new PointsGM; )
-
 }  // namespace skiagm
+
+#include "include/core/SkMaskFilter.h"
+
+DEF_SIMPLE_GM(points_maskfilter, canvas, 512, 256) {
+    constexpr int N = 30;
+    SkPoint pts[N];
+
+    SkRandom rand;
+    for (SkPoint& p : pts) {
+        p.fX = rand.nextF() * 220 + 18;
+        p.fY = rand.nextF() * 220 + 18;
+    }
+
+    auto mf = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 6);
+    const SkPaint::Cap caps[] = { SkPaint::kSquare_Cap, SkPaint::kRound_Cap };
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStroke(true);
+    paint.setStrokeWidth(10);
+
+    for (auto cap : caps) {
+        paint.setStrokeCap(cap);
+
+        paint.setMaskFilter(mf);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, pts, paint);
+
+        paint.setMaskFilter(nullptr);
+        paint.setColor(SK_ColorRED);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, pts, paint);
+
+        canvas->translate(256, 0);
+    }
+}

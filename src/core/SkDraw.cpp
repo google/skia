@@ -246,7 +246,7 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
     if ((unsigned)mode > (unsigned)SkCanvas::kPolygon_PointMode) {
         return false;
     }
-    if (paint.getPathEffect()) {
+    if (paint.getPathEffect() || paint.getMaskFilter()) {
         return false;
     }
     SkScalar width = paint.getStrokeWidth();
