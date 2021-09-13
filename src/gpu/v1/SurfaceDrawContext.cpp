@@ -1783,9 +1783,10 @@ bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
                                 fContext, std::move(*paint), viewMatrix, rects);
                 if (op) {
                     this->addDrawOp(clip, std::move(op));
+                    return true;
                 }
-                // Returning here indicates that there is nothing to draw in this case.
-                return true;
+                // Fall through to let path renderer handle subpixel nested rects with unequal
+                // stroke widths along X/Y.
             }
         }
     }
