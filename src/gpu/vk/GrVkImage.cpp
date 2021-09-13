@@ -5,40 +5,265 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImage.h"
+
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkTexture.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-GrVkImage::GrVkImage(const GrVkGpu* gpu,
+sk_sp<GrVkImage> GrVkImage::MakeStencil(GrVkGpu* gpu,
+                                        SkISize dimensions,
+                                        int sampleCnt,
+                                        VkFormat format) {
+    VkImageUsageFlags vkUsageFlags =
+            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    return GrVkImage::Make(gpu,
+                           dimensions,
+                           UsageFlags::kStencilAttachment,
+                           sampleCnt,
+                           format,
+                           /*mipLevels=*/1,
+                           vkUsageFlags,
+                           GrProtected::kNo,
+                           SkBudgeted::kYes);
+}
+
+sk_sp<GrVkImage> GrVkImage::MakeMSAA(GrVkGpu* gpu,
+                                     SkISize dimensions,
+                                     int numSamples,
+                                     VkFormat format,
+                                     GrProtected isProtected) {
+    SkASSERT(numSamples > 1);
+
+    VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    return GrVkImage::Make(gpu,
+                           dimensions,
+                           UsageFlags::kColorAttachment,
+                           numSamples,
+                           format,
+                           /*mipLevels=*/1,
+                           vkUsageFlags,
+                           isProtected,
+                           SkBudgeted::kYes);
+}
+
+sk_sp<GrVkImage> GrVkImage::MakeTexture(GrVkGpu* gpu,
+                                        SkISize dimensions,
+                                        VkFormat format,
+                                        uint32_t mipLevels,
+                                        GrRenderable renderable,
+                                        int numSamples,
+                                        SkBudgeted budgeted,
+                                        GrProtected isProtected) {
+    UsageFlags usageFlags = UsageFlags::kTexture;
+    VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    if (renderable == GrRenderable::kYes) {
+        usageFlags |= UsageFlags::kColorAttachment;
+        vkUsageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        // We always make our render targets support being used as input attachments
+        vkUsageFlags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    }
+
+    return GrVkImage::Make(gpu,
+                           dimensions,
+                           usageFlags,
+                           numSamples,
+                           format,
+                           mipLevels,
+                           vkUsageFlags,
+                           isProtected,
+                           budgeted);
+}
+
+static bool make_views(GrVkGpu* gpu,
+                       const GrVkImageInfo& info,
+                       GrAttachment::UsageFlags attachmentUsages,
+                       sk_sp<const GrVkImageView>* framebufferView,
+                       sk_sp<const GrVkImageView>* textureView) {
+    GrVkImageView::Type viewType;
+    if (attachmentUsages & GrAttachment::UsageFlags::kStencilAttachment) {
+        // If we have stencil usage then we shouldn't have any other usages
+        SkASSERT(attachmentUsages == GrAttachment::UsageFlags::kStencilAttachment);
+        viewType = GrVkImageView::kStencil_Type;
+    } else {
+        viewType = GrVkImageView::kColor_Type;
+    }
+
+    if (SkToBool(attachmentUsages & GrAttachment::UsageFlags::kStencilAttachment) ||
+        SkToBool(attachmentUsages & GrAttachment::UsageFlags::kColorAttachment)) {
+        // Attachments can only have a mip level of 1
+        *framebufferView = GrVkImageView::Make(
+                gpu, info.fImage, info.fFormat, viewType, 1, info.fYcbcrConversionInfo);
+        if (!*framebufferView) {
+            return false;
+        }
+    }
+
+    if (attachmentUsages & GrAttachment::UsageFlags::kTexture) {
+        *textureView = GrVkImageView::Make(gpu,
+                                           info.fImage,
+                                           info.fFormat,
+                                           viewType,
+                                           info.fLevelCount,
+                                           info.fYcbcrConversionInfo);
+        if (!*textureView) {
+            return false;
+        }
+    }
+    return true;
+}
+
+sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
+                                 SkISize dimensions,
+                                 UsageFlags attachmentUsages,
+                                 int sampleCnt,
+                                 VkFormat format,
+                                 uint32_t mipLevels,
+                                 VkImageUsageFlags vkUsageFlags,
+                                 GrProtected isProtected,
+                                 SkBudgeted budgeted) {
+    GrVkImage::ImageDesc imageDesc;
+    imageDesc.fImageType = VK_IMAGE_TYPE_2D;
+    imageDesc.fFormat = format;
+    imageDesc.fWidth = dimensions.width();
+    imageDesc.fHeight = dimensions.height();
+    imageDesc.fLevels = mipLevels;
+    imageDesc.fSamples = sampleCnt;
+    imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    imageDesc.fUsageFlags = vkUsageFlags;
+    imageDesc.fIsProtected = isProtected;
+
+    GrVkImageInfo info;
+    if (!GrVkImage::InitImageInfo(gpu, imageDesc, &info)) {
+        return nullptr;
+    }
+
+    sk_sp<const GrVkImageView> framebufferView;
+    sk_sp<const GrVkImageView> textureView;
+    if (!make_views(gpu, info, attachmentUsages, &framebufferView, &textureView)) {
+        GrVkImage::DestroyImageInfo(gpu, &info);
+        return nullptr;
+    }
+
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(
+            new GrBackendSurfaceMutableStateImpl(info.fImageLayout, info.fCurrentQueueFamily));
+    return sk_sp<GrVkImage>(new GrVkImage(gpu,
+                                          dimensions,
+                                          attachmentUsages,
+                                          info,
+                                          std::move(mutableState),
+                                          std::move(framebufferView),
+                                          std::move(textureView),
+                                          budgeted));
+}
+
+sk_sp<GrVkImage> GrVkImage::MakeWrapped(GrVkGpu* gpu,
+                                        SkISize dimensions,
+                                        const GrVkImageInfo& info,
+                                        sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                                        UsageFlags attachmentUsages,
+                                        GrWrapOwnership ownership,
+                                        GrWrapCacheable cacheable,
+                                        bool forSecondaryCB) {
+    sk_sp<const GrVkImageView> framebufferView;
+    sk_sp<const GrVkImageView> textureView;
+    if (!forSecondaryCB) {
+        if (!make_views(gpu, info, attachmentUsages, &framebufferView, &textureView)) {
+            return nullptr;
+        }
+    }
+
+    GrBackendObjectOwnership backendOwnership = kBorrow_GrWrapOwnership == ownership
+                                                        ? GrBackendObjectOwnership::kBorrowed
+                                                        : GrBackendObjectOwnership::kOwned;
+
+    return sk_sp<GrVkImage>(new GrVkImage(gpu,
+                                          dimensions,
+                                          attachmentUsages,
+                                          info,
+                                          std::move(mutableState),
+                                          std::move(framebufferView),
+                                          std::move(textureView),
+                                          backendOwnership,
+                                          cacheable,
+                                          forSecondaryCB));
+}
+
+GrVkImage::GrVkImage(GrVkGpu* gpu,
+                     SkISize dimensions,
+                     UsageFlags supportedUsages,
                      const GrVkImageInfo& info,
                      sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     GrBackendObjectOwnership ownership,
-                     bool forSecondaryCB)
-        : fInfo(info)
+                     sk_sp<const GrVkImageView> framebufferView,
+                     sk_sp<const GrVkImageView> textureView,
+                     SkBudgeted budgeted)
+        : GrAttachment(gpu,
+                       dimensions,
+                       supportedUsages,
+                       info.fSampleCount,
+                       info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
+                       info.fProtected)
+        , fInfo(info)
         , fInitialQueueFamily(info.fCurrentQueueFamily)
         , fMutableState(std::move(mutableState))
+        , fFramebufferView(std::move(framebufferView))
+        , fTextureView(std::move(textureView))
+        , fIsBorrowed(false) {
+    this->init(gpu, false);
+    this->registerWithCache(budgeted);
+}
+
+GrVkImage::GrVkImage(GrVkGpu* gpu,
+                               SkISize dimensions,
+                               UsageFlags supportedUsages,
+                               const GrVkImageInfo& info,
+                               sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                               sk_sp<const GrVkImageView> framebufferView,
+                               sk_sp<const GrVkImageView> textureView,
+                               GrBackendObjectOwnership ownership,
+                               GrWrapCacheable cacheable,
+                               bool forSecondaryCB)
+        : GrAttachment(gpu,
+                       dimensions,
+                       supportedUsages,
+                       info.fSampleCount,
+                       info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
+                       info.fProtected)
+        , fInfo(info)
+        , fInitialQueueFamily(info.fCurrentQueueFamily)
+        , fMutableState(std::move(mutableState))
+        , fFramebufferView(std::move(framebufferView))
+        , fTextureView(std::move(textureView))
         , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
+    this->init(gpu, forSecondaryCB);
+    this->registerWithCacheWrapped(cacheable);
+}
+
+void GrVkImage::init(GrVkGpu* gpu, bool forSecondaryCB) {
     SkASSERT(fMutableState->getImageLayout() == fInfo.fImageLayout);
     SkASSERT(fMutableState->getQueueFamilyIndex() == fInfo.fCurrentQueueFamily);
 #ifdef SK_DEBUG
-    if (info.fImageUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-        SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT));
+    if (fInfo.fImageUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+        SkASSERT(SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT));
     } else {
-        SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
-                 SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
+        SkASSERT(SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
+                 SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
     }
     // We can't transfer from the non graphics queue to the graphics queue since we can't
     // release the image from the original queue without having that queue. This limits us in terms
     // of the types of queue indices we can handle.
-    if (info.fCurrentQueueFamily != VK_QUEUE_FAMILY_IGNORED &&
-        info.fCurrentQueueFamily != VK_QUEUE_FAMILY_EXTERNAL &&
-        info.fCurrentQueueFamily != VK_QUEUE_FAMILY_FOREIGN_EXT) {
-        if (info.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
-            if (info.fCurrentQueueFamily != gpu->queueIndex()) {
+    if (fInfo.fCurrentQueueFamily != VK_QUEUE_FAMILY_IGNORED &&
+        fInfo.fCurrentQueueFamily != VK_QUEUE_FAMILY_EXTERNAL &&
+        fInfo.fCurrentQueueFamily != VK_QUEUE_FAMILY_FOREIGN_EXT) {
+        if (fInfo.fSharingMode == VK_SHARING_MODE_EXCLUSIVE) {
+            if (fInfo.fCurrentQueueFamily != gpu->queueIndex()) {
                 SkASSERT(false);
             }
         } else {
@@ -49,10 +274,10 @@ GrVkImage::GrVkImage(const GrVkGpu* gpu,
     if (forSecondaryCB) {
         fResource = nullptr;
     } else if (fIsBorrowed) {
-        fResource = new BorrowedResource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
+        fResource = new BorrowedResource(gpu, fInfo.fImage, fInfo.fAlloc, fInfo.fImageTiling);
     } else {
-        SkASSERT(VK_NULL_HANDLE != info.fAlloc.fMemory);
-        fResource = new Resource(gpu, info.fImage, info.fAlloc, info.fImageTiling);
+        SkASSERT(VK_NULL_HANDLE != fInfo.fAlloc.fMemory);
+        fResource = new Resource(gpu, fInfo.fImage, fInfo.fAlloc, fInfo.fImageTiling);
     }
 }
 
@@ -285,6 +510,8 @@ void GrVkImage::DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo* info) {
 GrVkImage::~GrVkImage() {
     // should have been released first
     SkASSERT(!fResource);
+    SkASSERT(!fFramebufferView);
+    SkASSERT(!fTextureView);
 }
 
 void GrVkImage::prepareForPresent(GrVkGpu* gpu) {
@@ -310,6 +537,20 @@ void GrVkImage::releaseImage() {
         fResource->unref();
         fResource = nullptr;
     }
+    fFramebufferView.reset();
+    fTextureView.reset();
+    fCachedBlendingInputDescSet.reset();
+    fCachedMSAALoadInputDescSet.reset();
+}
+
+void GrVkImage::onRelease() {
+    this->releaseImage();
+    GrAttachment::onRelease();
+}
+
+void GrVkImage::onAbandon() {
+    this->releaseImage();
+    GrAttachment::onAbandon();
 }
 
 void GrVkImage::setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
@@ -326,6 +567,79 @@ void GrVkImage::Resource::freeGPUData() const {
 
 void GrVkImage::BorrowedResource::freeGPUData() const {
     this->invokeReleaseProc();
+}
+
+static void write_input_desc_set(GrVkGpu* gpu,
+                                 VkImageView view,
+                                 VkImageLayout layout,
+                                 VkDescriptorSet descSet) {
+    VkDescriptorImageInfo imageInfo;
+    memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
+    imageInfo.sampler = VK_NULL_HANDLE;
+    imageInfo.imageView = view;
+    imageInfo.imageLayout = layout;
+
+    VkWriteDescriptorSet writeInfo;
+    memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
+    writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeInfo.pNext = nullptr;
+    writeInfo.dstSet = descSet;
+    writeInfo.dstBinding = GrVkUniformHandler::kInputBinding;
+    writeInfo.dstArrayElement = 0;
+    writeInfo.descriptorCount = 1;
+    writeInfo.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+    writeInfo.pImageInfo = &imageInfo;
+    writeInfo.pBufferInfo = nullptr;
+    writeInfo.pTexelBufferView = nullptr;
+
+    GR_VK_CALL(gpu->vkInterface(), UpdateDescriptorSets(gpu->device(), 1, &writeInfo, 0, nullptr));
+}
+
+gr_rp<const GrVkDescriptorSet> GrVkImage::inputDescSetForBlending(GrVkGpu* gpu) {
+    if (!this->supportsInputAttachmentUsage()) {
+        return nullptr;
+    }
+    if (fCachedBlendingInputDescSet) {
+        return fCachedBlendingInputDescSet;
+    }
+
+    fCachedBlendingInputDescSet.reset(gpu->resourceProvider().getInputDescriptorSet());
+    if (!fCachedBlendingInputDescSet) {
+        return nullptr;
+    }
+
+    write_input_desc_set(gpu,
+                         this->framebufferView()->imageView(),
+                         VK_IMAGE_LAYOUT_GENERAL,
+                         *fCachedBlendingInputDescSet->descriptorSet());
+
+    return fCachedBlendingInputDescSet;
+}
+
+gr_rp<const GrVkDescriptorSet> GrVkImage::inputDescSetForMSAALoad(GrVkGpu* gpu) {
+    if (!this->supportsInputAttachmentUsage()) {
+        return nullptr;
+    }
+    if (fCachedMSAALoadInputDescSet) {
+        return fCachedMSAALoadInputDescSet;
+    }
+
+    fCachedMSAALoadInputDescSet.reset(gpu->resourceProvider().getInputDescriptorSet());
+    if (!fCachedMSAALoadInputDescSet) {
+        return nullptr;
+    }
+
+    write_input_desc_set(gpu,
+                         this->framebufferView()->imageView(),
+                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                         *fCachedMSAALoadInputDescSet->descriptorSet());
+
+    return fCachedMSAALoadInputDescSet;
+}
+
+GrVkGpu* GrVkImage::getVkGpu() const {
+    SkASSERT(!this->wasDestroyed());
+    return static_cast<GrVkGpu*>(this->getGpu());
 }
 
 #if GR_TEST_UTILS

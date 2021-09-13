@@ -138,7 +138,7 @@ public:
     bool loadMSAAFromResolve(GrVkCommandBuffer* commandBuffer,
                              const GrVkRenderPass& renderPass,
                              GrAttachment* dst,
-                             GrVkAttachment* src,
+                             GrVkImage* src,
                              const SkIRect& srcRect);
 
     bool onRegenerateMipMapLevels(GrTexture* tex) override;
@@ -310,7 +310,7 @@ private:
 
     GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
                                         bool useMSAASurface,
-                                        GrAttachment*,
+                                        GrAttachment* stencil,
                                         GrSurfaceOrigin,
                                         const SkIRect&,
                                         const GrOpsRenderPass::LoadAndStoreInfo&,
@@ -337,15 +337,15 @@ private:
 
     void copySurfaceAsCopyImage(GrSurface* dst,
                                 GrSurface* src,
-                                GrVkAttachment* dstAttachment,
-                                GrVkAttachment* srcAttachment,
+                                GrVkImage* dstImage,
+                                GrVkImage* srcImage,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint);
 
     void copySurfaceAsBlit(GrSurface* dst,
                            GrSurface* src,
-                           GrVkAttachment* dstAttachment,
-                           GrVkAttachment* srcAttachment,
+                           GrVkImage* dstImage,
+                           GrVkImage* srcImage,
                            const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
@@ -353,17 +353,17 @@ private:
                               const SkIPoint& dstPoint);
 
     // helpers for onCreateTexture and writeTexturePixels
-    bool uploadTexDataLinear(GrVkAttachment* tex,
+    bool uploadTexDataLinear(GrVkImage* tex,
                              SkIRect rect,
                              GrColorType colorType,
                              const void* data,
                              size_t rowBytes);
-    bool uploadTexDataOptimal(GrVkAttachment* tex,
+    bool uploadTexDataOptimal(GrVkImage* tex,
                               SkIRect rect,
                               GrColorType colorType,
                               const GrMipLevel texels[],
                               int mipLevelCount);
-    bool uploadTexDataCompressed(GrVkAttachment* tex, SkImage::CompressionType compression,
+    bool uploadTexDataCompressed(GrVkImage* tex, SkImage::CompressionType compression,
                                  VkFormat vkFormat, SkISize dimensions, GrMipmapped mipMapped,
                                  const void* data, size_t dataSize);
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,

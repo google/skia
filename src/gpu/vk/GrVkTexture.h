@@ -12,7 +12,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/vk/GrVkAttachment.h"
+#include "src/gpu/vk/GrVkImage.h"
 
 class GrVkDescriptorSet;
 class GrVkGpu;
@@ -41,11 +41,11 @@ public:
 
     GrBackendTexture getBackendTexture() const override;
 
-    GrBackendFormat backendFormat() const override { return fTexture->getBackendFormat(); }
+    GrBackendFormat backendFormat() const override { return fTexture->backendFormat(); }
 
     void textureParamsModified() override {}
 
-    GrVkAttachment* textureAttachment() const { return fTexture.get(); }
+    GrVkImage* textureImage() const { return fTexture.get(); }
     const GrVkImageView* textureView();
 
     // For each GrVkTexture, there is a cache of GrVkDescriptorSets which only contain a single
@@ -60,7 +60,7 @@ public:
 protected:
     GrVkTexture(GrVkGpu*,
                 SkISize dimensions,
-                sk_sp<GrVkAttachment> texture,
+                sk_sp<GrVkImage> texture,
                 GrMipmapStatus);
 
     GrVkGpu* getVkGpu() const;
@@ -80,11 +80,11 @@ protected:
     }
 
 private:
-    GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, sk_sp<GrVkAttachment> texture, GrMipmapStatus);
-    GrVkTexture(GrVkGpu*, SkISize, sk_sp<GrVkAttachment> texture, GrMipmapStatus,
+    GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, sk_sp<GrVkImage> texture, GrMipmapStatus);
+    GrVkTexture(GrVkGpu*, SkISize, sk_sp<GrVkImage> texture, GrMipmapStatus,
                 GrWrapCacheable, GrIOType, bool isExternal);
 
-    sk_sp<GrVkAttachment> fTexture;
+    sk_sp<GrVkImage> fTexture;
 
     struct SamplerHash {
         uint32_t operator()(GrSamplerState state) const { return state.asIndex(); }

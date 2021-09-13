@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "src/gpu/vk/GrVkTexture.h"
 
 #include "src/gpu/GrTexture.h"
@@ -22,7 +23,7 @@
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkBudgeted budgeted,
                          SkISize dimensions,
-                         sk_sp<GrVkAttachment> texture,
+                         sk_sp<GrVkImage> texture,
                          GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions,
                     texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
@@ -43,7 +44,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
 }
 
 GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions,
-                         sk_sp<GrVkAttachment> texture, GrMipmapStatus mipmapStatus,
+                         sk_sp<GrVkImage> texture, GrMipmapStatus mipmapStatus,
                          GrWrapCacheable cacheable, GrIOType ioType, bool isExternal)
         : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
         , GrTexture(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
@@ -61,7 +62,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions,
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkISize dimensions,
-                         sk_sp<GrVkAttachment> texture,
+                         sk_sp<GrVkImage> texture,
                          GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
         , GrTexture(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
@@ -80,7 +81,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
                                                VkFormat format, uint32_t mipLevels,
                                                GrProtected isProtected,
                                                GrMipmapStatus mipmapStatus) {
-    sk_sp<GrVkAttachment> texture = GrVkAttachment::MakeTexture(
+    sk_sp<GrVkImage> texture = GrVkImage::MakeTexture(
             gpu, dimensions, format, mipLevels, GrRenderable::kNo, /*numSamples=*/1, budgeted,
             isProtected);
 
@@ -99,10 +100,13 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
     SkASSERT(VK_NULL_HANDLE != info.fImage &&
              (kBorrow_GrWrapOwnership == wrapOwnership || VK_NULL_HANDLE != info.fAlloc.fMemory));
 
-    sk_sp<GrVkAttachment> texture =
-            GrVkAttachment::MakeWrapped(gpu, dimensions, info, std::move(mutableState),
-                                        GrAttachment::UsageFlags::kTexture, wrapOwnership,
-                                        cacheable);
+    sk_sp<GrVkImage> texture = GrVkImage::MakeWrapped(gpu,
+                                                      dimensions,
+                                                      info,
+                                                      std::move(mutableState),
+                                                      GrAttachment::UsageFlags::kTexture,
+                                                      wrapOwnership,
+                                                      cacheable);
     if (!texture) {
         return nullptr;
     }

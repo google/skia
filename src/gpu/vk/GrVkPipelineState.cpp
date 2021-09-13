@@ -150,7 +150,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
 
     if (fNumSamplers == 1) {
         auto texture = samplerBindings[0].fTexture;
-        auto texAttachment = texture->textureAttachment();
+        auto texAttachment = texture->textureImage();
         const auto& samplerState = samplerBindings[0].fState;
         const GrVkDescriptorSet* descriptorSet = texture->cachedSingleDescSet(samplerState);
         if (descriptorSet) {
@@ -175,7 +175,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
     for (int i = 0; i < fNumSamplers; ++i) {
         GrSamplerState state = samplerBindings[i].fState;
         GrVkTexture* texture = samplerBindings[i].fTexture;
-        auto texAttachment = texture->textureAttachment();
+        auto texAttachment = texture->textureImage();
 
         const GrVkImageView* textureView = texAttachment->textureView();
         const GrVkSampler* sampler = nullptr;

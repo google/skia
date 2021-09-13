@@ -10,8 +10,8 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/vk/GrVkAttachment.h"
 #include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
@@ -25,9 +25,9 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
         GrVkGpu* gpu,
         SkBudgeted budgeted,
         SkISize dimensions,
-        sk_sp<GrVkAttachment> texture,
-        sk_sp<GrVkAttachment> colorAttachment,
-        sk_sp<GrVkAttachment> resolveAttachment,
+        sk_sp<GrVkImage> texture,
+        sk_sp<GrVkImage> colorAttachment,
+        sk_sp<GrVkImage> resolveAttachment,
         GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
         , GrVkTexture(gpu, dimensions, std::move(texture), mipmapStatus)
@@ -39,9 +39,9 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
 GrVkTextureRenderTarget::GrVkTextureRenderTarget(
         GrVkGpu* gpu,
         SkISize dimensions,
-        sk_sp<GrVkAttachment> texture,
-        sk_sp<GrVkAttachment> colorAttachment,
-        sk_sp<GrVkAttachment> resolveAttachment,
+        sk_sp<GrVkImage> texture,
+        sk_sp<GrVkImage> colorAttachment,
+        sk_sp<GrVkImage> resolveAttachment,
         GrMipmapStatus mipmapStatus,
         GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo)
@@ -52,9 +52,10 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
 }
 
 bool create_rt_attachments(GrVkGpu* gpu, SkISize dimensions, VkFormat format, int sampleCnt,
-                           GrProtected isProtected, sk_sp<GrVkAttachment> texture,
-                           sk_sp<GrVkAttachment>* colorAttachment,
-                           sk_sp<GrVkAttachment>* resolveAttachment) {
+                           GrProtected isProtected,
+                           sk_sp<GrVkImage> texture,
+                           sk_sp<GrVkImage>* colorAttachment,
+                           sk_sp<GrVkImage>* resolveAttachment) {
     if (sampleCnt > 1) {
         auto rp = gpu->getContext()->priv().resourceProvider();
         sk_sp<GrAttachment> msaaAttachment = rp->makeMSAAAttachment(
@@ -62,8 +63,7 @@ bool create_rt_attachments(GrVkGpu* gpu, SkISize dimensions, VkFormat format, in
         if (!msaaAttachment) {
             return false;
         }
-        *colorAttachment =
-                sk_sp<GrVkAttachment>(static_cast<GrVkAttachment*>(msaaAttachment.release()));
+        *colorAttachment = sk_sp<GrVkImage>(static_cast<GrVkImage*>(msaaAttachment.release()));
         *resolveAttachment = std::move(texture);
     } else {
         *colorAttachment = std::move(texture);
@@ -80,15 +80,20 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarg
         int sampleCnt,
         GrMipmapStatus mipmapStatus,
         GrProtected isProtected) {
-    sk_sp<GrVkAttachment> texture =
-            GrVkAttachment::MakeTexture(gpu, dimensions, format, mipLevels, GrRenderable::kYes,
-                                        /*numSamples=*/1, budgeted, isProtected);
+    sk_sp<GrVkImage> texture = GrVkImage::MakeTexture(gpu,
+                                                      dimensions,
+                                                      format,
+                                                      mipLevels,
+                                                      GrRenderable::kYes,
+                                                      /*numSamples=*/1,
+                                                      budgeted,
+                                                      isProtected);
     if (!texture) {
         return nullptr;
     }
 
-    sk_sp<GrVkAttachment> colorAttachment;
-    sk_sp<GrVkAttachment> resolveAttachment;
+    sk_sp<GrVkImage> colorAttachment;
+    sk_sp<GrVkImage> resolveAttachment;
     if (!create_rt_attachments(gpu, dimensions, format, sampleCnt, isProtected, texture,
                                &colorAttachment, &resolveAttachment)) {
         return nullptr;
@@ -117,15 +122,19 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRender
         textureUsageFlags |= GrAttachment::UsageFlags::kColorAttachment;
     }
 
-    sk_sp<GrVkAttachment> texture =
-            GrVkAttachment::MakeWrapped(gpu, dimensions, info, std::move(mutableState),
-                                        textureUsageFlags, wrapOwnership, cacheable);
+    sk_sp<GrVkImage> texture = GrVkImage::MakeWrapped(gpu,
+                                                      dimensions,
+                                                      info,
+                                                      std::move(mutableState),
+                                                      textureUsageFlags,
+                                                      wrapOwnership,
+                                                      cacheable);
     if (!texture) {
         return nullptr;
     }
 
-    sk_sp<GrVkAttachment> colorAttachment;
-    sk_sp<GrVkAttachment> resolveAttachment;
+    sk_sp<GrVkImage> colorAttachment;
+    sk_sp<GrVkImage> resolveAttachment;
     if (!create_rt_attachments(gpu, dimensions, info.fFormat, sampleCnt, info.fProtected, texture,
                                &colorAttachment, &resolveAttachment)) {
         return nullptr;

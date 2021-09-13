@@ -605,8 +605,6 @@ skia_vk_sources = [
   "$_include/private/GrVkTypesPriv.h",
   "$_src/gpu/vk/GrVkAMDMemoryAllocator.cpp",
   "$_src/gpu/vk/GrVkAMDMemoryAllocator.h",
-  "$_src/gpu/vk/GrVkAttachment.cpp",
-  "$_src/gpu/vk/GrVkAttachment.h",
   "$_src/gpu/vk/GrVkBuffer.cpp",
   "$_src/gpu/vk/GrVkBuffer.h",
   "$_src/gpu/vk/GrVkCaps.cpp",

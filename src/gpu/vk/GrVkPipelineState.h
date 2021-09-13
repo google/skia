@@ -10,7 +10,9 @@
 #define GrVkPipelineState_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrRefCnt.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/vk/GrVkDescriptorSet.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
 #include "src/gpu/vk/GrVkPipelineStateDataManager.h"
 
@@ -19,7 +21,6 @@ class GrStencilSettings;
 class GrVkBuffer;
 class GrVkCommandBuffer;
 class GrVkDescriptorPool;
-class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 class GrVkPipeline;

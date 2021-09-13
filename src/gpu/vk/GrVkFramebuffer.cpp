@@ -7,9 +7,9 @@
 
 #include "src/gpu/vk/GrVkFramebuffer.h"
 
-#include "src/gpu/vk/GrVkAttachment.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 
@@ -17,9 +17,9 @@ sk_sp<const GrVkFramebuffer> GrVkFramebuffer::Make(
         GrVkGpu* gpu,
         SkISize dimensions,
         sk_sp<const GrVkRenderPass> compatibleRenderPass,
-        GrVkAttachment* colorAttachment,
-        GrVkAttachment* resolveAttachment,
-        GrVkAttachment* stencilAttachment,
+        GrVkImage* colorAttachment,
+        GrVkImage* resolveAttachment,
+        GrVkImage* stencilAttachment,
         GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle) {
     // At the very least we need a renderPass and a colorAttachment
     SkASSERT(compatibleRenderPass);
@@ -63,9 +63,9 @@ sk_sp<const GrVkFramebuffer> GrVkFramebuffer::Make(
 
 GrVkFramebuffer::GrVkFramebuffer(const GrVkGpu* gpu,
                                  VkFramebuffer framebuffer,
-                                 sk_sp<GrVkAttachment> colorAttachment,
-                                 sk_sp<GrVkAttachment> resolveAttachment,
-                                 sk_sp<GrVkAttachment> stencilAttachment,
+                                 sk_sp<GrVkImage> colorAttachment,
+                                 sk_sp<GrVkImage> resolveAttachment,
+                                 sk_sp<GrVkImage> stencilAttachment,
                                  sk_sp<const GrVkRenderPass> compatibleRenderPass,
                                  GrVkResourceProvider::CompatibleRPHandle compatibleRPHandle)
         : GrVkManagedResource(gpu)
@@ -79,7 +79,7 @@ GrVkFramebuffer::GrVkFramebuffer(const GrVkGpu* gpu,
 }
 
 GrVkFramebuffer::GrVkFramebuffer(const GrVkGpu* gpu,
-                                 sk_sp<GrVkAttachment> colorAttachment,
+                                 sk_sp<GrVkImage> colorAttachment,
                                  sk_sp<const GrVkRenderPass> renderPass,
                                  std::unique_ptr<GrVkSecondaryCommandBuffer> externalCommandBuffer)
         : GrVkManagedResource(gpu)

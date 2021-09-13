@@ -17,12 +17,12 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/vk/GrVkAttachment.h"
 #include "src/gpu/vk/GrVkBuffer.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkFramebuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
@@ -91,7 +91,7 @@ void GrVkOpsRenderPass::setAttachmentLayouts(LoadFromResolve loadFromResolve) {
     }
 
     if (withResolve) {
-        GrVkAttachment* resolveAttachment = fFramebuffer->resolveAttachment();
+        GrVkImage* resolveAttachment = fFramebuffer->resolveAttachment();
         SkASSERT(resolveAttachment);
         if (loadFromResolve == LoadFromResolve::kLoad) {
             resolveAttachment->setImageLayout(fGpu,
@@ -364,7 +364,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
             SkASSERT(sampledProxies[i]->asTextureProxy());
             GrVkTexture* vkTex = static_cast<GrVkTexture*>(sampledProxies[i]->peekTexture());
             SkASSERT(vkTex);
-            GrVkAttachment* texture = vkTex->textureAttachment();
+            GrVkImage* texture = vkTex->textureImage();
             SkASSERT(texture);
             texture->setImageLayout(
                     fGpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT,
@@ -678,7 +678,7 @@ void GrVkOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
 #ifdef SK_DEBUG
 void check_sampled_texture(GrTexture* tex, GrAttachment* colorAttachment, GrVkGpu* gpu) {
     SkASSERT(!tex->isProtected() || (colorAttachment->isProtected() && gpu->protectedContext()));
-    auto vkTex = static_cast<GrVkTexture*>(tex)->textureAttachment();
+    auto vkTex = static_cast<GrVkTexture*>(tex)->textureImage();
     SkASSERT(vkTex->currentLayout() == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 #endif

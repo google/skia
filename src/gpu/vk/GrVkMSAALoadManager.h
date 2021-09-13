@@ -15,9 +15,9 @@
 
 class GrAttachment;
 class GrSurface;
-class GrVkAttachment;
 class GrVkCommandBuffer;
 class GrVkGpu;
+class GrVkImage;
 class GrVkRenderPass;
 struct SkIRect;
 
@@ -31,7 +31,7 @@ public:
                              GrVkCommandBuffer* commandBuffer,
                              const GrVkRenderPass& renderPass,
                              GrAttachment* dst,
-                             GrVkAttachment* src,
+                             GrVkImage* src,
                              const SkIRect& srcRect);
 
     void destroyResources(GrVkGpu* gpu);
