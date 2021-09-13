@@ -282,15 +282,11 @@ class SkUnicode_icu : public SkUnicode {
                             std::vector<BidiRegion>* bidiRegions) {
 
         // Convert to UTF16 since for now bidi iterator only operates on utf16
-        std::unique_ptr<uint16_t[]> utf16;
-        auto utf16Units = utf8ToUtf16(utf8, utf8Units, &utf16);
-        if (utf16Units < 0) {
-            return false;
-        }
+        auto utf16 = convertUtf8ToUtf16(utf8, utf8Units);
 
         // Create bidi iterator
         UErrorCode status = U_ZERO_ERROR;
-        SkUnicodeBidi bidi(sk_ubidi_openSized(utf16Units, 0, &status));
+        SkUnicodeBidi bidi(sk_ubidi_openSized(utf16.size(), 0, &status));
         if (U_FAILURE(status)) {
             SkDEBUGF("Bidi error: %s", sk_u_errorName(status));
             return false;
@@ -299,7 +295,7 @@ class SkUnicode_icu : public SkUnicode {
         uint8_t bidiLevel = (dir == TextDirection::kLTR) ? UBIDI_LTR : UBIDI_RTL;
         // The required lifetime of utf16 isn't well documented.
         // It appears it isn't used after ubidi_setPara except through ubidi_getText.
-        sk_ubidi_setPara(bidi.get(), (const UChar*)utf16.get(), utf16Units, bidiLevel, nullptr,
+        sk_ubidi_setPara(bidi.get(), (const UChar*)utf16.c_str(), utf16.size(), bidiLevel, nullptr,
                          &status);
         if (U_FAILURE(status)) {
             SkDEBUGF("Bidi error: %s", sk_u_errorName(status));
@@ -417,30 +413,6 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static int utf8ToUtf16(const char* utf8, size_t utf8Units, std::unique_ptr<uint16_t[]>* utf16) {
-        int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Units);
-        if (utf16Units < 0) {
-            SkDEBUGF("Convert error: Invalid utf8 input");
-            return utf16Units;
-        }
-        *utf16 = std::unique_ptr<uint16_t[]>(new uint16_t[utf16Units]);
-        SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16->get(), utf16Units, utf8, utf8Units);
-        SkASSERT(dstLen == utf16Units);
-        return utf16Units;
-   }
-
-    static int utf16ToUtf8(const uint16_t* utf16, size_t utf16Units, std::unique_ptr<char[]>* utf8) {
-        int utf8Units = SkUTF::UTF16ToUTF8(nullptr, 0, utf16, utf16Units);
-        if (utf8Units < 0) {
-            SkDEBUGF("Convert error: Invalid utf16 input");
-            return utf8Units;
-        }
-        *utf8 = std::unique_ptr<char[]>(new char[utf8Units]);
-        SkDEBUGCODE(int dstLen =) SkUTF::UTF16ToUTF8(utf8->get(), utf8Units, utf16, utf16Units);
-        SkASSERT(dstLen == utf8Units);
-        return utf8Units;
-   }
-
 public:
     ~SkUnicode_icu() override { }
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
@@ -488,26 +460,12 @@ public:
         return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
     }
 
-    SkString convertUtf16ToUtf8(const std::u16string& utf16) override {
-        std::unique_ptr<char[]> utf8;
-        auto utf8Units = SkUnicode_icu::utf16ToUtf8((uint16_t*)utf16.data(), utf16.size(), &utf8);
-        if (utf8Units >= 0) {
-            return SkString(utf8.get(), utf8Units);
-        } else {
-            return SkString();
-        }
-    }
-
     SkString toUpper(const SkString& str) override {
         // Convert to UTF16 since that's what ICU wants.
-        std::unique_ptr<uint16_t[]> str16;
-        const auto str16len = utf8ToUtf16(str.c_str(), str.size(), &str16);
-        if (str16len <= 0) {
-            return SkString();
-        }
+        auto str16 = convertUtf8ToUtf16(str.c_str(), str.size());
 
         UErrorCode icu_err = U_ZERO_ERROR;
-        const auto upper16len = sk_u_strToUpper(nullptr, 0, (UChar*)(str16.get()), str16len,
+        const auto upper16len = sk_u_strToUpper(nullptr, 0, (UChar*)(str16.c_str()), str16.size(),
                                                 nullptr, &icu_err);
         if (icu_err != U_BUFFER_OVERFLOW_ERROR || upper16len <= 0) {
             return SkString();
@@ -516,17 +474,13 @@ public:
         SkAutoSTArray<128, uint16_t> upper16(upper16len);
         icu_err = U_ZERO_ERROR;
         sk_u_strToUpper((UChar*)(upper16.get()), SkToS32(upper16.size()),
-                        (UChar*)(str16.get()), str16len,
+                        (UChar*)(str16.c_str()), str16.size(),
                         nullptr, &icu_err);
         SkASSERT(!U_FAILURE(icu_err));
 
         // ... and back to utf8 'cause that's what we want.
-        std::unique_ptr<char[]> upper8;
-        auto upper8len = utf16ToUtf8(upper16.data(), upper16.size(), &upper8);
-
-        return upper8len >= 0
-                ? SkString(upper8.get(), upper8len)
-                : SkString();
+        auto upper8 = convertUtf16ToUtf8(str16);
+        return upper8;
     }
 
     bool getBidiRegions(const char utf8[],
@@ -551,13 +505,8 @@ public:
     bool getWords(const char utf8[], int utf8Units, std::vector<Position>* results) override {
 
         // Convert to UTF16 since we want the results in utf16
-        std::unique_ptr<uint16_t[]> utf16;
-        auto utf16Units = utf8ToUtf16(utf8, utf8Units, &utf16);
-        if (utf16Units < 0) {
-            return false;
-        }
-
-        return extractWords(utf16.get(), utf16Units, results);
+        auto utf16 = convertUtf8ToUtf16(utf8, utf8Units);
+        return extractWords((uint16_t*)utf16.c_str(), utf16.size(), results);
     }
 
     bool getGraphemes(const char utf8[], int utf8Units, std::vector<Position>* results) override {
