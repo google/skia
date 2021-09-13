@@ -121,6 +121,8 @@ const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
 
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
 
+    pipelineDescriptor.label = @"loadMSAAFromResolve";
+
     pipelineDescriptor.vertexFunction =
             [fMSAALoadLibrary newFunctionWithName: @"vertexMain"];
     pipelineDescriptor.fragmentFunction =
