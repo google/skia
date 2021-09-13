@@ -13,9 +13,7 @@
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLBoolLiteral.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPoison.h"
 
 #include "math.h"
@@ -41,7 +39,7 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression)
 }
 
 DSLExpression::DSLExpression(float value, PositionInfo pos)
-    : fExpression(SkSL::FloatLiteral::Make(DSLWriter::Context(),
+    : fExpression(SkSL::Literal::MakeFloat(DSLWriter::Context(),
                                            pos.offset(),
                                            value)) {
     if (!isfinite(value)) {
@@ -54,22 +52,22 @@ DSLExpression::DSLExpression(float value, PositionInfo pos)
 }
 
 DSLExpression::DSLExpression(int value, PositionInfo pos)
-    : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
+    : fExpression(SkSL::Literal::MakeInt(DSLWriter::Context(),
                                          pos.offset(),
                                          value)) {}
 
 DSLExpression::DSLExpression(int64_t value, PositionInfo pos)
-    : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
+    : fExpression(SkSL::Literal::MakeInt(DSLWriter::Context(),
                                          pos.offset(),
                                          value)) {}
 
 DSLExpression::DSLExpression(unsigned int value, PositionInfo pos)
-    : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
+    : fExpression(SkSL::Literal::MakeInt(DSLWriter::Context(),
                                          pos.offset(),
                                          value)) {}
 
 DSLExpression::DSLExpression(bool value, PositionInfo pos)
-    : fExpression(SkSL::BoolLiteral::Make(DSLWriter::Context(),
+    : fExpression(SkSL::Literal::MakeBool(DSLWriter::Context(),
                                           pos.offset(),
                                           value)) {}
 

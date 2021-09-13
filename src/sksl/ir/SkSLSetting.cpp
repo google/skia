@@ -31,7 +31,7 @@ public:
         return context.fTypes.fBool.get();
     }
     std::unique_ptr<Expression> value(const Context& context) const override {
-        return BoolLiteral::Make(context, /*offset=*/-1, (context.fCaps.*fGetCap)());
+        return Literal::MakeBool(context, /*offset=*/-1, (context.fCaps.*fGetCap)());
     }
 
 private:
@@ -48,7 +48,7 @@ public:
         return context.fTypes.fInt.get();
     }
     std::unique_ptr<Expression> value(const Context& context) const override {
-        return IntLiteral::Make(context, /*offset=*/-1, (context.fCaps.*fGetCap)());
+        return Literal::MakeInt(context, /*offset=*/-1, (context.fCaps.*fGetCap)());
     }
 
 private:

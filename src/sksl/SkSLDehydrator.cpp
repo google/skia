@@ -38,8 +38,8 @@
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInlineMarker.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -269,13 +269,6 @@ void Dehydrator::write(const Expression* e) {
                 this->write(b.right().get());
                 break;
             }
-            case Expression::Kind::kBoolLiteral: {
-                const BoolLiteral& b = e->as<BoolLiteral>();
-                this->writeCommand(Rehydrator::kBoolLiteral_Command);
-                this->writeU8(b.value());
-                break;
-            }
-
             case Expression::Kind::kChildCall:
                 SkDEBUGFAIL("unimplemented--not expected to be used from within an include file");
                 break;
@@ -351,15 +344,6 @@ void Dehydrator::write(const Expression* e) {
                 this->writeU8((int8_t) f.ownerKind());
                 break;
             }
-            case Expression::Kind::kFloatLiteral: {
-                const FloatLiteral& f = e->as<FloatLiteral>();
-                this->writeCommand(Rehydrator::kFloatLiteral_Command);
-                this->write(f.type());
-                FloatIntUnion u;
-                u.fFloat = f.value();
-                this->writeS32(u.fInt);
-                break;
-            }
             case Expression::Kind::kFunctionCall: {
                 const FunctionCall& f = e->as<FunctionCall>();
                 this->writeCommand(Rehydrator::kFunctionCall_Command);
@@ -378,11 +362,24 @@ void Dehydrator::write(const Expression* e) {
                 this->write(i.index().get());
                 break;
             }
-            case Expression::Kind::kIntLiteral: {
-                const IntLiteral& i = e->as<IntLiteral>();
-                this->writeCommand(Rehydrator::kIntLiteral_Command);
-                this->write(i.type());
-                this->writeS32(i.value());
+            case Expression::Kind::kLiteral: {
+                const Literal& l = e->as<Literal>();
+                if (l.type().isFloat()) {
+                    float value = l.floatValue();
+                    int32_t floatBits;
+                    memcpy(&floatBits, &value, sizeof(floatBits));
+                    this->writeCommand(Rehydrator::kFloatLiteral_Command);
+                    this->write(l.type());
+                    this->writeS32(floatBits);
+                } else if (l.type().isBoolean()) {
+                    this->writeCommand(Rehydrator::kBoolLiteral_Command);
+                    this->writeU8(l.boolValue());
+                } else {
+                    SkASSERT(l.type().isInteger());
+                    this->writeCommand(Rehydrator::kIntLiteral_Command);
+                    this->write(l.type());
+                    this->writeS32(l.intValue());
+                }
                 break;
             }
             case Expression::Kind::kPostfix: {

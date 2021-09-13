@@ -155,9 +155,6 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
         case Expression::Kind::kBinary:
             this->writeBinaryExpression(expr.as<BinaryExpression>(), parentPrecedence);
             break;
-        case Expression::Kind::kBoolLiteral:
-            this->writeBoolLiteral(expr.as<BoolLiteral>());
-            break;
         case Expression::Kind::kConstructorDiagonalMatrix:
             this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(),
                                                  parentPrecedence);
@@ -176,17 +173,14 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
         case Expression::Kind::kConstructorCompoundCast:
             this->writeCastConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
-        case Expression::Kind::kIntLiteral:
-            this->writeIntLiteral(expr.as<IntLiteral>());
-            break;
         case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(expr.as<FieldAccess>());
             break;
-        case Expression::Kind::kFloatLiteral:
-            this->writeFloatLiteral(expr.as<FloatLiteral>());
-            break;
         case Expression::Kind::kFunctionCall:
             this->writeFunctionCall(expr.as<FunctionCall>());
+            break;
+        case Expression::Kind::kLiteral:
+            this->writeLiteral(expr.as<Literal>());
             break;
         case Expression::Kind::kPrefix:
             this->writePrefixExpression(expr.as<PrefixExpression>(), parentPrecedence);
@@ -910,13 +904,13 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
         this->writeExpression(*b.right(), Precedence::kTernary);
     } else {
-        BoolLiteral boolTrue(/*offset=*/-1, /*value=*/true, fContext.fTypes.fBool.get());
-        this->writeBoolLiteral(boolTrue);
+        Literal boolTrue(/*offset=*/-1, /*value=*/1, fContext.fTypes.fBool.get());
+        this->writeLiteral(boolTrue);
     }
     this->write(" : ");
     if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
-        BoolLiteral boolFalse(/*offset=*/-1, /*value=*/false, fContext.fTypes.fBool.get());
-        this->writeBoolLiteral(boolFalse);
+        Literal boolFalse(/*offset=*/-1, /*value=*/0, fContext.fTypes.fBool.get());
+        this->writeLiteral(boolFalse);
     } else {
         this->writeExpression(*b.right(), Precedence::kTernary);
     }
@@ -964,23 +958,24 @@ void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p,
     }
 }
 
-void GLSLCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
-    this->write(b.value() ? "true" : "false");
-}
-
-void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    const Type& type = i.type();
-    if (type == *fContext.fTypes.fUInt) {
-        this->write(to_string(i.value() & 0xffffffff) + "u");
-    } else if (type == *fContext.fTypes.fUShort) {
-        this->write(to_string(i.value() & 0xffff) + "u");
-    } else {
-        this->write(to_string(i.value()));
+void GLSLCodeGenerator::writeLiteral(const Literal& l) {
+    const Type& type = l.type();
+    if (type.isFloat()) {
+        this->write(to_string(l.floatValue()));
+        return;
     }
-}
-
-void GLSLCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    this->write(to_string(f.value()));
+    if (type.isInteger()) {
+        if (type == *fContext.fTypes.fUInt) {
+            this->write(to_string(l.intValue() & 0xffffffff) + "u");
+        } else if (type == *fContext.fTypes.fUShort) {
+            this->write(to_string(l.intValue() & 0xffff) + "u");
+        } else {
+            this->write(to_string(l.intValue()));
+        }
+        return;
+    }
+    SkASSERT(type.isBoolean());
+    this->write(l.boolValue() ? "true" : "false");
 }
 
 void GLSLCodeGenerator::writeSetting(const Setting& s) {
@@ -1285,7 +1280,7 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
         if (this->caps().addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
                     /*offset=*/-1, f.test()->clone(), Token::Kind::TK_LOGICALAND,
-                    BoolLiteral::Make(fContext, /*offset=*/-1, /*value=*/true),
+                    Literal::MakeBool(fContext, /*offset=*/-1, /*value=*/true),
                     fContext.fTypes.fBool.get()));
             this->writeExpression(*and_true, Precedence::kTopLevel);
         } else {

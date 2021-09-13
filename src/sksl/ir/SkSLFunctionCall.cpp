@@ -9,12 +9,10 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 
 #include "include/private/SkFloatingPoint.h"
 #include "include/sksl/DSLCore.h"
@@ -37,17 +35,8 @@ static bool has_compile_time_constant_arguments(const ExpressionArray& arguments
 }
 
 static double as_double(const Expression* expr) {
-    if (expr) {
-        if (expr->is<IntLiteral>()) {
-            return (double)expr->as<IntLiteral>().value();
-        }
-        if (expr->is<FloatLiteral>()) {
-            return (double)expr->as<FloatLiteral>().value();
-        }
-        if (expr->is<BoolLiteral>()) {
-            return (double)expr->as<BoolLiteral>().value();
-        }
-        SkDEBUGFAILF("unexpected expression kind %d", (int)expr->kind());
+    if (expr && expr->is<Literal>()) {
+        return expr->as<Literal>().value();
     }
     return 0.0;
 }
@@ -70,20 +59,6 @@ void type_check_expression<bool>(const Expression& expr) {
     SkASSERT(expr.type().componentType().isBoolean());
 }
 
-static std::unique_ptr<Expression> make_literal(int offset, double value, const Type& type) {
-    if (type.isFloat()) {
-        return FloatLiteral::Make(offset, value, &type);
-    }
-    if (type.isInteger()) {
-        return IntLiteral::Make(offset, value, &type);
-    }
-    if (type.isBoolean()) {
-        return BoolLiteral::Make(offset, value, &type);
-    }
-    SkDEBUGFAILF("unexpected type %s", type.description().c_str());
-    return nullptr;
-}
-
 static std::unique_ptr<Expression> assemble_compound(const Context& context,
                                                      int offset,
                                                      const Type& returnType,
@@ -92,7 +67,7 @@ static std::unique_ptr<Expression> assemble_compound(const Context& context,
     ExpressionArray array;
     array.reserve_back(numSlots);
     for (int index = 0; index < numSlots; ++index) {
-        array.push_back(make_literal(offset, value[index], returnType.componentType()));
+        array.push_back(Literal::Make(offset, value[index], &returnType.componentType()));
     }
     return ConstructorCompound::Make(context, offset, returnType, std::move(array));
 }
@@ -153,7 +128,7 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
         value = finalize(value);
     }
 
-    return make_literal(offset, value, returnType);
+    return Literal::Make(offset, value, &returnType);
 }
 
 template <typename T>
@@ -452,7 +427,7 @@ double evaluate_uintBitsToFloat(double a, double, double) { return pun_value<uin
 static void extract_matrix(const Expression* expr, float mat[16]) {
     size_t numSlots = expr->type().slotCount();
     for (size_t index = 0; index < numSlots; ++index) {
-        mat[index] = expr->getConstantSubexpression(index)->as<FloatLiteral>().value();
+        mat[index] = expr->getConstantSubexpression(index)->as<Literal>().floatValue();
     }
 }
 
@@ -468,7 +443,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
     }
 
     auto Get = [&](int idx, int col) -> float {
-        return arguments[idx]->getConstantSubexpression(col)->as<FloatLiteral>().value();
+        return arguments[idx]->getConstantSubexpression(col)->as<Literal>().floatValue();
     };
 
     using namespace SkSL::dsl;
@@ -633,7 +608,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                         ((Pack(1) << 16) & 0xFFFF0000)).release();
         }
         case k_unpackUnorm2x16_IntrinsicKind: {
-            SKSL_INT x = arguments[0]->getConstantSubexpression(0)->as<IntLiteral>().value();
+            SKSL_INT x = arguments[0]->getConstantSubexpression(0)->as<Literal>().intValue();
             return Float2(double((x >> 0)  & 0x0000FFFF) / 65535.0,
                           double((x >> 16) & 0x0000FFFF) / 65535.0).release();
         }
@@ -682,10 +657,10 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
 
             std::unique_ptr<Expression> k =
                     (1 - Pow(Eta(), 2) * (1 - Pow(Dot(N(), I()), 2))).release();
-            if (!k->is<FloatLiteral>()) {
+            if (!k->is<Literal>()) {
                 return nullptr;
             }
-            float kValue = k->as<FloatLiteral>().value();
+            double kValue = k->as<Literal>().value();
             return ((kValue < 0) ?
                        (0 * I()) :
                        (Eta() * I() - (Eta() * Dot(N(), I()) + std::sqrt(kValue)) * N())).release();
@@ -733,7 +708,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     SkDEBUGFAILF("unsupported type %s", arguments[0]->type().description().c_str());
                     return nullptr;
             }
-            return FloatLiteral::Make(arguments[0]->fOffset, determinant, &returnType);
+            return Literal::MakeFloat(arguments[0]->fOffset, determinant, &returnType);
         }
         case k_inverse_IntrinsicKind: {
             float mat[16] = {};

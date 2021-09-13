@@ -428,9 +428,7 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
         case Expression::Kind::kBinary:
             this->writeBinaryExpression(expr.as<BinaryExpression>(), parentPrecedence);
             break;
-        case Expression::Kind::kBoolLiteral:
-        case Expression::Kind::kFloatLiteral:
-        case Expression::Kind::kIntLiteral:
+        case Expression::Kind::kLiteral:
             this->write(expr.description());
             break;
         case Expression::Kind::kChildCall:

@@ -797,11 +797,11 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
             int numSlots = valueExpr->type().slotCount();
             for (int slot = 0; slot < numSlots; ++slot) {
                 const Expression* subexpr = valueExpr->getConstantSubexpression(slot);
-                if (!subexpr || !subexpr->is<IntLiteral>()) {
+                if (!subexpr || !subexpr->isIntLiteral()) {
                     continue;
                 }
-                // Look for an IntLiteral value that is out of range for the corresponding type.
-                SKSL_INT value = subexpr->as<IntLiteral>().value();
+                // Look for an int Literal value that is out of range for the corresponding type.
+                SKSL_INT value = subexpr->as<Literal>().intValue();
                 if (value < baseType.minimumValue() || value > baseType.maximumValue()) {
                     // We found a value that can't fit in the type. Flag it as an error.
                     context.fErrors->error(expr.fOffset,
@@ -835,11 +835,11 @@ SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expressi
                                               "' may not be used in an array");
         return 0;
     }
-    if (!size->is<IntLiteral>()) {
+    if (!size->isIntLiteral()) {
         context.fErrors->error(size->fOffset, "array size must be an integer");
         return 0;
     }
-    SKSL_INT count = size->as<IntLiteral>().value();
+    SKSL_INT count = size->as<Literal>().intValue();
     if (count <= 0) {
         context.fErrors->error(size->fOffset, "array size must be positive");
         return 0;

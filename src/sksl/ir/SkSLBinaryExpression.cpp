@@ -8,8 +8,8 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
@@ -40,7 +40,7 @@ static std::unique_ptr<Expression> rewrite_matrix_vector_multiply(const Context&
     for (int n = 0; n < left.type().rows(); ++n) {
         // Get mat[N] with an index expression.
         std::unique_ptr<Expression> matN = IndexExpression::Make(
-                context, left.clone(), IntLiteral::Make(context, left.fOffset, n));
+                context, left.clone(), Literal::MakeInt(context, left.fOffset, n));
         // Get vec[N] with a swizzle expression.
         std::unique_ptr<Expression> vecN = Swizzle::Make(
                 context, right.clone(), ComponentArray{(SkSL::SwizzleComponent::Type)n});
@@ -72,19 +72,12 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
     }
     const int offset = left->fOffset;
 
-    const Type* rawLeftType;
-    if (left->is<IntLiteral>() && right->type().isInteger()) {
-        rawLeftType = &right->type();
-    } else {
-        rawLeftType = &left->type();
-    }
-
-    const Type* rawRightType;
-    if (right->is<IntLiteral>() && left->type().isInteger()) {
-        rawRightType = &left->type();
-    } else {
-        rawRightType = &right->type();
-    }
+    const Type* rawLeftType = (left->isIntLiteral() && right->type().isInteger())
+            ? &right->type()
+            : &left->type();
+    const Type* rawRightType = (right->isIntLiteral() && left->type().isInteger())
+            ? &left->type()
+            : &right->type();
 
     bool isAssignment = op.isAssignment();
     if (isAssignment &&
@@ -185,8 +178,8 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
             // Look up `sk_Caps.rewriteMatrixVectorMultiply`.
             auto caps = Setting::Convert(context, offset, "rewriteMatrixVectorMultiply");
 
-            bool capsBitIsTrue = caps->is<BoolLiteral>() && caps->as<BoolLiteral>().value();
-            if (capsBitIsTrue || !caps->is<BoolLiteral>()) {
+            bool capsBitIsTrue = caps->isBoolLiteral() && caps->as<Literal>().boolValue();
+            if (capsBitIsTrue || !caps->isBoolLiteral()) {
                 // Rewrite the multiplication as a sum of vector-scalar products.
                 std::unique_ptr<Expression> rewrite =
                         rewrite_matrix_vector_multiply(context, *left, op, *right, *resultType);

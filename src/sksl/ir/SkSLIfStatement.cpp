@@ -9,9 +9,9 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -84,8 +84,8 @@ std::unique_ptr<Statement> IfStatement::Make(const Context& context, int offset,
     if (isStatic || optimize) {
         // Static Boolean values can fold down to a single branch.
         const Expression* testValue = ConstantFolder::GetConstantValueForVariable(*test);
-        if (testValue->is<BoolLiteral>()) {
-            if (testValue->as<BoolLiteral>().value()) {
+        if (testValue->isBoolLiteral()) {
+            if (testValue->as<Literal>().boolValue()) {
                 return replace_empty_with_nop(std::move(ifTrue), trueIsEmpty);
             } else {
                 return replace_empty_with_nop(std::move(ifFalse), falseIsEmpty);

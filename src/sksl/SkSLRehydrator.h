@@ -26,11 +26,6 @@ class Statement;
 class SymbolTable;
 class Type;
 
-union FloatIntUnion {
-    float   fFloat;
-    int32_t fInt;
-};
-
 /**
  * Interprets a simple bytecode format that encodes the structure of an SkSL IR tree. This is used
  * to process the .sksl files representing SkSL's core include files, so that they can be quickly

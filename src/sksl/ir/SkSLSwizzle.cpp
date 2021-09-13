@@ -390,7 +390,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                     // Synthesize a 'type(0)' argument at the end of the constructor.
                     constructorArgs.push_back(ConstructorScalarCast::Make(
                             context, offset, *scalarType,
-                            IntLiteral::Make(context, offset, /*value=*/0)));
+                            Literal::MakeInt(context, offset, /*value=*/0)));
                     constantZeroIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantZeroIdx);
@@ -400,7 +400,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                     // Synthesize a 'type(1)' argument at the end of the constructor.
                     constructorArgs.push_back(ConstructorScalarCast::Make(
                             context, offset, *scalarType,
-                            IntLiteral::Make(context, offset, /*value=*/1)));
+                            Literal::MakeInt(context, offset, /*value=*/1)));
                     constantOneIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantOneIdx);

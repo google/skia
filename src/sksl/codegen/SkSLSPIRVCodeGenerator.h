@@ -21,7 +21,6 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
@@ -33,15 +32,14 @@
 #include "src/sksl/ir/SkSLConstructorStruct.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -59,7 +57,7 @@ struct SPIRVNumberConstant {
         return fValueBits == that.fValueBits &&
                fKind      == that.fKind;
     }
-    int64_t fValueBits;  // contains either an SKSL_INT or zero-padded bits from an SKSL_FLOAT
+    int32_t                fValueBits;
     SkSL::Type::NumberKind fKind;
 };
 
@@ -133,8 +131,6 @@ public:
             , fDefaultLayout(MemoryLayout::k140_Standard)
             , fCapabilities(0)
             , fIdCount(1)
-            , fBoolTrue(0)
-            , fBoolFalse(0)
             , fSetupFragPosition(false)
             , fCurrentBlock(0)
             , fSynthetics(fContext, /*builtin=*/true) {
@@ -388,11 +384,7 @@ private:
 
     SpvId writePostfixExpression(const PostfixExpression& p, OutputStream& out);
 
-    SpvId writeBoolLiteral(const BoolLiteral& b);
-
-    SpvId writeIntLiteral(const IntLiteral& i);
-
-    SpvId writeFloatLiteral(const FloatLiteral& f);
+    SpvId writeLiteral(const Literal& f);
 
     void writeStatement(const Statement& s, OutputStream& out);
 
@@ -496,8 +488,6 @@ private:
     StringStream fNameBuffer;
     StringStream fDecorationBuffer;
 
-    SpvId fBoolTrue;
-    SpvId fBoolFalse;
     std::unordered_map<SPIRVNumberConstant, SpvId> fNumberConstants;
     std::unordered_map<SPIRVVectorConstant, SpvId> fVectorConstants;
     bool fSetupFragPosition;

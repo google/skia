@@ -23,7 +23,6 @@
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
@@ -34,7 +33,6 @@
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -43,8 +41,8 @@
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPoison.h"
@@ -882,19 +880,19 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
         case ASTNode::Kind::kBinary:
             return this->convertBinaryExpression(expr);
         case ASTNode::Kind::kBool:
-            return BoolLiteral::Make(fContext, expr.fOffset, expr.getBool());
+            return Literal::MakeBool(fContext, expr.fOffset, expr.getBool());
         case ASTNode::Kind::kCall:
             return this->convertCallExpression(expr);
         case ASTNode::Kind::kField:
             return this->convertFieldExpression(expr);
         case ASTNode::Kind::kFloat:
-            return FloatLiteral::Make(fContext, expr.fOffset, expr.getFloat());
+            return Literal::MakeFloat(fContext, expr.fOffset, expr.getFloat());
         case ASTNode::Kind::kIdentifier:
             return this->convertIdentifier(expr);
         case ASTNode::Kind::kIndex:
             return this->convertIndexExpression(expr);
         case ASTNode::Kind::kInt:
-            return IntLiteral::Make(fContext, expr.fOffset, expr.getInt());
+            return Literal::MakeInt(fContext, expr.fOffset, expr.getInt());
         case ASTNode::Kind::kPostfix:
             return this->convertPostfixExpression(expr);
         case ASTNode::Kind::kPrefix:

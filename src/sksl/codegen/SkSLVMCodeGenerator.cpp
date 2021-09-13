@@ -15,7 +15,6 @@
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
-#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -31,14 +30,13 @@
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -190,6 +188,7 @@ private:
     Value writeFunctionCall(const FunctionCall& c);
     Value writeExternalFunctionCall(const ExternalFunctionCall& c);
     Value writeFieldAccess(const FieldAccess& expr);
+    Value writeLiteral(const Literal& l);
     Value writeIndexExpression(const IndexExpression& expr);
     Value writeIntrinsicCall(const FunctionCall& c);
     Value writePostfixExpression(const PostfixExpression& p);
@@ -1217,6 +1216,17 @@ Value SkVMGenerator::writeExternalFunctionCall(const ExternalFunctionCall& c) {
     return resultVal;
 }
 
+Value SkVMGenerator::writeLiteral(const Literal& l) {
+    if (l.type().isFloat()) {
+        return fBuilder->splat(l.as<Literal>().floatValue());
+    }
+    if (l.type().isInteger()) {
+        return fBuilder->splat(static_cast<int>(l.as<Literal>().intValue()));
+    }
+    SkASSERT(l.type().isBoolean());
+    return fBuilder->splat(l.as<Literal>().boolValue() ? ~0 : 0);
+}
+
 Value SkVMGenerator::writePrefixExpression(const PrefixExpression& p) {
     Value val = this->writeExpression(*p.operand());
 
@@ -1323,8 +1333,6 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
     switch (e.kind()) {
         case Expression::Kind::kBinary:
             return this->writeBinaryExpression(e.as<BinaryExpression>());
-        case Expression::Kind::kBoolLiteral:
-            return fBuilder->splat(e.as<BoolLiteral>().value() ? ~0 : 0);
         case Expression::Kind::kChildCall:
             return this->writeChildCall(e.as<ChildCall>());
         case Expression::Kind::kConstructorArray:
@@ -1348,14 +1356,12 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeIndexExpression(e.as<IndexExpression>());
         case Expression::Kind::kVariableReference:
             return this->writeVariableExpression(e.as<VariableReference>());
-        case Expression::Kind::kFloatLiteral:
-            return fBuilder->splat(e.as<FloatLiteral>().value());
+        case Expression::Kind::kLiteral:
+            return this->writeLiteral(e.as<Literal>());
         case Expression::Kind::kFunctionCall:
             return this->writeFunctionCall(e.as<FunctionCall>());
         case Expression::Kind::kExternalFunctionCall:
             return this->writeExternalFunctionCall(e.as<ExternalFunctionCall>());
-        case Expression::Kind::kIntLiteral:
-            return fBuilder->splat(static_cast<int>(e.as<IntLiteral>().value()));
         case Expression::Kind::kPrefix:
             return this->writePrefixExpression(e.as<PrefixExpression>());
         case Expression::Kind::kPostfix:

@@ -37,7 +37,7 @@ public:
                                                ExpressionArray args);
 
     // ConstructorScalarCast::Make casts a scalar expression. Casts that can be evaluated at
-    // compile-time will do so (e.g. `int(4.1)` --> `IntLiteral(4)`). Errors reported via SkASSERT.
+    // compile-time will do so (e.g. `int(4.1)` --> `Literal(int 4)`). Errors reported via SkASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             int offset,
                                             const Type& type,

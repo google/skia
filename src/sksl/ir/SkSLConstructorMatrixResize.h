@@ -11,7 +11,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 
 #include <memory>
 
@@ -29,8 +29,8 @@ public:
 
     ConstructorMatrixResize(int offset, const Type& type, std::unique_ptr<Expression> arg)
             : INHERITED(offset, kExpressionKind, &type, std::move(arg))
-            , fZeroLiteral(offset, /*value=*/0.0f, &type.componentType())
-            , fOneLiteral(offset, /*value=*/1.0f, &type.componentType()) {}
+            , fZeroLiteral(offset, /*value=*/0.0, &type.componentType())
+            , fOneLiteral(offset, /*value=*/1.0, &type.componentType()) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             int offset,
@@ -47,8 +47,8 @@ public:
 
 private:
     using INHERITED = SingleArgumentConstructor;
-    const FloatLiteral fZeroLiteral;
-    const FloatLiteral fOneLiteral;
+    const Literal fZeroLiteral;
+    const Literal fOneLiteral;
 };
 
 }  // namespace SkSL

@@ -9,7 +9,7 @@
 
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLConstructor.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSetting.h"
 
 namespace SkSL {

@@ -39,7 +39,6 @@
 
 // Expressions
 #include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
@@ -47,12 +46,11 @@
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInlineMarker.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLSetting.h"
@@ -931,9 +929,7 @@ bool Analysis::UpdateVariableRefKind(Expression* expr,
 }
 
 bool Analysis::IsTrivialExpression(const Expression& expr) {
-    return expr.is<IntLiteral>() ||
-           expr.is<FloatLiteral>() ||
-           expr.is<BoolLiteral>() ||
+    return expr.is<Literal>() ||
            expr.is<VariableReference>() ||
            (expr.is<Swizzle>() &&
             IsTrivialExpression(*expr.as<Swizzle>().base())) ||
@@ -945,7 +941,7 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
            (expr.isAnyConstructor() &&
             expr.isConstantOrUniform()) ||
            (expr.is<IndexExpression>() &&
-            expr.as<IndexExpression>().index()->is<IntLiteral>() &&
+            expr.as<IndexExpression>().index()->isIntLiteral() &&
             IsTrivialExpression(*expr.as<IndexExpression>().base()));
 }
 
@@ -959,14 +955,8 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
     // Since this is intended to be used for optimization purposes, handling the common cases is
     // sufficient.
     switch (left.kind()) {
-        case Expression::Kind::kIntLiteral:
-            return left.as<IntLiteral>().value() == right.as<IntLiteral>().value();
-
-        case Expression::Kind::kFloatLiteral:
-            return left.as<FloatLiteral>().value() == right.as<FloatLiteral>().value();
-
-        case Expression::Kind::kBoolLiteral:
-            return left.as<BoolLiteral>().value() == right.as<BoolLiteral>().value();
+        case Expression::Kind::kLiteral:
+            return left.as<Literal>().value() == right.as<Literal>().value();
 
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorArrayCast:
@@ -1023,12 +1013,8 @@ static bool get_constant_value(const Expression& expr, double* val) {
     if (!valExpr) {
         return false;
     }
-    if (valExpr->is<IntLiteral>()) {
-        *val = static_cast<double>(valExpr->as<IntLiteral>().value());
-        return true;
-    }
-    if (valExpr->is<FloatLiteral>()) {
-        *val = static_cast<double>(valExpr->as<FloatLiteral>().value());
+    if (valExpr->is<Literal>()) {
+        *val = valExpr->as<Literal>().value();
         return true;
     }
     SkDEBUGFAILF("unexpected constant type (%s)", expr.type().description().c_str());
@@ -1277,9 +1263,7 @@ public:
         // A constant-(index)-expression is one of...
         switch (e.kind()) {
             // ... a literal value
-            case Expression::Kind::kBoolLiteral:
-            case Expression::Kind::kIntLiteral:
-            case Expression::Kind::kFloatLiteral:
+            case Expression::Kind::kLiteral:
                 return false;
 
             // ... settings can appear in fragment processors; they will resolve when compiled
@@ -1487,11 +1471,9 @@ bool ProgramVisitor::visit(const Program& program) {
 
 template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expression& e) {
     switch (e.kind()) {
-        case Expression::Kind::kBoolLiteral:
         case Expression::Kind::kExternalFunctionReference:
-        case Expression::Kind::kFloatLiteral:
         case Expression::Kind::kFunctionReference:
-        case Expression::Kind::kIntLiteral:
+        case Expression::Kind::kLiteral:
         case Expression::Kind::kMethodReference:
         case Expression::Kind::kPoison:
         case Expression::Kind::kSetting:
