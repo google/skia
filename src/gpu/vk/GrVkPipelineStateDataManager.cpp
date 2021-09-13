@@ -14,27 +14,16 @@
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
 
-static GrUniformDataManager::Layout get_layout(bool usePushConstants) {
-    return usePushConstants ? GrUniformDataManager::Layout::kStd430
-                            : GrUniformDataManager::Layout::kStd140;
-}
-
-GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(
-        GrUniformDataManager::ProgramUniforms programUniforms,
-        const UniformInfoArray& uniforms,
-        uint32_t uniformSize,
-        bool usePushConstants)
-        : INHERITED(std::move(programUniforms),
-                    get_layout(usePushConstants),
-                    uniforms.count(),
-                    uniformSize)
-        , fUsePushConstants(usePushConstants) {
+GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
+                                                           uint32_t uniformSize,
+                                                           bool usePushConstants)
+    : INHERITED(uniforms.count(), uniformSize)
+    , fUsePushConstants(usePushConstants) {
     // We must add uniforms in same order as the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.
     int i = 0;
     GrVkUniformHandler::Layout memLayout = usePushConstants ? GrVkUniformHandler::kStd430Layout
                                                             : GrVkUniformHandler::kStd140Layout;
-
     for (const auto& uniformInfo : uniforms.items()) {
         Uniform& uniform = fUniforms[i];
         SkASSERT(GrShaderVar::kNonArray == uniformInfo.fVariable.getArrayCount() ||

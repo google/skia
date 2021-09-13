@@ -284,7 +284,7 @@ static inline GrQuadAAFlags SkToGrQuadAAFlags(unsigned flags) {
 /**
  * Types of shader-language-specific boxed variables we can create.
  */
-enum GrSLType : unsigned {
+enum GrSLType {
     kVoid_GrSLType,
     kBool_GrSLType,
     kBool2_GrSLType,
@@ -556,67 +556,6 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
         case kSampler_GrSLType:
         case kInput_GrSLType:
             return -1;
-    }
-    SkUNREACHABLE;
-}
-
-/**
- * Get dimensions of matrix types or {0, 0} if not a matrix. Note scalars and vectors are not
- * considered matrices by this function.
- */
-static constexpr SkISize GrSLTypeMatrixDims(GrSLType type) {
-    switch (type) {
-        case kFloat2x2_GrSLType: return {2, 2};
-        case kFloat3x3_GrSLType: return {3, 3};
-        case kFloat4x4_GrSLType: return {4, 4};
-        case kHalf2x2_GrSLType:  return {2, 2};
-        case kHalf3x3_GrSLType:  return {3, 3};
-        case kHalf4x4_GrSLType:  return {4, 4};
-
-        case kVoid_GrSLType:
-        case kFloat_GrSLType:
-        case kHalf_GrSLType:
-        case kBool_GrSLType:
-        case kByte_GrSLType:
-        case kUByte_GrSLType:
-        case kShort_GrSLType:
-        case kUShort_GrSLType:
-        case kInt_GrSLType:
-        case kUint_GrSLType:
-        case kFloat2_GrSLType:
-        case kHalf2_GrSLType:
-        case kBool2_GrSLType:
-        case kByte2_GrSLType:
-        case kUByte2_GrSLType:
-        case kShort2_GrSLType:
-        case kUShort2_GrSLType:
-        case kInt2_GrSLType:
-        case kUint2_GrSLType:
-        case kFloat3_GrSLType:
-        case kHalf3_GrSLType:
-        case kBool3_GrSLType:
-        case kByte3_GrSLType:
-        case kUByte3_GrSLType:
-        case kShort3_GrSLType:
-        case kUShort3_GrSLType:
-        case kInt3_GrSLType:
-        case kUint3_GrSLType:
-        case kFloat4_GrSLType:
-        case kHalf4_GrSLType:
-        case kBool4_GrSLType:
-        case kByte4_GrSLType:
-        case kUByte4_GrSLType:
-        case kShort4_GrSLType:
-        case kUShort4_GrSLType:
-        case kInt4_GrSLType:
-        case kUint4_GrSLType:
-        case kTexture2DSampler_GrSLType:
-        case kTextureExternalSampler_GrSLType:
-        case kTexture2DRectSampler_GrSLType:
-        case kTexture2D_GrSLType:
-        case kSampler_GrSLType:
-        case kInput_GrSLType:
-            return {0, 0};
     }
     SkUNREACHABLE;
 }

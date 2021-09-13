@@ -9,7 +9,6 @@
 #define GrSPIRVUniformHandler_DEFINED
 
 #include "src/core/SkTBlockList.h"
-#include "src/gpu/GrUniformDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 /*
@@ -47,14 +46,6 @@ public:
         return fUniforms.item(idx);
     }
 
-    /**
-     * Call after all legacy style uniforms have been added to assign offsets to new style uniforms
-     * and create the data structure needed to transfer new style uniforms to GrUniformDataManager.
-     * This must be called before appendUniformDecls() in order to ensure new style uniforms get
-     * declared. It must be called only once.
-     */
-    GrUniformDataManager::ProgramUniforms getNewProgramUniforms(const GrUniformAggregator&);
-
 private:
     explicit GrSPIRVUniformHandler(GrGLSLProgramBuilder* program);
 
@@ -62,9 +53,7 @@ private:
                              const char* name, const GrShaderCaps*) override;
     const char* samplerVariable(SamplerHandle handle) const override;
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override;
-    void appendUniformDecls(const GrUniformAggregator&,
-                            GrShaderFlags visibility,
-                            SkString*) const override;
+    void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
                                           uint32_t visibility,
                                           GrSLType type,
@@ -74,7 +63,6 @@ private:
                                           const char** outName) override;
 
     UniformInfoArray    fUniforms;
-    UniformInfoArray    fNewUniforms;
     UniformInfoArray    fSamplers;
     UniformInfoArray    fTextures;
     SkTArray<GrSwizzle> fSamplerSwizzles;

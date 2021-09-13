@@ -22,8 +22,7 @@ class GrMtlPipelineStateDataManager : public GrUniformDataManager {
 public:
     typedef GrMtlUniformHandler::UniformInfoArray UniformInfoArray;
 
-    GrMtlPipelineStateDataManager(GrUniformDataManager::ProgramUniforms,
-                                  const UniformInfoArray&,
+    GrMtlPipelineStateDataManager(const UniformInfoArray&,
                                   uint32_t uniformSize);
 
     void set1iv(UniformHandle, int arrayCount, const int32_t v[]) const override;

@@ -20,25 +20,6 @@ GrStencilSettings GrProgramInfo::nonGLStencilSettings() const {
     return stencil;
 }
 
-static void visit_fp_tree(const GrFragmentProcessor& fp,
-                          const std::function<void(const GrProcessor&)>& f) {
-    f(fp);
-    for (int i = 0; i < fp.numChildProcessors(); ++i) {
-        if (const GrFragmentProcessor* child = fp.childProcessor(i)) {
-            visit_fp_tree(*child, f);
-        }
-    }
-}
-
-void GrProgramInfo::visitProcessors(const std::function<void(const GrProcessor&)>& f) const {
-    f(*fGeomProc);
-
-    for (int i = 0; i < fPipeline->numFragmentProcessors(); ++i) {
-        visit_fp_tree(fPipeline->getFragmentProcessor(i), f);
-    }
-    f(fPipeline->getXferProcessor());
-}
-
 #ifdef SK_DEBUG
 #include "src/gpu/GrTexture.h"
 

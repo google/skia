@@ -9,13 +9,9 @@
 
 #include "src/gpu/dawn/GrDawnGpu.h"
 
-GrDawnProgramDataManager::GrDawnProgramDataManager(ProgramUniforms programUniforms,
-                                                   const UniformInfoArray& uniforms,
+GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& uniforms,
                                                    uint32_t uniformBufferSize)
-        : GrUniformDataManager(std::move(programUniforms),
-                               Layout::kStd140,
-                               uniforms.count(),
-                               uniformBufferSize) {
+    : GrUniformDataManager(uniforms.count(), uniformBufferSize) {
     memset(fUniformData.get(), 0, uniformBufferSize);
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
     // owned by other objects will still match up here.

@@ -10,7 +10,6 @@
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrStencilSettings.h"
-#include "src/gpu/GrUniformDataManager.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlPipeline.h"
@@ -39,7 +38,6 @@ public:
     GrMtlPipelineState(GrMtlGpu*,
                        sk_sp<GrMtlRenderPipeline> pipeline,
                        MTLPixelFormat,
-                       GrUniformDataManager::ProgramUniforms,
                        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
                        const UniformInfoArray& uniforms,
                        uint32_t uniformBufferSize,

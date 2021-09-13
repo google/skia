@@ -8,8 +8,9 @@
 #ifndef GrDawnProgramDataManager_DEFINED
 #define GrDawnProgramDataManager_DEFINED
 
-#include "src/gpu/GrSPIRVUniformHandler.h"
 #include "src/gpu/GrUniformDataManager.h"
+
+#include "src/gpu/GrSPIRVUniformHandler.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 #include "dawn/webgpu_cpp.h"
 
@@ -22,7 +23,7 @@ class GrDawnProgramDataManager : public GrUniformDataManager {
 public:
     typedef GrSPIRVUniformHandler::UniformInfoArray UniformInfoArray;
 
-    GrDawnProgramDataManager(ProgramUniforms, const UniformInfoArray&, uint32_t uniformBufferSize);
+    GrDawnProgramDataManager(const UniformInfoArray&, uint32_t uniformBufferSize);
 
     uint32_t uniformBufferSize() const { return fUniformSize; }
 

@@ -23,7 +23,6 @@ class GrGeometryProcessor;
 class GrProgramInfo;
 class GrRenderTarget;
 class GrTextureProxy;
-class GrUniformAggregator;
 
 /**
  * This class manages a GPU program and records per-program information. It also records the vertex
@@ -55,7 +54,6 @@ public:
             GrGLGpu*,
             const GrGLSLBuiltinUniformHandles&,
             GrGLuint programID,
-            const GrUniformAggregator&,
             const UniformInfoArray& uniforms,
             const UniformInfoArray& textureSamplers,
             std::unique_ptr<GrGeometryProcessor::ProgramImpl>,
@@ -129,7 +127,6 @@ private:
     GrGLProgram(GrGLGpu*,
                 const GrGLSLBuiltinUniformHandles&,
                 GrGLuint programID,
-                const GrUniformAggregator&,
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& textureSamplers,
                 std::unique_ptr<GrGeometryProcessor::ProgramImpl>,

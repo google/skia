@@ -19,7 +19,6 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrUniformAggregator.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -733,7 +732,9 @@ public:
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->addBits(2, static_cast<uint32_t>(fStyle), "style");
-        b->addBool(fViewMatrix.hasPerspective(), "matrix_perspective");
+        b->addBits(ProgramImpl::kMatrixKeyBits,
+                   ProgramImpl::ComputeMatrixKey(caps, fViewMatrix),
+                   "viewMatrixType");
     }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
@@ -741,22 +742,41 @@ public:
     }
 
 private:
-    DIEllipseGeometryProcessor(bool wideColor,
-                               bool useScale,
-                               const SkMatrix& viewMatrix,
-                               DIEllipseStyle style);
+    DIEllipseGeometryProcessor(bool wideColor, bool useScale, const SkMatrix& viewMatrix,
+                               DIEllipseStyle style)
+            : INHERITED(kDIEllipseGeometryProcessor_ClassID)
+            , fViewMatrix(viewMatrix)
+            , fUseScale(useScale)
+            , fStyle(style) {
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInColor = MakeColorAttribute("inColor", wideColor);
+        if (useScale) {
+            fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat3_GrVertexAttribType,
+                                  kFloat3_GrSLType};
+        } else {
+            fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat2_GrVertexAttribType,
+                                  kFloat2_GrSLType};
+        }
+        fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        this->setVertexAttributes(&fInPosition, 4);
+    }
 
     class Impl : public ProgramImpl {
     public:
-        void setData(const GrGLSLProgramDataManager&,
-                     const GrShaderCaps&,
-                     const GrGeometryProcessor&) override {}
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
+                     const GrGeometryProcessor& geomProc) override {
+            const auto& diegp = geomProc.cast<DIEllipseGeometryProcessor>();
+
+            SetTransform(pdman, shaderCaps, fViewMatrixUniform, diegp.fViewMatrix, &fViewMatrix);
+        }
 
     private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const auto& diegp = args.fGeomProc.cast<DIEllipseGeometryProcessor>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
             varyingHandler->emitAttributes(diegp);
@@ -775,27 +795,14 @@ private:
             varyingHandler->addPassThroughAttribute(diegp.fInColor.asShaderVar(),
                                                     args.fOutputColor);
 
-            const char* vm = args.fUniforms.getUniformName(0, "viewMatrix");
-
-            auto posType = diegp.fViewMatrix.hasPerspective() ? kFloat3_GrSLType : kFloat2_GrSLType;
-            gpArgs->fPositionVar = GrShaderVar("outpos", posType);
-            vertBuilder->declAppend(gpArgs->fPositionVar);
-            if (posType == kFloat3_GrSLType) {
-                vertBuilder->codeAppendf("%s = %s * %s.xy1;\n",
-                                         gpArgs->fPositionVar.c_str(),
-                                         vm,
-                                         diegp.fInPosition.name());
-            } else if (args.fShaderCaps->nonsquareMatrixSupport()) {
-                vertBuilder->codeAppendf("%s = float3x2(%s) * %s.xy1;\n",
-                                         gpArgs->fPositionVar.c_str(),
-                                         vm,
-                                         diegp.fInPosition.name());
-            } else {
-                vertBuilder->codeAppendf("%s = (%s * %s.xy1).xy;\n",
-                                         gpArgs->fPositionVar.c_str(),
-                                         vm,
-                                         diegp.fInPosition.name());
-            }
+            // Setup position
+            WriteOutputPosition(vertBuilder,
+                                uniformHandler,
+                                *args.fShaderCaps,
+                                gpArgs,
+                                diegp.fInPosition.name(),
+                                diegp.fViewMatrix,
+                                &fViewMatrixUniform);
             gpArgs->fLocalCoordVar = diegp.fInPosition.asShaderVar();
 
             // for outer curve
@@ -856,6 +863,9 @@ private:
 
             fragBuilder->codeAppendf("half4 %s = half4(half(edgeAlpha));", args.fOutputCoverage);
         }
+
+        SkMatrix fViewMatrix = SkMatrix::InvalidMatrix();
+        UniformHandle fViewMatrixUniform;
     };
 
     Attribute fInPosition;
@@ -873,32 +883,6 @@ private:
 };
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
-
-DIEllipseGeometryProcessor::DIEllipseGeometryProcessor(bool wideColor,
-                                                       bool useScale,
-                                                       const SkMatrix& viewMatrix,
-                                                       DIEllipseStyle style)
-        : INHERITED(kDIEllipseGeometryProcessor_ClassID)
-        , fViewMatrix(viewMatrix)
-        , fUseScale(useScale)
-        , fStyle(style) {
-    fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    fInColor = MakeColorAttribute("inColor", wideColor);
-    if (useScale) {
-        fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-    } else {
-        fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    }
-    fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    this->setVertexAttributes(&fInPosition, 4);
-GR_BEGIN_UNIFORM_DEFINITIONS
-    static constexpr Uniform kViewMatrixU{kFloat3x3_GrSLType,
-                                          offsetof(DIEllipseGeometryProcessor, fViewMatrix),
-                                          kVertex_GrShaderFlag,
-                                          Uniform::CType::kSkMatrix};
-GR_END_UNIFORM_DEFINITIONS
-    this->setUniforms(SkMakeSpan(&kViewMatrixU, 1));
-}
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
