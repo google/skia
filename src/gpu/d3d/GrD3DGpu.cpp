@@ -155,6 +155,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
 
     GrD3DDirectCommandList::SubmitResult result = fCurrentDirectCommandList->submit(fQueue.get());
     if (result == GrD3DDirectCommandList::SubmitResult::kFailure) {
+        fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
         return false;
     } else if (result == GrD3DDirectCommandList::SubmitResult::kNoWork) {
         if (sync == SyncQueue::kForce) {
