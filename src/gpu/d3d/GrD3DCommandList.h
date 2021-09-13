@@ -154,7 +154,7 @@ private:
 
 class GrD3DDirectCommandList : public GrD3DCommandList {
 public:
-    static std::unique_ptr<GrD3DDirectCommandList> Make(ID3D12Device* device);
+    static std::unique_ptr<GrD3DDirectCommandList> Make(GrD3DGpu* gpu);
 
     ~GrD3DDirectCommandList() override = default;
 
@@ -210,7 +210,8 @@ public:
 
 private:
     GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
-                           gr_cp<ID3D12GraphicsCommandList> commandList);
+                           gr_cp<ID3D12GraphicsCommandList> commandList,
+                           bool resolveSubregionSupported);
 
     void onReset() override;
 
@@ -229,11 +230,13 @@ private:
     D3D12_GPU_DESCRIPTOR_HANDLE fCurrentComputeRootDescTable[GrD3DRootSignature::kParamIndexCount];
     const ID3D12DescriptorHeap* fCurrentSRVCRVDescriptorHeap = nullptr;
     const ID3D12DescriptorHeap* fCurrentSamplerDescriptorHeap = nullptr;
+
+    bool fResolveSubregionSupported;
 };
 
 class GrD3DCopyCommandList : public GrD3DCommandList {
 public:
-    static std::unique_ptr<GrD3DCopyCommandList> Make(ID3D12Device* device);
+    static std::unique_ptr<GrD3DCopyCommandList> Make(GrD3DGpu* gpu);
 
 private:
     GrD3DCopyCommandList(gr_cp<ID3D12CommandAllocator> allocator,

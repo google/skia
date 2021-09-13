@@ -40,7 +40,7 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirec
         fAvailableDirectCommandLists.pop_back();
         return list;
     }
-    return GrD3DDirectCommandList::Make(fGpu->device());
+    return GrD3DDirectCommandList::Make(fGpu);
 }
 
 void GrD3DResourceProvider::recycleDirectCommandList(

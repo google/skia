@@ -160,6 +160,12 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
         fMaxPerStageShaderResourceViews = 2032;
     }
 
+    D3D12_FEATURE_DATA_D3D12_OPTIONS2 optionsDesc2;
+    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &optionsDesc2,
+                                                     sizeof(optionsDesc2)));
+    fResolveSubresourceRegionSupport = (optionsDesc2.ProgrammableSamplePositionsTier !=
+                                        D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER_NOT_SUPPORTED);
+
     this->initGrCaps(optionsDesc, device);
     this->initShaderCaps(adapterDesc.VendorId, optionsDesc);
 

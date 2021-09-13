@@ -264,7 +264,8 @@ void GrD3DCommandList::addingWork() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Device* device) {
+std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(GrD3DGpu* gpu) {
+    ID3D12Device* device = gpu->device();
     gr_cp<ID3D12CommandAllocator> allocator;
     GR_D3D_CALL_ERRCHECK(device->CreateCommandAllocator(
                          D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&allocator)));
@@ -274,13 +275,16 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Devic
                                                    allocator.get(), nullptr,
                                                    IID_PPV_ARGS(&commandList)));
 
-    auto grCL = new GrD3DDirectCommandList(std::move(allocator), std::move(commandList));
+    auto grCL = new GrD3DDirectCommandList(std::move(allocator), std::move(commandList),
+                                           gpu->d3dCaps().resolveSubresourceRegionSupport());
     return std::unique_ptr<GrD3DDirectCommandList>(grCL);
 }
 
 GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
-                                               gr_cp<ID3D12GraphicsCommandList> commandList)
-    : GrD3DCommandList(std::move(allocator), std::move(commandList)) {
+                                               gr_cp<ID3D12GraphicsCommandList> commandList,
+                                               bool resolveSubregionSupported)
+    : GrD3DCommandList(std::move(allocator), std::move(commandList))
+    , fResolveSubregionSupported(resolveSubregionSupported) {
     sk_bzero(fCurrentGraphicsRootDescTable, sizeof(fCurrentGraphicsRootDescTable));
     sk_bzero(fCurrentComputeRootDescTable, sizeof(fCurrentComputeRootDescTable));
 }
@@ -505,17 +509,20 @@ void GrD3DDirectCommandList::resolveSubresourceRegion(const GrD3DTextureResource
     this->addResource(dstTexture->resource());
     this->addResource(srcTexture->resource());
 
-    gr_cp<ID3D12GraphicsCommandList1> commandList1;
-    HRESULT result = fCommandList->QueryInterface(IID_PPV_ARGS(&commandList1));
-    if (SUCCEEDED(result)) {
-        commandList1->ResolveSubresourceRegion(dstTexture->d3dResource(), 0, dstX, dstY,
-                                               srcTexture->d3dResource(), 0, srcRect,
-                                               srcTexture->dxgiFormat(),
-                                               D3D12_RESOLVE_MODE_AVERAGE);
-    } else {
-        fCommandList->ResolveSubresource(dstTexture->d3dResource(), 0, srcTexture->d3dResource(), 0,
-                                         srcTexture->dxgiFormat());
+    if (fResolveSubregionSupported) {
+        gr_cp<ID3D12GraphicsCommandList1> commandList1;
+        HRESULT result = fCommandList->QueryInterface(IID_PPV_ARGS(&commandList1));
+        if (SUCCEEDED(result)) {
+            commandList1->ResolveSubresourceRegion(dstTexture->d3dResource(), 0, dstX, dstY,
+                                                   srcTexture->d3dResource(), 0, srcRect,
+                                                   srcTexture->dxgiFormat(),
+                                                   D3D12_RESOLVE_MODE_AVERAGE);
+            return;
+        }
     }
+
+    fCommandList->ResolveSubresource(dstTexture->d3dResource(), 0, srcTexture->d3dResource(), 0,
+                                     srcTexture->dxgiFormat());
 }
 
 void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
@@ -587,7 +594,8 @@ void GrD3DDirectCommandList::addSampledTextureRef(GrD3DTexture* texture) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrD3DCopyCommandList> GrD3DCopyCommandList::Make(ID3D12Device* device) {
+std::unique_ptr<GrD3DCopyCommandList> GrD3DCopyCommandList::Make(GrD3DGpu* gpu) {
+    ID3D12Device* device = gpu->device();
     gr_cp<ID3D12CommandAllocator> allocator;
     GR_D3D_CALL_ERRCHECK(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
                                                         IID_PPV_ARGS(&allocator)));
