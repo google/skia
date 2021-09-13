@@ -5,31 +5,33 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSmallPathShapeData_DEFINED
-#define GrSmallPathShapeData_DEFINED
+#ifndef SmallPathShapeData_DEFINED
+#define SmallPathShapeData_DEFINED
 
 #include "src/core/SkOpts.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 
 class GrStyledShape;
 
-class GrSmallPathShapeDataKey {
+namespace skgpu::v1 {
+
+class SmallPathShapeDataKey {
 public:
     // TODO: add a move variant
-    GrSmallPathShapeDataKey(const GrSmallPathShapeDataKey& that) {
+    SmallPathShapeDataKey(const SmallPathShapeDataKey& that) {
         fKey.reset(that.fKey.count());
         memcpy(fKey.get(), that.fKey.get(), fKey.count() * sizeof(uint32_t));
     }
 
-    GrSmallPathShapeDataKey& operator=(const GrSmallPathShapeDataKey&) = delete;
+    SmallPathShapeDataKey& operator=(const SmallPathShapeDataKey&) = delete;
 
     // for SDF paths
-    GrSmallPathShapeDataKey(const GrStyledShape&, uint32_t dim);
+    SmallPathShapeDataKey(const GrStyledShape&, uint32_t dim);
 
     // for bitmap paths
-    GrSmallPathShapeDataKey(const GrStyledShape&, const SkMatrix& ctm);
+    SmallPathShapeDataKey(const GrStyledShape&, const SkMatrix& ctm);
 
-    bool operator==(const GrSmallPathShapeDataKey & that) const {
+    bool operator==(const SmallPathShapeDataKey & that) const {
         return fKey.count() == that.fKey.count() &&
                 0 == memcmp(fKey.get(), that.fKey.get(), sizeof(uint32_t) * fKey.count());
     }
@@ -44,23 +46,25 @@ private:
     SkAutoSTArray<24, uint32_t> fKey;
 };
 
-class GrSmallPathShapeData {
+class SmallPathShapeData {
 public:
-    GrSmallPathShapeData(const GrSmallPathShapeDataKey& key) : fKey(key) {}
+    SmallPathShapeData(const SmallPathShapeDataKey& key) : fKey(key) {}
 
-    const GrSmallPathShapeDataKey fKey;
-    SkRect                        fBounds;
-    GrDrawOpAtlas::AtlasLocator   fAtlasLocator;
+    const SmallPathShapeDataKey fKey;
+    SkRect                      fBounds;
+    GrDrawOpAtlas::AtlasLocator fAtlasLocator;
 
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSmallPathShapeData);
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(SmallPathShapeData);
 
-    static inline const GrSmallPathShapeDataKey& GetKey(const GrSmallPathShapeData& data) {
+    static inline const SmallPathShapeDataKey& GetKey(const SmallPathShapeData& data) {
         return data.fKey;
     }
 
-    static inline uint32_t Hash(const GrSmallPathShapeDataKey& key) {
+    static inline uint32_t Hash(const SmallPathShapeDataKey& key) {
         return SkOpts::hash(key.data(), sizeof(uint32_t) * key.count32());
     }
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // SmallPathShapeData_DEFINED

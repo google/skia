@@ -34,7 +34,7 @@ public:
     GrResourceProvider* resourceProvider() const override {
         return fMockContext->priv().resourceProvider();
     }
-    GrSmallPathAtlasMgr* smallPathAtlasManager() const override { return nullptr; }
+    skgpu::v1::SmallPathAtlasMgr* smallPathAtlasManager() const override { return nullptr; }
     void resetAllocator() { fAllocator.reset(); }
     SkArenaAlloc* allocator() override { return &fAllocator; }
     void putBackVertices(int vertices, size_t vertexStride) override { /* no-op */ }

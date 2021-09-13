@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrSmallPathShapeData.h"
+#include "src/gpu/ops/SmallPathShapeData.h"
 
 #include "src/gpu/geometry/GrStyledShape.h"
 
-GrSmallPathShapeDataKey::GrSmallPathShapeDataKey(const GrStyledShape& shape, uint32_t dim) {
+namespace skgpu::v1 {
+
+SmallPathShapeDataKey::SmallPathShapeDataKey(const GrStyledShape& shape, uint32_t dim) {
     // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
     // relevant styling information.
     SkASSERT(shape.style().isSimpleFill());
@@ -20,7 +22,7 @@ GrSmallPathShapeDataKey::GrSmallPathShapeDataKey(const GrStyledShape& shape, uin
     shape.writeUnstyledKey(&fKey[1]);
 }
 
-GrSmallPathShapeDataKey::GrSmallPathShapeDataKey(const GrStyledShape& shape, const SkMatrix& ctm) {
+SmallPathShapeDataKey::SmallPathShapeDataKey(const GrStyledShape& shape, const SkMatrix& ctm) {
     // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
     // relevant styling information.
     SkASSERT(shape.style().isSimpleFill());
@@ -46,3 +48,5 @@ GrSmallPathShapeDataKey::GrSmallPathShapeDataKey(const GrStyledShape& shape, con
     fKey[4] = fracX | (fracY >> 8);
     shape.writeUnstyledKey(&fKey[5]);
 }
+
+} // namespace skgpu::v1

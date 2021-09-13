@@ -12,9 +12,10 @@
 #include "src/gpu/GrSimpleMesh.h"
 
 class GrAtlasManager;
-class GrSmallPathAtlasMgr;
 class GrStrikeCache;
 class GrThreadSafeCache;
+
+namespace skgpu { namespace v1 { class SmallPathAtlasMgr; }}
 
 /*
  * Abstract interface that supports creating vertices, indices, and meshes, as well as
@@ -124,7 +125,7 @@ public:
 
     virtual GrStrikeCache* strikeCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;
-    virtual GrSmallPathAtlasMgr* smallPathAtlasManager() const = 0;
+    virtual skgpu::v1::SmallPathAtlasMgr* smallPathAtlasManager() const = 0;
 
     // This should be called during onPrepare of a GrOp. The caller should add any proxies to the
     // array it will use that it did not access during a call to visitProxies. This is usually the

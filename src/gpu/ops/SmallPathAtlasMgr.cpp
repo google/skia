@@ -5,26 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrSmallPathAtlasMgr.h"
+#include "src/gpu/ops/SmallPathAtlasMgr.h"
 
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/ops/GrSmallPathShapeData.h"
+#include "src/gpu/ops/SmallPathShapeData.h"
 
 #ifdef DF_PATH_TRACKING
 static int g_NumCachedShapes = 0;
 static int g_NumFreedShapes = 0;
 #endif
 
-GrSmallPathAtlasMgr::GrSmallPathAtlasMgr() {}
+namespace skgpu::v1 {
 
-GrSmallPathAtlasMgr::~GrSmallPathAtlasMgr() {
+SmallPathAtlasMgr::SmallPathAtlasMgr() {}
+
+SmallPathAtlasMgr::~SmallPathAtlasMgr() {
     this->reset();
 }
 
-void GrSmallPathAtlasMgr::reset() {
+void SmallPathAtlasMgr::reset() {
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-    GrSmallPathShapeData* shapeData;
+    SmallPathShapeData* shapeData;
     while ((shapeData = iter.get())) {
         iter.next();
         delete shapeData;
@@ -40,7 +42,7 @@ void GrSmallPathAtlasMgr::reset() {
     fAtlas = nullptr;
 }
 
-bool GrSmallPathAtlasMgr::initAtlas(GrProxyProvider* proxyProvider, const GrCaps* caps) {
+bool SmallPathAtlasMgr::initAtlas(GrProxyProvider* proxyProvider, const GrCaps* caps) {
     if (fAtlas) {
         return true;
     }
@@ -62,17 +64,17 @@ bool GrSmallPathAtlasMgr::initAtlas(GrProxyProvider* proxyProvider, const GrCaps
     return SkToBool(fAtlas);
 }
 
-void GrSmallPathAtlasMgr::deleteCacheEntry(GrSmallPathShapeData* shapeData) {
+void SmallPathAtlasMgr::deleteCacheEntry(SmallPathShapeData* shapeData) {
     fShapeCache.remove(shapeData->fKey);
     fShapeList.remove(shapeData);
     delete shapeData;
 }
 
-GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrSmallPathShapeDataKey& key) {
+SmallPathShapeData* SmallPathAtlasMgr::findOrCreate(const SmallPathShapeDataKey& key) {
     auto shapeData = fShapeCache.find(key);
     if (!shapeData) {
         // TODO: move the key into the ctor
-        shapeData = new GrSmallPathShapeData(key);
+        shapeData = new SmallPathShapeData(key);
         fShapeCache.add(shapeData);
         fShapeList.addToTail(shapeData);
 #ifdef DF_PATH_TRACKING
@@ -85,40 +87,40 @@ GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrSmallPathShapeDa
     return shapeData;
 }
 
-GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrStyledShape& shape,
-                                                        int desiredDimension) {
-    GrSmallPathShapeDataKey key(shape, desiredDimension);
+SmallPathShapeData* SmallPathAtlasMgr::findOrCreate(const GrStyledShape& shape,
+                                                    int desiredDimension) {
+    SmallPathShapeDataKey key(shape, desiredDimension);
 
     // TODO: move the key into 'findOrCreate'
     return this->findOrCreate(key);
 }
 
-GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrStyledShape& shape,
-                                                        const SkMatrix& ctm) {
-    GrSmallPathShapeDataKey key(shape, ctm);
+SmallPathShapeData* SmallPathAtlasMgr::findOrCreate(const GrStyledShape& shape,
+                                                    const SkMatrix& ctm) {
+    SmallPathShapeDataKey key(shape, ctm);
 
     // TODO: move the key into 'findOrCreate'
     return this->findOrCreate(key);
 }
 
-GrDrawOpAtlas::ErrorCode GrSmallPathAtlasMgr::addToAtlas(GrResourceProvider* resourceProvider,
-                                                         GrDeferredUploadTarget* target,
-                                                         int width, int height, const void* image,
-                                                         GrDrawOpAtlas::AtlasLocator* locator) {
+GrDrawOpAtlas::ErrorCode SmallPathAtlasMgr::addToAtlas(GrResourceProvider* resourceProvider,
+                                                       GrDeferredUploadTarget* target,
+                                                       int width, int height, const void* image,
+                                                       GrDrawOpAtlas::AtlasLocator* locator) {
     return fAtlas->addToAtlas(resourceProvider, target, width, height, image, locator);
 }
 
-void GrSmallPathAtlasMgr::setUseToken(GrSmallPathShapeData* shapeData,
-                                      GrDeferredUploadToken token) {
+void SmallPathAtlasMgr::setUseToken(SmallPathShapeData* shapeData,
+                                    GrDeferredUploadToken token) {
     fAtlas->setLastUseToken(shapeData->fAtlasLocator, token);
 }
 
 // Callback to clear out internal path cache when eviction occurs
-void GrSmallPathAtlasMgr::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+void SmallPathAtlasMgr::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
-    GrSmallPathShapeData* shapeData;
+    SmallPathShapeData* shapeData;
     while ((shapeData = iter.get())) {
         iter.next();
         if (plotLocator == shapeData->fAtlasLocator.plotLocator()) {
@@ -131,3 +133,5 @@ void GrSmallPathAtlasMgr::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
         }
     }
 }
+
+} // namespace skgpu::v1

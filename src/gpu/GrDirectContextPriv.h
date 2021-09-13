@@ -93,7 +93,7 @@ public:
     }
 
     // This accessor should only ever be called by the GrOpFlushState.
-    GrSmallPathAtlasMgr* getSmallPathAtlasMgr() {
+    skgpu::v1::SmallPathAtlasMgr* getSmallPathAtlasMgr() {
         return this->context()->onGetSmallPathAtlasMgr();
     }
 

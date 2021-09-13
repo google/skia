@@ -28,7 +28,6 @@ struct GrMtlBackendContext;
 struct GrMockOptions;
 class GrPath;
 class GrResourceCache;
-class GrSmallPathAtlasMgr;
 class GrResourceProvider;
 class GrStrikeCache;
 class GrSurfaceProxy;
@@ -42,6 +41,8 @@ class SkSurfaceCharacterization;
 class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
+
+namespace skgpu { namespace v1 { class SmallPathAtlasMgr; }}
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
@@ -830,7 +831,7 @@ protected:
     bool init() override;
 
     GrAtlasManager* onGetAtlasManager() { return fAtlasManager.get(); }
-    GrSmallPathAtlasMgr* onGetSmallPathAtlasMgr();
+    skgpu::v1::SmallPathAtlasMgr* onGetSmallPathAtlasMgr();
 
     GrDirectContext* asDirectContext() override { return this; }
 
@@ -868,7 +869,7 @@ private:
     std::unique_ptr<GrClientMappedBufferManager> fMappedBufferManager;
     std::unique_ptr<GrAtlasManager> fAtlasManager;
 
-    std::unique_ptr<GrSmallPathAtlasMgr> fSmallPathAtlasMgr;
+    std::unique_ptr<skgpu::v1::SmallPathAtlasMgr> fSmallPathAtlasMgr;
 
     friend class GrDirectContextPriv;
 

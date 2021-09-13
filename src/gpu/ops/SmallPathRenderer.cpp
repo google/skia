@@ -28,8 +28,8 @@
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
-#include "src/gpu/ops/GrSmallPathAtlasMgr.h"
-#include "src/gpu/ops/GrSmallPathShapeData.h"
+#include "src/gpu/ops/SmallPathAtlasMgr.h"
+#include "src/gpu/ops/SmallPathShapeData.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {
@@ -142,7 +142,7 @@ private:
     void onPrepareDraws(GrMeshDrawTarget* target) override {
         int instanceCount = fShapes.count();
 
-        GrSmallPathAtlasMgr* atlasMgr = target->smallPathAtlasManager();
+        auto atlasMgr = target->smallPathAtlasManager();
         if (!atlasMgr) {
             return;
         }
@@ -223,7 +223,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Entry& args = fShapes[i];
 
-            GrSmallPathShapeData* shapeData;
+            skgpu::v1::SmallPathShapeData* shapeData;
             if (fUsesDistanceField) {
                 // get mip level
                 SkScalar maxScale;
@@ -318,10 +318,10 @@ private:
 
     bool addToAtlasWithRetry(GrMeshDrawTarget* target,
                              FlushInfo* flushInfo,
-                             GrSmallPathAtlasMgr* atlasMgr,
+                             skgpu::v1::SmallPathAtlasMgr* atlasMgr,
                              int width, int height, const void* image,
                              const SkRect& bounds, int srcInset,
-                             GrSmallPathShapeData* shapeData) const {
+                             skgpu::v1::SmallPathShapeData* shapeData) const {
         auto resourceProvider = target->resourceProvider();
         auto uploadTarget = target->deferredUploadTarget();
 
@@ -344,9 +344,13 @@ private:
         return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
     }
 
-    bool addDFPathToAtlas(GrMeshDrawTarget* target, FlushInfo* flushInfo,
-                          GrSmallPathAtlasMgr* atlasMgr, GrSmallPathShapeData* shapeData,
-                          const GrStyledShape& shape, uint32_t dimension, SkScalar scale) const {
+    bool addDFPathToAtlas(GrMeshDrawTarget* target,
+                          FlushInfo* flushInfo,
+                          skgpu::v1::SmallPathAtlasMgr* atlasMgr,
+                          skgpu::v1::SmallPathShapeData* shapeData,
+                          const GrStyledShape& shape,
+                          uint32_t dimension,
+                          SkScalar scale) const {
 
         const SkRect& bounds = shape.bounds();
 
@@ -436,9 +440,12 @@ private:
                                          drawBounds, SK_DistanceFieldPad, shapeData);
     }
 
-    bool addBMPathToAtlas(GrMeshDrawTarget* target, FlushInfo* flushInfo,
-                          GrSmallPathAtlasMgr* atlasMgr, GrSmallPathShapeData* shapeData,
-                          const GrStyledShape& shape, const SkMatrix& ctm) const {
+    bool addBMPathToAtlas(GrMeshDrawTarget* target,
+                          FlushInfo* flushInfo,
+                          skgpu::v1::SmallPathAtlasMgr* atlasMgr,
+                          skgpu::v1::SmallPathShapeData* shapeData,
+                          const GrStyledShape& shape,
+                          const SkMatrix& ctm) const {
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
             return false;
@@ -506,7 +513,7 @@ private:
     void writePathVertices(GrVertexWriter& vertices,
                            const GrVertexColor& color,
                            const SkMatrix& ctm,
-                           const GrSmallPathShapeData* shapeData) const {
+                           const skgpu::v1::SmallPathShapeData* shapeData) const {
         SkRect translatedBounds(shapeData->fBounds);
         if (!fUsesDistanceField) {
             translatedBounds.offset(SkScalarFloorToScalar(ctm.get(SkMatrix::kMTransX)),
@@ -528,7 +535,7 @@ private:
     }
 
     void flush(GrMeshDrawTarget* target, FlushInfo* flushInfo) const {
-        GrSmallPathAtlasMgr* atlasMgr = target->smallPathAtlasManager();
+        auto atlasMgr = target->smallPathAtlasManager();
         if (!atlasMgr) {
             return;
         }

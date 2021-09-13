@@ -5,17 +5,20 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSmallPathAtlasMgr_DEFINED
-#define GrSmallPathAtlasMgr_DEFINED
+#ifndef SmallPathAtlasMgr_DEFINED
+#define SmallPathAtlasMgr_DEFINED
 
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 
-class GrSmallPathShapeData;
-class GrSmallPathShapeDataKey;
 class GrStyledShape;
+
+namespace skgpu::v1 {
+
+class SmallPathShapeData;
+class SmallPathShapeDataKey;
 
 /**
  * This class manages the small path renderer's atlas. It solely operates at flush time. Thus
@@ -25,26 +28,26 @@ class GrStyledShape;
  *
  * TODO: investigate fusing this class and the GrAtlasManager.
  */
-class GrSmallPathAtlasMgr : public GrOnFlushCallbackObject,
-                            public GrDrawOpAtlas::EvictionCallback,
-                            public GrDrawOpAtlas::GenerationCounter {
+class SmallPathAtlasMgr final : public GrOnFlushCallbackObject,
+                                public GrDrawOpAtlas::EvictionCallback,
+                                public GrDrawOpAtlas::GenerationCounter {
 public:
-    GrSmallPathAtlasMgr();
-    ~GrSmallPathAtlasMgr() override;
+    SmallPathAtlasMgr();
+    ~SmallPathAtlasMgr() override;
 
     void reset();
 
     bool initAtlas(GrProxyProvider*, const GrCaps*);
 
-    GrSmallPathShapeData* findOrCreate(const GrStyledShape&, int desiredDimension);
-    GrSmallPathShapeData* findOrCreate(const GrStyledShape&, const SkMatrix& ctm);
+    SmallPathShapeData* findOrCreate(const GrStyledShape&, int desiredDimension);
+    SmallPathShapeData* findOrCreate(const GrStyledShape&, const SkMatrix& ctm);
 
     GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*,
                                         GrDeferredUploadTarget*,
                                         int width, int height, const void* image,
                                         GrDrawOpAtlas::AtlasLocator*);
 
-    void setUseToken(GrSmallPathShapeData*, GrDeferredUploadToken);
+    void setUseToken(SmallPathShapeData*, GrDeferredUploadToken);
 
     // GrOnFlushCallbackObject overrides
     void preFlush(GrOnFlushResourceProvider* onFlushRP,
@@ -70,19 +73,21 @@ public:
         return fAtlas->getViews();
     }
 
-    void deleteCacheEntry(GrSmallPathShapeData*);
+    void deleteCacheEntry(SmallPathShapeData*);
 
 private:
-    GrSmallPathShapeData* findOrCreate(const GrSmallPathShapeDataKey&);
+    SmallPathShapeData* findOrCreate(const SmallPathShapeDataKey&);
 
     void evict(GrDrawOpAtlas::PlotLocator) override;
 
-    using ShapeCache = SkTDynamicHash<GrSmallPathShapeData, GrSmallPathShapeDataKey>;
-    typedef SkTInternalLList<GrSmallPathShapeData> ShapeDataList;
+    using ShapeCache = SkTDynamicHash<SmallPathShapeData, SmallPathShapeDataKey>;
+    typedef SkTInternalLList<SmallPathShapeData> ShapeDataList;
 
     std::unique_ptr<GrDrawOpAtlas> fAtlas;
     ShapeCache                     fShapeCache;
     ShapeDataList                  fShapeList;
 };
 
-#endif // GrSmallPathAtlasMgr_DEFINED
+} // namespace skgpu::v1
+
+#endif // SmallPathAtlasMgr_DEFINED
