@@ -569,9 +569,9 @@ void GrD3DDirectCommandList::setComputeRootDescriptorTable(
     }
 }
 
-void GrD3DDirectCommandList::setDescriptorHeaps(sk_sp<GrRecycledResource> srvCrvHeapResource,
-                                                ID3D12DescriptorHeap* srvCrvDescriptorHeap,
-                                                sk_sp<GrRecycledResource> samplerHeapResource,
+// We don't need to add these resources to the command list.
+// They're added when we first allocate from a heap in a given submit.
+void GrD3DDirectCommandList::setDescriptorHeaps(ID3D12DescriptorHeap* srvCrvDescriptorHeap,
                                                 ID3D12DescriptorHeap* samplerDescriptorHeap) {
     if (srvCrvDescriptorHeap != fCurrentSRVCRVDescriptorHeap ||
         samplerDescriptorHeap != fCurrentSamplerDescriptorHeap) {
@@ -581,8 +581,6 @@ void GrD3DDirectCommandList::setDescriptorHeaps(sk_sp<GrRecycledResource> srvCrv
         };
 
         fCommandList->SetDescriptorHeaps(2, heaps);
-        this->addRecycledResource(std::move(srvCrvHeapResource));
-        this->addRecycledResource(std::move(samplerHeapResource));
         fCurrentSRVCRVDescriptorHeap = srvCrvDescriptorHeap;
         fCurrentSamplerDescriptorHeap = samplerDescriptorHeap;
     }

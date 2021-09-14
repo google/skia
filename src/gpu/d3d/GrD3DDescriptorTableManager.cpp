@@ -16,25 +16,13 @@ GrD3DDescriptorTableManager::GrD3DDescriptorTableManager(GrD3DGpu* gpu)
 sk_sp<GrD3DDescriptorTable>
         GrD3DDescriptorTableManager::createShaderViewTable(GrD3DGpu* gpu, unsigned int size) {
     sk_sp<GrD3DDescriptorTable> table = fShaderViewDescriptorPool.allocateTable(gpu, size);
-    this->setHeaps(gpu);
     return table;
 }
 
 sk_sp<GrD3DDescriptorTable> GrD3DDescriptorTableManager::createSamplerTable(
         GrD3DGpu* gpu, unsigned int size) {
     sk_sp<GrD3DDescriptorTable> table = fSamplerDescriptorPool.allocateTable(gpu, size);
-    this->setHeaps(gpu);
     return table;
-}
-
-void GrD3DDescriptorTableManager::setHeaps(GrD3DGpu* gpu) {
-    sk_sp<Heap>& currentCBVSRVHeap = fShaderViewDescriptorPool.currentDescriptorHeap();
-    sk_sp<Heap>& currentSamplerHeap = fSamplerDescriptorPool.currentDescriptorHeap();
-    GrD3DDirectCommandList* commandList = gpu->currentCommandList();
-    commandList->setDescriptorHeaps(currentCBVSRVHeap,
-                                    currentCBVSRVHeap->d3dDescriptorHeap(),
-                                    currentSamplerHeap,
-                                    currentSamplerHeap->d3dDescriptorHeap());
 }
 
 void GrD3DDescriptorTableManager::prepForSubmit(GrD3DGpu* gpu) {
@@ -80,7 +68,8 @@ sk_sp<GrD3DDescriptorTable> GrD3DDescriptorTableManager::Heap::allocateTable(
     fNextAvailable += count;
     return sk_sp<GrD3DDescriptorTable>(
             new GrD3DDescriptorTable(fHeap->getCPUHandle(startIndex).fHandle,
-                                     fHeap->getGPUHandle(startIndex).fHandle, fType));
+                                     fHeap->getGPUHandle(startIndex).fHandle,
+                                     fHeap->descriptorHeap(), fType));
 }
 
 void GrD3DDescriptorTableManager::Heap::onRecycle() const {
@@ -103,8 +92,12 @@ sk_sp<GrD3DDescriptorTable> GrD3DDescriptorTableManager::HeapPool::allocateTable
     // If it was already used, it will have been added to the commandlist,
     // and then later recycled back to us.
     while (fDescriptorHeaps.size() > 0) {
-        if (fDescriptorHeaps[fDescriptorHeaps.size() - 1]->canAllocate(count)) {
-            return fDescriptorHeaps[fDescriptorHeaps.size() - 1]->allocateTable(count);
+        auto& heap = fDescriptorHeaps[fDescriptorHeaps.size() - 1];
+        if (heap->canAllocate(count)) {
+            if (!heap->used()) {
+                gpu->currentCommandList()->addRecycledResource(heap);
+            }
+            return heap->allocateTable(count);
         }
         // No space in current heap, pop off list
         fDescriptorHeaps.pop_back();
@@ -114,6 +107,7 @@ sk_sp<GrD3DDescriptorTable> GrD3DDescriptorTableManager::HeapPool::allocateTable
     fCurrentHeapDescriptorCount = std::min(2*fCurrentHeapDescriptorCount, 2048u);
     sk_sp<GrD3DDescriptorTableManager::Heap> heap =
             GrD3DDescriptorTableManager::Heap::Make(gpu, fHeapType, fCurrentHeapDescriptorCount);
+    gpu->currentCommandList()->addRecycledResource(heap);
     fDescriptorHeaps.push_back(heap);
     return fDescriptorHeaps[fDescriptorHeaps.size() - 1]->allocateTable(count);
 }
