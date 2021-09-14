@@ -133,8 +133,9 @@ def compile_fn(api, checkout_root, out_dir):
       api.step('select xcode', [
           'sudo', 'xcode-select', '-switch', xcode_app_path])
       if 'iOS' in extra_tokens:
-        # Can't compile for Metal before 11.0.
-        env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+        # Need to verify compilation for Metal on 9.0 and above
+        env['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
+        args['ios_min_target'] = '"9.0"'
       else:
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
