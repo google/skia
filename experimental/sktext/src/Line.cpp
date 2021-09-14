@@ -13,10 +13,10 @@ Line::Line(const Stretch& stretch, const Stretch& spaces, SkSTArray<1, size_t, t
     , fWhitespaces(spaces.textRange())
     , fTextWidth(stretch.width())
     , fSpacesWidth(spaces.width())
+    , fRunsInVisualOrder(std::move(visualOrder))
     , fHorizontalOffset(0.0f)
     , fVerticalOffset(verticalOffset)
-    , fHardLineBreak(hardLineBreak)
-    , fRunsInVisualOrder(std::move(visualOrder)) {
+    , fHardLineBreak(hardLineBreak){
 
     SkASSERT(stretch.isEmpty() ||
                     spaces.isEmpty() ||
