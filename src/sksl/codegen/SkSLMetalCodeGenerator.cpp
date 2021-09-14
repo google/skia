@@ -464,12 +464,11 @@ String MetalCodeGenerator::getInversePolyfill(const ExpressionArray& arguments) 
 void MetalCodeGenerator::writeMatrixCompMult() {
     static constexpr char kMatrixCompMult[] = R"(
 template <int C, int R>
-matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, matrix<float, C, R> b) {
-    matrix<float, C, R> result;
+matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, const matrix<float, C, R> b) {
     for (int c = 0; c < C; ++c) {
-        result[c] = a[c] * b[c];
+        a[c] *= b[c];
     }
-    return result;
+    return a;
 }
 )";
 

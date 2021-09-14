@@ -151,6 +151,8 @@ $genHType refract($genHType I, $genHType N, half eta);
 // 8.6 : Matrix Functions
 $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
 $squareHMat matrixCompMult($squareHMat x, $squareHMat y);
+$es3 $mat   matrixCompMult($mat x, $mat y);
+$es3 $hmat  matrixCompMult($hmat x, $hmat y);
 
 // 8.6 : Matrix Functions (GLSL 1.4, poly-filled by SkSL as needed)
 $squareMat  inverse($squareMat  m);

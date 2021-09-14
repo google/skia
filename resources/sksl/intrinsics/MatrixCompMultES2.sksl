@@ -1,0 +1,18 @@
+uniform half4 colorGreen, colorRed;
+uniform float2x2 testMatrix2x2;
+uniform half3x3 testMatrix3x3;
+
+half4 main(float2 coords) {
+    half2x2 h22 = matrixCompMult(half2x2(5, 5, 5, 5), half2x2(0, 1, 2, 3));
+    const half4x4 h44 = matrixCompMult(half4x4(0.5), half4x4(1, 2, 3, 4,
+                                                             5, 6, 7, 8,
+                                                             9, 10,11,12,
+                                                             13,14,15,16));
+    float2x2 f22 = matrixCompMult(testMatrix2x2, float2x2(1));
+    half3x3 h33 = matrixCompMult(testMatrix3x3, half3x3(2,2,2,2,2,2,2,2,2));
+    return (h22 == half2x2(0, 5, 10, 15) &&
+            f22 == float2x2(1, 0, 0, 4) &&
+            h33 == half3x3(2, 4, 6, 8, 10, 12, 14, 16, 18) &&
+            h44 == half4x4(0.5, 0, 0, 0, 0, 3, 0, 0, 0, 0, 5.5, 0, 0, 0, 0, 8))
+                ? colorGreen : colorRed;
+}
