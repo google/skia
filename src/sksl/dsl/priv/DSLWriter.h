@@ -190,6 +190,13 @@ public:
     }
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
+    /**
+     * Adds a new declaration into an existing declaration statement. This either turns the original
+     * declaration into an unscoped block or, if it already was, appends a new statement to the end
+     * of it.
+     */
+    static void AddVarDeclaration(DSLStatement& existing, DSLVar& additional);
+
     static std::unique_ptr<SkSL::Expression> Call(const FunctionDeclaration& function,
                                                   ExpressionArray arguments,
                                                   PositionInfo pos = PositionInfo::Capture());

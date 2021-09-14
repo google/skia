@@ -163,14 +163,15 @@ private:
 
     SkTArray<dsl::DSLGlobalVar> structVarDeclaration(const dsl::DSLModifiers& modifiers);
 
-    /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
-       (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
-    template<class T>
-    SkTArray<T> varDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
-                                  dsl::DSLType baseType, skstd::string_view name);
+    bool parseArrayDimensions(int offset, dsl::DSLType* type);
 
-    SkTArray<dsl::DSLGlobalVar> globalVarDeclarationEnd(const dsl::DSLModifiers& modifiers,
-                                                        dsl::DSLType type, skstd::string_view name);
+    bool parseInitializer(int offset, dsl::DSLExpression* initializer);
+
+    void globalVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
+            dsl::DSLType baseType, skstd::string_view name);
+
+    skstd::optional<dsl::DSLStatement> localVarDeclarationEnd(PositionInfo position,
+            const dsl::DSLModifiers& mods, dsl::DSLType baseType, skstd::string_view name);
 
     skstd::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter();
 
