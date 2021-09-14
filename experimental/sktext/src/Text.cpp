@@ -24,7 +24,7 @@ std::unique_ptr<UnicodeText> Text::parse(SkSpan<uint16_t> utf16) {
     // Fill out all code unit properties
     unicodeText->fCodeUnitProperties.push_back_n(utf16.size() + 1, CodeUnitFlags::kNoCodeUnitFlag);
     unicodeText->fUnicode->forEachCodepoint(unicodeText->fText8.c_str(), unicodeText->fText8.size(),
-    [&unicodeText, &utf16Index](SkUnichar unichar, int32_t start, int32_t end, size_t count) {
+    [&unicodeText, &utf16Index](SkUnichar unichar, int32_t start, int32_t end) {
         for (auto i = start; i < end; ++i) {
             unicodeText->fUTF16FromUTF8[i] = utf16Index;
         }
@@ -37,7 +37,7 @@ std::unique_ptr<UnicodeText> Text::parse(SkSpan<uint16_t> utf16) {
         // Get white spaces
     // TODO: It's a bug. We need to operate on utf16 indexes everywhere
     unicodeText->fUnicode->forEachCodepoint(unicodeText->fText8.c_str(), unicodeText->fText8.size(),
-       [&unicodeText](SkUnichar unichar, int32_t start, int32_t end, size_t count) {
+       [&unicodeText](SkUnichar unichar, int32_t start, int32_t end) {
             if (unicodeText->fUnicode->isWhitespace(unichar)) {
                 for (auto i = start; i < end; ++i) {
                     unicodeText->fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfWhiteSpace;

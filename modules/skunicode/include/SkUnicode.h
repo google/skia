@@ -115,6 +115,7 @@ class SKUNICODE_API SkUnicode {
         virtual bool isControl(SkUnichar utf8) = 0;
         virtual bool isWhitespace(SkUnichar utf8) = 0;
         virtual bool isSpace(SkUnichar utf8) = 0;
+        virtual SkString convertUtf16ToUtf8(const std::u16string& utf16) = 0;
         virtual SkString toUpper(const SkString&) = 0;
 
         // Methods used in SkShaper and SkText
@@ -137,43 +138,6 @@ class SKUNICODE_API SkUnicode {
         virtual bool getGraphemes
                (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
 
-        static SkString convertUtf16ToUtf8(const char16_t * utf16, int utf16Units) {
-
-            int utf8Units = SkUTF::UTF16ToUTF8(nullptr, 0, (uint16_t*)utf16, utf16Units);
-            if (utf8Units < 0) {
-                SkDEBUGF("Convert error: Invalid utf16 input");
-                return SkString();
-            }
-            SkAutoTArray<char> utf8(utf8Units);
-            SkDEBUGCODE(int dstLen =) SkUTF::UTF16ToUTF8(utf8.data(), utf8Units, (uint16_t*)utf16, utf16Units);
-            SkASSERT(dstLen == utf8Units);
-
-            return SkString(utf8.data(), utf8Units);
-        }
-
-        static SkString convertUtf16ToUtf8(const std::u16string& utf16) {
-            return convertUtf16ToUtf8(utf16.c_str(), utf16.size());
-        }
-
-        static std::u16string convertUtf8ToUtf16(const char* utf8, int utf8Units) {
-
-            int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Units);
-            if (utf16Units < 0) {
-                SkDEBUGF("Convert error: Invalid utf8 input");
-                return std::u16string();
-            }
-
-            SkAutoTArray<uint16_t> utf16(utf16Units);
-            SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16.data(), utf16Units, utf8, utf8Units);
-            SkASSERT(dstLen == utf16Units);
-
-            return std::u16string((char16_t *)utf16.data(), utf16Units);
-        }
-
-        static std::u16string convertUtf8ToUtf16(const SkString& utf8) {
-            return convertUtf8ToUtf16(utf8.c_str(), utf8.size());
-        }
-
         template <typename Callback>
         void forEachCodepoint(const char* utf8, int32_t utf8Units, Callback&& callback) {
             const char* current = utf8;
@@ -183,9 +147,7 @@ class SKUNICODE_API SkUnicode {
                 SkUnichar unichar = SkUTF::NextUTF8(&current, end);
                 if (unichar < 0) unichar = 0xFFFD;
                 auto after = current - utf8;
-                uint16_t buffer[2];
-                size_t count = SkUTF::ToUTF16(unichar, buffer);
-                callback(unichar, before, after, count);
+                callback(unichar, before, after);
             }
         }
 
