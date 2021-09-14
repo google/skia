@@ -65,20 +65,58 @@ static int16_t full_res_bilerp(
     return rounded >> 32;
 }
 
+// Change of parameters on t from [0, 1) to [-1, 1). This cuts the number if differences in half.
+static int16_t lerp(float t, int16_t a, int16_t b) {
+    const int logPixelScale = 7;
+    const uint16_t half = 1 << logPixelScale;
+    // t on [-1, 1).
+    Q15 qt (floor(t * 65536.0f - 32768.0f + 0.5f));
+    // need to pick logPixelScale to scale by addition 1/2.
+    Q15 qw ((b - a) << logPixelScale);
+    Q15 qm ((a + b) << logPixelScale);
+    Q15 answer = simulate_ssse3_mm_mulhrs_epi16(qt, qw) + qm;
+    // Extra shift to divide by 2.
+    return (answer[0] + half) >> (logPixelScale + 1);
+}
+
+static int16_t bilerp_1(float tx, float ty, int16_t p00, int16_t p10, int16_t p01, int16_t p11) {
+    const int logPixelScale = 7;
+    const int16_t half = 1 << logPixelScale;
+    Q15 qtx = floor(tx * 65536.0f - 32768.0f + 0.5f);
+    Q15 qw = (p10 - p00) << logPixelScale;
+    Q15 qm = (p10 + p00) << logPixelScale;
+    Q15 top = (simulate_ssse3_mm_mulhrs_epi16(qtx, qw) + qm + 1) >> 1;
+
+    qw = (p11 - p01) << logPixelScale;
+    qm = (p11 + p01) << logPixelScale;
+    Q15 bottom = (simulate_ssse3_mm_mulhrs_epi16(qtx, qw) + qm + 1) >> 1;
+
+    Q15 qty = floor(ty * 65536.0f - 32768.0f + 0.5f);
+
+    qw = bottom - top;
+    qm = bottom + top;
+    Q15 scaledAnswer = simulate_ssse3_mm_mulhrs_epi16(qty, qw) + qm;
+
+    return (scaledAnswer[0] + half) >> (logPixelScale + 1);
+}
+
 template <typename Bilerp>
 static Stats check_bilerp(Bilerp bilerp) {
     Stats stats;
     const int step = 1;
+    auto interesting = {0, 1, 2, 3, 4, 5, 6, 7, 8, 60, 61, 62, 63, 64, 65, 66, 67, 68, 124, 125,
+                        126, 127, 128, 129, 130, 131, 132, 188, 189, 190, 191, 192, 193, 194,
+                        195, 196, 248, 249, 250, 251, 252, 253, 254, 255};
     for (float tx : {0.0f, 0.25f, 0.5f, 0.75f, 1.0f - 1.0f/65536.0f})
     for (float ty : {0.0f, 0.25f, 0.5f, 0.75f, 1.0f - 1.0f/65536.0f})
-    for (int p00 = 0; p00 < 256; p00 += step)
-    for (int p01 = 0; p01 < 256; p01 += step)
-    for (int p10 = 0; p10 < 256; p10 += step)
-    for (int p11 = 0; p11 < 256; p11 += step) {
+    for (int p00 : interesting)
+    for (int p01 : interesting)
+    for (int p10 : interesting)
+    for (int p11 : interesting) {
         // Having this be double causes the proper rounding.
         double l = golden_bilerp2(tx, ty, p00, p10, p01, p11);
         int16_t golden = floor(l + 0.5);
-        l = golden_bilerp(tx, ty, p00, p10, p01, p11);
+        //l = golden_bilerp(tx, ty, p00, p10, p01, p11);
         //int16_t golden2 = floor(l + 0.5f);
         int16_t candidate = bilerp(tx, ty, p00, p10, p01, p11);
         stats.log(golden, candidate);
@@ -88,6 +126,10 @@ static Stats check_bilerp(Bilerp bilerp) {
 
 int main() {
     Stats stats;
+
+    printf("\nUsing trunc_bilerp...\n");
+    stats = check_bilerp(bilerp_1);
+    stats.print();
 
     printf("\nUsing full_res_bilerp...\n");
     stats = check_bilerp(full_res_bilerp);
