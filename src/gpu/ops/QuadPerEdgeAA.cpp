@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrQuadPerEdgeAA.h"
+#include "src/gpu/ops/QuadPerEdgeAA.h"
 
 #include "include/private/SkVx.h"
 #include "src/gpu/GrMeshDrawTarget.h"
@@ -26,30 +26,37 @@ static_assert((int)GrQuadAAFlags::kAll    == SkCanvas::kAll_QuadAAFlags);
 
 namespace {
 
+using VertexSpec = skgpu::v1::QuadPerEdgeAA::VertexSpec;
+using CoverageMode = skgpu::v1::QuadPerEdgeAA::CoverageMode;
+using ColorType = skgpu::v1::QuadPerEdgeAA::ColorType;
+
 // Generic WriteQuadProc that can handle any VertexSpec. It writes the 4 vertices in triangle strip
 // order, although the data per-vertex is dependent on the VertexSpec.
-static void write_quad_generic(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                               const GrQuad* deviceQuad, const GrQuad* localQuad,
-                               const float coverage[4], const SkPMColor4f& color,
-                               const SkRect& geomSubset, const SkRect& texSubset) {
+void write_quad_generic(GrVertexWriter* vb,
+                        const VertexSpec& spec,
+                        const GrQuad* deviceQuad,
+                        const GrQuad* localQuad,
+                        const float coverage[4],
+                        const SkPMColor4f& color,
+                        const SkRect& geomSubset,
+                        const SkRect& texSubset) {
     static constexpr auto If = GrVertexWriter::If<float>;
 
     SkASSERT(!spec.hasLocalCoords() || localQuad);
 
-    GrQuadPerEdgeAA::CoverageMode mode = spec.coverageMode();
+    CoverageMode mode = spec.coverageMode();
     for (int i = 0; i < 4; ++i) {
         // save position, this is a float2 or float3 or float4 depending on the combination of
         // perspective and coverage mode.
         vb->write(deviceQuad->x(i), deviceQuad->y(i),
                   If(spec.deviceQuadType() == GrQuad::Type::kPerspective, deviceQuad->w(i)),
-                  If(mode == GrQuadPerEdgeAA::CoverageMode::kWithPosition, coverage[i]));
+                  If(mode == CoverageMode::kWithPosition, coverage[i]));
 
         // save color
         if (spec.hasVertexColors()) {
-            bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kFloat;
-            vb->write(GrVertexColor(
-                color * (mode == GrQuadPerEdgeAA::CoverageMode::kWithColor ? coverage[i] : 1.f),
-                wide));
+            bool wide = spec.colorType() == ColorType::kFloat;
+            vb->write(GrVertexColor(color * (mode == CoverageMode::kWithColor ? coverage[i] : 1.f),
+                                    wide));
         }
 
         // save local position
@@ -75,15 +82,19 @@ static void write_quad_generic(GrVertexWriter* vb, const GrQuadPerEdgeAA::Vertex
 
 // 2D (XY), no explicit coverage, vertex color, no locals, no geometry subset, no texture subsetn
 // This represents simple, solid color or shader, non-AA (or AA with cov. as alpha) rects.
-static void write_2d_color(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                           const GrQuad* deviceQuad, const GrQuad* localQuad,
-                           const float coverage[4], const SkPMColor4f& color,
-                           const SkRect& geomSubset, const SkRect& texSubset) {
+void write_2d_color(GrVertexWriter* vb,
+                    const VertexSpec& spec,
+                    const GrQuad* deviceQuad,
+                    const GrQuad* localQuad,
+                    const float coverage[4],
+                    const SkPMColor4f& color,
+                    const SkRect& geomSubset,
+                    const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(!spec.hasLocalCoords());
-    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone ||
-             spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor);
+    SkASSERT(spec.coverageMode() == CoverageMode::kNone ||
+             spec.coverageMode() == CoverageMode::kWithColor);
     SkASSERT(spec.hasVertexColors());
     SkASSERT(!spec.requiresGeometrySubset());
     SkASSERT(!spec.hasSubset());
@@ -91,25 +102,28 @@ static void write_2d_color(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec
     // accumulate local coords conservatively (paint not trivial), and then after analysis realize
     // the processors don't need local coordinates.
 
-    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kFloat;
+    bool wide = spec.colorType() == ColorType::kFloat;
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
-        SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
-                 coverage[i] == 1.f);
+        SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
         vb->write(deviceQuad->x(i), deviceQuad->y(i), GrVertexColor(color * coverage[i], wide));
     }
 }
 
 // 2D (XY), no explicit coverage, UV locals, no color, no geometry subset, no texture subset
 // This represents opaque, non AA, textured rects
-static void write_2d_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                        const GrQuad* deviceQuad, const GrQuad* localQuad,
-                        const float coverage[4], const SkPMColor4f& color,
-                        const SkRect& geomSubset, const SkRect& texSubset) {
+void write_2d_uv(GrVertexWriter* vb,
+                 const VertexSpec& spec,
+                 const GrQuad* deviceQuad,
+                 const GrQuad* localQuad,
+                 const float coverage[4],
+                 const SkPMColor4f& color,
+                 const SkRect& geomSubset,
+                 const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
-    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone);
+    SkASSERT(spec.coverageMode() == CoverageMode::kNone);
     SkASSERT(!spec.hasVertexColors());
     SkASSERT(!spec.requiresGeometrySubset());
     SkASSERT(!spec.hasSubset());
@@ -122,25 +136,28 @@ static void write_2d_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& s
 
 // 2D (XY), no explicit coverage, UV locals, vertex color, no geometry or texture subsets
 // This represents transparent, non AA (or AA with cov. as alpha), textured rects
-static void write_2d_color_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                              const GrQuad* deviceQuad, const GrQuad* localQuad,
-                              const float coverage[4], const SkPMColor4f& color,
-                              const SkRect& geomSubset, const SkRect& texSubset) {
+void write_2d_color_uv(GrVertexWriter* vb,
+                       const VertexSpec& spec,
+                       const GrQuad* deviceQuad,
+                       const GrQuad* localQuad,
+                       const float coverage[4],
+                       const SkPMColor4f& color,
+                       const SkRect& geomSubset,
+                       const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
-    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone ||
-             spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor);
+    SkASSERT(spec.coverageMode() == CoverageMode::kNone ||
+             spec.coverageMode() == CoverageMode::kWithColor);
     SkASSERT(spec.hasVertexColors());
     SkASSERT(!spec.requiresGeometrySubset());
     SkASSERT(!spec.hasSubset());
     SkASSERT(localQuad);
 
-    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kFloat;
+    bool wide = spec.colorType() == ColorType::kFloat;
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
-        SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
-                 coverage[i] == 1.f);
+        SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
         vb->write(deviceQuad->x(i), deviceQuad->y(i), GrVertexColor(color * coverage[i], wide),
                   localQuad->x(i), localQuad->y(i));
     }
@@ -148,14 +165,18 @@ static void write_2d_color_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexS
 
 // 2D (XY), explicit coverage, UV locals, no color, no geometry subset, no texture subset
 // This represents opaque, AA, textured rects
-static void write_2d_cov_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                            const GrQuad* deviceQuad, const GrQuad* localQuad,
-                            const float coverage[4], const SkPMColor4f& color,
-                            const SkRect& geomSubset, const SkRect& texSubset) {
+void write_2d_cov_uv(GrVertexWriter* vb,
+                     const VertexSpec& spec,
+                     const GrQuad* deviceQuad,
+                     const GrQuad* localQuad,
+                     const float coverage[4],
+                     const SkPMColor4f& color,
+                     const SkRect& geomSubset,
+                     const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
-    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithPosition);
+    SkASSERT(spec.coverageMode() == CoverageMode::kWithPosition);
     SkASSERT(!spec.hasVertexColors());
     SkASSERT(!spec.requiresGeometrySubset());
     SkASSERT(!spec.hasSubset());
@@ -175,14 +196,18 @@ static void write_2d_cov_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpe
 
 // 2D (XY), no explicit coverage, UV locals, no color, tex subset but no geometry subset
 // This represents opaque, non AA, textured rects with strict uv sampling
-static void write_2d_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                               const GrQuad* deviceQuad, const GrQuad* localQuad,
-                               const float coverage[4], const SkPMColor4f& color,
-                               const SkRect& geomSubset, const SkRect& texSubset) {
+void write_2d_uv_strict(GrVertexWriter* vb,
+                        const VertexSpec& spec,
+                        const GrQuad* deviceQuad,
+                        const GrQuad* localQuad,
+                        const float coverage[4],
+                        const SkPMColor4f& color,
+                        const SkRect& geomSubset,
+                        const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
-    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone);
+    SkASSERT(spec.coverageMode() == CoverageMode::kNone);
     SkASSERT(!spec.hasVertexColors());
     SkASSERT(!spec.requiresGeometrySubset());
     SkASSERT(spec.hasSubset());
@@ -195,25 +220,28 @@ static void write_2d_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::Vertex
 
 // 2D (XY), no explicit coverage, UV locals, vertex color, tex subset but no geometry subset
 // This represents transparent, non AA (or AA with cov. as alpha), textured rects with strict sample
-static void write_2d_color_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                                     const GrQuad* deviceQuad, const GrQuad* localQuad,
-                                     const float coverage[4], const SkPMColor4f& color,
-                                     const SkRect& geomSubset, const SkRect& texSubset) {
+void write_2d_color_uv_strict(GrVertexWriter* vb,
+                              const VertexSpec& spec,
+                              const GrQuad* deviceQuad,
+                              const GrQuad* localQuad,
+                              const float coverage[4],
+                              const SkPMColor4f& color,
+                              const SkRect& geomSubset,
+                              const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
-    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone ||
-             spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor);
+    SkASSERT(spec.coverageMode() == CoverageMode::kNone ||
+             spec.coverageMode() == CoverageMode::kWithColor);
     SkASSERT(spec.hasVertexColors());
     SkASSERT(!spec.requiresGeometrySubset());
     SkASSERT(spec.hasSubset());
     SkASSERT(localQuad);
 
-    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kFloat;
+    bool wide = spec.colorType() == ColorType::kFloat;
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
-        SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
-                 coverage[i] == 1.f);
+        SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
         vb->write(deviceQuad->x(i), deviceQuad->y(i), GrVertexColor(color * coverage[i], wide),
                   localQuad->x(i), localQuad->y(i), texSubset);
     }
@@ -221,14 +249,18 @@ static void write_2d_color_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::
 
 // 2D (XY), explicit coverage, UV locals, no color, tex subset but no geometry subset
 // This represents opaque, AA, textured rects with strict uv sampling
-static void write_2d_cov_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                                   const GrQuad* deviceQuad, const GrQuad* localQuad,
-                                   const float coverage[4], const SkPMColor4f& color,
-                                   const SkRect& geomSubset, const SkRect& texSubset) {
+void write_2d_cov_uv_strict(GrVertexWriter* vb,
+                            const VertexSpec& spec,
+                            const GrQuad* deviceQuad,
+                            const GrQuad* localQuad,
+                            const float coverage[4],
+                            const SkPMColor4f& color,
+                            const SkRect& geomSubset,
+                            const SkRect& texSubset) {
     // Assert assumptions about VertexSpec
     SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
     SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
-    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithPosition);
+    SkASSERT(spec.coverageMode() == CoverageMode::kWithPosition);
     SkASSERT(!spec.hasVertexColors());
     SkASSERT(!spec.requiresGeometrySubset());
     SkASSERT(spec.hasSubset());
@@ -242,7 +274,7 @@ static void write_2d_cov_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::Ve
 
 } // anonymous namespace
 
-namespace GrQuadPerEdgeAA {
+namespace skgpu::v1::QuadPerEdgeAA {
 
 IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads) {
     if (aa == GrAAType::kCoverage) {
@@ -882,4 +914,4 @@ GrGeometryProcessor* MakeTexturedProcessor(SkArenaAlloc* arena,
                                                 saturate);
 }
 
-} // namespace GrQuadPerEdgeAA
+} // namespace skgpu::v1::QuadPerEdgeAA

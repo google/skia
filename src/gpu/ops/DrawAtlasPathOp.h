@@ -9,7 +9,7 @@
 #define DrawAtlasPathOp_DEFINED
 
 #include "src/core/SkIPoint16.h"
-#include "src/gpu/ops/GrAtlasInstancedHelper.h"
+#include "src/gpu/ops/AtlasInstancedHelper.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
 namespace skgpu::v1 {
@@ -28,9 +28,9 @@ public:
                                                   transposedInAtlas))
             , fTailInstance(&fHeadInstance->fNext)
             , fAtlasHelper(std::move(atlasView),
-                           isInverseFill ? GrAtlasInstancedHelper::ShaderFlags::kCheckBounds |
-                                           GrAtlasInstancedHelper::ShaderFlags::kInvertCoverage
-                                         : GrAtlasInstancedHelper::ShaderFlags::kNone)
+                           isInverseFill ? AtlasInstancedHelper::ShaderFlags::kCheckBounds |
+                                           AtlasInstancedHelper::ShaderFlags::kInvertCoverage
+                                         : AtlasInstancedHelper::ShaderFlags::kNone)
             , fProcessors(std::move(paint)) {
         this->setBounds(SkRect::Make(fillBounds), HasAABloat::kYes, IsHairline::kNo);
     }
@@ -68,14 +68,14 @@ private:
         SkIRect fFillBounds;
         std::array<float, 6> fLocalToDeviceIfUsingLocalCoords;
         SkPMColor4f fColor;
-        GrAtlasInstancedHelper::Instance fAtlasInstance;
+        AtlasInstancedHelper::Instance fAtlasInstance;
         Instance* fNext = nullptr;
     };
 
     Instance* fHeadInstance;
     Instance** fTailInstance;
 
-    GrAtlasInstancedHelper fAtlasHelper;
+    AtlasInstancedHelper fAtlasHelper;
     bool fUsesLocalCoords = false;
 
     int fInstanceCount = 1;

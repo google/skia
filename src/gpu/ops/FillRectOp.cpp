@@ -21,14 +21,15 @@
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/ops/GrQuadPerEdgeAA.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
+#include "src/gpu/ops/QuadPerEdgeAA.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 
-using VertexSpec = GrQuadPerEdgeAA::VertexSpec;
-using ColorType = GrQuadPerEdgeAA::ColorType;
+using VertexSpec = skgpu::v1::QuadPerEdgeAA::VertexSpec;
+using ColorType = skgpu::v1::QuadPerEdgeAA::ColorType;
+using Subset = skgpu::v1::QuadPerEdgeAA::Subset;
 
 #if GR_TEST_UTILS
 SkString dump_quad_info(int index, const GrQuad* deviceQuad,
@@ -147,7 +148,7 @@ public:
         iter = fQuads.metadata();
         SkPMColor4f colorOverride;
         if (quadColors.isConstant(&colorOverride)) {
-            fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride);
+            fColorType = skgpu::v1::QuadPerEdgeAA::MinColorType(colorOverride);
             while(iter.next()) {
                 iter->fColor = colorOverride;
             }
@@ -155,7 +156,8 @@ public:
             // Otherwise compute the color type needed as the max over all quads.
             fColorType = ColorType::kNone;
             while(iter.next()) {
-                fColorType = std::max(fColorType, GrQuadPerEdgeAA::MinColorType(iter->fColor));
+                fColorType = std::max(fColorType,
+                                      skgpu::v1::QuadPerEdgeAA::MinColorType(iter->fColor));
             }
         }
         // Most SkShaders' FPs multiply their calculated color by the paint color or alpha. We want
@@ -186,12 +188,11 @@ private:
 #endif
 
     VertexSpec vertexSpec() const {
-        auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(fHelper.aaType(),
-                                                                        fQuads.count());
+        auto indexBufferOption = skgpu::v1::QuadPerEdgeAA::CalcIndexBufferOption(fHelper.aaType(),
+                                                                                 fQuads.count());
 
         return VertexSpec(fQuads.deviceQuadType(), fColorType, fQuads.localQuadType(),
-                          fHelper.usesLocalCoords(), GrQuadPerEdgeAA::Subset::kNo,
-                          fHelper.aaType(),
+                          fHelper.usesLocalCoords(), Subset::kNo, fHelper.aaType(),
                           fHelper.compatibleWithCoverageAsAlpha(), indexBufferOption);
     }
 
@@ -209,7 +210,7 @@ private:
                              GrLoadOp colorLoadOp) override {
         const VertexSpec vertexSpec = this->vertexSpec();
 
-        GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(arena, vertexSpec);
+        GrGeometryProcessor* gp = skgpu::v1::QuadPerEdgeAA::MakeProcessor(arena, vertexSpec);
         SkASSERT(gp->vertexStride() == vertexSpec.vertexSize());
 
         fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView, usesMSAASurface,
@@ -247,7 +248,7 @@ private:
     void tessellate(const VertexSpec& vertexSpec, char* dst) const {
         static constexpr SkRect kEmptyDomain = SkRect::MakeEmpty();
 
-        GrQuadPerEdgeAA::Tessellator tessellator(vertexSpec, dst);
+        skgpu::v1::QuadPerEdgeAA::Tessellator tessellator(vertexSpec, dst);
         auto iter = fQuads.iterator();
         while (iter.next()) {
             // All entries should have local coords, or no entries should have local coords,
@@ -287,7 +288,8 @@ private:
         }
 
         if (vertexSpec.needsIndexBuffer()) {
-            fIndexBuffer = GrQuadPerEdgeAA::GetIndexBuffer(target, vertexSpec.indexBufferOption());
+            fIndexBuffer = skgpu::v1::QuadPerEdgeAA::GetIndexBuffer(target,
+                                                                    vertexSpec.indexBufferOption());
             if (!fIndexBuffer) {
                 SkDebugf("Could not allocate indices\n");
                 return;
@@ -315,8 +317,9 @@ private:
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindBuffers(std::move(fIndexBuffer), nullptr, std::move(fVertexBuffer));
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        GrQuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(), vertexSpec, 0,
-                                   fQuads.count(), totalNumVertices, fBaseVertex);
+        skgpu::v1::QuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(),
+                                            vertexSpec, 0, fQuads.count(), totalNumVertices,
+                                            fBaseVertex);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
@@ -385,8 +388,9 @@ private:
         // be lifted to back to the requested type.
         int quadCount = fQuads.count() + numQuads;
         if (aaType != fHelper.aaType() && aaType != GrAAType::kNone) {
-            auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(aaType, quadCount);
-            if (quadCount > GrQuadPerEdgeAA::QuadLimit(indexBufferOption)) {
+            auto indexBufferOption = skgpu::v1::QuadPerEdgeAA::CalcIndexBufferOption(aaType,
+                                                                                     quadCount);
+            if (quadCount > skgpu::v1::QuadPerEdgeAA::QuadLimit(indexBufferOption)) {
                 // Promoting to the new aaType would've caused an overflow of the indexBuffer
                 // limit
                 return false;
@@ -396,9 +400,9 @@ private:
             SkASSERT(fHelper.aaType() == GrAAType::kNone);
             fHelper.setAAType(aaType);
         } else {
-            auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(fHelper.aaType(),
-                                                                            quadCount);
-            if (quadCount > GrQuadPerEdgeAA::QuadLimit(indexBufferOption)) {
+            auto indexBufferOption = skgpu::v1::QuadPerEdgeAA::CalcIndexBufferOption(
+                    fHelper.aaType(), quadCount);
+            if (quadCount > skgpu::v1::QuadPerEdgeAA::QuadLimit(indexBufferOption)) {
                 return false; // This op can't grow any more
             }
         }

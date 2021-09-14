@@ -5,14 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrAtlasInstancedHelper.h"
+#include "src/gpu/ops/AtlasInstancedHelper.h"
 
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrAtlasInstancedHelper::appendInstanceAttribs(
+namespace skgpu::v1 {
+
+void AtlasInstancedHelper::appendInstanceAttribs(
         SkTArray<GrGeometryProcessor::Attribute>* instanceAttribs) const {
     instanceAttribs->emplace_back("locations", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
     if (fShaderFlags & ShaderFlags::kCheckBounds) {
@@ -20,8 +22,8 @@ void GrAtlasInstancedHelper::appendInstanceAttribs(
     }
 }
 
-void GrAtlasInstancedHelper::writeInstanceData(GrVertexWriter* instanceWriter,
-                                               const Instance* i) const {
+void AtlasInstancedHelper::writeInstanceData(GrVertexWriter* instanceWriter,
+                                             const Instance* i) const {
     SkASSERT(i->fLocationInAtlas.x() >= 0);
     SkASSERT(i->fLocationInAtlas.y() >= 0);
     instanceWriter->write(
@@ -36,7 +38,7 @@ void GrAtlasInstancedHelper::writeInstanceData(GrVertexWriter* instanceWriter,
                                SkSize::Make(i->fPathDevIBounds.size())));
 }
 
-void GrAtlasInstancedHelper::injectShaderCode(
+void AtlasInstancedHelper::injectShaderCode(
         const GrGeometryProcessor::ProgramImpl::EmitArgs& args,
         const GrShaderVar& devCoord,
         GrGLSLUniformHandler::UniformHandle* atlasAdjustUniformHandle) const {
@@ -92,10 +94,12 @@ void GrAtlasInstancedHelper::injectShaderCode(
     }
 }
 
-void GrAtlasInstancedHelper::setUniformData(
+void AtlasInstancedHelper::setUniformData(
         const GrGLSLProgramDataManager& pdman,
         const GrGLSLUniformHandler::UniformHandle& atlasAdjustUniformHandle) const {
     SkASSERT(fAtlasProxy->isInstantiated());
     SkISize dimensions = fAtlasProxy->backingStoreDimensions();
     pdman.set2f(atlasAdjustUniformHandle, 1.f / dimensions.width(), 1.f / dimensions.height());
 }
+
+} // namespace skgpu::v1

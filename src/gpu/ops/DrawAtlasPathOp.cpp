@@ -22,7 +22,7 @@ namespace {
 class DrawAtlasPathShader : public GrGeometryProcessor {
 public:
     DrawAtlasPathShader(bool usesLocalCoords,
-                        const GrAtlasInstancedHelper* atlasHelper,
+                        const skgpu::v1::AtlasInstancedHelper* atlasHelper,
                         const GrShaderCaps& shaderCaps)
             : GrGeometryProcessor(kDrawAtlasPathShader_ClassID)
             , fUsesLocalCoords(usesLocalCoords)
@@ -61,7 +61,7 @@ private:
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
     const bool fUsesLocalCoords;
-    const GrAtlasInstancedHelper* const fAtlasHelper;
+    const skgpu::v1::AtlasInstancedHelper* const fAtlasHelper;
     TextureSampler fAtlasAccess;
     constexpr static int kMaxInstanceAttribs = 6;
     SkSTArray<kMaxInstanceAttribs, GrGeometryProcessor::Attribute> fAttribs;

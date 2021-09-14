@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrQuadPerEdgeAA_DEFINED
-#define GrQuadPerEdgeAA_DEFINED
+#ifndef QuadPerEdgeAA_DEFINED
+#define QuadPerEdgeAA_DEFINED
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
@@ -25,7 +25,7 @@ class GrMeshDrawTarget;
 class GrShaderCaps;
 struct GrVertexWriter;
 
-namespace GrQuadPerEdgeAA {
+namespace skgpu::v1::QuadPerEdgeAA {
     using Saturate = skgpu::v1::TextureOp::Saturate;
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
@@ -197,6 +197,6 @@ namespace GrQuadPerEdgeAA {
     void IssueDraw(const GrCaps&, GrOpsRenderPass*, const VertexSpec&, int runningQuadCount,
                    int quadCount, int maxVerts, int absVertBufferOffset);
 
-} // namespace GrQuadPerEdgeAA
+} // namespace skgpu::v1::QuadPerEdgeAA
 
-#endif // GrQuadPerEdgeAA_DEFINED
+#endif // QuadPerEdgeAA_DEFINED

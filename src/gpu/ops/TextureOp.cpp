@@ -39,16 +39,16 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/ops/GrQuadPerEdgeAA.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/ops/QuadPerEdgeAA.h"
 #include "src/gpu/ops/TextureOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 
-using Subset = GrQuadPerEdgeAA::Subset;
-using VertexSpec = GrQuadPerEdgeAA::VertexSpec;
-using ColorType = GrQuadPerEdgeAA::ColorType;
+using Subset = skgpu::v1::QuadPerEdgeAA::Subset;
+using VertexSpec = skgpu::v1::QuadPerEdgeAA::VertexSpec;
+using ColorType = skgpu::v1::QuadPerEdgeAA::ColorType;
 
 // Extracts lengths of vertical and horizontal edges of axis-aligned quad. "width" is the edge
 // between v0 and v2 (or v1 and v3), "height" is the edge between v0 and v1 (or v2 and v3).
@@ -297,11 +297,11 @@ public:
         SkASSERT(fMetadata.colorType() == ColorType::kNone);
         auto iter = fQuads.metadata();
         while(iter.next()) {
-            auto colorType = GrQuadPerEdgeAA::MinColorType(iter->fColor);
-            colorType = std::max(static_cast<GrQuadPerEdgeAA::ColorType>(fMetadata.fColorType),
+            auto colorType = skgpu::v1::QuadPerEdgeAA::MinColorType(iter->fColor);
+            colorType = std::max(static_cast<ColorType>(fMetadata.fColorType),
                                  colorType);
             if (caps.reducedShaderMode()) {
-                colorType = std::max(colorType, GrQuadPerEdgeAA::ColorType::kByte);
+                colorType = std::max(colorType, ColorType::kByte);
             }
             fMetadata.fColorType = static_cast<uint16_t>(colorType);
         }
@@ -351,17 +351,17 @@ private:
         Metadata(const GrSwizzle& swizzle,
                  GrSamplerState::Filter filter,
                  GrSamplerState::MipmapMode mm,
-                 GrQuadPerEdgeAA::Subset subset,
+                 Subset subset,
                  Saturate saturate)
-                : fSwizzle(swizzle)
-                , fProxyCount(1)
-                , fTotalQuadCount(1)
-                , fFilter(static_cast<uint16_t>(filter))
-                , fMipmapMode(static_cast<uint16_t>(mm))
-                , fAAType(static_cast<uint16_t>(GrAAType::kNone))
-                , fColorType(static_cast<uint16_t>(ColorType::kNone))
-                , fSubset(static_cast<uint16_t>(subset))
-                , fSaturate(static_cast<uint16_t>(saturate)) {}
+            : fSwizzle(swizzle)
+            , fProxyCount(1)
+            , fTotalQuadCount(1)
+            , fFilter(static_cast<uint16_t>(filter))
+            , fMipmapMode(static_cast<uint16_t>(mm))
+            , fAAType(static_cast<uint16_t>(GrAAType::kNone))
+            , fColorType(static_cast<uint16_t>(ColorType::kNone))
+            , fSubset(static_cast<uint16_t>(subset))
+            , fSaturate(static_cast<uint16_t>(saturate)) {}
 
         GrSwizzle fSwizzle; // sizeof(GrSwizzle) == uint16_t
         uint16_t  fProxyCount;
@@ -390,7 +390,7 @@ private:
 
         static_assert(GrSamplerState::kFilterCount <= 4);
         static_assert(kGrAATypeCount <= 4);
-        static_assert(GrQuadPerEdgeAA::kColorTypeCount <= 4);
+        static_assert(skgpu::v1::QuadPerEdgeAA::kColorTypeCount <= 4);
     };
     static_assert(sizeof(Metadata) == 8);
 
@@ -676,7 +676,7 @@ private:
             GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                          fMetadata.filter());
 
-            gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
+            gp = skgpu::v1::QuadPerEdgeAA::MakeTexturedProcessor(
                     arena, fDesc->fVertexSpec, *caps->shaderCaps(), backendFormat, samplerState,
                     fMetadata.fSwizzle, std::move(fTextureColorSpaceXform), fMetadata.saturate());
 
@@ -722,7 +722,7 @@ private:
         SkDEBUGCODE(int totVerticesSeen = 0;)
         SkDEBUGCODE(const size_t vertexSize = desc->fVertexSpec.vertexSize());
 
-        GrQuadPerEdgeAA::Tessellator tessellator(desc->fVertexSpec, vertexData);
+        skgpu::v1::QuadPerEdgeAA::Tessellator tessellator(desc->fVertexSpec, vertexData);
         for (const auto& op : ChainRange<TextureOpImpl>(texOp)) {
             auto iter = op.fQuads.iterator();
             for (unsigned p = 0; p < op.fMetadata.fProxyCount; ++p) {
@@ -841,14 +841,14 @@ private:
 
         SkASSERT(!CombinedQuadCountWillOverflow(overallAAType, false, desc->fNumTotalQuads));
 
-        auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(overallAAType,
-                                                                        maxQuadsPerMesh);
+        auto indexBufferOption = skgpu::v1::QuadPerEdgeAA::CalcIndexBufferOption(overallAAType,
+                                                                                 maxQuadsPerMesh);
 
         desc->fVertexSpec = VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true,
                                        subset, overallAAType, /* alpha as coverage */ true,
                                        indexBufferOption);
 
-        SkASSERT(desc->fNumTotalQuads <= GrQuadPerEdgeAA::QuadLimit(indexBufferOption));
+        SkASSERT(desc->fNumTotalQuads <= skgpu::v1::QuadPerEdgeAA::QuadLimit(indexBufferOption));
     }
 
     int totNumQuads() const {
@@ -902,7 +902,7 @@ private:
         }
 
         if (fDesc->fVertexSpec.needsIndexBuffer()) {
-            fDesc->fIndexBuffer = GrQuadPerEdgeAA::GetIndexBuffer(
+            fDesc->fIndexBuffer = skgpu::v1::QuadPerEdgeAA::GetIndexBuffer(
                     target, fDesc->fVertexSpec.indexBufferOption());
             if (!fDesc->fIndexBuffer) {
                 SkDebugf("Could not allocate indices\n");
@@ -944,9 +944,9 @@ private:
                 flushState->bindTextures(fDesc->fProgramInfo->geomProc(),
                                          *op.fViewCountPairs[p].fProxy,
                                          fDesc->fProgramInfo->pipeline());
-                GrQuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(),
-                                           fDesc->fVertexSpec, totQuadsSeen, quadCnt,
-                                           fDesc->totalNumVertices(), fDesc->fBaseVertex);
+                skgpu::v1::QuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(),
+                                                    fDesc->fVertexSpec, totQuadsSeen, quadCnt,
+                                                    fDesc->totalNumVertices(), fDesc->fBaseVertex);
                 totQuadsSeen += quadCnt;
                 SkDEBUGCODE(++numDraws;)
             }
