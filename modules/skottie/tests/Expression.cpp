@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-
+#include <iostream>
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "tests/Test.h"
-#include <iostream>
 
 using namespace skottie;
 
@@ -17,58 +16,65 @@ namespace {
 
 class FakeScalarExpressionEvaluator : public ExpressionEvaluator<float> {
 public:
-    float evaluate(float t) override {
-        return 7.0f;
-    }
+    float evaluate(float t) override { return 7.0f; }
 };
 
 class FakeVectorExpressionEvaluator : public ExpressionEvaluator<std::vector<float>> {
 public:
-    std::vector<float> evaluate(float t) override {
-        return {0.1f, 0.2f, 0.3f, 1.0f};
-    }
+    std::vector<float> evaluate(float t) override { return {0.1f, 0.2f, 0.3f, 1.0f}; }
+};
+
+class FakeStringExpressionEvaluator : public ExpressionEvaluator<SkString> {
+public:
+    SkString evaluate(float t) override { return SkString("Hello, world!"); }
 };
 
 class FakeExpressionManager : public ExpressionManager {
 public:
     sk_sp<ExpressionEvaluator<float>> createNumberExpressionEvaluator(
-        const char expression[]) override {
+            const char expression[]) override {
         return sk_make_sp<FakeScalarExpressionEvaluator>();
     }
 
     sk_sp<ExpressionEvaluator<SkString>> createStringExpressionEvaluator(
-        const char expression[]) override {
-        return nullptr;
+            const char expression[]) override {
+        return sk_make_sp<FakeStringExpressionEvaluator>();
     }
 
     sk_sp<ExpressionEvaluator<std::vector<float>>> createArrayExpressionEvaluator(
-        const char expression[]) override {
+            const char expression[]) override {
         return sk_make_sp<FakeVectorExpressionEvaluator>();
     }
 };
 
 class FakePropertyObserver : public PropertyObserver {
-    public:
-        void onOpacityProperty(const char node_name[],
-                               const LazyHandle<OpacityPropertyHandle>& opacity_handle) override {
-            opacity_handle_.reset(opacity_handle().release());
-        }
+public:
+    void onOpacityProperty(const char node_name[],
+                           const LazyHandle<OpacityPropertyHandle>& opacity_handle) override {
+        opacity_handle_.reset(opacity_handle().release());
+    }
 
-        void onTransformProperty(const char node_name[],
-                                 const LazyHandle<TransformPropertyHandle>& transform_handle) override {
-            transform_handle_.reset(transform_handle().release());
-        }
+    void onTransformProperty(const char node_name[],
+                             const LazyHandle<TransformPropertyHandle>& transform_handle) override {
+        transform_handle_.reset(transform_handle().release());
+    }
 
-        void onColorProperty(const char node_name[],
-                             const LazyHandle<ColorPropertyHandle>& color_handle) override {
-            color_handle_.reset(color_handle().release());
-        }
+    void onColorProperty(const char node_name[],
+                         const LazyHandle<ColorPropertyHandle>& color_handle) override {
+        color_handle_.reset(color_handle().release());
+    }
+
+    void onTextProperty(const char node_name[],
+                        const LazyHandle<TextPropertyHandle>& text_handle) override {
+        text_handle_.reset(text_handle().release());
+    }
 
     std::unique_ptr<OpacityPropertyHandle> opacity_handle_;
     std::unique_ptr<TransformPropertyHandle> transform_handle_;
     std::unique_ptr<ColorPropertyHandle> color_handle_;
+    std::unique_ptr<TextPropertyHandle> text_handle_;
 };
-} // namespace
+}  // namespace
 
 DEF_TEST(Skottie_Expression, r) {
     static constexpr char json[] =
@@ -254,4 +260,100 @@ DEF_TEST(Skottie_Expression, r) {
     REPORTER_ASSERT(r, SkScalarNearlyEqual(anchor_point.fX, 0.1f));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(anchor_point.fY, 0.2f));
     REPORTER_ASSERT(r, (observer->color_handle_->get() == SkColor4f{0.1f, 0.2f, 0.3f, 1.0f}.toSkColor()));
+}
+
+DEF_TEST(Skottie_ExpressionText, r) {
+    static constexpr char text_json[] =
+    R"({
+     "layers":[
+        {
+           "ty":5,
+           "ks":{
+              "a":{
+                 "k":[
+                    0,
+                    0
+                 ]
+              },
+              "p":{
+                 "k":[
+                    128,
+                    144
+                 ]
+              },
+              "o":{
+                 "k":100
+              }
+           },
+           "ind":0,
+           "ip":0,
+           "op":2,
+           "nm":"TextLayer_0",
+           "t":{
+              "d":{
+                 "k":[
+                    {
+                       "t":0,
+                       "s":{
+                          "f": "Helvetica",
+                          "s":14,
+                          "t":"will be replaced.",
+                          "j":0,
+                          "ps":[
+                             0,
+                             0
+                          ],
+                          "sz":[
+                             384,
+                             360
+                          ],
+                          "fc":[
+                             0.95686274766921997,
+                             0.37254902720451355,
+                             0.25490197539329529,
+                             1
+                          ],
+                          "lh":16
+                       }
+                    }
+                 ],
+                 "x": "fake; return value is specified by the FakeStringExpressionEvaluator."
+              }
+           }
+        }
+     ],
+     "ip":0,
+     "op":2,
+     "fr":25,
+     "w":1280,
+     "h":720,
+     "ddd":false,
+     "v":"5.2.2",
+     "nm":"skottie_animation",
+     "fonts":{
+        "list":[
+           {
+              "fName": "Helvetica",
+              "fFamily":"external_font_family",
+              "fStyle":"Regular"
+           }
+        ]
+     }
+  })";
+
+    SkMemoryStream stream(text_json, strlen(text_json));
+
+    auto em = sk_make_sp<FakeExpressionManager>();
+    auto observer = sk_make_sp<FakePropertyObserver>();
+
+    auto anim = Animation::Builder()
+                        .setExpressionManager(em)
+                        .setPropertyObserver(observer)
+                        .make(&stream);
+
+    REPORTER_ASSERT(r, anim);
+
+    anim->seekFrameTime(0);
+
+    REPORTER_ASSERT(r, observer->text_handle_->get().fText == SkString("Hello, world!"));
 }
