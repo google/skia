@@ -332,6 +332,8 @@ sksl_shared_tests = [
   "/sksl/shared/InterfaceBlockNamedArray.sksl",
   "/sksl/shared/Matrices.sksl",
   "/sksl/shared/MatricesNonsquare.sksl",
+  "/sksl/shared/MatrixConstructorsES2.sksl",
+  "/sksl/shared/MatrixConstructorsES3.sksl",
   "/sksl/shared/MatrixEquality.sksl",
   "/sksl/shared/MatrixScalarSplat.sksl",
   "/sksl/shared/MatrixToVectorCast.sksl",
