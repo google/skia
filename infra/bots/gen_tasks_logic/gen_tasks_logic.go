@@ -783,9 +783,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
 			deviceInfo, ok := map[string][]string{
-				"AndroidOne": {"sprout", "MOB30Q"},
-				// S6 dimensions are more general than we would like. See skbug.com/11337 for context.
-				"GalaxyS6":        {"universal7420", "NRD90M"},
+				"AndroidOne":      {"sprout", "MOB30Q"},
 				"GalaxyS7_G930FD": {"herolte", "R16NW_G930FXXS2ERH6"}, // This is Oreo.
 				"GalaxyS9":        {"starlte", "QP1A.190711.020"},     // This is Android10.
 				"GalaxyS20":       {"exynos990", "QP1A.190711.020"},

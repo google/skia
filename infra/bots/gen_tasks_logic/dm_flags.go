@@ -323,7 +323,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 		}
 
-		if b.model("AndroidOne", "GalaxyS6", "Nexus5", "Nexus7") {
+		if b.model("AndroidOne", "Nexus5", "Nexus7") {
 			// skbug.com/9019
 			skip("_ test _ ProcessorCloneTest")
 			skip("_ test _ Programs")
@@ -351,7 +351,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("_ test _ InitialTextureClear")
 			// skbug.com/12437
 			skip("_ test _ GrDDLImage_MakeSubset")
-                        skip("_ test _ GrContext_oomed")
+			skip("_ test _ GrContext_oomed")
 		}
 
 		// skbug.com/9043 - these devices render this test incorrectly
@@ -919,11 +919,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~PremulAlphaRoundTrip_Gpu")                // skia:7501
 		match = append(match, "~ReimportImageTextureWithMipLevels")       // skia:8090
 		match = append(match, "~MorphologyFilterRadiusWithMirrorCTM_Gpu") // skia:10383
-	}
-
-	if b.model("GalaxyS6") {
-		match = append(match, "~SpecialImage") // skia:6338
-		match = append(match, "~skbug6653")    // skia:6653
 	}
 
 	if b.extraConfig("MSAN") {

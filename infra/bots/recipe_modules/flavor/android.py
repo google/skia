@@ -41,7 +41,7 @@ class AndroidFlavor(default.DefaultFlavor):
 
     # A list of devices we can't root.  If rooting fails and a device is not
     # on the list, we fail the task to avoid perf inconsistencies.
-    self.cant_root = ['GalaxyS6', 'GalaxyS7_G930FD', 'GalaxyS9',
+    self.cant_root = ['GalaxyS7_G930FD', 'GalaxyS9',
                       'GalaxyS20', 'MotoG4', 'NVIDIA_Shield',
                       'P30', 'Pixel4','Pixel4XL', 'Pixel5', 'TecnoSpark3Pro']
 
