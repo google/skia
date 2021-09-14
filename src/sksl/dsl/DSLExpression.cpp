@@ -34,8 +34,6 @@ DSLExpression::DSLExpression(DSLExpression&& other)
 DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression)
     : fExpression(std::move(expression)) {
     SkASSERT(this->hasValue());
-    DSLWriter::ReportErrors(PositionInfo::Offset(nullptr, GetErrorReporter().source(),
-            fExpression->fOffset));
 }
 
 DSLExpression::DSLExpression(float value, PositionInfo pos)
