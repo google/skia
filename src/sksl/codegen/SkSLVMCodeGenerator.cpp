@@ -467,9 +467,10 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
         SkASSERT(b.type().slotCount() == static_cast<size_t>(lRows * rCols));
         Value result(lRows * rCols);
         size_t resultIdx = 0;
+        const skvm::F32 zero = fBuilder->splat(0.0f);
         for (int c = 0; c < rCols; ++c)
         for (int r = 0; r < lRows; ++r) {
-            skvm::F32 sum = fBuilder->splat(0.0f);
+            skvm::F32 sum = zero;
             for (int j = 0; j < lCols; ++j) {
                 sum += f32(lVal[j*lRows + r]) * f32(rVal[c*rRows + j]);
             }
@@ -691,9 +692,10 @@ Value SkVMGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMat
     size_t dstIndex = 0;
 
     // Matrix-from-scalar builds a diagonal scale matrix
+    const skvm::F32 zero = fBuilder->splat(0.0f);
     for (int c = 0; c < dstType.columns(); ++c) {
         for (int r = 0; r < dstType.rows(); ++r) {
-            dst[dstIndex++] = (c == r ? f32(src) : fBuilder->splat(0.0f));
+            dst[dstIndex++] = (c == r ? f32(src) : zero);
         }
     }
 
@@ -1156,10 +1158,11 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
     }
 
     // Create storage for the return value
+    const skvm::F32 zero = fBuilder->splat(0.0f);
     size_t nslots = f.type().slotCount();
     Value result(nslots);
     for (size_t i = 0; i < nslots; ++i) {
-        result[i] = fBuilder->splat(0.0f);
+        result[i] = zero;
     }
 
     {
@@ -1472,6 +1475,7 @@ void SkVMGenerator::writeForStatement(const ForStatement& f) {
     size_t indexSlot = this->getSlot(*loop.fIndex);
     double val = loop.fStart;
 
+    const skvm::I32 zero      = fBuilder->splat(0);
     skvm::I32 oldLoopMask     = fLoopMask,
               oldContinueMask = fContinueMask;
 
@@ -1480,7 +1484,7 @@ void SkVMGenerator::writeForStatement(const ForStatement& f) {
                                     ? fBuilder->splat(static_cast<int>(val)).id
                                     : fBuilder->splat(static_cast<float>(val)).id;
 
-        fContinueMask = fBuilder->splat(0);
+        fContinueMask = zero;
         this->writeStatement(*f.statement());
         fLoopMask |= fContinueMask;
 
