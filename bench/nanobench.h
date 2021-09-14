@@ -67,9 +67,6 @@ struct Target {
         Returns false on error. */
     virtual bool capturePixels(SkBitmap* bmp);
 
-    /** Writes any config-specific data to the log. */
-    virtual void fillOptions(NanoJSONResultsWriter& log) { }
-
     /** Writes gathered stats using SkDebugf. */
     virtual void dumpStats() {}
 

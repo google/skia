@@ -81,9 +81,6 @@ extern bool gSkVMJITViaDylib;
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/gl/GrGLDefines.h"
-#include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLUtil.h"
 #include "tools/gpu/GrContextFactory.h"
 
 using sk_gpu_test::ContextInfo;
@@ -273,27 +270,6 @@ struct GPUTarget : public Target {
                      "Timings might not be accurate.\n", this->config.name.c_str());
         }
         return true;
-    }
-    void fillOptions(NanoJSONResultsWriter& log) override {
-#ifdef SK_GL
-        const GrGLubyte* version;
-        if (this->contextInfo.backend() == GrBackendApi::kOpenGL) {
-            const GrGLInterface* gl =
-                    static_cast<GrGLGpu*>(this->contextInfo.directContext()->priv().getGpu())
-                            ->glInterface();
-            GR_GL_CALL_RET(gl, version, GetString(GR_GL_VERSION));
-            log.appendString("GL_VERSION", (const char*)(version));
-
-            GR_GL_CALL_RET(gl, version, GetString(GR_GL_RENDERER));
-            log.appendString("GL_RENDERER", (const char*) version);
-
-            GR_GL_CALL_RET(gl, version, GetString(GR_GL_VENDOR));
-            log.appendString("GL_VENDOR", (const char*) version);
-
-            GR_GL_CALL_RET(gl, version, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
-            log.appendString("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
-        }
-#endif
     }
 
     void dumpStats() override {
@@ -1405,7 +1381,6 @@ int main(int argc, char** argv) {
             log.beginObject("options");
             log.appendString("name", bench->getName());
             benchStream.fillCurrentOptions(log);
-            target->fillOptions(log);
             log.endObject(); // options
 
             // Metrics
