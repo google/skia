@@ -187,19 +187,6 @@ static void test_rgn(skiatest::Reporter* reporter) {
     }
 }
 
-static const SkRegion::Op gRgnOps[] = {
-    SkRegion::kDifference_Op,
-    SkRegion::kIntersect_Op,
-    SkRegion::kUnion_Op,
-    SkRegion::kXOR_Op,
-    SkRegion::kReverseDifference_Op,
-    SkRegion::kReplace_Op
-};
-
-static const char* gRgnOpNames[] = {
-    "DIFF", "INTERSECT", "UNION", "XOR", "REVERSE_DIFF", "REPLACE"
-};
-
 static void imoveTo(SkPath& path, int x, int y) {
     path.moveTo(SkIntToScalar(x), SkIntToScalar(y));
 }
@@ -218,7 +205,7 @@ static void test_path_bounds(skiatest::Reporter* reporter) {
 
     path.addOval(SkRect::MakeWH(sheight, sheight));
     REPORTER_ASSERT(reporter, sheight == path.getBounds().height());
-    clip.setPath(path, nullptr, true);
+    clip.setPath(path, path.getBounds().roundOut(), true);
     REPORTER_ASSERT(reporter, height == clip.getBounds().height());
 
     // this is the trimmed height of this cubic (with aa). The critical thing
@@ -232,7 +219,7 @@ static void test_path_bounds(skiatest::Reporter* reporter) {
     imoveTo(path, 0, 20);
     icubicTo(path, 40, 40, 40, 0, 0, 20);
     REPORTER_ASSERT(reporter, sheight == path.getBounds().height());
-    clip.setPath(path, nullptr, true);
+    clip.setPath(path, path.getBounds().roundOut(), true);
     REPORTER_ASSERT(reporter, teardrop_height == clip.getBounds().height());
 }
 
@@ -284,19 +271,18 @@ static void test_irect(skiatest::Reporter* reporter) {
         clip1.setRect(r1);
         rgn0.setRect(r0);
         rgn1.setRect(r1);
-        for (size_t j = 0; j < SK_ARRAY_COUNT(gRgnOps); ++j) {
-            SkRegion::Op op = gRgnOps[j];
-            SkAAClip clip2;
+        for (SkClipOp op : {SkClipOp::kDifference, SkClipOp::kIntersect}) {
+            SkAAClip clip2 = clip0; // leave clip0 unchanged for future iterations
             SkRegion rgn2;
-            bool nonEmptyAA = clip2.op(clip0, clip1, op);
-            bool nonEmptyBW = rgn2.op(rgn0, rgn1, op);
+            bool nonEmptyAA = clip2.op(clip1, op);
+            bool nonEmptyBW = rgn2.op(rgn0, rgn1, (SkRegion::Op) op);
             if (nonEmptyAA != nonEmptyBW || clip2.getBounds() != rgn2.getBounds()) {
                 ERRORF(reporter, "%s %s "
                        "[%d %d %d %d] %s [%d %d %d %d] = BW:[%d %d %d %d] AA:[%d %d %d %d]\n",
                        nonEmptyAA == nonEmptyBW ? "true" : "false",
                        clip2.getBounds() == rgn2.getBounds() ? "true" : "false",
                        r0.fLeft, r0.fTop, r0.right(), r0.bottom(),
-                       gRgnOpNames[j],
+                       op == SkClipOp::kDifference ? "DIFF" : "INTERSECT",
                        r1.fLeft, r1.fTop, r1.right(), r1.bottom(),
                        rgn2.getBounds().fLeft, rgn2.getBounds().fTop,
                        rgn2.getBounds().right(), rgn2.getBounds().bottom(),
@@ -337,7 +323,7 @@ static void test_path_with_hole(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < 2; ++i) {
         SkAAClip clip;
-        clip.setPath(path, nullptr, 1 == i);
+        clip.setPath(path, path.getBounds().roundOut(), 1 == i);
 
         SkMask mask;
         clip.copyToMask(&mask);
@@ -355,7 +341,7 @@ static void test_really_a_rect(skiatest::Reporter* reporter) {
     path.addRRect(rrect);
 
     SkAAClip clip;
-    clip.setPath(path);
+    clip.setPath(path, path.getBounds().roundOut(), true);
 
     REPORTER_ASSERT(reporter, clip.getBounds() == SkIRect::MakeWH(100, 100));
     REPORTER_ASSERT(reporter, !clip.isRect());
@@ -364,7 +350,7 @@ static void test_really_a_rect(skiatest::Reporter* reporter) {
     // leaving just a rect.
     const SkIRect ir = SkIRect::MakeLTRB(10, -10, 50, 90);
 
-    clip.op(ir, SkRegion::kIntersect_Op);
+    clip.op(ir, SkClipOp::kIntersect);
 
     REPORTER_ASSERT(reporter, clip.getBounds() == SkIRect::MakeLTRB(10, 0, 50, 90));
     // the clip recognized that that it is just a rect!
@@ -418,7 +404,7 @@ static void test_regressions() {
         r.fTop = 10.3999996f;
         r.fRight = 130.892181f;
         r.fBottom = 20.3999996f;
-        clip.setRect(r, true);
+        clip.setPath(SkPath::Rect(r), r.roundOut(), true);
     }
 }
 

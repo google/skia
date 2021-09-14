@@ -83,11 +83,11 @@ protected:
     }
 
     void buildRgn(SkAAClip* clip, SkClipOp op) {
-        clip->setPath(fBasePath, nullptr, true);
+        clip->setPath(fBasePath, fBasePath.getBounds().roundOut(), true);
 
         SkAAClip clip2;
-        clip2.setPath(fRectPath, nullptr, true);
-        clip->op(clip2, (SkRegion::Op)op);
+        clip2.setPath(fRectPath, fRectPath.getBounds().roundOut(), true);
+        clip->op(clip2, op);
     }
 
     void drawOrig(SkCanvas* canvas) {
