@@ -267,7 +267,7 @@ bool ParagraphImpl::computeCodeUnitProperties() {
 
     // Get all spaces
     fUnicode->forEachCodepoint(fText.c_str(), fText.size(),
-       [this](SkUnichar unichar, int32_t start, int32_t end) {
+       [this](SkUnichar unichar, int32_t start, int32_t end, int32_t count) {
             if (fUnicode->isWhitespace(unichar)) {
                 for (auto i = start; i < end; ++i) {
                     fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfWhiteSpaceBreak;

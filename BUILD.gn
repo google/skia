@@ -1981,6 +1981,7 @@ if (skia_enable_tools) {
       ":test",
       ":tool_utils",
       "experimental/skrive:tests",
+      "experimental/sktext:tests",
       "modules/skottie:tests",
       "modules/skparagraph:tests",
       "modules/sksg:tests",
