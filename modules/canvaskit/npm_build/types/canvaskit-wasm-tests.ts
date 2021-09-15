@@ -361,7 +361,7 @@ function fontMgrTests(CK: CanvasKit) {
     fm.countFamilies();
     fm.getFamilyName(0);
 
-    const tf = fm.makeTypefaceFromData(buff1); // $ExpectType Typeface
+    const tf = fm.MakeTypefaceFromData(buff1); // $ExpectType Typeface
 }
 
 function globalTests(CK: CanvasKit, path?: Path) {

@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.0] - 2021-09-15
+
 ### Removed
  - `Surface.grContext` and `Surface.openGLversion` - these had been undocumented and are no longer
    exposed.
