@@ -98,7 +98,7 @@ void DSLFunction::define(DSLBlock block, PositionInfo pos) {
     // Append sk_Position fixup to the bottom of main() if this is a vertex program.
     DSLWriter::IRGenerator().appendRTAdjustFixupToVertexMain(*fDecl, body.get());
     std::unique_ptr<FunctionDefinition> function = FunctionDefinition::Convert(DSLWriter::Context(),
-                                                                               /*offset=*/-1,
+                                                                               pos.offset(),
                                                                                *fDecl,
                                                                                std::move(body),
                                                                                /*builtin=*/false);
