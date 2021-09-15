@@ -904,12 +904,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLLoopFloat_GPU") // skia:12426
 	}
 
-	if b.gpu("QuadroP400") && b.isLinux() && !b.extraConfig("Vulkan") {
-		// GLSL Quadro P400 on Linux cannot compile the MatrixConstructors tests.
-		skip("_", "tests", "_", "SkSLMatrixConstructorsES2_GPU") // skia:12443
-		skip("_", "tests", "_", "SkSLMatrixConstructorsES3_GPU") // skia:12443
-	}
-
 	match := []string{}
 	if b.extraConfig("Valgrind") { // skia:3021
 		match = append(match, "~Threaded")
