@@ -89,7 +89,7 @@ public:
         return fGLSLGeneration > k110_GrGLSLGeneration;
     }
 
-    bool fFBFetchSupport = true;
+    bool fFBFetchSupport = false;
     bool fbFetchSupport() const {
         return fFBFetchSupport;
     }
@@ -343,6 +343,13 @@ public:
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
         result->fEmulateAbsIntFunction = true;
+        return result;
+    }
+
+    static ShaderCapsPointer FramebufferFetchSupport() {
+        ShaderCapsPointer result = MakeShaderCaps();
+        result->fFBFetchSupport = true;
+        result->fFBFetchColorName = "gl_LastFragData[0]";
         return result;
     }
 

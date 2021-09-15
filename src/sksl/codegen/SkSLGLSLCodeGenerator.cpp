@@ -777,7 +777,12 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write("gl_InstanceID");
             break;
         case SK_LASTFRAGCOLOR_BUILTIN:
-            this->write(this->caps().fbFetchColorName());
+            if (this->caps().fbFetchSupport()) {
+                this->write(this->caps().fbFetchColorName());
+            } else {
+                fContext.fErrors->error(ref.fOffset,
+                                        "sk_LastFragColor requires framebuffer fetch support");
+            }
             break;
         default:
             this->write(ref.variable()->name());

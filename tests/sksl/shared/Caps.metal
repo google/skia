@@ -13,7 +13,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     int y = 0;
     int z = 0;
     x = 1;
-    y = 1;
     z = 1;
     _out.sk_FragColor.xyz = float3(float(x), float(y), float(z));
     return _out;

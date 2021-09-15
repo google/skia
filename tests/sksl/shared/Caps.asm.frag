@@ -42,7 +42,6 @@ OpStore %x %int_0
 OpStore %y %int_0
 OpStore %z %int_0
 OpStore %x %int_1
-OpStore %y %int_1
 OpStore %z %int_1
 %20 = OpLoad %int %x
 %21 = OpConvertSToF %float %20

@@ -5,7 +5,6 @@ void main() {
     int y = 0;
     int z = 0;
     x = 1;
-    y = 1;
     z = 1;
     sk_FragColor.xyz = vec3(float(x), float(y), float(z));
 }

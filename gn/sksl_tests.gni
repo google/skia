@@ -69,6 +69,7 @@ sksl_error_tests = [
   "/sksl/errors/InvalidOutParams.sksl",
   "/sksl/errors/InvalidToken.sksl",
   "/sksl/errors/InvalidUnary.sksl",
+  "/sksl/errors/LastFragColorWithoutCaps.sksl",
   "/sksl/errors/LayoutInFunctions.sksl",
   "/sksl/errors/LayoutRepeatedQualifiers.sksl",
   "/sksl/errors/MatrixToVectorCast3x3.sksl",
@@ -161,6 +162,7 @@ sksl_error_tests = [
 sksl_glsl_tests = [
   "/sksl/glsl/ForceHighPrecision.sksl",
   "/sksl/glsl/IncompleteShortIntPrecision.sksl",
+  "/sksl/glsl/LastFragColor.sksl",
   "/sksl/glsl/LayoutQualifiers.sksl",
   "/sksl/glsl/ShortIntPrecision.sksl",
   "/sksl/glsl/TextureSharpenVersion110.sksl",

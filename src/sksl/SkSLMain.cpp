@@ -139,6 +139,10 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_emulateAbsIntCaps = Factory::EmulateAbsIntFunction();
                     *caps = s_emulateAbsIntCaps.get();
                 }
+                if (settingsText.consumeSuffix(" FramebufferFetchSupport")) {
+                    static auto s_fbFetchSupport = Factory::FramebufferFetchSupport();
+                    *caps = s_fbFetchSupport.get();
+                }
                 if (settingsText.consumeSuffix(" IncompleteShortIntPrecision")) {
                     static auto s_incompleteShortIntCaps = Factory::IncompleteShortIntPrecision();
                     *caps = s_incompleteShortIntCaps.get();
