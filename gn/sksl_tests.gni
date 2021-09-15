@@ -582,6 +582,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/Ossfuzz36655.rts",
   "/sksl/runtime_errors/Ossfuzz38131.rts",
   "/sksl/runtime_errors/ProgramTooLarge_BlocklessLoops.rts",
+  "/sksl/runtime_errors/ProgramTooLarge_Extreme.rts",
   "/sksl/runtime_errors/ProgramTooLarge_FlatLoop.rts",
   "/sksl/runtime_errors/ProgramTooLarge_Functions.rts",
   "/sksl/runtime_errors/ProgramTooLarge_NestedLoops.rts",

@@ -613,11 +613,11 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
     // If we decide that expressions are cheaper than statements, or that certain statements are
     // more expensive than others, etc., we can always tweak these ratios as needed. A very rough
     // ballpark estimate is currently good enough for our purposes.
-    static constexpr int kExpressionCost = 1;
-    static constexpr int kStatementCost = 1;
-    static constexpr int kUnknownCost = -1;
-    static constexpr int kProgramSizeLimit = 100000;
-    static constexpr int kProgramStackDepthLimit = 50;
+    static constexpr size_t kExpressionCost = 1;
+    static constexpr size_t kStatementCost = 1;
+    static constexpr size_t kUnknownCost = -1;
+    static constexpr size_t kProgramSizeLimit = 100000;
+    static constexpr size_t kProgramStackDepthLimit = 50;
 
     class ProgramSizeVisitor : public ProgramVisitor {
     public:
@@ -625,7 +625,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
 
         using ProgramVisitor::visitProgramElement;
 
-        int functionSize() const {
+        size_t functionSize() const {
             return fFunctionSize;
         }
 
@@ -673,7 +673,6 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                 // Calculate the function cost and store it in our cache.
                 fStack.push_back(decl);
                 fFunctionSize = 0;
-                fUnrollFactor = 1;
                 bool result = INHERITED::visitProgramElement(pe);
                 iter->second = fFunctionSize;
                 fStack.pop_back();
@@ -692,20 +691,21 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                     // output for every iteration of the loop. The test-expr is optimized away
                     // during the unroll and is not counted at all.
                     const ForStatement& forStmt = stmt.as<ForStatement>();
-                    bool result = INHERITED::visitStatement(*forStmt.initializer());
+                    bool result = this->visitStatement(*forStmt.initializer());
 
-                    int originalUnrollFactor = fUnrollFactor;
-
-                    if (const LoopUnrollInfo* unrollInfo = forStmt.unrollInfo()) {
-                        fUnrollFactor = SkSafeMath::Mul(fUnrollFactor, unrollInfo->fCount);
-                    } else {
-                        SkDEBUGFAIL("for-loops should always have unroll info in an ES2 program");
-                    }
+                    size_t originalFunctionSize = fFunctionSize;
+                    fFunctionSize = 0;
 
                     result = this->visitExpression(*forStmt.next()) ||
                              this->visitStatement(*forStmt.statement()) || result;
 
-                    fUnrollFactor = originalUnrollFactor;
+                    if (const LoopUnrollInfo* unrollInfo = forStmt.unrollInfo()) {
+                        fFunctionSize = SkSafeMath::Mul(fFunctionSize, unrollInfo->fCount);
+                    } else {
+                        SkDEBUGFAIL("for-loops should always have unroll info in an ES2 program");
+                    }
+
+                    fFunctionSize = SkSafeMath::Add(fFunctionSize, originalFunctionSize);
                     return result;
                 }
 
@@ -727,17 +727,18 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                     break;
 
                 default:
-                    fFunctionSize += fUnrollFactor * kStatementCost;
+                    fFunctionSize = SkSafeMath::Add(fFunctionSize, kStatementCost);
                     break;
             }
 
-            return INHERITED::visitStatement(stmt);
+            bool earlyExit = fFunctionSize > kProgramSizeLimit;
+            return earlyExit || INHERITED::visitStatement(stmt);
         }
 
         bool visitExpression(const Expression& expr) override {
             // Other than function calls, all expressions are assumed to have a fixed unit cost.
             bool earlyExit = false;
-            int expressionCost = kExpressionCost;
+            size_t expressionCost = kExpressionCost;
 
             if (expr.is<FunctionCall>()) {
                 // Visit this function call to calculate its size. If we've already sized it, this
@@ -745,18 +746,17 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                 const FunctionCall& call = expr.as<FunctionCall>();
                 const FunctionDeclaration* decl = &call.function();
                 if (decl->definition() && !decl->isIntrinsic()) {
-                    int originalFunctionSize = fFunctionSize;
-                    int originalUnrollFactor = fUnrollFactor;
+                    size_t originalFunctionSize = fFunctionSize;
+                    fFunctionSize = 0;
 
                     earlyExit = this->visitProgramElement(*decl->definition());
                     expressionCost = fFunctionSize;
 
                     fFunctionSize = originalFunctionSize;
-                    fUnrollFactor = originalUnrollFactor;
                 }
             }
 
-            fFunctionSize += fUnrollFactor * expressionCost;
+            fFunctionSize = SkSafeMath::Add(fFunctionSize, expressionCost);
             return earlyExit || INHERITED::visitExpression(expr);
         }
 
@@ -764,9 +764,8 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
         using INHERITED = ProgramVisitor;
 
         const Context& fContext;
-        int fFunctionSize = 0;
-        int fUnrollFactor = 1;
-        std::unordered_map<const FunctionDeclaration*, int> fFunctionCostMap;
+        size_t fFunctionSize = 0;
+        std::unordered_map<const FunctionDeclaration*, size_t> fFunctionCostMap;
         std::vector<const FunctionDeclaration*> fStack;
     };
 
