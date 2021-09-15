@@ -100,12 +100,6 @@ public:
         fTrackedGpuBuffers.push_back(std::move(buffer));
     }
 
-    // Add ref-counted resource that will be tracked and released when this command buffer finishes
-    // execution. When it is released, it will signal that the resource can be recycled for reuse.
-    void addRecycledResource(sk_sp<GrRecycledResource> resource) {
-        fTrackedRecycledResources.push_back(std::move(resource));
-    }
-
     void releaseResources();
 
     bool hasWork() const { return fHasWork; }
@@ -124,6 +118,12 @@ protected:
     void addResource(sk_sp<GrManagedResource> resource) {
         SkASSERT(resource);
         fTrackedResources.push_back(std::move(resource));
+    }
+
+    // Add ref-counted resource that will be tracked and released when this command buffer finishes
+    // execution. When it is released, it will signal that the resource can be recycled for reuse.
+    void addRecycledResource(sk_sp<GrRecycledResource> resource) {
+        fTrackedRecycledResources.push_back(std::move(resource));
     }
 
     void addingWork();
@@ -201,7 +201,9 @@ public:
                                           D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
     void setComputeRootDescriptorTable(unsigned int rootParameterIndex,
                                        D3D12_GPU_DESCRIPTOR_HANDLE bufferLocation);
-    void setDescriptorHeaps(ID3D12DescriptorHeap* srvDescriptorHeap,
+    void setDescriptorHeaps(sk_sp<GrRecycledResource> srvCrvHeapResource,
+                            ID3D12DescriptorHeap* srvDescriptorHeap,
+                            sk_sp<GrRecycledResource> samplerHeapResource,
                             ID3D12DescriptorHeap* samplerDescriptorHeap);
 
     void addSampledTextureRef(GrD3DTexture*);
