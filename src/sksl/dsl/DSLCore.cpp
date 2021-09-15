@@ -388,6 +388,9 @@ void Declare(SkTArray<DSLGlobalVar>& vars, PositionInfo pos) {
 }
 
 DSLStatement Discard(PositionInfo pos) {
+    if (DSLWriter::GetProgramConfig()->fKind != ProgramKind::kFragment) {
+        DSLWriter::ReportError("discard statement is only permitted in fragment shaders", pos);
+    }
     return DSLCore::Discard(pos);
 }
 
