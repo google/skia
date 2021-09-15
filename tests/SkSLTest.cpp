@@ -26,7 +26,8 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-static const SkRect kRect = SkRect::MakeWH(1, 1);
+static constexpr int kWidth = 2;
+static constexpr int kHeight = 2;
 
 template <typename T>
 static void set_uniform(SkRuntimeShaderBuilder* builder, const char* name, const T& value) {
@@ -82,17 +83,43 @@ static void test_one_permutation(skiatest::Reporter* r,
 
     SkPaint paintShader;
     paintShader.setShader(shader);
-    surface->getCanvas()->drawRect(kRect, paintShader);
+    surface->getCanvas()->drawRect(SkRect::MakeWH(kWidth, kHeight), paintShader);
 
     SkBitmap bitmap;
     REPORTER_ASSERT(r, bitmap.tryAllocPixels(surface->imageInfo()));
     REPORTER_ASSERT(r, surface->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(),
                                            /*srcX=*/0, /*srcY=*/0));
 
-    SkColor color = bitmap.getColor(0, 0);
-    REPORTER_ASSERT(r, color == SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00),
-                    "Expected: solid green. Actual: A=%02X R=%02X G=%02X B=%02X.",
-                    SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
+    bool success = true;
+    SkColor color[kHeight][kWidth];
+    for (int y = 0; y < kHeight; ++y) {
+        for (int x = 0; x < kWidth; ++x) {
+            color[y][x] = bitmap.getColor(x, y);
+            if (color[y][x] != SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00)) {
+                success = false;
+            }
+        }
+    }
+
+    if (!success) {
+        static_assert(kWidth  == 2);
+        static_assert(kHeight == 2);
+        ERRORF(r, "Expected: solid green. Actual:\n"
+                  "RRGGBBAA RRGGBBAA\n"
+                  "%02X%02X%02X%02X %02X%02X%02X%02X\n"
+                  "%02X%02X%02X%02X %02X%02X%02X%02X",
+                  SkColorGetR(color[0][0]), SkColorGetG(color[0][0]),
+                  SkColorGetB(color[0][0]), SkColorGetA(color[0][0]),
+
+                  SkColorGetR(color[0][1]), SkColorGetG(color[0][1]),
+                  SkColorGetB(color[0][1]), SkColorGetA(color[0][1]),
+
+                  SkColorGetR(color[1][0]), SkColorGetG(color[1][0]),
+                  SkColorGetB(color[1][0]), SkColorGetA(color[1][0]),
+
+                  SkColorGetR(color[1][1]), SkColorGetG(color[1][1]),
+                  SkColorGetB(color[1][1]), SkColorGetA(color[1][1]));
+    }
 }
 
 static void test_permutations(skiatest::Reporter* r,
@@ -109,14 +136,14 @@ static void test_permutations(skiatest::Reporter* r,
 }
 
 static void test_cpu(skiatest::Reporter* r, const char* testFile) {
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
 
     test_permutations(r, surface.get(), testFile, /*worksInES2=*/true);
 }
 
 static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
 
     test_permutations(r, surface.get(), testFile, /*worksInES2=*/true);
@@ -127,7 +154,7 @@ static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
         return;
     }
     // ES3-only tests never run on the CPU, because SkVM lacks support for many non-ES2 features.
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(kRect.width(), kRect.height());
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
 
     test_permutations(r, surface.get(), testFile, /*worksInES2=*/false);
