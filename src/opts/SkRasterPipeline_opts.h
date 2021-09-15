@@ -104,8 +104,13 @@ struct Ctx {
     #include <immintrin.h>
 #endif
 
-namespace SK_OPTS_NS {
+// Notes:
+// * rcp_fast and rcp_precise both produce a reciprocal, but rcp_fast is an estimate with at least
+//   12 bits of precision while rcp_precise should be accurate for float size. For ARM rcp_precise
+//   requires 2 Newton-Raphson refinement steps because its estimate has 8 bit precision, and for
+//   Intel this requires one additional step because its estimate has 12 bit precision.
 
+namespace SK_OPTS_NS {
 #if defined(JUMPER_IS_SCALAR)
     // This path should lead to portable scalar code.
     using F   = float   ;
@@ -120,9 +125,11 @@ namespace SK_OPTS_NS {
     SI F   max(F a, F b)        { return fmaxf(a,b); }
     SI F   abs_  (F v)          { return fabsf(v); }
     SI F   floor_(F v)          { return floorf(v); }
-    SI F   rcp   (F v)          { return 1.0f / v; }
+    SI F   rcp_fast(F v)        { return 1.0f / v; }
     SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
-    SI F    sqrt_(F v)          { return sqrtf(v); }
+    SI F   sqrt_ (F v)          { return sqrtf(v); }
+    SI F   rcp_precise (F v)    { return 1.0f / v; }
+
     SI U32 round (F v, F scale) { return (uint32_t)(v*scale + 0.5f); }
     SI U16 pack(U32 v)          { return (U16)v; }
     SI U8  pack(U16 v)          { return  (U8)v; }
@@ -193,8 +200,10 @@ namespace SK_OPTS_NS {
     SI F   min(F a, F b)                         { return vminq_f32(a,b);          }
     SI F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
     SI F   abs_  (F v)                           { return vabsq_f32(v);            }
-    SI F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
-    SI F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+    SI F   rcp_fast(F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
+    SI F   rcp_precise (F v) { auto e = rcp_fast(v); return vrecpsq_f32 (v,e  ) * e; }
+    SI F   rsqrt (F v)   { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+
     SI U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
 
@@ -350,15 +359,20 @@ namespace SK_OPTS_NS {
     #endif
     }
 
-    SI F   min(F a, F b)        { return _mm256_min_ps(a,b);    }
-    SI F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
-    SI F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
-    SI F   floor_(F v)          { return _mm256_floor_ps(v);    }
-    SI F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
-    SI F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
-    SI F    sqrt_(F v)          { return _mm256_sqrt_ps (v);    }
-    SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
+    SI F   min(F a, F b) { return _mm256_min_ps(a,b);    }
+    SI F   max(F a, F b) { return _mm256_max_ps(a,b);    }
+    SI F   abs_  (F v)   { return _mm256_and_ps(v, 0-v); }
+    SI F   floor_(F v)   { return _mm256_floor_ps(v);    }
+    SI F   rcp_fast(F v) { return _mm256_rcp_ps  (v);    }
+    SI F   rsqrt (F v)   { return _mm256_rsqrt_ps(v);    }
+    SI F   sqrt_ (F v)   { return _mm256_sqrt_ps (v);    }
+    SI F rcp_precise (F v) {
+        F e = rcp_fast(v);
+        return _mm256_fnmadd_ps(v, e, _mm256_set1_ps(2.0f)) * e;
+    }
 
+
+    SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
     SI U16 pack(U32 v) {
         return _mm_packus_epi32(_mm256_extractf128_si256(v, 0),
                                 _mm256_extractf128_si256(v, 1));
@@ -684,9 +698,11 @@ namespace SK_OPTS_NS {
     SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
     SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
     SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
-    SI F   rcp   (F v)         { return _mm_rcp_ps  (v);    }
+    SI F   rcp_fast(F v)       { return _mm_rcp_ps  (v);    }
+    SI F   rcp_precise (F v)   { F e = rcp_fast(v); return e * (2.0f - v * e); }
     SI F   rsqrt (F v)         { return _mm_rsqrt_ps(v);    }
     SI F    sqrt_(F v)         { return _mm_sqrt_ps (v);    }
+
     SI U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
 
     SI U16 pack(U32 v) {
@@ -1419,12 +1435,12 @@ BLEND_MODE(exclusion)  { return s + d - two(s*d); }
 BLEND_MODE(colorburn) {
     return if_then_else(d == da,    d +    s*inv(da),
            if_then_else(s ==  0, /* s + */ d*inv(sa),
-                                 sa*(da - min(da, (da-d)*sa*rcp(s))) + s*inv(da) + d*inv(sa)));
+                                sa*(da - min(da, (da-d)*sa*rcp_fast(s))) + s*inv(da) + d*inv(sa)));
 }
 BLEND_MODE(colordodge) {
     return if_then_else(d ==  0, /* d + */ s*inv(da),
            if_then_else(s == sa,    s +    d*inv(sa),
-                                 sa*min(da, (d*sa)*rcp(sa - s)) + s*inv(da) + d*inv(sa)));
+                                 sa*min(da, (d*sa)*rcp_fast(sa - s)) + s*inv(da) + d*inv(sa)));
 }
 BLEND_MODE(hardlight) {
     return s*inv(da) + d*inv(sa)
@@ -1447,7 +1463,7 @@ BLEND_MODE(softlight) {
     F darkSrc = d*(sa + (s2 - sa)*(1.0f - m)),     // Used in case 1.
       darkDst = (m4*m4 + m4)*(m - 1.0f) + 7.0f*m,  // Used in case 2.
     #if defined(SK_RASTER_PIPELINE_LEGACY_RCP_RSQRT)
-      liteDst = rcp(rsqrt(m)) - m,                 // Used in case 3.
+      liteDst = rcp_fast(rsqrt(m)) - m,                 // Used in case 3.
     #else
       liteDst = sqrt_(m) - m,
     #endif
@@ -2397,8 +2413,8 @@ STAGE(matrix_perspective, const float* m) {
     auto R = mad(r,m[0], mad(g,m[1], m[2])),
          G = mad(r,m[3], mad(g,m[4], m[5])),
          Z = mad(r,m[6], mad(g,m[7], m[8]));
-    r = R * rcp(Z);
-    g = G * rcp(Z);
+    r = R * rcp_precise(Z);
+    g = G * rcp_precise(Z);
 }
 
 SI void gradient_lookup(const SkRasterPipeline_GradientCtx* c, U32 idx, F t,
@@ -3105,32 +3121,21 @@ SI F min(F x, F y) { return if_then_else(x < y, x, y); }
 SI F mad(F f, F m, F a) { return f*m+a; }
 SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
-SI F rcp(F x) {
-#if defined(SK_RASTER_PIPELINE_LEGACY_RCP_RSQRT)
-    #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
-        __m256 lo,hi;
-        split(x, &lo,&hi);
-        return join<F>(_mm256_rcp_ps(lo), _mm256_rcp_ps(hi));
-    #elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
-        __m128 lo,hi;
-        split(x, &lo,&hi);
-        return join<F>(_mm_rcp_ps(lo), _mm_rcp_ps(hi));
-    #elif defined(JUMPER_IS_NEON)
-        auto rcp = [](float32x4_t v) {
-            auto est = vrecpeq_f32(v);
-            return vrecpsq_f32(v,est)*est;
-        };
-        float32x4_t lo,hi;
-        split(x, &lo,&hi);
-        return join<F>(rcp(lo), rcp(hi));
-    #else
-        return 1.0f / x;
-    #endif
+// Use approximate instructions and one Newton-Raphson step to calculate 1/x.
+SI F rcp_precise(F x) {
+#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+    __m256 lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(SK_OPTS_NS::rcp_precise(lo), SK_OPTS_NS::rcp_precise(hi));
+#elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
+    __m128 lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(SK_OPTS_NS::rcp_precise(lo), SK_OPTS_NS::rcp_precise(hi));
+#elif defined(JUMPER_IS_NEON)
+    float32x4_t lo,hi;
+    split(x, &lo,&hi);
+    return join<F>(SK_OPTS_NS::rcp_precise(lo), SK_OPTS_NS::rcp_precise(hi));
 #else
-    // Please don't use _mm[256_rcp_ps, vrecp[es]q_f32, etc. here.
-    // They deliver inconsistent results, both across arch (x86 vs ARM vs ARM64),
-    // but also even within (SSE/AVX vs AVX-512, Intel vs AMD).
-    // This annoys people who want pixel-exact golden tests.  (sia:11861)
     return 1.0f / x;
 #endif
 }
@@ -3216,8 +3221,8 @@ STAGE_GG(matrix_perspective, const float* m) {
     auto X = mad(x,m[0], mad(y,m[1], m[2])),
          Y = mad(x,m[3], mad(y,m[4], m[5])),
          Z = mad(x,m[6], mad(y,m[7], m[8]));
-    x = X * rcp(Z);
-    y = Y * rcp(Z);
+    x = X * rcp_precise(Z);
+    y = Y * rcp_precise(Z);
 }
 
 STAGE_PP(uniform_color, const SkRasterPipeline_UniformColorCtx* c) {
