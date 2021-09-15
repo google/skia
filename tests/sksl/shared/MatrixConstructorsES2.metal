@@ -32,7 +32,7 @@ thread bool operator!=(const float2x2 left, const float2x2 right) {
     return !(left == right);
 }
 float2x2 float2x2_from_float3_float(float3 x0, float x1) {
-    return float2x2(float2(x0[0], x0[1]), float2(x0[2], x1));
+    return float2x2(float2(x0.xy), float2(x0.z, x1));
 }
 thread bool operator==(const float3x3 left, const float3x3 right) {
     return all(left[0] == right[0]) &&
@@ -43,7 +43,7 @@ thread bool operator!=(const float3x3 left, const float3x3 right) {
     return !(left == right);
 }
 float3x3 float3x3_from_float2_float2_float4_float(float2 x0, float2 x1, float4 x2, float x3) {
-    return float3x3(float3(x0[0], x0[1], x1[0]), float3(x1[1], x2[0], x2[1]), float3(x2[2], x2[3], x3));
+    return float3x3(float3(x0.xy, x1.x), float3(x1.y, x2.xy), float3(x2.zw, x3));
 }
 thread bool operator==(const float4x4 left, const float4x4 right) {
     return all(left[0] == right[0]) &&
@@ -55,7 +55,7 @@ thread bool operator!=(const float4x4 left, const float4x4 right) {
     return !(left == right);
 }
 float4x4 float4x4_from_float2_float4_float3_float2_float4_float(float2 x0, float4 x1, float3 x2, float2 x3, float4 x4, float x5) {
-    return float4x4(float4(x0[0], x0[1], x1[0], x1[1]), float4(x1[2], x1[3], x2[0], x2[1]), float4(x2[2], x3[0], x3[1], x4[0]), float4(x4[1], x4[2], x4[3], x5));
+    return float4x4(float4(x0.xy, x1.xy), float4(x1.zw, x2.xy), float4(x2.z, x3.xy, x4.x), float4(x4.yzw, x5));
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;

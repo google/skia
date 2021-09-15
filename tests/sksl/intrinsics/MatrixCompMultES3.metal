@@ -28,7 +28,7 @@ matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, const matrix<float, C,
     return a;
 }
 float4x2 float4x2_from_float4_float4(float4 x0, float4 x1) {
-    return float4x2(float2(x0[0], x0[1]), float2(x0[2], x0[3]), float2(x1[0], x1[1]), float2(x1[2], x1[3]));
+    return float4x2(float2(x0.xy), float2(x0.zw), float2(x1.xy), float2(x1.zw));
 }
 thread bool operator==(const float2x4 left, const float2x4 right) {
     return all(left[0] == right[0]) &&
