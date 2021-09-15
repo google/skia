@@ -606,8 +606,9 @@ SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& 
     if (this->checkNext(Token::Kind::TK_IDENTIFIER, &name)) {
         this->globalVarDeclarationEnd(this->position(name), modifiers, std::move(*type),
                 this->text(name));
+    } else {
+        this->expect(Token::Kind::TK_SEMICOLON, "';'");
     }
-    this->expect(Token::Kind::TK_SEMICOLON, "';'");
     return {};
 }
 
