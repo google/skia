@@ -702,8 +702,8 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                         SkDEBUGFAIL("for-loops should always have unroll info in an ES2 program");
                     }
 
-                    result = INHERITED::visitExpression(*forStmt.next()) ||
-                             INHERITED::visitStatement(*forStmt.statement()) || result;
+                    result = this->visitExpression(*forStmt.next()) ||
+                             this->visitStatement(*forStmt.statement()) || result;
 
                     fUnrollFactor = originalUnrollFactor;
                     return result;
