@@ -47,19 +47,19 @@ Editor::Editor(std::u16string text, SkSize size)
     // In order to get that position we look for a position outside of the text
     // and that will give us the last glyph on the line
     auto endOfText = fEditableText->lastElement(fDefaultPositionType);
-    //fEditableText->recalculateBoundaries(endOfText);
+    fEditableText->recalculateBoundaries(endOfText);
     fCursor->place(endOfText.fBoundaries);
 }
 
 void Editor::update() {
 
-    if (fEditableText->isValid()) {
+    if (!fEditableText->isInvalidated()) {
         return;
     }
 
     // Update the (shift it to point at the grapheme edge)
     auto position = fEditableText->adjustedPosition(fDefaultPositionType, fCursor->getCenterPosition());
-    //fEditableText->recalculateBoundaries(position);
+    fEditableText->recalculateBoundaries(position);
     fCursor->place(position.fBoundaries);
 
     // TODO: Update the mouse
@@ -71,7 +71,9 @@ void Editor::update() {
 bool Editor::moveCursor(skui::Key key) {
     auto cursorPosition = fCursor->getCenterPosition();
     auto position = fEditableText->adjustedPosition(PositionType::kGraphemeCluster, cursorPosition);
-
+    if (position.fRun == nullptr) {
+        return false;
+    }
     if (key == skui::Key::kLeft) {
         position = fEditableText->previousElement(position);
     } else if (key == skui::Key::kRight) {
@@ -85,21 +87,19 @@ bool Editor::moveCursor(skui::Key key) {
         if (position.fLineIndex == 0) {
             return false;
         }
-        auto prevLine = fEditableText->getLine(position.fLineIndex - 1);
-        cursorPosition.offset(0, - prevLine.fBounds.height());
+        cursorPosition.offset(0, - fEditableText->lineHeight(position.fLineIndex));
         position = fEditableText->adjustedPosition(PositionType::kGraphemeCluster, cursorPosition);
     } else if (key == skui::Key::kDown) {
         // Move one line down (if possible)
         if (position.fLineIndex == fEditableText->lineCount() - 1) {
             return false;
         }
-        auto nextLine = fEditableText->getLine(position.fLineIndex + 1);
-        cursorPosition.offset(0, nextLine.fBounds.height());
+        cursorPosition.offset(0, fEditableText->lineHeight(position.fLineIndex));
         position = fEditableText->adjustedPosition(PositionType::kGraphemeCluster, cursorPosition);
      }
 
     // Place the cursor at the new position
-    //fEditableText->recalculateBoundaries(position);
+    fEditableText->recalculateBoundaries(position);
     fCursor->place(position.fBoundaries);
     this->invalidate();
 
@@ -157,18 +157,28 @@ bool Editor::deleteElement(skui::Key key) {
     // IMPORTANT: We assume that a single element (grapheme cluster) does not cross the run boundaries;
     // It's not exactly true but we are going to enforce in by breaking the grapheme by the run boundaries
     if (key == skui::Key::kBack) {
-        // TODO: Make sure previous element moves smoothly over the line break
-        position = fEditableText->previousElement(position);
-        textRange = position.fTextRange;
-        fCursor->place(position.fBoundaries);
-    } else {
-        // The cursor stays the the same place
+        // Move to the previous element (could be another run and/or line)
+        if (position.fLineIndex > 0 && fEditableText->isFirstOnTheLine(position)) {
+            auto line = fEditableText->line(position.fLineIndex - 1);
+            if (line->isHardLineBreak()) {
+                // We remove invisible hard line break from the previous line
+                textRange = line->whitespaces();
+            } else {
+                // We remove the last non-whitespace element on the previous line (ignoring trailing whitespaces)
+                position = fEditableText->previousElement(position);
+                textRange = position.fTextRange;
+            }
+        } else {
+            // We remove the previous element on the current line
+            position = fEditableText->previousElement(position);
+            textRange = position.fTextRange;
+        }
     }
 
     fEditableText->removeElement(textRange);
 
     // Find the grapheme the cursor points to
-    position = fEditableText->adjustedPosition(fDefaultPositionType, SkPoint::Make(position.fBoundaries.fLeft, position.fBoundaries.fTop));
+    position = fEditableText->adjustedPosition(fDefaultPositionType, textRange.fStart);
     fCursor->place(position.fBoundaries);
     this->invalidate();
 
@@ -192,7 +202,7 @@ bool Editor::insertCodepoint(SkUnichar unichar) {
 
     // Move the cursor to the next element
     position = fEditableText->nextElement(position);
-    //fEditableText->recalculateBoundaries(position);
+    fEditableText->recalculateBoundaries(position);
     fCursor->place(position.fBoundaries);
 
     this->invalidate();

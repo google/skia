@@ -1,10 +1,11 @@
 // Copyright 2021 Google LLC.
 #include "experimental/sktext/include/Text.h"
 #include "experimental/sktext/src/Line.h"
+#include "experimental/sktext/src/TextRun.h"
 
 namespace skia {
 namespace text {
-LogicalLine::LogicalLine(const Stretch& stretch, const Stretch& spaces, SkScalar verticalOffset, bool hardLineBreak)
+Line::Line(const Stretch& stretch, const Stretch& spaces, SkSTArray<1, size_t, true> visualOrder, SkScalar verticalOffset, bool hardLineBreak)
     : fTextStart(stretch.glyphStart())
     , fTextEnd(stretch.glyphEnd())
     , fWhitespacesEnd (spaces.glyphEnd())
@@ -14,7 +15,9 @@ LogicalLine::LogicalLine(const Stretch& stretch, const Stretch& spaces, SkScalar
     , fSpacesWidth(spaces.width())
     , fHorizontalOffset(0.0f)
     , fVerticalOffset(verticalOffset)
-    , fHardLineBreak(hardLineBreak) {
+    , fHardLineBreak(hardLineBreak)
+    , fRunsInVisualOrder(std::move(visualOrder)) {
+
     SkASSERT(stretch.isEmpty() ||
                     spaces.isEmpty() ||
         (stretch.glyphEnd() == spaces.glyphStart()));

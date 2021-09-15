@@ -7,43 +7,20 @@ namespace skia {
 namespace editor {
 
 void DynamicText::paint(SkCanvas* canvas) {
-    if (!fDrawableText) {
-        auto chunks = this->getDecorationChunks(fDecorations);
-        fDrawableText = fWrappedText->prepareToDraw(fUnicodeText.get(),
-                                                    PositionType::kGraphemeCluster,
-                                                    SkSpan<TextIndex>(chunks.data(), chunks.size()));
-    }
 
-    auto foregroundPaint = fDecorations[0].foregroundPaint;
-    auto textBlobs = fDrawableText->getTextBlobs();
-    for (auto& textBLob : textBlobs) {
-        canvas->drawTextBlob(textBLob, 0, 0, foregroundPaint);
-    }
-}
-
-std::vector<TextIndex> DynamicText::getDecorationChunks(SkSpan<DecoratedBlock> decorations) const {
-    std::vector<TextIndex> result;
-    TextIndex textIndex = 0;
-    for (auto& decoration : decorations) {
-        textIndex += decoration.charCount;
-        result.emplace_back(textIndex);
-    }
-    return result;
+    Paint painter;
+    painter.paint(canvas, this->fOffset, this->fFormattedText.get(), this->fDecorations);
 }
 
 void EditableText::paint(SkCanvas* canvas) {
 
+    Paint painter;
+
     if (fSelection->isEmpty()) {
-        DynamicText::paint(canvas);
+        painter.paint(canvas, this->fOffset, this->fFormattedText.get(), fDecorations);
     } else {
         auto decorations = mergeSelectionIntoDecorations();
-        auto chunks = this->getDecorationChunks(SkSpan<DecoratedBlock>(decorations.data(), decorations.size()));
-        fDrawableText = fWrappedText->prepareToDraw(fUnicodeText.get(), PositionType::kGraphemeCluster, SkSpan<TextIndex>(chunks.data(), chunks.size()));
-    }
-    auto foregroundPaint = fDecorations[0].foregroundPaint;
-    auto textBlobs = fDrawableText->getTextBlobs();
-    for (auto& textBLob : textBlobs) {
-        canvas->drawTextBlob(textBLob, 0, 0, foregroundPaint);
+        painter.paint(canvas, this->fOffset, this->fFormattedText.get(), SkSpan<DecoratedBlock>(decorations.data(), decorations.size()));
     }
 }
 
@@ -74,7 +51,7 @@ SkTArray<DecoratedBlock> EditableText::mergeSelectionIntoDecorations() {
         }
         SkASSERT(decorPos == selected.fStart);
 
-        // So the next decoration intersects the selection (and the selection wins)
+        // So the next decoration intesects the selection (and the selection wins)
         merged.emplace_back(selected.width(), fSelection->fForeground, fSelection->fBackground);
         decorPos += selected.width();
         SkASSERT(decorPos == selected.fEnd);

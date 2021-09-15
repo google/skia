@@ -46,19 +46,21 @@ namespace text {
 
         DecoratedBlock decoratedBlock(textSize, foreground, background);
         Paint paint;
-        paint.paint(canvas, SkPoint::Make(x, y), nullptr, formattedText.get(), SkSpan<DecoratedBlock>(&decoratedBlock, 1));
+        paint.paint(canvas, SkPoint::Make(x, y), formattedText.get(), SkSpan<DecoratedBlock>(&decoratedBlock, 1));
 
         return true;
     }
 
+    void Paint::onBeginLine(TextRange lineText) { }
+    void Paint::onEndLine(TextRange lineText) { }
+    void Paint::onPlaceholder(TextRange lineText, const SkRect& bounds) { }
     void Paint::onGlyphRun(const SkFont& font,
                            TextRange textRange,
                            SkRect boundingRect,
-                           int trailingSpacesStart,
                            int glyphCount,
                            const uint16_t glyphs[],
-                           const SkPoint positions[],
-                           const TextIndex clusters[]) {
+                           const SkPoint  positions[],
+                           const SkPoint offsets[]) {
 
         DecoratedBlock decoratedBlock = findDecoratedBlock(textRange);
 
@@ -74,16 +76,15 @@ namespace text {
         fCanvas->drawTextBlob(blob, fXY.fX, fXY.fY, decoratedBlock.foregroundPaint);
     }
 
-    std::unique_ptr<WrappedText> Paint::layout(std::u16string text,
+    sk_sp<FormattedText> Paint::layout(std::u16string text,
                                        TextDirection textDirection, TextAlign textAlign,
                                        SkSize reqSize,
                                        SkSpan<FontBlock> fontBlocks) {
-        auto unicode = SkUnicode::Make();
-        auto unicodeText = std::make_unique<UnicodeText>(std::move(unicode), SkSpan<uint16_t>((uint16_t*)text.data(), text.size()));
+        auto unicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)text.data(), text.size()));
         auto shapedText = unicodeText->shape(fontBlocks, textDirection);
-        auto wrappedText = shapedText->wrap(unicodeText.get(), reqSize.width(), reqSize.height());
-        wrappedText->format(textAlign, textDirection);
-        return wrappedText;
+        auto wrappedText = shapedText->wrap(reqSize.width(), reqSize.height(), unicodeText->getUnicode());
+        auto formattedText = wrappedText->format(textAlign, textDirection);
+        return formattedText;
     }
 
     DecoratedBlock Paint::findDecoratedBlock(TextRange textRange) {
@@ -100,7 +101,7 @@ namespace text {
         return DecoratedBlock(0, SkPaint(), SkPaint());
     }
 
-    void Paint::paint(SkCanvas* canvas, SkPoint xy, UnicodeText* unicodeText, WrappedText* wrappedText, SkSpan<DecoratedBlock> decoratedBlocks) {
+    void Paint::paint(SkCanvas* canvas, SkPoint xy, FormattedText* formattedText, SkSpan<DecoratedBlock> decoratedBlocks) {
         fCanvas = canvas;
         fXY = xy;
         fDecoratedBlocks = decoratedBlocks;
@@ -113,11 +114,7 @@ namespace text {
             chunks[i] = index;
         }
 
-        if (chunks.size() == 1) {
-            wrappedText->visit( this);
-        } else {
-            wrappedText->visit(unicodeText, this, PositionType::kGraphemeCluster, SkSpan<size_t>(chunks.data(), chunks.size()));
-        }
+        formattedText->visit(this, SkSpan<size_t>(chunks.data(), chunks.size()));
     }
 
 } // namespace text

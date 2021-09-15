@@ -11,8 +11,7 @@ sktext_public = [
 
 sktext_sources = [
   "$_src/Line.cpp",
-  "$_src/LogicalRun.cpp",
   "$_src/Paint.cpp",
   "$_src/Text.cpp",
-  "$_src/VisualRun.cpp",
+  "$_src/TextRun.cpp",
 ]

@@ -47,12 +47,7 @@ if (skia_enable_sktext && skia_enable_skshaper && skia_use_icu &&
     source_set("tests") {
       if (text_tests_enabled) {
         testonly = true
-        sources = [
-          "tests/SelectableText.cpp",
-          "tests/ShapedText.cpp",
-          "tests/UnicodeText.cpp",
-          "tests/WrappedText.cpp",
-        ]
+        sources = []
         deps = [
           ":sktext",
           "../..:gpu_tool_utils",
