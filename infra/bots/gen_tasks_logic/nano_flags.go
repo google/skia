@@ -123,6 +123,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 					configs = append(configs, "vkmsaa8")
 				}
 			}
+			if b.gpu("QuadroP400", "MaliG77") {
+				configs = append(configs, "vkdmsaa")
+			}
 		}
 		if b.extraConfig("Metal") {
 			configs = []string{"mtl"}
