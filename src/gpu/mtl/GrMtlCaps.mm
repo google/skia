@@ -45,8 +45,8 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     // TODO: appears to be slow with Mac msaa8, disabled for now
     fStoreAndMultisampleResolveSupport = (fGPUFamily == GPUFamily::kApple &&
                                           fFamilyGroup >= 3);
-    // TODO: only enable if memoryless attachments available?
-    fPreferDiscardableMSAAAttachment = true;
+    // Also slow with non-Apple silicon
+    fPreferDiscardableMSAAAttachment = (fGPUFamily == GPUFamily::kApple);
 
     this->finishInitialization(contextOptions);
 }
