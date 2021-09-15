@@ -15,26 +15,26 @@ namespace SkSL {
 
 namespace dsl {
 
-static const Type* find_type(skstd::string_view name) {
+static const Type* find_type(skstd::string_view name, PositionInfo pos) {
     const Symbol* symbol = (*DSLWriter::SymbolTable())[name];
     if (!symbol) {
         DSLWriter::ReportError(String::printf("no symbol named '%.*s'", (int)name.length(),
-                name.data()));
+                name.data()), pos);
         return nullptr;
     }
     if (!symbol->is<Type>()) {
         DSLWriter::ReportError(String::printf("symbol '%.*s' is not a type", (int)name.length(),
-                name.data()));
+                name.data()), pos);
         return nullptr;
     }
     const Type& result = symbol->as<Type>();
     if (!DSLWriter::IsModule()) {
         if (result.containsPrivateFields()) {
-            DSLWriter::ReportError("type '" + String(name) + "' is private");
+            DSLWriter::ReportError("type '" + String(name) + "' is private", pos);
             return nullptr;
         }
         if (DSLWriter::Context().fConfig->strictES2Mode() && !result.allowedInES2()) {
-            DSLWriter::ReportError("type '" + String(name) + "' is not supported");
+            DSLWriter::ReportError("type '" + String(name) + "' is not supported", pos);
             return nullptr;
         }
     }
@@ -43,7 +43,7 @@ static const Type* find_type(skstd::string_view name) {
 
 static const Type* find_type(skstd::string_view name, const Modifiers& modifiers,
         PositionInfo pos) {
-    const Type* type = find_type(name);
+    const Type* type = find_type(name, pos);
     if (!type) {
         return nullptr;
     }
@@ -54,7 +54,7 @@ static const Type* find_type(skstd::string_view name, const Modifiers& modifiers
 }
 
 DSLType::DSLType(skstd::string_view name)
-        : fSkSLType(find_type(name)) {}
+        : fSkSLType(find_type(name, PositionInfo())) {}
 
 DSLType::DSLType(skstd::string_view name, const DSLModifiers& modifiers, PositionInfo position)
         : fSkSLType(find_type(name, modifiers.fModifiers, position)) {}
