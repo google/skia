@@ -581,7 +581,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     EXPECT_EQUAL(f32 = Float3x2(1, 2, 3, 4, 5, 6),
                  "(f32 = float3x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0))");
     Var f42(kFloat4x2_Type, "f42");
-    EXPECT_EQUAL(f42 = Float4x2(Float4(1, 2, 3, 4), 5, 6, 7, 8),
+    EXPECT_EQUAL(f42 = Float4x2(Float2(1, 2), Float2(3, 4), 5, 6, 7, 8),
                  "(f42 = float4x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0))");
     Var f23(kFloat2x3_Type, "f23");
     EXPECT_EQUAL(f23 = Float2x3(1, Float2(2, 3), 4, Float2(5, 6)),
@@ -590,13 +590,14 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     EXPECT_EQUAL(f33 = Float3x3(Float3(1, 2, 3), 4, Float2(5, 6), 7, 8, 9),
                  "(f33 = float3x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0))");
     Var f43(kFloat4x3_Type, "f43");
-    EXPECT_EQUAL(f43 = Float4x3(Float4(1, 2, 3, 4), Float4(5, 6, 7, 8), Float4(9, 10, 11, 12)),
-                 "(f43 = float4x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0))");
+    EXPECT_EQUAL(
+            f43 = Float4x3(Float3(1, 2, 3), Float3(4, 5, 6), Float3(7, 8, 9), Float3(10, 11, 12)),
+            "(f43 = float4x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0))");
     Var f24(kFloat2x4_Type, "f24");
     EXPECT_EQUAL(f24 = Float2x4(1, 2, 3, 4, 5, 6, 7, 8),
                  "(f24 = float2x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0))");
     Var f34(kFloat3x4_Type, "f34");
-    EXPECT_EQUAL(f34 = Float3x4(1, 2, 3, 4, 5, 6, 7, 8, 9, Float3(10, 11, 12)),
+    EXPECT_EQUAL(f34 = Float3x4(1, 2, 3, 4, 5, 6, 7, 8, Float4(9, 10, 11, 12)),
                  "(f34 = float3x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0))");
     Var f44(kFloat4x4_Type, "f44");
     EXPECT_EQUAL(f44 = Float4x4(1), "(f44 = float4x4(1.0))");
@@ -607,7 +608,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     EXPECT_EQUAL(h32 = Half3x2(1, 2, 3, 4, 5, 6),
                  "(h32 = half3x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0))");
     Var h42(kHalf4x2_Type, "h42");
-    EXPECT_EQUAL(h42 = Half4x2(Half4(1, 2, 3, 4), 5, 6, 7, 8),
+    EXPECT_EQUAL(h42 = Half4x2(Half2(1, 2), Half2(3, 4), 5, 6, 7, 8),
                  "(h42 = half4x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0))");
     Var h23(kHalf2x3_Type, "h23");
     EXPECT_EQUAL(h23 = Half2x3(1, Half2(2, 3), 4, Half2(5, 6)),
@@ -616,13 +617,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     EXPECT_EQUAL(h33 = Half3x3(Half3(1, 2, 3), 4, Half2(5, 6), 7, 8, 9),
                  "(h33 = half3x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0))");
     Var h43(kHalf4x3_Type, "h43");
-    EXPECT_EQUAL(h43 = Half4x3(Half4(1, 2, 3, 4), Half4(5, 6, 7, 8), Half4(9, 10, 11, 12)),
+    EXPECT_EQUAL(h43 = Half4x3(Half3(1, 2, 3), Half3(4, 5, 6), Half3(7, 8, 9), Half3(10, 11, 12)),
                  "(h43 = half4x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0))");
     Var h24(kHalf2x4_Type, "h24");
     EXPECT_EQUAL(h24 = Half2x4(1, 2, 3, 4, 5, 6, 7, 8),
                  "(h24 = half2x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0))");
     Var h34(kHalf3x4_Type, "h34");
-    EXPECT_EQUAL(h34 = Half3x4(1, 2, 3, 4, 5, 6, 7, 8, 9, Half3(10, 11, 12)),
+    EXPECT_EQUAL(h34 = Half3x4(1, 2, 3, 4, 5, 6, 7, 8, Half4(9, 10, 11, 12)),
                  "(h34 = half3x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0))");
     Var h44(kHalf4x4_Type, "h44");
     EXPECT_EQUAL(h44 = Half4x4(1), "(h44 = half4x4(1.0))");

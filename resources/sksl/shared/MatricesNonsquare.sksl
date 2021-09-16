@@ -1,4 +1,5 @@
 uniform half4 colorGreen, colorRed;
+uniform float2x2 testMatrix2x2;
 
 bool test_float() {
     bool ok = true;
@@ -43,6 +44,21 @@ bool test_float() {
     m24 /= 4;
     ok = ok && (m24 == float2x4(0.75, 0, 0, 0,
                                 0, 0.75, 0, 0));
+
+    float4 f4 = float4(testMatrix2x2);
+    ok = ok && float2x3(f4.xyz, f4.w, f4.xy) ==
+               float2x3(1, 2, 3, 4, 1, 2);
+    ok = ok && float2x4(f4.xyz, f4.w, f4.x, f4.yzw) ==
+               float2x4(1, 2, 3, 4, 1, 2, 3, 4);
+    ok = ok && float3x2(f4.xy, f4.zw, f4.x, f4.y) ==
+               float3x2(1, 2, 3, 4, 1, 2);
+    ok = ok && float3x4(f4.xy, f4.zw, f4.xyzw, f4.x, f4.yz, f4.w) ==
+               float3x4(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
+    ok = ok && float4x2(f4.xy, f4.z, f4.w, f4.xy, f4.z, f4.w) ==
+               float4x2(1, 2, 3, 4, 1, 2, 3, 4);
+    ok = ok && float4x3(f4.x, f4.yz, f4.wx, f4.y, f4.zwx, f4.yzw) ==
+               float4x3(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
+
     return ok;
 }
 
@@ -89,6 +105,21 @@ bool test_half() {
     m24 /= 4;
     ok = ok && (m24 == half2x4(0.75, 0, 0, 0,
                                0, 0.75, 0, 0));
+
+    half4 h4 = half4(testMatrix2x2);
+    ok = ok && float2x3(h4.xyz, h4.w, h4.xy) ==
+               float2x3(1, 2, 3, 4, 1, 2);
+    ok = ok && float2x4(h4.xyz, h4.w, h4.x, h4.yzw) ==
+               float2x4(1, 2, 3, 4, 1, 2, 3, 4);
+    ok = ok && float3x2(h4.xy, h4.zw, h4.x, h4.y) ==
+               float3x2(1, 2, 3, 4, 1, 2);
+    ok = ok && float3x4(h4.xy, h4.zw, h4.xyzw, h4.x, h4.yz, h4.w) ==
+               float3x4(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
+    ok = ok && float4x2(h4.xy, h4.z, h4.w, h4.xy, h4.z, h4.w) ==
+               float4x2(1, 2, 3, 4, 1, 2, 3, 4);
+    ok = ok && float4x3(h4.x, h4.yz, h4.wx, h4.y, h4.zwx, h4.yzw) ==
+               float4x3(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
+
     return ok;
 }
 

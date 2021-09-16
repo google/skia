@@ -2,6 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
+uniform mat2 testMatrix2x2;
 bool test_half_b() {
     bool ok = true;
     mat2x3 m23 = mat2x3(2.0);
@@ -26,6 +27,13 @@ bool test_half_b() {
     ok = ok && m32 == mat3x2(2.0, -2.0, -2.0, 2.0, -2.0, -2.0);
     m24 /= 4.0;
     ok = ok && m24 == mat2x4(0.75, 0.0, 0.0, 0.0, 0.0, 0.75, 0.0, 0.0);
+    vec4 h4 = vec4(testMatrix2x2);
+    ok = ok && mat2x3(h4.xyz, h4.w, h4.xy) == mat2x3(1.0, 2.0, 3.0, 4.0, 1.0, 2.0);
+    ok = ok && mat2x4(h4.xyz, h4.w, h4.x, h4.yzw) == mat2x4(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0);
+    ok = ok && mat3x2(h4.xy, h4.zw, h4.x, h4.y) == mat3x2(1.0, 2.0, 3.0, 4.0, 1.0, 2.0);
+    ok = ok && mat3x4(h4.xy, h4.zw, h4, h4.x, h4.yz, h4.w) == mat3x4(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0);
+    ok = ok && mat4x2(h4.xy, h4.z, h4.w, h4.xy, h4.z, h4.w) == mat4x2(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0);
+    ok = ok && mat4x3(h4.x, h4.yz, h4.wx, h4.y, h4.zwx, h4.yzw) == mat4x3(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0);
     return ok;
 }
 vec4 main() {
@@ -52,5 +60,12 @@ vec4 main() {
     _0_ok = _0_ok && _3_m32 == mat3x2(2.0, -2.0, -2.0, 2.0, -2.0, -2.0);
     _2_m24 /= 4.0;
     _0_ok = _0_ok && _2_m24 == mat2x4(0.75, 0.0, 0.0, 0.0, 0.0, 0.75, 0.0, 0.0);
+    vec4 _10_f4 = vec4(testMatrix2x2);
+    _0_ok = _0_ok && mat2x3(_10_f4.xyz, _10_f4.w, _10_f4.xy) == mat2x3(1.0, 2.0, 3.0, 4.0, 1.0, 2.0);
+    _0_ok = _0_ok && mat2x4(_10_f4.xyz, _10_f4.w, _10_f4.x, _10_f4.yzw) == mat2x4(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0);
+    _0_ok = _0_ok && mat3x2(_10_f4.xy, _10_f4.zw, _10_f4.x, _10_f4.y) == mat3x2(1.0, 2.0, 3.0, 4.0, 1.0, 2.0);
+    _0_ok = _0_ok && mat3x4(_10_f4.xy, _10_f4.zw, _10_f4, _10_f4.x, _10_f4.yz, _10_f4.w) == mat3x4(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0);
+    _0_ok = _0_ok && mat4x2(_10_f4.xy, _10_f4.z, _10_f4.w, _10_f4.xy, _10_f4.z, _10_f4.w) == mat4x2(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0);
+    _0_ok = _0_ok && mat4x3(_10_f4.x, _10_f4.yz, _10_f4.wx, _10_f4.y, _10_f4.zwx, _10_f4.yzw) == mat4x3(1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0);
     return _0_ok && test_half_b() ? colorGreen : colorRed;
 }
