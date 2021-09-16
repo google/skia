@@ -17,6 +17,12 @@
 #include <cstdint>
 #include <memory>
 
+#if defined(__has_cpp_attribute) && __has_cpp_attribute(clang::reinitializes)
+#define SK_CLANG_REINITIALIZES [[clang::reinitializes]]
+#else
+#define SK_CLANG_REINITIALIZES
+#endif
+
 namespace SkSL {
 
 class Expression;
@@ -139,7 +145,7 @@ public:
      */
     bool isValid() const;
 
-    void swap(DSLExpression& other);
+    SK_CLANG_REINITIALIZES void swap(DSLExpression& other);
 
     /**
      * Invalidates this object and returns the SkSL expression it represents. It is an error to call
