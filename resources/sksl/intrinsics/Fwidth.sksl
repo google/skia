@@ -1,1 +1,15 @@
-uniform half a; void main() { sk_FragColor.x = fwidth(a); }
+uniform half4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    half4 expected = half4(0);  // derivative of a constant is zero
+    return (dFdx(testInputs.x)      == expected.x     &&
+            dFdx(testInputs.xy)     == expected.xy    &&
+            dFdx(testInputs.xyz)    == expected.xyz   &&
+            dFdx(testInputs.xyzw)   == expected.xyzw  &&
+            sign(fwidth(coords.xx)) == half2(1, 1)        &&
+            sign(fwidth(coords.x1)) == half2(1, 0)        &&
+            sign(fwidth(coords.yy)) == half2(1, 1)        &&
+            sign(fwidth(coords.0y)) == half2(0, 1)        &&
+            sign(fwidth(coords.xy)) == half2(1, 1)) ? colorGreen : colorRed;
+}

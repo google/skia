@@ -240,6 +240,7 @@ SKSL_TEST_ES3(SkSLIntrinsicDFdx,               "intrinsics/DFdx.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicDFdy,               "intrinsics/DFdy.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicFloatBitsToInt,     "intrinsics/FloatBitsToInt.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicFloatBitsToUint,    "intrinsics/FloatBitsToUint.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicFwidth,             "intrinsics/Fwidth.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicIntBitsToFloat,     "intrinsics/IntBitsToFloat.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicIsInf,              "intrinsics/IsInf.sksl")
 // Fails on Adreno 6xx + Vulkan

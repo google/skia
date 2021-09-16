@@ -217,10 +217,12 @@ bool  all($bvec x);
 $bvec not($bvec x);
 
 // 8.9 : Fragment Processing Functions (GLSL ES 3.0)
-$es3 $genType dFdx($genType p);
-$es3 $genType dFdy($genType p);
+$es3 $genType  dFdx($genType p);
+$es3 $genType  dFdy($genType p);
 $es3 $genHType dFdx($genHType p);
 $es3 $genHType dFdy($genHType p);
+$es3 $genType  fwidth($genType p);
+$es3 $genHType fwidth($genHType p);
 
 
 // SkSL intrinsics that are not part of GLSL:

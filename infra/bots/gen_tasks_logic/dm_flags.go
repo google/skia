@@ -898,6 +898,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.matchGpu("Intel") { // some Intel GPUs don't return zero for the derivative of a uniform
 		skip("_", "tests", "_", "SkSLIntrinsicDFdy_GPU")
 		skip("_", "tests", "_", "SkSLIntrinsicDFdx_GPU")
+		skip("_", "tests", "_", "SkSLIntrinsicFwidth_GPU")
 	}
 
 	if b.matchOs("Mac") && b.matchGpu("Intel(Iris5100|HD6000)") {
