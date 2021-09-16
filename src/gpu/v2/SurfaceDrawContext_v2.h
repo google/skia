@@ -14,6 +14,8 @@ namespace skgpu::v2 {
 
 class SurfaceDrawContext final : public SurfaceFillContext {
 public:
+    ~SurfaceDrawContext() override;
+
     static std::unique_ptr<SurfaceDrawContext> Make(GrRecordingContext*,
                                                     GrColorType,
                                                     sk_sp<GrSurfaceProxy>,

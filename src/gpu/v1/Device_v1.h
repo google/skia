@@ -28,12 +28,8 @@ namespace skgpu::v1 {
 /**
  *  Subclass of BaseDevice, which directs all drawing to the GrGpu owned by the canvas.
  */
-class Device : public BaseDevice  {
+class Device final : public BaseDevice  {
 public:
-    GrSurfaceProxyView readSurfaceView() override {
-        return fSurfaceDrawContext->readSurfaceView();
-    }
-
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait) override;

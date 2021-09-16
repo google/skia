@@ -41,7 +41,6 @@ public:
     ~Device() override;
 
     skgpu::SurfaceFillContext* surfaceFillContext() override;
-    GrSurfaceProxyView readSurfaceView() override;
 
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,

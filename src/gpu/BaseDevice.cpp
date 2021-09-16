@@ -12,6 +12,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/SurfaceContext.h"
+#include "src/gpu/SurfaceFillContext.h"
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
@@ -22,6 +23,10 @@ BaseDevice::BaseDevice(sk_sp<GrRecordingContext> rContext,
                        const SkSurfaceProps& props)
     : INHERITED(ii, props)
     , fContext(std::move(rContext)) {
+}
+
+GrSurfaceProxyView BaseDevice::readSurfaceView() {
+    return this->surfaceFillContext()->readSurfaceView();
 }
 
 /** Checks that the alpha type is legal and gets constructor flags. Returns false if device creation

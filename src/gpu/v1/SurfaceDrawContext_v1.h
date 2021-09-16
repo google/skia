@@ -118,10 +118,6 @@ public:
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
             SkBudgeted = SkBudgeted::kYes);
 
-    // These match the definitions in SkSurface & GrSurface.h, for whence they came
-    typedef void* ReleaseContext;
-    typedef void (*ReleaseProc)(ReleaseContext);
-
     // Creates a SurfaceDrawContext that wraps the passed in GrBackendTexture.
     static std::unique_ptr<SurfaceDrawContext> MakeFromBackendTexture(
             GrRecordingContext*,

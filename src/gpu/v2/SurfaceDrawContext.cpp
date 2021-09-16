@@ -89,4 +89,6 @@ SurfaceDrawContext::SurfaceDrawContext(GrRecordingContext* rContext,
         , fSurfaceProps(surfaceProps) {
 }
 
+SurfaceDrawContext::~SurfaceDrawContext() {}
+
 } // namespace skgpu::v2
