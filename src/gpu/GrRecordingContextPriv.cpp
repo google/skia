@@ -397,15 +397,17 @@ std::unique_ptr<skgpu::SurfaceFillContext> GrRecordingContextPriv::makeSFCFromBa
                                                                          SkSurfaceProps(),
                                                                          std::move(releaseHelper));
         }
-        const GrBackendFormat& format = tex.getBackendFormat();
-        GrSwizzle readSwizzle, writeSwizzle;
-        if (info.colorType() != GrColorType::kUnknown) {
-            if (!this->caps()->areColorTypeAndFormatCompatible(info.colorType(), format)) {
-                return nullptr;
-            }
-            readSwizzle  = this->caps()->getReadSwizzle (format, info.colorType());
-            writeSwizzle = this->caps()->getWriteSwizzle(format, info.colorType());
+
+        if (info.colorType() == GrColorType::kUnknown) {
+            return nullptr;
         }
+
+        const GrBackendFormat& format = tex.getBackendFormat();
+        if (!this->caps()->areColorTypeAndFormatCompatible(info.colorType(), format)) {
+            return nullptr;
+        }
+        GrSwizzle readSwizzle  = this->caps()->getReadSwizzle (format, info.colorType());
+        GrSwizzle writeSwizzle = this->caps()->getWriteSwizzle(format, info.colorType());
 
         sk_sp<GrTextureProxy> proxy(this->proxyProvider()->wrapRenderableBackendTexture(
                 tex, sampleCount, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
