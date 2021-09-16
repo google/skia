@@ -459,9 +459,6 @@
 #ifndef SkDebugf
     SK_API void SkDebugf(const char format[], ...) SK_PRINTF_LIKE(1, 2);
 #endif
-#if defined(SK_BUILD_FOR_LIBFUZZER)
-    SK_API SK_PRINTF_LIKE(1, 2) inline void SkDebugf(const char format[], ...) {}
-#endif
 
 // SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as stand alone assertion expressions, e.g.
 //    uint32_t foo(int x) {
