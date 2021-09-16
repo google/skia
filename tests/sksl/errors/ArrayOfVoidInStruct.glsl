@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 4: opaque type 'void' is not permitted in a struct
-error: 5: opaque type 'void' is not permitted in a struct
-error: 6: multi-dimensional arrays are not supported
+error: 4: type 'void' may not be used in an array
+error: 5: type 'void' may not be used in an array
+error: 6: type 'void' may not be used in an array
 3 errors

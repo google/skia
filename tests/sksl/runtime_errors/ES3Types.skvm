@@ -23,7 +23,7 @@ error: 23: type 'ushort4' is not supported
 error: 25: type 'uint4' is not supported
 error: 26: type 'ushort' is not supported
 error: 27: type 'float2x3' is not supported
-error: 29: type 'Sh42' is not supported
-error: 30: type 'Sus' is not supported
-error: 31: type 'Sau' is not supported
+error: 29: type 'half4x2' is not supported
+error: 30: type 'ushort' is not supported
+error: 31: type 'uint' is not supported
 26 errors

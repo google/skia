@@ -6,7 +6,8 @@ error: 11: variables of type 'shader' must be uniform
 error: 14: variables of type 'shader' must be global
 error: 14: variables of type 'shader' must be uniform
 error: 15: parameters of type 'shader' not allowed
+error: 15: unknown identifier 's'
 error: 16: functions may not return opaque type 'shader'
 error: 17: cannot construct 'shader'
 error: 18: ternary expression of opaque type 'shader' not allowed
-9 errors
+10 errors
