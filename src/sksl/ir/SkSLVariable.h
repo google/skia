@@ -52,6 +52,20 @@ public:
 
     ~Variable() override;
 
+    /**
+     * Creates a local scratch variable and the associated VarDeclaration statement.
+     * Useful when doing IR rewrites, e.g. inlining a function call.
+     */
+    struct ScratchVariable {
+        const Variable* fVarSymbol;
+        std::unique_ptr<Statement> fVarDecl;
+    };
+    static ScratchVariable MakeScratchVariable(const Context& context,
+                                               skstd::string_view baseName,
+                                               const Type* type,
+                                               const Modifiers& modifiers,
+                                               SymbolTable* symbolTable,
+                                               std::unique_ptr<Expression> initialValue);
     const Modifiers& modifiers() const {
         return *fModifiers;
     }

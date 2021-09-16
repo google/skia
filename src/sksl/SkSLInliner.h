@@ -96,25 +96,11 @@ private:
                            const ProgramUsage&,
                            const FunctionDeclaration* caller);
 
-    /** Creates a scratch variable for the inliner to use. */
-    struct InlineVariable {
-        const Variable*             fVarSymbol;
-        std::unique_ptr<Statement>  fVarDecl;
-    };
-    InlineVariable makeInlineVariable(skstd::string_view baseName,
-                                      const Type* type,
-                                      SymbolTable* symbolTable,
-                                      Modifiers modifiers,
-                                      bool isBuiltinCode,
-                                      std::unique_ptr<Expression>* initialValue);
-
     /** Adds a scope to inlined bodies returned by `inlineCall`, if one is required. */
     void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);
 
     /** Checks whether inlining is viable for a FunctionCall, modulo recursion and function size. */
     bool isSafeToInline(const FunctionDefinition* functionDef);
-
-    ModifiersPool& modifiersPool() const { return *fContext->fModifiersPool; }
 
     const Context* fContext = nullptr;
     int fInlinedStatementCounter = 0;
