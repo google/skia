@@ -19,7 +19,7 @@ public:
     /**
      * Mangles baseName to create a name that is unique within symbolTable.
      */
-    String uniqueName(String baseName, SymbolTable* symbolTable);
+    String uniqueName(skstd::string_view baseName, SymbolTable* symbolTable);
 
     void reset() {
         fCounter = 0;

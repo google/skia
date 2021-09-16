@@ -101,7 +101,7 @@ private:
         const Variable*             fVarSymbol;
         std::unique_ptr<Statement>  fVarDecl;
     };
-    InlineVariable makeInlineVariable(const String& baseName,
+    InlineVariable makeInlineVariable(skstd::string_view baseName,
                                       const Type* type,
                                       SymbolTable* symbolTable,
                                       Modifiers modifiers,

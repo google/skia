@@ -107,7 +107,7 @@ const SkSL::Modifiers* DSLWriter::Modifiers(const SkSL::Modifiers& modifiers) {
 skstd::string_view DSLWriter::Name(skstd::string_view name) {
     if (ManglingEnabled()) {
         const String* s = SymbolTable()->takeOwnershipOfString(
-                Instance().fMangler.uniqueName(SkString(name).c_str(), SymbolTable().get()));
+                Instance().fMangler.uniqueName(name, SymbolTable().get()));
         return s->c_str();
     }
     return name;

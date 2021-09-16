@@ -556,7 +556,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
             const String* name = symbolTableForStatement->takeOwnershipOfString(
-                    fMangler.uniqueName(String(variable.name()), symbolTableForStatement));
+                    fMangler.uniqueName(variable.name(), symbolTableForStatement));
             auto clonedVar = std::make_unique<Variable>(
                                                      offset,
                                                      &variable.modifiers(),
@@ -579,7 +579,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     }
 }
 
-Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
+Inliner::InlineVariable Inliner::makeInlineVariable(skstd::string_view baseName,
                                                     const Type* type,
                                                     SymbolTable* symbolTable,
                                                     Modifiers modifiers,
@@ -660,7 +660,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // for void-return functions, or in cases that are simple enough that we can just replace
         // the function-call node with the result expression.
         std::unique_ptr<Expression> noInitialValue;
-        InlineVariable var = this->makeInlineVariable(String(function.declaration().name()),
+        InlineVariable var = this->makeInlineVariable(function.declaration().name(),
                                                       &function.declaration().returnType(),
                                                       symbolTable.get(), Modifiers{},
                                                       caller->isBuiltin(), &noInitialValue);
@@ -685,7 +685,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                 continue;
             }
         }
-        InlineVariable var = this->makeInlineVariable(String(param->name()), &arguments[i]->type(),
+        InlineVariable var = this->makeInlineVariable(param->name(), &arguments[i]->type(),
                                                       symbolTable.get(), param->modifiers(),
                                                       caller->isBuiltin(), &arguments[i]);
         inlineStatements.push_back(std::move(var.fVarDecl));
