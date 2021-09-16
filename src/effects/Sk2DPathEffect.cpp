@@ -40,7 +40,7 @@ protected:
             return;
         }
     #if defined(SK_BUILD_FOR_FUZZER)
-        if (count > 100) {
+        if (ucount > 100) {
             return;
         }
     #endif

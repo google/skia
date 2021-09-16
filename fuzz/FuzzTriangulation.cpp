@@ -28,6 +28,8 @@ DEF_FUZZ(Triangulation, fuzz) {
     GrCpuVertexAllocator allocator;
     bool isLinear;
 
-    GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator, &isLinear);
-    allocator.detachVertexData(); // normally handled by the triangulating path renderer.
+    int count = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator, &isLinear);
+    if (count > 0) {
+        allocator.detachVertexData(); // normally handled by the triangulating path renderer.
+    }
 }

@@ -29,6 +29,9 @@ public:
 
     static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
+        if (!path.isFinite()) {
+            return 0;
+        }
         SkArenaAlloc alloc(kArenaDefaultChunkSize);
         GrTriangulator triangulator(path, &alloc);
         Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, isLinear);
