@@ -14,6 +14,7 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSwizzle.h"
+#include "src/gpu/GrUniformAggregator.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -209,8 +210,8 @@ public:
             for (int i = 0; i < attrCount; ++i) {
                 const Attribute& attr = attrs[i];
                 b->appendComment(attr.isInitialized() ? attr.name() : "unusedAttr");
-                b->addBits(8, attr.isInitialized() ? attr.cpuType() : 0xff, "attrType");
-                b->addBits(8, attr.isInitialized() ? attr.gpuType() : 0xff, "attrGpuType");
+                b->addBits(8, attr.isInitialized() ? (int)attr.cpuType() : 0xff, "attrType");
+                b->addBits(8, attr.isInitialized() ? (int)attr.gpuType() : 0xff, "attrGpuType");
             }
         };
         b->add32(fVertexAttributes.fRawCount, "numVertexAttributes");
@@ -261,6 +262,8 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
+    GrGeometryProcessor(const GrGeometryProcessor&) = delete;
+
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
     GrShaderFlags fShaders = kVertex_GrShaderFlag | kFragment_GrShaderFlag;
@@ -292,6 +295,7 @@ public:
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
                  GrGLSLFPFragmentBuilder* fragBuilder,
                  GrGLSLVaryingHandler* varyingHandler,
+                 GrUniformAggregator::ProcessorUniforms uniforms,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrShaderCaps* caps,
                  const GrGeometryProcessor& geomProc,
@@ -301,6 +305,7 @@ public:
                 : fVertBuilder(vertBuilder)
                 , fFragBuilder(fragBuilder)
                 , fVaryingHandler(varyingHandler)
+                , fUniforms(std::move(uniforms))
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
                 , fGeomProc(geomProc)
@@ -310,6 +315,7 @@ public:
         GrGLSLVertexBuilder* fVertBuilder;
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
+        GrUniformAggregator::ProcessorUniforms fUniforms;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
         const GrGeometryProcessor& fGeomProc;

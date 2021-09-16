@@ -9,16 +9,21 @@
 #define GrGLProgramDataManager_DEFINED
 
 #include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-#include "include/private/SkTArray.h"
+#include <vector>
 
 class GrGLGpu;
 class SkMatrix;
 class GrGLProgram;
+class GrGLContext;
+struct GrGLInterface;
+class GrProgramInfo;
+class GrUniformAggregator;
 
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the
@@ -41,7 +46,12 @@ public:
     typedef SkTBlockList<GLUniformInfo> UniformInfoArray;
     typedef SkTBlockList<VaryingInfo>   VaryingInfoArray;
 
-    GrGLProgramDataManager(GrGLGpu*, const UniformInfoArray&);
+    GrGLProgramDataManager(GrGLGpu*,
+                           const UniformInfoArray& uniforms,
+                           const UniformInfoArray& samplers,
+                           GrGLuint programID,
+                           bool usedProgramBinaries,
+                           const GrUniformAggregator& aggregator);
 
     void setSamplerUniforms(const UniformInfoArray& samplers, int startUnit) const;
 
@@ -73,6 +83,8 @@ public:
     void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
+    void setUniforms(const GrProgramInfo& info);
+
 private:
     enum {
         kUnusedUniform = -1,
@@ -91,6 +103,29 @@ private:
 
     SkTArray<Uniform, true> fUniforms;
     GrGLGpu* fGpu;
+
+    class UniformManager {
+    public:
+        UniformManager(const GrUniformAggregator&,
+                       GrGLuint programID,
+                       // used for BindUniformLocation, negative means get the locations, don't bind
+                       GrGLint firstUnusedUniformID,
+                       const GrGLContext& ctx);
+
+        void setUniforms(const GrGLInterface* gl, const GrProgramInfo& info);
+
+    private:
+        struct Uniform {
+            size_t   indexInProcessor = -1;
+            GrSLType type             = kVoid_GrSLType;
+            int      count            = 0;
+            GrGLint  location         = -1;
+        };
+        using ProcessorUniforms = std::vector<Uniform>;
+        std::vector<ProcessorUniforms> fUniforms;
+    };
+
+    UniformManager fManager;
 
     using INHERITED = GrGLSLProgramDataManager;
 };

@@ -63,7 +63,9 @@ private:
         return fSamplerSwizzles[handle.toIndex()];
     }
 
-    void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
+    void appendUniformDecls(const GrUniformAggregator&,
+                            GrShaderFlags visibility,
+                            SkString*) const override;
 
     // Manually set uniform locations for all our uniforms.
     void bindUniformLocations(GrGLuint programID, const GrGLCaps& caps);

@@ -324,7 +324,57 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addInputSampler(const Gr
     return GrGLSLUniformHandler::SamplerHandle(0);
 }
 
-void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
+GrUniformDataManager::ProgramUniforms GrVkUniformHandler::getNewProgramUniforms(
+        const GrUniformAggregator& aggregator) {
+    // First get all the offsets for both layouts, decide which layout will be used, and then
+    // build the result based on the decision.
+    std::vector<uint32_t> offsets[kLayoutCount];
+    for (int i = 0; i < kLayoutCount; ++i) {
+        offsets[i].reserve(aggregator.uniformCount());
+    }
+    for (const auto& record : aggregator.records()) {
+        const GrProcessor::Uniform& u = record.uniform();
+        for (int l = 0; l < kLayoutCount; ++l) {
+            offsets[l].push_back(get_aligned_offset(&fCurrentOffsets[l], u.type(), u.count(), l));
+        }
+    }
+
+    // At this point we determine whether we'll be using push constants based on the
+    // uniforms set so far. Later checks will use the internal bool we set here to
+    // keep things consistent.
+    this->determineIfUsePushConstants();
+
+    auto chosenOffsets = fUsePushConstants ? offsets[kStd430Layout] : offsets[kStd140Layout];
+    int idx = 0;
+    GrUniformDataManager::ProgramUniforms result;
+    result.reserve(aggregator.numProcessors());
+    for (int p = 0; p < aggregator.numProcessors(); ++p) {
+        GrUniformDataManager::ProcessorUniforms uniforms;
+        auto records = aggregator.processorRecords(p);
+        uniforms.reserve(records.size());
+        for (const GrUniformAggregator::Record& record : records) {
+            const GrProcessor::Uniform& u = record.uniform();
+            uint32_t offset = chosenOffsets[idx];
+            uniforms.push_back({record.indexInProcessor, u.type(), u.count(), offset});
+
+            // Add to fNewUniforms so that these get declared.
+            UniformInfo& info = fNewUniforms.push_back();
+            GrShaderVar var(record.name, u.type(), u.count());
+            SkString qualifier = SkStringPrintf("offset = %d", offset);
+            var.addLayoutQualifier(qualifier.c_str());
+            info.fVariable   = var;
+            info.fVisibility = u.visibility();
+            info.fOwner      = nullptr;
+            ++idx;
+        }
+        result.push_back(std::move(uniforms));
+    }
+    return result;
+}
+
+void GrVkUniformHandler::appendUniformDecls(const GrUniformAggregator& aggregator,
+                                            GrShaderFlags visibility,
+                                            SkString* out) const {
     for (const VkUniformInfo& sampler : fSamplers.items()) {
         SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType ||
                  sampler.fVariable.getType() == kTextureExternalSampler_GrSLType);
@@ -347,17 +397,22 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         if (!firstOffsetCheck) {
             // Check to make sure we are starting our offset at 0 so the offset qualifier we
             // set on each variable in the uniform block is valid.
-            SkASSERT(0 == localUniform.fOffsets[kStd140Layout] &&
-                     0 == localUniform.fOffsets[kStd430Layout]);
+            SkASSERT(localUniform.fOffsets[kStd140Layout] == 0 &&
+                     localUniform.fOffsets[kStd430Layout] == 0);
+            firstOffsetCheck = true;
+        }
+    }
+    for (const VkUniformInfo& localUniform : fNewUniforms.items()) {
+        if (!firstOffsetCheck) {
+            // Check to make sure we are starting our offset at 0 so the offset qualifier we
+            // set on each variable in the uniform block is valid.
+            SkASSERT(localUniform.fOffsets[kStd140Layout] == 0 &&
+                     localUniform.fOffsets[kStd430Layout] == 0);
             firstOffsetCheck = true;
         }
     }
 #endif
 
-    // At this point we determine whether we'll be using push constants based on the
-    // uniforms set so far. Later checks will use the internal bool we set here to
-    // keep things consistent.
-    this->determineIfUsePushConstants();
     SkString uniformsString;
     for (const VkUniformInfo& localUniform : fUniforms.items()) {
         if (visibility & localUniform.fVisibility) {
@@ -369,7 +424,15 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
             }
         }
     }
-
+    SkASSERT(fNewUniforms.count() == aggregator.uniformCount());
+    for (const VkUniformInfo& localUniform : fNewUniforms.items()) {
+        if (visibility & localUniform.fVisibility) {
+            if (GrSLTypeCanBeUniformValue(localUniform.fVariable.getType())) {
+                localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
+                uniformsString.append(";\n");
+            }
+        }
+    }
     if (!uniformsString.isEmpty()) {
         if (fUsePushConstants) {
             out->append("layout (push_constant) ");
@@ -388,7 +451,7 @@ uint32_t GrVkUniformHandler::getRTFlipOffset() const {
     return get_aligned_offset(&currentOffset, kFloat2_GrSLType, 0, layout);
 }
 
-void GrVkUniformHandler::determineIfUsePushConstants() const {
+void GrVkUniformHandler::determineIfUsePushConstants() {
     // We may insert a uniform for flipping origin-sensitive language features (e.g. sk_FragCoord).
     // We won't know that for sure until then but we need to make this determination now,
     // so assume we will need it.

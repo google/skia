@@ -8,9 +8,8 @@
 #ifndef GrVkPipelineStateDataManager_DEFINED
 #define GrVkPipelineStateDataManager_DEFINED
 
-#include "src/gpu/GrUniformDataManager.h"
-
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrUniformDataManager.h"
 #include "src/gpu/vk/GrVkUniformHandler.h"
 
 class GrGpuBuffer;
@@ -21,7 +20,9 @@ class GrVkPipelineStateDataManager : public GrUniformDataManager {
 public:
     typedef GrVkUniformHandler::UniformInfoArray UniformInfoArray;
 
-    GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t uniformSize,
+    GrVkPipelineStateDataManager(ProgramUniforms programUniforms,
+                                 const UniformInfoArray&,
+                                 uint32_t uniformSize,
                                  bool usePushConstants);
 
     // Returns the uniform buffer that holds all the uniform data. If there are no uniforms it

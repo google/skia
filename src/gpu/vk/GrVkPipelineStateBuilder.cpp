@@ -182,6 +182,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
 
     dsLayout[GrVkUniformHandler::kInputDescSet] = resourceProvider.getInputDSLayout();
 
+    GrUniformDataManager::ProgramUniforms uniforms =
+            fUniformHandler.getNewProgramUniforms(fUniformAggregator);
     this->finalizeShaders();
 
     bool usePushConstants = fUniformHandler.usePushConstants();
@@ -344,6 +346,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     return new GrVkPipelineState(fGpu,
                                  std::move(pipeline),
                                  samplerDSHandle,
+                                 std::move(uniforms),
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
                                  fUniformHandler.currentOffset(),

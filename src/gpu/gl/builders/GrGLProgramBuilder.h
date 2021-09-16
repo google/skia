@@ -79,8 +79,7 @@ private:
                          SkSL::String* sksl[], const SkSL::String glsl[]);
     void resolveProgramResourceLocations(GrGLuint programID, bool force);
 
-    // Subclasses create different programs
-    sk_sp<GrGLProgram> createProgram(GrGLuint programID);
+    sk_sp<GrGLProgram> createProgram(GrGLuint programID, bool usedProgramBinaries);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }

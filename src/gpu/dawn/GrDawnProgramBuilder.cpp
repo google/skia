@@ -263,6 +263,8 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         return nullptr;
     }
 
+    GrUniformDataManager::ProgramUniforms uniforms =
+            builder.fUniformHandler.getNewProgramUniforms(builder.fUniformAggregator);
     builder.finalizeShaders();
 
     SkSL::Program::Inputs vertInputs, fragInputs;
@@ -271,9 +273,11 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                &vertInputs);
     auto fsModule = builder.createShaderModule(builder.fFS, SkSL::ProgramKind::kFragment, flipY,
                                                &fragInputs);
-    GrSPIRVUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
+    GrSPIRVUniformHandler::UniformInfoArray& legacyUniforms = builder.fUniformHandler.fUniforms;
     uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
-    sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize));
+    sk_sp<GrDawnProgram> result(new GrDawnProgram(std::move(uniforms),
+                                                  legacyUniforms,
+                                                  uniformBufferSize));
     result->fGPImpl = std::move(builder.fGPImpl);
     result->fXPImpl = std::move(builder.fXPImpl);
     result->fFPImpls = std::move(builder.fFPImpls);
@@ -494,6 +498,7 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     if (0 == fDataManager.uniformBufferSize()) {
         return nullptr;
     }
+    fDataManager.setUniforms(programInfo);
     this->setRenderTargetState(renderTarget, programInfo.origin());
     const GrPipeline& pipeline = programInfo.pipeline();
     const GrGeometryProcessor& geomProc = programInfo.geomProc();

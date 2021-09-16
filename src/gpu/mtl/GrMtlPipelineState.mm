@@ -40,6 +40,7 @@ GrMtlPipelineState::GrMtlPipelineState(
         GrMtlGpu* gpu,
         sk_sp<GrMtlRenderPipeline> pipeline,
         MTLPixelFormat pixelFormat,
+        GrUniformDataManager::ProgramUniforms programUniforms,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
         uint32_t uniformBufferSize,
@@ -55,12 +56,13 @@ GrMtlPipelineState::GrMtlPipelineState(
         , fGPImpl(std::move(gpImpl))
         , fXPImpl(std::move(xpImpl))
         , fFPImpls(std::move(fpImpls))
-        , fDataManager(uniforms, uniformBufferSize) {
+        , fDataManager(std::move(programUniforms), uniforms, uniformBufferSize) {
     (void) fPixelFormat; // Suppress unused-var warning.
 }
 
 void GrMtlPipelineState::setData(GrMtlFramebuffer* framebuffer,
                                  const GrProgramInfo& programInfo) {
+    fDataManager.setUniforms(programInfo);
     SkISize colorAttachmentDimensions = framebuffer->colorAttachment()->dimensions();
 
     this->setRenderTargetState(colorAttachmentDimensions, programInfo.origin());

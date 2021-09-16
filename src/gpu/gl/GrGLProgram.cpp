@@ -22,14 +22,14 @@
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 sk_sp<GrGLProgram> GrGLProgram::Make(
         GrGLGpu* gpu,
         const GrGLSLBuiltinUniformHandles& builtinUniforms,
         GrGLuint programID,
+        const GrUniformAggregator& uniformAggregator,
         const UniformInfoArray& uniforms,
         const UniformInfoArray& textureSamplers,
+        bool usedProgramBinaries,
         std::unique_ptr<GrGeometryProcessor::ProgramImpl> gpImpl,
         std::unique_ptr<GrXferProcessor::ProgramImpl> xpImpl,
         std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
@@ -41,8 +41,10 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
     sk_sp<GrGLProgram> program(new GrGLProgram(gpu,
                                                builtinUniforms,
                                                programID,
+                                               std::move(uniformAggregator),
                                                uniforms,
                                                textureSamplers,
+                                               usedProgramBinaries,
                                                std::move(gpImpl),
                                                std::move(xpImpl),
                                                std::move(fpImpls),
@@ -60,8 +62,10 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
 GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const GrGLSLBuiltinUniformHandles& builtinUniforms,
                          GrGLuint programID,
+                         const GrUniformAggregator& uniformAggregator,
                          const UniformInfoArray& uniforms,
                          const UniformInfoArray& textureSamplers,
+                         bool usedProgramBinaries,
                          std::unique_ptr<GrGeometryProcessor::ProgramImpl> gpImpl,
                          std::unique_ptr<GrXferProcessor::ProgramImpl> xpImpl,
                          std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
@@ -81,7 +85,12 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
         , fVertexStride(vertexStride)
         , fInstanceStride(instanceStride)
         , fGpu(gpu)
-        , fProgramDataManager(gpu, uniforms)
+        , fProgramDataManager(gpu,
+                              uniforms,
+                              textureSamplers,
+                              programID,
+                              usedProgramBinaries,
+                              uniformAggregator)
         , fNumTextureSamplers(textureSamplers.count()) {}
 
 GrGLProgram::~GrGLProgram() {
@@ -98,6 +107,8 @@ void GrGLProgram::abandon() {
 
 void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
+    fProgramDataManager.setUniforms(programInfo);
+
     this->setRenderTargetState(renderTarget, programInfo.origin(), programInfo.geomProc());
 
     // we set the uniforms for installed processors in a generic way, but subclasses of GLProgram
