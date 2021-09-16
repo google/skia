@@ -10,15 +10,15 @@
 
 #include <memory>
 
-#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
-#include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLUtil.h"
-#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
 
+class ErrorReporter;
+class Mangler;
+class ModifiersPool;
 struct ProgramConfig;
 
 /**
@@ -26,11 +26,8 @@ struct ProgramConfig;
  */
 class Context {
 public:
-    Context(ErrorReporter& errors, const ShaderCapsClass& caps);
-
-    ~Context() {
-        SkASSERT(!Pool::IsAttached());
-    }
+    Context(ErrorReporter& errors, const ShaderCapsClass& caps, Mangler& mangler);
+    ~Context();
 
     // The Context holds all of the built-in types.
     BuiltinTypes fTypes;
@@ -44,8 +41,11 @@ public:
     // The Context holds a pointer to the configuration of the program being compiled.
     ProgramConfig* fConfig = nullptr;
 
-    // The Context holds a reference to our error reporter.
+    // The Context holds a pointer to our error reporter.
     ErrorReporter* fErrors;
+
+    // The Context holds a pointer to the shared name-mangler.
+    Mangler* fMangler = nullptr;
 };
 
 }  // namespace SkSL

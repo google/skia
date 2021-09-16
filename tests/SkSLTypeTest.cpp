@@ -10,12 +10,14 @@
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/gpu/GrCaps.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLMangler.h"
 #include "tests/Test.h"
 
 DEF_TEST(SkSLTypeLimits, r) {
     GrShaderCaps caps(GrContextOptions{});
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::Context context(errors, caps);
+    SkSL::Mangler mangler;
+    SkSL::Context context(errors, caps, mangler);
 
     using int_limits = std::numeric_limits<int32_t>;
     REPORTER_ASSERT(r, context.fTypes.fInt->minimumValue() == int_limits::min());

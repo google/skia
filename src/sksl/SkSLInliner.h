@@ -117,7 +117,6 @@ private:
     ModifiersPool& modifiersPool() const { return *fContext->fModifiersPool; }
 
     const Context* fContext = nullptr;
-    Mangler fMangler;
     int fInlinedStatementCounter = 0;
 };
 

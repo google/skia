@@ -267,6 +267,7 @@ private:
     // holds ModifiersPools belonging to the core includes for lifetime purposes
     ModifiersPool fCoreModifiers;
 
+    Mangler fMangler;
     Inliner fInliner;
     std::unique_ptr<IRGenerator> fIRGenerator;
 

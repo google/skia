@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLLiteral.h"
-#include "src/sksl/ir/SkSLTernaryExpression.h"
 
 namespace SkSL {
 

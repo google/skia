@@ -124,7 +124,7 @@ public:
 
 Compiler::Compiler(const ShaderCapsClass* caps)
         : fErrorReporter(this)
-        , fContext(std::make_shared<Context>(fErrorReporter, *caps))
+        , fContext(std::make_shared<Context>(fErrorReporter, *caps, fMangler))
         , fInliner(fContext.get()) {
     SkASSERT(caps);
     fRootModule.fSymbols = this->makeRootSymbolTable();

@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {
