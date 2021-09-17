@@ -49,20 +49,6 @@ struct GrContextOptions;
 
 using namespace skia::text;
 
-namespace {
-    bool operator==(SkSpan<const char16_t> a, SkSpan<const char16_t> b) {
-        if (a.size() != b.size()) {
-            return false;
-        }
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (a[i] != b[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-
 struct TestLine {
     size_t index;
     TextRange lineText;
@@ -87,7 +73,7 @@ class TestVisitor : public Visitor {
 public:
     void onBeginLine(size_t index, TextRange lineText, bool hardBreak, SkRect bounds) override {
         SkASSERT(fTestLines.size() == index);
-        fTestLines.push_back({ index, lineText, hardBreak, bounds, EMPTY_RANGE, Range<RunIndex>(fTestRuns.size(), fTestRuns.size()) });
+        fTestLines.push_back({ index, lineText, hardBreak, bounds, EMPTY_RANGE, Range<RunIndex>(fTestRuns.size(), fTestRuns.size()), 0 });
     }
     void onEndLine(size_t index, TextRange lineText, GlyphRange trailingSpaces, size_t glyphCount) override {
         SkASSERT(fTestLines.size() == index + 1);

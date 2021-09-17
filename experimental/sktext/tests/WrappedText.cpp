@@ -48,20 +48,6 @@ struct GrContextOptions;
 #endif
 using namespace skia::text;
 
-namespace {
-    bool operator==(SkSpan<const char16_t> a, SkSpan<const char16_t> b) {
-        if (a.size() != b.size()) {
-            return false;
-        }
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (a[i] != b[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-
 struct TestLine {
     size_t index;
     TextRange lineText;

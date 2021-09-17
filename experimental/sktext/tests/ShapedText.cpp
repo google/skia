@@ -49,20 +49,6 @@ struct GrContextOptions;
 
 using namespace skia::text;
 
-namespace {
-    bool operator==(SkSpan<const char16_t> a, SkSpan<const char16_t> b) {
-        if (a.size() != b.size()) {
-            return false;
-        }
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (a[i] != b[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-
 DEF_TEST(SkText_ShapedText_LTR, reporter) {
     TrivialFontChain* fontChain = new TrivialFontChain("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
