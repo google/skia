@@ -891,6 +891,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLIntrinsicIsInf_GPU") // skia:12377
 	}
 
+	if (b.matchGpu("Adreno3") || b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
+		skip("_", "tests", "_", "SkSLMatrices") // skia:12456
+	}
+
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
 		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179
 	}
