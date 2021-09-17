@@ -1504,17 +1504,17 @@ DSLExpression DSLParser::unaryExpression() {
                 return {};
             }
             this->nextToken();
-            skstd::optional<DSLWrapper<DSLExpression>> expr = this->unaryExpression();
-            if (!expr) {
+            DSLExpression expr = this->unaryExpression();
+            if (!expr.hasValue()) {
                 return {};
             }
             switch (next.fKind) {
-                case Token::Kind::TK_PLUS:       return {{ +std::move(**expr)}};
-                case Token::Kind::TK_MINUS:      return {{ -std::move(**expr)}};
-                case Token::Kind::TK_LOGICALNOT: return {{ !std::move(**expr)}};
-                case Token::Kind::TK_BITWISENOT: return {{ ~std::move(**expr)}};
-                case Token::Kind::TK_PLUSPLUS:   return {{++std::move(**expr)}};
-                case Token::Kind::TK_MINUSMINUS: return {{--std::move(**expr)}};
+                case Token::Kind::TK_PLUS:       return {{ +std::move(expr)}};
+                case Token::Kind::TK_MINUS:      return {{ -std::move(expr)}};
+                case Token::Kind::TK_LOGICALNOT: return {{ !std::move(expr)}};
+                case Token::Kind::TK_BITWISENOT: return {{ ~std::move(expr)}};
+                case Token::Kind::TK_PLUSPLUS:   return {{++std::move(expr)}};
+                case Token::Kind::TK_MINUSMINUS: return {{--std::move(expr)}};
                 default: SkUNREACHABLE;
             }
         }
