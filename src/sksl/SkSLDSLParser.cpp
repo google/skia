@@ -879,10 +879,6 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         }
         while (this->checkNext(Token::Kind::TK_COMMA));
     }
-    if (fields.empty()) {
-        this->error(typeName, "interface block '" + this->text(typeName) +
-                          "' must contain at least one member");
-    }
     skstd::string_view instanceName;
     Token instanceNameToken;
     SKSL_INT arraySize = 0;
@@ -894,8 +890,13 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         }
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    dsl::InterfaceBlock(modifiers, this->text(typeName), std::move(fields), instanceName,
-                        arraySize, this->position(typeName));
+    if (fields.empty()) {
+        this->error(typeName, "interface block '" + this->text(typeName) +
+                              "' must contain at least one member");
+    } else {
+        dsl::InterfaceBlock(modifiers, this->text(typeName), std::move(fields), instanceName,
+                            arraySize, this->position(typeName));
+    }
     return true;
 }
 
