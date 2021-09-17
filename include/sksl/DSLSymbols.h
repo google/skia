@@ -57,7 +57,7 @@ bool IsType(skstd::string_view name);
 /**
  * Adds a variable to the current symbol table.
  */
-void AddToSymbolTable(DSLVarBase& var);
+void AddToSymbolTable(DSLVarBase& var, PositionInfo pos = PositionInfo::Capture());
 
 } // namespace dsl
 

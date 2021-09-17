@@ -884,6 +884,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
                 errors.append(disassembly);
             }
             this->errorReporter().error(-1, errors);
+            this->errorReporter().reportPendingErrors(PositionInfo());
 #else
             SkDEBUGFAILF("%s", errors.c_str());
 #endif
@@ -957,7 +958,6 @@ void Compiler::handleError(skstd::string_view msg, PositionInfo pos) {
 }
 
 String Compiler::errorText(bool showCount) {
-    this->errorReporter().reportPendingErrors(PositionInfo());
     if (showCount) {
         this->writeErrorCount();
     }
