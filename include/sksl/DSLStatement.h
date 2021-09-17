@@ -44,6 +44,10 @@ public:
 
     DSLStatement(DSLStatement&&) = default;
 
+    DSLStatement(std::unique_ptr<SkSL::Statement> stmt);
+
+    DSLStatement(std::unique_ptr<SkSL::Expression> expr);
+
     ~DSLStatement();
 
     DSLStatement& operator=(DSLStatement&& other) = default;
@@ -56,10 +60,6 @@ public:
     }
 
 private:
-    DSLStatement(std::unique_ptr<SkSL::Statement> stmt);
-
-    DSLStatement(std::unique_ptr<SkSL::Expression> expr);
-
     std::unique_ptr<SkSL::Statement> releaseIfPossible() {
         return std::move(fStatement);
     }
