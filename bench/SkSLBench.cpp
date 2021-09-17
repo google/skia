@@ -139,11 +139,12 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            fCompiler.irGenerator().pushSymbolTable();
-            SkSL::Parser parser(fSrc, *fCompiler.irGenerator().symbolTable(),
-                                fCompiler.errorReporter());
-            parser.compilationUnit();
-            fCompiler.irGenerator().popSymbolTable();
+            {
+                SkSL::AutoSymbolTable table(&fCompiler.irGenerator().symbolTable());
+                SkSL::Parser parser(fSrc, *fCompiler.irGenerator().symbolTable(),
+                                    fCompiler.errorReporter());
+                parser.compilationUnit();
+            }
             if (fCompiler.errorCount()) {
                 SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
             }

@@ -15,11 +15,11 @@ namespace SkSL {
 namespace dsl {
 
 void PushSymbolTable() {
-    DSLWriter::IRGenerator().pushSymbolTable();
+    SymbolTable::Push(&DSLWriter::IRGenerator().symbolTable());
 }
 
 void PopSymbolTable() {
-    DSLWriter::IRGenerator().popSymbolTable();
+    SymbolTable::Pop(&DSLWriter::IRGenerator().symbolTable());
 }
 
 std::shared_ptr<SymbolTable> CurrentSymbolTable() {

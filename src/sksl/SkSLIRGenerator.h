@@ -133,9 +133,6 @@ public:
         fSymbolTable = symbolTable;
     }
 
-    void pushSymbolTable();
-    void popSymbolTable();
-
     static void CheckModifiers(const Context& context,
                                int offset,
                                const Modifiers& modifiers,

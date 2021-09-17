@@ -37,6 +37,22 @@ public:
     , fBuiltin(builtin)
     , fContext(parent->fContext) {}
 
+    /** Replaces the passed-in SymbolTable with a newly-created child symbol table. */
+    static void Push(std::shared_ptr<SymbolTable>* table) {
+        Push(table, (*table)->isBuiltin());
+    }
+    static void Push(std::shared_ptr<SymbolTable>* table, bool isBuiltin) {
+        *table = std::make_shared<SymbolTable>(*table, isBuiltin);
+    }
+
+    /**
+     * Replaces the passed-in SymbolTable with its parent. If the child symbol table is otherwise
+     * unreferenced, it will be deleted.
+     */
+    static void Pop(std::shared_ptr<SymbolTable>* table) {
+        *table = (*table)->fParent;
+    }
+
     /**
      * If the input is a built-in symbol table, returns a new empty symbol table as a child of the
      * input table. If the input is not a built-in symbol table, returns it as-is. Built-in symbol
@@ -144,6 +160,26 @@ private:
     const Context& fContext;
 
     friend class Dehydrator;
+};
+
+/**
+ * While in scope, the passed-in symbol table is replaced with a child symbol table.
+ */
+class AutoSymbolTable {
+public:
+    AutoSymbolTable(std::shared_ptr<SymbolTable>* s)
+        : fSymbolTable(s) {
+        SkDEBUGCODE(fPrevious = fSymbolTable->get();)
+        SymbolTable::Push(fSymbolTable);
+    }
+
+    ~AutoSymbolTable() {
+        SymbolTable::Pop(fSymbolTable);
+        SkASSERT(fPrevious == fSymbolTable->get());
+    }
+
+    std::shared_ptr<SymbolTable>* fSymbolTable;
+    SkDEBUGCODE(SymbolTable* fPrevious;)
 };
 
 }  // namespace SkSL

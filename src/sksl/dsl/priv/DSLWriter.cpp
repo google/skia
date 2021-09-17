@@ -9,6 +9,7 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLSymbols.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -94,8 +95,8 @@ const std::shared_ptr<SkSL::SymbolTable>& DSLWriter::SymbolTable() {
 }
 
 void DSLWriter::Reset() {
-    IRGenerator().popSymbolTable();
-    IRGenerator().pushSymbolTable();
+    dsl::PopSymbolTable();
+    dsl::PushSymbolTable();
     ProgramElements().clear();
     Instance().fModifiersPool->clear();
 }
@@ -119,7 +120,7 @@ void DSLWriter::StartFragmentProcessor(GrFragmentProcessor::ProgramImpl* process
     DSLWriter& instance = Instance();
     instance.fStack.push({processor, emitArgs, StatementArray{}});
     CurrentEmitArgs()->fFragBuilder->fDeclarations.swap(instance.fStack.top().fSavedDeclarations);
-    IRGenerator().pushSymbolTable();
+    dsl::PushSymbolTable();
 }
 
 void DSLWriter::EndFragmentProcessor() {
@@ -127,7 +128,7 @@ void DSLWriter::EndFragmentProcessor() {
     SkASSERT(!instance.fStack.empty());
     CurrentEmitArgs()->fFragBuilder->fDeclarations.swap(instance.fStack.top().fSavedDeclarations);
     instance.fStack.pop();
-    IRGenerator().popSymbolTable();
+    dsl::PopSymbolTable();
 }
 
 GrGLSLUniformHandler::UniformHandle DSLWriter::VarUniformHandle(const DSLGlobalVar& var) {

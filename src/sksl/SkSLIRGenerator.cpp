@@ -62,34 +62,8 @@
 
 namespace SkSL {
 
-class AutoSymbolTable {
-public:
-    AutoSymbolTable(IRGenerator* ir)
-    : fIR(ir)
-    , fPrevious(fIR->fSymbolTable) {
-        fIR->pushSymbolTable();
-    }
-
-    ~AutoSymbolTable() {
-        fIR->popSymbolTable();
-        SkASSERT(fPrevious == fIR->fSymbolTable);
-    }
-
-    IRGenerator* fIR;
-    std::shared_ptr<SymbolTable> fPrevious;
-};
-
 IRGenerator::IRGenerator(const Context* context)
         : fContext(*context) {}
-
-void IRGenerator::pushSymbolTable() {
-    auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), fIsBuiltinCode);
-    fSymbolTable = std::move(childSymTable);
-}
-
-void IRGenerator::popSymbolTable() {
-    fSymbolTable = fSymbolTable->fParent;
-}
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, skstd::string_view name) {
     if (this->programKind() != ProgramKind::kFragment &&
@@ -136,7 +110,7 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statemen
 
 std::unique_ptr<Block> IRGenerator::convertBlock(const ASTNode& block) {
     SkASSERT(block.fKind == ASTNode::Kind::kBlock);
-    AutoSymbolTable table(this);
+    AutoSymbolTable table(&fSymbolTable);
     StatementArray statements;
     for (const auto& child : block) {
         std::unique_ptr<Statement> statement = this->convertStatement(child);
@@ -398,7 +372,7 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
 
 std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     SkASSERT(f.fKind == ASTNode::Kind::kFor);
-    AutoSymbolTable table(this);
+    AutoSymbolTable table(&fSymbolTable);
     std::unique_ptr<Statement> initializer;
     auto iter = f.begin();
     if (*iter) {
@@ -470,7 +444,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
     if (!value) {
         return nullptr;
     }
-    AutoSymbolTable table(this);
+    AutoSymbolTable table(&fSymbolTable);
     ExpressionArray caseValues;
     StatementArray caseStatements;
     for (; iter != s.end(); ++iter) {
@@ -714,7 +688,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                                                                         fIsBuiltinCode));
     } else {
         // Compile function body.
-        AutoSymbolTable table(this);
+        AutoSymbolTable table(&fSymbolTable);
         for (const Variable* param : decl->parameters()) {
             fSymbolTable->addWithoutOwnership(param);
         }
@@ -778,7 +752,7 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
     std::vector<Type::Field> fields;
     auto iter = intf.begin();
     {
-        AutoSymbolTable table(this);
+        AutoSymbolTable table(&fSymbolTable);
         symbols = fSymbolTable;
         for (size_t i = 0; i < id.fDeclarationCount; ++i) {
             StatementArray decls = this->convertVarDeclarations(*(iter++),
@@ -1326,7 +1300,7 @@ void IRGenerator::start(const ParsedModule& base,
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
     fDefinedStructs.clear();
-    this->pushSymbolTable();
+    SymbolTable::Push(&fSymbolTable, fIsBuiltinCode);
 
     if (this->settings().fExternalFunctions) {
         // Add any external values to the new symbol table, so they're only visible to this Program.
