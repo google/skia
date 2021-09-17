@@ -80,7 +80,8 @@ namespace text {
                                        SkSpan<FontBlock> fontBlocks) {
         auto unicode = SkUnicode::Make();
         auto unicodeText = std::make_unique<UnicodeText>(std::move(unicode), SkSpan<uint16_t>((uint16_t*)text.data(), text.size()));
-        auto shapedText = unicodeText->shape(fontBlocks, textDirection);
+        auto fontResolvedText = unicodeText->resolveFonts(fontBlocks);
+        auto shapedText = fontResolvedText->shape(unicodeText.get(), TextDirection::kLtr);
         auto wrappedText = shapedText->wrap(unicodeText.get(), reqSize.width(), reqSize.height());
         wrappedText->format(textAlign, textDirection);
         return wrappedText;

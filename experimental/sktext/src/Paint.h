@@ -29,12 +29,40 @@ namespace text {
             SkASSERT(index == 0);
             return fTypeface;
         }
-        float size() const override { return fSize; }
+        float fontSize() const override { return fSize; }
+        SkString locale() const override { return SkString("en"); }
         sk_sp<SkTypeface> getTypeface() const { return fTypeface; }
         bool empty() const { return fTypeface == nullptr; }
 
     private:
         sk_sp<SkTypeface> fTypeface;
+        SkScalar fSize;
+        SkFontStyle fFontStyle;
+    };
+
+    class MultipleFontChain : public FontChain {
+    public:
+        MultipleFontChain(std::vector<const char*> ffs, SkScalar size, SkFontStyle fontStyle)
+                : fSize(size)
+                , fFontStyle(fontStyle) {
+            for (auto& ff  : ffs) {
+                auto typeface = SkFontMgr::RefDefault()->matchFamilyStyle(ff, SkFontStyle::Normal());
+                if (typeface != nullptr) {
+                    fTypefaces.emplace_back(typeface);
+                }
+            }
+        }
+        size_t count() const override { return fTypefaces.size(); }
+        sk_sp<SkTypeface> operator[](size_t index) const  override {
+            SkASSERT(index < fTypefaces.size());
+            return fTypefaces[index];
+        }
+        float fontSize() const override { return fSize; }
+        SkString locale() const override { return SkString("en"); }
+        bool empty() const { return fTypefaces.empty(); }
+
+    private:
+        std::vector<sk_sp<SkTypeface>> fTypefaces;
         SkScalar fSize;
         SkFontStyle fFontStyle;
     };

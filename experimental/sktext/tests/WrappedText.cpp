@@ -109,7 +109,8 @@ DEF_TEST(SkText_WrappedText_Spaces, reporter) {
     if (!unicodeText.getUnicode()) return;
 
     FontBlock fontBlock(utf16.size(), fontChain);
-    auto shapedText = unicodeText.shape(SkSpan<FontBlock>(&fontBlock, 1), TextDirection::kLtr);
+    auto fontResolvedText = unicodeText.resolveFonts(SkSpan<FontBlock>(&fontBlock, 1));
+    auto shapedText = fontResolvedText->shape(&unicodeText, TextDirection::kLtr);
     auto wrappedText = shapedText->wrap(&unicodeText, 440.0f, 500.0f);
 
     TestVisitor testVisitor;

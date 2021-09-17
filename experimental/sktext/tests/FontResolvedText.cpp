@@ -49,40 +49,49 @@ struct GrContextOptions;
 
 using namespace skia::text;
 
-DEF_TEST(SkText_ShapedText_LTR, reporter) {
+DEF_TEST(SkText_FontResolution1, reporter) {
     TrivialFontChain* fontChain = new TrivialFontChain("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 
-    std::u16string utf16(u"Hello world\nHello world");
+    std::u16string utf16(u"Hello world");
     UnicodeText unicodeText(SkUnicode::Make(), SkSpan<uint16_t>((uint16_t*)utf16.data(), utf16.size()));
     if (!unicodeText.getUnicode()) return;
 
     FontBlock fontBlock(utf16.size(), sk_ref_sp<FontChain>(fontChain));
     auto fontResolvedText = unicodeText.resolveFonts(SkSpan<FontBlock>(&fontBlock, 1));
-    auto shapedText = fontResolvedText->shape(&unicodeText, TextDirection::kLtr);
-    auto logicalRuns = shapedText->getLogicalRuns();
 
-    auto newLine = utf16.find_first_of(u"\n");
-    REPORTER_ASSERT(reporter, logicalRuns.size() == 3);
-    REPORTER_ASSERT(reporter, logicalRuns[1].getRunType() == LogicalRunType::kLineBreak);
-    REPORTER_ASSERT(reporter, logicalRuns[1].getTextRange() == TextRange(newLine, newLine + 1));
+    auto resolvedFonts = fontResolvedText->resolvedFonts();
+
+    REPORTER_ASSERT(reporter, resolvedFonts.size() == 1);
+    REPORTER_ASSERT(reporter, resolvedFonts.front().textRange.width() == utf16.size());
+    REPORTER_ASSERT(reporter, resolvedFonts.front().typeface->uniqueID() == fontChain->getTypeface()->uniqueID());
+    REPORTER_ASSERT(reporter, resolvedFonts.front().size == 40.0f);
+    REPORTER_ASSERT(reporter, resolvedFonts.front().style == SkFontStyle::Normal());
 }
 
-DEF_TEST(SkText_ShapedText_RTL, reporter) {
-    sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
-    if (fontChain->empty()) return;
+DEF_TEST(SkText_FontResolution3, reporter) {
+    MultipleFontChain* fontChain = new MultipleFontChain({ "Roboto", "Noto Color Emoji", "Noto Serif CJK JP" }, 40.0f, SkFontStyle::Normal());
+    if (fontChain->count() < 3) return;
 
-    std::u16string utf16(u"\u202EHELLO WORLD\nHELLO WORLD");
+    std::u16string utf16(u"English English 字典 字典 😀😃😄 😀😃😄");
     UnicodeText unicodeText(SkUnicode::Make(), SkSpan<uint16_t>((uint16_t*)utf16.data(), utf16.size()));
     if (!unicodeText.getUnicode()) return;
 
-    FontBlock fontBlock(utf16.size(), fontChain);
+    FontBlock fontBlock(utf16.size(), sk_ref_sp<FontChain>(fontChain));
     auto fontResolvedText = unicodeText.resolveFonts(SkSpan<FontBlock>(&fontBlock, 1));
-    auto shapedText = fontResolvedText->shape(&unicodeText, TextDirection::kLtr);
-    auto logicalRuns = shapedText->getLogicalRuns();
 
-    auto newLine = utf16.find_first_of(u"\n");
-    REPORTER_ASSERT(reporter, logicalRuns.size() == 3);
-    REPORTER_ASSERT(reporter, logicalRuns[1].getRunType() == LogicalRunType::kLineBreak);
-    REPORTER_ASSERT(reporter, logicalRuns[1].getTextRange() == TextRange(newLine, newLine + 1));
+    auto resolvedFonts = fontResolvedText->resolvedFonts();
+
+    TextIndex prev = 0;
+    for (auto& rf : resolvedFonts) {
+        REPORTER_ASSERT(reporter, prev == rf.textRange.fStart);
+        REPORTER_ASSERT(reporter, rf.textRange.width() > 0.0f);
+        prev = rf.textRange.fEnd;
+    }
+
+    REPORTER_ASSERT(reporter, resolvedFonts.size() == 8 /* 1English 3English spaces + 2Emoji + 2JP */);
+    REPORTER_ASSERT(reporter, resolvedFonts[0].textRange.fStart == 0);
+    REPORTER_ASSERT(reporter, resolvedFonts[7].textRange.fEnd == utf16.size());
+    REPORTER_ASSERT(reporter, resolvedFonts[0].size == 40.0f);
+    REPORTER_ASSERT(reporter, resolvedFonts[0].style == SkFontStyle::Normal());
 }

@@ -182,7 +182,7 @@ const Range<size_t> EMPTY_RANGE = Range<size_t>(EMPTY_INDEX, EMPTY_INDEX);
 
 // Blocks
 enum BlockType {
-    kFont,
+    kFontChain,
     kPlaceholder,
 };
 
@@ -196,13 +196,13 @@ public:
     // Returns the number of faces in the chain. Always >= 1
     virtual size_t count() const = 0;
     virtual sk_sp<SkTypeface> operator[](size_t index) const = 0;
-    virtual float size() const = 0;
-
+    virtual float fontSize() const = 0;
+    virtual SkString locale() const = 0;
 };
 
 struct FontBlock {
     FontBlock(uint32_t count, sk_sp<FontChain> fontChain)
-        : type(BlockType::kFont)
+        : type(BlockType::kFontChain)
         , charCount(count)
         , chain(fontChain) { }
     FontBlock() : FontBlock(0, nullptr) { }
@@ -213,26 +213,25 @@ struct FontBlock {
     }
     ~FontBlock() { }
 
-    SkFont createFont() const {
-
-        if (this->chain->count() == 0) {
-            return SkFont();
-        }
-        sk_sp<SkTypeface> typeface = this->chain->operator[](0);
-
-        SkFont font(std::move(typeface), this->chain->size());
-        font.setEdging(SkFont::Edging::kAntiAlias);
-        font.setHinting(SkFontHinting::kSlight);
-        font.setSubpixel(true);
-
-        return font;
-    }
     BlockType  type;
     uint32_t   charCount;
     union {
         sk_sp<FontChain>  chain;
         Placeholder placeholder;
     };
+};
+
+struct ResolvedFontBlock {
+    ResolvedFontBlock(TextRange textRange, sk_sp<SkTypeface> typeface, SkScalar size, SkFontStyle fontStyle)
+        : textRange(textRange)
+        , typeface(typeface)
+        , size(size)
+        , style(fontStyle) { }
+
+    TextRange textRange;
+    sk_sp<SkTypeface> typeface;
+    float size;
+    SkFontStyle style;
 };
 
 }  // namespace text

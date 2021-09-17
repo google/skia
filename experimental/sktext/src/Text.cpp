@@ -68,20 +68,120 @@ void UnicodeText::initialize(SkSpan<uint16_t> utf16) {
                             });
 }
 
+std::unique_ptr<FontResolvedText> UnicodeText::resolveFonts(SkSpan<FontBlock> blocks) {
+
+    auto fontResolvedText = std::make_unique<FontResolvedText>();
+
+    TextRange adjustedBlock(0, 0);
+    TextIndex index = 0;
+    for (auto& block : blocks) {
+
+        index += block.charCount;
+        adjustedBlock.fStart = adjustedBlock.fEnd;
+        adjustedBlock.fEnd = index;
+        if (adjustedBlock.fStart >= adjustedBlock.fEnd) {
+            // The last block adjustment went over the entire block
+            continue;
+        }
+
+        // Move the end of the block to the right until it's on the grapheme edge
+        while (adjustedBlock.fEnd < this->fText16.size() &&  !this->hasProperty(adjustedBlock.fEnd, CodeUnitFlags::kGraphemeStart)) {
+            ++adjustedBlock.fEnd;
+        }
+        SkASSERT(block.type == BlockType::kFontChain);
+        fontResolvedText->resolveChain(this, adjustedBlock, *block.chain);
+    }
+
+    std::sort(fontResolvedText->fResolvedFonts.begin(), fontResolvedText->fResolvedFonts.end(),
+              [](const ResolvedFontBlock& a, const ResolvedFontBlock& b) {
+                return a.textRange.fStart < b.textRange.fStart;
+              });
+/*
+    SkDebugf("Resolved:\n");
+    for (auto& f : fontResolvedText->fResolvedFonts) {
+        SkDebugf("[%d:%d)\n", f.textRange.fStart, f.textRange.fEnd);
+    }
+*/
+    return std::move(fontResolvedText);
+}
+
+bool FontResolvedText::resolveChain(UnicodeText* unicodeText, TextRange textRange, const FontChain& fontChain) {
+
+    std::deque<TextRange> unresolvedTexts;
+    unresolvedTexts.push_back(textRange);
+    for (auto fontIndex = 0; fontIndex < fontChain.count(); ++fontIndex) {
+        auto typeface = fontChain[fontIndex];
+
+        std::deque<TextRange> newUnresolvedTexts;
+        // Check all text range that have not been resolved yet
+        while (!unresolvedTexts.empty()) {
+            // Take the first unresolved
+            auto unresolvedText = unresolvedTexts.front();
+            unresolvedTexts.pop_front();
+
+            // Resolve font for the entire grapheme
+            auto start = newUnresolvedTexts.size();
+            unicodeText->forEachGrapheme(unresolvedText, [&](TextRange grapheme) {
+                auto count = typeface->textToGlyphs(unicodeText->getText16().data() + grapheme.fStart, grapheme.width() * 2, SkTextEncoding::kUTF16, nullptr, 0);
+                SkAutoTArray<SkGlyphID> glyphs(count);
+                typeface->textToGlyphs(unicodeText->getText16().data() + grapheme.fStart, grapheme.width() * 2, SkTextEncoding::kUTF16, glyphs.data(), count);
+                for (auto i = 0; i < count; ++i) {
+                    if (glyphs[i] == 0) {
+                        if (newUnresolvedTexts.empty() || newUnresolvedTexts.back().fEnd < grapheme.fStart) {
+                            // It's a new unresolved block
+                            newUnresolvedTexts.push_back(grapheme);
+                        } else {
+                            // Let's extend the last unresolved block
+                            newUnresolvedTexts.back().fEnd = grapheme.fEnd;
+                        }
+                        break;
+                    }
+                }
+            });
+            // Let's fill the resolved blocks with the current font
+            TextRange resolvedText(unresolvedText.fStart, unresolvedText.fStart);
+            for (auto newUnresolvedText : newUnresolvedTexts) {
+                if (start > 0) {
+                    --start;
+                    continue;
+                }
+                resolvedText.fEnd = newUnresolvedText.fStart;
+                if (resolvedText.width() > 0) {
+                    // Add another resolved block
+                    fResolvedFonts.emplace_back(resolvedText, typeface, fontChain.fontSize(), SkFontStyle::Normal());
+                }
+                resolvedText.fStart = newUnresolvedText.fEnd;
+            }
+            resolvedText.fEnd = unresolvedText.fEnd;
+            if (resolvedText.width() > 0) {
+                // Add the last resolved block
+                fResolvedFonts.emplace_back(resolvedText, typeface, fontChain.fontSize(), SkFontStyle::Normal());
+            }
+        }
+
+        // Try the next font in chain
+        SkASSERT(unresolvedTexts.empty());
+        unresolvedTexts = std::move(newUnresolvedTexts);
+    }
+
+    return unresolvedTexts.empty();
+}
+
 // Font iterator that finds all formatting marks
 // and breaks runs on them (so we can select and interpret them later)
 class FormattingFontIterator final : public SkShaper::FontRunIterator {
 public:
     FormattingFontIterator(TextIndex textCount,
-                           SkSpan<FontBlock> fontBlocks,
+                           SkSpan<ResolvedFontBlock> fontBlocks,
                            SkSpan<TextIndex> marks)
             : fTextCount(textCount)
             , fFontBlocks(fontBlocks)
             , fFormattingMarks(marks)
             , fCurrentBlock(fontBlocks.begin())
             , fCurrentMark(marks.begin())
-            , fCurrentFontIndex(fCurrentBlock->charCount)
-            , fCurrentFont(this->createFont(*fCurrentBlock)) { }
+            , fCurrentFontIndex(fCurrentBlock->textRange.fEnd) {
+        fCurrentFont = this->createFont(*fCurrentBlock);
+    }
     void consume() override {
         SkASSERT(fCurrentBlock < fFontBlocks.end());
         SkASSERT(fCurrentMark < fFormattingMarks.end());
@@ -94,7 +194,7 @@ public:
         }
         ++fCurrentBlock;
         if (fCurrentBlock < fFontBlocks.end()) {
-            fCurrentFontIndex += fCurrentBlock->charCount;
+            fCurrentFontIndex = fCurrentBlock->textRange.fEnd;
             fCurrentFont = this->createFont(*fCurrentBlock);
         }
     }
@@ -113,12 +213,8 @@ public:
                (fCurrentMark == fFormattingMarks.end() || *fCurrentMark == fTextCount);
     }
     const SkFont& currentFont() const override { return fCurrentFont; }
-    SkFont createFont(const FontBlock& fontBlock) const {
-        if (fontBlock.chain->count() == 0) {
-            return SkFont();
-        }
-        sk_sp<SkTypeface> typeface = fontBlock.chain->operator[](0);
-        SkFont font(std::move(typeface), fontBlock.chain->size());
+    SkFont createFont(const ResolvedFontBlock& resolvedFont) const {
+        SkFont font(resolvedFont.typeface, resolvedFont.size);
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setHinting(SkFontHinting::kSlight);
         font.setSubpixel(true);
@@ -126,26 +222,26 @@ public:
     }
 private:
     TextIndex const fTextCount;
-    SkSpan<FontBlock> fFontBlocks;
+    SkSpan<ResolvedFontBlock> fFontBlocks;
     SkSpan<TextIndex> fFormattingMarks;
-    FontBlock* fCurrentBlock;
+    ResolvedFontBlock* fCurrentBlock;
     TextIndex* fCurrentMark;
     TextIndex fCurrentFontIndex;
     SkFont fCurrentFont;
 };
 
-std::unique_ptr<ShapedText> UnicodeText::shape(SkSpan<FontBlock> fontBlocks,
-                                               TextDirection textDirection) {
+std::unique_ptr<ShapedText> FontResolvedText::shape(UnicodeText* unicodeText,
+                                                    TextDirection textDirection) {
     // Get utf8 <-> utf16 conversion tables.
     // We need to pass to SkShaper indices in utf8 and then convert them back to utf16 for SkText
-    auto text16 = this->getText16();
+    auto text16 = unicodeText->getText16();
     auto text8 = SkUnicode::convertUtf16ToUtf8(std::u16string(text16.data(), text16.size()));
     size_t utf16Index = 0;
     SkTArray<size_t, true> UTF16FromUTF8;
     SkTArray<size_t, true> UTF8FromUTF16;
     UTF16FromUTF8.push_back_n(text8.size() + 1, utf16Index);
     UTF8FromUTF16.push_back_n(text16.size() + 1, utf16Index);
-    this->getUnicode()->forEachCodepoint(text8.c_str(), text8.size(),
+    unicodeText->getUnicode()->forEachCodepoint(text8.c_str(), text8.size(),
     [&](SkUnichar unichar, int32_t start, int32_t end, int32_t count) {
         // utf8 index group of 1, 2 or 3 can be represented with one utf16 index group
         for (auto i = start; i < end; ++i) {
@@ -162,7 +258,7 @@ std::unique_ptr<ShapedText> UnicodeText::shape(SkSpan<FontBlock> fontBlocks,
     // Formatting marks: \n (and possibly some other later)
     std::vector<size_t> formattingMarks;
     for (size_t i = 0; i < text16.size(); ++i) {
-        if (this->isHardLineBreak(i)) {
+        if (unicodeText->isHardLineBreak(i)) {
             formattingMarks.emplace_back(UTF8FromUTF16[i]);
             formattingMarks.emplace_back(UTF8FromUTF16[i + 1]);
             ++i;
@@ -170,26 +266,23 @@ std::unique_ptr<ShapedText> UnicodeText::shape(SkSpan<FontBlock> fontBlocks,
     }
     formattingMarks.emplace_back(text8.size()/* UTF8FromUTF16[text16.size() */);
     // Convert fontBlocks from utf16 to utf8
-    SkTArray<FontBlock, true> fontBlocks8;
-    TextIndex index16 = 0;
+    SkTArray<ResolvedFontBlock, true> fontBlocks8;
     TextIndex index8 = 0;
-    for (auto& fb : fontBlocks) {
-        index16 += fb.charCount;
-        auto charCount8 = UTF8FromUTF16[index16] - index8;
-        fontBlocks8.emplace_back((uint32_t)charCount8, fb.chain);
-        index8 = UTF8FromUTF16[index16];
+    for (auto& fb : fResolvedFonts) {
+        TextRange text8(UTF8FromUTF16[fb.textRange.fStart], UTF8FromUTF16[fb.textRange.fEnd]);
+        fontBlocks8.emplace_back(text8, fb.typeface, fb.size, fb.style);
     }
     auto shapedText = std::make_unique<ShapedText>();
     // Shape the text
     FormattingFontIterator fontIter(text8.size(),
-                                    SkSpan<FontBlock>(fontBlocks8.data(), fontBlocks8.size()),
+                                    SkSpan<ResolvedFontBlock>(fontBlocks8.data(), fontBlocks8.size()),
                                     SkSpan<TextIndex>(&formattingMarks[0], formattingMarks.size()));
     SkShaper::TrivialLanguageRunIterator langIter(text8.c_str(), text8.size());
     std::unique_ptr<SkShaper::BiDiRunIterator> bidiIter(
         SkShaper::MakeSkUnicodeBidiRunIterator(
-            this->getUnicode(), text8.c_str(), text8.size(), textDirection == TextDirection::kLtr ? 0 : 1));
+            unicodeText->getUnicode(), text8.c_str(), text8.size(), textDirection == TextDirection::kLtr ? 0 : 1));
     std::unique_ptr<SkShaper::ScriptRunIterator> scriptIter(
-        SkShaper::MakeSkUnicodeHbScriptRunIterator(this->getUnicode(), text8.c_str(), text8.size()));
+        SkShaper::MakeSkUnicodeHbScriptRunIterator(unicodeText->getUnicode(), text8.c_str(), text8.size()));
     auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
     if (shaper == nullptr) {
         // For instance, loadICU does not work. We have to stop the process
@@ -202,7 +295,7 @@ std::unique_ptr<ShapedText> UnicodeText::shape(SkSpan<FontBlock> fontBlocks,
     if (shapedText->fLogicalRuns.empty()) {
         // Create a fake run for an empty text (to avoid all the checks)
         SkShaper::RunHandler::RunInfo emptyInfo {
-            fontIter.createFont(fontBlocks.front()),
+            fontIter.createFont(fResolvedFonts.front()),
             0,
             SkVector::Make(0.0f, 0.0f),
             0,
@@ -224,7 +317,7 @@ std::unique_ptr<ShapedText> UnicodeText::shape(SkSpan<FontBlock> fontBlocks,
         // Detect and mark line break runs
         if (logicalRun.getTextRange().width() == 1 &&
             logicalRun.size() == 1 &&
-            this->isHardLineBreak(logicalRun.getTextRange().fStart)) {
+            unicodeText->isHardLineBreak(logicalRun.getTextRange().fStart)) {
             logicalRun.setRunType(LogicalRunType::kLineBreak);
         }
     }

@@ -19,7 +19,7 @@
 namespace skia {
 namespace text {
 
-class ShapedText;
+class FontResolvedText;
 
 /**
  * This class contains all the SKUnicode/ICU information.
@@ -34,7 +34,7 @@ public:
         @param textDirection  a starting text direction value
         @return               an object that contains the result of shaping operations
     */
-    std::unique_ptr<ShapedText> shape(SkSpan<FontBlock> blocks, TextDirection textDirection);
+    std::unique_ptr<FontResolvedText> resolveFonts(SkSpan<FontBlock> blocks);
 
     UnicodeText(std::unique_ptr<SkUnicode> unicode, SkSpan<uint16_t> utf16);
     UnicodeText(std::unique_ptr<SkUnicode> unicode, const SkString& utf8);
@@ -52,7 +52,31 @@ public:
     bool isWhitespaces(TextRange range) const;
 
     SkUnicode* getUnicode() const { return fUnicode.get(); }
-    SkSpan<const char16_t> getText16() const { return SkSpan<const char16_t>(fText16.data(), fText16.size());}
+    SkSpan<const char16_t> getText16() const { return SkSpan<const char16_t>(fText16.data(), fText16.size()); }
+
+    template <typename Callback>
+    void forEachGrapheme(TextRange textRange, Callback&& callback) {
+        TextRange grapheme(textRange.fStart, textRange.fStart);
+        for (size_t i = textRange.fStart; i < textRange.fEnd; ++i) {
+            if (this->hasProperty(i, CodeUnitFlags::kGraphemeStart)) {
+                grapheme.fEnd = i;
+                if (grapheme.width() > 0) {
+                    callback(grapheme);
+                }
+                grapheme.fStart = grapheme.fEnd;
+            }  else if (this->hasProperty(i, CodeUnitFlags::kHardLineBreakBefore)) {
+                grapheme.fEnd = i;
+                callback(grapheme);
+                // TODO: We assume here that the line break takes only one codepoint
+                // Skip the next line
+                grapheme.fStart = grapheme.fEnd + 1;
+            }
+        }
+        grapheme.fEnd = textRange.fEnd;
+        if (grapheme.width() > 0) {
+            callback(grapheme);
+        }
+    }
 
 private:
     void initialize(SkSpan<uint16_t> utf16);
@@ -60,6 +84,32 @@ private:
     SkTArray<CodeUnitFlags, true> fCodeUnitProperties;
     std::u16string fText16;
     std::unique_ptr<SkUnicode> fUnicode;
+};
+
+class ShapedText;
+/**
+ * This class contains provides functionality for resolving fonts
+ */
+class FontResolvedText {
+public:
+    /** Makes calls to SkShaper and collects all the shaped data.
+        @param blocks         a range of FontBlock elements that keep information about
+                              fonts required to shape the text.
+                              It's utf16 range but internally it will have to be converted
+                              to utf8 (since all shaping operations use utf8 encoding)
+        @param textDirection  a starting text direction value
+        @return               an object that contains the result of shaping operations
+    */
+    virtual std::unique_ptr<ShapedText> shape(UnicodeText* unicodeText, TextDirection textDirection);
+
+    FontResolvedText() = default;
+    virtual ~FontResolvedText() = default;
+
+    bool resolveChain(UnicodeText* unicodeText, TextRange textRange, const FontChain& fontChain);
+    SkSpan<ResolvedFontBlock> resolvedFonts() { return SkSpan<ResolvedFontBlock>(fResolvedFonts.data(), fResolvedFonts.size()); }
+private:
+    friend class UnicodeText;
+    SkTArray<ResolvedFontBlock, true> fResolvedFonts;
 };
 
 class WrappedText;
@@ -99,7 +149,7 @@ public:
 
     SkSpan<const LogicalRun> getLogicalRuns() const { return SkSpan<const LogicalRun>(fLogicalRuns.begin(), fLogicalRuns.size()); }
 private:
-    friend class UnicodeText;
+    friend class FontResolvedText;
 
     void addLine(WrappedText* wrappedText, SkUnicode* unicode, Stretch& stretch, Stretch& spaces, bool hardLineBreak);
 

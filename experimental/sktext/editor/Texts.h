@@ -32,7 +32,8 @@ public:
 
         auto unicode = SkUnicode::Make();
         fUnicodeText = std::make_unique<UnicodeText>(std::move(unicode), SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
-        fShapedText = fUnicodeText->shape(fontBlocks, DEFAULT_TEXT_DIRECTION);
+        fFontResolvedText = fUnicodeText->resolveFonts(fontBlocks);
+        fShapedText = fFontResolvedText->shape(fUnicodeText.get(), DEFAULT_TEXT_DIRECTION);
         fWrappedText = fShapedText->wrap(fUnicodeText.get(), size.width(), size.height());
         fWrappedText->format(DEFAULT_TEXT_ALIGN, DEFAULT_TEXT_DIRECTION);
     }
@@ -43,6 +44,7 @@ public:
 
     std::u16string fText;
     std::unique_ptr<UnicodeText> fUnicodeText;
+    std::unique_ptr<FontResolvedText> fFontResolvedText;
     std::unique_ptr<ShapedText> fShapedText;
     std::unique_ptr<WrappedText> fWrappedText;
     SkSize fSize;
@@ -68,7 +70,8 @@ public:
 
         auto unicode = SkUnicode::Make();
         fUnicodeText = std::make_unique<UnicodeText>(std::move(unicode), SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
-        fShapedText = fUnicodeText->shape(fontBlocks, fTextDirection);
+        fFontResolvedText = fUnicodeText->resolveFonts(fontBlocks);
+        fShapedText = fFontResolvedText->shape(fUnicodeText.get(), fTextDirection);
         fWrappedText = fShapedText->wrap(fUnicodeText.get(), size.width(), size.height());
         fWrappedText->format(fTextAlign, fTextDirection);
     }
@@ -93,7 +96,8 @@ public:
 
         auto unicode = SkUnicode::Make();
         fUnicodeText = std::make_unique<UnicodeText>(std::move(unicode), SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
-        fShapedText = fUnicodeText->shape(this->fFontBlocks, fTextDirection);
+        fFontResolvedText = fUnicodeText->resolveFonts(fFontBlocks);
+        fShapedText = fFontResolvedText->shape(fUnicodeText.get(), fTextDirection);
         fWrappedText = fShapedText->wrap(fUnicodeText.get(), this->fRequiredSize.fWidth, this->fRequiredSize.fHeight);
         fWrappedText->format(fTextAlign, fTextDirection);
         fSelectableText = fWrappedText->prepareToEdit(fUnicodeText.get());
@@ -118,6 +122,7 @@ public:
 protected:
     std::u16string fText;
     std::unique_ptr<UnicodeText> fUnicodeText;
+    std::unique_ptr<FontResolvedText> fFontResolvedText;
     std::unique_ptr<ShapedText> fShapedText;
     std::unique_ptr<WrappedText> fWrappedText;
     std::unique_ptr<DrawableText> fDrawableText;

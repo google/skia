@@ -48,6 +48,7 @@ if (skia_enable_sktext && skia_enable_skshaper && skia_use_icu &&
       if (text_tests_enabled) {
         testonly = true
         sources = [
+          "tests/FontResolvedText.cpp",
           "tests/SelectableText.cpp",
           "tests/ShapedText.cpp",
           "tests/UnicodeText.cpp",
