@@ -24,15 +24,15 @@ brought a speedup of up to 26% in our nanobenches.
 
 This document has 3 parts:
 
-1. [Problem Statement and Setup](#problem-statement)
-2. [Algorithm](#algorithm)
-3. [Appendix](#appendix)
+1. Problem Statement and Setup
+2. Algorithm
+3. Appendix
 
 Part 1 and 2 are self-explanatory. Part 3 shows how to geometrically proves our
 Theorem 1 in part 2; it's more complicated but it gives us a nice picture about
 what's going on.
 
-## <span id="problem-statement">Problem Statement and Setup</span>
+## Problem Statement and Setup
 
 Let two circles be $C_0, r_0$ and $C_1, r_1$ where $C$ is the center and $r$ is
 the radius. For any point $P = (x, y)$ we want the shader to quickly compute a
@@ -78,7 +78,7 @@ $x_t$ solutions, we may want to find the bigger one if $1 - f > 0$, and smaller
 one if $1 - f < 0$, so the corresponding $t$ is always the bigger one (note that
 $f \neq 1$, otherwise we'll swap $C_0, r_0$ with $C_1, r_1$).
 
-## <span id="algorithm">Algorithm</span>
+## Algorithm
 
 **Theorem 1.** The solution to $x_t$ is
 
@@ -180,7 +180,9 @@ The number of operations per shading is thus:
 In comparison, for $r_1 \neq 1$ case, our current raster pipeline shading
 algorithm (which shall hopefully soon be upgraded to the algorithm described
 here) mainly uses formula
-$$t = 0.5 \cdot
+
+$$
+t = 0.5 \cdot
 (1/a) \cdot \left(-b \pm \sqrt{b^2 - 4ac}\right)$$ It precomputes
 $a = 1 - (r_1 - r_0)^2, 1/a, r1 -
 r0$. Number
@@ -193,7 +195,7 @@ $0.5 \cdot (1/a), 4a, r_0^2$ and $(r_1 - r_0) r_0$ multiplications, there are
 still 6 multiplications. Moreover, it sends in 4 unitofmrs to the shader while
 our algorithm only needs 2 uniforms ($1/r_1$ and $f$).
 
-## <span id="appendix">Appendix</span>
+## Appendix
 
 **Lemma 1.** Draw a ray from $C_f = (0, 0)$ to $P = (x, y)$. For every
 intersection points $P_1$ between that ray and circle $C_1 = (1, 0), r_1$, there
@@ -243,8 +245,11 @@ $C_1, r_1$. Therefore
 
 **Lemma 3.** When solution exists, one such solution is
 
+
 $$
+
     x_t = {|| C_f P || \over ||C_f P_1||} = \frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}
+
 $$
 
 _Proof._ As $C_f = (0, 0), P = (x, y)$, we have $||C_f P|| = \sqrt(x^2 + y^2)$.
@@ -290,64 +295,59 @@ $-||C_f H||$ instead of $||C_f H||$. That negation cancels out the negation of
 $-x$ so we get the same equation of $||C_f P_1||$ for both $x \geq 0$ and
 $x < 0$ cases:
 
+
 $$
+
     ||C_f P_1|| = \frac{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}{\sqrt{x^2 + y^2}}
+
 $$
 
 Finally
 
+
 $$
+
     x_t = \frac{||C_f P||}{||C_f P_1||} = \frac{\sqrt{x^2 + y^2}}{||C_f P_1||}
         = \frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}
+
 $$ $\square$
 
-**Corollary 2.** If $r_1 = 1$, then the solution $x_t = \frac{x^2 + y^2}{(1 + r_1) x}$, and
-it's valid (i.e., $x_t > 0$) iff $x > 0$.
+**Corollary 2.** If $r_1 = 1$, then the solution
+$x_t = \frac{x^2 + y^2}{(1 + r_1) x}$, and it's valid (i.e., $x_t > 0$) iff
+$x > 0$.
 
-*Proof.* Simply plug $r_1 = 1$ into the formula of Lemma 3. $\square$
+_Proof._ Simply plug $r_1 = 1$ into the formula of Lemma 3. $\square$
 
 **Corollary 3.** If $r_1 > 1$, then the unique solution is
 $x_t = \left(\sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)$.
 
-*Proof.* From Lemma 3., we have
+_Proof._ From Lemma 3., we have
 
-\begin{align}
-    x_t &= \frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}} \\\\\\
-        &=  {
-                (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
-            \over
-                \left (x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
-                \left (-x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
-            } \\\\\\
-        &=  {
-                (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
-            \over
-                -x^2 + (r_1^2 - 1) y^2 + r_1^2 x^2
-            } \\\\\\
-        &=  {
-                (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
-            \over
-                (r_1^2 - 1) (x^2 + y^2)
-            } \\\\\\
-        &=  \left(\sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)
-\end{align}
+\begin{align} x_t &= \frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}
+\\\\\\ &= { (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right )
+\over \left (x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right ) \left (-x +
+\sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right ) } \\\\\\ &= { (x^2 + y^2) \left (
+-x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2} \right ) \over -x^2 + (r_1^2 - 1) y^2 +
+r_1^2 x^2 } \\\\\\ &= { (x^2 + y^2) \left ( -x + \sqrt{(r_1^2 - 1) y^2 + r_1^2
+x^2} \right ) \over (r_1^2 - 1) (x^2 + y^2) } \\\\\\ &= \left(\sqrt{(r_1^2 - 1)
+y ^2 + r_1^2 x^2} - x\right) / (r_1^2 - 1) \end{align}
 
-The transformation above (multiplying $-x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}$ to enumerator and
-denomenator) is always valid because $r_1 > 1$ and it's the unique solution due to Corollary 1.
-$\square$
+The transformation above (multiplying $-x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}$
+to enumerator and denomenator) is always valid because $r_1 > 1$ and it's the
+unique solution due to Corollary 1. $\square$
 
 **Lemma 4.** If $r_1 < 1$, then
 
 1. there's no solution to $x_t$ if $(r_1^2 - 1) y^2 + r_1^2 x^2 < 0$
 2. otherwise, the solutions are
-    $x_t = \left(\sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)$,
-    or
-    $x_t = \left(-\sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)$.
+   $x_t = \left(\sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)$,
+   or
+   $x_t = \left(-\sqrt{(r_1^2 - 1) y ^2 + r_1^2 x^2}  - x\right) / (r_1^2 - 1)$.
 
-(Note that solution $x_t$ still has to be nonnegative to be valid; also note that
-$x_t > 0 \Leftrightarrow x > 0$ if the solution exists.)
+(Note that solution $x_t$ still has to be nonnegative to be valid; also note
+that $x_t > 0 \Leftrightarrow x > 0$ if the solution exists.)
 
-*Proof.* Case 1 follows naturally from Lemma 3. and Corollary 1.
+_Proof._ Case 1 follows naturally from Lemma 3. and Corollary 1.
 
 <img src="./lemma4.svg"/>
 
@@ -356,13 +356,13 @@ For case 2, we notice that $||C_f P_1||$ could be
 1. either $||C_f H|| + ||H P_1||$ or $||C_f H|| - ||H P_1||$ if $x \geq 0$,
 2. either $-||C_f H|| + ||H P_1||$ or $-||C_f H|| - ||H P_1||$ if $x < 0$.
 
-By analysis similar to Lemma 3., the solution to $x_t$ does not depend on the sign of $x$ and
-they are either $\frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}$
-or $\frac{x^2 + y^2}{x - \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}$.
+By analysis similar to Lemma 3., the solution to $x_t$ does not depend on the
+sign of $x$ and they are either
+$\frac{x^2 + y^2}{x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}$ or
+$\frac{x^2 + y^2}{x - \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}}$.
 
-As $r_1 \neq 1$, we can apply the similar transformation in Corollary 3. to get the two
-formula in the lemma.
-$\square$
+As $r_1 \neq 1$, we can apply the similar transformation in Corollary 3. to get
+the two formula in the lemma. $\square$
 
-
+$$
 $$

@@ -1,36 +1,32 @@
-
 ---
 title: "Using Skia's PDF Backend"
 linkTitle: "Using Skia's PDF Backend"
+---
+
+Here is an example of using Skia's PDF backend (SkPDF) via the SkDocument and
+SkCanvas APIs.
+
+<fiddle-embed name='@PDF'></fiddle-embed>
+
+<!-- https://fiddle.skia.org/c/@PDF docs/examples/PDF.cpp -->
 
 ---
 
+## SkPDF Limitations
 
-Here is an example of using Skia's PDF backend (SkPDF) via the
-SkDocument and SkCanvas APIs.
-
-<fiddle-embed name='@PDF'></fiddle-embed>
-<!-- https://fiddle.skia.org/c/@PDF docs/examples/PDF.cpp -->
-
-* * *
-
-<span id="limits">SkPDF Limitations</span>
-------------------------------------------
-
-There are several corners of Skia's public API that SkPDF currently
-does not handle because either no known client uses the feature or
-there is no simple PDF-ish way to handle it.
+There are several corners of Skia's public API that SkPDF currently does not
+handle because either no known client uses the feature or there is no simple
+PDF-ish way to handle it.
 
 In this document:
 
-  + **drop** means to draw nothing.
+- **drop** means to draw nothing.
 
-  + **ignore** means to draw without the effect
+- **ignore** means to draw without the effect
 
-  + **expand** means to implement something in a non-PDF-ish way.
-    This may mean to rasterize vector graphics, to expand paths with
-    path effects into many individual paths, or to convert text to
-    paths.
+- **expand** means to implement something in a non-PDF-ish way. This may mean to
+  rasterize vector graphics, to expand paths with path effects into many
+  individual paths, or to convert text to paths.
 
 <style scoped><!--
 #pdftable {border-collapse:collapse;}
@@ -49,22 +45,20 @@ In this document:
 
 Notes:
 
-  - *SkImageFilter*: When SkImageFilter is expanded, text-as-text is lost.
+- _SkImageFilter_: When SkImageFilter is expanded, text-as-text is lost.
 
-  - *SkXferMode*: The following transfer modes are not natively
-    supported by PDF: DstOver, SrcIn, DstIn, SrcOut, DstOut, SrcATop,
-    DstATop, and Modulate.
+- _SkXferMode_: The following transfer modes are not natively supported by PDF:
+  DstOver, SrcIn, DstIn, SrcOut, DstOut, SrcATop, DstATop, and Modulate.
 
 Other limitations:
 
-  - *drawText with VerticalText* — drop. No known clients seem to make use
-    of the VerticalText flag.
+- _drawText with VerticalText_ — drop. No known clients seem to make use of the
+  VerticalText flag.
 
-  - *drawTextOnPath* — expand. (Text-as-text is lost.)
+- _drawTextOnPath_ — expand. (Text-as-text is lost.)
 
-  - *drawVertices* — drop.
+- _drawVertices_ — drop.
 
-  - *drawPatch* — drop.
+- _drawPatch_ — drop.
 
-* * *
-
+---

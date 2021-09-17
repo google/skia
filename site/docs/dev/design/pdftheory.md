@@ -21,23 +21,7 @@ SkPDF as a client calling Skia's public API.
 
 ---
 
-### Contents
-
-- [Typical usage of the PDF backend](#Typical_usage_of_the_PDF_backend)
-- [PDF Objects and Document Structure](#PDF_Objects_and_Document_Structure)
-- [PDF drawing](#PDF_drawing)
-- [Interned objects](#Interned_objects)
-- [Graphic States](#Graphic_States)
-- [Clip and Transform](#Clip_and_Transform)
-- [Generating a content stream](#Generating_a_content_stream)
-- [Drawing details](#Drawing_details)
-  - [Layers](#Layers)
-  - [Fonts](#Fonts)
-  - [Shaders](#Shaders)
-  - [Xfer modes](#Xfer_modes)
-- [Known issues](#Known_issues)
-
-## <span id="Typical_usage_of_the_PDF_backend">Typical usage of the PDF backend</span>
+## Typical usage of the PDF backend
 
 SkPDFDevice is the main interface to the PDF backend. This child of SkDevice can
 be set on an SkCanvas and drawn to. Once drawing to the canvas is complete
@@ -47,7 +31,7 @@ created for each page or layer desired in the document. After all the pages have
 been added to the document, `SkPDFDocument::onClose()` is called to finish
 serializing the PDF file.
 
-## <span id="PDF_Objects_and_Document_Structure">PDF Objects and Document Structure</span>
+## PDF Objects and Document Structure
 
 ![PDF Logical Document Structure](../PdfLogicalDocumentStructure.png)
 
@@ -163,7 +147,7 @@ Example document:
     299
     %%EOF
 
-## <span id="PDF_drawing">PDF drawing</span>
+## PDF drawing
 
 Most drawing in PDF is specified by the text of a stream, referred to as a
 content stream. The syntax of the content stream is different than the syntax of
@@ -203,14 +187,14 @@ does it flatten that list of structures into the final content stream.
     endstream
     endobj
 
-## <span id="Interned_objects">Interned objects</span>
+## Interned objects
 
 There are a number of high level PDF objects (like fonts, graphic states, etc)
 that are likely to be referenced multiple times in a single PDF. To ensure that
 there is only one copy of each object, the SkPDFDocument holds on to a mapping
 from type-specific keys onto the SkPDFIndirectReference for these objects.
 
-## <span id="Graphic_States">Graphic States</span>
+## Graphic States
 
 PDF has a number of parameters that affect how things are drawn. The ones that
 correspond to drawing options in Skia are: color, alpha, line cap, line join
@@ -233,7 +217,7 @@ Similarly the current font and font size are set directly in the content stream.
     >>
     endobj
 
-## <span id="Clip_and_Transform">Clip and Transform</span>
+## Clip and Transform
 
 Similar to Skia, PDF allows drawing to be clipped or transformed. However, there
 are a few caveats that affect the design of the PDF backend. PDF does not
@@ -255,7 +239,7 @@ to figure out the best transition from one state to the next. A global
 optimization could improve things by more effectively using the graphics state
 stack provided in the PDF format.
 
-## <span id="Generating_a_content_stream">Generating a content stream</span>
+## Generating a content stream
 
 For each draw call on an SkPDFDevice, a new ContentEntry is created, which
 stores the matrix, clip region, and clip stack as well as the paint parameters.
@@ -284,7 +268,7 @@ to the state specified in the ContentEntry, similarly the Matrix and drawing
 state (color, line joins, etc) are updated, then the content entry fragment (the
 actual drawing operation) is appended.
 
-## <span id="Drawing_details">Drawing details</span>
+## Drawing details
 
 Certain objects have specific properties that need to be dealt with. Images,
 layers (see below), and fonts assume the standard PDF coordinate system, so we
@@ -293,7 +277,7 @@ entities. We don't currently support inverted paths, so filling an inverted path
 will give the wrong result ([issue 241](https://bug.skia.org/241)). PDF doesn't
 draw zero length lines that have butt of square caps, so that is emulated.
 
-### <span id="Layers">Layers</span>
+### Layers
 
 PDF has a higher level object called a form x-object (form external object) that
 is basically a PDF page, with resources and a content stream, but can be
@@ -310,7 +294,7 @@ operations done on the base layer. Since the form x-object will be drawn as a
 single operation onto the base layer, we can assume that all of those clips are
 in effect and need not apply them within the layer.
 
-### <span id="Fonts">Fonts</span>
+### Fonts
 
 There are many details for dealing with fonts, so this document will only talk
 about some of the more important ones. A couple short details:
@@ -348,7 +332,7 @@ Many fonts, especially fonts with CJK support are fairly large, so it is
 desirable to subset them. Chrome uses the SFNTLY package to provide subsetting
 support to Skia for TrueType fonts.
 
-### <span id="Shaders">Shaders</span>
+### Shaders
 
 Skia has two types of predefined shaders, image shaders and gradient shaders. In
 both cases, shaders are effectively positioned absolutely, so the initial
@@ -374,7 +358,7 @@ postscript code is somewhat obtuse, since it is trying to generate optimized
 (for space) postscript code, but there is a significant number of comments to
 explain the intent.
 
-### <span id="Xfer_modes">Xfer modes</span>
+### Xfer modes
 
 PDF supports some of the xfer modes used in Skia directly. For those, it is
 simply a matter of setting the blend mode in the graphic state to the
@@ -439,7 +423,7 @@ as a mask. SrcOut is like SrcMode, but with Src drawn with an inverted Dst as a
 mask. DstIn is SrcMode with Dst drawn with Src as a mask. Finally, DstOut is
 SrcMode with Dst draw with an inverted Src as a mask.
 
-## <span id="Known_issues">Known issues</span>
+## Known issues
 
 - [issue 249](https://bug.skia.org/249) SrcAtop Xor, and Plus xfer modes are not
   supported.

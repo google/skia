@@ -3,10 +3,6 @@ title: 'Writing Skia Tests'
 linkTitle: 'Writing Skia Tests'
 ---
 
-- [Unit Tests](#test)
-- [Rendering Tests](#gm)
-- [Benchmark Tests](#bench)
-
 We assume you have already synced Skia's dependencies and set up Skia's build
 system.
 
@@ -15,8 +11,6 @@ system.
     python2 tools/git-sync-deps
     bin/gn gen out/Debug
     bin/gn gen out/Release --args='is_debug=false'
-
-<span id="test"></span>
 
 ## Writing a Unit Test
 
@@ -47,8 +41,6 @@ system.
 
         ninja -C out/Debug dm
         out/Debug/dm --match NewUnitTest
-
-<span id="gm"></span>
 
 ## Writing a Rendering Test
 
@@ -85,8 +77,6 @@ system.
 
         ninja -C out/Debug viewer
         out/Debug/viewer --slide GM_newgmtest
-
-<span id="bench"></span>
 
 ## Writing a Benchmark Test
 

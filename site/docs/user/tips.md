@@ -3,17 +3,7 @@ title: 'Tips & FAQ'
 linkTitle: 'Tips & FAQ'
 ---
 
-- [Bitmap Subsetting](#bitmap-subsetting)
-- [Capture a `.skp` file on a web page in Chromium](#skp-capture)
-- [Capture a `.mskp` file on a web page in Chromium](#mskp-capture)
-- [How to add hardware acceleration in Skia](#hw-acceleration)
-- [Does Skia support Font hinting?](#font-hinting)
-- [Does Skia shape text (kerning)?](#kerning)
-- [How do I add drop shadow on text?](#text-shadow)
-
----
-
-## <span id="skp-capture">Capture a `.skp` file on a web page in Chromium</span>
+## Capture a `.skp` file on a web page in Chromium
 
 Use the script `experimental/tools/web_to_skp` , _or_ do the following:
 
@@ -35,7 +25,7 @@ rasterize it with `dm`, or use Skia's `viewer` to view it:
 
 ---
 
-## <span id="mskp-capture">Capture a `.mskp` file on a web page in Chromium</span>
+## Capture a `.mskp` file on a web page in Chromium
 
 Multipage Skia Picture files capture the commands sent to produce PDFs and
 printed documents.
@@ -63,7 +53,7 @@ process it with `dm`.
 
 ---
 
-## <span id="hw-acceleration">How to add hardware acceleration in Skia</span>
+## How to add hardware acceleration in Skia
 
 There are two ways Skia takes advantage of specific hardware.
 
@@ -76,7 +66,7 @@ There are two ways Skia takes advantage of specific hardware.
 
 ---
 
-## <span id="font-hinting">Does Skia support Font hinting?</span>
+## Does Skia support Font hinting?
 
 Skia has a built-in font cache, but it does not know how to actually render font
 files like TrueType into its cache. For that it relies on the platform to supply
@@ -87,7 +77,7 @@ be supported in a like manner.
 
 ---
 
-## <span id="kerning">Does Skia shape text (kerning)?</span>
+## Does Skia shape text (kerning)?
 
 Shaping is the process that translates a span of Unicode text into a span of
 positioned glyphs with the appropriate typefaces.
@@ -105,7 +95,7 @@ to draw those glyphs.
 
 ---
 
-## <span id="text-shadow">How do I add drop shadow on text?</span>
+## How do I add drop shadow on text?
 
 <!--?prettify lang=cc?-->
 

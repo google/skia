@@ -20,9 +20,10 @@ sufficient then that is preferred to an include.
 
 Forward declarations and file includes should be in alphabetical order.
 
-<span id="no-define-before-sktypes"></span> Do not use #if/#ifdef before
-including "SkTypes.h" (directly or indirectly). Most things you'd #if on tend to
-not yet be decided until SkTypes.h.
+### No define before sktypes
+
+Do not use #if/#ifdef before including "SkTypes.h" (directly or indirectly).
+Most things you'd #if on tend to not yet be decided until SkTypes.h.
 
 We use 4 spaces, not tabs.
 

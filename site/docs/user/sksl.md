@@ -3,7 +3,7 @@ title: 'SkSL & Runtime Effects'
 linkTitle: 'SkSL'
 ---
 
-## <span id="overview">Overview</span>
+## Overview
 
 **SkSL** is Skia's
 [shading language](https://en.wikipedia.org/wiki/Shading_language).
@@ -43,7 +43,7 @@ example, it might include:
   with `SkPaint::setBlender`).
 
 Even if the `SkPaint` has a complex tree of objects in the `SkShader`,
-`SkColorFilter`, or `SkBlender` fields, there is still only a *single* GPU
+`SkColorFilter`, or `SkBlender` fields, there is still only a _single_ GPU
 fragment shader. Each node in that tree creates a single function. The clipping
 code and geometry code each create a function. The blending code might create a
 function. The overall fragment shader then calls all of these functions (which
@@ -53,24 +53,23 @@ may call other functions, e.g. in the case of an `SkShader` tree).
 
 ---
 
-## <span id="children">Evaluating (sampling) other SkShaders</span>
+## Evaluating (sampling) other SkShaders
 
 In GLSL, a fragment shader can sample a texture. With runtime effects, the
 object that you bind (in C++) is an `SkShader`, represented by a `shader` in
 SkSL. To make it clear that you are operating on an object that will emit its
 own shader code, you don't use `sample`. Instead, the `shader` object has a
-`.eval()` method. Regardless, Skia has simple methods for creating an
-`SkShader` from an `SkImage`, so it's easy to use images in your runtime
-effects:
+`.eval()` method. Regardless, Skia has simple methods for creating an `SkShader`
+from an `SkImage`, so it's easy to use images in your runtime effects:
 
 <fiddle-embed name='8a895f12c8fd7b976bb68e6002f85a8e'></fiddle-embed>
 
-Because the object you bind and evaluate is an `SkShader`, you can directly
-use any Skia shader, without necessarily turning it into an image (texture)
-first. For example, you can evaluate a linear gradient. In this example,
-there is no texture created to hold the gradient. Skia generates a single
-fragment shader that computes the gradient color, samples from the image's
-texture, and then multiplies the two together:
+Because the object you bind and evaluate is an `SkShader`, you can directly use
+any Skia shader, without necessarily turning it into an image (texture) first.
+For example, you can evaluate a linear gradient. In this example, there is no
+texture created to hold the gradient. Skia generates a single fragment shader
+that computes the gradient color, samples from the image's texture, and then
+multiplies the two together:
 
 <fiddle-embed name='f282a4411782ed92057350e339586502'></fiddle-embed>
 
@@ -81,7 +80,7 @@ shader snippets dynamically:
 
 ---
 
-## <span id="premul">Premultiplied Alpha</span>
+## Premultiplied Alpha
 
 When dealing with transparent colors, there are two (common)
 [possible representations](https://en.wikipedia.org/wiki/Alpha_compositing#Straight_versus_premultiplied).
@@ -119,20 +118,22 @@ by Skia clamping the color's RGB values to its alpha.
 
 ---
 
-## <span id="coords">Coordinate Spaces</span>
+## Coordinate Spaces
 
 To understand how coordinates work in SkSL, you first need to understand
-[how they work in Skia](/docs/user/coordinates). If you're comfortable with Skia's coordinate
-spaces, then just remember that the coordinates supplied to your `main()` are **local**
-coordinates. They will be relative to the coordinate space of the `SkShader`. This will match the
-local space of the canvas and any `localMatrix` transformations. Additionally, if the shader is
-invoked by another, that parent shader may modify them arbitrarily.
+[how they work in Skia](/docs/user/coordinates). If you're comfortable with
+Skia's coordinate spaces, then just remember that the coordinates supplied to
+your `main()` are **local** coordinates. They will be relative to the coordinate
+space of the `SkShader`. This will match the local space of the canvas and any
+`localMatrix` transformations. Additionally, if the shader is invoked by
+another, that parent shader may modify them arbitrarily.
 
-In addition, the `SkShader` produced from an `SkImage` does not use normalized coordinates (like a
-texture in GLSL). It uses `(0, 0)` in the upper-left corner, and `(w, h)` in the bottom-right
-corner. Normally, this is exactly what you want. If you're evaluating an `SkImageShader` with
-coordinates based on the ones passed to you, the scale is correct. However, if you want to adjust
-those coordinates (to do some kind of re-mapping of the image), remember that the coordinates are
-scaled up to the dimensions of the image:
+In addition, the `SkShader` produced from an `SkImage` does not use normalized
+coordinates (like a texture in GLSL). It uses `(0, 0)` in the upper-left corner,
+and `(w, h)` in the bottom-right corner. Normally, this is exactly what you
+want. If you're evaluating an `SkImageShader` with coordinates based on the ones
+passed to you, the scale is correct. However, if you want to adjust those
+coordinates (to do some kind of re-mapping of the image), remember that the
+coordinates are scaled up to the dimensions of the image:
 
 <fiddle-embed name='cc49d5a7b6b88d6a4dca1619e6df8763'></fiddle-embed>

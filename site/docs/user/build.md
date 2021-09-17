@@ -11,18 +11,7 @@ Make sure you have first followed the
 Skia uses [GN](https://chromium.googlesource.com/chromium/src/tools/gn/) to
 configure its builds.
 
-- [`is_official_build` and Third-party Dependencies](#third-party)
-- [Supported and Preferred Compilers](#compilers)
-- [Quickstart](#quick)
-- [Android](#android)
-- [ChromeOS](#cros)
-- [Mac](#macos)
-- [iOS](#ios)
-- [Windows](#windows)
-- [Windows ARM64](#win-arm64)
-- [CMake](#cmake)
-
-## <span id="third-party">`is_official_build` and Third-party Dependencies</span>
+## `is_official_build` and Third-party Dependencies
 
 Most users of Skia should set `is_official_build=true`, and most developers
 should leave it to its `false` default.
@@ -46,7 +35,7 @@ Skia against the headers and libraries found on the system paths.
 use `extra_cflags` and `extra_ldflags` to add include or library paths if
 needed.
 
-## <span id="compilers">Supported and Preferred Compilers</span>
+## Supported and Preferred Compilers
 
 While Skia should compile with GCC, MSVC, and other compilers, a number of
 routines in Skia's software backend have been written to run fastest when
@@ -65,7 +54,7 @@ specific executables for `cc` and `cxx` invocations using e.g.
 [Quickstart](#quick). This can be useful for building Skia without needing to
 modify your machine's default compiler toolchain.
 
-## <span id="quick">Quickstart</span>
+## Quickstart
 
 Run `gn gen` to generate your build files. As arguments to `gn gen`, pass a name
 for your build directory, and optionally `--args=` to configure the build type.
@@ -125,7 +114,7 @@ python tools/git-sync-deps
 ninja -C out/Static
 ```
 
-## <span id="android">Android</span>
+## Android
 
 To build Skia for Android you need an
 [Android NDK](https://developer.android.com/ndk/index.html).
@@ -162,7 +151,7 @@ adb push resources /data/local/tmp
 adb shell "cd /data/local/tmp; ./dm --src gm --config gl"
 ```
 
-## <span id="cros">ChromeOS</span>
+## ChromeOS
 
 To cross-compile Skia for arm ChromeOS devices the following is needed:
 
@@ -261,12 +250,12 @@ noexec. To avoid "permission denied" errors, remember to run something like:
 sudo mount -i -o remount,exec /home/chronos
 ```
 
-## <span id="macos">Mac</span>
+## Mac
 
 Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode
 project.
 
-## <span id="ios">iOS</span>
+## iOS
 
 Run GN to generate your build files. Set `target_os="ios"` to build for iOS.
 This defaults to `target_cpu="arm64"`. Choosing `x64` targets the iOS simulator.
@@ -316,7 +305,7 @@ ios_min_target = "<major>.<minor>"
 
 where `<major>.<minor>` is the iOS version on the device, e.g., 12.0 or 11.4.
 
-## <span id="windows">Windows</span>
+## Windows
 
 Skia can build on Windows with Visual Studio 2017 or 2019. If GN is unable to
 locate either of those, it will print an error message. In that case, you can
@@ -382,7 +371,7 @@ and supports building and running any of them. It also adjusts syntax
 highlighting of inactive code blocks based on preprocessor definitions from the
 selected solution configuration.
 
-## <span id="win-arm64">Windows ARM64</span>
+## Windows ARM64
 
 There is early, experimental support for
 [Windows 10 on ARM](https://docs.microsoft.com/en-us/windows/arm/). This
@@ -403,7 +392,7 @@ This will produce a build of Skia that can use the software or ANGLE backends,
 in DM. Viewer only works when launched with `--backend angle`, because the
 software backend tries to use OpenGL to display the window contents.
 
-## <span id="cmake">CMake</span>
+## CMake
 
 We have added a GN-to-CMake translator mainly for use with IDEs that like CMake
 project descriptions. This is not meant for any purpose beyond development.

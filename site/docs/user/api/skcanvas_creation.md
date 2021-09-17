@@ -7,20 +7,10 @@ weight: 250
 
 First, read about [the SkCanvas API](../skcanvas_overview).
 
-Skia has multiple backends which receive SkCanvas drawing commands, including:
+Skia has multiple backends which receive SkCanvas drawing commands. Each backend
+has a unique way of creating a SkCanvas. This page gives an example for each:
 
-- [Raster](#raster) - CPU-only.
-- [GPU](#gpu) - Skia's GPU-accelerated backend.
-- [SkPDF](#skpdf) - PDF document creation.
-- [SkPicture](#skpicture) - Skia's display list format.
-- [NullCanvas](#nullcanvas) - Useful for testing only.
-- [SkXPS](#skxps) - Experimental XPS backend.
-- [SkSVG](#sksvg) - Experimental SVG backend.
-
-Each backend has a unique way of creating a SkCanvas. This page gives an example
-for each:
-
-<span id="raster"></span> Raster
+## Raster
 
 ---
 
@@ -73,7 +63,7 @@ instead of asking Skia to manage it.
         return pixelMemory;
     }
 
-<span id="gpu"></span> GPU
+## GPU
 
 ---
 
@@ -119,7 +109,7 @@ current thread when Skia calls are made.
         (void)out.write(png->data(), png->size());
     }
 
-<span id="skpdf"></span> SkPDF
+## SkPDF
 
 ---
 
@@ -141,7 +131,7 @@ must include multiple pages.
         pdfDoc->close();
     }
 
-<span id="skpicture"></span> SkPicture
+## SkPicture
 
 ---
 
@@ -165,7 +155,7 @@ The SkPicture backend uses SkPictureRecorder instead of SkSurface.
         picture->serialize(&skpStream);
     }
 
-<span id="nullcanvas"></span> NullCanvas
+## NullCanvas
 
 ---
 
@@ -179,7 +169,7 @@ The null canvas is a canvas that ignores all drawing commands and does nothing.
         draw(nullCanvas.get());  // NoOp
     }
 
-<span id="skxps"></span> SkXPS
+## SkXPS
 
 ---
 
@@ -203,7 +193,7 @@ The (_still experimental_) SkXPS canvas writes into an XPS document.
     }
     #endif
 
-<span id="sksvg"></span> SkSVG
+## SkSVG
 
 ---
 
@@ -226,7 +216,7 @@ The (_still experimental_) SkSVG canvas writes into an SVG document.
         draw(svgCanvas.get());
     }
 
-<span id="example"></span> Example
+## Example
 
 ---
 
