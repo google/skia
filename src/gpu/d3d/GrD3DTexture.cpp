@@ -110,19 +110,18 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeWrappedTexture(GrD3DGpu* gpu,
 
 sk_sp<GrD3DTexture> GrD3DTexture::MakeAliasingTexture(GrD3DGpu* gpu,
                                                       sk_sp<GrD3DTexture> originalTexture,
-                                                      DXGI_FORMAT format) {
+                                                      const D3D12_RESOURCE_DESC& newDesc,
+                                                      D3D12_RESOURCE_STATES resourceState) {
     GrD3DTextureResourceInfo info = originalTexture->fInfo;
-    D3D12_RESOURCE_DESC desc = originalTexture->d3dResource()->GetDesc();
-    desc.Format = format;
-
-    info.fResource = gpu->memoryAllocator()->createAliasingResource(info.fAlloc, 0, &desc,
-                                                                    info.fResourceState, nullptr);
+    info.fResource = gpu->memoryAllocator()->createAliasingResource(info.fAlloc, 0, &newDesc,
+                                                                    resourceState, nullptr);
     if (!info.fResource) {
         return false;
     }
+    info.fResourceState = resourceState;
 
     sk_sp<GrD3DResourceState> state(
-        new GrD3DResourceState(static_cast<D3D12_RESOURCE_STATES>(info.fResourceState)));
+        new GrD3DResourceState(static_cast<D3D12_RESOURCE_STATES>(resourceState)));
 
     GrD3DDescriptorHeap::CPUHandle shaderResourceView =
         gpu->resourceProvider().createShaderResourceView(info.fResource.get());

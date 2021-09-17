@@ -32,7 +32,8 @@ public:
 
     static sk_sp<GrD3DTexture> MakeAliasingTexture(GrD3DGpu*,
                                                    sk_sp<GrD3DTexture>,
-                                                   DXGI_FORMAT);
+                                                   const D3D12_RESOURCE_DESC& newDesc,
+                                                   D3D12_RESOURCE_STATES);
 
     ~GrD3DTexture() override {}
 
