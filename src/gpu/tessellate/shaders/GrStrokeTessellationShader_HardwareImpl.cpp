@@ -105,7 +105,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     v->codeAppend(R"(
     // Unpack the control points.
     float2 prevControlPoint = prevCtrlPtAttr;
-    float4x2 P = float4x2(pts01Attr, pts23Attr);)");
+    float4x2 P = float4x2(pts01Attr.xy, pts01Attr.zw, pts23Attr.xy, pts23Attr.zw);)");
 
     if (shader.stroke().isHairlineStyle()) {
         // Hairline case. Transform the points before tessellation. We can still hold off on the
