@@ -81,8 +81,7 @@ public:
     ShapedText()
     : fCurrentRun(nullptr)
     , fParagraphTextStart(0)
-    , fRunGlyphStart(0.0f)
-    , fTextHeight(0.0f) { }
+    , fRunGlyphStart(0.0f) { }
 
     void beginLine() override {}
     void runInfo(const RunInfo&) override {}
@@ -113,7 +112,6 @@ private:
     std::unique_ptr<LogicalRun> fCurrentRun;
     TextIndex fParagraphTextStart;
     SkScalar fRunGlyphStart;
-    SkScalar fTextHeight;
 };
 
 /**

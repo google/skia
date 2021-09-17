@@ -7,8 +7,8 @@
 namespace skia {
 namespace text {
 UnicodeText::UnicodeText(std::unique_ptr<SkUnicode> unicode, SkSpan<uint16_t> utf16)
-    : fUnicode(std::move(unicode))
-    , fText16(std::u16string((char16_t*)utf16.data(), utf16.size())) {
+    : fText16(std::u16string((char16_t*)utf16.data(), utf16.size()))
+    , fUnicode(std::move(unicode)) {
     initialize(utf16);
 }
 
