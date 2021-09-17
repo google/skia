@@ -134,9 +134,9 @@ If you do not have an NDK and have access to CIPD, you can use one of these
 commands to fetch the NDK our bots use:
 
 ```
-python2 infra/bots/assets/android_ndk_linux/download.py -t /tmp/ndk
-python2 infra/bots/assets/android_ndk_darwin/download.py -t /tmp/ndk
-python2 infra/bots/assets/android_ndk_windows/download.py -t C:/ndk
+./bin/sk asset download android_ndk_linux /tmp/ndk
+./bin/sk asset download android_ndk_darwin /tmp/ndk
+./bin/sk.exe asset download android_ndk_windows C:/ndk
 ```
 
 When generating your GN build files, pass the path to your `ndk` and your
@@ -176,10 +176,10 @@ files.
 If you have access to CIPD, you can fetch all of these as follows:
 
 ```
-python2 infra/bots/assets/clang_linux/download.py  -t /opt/clang
-python2 infra/bots/assets/armhf_sysroot/download.py -t /opt/armhf_sysroot
-python2 infra/bots/assets/chromebook_arm_gles/download.py -t /opt/chromebook_arm_gles
-python2 infra/bots/assets/chromebook_x86_64_gles/download.py -t /opt/chromebook_x86_64_gles
+./bin/sk asset download clang_linux /opt/clang
+./bin/sk asset download armhf_sysroot /opt/armhf_sysroot
+./bin/sk asset download chromebook_arm_gles /opt/chromebook_arm_gles
+./bin/sk asset download chromebook_x86_64_gles /opt/chromebook_x86_64_gles
 ```
 
 If you don't have authorization to use those assets, then see the README.md
@@ -328,7 +328,7 @@ Skia can be compiled with the free
 The bots use a packaged 2019 toolchain, which Googlers can download like this:
 
 ```
-python2 infra/bots/assets/win_toolchain/download.py -t C:/toolchain
+./bin/sk.exe asset download win_toolchain C:/toolchain
 ```
 
 You can then pass the VC and SDK paths to GN by setting your GN args:

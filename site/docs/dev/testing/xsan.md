@@ -31,7 +31,7 @@ This requires gsutil, part of the [gcloud sdk](https://cloud.google.com/sdk/down
 <!--?prettify lang=sh?-->
 
     CLANGDIR="${HOME}/clang"
-    python2 infra/bots/assets/clang_linux/download.py -t $CLANGDIR
+    ./bin/sk asset download clang_linux $CLANGDIR
 
 Building Clang binaries from scratch (Other users)
 ---------------------------

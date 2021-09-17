@@ -14,9 +14,7 @@ The to build skia for android are at https://skia.org/user/build#android and rep
 Download the Android NDK
 
 ```
-cipd auth-login
-python2 infra/bots/assets/android_ndk_linux/download.py  -t /tmp/ndk
-
+./bin/sk asset download android_ndk_linux /tmp/ndk
 ```
 
 After this is set up once, build skpbench for your target cpu (assumed to be arm64 here for a Pixel 3)
