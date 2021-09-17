@@ -152,21 +152,19 @@ bool GrGLRenderTarget::ensureDynamicMSAAAttachment() {
         return false;
     }
 
+    if (resourceProvider->caps()->msaaResolvesAutomatically() && this->asTexture()) {
+        // We can use EXT_multisampled_render_to_texture for MSAA. We will configure the FBO as MSAA
+        // or not during bindFBO().
+        fMultisampleFBOID = fSingleSampleFBOID;
+        return true;
+    }
+
     GL_CALL(GenFramebuffers(1, &fMultisampleFBOID));
     if (!fMultisampleFBOID) {
         return false;
     }
 
     this->getGLGpu()->bindFramebuffer(GR_GL_FRAMEBUFFER, fMultisampleFBOID);
-
-    if (resourceProvider->caps()->msaaResolvesAutomatically()) {
-        if (GrGLTexture* glTex = static_cast<GrGLTexture*>(this->asTexture())) {
-            GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
-                                                    glTex->target(), glTex->textureID(),
-                                                    0 /*mipMapLevel*/, internalSampleCount));
-            return true;
-        }
-    }
 
     fDynamicMSAAAttachment.reset(
             static_cast<GrGLAttachment*>(resourceProvider->getDiscardableMSAAAttachment(
@@ -184,6 +182,30 @@ bool GrGLRenderTarget::ensureDynamicMSAAAttachment() {
 void GrGLRenderTarget::bindInternal(GrGLenum fboTarget, bool useMultisampleFBO) {
     GrGLuint fboId = useMultisampleFBO ? fMultisampleFBOID : fSingleSampleFBOID;
     this->getGLGpu()->bindFramebuffer(fboTarget, fboId);
+
+    if (fSingleSampleFBOID != 0 &&
+        fSingleSampleFBOID == fMultisampleFBOID &&
+        useMultisampleFBO != fDMSAARenderToTextureFBOIsMultisample) {
+        auto* glTex = static_cast<GrGLTexture*>(this->asTexture());
+        if (useMultisampleFBO) {
+            int internalSampleCount =
+                    this->getGpu()->caps()->internalMultisampleCount(this->backendFormat());
+            GL_CALL(FramebufferTexture2DMultisample(fboTarget,
+                                                    GR_GL_COLOR_ATTACHMENT0,
+                                                    glTex->target(),
+                                                    glTex->textureID(),
+                                                    0 /*mipMapLevel*/,
+                                                    internalSampleCount));
+        } else {
+            GL_CALL(FramebufferTexture2D(fboTarget,
+                                         GR_GL_COLOR_ATTACHMENT0,
+                                         glTex->target(),
+                                         glTex->textureID(),
+                                         0 /*mipMapLevel*/));
+        }
+        fDMSAARenderToTextureFBOIsMultisample = useMultisampleFBO;
+        fStencilAttachmentIsValid[useMultisampleFBO] = false;
+    }
 
     // Make sure the stencil attachment is valid. Even though a color buffer op doesn't use stencil,
     // our FBO still needs to be "framebuffer complete".
@@ -252,10 +274,9 @@ void GrGLRenderTarget::onRelease() {
     if (GrBackendObjectOwnership::kBorrowed != fRTFBOOwnership) {
         GrGLGpu* gpu = this->getGLGpu();
         if (fSingleSampleFBOID) {
-            SkASSERT(fSingleSampleFBOID != fMultisampleFBOID);
             gpu->deleteFramebuffer(fSingleSampleFBOID);
         }
-        if (fMultisampleFBOID) {
+        if (fMultisampleFBOID && fMultisampleFBOID != fSingleSampleFBOID) {
             SkASSERT(fMultisampleFBOID != fSingleSampleFBOID);
             gpu->deleteFramebuffer(fMultisampleFBOID);
         }
