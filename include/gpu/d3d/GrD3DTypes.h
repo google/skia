@@ -19,7 +19,7 @@
 // * MemoryBarrier
 //
 // You should only include this header if you need the Direct3D definitions and are
-// prepared to rename those identifiers. Otherwise use GrD3DTypesMinimal.h.
+// prepared to rename those identifiers.
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
@@ -234,6 +234,15 @@ struct GrD3DFenceInfo {
 
     gr_cp<ID3D12Fence> fFence;
     uint64_t           fValue;  // signal value for the fence
+};
+
+struct GrD3DSurfaceInfo {
+    uint32_t fSampleCount = 1;
+    uint32_t fLevelCount = 0;
+    GrProtected fProtected = GrProtected::kNo;
+
+    DXGI_FORMAT fFormat = DXGI_FORMAT_UNKNOWN;
+    unsigned int fSampleQualityPattern = DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN;
 };
 
 #endif

@@ -194,4 +194,13 @@ struct GrGLFramebufferInfo {
     }
 };
 
+struct GrGLSurfaceInfo {
+    uint32_t fSampleCount = 1;
+    uint32_t fLevelCount = 0;
+    GrProtected fProtected = GrProtected::kNo;
+
+    GrGLenum fTarget = 0;
+    GrGLenum fFormat = 0;
+};
+
 #endif

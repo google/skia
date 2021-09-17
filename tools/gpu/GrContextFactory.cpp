@@ -30,7 +30,6 @@
 #include "tools/gpu/dawn/DawnTestContext.h"
 #endif
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/gl/GrGLGpu.h"
 #include "tools/gpu/mock/MockTestContext.h"
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_ENABLE_DISCRETE_GPU)
