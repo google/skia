@@ -19,9 +19,7 @@
 struct ID3D12Resource;
 class GrD3DResourceState;
 typedef int GrD3DResourceStateEnum;
-struct GrD3DSurfaceInfo;
 struct GrD3DTextureResourceInfo;
-struct GrD3DTextureResourceSpec;
 struct GrD3DFenceInfo;
 
 // This struct is to used to store the the actual information about the Direct3D backend image on
@@ -55,20 +53,6 @@ struct GrD3DBackendSurfaceInfo {
 private:
     GrD3DTextureResourceInfo* fTextureResourceInfo;
     GrD3DResourceState* fResourceState;
-};
-
-struct GrD3DTextureResourceSpecHolder {
-public:
-    GrD3DTextureResourceSpecHolder(const GrD3DSurfaceInfo&);
-
-    void cleanup();
-
-    GrD3DSurfaceInfo getSurfaceInfo(uint32_t sampleCount,
-                                    uint32_t levelCount,
-                                    GrProtected isProtected) const;
-
-private:
-    GrD3DTextureResourceSpec* fSpec;
 };
 
 #endif

@@ -41,7 +41,6 @@ class GrStencilSettings;
 class GrSurface;
 class GrTexture;
 class GrThreadSafePipelineBuilder;
-struct GrVkDrawableInfo;
 class SkJSONWriter;
 
 namespace SkSL {

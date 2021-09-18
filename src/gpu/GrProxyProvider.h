@@ -15,7 +15,6 @@
 
 class GrImageContext;
 class GrBackendRenderTarget;
-struct GrVkDrawableInfo;
 class SkBitmap;
 class SkImage;
 

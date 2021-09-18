@@ -160,16 +160,4 @@ struct GrVkDrawableInfo {
     VkImage         fImage;
 };
 
-struct GrVkSurfaceInfo {
-    uint32_t fSampleCount = 1;
-    uint32_t fLevelCount = 0;
-    GrProtected fProtected = GrProtected::kNo;
-
-    VkImageTiling fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    VkFormat fFormat = VK_FORMAT_UNDEFINED;
-    VkImageUsageFlags fImageUsageFlags = 0;
-    GrVkYcbcrConversionInfo fYcbcrConversionInfo;
-    VkSharingMode fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-};
-
 #endif
