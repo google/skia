@@ -6,11 +6,18 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+void increment_vfff(thread float& a, thread float& b, thread float& c) {
+    ((a++ , b++) , c++);
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    float a = 1.0;
     float b = 2.0;
     float c = 3.0;
+    for (int x = 0;x < 1; ++x) {
+        break;
+    }
     float d = c;
     b++;
     d++;
