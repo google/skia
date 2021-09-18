@@ -125,7 +125,6 @@ private:
     GrGLuint    fMSColorRenderbufferID;
     GrGLFormat  fRTFormat;
     bool        fStencilAttachmentIsValid[2] = {false, false};
-    bool        fDMSAARenderToTextureFBOIsMultisample = false;
 
     GrBackendObjectOwnership fRTFBOOwnership;
 
