@@ -791,14 +791,15 @@ bool Compiler::optimize(Program& program) {
         // more wins, but it's diminishing returns.
         this->runInliner(program.ownedElements(), program.fSymbols, usage);
 
+        // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
+        this->removeUnreachableCode(program, usage);
+
         while (this->removeDeadFunctions(program, usage)) {
             // Removing dead functions may cause more functions to become unreferenced. Try again.
         }
         while (this->removeDeadLocalVariables(program, usage)) {
             // Removing dead variables may cause more variables to become unreferenced. Try again.
         }
-        // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
-        this->removeUnreachableCode(program, usage);
 
         this->removeDeadGlobalVariables(program, usage);
     }
