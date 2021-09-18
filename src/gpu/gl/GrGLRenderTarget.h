@@ -12,7 +12,6 @@
 #include "include/core/SkScalar.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/gl/GrGLDefines.h"
 
 class GrGLCaps;
 class GrGLGpu;
@@ -42,13 +41,8 @@ public:
                                                const IDs&,
                                                int stencilBits);
 
-    bool isFBO0(bool multisample) const {
-        return (multisample ? fMultisampleFBOID : fSingleSampleFBOID) == 0;
-    }
-
-    bool isMultisampledRenderToTexture() const {
-        return fMultisampleFBOID != 0 && fMultisampleFBOID == fSingleSampleFBOID;
-    }
+    GrGLuint singleSampleFBOID() const { return fSingleSampleFBOID; }
+    GrGLuint multisampleFBOID() const { return fMultisampleFBOID; }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
@@ -65,28 +59,6 @@ public:
     bool hasDynamicMSAAAttachment() const { return SkToBool(fDynamicMSAAAttachment); }
     bool ensureDynamicMSAAAttachment();
 
-    // Binds the render target to GL_FRAMEBUFFER for rendering.
-    void bind(bool useMultisampleFBO) {
-        this->bindInternal(GR_GL_FRAMEBUFFER, useMultisampleFBO);
-    }
-
-    // Binds the render target for copying, reading, or clearing pixel values. If we are an MSAA
-    // render target with a separate resolve texture, we bind the multisampled FBO. Otherwise we
-    // bind the single sample FBO.
-    void bindForPixelOps(GrGLenum fboTarget) {
-        this->bindInternal(fboTarget,
-                           this->numSamples() > 1 && !this->isMultisampledRenderToTexture());
-    }
-
-    enum class ResolveDirection : bool {
-        kSingleToMSAA,  // glCaps.canResolveSingleToMSAA() must be true.
-        kMSAAToSingle
-    };
-
-    // Binds the multisampled and single sample FBOs, one to GL_DRAW_FRAMEBUFFER and the other to
-    // GL_READ_FRAMEBUFFER, depending on ResolveDirection.
-    void bindForResolve(ResolveDirection);
-
 protected:
     // Constructor for subclasses.
     GrGLRenderTarget(GrGLGpu*,
@@ -96,9 +68,6 @@ protected:
                      const IDs&);
 
     void init(GrGLFormat, const IDs&);
-
-    // Binds the render target to the given target and ensures its stencil attachment is valid.
-    void bindInternal(GrGLenum fboTarget, bool useMultisampleFBO);
 
     void onAbandon() override;
     void onRelease() override;
@@ -124,7 +93,6 @@ private:
     GrGLuint    fSingleSampleFBOID;
     GrGLuint    fMSColorRenderbufferID;
     GrGLFormat  fRTFormat;
-    bool        fStencilAttachmentIsValid[2] = {false, false};
 
     GrBackendObjectOwnership fRTFBOOwnership;
 

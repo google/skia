@@ -103,7 +103,10 @@ public:
     // Applies any necessary workarounds and returns the GL primitive type to use in draw calls.
     GrGLenum prepareToDraw(GrPrimitiveType primitiveType);
 
-    using ResolveDirection = GrGLRenderTarget::ResolveDirection;
+    enum class ResolveDirection : bool {
+        kSingleToMSAA,  // glCaps.canResolveSingleToMSAA() must be true.
+        kMSAAToSingle
+    };
 
     // Resolves the render target's single sample FBO into the MSAA, or vice versa.
     // If glCaps.framebufferResolvesMustBeFullSize() is true, resolveRect must be equal the render
