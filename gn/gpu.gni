@@ -18,6 +18,7 @@ skia_gpu_sources = [
   "$_include/gpu/GrDirectContext.h",
   "$_include/gpu/GrDriverBugWorkarounds.h",
   "$_include/gpu/GrRecordingContext.h",
+  "$_include/gpu/GrSurfaceInfo.h",
   "$_include/gpu/GrTypes.h",
   "$_include/gpu/GrYUVABackendTextures.h",
 
@@ -202,6 +203,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrSubRunAllocator.h",
   "$_src/gpu/GrSurface.cpp",
   "$_src/gpu/GrSurface.h",
+  "$_src/gpu/GrSurfaceInfo.cpp",
   "$_src/gpu/GrSurfaceProxy.cpp",
   "$_src/gpu/GrSurfaceProxy.h",
   "$_src/gpu/GrSurfaceProxyPriv.h",
@@ -390,6 +392,8 @@ skia_gpu_sources = [
   "$_src/gpu/glsl/GrGLSLVertexGeoBuilder.h",
 
   # Mock
+  "$_include/gpu/mock/GrMockTypes.h",
+  "$_include/private/GrMockTypesPriv.h",
   "$_src/gpu/mock/GrMockAttachment.h",
   "$_src/gpu/mock/GrMockBuffer.h",
   "$_src/gpu/mock/GrMockCaps.cpp",
@@ -723,12 +727,15 @@ skia_direct3d_sources = [
   "$_src/gpu/d3d/GrD3DTextureResource.cpp",
   "$_src/gpu/d3d/GrD3DTextureResource.h",
   "$_src/gpu/d3d/GrD3DTypesMinimal.cpp",
+  "$_src/gpu/d3d/GrD3DTypesPriv.cpp",
+  "$_src/gpu/d3d/GrD3DTypesPriv.h",
   "$_src/gpu/d3d/GrD3DUtil.cpp",
   "$_src/gpu/d3d/GrD3DUtil.h",
 ]
 
 skia_dawn_sources = [
   "$_include/gpu/dawn/GrDawnTypes.h",
+  "$_include/private/GrDawnTypesPriv.h",
   "$_src/gpu/dawn/GrDawnAttachment.cpp",
   "$_src/gpu/dawn/GrDawnAttachment.h",
   "$_src/gpu/dawn/GrDawnBuffer.cpp",
@@ -751,6 +758,7 @@ skia_dawn_sources = [
   "$_src/gpu/dawn/GrDawnTexture.h",
   "$_src/gpu/dawn/GrDawnTextureRenderTarget.cpp",
   "$_src/gpu/dawn/GrDawnTextureRenderTarget.h",
+  "$_src/gpu/dawn/GrDawnTypesPriv.cpp",
   "$_src/gpu/dawn/GrDawnUtil.cpp",
   "$_src/gpu/dawn/GrDawnUtil.h",
 ]
@@ -797,6 +805,7 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlTextureRenderTarget.mm",
   "$_src/gpu/mtl/GrMtlTrampoline.h",
   "$_src/gpu/mtl/GrMtlTrampoline.mm",
+  "$_src/gpu/mtl/GrMtlTypesPriv.mm",
   "$_src/gpu/mtl/GrMtlUniformHandler.h",
   "$_src/gpu/mtl/GrMtlUniformHandler.mm",
   "$_src/gpu/mtl/GrMtlUtil.h",

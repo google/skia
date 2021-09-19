@@ -9,6 +9,7 @@
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/d3d/GrD3DResourceState.h"
+#include "src/gpu/d3d/GrD3DTypesPriv.h"
 
 GrD3DBackendSurfaceInfo::GrD3DBackendSurfaceInfo(const GrD3DTextureResourceInfo& info,
                                                  GrD3DResourceState* state)
@@ -65,3 +66,19 @@ bool GrD3DBackendSurfaceInfo::operator==(const GrD3DBackendSurfaceInfo& that) co
     return cpyInfoThis == cpyInfoThat && fResourceState == that.fResourceState;
 }
 #endif
+
+GrD3DTextureResourceSpecHolder::GrD3DTextureResourceSpecHolder(const GrD3DSurfaceInfo& info)
+        : fSpec(new GrD3DTextureResourceSpec(info)) {}
+
+GrD3DSurfaceInfo GrD3DTextureResourceSpecHolder::getSurfaceInfo(uint32_t sampleCount,
+                                                                uint32_t levelCount,
+                                                                GrProtected isProtected) const {
+    SkASSERT(fSpec);
+    return GrD3DTextureResourceSpecToSurfaceInfo(*fSpec, sampleCount, levelCount, isProtected);
+}
+
+void GrD3DTextureResourceSpecHolder::cleanup() {
+    delete fSpec;
+    fSpec = nullptr;
+}
+

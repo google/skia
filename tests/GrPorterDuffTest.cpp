@@ -15,7 +15,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/gl/GrGLCaps.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 

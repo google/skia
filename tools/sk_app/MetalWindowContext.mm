@@ -65,7 +65,6 @@ void MetalWindowContext::initializeContext() {
             fPipelineArchive = [*fDevice newBinaryArchiveWithDescriptor:*desc error:&error];
             if (!fPipelineArchive) {
                 (*desc).url = nil; // create new
-                NSError* error;
                 fPipelineArchive = [*fDevice newBinaryArchiveWithDescriptor:*desc error:&error];
                 if (!fPipelineArchive) {
                     SkDebugf("Error creating MTLBinaryArchive:\n%s\n",

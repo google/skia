@@ -100,17 +100,6 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
     int width = this->getInfo().width();
     int height = this->getInfo().height();
 
-    GrTextureType textureType = GrTextureType::k2D;
-    if (context->backend() == GrBackendApi::kOpenGL) {
-        textureType = GrTextureType::kExternal;
-    } else if (context->backend() == GrBackendApi::kVulkan) {
-        VkFormat format;
-        SkAssertResult(backendFormat.asVkFormat(&format));
-        if (format == VK_FORMAT_UNDEFINED) {
-            textureType = GrTextureType::kExternal;
-        }
-    }
-
     auto proxyProvider = context->priv().proxyProvider();
 
     AHardwareBuffer* hardwareBuffer = fHardwareBuffer;

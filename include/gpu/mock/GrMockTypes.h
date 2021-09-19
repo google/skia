@@ -79,6 +79,15 @@ private:
     int           fID;
 };
 
+struct GrMockSurfaceInfo {
+    uint32_t fSampleCount = 1;
+    uint32_t fLevelCount = 0;
+    GrProtected fProtected = GrProtected::kNo;
+
+    GrColorType fColorType = GrColorType::kUnknown;
+    SkImage::CompressionType fCompressionType = SkImage::CompressionType::kNone;
+};
+
 /**
  * A pointer to this type is used as the GrBackendContext when creating a Mock GrContext. It can be
  * used to specify capability options for the mock context. If nullptr is used a default constructed

@@ -21,9 +21,9 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderUtils.h"
+#include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/mock/GrMockGpu.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
@@ -39,6 +39,9 @@ public:
     void reset() { SkASSERT(0); }
 };
 }
+#endif
+#ifdef SK_GL
+#include "src/gpu/gl/GrGLGpu.h"
 #endif
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlBackendContext.h"
