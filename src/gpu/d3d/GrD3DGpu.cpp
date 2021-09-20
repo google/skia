@@ -1136,9 +1136,6 @@ bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
     samplers[0] = fResourceProvider.findOrCreateCompatibleSampler(samplerState);
     this->currentCommandList()->addSampledTextureRef(uavTexture.get());
     sk_sp<GrD3DDescriptorTable> samplerTable = fResourceProvider.findOrCreateSamplerTable(samplers);
-    this->currentCommandList()->setComputeRootDescriptorTable(
-            static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable),
-            samplerTable->baseGpuDescriptor());
 
     // Transition the top subresource to be readable in the compute shader
     D3D12_RESOURCE_STATES currentResourceState = uavTexture->currentState();
@@ -1189,12 +1186,18 @@ bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
         shaderViews.push_back(uavHandle.fHandle);
         fMipmapCPUDescriptors.push_back(uavHandle);
 
-        // set up and bind shaderView descriptor table
+        // set up shaderView descriptor table
         sk_sp<GrD3DDescriptorTable> srvTable =
                 fResourceProvider.findOrCreateShaderViewTable(shaderViews);
+
+        // bind both descriptor tables
+        this->currentCommandList()->setDescriptorHeaps(srvTable->heap(), samplerTable->heap());
         this->currentCommandList()->setComputeRootDescriptorTable(
                 (unsigned int)GrD3DRootSignature::ParamIndex::kShaderViewDescriptorTable,
                 srvTable->baseGpuDescriptor());
+        this->currentCommandList()->setComputeRootDescriptorTable(
+                static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable),
+                samplerTable->baseGpuDescriptor());
 
         // Transition resource state of dstMip subresource so we can write to it
         barrier.Subresource = dstMip;
