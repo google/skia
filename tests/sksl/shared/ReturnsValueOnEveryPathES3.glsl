@@ -105,6 +105,17 @@ bool switch_with_continue_in_loop_b() {
             return true;
     }
 }
+bool loop_with_continue_in_switch_b() {
+    for (int x = 0;x <= 10; ++x) {
+        switch (int(unknownInput)) {
+            case 1:
+                continue;
+            default:
+                return true;
+        }
+    }
+    return true;
+}
 bool switch_with_if_that_returns_b() {
     switch (int(unknownInput)) {
         case 1:
@@ -122,5 +133,5 @@ bool switch_with_one_sided_if_then_fallthrough_b() {
     }
 }
 vec4 main() {
-    return (((((((((((((((((true && return_on_both_sides_b()) && for_inside_body_b()) && after_for_body_b()) && for_with_double_sided_conditional_return_b()) && if_else_chain_b()) && conditional_inside_while_loop_b()) && inside_do_loop_b()) && inside_while_loop_b()) && after_do_loop_b()) && after_while_loop_b()) && switch_with_all_returns_b()) && switch_only_default_b()) && switch_fallthrough_b()) && switch_fallthrough_twice_b()) && switch_with_break_in_loop_b()) && switch_with_continue_in_loop_b()) && switch_with_if_that_returns_b()) && switch_with_one_sided_if_then_fallthrough_b() ? colorGreen : colorRed;
+    return ((((((((((((((((((true && return_on_both_sides_b()) && for_inside_body_b()) && after_for_body_b()) && for_with_double_sided_conditional_return_b()) && if_else_chain_b()) && conditional_inside_while_loop_b()) && inside_do_loop_b()) && inside_while_loop_b()) && after_do_loop_b()) && after_while_loop_b()) && switch_with_all_returns_b()) && switch_only_default_b()) && switch_fallthrough_b()) && switch_fallthrough_twice_b()) && switch_with_break_in_loop_b()) && loop_with_continue_in_switch_b()) && switch_with_continue_in_loop_b()) && switch_with_if_that_returns_b()) && switch_with_one_sided_if_then_fallthrough_b() ? colorGreen : colorRed;
 }

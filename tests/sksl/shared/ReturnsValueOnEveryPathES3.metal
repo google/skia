@@ -113,6 +113,17 @@ bool switch_with_continue_in_loop_b(Uniforms _uniforms) {
             return true;
     }
 }
+bool loop_with_continue_in_switch_b(Uniforms _uniforms) {
+    for (int x = 0;x <= 10; ++x) {
+        switch (int(_uniforms.unknownInput)) {
+            case 1:
+                continue;
+            default:
+                return true;
+        }
+    }
+    return true;
+}
 bool switch_with_if_that_returns_b(Uniforms _uniforms) {
     switch (int(_uniforms.unknownInput)) {
         case 1:
@@ -132,6 +143,6 @@ bool switch_with_one_sided_if_then_fallthrough_b(Uniforms _uniforms) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = (((((((((((((((((true && return_on_both_sides_b(_uniforms)) && for_inside_body_b()) && after_for_body_b()) && for_with_double_sided_conditional_return_b(_uniforms)) && if_else_chain_b(_uniforms)) && conditional_inside_while_loop_b(_uniforms)) && inside_do_loop_b()) && inside_while_loop_b()) && after_do_loop_b()) && after_while_loop_b()) && switch_with_all_returns_b(_uniforms)) && switch_only_default_b(_uniforms)) && switch_fallthrough_b(_uniforms)) && switch_fallthrough_twice_b(_uniforms)) && switch_with_break_in_loop_b(_uniforms)) && switch_with_continue_in_loop_b(_uniforms)) && switch_with_if_that_returns_b(_uniforms)) && switch_with_one_sided_if_then_fallthrough_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((((((((((((((true && return_on_both_sides_b(_uniforms)) && for_inside_body_b()) && after_for_body_b()) && for_with_double_sided_conditional_return_b(_uniforms)) && if_else_chain_b(_uniforms)) && conditional_inside_while_loop_b(_uniforms)) && inside_do_loop_b()) && inside_while_loop_b()) && after_do_loop_b()) && after_while_loop_b()) && switch_with_all_returns_b(_uniforms)) && switch_only_default_b(_uniforms)) && switch_fallthrough_b(_uniforms)) && switch_fallthrough_twice_b(_uniforms)) && switch_with_break_in_loop_b(_uniforms)) && loop_with_continue_in_switch_b(_uniforms)) && switch_with_continue_in_loop_b(_uniforms)) && switch_with_if_that_returns_b(_uniforms)) && switch_with_one_sided_if_then_fallthrough_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
