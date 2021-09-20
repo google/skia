@@ -71,7 +71,7 @@ OpBranch %33
 %39 = OpSLessThan %bool %37 %int_1
 OpBranchConditional %39 %34 %36
 %34 = OpLabel
-OpBranch %36
+OpBranch %35
 %35 = OpLabel
 %40 = OpLoad %int %x
 %41 = OpIAdd %int %40 %int_1
