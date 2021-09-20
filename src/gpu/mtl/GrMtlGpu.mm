@@ -529,7 +529,13 @@ sk_sp<GrAttachment> GrMtlGpu::makeStencilAttachment(const GrBackendFormat& /*col
 sk_sp<GrAttachment> GrMtlGpu::makeMSAAAttachment(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  int numSamples,
-                                                 GrProtected /*isProtected*/) {
+                                                 GrProtected isProtected,
+                                                 GrMemoryless isMemoryless) {
+    // Metal doesn't support protected textures
+    SkASSERT(isProtected == GrProtected::kNo);
+    // TODO: add memoryless support
+    SkASSERT(isMemoryless == GrMemoryless::kNo);
+
     MTLPixelFormat pixelFormat = (MTLPixelFormat) format.asMtlFormat();
     SkASSERT(pixelFormat != MTLPixelFormatInvalid);
     SkASSERT(!GrMtlFormatIsCompressed(pixelFormat));

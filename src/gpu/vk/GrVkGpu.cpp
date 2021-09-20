@@ -1486,7 +1486,11 @@ sk_sp<GrAttachment> GrVkGpu::makeStencilAttachment(const GrBackendFormat& /*colo
 sk_sp<GrAttachment> GrVkGpu::makeMSAAAttachment(SkISize dimensions,
                                                 const GrBackendFormat& format,
                                                 int numSamples,
-                                                GrProtected isProtected) {
+                                                GrProtected isProtected,
+                                                GrMemoryless isMemoryless) {
+    // TODO: add memoryless support
+    SkASSERT(isMemoryless == GrMemoryless::kNo);
+
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
     SkASSERT(!GrVkFormatIsCompressed(pixelFormat));

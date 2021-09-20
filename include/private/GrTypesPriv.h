@@ -152,6 +152,20 @@ enum class GrScissorTest : bool {
     kEnabled = true
 };
 
+/*
+ * Used to say whether texture is backed by memory.
+ */
+enum class GrMemoryless : bool {
+    /**
+     * The texture will be allocated normally and will affect memory budgets.
+     */
+    kNo = false,
+    /**
+     * The texture will be not use GPU memory and will not affect memory budgets.
+     */
+    kYes = true
+};
+
 struct GrMipLevel {
     const void* fPixels = nullptr;
     size_t fRowBytes = 0;

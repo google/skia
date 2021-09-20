@@ -295,7 +295,8 @@ public:
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
                                            const GrBackendFormat& format,
                                            int sampleCnt,
-                                           GrProtected isProtected);
+                                           GrProtected isProtected,
+                                           GrMemoryless isMemoryless);
 
     /**
      * Gets a GrAttachment that can be used for MSAA rendering. This attachment may be shared by

@@ -118,7 +118,8 @@ public:
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
                                            const GrBackendFormat& format,
                                            int numSamples,
-                                           GrProtected isProtected) override;
+                                           GrProtected isProtected,
+                                           GrMemoryless isMemoryless) override;
 
     void addBufferMemoryBarrier(const GrManagedResource*,
                                 VkPipelineStageFlags srcStageMask,

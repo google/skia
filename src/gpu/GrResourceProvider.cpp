@@ -672,7 +672,8 @@ sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dim
     if (msaaAttachment) {
         return msaaAttachment;
     }
-    msaaAttachment = this->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected);
+    msaaAttachment = this->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected,
+                                              GrMemoryless::kNo);
     if (msaaAttachment) {
         this->assignUniqueKeyToResource(key, msaaAttachment.get());
     }
@@ -682,7 +683,8 @@ sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dim
 sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
                                                            const GrBackendFormat& format,
                                                            int sampleCnt,
-                                                           GrProtected isProtected) {
+                                                           GrProtected isProtected,
+                                                           GrMemoryless isMemoryless) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(sampleCnt > 1);
@@ -705,7 +707,7 @@ sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
         return scratch;
     }
 
-    return fGpu->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected);
+    return fGpu->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected, isMemoryless);
 }
 
 sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensions,

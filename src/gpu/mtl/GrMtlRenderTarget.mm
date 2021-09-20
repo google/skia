@@ -67,7 +67,8 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
             }
             auto rp = gpu->getContext()->priv().resourceProvider();
             sk_sp<GrAttachment> msaaAttachment = rp->makeMSAAAttachment(
-                    dimensions, GrBackendFormat::MakeMtl(format), sampleCnt, GrProtected::kNo);
+                    dimensions, GrBackendFormat::MakeMtl(format), sampleCnt, GrProtected::kNo,
+                    GrMemoryless::kNo);
             if (!msaaAttachment) {
                 return nullptr;
             }
