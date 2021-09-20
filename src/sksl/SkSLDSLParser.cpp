@@ -1666,11 +1666,11 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
             ExpressionArray args;
             if (this->peek().fKind != Token::Kind::TK_RPAREN) {
                 for (;;) {
-                    skstd::optional<DSLWrapper<DSLExpression>> expr = this->assignmentExpression();
-                    if (!expr) {
+                    DSLExpression expr = this->assignmentExpression();
+                    if (!expr.hasValue()) {
                         return {};
                     }
-                    args.push_back((**expr).release());
+                    args.push_back(expr.release());
                     if (!this->checkNext(Token::Kind::TK_COMMA)) {
                         break;
                     }
