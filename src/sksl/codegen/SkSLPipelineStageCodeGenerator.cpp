@@ -30,6 +30,7 @@
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -98,6 +99,7 @@ private:
     void writeDoStatement(const DoStatement& d);
     void writeForStatement(const ForStatement& f);
     void writeReturnStatement(const ReturnStatement& r);
+    void writeSwitchStatement(const SwitchStatement& s);
 
     void writeProgramElement(const ProgramElement& e);
 
@@ -275,6 +277,28 @@ void PipelineStageCodeGenerator::writeReturnStatement(const ReturnStatement& r) 
         }
     }
     this->write(";");
+}
+
+void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
+    this->write("switch (");
+    this->writeExpression(*s.value(), Precedence::kTopLevel);
+    this->writeLine(") {");
+    for (const std::unique_ptr<Statement>& stmt : s.cases()) {
+        const SwitchCase& c = stmt->as<SwitchCase>();
+        if (c.value()) {
+            this->write("case ");
+            this->writeExpression(*c.value(), Precedence::kTopLevel);
+            this->writeLine(":");
+        } else {
+            this->writeLine("default:");
+        }
+        if (!c.statement()->isEmpty()) {
+            this->writeStatement(*c.statement());
+            this->writeLine();
+        }
+    }
+    this->writeLine();
+    this->write("}");
 }
 
 String PipelineStageCodeGenerator::functionName(const FunctionDeclaration& decl) {
@@ -637,11 +661,13 @@ void PipelineStageCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
+        case Statement::Kind::kSwitch:
+            this->writeSwitchStatement(s.as<SwitchStatement>());
+            break;
         case Statement::Kind::kVarDeclaration:
             this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
         case Statement::Kind::kDiscard:
-        case Statement::Kind::kSwitch:
             SkDEBUGFAIL("Unsupported control flow");
             break;
         case Statement::Kind::kInlineMarker:

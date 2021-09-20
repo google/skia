@@ -1,0 +1,5 @@
+### Compilation failed:
+
+error: 5: switch statements are not supported
+error: 3: function 'main' can exit without returning a value
+2 errors
