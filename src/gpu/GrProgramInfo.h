@@ -93,9 +93,6 @@ public:
     // to call the visitor on its own primProc proxies.
     void visitFPProxies(const GrVisitProxyFunc& func) const { fPipeline->visitProxies(func); }
 
-    /** Visits the GP, then each root FP in a pre-order traversal, and finally the XP. */
-    void visitProcessors(const std::function<void(const GrProcessor&)>&) const;
-
 #ifdef SK_DEBUG
     void validate(bool flushTime) const;
     void checkAllInstantiated() const;

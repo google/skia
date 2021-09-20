@@ -12,7 +12,6 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawOpAtlas.h"
-#include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProgramInfo.h"

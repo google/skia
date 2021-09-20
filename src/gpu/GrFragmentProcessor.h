@@ -11,7 +11,6 @@
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkSLString.h"
 #include "src/gpu/GrProcessor.h"
-#include "src/gpu/GrUniformAggregator.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 #include <tuple>
@@ -373,7 +372,7 @@ protected:
     }
 
     explicit GrFragmentProcessor(const GrFragmentProcessor& src)
-            : INHERITED(src), fFlags(src.fFlags) {
+            : INHERITED(src.classID()), fFlags(src.fFlags) {
         this->cloneAndRegisterAllChildProcessors(src);
     }
 
@@ -507,7 +506,6 @@ public:
         stages.
 
         @param fragBuilder       Interface used to emit code in the shaders.
-        @param uniforms          Used to get names of uniforms added by GrProcessor::uniforms().
         @param uniformHandler    Interface used for accessing information about our uniforms
         @param caps              The capabilities of the GPU which will render this FP
         @param fp                The processor that generated this program stage.
@@ -525,7 +523,6 @@ public:
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
-                 GrUniformAggregator::ProcessorUniforms uniforms,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrShaderCaps* caps,
                  const GrFragmentProcessor& fp,
@@ -533,7 +530,6 @@ public:
                  const char* destColor,
                  const char* sampleCoord)
                 : fFragBuilder(fragBuilder)
-                , fUniforms(std::move(uniforms))
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
                 , fFp(fp)
@@ -541,7 +537,6 @@ public:
                 , fDestColor(destColor)
                 , fSampleCoord(sampleCoord) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
-        GrUniformAggregator::ProcessorUniforms fUniforms;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
         const GrFragmentProcessor& fFp;

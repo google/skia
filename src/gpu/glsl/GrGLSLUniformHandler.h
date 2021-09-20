@@ -19,7 +19,6 @@ class GrGLSLProgramBuilder;
 class GrGLSLShaderBuilder;
 class GrSamplerState;
 class GrSurfaceProxy;
-class GrUniformAggregator;
 
 // Handles for program uniforms (other than per-effect uniforms)
 struct GrGLSLBuiltinUniformHandles {
@@ -135,9 +134,7 @@ private:
                                                   int arrayCount,
                                                   const char** outName) = 0;
 
-    virtual void appendUniformDecls(const GrUniformAggregator&,
-                                    GrShaderFlags visibility,
-                                    SkString*) const = 0;
+    virtual void appendUniformDecls(GrShaderFlags visibility, SkString*) const = 0;
 
     friend class GrGLSLProgramBuilder;
 };

@@ -284,43 +284,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
-GrUniformDataManager::ProgramUniforms GrMtlUniformHandler::getNewProgramUniforms(
-        const GrUniformAggregator& aggregator) {
-    GrUniformDataManager::ProgramUniforms result;
-    result.reserve(aggregator.numProcessors());
-    for (int p = 0; p < aggregator.numProcessors(); ++p) {
-        GrUniformDataManager::ProcessorUniforms uniforms;
-        auto records = aggregator.processorRecords(p);
-        uniforms.reserve(records.size());
-        for (const GrUniformAggregator::Record& record : records) {
-            const GrProcessor::Uniform& u = record.uniform();
-            uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset,
-                                                     &fCurrentUBOMaxAlignment,
-                                                     u.type(),
-                                                     u.count());
-            uniforms.push_back({record.indexInProcessor, u.type(), u.count(), offset});
-
-            // Add to fNewUniforms so that these get declared.
-            MtlUniformInfo info;
-            GrShaderVar var(record.name, u.type(), u.count());
-            SkString qualifier = SkStringPrintf("offset = %d", offset);
-            var.addLayoutQualifier(qualifier.c_str());
-            info.fUBOffset   = offset;
-            info.fVariable   = var;
-            info.fVisibility = u.visibility();
-            info.fOwner      = nullptr;
-
-            fNewUniforms.emplace_back(info);
-        }
-        result.push_back(std::move(uniforms));
-    }
-
-    return result;
-}
-
-void GrMtlUniformHandler::appendUniformDecls(const GrUniformAggregator& aggregator,
-                                             GrShaderFlags visibility,
-                                             SkString* out) const {
+void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     for (const UniformInfo& sampler : fSamplers.items()) {
         SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
         if (visibility == sampler.fVisibility) {
@@ -348,16 +312,6 @@ void GrMtlUniformHandler::appendUniformDecls(const GrUniformAggregator& aggregat
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }
-        }
-    }
-
-    for (const UniformInfo& localUniform : fNewUniforms.items()) {
-        // We don't check the visibility here. We want the same uniform block declaration in each
-        // shader. Note that internalAddUniform() sets both fragment and vertex visibility for all
-        // the legacy uniforms for the same reason.
-        if (GrSLTypeCanBeUniformValue(localUniform.fVariable.getType())) {
-            localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
-            uniformsString.append(";\n");
         }
     }
 

@@ -11,7 +11,6 @@
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrUniformAggregator.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrOvalEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -67,10 +66,9 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
-    SkRect         fRect;
-    float          fRadiusAndInverse[2];
-    GrClipEdgeType fEdgeType;
-    uint32_t       fCircularCornerFlags;
+    SkRRect           fRRect;
+    GrClipEdgeType    fEdgeType;
+    uint32_t          fCircularCornerFlags;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
@@ -95,92 +93,17 @@ CircularRRectEffect::CircularRRectEffect(std::unique_ptr<GrFragmentProcessor> in
         : INHERITED(kCircularRRectEffect_ClassID,
                     ProcessorOptimizationFlags(inputFP.get()) &
                             kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        , fRRect(rrect)
         , fEdgeType(edgeType)
         , fCircularCornerFlags(circularCornerFlags) {
     this->registerChild(std::move(inputFP));
-
-    fRect = rrect.rect();
-    float radius;
-    switch (fCircularCornerFlags) {
-        case CircularRRectEffect::kAll_CornerFlags:
-            SkASSERT(SkRRectPriv::IsSimpleCircular(rrect));
-            radius = SkRRectPriv::GetSimpleRadii(rrect).fX;
-            SkASSERT(radius >= kRadiusMin);
-            fRect.inset(radius, radius);
-            break;
-        case CircularRRectEffect::kTopLeft_CornerFlag:
-            radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
-            fRect.fLeft   += radius;
-            fRect.fTop    += radius;
-            fRect.fRight  += 0.5f;
-            fRect.fBottom += 0.5f;
-            break;
-        case CircularRRectEffect::kTopRight_CornerFlag:
-            radius = rrect.radii(SkRRect::kUpperRight_Corner).fX;
-            fRect.fLeft   -= 0.5f;
-            fRect.fTop    += radius;
-            fRect.fRight  -= radius;
-            fRect.fBottom += 0.5f;
-            break;
-        case CircularRRectEffect::kBottomRight_CornerFlag:
-            radius = rrect.radii(SkRRect::kLowerRight_Corner).fX;
-            fRect.fLeft   -= 0.5f;
-            fRect.fTop    -= 0.5f;
-            fRect.fRight  -= radius;
-            fRect.fBottom -= radius;
-            break;
-        case CircularRRectEffect::kBottomLeft_CornerFlag:
-            radius = rrect.radii(SkRRect::kLowerLeft_Corner).fX;
-            fRect.fLeft   += radius;
-            fRect.fTop    -= 0.5f;
-            fRect.fRight  += 0.5f;
-            fRect.fBottom -= radius;
-            break;
-        case CircularRRectEffect::kLeft_CornerFlags:
-            radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
-            fRect.fLeft   += radius;
-            fRect.fTop    += radius;
-            fRect.fRight  += 0.5f;
-            fRect.fBottom -= radius;
-            break;
-        case CircularRRectEffect::kTop_CornerFlags:
-            radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
-            fRect.fLeft   += radius;
-            fRect.fTop    += radius;
-            fRect.fRight  -= radius;
-            fRect.fBottom += 0.5f;
-            break;
-        case CircularRRectEffect::kRight_CornerFlags:
-            radius = rrect.radii(SkRRect::kUpperRight_Corner).fX;
-            fRect.fLeft   -= 0.5f;
-            fRect.fTop    += radius;
-            fRect.fRight  -= radius;
-            fRect.fBottom -= radius;
-            break;
-        case CircularRRectEffect::kBottom_CornerFlags:
-            radius = rrect.radii(SkRRect::kLowerLeft_Corner).fX;
-            fRect.fLeft   += radius;
-            fRect.fTop    -= 0.5f;
-            fRect.fRight  -= radius;
-            fRect.fBottom -= radius;
-            break;
-        default:
-            SkUNREACHABLE;
-    }
-    radius += 0.5f;
-    fRadiusAndInverse[0] = radius;
-    fRadiusAndInverse[1] = 1.f/ radius;
-
-GR_BEGIN_UNIFORM_DEFINITIONS
-    static constexpr Uniform kUniforms[2] {
-            {kFloat4_GrSLType, offsetof(CircularRRectEffect, fRect            )},  // inner rect
-            {kHalf2_GrSLType , offsetof(CircularRRectEffect, fRadiusAndInverse)},  // r, 1/r
-    };
-GR_END_UNIFORM_DEFINITIONS
-    this->setUniforms(SkMakeSpan(kUniforms));
 }
 
-CircularRRectEffect::CircularRRectEffect(const CircularRRectEffect& that) = default;
+CircularRRectEffect::CircularRRectEffect(const CircularRRectEffect& that)
+        : INHERITED(that)
+        , fRRect(that.fRRect)
+        , fEdgeType(that.fEdgeType)
+        , fCircularCornerFlags(that.fCircularCornerFlags) {}
 
 std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new CircularRRectEffect(*this));
@@ -189,9 +112,7 @@ std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::clone() const {
 bool CircularRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const CircularRRectEffect& crre = other.cast<CircularRRectEffect>();
     // The corner flags are derived from fRRect, so no need to check them.
-    return fEdgeType            == crre.fEdgeType &&
-           fRect                == crre.fRect     &&
-           fRadiusAndInverse[0] == crre.fRadiusAndInverse[0];
+    return fEdgeType == crre.fEdgeType && fRRect == crre.fRRect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -224,28 +145,36 @@ public:
     void emitCode(EmitArgs&) override;
 
 private:
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+
+    GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
+    GrGLSLProgramDataManager::UniformHandle fRadiusPlusHalfUniform;
     SkRRect                                 fPrevRRect;
 };
 
 void CircularRRectEffect::Impl::emitCode(EmitArgs& args) {
     const CircularRRectEffect& crre = args.fFp.cast<CircularRRectEffect>();
-    const char* rect           = args.fUniforms.getUniformName(0, "rect"          );
-    const char* radiusPlusHalf = args.fUniforms.getUniformName(1, "radiusPlusHalf");
-
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+    const char *rectName;
+    const char *radiusPlusHalfName;
     // The inner rect is the rrect bounds inset by the radius. Its left, top, right, and bottom
     // edges correspond to components x, y, z, and w, respectively. When a side of the rrect has
     // only rectangular corners, that side's value corresponds to the rect edge's value outset by
     // half a pixel.
-
+    fInnerRectUniform = uniformHandler->addUniform(&crre, kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                   "innerRect", &rectName);
     // x is (r + .5) and y is 1/(r + .5)
+    fRadiusPlusHalfUniform = uniformHandler->addUniform(&crre, kFragment_GrShaderFlag,
+                                                        kHalf2_GrSLType, "radiusPlusHalf",
+                                                        &radiusPlusHalfName);
 
     // If we're on a device where float != fp32 then the length calculation could overflow.
     SkString clampedCircleDistance;
     if (!args.fShaderCaps->floatIs32Bits()) {
         clampedCircleDistance.printf("saturate(%s.x * (1.0 - length(dxy * %s.y)))",
-                                     radiusPlusHalf, radiusPlusHalf);
+                                     radiusPlusHalfName, radiusPlusHalfName);
     } else {
-        clampedCircleDistance.printf("saturate(%s.x - length(dxy))", radiusPlusHalf);
+        clampedCircleDistance.printf("saturate(%s.x - length(dxy))", radiusPlusHalfName);
     }
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -266,86 +195,86 @@ void CircularRRectEffect::Impl::emitCode(EmitArgs& args) {
     // alphas together.
     switch (crre.fCircularCornerFlags) {
         case CircularRRectEffect::kAll_CornerFlags:
-            fragBuilder->codeAppendf("float2 dxy0 = %s.LT - sk_FragCoord.xy;", rect);
-            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.RB;", rect);
+            fragBuilder->codeAppendf("float2 dxy0 = %s.LT - sk_FragCoord.xy;", rectName);
+            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.RB;", rectName);
             fragBuilder->codeAppend("float2 dxy = max(max(dxy0, dxy1), 0.0);");
             fragBuilder->codeAppendf("half alpha = half(%s);", clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopLeft_CornerFlag:
             fragBuilder->codeAppendf("float2 dxy = max(%s.LT - sk_FragCoord.xy, 0.0);",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half rightAlpha = half(saturate(%s.R - sk_FragCoord.x));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half bottomAlpha = half(saturate(%s.B - sk_FragCoord.y));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half alpha = bottomAlpha * rightAlpha * half(%s);",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopRight_CornerFlag:
             fragBuilder->codeAppendf("float2 dxy = max(float2(sk_FragCoord.x - %s.R, "
                                                              "%s.T - sk_FragCoord.y), 0.0);",
-                                     rect, rect);
+                                     rectName, rectName);
             fragBuilder->codeAppendf("half leftAlpha = half(saturate(sk_FragCoord.x - %s.L));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half bottomAlpha = half(saturate(%s.B - sk_FragCoord.y));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half alpha = bottomAlpha * leftAlpha * half(%s);",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottomRight_CornerFlag:
             fragBuilder->codeAppendf("float2 dxy = max(sk_FragCoord.xy - %s.RB, 0.0);",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half leftAlpha = half(saturate(sk_FragCoord.x - %s.L));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half topAlpha = half(saturate(sk_FragCoord.y - %s.T));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half alpha = topAlpha * leftAlpha * half(%s);",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottomLeft_CornerFlag:
             fragBuilder->codeAppendf("float2 dxy = max(float2(%s.L - sk_FragCoord.x, "
                                                              "sk_FragCoord.y - %s.B), 0.0);",
-                                     rect, rect);
+                                     rectName, rectName);
             fragBuilder->codeAppendf("half rightAlpha = half(saturate(%s.R - sk_FragCoord.x));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half topAlpha = half(saturate(sk_FragCoord.y - %s.T));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half alpha = topAlpha * rightAlpha * half(%s);",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kLeft_CornerFlags:
-            fragBuilder->codeAppendf("float2 dxy0 = %s.LT - sk_FragCoord.xy;", rect);
-            fragBuilder->codeAppendf("float dy1 = sk_FragCoord.y - %s.B;", rect);
+            fragBuilder->codeAppendf("float2 dxy0 = %s.LT - sk_FragCoord.xy;", rectName);
+            fragBuilder->codeAppendf("float dy1 = sk_FragCoord.y - %s.B;", rectName);
             fragBuilder->codeAppend("float2 dxy = max(float2(dxy0.x, max(dxy0.y, dy1)), 0.0);");
             fragBuilder->codeAppendf("half rightAlpha = half(saturate(%s.R - sk_FragCoord.x));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half alpha = rightAlpha * half(%s);",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTop_CornerFlags:
-            fragBuilder->codeAppendf("float2 dxy0 = %s.LT - sk_FragCoord.xy;", rect);
-            fragBuilder->codeAppendf("float dx1 = sk_FragCoord.x - %s.R;", rect);
+            fragBuilder->codeAppendf("float2 dxy0 = %s.LT - sk_FragCoord.xy;", rectName);
+            fragBuilder->codeAppendf("float dx1 = sk_FragCoord.x - %s.R;", rectName);
             fragBuilder->codeAppend("float2 dxy = max(float2(max(dxy0.x, dx1), dxy0.y), 0.0);");
             fragBuilder->codeAppendf("half bottomAlpha = half(saturate(%s.B - sk_FragCoord.y));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half alpha = bottomAlpha * half(%s);",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kRight_CornerFlags:
-            fragBuilder->codeAppendf("float dy0 = %s.T - sk_FragCoord.y;", rect);
-            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.RB;", rect);
+            fragBuilder->codeAppendf("float dy0 = %s.T - sk_FragCoord.y;", rectName);
+            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.RB;", rectName);
             fragBuilder->codeAppend("float2 dxy = max(float2(dxy1.x, max(dy0, dxy1.y)), 0.0);");
             fragBuilder->codeAppendf("half leftAlpha = half(saturate(sk_FragCoord.x - %s.L));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half alpha = leftAlpha * half(%s);",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottom_CornerFlags:
-            fragBuilder->codeAppendf("float dx0 = %s.L - sk_FragCoord.x;", rect);
-            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.RB;", rect);
+            fragBuilder->codeAppendf("float dx0 = %s.L - sk_FragCoord.x;", rectName);
+            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.RB;", rectName);
             fragBuilder->codeAppend("float2 dxy = max(float2(max(dx0, dxy1.x), dxy1.y), 0.0);");
             fragBuilder->codeAppendf("half topAlpha = half(saturate(sk_FragCoord.y - %s.T));",
-                                     rect);
+                                     rectName);
             fragBuilder->codeAppendf("half alpha = topAlpha * half(%s);",
                                      clampedCircleDistance.c_str());
             break;
@@ -358,6 +287,86 @@ void CircularRRectEffect::Impl::emitCode(EmitArgs& args) {
     SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
 
     fragBuilder->codeAppendf("return %s * alpha;", inputSample.c_str());
+}
+
+void CircularRRectEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdman,
+                                          const GrFragmentProcessor& processor) {
+    const CircularRRectEffect& crre = processor.cast<CircularRRectEffect>();
+    const SkRRect& rrect = crre.fRRect;
+    if (rrect != fPrevRRect) {
+        SkRect rect = rrect.getBounds();
+        SkScalar radius = 0;
+        switch (crre.fCircularCornerFlags) {
+            case CircularRRectEffect::kAll_CornerFlags:
+                SkASSERT(SkRRectPriv::IsSimpleCircular(rrect));
+                radius = SkRRectPriv::GetSimpleRadii(rrect).fX;
+                SkASSERT(radius >= kRadiusMin);
+                rect.inset(radius, radius);
+                break;
+            case CircularRRectEffect::kTopLeft_CornerFlag:
+                radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
+                rect.fLeft += radius;
+                rect.fTop += radius;
+                rect.fRight += 0.5f;
+                rect.fBottom += 0.5f;
+                break;
+            case CircularRRectEffect::kTopRight_CornerFlag:
+                radius = rrect.radii(SkRRect::kUpperRight_Corner).fX;
+                rect.fLeft -= 0.5f;
+                rect.fTop += radius;
+                rect.fRight -= radius;
+                rect.fBottom += 0.5f;
+                break;
+            case CircularRRectEffect::kBottomRight_CornerFlag:
+                radius = rrect.radii(SkRRect::kLowerRight_Corner).fX;
+                rect.fLeft -= 0.5f;
+                rect.fTop -= 0.5f;
+                rect.fRight -= radius;
+                rect.fBottom -= radius;
+                break;
+            case CircularRRectEffect::kBottomLeft_CornerFlag:
+                radius = rrect.radii(SkRRect::kLowerLeft_Corner).fX;
+                rect.fLeft += radius;
+                rect.fTop -= 0.5f;
+                rect.fRight += 0.5f;
+                rect.fBottom -= radius;
+                break;
+            case CircularRRectEffect::kLeft_CornerFlags:
+                radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
+                rect.fLeft += radius;
+                rect.fTop += radius;
+                rect.fRight += 0.5f;
+                rect.fBottom -= radius;
+                break;
+            case CircularRRectEffect::kTop_CornerFlags:
+                radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
+                rect.fLeft += radius;
+                rect.fTop += radius;
+                rect.fRight -= radius;
+                rect.fBottom += 0.5f;
+                break;
+            case CircularRRectEffect::kRight_CornerFlags:
+                radius = rrect.radii(SkRRect::kUpperRight_Corner).fX;
+                rect.fLeft -= 0.5f;
+                rect.fTop += radius;
+                rect.fRight -= radius;
+                rect.fBottom -= radius;
+                break;
+            case CircularRRectEffect::kBottom_CornerFlags:
+                radius = rrect.radii(SkRRect::kLowerLeft_Corner).fX;
+                rect.fLeft += radius;
+                rect.fTop -= 0.5f;
+                rect.fRight -= radius;
+                rect.fBottom -= radius;
+                break;
+            default:
+                SK_ABORT("Should have been one of the above cases.");
+        }
+        pdman.set4f(fInnerRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+        radius += 0.5f;
+        pdman.set2f(fRadiusPlusHalfUniform, radius, 1.f / radius);
+        fPrevRRect = rrect;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

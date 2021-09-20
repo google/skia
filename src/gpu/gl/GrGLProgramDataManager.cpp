@@ -5,193 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/gl/GrGLProgramDataManager.h"
-
 #include "include/core/SkMatrix.h"
-#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
-
-GrGLProgramDataManager::UniformManager::UniformManager(const GrUniformAggregator& uniformAggregator,
-                                                       GrGLuint programID,
-                                                       GrGLint firstUniformLocation,
-                                                       const GrGLContext& ctx) {
-    GrGLint location = firstUniformLocation;
-    fUniforms.reserve(uniformAggregator.uniformCount());
-    for (int p = 0; p < uniformAggregator.numProcessors(); ++p) {
-        fUniforms.push_back({});
-        for (const GrUniformAggregator::Record& record : uniformAggregator.processorRecords(p)) {
-            const GrProcessor::Uniform& u = record.uniform();
-            if (ctx.caps()->bindUniformLocationSupport() && firstUniformLocation >= 0) {
-                GR_GL_CALL(ctx.glInterface(),
-                           BindUniformLocation(programID, location, record.name.c_str()));
-            } else {
-                GR_GL_CALL_RET(ctx.glInterface(),
-                               location,
-                               GetUniformLocation(programID, record.name.c_str()));
-            }
-            fUniforms.back().push_back({
-                    record.indexInProcessor,
-                    u.type(),
-                    u.count(),
-                    location,
-            });
-            location++;
-        }
-    }
-}
-
-void GrGLProgramDataManager::UniformManager::setUniforms(const GrGLInterface* gl,
-                                                         const GrProgramInfo& info) {
-    auto set = [&, processorIndex = 0](const GrProcessor& p) mutable {
-        const ProcessorUniforms& uniforms = fUniforms[processorIndex];
-        for (const Uniform& u : uniforms) {
-            if (u.location < 0) {
-                // Presumably this got optimized out.
-                continue;
-            }
-            size_t index = u.indexInProcessor;
-            SkASSERT(u.count >= 0);
-            static_assert(GrShaderVar::kNonArray == 0);
-            int n = std::max(1, u.count);
-            switch (u.type) {
-                case kInt_GrSLType: {
-                    const int32_t* values = p.uniformData<int32_t>(index);
-                    GR_GL_CALL(gl, Uniform1iv(u.location, n, values));
-                    break;
-                }
-
-                case kInt2_GrSLType: {
-                    const int32_t* values = p.uniformData<int32_t>(index);
-                    GR_GL_CALL(gl, Uniform2iv(u.location, n, values));
-                    break;
-                }
-
-                case kInt3_GrSLType: {
-                    const int32_t* values = p.uniformData<int32_t>(index);
-                    GR_GL_CALL(gl, Uniform3iv(u.location, n, values));
-                    break;
-                }
-
-                case kInt4_GrSLType: {
-                    const int32_t* values = p.uniformData<int32_t>(index);
-                    GR_GL_CALL(gl, Uniform4iv(u.location, n, values));
-                    break;
-                }
-
-                case kHalf_GrSLType:
-                case kFloat_GrSLType: {
-                    const float* values = p.uniformData<float>(index);
-                    GR_GL_CALL(gl, Uniform1fv(u.location, n, values));
-                    break;
-                }
-
-                case kHalf2_GrSLType:
-                case kFloat2_GrSLType: {
-                    const float* values = p.uniformData<float>(index);
-                    GR_GL_CALL(gl, Uniform2fv(u.location, n, values));
-                    break;
-                }
-
-                case kHalf3_GrSLType:
-                case kFloat3_GrSLType: {
-                    const float* values = p.uniformData<float>(index);
-                    GR_GL_CALL(gl, Uniform3fv(u.location, n, values));
-                    break;
-                }
-
-                case kHalf4_GrSLType:
-                case kFloat4_GrSLType: {
-                    const float* values = p.uniformData<float>(index);
-                    GR_GL_CALL(gl, Uniform4fv(u.location, n, values));
-                    break;
-                }
-
-                case kHalf2x2_GrSLType:
-                case kFloat2x2_GrSLType: {
-                    const float* values = p.uniformData<float>(index);
-                    GR_GL_CALL(gl, UniformMatrix2fv(u.location, n, false, values));
-                    break;
-                }
-
-                case kHalf3x3_GrSLType:
-                case kFloat3x3_GrSLType: {
-                    switch (p.uniforms()[index].ctype()) {
-                        case GrProcessor::Uniform::CType::kDefault: {
-                            const float* values = p.uniformData<float>(index);
-                            GR_GL_CALL(gl, UniformMatrix3fv(u.location, n, false, values));
-                            break;
-                        }
-                        case GrProcessor::Uniform::CType::kSkMatrix: {
-                            const SkMatrix* matrix = p.uniformData<SkMatrix>(index);
-                            int location = u.location;
-                            for (int i = 0; i < n; ++i, ++matrix, ++location) {
-                                float mt[] = {
-                                        matrix->get(SkMatrix::kMScaleX),
-                                        matrix->get(SkMatrix::kMSkewY),
-                                        matrix->get(SkMatrix::kMPersp0),
-                                        matrix->get(SkMatrix::kMSkewX),
-                                        matrix->get(SkMatrix::kMScaleY),
-                                        matrix->get(SkMatrix::kMPersp1),
-                                        matrix->get(SkMatrix::kMTransX),
-                                        matrix->get(SkMatrix::kMTransY),
-                                        matrix->get(SkMatrix::kMPersp2),
-                                };
-                                GR_GL_CALL(gl, UniformMatrix3fv(location, 1, false, mt));
-                            }
-                            break;
-                        }
-                    }
-                    break;
-                }
-
-                case kHalf4x4_GrSLType:
-                case kFloat4x4_GrSLType: {
-                    const float* values = p.uniformData<float>(index);
-                    GR_GL_CALL(gl, UniformMatrix4fv(u.location, n, false, values));
-                    break;
-                }
-
-                default:
-                    SK_ABORT("Unexpect uniform type");
-            }
-        }
-        ++processorIndex;
-    };
-
-    info.visitProcessors(set);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT_ARRAY_UPLOAD_IN_BOUNDS(UNI, COUNT) \
          SkASSERT((COUNT) <= (UNI).fArrayCount || \
                   (1 == (COUNT) && GrShaderVar::kNonArray == (UNI).fArrayCount))
 
-GrGLint get_first_unused_uniform_location(
-        const GrGLProgramDataManager::UniformInfoArray& uniforms,
-        const GrGLProgramDataManager::UniformInfoArray& samplers) {
-    GrGLint id = -1;
-    for (int i = 0; i < uniforms.count(); ++i) {
-        id = std::max(id, uniforms.item(i).fLocation);
-    }
-    for (int i = 0; i < samplers.count(); ++i) {
-        id = std::max(id, samplers.item(i).fLocation);
-    }
-    return id + 1;
-}
-
-GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu,
-                                               const UniformInfoArray& uniforms,
-                                               const UniformInfoArray& samplers,
-                                               GrGLuint programID,
-                                               bool usedProgramBinaries,
-                                               const GrUniformAggregator& uniformAggregator)
-        : fGpu(gpu)
-        , fManager(uniformAggregator,
-                   programID,
-                   usedProgramBinaries ? -1 : get_first_unused_uniform_location(uniforms, samplers),
-                   gpu->glContext()) {
+GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, const UniformInfoArray& uniforms)
+        : fGpu(gpu) {
     fUniforms.push_back_n(uniforms.count());
     int i = 0;
     for (const GLUniformInfo& builderUniform : uniforms.items()) {
@@ -204,10 +28,6 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu,
         )
         uniform.fLocation = builderUniform.fLocation;
     }
-}
-
-void GrGLProgramDataManager::setUniforms(const GrProgramInfo& info) {
-    fManager.setUniforms(fGpu->glInterface(), info);
 }
 
 void GrGLProgramDataManager::setSamplerUniforms(const UniformInfoArray& samplers,

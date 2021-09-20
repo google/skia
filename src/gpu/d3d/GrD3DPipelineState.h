@@ -12,7 +12,6 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/GrManagedResource.h"
-#include "src/gpu/GrUniformDataManager.h"
 #include "src/gpu/d3d/GrD3DPipelineStateDataManager.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
@@ -30,7 +29,6 @@ public:
 
     GrD3DPipelineState(sk_sp<GrD3DPipeline> pipeline,
                        sk_sp<GrD3DRootSignature> rootSignature,
-                       GrUniformDataManager::ProgramUniforms,
                        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
                        const UniformInfoArray& uniforms,
                        uint32_t uniformSize,

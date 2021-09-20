@@ -229,8 +229,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrTracing.h",
   "$_src/gpu/GrTransferFromRenderTask.cpp",
   "$_src/gpu/GrTransferFromRenderTask.h",
-  "$_src/gpu/GrUniformAggregator.cpp",
-  "$_src/gpu/GrUniformAggregator.h",
   "$_src/gpu/GrUniformDataManager.cpp",
   "$_src/gpu/GrUniformDataManager.h",
   "$_src/gpu/GrUserStencilSettings.h",

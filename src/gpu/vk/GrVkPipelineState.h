@@ -42,7 +42,6 @@ public:
     GrVkPipelineState(GrVkGpu*,
                       sk_sp<const GrVkPipeline>,
                       const GrVkDescriptorSetManager::Handle& samplerDSHandle,
-                      GrUniformDataManager::ProgramUniforms,
                       const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
                       const UniformInfoArray& uniforms,
                       uint32_t uniformSize,

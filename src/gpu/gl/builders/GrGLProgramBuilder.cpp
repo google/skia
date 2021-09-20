@@ -447,7 +447,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         }
         this->storeShaderInCache(inputs, programID, glsl, isSkSL, &settings);
     }
-    return this->createProgram(programID, usedProgramBinaries);
+    return this->createProgram(programID);
 }
 
 void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
@@ -497,14 +497,12 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, boo
     fUniformHandler.getUniformLocations(programID, fGpu->glCaps(), force);
 }
 
-sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID, bool usedProgramBinaries) {
+sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
     return GrGLProgram::Make(fGpu,
                              fUniformHandles,
                              programID,
-                             fUniformAggregator,
                              fUniformHandler.fUniforms,
                              fUniformHandler.fSamplers,
-                             usedProgramBinaries,
                              std::move(fGPImpl),
                              std::move(fXPImpl),
                              std::move(fFPImpls),
