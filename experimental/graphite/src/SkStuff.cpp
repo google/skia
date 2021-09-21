@@ -12,7 +12,7 @@
 
 sk_sp<SkSurface> MakeGraphite(const SkImageInfo& ii) {
 
-    sk_sp<skgpu::Device> device = sk_make_sp<skgpu::Device>(ii);
+    sk_sp<skgpu::Device> device = skgpu::Device::Make(ii);
     if (!device) {
         return nullptr;
     }

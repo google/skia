@@ -15,7 +15,13 @@ skia_graphite_sources = [
   "$_src/Context.cpp",
   "$_src/Device.cpp",
   "$_src/Device.h",
+  "$_src/SDCTask.cpp",
+  "$_src/SDCTask.h",
   "$_src/SkStuff.cpp",
+  "$_src/SurfaceDrawContext.cpp",
+  "$_src/SurfaceDrawContext.h",
   "$_src/Surface_Graphite.cpp",
   "$_src/Surface_Graphite.h",
+  "$_src/Task.cpp",
+  "$_src/Task.h",
 ]

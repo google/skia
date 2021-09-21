@@ -12,9 +12,11 @@
 
 namespace skgpu {
 
+class SurfaceDrawContext;
+
 class Device final : public SkBaseDevice  {
 public:
-    Device(const SkImageInfo&);
+    static sk_sp<Device> Make(const SkImageInfo&);
 
 protected:
     bool onClipIsAA() const override { return false; }
@@ -41,6 +43,9 @@ protected:
     void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {}
 
 private:
+    Device(sk_sp<SurfaceDrawContext>);
+
+    sk_sp<SurfaceDrawContext> fSDC;
 };
 
 } // namespace skgpu
