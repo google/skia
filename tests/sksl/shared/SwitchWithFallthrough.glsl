@@ -1,13 +1,31 @@
 
 out vec4 sk_FragColor;
-uniform float unknownInput;
-void main() {
-    float value = 0.0;
-    switch (int(unknownInput)) {
-        case 0:
-            value = 0.0;
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+bool switch_fallthrough_bi(int value) {
+    switch (value) {
+        case 2:
+            return false;
         case 1:
-            value = 1.0;
+        case 0:
+            return true;
+        default:
+            return false;
     }
-    sk_FragColor = vec4(value);
+}
+bool switch_fallthrough_twice_bi(int value) {
+    switch (value) {
+        case 0:
+            return false;
+        case 1:
+        case 2:
+        case 3:
+            return true;
+        default:
+            return false;
+    }
+}
+vec4 main() {
+    int x = int(colorGreen.y);
+    return switch_fallthrough_bi(x) && switch_fallthrough_twice_bi(x) ? colorGreen : colorRed;
 }

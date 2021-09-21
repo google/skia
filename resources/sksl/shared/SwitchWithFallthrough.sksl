@@ -1,12 +1,25 @@
-uniform float unknownInput;
+uniform half4 colorGreen, colorRed;
 
-void main() {
-    half value = 0.0;
-    switch (int(unknownInput)) {
-        case 0:
-            value = 0.0;
+bool switch_fallthrough(int value) {
+    switch (value) {
+        case 2:  return false;
         case 1:
-            value = 1.0;
+        case 0:  return true;
+        default: return false;
     }
-    sk_FragColor = value.xxxx;
+}
+
+bool switch_fallthrough_twice(int value) {
+    switch (value) {
+        case 0:  return false;
+        case 1:
+        case 2:
+        case 3:  return true;
+        default: return false;
+    }
+}
+
+half4 main(float2 coords) {
+    int x = int(colorGreen.g);
+    return (switch_fallthrough(x) && switch_fallthrough_twice(x)) ? colorGreen : colorRed;
 }

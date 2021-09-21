@@ -397,7 +397,6 @@ sksl_shared_tests = [
   "/sksl/shared/StructsInFunctions.sksl",
   "/sksl/shared/StructMaxDepth.sksl",
   "/sksl/shared/Switch.sksl",
-  "/sksl/shared/SwitchContainingDeadCode.sksl",
   "/sksl/shared/SwitchDefaultOnly.sksl",
   "/sksl/shared/SwitchWithFallthrough.sksl",
   "/sksl/shared/SwizzleBoolConstants.sksl",

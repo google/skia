@@ -325,6 +325,7 @@ SKSL_TEST(SkSLStructArrayFollowedByScalar,     "shared/StructArrayFollowedByScal
 SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
 SKSL_TEST_ES3(SkSLSwitch,                      "shared/Switch.sksl")
 SKSL_TEST_ES3(SkSLSwitchDefaultOnly,           "shared/SwitchDefaultOnly.sksl")
+SKSL_TEST_ES3(SkSLSwitchWithFallthrough,       "shared/SwitchWithFallthrough.sksl")
 SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(SkSLSwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
 SKSL_TEST(SkSLSwizzleConstants,                "shared/SwizzleConstants.sksl")
