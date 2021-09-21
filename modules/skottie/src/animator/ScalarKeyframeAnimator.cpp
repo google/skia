@@ -63,7 +63,9 @@ private:
 
 class ScalarAnimatorBuilder final : public AnimatorBuilder {
     public:
-        explicit ScalarAnimatorBuilder(ScalarValue* target) : fTarget(target) {}
+        explicit ScalarAnimatorBuilder(ScalarValue* target)
+            : INHERITED(Keyframe::Value::Type::kScalar)
+            , fTarget(target) {}
 
         sk_sp<KeyframeAnimator> makeFromKeyframes(const AnimationBuilder& abuilder,
                                      const skjson::ArrayValue& jkfs) override {
@@ -96,6 +98,8 @@ class ScalarAnimatorBuilder final : public AnimatorBuilder {
         }
 
         ScalarValue* fTarget;
+
+        using INHERITED = AnimatorBuilder;
     };
 
 } // namespace

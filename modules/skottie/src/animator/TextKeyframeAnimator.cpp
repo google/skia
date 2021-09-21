@@ -42,7 +42,9 @@ private:
 
 class TextAnimatorBuilder final : public AnimatorBuilder {
 public:
-    explicit TextAnimatorBuilder(TextValue* target) : fTarget(target) {}
+    explicit TextAnimatorBuilder(TextValue* target)
+        : INHERITED(Keyframe::Value::Type::kIndex)
+        , fTarget(target) {}
 
     sk_sp<KeyframeAnimator> makeFromKeyframes(const AnimationBuilder& abuilder,
                                     const skjson::ArrayValue& jkfs) override {
@@ -91,6 +93,8 @@ private:
 
     std::vector<TextValue> fValues;
     TextValue*             fTarget;
+
+    using INHERITED = AnimatorBuilder;
 };
 
 } // namespace

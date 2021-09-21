@@ -127,7 +127,8 @@ private:
 class Vec2AnimatorBuilder final : public AnimatorBuilder {
     public:
         Vec2AnimatorBuilder(Vec2Value* vec_target, float* rot_target)
-            : fVecTarget(vec_target)
+            : INHERITED(Keyframe::Value::Type::kIndex)
+            , fVecTarget(vec_target)
             , fRotTarget(rot_target) {}
 
         sk_sp<KeyframeAnimator> makeFromKeyframes(const AnimationBuilder& abuilder,
@@ -234,6 +235,8 @@ class Vec2AnimatorBuilder final : public AnimatorBuilder {
         SkV2                      fTi{0,0},
                                   fTo{0,0};
         bool                      fPendingSpatial = false;
+
+        using INHERITED = AnimatorBuilder;
     };
 
 } // namespace

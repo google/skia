@@ -98,7 +98,9 @@ private:
         const auto* v1  = fStorage.data() + lerp_info.vrec1.idx;
               auto* dst = fTarget->data();
 
-        if (lerp_info.isConstant()) {
+        const auto is_constant = lerp_info.vrec0.equals(lerp_info.vrec1,
+                                                        Keyframe::Value::Type::kIndex);
+        if (is_constant) {
             if (0 != std::memcmp(dst, v0, fVecLen * sizeof(float))) {
                 std::copy(v0, v0 + fVecLen, dst);
                 return true;
@@ -145,7 +147,8 @@ private:
 VectorAnimatorBuilder::VectorAnimatorBuilder(std::vector<float>* target,
                                                              VectorLenParser  parse_len,
                                                              VectorDataParser parse_data)
-    : fParseLen(parse_len)
+    : INHERITED(Keyframe::Value::Type::kIndex)
+    , fParseLen(parse_len)
     , fParseData(parse_data)
     , fTarget(target) {}
 

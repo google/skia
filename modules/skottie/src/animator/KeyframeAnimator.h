@@ -30,16 +30,21 @@ struct Keyframe {
     // We can store scalar values inline; other types are stored externally,
     // and we track them by index.
     struct Value {
+        enum class Type {
+            kIndex,
+            kScalar,
+        };
+
         union {
             uint32_t idx;
             float    flt;
         };
 
-        bool operator==(const Value& other) const {
-            return idx == other.idx
-                || flt == other.flt; // +/-0
+        bool equals(const Value& other, Type ty) const {
+            return ty == Type::kIndex
+                ? idx == other.idx
+                : flt == other.flt;
         }
-        bool operator!=(const Value& other) const { return !((*this) == other); }
     };
 
     float    t;
@@ -73,8 +78,6 @@ protected:
     struct LERPInfo {
         float           weight; // vrec0/vrec1 weight [0..1]
         Keyframe::Value vrec0, vrec1;
-
-        bool isConstant() const { return vrec0 == vrec1; }
     };
 
     // Main entry point: |t| -> LERPInfo
@@ -117,6 +120,9 @@ public:
     virtual bool parseValue(const AnimationBuilder&, const skjson::Value&) const = 0;
 
 protected:
+    explicit AnimatorBuilder(Keyframe::Value::Type ty)
+        : keyframe_type(ty) {}
+
     virtual bool parseKFValue(const AnimationBuilder&,
                               const skjson::ObjectValue&,
                               const skjson::Value&,
@@ -130,9 +136,11 @@ protected:
 private:
     uint32_t parseMapping(const skjson::ObjectValue&);
 
+    const Keyframe::Value::Type keyframe_type;
+
     // Track previous cubic map parameters (for deduping).
-    SkPoint prev_c0 = { 0, 0 },
-            prev_c1 = { 0, 0 };
+    SkPoint                     prev_c0 = { 0, 0 },
+                                prev_c1 = { 0, 0 };
 };
 
 template <typename T>
