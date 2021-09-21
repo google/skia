@@ -1,22 +1,26 @@
 uniform half4 colorGreen, colorRed;
 
 bool switch_fallthrough(int value) {
+    bool ok = false;
     switch (value) {
-        case 2:  return false;
+        case 2:  break;
         case 1:
-        case 0:  return true;
-        default: return false;
+        case 0:  ok = true; break;
+        default: break;
     }
+    return ok;
 }
 
 bool switch_fallthrough_twice(int value) {
+    bool ok = false;
     switch (value) {
-        case 0:  return false;
+        case 0:  break;
         case 1:
         case 2:
-        case 3:  return true;
-        default: return false;
+        case 3:  ok = true; break;
+        default: break;
     }
+    return ok;
 }
 
 half4 main(float2 coords) {
