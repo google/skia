@@ -64,6 +64,7 @@ bool switch_with_all_returns_b() {
 }
 bool switch_only_default_b() {
     switch (int(unknownInput)) {
+        case 0:
         default:
             return true;
     }

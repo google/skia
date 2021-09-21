@@ -1358,6 +1358,12 @@ void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     this->writeExpression(*s.value(), Precedence::kTopLevel);
     this->writeLine(") {");
     fIndentation++;
+    // If a switch contains only a `default` case and nothing else, this confuses some drivers and
+    // can lead to a crash. Adding a real case before the default seems to work around the bug,
+    // and doesn't change the meaning of the switch.
+    if (s.cases().size() == 1 && !s.cases().front()->as<SwitchCase>().value()) {
+        this->writeLine("case 0:");
+    }
     for (const std::unique_ptr<Statement>& stmt : s.cases()) {
         const SwitchCase& c = stmt->as<SwitchCase>();
         if (c.value()) {
