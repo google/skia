@@ -140,6 +140,7 @@ sksl_error_tests = [
   "/sksl/errors/SwitchDuplicateCase.sksl",
   "/sksl/errors/SwitchDuplicateDefault.sksl",
   "/sksl/errors/SwitchTypes.sksl",
+  "/sksl/errors/SwitchWithContinueInside.sksl",
   "/sksl/errors/SwizzleConstantOutput.sksl",
   "/sksl/errors/SwizzleDomain.sksl",
   "/sksl/errors/SwizzleMatrix.sksl",

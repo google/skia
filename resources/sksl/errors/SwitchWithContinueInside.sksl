@@ -1,0 +1,10 @@
+uniform int value;
+
+void main() {
+    while (true) switch (value) { default: continue; }
+    for (;;) switch (value) { case 5: continue; }
+
+    // Static switches are flattened out so they should not generate an error.
+    while (true) @switch (0) { default: continue; }
+    for (;;) @switch (5) { case 5: continue; }
+}

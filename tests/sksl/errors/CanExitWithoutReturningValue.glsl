@@ -13,10 +13,12 @@ error: 18: function 'bad_if_else_chain' can exit without returning a value
 error: 32: function 'switch_empty' can exit without returning a value
 error: 36: function 'switch_with_no_default' can exit without returning a value
 error: 43: function 'switch_with_break' can exit without returning a value
+error: 55: continue statement cannot be used in a switch
 error: 51: function 'switch_with_continue' can exit without returning a value
 error: 59: function 'switch_with_fallthrough_off_bottom' can exit without returning a value
 error: 67: function 'switch_with_conditional_break' can exit without returning a value
+error: 77: continue statement cannot be used in a switch
 error: 75: function 'switch_with_conditional_continue' can exit without returning a value
 error: 83: function 'switch_with_conditional_if_then_return' can exit without returning a value
 error: 90: function 'switch_with_conditional_break_then_fallthrough' can exit without returning a value
-19 errors
+21 errors

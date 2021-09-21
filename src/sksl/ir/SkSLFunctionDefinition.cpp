@@ -12,6 +12,8 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 
+#include <forward_list>
+
 namespace SkSL {
 
 std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& context,
@@ -28,8 +30,8 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
             , fReferencedIntrinsics(referencedIntrinsics) {}
 
         ~Finalizer() override {
-            SkASSERT(!fBreakableLevel);
-            SkASSERT(!fContinuableLevel);
+            SkASSERT(fBreakableLevel == 0);
+            SkASSERT(fContinuableLevel == std::forward_list<int>{0});
         }
 
         bool functionReturnsValue() const {
@@ -84,28 +86,37 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                 case Statement::Kind::kDo:
                 case Statement::Kind::kFor: {
                     ++fBreakableLevel;
-                    ++fContinuableLevel;
+                    ++fContinuableLevel.front();
                     bool result = INHERITED::visitStatement(stmt);
-                    --fContinuableLevel;
+                    --fContinuableLevel.front();
                     --fBreakableLevel;
                     return result;
                 }
                 case Statement::Kind::kSwitch: {
                     ++fBreakableLevel;
+                    fContinuableLevel.push_front(0);
                     bool result = INHERITED::visitStatement(stmt);
+                    fContinuableLevel.pop_front();
                     --fBreakableLevel;
                     return result;
                 }
                 case Statement::Kind::kBreak:
-                    if (!fBreakableLevel) {
+                    if (fBreakableLevel == 0) {
                         fContext.fErrors->error(stmt.fOffset,
                                                 "break statement must be inside a loop or switch");
                     }
                     break;
                 case Statement::Kind::kContinue:
-                    if (!fContinuableLevel) {
-                        fContext.fErrors->error(stmt.fOffset,
-                                                "continue statement must be inside a loop");
+                    if (fContinuableLevel.front() == 0) {
+                        if (std::any_of(fContinuableLevel.begin(),
+                                        fContinuableLevel.end(),
+                                        [](int level) { return level > 0; })) {
+                            fContext.fErrors->error(stmt.fOffset,
+                                                   "continue statement cannot be used in a switch");
+                        } else {
+                            fContext.fErrors->error(stmt.fOffset,
+                                                    "continue statement must be inside a loop");
+                        }
                     }
                     break;
                 default:
@@ -122,7 +133,8 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
         // how deeply nested we are in breakable constructs (for, do, switch).
         int fBreakableLevel = 0;
         // how deeply nested we are in continuable constructs (for, do).
-        int fContinuableLevel = 0;
+        // We keep a stack (via a forward_list) in order to disallow continue inside of switch.
+        std::forward_list<int> fContinuableLevel{0};
 
         using INHERITED = ProgramWriter;
     };
