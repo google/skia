@@ -8,6 +8,7 @@
 #include "experimental/graphite/include/SkStuff.h"
 
 #include "experimental/graphite/src/Device.h"
+#include "experimental/graphite/src/Surface_Graphite.h"
 
 sk_sp<SkSurface> MakeGraphite(const SkImageInfo& ii) {
 
@@ -16,8 +17,5 @@ sk_sp<SkSurface> MakeGraphite(const SkImageInfo& ii) {
         return nullptr;
     }
 
-    // TODO: create a new SkSurface_Graphite class that wraps a skgpu::Device.
-    // skgpu::BaseDevice carries a lot of baggage.
-    //return sk_make_sp<SkSurface_Graphite>(std::move(device));
-    return nullptr;
+    return sk_make_sp<skgpu::Surface_Graphite>(std::move(device));
 }
