@@ -899,6 +899,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179
 	}
 
+	if b.extraConfig("Vulkan") && b.isLinux() && b.matchGpu("Intel") {
+		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU") // skia:12465
+	}
+
 	if b.matchGpu("Intel") { // some Intel GPUs don't return zero for the derivative of a uniform
 		skip("_", "tests", "_", "SkSLIntrinsicDFdy_GPU")
 		skip("_", "tests", "_", "SkSLIntrinsicDFdx_GPU")
