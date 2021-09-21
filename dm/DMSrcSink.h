@@ -579,12 +579,12 @@ private:
     int fPageIndex;
 };
 
-class TBDSink : public Sink {
+class GraphiteSink : public Sink {
 public:
-    TBDSink();
+    GraphiteSink();
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    const char* fileExtension() const override { return "tbd"; }
+    const char* fileExtension() const override { return "gr"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 

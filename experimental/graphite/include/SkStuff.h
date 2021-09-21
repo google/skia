@@ -14,6 +14,6 @@ struct SkImageInfo;
 class SkSurface;
 
 // TODO: Should be SkSurface.h
-sk_sp<SkSurface> MakeTBD(const SkImageInfo&);
+sk_sp<SkSurface> MakeGraphite(const SkImageInfo&);
 
 #endif // SkStuff_DEFINED

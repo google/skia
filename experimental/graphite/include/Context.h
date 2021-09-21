@@ -8,7 +8,7 @@
 #ifndef Context_DEFINED
 #define Context_DEFINED
 
-namespace sktbd {
+namespace skgpu {
 
 class Context {
 public:
@@ -16,7 +16,7 @@ public:
 private:
 };
 
-} // namespace sktbd
+} // namespace skgpu
 
 #endif // Context_DEFINED
 

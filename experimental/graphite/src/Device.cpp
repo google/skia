@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/sktbd/src/Device.h"
+#include "experimental/graphite/src/Device.h"
 
 #include "include/core/SkImageInfo.h"
 
-namespace sktbd {
+namespace skgpu {
 
 Device::Device(const SkImageInfo& ii) : SkBaseDevice(ii, SkSurfaceProps()) {}
 
-} // namespace sktbd
+} // namespace skgpu

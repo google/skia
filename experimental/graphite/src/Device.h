@@ -10,7 +10,7 @@
 
 #include "src/core/SkDevice.h"
 
-namespace sktbd {
+namespace skgpu {
 
 class Device final : public SkBaseDevice  {
 public:
@@ -43,6 +43,6 @@ protected:
 private:
 };
 
-} // namespace sktbd
+} // namespace skgpu
 
 #endif // Device_DEFINED

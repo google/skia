@@ -79,8 +79,8 @@
     #include "src/xml/SkXMLWriter.h"
 #endif
 
-#ifdef SK_TBD_ENABLED
-#include "experimental/sktbd/include/SkStuff.h"
+#ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/include/SkStuff.h"
 #endif
 
 #if defined(SK_ENABLE_ANDROID_UTILS)
@@ -2114,14 +2114,17 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-TBDSink::TBDSink() {}
+GraphiteSink::GraphiteSink() {}
 
-#ifdef SK_TBD_ENABLED
+#ifdef SK_GRAPHITE_ENABLED
 
-Result TBDSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkString* log) const {
+Result GraphiteSink::draw(const Src& src,
+                          SkBitmap* dst,
+                          SkWStream* dstStream,
+                          SkString* log) const {
     SkImageInfo ii = SkImageInfo::Make(src.size(), kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> surface = MakeTBD(ii);
+    sk_sp<SkSurface> surface = MakeGraphite(ii);
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -2137,8 +2140,8 @@ Result TBDSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkStri
     return Result::Ok();
 }
 #else
-Result TBDSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    return Result::Fatal("TBD not enabled.");
+Result GraphiteSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+    return Result::Fatal("Graphite not enabled.");
 }
 #endif
 

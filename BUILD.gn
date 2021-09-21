@@ -1025,11 +1025,11 @@ optional("ndk_images") {
   libs = [ "jnigraphics" ]
 }
 
-optional("tbd") {
-  enabled = skia_enable_tbd
-  public_defines = [ "SK_TBD_ENABLED" ]
-  public = skia_tbd_public
-  sources = skia_tbd_sources
+optional("graphite") {
+  enabled = skia_enable_graphite
+  public_defines = [ "SK_GRAPHITE_ENABLED" ]
+  public = skia_graphite_public
+  sources = skia_graphite_sources
 }
 
 optional("pdf") {
@@ -1211,9 +1211,9 @@ skia_component("skia") {
     ":fontmgr_win",
     ":fontmgr_win_gdi",
     ":gpu",
+    ":graphite",
     ":pdf",
     ":skcms",
-    ":tbd",
     ":xps",
   ]
 
