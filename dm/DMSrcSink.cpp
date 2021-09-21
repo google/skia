@@ -79,6 +79,10 @@
     #include "src/xml/SkXMLWriter.h"
 #endif
 
+#ifdef SK_TBD_ENABLED
+#include "experimental/sktbd/include/SkStuff.h"
+#endif
+
 #if defined(SK_ENABLE_ANDROID_UTILS)
     #include "client_utils/android/BitmapRegionDecoder.h"
 #endif
@@ -2107,6 +2111,36 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
     SkCanvas canvas(*dst, SkSurfaceProps(0, kRGB_H_SkPixelGeometry));
     return src.draw(nullptr, &canvas);
 }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+TBDSink::TBDSink() {}
+
+#ifdef SK_TBD_ENABLED
+
+Result TBDSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkString* log) const {
+    SkImageInfo ii = SkImageInfo::Make(src.size(), kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> surface = MakeTBD(ii);
+    if (!surface) {
+        return Result::Fatal("Could not create a surface.");
+    }
+    Result result = src.draw(/* dContext */ nullptr, surface->getCanvas());
+    if (!result.isOk()) {
+        return result;
+    }
+    surface->flushAndSubmit();
+
+    // TODO: add readback step
+    //this->readBack(surface.get(), dst);
+
+    return Result::Ok();
+}
+#else
+Result TBDSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+    return Result::Fatal("TBD not enabled.");
+}
+#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

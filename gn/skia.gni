@@ -68,6 +68,7 @@ declare_args() {
   skia_use_wuffs = false
   skia_use_x11 = is_linux
   skia_use_xps = true
+  skia_enable_tbd = false
   skia_use_zlib = true
 
   skia_vtune_path = ""

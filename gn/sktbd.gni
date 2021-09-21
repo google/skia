@@ -1,0 +1,19 @@
+# Copyright 2021 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("../experimental/sktbd/src", "abspath")
+_include = get_path_info("../experimental/sktbd/include", "abspath")
+
+skia_tbd_public = [ "$_include/Context.h" ]
+
+skia_tbd_sources = [
+  "$_include/Context.h",
+  "$_src/Context.cpp",
+  "$_src/Device.cpp",
+  "$_src/Device.h",
+  "$_src/SkStuff.cpp",
+  "$_src/SkStuff.h",
+]

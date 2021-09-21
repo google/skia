@@ -1025,6 +1025,13 @@ optional("ndk_images") {
   libs = [ "jnigraphics" ]
 }
 
+optional("tbd") {
+  enabled = skia_enable_tbd
+  public_defines = [ "SK_TBD_ENABLED" ]
+  public = skia_tbd_public
+  sources = skia_tbd_sources
+}
+
 optional("pdf") {
   enabled = skia_use_zlib && skia_enable_pdf
   public_defines = [ "SK_SUPPORT_PDF" ]
@@ -1206,6 +1213,7 @@ skia_component("skia") {
     ":gpu",
     ":pdf",
     ":skcms",
+    ":tbd",
     ":xps",
   ]
 

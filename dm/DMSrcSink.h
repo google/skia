@@ -579,6 +579,14 @@ private:
     int fPageIndex;
 };
 
+class TBDSink : public Sink {
+public:
+    TBDSink();
+
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    const char* fileExtension() const override { return "tbd"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
+};
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
