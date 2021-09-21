@@ -230,20 +230,22 @@ public:
         if (!DSLWriter::Settings().fDSLMarkVarsDeclared) {
             DSLWriter::MarkDeclared(var);
         }
-        auto intf = std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
-                DSLWriter::Var(var), typeName, varName, arraySize, DSLWriter::SymbolTable());
-        DSLWriter::IRGenerator().scanInterfaceBlock(*intf);
-        DSLWriter::ProgramElements().push_back(std::move(intf));
-        if (varName.empty()) {
-            const std::vector<SkSL::Type::Field>& structFields = structType->fields();
-            const SkSL::Variable* skslVar = DSLWriter::Var(var);
-            for (size_t i = 0; i < structFields.size(); ++i) {
-                DSLWriter::SymbolTable()->add(std::make_unique<SkSL::Field>(/*offset=*/-1,
-                                                                            skslVar,
-                                                                            i));
+        const SkSL::Variable* skslVar = DSLWriter::Var(var);
+        if (skslVar) {
+            auto intf = std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
+                    *skslVar, typeName, varName, arraySize, DSLWriter::SymbolTable());
+            DSLWriter::IRGenerator().scanInterfaceBlock(*intf);
+            DSLWriter::ProgramElements().push_back(std::move(intf));
+            if (varName.empty()) {
+                const std::vector<SkSL::Type::Field>& structFields = structType->fields();
+                for (size_t i = 0; i < structFields.size(); ++i) {
+                    DSLWriter::SymbolTable()->add(std::make_unique<SkSL::Field>(/*offset=*/-1,
+                                                                                skslVar,
+                                                                                i));
+                }
+            } else {
+                AddToSymbolTable(var);
             }
-        } else {
-            AddToSymbolTable(var);
         }
         GetErrorReporter().reportPendingErrors(pos);
         return var;

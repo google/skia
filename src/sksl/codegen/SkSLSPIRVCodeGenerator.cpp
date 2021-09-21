@@ -3052,7 +3052,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                                intfVar.storage()));
             fSPIRVBonusVariables.insert(modifiedVar);
             InterfaceBlock modifiedCopy(intf.fOffset,
-                                        modifiedVar,
+                                        *modifiedVar,
                                         intf.typeName(),
                                         intf.instanceName(),
                                         intf.arraySize(),
@@ -3459,7 +3459,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
 
     // Create an interface block object for this global variable.
     fUniformBuffer.fInterfaceBlock = std::make_unique<InterfaceBlock>(
-            /*offset=*/-1, fUniformBuffer.fInnerVariable.get(), kUniformBufferName,
+            /*offset=*/-1, *fUniformBuffer.fInnerVariable, kUniformBufferName,
             kUniformBufferName, /*arraySize=*/0, topLevelSymbolTable);
 
     // Generate an interface block and hold onto its ID.
@@ -3528,7 +3528,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
         fProgram.fSymbols->add(std::make_unique<Field>(/*offset=*/-1, intfVar, /*field=*/0));
     }
     InterfaceBlock intf(/*offset=*/-1,
-                        intfVar,
+                        *intfVar,
                         name,
                         /*instanceName=*/"",
                         /*arraySize=*/0,

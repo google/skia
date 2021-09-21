@@ -285,7 +285,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             skstd::string_view typeName = this->readString();
             skstd::string_view instanceName = this->readString();
             int arraySize = this->readS8();
-            return std::make_unique<InterfaceBlock>(/*offset=*/-1, &var->as<Variable>(), typeName,
+            return std::make_unique<InterfaceBlock>(/*offset=*/-1, var->as<Variable>(), typeName,
                                                     instanceName, arraySize, nullptr);
         }
         case Rehydrator::kVarDeclarations_Command: {

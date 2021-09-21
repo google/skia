@@ -794,7 +794,7 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
         }
     }
     std::unique_ptr<SkSL::InterfaceBlock> result = std::make_unique<SkSL::InterfaceBlock>(
-            intf.fOffset, var, id.fTypeName, id.fInstanceName, arraySize, symbols);
+            intf.fOffset, *var, id.fTypeName, id.fInstanceName, arraySize, symbols);
     this->scanInterfaceBlock(*result);
     return result;
 }
