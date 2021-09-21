@@ -249,8 +249,6 @@ private:
                     std::shared_ptr<SymbolTable> symbols,
                     ProgramUsage* usage);
 
-    Position position(int offset);
-
     CompilerErrorReporter fErrorReporter;
     std::shared_ptr<Context> fContext;
 

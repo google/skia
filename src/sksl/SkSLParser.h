@@ -17,7 +17,6 @@
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLLexer.h"
-#include "src/sksl/SkSLPosition.h"
 
 namespace SkSL {
 
@@ -52,8 +51,6 @@ public:
     std::unique_ptr<ASTFile> compilationUnit();
 
     skstd::string_view text(Token token);
-
-    Position position(Token token);
 
 private:
     static void InitLayoutMap();
