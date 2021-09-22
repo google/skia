@@ -71,7 +71,6 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLParser.h",
   "$_src/sksl/SkSLPool.cpp",
   "$_src/sksl/SkSLPool.h",
-  "$_src/sksl/SkSLPosition.h",
   "$_src/sksl/SkSLProgramSettings.h",
   "$_src/sksl/SkSLRehydrator.cpp",
   "$_src/sksl/SkSLRehydrator.h",
