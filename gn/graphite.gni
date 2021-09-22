@@ -12,9 +12,11 @@ skia_graphite_public = [ "$_include/Context.h" ]
 skia_graphite_sources = [
   "$_include/Context.h",
   "$_include/SkStuff.h",
+  "$_src/BoundsManager.h",
   "$_src/Context.cpp",
   "$_src/Device.cpp",
   "$_src/Device.h",
+  "$_src/DrawCommandList.h",
   "$_src/SDCTask.cpp",
   "$_src/SDCTask.h",
   "$_src/SkStuff.cpp",
