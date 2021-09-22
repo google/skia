@@ -8,6 +8,7 @@
 package org.skia.androidkit;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 public class Canvas {
     private long mNativeInstance;
@@ -126,6 +127,28 @@ public class Canvas {
         nDrawPath(mNativeInstance, path.getNativeInstance(), paint.getNativeInstance());
     }
 
+    /**
+     *
+     * @param glyphs: glyph IDs, passed into native code as unsigned 16 bits
+     * @param positions: array of floats in the form of [x1, y1, x2, y2, ...]
+     *                   for where to draw each glyph relative to origin, should be double the length
+     *                   of glyph ID array
+     * @param xOrigin: x-value of origin
+     * @param yOrigin: y-value of origin
+     * @param font: typeface, text size and so, used to describe the text
+     * @param paint blend, color, and so on, used to draw
+     */
+    public void drawGlyphs(char[] glyphs, float[] positions, float xOrigin, float yOrigin,
+                           ToyFont font, Paint paint) {
+        if (glyphs.length * 2 == positions.length) {
+            nDrawGlyphs(mNativeInstance, glyphs, positions, xOrigin, yOrigin,
+                        font.getNativeInstance(), paint.getNativeInstance());
+        } else {
+            throw new IllegalArgumentException("Positions array must be double the length of " +
+                    "glyphIDs, one x and y per id");
+        }
+    }
+
     // package private
     Canvas(Surface surface, long native_instance) {
         mNativeInstance = native_instance;
@@ -165,5 +188,7 @@ public class Canvas {
     private static native void nDrawImage(long nativeInstance, long nativeImage, float x, float y,
                                           int samplingDesc,
                                           float samplingCoeffB, float samplingCoeffC);
-    private static native void nDrawPath(long mNativeInstance, long nativePath, long nativePaint);
+    private static native void nDrawPath(long nativeInstance, long nativePath, long nativePaint);
+    private static native void nDrawGlyphs(long nativeInstance, char[] glyphs, float[] positions,
+                                           float originX, float originY, long nativeFont, long nativePaint);
 }
