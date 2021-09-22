@@ -50,9 +50,9 @@ class DSLVar;
  */
 class DSLWriter {
 public:
-    DSLWriter(SkSL::Context* context, SkSL::Compiler* compiler, SkSL::ProgramKind kind,
-              const SkSL::ProgramSettings& settings, skstd::optional<SkSL::ParsedModule> module,
-              bool isModule);
+    DSLWriter(SkSL::Context* context, SkSL::Compiler* compiler, SkSL::IRGenerator* irGenerator,
+              SkSL::ProgramKind kind, const SkSL::ProgramSettings& settings,
+              skstd::optional<SkSL::ParsedModule> module, bool isModule);
 
     ~DSLWriter();
 
@@ -64,11 +64,7 @@ public:
     /**
      * Returns the Compiler used by DSL operations in the current thread.
      */
-    static SkSL::Compiler& Compiler() {
-        SkSL::Compiler* compiler = Instance().fCompiler;
-        SkASSERT(compiler);
-        return *compiler;
-    }
+    static SkSL::Compiler& Compiler();
 
     /**
      * Returns the IRGenerator used by DSL operations in the current thread.
@@ -282,7 +278,7 @@ public:
     }
 
     /**
-     * Forwards any pending Compiler errors to the DSL ErrorReporter.
+     * Forwards any pending errors to the DSL ErrorReporter.
      */
     static void ReportErrors(PositionInfo pos);
 
@@ -299,6 +295,7 @@ private:
     std::unique_ptr<SkSL::ModifiersPool> fModifiersPool;
     SkSL::Context* fContext;
     SkSL::Compiler* fCompiler;
+    SkSL::IRGenerator* fIRGenerator;
     std::unique_ptr<Pool> fPool;
     SkSL::ProgramConfig* fOldConfig;
     SkSL::ModifiersPool* fOldModifiersPool;

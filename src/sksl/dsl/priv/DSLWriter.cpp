@@ -29,17 +29,22 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLWriter::DSLWriter(SkSL::Context* context, SkSL::Compiler* compiler, SkSL::ProgramKind kind,
+DSLWriter::DSLWriter(SkSL::Context* context, SkSL::Compiler* compiler,
+                     SkSL::IRGenerator* irGenerator, SkSL::ProgramKind kind,
                      const SkSL::ProgramSettings& settings,
                      skstd::optional<SkSL::ParsedModule> module, bool isModule)
     : fContext(context)
     , fCompiler(compiler)
+    , fIRGenerator(irGenerator)
     , fOldErrorReporter(*fContext->fErrors)
     , fSettings(settings)
     , fIsModule(isModule) {
     SkASSERT(fContext);
     if (fCompiler) {
         SkASSERT(fContext == fCompiler->fContext.get());
+    }
+    if (fIRGenerator) {
+        SkASSERT(fContext == &fIRGenerator->fContext);
     }
 
     fOldModifiersPool = fContext->fModifiersPool;
@@ -61,15 +66,15 @@ DSLWriter::DSLWriter(SkSL::Context* context, SkSL::Compiler* compiler, SkSL::Pro
     fContext->fConfig = fConfig.get();
     fContext->fErrors = &fDefaultErrorReporter;
 
-    if (compiler && module.has_value()) {
-        fCompiler->fIRGenerator->start(*module, isModule, &fProgramElements, &fSharedElements);
+    if (fIRGenerator && module.has_value()) {
+        fIRGenerator->start(*module, isModule, &fProgramElements, &fSharedElements);
     }
 }
 
 DSLWriter::~DSLWriter() {
     if (SymbolTable()) {
-        if (fCompiler) {
-            fCompiler->fIRGenerator->finish();
+        if (fIRGenerator) {
+            fIRGenerator->finish();
         }
         fProgramElements.clear();
     } else {
@@ -84,8 +89,16 @@ DSLWriter::~DSLWriter() {
     }
 }
 
+SkSL::Compiler& DSLWriter::Compiler() {
+    SkSL::Compiler* compiler = Instance().fCompiler;
+    SkASSERT(compiler);
+    return *compiler;
+}
+
 SkSL::IRGenerator& DSLWriter::IRGenerator() {
-    return *Compiler().fIRGenerator;
+    SkSL::IRGenerator* irGenerator = Instance().fIRGenerator;
+    SkASSERT(irGenerator);
+    return *irGenerator;
 }
 
 SkSL::Context& DSLWriter::Context() {
