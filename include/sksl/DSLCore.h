@@ -165,8 +165,11 @@ DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue,
                       DSLStatement ifFalse = DSLStatement(),
                       PositionInfo pos = PositionInfo::Capture());
 
-DSLPossibleStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases,
-                                  PositionInfo info = PositionInfo::Capture());
+// Internal use only
+DSLPossibleStatement PossibleStaticSwitch(DSLExpression value, SkTArray<DSLCase> cases);
+
+DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases,
+                          PositionInfo info = PositionInfo::Capture());
 
 /**
  * @switch (value) { cases }
@@ -176,11 +179,14 @@ DSLPossibleStatement StaticSwitch(DSLExpression value, Cases... cases) {
     SkTArray<DSLCase> caseArray;
     caseArray.reserve_back(sizeof...(cases));
     (caseArray.push_back(std::move(cases)), ...);
-    return StaticSwitch(std::move(value), std::move(caseArray));
+    return PossibleStaticSwitch(std::move(value), std::move(caseArray));
 }
 
-DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
-                            PositionInfo info = PositionInfo::Capture());
+// Internal use only
+DSLPossibleStatement PossibleSwitch(DSLExpression value, SkTArray<DSLCase> cases);
+
+DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
+                    PositionInfo info = PositionInfo::Capture());
 
 /**
  * switch (value) { cases }
@@ -190,7 +196,7 @@ DSLPossibleStatement Switch(DSLExpression value, Cases... cases) {
     SkTArray<DSLCase> caseArray;
     caseArray.reserve_back(sizeof...(cases));
     (caseArray.push_back(std::move(cases)), ...);
-    return Switch(std::move(value), std::move(caseArray));
+    return PossibleSwitch(std::move(value), std::move(caseArray));
 }
 
 /**

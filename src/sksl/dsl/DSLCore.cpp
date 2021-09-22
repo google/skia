@@ -303,7 +303,7 @@ public:
     }
 
     static DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
-                                       bool isStatic, PositionInfo pos) {
+                                       bool isStatic) {
         ExpressionArray values;
         values.reserve_back(cases.count());
         SkTArray<StatementArray> statements;
@@ -313,7 +313,7 @@ public:
             statements.push_back(std::move(c.fStatements));
         }
         return DSLWriter::ConvertSwitch(value.release(), std::move(values), std::move(statements),
-                                        isStatic, pos);
+                                        isStatic);
     }
 
     static DSLPossibleStatement While(DSLExpression test, DSLStatement stmt) {
@@ -441,12 +441,20 @@ DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFa
                          pos);
 }
 
-DSLPossibleStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases, PositionInfo pos) {
-    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/true, pos);
+DSLPossibleStatement PossibleStaticSwitch(DSLExpression value, SkTArray<DSLCase> cases) {
+    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/true);
 }
 
-DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, PositionInfo pos) {
-    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/false, pos);
+DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases, PositionInfo pos) {
+    return DSLStatement(PossibleStaticSwitch(std::move(value), std::move(cases)), pos);
+}
+
+DSLPossibleStatement PossibleSwitch(DSLExpression value, SkTArray<DSLCase> cases) {
+    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/false);
+}
+
+DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, PositionInfo pos) {
+    return DSLStatement(PossibleSwitch(std::move(value), std::move(cases)), pos);
 }
 
 DSLStatement While(DSLExpression test, DSLStatement stmt, PositionInfo pos) {
