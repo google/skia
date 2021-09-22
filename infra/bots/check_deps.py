@@ -40,12 +40,14 @@ def main():
     if len(split) != 2:
       errs.append(
           'Failed to parse `gclient revinfo` output; invalid format: %s' % e)
+      continue
     if split[0] == 'skia':
       continue
     split = split[1].split('@')
     if len(split) != 2:
       errs.append(
           'Failed to parse `gclient revinfo` output; invalid format: %s' % e)
+      continue
     repo = split[0]
     rev = split[1]
     if 'chrome-infra-packages' in repo:
