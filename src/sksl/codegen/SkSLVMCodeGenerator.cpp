@@ -113,7 +113,6 @@ class SkVMGenerator {
 public:
     SkVMGenerator(const Program& program,
                   skvm::Builder* builder,
-                  skvm::Coord local,
                   SampleShaderFn sampleShader,
                   SampleColorFilterFn sampleColorFilter,
                   SampleBlenderFn sampleBlender);
@@ -228,7 +227,6 @@ private:
     const Program& fProgram;
     skvm::Builder* fBuilder;
 
-    const skvm::Coord fLocalCoord;
     const SampleShaderFn fSampleShader;
     const SampleColorFilterFn fSampleColorFilter;
     const SampleBlenderFn fSampleBlender;
@@ -285,13 +283,11 @@ static inline bool is_uniform(const SkSL::Variable& var) {
 
 SkVMGenerator::SkVMGenerator(const Program& program,
                              skvm::Builder* builder,
-                             skvm::Coord local,
                              SampleShaderFn sampleShader,
                              SampleColorFilterFn sampleColorFilter,
                              SampleBlenderFn sampleBlender)
         : fProgram(program)
         , fBuilder(builder)
-        , fLocalCoord(local)
         , fSampleShader(std::move(sampleShader))
         , fSampleColorFilter(std::move(sampleColorFilter))
         , fSampleBlender(std::move(sampleBlender)) {}
@@ -1642,7 +1638,7 @@ skvm::Color ProgramToSkVM(const Program& program,
     }
     SkASSERT(argSlots <= SK_ARRAY_COUNT(args));
 
-    SkVMGenerator generator(program, builder, local, std::move(sampleShader),
+    SkVMGenerator generator(program, builder, std::move(sampleShader),
                             std::move(sampleColorFilter), std::move(sampleBlender));
     generator.writeProgram(uniforms, device, function, {args, argSlots}, SkMakeSpan(result));
 
@@ -1697,8 +1693,7 @@ bool ProgramToSkVM(const Program& program,
 
     skvm::F32 zero = b->splat(0.0f);
     skvm::Coord zeroCoord = {zero, zero};
-    SkVMGenerator generator(program, b, /*local=*/zeroCoord, sampleShader, sampleColorFilter,
-                            sampleBlender);
+    SkVMGenerator generator(program, b, sampleShader, sampleColorFilter, sampleBlender);
     generator.writeProgram(uniforms, /*device=*/zeroCoord,
                            function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
