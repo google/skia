@@ -60,7 +60,9 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
     // for transforming to clamp.
     return tm;
 #else
-    return dimension == 1 ? SkTileMode::kClamp : tm;
+    // mirror and repeat on a 1px axis are the same as clamping, but decal will still transition to
+    // transparent black.
+    return (tm != SkTileMode::kDecal && dimension == 1) ? SkTileMode::kClamp : tm;
 #endif
 }
 
