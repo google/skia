@@ -1487,17 +1487,14 @@ sk_sp<GrAttachment> GrVkGpu::makeMSAAAttachment(SkISize dimensions,
                                                 const GrBackendFormat& format,
                                                 int numSamples,
                                                 GrProtected isProtected,
-                                                GrMemoryless isMemoryless) {
-    // TODO: add memoryless support
-    SkASSERT(isMemoryless == GrMemoryless::kNo);
-
+                                                GrMemoryless memoryless) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
     SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
     SkASSERT(this->vkCaps().isFormatRenderable(pixelFormat, numSamples));
 
     fStats.incMSAAAttachmentCreates();
-    return GrVkImage::MakeMSAA(this, dimensions, numSamples, pixelFormat, isProtected);
+    return GrVkImage::MakeMSAA(this, dimensions, numSamples, pixelFormat, isProtected, memoryless);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

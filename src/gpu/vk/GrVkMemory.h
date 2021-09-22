@@ -10,6 +10,7 @@
 
 #include "include/gpu/vk/GrVkMemoryAllocator.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
 
 class GrVkGpu;
@@ -27,6 +28,7 @@ namespace GrVkMemory {
 
     bool AllocAndBindImageMemory(GrVkGpu* gpu,
                                  VkImage image,
+                                 GrMemoryless,
                                  GrVkAlloc* alloc);
     void FreeImageMemory(const GrVkGpu* gpu, const GrVkAlloc& alloc);
 

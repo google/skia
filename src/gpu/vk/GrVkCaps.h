@@ -267,6 +267,8 @@ public:
 
     bool dmsaaResolveCanBeUsedAsTextureInSameRenderPass() const override { return false; }
 
+    bool supportsMemorylessAttachments() const { return fSupportsMemorylessAttachments; }
+
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
@@ -415,6 +417,7 @@ private:
     bool fPreferDiscardableMSAAAttachment = false;
     bool fMustLoadFullImageWithDiscardableMSAA = false;
     bool fSupportsDiscardableMSAAForDMSAA = true;
+    bool fSupportsMemorylessAttachments = false;
 
     uint32_t fMaxDrawIndirectDrawCount = 0;
 

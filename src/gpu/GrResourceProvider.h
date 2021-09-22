@@ -307,7 +307,8 @@ public:
     sk_sp<GrAttachment> getDiscardableMSAAAttachment(SkISize dimensions,
                                                      const GrBackendFormat& format,
                                                      int sampleCnt,
-                                                     GrProtected isProtected);
+                                                     GrProtected isProtected,
+                                                     GrMemoryless memoryless);
 
     /**
      * Assigns a unique key to a resource. If the key is associated with another resource that
@@ -356,7 +357,8 @@ private:
     sk_sp<GrAttachment> refScratchMSAAAttachment(SkISize dimensions,
                                                  const GrBackendFormat&,
                                                  int sampleCnt,
-                                                 GrProtected);
+                                                 GrProtected,
+                                                 GrMemoryless memoryless);
 
     // Used to perform any conversions necessary to texel data before creating a texture with
     // existing data or uploading to a scratch texture.

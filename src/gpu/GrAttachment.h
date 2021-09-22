@@ -54,6 +54,7 @@ public:
                                                  int sampleCnt,
                                                  GrMipmapped mipmapped,
                                                  GrProtected isProtected,
+                                                 GrMemoryless memoryless,
                                                  GrUniqueKey* key);
 
     // TODO: Once attachments start having multiple usages, we'll need to figure out how to search
@@ -65,15 +66,18 @@ public:
                                   int sampleCnt,
                                   GrMipmapped mipmapped,
                                   GrProtected,
+                                  GrMemoryless,
                                   GrScratchKey* key);
 
 protected:
     GrAttachment(GrGpu* gpu, SkISize dimensions, UsageFlags supportedUsages, int sampleCnt,
-                 GrMipmapped mipmapped, GrProtected isProtected)
+                 GrMipmapped mipmapped, GrProtected isProtected,
+                 GrMemoryless memoryless = GrMemoryless::kNo)
             : INHERITED(gpu, dimensions, isProtected)
             , fSupportedUsages(supportedUsages)
             , fSampleCnt(sampleCnt)
-            , fMipmapped(mipmapped) {}
+            , fMipmapped(mipmapped)
+            , fMemoryless(memoryless) {}
 
 private:
     size_t onGpuMemorySize() const final;
@@ -93,6 +97,7 @@ private:
     int fSampleCnt;
     GrMipmapped fMipmapped;
     bool fHasPerformedInitialClear = false;
+    GrMemoryless fMemoryless;
 
     using INHERITED = GrSurface;
 };

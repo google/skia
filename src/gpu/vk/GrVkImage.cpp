@@ -29,6 +29,7 @@ sk_sp<GrVkImage> GrVkImage::MakeStencil(GrVkGpu* gpu,
                            /*mipLevels=*/1,
                            vkUsageFlags,
                            GrProtected::kNo,
+                           GrMemoryless::kNo,
                            SkBudgeted::kYes);
 }
 
@@ -36,12 +37,16 @@ sk_sp<GrVkImage> GrVkImage::MakeMSAA(GrVkGpu* gpu,
                                      SkISize dimensions,
                                      int numSamples,
                                      VkFormat format,
-                                     GrProtected isProtected) {
+                                     GrProtected isProtected,
+                                     GrMemoryless memoryless) {
     SkASSERT(numSamples > 1);
 
-    VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                     VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    if (memoryless == GrMemoryless::kYes) {
+        vkUsageFlags |= VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+    } else {
+        vkUsageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    }
     return GrVkImage::Make(gpu,
                            dimensions,
                            UsageFlags::kColorAttachment,
@@ -50,6 +55,7 @@ sk_sp<GrVkImage> GrVkImage::MakeMSAA(GrVkGpu* gpu,
                            /*mipLevels=*/1,
                            vkUsageFlags,
                            isProtected,
+                           memoryless,
                            SkBudgeted::kYes);
 }
 
@@ -79,6 +85,7 @@ sk_sp<GrVkImage> GrVkImage::MakeTexture(GrVkGpu* gpu,
                            mipLevels,
                            vkUsageFlags,
                            isProtected,
+                           GrMemoryless::kNo,
                            budgeted);
 }
 
@@ -128,6 +135,7 @@ sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
                                  uint32_t mipLevels,
                                  VkImageUsageFlags vkUsageFlags,
                                  GrProtected isProtected,
+                                 GrMemoryless memoryless,
                                  SkBudgeted budgeted) {
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
@@ -209,7 +217,9 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                        supportedUsages,
                        info.fSampleCount,
                        info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
-                       info.fProtected)
+                       info.fProtected,
+                       info.fAlloc.fFlags & GrVkAlloc::kLazilyAllocated_Flag ? GrMemoryless::kYes
+                                                                             : GrMemoryless::kNo)
         , fInfo(info)
         , fInitialQueueFamily(info.fCurrentQueueFamily)
         , fMutableState(std::move(mutableState))
@@ -221,15 +231,15 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
 }
 
 GrVkImage::GrVkImage(GrVkGpu* gpu,
-                               SkISize dimensions,
-                               UsageFlags supportedUsages,
-                               const GrVkImageInfo& info,
-                               sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                               sk_sp<const GrVkImageView> framebufferView,
-                               sk_sp<const GrVkImageView> textureView,
-                               GrBackendObjectOwnership ownership,
-                               GrWrapCacheable cacheable,
-                               bool forSecondaryCB)
+                     SkISize dimensions,
+                     UsageFlags supportedUsages,
+                     const GrVkImageInfo& info,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                     sk_sp<const GrVkImageView> framebufferView,
+                     sk_sp<const GrVkImageView> textureView,
+                     GrBackendObjectOwnership ownership,
+                     GrWrapCacheable cacheable,
+                     bool forSecondaryCB)
         : GrAttachment(gpu,
                        dimensions,
                        supportedUsages,
@@ -253,8 +263,15 @@ void GrVkImage::init(GrVkGpu* gpu, bool forSecondaryCB) {
     if (fInfo.fImageUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
         SkASSERT(SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT));
     } else {
-        SkASSERT(SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
-                 SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
+        if (fInfo.fAlloc.fFlags & GrVkAlloc::kLazilyAllocated_Flag) {
+            SkASSERT(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
+            SkASSERT(!SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
+                     !SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
+        } else {
+            SkASSERT(!SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT));
+            SkASSERT(SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
+                     SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
+        }
     }
     // We can't transfer from the non graphics queue to the graphics queue since we can't
     // release the image from the original queue without having that queue. This limits us in terms
@@ -354,6 +371,15 @@ void GrVkImage::setImageLayoutAndQueueIndex(const GrVkGpu* gpu,
                                             VkPipelineStageFlags dstStageMask,
                                             bool byRegion,
                                             uint32_t newQueueFamilyIndex) {
+// Enable the following block to test new devices to confirm their lazy images stay at 0 memory use.
+#if 0
+    if (fInfo.fAlloc.fFlags & GrVkAlloc::kLazilyAllocated_Flag) {
+        VkDeviceSize size;
+        VK_CALL(gpu, GetDeviceMemoryCommitment(gpu->device(), fInfo.fAlloc.fMemory, &size));
+
+        SkDebugf("Lazy Image. This: %p, image: %d, size: %d\n", this, fInfo.fImage, size);
+    }
+#endif
     SkASSERT(!gpu->isDeviceLost());
     SkASSERT(newLayout == this->currentLayout() ||
              (VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
@@ -438,8 +464,6 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
     if ((imageDesc.fIsProtected == GrProtected::kYes) && !gpu->vkCaps().supportsProtectedMemory()) {
         return false;
     }
-    VkImage image = VK_NULL_HANDLE;
-    GrVkAlloc alloc;
 
     bool isLinear = VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling;
     VkImageLayout initialLayout = isLinear ? VK_IMAGE_LAYOUT_PREINITIALIZED
@@ -476,13 +500,20 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
         initialLayout                                // initialLayout
     };
 
+    VkImage image = VK_NULL_HANDLE;
     VkResult result;
     GR_VK_CALL_RESULT(gpu, result, CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
     if (result != VK_SUCCESS) {
         return false;
     }
 
-    if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, &alloc)) {
+    GrMemoryless memoryless = imageDesc.fUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT
+                                      ? GrMemoryless::kYes
+                                      : GrMemoryless::kNo;
+    GrVkAlloc alloc;
+    if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, memoryless, &alloc) ||
+        (memoryless == GrMemoryless::kYes &&
+         !SkToBool(alloc.fFlags & GrVkAlloc::kLazilyAllocated_Flag))) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
         return false;
     }

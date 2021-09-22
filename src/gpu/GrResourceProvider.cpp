@@ -619,7 +619,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSA
         GrAttachment::ComputeSharedAttachmentUniqueKey(
                 *this->caps(), stencilFormat, rt->dimensions(),
                 GrAttachment::UsageFlags::kStencilAttachment, numStencilSamples, GrMipmapped::kNo,
-                isProtected, &sbKey);
+                isProtected, GrMemoryless::kNo, &sbKey);
         auto keyedStencil = this->findByUniqueKey<GrAttachment>(sbKey);
         if (!keyedStencil) {
             // Need to try and create a new stencil
@@ -641,7 +641,8 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSA
 sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dimensions,
                                                                      const GrBackendFormat& format,
                                                                      int sampleCnt,
-                                                                     GrProtected isProtected) {
+                                                                     GrProtected isProtected,
+                                                                     GrMemoryless memoryless) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(sampleCnt > 1);
@@ -667,13 +668,14 @@ sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dim
                                                    sampleCnt,
                                                    GrMipmapped::kNo,
                                                    isProtected,
+                                                   memoryless,
                                                    &key);
     auto msaaAttachment = this->findByUniqueKey<GrAttachment>(key);
     if (msaaAttachment) {
         return msaaAttachment;
     }
     msaaAttachment = this->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected,
-                                              GrMemoryless::kNo);
+                                              memoryless);
     if (msaaAttachment) {
         this->assignUniqueKeyToResource(key, msaaAttachment.get());
     }
@@ -684,7 +686,7 @@ sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
                                                            const GrBackendFormat& format,
                                                            int sampleCnt,
                                                            GrProtected isProtected,
-                                                           GrMemoryless isMemoryless) {
+                                                           GrMemoryless memoryless) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(sampleCnt > 1);
@@ -702,18 +704,23 @@ sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
         return nullptr;
     }
 
-    auto scratch = this->refScratchMSAAAttachment(dimensions, format, sampleCnt, isProtected);
+    auto scratch = this->refScratchMSAAAttachment(dimensions,
+                                                  format,
+                                                  sampleCnt,
+                                                  isProtected,
+                                                  memoryless);
     if (scratch) {
         return scratch;
     }
 
-    return fGpu->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected, isMemoryless);
+    return fGpu->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected, memoryless);
 }
 
 sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensions,
                                                                  const GrBackendFormat& format,
                                                                  int sampleCnt,
-                                                                 GrProtected isProtected) {
+                                                                 GrProtected isProtected,
+                                                                 GrMemoryless memoryless) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!this->caps()->isFormatCompressed(format));
@@ -727,7 +734,7 @@ sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensi
     GrScratchKey key;
     GrAttachment::ComputeScratchKey(*this->caps(), format, dimensions,
                                     GrAttachment::UsageFlags::kColorAttachment, sampleCnt,
-                                    GrMipmapped::kNo, isProtected, &key);
+                                    GrMipmapped::kNo, isProtected, memoryless, &key);
     GrGpuResource* resource = fCache->findAndRefScratchResource(key);
     if (resource) {
         fGpu->stats()->incNumScratchMSAAAttachmentsReused();

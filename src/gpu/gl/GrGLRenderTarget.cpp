@@ -216,7 +216,7 @@ bool GrGLRenderTarget::ensureDynamicMSAAAttachment() {
     fDynamicMSAAAttachment.reset(
             static_cast<GrGLAttachment*>(resourceProvider->getDiscardableMSAAAttachment(
                     this->dimensions(), this->backendFormat(), internalSampleCount,
-                    GrProtected(this->isProtected())).release()));
+                    GrProtected(this->isProtected()), GrMemoryless::kNo).release()));
     if (!fDynamicMSAAAttachment) {
         return false;
     }

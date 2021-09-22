@@ -34,8 +34,9 @@ struct GrVkAlloc {
     GrVkBackendMemory fBackendMemory = 0; // handle to memory allocated via GrVkMemoryAllocator.
 
     enum Flag {
-        kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
-        kMappable_Flag    = 0x2,   // memory is able to be mapped.
+        kNoncoherent_Flag     = 0x1,   // memory must be flushed to device after mapping
+        kMappable_Flag        = 0x2,   // memory is able to be mapped.
+        kLazilyAllocated_Flag = 0x4,   // memory was created with lazy allocation
     };
 
     bool operator==(const GrVkAlloc& that) const {

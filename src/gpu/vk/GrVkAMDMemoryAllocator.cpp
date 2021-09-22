@@ -119,7 +119,7 @@ VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image, AllocationPr
     }
 
     if (AllocationPropertyFlags::kLazyAllocation & flags) {
-        info.preferredFlags |= VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
+        info.requiredFlags |= VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
     }
 
     if (AllocationPropertyFlags::kProtected & flags) {
@@ -225,6 +225,9 @@ void GrVkAMDMemoryAllocator::getAllocInfo(const GrVkBackendMemory& memoryHandle,
     }
     if (!SkToBool(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT & memFlags)) {
         flags |= GrVkAlloc::kNoncoherent_Flag;
+    }
+    if (VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT & memFlags) {
+        flags |= GrVkAlloc::kLazilyAllocated_Flag;
     }
 
     alloc->fMemory        = vmaInfo.deviceMemory;

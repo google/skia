@@ -39,7 +39,8 @@ public:
                                      SkISize dimensions,
                                      int numSamples,
                                      VkFormat format,
-                                     GrProtected isProtected);
+                                     GrProtected isProtected,
+                                     GrMemoryless memoryless);
 
     static sk_sp<GrVkImage> MakeTexture(GrVkGpu* gpu,
                                         SkISize dimensions,
@@ -215,6 +216,7 @@ private:
                                  uint32_t mipLevels,
                                  VkImageUsageFlags vkUsageFlags,
                                  GrProtected isProtected,
+                                 GrMemoryless,
                                  SkBudgeted);
 
     GrVkImage(GrVkGpu* gpu,

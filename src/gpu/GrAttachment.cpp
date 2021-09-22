@@ -22,7 +22,7 @@ size_t GrAttachment::onGpuMemorySize() const {
     // the msaa and stencil attachments track their own size because they do get cached separately.
     // For all GrTexture* based things we will continue to to use the GrTexture* to report size and
     // the owned attachments will have no size and be uncached.
-    if (!(fSupportedUsages & UsageFlags::kTexture)) {
+    if (!(fSupportedUsages & UsageFlags::kTexture) && fMemoryless == GrMemoryless::kNo) {
         GrBackendFormat format = this->backendFormat();
         SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
 
@@ -41,12 +41,14 @@ static void build_key(GrResourceKey::Builder* builder,
                       GrAttachment::UsageFlags requiredUsage,
                       int sampleCnt,
                       GrMipmapped mipmapped,
-                      GrProtected isProtected) {
+                      GrProtected isProtected,
+                      GrMemoryless memoryless) {
     SkASSERT(!dimensions.isEmpty());
 
     SkASSERT(static_cast<uint32_t>(isProtected) <= 1);
+    SkASSERT(static_cast<uint32_t>(memoryless) <= 1);
     SkASSERT(static_cast<uint32_t>(requiredUsage) < (1u << 8));
-    SkASSERT(static_cast<uint32_t>(sampleCnt) < (1u << (32 - 9)));
+    SkASSERT(static_cast<uint32_t>(sampleCnt) < (1u << (32 - 10)));
 
     uint64_t formatKey = caps.computeFormatKey(format);
     (*builder)[0] = dimensions.width();
@@ -54,8 +56,9 @@ static void build_key(GrResourceKey::Builder* builder,
     (*builder)[2] = formatKey & 0xFFFFFFFF;
     (*builder)[3] = (formatKey >> 32) & 0xFFFFFFFF;
     (*builder)[4] = (static_cast<uint32_t>(isProtected) << 0) |
-                    (static_cast<uint32_t>(requiredUsage) << 1) |
-                    (static_cast<uint32_t>(sampleCnt) << 9);
+                    (static_cast<uint32_t>(memoryless) << 1) |
+                    (static_cast<uint32_t>(requiredUsage) << 2) |
+                    (static_cast<uint32_t>(sampleCnt) << 10);
 }
 
 void GrAttachment::ComputeSharedAttachmentUniqueKey(const GrCaps& caps,
@@ -65,11 +68,13 @@ void GrAttachment::ComputeSharedAttachmentUniqueKey(const GrCaps& caps,
                                                     int sampleCnt,
                                                     GrMipmapped mipmapped,
                                                     GrProtected isProtected,
+                                                    GrMemoryless memoryless,
                                                     GrUniqueKey* key) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
 
     GrUniqueKey::Builder builder(key, kDomain, 5);
-    build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, mipmapped, isProtected);
+    build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, mipmapped, isProtected,
+              memoryless);
 }
 
 void GrAttachment::ComputeScratchKey(const GrCaps& caps,
@@ -79,18 +84,26 @@ void GrAttachment::ComputeScratchKey(const GrCaps& caps,
                                      int sampleCnt,
                                      GrMipmapped mipmapped,
                                      GrProtected isProtected,
+                                     GrMemoryless memoryless,
                                      GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
 
     GrScratchKey::Builder builder(key, kType, 5);
-    build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, mipmapped, isProtected);
+    build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, mipmapped, isProtected,
+              memoryless);
 }
 
 void GrAttachment::computeScratchKey(GrScratchKey* key) const {
     if (!SkToBool(fSupportedUsages & UsageFlags::kStencilAttachment)) {
         auto isProtected = this->isProtected() ? GrProtected::kYes : GrProtected::kNo;
-        ComputeScratchKey(*this->getGpu()->caps(), this->backendFormat(), this->dimensions(),
-                          fSupportedUsages, this->numSamples(), this->mipmapped(), isProtected,
+        ComputeScratchKey(*this->getGpu()->caps(),
+                          this->backendFormat(),
+                          this->dimensions(),
+                          fSupportedUsages,
+                          this->numSamples(),
+                          this->mipmapped(),
+                          isProtected,
+                          fMemoryless,
                           key);
     }
 }

@@ -226,11 +226,15 @@ GrVkImage* GrVkRenderTarget::dynamicMSAAAttachment() {
 
     const GrBackendFormat& format = nonMSAAColorAttachment->backendFormat();
 
+    GrMemoryless memoryless =
+            gpu->vkCaps().supportsMemorylessAttachments() ? GrMemoryless::kYes : GrMemoryless::kNo;
+
     sk_sp<GrAttachment> msaaAttachment =
             rp->getDiscardableMSAAAttachment(nonMSAAColorAttachment->dimensions(),
                                              format,
                                              gpu->caps()->internalMultisampleCount(format),
-                                             GrProtected(nonMSAAColorAttachment->isProtected()));
+                                             GrProtected(nonMSAAColorAttachment->isProtected()),
+                                             memoryless);
     if (!msaaAttachment) {
         return nullptr;
     }
