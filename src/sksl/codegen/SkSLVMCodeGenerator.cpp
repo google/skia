@@ -113,16 +113,16 @@ class SkVMGenerator {
 public:
     SkVMGenerator(const Program& program,
                   skvm::Builder* builder,
-                  SkSpan<skvm::Val> uniforms,
-                  skvm::Coord device,
                   skvm::Coord local,
                   SampleShaderFn sampleShader,
                   SampleColorFilterFn sampleColorFilter,
                   SampleBlenderFn sampleBlender);
 
-    void writeFunction(const FunctionDefinition& function,
-                       SkSpan<skvm::Val> arguments,
-                       SkSpan<skvm::Val> outReturn);
+    void writeProgram(SkSpan<skvm::Val> uniforms,
+                      skvm::Coord device,
+                      const FunctionDefinition& function,
+                      SkSpan<skvm::Val> arguments,
+                      SkSpan<skvm::Val> outReturn);
 
 private:
     /**
@@ -150,6 +150,14 @@ private:
      * getSlot returning the start of the contiguous chunk of slots.
      */
     size_t getSlot(const Variable& v);
+
+    /** Initializes uniforms and global variables at the start of main(). */
+    void setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device);
+
+    /** Emits an SkSL function. */
+    void writeFunction(const FunctionDefinition& function,
+                       SkSpan<skvm::Val> arguments,
+                       SkSpan<skvm::Val> outReturn);
 
     skvm::F32 f32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
     skvm::I32 i32(skvm::Val id) { SkASSERT(id != skvm::NA); return {fBuilder, id}; }
@@ -277,8 +285,6 @@ static inline bool is_uniform(const SkSL::Variable& var) {
 
 SkVMGenerator::SkVMGenerator(const Program& program,
                              skvm::Builder* builder,
-                             SkSpan<skvm::Val> uniforms,
-                             skvm::Coord device,
                              skvm::Coord local,
                              SampleShaderFn sampleShader,
                              SampleColorFilterFn sampleColorFilter,
@@ -288,10 +294,21 @@ SkVMGenerator::SkVMGenerator(const Program& program,
         , fLocalCoord(local)
         , fSampleShader(std::move(sampleShader))
         , fSampleColorFilter(std::move(sampleColorFilter))
-        , fSampleBlender(std::move(sampleBlender)) {
+        , fSampleBlender(std::move(sampleBlender)) {}
+
+void SkVMGenerator::writeProgram(SkSpan<skvm::Val> uniforms,
+                                 skvm::Coord device,
+                                 const FunctionDefinition& function,
+                                 SkSpan<skvm::Val> arguments,
+                                 SkSpan<skvm::Val> outReturn) {
     fConditionMask = fLoopMask = fBuilder->splat(0xffff'ffff);
 
-    // Now, add storage for each global variable (including uniforms) to fSlots, and entries in
+    this->setupGlobals(uniforms, device);
+    this->writeFunction(function, arguments, outReturn);
+}
+
+void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device) {
+    // Add storage for each global variable (including uniforms) to fSlots, and entries in
     // fVariableMap to remember where every variable is stored.
     const skvm::Val* uniformIter = uniforms.begin();
     size_t fpCount = 0;
@@ -318,9 +335,9 @@ SkVMGenerator::SkVMGenerator(const Program& program,
             size_t slot   = this->getSlot(var),
                    nslots = var.type().slotCount();
 
+            // builtin variables are system-defined, with special semantics. The only builtin
+            // variable exposed to runtime effects is sk_FragCoord.
             if (int builtin = var.modifiers().fLayout.fBuiltin; builtin >= 0) {
-                // builtin variables are system-defined, with special semantics. The only builtin
-                // variable exposed to runtime effects is sk_FragCoord.
                 switch (builtin) {
                     case SK_FRAGCOORD_BUILTIN:
                         SkASSERT(nslots == 4);
@@ -332,13 +349,19 @@ SkVMGenerator::SkVMGenerator(const Program& program,
                     default:
                         SkDEBUGFAIL("Unsupported builtin");
                 }
-            } else if (is_uniform(var)) {
-                // For uniforms, copy the supplied IDs over
+                continue;
+            }
+
+            // For uniforms, copy the supplied IDs over
+            if (is_uniform(var)) {
                 SkASSERT(uniformIter + nslots <= uniforms.end());
                 std::copy(uniformIter, uniformIter + nslots, fSlots.begin() + slot);
                 uniformIter += nslots;
-            } else if (decl.value()) {
-                // For other globals, populate with the initializer expression (if there is one)
+                continue;
+            }
+
+            // For other globals, populate with the initializer expression (if there is one)
+            if (decl.value()) {
                 Value val = this->writeExpression(*decl.value());
                 for (size_t i = 0; i < nslots; ++i) {
                     fSlots[slot + i] = val[i];
@@ -1619,9 +1642,9 @@ skvm::Color ProgramToSkVM(const Program& program,
     }
     SkASSERT(argSlots <= SK_ARRAY_COUNT(args));
 
-    SkVMGenerator generator(program, builder, uniforms, device, local, std::move(sampleShader),
+    SkVMGenerator generator(program, builder, local, std::move(sampleShader),
                             std::move(sampleColorFilter), std::move(sampleBlender));
-    generator.writeFunction(function, {args, argSlots}, SkMakeSpan(result));
+    generator.writeProgram(uniforms, device, function, {args, argSlots}, SkMakeSpan(result));
 
     return skvm::Color{{builder, result[0]},
                        {builder, result[1]},
@@ -1674,9 +1697,10 @@ bool ProgramToSkVM(const Program& program,
 
     skvm::F32 zero = b->splat(0.0f);
     skvm::Coord zeroCoord = {zero, zero};
-    SkVMGenerator generator(program, b, uniforms, /*device=*/zeroCoord, /*local=*/zeroCoord,
-                            sampleShader, sampleColorFilter, sampleBlender);
-    generator.writeFunction(function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
+    SkVMGenerator generator(program, b, /*local=*/zeroCoord, sampleShader, sampleColorFilter,
+                            sampleBlender);
+    generator.writeProgram(uniforms, /*device=*/zeroCoord,
+                           function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
     // If the SkSL tried to use any shader, colorFilter, or blender objects - we don't have a
     // mechanism (yet) for binding to those.
