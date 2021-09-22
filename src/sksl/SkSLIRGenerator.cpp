@@ -936,11 +936,6 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
     return this->convertIdentifier(identifier.fOffset, identifier.getStringView());
 }
 
-std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr,
-                                                const Type& type) {
-    return type.coerceExpression(std::move(expr), fContext);
-}
-
 std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& expression) {
     SkASSERT(expression.fKind == ASTNode::Kind::kBinary);
     auto iter = expression.begin();
@@ -1085,7 +1080,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             const Type* types[PARAMETER_MAX];
             f.getCallParameterTypes(types);
             for (int i = 0; i < count; ++i) {
-                arguments[i] = this->coerce(std::move(arguments[i]), *types[i]);
+                arguments[i] = types[i]->coerceExpression(std::move(arguments[i]), fContext);
                 if (!arguments[i]) {
                     return nullptr;
                 }

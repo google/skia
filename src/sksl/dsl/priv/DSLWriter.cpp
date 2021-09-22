@@ -164,7 +164,7 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Call(std::unique_ptr<SkSL::Expressi
 }
 
 DSLPossibleExpression DSLWriter::Coerce(std::unique_ptr<Expression> expr, const SkSL::Type& type) {
-    return IRGenerator().coerce(std::move(expr), type);
+    return type.coerceExpression(std::move(expr), Context());
 }
 
 DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type, SkSpan<DSLExpression> rawArgs) {

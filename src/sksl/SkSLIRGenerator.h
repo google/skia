@@ -190,7 +190,6 @@ private:
     const FunctionDeclaration* findBestFunctionForCall(
             const std::vector<const FunctionDeclaration*>& functions,
             const ExpressionArray& arguments) const;
-    std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     CoercionCost coercionCost(const Expression& expr, const Type& type);
     int convertArraySize(const Type& type, int offset, const ASTNode& s);
     bool containsConstantZero(Expression& expr);
