@@ -10,6 +10,7 @@
     "ASAN",
     "AbandonGpuContext",
     "Coverage",
+    "Graphite",
     "MSAN",
     "TSAN",
     "V1only",
