@@ -7,7 +7,9 @@
 
 #include "experimental/graphite/src/Surface_Graphite.h"
 
+#include "experimental/graphite/include/SkStuff.h"
 #include "experimental/graphite/src/Device.h"
+#include "experimental/graphite/src/Image_Graphite.h"
 
 namespace skgpu {
 
@@ -18,12 +20,17 @@ Surface_Graphite::Surface_Graphite(sk_sp<Device> device)
 
 Surface_Graphite::~Surface_Graphite() {}
 
-SkCanvas* Surface_Graphite::onNewCanvas() {
-    return nullptr;
+SkCanvas* Surface_Graphite::onNewCanvas() { return new SkCanvas(fDevice); }
+
+sk_sp<SkSurface> Surface_Graphite::onNewSurface(const SkImageInfo& ii) {
+    return MakeGraphite(ii);
 }
 
-sk_sp<SkSurface> Surface_Graphite::onNewSurface(const SkImageInfo&) {
-    return nullptr;
+sk_sp<SkImage> Surface_Graphite::onNewImageSnapshot(const SkIRect* subset) {
+    SkImageInfo ii = subset ? this->imageInfo().makeDimensions(subset->size())
+                            : this->imageInfo();
+
+    return sk_sp<Image_Graphite>(new Image_Graphite(ii));
 }
 
 void Surface_Graphite::onWritePixels(const SkPixmap&, int x, int y) {}

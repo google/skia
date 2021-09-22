@@ -2134,8 +2134,10 @@ Result GraphiteSink::draw(const Src& src,
     }
     surface->flushAndSubmit();
 
-    // TODO: add readback step
-    //this->readBack(surface.get(), dst);
+    dst->allocPixels(surface->imageInfo());
+    if (!surface->readPixels(*dst, 0, 0)) {
+        return Result::Fatal("Could not readback from surface.");
+    }
 
     return Result::Ok();
 }

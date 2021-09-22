@@ -129,6 +129,14 @@ static const struct {
     { "d3dmsaa4",              "gpu", "api=direct3d,samples=4" },
     { "d3dmsaa8",              "gpu", "api=direct3d,samples=8" },
 #endif
+
+#ifdef SK_GRAPHITE_ENABLED
+    { "grgl",                  "gpu", "api=gl,useGraphite=true" },
+#ifdef SK_METAL
+    { "grmtl",                 "gpu", "api=metal,useGraphite=true" },
+#endif
+#endif
+
 };
 // clang-format on
 
@@ -484,6 +492,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                bool                      useDDLSink,
                                                bool                      OOPRish,
                                                bool                      reducedShaders,
+                                               bool                      useGraphite,
                                                SurfType                  surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
@@ -498,6 +507,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
         , fUseDDLSink(useDDLSink)
         , fOOPRish(OOPRish)
         , fReducedShaders(reducedShaders)
+        , fUseGraphite(useGraphite)
         , fSurfType(surfType) {
     if (!useStencilBuffers) {
         fContextOverrides |= ContextOverrides::kAvoidStencilBuffers;
@@ -528,6 +538,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     bool                                ooprish             = false;
     bool                                reducedShaders      = false;
     bool                                fakeGLESVersion2    = false;
+    bool                                useGraphite         = false;
     SkCommandLineConfigGpu::SurfType    surfType = SkCommandLineConfigGpu::SurfType::kDefault;
 
     bool            parseSucceeded = false;
@@ -549,6 +560,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
             extendedOptions.get_option_bool("useDDLSink", &useDDLs) &&
             extendedOptions.get_option_bool("OOPRish", &ooprish) &&
             extendedOptions.get_option_bool("reducedShaders", &reducedShaders) &&
+            extendedOptions.get_option_bool("useGraphite", &useGraphite) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
     // testing threading and the persistent cache are mutually exclusive.
@@ -579,6 +591,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
                                       useDDLs,
                                       ooprish,
                                       reducedShaders,
+                                      useGraphite,
                                       surfType);
 }
 

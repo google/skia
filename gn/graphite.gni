@@ -17,6 +17,8 @@ skia_graphite_sources = [
   "$_src/Device.cpp",
   "$_src/Device.h",
   "$_src/DrawCommandList.h",
+  "$_src/Image_Graphite.cpp",
+  "$_src/Image_Graphite.h",
   "$_src/SDCTask.cpp",
   "$_src/SDCTask.h",
   "$_src/SkStuff.cpp",

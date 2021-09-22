@@ -944,7 +944,9 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
-            if (gpuConfig->getTestThreading()) {
+            if (gpuConfig->getUseGraphite()) {
+                return new GraphiteSink();
+            } else if (gpuConfig->getTestThreading()) {
                 SkASSERT(!gpuConfig->getTestPersistentCache());
                 return new GPUThreadTestingSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getTestPersistentCache()) {

@@ -42,6 +42,9 @@ protected:
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
     void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {}
 
+    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    bool onReadPixels(const SkPixmap&, int x, int y) override;
+
 private:
     Device(sk_sp<SurfaceDrawContext>);
 
