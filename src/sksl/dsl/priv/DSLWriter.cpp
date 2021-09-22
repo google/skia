@@ -29,46 +29,56 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
-                     const SkSL::ProgramSettings& settings, SkSL::ParsedModule module,
-                     bool isModule)
-    : fCompiler(compiler)
-    , fOldErrorReporter(*fCompiler->fContext->fErrors)
+DSLWriter::DSLWriter(SkSL::Context* context, SkSL::Compiler* compiler, SkSL::ProgramKind kind,
+                     const SkSL::ProgramSettings& settings,
+                     skstd::optional<SkSL::ParsedModule> module, bool isModule)
+    : fContext(context)
+    , fCompiler(compiler)
+    , fOldErrorReporter(*fContext->fErrors)
     , fSettings(settings)
     , fIsModule(isModule) {
-    fOldModifiersPool = fCompiler->fContext->fModifiersPool;
+    SkASSERT(fContext);
+    if (fCompiler) {
+        SkASSERT(fContext == fCompiler->fContext.get());
+    }
 
-    fOldConfig = fCompiler->fContext->fConfig;
+    fOldModifiersPool = fContext->fModifiersPool;
+
+    fOldConfig = fContext->fConfig;
 
     if (!isModule) {
-        if (compiler->context().fCaps.useNodePools() && settings.fDSLUseMemoryPool) {
+        if (fContext->fCaps.useNodePools() && settings.fDSLUseMemoryPool) {
             fPool = Pool::Create();
             fPool->attachToThread();
         }
         fModifiersPool = std::make_unique<SkSL::ModifiersPool>();
-        fCompiler->fContext->fModifiersPool = fModifiersPool.get();
+        fContext->fModifiersPool = fModifiersPool.get();
     }
 
     fConfig = std::make_unique<SkSL::ProgramConfig>();
     fConfig->fKind = kind;
     fConfig->fSettings = settings;
-    fCompiler->fContext->fConfig = fConfig.get();
+    fContext->fConfig = fConfig.get();
+    fContext->fErrors = &fDefaultErrorReporter;
 
-    fCompiler->fIRGenerator->start(module, isModule, &fProgramElements, &fSharedElements);
-    fCompiler->fContext->fErrors = &fDefaultErrorReporter;
+    if (compiler && module.has_value()) {
+        fCompiler->fIRGenerator->start(*module, isModule, &fProgramElements, &fSharedElements);
+    }
 }
 
 DSLWriter::~DSLWriter() {
     if (SymbolTable()) {
-        fCompiler->fIRGenerator->finish();
+        if (fCompiler) {
+            fCompiler->fIRGenerator->finish();
+        }
         fProgramElements.clear();
     } else {
         // We should only be here with a null symbol table if ReleaseProgram was called
         SkASSERT(fProgramElements.empty());
     }
-    fCompiler->fContext->fErrors = &fOldErrorReporter;
-    fCompiler->fContext->fConfig = fOldConfig;
-    fCompiler->fContext->fModifiersPool = fOldModifiersPool;
+    fContext->fErrors = &fOldErrorReporter;
+    fContext->fConfig = fOldConfig;
+    fContext->fModifiersPool = fOldModifiersPool;
     if (fPool) {
         fPool->detachFromThread();
     }
@@ -78,8 +88,8 @@ SkSL::IRGenerator& DSLWriter::IRGenerator() {
     return *Compiler().fIRGenerator;
 }
 
-const SkSL::Context& DSLWriter::Context() {
-    return Compiler().context();
+SkSL::Context& DSLWriter::Context() {
+    return *Instance().fContext;
 }
 
 SkSL::ProgramSettings& DSLWriter::Settings() {
@@ -94,7 +104,7 @@ void DSLWriter::Reset() {
     dsl::PopSymbolTable();
     dsl::PushSymbolTable();
     ProgramElements().clear();
-    Instance().fModifiersPool->clear();
+    GetModifiersPool()->clear();
 }
 
 const SkSL::Modifiers* DSLWriter::Modifiers(const SkSL::Modifiers& modifiers) {
@@ -226,7 +236,7 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
 
 void DSLWriter::SetErrorReporter(ErrorReporter* errorReporter) {
     SkASSERT(errorReporter);
-    Compiler().fContext->fErrors = errorReporter;
+    Context().fErrors = errorReporter;
 }
 
 void DSLWriter::ReportError(skstd::string_view msg, PositionInfo info) {

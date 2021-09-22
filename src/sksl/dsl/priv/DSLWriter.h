@@ -12,6 +12,7 @@
 #include "include/core/SkStringView.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
+#include "include/private/SkTOptional.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLStatement.h"
 #include "src/sksl/SkSLMangler.h"
@@ -49,8 +50,9 @@ class DSLVar;
  */
 class DSLWriter {
 public:
-    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
-              const SkSL::ProgramSettings& settings, SkSL::ParsedModule module, bool isModule);
+    DSLWriter(SkSL::Context* context, SkSL::Compiler* compiler, SkSL::ProgramKind kind,
+              const SkSL::ProgramSettings& settings, skstd::optional<SkSL::ParsedModule> module,
+              bool isModule);
 
     ~DSLWriter();
 
@@ -63,7 +65,9 @@ public:
      * Returns the Compiler used by DSL operations in the current thread.
      */
     static SkSL::Compiler& Compiler() {
-        return *Instance().fCompiler;
+        SkSL::Compiler* compiler = Instance().fCompiler;
+        SkASSERT(compiler);
+        return *compiler;
     }
 
     /**
@@ -74,7 +78,7 @@ public:
     /**
      * Returns the Context used by DSL operations in the current thread.
      */
-    static const SkSL::Context& Context();
+    static SkSL::Context& Context();
 
     /**
      * Returns the Settings used by DSL operations in the current thread.
@@ -293,6 +297,7 @@ private:
 
     std::unique_ptr<SkSL::ProgramConfig> fConfig;
     std::unique_ptr<SkSL::ModifiersPool> fModifiersPool;
+    SkSL::Context* fContext;
     SkSL::Compiler* fCompiler;
     std::unique_ptr<Pool> fPool;
     SkSL::ProgramConfig* fOldConfig;

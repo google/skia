@@ -44,6 +44,9 @@ void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind = SkSL::ProgramKind:
 
 void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind, const SkSL::ProgramSettings& settings);
 
+/** Allows lightweight DSL use, but no declaring variables or making function calls. */
+void Start(SkSL::Context* context, ProgramKind kind, const ProgramSettings& settings);
+
 /**
  * Signals the end of DSL output. This must be called sometime between a call to Start() and the
  * termination of the thread.
