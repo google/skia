@@ -100,6 +100,69 @@ DEF_BENCH(return new SkottieDecodeBench("skottie_medium", //  10947
                                         "skottie/skottie-sphere-effect.json"));
 DEF_BENCH(return new SkottieDecodeBench("skottie_small",  //   1112
                                         "skottie/skottie_sample_multiframe.json"));
+// Created from PhoneHub assets SVG source, with https://lottiefiles.com/svg-to-lottie
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_connecting.json",    // 216x216
+                                        "skottie/skottie-phonehub-connecting.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_generic_error.json", // 216x217
+                                        "skottie/skottie-phonehub-generic-error.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_onboard.json",       // 217x217
+                                        "skottie/skottie-phonehub-onboard.json"));
+// Created from PhoneHub assets SVG source, with https://jakearchibald.github.io/svgomg/ and then
+// https://lottiefiles.com/svg-to-lottie
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_connecting.json",
+                                        "skottie/skottie-phonehub-svgo-connecting.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_generic_error.json",
+                                        "skottie/skottie-phonehub-svgo-generic-error.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_onboard.json",
+                                        "skottie/skottie-phonehub-svgo-onboard.json"));
+// Created from PhoneHub assets SVG source:
+// 1. Manually edited to have no masks (but look the same as the original)
+// 2. https://jakearchibald.github.io/svgomg/
+// 3. https://lottiefiles.com/svg-to-lottie
+// Note: The Generic Error asset is excluded here because it has no masks in the first place.
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_no_masks_connecting.json",
+                                        "skottie/skottie-phonehub-svgo-no-masks-connecting.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_no_masks_onboard.json",
+                                        "skottie/skottie-phonehub-svgo-no-masks-onboard.json"));
+// Created from PhoneHub assets SVG source:
+// 1. Manually edited to use only the most basic functionality of SVG (but look the same as the
+//    original)
+// 2. https://jakearchibald.github.io/svgomg/
+// 3. https://lottiefiles.com/svg-to-lottie
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_no_frills_connecting.json",
+                                        "skottie/skottie-phonehub-svgo-no-frills-connecting.json"));
+DEF_BENCH(return new SkottieDecodeBench(
+        "skottie_phonehub_svgo_no_frills_generic_error.json",
+        "skottie/skottie-phonehub-svgo-no-frills-generic-error.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_no_frills_onboard.json",
+                                        "skottie/skottie-phonehub-svgo-no-frills-onboard.json"));
+// All of the above PhoneHub benchmarks, with https://skia-review.googlesource.com/c/skia/+/141265
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_connecting_min.json",
+                                        "skottie/skottie-phonehub-connecting_min.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_generic_error_min.json",
+                                        "skottie/skottie-phonehub-generic-error_min.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_onboard_min.json",
+                                        "skottie/skottie-phonehub-onboard_min.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_connecting_min.json",
+                                        "skottie/skottie-phonehub-svgo-connecting_min.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_generic_error_min.json",
+                                        "skottie/skottie-phonehub-svgo-generic-error_min.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_onboard_min.json",
+                                        "skottie/skottie-phonehub-svgo-onboard_min.json"));
+DEF_BENCH(return new SkottieDecodeBench(
+        "skottie_phonehub_svgo_no_masks_connecting_min.json",
+        "skottie/skottie-phonehub-svgo-no-masks-connecting_min.json"));
+DEF_BENCH(return new SkottieDecodeBench("skottie_phonehub_svgo_no_masks_onboard_min.json",
+                                        "skottie/skottie-phonehub-svgo-no-masks-onboard_min.json"));
+DEF_BENCH(return new SkottieDecodeBench(
+        "skottie_phonehub_svgo_no_frills_connecting_min.json",
+        "skottie/skottie-phonehub-svgo-no-frills-connecting_min.json"));
+DEF_BENCH(return new SkottieDecodeBench(
+        "skottie_phonehub_svgo_no_frills_generic_error_min.json",
+        "skottie/skottie-phonehub-svgo-no-frills-generic-error_min.json"));
+DEF_BENCH(
+        return new SkottieDecodeBench("skottie_phonehub_svgo_no_frills_onboard_min.json",
+                                      "skottie/skottie-phonehub-svgo-no-frills-onboard_min.json"));
 
 DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_large",
                                                "skottie/skottie-text-scale-to-fit-minmax.json"));
@@ -107,7 +170,66 @@ DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_medium",
                                                "skottie/skottie-sphere-effect.json"));
 DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_small",
                                                "skottie/skottie_sample_multiframe.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_connecting.json",
+                                               "skottie/skottie-phonehub-connecting.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_generic_error.json",
+                                               "skottie/skottie-phonehub-generic-error.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_onboard.json",
+                                               "skottie/skottie-phonehub-onboard.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_svgo_connecting.json",
+                                               "skottie/skottie-phonehub-svgo-connecting.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_svgo_generic_error.json",
+                                               "skottie/skottie-phonehub-svgo-generic-error.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_svgo_onboard.json",
+                                               "skottie/skottie-phonehub-svgo-onboard.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_masks_connecting.json",
+        "skottie/skottie-phonehub-svgo-no-masks-connecting.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_masks_onboard.json",
+        "skottie/skottie-phonehub-svgo-no-masks-onboard.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_frills_connecting.json",
+        "skottie/skottie-phonehub-svgo-no-frills-connecting.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_frills_generic_error.json",
+        "skottie/skottie-phonehub-svgo-no-frills-generic-error.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_frills_onboard.json",
+        "skottie/skottie-phonehub-svgo-no-frills-onboard.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_connecting_min.json",
+                                               "skottie/skottie-phonehub-connecting_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_generic_error_min.json",
+                                               "skottie/skottie-phonehub-generic-error_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_onboard_min.json",
+                                               "skottie/skottie-phonehub-onboard_min.json"));
+DEF_BENCH(
+        return new SkottiePictureDecodeBench("skottiepic_phonehub_svgo_connecting_min.json",
+                                             "skottie/skottie-phonehub-svgo-connecting_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_generic_error_min.json",
+        "skottie/skottie-phonehub-svgo-generic-error_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_phonehub_svgo_onboard_min.json",
+                                               "skottie/skottie-phonehub-svgo-onboard_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_masks_connecting_min.json",
+        "skottie/skottie-phonehub-svgo-no-masks-connecting_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_masks_onboard_min.json",
+        "skottie/skottie-phonehub-svgo-no-masks-onboard_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_frills_connecting_min.json",
+        "skottie/skottie-phonehub-svgo-no-frills-connecting_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_frills_generic_error_min.json",
+        "skottie/skottie-phonehub-svgo-no-frills-generic-error_min.json"));
+DEF_BENCH(return new SkottiePictureDecodeBench(
+        "skottiepic_phonehub_svgo_no_frills_onboard_min.json",
+        "skottie/skottie-phonehub-svgo-no-frills-onboard_min.json"));
 
-DEF_BENCH(return new BitmapDecodeBench("png_large" , "images/mandrill_1600.png"));// 1600x1600
-DEF_BENCH(return new BitmapDecodeBench("png_medium", "images/mandrill_512.png")); //  512x 512
-DEF_BENCH(return new BitmapDecodeBench("png_small" , "images/mandrill_32.png"));  //   32x  32
+DEF_BENCH(return new BitmapDecodeBench("png_large"    /*1600x1600*/, "images/mandrill_1600.png"));
+DEF_BENCH(return new BitmapDecodeBench("png_medium"   /* 512x 512*/, "images/mandrill_512.png"));
+DEF_BENCH(return new BitmapDecodeBench("png_small"    /*  32x  32*/, "images/mandrill_32.png"));
+DEF_BENCH(return new BitmapDecodeBench("png_phonehub_connecting"   , "images/Connecting.png"));
+DEF_BENCH(return new BitmapDecodeBench("png_phonehub_generic_error", "images/Generic_Error.png"));
+DEF_BENCH(return new BitmapDecodeBench("png_phonehub_onboard"      , "images/Onboard.png"));
