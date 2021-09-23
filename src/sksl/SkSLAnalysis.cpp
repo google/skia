@@ -724,8 +724,6 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                     break;
 
                 case Statement::Kind::kDo:
-                case Statement::Kind::kSwitch:
-                case Statement::Kind::kSwitchCase:
                     SkDEBUGFAIL("encountered a statement that shouldn't exist in an ES2 program");
                     break;
 

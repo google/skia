@@ -560,6 +560,9 @@ sksl_rte_tests = [
   "/sksl/runtime/PrecisionQualifiers.rts",
   "/sksl/runtime/SampleWithExplicitCoord.rts",
   "/sksl/runtime/Switch.rts",
+  "/sksl/runtime/SwitchDefaultOnly.rts",
+  "/sksl/runtime/SwitchWithFallthrough.rts",
+  "/sksl/runtime/SwitchWithLoops.rts",
   "/sksl/runtime/VectorIndexing.rts",
 ]
 

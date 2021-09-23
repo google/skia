@@ -213,9 +213,11 @@ private:
     void writeForStatement(const ForStatement& f);
     void writeIfStatement(const IfStatement& stmt);
     void writeReturnStatement(const ReturnStatement& r);
+    void writeSwitchStatement(const SwitchStatement& s);
     void writeVarDeclaration(const VarDeclaration& decl);
 
     Value writeStore(const Expression& lhs, const Value& rhs);
+    void  writeStore(SkSpan<size_t> slots, const Value& rhs);
 
     Value writeMatrixInverse2x2(const Value& m);
     Value writeMatrixInverse3x3(const Value& m);
@@ -343,7 +345,7 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
                         fSlots[slot + 3] = fBuilder->splat(1.0f).id;
                         break;
                     default:
-                        SkDEBUGFAIL("Unsupported builtin");
+                        SkDEBUGFAILF("Unsupported builtin %d", builtin);
                 }
                 continue;
             }
@@ -1456,14 +1458,25 @@ Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
     // When we get here, 'slots' are all relative to the first slot holding 'var's storage
     const Variable& var = *expr->as<VariableReference>().variable();
     size_t varSlot = this->getSlot(var);
+    for (size_t& slot : slots) {
+        SkASSERT(slot < var.type().slotCount());
+        slot += varSlot;
+    }
+
+    // `slots` are now absolute indices into `fSlots`.
+    this->writeStore(SkMakeSpan(slots), rhs);
+    return rhs;
+}
+
+void SkVMGenerator::writeStore(SkSpan<size_t> slots, const Value& rhs) {
+    SkASSERT(rhs.slots() == slots.size());
+
     skvm::I32 mask = this->mask();
     for (size_t i = rhs.slots(); i --> 0;) {
-        SkASSERT(slots[i] < var.type().slotCount());
-        skvm::F32 curr = f32(fSlots[varSlot + slots[i]]),
+        skvm::F32 curr = f32(fSlots[slots[i]]),
                   next = f32(rhs[i]);
-        fSlots[varSlot + slots[i]] = select(mask, next, curr).id;
+        fSlots[slots[i]] = select(mask, next, curr).id;
     }
-    return rhs;
 }
 
 void SkVMGenerator::writeBlock(const Block& b) {
@@ -1542,6 +1555,47 @@ void SkVMGenerator::writeReturnStatement(const ReturnStatement& r) {
     currentFunction().fReturned |= returnsHere;
 }
 
+void SkVMGenerator::writeSwitchStatement(const SwitchStatement& s) {
+    skvm::Val falseValue = fBuilder->splat( 0).id;
+    skvm::Val trueValue  = fBuilder->splat(~0).id;
+
+    // Create a new slot for the "switchFallthough" scratch variable, initialized to false.
+    size_t switchFallthroughSlot = fSlots.size();
+    fSlots.push_back(falseValue);
+
+    // Loop masks behave just like for statements. When a break is encountered, it masks off all
+    // lanes for the rest of the body of the switch.
+    skvm::I32 oldLoopMask       = fLoopMask;
+    Value switchValue           = this->writeExpression(*s.value());
+
+    for (const std::unique_ptr<Statement>& stmt : s.cases()) {
+        const SwitchCase& c = stmt->as<SwitchCase>();
+        if (c.value()) {
+            Value caseValue = this->writeExpression(*c.value());
+
+            // We want to execute this switch case if we're falling through from a previous case, or
+            // if the case value matches.
+            Value switchFallthroughValue(1);
+            switchFallthroughValue[0] = fSlots[switchFallthroughSlot];
+
+            Value condition = i32(switchFallthroughValue) | (i32(caseValue) == i32(switchValue));
+            ScopedCondition conditionalCaseBlock(this, i32(condition));
+            this->writeStatement(*c.statement());
+
+            // We always set the fallthrough flag after a case block (`break` still works to stop
+            // the flow of execution regardless).
+            this->writeStore(SkMakeSpan(&switchFallthroughSlot, 1), i32(trueValue));
+        } else {
+            // This is the default case. Since it's always last, we can just dump in the code.
+            this->writeStatement(*c.statement());
+        }
+    }
+
+    // Restore state.
+    fLoopMask = oldLoopMask;
+    fSlots.pop_back();
+}
+
 void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
     size_t slot   = this->getSlot(decl.var()),
            nslots = decl.var().type().slotCount();
@@ -1575,12 +1629,14 @@ void SkVMGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
+        case Statement::Kind::kSwitch:
+            this->writeSwitchStatement(s.as<SwitchStatement>());
+            break;
         case Statement::Kind::kVarDeclaration:
             this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
         case Statement::Kind::kDiscard:
         case Statement::Kind::kDo:
-        case Statement::Kind::kSwitch:
             SkDEBUGFAIL("Unsupported control flow");
             break;
         case Statement::Kind::kInlineMarker:

@@ -1,0 +1,9 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+half4 main(float2 coords)
+{
+	switch (int(colorGreen.y)) 
+	{
+		default:return half4(colorGreen);
+	}
+}

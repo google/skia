@@ -1,0 +1,51 @@
+16 registers, 49 instructions:
+0	r0 = uniform32 ptr0 4
+1	r1 = uniform32 ptr0 8
+2	r2 = uniform32 ptr0 C
+3	r3 = uniform32 ptr0 10
+4	r4 = uniform32 ptr0 14
+5	r5 = uniform32 ptr0 18
+6	r6 = uniform32 ptr0 1C
+7	r7 = uniform32 ptr0 20
+8	r8 = splat 0 (0)
+9	r9 = splat FFFFFFFF (nan)
+10	r10 = trunc r1
+11	r11 = splat 2 (2.8025969e-45)
+12	r11 = eq_i32 r11 r10
+13	r12 = bit_xor r9 r11
+14	r13 = bit_and r11 r12
+15	r14 = splat 1 (1.4012985e-45)
+16	r14 = eq_i32 r14 r10
+17	r15 = bit_or r13 r14
+18	r15 = bit_and r15 r12
+19	r13 = select r15 r9 r13
+20	r8 = eq_i32 r8 r10
+21	r13 = bit_or r13 r8
+22	r12 = bit_and r13 r12
+23	r8 = bit_and r12 r8
+24	r13 = bit_xor r9 r8
+25	r8 = bit_and r8 r13
+26	r14 = bit_or r8 r14
+27	r14 = bit_and r12 r14
+28	r14 = bit_and r14 r13
+29	r8 = select r14 r9 r8
+30	r11 = bit_or r8 r11
+31	r11 = bit_and r12 r11
+32	r11 = bit_and r11 r13
+33	r8 = select r11 r9 r8
+34	r9 = splat 3 (4.2038954e-45)
+35	r10 = eq_i32 r9 r10
+36	r10 = bit_or r8 r10
+37	r10 = bit_and r12 r10
+38	r13 = bit_and r10 r13
+39	r13 = bit_and r13 r12
+40	r13 = bit_and r12 r13
+41	r4 = select r13 r0 r4
+42	r5 = select r13 r1 r5
+43	r6 = select r13 r2 r6
+44	r7 = select r13 r3 r7
+loop:
+45	    store32 ptr1 r4
+46	    store32 ptr2 r5
+47	    store32 ptr3 r6
+48	    store32 ptr4 r7

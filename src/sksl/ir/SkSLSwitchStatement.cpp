@@ -172,10 +172,6 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
                                                     StatementArray caseStatements,
                                                     std::shared_ptr<SymbolTable> symbolTable) {
     SkASSERT(caseValues.size() == caseStatements.size());
-    if (context.fConfig->strictES2Mode()) {
-        context.fErrors->error(offset, "switch statements are not supported");
-        return nullptr;
-    }
 
     value = context.fTypes.fInt->coerceExpression(std::move(value), context);
     if (!value) {

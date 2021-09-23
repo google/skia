@@ -1354,6 +1354,11 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
 }
 
 void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
+    if (fProgram.fConfig->strictES2Mode()) {
+        // TODO(skia:12450): write switch compatibility code
+        fContext.fErrors->error(s.fOffset, "switch statements are not supported");
+    }
+
     this->write("switch (");
     this->writeExpression(*s.value(), Precedence::kTopLevel);
     this->writeLine(") {");
