@@ -1,8 +1,10 @@
 uniform half4 colorRed;
 uniform half4 colorGreen;
+const int kZero_0 = 0;
+const int kTen_0 = 10;
 int return_loop_0()
 {
-	for (int i = 0;i < 10; ++i) 
+	for (int i = kZero_0;i < 10; ++i) 
 	{
 		if (i == 5) 
 		{
@@ -14,7 +16,7 @@ int return_loop_0()
 int continue_loop_0()
 {
 	int sum = 0;
-	for (int i = 0;i < 10; ++i) 
+	for (int i = 0;i < kTen_0; ++i) 
 	{
 		if (i < 5) 
 		{
@@ -27,7 +29,8 @@ int continue_loop_0()
 int break_loop_0()
 {
 	int sum = 0;
-	for (int i = 0;i < 10; ++i) 
+	const int kOne = 1;
+	for (int i = 0;i < 10; i += kOne) 
 	{
 		if (i > 5) 
 		{

@@ -1,17 +1,19 @@
 uniform half4 colorRed, colorGreen;
 
 // Should return 5
+const float kZero = 0;
 float return_loop() {
-    for (float i = 0; i < 10; ++i) {
+    for (float i = kZero; i < 10; ++i) {
         if (i == 5) { return i; }
     }
     return 0;
 }
 
 // Should return 35
+const float kTen = kZero + 10;
 float continue_loop() {
     float sum = 0;
-    for (float i = 0; i < 10; ++i) {
+    for (float i = 0; i < kTen; ++i) {
         if (i < 5) { continue; }
         sum += i;
     }
@@ -21,7 +23,8 @@ float continue_loop() {
 // Should return 15
 float break_loop() {
     float sum = 0;
-    for (float i = 0; i < 10; ++i) {
+    const float kOne = 1;
+    for (float i = 0; i < 10; i += kOne) {
         if (i > 5) { break; }
         sum += i;
     }

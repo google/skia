@@ -15,6 +15,7 @@
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -1009,19 +1010,6 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
     }
 }
 
-static bool get_constant_value(const Expression& expr, double* val) {
-    const Expression* valExpr = expr.getConstantSubexpression(0);
-    if (!valExpr) {
-        return false;
-    }
-    if (valExpr->is<Literal>()) {
-        *val = valExpr->as<Literal>().value();
-        return true;
-    }
-    SkDEBUGFAILF("unexpected constant type (%s)", expr.type().description().c_str());
-    return false;
-}
-
 static const char* invalid_for_ES2(int offset,
                                    const Statement* loopInitializer,
                                    const Expression* loopTest,
@@ -1047,7 +1035,7 @@ static const char* invalid_for_ES2(int offset,
     if (!initDecl.value()) {
         return "missing loop index initializer";
     }
-    if (!get_constant_value(*initDecl.value(), &loopInfo.fStart)) {
+    if (!ConstantFolder::GetConstantValue(*initDecl.value(), &loopInfo.fStart)) {
         return "loop index initializer must be a constant expression";
     }
 
@@ -1084,7 +1072,7 @@ static const char* invalid_for_ES2(int offset,
             return "invalid relational operator";
     }
     double loopEnd = 0;
-    if (!get_constant_value(*cond.right(), &loopEnd)) {
+    if (!ConstantFolder::GetConstantValue(*cond.right(), &loopEnd)) {
         return "loop index must be compared with a constant expression";
     }
 
@@ -1106,7 +1094,7 @@ static const char* invalid_for_ES2(int offset,
             if (!is_loop_index(next.left())) {
                 return "expected loop index in loop expression";
             }
-            if (!get_constant_value(*next.right(), &loopInfo.fDelta)) {
+            if (!ConstantFolder::GetConstantValue(*next.right(), &loopInfo.fDelta)) {
                 return "loop index must be modified by a constant expression";
             }
             switch (next.getOperator().kind()) {

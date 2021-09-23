@@ -145,6 +145,15 @@ bool ConstantFolder::GetConstantInt(const Expression& value, SKSL_INT* out) {
     return true;
 }
 
+bool ConstantFolder::GetConstantValue(const Expression& value, double* out) {
+    const Expression* expr = GetConstantValueForVariable(value);
+    if (!expr->is<Literal>()) {
+        return false;
+    }
+    *out = expr->as<Literal>().value();
+    return true;
+}
+
 static bool is_constant_scalar_value(const Expression& inExpr, double match) {
     const Expression* expr = ConstantFolder::GetConstantValueForVariable(inExpr);
     return (expr->is<Literal>() && expr->as<Literal>().value() == match);
