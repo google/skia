@@ -4285,8 +4285,7 @@ GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
     } else if (auto rt = static_cast<const GrGLRenderTarget*>(surface->asRenderTarget())) {
         // glReadPixels does not allow reading back from a MSAA framebuffer. If the underlying
         // GrSurface doesn't have a second FBO to resolve to then we must make a copy.
-        if (rt->numSamples() > 1 &&
-            rt->singleSampleFBOID() == GrGLRenderTarget::kUnresolvableFBOID) {
+        if (rt->numSamples() > 1 && !rt->asTexture()) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
     }
