@@ -1465,7 +1465,7 @@ Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
 
     // `slots` are now absolute indices into `fSlots`.
     skvm::I32 mask = this->mask();
-    for (size_t i = rhs.slots(); i --> 0;) {
+    for (size_t i = 0; i < rhs.slots(); ++i) {
         skvm::Val& slotVal = fSlots[slots[i]];
         slotVal = this->writeConditionalStore(slotVal, rhs[i], mask);
     }
