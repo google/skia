@@ -280,9 +280,9 @@ func (b *taskBuilder) cipdPlatform() string {
 		return cipd.PlatformMacAmd64
 	} else if b.matchArch("Arm64") {
 		return cipd.PlatformLinuxArm64
-	} else if b.matchOs("Android") {
+	} else if b.matchOs("Android", "ChromeOS") {
 		return cipd.PlatformLinuxArm64
-	} else if b.matchOs("ChromeOS", "iOS") {
+	} else if b.matchOs("iOS") {
 		return cipd.PlatformLinuxArmv6l
 	} else {
 		return cipd.PlatformLinuxAmd64

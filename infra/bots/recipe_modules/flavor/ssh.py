@@ -24,7 +24,7 @@ class SSHFlavor(default.DefaultFlavor):
   @property
   def user_ip(self):
     if not self._user_ip:
-      path = self.m.path.expanduser('~')+'/ssh_machine.json'
+      path = '/tmp/ssh_machine.json'
       ssh_info = self.m.file.read_json('read ssh_machine.json', path,
                                        test_data={'user_ip':'foo@127.0.0.1'})
       self._user_ip = ssh_info.get(u'user_ip')

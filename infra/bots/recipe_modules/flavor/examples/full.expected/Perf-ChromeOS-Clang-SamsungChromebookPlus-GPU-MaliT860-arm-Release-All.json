@@ -7,7 +7,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[HOME]/ssh_machine.json",
+      "/tmp/ssh_machine.json",
       "/path/to/tmp/"
     ],
     "infra_step": true,
