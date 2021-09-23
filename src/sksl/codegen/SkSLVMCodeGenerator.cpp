@@ -1556,12 +1556,12 @@ void SkVMGenerator::writeReturnStatement(const ReturnStatement& r) {
 }
 
 void SkVMGenerator::writeSwitchStatement(const SwitchStatement& s) {
-    skvm::Val falseValue = fBuilder->splat( 0).id;
-    skvm::Val trueValue  = fBuilder->splat(~0).id;
+    skvm::I32 falseValue = fBuilder->splat( 0);
+    skvm::I32 trueValue  = fBuilder->splat(~0);
 
     // Create a new slot for the "switchFallthough" scratch variable, initialized to false.
     size_t switchFallthroughSlot = fSlots.size();
-    fSlots.push_back(falseValue);
+    fSlots.push_back(falseValue.id);
 
     // Loop masks behave just like for statements. When a break is encountered, it masks off all
     // lanes for the rest of the body of the switch.
@@ -1575,16 +1575,14 @@ void SkVMGenerator::writeSwitchStatement(const SwitchStatement& s) {
 
             // We want to execute this switch case if we're falling through from a previous case, or
             // if the case value matches.
-            Value switchFallthroughValue(1);
-            switchFallthroughValue[0] = fSlots[switchFallthroughSlot];
-
-            Value condition = i32(switchFallthroughValue) | (i32(caseValue) == i32(switchValue));
-            ScopedCondition conditionalCaseBlock(this, i32(condition));
+            ScopedCondition conditionalCaseBlock(
+                    this,
+                    i32(fSlots[switchFallthroughSlot]) | (i32(caseValue) == i32(switchValue)));
             this->writeStatement(*c.statement());
 
             // We always set the fallthrough flag after a case block (`break` still works to stop
             // the flow of execution regardless).
-            this->writeStore(SkMakeSpan(&switchFallthroughSlot, 1), i32(trueValue));
+            this->writeStore(SkMakeSpan(&switchFallthroughSlot, 1), trueValue);
         } else {
             // This is the default case. Since it's always last, we can just dump in the code.
             this->writeStatement(*c.statement());
