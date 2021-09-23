@@ -89,7 +89,7 @@ void Parser::InitLayoutMap() {
 
 Parser::Parser(skstd::string_view text, SymbolTable& symbols, ErrorReporter& errors)
 : fText(text)
-, fPushback(Token::Kind::TK_NONE, -1, -1)
+, fPushback(Token::Kind::TK_NONE, /*offset=*/-1, /*length=*/-1, /*line=*/-1)
 , fSymbols(symbols)
 , fErrors(&errors) {
     fLexer.start(text);
@@ -119,7 +119,7 @@ void Parser::createEmptyChild(ASTNode::ID target) {
 std::unique_ptr<ASTFile> Parser::compilationUnit() {
     fFile = std::make_unique<ASTFile>();
     fFile->fNodes.reserve(fText.size() / 10);  // a typical program is approx 10:1 for chars:nodes
-    ASTNode::ID result = this->createNode(/*offset=*/0, ASTNode::Kind::kFile);
+    ASTNode::ID result = this->createNode(/*offset=*/1, ASTNode::Kind::kFile);
     fFile->fRoot = result;
     for (;;) {
         switch (this->peek().fKind) {

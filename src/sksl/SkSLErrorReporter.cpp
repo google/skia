@@ -21,30 +21,16 @@ void ErrorReporter::error(skstd::string_view msg, PositionInfo position) {
     this->handleError(msg, position);
 }
 
-void ErrorReporter::error(int offset, skstd::string_view msg) {
+void ErrorReporter::error(int line, skstd::string_view msg) {
     if (msg.contains(Compiler::POISON_TAG)) {
         // don't report errors on poison values
         return;
     }
-    if (offset == -1) {
+    if (line == -1) {
         ++fErrorCount;
         fPendingErrors.push_back(String(msg));
     } else {
-        this->error(msg, this->position(offset));
-    }
-}
-
-PositionInfo ErrorReporter::position(int offset) const {
-    if (fSource && offset >= 0) {
-        int line = 1;
-        for (int i = 0; i < offset; i++) {
-            if (fSource[i] == '\n') {
-                ++line;
-            }
-        }
-        return PositionInfo(/*file=*/nullptr, line);
-    } else {
-        return PositionInfo();
+        this->error(msg, PositionInfo(/*file=*/nullptr, line));
     }
 }
 

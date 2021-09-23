@@ -301,7 +301,7 @@ private:
 
         Parser* fParser;
         Token fPushbackCheckpoint;
-        int32_t fLexerCheckpoint;
+        Lexer::Checkpoint fLexerCheckpoint;
         ForwardingErrorReporter fErrorReporter;
         ErrorReporter* fOldErrorReporter;
         bool fDone = false;
