@@ -1,9 +1,9 @@
 package org.skia.androidkit;
 
-public class ToyFont {
+public class Font {
     private long mNativeInstance;
 
-    public ToyFont(String fontFamily, float size) {
+    public Font(String fontFamily, float size) {
         mNativeInstance = nCreate(fontFamily, size);
     }
 
