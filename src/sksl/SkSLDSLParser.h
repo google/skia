@@ -325,7 +325,7 @@ private:
 
         DSLParser* fParser;
         Token fPushbackCheckpoint;
-        SkSL::Lexer::Checkpoint fLexerCheckpoint;
+        int32_t fLexerCheckpoint;
         ForwardingErrorReporter fErrorReporter;
         ErrorReporter* fOldErrorReporter;
         bool fOldEncounteredFatalError;

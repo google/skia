@@ -35,21 +35,40 @@ public:
     static PositionInfo Capture() { return PositionInfo(); }
 #endif // __has_builtin(__builtin_FILE) && __has_builtin(__builtin_LINE)
 
+    static PositionInfo Offset(const char* file, const char* text, int offset) {
+        PositionInfo result(file, -1);
+        result.fText = text;
+        result.fOffset = offset;
+        return result;
+    }
+
     const char* file_name() const {
         return fFile;
     }
 
     int line() {
+        if (fLine == -1) {
+            if (fOffset == -1 || !fText) {
+                return -1;
+            }
+            fLine = 1;
+            for (int i = 0; i < fOffset; i++) {
+                if (fText[i] == '\n') {
+                    ++fLine;
+                }
+            }
+        }
         return fLine;
     }
 
-    // Temporary method until we finish replacing offset with line
     int offset() {
-        return fLine;
+        return fOffset;
     }
 
 private:
     const char* fFile = nullptr;
+    const char* fText = nullptr;
+    int32_t fOffset = -1;
     int32_t fLine = -1;
 };
 

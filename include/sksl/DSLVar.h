@@ -60,57 +60,57 @@ public:
     virtual VariableStorage storage() const = 0;
 
     DSLExpression x() {
-        return DSLExpression(*this, PositionInfo()).x();
+        return DSLExpression(*this).x();
     }
 
     DSLExpression y() {
-        return DSLExpression(*this, PositionInfo()).y();
+        return DSLExpression(*this).y();
     }
 
     DSLExpression z() {
-        return DSLExpression(*this, PositionInfo()).z();
+        return DSLExpression(*this).z();
     }
 
     DSLExpression w() {
-        return DSLExpression(*this, PositionInfo()).w();
+        return DSLExpression(*this).w();
     }
 
     DSLExpression r() {
-        return DSLExpression(*this, PositionInfo()).r();
+        return DSLExpression(*this).r();
     }
 
     DSLExpression g() {
-        return DSLExpression(*this, PositionInfo()).g();
+        return DSLExpression(*this).g();
     }
 
     DSLExpression b() {
-        return DSLExpression(*this, PositionInfo()).b();
+        return DSLExpression(*this).b();
     }
 
     DSLExpression a() {
-        return DSLExpression(*this, PositionInfo()).a();
+        return DSLExpression(*this).a();
     }
 
     DSLExpression field(skstd::string_view name) {
-        return DSLExpression(*this, PositionInfo()).field(name);
+        return DSLExpression(*this).field(name);
     }
 
     DSLPossibleExpression operator[](DSLExpression&& index);
 
     DSLPossibleExpression operator++() {
-        return ++DSLExpression(*this, PositionInfo());
+        return ++DSLExpression(*this);
     }
 
     DSLPossibleExpression operator++(int) {
-        return DSLExpression(*this, PositionInfo())++;
+        return DSLExpression(*this)++;
     }
 
     DSLPossibleExpression operator--() {
-        return --DSLExpression(*this, PositionInfo());
+        return --DSLExpression(*this);
     }
 
     DSLPossibleExpression operator--(int) {
-        return DSLExpression(*this, PositionInfo())--;
+        return DSLExpression(*this)--;
     }
 
 protected:

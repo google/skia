@@ -3554,7 +3554,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     // Make sure we have a main() function.
     if (!main) {
-        fContext.fErrors->error(/*offset=*/-1, "program does not contain a main() function");
+        fContext.fErrors->error(/*offset=*/0, "program does not contain a main() function");
         return;
     }
     // Emit interface blocks.

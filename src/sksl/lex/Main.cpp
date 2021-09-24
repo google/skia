@@ -51,18 +51,19 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
     out << R"(
     };
 
-    )" << token << "() {}";
+    )" << token << R"(()
+    : fKind(Kind::TK_NONE)
+    , fOffset(-1)
+    , fLength(-1) {}
 
-    out << token << R"((Kind kind, int32_t offset, int32_t length, int32_t line)
+    )" << token << R"((Kind kind, int32_t offset, int32_t length)
     : fKind(kind)
     , fOffset(offset)
-    , fLength(length)
-    , fLine(line) {}
+    , fLength(length) {}
 
-    Kind fKind      = Kind::TK_NONE;
-    int32_t fOffset = -1;
-    int32_t fLength = -1;
-    int32_t fLine   = -1;
+    Kind fKind;
+    int fOffset;
+    int fLength;
 };
 
 class )" << lexer << R"( {
@@ -70,29 +71,21 @@ public:
     void start(skstd::string_view text) {
         fText = text;
         fOffset = 0;
-        fLine = 1;
     }
 
     )" << token << R"( next();
 
-    struct Checkpoint {
-        int32_t fOffset;
-        int32_t fLine;
-    };
-
-    Checkpoint getCheckpoint() const {
-        return {fOffset, fLine};
+    int32_t getCheckpoint() const {
+        return fOffset;
     }
 
-    void rewindToCheckpoint(Checkpoint checkpoint) {
-        fOffset = checkpoint.fOffset;
-        fLine = checkpoint.fLine;
+    void rewindToCheckpoint(int32_t checkpoint) {
+        fOffset = checkpoint;
     }
 
 private:
     skstd::string_view fText;
     int32_t fOffset;
-    int32_t fLine;
 };
 
 } // namespace
@@ -161,13 +154,13 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     // a bit.
     int32_t startOffset = fOffset;
     if (startOffset == (int32_t)fText.length()) {
-        return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0, fLine);
+        return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0);
     }
     State state = 1;
     for (;;) {
         if (fOffset >= (int32_t)fText.length()) {
             if (kAccepts[state] == -1) {
-                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0, fLine);
+                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
             }
             break;
         }
@@ -181,12 +174,9 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
         }
         state = newState;
         ++fOffset;
-        if (c == '\n') {
-            ++fLine;
-        }
     }
     Token::Kind kind = ()" << token << R"(::Kind) kAccepts[state];
-    return )" << token << R"((kind, startOffset, fOffset - startOffset, fLine);
+    return )" << token << R"((kind, startOffset, fOffset - startOffset);
 }
 
 } // namespace

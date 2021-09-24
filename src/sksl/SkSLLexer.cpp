@@ -844,13 +844,13 @@ Token Lexer::next() {
     // a bit.
     int32_t startOffset = fOffset;
     if (startOffset == (int32_t)fText.length()) {
-        return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0, fLine);
+        return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
     }
     State state = 1;
     for (;;) {
         if (fOffset >= (int32_t)fText.length()) {
             if (kAccepts[state] == -1) {
-                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0, fLine);
+                return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
             }
             break;
         }
@@ -864,12 +864,9 @@ Token Lexer::next() {
         }
         state = newState;
         ++fOffset;
-        if (c == '\n') {
-            ++fLine;
-        }
     }
     Token::Kind kind = (Token::Kind)kAccepts[state];
-    return Token(kind, startOffset, fOffset - startOffset, fLine);
+    return Token(kind, startOffset, fOffset - startOffset);
 }
 
 }  // namespace SkSL

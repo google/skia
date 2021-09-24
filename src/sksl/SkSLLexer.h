@@ -106,14 +106,14 @@ struct Token {
         TK_NONE,
     };
 
-    Token() {}
-    Token(Kind kind, int32_t offset, int32_t length, int32_t line)
-            : fKind(kind), fOffset(offset), fLength(length), fLine(line) {}
+    Token() : fKind(Kind::TK_NONE), fOffset(-1), fLength(-1) {}
 
-    Kind fKind = Kind::TK_NONE;
-    int32_t fOffset = -1;
-    int32_t fLength = -1;
-    int32_t fLine = -1;
+    Token(Kind kind, int32_t offset, int32_t length)
+            : fKind(kind), fOffset(offset), fLength(length) {}
+
+    Kind fKind;
+    int fOffset;
+    int fLength;
 };
 
 class Lexer {
@@ -121,27 +121,17 @@ public:
     void start(skstd::string_view text) {
         fText = text;
         fOffset = 0;
-        fLine = 1;
     }
 
     Token next();
 
-    struct Checkpoint {
-        int32_t fOffset;
-        int32_t fLine;
-    };
+    int32_t getCheckpoint() const { return fOffset; }
 
-    Checkpoint getCheckpoint() const { return {fOffset, fLine}; }
-
-    void rewindToCheckpoint(Checkpoint checkpoint) {
-        fOffset = checkpoint.fOffset;
-        fLine = checkpoint.fLine;
-    }
+    void rewindToCheckpoint(int32_t checkpoint) { fOffset = checkpoint; }
 
 private:
     skstd::string_view fText;
     int32_t fOffset;
-    int32_t fLine;
 };
 
 }  // namespace SkSL

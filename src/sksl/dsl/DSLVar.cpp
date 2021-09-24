@@ -158,12 +158,12 @@ VariableStorage DSLParameter::storage() const {
 
 
 DSLPossibleExpression DSLVarBase::operator[](DSLExpression&& index) {
-    return DSLExpression(*this, PositionInfo())[std::move(index)];
+    return DSLExpression(*this)[std::move(index)];
 }
 
 DSLPossibleExpression DSLVarBase::assign(DSLExpression expr) {
-    return DSLWriter::ConvertBinary(DSLExpression(*this, PositionInfo()).release(),
-            SkSL::Token::Kind::TK_EQ, expr.release());
+    return DSLWriter::ConvertBinary(DSLExpression(*this).release(), SkSL::Token::Kind::TK_EQ,
+                                    expr.release());
 }
 
 DSLPossibleExpression DSLVar::operator=(DSLExpression expr) {
@@ -184,7 +184,7 @@ std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(skstd::string_view me
         DSLWriter::ReportError("type does not support method calls", pos);
         return nullptr;
     }
-    return DSLWriter::ConvertField(DSLExpression(*this, PositionInfo()).release(), methodName);
+    return DSLWriter::ConvertField(DSLExpression(*this).release(), methodName);
 }
 
 DSLPossibleExpression DSLGlobalVar::eval(DSLExpression x, PositionInfo pos) {
