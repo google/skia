@@ -176,10 +176,6 @@ sksl_glsl_tests = [
   "/sksl/glsl/UsesPrecisionModifiers.sksl",
   "/sksl/glsl/Version110.sksl",
   "/sksl/glsl/Version450Core.sksl",
-  "/sksl/runtime/Switch.rts",
-  "/sksl/runtime/SwitchDefaultOnly.rts",
-  "/sksl/runtime/SwitchWithFallthrough.rts",
-  "/sksl/runtime/SwitchWithLoops.rts",
 ]
 
 sksl_metal_tests = [
