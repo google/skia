@@ -32,10 +32,10 @@ public:
     static constexpr Kind kExpressionKind = Kind::kMethodReference;
 
     MethodReference(const Context& context,
-                    int line,
+                    int offset,
                     std::unique_ptr<Expression> self,
                     std::vector<const FunctionDeclaration*> functions)
-            : INHERITED(line, kExpressionKind, context.fTypes.fInvalid.get())
+            : INHERITED(offset, kExpressionKind, context.fTypes.fInvalid.get())
             , fSelf(std::move(self))
             , fFunctions(std::move(functions)) {}
 
@@ -48,7 +48,7 @@ public:
 
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new MethodReference(
-                fLine, this->self()->clone(), this->functions(), &this->type()));
+                fOffset, this->self()->clone(), this->functions(), &this->type()));
     }
 
     String description() const override {
@@ -56,11 +56,11 @@ public:
     }
 
 private:
-    MethodReference(int line,
+    MethodReference(int offset,
                     std::unique_ptr<Expression> self,
                     std::vector<const FunctionDeclaration*> functions,
                     const Type* type)
-            : INHERITED(line, kExpressionKind, type)
+            : INHERITED(offset, kExpressionKind, type)
             , fSelf(std::move(self))
             , fFunctions(std::move(functions)) {}
 

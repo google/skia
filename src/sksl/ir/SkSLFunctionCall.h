@@ -21,22 +21,22 @@ class FunctionCall final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kFunctionCall;
 
-    FunctionCall(int line, const Type* type, const FunctionDeclaration* function,
+    FunctionCall(int offset, const Type* type, const FunctionDeclaration* function,
                  ExpressionArray arguments)
-        : INHERITED(line, kExpressionKind, type)
+        : INHERITED(offset, kExpressionKind, type)
         , fFunction(*function)
         , fArguments(std::move(arguments)) {}
 
     // Resolves generic types, performs type conversion on arguments, determines return type, and
     // reports errors via the ErrorReporter.
     static std::unique_ptr<Expression> Convert(const Context& context,
-                                               int line,
+                                               int offset,
                                                const FunctionDeclaration& function,
                                                ExpressionArray arguments);
 
     // Creates the function call; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
-                                            int line,
+                                            int offset,
                                             const Type* returnType,
                                             const FunctionDeclaration& function,
                                             ExpressionArray arguments);

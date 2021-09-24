@@ -29,19 +29,19 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
                     std::vector<const FunctionDeclaration*> f = {
                             &result->as<FunctionDeclaration>()};
                     return std::make_unique<MethodReference>(
-                            context, base->fLine, std::move(base), f);
+                            context, base->fOffset, std::move(base), f);
                 }
                 case Symbol::Kind::kUnresolvedFunction: {
                     const UnresolvedFunction& f = result->as<UnresolvedFunction>();
                     return std::make_unique<MethodReference>(
-                            context, base->fLine, std::move(base), f.functions());
+                            context, base->fOffset, std::move(base), f.functions());
                 }
                 default:
                     break;
             }
         }
         context.fErrors->error(
-                base->fLine,
+                base->fOffset,
                 "type '" + baseType.displayName() + "' has no method named '" + field + "'");
         return nullptr;
     }
@@ -54,10 +54,10 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
         }
     }
     if (baseType == *context.fTypes.fSkCaps) {
-        return Setting::Convert(context, base->fLine, field);
+        return Setting::Convert(context, base->fOffset, field);
     }
 
-    context.fErrors->error(base->fLine, "type '" + baseType.displayName() +
+    context.fErrors->error(base->fOffset, "type '" + baseType.displayName() +
                                           "' does not have a field named '" + field + "'");
     return nullptr;
 }

@@ -48,12 +48,13 @@ public:
     IRNode(const IRNode&) = delete;
     IRNode& operator=(const IRNode&) = delete;
 
-    // line of this element within the program being compiled, for error reporting purposes
-    int fLine;
+    // character offset of this element within the program being compiled, for error reporting
+    // purposes
+    int fOffset;
 
 protected:
-    IRNode(int line, int kind)
-        : fLine(line)
+    IRNode(int offset, int kind)
+        : fOffset(offset)
         , fKind(kind) {}
 
     int fKind;

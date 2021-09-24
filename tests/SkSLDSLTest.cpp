@@ -1249,14 +1249,14 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {
-        DSLExpression sqrt(DSLWriter::IRGenerator().convertIdentifier(/*line=*/-1, "sqrt"));
+        DSLExpression sqrt(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "sqrt"));
         SkTArray<DSLWrapper<DSLExpression>> args;
         args.emplace_back(16);
         EXPECT_EQUAL(sqrt(std::move(args)), "4.0");  // sqrt(16) gets optimized to 4
     }
 
     {
-        DSLExpression pow(DSLWriter::IRGenerator().convertIdentifier(/*line=*/-1, "pow"));
+        DSLExpression pow(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "pow"));
         DSLVar a(kFloat_Type, "a");
         DSLVar b(kFloat_Type, "b");
         SkTArray<DSLWrapper<DSLExpression>> args;

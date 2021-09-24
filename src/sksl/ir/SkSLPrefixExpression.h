@@ -26,7 +26,7 @@ public:
 
     // Use PrefixExpression::Make to automatically simplify various prefix expression types.
     PrefixExpression(Operator op, std::unique_ptr<Expression> operand)
-        : INHERITED(operand->fLine, kExpressionKind, &operand->type())
+        : INHERITED(operand->fOffset, kExpressionKind, &operand->type())
         , fOperator(op)
         , fOperand(std::move(operand)) {}
 

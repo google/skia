@@ -447,7 +447,7 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
         const Type::Field& field = type.fields()[i];
         if (!MemoryLayout::LayoutIsSupported(*field.fType)) {
-            fContext.fErrors->error(type.fLine, "type '" + field.fType->name() +
+            fContext.fErrors->error(type.fOffset, "type '" + field.fType->name() +
                                     "' is not permitted here");
             return;
         }
@@ -456,12 +456,12 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         const Layout& fieldLayout = field.fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
             if (fieldLayout.fOffset < (int) offset) {
-                fContext.fErrors->error(type.fLine,
+                fContext.fErrors->error(type.fOffset,
                                         "offset of field '" + field.fName + "' must be at "
                                         "least " + to_string((int) offset));
             }
             if (fieldLayout.fOffset % alignment) {
-                fContext.fErrors->error(type.fLine,
+                fContext.fErrors->error(type.fOffset,
                                         "offset of field '" + field.fName + "' must be a multiple"
                                         " of " + to_string((int) alignment));
             }
@@ -590,13 +590,13 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 break;
             case Type::TypeKind::kArray: {
                 if (!MemoryLayout::LayoutIsSupported(*type)) {
-                    fContext.fErrors->error(type->fLine,
+                    fContext.fErrors->error(type->fOffset,
                                             "type '" + type->name() + "' is not permitted here");
                     return this->nextId(nullptr);
                 }
                 if (type->columns() > 0) {
                     SpvId typeId = this->getType(type->componentType(), layout);
-                    Literal countLiteral(/*line=*/-1, type->columns(),
+                    Literal countLiteral(/*offset=*/-1, type->columns(),
                                          fContext.fTypes.fInt.get());
                     SpvId countId = this->writeLiteral(countLiteral);
                     this->writeInstruction(SpvOpTypeArray, result, typeId, countId,
@@ -606,7 +606,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                            fDecorationBuffer);
                 } else {
                     // We shouldn't have any runtime-sized arrays right now
-                    fContext.fErrors->error(type->fLine,
+                    fContext.fErrors->error(type->fOffset,
                                             "runtime-sized arrays are not supported in SPIR-V");
                     this->writeInstruction(SpvOpTypeRuntimeArray, result,
                                            this->getType(type->componentType(), layout),
@@ -789,7 +789,8 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
     const FunctionDeclaration& function = c.function();
     auto intrinsic = fIntrinsicMap.find(function.intrinsicKind());
     if (intrinsic == fIntrinsicMap.end()) {
-        fContext.fErrors->error(c.fLine, "unsupported intrinsic '" + function.description() + "'");
+        fContext.fErrors->error(c.fOffset, "unsupported intrinsic '" + function.description() +
+                                           "'");
         return -1;
     }
     int32_t intrinsicId;
@@ -875,8 +876,8 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
         case kSpecial_IntrinsicOpcodeKind:
             return this->writeSpecialIntrinsic(c, (SpecialIntrinsic) intrinsicId, out);
         default:
-            fContext.fErrors->error(c.fLine, "unsupported intrinsic '" + function.description() +
-                                             "'");
+            fContext.fErrors->error(c.fOffset, "unsupported intrinsic '" + function.description() +
+                                               "'");
             return -1;
     }
 }
@@ -983,9 +984,9 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SpvId img = this->writeExpression(*arguments[0], out);
             ExpressionArray args;
             args.reserve_back(2);
-            args.push_back(Literal::MakeInt(fContext, /*line=*/-1, /*value=*/0));
-            args.push_back(Literal::MakeInt(fContext, /*line=*/-1, /*value=*/0));
-            ConstructorCompound ctor(/*line=*/-1, *fContext.fTypes.fInt2, std::move(args));
+            args.push_back(Literal::MakeInt(fContext, /*offset=*/-1, /*value=*/0));
+            args.push_back(Literal::MakeInt(fContext, /*offset=*/-1, /*value=*/0));
+            ConstructorCompound ctor(/*offset=*/-1, *fContext.fTypes.fInt2, std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (arguments.size() == 1) {
                 this->writeInstruction(SpvOpImageRead,
@@ -1050,7 +1051,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             } else {
                 SkASSERT(arguments.size() == 2);
                 if (fProgram.fConfig->fSettings.fSharpenTextures) {
-                    Literal lodBias(/*line=*/-1, /*value=*/-0.5, fContext.fTypes.fFloat.get());
+                    Literal lodBias(/*offset=*/-1, /*value=*/-0.5, fContext.fTypes.fFloat.get());
                     this->writeInstruction(op, type, result, sampler, uv,
                                            SpvImageOperandsBiasMask,
                                            this->writeLiteral(lodBias),
@@ -1090,9 +1091,9 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             this->writeWord(this->getType(callType), out);
             this->writeWord(result, out);
             this->writeWord(fn, out);
-            this->addRTFlipUniform(c.fLine);
+            this->addRTFlipUniform(c.fOffset);
             using namespace dsl;
-            DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*line=*/-1,
+            DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
                                                                             SKSL_RTFLIP_NAME));
             SpvId rtFlipY = this->vectorize(*rtFlip.y().release(), callType.columns(), out);
             SpvId flipped = this->nextId(&callType);
@@ -1143,8 +1144,8 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             ExpressionArray finalArgs;
             finalArgs.reserve_back(3);
             finalArgs.push_back(arguments[0]->clone());
-            finalArgs.push_back(Literal::MakeFloat(fContext, /*line=*/-1, /*value=*/0));
-            finalArgs.push_back(Literal::MakeFloat(fContext, /*line=*/-1, /*value=*/1));
+            finalArgs.push_back(Literal::MakeFloat(fContext, /*offset=*/-1, /*value=*/0));
+            finalArgs.push_back(Literal::MakeFloat(fContext, /*offset=*/-1, /*value=*/1));
             std::vector<SpvId> spvArgs = this->vectorize(finalArgs, out);
             this->writeGLSLExtendedInstruction(callType, result, GLSLstd450FClamp, GLSLstd450SClamp,
                                                GLSLstd450UClamp, spvArgs, out);
@@ -1231,8 +1232,8 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     const ExpressionArray& arguments = c.arguments();
     const auto& entry = fFunctionMap.find(&function);
     if (entry == fFunctionMap.end()) {
-        fContext.fErrors->error(c.fLine, "function '" + function.description() +
-                                         "' is not defined");
+        fContext.fErrors->error(c.fOffset, "function '" + function.description() +
+                                           "' is not defined");
         return -1;
     }
     // Temp variables are used to write back out-parameters after the function call is complete.
@@ -1332,9 +1333,9 @@ SpvId SPIRVCodeGenerator::castScalarToFloat(SpvId inputId, const Type& inputType
     SpvId result = this->nextId(&outputType);
     if (inputType.isBoolean()) {
         // Use OpSelect to convert the boolean argument to a literal 1.0 or 0.0.
-        Literal     one(/*line=*/-1, /*value=*/1, fContext.fTypes.fFloat.get());
+        Literal     one(/*offset=*/-1, /*value=*/1, fContext.fTypes.fFloat.get());
         const SpvId oneID = this->writeLiteral(one);
-        Literal     zero(/*line=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
+        Literal     zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
         const SpvId zeroID = this->writeLiteral(zero);
         this->writeInstruction(SpvOpSelect, this->getType(outputType), result,
                                inputId, oneID, zeroID, out);
@@ -1368,9 +1369,9 @@ SpvId SPIRVCodeGenerator::castScalarToSignedInt(SpvId inputId, const Type& input
     SpvId result = this->nextId(&outputType);
     if (inputType.isBoolean()) {
         // Use OpSelect to convert the boolean argument to a literal 1 or 0.
-        Literal     one(/*line=*/-1, /*value=*/1, fContext.fTypes.fInt.get());
+        Literal     one(/*offset=*/-1, /*value=*/1, fContext.fTypes.fInt.get());
         const SpvId oneID = this->writeLiteral(one);
-        Literal     zero(/*line=*/-1, /*value=*/0, fContext.fTypes.fInt.get());
+        Literal     zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fInt.get());
         const SpvId zeroID = this->writeLiteral(zero);
         this->writeInstruction(SpvOpSelect, this->getType(outputType), result,
                                inputId, oneID, zeroID, out);
@@ -1405,9 +1406,9 @@ SpvId SPIRVCodeGenerator::castScalarToUnsignedInt(SpvId inputId, const Type& inp
     SpvId result = this->nextId(&outputType);
     if (inputType.isBoolean()) {
         // Use OpSelect to convert the boolean argument to a literal 1u or 0u.
-        Literal     one(/*line=*/-1, /*value=*/1, fContext.fTypes.fUInt.get());
+        Literal     one(/*offset=*/-1, /*value=*/1, fContext.fTypes.fUInt.get());
         const SpvId oneID = this->writeLiteral(one);
-        Literal     zero(/*line=*/-1, /*value=*/0, fContext.fTypes.fUInt.get());
+        Literal     zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fUInt.get());
         const SpvId zeroID = this->writeLiteral(zero);
         this->writeInstruction(SpvOpSelect, this->getType(outputType), result,
                                inputId, oneID, zeroID, out);
@@ -1442,19 +1443,19 @@ SpvId SPIRVCodeGenerator::castScalarToBoolean(SpvId inputId, const Type& inputTy
     SpvId result = this->nextId(nullptr);
     if (inputType.isSigned()) {
         // Synthesize a boolean result by comparing the input against a signed zero literal.
-        Literal     zero(/*line=*/-1, /*value=*/0, fContext.fTypes.fInt.get());
+        Literal     zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fInt.get());
         const SpvId zeroID = this->writeLiteral(zero);
         this->writeInstruction(SpvOpINotEqual, this->getType(outputType), result,
                                inputId, zeroID, out);
     } else if (inputType.isUnsigned()) {
         // Synthesize a boolean result by comparing the input against an unsigned zero literal.
-        Literal     zero(/*line=*/-1, /*value=*/0, fContext.fTypes.fUInt.get());
+        Literal     zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fUInt.get());
         const SpvId zeroID = this->writeLiteral(zero);
         this->writeInstruction(SpvOpINotEqual, this->getType(outputType), result,
                                inputId, zeroID, out);
     } else if (inputType.isFloat()) {
         // Synthesize a boolean result by comparing the input against a floating-point zero literal.
-        Literal     zero(/*line=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
+        Literal     zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
         const SpvId zeroID = this->writeLiteral(zero);
         this->writeInstruction(SpvOpFUnordNotEqual, this->getType(outputType), result,
                                inputId, zeroID, out);
@@ -1467,7 +1468,7 @@ SpvId SPIRVCodeGenerator::castScalarToBoolean(SpvId inputId, const Type& inputTy
 
 void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type,
                                                  OutputStream& out) {
-    Literal zero(/*line=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
+    Literal zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
     SpvId zeroId = this->writeLiteral(zero);
     std::vector<SpvId> columnIds;
     columnIds.reserve(type.columns());
@@ -1506,9 +1507,9 @@ SpvId SPIRVCodeGenerator::writeMatrixCopy(SpvId src, const Type& srcType, const 
                                                                            dstType.rows(),
                                                                            1));
     SkASSERT(dstType.componentType().isFloat());
-    Literal     zero(/*line=*/-1, /*value=*/0.0, &dstType.componentType());
+    Literal     zero(/*offset=*/-1, /*value=*/0.0, &dstType.componentType());
     const SpvId zeroId = this->writeLiteral(zero);
-    Literal     one(/*line=*/-1, /*value=*/1.0, &dstType.componentType());
+    Literal     one(/*offset=*/-1, /*value=*/1.0, &dstType.componentType());
     const SpvId oneId = this->writeLiteral(one);
 
     SpvId columns[4];
@@ -1863,7 +1864,7 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& fieldExpr = expr.as<FieldAccess>();
             chain = this->getAccessChain(*fieldExpr.base(), out);
-            Literal index(/*line=*/-1, fieldExpr.fieldIndex(), fContext.fTypes.fInt.get());
+            Literal index(/*offset=*/-1, fieldExpr.fieldIndex(), fContext.fTypes.fInt.get());
             chain.push_back(this->writeLiteral(index));
             break;
         }
@@ -2012,7 +2013,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             const Variable& var = *expr.as<VariableReference>().variable();
             int uniformIdx = this->findUniformFieldIndex(var);
             if (uniformIdx >= 0) {
-                Literal uniformIdxLiteral{/*line=*/-1, (double)uniformIdx,
+                Literal uniformIdxLiteral{/*offset=*/-1, (double)uniformIdx,
                                           fContext.fTypes.fInt.get()};
                 SpvId memberId = this->nextId(nullptr);
                 SpvId typeId = this->getPointerType(type, SpvStorageClassUniform);
@@ -2051,12 +2052,12 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             }
             SpvId base = lvalue->getPointer();
             if (base == (SpvId) -1) {
-                fContext.fErrors->error(swizzle.fLine, "unable to retrieve lvalue from swizzle");
+                fContext.fErrors->error(swizzle.fOffset, "unable to retrieve lvalue from swizzle");
             }
             if (swizzle.components().size() == 1) {
                 SpvId member = this->nextId(nullptr);
                 SpvId typeId = this->getPointerType(type, get_storage_class(*swizzle.base()));
-                Literal index(/*line=*/-1, swizzle.components()[0], fContext.fTypes.fInt.get());
+                Literal index(/*offset=*/-1, swizzle.components()[0], fContext.fTypes.fInt.get());
                 SpvId indexId = this->writeLiteral(index);
                 this->writeInstruction(SpvOpAccessChain, typeId, member, base, indexId, out);
                 return std::make_unique<PointerLValue>(*this,
@@ -2104,7 +2105,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 
     // Handle inserting use of uniform to flip y when referencing sk_FragCoord.
     if (variable->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
-        this->addRTFlipUniform(ref.fLine);
+        this->addRTFlipUniform(ref.fOffset);
         // Use sk_RTAdjust to compute the flipped coordinate
         using namespace dsl;
         const char* DEVICE_COORDS_NAME = "__device_FragCoords";
@@ -2112,13 +2113,13 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         // Use a uniform to flip the Y coordinate. The new expression will be written in
         // terms of __device_FragCoords, which is a fake variable that means "access the
         // underlying fragcoords directly without flipping it".
-        DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*line=*/-1,
+        DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
                                                                         SKSL_RTFLIP_NAME));
         if (!symbols[DEVICE_COORDS_NAME]) {
             AutoAttachPoolToThread attach(fProgram.fPool.get());
             Modifiers modifiers;
             modifiers.fLayout.fBuiltin = DEVICE_FRAGCOORDS_BUILTIN;
-            auto coordsVar = std::make_unique<Variable>(/*line=*/-1,
+            auto coordsVar = std::make_unique<Variable>(/*offset=*/-1,
                                                         fContext.fModifiersPool->add(modifiers),
                                                         DEVICE_COORDS_NAME,
                                                         fContext.fTypes.fFloat4.get(),
@@ -2140,20 +2141,20 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 
     // Handle flipping sk_Clockwise.
     if (variable->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN) {
-        this->addRTFlipUniform(ref.fLine);
+        this->addRTFlipUniform(ref.fOffset);
         using namespace dsl;
         const char* DEVICE_CLOCKWISE_NAME = "__device_Clockwise";
         SymbolTable& symbols = *dsl::DSLWriter::SymbolTable();
         // Use a uniform to flip the Y coordinate. The new expression will be written in
         // terms of __device_Clockwise, which is a fake variable that means "access the
         // underlying FrontFacing directly".
-        DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*line=*/-1,
+        DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
                                                                         SKSL_RTFLIP_NAME));
         if (!symbols[DEVICE_CLOCKWISE_NAME]) {
             AutoAttachPoolToThread attach(fProgram.fPool.get());
             Modifiers modifiers;
             modifiers.fLayout.fBuiltin = DEVICE_CLOCKWISE_BUILTIN;
-            auto clockwiseVar = std::make_unique<Variable>(/*line=*/-1,
+            auto clockwiseVar = std::make_unique<Variable>(/*offset=*/-1,
                                                            fContext.fModifiersPool->add(modifiers),
                                                            DEVICE_CLOCKWISE_NAME,
                                                            fContext.fTypes.fBool.get(),
@@ -2224,7 +2225,7 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
     } else if (is_bool(fContext, operandType)) {
         this->writeInstruction(ifBool, this->getType(resultType), result, lhs, rhs, out);
     } else {
-        fContext.fErrors->error(operandType.fLine,
+        fContext.fErrors->error(operandType.fOffset,
                 "unsupported operand for binary expression: " + operandType.description());
     }
     return result;
@@ -2296,12 +2297,12 @@ SpvId SPIRVCodeGenerator::writeComponentwiseMatrixBinary(const Type& operandType
 
 static std::unique_ptr<Expression> create_literal_1(const Context& context, const Type& type) {
     SkASSERT(type.isInteger() || type.isFloat());
-    return Literal::Make(/*line=*/-1, /*value=*/1.0, &type);
+    return Literal::Make(/*offset=*/-1, /*value=*/1.0, &type);
 }
 
 SpvId SPIRVCodeGenerator::writeReciprocal(const Type& type, SpvId value, OutputStream& out) {
     SkASSERT(type.isFloat());
-    SpvId one = this->writeLiteral({/*line=*/-1, /*value=*/1, &type});
+    SpvId one = this->writeLiteral({/*offset=*/-1, /*value=*/1, &type});
     SpvId reciprocal = this->nextId(&type);
     this->writeInstruction(SpvOpFDiv, this->getType(type), reciprocal, one, value, out);
     return reciprocal;
@@ -2435,7 +2436,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                    resultType, out);
             }
         } else {
-            fContext.fErrors->error(leftType.fLine, "unsupported mixed-type expression");
+            fContext.fErrors->error(leftType.fOffset, "unsupported mixed-type expression");
             return -1;
         }
     } else {
@@ -2706,7 +2707,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         // This converts `expr / 2` into `expr * 0.5`
         // This improves codegen, especially for certain types of divides (e.g. vector/scalar).
         op = Operator(Token::Kind::TK_STAR);
-        Literal reciprocal{right->fLine, 1.0f / rhsValue, &right->type()};
+        Literal reciprocal{right->fOffset, 1.0f / rhsValue, &right->type()};
         rhs = this->writeExpression(reciprocal, out);
     } else {
         // Write the right-hand side expression normally.
@@ -2723,7 +2724,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 
 SpvId SPIRVCodeGenerator::writeLogicalAnd(const Expression& left, const Expression& right,
                                           OutputStream& out) {
-    Literal falseLiteral(/*line=*/-1, /*value=*/false, fContext.fTypes.fBool.get());
+    Literal falseLiteral(/*offset=*/-1, /*value=*/false, fContext.fTypes.fBool.get());
     SpvId falseConstant = this->writeLiteral(falseLiteral);
     SpvId lhs = this->writeExpression(left, out);
     SpvId rhsLabel = this->nextId(nullptr);
@@ -2744,7 +2745,7 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const Expression& left, const Expressi
 
 SpvId SPIRVCodeGenerator::writeLogicalOr(const Expression& left, const Expression& right,
                                          OutputStream& out) {
-    Literal trueLiteral(/*line=*/-1, /*value=*/true, fContext.fTypes.fBool.get());
+    Literal trueLiteral(/*offset=*/-1, /*value=*/true, fContext.fTypes.fBool.get());
     SpvId trueConstant = this->writeLiteral(trueLiteral);
     SpvId lhs = this->writeExpression(left, out);
     SpvId rhsLabel = this->nextId(nullptr);
@@ -3017,7 +3018,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     const Variable& intfVar = intf.variable();
     const Type& type = intfVar.type();
     if (!MemoryLayout::LayoutIsSupported(type)) {
-        fContext.fErrors->error(type.fLine, "type '" + type.name() + "' is not permitted here");
+        fContext.fErrors->error(type.fOffset, "type '" + type.name() + "' is not permitted here");
         return this->nextId(nullptr);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
@@ -3041,16 +3042,16 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         {
             AutoAttachPoolToThread attach(fProgram.fPool.get());
             const Type* rtFlipStructType = fProgram.fSymbols->takeOwnershipOfSymbol(
-                    Type::MakeStructType(type.fLine, type.name(), std::move(fields)));
+                    Type::MakeStructType(type.fOffset, type.name(), std::move(fields)));
             const Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
-                    std::make_unique<Variable>(intfVar.fLine,
+                    std::make_unique<Variable>(intfVar.fOffset,
                                                &intfVar.modifiers(),
                                                intfVar.name(),
                                                rtFlipStructType,
                                                intfVar.isBuiltin(),
                                                intfVar.storage()));
             fSPIRVBonusVariables.insert(modifiedVar);
-            InterfaceBlock modifiedCopy(intf.fLine,
+            InterfaceBlock modifiedCopy(intf.fOffset,
                                         *modifiedVar,
                                         intf.typeName(),
                                         intf.instanceName(),
@@ -3058,7 +3059,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                         intf.typeOwner());
             result = this->writeInterfaceBlock(modifiedCopy, false);
             fProgram.fSymbols->add(std::make_unique<Field>(
-                    /*line=*/-1, modifiedVar, rtFlipStructType->fields().size() - 1));
+                    /*offset=*/-1, modifiedVar, rtFlipStructType->fields().size() - 1));
         }
         fVariableMap[&intfVar] = result;
         fWroteRTFlip = true;
@@ -3373,30 +3374,30 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     const Symbol* skFragColorSymbol = (*symbolTable)["sk_FragColor"];
     SkASSERT(skFragColorSymbol);
     const Variable& skFragColorVar = skFragColorSymbol->as<Variable>();
-    auto skFragColorRef = std::make_unique<VariableReference>(/*line=*/-1, &skFragColorVar,
+    auto skFragColorRef = std::make_unique<VariableReference>(/*offset=*/-1, &skFragColorVar,
                                                               VariableReference::RefKind::kWrite);
     // Synthesize a call to the `main()` function.
     if (main.returnType() != skFragColorRef->type()) {
-        fContext.fErrors->error(main.fLine, "SPIR-V does not support returning '" +
-                                            main.returnType().description() + "' from main()");
+        fContext.fErrors->error(main.fOffset, "SPIR-V does not support returning '" +
+                                              main.returnType().description() + "' from main()");
         return {};
     }
     ExpressionArray args;
     if (main.parameters().size() == 1) {
         if (main.parameters()[0]->type() != *fContext.fTypes.fFloat2) {
-            fContext.fErrors->error(main.fLine,
+            fContext.fErrors->error(main.fOffset,
                     "SPIR-V does not support parameter of type '" +
                     main.parameters()[0]->type().description() + "' to main()");
             return {};
         }
         args.push_back(dsl::Float2(0).release());
     }
-    auto callMainFn = std::make_unique<FunctionCall>(/*line=*/-1, &main.returnType(), &main,
+    auto callMainFn = std::make_unique<FunctionCall>(/*offset=*/-1, &main.returnType(), &main,
                                                      std::move(args));
 
     // Synthesize `skFragColor = main()` as a BinaryExpression.
     auto assignmentStmt = std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
-            /*line=*/-1,
+            /*offset=*/-1,
             std::move(skFragColorRef),
             Token::Kind::TK_EQ,
             std::move(callMainFn),
@@ -3405,14 +3406,14 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     // Function bodies are always wrapped in a Block.
     StatementArray entrypointStmts;
     entrypointStmts.push_back(std::move(assignmentStmt));
-    auto entrypointBlock = Block::Make(/*line=*/-1, std::move(entrypointStmts),
+    auto entrypointBlock = Block::Make(/*offset=*/-1, std::move(entrypointStmts),
                                        symbolTable, /*isScope=*/true);
     // Declare an entrypoint function.
     EntrypointAdapter adapter;
     adapter.fLayout = {};
     adapter.fModifiers = Modifiers{adapter.fLayout, Modifiers::kHasSideEffects_Flag};
     adapter.entrypointDecl =
-            std::make_unique<FunctionDeclaration>(/*line=*/-1,
+            std::make_unique<FunctionDeclaration>(/*offset=*/-1,
                                                   &adapter.fModifiers,
                                                   "_entrypoint",
                                                   /*parameters=*/std::vector<const Variable*>{},
@@ -3420,7 +3421,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
                                                   /*builtin=*/false);
     // Define it.
     adapter.entrypointDef = FunctionDefinition::Convert(fContext,
-                                                        /*line=*/-1,
+                                                        /*offset=*/-1,
                                                         *adapter.entrypointDecl,
                                                         std::move(entrypointBlock),
                                                         /*builtin=*/false);
@@ -3443,7 +3444,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
         fTopLevelUniformMap[var] = (int)fields.size();
         fields.emplace_back(var->modifiers(), var->name(), &var->type());
     }
-    fUniformBuffer.fStruct = Type::MakeStructType(/*line=*/-1, kUniformBufferName,
+    fUniformBuffer.fStruct = Type::MakeStructType(/*offset=*/-1, kUniformBufferName,
                                                  std::move(fields));
 
     // Create a global variable to contain this struct.
@@ -3453,7 +3454,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     Modifiers modifiers{layout, Modifiers::kUniform_Flag};
 
     fUniformBuffer.fInnerVariable = std::make_unique<Variable>(
-            /*line=*/-1, fProgram.fModifiers->add(modifiers), kUniformBufferName,
+            /*offset=*/-1, fProgram.fModifiers->add(modifiers), kUniformBufferName,
             fUniformBuffer.fStruct.get(), /*builtin=*/false, Variable::Storage::kGlobal);
 
     // Create an interface block object for this global variable.
@@ -3465,7 +3466,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     fUniformBufferId = this->writeInterfaceBlock(*fUniformBuffer.fInterfaceBlock);
 }
 
-void SPIRVCodeGenerator::addRTFlipUniform(int line) {
+void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
     if (fWroteRTFlip) {
         return;
     }
@@ -3474,7 +3475,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int line) {
     fWroteRTFlip = true;
     std::vector<Type::Field> fields;
     if (fProgram.fConfig->fSettings.fRTFlipOffset < 0) {
-        fContext.fErrors->error(line, "RTFlipOffset is negative");
+        fContext.fErrors->error(offset, "RTFlipOffset is negative");
     }
     fields.emplace_back(Modifiers(Layout(/*flags=*/0,
                                          /*location=*/-1,
@@ -3489,14 +3490,14 @@ void SPIRVCodeGenerator::addRTFlipUniform(int line) {
                         fContext.fTypes.fFloat2.get());
     skstd::string_view name = "sksl_synthetic_uniforms";
     const Type* intfStruct =
-            fSynthetics.takeOwnershipOfSymbol(Type::MakeStructType(/*line=*/-1, name, fields));
+            fSynthetics.takeOwnershipOfSymbol(Type::MakeStructType(/*offset=*/-1, name, fields));
     int binding = fProgram.fConfig->fSettings.fRTFlipBinding;
     if (binding == -1) {
-        fContext.fErrors->error(line, "layout(binding=...) is required in SPIR-V");
+        fContext.fErrors->error(offset, "layout(binding=...) is required in SPIR-V");
     }
     int set = fProgram.fConfig->fSettings.fRTFlipSet;
     if (set == -1) {
-        fContext.fErrors->error(line, "layout(set=...) is required in SPIR-V");
+        fContext.fErrors->error(offset, "layout(set=...) is required in SPIR-V");
     }
     bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
     int flags = usePushConstants ? Layout::Flag::kPushConstant_Flag : 0;
@@ -3515,7 +3516,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int line) {
         modsPtr = fProgram.fModifiers->add(modifiers);
     }
     const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
-            std::make_unique<Variable>(/*line=*/-1,
+            std::make_unique<Variable>(/*offset=*/-1,
                                        modsPtr,
                                        name,
                                        intfStruct,
@@ -3524,9 +3525,9 @@ void SPIRVCodeGenerator::addRTFlipUniform(int line) {
     fSPIRVBonusVariables.insert(intfVar);
     {
         AutoAttachPoolToThread attach(fProgram.fPool.get());
-        fProgram.fSymbols->add(std::make_unique<Field>(/*line=*/-1, intfVar, /*field=*/0));
+        fProgram.fSymbols->add(std::make_unique<Field>(/*offset=*/-1, intfVar, /*field=*/0));
     }
-    InterfaceBlock intf(/*line=*/-1,
+    InterfaceBlock intf(/*offset=*/-1,
                         *intfVar,
                         name,
                         /*instanceName=*/"",
@@ -3553,7 +3554,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     // Make sure we have a main() function.
     if (!main) {
-        fContext.fErrors->error(/*line=*/-1, "program does not contain a main() function");
+        fContext.fErrors->error(/*offset=*/-1, "program does not contain a main() function");
         return;
     }
     // Emit interface blocks.

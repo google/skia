@@ -27,7 +27,7 @@ std::shared_ptr<SymbolTable> CurrentSymbolTable() {
 }
 
 DSLPossibleExpression Symbol(skstd::string_view name, PositionInfo pos) {
-    return DSLWriter::IRGenerator().convertIdentifier(pos.line(), name);
+    return DSLWriter::IRGenerator().convertIdentifier(pos.offset(), name);
 }
 
 bool IsType(skstd::string_view name) {

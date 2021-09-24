@@ -203,7 +203,7 @@ std::shared_ptr<SymbolTable> Compiler::makePrivateSymbolTable(std::shared_ptr<Sy
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    privateSymbolTable->add(std::make_unique<Variable>(/*line=*/-1,
+    privateSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
                                                        fCoreModifiers.add(Modifiers{}),
                                                        "sk_Caps",
                                                        fContext->fTypes.fSkCaps.get(),

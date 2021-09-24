@@ -21,7 +21,7 @@ public:
     static constexpr Kind kStatementKind = Kind::kExpression;
 
     ExpressionStatement(std::unique_ptr<Expression> expression)
-        : INHERITED(expression->fLine, kStatementKind)
+        : INHERITED(expression->fOffset, kStatementKind)
         , fExpression(std::move(expression)) {}
 
     // Creates an SkSL expression-statement. Note that there is never any type-coercion and no error

@@ -25,9 +25,9 @@ public:
 
     using IntrinsicSet = std::unordered_set<const FunctionDeclaration*>;
 
-    FunctionDefinition(int line, const FunctionDeclaration* declaration, bool builtin,
+    FunctionDefinition(int offset, const FunctionDeclaration* declaration, bool builtin,
                        std::unique_ptr<Statement> body, IntrinsicSet referencedIntrinsics)
-        : INHERITED(line, kProgramElementKind)
+        : INHERITED(offset, kProgramElementKind)
         , fDeclaration(declaration)
         , fBuiltin(builtin)
         , fBody(std::move(body))
@@ -46,7 +46,7 @@ public:
      * errors when trying to call a function with an error in it.)
      */
     static std::unique_ptr<FunctionDefinition> Convert(const Context& context,
-                                                       int line,
+                                                       int offset,
                                                        const FunctionDeclaration& function,
                                                        std::unique_ptr<Statement> body,
                                                        bool builtin);
@@ -80,7 +80,7 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<FunctionDefinition>(fLine, &this->declaration(),
+        return std::make_unique<FunctionDefinition>(fOffset, &this->declaration(),
                                                     /*builtin=*/false, this->body()->clone(),
                                                     this->referencedIntrinsics());
     }

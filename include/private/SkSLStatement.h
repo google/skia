@@ -38,8 +38,8 @@ public:
         kLast = kVarDeclaration,
     };
 
-    Statement(int line, Kind kind)
-    : INHERITED(line, (int) kind) {
+    Statement(int offset, Kind kind)
+    : INHERITED(offset, (int) kind) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 

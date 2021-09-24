@@ -141,7 +141,7 @@ public:
                                                  Type::TypeKind typeKind);
 
     /** Creates a struct type with the given fields. */
-    static std::unique_ptr<Type> MakeStructType(int line, skstd::string_view name,
+    static std::unique_ptr<Type> MakeStructType(int offset, skstd::string_view name,
                                                 std::vector<Field> fields);
 
     /** Create a texture type. */
@@ -534,7 +534,7 @@ public:
     const Type* applyPrecisionQualifiers(const Context& context,
                                          const Modifiers& modifiers,
                                          SymbolTable* symbols,
-                                         int line) const;
+                                         int offset) const;
 
     /**
      * Coerces the passed-in expression to this type. If the types are incompatible, reports an
@@ -553,8 +553,8 @@ public:
     SKSL_INT convertArraySize(const Context& context, std::unique_ptr<Expression> size) const;
 
 protected:
-    Type(skstd::string_view name, const char* abbrev, TypeKind kind, int line = -1)
-        : INHERITED(line, kSymbolKind, name)
+    Type(skstd::string_view name, const char* abbrev, TypeKind kind, int offset = -1)
+        : INHERITED(offset, kSymbolKind, name)
         , fTypeKind(kind) {
         SkASSERT(strlen(abbrev) <= kMaxAbbrevLength);
         strcpy(fAbbreviatedName, abbrev);

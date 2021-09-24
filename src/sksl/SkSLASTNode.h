@@ -311,12 +311,12 @@ struct ASTNode {
     };
 
     ASTNode()
-        : fLine(-1)
+        : fOffset(-1)
         , fKind(Kind::kNull) {}
 
-    ASTNode(std::vector<ASTNode>* nodes, int line, Kind kind)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind)
         : fNodes(nodes)
-        , fLine(line)
+        , fOffset(offset)
         , fKind(kind) {
 
         switch (kind) {
@@ -372,46 +372,46 @@ struct ASTNode {
         }
     }
 
-    ASTNode(std::vector<ASTNode>* nodes, int line, Kind kind, Operator op)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, Operator op)
         : fNodes(nodes)
         , fData(op)
-        , fLine(line)
+        , fOffset(offset)
         , fKind(kind) {}
 
-    ASTNode(std::vector<ASTNode>* nodes, int line, Kind kind, skstd::string_view s)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, skstd::string_view s)
         : fNodes(nodes)
         , fData(s)
-        , fLine(line)
+        , fOffset(offset)
         , fKind(kind) {}
 
-    ASTNode(std::vector<ASTNode>* nodes, int line, Kind kind, const char* s)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, const char* s)
         : fNodes(nodes)
         , fData(skstd::string_view(s))
-        , fLine(line)
+        , fOffset(offset)
         , fKind(kind) {}
 
-    ASTNode(std::vector<ASTNode>* nodes, int line, Kind kind, bool b)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, bool b)
         : fNodes(nodes)
         , fData(b)
-        , fLine(line)
+        , fOffset(offset)
         , fKind(kind) {}
 
-    ASTNode(std::vector<ASTNode>* nodes, int line, Kind kind, SKSL_INT i)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, SKSL_INT i)
         : fNodes(nodes)
         , fData(i)
-        , fLine(line)
+        , fOffset(offset)
         , fKind(kind) {}
 
-    ASTNode(std::vector<ASTNode>* nodes, int line, Kind kind, SKSL_FLOAT f)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, SKSL_FLOAT f)
         : fNodes(nodes)
         , fData(f)
-        , fLine(line)
+        , fOffset(offset)
         , fKind(kind) {}
 
-    ASTNode(std::vector<ASTNode>* nodes, int line, Kind kind, Modifiers m)
+    ASTNode(std::vector<ASTNode>* nodes, int offset, Kind kind, Modifiers m)
         : fNodes(nodes)
         , fData(m)
-        , fLine(line)
+        , fOffset(offset)
         , fKind(kind) {}
 
     operator bool() const {
@@ -512,7 +512,7 @@ struct ASTNode {
 
     NodeData fData;
 
-    int fLine;
+    int fOffset;
 
     Kind fKind;
 

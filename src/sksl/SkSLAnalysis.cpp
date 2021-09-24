@@ -317,7 +317,7 @@ public:
                 VariableReference& varRef = expr.as<VariableReference>();
                 const Variable* var = varRef.variable();
                 if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag)) {
-                    fErrors->error(expr.fLine,
+                    fErrors->error(expr.fOffset,
                                    "cannot modify immutable variable '" + var->name() + "'");
                 } else {
                     SkASSERT(fAssignedVar == nullptr);
@@ -343,7 +343,7 @@ public:
                 break;
 
             default:
-                fErrors->error(expr.fLine, "cannot assign to this expression");
+                fErrors->error(expr.fOffset, "cannot assign to this expression");
                 break;
         }
     }
@@ -355,7 +355,7 @@ private:
             SkASSERT(idx >= SwizzleComponent::X && idx <= SwizzleComponent::W);
             int bit = 1 << idx;
             if (bits & bit) {
-                fErrors->error(swizzle.fLine,
+                fErrors->error(swizzle.fOffset,
                                "cannot write to the same swizzle field more than once");
                 break;
             }
@@ -652,7 +652,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                             }
                         }
                         msg = "potential recursion (function call cycle) not allowed:" + msg;
-                        fContext.fErrors->error(pe.fLine, std::move(msg));
+                        fContext.fErrors->error(pe.fOffset, std::move(msg));
                         fFunctionSize = iter->second = 0;
                         return true;
                     }
@@ -668,7 +668,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                         msg += "\n\t" + (*unwind)->description();
                     }
                     msg += "\n\t" + decl->description();
-                    fContext.fErrors->error(pe.fLine, std::move(msg));
+                    fContext.fErrors->error(pe.fOffset, std::move(msg));
                     fFunctionSize = iter->second = 0;
                     return true;
                 }
@@ -780,7 +780,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
             // Report an error when main()'s flattened size is larger than our program limit.
             if (visitor.functionSize() > kProgramSizeLimit &&
                 element->as<FunctionDefinition>().declaration().isMain()) {
-                context.fErrors->error(/*line=*/-1, "program is too large");
+                context.fErrors->error(/*offset=*/-1, "program is too large");
             }
         }
     }
@@ -815,7 +815,7 @@ bool Analysis::DetectVarDeclarationWithoutScope(const Statement& stmt, ErrorRepo
     // Report an error.
     SkASSERT(var);
     if (errors) {
-        errors->error(stmt.fLine, "variable '" + var->name() + "' must be created in a scope");
+        errors->error(stmt.fOffset, "variable '" + var->name() + "' must be created in a scope");
     }
     return true;
 }
@@ -919,7 +919,8 @@ bool Analysis::UpdateVariableRefKind(Expression* expr,
     }
     if (!info.fAssignedVar) {
         if (errors) {
-            errors->error(expr->fLine, "can't assign to expression '" + expr->description() + "'");
+            errors->error(expr->fOffset, "can't assign to expression '" +
+                                          expr->description() + "'");
         }
         return false;
     }
@@ -1007,7 +1008,7 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
     }
 }
 
-static const char* invalid_for_ES2(int line,
+static const char* invalid_for_ES2(int offset,
                                    const Statement* loopInitializer,
                                    const Expression* loopTest,
                                    const Expression* loopNext,
@@ -1221,18 +1222,18 @@ static const char* invalid_for_ES2(int line,
     return nullptr;  // All checks pass
 }
 
-std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(int line,
+std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(int offset,
                                                             const Statement* loopInitializer,
                                                             const Expression* loopTest,
                                                             const Expression* loopNext,
                                                             const Statement* loopStatement,
                                                             ErrorReporter* errors) {
     auto result = std::make_unique<LoopUnrollInfo>();
-    if (const char* msg = invalid_for_ES2(line, loopInitializer, loopTest, loopNext,
+    if (const char* msg = invalid_for_ES2(offset, loopInitializer, loopTest, loopNext,
                                           loopStatement, *result)) {
         result = nullptr;
         if (errors) {
-            errors->error(line, msg);
+            errors->error(offset, msg);
         }
     }
     return result;
@@ -1339,7 +1340,7 @@ public:
             const IndexExpression& i = e.as<IndexExpression>();
             ConstantExpressionVisitor indexerInvalid(&fLoopIndices);
             if (indexerInvalid.visitExpression(*i.index())) {
-                fErrors.error(i.fLine, "index expression must be constant");
+                fErrors.error(i.fOffset, "index expression must be constant");
                 return true;
             }
         }
@@ -1387,13 +1388,13 @@ void Analysis::VerifyStaticTestsAndExpressions(const Program& program) {
                 switch (stmt.kind()) {
                     case Statement::Kind::kIf:
                         if (stmt.as<IfStatement>().isStatic()) {
-                            fContext.fErrors->error(stmt.fLine, "static if has non-static test");
+                            fContext.fErrors->error(stmt.fOffset, "static if has non-static test");
                         }
                         break;
 
                     case Statement::Kind::kSwitch:
                         if (stmt.as<SwitchStatement>().isStatic()) {
-                            fContext.fErrors->error(stmt.fLine,
+                            fContext.fErrors->error(stmt.fOffset,
                                                     "static switch has non-static test");
                         }
                         break;
@@ -1410,8 +1411,8 @@ void Analysis::VerifyStaticTestsAndExpressions(const Program& program) {
                 case Expression::Kind::kFunctionCall: {
                     const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
                     if (!decl.isBuiltin() && !decl.definition()) {
-                        fContext.fErrors->error(expr.fLine, "function '" + decl.description() +
-                                                            "' is not defined");
+                        fContext.fErrors->error(expr.fOffset, "function '" + decl.description() +
+                                                              "' is not defined");
                     }
                     break;
                 }
@@ -1420,11 +1421,11 @@ void Analysis::VerifyStaticTestsAndExpressions(const Program& program) {
                 case Expression::Kind::kMethodReference:
                 case Expression::Kind::kTypeReference:
                     SkDEBUGFAIL("invalid reference-expr, should have been reported by coerce()");
-                    fContext.fErrors->error(expr.fLine, "invalid expression");
+                    fContext.fErrors->error(expr.fOffset, "invalid expression");
                     break;
                 default:
                     if (expr.type() == *fContext.fTypes.fInvalid) {
-                        fContext.fErrors->error(expr.fLine, "invalid expression");
+                        fContext.fErrors->error(expr.fOffset, "invalid expression");
                     }
                     break;
             }

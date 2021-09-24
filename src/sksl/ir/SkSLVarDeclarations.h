@@ -32,7 +32,7 @@ public:
                    const Type* baseType,
                    int arraySize,
                    std::unique_ptr<Expression> value)
-            : INHERITED(var->fLine, kStatementKind)
+            : INHERITED(var->fOffset, kStatementKind)
             , fVar(var)
             , fBaseType(*baseType)
             , fArraySize(arraySize)
@@ -106,7 +106,7 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
 
     GlobalVarDeclaration(std::unique_ptr<Statement> decl)
-            : INHERITED(decl->fLine, kProgramElementKind)
+            : INHERITED(decl->fOffset, kProgramElementKind)
             , fDeclaration(std::move(decl)) {
         SkASSERT(this->declaration()->is<VarDeclaration>());
     }

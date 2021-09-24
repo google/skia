@@ -157,7 +157,7 @@ struct Analysis {
      * If the requirements are not met, the problem is reported via `errors` (if not nullptr), and
      * null is returned.
      */
-    static std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(int line,
+    static std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(int offset,
                                                              const Statement* loopInitializer,
                                                              const Expression* loopTest,
                                                              const Expression* loopNext,

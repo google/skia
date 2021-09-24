@@ -21,8 +21,8 @@ class TypeReference final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kTypeReference;
 
-    TypeReference(const Context& context, int line, const Type* value)
-        : INHERITED(line, kExpressionKind, context.fTypes.fInvalid.get())
+    TypeReference(const Context& context, int offset, const Type* value)
+        : INHERITED(offset, kExpressionKind, context.fTypes.fInvalid.get())
         , fValue(*value) {}
 
     const Type& value() const {
@@ -38,12 +38,13 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new TypeReference(fLine, &this->value(), &this->type()));
+        return std::unique_ptr<Expression>(new TypeReference(fOffset, &this->value(),
+                                                             &this->type()));
     }
 
 private:
-    TypeReference(int line, const Type* value, const Type* type)
-        : INHERITED(line, kExpressionKind, type)
+    TypeReference(int offset, const Type* value, const Type* type)
+        : INHERITED(offset, kExpressionKind, type)
         , fValue(*value) {}
 
     const Type& fValue;

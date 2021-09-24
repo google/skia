@@ -24,7 +24,7 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!test || !ifTrue || !ifFalse) {
         return nullptr;
     }
-    int line = test->fLine;
+    int offset = test->fOffset;
     const Type* trueType;
     const Type* falseType;
     const Type* resultType;
@@ -32,19 +32,19 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!equalityOp.determineBinaryType(context, ifTrue->type(), ifFalse->type(),
                                         &trueType, &falseType, &resultType) ||
         (*trueType != *falseType)) {
-        context.fErrors->error(line, "ternary operator result mismatch: '" +
-                                     ifTrue->type().displayName() + "', '" +
-                                     ifFalse->type().displayName() + "'");
+        context.fErrors->error(offset, "ternary operator result mismatch: '" +
+                                       ifTrue->type().displayName() + "', '" +
+                                       ifFalse->type().displayName() + "'");
         return nullptr;
     }
     if (trueType->componentType().isOpaque()) {
-        context.fErrors->error(line, "ternary expression of opaque type '" +
-                                     trueType->displayName() + "' not allowed");
+        context.fErrors->error(offset, "ternary expression of opaque type '" +
+                                       trueType->displayName() + "' not allowed");
         return nullptr;
     }
     if (context.fConfig->strictES2Mode() && trueType->isOrContainsArray()) {
-        context.fErrors->error(line, "ternary operator result may not be an array (or struct "
-                                     "containing an array)");
+        context.fErrors->error(offset, "ternary operator result may not be an array (or struct "
+                                       "containing an array)");
         return nullptr;
     }
     ifTrue = trueType->coerceExpression(std::move(ifTrue), context);
@@ -75,8 +75,8 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
         }
     }
 
-    return std::make_unique<TernaryExpression>(test->fLine, std::move(test), std::move(ifTrue),
-                                               std::move(ifFalse));
+    return std::make_unique<TernaryExpression>(test->fOffset, std::move(test),
+                                               std::move(ifTrue), std::move(ifFalse));
 }
 
 }  // namespace SkSL

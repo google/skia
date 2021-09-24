@@ -48,7 +48,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
 
     // Create our new variable and add it to the symbol table.
     ScratchVariable result;
-    auto var = std::make_unique<Variable>(initialValue ? initialValue->fLine : -1,
+    auto var = std::make_unique<Variable>(initialValue ? initialValue->fOffset : -1,
                                           context.fModifiersPool->add(Modifiers{}),
                                           name->c_str(),
                                           type,

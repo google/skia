@@ -53,12 +53,12 @@ public:
      * Reports an error and returns true if op is a division / mod operator and right is zero or
      * contains a zero element.
      */
-    static bool ErrorOnDivideByZero(const Context& context, int line, Operator op,
+    static bool ErrorOnDivideByZero(const Context& context, int offset, Operator op,
                                     const Expression& right);
 
     /** Simplifies the binary expression `left OP right`. Returns null if it can't be simplified. */
     static std::unique_ptr<Expression> Simplify(const Context& context,
-                                                int line,
+                                                int offset,
                                                 const Expression& left,
                                                 Operator op,
                                                 const Expression& right,

@@ -11,7 +11,7 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& context,
-                                                           int line,
+                                                           int offset,
                                                            const Type& rawType,
                                                            ExpressionArray args) {
     // As you might expect, scalar-cast constructors should only be created with scalar types.
@@ -19,9 +19,9 @@ std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& contex
     SkASSERT(type.isScalar());
 
     if (args.size() != 1) {
-        context.fErrors->error(line, "invalid arguments to '" + type.displayName() +
-                                     "' constructor, (expected exactly 1 argument, but found " +
-                                     to_string((uint64_t)args.size()) + ")");
+        context.fErrors->error(offset, "invalid arguments to '" + type.displayName() +
+                                       "' constructor, (expected exactly 1 argument, but found " +
+                                       to_string((uint64_t)args.size()) + ")");
         return nullptr;
     }
 
@@ -38,17 +38,17 @@ std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& contex
             }
         }
 
-        context.fErrors->error(line,
+        context.fErrors->error(offset,
                                "'" + argType.displayName() + "' is not a valid parameter to '" +
                                type.displayName() + "' constructor" + swizzleHint);
         return nullptr;
     }
 
-    return ConstructorScalarCast::Make(context, line, type, std::move(args[0]));
+    return ConstructorScalarCast::Make(context, offset, type, std::move(args[0]));
 }
 
 std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
-                                                        int line,
+                                                        int offset,
                                                         const Type& type,
                                                         std::unique_ptr<Expression> arg) {
     SkASSERT(type.isScalar());
@@ -65,9 +65,9 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
     }
     // We can cast scalar literals at compile-time.
     if (arg->is<Literal>()) {
-        return Literal::Make(line, arg->as<Literal>().value(), &type);
+        return Literal::Make(offset, arg->as<Literal>().value(), &type);
     }
-    return std::make_unique<ConstructorScalarCast>(line, type, std::move(arg));
+    return std::make_unique<ConstructorScalarCast>(offset, type, std::move(arg));
 }
 
 }  // namespace SkSL

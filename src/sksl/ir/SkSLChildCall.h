@@ -21,14 +21,14 @@ class ChildCall final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kChildCall;
 
-    ChildCall(int line, const Type* type, const Variable* child, ExpressionArray arguments)
-            : INHERITED(line, kExpressionKind, type)
+    ChildCall(int offset, const Type* type, const Variable* child, ExpressionArray arguments)
+            : INHERITED(offset, kExpressionKind, type)
             , fChild(*child)
             , fArguments(std::move(arguments)) {}
 
     // Creates the child call; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
-                                            int line,
+                                            int offset,
                                             const Type* returnType,
                                             const Variable& child,
                                             ExpressionArray arguments);

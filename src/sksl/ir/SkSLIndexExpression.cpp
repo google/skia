@@ -43,13 +43,13 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
         if (!arraySize) {
             return nullptr;
         }
-        return std::make_unique<TypeReference>(context, base->fLine,
+        return std::make_unique<TypeReference>(context, base->fOffset,
                                                symbolTable.addArrayDimension(&baseType, arraySize));
     }
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
     const Type& baseType = base->type();
     if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
-        context.fErrors->error(base->fLine,
+        context.fErrors->error(base->fOffset,
                                "expected array, but found '" + baseType.displayName() + "'");
         return nullptr;
     }
@@ -64,9 +64,9 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     if (indexExpr->isIntLiteral()) {
         SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
         if (indexValue < 0 || indexValue >= baseType.columns()) {
-            context.fErrors->error(base->fLine, "index " + to_string(indexValue) +
-                                                " out of range for '" + baseType.displayName() +
-                                                "'");
+            context.fErrors->error(base->fOffset, "index " + to_string(indexValue) +
+                                                  " out of range for '" + baseType.displayName() +
+                                                  "'");
             return nullptr;
         }
     }

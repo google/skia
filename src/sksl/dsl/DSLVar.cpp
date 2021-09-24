@@ -124,7 +124,7 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
                                 SkSL::Modifiers::kNo_Flag));
 
         fVar = DSLWriter::SymbolTable()->takeOwnershipOfIRNode(std::make_unique<SkSL::Variable>(
-                /*line=*/-1,
+                /*offset=*/-1,
                 modifiers,
                 fName,
                 DSLWriter::Context().fTypes.fFloat2.get(),

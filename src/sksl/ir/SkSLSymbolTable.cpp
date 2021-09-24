@@ -89,7 +89,7 @@ const String* SymbolTable::takeOwnershipOfString(String str) {
 }
 
 void SymbolTable::addAlias(skstd::string_view name, const Symbol* symbol) {
-    this->add(std::make_unique<SymbolAlias>(symbol->fLine, name, symbol));
+    this->add(std::make_unique<SymbolAlias>(symbol->fOffset, name, symbol));
 }
 
 void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
@@ -102,7 +102,7 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
     }
 
     if (!symbol->is<FunctionDeclaration>()) {
-        fContext.fErrors->error(symbol->fLine, "symbol '" + name + "' was already defined");
+        fContext.fErrors->error(symbol->fOffset, "symbol '" + name + "' was already defined");
         return;
     }
 

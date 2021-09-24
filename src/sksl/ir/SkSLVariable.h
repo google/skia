@@ -42,9 +42,9 @@ public:
 
     static constexpr Kind kSymbolKind = Kind::kVariable;
 
-    Variable(int line, const Modifiers* modifiers, skstd::string_view name, const Type* type,
+    Variable(int offset, const Modifiers* modifiers, skstd::string_view name, const Type* type,
              bool builtin, Storage storage)
-    : INHERITED(line, kSymbolKind, name, type)
+    : INHERITED(offset, kSymbolKind, name, type)
     , fModifiers(modifiers)
     , fStorage(storage)
     , fBuiltin(builtin) {}

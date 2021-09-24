@@ -19,7 +19,7 @@ std::unique_ptr<Expression> PostfixExpression::Convert(const Context& context,
                                                        Operator op) {
     const Type& baseType = base->type();
     if (!baseType.isNumber()) {
-        context.fErrors->error(base->fLine,
+        context.fErrors->error(base->fOffset,
                                "'" + String(op.operatorName()) + "' cannot operate on '" +
                                baseType.displayName() + "'");
         return nullptr;

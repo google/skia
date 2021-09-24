@@ -61,11 +61,11 @@ private:
                             std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,
                             InlineCandidateList* candidateList);
 
-    std::unique_ptr<Expression> inlineExpression(int line,
+    std::unique_ptr<Expression> inlineExpression(int offset,
                                                  VariableRewriteMap* varMap,
                                                  SymbolTable* symbolTableForExpression,
                                                  const Expression& expression);
-    std::unique_ptr<Statement> inlineStatement(int line,
+    std::unique_ptr<Statement> inlineStatement(int offset,
                                                VariableRewriteMap* varMap,
                                                SymbolTable* symbolTableForStatement,
                                                std::unique_ptr<Expression>* resultExpr,

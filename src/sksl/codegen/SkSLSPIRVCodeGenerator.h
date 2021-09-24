@@ -466,7 +466,7 @@ private:
 
     void writeUniformBuffer(std::shared_ptr<SymbolTable> topLevelSymbolTable);
 
-    void addRTFlipUniform(int line);
+    void addRTFlipUniform(int offset);
 
     const MemoryLayout fDefaultLayout;
 

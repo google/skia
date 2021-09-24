@@ -31,10 +31,10 @@ class InterfaceBlock final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
 
-    InterfaceBlock(int line, const Variable& var, skstd::string_view typeName,
+    InterfaceBlock(int offset, const Variable& var, skstd::string_view typeName,
                    skstd::string_view instanceName, int arraySize,
                    std::shared_ptr<SymbolTable> typeOwner)
-    : INHERITED(line, kProgramElementKind)
+    : INHERITED(offset, kProgramElementKind)
     , fVariable(var)
     , fTypeName(typeName)
     , fInstanceName(instanceName)
@@ -62,7 +62,7 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<InterfaceBlock>(fLine, this->variable(), this->typeName(),
+        return std::make_unique<InterfaceBlock>(fOffset, this->variable(), this->typeName(),
                                                 this->instanceName(), this->arraySize(),
                                                 SymbolTable::WrapIfBuiltin(this->typeOwner()));
     }

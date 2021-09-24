@@ -31,14 +31,14 @@ class ForStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kFor;
 
-    ForStatement(int line,
+    ForStatement(int offset,
                  std::unique_ptr<Statement> initializer,
                  std::unique_ptr<Expression> test,
                  std::unique_ptr<Expression> next,
                  std::unique_ptr<Statement> statement,
                  std::unique_ptr<LoopUnrollInfo> unrollInfo,
                  std::shared_ptr<SymbolTable> symbols)
-            : INHERITED(line, kStatementKind)
+            : INHERITED(offset, kStatementKind)
             , fSymbolTable(std::move(symbols))
             , fInitializer(std::move(initializer))
             , fTest(std::move(test))
@@ -47,7 +47,7 @@ public:
             , fUnrollInfo(std::move(unrollInfo)) {}
 
     // Creates an SkSL for loop; handles type-coercion and uses the ErrorReporter to report errors.
-    static std::unique_ptr<Statement> Convert(const Context& context, int line,
+    static std::unique_ptr<Statement> Convert(const Context& context, int offset,
                                               std::unique_ptr<Statement> initializer,
                                               std::unique_ptr<Expression> test,
                                               std::unique_ptr<Expression> next,
@@ -55,13 +55,13 @@ public:
                                               std::shared_ptr<SymbolTable> symbolTable);
 
     // Creates an SkSL while loop; handles type-coercion and uses the ErrorReporter for errors.
-    static std::unique_ptr<Statement> ConvertWhile(const Context& context, int line,
+    static std::unique_ptr<Statement> ConvertWhile(const Context& context, int offset,
                                                    std::unique_ptr<Expression> test,
                                                    std::unique_ptr<Statement> statement,
                                                    std::shared_ptr<SymbolTable> symbolTable);
 
     // Creates an SkSL for/while loop. Assumes properly coerced types and reports errors via assert.
-    static std::unique_ptr<Statement> Make(const Context& context, int line,
+    static std::unique_ptr<Statement> Make(const Context& context, int offset,
                                            std::unique_ptr<Statement> initializer,
                                            std::unique_ptr<Expression> test,
                                            std::unique_ptr<Expression> next,
