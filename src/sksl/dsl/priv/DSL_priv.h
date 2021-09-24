@@ -22,7 +22,7 @@ namespace dsl {
  * Initializes the DSL for compiling modules (SkSL include files).
  */
 void StartModule(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
-                 const SkSL::ProgramSettings& settings, SkSL::ParsedModule module);
+                 const SkSL::ProgramSettings& settings, SkSL::ParsedModule baseModule);
 
 } // namespace dsl
 

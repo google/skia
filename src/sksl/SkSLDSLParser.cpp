@@ -10,6 +10,7 @@
 #include "include/private/SkSLString.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/dsl/priv/DSL_priv.h"
 
 #include <memory>
 
@@ -213,16 +214,37 @@ std::unique_ptr<Program> DSLParser::program() {
     Start(&fCompiler, fKind, fSettings);
     SetErrorReporter(errorReporter);
     errorReporter->setSource(fText->c_str());
-    fEncounteredFatalError = false;
+    this->declarations();
     std::unique_ptr<Program> result;
+    if (!GetErrorReporter().errorCount()) {
+        result = dsl::ReleaseProgram(std::move(fText));
+    }
+    errorReporter->setSource(nullptr);
+    End();
+    return result;
+}
+
+SkSL::LoadedModule DSLParser::moduleInheritingFrom(SkSL::ParsedModule baseModule) {
+    ErrorReporter* errorReporter = &fCompiler.errorReporter();
+    StartModule(&fCompiler, fKind, fSettings, std::move(baseModule));
+    SetErrorReporter(errorReporter);
+    errorReporter->setSource(fText->c_str());
+    this->declarations();
+    CurrentSymbolTable()->takeOwnershipOfString(std::move(*fText));
+    SkSL::LoadedModule result{ fKind, CurrentSymbolTable(),
+            std::move(DSLWriter::ProgramElements()) };
+    errorReporter->setSource(nullptr);
+    End();
+    return result;
+}
+
+void DSLParser::declarations() {
+    fEncounteredFatalError = false;
     bool done = false;
     while (!done) {
         switch (this->peek().fKind) {
             case Token::Kind::TK_END_OF_FILE:
                 done = true;
-                if (!errorReporter->errorCount()) {
-                    result = dsl::ReleaseProgram(std::move(fText));
-                }
                 break;
             case Token::Kind::TK_DIRECTIVE:
                 this->directive();
@@ -239,9 +261,6 @@ std::unique_ptr<Program> DSLParser::program() {
                 break;
         }
     }
-    End();
-    errorReporter->setSource(nullptr);
-    return result;
 }
 
 /* DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */

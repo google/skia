@@ -40,9 +40,9 @@ void Start(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& se
 }
 
 void StartModule(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& settings,
-                 SkSL::ParsedModule module) {
+                 SkSL::ParsedModule baseModule) {
     DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind, settings,
-                                                       module, /*isModule=*/true));
+                                                       baseModule, /*isModule=*/true));
 }
 
 void End() {

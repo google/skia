@@ -103,7 +103,7 @@ void DSLFunction::define(DSLBlock block, PositionInfo pos) {
                                                                                std::move(body),
                                                                                /*builtin=*/false);
     DSLWriter::ReportErrors(fPosition);
-    fDecl->fDefinition = function.get();
+    fDecl->setDefinition(function.get());
     DSLWriter::ProgramElements().push_back(std::move(function));
 }
 

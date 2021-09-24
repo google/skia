@@ -125,8 +125,6 @@ private:
     bool fIsMain;
     mutable IntrinsicKind fIntrinsicKind = kNotIntrinsic;
 
-    friend class SkSL::dsl::DSLFunction;
-
     using INHERITED = Symbol;
 };
 
