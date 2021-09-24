@@ -346,6 +346,8 @@ public:
     explicit LayerSpace(SkIRect&& geometry) : fData(std::move(geometry)) {}
     explicit operator const SkIRect&() const { return fData; }
 
+    static LayerSpace<SkIRect> Empty() { return LayerSpace<SkIRect>(SkIRect::MakeEmpty()); }
+
     // Parrot the SkIRect API while preserving coord space
     bool isEmpty() const { return fData.isEmpty(); }
 
@@ -378,6 +380,8 @@ public:
     explicit LayerSpace(SkRect&& geometry) : fData(std::move(geometry)) {}
     explicit operator const SkRect&() const { return fData; }
 
+    static LayerSpace<SkRect> Empty() { return LayerSpace<SkRect>(SkRect::MakeEmpty()); }
+
     // Parrot the SkRect API while preserving coord space and usage
     bool isEmpty() const { return fData.isEmpty(); }
 
@@ -395,6 +399,9 @@ public:
     LayerSpace<SkSize> size() const {
         return LayerSpace<SkSize>(SkSize::Make(fData.width(), fData.height()));
     }
+
+    LayerSpace<SkIRect> round() const { return LayerSpace<SkIRect>(fData.round()); }
+    LayerSpace<SkIRect> roundIn() const { return LayerSpace<SkIRect>(fData.roundIn()); }
     LayerSpace<SkIRect> roundOut() const { return LayerSpace<SkIRect>(fData.roundOut()); }
 
     bool intersect(const LayerSpace<SkRect>& r) { return fData.intersect(r.fData); }
@@ -528,6 +535,17 @@ public:
     // Get the layer-space coordinate of this image's top left pixel.
     const LayerSpace<SkIPoint>& layerOrigin() const { return fOrigin; }
 
+    // Produce a new FilterResult that can correctly cover 'newBounds' when it's drawn with its
+    // tile mode at its origin. When possible, the returned FilterResult can reuse the same image
+    // data and adjust its access subset, origin, and tile mode. If 'forcePad' is true or if the
+    // 'newTileMode' that applies at the 'newBounds' geometry is incompatible with the current
+    // bounds and tile mode, then a new image is created that resolves this image's data and tiling.
+    // TODO (michaelludwig): All FilterResults are decal mode and there are no current usages that
+    // require force-padding a decal FilterResult so these arguments aren't implemented yet.
+    FilterResult resolveToBounds(const LayerSpace<SkIRect>& newBounds) const;
+                                //  SkTileMode newTileMode=SkTileMode::kDecal,
+                                //  bool forcePad=false) const;
+
     // Extract image and origin, safely when the image is null.
     // TODO (michaelludwig) - This is intended for convenience until all call sites of
     // SkImageFilter_Base::filterImage() have been updated to work in the new type system
@@ -545,7 +563,8 @@ public:
 
 private:
     sk_sp<SkSpecialImage> fImage;
-    LayerSpace<SkIPoint> fOrigin;
+    LayerSpace<SkIPoint>  fOrigin;
+    // SkTileMode         fTileMode = SkTileMode::kDecal;
 };
 
 // The context contains all necessary information to describe how the image filter should be

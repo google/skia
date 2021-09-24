@@ -282,6 +282,11 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
             mapping, desiredBounds, contentBounds);
     // If we know what's actually going to be drawn into the layer, and we don't change transparent
     // black, then we can further restrict the layer to what the known content is
+    // TODO (michaelludwig) - This logic could be moved into visitInputLayerBounds() when an input
+    // filter is null. Additionally, once all filters are robust to FilterResults with tile modes,
+    // we can always restrict the required input by content bounds since any additional transparent
+    // black is handled when producing the output result and sampling outside the input image with
+    // a decal tile mode.
     if (knownContentBounds && !this->affectsTransparentBlack()) {
         if (!requiredInput.intersect(contentBounds)) {
             // Nothing would be output by the filter, so return empty rect
@@ -473,7 +478,8 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::visitInputLayerBounds(
         // TODO (michaelludwig) - if a filter doesn't have any inputs, it doesn't need any
         // implicit source image, so arguably we could return an empty rect here. 'desiredOutput' is
         // consistent with original behavior, so empty bounds may have unintended side effects
-        // but should be explored later.
+        // but should be explored later. Of note is that right now an empty layer bounds assumes
+        // that there's no need to filter on restore, which is not the case for these filters.
         return desiredOutput;
     }
 
@@ -482,6 +488,10 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::visitInputLayerBounds(
         const SkImageFilter* filter = this->getInput(i);
         // The required input for this input filter, or 'targetOutput' if the filter is null and
         // the source image is used (so must be sized to cover 'targetOutput').
+        // TODO (michaelludwig) - Right now contentBounds is applied conditionally at the end of
+        // the root getInputLayerBounds() based on affecting transparent black. Once that bit only
+        // changes output behavior, we can have the required bounds for a null input filter be the
+        // intersection of the desired output and the content bounds.
         skif::LayerSpace<SkIRect> requiredInput =
                 filter ? as_IFB(filter)->onGetInputLayerBounds(mapping, desiredOutput,
                                                                contentBounds)
@@ -527,7 +537,7 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetInputLayerBounds(
         const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& desiredOutput,
         const skif::LayerSpace<SkIRect>& contentBounds, VisitChildren recurse) const {
     // Call old functions for now since they may have been overridden by a subclass that's not been
-    // updated yet; normally this would just default to visitInputLayerBounds()
+    // updated yet; eventually this will be a pure virtual and impls control visiting children
     SkIRect content = SkIRect(contentBounds);
     SkIRect input = this->onFilterNodeBounds(SkIRect(desiredOutput), mapping.layerMatrix(),
                                              kReverse_MapDirection, &content);
@@ -542,7 +552,7 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetInputLayerBounds(
 
 skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetOutputLayerBounds(
         const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const {
-    // Call old functions for now; normally this would default to visitOutputLayerBounds()
+    // Call old functions for now; eventually this will be a pure virtual
     SkIRect aggregate = this->onFilterBounds(SkIRect(contentBounds), mapping.layerMatrix(),
                                              kForward_MapDirection, nullptr);
     SkIRect output = this->onFilterNodeBounds(aggregate, mapping.layerMatrix(),

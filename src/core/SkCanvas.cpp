@@ -703,7 +703,7 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
         bool mustCoverDst = true) {
     auto failedMapping = []() {
         return std::make_pair<skif::Mapping, skif::LayerSpace<SkIRect>>(
-                {}, skif::LayerSpace<SkIRect>(SkIRect::MakeEmpty()));
+                {}, skif::LayerSpace<SkIRect>::Empty());
     };
 
     SkMatrix dstToLocal;

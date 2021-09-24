@@ -203,7 +203,9 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
     // DEPRECATED - Use the private context-only variant
-    virtual sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const = 0;
+    virtual sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const {
+        return nullptr;
+    }
 
     // DEPRECATED - Override onGetOutputLayerBounds and onGetInputLayerBounds instead. The
     // node-specific and aggregation functions are no longer separated in the current API. A helper
@@ -469,6 +471,7 @@ void SkRegisterBlendImageFilterFlattenable();
 void SkRegisterBlurImageFilterFlattenable();
 void SkRegisterColorFilterImageFilterFlattenable();
 void SkRegisterComposeImageFilterFlattenable();
+void SkRegisterCropImageFilterFlattenable();
 void SkRegisterDisplacementMapImageFilterFlattenable();
 void SkRegisterDropShadowImageFilterFlattenable();
 void SkRegisterImageImageFilterFlattenable();

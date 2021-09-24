@@ -140,4 +140,22 @@ SkSize Mapping::map<SkSize>(const SkSize& geom, const SkMatrix& matrix) {
     return SkSize::Make(v.fX, v.fY);
 }
 
+FilterResult FilterResult::resolveToBounds(const LayerSpace<SkIRect>& newBounds) const {
+    // NOTE(michaelludwig) - This implementation is based on the assumption that an image resolved
+    // to 'newBounds' will be decal tiled and that the current image is decal tiled. Because of this
+    // simplification, the resolved image is always a subset of 'fImage' that matches the
+    // intersection of 'newBounds' and 'layerBounds()' so no rendering/copying is needed.
+    LayerSpace<SkIRect> tightBounds = newBounds;
+    if (!fImage || !tightBounds.intersect(this->layerBounds())) {
+        return {}; //  Fully transparent
+    }
+
+    // Calculate offset from old origin to new origin, representing the relative subset in the image
+    LayerSpace<IVector> originShift = tightBounds.topLeft() - fOrigin;
+
+    auto subsetImage = fImage->makeSubset(SkIRect::MakeXYWH(originShift.x(), originShift.y(),
+                                          tightBounds.width(), tightBounds.height()));
+    return {std::move(subsetImage), tightBounds.topLeft()};
+}
+
 } // end namespace skif

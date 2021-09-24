@@ -129,6 +129,7 @@
         SkRegisterBlurImageFilterFlattenable();
         SkRegisterColorFilterImageFilterFlattenable();
         SkRegisterComposeImageFilterFlattenable();
+        SkRegisterCropImageFilterFlattenable();
         SkRegisterDisplacementMapImageFilterFlattenable();
         SkRegisterDropShadowImageFilterFlattenable();
         SkRegisterImageImageFilterFlattenable();
