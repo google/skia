@@ -24,21 +24,21 @@ static std::unique_ptr<Expression> cast_constant_array(const Context& context,
     ExpressionArray typecastArgs;
     typecastArgs.reserve_back(inputArgs.size());
     for (std::unique_ptr<Expression>& arg : inputArgs) {
-        int offset = arg->fOffset;
+        int line = arg->fLine;
         if (arg->type().isScalar()) {
-            typecastArgs.push_back(ConstructorScalarCast::Make(context, offset, scalarType,
+            typecastArgs.push_back(ConstructorScalarCast::Make(context, line, scalarType,
                                                                std::move(arg)));
         } else {
-            typecastArgs.push_back(ConstructorCompoundCast::Make(context, offset, scalarType,
+            typecastArgs.push_back(ConstructorCompoundCast::Make(context, line, scalarType,
                                                                  std::move(arg)));
         }
     }
 
-    return ConstructorArray::Make(context, constCtor->fOffset, destType, std::move(typecastArgs));
+    return ConstructorArray::Make(context, constCtor->fLine, destType, std::move(typecastArgs));
 }
 
 std::unique_ptr<Expression> ConstructorArrayCast::Make(const Context& context,
-                                                       int offset,
+                                                       int line,
                                                        const Type& type,
                                                        std::unique_ptr<Expression> arg) {
     // Only arrays of the same size are allowed.
@@ -60,7 +60,7 @@ std::unique_ptr<Expression> ConstructorArrayCast::Make(const Context& context,
     if (arg->isCompileTimeConstant()) {
         return cast_constant_array(context, type, std::move(arg));
     }
-    return std::make_unique<ConstructorArrayCast>(offset, type, std::move(arg));
+    return std::make_unique<ConstructorArrayCast>(line, type, std::move(arg));
 }
 
 }  // namespace SkSL

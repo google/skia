@@ -27,7 +27,7 @@ std::unique_ptr<Statement> SwitchStatement::clone() const {
     for (const std::unique_ptr<Statement>& stmt : this->cases()) {
         cases.push_back(stmt->clone());
     }
-    return std::make_unique<SwitchStatement>(fOffset,
+    return std::make_unique<SwitchStatement>(fLine,
                                              this->isStatic(),
                                              this->value()->clone(),
                                              std::move(cases),
@@ -93,7 +93,7 @@ static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray*
                 move_all_but_break(blockStmt, &blockStmts);
             }
 
-            target->push_back(Block::Make(block.fOffset, std::move(blockStmts),
+            target->push_back(Block::Make(block.fLine, std::move(blockStmts),
                                           block.symbolTable(), block.isScope()));
             break;
         }
@@ -161,11 +161,11 @@ std::unique_ptr<Statement> SwitchStatement::BlockForCase(StatementArray* cases,
     }
 
     // Return our newly-synthesized block.
-    return Block::Make(caseToCapture->fOffset, std::move(caseStmts), std::move(symbolTable));
+    return Block::Make(caseToCapture->fLine, std::move(caseStmts), std::move(symbolTable));
 }
 
 std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
-                                                    int offset,
+                                                    int line,
                                                     bool isStatic,
                                                     std::unique_ptr<Expression> value,
                                                     ExpressionArray caseValues,
@@ -180,10 +180,10 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
 
     StatementArray cases;
     for (int i = 0; i < caseValues.count(); ++i) {
-        int caseOffset;
+        int caseLine;
         std::unique_ptr<Expression> caseValue;
         if (caseValues[i]) {
-            caseOffset = caseValues[i]->fOffset;
+            caseLine = caseValues[i]->fLine;
 
             // Case values must be the same type as the switch value--`int` or a particular enum.
             caseValue = value->type().coerceExpression(std::move(caseValues[i]), context);
@@ -193,14 +193,14 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
             // Case values must be a literal integer or a `const int` variable reference.
             SKSL_INT intValue;
             if (!ConstantFolder::GetConstantInt(*caseValue, &intValue)) {
-                context.fErrors->error(caseValue->fOffset, "case value must be a constant integer");
+                context.fErrors->error(caseValue->fLine, "case value must be a constant integer");
                 return nullptr;
             }
         } else {
             // The null case-expression corresponds to `default:`.
-            caseOffset = offset;
+            caseLine = line;
         }
-        cases.push_back(std::make_unique<SwitchCase>(caseOffset, std::move(caseValue),
+        cases.push_back(std::make_unique<SwitchCase>(caseLine, std::move(caseValue),
                                                      std::move(caseStatements[i])));
     }
 
@@ -211,21 +211,21 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
         duplicateCases.reverse();
         for (const SwitchCase* sc : duplicateCases) {
             if (sc->value() != nullptr) {
-                context.fErrors->error(sc->fOffset,
+                context.fErrors->error(sc->fLine,
                                        "duplicate case value '" + sc->value()->description() + "'");
             } else {
-                context.fErrors->error(sc->fOffset, "duplicate default case");
+                context.fErrors->error(sc->fLine, "duplicate default case");
             }
         }
         return nullptr;
     }
 
-    return SwitchStatement::Make(context, offset, isStatic, std::move(value), std::move(cases),
+    return SwitchStatement::Make(context, line, isStatic, std::move(value), std::move(cases),
                                  std::move(symbolTable));
 }
 
 std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
-                                                 int offset,
+                                                 int line,
                                                  bool isStatic,
                                                  std::unique_ptr<Expression> value,
                                                  StatementArray cases,
@@ -284,7 +284,7 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
 
             // Report an error if this was a static switch and BlockForCase failed us.
             if (isStatic && !context.fConfig->fSettings.fPermitInvalidStaticTests) {
-                context.fErrors->error(value->fOffset,
+                context.fErrors->error(value->fLine,
                                        "static switch contains non-static conditional exit");
                 return nullptr;
             }
@@ -292,7 +292,7 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
     }
 
     // The switch couldn't be optimized away; emit it normally.
-    return std::make_unique<SwitchStatement>(offset, isStatic, std::move(value), std::move(cases),
+    return std::make_unique<SwitchStatement>(line, isStatic, std::move(value), std::move(cases),
                                              std::move(symbolTable));
 }
 

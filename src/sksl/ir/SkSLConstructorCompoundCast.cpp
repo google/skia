@@ -29,8 +29,8 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
         // replace it with a splat of a different type, e.g. `int4(7)`.
         ConstructorSplat& splat = constCtor->as<ConstructorSplat>();
         return ConstructorSplat::Make(
-                context, constCtor->fOffset, destType,
-                ConstructorScalarCast::Make(context, constCtor->fOffset, scalarType,
+                context, constCtor->fLine, destType,
+                ConstructorScalarCast::Make(context, constCtor->fLine, scalarType,
                                             std::move(splat.argument())));
     }
 
@@ -39,8 +39,8 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
         // with a diagonal matrix of a different type, e.g. `half3x3(2)`.
         ConstructorDiagonalMatrix& matrixCtor = constCtor->as<ConstructorDiagonalMatrix>();
         return ConstructorDiagonalMatrix::Make(
-                context, constCtor->fOffset, destType,
-                ConstructorScalarCast::Make(context, constCtor->fOffset, scalarType,
+                context, constCtor->fLine, destType,
+                ConstructorScalarCast::Make(context, constCtor->fLine, scalarType,
                                             std::move(matrixCtor.argument())));
     }
 
@@ -52,16 +52,16 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
     typecastArgs.reserve_back(numSlots);
     for (size_t index = 0; index < numSlots; ++index) {
         const Expression* arg = constCtor->getConstantSubexpression(index);
-        typecastArgs.push_back(ConstructorScalarCast::Make(context, constCtor->fOffset, scalarType,
+        typecastArgs.push_back(ConstructorScalarCast::Make(context, constCtor->fLine, scalarType,
                                                            arg->clone()));
     }
 
-    return ConstructorCompound::Make(context, constCtor->fOffset, destType,
+    return ConstructorCompound::Make(context, constCtor->fLine, destType,
                                      std::move(typecastArgs));
 }
 
 std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context,
-                                                          int offset,
+                                                          int line,
                                                           const Type& type,
                                                           std::unique_ptr<Expression> arg) {
     // Only vectors or matrices of the same dimensions are allowed.
@@ -85,7 +85,7 @@ std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context
     if (arg->isCompileTimeConstant()) {
         return cast_constant_composite(context, type, std::move(arg));
     }
-    return std::make_unique<ConstructorCompoundCast>(offset, type, std::move(arg));
+    return std::make_unique<ConstructorCompoundCast>(line, type, std::move(arg));
 }
 
 }  // namespace SkSL

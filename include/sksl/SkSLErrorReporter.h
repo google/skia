@@ -43,11 +43,6 @@ public:
         return fLine;
     }
 
-    // Temporary method until we finish replacing offset with line
-    int offset() {
-        return fLine;
-    }
-
 private:
     const char* fFile = nullptr;
     int32_t fLine = -1;
@@ -67,10 +62,10 @@ public:
     void error(skstd::string_view msg, PositionInfo position);
 
     /**
-     * Reports an error message at the given character offset of the source text. Errors reported
-     * with an offset of -1 will be queued until line number information can be determined.
+     * Reports an error message at the given line of the source text. Errors reported
+     * with a line of -1 will be queued until line number information can be determined.
      */
-    void error(int offset, skstd::string_view msg);
+    void error(int line, skstd::string_view msg);
 
     const char* source() const { return fSource; }
 

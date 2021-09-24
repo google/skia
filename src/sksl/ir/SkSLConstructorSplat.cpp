@@ -11,7 +11,7 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
-                                                   int offset,
+                                                   int line,
                                                    const Type& type,
                                                    std::unique_ptr<Expression> arg) {
     SkASSERT(arg->type().scalarTypeForLiteral() == type.componentType().scalarTypeForLiteral());
@@ -29,7 +29,7 @@ std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
     }
 
     SkASSERT(type.isVector());
-    return std::make_unique<ConstructorSplat>(offset, type, std::move(arg));
+    return std::make_unique<ConstructorSplat>(line, type, std::move(arg));
 }
 
 }  // namespace SkSL

@@ -195,16 +195,16 @@ PositionInfo DSLParser::position(Token t) {
     return this->position(t.fLine);
 }
 
-PositionInfo DSLParser::position(int offset) {
-    return PositionInfo("<unknown>", offset);
+PositionInfo DSLParser::position(int line) {
+    return PositionInfo("<unknown>", line);
 }
 
 void DSLParser::error(Token token, String msg) {
     this->error(token.fLine, msg);
 }
 
-void DSLParser::error(int offset, String msg) {
-    GetErrorReporter().error(msg.c_str(), this->position(offset));
+void DSLParser::error(int line, String msg) {
+    GetErrorReporter().error(msg.c_str(), this->position(line));
 }
 
 /* declaration* END_OF_FILE */
@@ -394,12 +394,12 @@ SKSL_INT DSLParser::arraySize() {
     }
 }
 
-bool DSLParser::parseArrayDimensions(int offset, DSLType* type) {
+bool DSLParser::parseArrayDimensions(int line, DSLType* type) {
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
-            this->error(offset, "expected array dimension");
+            this->error(line, "expected array dimension");
         } else {
-            *type = Array(*type, this->arraySize(), this->position(offset));
+            *type = Array(*type, this->arraySize(), this->position(line));
             if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
                 return false;
             }
@@ -408,7 +408,7 @@ bool DSLParser::parseArrayDimensions(int offset, DSLType* type) {
     return true;
 }
 
-bool DSLParser::parseInitializer(int offset, DSLExpression* initializer) {
+bool DSLParser::parseInitializer(int line, DSLExpression* initializer) {
     if (this->checkNext(Token::Kind::TK_EQ)) {
         DSLExpression value = this->assignmentExpression();
         if (!value.hasValue()) {
@@ -1560,17 +1560,17 @@ DSLExpression DSLParser::postfixExpression() {
     }
 }
 
-DSLExpression DSLParser::swizzle(int offset, DSLExpression base,
+DSLExpression DSLParser::swizzle(int line, DSLExpression base,
         skstd::string_view swizzleMask) {
     SkASSERT(swizzleMask.length() > 0);
     if (!base.type().isVector() && !base.type().isScalar()) {
-        return base.field(swizzleMask, this->position(offset));
+        return base.field(swizzleMask, this->position(line));
     }
     int length = swizzleMask.length();
     SkSL::SwizzleComponent::Type components[4];
     for (int i = 0; i < length; ++i) {
         if (i >= 4) {
-            this->error(offset, "too many components in swizzle mask");
+            this->error(line, "too many components in swizzle mask");
             return DSLExpression::Poison();
         }
         switch (swizzleMask[i]) {
@@ -1593,7 +1593,7 @@ DSLExpression DSLParser::swizzle(int offset, DSLExpression base,
             case 'q': components[i] = SwizzleComponent::Q;    break;
             case 'B': components[i] = SwizzleComponent::UB;   break;
             default:
-                this->error(offset,
+                this->error(line,
                         String::printf("invalid swizzle component '%c'", swizzleMask[i]).c_str());
                 return DSLExpression::Poison();
         }
@@ -1608,8 +1608,8 @@ DSLExpression DSLParser::swizzle(int offset, DSLExpression base,
     }
 }
 
-dsl::DSLExpression DSLParser::call(int offset, dsl::DSLExpression base, ExpressionArray args) {
-    return DSLExpression(base(std::move(args), this->position(offset)), this->position(offset));
+dsl::DSLExpression DSLParser::call(int line, dsl::DSLExpression base, ExpressionArray args) {
+    return DSLExpression(base(std::move(args), this->position(line)), this->position(line));
 }
 
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN arguments RPAREN |

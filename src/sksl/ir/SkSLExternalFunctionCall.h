@@ -22,8 +22,8 @@ class ExternalFunctionCall final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kExternalFunctionCall;
 
-    ExternalFunctionCall(int offset, const ExternalFunction* function, ExpressionArray arguments)
-        : INHERITED(offset, kExpressionKind, &function->type())
+    ExternalFunctionCall(int line, const ExternalFunction* function, ExpressionArray arguments)
+        : INHERITED(line, kExpressionKind, &function->type())
         , fFunction(*function)
         , fArguments(std::move(arguments)) {}
 
@@ -57,7 +57,7 @@ public:
         for (const auto& arg : this->arguments()) {
             cloned.push_back(arg->clone());
         }
-        return std::make_unique<ExternalFunctionCall>(fOffset, &this->function(),
+        return std::make_unique<ExternalFunctionCall>(fLine, &this->function(),
                                                       std::move(cloned));
     }
 

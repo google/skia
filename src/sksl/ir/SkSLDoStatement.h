@@ -20,8 +20,8 @@ class DoStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kDo;
 
-    DoStatement(int offset, std::unique_ptr<Statement> statement, std::unique_ptr<Expression> test)
-        : INHERITED(offset, kStatementKind)
+    DoStatement(int line, std::unique_ptr<Statement> statement, std::unique_ptr<Expression> test)
+        : INHERITED(line, kStatementKind)
         , fStatement(std::move(statement))
         , fTest(std::move(test)) {}
 

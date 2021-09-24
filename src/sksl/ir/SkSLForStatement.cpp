@@ -48,7 +48,7 @@ std::unique_ptr<Statement> ForStatement::clone() const {
     }
 
     return std::make_unique<ForStatement>(
-            fOffset,
+            fLine,
             this->initializer() ? this->initializer()->clone() : nullptr,
             this->test() ? this->test()->clone() : nullptr,
             this->next() ? this->next()->clone() : nullptr,
@@ -76,7 +76,7 @@ String ForStatement::description() const {
     return result;
 }
 
-std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int offset,
+std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int line,
                                                  std::unique_ptr<Statement> initializer,
                                                  std::unique_ptr<Expression> test,
                                                  std::unique_ptr<Expression> next,
@@ -87,7 +87,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
             !isSimpleInitializer && is_vardecl_block_initializer(initializer.get());
 
     if (!isSimpleInitializer && !isVardeclBlockInitializer) {
-        context.fErrors->error(initializer->fOffset, "invalid for loop initializer");
+        context.fErrors->error(initializer->fLine, "invalid for loop initializer");
         return nullptr;
     }
 
@@ -110,7 +110,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
 
     std::unique_ptr<LoopUnrollInfo> unrollInfo;
     if (context.fConfig->strictES2Mode()) {
-        unrollInfo = Analysis::GetLoopUnrollInfo(offset, initializer.get(), test.get(),
+        unrollInfo = Analysis::GetLoopUnrollInfo(line, initializer.get(), test.get(),
                                                  next.get(), statement.get(), context.fErrors);
         if (!unrollInfo) {
             return nullptr;
@@ -130,30 +130,30 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
         // unilaterally for all for-statements, because the resulting for loop isn't ES2-compliant.)
         StatementArray scope;
         scope.push_back(std::move(initializer));
-        scope.push_back(ForStatement::Make(context, offset, /*initializer=*/nullptr,
+        scope.push_back(ForStatement::Make(context, line, /*initializer=*/nullptr,
                                            std::move(test), std::move(next), std::move(statement),
                                            std::move(unrollInfo), std::move(symbolTable)));
-        return Block::Make(offset, std::move(scope));
+        return Block::Make(line, std::move(scope));
     }
 
-    return ForStatement::Make(context, offset, std::move(initializer), std::move(test),
+    return ForStatement::Make(context, line, std::move(initializer), std::move(test),
                               std::move(next), std::move(statement), std::move(unrollInfo),
                               std::move(symbolTable));
 }
 
-std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context, int offset,
+std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context, int line,
                                                       std::unique_ptr<Expression> test,
                                                       std::unique_ptr<Statement> statement,
                                                       std::shared_ptr<SymbolTable> symbolTable) {
     if (context.fConfig->strictES2Mode()) {
-        context.fErrors->error(offset, "while loops are not supported");
+        context.fErrors->error(line, "while loops are not supported");
         return nullptr;
     }
-    return ForStatement::Convert(context, offset, /*initializer=*/nullptr, std::move(test),
+    return ForStatement::Convert(context, line, /*initializer=*/nullptr, std::move(test),
                                  /*next=*/nullptr, std::move(statement), std::move(symbolTable));
 }
 
-std::unique_ptr<Statement> ForStatement::Make(const Context& context, int offset,
+std::unique_ptr<Statement> ForStatement::Make(const Context& context, int line,
                                               std::unique_ptr<Statement> initializer,
                                               std::unique_ptr<Expression> test,
                                               std::unique_ptr<Expression> next,
@@ -167,12 +167,12 @@ std::unique_ptr<Statement> ForStatement::Make(const Context& context, int offset
 
     // If the caller didn't provide us with unroll info, we can compute it here if needed.
     if (!unrollInfo && context.fConfig->strictES2Mode()) {
-        unrollInfo = Analysis::GetLoopUnrollInfo(offset, initializer.get(), test.get(),
+        unrollInfo = Analysis::GetLoopUnrollInfo(line, initializer.get(), test.get(),
                                                  next.get(), statement.get(), /*errors=*/nullptr);
         SkASSERT(unrollInfo);
     }
 
-    return std::make_unique<ForStatement>(offset, std::move(initializer), std::move(test),
+    return std::make_unique<ForStatement>(line, std::move(initializer), std::move(test),
                                           std::move(next), std::move(statement),
                                           std::move(unrollInfo), std::move(symbolTable));
 }
