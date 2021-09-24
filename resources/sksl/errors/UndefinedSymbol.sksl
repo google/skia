@@ -1,1 +1,7 @@
-void main() { x = float2(1); }
+void a() { x = float2(1); }
+void b() { float w = x; }
+void c() { float w = x, y; }
+void d() { float w = x, y = z; }
+
+float e = f, g = h;
+float i = j, k;

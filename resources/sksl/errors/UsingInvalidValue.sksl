@@ -1,4 +1,11 @@
 int func() { return 1; }
 
-void expect_constructor_invocation() { int x = int; }
-void expect_function_call()          { int x = func; }
+void expect_constructor_invocation()                   { int x = int; }
+void expect_constructor_invocation_extra_initializer() { int x, y = int; }
+void expect_function_call()                            { int x = func; }
+void expect_function_call_extra_initializer()          { int x, y = func; }
+
+int  g_expect_constructor_invocation                       = int;
+int  g_expect_constructor_invocation_extra_initializer, ix = int;
+int  g_expect_function_call                                = func;
+int  g_expect_function_call_extra_initializer,          iy = func;
