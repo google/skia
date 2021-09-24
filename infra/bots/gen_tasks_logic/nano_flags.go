@@ -68,9 +68,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			sampleCount = 0
 		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
-		} else if b.extraConfig("SwiftShader") {
-			glPrefix = "gles"
-			sampleCount = 0
 		}
 
 		configs = append(configs, glPrefix, "srgb-"+glPrefix)
@@ -164,7 +161,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			configs = []string{"gles"}
 		}
 		if b.extraConfig("SwiftShader") {
-			configs = []string{"gles"}
+			configs = []string{"gles", "glesdmsaa"}
 		}
 	}
 
