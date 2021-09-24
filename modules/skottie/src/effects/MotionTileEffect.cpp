@@ -139,6 +139,11 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
+        if (ctx) {
+            // apply any pending paint effects via the shader paint
+            ctx->modulatePaint(canvas->getLocalToDeviceAs3x3(), &paint);
+        }
+
         paint.setShader(fMainPassShader);
         canvas->drawRect(this->bounds(), paint);
 
