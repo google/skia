@@ -1354,67 +1354,9 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
 }
 
 void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
-    if (this->caps().rewriteSwitchStatements()) {
-        String fallthroughVar = "_tmpSwitchFallthrough" + to_string(fVarCount++);
-        String valueVar = "_tmpSwitchValue" + to_string(fVarCount++);
-        String loopVar = "_tmpSwitchLoop" + to_string(fVarCount++);
-        this->write("int ");
-        this->write(valueVar);
-        this->write(" = ");
-        this->writeExpression(*s.value(), Precedence::kAssignment);
-        this->write(", ");
-        this->write(fallthroughVar);
-        this->writeLine(" = 0;");
-        this->write("for (int ");
-        this->write(loopVar);
-        this->write(" = 0; ");
-        this->write(loopVar);
-        this->write(" < 1; ");
-        this->write(loopVar);
-        this->writeLine("++) {");
-        fIndentation++;
-
-        bool firstCase = true;
-        for (const std::unique_ptr<Statement>& stmt : s.cases()) {
-            const SwitchCase& c = stmt->as<SwitchCase>();
-            if (c.value()) {
-                this->write("if ((");
-                if (firstCase) {
-                    firstCase = false;
-                } else {
-                    this->write(fallthroughVar);
-                    this->write(" > 0) || (");
-                }
-                this->write(valueVar);
-                this->write(" == ");
-                this->writeExpression(*c.value(), Precedence::kEquality);
-                this->writeLine(")) {");
-                fIndentation++;
-
-                // We write the entire case-block statement here, and then set `switchFallthrough`
-                // to 1. If the case-block had a break statement in it, we break out of the outer
-                // for-loop entirely, meaning the `switchFallthrough` assignment never occurs, nor
-                // does any code after it inside the switch. We've forbidden `continue` statements
-                // inside switch case-blocks entirely, so we don't need to consider their effect on
-                // control flow; see the Finalizer in FunctionDefinition::Convert.
-                this->writeStatement(*c.statement());
-                this->finishLine();
-                this->write(fallthroughVar);
-                this->write(" = 1;");
-                this->writeLine();
-
-                fIndentation--;
-                this->writeLine("}");
-            } else {
-                // This is the default case. Since it's always last, we can just dump in the code.
-                this->writeStatement(*c.statement());
-                this->finishLine();
-            }
-        }
-
-        fIndentation--;
-        this->writeLine("}");
-        return;
+    if (fProgram.fConfig->strictES2Mode()) {
+        // TODO(skia:12450): write switch compatibility code
+        fContext.fErrors->error(s.fLine, "switch statements are not supported");
     }
 
     this->write("switch (");
