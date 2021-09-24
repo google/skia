@@ -1,3 +1,5 @@
+/*#pragma settings RewriteSwitchStatements*/
+
 uniform half4 colorGreen, colorRed;
 
 bool switch_with_break_in_loop(int x) {

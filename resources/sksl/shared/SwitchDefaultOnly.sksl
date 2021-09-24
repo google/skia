@@ -1,3 +1,5 @@
+/*#pragma settings RewriteSwitchStatements*/
+
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
