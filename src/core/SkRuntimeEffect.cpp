@@ -1002,19 +1002,7 @@ public:
         if (fIsOpaque) {
             fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::RGB1());
         }
-        fp = GrMatrixEffect::Make(matrix, std::move(fp));
-        // Three cases of GrClampType to think about:
-        //   kAuto   - Normalized fixed-point. If fIsOpaque, then A is 1 (above), and the format's
-        //             range ensures RGB must be no larger. If !fIsOpaque, we clamp here.
-        //   kManual - Normalized floating point. Whether or not we set A above, the format's range
-        //             means we need to clamp RGB.
-        //   kNone   - Unclamped floating point. No clamping is done, ever.
-        GrClampType clampType = GrColorTypeClampType(args.fDstColorInfo->colorType());
-        if (clampType == GrClampType::kManual || (clampType == GrClampType::kAuto && !fIsOpaque)) {
-            return GrFragmentProcessor::ClampPremulOutput(std::move(fp));
-        } else {
-            return std::move(fp);
-        }
+        return GrMatrixEffect::Make(matrix, std::move(fp));
     }
 #endif
 

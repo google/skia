@@ -324,25 +324,12 @@ void SkVMBlitter::BuildProgram(skvm::Builder* p, const Params& params,
         src.b = min(src.b * M + A, src.a);
     }
 
-    // If we can determine this we can skip a fair bit of clamping!
-    bool src_in_gamut = false;
-
-    // Normalized premul formats can surprisingly represent some out-of-gamut
-    // values (e.g. r=0xff, a=0xee fits in unorm8 but r = 1.07), but most code
-    // working with normalized premul colors is not prepared to handle r,g,b > a.
-    // So we clamp the shader to gamut here before blending and coverage.
-    //
-    // In addition, GL clamps all its color channels to limits of the format just
-    // before the blend step (~here).  To match that auto-clamp, we clamp alpha to
-    // [0,1] too, just in case someone gave us an out of range alpha.
-    if (!src_in_gamut
-            && params.dst.alphaType() == kPremul_SkAlphaType
-            && SkColorTypeIsNormalized(params.dst.colorType())) {
-        src.a = clamp(src.a, 0.0f,  1.0f);
-        src.r = clamp(src.r, 0.0f, src.a);
-        src.g = clamp(src.g, 0.0f, src.a);
-        src.b = clamp(src.b, 0.0f, src.a);
-        src_in_gamut = true;
+    // GL clamps all its color channels to limits of the format just before the blend step (~here).
+    // TODO: Below, we also clamp after the blend step. If we can prove that none of the work here
+    // (especially blending, for built-in blend modes) will produce colors outside [0, 1] we may be
+    // able to skip the second clamp. For now, we clamp twice.
+    if (SkColorTypeIsNormalized(params.dst.colorType())) {
+        src = clamp01(src);
     }
 
     // Load the destination color.
@@ -425,17 +412,7 @@ void SkVMBlitter::BuildProgram(skvm::Builder* p, const Params& params,
     }
 
     // Clamp to fit destination color format if needed.
-    if (as_blendmode && src_in_gamut) {
-        // An in-gamut src blended with an in-gamut dst should stay in gamut.
-        // Being in-gamut implies all channels are in [0,1], so no need to clamp.
-        // We allow one ulp error above 1.0f, and about that much (~1.2e-7) below 0.
-        skvm::F32 lo = pun_to_F32(p->splat(0xb400'0000)),
-                  hi = pun_to_F32(p->splat(0x3f80'0001));
-        assert_true(src.r == clamp(src.r, lo, hi), src.r);
-        assert_true(src.g == clamp(src.g, lo, hi), src.g);
-        assert_true(src.b == clamp(src.b, lo, hi), src.b);
-        assert_true(src.a == clamp(src.a, lo, hi), src.a);
-    } else if (SkColorTypeIsNormalized(params.dst.colorType())) {
+    if (SkColorTypeIsNormalized(params.dst.colorType())) {
         src = clamp01(src);
     }
 

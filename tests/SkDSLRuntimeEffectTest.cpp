@@ -142,7 +142,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
         effect.uniform(SkString(gColor.name()).c_str()) = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
         effect.test(0xFFBF4000);
         effect.uniform(SkString(gColor.name()).c_str()) = float4{ 1.0f, 0.0f, 0.0f, 0.498f };
-        effect.test(0x7F00007F);  // Tests that we clamp to valid premul
+        effect.test(0x7F0000FF);  // Tests that we don't clamp to valid premul
     }
 
     // Same, with integer uniforms
@@ -158,7 +158,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
         effect.uniform(SkString(gColor.name()).c_str()) = int4{ 0x00, 0x40, 0xBF, 0xFF };
         effect.test(0xFFBF4000);
         effect.uniform(SkString(gColor.name()).c_str()) = int4{ 0xFF, 0x00, 0x00, 0x7F };
-        effect.test(0x7F00007F);  // Tests that we clamp to valid premul
+        effect.test(0x7F0000FF);  // Tests that we don't clamp to valid premul
     }
 
     // Test sk_FragCoord (device coords). Rotate the canvas to be sure we're seeing device coords.
