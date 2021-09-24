@@ -168,6 +168,10 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_rewriteLoopCaps = Factory::RewriteDoWhileLoops();
                     *caps = s_rewriteLoopCaps.get();
                 }
+                if (settingsText.consumeSuffix(" RewriteSwitchStatements")) {
+                    static auto s_rewriteSwitchCaps = Factory::RewriteSwitchStatements();
+                    *caps = s_rewriteSwitchCaps.get();
+                }
                 if (settingsText.consumeSuffix(" RewriteMatrixVectorMultiply")) {
                     static auto s_rewriteMatVecMulCaps = Factory::RewriteMatrixVectorMultiply();
                     *caps = s_rewriteMatVecMulCaps.get();

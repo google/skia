@@ -397,6 +397,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fWireframeSupport = true;
     }
 
+    if (GR_IS_GR_GL(standard)) {
+        shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(1, 3);  // introduced in GLSL 1.3
+    } else if (GR_IS_GR_GL_ES(standard)) {
+        shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(3, 0);  // introduced in GLSL ES3
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(2, 0);  // introduced in WebGL 2
+    }
+
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
     GrGLint maxSamplers;

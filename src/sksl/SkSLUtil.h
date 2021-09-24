@@ -257,6 +257,11 @@ public:
         return fRewriteDoWhileLoops;
     }
 
+    bool fRewriteSwitchStatements = false;
+    bool rewriteSwitchStatements() const {
+        return fRewriteSwitchStatements;
+    }
+
     bool fRemovePowWithConstantExponent = false;
     bool removePowWithConstantExponent() const {
         return fRemovePowWithConstantExponent;
@@ -406,6 +411,13 @@ public:
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
         result->fRewriteMatrixVectorMultiply = true;
+        return result;
+    }
+
+    static ShaderCapsPointer RewriteSwitchStatements() {
+        ShaderCapsPointer result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fRewriteSwitchStatements = true;
         return result;
     }
 

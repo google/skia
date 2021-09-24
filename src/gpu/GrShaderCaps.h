@@ -160,6 +160,8 @@ public:
 
     bool rewriteDoWhileLoops() const { return fRewriteDoWhileLoops; }
 
+    bool rewriteSwitchStatements() const { return fRewriteSwitchStatements; }
+
     bool removePowWithConstantExponent() const { return fRemovePowWithConstantExponent; }
 
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
@@ -315,6 +317,7 @@ private:
     bool fUnfoldShortCircuitAsTernary                 : 1;
     bool fEmulateAbsIntFunction                       : 1;
     bool fRewriteDoWhileLoops                         : 1;
+    bool fRewriteSwitchStatements                     : 1;
     bool fRemovePowWithConstantExponent               : 1;
     bool fMustWriteToFragColor                        : 1;
     bool fNoDefaultPrecisionForExternalSamplers       : 1;

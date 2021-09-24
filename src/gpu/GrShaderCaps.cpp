@@ -41,6 +41,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fUnfoldShortCircuitAsTernary = false;
     fEmulateAbsIntFunction = false;
     fRewriteDoWhileLoops = false;
+    fRewriteSwitchStatements = false;
     fRemovePowWithConstantExponent = false;
     fMustWriteToFragColor = false;
     fNoDefaultPrecisionForExternalSamplers = false;
@@ -124,6 +125,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Unfold short circuit as ternary", fUnfoldShortCircuitAsTernary);
     writer->appendBool("Emulate abs(int) function", fEmulateAbsIntFunction);
     writer->appendBool("Rewrite do while loops", fRewriteDoWhileLoops);
+    writer->appendBool("Rewrite switch statements", fRewriteSwitchStatements);
     writer->appendBool("Rewrite pow with constant exponent", fRemovePowWithConstantExponent);
     writer->appendBool("Must write to sk_FragColor [workaround]", fMustWriteToFragColor);
     writer->appendBool("Don't add default precision statement for samplerExternalOES",
@@ -177,6 +179,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fUnfoldShortCircuitAsTernary);
         SkASSERT(!fEmulateAbsIntFunction);
         SkASSERT(!fRewriteDoWhileLoops);
+        SkASSERT(!fRewriteSwitchStatements);
         SkASSERT(!fRemovePowWithConstantExponent);
         SkASSERT(!fMustWriteToFragColor);
         SkASSERT(!fNoDefaultPrecisionForExternalSamplers);
