@@ -13,6 +13,7 @@
 namespace skgpu {
 
 class Caps;
+class ResourceProvider;
 
 class Gpu : public SkRefCnt {
 public:
@@ -24,11 +25,15 @@ public:
     const Caps* caps() const { return fCaps.get(); }
     sk_sp<const Caps> refCaps() const { return fCaps; }
 
+    ResourceProvider* resourceProvider() const { return fResourceProvider.get(); }
+
 protected:
     Gpu();
 
 private:
     sk_sp<const Caps> fCaps;
+
+    std::unique_ptr<ResourceProvider> fResourceProvider;
 };
 
 } // namespace skgpu

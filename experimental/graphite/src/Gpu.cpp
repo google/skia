@@ -8,10 +8,12 @@
 #include "experimental/graphite/src/Gpu.h"
 
 #include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/ResourceProvider.h"
 
 namespace skgpu {
 
 Gpu::Gpu() {
+    // subclasses create their own subclassed resource provider
 }
 
 Gpu::~Gpu() {
