@@ -1,11 +1,10 @@
-/*#pragma settings RewriteSwitchStatements*/
 
-uniform half4 colorGreen, colorRed;
-
-half4 main(float2 coords) {
-    // Basic switch test.
-    half4 color;
-    switch (int(colorGreen.g)) {
+out vec4 sk_FragColor;
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+vec4 main() {
+    vec4 color;
+    switch (int(colorGreen.y)) {
         case 0:
             color = colorRed;
             break;
