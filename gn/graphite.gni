@@ -37,3 +37,8 @@ skia_graphite_sources = [
   "$_src/Task.cpp",
   "$_src/Task.h",
 ]
+
+skia_graphite_mtl_sources = [
+  "$_src/mtl/MtlGpu.h",
+  "$_src/mtl/MtlGpu.mm",
+]

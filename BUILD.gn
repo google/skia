@@ -1026,10 +1026,22 @@ optional("ndk_images") {
 }
 
 optional("graphite") {
+  libs = []
+  frameworks = []
+
   enabled = skia_enable_graphite
   public_defines = [ "SK_GRAPHITE_ENABLED" ]
   public = skia_graphite_public
   sources = skia_graphite_sources
+  if (skia_use_metal) {
+    public_defines += [ "SK_METAL" ]
+    sources += skia_graphite_mtl_sources
+    if (skia_enable_metal_debug_info) {
+      public_defines += [ "SK_ENABLE_MTL_DEBUG_INFO" ]
+    }
+    frameworks += [ "Metal.framework" ]
+    frameworks += [ "Foundation.framework" ]
+  }
 }
 
 optional("pdf") {
