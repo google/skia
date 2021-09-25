@@ -93,7 +93,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                     const GrGLContextInfo& ctxInfo,
                     const GrGLInterface* gli) {
     GrGLStandard standard = ctxInfo.standard();
-    // standard can be unused (optimzed away) if SK_ASSUME_GL_ES is set
+    // standard can be unused (optimized away) if SK_ASSUME_GL_ES is set
     sk_ignore_unused_variable(standard);
     GrGLVersion version = ctxInfo.version();
 
@@ -398,9 +398,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(1, 3);  // introduced in GLSL 1.3
+        shaderCaps->fRewriteSwitchStatements =
+                ctxInfo.glslGeneration() < k130_GrGLSLGeneration;  // introduced in GLSL 1.3
     } else if (GR_IS_GR_GL_ES(standard)) {
-        shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(3, 0);  // introduced in GLSL ES3
+        shaderCaps->fRewriteSwitchStatements =
+                ctxInfo.glslGeneration() < k330_GrGLSLGeneration;  // introduced in GLSL ES3
     } else if (GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(2, 0);  // introduced in WebGL 2
     }
