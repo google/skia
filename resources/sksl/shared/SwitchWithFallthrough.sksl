@@ -1,5 +1,3 @@
-/*#pragma settings RewriteSwitchStatements*/
-
 uniform half4 colorGreen, colorRed;
 
 bool switch_fallthrough(int value) {

@@ -899,16 +899,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179
 	}
 
-	if ((b.extraConfig("Vulkan") && b.isLinux() && b.matchGpu("Intel")) ||
-        (b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655)"))) {
+	if b.extraConfig("Vulkan") && b.isLinux() && b.matchGpu("Intel") {
 		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU") // skia:12465
-	}
-
-	if (b.gpu("Tegra3")) { // Tegra3 fails to compile break stmts inside a for loop (skia:12477)
-		skip("_", "tests", "_", "SkSLSwitch_GPU")
-		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU")
-		skip("_", "tests", "_", "SkSLSwitchWithFallthrough_GPU")
-		skip("_", "tests", "_", "SkSLSwitchWithLoops_GPU")
 	}
 
 	if b.matchGpu("Intel") { // some Intel GPUs don't return zero for the derivative of a uniform
