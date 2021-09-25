@@ -54,7 +54,7 @@ struct StrokeParams;
  * it to. Draw-specific simplification, style application, and advanced clipping should be handled
  * at a higher layer.
  */
-class DrawCommandList {
+class DrawList {
 public:
     // TBD: Do we always need the inverse deviceToLocal matrix? If not the entire matrix, do we need
     // some other matrix-dependent value (e.g. scale factor) frequently? Since the localToDevice
