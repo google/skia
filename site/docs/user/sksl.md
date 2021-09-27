@@ -106,15 +106,11 @@ Skia's use of premultiplied alpha implies:
   premultiplied vs. unpremultiplied. Many operations don't make sense if you mix
   both kinds of color together.
 
-Skia _enforces_ that the color produced by your SkSL is a valid premultiplied
-color. In other words, `RGB ≤ A`. If your SkSL returns colors where that is not
-true, they will be clamped, leading to incorrect colors. The image below
-demonstrates this: properly premultiplied colors produce a smooth gradient as
-alpha decreases. Unpremultipled colors cause the gradient to display
-incorrectly, with a shift in hue as the alpha changes. This hue shift is caused
-by Skia clamping the color's RGB values to its alpha.
+The image below demonstrates this: properly premultiplied colors produce a smooth
+gradient as alpha decreases. Unpremultipled colors cause the gradient to display
+incorrectly, becoming too bright and shifting hue as the alpha changes.
 
-<fiddle-embed name='ceeb91dcae2274c5c0e8f76a45af0678'></fiddle-embed>
+<fiddle-embed name='4aa28e27a9682fec18d8c0ca265151ad'></fiddle-embed>
 
 ---
 
