@@ -13,8 +13,6 @@
 
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
-#include "src/sksl/SkSLASTFile.h"
-#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -172,13 +170,7 @@ private:
                                                      std::unique_ptr<Expression> arraySize,
                                                      std::unique_ptr<Expression> value,
                                                      Variable::Storage storage);
-    StatementArray convertVarDeclarations(const ASTNode& decl, Variable::Storage storage);
-    void convertFunction(const ASTNode& f);
-    std::unique_ptr<Statement> convertStatement(const ASTNode& statement);
-    std::unique_ptr<Expression> convertExpression(const ASTNode& expression);
-    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(const ASTNode& m);
 
-    const Type* convertType(const ASTNode& type, bool allowVoid = false);
     std::unique_ptr<Expression> call(int line,
                                      std::unique_ptr<Expression> function,
                                      ExpressionArray arguments);
@@ -191,40 +183,16 @@ private:
             const std::vector<const FunctionDeclaration*>& functions,
             const ExpressionArray& arguments) const;
     CoercionCost coercionCost(const Expression& expr, const Type& type);
-    int convertArraySize(const Type& type, int line, const ASTNode& s);
     bool containsConstantZero(Expression& expr);
     bool dividesByZero(Operator op, Expression& right);
-    std::unique_ptr<Block> convertBlock(const ASTNode& block);
-    std::unique_ptr<Statement> convertBreak(const ASTNode& b);
-    std::unique_ptr<Statement> convertContinue(const ASTNode& c);
-    std::unique_ptr<Statement> convertDiscard(const ASTNode& d);
-    std::unique_ptr<Statement> convertDo(const ASTNode& d);
-    std::unique_ptr<Statement> convertSwitch(const ASTNode& s);
-    std::unique_ptr<Expression> convertBinaryExpression(const ASTNode& expression);
     std::unique_ptr<Extension> convertExtension(int line, skstd::string_view name);
-    std::unique_ptr<Statement> convertExpressionStatement(const ASTNode& s);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              skstd::string_view field);
-    std::unique_ptr<Statement> convertFor(const ASTNode& f);
-    std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);
-    std::unique_ptr<Statement> convertIf(const ASTNode& s);
     void scanInterfaceBlock(SkSL::InterfaceBlock& intf);
-    std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTNode& s);
     Modifiers convertModifiers(const Modifiers& m);
-    std::unique_ptr<Expression> convertPrefixExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertReturn(int line, std::unique_ptr<Expression> result);
-    std::unique_ptr<Statement> convertReturn(const ASTNode& r);
-    std::unique_ptr<Expression> convertCallExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertFieldExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
-    std::unique_ptr<StructDefinition> convertStructDefinition(const ASTNode& expression);
     std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
                                                skstd::string_view fields);
-    std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
-    std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
-    std::unique_ptr<Statement> convertWhile(const ASTNode& w);
-    void convertGlobalVarDeclarations(const ASTNode& decl);
     /** Appends sk_Position fixup to the bottom of main() if this is a vertex program. */
     void appendRTAdjustFixupToVertexMain(const FunctionDeclaration& decl, Block* body);
 
@@ -251,8 +219,6 @@ private:
     }
 
     Program::Inputs fInputs;
-
-    std::unique_ptr<ASTFile> fFile;
 
     std::shared_ptr<SymbolTable> fSymbolTable = nullptr;
     // Symbols which have definitions in the include files.

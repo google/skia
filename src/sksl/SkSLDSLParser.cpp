@@ -14,8 +14,6 @@
 
 #include <memory>
 
-#if SKSL_DSL_PARSER
-
 using namespace SkSL::dsl;
 
 namespace SkSL {
@@ -1822,5 +1820,3 @@ bool DSLParser::identifier(skstd::string_view* dest) {
 }
 
 }  // namespace SkSL
-
-#endif // SKSL_DSL_PARSER

@@ -14,7 +14,6 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLIRGenerator.h"
-#include "src/sksl/SkSLParser.h"
 
 class SkSLCompilerStartupBench : public Benchmark {
 protected:
@@ -80,17 +79,10 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
-#if SKSL_DSL_PARSER
             std::unique_ptr<SkSL::Program> program = SkSL::DSLParser(&fCompiler,
                                                                      fSettings,
                                                                      SkSL::ProgramKind::kFragment,
                                                                      fSrc).program();
-#else
-            std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(
-                                                                      SkSL::ProgramKind::kFragment,
-                                                                      fSrc,
-                                                                      fSettings);
-#endif // SKSL_DSL_PARSER
             if (fCompiler.errorCount()) {
                 SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
             }
@@ -115,56 +107,10 @@ private:
     using INHERITED = Benchmark;
 };
 
-class SkSLParseBench : public Benchmark {
-public:
-    SkSLParseBench(SkSL::String name, const char* src)
-        : fName("sksl_parse_" + name)
-        , fSrc(src)
-        , fCaps(GrContextOptions())
-        , fCompiler(&fCaps) {}
-
-protected:
-    const char* onGetName() override {
-        return fName.c_str();
-    }
-
-    bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
-    }
-
-    void onDelayedSetup() override {
-        SkSL::ParsedModule module = fCompiler.moduleForProgramKind(SkSL::ProgramKind::kFragment);
-        fCompiler.irGenerator().setSymbolTable(module.fSymbols);
-    }
-
-    void onDraw(int loops, SkCanvas*) override {
-        for (int i = 0; i < loops; i++) {
-            {
-                SkSL::AutoSymbolTable table(&fCompiler.irGenerator().symbolTable());
-                SkSL::Parser parser(fSrc, *fCompiler.irGenerator().symbolTable(),
-                                    fCompiler.errorReporter());
-                parser.compilationUnit();
-            }
-            if (fCompiler.errorCount()) {
-                SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
-            }
-        }
-    }
-
-private:
-    SkSL::String fName;
-    SkSL::String fSrc;
-    GrShaderCaps fCaps;
-    SkSL::Compiler fCompiler;
-
-    using INHERITED = Benchmark;
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define COMPILER_BENCH(name, text)                                                               \
 static constexpr char name ## _SRC[] = text;                                                     \
-DEF_BENCH(return new SkSLParseBench(#name, name ## _SRC);)                                       \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/false, Output::kNone);)  \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kNone);)  \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kGLSL);)  \

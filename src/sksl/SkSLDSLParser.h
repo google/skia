@@ -18,8 +18,6 @@
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
-#if SKSL_DSL_PARSER
-
 namespace SkSL {
 
 class ErrorReporter;
@@ -138,8 +136,6 @@ private:
     // file have comments describing the grammar rules.
 
     void declarations();
-
-    ASTNode::ID precision();
 
     SKSL_INT arraySize();
 
@@ -355,7 +351,5 @@ private:
 };
 
 }  // namespace SkSL
-
-#endif // SKSL_DSL_PARSER
 
 #endif

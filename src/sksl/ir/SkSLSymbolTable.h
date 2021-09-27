@@ -20,6 +20,7 @@
 
 namespace SkSL {
 
+class Context;
 class FunctionDeclaration;
 
 /**

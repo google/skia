@@ -393,12 +393,6 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     SkASSERT(!settings.fExternalFunctions || (kind == ProgramKind::kGeneric));
 
-#if !SKSL_DSL_PARSER
-    // Loading and optimizing our base module might reset the inliner, so do that first,
-    // *then* configure the inliner with the settings for this program.
-    const ParsedModule& baseModule = this->moduleForProgramKind(kind);
-#endif
-
     // Honor our optimization-override flags.
     switch (sOptimizer) {
         case OverrideFlag::kDefault:
@@ -437,45 +431,8 @@ std::unique_ptr<Program> Compiler::convertProgram(
     this->resetErrors();
     fInliner.reset();
 
-#if SKSL_DSL_PARSER
     settings.fDSLMangling = false;
     return DSLParser(this, settings, kind, std::move(text)).program();
-#else
-    auto textPtr = std::make_unique<String>(std::move(text));
-    AutoSource as(this, textPtr->c_str());
-
-    dsl::Start(this, kind, settings);
-    dsl::SetErrorReporter(&fErrorReporter);
-    IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/false,
-                                                            *textPtr);
-    // Ideally, we would just use dsl::ReleaseProgram and not have to do any manual mucking about
-    // with the memory pool, but we've got some impedance mismatches to solve first
-    Pool* memoryPool = dsl::DSLWriter::MemoryPool().get();
-    auto program = std::make_unique<Program>(std::move(textPtr),
-                                             std::move(dsl::DSLWriter::GetProgramConfig()),
-                                             fContext,
-                                             std::move(ir.fElements),
-                                             std::move(ir.fSharedElements),
-                                             std::move(dsl::DSLWriter::GetModifiersPool()),
-                                             std::move(ir.fSymbolTable),
-                                             std::move(dsl::DSLWriter::MemoryPool()),
-                                             ir.fInputs);
-    this->errorReporter().reportPendingErrors(PositionInfo());
-    bool success = false;
-    if (!this->finalize(*program)) {
-        // Do not return programs that failed to compile.
-    } else if (!this->optimize(*program)) {
-        // Do not return programs that failed to optimize.
-    } else {
-        // We have a successful program!
-        success = true;
-    }
-    dsl::End();
-    if (memoryPool) {
-        memoryPool->detachFromThread();
-    }
-    return success ? std::move(program) : nullptr;
-#endif // SKSL_DSL_PARSER
 }
 
 bool Compiler::optimize(LoadedModule& module) {
