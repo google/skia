@@ -396,9 +396,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     // On ARM devices we are seeing an average perf win of around 50%-60% across the board.
     if (kARM_VkVendor == properties.vendorID) {
         fPreferDiscardableMSAAAttachment = true;
-        // TODO: Turn the memoryless back on once we update chrome's vk memory allocator to
-        // handle new memoryless flag.
-        //fSupportsMemorylessAttachments = true;
+        fSupportsMemorylessAttachments = true;
     }
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
