@@ -10,9 +10,11 @@
 
 #include "experimental/graphite/src/Task.h"
 
+#include <vector>
+
 namespace skgpu {
 
-class DrawList;
+class DrawPass;
 
 /**
  * RenderPassTask handles preparing and recording DrawLists into a single render pass within a
@@ -25,18 +27,17 @@ class RenderPassTask final : public Task {
 public:
     // TODO: 'prior' isn't actually used yet but is here to represent the dependency between a
     // series of RenderPassTasks.
-    // TODO: RenderPassTask also needs to know the surface the commads are sent to (might not need
-    // to be explicit if there's a render pass list that collects {draw lists + surface}).
-    static sk_sp<RenderPassTask> Make(sk_sp<Task> prior, std::unique_ptr<DrawList> cmds);
+    static sk_sp<RenderPassTask> Make(sk_sp<Task> prior,
+                                      std::vector<std::unique_ptr<DrawPass>> passes);
 
     ~RenderPassTask() override;
 
-private:
-    RenderPassTask(std::unique_ptr<DrawList> cmds);
+    // TBD: Expose the surfaces that will need to be attached within the renderpass?
 
-    // TODO: Seems very likely that the RenderPassTask will store an optimized/immutable
-    // representation derived from a DrawList and not directly a DrawList.
-    std::unique_ptr<DrawList> fCmds;
+private:
+    RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes);
+
+    std::vector<std::unique_ptr<DrawPass>> fDrawPasses;
 };
 
 } // namespace skgpu

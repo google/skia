@@ -7,16 +7,19 @@
 
 #include "experimental/graphite/src/RenderPassTask.h"
 
-#include "experimental/graphite/src/DrawList.h"
+#include "experimental/graphite/src/DrawPass.h"
 
 namespace skgpu {
 
-sk_sp<RenderPassTask> RenderPassTask::Make(sk_sp<Task> prior, std::unique_ptr<DrawList> cmds) {
+sk_sp<RenderPassTask> RenderPassTask::Make(sk_sp<Task> prior,
+                                           std::vector<std::unique_ptr<DrawPass>> passes) {
     (void) prior; // unused for now, might be newTask.addDependency(prior)?
-    return sk_sp<RenderPassTask>(new RenderPassTask(std::move(cmds)));
+    return sk_sp<RenderPassTask>(new RenderPassTask(std::move(passes)));
 }
 
-RenderPassTask::RenderPassTask(std::unique_ptr<DrawList> cmds) : fCmds(std::move(cmds)) {}
+RenderPassTask::RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes)
+        : fDrawPasses(std::move(passes)) {}
+
 RenderPassTask::~RenderPassTask() = default;
 
 } // namespace skgpu

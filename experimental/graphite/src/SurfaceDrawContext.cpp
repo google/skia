@@ -8,6 +8,7 @@
 #include "experimental/graphite/src/SurfaceDrawContext.h"
 
 #include "experimental/graphite/src/DrawList.h"
+#include "experimental/graphite/src/DrawPass.h"
 #include "experimental/graphite/src/RenderPassTask.h"
 
 namespace skgpu {
@@ -26,8 +27,9 @@ SurfaceDrawContext::SurfaceDrawContext(const SkImageInfo& ii)
 
 SurfaceDrawContext::~SurfaceDrawContext() {
     // If the SDC is destroyed and there are pending commands, they won't be drawn. Maybe that's ok
-    // but for now consider it a bug for not calling snapDrawTask().
+    // but for now consider it a bug for not calling snapDrawTask() and snapRenderPassTask()
     SkASSERT(fPendingDraws->count() == 0);
+    SkASSERT(fDrawPasses.empty());
 }
 
 void SurfaceDrawContext::fillPath(const SkM44& localToDevice,
@@ -50,13 +52,29 @@ void SurfaceDrawContext::strokePath(const SkM44& localToDevice,
 }
 
 void SurfaceDrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
+    if (fPendingDraws->count() == 0) {
+        return;
+    }
+
     // TODO: actually sort, cull, and merge the DL for the DrawPass
     (void) occlusionCuller;
-    // TODO: eventually the RenderPassTask will be handled later since it might take over
-    // multiple DrawPasses from the SDC.
-    auto task = RenderPassTask::Make(std::move(fTail), std::move(fPendingDraws));
-    fTail = task;
+
+    auto pass = DrawPass::Make(std::move(fPendingDraws), this);
+    fDrawPasses.push_back(std::move(pass));
     fPendingDraws = std::make_unique<DrawList>();
+}
+
+sk_sp<Task> SurfaceDrawContext::snapRenderPassTask(const BoundsManager* occlusionCuller) {
+    this->snapDrawPass(occlusionCuller);
+    if (fDrawPasses.empty()) {
+        return nullptr;
+    }
+
+    // TBD: Record automatically into task graph? If so, why return a value? If not, then caller
+    // will need to actually record the task.
+    auto task = RenderPassTask::Make(std::move(fTail), std::move(fDrawPasses));
+    fTail = task;
+    return std::move(task);
 }
 
 } // namespace skgpu

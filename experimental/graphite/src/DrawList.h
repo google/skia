@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawCommandList_DEFINED
-#define skgpu_DrawCommandList_DEFINED
+#ifndef skgpu_DrawList_DEFINED
+#define skgpu_DrawList_DEFINED
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
@@ -26,7 +26,7 @@ struct PaintParams;
 struct StrokeParams;
 
 /**
- * DrawCommandList represents a collection of drawing commands (and related clip/shading state) in
+ * A DrawList represents a collection of drawing commands (and related clip/shading state) in
  * a form that closely mirrors what can be rendered efficiently and directly by the GPU backend
  * (while balancing how much pre-processing to do for draws that might get eliminated later due to
  * occlusion culling).
@@ -129,4 +129,4 @@ struct StrokeParams {
 
 } // namespace skgpu
 
-#endif // skgpu_DrawCommandList_DEFINED
+#endif // skgpu_DrawList_DEFINED

@@ -11,6 +11,8 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 
+#include <vector>
+
 class SkPath;
 class SkM44;
 
@@ -18,6 +20,7 @@ namespace skgpu {
 
 class BoundsManager;
 class DrawList;
+class DrawPass;
 class Task;
 
 struct PaintParams;
@@ -56,32 +59,44 @@ public:
     // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or
     // appended DrawPasses from a child SDC. A new DrawList is started to record subsequent drawing
     // operations.
-
+    //
     // If 'occlusionCuller' is null, then culling is skipped when converting the DrawList into a
     // DrawPass.
     // TBD - should this also return the task so the caller can point to it with its own
     // dependencies? Or will that be mostly automatic based on draws and proxy refs?
     void snapDrawPass(const BoundsManager* occlusionCuller);
 
+    // TBD: snapRenderPassTask() might not need to be public, and could be spec'ed to require that
+    // snapDrawPass() must have been called first. A lot of it will depend on how the task graph is
+    // managed.
+
+    // Ends the current DrawList if needed, as in 'snapDrawPass', and moves the new DrawPass and all
+    // prior accumulated DrawPasses into a RenderPassTask that can be drawn and depended on. The
+    // returned task will automatically depend on any previous snapped task of the SDC.
+    //
+    // Returns null if there are no pending commands or draw passes to move into a task.
+    sk_sp<Task> snapRenderPassTask(const BoundsManager* occlusionCuller);
+
 private:
     SurfaceDrawContext(const SkImageInfo&);
 
     SkImageInfo fImageInfo;
 
-    // TODO: After discussing the possibility of sub renderpasses and memoryless saved layers,
-    // an SDC ought to hold on to a list of {DrawList, Proxy} that represent the pending subpasses.
-    // A saveLayer can be then be drawn by (1) a regular render pass, followed by a regular texture
-    // sample in the parent's SDC, (2) a sub pass where the layer's draw list targets a
-    // "memory-less" 2nd surface w/in a regular render pass for the parent, or (3) fully eliding the
-    // layer by appending it's draw list directly to the parent's draw list. This will need to be
-    // represented at this high API level because it requires decisions to be made by Device when
-    // creating the SkDevice for the new layer, and during the restore.
+    // Stores the most immediately recorded draws into the SDC's surface. This list is mutable and
+    // can be appended to, or have its commands rewritten if they are inlined into a parent SDC.
     std::unique_ptr<DrawList> fPendingDraws;
 
-    // TBD - Does the SDC even need to hold on to its tail task? Or when it finalizes its current
-    // DCL into a DrawTask it can send that back to the Recorder as part of a larger task graph?
-    // The only question then would be how to track the dependencies of that DrawTask since it would
-    // depend on the prior DrawTask and the SDC's surface view.
+    // Stores previously snapped DrawPasses of this SDC, or inlined child SDCs whose content
+    // couldn't have been copied directly to fPendingDraws. While each DrawPass is immutable, the
+    // list of DrawPasses is not final until there is an external dependency on the SDC's content
+    // that requires it to be resolved as its own render pass (vs. inlining the SDC's passes into a
+    // parent's render pass).
+    std::vector<std::unique_ptr<DrawPass>> fDrawPasses;
+
+    // TBD - Does the SDC even need to hold on to its tail task? Or when it finalizes its list of
+    // passes into a RenderPassTask it can send that back to the Recorder as part of a larger task
+    // graph? The only question then would be how to track the dependencies of that RenderPassTask
+    // since it would depend on the prior RenderPassTask and the SDC's of the DrawPasses.
     sk_sp<Task> fTail;
 };
 
