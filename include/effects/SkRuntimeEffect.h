@@ -192,13 +192,6 @@ public:
                                const SkMatrix* localMatrix,
                                bool isOpaque) const;
 
-    sk_sp<SkImage> makeImage(GrRecordingContext*,
-                             sk_sp<SkData> uniforms,
-                             SkSpan<ChildPtr> children,
-                             const SkMatrix* localMatrix,
-                             SkImageInfo resultInfo,
-                             bool mipmapped) const;
-
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms) const;
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms,
                                          sk_sp<SkColorFilter> children[],
@@ -450,10 +443,6 @@ public:
     ~SkRuntimeShaderBuilder();
 
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix, bool isOpaque);
-    sk_sp<SkImage> makeImage(GrRecordingContext*,
-                             const SkMatrix* localMatrix,
-                             SkImageInfo resultInfo,
-                             bool mipmapped);
 
 private:
     using INHERITED = SkRuntimeEffectBuilder;

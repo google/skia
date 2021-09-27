@@ -1254,88 +1254,6 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                           children, isOpaque));
 }
 
-sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
-                                          sk_sp<SkData> uniforms,
-                                          SkSpan<ChildPtr> children,
-                                          const SkMatrix* localMatrix,
-                                          SkImageInfo resultInfo,
-                                          bool mipmapped) const {
-    if (rContext) {
-#if SK_SUPPORT_GPU
-        if (!rContext->priv().caps()->mipmapSupport()) {
-            mipmapped = false;
-        }
-        auto fillContext = rContext->priv().makeSFC(resultInfo,
-                                                    SkBackingFit::kExact,
-                                                    /*sample count*/ 1,
-                                                    GrMipmapped(mipmapped));
-        if (!fillContext) {
-            return nullptr;
-        }
-        uniforms = get_xformed_uniforms(this, std::move(uniforms), resultInfo.colorSpace());
-        SkASSERT(uniforms);
-
-        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
-        GrColorInfo colorInfo(resultInfo.colorInfo());
-        GrFPArgs args(rContext, matrixProvider, &colorInfo);
-        SkSTArray<8, std::unique_ptr<GrFragmentProcessor>> childFPs;
-        for (size_t i = 0; i < children.size(); ++i) {
-            // TODO: add support for other types of child effects
-            if (SkShader* shader = children[i].shader()) {
-                childFPs.push_back(as_SB(shader)->asFragmentProcessor(args));
-            } else {
-                return nullptr;
-            }
-        }
-        auto fp = GrSkSLFP::MakeWithData(sk_ref_sp(this),
-                                         "runtime_image",
-                                         /*inputFP=*/nullptr,
-                                         /*destColorFP=*/nullptr,
-                                         std::move(uniforms),
-                                         SkMakeSpan(childFPs));
-
-        if (localMatrix) {
-            SkMatrix invLM;
-            if (!localMatrix->invert(&invLM)) {
-                return nullptr;
-            }
-            fillContext->fillWithFP(invLM, std::move(fp));
-        } else {
-            fillContext->fillWithFP(std::move(fp));
-        }
-        return sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(rContext),
-                                              kNeedNewImageUniqueID,
-                                              fillContext->readSurfaceView(),
-                                              resultInfo.colorInfo()));
-#else
-        return nullptr;
-#endif
-    }
-    if (resultInfo.alphaType() == kUnpremul_SkAlphaType) {
-        // We don't have a good way of supporting this right now. In this case the runtime effect
-        // will produce a unpremul value. The shader generated from it is assumed to produce
-        // premul and RGB get pinned to A. Moreover, after the blend in premul the new dst is
-        // unpremul'ed, producing a double unpremul result.
-        return nullptr;
-    }
-    auto surf = SkSurface::MakeRaster(resultInfo);
-    if (!surf) {
-        return nullptr;
-    }
-    SkCanvas* canvas = surf->getCanvas();
-    SkTLazy<SkCanvas> tempCanvas;
-    auto shader = this->makeShader(std::move(uniforms), children, localMatrix, false);
-    if (!shader) {
-        return nullptr;
-    }
-    SkPaint paint;
-    paint.setShader(std::move(shader));
-    paint.setBlendMode(SkBlendMode::kSrc);
-    canvas->drawPaint(paint);
-    // TODO: Specify snapshot should have mip levels if mipmapped is true.
-    return surf->makeImageSnapshot();
-}
-
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
                                                       sk_sp<SkColorFilter> childColorFilters[],
                                                       size_t childCount) const {
@@ -1433,18 +1351,6 @@ SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
         : INHERITED(std::move(effect)) {}
 
 SkRuntimeShaderBuilder::~SkRuntimeShaderBuilder() = default;
-
-sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingContext,
-                                                 const SkMatrix* localMatrix,
-                                                 SkImageInfo resultInfo,
-                                                 bool mipmapped) {
-    return this->effect()->makeImage(recordingContext,
-                                     this->uniforms(),
-                                     SkMakeSpan(this->children(), this->numChildren()),
-                                     localMatrix,
-                                     resultInfo,
-                                     mipmapped);
-}
 
 sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix, bool isOpaque) {
     return this->effect()->makeShader(this->uniforms(),
