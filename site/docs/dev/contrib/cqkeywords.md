@@ -7,7 +7,7 @@ linkTitle: "Commit Queue Keywords"
 
 
 See [CQ
-documentation](https://chromium.googlesource.com/chromium/src/+/master/docs/infra/cq.md)
+documentation](https://chromium.googlesource.com/chromium/src/+/main/docs/infra/cq.md)
 for more information.
 
 Options in the form "Key: Value"  must appear in the last paragraph of the

@@ -9,7 +9,7 @@ linkTitle: "Skia Automated Testing"
 Overview
 --------
 
-Skia uses [Swarming](https://github.com/luci/luci-py/blob/master/appengine/swarming/doc/Design.md)
+Skia uses [Swarming](https://github.com/luci/luci-py/blob/main/appengine/swarming/doc/Design.md)
 to do the heavy lifting for our automated testing. It farms out tasks, which may
 consist of compiling code, running tests, or any number of other things, to our
 bots, which are virtual or real machines living in our local lab, Chrome Infra's
@@ -129,7 +129,7 @@ Housekeeper-Nightly-UpdateMetaConfig task.)
     https://bugs.chromium.org/p/skia/issues/entry?template=New+Bot+Request
 [jobs json]: https://skia.googlesource.com/skia/+/main/infra/bots/jobs.json
 [build recipe module]:
-    https://skia.googlesource.com/skia/+/refs/heads/master/infra/bots/recipe_modules/build/
+    https://skia.googlesource.com/skia/+/refs/heads/main/infra/bots/recipe_modules/build/
 [test py]:
     https://skia.googlesource.com/skia/+/main/infra/bots/recipes/test.py
 [perf py]:
@@ -188,5 +188,5 @@ and configure the new jobs, please ask for help from borenet@, rmistry@ or jcgre
 [recipe_modules README]:
     https://skia.googlesource.com/skia/+/main/infra/bots/recipe_modules/README.md
 [isolate user guide]:
-    https://chromium.googlesource.com/infra/luci/luci-py/+/master/appengine/isolate/doc/client/Isolate-User-Guide.md
+    https://chromium.googlesource.com/infra/luci/luci-py/+/main/appengine/isolate/doc/client/Isolate-User-Guide.md
 

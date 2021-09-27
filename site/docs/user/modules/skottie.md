@@ -63,7 +63,7 @@ Test your Lottie files in our player at https://skottie.skia.org
 Skia's animation code entry point can be found here on
 [Googlesource](https://skia.googlesource.com/skia/+/main/modules/skottie/include/Skottie.h)
 and
-[GitHub](https://github.com/google/skia/blob/master/modules/skottie/include/Skottie.h).
+[GitHub](https://github.com/google/skia/blob/main/modules/skottie/include/Skottie.h).
 The code is part of Skia's library but can also be made available as a separate
 package.
 
@@ -72,13 +72,13 @@ package.
 ## Embedding examples
 
 Sample C code for using the Skottie native player can be found
-[here](https://github.com/google/skia/blob/master/modules/skottie/src/SkottieTool.cpp).
+[here](https://github.com/google/skia/blob/main/modules/skottie/src/SkottieTool.cpp).
 
 Android app code for inspiration can be found
-[here](https://github.com/google/skia/tree/master/platform_tools/android/apps/skottie).
+[here](https://github.com/google/skia/tree/main/platform_tools/android/apps/skottie).
 
 Example code embedding Skottie into our Viewer app is
-[here](https://github.com/google/skia/blob/master/tools/viewer/SkottieSlide.cpp).
+[here](https://github.com/google/skia/blob/main/tools/viewer/SkottieSlide.cpp).
 
 The Viewer or Skottie Android apps can be built following
 [these](/docs/user/sample/viewer) instructions.

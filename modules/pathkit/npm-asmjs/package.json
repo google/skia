@@ -3,7 +3,7 @@
   "version": "0.7.0",
   "description": "A asm.js version of Skia's PathOps toolkit",
   "main": "bin/pathkit.js",
-  "homepage": "https://github.com/google/skia/tree/master/modules/pathkit",
+  "homepage": "https://github.com/google/skia/tree/main/modules/pathkit",
   "bugs": {
     "url": "https://bugs.chromium.org/p/skia/issues/entry"
   },

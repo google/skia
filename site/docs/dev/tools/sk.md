@@ -51,11 +51,11 @@ jobs and exits.
 The code for `sk` is located in the
 [Skia Infra repo](https://skia.googlesource.com/buildbot). Development in that
 repo follows similar practices to Skia.  See
-[README.md](https://skia.googlesource.com/buildbot/+/master/README.md) for
+[README.md](https://skia.googlesource.com/buildbot/+/main/README.md) for
 instructions to get started.
 
 Code for the `sk` tool itself is located under
-[//sk/go/](https://skia.googlesource.com/buildbot/+/master/sk/go/). Each
+[//sk/go/](https://skia.googlesource.com/buildbot/+/main/sk/go/). Each
 sub-command has an associated package.
 
 ## Deployment

@@ -17,7 +17,7 @@ this properly.
 The `PathKit` object returned upon resolution of the PathKitInit Promise is fully loaded and ready to use.
 
 See the [API page](https://skia.org/user/modules/pathkit) and
-[example.html](https://github.com/google/skia/blob/master/modules/pathkit/npm-wasm/example.html)
+[example.html](https://github.com/google/skia/blob/main/modules/pathkit/npm-wasm/example.html)
 for details on how to use the library.
 
 Using PathKit and WebPack

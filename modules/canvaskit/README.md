@@ -11,7 +11,7 @@ shows the version we build and test with. We try to use as recent a version of e
 is reasonable.
 
 [1]: https://emscripten.org/docs/getting_started/downloads.html
-[2]: https://github.com/google/skia/blob/master/infra/wasm-common/docker/emsdk-base/Dockerfile
+[2]: https://github.com/google/skia/blob/main/infra/wasm-common/docker/emsdk-base/Dockerfile
 
 Be sure to both install **and** activate the correct version. For example:
 ```

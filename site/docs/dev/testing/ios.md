@@ -12,7 +12,7 @@ iOS doesn't lend itself well to compiling and running from the command line.
 Below are instructions on how to install a set of tools that make this possible.
 To see how they are used in automated testing please see the bash scripts used
 by the buildbot recipes:
-<https://github.com/google/skia/tree/master/platform_tools/ios/bin>.
+<https://github.com/google/skia/tree/main/platform_tools/ios/bin>.
 
 ## Installation
 

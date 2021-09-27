@@ -7,7 +7,7 @@ linkTitle: "Downloading Isolates"
 
 
 The intermediate and final build products from running tests are all stored in
-[Isolate](https://github.com/luci/luci-py/blob/master/appengine/isolate/doc/Design.md),
+[Isolate](https://github.com/luci/luci-py/blob/main/appengine/isolate/doc/Design.md),
 and can be downloaded to the desktop for inspection and debugging.
 
 First install the client:

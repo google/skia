@@ -35,8 +35,8 @@ appear here first.
 
   Code search option  |Search |XRef |History |Repos                         |Branches |Freshness
   --------------------|-------|-----|--------|------------------------------|---------|---------------
-  [cs.skia.org][1]    |regexp | yes |yes     |skia [buildbot][5]            |master   |last DEPS roll
-  [Internal][2]       |regexp | no  |yes     |skia buildbot common internal |master   |hours
+  [cs.skia.org][1]    |regexp | yes |yes     |skia [buildbot][5]            |main     |last DEPS roll
+  [Internal][2]       |regexp | no  |yes     |skia buildbot common internal |main     |hours
   [GitHub][3]         |basic  | no  |yes     |skia buildbot                 |all      |hour
   [googlesource][4]   |none   | no  |yes     |all                           |all      |N/A
 

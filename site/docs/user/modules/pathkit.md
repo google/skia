@@ -210,7 +210,7 @@ The primary features are:
 ## Example Code
 
 The best place to look for examples on how to use PathKit would be in the
-[example.html](https://github.com/google/skia/blob/master/modules/pathkit/npm-wasm/example.html#L45),
+[example.html](https://github.com/google/skia/blob/main/modules/pathkit/npm-wasm/example.html#L45),
 which comes in the npm package.
 
 ## Download the library

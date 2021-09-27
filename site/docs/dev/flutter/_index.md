@@ -4,11 +4,11 @@ linkTitle: 'Skia in Flutter & Fuchsia'
 ---
 
 Skia is used by both [Flutter](https://flutter.io/) and
-[Fuchsia](https://fuchsia.googlesource.com/docs/+/master/README.md).
+[Fuchsia](https://fuchsia.googlesource.com/docs/+/main/README.md).
 
 Fuchsia has a [roller](https://autoroll.skia.org/) that will continuously roll
 latest Skia into that project. Fuchsia uses an XML
-[manifest](https://fuchsia.googlesource.com/manifest/+/refs/heads/master) to
+[manifest](https://fuchsia.googlesource.com/manifest/+/refs/heads/main) to
 specify the Skia revision (as well as other third party libraries).
 
 Flutter does not (yet) have a roller, so developers must manually perform rolls.

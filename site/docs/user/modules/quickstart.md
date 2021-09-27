@@ -335,7 +335,7 @@ Specifies the style of the text. The font's name, Roboto, will be used to fetch 
 manager. You can specify either (color) or (foregroundColor and backgroundColor) in order to have
 a highlight. For the full documentation of the API, check out the Typescript definitions in the
 `types/` subfolder of the npm package or in the
-[Skia repo](https://github.com/google/skia/tree/master/modules/canvaskit/npm_build/types).
+[Skia repo](https://github.com/google/skia/tree/main/modules/canvaskit/npm_build/types).
 
 <!--?prettify?-->
 ``` js
