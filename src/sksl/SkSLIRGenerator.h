@@ -134,12 +134,12 @@ public:
     }
 
     static void CheckModifiers(const Context& context,
-                               int offset,
+                               int line,
                                const Modifiers& modifiers,
                                int permittedModifierFlags,
                                int permittedLayoutFlags);
 
-    std::unique_ptr<Expression> convertIdentifier(int offset, skstd::string_view identifier);
+    std::unique_ptr<Expression> convertIdentifier(int line, skstd::string_view identifier);
 
     bool haveRTAdjustInterfaceBlock() { return fRTAdjustInterfaceBlock != nullptr; }
 
@@ -155,18 +155,18 @@ private:
 
     IRGenerator::IRBundle finish();
 
-    void checkVarDeclaration(int offset,
+    void checkVarDeclaration(int line,
                              const Modifiers& modifiers,
                              const Type* baseType,
                              Variable::Storage storage);
-    std::unique_ptr<Variable> convertVar(int offset, const Modifiers& modifiers,
+    std::unique_ptr<Variable> convertVar(int line, const Modifiers& modifiers,
                                          const Type* baseType, skstd::string_view name,
                                          bool isArray, std::unique_ptr<Expression> arraySize,
                                          Variable::Storage storage);
     std::unique_ptr<Statement> convertVarDeclaration(std::unique_ptr<Variable> var,
                                                      std::unique_ptr<Expression> value,
                                                      bool addToSymbolTable = true);
-    std::unique_ptr<Statement> convertVarDeclaration(int offset, const Modifiers& modifiers,
+    std::unique_ptr<Statement> convertVarDeclaration(int line, const Modifiers& modifiers,
                                                      const Type* baseType, skstd::string_view name,
                                                      bool isArray,
                                                      std::unique_ptr<Expression> arraySize,
@@ -179,10 +179,10 @@ private:
     std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(const ASTNode& m);
 
     const Type* convertType(const ASTNode& type, bool allowVoid = false);
-    std::unique_ptr<Expression> call(int offset,
+    std::unique_ptr<Expression> call(int line,
                                      std::unique_ptr<Expression> function,
                                      ExpressionArray arguments);
-    std::unique_ptr<Expression> call(int offset,
+    std::unique_ptr<Expression> call(int line,
                                      const FunctionDeclaration& function,
                                      ExpressionArray arguments);
     CoercionCost callCost(const FunctionDeclaration& function,
@@ -191,7 +191,7 @@ private:
             const std::vector<const FunctionDeclaration*>& functions,
             const ExpressionArray& arguments) const;
     CoercionCost coercionCost(const Expression& expr, const Type& type);
-    int convertArraySize(const Type& type, int offset, const ASTNode& s);
+    int convertArraySize(const Type& type, int line, const ASTNode& s);
     bool containsConstantZero(Expression& expr);
     bool dividesByZero(Operator op, Expression& right);
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
@@ -201,7 +201,7 @@ private:
     std::unique_ptr<Statement> convertDo(const ASTNode& d);
     std::unique_ptr<Statement> convertSwitch(const ASTNode& s);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTNode& expression);
-    std::unique_ptr<Extension> convertExtension(int offset, skstd::string_view name);
+    std::unique_ptr<Extension> convertExtension(int line, skstd::string_view name);
     std::unique_ptr<Statement> convertExpressionStatement(const ASTNode& s);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              skstd::string_view field);
@@ -212,7 +212,7 @@ private:
     std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTNode& s);
     Modifiers convertModifiers(const Modifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTNode& expression);
-    std::unique_ptr<Statement> convertReturn(int offset, std::unique_ptr<Expression> result);
+    std::unique_ptr<Statement> convertReturn(int line, std::unique_ptr<Expression> result);
     std::unique_ptr<Statement> convertReturn(const ASTNode& r);
     std::unique_ptr<Expression> convertCallExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertFieldExpression(const ASTNode& expression);

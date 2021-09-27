@@ -22,9 +22,9 @@ class IfStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kIf;
 
-    IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
+    IfStatement(int line, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-        : INHERITED(offset, kStatementKind)
+        : INHERITED(line, kStatementKind)
         , fTest(std::move(test))
         , fIfTrue(std::move(ifTrue))
         , fIfFalse(std::move(ifFalse))
@@ -32,13 +32,13 @@ public:
 
     // Creates a potentially-simplified form of the if-statement. Typechecks and coerces the test
     // expression; reports errors via ErrorReporter.
-    static std::unique_ptr<Statement> Convert(const Context& context, int offset, bool isStatic,
+    static std::unique_ptr<Statement> Convert(const Context& context, int line, bool isStatic,
                                               std::unique_ptr<Expression> test,
                                               std::unique_ptr<Statement> ifTrue,
                                               std::unique_ptr<Statement> ifFalse);
 
     // Creates a potentially-simplified form of the if-statement; reports errors via ASSERT.
-    static std::unique_ptr<Statement> Make(const Context& context, int offset, bool isStatic,
+    static std::unique_ptr<Statement> Make(const Context& context, int line, bool isStatic,
                                            std::unique_ptr<Expression> test,
                                            std::unique_ptr<Statement> ifTrue,
                                            std::unique_ptr<Statement> ifFalse);

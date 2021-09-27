@@ -73,7 +73,7 @@ public:
 
     PositionInfo position(Token token);
 
-    PositionInfo position(int offset);
+    PositionInfo position(int line);
 
 private:
     static void InitLayoutMap();
@@ -127,7 +127,7 @@ private:
     bool expectIdentifier(Token* result);
 
     void error(Token token, String msg);
-    void error(int offset, String msg);
+    void error(int line, String msg);
 
     SymbolTable& symbols() {
         return *dsl::CurrentSymbolTable();
@@ -168,9 +168,9 @@ private:
 
     SkTArray<dsl::DSLGlobalVar> structVarDeclaration(const dsl::DSLModifiers& modifiers);
 
-    bool parseArrayDimensions(int offset, dsl::DSLType* type);
+    bool parseArrayDimensions(int line, dsl::DSLType* type);
 
-    bool parseInitializer(int offset, dsl::DSLExpression* initializer);
+    bool parseInitializer(int line, dsl::DSLExpression* initializer);
 
     void globalVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
             dsl::DSLType baseType, skstd::string_view name);
@@ -252,9 +252,9 @@ private:
 
     dsl::DSLExpression postfixExpression();
 
-    dsl::DSLExpression swizzle(int offset, dsl::DSLExpression base, skstd::string_view swizzleMask);
+    dsl::DSLExpression swizzle(int line, dsl::DSLExpression base, skstd::string_view swizzleMask);
 
-    dsl::DSLExpression call(int offset, dsl::DSLExpression base, ExpressionArray args);
+    dsl::DSLExpression call(int line, dsl::DSLExpression base, ExpressionArray args);
 
     dsl::DSLExpression suffix(dsl::DSLExpression base);
 

@@ -28,16 +28,16 @@ class ConstructorCompound final : public MultiArgumentConstructor {
 public:
     static constexpr Kind kExpressionKind = Kind::kConstructorCompound;
 
-    ConstructorCompound(int offset, const Type& type, ExpressionArray args)
-            : INHERITED(offset, kExpressionKind, &type, std::move(args)) {}
+    ConstructorCompound(int line, const Type& type, ExpressionArray args)
+            : INHERITED(line, kExpressionKind, &type, std::move(args)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
-                                            int offset,
+                                            int line,
                                             const Type& type,
                                             ExpressionArray args);
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorCompound>(fOffset, this->type(), this->cloneArguments());
+        return std::make_unique<ConstructorCompound>(fLine, this->type(), this->cloneArguments());
     }
 
 private:

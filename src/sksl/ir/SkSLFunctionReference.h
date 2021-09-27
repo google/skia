@@ -22,9 +22,9 @@ class FunctionReference final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kFunctionReference;
 
-    FunctionReference(const Context& context, int offset,
+    FunctionReference(const Context& context, int line,
                       std::vector<const FunctionDeclaration*> functions)
-        : INHERITED(offset, kExpressionKind, context.fTypes.fInvalid.get())
+        : INHERITED(line, kExpressionKind, context.fTypes.fInvalid.get())
         , fFunctions(std::move(functions)) {}
 
     const std::vector<const FunctionDeclaration*>& functions() const {
@@ -36,7 +36,7 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FunctionReference(fOffset, this->functions(),
+        return std::unique_ptr<Expression>(new FunctionReference(fLine, this->functions(),
                                                                  &this->type()));
     }
 
@@ -45,9 +45,9 @@ public:
     }
 
 private:
-    FunctionReference(int offset, std::vector<const FunctionDeclaration*> functions,
+    FunctionReference(int line, std::vector<const FunctionDeclaration*> functions,
                       const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
+        : INHERITED(line, kExpressionKind, type)
         , fFunctions(std::move(functions)) {}
 
     std::vector<const FunctionDeclaration*> fFunctions;

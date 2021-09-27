@@ -52,7 +52,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
     SkASSERT(paramVars.size() == params.size());
     fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),
                                                *DSLWriter::SymbolTable(),
-                                               pos.offset(),
+                                               pos.line(),
                                                DSLWriter::Modifiers(modifiers.fModifiers),
                                                name == "main" ? name : DSLWriter::Name(name),
                                                std::move(paramVars), &returnType.skslType(),
@@ -67,7 +67,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         // case the definition is delayed. If we end up defining the function immediately, we'll
         // remove the prototype in define().
         DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
-                pos.offset(), fDecl, DSLWriter::IsModule()));
+                pos.line(), fDecl, DSLWriter::IsModule()));
     }
 }
 
@@ -98,7 +98,7 @@ void DSLFunction::define(DSLBlock block, PositionInfo pos) {
     // Append sk_Position fixup to the bottom of main() if this is a vertex program.
     DSLWriter::IRGenerator().appendRTAdjustFixupToVertexMain(*fDecl, body.get());
     std::unique_ptr<FunctionDefinition> function = FunctionDefinition::Convert(DSLWriter::Context(),
-                                                                               pos.offset(),
+                                                                               pos.line(),
                                                                                *fDecl,
                                                                                std::move(body),
                                                                                /*builtin=*/false);

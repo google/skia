@@ -279,13 +279,13 @@ void Inliner::reset() {
     fInlinedStatementCounter = 0;
 }
 
-std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
+std::unique_ptr<Expression> Inliner::inlineExpression(int line,
                                                       VariableRewriteMap* varMap,
                                                       SymbolTable* symbolTableForExpression,
                                                       const Expression& expression) {
     auto expr = [&](const std::unique_ptr<Expression>& e) -> std::unique_ptr<Expression> {
         if (e) {
-            return this->inlineExpression(offset, varMap, symbolTableForExpression, *e);
+            return this->inlineExpression(line, varMap, symbolTableForExpression, *e);
         }
         return nullptr;
     };
@@ -311,68 +311,68 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         case Expression::Kind::kChildCall: {
             const ChildCall& childCall = expression.as<ChildCall>();
             return ChildCall::Make(*fContext,
-                                   offset,
+                                   line,
                                    childCall.type().clone(symbolTableForExpression),
                                    childCall.child(),
                                    argList(childCall.arguments()));
         }
         case Expression::Kind::kConstructorArray: {
             const ConstructorArray& ctor = expression.as<ConstructorArray>();
-            return ConstructorArray::Make(*fContext, offset,
+            return ConstructorArray::Make(*fContext, line,
                                           *ctor.type().clone(symbolTableForExpression),
                                           argList(ctor.arguments()));
         }
         case Expression::Kind::kConstructorArrayCast: {
             const ConstructorArrayCast& ctor = expression.as<ConstructorArrayCast>();
-            return ConstructorArrayCast::Make(*fContext, offset,
+            return ConstructorArrayCast::Make(*fContext, line,
                                               *ctor.type().clone(symbolTableForExpression),
                                               expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorCompound: {
             const ConstructorCompound& ctor = expression.as<ConstructorCompound>();
-            return ConstructorCompound::Make(*fContext, offset,
+            return ConstructorCompound::Make(*fContext, line,
                                               *ctor.type().clone(symbolTableForExpression),
                                               argList(ctor.arguments()));
         }
         case Expression::Kind::kConstructorCompoundCast: {
             const ConstructorCompoundCast& ctor = expression.as<ConstructorCompoundCast>();
-            return ConstructorCompoundCast::Make(*fContext, offset,
+            return ConstructorCompoundCast::Make(*fContext, line,
                                                   *ctor.type().clone(symbolTableForExpression),
                                                   expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorDiagonalMatrix: {
             const ConstructorDiagonalMatrix& ctor = expression.as<ConstructorDiagonalMatrix>();
-            return ConstructorDiagonalMatrix::Make(*fContext, offset,
+            return ConstructorDiagonalMatrix::Make(*fContext, line,
                                                    *ctor.type().clone(symbolTableForExpression),
                                                    expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorMatrixResize: {
             const ConstructorMatrixResize& ctor = expression.as<ConstructorMatrixResize>();
-            return ConstructorMatrixResize::Make(*fContext, offset,
+            return ConstructorMatrixResize::Make(*fContext, line,
                                                  *ctor.type().clone(symbolTableForExpression),
                                                  expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorScalarCast: {
             const ConstructorScalarCast& ctor = expression.as<ConstructorScalarCast>();
-            return ConstructorScalarCast::Make(*fContext, offset,
+            return ConstructorScalarCast::Make(*fContext, line,
                                                *ctor.type().clone(symbolTableForExpression),
                                                expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorSplat: {
             const ConstructorSplat& ctor = expression.as<ConstructorSplat>();
-            return ConstructorSplat::Make(*fContext, offset,
+            return ConstructorSplat::Make(*fContext, line,
                                           *ctor.type().clone(symbolTableForExpression),
                                           expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorStruct: {
             const ConstructorStruct& ctor = expression.as<ConstructorStruct>();
-            return ConstructorStruct::Make(*fContext, offset,
+            return ConstructorStruct::Make(*fContext, line,
                                            *ctor.type().clone(symbolTableForExpression),
                                            argList(ctor.arguments()));
         }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
-            return std::make_unique<ExternalFunctionCall>(offset, &externalCall.function(),
+            return std::make_unique<ExternalFunctionCall>(line, &externalCall.function(),
                                                           argList(externalCall.arguments()));
         }
         case Expression::Kind::kExternalFunctionReference:
@@ -384,7 +384,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
             return FunctionCall::Make(*fContext,
-                                      offset,
+                                      line,
                                       funcCall.type().clone(symbolTableForExpression),
                                       funcCall.function(),
                                       argList(funcCall.arguments()));
@@ -432,7 +432,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
     }
 }
 
-std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
+std::unique_ptr<Statement> Inliner::inlineStatement(int line,
                                                     VariableRewriteMap* varMap,
                                                     SymbolTable* symbolTableForStatement,
                                                     std::unique_ptr<Expression>* resultExpr,
@@ -441,7 +441,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                     bool isBuiltinCode) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
-            return this->inlineStatement(offset, varMap, symbolTableForStatement, resultExpr,
+            return this->inlineStatement(line, varMap, symbolTableForStatement, resultExpr,
                                          returnComplexity, *s, isBuiltinCode);
         }
         return nullptr;
@@ -456,7 +456,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     };
     auto expr = [&](const std::unique_ptr<Expression>& e) -> std::unique_ptr<Expression> {
         if (e) {
-            return this->inlineExpression(offset, varMap, symbolTableForStatement, *e);
+            return this->inlineExpression(line, varMap, symbolTableForStatement, *e);
         }
         return nullptr;
     };
@@ -466,7 +466,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     switch (statement.kind()) {
         case Statement::Kind::kBlock: {
             const Block& b = statement.as<Block>();
-            return Block::Make(offset, blockStmts(b),
+            return Block::Make(line, blockStmts(b),
                                SymbolTable::WrapIfBuiltin(b.symbolTable()),
                                b.isScope());
         }
@@ -491,13 +491,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             std::unique_ptr<Statement> initializer = stmt(f.initializer());
             // We can't reuse the unroll info from the original for loop, because it uses a
             // different induction variable. Ours is a clone.
-            return ForStatement::Make(*fContext, offset, std::move(initializer), expr(f.test()),
+            return ForStatement::Make(*fContext, line, std::move(initializer), expr(f.test()),
                                       expr(f.next()), stmt(f.statement()), /*unrollInfo=*/nullptr,
                                       SymbolTable::WrapIfBuiltin(f.symbols()));
         }
         case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
-            return IfStatement::Make(*fContext, offset, i.isStatic(), expr(i.test()),
+            return IfStatement::Make(*fContext, line, i.isStatic(), expr(i.test()),
                                      stmt(i.ifTrue()), stmt(i.ifFalse()));
         }
         case Statement::Kind::kInlineMarker:
@@ -541,10 +541,10 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             cases.reserve_back(ss.cases().size());
             for (const std::unique_ptr<Statement>& switchCaseStmt : ss.cases()) {
                 const SwitchCase& sc = switchCaseStmt->as<SwitchCase>();
-                cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc.value()),
+                cases.push_back(std::make_unique<SwitchCase>(line, expr(sc.value()),
                                                              stmt(sc.statement())));
             }
-            return SwitchStatement::Make(*fContext, offset, ss.isStatic(), expr(ss.value()),
+            return SwitchStatement::Make(*fContext, line, ss.isStatic(), expr(ss.value()),
                                         std::move(cases), SymbolTable::WrapIfBuiltin(ss.symbols()));
         }
         case Statement::Kind::kVarDeclaration: {
@@ -558,13 +558,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             const String* name = symbolTableForStatement->takeOwnershipOfString(
                     fContext->fMangler->uniqueName(variable.name(), symbolTableForStatement));
             auto clonedVar = std::make_unique<Variable>(
-                                                     offset,
+                                                     line,
                                                      &variable.modifiers(),
                                                      name->c_str(),
                                                      variable.type().clone(symbolTableForStatement),
                                                      isBuiltinCode,
                                                      variable.storage());
-            (*varMap)[&variable] = VariableReference::Make(offset, clonedVar.get());
+            (*varMap)[&variable] = VariableReference::Make(line, clonedVar.get());
             auto result = VarDeclaration::Make(*fContext,
                                                clonedVar.get(),
                                                decl.baseType().clone(symbolTableForStatement),
@@ -599,7 +599,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     SkASSERT(this->isSafeToInline(call->function().definition()));
 
     ExpressionArray& arguments = call->arguments();
-    const int offset = call->fOffset;
+    const int line = call->fLine;
     const FunctionDefinition& function = *call->function().definition();
     const Block& body = function.body()->as<Block>();
     const ReturnComplexity returnComplexity = GetReturnComplexity(function);
@@ -626,7 +626,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                             symbolTable.get(),
                                                             /*initialValue=*/nullptr);
         inlineStatements.push_back(std::move(var.fVarDecl));
-        resultExpr = VariableReference::Make(/*offset=*/-1, var.fVarSymbol);
+        resultExpr = VariableReference::Make(/*line=*/-1, var.fVarSymbol);
     }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
@@ -654,11 +654,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                             symbolTable.get(),
                                                             std::move(arguments[i]));
         inlineStatements.push_back(std::move(var.fVarDecl));
-        varMap[param] = VariableReference::Make(/*offset=*/-1, var.fVarSymbol);
+        varMap[param] = VariableReference::Make(/*line=*/-1, var.fVarSymbol);
     }
 
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
-        inlineStatements.push_back(this->inlineStatement(offset, &varMap, symbolTable.get(),
+        inlineStatements.push_back(this->inlineStatement(line, &varMap, symbolTable.get(),
                                                          &resultExpr, returnComplexity, *stmt,
                                                          caller->isBuiltin()));
     }
@@ -668,7 +668,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     // Wrap all of the generated statements in a block. We need a real Block here, so we can't use
     // MakeUnscoped. This is because we need to add another child statement to the Block later.
     InlinedCall inlinedCall;
-    inlinedCall.fInlinedBody = Block::Make(offset, std::move(inlineStatements),
+    inlinedCall.fInlinedBody = Block::Make(line, std::move(inlineStatements),
                                            /*symbols=*/nullptr, /*isScope=*/false);
 
     if (resultExpr) {
@@ -677,15 +677,15 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     } else if (function.declaration().returnType().isVoid()) {
         // It's a void function, so it doesn't actually result in anything, but we have to return
         // something non-null as a standin.
-        inlinedCall.fReplacementExpr = Literal::MakeBool(*fContext, offset, /*value=*/false);
+        inlinedCall.fReplacementExpr = Literal::MakeBool(*fContext, line, /*value=*/false);
     } else {
         // It's a non-void function, but it never created a result expression--that is, it never
         // returned anything on any path! This should have been detected in the function finalizer.
         // Still, discard our output and generate an error.
         SkDEBUGFAIL("inliner found non-void function that fails to return a value on any path");
-        fContext->fErrors->error(function.fOffset, "inliner found non-void function '" +
-                                                   function.declaration().name() +
-                                                   "' that fails to return a value on any path");
+        fContext->fErrors->error(function.fLine, "inliner found non-void function '" +
+                                                 function.declaration().name() +
+                                                 "' that fails to return a value on any path");
         inlinedCall = {};
     }
 

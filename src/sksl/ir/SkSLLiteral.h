@@ -21,54 +21,54 @@ class Literal : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kLiteral;
 
-    Literal(int offset, double value, const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
+    Literal(int line, double value, const Type* type)
+        : INHERITED(line, kExpressionKind, type)
         , fValue(value) {}
 
     // Makes a literal of $floatLiteral type.
-    static std::unique_ptr<Literal> MakeFloat(const Context& context, int offset, float value) {
-        return std::make_unique<Literal>(offset, value, context.fTypes.fFloatLiteral.get());
+    static std::unique_ptr<Literal> MakeFloat(const Context& context, int line, float value) {
+        return std::make_unique<Literal>(line, value, context.fTypes.fFloatLiteral.get());
     }
 
     // Makes a float literal of the specified type.
-    static std::unique_ptr<Literal> MakeFloat(int offset, float value, const Type* type) {
+    static std::unique_ptr<Literal> MakeFloat(int line, float value, const Type* type) {
         SkASSERT(type->isFloat());
-        return std::make_unique<Literal>(offset, value, type);
+        return std::make_unique<Literal>(line, value, type);
     }
 
     // Makes a literal of $intLiteral type.
-    static std::unique_ptr<Literal> MakeInt(const Context& context, int offset, SKSL_INT value) {
-        return std::make_unique<Literal>(offset, value, context.fTypes.fIntLiteral.get());
+    static std::unique_ptr<Literal> MakeInt(const Context& context, int line, SKSL_INT value) {
+        return std::make_unique<Literal>(line, value, context.fTypes.fIntLiteral.get());
     }
 
     // Makes an int literal of the specified type.
-    static std::unique_ptr<Literal> MakeInt(int offset, SKSL_INT value, const Type* type) {
+    static std::unique_ptr<Literal> MakeInt(int line, SKSL_INT value, const Type* type) {
         SkASSERT(type->isInteger());
-        return std::make_unique<Literal>(offset, value, type);
+        return std::make_unique<Literal>(line, value, type);
     }
 
     // Makes a literal of boolean type.
-    static std::unique_ptr<Literal> MakeBool(const Context& context, int offset, bool value) {
-        return std::make_unique<Literal>(offset, value, context.fTypes.fBool.get());
+    static std::unique_ptr<Literal> MakeBool(const Context& context, int line, bool value) {
+        return std::make_unique<Literal>(line, value, context.fTypes.fBool.get());
     }
 
     // Makes a literal of boolean type. (Functionally identical to the above, but useful if you
     // don't have access to the Context.)
-    static std::unique_ptr<Literal> MakeBool(int offset, bool value, const Type* type) {
+    static std::unique_ptr<Literal> MakeBool(int line, bool value, const Type* type) {
         SkASSERT(type->isBoolean());
-        return std::make_unique<Literal>(offset, value, type);
+        return std::make_unique<Literal>(line, value, type);
     }
 
     // Makes a literal of the specified type, rounding as needed.
-    static std::unique_ptr<Literal> Make(int offset, double value, const Type* type) {
+    static std::unique_ptr<Literal> Make(int line, double value, const Type* type) {
         if (type->isFloat()) {
-            return MakeFloat(offset, value, type);
+            return MakeFloat(line, value, type);
         }
         if (type->isInteger()) {
-            return MakeInt(offset, value, type);
+            return MakeInt(line, value, type);
         }
         SkASSERT(type->isBoolean());
-        return MakeBool(offset, value, type);
+        return MakeBool(line, value, type);
     }
 
     float floatValue() const {
@@ -119,7 +119,7 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<Literal>(fOffset, this->value(), &this->type());
+        return std::make_unique<Literal>(fLine, this->value(), &this->type());
     }
 
     bool allowsConstantSubexpressions() const override {

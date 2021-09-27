@@ -37,7 +37,7 @@ class FunctionDeclaration final : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 
-    FunctionDeclaration(int offset,
+    FunctionDeclaration(int line,
                         const Modifiers* modifiers,
                         skstd::string_view name,
                         std::vector<const Variable*> parameters,
@@ -46,7 +46,7 @@ public:
 
     static const FunctionDeclaration* Convert(const Context& context,
                                               SymbolTable& symbols,
-                                              int offset,
+                                              int line,
                                               const Modifiers* modifiers,
                                               skstd::string_view name,
                                               std::vector<std::unique_ptr<Variable>> parameters,

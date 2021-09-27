@@ -60,16 +60,16 @@ void type_check_expression<bool>(const Expression& expr) {
 }
 
 static std::unique_ptr<Expression> assemble_compound(const Context& context,
-                                                     int offset,
+                                                     int line,
                                                      const Type& returnType,
                                                      double value[]) {
     int numSlots = returnType.slotCount();
     ExpressionArray array;
     array.reserve_back(numSlots);
     for (int index = 0; index < numSlots; ++index) {
-        array.push_back(Literal::Make(offset, value[index], &returnType.componentType()));
+        array.push_back(Literal::Make(line, value[index], &returnType.componentType()));
     }
-    return ConstructorCompound::Make(context, offset, returnType, std::move(array));
+    return ConstructorCompound::Make(context, line, returnType, std::move(array));
 }
 
 using CoalesceFn = double (*)(double, double, double);
@@ -93,7 +93,7 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     // of scalars and vectors, the scalars is interpreted as a vector containing the same value for
     // every component.
 
-    int offset = arg0->fOffset;
+    int line = arg0->fLine;
 
     const Type& vecType =          arg0->type().isVector()  ? arg0->type() :
                           (arg1 && arg1->type().isVector()) ? arg1->type() :
@@ -128,7 +128,7 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
         value = finalize(value);
     }
 
-    return Literal::Make(offset, value, &returnType);
+    return Literal::Make(line, value, &returnType);
 }
 
 template <typename T>
@@ -188,7 +188,7 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
     }
 
     const Type& bvecType = context.fTypes.fBool->toCompound(context, type.columns(), /*rows=*/1);
-    return assemble_compound(context, left->fOffset, bvecType, array);
+    return assemble_compound(context, left->fLine, bvecType, array);
 }
 
 using EvaluateFn = double (*)(double, double, double);
@@ -243,7 +243,7 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
         }
     }
 
-    return assemble_compound(context, arg0->fOffset, returnType, array);
+    return assemble_compound(context, arg0->fLine, returnType, array);
 }
 
 template <typename T>
@@ -633,7 +633,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             double vec[3] = {X(1) * Y(2) - Y(1) * X(2),
                              X(2) * Y(0) - Y(2) * X(0),
                              X(0) * Y(1) - Y(0) * X(1)};
-            return assemble_compound(context, arguments[0]->fOffset, returnType, vec);
+            return assemble_compound(context, arguments[0]->fLine, returnType, vec);
         }
         case k_normalize_IntrinsicKind: {
             auto Vec  = [&] { return DSLExpression{arguments[0]->clone()}; };
@@ -678,7 +678,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     mat[index++] = Get(0, (returnType.columns() * r) + c);
                 }
             }
-            return assemble_compound(context, arguments[0]->fOffset, returnType, mat);
+            return assemble_compound(context, arguments[0]->fLine, returnType, mat);
         }
         case k_outerProduct_IntrinsicKind: {
             double mat[16];
@@ -688,7 +688,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     mat[index++] = Get(0, r) * Get(1, c);
                 }
             }
-            return assemble_compound(context, arguments[0]->fOffset, returnType, mat);
+            return assemble_compound(context, arguments[0]->fLine, returnType, mat);
         }
         case k_determinant_IntrinsicKind: {
             float mat[16];
@@ -708,7 +708,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     SkDEBUGFAILF("unsupported type %s", arguments[0]->type().description().c_str());
                     return nullptr;
             }
-            return Literal::MakeFloat(arguments[0]->fOffset, determinant, &returnType);
+            return Literal::MakeFloat(arguments[0]->fLine, determinant, &returnType);
         }
         case k_inverse_IntrinsicKind: {
             float mat[16] = {};
@@ -736,7 +736,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
 
             double dmat[16];
             std::copy(mat, mat + SK_ARRAY_COUNT(mat), dmat);
-            return assemble_compound(context, arguments[0]->fOffset, returnType, dmat);
+            return assemble_compound(context, arguments[0]->fLine, returnType, dmat);
         }
         // 8.7 : Vector Relational Functions
         case k_lessThan_IntrinsicKind:
@@ -793,7 +793,7 @@ std::unique_ptr<Expression> FunctionCall::clone() const {
         cloned.push_back(arg->clone());
     }
     return std::make_unique<FunctionCall>(
-            fOffset, &this->type(), &this->function(), std::move(cloned));
+            fLine, &this->type(), &this->function(), std::move(cloned));
 }
 
 String FunctionCall::description() const {
@@ -809,12 +809,12 @@ String FunctionCall::description() const {
 }
 
 std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
-                                                  int offset,
+                                                  int line,
                                                   const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
     // Reject ES3 function calls in strict ES2 mode.
     if (context.fConfig->strictES2Mode() && (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
-        context.fErrors->error(offset, "call to '" + function.description() + "' is not supported");
+        context.fErrors->error(line, "call to '" + function.description() + "' is not supported");
         return nullptr;
     }
 
@@ -826,7 +826,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
             msg += "s";
         }
         msg += ", but found " + to_string(arguments.count());
-        context.fErrors->error(offset, msg);
+        context.fErrors->error(line, msg);
         return nullptr;
     }
 
@@ -842,7 +842,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
             separator = ", ";
         }
         msg += ")";
-        context.fErrors->error(offset, msg);
+        context.fErrors->error(line, msg);
         return nullptr;
     }
 
@@ -869,14 +869,14 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         // handling in the generators and analysis code.
         const Variable& child = *arguments.back()->as<VariableReference>().variable();
         arguments.pop_back();
-        return ChildCall::Make(context, offset, returnType, child, std::move(arguments));
+        return ChildCall::Make(context, line, returnType, child, std::move(arguments));
     }
 
-    return Make(context, offset, returnType, function, std::move(arguments));
+    return Make(context, line, returnType, function, std::move(arguments));
 }
 
 std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
-                                               int offset,
+                                               int line,
                                                const Type* returnType,
                                                const FunctionDeclaration& function,
                                                ExpressionArray arguments) {
@@ -895,7 +895,7 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
         }
     }
 
-    return std::make_unique<FunctionCall>(offset, returnType, &function, std::move(arguments));
+    return std::make_unique<FunctionCall>(line, returnType, &function, std::move(arguments));
 }
 
 }  // namespace SkSL

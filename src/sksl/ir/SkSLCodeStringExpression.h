@@ -23,7 +23,7 @@ public:
     static constexpr Kind kExpressionKind = Kind::kCodeString;
 
     CodeStringExpression(String code, const Type* type)
-        : INHERITED(/*offset=*/-1, kExpressionKind, type)
+        : INHERITED(/*line=*/-1, kExpressionKind, type)
         , fCode(std::move(code)) {}
 
     bool hasProperty(Property property) const override {

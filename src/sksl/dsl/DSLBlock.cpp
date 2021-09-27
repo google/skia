@@ -36,7 +36,7 @@ DSLBlock::~DSLBlock() {
 }
 
 std::unique_ptr<SkSL::Block> DSLBlock::release() {
-    return std::make_unique<SkSL::Block>(/*offset=*/-1, std::move(fStatements),
+    return std::make_unique<SkSL::Block>(/*line=*/-1, std::move(fStatements),
                                          std::move(fSymbols));
 }
 

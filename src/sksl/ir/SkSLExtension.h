@@ -19,8 +19,8 @@ class Extension final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kExtension;
 
-    Extension(int offset, skstd::string_view name)
-        : INHERITED(offset, kProgramElementKind)
+    Extension(int line, skstd::string_view name)
+        : INHERITED(line, kProgramElementKind)
         , fName(name) {}
 
     skstd::string_view name() const {
@@ -28,7 +28,7 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Extension(fOffset, this->name()));
+        return std::unique_ptr<ProgramElement>(new Extension(fLine, this->name()));
     }
 
     String description() const override {

@@ -25,7 +25,7 @@ std::unique_ptr<Expression> ChildCall::clone() const {
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
         cloned.push_back(arg->clone());
     }
-    return std::make_unique<ChildCall>(fOffset, &this->type(), &this->child(), std::move(cloned));
+    return std::make_unique<ChildCall>(fLine, &this->type(), &this->child(), std::move(cloned));
 }
 
 String ChildCall::description() const {
@@ -68,12 +68,12 @@ String ChildCall::description() const {
 }
 
 std::unique_ptr<Expression> ChildCall::Make(const Context& context,
-                                            int offset,
+                                            int line,
                                             const Type* returnType,
                                             const Variable& child,
                                             ExpressionArray arguments) {
     SkASSERT(call_signature_is_valid(context, child, arguments));
-    return std::make_unique<ChildCall>(offset, returnType, &child, std::move(arguments));
+    return std::make_unique<ChildCall>(line, returnType, &child, std::move(arguments));
 }
 
 }  // namespace SkSL

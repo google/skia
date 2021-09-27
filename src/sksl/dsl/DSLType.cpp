@@ -48,7 +48,7 @@ static const Type* find_type(skstd::string_view name, const Modifiers& modifiers
         return nullptr;
     }
     const Type* result = type->applyPrecisionQualifiers(DSLWriter::Context(), modifiers,
-            DSLWriter::SymbolTable().get(), /*offset=*/-1);
+            DSLWriter::SymbolTable().get(), /*line=*/-1);
     DSLWriter::ReportErrors(pos);
     return result;
 }
@@ -248,13 +248,13 @@ DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo po
         }
         skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &type);
     }
-    const SkSL::Type* result = DSLWriter::SymbolTable()->add(Type::MakeStructType(pos.offset(),
+    const SkSL::Type* result = DSLWriter::SymbolTable()->add(Type::MakeStructType(pos.line(),
                                                                                   name,
                                                                                   skslFields));
     if (result->isTooDeeplyNested()) {
         DSLWriter::ReportError("struct '" + String(name) + "' is too deeply nested", pos);
     }
-    DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*offset=*/-1,
+    DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*line=*/-1,
                                                                                     *result));
     return result;
 }

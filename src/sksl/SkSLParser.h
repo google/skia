@@ -104,7 +104,7 @@ private:
     bool expectIdentifier(Token* result);
 
     void error(Token token, String msg);
-    void error(int offset, String msg);
+    void error(int line, String msg);
     /**
      * Returns true if the 'name' identifier refers to a type name. For instance, isType("int") will
      * always return true.

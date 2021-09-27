@@ -20,12 +20,12 @@ class ReturnStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kReturn;
 
-    ReturnStatement(int offset, std::unique_ptr<Expression> expression)
-        : INHERITED(offset, kStatementKind)
+    ReturnStatement(int line, std::unique_ptr<Expression> expression)
+        : INHERITED(line, kStatementKind)
         , fExpression(std::move(expression)) {}
 
-    static std::unique_ptr<Statement> Make(int offset, std::unique_ptr<Expression> expression) {
-        return std::make_unique<ReturnStatement>(offset, std::move(expression));
+    static std::unique_ptr<Statement> Make(int line, std::unique_ptr<Expression> expression) {
+        return std::make_unique<ReturnStatement>(line, std::move(expression));
     }
 
     std::unique_ptr<Expression>& expression() {
@@ -41,7 +41,7 @@ public:
     }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<ReturnStatement>(fOffset, this->expression()->clone());
+        return std::make_unique<ReturnStatement>(fLine, this->expression()->clone());
     }
 
     String description() const override {

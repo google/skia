@@ -14,7 +14,7 @@
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
-                                                      int offset,
+                                                      int line,
                                                       const Type& type,
                                                       ExpressionArray args) {
     // A scalar "composite" type with a single scalar argument is a no-op and can be eliminated.
@@ -80,7 +80,7 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
         arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
     }
 
-    return std::make_unique<ConstructorCompound>(offset, type, std::move(args));
+    return std::make_unique<ConstructorCompound>(line, type, std::move(args));
 }
 
 }  // namespace SkSL

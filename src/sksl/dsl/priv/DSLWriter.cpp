@@ -143,7 +143,7 @@ void DSLWriter::AddVarDeclaration(DSLStatement& existing, DSLVar& additional) {
         stmts.reserve_back(2);
         stmts.push_back(std::move(existing.fStatement));
         stmts.push_back(Declare(additional).release());
-        existing.fStatement = SkSL::Block::MakeUnscoped(/*offset=*/-1, std::move(stmts));
+        existing.fStatement = SkSL::Block::MakeUnscoped(/*line=*/-1, std::move(stmts));
     } else if (existing.fStatement->isEmpty()) {
         // If the variable declaration generated an error, we can end up with a Nop statement here.
         existing.fStatement = Declare(additional).release();
@@ -155,7 +155,7 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& fun
                                                   PositionInfo pos) {
     // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
     // IRGenerator::call.
-    return IRGenerator().call(pos.offset(), function, std::move(arguments));
+    return IRGenerator().call(pos.line(), function, std::move(arguments));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Call(std::unique_ptr<SkSL::Expression> expr,
@@ -163,7 +163,7 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Call(std::unique_ptr<SkSL::Expressi
                                                   PositionInfo pos) {
     // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
     // IRGenerator::call.
-    return IRGenerator().call(pos.offset(), std::move(expr), std::move(arguments));
+    return IRGenerator().call(pos.line(), std::move(expr), std::move(arguments));
 }
 
 DSLPossibleExpression DSLWriter::Coerce(std::unique_ptr<Expression> expr, const SkSL::Type& type) {
@@ -180,7 +180,7 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type, SkSpan<DSLExp
         }
         args.push_back(arg.release());
     }
-    return SkSL::Constructor::Convert(Context(), /*offset=*/-1, type, std::move(args));
+    return SkSL::Constructor::Convert(Context(), /*line=*/-1, type, std::move(args));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expression> left,
@@ -216,13 +216,13 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
     StatementArray caseBlocks;
     caseBlocks.resize(caseStatements.count());
     for (int index = 0; index < caseStatements.count(); ++index) {
-        caseBlocks[index] = std::make_unique<SkSL::Block>(/*offset=*/-1,
+        caseBlocks[index] = std::make_unique<SkSL::Block>(/*line=*/-1,
                                                           std::move(caseStatements[index]),
                                                           /*symbols=*/nullptr,
                                                           /*isScope=*/false);
     }
 
-    return SwitchStatement::Convert(Context(), /*offset=*/-1, isStatic, std::move(value),
+    return SwitchStatement::Convert(Context(), /*line=*/-1, isStatic, std::move(value),
                                     std::move(caseValues), std::move(caseBlocks),
                                     IRGenerator().fSymbolTable);
 }
@@ -260,13 +260,13 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
             if (baseType->isArray()) {
                 baseType = &baseType->componentType();
             }
-            DSLWriter::IRGenerator().checkVarDeclaration(var.fPosition.offset(),
+            DSLWriter::IRGenerator().checkVarDeclaration(var.fPosition.line(),
                                                          var.fModifiers.fModifiers,
                                                          baseType,
                                                          var.storage());
         }
         std::unique_ptr<SkSL::Variable> skslvar = DSLWriter::IRGenerator().convertVar(
-                                                                          var.fPosition.offset(),
+                                                                          var.fPosition.line(),
                                                                           var.fModifiers.fModifiers,
                                                                           &var.fType.skslType(),
                                                                           var.fName,
@@ -299,7 +299,7 @@ std::unique_ptr<SkSL::Variable> DSLWriter::CreateParameterVar(DSLParameter& var)
     // This should only be called on undeclared parameter variables, but we allow the creation to go
     // ahead regardless so we don't have to worry about null pointers potentially sneaking in and
     // breaking things. DSLFunction is responsible for reporting errors for invalid parameters.
-    return DSLWriter::IRGenerator().convertVar(var.fPosition.offset(), var.fModifiers.fModifiers,
+    return DSLWriter::IRGenerator().convertVar(var.fPosition.line(), var.fModifiers.fModifiers,
                                                &var.fType.skslType(), var.fName, /*isArray=*/false,
                                                /*arraySize=*/nullptr, var.storage());
 }

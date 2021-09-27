@@ -22,7 +22,7 @@ public:
     static constexpr Kind kExpressionKind = Kind::kPostfix;
 
     PostfixExpression(std::unique_ptr<Expression> operand, Operator op)
-        : INHERITED(operand->fOffset, kExpressionKind, &operand->type())
+        : INHERITED(operand->fLine, kExpressionKind, &operand->type())
         , fOperand(std::move(operand))
         , fOperator(op) {}
 

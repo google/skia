@@ -21,8 +21,8 @@ public:
     static constexpr Kind kStatementKind = Kind::kSwitchCase;
 
     // null value implies "default" case
-    SwitchCase(int offset, std::unique_ptr<Expression> value, std::unique_ptr<Statement> statement)
-        : INHERITED(offset, kStatementKind)
+    SwitchCase(int line, std::unique_ptr<Expression> value, std::unique_ptr<Statement> statement)
+        : INHERITED(line, kStatementKind)
         , fValue(std::move(value))
         , fStatement(std::move(statement)) {}
 
@@ -43,7 +43,7 @@ public:
     }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<SwitchCase>(fOffset,
+        return std::make_unique<SwitchCase>(fLine,
                                             this->value() ? this->value()->clone() : nullptr,
                                             this->statement()->clone());
     }
