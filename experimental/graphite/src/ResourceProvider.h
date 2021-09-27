@@ -13,17 +13,21 @@
 namespace skgpu {
 
 class CommandBuffer;
+class Pipeline;
+class PipelineDesc;
 
 class ResourceProvider {
 public:
     virtual ~ResourceProvider();
 
     std::unique_ptr<CommandBuffer> createCommandBuffer();
+    Pipeline* findOrCreatePipeline(const PipelineDesc&);
 
 protected:
     ResourceProvider();
 
     virtual std::unique_ptr<CommandBuffer> onCreateCommandBuffer() { return nullptr; }
+    virtual Pipeline* onCreatePipeline() { return nullptr; }
 
 private:
 };

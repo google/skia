@@ -8,6 +8,7 @@
 #include "experimental/graphite/src/ResourceProvider.h"
 
 #include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/Pipeline.h"
 
 namespace skgpu {
 
@@ -21,6 +22,16 @@ std::unique_ptr<CommandBuffer> ResourceProvider::createCommandBuffer() {
     auto cb = this->onCreateCommandBuffer();
 
     return cb;
+}
+
+Pipeline* ResourceProvider::findOrCreatePipeline(const PipelineDesc& desc) {
+    // TODO: look through cache for matching pipeline
+
+    auto pso = this->onCreatePipeline();
+
+    // TODO: cache new pipeline
+
+    return pso;
 }
 
 } // namespace skgpu
