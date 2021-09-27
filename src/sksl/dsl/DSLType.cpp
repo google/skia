@@ -221,7 +221,8 @@ DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
 }
 
 DSLType Array(const DSLType& base, int count, PositionInfo pos) {
-    count = base.skslType().convertArraySize(DSLWriter::Context(), DSLExpression(count).release());
+    count = base.skslType().convertArraySize(DSLWriter::Context(),
+            DSLExpression(count, pos).release());
     DSLWriter::ReportErrors(pos);
     if (!count) {
         return DSLType(kPoison_Type);

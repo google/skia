@@ -65,7 +65,7 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
     }
     // We can cast scalar literals at compile-time.
     if (arg->is<Literal>()) {
-        return Literal::Make(arg->fOffset, arg->as<Literal>().value(), &type);
+        return Literal::Make(offset, arg->as<Literal>().value(), &type);
     }
     return std::make_unique<ConstructorScalarCast>(offset, type, std::move(arg));
 }
