@@ -13,7 +13,7 @@ namespace skgpu {
 // TODO: derive this from something like GrManagedResource
 class Pipeline {
 public:
-    ~Pipeline();
+    virtual ~Pipeline();
 
 protected:
     Pipeline();

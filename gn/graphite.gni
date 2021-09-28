@@ -43,6 +43,14 @@ skia_graphite_sources = [
 ]
 
 skia_graphite_mtl_sources = [
+  "$_src/mtl/MtlCaps.h",
+  "$_src/mtl/MtlCaps.mm",
+  "$_src/mtl/MtlCommandBuffer.h",
+  "$_src/mtl/MtlCommandBuffer.mm",
   "$_src/mtl/MtlGpu.h",
   "$_src/mtl/MtlGpu.mm",
+  "$_src/mtl/MtlPipeline.h",
+  "$_src/mtl/MtlPipeline.mm",
+  "$_src/mtl/MtlResourceProvider.h",
+  "$_src/mtl/MtlResourceProvider.mm",
 ]
