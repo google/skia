@@ -921,13 +921,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				}
 			} else if b.os("ChromeOS") {
 				version, ok := map[string]string{
-					"MaliT604":            "10575.22.0",
-					"MaliT764":            "10575.22.0",
-					"MaliT860":            "10575.22.0",
-					"PowerVRGX6250":       "10575.22.0",
-					"TegraK1":             "10575.22.0",
-					"IntelHDGraphics615":  "10575.22.0",
-					"IntelUHDGraphics605": "13729.56.0",
+					"IntelUHDGraphics605": "14233.0.0",
 					"RadeonVega3":         "13729.56.0",
 					"Adreno618":           "13929.0.0",
 				}[b.parts["cpu_or_gpu_value"]]
