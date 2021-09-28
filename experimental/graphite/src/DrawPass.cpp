@@ -14,7 +14,7 @@ namespace skgpu {
 
 std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> cmds, SurfaceDrawContext* sdc) {
     // TODO: DrawList processing will likely go here and then move the results into the DrawPass
-    return std::make_unique<DrawPass>();
+    return std::unique_ptr<DrawPass>(new DrawPass());
 }
 
 } // namespace skgpu
