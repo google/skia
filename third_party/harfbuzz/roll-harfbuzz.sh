@@ -62,7 +62,13 @@ check_all_files_are_categorized() {
         fi
         echo "\"${GN_SOURCE}\""
       fi
-    done
+    done &&
+
+    GN_SOURCE_DUPLICATES=$(sort ${HB_BUILD_DIR_REL}/BUILD.gn | uniq -d | grep -oE "\"\\\$_src/[^\"]+\"")
+    if [ ! -z ${GN_SOURCE_DUPLICATES} ]; then
+      echo "Is listed more than once in BUILD.gn:" &&
+      echo ${GN_SOURCE_DUPLICATES}
+    fi
   )
 }
 
@@ -71,10 +77,9 @@ commit() {
   HB_PREVIOUS_REV_SHORT=$(expr substr "${HB_PREVIOUS_REV}" 1 8) &&
   HB_NEXT_REV_SHORT=$(expr substr "${HB_NEXT_REV}" 1 8) &&
   HB_COMMIT_COUNT=$(git -C ${HB_GIT_DIR} rev-list --count ${HB_PREVIOUS_REV}..${HB_NEXT_REV}) &&
-  git commit -m"Roll HarfBuzz from ${HB_PREVIOUS_REV_SHORT} to ${HB_NEXT_REV_SHORT} (${HB_COMMIT_COUNT} commits)
+  git -c trailer.separators=~ commit --cleanup=verbatim -m"Roll HarfBuzz from ${HB_PREVIOUS_REV_SHORT} to ${HB_NEXT_REV_SHORT} (${HB_COMMIT_COUNT} commits)
 
-${HB_GIT_REPO}/+log/${HB_PREVIOUS_REV}..${HB_NEXT_REV}
-"
+${HB_GIT_REPO}/+log/${HB_PREVIOUS_REV}..${HB_NEXT_REV}"
 }
 
 previousrev &&
