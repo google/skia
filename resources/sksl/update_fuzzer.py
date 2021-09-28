@@ -30,10 +30,11 @@ with tempfile.NamedTemporaryFile(suffix='primary.zip', delete=False, mode='w') a
                 # Iterate over every file in this directory and use it to assemble our corpus.
                 for root, dirs, files in os.walk(startDir):
                     for file in files:
-                        # Exclude hidden/py/txt files since they aren't useful fuzzer inputs.
-                        if (not file.startswith('.')
-                                and not file.endswith('.py')
-                                and not file.endswith('.txt')):
+                        # Exclude files that won't be useful fuzzer inputs.
+                        if (not file.startswith('.')        # Hidden
+                            and not file.endswith('.py')    # Python
+                            and not file.endswith('.test')  # ES2 conformance script
+                            and not file.endswith('.txt')): # Text
                             # Prepend a number to each output filename to guarantee uniqueness.
                             pathInZip = '%d_%s' % (fileNum, file)
                             fileNum += 1
