@@ -23,11 +23,26 @@ static_assert(false, "This only works on clang.");
     #include <arm_neon.h>
 #endif
 
+#include <cassert>
+#include <cstdint>
+
 using Q15 = V<8, uint16_t>;
+using I16 = V<8, int16_t>;
+using U16 = V<8, uint16_t>;
+
+
+static inline U16 constrained_add(I16 a, U16 b) {
+for (size_t i = 0; i < 8; i++) {
+    // Ensure that a + b is on the interval [0, UINT16_MAX]
+    assert(-b[i] <= a[i] && a[i] <= UINT16_MAX - b[i]);
+}
+    U16 answer = b + a;
+    return answer;
+}
 
 // A pure C version of the ssse3 intrinsic mm_mulhrs_epi16;
-static inline Q15 simulate_ssse3_mm_mulhrs_epi16(Q15 a, Q15 b) {
-    Q15 result;
+static inline I16 simulate_ssse3_mm_mulhrs_epi16(I16 a, I16 b) {
+    I16 result;
     auto m = [](int16_t r, int16_t s) {
         const int32_t rounding = 1 << 14;
         int32_t temp = (int32_t)r * (int32_t)s + rounding;

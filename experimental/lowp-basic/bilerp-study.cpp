@@ -65,37 +65,25 @@ static int16_t full_res_bilerp(
     return rounded >> 32;
 }
 
-// Change of parameters on t from [0, 1) to [-1, 1). This cuts the number if differences in half.
-static int16_t lerp(float t, int16_t a, int16_t b) {
-    const int logPixelScale = 7;
-    const uint16_t half = 1 << logPixelScale;
-    // t on [-1, 1).
-    Q15 qt (floor(t * 65536.0f - 32768.0f + 0.5f));
-    // need to pick logPixelScale to scale by addition 1/2.
-    Q15 qw ((b - a) << logPixelScale);
-    Q15 qm ((a + b) << logPixelScale);
-    Q15 answer = simulate_ssse3_mm_mulhrs_epi16(qt, qw) + qm;
-    // Extra shift to divide by 2.
-    return (answer[0] + half) >> (logPixelScale + 1);
-}
 
 static int16_t bilerp_1(float tx, float ty, int16_t p00, int16_t p10, int16_t p01, int16_t p11) {
     const int logPixelScale = 7;
     const int16_t half = 1 << logPixelScale;
-    Q15 qtx = floor(tx * 65536.0f - 32768.0f + 0.5f);
-    Q15 qw = (p10 - p00) << logPixelScale;
-    Q15 qm = (p10 + p00) << logPixelScale;
-    Q15 top = (simulate_ssse3_mm_mulhrs_epi16(qtx, qw) + qm + 1) >> 1;
+    I16 qtx = floor(tx * 65536.0f - 32768.0f + 0.5f);
+    I16 qw = (p10 - p00) << logPixelScale;
+    U16 qm = (p10 + p00) << logPixelScale;
+    I16 top = (I16)((U16)(constrained_add(simulate_ssse3_mm_mulhrs_epi16(qtx, qw), qm) + 1) >> 1);
 
     qw = (p11 - p01) << logPixelScale;
     qm = (p11 + p01) << logPixelScale;
-    Q15 bottom = (simulate_ssse3_mm_mulhrs_epi16(qtx, qw) + qm + 1) >> 1;
+    I16 bottom =
+            (I16)((U16)(constrained_add(simulate_ssse3_mm_mulhrs_epi16(qtx, qw), qm) + 1) >> 1);
 
-    Q15 qty = floor(ty * 65536.0f - 32768.0f + 0.5f);
+    I16 qty = floor(ty * 65536.0f - 32768.0f + 0.5f);
 
     qw = bottom - top;
-    qm = bottom + top;
-    Q15 scaledAnswer = simulate_ssse3_mm_mulhrs_epi16(qty, qw) + qm;
+    qm = (U16)bottom + (U16)top;
+    U16 scaledAnswer = constrained_add(simulate_ssse3_mm_mulhrs_epi16(qty, qw), qm);
 
     return (scaledAnswer[0] + half) >> (logPixelScale + 1);
 }
