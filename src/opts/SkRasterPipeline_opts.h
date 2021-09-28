@@ -341,7 +341,7 @@ namespace SK_OPTS_NS {
         }
     }
 
-#elif defined(JUMPER_IS_AVX) || defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#elif defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
     // These are __m256 and __m256i, but friendlier and strongly-typed.
     template <typename T> using V = T __attribute__((ext_vector_type(8)));
     using F   = V<float   >;
@@ -689,8 +689,8 @@ namespace SK_OPTS_NS {
         }
     }
 
-#elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41)
-    template <typename T> using V = T __attribute__((ext_vector_type(4)));
+#elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
+template <typename T> using V = T __attribute__((ext_vector_type(4)));
     using F   = V<float   >;
     using I32 = V< int32_t>;
     using U64 = V<uint64_t>;
