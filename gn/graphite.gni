@@ -7,7 +7,10 @@
 _src = get_path_info("../experimental/graphite/src", "abspath")
 _include = get_path_info("../experimental/graphite/include", "abspath")
 
-skia_graphite_public = [ "$_include/Context.h" ]
+skia_graphite_public = [
+  "$_include/Context.h",
+  "$_include/GraphiteTypes.h",
+]
 
 skia_graphite_sources = [
   "$_include/Context.h",
@@ -45,6 +48,8 @@ skia_graphite_sources = [
 ]
 
 skia_graphite_mtl_sources = [
+  "$_include/mtl/MtlBackendContext.h",
+  "$_include/mtl/MtlTypes.h",
   "$_src/mtl/MtlCaps.h",
   "$_src/mtl/MtlCaps.mm",
   "$_src/mtl/MtlCommandBuffer.h",
