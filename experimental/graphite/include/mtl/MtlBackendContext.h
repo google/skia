@@ -15,8 +15,8 @@ namespace skgpu::mtl {
 // The BackendContext contains all of the base Metal objects needed by the MtlGpu. The assumption
 // is that the client will set these up and pass them to the MtlGpu constructor.
 struct SK_API BackendContext {
-    sk_cfp<MTLHandle> fDevice;
-    sk_cfp<MTLHandle> fQueue;
+    sk_cfp<CFTypeRef> fDevice;
+    sk_cfp<CFTypeRef> fQueue;
 };
 
 } // namespace skgpu::mtl
