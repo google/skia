@@ -61,6 +61,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fAllowBGRA8CopyTexSubImage = false;
     fDisallowDynamicMSAA = false;
     fMustResetBlendFuncBetweenDualSourceAndDisable = false;
+    fBindTexture0WhenChangingTextureFBOMultisampleCount = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -4224,6 +4225,18 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     if (ctxInfo.driver() == GrGLDriver::kFreedreno) {
         formatWorkarounds->fDisallowUnorm16Transfers = true;
+    }
+
+    // If we keep rebind the same texture to an FBO's color attachment but changing between MSAA and
+    // non-MSAA we get corruption in the texture contents. Binding texture 0 and then rebinding the
+    // original texture avoids this.
+    // This was found on Nexus 5, Android 6.0.1, build M4B30Z
+    // GL_VENDOR:   "Qualcomm"
+    // GL_RENDERER: "Adreno (TM) 330"
+    // GL_VERSION:  "OpenGL ES 3.0 V@127.0 AU@  (GIT@I96aee987eb)"
+    if (ctxInfo.renderer() == GrGLRenderer::kAdreno3xx &&
+        ctxInfo.driver()   == GrGLDriver::kQualcomm) {
+        fBindTexture0WhenChangingTextureFBOMultisampleCount = true;
     }
 }
 

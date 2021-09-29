@@ -189,6 +189,13 @@ void GrGLRenderTarget::bindInternal(GrGLenum fboTarget, bool useMultisampleFBO) 
         fSingleSampleFBOID == fMultisampleFBOID &&
         useMultisampleFBO != fDMSAARenderToTextureFBOIsMultisample) {
         auto* glTex = static_cast<GrGLTexture*>(this->asTexture());
+        if (this->getGLGpu()->glCaps().bindTexture0WhenChangingTextureFBOMultisampleCount()) {
+            GL_CALL(FramebufferTexture2D(fboTarget,
+                                         GR_GL_COLOR_ATTACHMENT0,
+                                         GR_GL_TEXTURE_2D,
+                                         0 /*texture*/,
+                                         0 /*mipMapLevel*/));
+        }
         if (useMultisampleFBO) {
             int internalSampleCount =
                     this->getGpu()->caps()->internalMultisampleCount(this->backendFormat());
