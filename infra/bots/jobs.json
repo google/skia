@@ -372,9 +372,7 @@
   {"name": "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan"},
-  {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android",
-   "cq_config": {}
-   },
+  {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android_Vulkan"},
