@@ -1799,6 +1799,14 @@ if (skia_enable_tools) {
       sources -= [ "tools/gpu/TestOps.cpp" ]
       sources -= [ "tools/gpu/TestOps.h" ]
     }
+    if (skia_enable_graphite) {
+      sources += [ "tools/graphite/GraphiteTestContext.h" ]
+      sources += [ "tools/graphite/GraphiteTestContext.cpp" ]
+      if (skia_use_metal) {
+        sources += [ "tools/graphite/mtl/GraphiteMtlTestContext.h" ]
+        sources += [ "tools/graphite/mtl/MtlTestContext.mm" ]
+      }
+    }
 
     if (is_fuchsia && using_fuchsia_sdk) {
       libs +=

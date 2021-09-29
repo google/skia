@@ -7,8 +7,24 @@
 
 #include "experimental/graphite/include/Context.h"
 
+#include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/Gpu.h"
+
 namespace skgpu {
 
-Context::Context() {}
+Context::Context(sk_sp<Gpu> gpu) : fGpu(std::move(gpu)) {}
+Context::~Context() {}
+
+#ifdef SK_METAL
+sk_sp<Context> Context::MakeMetal(const mtl::BackendContext& backendContext) {
+    // TODO:: allocate the MtlGpu
+    sk_sp<Gpu> gpu = nullptr; // Gpu::Make(backendContext);
+    if (!gpu) {
+        return nullptr;
+    }
+
+    return sk_sp<Context>(new Context(std::move(gpu)));
+}
+#endif
 
 } // namespace skgpu
