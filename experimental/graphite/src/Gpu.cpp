@@ -12,7 +12,8 @@
 
 namespace skgpu {
 
-Gpu::Gpu() {
+Gpu::Gpu(sk_sp<const Caps> caps)
+    : fCaps(std::move(caps)) {
     // subclasses create their own subclassed resource provider
 }
 

@@ -28,7 +28,7 @@ public:
     ResourceProvider* resourceProvider() const { return fResourceProvider.get(); }
 
 protected:
-    Gpu();
+    Gpu(sk_sp<const Caps>);
 
 private:
     sk_sp<const Caps> fCaps;

@@ -11,15 +11,18 @@
 
 namespace skgpu::mtl {
 
-sk_sp<skgpu::Gpu> Gpu::Make(const GrMtlBackendContext& context) {
+sk_sp<skgpu::Gpu> Gpu::Make(const BackendContext& context) {
     sk_cfp<id<MTLDevice>> device = sk_ret_cfp((id<MTLDevice>)(context.fDevice.get()));
     sk_cfp<id<MTLCommandQueue>> queue = sk_ret_cfp((id<MTLCommandQueue>)(context.fQueue.get()));
 
-    return sk_sp<skgpu::Gpu>(new Gpu(std::move(device), std::move(queue)));
+    sk_sp<const Caps> caps(new Caps(device.get()));
+
+    return sk_sp<skgpu::Gpu>(new Gpu(std::move(device), std::move(queue), std::move(caps)));
 }
 
-Gpu::Gpu(sk_cfp<id<MTLDevice>> device, sk_cfp<id<MTLCommandQueue>> queue)
-    : fDevice(std::move(device))
+Gpu::Gpu(sk_cfp<id<MTLDevice>> device, sk_cfp<id<MTLCommandQueue>> queue, sk_sp<const Caps> caps)
+    : skgpu::Gpu(std::move(caps))
+    , fDevice(std::move(device))
     , fQueue(std::move(queue)) {
 }
 
