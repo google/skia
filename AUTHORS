@@ -72,3 +72,8 @@ JetBrains <*@jetbrains.com>
 Vibe Inc <*@vibe.us>
 Scene Group Ltd. <*@scenegroup.co>
 LG Electronics <*@lge.com>
+
+# Trusted service accounts.
+Recipe roller SA <recipe-mega-autoroller@chops-service-accounts.iam.gserviceaccount.com>
+Recreate SKPs Bot SA <skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com>
+Skia Autorollers SA <skia-autoroll@skia-public.iam.gserviceaccount.com>
