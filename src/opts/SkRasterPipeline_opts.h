@@ -3227,11 +3227,18 @@ SI I16 scaled_mult(I16 a, I16 b) {
 // a sum like this would require an additional bit, but because we know the range of the result
 // we know that the extra bit will always be zero.
 SI I16 constrained_add(I16 a, U16 b) {
-    for (size_t i = 0; i < N; i++) {
-        // Ensure that a + b is on the interval [0, UINT16_MAX]
-        SkASSERT(-b[i] <= a[i] && a[i] <= UINT16_MAX - b[i]);
-    }
-    U16 answer = (U16)a + b;
+    #if defined(SK_DEBUG)
+        for (size_t i = 0; i < N; i++) {
+            // Ensure that a + b is on the interval [0, UINT16_MAX]
+            int ia = a[i],
+                ib = b[i];
+            // Use 65535 here because fuchsia's compiler evaluates UINT16_MAX - ib, which is
+            // 65536U - ib, as an uint32_t instead of an int32_t. This was forcing ia to be
+            // interpreted as an uint32_t.
+            SkASSERT(-ib <= ia && ia <= 65535 - ib);
+        }
+    #endif
+    U16 answer = b + a;
     return (I16)answer;
 }
 
