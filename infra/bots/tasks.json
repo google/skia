@@ -23689,7 +23689,7 @@
         "gpu:RadeonVega3",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:13729.56.0"
+        "release_version:14233.0.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39122,7 +39122,7 @@
         "gpu:RadeonVega3",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:13729.56.0"
+        "release_version:14233.0.0"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39217,7 +39217,7 @@
         "gpu:RadeonVega3",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:13729.56.0"
+        "release_version:14233.0.0"
       ],
       "env_prefixes": {
         "PATH": [
