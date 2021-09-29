@@ -23,9 +23,7 @@ Caps::Caps(const id<MTLDevice> device)
 }
 
 // translates from older MTLFeatureSet interface to MTLGPUFamily interface
-bool Caps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
-                                      GPUFamily* gpuFamily,
-                                      int* group) const {
+bool Caps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
 #if defined(SK_BUILD_FOR_MAC)
     // Apple Silicon is only available in later OSes
     *gpuFamily = GPUFamily::kMac;
@@ -128,7 +126,7 @@ bool Caps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
     return false;
 }
 
-bool Caps::getGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) const {
+bool Caps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
 #if GR_METAL_SDK_VERSION >= 220
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         // Apple Silicon
@@ -195,8 +193,8 @@ bool Caps::getGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) 
 }
 
 void Caps::initGPUFamily(id<MTLDevice> device) {
-    if (!this->getGPUFamily(device, &fGPUFamily, &fFamilyGroup) &&
-        !this->getGPUFamilyFromFeatureSet(device, &fGPUFamily, &fFamilyGroup)) {
+    if (!GetGPUFamily(device, &fGPUFamily, &fFamilyGroup) &&
+        !GetGPUFamilyFromFeatureSet(device, &fGPUFamily, &fFamilyGroup)) {
         // We don't know what this is, fall back to minimum defaults
 #ifdef SK_BUILD_FOR_MAC
         fGPUFamily = GPUFamily::kMac;

@@ -17,7 +17,7 @@ namespace skgpu::mtl {
 class Caps final : public skgpu::Caps {
 public:
     Caps(const id<MTLDevice>);
-    ~Caps() final {}
+    ~Caps() override {}
 
 private:
     void initGPUFamily(const id<MTLDevice>);
@@ -32,9 +32,9 @@ private:
     };
     bool isMac() const { return fGPUFamily == GPUFamily::kMac; }
     bool isApple()const  { return fGPUFamily == GPUFamily::kApple; }
-    bool getGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) const;
-    bool getGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily,
-                                    int* group) const;
+    static bool GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group);
+    static bool GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily,
+                                           int* group);
 
     GPUFamily fGPUFamily;
     int fFamilyGroup;
