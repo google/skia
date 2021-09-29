@@ -923,7 +923,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				version, ok := map[string]string{
 					"IntelUHDGraphics605": "14233.0.0",
 					"RadeonVega3":         "13729.56.0",
-					"Adreno618":           "13929.0.0",
+					"Adreno618":           "14150.39.0",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in ChromeOS GPU mapping.", b.parts["cpu_or_gpu_value"])
