@@ -13,11 +13,11 @@
 namespace SkSL {
 
 class SymbolTable;
-class IRIntrinsicMap;
+class IntrinsicMap;
 
 struct ParsedModule {
-    std::shared_ptr<SymbolTable>    fSymbols;
-    std::shared_ptr<IRIntrinsicMap> fIntrinsics;
+    std::shared_ptr<SymbolTable>  fSymbols;
+    std::shared_ptr<IntrinsicMap> fIntrinsics;
 };
 
 } //namespace SkSL

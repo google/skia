@@ -46,7 +46,6 @@ namespace dsl {
 class ExternalFunction;
 class FunctionDeclaration;
 class IRGenerator;
-class IRIntrinsicMap;
 class ProgramUsage;
 
 struct LoadedModule {

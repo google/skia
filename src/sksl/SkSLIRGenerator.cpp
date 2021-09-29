@@ -19,6 +19,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLIntrinsicMap.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -225,7 +226,8 @@ void IRGenerator::appendRTAdjustFixupToVertexMain(const FunctionDeclaration& dec
         ProgramKind::kVertex == this->programKind()) {
         // ... append a line to the end of the function body which fixes up sk_Position.
         const Variable* skPerVertex = nullptr;
-        if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
+        if (const ProgramElement* perVertexDecl =
+                fContext.fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
             SkASSERT(perVertexDecl->is<SkSL::InterfaceBlock>());
             skPerVertex = &perVertexDecl->as<SkSL::InterfaceBlock>().variable();
         }
@@ -386,7 +388,8 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int line, skstd::stri
 }
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
-    if (const ProgramElement* found = fIntrinsics->findAndInclude(function.description())) {
+    if (const ProgramElement* found =
+            fContext.fIntrinsics->findAndInclude(function.description())) {
         const FunctionDefinition& original = found->as<FunctionDefinition>();
 
         // Sort the referenced intrinsics into a consistent order; otherwise our output will become
@@ -421,7 +424,7 @@ std::unique_ptr<Expression> IRGenerator::call(int line,
         if (function.intrinsicKind() == k_dFdy_IntrinsicKind) {
             fInputs.fUseFlipRTUniform = true;
         }
-        if (!fIsBuiltinCode && fIntrinsics) {
+        if (!fIsBuiltinCode && fContext.fIntrinsics) {
             this->copyIntrinsicIfNeeded(function);
         }
     }
@@ -562,7 +565,8 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
         void addDeclaringElement(const String& name) {
             // If this is the *first* time we've seen this builtin, findAndInclude will return
             // the corresponding ProgramElement.
-            if (const ProgramElement* decl = fGenerator->fIntrinsics->findAndInclude(name)) {
+            if (const ProgramElement* decl =
+                    fGenerator->fContext.fIntrinsics->findAndInclude(name)) {
                 SkASSERT(decl->is<GlobalVarDeclaration>() || decl->is<SkSL::InterfaceBlock>());
                 fNewElements.push_back(decl);
             }
@@ -629,10 +633,6 @@ void IRGenerator::start(const ParsedModule& base,
     fProgramElements = elements;
     fSharedElements = sharedElements;
     fSymbolTable = base.fSymbols;
-    fIntrinsics = base.fIntrinsics.get();
-    if (fIntrinsics) {
-        fIntrinsics->resetAlreadyIncluded();
-    }
     fIsBuiltinCode = isBuiltinCode;
 
     fInputs = {};
@@ -694,7 +694,7 @@ void IRGenerator::start(const ParsedModule& base,
 
 IRGenerator::IRBundle IRGenerator::finish() {
     // Variables defined in the pre-includes need their declaring elements added to the program
-    if (!fIsBuiltinCode && fIntrinsics) {
+    if (!fIsBuiltinCode && fContext.fIntrinsics) {
         this->findAndDeclareBuiltinVariables();
     }
 
