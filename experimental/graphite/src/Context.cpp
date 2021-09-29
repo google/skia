@@ -10,6 +10,10 @@
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/Gpu.h"
 
+#ifdef SK_METAL
+#include "experimental/graphite/src/mtl/MtlTrampoline.h"
+#endif
+
 namespace skgpu {
 
 Context::Context(sk_sp<Gpu> gpu) : fGpu(std::move(gpu)) {}
@@ -17,8 +21,7 @@ Context::~Context() {}
 
 #ifdef SK_METAL
 sk_sp<Context> Context::MakeMetal(const mtl::BackendContext& backendContext) {
-    // TODO:: allocate the MtlGpu
-    sk_sp<Gpu> gpu = nullptr; // Gpu::Make(backendContext);
+    sk_sp<Gpu> gpu = mtl::Trampoline::MakeGpu(backendContext);
     if (!gpu) {
         return nullptr;
     }
