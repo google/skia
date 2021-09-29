@@ -18,6 +18,8 @@ import sys
 # GLSL code appears in ""double-double quotes"" and is indicated as vert/frag-specific or "both".
 # Some tests denote that they are expected to pass/fail. (Presumably, "pass" is the default.)
 # We ignore descriptions and version fields.
+wordWithUnderscores = pp.Word(pp.alphanums + '_')
+
 pipeList = pp.delimited_list(pp.SkipTo(pp.Literal("|") | pp.Literal("]")), delim="|")
 bracketedPipeList = pp.Group(pp.Literal("[").suppress() +
                              pipeList +
@@ -31,38 +33,36 @@ valueList = (pp.Word(pp.alphanums) +  # type
              pp.Literal(";").suppress())
 value = pp.Group((pp.Keyword("input") | pp.Keyword("output") | pp.Keyword("uniform")) +
                  valueList)
-values = pp.Group(pp.Keyword("values") +
-                  pp.Literal("{").suppress() +
-                  pp.ZeroOrMore(value) +
-                  pp.Literal("}").suppress())
+values = (pp.Keyword("values") +
+          pp.Literal("{").suppress() +
+          pp.ZeroOrMore(value) +
+          pp.Literal("}").suppress())
 
-expectation = pp.Group(pp.Keyword("expect").suppress() +
-                       (pp.Keyword("compile_fail") | pp.Keyword("pass")))
+expectation = (pp.Keyword("expect").suppress() + (pp.Keyword("compile_fail") |
+                                                  pp.Keyword("pass")))
 
-code = ((pp.Group(pp.Keyword("both") + pp.QuotedString('""', multiline=True))) |
-        (pp.Group(pp.Keyword("vertex") + pp.QuotedString('""', multiline=True)) +
-                  pp.Keyword("fragment") + pp.QuotedString('""', multiline=True)))
+code = ((pp.Keyword("both") + pp.QuotedString('""', multiline=True)) |
+        (pp.Keyword("vertex") + pp.QuotedString('""', multiline=True) +
+         pp.Keyword("fragment") + pp.QuotedString('""', multiline=True)))
+
+reqGlsl100 = pp.Keyword("require").suppress() + pp.Keyword("full_glsl_es_100_support")
 
 desc = pp.Keyword("desc") + pp.QuotedString('"')
-
 version100es = pp.Keyword("version") + pp.Keyword("100") + pp.Keyword("es")
+ignoredCaseItem = (desc | version100es).suppress()
 
-reqGlsl100 = pp.Keyword("require") + pp.Keyword("full_glsl_es_100_support")
-
-ignoredCaseItem = (desc | version100es | reqGlsl100).suppress()
-
-caseItem = values | expectation | code | ignoredCaseItem
+caseItem = pp.Group(values | expectation | code | reqGlsl100) | ignoredCaseItem
 
 caseBody = pp.ZeroOrMore(caseItem)
 
 blockEnd = pp.Keyword("end").suppress();
 
-caseHeader = pp.Keyword("case") + pp.Word(pp.alphanums + '_')
+caseHeader = pp.Keyword("case") + wordWithUnderscores
 case = pp.Group(caseHeader + caseBody + blockEnd)
 
 # Groups can be nested to any depth (or can be absent), and may contain any number of cases.
 # The names in the group header are ignored.
-groupHeader = pp.Keyword("group") + pp.Word(pp.alphanums + '_') + pp.QuotedString('"')
+groupHeader = (pp.Keyword("group") + wordWithUnderscores + pp.QuotedString('"')).suppress()
 
 group = pp.Forward()
 group <<= pp.OneOrMore(case | (groupHeader + group + blockEnd))
@@ -71,6 +71,142 @@ group <<= pp.OneOrMore(case | (groupHeader + group + blockEnd))
 grammar = group
 group.ignore('#' + pp.restOfLine)
 
-out = grammar.parse_string(sys.stdin.read(), parse_all=True)
+testCases = grammar.parse_string(sys.stdin.read(), parse_all=True)
 
-out.pprint()
+for c in testCases:
+    # Parse the case header
+    assert c[0] == 'case'
+    c.pop(0)
+
+    testName = c[0]
+    assert isinstance(testName, str)
+    c.pop(0)
+
+    # Parse the case body
+    skipTest = ''
+    expectPass = True
+    testCode = ''
+    inputs = []
+    outputs = []
+
+    for b in c:
+        caseItem = b[0]
+        b.pop(0)
+
+        if caseItem == 'compile_fail':
+            expectPass = False
+
+        elif caseItem == 'pass':
+            expectPass = True
+
+        elif caseItem == 'vertex' or caseItem == 'fragment':
+            skipTest = 'Uses vertex'
+
+        elif caseItem == 'both':
+            testCode = b[0]
+            assert isinstance(testCode, str)
+
+        elif caseItem == 'values':
+            for v in b:
+                valueType = v[0]
+                v.pop(0)
+
+                if valueType == 'uniform':
+                    skipTest = 'Uses uniform'
+                elif valueType == 'input':
+                    inputs.append(v.asList())
+                elif valueType == 'output':
+                    outputs.append(v.asList())
+
+        elif caseItem == 'full_glsl_es_100_support':
+            skipTest = 'Uses while loop'
+
+        else:
+            assert 0
+
+    if skipTest == '':
+        if "void main" not in testCode:
+            skipTest = 'Missing main'
+
+    if skipTest != '':
+        print("/////////// skipped %s (%s) ///////////" % (testName, skipTest))
+        print("")
+        continue
+
+    # Apply fixups to the test code.
+    # SkSL doesn't support the `precision` keyword, so comment it out if it appears.
+    testCode = testCode.replace("precision highp ",   "// precision highp ");
+    testCode = testCode.replace("precision mediump ", "// precision mediump ");
+    testCode = testCode.replace("precision lowp ",    "// precision lowp ");
+
+    # SkSL doesn't support the `#version` declaration.
+    testCode = testCode.replace("#version",    "// #version");
+
+    # Rename the `main` function to `execute_test`.
+    testCode = testCode.replace("void main",          "bool execute_test");
+
+    # Replace ${POSITION_FRAG_COLOR} with a scratch variable.
+    if "${POSITION_FRAG_COLOR}" in testCode:
+        testCode = testCode.replace("${POSITION_FRAG_COLOR}", "PositionFragColor");
+        if "${DECLARATIONS}" in testCode:
+            testCode = testCode.replace("${DECLARATIONS}",
+                                        "vec4 PositionFragColor;\n${DECLARATIONS}");
+        else:
+            testCode = "vec4 PositionFragColor;\n" + testCode
+
+    # Create a runnable SkSL test by returning green or red based on the test result.
+    testSuffix = ''
+    if expectPass:
+        testCode += "\n"
+        testCode += "half4 main(float2 coords) {\n"
+        testCode += "    return execute_test() ? half4(0,1,0,1) : half4(1,0,0,1);\n"
+        testCode += "}\n"
+
+    else:
+        testSuffix = '_ERROR'
+
+    # Find the total number of input/output fields.
+    numVariables = 0
+    for v in inputs + outputs:
+        numVariables = max(numVariables, len(v[2]))
+
+    if numVariables > 0:
+        assert "${DECLARATIONS}" in testCode
+        assert "${OUTPUT}" in testCode
+        for varIndex in range(0, numVariables):
+            print("/////////// %s_%d%s.sksl ///////////" % (testName, varIndex, testSuffix))
+            testSpecialization = testCode
+
+            # Assemble input variable declarations for ${DECLARATIONS}.
+            declarations = ""
+            for v in inputs:
+                if len(v[2]) > varIndex:
+                    declarations += "%s %s = %s;\n" % (v[0], v[1], v[2][varIndex]);
+
+            # Assemble output variable declarations for ${DECLARATIONS}.
+            for v in outputs:
+                declarations += "%s %s;\n" % (v[0], v[1]);
+
+            # Verify output values inside ${OUTPUT}.
+            outputChecks = "return true"
+            for v in outputs:
+                if len(v[2]) > varIndex:
+                    outputChecks += " && (%s == %s)" % (v[1], v[2][varIndex])
+
+            outputChecks += ";\n"
+
+            # Apply fixups to the test code.
+            testSpecialization = testSpecialization.replace("${DECLARATIONS}", declarations)
+            testSpecialization = testSpecialization.replace("${SETUP}",        '')
+            testSpecialization = testSpecialization.replace("${OUTPUT}",       outputChecks)
+            print(testSpecialization)
+
+    else: # not (numVariables > 0)
+        print ("/////////// %s%s.sksl ///////////" % (testName, testSuffix))
+
+        testCode = testCode.replace("${DECLARATIONS}", '')
+        testCode = testCode.replace("${SETUP}",        '')
+        testCode = testCode.replace("${OUTPUT}",       'return true;')
+
+        # Generate an SkSL test file.
+        print (testCode)
