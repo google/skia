@@ -33,7 +33,7 @@ sk_sp<Device> Device::Make(const SkImageInfo& ii) {
 Device::Device(sk_sp<SurfaceDrawContext> sdc)
         : SkBaseDevice(sdc->imageInfo(), SkSurfaceProps())
         , fSDC(std::move(sdc)) {
-    SkASSERT(SkToBool(sdc));
+    SkASSERT(SkToBool(fSDC));
 }
 
 SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
