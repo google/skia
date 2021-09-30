@@ -136,6 +136,11 @@ bool Window_mac::attach(BackendType attachType) {
         case kMetal_BackendType:
             fWindowContext = MakeMetalForMac(info, fRequestedDisplayParams);
             break;
+#ifdef SK_GRAPHITE_ENABLED
+        case kGraphiteMetal_BackendType:
+            fWindowContext = MakeGraphiteMetalForMac(info, fRequestedDisplayParams);
+            break;
+#endif
 #endif
 #ifdef SK_GL
         case kNativeGL_BackendType:

@@ -53,6 +53,9 @@ std::unique_ptr<WindowContext> MakeDawnMTLForMac(const MacWindowInfo&, const Dis
 
 #ifdef SK_METAL
 std::unique_ptr<WindowContext> MakeMetalForMac(const MacWindowInfo&, const DisplayParams&);
+#ifdef SK_GRAPHITE_ENABLED
+std::unique_ptr<WindowContext> MakeGraphiteMetalForMac(const MacWindowInfo&, const DisplayParams&);
+#endif
 #endif
 
 }  // namespace window_context_factory
