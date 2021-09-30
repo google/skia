@@ -16,6 +16,13 @@
 
 namespace skgpu {
 
+// Forward declares so we can friend classes in other namespaces
+#ifdef SK_METAL
+namespace mtl {
+    class Caps;
+}
+#endif
+
 class TextureInfo {
 public:
     TextureInfo() {}
@@ -44,7 +51,7 @@ public:
         if (!this->isValid() || fBackend != BackendApi::kMetal) {
             return false;
         }
-        *info = mtl::TextureSpecToTextureInfo(fMtlSpec, fSampleCount, fLevelCount, fProtected);
+        *info = mtl::TextureSpecToTextureInfo(fMtlSpec, fSampleCount, fLevelCount);
         return true;
     }
 #endif

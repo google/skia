@@ -46,6 +46,8 @@ skia_graphite_sources = [
   "$_src/Surface_Graphite.h",
   "$_src/Task.cpp",
   "$_src/Task.h",
+  "$_src/Texture.cpp",
+  "$_src/Texture.h",
 ]
 
 skia_graphite_mtl_sources = [
