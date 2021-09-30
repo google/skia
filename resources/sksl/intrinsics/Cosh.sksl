@@ -1,12 +1,12 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(0);
-    return (cosh(input.x)       == expected.x     &&
-            cosh(input.xy)      == expected.xy    &&
-            cosh(input.xyz)     == expected.xyz   &&
-            cosh(input.xyzw)    == expected.xyzw  &&
+    return (cosh(inputVal.x)    == expected.x     &&
+            cosh(inputVal.xy)   == expected.xy    &&
+            cosh(inputVal.xyz)  == expected.xyz   &&
+            cosh(inputVal.xyzw) == expected.xyzw  &&
             cosh(constVal.x)    == expected.x     &&
             cosh(constVal.xy)   == expected.xy    &&
             cosh(constVal.xyz)  == expected.xyz   &&

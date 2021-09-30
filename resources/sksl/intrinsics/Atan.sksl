@@ -1,21 +1,21 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal1 = half4(0);
     const half4 constVal2 = half4(1);
-    return (atan(input.x)                        == expected.x     &&
-            atan(input.xy)                       == expected.xy    &&
-            atan(input.xyz)                      == expected.xyz   &&
-            atan(input.xyzw)                     == expected.xyzw  &&
+    return (atan(inputVal.x)                     == expected.x     &&
+            atan(inputVal.xy)                    == expected.xy    &&
+            atan(inputVal.xyz)                   == expected.xyz   &&
+            atan(inputVal.xyzw)                  == expected.xyzw  &&
             atan(constVal1.x)                    == expected.x     &&
             atan(constVal1.xy)                   == expected.xy    &&
             atan(constVal1.xyz)                  == expected.xyz   &&
             atan(constVal1.xyzw)                 == expected.xyzw  &&
-            atan(input.x,        constVal2.x)    == expected.x     &&
-            atan(input.xy,       constVal2.xy)   == expected.xy    &&
-            atan(input.xyz,      constVal2.xyz)  == expected.xyz   &&
-            atan(input.xyzw,     constVal2.xyzw) == expected.xyzw  &&
+            atan(inputVal.x,     constVal2.x)    == expected.x     &&
+            atan(inputVal.xy,    constVal2.xy)   == expected.xy    &&
+            atan(inputVal.xyz,   constVal2.xyz)  == expected.xyz   &&
+            atan(inputVal.xyzw,  constVal2.xyzw) == expected.xyzw  &&
             atan(constVal1.x,    constVal2.x)    == expected.x     &&
             atan(constVal1.xy,   constVal2.xy)   == expected.xy    &&
             atan(constVal1.xyz,  constVal2.xyz)  == expected.xyz   &&

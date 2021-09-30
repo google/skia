@@ -15,8 +15,8 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    bool4 input = bool4(_uniforms.inputH4);
+    bool4 inputVal = bool4(_uniforms.inputH4);
     bool4 expected = bool4(_uniforms.expectedH4);
-    _out.sk_FragColor = ((((any(input.xy) == expected.x && any(input.xyz) == expected.y) && any(input) == expected.z) && false == expected.x) && expected.y) && expected.z ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((any(inputVal.xy) == expected.x && any(inputVal.xyz) == expected.y) && any(inputVal) == expected.z) && false == expected.x) && expected.y) && expected.z ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

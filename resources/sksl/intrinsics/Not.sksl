@@ -2,12 +2,12 @@ uniform half4 inputH4, expectedH4;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    bool4 input = bool4(inputH4);
+    bool4 inputVal = bool4(inputH4);
     bool4 expected = bool4(expectedH4);
     const bool4 constVal = bool4(true, false, true, false);
-    return (not(input.xy)      == expected.xy    &&
-            not(input.xyz)     == expected.xyz   &&
-            not(input.xyzw)    == expected.xyzw  &&
+    return (not(inputVal.xy)   == expected.xy    &&
+            not(inputVal.xyz)  == expected.xyz   &&
+            not(inputVal.xyzw) == expected.xyzw  &&
             not(constVal.xy)   == expected.xy    &&
             not(constVal.xyz)  == expected.xyz   &&
             not(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;

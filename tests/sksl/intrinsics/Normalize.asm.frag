@@ -6,7 +6,7 @@ OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
-OpMemberName %_UniformBuffer 0 "input"
+OpMemberName %_UniformBuffer 0 "inputVal"
 OpMemberName %_UniformBuffer 1 "colorGreen"
 OpMemberName %_UniformBuffer 2 "colorRed"
 OpName %_entrypoint_v "_entrypoint_v"

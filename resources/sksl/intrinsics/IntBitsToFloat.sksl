@@ -6,15 +6,15 @@ half4 main(float2 coords) {
     const float4 constVal = float4(-1, 0, 1, 2);
     const int4 expectedA = int4(-0x40800000, 0x00000000, 0x3F800000, 0x40000000);
 
-    float4 input = float4(testMatrix2x2) * float4(1, 1, -1, -1);
+    float4 inputVal = float4(testMatrix2x2) * float4(1, 1, -1, -1);
     int4 expectedB = int4(0x3F800000, 0x40000000, -0x3FC00000, -0x3F800000);
 
     return (constVal.x    == intBitsToFloat(expectedA.x)    &&
             constVal.xy   == intBitsToFloat(expectedA.xy)   &&
             constVal.xyz  == intBitsToFloat(expectedA.xyz)  &&
             constVal.xyzw == intBitsToFloat(expectedA.xyzw) &&
-            input.x       == intBitsToFloat(expectedB.x)    &&
-            input.xy      == intBitsToFloat(expectedB.xy)   &&
-            input.xyz     == intBitsToFloat(expectedB.xyz)  &&
-            input.xyzw    == intBitsToFloat(expectedB.xyzw)) ? colorGreen : colorRed;
+            inputVal.x    == intBitsToFloat(expectedB.x)    &&
+            inputVal.xy   == intBitsToFloat(expectedB.xy)   &&
+            inputVal.xyz  == intBitsToFloat(expectedB.xyz)  &&
+            inputVal.xyzw == intBitsToFloat(expectedB.xyzw)) ? colorGreen : colorRed;
 }

@@ -1,13 +1,13 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(1, 4, 16, 64);
     const half4 negativeVal = half4(-1, -4, -16, -64);  // should not optimize away
-    return (inversesqrt(input.x)          == expected.x     &&
-            inversesqrt(input.xy)         == expected.xy    &&
-            inversesqrt(input.xyz)        == expected.xyz   &&
-            inversesqrt(input.xyzw)       == expected.xyzw  &&
+    return (inversesqrt(inputVal.x)       == expected.x     &&
+            inversesqrt(inputVal.xy)      == expected.xy    &&
+            inversesqrt(inputVal.xyz)     == expected.xyz   &&
+            inversesqrt(inputVal.xyzw)    == expected.xyzw  &&
             inversesqrt(constVal.x)       == expected.x     &&
             inversesqrt(constVal.xy)      == expected.xy    &&
             inversesqrt(constVal.xyz)     == expected.xyz   &&

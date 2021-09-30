@@ -1,12 +1,12 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(0);
-    return (asin(input.x)       == expected.x     &&
-            asin(input.xy)      == expected.xy    &&
-            asin(input.xyz)     == expected.xyz   &&
-            asin(input.xyzw)    == expected.xyzw  &&
+    return (asin(inputVal.x)    == expected.x     &&
+            asin(inputVal.xy)   == expected.xy    &&
+            asin(inputVal.xyz)  == expected.xyz   &&
+            asin(inputVal.xyzw) == expected.xyzw  &&
             asin(constVal.x)    == expected.x     &&
             asin(constVal.xy)   == expected.xy    &&
             asin(constVal.xyz)  == expected.xyz   &&

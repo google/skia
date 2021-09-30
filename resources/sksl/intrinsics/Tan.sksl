@@ -1,12 +1,12 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(0);
-    return (tan(input.x)       == expected.x     &&
-            tan(input.xy)      == expected.xy    &&
-            tan(input.xyz)     == expected.xyz   &&
-            tan(input.xyzw)    == expected.xyzw  &&
+    return (tan(inputVal.x)    == expected.x     &&
+            tan(inputVal.xy)   == expected.xy    &&
+            tan(inputVal.xyz)  == expected.xyz   &&
+            tan(inputVal.xyzw) == expected.xyzw  &&
             tan(constVal.x)    == expected.x     &&
             tan(constVal.xy)   == expected.xy    &&
             tan(constVal.xyz)  == expected.xyz   &&

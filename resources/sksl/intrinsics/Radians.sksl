@@ -1,12 +1,12 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(0);
-    return (radians(input.x)       == expected.x     &&
-            radians(input.xy)      == expected.xy    &&
-            radians(input.xyz)     == expected.xyz   &&
-            radians(input.xyzw)    == expected.xyzw  &&
+    return (radians(inputVal.x)    == expected.x     &&
+            radians(inputVal.xy)   == expected.xy    &&
+            radians(inputVal.xyz)  == expected.xyz   &&
+            radians(inputVal.xyzw) == expected.xyzw  &&
             radians(constVal.x)    == expected.x     &&
             radians(constVal.xy)   == expected.xy    &&
             radians(constVal.xyz)  == expected.xyz   &&

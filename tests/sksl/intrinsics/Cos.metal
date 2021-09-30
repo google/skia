@@ -2,7 +2,7 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float4 input;
+    float4 inputVal;
     float4 expected;
     float4 colorGreen;
     float4 colorRed;
@@ -15,6 +15,6 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = ((((((cos(_uniforms.input.x) == _uniforms.expected.x && all(cos(_uniforms.input.xy) == _uniforms.expected.xy)) && all(cos(_uniforms.input.xyz) == _uniforms.expected.xyz)) && all(cos(_uniforms.input) == _uniforms.expected)) && 1.0 == _uniforms.expected.x) && all(float2(1.0, 1.0) == _uniforms.expected.xy)) && all(float3(1.0, 1.0, 1.0) == _uniforms.expected.xyz)) && all(float4(1.0, 1.0, 1.0, 1.0) == _uniforms.expected) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((cos(_uniforms.inputVal.x) == _uniforms.expected.x && all(cos(_uniforms.inputVal.xy) == _uniforms.expected.xy)) && all(cos(_uniforms.inputVal.xyz) == _uniforms.expected.xyz)) && all(cos(_uniforms.inputVal) == _uniforms.expected)) && 1.0 == _uniforms.expected.x) && all(float2(1.0, 1.0) == _uniforms.expected.xy)) && all(float3(1.0, 1.0, 1.0) == _uniforms.expected.xyz)) && all(float4(1.0, 1.0, 1.0, 1.0) == _uniforms.expected) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

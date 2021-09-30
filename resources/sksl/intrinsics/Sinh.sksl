@@ -1,12 +1,12 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(0);
-    return (sinh(input.x)       == expected.x     &&
-            sinh(input.xy)      == expected.xy    &&
-            sinh(input.xyz)     == expected.xyz   &&
-            sinh(input.xyzw)    == expected.xyzw  &&
+    return (sinh(inputVal.x)    == expected.x     &&
+            sinh(inputVal.xy)   == expected.xy    &&
+            sinh(inputVal.xyz)  == expected.xyz   &&
+            sinh(inputVal.xyzw) == expected.xyzw  &&
             sinh(constVal.x)    == expected.x     &&
             sinh(constVal.xy)   == expected.xy    &&
             sinh(constVal.xyz)  == expected.xyz   &&

@@ -1,12 +1,12 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(1, 2, 4, 8);
-    return (log2(input.x)       == expected.x     &&
-            log2(input.xy)      == expected.xy    &&
-            log2(input.xyz)     == expected.xyz   &&
-            log2(input.xyzw)    == expected.xyzw  &&
+    return (log2(inputVal.x)    == expected.x     &&
+            log2(inputVal.xy)   == expected.xy    &&
+            log2(inputVal.xyz)  == expected.xyz   &&
+            log2(inputVal.xyzw) == expected.xyzw  &&
             log2(constVal.x)    == expected.x     &&
             log2(constVal.xy)   == expected.xy    &&
             log2(constVal.xyz)  == expected.xyz   &&

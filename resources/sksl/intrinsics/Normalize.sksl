@@ -1,16 +1,16 @@
-uniform half4 input;
+uniform half4 inputVal;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVec = half4(20, 0, 0, 0);
     half4 expectedVec = half4(1, 0, 0, 0);
 
-    return (normalize(input.x)            == expectedVec.x       &&
-            normalize(input.xy)           == expectedVec.xy      &&
-            normalize(input.xyz)          == expectedVec.xyz     &&
-            normalize(input.xyzw)         == expectedVec.xyzw    &&
-            normalize(constVec.x)         == expectedVec.x       &&
-            normalize(constVec.yx)        == expectedVec.yx      &&
-            normalize(constVec.zxy)       == expectedVec.zxy     &&
-            normalize(constVec.xyzw)      == expectedVec.xyzw) ? colorGreen : colorRed;
+    return (normalize(inputVal.x)    == expectedVec.x       &&
+            normalize(inputVal.xy)   == expectedVec.xy      &&
+            normalize(inputVal.xyz)  == expectedVec.xyz     &&
+            normalize(inputVal.xyzw) == expectedVec.xyzw    &&
+            normalize(constVec.x)    == expectedVec.x       &&
+            normalize(constVec.yx)   == expectedVec.yx      &&
+            normalize(constVec.zxy)  == expectedVec.zxy     &&
+            normalize(constVec.xyzw) == expectedVec.xyzw) ? colorGreen : colorRed;
 }

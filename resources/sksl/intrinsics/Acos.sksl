@@ -1,12 +1,12 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(1);
-    return (acos(input.x)       == expected.x     &&
-            acos(input.xy)      == expected.xy    &&
-            acos(input.xyz)     == expected.xyz   &&
-            acos(input.xyzw)    == expected.xyzw  &&
+    return (acos(inputVal.x)    == expected.x     &&
+            acos(inputVal.xy)   == expected.xy    &&
+            acos(inputVal.xyz)  == expected.xyz   &&
+            acos(inputVal.xyzw) == expected.xyzw  &&
             acos(constVal.x)    == expected.x     &&
             acos(constVal.xy)   == expected.xy    &&
             acos(constVal.xyz)  == expected.xyz   &&

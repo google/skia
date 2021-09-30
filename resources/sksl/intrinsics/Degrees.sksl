@@ -1,12 +1,12 @@
-uniform half4 input, expected;
+uniform half4 inputVal, expected;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(1.5707963268, 3.1415926536, 4.7123889804, 6.2831853072);
-    return (degrees(input.x)       == expected.x     &&
-            degrees(input.xy)      == expected.xy    &&
-            degrees(input.xyz)     == expected.xyz   &&
-            degrees(input.xyzw)    == expected.xyzw  &&
+    return (degrees(inputVal.x)    == expected.x     &&
+            degrees(inputVal.xy)   == expected.xy    &&
+            degrees(inputVal.xyz)  == expected.xyz   &&
+            degrees(inputVal.xyzw) == expected.xyzw  &&
             degrees(constVal.x)    == expected.x     &&
             degrees(constVal.xy)   == expected.xy    &&
             degrees(constVal.xyz)  == expected.xyz   &&

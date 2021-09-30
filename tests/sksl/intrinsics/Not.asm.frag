@@ -12,7 +12,7 @@ OpMemberName %_UniformBuffer 2 "colorGreen"
 OpMemberName %_UniformBuffer 3 "colorRed"
 OpName %_entrypoint_v "_entrypoint_v"
 OpName %main "main"
-OpName %input "input"
+OpName %inputVal "inputVal"
 OpName %expected "expected"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -95,7 +95,7 @@ OpFunctionEnd
 %main = OpFunction %v4float None %23
 %24 = OpFunctionParameter %_ptr_Function_v2float
 %25 = OpLabel
-%input = OpVariable %_ptr_Function_v4bool Function
+%inputVal = OpVariable %_ptr_Function_v4bool Function
 %expected = OpVariable %_ptr_Function_v4bool Function
 %108 = OpVariable %_ptr_Function_v4float Function
 %29 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
@@ -109,7 +109,7 @@ OpFunctionEnd
 %40 = OpCompositeExtract %float %33 3
 %41 = OpFUnordNotEqual %bool %40 %float_0
 %42 = OpCompositeConstruct %v4bool %35 %37 %39 %41
-OpStore %input %42
+OpStore %inputVal %42
 %44 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
 %46 = OpLoad %v4float %44
 %47 = OpCompositeExtract %float %46 0
@@ -122,7 +122,7 @@ OpStore %input %42
 %54 = OpFUnordNotEqual %bool %53 %float_0
 %55 = OpCompositeConstruct %v4bool %48 %50 %52 %54
 OpStore %expected %55
-%58 = OpLoad %v4bool %input
+%58 = OpLoad %v4bool %inputVal
 %59 = OpVectorShuffle %v2bool %58 %58 0 1
 %57 = OpLogicalNot %v2bool %59
 %61 = OpLoad %v4bool %expected
@@ -132,7 +132,7 @@ OpStore %expected %55
 OpSelectionMerge %66 None
 OpBranchConditional %64 %65 %66
 %65 = OpLabel
-%68 = OpLoad %v4bool %input
+%68 = OpLoad %v4bool %inputVal
 %69 = OpVectorShuffle %v3bool %68 %68 0 1 2
 %67 = OpLogicalNot %v3bool %69
 %71 = OpLoad %v4bool %expected
@@ -145,7 +145,7 @@ OpBranch %66
 OpSelectionMerge %77 None
 OpBranchConditional %75 %76 %77
 %76 = OpLabel
-%79 = OpLoad %v4bool %input
+%79 = OpLoad %v4bool %inputVal
 %78 = OpLogicalNot %v4bool %79
 %80 = OpLoad %v4bool %expected
 %81 = OpLogicalEqual %v4bool %78 %80

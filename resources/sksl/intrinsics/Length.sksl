@@ -1,14 +1,14 @@
-uniform half4 input;
+uniform half4 inputVal;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     const half4 constVal = half4(3, 0, 4, 12);
     half4 expected = half4(3, 3, 5, 13);
 
-    return (length(input.x)       == expected.x &&
-            length(input.xy)      == expected.y &&
-            length(input.xyz)     == expected.z &&
-            length(input.xyzw)    == expected.w &&
+    return (length(inputVal.x)    == expected.x &&
+            length(inputVal.xy)   == expected.y &&
+            length(inputVal.xyz)  == expected.z &&
+            length(inputVal.xyzw) == expected.w &&
             length(constVal.x)    == expected.x &&
             length(constVal.xy)   == expected.y &&
             length(constVal.xyz)  == expected.z &&
