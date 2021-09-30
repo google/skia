@@ -62,7 +62,6 @@
   const loadMultiframeJSON = fetch(cdn + 'skottie_sample_multiframe.json').then((response) => response.text());
 
   const loadFlightGif = fetch(cdn + 'flightAnim.gif').then((response) => response.arrayBuffer());
-  const loadSkp = fetch(cdn + 'picture2.skp').then((response) => response.arrayBuffer());
   const loadFont = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
   const loadDog = fetch(cdn + 'dog.jpg').then((response) => response.arrayBuffer());
   const loadMandrill = fetch(cdn + 'mandrill_256.png').then((response) => response.arrayBuffer());
@@ -120,6 +119,7 @@
     ParticlesAPI1(CanvasKit);
     RTShaderAPI1(CanvasKit);
     ColorSupport(CanvasKit);
+    SkpExample(CanvasKit);
   });
 
   // Examples requiring external resources.
@@ -147,7 +147,6 @@
     ParagraphAPI2(...results);
     GlyphGame(...results)
   });
-  Promise.all([ckLoaded, loadSkp]).then((results) => {SkpExample(...results)});
 
   const rectLeft = 0;
   const rectTop = 1;
@@ -494,11 +493,6 @@
       1, 1, 1, 1,
       0, 0, 0, 1], true);
 
-      return spiralShader;
-      // TODO(kjlubick): The raster backend does not like atan or fract, so we can't
-      // draw the shader into the offscreen canvas and mess with it. When we can, that
-      // would be cool to show off.
-
       const blur = CanvasKit.ImageFilter.MakeBlur(0.1, 0.1, CanvasKit.TileMode.Clamp, null);
 
       const paint = new CanvasKit.Paint();
@@ -510,7 +504,8 @@
       blur.delete();
       spiralShader.delete();
       return offscreenSurface.makeImageSnapshot()
-                             .makeShader(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp);
+                             .makeShaderCubic(CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp,
+                             1/3, 1/3);
 
     };
 
@@ -532,8 +527,8 @@
     surface.requestAnimationFrame(drawFrame);
   });
 
-  function SkpExample(CanvasKit, skpData) {
-    if (!skpData || !CanvasKit) {
+  function SkpExample(CanvasKit) {
+    if (!CanvasKit) {
       return;
     }
 
@@ -543,19 +538,34 @@
       return;
     }
 
-    const pic = CanvasKit.MakePicture(skpData);
+    const paint = new CanvasKit.Paint();
+    paint.setColor(CanvasKit.RED);
+
+    const textPaint = new CanvasKit.Paint();
+    const textFont = new CanvasKit.Font(null, 20);
+    const pr = new CanvasKit.PictureRecorder();
+    const skpCanvas = pr.beginRecording(CanvasKit.LTRBRect(0, 0, 200, 200));
+    skpCanvas.drawRect(CanvasKit.LTRBRect(10, 10, 50, 50), paint);
+    skpCanvas.drawText('If you see this, CanvasKit loaded!!', 5, 100, textPaint, textFont);
+
+    const pic = pr.finishRecordingAsPicture();
+    const skpData = pic.serialize();
+
+    paint.delete();
+    pr.delete();
+
+    const deserialized = CanvasKit.MakePicture(skpData);
 
     function drawFrame(canvas) {
-      canvas.clear(CanvasKit.TRANSPARENT);
-      // this particular file has a path drawing at (68,582) that's 1300x1300 pixels
-      // scale it down to 500x500 and translate it to fit.
-      const scale = 500.0/1300;
-      canvas.scale(scale, scale);
-      canvas.translate(-68, -582);
-      canvas.drawPicture(pic);
+      if (deserialized) {
+        canvas.drawPicture(deserialized);
+      } else {
+        canvas.drawText('SKP did not deserialize', 5, 100, textPaint, textFont);
+      }
     }
-    // Intentionally just draw frame once
     surface.drawOnce(drawFrame);
+    textPaint.delete();
+    textFont.delete();
   }
 
   // Shows a hidden message by rotating all the characters in a kind of way that makes you
