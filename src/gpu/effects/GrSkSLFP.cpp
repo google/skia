@@ -108,6 +108,10 @@ public:
                 }
             }
 
+            void declareFunction(const char* decl) override {
+                fArgs.fFragBuilder->emitFunctionPrototype(decl);
+            }
+
             void defineStruct(const char* definition) override {
                 fArgs.fFragBuilder->definitionAppend(definition);
             }

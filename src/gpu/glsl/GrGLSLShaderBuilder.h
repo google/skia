@@ -143,6 +143,8 @@ public:
                                const char* mangledName,
                                SkSpan<const GrShaderVar> args);
 
+    void emitFunctionPrototype(const char* declaration);
+
     /** Emits a helper function outside of main() in the fragment shader. */
     void emitFunction(GrSLType returnType,
                       const char* mangledName,

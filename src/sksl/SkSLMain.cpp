@@ -408,6 +408,10 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                             fOutput += String(decl) + "{" + body + "}";
                         }
 
+                        void declareFunction(const char* decl) override {
+                            fOutput += String(decl) + ";";
+                        }
+
                         void defineStruct(const char* definition) override {
                             fOutput += definition;
                         }

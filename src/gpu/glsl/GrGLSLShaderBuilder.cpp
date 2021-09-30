@@ -85,6 +85,10 @@ void GrGLSLShaderBuilder::emitFunctionPrototype(GrSLType returnType,
     this->functions().append(";\n");
 }
 
+void GrGLSLShaderBuilder::emitFunctionPrototype(const char* declaration) {
+    this->functions().appendf("%s;\n", declaration);
+}
+
 void GrGLSLShaderBuilder::codeAppend(std::unique_ptr<SkSL::Statement> stmt) {
     SkASSERT(SkSL::dsl::DSLWriter::CurrentProcessor());
     SkASSERT(stmt);

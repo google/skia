@@ -72,6 +72,7 @@ private:
     void writeFunctionPrototype(const FunctionPrototype& f);
 
     String modifierString(const Modifiers& modifiers);
+    String functionDeclaration(const FunctionDeclaration& decl);
 
     // Handles arrays correctly, eg: `float x[2]`
     String typedVariable(const Type& type, skstd::string_view name);
@@ -338,6 +339,12 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         fCastReturnsToHalf = false;
     }
 
+    fCallbacks->defineFunction(this->functionDeclaration(decl).c_str(),
+                               body.fBuffer.str().c_str(),
+                               decl.isMain());
+}
+
+String PipelineStageCodeGenerator::functionDeclaration(const FunctionDeclaration& decl) {
     // This is similar to decl.description(), but substitutes a mangled name, and handles modifiers
     // on the function (e.g. `inline`) and its parameters (e.g. `inout`).
     String declString =
@@ -348,22 +355,18 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
                            this->functionName(decl).c_str());
     const char* separator = "";
     for (const Variable* p : decl.parameters()) {
-        // TODO: Handle arrays
-        declString.appendf("%s%s%s %s",
-                           separator,
-                           this->modifierString(p->modifiers()).c_str(),
-                           this->typeName(p->type()).c_str(),
-                           String(p->name()).c_str());
+        declString.append(separator);
+        declString.append(this->modifierString(p->modifiers()));
+        declString.append(this->typedVariable(p->type(), p->name()).c_str());
         separator = ", ";
     }
-    declString.append(")");
 
-    fCallbacks->defineFunction(declString.c_str(), body.fBuffer.str().c_str(), decl.isMain());
+    return declString + ")";
 }
 
 void PipelineStageCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
     const FunctionDeclaration& decl = f.declaration();
-    (void)this->functionName(decl);
+    fCallbacks->declareFunction(this->functionDeclaration(decl).c_str());
 }
 
 void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& g) {

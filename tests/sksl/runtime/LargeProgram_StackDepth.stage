@@ -1,4 +1,5 @@
 half4 color_0;
+void f1_0();
 half4 main(float2 xy)
 {
 	f2_0();
