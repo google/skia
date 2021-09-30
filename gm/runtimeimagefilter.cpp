@@ -24,10 +24,10 @@
 
 static sk_sp<SkImageFilter> make_filter() {
     sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForShader(SkString(R"(
-        uniform shader input;
+        uniform shader child;
         half4 main(float2 coord) {
             coord.x += sin(coord.y / 3) * 4;
-            return input.eval(coord);
+            return child.eval(coord);
         }
     )")).effect;
     return SkMakeRuntimeImageFilter(std::move(effect),

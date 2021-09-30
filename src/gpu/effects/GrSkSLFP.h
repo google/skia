@@ -113,7 +113,7 @@ public:
      * For uniforms, the next argument must be data of the correct size and type.
      *
      * For example, given:
-     *   uniform shader input;
+     *   uniform shader child;
      *   uniform float scale;
      *   uniform half2 pt;
      *   half4 main() { ... }
@@ -123,7 +123,7 @@ public:
      *   float scaleVal = ...;
      *   SkV2 ptVal = ...;
      *   auto fp = GrSkSLFP::Make(effect, "my_effect", nullptr, GrSkSLFP::OptFlags::...,
-     *                            "input", std::move(child),
+     *                            "child", std::move(child),
      *                            "scale", scaleVal,
      *                            "pt", ptVal);
      *

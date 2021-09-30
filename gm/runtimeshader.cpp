@@ -226,13 +226,13 @@ DEF_GM(return new SpiralRT;)
 class UnsharpRT : public RuntimeShaderGM {
 public:
     UnsharpRT() : RuntimeShaderGM("unsharp_rt", {512, 256}, R"(
-        uniform shader input;
+        uniform shader child;
         half4 main(float2 xy) {
-            half4 c = input.eval(xy) * 5;
-            c -= input.eval(xy + float2( 1,  0));
-            c -= input.eval(xy + float2(-1,  0));
-            c -= input.eval(xy + float2( 0,  1));
-            c -= input.eval(xy + float2( 0, -1));
+            half4 c = child.eval(xy) * 5;
+            c -= child.eval(xy + float2( 1,  0));
+            c -= child.eval(xy + float2(-1,  0));
+            c -= child.eval(xy + float2( 0,  1));
+            c -= child.eval(xy + float2( 0, -1));
             return c;
         }
     )") {}
@@ -251,7 +251,7 @@ public:
         // Now draw the image with our unsharp mask applied
         SkRuntimeShaderBuilder builder(fEffect);
         const SkSamplingOptions sampling(SkFilterMode::kNearest);
-        builder.child("input") = fMandrill->makeShader(sampling);
+        builder.child("child") = fMandrill->makeShader(sampling);
 
         SkPaint paint;
         paint.setShader(builder.makeShader(nullptr, true));
@@ -264,7 +264,7 @@ DEF_GM(return new UnsharpRT;)
 class ColorCubeRT : public RuntimeShaderGM {
 public:
     ColorCubeRT() : RuntimeShaderGM("color_cube_rt", {512, 512}, R"(
-        uniform shader input;
+        uniform shader child;
         uniform shader color_cube;
 
         uniform float rg_scale;
@@ -273,7 +273,7 @@ public:
         uniform float inv_size;
 
         half4 main(float2 xy) {
-            float4 c = unpremul(input.eval(xy));
+            float4 c = unpremul(child.eval(xy));
 
             // Map to cube coords:
             float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
@@ -321,7 +321,7 @@ public:
         builder.uniform("b_scale")      = kSize - 1;
         builder.uniform("inv_size")     = 1.0f / kSize;
 
-        builder.child("input")        = fMandrill->makeShader(sampling);
+        builder.child("child")        = fMandrill->makeShader(sampling);
 
         SkPaint paint;
 
@@ -427,9 +427,9 @@ DEF_GM(return new ColorCubeColorFilterRT;)
 class DefaultColorRT : public RuntimeShaderGM {
 public:
     DefaultColorRT() : RuntimeShaderGM("default_color_rt", {512, 256}, R"(
-        uniform shader input;
+        uniform shader child;
         half4 main(float2 xy) {
-            return input.eval(xy);
+            return child.eval(xy);
         }
     )") {}
 
@@ -450,7 +450,7 @@ public:
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
 
         // Now we bind an image shader as the child. This (by convention) scales by the paint alpha
-        builder.child("input") = fMandrill->makeShader(SkSamplingOptions());
+        builder.child("child") = fMandrill->makeShader(SkSamplingOptions());
         paint.setColor4f({ 1.0f, 1.0f, 1.0f, 0.5f });
         paint.setShader(builder.makeShader(nullptr, false));
         canvas->translate(256, 0);
