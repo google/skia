@@ -6,7 +6,7 @@ vars = {
   # Three lines of non-changing comments so that
   # the commit queue can handle CLs rolling different
   # dependencies without interference from each other.
-  'sk_tool_revision': 'git_revision:3eca46e2dd9e4ed84f38c33060059ee2f894da02',
+  'sk_tool_revision': 'git_revision:5e2ef4b59af0b525bc6fd405fd942105e70dae42',
 }
 
 deps = {
