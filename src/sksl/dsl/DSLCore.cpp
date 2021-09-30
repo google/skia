@@ -24,6 +24,7 @@
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/transform/SkSLTransform.h"
 
 namespace SkSL {
 
@@ -66,6 +67,11 @@ public:
         DSLWriter& instance = DSLWriter::Instance();
         SkSL::IRGenerator& ir = DSLWriter::IRGenerator();
         SkSL::Compiler& compiler = DSLWriter::Compiler();
+        // Variables defined in the pre-includes need their declaring elements added to the program
+        if (!ir.fIsBuiltinCode && compiler.context().fIntrinsics) {
+            Transform::FindAndDeclareBuiltinVariables(DSLWriter::Context(),
+                    DSLWriter::GetProgramConfig()->fKind, DSLWriter::SharedElements());
+        }
         IRGenerator::IRBundle bundle = ir.finish();
         Pool* pool = DSLWriter::Instance().fPool.get();
         auto result = std::make_unique<SkSL::Program>(std::move(source),
