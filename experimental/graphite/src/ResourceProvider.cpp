@@ -34,4 +34,8 @@ Pipeline* ResourceProvider::findOrCreatePipeline(const PipelineDesc& desc) {
     return pso;
 }
 
+std::unique_ptr<CommandBuffer> onCreateCommandBuffer() {
+    return nullptr;
+}
+
 } // namespace skgpu

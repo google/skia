@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_GraphiteTestContext_DEFINED
-#define skgpu_GraphiteTestContext_DEFINED
+#ifndef sk_graphite_test_GraphiteTestContext_DEFINED
+#define sk_graphite_test_GraphiteTestContext_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "include/core/SkRefCnt.h"
@@ -37,4 +37,4 @@ protected:
 
 }  // namespace sk_graphite_test
 
-#endif // skgpu_GraphiteTestContext_DEFINED
+#endif // sk_graphite_test_GraphiteTestContext_DEFINED

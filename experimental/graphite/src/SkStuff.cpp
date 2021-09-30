@@ -7,12 +7,13 @@
 
 #include "experimental/graphite/include/SkStuff.h"
 
+#include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/src/Device.h"
 #include "experimental/graphite/src/Surface_Graphite.h"
 
-sk_sp<SkSurface> MakeGraphite(const SkImageInfo& ii) {
+sk_sp<SkSurface> MakeGraphite(sk_sp<skgpu::Context> context, const SkImageInfo& ii) {
 
-    sk_sp<skgpu::Device> device = skgpu::Device::Make(ii);
+    sk_sp<skgpu::Device> device = skgpu::Device::Make(std::move(context), ii);
     if (!device) {
         return nullptr;
     }

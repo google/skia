@@ -80,7 +80,10 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/SkStuff.h"
+#include "tools/graphite/ContextFactory.h"
+#include "tools/graphite/GraphiteTestContext.h"
 #endif
 
 #if defined(SK_ENABLE_ANDROID_UTILS)
@@ -2122,9 +2125,14 @@ Result GraphiteSink::draw(const Src& src,
                           SkBitmap* dst,
                           SkWStream* dstStream,
                           SkString* log) const {
+    using ContextType = sk_graphite_test::ContextFactory::ContextType;
+
     SkImageInfo ii = SkImageInfo::Make(src.size(), kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> surface = MakeGraphite(ii);
+    sk_graphite_test::ContextFactory factory;
+    auto [_, context] = factory.getContextInfo(ContextType::kMetal);
+
+    sk_sp<SkSurface> surface = MakeGraphite(std::move(context), ii);
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }

@@ -20,7 +20,7 @@ class TestContext : public GraphiteTestContext {
 public:
     ~TestContext() override {}
 
-    static GraphiteTestContext* Make();
+    static std::unique_ptr<GraphiteTestContext> Make();
 
     skgpu::BackendApi backend() override { return skgpu::BackendApi::kMetal; }
 

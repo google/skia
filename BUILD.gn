@@ -1800,6 +1800,8 @@ if (skia_enable_tools) {
       sources -= [ "tools/gpu/TestOps.h" ]
     }
     if (skia_enable_graphite) {
+      sources += [ "tools/graphite/ContextFactory.h" ]
+      sources += [ "tools/graphite/ContextFactory.cpp" ]
       sources += [ "tools/graphite/GraphiteTestContext.h" ]
       sources += [ "tools/graphite/GraphiteTestContext.cpp" ]
       if (skia_use_metal) {

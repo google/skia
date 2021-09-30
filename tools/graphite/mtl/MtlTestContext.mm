@@ -16,7 +16,7 @@
 
 namespace sk_graphite_test::mtl {
 
-GraphiteTestContext* TestContext::Make() {
+std::unique_ptr<GraphiteTestContext> TestContext::Make() {
     sk_cfp<id<MTLDevice>> device;
 #ifdef SK_BUILD_FOR_MAC
     sk_cfp<NSArray<id <MTLDevice>>*> availableDevices(MTLCopyAllDevices());
@@ -44,7 +44,7 @@ GraphiteTestContext* TestContext::Make() {
     backendContext.fDevice.retain(device.get());
     backendContext.fQueue.retain([*device newCommandQueue]);
 
-    return new TestContext(backendContext);
+    return std::unique_ptr<GraphiteTestContext>(new TestContext(backendContext));
 }
 
 sk_sp<skgpu::Context> TestContext::makeContext() {

@@ -12,11 +12,14 @@
 
 namespace skgpu {
 
+class Context;
 class SurfaceDrawContext;
 
 class Device final : public SkBaseDevice  {
 public:
-    static sk_sp<Device> Make(const SkImageInfo&);
+    static sk_sp<Device> Make(sk_sp<Context>, const SkImageInfo&);
+
+    sk_sp<Context> refContext() { return fContext; }
 
 protected:
     // Clipping
@@ -93,15 +96,14 @@ protected:
     void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice,
                      const SkSamplingOptions&, const SkPaint&) override {}
 
-    sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override { return nullptr; }
-    sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override { return nullptr; }
-    sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override {
-        return nullptr;
-    }
+    sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
+    sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
+    sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
 
 private:
-    Device(sk_sp<SurfaceDrawContext>);
+    Device(sk_sp<Context>, sk_sp<SurfaceDrawContext>);
 
+    sk_sp<Context> fContext;
     sk_sp<SurfaceDrawContext> fSDC;
 };
 

@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/Device.h"
 
+#include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/SkStuff.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/SurfaceDrawContext.h"
@@ -18,20 +19,22 @@
 
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
+#include "src/core/SkSpecialImage.h"
 
 namespace skgpu {
 
-sk_sp<Device> Device::Make(const SkImageInfo& ii) {
+sk_sp<Device> Device::Make(sk_sp<Context> context, const SkImageInfo& ii) {
     sk_sp<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(ii);
     if (!sdc) {
         return nullptr;
     }
 
-    return sk_sp<Device>(new Device(std::move(sdc)));
+    return sk_sp<Device>(new Device(std::move(context), std::move(sdc)));
 }
 
-Device::Device(sk_sp<SurfaceDrawContext> sdc)
+Device::Device(sk_sp<Context> context, sk_sp<SurfaceDrawContext> sdc)
         : SkBaseDevice(sdc->imageInfo(), SkSurfaceProps())
+        , fContext(std::move(context))
         , fSDC(std::move(sdc)) {
     SkASSERT(SkToBool(fSDC));
 }
@@ -40,11 +43,11 @@ SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
     // TODO: Inspect the paint and create info to determine if there's anything that has to be
     // modified to support inline subpasses.
     // TODO: onCreateDevice really should return sk_sp<SkBaseDevice>...
-    return Make(info.fInfo).release();
+    return Make(fContext, info.fInfo).release();
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& /* props */) {
-    return MakeGraphite(ii);
+    return MakeGraphite(fContext, ii);
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
@@ -200,6 +203,18 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutab
     } else {
         fSDC->fillPath(this->localToDevice44(), path, scissor, 0, 0, &shading);
     }
+}
+
+sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap&) {
+    return nullptr;
+}
+
+sk_sp<SkSpecialImage> Device::makeSpecial(const SkImage*) {
+    return nullptr;
+}
+
+sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy) {
+    return nullptr;
 }
 
 } // namespace skgpu
