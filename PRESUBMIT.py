@@ -18,7 +18,6 @@ import sys
 import traceback
 
 
-AUTHORS_FILE_NAME = 'AUTHORS'
 RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
 
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
@@ -329,43 +328,6 @@ class CodeReview(object):
     return approvers
 
 
-def _CheckOwnerIsInAuthorsFile(input_api, output_api):
-  results = []
-  if input_api.change.issue:
-    cr = CodeReview(input_api)
-
-    owner_email = cr.GetOwnerEmail()
-
-    # Service accounts don't need to be in AUTHORS.
-    for suffix in SERVICE_ACCOUNT_SUFFIX:
-      if owner_email.endswith(suffix):
-        return results
-
-    try:
-      authors_content = ''
-      for line in open(AUTHORS_FILE_NAME):
-        if not line.startswith('#'):
-          authors_content += line
-      email_fnmatches = re.findall('<(.*)>', authors_content)
-      for email_fnmatch in email_fnmatches:
-        if fnmatch.fnmatch(owner_email, email_fnmatch):
-          # Found a match, the user is in the AUTHORS file break out of the loop
-          break
-      else:
-        results.append(
-          output_api.PresubmitError(
-            'The email %s is not in Skia\'s AUTHORS file.\n'
-            'Issue owner, this CL must include an addition to the Skia AUTHORS '
-            'file.'
-            % owner_email))
-    except IOError:
-      # Do not fail if authors file cannot be found.
-      traceback.print_exc()
-      input_api.logging.error('AUTHORS file not found!')
-
-  return results
-
-
 def _CheckReleaseNotesForPublicAPI(input_api, output_api):
   """Checks to see if release notes file is updated with public API changes."""
   results = []
@@ -445,7 +407,6 @@ def CheckChangeOnCommit(input_api, output_api):
   """Presubmit checks for the change on commit."""
   results = []
   results.extend(_CommonChecks(input_api, output_api))
-  results.extend(_CheckOwnerIsInAuthorsFile(input_api, output_api))
   # Checks for the presence of 'DO NOT''SUBMIT' in CL description and in
   # content of files.
   results.extend(
