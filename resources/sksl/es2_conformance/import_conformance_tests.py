@@ -7,9 +7,18 @@
 #
 # GLSL ES2 conformance test files can be found at
 # https://github.com/KhronosGroup/VK-GL-CTS/tree/master/data/gles2/shaders
+#
+# Usage:
+#     cat ${TEST_FILES}/*.test | ./import_conformance_tests.py
+#
+# This will generate two directories, "pass" and "fail", containing finished runtime shaders.
+#
+# Not all ES2 test files are meaningful in SkSL. These input files are not supported:
+# - linkage.test: Runtime Effects only handle fragment processing
+# - invalid_texture_functions.test: no GL texture functions in Runtime Effects
+# - preprocessor.test: no preprocessor in SkSL
 
 import os
-import pprint
 import pyparsing as pp
 import sys
 
@@ -73,6 +82,14 @@ group.ignore('#' + pp.restOfLine)
 
 testCases = grammar.parse_string(sys.stdin.read(), parse_all=True)
 
+# Write output files in subdirectories next to this script.
+testDirectory = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+passDirectory = testDirectory + "/pass"
+failDirectory = testDirectory + "/fail"
+os.makedirs(passDirectory, exist_ok=True)
+os.makedirs(failDirectory, exist_ok=True)
+written = {}
+
 for c in testCases:
     # Parse the case header
     assert c[0] == 'case'
@@ -129,8 +146,7 @@ for c in testCases:
             skipTest = 'Missing main'
 
     if skipTest != '':
-        print("/////////// skipped %s (%s) ///////////" % (testName, skipTest))
-        print("")
+        print("skipped %s (%s)" % (testName, skipTest))
         continue
 
     # Apply fixups to the test code.
@@ -140,10 +156,10 @@ for c in testCases:
     testCode = testCode.replace("precision lowp ",    "// precision lowp ");
 
     # SkSL doesn't support the `#version` declaration.
-    testCode = testCode.replace("#version",    "// #version");
+    testCode = testCode.replace("#version", "// #version");
 
     # Rename the `main` function to `execute_test`.
-    testCode = testCode.replace("void main",          "bool execute_test");
+    testCode = testCode.replace("void main", "bool execute_test");
 
     # Replace ${POSITION_FRAG_COLOR} with a scratch variable.
     if "${POSITION_FRAG_COLOR}" in testCode:
@@ -155,15 +171,14 @@ for c in testCases:
             testCode = "vec4 PositionFragColor;\n" + testCode
 
     # Create a runnable SkSL test by returning green or red based on the test result.
-    testSuffix = ''
-    if expectPass:
-        testCode += "\n"
-        testCode += "half4 main(float2 coords) {\n"
-        testCode += "    return execute_test() ? half4(0,1,0,1) : half4(1,0,0,1);\n"
-        testCode += "}\n"
+    testCode += "\n"
+    testCode += "half4 main(float2 coords) {\n"
+    testCode += "    return execute_test() ? half4(0,1,0,1) : half4(1,0,0,1);\n"
+    testCode += "}\n"
 
-    else:
-        testSuffix = '_ERROR'
+    testDirectory = passDirectory
+    if not expectPass:
+        testDirectory = failDirectory
 
     # Find the total number of input/output fields.
     numVariables = 0
@@ -174,7 +189,6 @@ for c in testCases:
         assert "${DECLARATIONS}" in testCode
         assert "${OUTPUT}" in testCode
         for varIndex in range(0, numVariables):
-            print("/////////// %s_%d%s.sksl ///////////" % (testName, varIndex, testSuffix))
             testSpecialization = testCode
 
             # Assemble input variable declarations for ${DECLARATIONS}.
@@ -199,14 +213,22 @@ for c in testCases:
             testSpecialization = testSpecialization.replace("${DECLARATIONS}", declarations)
             testSpecialization = testSpecialization.replace("${SETUP}",        '')
             testSpecialization = testSpecialization.replace("${OUTPUT}",       outputChecks)
-            print(testSpecialization)
+
+            # Generate an SkSL test file.
+            path = "%s/%s_%d.rts" % (testDirectory, testName, varIndex)
+            assert path not in written
+            written[path] = True
+            f = open(path, "w")
+            f.write(testSpecialization)
 
     else: # not (numVariables > 0)
-        print ("/////////// %s%s.sksl ///////////" % (testName, testSuffix))
-
         testCode = testCode.replace("${DECLARATIONS}", '')
         testCode = testCode.replace("${SETUP}",        '')
         testCode = testCode.replace("${OUTPUT}",       'return true;')
 
         # Generate an SkSL test file.
-        print (testCode)
+        path = "%s/%s.rts" % (testDirectory, testName)
+        assert path not in written
+        written[path] = True
+        f = open(path, "w")
+        f.write(testCode)
