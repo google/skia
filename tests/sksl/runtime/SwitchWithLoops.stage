@@ -1,5 +1,7 @@
 uniform half4 colorGreen;
 uniform half4 colorRed;
+bool switch_with_continue_in_loop_0(int x);
+bool loop_with_break_in_switch_0(int x);
 bool switch_with_continue_in_loop_0(int x)
 {
 	int val = 0;

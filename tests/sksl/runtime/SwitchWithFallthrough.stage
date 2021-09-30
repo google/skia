@@ -1,5 +1,6 @@
 uniform half4 colorGreen;
 uniform half4 colorRed;
+bool switch_fallthrough_twice_0(int value);
 bool switch_fallthrough_twice_0(int value)
 {
 	bool ok = false;

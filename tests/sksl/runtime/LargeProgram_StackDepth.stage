@@ -1,5 +1,11 @@
 half4 color_0;
-void f1_0();
+void f8_0();
+void f7_0();
+void f6_0();
+void f5_0();
+void f4_0();
+void f3_0();
+void f2_0();
 half4 main(float2 xy)
 {
 	f2_0();

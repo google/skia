@@ -1,5 +1,8 @@
 uniform half4 colorGreen;
 uniform half4 colorRed;
+bool test_vector_0();
+bool test_matrix_0();
+bool test_array_0();
 bool test_vector_0()
 {
 	half2 mp2 = half2(2.0);

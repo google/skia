@@ -1,4 +1,6 @@
 const half r_0 = 0.0;
+noinline half opt_barrier_0(const half x);
+half2 compute_ba_0(const half2 rg);
 noinline half opt_barrier_0(const half x)
 {
 	return x;
