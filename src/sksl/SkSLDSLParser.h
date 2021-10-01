@@ -184,8 +184,6 @@ private:
 
     dsl::DSLModifiers modifiers();
 
-    dsl::DSLModifiers modifiersWithDefaults(int defaultFlags);
-
     dsl::DSLStatement statement();
 
     skstd::optional<dsl::DSLType> type(dsl::DSLModifiers* modifiers);

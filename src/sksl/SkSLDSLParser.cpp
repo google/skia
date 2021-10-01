@@ -637,7 +637,7 @@ SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& 
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
 skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter() {
-    DSLModifiers modifiers = this->modifiersWithDefaults(0);
+    DSLModifiers modifiers = this->modifiers();
     skstd::optional<DSLType> type = this->type(&modifiers);
     if (!type) {
         return skstd::nullopt;
@@ -774,14 +774,6 @@ DSLModifiers DSLParser::modifiers() {
         this->nextToken();
     }
     return DSLModifiers(std::move(layout), flags);
-}
-
-DSLModifiers DSLParser::modifiersWithDefaults(int defaultFlags) {
-    DSLModifiers result = this->modifiers();
-    if (defaultFlags && !result.flags()) {
-        return DSLModifiers(result.layout(), defaultFlags);
-    }
-    return result;
 }
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
