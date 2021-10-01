@@ -26,7 +26,9 @@ sk_sp<Texture> Texture::Make(SkISize dimensions) {
 
     skgpu::TextureInfo textureInfo(mtlInfo);
 
-    return sk_sp<Texture>(new Texture(dimensions, textureInfo));
+    UsageFlags usage = UsageFlags::kTexture | UsageFlags::kColorAttachment;
+
+    return sk_sp<Texture>(new Texture(dimensions, textureInfo, usage));
 }
 
 } // namespace skgpu::mtl

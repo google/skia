@@ -19,8 +19,8 @@ public:
     ~Texture() override {}
 
 private:
-    Texture(SkISize dimensions, const skgpu::TextureInfo& info)
-            : skgpu::Texture(dimensions, info) {}
+    Texture(SkISize dimensions, const skgpu::TextureInfo& info, UsageFlags supportedUsages)
+            : skgpu::Texture(dimensions, info, supportedUsages) {}
 };
 
 } // namepsace skgpu::mtl
