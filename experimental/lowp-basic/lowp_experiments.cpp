@@ -8,7 +8,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdint>
-#include "QMath.h"
+#include "experimental/lowp-basic/QMath.h"
 
 // Compile for x86_64 + ssse3 with:
 //     c++ -O3 --std=c++17 -mssse3 experimental/lowp-basic/lowp_experiments.cpp -o lowp

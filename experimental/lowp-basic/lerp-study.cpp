@@ -10,7 +10,7 @@
 #include <cstdio>
 #include <cstdint>
 
-#include "QMath.h"
+#include "experimental/lowp-basic/QMath.h"
 
 struct Stats {
     int diff_8_bits = 0;
