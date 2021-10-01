@@ -1,0 +1,10 @@
+4 registers, 8 instructions:
+0	r0 = uniform32 ptr0 4
+1	r1 = uniform32 ptr0 8
+2	r2 = uniform32 ptr0 C
+3	r3 = uniform32 ptr0 10
+loop:
+4	    store32 ptr1 r0
+5	    store32 ptr2 r1
+6	    store32 ptr3 r2
+7	    store32 ptr4 r3

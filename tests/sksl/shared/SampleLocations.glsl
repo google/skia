@@ -1,5 +1,5 @@
 
-noperspective layout (location = 1) out vec2 vcoord_Stage0;
+layout (location = 1) noperspective out vec2 vcoord_Stage0;
 void main() {
     int x = gl_InstanceID % 200;
     int y = gl_InstanceID / 200;

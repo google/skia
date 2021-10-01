@@ -1052,15 +1052,24 @@ void GLSLCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
 
 void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
                                        bool globalContext) {
+    String layout = modifiers.fLayout.description();
+    if (layout.size()) {
+        this->write(layout + " ");
+    }
+
+    // For GLSL 4.1 and below, qualifier-order matters! These are written out in Modifier-bit order.
     if (modifiers.fFlags & Modifiers::kFlat_Flag) {
         this->write("flat ");
     }
     if (modifiers.fFlags & Modifiers::kNoPerspective_Flag) {
         this->write("noperspective ");
     }
-    String layout = modifiers.fLayout.description();
-    if (layout.size()) {
-        this->write(layout + " ");
+
+    if (modifiers.fFlags & Modifiers::kConst_Flag) {
+        this->write("const ");
+    }
+    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+        this->write("uniform ");
     }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
         (modifiers.fFlags & Modifiers::kOut_Flag)) {
@@ -1081,12 +1090,7 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
             this->write("out ");
         }
     }
-    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-        this->write("uniform ");
-    }
-    if (modifiers.fFlags & Modifiers::kConst_Flag) {
-        this->write("const ");
-    }
+
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {

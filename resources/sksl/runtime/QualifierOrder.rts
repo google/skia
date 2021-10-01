@@ -1,0 +1,17 @@
+uniform half4 colorGreen;
+
+// GLSL 4.1 and below enforce that qualifiers must occur in a strict order. (See "Order of
+// Qualifiers" in the GLSL documentation.) GLSL 4.2 and above no longer enforce order; SkSL also
+// does not. However, SkSL will always emit qualifiers in the order expected by GLSL 4.1.
+
+// These qualifiers are reversed from the expected order, but SkSL should compile and run anyway.
+noinline void const_after_in(in const vec2 x) {}
+noinline void in_after_high_precision(highp in vec2 x) {}
+noinline void in_after_medium_precision(mediump in vec2 x) {}
+
+vec4 main(vec2 coords) {
+    const_after_in(coords);
+    in_after_high_precision(coords);
+    in_after_medium_precision(coords);
+    return colorGreen;
+}

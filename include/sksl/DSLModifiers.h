@@ -20,14 +20,14 @@ class DSLField;
 class DSLType;
 
 enum Modifier {
-    kNo_Modifier            =       0,
-    kConst_Modifier         = 1 <<  0,
-    kIn_Modifier            = 1 <<  1,
-    kOut_Modifier           = 1 <<  2,
-    kInOut_Modifier         = kIn_Modifier | kOut_Modifier,
-    kUniform_Modifier       = 1 <<  3,
-    kFlat_Modifier          = 1 <<  4,
-    kNoPerspective_Modifier = 1 <<  5,
+    kNo_Modifier            = SkSL::Modifiers::kNo_Flag,
+    kConst_Modifier         = SkSL::Modifiers::kConst_Flag,
+    kIn_Modifier            = SkSL::Modifiers::kIn_Flag,
+    kOut_Modifier           = SkSL::Modifiers::kOut_Flag,
+    kInOut_Modifier         = SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag,
+    kUniform_Modifier       = SkSL::Modifiers::kUniform_Flag,
+    kFlat_Modifier          = SkSL::Modifiers::kFlat_Flag,
+    kNoPerspective_Modifier = SkSL::Modifiers::kNoPerspective_Flag,
 };
 
 class DSLModifiers {

@@ -596,6 +596,7 @@ sksl_rte_tests = [
   "/sksl/runtime/LoopInt.rts",
   "/sksl/runtime/LoopFloat.rts",
   "/sksl/runtime/PrecisionQualifiers.rts",
+  "/sksl/runtime/QualifierOrder.rts",
   "/sksl/runtime/SampleWithExplicitCoord.rts",
   "/sksl/runtime/Switch.rts",
   "/sksl/runtime/SwitchDefaultOnly.rts",
