@@ -16,8 +16,10 @@
 #include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/transform/SkSLProgramWriter.h"
 
 // ProgramElements
 #include "src/sksl/ir/SkSLExtension.h"

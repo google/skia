@@ -12,7 +12,6 @@
 
 #include "include/sksl/DSLCore.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLIRGenerator.h"
@@ -36,6 +35,7 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/transform/SkSLProgramWriter.h"
 #include "src/utils/SkBitSet.h"
 
 #include <fstream>

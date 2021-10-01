@@ -12,7 +12,7 @@
 #include <unordered_set>
 
 #include "include/private/SkSLLayout.h"
-#include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLChildCall.h"

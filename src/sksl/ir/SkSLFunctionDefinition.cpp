@@ -11,6 +11,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/transform/SkSLProgramWriter.h"
 
 #include <forward_list>
 
