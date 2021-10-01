@@ -12,7 +12,7 @@ namespace skgpu {
 
 class CommandBuffer {
 public:
-    virtual ~CommandBuffer() = default;
+    virtual ~CommandBuffer() {}
 
 protected:
     CommandBuffer();

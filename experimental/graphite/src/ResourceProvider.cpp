@@ -18,12 +18,6 @@ ResourceProvider::ResourceProvider() {
 ResourceProvider::~ResourceProvider() {
 }
 
-std::unique_ptr<CommandBuffer> ResourceProvider::createCommandBuffer() {
-    auto cb = this->onCreateCommandBuffer();
-
-    return cb;
-}
-
 Pipeline* ResourceProvider::findOrCreatePipeline(const PipelineDesc& desc) {
     // TODO: look through cache for matching pipeline
 
@@ -32,10 +26,6 @@ Pipeline* ResourceProvider::findOrCreatePipeline(const PipelineDesc& desc) {
     // TODO: cache new pipeline
 
     return pso;
-}
-
-std::unique_ptr<CommandBuffer> onCreateCommandBuffer() {
-    return nullptr;
 }
 
 } // namespace skgpu

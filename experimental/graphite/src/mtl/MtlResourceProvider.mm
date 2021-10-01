@@ -7,9 +7,17 @@
 
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
 
+#include "experimental/graphite/src/mtl/MtlCommandBuffer.h"
+#include "experimental/graphite/src/mtl/MtlGpu.h"
+
 namespace skgpu::mtl {
 
-ResourceProvider::ResourceProvider() {
+ResourceProvider::ResourceProvider(const Gpu* gpu)
+    : fGpu(gpu) {
+}
+
+std::unique_ptr<skgpu::CommandBuffer> ResourceProvider::createCommandBuffer() {
+    return CommandBuffer::Make(fGpu->queue());
 }
 
 } // namespace skgpu::mtl

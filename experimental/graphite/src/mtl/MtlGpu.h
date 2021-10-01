@@ -25,6 +25,7 @@ public:
     ~Gpu() override;
 
     id<MTLDevice> device() const { return fDevice.get(); }
+    id<MTLCommandQueue> queue() const { return fQueue.get(); }
 
     const Caps& mtlCaps() const { return static_cast<const Caps&>(*this->caps()); }
 

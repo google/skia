@@ -20,13 +20,12 @@ class ResourceProvider {
 public:
     virtual ~ResourceProvider();
 
-    std::unique_ptr<CommandBuffer> createCommandBuffer();
+    virtual std::unique_ptr<CommandBuffer> createCommandBuffer() { return nullptr; }
     Pipeline* findOrCreatePipeline(const PipelineDesc&);
 
 protected:
     ResourceProvider();
 
-    virtual std::unique_ptr<CommandBuffer> onCreateCommandBuffer();
     virtual Pipeline* onCreatePipeline() { return nullptr; }
 
 private:

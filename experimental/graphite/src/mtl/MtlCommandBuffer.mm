@@ -9,7 +9,24 @@
 
 namespace skgpu::mtl {
 
-CommandBuffer::CommandBuffer() {
+std::unique_ptr<CommandBuffer> CommandBuffer::Make(id<MTLCommandQueue> queue) {
+    sk_cfp<MTLCommandBufferDescriptor*> desc([[MTLCommandBufferDescriptor alloc] init]);
+    (*desc).retainedReferences = NO;
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    (*desc).errorOptions = MTLCommandBufferErrorOptionEncoderExecutionStatus;
+#endif
+
+    // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
+    sk_cfp<id<MTLCommandBuffer>> cmdBuffer([[queue commandBufferWithDescriptor:desc.get()] retain]);
+    if (cmdBuffer == nil) {
+        return nullptr;
+    }
+
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+     (*cmdBuffer).label = @"CommandBuffer::Make";
+#endif
+
+    return std::unique_ptr<CommandBuffer>(new CommandBuffer(std::move(cmdBuffer)));
 }
 
 } // namespace skgpu::mtl

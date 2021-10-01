@@ -12,14 +12,23 @@
 
 #import <Metal/Metal.h>
 
+namespace skgpu {
+class CommandBuffer;
+}
+
 namespace skgpu::mtl {
+
+class Gpu;
 
 class ResourceProvider final : public skgpu::ResourceProvider {
 public:
-    ResourceProvider();
+    ResourceProvider(const Gpu*);
     ~ResourceProvider() override {}
 
+    std::unique_ptr<skgpu::CommandBuffer> createCommandBuffer() override;
+
 private:
+    const Gpu* fGpu;
 };
 
 } // namespace skgpu::mtl
