@@ -241,7 +241,7 @@ to be rebaselined. See [Rebaseline Layout Tests](#how_to_rebaseline).
     - You should copy the list of affected from stdio of the failing bot
   - Status: Assigned
   - Owner: yourself
-  - cc: reed@, bsalomon@, robertphillips@ & developer responsible for changes
+  - cc: bsalomon@, robertphillips@ & developer responsible for changes
   - Labels: OS-All & Cr-Blink-LayoutTests
   - If it is filter related, cc senorblanco@
 
