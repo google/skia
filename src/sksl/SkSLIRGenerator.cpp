@@ -65,16 +65,6 @@ namespace SkSL {
 IRGenerator::IRGenerator(const Context* context)
         : fContext(*context) {}
 
-std::unique_ptr<Extension> IRGenerator::convertExtension(int line, skstd::string_view name) {
-    if (this->programKind() != ProgramKind::kFragment &&
-        this->programKind() != ProgramKind::kVertex) {
-        this->errorReporter().error(line, "extensions are not allowed in this kind of program");
-        return nullptr;
-    }
-
-    return std::make_unique<Extension>(line, name);
-}
-
 void IRGenerator::checkVarDeclaration(int line, const Modifiers& modifiers, const Type* baseType,
                                       Variable::Storage storage) {
     if (this->strictES2Mode() && baseType->isArray()) {
@@ -209,11 +199,6 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int line,
         return nullptr;
     }
     return this->convertVarDeclaration(std::move(var), std::move(value));
-}
-
-std::unique_ptr<Statement> IRGenerator::convertReturn(int line,
-                                                      std::unique_ptr<Expression> result) {
-    return ReturnStatement::Make(line, std::move(result));
 }
 
 void IRGenerator::appendRTAdjustFixupToVertexMain(const FunctionDeclaration& decl, Block* body) {
@@ -550,11 +535,6 @@ std::unique_ptr<Expression> IRGenerator::call(int line,
             this->errorReporter().error(line, "not a function");
             return nullptr;
     }
-}
-
-std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
-                                                        skstd::string_view fields) {
-    return Swizzle::Convert(fContext, std::move(base), fields);
 }
 
 void IRGenerator::start(const ParsedModule& base,
