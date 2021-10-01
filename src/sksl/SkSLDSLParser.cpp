@@ -321,7 +321,7 @@ bool DSLParser::declaration() {
         this->structVarDeclaration(modifiers);
         return true;
     }
-    skstd::optional<DSLType> type = this->type(modifiers);
+    skstd::optional<DSLType> type = this->type(&modifiers);
     if (!type) {
         return false;
     }
@@ -551,7 +551,7 @@ DSLStatement DSLParser::varDeclarationsOrExpressionStatement() {
 bool DSLParser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
     prefixData->fPosition = this->position(this->peek());
     prefixData->fModifiers = this->modifiers();
-    skstd::optional<DSLType> type = this->type(prefixData->fModifiers);
+    skstd::optional<DSLType> type = this->type(&prefixData->fModifiers);
     if (!type) {
         return false;
     }
@@ -588,8 +588,7 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
     SkTArray<DSLField> fields;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         DSLModifiers modifiers = this->modifiers();
-
-        skstd::optional<DSLType> type = this->type(modifiers);
+        skstd::optional<DSLType> type = this->type(&modifiers);
         if (!type) {
             return skstd::nullopt;
         }
@@ -639,7 +638,7 @@ SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
 skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter() {
     DSLModifiers modifiers = this->modifiersWithDefaults(0);
-    skstd::optional<DSLType> type = this->type(modifiers);
+    skstd::optional<DSLType> type = this->type(&modifiers);
     if (!type) {
         return skstd::nullopt;
     }
@@ -833,7 +832,7 @@ DSLStatement DSLParser::statement() {
 }
 
 /* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* QUESTION? */
-skstd::optional<DSLType> DSLParser::type(const DSLModifiers& modifiers) {
+skstd::optional<DSLType> DSLParser::type(DSLModifiers* modifiers) {
     Token type;
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "a type", &type)) {
         return skstd::nullopt;
@@ -873,7 +872,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     SkTArray<dsl::Field> fields;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         DSLModifiers fieldModifiers = this->modifiers();
-        skstd::optional<dsl::DSLType> type = this->type(fieldModifiers);
+        skstd::optional<dsl::DSLType> type = this->type(&fieldModifiers);
         if (!type) {
             return false;
         }

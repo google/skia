@@ -88,7 +88,8 @@ public:
 
     DSLType(skstd::string_view name);
 
-    DSLType(skstd::string_view name, const DSLModifiers& modifiers,
+    DSLType(skstd::string_view name,
+            DSLModifiers* modifiers,
             PositionInfo pos = PositionInfo::Capture());
 
     /**

@@ -472,13 +472,13 @@ CoercionCost Type::coercionCost(const Type& other) const {
 }
 
 const Type* Type::applyPrecisionQualifiers(const Context& context,
-                                           const Modifiers& modifiers,
+                                           Modifiers* modifiers,
                                            SymbolTable* symbols,
                                            int line) const {
     // SkSL doesn't support low precision, so `lowp` is interpreted as medium precision.
-    bool highp   = modifiers.fFlags & Modifiers::kHighp_Flag;
-    bool mediump = modifiers.fFlags & Modifiers::kMediump_Flag;
-    bool lowp    = modifiers.fFlags & Modifiers::kLowp_Flag;
+    bool highp   = modifiers->fFlags & Modifiers::kHighp_Flag;
+    bool mediump = modifiers->fFlags & Modifiers::kMediump_Flag;
+    bool lowp    = modifiers->fFlags & Modifiers::kLowp_Flag;
 
     if (!lowp && !mediump && !highp) {
         // No precision qualifiers here. Return the type as-is.
@@ -496,6 +496,11 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
         context.fErrors->error(line, "only one precision qualifier can be used");
         return nullptr;
     }
+
+    // We're going to return a whole new type, so the modifier bits can be cleared out.
+    modifiers->fFlags &= ~(Modifiers::kHighp_Flag |
+                           Modifiers::kMediump_Flag |
+                           Modifiers::kLowp_Flag);
 
     const Type& component = this->componentType();
     if (component.highPrecision()) {

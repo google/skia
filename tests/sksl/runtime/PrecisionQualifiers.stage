@@ -3,6 +3,9 @@ uniform half4 colorRed;
 bool test_vector_0();
 bool test_matrix_0();
 bool test_array_0();
+bool highp_param_0(float value);
+bool mediump_param_0(half value);
+bool lowp_param_0(half value);
 bool test_vector_0()
 {
 	half2 mp2 = half2(2.0);
@@ -43,6 +46,18 @@ bool test_array_0()
 	hv[1] = float2(2.0, 3.0);
 	return (float(mf[0]) == hf[0] && hv[0] == float2(mv[0])) && float2(mv[1]) == hv[1];
 }
+bool highp_param_0(float value)
+{
+	return value == 1.0;
+}
+bool mediump_param_0(half value)
+{
+	return value == 2.0;
+}
+bool lowp_param_0(half value)
+{
+	return value == 3.0;
+}
 float4 main(float2 coords)
 {
 	float4 zero = float4(0.0);
@@ -55,5 +70,5 @@ float4 main(float2 coords)
 	float _1_hp = float(_0_mp);
 	int _2_ihp = 2;
 	short _3_imp = short(_2_ihp);
-	return half4((((float(_0_mp) == _1_hp && _2_ihp == int(_3_imp)) && test_vector_0()) && test_matrix_0()) && test_array_0() ? float4(green) : red);
+	return half4(((((((float(_0_mp) == _1_hp && _2_ihp == int(_3_imp)) && test_vector_0()) && test_matrix_0()) && test_array_0()) && highp_param_0(1.0)) && mediump_param_0(2.0)) && lowp_param_0(3.0) ? float4(green) : red);
 }

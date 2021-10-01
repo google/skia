@@ -48,6 +48,10 @@ bool test_array() {
     return mf[0] == hf[0] && hv[0] == mv[0] && mv[1] == hv[1];
 }
 
+bool highp_param  (highp   float value) { return value == 1; }
+bool mediump_param(mediump float value) { return value == 2; }
+bool lowp_param   (lowp    float value) { return value == 3; }
+
 vec4 main(vec2 coords) {
     highp   vec4 zero = vec4(0);
     mediump vec4 one = vec4(1);
@@ -57,5 +61,6 @@ vec4 main(vec2 coords) {
     highp vec4 red = colorRed;
     red = (red + zero) * one;
 
-    return (test_scalar() && test_vector() && test_matrix() && test_array()) ? green : red;
+    return (test_scalar() && test_vector() && test_matrix() && test_array() &&
+            highp_param(1) && mediump_param(2) && lowp_param(3)) ? green : red;
 }

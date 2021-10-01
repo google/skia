@@ -532,7 +532,7 @@ public:
      * don't make sense, e.g. `highp bool` or `mediump MyStruct`.
      */
     const Type* applyPrecisionQualifiers(const Context& context,
-                                         const Modifiers& modifiers,
+                                         Modifiers* modifiers,
                                          SymbolTable* symbols,
                                          int line) const;
 
