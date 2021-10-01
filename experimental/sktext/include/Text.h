@@ -174,11 +174,11 @@ public:
     virtual void onBeginLine(size_t index, TextRange lineText, bool hardBreak, SkRect bounds) { }
     virtual void onEndLine(size_t index, TextRange lineText, GlyphRange trailingSpaces, size_t glyphCount) { }
     virtual void onGlyphRun(const SkFont& font,
-                            TextRange textRange,        // Currently we make sure that the run edges are the grapheme cluster edges
-                            SkRect bounds,              // bounds contains the physical boundaries of the run
-                            int trailingSpaces,         // Depending of TextDirection it goes right to the end (LTR) or left to the start (RTL)
-                            int glyphCount,             // Just the number of glyphs
-                            const uint16_t glyphs[],
+                            DirTextRange dirTextRange,        // Currently we make sure that the run edges are the grapheme cluster edges
+                            SkRect bounds,                    // bounds contains the physical boundaries of the run
+                            TextIndex trailingSpaces,         // Depending of TextDirection it goes right to the end (LTR) or left to the start (RTL)
+                            size_t glyphCount,                // Just the number of glyphs
+                            const uint16_t glyphs[],          // GlyphIDs from the font
                             const SkPoint positions[],        // Positions relative to the line
                             const TextIndex clusters[])       // Text indices inside the entire text
     { }
@@ -210,11 +210,6 @@ public:
         @param textDirection specifies a text direction that also used in formatting
     */
     void format(TextAlign textAlign, TextDirection textDirection);
-    /** Breaks the text runs into smaller runs by given list of chunks to be used for styling.
-        @param unicodeText    a reference to UnicodeText object
-        @param chunks         a range of text indices that cause an additional run breaking to be used for styling
-    */
-    void decorate(UnicodeText* unicodeText, SkSpan<TextIndex> chunks);
 
     SkSize actualSize() const { return fActualSize; }
     size_t countLines() const { return fVisualLines.size(); }
@@ -228,14 +223,17 @@ public:
         @param visitor      a reference to Visitor object
         @param positionType specifies a text adjustment granularity (grapheme cluster, grapheme, glypheme, glyph)
                             to map text blocks to glyph ranges.
-        @param blocks       a range of text indices that cause an additional run breaking to be used for styling
+        @param chunks       a range of widths that cause an additional run breaking to be used for styling
     */
-    void visit(UnicodeText* unicodeText, Visitor* visitor, PositionType positionType, SkSpan<TextIndex> blocks) const;
+    void visit(UnicodeText* unicodeText, Visitor* visitor, PositionType positionType, SkSpan<size_t> chunks) const;
+
+    static std::vector<TextIndex> chunksToBlocks(SkSpan<size_t> chunks);
+    static SkSpan<TextIndex> limitBlocks(TextRange textRange, SkSpan<TextIndex> blocks);
 
 private:
     friend class ShapedText;
     WrappedText() : fActualSize(SkSize::MakeEmpty()), fAligned(TextAlign::kNothing) { }
-    GlyphRange textToGlyphs(UnicodeText* unicodeText, PositionType positionType, RunIndex runIndex, TextRange textRange) const;
+    GlyphRange textToGlyphs(UnicodeText* unicodeText, PositionType positionType, RunIndex runIndex, DirTextRange dirTextRange) const;
     SkTArray<VisualRun, true> fVisualRuns;    // Broken by lines
     SkTArray<VisualLine, false> fVisualLines;
     SkSize fActualSize;
@@ -251,13 +249,13 @@ public:
     DrawableText() = default;
 
     void onGlyphRun(const SkFont& font,
-                            TextRange textRange,
-                            SkRect bounds,
-                            int trailingSpaces,
-                            int glyphCount,
-                            const uint16_t glyphs[],
-                            const SkPoint positions[],
-                            const TextIndex clusters[]) override {
+                    DirTextRange dirTextRange,
+                    SkRect bounds,
+                    TextIndex trailingSpaces,
+                    size_t glyphCount,
+                    const uint16_t glyphs[],
+                    const SkPoint positions[],
+                    const TextIndex clusters[]) override {
         SkTextBlobBuilder builder;
         const auto& blobBuffer = builder.allocRunPos(font, SkToInt(glyphCount));
         sk_careful_memcpy(blobBuffer.glyphs, glyphs, glyphCount * sizeof(uint16_t));
@@ -286,12 +284,12 @@ struct Position {
     TextRange fTextRange;
     SkRect fBoundaries;
 };
+
 struct BoxLine {
     BoxLine(size_t index, TextRange text, bool hardBreak, SkRect bounds)
         : fTextRange(text), fIndex(index), fIsHardBreak(hardBreak), fBounds(bounds) { }
     SkTArray<SkRect, true> fBoxGlyphs;
     SkTArray<TextIndex, true> fTextByGlyph; // by glyph cluster
-    //SkTArray<GlyphRange, true> fRuns; // by glyph cluster
     GlyphIndex fTextEnd;
     GlyphIndex fTrailingSpacesEnd;
     TextRange fTextRange;
@@ -344,10 +342,10 @@ public:
     void onEndLine(size_t index, TextRange lineText, GlyphRange trailingSpaces, size_t glyphCount) override;
 
     void onGlyphRun(const SkFont& font,
-                    TextRange textRange,
+                    DirTextRange dirTextRange,
                     SkRect bounds,
-                    int trailingSpaces,
-                    int glyphCount,
+                    TextIndex trailingSpaces,
+                    size_t glyphCount,
                     const uint16_t glyphs[],
                     const SkPoint positions[],
                     const TextIndex clusters[]) override;

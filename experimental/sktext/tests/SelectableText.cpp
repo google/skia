@@ -50,9 +50,9 @@ struct TestLine {
 
 struct TestRun {
     const SkFont& font;
-    TextRange textRange;        // Currently we make sure that the run edges are the grapheme cluster edges
+    DirTextRange dirTextRange;  // Currently we make sure that the run edges are the grapheme cluster edges
     SkRect bounds;              // bounds contains the physical boundaries of the run
-    int trailingSpaces;         // Depending of TextDirection it goes right to the end (LTR) or left to the start (RTL)
+    size_t trailingSpaces;      // Depending of TextDirection it goes right to the end (LTR) or left to the start (RTL)
     SkSpan<const uint16_t> glyphs;
     SkSpan<const SkPoint> positions;
     SkSpan<const TextIndex> clusters;
@@ -71,15 +71,15 @@ public:
         fTestLines.back().glyphCount = glyphCount;
     }
     void onGlyphRun(const SkFont& font,
-                    TextRange textRange,        // Currently we make sure that the run edges are the grapheme cluster edges
-                    SkRect bounds,              // bounds contains the physical boundaries of the run
-                    int trailingSpaces,         // Depending of TextDirection it goes right to the end (LTR) or left to the start (RTL)
-                    int glyphCount,             // Just the number of glyphs
+                    DirTextRange dirTextRange,
+                    SkRect bounds,
+                    TextIndex trailingSpaces,
+                    size_t glyphCount,          // Just the number of glyphs
                     const uint16_t glyphs[],
                     const SkPoint positions[],        // Positions relative to the line
                     const TextIndex clusters[]) override
     {
-        fTestRuns.push_back({font, textRange, bounds, trailingSpaces,
+        fTestRuns.push_back({font, dirTextRange, bounds, trailingSpaces,
                             SkSpan<const uint16_t>(&glyphs[0], glyphCount),
                             SkSpan<const SkPoint>(&positions[0], glyphCount + 1),
                             SkSpan<const TextIndex>(&clusters[0], glyphCount + 1),

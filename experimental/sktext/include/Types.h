@@ -81,45 +81,6 @@ public:
         return fStart == other.fStart && fEnd == other.fEnd;
     }
 
-    bool leftToRight() const {
-        return fEnd >= fStart;
-    }
-
-    bool before(T index) const {
-        if (leftToRight()) {
-            return index >= fEnd;
-        } else {
-            return index >= fStart;
-        }
-    }
-
-    bool contains(T index) const {
-        if (leftToRight()) {
-            return index >= fStart && index < fEnd;
-        } else {
-            return index < fStart && index >= fEnd;
-        }
-    }
-
-    bool contains(Range<T> range) const {
-        if (leftToRight()) {
-            return range.fStart >= fStart && range.fEnd < fEnd;
-        } else {
-            return range.fStart < fStart && range.fEnd >= fEnd;
-        }
-    }
-
-    void normalize() {
-        if (!this->leftToRight()) {
-            std::swap(this->fStart, this->fEnd);
-        }
-    }
-
-    // For RTL ranges start >= end
-    int width() const {
-        return leftToRight() ? SkToInt(fEnd - fStart) : SkToInt(fStart - fEnd);
-    }
-
     void clean() {
         fStart = 0;
         fEnd = 0;
@@ -129,33 +90,31 @@ public:
         return fEnd == fStart;
     }
 
+    bool contains(T index) const {
+        return index >= fStart && index < fEnd;
+    }
+
+    bool contains(Range<T> range) const {
+        return range.fStart >= fStart && range.fEnd < fEnd;
+    }
+
+    // For RTL ranges start >= end
+    int width() const {
+        return SkToInt(fEnd - fStart);
+    }
+
     void merge(Range tail) {
-        auto ltr1 = this->leftToRight();
-        auto ltr2 = tail.leftToRight();
-        this->normalize();
-        tail.normalize();
         SkASSERT(this->fEnd == tail.fStart || this->fStart == tail.fEnd);
         this->fStart = std::min(this->fStart, tail.fStart);
         this->fEnd = std::max(this->fEnd, tail.fEnd);
-        // TODO: Merging 2 different directions
-        if (!ltr1 || !ltr2) {
-            std::swap(this->fStart, this->fEnd);
-            std::swap(tail.fStart, tail.fEnd);
-        }
     }
 
     void intersect(Range other) {
-        auto ltr = this->leftToRight();
-
-        this->normalize();
-        other.normalize();
         this->fStart = std::max(this->fStart, other.fStart);
         this->fEnd = std::min(this->fEnd, other.fEnd);
         if (this->fStart > this->fEnd) {
             // There is nothing in the intersection; make it empty
             this->fEnd = this->fStart;
-        } else if (!ltr) {
-            std::swap(this->fStart, this->fEnd);
         }
     }
 
@@ -178,6 +137,24 @@ public:
 
 typedef Range<TextIndex> TextRange;
 typedef Range<GlyphIndex> GlyphRange;
+struct DirTextRange : public TextRange {
+    DirTextRange(TextRange textRange, bool leftToRight)
+        : TextRange(textRange)
+        , fLeftToRight(leftToRight) { }
+    DirTextRange(TextIndex start, TextIndex end, bool leftToRight)
+        : TextRange(start, end)
+        , fLeftToRight(leftToRight) { }
+
+    bool before(TextIndex index) const {
+        return fLeftToRight ? index >= fEnd : index < fStart;
+    }
+    bool after(TextIndex index) const {
+        return fLeftToRight ? index < fEnd : index >= fStart;
+    }
+
+    bool fLeftToRight;
+};
+
 const Range<size_t> EMPTY_RANGE = Range<size_t>(EMPTY_INDEX, EMPTY_INDEX);
 
 // Blocks

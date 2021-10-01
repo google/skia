@@ -52,15 +52,15 @@ namespace text {
     }
 
     void Paint::onGlyphRun(const SkFont& font,
-                           TextRange textRange,
-                           SkRect boundingRect,
-                           int trailingSpacesStart,
-                           int glyphCount,
+                           DirTextRange dirTextRange,
+                           SkRect bounds,
+                           TextIndex trailingSpaces,
+                           size_t glyphCount,
                            const uint16_t glyphs[],
                            const SkPoint positions[],
                            const TextIndex clusters[]) {
 
-        DecoratedBlock decoratedBlock = findDecoratedBlock(textRange);
+        DecoratedBlock decoratedBlock = findDecoratedBlock(dirTextRange);
 
         SkTextBlobBuilder builder;
         const auto& blobBuffer = builder.allocRunPos(font , SkToInt(glyphCount));
@@ -68,8 +68,8 @@ namespace text {
         sk_careful_memcpy(blobBuffer.points(), positions, glyphCount * sizeof(SkPoint));
         auto blob = builder.make();
         if (!decoratedBlock.backgroundPaint.nothingToDraw()) {
-            boundingRect.offset(fXY.fX, fXY.fY);
-            fCanvas->drawRect(boundingRect, decoratedBlock.backgroundPaint);
+            bounds.offset(fXY.fX, fXY.fY);
+            fCanvas->drawRect(bounds, decoratedBlock.backgroundPaint);
         }
         fCanvas->drawTextBlob(blob, fXY.fX, fXY.fY, decoratedBlock.foregroundPaint);
     }

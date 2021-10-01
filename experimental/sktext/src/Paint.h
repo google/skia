@@ -91,10 +91,10 @@ namespace text {
                                                    SkSpan<FontBlock> fontBlocks);
 
         void onGlyphRun(const SkFont& font,
-                        TextRange textRange,
-                        SkRect boundingRect,
-                        int trailingSpacesStart,
-                        int glyphCount,
+                        DirTextRange dirTextRange,
+                        SkRect bounds,
+                        TextIndex trailingSpaces,
+                        size_t glyphCount,
                         const uint16_t glyphs[],
                         const SkPoint positions[],
                         const TextIndex clusters[]) override;

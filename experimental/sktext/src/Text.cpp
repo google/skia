@@ -19,17 +19,9 @@ UnicodeText::UnicodeText(std::unique_ptr<SkUnicode> unicode, const SkString& utf
 }
 
 bool UnicodeText::isWhitespaces(TextRange range) const {
-    if (range.leftToRight()) {
-        for (auto i = range.fStart; i < range.fEnd; ++i) {
-            if (!this->hasProperty(i, CodeUnitFlags::kPartOfWhiteSpace)) {
-                return false;
-            }
-        }
-    } else {
-        for (auto i = range.fStart; i > range.fEnd; --i) {
-            if (!this->hasProperty(i, CodeUnitFlags::kPartOfWhiteSpace)) {
-                return false;
-            }
+    for (auto i = range.fStart; i < range.fEnd; ++i) {
+        if (!this->hasProperty(i, CodeUnitFlags::kPartOfWhiteSpace)) {
+            return false;
         }
     }
     return true;
@@ -475,6 +467,7 @@ void ShapedText::addLine(WrappedText* wrappedText, SkUnicode* unicode, Stretch& 
                                                   glyphSpaces - glyphStart,
                                                   logicalRun.fTextMetrics,
                                                   runOffsetInLine,
+                                                  logicalRun.leftToRight(),
                                                   SkSpan<SkPoint>(&logicalRun.fPositions[glyphStart], glyphSize + 1),
                                                   SkSpan<SkGlyphID>(&logicalRun.fGlyphs[glyphStart], glyphSize),
                                                   SkSpan<uint32_t>((uint32_t*)&logicalRun.fClusters[glyphStart], glyphSize + 1));
@@ -519,7 +512,7 @@ void WrappedText::visit(Visitor* visitor) const {
         for (auto& run : line.fRuns) {
             auto diff = line.fTextMetrics.above() - run.fTextMetrics.above();
             SkRect boundingRect = SkRect::MakeXYWH(line.fOffset.fX + run.fPositions[0].fX, line.fOffset.fY + diff, run.width(), run.fTextMetrics.height());
-            visitor->onGlyphRun(run.fFont, run.textRange(), boundingRect, run.trailingSpacesStart(),
+            visitor->onGlyphRun(run.fFont, run.dirTextRange(), boundingRect, run.trailingSpacesStart(),
                                 run.size(), run.fGlyphs.data(), run.fPositions.data(), run.fClusters.data());
             glyphCount += run.size();
         }
@@ -529,27 +522,67 @@ void WrappedText::visit(Visitor* visitor) const {
     }
 }
 
-void WrappedText::visit(UnicodeText* unicodeText, Visitor* visitor, PositionType positionType, SkSpan<TextIndex> textChunks) const {
+std::vector<TextIndex> WrappedText::chunksToBlocks(SkSpan<size_t> chunks) {
+    std::vector<TextIndex> blocks;
+    blocks.reserve(chunks.size() + 1);
+    TextIndex index = 0;
+    for (auto chunk : chunks) {
+        blocks.emplace_back(index);
+        index += chunk;
+    }
+    blocks.emplace_back(index);
+    return std::move(blocks);
+}
+
+SkSpan<TextIndex> WrappedText::limitBlocks(TextRange textRange, SkSpan<TextIndex> blocks) {
+    TextRange limited = EMPTY_RANGE;
+    for (auto i = 0ul; i < blocks.size(); ++i) {
+        auto block = blocks[i];
+        if (textRange.fEnd < block) {
+            continue;
+        } else if (textRange.fStart >= block) {
+            break;
+        } else if (limited.fStart == EMPTY_INDEX) {
+            limited.fStart = i;
+        }
+        limited.fEnd = i;
+    }
+
+    return SkSpan<TextIndex>(&blocks[textRange.fStart], textRange.width());
+}
+
+void WrappedText::visit(UnicodeText* unicodeText, Visitor* visitor, PositionType positionType, SkSpan<size_t> chunks) const {
     // Decor blocks have to be sorted by text cannot intersect but can skip some parts of the text
     // (in which case we use default text style from paragraph style)
     // The edges of the decor blocks don't have to match glyph, grapheme or even unicode code point edges
     // It's out responsibility to adjust them to some reasonable values
     // [a:b) -> [c:d) where
     // c is closest GG cluster edge to a from the left and d is closest GG cluster edge to b from the left
+    auto textBlocks = WrappedText::chunksToBlocks(chunks);
     SkScalar verticalOffset = 0.0f;
-    LineIndex lineIndex = 0;
+    LineIndex lineIndex = 0ul;
     size_t glyphCount = 0ul;
     for (auto& line : fVisualLines) {
         visitor->onBeginLine(lineIndex, line.text(), line.isHardBreak(), SkRect::MakeXYWH(0, verticalOffset, line.fActualWidth, line.fTextMetrics.height()));
-        RunIndex runIndex = 0;
+        RunIndex runIndex = 0ul;
+        auto lineBlocks = WrappedText::limitBlocks(line.fText, SkSpan<TextIndex>(textBlocks.data(), textBlocks.size()));
         for (auto& run : fVisualRuns) {
-            run.forEachTextChunkInGlyphRange(textChunks, [&](TextRange textRange) {
-                // TODO: Translate text range into glyph range (with all the appropriate adjustments)
-                GlyphRange glyphRange = this->textToGlyphs(unicodeText, positionType, runIndex, textRange);
+            run.forEachTextBlockInGlyphRange(lineBlocks, [&](DirTextRange dirTextRange) {
+                GlyphRange glyphRange = this->textToGlyphs(unicodeText, positionType, runIndex, dirTextRange);
                 auto diff = line.fTextMetrics.above() - run.fTextMetrics.above();
-                SkRect boundingRect = SkRect::MakeXYWH(line.fOffset.fX + run.fPositions[glyphRange.fStart].fX, line.fOffset.fY + diff, glyphRange.width(), run.fTextMetrics.height());
-                visitor->onGlyphRun(run.fFont, textRange, boundingRect, run.trailingSpacesStart(),
-                                    glyphRange.width(), &run.fGlyphs[glyphRange.fStart], &run.fPositions[glyphRange.fStart], &run.fClusters[glyphRange.fStart]);
+                SkRect boundingRect =
+                        SkRect::MakeXYWH(line.fOffset.fX + run.fPositions[glyphRange.fStart].fX,
+                                         line.fOffset.fY + diff,
+                                         run.calculateWidth(glyphRange),
+                                         run.fTextMetrics.height());
+                visitor->onGlyphRun(run.fFont,
+                                    dirTextRange,
+                                    boundingRect,
+                                    run.trailingSpacesStart(),
+                                    glyphRange.width(),
+                                    &run.fGlyphs[glyphRange.fStart],
+                                    &run.fPositions[glyphRange.fStart],
+                                    &run.fClusters[glyphRange.fStart]);
             });
             ++runIndex;
             glyphCount += run.size();
@@ -561,17 +594,17 @@ void WrappedText::visit(UnicodeText* unicodeText, Visitor* visitor, PositionType
 }
 
 // TODO: Implement more effective search
-GlyphRange WrappedText::textToGlyphs(UnicodeText* unicodeText, PositionType positionType, RunIndex runIndex, TextRange textRange) const {
+GlyphRange WrappedText::textToGlyphs(UnicodeText* unicodeText, PositionType positionType, RunIndex runIndex, DirTextRange dirTextRange) const {
     SkASSERT(runIndex < fVisualRuns.size());
     auto& run = fVisualRuns[runIndex];
-    SkASSERT(run.fUtf16Range.contains(textRange));
+    SkASSERT(run.fDirTextRange.contains(dirTextRange));
     GlyphRange glyphRange(0, run.size());
     for (GlyphIndex glyph = 0; glyph < run.size(); ++glyph) {
         auto textIndex = run.fClusters[glyph];
         if (positionType == PositionType::kGraphemeCluster && unicodeText->hasProperty(textIndex, CodeUnitFlags::kGraphemeStart)) {
-            if (textIndex <= textRange.fStart) {
+            if (dirTextRange.after(textIndex)) {
                 glyphRange.fStart = glyph;
-            } else if (textIndex <= textRange.fEnd) {
+            } else if (dirTextRange.before(textIndex)) {
                 glyphRange.fEnd = glyph;
             } else {
                 return glyphRange;
@@ -626,10 +659,10 @@ void SelectableText::onEndLine(size_t index, TextRange lineText, GlyphRange trai
 }
 
 void SelectableText::onGlyphRun(const SkFont& font,
-                                TextRange textRange,
-                                SkRect boundingRect,
-                                int trailingSpacesStart,
-                                int glyphCount,
+                                DirTextRange dirTextRange,
+                                SkRect bounds,
+                                TextIndex trailingSpaces,
+                                size_t glyphCount,
                                 const uint16_t glyphs[],
                                 const SkPoint positions[],
                                 const TextIndex clusters[]) {
@@ -640,7 +673,7 @@ void SelectableText::onGlyphRun(const SkFont& font,
     for (auto i = 0; i < glyphCount; ++i) {
         auto pos = positions[i];
         auto pos1 = positions[i + 1];
-        line.fBoxGlyphs[start + i] = SkRect::MakeXYWH(pos.fX, boundingRect.fTop + pos.fY, pos1.fX - pos.fX, boundingRect.height());
+        line.fBoxGlyphs[start + i] = SkRect::MakeXYWH(pos.fX, bounds.fTop + pos.fY, pos1.fX - pos.fX, bounds.height());
         line.fTextByGlyph[start + i] = clusters[i];
     }
 }
