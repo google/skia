@@ -5,9 +5,10 @@ void main() {
     const int4 int4_zero = int4(0);
     bool4 expectTTFF = equal(half4(3, 3, 3.25, 100), half4(3));
     bool4 expectFFTT = equal(int4_zero, int4(-100, -50, 0, 0));
+    bool4 expectTTTT = equal(bool4(1), bool4(7));
 
     sk_FragColor.x = equal(a, b).x ? 1 : 0;
     sk_FragColor.y = equal(c, d).y ? 1 : 0;
     sk_FragColor.z = equal(e, f).z ? 1 : 0;
-    sk_FragColor.w = any(expectTTFF) || any(expectFFTT) ? 1 : 0;
+    sk_FragColor.w = any(expectTTFF) || any(expectFFTT) || any(expectTTTT) ? 1 : 0;
 }

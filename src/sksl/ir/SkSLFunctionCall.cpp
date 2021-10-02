@@ -174,7 +174,7 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
 
     const Type& type = left->type();
     SkASSERT(type.isVector());
-    SkASSERT(type.componentType().isNumber());
+    SkASSERT(type.componentType().isScalar());
     SkASSERT(type == right->type());
 
     double array[4];
