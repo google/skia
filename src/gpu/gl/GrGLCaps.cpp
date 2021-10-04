@@ -4234,8 +4234,25 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // GL_VENDOR:   "Qualcomm"
     // GL_RENDERER: "Adreno (TM) 330"
     // GL_VERSION:  "OpenGL ES 3.0 V@127.0 AU@  (GIT@I96aee987eb)"
-    if (ctxInfo.renderer() == GrGLRenderer::kAdreno3xx &&
-        ctxInfo.driver()   == GrGLDriver::kQualcomm) {
+    //
+    // We also so alpha blending issues on these GMs skbug_9819, p3_ovals, p3 on Mali-Gxx devices
+    // The GM issues were observed on a Galaxy S9 running Android 10:
+    // GL_VERSION:  "OpenGL ES 3.2 v1.r19p0-01rel0.###other-sha0123456789ABCDEF0###"
+    // GL_RENDERER: "Mali-G72"
+    // GL_VENDOR:   "ARM"
+    // and a P30 running Android 9:
+    // GL_VERSION:  "OpenGL ES 3.2 v1.r16p0-01rel0.4aee637066427cbcd25297324dba15f5"
+    // GL_RENDERER: "Mali-G76"
+    // GL_VENDOR:   "ARM"
+    // but *not* a Galaxy S20 running Android 10:
+    // GL_VERSION:  "OpenGL ES 3.2 v1.r20p0-01rel0.###other-sha0123456789ABCDEF0###"
+    // GL_RENDERER: "Mali-G77"
+    // GL_VENDOR:   "ARM"
+    // It's unclear if the difference is driver version or Bifrost vs Valhall. The workaround is
+    // fairly trivial so just applying to all Bifrost and Valhall.
+    if ((ctxInfo.renderer() == GrGLRenderer::kAdreno3xx &&
+         ctxInfo.driver()   == GrGLDriver::kQualcomm) ||
+        (ctxInfo.renderer() == GrGLRenderer::kMaliG)) {
         fBindTexture0WhenChangingTextureFBOMultisampleCount = true;
     }
 }
