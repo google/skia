@@ -66,7 +66,6 @@ std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context
                                                           std::unique_ptr<Expression> arg) {
     // Only vectors or matrices of the same dimensions are allowed.
     SkASSERT(type.isVector() || type.isMatrix());
-    SkASSERT(type.allowedInES2() || !context.fConfig->strictES2Mode());
     SkASSERT(arg->type().isVector() == type.isVector());
     SkASSERT(arg->type().isMatrix() == type.isMatrix());
     SkASSERT(type.columns() == arg->type().columns());

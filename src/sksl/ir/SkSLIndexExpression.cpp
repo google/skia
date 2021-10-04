@@ -8,7 +8,6 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLTypeReference.h"
 
 namespace SkSL {
 
@@ -44,8 +43,8 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
         if (!arraySize) {
             return nullptr;
         }
-        return TypeReference::Convert(context, base->fLine,
-                                      symbolTable.addArrayDimension(&baseType, arraySize));
+        return std::make_unique<TypeReference>(context, base->fLine,
+                                               symbolTable.addArrayDimension(&baseType, arraySize));
     }
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
     const Type& baseType = base->type();

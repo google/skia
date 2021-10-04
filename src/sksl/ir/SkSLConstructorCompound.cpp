@@ -17,8 +17,6 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
                                                       int line,
                                                       const Type& type,
                                                       ExpressionArray args) {
-    SkASSERT(type.allowedInES2() || !context.fConfig->strictES2Mode());
-
     // A scalar "composite" type with a single scalar argument is a no-op and can be eliminated.
     // (Pedantically, this isn't a composite at all, but it's harmless to allow and simplifies
     // call sites which need to narrow a vector and may sometimes end up with a scalar.)

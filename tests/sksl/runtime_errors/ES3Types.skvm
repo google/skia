@@ -26,9 +26,5 @@ error: 27: type 'float2x3' is not supported
 error: 29: type 'half4x2' is not supported
 error: 30: type 'ushort' is not supported
 error: 31: type 'uint' is not supported
-error: 33: type 'float2x3' is not supported
-error: 34: type 'half4x2' is not supported
-error: 35: type 'uint' is not supported
-error: 36: type 'ushort4' is not supported
-error: 37: type 'ushort' is not supported
-31 errors
+error: 37: construction of array type 'ushort[2]' is not supported
+27 errors

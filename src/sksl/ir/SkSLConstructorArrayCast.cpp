@@ -45,7 +45,6 @@ std::unique_ptr<Expression> ConstructorArrayCast::Make(const Context& context,
     SkASSERT(type.isArray());
     SkASSERT(arg->type().isArray());
     SkASSERT(type.columns() == arg->type().columns());
-    SkASSERT(type.allowedInES2() || !context.fConfig->strictES2Mode());
 
     // If this is a no-op cast, return the expression as-is.
     if (type == arg->type()) {
