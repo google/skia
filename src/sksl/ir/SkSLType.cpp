@@ -53,6 +53,10 @@ public:
         return this->componentType().bitWidth();
     }
 
+    bool isPrivate() const override {
+        return fComponentType.isPrivate();
+    }
+
     bool allowedInES2() const override {
         return fComponentType.allowedInES2();
     }
@@ -319,6 +323,12 @@ public:
 
     bool isStruct() const override {
         return true;
+    }
+
+    bool isPrivate() const override {
+        return std::any_of(fFields.begin(), fFields.end(), [](const Field& f) {
+            return f.fType->isPrivate();
+        });
     }
 
     bool allowedInES2() const override {
@@ -754,21 +764,6 @@ bool Type::isOrContainsArray() const {
     }
 
     return this->isArray();
-}
-
-
-bool Type::containsPrivateFields() const {
-    if (this->isPrivate()) {
-        return true;
-    }
-    if (this->isStruct()) {
-        for (const auto& f : this->fields()) {
-            if (f.fType->containsPrivateFields()) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 bool Type::isTooDeeplyNested(int limit) const {

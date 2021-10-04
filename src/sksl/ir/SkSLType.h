@@ -191,7 +191,8 @@ public:
         return this->displayName();
     }
 
-    bool isPrivate() const {
+    /** Returns true if this type is either private, or contains a private field (recursively). */
+    virtual bool isPrivate() const {
         return this->name().starts_with("$");
     }
 
@@ -508,12 +509,6 @@ public:
     }
 
     bool isOrContainsArray() const;
-
-    /**
-     * Returns true if this type is either itself private or is a struct which contains private
-     * fields (recursively).
-     */
-    bool containsPrivateFields() const;
 
     /**
      * Returns true if this type is a struct that is too deeply nested.

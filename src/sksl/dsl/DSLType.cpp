@@ -208,10 +208,7 @@ const SkSL::Type& DSLType::skslType() const {
 bool DSLType::reportIllegalTypes(PositionInfo pos) const {
     if (!DSLWriter::IsModule()) {
         const SkSL::Type* type = &this->skslType();
-        while (type->isArray()) {
-            type = &type->componentType();
-        }
-        if (type->containsPrivateFields()) {
+        if (type->isPrivate()) {
             DSLWriter::ReportError("type '" + String(type->name()) + "' is private", pos);
             return true;
         }
