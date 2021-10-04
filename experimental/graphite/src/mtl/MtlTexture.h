@@ -10,17 +10,40 @@
 
 #include "experimental/graphite/src/Texture.h"
 
+#import <Metal/Metal.h>
+
 namespace skgpu::mtl {
+
+class Gpu;
 
 class Texture : public skgpu::Texture {
 public:
-    static sk_sp<Texture> Make(SkISize dimensions);
+    static sk_sp<Texture> MakeDepthStencil(Gpu* gpu,
+                                           SkISize dimensions,
+                                           UsageFlags usage, // Must only be depth and/or stencil
+                                           int sampleCnt,
+                                           MTLPixelFormat format);
 
     ~Texture() override {}
 
+    id<MTLTexture> mtlTexture() const { return fTexture.get(); }
+
 private:
-    Texture(SkISize dimensions, const skgpu::TextureInfo& info, UsageFlags supportedUsages)
-            : skgpu::Texture(dimensions, info, supportedUsages) {}
+    static sk_sp<Texture> Make(Gpu* gpu,
+                               SkISize dimensions,
+                               UsageFlags usages,
+                               int sampleCnt,
+                               MTLPixelFormat format,
+                               uint32_t mipLevels,
+                               int mtlTextureUsage,
+                               int mtlStorageMode);
+
+    Texture(SkISize dimensions,
+            const skgpu::TextureInfo& info,
+            UsageFlags supportedUsages,
+            sk_cfp<id<MTLTexture>> texture);
+
+    sk_cfp<id<MTLTexture>> fTexture;
 };
 
 } // namepsace skgpu::mtl

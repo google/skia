@@ -19,7 +19,7 @@ public:
     ~Texture() override;
 
     enum class UsageFlags : uint8_t {
-        kTexture           = 0x1,
+        kSampledTexture    = 0x1,
         kColorAttachment   = 0x2,
         kStencilAttachment = 0x4,
         kDepthAttachment   = 0x8,
