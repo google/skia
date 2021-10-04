@@ -5,4 +5,6 @@ error: 1: type 'InterfaceBlock' is private
 error: 6: type '$bvec' is private
 error: 9: type '$ivec' is private
 error: 10: type '$genType' is private
-5 errors
+error: 11: cannot construct '$mat'
+error: 12: unknown identifier '$floatLiteral'
+7 errors

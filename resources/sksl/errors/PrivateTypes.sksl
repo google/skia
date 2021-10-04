@@ -6,5 +6,7 @@ struct S {
     $bvec bv;
 };
 
-void func($ivec iv) {}
-void func2() { $genType g; }
+void param_private($ivec iv) {}
+void vardecl_private()       { $genType g; }
+void ctor_mat_private()      { $mat(0); }
+void ctor_literal_private()  { $floatLiteral(0); }
