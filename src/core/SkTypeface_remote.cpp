@@ -63,7 +63,6 @@ void SkScalerContextProxy::generateFontMetrics(SkFontMetrics* metrics) {
             "skia", "generateFontMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generateFontMetrics: %s\n", this->getRec().dump().c_str());
-        SkDEBUGCODE(SkStrikeCache::Dump());
     }
 
     // Font metrics aren't really used for render, so just zero out the data and return.
