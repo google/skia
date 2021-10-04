@@ -14,6 +14,7 @@ std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
                                                    int line,
                                                    const Type& type,
                                                    std::unique_ptr<Expression> arg) {
+    SkASSERT(type.allowedInES2() || !context.fConfig->strictES2Mode());
     SkASSERT(arg->type().scalarTypeForLiteral() == type.componentType().scalarTypeForLiteral());
     SkASSERT(arg->type().isScalar());
 

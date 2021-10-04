@@ -360,8 +360,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int line, skstd::stri
                                      FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
         }
         case Symbol::Kind::kType: {
-            const Type* t = &result->as<Type>();
-            return std::make_unique<TypeReference>(fContext, line, t);
+            return TypeReference::Convert(fContext, line, &result->as<Type>());
         }
         case Symbol::Kind::kExternal: {
             const ExternalFunction* r = &result->as<ExternalFunction>();
