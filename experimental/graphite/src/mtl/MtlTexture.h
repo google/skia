@@ -18,6 +18,17 @@ class Gpu;
 
 class Texture : public skgpu::Texture {
 public:
+    static sk_sp<Texture> MakeSampledTexture(Gpu* gpu,
+                                             SkISize dimensions,
+                                             UsageFlags usage,
+                                             uint32_t mipLevels,
+                                             MTLPixelFormat format);
+
+    static sk_sp<Texture> MakeMSAA(Gpu* gpu,
+                                   SkISize dimensions,
+                                   int sampleCnt,
+                                   MTLPixelFormat format);
+
     static sk_sp<Texture> MakeDepthStencil(Gpu* gpu,
                                            SkISize dimensions,
                                            UsageFlags usage, // Must only be depth and/or stencil

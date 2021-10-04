@@ -19,9 +19,57 @@ Texture::Texture(SkISize dimensions,
         : skgpu::Texture(dimensions, info, supportedUsages)
         , fTexture(std::move(texture)) {}
 
+sk_sp<Texture> Texture::MakeSampledTexture(Gpu* gpu,
+                                           SkISize dimensions,
+                                           UsageFlags usage,
+                                           uint32_t mipLevels,
+                                           MTLPixelFormat format) {
+    SkASSERT(usage == UsageFlags::kColorAttachment ||
+             usage == UsageFlags::kSampledTexture ||
+             usage == (UsageFlags::kColorAttachment | UsageFlags::kSampledTexture));
+
+    int textureUsage = 0;
+    int storageMode = 0;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        textureUsage = MTLTextureUsageShaderRead;
+        if (usage & UsageFlags::kColorAttachment) {
+            textureUsage |= MTLTextureUsageRenderTarget;
+        }
+        storageMode = MTLStorageModePrivate;
+    }
+    return Texture::Make(gpu,
+                         dimensions,
+                         usage,
+                         /*sampleCnt=*/1,
+                         format,
+                         mipLevels,
+                         textureUsage,
+                         storageMode);
+}
+
+sk_sp<Texture> Texture::MakeMSAA(Gpu* gpu,
+                                 SkISize dimensions,
+                                 int sampleCnt,
+                                 MTLPixelFormat format) {
+    int textureUsage = 0;
+    int storageMode = 0;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        textureUsage |= MTLTextureUsageRenderTarget;
+        storageMode = MTLStorageModePrivate;
+    }
+    return Texture::Make(gpu,
+                         dimensions,
+                         UsageFlags::kColorAttachment,
+                         sampleCnt,
+                         format,
+                         /*mipLevels=*/1,
+                         textureUsage,
+                         storageMode);
+}
+
 sk_sp<Texture> Texture::MakeDepthStencil(Gpu* gpu,
                                          SkISize dimensions,
-                                         UsageFlags usage, // Must only be depth and/or stencil
+                                         UsageFlags usage,
                                          int sampleCnt,
                                          MTLPixelFormat format) {
     SkASSERT(usage == UsageFlags::kStencilAttachment ||
@@ -34,8 +82,14 @@ sk_sp<Texture> Texture::MakeDepthStencil(Gpu* gpu,
         textureUsage = MTLTextureUsageRenderTarget;
         storageMode = MTLStorageModePrivate;
     }
-    return Texture::Make(gpu, dimensions, usage, sampleCnt, format,
-                         /*mipLevels=*/1, textureUsage, storageMode);
+    return Texture::Make(gpu,
+                         dimensions,
+                         usage,
+                         sampleCnt,
+                         format,
+                         /*mipLevels=*/1,
+                         textureUsage,
+                         storageMode);
 }
 
 sk_sp<Texture> Texture::Make(Gpu* gpu,
