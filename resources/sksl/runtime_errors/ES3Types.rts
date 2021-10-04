@@ -29,3 +29,9 @@ void af23() { float2x3 x[2]; }
 struct Sh42 { half4x2 x; };
 struct Sus  { ushort x; };
 struct Sau  { uint x[2]; };
+
+void ctor_f23() { float2x3(0); }
+void ctor_h42() { half4x2(0); }
+void ctor_u()   { uint(0); }
+void ctor_us4() { ushort4(0); }
+void ctor_aus() { ushort[2](0, 0); }
