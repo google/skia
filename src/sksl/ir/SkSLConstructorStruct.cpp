@@ -58,6 +58,7 @@ std::unique_ptr<Expression> ConstructorStruct::Make(const Context& context,
                                                     int line,
                                                     const Type& type,
                                                     ExpressionArray args) {
+    SkASSERT(type.isAllowedInES2(context));
     SkASSERT(arguments_match_field_types(args, type));
     return std::make_unique<ConstructorStruct>(line, type, std::move(args));
 }

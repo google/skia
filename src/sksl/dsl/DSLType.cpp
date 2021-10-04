@@ -212,7 +212,7 @@ bool DSLType::reportIllegalTypes(PositionInfo pos) const {
             DSLWriter::ReportError("type '" + String(type->name()) + "' is private", pos);
             return true;
         }
-        if (DSLWriter::Context().fConfig->strictES2Mode() && !type->allowedInES2()) {
+        if (!type->isAllowedInES2(DSLWriter::Context())) {
             DSLWriter::ReportError("type '" + String(type->name()) + "' is not supported", pos);
             return true;
         }

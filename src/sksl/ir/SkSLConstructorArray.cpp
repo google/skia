@@ -63,6 +63,7 @@ std::unique_ptr<Expression> ConstructorArray::Make(const Context& context,
                                                    const Type& type,
                                                    ExpressionArray args) {
     SkASSERT(!context.fConfig->strictES2Mode());
+    SkASSERT(type.isAllowedInES2(context));
     SkASSERT(type.columns() == args.count());
     SkASSERT(std::all_of(args.begin(), args.end(), [&](const std::unique_ptr<Expression>& arg) {
         return type.componentType() == arg->type();

@@ -43,9 +43,9 @@ std::unique_ptr<Expression> ConstructorArrayCast::Make(const Context& context,
                                                        std::unique_ptr<Expression> arg) {
     // Only arrays of the same size are allowed.
     SkASSERT(type.isArray());
+    SkASSERT(type.isAllowedInES2(context));
     SkASSERT(arg->type().isArray());
     SkASSERT(type.columns() == arg->type().columns());
-    SkASSERT(type.allowedInES2() || !context.fConfig->strictES2Mode());
 
     // If this is a no-op cast, return the expression as-is.
     if (type == arg->type()) {

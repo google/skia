@@ -57,8 +57,8 @@ public:
         return fComponentType.isPrivate();
     }
 
-    bool allowedInES2() const override {
-        return fComponentType.allowedInES2();
+    bool isAllowedInES2() const override {
+        return fComponentType.isAllowedInES2();
     }
 
 private:
@@ -170,7 +170,7 @@ public:
         return true;
     }
 
-    bool allowedInES2() const override {
+    bool isAllowedInES2() const override {
         return fNumberKind != NumberKind::kUnsigned;
     }
 
@@ -216,7 +216,7 @@ public:
         return true;
     }
 
-    bool allowedInES2() const override {
+    bool isAllowedInES2() const override {
         return fColumns == fRows;
     }
 
@@ -331,9 +331,9 @@ public:
         });
     }
 
-    bool allowedInES2() const override {
+    bool isAllowedInES2() const override {
         return std::all_of(fFields.begin(), fFields.end(), [](const Field& f) {
-            return f.fType->allowedInES2();
+            return f.fType->isAllowedInES2();
         });
     }
 
@@ -375,8 +375,8 @@ public:
         return true;
     }
 
-    bool allowedInES2() const override {
-        return fComponentType.allowedInES2();
+    bool isAllowedInES2() const override {
+        return fComponentType.isAllowedInES2();
     }
 
 private:
@@ -784,6 +784,10 @@ bool Type::isTooDeeplyNested(int limit) const {
 
 bool Type::isTooDeeplyNested() const {
     return this->isTooDeeplyNested(kMaxStructDepth);
+}
+
+bool Type::isAllowedInES2(const Context& context) const {
+    return !context.fConfig->strictES2Mode() || this->isAllowedInES2();
 }
 
 bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& expr) const {

@@ -52,7 +52,7 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
                                                         const Type& type,
                                                         std::unique_ptr<Expression> arg) {
     SkASSERT(type.isScalar());
-    SkASSERT(type.allowedInES2() || !context.fConfig->strictES2Mode());
+    SkASSERT(type.isAllowedInES2(context));
     SkASSERT(arg->type().isScalar());
 
     // No cast required when the types match.

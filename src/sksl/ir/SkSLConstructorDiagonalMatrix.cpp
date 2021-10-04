@@ -17,7 +17,7 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
                                                             const Type& type,
                                                             std::unique_ptr<Expression> arg) {
     SkASSERT(type.isMatrix());
-    SkASSERT(type.allowedInES2() || !context.fConfig->strictES2Mode());
+    SkASSERT(type.isAllowedInES2(context));
     SkASSERT(arg->type().isScalar());
     SkASSERT(arg->type() == type.componentType());
     return std::make_unique<ConstructorDiagonalMatrix>(line, type, std::move(arg));

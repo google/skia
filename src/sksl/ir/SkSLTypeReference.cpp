@@ -15,7 +15,7 @@ namespace SkSL {
 std::unique_ptr<TypeReference> TypeReference::Convert(const Context& context,
                                                       int line,
                                                       const Type* type) {
-    if (context.fConfig->strictES2Mode() && !type->allowedInES2()) {
+    if (!type->isAllowedInES2(context)) {
         context.fErrors->error(line, "type '" + type->displayName() + "' is not supported");
         return nullptr;
     }
@@ -25,7 +25,7 @@ std::unique_ptr<TypeReference> TypeReference::Convert(const Context& context,
 std::unique_ptr<TypeReference> TypeReference::Make(const Context& context,
                                                    int line,
                                                    const Type* type) {
-    SkASSERT(type->allowedInES2() || !context.fConfig->strictES2Mode());
+    SkASSERT(type->isAllowedInES2(context));
     return std::make_unique<TypeReference>(context, line, type);
 }
 

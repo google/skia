@@ -191,14 +191,19 @@ public:
         return this->displayName();
     }
 
+    /** Returns true if the program supports this type. Strict ES2 programs can't use ES3 types. */
+    bool isAllowedInES2(const Context& context) const;
+
+    /** Returns true if this type is legal to use in a strict-ES2 program. */
+    virtual bool isAllowedInES2() const {
+        return true;
+    }
+
     /** Returns true if this type is either private, or contains a private field (recursively). */
     virtual bool isPrivate() const {
         return this->name().starts_with("$");
     }
 
-    virtual bool allowedInES2() const {
-        return true;
-    }
 
     bool operator==(const Type& other) const {
         return this->name() == other.name();
