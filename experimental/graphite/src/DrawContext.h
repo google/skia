@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_SurfaceDrawContext_DEFINED
-#define skgpu_SurfaceDrawContext_DEFINED
+#ifndef skgpu_DrawContext_DEFINED
+#define skgpu_DrawContext_DEFINED
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
@@ -29,14 +29,14 @@ struct PaintParams;
 struct StrokeParams;
 
 /**
- * SurfaceDrawContext records draw commands into a specific Surface, via a general task graph
+ * DrawContext records draw commands into a specific Surface, via a general task graph
  * representing GPU work and their inter-dependencies.
  */
-class SurfaceDrawContext final : public SkRefCnt {
+class DrawContext final : public SkRefCnt {
 public:
-    static sk_sp<SurfaceDrawContext> Make(const SkImageInfo&);
+    static sk_sp<DrawContext> Make(const SkImageInfo&);
 
-    ~SurfaceDrawContext() override;
+    ~DrawContext() override;
 
     const SkImageInfo& imageInfo() { return fImageInfo; }
 
@@ -88,7 +88,7 @@ public:
     sk_sp<Task> snapRenderPassTask(const BoundsManager* occlusionCuller);
 
 private:
-    SurfaceDrawContext(const SkImageInfo&);
+    DrawContext(const SkImageInfo&);
 
     SkImageInfo fImageInfo;
 
@@ -112,4 +112,4 @@ private:
 
 } // namespace skgpu
 
-#endif // skgpu_SurfaceDrawContext_DEFINED
+#endif // skgpu_DrawContext_DEFINED

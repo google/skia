@@ -15,7 +15,7 @@
 namespace skgpu {
 
 class DrawList;
-class SurfaceDrawContext;
+class DrawContext;
 
 /**
  * DrawPass is analogous to a subpass, storing the drawing operations in the order they are stored
@@ -32,7 +32,7 @@ class SurfaceDrawContext;
 class DrawPass {
 public:
     // TODO: Replace SDC with the SDC's surface proxy view
-    static std::unique_ptr<DrawPass> Make(std::unique_ptr<DrawList>, SurfaceDrawContext*);
+    static std::unique_ptr<DrawPass> Make(std::unique_ptr<DrawList>, DrawContext*);
 
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is
     // contained within its dimensions.

@@ -8,8 +8,9 @@
 #include "experimental/graphite/src/DrawPass.h"
 
 #include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
-#include "experimental/graphite/src/SurfaceDrawContext.h"
+
 #include "src/core/SkUtils.h"
 
 namespace skgpu {
@@ -143,7 +144,7 @@ static_assert(sizeof(SortKey) == 16);
 
 } // namespace
 
-std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> cmds, SurfaceDrawContext* sdc) {
+std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> cmds, DrawContext* dc) {
     // TODO: DrawList processing will likely go here and then move the results into the DrawPass
     return std::unique_ptr<DrawPass>(new DrawPass());
 }
