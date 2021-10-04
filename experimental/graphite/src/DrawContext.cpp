@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/graphite/src/SurfaceDrawContext.h"
+#include "experimental/graphite/src/DrawContext.h"
 
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawPass.h"
@@ -13,11 +13,11 @@
 
 namespace skgpu {
 
-sk_sp<SurfaceDrawContext> SurfaceDrawContext::Make(const SkImageInfo& ii) {
-    return sk_sp<SurfaceDrawContext>(new SurfaceDrawContext(ii));
+sk_sp<DrawContext> DrawContext::Make(const SkImageInfo& ii) {
+    return sk_sp<DrawContext>(new DrawContext(ii));
 }
 
-SurfaceDrawContext::SurfaceDrawContext(const SkImageInfo& ii)
+DrawContext::DrawContext(const SkImageInfo& ii)
         : fImageInfo(ii)
         , fPendingDraws(std::make_unique<DrawList>())
         , fTail(nullptr) {
@@ -25,44 +25,44 @@ SurfaceDrawContext::SurfaceDrawContext(const SkImageInfo& ii)
     // that the SDC manages.
 }
 
-SurfaceDrawContext::~SurfaceDrawContext() {
+DrawContext::~DrawContext() {
     // If the SDC is destroyed and there are pending commands, they won't be drawn. Maybe that's ok
     // but for now consider it a bug for not calling snapDrawTask() and snapRenderPassTask()
     SkASSERT(fPendingDraws->count() == 0);
     SkASSERT(fDrawPasses.empty());
 }
 
-void SurfaceDrawContext::stencilAndFillPath(const SkM44& localToDevice,
-                                            const SkPath& path,
-                                            const SkIRect& scissor,
-                                            CompressedPaintersOrder colorDepthOrder,
-                                            CompressedPaintersOrder stencilOrder,
-                                            uint16_t depth,
-                                            const PaintParams* paint)  {
+void DrawContext::stencilAndFillPath(const SkM44& localToDevice,
+                                     const SkPath& path,
+                                     const SkIRect& scissor,
+                                     CompressedPaintersOrder colorDepthOrder,
+                                     CompressedPaintersOrder stencilOrder,
+                                     uint16_t depth,
+                                     const PaintParams* paint)  {
     fPendingDraws->stencilAndFillPath(localToDevice, path, scissor, colorDepthOrder, stencilOrder,
                                       depth, paint);
 }
 
-void SurfaceDrawContext::fillConvexPath(const SkM44& localToDevice,
-                                        const SkPath& path,
-                                        const SkIRect& scissor,
-                                        CompressedPaintersOrder colorDepthOrder,
-                                        uint16_t depth,
-                                        const PaintParams* paint) {
+void DrawContext::fillConvexPath(const SkM44& localToDevice,
+                                 const SkPath& path,
+                                 const SkIRect& scissor,
+                                 CompressedPaintersOrder colorDepthOrder,
+                                 uint16_t depth,
+                                 const PaintParams* paint) {
     fPendingDraws->fillConvexPath(localToDevice, path, scissor, colorDepthOrder, depth, paint);
 }
 
-void SurfaceDrawContext::strokePath(const SkM44& localToDevice,
-                                    const SkPath& path,
-                                    const StrokeParams& stroke,
-                                    const SkIRect& scissor,
-                                    CompressedPaintersOrder colorDepthOrder,
-                                    uint16_t depth,
-                                    const PaintParams* paint) {
+void DrawContext::strokePath(const SkM44& localToDevice,
+                             const SkPath& path,
+                             const StrokeParams& stroke,
+                             const SkIRect& scissor,
+                             CompressedPaintersOrder colorDepthOrder,
+                             uint16_t depth,
+                             const PaintParams* paint) {
     fPendingDraws->strokePath(localToDevice, path, stroke, scissor, colorDepthOrder, depth, paint);
 }
 
-void SurfaceDrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
+void DrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
     if (fPendingDraws->count() == 0) {
         return;
     }
@@ -75,7 +75,7 @@ void SurfaceDrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
     fPendingDraws = std::make_unique<DrawList>();
 }
 
-sk_sp<Task> SurfaceDrawContext::snapRenderPassTask(const BoundsManager* occlusionCuller) {
+sk_sp<Task> DrawContext::snapRenderPassTask(const BoundsManager* occlusionCuller) {
     this->snapDrawPass(occlusionCuller);
     if (fDrawPasses.empty()) {
         return nullptr;

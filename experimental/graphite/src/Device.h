@@ -13,7 +13,7 @@
 namespace skgpu {
 
 class Context;
-class SurfaceDrawContext;
+class DrawContext;
 
 class Device final : public SkBaseDevice  {
 public:
@@ -101,10 +101,10 @@ protected:
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
 
 private:
-    Device(sk_sp<Context>, sk_sp<SurfaceDrawContext>);
+    Device(sk_sp<Context>, sk_sp<DrawContext>);
 
     sk_sp<Context> fContext;
-    sk_sp<SurfaceDrawContext> fSDC;
+    sk_sp<DrawContext> fDC;
 };
 
 } // namespace skgpu
