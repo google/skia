@@ -265,6 +265,52 @@ SK_STDMETHODIMP StreamFontCollectionLoader::CreateEnumeratorFromKey(
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
+// Iterate calls to GetFirstMatchingFont incrementally removing bold or italic
+// styling that can trigger the simulations. Implementing it this way gets us a
+// IDWriteFont that can be used as before and has the correct information on its
+// own style. Stripping simulations from IDWriteFontFace is possible via
+// IDWriteFontList1, IDWriteFontFaceReference and CreateFontFace, but this way
+// we won't have a matching IDWriteFont which is still used in get_style().
+HRESULT FirstMatchingFontWithoutSimulations(const SkTScopedComPtr<IDWriteFontFamily>& family,
+                                            DWriteStyle dwStyle,
+                                            SkTScopedComPtr<IDWriteFont>& font) {
+    bool noSimulations = false;
+    while (!noSimulations) {
+        SkTScopedComPtr<IDWriteFont> searchFont;
+        HR(family->GetFirstMatchingFont(
+                dwStyle.fWeight, dwStyle.fWidth, dwStyle.fSlant, &searchFont));
+        DWRITE_FONT_SIMULATIONS simulations = searchFont->GetSimulations();
+        // If we still get simulations even though we're not asking for bold or
+        // italic, we can't help it and exit the loop.
+
+#ifdef SK_WIN_FONTMGR_NO_SIMULATIONS
+        noSimulations = simulations == DWRITE_FONT_SIMULATIONS_NONE ||
+                        (dwStyle.fWeight == DWRITE_FONT_WEIGHT_REGULAR &&
+                         dwStyle.fSlant == DWRITE_FONT_STYLE_NORMAL);
+#else
+        noSimulations = true;
+#endif
+        if (noSimulations) {
+            font = std::move(searchFont);
+            break;
+        }
+        if (simulations & DWRITE_FONT_SIMULATIONS_BOLD) {
+            dwStyle.fWeight = DWRITE_FONT_WEIGHT_REGULAR;
+            continue;
+        }
+        if (simulations & DWRITE_FONT_SIMULATIONS_OBLIQUE) {
+            dwStyle.fSlant = DWRITE_FONT_STYLE_NORMAL;
+            continue;
+        }
+    }
+    return S_OK;
+}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 class SkFontMgr_DirectWrite : public SkFontMgr {
 public:
     /** localeNameLength and defaultFamilyNameLength must include the null terminator. */
@@ -585,6 +631,7 @@ public:
             fResolvedTypeface = fOuter->makeTypefaceFromDWriteFont(glyphRun->fontFace,
                                                                    font.get(),
                                                                    fontFamily.get());
+            fHasSimulations = font->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE;
         }
 
         return S_OK;
@@ -644,6 +691,8 @@ public:
 
     sk_sp<SkTypeface> ConsumeFallbackTypeface() { return std::move(fResolvedTypeface); }
 
+    bool FallbackTypefaceHasSimulations() { return fHasSimulations; }
+
 private:
     virtual ~FontFallbackRenderer() { }
 
@@ -651,6 +700,7 @@ private:
     sk_sp<const SkFontMgr_DirectWrite> fOuter;
     UINT32 fCharacter;
     sk_sp<SkTypeface> fResolvedTypeface;
+    bool fHasSimulations{false};
 };
 
 class FontFallbackSource : public IDWriteTextAnalysisSource {
@@ -756,9 +806,8 @@ private:
 SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char familyName[],
                                                                const SkFontStyle& style,
                                                                const char* bcp47[], int bcp47Count,
-                                                               SkUnichar character) const
-{
-    const DWriteStyle dwStyle(style);
+                                                               SkUnichar character) const {
+    DWriteStyle dwStyle(style);
 
     const WCHAR* dwFamilyName = nullptr;
     SkSMallocWCHAR dwFamilyNameLocal;
@@ -790,8 +839,7 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::fallback(const WCHAR* dwFamilyName,
                                                   DWriteStyle dwStyle,
                                                   const WCHAR* dwBcp47,
-                                                  UINT32 character) const
-{
+                                                  UINT32 character) const {
     WCHAR str[16];
     UINT32 strLen = SkTo<UINT32>(SkUTF::ToUTF16(character, reinterpret_cast<uint16_t*>(str)));
 
@@ -809,20 +857,43 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::fallback(const WCHAR* dwFamilyName,
     UINT32 mappedLength;
     SkTScopedComPtr<IDWriteFont> font;
     FLOAT scale;
-    HRNM(fFontFallback->MapCharacters(fontFallbackSource.get(),
-                                      0, // textPosition,
-                                      strLen,
-                                      fFontCollection.get(),
-                                      dwFamilyName,
-                                      dwStyle.fWeight,
-                                      dwStyle.fSlant,
-                                      dwStyle.fWidth,
-                                      &mappedLength,
-                                      &font,
-                                      &scale),
-         "Could not map characters");
-    if (!font.get()) {
-        return nullptr;
+
+    bool noSimulations = false;
+    while (!noSimulations) {
+        font.reset();
+        HRNM(fFontFallback->MapCharacters(fontFallbackSource.get(),
+                                          0,  // textPosition,
+                                          strLen,
+                                          fFontCollection.get(),
+                                          dwFamilyName,
+                                          dwStyle.fWeight,
+                                          dwStyle.fSlant,
+                                          dwStyle.fWidth,
+                                          &mappedLength,
+                                          &font,
+                                          &scale),
+             "Could not map characters");
+        if (!font.get()) {
+            return nullptr;
+        }
+
+        DWRITE_FONT_SIMULATIONS simulations = font->GetSimulations();
+
+#ifdef SK_WIN_FONTMGR_NO_SIMULATIONS
+        noSimulations = simulations == DWRITE_FONT_SIMULATIONS_NONE;
+#else
+        noSimulations = true;
+#endif
+
+        if (simulations & DWRITE_FONT_SIMULATIONS_BOLD) {
+            dwStyle.fWeight = DWRITE_FONT_WEIGHT_REGULAR;
+            continue;
+        }
+
+        if (simulations & DWRITE_FONT_SIMULATIONS_OBLIQUE) {
+            dwStyle.fSlant = DWRITE_FONT_STYLE_NORMAL;
+            continue;
+        }
     }
 
     SkTScopedComPtr<IDWriteFontFace> fontFace;
@@ -841,34 +912,57 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::layoutFallback(const WCHAR* dwFamilyNam
     WCHAR str[16];
     UINT32 strLen = SkTo<UINT32>(SkUTF::ToUTF16(character, reinterpret_cast<uint16_t*>(str)));
 
-    SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
-    HRNM(fFactory->CreateTextFormat(dwFamilyName ? dwFamilyName : L"",
-                                    fFontCollection.get(),
-                                    dwStyle.fWeight,
-                                    dwStyle.fSlant,
-                                    dwStyle.fWidth,
-                                    72.0f,
-                                    dwBcp47,
-                                    &fallbackFormat),
-         "Could not create text format.");
+    bool noSimulations = false;
+    sk_sp<SkTypeface> returnTypeface(nullptr);
+    while (!noSimulations) {
+        SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
+        HRNM(fFactory->CreateTextFormat(dwFamilyName ? dwFamilyName : L"",
+                                        fFontCollection.get(),
+                                        dwStyle.fWeight,
+                                        dwStyle.fSlant,
+                                        dwStyle.fWidth,
+                                        72.0f,
+                                        dwBcp47,
+                                        &fallbackFormat),
+             "Could not create text format.");
 
-    // No matter how the font collection is set on this IDWriteTextLayout, it is not possible to
-    // disable use of the system font collection in fallback.
-    SkTScopedComPtr<IDWriteTextLayout> fallbackLayout;
-    HRNM(fFactory->CreateTextLayout(str, strLen, fallbackFormat.get(),
-                                    200.0f, 200.0f,
-                                    &fallbackLayout),
-         "Could not create text layout.");
+        // No matter how the font collection is set on this IDWriteTextLayout, it is not possible to
+        // disable use of the system font collection in fallback.
+        SkTScopedComPtr<IDWriteTextLayout> fallbackLayout;
+        HRNM(fFactory->CreateTextLayout(
+                     str, strLen, fallbackFormat.get(), 200.0f, 200.0f, &fallbackLayout),
+             "Could not create text layout.");
 
-    SkTScopedComPtr<FontFallbackRenderer> fontFallbackRenderer(
-        new FontFallbackRenderer(this, character));
+        SkTScopedComPtr<FontFallbackRenderer> fontFallbackRenderer(
+                new FontFallbackRenderer(this, character));
 
-    HRNM(fallbackLayout->SetFontCollection(fFontCollection.get(), { 0, strLen }),
-         "Could not set layout font collection.");
-    HRNM(fallbackLayout->Draw(nullptr, fontFallbackRenderer.get(), 50.0f, 50.0f),
-         "Could not draw layout with renderer.");
+        HRNM(fallbackLayout->SetFontCollection(fFontCollection.get(), {0, strLen}),
+             "Could not set layout font collection.");
+        HRNM(fallbackLayout->Draw(nullptr, fontFallbackRenderer.get(), 50.0f, 50.0f),
+             "Could not draw layout with renderer.");
 
-    return fontFallbackRenderer->ConsumeFallbackTypeface();
+#ifdef SK_WIN_FONTMGR_NO_SIMULATIONS
+        noSimulations = !fontFallbackRenderer->FallbackTypefaceHasSimulations();
+#else
+        noSimulations = true;
+#endif
+
+        if (noSimulations) {
+            returnTypeface = fontFallbackRenderer->ConsumeFallbackTypeface();
+        }
+
+        if (dwStyle.fWeight != DWRITE_FONT_WEIGHT_REGULAR) {
+            dwStyle.fWeight = DWRITE_FONT_WEIGHT_REGULAR;
+            continue;
+        }
+
+        if (dwStyle.fSlant != DWRITE_FONT_STYLE_NORMAL) {
+            dwStyle.fSlant = DWRITE_FONT_STYLE_NORMAL;
+            continue;
+        }
+    }
+
+    return returnTypeface;
 }
 
 template <typename T> class SkAutoIDWriteUnregister {
@@ -1032,13 +1126,14 @@ HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyName[],
                                                               SkFontStyle style) const {
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-    const DWriteStyle dwStyle(style);
+    DWriteStyle dwStyle(style);
     if (familyName) {
         SkSMallocWCHAR dwFamilyName;
         if (SUCCEEDED(sk_cstring_to_wchar(familyName, &dwFamilyName))) {
             this->getByFamilyName(dwFamilyName, &fontFamily);
             if (!fontFamily && fFontFallback) {
-                return this->fallback(dwFamilyName, dwStyle, fLocaleName.get(), 32);
+                return this->fallback(
+                        dwFamilyName, dwStyle, fLocaleName.get(), 32);
             }
         }
     }
@@ -1060,8 +1155,8 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyN
     }
 
     SkTScopedComPtr<IDWriteFont> font;
-    HRNM(fontFamily->GetFirstMatchingFont(dwStyle.fWeight, dwStyle.fWidth, dwStyle.fSlant, &font),
-         "Could not get matching font.");
+    HRNM(FirstMatchingFontWithoutSimulations(fontFamily, dwStyle, font),
+         "No font found from family.");
 
     SkTScopedComPtr<IDWriteFontFace> fontFace;
     HRNM(font->CreateFontFace(&fontFace), "Could not create font face.");
@@ -1104,9 +1199,9 @@ void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* 
 SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
     SkTScopedComPtr<IDWriteFont> font;
     DWriteStyle dwStyle(pattern);
-    // TODO: perhaps use GetMatchingFonts and get the least simulated?
-    HRNM(fFontFamily->GetFirstMatchingFont(dwStyle.fWeight, dwStyle.fWidth, dwStyle.fSlant, &font),
-         "Could not match font in family.");
+
+    HRNM(FirstMatchingFontWithoutSimulations(fFontFamily, dwStyle, font),
+         "No font found from family.");
 
     SkTScopedComPtr<IDWriteFontFace> fontFace;
     HRNM(font->CreateFontFace(&fontFace), "Could not create font face.");
