@@ -1,3 +1,11 @@
-uniform float arr[3];
+uniform float testArray[5];
+uniform half4 colorGreen, colorRed;
 
-void main() {}
+half4 main(float2 coords) {
+    for (int index=0; index<5; ++index) {
+        if (testArray[index] != float(index + 1)) {
+            return colorRed;
+        }
+    }
+    return colorGreen;
+}

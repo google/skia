@@ -37,6 +37,14 @@ static void set_uniform(SkRuntimeShaderBuilder* builder, const char* name, const
     }
 }
 
+template <typename T>
+static void set_uniform_array(SkRuntimeShaderBuilder* builder, const char* name, SkSpan<T> values) {
+    SkRuntimeShaderBuilder::BuilderUniform uniform = builder->uniform(name);
+    if (uniform.fVar) {
+        uniform.set(values.data(), values.size());
+    }
+}
+
 static void test_one_permutation(skiatest::Reporter* r,
                                  SkSurface* surface,
                                  const char* testFile,
@@ -56,6 +64,8 @@ static void test_one_permutation(skiatest::Reporter* r,
         return;
     }
 
+    static constexpr float kArray[5] = {1, 2, 3, 4, 5};
+
     SkRuntimeShaderBuilder builder(result.effect);
     set_uniform(&builder, "colorBlack",       SkV4{0, 0, 0, 1});
     set_uniform(&builder, "colorRed",         SkV4{1, 0, 0, 1});
@@ -74,6 +84,7 @@ static void test_one_permutation(skiatest::Reporter* r,
     set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
                                                                   4, 5, 6,
                                                                   7, 8, 9});
+    set_uniform_array(&builder, "testArray",  SkMakeSpan(kArray));
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
@@ -341,6 +352,7 @@ SKSL_TEST(SkSLTernaryAsLValueEntirelyFoldable, "shared/TernaryAsLValueEntirelyFo
 SKSL_TEST(SkSLTernaryAsLValueFoldableTest,     "shared/TernaryAsLValueFoldableTest.sksl")
 SKSL_TEST(SkSLTernaryExpression,               "shared/TernaryExpression.sksl")
 SKSL_TEST(SkSLUnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
+SKSL_TEST(SkSLUniformArray,                    "shared/UniformArray.sksl")
 SKSL_TEST(SkSLUnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 SKSL_TEST(SkSLVectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
