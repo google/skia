@@ -12,12 +12,16 @@
 
 namespace skgpu::mtl {
 
-ResourceProvider::ResourceProvider(const Gpu* gpu)
-    : fGpu(gpu) {
+ResourceProvider::ResourceProvider(const skgpu::Gpu* gpu)
+    : skgpu::ResourceProvider(gpu) {
+}
+
+const Gpu* ResourceProvider::mtlGpu() {
+    return static_cast<const Gpu*>(fGpu);
 }
 
 std::unique_ptr<skgpu::CommandBuffer> ResourceProvider::createCommandBuffer() {
-    return CommandBuffer::Make(fGpu->queue());
+    return CommandBuffer::Make(this->mtlGpu()->queue());
 }
 
 } // namespace skgpu::mtl

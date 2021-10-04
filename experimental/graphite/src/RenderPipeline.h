@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Pipeline_DEFINED
-#define skgpu_Pipeline_DEFINED
+#ifndef skgpu_RenderPipeline_DEFINED
+#define skgpu_RenderPipeline_DEFINED
 
 namespace skgpu {
 
 // TODO: derive this from something like GrManagedResource
-class Pipeline {
+class RenderPipeline {
 public:
-    virtual ~Pipeline();
+    virtual ~RenderPipeline();
 
 protected:
-    Pipeline();
+    RenderPipeline();
 
 private:
 };
 
 } // namespace skgpu
 
-#endif // skgpu_Pipeline_DEFINED
+#endif // skgpu_RenderPipeline_DEFINED

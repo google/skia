@@ -8,24 +8,54 @@
 #include "experimental/graphite/src/ResourceProvider.h"
 
 #include "experimental/graphite/src/CommandBuffer.h"
-#include "experimental/graphite/src/Pipeline.h"
+#include "experimental/graphite/src/RenderPipeline.h"
 
 namespace skgpu {
 
-ResourceProvider::ResourceProvider() {
+ResourceProvider::ResourceProvider(const Gpu* gpu) : fGpu(gpu) {
 }
 
 ResourceProvider::~ResourceProvider() {
+    fRenderPipelineCache.release();
 }
 
-Pipeline* ResourceProvider::findOrCreatePipeline(const PipelineDesc& desc) {
-    // TODO: look through cache for matching pipeline
+RenderPipeline* ResourceProvider::findOrCreateRenderPipeline(const RenderPipelineDesc& desc) {
+    return fRenderPipelineCache->refPipeline(desc);
+}
 
-    auto pso = this->onCreatePipeline();
+////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // TODO: cache new pipeline
+struct ResourceProvider::RenderPipelineCache::Entry {
+    Entry(RenderPipeline* pipeline)
+            : fPipeline(pipeline) {}
 
-    return pso;
+    std::unique_ptr<RenderPipeline> fPipeline;
+};
+
+ResourceProvider::RenderPipelineCache::RenderPipelineCache(ResourceProvider* resourceProvider)
+    : fMap(16) // TODO: find a good value for this
+    , fResourceProvider(resourceProvider) {}
+
+ResourceProvider::RenderPipelineCache::~RenderPipelineCache() {
+    SkASSERT(0 == fMap.count());
+}
+
+void ResourceProvider::RenderPipelineCache::release() {
+    fMap.reset();
+}
+
+RenderPipeline* ResourceProvider::RenderPipelineCache::refPipeline(
+        const RenderPipelineDesc& desc) {
+    std::unique_ptr<Entry>* entry = fMap.find(desc);
+
+    if (!entry) {
+        RenderPipeline* pipeline = fResourceProvider->onCreateRenderPipeline(desc);
+        if (!pipeline) {
+           return nullptr;
+        }
+        entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(pipeline)));
+    }
+    return (*entry)->fPipeline.get();
 }
 
 } // namespace skgpu

@@ -22,13 +22,13 @@ class Gpu;
 
 class ResourceProvider final : public skgpu::ResourceProvider {
 public:
-    ResourceProvider(const Gpu*);
+    ResourceProvider(const skgpu::Gpu* gpu);
     ~ResourceProvider() override {}
 
     std::unique_ptr<skgpu::CommandBuffer> createCommandBuffer() override;
 
 private:
-    const Gpu* fGpu;
+    const Gpu* mtlGpu();
 };
 
 } // namespace skgpu::mtl
