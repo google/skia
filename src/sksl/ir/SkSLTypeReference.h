@@ -22,8 +22,15 @@ public:
     static constexpr Kind kExpressionKind = Kind::kTypeReference;
 
     TypeReference(const Context& context, int line, const Type* value)
-        : INHERITED(line, kExpressionKind, context.fTypes.fInvalid.get())
-        , fValue(*value) {}
+        : TypeReference(line, value, context.fTypes.fInvalid.get()) {}
+
+    // Creates a reference to an SkSL type; uses the ErrorReporter to report errors.
+    static std::unique_ptr<TypeReference> Convert(const Context& context,
+                                                  int line,
+                                                  const Type* type);
+
+    // Creates a reference to an SkSL type; reports errors via ASSERT.
+    static std::unique_ptr<TypeReference> Make(const Context& context, int line, const Type* type);
 
     const Type& value() const {
         return fValue;

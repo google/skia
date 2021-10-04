@@ -17,6 +17,7 @@ std::unique_ptr<Expression> ConstructorMatrixResize::Make(const Context& context
                                                           const Type& type,
                                                           std::unique_ptr<Expression> arg) {
     SkASSERT(type.isMatrix());
+    SkASSERT(type.allowedInES2() || !context.fConfig->strictES2Mode());
     SkASSERT(arg->type().componentType() == type.componentType());
 
     // If the matrix isn't actually changing size, return it as-is.
