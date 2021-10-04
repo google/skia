@@ -220,15 +220,24 @@ bool DSLType::reportIllegalTypes(PositionInfo pos) const {
     return false;
 }
 
-DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray, PositionInfo pos) {
-    const SkSL::Type& skslType = type.skslType();
-    if (type.reportIllegalTypes(pos)) {
+DSLPossibleExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
+    SkSL::ExpressionArray skslArgs;
+    skslArgs.reserve_back(argArray.size());
+
+    if (type.reportIllegalTypes(PositionInfo())) {
         for (DSLExpression& arg : argArray) {
             arg.releaseIfPossible();
         }
         return DSLPossibleExpression(nullptr);
     }
-    return DSLExpression(DSLWriter::Construct(skslType, std::move(argArray)), pos);
+    for (DSLExpression& arg : argArray) {
+        if (!arg.hasValue()) {
+            return DSLPossibleExpression(nullptr);
+        }
+        skslArgs.push_back(arg.release());
+    }
+    return SkSL::Constructor::Convert(DSLWriter::Context(), /*line=*/-1, type.skslType(),
+            std::move(skslArgs));
 }
 
 DSLType Array(const DSLType& base, int count, PositionInfo pos) {

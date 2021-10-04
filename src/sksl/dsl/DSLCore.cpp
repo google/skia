@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/transform/SkSLTransform.h"
@@ -315,14 +316,16 @@ public:
                                        bool isStatic) {
         ExpressionArray values;
         values.reserve_back(cases.count());
-        SkTArray<StatementArray> statements;
-        statements.reserve_back(cases.count());
+        StatementArray caseBlocks;
+        caseBlocks.reserve_back(cases.count());
         for (DSLCase& c : cases) {
             values.push_back(c.fValue.releaseIfPossible());
-            statements.push_back(std::move(c.fStatements));
+            caseBlocks.push_back(SkSL::Block::Make(/*line=*/-1,
+                    std::move(c.fStatements), /*symbols=*/nullptr, /*isScope=*/false));
         }
-        return DSLWriter::ConvertSwitch(value.release(), std::move(values), std::move(statements),
-                                        isStatic);
+        return SwitchStatement::Convert(DSLWriter::Context(), /*line=*/-1, isStatic,
+                value.release(), std::move(values), std::move(caseBlocks),
+                DSLWriter::SymbolTable());
     }
 
     static DSLPossibleStatement While(DSLExpression test, DSLStatement stmt) {

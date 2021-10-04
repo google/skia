@@ -242,16 +242,18 @@ public:
      *     half4 shader::eval(float2 coords);
      *     half4 colorFilter::eval(half4 input);
      */
-    DSLPossibleExpression eval(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression eval(DSLExpression x, PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Implements the following method call:
      *     half4 blender::eval(half4 src, half4 dst);
      */
-    DSLPossibleExpression eval(DSLExpression x, DSLExpression y,
-                               PositionInfo pos = PositionInfo::Capture());
+    DSLExpression eval(DSLExpression x, DSLExpression y,
+            PositionInfo pos = PositionInfo::Capture());
 
 private:
+    DSLExpression eval(ExpressionArray args, PositionInfo pos);
+
     std::unique_ptr<SkSL::Expression> methodCall(skstd::string_view methodName, PositionInfo pos);
 
     using INHERITED = DSLVarBase;

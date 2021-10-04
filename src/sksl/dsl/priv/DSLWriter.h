@@ -195,40 +195,6 @@ public:
      */
     static void AddVarDeclaration(DSLStatement& existing, DSLVar& additional);
 
-    static std::unique_ptr<SkSL::Expression> Call(const FunctionDeclaration& function,
-                                                  ExpressionArray arguments,
-                                                  PositionInfo pos = PositionInfo::Capture());
-
-    /**
-     * Invokes expr(arguments), where expr is a function or type reference.
-     */
-    static std::unique_ptr<SkSL::Expression> Call(std::unique_ptr<SkSL::Expression> expr,
-                                                  ExpressionArray arguments,
-                                                  PositionInfo pos = PositionInfo::Capture());
-
-    static DSLPossibleExpression Coerce(std::unique_ptr<Expression> expr, const SkSL::Type& type);
-
-    static DSLPossibleExpression Construct(const SkSL::Type& type, SkSpan<DSLExpression> rawArgs);
-
-    static std::unique_ptr<Expression> ConvertBinary(std::unique_ptr<Expression> left, Operator op,
-                                                     std::unique_ptr<Expression> right);
-
-    static std::unique_ptr<SkSL::Expression> ConvertField(std::unique_ptr<Expression> base,
-                                                          skstd::string_view name);
-
-    static std::unique_ptr<Expression> ConvertIndex(std::unique_ptr<Expression> base,
-                                                    std::unique_ptr<Expression> index);
-
-    static std::unique_ptr<Expression> ConvertPostfix(std::unique_ptr<Expression> expr,
-                                                      Operator op);
-
-    static std::unique_ptr<Expression> ConvertPrefix(Operator op, std::unique_ptr<Expression> expr);
-
-    static DSLPossibleStatement ConvertSwitch(std::unique_ptr<Expression> value,
-                                              ExpressionArray caseValues,
-                                              SkTArray<SkSL::StatementArray> caseStatements,
-                                              bool isStatic);
-
     /**
      * Returns the ErrorReporter associated with the current thread. This object will be notified
      * when any DSL errors occur.

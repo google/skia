@@ -31,7 +31,9 @@ namespace SkSL {
 
 namespace dsl {
     class DSLCore;
+    class DSLExpression;
     class DSLFunction;
+    class DSLGlobalVar;
     class DSLVar;
     class DSLWriter;
 }
@@ -170,7 +172,9 @@ private:
     friend class Compiler;
     friend class DSLParser;
     friend class dsl::DSLCore;
+    friend class dsl::DSLExpression;
     friend class dsl::DSLFunction;
+    friend class dsl::DSLGlobalVar;
     friend class dsl::DSLVar;
     friend class dsl::DSLWriter;
 };

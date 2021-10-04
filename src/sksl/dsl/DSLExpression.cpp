@@ -13,8 +13,12 @@
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPoison.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
 
 #include "math.h"
 
@@ -160,15 +164,18 @@ DSLExpression DSLExpression::a(PositionInfo pos) {
 }
 
 DSLExpression DSLExpression::field(skstd::string_view name, PositionInfo pos) {
-    return DSLExpression(DSLWriter::ConvertField(this->release(), name), pos);
+    return DSLExpression(FieldAccess::Convert(DSLWriter::Context(), *DSLWriter::SymbolTable(),
+            this->release(), name), pos);
 }
 
 DSLPossibleExpression DSLExpression::operator=(DSLExpression right) {
-    return DSLWriter::ConvertBinary(this->release(), SkSL::Token::Kind::TK_EQ, right.release());
+    return BinaryExpression::Convert(DSLWriter::Context(), this->release(),
+            SkSL::Token::Kind::TK_EQ, right.release());
 }
 
 DSLPossibleExpression DSLExpression::operator[](DSLExpression right) {
-    return DSLWriter::ConvertIndex(this->release(), right.release());
+    return IndexExpression::Convert(DSLWriter::Context(), *DSLWriter::SymbolTable(),
+            this->release(), right.release());
 }
 
 DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args,
@@ -178,26 +185,31 @@ DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpressio
     for (DSLWrapper<DSLExpression>& arg : args) {
         converted.push_back(arg->release());
     }
-    return DSLWriter::Call(this->release(), std::move(converted), pos);
+    return (*this)(std::move(converted), pos);
 }
 
 DSLPossibleExpression DSLExpression::operator()(ExpressionArray args, PositionInfo pos) {
-    return DSLWriter::Call(this->release(), std::move(args), pos);
+    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
+    // IRGenerator::call. skbug.com/12500
+    return DSLWriter::IRGenerator().call(pos.line(), this->release(), std::move(args));
 }
 
 #define OP(op, token)                                                                              \
 DSLPossibleExpression operator op(DSLExpression left, DSLExpression right) {                       \
-    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::token, right.release());    \
+    return BinaryExpression::Convert(DSLWriter::Context(), left.release(),                         \
+            SkSL::Token::Kind::token, right.release());                                            \
 }
 
 #define PREFIXOP(op, token)                                                                        \
 DSLPossibleExpression operator op(DSLExpression expr) {                                            \
-    return DSLWriter::ConvertPrefix(SkSL::Token::Kind::token, expr.release());                     \
+    return PrefixExpression::Convert(DSLWriter::Context(), SkSL::Token::Kind::token,               \
+            expr.release());                                                                       \
 }
 
 #define POSTFIXOP(op, token)                                                                       \
 DSLPossibleExpression operator op(DSLExpression expr, int) {                                       \
-    return DSLWriter::ConvertPostfix(expr.release(), SkSL::Token::Kind::token);                    \
+    return PostfixExpression::Convert(DSLWriter::Context(), expr.release(),                        \
+            SkSL::Token::Kind::token);                                                             \
 }
 
 OP(+, TK_PLUS)
@@ -223,8 +235,8 @@ OP(|=, TK_BITWISEOREQ)
 OP(^, TK_BITWISEXOR)
 OP(^=, TK_BITWISEXOREQ)
 DSLPossibleExpression LogicalXor(DSLExpression left, DSLExpression right) {
-    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_LOGICALXOR,
-                                    right.release());
+    return BinaryExpression::Convert(DSLWriter::Context(), left.release(),
+            SkSL::Token::Kind::TK_LOGICALXOR, right.release());
 }
 OP(==, TK_EQEQ)
 OP(!=, TK_NEQ)
@@ -243,28 +255,23 @@ PREFIXOP(--, TK_MINUSMINUS)
 POSTFIXOP(--, TK_MINUSMINUS)
 
 DSLPossibleExpression operator,(DSLExpression left, DSLExpression right) {
-    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_COMMA,
-                                    right.release());
+    return BinaryExpression::Convert(DSLWriter::Context(), left.release(),
+            SkSL::Token::Kind::TK_COMMA, right.release());
 }
 
 DSLPossibleExpression operator,(DSLPossibleExpression left, DSLExpression right) {
-    return DSLWriter::ConvertBinary(DSLExpression(std::move(left)).release(),
-                                    SkSL::Token::Kind::TK_COMMA, right.release());
+    return BinaryExpression::Convert(DSLWriter::Context(), DSLExpression(std::move(left)).release(),
+            SkSL::Token::Kind::TK_COMMA, right.release());
 }
 
 DSLPossibleExpression operator,(DSLExpression left, DSLPossibleExpression right) {
-    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_COMMA,
-                                    DSLExpression(std::move(right)).release());
+    return BinaryExpression::Convert(DSLWriter::Context(), left.release(),
+            SkSL::Token::Kind::TK_COMMA, DSLExpression(std::move(right)).release());
 }
 
 DSLPossibleExpression operator,(DSLPossibleExpression left, DSLPossibleExpression right) {
-    return DSLWriter::ConvertBinary(DSLExpression(std::move(left)).release(),
-                                    SkSL::Token::Kind::TK_COMMA,
-                                    DSLExpression(std::move(right)).release());
-}
-
-std::unique_ptr<SkSL::Expression> DSLExpression::coerceAndRelease(const SkSL::Type& type) {
-    return DSLWriter::Coerce(this->release(), type).release();
+    return BinaryExpression::Convert(DSLWriter::Context(), DSLExpression(std::move(left)).release(),
+            SkSL::Token::Kind::TK_COMMA, DSLExpression(std::move(right)).release());
 }
 
 DSLPossibleExpression::DSLPossibleExpression(std::unique_ptr<SkSL::Expression> expr)

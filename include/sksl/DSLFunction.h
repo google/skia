@@ -82,9 +82,10 @@ public:
     /**
      * Invokes the function with the given arguments.
      */
-    DSLExpression call(SkTArray<DSLWrapper<DSLExpression>> args);
+    DSLExpression call(SkTArray<DSLWrapper<DSLExpression>> args,
+            PositionInfo pos = PositionInfo::Capture());
 
-    DSLExpression call(ExpressionArray args);
+    DSLExpression call(ExpressionArray args, PositionInfo pos = PositionInfo::Capture());
 
 private:
     void collectArgs(ExpressionArray& args) {}

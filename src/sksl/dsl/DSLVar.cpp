@@ -163,8 +163,9 @@ DSLPossibleExpression DSLVarBase::operator[](DSLExpression&& index) {
 }
 
 DSLPossibleExpression DSLVarBase::assign(DSLExpression expr) {
-    return DSLWriter::ConvertBinary(DSLExpression(*this, PositionInfo()).release(),
-            SkSL::Token::Kind::TK_EQ, expr.release());
+    return BinaryExpression::Convert(DSLWriter::Context(),
+            DSLExpression(*this, PositionInfo()).release(), SkSL::Token::Kind::TK_EQ,
+            expr.release());
 }
 
 DSLPossibleExpression DSLVar::operator=(DSLExpression expr) {
@@ -185,26 +186,31 @@ std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(skstd::string_view me
         DSLWriter::ReportError("type does not support method calls", pos);
         return nullptr;
     }
-    return DSLWriter::ConvertField(DSLExpression(*this, PositionInfo()).release(), methodName);
+    return FieldAccess::Convert(DSLWriter::Context(), *DSLWriter::SymbolTable(),
+            DSLExpression(*this, PositionInfo()).release(), methodName);
 }
 
-DSLPossibleExpression DSLGlobalVar::eval(DSLExpression x, PositionInfo pos) {
+DSLExpression DSLGlobalVar::eval(ExpressionArray args, PositionInfo pos) {
+    auto method = this->methodCall("eval", pos);
+    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
+    // IRGenerator::call. skbug.com/12500
+    return DSLExpression(
+            method ? DSLWriter::IRGenerator().call(pos.line(), std::move(method), std::move(args))
+                   : nullptr,
+            pos);
+}
+
+DSLExpression DSLGlobalVar::eval(DSLExpression x, PositionInfo pos) {
     ExpressionArray converted;
     converted.push_back(x.release());
-
-    auto method = this->methodCall("eval", pos);
-    return DSLPossibleExpression(
-            method ? DSLWriter::Call(std::move(method), std::move(converted), pos) : nullptr);
+    return this->eval(std::move(converted), pos);
 }
 
-DSLPossibleExpression DSLGlobalVar::eval(DSLExpression x, DSLExpression y, PositionInfo pos) {
+DSLExpression DSLGlobalVar::eval(DSLExpression x, DSLExpression y, PositionInfo pos) {
     ExpressionArray converted;
     converted.push_back(x.release());
     converted.push_back(y.release());
-
-    auto method = this->methodCall("eval", pos);
-    return DSLPossibleExpression(
-            method ? DSLWriter::Call(std::move(method), std::move(converted), pos) : nullptr);
+    return this->eval(std::move(converted), pos);
 }
 
 } // namespace dsl
