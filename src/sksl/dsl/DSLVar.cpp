@@ -41,6 +41,7 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::strin
     , fInitialValue(std::move(initialValue))
     , fDeclared(DSLWriter::MarkVarsDeclared())
     , fPosition(pos) {
+    type.reportIllegalTypes(pos);
     if (fModifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
         if (DSLWriter::InFragmentProcessor()) {

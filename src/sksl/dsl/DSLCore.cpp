@@ -231,7 +231,8 @@ public:
         const SkSL::Type* structType = DSLWriter::SymbolTable()->takeOwnershipOfSymbol(
                 SkSL::Type::MakeStructType(pos.line(), typeName, std::move(skslFields)));
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
-        DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName);
+        DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName, DSLExpression(),
+                pos);
         // Interface blocks can't be declared, so we always need to mark the var declared ourselves.
         // We do this only when fDSLMarkVarDeclared is false, so we don't double-declare it.
         if (!DSLWriter::Settings().fDSLMarkVarsDeclared) {
