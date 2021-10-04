@@ -12,6 +12,8 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 
+#include "experimental/graphite/include/GraphiteTypes.h"
+
 #include <cstdint>
 
 class SkM44;
@@ -63,19 +65,27 @@ public:
     // sense for it to compute these dependent values and provide them here. Storing the scale
     // factor per draw command is low overhead, but unsure about storing 2 matrices per command.
 
-    void fillPath(const SkM44& localToDevice,
-                  const SkPath& path,
-                  const SkIRect& scissor, // TBD: expand this to one xformed rrect analytic clip?
-                  uint16_t sortZ,
-                  uint16_t testZ,
-                  const PaintParams* paint) {}
+    void stencilAndFillPath(const SkM44& localToDevice,
+                            const SkPath& path,
+                            const SkIRect& scissor, // TBD: expand this to one xformed rrect clip?
+                            CompressedPaintersOrder colorDepthOrder,
+                            CompressedPaintersOrder stencilOrder,
+                            uint16_t depth,
+                            const PaintParams* paint) {}
+
+    void fillConvexPath(const SkM44& localToDevice,
+                        const SkPath& path,
+                        const SkIRect& scissor,
+                        CompressedPaintersOrder colorDepthOrder,
+                        uint16_t depth,
+                        const PaintParams* paint) {}
 
     void strokePath(const SkM44& localToDevice,
                     const SkPath& path,
                     const StrokeParams& stroke,
                     const SkIRect& scissor,
-                    uint16_t sortZ,
-                    uint16_t testZ,
+                    CompressedPaintersOrder colorDepthOrder,
+                    uint16_t depth,
                     const PaintParams* paint) {}
 
     // TODO: fill[R]Rect, stroke[R]Rect (will need to support per-edge aa and arbitrary quads)

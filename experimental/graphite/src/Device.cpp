@@ -200,8 +200,10 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutab
         } else {
             fSDC->strokePath(this->localToDevice44(), path, stroke, scissor, 0, 0, &shading);
         }
+    } else if (path.isConvex()) {
+        fSDC->fillConvexPath(this->localToDevice44(), path, scissor, 0, 0, &shading);
     } else {
-        fSDC->fillPath(this->localToDevice44(), path, scissor, 0, 0, &shading);
+        fSDC->stencilAndFillPath(this->localToDevice44(), path, scissor, 0, 0, 0, &shading);
     }
 }
 

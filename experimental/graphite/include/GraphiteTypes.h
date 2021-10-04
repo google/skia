@@ -140,7 +140,11 @@ enum class Protected : bool {
     kYes = true,
 };
 
-
+/**
+ * An ordinal number that allows draw commands to be re-ordered so long as when they are executed,
+ * the read/writes to the color|depth|stencil attachments respect the original painter's order.
+ */
+using CompressedPaintersOrder = uint16_t;
 
 } // namespace skgpu
 

@@ -32,23 +32,34 @@ SurfaceDrawContext::~SurfaceDrawContext() {
     SkASSERT(fDrawPasses.empty());
 }
 
-void SurfaceDrawContext::fillPath(const SkM44& localToDevice,
-                                  const SkPath& path,
-                                  const SkIRect& scissor,
-                                  uint16_t sortZ,
-                                  uint16_t testZ,
-                                  const PaintParams* paint) {
-    fPendingDraws->fillPath(localToDevice, path, scissor, sortZ, testZ, paint);
+void SurfaceDrawContext::stencilAndFillPath(const SkM44& localToDevice,
+                                            const SkPath& path,
+                                            const SkIRect& scissor,
+                                            CompressedPaintersOrder colorDepthOrder,
+                                            CompressedPaintersOrder stencilOrder,
+                                            uint16_t depth,
+                                            const PaintParams* paint)  {
+    fPendingDraws->stencilAndFillPath(localToDevice, path, scissor, colorDepthOrder, stencilOrder,
+                                      depth, paint);
+}
+
+void SurfaceDrawContext::fillConvexPath(const SkM44& localToDevice,
+                                        const SkPath& path,
+                                        const SkIRect& scissor,
+                                        CompressedPaintersOrder colorDepthOrder,
+                                        uint16_t depth,
+                                        const PaintParams* paint) {
+    fPendingDraws->fillConvexPath(localToDevice, path, scissor, colorDepthOrder, depth, paint);
 }
 
 void SurfaceDrawContext::strokePath(const SkM44& localToDevice,
                                     const SkPath& path,
                                     const StrokeParams& stroke,
                                     const SkIRect& scissor,
-                                    uint16_t sortZ,
-                                    uint16_t testZ,
+                                    CompressedPaintersOrder colorDepthOrder,
+                                    uint16_t depth,
                                     const PaintParams* paint) {
-    fPendingDraws->strokePath(localToDevice, path, stroke, scissor, sortZ, testZ, paint);
+    fPendingDraws->strokePath(localToDevice, path, stroke, scissor, colorDepthOrder, depth, paint);
 }
 
 void SurfaceDrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
