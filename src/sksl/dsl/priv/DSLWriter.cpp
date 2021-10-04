@@ -35,8 +35,7 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
                      bool isModule)
     : fCompiler(compiler)
     , fOldErrorReporter(*fCompiler->fContext->fErrors)
-    , fSettings(settings)
-    , fIsModule(isModule) {
+    , fSettings(settings) {
     fOldModifiersPool = fCompiler->fContext->fModifiersPool;
 
     fOldConfig = fCompiler->fContext->fConfig;
@@ -53,6 +52,7 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
     fConfig = std::make_unique<SkSL::ProgramConfig>();
     fConfig->fKind = kind;
     fConfig->fSettings = settings;
+    fConfig->fIsBuiltinCode = isModule;
     fCompiler->fContext->fConfig = fConfig.get();
     fCompiler->fContext->fErrors = &fDefaultErrorReporter;
     fCompiler->fContext->fIntrinsics = module.fIntrinsics.get();
@@ -60,7 +60,7 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
         fCompiler->fContext->fIntrinsics->resetAlreadyIncluded();
     }
 
-    fCompiler->fIRGenerator->start(module, isModule, &fProgramElements, &fSharedElements);
+    fCompiler->fIRGenerator->start(module, &fProgramElements, &fSharedElements);
 }
 
 DSLWriter::~DSLWriter() {

@@ -326,6 +326,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     }
 #else
     ProgramConfig config;
+    config.fIsBuiltinCode = true;
     config.fKind = kind;
     config.fSettings = settings;
     AutoProgramConfig autoConfig(fContext, &config);
@@ -386,10 +387,9 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
     return ParsedModule{module.fSymbols, std::move(intrinsics)};
 }
 
-std::unique_ptr<Program> Compiler::convertProgram(
-        ProgramKind kind,
-        String text,
-        Program::Settings settings) {
+std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
+                                                  String text,
+                                                  Program::Settings settings) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
 
     SkASSERT(!settings.fExternalFunctions || (kind == ProgramKind::kGeneric));
@@ -441,6 +441,7 @@ bool Compiler::optimize(LoadedModule& module) {
 
     // Create a temporary program configuration with default settings.
     ProgramConfig config;
+    config.fIsBuiltinCode = true;
     config.fKind = module.fKind;
     AutoProgramConfig autoConfig(fContext, &config);
 

@@ -95,7 +95,6 @@ public:
 
 private:
     void start(const ParsedModule& base,
-               bool isBuiltinCode,
                std::vector<std::unique_ptr<ProgramElement>>* elements,
                std::vector<const ProgramElement*>* sharedElements);
 
@@ -163,8 +162,6 @@ private:
     const Variable* fRTAdjust = nullptr;
     const Variable* fRTAdjustInterfaceBlock = nullptr;
     int fRTAdjustFieldIndex;
-    // true if we are currently processing one of the built-in SkSL include files
-    bool fIsBuiltinCode = false;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

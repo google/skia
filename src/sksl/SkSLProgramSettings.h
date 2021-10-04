@@ -85,6 +85,8 @@ struct ProgramSettings {
  * All the configuration data for a given program.
  */
 struct ProgramConfig {
+    /** True if we are currently processing one of the built-in SkSL include modules. */
+    bool fIsBuiltinCode;
     ProgramKind fKind;
     ProgramSettings fSettings;
 

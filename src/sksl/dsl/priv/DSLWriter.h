@@ -110,7 +110,7 @@ public:
      */
     static std::unique_ptr<ProgramConfig>& GetProgramConfig() { return Instance().fConfig; }
 
-    static bool IsModule() { return Instance().fIsModule; }
+    static bool IsModule() { return GetProgramConfig()->fIsBuiltinCode; }
 
     static void Reset();
 
@@ -301,7 +301,6 @@ private:
     ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;
     Mangler fMangler;
-    bool fIsModule;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
         GrFragmentProcessor::ProgramImpl* fProcessor;

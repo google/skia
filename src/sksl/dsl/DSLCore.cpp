@@ -67,8 +67,9 @@ public:
         DSLWriter& instance = DSLWriter::Instance();
         SkSL::IRGenerator& ir = DSLWriter::IRGenerator();
         SkSL::Compiler& compiler = DSLWriter::Compiler();
+        const SkSL::Context& context = DSLWriter::Context();
         // Variables defined in the pre-includes need their declaring elements added to the program
-        if (!ir.fIsBuiltinCode && compiler.context().fIntrinsics) {
+        if (!context.fConfig->fIsBuiltinCode && context.fIntrinsics) {
             Transform::FindAndDeclareBuiltinVariables(DSLWriter::Context(),
                     DSLWriter::GetProgramConfig()->fKind, DSLWriter::SharedElements());
         }
