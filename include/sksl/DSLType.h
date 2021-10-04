@@ -169,7 +169,7 @@ public:
 private:
     const SkSL::Type& skslType() const;
 
-    void reportIllegalTypes(PositionInfo pos) const;
+    bool reportIllegalTypes(PositionInfo pos) const;
 
     const SkSL::Type* fSkSLType = nullptr;
 

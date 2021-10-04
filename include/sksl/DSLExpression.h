@@ -172,6 +172,7 @@ private:
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLPossibleExpression;
+    friend class DSLType;
     friend class DSLVarBase;
     friend class DSLWriter;
     template<typename T> friend class DSLWrapper;

@@ -205,7 +205,7 @@ const SkSL::Type& DSLType::skslType() const {
     }
 }
 
-void DSLType::reportIllegalTypes(PositionInfo pos) const {
+bool DSLType::reportIllegalTypes(PositionInfo pos) const {
     if (!DSLWriter::IsModule()) {
         const SkSL::Type* type = &this->skslType();
         while (type->isArray()) {
@@ -213,16 +213,24 @@ void DSLType::reportIllegalTypes(PositionInfo pos) const {
         }
         if (type->containsPrivateFields()) {
             DSLWriter::ReportError("type '" + String(type->name()) + "' is private", pos);
+            return true;
         }
         if (DSLWriter::Context().fConfig->strictES2Mode() && !type->allowedInES2()) {
             DSLWriter::ReportError("type '" + String(type->name()) + "' is not supported", pos);
+            return true;
         }
     }
+    return false;
 }
 
 DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray, PositionInfo pos) {
     const SkSL::Type& skslType = type.skslType();
-    type.reportIllegalTypes(pos);
+    if (type.reportIllegalTypes(pos)) {
+        for (DSLExpression& arg : argArray) {
+            arg.releaseIfPossible();
+        }
+        return DSLPossibleExpression(nullptr);
+    }
     return DSLExpression(DSLWriter::Construct(skslType, std::move(argArray)), pos);
 }
 
