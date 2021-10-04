@@ -50,8 +50,7 @@ public:
                                               const Modifiers* modifiers,
                                               skstd::string_view name,
                                               std::vector<std::unique_ptr<Variable>> parameters,
-                                              const Type* returnType,
-                                              bool isBuiltin);
+                                              const Type* returnType);
 
     const Modifiers& modifiers() const {
         return *fModifiers;

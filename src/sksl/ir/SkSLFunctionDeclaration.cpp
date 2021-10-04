@@ -34,12 +34,11 @@ static IntrinsicKind identify_intrinsic(skstd::string_view functionName) {
 
 static bool check_modifiers(const Context& context,
                             int line,
-                            const Modifiers& modifiers,
-                            bool isBuiltin) {
+                            const Modifiers& modifiers) {
     const int permitted = Modifiers::kHasSideEffects_Flag |
                           Modifiers::kInline_Flag |
                           Modifiers::kNoInline_Flag |
-                          (isBuiltin ? Modifiers::kES3_Flag : 0);
+                          (context.fConfig->fIsBuiltinCode ? Modifiers::kES3_Flag : 0);
     IRGenerator::CheckModifiers(context, line, modifiers, permitted, /*permittedLayoutFlags=*/0);
     if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
         (modifiers.fFlags & Modifiers::kNoInline_Flag)) {
@@ -49,8 +48,7 @@ static bool check_modifiers(const Context& context,
     return true;
 }
 
-static bool check_return_type(const Context& context, int line, const Type& returnType,
-                              bool isBuiltin) {
+static bool check_return_type(const Context& context, int line, const Type& returnType) {
     ErrorReporter& errors = *context.fErrors;
     if (returnType.isArray()) {
         errors.error(line, "functions may not return type '" + returnType.displayName() + "'");
@@ -60,7 +58,8 @@ static bool check_return_type(const Context& context, int line, const Type& retu
         errors.error(line, "functions may not return structs containing arrays");
         return false;
     }
-    if (!isBuiltin && !returnType.isVoid() && returnType.componentType().isOpaque()) {
+    if (!context.fConfig->fIsBuiltinCode && !returnType.isVoid() &&
+        returnType.componentType().isOpaque()) {
         errors.error(line, "functions may not return opaque type '" + returnType.displayName() +
                              "'");
         return false;
@@ -69,8 +68,8 @@ static bool check_return_type(const Context& context, int line, const Type& retu
 }
 
 static bool check_parameters(const Context& context,
-                             std::vector<std::unique_ptr<Variable>>& parameters, bool isMain,
-                             bool isBuiltin) {
+                             std::vector<std::unique_ptr<Variable>>& parameters,
+                             bool isMain) {
     auto typeIsValidForColor = [&](const Type& type) {
         return type == *context.fTypes.fHalf4 || type == *context.fTypes.fFloat4;
     };
@@ -88,7 +87,7 @@ static bool check_parameters(const Context& context,
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.
-        if (type.isEffectChild() && !isBuiltin) {
+        if (type.isEffectChild() && !context.fConfig->fIsBuiltinCode) {
             context.fErrors->error(param->fLine, "parameters of type '" + type.displayName() +
                                                    "' not allowed");
             return false;
@@ -124,8 +123,7 @@ static bool check_parameters(const Context& context,
 }
 
 static bool check_main_signature(const Context& context, int line, const Type& returnType,
-                                 std::vector<std::unique_ptr<Variable>>& parameters,
-                                 bool isBuiltin) {
+                                 std::vector<std::unique_ptr<Variable>>& parameters) {
     ErrorReporter& errors = *context.fErrors;
     ProgramKind kind = context.fConfig->fKind;
 
@@ -221,10 +219,12 @@ static bool check_main_signature(const Context& context, int line, const Type& r
  * incompatible symbol. Returns true and sets outExistingDecl to point to the existing declaration
  * (or null if none) on success, returns false on error.
  */
-static bool find_existing_declaration(const Context& context, SymbolTable& symbols, int line,
+static bool find_existing_declaration(const Context& context,
+                                      SymbolTable& symbols,
+                                      int line,
                                       skstd::string_view name,
                                       std::vector<std::unique_ptr<Variable>>& parameters,
-                                      const Type* returnType, bool isBuiltin,
+                                      const Type* returnType,
                                       const FunctionDeclaration** outExistingDecl) {
     ErrorReporter& errors = *context.fErrors;
     const Symbol* entry = symbols[name];
@@ -268,7 +268,7 @@ static bool find_existing_declaration(const Context& context, SymbolTable& symbo
                                                 name,
                                                 std::move(paramPtrs),
                                                 returnType,
-                                                isBuiltin);
+                                                context.fConfig->fIsBuiltinCode);
                 errors.error(line,
                              "functions '" + invalidDecl.description() + "' and '" +
                              other->description() + "' differ only in return type");
@@ -308,19 +308,22 @@ FunctionDeclaration::FunctionDeclaration(int line,
         , fIsMain(name == "main")
         , fIntrinsicKind(builtin ? identify_intrinsic(name) : kNotIntrinsic) {}
 
-const FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
-        SymbolTable& symbols, int line, const Modifiers* modifiers,
-        skstd::string_view name, std::vector<std::unique_ptr<Variable>> parameters,
-        const Type* returnType, bool isBuiltin) {
+const FunctionDeclaration* FunctionDeclaration::Convert(
+        const Context& context,
+        SymbolTable& symbols,
+        int line,
+        const Modifiers* modifiers,
+        skstd::string_view name,
+        std::vector<std::unique_ptr<Variable>> parameters,
+        const Type* returnType) {
     bool isMain = (name == "main");
 
     const FunctionDeclaration* decl = nullptr;
-    if (!check_modifiers(context, line, *modifiers, isBuiltin) ||
-        !check_return_type(context, line, *returnType, isBuiltin) ||
-        !check_parameters(context, parameters, isMain, isBuiltin) ||
-        (isMain && !check_main_signature(context, line, *returnType, parameters, isBuiltin)) ||
-        !find_existing_declaration(context, symbols, line, name, parameters, returnType,
-                                   isBuiltin, &decl)) {
+    if (!check_modifiers(context, line, *modifiers) ||
+        !check_return_type(context, line, *returnType) ||
+        !check_parameters(context, parameters, isMain) ||
+        (isMain && !check_main_signature(context, line, *returnType, parameters)) ||
+        !find_existing_declaration(context, symbols, line, name, parameters, returnType, &decl)) {
         return nullptr;
     }
     std::vector<const Variable*> finalParameters;
@@ -333,7 +336,7 @@ const FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
     }
     auto result = std::make_unique<FunctionDeclaration>(line, modifiers, name,
                                                         std::move(finalParameters), returnType,
-                                                        isBuiltin);
+                                                        context.fConfig->fIsBuiltinCode);
     return symbols.add(std::move(result));
 }
 

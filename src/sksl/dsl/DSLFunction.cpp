@@ -55,8 +55,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
                                                pos.line(),
                                                DSLWriter::Modifiers(modifiers.fModifiers),
                                                name == "main" ? name : DSLWriter::Name(name),
-                                               std::move(paramVars), &returnType.skslType(),
-                                               DSLWriter::IsModule());
+                                               std::move(paramVars), &returnType.skslType());
     DSLWriter::ReportErrors(pos);
     if (fDecl) {
         for (size_t i = 0; i < params.size(); ++i) {
