@@ -106,14 +106,11 @@ void GrAtlasPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& pat
     fPathGenID = path.getGenerationID();
     fAffineMatrix[0] = m.getScaleX();
     fAffineMatrix[1] = m.getSkewX();
-    fAffineMatrix[2] = m.getSkewY();
-    fAffineMatrix[3] = m.getScaleY();
-    float2 translate = {m.getTranslateX(), m.getTranslateY()};
-    float2 subpixelPosition = translate - skvx::floor(translate);
-    float2 subpixelPositionKey = skvx::trunc(subpixelPosition *
-                                             GrTessellationShader::kLinearizationPrecision);
-    skvx::cast<uint8_t>(subpixelPositionKey).store(fSubpixelPositionKey);
-    fFillRule = (uint16_t)GrFillRuleForSkPath(path);  // Fill rule doesn't affect the path's genID.
+    fAffineMatrix[2] = m.getTranslateX();
+    fAffineMatrix[3] = m.getSkewY();
+    fAffineMatrix[4] = m.getScaleY();
+    fAffineMatrix[5] = m.getTranslateY();
+    fFillRule = (uint32_t)GrFillRuleForSkPath(path);  // Fill rule doesn't affect the path's genID.
 }
 
 bool GrAtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,

@@ -102,13 +102,12 @@ private:
     struct AtlasPathKey {
         void set(const SkMatrix&, const SkPath&);
         bool operator==(const AtlasPathKey& k) const {
-            static_assert(sizeof(*this) == sizeof(uint32_t) * 6);
+            static_assert(sizeof(*this) == sizeof(uint32_t) * 8);
             return !memcmp(this, &k, sizeof(*this));
         }
         uint32_t fPathGenID;
-        float fAffineMatrix[4];
-        uint8_t fSubpixelPositionKey[2];
-        uint16_t fFillRule;
+        float fAffineMatrix[6];
+        uint32_t fFillRule;
     };
     SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
 };
