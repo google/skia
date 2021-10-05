@@ -96,7 +96,7 @@ static constexpr uint32_t kICCProfileSize = kTAG_cprt_Offset + kTAG_cprt_Bytes;
 static constexpr uint32_t kICCHeader[kICCHeaderSize / 4] {
     SkEndian_SwapBE32(kICCProfileSize),  // Size of the profile
     0,                                   // Preferred CMM type (ignored)
-    SkEndian_SwapBE32(0x02100000),       // Version 2.1
+    SkEndian_SwapBE32(0x04300000),       // Version 4.3
     SkEndian_SwapBE32(kDisplay_Profile), // Display device profile
     SkEndian_SwapBE32(kRGB_ColorSpace),  // RGB input color space
     SkEndian_SwapBE32(kXYZ_PCSSpace),    // XYZ profile connection space
