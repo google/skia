@@ -124,6 +124,7 @@
   {"name": "Build-Win-Clang-arm64-Debug"},
   {"name": "Build-Win-Clang-arm64-Debug-ANGLE"},
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite"},
+  {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite"},
   {"name": "Build-Win-Clang-arm64-Release"},
   {"name": "Build-Win-Clang-arm64-Release-ANGLE"},
   {"name": "Build-Mac-Clang-arm64-Release-Graphite"},
@@ -539,6 +540,7 @@
   {"name": "Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
+  {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-ASAN_Graphite"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
    "cq_config": {}
    },
