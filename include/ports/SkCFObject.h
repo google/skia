@@ -8,7 +8,11 @@
 #ifndef SkCFObject_DEFINED
 #define SkCFObject_DEFINED
 
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#ifdef __APPLE__
+
+#include "include/core/SkTypes.h"
+
+#include <cstddef>      // std::nullptr_t
 
 #import <CoreFoundation/CoreFoundation.h>
 
@@ -176,5 +180,5 @@ template <typename T> sk_cfp<T> sk_ret_cfp(T obj) {
 // TODO: migrate them away from this and remove
 template <typename T> using sk_cf_obj = sk_cfp<T>;
 
-#endif  // SK_BUILD_FOR_MAC || SK_BUILD_FOR_IOS
+#endif  // __APPLE__
 #endif  // SkCFObject_DEFINED
