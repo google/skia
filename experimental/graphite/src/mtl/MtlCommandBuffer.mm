@@ -11,7 +11,6 @@ namespace skgpu::mtl {
 
 std::unique_ptr<CommandBuffer> CommandBuffer::Make(id<MTLCommandQueue> queue) {
     sk_cfp<id<MTLCommandBuffer>> cmdBuffer;
-#if GR_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         sk_cfp<MTLCommandBufferDescriptor*> desc([[MTLCommandBufferDescriptor alloc] init]);
         (*desc).retainedReferences = NO;
@@ -21,12 +20,9 @@ std::unique_ptr<CommandBuffer> CommandBuffer::Make(id<MTLCommandQueue> queue) {
         // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
         cmdBuffer.reset([[queue commandBufferWithDescriptor:desc.get()] retain]);
     } else {
-#endif
         // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
         cmdBuffer.reset([[queue commandBufferWithUnretainedReferences] retain]);
-#if GR_METAL_SDK_VERSION >= 230
     }
-#endif
     if (cmdBuffer == nil) {
         return nullptr;
     }
