@@ -7,7 +7,9 @@
 
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIntrinsicMap.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -35,6 +37,37 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
             SkASSERT(fContinuableLevel == std::forward_list<int>{0});
         }
 
+        void copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
+            if (const ProgramElement* found =
+                    fContext.fIntrinsics->findAndInclude(function.description())) {
+                const FunctionDefinition& original = found->as<FunctionDefinition>();
+
+                // Sort the referenced intrinsics into a consistent order; otherwise our output will
+                // become non-deterministic.
+                std::vector<const FunctionDeclaration*> intrinsics(
+                        original.referencedIntrinsics().begin(),
+                        original.referencedIntrinsics().end());
+                std::sort(intrinsics.begin(), intrinsics.end(),
+                          [](const FunctionDeclaration* a, const FunctionDeclaration* b) {
+                              if (a->isBuiltin() != b->isBuiltin()) {
+                                  return a->isBuiltin() < b->isBuiltin();
+                              }
+                              if (a->fLine != b->fLine) {
+                                  return a->fLine < b->fLine;
+                              }
+                              if (a->name() != b->name()) {
+                                  return a->name() < b->name();
+                              }
+                              return a->description() < b->description();
+                          });
+                for (const FunctionDeclaration* f : intrinsics) {
+                    this->copyIntrinsicIfNeeded(*f);
+                }
+
+                dsl::DSLWriter::SharedElements().push_back(found);
+            }
+        }
+
         bool functionReturnsValue() const {
             return !fFunction.returnType().isVoid();
         }
@@ -42,9 +75,18 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
         bool visitExpression(Expression& expr) override {
             if (expr.is<FunctionCall>()) {
                 const FunctionDeclaration& func = expr.as<FunctionCall>().function();
-                if (func.isBuiltin() && func.definition()) {
-                    fReferencedIntrinsics->insert(&func);
+                if (func.isBuiltin()) {
+                    if (func.intrinsicKind() == k_dFdy_IntrinsicKind) {
+                        dsl::DSLWriter::Inputs().fUseFlipRTUniform = true;
+                    }
+                    if (func.definition()) {
+                        fReferencedIntrinsics->insert(&func);
+                    }
+                    if (!fContext.fConfig->fIsBuiltinCode && fContext.fIntrinsics) {
+                        this->copyIntrinsicIfNeeded(func);
+                    }
                 }
+
             }
             return INHERITED::visitExpression(expr);
         }

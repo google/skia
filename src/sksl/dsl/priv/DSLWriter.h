@@ -80,6 +80,11 @@ public:
     static SkSL::ProgramSettings& Settings();
 
     /**
+     * Returns the Program::Inputs used by the current thread.
+     */
+    static SkSL::Program::Inputs& Inputs();
+
+    /**
      * Returns the collection to which DSL program elements in this thread should be appended.
      */
     static std::vector<std::unique_ptr<SkSL::ProgramElement>>& ProgramElements() {

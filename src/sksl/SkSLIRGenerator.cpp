@@ -371,48 +371,9 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int line, skstd::stri
     }
 }
 
-void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
-    if (const ProgramElement* found =
-            fContext.fIntrinsics->findAndInclude(function.description())) {
-        const FunctionDefinition& original = found->as<FunctionDefinition>();
-
-        // Sort the referenced intrinsics into a consistent order; otherwise our output will become
-        // non-deterministic.
-        std::vector<const FunctionDeclaration*> intrinsics(original.referencedIntrinsics().begin(),
-                                                           original.referencedIntrinsics().end());
-        std::sort(intrinsics.begin(), intrinsics.end(),
-                  [](const FunctionDeclaration* a, const FunctionDeclaration* b) {
-                      if (a->isBuiltin() != b->isBuiltin()) {
-                          return a->isBuiltin() < b->isBuiltin();
-                      }
-                      if (a->fLine != b->fLine) {
-                          return a->fLine < b->fLine;
-                      }
-                      if (a->name() != b->name()) {
-                          return a->name() < b->name();
-                      }
-                      return a->description() < b->description();
-                  });
-        for (const FunctionDeclaration* f : intrinsics) {
-            this->copyIntrinsicIfNeeded(*f);
-        }
-
-        fSharedElements->push_back(found);
-    }
-}
-
 std::unique_ptr<Expression> IRGenerator::call(int line,
                                               const FunctionDeclaration& function,
                                               ExpressionArray arguments) {
-    if (function.isBuiltin()) {
-        if (function.intrinsicKind() == k_dFdy_IntrinsicKind) {
-            fInputs.fUseFlipRTUniform = true;
-        }
-        if (!fContext.fConfig->fIsBuiltinCode && fContext.fIntrinsics) {
-            this->copyIntrinsicIfNeeded(function);
-        }
-    }
-
     return FunctionCall::Convert(fContext, line, function, std::move(arguments));
 }
 
