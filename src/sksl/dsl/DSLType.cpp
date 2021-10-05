@@ -15,31 +15,50 @@ namespace SkSL {
 
 namespace dsl {
 
-static const SkSL::Type* find_type(skstd::string_view name, PositionInfo pos) {
-    const Symbol* symbol = (*DSLWriter::SymbolTable())[name];
-    if (!symbol) {
-        DSLWriter::ReportError(String::printf("no symbol named '%.*s'", (int)name.length(),
-                name.data()), pos);
-        return nullptr;
+static const SkSL::Type* verify_type(const Context& context,
+                                     const SkSL::Type* type,
+                                     bool allowPrivateTypes,
+                                     PositionInfo pos) {
+    if (!context.fConfig->fIsBuiltinCode) {
+        if (!allowPrivateTypes && type->isPrivate()) {
+            context.fErrors->error("type '" + String(type->name()) + "' is private", pos);
+            return context.fTypes.fPoison.get();
+        }
+        if (!type->isAllowedInES2(context)) {
+            context.fErrors->error("type '" + String(type->name()) + "' is not supported", pos);
+            return context.fTypes.fPoison.get();
+        }
     }
-    if (!symbol->is<SkSL::Type>()) {
-        DSLWriter::ReportError(String::printf("symbol '%.*s' is not a type", (int)name.length(),
-                name.data()), pos);
-        return nullptr;
-    }
-    return &symbol->as<SkSL::Type>();
+    return type;
 }
 
-static const SkSL::Type* find_type(skstd::string_view name, Modifiers* modifiers,
-        PositionInfo pos) {
-    const Type* type = find_type(name, pos);
-    if (!type) {
-        return nullptr;
+static const SkSL::Type* find_type(const Context& context,
+                                   skstd::string_view name,
+                                   PositionInfo pos) {
+    const Symbol* symbol = (*DSLWriter::SymbolTable())[name];
+    if (!symbol) {
+        context.fErrors->error(String::printf("no symbol named '%.*s'",
+                                              (int)name.length(), name.data()), pos);
+        return context.fTypes.fPoison.get();
     }
-    const Type* result = type->applyPrecisionQualifiers(DSLWriter::Context(), modifiers,
-            DSLWriter::SymbolTable().get(), /*line=*/-1);
+    if (!symbol->is<SkSL::Type>()) {
+        context.fErrors->error(String::printf("symbol '%.*s' is not a type",
+                                              (int)name.length(), name.data()), pos);
+        return context.fTypes.fPoison.get();
+    }
+    const SkSL::Type* type = &symbol->as<SkSL::Type>();
+    return verify_type(context, type, /*allowPrivateTypes=*/false, pos);
+}
+
+static const SkSL::Type* find_type(const Context& context,
+                                   skstd::string_view name,
+                                   Modifiers* modifiers,
+                                   PositionInfo pos) {
+    const Type* type = find_type(context, name, pos);
+    type = type->applyPrecisionQualifiers(context, modifiers, DSLWriter::SymbolTable().get(),
+                                          pos.line());
     DSLWriter::ReportErrors(pos);
-    return result;
+    return type;
 }
 
 static const SkSL::Type* get_type_from_type_constant(const Context& context, TypeConstant tc) {
@@ -148,10 +167,14 @@ static const SkSL::Type* get_type_from_type_constant(const Context& context, Typ
 }
 
 DSLType::DSLType(skstd::string_view name)
-        : fSkSLType(find_type(name, PositionInfo())) {}
+        : fSkSLType(find_type(DSLWriter::Context(), name, PositionInfo())) {}
 
 DSLType::DSLType(skstd::string_view name, DSLModifiers* modifiers, PositionInfo position)
-        : fSkSLType(find_type(name, &modifiers->fModifiers, position)) {}
+        : fSkSLType(find_type(DSLWriter::Context(), name, &modifiers->fModifiers, position)) {}
+
+DSLType::DSLType(const SkSL::Type* type)
+        : fSkSLType(verify_type(DSLWriter::Context(), type, /*allowPrivateTypes=*/true,
+                                PositionInfo())) {}
 
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
@@ -205,34 +228,17 @@ const SkSL::Type& DSLType::skslType() const {
     if (fSkSLType) {
         return *fSkSLType;
     }
-    return *get_type_from_type_constant(DSLWriter::Context(), fTypeConstant);
-}
-
-bool DSLType::reportIllegalTypes(PositionInfo pos) const {
-    if (!DSLWriter::IsModule()) {
-        const SkSL::Type* type = &this->skslType();
-        if (type->isPrivate()) {
-            DSLWriter::ReportError("type '" + String(type->name()) + "' is private", pos);
-            return true;
-        }
-        if (!type->isAllowedInES2(DSLWriter::Context())) {
-            DSLWriter::ReportError("type '" + String(type->name()) + "' is not supported", pos);
-            return true;
-        }
-    }
-    return false;
+    const Context& context = DSLWriter::Context();
+    return *verify_type(context,
+                        get_type_from_type_constant(context, fTypeConstant),
+                        /*allowPrivateTypes=*/true,
+                        PositionInfo());
 }
 
 DSLPossibleExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
     SkSL::ExpressionArray skslArgs;
     skslArgs.reserve_back(argArray.size());
 
-    if (type.reportIllegalTypes(PositionInfo())) {
-        for (DSLExpression& arg : argArray) {
-            arg.releaseIfPossible();
-        }
-        return DSLPossibleExpression(nullptr);
-    }
     for (DSLExpression& arg : argArray) {
         if (!arg.hasValue()) {
             return DSLPossibleExpression(nullptr);

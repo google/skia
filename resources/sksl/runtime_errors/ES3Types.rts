@@ -35,3 +35,9 @@ void ctor_h42() { half4x2(0); }
 void ctor_u()   { uint(0); }
 void ctor_us4() { ushort4(0); }
 void ctor_aus() { ushort[2](0, 0); }
+
+void access_f23() { float2x3 var; var[0][0]; }
+void access_h42() { half4x2 var; var[0][0]; }
+void access_u()   { uint var; var.x; }
+void access_us4() { ushort4 var; var.x; }
+void access_aus() { ushort var[2]; var[0].x; }

@@ -20,15 +20,20 @@ error: 20: type 'ushort' is not supported
 error: 21: type 'ushort2' is not supported
 error: 22: type 'ushort3' is not supported
 error: 23: type 'ushort4' is not supported
-error: 25: type 'uint4[2]' is not supported
-error: 26: type 'ushort[2]' is not supported
-error: 27: type 'float2x3[2]' is not supported
+error: 25: type 'uint4' is not supported
+error: 26: type 'ushort' is not supported
+error: 27: type 'float2x3' is not supported
 error: 29: type 'half4x2' is not supported
 error: 30: type 'ushort' is not supported
-error: 31: type 'uint[2]' is not supported
+error: 31: type 'uint' is not supported
 error: 33: type 'float2x3' is not supported
 error: 34: type 'half4x2' is not supported
 error: 35: type 'uint' is not supported
 error: 36: type 'ushort4' is not supported
 error: 37: type 'ushort' is not supported
-31 errors
+error: 39: type 'float2x3' is not supported
+error: 40: type 'half4x2' is not supported
+error: 41: type 'uint' is not supported
+error: 42: type 'ushort4' is not supported
+error: 43: type 'ushort' is not supported
+36 errors

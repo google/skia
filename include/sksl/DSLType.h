@@ -83,8 +83,7 @@ public:
     DSLType(TypeConstant tc)
         : fTypeConstant(tc) {}
 
-    DSLType(const SkSL::Type* type)
-        : fSkSLType(type) {}
+    DSLType(const SkSL::Type* type);
 
     DSLType(skstd::string_view name);
 
@@ -169,8 +168,6 @@ public:
 private:
     const SkSL::Type& skslType() const;
 
-    bool reportIllegalTypes(PositionInfo pos) const;
-
     const SkSL::Type* fSkSLType = nullptr;
 
     TypeConstant fTypeConstant = kPoison_Type;
@@ -178,7 +175,6 @@ private:
     friend DSLType Array(const DSLType& base, int count, PositionInfo pos);
     friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
     friend class DSLCore;
-    friend class DSLField;
     friend class DSLFunction;
     friend class DSLVarBase;
     friend class DSLWriter;
@@ -235,9 +231,7 @@ public:
         : fModifiers(modifiers)
         , fType(type)
         , fName(name)
-        , fPosition(pos) {
-        type.reportIllegalTypes(pos);
-    }
+        , fPosition(pos) {}
 
 private:
     DSLModifiers fModifiers;
