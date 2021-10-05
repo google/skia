@@ -19,6 +19,7 @@
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
@@ -119,7 +120,6 @@ public:
 
     template <typename... Args>
     static DSLPossibleExpression Call(const char* name, Args... args) {
-        SkSL::IRGenerator& ir = DSLWriter::IRGenerator();
         SkSL::ExpressionArray argArray;
         argArray.reserve_back(sizeof...(args));
 
@@ -128,7 +128,8 @@ public:
         int unused[] = {0, (static_cast<void>(argArray.push_back(args.release())), 0)...};
         static_cast<void>(unused);
 
-        return ir.call(/*line=*/-1, ir.convertIdentifier(-1, name), std::move(argArray));
+        return SkSL::FunctionCall::Convert(DSLWriter::Context(), /*line=*/-1,
+                DSLWriter::IRGenerator().convertIdentifier(-1, name), std::move(argArray));
     }
 
     static DSLStatement Break(PositionInfo pos) {

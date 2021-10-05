@@ -13,6 +13,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -191,10 +192,9 @@ std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(skstd::string_view me
 
 DSLExpression DSLGlobalVar::eval(ExpressionArray args, PositionInfo pos) {
     auto method = this->methodCall("eval", pos);
-    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
-    // IRGenerator::call. skbug.com/12500
     return DSLExpression(
-            method ? DSLWriter::IRGenerator().call(pos.line(), std::move(method), std::move(args))
+            method ? SkSL::FunctionCall::Convert(DSLWriter::Context(), pos.line(),
+                                                 std::move(method), std::move(args))
                    : nullptr,
             pos);
 }

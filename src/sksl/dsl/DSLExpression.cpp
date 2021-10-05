@@ -14,6 +14,7 @@
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPoison.h"
@@ -189,9 +190,8 @@ DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpressio
 }
 
 DSLPossibleExpression DSLExpression::operator()(ExpressionArray args, PositionInfo pos) {
-    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
-    // IRGenerator::call. skbug.com/12500
-    return DSLWriter::IRGenerator().call(pos.line(), this->release(), std::move(args));
+    return SkSL::FunctionCall::Convert(DSLWriter::Context(), pos.line(), this->release(),
+            std::move(args));
 }
 
 #define OP(op, token)                                                                              \

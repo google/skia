@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 
@@ -116,10 +117,8 @@ DSLExpression DSLFunction::call(SkTArray<DSLWrapper<DSLExpression>> args, Positi
 }
 
 DSLExpression DSLFunction::call(ExpressionArray args, PositionInfo pos) {
-    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
-    // IRGenerator::call. skbug.com/12500
-    std::unique_ptr<SkSL::Expression> result = DSLWriter::IRGenerator().call(pos.line(), *fDecl,
-            std::move(args));
+    std::unique_ptr<SkSL::Expression> result = SkSL::FunctionCall::Convert(DSLWriter::Context(),
+            pos.line(), *fDecl, std::move(args));
     return DSLExpression(std::move(result), pos);
 }
 

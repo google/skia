@@ -34,6 +34,11 @@ public:
                                                const FunctionDeclaration& function,
                                                ExpressionArray arguments);
 
+    static std::unique_ptr<Expression> Convert(const Context& context,
+                                               int line,
+                                               std::unique_ptr<Expression> functionValue,
+                                               ExpressionArray arguments);
+
     // Creates the function call; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             int line,
@@ -60,6 +65,15 @@ public:
     String description() const override;
 
 private:
+    static CoercionCost CallCost(const Context& context,
+                                 const FunctionDeclaration& function,
+                                 const ExpressionArray& arguments);
+
+    static const FunctionDeclaration* FindBestFunctionForCall(
+            const Context& context,
+            const std::vector<const FunctionDeclaration*>& functions,
+            const ExpressionArray& arguments);
+
     const FunctionDeclaration& fFunction;
     ExpressionArray fArguments;
 

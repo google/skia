@@ -9,10 +9,15 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLExternalFunctionCall.h"
+#include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLMethodReference.h"
 
 #include "include/private/SkFloatingPoint.h"
 #include "include/sksl/DSLCore.h"
@@ -806,6 +811,131 @@ String FunctionCall::description() const {
     }
     result += ")";
     return result;
+}
+
+/**
+ * Determines the cost of coercing the arguments of a function to the required types. Cost has no
+ * particular meaning other than "lower costs are preferred". Returns CoercionCost::Impossible() if
+ * the call is not valid.
+ */
+CoercionCost FunctionCall::CallCost(const Context& context, const FunctionDeclaration& function,
+        const ExpressionArray& arguments){
+    if (context.fConfig->strictES2Mode() &&
+        (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
+        return CoercionCost::Impossible();
+    }
+    if (function.parameters().size() != arguments.size()) {
+        return CoercionCost::Impossible();
+    }
+    FunctionDeclaration::ParamTypes types;
+    const Type* ignored;
+    if (!function.determineFinalTypes(arguments, &types, &ignored)) {
+        return CoercionCost::Impossible();
+    }
+    CoercionCost total = CoercionCost::Free();
+    for (size_t i = 0; i < arguments.size(); i++) {
+        total = total + arguments[i]->coercionCost(*types[i]);
+    }
+    return total;
+}
+
+const FunctionDeclaration* FunctionCall::FindBestFunctionForCall(
+        const Context& context,
+        const std::vector<const FunctionDeclaration*>& functions,
+        const ExpressionArray& arguments) {
+    if (functions.size() == 1) {
+        return functions.front();
+    }
+    CoercionCost bestCost = CoercionCost::Impossible();
+    const FunctionDeclaration* best = nullptr;
+    for (const auto& f : functions) {
+        CoercionCost cost = CallCost(context, *f, arguments);
+        if (cost < bestCost) {
+            bestCost = cost;
+            best = f;
+        }
+    }
+    return best;
+}
+
+std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
+                                                  int line,
+                                                  std::unique_ptr<Expression> functionValue,
+                                                  ExpressionArray arguments) {
+    switch (functionValue->kind()) {
+        case Expression::Kind::kTypeReference:
+            return Constructor::Convert(context,
+                                        line,
+                                        functionValue->as<TypeReference>().value(),
+                                        std::move(arguments));
+        case Expression::Kind::kExternalFunctionReference: {
+            const ExternalFunction& f = functionValue->as<ExternalFunctionReference>().function();
+            int count = f.callParameterCount();
+            if (count != (int) arguments.size()) {
+                context.fErrors->error(line,
+                        "external function expected " + to_string(count) +
+                        " arguments, but found " + to_string((int)arguments.size()));
+                return nullptr;
+            }
+            static constexpr int PARAMETER_MAX = 16;
+            SkASSERT(count < PARAMETER_MAX);
+            const Type* types[PARAMETER_MAX];
+            f.getCallParameterTypes(types);
+            for (int i = 0; i < count; ++i) {
+                arguments[i] = types[i]->coerceExpression(std::move(arguments[i]), context);
+                if (!arguments[i]) {
+                    return nullptr;
+                }
+            }
+            return std::make_unique<ExternalFunctionCall>(line, &f, std::move(arguments));
+        }
+        case Expression::Kind::kFunctionReference: {
+            const FunctionReference& ref = functionValue->as<FunctionReference>();
+            const std::vector<const FunctionDeclaration*>& functions = ref.functions();
+            const FunctionDeclaration* best = FindBestFunctionForCall(context, functions,
+                    arguments);
+            if (best) {
+                return FunctionCall::Convert(context, line, *best, std::move(arguments));
+            }
+            String msg = "no match for " + functions[0]->name() + "(";
+            String separator;
+            for (size_t i = 0; i < arguments.size(); i++) {
+                msg += separator;
+                separator = ", ";
+                msg += arguments[i]->type().displayName();
+            }
+            msg += ")";
+            context.fErrors->error(line, msg);
+            return nullptr;
+        }
+        case Expression::Kind::kMethodReference: {
+            MethodReference& ref = functionValue->as<MethodReference>();
+            arguments.push_back(std::move(ref.self()));
+
+            const std::vector<const FunctionDeclaration*>& functions = ref.functions();
+            const FunctionDeclaration* best = FindBestFunctionForCall(context, functions,
+                    arguments);
+            if (best) {
+                return FunctionCall::Convert(context, line, *best, std::move(arguments));
+            }
+            String msg = "no match for " + arguments.back()->type().displayName() +
+                         "::" + functions[0]->name().substr(1) + "(";
+            String separator;
+            for (size_t i = 0; i < arguments.size() - 1; i++) {
+                msg += separator;
+                separator = ", ";
+                msg += arguments[i]->type().displayName();
+            }
+            msg += ")";
+            context.fErrors->error(line, msg);
+            return nullptr;
+        }
+        case Expression::Kind::kPoison:
+            return functionValue;
+        default:
+            context.fErrors->error(line, "not a function");
+            return nullptr;
+    }
 }
 
 std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
