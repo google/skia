@@ -42,6 +42,111 @@ static const SkSL::Type* find_type(skstd::string_view name, Modifiers* modifiers
     return result;
 }
 
+static const SkSL::Type* get_type_from_type_constant(const Context& context, TypeConstant tc) {
+    switch (tc) {
+        case kBool_Type:
+            return context.fTypes.fBool.get();
+        case kBool2_Type:
+            return context.fTypes.fBool2.get();
+        case kBool3_Type:
+            return context.fTypes.fBool3.get();
+        case kBool4_Type:
+            return context.fTypes.fBool4.get();
+        case kHalf_Type:
+            return context.fTypes.fHalf.get();
+        case kHalf2_Type:
+            return context.fTypes.fHalf2.get();
+        case kHalf3_Type:
+            return context.fTypes.fHalf3.get();
+        case kHalf4_Type:
+            return context.fTypes.fHalf4.get();
+        case kHalf2x2_Type:
+            return context.fTypes.fHalf2x2.get();
+        case kHalf3x2_Type:
+            return context.fTypes.fHalf3x2.get();
+        case kHalf4x2_Type:
+            return context.fTypes.fHalf4x2.get();
+        case kHalf2x3_Type:
+            return context.fTypes.fHalf2x3.get();
+        case kHalf3x3_Type:
+            return context.fTypes.fHalf3x3.get();
+        case kHalf4x3_Type:
+            return context.fTypes.fHalf4x3.get();
+        case kHalf2x4_Type:
+            return context.fTypes.fHalf2x4.get();
+        case kHalf3x4_Type:
+            return context.fTypes.fHalf3x4.get();
+        case kHalf4x4_Type:
+            return context.fTypes.fHalf4x4.get();
+        case kFloat_Type:
+            return context.fTypes.fFloat.get();
+        case kFloat2_Type:
+            return context.fTypes.fFloat2.get();
+        case kFloat3_Type:
+            return context.fTypes.fFloat3.get();
+        case kFloat4_Type:
+            return context.fTypes.fFloat4.get();
+        case kFloat2x2_Type:
+            return context.fTypes.fFloat2x2.get();
+        case kFloat3x2_Type:
+            return context.fTypes.fFloat3x2.get();
+        case kFloat4x2_Type:
+            return context.fTypes.fFloat4x2.get();
+        case kFloat2x3_Type:
+            return context.fTypes.fFloat2x3.get();
+        case kFloat3x3_Type:
+            return context.fTypes.fFloat3x3.get();
+        case kFloat4x3_Type:
+            return context.fTypes.fFloat4x3.get();
+        case kFloat2x4_Type:
+            return context.fTypes.fFloat2x4.get();
+        case kFloat3x4_Type:
+            return context.fTypes.fFloat3x4.get();
+        case kFloat4x4_Type:
+            return context.fTypes.fFloat4x4.get();
+        case kInt_Type:
+            return context.fTypes.fInt.get();
+        case kInt2_Type:
+            return context.fTypes.fInt2.get();
+        case kInt3_Type:
+            return context.fTypes.fInt3.get();
+        case kInt4_Type:
+            return context.fTypes.fInt4.get();
+        case kShader_Type:
+            return context.fTypes.fShader.get();
+        case kShort_Type:
+            return context.fTypes.fShort.get();
+        case kShort2_Type:
+            return context.fTypes.fShort2.get();
+        case kShort3_Type:
+            return context.fTypes.fShort3.get();
+        case kShort4_Type:
+            return context.fTypes.fShort4.get();
+        case kUInt_Type:
+            return context.fTypes.fUInt.get();
+        case kUInt2_Type:
+            return context.fTypes.fUInt2.get();
+        case kUInt3_Type:
+            return context.fTypes.fUInt3.get();
+        case kUInt4_Type:
+            return context.fTypes.fUInt4.get();
+        case kUShort_Type:
+            return context.fTypes.fUShort.get();
+        case kUShort2_Type:
+            return context.fTypes.fUShort2.get();
+        case kUShort3_Type:
+            return context.fTypes.fUShort3.get();
+        case kUShort4_Type:
+            return context.fTypes.fUShort4.get();
+        case kVoid_Type:
+            return context.fTypes.fVoid.get();
+        case kPoison_Type:
+            return context.fTypes.fPoison.get();
+        default:
+            SkUNREACHABLE;
+    }
+}
+
 DSLType::DSLType(skstd::string_view name)
         : fSkSLType(find_type(name, PositionInfo())) {}
 
@@ -100,109 +205,7 @@ const SkSL::Type& DSLType::skslType() const {
     if (fSkSLType) {
         return *fSkSLType;
     }
-    const SkSL::Context& context = DSLWriter::Context();
-    switch (fTypeConstant) {
-        case kBool_Type:
-            return *context.fTypes.fBool;
-        case kBool2_Type:
-            return *context.fTypes.fBool2;
-        case kBool3_Type:
-            return *context.fTypes.fBool3;
-        case kBool4_Type:
-            return *context.fTypes.fBool4;
-        case kHalf_Type:
-            return *context.fTypes.fHalf;
-        case kHalf2_Type:
-            return *context.fTypes.fHalf2;
-        case kHalf3_Type:
-            return *context.fTypes.fHalf3;
-        case kHalf4_Type:
-            return *context.fTypes.fHalf4;
-        case kHalf2x2_Type:
-            return *context.fTypes.fHalf2x2;
-        case kHalf3x2_Type:
-            return *context.fTypes.fHalf3x2;
-        case kHalf4x2_Type:
-            return *context.fTypes.fHalf4x2;
-        case kHalf2x3_Type:
-            return *context.fTypes.fHalf2x3;
-        case kHalf3x3_Type:
-            return *context.fTypes.fHalf3x3;
-        case kHalf4x3_Type:
-            return *context.fTypes.fHalf4x3;
-        case kHalf2x4_Type:
-            return *context.fTypes.fHalf2x4;
-        case kHalf3x4_Type:
-            return *context.fTypes.fHalf3x4;
-        case kHalf4x4_Type:
-            return *context.fTypes.fHalf4x4;
-        case kFloat_Type:
-            return *context.fTypes.fFloat;
-        case kFloat2_Type:
-            return *context.fTypes.fFloat2;
-        case kFloat3_Type:
-            return *context.fTypes.fFloat3;
-        case kFloat4_Type:
-            return *context.fTypes.fFloat4;
-        case kFloat2x2_Type:
-            return *context.fTypes.fFloat2x2;
-        case kFloat3x2_Type:
-            return *context.fTypes.fFloat3x2;
-        case kFloat4x2_Type:
-            return *context.fTypes.fFloat4x2;
-        case kFloat2x3_Type:
-            return *context.fTypes.fFloat2x3;
-        case kFloat3x3_Type:
-            return *context.fTypes.fFloat3x3;
-        case kFloat4x3_Type:
-            return *context.fTypes.fFloat4x3;
-        case kFloat2x4_Type:
-            return *context.fTypes.fFloat2x4;
-        case kFloat3x4_Type:
-            return *context.fTypes.fFloat3x4;
-        case kFloat4x4_Type:
-            return *context.fTypes.fFloat4x4;
-        case kInt_Type:
-            return *context.fTypes.fInt;
-        case kInt2_Type:
-            return *context.fTypes.fInt2;
-        case kInt3_Type:
-            return *context.fTypes.fInt3;
-        case kInt4_Type:
-            return *context.fTypes.fInt4;
-        case kShader_Type:
-            return *context.fTypes.fShader;
-        case kShort_Type:
-            return *context.fTypes.fShort;
-        case kShort2_Type:
-            return *context.fTypes.fShort2;
-        case kShort3_Type:
-            return *context.fTypes.fShort3;
-        case kShort4_Type:
-            return *context.fTypes.fShort4;
-        case kUInt_Type:
-            return *context.fTypes.fUInt;
-        case kUInt2_Type:
-            return *context.fTypes.fUInt2;
-        case kUInt3_Type:
-            return *context.fTypes.fUInt3;
-        case kUInt4_Type:
-            return *context.fTypes.fUInt4;
-        case kUShort_Type:
-            return *context.fTypes.fUShort;
-        case kUShort2_Type:
-            return *context.fTypes.fUShort2;
-        case kUShort3_Type:
-            return *context.fTypes.fUShort3;
-        case kUShort4_Type:
-            return *context.fTypes.fUShort4;
-        case kVoid_Type:
-            return *context.fTypes.fVoid;
-        case kPoison_Type:
-            return *context.fTypes.fPoison;
-        default:
-            SkUNREACHABLE;
-    }
+    return *get_type_from_type_constant(DSLWriter::Context(), fTypeConstant);
 }
 
 bool DSLType::reportIllegalTypes(PositionInfo pos) const {
