@@ -9,8 +9,8 @@
 
 namespace skgpu {
 
-Texture::Texture(SkISize dimensions, const TextureInfo& info, UsageFlags supportedUsages)
-        : fDimensions(dimensions), fInfo(info), fSupportedUsages(supportedUsages) {}
+Texture::Texture(SkISize dimensions, const TextureInfo& info)
+        : fDimensions(dimensions), fInfo(info) {}
 
 Texture::~Texture() {}
 

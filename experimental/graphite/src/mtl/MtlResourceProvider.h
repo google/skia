@@ -29,6 +29,8 @@ public:
 
 private:
     const Gpu* mtlGpu();
+
+    sk_sp<skgpu::Texture> createTexture(SkISize, const skgpu::TextureInfo&) override;
 };
 
 } // namespace skgpu::mtl

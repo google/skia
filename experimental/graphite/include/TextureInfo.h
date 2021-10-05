@@ -20,6 +20,7 @@ namespace skgpu {
 #ifdef SK_METAL
 namespace mtl {
     class Caps;
+    class Texture;
 }
 #endif
 
@@ -59,6 +60,7 @@ public:
 private:
 #ifdef SK_METAL
     friend class mtl::Caps;
+    friend class mtl::Texture;
     const mtl::TextureSpec& mtlTextureSpec() const {
         SkASSERT(fValid && fBackend == BackendApi::kMetal);
         return fMtlSpec;

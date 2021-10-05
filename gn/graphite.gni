@@ -69,4 +69,6 @@ skia_graphite_mtl_sources = [
   "$_src/mtl/MtlTrampoline.h",
   "$_src/mtl/MtlTrampoline.mm",
   "$_src/mtl/MtlTypesPriv.mm",
+  "$_src/mtl/MtlUtils.h",
+  "$_src/mtl/MtlUtils.mm",
 ]

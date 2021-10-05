@@ -8,15 +8,17 @@
 #ifndef skgpu_ResourceProvider_DEFINED
 #define skgpu_ResourceProvider_DEFINED
 
-#include "src/core/SkLRUCache.h"
-
 #include "experimental/graphite/src/RenderPipelineDesc.h"
+#include "include/core/SkSize.h"
+#include "src/core/SkLRUCache.h"
 
 namespace skgpu {
 
 class CommandBuffer;
 class Gpu;
 class RenderPipeline;
+class Texture;
+class TextureInfo;
 
 class ResourceProvider {
 public:
@@ -24,6 +26,8 @@ public:
 
     virtual std::unique_ptr<CommandBuffer> createCommandBuffer() { return nullptr; }
     RenderPipeline* findOrCreateRenderPipeline(const RenderPipelineDesc&);
+
+    sk_sp<Texture> findOrCreateTexture(SkISize, const TextureInfo&);
 
 protected:
     ResourceProvider(const Gpu* gpu);
@@ -35,6 +39,8 @@ protected:
     const Gpu* fGpu;
 
 private:
+    virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
+
     class RenderPipelineCache {
     public:
         RenderPipelineCache(ResourceProvider* resourceProvider);
