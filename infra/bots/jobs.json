@@ -123,7 +123,9 @@
   {"name": "Build-Mac-Clang-x86_64-Release-TSAN_Metal"},
   {"name": "Build-Win-Clang-arm64-Debug"},
   {"name": "Build-Win-Clang-arm64-Debug-ANGLE"},
-  {"name": "Build-Mac-Clang-arm64-Debug-Graphite"},
+  {"name": "Build-Mac-Clang-arm64-Debug-Graphite",
+   "cq_config": {}
+   },
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite"},
   {"name": "Build-Win-Clang-arm64-Release"},
   {"name": "Build-Win-Clang-arm64-Release-ANGLE"},
