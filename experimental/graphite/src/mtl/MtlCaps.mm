@@ -7,6 +7,10 @@
 
 #include "experimental/graphite/src/mtl/MtlCaps.h"
 
+#include "experimental/graphite/include/TextureInfo.h"
+#include "experimental/graphite/include/mtl/MtlTypes.h"
+#include "experimental/graphite/src/mtl/MtlUtils.h"
+
 namespace skgpu::mtl {
 
 Caps::Caps(const id<MTLDevice> device)
@@ -217,6 +221,41 @@ void Caps::initShaderCaps() {
 void Caps::initFormatTable() {
     // TODO
 }
+
+skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
+                                                      uint32_t sampleCount,
+                                                      uint32_t levelCount,
+                                                      Protected,
+                                                      Renderable renderable) {
+    MTLTextureUsage usage = MTLTextureUsageShaderRead;
+    if (renderable == Renderable::kYes) {
+        usage |= MTLTextureUsageRenderTarget;
+    }
+
+    TextureInfo info;
+    info.fSampleCount = sampleCount;
+    info.fLevelCount = levelCount;
+    info.fFormat = SkColorTypeToFormat(colorType);
+    info.fUsage = usage;
+    info.fStorageMode = MTLStorageModePrivate;
+
+    return info;
+}
+
+skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(DepthStencilType depthStencilType,
+                                                           uint32_t sampleCount,
+                                                           Protected) {
+    TextureInfo info;
+    info.fSampleCount = sampleCount;
+    info.fLevelCount = 1;
+    info.fFormat = DepthStencilTypeToFormat(depthStencilType);
+    info.fUsage = MTLTextureUsageRenderTarget;
+    info.fStorageMode = MTLStorageModePrivate;
+
+    return info;
+}
+
+
 
 
 } // namespace skgpu::mtl

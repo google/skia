@@ -19,6 +19,16 @@ public:
     Caps(const id<MTLDevice>);
     ~Caps() override {}
 
+    skgpu::TextureInfo getDefaultSampledTextureInfo(SkColorType,
+                                                    uint32_t sampleCount,
+                                                    uint32_t levelCount,
+                                                    Protected,
+                                                    Renderable) override;
+
+    skgpu::TextureInfo getDefaultDepthStencilTextureInfo(DepthStencilType,
+                                                         uint32_t sampleCount,
+                                                         Protected) override;
+
 private:
     void initGPUFamily(const id<MTLDevice>);
 
