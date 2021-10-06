@@ -30,10 +30,10 @@ public:
 protected:
     Gpu(sk_sp<const Caps>);
 
+    std::unique_ptr<ResourceProvider> fResourceProvider;
+
 private:
     sk_sp<const Caps> fCaps;
-
-    std::unique_ptr<ResourceProvider> fResourceProvider;
 };
 
 } // namespace skgpu
