@@ -7,6 +7,7 @@
 
 #include "src/sksl/transform/SkSLTransform.h"
 
+#include "include/private/SkSLProgramKind.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicMap.h"

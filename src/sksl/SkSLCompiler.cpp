@@ -36,6 +36,7 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/transform/SkSLProgramWriter.h"
+#include "src/sksl/transform/SkSLTransform.h"
 #include "src/utils/SkBitSet.h"
 
 #include <fstream>
@@ -604,7 +605,7 @@ bool Compiler::removeDeadLocalVariables(Program& program, ProgramUsage* usage) {
 void Compiler::removeUnreachableCode(Program& program, ProgramUsage* usage) {
     for (std::unique_ptr<ProgramElement>& pe : program.ownedElements()) {
         if (pe->is<FunctionDefinition>()) {
-            Analysis::EliminateUnreachableCode(pe->as<FunctionDefinition>().body(), usage);
+            Transform::EliminateUnreachableCode(pe->as<FunctionDefinition>().body(), usage);
         }
     }
 }

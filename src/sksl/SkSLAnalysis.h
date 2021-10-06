@@ -167,12 +167,6 @@ bool CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl, const Sta
  */
 void VerifyStaticTestsAndExpressions(const Program& program);
 
-/**
- * Eliminates statements in a block which cannot be reached; for example, a statement
- * immediately after a `return` or `continue` can safely be eliminated.
- */
-void EliminateUnreachableCode(std::unique_ptr<Statement>& stmt, ProgramUsage* usage = nullptr);
-
 }  // namespace Analysis
 }  // namespace SkSL
 
