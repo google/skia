@@ -32,7 +32,7 @@ public:
 protected:
     ResourceProvider(const Gpu* gpu);
 
-    virtual RenderPipeline* onCreateRenderPipeline(const RenderPipelineDesc&) {
+    virtual std::unique_ptr<RenderPipeline> onCreateRenderPipeline(const RenderPipelineDesc&) {
         return nullptr;
     }
 

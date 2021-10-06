@@ -7,6 +7,10 @@
 
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 
+#include "experimental/graphite/src/mtl/MtlGpu.h"
+#include "include/private/SkSLString.h"
+#include "src/core/SkTraceEvent.h"
+
 namespace skgpu::mtl {
 
 bool FormatIsDepthOrStencil(MTLPixelFormat format) {
@@ -42,6 +46,41 @@ MTLPixelFormat DepthStencilTypeToFormat(DepthStencilType type) {
             // MTLPixelFormatDepth24Unorm_Stencil8 is supported on Mac family GPUs.
             return MTLPixelFormatDepth32Float_Stencil8;
     }
+}
+
+sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
+                                            const SkSL::String& msl) {
+    TRACE_EVENT0("skia.shaders", "driver_compile_shader");
+    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
+                                                   length:msl.size()
+                                                 encoding:NSUTF8StringEncoding
+                                             freeWhenDone:NO];
+    MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
+    // array<> is supported in MSL 2.0 on MacOS 10.13+ and iOS 11+,
+    // and in MSL 1.2 on iOS 10+ (but not MacOS).
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        options.languageVersion = MTLLanguageVersion2_0;
+#if defined(SK_BUILD_FOR_IOS)
+    } else if (@available(macOS 10.12, iOS 10.0, *)) {
+        options.languageVersion = MTLLanguageVersion1_2;
+#endif
+    }
+
+    NSError* error = nil;
+    // TODO: do we need a version with a timeout?
+    sk_cfp<id<MTLLibrary>> compiledLibrary([gpu->device() newLibraryWithSource:nsSource
+                                                                       options:options
+                                                                         error:&error]);
+    if (!compiledLibrary) {
+        SkDebugf("Shader compilation error\n"
+                 "------------------------\n");
+        SkDebugf("%s", msl.c_str());
+        SkDebugf("Errors:\n%s", error.debugDescription.UTF8String);
+
+        return nil;
+    }
+
+    return compiledLibrary;
 }
 
 } // namespace skgpu::mtl
