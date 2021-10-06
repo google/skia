@@ -6,6 +6,7 @@
  */
 
 #include "src/core/SkMatrixProvider.h"
+#include "src/core/SkRasterPipeline.h"
 #include "src/shaders/SkTransformShader.h"
 
 SkTransformShader::SkTransformShader(const SkShaderBase& shader) : fShader{shader} {}
@@ -24,7 +25,6 @@ skvm::Color SkTransformShader::onProgram(skvm::Builder* b,
 skvm::Coord SkTransformShader::applyMatrix(
         skvm::Builder* b, const SkMatrix& matrix, skvm::Coord local,
         skvm::Uniforms* uniforms) const {
-
     fMatrix = uniforms->pushPtr(&fMatrixStorage);
 
     skvm::F32 x = local.x,
@@ -38,7 +38,8 @@ skvm::Coord SkTransformShader::applyMatrix(
 
     x = dot(0);
     y = dot(1);
-    if (matrix.hasPerspective() || fShader.getLocalMatrix().hasPerspective()) {
+    fProcessingAsPerspective = matrix.hasPerspective() || fShader.getLocalMatrix().hasPerspective();
+    if (fProcessingAsPerspective) {
         x = x * (1.0f / dot(2));
         y = y * (1.0f / dot(2));
     }
@@ -46,12 +47,25 @@ skvm::Coord SkTransformShader::applyMatrix(
     return {x, y};
 }
 
+void SkTransformShader::appendMatrix(const SkMatrix& matrix, SkRasterPipeline* p) const {
+    fProcessingAsPerspective = matrix.hasPerspective() || fShader.getLocalMatrix().hasPerspective();
+    if (fProcessingAsPerspective) {
+        p->append(SkRasterPipeline::matrix_perspective, fMatrixStorage);
+    } else {
+        p->append(SkRasterPipeline::matrix_2x3, fMatrixStorage);
+    }
+}
+
 bool SkTransformShader::update(const SkMatrix& ctm) const {
-    SkMatrix matrix;
-    if (this->computeTotalInverse(ctm, nullptr, &matrix)) {
-        for (int i = 0; i < 9; ++i) {
-            fMatrixStorage[i] = matrix[i];
+    if (SkMatrix matrix; this->computeTotalInverse(ctm, nullptr, &matrix)) {
+        if (!fProcessingAsPerspective) {
+            SkASSERT(!matrix.hasPerspective());
+            if (matrix.hasPerspective()) {
+                return false;
+            }
         }
+
+        matrix.get9(fMatrixStorage);
         return true;
     }
     return false;

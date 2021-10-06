@@ -2373,8 +2373,8 @@ STAGE(matrix_scale_translate, const float* m) {
     g = mad(g,m[1], m[3]);
 }
 STAGE(matrix_2x3, const float* m) {
-    auto R = mad(r,m[0], mad(g,m[2], m[4])),
-         G = mad(r,m[1], mad(g,m[3], m[5]));
+    auto R = mad(r,m[0], mad(g,m[1], m[2])),
+         G = mad(r,m[3], mad(g,m[4], m[5]));
     r = R;
     g = G;
 }
@@ -3265,8 +3265,8 @@ STAGE_GG(matrix_scale_translate, const float* m) {
     y = mad(y,m[1], m[3]);
 }
 STAGE_GG(matrix_2x3, const float* m) {
-    auto X = mad(x,m[0], mad(y,m[2], m[4])),
-         Y = mad(x,m[1], mad(y,m[3], m[5]));
+    auto X = mad(x,m[0], mad(y,m[1], m[2])),
+         Y = mad(x,m[3], mad(y,m[4], m[5]));
     x = X;
     y = Y;
 }

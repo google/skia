@@ -334,57 +334,23 @@ sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap&
 
 void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShader); }
 
-class SkImageStageUpdater : public SkStageUpdater {
+class SkImageShader::TransformShader : public SkTransformShader {
 public:
-    SkImageStageUpdater(const SkImageShader* shader, bool usePersp)
-        : fShader(shader)
-        , fUsePersp(usePersp || as_SB(shader)->getLocalMatrix().hasPerspective())
-    {}
+    explicit TransformShader(const SkImageShader& shader)
+            : SkTransformShader{shader}
+            , fImageShader{shader} {}
 
-    const SkImageShader* fShader;
-    const bool           fUsePersp; // else use affine
-
-    // large enough for perspective, though often we just use 2x3
-    float fMatrixStorage[9];
-
-#if 0   // TODO: when we support mipmaps
-    SkRasterPipeline_GatherCtx* fGather;
-    SkRasterPipeline_TileCtx* fLimitX;
-    SkRasterPipeline_TileCtx* fLimitY;
-    SkRasterPipeline_DecalTileCtx* fDecal;
-#endif
-
-    void append_matrix_stage(SkRasterPipeline* p) {
-        if (fUsePersp) {
-            p->append(SkRasterPipeline::matrix_perspective, fMatrixStorage);
-        } else {
-            p->append(SkRasterPipeline::matrix_2x3, fMatrixStorage);
-        }
+    skvm::Color onProgram(skvm::Builder* b,
+                          skvm::Coord device, skvm::Coord local, skvm::Color color,
+                          const SkMatrixProvider& matrices, const SkMatrix* localM,
+                          const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        return fImageShader.makeProgram(
+                b, device, local, color, matrices, localM, dst, uniforms, this, alloc);
     }
 
-    bool update(const SkMatrix& ctm) override {
-        SkMatrix matrix;
-        // TODO: We may have lost the original local matrix?
-        if (fShader->computeTotalInverse(ctm, nullptr, &matrix)) {
-            if (fUsePersp) {
-                matrix.get9(fMatrixStorage);
-            } else {
-                // if we get here, matrix should be affine. If it isn't, then defensively we
-                // won't draw (by returning false), but we should work to never let this
-                // happen (i.e. better preflight by the caller to know ahead of time that we
-                // may encounter perspective, either in the CTM, or in the localM).
-                //
-                // See https://bugs.chromium.org/p/skia/issues/detail?id=10004
-                //
-                if (!matrix.asAffine(fMatrixStorage)) {
-                    SkASSERT(false);
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
+private:
+    const SkImageShader& fImageShader;
 };
 
 static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatrix& matrix) {
@@ -416,7 +382,7 @@ static SkMatrix tweak_inv_matrix(SkFilterMode filter, SkMatrix matrix) {
     return matrix;
 }
 
-bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
+bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) const {
     // We only support certain sampling options in stages so far
     auto sampling = fSampling;
     if (sampling.useCubic) {
@@ -453,7 +419,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     p->append(SkRasterPipeline::seed_shader);
 
     if (updater) {
-        updater->append_matrix_stage(p);
+        updater->appendMatrix(rec.fMatrixProvider.localToDevice(), p);
     } else {
         if (!sampling.useCubic) {
             // TODO: can tweak_sampling sometimes for cubic too when B=0
@@ -694,29 +660,9 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
 }
 
 SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) const {
-    bool usePersp = rec.fMatrixProvider.localToDevice().hasPerspective();
-    auto updater = rec.fAlloc->make<SkImageStageUpdater>(this, usePersp);
+    TransformShader* updater = rec.fAlloc->make<TransformShader>(*this);
     return this->doStages(rec, updater) ? updater : nullptr;
 }
-
-class SkImageShader::TransformShader : public SkTransformShader {
-public:
-    explicit TransformShader(const SkImageShader& shader)
-        : SkTransformShader{shader}
-        , fImageShader{shader} {}
-
-    skvm::Color onProgram(skvm::Builder* b,
-                          skvm::Coord device, skvm::Coord local, skvm::Color color,
-                          const SkMatrixProvider& matrices, const SkMatrix* localM,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        return fImageShader.makeProgram(
-                b, device, local, color, matrices, localM, dst, uniforms, this, alloc);
-    }
-
-private:
-    const SkImageShader& fImageShader;
-};
 
 SkUpdatableShader* SkImageShader::onUpdatableShader(SkArenaAlloc* alloc) const {
     return alloc->make<TransformShader>(*this);

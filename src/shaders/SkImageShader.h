@@ -12,9 +12,6 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
 
-// private subclass of SkStageUpdater
-class SkImageStageUpdater;
-
 class SkImageShader : public SkShaderBase {
 public:
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
@@ -63,7 +60,7 @@ private:
             const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
             skvm::Uniforms* uniforms, const TransformShader* coordShader, SkArenaAlloc*) const;
 
-    bool doStages(const SkStageRec&, SkImageStageUpdater* = nullptr) const;
+    bool doStages(const SkStageRec&, TransformShader* = nullptr) const;
 
     sk_sp<SkImage>          fImage;
     const SkSamplingOptions fSampling;
