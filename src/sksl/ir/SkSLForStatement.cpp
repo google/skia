@@ -164,13 +164,7 @@ std::unique_ptr<Statement> ForStatement::Make(const Context& context, int line,
              is_vardecl_block_initializer(initializer.get()));
     SkASSERT(!test || test->type() == *context.fTypes.fBool);
     SkASSERT(!Analysis::DetectVarDeclarationWithoutScope(*statement));
-
-    // If the caller didn't provide us with unroll info, we can compute it here if needed.
-    if (!unrollInfo && context.fConfig->strictES2Mode()) {
-        unrollInfo = Analysis::GetLoopUnrollInfo(line, initializer.get(), test.get(),
-                                                 next.get(), statement.get(), /*errors=*/nullptr);
-        SkASSERT(unrollInfo);
-    }
+    SkASSERT(unrollInfo || !context.fConfig->strictES2Mode());
 
     return std::make_unique<ForStatement>(line, std::move(initializer), std::move(test),
                                           std::move(next), std::move(statement),

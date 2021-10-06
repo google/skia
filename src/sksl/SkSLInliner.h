@@ -73,6 +73,13 @@ private:
                                                const Statement& statement,
                                                bool isBuiltinCode);
 
+    /**
+     * Searches the rewrite map for an rewritten Variable* for the passed-in one. Asserts if the
+     * rewrite map doesn't contain the variable, or contains a different type of expression.
+     */
+    static const Variable* RemapVariable(const Variable* variable,
+                                         const VariableRewriteMap* varMap);
+
     /** Determines if a given function has multiple and/or early returns. */
     static ReturnComplexity GetReturnComplexity(const FunctionDefinition& funcDef);
 

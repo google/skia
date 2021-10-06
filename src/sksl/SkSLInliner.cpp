@@ -217,6 +217,24 @@ public:
 
 }  // namespace
 
+const Variable* Inliner::RemapVariable(const Variable* variable,
+                                       const VariableRewriteMap* varMap) {
+    auto iter = varMap->find(variable);
+    if (iter == varMap->end()) {
+        SkDEBUGFAILF("rewrite map does not contain variable '%.*s'",
+                     (int)variable->name().size(), variable->name().data());
+        return variable;
+    }
+    Expression* expr = iter->second.get();
+    SkASSERT(expr);
+    if (!expr->is<VariableReference>()) {
+        SkDEBUGFAILF("rewrite map contains non-variable replacement for '%.*s'",
+                     (int)variable->name().size(), variable->name().data());
+        return variable;
+    }
+    return expr->as<VariableReference>().variable();
+}
+
 Inliner::ReturnComplexity Inliner::GetReturnComplexity(const FunctionDefinition& funcDef) {
     int returnsAtEndOfControlFlow = count_returns_at_end_of_control_flow(funcDef);
     CountReturnsWithLimit counter{funcDef, returnsAtEndOfControlFlow + 1};
@@ -489,10 +507,17 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int line,
             // need to ensure initializer is evaluated first so that we've already remapped its
             // declarations by the time we evaluate test & next
             std::unique_ptr<Statement> initializer = stmt(f.initializer());
-            // We can't reuse the unroll info from the original for loop, because it uses a
-            // different induction variable. Ours is a clone.
+
+            std::unique_ptr<LoopUnrollInfo> unrollInfo;
+            if (f.unrollInfo()) {
+                // The for loop's unroll-info points to the Variable in the initializer as the
+                // index. This variable has been rewritten into a clone by the inliner, so we need
+                // to update the loop-unroll info to point to the clone.
+                unrollInfo = std::make_unique<LoopUnrollInfo>(*f.unrollInfo());
+                unrollInfo->fIndex = RemapVariable(unrollInfo->fIndex, varMap);
+            }
             return ForStatement::Make(*fContext, line, std::move(initializer), expr(f.test()),
-                                      expr(f.next()), stmt(f.statement()), /*unrollInfo=*/nullptr,
+                                      expr(f.next()), stmt(f.statement()), std::move(unrollInfo),
                                       SymbolTable::WrapIfBuiltin(f.symbols()));
         }
         case Statement::Kind::kIf: {

@@ -13,6 +13,7 @@
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -340,9 +341,12 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::unique_ptr<Expression> next = this->expression();
             std::unique_ptr<Statement> body = this->statement();
             std::shared_ptr<SymbolTable> symbols = this->symbolTable();
+            std::unique_ptr<LoopUnrollInfo> unrollInfo =
+                    Analysis::GetLoopUnrollInfo(/*line=*/-1, initializer.get(), test.get(),
+                                                next.get(), body.get(), /*errors=*/nullptr);
             return ForStatement::Make(fContext, /*line=*/-1, std::move(initializer),
                                       std::move(test), std::move(next), std::move(body),
-                                      /*unrollInfo=*/nullptr, std::move(symbols));
+                                      std::move(unrollInfo), std::move(symbols));
         }
         case Rehydrator::kIf_Command: {
             bool isStatic = this->readU8();
