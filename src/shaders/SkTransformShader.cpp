@@ -47,11 +47,15 @@ skvm::Coord SkTransformShader::applyMatrix(
 }
 
 bool SkTransformShader::update(const SkMatrix& ctm) const {
-    SkMatrix matrix;
-    if (this->computeTotalInverse(ctm, nullptr, &matrix)) {
-        for (int i = 0; i < 9; ++i) {
-            fMatrixStorage[i] = matrix[i];
-        }
+
+    if (SkMatrix matrix; this->computeTotalInverse(ctm, nullptr, &matrix)) {
+        #if defined(SK_DEBUG)
+                SkMatrix old;
+                old.set9(fMatrixStorage);
+                SkASSERT(old.hasPerspective() == matrix.hasPerspective());
+        #endif
+
+        matrix.get9(fMatrixStorage);
         return true;
     }
     return false;

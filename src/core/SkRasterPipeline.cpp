@@ -157,11 +157,11 @@ void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix
         this->append(SkRasterPipeline::matrix_scale_translate, scaleTrans);
     } else {
         float* storage = alloc->makeArrayDefault<float>(9);
-        if (matrix.asAffine(storage)) {
+        matrix.get9(storage);
+        if (!matrix.hasPerspective()) {
             // note: asAffine and the 2x3 stage really only need 6 entries
             this->append(SkRasterPipeline::matrix_2x3, storage);
         } else {
-            matrix.get9(storage);
             this->append(SkRasterPipeline::matrix_perspective, storage);
         }
     }
