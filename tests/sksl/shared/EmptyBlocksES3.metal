@@ -13,12 +13,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float4 color = float4(0.0);
-    for (int counter = 0;counter < 10; ++counter) {
-    }
-    for (int counter = 0;counter < 10; ++counter) {
-    }
-    for (int counter = 0;counter < 10; ++counter) {
-    }
     if (_uniforms.colorWhite.x == 1.0) color.y = 1.0;
     if (_uniforms.colorWhite.x == 2.0) ; else color.w = 1.0;
     while (_uniforms.colorWhite.x == 2.0) ;

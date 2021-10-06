@@ -58,9 +58,6 @@ bool test_else_b(Uniforms _uniforms) {
     } while (false);
 }
 bool test_loop_return_b() {
-    for (int x = 0;x < 0; ++x) {
-        return false;
-    }
     return true;
 }
 bool test_loop_break_b() {

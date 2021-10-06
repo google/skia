@@ -51,14 +51,8 @@ int break_loop_0()
 }
 bool loop_operator_le_0()
 {
-	for (int i = 3;i <= 1; ++i) 
-	{
-		return false;
-	}
-	for (int i = 3;i <= 1; --i) 
-	{
-		return false;
-	}
+	;
+	;
 	int4 result = int4(9);
 	for (int i = 1;i <= 3; ++i) 
 	{
@@ -68,14 +62,8 @@ bool loop_operator_le_0()
 }
 bool loop_operator_lt_0()
 {
-	for (int i = 4;i < 1; ++i) 
-	{
-		return false;
-	}
-	for (int i = 4;i < 1; --i) 
-	{
-		return false;
-	}
+	;
+	;
 	int4 result = int4(9);
 	for (int i = 1;i < 4; ++i) 
 	{
@@ -85,14 +73,8 @@ bool loop_operator_lt_0()
 }
 bool loop_operator_ge_0()
 {
-	for (int i = 1;i >= 3; ++i) 
-	{
-		return false;
-	}
-	for (int i = 1;i >= 3; --i) 
-	{
-		return false;
-	}
+	;
+	;
 	int4 result = int4(9);
 	for (int i = 3;i >= 1; --i) 
 	{
@@ -102,14 +84,8 @@ bool loop_operator_ge_0()
 }
 bool loop_operator_gt_0()
 {
-	for (int i = 0;i > 3; ++i) 
-	{
-		return false;
-	}
-	for (int i = 0;i > 3; --i) 
-	{
-		return false;
-	}
+	;
+	;
 	int4 result = int4(9);
 	for (int i = 3;i > 0; --i) 
 	{
@@ -119,10 +95,7 @@ bool loop_operator_gt_0()
 }
 bool loop_operator_ne_0()
 {
-	for (int i = 1;i != 1; ++i) 
-	{
-		return false;
-	}
+	;
 	int4 result = int4(9);
 	for (int i = 1;i != 4; ++i) 
 	{
@@ -132,10 +105,7 @@ bool loop_operator_ne_0()
 }
 bool loop_operator_eq_0()
 {
-	for (int i = 1;i == 2; ++i) 
-	{
-		return false;
-	}
+	;
 	int4 result = int4(9);
 	for (int i = 1;i == 1; ++i) 
 	{
