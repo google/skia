@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_BoundsManager_DEFINED
-#define skgpu_BoundsManager_DEFINED
+#ifndef skgpu_geom_BoundsManager_DEFINED
+#define skgpu_geom_BoundsManager_DEFINED
 
 #include <cstdint>
 
 struct SkIRect;
 
-namespace skgpu {
+namespace skgpu::geom {
 
 /**
  * BoundsManager is an acceleration structure for device-space related pixel bounds queries.
@@ -68,6 +68,6 @@ public:
     void setZ(const SkIRect& bounds, uint16_t z, bool fullyOpaque=false) override {}
 };
 
-} // namespace skgpu
+} // namespace skgpu::geom
 
-#endif // skgpu_BoundsManager_DEFINED
+#endif // skgpu_geom_BoundsManager_DEFINED

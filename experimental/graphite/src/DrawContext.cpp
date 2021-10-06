@@ -10,6 +10,7 @@
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawPass.h"
 #include "experimental/graphite/src/RenderPassTask.h"
+#include "experimental/graphite/src/geom/BoundsManager.h"
 
 namespace skgpu {
 
@@ -62,7 +63,7 @@ void DrawContext::strokePath(const SkM44& localToDevice,
     fPendingDraws->strokePath(localToDevice, path, stroke, scissor, colorDepthOrder, depth, paint);
 }
 
-void DrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
+void DrawContext::snapDrawPass(const geom::BoundsManager* occlusionCuller) {
     if (fPendingDraws->count() == 0) {
         return;
     }
@@ -75,7 +76,7 @@ void DrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
     fPendingDraws = std::make_unique<DrawList>();
 }
 
-sk_sp<Task> DrawContext::snapRenderPassTask(const BoundsManager* occlusionCuller) {
+sk_sp<Task> DrawContext::snapRenderPassTask(const geom::BoundsManager* occlusionCuller) {
     this->snapDrawPass(occlusionCuller);
     if (fDrawPasses.empty()) {
         return nullptr;

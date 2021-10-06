@@ -17,7 +17,6 @@ skia_graphite_sources = [
   "$_include/SkStuff.h",
   "$_include/TextureInfo.h",
   "$_include/private/GraphiteTypesPriv.h",
-  "$_src/BoundsManager.h",
   "$_src/Caps.cpp",
   "$_src/Caps.h",
   "$_src/CommandBuffer.cpp",
@@ -55,6 +54,9 @@ skia_graphite_sources = [
   "$_src/TaskGraph.h",
   "$_src/Texture.cpp",
   "$_src/Texture.h",
+  "$_src/geom/BoundsManager.h",
+  "$_src/geom/Shape.cpp",
+  "$_src/geom/Shape.h",
 ]
 
 skia_graphite_mtl_sources = [

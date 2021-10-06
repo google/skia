@@ -20,7 +20,8 @@ class SkM44;
 
 namespace skgpu {
 
-class BoundsManager;
+namespace geom { class BoundsManager; }
+
 class DrawList;
 class DrawPass;
 class Task;
@@ -74,7 +75,7 @@ public:
     // DrawPass.
     // TBD - should this also return the task so the caller can point to it with its own
     // dependencies? Or will that be mostly automatic based on draws and proxy refs?
-    void snapDrawPass(const BoundsManager* occlusionCuller);
+    void snapDrawPass(const geom::BoundsManager* occlusionCuller);
 
     // TBD: snapRenderPassTask() might not need to be public, and could be spec'ed to require that
     // snapDrawPass() must have been called first. A lot of it will depend on how the task graph is
@@ -85,7 +86,7 @@ public:
     // returned task will automatically depend on any previous snapped task of the SDC.
     //
     // Returns null if there are no pending commands or draw passes to move into a task.
-    sk_sp<Task> snapRenderPassTask(const BoundsManager* occlusionCuller);
+    sk_sp<Task> snapRenderPassTask(const geom::BoundsManager* occlusionCuller);
 
 private:
     DrawContext(const SkImageInfo&);
