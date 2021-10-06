@@ -31,6 +31,9 @@ template <typename T> struct GrFPUniformType {
 #define UNIFORM_TYPE(E, ...)                                                                       \
     template <> struct GrFPUniformType<__VA_ARGS__> {                                              \
         static constexpr SkRuntimeEffect::Uniform::Type value = SkRuntimeEffect::Uniform::Type::E; \
+    };                                                                                             \
+    template <> struct GrFPUniformType<SkSpan<__VA_ARGS__>> {                                      \
+        static constexpr SkRuntimeEffect::Uniform::Type value = SkRuntimeEffect::Uniform::Type::E; \
     }
 
 UNIFORM_TYPE(kFloat,    float);
@@ -262,6 +265,19 @@ private:
     void appendArgs(uint8_t* uniformDataPtr,
                     UniformFlags* uniformFlagsPtr,
                     const char* name,
+                    SkSpan<T> val,
+                    Args&&... remainder) {
+        // Uniform array case -- We copy the supplied values into our uniform data area,
+        // then advance our uniform data and flags pointers.
+        memcpy(uniformDataPtr, val.data(), val.size_bytes());
+        uniformDataPtr += val.size_bytes();
+        uniformFlagsPtr++;
+        this->appendArgs(uniformDataPtr, uniformFlagsPtr, std::forward<Args>(remainder)...);
+    }
+    template <typename T, typename... Args>
+    void appendArgs(uint8_t* uniformDataPtr,
+                    UniformFlags* uniformFlagsPtr,
+                    const char* name,
                     const T& val,
                     Args&&... remainder) {
         // Raw uniform value case -- We copy the supplied value into our uniform data area,
@@ -284,6 +300,12 @@ private:
         SkASSERTF(uIter == uEnd, "Expected more uniforms, starting with '%s'", uIter->name.c_str());
         SkASSERTF(cIter == cEnd, "Expected more children, starting with '%s'", cIter->name.c_str());
     }
+    static void checkOneChild(child_iterator cIter, child_iterator cEnd, const char* name) {
+        SkASSERTF(cIter != cEnd, "Too many children, wasn't expecting '%s'", name);
+        SkASSERTF(cIter->name.equals(name),
+                  "Expected child '%s', got '%s' instead",
+                  cIter->name.c_str(), name);
+    }
     template <typename... Args>
     static void checkArgs(uniform_iterator uIter,
                           uniform_iterator uEnd,
@@ -295,10 +317,7 @@ private:
         // NOTE: This function (necessarily) gets an rvalue reference to child, but deliberately
         // does not use it. We leave it intact, and our caller (Make) will pass another rvalue
         // reference to appendArgs, which will then move it to call addChild.
-        SkASSERTF(cIter != cEnd, "Too many children, wasn't expecting '%s'", name);
-        SkASSERTF(cIter->name.equals(name),
-                  "Expected child '%s', got '%s' instead",
-                  cIter->name.c_str(), name);
+        checkOneChild(cIter, cEnd, name);
         checkArgs(uIter, uEnd, ++cIter, cEnd, std::forward<Args>(remainder)...);
     }
     template <typename... Args>
@@ -312,10 +331,7 @@ private:
         // NOTE: This function (necessarily) gets an rvalue reference to child, but deliberately
         // does not use it. We leave it intact, and our caller (Make) will pass another rvalue
         // reference to appendArgs, which will then move it to call addChild.
-        SkASSERTF(cIter != cEnd, "Too many children, wasn't expecting '%s'", name);
-        SkASSERTF(cIter->name.equals(name),
-                  "Expected child '%s', got '%s' instead",
-                  cIter->name.c_str(), name);
+        checkOneChild(cIter, cEnd, name);
         checkArgs(uIter, uEnd, ++cIter, cEnd, std::forward<Args>(remainder)...);
     }
     template <typename T, typename... Args>
@@ -343,6 +359,34 @@ private:
             checkArgs(uIter, uEnd, cIter, cEnd, std::forward<Args>(remainder)...);
         }
     }
+    template <typename T>
+    static void checkOneUniform(uniform_iterator uIter,
+                                uniform_iterator uEnd,
+                                const char* name,
+                                const T* /*val*/,
+                                size_t valSize) {
+        SkASSERTF(uIter != uEnd, "Too many uniforms, wasn't expecting '%s'", name);
+        SkASSERTF(uIter->name.equals(name),
+                  "Expected uniform '%s', got '%s' instead",
+                  uIter->name.c_str(), name);
+        SkASSERTF(uIter->sizeInBytes() == valSize,
+                  "Expected uniform '%s' to be %zu bytes, got %zu instead",
+                  name, uIter->sizeInBytes(), valSize);
+        SkASSERTF(GrFPUniformType<T>::value == uIter->type,
+                  "Wrong type for uniform '%s'",
+                  name);
+    }
+    template <typename T, typename... Args>
+    static void checkArgs(uniform_iterator uIter,
+                          uniform_iterator uEnd,
+                          child_iterator cIter,
+                          child_iterator cEnd,
+                          const char* name,
+                          SkSpan<T> val,
+                          Args&&... remainder) {
+        checkOneUniform(uIter, uEnd, name, val.data(), val.size_bytes());
+        checkArgs(++uIter, uEnd, cIter, cEnd, std::forward<Args>(remainder)...);
+    }
     template <typename T, typename... Args>
     static void checkArgs(uniform_iterator uIter,
                           uniform_iterator uEnd,
@@ -351,16 +395,7 @@ private:
                           const char* name,
                           const T& val,
                           Args&&... remainder) {
-        SkASSERTF(uIter != uEnd, "Too many uniforms, wasn't expecting '%s'", name);
-        SkASSERTF(uIter->name.equals(name),
-                  "Expected uniform '%s', got '%s' instead",
-                  uIter->name.c_str(), name);
-        SkASSERTF(uIter->sizeInBytes() == sizeof(val),
-                  "Expected uniform '%s' to be %zu bytes, got %zu instead",
-                  name, uIter->sizeInBytes(), sizeof(val));
-        SkASSERTF(GrFPUniformType<T>::value == uIter->type,
-                  "Wrong type for uniform '%s'",
-                  name);
+        checkOneUniform(uIter, uEnd, name, &val, sizeof(val));
         checkArgs(++uIter, uEnd, cIter, cEnd, std::forward<Args>(remainder)...);
     }
 #endif
