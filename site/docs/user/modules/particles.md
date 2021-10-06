@@ -114,7 +114,6 @@ custom language, SkSL.
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     canvas.translate(cx, cy);
 
@@ -399,7 +398,6 @@ const text = {
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
 
     const particles = CanvasKit.MakeParticles(JSON.stringify(jsonData));
