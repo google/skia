@@ -77,6 +77,8 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLStringStream.h",
   "$_src/sksl/SkSLUtil.cpp",
   "$_src/sksl/SkSLUtil.h",
+  "$_src/sksl/analysis/SkSLProgramVisitor.h",
+  "$_src/sksl/analysis/SwitchCaseContainsExit.cpp",
   "$_src/sksl/codegen/SkSLVMCodeGenerator.cpp",
   "$_src/sksl/codegen/SkSLVMCodeGenerator.h",
   "$_src/sksl/dsl/DSLBlock.cpp",

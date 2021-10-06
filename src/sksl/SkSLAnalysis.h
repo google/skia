@@ -78,13 +78,6 @@ int NodeCountUpToLimit(const FunctionDefinition& function, int limit);
 bool SwitchCaseContainsUnconditionalExit(Statement& stmt);
 
 /**
- * A switch-case "falls through" when it doesn't have an unconditional exit.
- */
-inline bool SwitchCaseFallsThrough(Statement& stmt) {
-    return !SwitchCaseContainsUnconditionalExit(stmt);
-}
-
-/**
  * Finds conditional exits from a switch-case. Returns true if this statement contains a
  * conditional that wraps a potential exit from the switch (via continue, break or return).
  */
