@@ -237,7 +237,6 @@ private:
 
     /** Eliminates unreferenced variables from a Program, according to the stats in ProgramUsage. */
     bool removeDeadGlobalVariables(Program& program, ProgramUsage* usage);
-    bool removeDeadLocalVariables(Program& program, ProgramUsage* usage);
 
     /** Eliminates unreachable statements from a Program. */
     void removeUnreachableCode(Program& program, ProgramUsage* usage);

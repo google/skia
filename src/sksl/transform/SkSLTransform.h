@@ -14,6 +14,7 @@
 namespace SkSL {
 
 class Context;
+struct Program;
 class ProgramElement;
 class ProgramUsage;
 class Statement;
@@ -29,6 +30,12 @@ void FindAndDeclareBuiltinVariables(const Context& context, ProgramKind programK
  * immediately after a `return` or `continue` can safely be eliminated.
  */
 void EliminateUnreachableCode(std::unique_ptr<Statement>& stmt, ProgramUsage* usage = nullptr);
+
+/**
+ * Eliminates local variables in a program which are never read or written (past their initializer).
+ * Preserves side effects from initializers, if any. Returns true if any changes were made.
+ */
+bool EliminateDeadLocalVariables(Program& program, ProgramUsage* usage);
 
 } // namespace Transform
 } // namespace SkSL
