@@ -354,8 +354,7 @@ public:
     SkRasterPipeline_DecalTileCtx* fDecal;
 #endif
 
-    void append_matrix_stage(const SkMatrix& matrix, SkRasterPipeline* p) {
-        matrix.get9(fMatrixStorage);
+    void append_matrix_stage(SkRasterPipeline* p) {
         if (fUsePersp) {
             p->append(SkRasterPipeline::matrix_perspective, fMatrixStorage);
         } else {
@@ -364,15 +363,24 @@ public:
     }
 
     bool update(const SkMatrix& ctm) override {
+        SkMatrix matrix;
         // TODO: We may have lost the original local matrix?
-        if (SkMatrix matrix; fShader->computeTotalInverse(ctm, nullptr, &matrix)) {
-            #if defined(SK_DEBUG)
-                SkMatrix old;
-                old.set9(fMatrixStorage);
-                SkASSERT(old.hasPerspective() == matrix.hasPerspective());
-            #endif
-
-            matrix.get9(fMatrixStorage);
+        if (fShader->computeTotalInverse(ctm, nullptr, &matrix)) {
+            if (fUsePersp) {
+                matrix.get9(fMatrixStorage);
+            } else {
+                // if we get here, matrix should be affine. If it isn't, then defensively we
+                // won't draw (by returning false), but we should work to never let this
+                // happen (i.e. better preflight by the caller to know ahead of time that we
+                // may encounter perspective, either in the CTM, or in the localM).
+                //
+                // See https://bugs.chromium.org/p/skia/issues/detail?id=10004
+                //
+                if (!matrix.asAffine(fMatrixStorage)) {
+                    SkASSERT(false);
+                    return false;
+                }
+            }
             return true;
         }
         return false;
@@ -445,7 +453,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     p->append(SkRasterPipeline::seed_shader);
 
     if (updater) {
-        updater->append_matrix_stage(matrix, p);
+        updater->append_matrix_stage(p);
     } else {
         if (!sampling.useCubic) {
             // TODO: can tweak_sampling sometimes for cubic too when B=0
