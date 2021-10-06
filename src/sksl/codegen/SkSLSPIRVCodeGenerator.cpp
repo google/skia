@@ -32,7 +32,10 @@ constexpr int DEVICE_CLOCKWISE_BUILTIN  = -1001;
 
 namespace SkSL {
 
-static const int32_t SKSL_MAGIC  = 0x0; // FIXME: we should probably register a magic number
+// Skia's magic number is 31 and goes in the top 16 bits. We can use the lower bits to version the
+// sksl generator if we want.
+// https://github.com/KhronosGroup/SPIRV-Headers/blob/master/include/spirv/spir-v.xml#L84
+static const int32_t SKSL_MAGIC  = 0x001F0000;
 
 void SPIRVCodeGenerator::setupIntrinsics() {
 #define ALL_GLSL(x) std::make_tuple(kGLSL_STD_450_IntrinsicOpcodeKind, GLSLstd450 ## x, \
