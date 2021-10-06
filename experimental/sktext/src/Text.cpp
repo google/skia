@@ -336,28 +336,40 @@ std::unique_ptr<WrappedText> ShapedText::wrap(UnicodeText* unicodeText, float wi
             this->addLine(wrappedText.get(), unicodeText->getUnicode(), line, spaces, true);
             line = spaces;
             clusters = spaces;
-            cluster = Stretch();
             continue;
         }
         TextMetrics runMetrics(run.fFont);
-        if (!run.leftToRight()) {
-            cluster.setTextRange({ run.fUtf16Range.fStart, run.fUtf16Range.fEnd});
-        }
+
         // Let's wrap the text
+        GlyphRange clusterGlyphs;
+        DirTextRange clusterText(EMPTY_RANGE, run.leftToRight());
         for (size_t glyphIndex = 0; glyphIndex < run.fPositions.size(); ++glyphIndex) {
             auto textIndex = run.fClusters[glyphIndex];
-            if (cluster.textRange() == EMPTY_RANGE) {
+
+            if (clusterText == EMPTY_RANGE) {
                 // The beginning of a new line (or the first one)
-                cluster = Stretch(GlyphPos(runIndex, glyphIndex), textIndex, runMetrics);
-                line = cluster;
-                spaces = cluster;
-                clusters = cluster;
+                clusterText = DirTextRange(textIndex, textIndex, run.leftToRight());
+                clusterGlyphs = GlyphRange(glyphIndex, glyphIndex);
+
+                Stretch empty(GlyphPos(runIndex, glyphIndex), textIndex, runMetrics);
+                line = empty;
+                spaces = empty;
+                clusters = empty;
                 continue;
             }
-            // The entire cluster belongs to a single run
-            SkASSERT(cluster.glyphStart().runIndex() == runIndex);
-            auto clusterWidth = run.calculateWidth(cluster.glyphStartIndex(), glyphIndex);
-            cluster.finish(glyphIndex, textIndex, clusterWidth);
+
+            if (textIndex == clusterText.fStart) {
+                // Skip until the next cluster
+                continue;
+            }
+
+            // Finish the cluster (notice that it belongs to a single run)
+            clusterText.fStart = clusterText.fEnd;
+            clusterText.fEnd = textIndex;
+            clusterGlyphs.fStart = clusterGlyphs.fEnd;
+            clusterGlyphs.fEnd = glyphIndex;
+            cluster = Stretch(runIndex, clusterGlyphs, clusterText.normalized(), run.calculateWidth(clusterGlyphs), runMetrics);
+
             auto isSoftLineBreak = unicodeText->isSoftLineBreak(cluster.textStart());
             auto isWhitespaces = unicodeText->isWhitespaces(cluster.textRange());
             auto isEndOfText = run.leftToRight() ? textIndex == run.fUtf16Range.fEnd : textIndex == run.fUtf16Range.fStart;
@@ -399,9 +411,12 @@ std::unique_ptr<WrappedText> ShapedText::wrap(UnicodeText* unicodeText, float wi
                 line = spaces;
             }
             clusters.moveTo(cluster);
-            cluster = Stretch(GlyphPos(runIndex, glyphIndex), textIndex, runMetrics);
+
+            clusterGlyphs.fStart = clusterGlyphs.fEnd;
+            clusterText.fStart = clusterText.fEnd;
         }
     }
+
     // Deal with the last line
     if (!clusters.isEmpty()) {
         line.moveTo(spaces);
@@ -465,8 +480,9 @@ void ShapedText::addLine(WrappedText* wrappedText, SkUnicode* unicode, Stretch& 
             auto textEnd = isLastRun ? lineStretch.textRange().fEnd : logicalRun.fUtf16Range.fEnd;
             wrappedText->fVisualRuns.emplace_back(TextRange(textStart, textEnd),
                                                   glyphSpaces - glyphStart,
-                                                  logicalRun.fTextMetrics,
-                                                  runOffsetInLine,
+                                                  logicalRun.fFont,
+                                                  lineStretch.textMetrics().baseline(),
+                                                  SkPoint::Make(runOffsetInLine, wrappedText->fActualSize.fHeight),
                                                   logicalRun.leftToRight(),
                                                   SkSpan<SkPoint>(&logicalRun.fPositions[glyphStart], glyphSize + 1),
                                                   SkSpan<SkGlyphID>(&logicalRun.fGlyphs[glyphStart], glyphSize),
@@ -479,7 +495,7 @@ void ShapedText::addLine(WrappedText* wrappedText, SkUnicode* unicode, Stretch& 
                     : SkSpan<VisualRun>(&wrappedText->fVisualRuns[runStart], wrappedText->fVisualRuns.size() - runStart);
     wrappedText->fVisualLines.emplace_back(lineStretch.textRange(), hardLineBreak, wrappedText->fActualSize.fHeight, runRange);
     wrappedText->fActualSize.fHeight += lineStretch.textMetrics().height();
-    wrappedText->fActualSize.fWidth = lineStretch.width();
+    wrappedText->fActualSize.fWidth = std::max(wrappedText->fActualSize.fWidth, lineStretch.width());
     stretch.clean();
     spaces.clean();
 }
@@ -615,12 +631,6 @@ GlyphRange WrappedText::textToGlyphs(UnicodeText* unicodeText, PositionType posi
     return glyphRange;
 }
 
-std::unique_ptr<DrawableText> WrappedText::prepareToDraw(UnicodeText* unicodeText, PositionType positionType, SkSpan<TextIndex> blocks) const {
-    auto drawableText = std::make_unique<DrawableText>();
-    this->visit(unicodeText, drawableText.get(), positionType, blocks);
-    return std::move(drawableText);
-}
-
 std::unique_ptr<SelectableText> WrappedText::prepareToEdit(UnicodeText* unicodeText) const {
     auto selectableText = std::make_unique<SelectableText>();
     this->visit(selectableText.get());
@@ -673,7 +683,7 @@ void SelectableText::onGlyphRun(const SkFont& font,
     for (auto i = 0; i < glyphCount; ++i) {
         auto pos = positions[i];
         auto pos1 = positions[i + 1];
-        line.fBoxGlyphs[start + i] = SkRect::MakeXYWH(pos.fX, bounds.fTop + pos.fY, pos1.fX - pos.fX, bounds.height());
+        line.fBoxGlyphs[start + i] = SkRect::MakeXYWH(pos.fX, bounds.fTop, pos1.fX - pos.fX, bounds.height());
         line.fTextByGlyph[start + i] = clusters[i];
     }
 }

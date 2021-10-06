@@ -151,7 +151,15 @@ struct DirTextRange : public TextRange {
     bool after(TextIndex index) const {
         return fLeftToRight ? index < fEnd : index >= fStart;
     }
-
+    bool left() const {
+        return fLeftToRight ? fStart : fEnd;
+    }
+    bool right() const {
+        return fLeftToRight ? fEnd : fStart;
+    }
+    TextRange normalized() const {
+        return fLeftToRight ? TextRange(fStart, fEnd) : TextRange(fEnd, fStart);
+    }
     bool fLeftToRight;
 };
 

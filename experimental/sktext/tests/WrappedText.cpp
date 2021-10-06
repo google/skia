@@ -89,7 +89,6 @@ public:
     std::vector<TestRun> fTestRuns;
 };
 
-
 UNIX_ONLY_TEST(SkText_WrappedText_Spaces, reporter) {
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
@@ -138,3 +137,29 @@ UNIX_ONLY_TEST(SkText_WrappedText_Spaces, reporter) {
         ++runIndex;
     }
 }
+
+DEF_TEST(SkText_WrappedText_LongRTL, reporter) {
+    sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Noto Naskh Arabic", 40.0f, SkFontStyle::Normal());
+    if (fontChain->empty()) return;
+
+    std::u16string utf16(u"يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُيَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُيَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ");
+    UnicodeText unicodeText(SkUnicode::Make(), SkSpan<uint16_t>((uint16_t*)utf16.data(), utf16.size()));
+    if (!unicodeText.getUnicode()) return;
+
+    FontBlock fontBlock(utf16.size(), fontChain);
+    auto fontResolvedText = unicodeText.resolveFonts(SkSpan<FontBlock>(&fontBlock, 1));
+    auto shapedText = fontResolvedText->shape(&unicodeText, TextDirection::kLtr);
+    auto wrappedText = shapedText->wrap(&unicodeText, 800.0f, 800.0f);
+
+    TestVisitor testVisitor;
+    wrappedText->visit(&testVisitor);
+
+    REPORTER_ASSERT(reporter, testVisitor.fTestLines.size() == 4);
+    REPORTER_ASSERT(reporter, testVisitor.fTestRuns.size() == 4);
+
+    REPORTER_ASSERT(reporter, testVisitor.fTestLines[0].trailingSpaces.width() == 1);
+    REPORTER_ASSERT(reporter, testVisitor.fTestLines[1].trailingSpaces.width() == 1);
+    REPORTER_ASSERT(reporter, testVisitor.fTestLines[2].trailingSpaces.width() == 1);
+    REPORTER_ASSERT(reporter, testVisitor.fTestLines[3].trailingSpaces.width() == 0);
+}
+

@@ -11,16 +11,23 @@ namespace text {
 
 class VisualRun {
     public:
-    VisualRun(TextRange textRange, GlyphIndex trailingSpacesStart, const TextMetrics& metrics, SkScalar runOffsetInLine,
+    VisualRun(TextRange textRange, GlyphIndex trailingSpacesStart, const SkFont& font, SkScalar lineBaseLine,
+              SkPoint runOffset,
               bool leftToRight,
               SkSpan<SkPoint> positions, SkSpan<SkGlyphID> glyphs, SkSpan<uint32_t> clusters)
-        : fTextMetrics(metrics)
+        : fFont(font)
+        , fTextMetrics(TextMetrics(fFont))
+        , fLineBaseLine(lineBaseLine)
         , fDirTextRange(textRange, leftToRight)
         , fTrailingSpacesStart(trailingSpacesStart) {
+        if (positions.size() == 0) {
+            SkASSERT(false);
+            return;
+        }
         fPositions.reserve_back(positions.size());
-        runOffsetInLine -= positions[0].fX;
+        runOffset -= SkPoint::Make(positions[0].fX, - fLineBaseLine);
         for (auto& pos : positions) {
-            fPositions.emplace_back(pos + SkPoint::Make(runOffsetInLine, 0));
+            fPositions.emplace_back(pos + runOffset);
         }
         fGlyphs.reserve_back(glyphs.size());
         for (auto glyph : glyphs) {
@@ -30,9 +37,7 @@ class VisualRun {
         for (auto cluster : clusters) {
             fClusters.emplace_back(SkToU16(cluster));
         }
-
-        fAdvance.fX = calculateWidth(0, glyphs.size());
-        fAdvance.fY = metrics.height();
+        fAdvance= SkVector::Make(this->calculateWidth(0, glyphs.size()), fTextMetrics.height());
     }
 
     SkScalar calculateWidth(GlyphRange glyphRange) const {
@@ -43,11 +48,13 @@ class VisualRun {
       return calculateWidth(GlyphRange(start, end));
     }
     SkScalar width() const { return fAdvance.fX; }
+    SkScalar height() const { return fAdvance.fY; }
     SkScalar firstGlyphPosition() const { return fPositions[0].fX; }
+    TextMetrics textMetrics() const { return fTextMetrics; }
 
     bool leftToRight() const { return fDirTextRange.fLeftToRight; }
     size_t size() const { return fGlyphs.size(); }
-    TextMetrics textMetrics() const { return fTextMetrics; }
+    SkScalar baseLine() const { return fLineBaseLine; }
     GlyphIndex trailingSpacesStart() const { return fTrailingSpacesStart; }
     DirTextRange dirTextRange() const { return fDirTextRange; }
 
@@ -78,6 +85,7 @@ class VisualRun {
     friend class WrappedText;
     SkFont fFont;
     TextMetrics fTextMetrics;
+    SkScalar fLineBaseLine;
 
     SkVector fAdvance;
     DirTextRange fDirTextRange;

@@ -9,9 +9,9 @@ namespace editor {
 void DynamicText::paint(SkCanvas* canvas) {
     if (!fDrawableText) {
         auto chunks = this->getDecorationChunks(fDecorations);
-        fDrawableText = fWrappedText->prepareToDraw(fUnicodeText.get(),
-                                                    PositionType::kGraphemeCluster,
-                                                    SkSpan<TextIndex>(chunks.data(), chunks.size()));
+        fDrawableText = fWrappedText->prepareToDraw<DrawableText>(fUnicodeText.get(),
+                                                                  PositionType::kGraphemeCluster,
+                                                                  SkSpan<TextIndex>(chunks.data(), chunks.size()));
     }
 
     auto foregroundPaint = fDecorations[0].foregroundPaint;
@@ -38,7 +38,9 @@ void EditableText::paint(SkCanvas* canvas) {
     } else {
         auto decorations = mergeSelectionIntoDecorations();
         auto chunks = this->getDecorationChunks(SkSpan<DecoratedBlock>(decorations.data(), decorations.size()));
-        fDrawableText = fWrappedText->prepareToDraw(fUnicodeText.get(), PositionType::kGraphemeCluster, SkSpan<TextIndex>(chunks.data(), chunks.size()));
+        fDrawableText = fWrappedText->prepareToDraw<DrawableText>(fUnicodeText.get(),
+                                                                  PositionType::kGraphemeCluster,
+                                                                  SkSpan<TextIndex>(chunks.data(), chunks.size()));
     }
     auto foregroundPaint = fDecorations[0].foregroundPaint;
     auto textBlobs = fDrawableText->getTextBlobs();

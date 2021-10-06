@@ -197,7 +197,12 @@ public:
         @param blocks         a range of text indices that cause an additional run breaking to be used for styling
         @return               an object that contains a list of SkTextBlobs to draw on a canvas
     */
-    std::unique_ptr<DrawableText> prepareToDraw(UnicodeText* unicodeText, PositionType positionType, SkSpan<TextIndex> blocks) const;
+    template <class Drawable>
+    std::unique_ptr<Drawable> prepareToDraw(UnicodeText* unicodeText, PositionType positionType, SkSpan<TextIndex> blocks) const {
+        auto drawableText = std::make_unique<Drawable>();
+        this->visit(unicodeText, drawableText.get(), positionType, blocks);
+        return drawableText;
+    }
     /** Aggregates all the data to navigate the text (move up, down, left, right),
         select some text near the cursor point, adjust all text position to word,
         grapheme cluster and such.

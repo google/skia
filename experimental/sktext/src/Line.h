@@ -91,6 +91,13 @@ public:
         , fTextRange(textIndex, textIndex)
         , fTextMetrics(metrics) { }
 
+    Stretch(RunIndex runIndex, GlyphRange glyphRange, TextRange textRange, SkScalar width, const TextMetrics& metrics)
+        : fGlyphStart(runIndex, glyphRange.fStart)
+        , fGlyphEnd(runIndex, glyphRange.fEnd)
+        , fWidth(width)
+        , fTextRange(textRange)
+        , fTextMetrics(metrics) { }
+
     Stretch(const Stretch&) = default;
     Stretch(Stretch&&) = default;
     Stretch& operator=(Stretch&&) = default;
