@@ -21,9 +21,7 @@
 class GrGLSLColorSpaceXformHelper;
 
 namespace SkSL {
-    namespace dsl {
-        class DSLWriter;
-    }
+    class ThreadContext;
 }
 
 /**
@@ -290,6 +288,6 @@ protected:
     friend class GrGLPathProgramBuilder; // to access fInputs.
     friend class GrVkPipelineStateBuilder;
     friend class GrMtlPipelineStateBuilder;
-    friend class SkSL::dsl::DSLWriter;
+    friend class SkSL::ThreadContext;
 };
 #endif

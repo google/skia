@@ -9,6 +9,7 @@
 
 #include "include/private/SkSLString.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
 
@@ -230,7 +231,7 @@ SkSL::LoadedModule DSLParser::moduleInheritingFrom(SkSL::ParsedModule baseModule
     this->declarations();
     CurrentSymbolTable()->takeOwnershipOfString(std::move(*fText));
     SkSL::LoadedModule result{ fKind, CurrentSymbolTable(),
-            std::move(DSLWriter::ProgramElements()) };
+            std::move(ThreadContext::ProgramElements()) };
     errorReporter->setSource(nullptr);
     End();
     return result;

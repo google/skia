@@ -10,7 +10,7 @@
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLExpression.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
@@ -31,12 +31,12 @@ DSLStatement::DSLStatement(DSLBlock block)
 DSLStatement::DSLStatement(DSLExpression expr) {
     std::unique_ptr<SkSL::Expression> skslExpr = expr.release();
     if (skslExpr) {
-        fStatement = SkSL::ExpressionStatement::Make(DSLWriter::Context(), std::move(skslExpr));
+        fStatement = SkSL::ExpressionStatement::Make(ThreadContext::Context(), std::move(skslExpr));
     }
 }
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
-    : fStatement(SkSL::ExpressionStatement::Make(DSLWriter::Context(), std::move(expr))) {
+    : fStatement(SkSL::ExpressionStatement::Make(ThreadContext::Context(), std::move(expr))) {
     SkASSERT(this->hasValue());
 }
 
@@ -49,7 +49,7 @@ DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)
     : DSLStatement(DSLExpression(std::move(expr), pos)) {}
 
 DSLStatement::DSLStatement(DSLPossibleStatement stmt, PositionInfo pos) {
-    DSLWriter::ReportErrors(pos);
+    ThreadContext::ReportErrors(pos);
     if (stmt.hasValue()) {
         fStatement = std::move(stmt.fStatement);
     } else {
@@ -62,12 +62,12 @@ DSLStatement::DSLStatement(DSLPossibleStatement stmt, PositionInfo pos) {
 
 DSLStatement::~DSLStatement() {
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    if (fStatement && DSLWriter::InFragmentProcessor()) {
-        DSLWriter::CurrentEmitArgs()->fFragBuilder->codeAppend(this->release());
+    if (fStatement && ThreadContext::InFragmentProcessor()) {
+        ThreadContext::CurrentEmitArgs()->fFragBuilder->codeAppend(this->release());
         return;
     }
 #endif
-    SkASSERTF(!fStatement || !DSLWriter::Settings().fAssertDSLObjectsReleased,
+    SkASSERTF(!fStatement || !ThreadContext::Settings().fAssertDSLObjectsReleased,
               "Statement destroyed without being incorporated into program (see "
               "ProgramSettings::fAssertDSLObjectsReleased)");
 }

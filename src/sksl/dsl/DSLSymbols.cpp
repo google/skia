@@ -8,6 +8,7 @@
 #include "include/sksl/DSLSymbols.h"
 
 #include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
 namespace SkSL {
@@ -15,19 +16,19 @@ namespace SkSL {
 namespace dsl {
 
 void PushSymbolTable() {
-    SymbolTable::Push(&DSLWriter::IRGenerator().symbolTable());
+    SymbolTable::Push(&ThreadContext::IRGenerator().symbolTable());
 }
 
 void PopSymbolTable() {
-    SymbolTable::Pop(&DSLWriter::IRGenerator().symbolTable());
+    SymbolTable::Pop(&ThreadContext::IRGenerator().symbolTable());
 }
 
 std::shared_ptr<SymbolTable> CurrentSymbolTable() {
-    return DSLWriter::IRGenerator().symbolTable();
+    return ThreadContext::IRGenerator().symbolTable();
 }
 
 DSLPossibleExpression Symbol(skstd::string_view name, PositionInfo pos) {
-    return DSLWriter::IRGenerator().convertIdentifier(pos.line(), name);
+    return ThreadContext::IRGenerator().convertIdentifier(pos.line(), name);
 }
 
 bool IsType(skstd::string_view name) {
@@ -40,7 +41,7 @@ void AddToSymbolTable(DSLVarBase& var, PositionInfo pos) {
     if (skslVar) {
         CurrentSymbolTable()->addWithoutOwnership(skslVar);
     }
-    DSLWriter::ReportErrors(pos);
+    ThreadContext::ReportErrors(pos);
 }
 
 const String* Retain(String string) {

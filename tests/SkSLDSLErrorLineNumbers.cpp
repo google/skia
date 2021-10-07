@@ -11,6 +11,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
 #include "tests/Test.h"
@@ -42,7 +43,7 @@ public:
                 msg.data());
         REPORTER_ASSERT(fReporter, pos.line() == fLine,
                 "Line number mismatch: expected %d, but received %d\n", fLine, pos.line());
-        DSLWriter::Compiler().handleError(msg, pos);
+        SkSL::ThreadContext::Compiler().handleError(msg, pos);
         fMsg = nullptr;
     }
 

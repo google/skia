@@ -157,6 +157,7 @@ private:
     friend class AutoDisableInline;
     friend class Compiler;
     friend class DSLParser;
+    friend class ThreadContext;
     friend class dsl::DSLCore;
     friend class dsl::DSLExpression;
     friend class dsl::DSLFunction;

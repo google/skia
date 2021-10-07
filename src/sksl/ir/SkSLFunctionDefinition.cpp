@@ -9,7 +9,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicMap.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -64,7 +64,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     this->copyIntrinsicIfNeeded(*f);
                 }
 
-                dsl::DSLWriter::SharedElements().push_back(found);
+                ThreadContext::SharedElements().push_back(found);
             }
         }
 
@@ -77,7 +77,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                 const FunctionDeclaration& func = expr.as<FunctionCall>().function();
                 if (func.isBuiltin()) {
                     if (func.intrinsicKind() == k_dFdy_IntrinsicKind) {
-                        dsl::DSLWriter::Inputs().fUseFlipRTUniform = true;
+                        ThreadContext::Inputs().fUseFlipRTUniform = true;
                     }
                     if (func.definition()) {
                         fReferencedIntrinsics->insert(&func);

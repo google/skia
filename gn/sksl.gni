@@ -75,6 +75,8 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLSampleUsage.cpp",
   "$_src/sksl/SkSLString.cpp",
   "$_src/sksl/SkSLStringStream.h",
+  "$_src/sksl/SkSLThreadContext.cpp",
+  "$_src/sksl/SkSLThreadContext.h",
   "$_src/sksl/SkSLUtil.cpp",
   "$_src/sksl/SkSLUtil.h",
   "$_src/sksl/analysis/SkSLCanExitWithoutReturningValue.cpp",

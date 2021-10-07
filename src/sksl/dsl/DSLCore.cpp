@@ -12,6 +12,7 @@
 #include "include/sksl/DSLVar.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
@@ -37,46 +38,45 @@ void Start(SkSL::Compiler* compiler, ProgramKind kind) {
 }
 
 void Start(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& settings) {
-    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind, settings,
-                                                       compiler->moduleForProgramKind(kind),
-                                                       /*isModule=*/false));
+    ThreadContext::SetInstance(std::make_unique<ThreadContext>(compiler, kind, settings,
+            compiler->moduleForProgramKind(kind), /*isModule=*/false));
 }
 
 void StartModule(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& settings,
                  SkSL::ParsedModule baseModule) {
-    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind, settings,
-                                                       baseModule, /*isModule=*/true));
+    ThreadContext::SetInstance(std::make_unique<ThreadContext>(compiler, kind, settings,
+            baseModule, /*isModule=*/true));
 }
 
 void End() {
-    SkASSERTF(!DSLWriter::InFragmentProcessor(),
+    SkASSERTF(!ThreadContext::InFragmentProcessor(),
               "more calls to StartFragmentProcessor than to EndFragmentProcessor");
-    DSLWriter::SetInstance(nullptr);
+    ThreadContext::SetInstance(nullptr);
 }
 
 ErrorReporter& GetErrorReporter() {
-    return DSLWriter::GetErrorReporter();
+    return ThreadContext::GetErrorReporter();
 }
 
 void SetErrorReporter(ErrorReporter* errorReporter) {
     SkASSERT(errorReporter);
-    DSLWriter::SetErrorReporter(errorReporter);
+    ThreadContext::SetErrorReporter(errorReporter);
 }
 
 class DSLCore {
 public:
     static std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<String> source) {
-        DSLWriter& instance = DSLWriter::Instance();
-        SkSL::IRGenerator& ir = DSLWriter::IRGenerator();
-        SkSL::Compiler& compiler = DSLWriter::Compiler();
-        const SkSL::Context& context = DSLWriter::Context();
+        ThreadContext& instance = ThreadContext::Instance();
+        SkSL::IRGenerator& ir = ThreadContext::IRGenerator();
+        SkSL::Compiler& compiler = ThreadContext::Compiler();
+        const SkSL::Context& context = ThreadContext::Context();
         // Variables defined in the pre-includes need their declaring elements added to the program
         if (!context.fConfig->fIsBuiltinCode && context.fIntrinsics) {
-            Transform::FindAndDeclareBuiltinVariables(DSLWriter::Context(),
-                    DSLWriter::GetProgramConfig()->fKind, DSLWriter::SharedElements());
+            Transform::FindAndDeclareBuiltinVariables(ThreadContext::Context(),
+                    ThreadContext::GetProgramConfig()->fKind, ThreadContext::SharedElements());
         }
         IRGenerator::IRBundle bundle = ir.finish();
-        Pool* pool = DSLWriter::Instance().fPool.get();
+        Pool* pool = ThreadContext::Instance().fPool.get();
         auto result = std::make_unique<SkSL::Program>(std::move(source),
                                                       std::move(instance.fConfig),
                                                       compiler.fContext,
@@ -96,13 +96,13 @@ public:
             success = true;
         }
         if (!success) {
-            DSLWriter::ReportErrors(PositionInfo());
+            ThreadContext::ReportErrors(PositionInfo());
         }
         if (pool) {
             pool->detachFromThread();
         }
-        SkASSERT(DSLWriter::ProgramElements().empty());
-        SkASSERT(!DSLWriter::SymbolTable());
+        SkASSERT(ThreadContext::ProgramElements().empty());
+        SkASSERT(!ThreadContext::SymbolTable());
         return success ? std::move(result) : nullptr;
     }
 
@@ -128,8 +128,8 @@ public:
         int unused[] = {0, (static_cast<void>(argArray.push_back(args.release())), 0)...};
         static_cast<void>(unused);
 
-        return SkSL::FunctionCall::Convert(DSLWriter::Context(), /*line=*/-1,
-                DSLWriter::IRGenerator().convertIdentifier(-1, name), std::move(argArray));
+        return SkSL::FunctionCall::Convert(ThreadContext::Context(), /*line=*/-1,
+                ThreadContext::IRGenerator().convertIdentifier(-1, name), std::move(argArray));
     }
 
     static DSLStatement Break(PositionInfo pos) {
@@ -141,13 +141,13 @@ public:
     }
 
     static void Declare(const DSLModifiers& modifiers) {
-        DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::ModifiersDeclaration>(
-                DSLWriter::Modifiers(modifiers.fModifiers)));
+        ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::ModifiersDeclaration>(
+                ThreadContext::Modifiers(modifiers.fModifiers)));
     }
 
     static DSLStatement Declare(DSLVar& var, PositionInfo pos) {
         if (var.fDeclared) {
-            DSLWriter::ReportError("variable has already been declared", pos);
+            ThreadContext::ReportError("variable has already been declared", pos);
         }
         var.fDeclared = true;
         return DSLWriter::Declaration(var);
@@ -163,20 +163,20 @@ public:
 
     static void Declare(DSLGlobalVar& var, PositionInfo pos) {
         if (var.fDeclared) {
-            DSLWriter::ReportError("variable has already been declared", pos);
+            ThreadContext::ReportError("variable has already been declared", pos);
         }
         var.fDeclared = true;
         std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);
         if (stmt) {
             if (!stmt->isEmpty()) {
-                DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
-                        std::move(stmt)));
+                ThreadContext::ProgramElements().push_back(
+                        std::make_unique<SkSL::GlobalVarDeclaration>(std::move(stmt)));
             }
         } else if (var.fName == SkSL::Compiler::FRAGCOLOR_NAME) {
             // sk_FragColor can end up with a null declaration despite no error occurring due to
             // specific treatment in the compiler. Ignore the null and just grab the existing
             // variable from the symbol table.
-            const SkSL::Symbol* alreadyDeclared = (*DSLWriter::SymbolTable())[var.fName];
+            const SkSL::Symbol* alreadyDeclared = (*ThreadContext::SymbolTable())[var.fName];
             if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
                 var.fVar = &alreadyDeclared->as<Variable>();
                 var.fInitialized = true;
@@ -195,20 +195,20 @@ public:
     }
 
     static DSLPossibleStatement Do(DSLStatement stmt, DSLExpression test) {
-        return DoStatement::Convert(DSLWriter::Context(), stmt.release(), test.release());
+        return DoStatement::Convert(ThreadContext::Context(), stmt.release(), test.release());
     }
 
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
                                     DSLExpression next, DSLStatement stmt, PositionInfo pos) {
-        return ForStatement::Convert(DSLWriter::Context(), pos.line(),
+        return ForStatement::Convert(ThreadContext::Context(), pos.line(),
                                      initializer.releaseIfPossible(), test.releaseIfPossible(),
                                      next.releaseIfPossible(), stmt.release(),
-                                     DSLWriter::SymbolTable());
+                                     ThreadContext::SymbolTable());
     }
 
     static DSLPossibleStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
                                    bool isStatic) {
-        return IfStatement::Convert(DSLWriter::Context(), /*line=*/-1, isStatic, test.release(),
+        return IfStatement::Convert(ThreadContext::Context(), /*line=*/-1, isStatic, test.release(),
                                     ifTrue.release(), ifFalse.releaseIfPossible());
     }
 
@@ -225,34 +225,34 @@ public:
             if (baseType->isArray()) {
                 baseType = &baseType->componentType();
             }
-            DSLWriter::IRGenerator().checkVarDeclaration(pos.line(), field.fModifiers.fModifiers,
-                    baseType, Variable::Storage::kInterfaceBlock);
+            ThreadContext::IRGenerator().checkVarDeclaration(pos.line(),
+                    field.fModifiers.fModifiers, baseType, Variable::Storage::kInterfaceBlock);
             GetErrorReporter().reportPendingErrors(field.fPosition);
             skslFields.push_back(SkSL::Type::Field(field.fModifiers.fModifiers, field.fName,
                                                    &field.fType.skslType()));
         }
-        const SkSL::Type* structType = DSLWriter::SymbolTable()->takeOwnershipOfSymbol(
+        const SkSL::Type* structType = ThreadContext::SymbolTable()->takeOwnershipOfSymbol(
                 SkSL::Type::MakeStructType(pos.line(), typeName, std::move(skslFields)));
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
         DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName, DSLExpression(),
                 pos);
         // Interface blocks can't be declared, so we always need to mark the var declared ourselves.
         // We do this only when fDSLMarkVarDeclared is false, so we don't double-declare it.
-        if (!DSLWriter::Settings().fDSLMarkVarsDeclared) {
+        if (!ThreadContext::Settings().fDSLMarkVarsDeclared) {
             DSLWriter::MarkDeclared(var);
         }
         const SkSL::Variable* skslVar = DSLWriter::Var(var);
         if (skslVar) {
             auto intf = std::make_unique<SkSL::InterfaceBlock>(pos.line(),
-                    *skslVar, typeName, varName, arraySize, DSLWriter::SymbolTable());
-            DSLWriter::IRGenerator().scanInterfaceBlock(*intf);
-            DSLWriter::ProgramElements().push_back(std::move(intf));
+                    *skslVar, typeName, varName, arraySize, ThreadContext::SymbolTable());
+            ThreadContext::IRGenerator().scanInterfaceBlock(*intf);
+            ThreadContext::ProgramElements().push_back(std::move(intf));
             if (varName.empty()) {
                 const std::vector<SkSL::Type::Field>& structFields = structType->fields();
                 for (size_t i = 0; i < structFields.size(); ++i) {
-                    DSLWriter::SymbolTable()->add(std::make_unique<SkSL::Field>(pos.line(),
-                                                                                skslVar,
-                                                                                i));
+                    ThreadContext::SymbolTable()->add(std::make_unique<SkSL::Field>(pos.line(),
+                                                                                    skslVar,
+                                                                                    i));
                 }
             } else {
                 AddToSymbolTable(var);
@@ -272,7 +272,7 @@ public:
 
     static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a,
                                  PositionInfo pos) {
-        return DSLExpression(Swizzle::Convert(DSLWriter::Context(), base.release(),
+        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), base.release(),
                                               ComponentArray{a}),
                              pos);
     }
@@ -281,7 +281,7 @@ public:
                                  SkSL::SwizzleComponent::Type a,
                                  SkSL::SwizzleComponent::Type b,
                                  PositionInfo pos) {
-        return DSLExpression(Swizzle::Convert(DSLWriter::Context(), base.release(),
+        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), base.release(),
                                               ComponentArray{a, b}),
                              pos);
     }
@@ -291,7 +291,7 @@ public:
                                  SkSL::SwizzleComponent::Type b,
                                  SkSL::SwizzleComponent::Type c,
                                  PositionInfo pos) {
-        return DSLExpression(Swizzle::Convert(DSLWriter::Context(), base.release(),
+        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), base.release(),
                                               ComponentArray{a, b, c}),
                              pos);
     }
@@ -302,14 +302,14 @@ public:
                                  SkSL::SwizzleComponent::Type c,
                                  SkSL::SwizzleComponent::Type d,
                                  PositionInfo pos) {
-        return DSLExpression(Swizzle::Convert(DSLWriter::Context(), base.release(),
+        return DSLExpression(Swizzle::Convert(ThreadContext::Context(), base.release(),
                                               ComponentArray{a,b,c,d}),
                              pos);
     }
 
     static DSLPossibleExpression Select(DSLExpression test, DSLExpression ifTrue,
                                         DSLExpression ifFalse) {
-        return TernaryExpression::Convert(DSLWriter::Context(), test.release(),
+        return TernaryExpression::Convert(ThreadContext::Context(), test.release(),
                                           ifTrue.release(), ifFalse.release());
     }
 
@@ -324,14 +324,14 @@ public:
             caseBlocks.push_back(SkSL::Block::Make(/*line=*/-1,
                     std::move(c.fStatements), /*symbols=*/nullptr, /*isScope=*/false));
         }
-        return SwitchStatement::Convert(DSLWriter::Context(), /*line=*/-1, isStatic,
+        return SwitchStatement::Convert(ThreadContext::Context(), /*line=*/-1, isStatic,
                 value.release(), std::move(values), std::move(caseBlocks),
-                DSLWriter::SymbolTable());
+                ThreadContext::SymbolTable());
     }
 
     static DSLPossibleStatement While(DSLExpression test, DSLStatement stmt) {
-        return ForStatement::ConvertWhile(DSLWriter::Context(), /*line=*/-1, test.release(),
-                                          stmt.release(), DSLWriter::SymbolTable());
+        return ForStatement::ConvertWhile(ThreadContext::Context(), /*line=*/-1, test.release(),
+                                          stmt.release(), ThreadContext::SymbolTable());
     }
 };
 
@@ -352,8 +352,8 @@ DSLExpression sk_Position() {
 }
 
 void AddExtension(skstd::string_view name, PositionInfo pos) {
-    DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::Extension>(pos.line(), name));
-    DSLWriter::ReportErrors(pos);
+    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::Extension>(pos.line(), name));
+    ThreadContext::ReportErrors(pos);
 }
 
 DSLStatement Break(PositionInfo pos) {
@@ -365,10 +365,11 @@ DSLStatement Continue(PositionInfo pos) {
 }
 
 void Declare(const DSLModifiers& modifiers, PositionInfo pos) {
-    SkSL::ProgramKind kind = DSLWriter::GetProgramConfig()->fKind;
+    SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
     if (kind != ProgramKind::kFragment &&
         kind != ProgramKind::kVertex) {
-        DSLWriter::ReportError("layout qualifiers are not allowed in this kind of program", pos);
+        ThreadContext::ReportError("layout qualifiers are not allowed in this kind of program",
+                pos);
         return;
     }
     DSLCore::Declare(modifiers);
@@ -403,8 +404,8 @@ void Declare(SkTArray<DSLGlobalVar>& vars, PositionInfo pos) {
 }
 
 DSLStatement Discard(PositionInfo pos) {
-    if (DSLWriter::GetProgramConfig()->fKind != ProgramKind::kFragment) {
-        DSLWriter::ReportError("discard statement is only permitted in fragment shaders", pos);
+    if (ThreadContext::GetProgramConfig()->fKind != ProgramKind::kFragment) {
+        ThreadContext::ReportError("discard statement is only permitted in fragment shaders", pos);
     }
     return DSLCore::Discard(pos);
 }
@@ -428,10 +429,10 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, P
 DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  skstd::string_view typeName,
                             SkTArray<DSLField> fields, skstd::string_view varName, int arraySize,
                             PositionInfo pos) {
-    SkSL::ProgramKind kind = DSLWriter::GetProgramConfig()->fKind;
+    SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
     if (kind != ProgramKind::kFragment &&
         kind != ProgramKind::kVertex) {
-        DSLWriter::ReportError("interface blocks are not allowed in this kind of program", pos);
+        ThreadContext::ReportError("interface blocks are not allowed in this kind of program", pos);
         return DSLGlobalVar();
     }
     return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);

@@ -11,8 +11,8 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicMap.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -67,7 +67,7 @@ void FindAndDeclareBuiltinVariables(const Context& context,
     };
 
     BuiltinVariableScanner scanner(context);
-    for (auto& e : dsl::DSLWriter::ProgramElements()) {
+    for (auto& e : ThreadContext::ProgramElements()) {
         scanner.visitProgramElement(*e);
     }
 
