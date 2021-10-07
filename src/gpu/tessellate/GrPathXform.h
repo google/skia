@@ -28,15 +28,15 @@ public:
 
     GrPathXform& operator=(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
-        // Duplicate the matrix in float4.lo and float4.hi so we can map two points at once.
-        fScale = {m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()};
-        fSkew = {m.getSkewX(), m.getSkewY(), m.getSkewX(), m.getSkewY()};
-        fTrans = {m.getTranslateX(), m.getTranslateY(), m.getTranslateX(), m.getTranslateY()};
+        // Duplicate the matrix in float4.xy and float4.zw so we can map two points at once.
+        fScale = float2(m.getScaleX(), m.getScaleY()).xyxy();
+        fSkew = float2(m.getSkewX(), m.getSkewY()).xyxy();
+        fTrans = float2(m.getTranslateX(), m.getTranslateY()).xyxy();
         return *this;
     }
 
     SK_ALWAYS_INLINE float2 mapPoint(float2 p) const {
-        return fScale.lo * p + (fSkew.lo * skvx::shuffle<1,0>(p) + fTrans.lo);
+        return fScale.xy() * p + (fSkew.xy() * skvx::shuffle<1,0>(p) + fTrans.xy());
     }
 
     SK_ALWAYS_INLINE SkPoint mapPoint(SkPoint p) const {

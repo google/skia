@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+// Uncomment this line to test the scalar implementation.
+// #define SKNX_NO_SIMD
+
 #include "include/private/SkVx.h"
 #include "tests/Test.h"
 
@@ -163,4 +166,91 @@ DEF_TEST(SkVx, r) {
         REPORTER_ASSERT(r, all(skvx::  to_half(fs) == hs));
         REPORTER_ASSERT(r, all(skvx::from_half(hs) == fs));
     }
+}
+
+DEF_TEST(SkVx_xy, r) {
+    float2 f = float2(1,2);
+    REPORTER_ASSERT(r, all(f == float2{1,2}));
+    REPORTER_ASSERT(r, f.x() == 1);
+    REPORTER_ASSERT(r, f.y() == 2);
+    f.y() = 9;
+    REPORTER_ASSERT(r, all(f == float2{1,9}));
+    f.x() = 0;
+    REPORTER_ASSERT(r, all(f == float2(0,9)));
+    f[0] = 8;
+    REPORTER_ASSERT(r, f.x() == 8);
+    f[1] = 6;
+    REPORTER_ASSERT(r, f.y() == 6);
+    REPORTER_ASSERT(r, all(f == float2(8,6)));
+    f = f.yx();
+    REPORTER_ASSERT(r, all(f == float2(6,8)));
+    REPORTER_ASSERT(r, skvx::bit_pun<SkPoint>(f) == SkPoint::Make(6,8));
+    SkPoint p;
+    f.store(&p);
+    REPORTER_ASSERT(r, p == SkPoint::Make(6,8));
+    f.yx().store(&p);
+    REPORTER_ASSERT(r, p == SkPoint::Make(8,6));
+    REPORTER_ASSERT(r, all(f.xyxy() == float4(6,8,6,8)));
+    REPORTER_ASSERT(r, all(f.xyxy() == float4(f,f)));
+    REPORTER_ASSERT(r, all(skvx::join(f,f) == f.xyxy()));
+    REPORTER_ASSERT(r, all(skvx::join(f.yx(),f) == float4(f.y(),f.x(),f)));
+    REPORTER_ASSERT(r, all(skvx::join(f.yx(),f) == float4(f.yx(),f.x(),f.y())));
+    REPORTER_ASSERT(r, all(skvx::join(f,f.yx()) == float4(f.x(),f.y(),f.yx())));
+    REPORTER_ASSERT(r, all(skvx::join(f.yx(),f.yx()) == float4(f.yx(),f.yx())));
+}
+
+DEF_TEST(SkVx_xyzw, r) {
+    float4 f = float4{1,2,3,4};
+    REPORTER_ASSERT(r, all(f == float4(1,2,3,4)));
+    REPORTER_ASSERT(r, all(f == float4(1,2,float2(3,4))));
+    REPORTER_ASSERT(r, all(f == float4(float2(1,2),3,4)));
+    REPORTER_ASSERT(r, all(f == float4(float2(1,2),float2(3,4))));
+    f.xy() = float2(9,8);
+    REPORTER_ASSERT(r, all(f == float4(9,8,3,4)));
+    f.zw().x() = 7;
+    f.zw().y() = 6;
+    REPORTER_ASSERT(r, all(f == float4(9,8,7,6)));
+    f.x() = 5;
+    f.y() = 4;
+    f.z() = 3;
+    f.w() = 2;
+    REPORTER_ASSERT(r, all(f == float4(5,4,3,2)));
+    f[0] = 0;
+    REPORTER_ASSERT(r, f.x() == 0);
+    f[1] = 1;
+    REPORTER_ASSERT(r, f.y() == 1);
+    f[2] = 2;
+    REPORTER_ASSERT(r, f.z() == 2);
+    f[3] = 3;
+    REPORTER_ASSERT(r, f.w() == 3);
+    REPORTER_ASSERT(r, skvx::all(f.xy() == float2(0,1)));
+    REPORTER_ASSERT(r, skvx::all(f.zw() == float2{2,3}));
+    REPORTER_ASSERT(r, all(f == float4(0,1,2,3)));
+    REPORTER_ASSERT(r, all(f.yxwz().lo == skvx::shuffle<1,0>(f)));
+    REPORTER_ASSERT(r, all(f.yxwz().hi == skvx::shuffle<3,2>(f)));
+    REPORTER_ASSERT(r, all(f.zwxy().lo.lo == f.z()));
+    REPORTER_ASSERT(r, all(f.zwxy().lo.hi == f.w()));
+    REPORTER_ASSERT(r, all(f.zwxy().hi.lo == f.x()));
+    REPORTER_ASSERT(r, all(f.zwxy().hi.hi == f.y()));
+    REPORTER_ASSERT(r, f.yxwz().lo.lo.val == f.y());
+    REPORTER_ASSERT(r, f.yxwz().lo.hi.val == f.x());
+    REPORTER_ASSERT(r, f.yxwz().hi.lo.val == f.w());
+    REPORTER_ASSERT(r, f.yxwz().hi.hi.val == f.z());
+
+    REPORTER_ASSERT(r, all(skvx::naive_if_then_else(int2(0,~0),
+                                                    skvx::shuffle<3,2>(float4(0,1,2,3)),
+                                                    float4(4,5,6,7).xy()) == float2(4,2)));
+    REPORTER_ASSERT(r, all(skvx::if_then_else(int2(0,~0),
+                                              skvx::shuffle<3,2>(float4(0,1,2,3)),
+                                              float4(4,5,6,7).xy()) == float2(4,2)));
+    REPORTER_ASSERT(r, all(skvx::naive_if_then_else(int2(0,~0).xyxy(),
+                                                    float4(0,1,2,3).zwxy(),
+                                                    float4(4,5,6,7)) == float4(4,3,6,1)));
+    REPORTER_ASSERT(r, all(skvx::if_then_else(int2(0,~0).xyxy(),
+                                              float4(0,1,2,3).zwxy(),
+                                              float4(4,5,6,7)) == float4(4,3,6,1)));
+
+    REPORTER_ASSERT(r, all(skvx::pin(float4(0,1,2,3).yxwz(),
+                                     float2(1).xyxy(),
+                                     float2(2).xyxy()) == float4(1,1,2,2)));
 }
