@@ -83,7 +83,7 @@ bool Transform::EliminateDeadLocalVariables(Program& program, ProgramUsage* usag
             if (DeadLocalVariableEliminator::CanEliminate(var, counts)) {
                 // This program contains at least one dead local variable.
                 // Scan the program for any dead local variables and eliminate them all.
-                for (std::unique_ptr<ProgramElement>& pe : program.ownedElements()) {
+                for (std::unique_ptr<ProgramElement>& pe : program.fOwnedElements) {
                     if (pe->is<FunctionDefinition>()) {
                         visitor.visitProgramElement(*pe);
                     }

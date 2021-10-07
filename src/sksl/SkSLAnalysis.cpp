@@ -582,7 +582,7 @@ void Analysis::VerifyStaticTestsAndExpressions(const Program& program) {
 
     // Check all of the program's owned elements. (Built-in elements are assumed to be valid.)
     TestsAndExpressions visitor{*program.fContext};
-    for (const std::unique_ptr<ProgramElement>& element : program.ownedElements()) {
+    for (const std::unique_ptr<ProgramElement>& element : program.fOwnedElements) {
         visitor.visitProgramElement(*element);
     }
 }

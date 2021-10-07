@@ -190,7 +190,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
 
     // Process every function in our program.
     ProgramSizeVisitor visitor{context};
-    for (const std::unique_ptr<ProgramElement>& element : program.ownedElements()) {
+    for (const std::unique_ptr<ProgramElement>& element : program.fOwnedElements) {
         if (element->is<FunctionDefinition>()) {
             // Visit every function--we want to detect static recursion and report it as an error,
             // even in unreferenced functions.

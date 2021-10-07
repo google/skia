@@ -477,12 +477,12 @@ bool Compiler::removeDeadFunctions(Program& program, ProgramUsage* usage) {
             return true;
         };
 
-        program.fElements.erase(std::remove_if(program.fElements.begin(),
-                                               program.fElements.end(),
-                                               [&](const std::unique_ptr<ProgramElement>& element) {
-                                                   return isDeadFunction(element.get());
-                                               }),
-                                program.fElements.end());
+        program.fOwnedElements.erase(std::remove_if(program.fOwnedElements.begin(),
+                                                    program.fOwnedElements.end(),
+                                                    [&](const std::unique_ptr<ProgramElement>& pe) {
+                                                        return isDeadFunction(pe.get());
+                                                    }),
+                                     program.fOwnedElements.end());
         program.fSharedElements.erase(std::remove_if(program.fSharedElements.begin(),
                                                      program.fSharedElements.end(),
                                                      isDeadFunction),
@@ -508,12 +508,12 @@ bool Compiler::removeDeadGlobalVariables(Program& program, ProgramUsage* usage) 
             return true;
         };
 
-        program.fElements.erase(std::remove_if(program.fElements.begin(),
-                                               program.fElements.end(),
-                                               [&](const std::unique_ptr<ProgramElement>& element) {
-                                                   return isDeadVariable(element.get());
-                                               }),
-                                program.fElements.end());
+        program.fOwnedElements.erase(std::remove_if(program.fOwnedElements.begin(),
+                                                    program.fOwnedElements.end(),
+                                                    [&](const std::unique_ptr<ProgramElement>& pe) {
+                                                        return isDeadVariable(pe.get());
+                                                    }),
+                                     program.fOwnedElements.end());
         program.fSharedElements.erase(std::remove_if(program.fSharedElements.begin(),
                                                      program.fSharedElements.end(),
                                                      isDeadVariable),
@@ -523,7 +523,7 @@ bool Compiler::removeDeadGlobalVariables(Program& program, ProgramUsage* usage) 
 }
 
 void Compiler::removeUnreachableCode(Program& program, ProgramUsage* usage) {
-    for (std::unique_ptr<ProgramElement>& pe : program.ownedElements()) {
+    for (std::unique_ptr<ProgramElement>& pe : program.fOwnedElements) {
         if (pe->is<FunctionDefinition>()) {
             Transform::EliminateUnreachableCode(pe->as<FunctionDefinition>().body(), usage);
         }
@@ -542,7 +542,7 @@ bool Compiler::optimize(Program& program) {
     if (this->errorCount() == 0) {
         // Run the inliner only once; it is expensive! Multiple passes can occasionally shake out
         // more wins, but it's diminishing returns.
-        this->runInliner(program.ownedElements(), program.fSymbols, usage);
+        this->runInliner(program.fOwnedElements, program.fSymbols, usage);
 
         // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
         this->removeUnreachableCode(program, usage);
@@ -589,7 +589,7 @@ bool Compiler::finalize(Program& program) {
     if (fContext->fConfig->strictES2Mode() && this->errorCount() == 0) {
         // Enforce Appendix A, Section 5 of the GLSL ES 1.00 spec -- Indexing. This logic assumes
         // that all loops meet the criteria of Section 4, and if they don't, could crash.
-        for (const auto& pe : program.ownedElements()) {
+        for (const auto& pe : program.fOwnedElements) {
             Analysis::ValidateIndexingForES2(*pe, this->errorReporter());
         }
         // Verify that the program size is reasonable after unrolling and inlining. This also
