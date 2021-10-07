@@ -3611,6 +3611,151 @@ protected:
 private:
     using INHERITED = Sample;
 };
+
+// Baseline shift
+class ParagraphView63 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("ParagraphView63"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+        TextStyle roboto;
+        roboto.setColor(SK_ColorBLACK);
+        roboto.setFontFamilies({SkString("Roboto")});
+        roboto.setFontSize(20.0f);
+
+        TextStyle assyrian;
+        assyrian.setColor(SK_ColorRED);
+        assyrian.setFontFamilies({SkString("Assyrian")});
+        assyrian.setFontSize(40.0f);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(roboto);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+        roboto.setBaselineShift(0.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Notice that the line height increased on the lines with ");
+        assyrian.setBaselineShift(.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("baseline shifts:\n");
+
+        roboto.setBaselineShift(0.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Zero baseline shift text ");
+
+        assyrian.setBaselineShift(-20.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Up20");
+
+        roboto.setBaselineShift(-40.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Up40");
+
+        assyrian.setBaselineShift(-60.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Up60");
+
+        roboto.setBaselineShift(-40.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Up40");
+
+        assyrian.setBaselineShift(-20.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Up20");
+
+        roboto.setBaselineShift(-0.0f);
+        builder.pushStyle(roboto);
+        builder.addText(" Zero baseline shift text\n");
+
+        assyrian.addShadow(TextShadow(SK_ColorGREEN, SkPoint::Make(5, 5), 2));
+        assyrian.setDecorationStyle(TextDecorationStyle::kSolid);
+        assyrian.setDecoration(TextDecoration::kUnderline);
+        assyrian.setDecorationColor(SK_ColorBLUE);
+
+        roboto.setBaselineShift(0.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Notice that shadows and decorations are shifted if there is a text with ");
+        assyrian.setBaselineShift(.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("baseline shifts:\n");
+
+        assyrian.setDecoration(TextDecoration::kNoDecoration);
+
+        roboto.setBaselineShift(0.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Zero baseline shift text ");
+
+        assyrian.setBaselineShift(20.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Down20");
+
+        roboto.setBaselineShift(40.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Down40");
+
+        assyrian.setBaselineShift(60.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Down60");
+
+        roboto.setBaselineShift(40.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Down40");
+
+        assyrian.setBaselineShift(20.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Down20");
+
+        roboto.setBaselineShift(0.0f);
+        builder.pushStyle(roboto);
+        builder.addText(" Zero baseline shift text\n");
+
+        assyrian.resetShadows();
+        assyrian.setDecorationStyle(TextDecorationStyle::kSolid);
+        assyrian.setDecoration(TextDecoration::kUnderline);
+        assyrian.setDecorationColor(SK_ColorBLUE);
+
+        roboto.setBaselineShift(0.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Zero baseline shift text ");
+
+        assyrian.setBaselineShift(-20.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Up20");
+
+        roboto.setBaselineShift(-40.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Up40");
+
+        assyrian.setBaselineShift(-60.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Up60");
+
+        roboto.setBaselineShift(-40.0f);
+        builder.pushStyle(roboto);
+        builder.addText("Up40");
+
+        assyrian.setBaselineShift(-20.0f);
+        builder.pushStyle(assyrian);
+        builder.addText("Up20");
+
+        roboto.setBaselineShift(-0.0f);
+        builder.pushStyle(roboto);
+        builder.addText(" Zero baseline shift text");
+
+        auto paragraph = builder.Build();
+        paragraph->layout(SK_ScalarInfinity);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3674,3 +3819,4 @@ DEF_SAMPLE(return new ParagraphView59();)
 DEF_SAMPLE(return new ParagraphView60();)
 DEF_SAMPLE(return new ParagraphView61();)
 DEF_SAMPLE(return new ParagraphView62();)
+DEF_SAMPLE(return new ParagraphView63();)

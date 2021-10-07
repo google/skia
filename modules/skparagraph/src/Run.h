@@ -59,6 +59,7 @@ public:
         size_t firstChar,
         SkScalar heightMultiplier,
         bool useHalfLeading,
+        SkScalar baselineShift,
         size_t index,
         SkScalar shiftX);
     Run(const Run&) = default;
@@ -85,11 +86,11 @@ public:
         return SkVector::Make(fAdvance.fX, fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
     }
     SkVector offset() const { return fOffset; }
-    SkScalar ascent() const { return fFontMetrics.fAscent; }
-    SkScalar descent() const { return fFontMetrics.fDescent; }
+    SkScalar ascent() const { return fFontMetrics.fAscent + fBaselineShift; }
+    SkScalar descent() const { return fFontMetrics.fDescent + fBaselineShift; }
     SkScalar leading() const { return fFontMetrics.fLeading; }
-    SkScalar correctAscent() const { return fCorrectAscent; }
-    SkScalar correctDescent() const { return fCorrectDescent; }
+    SkScalar correctAscent() const { return fCorrectAscent + fBaselineShift; }
+    SkScalar correctDescent() const { return fCorrectDescent + fBaselineShift; }
     SkScalar correctLeading() const { return fCorrectLeading; }
     const SkFont& font() const { return fFont; }
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
@@ -97,6 +98,7 @@ public:
     size_t index() const { return fIndex; }
     SkScalar heightMultiplier() const { return fHeightMultiplier; }
     bool useHalfLeading() const { return fUseHalfLeading; }
+    SkScalar baselineShift() const { return fBaselineShift; }
     PlaceholderStyle* placeholderStyle() const;
     bool isPlaceholder() const { return fPlaceholderIndex != std::numeric_limits<size_t>::max(); }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
@@ -193,6 +195,7 @@ private:
     SkFontMetrics fFontMetrics;
     const SkScalar fHeightMultiplier;
     const bool fUseHalfLeading;
+    const SkScalar fBaselineShift;
     SkScalar fCorrectAscent;
     SkScalar fCorrectDescent;
     SkScalar fCorrectLeading;

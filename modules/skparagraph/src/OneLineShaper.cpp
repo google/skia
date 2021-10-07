@@ -210,6 +210,7 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
                     run->fClusterStart,
                     height,
                     block.fStyle.getHalfLeading(),
+                    block.fStyle.getBaselineShift(),
                     this->fParagraph->fRuns.count(),
                     advanceX
                 );
@@ -606,6 +607,7 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                                        runInfo,
                                        placeholder.fRange.start,
                                        0.0f,
+                                       0.0f,
                                        false,
                                        fParagraph->fRuns.count(),
                                        advanceX);
@@ -643,6 +645,7 @@ bool OneLineShaper::shape() {
             // Start from the beginning (hoping that it's a simple case one block - one run)
             fHeight = block.fStyle.getHeightOverride() ? block.fStyle.getHeight() : 0;
             fUseHalfLeading = block.fStyle.getHalfLeading();
+            fBaselineShift = block.fStyle.getBaselineShift();
             fAdvance = SkVector::Make(advanceX, 0);
             fCurrentText = block.fRange;
             fUnresolvedBlocks.emplace_back(RunBlock(block.fRange));
