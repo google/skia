@@ -13,108 +13,64 @@
 namespace skgpu {
 
 /**
- * Defines overloaded bitwise operators to make it easier to use an enum as a
- * bitfield.
+ * Wraps an enum that is used for flags, and enables masking with type safety. Example:
+ *
+ *   enum class MyFlags {
+ *       kNone = 0,
+ *       kA = 1,
+ *       kB = 2,
+ *       kC = 4,
+ *   };
+ *
+ *   SKGPU_MAKE_MASK_OPS(MyFlags)
+ *
+ *   ...
+ *
+ *       Mask<MyFlags> flags = MyFlags::kA | MyFlags::kB;
+ *
+ *       if (flags & MyFlags::kB) {}
+ *
+ *   ...
  */
-#define SKGPU_MAKE_BITFIELD_OPS(X) \
-    inline X operator |(X a, X b) { \
-        return (X) (+a | +b); \
-    } \
-    inline X& operator |=(X& a, X b) { \
-        return (a = a | b); \
-    } \
-    inline X operator &(X a, X b) { \
-        return (X) (+a & +b); \
-    } \
-    inline X& operator &=(X& a, X b) { \
-        return (a = a & b); \
-    } \
-    template <typename T> \
-    inline X operator &(T a, X b) { \
-        return (X) (+a & +b); \
-    } \
-    template <typename T> \
-    inline X operator &(X a, T b) { \
-        return (X) (+a & +b); \
-    } \
-
-#define SKGPU_DECL_BITFIELD_OPS_FRIENDS(X) \
-    friend X operator |(X a, X b); \
-    friend X& operator |=(X& a, X b); \
-    \
-    friend X operator &(X a, X b); \
-    friend X& operator &=(X& a, X b); \
-    \
-    template <typename T> \
-    friend X operator &(T a, X b); \
-    \
-    template <typename T> \
-    friend X operator &(X a, T b); \
-
-/**
- * Wraps a C++11 enum that we use as a bitfield, and enables a limited amount of
- * masking with type safety. Instantiated with the ~ operator.
- */
-template<typename TFlags> class TFlagsMask {
+template<typename E>
+class Mask {
 public:
-    constexpr explicit TFlagsMask(TFlags value) : TFlagsMask(static_cast<int>(value)) {}
-    constexpr explicit TFlagsMask(int value) : fValue(value) {}
-    constexpr int value() const { return fValue; }
+    SK_ALWAYS_INLINE constexpr Mask(E e) : Mask((int)e) {}
+
+    SK_ALWAYS_INLINE constexpr operator bool() const { return fValue; }
+
+    SK_ALWAYS_INLINE bool operator==(Mask m) const { return fValue == m.fValue; }
+    SK_ALWAYS_INLINE bool operator!=(Mask m) const { return fValue != m.fValue; }
+
+    SK_ALWAYS_INLINE constexpr Mask operator|(Mask m) const { return Mask(fValue | m.fValue); }
+    SK_ALWAYS_INLINE constexpr Mask operator&(Mask m) const { return Mask(fValue & m.fValue); }
+    SK_ALWAYS_INLINE constexpr Mask operator^(Mask m) const { return Mask(fValue ^ m.fValue); }
+    SK_ALWAYS_INLINE constexpr Mask operator~() const { return Mask(~fValue); }
+
+    SK_ALWAYS_INLINE Mask& operator|=(Mask m) { return *this = *this | m; }
+    SK_ALWAYS_INLINE Mask& operator&=(Mask m) { return *this = *this & m; }
+    SK_ALWAYS_INLINE Mask& operator^=(Mask m) { return *this = *this ^ m; }
+
 private:
-    const int fValue;
+    SK_ALWAYS_INLINE constexpr explicit Mask(int value) : fValue(value) {}
+
+    int fValue;
 };
 
 /**
- * Defines bitwise operators that make it possible to use an enum class as a
- * basic bitfield.
+ * Defines functions that make it possible to use bitwise operators on an enum.
  */
-#define SKGPU_MAKE_BITFIELD_CLASS_OPS(X) \
-    SK_MAYBE_UNUSED constexpr TFlagsMask<X> operator~(X a) { \
-        return TFlagsMask<X>(~static_cast<int>(a)); \
-    } \
-    SK_MAYBE_UNUSED constexpr X operator|(X a, X b) { \
-        return static_cast<X>(static_cast<int>(a) | static_cast<int>(b)); \
-    } \
-    SK_MAYBE_UNUSED inline X& operator|=(X& a, X b) { \
-        return (a = a | b); \
-    } \
-    SK_MAYBE_UNUSED constexpr bool operator&(X a, X b) { \
-        return SkToBool(static_cast<int>(a) & static_cast<int>(b)); \
-    } \
-    SK_MAYBE_UNUSED constexpr TFlagsMask<X> operator|(TFlagsMask<X> a, TFlagsMask<X> b) { \
-        return TFlagsMask<X>(a.value() | b.value()); \
-    } \
-    SK_MAYBE_UNUSED constexpr TFlagsMask<X> operator|(TFlagsMask<X> a, X b) { \
-        return TFlagsMask<X>(a.value() | static_cast<int>(b)); \
-    } \
-    SK_MAYBE_UNUSED constexpr TFlagsMask<X> operator|(X a, TFlagsMask<X> b) { \
-        return TFlagsMask<X>(static_cast<int>(a) | b.value()); \
-    } \
-    SK_MAYBE_UNUSED constexpr X operator&(TFlagsMask<X> a, TFlagsMask<X> b) { \
-        return static_cast<X>(a.value() & b.value()); \
-    } \
-    SK_MAYBE_UNUSED constexpr X operator&(TFlagsMask<X> a, X b) { \
-        return static_cast<X>(a.value() & static_cast<int>(b)); \
-    } \
-    SK_MAYBE_UNUSED constexpr X operator&(X a, TFlagsMask<X> b) { \
-        return static_cast<X>(static_cast<int>(a) & b.value()); \
-    } \
-    SK_MAYBE_UNUSED inline X& operator&=(X& a, TFlagsMask<X> b) { \
-        return (a = a & b); \
-    } \
+#define SKGPU_MAKE_MASK_OPS(E) \
+    SK_MAYBE_UNUSED constexpr skgpu::Mask<E> operator|(E a, E b) { return skgpu::Mask<E>(a) | b; } \
+    SK_MAYBE_UNUSED constexpr skgpu::Mask<E> operator&(E a, E b) { return skgpu::Mask<E>(a) & b; } \
+    SK_MAYBE_UNUSED constexpr skgpu::Mask<E> operator^(E a, E b) { return skgpu::Mask<E>(a) ^ b; } \
+    SK_MAYBE_UNUSED constexpr skgpu::Mask<E> operator~(E e) { return ~skgpu::Mask<E>(e); } \
 
-#define SKGPU_DECL_BITFIELD_CLASS_OPS_FRIENDS(X) \
-    friend constexpr TFlagsMask<X> operator ~(X); \
-    friend constexpr X operator |(X, X); \
-    friend X& operator |=(X&, X); \
-    friend constexpr bool operator &(X, X); \
-    friend constexpr TFlagsMask<X> operator|(TFlagsMask<X>, TFlagsMask<X>); \
-    friend constexpr TFlagsMask<X> operator|(TFlagsMask<X>, X); \
-    friend constexpr TFlagsMask<X> operator|(X, TFlagsMask<X>); \
-    friend constexpr X operator&(TFlagsMask<X>, TFlagsMask<X>); \
-    friend constexpr X operator&(TFlagsMask<X>, X); \
-    friend constexpr X operator&(X, TFlagsMask<X>); \
-    friend X& operator &=(X&, TFlagsMask<X>)
+#define SKGPU_DECL_MASK_OPS_FRIENDS(E) \
+    friend constexpr skgpu::Mask<E> operator|(E, E); \
+    friend constexpr skgpu::Mask<E> operator&(E, E); \
+    friend constexpr skgpu::Mask<E> operator^(E, E); \
+    friend constexpr skgpu::Mask<E> operator~(E); \
 
 /**
  * Possible 3D APIs that may be used by Graphite.
