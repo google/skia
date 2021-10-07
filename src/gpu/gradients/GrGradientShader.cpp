@@ -85,47 +85,42 @@ static std::unique_ptr<GrFragmentProcessor> make_dual_interval_colorizer(const S
                                                                          const SkPMColor4f& c3,
                                                                          float threshold) {
     static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform float4 scale01;
-        uniform float4 bias01;
-        uniform float4 scale23;
-        uniform float4 bias23;
+        uniform float4 scale[2];
+        uniform float4 bias[2];
         uniform half threshold;
 
         half4 main(float2 coord) {
             half t = half(coord.x);
 
-            float4 scale, bias;
+            float4 s, b;
             if (t < threshold) {
-                scale = scale01;
-                bias = bias01;
+                s = scale[0];
+                b = bias[0];
             } else {
-                scale = scale23;
-                bias = bias23;
+                s = scale[1];
+                b = bias[1];
             }
 
-            return half4(t * scale + bias);
+            return half4(t * s + b);
         }
     )");
 
     using sk4f = skvx::Vec<4, float>;
 
     // Derive scale and biases from the 4 colors and threshold
-    auto vc0 = sk4f::Load(c0.vec());
-    auto vc1 = sk4f::Load(c1.vec());
-    auto scale01 = (vc1 - vc0) / threshold;
-    // bias01 = c0
+    sk4f vc0 = sk4f::Load(c0.vec());
+    sk4f vc1 = sk4f::Load(c1.vec());
+    sk4f vc2 = sk4f::Load(c2.vec());
+    sk4f vc3 = sk4f::Load(c3.vec());
 
-    auto vc2 = sk4f::Load(c2.vec());
-    auto vc3 = sk4f::Load(c3.vec());
-    auto scale23 = (vc3 - vc2) / (1 - threshold);
-    auto bias23 = vc2 - threshold * scale23;
-
+    const sk4f scale[2] = {(vc1 - vc0) / threshold,
+                           (vc3 - vc2) / (1 - threshold)};
+    const sk4f bias[2]  = {vc0,
+                           vc2 - threshold * scale[1]};
     return GrSkSLFP::Make(effect, "DualIntervalColorizer", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kNone,
-                          "scale01", scale01,
-                          "bias01", c0,
-                          "scale23", scale23,
-                          "bias23", bias23,
+                          "scale", SkMakeSpan(scale),
+                          "bias", SkMakeSpan(bias),
                           "threshold", threshold);
 }
 
