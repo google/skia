@@ -80,6 +80,8 @@ private:
                              const TextAnimator::DomainSpan*) const;
     uint32_t shaperFlags() const;
 
+    SkM44 fragmentMatrix(const TextAnimator::ResolvedProps&, const FragmentRec&, const SkV2&) const;
+
     const sk_sp<sksg::Group>         fRoot;
     const sk_sp<SkFontMgr>           fFontMgr;
     sk_sp<Logger>                    fLogger;
@@ -107,11 +109,15 @@ private:
         mutable TextValue fPrevValue;
     };
 
-    TextValueTracker fText;
-    Vec2Value        fGroupingAlignment = {0,0};
+    TextValueTracker          fText;
+    Vec2Value                 fGroupingAlignment = {0,0};
 
-    bool             fHasBlurAnimator     : 1,
-                     fRequiresAnchorPoint : 1;
+    // Optional text path.
+    struct PathInfo;
+    std::unique_ptr<PathInfo> fPathInfo;
+
+    bool                      fHasBlurAnimator     : 1,
+                              fRequiresAnchorPoint : 1;
 };
 
 } // namespace internal

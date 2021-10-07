@@ -7,6 +7,7 @@
 
 #include "modules/skottie/src/text/TextAdapter.h"
 
+#include "include/core/SkContourMeasure.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkM44.h"
 #include "include/private/SkTPin.h"
@@ -16,13 +17,136 @@
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGPaint.h"
+#include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGRect.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "modules/sksg/include/SkSGText.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
-namespace skottie {
-namespace internal {
+// Enable for text layout debugging.
+#define SHOW_LAYOUT_BOXES 0
+
+namespace skottie::internal {
+
+static float align_factor(SkTextUtils::Align a) {
+    switch (a) {
+        case SkTextUtils::kLeft_Align  : return 0.0f;
+        case SkTextUtils::kCenter_Align: return 0.5f;
+        case SkTextUtils::kRight_Align : return 1.0f;
+    }
+
+    SkUNREACHABLE;
+};
+
+// Text path semantics
+//
+//   * glyphs are positioned on the path based on their horizontal/x anchor point, interpreted as
+//     a distance along the path
+//
+//   * horizontal alignment is applied relative to the path start/end points
+//
+//   * "Reverse Path" allows reversing the path direction
+//
+//   * "Perpendicular To Path" determines whether glyphs are rotated to be perpendicular
+//      to the path tangent, or not (just positioned).
+//
+//   * two controls ("First Margin" and "Last Margin") allow arbitrary offseting along the path,
+//     depending on horizontal alignement:
+//       - left:   offset = first margin
+//       - center: offset = first margin + last margin
+//       - right:  offset = last margin
+//
+//   * extranormal path positions (d < 0, d > path len) are allowed
+//       - closed path: the position wraps around in both directions
+//       - open path: extrapolates from extremes' positions/slopes
+//
+struct TextAdapter::PathInfo {
+    ShapeValue  fPath;
+    ScalarValue fPathFMargin       = 0,
+                fPathLMargin       = 0,
+                fPathPerpendicular = 0,
+                fPathReverse       = 0;
+
+    SkM44 getMatrix(float distance, SkTextUtils::Align alignment) {
+        const auto reverse = fPathReverse != 0;
+
+        if (fPath != fCurrentPath || reverse != fCurrentReversed) {
+            // reinitialize cached contour data
+            auto path = static_cast<SkPath>(fPath);
+            if (reverse) {
+                SkPath reversed;
+                reversed.reverseAddPath(path);
+                path = reversed;
+            }
+
+            SkContourMeasureIter iter(path, /*forceClosed = */false);
+            fCurrentMeasure  = iter.next();
+            fCurrentClosed   = path.isLastContourClosed();
+            fCurrentReversed = reverse;
+            fCurrentPath     = fPath;
+
+            // AE paths are always single-contour (no moves allowed).
+            SkASSERT(!iter.next());
+        }
+
+        if (!fCurrentMeasure) {
+            return SkM44();
+        }
+
+        const auto path_len = fCurrentMeasure->length();
+
+        // Alignment adjustment, relative to path len.
+        distance += path_len * align_factor(alignment);
+
+        // First/last margin adjustment also depends on alignment.
+        switch (alignment) {
+            case SkTextUtils::Align::kLeft_Align:   distance += fPathFMargin; break;
+            case SkTextUtils::Align::kCenter_Align: distance += fPathFMargin +
+                                                                fPathLMargin; break;
+            case SkTextUtils::Align::kRight_Align:  distance += fPathLMargin; break;
+        }
+
+        // For closed paths, extranormal distances wrap around the contour.
+        if (fCurrentClosed) {
+            distance = std::fmod(distance, path_len);
+            if (distance < 0) {
+                distance += path_len;
+            }
+            SkASSERT(0 <= distance && distance <= path_len);
+        }
+
+        SkPoint pos;
+        SkVector tan;
+        if (!fCurrentMeasure->getPosTan(distance, &pos, &tan)) {
+            return SkM44();
+        }
+
+        // For open paths, extranormal distances are extrapolated from extremes.
+        // Note:
+        //   - getPosTan above clamps to the extremes
+        //   - the extrapolation below only kicks in for extranormal values
+        const auto underflow = std::min(0.0f, distance),
+                   overflow  = std::max(0.0f, distance - path_len);
+        pos += tan*(underflow + overflow);
+
+        auto m = SkM44::Translate(pos.x(), pos.y());
+
+        // The "perpendicular" flag controls whether fragments are positioned and rotated,
+        // or just positioned.
+        if (fPathPerpendicular != 0) {
+            m = m * SkM44::Rotate({0,0,1}, std::atan2(tan.y(), tan.x()));
+        }
+
+        return m;
+    }
+
+private:
+    // Cached contour data.
+    ShapeValue              fCurrentPath;
+    sk_sp<SkContourMeasure> fCurrentMeasure;
+    bool                    fCurrentReversed = false,
+                            fCurrentClosed   = false;
+};
 
 sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
                                      const AnimationBuilder* abuilder,
@@ -51,11 +175,19 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
     //            }
     //        ]
     //    },
-    //    "m": { // "more options"
+    //    "m": { // more options
     //           "g": 1,     // Anchor Point Grouping
     //           "a": {...}  // Grouping Alignment
     //         },
-    //    "p": {}  // "path options" (TODO)
+    //    "p": { // path options
+    //           "a": 0,   // force alignment
+    //           "f": {},  // first margin
+    //           "l": {},  // last margin
+    //           "m": 1,   // mask index
+    //           "p": 1,   // perpendicular
+    //           "r": 0    // reverse path
+    //         }
+
     // },
 
     const skjson::ObjectValue* jt = jlayer["t"];
@@ -100,6 +232,43 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
             }
         }
     }
+
+    // Optional text path
+    const auto attach_path = [&](const skjson::ObjectValue* jpath) -> std::unique_ptr<PathInfo> {
+        if (!jpath) {
+            return nullptr;
+        }
+
+        // the actual path is identified as an index in the layer mask stack
+        const auto mask_index =
+                ParseDefault<size_t>((*jpath)["m"], std::numeric_limits<size_t>::max());
+        const skjson::ArrayValue* jmasks = jlayer["masksProperties"];
+        if (!jmasks || mask_index >= jmasks->size()) {
+            return nullptr;
+        }
+
+        const skjson::ObjectValue* mask = (*jmasks)[mask_index];
+        if (!mask) {
+            return nullptr;
+        }
+
+        auto pinfo = std::make_unique<PathInfo>();
+        adapter->bind(*abuilder, (*mask)["pt"], &pinfo->fPath);
+        adapter->bind(*abuilder, (*jpath)["f"], &pinfo->fPathFMargin);
+        adapter->bind(*abuilder, (*jpath)["l"], &pinfo->fPathLMargin);
+
+        // TODO: force align support
+        // TODO: these appear to be animatable in AE, but not in json
+        pinfo->fPathPerpendicular = ParseDefault((*jpath)["p"], 1.0f);
+        pinfo->fPathReverse       = ParseDefault((*jpath)["r"], 0.0f);
+
+        // Path positioning requires anchor point info.
+        adapter->fRequiresAnchorPoint = true;
+
+        return pinfo;
+    };
+
+    adapter->fPathInfo = attach_path((*jt)["p"]);
 
     abuilder->dispatchTextProperty(adapter);
 
@@ -166,8 +335,8 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
 
     SkASSERT(!draws.empty());
 
-    if (0) {
-        // enable to visualize fragment ascent boxes
+    if (SHOW_LAYOUT_BOXES) {
+        // visualize fragment ascent boxes
         auto box_color = sksg::Color::Make(0xff0000ff);
         box_color->setStyle(SkPaint::kStroke_Style);
         box_color->setStrokeWidth(1);
@@ -258,9 +427,10 @@ void TextAdapter::setText(const TextValue& txt) {
 uint32_t TextAdapter::shaperFlags() const {
     uint32_t flags = Shaper::Flags::kNone;
 
-    SkASSERT(!(fRequiresAnchorPoint && fAnimators.empty()));
-    if (!fAnimators.empty() ) flags |= Shaper::Flags::kFragmentGlyphs;
-    if (fRequiresAnchorPoint) flags |= Shaper::Flags::kTrackFragmentAdvanceAscent;
+    // We need granular fragments (as opposed to consolidated blobs) when animating, or when
+    // positioning on a path.
+    if (!fAnimators.empty()  || fPathInfo) flags |= Shaper::Flags::kFragmentGlyphs;
+    if (fRequiresAnchorPoint)              flags |= Shaper::Flags::kTrackFragmentAdvanceAscent;
 
     return flags;
 }
@@ -305,28 +475,38 @@ void TextAdapter::reshape() {
         this->addFragment(frag);
     }
 
-    if (!fAnimators.empty()) {
-        // Range selectors require fragment domain maps.
+    if (!fAnimators.empty() || fPathInfo) {
+        // Range selectors and text paths require fragment domain maps.
         this->buildDomainMaps(shape_result);
     }
 
-#if (0)
-    // Enable for text box debugging/visualization.
-    auto box_color = sksg::Color::Make(0xffff0000);
-    box_color->setStyle(SkPaint::kStroke_Style);
-    box_color->setStrokeWidth(1);
-    box_color->setAntiAlias(true);
+    if (SHOW_LAYOUT_BOXES) {
+        auto box_color = sksg::Color::Make(0xffff0000);
+        box_color->setStyle(SkPaint::kStroke_Style);
+        box_color->setStrokeWidth(1);
+        box_color->setAntiAlias(true);
 
-    auto bounds_color = sksg::Color::Make(0xff00ff00);
-    bounds_color->setStyle(SkPaint::kStroke_Style);
-    bounds_color->setStrokeWidth(1);
-    bounds_color->setAntiAlias(true);
+        auto bounds_color = sksg::Color::Make(0xff00ff00);
+        bounds_color->setStyle(SkPaint::kStroke_Style);
+        bounds_color->setStrokeWidth(1);
+        bounds_color->setAntiAlias(true);
 
-    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(fText->fBox),
-                                     std::move(box_color)));
-    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(shape_result.computeVisualBounds()),
-                                     std::move(bounds_color)));
-#endif
+        fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(fText->fBox),
+                                         std::move(box_color)));
+        fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(shape_result.computeVisualBounds()),
+                                         std::move(bounds_color)));
+
+        if (fPathInfo) {
+            auto path_color = sksg::Color::Make(0xffffff00);
+            path_color->setStyle(SkPaint::kStroke_Style);
+            path_color->setStrokeWidth(1);
+            path_color->setAntiAlias(true);
+
+            fRoot->addChild(
+                        sksg::Draw::Make(sksg::Path::Make(static_cast<SkPath>(fPathInfo->fPath)),
+                                         std::move(path_color)));
+        }
+    }
 }
 
 void TextAdapter::onSync() {
@@ -466,6 +646,24 @@ SkV2 TextAdapter::fragmentAnchorPoint(const FragmentRec& rec,
     return ap - SkV2 { rec.fOrigin.fX, rec.fOrigin.fY };
 }
 
+SkM44 TextAdapter::fragmentMatrix(const TextAnimator::ResolvedProps& props,
+                                  const FragmentRec& rec, const SkV2& anchor_point) const {
+    const SkV3 pos = {
+        props.position.x + rec.fOrigin.fX + anchor_point.x,
+        props.position.y + rec.fOrigin.fY + anchor_point.y,
+        props.position.z
+    };
+
+    if (!fPathInfo) {
+        return SkM44::Translate(pos.x, pos.y, pos.z);
+    }
+
+    // When using a text path, the horizontal component determines the position on path.
+    const auto path_distance = pos.x;
+    return fPathInfo->getMatrix(path_distance, fText->fHAlign)
+         * SkM44::Translate(0, pos.y, pos.z);
+}
+
 void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
                                       const FragmentRec& rec,
                                       const SkV2& grouping_alignment,
@@ -473,9 +671,7 @@ void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
     const auto anchor_point = this->fragmentAnchorPoint(rec, grouping_alignment, grouping_span);
 
     rec.fMatrixNode->setMatrix(
-                SkM44::Translate(props.position.x + rec.fOrigin.x() + anchor_point.x,
-                                 props.position.y + rec.fOrigin.y() + anchor_point.y,
-                                 props.position.z)
+                this->fragmentMatrix(props, rec, anchor_point)
               * SkM44::Rotate({ 1, 0, 0 }, SkDegreesToRadians(props.rotation.x))
               * SkM44::Rotate({ 0, 1, 0 }, SkDegreesToRadians(props.rotation.y))
               * SkM44::Rotate({ 0, 0, 1 }, SkDegreesToRadians(props.rotation.z))
@@ -515,18 +711,7 @@ void TextAdapter::adjustLineProps(const TextAnimator::ModulatorBuffer& buf,
     total_tracking -= 0.5f * (buf[line_span.fOffset].props.tracking +
                               buf[line_span.fOffset + line_span.fCount - 1].props.tracking);
 
-    static const auto align_factor = [](SkTextUtils::Align a) {
-        switch (a) {
-        case SkTextUtils::kLeft_Align  : return  0.0f;
-        case SkTextUtils::kCenter_Align: return -0.5f;
-        case SkTextUtils::kRight_Align : return -1.0f;
-        }
-
-        SkASSERT(false);
-        return 0.0f;
-    };
-
-    const auto align_offset = total_tracking * align_factor(fText->fHAlign);
+    const auto align_offset = -total_tracking * align_factor(fText->fHAlign);
 
     float tracking_acc = 0;
     for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {
@@ -549,5 +734,4 @@ void TextAdapter::adjustLineProps(const TextAnimator::ModulatorBuffer& buf,
     }
 }
 
-} // namespace internal
-} // namespace skottie
+} // namespace skottie::internal
