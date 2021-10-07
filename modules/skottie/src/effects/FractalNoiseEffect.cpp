@@ -397,9 +397,9 @@ private:
                 : SkV2{fScaleWidth, fScaleHeight};
 
         return SkMatrix::Translate(fOffset.x, fOffset.y)
-             * SkMatrix::RotateDeg(fRotation)
              * SkMatrix::Scale(SkTPin(scale.x, 1.0f, 10000.0f) * 0.01f,
                                SkTPin(scale.y, 1.0f, 10000.0f) * 0.01f)
+             * SkMatrix::RotateDeg(fRotation)
              * SkMatrix::Scale(kGridSize, kGridSize);
     }
 
