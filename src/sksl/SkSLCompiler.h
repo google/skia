@@ -232,15 +232,6 @@ private:
     /** Optimize the module. */
     bool optimize(LoadedModule& module);
 
-    /** Eliminates unused functions from a Program, according to the stats in ProgramUsage. */
-    bool removeDeadFunctions(Program& program, ProgramUsage* usage);
-
-    /** Eliminates unreferenced variables from a Program, according to the stats in ProgramUsage. */
-    bool removeDeadGlobalVariables(Program& program, ProgramUsage* usage);
-
-    /** Eliminates unreachable statements from a Program. */
-    void removeUnreachableCode(Program& program, ProgramUsage* usage);
-
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                     std::shared_ptr<SymbolTable> symbols,

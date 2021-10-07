@@ -194,6 +194,8 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLVariableReference.h",
   "$_src/sksl/spirv.h",
   "$_src/sksl/transform/SkSLBuiltinVariableScanner.cpp",
+  "$_src/sksl/transform/SkSLEliminateDeadFunctions.cpp",
+  "$_src/sksl/transform/SkSLEliminateDeadGlobalVariables.cpp",
   "$_src/sksl/transform/SkSLEliminateDeadLocalVariables.cpp",
   "$_src/sksl/transform/SkSLEliminateUnreachableCode.cpp",
   "$_src/sksl/transform/SkSLTransform.h",

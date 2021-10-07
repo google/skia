@@ -6,6 +6,7 @@
  */
 
 #include "include/private/SkSLStatement.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -16,7 +17,7 @@
 
 namespace SkSL {
 
-void Transform::EliminateUnreachableCode(std::unique_ptr<Statement>& stmt, ProgramUsage* usage) {
+void Transform::EliminateUnreachableCode(Program& program, ProgramUsage* usage) {
     class UnreachableCodeEliminator : public ProgramWriter {
     public:
         UnreachableCodeEliminator(ProgramUsage* usage)
@@ -131,8 +132,12 @@ void Transform::EliminateUnreachableCode(std::unique_ptr<Statement>& stmt, Progr
         using INHERITED = ProgramWriter;
     };
 
-    UnreachableCodeEliminator visitor{usage};
-    visitor.visitStatementPtr(stmt);
+    for (std::unique_ptr<ProgramElement>& pe : program.fOwnedElements) {
+        if (pe->is<FunctionDefinition>()) {
+            UnreachableCodeEliminator visitor{usage};
+            visitor.visitStatementPtr(pe->as<FunctionDefinition>().body());
+        }
+    }
 }
 
 }  // namespace SkSL

@@ -29,13 +29,19 @@ void FindAndDeclareBuiltinVariables(const Context& context, ProgramKind programK
  * Eliminates statements in a block which cannot be reached; for example, a statement
  * immediately after a `return` or `continue` can safely be eliminated.
  */
-void EliminateUnreachableCode(std::unique_ptr<Statement>& stmt, ProgramUsage* usage = nullptr);
+void EliminateUnreachableCode(Program& program, ProgramUsage* usage = nullptr);
 
 /**
- * Eliminates local variables in a program which are never read or written (past their initializer).
+ * Eliminates functions in a program which are never called. Returns true if any changes were made.
+ */
+bool EliminateDeadFunctions(Program& program, ProgramUsage* usage);
+
+/**
+ * Eliminates variables in a program which are never read or written (past their initializer).
  * Preserves side effects from initializers, if any. Returns true if any changes were made.
  */
 bool EliminateDeadLocalVariables(Program& program, ProgramUsage* usage);
+bool EliminateDeadGlobalVariables(Program& program, ProgramUsage* usage);
 
 } // namespace Transform
 } // namespace SkSL
