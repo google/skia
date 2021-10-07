@@ -472,14 +472,20 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         }
     } else {
         if (primColorMode) {
-            // There is a blend between the primitive color and the paint color. The blend considers
-            // the opaque paint color. The paint's alpha is applied to the post-blended color.
-            SkPMColor4f opaqueColor = origColor.makeOpaque().premul();
-            paintFP = GrFragmentProcessor::MakeColor(opaqueColor);
-            paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP),
-                                                     /*dst=*/nullptr,
-                                                     *primColorMode);
-            grPaint->setColor4f(opaqueColor);
+            // Examining all of the SkPaintToGrPaintFoo methods and their uses, it turns out that
+            // we can only encounter this code path when we're *just* using the primitive color.
+            // Literally no code path cares about blending the primitive color with the paint
+            // color. This makes sense, if you think about the SkCanvas draw calls that use
+            // primitive color - none of them are specified to do anything with paint color.
+            SkASSERT(*primColorMode == SkBlendMode::kDst);
+
+            // There is no "blend" - the output of that blend is just the primitive color.
+            // We still put the opaque paint color on the GrPaint.
+            // TODO: Is this even necessary? It seems entirely superfluous. Any op that uses this
+            // code path should be ignoring the paint color, right?
+            grPaint->setColor4f(origColor.makeOpaque().premul());
+
+            // The paint's *alpha* is applied to the primitive color:
 
             // We can ignore origColor here - alpha is unchanged by gamma
             float paintAlpha = skPaint.getColor4f().fA;
@@ -585,18 +591,6 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext* context,
         return false;
     }
     return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &shaderFP,
-                                   /*primColorMode=*/nullptr, grPaint);
-}
-
-/** Ignores the SkShader (if any) on skPaint. */
-bool SkPaintToGrPaintNoShader(GrRecordingContext* context,
-                              const GrColorInfo& dstColorInfo,
-                              const SkPaint& skPaint,
-                              const SkMatrixProvider& matrixProvider,
-                              GrPaint* grPaint) {
-    // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
-    std::unique_ptr<GrFragmentProcessor> nullShaderFP(nullptr);
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &nullShaderFP,
                                    /*primColorMode=*/nullptr, grPaint);
 }
 

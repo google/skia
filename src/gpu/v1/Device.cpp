@@ -91,24 +91,17 @@ bool init_vertices_paint(GrRecordingContext* rContext,
                          SkBlendMode bmode,
                          bool hasColors,
                          GrPaint* grPaint) {
-    if (skPaint.getShader()) {
-        if (hasColors) {
-            // When there are colors and a shader, the shader and colors are combined using bmode.
-            return SkPaintToGrPaintWithBlend(rContext, colorInfo, skPaint, matrixProvider, bmode,
-                                             grPaint);
-        } else {
-            // We have a shader, but no colors to blend it against.
-            return SkPaintToGrPaint(rContext, colorInfo, skPaint, matrixProvider, grPaint);
-        }
+    if (hasColors) {
+        // When there are colors and a shader, the shader and colors are combined using bmode.
+        // With no shader, we just use the colors (kDst).
+        return SkPaintToGrPaintWithBlend(rContext,
+                                         colorInfo,
+                                         skPaint,
+                                         matrixProvider,
+                                         skPaint.getShader() ? bmode : SkBlendMode::kDst,
+                                         grPaint);
     } else {
-        if (hasColors) {
-            // We have colors, but no shader.
-            return SkPaintToGrPaintWithPrimitiveColor(rContext, colorInfo, skPaint, matrixProvider,
-                                                      grPaint);
-        } else {
-            // No colors and no shader. Just draw with the paint color.
-            return SkPaintToGrPaintNoShader(rContext, colorInfo, skPaint, matrixProvider, grPaint);
-        }
+        return SkPaintToGrPaint(rContext, colorInfo, skPaint, matrixProvider, grPaint);
     }
 }
 

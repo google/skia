@@ -89,13 +89,6 @@ bool SkPaintToGrPaint(GrRecordingContext*,
                       const SkMatrixProvider& matrixProvider,
                       GrPaint* grPaint);
 
-/** Same as above but ignores the SkShader (if any) on skPaint. */
-bool SkPaintToGrPaintNoShader(GrRecordingContext*,
-                              const GrColorInfo& dstColorInfo,
-                              const SkPaint& skPaint,
-                              const SkMatrixProvider& matrixProvider,
-                              GrPaint* grPaint);
-
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. The processor
     should expect an unpremul input color and produce a premultiplied output color. There is
     no primitive color. */
