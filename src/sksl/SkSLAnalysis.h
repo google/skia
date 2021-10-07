@@ -13,6 +13,7 @@
 #include "include/private/SkSLSampleUsage.h"
 
 #include <memory>
+#include <set>
 
 namespace SkSL {
 
@@ -126,21 +127,28 @@ bool IsTrivialExpression(const Expression& expr);
 bool IsSameExpressionTree(const Expression& left, const Expression& right);
 
 /**
- * Is 'expr' a constant-expression, as defined by GLSL 1.0, section 5.10? A constant expression
- * is one of:
- *
+ * Returns true if expr is a constant-expression, as defined by GLSL 1.0, section 5.10.
+ * A constant expression is one of:
  * - A literal value
  * - A global or local variable qualified as 'const', excluding function parameters
  * - An expression formed by an operator on operands that are constant expressions, including
  *   getting an element of a constant vector or a constant matrix, or a field of a constant
  *   structure
  * - A constructor whose arguments are all constant expressions
- *
- * GLSL (but not SkSL, yet - skbug.com/10835) also provides:
  * - A built-in function call whose arguments are all constant expressions, with the exception
  *   of the texture lookup functions
  */
 bool IsConstantExpression(const Expression& expr);
+
+/**
+ * Returns true if expr is a valid constant-index-expression, as defined by GLSL 1.0, Appendix A,
+ * Section 5. A constant-index-expression is:
+ * - A constant-expression
+ * - Loop indices (as defined in Appendix A, Section 4)
+ * - Expressions composed of both of the above
+ */
+bool IsConstantIndexExpression(const Expression& expr,
+                               const std::set<const Variable*>* loopIndices);
 
 /**
  * Ensures that a for-loop meets the strict requirements of The OpenGL ES Shading Language 1.00,

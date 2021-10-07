@@ -477,84 +477,6 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
     }
 }
 
-// Checks for ES2 constant-expression rules, and (optionally) constant-index-expression rules
-// (if loopIndices is non-nullptr)
-class ConstantExpressionVisitor : public ProgramVisitor {
-public:
-    ConstantExpressionVisitor(const std::set<const Variable*>* loopIndices)
-            : fLoopIndices(loopIndices) {}
-
-    bool visitExpression(const Expression& e) override {
-        // A constant-(index)-expression is one of...
-        switch (e.kind()) {
-            // ... a literal value
-            case Expression::Kind::kLiteral:
-                return false;
-
-            // ... settings can appear in fragment processors; they will resolve when compiled
-            case Expression::Kind::kSetting:
-                return false;
-
-            // ... a global or local variable qualified as 'const', excluding function parameters.
-            // ... loop indices as defined in section 4. [constant-index-expression]
-            case Expression::Kind::kVariableReference: {
-                const Variable* v = e.as<VariableReference>().variable();
-                if ((v->storage() == Variable::Storage::kGlobal ||
-                     v->storage() == Variable::Storage::kLocal) &&
-                    (v->modifiers().fFlags & Modifiers::kConst_Flag)) {
-                    return false;
-                }
-                return !fLoopIndices || fLoopIndices->find(v) == fLoopIndices->end();
-            }
-
-            // ... expressions composed of both of the above
-            case Expression::Kind::kBinary:
-            case Expression::Kind::kConstructorArray:
-            case Expression::Kind::kConstructorArrayCast:
-            case Expression::Kind::kConstructorCompound:
-            case Expression::Kind::kConstructorCompoundCast:
-            case Expression::Kind::kConstructorDiagonalMatrix:
-            case Expression::Kind::kConstructorMatrixResize:
-            case Expression::Kind::kConstructorScalarCast:
-            case Expression::Kind::kConstructorSplat:
-            case Expression::Kind::kConstructorStruct:
-            case Expression::Kind::kFieldAccess:
-            case Expression::Kind::kIndex:
-            case Expression::Kind::kPrefix:
-            case Expression::Kind::kPostfix:
-            case Expression::Kind::kSwizzle:
-            case Expression::Kind::kTernary:
-                return INHERITED::visitExpression(e);
-
-            // Function calls are completely disallowed in SkSL constant-(index)-expressions.
-            // GLSL does mandate that calling a built-in function where the arguments are all
-            // constant-expressions should result in a constant-expression. SkSL handles this by
-            // optimizing fully-constant function calls into literals in FunctionCall::Make.
-            case Expression::Kind::kFunctionCall:
-            case Expression::Kind::kExternalFunctionCall:
-            case Expression::Kind::kChildCall:
-
-            // These shouldn't appear in a valid program at all, and definitely aren't
-            // constant-index-expressions.
-            case Expression::Kind::kPoison:
-            case Expression::Kind::kFunctionReference:
-            case Expression::Kind::kExternalFunctionReference:
-            case Expression::Kind::kMethodReference:
-            case Expression::Kind::kTypeReference:
-            case Expression::Kind::kCodeString:
-                return true;
-
-            default:
-                SkDEBUGFAIL("Unexpected expression type");
-                return true;
-        }
-    }
-
-private:
-    const std::set<const Variable*>* fLoopIndices;
-    using INHERITED = ProgramVisitor;
-};
-
 class ES2IndexingVisitor : public ProgramVisitor {
 public:
     ES2IndexingVisitor(ErrorReporter& errors) : fErrors(errors) {}
@@ -576,8 +498,7 @@ public:
     bool visitExpression(const Expression& e) override {
         if (e.is<IndexExpression>()) {
             const IndexExpression& i = e.as<IndexExpression>();
-            ConstantExpressionVisitor indexerInvalid(&fLoopIndices);
-            if (indexerInvalid.visitExpression(*i.index())) {
+            if (!Analysis::IsConstantIndexExpression(*i.index(), &fLoopIndices)) {
                 fErrors.error(i.fLine, "index expression must be constant");
                 return true;
             }
@@ -593,15 +514,9 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
-
 void Analysis::ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors) {
     ES2IndexingVisitor visitor(errors);
     visitor.visitProgramElement(pe);
-}
-
-bool Analysis::IsConstantExpression(const Expression& expr) {
-    ConstantExpressionVisitor visitor(/*loopIndices=*/nullptr);
-    return !visitor.visitExpression(expr);
 }
 
 void Analysis::VerifyStaticTestsAndExpressions(const Program& program) {
