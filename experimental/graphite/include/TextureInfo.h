@@ -40,6 +40,8 @@ public:
     ~TextureInfo() {}
     TextureInfo(const TextureInfo&) = default;
 
+    bool operator==(const TextureInfo&) const;
+
     bool isValid() const { return fValid; }
     BackendApi backend() const { return fBackend; }
 

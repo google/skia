@@ -50,6 +50,12 @@ struct TextureSpec {
             , fUsage(info.fUsage)
             , fStorageMode(info.fStorageMode) {}
 
+    bool operator==(const TextureSpec& that) const {
+        return fFormat == that.fFormat &&
+               fUsage == that.fUsage &&
+               fStorageMode == that.fStorageMode;
+    }
+
     PixelFormat fFormat;
     TextureUsage fUsage;
     StorageMode fStorageMode;
