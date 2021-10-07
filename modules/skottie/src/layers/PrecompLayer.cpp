@@ -188,6 +188,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
     if (!precomp_layer) {
         const ScopedAssetRef precomp_asset(this, jlayer);
         if (precomp_asset) {
+            AutoPropertyTracker apt(this, *precomp_asset, PropertyObserver::NodeType::COMPOSITION);
             precomp_layer =
                 CompositionBuilder(*this, layer_info->fSize, *precomp_asset).build(*this);
         }
