@@ -163,46 +163,32 @@ static std::unique_ptr<GrFragmentProcessor> make_unrolled_colorizer(int interval
         // With the current hardstop detection threshold of 0.00024, the maximum scale and bias
         // values will be on the order of 4k (since they divide by dt). That is well outside the
         // precision capabilities of half floats, which can lead to inaccurate gradient calculations
-        for (int i = 0; i < intervalCount; ++i) {
-            sksl.appendf("uniform float4 scale%d_%d;", 2 * i, 2 * i + 1);
-            sksl.appendf("uniform float4 bias%d_%d;", 2 * i, 2 * i + 1);
-        }
+        sksl.appendf("uniform float4 scale[%d];", intervalCount);
+        sksl.appendf("uniform float4 bias[%d];", intervalCount);
 
-        sksl.append("half4 main(float2 coord) {");
-        sksl.append("  half t = half(coord.x);");
-        sksl.append("  float4 scale, bias;");
-
-        // To ensure that the code below always compiles, inject local variables with the names of
-        // the uniforms that we *didn't* emit above. These will all end up unused and removed.
-        for (int i = intervalCount; i < kMaxUnrolledIntervalCount; i++) {
-            sksl.appendf("float4 scale%d_%d, bias%d_%d;", i * 2, i * 2 + 1, i * 2, i * 2 + 1);
-        }
-
+        // Explicit binary search for the proper interval that t falls within. The interval
+        // count checks are constant expressions, which are then optimized to the minimal number
+        // of branches for the specific interval count.
         sksl.appendf(R"(
-            // Explicit binary search for the proper interval that t falls within. The interval
-            // count checks are constant expressions, which are then optimized to the minimal number
-            // of branches for the specific interval count.
-
+        half4 main(float2 coord) {
+            half t = half(coord.x);
+            float4 s, b;
             // thresholds1_7.w is mid point for intervals (0,7) and (8,15)
             if (%d <= 4 || t < thresholds1_7.w) {
                 // thresholds1_7.y is mid point for intervals (0,3) and (4,7)
                 if (%d <= 2 || t < thresholds1_7.y) {
                     // thresholds1_7.x is mid point for intervals (0,1) and (2,3)
                     if (%d <= 1 || t < thresholds1_7.x) {
-                        scale = scale0_1;
-                        bias = bias0_1;
+                        %s s = scale[0]; b = bias[0];
                     } else {
-                        scale = scale2_3;
-                        bias = bias2_3;
+                        %s s = scale[1]; b = bias[1];
                     }
                 } else {
                     // thresholds1_7.z is mid point for intervals (4,5) and (6,7)
                     if (%d <= 3 || t < thresholds1_7.z) {
-                        scale = scale4_5;
-                        bias = bias4_5;
+                        %s s = scale[2]; b = bias[2];
                     } else {
-                        scale = scale6_7;
-                        bias = bias6_7;
+                        %s s = scale[3]; b = bias[3];
                     }
                 }
             } else {
@@ -210,55 +196,48 @@ static std::unique_ptr<GrFragmentProcessor> make_unrolled_colorizer(int interval
                 if (%d <= 6 || t < thresholds9_13.y) {
                     // thresholds9_13.x is mid point for intervals (8,9) and (10,11)
                     if (%d <= 5 || t < thresholds9_13.x) {
-                        // interval 8-9
-                        scale = scale8_9;
-                        bias = bias8_9;
+                        %s s = scale[4]; b = bias[4];
                     } else {
-                        // interval 10-11
-                        scale = scale10_11;
-                        bias = bias10_11;
+                        %s s = scale[5]; b = bias[5];
                     }
                 } else {
                     // thresholds9_13.z is mid point for intervals (12,13) and (14,15)
                     if (%d <= 7 || t < thresholds9_13.z) {
-                        // interval 12-13
-                        scale = scale12_13;
-                        bias = bias12_13;
+                        %s s = scale[6]; b = bias[6];
                     } else {
-                        // interval 14-15
-                        scale = scale14_15;
-                        bias = bias14_15;
+                        %s s = scale[7]; b = bias[7];
                     }
                 }
             }
-
-        )", intervalCount, intervalCount, intervalCount, intervalCount, intervalCount,
-            intervalCount, intervalCount);
-
-        sksl.append("return half4(t * scale + bias); }");
+            return t * s + b;
+        }
+        )", intervalCount,
+              intervalCount,
+                intervalCount,
+                  (intervalCount <= 0) ? "//" : "",
+                  (intervalCount <= 1) ? "//" : "",
+                intervalCount,
+                  (intervalCount <= 2) ? "//" : "",
+                  (intervalCount <= 3) ? "//" : "",
+              intervalCount,
+                intervalCount,
+                  (intervalCount <= 4) ? "//" : "",
+                  (intervalCount <= 5) ? "//" : "",
+                intervalCount,
+                  (intervalCount <= 6) ? "//" : "",
+                  (intervalCount <= 7) ? "//" : "");
 
         auto result = SkRuntimeEffect::MakeForShader(std::move(sksl));
         SkASSERTF(result.effect, "%s", result.errorText.c_str());
         effects[intervalCount - 1] = std::move(result.effect);
     });
 
-#define ADD_STOP(N, suffix) \
-    "scale" #suffix, GrSkSLFP::When(intervalCount > N, scale[N]), \
-    "bias"  #suffix, GrSkSLFP::When(intervalCount > N, bias[N])
-
     return GrSkSLFP::Make(effects[intervalCount - 1], "UnrolledBinaryColorizer",
                           /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kNone,
                           "thresholds1_7", thresholds1_7,
                           "thresholds9_13", thresholds9_13,
-                          "scale0_1", scale[0], "bias0_1", bias[0],
-                          ADD_STOP(1, 2_3),
-                          ADD_STOP(2, 4_5),
-                          ADD_STOP(3, 6_7),
-                          ADD_STOP(4, 8_9),
-                          ADD_STOP(5, 10_11),
-                          ADD_STOP(6, 12_13),
-                          ADD_STOP(7, 14_15));
-#undef ADD_STOP
+                          "scale", SkMakeSpan(scale, intervalCount),
+                          "bias", SkMakeSpan(bias, intervalCount));
 }
 
 static std::unique_ptr<GrFragmentProcessor> make_unrolled_binary_colorizer(
