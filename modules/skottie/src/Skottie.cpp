@@ -186,6 +186,7 @@ AnimationBuilder::AnimationInfo AnimationBuilder::parse(const skjson::ObjectValu
     this->parseFonts(jroot["fonts"], jroot["chars"]);
 
     AutoScope ascope(this);
+    AutoPropertyTracker apt(this, jroot, PropertyObserver::NodeType::COMPOSITION);
     auto root = CompositionBuilder(*this, fCompSize, jroot).build(*this);
 
     auto animators = ascope.release();

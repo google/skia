@@ -49,8 +49,6 @@ CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
                                        const skjson::ObjectValue& jcomp)
     : fSize(size) {
 
-    AnimationBuilder::AutoPropertyTracker apt(&abuilder, jcomp,
-        PropertyObserver::NodeType::COMPOSITION);
     // Optional motion blur params.
     if (const skjson::ObjectValue* jmb = jcomp["mb"]) {
         static constexpr size_t kMaxSamplesPerFrame = 64;
