@@ -45,17 +45,6 @@ static SK_ALWAYS_INLINE float cross(float2 a, float2 b) {
     return x[0] - x[1];
 }
 
-// Returns f*m + a. The actual implementation may or may not be fused, depending on hardware
-// support. We call this method "fast_madd" to draw attention to the fact that the operation may
-// give different results on different platforms.
-template<int N> SK_ALWAYS_INLINE vec<N> fast_madd(vec<N> f, vec<N> m, vec<N> a) {
-#if FP_FAST_FMAF
-    return skvx::fma(f,m,a);
-#else
-    return f*m + a;
-#endif
-}
-
 // Approximates the inverse cosine of x within 0.96 degrees using the rational polynomial:
 //
 //     acos(x) ~= (bx^3 + ax) / (dx^4 + cx^2 + 1) + pi/2
@@ -74,9 +63,9 @@ template<int N> SK_ALWAYS_INLINE vec<N> approx_acos(vec<N> x) {
     constexpr static float d =  0.295624144969963174f;
     constexpr static float pi_over_2 = 1.5707963267948966f;
     vec<N> xx = x*x;
-    vec<N> numer = fast_madd<N>(b,xx,a);
-    vec<N> denom = fast_madd<N>(xx, fast_madd<N>(d,xx,c), 1);
-    return fast_madd<N>(x, numer/denom, pi_over_2);
+    vec<N> numer = b*xx + a;
+    vec<N> denom = xx*(d*xx + c) + 1;
+    return x * (numer/denom) + pi_over_2;
 }
 
 // Approximates the angle between vectors a and b within .96 degrees (GRVX_FAST_ACOS_MAX_ERROR).

@@ -44,7 +44,7 @@ public:
     // Returns whether M*p will be in the viewport.
     bool isVisible(SkPoint p) const {
         // devPt = [x, y, -x, -y] in device space.
-        auto devPt = grvx::fast_madd<4>(fMatX, p.fX, fMatY * p.fY);
+        auto devPt = fMatX*p.fX + fMatY*p.fY;
         // i.e., l < x && t < y && r > x && b > y.
         return skvx::all(fCullBounds < devPt);
     }
@@ -55,9 +55,9 @@ public:
         auto val0 = fMatY * p[0].fY;
         auto val1 = fMatY * p[1].fY;
         auto val2 = fMatY * p[2].fY;
-        val0 = grvx::fast_madd<4>(fMatX, p[0].fX, val0);
-        val1 = grvx::fast_madd<4>(fMatX, p[1].fX, val1);
-        val2 = grvx::fast_madd<4>(fMatX, p[2].fX, val2);
+        val0 = fMatX*p[0].fX + val0;
+        val1 = fMatX*p[1].fX + val1;
+        val2 = fMatX*p[2].fX + val2;
         // At this point: valN = {xN, yN, -xN, -yN} in device space.
 
         // Find the device-space bounding box of p0..2.
@@ -77,10 +77,10 @@ public:
         auto val1 = fMatY * p[1].fY;
         auto val2 = fMatY * p[2].fY;
         auto val3 = fMatY * p[3].fY;
-        val0 = grvx::fast_madd<4>(fMatX, p[0].fX, val0);
-        val1 = grvx::fast_madd<4>(fMatX, p[1].fX, val1);
-        val2 = grvx::fast_madd<4>(fMatX, p[2].fX, val2);
-        val3 = grvx::fast_madd<4>(fMatX, p[3].fX, val3);
+        val0 = fMatX*p[0].fX + val0;
+        val1 = fMatX*p[1].fX + val1;
+        val2 = fMatX*p[2].fX + val2;
+        val3 = fMatX*p[3].fX + val3;
         // At this point: valN = {xN, yN, -xN, -yN} in device space.
 
         // Find the device-space bounding box of p0..3.

@@ -681,7 +681,7 @@ SK_ALWAYS_INLINE static bool cubic_has_cusp(const SkPoint p[4]) {
     float2 D = p2 - p1;
     float2 E = p3 - p0;
     float2 B = D - C;
-    float2 A = grvx::fast_madd<2>(-3, D, E);
+    float2 A = -3*D + E;
 
     float a = grvx::cross(A, B);
     float b = grvx::cross(A, C);

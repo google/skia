@@ -151,7 +151,7 @@ inline void writeQuadAsCubic(const SkPoint p[3], GrVertexWriter* writer) {
     float2 p1 = bit_pun<float2>(p[1]);
     float2 p2 = bit_pun<float2>(p[2]);
     float2 c = p1 * (2/3.f);
-    writer->write(p0, grvx::fast_madd<2>(p0, 1/3.f, c), grvx::fast_madd<2>(p2, 1/3.f, c), p2);
+    writer->write(p0, p0*(1/3.f) + c, p2 * (1/3.f) + c, p2);
 }
 inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
     GrVertexWriter writer(out);

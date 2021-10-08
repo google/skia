@@ -61,7 +61,7 @@ SK_ALWAYS_INLINE static float quadratic_pow4(float precision, const SkPoint pts[
     float2 p0 = bit_pun<float2>(pts[0]);
     float2 p1 = bit_pun<float2>(pts[1]);
     float2 p2 = bit_pun<float2>(pts[2]);
-    float2 v = grvx::fast_madd<2>(-2, p1, p0) + p2;
+    float2 v = -2*p1 + p0 + p2;
     v = vectorXform(v);
     float2 vv = v*v;
     return (vv[0] + vv[1]) * length_term_pow2<2>(precision);
@@ -88,7 +88,7 @@ SK_ALWAYS_INLINE static float cubic_pow4(float precision, const SkPoint pts[],
     float4 p01 = float4::Load(pts);
     float4 p12 = float4::Load(pts + 1);
     float4 p23 = float4::Load(pts + 2);
-    float4 v = grvx::fast_madd<4>(-2, p12, p01) + p23;
+    float4 v = -2*p12 + p01 + p23;
     v = vectorXform(v);
     float4 vv = v*v;
     return std::max(vv[0] + vv[1], vv[2] + vv[3]) * length_term_pow2<3>(precision);
@@ -151,7 +151,7 @@ SK_ALWAYS_INLINE static float conic_pow2(float precision, const SkPoint pts[], f
     const float max_len = sqrtf(std::max(dot(p0, p0), std::max(dot(p1, p1), dot(p2, p2))));
 
     // Compute forward differences
-    const float2 dp = grvx::fast_madd<2>(-2 * w, p1, p0) + p2;
+    const float2 dp = -2*w*p1 + p0 + p2;
     const float dw = fabsf(-2 * w + 2);
 
     // Compute numerator and denominator for parametric step size of linearization. Here, the
