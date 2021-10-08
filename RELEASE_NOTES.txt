@@ -2,6 +2,13 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 96
+------------
+  * SkRuntimeEffect no longer clamps the RGB values of an effect's output to the range 0..A.
+    This makes it easier to use a hierarchy of SkSL shaders where intermediate values do not
+    represent colors but are, for example, non-color inputs to a lighting model.
+    http://review.skia.org/452558
+
 Milestone 95
 ------------
   * Minimum supported iOS raised from 8 to 11. Skia may build back to iOS 9 but versions older
