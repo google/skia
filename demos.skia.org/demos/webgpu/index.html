@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<title>Web GPU Demo</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- For *.skia.org https://developer.chrome.com/origintrials/#/registration/2983494015644598273
+     Expires Nov 19, 2021
+     -->
+<meta http-equiv="origin-trial" content="AnRs8mYss+Awd1DPUg2VfjXJbw2087/Dysaa3L7JmrbzTkwoEr87cX3y0zUfTGOFSLKJLRqNEmFAwfy+uumVXQsAAABbeyJvcmlnaW4iOiJodHRwczovL3NraWEub3JnOjQ0MyIsImZlYXR1cmUiOiJXZWJHUFUiLCJleHBpcnkiOjE2NDMxNTUxOTksImlzU3ViZG9tYWluIjp0cnVlfQ==">
+
+<!-- For localhost:8123 https://developer.chrome.com/origintrials/#/registration/6568359319031513089
+     Expires Nov 19, 2021
+     -->
+<meta http-equiv="origin-trial" content="ArQyw1ckz8lMOAcs5BbhOVJh2A6KMhYL6w/rTjPNnViqZyfFhlyJ5hnuHARoCkS1ZKiJi+YbsFvPWy23ePkFMQgAAABJeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgxMjMiLCJmZWF0dXJlIjoiV2ViR1BVIiwiZXhwaXJ5IjoxNjQzMTU1MTk5fQ==">
+
+<style>
+  canvas {
+    border: 1px dashed grey;
+  }
+</style>
+
+<body>
+  <h1>WebGPU Test</h1>
+  <pre id="log"></pre>
+
+  <canvas id=draw width=500 height=500></canvas>
+</body>
+
+<script type="text/javascript" charset="utf-8">
+  if ("gpu" in navigator) {
+    log("WebGPU detected")
+    WebGPUDemo();
+  } else {
+    log("No WebGPU support.")
+  }
+
+  function log(s) {
+    document.getElementById("log").innerText = s;
+  }
+
+  async function WebGPUDemo() {
+    // Adapted from https://github.com/austinEng/webgpu-samples/blob/main/src/sample/helloTriangle/main.ts
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) {
+      log("Could not load an adapter. For Chrome, try running with --enable-features=Vulkan --enable-unsafe-webgpu");
+      return;
+    }
+
+    const device = await adapter.requestDevice();
+    console.log(adapter, device);
+    const canvas = document.getElementById("draw");
+    const context = canvas.getContext('webgpu');
+    if (!context) {
+      log("Could not load webgpu context");
+      return;
+    }
+    console.log(context);
+
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    const presentationSize = [
+      canvas.clientWidth * devicePixelRatio,
+      canvas.clientHeight * devicePixelRatio,
+    ];
+    const presentationFormat = context.getPreferredFormat(adapter);
+
+    context.configure({
+      device,
+      format: presentationFormat,
+      size: presentationSize,
+    });
+
+    const triangleVertWGSL = `[[stage(vertex)]]
+fn main([[builtin(vertex_index)]] VertexIndex : u32)
+     -> [[builtin(position)]] vec4<f32> {
+  var pos = array<vec2<f32>, 3>(
+      vec2<f32>(0.0, 0.5),
+      vec2<f32>(-0.5, -0.5),
+      vec2<f32>(0.5, -0.5));
+
+  return vec4<f32>(pos[VertexIndex], 0.0, 1.0);
+}`;
+
+    const redFragWGSL = `[[stage(fragment)]]
+fn main() -> [[location(0)]] vec4<f32> {
+  return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+}`;
+
+    const pipeline = device.createRenderPipeline({
+      vertex: {
+        module: device.createShaderModule({
+          code: triangleVertWGSL,
+        }),
+        entryPoint: 'main',
+      },
+      fragment: {
+        module: device.createShaderModule({
+          code: redFragWGSL,
+        }),
+        entryPoint: 'main',
+        targets: [
+          {
+            format: presentationFormat,
+          },
+        ],
+      },
+      primitive: {
+        topology: 'triangle-list',
+      },
+    });
+
+    console.log(pipeline);
+
+    const startTime = Date.now();
+    function frame() {
+      const now = Date.now();
+      const commandEncoder = device.createCommandEncoder();
+      const textureView = context.getCurrentTexture().createView();
+
+      const renderPassDescriptor = {
+        colorAttachments: [
+          {
+            view: textureView,
+            loadValue: {
+              r: Math.abs(Math.sin((startTime - now) / 500)),
+              g: Math.abs(Math.sin((startTime - now) / 600)),
+              b: Math.abs(Math.sin((startTime - now) / 700)),
+              a: 1.0 },
+            storeOp: 'store',
+          },
+        ],
+      };
+
+      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+      passEncoder.setPipeline(pipeline);
+      passEncoder.draw(3, 1, 0, 0);
+      passEncoder.endPass();
+
+      device.queue.submit([commandEncoder.finish()]);
+      requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+  }
+</script>
