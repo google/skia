@@ -58,8 +58,8 @@ protected:
     }
 
 private:
-    static constexpr int kWidth = 200;
-    static constexpr int kHeight = 200;
+    inline static constexpr int kWidth = 200;
+    inline static constexpr int kHeight = 200;
 
     using INHERITED = GM;
 };

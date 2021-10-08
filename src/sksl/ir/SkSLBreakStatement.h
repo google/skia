@@ -18,7 +18,7 @@ namespace SkSL {
  */
 class BreakStatement final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kBreak;
+    inline static constexpr Kind kStatementKind = Kind::kBreak;
 
     BreakStatement(int line)
     : INHERITED(line, kStatementKind) {}

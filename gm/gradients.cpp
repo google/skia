@@ -713,7 +713,7 @@ DEF_GM( return new LinearGradientGM(true); )
 DEF_GM( return new LinearGradientGM(false); )
 
 class LinearGradientTinyGM : public skiagm::GM {
-    static constexpr uint32_t kFlags = 0;
+    inline static constexpr uint32_t kFlags = 0;
 
     SkString onShortName() override { return SkString("linear_gradient_tiny"); }
 

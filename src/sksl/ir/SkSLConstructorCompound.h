@@ -26,7 +26,7 @@ namespace SkSL {
  */
 class ConstructorCompound final : public MultiArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorCompound;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorCompound;
 
     ConstructorCompound(int line, const Type& type, ExpressionArray args)
             : INHERITED(line, kExpressionKind, &type, std::move(args)) {}

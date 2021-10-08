@@ -124,14 +124,12 @@ private:
         } while (true);
     }
 
-    static constexpr SkScalar kSize = 1280;
+    inline static constexpr SkScalar kSize = 1280;
 
     GrContextOptions::Enable fAllowMultipleTextures;
     sk_sp<SkTypeface> fTypefaces[6];
     using INHERITED = GM;
 };
-
-constexpr SkScalar FontCacheGM::kSize;
 
 //////////////////////////////////////////////////////////////////////////////
 

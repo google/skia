@@ -143,9 +143,9 @@ protected:
     bool runAsBench() const override { return true; }
 
 private:
-    static constexpr int kCnt = 30;
-    static constexpr int kMinLength = 15;
-    static constexpr int kMaxLength = 40;
+    inline static constexpr int kCnt = 30;
+    inline static constexpr int kMinLength = 15;
+    inline static constexpr int kMaxLength = 40;
 
     bool        fEffectiveClip;
     bool        fLCD;

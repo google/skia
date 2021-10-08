@@ -21,7 +21,7 @@ struct ASTNode;
  */
 class FunctionDefinition final : public ProgramElement {
 public:
-    static constexpr Kind kProgramElementKind = Kind::kFunction;
+    inline static constexpr Kind kProgramElementKind = Kind::kFunction;
 
     using IntrinsicSet = std::unordered_set<const FunctionDeclaration*>;
 

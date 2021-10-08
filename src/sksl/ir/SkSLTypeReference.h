@@ -19,7 +19,7 @@ namespace SkSL {
  */
 class TypeReference final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kTypeReference;
+    inline static constexpr Kind kExpressionKind = Kind::kTypeReference;
 
     TypeReference(const Context& context, int line, const Type* value)
         : TypeReference(line, value, context.fTypes.fInvalid.get()) {}

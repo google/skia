@@ -54,9 +54,9 @@ struct Keyframe {
                       //   1 -> linear
                       //   n -> cubic: cubic_mappers[n-2]
 
-    static constexpr uint32_t kConstantMapping  = 0;
-    static constexpr uint32_t kLinearMapping    = 1;
-    static constexpr uint32_t kCubicIndexOffset = 2;
+    inline static constexpr uint32_t kConstantMapping  = 0;
+    inline static constexpr uint32_t kLinearMapping    = 1;
+    inline static constexpr uint32_t kCubicIndexOffset = 2;
 };
 
 class KeyframeAnimator : public Animator {

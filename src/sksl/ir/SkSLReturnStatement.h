@@ -18,7 +18,7 @@ namespace SkSL {
  */
 class ReturnStatement final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kReturn;
+    inline static constexpr Kind kStatementKind = Kind::kReturn;
 
     ReturnStatement(int line, std::unique_ptr<Expression> expression)
         : INHERITED(line, kStatementKind)

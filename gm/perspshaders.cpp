@@ -160,9 +160,9 @@ protected:
         canvas->translate(0, SkIntToScalar(kCellSize));
     }
 private:
-    static constexpr int kCellSize = 50;
-    static constexpr int kNumRows = 4;
-    static constexpr int kNumCols = 6;
+    inline static constexpr int kCellSize = 50;
+    inline static constexpr int kNumRows = 4;
+    inline static constexpr int kNumCols = 6;
 
     bool            fDoAA;
     SkPath          fPath;

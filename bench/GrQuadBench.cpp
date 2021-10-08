@@ -22,7 +22,7 @@ public:
     }
 
 protected:
-    static constexpr int kQuadCount = 1000;
+    inline static constexpr int kQuadCount = 1000;
 
     const char* onGetName() override {
         return fName.c_str();

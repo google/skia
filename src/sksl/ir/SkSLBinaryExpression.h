@@ -26,7 +26,7 @@ namespace SkSL {
  */
 class BinaryExpression final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kBinary;
+    inline static constexpr Kind kExpressionKind = Kind::kBinary;
 
     BinaryExpression(int line, std::unique_ptr<Expression> left, Operator op,
                      std::unique_ptr<Expression> right, const Type* type)

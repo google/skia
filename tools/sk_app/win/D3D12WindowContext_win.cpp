@@ -49,7 +49,7 @@ public:
     void resize(int width, int height) override;
     void setDisplayParams(const DisplayParams& params) override;
 private:
-    static constexpr int kNumFrames = 2;
+    inline static constexpr int kNumFrames = 2;
 
     HWND fWindow;
     gr_cp<ID3D12Device> fDevice;

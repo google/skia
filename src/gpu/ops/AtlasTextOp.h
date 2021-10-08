@@ -105,7 +105,7 @@ public:
 
         kLast = kLCDBGRDistanceField
     };
-    static constexpr int kMaskTypeCount = static_cast<int>(MaskType::kLast) + 1;
+    inline static constexpr int kMaskTypeCount = static_cast<int>(MaskType::kLast) + 1;
 
 #if GR_TEST_UTILS && SK_GPU_V1
     static GrOp::Owner CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext*,

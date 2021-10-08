@@ -22,7 +22,7 @@
 
 namespace {
 class AnimatedSVGSample : public Sample {
-    static constexpr auto kAnimationIterations = 5;
+    inline static constexpr auto kAnimationIterations = 5;
     enum State {
         kZoomIn,
         kScroll,

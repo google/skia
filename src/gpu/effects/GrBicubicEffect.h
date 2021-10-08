@@ -19,8 +19,8 @@ public:
                              // surrounding texels are needed by the kernel in x and y.
     };
 
-    static constexpr SkImage::CubicResampler gMitchell = { 1.0f/3, 1.0f/3 };
-    static constexpr SkImage::CubicResampler gCatmullRom = {    0, 1.0f/2 };
+    inline static constexpr SkImage::CubicResampler gMitchell = { 1.0f/3, 1.0f/3 };
+    inline static constexpr SkImage::CubicResampler gCatmullRom = {    0, 1.0f/2 };
 
     enum class Direction {
         /** Apply bicubic kernel in local coord x, nearest neighbor in y. */

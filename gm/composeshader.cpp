@@ -231,7 +231,7 @@ private:
      *  work in a release build.  You can change this parameter and then compile a release build
      *  to have this GM draw larger bitmaps for easier visual inspection.
      */
-    static constexpr int squareLength = 20;
+    inline static constexpr int squareLength = 20;
 
     const bool fUseLocalMatrix;
 

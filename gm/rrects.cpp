@@ -188,17 +188,18 @@ protected:
 private:
     Type fType;
 
-    static constexpr int kImageWidth = 640;
-    static constexpr int kImageHeight = 480;
+    inline static constexpr int kImageWidth = 640;
+    inline static constexpr int kImageHeight = 480;
 
-    static constexpr int kTileX = 80;
-    static constexpr int kTileY = 40;
+    inline static constexpr int kTileX = 80;
+    inline static constexpr int kTileY = 40;
 
-    static constexpr int kNumSimpleCases = 7;
-    static constexpr int kNumComplexCases = 35;
+    inline static constexpr int kNumSimpleCases = 7;
+    inline static constexpr int kNumComplexCases = 35;
+
     static const SkVector gRadii[kNumComplexCases][4];
 
-    static constexpr int kNumRRects = kNumSimpleCases + kNumComplexCases;
+    inline static constexpr int kNumRRects = kNumSimpleCases + kNumComplexCases;
     SkRRect fRRects[kNumRRects];
 
     using INHERITED = GM;

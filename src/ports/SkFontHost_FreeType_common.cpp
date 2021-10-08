@@ -1557,7 +1557,7 @@ class SkFTGeometrySink {
 public:
     SkFTGeometrySink(SkPath* path) : fPath{path}, fStarted{false}, fCurrent{0,0} {}
 
-    static constexpr const FT_Outline_Funcs Funcs{
+    inline static constexpr const FT_Outline_Funcs Funcs{
         /*move_to =*/ SkFTGeometrySink::Move,
         /*line_to =*/ SkFTGeometrySink::Line,
         /*conic_to =*/ SkFTGeometrySink::Quad,

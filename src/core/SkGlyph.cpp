@@ -12,8 +12,6 @@
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsQuad.h"
 
-constexpr SkIPoint SkPackedGlyphID::kXYFieldMask;
-
 SkMask SkGlyph::mask() const {
     SkMask mask;
     mask.fImage = (uint8_t*)fImage;

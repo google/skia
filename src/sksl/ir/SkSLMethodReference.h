@@ -29,7 +29,7 @@ class FunctionDeclaration;
  */
 class MethodReference final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kMethodReference;
+    inline static constexpr Kind kExpressionKind = Kind::kMethodReference;
 
     MethodReference(const Context& context,
                     int line,

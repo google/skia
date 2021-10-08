@@ -39,9 +39,9 @@ public:
     }
 
 protected:
-    static constexpr auto kMinHeight = 0.1f;
-    static constexpr auto kPenumbraColor = SK_ColorTRANSPARENT;
-    static constexpr auto kUmbraColor = SK_ColorBLACK;
+    inline static constexpr auto kMinHeight = 0.1f;
+    inline static constexpr auto kPenumbraColor = SK_ColorTRANSPARENT;
+    inline static constexpr auto kUmbraColor = SK_ColorBLACK;
 
     int vertexCount() const { return fPositions.count(); }
     int indexCount() const { return fIndices.count(); }
@@ -124,10 +124,6 @@ protected:
     SkVector            fPrevOutset;
     SkPoint             fPrevPoint;
 };
-
-// make external linkage happy
-constexpr SkColor SkBaseShadowTessellator::kUmbraColor;
-constexpr SkColor SkBaseShadowTessellator::kPenumbraColor;
 
 static bool compute_normal(const SkPoint& p0, const SkPoint& p1, SkScalar dir,
                            SkVector* newNormal) {

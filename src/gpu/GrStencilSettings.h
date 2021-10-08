@@ -106,7 +106,7 @@ private:
     // NOTE: This value is outside the declared range of GrStencilFlags, but since that type is
     // explicitly backed by 'int', it can still represent this constant. clang 11 complains about
     // mixing enum types in bit operations, so this works around that.
-    static constexpr GrStencilFlags kInvalid_PrivateFlag =
+    inline static constexpr GrStencilFlags kInvalid_PrivateFlag =
             static_cast<GrStencilFlags>(kLast_StencilFlag << 1);
 
     uint32_t   fFlags;

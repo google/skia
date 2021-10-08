@@ -78,7 +78,7 @@ private:
     const Attribute& inVertex() const { return kAttributes[0]; }
     const Attribute& inColor() const { return kAttributes[1]; }
 
-    static constexpr Attribute kAttributes[] = {
+    inline static constexpr Attribute kAttributes[] = {
             {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType},
             {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType},
     };

@@ -17,7 +17,7 @@ namespace SkSL {
  */
 class SymbolAlias final : public Symbol {
 public:
-    static constexpr Kind kSymbolKind = Kind::kSymbolAlias;
+    inline static constexpr Kind kSymbolKind = Kind::kSymbolAlias;
 
     SymbolAlias(int line, skstd::string_view name, const Symbol* origSymbol)
         : INHERITED(line, kSymbolKind, name)

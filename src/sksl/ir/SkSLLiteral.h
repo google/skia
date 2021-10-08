@@ -19,7 +19,7 @@ namespace SkSL {
 
 class Literal : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kLiteral;
+    inline static constexpr Kind kExpressionKind = Kind::kLiteral;
 
     Literal(int line, double value, const Type* type)
         : INHERITED(line, kExpressionKind, type)

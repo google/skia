@@ -483,10 +483,10 @@ private:
     // related to big blurs are fully visible.
     static int PadForSigma(float sigma) { return sk_float_ceil2int(4 * sigma); }
 
-    static constexpr int kSizes[] = {1, 2, 4, 8, 16, 32};
-    static constexpr float kSigmas[] = {0.5f, 1.2f, 2.3f, 3.9f, 7.4f};
-    static constexpr size_t kNumSizes = SK_ARRAY_COUNT(kSizes);
-    static constexpr size_t kNumSigmas = SK_ARRAY_COUNT(kSigmas);
+    inline static constexpr int kSizes[] = {1, 2, 4, 8, 16, 32};
+    inline static constexpr float kSigmas[] = {0.5f, 1.2f, 2.3f, 3.9f, 7.4f};
+    inline static constexpr size_t kNumSizes = SK_ARRAY_COUNT(kSizes);
+    inline static constexpr size_t kNumSigmas = SK_ARRAY_COUNT(kSigmas);
 
     sk_sp<SkImage> fReferenceMasks[kNumSigmas][kNumSizes][kNumSizes];
     sk_sp<SkImage> fActualMasks[kNumSigmas][kNumSizes][kNumSizes];

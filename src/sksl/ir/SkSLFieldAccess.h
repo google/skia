@@ -27,7 +27,7 @@ class FieldAccess final : public Expression {
 public:
     using OwnerKind = FieldAccessOwnerKind;
 
-    static constexpr Kind kExpressionKind = Kind::kFieldAccess;
+    inline static constexpr Kind kExpressionKind = Kind::kFieldAccess;
 
     FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
                 OwnerKind ownerKind = OwnerKind::kDefault)

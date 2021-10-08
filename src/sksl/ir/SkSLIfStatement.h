@@ -20,7 +20,7 @@ namespace SkSL {
  */
 class IfStatement final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kIf;
+    inline static constexpr Kind kStatementKind = Kind::kIf;
 
     IfStatement(int line, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)

@@ -23,7 +23,7 @@ namespace SkSL {
  */
 class ConstructorSplat final : public SingleArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorSplat;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorSplat;
 
     ConstructorSplat(int line, const Type& type, std::unique_ptr<Expression> arg)
         : INHERITED(line, kExpressionKind, &type, std::move(arg)) {}

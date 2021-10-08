@@ -33,7 +33,7 @@ namespace {
         int       y;      // Device y coordinate.
     };
     static_assert(SkIsAlign4(sizeof(BlitterUniforms)), "");
-    static constexpr int kBlitterUniformsCount = sizeof(BlitterUniforms) / 4;
+    inline static constexpr int kBlitterUniformsCount = sizeof(BlitterUniforms) / 4;
 
     static skvm::Coord device_coord(skvm::Builder* p, skvm::Uniforms* uniforms) {
         skvm::I32 dx = p->uniform32(uniforms->base, offsetof(BlitterUniforms, right))

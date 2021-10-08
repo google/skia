@@ -24,7 +24,7 @@ class SymbolTable;
  */
 class SwitchStatement final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kSwitch;
+    inline static constexpr Kind kStatementKind = Kind::kSwitch;
 
     SwitchStatement(int line, bool isStatic, std::unique_ptr<Expression> value,
                     StatementArray cases, std::shared_ptr<SymbolTable> symbols)

@@ -121,7 +121,7 @@ protected:
     }
 
 private:
-    static constexpr int kNumImages = 4;
+    inline static constexpr int kNumImages = 4;
     SkTArray<sk_sp<SkImage>> fImages;
 
     using INHERITED = GM;

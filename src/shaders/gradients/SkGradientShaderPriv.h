@@ -133,8 +133,8 @@ public:
 
 private:
     // Reserve inline space for up to 4 stops.
-    static constexpr size_t kInlineStopCount   = 4;
-    static constexpr size_t kInlineStorageSize = (sizeof(SkColor4f) + sizeof(SkScalar))
+    inline static constexpr size_t kInlineStopCount   = 4;
+    inline static constexpr size_t kInlineStorageSize = (sizeof(SkColor4f) + sizeof(SkScalar))
                                                * kInlineStopCount;
     SkAutoSTMalloc<kInlineStorageSize, uint8_t> fStorage;
 

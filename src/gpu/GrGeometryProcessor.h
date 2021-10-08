@@ -191,7 +191,7 @@ public:
      */
     static uint32_t ComputeCoordTransformsKey(const GrFragmentProcessor& fp);
 
-    static constexpr int kCoordTransformKeyBits = 4;
+    inline static constexpr int kCoordTransformKeyBits = 4;
 
     /**
      * Adds a key on the GrProcessorKeyBuilder that reflects any variety in the code that the
@@ -393,7 +393,7 @@ public:
         return (flags << (2 * kMatrixKeyBits)) |
                ComputeMatrixKeys(shaderCaps, viewMatrix, localMatrix);
     }
-    static constexpr int kMatrixKeyBits = 2;
+    inline static constexpr int kMatrixKeyBits = 2;
 
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,

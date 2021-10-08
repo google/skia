@@ -397,11 +397,11 @@ protected:
     }
 
 private:
-    static constexpr int kStrokeWidth   = 10;
-    static constexpr int kNumPaths      = 20;
-    static constexpr int kMaxPathHeight = 100;
-    static constexpr int kGMWidth       = 512;
-    static constexpr int kGMHeight      = 512;
+    inline static constexpr int kStrokeWidth   = 10;
+    inline static constexpr int kNumPaths      = 20;
+    inline static constexpr int kMaxPathHeight = 100;
+    inline static constexpr int kGMWidth       = 512;
+    inline static constexpr int kGMHeight      = 512;
 
     bool fDoStrokeAndFill;
 

@@ -18,7 +18,7 @@ namespace SkSL {
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
  */
 struct IndexExpression final : public Expression {
-    static constexpr Kind kExpressionKind = Kind::kIndex;
+    inline static constexpr Kind kExpressionKind = Kind::kIndex;
 
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)

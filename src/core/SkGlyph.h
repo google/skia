@@ -22,7 +22,7 @@ class SkScalerContext;
 
 // A combination of SkGlyphID and sub-pixel position information.
 struct SkPackedGlyphID {
-    static constexpr uint32_t kImpossibleID = ~0u;
+    inline static constexpr uint32_t kImpossibleID = ~0u;
     enum {
         // Lengths
         kGlyphIDLen     = 16u,
@@ -44,10 +44,11 @@ struct SkPackedGlyphID {
         kFixedPointSubPixelPosBits = kFixedPointBinaryPointPos - kSubPixelPosLen,
     };
 
-    static constexpr SkScalar kSubpixelRound = 1.f / (1u << (SkPackedGlyphID::kSubPixelPosLen + 1));
+    inline static constexpr SkScalar kSubpixelRound =
+            1.f / (1u << (SkPackedGlyphID::kSubPixelPosLen + 1));
 
-    static constexpr SkIPoint kXYFieldMask{kSubPixelPosMask << kSubPixelX,
-                                           kSubPixelPosMask << kSubPixelY};
+    inline static constexpr SkIPoint kXYFieldMask{kSubPixelPosMask << kSubPixelX,
+                                                  kSubPixelPosMask << kSubPixelY};
 
     constexpr explicit SkPackedGlyphID(SkGlyphID glyphID)
             : fID{(uint32_t)glyphID << kGlyphID} { }
@@ -353,7 +354,7 @@ private:
     friend class TestSVGTypeface;
     friend class TestTypeface;
 
-    static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;
+    inline static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;
 
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,

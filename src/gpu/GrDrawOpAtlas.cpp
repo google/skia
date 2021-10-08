@@ -697,5 +697,3 @@ SkISize GrDrawOpAtlasConfig::plotDimensions(GrMaskFormat type) const {
         return { 256, 256 };
     }
 }
-
-constexpr int GrDrawOpAtlasConfig::kMaxAtlasDim;

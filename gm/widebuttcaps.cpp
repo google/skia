@@ -107,7 +107,7 @@ class WideButtCaps_tess_segs_5 : public skiagm::GM {
     //
     // - >=4 because the tessellator code will just assume we have enough to combine a miter join
     //   and line in a single patch. (Requires 4 segments. Spec required minimum is 64.)
-    static constexpr int kMaxTessellationSegmentsOverride = 5;
+    inline static constexpr int kMaxTessellationSegmentsOverride = 5;
 
     void modifyGrContextOptions(GrContextOptions* options) override {
         options->fMaxTessellationSegmentsOverride = kMaxTessellationSegmentsOverride;

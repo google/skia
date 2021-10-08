@@ -24,7 +24,7 @@ namespace SkSL {
  */
 class ConstructorDiagonalMatrix final : public SingleArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorDiagonalMatrix;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorDiagonalMatrix;
 
     ConstructorDiagonalMatrix(int line, const Type& type, std::unique_ptr<Expression> arg)
         : INHERITED(line, kExpressionKind, &type, std::move(arg))

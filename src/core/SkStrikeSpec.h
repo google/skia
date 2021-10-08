@@ -114,7 +114,7 @@ public:
     const SkGlyph* glyph(SkGlyphID glyphID);
 
 private:
-    static constexpr int kTypicalGlyphCount = 20;
+    inline static constexpr int kTypicalGlyphCount = 20;
     SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
     sk_sp<SkStrike> fStrike;
 };
@@ -129,7 +129,7 @@ public:
                         const SkGlyph* glyph, SkScalar* array, int* count);
 
 private:
-    static constexpr int kTypicalGlyphCount = 20;
+    inline static constexpr int kTypicalGlyphCount = 20;
     SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
     sk_sp<SkStrike> fStrike;
 };
@@ -143,7 +143,7 @@ public:
     const SkDescriptor& descriptor() const;
 
 private:
-    static constexpr int kTypicalGlyphCount = 64;
+    inline static constexpr int kTypicalGlyphCount = 64;
     SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
     sk_sp<SkStrike> fStrike;
 };

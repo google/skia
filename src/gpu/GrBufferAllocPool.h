@@ -33,7 +33,7 @@ class GrGpu;
  */
 class GrBufferAllocPool : SkNoncopyable {
 public:
-    static constexpr size_t kDefaultBufferSize = 1 << 15;
+    inline static constexpr size_t kDefaultBufferSize = 1 << 15;
 
     /**
      * A cache object that can be shared by multiple GrBufferAllocPool instances. It caches

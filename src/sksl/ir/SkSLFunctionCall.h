@@ -19,7 +19,7 @@ namespace SkSL {
  */
 class FunctionCall final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kFunctionCall;
+    inline static constexpr Kind kExpressionKind = Kind::kFunctionCall;
 
     FunctionCall(int line, const Type* type, const FunctionDeclaration* function,
                  ExpressionArray arguments)

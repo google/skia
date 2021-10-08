@@ -149,15 +149,15 @@ protected:
     }
 
 private:
-    static constexpr SkScalar kMinRadius = 15;
-    static constexpr SkScalar kMaxRadius = 45;
-    static constexpr SkScalar kRadiusPingPoingPeriod = 8;
-    static constexpr SkScalar kRadiusPingPoingShift = 3;
+    inline static constexpr SkScalar kMinRadius = 15;
+    inline static constexpr SkScalar kMaxRadius = 45;
+    inline static constexpr SkScalar kRadiusPingPoingPeriod = 8;
+    inline static constexpr SkScalar kRadiusPingPoingShift = 3;
 
-    static constexpr SkScalar kMinBlurRadius = 5;
-    static constexpr SkScalar kMaxBlurRadius = 45;
-    static constexpr SkScalar kBlurRadiusPingPoingPeriod = 3;
-    static constexpr SkScalar kBlurRadiusPingPoingShift = 1.5;
+    inline static constexpr SkScalar kMinBlurRadius = 5;
+    inline static constexpr SkScalar kMaxBlurRadius = 45;
+    inline static constexpr SkScalar kBlurRadiusPingPoingPeriod = 3;
+    inline static constexpr SkScalar kBlurRadiusPingPoingShift = 1.5;
 
     SkScalar    fAnimRadius;
     SkScalar    fAnimBlurRadius;

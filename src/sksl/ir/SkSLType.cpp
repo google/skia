@@ -25,7 +25,7 @@ static constexpr int kMaxStructDepth = 8;
 
 class ArrayType final : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kArray;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kArray;
 
     ArrayType(skstd::string_view name, const char* abbrev, const Type& componentType, int count)
         : INHERITED(name, abbrev, kTypeKind)
@@ -70,7 +70,7 @@ private:
 
 class GenericType final : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kGeneric;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kGeneric;
 
     GenericType(const char* name, std::vector<const Type*> coercibleTypes)
         : INHERITED(name, "G", kTypeKind)
@@ -88,7 +88,7 @@ private:
 
 class LiteralType : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kLiteral;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kLiteral;
 
     LiteralType(const char* name, const Type& scalarType, int8_t priority)
         : INHERITED(name, "L", kTypeKind)
@@ -137,7 +137,7 @@ private:
 
 class ScalarType final : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kScalar;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kScalar;
 
     ScalarType(skstd::string_view name, const char* abbrev, NumberKind numberKind, int8_t priority,
                int8_t bitWidth)
@@ -184,7 +184,7 @@ private:
 
 class MatrixType final : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kMatrix;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kMatrix;
 
     MatrixType(skstd::string_view name, const char* abbrev, const Type& componentType,
                int8_t columns, int8_t rows)
@@ -230,7 +230,7 @@ private:
 
 class TextureType final : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kTexture;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kTexture;
 
     TextureType(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayed,
                 bool isMultisampled, bool isSampled)
@@ -273,7 +273,7 @@ private:
 
 class SamplerType final : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kSampler;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kSampler;
 
     SamplerType(const char* name, const Type& textureType)
         : INHERITED(name, "Z", kTypeKind)
@@ -311,7 +311,7 @@ private:
 
 class StructType final : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kStruct;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kStruct;
 
     StructType(int line, skstd::string_view name, std::vector<Field> fields)
         : INHERITED(std::move(name), "S", kTypeKind, line)
@@ -345,7 +345,7 @@ private:
 
 class VectorType final : public Type {
 public:
-    static constexpr TypeKind kTypeKind = TypeKind::kVector;
+    inline static constexpr TypeKind kTypeKind = TypeKind::kVector;
 
     VectorType(skstd::string_view name, const char* abbrev, const Type& componentType,
                int8_t columns)

@@ -23,7 +23,7 @@ class SkPath;
  */
 class GrConvexPolyEffect : public GrFragmentProcessor {
 public:
-    static constexpr int kMaxEdges = 8;
+    inline static constexpr int kMaxEdges = 8;
 
     /**
      * edges is a set of n edge equations where n is limited to kMaxEdges. It contains 3*n values.

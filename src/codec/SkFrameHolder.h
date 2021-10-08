@@ -151,7 +151,7 @@ protected:
     virtual SkEncodedInfo::Alpha onReportedAlpha() const = 0;
 
 private:
-    static constexpr int kUninitialized = -2;
+    inline static constexpr int kUninitialized = -2;
 
     const int                           fId;
     bool                                fHasAlpha;

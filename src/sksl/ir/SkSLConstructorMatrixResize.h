@@ -25,7 +25,7 @@ namespace SkSL {
  */
 class ConstructorMatrixResize final : public SingleArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorMatrixResize;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorMatrixResize;
 
     ConstructorMatrixResize(int line, const Type& type, std::unique_ptr<Expression> arg)
             : INHERITED(line, kExpressionKind, &type, std::move(arg))

@@ -29,7 +29,7 @@ namespace SkSL {
  */
 class InterfaceBlock final : public ProgramElement {
 public:
-    static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
+    inline static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
 
     InterfaceBlock(int line, const Variable& var, skstd::string_view typeName,
                    skstd::string_view instanceName, int arraySize,

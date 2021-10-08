@@ -20,7 +20,7 @@ namespace SkSL {
  */
 class Setting final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kSetting;
+    inline static constexpr Kind kExpressionKind = Kind::kSetting;
 
     Setting(int line, skstd::string_view name, const Type* type)
         : INHERITED(line, kExpressionKind, type)

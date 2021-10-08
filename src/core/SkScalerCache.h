@@ -156,9 +156,9 @@ private:
     std::vector<SkGlyph*> fGlyphForIndex SK_GUARDED_BY(fMu);
 
     // so we don't grow our arrays a lot
-    static constexpr size_t kMinGlyphCount = 8;
-    static constexpr size_t kMinGlyphImageSize = 16 /* height */ * 8 /* width */;
-    static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
+    inline static constexpr size_t kMinGlyphCount = 8;
+    inline static constexpr size_t kMinGlyphImageSize = 16 /* height */ * 8 /* width */;
+    inline static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
 
     SkArenaAlloc            fAlloc SK_GUARDED_BY(fMu) {kMinAllocAmount};
 };

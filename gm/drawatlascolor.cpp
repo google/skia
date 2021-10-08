@@ -165,11 +165,11 @@ protected:
     }
 
 private:
-    static constexpr int kNumXferModes = 29;
-    static constexpr int kNumColors = 4;
-    static constexpr int kAtlasSize = 30;
-    static constexpr int kPad = 2;
-    static constexpr int kTextPad = 8;
+    inline static constexpr int kNumXferModes = 29;
+    inline static constexpr int kNumColors = 4;
+    inline static constexpr int kAtlasSize = 30;
+    inline static constexpr int kPad = 2;
+    inline static constexpr int kTextPad = 8;
 
     using INHERITED = GM;
 };

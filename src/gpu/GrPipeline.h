@@ -200,7 +200,8 @@ public:
                                GrGLSLBuiltinUniformHandles* fBuiltinUniformHandles) const;
 
 private:
-    static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
+    inline static constexpr uint8_t kLastInputFlag =
+            (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
 
     /** This is a continuation of the public "InputFlags" enum. */
     enum class Flags : uint8_t {

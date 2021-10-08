@@ -26,7 +26,7 @@ namespace SkSL {
  */
 class ConstructorArrayCast final : public SingleArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorArrayCast;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorArrayCast;
 
     ConstructorArrayCast(int line, const Type& type, std::unique_ptr<Expression> arg)
         : INHERITED(line, kExpressionKind, &type, std::move(arg)) {}

@@ -18,7 +18,7 @@ namespace SkSL {
  */
 class Nop final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kNop;
+    inline static constexpr Kind kStatementKind = Kind::kNop;
 
     Nop()
     : INHERITED(/*line=*/-1, kStatementKind) {}

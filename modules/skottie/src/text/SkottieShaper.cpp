@@ -331,7 +331,7 @@ private:
         return fDesc.fAscent ? fDesc.fAscent : fFirstLineAscent;
     }
 
-    static constexpr SkGlyphID kMissingGlyphID = 0;
+    inline static constexpr SkGlyphID kMissingGlyphID = 0;
 
     const Shaper::TextDesc&   fDesc;
     const SkRect&             fBox;

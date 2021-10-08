@@ -222,8 +222,8 @@ private:
     using GID = SkPackedGlyphID;
     static_assert(GID::kSubPixelX < GID::kGlyphID && GID::kGlyphID < GID::kSubPixelY,
             "SkPackedGlyphID must be organized: sub-y | glyph id | sub-x");
-    static constexpr int kMaxGlyphID = 128;
-    static constexpr int kMaxIndex = kMaxGlyphID * (1u << GID::kSubPixelPosLen);
+    inline static constexpr int kMaxGlyphID = 128;
+    inline static constexpr int kMaxIndex = kMaxGlyphID * (1u << GID::kSubPixelPosLen);
     std::bitset<kMaxIndex> fBits;
 };
 
@@ -603,7 +603,7 @@ public:
     size_t remoteStrikeMapSizeForTesting() const;
 
 private:
-    static constexpr size_t kMaxEntriesInDescriptorMap = 2000u;
+    inline static constexpr size_t kMaxEntriesInDescriptorMap = 2000u;
 
     void checkForDeletedEntries();
 

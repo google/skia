@@ -39,7 +39,7 @@ public:
 private:
     // Estimate of max expected key size
     // TODO: flesh this out
-    static constexpr int kPreAllocSize = 1;
+    inline static constexpr int kPreAllocSize = 1;
 
     SkSTArray<kPreAllocSize, uint32_t, true> fKey;
 };

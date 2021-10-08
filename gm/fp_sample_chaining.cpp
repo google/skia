@@ -24,7 +24,7 @@ namespace {
 // Scales along Y
 class UniformMatrixEffect : public GrFragmentProcessor {
 public:
-    static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 4;
+    inline static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 4;
 
     UniformMatrixEffect(std::unique_ptr<GrFragmentProcessor> child)
             : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
@@ -65,7 +65,7 @@ public:
 // Translates along Y
 class ExplicitCoordEffect : public GrFragmentProcessor {
 public:
-    static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 6;
+    inline static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 6;
 
     ExplicitCoordEffect(std::unique_ptr<GrFragmentProcessor> child)
             : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
@@ -96,7 +96,7 @@ public:
 // Generates test pattern
 class TestPatternEffect : public GrFragmentProcessor {
 public:
-    static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 7;
+    inline static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 7;
 
     TestPatternEffect() : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
         this->setUsesSampleCoordsDirectly();

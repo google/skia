@@ -149,8 +149,6 @@ void GrConicEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-constexpr GrGeometryProcessor::Attribute GrConicEffect::kAttributes[];
-
 GrConicEffect::~GrConicEffect() = default;
 
 void GrConicEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
@@ -303,8 +301,6 @@ void GrQuadEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-constexpr GrGeometryProcessor::Attribute GrQuadEffect::kAttributes[];
 
 GrQuadEffect::~GrQuadEffect() = default;
 

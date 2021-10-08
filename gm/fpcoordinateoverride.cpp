@@ -32,7 +32,7 @@
 
 class SampleCoordEffect : public GrFragmentProcessor {
 public:
-    static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 0;
+    inline static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 0;
 
     SampleCoordEffect(std::unique_ptr<GrFragmentProcessor> child)
         : INHERITED(CLASS_ID, kNone_OptimizationFlags) {

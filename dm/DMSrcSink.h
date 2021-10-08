@@ -297,11 +297,11 @@ public:
 
 private:
     // Generates a kTileCount x kTileCount filmstrip with evenly distributed frames.
-    static constexpr int      kTileCount = 5;
+    inline static constexpr int      kTileCount = 5;
 
     // Fit kTileCount x kTileCount frames to a 1000x1000 film strip.
-    static constexpr SkScalar kTargetSize = 1000;
-    static constexpr SkScalar kTileSize = kTargetSize / kTileCount;
+    inline static constexpr SkScalar kTargetSize = 1000;
+    inline static constexpr SkScalar kTileSize = kTargetSize / kTileCount;
 
     Path                      fPath;
 };
@@ -319,11 +319,11 @@ public:
 
 private:
     // Generates a kTileCount x kTileCount filmstrip with evenly distributed frames.
-    static constexpr int      kTileCount  = 5;
+    inline static constexpr int      kTileCount  = 5;
 
     // Fit kTileCount x kTileCount frames to a 1000x1000 film strip.
-    static constexpr SkScalar kTargetSize = 1000;
-    static constexpr SkScalar kTileSize   = kTargetSize / kTileCount;
+    inline static constexpr SkScalar kTargetSize = 1000;
+    inline static constexpr SkScalar kTileSize   = kTargetSize / kTileCount;
 
     const Path fPath;
 };

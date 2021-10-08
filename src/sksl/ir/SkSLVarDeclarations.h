@@ -26,7 +26,7 @@ namespace dsl {
  */
 class VarDeclaration final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kVarDeclaration;
+    inline static constexpr Kind kStatementKind = Kind::kVarDeclaration;
 
     VarDeclaration(const Variable* var,
                    const Type* baseType,
@@ -103,7 +103,7 @@ private:
  */
 class GlobalVarDeclaration final : public ProgramElement {
 public:
-    static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
+    inline static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
 
     GlobalVarDeclaration(std::unique_ptr<Statement> decl)
             : INHERITED(decl->fLine, kProgramElementKind)

@@ -149,7 +149,7 @@ private:
             }
         };
         SkLRUCache<DescTableKey, DescTableValue, DescTableHash> fMap;
-        static constexpr int kRangeSizesCount = 8;
+        inline static constexpr int kRangeSizesCount = 8;
         unsigned int fRangeSizes[kRangeSizesCount];
     };
 

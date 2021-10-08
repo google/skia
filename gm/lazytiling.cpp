@@ -247,18 +247,18 @@ protected:
     }
 
 private:
-    static constexpr int kLeftContentOffset = 8;
-    static constexpr int kTopContentOffset = 16;
-    static constexpr int kRightContentPadding = 24;
-    static constexpr int kBottomContentPadding = 80;
+    inline static constexpr int kLeftContentOffset = 8;
+    inline static constexpr int kTopContentOffset = 16;
+    inline static constexpr int kRightContentPadding = 24;
+    inline static constexpr int kBottomContentPadding = 80;
 
-    static constexpr int kPad = 4; // on-screen padding between cells
+    inline static constexpr int kPad = 4; // on-screen padding between cells
 
-    static constexpr int kContentSize = 32;
+    inline static constexpr int kContentSize = 32;
 
     // Each cell in this GM's grid is a square - 2*kContentSize on a side
-    static constexpr int kTotalWidth = (2*kContentSize+kPad) * kSkTileModeCount + kPad;
-    static constexpr int kTotalHeight = (2*kContentSize+kPad) * kSkTileModeCount + kPad;
+    inline static constexpr int kTotalWidth = (2*kContentSize+kPad) * kSkTileModeCount + kPad;
+    inline static constexpr int kTotalHeight = (2*kContentSize+kPad) * kSkTileModeCount + kPad;
 
     GrSurfaceOrigin    fOrigin;
     SkIRect            fContentRect;

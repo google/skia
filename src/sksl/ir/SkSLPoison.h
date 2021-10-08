@@ -12,7 +12,7 @@ namespace SkSL {
 
 class Poison : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kPoison;
+    inline static constexpr Kind kExpressionKind = Kind::kPoison;
 
     static std::unique_ptr<Expression> Make(int line, const Context& context) {
         return std::make_unique<Poison>(line, context.fTypes.fPoison.get());

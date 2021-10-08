@@ -12,8 +12,8 @@
 #include <chrono>
 
 struct TimingSample : public Sample {
-    static constexpr int W = 24,
-                         H = 16;
+    inline static constexpr int W = 24,
+                                H = 16;
     sk_sp<SkImage> fImg;
 
     SkString name() override { return SkString("Timing"); }

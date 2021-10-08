@@ -18,7 +18,7 @@ namespace SkSL {
  */
 class DiscardStatement final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kDiscard;
+    inline static constexpr Kind kStatementKind = Kind::kDiscard;
 
     DiscardStatement(int line)
     : INHERITED(line, kStatementKind) {}

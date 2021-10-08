@@ -132,7 +132,7 @@ protected:
         kArray                        = 0b00000110,  // ptr to external storage
         kObject                       = 0b00000111,  // ptr to external storage
     };
-    static constexpr uint8_t kTagMask = 0b00000111;
+    inline static constexpr uint8_t kTagMask = 0b00000111;
 
     void init_tagged(Tag);
     void init_tagged_pointer(Tag, void*);
@@ -199,7 +199,7 @@ protected:
     }
 
 private:
-    static constexpr size_t kValueSize = 8;
+    inline static constexpr size_t kValueSize = 8;
 
     uint8_t fData8[kValueSize];
 
@@ -211,14 +211,14 @@ private:
 
 class NullValue final : public Value {
 public:
-    static constexpr Type kType = Type::kNull;
+    inline static constexpr Type kType = Type::kNull;
 
     NullValue();
 };
 
 class BoolValue final : public Value {
 public:
-    static constexpr Type kType = Type::kBool;
+    inline static constexpr Type kType = Type::kBool;
 
     explicit BoolValue(bool);
 
@@ -230,7 +230,7 @@ public:
 
 class NumberValue final : public Value {
 public:
-    static constexpr Type kType = Type::kNumber;
+    inline static constexpr Type kType = Type::kNumber;
 
     explicit NumberValue(int32_t);
     explicit NumberValue(float);
@@ -249,7 +249,7 @@ template <typename T, Value::Type vtype>
 class VectorValue : public Value {
 public:
     using ValueT = T;
-    static constexpr Type kType = vtype;
+    inline static constexpr Type kType = vtype;
 
     size_t size() const {
         SkASSERT(this->getType() == kType);
@@ -283,7 +283,7 @@ public:
 
 class StringValue final : public Value {
 public:
-    static constexpr Type kType = Type::kString;
+    inline static constexpr Type kType = Type::kString;
 
     StringValue();
     StringValue(const char* src, size_t size, SkArenaAlloc& alloc);

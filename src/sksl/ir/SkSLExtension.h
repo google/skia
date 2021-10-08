@@ -17,7 +17,7 @@ namespace SkSL {
  */
 class Extension final : public ProgramElement {
 public:
-    static constexpr Kind kProgramElementKind = Kind::kExtension;
+    inline static constexpr Kind kProgramElementKind = Kind::kExtension;
 
     Extension(int line, skstd::string_view name)
         : INHERITED(line, kProgramElementKind)

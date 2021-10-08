@@ -24,8 +24,9 @@ struct SkIRect;
 class GrDynamicAtlas {
 public:
     // As long as GrSurfaceOrigin exists, we just have to decide on one for the atlas texture.
-    static constexpr GrSurfaceOrigin kTextureOrigin = kTopLeft_GrSurfaceOrigin;
-    static constexpr int kPadding = 1;  // Amount of padding below and to the right of each path.
+    inline static constexpr GrSurfaceOrigin kTextureOrigin = kTopLeft_GrSurfaceOrigin;
+    inline static constexpr int kPadding = 1;  // Amount of padding below and to the right of each
+                                               // path.
 
     using LazyAtlasDesc = GrSurfaceProxy::LazySurfaceDesc;
     using LazyInstantiateAtlasCallback = GrSurfaceProxy::LazyInstantiateCallback;

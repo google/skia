@@ -18,7 +18,7 @@ namespace SkSL {
  */
 class ExpressionStatement final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kExpression;
+    inline static constexpr Kind kStatementKind = Kind::kExpression;
 
     ExpressionStatement(std::unique_ptr<Expression> expression)
         : INHERITED(expression->fLine, kStatementKind)

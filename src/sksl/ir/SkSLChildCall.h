@@ -19,7 +19,7 @@ namespace SkSL {
  */
 class ChildCall final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kChildCall;
+    inline static constexpr Kind kExpressionKind = Kind::kChildCall;
 
     ChildCall(int line, const Type* type, const Variable* child, ExpressionArray arguments)
             : INHERITED(line, kExpressionKind, type)

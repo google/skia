@@ -85,8 +85,6 @@ void GrBufferAllocPool::CpuBufferCache::releaseAll() {
         static_cast<GrGpuBuffer*>(block.fBuffer.get())->unmap();                     \
     } while (false)
 
-constexpr size_t GrBufferAllocPool::kDefaultBufferSize;
-
 GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType,
                                      sk_sp<CpuBufferCache> cpuBufferCache)
         : fBlocks(8)

@@ -196,7 +196,7 @@ public:
         }
 
     private:
-        static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
+        inline static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
 
         uint8_t finalScale(uint32_t sum) const {
             return SkTo<uint8_t>((fWeight * sum + kHalf) >> 32);

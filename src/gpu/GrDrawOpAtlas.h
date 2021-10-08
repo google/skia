@@ -58,8 +58,8 @@ public:
     // These are both restricted by the space they occupy in the PlotLocator.
     // maxPages is also limited by being crammed into the glyph uvs.
     // maxPlots is also limited by the fPlotAlreadyUpdated bitfield in BulkUseTokenUpdater
-    static constexpr auto kMaxMultitexturePages = 4;
-    static constexpr int kMaxPlots = 32;
+    inline static constexpr auto kMaxMultitexturePages = 4;
+    inline static constexpr int kMaxPlots = 32;
 
     /**
      * A PlotLocator specifies the plot and is analogous to a directory path:
@@ -195,7 +195,7 @@ public:
      */
     class GenerationCounter {
     public:
-        static constexpr uint64_t kInvalidGeneration = 0;
+        inline static constexpr uint64_t kInvalidGeneration = 0;
         uint64_t next() {
             return fGeneration++;
         }
@@ -332,7 +332,7 @@ public:
             fPlotsToUpdate.push_back(PlotData(pageIdx, index));
         }
 
-        static constexpr int kMinItems = 4;
+        inline static constexpr int kMinItems = 4;
         SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
         uint32_t fPlotAlreadyUpdated[kMaxMultitexturePages]; // TODO: increase this to uint64_t
                                                              //       to allow more plots per page
@@ -547,7 +547,7 @@ private:
     // which limits the largest atlas dimensions to 2048x2048.
     // For simplicity we'll use this constraint for all of our atlas textures.
     // This can be revisited later if we need larger atlases.
-    static constexpr int kMaxAtlasDim = 2048;
+    inline static constexpr int kMaxAtlasDim = 2048;
 
     SkISize fARGBDimensions;
     int     fMaxTextureSize;

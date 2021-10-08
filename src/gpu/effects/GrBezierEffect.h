@@ -97,7 +97,7 @@ private:
     SkMatrix            fLocalMatrix;
     bool                fUsesLocalCoords;
     uint8_t             fCoverageScale;
-    static constexpr Attribute kAttributes[] = {
+    inline static constexpr Attribute kAttributes[] = {
         {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
         {"inConicCoeffs", kFloat4_GrVertexAttribType, kHalf4_GrSLType}
     };
@@ -160,7 +160,7 @@ private:
     bool fUsesLocalCoords;
     uint8_t fCoverageScale;
 
-    static constexpr Attribute kAttributes[] = {
+    inline static constexpr Attribute kAttributes[] = {
         {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
         {"inHairQuadEdge", kFloat4_GrVertexAttribType, kHalf4_GrSLType}
     };

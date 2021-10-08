@@ -160,11 +160,11 @@ protected:
     }
 
 private:
-    static constexpr int kNumPolygons = 8;
-    static constexpr int kCellSize = 100;
-    static constexpr int kNumExtraStyles = 2;
-    static constexpr int kNumStrokeWidths = 3;
-    static constexpr int kNumJoins = 3;
+    inline static constexpr int kNumPolygons = 8;
+    inline static constexpr int kCellSize = 100;
+    inline static constexpr int kNumExtraStyles = 2;
+    inline static constexpr int kNumStrokeWidths = 3;
+    inline static constexpr int kNumJoins = 3;
 
     SkTArray<SkPath> fPolygons;
     using INHERITED = GM;

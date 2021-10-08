@@ -17,7 +17,7 @@ namespace SkSL {
  */
 class TernaryExpression final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kTernary;
+    inline static constexpr Kind kExpressionKind = Kind::kTernary;
 
     TernaryExpression(int line, std::unique_ptr<Expression> test,
                       std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)

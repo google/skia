@@ -56,8 +56,8 @@ struct CoercionCost {
  */
 class Type : public Symbol {
 public:
-    static constexpr Kind kSymbolKind = Kind::kType;
-    static constexpr int kMaxAbbrevLength = 3;
+    inline static constexpr Kind kSymbolKind = Kind::kType;
+    inline static constexpr int kMaxAbbrevLength = 3;
 
     struct Field {
         Field(Modifiers modifiers, skstd::string_view name, const Type* type)

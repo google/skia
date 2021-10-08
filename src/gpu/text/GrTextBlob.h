@@ -58,7 +58,7 @@ class GrAtlasSubRun;
 using GrAtlasSubRunOwner = std::unique_ptr<GrAtlasSubRun, GrSubRunAllocator::Destroyer>;
 class GrAtlasSubRun  {
 public:
-    static constexpr int kVerticesPerGlyph = 4;
+    inline static constexpr int kVerticesPerGlyph = 4;
 
     virtual ~GrAtlasSubRun() = default;
 

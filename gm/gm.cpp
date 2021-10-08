@@ -27,8 +27,6 @@
 
 using namespace skiagm;
 
-constexpr char GM::kErrorMsg_DrawSkippedGpuOnly[];
-
 static void draw_failure_message(SkCanvas* canvas, const char format[], ...)  {
     SkString failureMsg;
 

@@ -84,8 +84,8 @@ protected:
 private:
     SkIPoint onGetSize() override { return {kDeviceSize.fWidth, kDeviceSize.fHeight}; }
 
-    static constexpr SkISize kImageSize{4, 4};
-    static constexpr SkISize kDeviceSize{64, 64};
+    inline static constexpr SkISize kImageSize{4, 4};
+    inline static constexpr SkISize kDeviceSize{64, 64};
 
     std::unique_ptr<sk_sp<SkImage>[]> fImages;
     SkString fName;

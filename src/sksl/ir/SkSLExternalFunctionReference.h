@@ -20,7 +20,7 @@ namespace SkSL {
  */
 class ExternalFunctionReference final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kExternalFunctionReference;
+    inline static constexpr Kind kExpressionKind = Kind::kExternalFunctionReference;
 
     ExternalFunctionReference(int line, const ExternalFunction* ef)
         : INHERITED(line, kExpressionKind, &ef->type())

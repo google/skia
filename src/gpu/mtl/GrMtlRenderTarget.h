@@ -89,7 +89,7 @@ private:
     // both of these being completely orthogonal. Thus we have a total of 4 types of render passes.
     // We then cache a framebuffer for each type of these render passes.
     // TODO: add support for other flags if needed
-    static constexpr int kNumCachedFramebuffers = 4;
+    inline static constexpr int kNumCachedFramebuffers = 4;
 
     sk_sp<const GrMtlFramebuffer> fCachedFramebuffers[kNumCachedFramebuffers];
 

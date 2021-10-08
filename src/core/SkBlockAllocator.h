@@ -49,7 +49,7 @@ class SkBlockAllocator final : SkNoncopyable {
 public:
     // Largest size that can be requested from allocate(), chosen because it's the largest pow-2
     // that is less than int32_t::max()/2.
-    static constexpr int kMaxAllocationSize = 1 << 29;
+    inline static constexpr int kMaxAllocationSize = 1 << 29;
 
     enum class GrowthPolicy : int {
         kFixed,       // Next block size = N
@@ -58,7 +58,7 @@ public:
         kExponential, //   = 2^#blocks * N
         kLast = kExponential
     };
-    static constexpr int kGrowthPolicyCount = static_cast<int>(GrowthPolicy::kLast) + 1;
+    inline static constexpr int kGrowthPolicyCount = static_cast<int>(GrowthPolicy::kLast) + 1;
 
     class Block;
 
@@ -398,8 +398,8 @@ public:
     inline BlockIter<false, true> rblocks() const;
 
 #ifdef SK_DEBUG
-    static constexpr int kAssignedMarker = 0xBEEFFACE;
-    static constexpr int kFreedMarker    = 0xCAFEBABE;
+    inline static constexpr int kAssignedMarker = 0xBEEFFACE;
+    inline static constexpr int kFreedMarker    = 0xCAFEBABE;
 
     void validate() const;
 #endif
@@ -408,7 +408,7 @@ private:
     friend class BlockAllocatorTestAccess;
     friend class TBlockListTestAccess;
 
-    static constexpr int kDataStart = sizeof(Block);
+    inline static constexpr int kDataStart = sizeof(Block);
     #ifdef SK_FORCE_8_BYTE_ALIGNMENT
         // This is an issue for WASM builds using emscripten, which had std::max_align_t = 16, but
         // was returning pointers only aligned to 8 bytes.
@@ -417,11 +417,11 @@ private:
         // Setting this to 8 will let SkBlockAllocator properly correct for the pointer address if
         // a 16-byte aligned allocation is requested in wasm (unlikely since we don't use long
         // doubles).
-        static constexpr size_t kAddressAlign = 8;
+        inline static constexpr size_t kAddressAlign = 8;
     #else
         // The alignment Block addresses will be at when created using operator new
         // (spec-compliant is pointers are aligned to max_align_t).
-        static constexpr size_t kAddressAlign = alignof(std::max_align_t);
+        inline static constexpr size_t kAddressAlign = alignof(std::max_align_t);
     #endif
 
     // Calculates the size of a new Block required to store a kMaxAllocationSize request for the

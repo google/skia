@@ -140,8 +140,8 @@ private:
         fLogger.call<void>(func, std::string(msg), std::string(json));
     }
 
-    static constexpr char kWrnFunc[] = "onWarning",
-                          kErrFunc[] = "onError";
+    inline static constexpr char kWrnFunc[] = "onWarning",
+                                 kErrFunc[] = "onError";
 
     const emscripten::val fLogger;
 };

@@ -124,8 +124,8 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(*this));
     }
 
-    static constexpr int kTexEffectFPIndex = 0;
-    static constexpr int kInputFPIndex = 1;
+    inline static constexpr int kTexEffectFPIndex = 0;
+    inline static constexpr int kInputFPIndex = 1;
 
 private:
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;

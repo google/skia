@@ -198,8 +198,8 @@ private:
 
     SkMatrix fKLM;
 
-    static constexpr int kVertsPerCubic = 4;
-    static constexpr int kIndicesPerCubic = 6;
+    inline static constexpr int kVertsPerCubic = 4;
+    inline static constexpr int kIndicesPerCubic = 6;
 
     using INHERITED = BezierTestOp;
 };
@@ -405,8 +405,8 @@ private:
 
     GrPathUtils::QuadUVMatrix fDevToUV;
 
-    static constexpr int kVertsPerCubic = 4;
-    static constexpr int kIndicesPerCubic = 6;
+    inline static constexpr int kVertsPerCubic = 4;
+    inline static constexpr int kIndicesPerCubic = 6;
 
     using INHERITED = BezierTestOp;
 };

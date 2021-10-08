@@ -32,7 +32,7 @@ public:
      *  constraints, but since we ask for unhinted paths, the two values
      *  need not match per-se.
      */
-    static constexpr int kCanonicalTextSizeForPaths  = 64;
+    inline static constexpr int kCanonicalTextSizeForPaths  = 64;
 
     /**
      *  Return a matrix that applies the paint's text values: size, scale, skew

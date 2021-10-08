@@ -117,9 +117,9 @@ protected:
 
 private:
     // pad between test cases
-    static constexpr int kPad = 7;
+    inline static constexpr int kPad = 7;
     // gap between rect for each case that is rendered and exterior of rrect
-    static constexpr int kGap = 3;
+    inline static constexpr int kGap = 3;
 
     SkRRect fRRect;
     int fWidth;

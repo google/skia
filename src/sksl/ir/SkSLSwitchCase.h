@@ -18,7 +18,7 @@ namespace SkSL {
  */
 class SwitchCase final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kSwitchCase;
+    inline static constexpr Kind kStatementKind = Kind::kSwitchCase;
 
     // null value implies "default" case
     SwitchCase(int line, std::unique_ptr<Expression> value, std::unique_ptr<Statement> statement)

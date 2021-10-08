@@ -297,23 +297,23 @@ protected:
     }
 
 private:
-    static constexpr int kBlockSize = 70;
-    static constexpr int kBlockSpacing = 12;
+    inline static constexpr int kBlockSize = 70;
+    inline static constexpr int kBlockSpacing = 12;
 
-    static constexpr int kCol0X = kBlockSpacing;
-    static constexpr int kCol1X = 2*kBlockSpacing + kBlockSize;
-    static constexpr int kCol2X = 3*kBlockSpacing + 2*kBlockSize;
-    static constexpr int kWidth = 4*kBlockSpacing + 3*kBlockSize;
+    inline static constexpr int kCol0X = kBlockSpacing;
+    inline static constexpr int kCol1X = 2*kBlockSpacing + kBlockSize;
+    inline static constexpr int kCol2X = 3*kBlockSpacing + 2*kBlockSize;
+    inline static constexpr int kWidth = 4*kBlockSpacing + 3*kBlockSize;
 
-    static constexpr int kRow0Y = kBlockSpacing;
-    static constexpr int kRow1Y = 2*kBlockSpacing + kBlockSize;
-    static constexpr int kRow2Y = 3*kBlockSpacing + 2*kBlockSize;
-    static constexpr int kRow3Y = 4*kBlockSpacing + 3*kBlockSize;
-    static constexpr int kRow4Y = 5*kBlockSpacing + 4*kBlockSize;
+    inline static constexpr int kRow0Y = kBlockSpacing;
+    inline static constexpr int kRow1Y = 2*kBlockSpacing + kBlockSize;
+    inline static constexpr int kRow2Y = 3*kBlockSpacing + 2*kBlockSize;
+    inline static constexpr int kRow3Y = 4*kBlockSpacing + 3*kBlockSize;
+    inline static constexpr int kRow4Y = 5*kBlockSpacing + 4*kBlockSize;
 
-    static constexpr int kSmallSize = 6;
+    inline static constexpr int kSmallSize = 6;
     // This must be at least as large as the GM width and height so that a surface can be made.
-    static constexpr int kMaxTextureSize = 1000;
+    inline static constexpr int kMaxTextureSize = 1000;
 
     SkString fShortName;
     sk_sp<SkImage> fBigImage;

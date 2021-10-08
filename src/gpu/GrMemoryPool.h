@@ -28,14 +28,14 @@ public:
     // https://github.com/emscripten-core/emscripten/issues/10072
     // Since Skia does not use "long double" (16 bytes), we should be ok to force it back to 8 bytes
     // until emscripten is fixed.
-    static constexpr size_t kAlignment = 8;
+    inline static constexpr size_t kAlignment = 8;
 #else
     // Guaranteed alignment of pointer returned by allocate().
-    static constexpr size_t kAlignment = alignof(std::max_align_t);
+    inline static constexpr size_t kAlignment = alignof(std::max_align_t);
 #endif
 
     // Smallest block size allocated on the heap (not the smallest reservation via allocate()).
-    static constexpr size_t kMinAllocationSize = 1 << 10;
+    inline static constexpr size_t kMinAllocationSize = 1 << 10;
 
     /**
      * Prealloc size is the amount of space to allocate at pool creation

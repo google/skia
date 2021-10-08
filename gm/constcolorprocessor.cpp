@@ -212,10 +212,10 @@ private:
     sk_sp<SkShader> fShader;
     TestMode        fMode;
 
-    static constexpr SkScalar       kPad = 10.f;
-    static constexpr SkScalar       kRectSize = 20.f;
-    static constexpr int            kWidth  = 820;
-    static constexpr int            kHeight = 500;
+    inline static constexpr SkScalar       kPad = 10.f;
+    inline static constexpr SkScalar       kRectSize = 20.f;
+    inline static constexpr int            kWidth  = 820;
+    inline static constexpr int            kHeight = 500;
 
     using INHERITED = GM;
 };

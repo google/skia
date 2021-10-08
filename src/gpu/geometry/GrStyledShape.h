@@ -40,7 +40,7 @@ class GrStyledShape {
 public:
     // Keys for paths may be extracted from the path data for small paths. Clients aren't supposed
     // to have to worry about this. This value is exposed for unit tests.
-    static constexpr int kMaxKeyFromDataVerbCnt = 10;
+    inline static constexpr int kMaxKeyFromDataVerbCnt = 10;
 
     GrStyledShape() {}
 

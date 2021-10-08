@@ -34,7 +34,7 @@ static SkMutex& f_c_mutex() {
 }
 
 struct FCLocker {
-    static constexpr int FontConfigThreadSafeVersion = 21393;
+    inline static constexpr int FontConfigThreadSafeVersion = 21393;
 
     // Assume FcGetVersion() has always been thread safe.
     FCLocker() {

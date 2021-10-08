@@ -35,7 +35,7 @@ class VariableReference final : public Expression {
 public:
     using RefKind = VariableRefKind;
 
-    static constexpr Kind kExpressionKind = Kind::kVariableReference;
+    inline static constexpr Kind kExpressionKind = Kind::kVariableReference;
 
     VariableReference(int line, const Variable* variable, RefKind refKind);
 

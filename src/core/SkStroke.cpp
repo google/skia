@@ -63,7 +63,7 @@ static_assert(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
 #if DEBUG_CUBIC_RECURSION_DEPTHS
     /* Prints a histogram of recursion depths at process termination. */
     static struct DepthHistogram {
-        static constexpr int kMaxDepth = 75;
+        inline static constexpr int kMaxDepth = 75;
         int fCubicDepths[kMaxDepth + 1];
 
         DepthHistogram() { memset(fCubicDepths, 0, sizeof(fCubicDepths)); }

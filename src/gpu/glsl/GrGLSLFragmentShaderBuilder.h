@@ -120,7 +120,7 @@ private:
 
     void onFinalize() override;
 
-    static constexpr const char kDstColorName[] = "_dstColor";
+    inline static constexpr const char kDstColorName[] = "_dstColor";
 
     GrShaderVar* fCustomColorOutput = nullptr;
 

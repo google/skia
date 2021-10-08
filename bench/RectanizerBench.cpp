@@ -27,8 +27,8 @@
  */
 class RectanizerBench : public Benchmark {
 public:
-    static constexpr int kWidth = 1024;
-    static constexpr int kHeight = 1024;
+    inline static constexpr int kWidth = 1024;
+    inline static constexpr int kHeight = 1024;
 
     enum RectanizerType {
         kPow2_RectanizerType,

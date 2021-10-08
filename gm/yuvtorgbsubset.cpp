@@ -168,7 +168,7 @@ private:
     SkYUVAPixmaps fPixmaps;
     GrYUVATextureProxies fProxies;
 
-    static constexpr SkScalar kTestPad = 10.f;
+    inline static constexpr SkScalar kTestPad = 10.f;
 
     using INHERITED = GM;
 };

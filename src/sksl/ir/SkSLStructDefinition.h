@@ -26,7 +26,7 @@ namespace SkSL {
  */
 class StructDefinition final : public ProgramElement {
 public:
-    static constexpr Kind kProgramElementKind = Kind::kStructDefinition;
+    inline static constexpr Kind kProgramElementKind = Kind::kStructDefinition;
 
     StructDefinition(int line, const Type& type)
     : INHERITED(line, kProgramElementKind)

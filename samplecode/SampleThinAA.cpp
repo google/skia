@@ -18,8 +18,8 @@ namespace skiagm {
 
 class ShapeRenderer : public SkRefCntBase {
 public:
-    static constexpr SkScalar kTileWidth = 20.f;
-    static constexpr SkScalar kTileHeight = 20.f;
+    inline static constexpr SkScalar kTileWidth = 20.f;
+    inline static constexpr SkScalar kTileHeight = 20.f;
 
     // Draw the shape, limited to kTileWidth x kTileHeight. It must apply the local subpixel (tx,
     // ty) translation and rotation by angle. Prior to these transform adjustments, the SkCanvas

@@ -229,7 +229,7 @@ private:
     template<typename S, int N> friend class SkTBlockList;
     friend class TBlockListTestAccess;  // for fAllocator
 
-    static constexpr size_t StartingSize =
+    inline static constexpr size_t StartingSize =
             SkBlockAllocator::Overhead<alignof(T)>() + StartingItems * sizeof(T);
 
     static T& GetItem(SkBlockAllocator::Block* block, int index) {

@@ -126,7 +126,7 @@ private:
         }
     }
 
-    static constexpr SkScalar kSize = 800;
+    inline static constexpr SkScalar kSize = 800;
 
     sk_sp<skottie::Animation>                             fAnimation;
     std::unique_ptr<skottie_utils::CustomPropertyManager> fPropManager;

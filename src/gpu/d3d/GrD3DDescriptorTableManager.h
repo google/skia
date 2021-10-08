@@ -108,7 +108,7 @@ private:
         void prepForSubmit(GrD3DGpu* gpu);
 
     private:
-        static constexpr int kInitialHeapDescriptorCount = 256;
+        inline static constexpr int kInitialHeapDescriptorCount = 256;
 
         std::vector<sk_sp<Heap>> fDescriptorHeaps;
         D3D12_DESCRIPTOR_HEAP_TYPE fHeapType;

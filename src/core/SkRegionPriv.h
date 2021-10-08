@@ -16,7 +16,7 @@
 
 class SkRegionPriv {
 public:
-    static constexpr int kRunTypeSentinel = 0x7FFFFFFF;
+    inline static constexpr int kRunTypeSentinel = 0x7FFFFFFF;
     typedef SkRegion::RunType RunType;
     typedef SkRegion::RunHead RunHead;
 

@@ -196,10 +196,10 @@ private:
             canvas->translate(2 * d, 0);
         }
     }
-    static constexpr int kM = 4;
-    static constexpr int kN = 3;
-    static constexpr SkScalar kTileW = 30;
-    static constexpr SkScalar kTileH = 60;
+    inline static constexpr int kM = 4;
+    inline static constexpr int kN = 3;
+    inline static constexpr SkScalar kTileW = 30;
+    inline static constexpr SkScalar kTileH = 60;
     SkCanvas::ImageSetEntry fSet[kM * kN];
 };
 
@@ -282,10 +282,10 @@ private:
             canvas->save();
         }
     }
-    static constexpr int kM = 2;
-    static constexpr int kN = 2;
-    static constexpr int kTileW = 40;
-    static constexpr int kTileH = 50;
+    inline static constexpr int kM = 2;
+    inline static constexpr int kN = 2;
+    inline static constexpr int kTileW = 40;
+    inline static constexpr int kTileH = 50;
     SkCanvas::ImageSetEntry fSet[kM * kN];
 };
 
@@ -344,10 +344,10 @@ private:
         }
     }
 
-    static constexpr int kM = 4;
-    static constexpr int kN = 4;
-    static constexpr int kTileW = 50;
-    static constexpr int kTileH = 50;
+    inline static constexpr int kM = 4;
+    inline static constexpr int kN = 4;
+    inline static constexpr int kTileW = 50;
+    inline static constexpr int kTileH = 50;
     SkCanvas::ImageSetEntry fSet[kM * kN];
 };
 

@@ -20,7 +20,7 @@ namespace SkSL {
  */
 class InlineMarker final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kInlineMarker;
+    inline static constexpr Kind kStatementKind = Kind::kInlineMarker;
 
     InlineMarker(const FunctionDeclaration* function)
             : INHERITED(/*line=*/-1, kStatementKind)

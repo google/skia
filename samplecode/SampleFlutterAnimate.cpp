@@ -74,7 +74,7 @@ private:
         }
     }
 
-    static constexpr double kDuration = 5.0;
+    inline static constexpr double kDuration = 5.0;
     double fCurrTime;
     double fResetTime;
     SkRandom fRand;
@@ -86,7 +86,7 @@ private:
         SkScalar fEndRotation;
     };
     sk_sp<SkTypeface> fTypeface;
-    static constexpr int kNumChars = 40;
+    inline static constexpr int kNumChars = 40;
     AnimatedChar fChars[kNumChars];
 
     using INHERITED = Sample;

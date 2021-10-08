@@ -112,9 +112,9 @@ protected:
     }
 
 private:
-    static constexpr int kCloseUpSize = 64;
-    static constexpr int kWidth = 5 * kCloseUpSize;
-    static constexpr int kHeight = 2 * (kLastEnum_SkBlurStyle + 1) * kCloseUpSize;
+    inline static constexpr int kCloseUpSize = 64;
+    inline static constexpr int kWidth = 5 * kCloseUpSize;
+    inline static constexpr int kHeight = 2 * (kLastEnum_SkBlurStyle + 1) * kCloseUpSize;
 
     using INHERITED = GM;
 };

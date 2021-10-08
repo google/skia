@@ -24,7 +24,7 @@ namespace SkSL {
  */
 class ConstructorScalarCast final : public SingleArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorScalarCast;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorScalarCast;
 
     ConstructorScalarCast(int line, const Type& type, std::unique_ptr<Expression> arg)
         : INHERITED(line, kExpressionKind, &type, std::move(arg)) {}

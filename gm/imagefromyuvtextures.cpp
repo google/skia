@@ -266,11 +266,11 @@ private:
     std::unique_ptr<sk_gpu_test::LazyYUVImage> fLazyYUVImage;
 
     // 3 draws x 3 scales x 4 filter qualities
-    static constexpr int kNumImages = 3 * 3 * 4;
+    inline static constexpr int kNumImages = 3 * 3 * 4;
     sk_sp<SkImage> fYUVAImages[kNumImages];
     sk_sp<SkImage> fReferenceImage;
 
-    static constexpr SkScalar kPad = 10.0f;
+    inline static constexpr SkScalar kPad = 10.0f;
 
     using INHERITED = GM;
 };

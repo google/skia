@@ -21,7 +21,7 @@ struct ASTNode;
  */
 class FunctionPrototype final : public ProgramElement {
 public:
-    static constexpr Kind kProgramElementKind = Kind::kFunctionPrototype;
+    inline static constexpr Kind kProgramElementKind = Kind::kFunctionPrototype;
 
     FunctionPrototype(int line, const FunctionDeclaration* declaration, bool builtin)
             : INHERITED(line, kProgramElementKind)

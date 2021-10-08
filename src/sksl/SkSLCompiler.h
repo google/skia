@@ -64,10 +64,10 @@ struct LoadedModule {
  */
 class SK_API Compiler {
 public:
-    static constexpr const char FRAGCOLOR_NAME[] = "sk_FragColor";
-    static constexpr const char RTADJUST_NAME[]  = "sk_RTAdjust";
-    static constexpr const char PERVERTEX_NAME[] = "sk_PerVertex";
-    static constexpr const char POISON_TAG[]     = "<POISON>";
+    inline static constexpr const char FRAGCOLOR_NAME[] = "sk_FragColor";
+    inline static constexpr const char RTADJUST_NAME[]  = "sk_RTAdjust";
+    inline static constexpr const char PERVERTEX_NAME[] = "sk_PerVertex";
+    inline static constexpr const char POISON_TAG[]     = "<POISON>";
 
     /**
      * Gets a float4 that adjusts the position from Skia device coords to normalized device coords,

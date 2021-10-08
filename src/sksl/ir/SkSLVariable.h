@@ -40,7 +40,7 @@ class Variable final : public Symbol {
 public:
     using Storage = VariableStorage;
 
-    static constexpr Kind kSymbolKind = Kind::kVariable;
+    inline static constexpr Kind kSymbolKind = Kind::kVariable;
 
     Variable(int line, const Modifiers* modifiers, skstd::string_view name, const Type* type,
              bool builtin, Storage storage)

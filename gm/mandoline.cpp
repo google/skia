@@ -25,7 +25,7 @@ namespace skiagm {
 // Slices paths into sliver-size contours shaped like ice cream cones.
 class MandolineSlicer {
 public:
-    static constexpr int kDefaultSubdivisions = 10;
+    inline static constexpr int kDefaultSubdivisions = 10;
 
     MandolineSlicer(SkPoint anchorPt) {
         fPath.setFillType(SkPathFillType::kEvenOdd);

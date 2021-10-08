@@ -149,10 +149,10 @@ private:
     };
     static_assert(sizeof(Header) == sizeof(int32_t), "Header should be 4 bytes");
 
-    static constexpr unsigned kSentinel = 0xbaffe;
-    static constexpr int kMetaSize = sizeof(Header) + sizeof(T);
-    static constexpr int k2DQuadFloats = 8;
-    static constexpr int k3DQuadFloats = 12;
+    inline static constexpr unsigned kSentinel = 0xbaffe;
+    inline static constexpr int kMetaSize = sizeof(Header) + sizeof(T);
+    inline static constexpr int k2DQuadFloats = 8;
+    inline static constexpr int k3DQuadFloats = 12;
 
     // Each logical entry in the buffer is a variable length tuple storing device coordinates,
     // optional local coordinates, and metadata. An entry always has a header that defines the

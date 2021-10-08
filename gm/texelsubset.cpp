@@ -214,9 +214,9 @@ protected:
     }
 
 private:
-    static constexpr SkISize kImageSize = {128, 88};
-    static constexpr SkScalar kDrawPad = 10.f;
-    static constexpr SkScalar kTestPad = 10.f;
+    inline static constexpr SkISize kImageSize = {128, 88};
+    inline static constexpr SkScalar kDrawPad = 10.f;
+    inline static constexpr SkScalar kTestPad = 10.f;
     SkBitmap fBitmap;
     Filter fFilter;
     MipmapMode fMipmapMode;

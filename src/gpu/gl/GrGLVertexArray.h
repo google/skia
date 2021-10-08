@@ -66,7 +66,7 @@ public:
     int count() const { return fAttribArrayStates.count(); }
 
 private:
-    static constexpr int kInvalidDivisor = -1;
+    inline static constexpr int kInvalidDivisor = -1;
 
     /**
      * Tracks the state of glVertexAttribArray for an attribute index.

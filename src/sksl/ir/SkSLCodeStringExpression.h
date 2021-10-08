@@ -20,7 +20,7 @@ namespace SkSL {
  */
 class CodeStringExpression final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kCodeString;
+    inline static constexpr Kind kExpressionKind = Kind::kCodeString;
 
     CodeStringExpression(String code, const Type* type)
         : INHERITED(/*line=*/-1, kExpressionKind, type)

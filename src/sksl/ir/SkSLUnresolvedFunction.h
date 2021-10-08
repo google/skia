@@ -17,7 +17,7 @@ namespace SkSL {
  */
 class UnresolvedFunction final : public Symbol {
 public:
-    static constexpr Kind kSymbolKind = Kind::kUnresolvedFunction;
+    inline static constexpr Kind kSymbolKind = Kind::kUnresolvedFunction;
 
     UnresolvedFunction(std::vector<const FunctionDeclaration*> funcs)
     : INHERITED(-1, kSymbolKind, funcs[0]->name())

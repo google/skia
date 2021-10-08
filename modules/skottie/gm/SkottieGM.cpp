@@ -81,7 +81,7 @@ protected:
     }
 
 private:
-    static constexpr SkScalar kSize = 800;
+    inline static constexpr SkScalar kSize = 800;
 
     sk_sp<skottie::Animation> fAnimation;
 
@@ -164,7 +164,7 @@ protected:
     }
 
 private:
-    static constexpr SkScalar kSize = 800;
+    inline static constexpr SkScalar kSize = 800;
 
     const char*                                                fName;
     const char*                                                fResource;
@@ -232,7 +232,7 @@ private:
         }
     };
 
-    static constexpr SkScalar kSize = 800;
+    inline static constexpr SkScalar kSize = 800;
 
     sk_sp<skottie::Animation> fAnimation;
 

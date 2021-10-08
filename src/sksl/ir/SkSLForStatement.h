@@ -29,7 +29,7 @@ struct LoopUnrollInfo {
  */
 class ForStatement final : public Statement {
 public:
-    static constexpr Kind kStatementKind = Kind::kFor;
+    inline static constexpr Kind kStatementKind = Kind::kFor;
 
     ForStatement(int line,
                  std::unique_ptr<Statement> initializer,

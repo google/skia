@@ -23,7 +23,7 @@ class GrSurfaceProxyView;
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
-    static constexpr int kMaxTextures = 4;
+    inline static constexpr int kMaxTextures = 4;
 
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
                                      const GrShaderCaps& caps,

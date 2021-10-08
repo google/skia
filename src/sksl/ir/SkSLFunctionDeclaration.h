@@ -35,7 +35,7 @@ enum IntrinsicKind {
  */
 class FunctionDeclaration final : public Symbol {
 public:
-    static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
+    inline static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 
     FunctionDeclaration(int line,
                         const Modifiers* modifiers,

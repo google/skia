@@ -95,25 +95,25 @@ private:
 
     SkSampler* getSampler(bool createIfNecessary) override;
 
-    sk_sp<SkColorTable>        fColorTable;
+    sk_sp<SkColorTable>               fColorTable;
     // fNumColors is the number specified in the header, or 0 if not present in the header.
-    const uint32_t             fNumColors;
-    const uint32_t             fBytesPerColor;
-    const uint32_t             fOffset;
+    const uint32_t                    fNumColors;
+    const uint32_t                    fBytesPerColor;
+    const uint32_t                    fOffset;
 
-    static constexpr size_t    kBufferSize = 4096;
-    uint8_t                    fStreamBuffer[kBufferSize];
-    size_t                     fBytesBuffered;
+    inline static constexpr size_t    kBufferSize = 4096;
+    uint8_t                           fStreamBuffer[kBufferSize];
+    size_t                            fBytesBuffered;
 
-    uint32_t                   fCurrRLEByte;
-    int                        fSampleX;
-    std::unique_ptr<SkSampler> fSampler;
+    uint32_t                          fCurrRLEByte;
+    int                               fSampleX;
+    std::unique_ptr<SkSampler>        fSampler;
 
     // Scanline decodes allow the client to ask for a single scanline at a time.
     // This can be tricky when the RLE encoding instructs the decoder to jump down
     // multiple lines.  This field keeps track of lines that need to be skipped
     // on subsequent calls to decodeRows().
-    int                        fLinesToSkip;
+    int                               fLinesToSkip;
 
     using INHERITED = SkBmpCodec;
 };

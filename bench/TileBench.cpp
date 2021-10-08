@@ -102,8 +102,8 @@ protected:
     }
 
 private:
-    static constexpr int kWidth = 1;
-    static constexpr int kHeight = 300;
+    inline static constexpr int kWidth = 1;
+    inline static constexpr int kHeight = 300;
 
     const SkFilterMode fFilterMode;
     const SkTileMode fXTile,

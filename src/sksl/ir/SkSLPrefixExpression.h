@@ -22,7 +22,7 @@ namespace SkSL {
  */
 class PrefixExpression final : public Expression {
 public:
-    static constexpr Kind kExpressionKind = Kind::kPrefix;
+    inline static constexpr Kind kExpressionKind = Kind::kPrefix;
 
     // Use PrefixExpression::Make to automatically simplify various prefix expression types.
     PrefixExpression(Operator op, std::unique_ptr<Expression> operand)

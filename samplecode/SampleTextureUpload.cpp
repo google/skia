@@ -17,9 +17,9 @@
  * This sample exercises heavy texture updates and uploads.
  */
 class TextureUploadSample : public Sample {
-    static constexpr int kMinTileSize = 128;
-    static constexpr int kMaxTileSize = 2048;
-    static constexpr float kGridScale = 0.25f;
+    inline static constexpr int kMinTileSize = 128;
+    inline static constexpr int kMaxTileSize = 2048;
+    inline static constexpr float kGridScale = 0.25f;
 
     bool fDrawTexturesToScreen = true;
     int fTileSize = 256;

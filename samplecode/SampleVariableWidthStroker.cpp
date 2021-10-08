@@ -52,7 +52,7 @@ constexpr uint64_t choose(uint64_t n, uint64_t k) {
  */
 class ScalarBezCurve {
 public:
-    static constexpr int kDegreeInvalid = -1;
+    inline static constexpr int kDegreeInvalid = -1;
 
     /** Creates an empty curve with invalid degree. */
     ScalarBezCurve() : fDegree(kDegreeInvalid) {}
@@ -1374,7 +1374,7 @@ private:
     float fWidth = 175;
     SkPaint fPtsPaint, fStrokePaint, fNewFillPaint, fHiddenPaint, fSkeletonPaint,
             fStrokePointsPaint;
-    static constexpr int kNPts = 5;
+    inline static constexpr int kNPts = 5;
     std::array<SkPoint, kNPts> fPathPts;
     SkSize fWinSize;
     SkVarWidthStroker::LengthMetric fLengthMetric;
