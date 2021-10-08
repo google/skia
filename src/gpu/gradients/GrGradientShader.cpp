@@ -345,8 +345,8 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
             // Could run into problems. Check if thresholds are close together (with a limit of .01,
             // so that scales will be less than 100, which leaves 4 decimals of precision on
             // 16-bit).
-            for (int i = offset; i < count - 1; i++) {
-                SkScalar dt = SkScalarAbs(positions[i] - positions[i + 1]);
+            for (int i = 0; i < count - 1; i++) {
+                SkScalar dt = SkScalarAbs(positions[offset + i] - positions[offset + i + 1]);
                 if (dt <= kLowPrecisionIntervalLimit && dt > SK_ScalarNearlyZero) {
                     return true;
                 }
