@@ -54,131 +54,67 @@ namespace skvx {
 
 // All Vec have the same simple memory layout, the same as `T vec[N]`.
 template <int N, typename T>
-struct alignas(N*sizeof(T)) Vec;
-
-template <int... Ix, int N, typename T>
-SI Vec<sizeof...(Ix),T> shuffle(const Vec<N,T>&);
-
-template <int N, typename T>
-struct alignas(N*sizeof(T)) VecCommon {
+struct alignas(N*sizeof(T)) Vec {
     static_assert((N & (N-1)) == 0,        "N must be a power of 2.");
-    static_assert(sizeof(T) >= alignof(T), "Very unexpected type traits: sizeof(T) < alignof(T)");
-
-    // Methods on vectors belong in the actual class only if:
-    //   - they must be here, like constructors.
-    //   - they'll definitely never want a specialized implementation.
-    // Other operations on vectors should be defined outside the type.
-
-    SKVX_ALWAYS_INLINE VecCommon() = default;
-
-    SKVX_ALWAYS_INLINE VecCommon(std::initializer_list<T> l) {
-        static_assert(sizeof(Vec<N,T>) == N*sizeof(T),  "Vec must be tightly packed.");
-        static_assert(alignof(Vec<N,T>) == N*sizeof(T), "Vec alignment must support fast loads.");
-        if (l.size() >= N) {
-            memcpy(this, l.begin(), N*sizeof(T));
-        } else {
-            memcpy(this, l.begin(), l.size()*sizeof(T));
-            memset((char*)this + l.size()*sizeof(T), 0, (N - l.size())*sizeof(T));
-        }
-    }
-
-    SKVX_ALWAYS_INLINE T operator[](int i) const {
-        auto vec = static_cast<const Vec<N,T>*>(this);
-        if constexpr (N > 1) {
-            return i < N/2 ? vec->lo[i] : vec->hi[i-N/2];
-        } else {
-            return vec->val;
-        }
-    }
-
-    SKVX_ALWAYS_INLINE T& operator[](int i) {
-        auto vec = static_cast<Vec<N,T>*>(this);
-        if constexpr (N > 1) {
-            return i < N/2 ? vec->lo[i] : vec->hi[i-N/2];
-        } else {
-            return vec->val;
-        }
-    }
-
-    SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        memcpy(ptr, this, N*sizeof(T));
-    }
-
-    SKVX_ALWAYS_INLINE static Vec<N,T> Load(const void* ptr) {
-        Vec<N,T> v;
-        memcpy(&v, ptr, N*sizeof(T));
-        return v;
-    }
-};
-
-template <int N, typename T>
-struct Vec : public VecCommon<N,T> {
-    SKVX_ALWAYS_INLINE Vec() = default;
-    SKVX_ALWAYS_INLINE Vec(T s) : lo(s), hi(s) {}
-    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> l) : VecCommon<N,T>(l) {}
+    static_assert(sizeof(T) >= alignof(T), "What kind of crazy T is this?");
 
     Vec<N/2,T> lo, hi;
+
+    // Methods belong here in the class declaration of Vec only if:
+    //   - they must be here, like constructors or operator[];
+    //   - they'll definitely never want a specialized implementation.
+    // Other operations on Vec should be defined outside the type.
+
+    SKVX_ALWAYS_INLINE Vec() = default;
+
+    template <typename U, typename=std::enable_if_t<std::is_convertible<U,T>::value>>
+    SKVX_ALWAYS_INLINE
+    Vec(U x) : lo(x), hi(x) {}
+
+    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
+        T vals[N] = {0};
+        memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)N)*sizeof(T));
+
+        lo = Vec<N/2,T>::Load(vals +   0);
+        hi = Vec<N/2,T>::Load(vals + N/2);
+    }
+
+    SKVX_ALWAYS_INLINE T  operator[](int i) const { return i < N/2 ? lo[i] : hi[i-N/2]; }
+    SKVX_ALWAYS_INLINE T& operator[](int i)       { return i < N/2 ? lo[i] : hi[i-N/2]; }
+
+    SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
+        Vec v;
+        memcpy(&v, ptr, sizeof(Vec));
+        return v;
+    }
+    SKVX_ALWAYS_INLINE void store(void* ptr) const {
+        memcpy(ptr, this, sizeof(Vec));
+    }
 };
 
 template <typename T>
-struct Vec<4,T> : public VecCommon<4,T> {
-    SKVX_ALWAYS_INLINE Vec() = default;
-    SKVX_ALWAYS_INLINE Vec(T s) : lo(s), hi(s) {}
-    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> l) : VecCommon<4,T>(l) {}
-    SKVX_ALWAYS_INLINE Vec(T x, T y, T z, T w) : lo(x,y), hi(z, w) {}
-    SKVX_ALWAYS_INLINE Vec(Vec<2,T> xy, T z, T w) : lo(xy), hi(z,w) {}
-    SKVX_ALWAYS_INLINE Vec(T x, T y, Vec<2,T> zw) : lo(x,y), hi(zw) {}
-    SKVX_ALWAYS_INLINE Vec(Vec<2,T> xy, Vec<2,T> zw) : lo(xy), hi(zw) {}
-
-    SKVX_ALWAYS_INLINE Vec<2,T>& xy() { return lo; }
-    SKVX_ALWAYS_INLINE Vec<2,T>& zw() { return hi; }
-    SKVX_ALWAYS_INLINE T& x() { return lo.lo.val; }
-    SKVX_ALWAYS_INLINE T& y() { return lo.hi.val; }
-    SKVX_ALWAYS_INLINE T& z() { return hi.lo.val; }
-    SKVX_ALWAYS_INLINE T& w() { return hi.hi.val; }
-
-    SKVX_ALWAYS_INLINE Vec<2,T> xy() const { return lo; }
-    SKVX_ALWAYS_INLINE Vec<2,T> zw() const { return hi; }
-    SKVX_ALWAYS_INLINE T x() const { return lo.lo.val; }
-    SKVX_ALWAYS_INLINE T y() const { return lo.hi.val; }
-    SKVX_ALWAYS_INLINE T z() const { return hi.lo.val; }
-    SKVX_ALWAYS_INLINE T w() const { return hi.hi.val; }
-
-    // Exchange-based swizzles. These should take 1 cycle on NEON and 3 (pipelined) cycles on SSE.
-    SKVX_ALWAYS_INLINE Vec<4,T> yxwz() const { return shuffle<1,0,3,2>(*this); }
-    SKVX_ALWAYS_INLINE Vec<4,T> zwxy() const { return shuffle<2,3,0,1>(*this); }
-
-    Vec<2,T> lo, hi;
-};
-
-template <typename T>
-struct Vec<2,T> : public VecCommon<2,T> {
-    SKVX_ALWAYS_INLINE Vec() = default;
-    SKVX_ALWAYS_INLINE Vec(T s) : lo(s), hi(s) {}
-    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> l) : VecCommon<2,T>(l) {}
-    SKVX_ALWAYS_INLINE Vec(T x, T y) : lo(x), hi(y) {}
-
-    SKVX_ALWAYS_INLINE T& x() { return lo.val; }
-    SKVX_ALWAYS_INLINE T& y() { return hi.val; }
-
-    SKVX_ALWAYS_INLINE T x() const { return lo.val; }
-    SKVX_ALWAYS_INLINE T y() const { return hi.val; }
-
-    // This exchange-based swizzle should take 1 cycle on NEON and 3 (pipelined) cycles on SSE.
-    SKVX_ALWAYS_INLINE Vec<2,T> yx() const { return shuffle<1,0>(*this); }
-
-    SKVX_ALWAYS_INLINE Vec<4,T> xyxy() const { return Vec<4,T>(*this, *this); }
-
-    Vec<1,T> lo, hi;
-};
-
-template <typename T>
-struct Vec<1,T> : public VecCommon<1,T> {
-    SKVX_ALWAYS_INLINE Vec() = default;
-    SKVX_ALWAYS_INLINE Vec(T s) : val(s) {}
-    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> l) : VecCommon<1,T>(l) {}
-
+struct Vec<1,T> {
     T val;
+
+    SKVX_ALWAYS_INLINE Vec() = default;
+
+    template <typename U, typename=std::enable_if_t<std::is_convertible<U,T>::value>>
+    SKVX_ALWAYS_INLINE
+    Vec(U x) : val(x) {}
+
+    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) : val(xs.size() ? *xs.begin() : 0) {}
+
+    SKVX_ALWAYS_INLINE T  operator[](int) const { return val; }
+    SKVX_ALWAYS_INLINE T& operator[](int)       { return val; }
+
+    SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
+        Vec v;
+        memcpy(&v, ptr, sizeof(Vec));
+        return v;
+    }
+    SKVX_ALWAYS_INLINE void store(void* ptr) const {
+        memcpy(ptr, this, sizeof(Vec));
+    }
 };
 
 // Ideally we'd only use bit_pun(), but until this file is always built as C++17 with constexpr if,
