@@ -532,7 +532,7 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
 
             // Convert the radii to [-1, -1, +1, +1] space and write their attribs.
             grvx::float4 radiiX, radiiY;
-            grvx::strided_load2(&SkRRectPriv::GetRadiiArray(i->fRRect)->fX, radiiX, radiiY);
+            skvx::strided_load2(&SkRRectPriv::GetRadiiArray(i->fRRect)->fX, radiiX, radiiY);
             radiiX *= 2 / (r - l);
             radiiY *= 2 / (b - t);
 

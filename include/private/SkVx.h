@@ -733,6 +733,142 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
     }
 #endif
 
+// Approximates the inverse cosine of x within 0.96 degrees using the rational polynomial:
+//
+//     acos(x) ~= (bx^3 + ax) / (dx^4 + cx^2 + 1) + pi/2
+//
+// See: https://stackoverflow.com/a/36387954
+//
+// For a proof of max error, see the "SkVx_approx_acos" unit test.
+//
+// NOTE: This function deviates immediately from pi and 0 outside -1 and 1. (The derivatives are
+// infinite at -1 and 1). So the input must still be clamped between -1 and 1.
+#define SKVX_APPROX_ACOS_MAX_ERROR SkDegreesToRadians(.96f)
+SIN Vec<N,float> approx_acos(Vec<N,float> x) {
+    constexpr static float a = -0.939115566365855f;
+    constexpr static float b =  0.9217841528914573f;
+    constexpr static float c = -1.2845906244690837f;
+    constexpr static float d =  0.295624144969963174f;
+    constexpr static float pi_over_2 = 1.5707963267948966f;
+    auto xx = x*x;
+    auto numer = b*xx + a;
+    auto denom = xx*(d*xx + c) + 1;
+    return x * (numer/denom) + pi_over_2;
+}
+
+// De-interleaving load of 4 vectors.
+//
+// WARNING: These are really only supported well on NEON. Consider restructuring your data before
+// resorting to these methods.
+SIT void strided_load4(const T* v,
+                       skvx::Vec<1,T>& a,
+                       skvx::Vec<1,T>& b,
+                       skvx::Vec<1,T>& c,
+                       skvx::Vec<1,T>& d) {
+    a.val = v[0];
+    b.val = v[1];
+    c.val = v[2];
+    d.val = v[3];
+}
+SINT void strided_load4(const T* v,
+                        skvx::Vec<N,T>& a,
+                        skvx::Vec<N,T>& b,
+                        skvx::Vec<N,T>& c,
+                        skvx::Vec<N,T>& d) {
+    strided_load4(v, a.lo, b.lo, c.lo, d.lo);
+    strided_load4(v + 4*(N/2), a.hi, b.hi, c.hi, d.hi);
+}
+#if !defined(SKNX_NO_SIMD)
+#if defined(__ARM_NEON)
+#define IMPL_LOAD4_TRANSPOSED(N, T, VLD) \
+SI void strided_load4(const T* v, \
+                      skvx::Vec<N,T>& a, \
+                      skvx::Vec<N,T>& b, \
+                      skvx::Vec<N,T>& c, \
+                      skvx::Vec<N,T>& d) { \
+    auto mat = VLD(v); \
+    a = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[0]); \
+    b = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[1]); \
+    c = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[2]); \
+    d = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[3]); \
+}
+IMPL_LOAD4_TRANSPOSED(2, uint32_t, vld4_u32);
+IMPL_LOAD4_TRANSPOSED(4, uint16_t, vld4_u16);
+IMPL_LOAD4_TRANSPOSED(8, uint8_t, vld4_u8);
+IMPL_LOAD4_TRANSPOSED(2, int32_t, vld4_s32);
+IMPL_LOAD4_TRANSPOSED(4, int16_t, vld4_s16);
+IMPL_LOAD4_TRANSPOSED(8, int8_t, vld4_s8);
+IMPL_LOAD4_TRANSPOSED(2, float, vld4_f32);
+IMPL_LOAD4_TRANSPOSED(4, uint32_t, vld4q_u32);
+IMPL_LOAD4_TRANSPOSED(8, uint16_t, vld4q_u16);
+IMPL_LOAD4_TRANSPOSED(16, uint8_t, vld4q_u8);
+IMPL_LOAD4_TRANSPOSED(4, int32_t, vld4q_s32);
+IMPL_LOAD4_TRANSPOSED(8, int16_t, vld4q_s16);
+IMPL_LOAD4_TRANSPOSED(16, int8_t, vld4q_s8);
+IMPL_LOAD4_TRANSPOSED(4, float, vld4q_f32);
+#undef IMPL_LOAD4_TRANSPOSED
+#elif defined(__SSE__)
+SI void strided_load4(const float* v,
+                      Vec<4,float>& a,
+                      Vec<4,float>& b,
+                      Vec<4,float>& c,
+                      Vec<4,float>& d) {
+    using skvx::bit_pun;
+    __m128 a_ = _mm_loadu_ps(v);
+    __m128 b_ = _mm_loadu_ps(v+4);
+    __m128 c_ = _mm_loadu_ps(v+8);
+    __m128 d_ = _mm_loadu_ps(v+12);
+    _MM_TRANSPOSE4_PS(a_, b_, c_, d_);
+    a = bit_pun<Vec<4,float>>(a_);
+    b = bit_pun<Vec<4,float>>(b_);
+    c = bit_pun<Vec<4,float>>(c_);
+    d = bit_pun<Vec<4,float>>(d_);
+}
+#endif
+#endif
+
+// De-interleaving load of 2 vectors.
+//
+// WARNING: These are really only supported well on NEON. Consider restructuring your data before
+// resorting to these methods.
+SIT void strided_load2(const T* v, skvx::Vec<1,T>& a, skvx::Vec<1,T>& b) {
+    a.val = v[0];
+    b.val = v[1];
+}
+SINT void strided_load2(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b) {
+    strided_load2(v, a.lo, b.lo);
+    strided_load2(v + 2*(N/2), a.hi, b.hi);
+}
+#if !defined(SKNX_NO_SIMD)
+#if defined(__ARM_NEON)
+#define IMPL_LOAD2_TRANSPOSED(N, T, VLD) \
+SI void strided_load2(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b) { \
+    auto mat = VLD(v); \
+    a = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[0]); \
+    b = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[1]); \
+}
+IMPL_LOAD2_TRANSPOSED(2, uint32_t, vld2_u32);
+IMPL_LOAD2_TRANSPOSED(4, uint16_t, vld2_u16);
+IMPL_LOAD2_TRANSPOSED(8, uint8_t, vld2_u8);
+IMPL_LOAD2_TRANSPOSED(2, int32_t, vld2_s32);
+IMPL_LOAD2_TRANSPOSED(4, int16_t, vld2_s16);
+IMPL_LOAD2_TRANSPOSED(8, int8_t, vld2_s8);
+IMPL_LOAD2_TRANSPOSED(2, float, vld2_f32);
+IMPL_LOAD2_TRANSPOSED(4, uint32_t, vld2q_u32);
+IMPL_LOAD2_TRANSPOSED(8, uint16_t, vld2q_u16);
+IMPL_LOAD2_TRANSPOSED(16, uint8_t, vld2q_u8);
+IMPL_LOAD2_TRANSPOSED(4, int32_t, vld2q_s32);
+IMPL_LOAD2_TRANSPOSED(8, int16_t, vld2q_s16);
+IMPL_LOAD2_TRANSPOSED(16, int8_t, vld2q_s8);
+IMPL_LOAD2_TRANSPOSED(4, float, vld2q_f32);
+#undef IMPL_LOAD2_TRANSPOSED
+#endif
+#endif
+
+#if defined(__clang__)
+    #pragma STDC FP_CONTRACT DEFAULT
+#endif
+
 }  // namespace skvx
 
 #undef SINTU

@@ -79,8 +79,8 @@ struct GrStrokeTolerances {
     template<int N> static grvx::vec<N> ApproxNumRadialSegmentsPerRadian(
             float parametricPrecision, grvx::vec<N> strokeWidths) {
         grvx::vec<N> cosTheta = skvx::max(1 - 2 / (parametricPrecision * strokeWidths), -1);
-        // Subtract GRVX_APPROX_ACOS_MAX_ERROR so we never account for too few segments.
-        return .5f / (grvx::approx_acos(cosTheta) - GRVX_APPROX_ACOS_MAX_ERROR);
+        // Subtract SKVX_APPROX_ACOS_MAX_ERROR so we never account for too few segments.
+        return .5f / (skvx::approx_acos(cosTheta) - SKVX_APPROX_ACOS_MAX_ERROR);
     }
     // Returns the equivalent stroke width in (pre-viewMatrix) local path space that the
     // tessellator will use when rendering this stroke. This only differs from the actual stroke
