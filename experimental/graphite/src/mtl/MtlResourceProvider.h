@@ -25,11 +25,10 @@ public:
     ResourceProvider(const skgpu::Gpu* gpu);
     ~ResourceProvider() override {}
 
-    std::unique_ptr<skgpu::CommandBuffer> createCommandBuffer() override;
-
 private:
     const Gpu* mtlGpu();
 
+    std::unique_ptr<skgpu::CommandBuffer> onCreateCommandBuffer() override;
     std::unique_ptr<skgpu::RenderPipeline> onCreateRenderPipeline(
             const RenderPipelineDesc&) override;
     sk_sp<skgpu::Texture> createTexture(SkISize, const skgpu::TextureInfo&) override;

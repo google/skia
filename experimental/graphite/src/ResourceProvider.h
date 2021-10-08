@@ -24,7 +24,7 @@ class ResourceProvider {
 public:
     virtual ~ResourceProvider();
 
-    virtual std::unique_ptr<CommandBuffer> createCommandBuffer() { return nullptr; }
+    std::unique_ptr<CommandBuffer> createCommandBuffer();
     RenderPipeline* findOrCreateRenderPipeline(const RenderPipelineDesc&);
 
     sk_sp<Texture> findOrCreateTexture(SkISize, const TextureInfo&);
@@ -32,13 +32,11 @@ public:
 protected:
     ResourceProvider(const Gpu* gpu);
 
-    virtual std::unique_ptr<RenderPipeline> onCreateRenderPipeline(const RenderPipelineDesc&) {
-        return nullptr;
-    }
-
     const Gpu* fGpu;
 
 private:
+    virtual std::unique_ptr<CommandBuffer> onCreateCommandBuffer() = 0;
+    virtual std::unique_ptr<RenderPipeline> onCreateRenderPipeline(const RenderPipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
 
     class RenderPipelineCache {

@@ -21,6 +21,12 @@ ResourceProvider::~ResourceProvider() {
     fRenderPipelineCache.release();
 }
 
+std::unique_ptr<CommandBuffer> ResourceProvider::createCommandBuffer() {
+    // TODO: cache the commandbuffer in an active list and return raw pointer instead
+
+    return this->onCreateCommandBuffer();
+}
+
 RenderPipeline* ResourceProvider::findOrCreateRenderPipeline(const RenderPipelineDesc& desc) {
     return fRenderPipelineCache->refPipeline(desc);
 }

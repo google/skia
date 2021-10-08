@@ -18,10 +18,11 @@
 #import <Metal/Metal.h>
 
 namespace skgpu::mtl {
+class Gpu;
 
 class CommandBuffer final : public skgpu::CommandBuffer {
 public:
-    static std::unique_ptr<CommandBuffer> Make(id<MTLCommandQueue>);
+    static std::unique_ptr<CommandBuffer> Make(const Gpu*);
     ~CommandBuffer() override {}
 
 private:
