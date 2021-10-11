@@ -256,11 +256,15 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
         adapter->bind(*abuilder, (*mask)["pt"], &pinfo->fPath);
         adapter->bind(*abuilder, (*jpath)["f"], &pinfo->fPathFMargin);
         adapter->bind(*abuilder, (*jpath)["l"], &pinfo->fPathLMargin);
+        adapter->bind(*abuilder, (*jpath)["p"], &pinfo->fPathPerpendicular);
+        adapter->bind(*abuilder, (*jpath)["r"], &pinfo->fPathReverse);
 
         // TODO: force align support
-        // TODO: these appear to be animatable in AE, but not in json
-        pinfo->fPathPerpendicular = ParseDefault((*jpath)["p"], 1.0f);
-        pinfo->fPathReverse       = ParseDefault((*jpath)["r"], 0.0f);
+
+        // Historically, these used to be exported as static properties.
+        // Attempt parsing both ways, for backward compat.
+        skottie::Parse((*jpath)["p"], &pinfo->fPathPerpendicular);
+        skottie::Parse((*jpath)["r"], &pinfo->fPathReverse);
 
         // Path positioning requires anchor point info.
         adapter->fRequiresAnchorPoint = true;
