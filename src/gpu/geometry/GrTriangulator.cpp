@@ -888,15 +888,26 @@ bool GrTriangulator::splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Ver
     Vertex* top;
     Vertex* bottom;
     int winding = edge->fWinding;
+    // Theoretically, and ideally, the edge betwee p0 and p1 is being split by v, and v is "between"
+    // the segment end points according to c. This is equivalent to p0 < v < p1.  Unfortunately, if
+    // v was clamped/rounded this relation doesn't always hold.
     if (c.sweep_lt(v->fPoint, edge->fTop->fPoint)) {
+        // Actually "v < p0 < p1": update 'edge' to be v->p1 and add v->p0. We flip the winding on
+        // the new edge so that it winds as if it were p0->v.
         top = v;
         bottom = edge->fTop;
+        winding *= -1;
         this->setTop(edge, v, activeEdges, current, c);
     } else if (c.sweep_lt(edge->fBottom->fPoint, v->fPoint)) {
+        // Actually "p0 < p1 < v": update 'edge' to be p0->v and add p1->v. We flip the winding on
+        // the new edge so that it winds as if it were v->p1.
         top = edge->fBottom;
         bottom = v;
+        winding *= -1;
         this->setBottom(edge, v, activeEdges, current, c);
     } else {
+        // The ideal case, "p0 < v < p1": update 'edge' to be p0->v and add v->p1. Original winding
+        // is valid for both edges.
         top = v;
         bottom = edge->fBottom;
         this->setBottom(edge, v, activeEdges, current, c);
