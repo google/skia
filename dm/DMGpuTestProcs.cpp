@@ -9,8 +9,10 @@
 
 #include "include/gpu/GrDirectContext.h"
 
+#ifdef SK_GRAPHITE_ENABLED
 #include "experimental/graphite/include/Context.h"
 #include "tools/graphite/ContextFactory.h"
+#endif
 
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
