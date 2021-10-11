@@ -16,7 +16,7 @@ release:
 
 serve:
 	echo "Go check out http://localhost:8000/npm_build/example.html"
-	python3 serve.py
+	python3 ../../tools/serve_wasm.py
 
 lint:
 	npx eslint . --ext .ts

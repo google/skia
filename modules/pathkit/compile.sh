@@ -125,8 +125,4 @@ $OUTPUT \
 $BASE_DIR/pathkit_wasm_bindings.cpp \
 ${BUILD_DIR}/libpathkit.a
 
-if [[ $@ == *serve* ]]; then
-  pushd $BUILD_DIR
-  python3 serve.py
-fi
 

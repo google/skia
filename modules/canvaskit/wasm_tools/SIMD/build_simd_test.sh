@@ -33,4 +33,4 @@ grep -f wasm_simd_types.txt output/simd_test.wat
 # Serve the compiled WASM so output can be manually inspected for correctness.
 echo "Go check out http://localhost:8000/output/simd_test.html in Chrome Canary 86.0.4186.0 \
 or later and enable the chrome://flags#enable-webassembly-simd flag!"
-python3 ../../serve.py
+python3 ../../../../tools/serve_wasm.py

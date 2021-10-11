@@ -3,6 +3,8 @@
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+#
+# This is a simple webserver that applies the correct MIME type for .wasm files.
 
 import http.server
 import socketserver
