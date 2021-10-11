@@ -21,6 +21,7 @@
 
 // Please try to keep this file independent of Skia headers.
 #include <algorithm>         // std::min, std::max
+#include <cassert>           // assert()
 #include <cmath>             // ceilf, floorf, truncf, roundf, sqrtf, etc.
 #include <cstdint>           // intXX_t
 #include <cstring>           // memcpy()
@@ -686,7 +687,6 @@ SIN Vec<N,float> from_half(const Vec<N,uint16_t>& x) {
     return from_half_finite_ftz(x);
 }
 
-
 // div255(x) = (x + 127) / 255 is a bit-exact rounding divide-by-255, packing down to 8-bit.
 SIN Vec<N,uint8_t> div255(const Vec<N,uint16_t>& x) {
     return cast<uint8_t>( (x+127)/255 );
@@ -701,6 +701,50 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
          Y = cast<uint16_t>(y);
     return cast<uint8_t>( (X*Y+X)/256 );
 }
+
+// The ScaledDividerU32 takes a divisor > 1, and creates a function divide(numerator) that
+// calculates a numerator / denominator. For this to be rounded properly, numerator should have
+// half added in:
+// divide(numerator + half) == floor(numerator/denominator + 1/2).
+//
+// This gives an answer within +/- 1 from the true value.
+//
+// Derivation of half:
+//    numerator/denominator + 1/2 = (numerator + half) / d
+//    numerator + denominator / 2 = numerator + half
+//    half = denominator / 2.
+//
+// Because half is divided by 2, that division must also be rounded.
+//    half == denominator / 2 = (denominator + 1) / 2.
+//
+// The divisorFactor is just a scaled value:
+//    divisorFactor = (1 / divisor) * 2 ^ 32.
+// The maximum that can be divided and rounded is UINT_MAX - half.
+class ScaledDividerU32 {
+public:
+    explicit ScaledDividerU32(uint32_t divisor)
+            : fDivisorFactor{(uint32_t)(std::round((1.0 / divisor) * (1ull << 32)))}
+            , fHalf{(divisor + 1) >> 1} {
+        assert(divisor > 1);
+    }
+
+    Vec<4, uint32_t> divide(const Vec<4, uint32_t>& numerator) const {
+    #if !defined(SKNX_NO_SIMD) && defined(__ARM_NEON)
+        uint64x2_t hi = vmull_n_u32(vget_high_u32(to_vext(numerator)), fDivisorFactor);
+        uint64x2_t lo = vmull_n_u32(vget_low_u32(to_vext(numerator)),  fDivisorFactor);
+
+        return to_vec<4, uint32_t>(vcombine_u32(vshrn_n_u64(lo,32), vshrn_n_u64(hi,32)));
+    #else
+        return cast<uint32_t>((cast<uint64_t>(numerator) * fDivisorFactor) >> 32);
+    #endif
+    }
+
+    uint32_t half() const { return fHalf; }
+
+private:
+    const uint32_t fDivisorFactor;
+    const uint32_t fHalf;
+};
 
 #if !defined(SKNX_NO_SIMD) && defined(__ARM_NEON)
     // With NEON we can do eight u8*u8 -> u16 in one instruction, vmull_u8 (read, mul-long).
