@@ -542,6 +542,7 @@
   {"name": "Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
+  {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-ASAN_Graphite"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
    "cq_config": {}

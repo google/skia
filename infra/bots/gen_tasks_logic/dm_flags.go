@@ -292,14 +292,15 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		// Graphite bot *only* runs the grmtl config
 		if b.extraConfig("Graphite") {
+			// TODO: re-enable - currently fails with "Failed to make lazy image"
+			skip("_", "gm", "_", "image_subset")
+
 			if b.extraConfig("ASAN") {
 			    // skbug.com/12507 (Neon UB during JPEG compression on M1 ASAN Graphite bot)
 				skip("_", "gm", "_", "yuv420_odd_dim")  // Oddly enough yuv420_odd_dim_repeat doesn't crash
 				skip("_", "gm", "_", "encode-alpha-jpeg")
 				skip("_", "gm", "_", "encode")
 				skip("_", "gm", "_", "jpg-color-cube")
-				// TODO: re-enable - currently fails with "Failed to make lazy image"
-				skip("_", "gm", "_", "image_subset")
 			}
 			configs = []string{"grmtl"}
 		}
@@ -578,8 +579,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("colorImage")
 	}
 
-	if b.matchExtraConfig("DDL", "PDF", "Graphite") {
-		// The DDL, PDF and Graphite bots just render the large skps and the gms
+	if b.matchExtraConfig("Graphite") {
+		// The Graphite bots run the skps, gms and tests
+		removeFromArgs("image")
+		removeFromArgs("colorImage")
+		removeFromArgs("svg")
+	} else if b.matchExtraConfig("DDL", "PDF") {
+		// The DDL and PDF bots just render the large skps and the gms
 		removeFromArgs("tests")
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
