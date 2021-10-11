@@ -386,3 +386,40 @@ DEF_TEST(SkVx_strided_loads, r) {
     check_strided_loads<int8_t>(r);
     check_strided_loads<float>(r);
 }
+
+DEF_TEST(SkVM_ScaledDividerU32, r) {
+    static constexpr uint32_t kMax = std::numeric_limits<uint32_t>::max();
+
+    auto errorBounds = [&](uint32_t actual, uint32_t expected) {
+        uint32_t lowerLimit = expected == 0 ? 0 : expected - 1,
+                 upperLimit = expected == kMax ? kMax : expected + 1;
+        return lowerLimit <= actual && actual <= upperLimit;
+    };
+
+    auto test = [&](uint32_t denom) {
+        // half == 1 so, the max to check is kMax-1
+        skvx::ScaledDividerU32 d(denom);
+        uint32_t maxCheck = static_cast<uint32_t>(floor((double)(kMax - d.half()) / denom + 0.5));
+        REPORTER_ASSERT(r, errorBounds(d.divide((kMax))[0], maxCheck));
+        for (uint32_t i = 0; i < kMax - d.half(); i += 65535) {
+            uint32_t expected = static_cast<uint32_t>(floor((double)i / denom + 0.5));
+            auto actual = d.divide(i + d.half());
+            if (!errorBounds(actual[0], expected)) {
+                SkDebugf("i: %u expected: %u actual: %u\n", i, expected, actual[0]);
+            }
+            // Make sure all the lanes are the same.
+            for (int e = 1; e < 4; e++) {
+                SkASSERT(actual[0] == actual[e]);
+            }
+        }
+    };
+
+    test(2);
+    test(3);
+    test(5);
+    test(7);
+    test(27);
+    test(65'535);
+    test(15'485'863);
+    test(512'927'377);
+}
