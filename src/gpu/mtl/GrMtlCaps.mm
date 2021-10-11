@@ -514,6 +514,7 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fInverseHyperbolicSupport = true;
     shaderCaps->fVertexIDSupport = true;
     shaderCaps->fInfinitySupport = true;
+    shaderCaps->fNonconstantArrayIndexSupport = true;
 
     // Metal uses IEEE float and half floats so assuming those values here.
     shaderCaps->fFloatIs32Bits = true;

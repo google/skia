@@ -709,6 +709,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     shaderCaps->fInverseHyperbolicSupport = true;
     shaderCaps->fVertexIDSupport = true;
     shaderCaps->fInfinitySupport = true;
+    shaderCaps->fNonconstantArrayIndexSupport = true;
     shaderCaps->fBitManipulationSupport = true;
 
     // Assume the minimum precisions mandated by the SPIR-V spec.

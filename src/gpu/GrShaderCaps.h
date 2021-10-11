@@ -82,6 +82,12 @@ public:
     // isinf() is defined, and floating point infinities are handled according to IEEE standards.
     bool infinitySupport() const { return fInfinitySupport; }
 
+    // Returns true if `expr` in `myArray[expr]` can be any integer expression. If false, `expr`
+    // must be a constant-index-expression as defined in the OpenGL ES2 specification, Appendix A.5.
+    bool nonconstantArrayIndexSupport() const {
+        return fNonconstantArrayIndexSupport;
+    }
+
     // frexp(), ldexp(), findMSB(), findLSB().
     bool bitManipulationSupport() const { return fBitManipulationSupport; }
 
@@ -289,6 +295,7 @@ private:
     bool fExternalTextureSupport            : 1;
     bool fVertexIDSupport                   : 1;
     bool fInfinitySupport                   : 1;
+    bool fNonconstantArrayIndexSupport      : 1;
     bool fBitManipulationSupport            : 1;
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;

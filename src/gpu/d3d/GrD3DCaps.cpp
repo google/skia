@@ -245,6 +245,7 @@ void GrD3DCaps::initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTI
     shaderCaps->fInverseHyperbolicSupport = false;
     shaderCaps->fVertexIDSupport = true;
     shaderCaps->fInfinitySupport = true;
+    shaderCaps->fNonconstantArrayIndexSupport = true;
     shaderCaps->fBitManipulationSupport = true;
 
     shaderCaps->fFloatIs32Bits = true;
