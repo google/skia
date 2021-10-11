@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<title>Testing WebGPU compiled with Bazel</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript" src="/build/hello-world.js"></script>
+
+<p id="log"></p>
+
+<canvas id="webgpu-demo-canvas" width=500 height=500></canvas>
+
+<script type="text/javascript" charset="utf-8">
+  if ("gpu" in navigator) {
+    log("WebGPU detected")
+    WebGPUDemo();
+  } else {
+    log("No WebGPU support.")
+  }
+
+  function log(s) {
+    document.getElementById("log").innerText = s;
+  }
+
+  async function WebGPUDemo() {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) {
+      log("Could not load an adapter. For Chrome, try running with --enable-features=Vulkan --enable-unsafe-webgpu");
+      return;
+    }
+    const device = await adapter.requestDevice();
+    console.log(adapter, device);
+
+    const wk = await WebGPUKitInit({locateFile: (file) => '/build/'+file});
+    // https://github.com/emscripten-core/emscripten/issues/12750#issuecomment-725001907
+    wk.preinitializedWebGPUDevice = device;
+
+    const surface = new wk.WebGPUSurface("#webgpu-demo-canvas", 500, 500);
+
+    const triangleVertexShader = surface.MakeShader(`[[stage(vertex)]]
+fn main([[builtin(vertex_index)]] VertexIndex : u32)
+     -> [[builtin(position)]] vec4<f32> {
+  var pos = array<vec2<f32>, 3>(
+      vec2<f32>(0.0, 0.5),
+      vec2<f32>(-0.5, -0.5),
+      vec2<f32>(0.5, -0.5));
+
+  return vec4<f32>(pos[VertexIndex], 0.0, 1.0);
+}`);
+
+    const redFragmentShader = surface.MakeShader(`[[stage(fragment)]]
+fn main() -> [[location(0)]] vec4<f32> {
+  return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+}`);
+
+    const pipeline = surface.MakeRenderPipeline(triangleVertexShader, redFragmentShader);
+
+    const startTime = Date.now();
+    function frame() {
+      const now = Date.now();
+      surface.drawPipeline(pipeline,
+        Math.abs(Math.sin((startTime - now) / 500)), // red
+        Math.abs(Math.sin((startTime - now) / 600)), // green
+        Math.abs(Math.sin((startTime - now) / 700)), // blue
+        1.0);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+</script>

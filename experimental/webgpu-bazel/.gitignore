@@ -1,0 +1,5 @@
+bazel-bazel-webgpu
+bazel-bin
+bazel-out
+bazel-testlogs
+build/
