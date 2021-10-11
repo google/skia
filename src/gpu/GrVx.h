@@ -16,12 +16,6 @@
 // when available). When a function is approximate, its error range is well documented and tested.
 namespace grvx {
 
-// Allow floating point contraction. e.g., allow a*x + y to be compiled to a single FMA even though
-// it introduces LSB differences on platforms that don't have an FMA instruction.
-#if defined(__clang__)
-    #pragma STDC FP_CONTRACT ON
-#endif
-
 // Use familiar type names and functions from SkSL and GLSL.
 template<int N> using vec = skvx::Vec<N, float>;
 using float2 = vec<2>;
@@ -44,11 +38,6 @@ static SK_ALWAYS_INLINE float cross(float2 a, float2 b) {
     float2 x = a*skvx::shuffle<1,0>(b);
     return x[0] - x[1];
 }
-
-#if defined(__clang__)
-    #pragma STDC FP_CONTRACT DEFAULT
-#endif
-
 };  // namespace grvx
 
 #endif

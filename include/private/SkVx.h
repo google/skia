@@ -674,6 +674,12 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
     }
 #endif
 
+// Allow floating point contraction. e.g., allow a*x + y to be compiled to a single FMA even though
+// it introduces LSB differences on platforms that don't have an FMA instruction.
+#if defined(__clang__)
+#pragma STDC FP_CONTRACT ON
+#endif
+
 // Approximates the inverse cosine of x within 0.96 degrees using the rational polynomial:
 //
 //     acos(x) ~= (bx^3 + ax) / (dx^4 + cx^2 + 1) + pi/2
@@ -696,6 +702,10 @@ SIN Vec<N,float> approx_acos(Vec<N,float> x) {
     auto denom = xx*(d*xx + c) + 1;
     return x * (numer/denom) + pi_over_2;
 }
+
+#if defined(__clang__)
+#pragma STDC FP_CONTRACT DEFAULT
+#endif
 
 // De-interleaving load of 4 vectors.
 //
@@ -804,10 +814,6 @@ IMPL_LOAD2_TRANSPOSED(16, int8_t, vld2q_s8);
 IMPL_LOAD2_TRANSPOSED(4, float, vld2q_f32);
 #undef IMPL_LOAD2_TRANSPOSED
 #endif
-#endif
-
-#if defined(__clang__)
-    #pragma STDC FP_CONTRACT DEFAULT
 #endif
 
 }  // namespace skvx
