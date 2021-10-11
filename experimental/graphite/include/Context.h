@@ -12,6 +12,7 @@
 
 namespace skgpu {
 
+class ContextPriv;
 class Gpu;
 namespace mtl { struct BackendContext; }
 
@@ -23,14 +24,19 @@ public:
     static sk_sp<Context> MakeMetal(const skgpu::mtl::BackendContext&);
 #endif
 
+    // Provides access to functions that aren't part of the public API.
+    ContextPriv priv();
+    const ContextPriv priv() const;  // NOLINT(readability-const-return-type)
+
 protected:
     Context(sk_sp<Gpu>);
 
 private:
+    friend class ContextPriv;
+
     sk_sp<Gpu> fGpu;
 };
 
 } // namespace skgpu
 
 #endif // skgpu_Context_DEFINED
-

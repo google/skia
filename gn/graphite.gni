@@ -22,6 +22,8 @@ skia_graphite_sources = [
   "$_src/CommandBuffer.cpp",
   "$_src/CommandBuffer.h",
   "$_src/Context.cpp",
+  "$_src/ContextPriv.cpp",
+  "$_src/ContextPriv.h",
   "$_src/Device.cpp",
   "$_src/Device.h",
   "$_src/DrawContext.cpp",

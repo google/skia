@@ -2125,11 +2125,11 @@ Result GraphiteSink::draw(const Src& src,
                           SkBitmap* dst,
                           SkWStream* dstStream,
                           SkString* log) const {
-    using ContextType = sk_graphite_test::ContextFactory::ContextType;
+    using ContextType = skiatest::graphite::ContextFactory::ContextType;
 
     SkImageInfo ii = SkImageInfo::Make(src.size(), kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_graphite_test::ContextFactory factory;
+    skiatest::graphite::ContextFactory factory;
     auto [_, context] = factory.getContextInfo(ContextType::kMetal);
 
     sk_sp<SkSurface> surface = MakeGraphite(std::move(context), ii);

@@ -9,6 +9,9 @@
 
 #include "include/gpu/GrDirectContext.h"
 
+#include "experimental/graphite/include/Context.h"
+#include "tools/graphite/ContextFactory.h"
+
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
 using sk_gpu_test::ContextInfo;
@@ -76,4 +79,24 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         }
     }
 }
+
+#ifdef SK_GRAPHITE_ENABLED
+
+namespace graphite {
+
+void RunWithGraphiteTestContexts(GraphiteTestFn* test, Reporter* reporter) {
+    ContextFactory factory;
+
+    auto [_, context] = factory.getContextInfo(ContextFactory::ContextType::kMetal);
+    if (!context) {
+        return;
+    }
+
+    (*test)(reporter, context.get());
+}
+
+} // namespace graphite
+
+#endif // SK_GRAPHITE_ENABLED
+
 } // namespace skiatest

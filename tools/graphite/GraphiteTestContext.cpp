@@ -7,10 +7,10 @@
 
 #include "tools/graphite/GraphiteTestContext.h"
 
-namespace sk_graphite_test {
+namespace skiatest::graphite {
 
 GraphiteTestContext::GraphiteTestContext() {}
 
 GraphiteTestContext::~GraphiteTestContext() {}
 
-}  // namespace sk_graphite_test
+}  // namespace skiatest::graphite

@@ -13,7 +13,7 @@
 #include "tools/graphite/mtl/GraphiteMtlTestContext.h"
 #endif
 
-namespace sk_graphite_test {
+namespace skiatest::graphite {
 
  std::tuple<GraphiteTestContext*, sk_sp<skgpu::Context>> ContextFactory::getContextInfo(
         ContextType type) {
@@ -51,4 +51,4 @@ namespace sk_graphite_test {
     return { fContexts.back().testContext(), fContexts.back().refContext() };
 }
 
-} // namespace sk_graphite_test
+} // namespace skiatest::graphite

@@ -2001,6 +2001,9 @@ if (skia_enable_tools) {
     if (skia_use_gl) {
       sources += gl_tests_sources
     }
+    if (skia_enable_graphite) {
+      sources += graphite_tests_sources
+    }
     if (!skia_enable_skgpu_v1) {
       sources -= skgpu_v1_tests_sources
     }

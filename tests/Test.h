@@ -13,6 +13,8 @@
 #include "tools/Registry.h"
 #include "tools/gpu/GrContextFactory.h"
 
+namespace skgpu { class Context; }
+
 namespace skiatest {
 
 SkString GetTmpDir();
@@ -124,6 +126,14 @@ extern bool IsMockContextType(GrContextFactoryContextType);
 void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*, Reporter*,
                             const GrContextOptions&);
 
+namespace graphite {
+
+typedef void GraphiteTestFn(Reporter*, skgpu::Context*);
+
+void RunWithGraphiteTestContexts(GraphiteTestFn*, Reporter*);
+
+} // namespace graphite
+
 /** Timer provides wall-clock duration since its creation. */
 class Timer {
 public:
@@ -178,13 +188,33 @@ static inline SkString reporter_string(const char* fmt, Args... args)  {
     skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, false, test_##name)); \
     void test_##name(skiatest::Reporter* reporter, const GrContextOptions&)
 
+#define DEF_GRAPHITE_TEST(name, reporter)                                             \
+    static void test_##name(skiatest::Reporter*);                                     \
+    static void test_graphite_##name(skiatest::Reporter* reporter,                    \
+                                     const GrContextOptions& /*unused*/) {            \
+        test_##name(reporter);                                                        \
+    }                                                                                 \
+    skiatest::TestRegistry name##TestRegistry(                                        \
+            skiatest::Test(#name, true, test_graphite_##name));                       \
+    void test_##name(skiatest::Reporter* reporter)
+
+#define DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, reporter, graphite_context)              \
+    static void test_##name(skiatest::Reporter*, skgpu::Context*);                    \
+    static void test_graphite_contexts_##name(skiatest::Reporter* _reporter,           \
+                                              const GrContextOptions& /*unused*/) {   \
+        skiatest::graphite::RunWithGraphiteTestContexts(test_##name, _reporter);       \
+    }                                                                                 \
+    skiatest::TestRegistry name##TestRegistry(                                        \
+            skiatest::Test(#name, true, test_graphite_contexts_##name));              \
+    void test_##name(skiatest::Reporter* reporter, skgpu::Context* graphite_context)
+
 #define DEF_GPUTEST(name, reporter, options)                                             \
     static void test_##name(skiatest::Reporter*, const GrContextOptions&);               \
     skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, true, test_##name)); \
     void test_##name(skiatest::Reporter* reporter, const GrContextOptions& options)
 
 #define DEF_GPUTEST_FOR_CONTEXTS(name, context_filter, reporter, context_info, options_filter)  \
-    static void test_##name(skiatest::Reporter*, const sk_gpu_test::ContextInfo& context_info); \
+    static void test_##name(skiatest::Reporter*, const sk_gpu_test::ContextInfo&);              \
     static void test_gpu_contexts_##name(skiatest::Reporter* reporter,                          \
                                          const GrContextOptions& options) {                     \
         skiatest::RunWithGPUTestContexts(test_##name, context_filter, reporter, options);       \

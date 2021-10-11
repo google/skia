@@ -24,6 +24,7 @@ namespace skgpu::geom {
  * point containment, or iteration.
  */
 class Shape {
+public:
     enum class Type : uint8_t {
         kEmpty, kRect, kRRect, kPath
     };

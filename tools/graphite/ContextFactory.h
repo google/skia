@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef sk_graphite_test_ContextFactory_DEFINED
-#define sk_graphite_test_ContextFactory_DEFINED
+#ifndef skiatest_graphite_ContextFactory_DEFINED
+#define skiatest_graphite_ContextFactory_DEFINED
 
 #include <vector>
 #include "experimental/graphite/include/GraphiteTypes.h"
@@ -17,7 +17,7 @@ namespace skgpu {
     class Context;
 };
 
-namespace sk_graphite_test {
+namespace skiatest::graphite {
 
 class ContextFactory {
 public:
@@ -71,6 +71,6 @@ private:
     std::vector<ContextInfo> fContexts;
 };
 
-} // namespace sk_graphite_test
+} // namespace skiatest::graphite
 
-#endif // sk_graphite_test_ContextFactory_DEFINED
+#endif // skiatest_graphite_ContextFactory_DEFINED
