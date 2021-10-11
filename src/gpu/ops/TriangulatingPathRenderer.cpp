@@ -33,7 +33,11 @@
 #include <cstdio>
 
 #ifndef GR_AA_TESSELLATOR_MAX_VERB_COUNT
+#if defined(SK_BUILD_FOR_FUZZER)
 #define GR_AA_TESSELLATOR_MAX_VERB_COUNT 10
+#else
+#define GR_AA_TESSELLATOR_MAX_VERB_COUNT 100
+#endif
 #endif
 
 /*
