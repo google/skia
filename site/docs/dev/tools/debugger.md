@@ -177,16 +177,10 @@ as a PNG file.
 ## Building and running locally
 
 Begin by following the instructions to
-[download and build Skia](/docs/user/build), then simply build and run the
-`skiaserve` tool:
+[download and build Skia](/docs/user/build). Next, you'll need Skia's infrastructure repository,
+which can be downloaded with
 
 <!--?prettify lang=sh?-->
+    git clone https://skia.googlesource.com/buildbot
 
-    # Build.
-    ninja -C out/Release skiaserve
-
-    # Run the debugger locally
-    out/Release/skiaserve
-
-After running `skiaserve`, follow the instructions to open the debugger in your
-local browser. By default the address will be `http://127.0.0.1:8888`.
+See further instructions in buildbot/debugger-app/README.md.
