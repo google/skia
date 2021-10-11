@@ -1,20 +1,20 @@
 uniform half4 colorGreen;
-noinline void const_after_in_0(const in float2 x);
-noinline void in_after_high_precision_0(in float2 x);
-noinline void in_after_medium_precision_0(in half2 x);
-noinline void const_after_in_0(const in float2 x)
+noinline void const_after_in_0(const float2 x);
+noinline void inout_after_high_precision_0(inout float2 x);
+noinline void out_after_high_precision_0(out float2 x);
+noinline void const_after_in_0(const float2 x)
 {
 }
-noinline void in_after_high_precision_0(in float2 x)
+noinline void inout_after_high_precision_0(inout float2 x)
 {
 }
-noinline void in_after_medium_precision_0(in half2 x)
+noinline void out_after_high_precision_0(out float2 x)
 {
 }
 float4 main(float2 coords)
 {
 	const_after_in_0(_coords);
-	in_after_high_precision_0(_coords);
-	in_after_medium_precision_0(half2(_coords));
+	inout_after_high_precision_0(_coords);
+	out_after_high_precision_0(_coords);
 	return half4(float4(colorGreen));
 }

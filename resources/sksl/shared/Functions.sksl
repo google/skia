@@ -2,7 +2,7 @@
 
 uniform half4 colorGreen, colorRed;
 
-float foo(const float2 v) {
+float foo(in const float2 v) {
     return v.x * v.y;
 }
 

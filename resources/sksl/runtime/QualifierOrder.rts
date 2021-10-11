@@ -6,12 +6,13 @@ uniform half4 colorGreen;
 
 // These qualifiers are reversed from the expected order, but SkSL should compile and run anyway.
 noinline void const_after_in(in const vec2 x) {}
-noinline void in_after_high_precision(highp in vec2 x) {}
-noinline void in_after_medium_precision(mediump in vec2 x) {}
+noinline void inout_after_high_precision(highp inout vec2 x) {}
+noinline void out_after_high_precision(highp out vec2 x) {}
 
 vec4 main(vec2 coords) {
     const_after_in(coords);
-    in_after_high_precision(coords);
-    in_after_medium_precision(coords);
+    inout_after_high_precision(coords);
+    out_after_high_precision(coords);
+
     return colorGreen;
 }

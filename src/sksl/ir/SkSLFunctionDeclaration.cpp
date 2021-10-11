@@ -61,7 +61,7 @@ static bool check_return_type(const Context& context, int line, const Type& retu
     if (!context.fConfig->fIsBuiltinCode && !returnType.isVoid() &&
         returnType.componentType().isOpaque()) {
         errors.error(line, "functions may not return opaque type '" + returnType.displayName() +
-                             "'");
+                           "'");
         return false;
     }
     return true;
@@ -89,11 +89,20 @@ static bool check_parameters(const Context& context,
         // specific to "child" objects.
         if (type.isEffectChild() && !context.fConfig->fIsBuiltinCode) {
             context.fErrors->error(param->fLine, "parameters of type '" + type.displayName() +
-                                                   "' not allowed");
+                                                 "' not allowed");
             return false;
         }
 
         Modifiers m = param->modifiers();
+        bool modifiersChanged = false;
+
+        // The `in` modifier on function parameters is implicit, so we can replace `in float x` with
+        // `float x`. This prevents any ambiguity when matching a function by its param types.
+        if (Modifiers::kIn_Flag == (m.fFlags & (Modifiers::kOut_Flag | Modifiers::kIn_Flag))) {
+            m.fFlags &= ~(Modifiers::kOut_Flag | Modifiers::kIn_Flag);
+            modifiersChanged = true;
+        }
+
         if (isMain) {
             if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
                 // We verify that the signature is fully correct later. For now, if this is a
@@ -101,12 +110,11 @@ static bool check_parameters(const Context& context,
                 // half4/float parameter is supposed to be the input or destination color:
                 if (type == *context.fTypes.fFloat2) {
                     m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
+                    modifiersChanged = true;
                 } else if (typeIsValidForColor(type) &&
                            builtinColorIndex < SK_ARRAY_COUNT(kBuiltinColorIDs)) {
                     m.fLayout.fBuiltin = kBuiltinColorIDs[builtinColorIndex++];
-                }
-                if (m.fLayout.fBuiltin) {
-                    param->setModifiers(context.fModifiersPool->add(m));
+                    modifiersChanged = true;
                 }
             } else if (context.fConfig->fKind == ProgramKind::kFragment) {
                 // For testing purposes, we have .sksl inputs that are treated as both runtime
@@ -114,9 +122,13 @@ static bool check_parameters(const Context& context,
                 // have a coords parameter.
                 if (type == *context.fTypes.fFloat2) {
                     m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
-                    param->setModifiers(context.fModifiersPool->add(m));
+                    modifiersChanged = true;
                 }
             }
+        }
+
+        if (modifiersChanged) {
+            param->setModifiers(context.fModifiersPool->add(m));
         }
     }
     return true;
