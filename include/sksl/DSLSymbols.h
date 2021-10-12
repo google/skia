@@ -50,9 +50,14 @@ std::shared_ptr<SymbolTable> CurrentSymbolTable();
 DSLPossibleExpression Symbol(skstd::string_view name, PositionInfo pos = PositionInfo::Capture());
 
 /**
- * Returns true if the name refers to a type.
+ * Returns true if the name refers to a type (user or built-in) in the current symbol table.
  */
 bool IsType(skstd::string_view name);
+
+/**
+ * Returns true if the name refers to a builtin type.
+ */
+bool IsBuiltinType(skstd::string_view name);
 
 /**
  * Adds a variable to the current symbol table.

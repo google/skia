@@ -128,6 +128,14 @@ public:
         return fBuiltin;
     }
 
+    /**
+     * Returns the built-in symbol table that this SymbolTable rests upon.
+     * If this symbol table is already a built-in, it will be returned as-is.
+     */
+    SkSL::SymbolTable* builtinParent() {
+        return this->isBuiltin() ? this : fParent->builtinParent();
+    }
+
     const String* takeOwnershipOfString(String n);
 
     std::shared_ptr<SymbolTable> fParent;

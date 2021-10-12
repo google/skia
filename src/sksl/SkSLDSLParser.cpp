@@ -178,7 +178,7 @@ bool DSLParser::expectIdentifier(Token* result) {
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", result)) {
         return false;
     }
-    if (IsType(this->text(*result))) {
+    if (IsBuiltinType(this->text(*result))) {
         this->error(*result, "expected an identifier, but found type '" +
                              this->text(*result) + "'");
         this->fEncounteredFatalError = true;
@@ -530,7 +530,7 @@ DSLStatement DSLParser::varDeclarationsOrExpressionStatement() {
         if (this->varDeclarationsPrefix(&prefix)) {
             checkpoint.accept();
             return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
-                    this->text(prefix.fName));
+                                                this->text(prefix.fName));
         }
 
         // If this statement wasn't actually a vardecl after all, rewind and try parsing it as an

@@ -1,4 +1,45 @@
-int x;
-void main() {
-    int x;
+uniform half4 colorGreen, colorRed;
+int glob;
+
+bool block_variable_hides_local_variable() {
+    bool var = true;
+    {
+        bool var = false;
+    }
+    return var;
+}
+
+bool block_variable_hides_global_variable() {
+    {
+        int glob = 1;
+    }
+    return glob == 2;
+}
+
+struct S {
+    int i;
+};
+
+bool local_variable_hides_struct() {
+    bool S = true;
+    return S;
+}
+
+bool local_struct_variable_hides_struct_type() {
+    S S = S(1);
+    return S.i == 1;
+}
+
+bool local_variable_hides_global_variable() {
+    int glob = 1;
+    return glob == 1;
+}
+
+half4 main(float2 coords) {
+    glob = 2;
+    return (block_variable_hides_local_variable() &&
+            block_variable_hides_global_variable() &&
+            local_variable_hides_struct() &&
+            local_struct_variable_hides_struct_type() &&
+            local_variable_hides_global_variable()) ? colorGreen : colorRed;
 }

@@ -15,6 +15,11 @@ namespace SkSL {
 
 namespace dsl {
 
+static bool is_type_in_symbol_table(skstd::string_view name, SkSL::SymbolTable* symbols) {
+    const SkSL::Symbol* s = (*symbols)[name];
+    return s && s->is<Type>();
+}
+
 void PushSymbolTable() {
     SymbolTable::Push(&ThreadContext::IRGenerator().symbolTable());
 }
@@ -32,8 +37,11 @@ DSLPossibleExpression Symbol(skstd::string_view name, PositionInfo pos) {
 }
 
 bool IsType(skstd::string_view name) {
-    const SkSL::Symbol* s = (*CurrentSymbolTable())[name];
-    return s && s->is<Type>();
+    return is_type_in_symbol_table(name, CurrentSymbolTable().get());
+}
+
+bool IsBuiltinType(skstd::string_view name) {
+    return is_type_in_symbol_table(name, CurrentSymbolTable()->builtinParent());
 }
 
 void AddToSymbolTable(DSLVarBase& var, PositionInfo pos) {
