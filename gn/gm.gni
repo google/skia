@@ -172,6 +172,7 @@ gm_sources = [
   "$_gm/exoticformats.cpp",
   "$_gm/fadefilter.cpp",
   "$_gm/fatpathfill.cpp",
+  "$_gm/fillrect_gradient.cpp",
   "$_gm/filltypes.cpp",
   "$_gm/filltypespersp.cpp",
   "$_gm/filterbug.cpp",
