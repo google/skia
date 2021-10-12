@@ -267,6 +267,21 @@ SK_STDMETHODIMP StreamFontCollectionLoader::CreateEnumeratorFromKey(
 
 namespace {
 
+// Korean fonts Gulim, Dotum, Batang, Gungsuh have bitmap strikes that get
+// artifically emboldened by Windows without antialiasing. Korean users prefer
+// these over the synthetic boldening performed by Skia. So let's make an
+// exception for fonts with bitmap strikes and allow passing through Windows
+// simulations for those, until Skia provides more control over simulations in
+// font matching, see https://crbug.com/1258378
+bool HasBitmapStrikes(const SkTScopedComPtr<IDWriteFont>& font) {
+  SkTScopedComPtr<IDWriteFontFace> fontFace;
+  HRB(font->CreateFontFace(&fontFace));
+
+  AutoDWriteTable ebdtTable(fontFace.get(),
+                            SkEndian_SwapBE32(SkSetFourByteTag('E', 'B', 'D', 'T')));
+  return ebdtTable.fExists;
+}
+
 // Iterate calls to GetFirstMatchingFont incrementally removing bold or italic
 // styling that can trigger the simulations. Implementing it this way gets us a
 // IDWriteFont that can be used as before and has the correct information on its
@@ -288,7 +303,8 @@ HRESULT FirstMatchingFontWithoutSimulations(const SkTScopedComPtr<IDWriteFontFam
 #ifdef SK_WIN_FONTMGR_NO_SIMULATIONS
         noSimulations = simulations == DWRITE_FONT_SIMULATIONS_NONE ||
                         (dwStyle.fWeight == DWRITE_FONT_WEIGHT_REGULAR &&
-                         dwStyle.fSlant == DWRITE_FONT_STYLE_NORMAL);
+                         dwStyle.fSlant == DWRITE_FONT_STYLE_NORMAL) ||
+                        HasBitmapStrikes(searchFont);
 #else
         noSimulations = true;
 #endif
@@ -631,7 +647,8 @@ public:
             fResolvedTypeface = fOuter->makeTypefaceFromDWriteFont(glyphRun->fontFace,
                                                                    font.get(),
                                                                    fontFamily.get());
-            fHasSimulations = font->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE;
+            fHasSimulations = (font->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE) &&
+                              !HasBitmapStrikes(font);
         }
 
         return S_OK;
@@ -880,7 +897,7 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::fallback(const WCHAR* dwFamilyName,
         DWRITE_FONT_SIMULATIONS simulations = font->GetSimulations();
 
 #ifdef SK_WIN_FONTMGR_NO_SIMULATIONS
-        noSimulations = simulations == DWRITE_FONT_SIMULATIONS_NONE;
+        noSimulations = simulations == DWRITE_FONT_SIMULATIONS_NONE || HasBitmapStrikes(font);
 #else
         noSimulations = true;
 #endif
