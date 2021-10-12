@@ -238,17 +238,23 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
 
     // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus
     // we set the modifier to none for all uniforms declared inside the block.
-    UniformInfo& uni = fUniforms.push_back(MtlUniformInfo{
-        {
-            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
-                        std::move(layoutQualifier), SkString()},
-            kFragment_GrShaderFlag | kVertex_GrShaderFlag, owner, SkString(name)
-        },
-        offset
-    });
+    MtlUniformInfo tempInfo;
+    tempInfo.fVariable = GrShaderVar{std::move(resolvedName),
+                                     type,
+                                     GrShaderVar::TypeModifier::None,
+                                     arrayCount,
+                                     std::move(layoutQualifier),
+                                     SkString()};
+
+    tempInfo.fVisibility = kFragment_GrShaderFlag | kVertex_GrShaderFlag;
+    tempInfo.fOwner      = owner;
+    tempInfo.fRawName    = SkString(name);
+    tempInfo.fUBOffset   = offset;
+
+    fUniforms.push_back(tempInfo);
 
     if (outName) {
-        *outName = uni.fVariable.c_str();
+        *outName = fUniforms.back().fVariable.c_str();
     }
 
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
@@ -269,15 +275,20 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
     SkString layoutQualifier;
     layoutQualifier.appendf("binding=%d", binding);
 
-    fSamplers.push_back(MtlUniformInfo{
-        {
-            GrShaderVar{std::move(mangleName), GrSLCombinedSamplerTypeForTextureType(type),
-                        GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
-                        std::move(layoutQualifier), SkString()},
-            kFragment_GrShaderFlag, nullptr, SkString(name)
-        },
-        0
-    });
+    MtlUniformInfo tempInfo;
+    tempInfo.fVariable = GrShaderVar{std::move(mangleName),
+                                     GrSLCombinedSamplerTypeForTextureType(type),
+                                     GrShaderVar::TypeModifier::Uniform,
+                                     GrShaderVar::kNonArray,
+                                     std::move(layoutQualifier),
+                                     SkString()};
+
+    tempInfo.fVisibility = kFragment_GrShaderFlag;
+    tempInfo.fOwner      = nullptr;
+    tempInfo.fRawName    = SkString(name);
+    tempInfo.fUBOffset   = 0;
+
+    fSamplers.push_back(tempInfo);
 
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplerSwizzles.count() == fSamplers.count());

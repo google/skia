@@ -48,7 +48,7 @@ class SkZip {
     };
 
     template<typename T>
-    static constexpr T* nullify = nullptr;
+    inline static constexpr T* nullify = nullptr;
 
 public:
     constexpr SkZip() : fPointers{nullify<Ts>...}, fSize{0} {}
@@ -203,10 +203,6 @@ public:
         return SkZip<ValueType<Ts>...>{size, Span<Ts>::Data(std::forward<Ts>(ts))...};
     }
 };
-
-template<typename... Ts>
-template<typename T>
-constexpr T* SkZip<Ts...>::nullify;
 
 template<typename... Ts>
 inline constexpr auto SkMakeZip(Ts&& ... ts) {

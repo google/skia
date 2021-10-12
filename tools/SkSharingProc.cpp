@@ -29,7 +29,7 @@ void SkSharingSerialContext::collectNonTextureImagesFromPicture(
     SkSerialProcs tempProc;
     tempProc.fImageCtx = sharingCtx;
     tempProc.fImageProc = collectNonTextureImagesProc;
-    auto ns = SkNullWStream();
+    SkNullWStream ns;
     pic->serialize(&ns, &tempProc);
 }
 

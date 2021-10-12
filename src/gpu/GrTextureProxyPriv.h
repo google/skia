@@ -30,7 +30,8 @@ public:
 
 private:
     explicit GrTextureProxyPriv(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
-    GrTextureProxyPriv(const GrTextureProxyPriv&) = delete;
+    // Required until C++17 copy elision
+    GrTextureProxyPriv(const GrTextureProxyPriv&) = default;
     GrTextureProxyPriv& operator=(const GrTextureProxyPriv&) = delete;
 
     // No taking addresses of this type.

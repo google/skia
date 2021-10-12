@@ -8,6 +8,8 @@
 #ifndef skgpu_ResourceProvider_DEFINED
 #define skgpu_ResourceProvider_DEFINED
 
+#include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/RenderPipeline.h"
 #include "experimental/graphite/src/RenderPipelineDesc.h"
 #include "include/core/SkSize.h"
 #include "src/core/SkLRUCache.h"

@@ -246,21 +246,27 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     }
     SkString resolvedName = fProgramBuilder->nameVariable(prefix, name, mangleName);
 
-    uint32_t offsets[kLayoutCount];
+    VkUniformInfo tempInfo;
+    tempInfo.fVariable = GrShaderVar{std::move(resolvedName),
+                                     type,
+                                     GrShaderVar::TypeModifier::None,
+                                     arrayCount};
+
+    tempInfo.fVisibility = visibility;
+    tempInfo.fOwner      = owner;
+    tempInfo.fRawName    = SkString(name);
+
     for (int layout = 0; layout < kLayoutCount; ++layout) {
-        offsets[layout] = get_aligned_offset(&fCurrentOffsets[layout], type, arrayCount, layout);
+        tempInfo.fOffsets[layout] = get_aligned_offset(&fCurrentOffsets[layout],
+                                                       type,
+                                                       arrayCount,
+                                                       layout);
     }
 
-    VkUniformInfo& uni = fUniforms.push_back(VkUniformInfo{
-        {
-            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount},
-            visibility, owner, SkString(name)
-        },
-        {offsets[0], offsets[1]}, nullptr
-    });
+    fUniforms.push_back(tempInfo);
 
     if (outName) {
-        *outName = uni.fVariable.c_str();
+        *outName = fUniforms.back().fVariable.c_str();
     }
 
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
@@ -277,24 +283,31 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
     SkString layoutQualifier;
     layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count());
 
-    VkUniformInfo& info = fSamplers.push_back(VkUniformInfo{
-        {
+    VkUniformInfo tempInfo;
+    tempInfo.fVariable =
             GrShaderVar{std::move(mangleName),
                         GrSLCombinedSamplerTypeForTextureType(backendFormat.textureType()),
-                        GrShaderVar::TypeModifier::Uniform, GrShaderVar::kNonArray,
-                        std::move(layoutQualifier), SkString()},
-            kFragment_GrShaderFlag, nullptr, SkString(name)
-        },
-        {0, 0}, nullptr
-    });
+                        GrShaderVar::TypeModifier::Uniform,
+                        GrShaderVar::kNonArray,
+                        std::move(layoutQualifier),
+                        SkString()};
+
+    tempInfo.fVisibility = kFragment_GrShaderFlag;
+    tempInfo.fOwner      = nullptr;
+    tempInfo.fRawName    = SkString(name);
+    tempInfo.fOffsets[0] = 0;
+    tempInfo.fOffsets[1] = 0;
+
+    fSamplers.push_back(tempInfo);
 
     // Check if we are dealing with an external texture and store the needed information if so.
     auto ycbcrInfo = backendFormat.getVkYcbcrConversionInfo();
     if (ycbcrInfo && ycbcrInfo->isValid()) {
         GrVkGpu* gpu = static_cast<GrVkPipelineStateBuilder*>(fProgramBuilder)->gpu();
-        info.fImmutableSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
-                state, *ycbcrInfo);
-        if (!info.fImmutableSampler) {
+        GrVkSampler* sampler = gpu->resourceProvider().findOrCreateCompatibleSampler(state,
+                                                                                     *ycbcrInfo);
+        fSamplers.back().fImmutableSampler = sampler;
+        if (!sampler) {
             return {};
         }
     }

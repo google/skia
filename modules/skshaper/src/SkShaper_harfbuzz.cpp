@@ -1268,7 +1268,8 @@ public:
     }
     HBLockedFaceCache(const HBLockedFaceCache&) = delete;
     HBLockedFaceCache& operator=(const HBLockedFaceCache&) = delete;
-    HBLockedFaceCache(HBLockedFaceCache&&) = delete;
+    // Required until C++17 copy elision
+    HBLockedFaceCache(HBLockedFaceCache&&) = default;
     HBLockedFaceCache& operator=(HBLockedFaceCache&&) = delete;
 
     ~HBLockedFaceCache() {

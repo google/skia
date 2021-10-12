@@ -28,6 +28,12 @@ public:
     ConstructorSplat(int line, const Type& type, std::unique_ptr<Expression> arg)
         : INHERITED(line, kExpressionKind, &type, std::move(arg)) {}
 
+    ConstructorSplat(const Expression& scalar, const Type& type)
+            : ConstructorSplat(scalar.fLine, type, scalar.clone()) {
+        SkASSERT(type.isVector());
+        SkASSERT(type.componentType() == scalar.type());
+    }
+
     // The input argument must be scalar. A "splat" to a scalar type will be optimized into a no-op.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             int line,

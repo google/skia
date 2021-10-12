@@ -9,6 +9,7 @@
 #define GrD3DGpuDescriptorTableManager_DEFINED
 
 #include "src/gpu/d3d/GrD3DDescriptorHeap.h"
+#include <vector>
 
 class GrD3DCommandList;
 class GrD3DDirectCommandList;

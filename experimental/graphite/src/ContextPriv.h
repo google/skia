@@ -26,7 +26,8 @@ private:
 
     explicit ContextPriv(Context* context) : fContext(context) {}
 
-    ContextPriv(const ContextPriv&) = delete;
+    // Required until C++17 copy elision
+    ContextPriv(const ContextPriv&) = default;
     ContextPriv& operator=(const ContextPriv&) = delete;
 
     // No taking addresses of this type.

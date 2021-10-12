@@ -141,7 +141,8 @@ public:
 
 private:
     explicit GrDirectContextPriv(GrDirectContext* dContext) : GrRecordingContextPriv(dContext) {}
-    GrDirectContextPriv(const GrDirectContextPriv&) = delete;
+    // Required until C++17 copy elision
+    GrDirectContextPriv(const GrDirectContextPriv&) = default;
     GrDirectContextPriv& operator=(const GrDirectContextPriv&) = delete;
 
     // No taking addresses of this type.

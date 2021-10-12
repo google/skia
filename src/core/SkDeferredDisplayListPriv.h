@@ -41,7 +41,8 @@ public:
 
 private:
     explicit SkDeferredDisplayListPriv(SkDeferredDisplayList* ddl) : fDDL(ddl) {}
-    SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&) = delete;
+    // Required until C++17 copy elision
+    SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&) = default;
     SkDeferredDisplayListPriv& operator=(const SkDeferredDisplayListPriv&) = delete;
 
     // No taking addresses of this type.

@@ -9,6 +9,7 @@
 #define GrD3DCpuDescriptorManager_DEFINED
 
 #include "src/gpu/d3d/GrD3DDescriptorHeap.h"
+#include <vector>
 
 class GrD3DGpu;
 

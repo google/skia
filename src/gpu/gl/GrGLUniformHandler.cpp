@@ -47,17 +47,22 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
         prefix = '\0';
     }
     SkString resolvedName = fProgramBuilder->nameVariable(prefix, name, mangleName);
-    GLUniformInfo& uni = fUniforms.push_back(GrGLProgramDataManager::GLUniformInfo{
-        {
-            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::Uniform,
-                        arrayCount},
-            visibility, owner, SkString(name)
-        },
-        -1
-    });
+
+    GLUniformInfo tempInfo;
+    tempInfo.fVariable = GrShaderVar{std::move(resolvedName),
+                                     type,
+                                     GrShaderVar::TypeModifier::Uniform,
+                                     arrayCount};
+
+    tempInfo.fVisibility = visibility;
+    tempInfo.fOwner      = owner;
+    tempInfo.fRawName    = SkString(name);
+    tempInfo.fLocation   = -1;
+
+    fUniforms.push_back(tempInfo);
 
     if (outName) {
-        *outName = uni.fVariable.c_str();
+        *outName = fUniforms.back().fVariable.c_str();
     }
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
@@ -72,17 +77,20 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
 
     GrTextureType type = backendFormat.textureType();
 
-    fSamplers.push_back(GrGLProgramDataManager::GLUniformInfo{
-        {
-            GrShaderVar{std::move(mangleName), GrSLCombinedSamplerTypeForTextureType(type),
-                          GrShaderVar::TypeModifier::Uniform},
-            kFragment_GrShaderFlag, nullptr, SkString(name)
-        },
-        -1
-    });
+    GLUniformInfo tempInfo;
+    tempInfo.fVariable = GrShaderVar{std::move(mangleName),
+                                     GrSLCombinedSamplerTypeForTextureType(type),
+                                     GrShaderVar::TypeModifier::Uniform};
 
+    tempInfo.fVisibility = kFragment_GrShaderFlag;
+    tempInfo.fOwner      = nullptr;
+    tempInfo.fRawName    = SkString(name);
+    tempInfo.fLocation   = -1;
+
+    fSamplers.push_back(tempInfo);
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplers.count() == fSamplerSwizzles.count());
+
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 

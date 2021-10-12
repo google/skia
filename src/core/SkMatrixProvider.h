@@ -21,6 +21,9 @@ public:
         : fLocalToDevice(localToDevice)
         , fLocalToDevice33(localToDevice.asM33()) {}
 
+    // Required until C++17 copy elision
+    SkMatrixProvider(const SkMatrixProvider&) = default;
+
     virtual ~SkMatrixProvider() {}
 
     // These should return the "same" matrix, as either a 3x3 or 4x4. Most sites in Skia still

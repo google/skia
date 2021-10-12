@@ -19,7 +19,8 @@ public:
 
 private:
     explicit GrResourceProviderPriv(GrResourceProvider* provider) : fResourceProvider(provider) {}
-    GrResourceProviderPriv(const GrResourceProviderPriv&) = delete;
+    // Required until C++17 copy elision
+    GrResourceProviderPriv(const GrResourceProviderPriv&) = default;
     GrResourceProviderPriv& operator=(const GrResourceProviderPriv&) = delete;
 
     // No taking addresses of this type.

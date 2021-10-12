@@ -128,14 +128,6 @@ static std::unique_ptr<Expression> cast_expression(const Context& context,
     return ctor;
 }
 
-static ConstructorSplat splat_scalar(const Expression& scalar, const Type& type) {
-    SkASSERT(type.isVector());
-    SkASSERT(type.componentType() == scalar.type());
-
-    // Use a constructor to splat the scalar expression across a vector.
-    return ConstructorSplat{scalar.fLine, type, scalar.clone()};
-}
-
 bool ConstantFolder::GetConstantInt(const Expression& value, SKSL_INT* out) {
     const Expression* expr = GetConstantValueForVariable(value);
     if (!expr->isIntLiteral()) {
@@ -526,14 +518,14 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Perform constant folding on vectors against scalars, e.g.: half4(2) + 2
     if (leftType.isVector() && leftType.componentType() == rightType) {
         if (rightType.isFloat()) {
-            return simplify_vector(context, *left, op, splat_scalar(*right, left->type()));
+            return simplify_vector(context, *left, op, ConstructorSplat(*right, left->type()));
         }
         if (rightType.isInteger()) {
-            return simplify_vector(context, *left, op, splat_scalar(*right, left->type()));
+            return simplify_vector(context, *left, op, ConstructorSplat(*right, left->type()));
         }
         if (rightType.isBoolean()) {
             return simplify_vector_equality(context, *left, op,
-                                            splat_scalar(*right, left->type()));
+                                            ConstructorSplat(*right, left->type()));
         }
         return nullptr;
     }
@@ -541,13 +533,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Perform constant folding on scalars against vectors, e.g.: 2 + half4(2)
     if (rightType.isVector() && rightType.componentType() == leftType) {
         if (leftType.isFloat()) {
-            return simplify_vector(context, splat_scalar(*left, right->type()), op, *right);
+            return simplify_vector(context, ConstructorSplat(*left, right->type()), op, *right);
         }
         if (leftType.isInteger()) {
-            return simplify_vector(context, splat_scalar(*left, right->type()), op, *right);
+            return simplify_vector(context, ConstructorSplat(*left, right->type()), op, *right);
         }
         if (leftType.isBoolean()) {
-            return simplify_vector_equality(context, splat_scalar(*left, right->type()),
+            return simplify_vector_equality(context, ConstructorSplat(*left, right->type()),
                                             op, *right);
         }
         return nullptr;

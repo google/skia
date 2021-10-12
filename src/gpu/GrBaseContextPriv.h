@@ -34,12 +34,13 @@ public:
     GrContextOptions::ShaderErrorHandler* getShaderErrorHandler() const;
 
 protected:
+    // Required until C++17 copy elision
+    GrBaseContextPriv(const GrBaseContextPriv&) = default;
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}
 
     GrContext_Base* fContext;
 
 private:
-    GrBaseContextPriv(const GrBaseContextPriv&) = delete;
     GrBaseContextPriv& operator=(const GrBaseContextPriv&) = delete;
 
     // No taking addresses of this type.

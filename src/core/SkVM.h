@@ -482,8 +482,15 @@ namespace skvm {
     // varyings and uniforms. Varyings use Ptr, have a stride associated with them, and are
     // evaluated everytime through the loop. Uniforms use UPtr, don't have a stride, and are
     // usually hoisted above the loop.
-    struct Ptr { int ix; };
-    struct UPtr : public Ptr {};
+    struct Ptr {
+        Ptr() = default;
+        Ptr(int ix_) : ix(ix_) {}
+        int ix;
+    };
+    struct UPtr : public Ptr {
+        UPtr() = default;
+        UPtr(int ix_) : Ptr(ix_) {}
+    };
 
     bool operator!=(Ptr a, Ptr b);
 
@@ -609,7 +616,7 @@ namespace skvm {
         template <typename T>
         Ptr varying() { return this->arg(sizeof(T)); }
         Ptr varying(int stride) { SkASSERT(stride > 0); return this->arg(stride); }
-        UPtr uniform() { Ptr p = this->arg(0); return UPtr{{p.ix}}; }
+        UPtr uniform() { Ptr p = this->arg(0); return UPtr{p.ix}; }
 
         // TODO: allow uniform (i.e. Ptr) offsets to store* and load*?
         // TODO: sign extension (signed types) for <32-bit loads?

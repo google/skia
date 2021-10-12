@@ -532,9 +532,10 @@ SkVMBlitter::SkVMBlitter(const SkPixmap& device,
                          const SkMatrixProvider& matrices,
                          sk_sp<SkShader> clip,
                          bool* ok)
-        : fDevice(device), fSprite(sprite ? *sprite : SkPixmap{})
+        : fDevice(device)
+        , fSprite(sprite ? *sprite : SkPixmap{})
         , fSpriteOffset(spriteOffset)
-        , fUniforms(skvm::UPtr{{0}}, kBlitterUniformsCount)
+        , fUniforms(skvm::UPtr{0}, kBlitterUniformsCount)
         , fParams(EffectiveParams(device, sprite, paint, matrices, std::move(clip)))
         , fKey(CacheKey(fParams, &fUniforms, &fAlloc, ok)) {}
 

@@ -203,9 +203,10 @@ public:
 
 protected:
     explicit GrRecordingContextPriv(GrRecordingContext* rContext) : GrImageContextPriv(rContext) {}
+    // Required until C++17 copy elision
+    GrRecordingContextPriv(const GrRecordingContextPriv&) = default;
 
 private:
-    GrRecordingContextPriv(const GrRecordingContextPriv&) = delete;
     GrRecordingContextPriv& operator=(const GrRecordingContextPriv&) = delete;
 
     // No taking addresses of this type.

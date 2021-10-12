@@ -9,12 +9,19 @@
 #define GrRefCnt_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "src/gpu/GrGpuResource.h"
+#include "src/gpu/GrManagedResource.h"
 
 // We have to use auto for the function pointers here because if the actual functions live on the
 // base class of T we need the function here to be a pointer to a function of the base class and not
-// a function on T. Thus we can't have something like void(T::*Ref)() since we may need T or we may
-// need some base class of T.
-template <typename T, auto Ref, auto Unref> class gr_sp {
+// a function on T. In C++17 RefBase and UnrefBase can be removed and the Ref and Unref paramenters
+// can be "auto".
+template <typename T,
+          typename RefBase                 = T,
+          typename UnrefBase               = RefBase,
+          void (RefBase::*Ref)() const     = RefBase::Ref,
+          void (UnrefBase::*Unref)() const = UnrefBase::Unref>
+class gr_sp {
 private:
     static inline T* SafeRef(T* obj) {
         if (obj) {
@@ -39,10 +46,12 @@ public:
      * Shares the underlying object by calling Ref(), so that both the argument and the newly
      * created gr_sp both have a reference to it.
      */
-    gr_sp(const gr_sp<T, Ref, Unref>& that) : fPtr(SafeRef(that.get())) {}
+    gr_sp(const gr_sp& that) : fPtr(SafeRef(that.get())) {}
     template <typename U,
+              typename URefBase,
+              typename UUnrefBase,
               typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
-    gr_sp(const gr_sp<U, Ref, Unref>& that) : fPtr(SafeRef(that.get())) {}
+    gr_sp(const gr_sp<U, URefBase, UUnrefBase, Ref, Unref>& that) : fPtr(SafeRef(that.get())) {}
 
     gr_sp(const sk_sp<T>& that) : fPtr(SafeRef(that.get())) {}
 
@@ -52,7 +61,7 @@ public:
      * new gr_sp will have a reference to the object, and the argument will point to null.
      * No call to Ref() or Unref() will be made.
      */
-    gr_sp(gr_sp<T, Ref, Unref>&& that) : fPtr(that.release()) {}
+    gr_sp(gr_sp&& that) : fPtr(that.release()) {}
 
     /**
      * Copies the underlying object pointer from the argument to the gr_sp. It will then call
@@ -83,7 +92,7 @@ public:
      * Shares the underlying object referenced by the argument by calling Ref() on it. If this gr_sp
      * previously had a reference to an object (i.e. not null) it will call Unref() on that object.
      */
-    gr_sp& operator=(const gr_sp<T, Ref, Unref>& that) {
+    gr_sp& operator=(const gr_sp& that) {
         if (this != &that) {
             this->reset(SafeRef(that.get()));
         }
@@ -105,7 +114,7 @@ public:
      * a reference to another object, Unref() will be called on that object. No call to Ref() will
      * be made.
      */
-    gr_sp& operator=(gr_sp<T, Ref, Unref>&& that) {
+    gr_sp& operator=(gr_sp&& that) {
         this->reset(that.release());
         return *this;
     }
@@ -169,15 +178,20 @@ private:
  * usages in Ganesh. This allows for a scratch GrGpuResource to be reused for new draw calls even
  * if it is in use on the GPU.
  */
-template <typename T> using gr_cb =
-        gr_sp<T, &T::addCommandBufferUsage, &T::removeCommandBufferUsage>;
+template <typename T>
+using gr_cb = gr_sp<T,
+                    GrIORef<GrGpuResource>,
+                    GrIORef<GrGpuResource>,
+                    &T::addCommandBufferUsage,
+                    &T::removeCommandBufferUsage>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * This class mimics sk_sp but instead of calling unref it calls recycle instead.
  */
-template<typename T> using gr_rp = gr_sp<T, &T::ref, &T::recycle>;
+template <typename T>
+using gr_rp = gr_sp<T, GrManagedResource, GrRecycledResource, &T::ref, &T::recycle>;
 
 /**
  *  Returns a gr_rp wrapping the provided ptr AND calls ref on it (if not null).

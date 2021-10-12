@@ -48,7 +48,8 @@ public:
 
 private:
     explicit GrContextThreadSafeProxyPriv(GrContextThreadSafeProxy* proxy) : fProxy(proxy) {}
-    GrContextThreadSafeProxyPriv(const GrContextThreadSafeProxy&) = delete;
+    // Required until C++17 copy elision
+    GrContextThreadSafeProxyPriv(const GrContextThreadSafeProxyPriv&) = default;
     GrContextThreadSafeProxyPriv& operator=(const GrContextThreadSafeProxyPriv&) = delete;
 
     // No taking addresses of this type.

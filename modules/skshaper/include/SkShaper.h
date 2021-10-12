@@ -62,6 +62,10 @@ public:
 
     class RunIterator {
     public:
+        // Required until C++17 copy elision
+        RunIterator(const RunIterator&) = default;
+        // Required because above is required
+        RunIterator() = default;
         virtual ~RunIterator() = default;
         /** Set state to that of current run and move iterator to end of that run. */
         virtual void consume() = 0;
