@@ -306,22 +306,7 @@ public:
         int window2 = window * window;
         int window3 = window2 * window;
         int divisor = (window & 1) == 1 ? window3 : window3 + window2;
-
-        // NB the sums in the blur code use the following technique to avoid
-        // adding 1/2 to round the divide.
-        //
-        //   Sum/d + 1/2 == (Sum + h) / d
-        //   Sum + d(1/2) ==  Sum + h
-        //     h == (1/2)d
-        //
-        // But the d/2 it self should be rounded.
-        //    h == d/2 + 1/2 == (d + 1) / 2
-        //
-        // divisorFactor = (1 / d) * 2 ^ 32
-        auto divisorFactor = static_cast<uint32_t>(round((1.0 / divisor) * (1ull << 32)));
-        auto half = static_cast<uint32_t>((divisor + 1) / 2);
-        return alloc->make<GaussPass>(
-                buffer0, buffer1, buffer2, buffersEnd, border, divisorFactor, half);
+        return alloc->make<GaussPass>(buffer0, buffer1, buffer2, buffersEnd, border, divisor);
     }
 
     GaussPass(skvx::Vec<4, uint32_t>* buffer0,
@@ -329,22 +314,21 @@ public:
               skvx::Vec<4, uint32_t>* buffer2,
               skvx::Vec<4, uint32_t>* buffersEnd,
               int border,
-              uint32_t divisorFactor,
-              uint32_t half)
+              int divisor)
         : Pass{border}
         , fBuffer0{buffer0}
         , fBuffer1{buffer1}
         , fBuffer2{buffer2}
         , fBuffersEnd{buffersEnd}
-        , fDivisorFactor{divisorFactor}
-        , fHalf{half} {}
+        , fDivider(divisor) {}
 
 private:
     void startBlur() override {
         skvx::Vec<4, uint32_t> zero = {0u, 0u, 0u, 0u};
         zero.store(fSum0);
         zero.store(fSum1);
-        skvx::Vec<4, uint32_t>{fHalf, fHalf, fHalf, fHalf}.store(fSum2);
+        auto half = fDivider.half();
+        skvx::Vec<4, uint32_t>{half, half, half, half}.store(fSum2);
         sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
 
         fBuffer0Cursor = fBuffer0;
@@ -405,8 +389,7 @@ private:
             sum1 += sum0;
             sum2 += sum1;
 
-            skvx::Vec<4, uint64_t> w = skvx::cast<uint64_t>(sum2) * fDivisorFactor;
-            skvx::Vec<4, uint32_t> value = skvx::cast<uint32_t>(w >> 32);
+            skvx::Vec<4, uint32_t> blurred = fDivider.divide(sum2);
 
             sum2 -= *buffer2Cursor;
             *buffer2Cursor = sum1;
@@ -418,7 +401,7 @@ private:
             *buffer0Cursor = leadingEdge;
             buffer0Cursor = (buffer0Cursor + 1) < fBuffer1 ? buffer0Cursor + 1 : fBuffer0;
 
-            return skvx::cast<uint8_t>(value);
+            return skvx::cast<uint8_t>(blurred);
         };
 
         auto loadEdge = [&](const uint32_t* srcCursor) {
@@ -461,8 +444,7 @@ private:
     skvx::Vec<4, uint32_t>* const fBuffer1;
     skvx::Vec<4, uint32_t>* const fBuffer2;
     skvx::Vec<4, uint32_t>* const fBuffersEnd;
-    const uint32_t fDivisorFactor;
-    const uint32_t fHalf;
+    const skvx::ScaledDividerU32 fDivider;
 
     // blur state
     char fSum0[sizeof(skvx::Vec<4, uint32_t>)];
@@ -577,40 +559,25 @@ public:
         int border = window - 1;
 
         int divisor = window * window;
-
-        // NB the sums in the blur code use the following technique to avoid
-        // adding 1/2 to round the divide.
-        //
-        //   Sum/d + 1/2 == (Sum + h) / d
-        //   Sum + d(1/2) ==  Sum + h
-        //     h == (1/2)d
-        //
-        // But the d/2 it self should be rounded.
-        //    h == d/2 + 1/2 == (d + 1) / 2
-        //
-        // divisorFactor = (1 / d) * 2 ^ 32
-        auto divisorFactor = static_cast<uint32_t>(round((1.0 / divisor) * (1ull << 32)));
-        auto half = static_cast<uint32_t>((divisor + 1) / 2);
-        return alloc->make<TentPass>(buffer0, buffer1, buffersEnd, border, divisorFactor, half);
+        return alloc->make<TentPass>(buffer0, buffer1, buffersEnd, border, divisor);
     }
 
     TentPass(skvx::Vec<4, uint32_t>* buffer0,
              skvx::Vec<4, uint32_t>* buffer1,
              skvx::Vec<4, uint32_t>* buffersEnd,
              int border,
-             uint32_t divisorFactor,
-             uint32_t half)
+             int divisor)
          : Pass{border}
          , fBuffer0{buffer0}
          , fBuffer1{buffer1}
          , fBuffersEnd{buffersEnd}
-         , fDivisorFactor{divisorFactor}
-         , fHalf{half} {}
+         , fDivider(divisor) {}
 
 private:
     void startBlur() override {
         skvx::Vec<4, uint32_t>{0u, 0u, 0u, 0u}.store(fSum0);
-        skvx::Vec<4, uint32_t>{fHalf, fHalf, fHalf, fHalf}.store(fSum1);
+        auto half = fDivider.half();
+        skvx::Vec<4, uint32_t>{half, half, half, half}.store(fSum1);
         sk_bzero(fBuffer0, (fBuffersEnd - fBuffer0) * sizeof(skvx::Vec<4, uint32_t>));
 
         fBuffer0Cursor = fBuffer0;
@@ -663,8 +630,7 @@ private:
             sum0 += leadingEdge;
             sum1 += sum0;
 
-            skvx::Vec<4, uint64_t> w = skvx::cast<uint64_t>(sum1) * fDivisorFactor;
-            skvx::Vec<4, uint32_t> value = skvx::cast<uint32_t>(w >> 32);
+            skvx::Vec<4, uint32_t> blurred = fDivider.divide(sum1);
 
             sum1 -= *buffer1Cursor;
             *buffer1Cursor = sum0;
@@ -673,7 +639,7 @@ private:
             *buffer0Cursor = leadingEdge;
             buffer0Cursor = (buffer0Cursor + 1) < fBuffer1 ? buffer0Cursor + 1 : fBuffer0;
 
-            return skvx::cast<uint8_t>(value);
+            return skvx::cast<uint8_t>(blurred);
         };
 
         auto loadEdge = [&](const uint32_t* srcCursor) {
@@ -712,8 +678,7 @@ private:
     skvx::Vec<4, uint32_t>* const fBuffer0;
     skvx::Vec<4, uint32_t>* const fBuffer1;
     skvx::Vec<4, uint32_t>* const fBuffersEnd;
-    const uint32_t fDivisorFactor;
-    const uint32_t fHalf;
+    const skvx::ScaledDividerU32 fDivider;
 
     // blur state
     char fSum0[sizeof(skvx::Vec<4, uint32_t>)];
