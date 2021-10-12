@@ -87,7 +87,7 @@ public:
 
 class SK_API Animation : public SkNVRefCnt<Animation> {
 public:
-    class Builder final {
+    class SK_API Builder final {
     public:
         enum Flags : uint32_t {
             kDeferImageLoading   = 0x01, // Normally, all static image frames are resolved at
