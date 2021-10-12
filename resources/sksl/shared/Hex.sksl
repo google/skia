@@ -5,11 +5,11 @@ half4 main(float2 coords) {
     i1++;
     int i2 = 0x1234;
     i2++;
-    int i3 = 0x7ffe;
+    int i3 = 0X7ffe;
     i3++;
     int i4 = -0x7ffe;
     i4++;
-    int i5 = 0x4abc;
+    int i5 = 0X4abc;
     i5++;
     return colorGreen;
 }

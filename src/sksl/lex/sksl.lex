@@ -10,7 +10,7 @@
 //    rebuild, and then set it back to 1.
 
 FLOAT_LITERAL  = [0-9]*\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+\.[0-9]*([eE][+-]?[0-9]+)?|[0-9]+([eE][+-]?[0-9]+)
-INT_LITERAL    = [0-9]+|0x[0-9a-fA-F]+
+INT_LITERAL    = [0-9]+|0[xX][0-9a-fA-F]+
 TRUE_LITERAL   = "true"
 FALSE_LITERAL  = "false"
 IF             = "if"
