@@ -397,6 +397,7 @@ pathops_tests_sources = [
 
   # graphite
   "$_tests/graphite/MaskTest.cpp",
+  "$_tests/graphite/RectTest.cpp",
 ]
 
 skgpu_v1_tests_sources = [

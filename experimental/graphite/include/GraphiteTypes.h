@@ -9,8 +9,22 @@
 #define skgpu_GraphiteTypes_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkVx.h"
 
 namespace skgpu {
+
+// Use familiar type names from SkSL.
+template<int N> using vec = skvx::Vec<N, float>;
+using float2 = vec<2>;
+using float4 = vec<4>;
+
+template<int N> using ivec = skvx::Vec<N, int32_t>;
+using int2 = ivec<2>;
+using int4 = ivec<4>;
+
+template<int N> using uvec = skvx::Vec<N, uint32_t>;
+using uint2 = uvec<2>;
+using uint4 = uvec<4>;
 
 /**
  * Wraps an enum that is used for flags, and enables masking with type safety. Example:
