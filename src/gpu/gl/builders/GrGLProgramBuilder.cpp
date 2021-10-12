@@ -481,14 +481,16 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
         }
         GrGLint infoLen = GR_GL_INIT_ZERO;
         GL_CALL(GetProgramiv(programID, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
+        SkAutoMalloc log(infoLen+1);
         if (infoLen > 0) {
             // retrieve length even though we don't need it to workaround
             // bug in chrome cmd buffer param validation.
             GrGLsizei length = GR_GL_INIT_ZERO;
             GL_CALL(GetProgramInfoLog(programID, infoLen+1, &length, (char*)log.get()));
         }
-        errorHandler->compileError(allShaders.c_str(), infoLen > 0 ? (const char*)log.get() : "");
+        const char* errorMsg = (infoLen > 0) ? (const char*)log.get()
+                                             : "link failed but did not provide an info log";
+        errorHandler->compileError(allShaders.c_str(), errorMsg);
     }
     return SkToBool(linked);
 }
