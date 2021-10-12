@@ -431,7 +431,10 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_binary_colorizer(const 
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent
 // the gradient.
 static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* colors,
-        const SkScalar* positions, int count, bool premul, const GrFPArgs& args) {
+                                                           const SkScalar* positions,
+                                                           int count,
+                                                           bool premul,
+                                                           const GrFPArgs& args) {
     // If there are hard stops at the beginning or end, the first and/or last color should be
     // ignored by the colorizer since it should only be used in a clamped border color. By detecting
     // and removing these stops at the beginning, it makes optimizing the remaining color stops
@@ -442,9 +445,9 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
     // The same is true for pos[end] == 1
     bool topHardStop = SkScalarNearlyEqual(positions[count - 2], positions[count - 1]);
 
-    int offset = 0;
     if (bottomHardStop) {
-        offset += 1;
+        colors++;
+        positions++;
         count--;
     }
     if (topHardStop) {
@@ -454,7 +457,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
     // Two remaining colors means a single interval from 0 to 1
     // (but it may have originally been a 3 or 4 color gradient with 1-2 hard stops at the ends)
     if (count == 2) {
-        return make_single_interval_colorizer(colors[offset], colors[offset + 1]);
+        return make_single_interval_colorizer(colors[0], colors[1]);
     }
 
     const GrShaderCaps* caps = args.fContext->priv().caps()->shaderCaps();
@@ -469,7 +472,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
             // so that scales will be less than 100, which leaves 4 decimals of precision on
             // 16-bit).
             for (int i = 0; i < count - 1; i++) {
-                SkScalar dt = SkScalarAbs(positions[offset + i] - positions[offset + i + 1]);
+                SkScalar dt = SkScalarAbs(positions[i] - positions[i + 1]);
                 if (dt <= kLowPrecisionIntervalLimit && dt > SK_ScalarNearlyZero) {
                     return true;
                 }
@@ -482,18 +485,17 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
         // The dual-interval colorizer uses the same principles as the binary-search colorizer, but
         // is limited to exactly 2 intervals.
         if (count == 3) {
-            // Must be a dual interval gradient, where the middle point is at offset+1 and the
+            // Must be a dual interval gradient, where the middle point is at 1 and the
             // two intervals share the middle color stop.
-            return make_dual_interval_colorizer(colors[offset], colors[offset + 1],
-                                                colors[offset + 1], colors[offset + 2],
-                                                positions[offset + 1]);
+            return make_dual_interval_colorizer(colors[0], colors[1],
+                                                colors[1], colors[2],
+                                                positions[1]);
         }
-        if (count == 4 && SkScalarNearlyEqual(positions[offset + 1],
-                                                     positions[offset + 2])) {
+        if (count == 4 && SkScalarNearlyEqual(positions[1], positions[2])) {
             // Two separate intervals that join at the same threshold position
-            return make_dual_interval_colorizer(colors[offset], colors[offset + 1],
-                                                colors[offset + 2], colors[offset + 3],
-                                                positions[offset + 1]);
+            return make_dual_interval_colorizer(colors[0], colors[1],
+                                                colors[2], colors[3],
+                                                positions[1]);
         }
         // The gradient can't be represented in only two intervals.
         return nullptr;
@@ -506,7 +508,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
             if (colorizer) {
                 return colorizer;
             }
-            colorizer = make_looping_binary_colorizer(colors + offset, positions + offset, count);
+            colorizer = make_looping_binary_colorizer(colors, positions, count);
             if (colorizer) {
                 return colorizer;
             }
@@ -518,7 +520,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
             if (colorizer) {
                 return colorizer;
             }
-            colorizer = make_unrolled_binary_colorizer(colors + offset, positions + offset, count);
+            colorizer = make_unrolled_binary_colorizer(colors, positions, count);
             if (colorizer) {
                 return colorizer;
             }
@@ -527,7 +529,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
 
     // Otherwise fall back to a rasterized gradient sampled by a texture, which can handle
     // arbitrary gradients. (This has limited sampling resolution, and always blurs hard-stops.)
-    return make_textured_colorizer(colors + offset, positions + offset, count, premul, args);
+    return make_textured_colorizer(colors, positions, count, premul, args);
 }
 
 // This top-level effect implements clamping on the layout coordinate and requires specifying the
