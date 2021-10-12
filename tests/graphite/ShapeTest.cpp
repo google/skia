@@ -11,6 +11,6 @@
 
 DEF_GRAPHITE_TEST(ShapeTest, reporter) {
     // TODO: Michael takes this over
-    skgpu::geom::Shape s;
-    REPORTER_ASSERT(reporter, s.type() == skgpu::geom::Shape::Type::kEmpty);
+    skgpu::Shape s;
+    REPORTER_ASSERT(reporter, s.type() == skgpu::Shape::Type::kEmpty);
 }

@@ -12,7 +12,7 @@
 
 struct SkIRect;
 
-namespace skgpu::geom {
+namespace skgpu {
 
 /**
  * BoundsManager is an acceleration structure for device-space related pixel bounds queries.
@@ -68,6 +68,6 @@ public:
     void setZ(const SkIRect& bounds, uint16_t z, bool fullyOpaque=false) override {}
 };
 
-} // namespace skgpu::geom
+} // namespace skgpu
 
 #endif // skgpu_geom_BoundsManager_DEFINED

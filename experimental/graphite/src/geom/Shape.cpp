@@ -11,7 +11,7 @@
 #include "src/core/SkRRectPriv.h"
 #include "src/utils/SkPolyUtils.h"
 
-namespace skgpu::geom {
+namespace skgpu {
 
 Shape& Shape::operator=(const Shape& shape) {
     switch (shape.type()) {
@@ -101,4 +101,4 @@ SkPath Shape::asPath() const {
     return builder.detach();
 }
 
-} // namespace skgpu::geom
+} // namespace skgpu

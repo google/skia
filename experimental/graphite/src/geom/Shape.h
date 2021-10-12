@@ -16,7 +16,7 @@
 
 #include <array>
 
-namespace skgpu::geom {
+namespace skgpu {
 
 /**
  * Shape is effectively a std::variant over different geometric shapes, with the most complex
@@ -150,6 +150,6 @@ private:
     bool    fInverted    = false;
 };
 
-} // namespace skgpu::geom
+} // namespace skgpu
 
 #endif // skgpu_geom_Shape_DEFINED
