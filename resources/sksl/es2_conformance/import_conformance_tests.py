@@ -20,6 +20,7 @@
 
 import os
 import pyparsing as pp
+import re
 import sys
 
 # Each case can contain expected input/output values, sometimes in [bracketed|lists] and
@@ -148,6 +149,17 @@ for c in testCases:
     if skipTest != '':
         print("skipped %s (%s)" % (testName, skipTest))
         continue
+
+    # SkSL does not support casts which discard elements such as `float(myFloat4)`.
+    # Switch these tests to a "fail" expectation instead of "pass."
+    if (re.fullmatch('(vec|bvec|ivec)[234]_to_(float|int|bool)', testName) or
+        re.fullmatch('(vec|bvec|ivec)[34]_to_(vec|bvec|ivec)2', testName) or
+        re.fullmatch('(vec|bvec|ivec)[4]_to_(vec|bvec|ivec)3', testName) or
+    # SkSL rejects code that fails to return a value; GLSL ES2 allows it.
+        testName == 'missing_returns'):
+        assert expectPass
+        expectPass = False
+        print("moved %s to fail" % testName)
 
     # Apply fixups to the test code.
     # SkSL doesn't support the `precision` keyword, so comment it out if it appears.
