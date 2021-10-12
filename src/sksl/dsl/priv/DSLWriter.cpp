@@ -47,10 +47,8 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
             if (baseType->isArray()) {
                 baseType = &baseType->componentType();
             }
-            ThreadContext::IRGenerator().checkVarDeclaration(var.fPosition.line(),
-                    var.fModifiers.fModifiers, baseType, var.storage());
         }
-        std::unique_ptr<SkSL::Variable> skslvar = ThreadContext::IRGenerator().convertVar(
+        std::unique_ptr<SkSL::Variable> skslvar = SkSL::Variable::Convert(ThreadContext::Context(),
                 var.fPosition.line(), var.fModifiers.fModifiers, &var.fType.skslType(), var.fName,
                 /*isArray=*/false, /*arraySize=*/nullptr, var.storage());
         SkSL::Variable* varPtr = skslvar.get();
@@ -62,9 +60,8 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
             // FunctionDeclaration is created which makes this the wrong spot for them, and outside
             // of DSLParser we don't even need DSL variables to show up in the symbol table in the
             // first place.
-            var.fDeclaration = ThreadContext::IRGenerator().convertVarDeclaration(
-                    std::move(skslvar), var.fInitialValue.releaseIfPossible(),
-                    /*addToSymbolTable=*/false);
+            var.fDeclaration = VarDeclaration::Convert(ThreadContext::Context(), std::move(skslvar),
+                    var.fInitialValue.releaseIfPossible(), /*addToSymbolTable=*/false);
             if (var.fDeclaration) {
                 var.fVar = varPtr;
                 var.fInitialized = true;
@@ -79,9 +76,9 @@ std::unique_ptr<SkSL::Variable> DSLWriter::CreateParameterVar(DSLParameter& var)
     // This should only be called on undeclared parameter variables, but we allow the creation to go
     // ahead regardless so we don't have to worry about null pointers potentially sneaking in and
     // breaking things. DSLFunction is responsible for reporting errors for invalid parameters.
-    return ThreadContext::IRGenerator().convertVar(var.fPosition.line(), var.fModifiers.fModifiers,
-            &var.fType.skslType(), var.fName, /*isArray=*/false, /*arraySize=*/nullptr,
-            var.storage());
+    return SkSL::Variable::Convert(ThreadContext::Context(), var.fPosition.line(),
+            var.fModifiers.fModifiers, &var.fType.skslType(), var.fName, /*isArray=*/false,
+            /*arraySize=*/nullptr, var.storage());
 }
 
 std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVarBase& var) {

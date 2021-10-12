@@ -7,8 +7,11 @@
 
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -23,6 +26,34 @@ Variable::~Variable() {
 
 const Expression* Variable::initialValue() const {
     return fDeclaration ? fDeclaration->value().get() : nullptr;
+}
+
+std::unique_ptr<Variable> Variable::Convert(const Context& context, int line,
+        const Modifiers& modifiers, const Type* baseType, skstd::string_view name, bool isArray,
+        std::unique_ptr<Expression> arraySize, Variable::Storage storage) {
+    if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
+        (modifiers.fFlags & Modifiers::kOut_Flag) &&
+        context.fConfig->fKind == ProgramKind::kFragment && name != Compiler::FRAGCOLOR_NAME) {
+        context.fErrors->error(line, "out location=0, index=0 is reserved for sk_FragColor");
+    }
+    return Make(context, line, modifiers, baseType, name, isArray, std::move(arraySize), storage);
+}
+
+std::unique_ptr<Variable> Variable::Make(const Context& context, int line,
+        const Modifiers& modifiers, const Type* baseType, skstd::string_view name, bool isArray,
+        std::unique_ptr<Expression> arraySize, Variable::Storage storage) {
+    const Type* type = baseType;
+    int arraySizeValue = 0;
+    if (isArray) {
+        SkASSERT(arraySize);
+        arraySizeValue = type->convertArraySize(context, std::move(arraySize));
+        if (!arraySizeValue) {
+            return nullptr;
+        }
+        type = ThreadContext::SymbolTable()->addArrayDimension(type, arraySizeValue);
+    }
+    return std::make_unique<Variable>(line, context.fModifiersPool->add(modifiers), name, type,
+            context.fConfig->fIsBuiltinCode, storage);
 }
 
 Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,

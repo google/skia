@@ -94,6 +94,7 @@ public:
     int getRTAdjustFieldIndex() { return fRTAdjustFieldIndex; }
 
     const Context& fContext;
+    const Variable* fRTAdjust = nullptr;
 
 private:
     void start(const ParsedModule& base,
@@ -102,23 +103,6 @@ private:
 
     IRGenerator::IRBundle finish();
 
-    void checkVarDeclaration(int line,
-                             const Modifiers& modifiers,
-                             const Type* baseType,
-                             Variable::Storage storage);
-    std::unique_ptr<Variable> convertVar(int line, const Modifiers& modifiers,
-                                         const Type* baseType, skstd::string_view name,
-                                         bool isArray, std::unique_ptr<Expression> arraySize,
-                                         Variable::Storage storage);
-    std::unique_ptr<Statement> convertVarDeclaration(std::unique_ptr<Variable> var,
-                                                     std::unique_ptr<Expression> value,
-                                                     bool addToSymbolTable = true);
-    std::unique_ptr<Statement> convertVarDeclaration(int line, const Modifiers& modifiers,
-                                                     const Type* baseType, skstd::string_view name,
-                                                     bool isArray,
-                                                     std::unique_ptr<Expression> arraySize,
-                                                     std::unique_ptr<Expression> value,
-                                                     Variable::Storage storage);
     void scanInterfaceBlock(SkSL::InterfaceBlock& intf);
     /** Appends sk_Position fixup to the bottom of main() if this is a vertex program. */
     void appendRTAdjustFixupToVertexMain(const FunctionDeclaration& decl, Block* body);
@@ -147,7 +131,6 @@ private:
     std::unordered_set<const Type*> fDefinedStructs;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
     std::vector<const ProgramElement*>*           fSharedElements = nullptr;
-    const Variable* fRTAdjust = nullptr;
     const Variable* fRTAdjustInterfaceBlock = nullptr;
     int fRTAdjustFieldIndex;
 
