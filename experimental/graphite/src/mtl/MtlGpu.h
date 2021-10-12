@@ -32,6 +32,8 @@ public:
 private:
     Gpu(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const Caps>);
 
+    bool onSubmit(sk_sp<skgpu::CommandBuffer>) override;
+
     sk_cfp<id<MTLDevice>> fDevice;
     sk_cfp<id<MTLCommandQueue>> fQueue;
 };

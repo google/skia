@@ -11,7 +11,7 @@
 
 namespace skgpu::mtl {
 
-std::unique_ptr<CommandBuffer> CommandBuffer::Make(const Gpu* gpu) {
+sk_sp<CommandBuffer> CommandBuffer::Make(const Gpu* gpu) {
     sk_cfp<id<MTLCommandBuffer>> cmdBuffer;
     id<MTLCommandQueue> queue = gpu->queue();
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
@@ -34,7 +34,22 @@ std::unique_ptr<CommandBuffer> CommandBuffer::Make(const Gpu* gpu) {
      (*cmdBuffer).label = @"CommandBuffer::Make";
 #endif
 
-    return std::unique_ptr<CommandBuffer>(new CommandBuffer(std::move(cmdBuffer)));
+    return sk_sp<CommandBuffer>(new CommandBuffer(std::move(cmdBuffer)));
 }
+
+bool CommandBuffer::commit() {
+    // TODO: end any encoding
+    [(*fCommandBuffer) commit];
+
+    // TODO: better error reporting
+    if ((*fCommandBuffer).status == MTLCommandBufferStatusError) {
+        NSString* description = (*fCommandBuffer).error.localizedDescription;
+        const char* errorString = [description UTF8String];
+        SkDebugf("Error submitting command buffer: %s\n", errorString);
+    }
+
+    return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
+}
+
 
 } // namespace skgpu::mtl

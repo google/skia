@@ -28,7 +28,7 @@ public:
 private:
     const Gpu* mtlGpu();
 
-    std::unique_ptr<skgpu::CommandBuffer> onCreateCommandBuffer() override;
+    sk_sp<skgpu::CommandBuffer> createCommandBuffer() override;
     std::unique_ptr<skgpu::RenderPipeline> onCreateRenderPipeline(
             const RenderPipelineDesc&) override;
     sk_sp<skgpu::Texture> createTexture(SkISize, const skgpu::TextureInfo&) override;

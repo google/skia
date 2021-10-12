@@ -24,7 +24,7 @@ const Gpu* ResourceProvider::mtlGpu() {
     return static_cast<const Gpu*>(fGpu);
 }
 
-std::unique_ptr<skgpu::CommandBuffer> ResourceProvider::onCreateCommandBuffer() {
+sk_sp<skgpu::CommandBuffer> ResourceProvider::createCommandBuffer() {
     return CommandBuffer::Make(this->mtlGpu());
 }
 

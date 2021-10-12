@@ -8,14 +8,21 @@
 #ifndef skgpu_CommandBuffer_DEFINED
 #define skgpu_CommandBuffer_DEFINED
 
-namespace skgpu {
+#include "include/core/SkRefCnt.h"
 
-class CommandBuffer {
+namespace skgpu {
+class Gpu;
+
+class CommandBuffer : public SkRefCnt {
 public:
-    virtual ~CommandBuffer() {}
+    ~CommandBuffer() override {}
+
+    bool hasWork() { return fHasWork; }
 
 protected:
     CommandBuffer();
+
+    bool fHasWork = false;
 
 private:
 };
