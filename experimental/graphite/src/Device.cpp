@@ -11,9 +11,9 @@
 #include "experimental/graphite/include/SkStuff.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
+#include "experimental/graphite/src/geom/Shape.h"
 
 #include "include/core/SkPath.h"
-#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkStrokeRec.h"
 
@@ -22,6 +22,12 @@
 #include "src/core/SkSpecialImage.h"
 
 namespace skgpu {
+
+namespace {
+
+static const SkStrokeRec kFillStyle(SkStrokeRec::kFill_InitStyle);
+
+} // anonymous namespace
 
 sk_sp<Device> Device::Make(sk_sp<Context> context, const SkImageInfo& ii) {
     sk_sp<DrawContext> dc = DrawContext::Make(ii);
@@ -61,6 +67,7 @@ bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
 
 void Device::drawPaint(const SkPaint& paint) {
     SkRect deviceBounds = SkRect::Make(this->devClipBounds());
+    // TODO: Should be able to get the inverse from the matrix cache
     SkM44 devToLocal;
     if (!this->localToDevice44().invert(&devToLocal)) {
         // TBD: This matches legacy behavior for drawPaint() that requires local coords, although
@@ -70,28 +77,28 @@ void Device::drawPaint(const SkPaint& paint) {
         return;
     }
     SkRect localCoveringBounds = SkMatrixPriv::MapRect(devToLocal, deviceBounds);
-    this->drawRect(localCoveringBounds, paint);
+    this->drawShape(Shape(localCoveringBounds), paint, kFillStyle,
+                    DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
 }
 
 void Device::drawRect(const SkRect& r, const SkPaint& paint) {
-    // TODO: If the SDC primitive is a rrect (and no simpler), this can be wasted effort since
-    // SkCanvas checks SkRRects for being a rect and reduces it, only for Device to rebuild it
-    // It would be less effort if we can skip the validation of SkRRect ctors here.
-    // TBD: For now rects are paths too, but they may become an SDC primitive
-    this->drawPath(SkPath::Rect(r), paint, /*pathIsMutable=*/true);
+    this->drawShape(Shape(r), paint, SkStrokeRec(paint));
 }
 
 void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     // TODO: This has wasted effort from the SkCanvas level since it instead converts rrects that
     // happen to be ovals into this, only for us to go right back to rrect.
-
-    // Ovals are always a simplification of round rects
-    this->drawRRect(SkRRect::MakeOval(oval), paint);
+    this->drawShape(Shape(SkRRect::MakeOval(oval)), paint, SkStrokeRec(paint));
 }
 
 void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
-    // TBD: If the SDC has a rrect primitive, this won't need to be converted to a path
-    this->drawPath(SkPath::RRect(rr), paint, /*pathIsMutable=*/true);
+    this->drawShape(Shape(rr), paint, SkStrokeRec(paint));
+}
+
+void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
+    // TODO: If we do try to inspect the path, it should happen here and possibly after computing
+    // the path effect. Alternatively, all that should be handled in SkCanvas.
+    this->drawShape(Shape(path), paint, SkStrokeRec(paint));
 }
 
 void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
@@ -99,112 +106,109 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
     // TODO: I'm [ml] not sure either CPU or GPU backend really has a fast path for this that
     // isn't captured by drawOval and drawLine, so could easily be moved into SkCanvas.
     if (mode == SkCanvas::kPoints_PointMode) {
-        SkPaint filled = paint;
-        filled.setStyle(SkPaint::kFill_Style);
         float radius = 0.5f * paint.getStrokeWidth();
         for (size_t i = 0; i < count; ++i) {
-            SkRect cap = SkRect::MakeLTRB(points[i].fX - radius, points[i].fY - radius,
-                                          points[i].fX + radius, points[i].fY + radius);
+            SkRect pointRect = SkRect::MakeLTRB(points[i].fX - radius, points[i].fY - radius,
+                                                points[i].fX + radius, points[i].fY + radius);
+            // drawOval/drawRect with a forced fill style
             if (paint.getStrokeCap() == SkPaint::kRound_Cap) {
-                this->drawOval(cap, filled);
+                this->drawShape(Shape(SkRRect::MakeOval(pointRect)), paint, kFillStyle);
             } else {
-                this->drawRect(cap, filled);
+                this->drawShape(Shape(pointRect), paint, kFillStyle);
             }
         }
     } else {
+        // Force the style to be a stroke, using the radius and cap from the paint
+        SkStrokeRec stroke(paint, SkPaint::kStroke_Style);
         size_t inc = (mode == SkCanvas::kLines_PointMode) ? 2 : 1;
-        SkPathBuilder builder;
         for (size_t i = 0; i < count; i += inc) {
-            builder.moveTo(points[i]);
-            builder.lineTo(points[i + 1]);
-            this->drawPath(builder.detach(), paint, /*pathIsMutable=*/true);
+            this->drawShape(Shape(points[i], points[i + 1]), paint, stroke);
         }
     }
 }
 
-void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
+void Device::drawShape(const Shape& shape,
+                       const SkPaint& paint,
+                       const SkStrokeRec& style,
+                       Mask<DrawFlags> flags) {
     // Heavy weight paint options like path effects, mask filters, and stroke-and-fill style are
-    // applied on the CPU by generating a new path and recursing on drawPath().
-    if (paint.getPathEffect()) {
+    // applied on the CPU by generating a new shape and recursing on drawShape() with updated flags
+    if (!(flags & DrawFlags::kIgnorePathEffect) && paint.getPathEffect()) {
         // Apply the path effect before anything else
         // TODO: If asADash() returns true and the base path matches the dashing fast path, then
-        // that should be detected now as well.
-        // TODO: This logic is also a candidate for moving to SkCanvas if SkDevice exposes a faster
-        // dash path.
-
-        // Strip off path effect
-        SkPaint noPE = paint;
-        noPE.setPathEffect(nullptr);
-
-        float scaleFactor = SkPaintPriv::ComputeResScaleForStroking(this->localToDevice());
-        SkStrokeRec stroke(paint, scaleFactor);
+        // that should be detected now as well. Maybe add dashPath to Device so canvas can handle it
+        SkStrokeRec newStyle = style;
+        // FIXME: use matrix cache to get res scale for free
+        newStyle.setResScale(SkPaintPriv::ComputeResScaleForStroking(this->localToDevice()));
         SkPath dst;
-        if (paint.getPathEffect()->filterPath(&dst, path, &stroke,
+        if (paint.getPathEffect()->filterPath(&dst, shape.asPath(), &newStyle,
                                               nullptr, this->localToDevice())) {
-            // Adjust paint style to reflect modifications to stroke rec
-            stroke.applyToPaint(&noPE);
-            this->drawPath(dst, noPE, /*pathIsMutable=*/true);
+            // Recurse using the path and new style, while disabling downstream path effect handling
+            this->drawShape(Shape(dst), paint, newStyle, flags | DrawFlags::kIgnorePathEffect);
             return;
         } else {
             // TBD: This warning should go through the general purpose graphite logging system
             SkDebugf("[graphite] WARNING - Path effect failed to apply, drawing original path.\n");
-            this->drawPath(path, noPE, pathIsMutable);
+            this->drawShape(shape, paint, style, flags | DrawFlags::kIgnorePathEffect);
             return;
         }
     }
 
-    // TODO: Handle mask filters, ignored for now but would be applied at this point. My[ml]
-    // thinking is that if there's a mask filter we call a helper function with the path and the
-    // paint, which returns a coverage mask. Then we do a rectangular draw sampling the mask and
-    // handling the rest of the paint's shading. I don't think that's really any different from
-    // the way it is right now. (not 100% sure, but this may also be a reasonable approach for CPU
-    // so could make SkCanvas handle all path effects, image filters, and mask filters and Devices
-    // only need to handle shaders, color filters, and blenders).
-    if (paint.getMaskFilter()) {
+    if (!(flags & DrawFlags::kIgnoreMaskFilter) && paint.getMaskFilter()) {
+        // TODO: Handle mask filters, ignored for the sprint.
+        // TODO: Could this be handled by SkCanvas by drawing a mask, blurring, and then sampling
+        // with a rect draw? What about fast paths for rrect blur masks...
+        this->drawShape(shape, paint, style, flags | DrawFlags::kIgnoreMaskFilter);
         return;
     }
 
-    // Resolve stroke-and-fill -> fill, and hairline -> stroke since the SDC only supports stroke
-    // or fill for path rendering.
-    if (paint.getStyle() == SkPaint::kStrokeAndFill_Style) {
-        // TODO: Could const-cast path when pathIsMutable is true, might not be worth complexity...
-        SkPath simplified;
-        SkPaint styledPaint = paint;
-        if (paint.getFillPath(path, &simplified, nullptr, this->localToDevice())) {
-            styledPaint.setStyle(SkPaint::kFill_Style);
-        } else {
-            styledPaint.setStyle(SkPaint::kStroke_Style);
-            styledPaint.setStrokeWidth(0.f);
-        }
-        this->drawPath(simplified, styledPaint, /*pathIsMutable=*/true);
+    // If we got here, then path effects and mask filters should have been handled and the style
+    // should be fill or stroke/hairline. Stroke-and-fill is not handled by DrawContext, but is
+    // emulated here by drawing twice--one stroke and one fill--using the same depth value.
+    SkASSERT(!SkToBool(paint.getPathEffect()) || (flags & DrawFlags::kIgnorePathEffect));
+    SkASSERT(!SkToBool(paint.getMaskFilter()) || (flags & DrawFlags::kIgnoreMaskFilter));
+
+    // TODO: This will actually be a query to the matrix cache
+    const SkM44& localToDevice = this->localToDevice44();
+    // TODO: Need to track actual z value for painters order in addition to the compressed index,
+    // that might be done here, or as part of the applyClipToDraw() function.
+    auto [colorDepthOrder, scissor] = this->applyClipToDraw(localToDevice, shape, style);
+    if (scissor.isEmpty()) {
+        // Clipped out, so don't record anything
         return;
     }
-
-    // TODO: Implement clipping and z determination
-    SkIRect scissor = this->devClipBounds();
 
     auto blendMode = paint.asBlendMode();
     PaintParams shading{paint.getColor4f(),
                         blendMode.has_value() ? *blendMode : SkBlendMode::kSrcOver,
                         paint.refShader()};
-    if (paint.getStyle() == SkPaint::kStroke_Style) {
-        StrokeParams stroke{paint.getStrokeWidth(), paint.getStrokeMiter(),
-                            paint.getStrokeJoin(), paint.getStrokeCap()};
-        if (paint.getStrokeWidth() <= 0.f) {
-            // Handle hairlines by transforming the control points into device space and drawing
-            // that path with a stroke width of 1 and the identity matrix
-            // FIXME: This doesn't work if the shading requires local coords...
-            SkPath devicePath = path.makeTransform(this->localToDevice());
-            stroke.fWidth = 1.f;
-            fDC->strokePath(SkM44(), devicePath, stroke, scissor, 0, 0, &shading);
-        } else {
-            fDC->strokePath(this->localToDevice44(), path, stroke, scissor, 0, 0, &shading);
-        }
-    } else if (path.isConvex()) {
-        fDC->fillConvexPath(this->localToDevice44(), path, scissor, 0, 0, &shading);
-    } else {
-        fDC->stencilAndFillPath(this->localToDevice44(), path, scissor, 0, 0, 0, &shading);
+
+    SkStrokeRec::Style styleType = style.getStyle();
+    if (styleType == SkStrokeRec::kStroke_Style ||
+        styleType == SkStrokeRec::kHairline_Style ||
+        styleType == SkStrokeRec::kStrokeAndFill_Style) {
+        // TODO: If DC supports stroked primitives, Device could choose one of those based on shape
+        StrokeParams stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
+        fDC->strokePath(localToDevice, shape, stroke, scissor, colorDepthOrder, 0, &shading);
     }
+    if (styleType == SkStrokeRec::kFill_Style ||
+        styleType == SkStrokeRec::kStrokeAndFill_Style) {
+        // TODO: If DC supports filled primitives, Device could choose one of those based on shape
+        if (shape.convex()) {
+            fDC->fillConvexPath(localToDevice, shape, scissor, colorDepthOrder, 0, &shading);
+        } else {
+            // FIXME must determine stencil order
+            fDC->stencilAndFillPath(localToDevice, shape, scissor, colorDepthOrder, 0, 0, &shading);
+        }
+    }
+}
+
+std::pair<CompressedPaintersOrder, SkIRect>
+Device::applyClipToDraw(const SkM44& localToDevice,
+                        const Shape& shape,
+                        const SkStrokeRec& style) {
+    // TODO: actually implement this
+    return {0, this->devClipBounds()};
 }
 
 sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap&) {

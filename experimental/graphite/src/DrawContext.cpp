@@ -11,6 +11,7 @@
 #include "experimental/graphite/src/DrawPass.h"
 #include "experimental/graphite/src/RenderPassTask.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
+#include "experimental/graphite/src/geom/Shape.h"
 
 namespace skgpu {
 
@@ -34,33 +35,33 @@ DrawContext::~DrawContext() {
 }
 
 void DrawContext::stencilAndFillPath(const SkM44& localToDevice,
-                                     const SkPath& path,
+                                     const Shape& shape,
                                      const SkIRect& scissor,
                                      CompressedPaintersOrder colorDepthOrder,
                                      CompressedPaintersOrder stencilOrder,
                                      uint16_t depth,
                                      const PaintParams* paint)  {
-    fPendingDraws->stencilAndFillPath(localToDevice, path, scissor, colorDepthOrder, stencilOrder,
+    fPendingDraws->stencilAndFillPath(localToDevice, shape, scissor, colorDepthOrder, stencilOrder,
                                       depth, paint);
 }
 
 void DrawContext::fillConvexPath(const SkM44& localToDevice,
-                                 const SkPath& path,
+                                 const Shape& shape,
                                  const SkIRect& scissor,
                                  CompressedPaintersOrder colorDepthOrder,
                                  uint16_t depth,
                                  const PaintParams* paint) {
-    fPendingDraws->fillConvexPath(localToDevice, path, scissor, colorDepthOrder, depth, paint);
+    fPendingDraws->fillConvexPath(localToDevice, shape, scissor, colorDepthOrder, depth, paint);
 }
 
 void DrawContext::strokePath(const SkM44& localToDevice,
-                             const SkPath& path,
+                             const Shape& shape,
                              const StrokeParams& stroke,
                              const SkIRect& scissor,
                              CompressedPaintersOrder colorDepthOrder,
                              uint16_t depth,
                              const PaintParams* paint) {
-    fPendingDraws->strokePath(localToDevice, path, stroke, scissor, colorDepthOrder, depth, paint);
+    fPendingDraws->strokePath(localToDevice, shape, stroke, scissor, colorDepthOrder, depth, paint);
 }
 
 void DrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {

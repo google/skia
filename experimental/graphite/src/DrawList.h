@@ -22,6 +22,8 @@ struct SkIRect;
 
 namespace skgpu {
 
+class Shape;
+
 // Forward declarations that capture the intermediate state lying between public Skia types and
 // the direct GPU representation.
 struct PaintParams;
@@ -65,8 +67,13 @@ public:
     // sense for it to compute these dependent values and provide them here. Storing the scale
     // factor per draw command is low overhead, but unsure about storing 2 matrices per command.
 
+    // NOTE: All path rendering functions, e.g. [fill|stroke|...]Path() that take a geom::Shape
+    // draw using the same underlying techniques regardless of the shape's type. If a Shape has
+    // a type matching a simpler primitive technique or coverage AA, the caller must explicitly
+    // invoke it to use that rendering algorithms.
+
     void stencilAndFillPath(const SkM44& localToDevice,
-                            const SkPath& path,
+                            const Shape& shape,
                             const SkIRect& scissor, // TBD: expand this to one xformed rrect clip?
                             CompressedPaintersOrder colorDepthOrder,
                             CompressedPaintersOrder stencilOrder,
@@ -74,14 +81,14 @@ public:
                             const PaintParams* paint) {}
 
     void fillConvexPath(const SkM44& localToDevice,
-                        const SkPath& path,
+                        const Shape& shape,
                         const SkIRect& scissor,
                         CompressedPaintersOrder colorDepthOrder,
                         uint16_t depth,
                         const PaintParams* paint) {}
 
     void strokePath(const SkM44& localToDevice,
-                    const SkPath& path,
+                    const Shape& shape,
                     const StrokeParams& stroke,
                     const SkIRect& scissor,
                     CompressedPaintersOrder colorDepthOrder,
@@ -127,12 +134,30 @@ struct PaintParams {
     // active clipShader().
 };
 
-// NOTE: Only represents the stroke style; stroke-and-fill and hairline must be handled higher up.
+// NOTE: Only represents the stroke or hairline styles; stroke-and-fill must be handled higher up.
 struct StrokeParams {
-    float         fWidth; // > 0 and relative to shape's transform
-    float         fMiterLimit;
-    SkPaint::Join fJoin;
-    SkPaint::Cap  fCap;
+    float        fHalfWidth;  // >0: relative to transform; ==0: hairline, 1px in device space
+    float        fJoinLimit; // >0: miter join; ==0: bevel join; <0: round join
+    SkPaint::Cap fCap;
+
+    StrokeParams() : fHalfWidth(0.f), fJoinLimit(0.f), fCap(SkPaint::kButt_Cap) {}
+    StrokeParams(float width, float miterLimit, SkPaint::Join join, SkPaint::Cap cap)
+            : fHalfWidth(std::max(0.f, 0.5f * width))
+            , fJoinLimit(join == SkPaint::kMiter_Join ? std::max(0.f, miterLimit) :
+                         (join == SkPaint::kBevel_Join ? 0.f : -1.f))
+            , fCap(cap) {}
+    StrokeParams(const StrokeParams&) = default;
+
+    bool isMiterJoin() const { return fJoinLimit > 0.f; }
+    bool isBevelJoin() const { return fJoinLimit == 0.f; }
+    bool isRoundJoin() const { return fJoinLimit < 0.f; }
+
+    float width() const { return 2.f * fHalfWidth; }
+    float miterLimit() const { return std::max(0.f, fJoinLimit); }
+    SkPaint::Join join() const {
+        return fJoinLimit > 0.f ? SkPaint::kMiter_Join :
+               (fJoinLimit == 0.f ? SkPaint::kBevel_Join : SkPaint::kRound_Join);
+    }
 };
 
 // TBD: Separate DashParams extracted from an SkDashPathEffect? Or folded into StrokeParams?
