@@ -1,0 +1,25 @@
+uniform half4 colorRed, colorGreen;
+
+bool check_array_is_int_2(int[2] x) {
+    return true;
+}
+
+bool test() {
+    int a[int4(1, 2, 3, 4).y];
+    int b[int(max(-5.5, 2.0))];
+    return check_array_is_int_2(a) && check_array_is_int_2(b);
+}
+
+bool check_array_is_float_3(float[3] x) {
+    return true;
+}
+
+bool test_param(float a[5*5-22], float b[1+1+1]) {
+    return check_array_is_float_3(a) && check_array_is_float_3(b);
+}
+
+half4 main(float2 coords) {
+    float f[3], g[3];
+    return test() && test_param(f, g) ? colorGreen : colorRed;
+}
+

@@ -384,32 +384,25 @@ bool DSLParser::functionDeclarationEnd(const DSLModifiers& modifiers,
 }
 
 SKSL_INT DSLParser::arraySize() {
-    Token next = this->peek();
-    if (next.fKind == Token::Kind::TK_INT_LITERAL) {
-        SKSL_INT size;
-        if (this->intLiteral(&size)) {
-            if (size > INT32_MAX) {
-                this->error(next, "array size out of bounds");
-                return 1;
-            }
-            if (size <= 0) {
-                this->error(next, "array size must be positive");
-                return 1;
-            }
-            return size;
-        }
-        return 1;
-    } else if (this->checkNext(Token::Kind::TK_MINUS) &&
-               this->checkNext(Token::Kind::TK_INT_LITERAL)) {
-        this->error(next, "array size must be positive");
-        return 1;
-    } else {
-        DSLExpression expr = this->expression();
-        if (expr.isValid()) {
-            this->error(next, "expected int literal");
-        }
+    DSLExpression sizeExpr = this->expression();
+    if (!sizeExpr.isValid()) {
         return 1;
     }
+    std::unique_ptr<SkSL::Expression> sizeLiteral = sizeExpr.release();
+    if (!sizeLiteral->isIntLiteral()) {
+        this->error(sizeLiteral->fLine, "expected int literal");
+        return 1;
+    }
+    SKSL_INT size = sizeLiteral->as<Literal>().intValue();
+    if (size > INT32_MAX) {
+        this->error(sizeLiteral->fLine, "array size out of bounds");
+        return 1;
+    }
+    if (size <= 0) {
+        this->error(sizeLiteral->fLine, "array size must be positive");
+        return 1;
+    }
+    return size;
 }
 
 bool DSLParser::parseArrayDimensions(int line, DSLType* type) {
@@ -647,21 +640,8 @@ skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter() {
     if (!this->expectIdentifier(&name)) {
         return skstd::nullopt;
     }
-    while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-        Token sizeToken;
-        if (!this->expect(Token::Kind::TK_INT_LITERAL, "a positive integer", &sizeToken)) {
-            return skstd::nullopt;
-        }
-        skstd::string_view arraySizeFrag = this->text(sizeToken);
-        SKSL_INT arraySize;
-        if (!SkSL::stoi(arraySizeFrag, &arraySize)) {
-            this->error(sizeToken, "array size is too large: " + arraySizeFrag);
-            arraySize = 1;
-        }
-        type = Array(*type, arraySize, this->position(name));
-        if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
-            return skstd::nullopt;
-        }
+    if (!this->parseArrayDimensions(name.fLine, &type.value())) {
+        return skstd::nullopt;
     }
     return {{DSLParameter(modifiers, *type, this->text(name), this->position(name))}};
 }

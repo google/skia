@@ -464,6 +464,7 @@ sksl_shared_tests = [
 
 sksl_folding_tests = [
   "/sksl/folding/ArrayFolding.sksl",
+  "/sksl/folding/ArraySizeFolding.sksl",
   "/sksl/folding/AssignmentOps.sksl",
   "/sksl/folding/BoolFolding.sksl",
   "/sksl/folding/CastFolding.sksl",
