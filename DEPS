@@ -16,7 +16,7 @@ deps = {
   "third_party/externals/d3d12allocator"  : "https://skia.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git@169895d529dfce00390a20e69c2f516066fe7a3b",
   # Dawn requires jinja2 and markupsafe for the code generator, tint for SPIRV compilation, and abseil for string formatting.
   # When the Dawn revision is updated these should be updated from the Dawn DEPS as well.
-  "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@9a8099eb8bee6f7e01435ee9850885560f1d0460",
+  "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@6fd28ba4cb990953dc97ff22d3fbbd9b19a5f504",
   "third_party/externals/jinja2"          : "https://chromium.googlesource.com/chromium/src/third_party/jinja2@a82a4944a7f2496639f34a89c9923be5908b80aa",
   "third_party/externals/markupsafe"      : "https://chromium.googlesource.com/chromium/src/third_party/markupsafe@0944e71f4b2cb9a871bcbe353f95e889b64a611a",
   "third_party/externals/tint"            : "https://dawn.googlesource.com/tint@ce90ac52f479f15f62ed441c4cebba29aa02fe12",
