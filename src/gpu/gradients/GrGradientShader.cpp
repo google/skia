@@ -501,29 +501,21 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
         return nullptr;
     };
 
-    if (caps->nonconstantArrayIndexSupport()) {
-        // Attempt to create an analytic colorizer that uses a binary-search loop.
-        if ((count <= kMaxLoopingColorCount) && !intervalsExceedPrecisionLimit()) {
-            std::unique_ptr<GrFragmentProcessor> colorizer = makeDualIntervalColorizer();
-            if (colorizer) {
-                return colorizer;
-            }
-            colorizer = make_looping_binary_colorizer(colors, positions, count);
-            if (colorizer) {
-                return colorizer;
-            }
+    int binaryColorizerLimit = caps->nonconstantArrayIndexSupport() ? kMaxLoopingColorCount
+                                                                    : kMaxUnrolledColorCount;
+    if ((count <= binaryColorizerLimit) && !intervalsExceedPrecisionLimit()) {
+        // The dual-interval colorizer uses the same principles as the binary-search colorizer, but
+        // is limited to exactly 2 intervals.
+        std::unique_ptr<GrFragmentProcessor> colorizer = makeDualIntervalColorizer();
+        if (colorizer) {
+            return colorizer;
         }
-    } else {
-        // Attempt to create an analytic colorizer that conforms to ES2 loop limitations.
-        if ((count <= kMaxUnrolledColorCount) && !intervalsExceedPrecisionLimit()) {
-            std::unique_ptr<GrFragmentProcessor> colorizer = makeDualIntervalColorizer();
-            if (colorizer) {
-                return colorizer;
-            }
-            colorizer = make_unrolled_binary_colorizer(colors, positions, count);
-            if (colorizer) {
-                return colorizer;
-            }
+        // Attempt to create an analytic colorizer that uses a binary-search loop.
+        colorizer = caps->nonconstantArrayIndexSupport()
+                            ? make_looping_binary_colorizer(colors, positions, count)
+                            : make_unrolled_binary_colorizer(colors, positions, count);
+        if (colorizer) {
+            return colorizer;
         }
     }
 
