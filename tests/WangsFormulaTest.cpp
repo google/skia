@@ -280,7 +280,7 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
         SkPoint ptsXformed[4];
         m.mapPoints(ptsXformed, pts, 4);
         int expected = GrWangsFormula::cubic_log2(kPrecision, ptsXformed);
-        int actual = GrWangsFormula::cubic_log2(kPrecision, pts, GrVectorXform(m));
+        int actual = GrWangsFormula::cubic_log2(kPrecision, pts, skgpu::tess::VectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
     };
 
@@ -288,7 +288,7 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
         SkPoint ptsXformed[3];
         m.mapPoints(ptsXformed, pts, 3);
         int expected = GrWangsFormula::quadratic_log2(kPrecision, ptsXformed);
-        int actual = GrWangsFormula::quadratic_log2(kPrecision, pts, GrVectorXform(m));
+        int actual = GrWangsFormula::quadratic_log2(kPrecision, pts, skgpu::tess::VectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
     };
 
@@ -494,7 +494,7 @@ DEF_TEST(WangsFormula_conic_vectorXforms, r) {
         SkPoint ptsXformed[3];
         m.mapPoints(ptsXformed, pts, 3);
         float expected = GrWangsFormula::conic(kPrecision, ptsXformed, w);
-        float actual = GrWangsFormula::conic(kPrecision, pts, w, GrVectorXform(m));
+        float actual = GrWangsFormula::conic(kPrecision, pts, w, skgpu::tess::VectorXform(m));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(actual, expected));
     };
 

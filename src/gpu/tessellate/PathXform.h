@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathXform_DEFINED
-#define GrPathXform_DEFINED
+#ifndef tessellate_PathXform_DEFINED
+#define tessellate_PathXform_DEFINED
 
 #include "include/core/SkMatrix.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
+
+namespace skgpu::tess {
 
 // Applies an affine 2d transformation to points and path components. Converts path components to
 // tessellation patches. Uses SIMD, but takes care to map points identically, regardless of which
@@ -18,15 +20,15 @@
 //
 // This class stores redundant data, so it is best used only as a stack-allocated object at the
 // point of use.
-class GrPathXform {
+class PathXform {
     using float2 = grvx::float2;
     using float4 = grvx::float4;
 
 public:
-    GrPathXform() = default;
-    GrPathXform(const SkMatrix& m) { *this = m; }
+    PathXform() = default;
+    PathXform(const SkMatrix& m) { *this = m; }
 
-    GrPathXform& operator=(const SkMatrix& m) {
+    PathXform& operator=(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
         // Duplicate the matrix in float4.lo and float4.hi so we can map two points at once.
         fScale = {m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()};
@@ -92,4 +94,6 @@ private:
     float4 fTrans;
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_PathXform_DEFINED

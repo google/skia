@@ -13,10 +13,10 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/GrPathCurveTessellator.h"
+#include "src/gpu/tessellate/PathCurveTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
-using PathFlags = GrTessellationPathFlags;
+using PathFlags = skgpu::tess::TessellationPathFlags;
 
 namespace {
 
@@ -242,11 +242,14 @@ void PathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Prog
 
     // Pass 1: Tessellate the outer curves into the stencil buffer.
     if (!isLinear) {
-        fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
-                                                    SK_PMColor4fTRANSPARENT,
-                                                    GrPathCurveTessellator::DrawInnerFan::kNo,
-                                                    fPath.countVerbs(), *pipelineForStencils,
-                                                    *args.fCaps);
+        fTessellator = skgpu::tess::PathCurveTessellator::Make(
+                args.fArena,
+                fViewMatrix,
+                SK_PMColor4fTRANSPARENT,
+                skgpu::tess::PathCurveTessellator::DrawInnerFan::kNo,
+                fPath.countVerbs(),
+                *pipelineForStencils,
+                *args.fCaps);
         const GrUserStencilSettings* stencilPathSettings =
                 GrPathTessellationShader::StencilPathSettings(GrFillRuleForSkPath(fPath));
         fStencilCurvesProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),

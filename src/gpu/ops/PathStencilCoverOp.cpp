@@ -16,12 +16,12 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
-#include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/GrPathCurveTessellator.h"
-#include "src/gpu/tessellate/GrPathWedgeTessellator.h"
+#include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
+#include "src/gpu/tessellate/PathCurveTessellator.h"
+#include "src/gpu/tessellate/PathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
-using PathFlags = GrTessellationPathFlags;
+using PathFlags = skgpu::tess::TessellationPathFlags;
 
 namespace {
 
@@ -154,20 +154,21 @@ void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramA
                                                                shader,
                                                                stencilPipeline,
                                                                stencilSettings);
-        fTessellator = GrPathCurveTessellator::Make(args.fArena,
-                                                    shaderMatrix,
-                                                    SK_PMColor4fTRANSPARENT,
-                                                    GrPathCurveTessellator::DrawInnerFan::kNo,
-                                                    fTotalCombinedPathVerbCnt,
-                                                    *stencilPipeline,
-                                                    *args.fCaps);
+        fTessellator = skgpu::tess::PathCurveTessellator::Make(
+                args.fArena,
+                shaderMatrix,
+                SK_PMColor4fTRANSPARENT,
+                skgpu::tess::PathCurveTessellator::DrawInnerFan::kNo,
+                fTotalCombinedPathVerbCnt,
+                *stencilPipeline,
+                *args.fCaps);
     } else {
-        fTessellator = GrPathWedgeTessellator::Make(args.fArena,
-                                                    shaderMatrix,
-                                                    SK_PMColor4fTRANSPARENT,
-                                                    fTotalCombinedPathVerbCnt,
-                                                    *stencilPipeline,
-                                                    *args.fCaps);
+        fTessellator = skgpu::tess::PathWedgeTessellator::Make(args.fArena,
+                                                               shaderMatrix,
+                                                               SK_PMColor4fTRANSPARENT,
+                                                               fTotalCombinedPathVerbCnt,
+                                                               *stencilPipeline,
+                                                               *args.fCaps);
     }
     fStencilPathProgram = GrTessellationShader::MakeProgram(args,
                                                             fTessellator->shader(),
@@ -236,8 +237,8 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
         // middle-out topology.
         GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fFanBuffer, &fFanBaseVertex);
-        int maxCombinedFanEdges =
-                GrPathTessellator::MaxCombinedFanEdgesInPathDrawList(fTotalCombinedPathVerbCnt);
+        int maxCombinedFanEdges = skgpu::tess::PathTessellator::MaxCombinedFanEdgesInPathDrawList(
+                fTotalCombinedPathVerbCnt);
         // A single n-sided polygon is fanned by n-2 triangles. Multiple polygons with a combined
         // edge count of n are fanned by strictly fewer triangles.
         int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
@@ -245,7 +246,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         int fanTriangleCount = 0;
         for (auto [pathMatrix, path] : *fPathDrawList) {
             int numTrianglesWritten;
-            triangleVertexWriter = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+            triangleVertexWriter = skgpu::tess::MiddleOutPolygonTriangulator::WritePathInnerFan(
                     std::move(triangleVertexWriter),
                     0,
                     0,

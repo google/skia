@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrMiddleOutPolygonTriangulator_DEFINED
-#define GrMiddleOutPolygonTriangulator_DEFINED
+#ifndef tessellate_MiddleOutPolygonTriangulator_DEFINED
+#define tessellate_MiddleOutPolygonTriangulator_DEFINED
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
@@ -14,7 +14,9 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrVertexWriter.h"
-#include "src/gpu/tessellate/GrPathXform.h"
+#include "src/gpu/tessellate/PathXform.h"
+
+namespace skgpu::tess {
 
 // This class emits a polygon triangulation with a "middle-out" topology. Conceptually, middle-out
 // emits one large triangle with vertices on both endpoints and a middle point, then recurses on
@@ -42,13 +44,13 @@
 // This class is designed to not know or store all the vertices in the polygon at once. The caller
 // pushes each vertex in linear order (perhaps while parsing a path), then rather than relying on
 // recursion, we manipulate an O(log N) stack to determine the correct middle-out triangulation.
-class GrMiddleOutPolygonTriangulator {
+class MiddleOutPolygonTriangulator {
 public:
     // Writes out 3 SkPoints per triangle to "vertexWriter". Additionally writes out "pad32Count"
     // repetitions of "pad32Value" after each triangle. Set pad32Count to 0 if the triangles are
     // to be tightly packed.
-    GrMiddleOutPolygonTriangulator(GrVertexWriter&& vertexWriter, int pad32Count,
-                                   uint32_t pad32Value, int maxPushVertexCalls)
+    MiddleOutPolygonTriangulator(GrVertexWriter&& vertexWriter, int pad32Count,
+                                 uint32_t pad32Value, int maxPushVertexCalls)
             : fVertexWriter(std::move(vertexWriter))
             , fPad32Count(pad32Count)
             , fPad32Value(pad32Value) {
@@ -128,10 +130,10 @@ public:
     static GrVertexWriter WritePathInnerFan(GrVertexWriter&& vertexWriter,
                                             int pad32Count,
                                             uint32_t pad32Value,
-                                            const GrPathXform& pathXform,
+                                            const PathXform& pathXform,
                                             const SkPath& path,
                                             int* numTrianglesWritten) {
-        GrMiddleOutPolygonTriangulator middleOut(std::move(vertexWriter),
+        MiddleOutPolygonTriangulator middleOut(std::move(vertexWriter),
                                                  pad32Count,
                                                  pad32Value,
                                                  path.countVerbs());
@@ -197,4 +199,6 @@ private:
     int fTotalClosedTriangleCount = 0;
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_MiddleOutPolygonTriangulator_DEFINED

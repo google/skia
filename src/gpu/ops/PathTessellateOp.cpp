@@ -9,7 +9,7 @@
 
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/tessellate/GrPathWedgeTessellator.h"
+#include "src/gpu/tessellate/PathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 namespace skgpu::v1 {
@@ -35,8 +35,9 @@ void PathTessellateOp::prepareTessellator(const GrTessellationShader::ProgramArg
     SkASSERT(!fTessellationProgram);
     auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(appliedClip),
                                                         std::move(fProcessors));
-    fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix, fColor,
-                                                fPath.countVerbs(), *pipeline, *args.fCaps);
+    fTessellator = skgpu::tess::PathWedgeTessellator::Make(args.fArena, fViewMatrix, fColor,
+                                                           fPath.countVerbs(), *pipeline,
+                                                           *args.fCaps);
     fTessellationProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(), pipeline,
                                                              fStencil);
 }

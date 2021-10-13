@@ -12,7 +12,7 @@
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/ops/OpsTask.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
+#include "src/gpu/tessellate/PathTessellator.h"
 
 struct SkIPoint16;
 
@@ -61,7 +61,8 @@ private:
     const std::unique_ptr<GrDynamicAtlas> fDynamicAtlas;
 
     // Allocate enough inline entries for 16 atlas path draws, then spill to the heap.
-    using PathDrawAllocator = SkTBlockList<GrPathTessellator::PathDrawList, 16>;
+    using PathDrawList = skgpu::tess::PathTessellator::PathDrawList;
+    using PathDrawAllocator = SkTBlockList<PathDrawList, 16>;
     PathDrawAllocator fPathDrawAllocator{64, SkBlockAllocator::GrowthPolicy::kFibonacci};
 
     class AtlasPathList : SkNoncopyable {
@@ -75,12 +76,12 @@ private:
             fTotalCombinedPathVerbCnt += path.countVerbs();
             ++fPathCount;
         }
-        const GrPathTessellator::PathDrawList* pathDrawList() const { return fPathDrawList; }
+        const PathDrawList* pathDrawList() const { return fPathDrawList; }
         int totalCombinedPathVerbCnt() const { return fTotalCombinedPathVerbCnt; }
         int pathCount() const { return fPathCount; }
 
     private:
-        GrPathTessellator::PathDrawList* fPathDrawList = nullptr;
+        PathDrawList* fPathDrawList = nullptr;
         int fTotalCombinedPathVerbCnt = 0;
         int fPathCount = 0;
     };

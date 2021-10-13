@@ -5,15 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrPathWedgeTessellator.h"
+#include "src/gpu/tessellate/PathWedgeTessellator.h"
 
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
-#include "src/gpu/tessellate/GrCullTest.h"
-#include "src/gpu/tessellate/GrPathXform.h"
+#include "src/gpu/tessellate/CullTest.h"
+#include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
+
+#if SK_GPU_V1
+#include "src/gpu/GrOpFlushState.h"
+#endif
+
+namespace skgpu::tess {
 
 namespace {
 
@@ -108,6 +114,9 @@ private:
     int fMidpointWeight;
 };
 
+}  // namespace
+
+
 // Writes out wedge patches, chopping as necessary so none require more segments than are supported
 // by the hardware.
 class WedgeWriter {
@@ -132,7 +141,7 @@ public:
         fPathXform = pathMatrix;
     }
 
-    const GrPathXform& pathXform() const { return fPathXform; }
+    const PathXform& pathXform() const { return fPathXform; }
 
     SK_ALWAYS_INLINE void writeFlatWedge(const GrShaderCaps& shaderCaps,
                                          SkPoint p0,
@@ -249,9 +258,9 @@ private:
     }
 
     GrVertexChunkBuilder fChunker;
-    GrCullTest fCullTest;
-    GrVectorXform fTotalVectorXform;
-    GrPathXform fPathXform;
+    CullTest fCullTest;
+    VectorXform fTotalVectorXform;
+    PathXform fPathXform;
     const float fMaxSegments_pow2;
     const float fMaxSegments_pow4;
 
@@ -259,12 +268,12 @@ private:
     float fNumFixedSegments_pow4 = 1;
 };
 
-}  // namespace
-
-
-GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
-                                                const SkPMColor4f& color, int numPathVerbs,
-                                                const GrPipeline& pipeline, const GrCaps& caps) {
+PathTessellator* PathWedgeTessellator::Make(SkArenaAlloc* arena,
+                                            const SkMatrix& viewMatrix,
+                                            const SkPMColor4f& color,
+                                            int numPathVerbs,
+                                            const GrPipeline& pipeline,
+                                            const GrCaps& caps) {
     using PatchType = GrPathTessellationShader::PatchType;
     GrPathTessellationShader* shader;
     if (caps.shaderCaps()->tessellationSupport() &&
@@ -279,17 +288,17 @@ GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMat
                                                                          PatchType::kWedges);
     }
     return arena->make([=](void* objStart) {
-        return new(objStart) GrPathWedgeTessellator(shader);
+        return new(objStart) PathWedgeTessellator(shader);
     });
 }
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
 
-void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target,
-                                     const SkRect& cullBounds,
-                                     const PathDrawList& pathDrawList,
-                                     int totalCombinedPathVerbCnt) {
+void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
+                                   const SkRect& cullBounds,
+                                   const PathDrawList& pathDrawList,
+                                   int totalCombinedPathVerbCnt) {
     SkASSERT(fVertexChunkArray.empty());
 
     const GrShaderCaps& shaderCaps = *target->caps().shaderCaps();
@@ -376,9 +385,7 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target,
 }
 
 #if SK_GPU_V1
-#include "src/gpu/GrOpFlushState.h"
-
-void GrPathWedgeTessellator::draw(GrOpFlushState* flushState) const {
+void PathWedgeTessellator::draw(GrOpFlushState* flushState) const {
     if (fShader->willUseTessellationShaders()) {
         for (const GrVertexChunk& chunk : fVertexChunkArray) {
             flushState->bindBuffers(nullptr, nullptr, chunk.fBuffer);
@@ -393,3 +400,5 @@ void GrPathWedgeTessellator::draw(GrOpFlushState* flushState) const {
     }
 }
 #endif
+
+}  // namespace skgpu::tess

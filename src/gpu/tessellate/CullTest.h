@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCullTest_DEFINED
-#define GrCullTest_DEFINED
+#ifndef tessellate_CullTest_DEFINED
+#define tessellate_CullTest_DEFINED
 
 #include "include/core/SkMatrix.h"
 #include "include/private/SkVx.h"
 #include "src/gpu/GrVx.h"
+
+namespace skgpu::tess {
 
 // This class determines whether the given local-space points will be contained in the cull bounds
 // post transform. For the versions that take >1 point, it returns whether any region of their
@@ -19,11 +21,11 @@
 // NOTE: Our view matrix is not a normal matrix. M*p maps to the float4 [x, y, -x, -y] in device
 // space. We do this to aid in quick bounds calculations. The matrix also does not have a
 // translation element. Instead we unapply the translation to the cull bounds ahead of time.
-class GrCullTest {
+class CullTest {
 public:
-    GrCullTest() = default;
+    CullTest() = default;
 
-    GrCullTest(const SkRect& devCullBounds, const SkMatrix& m) {
+    CullTest(const SkRect& devCullBounds, const SkMatrix& m) {
         this->set(devCullBounds, m);
     }
 
@@ -101,4 +103,6 @@ private:
     grvx::float4 fCullBounds;  // [l, t, -r, -b]
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_CullTest_DEFINED

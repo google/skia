@@ -5,25 +5,31 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathWedgeTessellator_DEFINED
-#define GrPathWedgeTessellator_DEFINED
+#ifndef tessellate_PathWedgeTessellator_DEFINED
+#define tessellate_PathWedgeTessellator_DEFINED
 
 #include "src/gpu/GrVertexChunkArray.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
+#include "src/gpu/tessellate/PathTessellator.h"
 
 class GrCaps;
 class GrGpuBuffer;
 class GrPipeline;
 
+namespace skgpu::tess {
+
 // Prepares an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent,
 // 5-point closed contour consisting of 4 control points plus an anchor point fanning from the
 // center of the curve's resident contour. A wedge can be either a cubic or a conic. Quadratics and
 // lines are converted to cubics. Once stencilled, these wedges alone define the complete path.
-class GrPathWedgeTessellator : public GrPathTessellator {
+class PathWedgeTessellator : public PathTessellator {
 public:
     // Creates a wedge tessellator with the shader type best suited for the given path description.
-    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix& viewMatrix, const SkPMColor4f&,
-                                   int numPathVerbs, const GrPipeline&, const GrCaps&);
+    static PathTessellator* Make(SkArenaAlloc*,
+                                 const SkMatrix& viewMatrix,
+                                 const SkPMColor4f&,
+                                 int numPathVerbs,
+                                 const GrPipeline&,
+                                 const GrCaps&);
 
     void prepare(GrMeshDrawTarget*,
                  const SkRect& cullBounds,
@@ -36,8 +42,7 @@ public:
 #endif
 
 private:
-    GrPathWedgeTessellator(GrPathTessellationShader* shader)
-            : GrPathTessellator(shader) {}
+    PathWedgeTessellator(GrPathTessellationShader* shader) : PathTessellator(shader) {}
 
     GrVertexChunkArray fVertexChunkArray;
 
@@ -47,4 +52,6 @@ private:
     sk_sp<const GrGpuBuffer> fFixedCountIndexBuffer;
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_PathWedgeTessellator_DEFINED

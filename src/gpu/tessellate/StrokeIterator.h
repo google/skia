@@ -5,20 +5,22 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeIterator_DEFINED
-#define GrStrokeIterator_DEFINED
+#ifndef tessellate_StrokeIterator_DEFINED
+#define tessellate_StrokeIterator_DEFINED
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkStrokeRec.h"
 #include "src/core/SkPathPriv.h"
 #include <array>
 
+namespace skgpu::tess {
+
 // This class iterates over the stroke geometry defined by a path and stroke. It automatically
 // converts closes and square caps to lines, and round caps to circles so the user doesn't have to
 // worry about it. At each location it provides a verb and "prevVerb" so there is context about the
 // preceding join. Usage:
 //
-//     GrStrokeIterator iter(path, stroke);
+//     StrokeIterator iter(path, stroke);
 //     while (iter.next()) {  // Call next() first.
 //         iter.verb();
 //         iter.pts();
@@ -27,9 +29,9 @@
 //         iter.prevPts();
 //     }
 //
-class GrStrokeIterator {
+class StrokeIterator {
 public:
-    GrStrokeIterator(const SkPath& path, const SkStrokeRec* stroke, const SkMatrix* viewMatrix)
+    StrokeIterator(const SkPath& path, const SkStrokeRec* stroke, const SkMatrix* viewMatrix)
             : fViewMatrix(viewMatrix), fStroke(stroke) {
         SkPathPriv::Iterate it(path);
         fIter = it.begin();
@@ -364,4 +366,8 @@ private:
     std::array<SkPoint, 2> fBeginningCapPts;
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_StrokeIterator_DEFINED
+
+

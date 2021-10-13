@@ -101,7 +101,7 @@ GrRenderTask::ExpectedOutcome AtlasRenderTask::onMakeClosed(GrRecordingContext* 
                     pathList->pathCount(),
                     GrPaint(),
                     GrAAType::kMSAA,
-                    GrTessellationPathFlags::kStencilOnly,
+                    skgpu::tess::TessellationPathFlags::kStencilOnly,
                     drawRect);
             this->addAtlasDrawOp(std::move(op), caps);
         }

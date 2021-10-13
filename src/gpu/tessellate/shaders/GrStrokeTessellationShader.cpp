@@ -10,7 +10,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/GrStrokeTessellator.h"
+#include "src/gpu/tessellate/StrokeTessellator.h"
 
 GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shaderCaps, Mode mode,
                                                        ShaderFlags shaderFlags,
@@ -349,14 +349,14 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
 
     if (!shader.hasDynamicStroke()) {
         // Set up the tessellation control uniforms.
-        GrStrokeTolerances tolerances;
+        skgpu::tess::StrokeTolerances tolerances;
         if (!stroke.isHairlineStyle()) {
-            tolerances = GrStrokeTolerances::MakeNonHairline(shader.viewMatrix().getMaxScale(),
-                                                             stroke.getWidth());
+            tolerances = skgpu::tess::StrokeTolerances::MakeNonHairline(
+                    shader.viewMatrix().getMaxScale(), stroke.getWidth());
         } else {
             // In the hairline case we transform prior to tessellation. Set up tolerances for an
             // identity viewMatrix and a strokeWidth of 1.
-            tolerances = GrStrokeTolerances::MakeNonHairline(1, 1);
+            tolerances = skgpu::tess::StrokeTolerances::MakeNonHairline(1, 1);
         }
         float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
         pdman.set4f(fTessControlArgsUniform,
@@ -368,7 +368,7 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
         SkASSERT(!stroke.isHairlineStyle());
         float maxScale = shader.viewMatrix().getMaxScale();
         pdman.set1f(fTessControlArgsUniform,
-                    GrStrokeTolerances::CalcParametricPrecision(maxScale));
+                    skgpu::tess::StrokeTolerances::CalcParametricPrecision(maxScale));
     }
 
     if (shader.mode() == GrStrokeTessellationShader::Mode::kFixedCount) {

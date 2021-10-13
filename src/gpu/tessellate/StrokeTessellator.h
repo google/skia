@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeTessellator_DEFINED
-#define GrStrokeTessellator_DEFINED
+#ifndef tessellate_StrokeTessellator_DEFINED
+#define tessellate_StrokeTessellator_DEFINED
 
 #include "src/gpu/GrVx.h"
 #include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
@@ -14,8 +14,10 @@
 class GrMeshDrawTarget;
 class GrOpFlushState;
 
+namespace skgpu::tess {
+
 // Prepares GPU data for, and then draws a stroke's tessellated geometry.
-class GrStrokeTessellator {
+class StrokeTessellator {
 public:
     using ShaderFlags = GrStrokeTessellationShader::ShaderFlags;
 
@@ -28,10 +30,14 @@ public:
         PathStrokeList* fNext = nullptr;
     };
 
-    GrStrokeTessellator(const GrShaderCaps& shaderCaps, GrStrokeTessellationShader::Mode shaderMode,
-                        ShaderFlags shaderFlags, int8_t maxParametricSegments_log2,
-                        const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
-                        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds)
+    StrokeTessellator(const GrShaderCaps& shaderCaps,
+                      GrStrokeTessellationShader::Mode shaderMode,
+                      ShaderFlags shaderFlags,
+                      int8_t maxParametricSegments_log2,
+                      const SkMatrix& viewMatrix,
+                      PathStrokeList* pathStrokeList,
+                      std::array<float, 2> matrixMinMaxScales,
+                      const SkRect& strokeCullBounds)
             : fShader(shaderCaps, shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
                       pathStrokeList->fColor, maxParametricSegments_log2)
             , fPathStrokeList(pathStrokeList)
@@ -50,7 +56,7 @@ public:
     virtual void draw(GrOpFlushState*) const = 0;
 #endif
 
-    virtual ~GrStrokeTessellator() {}
+    virtual ~StrokeTessellator() {}
 
 protected:
     GrStrokeTessellationShader fShader;
@@ -61,7 +67,7 @@ protected:
 
 // These tolerances decide the number of parametric and radial segments the tessellator will
 // linearize strokes into. These decisions are made in (pre-viewMatrix) local path space.
-struct GrStrokeTolerances {
+struct StrokeTolerances {
     // Decides the number of parametric segments the tessellator adds for each curve. (Uniform
     // steps in parametric space.) The tessellator will add enough parametric segments so that,
     // once transformed into device space, they never deviate by more than
@@ -109,11 +115,11 @@ struct GrStrokeTolerances {
         }
         return localStrokeWidth;
     }
-    static GrStrokeTolerances Make(const float matrixMinMaxScales[2], float strokeWidth) {
+    static StrokeTolerances Make(const float matrixMinMaxScales[2], float strokeWidth) {
         return MakeNonHairline(matrixMinMaxScales[1],
                                GetLocalStrokeWidth(matrixMinMaxScales, strokeWidth));
     }
-    static GrStrokeTolerances MakeNonHairline(float matrixMaxScale, float strokeWidth) {
+    static StrokeTolerances MakeNonHairline(float matrixMaxScale, float strokeWidth) {
         SkASSERT(strokeWidth > 0);
         float parametricPrecision = CalcParametricPrecision(matrixMaxScale);
         return {parametricPrecision,
@@ -124,17 +130,15 @@ struct GrStrokeTolerances {
 };
 
 // Calculates and buffers up future values for "numRadialSegmentsPerRadian" using SIMD.
-class alignas(sizeof(float) * 4) GrStrokeToleranceBuffer {
+class alignas(sizeof(float) * 4) StrokeToleranceBuffer {
 public:
-    using PathStrokeList = GrStrokeTessellator::PathStrokeList;
+    using PathStrokeList = StrokeTessellator::PathStrokeList;
 
-    GrStrokeToleranceBuffer(float parametricPrecision)
-            : fParametricPrecision(parametricPrecision) {
-    }
+    StrokeToleranceBuffer(float parametricPrecision) : fParametricPrecision(parametricPrecision) {}
 
     float fetchRadialSegmentsPerRadian(PathStrokeList* head) {
         // StrokeTessellateOp::onCombineIfPossible does not allow hairlines to become dynamic. If
-        // this changes, we will need to call GrStrokeTolerances::GetLocalStrokeWidth() for each
+        // this changes, we will need to call StrokeTolerances::GetLocalStrokeWidth() for each
         // stroke.
         SkASSERT(!head->fStroke.isHairlineStyle());
         if (fBufferIdx == 4) {
@@ -144,8 +148,8 @@ public:
             do {
                 fStrokeWidths[i++] = peekAhead->fStroke.getWidth();
             } while ((peekAhead = peekAhead->fNext) && i < 4);
-            auto tol = GrStrokeTolerances::ApproxNumRadialSegmentsPerRadian(fParametricPrecision,
-                                                                            fStrokeWidths);
+            auto tol = StrokeTolerances::ApproxNumRadialSegmentsPerRadian(fParametricPrecision,
+                                                                          fStrokeWidths);
             tol.store(fNumRadialSegmentsPerRadian);
             fBufferIdx = 0;
         }
@@ -161,4 +165,6 @@ private:
     int fBufferIdx = 4;  // Initialize the buffer as "empty";
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_StrokeTessellator_DEFINED

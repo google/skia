@@ -9,8 +9,8 @@
 #define PathStencilCoverOp_DEFINED
 
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
-#include "src/gpu/tessellate/GrTessTypes.h"
+#include "src/gpu/tessellate/PathTessellator.h"
+#include "src/gpu/tessellate/TessTypes.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 namespace skgpu::v1 {
@@ -22,7 +22,7 @@ class PathStencilCoverOp final : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
-    using PathDrawList = GrPathTessellator::PathDrawList;
+    using PathDrawList = skgpu::tess::PathTessellator::PathDrawList;
 
     // If the path is inverse filled, drawBounds must be the entire backing store dimensions of the
     // render target.
@@ -31,7 +31,7 @@ private:
                        const SkPath& path,
                        GrPaint&& paint,
                        GrAAType aaType,
-                       GrTessellationPathFlags pathFlags,
+                       skgpu::tess::TessellationPathFlags pathFlags,
                        const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathDrawList(arena->make<PathDrawList>(viewMatrix, path))
@@ -47,13 +47,13 @@ private:
 
     // Constructs a PathStencilCoverOp from an existing draw list.
     // FIXME: The only user of this method is the atlas. We should move the GrProgramInfos into
-    // GrPathTessellator so the atlas can use that directly instead of going through this class.
+    // PathTessellator so the atlas can use that directly instead of going through this class.
     PathStencilCoverOp(const PathDrawList* pathDrawList,
                        int totalCombinedVerbCnt,
                        int pathCount,
                        GrPaint&& paint,
                        GrAAType aaType,
-                       GrTessellationPathFlags pathFlags,
+                       skgpu::tess::TessellationPathFlags pathFlags,
                        const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathDrawList(pathDrawList)
@@ -89,14 +89,14 @@ private:
     const PathDrawList* fPathDrawList;
     const int fTotalCombinedPathVerbCnt;
     const int fPathCount;
-    const GrTessellationPathFlags fPathFlags;
+    const skgpu::tess::TessellationPathFlags fPathFlags;
     const GrAAType fAAType;
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;
     SkDEBUGCODE(SkRect fOriginalDrawBounds;)
 
     // Decided during prePreparePrograms.
-    GrPathTessellator* fTessellator = nullptr;
+    skgpu::tess::PathTessellator* fTessellator = nullptr;
     const GrProgramInfo* fStencilFanProgram = nullptr;
     const GrProgramInfo* fStencilPathProgram = nullptr;
     const GrProgramInfo* fCoverBBoxProgram = nullptr;

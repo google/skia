@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathTessellator_DEFINED
-#define GrPathTessellator_DEFINED
+#ifndef tessellate_PathTessellator_DEFINED
+#define tessellate_PathTessellator_DEFINED
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrVertexWriter.h"
@@ -19,9 +19,11 @@ class GrGpuBuffer;
 class GrOpFlushState;
 class GrPathTessellationShader;
 
+namespace skgpu::tess {
+
 // Prepares GPU data for, and then draws a path's tessellated geometry. Depending on the subclass,
 // the caller may or may not be required to draw the path's inner fan separately.
-class GrPathTessellator {
+class PathTessellator {
 public:
     using BreadcrumbTriangleList = GrInnerFanTriangulator::BreadcrumbTriangleList;
 
@@ -45,7 +47,7 @@ public:
         Iter end() const { return {nullptr}; }
     };
 
-    virtual ~GrPathTessellator() {}
+    virtual ~PathTessellator() {}
 
     const GrPathTessellationShader* shader() const { return fShader; }
 
@@ -75,9 +77,11 @@ public:
     }
 
 protected:
-    GrPathTessellator(GrPathTessellationShader* shader) : fShader(shader) {}
+    PathTessellator(GrPathTessellationShader* shader) : fShader(shader) {}
 
     GrPathTessellationShader* fShader;
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_PathTessellator_DEFINED

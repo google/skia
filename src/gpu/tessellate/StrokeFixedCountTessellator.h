@@ -5,19 +5,24 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeFixedCountTessellator_DEFINED
-#define GrStrokeFixedCountTessellator_DEFINED
+#ifndef tessellate_StrokeFixedCountTessellator_DEFINED
+#define tessellate_StrokeFixedCountTessellator_DEFINED
 
 #include "src/gpu/GrVertexChunkArray.h"
-#include "src/gpu/tessellate/GrStrokeTessellator.h"
+#include "src/gpu/tessellate/StrokeTessellator.h"
+
+namespace skgpu::tess {
 
 // Renders strokes as fixed-count triangle strip instances. Any extra triangles not needed by the
 // instance are emitted as degenerate triangles.
-class GrStrokeFixedCountTessellator : public GrStrokeTessellator {
+class StrokeFixedCountTessellator : public StrokeTessellator {
 public:
-    GrStrokeFixedCountTessellator(const GrShaderCaps&, ShaderFlags, const SkMatrix&,
-                                  PathStrokeList*, std::array<float, 2> matrixMinMaxScales,
-                                  const SkRect& strokeCullBounds);
+    StrokeFixedCountTessellator(const GrShaderCaps&,
+                                ShaderFlags,
+                                const SkMatrix&,
+                                PathStrokeList*,
+                                std::array<float, 2> matrixMinMaxScales,
+                                const SkRect& strokeCullBounds);
 
     void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) override;
 #if SK_GPU_V1
@@ -32,4 +37,6 @@ private:
     sk_sp<const GrGpuBuffer> fVertexBufferIfNoIDSupport;
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_StrokeFixedCountTessellator_DEFINED

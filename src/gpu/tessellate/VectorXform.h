@@ -5,23 +5,25 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrVectorXform_DEFINED
-#define GrVectorXform_DEFINED
+#ifndef tessellate_VectorXform_DEFINED
+#define tessellate_VectorXform_DEFINED
 
 #include "include/core/SkMatrix.h"
 #include "include/private/SkVx.h"
+
+namespace skgpu::tess {
 
 // Represents the upper-left 2x2 matrix of an affine transform for applying to vectors:
 //
 //     VectorXform(p1 - p0) == M * float3(p1, 1) - M * float3(p0, 1)
 //
-class GrVectorXform {
+class VectorXform {
 public:
     using float2 = skvx::Vec<2, float>;
     using float4 = skvx::Vec<4, float>;
-    explicit GrVectorXform() : fType(Type::kIdentity) {}
-    explicit GrVectorXform(const SkMatrix& m) { *this = m; }
-    GrVectorXform& operator=(const SkMatrix& m) {
+    explicit VectorXform() : fType(Type::kIdentity) {}
+    explicit VectorXform(const SkMatrix& m) { *this = m; }
+    VectorXform& operator=(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
         if (m.getType() & SkMatrix::kAffine_Mask) {
             fType = Type::kAffine;
@@ -69,4 +71,6 @@ private:
     float4 fSkewXYXY;
 };
 
-#endif
+}  // namespace skgpu::tess
+
+#endif  // tessellate_VectorXform_DEFINED

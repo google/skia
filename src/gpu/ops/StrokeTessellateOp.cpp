@@ -11,8 +11,8 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
-#include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
+#include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
+#include "src/gpu/tessellate/StrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 using DynamicStroke = GrStrokeTessellationShader::DynamicStroke;
@@ -199,15 +199,19 @@ void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs
     if (can_use_hardware_tessellation(fTotalCombinedVerbCnt, *pipeline, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
-        fTessellator = arena->make<GrStrokeHardwareTessellator>(*caps.shaderCaps(), fShaderFlags,
-                                                                fViewMatrix, &fPathStrokeList,
-                                                                matrixMinMaxScales,
-                                                                strokeCullBounds);
+        fTessellator = arena->make<skgpu::tess::StrokeHardwareTessellator>(*caps.shaderCaps(),
+                                                                           fShaderFlags,
+                                                                           fViewMatrix,
+                                                                           &fPathStrokeList,
+                                                                           matrixMinMaxScales,
+                                                                           strokeCullBounds);
     } else {
-        fTessellator = arena->make<GrStrokeFixedCountTessellator>(*caps.shaderCaps(), fShaderFlags,
-                                                                  fViewMatrix, &fPathStrokeList,
-                                                                  matrixMinMaxScales,
-                                                                  strokeCullBounds);
+        fTessellator = arena->make<skgpu::tess::StrokeFixedCountTessellator>(*caps.shaderCaps(),
+                                                                             fShaderFlags,
+                                                                             fViewMatrix,
+                                                                             &fPathStrokeList,
+                                                                             matrixMinMaxScales,
+                                                                             strokeCullBounds);
     }
 
     auto fillStencil = &GrUserStencilSettings::kUnused;

@@ -12,7 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/gpu/GrVx.h"
-#include "src/gpu/tessellate/GrVectorXform.h"
+#include "src/gpu/tessellate/VectorXform.h"
 
 // Wang's formula gives the minimum number of evenly spaced (in the parametric sense) line segments
 // that a bezier curve must be chopped into in order to guarantee all lines stay within a distance
@@ -25,6 +25,8 @@
 // (Goldman, Ron. (2003). 5.6.3 Wang's Formula. "Pyramid Algorithms: A Dynamic Programming Approach
 // to Curves and Surfaces for Geometric Modeling". Morgan Kaufmann Publishers.)
 namespace GrWangsFormula {
+
+using skgpu::tess::VectorXform;
 
 // Returns the value by which to multiply length in Wang's formula. (See above.)
 template<int Degree> constexpr float length_term(float precision) {
@@ -56,7 +58,7 @@ SK_ALWAYS_INLINE static int nextlog16(float x) {
 
 // Returns Wang's formula, raised to the 4th power, specialized for a quadratic curve.
 SK_ALWAYS_INLINE static float quadratic_pow4(float precision, const SkPoint pts[],
-                                             const GrVectorXform& vectorXform = GrVectorXform()) {
+                                             const VectorXform& vectorXform = VectorXform()) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(pts[0]);
     float2 p1 = bit_pun<float2>(pts[1]);
@@ -69,21 +71,21 @@ SK_ALWAYS_INLINE static float quadratic_pow4(float precision, const SkPoint pts[
 
 // Returns Wang's formula specialized for a quadratic curve.
 SK_ALWAYS_INLINE static float quadratic(float precision, const SkPoint pts[],
-                                        const GrVectorXform& vectorXform = GrVectorXform()) {
+                                        const VectorXform& vectorXform = VectorXform()) {
     return root4(quadratic_pow4(precision, pts, vectorXform));
 }
 
 // Returns the log2 value of Wang's formula specialized for a quadratic curve, rounded up to the
 // next int.
 SK_ALWAYS_INLINE static int quadratic_log2(float precision, const SkPoint pts[],
-                                           const GrVectorXform& vectorXform = GrVectorXform()) {
+                                           const VectorXform& vectorXform = VectorXform()) {
     // nextlog16(x) == ceil(log2(sqrt(sqrt(x))))
     return nextlog16(quadratic_pow4(precision, pts, vectorXform));
 }
 
 // Returns Wang's formula, raised to the 4th power, specialized for a cubic curve.
 SK_ALWAYS_INLINE static float cubic_pow4(float precision, const SkPoint pts[],
-                                         const GrVectorXform& vectorXform = GrVectorXform()) {
+                                         const VectorXform& vectorXform = VectorXform()) {
     using grvx::float4;
     float4 p01 = float4::Load(pts);
     float4 p12 = float4::Load(pts + 1);
@@ -96,14 +98,14 @@ SK_ALWAYS_INLINE static float cubic_pow4(float precision, const SkPoint pts[],
 
 // Returns Wang's formula specialized for a cubic curve.
 SK_ALWAYS_INLINE static float cubic(float precision, const SkPoint pts[],
-                                    const GrVectorXform& vectorXform = GrVectorXform()) {
+                                    const VectorXform& vectorXform = VectorXform()) {
     return root4(cubic_pow4(precision, pts, vectorXform));
 }
 
 // Returns the log2 value of Wang's formula specialized for a cubic curve, rounded up to the next
 // int.
 SK_ALWAYS_INLINE static int cubic_log2(float precision, const SkPoint pts[],
-                                       const GrVectorXform& vectorXform = GrVectorXform()) {
+                                       const VectorXform& vectorXform = VectorXform()) {
     // nextlog16(x) == ceil(log2(sqrt(sqrt(x))))
     return nextlog16(cubic_pow4(precision, pts, vectorXform));
 }
@@ -132,7 +134,7 @@ SK_ALWAYS_INLINE static int worst_case_cubic_log2(float precision, float devWidt
 //   J. Zheng, T. Sederberg. "Estimating Tessellation Parameter Intervals for
 //   Rational Curves and Surfaces." ACM Transactions on Graphics 19(1). 2000.
 SK_ALWAYS_INLINE static float conic_pow2(float precision, const SkPoint pts[], float w,
-                                         const GrVectorXform& vectorXform = GrVectorXform()) {
+                                         const VectorXform& vectorXform = VectorXform()) {
     using grvx::dot, grvx::float2, grvx::float4, skvx::bit_pun;
     float2 p0 = vectorXform(bit_pun<float2>(pts[0]));
     float2 p1 = vectorXform(bit_pun<float2>(pts[1]));
@@ -168,14 +170,14 @@ SK_ALWAYS_INLINE static float conic_pow2(float precision, const SkPoint pts[], f
 
 // Returns the value of Wang's formula specialized for a conic curve.
 SK_ALWAYS_INLINE static float conic(float tolerance, const SkPoint pts[], float w,
-                                    const GrVectorXform& vectorXform = GrVectorXform()) {
+                                    const VectorXform& vectorXform = VectorXform()) {
     return sqrtf(conic_pow2(tolerance, pts, w, vectorXform));
 }
 
 // Returns the log2 value of Wang's formula specialized for a conic curve, rounded up to the next
 // int.
 SK_ALWAYS_INLINE static int conic_log2(float tolerance, const SkPoint pts[], float w,
-                                       const GrVectorXform& vectorXform = GrVectorXform()) {
+                                       const VectorXform& vectorXform = VectorXform()) {
     // nextlog4(x) == ceil(log2(sqrt(x)))
     return nextlog4(conic_pow2(tolerance, pts, w, vectorXform));
 }

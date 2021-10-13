@@ -5,17 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrPathCurveTessellator.h"
+#include "src/gpu/tessellate/PathCurveTessellator.h"
 
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
-#include "src/gpu/tessellate/GrCullTest.h"
-#include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/GrPathXform.h"
+#include "src/gpu/tessellate/CullTest.h"
+#include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
+#include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
+
+#if SK_GPU_V1
+#include "src/gpu/GrOpFlushState.h"
+#endif
+
+namespace skgpu::tess {
 
 namespace {
 
@@ -151,9 +157,9 @@ private:
         }
     }
 
-    GrCullTest fCullTest;
-    GrVectorXform fTotalVectorXform;
-    GrPathXform fPathXform;
+    CullTest fCullTest;
+    VectorXform fTotalVectorXform;
+    PathXform fPathXform;
     const float fMaxSegments_pow2;
     const float fMaxSegments_pow4;
 
@@ -165,12 +171,13 @@ private:
 }  // namespace
 
 
-GrPathCurveTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena,
-                                                     const SkMatrix& viewMatrix,
-                                                     const SkPMColor4f& color,
-                                                     DrawInnerFan drawInnerFan, int numPathVerbs,
-                                                     const GrPipeline& pipeline,
-                                                     const GrCaps& caps) {
+PathCurveTessellator* PathCurveTessellator::Make(SkArenaAlloc* arena,
+                                                 const SkMatrix& viewMatrix,
+                                                 const SkPMColor4f& color,
+                                                 DrawInnerFan drawInnerFan,
+                                                 int numPathVerbs,
+                                                 const GrPipeline& pipeline,
+                                                 const GrCaps& caps) {
     using PatchType = GrPathTessellationShader::PatchType;
     GrPathTessellationShader* shader;
     if (caps.shaderCaps()->tessellationSupport() &&
@@ -185,18 +192,18 @@ GrPathCurveTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena,
                                                                          PatchType::kCurves);
     }
     return arena->make([=](void* objStart) {
-        return new(objStart) GrPathCurveTessellator(shader, drawInnerFan);
+        return new(objStart) PathCurveTessellator(shader, drawInnerFan);
     });
 }
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
 
-void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
-                                     const SkRect& cullBounds,
-                                     const PathDrawList& pathDrawList,
-                                     int totalCombinedPathVerbCnt,
-                                     const BreadcrumbTriangleList* breadcrumbTriangleList) {
+void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
+                                   const SkRect& cullBounds,
+                                   const PathDrawList& pathDrawList,
+                                   int totalCombinedPathVerbCnt,
+                                   const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(fVertexChunkArray.empty());
 
     const GrShaderCaps& shaderCaps = *target->caps().shaderCaps();
@@ -240,7 +247,7 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
                     : sk_bit_cast<uint32_t>(GrTessellationShader::kTriangularConicCurveType);
             for (auto [pathMatrix, path] : pathDrawList) {
                 int numTrianglesWritten;
-                vertexWriter = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+                vertexWriter = MiddleOutPolygonTriangulator::WritePathInnerFan(
                         std::move(vertexWriter),
                         pad32Count,
                         pad32Value,
@@ -344,9 +351,7 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
 }
 
 #if SK_GPU_V1
-#include "src/gpu/GrOpFlushState.h"
-
-void GrPathCurveTessellator::draw(GrOpFlushState* flushState) const {
+void PathCurveTessellator::draw(GrOpFlushState* flushState) const {
     if (fShader->willUseTessellationShaders()) {
         for (const GrVertexChunk& chunk : fVertexChunkArray) {
             flushState->bindBuffers(nullptr, nullptr, chunk.fBuffer);
@@ -361,11 +366,13 @@ void GrPathCurveTessellator::draw(GrOpFlushState* flushState) const {
     }
 }
 
-void GrPathCurveTessellator::drawHullInstances(
-        GrOpFlushState* flushState, sk_sp<const GrGpuBuffer> vertexBufferIfNeeded) const {
+void PathCurveTessellator::drawHullInstances(GrOpFlushState* flushState,
+                                             sk_sp<const GrGpuBuffer> vertexBufferIfNeeded) const {
     for (const GrVertexChunk& chunk : fVertexChunkArray) {
         flushState->bindBuffers(nullptr, chunk.fBuffer, vertexBufferIfNeeded);
         flushState->drawInstanced(chunk.fCount, chunk.fBase, 4, 0);
     }
 }
 #endif
+
+}  // namespace skgpu::tess
