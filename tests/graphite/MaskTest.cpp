@@ -19,7 +19,7 @@ SKGPU_MAKE_MASK_OPS(Flags);
 
 using namespace skgpu;
 
-DEF_TEST(skgpu_Mask, r) {
+DEF_GRAPHITE_TEST(skgpu_Mask, r) {
     Mask<Flags> flags = Flags::kNone;
     REPORTER_ASSERT(r, !flags);
     flags |= Flags::kA;

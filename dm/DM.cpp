@@ -115,6 +115,7 @@ static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.
 
 static DEFINE_bool(cpu, true, "Run CPU-bound work?");
 static DEFINE_bool(gpu, true, "Run GPU-bound work?");
+static DEFINE_bool(graphite, true, "Run Graphite work?");
 
 static DEFINE_bool(dryRun, false,
                    "just print the tests that would be run, without actually running them.");
@@ -944,9 +945,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
-            if (gpuConfig->getUseGraphite()) {
-                return new GraphiteSink();
-            } else if (gpuConfig->getTestThreading()) {
+            if (gpuConfig->getTestThreading()) {
                 SkASSERT(!gpuConfig->getTestPersistentCache());
                 return new GPUThreadTestingSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getTestPersistentCache()) {
@@ -962,6 +961,13 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
             }
         }
     }
+#ifdef SK_GRAPHITE_ENABLED
+    if (FLAGS_graphite) {
+        if (const SkCommandLineConfigGraphite *graphiteConfig = config->asConfigGraphite()) {
+            return new GraphiteSink(graphiteConfig);
+        }
+    }
+#endif
     if (const SkCommandLineConfigSvg* svgConfig = config->asConfigSvg()) {
         int pageIndex = svgConfig->getPageIndex();
         return new SVGSink(pageIndex);
@@ -1432,7 +1438,9 @@ static void gather_tests() {
         }
         if (test.needsGpu && FLAGS_gpu) {
             gSerialTests->push_back(test);
-        } else if (!test.needsGpu && FLAGS_cpu) {
+        } else if (test.fNeedsGraphite && FLAGS_graphite) {
+            gSerialTests->push_back(test);
+        } else if (!test.needsGpu && !test.fNeedsGraphite && FLAGS_cpu) {
             gParallelTests->push_back(test);
         }
     }

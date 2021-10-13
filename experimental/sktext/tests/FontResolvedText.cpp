@@ -36,20 +36,9 @@ struct GrContextOptions;
 #define TestCanvasWidth 1000
 #define TestCanvasHeight 600
 
-#if !defined(SK_BUILD_FOR_UNIX)
-#undef DEF_TEST
-#define DEF_TEST(name, reporter)                                                          \
-    static void test_##name(skiatest::Reporter* reporter, const GrContextOptions&);       \
-    skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, false, test_##name)); \
-    void test_##name(skiatest::Reporter* reporter, const GrContextOptions&) {             \
-        /* SkDebugf("Disabled:"#name "\n"); */                                            \
-    }                                                                                     \
-    void disabled_##name(skiatest::Reporter* reporter, const GrContextOptions&)
-#endif
-
 using namespace skia::text;
 
-DEF_TEST(SkText_FontResolution1, reporter) {
+UNIX_ONLY_TEST(SkText_FontResolution1, reporter) {
     TrivialFontChain* fontChain = new TrivialFontChain("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 
@@ -69,7 +58,7 @@ DEF_TEST(SkText_FontResolution1, reporter) {
     REPORTER_ASSERT(reporter, resolvedFonts.front().style == SkFontStyle::Normal());
 }
 
-DEF_TEST(SkText_FontResolution3, reporter) {
+UNIX_ONLY_TEST(SkText_FontResolution3, reporter) {
     MultipleFontChain* fontChain = new MultipleFontChain({ "Roboto", "Noto Color Emoji", "Noto Serif CJK JP" }, 40.0f, SkFontStyle::Normal());
     if (fontChain->count() < 3) return;
 

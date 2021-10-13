@@ -15,7 +15,24 @@
 
 namespace skiatest::graphite {
 
- std::tuple<GraphiteTestContext*, sk_sp<skgpu::Context>> ContextFactory::getContextInfo(
+ContextFactory::ContextInfo::ContextInfo(ContextInfo&& other)
+    : fType(other.fType)
+    , fTestContext(std::move(other.fTestContext))
+    , fContext(std::move(other.fContext)) {
+}
+
+ContextFactory::ContextInfo::ContextInfo(ContextFactory::ContextType type,
+                                         std::unique_ptr<GraphiteTestContext> testContext,
+                                         sk_sp<skgpu::Context> context)
+    : fType(type)
+    , fTestContext(std::move(testContext))
+    , fContext(std::move(context)) {
+}
+
+sk_sp<skgpu::Context> ContextFactory::ContextInfo::refContext() const { return fContext; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+std::tuple<GraphiteTestContext*, sk_sp<skgpu::Context>> ContextFactory::getContextInfo(
         ContextType type) {
 
     for (ContextInfo& c : fContexts) {

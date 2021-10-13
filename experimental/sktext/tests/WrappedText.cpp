@@ -36,16 +36,6 @@ struct GrContextOptions;
 #define TestCanvasWidth 1000
 #define TestCanvasHeight 600
 
-#if !defined(SK_BUILD_FOR_UNIX)
-#undef DEF_TEST
-#define DEF_TEST(name, reporter)                                                          \
-    static void test_##name(skiatest::Reporter* reporter, const GrContextOptions&);       \
-    skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, false, test_##name)); \
-    void test_##name(skiatest::Reporter* reporter, const GrContextOptions&) {             \
-        /* SkDebugf("Disabled:"#name "\n"); */                                            \
-    }                                                                                     \
-    void disabled_##name(skiatest::Reporter* reporter, const GrContextOptions&)
-#endif
 using namespace skia::text;
 
 struct TestLine {
@@ -100,7 +90,7 @@ public:
 };
 
 
-DEF_TEST(SkText_WrappedText_Spaces, reporter) {
+UNIX_ONLY_TEST(SkText_WrappedText_Spaces, reporter) {
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 

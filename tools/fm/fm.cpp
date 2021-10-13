@@ -417,7 +417,7 @@ int main(int argc, char** argv) {
 
     SkTHashMap<SkString, const skiatest::Test*> tests;
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
-        if (test.needsGpu) {
+        if (test.needsGpu || test.fNeedsGraphite) {
             continue;  // TODO
         }
         if (FLAGS_listTests) {

@@ -36,17 +36,6 @@ struct GrContextOptions;
 #define TestCanvasWidth 1000
 #define TestCanvasHeight 600
 
-#if !defined(SK_BUILD_FOR_UNIX)
-#undef DEF_TEST
-#define DEF_TEST(name, reporter)                                                          \
-    static void test_##name(skiatest::Reporter* reporter, const GrContextOptions&);       \
-    skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, false, test_##name)); \
-    void test_##name(skiatest::Reporter* reporter, const GrContextOptions&) {             \
-        /* SkDebugf("Disabled:"#name "\n"); */                                            \
-    }                                                                                     \
-    void disabled_##name(skiatest::Reporter* reporter, const GrContextOptions&)
-#endif
-
 using namespace skia::text;
 
 struct TestLine {
@@ -102,7 +91,7 @@ public:
     std::vector<TestRun> fTestRuns;
 };
 
-DEF_TEST(SkText_SelectableText_Bounds, reporter) {
+UNIX_ONLY_TEST(SkText_SelectableText_Bounds, reporter) {
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 
@@ -150,7 +139,7 @@ DEF_TEST(SkText_SelectableText_Bounds, reporter) {
     }
 }
 
-DEF_TEST(SkText_SelectableText_Navigation_FirstLast, reporter) {
+UNIX_ONLY_TEST(SkText_SelectableText_Navigation_FirstLast, reporter) {
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 
@@ -192,7 +181,7 @@ DEF_TEST(SkText_SelectableText_Navigation_FirstLast, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lastPosition.fBoundaries.height(), lastLine.bounds.height()));
 }
 
-DEF_TEST(SkText_SelectableText_ScanRightByGraphemeClusters, reporter) {
+UNIX_ONLY_TEST(SkText_SelectableText_ScanRightByGraphemeClusters, reporter) {
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 
@@ -233,7 +222,7 @@ DEF_TEST(SkText_SelectableText_ScanRightByGraphemeClusters, reporter) {
     }
 }
 
-DEF_TEST(SkText_SelectableText_ScanLeftByGraphemeClusters, reporter) {
+UNIX_ONLY_TEST(SkText_SelectableText_ScanLeftByGraphemeClusters, reporter) {
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 
@@ -274,7 +263,7 @@ DEF_TEST(SkText_SelectableText_ScanLeftByGraphemeClusters, reporter) {
     }
 }
 
-DEF_TEST(SkText_SelectableText_Navigation_UpDown, reporter) {
+UNIX_ONLY_TEST(SkText_SelectableText_Navigation_UpDown, reporter) {
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 
@@ -309,4 +298,3 @@ DEF_TEST(SkText_SelectableText_Navigation_UpDown, reporter) {
         position = down;
     }
 }
-

@@ -327,6 +327,8 @@ metal_tests_sources = [
 
 graphite_tests_sources = [
   "$_tests/graphite/CapsTest.cpp",
+  "$_tests/graphite/MaskTest.cpp",
+  "$_tests/graphite/RectTest.cpp",
   "$_tests/graphite/ShapeTest.cpp",
 ]
 
@@ -394,10 +396,6 @@ pathops_tests_sources = [
   "$_tests/PathOpsTightBoundsTest.cpp",
   "$_tests/PathOpsTypesTest.cpp",
   "$_tests/WangsFormulaTest.cpp",
-
-  # graphite
-  "$_tests/graphite/MaskTest.cpp",
-  "$_tests/graphite/RectTest.cpp",
 ]
 
 skgpu_v1_tests_sources = [

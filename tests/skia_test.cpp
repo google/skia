@@ -33,6 +33,7 @@ static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driv
 static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
 static DEFINE_bool(cpu, true, "Run CPU-bound work?");
 static DEFINE_bool(gpu, true, "Run GPU-bound work?");
+static DEFINE_bool(graphite, true, "Run Graphite work?");
 
 static DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of name to run.\n"
@@ -129,14 +130,17 @@ private:
     Status* fStatus;
 };
 
-static bool should_run(const char* testName, bool isGPUTest) {
+static bool should_run(const char* testName, bool isGPUTest, bool isGraphiteTest) {
     if (CommandLineFlags::ShouldSkip(FLAGS_match, testName)) {
         return false;
     }
-    if (!FLAGS_cpu && !isGPUTest) {
+    if (!FLAGS_cpu && !isGPUTest && !isGraphiteTest) {
         return false;
     }
     if (!FLAGS_gpu && isGPUTest) {
+        return false;
+    }
+    if (!FLAGS_graphite && isGraphiteTest) {
         return false;
     }
     return true;
@@ -221,7 +225,7 @@ int main(int argc, char** argv) {
     int toRun = 0;
 
     for (const Test& test : TestRegistry::Range()) {
-        if (should_run(test.name, test.needsGpu)) {
+        if (should_run(test.name, test.needsGpu, test.fNeedsGraphite)) {
             toRun++;
         }
         total++;
@@ -237,9 +241,9 @@ int main(int argc, char** argv) {
     Status status(toRun);
 
     for (const Test& test : TestRegistry::Range()) {
-        if (!should_run(test.name, test.needsGpu)) {
+        if (!should_run(test.name, test.needsGpu, test.fNeedsGraphite)) {
             ++skipCount;
-        } else if (test.needsGpu) {
+        } else if (test.needsGpu || test.fNeedsGraphite) {
             gpuTests.push_back(&test);
         } else {
             cpuTests.add(SkTestRunnable(test, &status));

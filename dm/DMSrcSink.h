@@ -579,14 +579,26 @@ private:
     int fPageIndex;
 };
 
+#ifdef SK_GRAPHITE_ENABLED
+
 class GraphiteSink : public Sink {
 public:
-    GraphiteSink();
+    using ContextType = skiatest::graphite::ContextFactory::ContextType;
+
+    GraphiteSink(const SkCommandLineConfigGraphite*);
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
+
+private:
+    ContextType fContextType;
+    SkColorType fColorType;
+    SkAlphaType fAlphaType;
+    bool        fTestPrecompile;
 };
+
+#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

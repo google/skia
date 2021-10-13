@@ -12,7 +12,7 @@ namespace skgpu {
 
 #define CHECK(A) REPORTER_ASSERT(reporter, A)
 
-DEF_TEST(skgpu_Rect, reporter) {
+DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
     const SkRect skRect = SkRect::MakeLTRB(1,-3,4,0);
     const Rect rect = skRect;
     CHECK(rect == rect);
