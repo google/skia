@@ -73,7 +73,7 @@ static sk_sp<GrDirectContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE cont
     // setup GrDirectContext
     auto interface = GrGLMakeNativeInterface();
     // setup contexts
-    sk_sp<GrDirectContext> dContext(GrDirectContext::MakeGL(interface));
+    sk_sp<GrDirectContext> dContext((GrDirectContext::MakeGL(interface)));
     return dContext;
 }
 
@@ -204,15 +204,15 @@ static JSArray ListTests() {
     SkDebugf("Listing Tests\n");
     JSArray tests = emscripten::val::array();
     for (auto test : skiatest::TestRegistry::Range()) {
-        SkDebugf("test %s\n", test.name);
-        tests.call<void>("push", std::string(test.name));
+        SkDebugf("test %s\n", test.fName);
+        tests.call<void>("push", std::string(test.fName));
     }
     return tests;
 }
 
 static skiatest::Test getTestWithName(std::string name, bool* ok) {
     for (auto test : skiatest::TestRegistry::Range()) {
-        if (name == test.name) {
+        if (name == test.fName) {
           *ok = true;
           return test;
         }
@@ -249,7 +249,7 @@ static JSObject RunTest(std::string name) {
         return result;
     }
     GrContextOptions grOpts;
-    if (test.needsGpu) {
+    if (test.fNeedsGpu) {
         result.set("result", "passed"); // default to passing - the reporter will mark failed.
         WasmReporter reporter(name, result);
         test.modifyGrContextOptions(&grOpts);
