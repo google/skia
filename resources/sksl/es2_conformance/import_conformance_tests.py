@@ -12,6 +12,9 @@
 #     cat ${TEST_FILES}/*.test | ./import_conformance_tests.py
 #
 # This will generate two directories, "pass" and "fail", containing finished runtime shaders.
+# Note that some tests were originally designed to fail, because a conforming compiler should not
+# allow the program. A handful of others fail because they are incompatible with SkSL. This script
+# identifies SkSL-incompatible tests them and moves them from "pass" to "fail" automatically.
 #
 # Not all ES2 test files are meaningful in SkSL. These input files are not supported:
 # - linkage.test: Runtime Effects only handle fragment processing
@@ -103,6 +106,7 @@ for c in testCases:
     # Parse the case body
     skipTest = ''
     expectPass = True
+    allowMismatch = False
     testCode = ''
     inputs = []
     outputs = []
@@ -150,13 +154,25 @@ for c in testCases:
         print("skipped %s (%s)" % (testName, skipTest))
         continue
 
+    # The test is safe to run, but it might not get the same result.
+    # SkSL does not guarantee that function arguments will always be evaluated left-to-right.
+    if re.fullmatch('argument_eval_order_[12]', testName):
+        allowMismatch = True
+        print("allowing mismatch in %s" % testName)
+
+    # Switch tests to a "fail" expectation instead of "pass" when SkSL and GLSL disagree.
     # SkSL does not support casts which discard elements such as `float(myFloat4)`.
-    # Switch these tests to a "fail" expectation instead of "pass."
     if (re.fullmatch('(vec|bvec|ivec)[234]_to_(float|int|bool)', testName) or
         re.fullmatch('(vec|bvec|ivec)[34]_to_(vec|bvec|ivec)2', testName) or
         re.fullmatch('(vec|bvec|ivec)[4]_to_(vec|bvec|ivec)3', testName) or
+    # SkSL requires that function out-parameters match the precision of the variable passed in.
+        re.fullmatch('(out|inout)_lowp_(int|float)', testName) or
     # SkSL rejects code that fails to return a value; GLSL ES2 allows it.
-        testName == 'missing_returns'):
+        testName == 'missing_returns' or
+    # SkSL does not support a global `precision` directive.
+        testName == 'default_vs_explicit_precision' or
+    # SkSL does not allow variables to be created without an enclosing scope.
+        testName == 'variable_in_if_hides_global_variable'):
         assert expectPass
         expectPass = False
         print("moved %s to fail" % testName)
@@ -215,9 +231,10 @@ for c in testCases:
 
             # Verify output values inside ${OUTPUT}.
             outputChecks = "return true"
-            for v in outputs:
-                if len(v[2]) > varIndex:
-                    outputChecks += " && (%s == %s)" % (v[1], v[2][varIndex])
+            if not allowMismatch:
+                for v in outputs:
+                    if len(v[2]) > varIndex:
+                        outputChecks += " && (%s == %s)" % (v[1], v[2][varIndex])
 
             outputChecks += ";\n"
 
