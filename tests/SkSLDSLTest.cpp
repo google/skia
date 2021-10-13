@@ -2036,13 +2036,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
     {
         AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared(),
                                SkSL::ProgramKind::kVertex);
-        REPORTER_ASSERT(r, !SkSL::ThreadContext::IRGenerator().haveRTAdjustInterfaceBlock());
+        REPORTER_ASSERT(r, !SkSL::ThreadContext::RTAdjustState().fInterfaceBlock);
 
         DSLGlobalVar intf = InterfaceBlock(kUniform_Modifier, "uniforms",
                                            { Field(kInt_Type, "unused"),
                                              Field(kFloat4_Type, "sk_RTAdjust") });
-        REPORTER_ASSERT(r, SkSL::ThreadContext::IRGenerator().haveRTAdjustInterfaceBlock());
-        REPORTER_ASSERT(r, SkSL::ThreadContext::IRGenerator().getRTAdjustFieldIndex() == 1);
+        REPORTER_ASSERT(r, SkSL::ThreadContext::RTAdjustState().fInterfaceBlock);
+        REPORTER_ASSERT(r, SkSL::ThreadContext::RTAdjustState().fFieldIndex == 1);
     }
 
     {

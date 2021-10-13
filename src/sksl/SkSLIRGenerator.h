@@ -59,6 +59,10 @@ public:
         Program::Inputs                              fInputs;
     };
 
+    void start(const ParsedModule& base,
+               std::vector<std::unique_ptr<ProgramElement>>* elements,
+               std::vector<const ProgramElement*>* sharedElements);
+
     /**
      * If externalFunctions is supplied, those values are registered in the symbol table of the
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
@@ -89,18 +93,9 @@ public:
 
     std::unique_ptr<Expression> convertIdentifier(int line, skstd::string_view identifier);
 
-    bool haveRTAdjustInterfaceBlock() { return fRTAdjustInterfaceBlock != nullptr; }
-
-    int getRTAdjustFieldIndex() { return fRTAdjustFieldIndex; }
-
     const Context& fContext;
-    const Variable* fRTAdjust = nullptr;
 
 private:
-    void start(const ParsedModule& base,
-               std::vector<std::unique_ptr<ProgramElement>>* elements,
-               std::vector<const ProgramElement*>* sharedElements);
-
     IRGenerator::IRBundle finish();
 
     void scanInterfaceBlock(SkSL::InterfaceBlock& intf);
@@ -131,8 +126,6 @@ private:
     std::unordered_set<const Type*> fDefinedStructs;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
     std::vector<const ProgramElement*>*           fSharedElements = nullptr;
-    const Variable* fRTAdjustInterfaceBlock = nullptr;
-    int fRTAdjustFieldIndex;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

@@ -115,6 +115,20 @@ public:
      */
     static const SkSL::Modifiers* Modifiers(const SkSL::Modifiers& modifiers);
 
+    struct RTAdjustData {
+        // Points to a standalone sk_RTAdjust variable, if one exists.
+        const Variable* fVar = nullptr;
+        // Points to the interface block containing an sk_RTAdjust field, if one exists.
+        const Variable* fInterfaceBlock = nullptr;
+        // If fInterfaceBlock is non-null, contains the index of the sk_RTAdjust field within it.
+        int fFieldIndex = -1;
+    };
+
+    /**
+     * Returns a struct containing information about the RTAdjust variable.
+     */
+    static RTAdjustData& RTAdjustState();
+
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     /**
      * Returns the fragment processor for which DSL output is being generated for the current
@@ -195,6 +209,7 @@ private:
     ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;
     Mangler fMangler;
+    RTAdjustData fRTAdjust;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
         GrFragmentProcessor::ProgramImpl* fProcessor;

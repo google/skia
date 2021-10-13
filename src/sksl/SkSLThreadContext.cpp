@@ -90,6 +90,10 @@ const SkSL::Modifiers* ThreadContext::Modifiers(const SkSL::Modifiers& modifiers
     return Context().fModifiersPool->add(modifiers);
 }
 
+ThreadContext::RTAdjustData& ThreadContext::RTAdjustState() {
+    return Instance().fRTAdjust;
+}
+
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 void ThreadContext::StartFragmentProcessor(GrFragmentProcessor::ProgramImpl* processor,
         GrFragmentProcessor::ProgramImpl::EmitArgs* emitArgs) {

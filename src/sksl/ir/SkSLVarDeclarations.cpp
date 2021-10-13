@@ -179,7 +179,7 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
                 var->storage() == Variable::Storage::kInterfaceBlock) &&
                var->name() == Compiler::RTADJUST_NAME) {
         // `sk_RTAdjust` is special, and makes the IR generator emit position-fixup expressions.
-        if (ThreadContext::IRGenerator().fRTAdjust) {
+        if (ThreadContext::RTAdjustState().fVar || ThreadContext::RTAdjustState().fInterfaceBlock) {
             context.fErrors->error(var->fLine, "duplicate definition of 'sk_RTAdjust'");
             return nullptr;
         }
@@ -187,7 +187,7 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
             context.fErrors->error(var->fLine, "sk_RTAdjust must have type 'float4'");
             return nullptr;
         }
-        ThreadContext::IRGenerator().fRTAdjust = var.get();
+        ThreadContext::RTAdjustState().fVar = var.get();
     }
 
     if (addToSymbolTable) {

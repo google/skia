@@ -58,6 +58,7 @@ public:
     static std::unique_ptr<Variable> Make(const Context& context, int line,
             const Modifiers& modifiers, const Type* baseType, skstd::string_view name, bool isArray,
             std::unique_ptr<Expression> arraySize, Variable::Storage storage);
+
     /**
      * Creates a local scratch variable and the associated VarDeclaration statement.
      * Useful when doing IR rewrites, e.g. inlining a function call.
