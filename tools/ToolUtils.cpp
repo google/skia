@@ -31,7 +31,6 @@
 
 #include <cmath>
 #include <cstring>
-#include <memory>
 
 namespace ToolUtils {
 
@@ -369,17 +368,6 @@ void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst) {
             norm_to_rgb(bm, x, y, norm);
         }
     }
-}
-
-#if !defined(__clang__) && defined(_MSC_VER)
-// MSVC takes ~2 minutes to compile this function with optimization.
-// We don't really care to wait that long for this function.
-#pragma optimize("", off)
-#endif
-SkPath make_big_path() {
-    SkPathBuilder path;
-#include "BigPathBench.inc"  // IWYU pragma: keep
-    return path.detach();
 }
 
 bool copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {

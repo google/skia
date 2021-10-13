@@ -2246,7 +2246,10 @@ if (skia_enable_tools) {
   }
 
   test_app("skpbench") {
-    sources = [ "tools/skpbench/skpbench.cpp" ]
+    sources = [
+      "bench/BigPath.cpp",
+      "tools/skpbench/skpbench.cpp",
+    ]
     deps = [
       ":common_flags_config",
       ":common_flags_gpu",

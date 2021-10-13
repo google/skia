@@ -13,6 +13,7 @@ bench_sources = [
   "$_bench/BenchLogger.cpp",
   "$_bench/Benchmark.cpp",
   "$_bench/BezierBench.cpp",
+  "$_bench/BigPath.cpp",
   "$_bench/BigPathBench.cpp",
   "$_bench/BitmapRegionDecoderBench.cpp",
   "$_bench/BlendmodeBench.cpp",

@@ -149,8 +149,6 @@ void create_frustum_normal_map(SkBitmap* bm, const SkIRect& dst);
 
 void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
 
-SkPath make_big_path();
-
 // A helper object to test the topological sorting code (TopoSortBench.cpp & TopoSortTest.cpp)
 class TopoTestNode : public SkRefCnt {
 public:
