@@ -12,6 +12,7 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 using namespace skottie;
 
@@ -140,4 +141,84 @@ DEF_TEST(Skottie_Text_Style, r) {
         REPORTER_ASSERT(r, style->weight() == exp.weight);
         REPORTER_ASSERT(r, style->slant () == exp.slant );
     }
+}
+
+DEF_TEST(Skottie_Text_LayoutError, r) {
+    // Text node properties:
+    //   - scale to fit
+    //   - box width: 100
+    //   - min font size: 70
+    //   - string: Foo Bar Baz
+    //
+    // Layout should fail with these unsatisfiable constraints.
+    static constexpr char json[] =
+        R"({
+             "v": "5.2.1",
+             "w": 100,
+             "h": 100,
+             "fr": 10,
+             "ip": 0,
+             "op": 100,
+             "fonts": {
+               "list": [{
+                 "fFamily": "Arial",
+                 "fName": "Arial",
+                 "fStyle": "Bold"
+               }]
+             },
+             "layers": [{
+               "ty": 5,
+               "t": {
+                 "d": {
+                   "k": [{
+                     "t": 0,
+                     "s": {
+                       "f": "Arial",
+                       "t": "Foo Bar Baz",
+                       "s": 24,
+                       "fc": [1,1,1,1],
+                       "lh": 70,
+                       "ps": [0, 0],
+                       "sz": [100, 100],
+                       "mf": 70,
+                       "rs": 1
+                     }
+                   }]
+                 }
+               }
+             }]
+           })";
+
+    class Logger final : public skottie::Logger {
+    public:
+        const std::vector<SkString>& errors() const { return fErrors; }
+
+    private:
+        void log(Level lvl, const char message[], const char* = nullptr) override {
+            if (lvl == Level::kError) {
+                fErrors.emplace_back(message);
+            }
+        }
+
+        std::vector<SkString> fErrors;
+    };
+
+    class PortableRP final : public skresources::ResourceProvider {
+    private:
+        sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override {
+            return ToolUtils::create_portable_typeface("Serif", SkFontStyle());
+        }
+    };
+
+    SkMemoryStream stream(json, strlen(json));
+    auto logger = sk_make_sp<Logger>();
+
+    auto anim = Animation::Builder()
+                    .setLogger(logger)
+                    .setResourceProvider(sk_make_sp<PortableRP>())
+                    .make(&stream);
+
+    REPORTER_ASSERT(r, anim);
+    REPORTER_ASSERT(r, logger->errors().size() == 1);
+    REPORTER_ASSERT(r, logger->errors()[0].startsWith("Text layout failed"));
 }

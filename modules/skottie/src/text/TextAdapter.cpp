@@ -467,13 +467,21 @@ void TextAdapter::reshape() {
     };
     const auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
 
-    if (fLogger && shape_result.fMissingGlyphCount > 0) {
-        const auto msg = SkStringPrintf("Missing %zu glyphs for '%s'.",
-                                        shape_result.fMissingGlyphCount,
-                                        fText->fText.c_str());
-        fLogger->log(Logger::Level::kWarning, msg.c_str());
+    if (fLogger) {
+        if (shape_result.fFragments.empty() && fText->fText.size() > 0) {
+            const auto msg = SkStringPrintf("Text layout failed for '%s'.",
+                                            fText->fText.c_str());
+            fLogger->log(Logger::Level::kError, msg.c_str());
+        }
 
-        // This may trigger repeatedly when the text is animating.
+        if (shape_result.fMissingGlyphCount > 0) {
+            const auto msg = SkStringPrintf("Missing %zu glyphs for '%s'.",
+                                            shape_result.fMissingGlyphCount,
+                                            fText->fText.c_str());
+            fLogger->log(Logger::Level::kWarning, msg.c_str());
+        }
+
+        // These may trigger repeatedly when the text is animating.
         // To avoid spamming, only log once.
         fLogger = nullptr;
     }
