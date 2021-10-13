@@ -99,6 +99,7 @@ public:
     // V87: SkPaint now holds a user-defined blend function (SkBlender), no longer has DrawLooper
     // V88: Add blender to ComposeShader and BlendImageFilter
     // V89: Deprecated SkClipOps are no longer supported
+    // V90: Private API for backdrop scale factor in SaveLayerRec
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -109,10 +110,11 @@ public:
         kSkBlenderInSkPaint                 = 87,
         kBlenderInEffects                   = 88,
         kNoExpandingClipOps                 = 89,
+        kBackdropScaleFactor                = 90,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kNoExpandingClipOps
+        kCurrent_Version = kBackdropScaleFactor
     };
 };
 

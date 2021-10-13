@@ -645,7 +645,6 @@ public:
         SaveLayerRec contains the state used to create the layer.
     */
     struct SaveLayerRec {
-
         /** Sets fBounds, fPaint, and fBackdrop to nullptr. Clears fSaveLayerFlags.
 
             @return  empty SaveLayerRec
@@ -660,10 +659,7 @@ public:
             @return                SaveLayerRec with empty fBackdrop
         */
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
-            : fBounds(bounds)
-            , fPaint(paint)
-            , fSaveLayerFlags(saveLayerFlags)
-        {}
+            : SaveLayerRec(bounds, paint, nullptr, 1.f, saveLayerFlags) {}
 
         /** Sets fBounds, fPaint, fBackdrop, and fSaveLayerFlags.
 
@@ -679,11 +675,7 @@ public:
         */
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
                      SaveLayerFlags saveLayerFlags)
-            : fBounds(bounds)
-            , fPaint(paint)
-            , fBackdrop(backdrop)
-            , fSaveLayerFlags(saveLayerFlags)
-        {}
+            : SaveLayerRec(bounds, paint, backdrop, 1.f, saveLayerFlags) {}
 
         /** hints at layer size limit */
         const SkRect*        fBounds         = nullptr;
@@ -701,6 +693,22 @@ public:
 
         /** preserves LCD text, creates with prior layer contents */
         SaveLayerFlags       fSaveLayerFlags = 0;
+
+    private:
+        friend class SkCanvas;
+        friend class SkCanvasPriv;
+
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                     SkScalar backdropScale, SaveLayerFlags saveLayerFlags)
+            : fBounds(bounds)
+            , fPaint(paint)
+            , fBackdrop(backdrop)
+            , fSaveLayerFlags(saveLayerFlags)
+            , fExperimentalBackdropScale(backdropScale) {}
+
+        // Relative scale factor that the image content used to initialize the layer when the
+        // kInitFromPrevious flag or a backdrop filter is used.
+        SkScalar             fExperimentalBackdropScale = 1.f;
     };
 
     /** Saves SkMatrix and clip, and allocates SkBitmap for subsequent drawing.
@@ -2440,10 +2448,16 @@ private:
      * relative to the current canvas matrix, and src is drawn to dst using their relative transform
      * 'paint' is applied after the filter and must not have a mask or image filter of its own.
      * A null 'filter' behaves as if the identity filter were used.
+     *
+     * 'scaleFactor' is an extra uniform scale transform applied to downscale the 'src' image
+     * before any filtering, or as part of the copy, and is then drawn with 1/scaleFactor to 'dst'.
+     * Must be 1.0 if 'compat' is kYes (i.e. any scale factor has already been baked into the
+     * relative transforms between the devices).
      */
     void internalDrawDeviceWithFilter(SkBaseDevice* src, SkBaseDevice* dst,
                                       const SkImageFilter* filter, const SkPaint& paint,
-                                      DeviceCompatibleWithFilter compat);
+                                      DeviceCompatibleWithFilter compat,
+                                      SkScalar scaleFactor = 1.f);
 
     /*
      *  Returns true if drawing the specified rect (or all if it is null) with the specified

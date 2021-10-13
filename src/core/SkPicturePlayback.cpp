@@ -664,6 +664,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 SkMatrix clipMatrix_ignored;
                 reader->readMatrix(&clipMatrix_ignored);
             }
+            if (!reader->isVersionLT(SkPicturePriv::Version::kBackdropScaleFactor) &&
+                (flatFlags & SAVELAYERREC_HAS_BACKDROP_SCALE)) {
+                SkCanvasPriv::SetBackdropScaleFactor(&rec, reader->readScalar());
+            }
             BREAK_ON_READ_ERROR(reader);
 
             canvas->saveLayer(rec);

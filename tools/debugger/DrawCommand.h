@@ -631,6 +631,7 @@ private:
     SkTLazy<SkPaint>           fPaint;
     sk_sp<const SkImageFilter> fBackdrop;
     uint32_t                   fSaveLayerFlags;
+    SkScalar                   fBackdropScale;
 
     using INHERITED = DrawCommand;
 };

@@ -167,7 +167,8 @@ RECORD(SaveLayer, kHasPaint_Tag,
        Optional<SkRect> bounds;
        Optional<SkPaint> paint;
        sk_sp<const SkImageFilter> backdrop;
-       SkCanvas::SaveLayerFlags saveLayerFlags);
+       SkCanvas::SaveLayerFlags saveLayerFlags;
+       SkScalar backdropScale);
 
 RECORD(SaveBehind, 0,
        Optional<SkRect> subset);

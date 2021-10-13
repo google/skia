@@ -700,7 +700,8 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
         const SkMatrix& localToDst,
         const skif::DeviceSpace<SkIRect>& targetOutput,
         const skif::ParameterSpace<SkRect>* contentBounds = nullptr,
-        bool mustCoverDst = true) {
+        bool mustCoverDst = true,
+        SkScalar scaleFactor = 1.0f) {
     auto failedMapping = []() {
         return std::make_pair<skif::Mapping, skif::LayerSpace<SkIRect>>(
                 {}, skif::LayerSpace<SkIRect>::Empty());
@@ -726,6 +727,13 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
     if (!mapping.decomposeCTM(localToDst, filter, center)) {
         return failedMapping();
     }
+    // Push scale factor into layer matrix and device matrix (net no change, but the layer will have
+    // its resolution adjusted in comparison to the final device).
+    if (scaleFactor != 1.0f &&
+        !mapping.adjustLayerSpace(SkMatrix::Scale(scaleFactor, scaleFactor))) {
+        return failedMapping();
+    }
+
     // Perspective and skew could exceed this since mapping.deviceToLayer(targetOutput) is
     // theoretically unbounded under those conditions. Under a 45 degree rotation, a layer needs to
     // be 2X larger per side of the prior device in order to fully cover it. We use the max of that
@@ -803,7 +811,8 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
                                             SkBaseDevice* dst,
                                             const SkImageFilter* filter,
                                             const SkPaint& paint,
-                                            DeviceCompatibleWithFilter compat) {
+                                            DeviceCompatibleWithFilter compat,
+                                            SkScalar scaleFactor) {
     check_drawdevice_colorspaces(dst->imageInfo().colorSpace(),
                                  src->imageInfo().colorSpace());
 
@@ -824,6 +833,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
     if (compat == DeviceCompatibleWithFilter::kYes) {
         // Just use the relative transform from src to dst and the src's whole image, since
         // internalSaveLayer should have already determined what was necessary.
+        SkASSERT(scaleFactor == 1.0f);
         mapping = skif::Mapping(src->getRelativeTransform(*dst), localToSrc);
         requiredInput = skif::LayerSpace<SkIRect>(SkIRect::MakeSize(srcDims));
         SkASSERT(!requiredInput.isEmpty());
@@ -831,7 +841,8 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
         // Compute the image filter mapping by decomposing the local->device matrix of dst and
         // re-determining the required input.
         std::tie(mapping, requiredInput) = get_layer_mapping_and_bounds(
-                filter, dst->localToDevice(), skif::DeviceSpace<SkIRect>(dst->devClipBounds()));
+                filter, dst->localToDevice(), skif::DeviceSpace<SkIRect>(dst->devClipBounds()),
+                nullptr, true, SkTPin(scaleFactor, 0.f, 1.f));
         if (requiredInput.isEmpty()) {
             return;
         }
@@ -871,6 +882,10 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
     } else {
         // We need to produce a temporary image that is equivalent to 'src' but transformed to
         // a coordinate space compatible with the image filter
+
+        // TODO: If the srcToIntermediate is scale+translate, can we use the framebuffer blit
+        // extensions to handle doing the copy and scale at the same time?
+
         SkASSERT(compat == DeviceCompatibleWithFilter::kUnknown);
         SkRect srcRect;
         if (!SkMatrixPriv::InverseMapRect(srcToIntermediate, &srcRect,
@@ -1094,13 +1109,15 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         // 'rec.fBackdrop', so allow DrawDeviceWithFilter to transform the prior device contents
         // if necessary to evaluate the backdrop filter. If no filters are involved, then the
         // devices differ by integer translations and are always compatible.
-        auto compat = (filter || backdropFilter) ? DeviceCompatibleWithFilter::kUnknown
-                                                 : DeviceCompatibleWithFilter::kYes;
+        bool scaleBackdrop = rec.fExperimentalBackdropScale != 1.0f;
+        auto compat = (filter || backdropFilter || scaleBackdrop)
+                ? DeviceCompatibleWithFilter::kUnknown : DeviceCompatibleWithFilter::kYes;
         this->internalDrawDeviceWithFilter(priorDevice,     // src
                                            newDevice.get(), // dst
                                            backdropFilter,
                                            backdropPaint,
-                                           compat);
+                                           compat,
+                                           rec.fExperimentalBackdropScale);
     }
 
     fMCRec->newLayer(std::move(newDevice), sk_ref_sp(filter), restorePaint);

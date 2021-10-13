@@ -1995,11 +1995,16 @@ SaveLayerCommand::SaveLayerCommand(const SkCanvas::SaveLayerRec& rec)
         , fBounds(rec.fBounds)
         , fPaint(rec.fPaint)
         , fBackdrop(SkSafeRef(rec.fBackdrop))
-        , fSaveLayerFlags(rec.fSaveLayerFlags) {}
+        , fSaveLayerFlags(rec.fSaveLayerFlags)
+        , fBackdropScale(SkCanvasPriv::GetBackdropScaleFactor(rec)) {}
 
 void SaveLayerCommand::execute(SkCanvas* canvas) const {
-    canvas->saveLayer(
-            SkCanvas::SaveLayerRec(fBounds.getMaybeNull(), fPaint.getMaybeNull(), fSaveLayerFlags));
+    // In the common case fBackdropScale == 1.f and then this is no different than a regular Rec
+    canvas->saveLayer(SkCanvasPriv::ScaledBackdropLayer(fBounds.getMaybeNull(),
+                                                        fPaint.getMaybeNull(),
+                                                        fBackdrop.get(),
+                                                        fBackdropScale,
+                                                        fSaveLayerFlags));
 }
 
 void SaveLayerCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {

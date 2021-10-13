@@ -323,7 +323,8 @@ SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec&
     this->append<SkRecords::SaveLayer>(this->copy(rec.fBounds)
                     , this->copy(rec.fPaint)
                     , sk_ref_sp(rec.fBackdrop)
-                    , rec.fSaveLayerFlags);
+                    , rec.fSaveLayerFlags
+                    , SkCanvasPriv::GetBackdropScaleFactor(rec));
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 

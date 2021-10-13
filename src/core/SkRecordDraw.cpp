@@ -80,10 +80,11 @@ template <> void Draw::draw(const NoOp&) {}
 DRAW(Flush, flush());
 DRAW(Restore, restore());
 DRAW(Save, save());
-DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
-                                                 r.paint,
-                                                 r.backdrop.get(),
-                                                 r.saveLayerFlags)));
+DRAW(SaveLayer, saveLayer(SkCanvasPriv::ScaledBackdropLayer(r.bounds,
+                                                            r.paint,
+                                                            r.backdrop.get(),
+                                                            r.backdropScale,
+                                                            r.saveLayerFlags)));
 
 template <> void Draw::draw(const SaveBehind& r) {
     SkCanvasPriv::SaveBehind(fCanvas, r.subset);
