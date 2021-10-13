@@ -605,34 +605,3 @@ bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
     return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider,
                                    /*shaderProcessor=*/nullptr, &primColorMode, grPaint);
 }
-
-bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
-                                 const GrColorInfo& dstColorInfo,
-                                 const SkPaint& paint,
-                                 const SkMatrixProvider& matrixProvider,
-                                 std::unique_ptr<GrFragmentProcessor> fp,
-                                 bool textureIsAlphaOnly,
-                                 GrPaint* grPaint) {
-    std::unique_ptr<GrFragmentProcessor> shaderFP;
-    if (textureIsAlphaOnly) {
-        if (const auto* shader = as_SB(paint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(
-                    GrFPArgs(context, matrixProvider, &dstColorInfo));
-            if (!shaderFP) {
-                return false;
-            }
-            shaderFP = GrFragmentProcessor::Compose(std::move(fp), std::move(shaderFP));
-        } else {
-            shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
-        }
-    } else {
-        if (paint.getColor4f().isOpaque()) {
-            shaderFP = GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
-        } else {
-            shaderFP = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
-        }
-    }
-
-    return SkPaintToGrPaintReplaceShader(context, dstColorInfo, paint, matrixProvider,
-                                         std::move(shaderFP), grPaint);
-}

@@ -121,16 +121,6 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrRecordingContext* context,
                                      SkBlendMode::kDst, grPaint);
 }
 
-/** This is used when there may or may not be a shader, and the caller wants to plugin a texture
-    lookup.  If there is a shader, then its output will only be used if the texture is alpha8. */
-bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
-                                 const GrColorInfo& dstColorInfo,
-                                 const SkPaint& skPaint,
-                                 const SkMatrixProvider& matrixProvider,
-                                 std::unique_ptr<GrFragmentProcessor> fp,
-                                 bool textureIsAlphaOnly,
-                                 GrPaint* grPaint);
-
 ////////////////////////////////////////////////////////////////////////////////
 // Misc Sk to Gr type conversions
 
