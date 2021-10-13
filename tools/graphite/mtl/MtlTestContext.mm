@@ -42,7 +42,7 @@ std::unique_ptr<GraphiteTestContext> TestContext::Make() {
 
     skgpu::mtl::BackendContext backendContext = {};
     backendContext.fDevice.retain(device.get());
-    backendContext.fQueue.retain([*device newCommandQueue]);
+    backendContext.fQueue.reset([*device newCommandQueue]);
 
     return std::unique_ptr<GraphiteTestContext>(new TestContext(backendContext));
 }
