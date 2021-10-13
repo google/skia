@@ -450,6 +450,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// avoid tests that can generate slightly different pixels per run
 			skip("mtltestprecompile gm _ atlastext")
 			skip("mtltestprecompile gm _ circular_arcs_hairline")
+			skip("mtltestprecompile gm _ dashcircle")
 			skip("mtltestprecompile gm _ dftext")
 			skip("mtltestprecompile gm _ fontmgr_bounds")
 			skip("mtltestprecompile gm _ fontmgr_bounds_1_-0.25")
