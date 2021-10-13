@@ -218,7 +218,7 @@ static skiatest::Test getTestWithName(std::string name, bool* ok) {
         }
     }
     *ok = false;
-    return skiatest::Test(nullptr, false, nullptr);
+    return skiatest::Test(nullptr, /*gpu*/ false, /*graphite*/ false, nullptr);
 }
 
 // Based on DM.cpp:run_test
