@@ -52,7 +52,11 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     if (@available(macOS 10.11, iOS 9.0, *)) {
         if (fIsDynamic) {
 #ifdef SK_BUILD_FOR_MAC
-            options |= MTLResourceStorageModeManaged;
+            if (gpu->mtlCaps().isMac()) {
+                options |= MTLResourceStorageModeManaged;
+            } else {
+                options |= MTLResourceStorageModeShared;
+            }
 #else
             options |= MTLResourceStorageModeShared;
 #endif
@@ -60,11 +64,8 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
             options |= MTLResourceStorageModePrivate;
         }
     }
-#ifdef SK_BUILD_FOR_MAC
-    // Mac requires 4-byte alignment for copies so we need
-    // to ensure we have space for the extra data
-    size = SkAlign4(size);
-#endif
+
+    size = GrAlignTo(size, gpu->mtlCaps().getMinBufferAlignment());
     fMtlBuffer = size == 0 ? nil :
             [gpu->device() newBufferWithLength: size
                                        options: options];
@@ -99,15 +100,8 @@ bool GrMtlBuffer::onUpdateData(const void* src, size_t sizeInBytes) {
     } else {
         // copy data to gpu buffer
         GrStagingBufferManager::Slice slice;
-    #ifdef SK_BUILD_FOR_MAC
-        // Mac requires 4-byte alignment for copies
-        // TODO: true for Apple Silicon?
-        static const size_t kMinAlignment = 4;
-    #else
-        static const size_t kMinAlignment = 1;
-    #endif
-         slice = this->mtlGpu()->stagingBufferManager()->allocateStagingBufferSlice(sizeInBytes,
-                                                                                    kMinAlignment);
+        slice = this->mtlGpu()->stagingBufferManager()->allocateStagingBufferSlice(
+                sizeInBytes, this->mtlGpu()->mtlCaps().getMinBufferAlignment());
         if (!slice.fBuffer) {
             return false;
         }
@@ -166,7 +160,9 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
         SkASSERT(sizeInBytes <= this->size());
         SkASSERT(this->isMapped());
 #ifdef SK_BUILD_FOR_MAC
-        [fMtlBuffer didModifyRange: NSMakeRange(0, sizeInBytes)];
+        if (this->mtlGpu()->mtlCaps().isMac()) {
+            [fMtlBuffer didModifyRange: NSMakeRange(0, sizeInBytes)];
+        }
 #endif
         fMapPtr = nullptr;
     }
