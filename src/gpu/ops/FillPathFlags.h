@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_TessTypes_DEFINED
-#define tessellate_TessTypes_DEFINED
+#ifndef FillPathFlags_DEFINED
+#define FillPathFlags_DEFINED
 
 #include "include/gpu/GrTypes.h"
 
-namespace skgpu::tess {
+namespace skgpu::v1 {
 
 // We send these flags to the internal path filling Ops to control how a path gets rendered.
-enum class TessellationPathFlags {
+enum class FillPathFlags {
     kNone        = 0,
     kStencilOnly = (1 << 0),
     kWireframe   = (1 << 1)
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(TessellationPathFlags)
+GR_MAKE_BITFIELD_CLASS_OPS(FillPathFlags)
 
-}  // namespace skgpu::tess
+} // namespace skgpu::v1
 
-#endif  // tessellate_TessTypes_DEFINED
+#endif // FillPathFlags_DEFINED

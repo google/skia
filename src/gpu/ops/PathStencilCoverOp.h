@@ -8,9 +8,9 @@
 #ifndef PathStencilCoverOp_DEFINED
 #define PathStencilCoverOp_DEFINED
 
+#include "src/gpu/ops/FillPathFlags.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/PathTessellator.h"
-#include "src/gpu/tessellate/TessTypes.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 namespace skgpu::v1 {
@@ -31,7 +31,7 @@ private:
                        const SkPath& path,
                        GrPaint&& paint,
                        GrAAType aaType,
-                       skgpu::tess::TessellationPathFlags pathFlags,
+                       FillPathFlags pathFlags,
                        const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathDrawList(arena->make<PathDrawList>(viewMatrix, path))
@@ -53,7 +53,7 @@ private:
                        int pathCount,
                        GrPaint&& paint,
                        GrAAType aaType,
-                       skgpu::tess::TessellationPathFlags pathFlags,
+                       FillPathFlags pathFlags,
                        const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathDrawList(pathDrawList)
@@ -89,7 +89,7 @@ private:
     const PathDrawList* fPathDrawList;
     const int fTotalCombinedPathVerbCnt;
     const int fPathCount;
-    const skgpu::tess::TessellationPathFlags fPathFlags;
+    const FillPathFlags fPathFlags;
     const GrAAType fAAType;
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;

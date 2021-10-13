@@ -8,7 +8,6 @@
 #ifndef GrPathTessellationShader_DEFINED
 #define GrPathTessellationShader_DEFINED
 
-#include "src/gpu/tessellate/TessTypes.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 // This is the base class for shaders in the GPU tessellator that fill paths.
@@ -152,10 +151,11 @@ public:
     }
 
     // Creates a pipeline that does not write to the color buffer.
-    static const GrPipeline* MakeStencilOnlyPipeline(const ProgramArgs&,
-                                                     GrAAType,
-                                                     skgpu::tess::TessellationPathFlags,
-                                                     const GrAppliedHardClip&);
+    static const GrPipeline* MakeStencilOnlyPipeline(
+            const ProgramArgs&,
+            GrAAType,
+            const GrAppliedHardClip&,
+            GrPipeline::InputFlags = GrPipeline::InputFlags::kNone);
 
 protected:
     constexpr static size_t kMiddleOutVertexStride = 2 * sizeof(float);

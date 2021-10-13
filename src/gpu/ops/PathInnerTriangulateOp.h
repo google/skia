@@ -9,8 +9,8 @@
 #define PathInnerTriangulateOp_DEFINED
 
 #include "src/gpu/geometry/GrInnerFanTriangulator.h"
+#include "src/gpu/ops/FillPathFlags.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/TessTypes.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 namespace skgpu::tess {
@@ -37,7 +37,7 @@ private:
                            const SkPath& path,
                            GrPaint&& paint,
                            GrAAType aaType,
-                           skgpu::tess::TessellationPathFlags pathFlags,
+                           FillPathFlags pathFlags,
                            const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathFlags(pathFlags)
@@ -66,7 +66,7 @@ private:
     void onPrepare(GrOpFlushState*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    const skgpu::tess::TessellationPathFlags fPathFlags;
+    const FillPathFlags fPathFlags;
     const SkMatrix fViewMatrix;
     const SkPath fPath;
     const GrAAType fAAType;

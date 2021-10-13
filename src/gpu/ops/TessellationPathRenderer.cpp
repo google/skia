@@ -25,7 +25,7 @@ namespace {
 
 GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
                                     SkArenaAlloc* arena,
-                                    skgpu::tess::TessellationPathFlags pathFlags,
+                                    skgpu::v1::FillPathFlags fillPathFlags,
                                     GrAAType aaType,
                                     const SkRect& drawBounds,
                                     const SkMatrix& viewMatrix,
@@ -48,7 +48,7 @@ GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
                                                                  path,
                                                                  std::move(paint),
                                                                  aaType,
-                                                                 pathFlags,
+                                                                 fillPathFlags,
                                                                  drawBounds);
         }
     }
@@ -58,7 +58,7 @@ GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
                                                      path,
                                                      std::move(paint),
                                                      aaType,
-                                                     pathFlags,
+                                                     fillPathFlags,
                                                      drawBounds);
 }
 
@@ -150,7 +150,7 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
             : pathDevBounds;
     auto op = make_non_convex_fill_op(args.fContext,
                                       args.fSurfaceDrawContext->arenaAlloc(),
-                                      skgpu::tess::TessellationPathFlags::kNone,
+                                      FillPathFlags::kNone,
                                       args.fAAType,
                                       drawBounds,
                                       *args.fViewMatrix,
@@ -194,7 +194,7 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     auto op = make_non_convex_fill_op(args.fContext,
                                       args.fSurfaceDrawContext->arenaAlloc(),
-                                      skgpu::tess::TessellationPathFlags::kStencilOnly,
+                                      FillPathFlags::kStencilOnly,
                                       aaType,
                                       pathDevBounds,
                                       *args.fViewMatrix,

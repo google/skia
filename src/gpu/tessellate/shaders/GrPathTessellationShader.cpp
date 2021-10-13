@@ -56,17 +56,14 @@ GrPathTessellationShader* GrPathTessellationShader::MakeSimpleTriangleShader(
 const GrPipeline* GrPathTessellationShader::MakeStencilOnlyPipeline(
         const ProgramArgs& args,
         GrAAType aaType,
-        skgpu::tess::TessellationPathFlags pathFlags,
-        const GrAppliedHardClip& hardClip) {
-    using PathFlags = skgpu::tess::TessellationPathFlags;
+        const GrAppliedHardClip& hardClip,
+        GrPipeline::InputFlags pipelineFlags) {
     GrPipeline::InitArgs pipelineArgs;
-    if (args.fCaps->wireframeSupport() && (pathFlags & PathFlags::kWireframe)) {
-        pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kWireframe;
-    }
+    pipelineArgs.fInputFlags = pipelineFlags;
     pipelineArgs.fCaps = args.fCaps;
     return args.fArena->make<GrPipeline>(pipelineArgs,
-                                            GrDisableColorXPFactory::MakeXferProcessor(),
-                                            hardClip);
+                                         GrDisableColorXPFactory::MakeXferProcessor(),
+                                         hardClip);
 }
 
 // Evaluate our point of interest using numerically stable linear interpolations. We add our own

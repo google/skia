@@ -16,8 +16,6 @@
 #include "src/gpu/tessellate/PathCurveTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
-using PathFlags = skgpu::tess::TessellationPathFlags;
-
 namespace {
 
 // Fills an array of convex hulls surrounding 4-point cubic or conic instances. This shader is used
@@ -219,8 +217,9 @@ void PathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Prog
 
     // If using wireframe, we have to fall back on a standard Redbook "stencil then cover" algorithm
     // instead of bypassing the stencil buffer to fill the fan directly.
-    bool forceRedbookStencilPass = (fPathFlags & (PathFlags::kStencilOnly | PathFlags::kWireframe));
-    bool doFill = !(fPathFlags & PathFlags::kStencilOnly);
+    bool forceRedbookStencilPass =
+            (fPathFlags & (FillPathFlags::kStencilOnly | FillPathFlags::kWireframe));
+    bool doFill = !(fPathFlags & FillPathFlags::kStencilOnly);
 
     bool isLinear;
     fFanTriangulator = args.fArena->make<GrInnerFanTriangulator>(fPath, args.fArena);
@@ -229,8 +228,11 @@ void PathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Prog
     // Create a pipeline for stencil passes if needed.
     const GrPipeline* pipelineForStencils = nullptr;
     if (forceRedbookStencilPass || !isLinear) {  // Curves always get stencilled.
+        auto pipelineFlags = (fPathFlags & FillPathFlags::kWireframe)
+                ? GrPipeline::InputFlags::kWireframe
+                : GrPipeline::InputFlags::kNone;
         pipelineForStencils = GrPathTessellationShader::MakeStencilOnlyPipeline(
-                args, fAAType, fPathFlags, appliedClip.hardClip());
+                args, fAAType, appliedClip.hardClip(), pipelineFlags);
     }
 
     // Create a pipeline for fill passes if needed.

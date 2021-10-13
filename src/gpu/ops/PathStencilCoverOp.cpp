@@ -21,8 +21,6 @@
 #include "src/gpu/tessellate/PathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
-using PathFlags = skgpu::tess::TessellationPathFlags;
-
 namespace {
 
 // Fills a path's bounding box, with subpixel outset to avoid possible T-junctions with extreme
@@ -137,8 +135,11 @@ void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramA
 
     // We transform paths on the CPU. This allows for better batching.
     const SkMatrix& shaderMatrix = SkMatrix::I();
+    auto pipelineFlags = (fPathFlags & FillPathFlags::kWireframe)
+            ? GrPipeline::InputFlags::kWireframe
+            : GrPipeline::InputFlags::kNone;
     const GrPipeline* stencilPipeline = GrPathTessellationShader::MakeStencilOnlyPipeline(
-            args, fAAType, fPathFlags, appliedClip.hardClip());
+            args, fAAType, appliedClip.hardClip(), pipelineFlags);
     const GrUserStencilSettings* stencilSettings = GrPathTessellationShader::StencilPathSettings(
                     GrFillRuleForPathFillType(this->pathFillType()));
 
@@ -175,7 +176,7 @@ void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramA
                                                             stencilPipeline,
                                                             stencilSettings);
 
-    if (!(fPathFlags & PathFlags::kStencilOnly)) {
+    if (!(fPathFlags & FillPathFlags::kStencilOnly)) {
         // Create a program that draws a bounding box over the path and fills its stencil coverage
         // into the color buffer.
         auto* bboxShader = args.fArena->make<BoundingBoxShader>(fColor, *args.fCaps->shaderCaps());

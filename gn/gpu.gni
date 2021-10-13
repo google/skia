@@ -339,7 +339,6 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/StrokeHardwareTessellator.h",
   "$_src/gpu/tessellate/StrokeIterator.h",
   "$_src/gpu/tessellate/StrokeTessellator.h",
-  "$_src/gpu/tessellate/TessTypes.h",
   "$_src/gpu/tessellate/VectorXform.h",
 
   # tessellate/shaders
@@ -529,6 +528,7 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/ops/DrawVerticesOp.h",
   "$_src/gpu/ops/DrawableOp.cpp",
   "$_src/gpu/ops/DrawableOp.h",
+  "$_src/gpu/ops/FillPathFlags.h",
   "$_src/gpu/ops/FillRRectOp.cpp",
   "$_src/gpu/ops/FillRRectOp.h",
   "$_src/gpu/ops/FillRectOp.cpp",
