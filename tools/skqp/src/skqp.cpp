@@ -80,11 +80,11 @@ static void get_unit_tests(SkQPAssetManager* mgr, std::vector<SkQP::UnitTest>* u
         readlines(dat->data(), dat->size(), insert);
     }
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
-        if ((testset.empty() || testset.count(std::string(test.name)) > 0) && test.needsGpu) {
+        if ((testset.empty() || testset.count(std::string(test.fName)) > 0) && test.fNeedsGpu) {
             unitTests->push_back(&test);
         }
     }
-    auto lt = [](SkQP::UnitTest u, SkQP::UnitTest v) { return strcmp(u->name, v->name) < 0; };
+    auto lt = [](SkQP::UnitTest u, SkQP::UnitTest v) { return strcmp(u->fName, v->fName) < 0; };
     std::sort(unitTests->begin(), unitTests->end(), lt);
 }
 
@@ -244,7 +244,7 @@ std::string SkQP::GetGMName(SkQP::GMFactory f) {
     return std::string(gm ? gm->getName() : "");
 }
 
-const char* SkQP::GetUnitTestName(SkQP::UnitTest t) { return t->name; }
+const char* SkQP::GetUnitTestName(SkQP::UnitTest t) { return t->fName; }
 
 SkQP::SkQP() {}
 
@@ -355,7 +355,7 @@ std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
     if (test->fContextOptionsProc) {
         test->fContextOptionsProc(&options);
     }
-    test->proc(&r, options);
+    test->fProc(&r, options);
     fUnitTestResults.push_back(UnitTestResult{test, r.fErrors});
     return r.fErrors;
 }

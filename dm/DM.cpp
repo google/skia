@@ -1433,14 +1433,14 @@ static void gather_tests() {
         if (!in_shard()) {
             continue;
         }
-        if (CommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, test.fName)) {
             continue;
         }
-        if (test.needsGpu && FLAGS_gpu) {
+        if (test.fNeedsGpu && FLAGS_gpu) {
             gSerialTests->push_back(test);
         } else if (test.fNeedsGraphite && FLAGS_graphite) {
             gSerialTests->push_back(test);
-        } else if (!test.needsGpu && !test.fNeedsGraphite && FLAGS_cpu) {
+        } else if (!test.fNeedsGpu && !test.fNeedsGraphite && FLAGS_cpu) {
             gParallelTests->push_back(test);
         }
     }
@@ -1457,16 +1457,16 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
         bool verbose() const override { return FLAGS_veryVerbose; }
     } reporter;
 
-    if (!FLAGS_dryRun && !should_skip("_", "tests", "_", test.name)) {
+    if (!FLAGS_dryRun && !should_skip("_", "tests", "_", test.fName)) {
         AutoreleasePool pool;
         GrContextOptions options = grCtxOptions;
         test.modifyGrContextOptions(&options);
 
-        skiatest::ReporterContext ctx(&reporter, SkString(test.name));
-        start("unit", "test", "", test.name);
+        skiatest::ReporterContext ctx(&reporter, SkString(test.fName));
+        start("unit", "test", "", test.fName);
         test.run(&reporter, options);
     }
-    done("unit", "test", "", test.name);
+    done("unit", "test", "", test.fName);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

@@ -71,20 +71,20 @@ typedef void (*TestProc)(skiatest::Reporter*, const GrContextOptions&);
 typedef void (*ContextOptionsProc)(GrContextOptions*);
 
 struct Test {
-    Test(const char* n,
-         bool gpu,
+    Test(const char* name,
+         bool needsGpu,
          bool needsGraphite,
-         TestProc p,
+         TestProc proc,
          ContextOptionsProc optionsProc = nullptr)
-            : name(n)
-            , needsGpu(gpu)
+            : fName(name)
+            , fNeedsGpu(needsGpu)
             , fNeedsGraphite(needsGraphite)
-            , proc(p)
+            , fProc(proc)
             , fContextOptionsProc(optionsProc) {}
-    const char* name;
-    bool needsGpu;
+    const char* fName;
+    bool fNeedsGpu;
     bool fNeedsGraphite;
-    TestProc proc;
+    TestProc fProc;
     ContextOptionsProc fContextOptionsProc;
 
     void modifyGrContextOptions(GrContextOptions* options) {
@@ -94,8 +94,8 @@ struct Test {
     }
 
     void run(skiatest::Reporter* r, const GrContextOptions& options) const {
-        TRACE_EVENT1("test", TRACE_FUNC, "name", this->name/*these are static*/);
-        this->proc(r, options);
+        TRACE_EVENT1("test", TRACE_FUNC, "name", this->fName/*these are static*/);
+        this->fProc(r, options);
     }
 };
 

@@ -117,12 +117,12 @@ public:
         } reporter;
 
         const Timer timer;
-        fTest.proc(&reporter, GrContextOptions());
+        fTest.fProc(&reporter, GrContextOptions());
         SkMSec elapsed = timer.elapsedMsInt();
         if (reporter.fError) {
             fStatus->reportFailure();
         }
-        fStatus->endTest(fTest.name, !reporter.fError, elapsed, reporter.fTestCount);
+        fStatus->endTest(fTest.fName, !reporter.fError, elapsed, reporter.fTestCount);
   }
 
 private:
@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
     int toRun = 0;
 
     for (const Test& test : TestRegistry::Range()) {
-        if (should_run(test.name, test.needsGpu, test.fNeedsGraphite)) {
+        if (should_run(test.fName, test.fNeedsGpu, test.fNeedsGraphite)) {
             toRun++;
         }
         total++;
@@ -241,9 +241,9 @@ int main(int argc, char** argv) {
     Status status(toRun);
 
     for (const Test& test : TestRegistry::Range()) {
-        if (!should_run(test.name, test.needsGpu, test.fNeedsGraphite)) {
+        if (!should_run(test.fName, test.fNeedsGpu, test.fNeedsGraphite)) {
             ++skipCount;
-        } else if (test.needsGpu || test.fNeedsGraphite) {
+        } else if (test.fNeedsGpu || test.fNeedsGraphite) {
             gpuTests.push_back(&test);
         } else {
             cpuTests.add(SkTestRunnable(test, &status));

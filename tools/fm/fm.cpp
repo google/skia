@@ -417,13 +417,13 @@ int main(int argc, char** argv) {
 
     SkTHashMap<SkString, const skiatest::Test*> tests;
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
-        if (test.needsGpu || test.fNeedsGraphite) {
+        if (test.fNeedsGpu || test.fNeedsGraphite) {
             continue;  // TODO
         }
         if (FLAGS_listTests) {
-            fprintf(stdout, "%s\n", test.name);
+            fprintf(stdout, "%s\n", test.fName);
         } else {
-            tests.set(SkString{test.name}, &test);
+            tests.set(SkString{test.fName}, &test);
         }
     }
 

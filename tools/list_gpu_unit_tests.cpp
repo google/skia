@@ -15,8 +15,8 @@
 int main() {
     std::vector<std::string> tests;
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
-        if (test.needsGpu) {
-            tests.push_back(std::string(test.name));
+        if (test.fNeedsGpu) {
+            tests.push_back(std::string(test.fName));
         }
     }
     std::sort(tests.begin(), tests.end());
