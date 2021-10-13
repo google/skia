@@ -170,22 +170,6 @@ void IRGenerator::CheckModifiers(const Context& context,
     SkASSERT(layoutFlags == 0);
 }
 
-void IRGenerator::scanInterfaceBlock(SkSL::InterfaceBlock& intf) {
-    const std::vector<Type::Field>& fields = intf.variable().type().componentType().fields();
-    for (size_t i = 0; i < fields.size(); ++i) {
-        const Type::Field& f = fields[i];
-        if (f.fName == Compiler::RTADJUST_NAME) {
-            if (*f.fType == *fContext.fTypes.fFloat4) {
-                ThreadContext::RTAdjustData& rtAdjust = ThreadContext::RTAdjustState();
-                rtAdjust.fInterfaceBlock = &intf.variable();
-                rtAdjust.fFieldIndex = i;
-            } else {
-                this->errorReporter().error(intf.fLine, "sk_RTAdjust must have type 'float4'");
-            }
-        }
-    }
-}
-
 std::unique_ptr<Expression> IRGenerator::convertIdentifier(int line, skstd::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {

@@ -98,7 +98,6 @@ public:
 private:
     IRGenerator::IRBundle finish();
 
-    void scanInterfaceBlock(SkSL::InterfaceBlock& intf);
     /** Appends sk_Position fixup to the bottom of main() if this is a vertex program. */
     void appendRTAdjustFixupToVertexMain(const FunctionDeclaration& decl, Block* body);
 
