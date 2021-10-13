@@ -849,38 +849,24 @@ void Device::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Device::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
-                       const SkRect texRect[], const SkColor colors[], int count,
-                       SkBlendMode mode, const SkSamplingOptions& sampling,
+void Device::drawAtlas(const SkRSXform xform[],
+                       const SkRect texRect[],
+                       const SkColor colors[],
+                       int count,
+                       SkBlendMode mode,
                        const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawAtlas", fContext.get());
 
-    // Convert atlas to an image shader.
-    sk_sp<SkShader> shader = atlas->makeShader(sampling);
-    if (!shader) {
-        return;
-    }
-
-    // Create a fragment processor for atlas image.
-    GrFPArgs fpArgs(fContext.get(), this->asMatrixProvider(), &fSurfaceDrawContext->colorInfo());
-
-    std::unique_ptr<GrFragmentProcessor> shaderFP = as_SB(shader)->asFragmentProcessor(fpArgs);
-    if (shaderFP == nullptr) {
-        return;
-    }
-
     GrPaint grPaint;
     if (colors) {
-        if (!SkPaintToGrPaintWithBlendReplaceShader(
-                    this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                    this->asMatrixProvider(), std::move(shaderFP), mode, &grPaint)) {
+        if (!SkPaintToGrPaintWithBlend(this->recordingContext(), fSurfaceDrawContext->colorInfo(),
+                                       paint, this->asMatrixProvider(), mode, &grPaint)) {
             return;
         }
     } else {
-        if (!SkPaintToGrPaintReplaceShader(
-                    this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                    this->asMatrixProvider(), std::move(shaderFP), &grPaint)) {
+        if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(),
+                              paint, this->asMatrixProvider(), &grPaint)) {
             return;
         }
     }

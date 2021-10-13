@@ -277,10 +277,9 @@ protected:
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
 
-    // default implementation calls drawPath
-    virtual void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
-                           const SkColor[], int count, SkBlendMode, const SkSamplingOptions&,
-                           const SkPaint&);
+    // default implementation calls drawVertices
+    virtual void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
+                           SkBlendMode, const SkPaint&);
 
     virtual void drawAnnotation(const SkRect&, const char[], SkData*) {}
 

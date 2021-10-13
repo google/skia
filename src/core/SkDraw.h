@@ -65,8 +65,8 @@ public:
                              const SkPaint& paint,
                              SkGlyphRunListPainter* glyphPainter) const;
     void    drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) const;
-    void  drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
-                    SkBlendMode, const SkSamplingOptions&, const SkPaint&);
+    void  drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
+                    SkBlendMode, const SkPaint&);
 
     /**
      *  Overwrite the target with the path's coverage (i.e. its mask).

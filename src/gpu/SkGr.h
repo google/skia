@@ -108,16 +108,6 @@ bool SkPaintToGrPaintWithBlend(GrRecordingContext*,
                                SkBlendMode primColorMode,
                                GrPaint* grPaint);
 
-/** Blends the passed-in shader with a per-primitive color which must be setup as a vertex attribute
-    using the specified SkBlendMode. */
-bool SkPaintToGrPaintWithBlendReplaceShader(GrRecordingContext* context,
-                                            const GrColorInfo& dstColorInfo,
-                                            const SkPaint& skPaint,
-                                            const SkMatrixProvider& matrixProvider,
-                                            std::unique_ptr<GrFragmentProcessor> shaderFP,
-                                            SkBlendMode primColorMode,
-                                            GrPaint* grPaint);
-
 /** This is used when there is a primitive color, but the shader should be ignored. Currently,
     the expectation is that the primitive color will be premultiplied, though it really should be
     unpremultiplied so that interpolation is done in unpremul space. The paint's alpha will be

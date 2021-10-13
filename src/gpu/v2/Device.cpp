@@ -263,13 +263,11 @@ void Device::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawShadow", fContext.get());
 }
 
-void Device::drawAtlas(const SkImage* atlas,
-                       const SkRSXform xform[],
+void Device::drawAtlas(const SkRSXform xform[],
                        const SkRect texRect[],
                        const SkColor colors[],
                        int count,
                        SkBlendMode mode,
-                       const SkSamplingOptions& sampling,
                        const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawAtlas", fContext.get());

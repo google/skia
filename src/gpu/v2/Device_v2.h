@@ -109,8 +109,8 @@ protected:
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
     /* drawPatch */
-    void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[], const SkColor[],
-                   int count, SkBlendMode, const SkSamplingOptions&, const SkPaint&) override;
+    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[],
+                   int count, SkBlendMode, const SkPaint&) override;
     /* drawAnnotation */
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], SkCanvas::QuadAAFlags aaFlags,
                         const SkColor4f& color, SkBlendMode) override;

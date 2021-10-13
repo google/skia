@@ -86,10 +86,13 @@ private:
     mutable float fValues[4];
 };
 
-void SkDraw::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect textures[],
-                       const SkColor colors[], int count, SkBlendMode bmode,
-                       const SkSamplingOptions& sampling, const SkPaint& paint) {
-    sk_sp<SkShader> atlasShader = atlas->makeShader(sampling);
+void SkDraw::drawAtlas(const SkRSXform xform[],
+                       const SkRect textures[],
+                       const SkColor colors[],
+                       int count,
+                       SkBlendMode bmode,
+                       const SkPaint& paint) {
+    sk_sp<SkShader> atlasShader = paint.refShader();
     if (!atlasShader) {
         return;
     }

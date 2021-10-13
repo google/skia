@@ -606,22 +606,6 @@ bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                    /*shaderProcessor=*/nullptr, &primColorMode, grPaint);
 }
 
-/** Blends the passed-in shader with a per-primitive color which must be setup as a vertex attribute
-    using the specified SkBlendMode. */
-bool SkPaintToGrPaintWithBlendReplaceShader(GrRecordingContext* context,
-                                            const GrColorInfo& dstColorInfo,
-                                            const SkPaint& skPaint,
-                                            const SkMatrixProvider& matrixProvider,
-                                            std::unique_ptr<GrFragmentProcessor> shaderFP,
-                                            SkBlendMode primColorMode,
-                                            GrPaint* grPaint) {
-    if (!shaderFP) {
-        return false;
-    }
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &shaderFP,
-                                   &primColorMode, grPaint);
-}
-
 bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
                                  const GrColorInfo& dstColorInfo,
                                  const SkPaint& paint,

@@ -2422,13 +2422,14 @@ void SkCanvas::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[], const
                             const SkPaint* paint) {
     // drawAtlas is a combination of drawVertices and drawImage...
     SkPaint realPaint = clean_paint_for_drawVertices(clean_paint_for_drawImage(paint));
+    realPaint.setShader(atlas->makeShader(sampling));
 
     if (cull && this->internalQuickReject(*cull, realPaint)) {
         return;
     }
 
     AutoLayerForImageFilter layer(this, realPaint);
-    this->topDevice()->drawAtlas(atlas, xform, tex, colors, count, bmode, sampling, layer.paint());
+    this->topDevice()->drawAtlas(xform, tex, colors, count, bmode, layer.paint());
 }
 
 void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
