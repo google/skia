@@ -39,6 +39,10 @@ String VarDeclaration::description() const {
 
 void VarDeclaration::ErrorCheck(const Context& context, int line, const Modifiers& modifiers,
         const Type* baseType, Variable::Storage storage) {
+    if (*baseType == *context.fTypes.fInvalid) {
+        context.fErrors->error(line, "invalid type");
+        return;
+    }
     if (context.fConfig->strictES2Mode() && baseType->isArray()) {
         context.fErrors->error(line, "array size must appear after variable name");
     }

@@ -1,6 +1,4 @@
 ### Compilation failed:
 
-error: 1: no type named 'texture2D'
-error: 1: no type named 's'
-error: 1: expected a declaration, but found ';'
-3 errors
+error: 1: invalid type
+1 error

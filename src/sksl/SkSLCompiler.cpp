@@ -243,7 +243,7 @@ const ParsedModule& Compiler::loadVertexModule() {
 }
 
 static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
-    // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL
+    // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL.
     symbols->addAlias("vec2", types.fFloat2.get());
     symbols->addAlias("vec3", types.fFloat3.get());
     symbols->addAlias("vec4", types.fFloat4.get());
@@ -259,6 +259,12 @@ static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Builti
     symbols->addAlias("mat2", types.fFloat2x2.get());
     symbols->addAlias("mat3", types.fFloat3x3.get());
     symbols->addAlias("mat4", types.fFloat4x4.get());
+
+    // Alias every private type to "invalid". This will prevent code from using built-in names like
+    // `sampler2D` as variable names.
+    for (BuiltinTypePtr privateType : kPrivateTypes) {
+        symbols->addAlias((types.*privateType)->name(), types.fInvalid.get());
+    }
 }
 
 const ParsedModule& Compiler::loadPublicModule() {
