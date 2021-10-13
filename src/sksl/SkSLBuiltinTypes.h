@@ -86,7 +86,6 @@ public:
     const std::unique_ptr<Type> fTexture2D;
     const std::unique_ptr<Type> fTexture3D;
     const std::unique_ptr<Type> fTextureExternalOES;
-    const std::unique_ptr<Type> fTextureCube;
     const std::unique_ptr<Type> fTexture2DRect;
     const std::unique_ptr<Type> fITexture2D;
 

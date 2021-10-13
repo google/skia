@@ -100,12 +100,6 @@ BuiltinTypes::BuiltinTypes()
                                                     /*isArrayedTexture=*/false,
                                                     /*isMultisampled=*/false,
                                                     /*isSampled=*/true))
-        , fTextureCube(Type::MakeTextureType("textureCube",
-                                             SpvDimCube,
-                                             /*isDepth=*/false,
-                                             /*isArrayedTexture=*/false,
-                                             /*isMultisampled=*/false,
-                                             /*isSampled=*/true))
         , fTexture2DRect(Type::MakeTextureType("texture2DRect",
                                                SpvDimRect,
                                                /*isDepth=*/false,

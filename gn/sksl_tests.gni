@@ -150,6 +150,7 @@ sksl_error_tests = [
   "/sksl/errors/ReservedNameSampler2DRectShadow.sksl",
   "/sksl/errors/ReservedNameSampler2DShadow.sksl",
   "/sksl/errors/ReservedNameSampler3DRect.sksl",
+  "/sksl/errors/ReservedNameSamplerCube.sksl",
   "/sksl/errors/ReservedNameSizeof.sksl",
   "/sksl/errors/ReservedNameStatic.sksl",
   "/sksl/errors/ReservedNameSuperp.sksl",
