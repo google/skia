@@ -1,10 +1,9 @@
 uniform half4 colorGreen, colorRed;
-uniform float2x2 testMatrix2x2;
 
 bool test_float() {
     bool ok = true;
 
-    float2x2 m1 = testMatrix2x2;
+    float2x2 m1 = float2x2(float4(1, 2, 3, 4));
     ok = ok && (m1 == float2x2(1, 2, 3, 4));
 
     // This generates {5, 0, 0, 5} on some Radeon GPUs.
@@ -26,7 +25,7 @@ bool test_float() {
     m1 += m5;
     ok = ok && (m1 == float2x2(5, 2, 3, 8));
 
-    float2x2 m7 = float2x2(5, 6, float2(7, 8));
+    float2x2 m7 = float2x2(5, float3(6, 7, 8));
     ok = ok && (m7 == float2x2(5, 6, 7, 8));
 
     float3x3 m9 = float3x3(9);
@@ -39,20 +38,13 @@ bool test_float() {
     m11 -= m10;
     ok = ok && (m11 == float4x4(9, 20, 20, 20, 20, 9, 20, 20, 20, 20, 9, 20, 20, 20, 20, 9));
 
-    float4 f4 = float4(testMatrix2x2);
-    ok = ok && float2x2(f4.xy, f4.z, 4) ==
-               float2x2(1, 2, 3, 4);
-    ok = ok && float3x3(f4.xy, f4.z, f4.w, f4.xy, f4.zw, f4.x) ==
-               float3x3(1, 2, 3, 4, 1, 2, 3, 4, 1);
-    ok = ok && float4x4(f4.xy, f4.zw, f4.xyz, f4.w, f4.xyzw, 1, f4.yzw) ==
-               float4x4(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
     return ok;
 }
 
 bool test_half() {
     bool ok = true;
 
-    half2x2 m1 = half2x2(testMatrix2x2);
+    half2x2 m1 = half2x2(half4(1, 2, 3, 4));
     ok = ok && (m1 == half2x2(1, 2, 3, 4));
 
     // This generates {5, 0, 0, 5} on some Radeon GPUs.
@@ -74,7 +66,7 @@ bool test_half() {
     m1 += m5;
     ok = ok && (m1 == half2x2(5, 2, 3, 8));
 
-    half2x2 m7 = half2x2(5, 6, half2(7, 8));
+    half2x2 m7 = half2x2(5, half3(6, 7, 8));
     ok = ok && (m7 == half2x2(5, 6, 7, 8));
 
     half3x3 m9 = half3x3(9);
@@ -87,13 +79,6 @@ bool test_half() {
     m11 -= m10;
     ok = ok && (m11 == half4x4(9, 20, 20, 20, 20, 9, 20, 20, 20, 20, 9, 20, 20, 20, 20, 9));
 
-    half4 h4 = half4(testMatrix2x2);
-    ok = ok && half2x2(h4.xy, h4.z, 4) ==
-               half2x2(1, 2, 3, 4);
-    ok = ok && half3x3(h4.xy, h4.z, h4.w, h4.xy, h4.zw, h4.x) ==
-               half3x3(1, 2, 3, 4, 1, 2, 3, 4, 1);
-    ok = ok && half4x4(h4.xy, h4.zw, h4.xyz, h4.w, h4.xyzw, 1, h4.yzw) ==
-               half4x4(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
     return ok;
 }
 

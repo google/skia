@@ -4,7 +4,6 @@ using namespace metal;
 struct Uniforms {
     float4 colorGreen;
     float4 colorRed;
-    float2x2 testMatrix2x2;
 };
 struct Inputs {
 };
@@ -105,11 +104,7 @@ thread float2x4& operator/=(thread float2x4& left, thread const float2x4& right)
     left = left / right;
     return left;
 }
-
-float4 float4_from_float2x2(float2x2 x) {
-    return float4(x[0].xy, x[1].xy);
-}
-bool test_half_b(Uniforms _uniforms) {
+bool test_half_b() {
     bool ok = true;
     float2x3 m23 = float2x3(2.0);
     ok = ok && m23 == float2x3(float3(2.0, 0.0, 0.0), float3(0.0, 2.0, 0.0));
@@ -133,13 +128,6 @@ bool test_half_b(Uniforms _uniforms) {
     ok = ok && m32 == float3x2(float2(2.0, -2.0), float2(-2.0, 2.0), float2(-2.0, -2.0));
     m24 /= (float2x4(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) * 4.0);
     ok = ok && m24 == float2x4(float4(0.75, 0.0, 0.0, 0.0), float4(0.0, 0.75, 0.0, 0.0));
-    float4 h4 = float4_from_float2x2(_uniforms.testMatrix2x2);
-    ok = ok && float2x3(h4.xyz, float3(h4.w, h4.xy)) == float2x3(float3(1.0, 2.0, 3.0), float3(4.0, 1.0, 2.0));
-    ok = ok && float2x4(float4(h4.xyz, h4.w), float4(h4.x, h4.yzw)) == float2x4(float4(1.0, 2.0, 3.0, 4.0), float4(1.0, 2.0, 3.0, 4.0));
-    ok = ok && float3x2(h4.xy, h4.zw, float2(h4.x, h4.y)) == float3x2(float2(1.0, 2.0), float2(3.0, 4.0), float2(1.0, 2.0));
-    ok = ok && float3x4(float4(h4.xy, h4.zw), h4, float4(h4.x, h4.yz, h4.w)) == float3x4(float4(1.0, 2.0, 3.0, 4.0), float4(1.0, 2.0, 3.0, 4.0), float4(1.0, 2.0, 3.0, 4.0));
-    ok = ok && float4x2(h4.xy, float2(h4.z, h4.w), h4.xy, float2(h4.z, h4.w)) == float4x2(float2(1.0, 2.0), float2(3.0, 4.0), float2(1.0, 2.0), float2(3.0, 4.0));
-    ok = ok && float4x3(float3(h4.x, h4.yz), float3(h4.wx, h4.y), h4.zwx, h4.yzw) == float4x3(float3(1.0, 2.0, 3.0), float3(4.0, 1.0, 2.0), float3(3.0, 4.0, 1.0), float3(2.0, 3.0, 4.0));
     return ok;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
@@ -168,13 +156,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _0_ok = _0_ok && _3_m32 == float3x2(float2(2.0, -2.0), float2(-2.0, 2.0), float2(-2.0, -2.0));
     _2_m24 /= (float2x4(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) * 4.0);
     _0_ok = _0_ok && _2_m24 == float2x4(float4(0.75, 0.0, 0.0, 0.0), float4(0.0, 0.75, 0.0, 0.0));
-    float4 _10_f4 = float4_from_float2x2(_uniforms.testMatrix2x2);
-    _0_ok = _0_ok && float2x3(_10_f4.xyz, float3(_10_f4.w, _10_f4.xy)) == float2x3(float3(1.0, 2.0, 3.0), float3(4.0, 1.0, 2.0));
-    _0_ok = _0_ok && float2x4(float4(_10_f4.xyz, _10_f4.w), float4(_10_f4.x, _10_f4.yzw)) == float2x4(float4(1.0, 2.0, 3.0, 4.0), float4(1.0, 2.0, 3.0, 4.0));
-    _0_ok = _0_ok && float3x2(_10_f4.xy, _10_f4.zw, float2(_10_f4.x, _10_f4.y)) == float3x2(float2(1.0, 2.0), float2(3.0, 4.0), float2(1.0, 2.0));
-    _0_ok = _0_ok && float3x4(float4(_10_f4.xy, _10_f4.zw), _10_f4, float4(_10_f4.x, _10_f4.yz, _10_f4.w)) == float3x4(float4(1.0, 2.0, 3.0, 4.0), float4(1.0, 2.0, 3.0, 4.0), float4(1.0, 2.0, 3.0, 4.0));
-    _0_ok = _0_ok && float4x2(_10_f4.xy, float2(_10_f4.z, _10_f4.w), _10_f4.xy, float2(_10_f4.z, _10_f4.w)) == float4x2(float2(1.0, 2.0), float2(3.0, 4.0), float2(1.0, 2.0), float2(3.0, 4.0));
-    _0_ok = _0_ok && float4x3(float3(_10_f4.x, _10_f4.yz), float3(_10_f4.wx, _10_f4.y), _10_f4.zwx, _10_f4.yzw) == float4x3(float3(1.0, 2.0, 3.0), float3(4.0, 1.0, 2.0), float3(3.0, 4.0, 1.0), float3(2.0, 3.0, 4.0));
-    _out.sk_FragColor = _0_ok && test_half_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = _0_ok && test_half_b() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

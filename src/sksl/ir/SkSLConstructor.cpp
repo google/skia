@@ -108,32 +108,12 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
     // For more complex cases, we walk the argument list and fix up the arguments as needed.
     int expected = type.rows() * type.columns();
     int actual = 0;
-    for (size_t index = 0; index < args.size(); ++index) {
-        std::unique_ptr<Expression>& arg = args[index];
+    for (std::unique_ptr<Expression>& arg : args) {
         if (!arg->type().isScalar() && !arg->type().isVector()) {
             context.fErrors->error(line, "'" + arg->type().displayName() +
                                          "' is not a valid parameter to '" + type.displayName() +
                                          "' constructor");
             return nullptr;
-        }
-
-        if (type.isMatrix()) {
-            if (type.slotCount() == 4 && arg->type().slotCount() == 4) {
-                // Allow mat2(vec4) constructors. These have real-world utility.
-            } else {
-                // Disallow arguments which split across multiple matrix columns. The GLSL spec
-                // technically allows it, but it's rarely useful, and several GPU drivers fail in
-                // practice.
-                int limit = type.rows() - (actual % type.rows());
-                if (arg->type().columns() > limit) {
-                    context.fErrors->error(line,
-                            "argument " + std::to_string(index + 1) + " to '" + type.displayName() +
-                            "' constructor is '" + arg->type().displayName() + "', but matrix "
-                            "column only has " + std::to_string(limit) + " slot" +
-                            ((limit != 1) ? "s" : "") + " left");
-                    return nullptr;
-                }
-            }
         }
 
         // Rely on Constructor::Convert to force this subexpression to the proper type. If it's a

@@ -6,7 +6,7 @@ half4 main(float2 coords) {
     half2x4 h24 = matrixCompMult(half2x4(9, 9, 9, 9, 9, 9, 9, 9),
                                  half2x4(colorRed, colorGreen));
     half4x2 h42 = matrixCompMult(half4x2(1, 2, 3, 4, 5, 6, 7, 8),
-                                 half4x2(colorRed.xy, colorRed.zw, colorGreen.xy, colorGreen.zw));
+                                 half4x2(colorRed, colorGreen));
     const float3x4 f34 = matrixCompMult(float3x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
                                         float3x4(12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1));
     float4x3 f43 = matrixCompMult(float4x3(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),

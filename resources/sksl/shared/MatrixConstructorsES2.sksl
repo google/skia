@@ -1,0 +1,16 @@
+uniform half4 colorGreen, colorRed;
+uniform float2x2 testMatrix2x2;  // equals (1, 2, 3, 4)
+
+half4 main(float2 coords) {
+    float4 f4 = float4(testMatrix2x2);
+
+    // These matrices are intentionally assembled off-kilter; the vectors shouldn't line up with the
+    // natural matrix stride. Metal and SPIR-V will need to reorder the data to make it fit.
+    bool ok = float2x2(f4.xyz, 4)                       == float2x2(1, 2, 3, 4);
+    ok = ok && float3x3(f4.xy, f4.zw, f4.xyzw, f4.x)    == float3x3(1, 2, 3, 4, 1, 2, 3, 4, 1);
+    ok = ok && float4x4(f4.xyz, f4.wxy, f4.zwxy, f4.zw, f4.xyzw) == float4x4(1, 2, 3, 4,
+                                                                             1, 2, 3, 4,
+                                                                             1, 2, 3, 4,
+                                                                             1, 2, 3, 4);
+    return ok ? colorGreen : colorRed;
+}
