@@ -7,11 +7,13 @@
 
 #include "experimental/graphite/src/Recorder.h"
 
+#include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/Recording.h"
 
 namespace skgpu {
 
-Recorder::Recorder() {}
+Recorder::Recorder(sk_sp<Context> context) : fContext(std::move(context)) {}
 Recorder::~Recorder() {}
 
 void Recorder::add(sk_sp<Task> task) {
@@ -19,9 +21,9 @@ void Recorder::add(sk_sp<Task> task) {
 }
 
 std::unique_ptr<Recording> Recorder::snap() {
-    // TODO: transmute the task graph into the Recording's primitives
+    // TODO: need to create a CommandBuffer from the Tasks
     fGraph.reset();
-    return std::unique_ptr<Recording>(new Recording);
+    return std::unique_ptr<Recording>(new Recording(nullptr));
 }
 
 } // namespace skgpu

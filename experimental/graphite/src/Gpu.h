@@ -11,6 +11,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkDeque.h"
 
+#include "experimental/graphite/include/GraphiteTypes.h"
+
 namespace skgpu {
 
 class Caps;
@@ -30,13 +32,6 @@ public:
 
     ResourceProvider* resourceProvider() const { return fResourceProvider.get(); }
 
-    /**
-     * Submit command buffer to GPU and track completion
-     */
-    enum class SyncToCpu : bool {
-        kYes = true,
-        kNo = false
-    };
     bool submit(sk_sp<CommandBuffer>);
     void checkForFinishedWork(SyncToCpu);
 

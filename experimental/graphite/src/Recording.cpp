@@ -7,9 +7,14 @@
 
 #include "experimental/graphite/src/Recording.h"
 
+#include "experimental/graphite/src/CommandBuffer.h"
+
 namespace skgpu {
 
-Recording::Recording() {}
+Recording::Recording(sk_sp<CommandBuffer> commandBuffer)
+        : fCommandBuffer(std::move(commandBuffer)){
+}
+
 Recording::~Recording() {}
 
 } // namespace skgpu

@@ -8,18 +8,24 @@
 #ifndef skgpu_Recording_DEFINED
 #define skgpu_Recording_DEFINED
 
+#include "include/core/SkRefCnt.h"
+
 namespace skgpu {
 
-class Recording {
+class CommandBuffer;
+
+class Recording final {
 public:
-    Recording();
+    Recording(sk_sp<CommandBuffer>);
     ~Recording();
 
 protected:
 private:
+    friend class Context; // for access to fCommandBuffer
+
+    sk_sp<CommandBuffer> fCommandBuffer;
 };
 
 } // namespace skgpu
 
 #endif // skgpu_Recording_DEFINED
-

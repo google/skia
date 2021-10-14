@@ -87,6 +87,14 @@ private:
     friend constexpr skgpu::Mask<E> operator~(E); \
 
 /**
+ * Actually submit work to the GPU and track its completion
+ */
+enum class SyncToCpu : bool {
+    kYes = true,
+    kNo = false
+};
+
+/**
  * Possible 3D APIs that may be used by Graphite.
  */
 enum class BackendApi : unsigned {

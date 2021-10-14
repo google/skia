@@ -7,10 +7,10 @@
 
 #include "experimental/graphite/src/Device.h"
 
-#include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/SkStuff.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
+#include "experimental/graphite/src/Recorder.h"
 #include "experimental/graphite/src/geom/Shape.h"
 
 #include "include/core/SkPath.h"
@@ -29,18 +29,18 @@ static const SkStrokeRec kFillStyle(SkStrokeRec::kFill_InitStyle);
 
 } // anonymous namespace
 
-sk_sp<Device> Device::Make(sk_sp<Context> context, const SkImageInfo& ii) {
+sk_sp<Device> Device::Make(sk_sp<Recorder> recorder, const SkImageInfo& ii) {
     sk_sp<DrawContext> dc = DrawContext::Make(ii);
     if (!dc) {
         return nullptr;
     }
 
-    return sk_sp<Device>(new Device(std::move(context), std::move(dc)));
+    return sk_sp<Device>(new Device(std::move(recorder), std::move(dc)));
 }
 
-Device::Device(sk_sp<Context> context, sk_sp<DrawContext> dc)
+Device::Device(sk_sp<Recorder> recorder, sk_sp<DrawContext> dc)
         : SkBaseDevice(dc->imageInfo(), SkSurfaceProps())
-        , fContext(std::move(context))
+        , fRecorder(std::move(recorder))
         , fDC(std::move(dc)) {
     SkASSERT(SkToBool(fDC));
 }
@@ -49,11 +49,11 @@ SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
     // TODO: Inspect the paint and create info to determine if there's anything that has to be
     // modified to support inline subpasses.
     // TODO: onCreateDevice really should return sk_sp<SkBaseDevice>...
-    return Make(fContext, info.fInfo).release();
+    return Make(fRecorder, info.fInfo).release();
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& /* props */) {
-    return MakeGraphite(fContext, ii);
+    return MakeGraphite(fRecorder, ii);
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {

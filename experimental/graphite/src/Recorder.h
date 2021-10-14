@@ -9,15 +9,17 @@
 #define skgpu_Recorder_DEFINED
 
 #include "experimental/graphite/src/TaskGraph.h"
+#include "include/core/SkRefCnt.h"
 
 namespace skgpu {
 
+class Context;
 class Recording;
 
-class Recorder {
+class Recorder final : public SkRefCnt {
 public:
-    Recorder();
-    ~Recorder();
+    Recorder(sk_sp<Context>);
+    ~Recorder() override;
 
     void add(sk_sp<Task>);
 
@@ -25,10 +27,10 @@ public:
 
 protected:
 private:
+    sk_sp<Context> fContext;
     TaskGraph fGraph;
 };
 
 } // namespace skgpu
 
 #endif // skgpu_Recorder_DEFINED
-

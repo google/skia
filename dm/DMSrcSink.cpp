@@ -82,6 +82,8 @@
 #ifdef SK_GRAPHITE_ENABLED
 #include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/SkStuff.h"
+#include "experimental/graphite/src/Recorder.h"
+#include "experimental/graphite/src/Recording.h"
 #include "tools/graphite/ContextFactory.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #endif
@@ -2160,20 +2162,32 @@ Result GraphiteSink::draw(const Src& src,
         precompile(context.get());
     }
 
-    sk_sp<SkSurface> surface = MakeGraphite(std::move(context), ii);
-    if (!surface) {
-        return Result::Fatal("Could not create a surface.");
+    sk_sp<skgpu::Recorder> recorder = context->createRecorder();
+    if (!recorder) {
+        return Result::Fatal("Could not create a recorder.");
     }
-    Result result = src.draw(/* dContext */ nullptr, surface->getCanvas());
-    if (!result.isOk()) {
-        return result;
-    }
-    surface->flushAndSubmit();
 
-    dst->allocPixels(surface->imageInfo());
-    if (!surface->readPixels(*dst, 0, 0)) {
-        return Result::Fatal("Could not readback from surface.");
+    dst->allocPixels(ii);
+
+    {
+        sk_sp<SkSurface> surface = MakeGraphite(recorder, ii);
+        if (!surface) {
+            return Result::Fatal("Could not create a surface.");
+        }
+        Result result = src.draw(/* dContext */ nullptr, surface->getCanvas());
+        if (!result.isOk()) {
+            return result;
+        }
+
+        if (!surface->readPixels(*dst, 0, 0)) {
+            return Result::Fatal("Could not readback from surface.");
+        }
     }
+
+    std::unique_ptr<skgpu::Recording> recording = recorder->snap();
+
+    context->insertRecording(std::move(recording));
+    context->submit(skgpu::SyncToCpu::kYes);
 
     return Result::Ok();
 }

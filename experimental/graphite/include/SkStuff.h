@@ -14,10 +14,10 @@ struct SkImageInfo;
 class SkSurface;
 
 namespace skgpu {
-    class Context;
+    class Recorder;
 }
 
 // TODO: Should be in SkSurface.h
-sk_sp<SkSurface> MakeGraphite(sk_sp<skgpu::Context>, const SkImageInfo&);
+sk_sp<SkSurface> MakeGraphite(sk_sp<skgpu::Recorder>, const SkImageInfo&);
 
 #endif // SkStuff_DEFINED
