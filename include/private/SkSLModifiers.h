@@ -14,6 +14,8 @@
 
 namespace SkSL {
 
+class Context;
+
 /**
  * A set of modifier keywords (in, out, uniform, etc.) appearing before a declaration.
  */
@@ -110,6 +112,13 @@ struct Modifiers {
     bool operator!=(const Modifiers& other) const {
         return !(*this == other);
     }
+
+    /**
+     * Verifies that only permitted modifiers and layout flags are included. Reports errors and
+     * returns false in the event of a violation.
+     */
+    bool checkPermitted(const Context& context, int line, int permittedModifierFlags,
+            int permittedLayoutFlags) const;
 
     Layout fLayout;
     int fFlags;

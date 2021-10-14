@@ -39,7 +39,7 @@ static bool check_modifiers(const Context& context,
                           Modifiers::kInline_Flag |
                           Modifiers::kNoInline_Flag |
                           (context.fConfig->fIsBuiltinCode ? Modifiers::kES3_Flag : 0);
-    IRGenerator::CheckModifiers(context, line, modifiers, permitted, /*permittedLayoutFlags=*/0);
+    modifiers.checkPermitted(context, line, permitted, /*permittedLayoutFlags=*/0);
     if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
         (modifiers.fFlags & Modifiers::kNoInline_Flag)) {
         context.fErrors->error(line, "functions cannot be both 'inline' and 'noinline'");
@@ -80,9 +80,9 @@ static bool check_parameters(const Context& context,
 
     // Check modifiers on each function parameter.
     for (auto& param : parameters) {
-        IRGenerator::CheckModifiers(context, param->fLine, param->modifiers(),
-                                    Modifiers::kConst_Flag | Modifiers::kIn_Flag |
-                                    Modifiers::kOut_Flag, /*permittedLayoutFlags=*/0);
+        param->modifiers().checkPermitted(context, param->fLine,
+                Modifiers::kConst_Flag | Modifiers::kIn_Flag | Modifiers::kOut_Flag,
+                /*permittedLayoutFlags=*/0);
         const Type& type = param->type();
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
         // parameters. You can pass other opaque types to functions safely; this restriction is

@@ -85,12 +85,6 @@ public:
         fSymbolTable = symbolTable;
     }
 
-    static void CheckModifiers(const Context& context,
-                               int line,
-                               const Modifiers& modifiers,
-                               int permittedModifierFlags,
-                               int permittedLayoutFlags);
-
     std::unique_ptr<Expression> convertIdentifier(int line, skstd::string_view identifier);
 
     const Context& fContext;
