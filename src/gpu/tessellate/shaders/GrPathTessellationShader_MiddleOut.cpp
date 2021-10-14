@@ -8,8 +8,8 @@
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 #include "src/core/SkMathPriv.h"
-#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/tessellate/WangsFormula.h"
 
 namespace {
 
@@ -71,7 +71,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
             v->defineConstant("PRECISION", GrTessellationShader::kLinearizationPrecision);
             v->defineConstant("MAX_FIXED_RESOLVE_LEVEL", (float)kMaxFixedCountResolveLevel);
             v->defineConstant("MAX_FIXED_SEGMENTS", (float)kMaxFixedCountSegments);
-            v->insertFunction(GrWangsFormula::as_sksl().c_str());
+            v->insertFunction(wangs_formula::as_sksl().c_str());
             if (shaderCaps.infinitySupport()) {
                 v->insertFunction(R"(
                 bool is_conic_curve() { return isinf(p23.w); }

@@ -7,10 +7,10 @@
 
 #include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
-#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/tessellate/WangsFormula.h"
 
 void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const auto& shader = args.fGeomProc.cast<GrStrokeTessellationShader>();
@@ -347,7 +347,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN vsStrokeArgs[0].x\n");
     }
 
-    code.append(GrWangsFormula::as_sksl());
+    code.append(wangs_formula::as_sksl());
     code.append(kCosineBetweenVectorsFn);
     code.append(kMiterExtentFn);
     code.append(R"(

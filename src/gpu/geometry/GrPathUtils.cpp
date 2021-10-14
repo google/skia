@@ -11,7 +11,7 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkUtils.h"
-#include "src/gpu/geometry/GrWangsFormula.h"
+#include "src/gpu/tessellate/WangsFormula.h"
 
 static const SkScalar kMinCurveTol = 0.0001f;
 
@@ -64,7 +64,7 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
 }
 
 uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) {
-    return max_bezier_vertices(GrWangsFormula::quadratic_log2(
+    return max_bezier_vertices(wangs_formula::quadratic_log2(
             tolerance_to_wangs_precision(tol), points));
 }
 
@@ -94,7 +94,7 @@ uint32_t GrPathUtils::generateQuadraticPoints(const SkPoint& p0,
 }
 
 uint32_t GrPathUtils::cubicPointCount(const SkPoint points[], SkScalar tol) {
-    return max_bezier_vertices(GrWangsFormula::cubic_log2(
+    return max_bezier_vertices(wangs_formula::cubic_log2(
             tolerance_to_wangs_precision(tol), points));
 }
 

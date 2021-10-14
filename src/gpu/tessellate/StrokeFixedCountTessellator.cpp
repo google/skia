@@ -11,9 +11,9 @@
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
-#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/StrokeIterator.h"
+#include "src/gpu/tessellate/WangsFormula.h"
 
 #if SK_GPU_V1
 #include "src/gpu/GrOpFlushState.h"
@@ -73,7 +73,7 @@ public:
     }
 
     SK_ALWAYS_INLINE void quadraticTo(const SkPoint p[3]) {
-        float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fParametricPrecision, p);
+        float numParametricSegments_pow4 = wangs_formula::quadratic_pow4(fParametricPrecision, p);
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
             this->chopQuadraticTo(p);
             return;
@@ -87,7 +87,7 @@ public:
     }
 
     SK_ALWAYS_INLINE void conicTo(const SkPoint p[3], float w) {
-        float n = GrWangsFormula::conic_pow2(fParametricPrecision, p, w);
+        float n = wangs_formula::conic_pow2(fParametricPrecision, p, w);
         float numParametricSegments_pow4 = n*n;
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
             this->chopConicTo({p, w});
@@ -102,7 +102,7 @@ public:
     }
 
     SK_ALWAYS_INLINE void cubicConvex180To(const SkPoint p[4]) {
-        float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fParametricPrecision, p);
+        float numParametricSegments_pow4 = wangs_formula::cubic_pow4(fParametricPrecision, p);
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
             this->chopCubicConvex180To(p);
             return;

@@ -7,8 +7,8 @@
 
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
-#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/tessellate/WangsFormula.h"
 
 namespace {
 
@@ -63,7 +63,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareWedgeShader::makeProgr
             code.appendf(R"(
             #define PRECISION %f)", GrTessellationShader::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(GrWangsFormula::as_sksl());
+            code.append(wangs_formula::as_sksl());
             code.append(R"(
             layout(vertices = 1) out;
 
@@ -191,7 +191,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareCurveShader::makeProgr
             code.appendf(R"(
             #define PRECISION %f)", GrTessellationShader::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(GrWangsFormula::as_sksl());
+            code.append(wangs_formula::as_sksl());
             code.append(R"(
             layout(vertices = 1) out;
 

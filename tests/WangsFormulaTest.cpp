@@ -7,7 +7,7 @@
 
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
-#include "src/gpu/geometry/GrWangsFormula.h"
+#include "src/gpu/tessellate/WangsFormula.h"
 #include "tests/Test.h"
 
 constexpr static float kPrecision = 4;  // 1/4 pixel max error.
@@ -186,9 +186,9 @@ DEF_TEST(WangsFormula_log2, r) {
         }
     };
 
-    // GrWangsFormula::cubic and ::quadratic both use rsqrt instead of sqrt for speed. Linearization
-    // is all approximate anyway, so as long as we are within ~1/2 tessellation segment of the
-    // reference value we are good enough.
+    // wangs_formula_cubic and wangs_formula_quadratic both use rsqrt instead of sqrt for speed.
+    // Linearization is all approximate anyway, so as long as we are within ~1/2 tessellation
+    // segment of the reference value we are good enough.
     constexpr static float kTessellationTolerance = 1/128.f;
 
     for (int level = 0; level < 30; ++level) {
@@ -204,15 +204,15 @@ DEF_TEST(WangsFormula_log2, r) {
             setupCubicLengthTerm(level << 1, pts, x - epsilon);
             float referenceValue = wangs_formula_cubic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level);
-            float c = GrWangsFormula::cubic(kPrecision, pts);
+            float c = wangs_formula::cubic(kPrecision, pts);
             REPORTER_ASSERT(r, SkScalarNearlyEqual(c/referenceValue, 1, kTessellationTolerance));
-            REPORTER_ASSERT(r, GrWangsFormula::cubic_log2(kPrecision, pts) == level);
+            REPORTER_ASSERT(r, wangs_formula::cubic_log2(kPrecision, pts) == level);
             setupCubicLengthTerm(level << 1, pts, x + epsilon);
             referenceValue = wangs_formula_cubic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level + 1);
-            c = GrWangsFormula::cubic(kPrecision, pts);
+            c = wangs_formula::cubic(kPrecision, pts);
             REPORTER_ASSERT(r, SkScalarNearlyEqual(c/referenceValue, 1, kTessellationTolerance));
-            REPORTER_ASSERT(r, GrWangsFormula::cubic_log2(kPrecision, pts) == level + 1);
+            REPORTER_ASSERT(r, wangs_formula::cubic_log2(kPrecision, pts) == level + 1);
         }
 
         {
@@ -223,31 +223,31 @@ DEF_TEST(WangsFormula_log2, r) {
             setupQuadraticLengthTerm(level << 1, pts, x - epsilon);
             float referenceValue = wangs_formula_quadratic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level);
-            float q = GrWangsFormula::quadratic(kPrecision, pts);
+            float q = wangs_formula::quadratic(kPrecision, pts);
             REPORTER_ASSERT(r, SkScalarNearlyEqual(q/referenceValue, 1, kTessellationTolerance));
-            REPORTER_ASSERT(r, GrWangsFormula::quadratic_log2(kPrecision, pts) == level);
+            REPORTER_ASSERT(r, wangs_formula::quadratic_log2(kPrecision, pts) == level);
             setupQuadraticLengthTerm(level << 1, pts, x + epsilon);
             referenceValue = wangs_formula_quadratic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level+1);
-            q = GrWangsFormula::quadratic(kPrecision, pts);
+            q = wangs_formula::quadratic(kPrecision, pts);
             REPORTER_ASSERT(r, SkScalarNearlyEqual(q/referenceValue, 1, kTessellationTolerance));
-            REPORTER_ASSERT(r, GrWangsFormula::quadratic_log2(kPrecision, pts) == level + 1);
+            REPORTER_ASSERT(r, wangs_formula::quadratic_log2(kPrecision, pts) == level + 1);
         }
     }
 
     auto check_cubic_log2 = [&](const SkPoint* pts) {
         float f = std::max(1.f, wangs_formula_cubic_reference_impl(kPrecision, pts));
-        int f_log2 = GrWangsFormula::cubic_log2(kPrecision, pts);
+        int f_log2 = wangs_formula::cubic_log2(kPrecision, pts);
         REPORTER_ASSERT(r, SkScalarCeilToInt(std::log2(f)) == f_log2);
-        float c = std::max(1.f, GrWangsFormula::cubic(kPrecision, pts));
+        float c = std::max(1.f, wangs_formula::cubic(kPrecision, pts));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(c/f, 1, kTessellationTolerance));
     };
 
     auto check_quadratic_log2 = [&](const SkPoint* pts) {
         float f = std::max(1.f, wangs_formula_quadratic_reference_impl(kPrecision, pts));
-        int f_log2 = GrWangsFormula::quadratic_log2(kPrecision, pts);
+        int f_log2 = wangs_formula::quadratic_log2(kPrecision, pts);
         REPORTER_ASSERT(r, SkScalarCeilToInt(std::log2(f)) == f_log2);
-        float q = std::max(1.f, GrWangsFormula::quadratic(kPrecision, pts));
+        float q = std::max(1.f, wangs_formula::quadratic(kPrecision, pts));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(q/f, 1, kTessellationTolerance));
     };
 
@@ -279,16 +279,16 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
     auto check_cubic_log2_with_transform = [&](const SkPoint* pts, const SkMatrix& m){
         SkPoint ptsXformed[4];
         m.mapPoints(ptsXformed, pts, 4);
-        int expected = GrWangsFormula::cubic_log2(kPrecision, ptsXformed);
-        int actual = GrWangsFormula::cubic_log2(kPrecision, pts, skgpu::tess::VectorXform(m));
+        int expected = wangs_formula::cubic_log2(kPrecision, ptsXformed);
+        int actual = wangs_formula::cubic_log2(kPrecision, pts, skgpu::tess::VectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
     };
 
     auto check_quadratic_log2_with_transform = [&](const SkPoint* pts, const SkMatrix& m) {
         SkPoint ptsXformed[3];
         m.mapPoints(ptsXformed, pts, 3);
-        int expected = GrWangsFormula::quadratic_log2(kPrecision, ptsXformed);
-        int actual = GrWangsFormula::quadratic_log2(kPrecision, pts, skgpu::tess::VectorXform(m));
+        int expected = wangs_formula::quadratic_log2(kPrecision, ptsXformed);
+        int actual = wangs_formula::quadratic_log2(kPrecision, pts, skgpu::tess::VectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
     };
 
@@ -312,23 +312,23 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
 DEF_TEST(WangsFormula_worst_case_cubic, r) {
     {
         SkPoint worstP[] = {{0,0}, {100,100}, {0,0}, {0,0}};
-        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kPrecision, 100, 100) ==
+        REPORTER_ASSERT(r, wangs_formula::worst_case_cubic(kPrecision, 100, 100) ==
                            wangs_formula_cubic_reference_impl(kPrecision, worstP));
-        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kPrecision, 100, 100) ==
-                           GrWangsFormula::cubic_log2(kPrecision, worstP));
+        REPORTER_ASSERT(r, wangs_formula::worst_case_cubic_log2(kPrecision, 100, 100) ==
+                           wangs_formula::cubic_log2(kPrecision, worstP));
     }
     {
         SkPoint worstP[] = {{100,100}, {100,100}, {200,200}, {100,100}};
-        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kPrecision, 100, 100) ==
+        REPORTER_ASSERT(r, wangs_formula::worst_case_cubic(kPrecision, 100, 100) ==
                            wangs_formula_cubic_reference_impl(kPrecision, worstP));
-        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kPrecision, 100, 100) ==
-                           GrWangsFormula::cubic_log2(kPrecision, worstP));
+        REPORTER_ASSERT(r, wangs_formula::worst_case_cubic_log2(kPrecision, 100, 100) ==
+                           wangs_formula::cubic_log2(kPrecision, worstP));
     }
     auto check_worst_case_cubic = [&](const SkPoint* pts) {
         SkRect bbox;
         bbox.setBoundsNoCheck(pts, 4);
-        float worst = GrWangsFormula::worst_case_cubic(kPrecision, bbox.width(), bbox.height());
-        int worst_log2 = GrWangsFormula::worst_case_cubic_log2(kPrecision, bbox.width(),
+        float worst = wangs_formula::worst_case_cubic(kPrecision, bbox.width(), bbox.height());
+        int worst_log2 = wangs_formula::worst_case_cubic_log2(kPrecision, bbox.width(),
                                                                bbox.height());
         float actual = wangs_formula_cubic_reference_impl(kPrecision, pts);
         REPORTER_ASSERT(r, worst >= actual);
@@ -401,7 +401,7 @@ DEF_TEST(WangsFormula_rational_quad_reduces, r) {
     SkRandom rand;
     for (int i = 0; i < 100; ++i) {
         for_random_beziers(3, &rand, [&r](const SkPoint pts[]) {
-            const float rational_nsegs = GrWangsFormula::conic(kPrecision, pts, 1.f);
+            const float rational_nsegs = wangs_formula::conic(kPrecision, pts, 1.f);
             const float integral_nsegs = wangs_formula_quadratic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(
                     r, SkScalarNearlyEqual(rational_nsegs, integral_nsegs, kTessellationTolerance));
@@ -446,7 +446,7 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
         for_random_beziers(
                 3, &rand,
                 [&](const SkPoint pts[]) {
-                    const int nsegs = SkScalarCeilToInt(GrWangsFormula::conic(kPrecision, pts, w));
+                    const int nsegs = SkScalarCeilToInt(wangs_formula::conic(kPrecision, pts, w));
 
                     const float tdelta = 1.f / nsegs;
                     for (int j = 0; j < nsegs; ++j) {
@@ -478,7 +478,7 @@ DEF_TEST(WangsFormula_conic_matches_reference, r) {
         const float w = std::ldexp(1 + rand.nextF(), i);
         for_random_beziers(3, &rand, [&r, w](const SkPoint pts[]) {
             const float ref_nsegs = wangs_formula_conic_reference_impl(kPrecision, pts, w);
-            const float nsegs = GrWangsFormula::conic(kPrecision, pts, w);
+            const float nsegs = wangs_formula::conic(kPrecision, pts, w);
 
             // Because the Gr version may implement the math differently for performance,
             // allow different slack in the comparison based on the rough scale of the answer.
@@ -493,8 +493,8 @@ DEF_TEST(WangsFormula_conic_vectorXforms, r) {
     auto check_conic_with_transform = [&](const SkPoint* pts, float w, const SkMatrix& m) {
         SkPoint ptsXformed[3];
         m.mapPoints(ptsXformed, pts, 3);
-        float expected = GrWangsFormula::conic(kPrecision, ptsXformed, w);
-        float actual = GrWangsFormula::conic(kPrecision, pts, w, skgpu::tess::VectorXform(m));
+        float expected = wangs_formula::conic(kPrecision, ptsXformed, w);
+        float actual = wangs_formula::conic(kPrecision, pts, w, skgpu::tess::VectorXform(m));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(actual, expected));
     };
 

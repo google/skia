@@ -7,9 +7,9 @@
 
 #include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
-#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/tessellate/WangsFormula.h"
 
 void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const auto& shader = args.fGeomProc.cast<GrStrokeTessellationShader>();
@@ -25,7 +25,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     args.fVertBuilder->insertFunction(kCosineBetweenVectorsFn);
     args.fVertBuilder->insertFunction(kMiterExtentFn);
     args.fVertBuilder->insertFunction(kUncheckedMixFn);
-    args.fVertBuilder->insertFunction(GrWangsFormula::as_sksl().c_str());
+    args.fVertBuilder->insertFunction(wangs_formula::as_sksl().c_str());
 
     // Tessellation control uniforms and/or dynamic attributes.
     if (!shader.hasDynamicStroke()) {
