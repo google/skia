@@ -2505,6 +2505,7 @@ if (skia_enable_tools) {
         "modules/androidkit/src/Canvas.cpp",
         "modules/androidkit/src/ColorFilters.cpp",
         "modules/androidkit/src/Font.cpp",
+        "modules/androidkit/src/FontChainAdapter.cpp",
         "modules/androidkit/src/Gradients.cpp",
         "modules/androidkit/src/Image.cpp",
         "modules/androidkit/src/ImageFilter.cpp",
