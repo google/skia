@@ -935,12 +935,25 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU") // skia:12465
 	}
 
-	if (b.gpu("Tegra3")) { // Tegra3 fails to compile break stmts inside a for loop (skia:12477)
+	if b.gpu("Tegra3") {
+        // Tegra3 fails to compile break stmts inside a for loop (skia:12477)
 		skip("_", "tests", "_", "SkSLSwitch_GPU")
 		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU")
 		skip("_", "tests", "_", "SkSLSwitchWithFallthrough_GPU")
 		skip("_", "tests", "_", "SkSLSwitchWithLoops_GPU")
+    }
+
+	if (!b.extraConfig("Vulkan") &&
+		(b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3"))) {
+		// Various Nvidia GPUs crash or generate errors when assembling weird matrices (skia:12443)
+		skip("_", "tests", "_", "SkSLMatrixConstructorsES2_GPU")
+		skip("_", "tests", "_", "SkSLMatrixConstructorsES3_GPU")
 	}
+
+	if !b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X") || b.gpu("RadeonHD7770")) {
+		// Some AMD GPUs can get the wrong result when assembling non-square matrices (skia:12443)
+		skip("_", "tests", "_", "SkSLMatrixConstructorsES3_GPU")
+    }
 
 	if b.matchGpu("Intel") { // some Intel GPUs don't return zero for the derivative of a uniform
 		skip("_", "tests", "_", "SkSLIntrinsicDFdy_GPU")
