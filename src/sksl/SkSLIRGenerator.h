@@ -53,13 +53,11 @@ public:
     IRGenerator(const Context* context);
 
     struct IRBundle {
-        std::vector<const ProgramElement*>           fSharedElements;
         std::shared_ptr<SymbolTable>                 fSymbolTable;
         Program::Inputs                              fInputs;
     };
 
-    void start(const ParsedModule& base,
-               std::vector<const ProgramElement*>* sharedElements);
+    void start(const ParsedModule& base);
 
     /**
      * If externalFunctions is supplied, those values are registered in the symbol table of the
@@ -112,7 +110,6 @@ private:
 
     std::shared_ptr<SymbolTable> fSymbolTable = nullptr;
     std::unordered_set<const Type*> fDefinedStructs;
-    std::vector<const ProgramElement*>* fSharedElements = nullptr;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

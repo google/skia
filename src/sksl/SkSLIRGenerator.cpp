@@ -118,9 +118,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int line, skstd::stri
     }
 }
 
-void IRGenerator::start(const ParsedModule& base,
-                        std::vector<const ProgramElement*>* sharedElements) {
-    fSharedElements = sharedElements;
+void IRGenerator::start(const ParsedModule& base) {
     fSymbolTable = base.fSymbols;
 
     fInputs = {};
@@ -179,8 +177,7 @@ void IRGenerator::start(const ParsedModule& base,
 }
 
 IRGenerator::IRBundle IRGenerator::finish() {
-    return IRBundle{std::move(*fSharedElements),
-                    std::move(fSymbolTable),
+    return IRBundle{std::move(fSymbolTable),
                     fInputs};
 }
 

@@ -81,7 +81,7 @@ public:
                                                       std::move(instance.fConfig),
                                                       compiler.fContext,
                                                       std::move(instance.fProgramElements),
-                                                      std::move(bundle.fSharedElements),
+                                                      std::move(instance.fSharedElements),
                                                       std::move(instance.fModifiersPool),
                                                       std::move(bundle.fSymbolTable),
                                                       std::move(instance.fPool),

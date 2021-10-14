@@ -46,7 +46,7 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
         fCompiler->fContext->fIntrinsics->resetAlreadyIncluded();
     }
 
-    fCompiler->fIRGenerator->start(module, &fSharedElements);
+    fCompiler->fIRGenerator->start(module);
 }
 
 ThreadContext::~ThreadContext() {
