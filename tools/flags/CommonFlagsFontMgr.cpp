@@ -6,7 +6,8 @@
  */
 
 #include "src/core/SkFontMgrPriv.h"
-#include "tools/flags/CommonFlagsFontMgr.h"
+#include "tools/flags/CommandLineFlags.h"
+#include "tools/flags/CommonFlags.h"
 #include "tools/fonts/TestFontMgr.h"
 
 #if defined(SK_BUILD_FOR_WIN)
@@ -14,6 +15,15 @@
 #endif
 
 namespace CommonFlags {
+
+
+static DEFINE_bool(nativeFonts,
+                   true,
+                   "If true, use native font manager and rendering. "
+                   "If false, fonts will draw as portably as possible.");
+#if defined(SK_BUILD_FOR_WIN)
+static DEFINE_bool(gdi, false, "Use GDI instead of DirectWrite for font rendering.");
+#endif
 
 void SetDefaultFontMgr() {
     if (!FLAGS_nativeFonts) {

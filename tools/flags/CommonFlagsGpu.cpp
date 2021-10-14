@@ -14,6 +14,8 @@ DEFINE_int(gpuThreads,
              "Create this many extra threads to assist with GPU work, "
              "including software path rendering. Defaults to two.");
 
+namespace CommonFlags {
+
 static DEFINE_bool(cachePathMasks, true,
                    "Allows path mask textures to be cached in GPU configs.");
 static DEFINE_bool(allPathsVolatile, false,
@@ -95,7 +97,7 @@ static GpuPathRenderers collect_gpu_path_renderers_from_flags() {
     return gpuPathRenderers;
 }
 
-void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
+void SetCtxOptions(GrContextOptions* ctxOptions) {
     static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
         ? SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads)
         : nullptr;
@@ -127,3 +129,5 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
         ctxOptions->fUseSkGpuV2 = GrContextOptions::Enable::kYes;
     }
 }
+
+}  // namespace CommonFlags

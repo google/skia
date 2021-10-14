@@ -648,7 +648,7 @@ public:
         }
 
         // Prepare the images for decoding
-        if (!CollectImages(FLAGS_images, &fImages)) {
+        if (!CommonFlags::CollectImages(FLAGS_images, &fImages)) {
             exit(1);
         }
 
@@ -1178,7 +1178,7 @@ int main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
-    SetCtxOptionsFromCommonFlags(&grContextOpts);
+    CommonFlags::SetCtxOptions(&grContextOpts);
 
     NanobenchShaderErrorHandler errorHandler;
     grContextOpts.fShaderErrorHandler = &errorHandler;
@@ -1254,7 +1254,7 @@ int main(int argc, char** argv) {
         start_keepalive();
     }
 
-    SetAnalyticAAFromCommonFlags();
+    CommonFlags::SetAnalyticAA();
 
     gSkForceRasterPipelineBlitter     = FLAGS_forceRasterPipelineHP || FLAGS_forceRasterPipeline;
     gForceHighPrecisionRasterPipeline = FLAGS_forceRasterPipelineHP;

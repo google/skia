@@ -40,7 +40,6 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
-#include "tools/flags/CommonFlagsFontMgr.h"
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/viewer/BisectSlide.h"
 #include "tools/viewer/GMSlide.h"
@@ -386,7 +385,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
     displayParams.fEnableBinaryArchive = FLAGS_binaryarchive;
-    SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
+    CommonFlags::SetCtxOptions(&displayParams.fGrContextOptions);
     displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
     displayParams.fGrContextOptions.fShaderCacheStrategy =
             GrContextOptions::ShaderCacheStrategy::kSkSL;
