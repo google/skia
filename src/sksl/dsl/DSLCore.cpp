@@ -67,20 +67,20 @@ class DSLCore {
 public:
     static std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<String> source) {
         ThreadContext& instance = ThreadContext::Instance();
-        SkSL::IRGenerator& ir = ThreadContext::IRGenerator();
-        SkSL::Compiler& compiler = ThreadContext::Compiler();
-        const SkSL::Context& context = ThreadContext::Context();
+        SkSL::Compiler& compiler = *instance.fCompiler;
+        SkSL::IRGenerator& ir = *compiler.fIRGenerator;
+        const SkSL::Context& context = *compiler.fContext;
         // Variables defined in the pre-includes need their declaring elements added to the program
-        if (!context.fConfig->fIsBuiltinCode && context.fIntrinsics) {
-            Transform::FindAndDeclareBuiltinVariables(ThreadContext::Context(),
-                    ThreadContext::GetProgramConfig()->fKind, ThreadContext::SharedElements());
+        if (!instance.fConfig->fIsBuiltinCode && context.fIntrinsics) {
+            Transform::FindAndDeclareBuiltinVariables(context, instance.fConfig->fKind,
+                    instance.fSharedElements);
         }
         IRGenerator::IRBundle bundle = ir.finish();
-        Pool* pool = ThreadContext::Instance().fPool.get();
+        Pool* pool = instance.fPool.get();
         auto result = std::make_unique<SkSL::Program>(std::move(source),
                                                       std::move(instance.fConfig),
                                                       compiler.fContext,
-                                                      std::move(bundle.fElements),
+                                                      std::move(instance.fProgramElements),
                                                       std::move(bundle.fSharedElements),
                                                       std::move(instance.fModifiersPool),
                                                       std::move(bundle.fSymbolTable),
@@ -101,7 +101,7 @@ public:
         if (pool) {
             pool->detachFromThread();
         }
-        SkASSERT(ThreadContext::ProgramElements().empty());
+        SkASSERT(instance.fProgramElements.empty());
         SkASSERT(!ThreadContext::SymbolTable());
         return success ? std::move(result) : nullptr;
     }

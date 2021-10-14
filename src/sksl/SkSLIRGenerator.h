@@ -53,14 +53,12 @@ public:
     IRGenerator(const Context* context);
 
     struct IRBundle {
-        std::vector<std::unique_ptr<ProgramElement>> fElements;
         std::vector<const ProgramElement*>           fSharedElements;
         std::shared_ptr<SymbolTable>                 fSymbolTable;
         Program::Inputs                              fInputs;
     };
 
     void start(const ParsedModule& base,
-               std::vector<std::unique_ptr<ProgramElement>>* elements,
                std::vector<const ProgramElement*>* sharedElements);
 
     /**
@@ -114,8 +112,7 @@ private:
 
     std::shared_ptr<SymbolTable> fSymbolTable = nullptr;
     std::unordered_set<const Type*> fDefinedStructs;
-    std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
-    std::vector<const ProgramElement*>*           fSharedElements = nullptr;
+    std::vector<const ProgramElement*>* fSharedElements = nullptr;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
