@@ -40,6 +40,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
+#include "tools/flags/CommonFlagsFontMgr.h"
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/viewer/BisectSlide.h"
 #include "tools/viewer/GMSlide.h"
@@ -374,7 +375,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     gSkVMAllowJIT = FLAGS_jit;
     gSkVMJITViaDylib = FLAGS_dylib;
 
-    ToolUtils::SetDefaultFontMgr();
+    CommonFlags::SetDefaultFontMgr();
 
     initializeEventTracingForTools();
     static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);

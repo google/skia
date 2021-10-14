@@ -26,6 +26,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
+#include "tools/flags/CommonFlagsFontMgr.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/MemoryCache.h"
@@ -392,7 +393,7 @@ int main(int argc, char** argv) {
     gSkVMJITViaDylib = FLAGS_dylib;
 
     initializeEventTracingForTools();
-    ToolUtils::SetDefaultFontMgr();
+    CommonFlags::SetDefaultFontMgr();
     SetAnalyticAAFromCommonFlags();
 
     GrContextOptions baseOptions;

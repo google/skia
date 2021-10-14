@@ -75,12 +75,6 @@ static inline sk_sp<SkTypeface> create_portable_typeface() {
     return create_portable_typeface(nullptr, SkFontStyle());
 }
 
-/**
- *  Turn on portable (--nonativeFonts) or GDI font rendering (--gdi).
- */
-void SetDefaultFontMgr();
-
-
 void get_text_path(const SkFont&,
                    const void* text,
                    size_t      length,

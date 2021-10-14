@@ -1836,6 +1836,10 @@ if (skia_enable_tools) {
     sources = [ "tools/flags/CommonFlagsImages.cpp" ]
     deps = [ ":flags" ]
   }
+  test_lib("common_flags_fontmgr") {
+    sources = [ "tools/flags/CommonFlagsFontMgr.cpp" ]
+    deps = [ ":flags" ]
+  }
   test_lib("common_flags_aa") {
     sources = [ "tools/flags/CommonFlagsAA.cpp" ]
     deps = [ ":flags" ]
@@ -2119,6 +2123,7 @@ if (skia_enable_tools) {
       ]
       deps = [
         ":common_flags_aa",
+        ":common_flags_fontmgr",
         ":common_flags_gpu",
         ":flags",
         ":gm",
@@ -2145,6 +2150,7 @@ if (skia_enable_tools) {
       deps = [
         ":common_flags_aa",
         ":common_flags_config",
+        ":common_flags_fontmgr",
         ":common_flags_gpu",
         ":common_flags_images",
         ":flags",
@@ -2778,6 +2784,7 @@ if (skia_enable_tools) {
       libs = []
 
       deps = [
+        ":common_flags_fontmgr",
         ":common_flags_gpu",
         ":flags",
         ":gm",

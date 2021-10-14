@@ -35,6 +35,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
+#include "tools/flags/CommonFlagsFontMgr.h"
 #include "tools/ios_utils.h"
 #include "tools/trace/ChromeTracingTracer.h"
 #include "tools/trace/EventTracingPriv.h"
@@ -1488,7 +1489,7 @@ int main(int argc, char** argv) {
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
-    ToolUtils::SetDefaultFontMgr();
+    CommonFlags::SetDefaultFontMgr();
     SetAnalyticAAFromCommonFlags();
 
     gSkForceRasterPipelineBlitter = FLAGS_forceRasterPipeline;
