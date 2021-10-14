@@ -292,9 +292,10 @@ bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abui
 
     // Separate-dimensions vector value: each component is animated independently.
     *v = { 0, 0, 0 };
-    return this->bind(abuilder, (*jprop)["x"], v->data() + 0)
-         | this->bind(abuilder, (*jprop)["y"], v->data() + 1)
-         | this->bind(abuilder, (*jprop)["z"], v->data() + 2);
+    bool boundX = this->bind(abuilder, (*jprop)["x"], v->data() + 0);
+    bool boundY = this->bind(abuilder, (*jprop)["y"], v->data() + 1);
+    bool boundZ = this->bind(abuilder, (*jprop)["z"], v->data() + 2);
+    return boundX || boundY || boundZ;
 }
 
 } // namespace internal

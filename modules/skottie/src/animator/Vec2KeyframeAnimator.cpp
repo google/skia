@@ -255,8 +255,9 @@ bool AnimatablePropertyContainer::bindAutoOrientable(const AnimationBuilder& abu
     }
 
     // Separate-dimensions vector value: each component is animated independently.
-    return this->bind(abuilder, (*jprop)["x"], &v->x)
-         | this->bind(abuilder, (*jprop)["y"], &v->y);
+    bool boundX = this->bind(abuilder, (*jprop)["x"], &v->x);
+    bool boundY = this->bind(abuilder, (*jprop)["y"], &v->y);
+    return boundX || boundY;
 }
 
 template <>

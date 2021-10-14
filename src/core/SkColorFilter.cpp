@@ -145,7 +145,7 @@ class SkComposeColorFilter : public SkColorFilterBase {
 public:
     bool onIsAlphaUnchanged() const override {
         // Can only claim alphaunchanged support if both our proxys do.
-        return fOuter->isAlphaUnchanged() & fInner->isAlphaUnchanged();
+        return fOuter->isAlphaUnchanged() && fInner->isAlphaUnchanged();
     }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
