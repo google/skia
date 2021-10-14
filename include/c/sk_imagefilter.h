@@ -49,8 +49,8 @@ SK_C_API sk_imagefilter_t* sk_imagefilter_new_picture_with_croprect(sk_picture_t
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_tile(const sk_rect_t* src, const sk_rect_t* dst, sk_imagefilter_t* input);
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_xfermode(sk_blendmode_t mode, sk_imagefilter_t* background, sk_imagefilter_t* foreground, const sk_imagefilter_croprect_t* cropRect);
 
-SK_C_API sk_imagefilter_t* sk_imagefilter_new_dilate(int radiusX, int radiusY, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect);
-SK_C_API sk_imagefilter_t* sk_imagefilter_new_erode(int radiusX, int radiusY, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect);
+SK_C_API sk_imagefilter_t* sk_imagefilter_new_dilate(float radiusX, float radiusY, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect);
+SK_C_API sk_imagefilter_t* sk_imagefilter_new_erode(float radiusX, float radiusY, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect);
 
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_distant_lit_diffuse(const sk_point3_t* direction, sk_color_t lightColor, float surfaceScale, float kd, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect);
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_point_lit_diffuse(const sk_point3_t* location, sk_color_t lightColor, float surfaceScale, float kd, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect);

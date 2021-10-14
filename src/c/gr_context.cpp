@@ -11,6 +11,21 @@
 
 #include "src/c/sk_types_priv.h"
 
+// GrRecordingContext
+
+void gr_recording_context_unref(gr_recording_context_t* context) {
+    SK_ONLY_GPU(SkSafeUnref(AsGrRecordingContext(context)));
+}
+
+int gr_recording_context_get_max_surface_sample_count_for_color_type(gr_recording_context_t* context, sk_colortype_t colorType) {
+    return SK_ONLY_GPU(AsGrRecordingContext(context)->maxSurfaceSampleCountForColorType((SkColorType)colorType), 0);
+}
+
+gr_backend_t gr_recording_context_get_backend(gr_recording_context_t* context) {
+    return SK_ONLY_GPU((gr_backend_t)AsGrRecordingContext(context)->backend(), (gr_backend_t)0);
+}
+
+
 // GrDirectContext
 
 gr_direct_context_t* gr_direct_context_make_gl(const gr_glinterface_t* glInterface) {
@@ -52,10 +67,6 @@ gr_direct_context_t* gr_direct_context_make_metal_with_options(void* device, voi
     return SK_ONLY_METAL(ToGrDirectContext(GrDirectContext::MakeMetal(device, queue, opts).release()), nullptr);
 }
 
-void gr_direct_context_unref(gr_direct_context_t* context) {
-    SK_ONLY_GPU(SkSafeUnref(AsGrDirectContext(context)));
-}
-
 bool gr_direct_context_is_abandoned(gr_direct_context_t* context) {
     return SK_ONLY_GPU(AsGrDirectContext(context)->abandoned(), true);
 }
@@ -80,20 +91,20 @@ void gr_direct_context_get_resource_cache_usage(gr_direct_context_t* context, in
     SK_ONLY_GPU(AsGrDirectContext(context)->getResourceCacheUsage(maxResources, maxResourceBytes));
 }
 
-int gr_direct_context_get_max_surface_sample_count_for_color_type(gr_direct_context_t* context, sk_colortype_t colorType) {
-    return SK_ONLY_GPU(AsGrDirectContext(context)->maxSurfaceSampleCountForColorType((SkColorType)colorType), 0);
-}
-
 void gr_direct_context_flush(gr_direct_context_t* context) {
     SK_ONLY_GPU(AsGrDirectContext(context)->flush());
 }
 
-void gr_direct_context_reset_context(gr_direct_context_t* context, uint32_t state) {
-    SK_ONLY_GPU(AsGrDirectContext(context)->resetContext(state));
+bool gr_direct_context_submit(gr_direct_context_t* context, bool syncCpu) {
+    return SK_ONLY_GPU(AsGrDirectContext(context)->submit(syncCpu), false);
 }
 
-gr_backend_t gr_direct_context_get_backend(gr_direct_context_t* context) {
-    return SK_ONLY_GPU((gr_backend_t)AsGrDirectContext(context)->backend(), (gr_backend_t)0);
+void gr_direct_context_flush_and_submit(gr_direct_context_t* context, bool syncCpu) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->flushAndSubmit(syncCpu));
+}
+
+void gr_direct_context_reset_context(gr_direct_context_t* context, uint32_t state) {
+    SK_ONLY_GPU(AsGrDirectContext(context)->resetContext(state));
 }
 
 void gr_direct_context_dump_memory_statistics(const gr_direct_context_t* context, sk_tracememorydump_t* dump) {

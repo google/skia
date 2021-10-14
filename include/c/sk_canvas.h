@@ -38,10 +38,12 @@ SK_C_API void sk_canvas_draw_image_rect(sk_canvas_t*, const sk_image_t*, const s
 SK_C_API void sk_canvas_draw_picture(sk_canvas_t*, const sk_picture_t*, const sk_matrix_t*, const sk_paint_t*);
 SK_C_API void sk_canvas_draw_drawable(sk_canvas_t*, sk_drawable_t*, const sk_matrix_t*);
 SK_C_API void sk_canvas_clear(sk_canvas_t*, sk_color_t);
+SK_C_API void sk_canvas_clear_color4f(sk_canvas_t*, sk_color4f_t);
 SK_C_API void sk_canvas_discard(sk_canvas_t*);
 SK_C_API int sk_canvas_get_save_count(sk_canvas_t*);
 SK_C_API void sk_canvas_restore_to_count(sk_canvas_t*, int saveCount);
 SK_C_API void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_blendmode_t mode);
+SK_C_API void sk_canvas_draw_color4f(sk_canvas_t* ccanvas, sk_color4f_t color, sk_blendmode_t mode);
 SK_C_API void sk_canvas_draw_points(sk_canvas_t*, sk_point_mode_t, size_t, const sk_point_t[], const sk_paint_t*);
 SK_C_API void sk_canvas_draw_point(sk_canvas_t*, float, float, const sk_paint_t*);
 SK_C_API void sk_canvas_draw_line(sk_canvas_t* ccanvas, float x0, float y0, float x1, float y1, sk_paint_t* cpaint);

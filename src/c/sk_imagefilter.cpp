@@ -151,11 +151,11 @@ sk_imagefilter_t* sk_imagefilter_new_xfermode(sk_blendmode_t cmode, sk_imagefilt
 }
 
 
-sk_imagefilter_t* sk_imagefilter_new_dilate(int radiusX, int radiusY, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect) {
+sk_imagefilter_t* sk_imagefilter_new_dilate(float radiusX, float radiusY, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect) {
     return ToImageFilter(SkDilateImageFilter::Make(radiusX, radiusY, sk_ref_sp(AsImageFilter(input)), AsImageFilterCropRect(cropRect)).release());
 }
 
-sk_imagefilter_t* sk_imagefilter_new_erode(int radiusX, int radiusY, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect) {
+sk_imagefilter_t* sk_imagefilter_new_erode(float radiusX, float radiusY, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect) {
     return ToImageFilter(SkErodeImageFilter::Make(radiusX, radiusY, sk_ref_sp(AsImageFilter(input)), AsImageFilterCropRect(cropRect)).release());
 }
 

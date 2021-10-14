@@ -25,6 +25,10 @@ void sk_canvas_clear(sk_canvas_t* ccanvas, sk_color_t color) {
     AsCanvas(ccanvas)->clear(color);
 }
 
+void sk_canvas_clear_color4f(sk_canvas_t* ccanvas, sk_color4f_t color) {
+    AsCanvas(ccanvas)->clear(AsColor4f(color));
+}
+
 void sk_canvas_discard(sk_canvas_t* ccanvas) {
     AsCanvas(ccanvas)->discard();
 }
@@ -39,6 +43,10 @@ void sk_canvas_restore_to_count(sk_canvas_t* ccanvas, int saveCount) {
 
 void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_blendmode_t cmode) {
     AsCanvas(ccanvas)->drawColor(color, (SkBlendMode)cmode);
+}
+
+void sk_canvas_draw_color4f(sk_canvas_t* ccanvas, sk_color4f_t color, sk_blendmode_t cmode) {
+    AsCanvas(ccanvas)->drawColor(AsColor4f(color), (SkBlendMode)cmode);
 }
 
 void sk_canvas_draw_points(sk_canvas_t* ccanvas, sk_point_mode_t pointMode, size_t count, const sk_point_t points [], const sk_paint_t* cpaint) {

@@ -15,6 +15,7 @@
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/Sk1DPathEffect.h"

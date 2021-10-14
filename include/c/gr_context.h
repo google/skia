@@ -14,6 +14,9 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
+SK_C_API void gr_recording_context_unref(gr_recording_context_t* context);
+SK_C_API int gr_recording_context_get_max_surface_sample_count_for_color_type(gr_recording_context_t* context, sk_colortype_t colorType);
+SK_C_API gr_backend_t gr_recording_context_get_backend(gr_recording_context_t* context);
 
 // GrDirectContext
 
@@ -26,17 +29,16 @@ SK_C_API gr_direct_context_t* gr_direct_context_make_metal_with_options(void* de
 
 // TODO: the overloads with GrContextOptions
 
-SK_C_API void gr_direct_context_unref(gr_direct_context_t* context);
 SK_C_API bool gr_direct_context_is_abandoned(gr_direct_context_t* context);
 SK_C_API void gr_direct_context_abandon_context(gr_direct_context_t* context);
 SK_C_API void gr_direct_context_release_resources_and_abandon_context(gr_direct_context_t* context);
 SK_C_API size_t gr_direct_context_get_resource_cache_limit(gr_direct_context_t* context);
 SK_C_API void gr_direct_context_set_resource_cache_limit(gr_direct_context_t* context, size_t maxResourceBytes);
 SK_C_API void gr_direct_context_get_resource_cache_usage(gr_direct_context_t* context, int* maxResources, size_t* maxResourceBytes);
-SK_C_API int gr_direct_context_get_max_surface_sample_count_for_color_type(gr_direct_context_t* context, sk_colortype_t colorType);
 SK_C_API void gr_direct_context_flush(gr_direct_context_t* context);
+SK_C_API bool gr_direct_context_submit(gr_direct_context_t* context, bool syncCpu);
+SK_C_API void gr_direct_context_flush_and_submit(gr_direct_context_t* context, bool syncCpu);
 SK_C_API void gr_direct_context_reset_context(gr_direct_context_t* context, uint32_t state);
-SK_C_API gr_backend_t gr_direct_context_get_backend(gr_direct_context_t* context);
 SK_C_API void gr_direct_context_dump_memory_statistics(const gr_direct_context_t* context, sk_tracememorydump_t* dump);
 SK_C_API void gr_direct_context_free_gpu_resources(gr_direct_context_t* context);
 SK_C_API void gr_direct_context_perform_deferred_cleanup(gr_direct_context_t* context, long long ms);

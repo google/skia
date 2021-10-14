@@ -58,7 +58,7 @@ void** KeepSkiaCSymbols (void)
     static void* ret[] = {
         // Skia
         (void*)sk_colortype_get_default_8888,
-        (void*)gr_direct_context_unref,
+        (void*)gr_recording_context_unref,
         (void*)gr_glinterface_create_native_interface,
         (void*)sk_bitmap_new,
         (void*)sk_canvas_destroy,
