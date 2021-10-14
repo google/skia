@@ -5,19 +5,68 @@
  * found in the LICENSE file.
  */
 
+#include "include/sksl/DSLCore.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicMap.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/transform/SkSLProgramWriter.h"
 
 #include <forward_list>
 
 namespace SkSL {
+
+static void append_rtadjust_fixup_to_vertex_main(const Context& context,
+        const FunctionDeclaration& decl, Block& body) {
+    using namespace SkSL::dsl;
+    using SkSL::dsl::Swizzle;  // disambiguate from SkSL::Swizzle
+    using OwnerKind = SkSL::FieldAccess::OwnerKind;
+
+    // If this program uses RTAdjust...
+    ThreadContext::RTAdjustData& rtAdjust = ThreadContext::RTAdjustState();
+    if (rtAdjust.fVar || rtAdjust.fInterfaceBlock) {
+        // ...append a line to the end of the function body which fixes up sk_Position.
+        const Variable* skPerVertex = nullptr;
+        if (const ProgramElement* perVertexDecl =
+                context.fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
+            SkASSERT(perVertexDecl->is<SkSL::InterfaceBlock>());
+            skPerVertex = &perVertexDecl->as<SkSL::InterfaceBlock>().variable();
+        }
+
+        SkASSERT(skPerVertex);
+        auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
+            return VariableReference::Make(/*line=*/-1, var);
+        };
+        auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
+            return FieldAccess::Make(context, Ref(var), idx, OwnerKind::kAnonymousInterfaceBlock);
+        };
+        auto Pos = [&]() -> DSLExpression {
+            return DSLExpression(FieldAccess::Make(context, Ref(skPerVertex), /*fieldIndex=*/0,
+                                                   OwnerKind::kAnonymousInterfaceBlock));
+        };
+        auto Adjust = [&]() -> DSLExpression {
+            return DSLExpression(rtAdjust.fInterfaceBlock
+                                         ? Field(rtAdjust.fInterfaceBlock, rtAdjust.fFieldIndex)
+                                         : Ref(rtAdjust.fVar));
+        };
+
+        auto fixupStmt = DSLStatement(
+            Pos() = Float4(Swizzle(Pos(), X, Y) * Swizzle(Adjust(), X, Z) +
+                           Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W),
+                           0,
+                           Pos().w())
+        );
+
+        body.children().push_back(fixupStmt.release());
+    }
+}
 
 std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& context,
                                                                 int line,
@@ -184,6 +233,9 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
 
     IntrinsicSet referencedIntrinsics;
     Finalizer(context, function, &referencedIntrinsics).visitStatement(*body);
+    if (function.isMain() && context.fConfig->fKind == ProgramKind::kVertex) {
+        append_rtadjust_fixup_to_vertex_main(context, function, body->as<Block>());
+    }
 
     if (Analysis::CanExitWithoutReturningValue(function, *body)) {
         context.fErrors->error(function.fLine, "function '" + function.name() +

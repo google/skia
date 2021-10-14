@@ -66,51 +66,6 @@ namespace SkSL {
 IRGenerator::IRGenerator(const Context* context)
         : fContext(*context) {}
 
-void IRGenerator::appendRTAdjustFixupToVertexMain(const FunctionDeclaration& decl, Block* body) {
-    using namespace SkSL::dsl;
-    using SkSL::dsl::Swizzle;  // disambiguate from SkSL::Swizzle
-    using OwnerKind = SkSL::FieldAccess::OwnerKind;
-
-    // If this is a vertex program that uses RTAdjust, and this is main()...
-    ThreadContext::RTAdjustData& rtAdjust = ThreadContext::RTAdjustState();
-    if ((rtAdjust.fVar || rtAdjust.fInterfaceBlock) && decl.isMain() &&
-        ProgramKind::kVertex == this->programKind()) {
-        // ... append a line to the end of the function body which fixes up sk_Position.
-        const Variable* skPerVertex = nullptr;
-        if (const ProgramElement* perVertexDecl =
-                fContext.fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
-            SkASSERT(perVertexDecl->is<SkSL::InterfaceBlock>());
-            skPerVertex = &perVertexDecl->as<SkSL::InterfaceBlock>().variable();
-        }
-
-        SkASSERT(skPerVertex);
-        auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
-            return VariableReference::Make(/*line=*/-1, var);
-        };
-        auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
-            return FieldAccess::Make(fContext, Ref(var), idx, OwnerKind::kAnonymousInterfaceBlock);
-        };
-        auto Pos = [&]() -> DSLExpression {
-            return DSLExpression(FieldAccess::Make(fContext, Ref(skPerVertex), /*fieldIndex=*/0,
-                                                   OwnerKind::kAnonymousInterfaceBlock));
-        };
-        auto Adjust = [&]() -> DSLExpression {
-            return DSLExpression(rtAdjust.fInterfaceBlock
-                                         ? Field(rtAdjust.fInterfaceBlock, rtAdjust.fFieldIndex)
-                                         : Ref(rtAdjust.fVar));
-        };
-
-        auto fixupStmt = DSLStatement(
-            Pos() = Float4(Swizzle(Pos(), X, Y) * Swizzle(Adjust(), X, Z) +
-                           Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W),
-                           0,
-                           Pos().w())
-        );
-
-        body->children().push_back(fixupStmt.release());
-    }
-}
-
 std::unique_ptr<Expression> IRGenerator::convertIdentifier(int line, skstd::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {

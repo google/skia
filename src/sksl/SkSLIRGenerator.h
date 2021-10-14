@@ -92,9 +92,6 @@ public:
 private:
     IRGenerator::IRBundle finish();
 
-    /** Appends sk_Position fixup to the bottom of main() if this is a vertex program. */
-    void appendRTAdjustFixupToVertexMain(const FunctionDeclaration& decl, Block* body);
-
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).
     bool strictES2Mode() const {

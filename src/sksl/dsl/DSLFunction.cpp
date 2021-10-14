@@ -96,8 +96,6 @@ void DSLFunction::define(DSLBlock block, PositionInfo pos) {
         block.release();
         return;
     }
-    // Append sk_Position fixup to the bottom of main() if this is a vertex program.
-    ThreadContext::IRGenerator().appendRTAdjustFixupToVertexMain(*fDecl, body.get());
     std::unique_ptr<FunctionDefinition> function = FunctionDefinition::Convert(
             ThreadContext::Context(),
             pos.line(),
