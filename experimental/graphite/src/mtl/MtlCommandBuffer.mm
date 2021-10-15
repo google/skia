@@ -51,5 +51,4 @@ bool CommandBuffer::commit() {
     return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
 }
 
-
 } // namespace skgpu::mtl

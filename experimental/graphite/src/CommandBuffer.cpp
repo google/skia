@@ -7,8 +7,16 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 
+#include "src/core/SkTraceEvent.h"
+
 namespace skgpu {
 
 CommandBuffer::CommandBuffer() {}
+
+void CommandBuffer::releaseResources() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    fTrackedResources.reset();
+}
 
 } // namespace skgpu
