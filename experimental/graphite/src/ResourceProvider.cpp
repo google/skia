@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/ResourceProvider.h"
 
+#include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/RenderPipeline.h"
 #include "experimental/graphite/src/Texture.h"
@@ -63,5 +64,12 @@ RenderPipeline* ResourceProvider::RenderPipelineCache::refPipeline(
 sk_sp<Texture> ResourceProvider::findOrCreateTexture(SkISize dimensions, const TextureInfo& info) {
     return this->createTexture(dimensions, info);
 }
+
+sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
+                                                   BufferType type,
+                                                   PrioritizeGpuReads prioritizeGpuReads) {
+    return this->createBuffer(size, type, prioritizeGpuReads);
+}
+
 
 } // namespace skgpu

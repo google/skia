@@ -32,6 +32,7 @@ private:
     std::unique_ptr<skgpu::RenderPipeline> onCreateRenderPipeline(
             const RenderPipelineDesc&) override;
     sk_sp<skgpu::Texture> createTexture(SkISize, const skgpu::TextureInfo&) override;
+    sk_sp<skgpu::Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
 };
 
 } // namespace skgpu::mtl

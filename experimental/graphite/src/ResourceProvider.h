@@ -8,6 +8,7 @@
 #ifndef skgpu_ResourceProvider_DEFINED
 #define skgpu_ResourceProvider_DEFINED
 
+#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/RenderPipeline.h"
 #include "experimental/graphite/src/RenderPipelineDesc.h"
@@ -16,6 +17,7 @@
 
 namespace skgpu {
 
+class Buffer;
 class CommandBuffer;
 class Gpu;
 class RenderPipeline;
@@ -32,6 +34,8 @@ public:
 
     sk_sp<Texture> findOrCreateTexture(SkISize, const TextureInfo&);
 
+    sk_sp<Buffer> findOrCreateBuffer(size_t size, BufferType type, PrioritizeGpuReads);
+
 protected:
     ResourceProvider(const Gpu* gpu);
 
@@ -40,6 +44,7 @@ protected:
 private:
     virtual std::unique_ptr<RenderPipeline> onCreateRenderPipeline(const RenderPipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
+    virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) = 0;
 
     class RenderPipelineCache {
     public:
