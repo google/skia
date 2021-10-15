@@ -89,11 +89,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int line, skstd::stri
             switch (modifiers.fLayout.fBuiltin) {
                 case SK_FRAGCOORD_BUILTIN:
                     if (caps().canUseFragCoord()) {
-                        fInputs.fUseFlipRTUniform = true;
+                        ThreadContext::Inputs().fUseFlipRTUniform = true;
                     }
                     break;
                 case SK_CLOCKWISE_BUILTIN:
-                    fInputs.fUseFlipRTUniform = true;
+                    ThreadContext::Inputs().fUseFlipRTUniform = true;
                     break;
             }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
@@ -119,8 +119,6 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int line, skstd::stri
 }
 
 void IRGenerator::start(std::shared_ptr<SymbolTable>& symbols) {
-    fInputs = {};
-    fDefinedStructs.clear();
     SymbolTable::Push(&symbols, fContext.fConfig->fIsBuiltinCode);
 
     if (this->settings().fExternalFunctions) {
@@ -172,10 +170,6 @@ void IRGenerator::start(std::shared_ptr<SymbolTable>& symbols) {
         symbols->addAlias("ushort3", fContext.fTypes.fUShort3.get());
         symbols->addAlias("ushort4", fContext.fTypes.fUShort4.get());
     }
-}
-
-IRGenerator::IRBundle IRGenerator::finish() {
-    return IRBundle{fInputs};
 }
 
 }  // namespace SkSL

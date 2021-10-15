@@ -74,7 +74,7 @@ public:
     /**
      * Returns the Program::Inputs used by the current thread.
      */
-    static SkSL::Program::Inputs& Inputs();
+    static SkSL::Program::Inputs& Inputs() { return Instance().fInputs; }
 
     /**
      * Returns the collection to which DSL program elements in this thread should be appended.
@@ -210,6 +210,8 @@ private:
     ProgramSettings fSettings;
     Mangler fMangler;
     RTAdjustData fRTAdjust;
+    Program::Inputs fInputs;
+
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
         GrFragmentProcessor::ProgramImpl* fProcessor;

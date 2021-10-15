@@ -52,20 +52,7 @@ class IRGenerator {
 public:
     IRGenerator(const Context* context);
 
-    struct IRBundle {
-        Program::Inputs fInputs;
-    };
-
     void start(std::shared_ptr<SymbolTable>& symbols);
-
-    /**
-     * If externalFunctions is supplied, those values are registered in the symbol table of the
-     * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
-     */
-    IRBundle convertProgram(
-            const ParsedModule& base,
-            bool isBuiltinCode,
-            skstd::string_view text);
 
     const Program::Settings& settings() const { return fContext.fConfig->fSettings; }
     ProgramKind programKind() const { return fContext.fConfig->fKind; }
@@ -77,8 +64,6 @@ public:
     const Context& fContext;
 
 private:
-    IRGenerator::IRBundle finish();
-
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).
     bool strictES2Mode() const {
@@ -96,10 +81,6 @@ private:
     ModifiersPool& modifiersPool() const {
         return *fContext.fModifiersPool;
     }
-
-    Program::Inputs fInputs;
-
-    std::unordered_set<const Type*> fDefinedStructs;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
