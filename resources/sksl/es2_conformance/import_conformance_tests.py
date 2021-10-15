@@ -160,6 +160,19 @@ for c in testCases:
         allowMismatch = True
         print("allowing mismatch in %s" % testName)
 
+    # The ES2 conformance tests allow floating point comparisons to be off by 0.05:
+    # https://osscs.corp.google.com/android/platform/superproject/+/master:external/deqp/external/openglcts/modules/common/glcShaderLibraryCase.cpp;l=714;drc=84322c9402f810da3cd80b52e9f9ef72150a9004
+    # A few tests require this slop factor to pass, regardless of GPU precision
+    # (e.g. the test is written to expect 2.19, but actually computes 2.194285)
+    compare = lambda type, a, b : '((' + a + ') == (' + b + '))'
+    if (testName == 'math_float' or
+        testName == 'struct' or
+        testName == 'nested_struct' or
+        testName == 'nested_builtin_funcs'):
+        compare = lambda type, a, b : (
+                      '(floor(20 * abs((' + a + ') - (' + b + '))) == ' + type + '(0))'
+                  )
+
     # Switch tests to a "fail" expectation instead of "pass" when SkSL and GLSL disagree.
     # SkSL does not support casts which discard elements such as `float(myFloat4)`.
     if (re.fullmatch('(vec|bvec|ivec)[234]_to_(float|int|bool)', testName) or
@@ -176,6 +189,12 @@ for c in testCases:
         assert expectPass
         expectPass = False
         print("moved %s to fail" % testName)
+
+    # SkSL does not disallow symbols beginning with gl_. (skia:12498)
+    if (testName == 'gl_begin'):
+        assert not expectPass
+        expectPass = True
+        print("moved %s to pass" % testName)
 
     # Apply fixups to the test code.
     # SkSL doesn't support the `precision` keyword, so comment it out if it appears.
@@ -234,7 +253,7 @@ for c in testCases:
             if not allowMismatch:
                 for v in outputs:
                     if len(v[2]) > varIndex:
-                        outputChecks += " && (%s == %s)" % (v[1], v[2][varIndex])
+                        outputChecks += " && " + compare(v[0], v[1], v[2][varIndex])
 
             outputChecks += ";\n"
 
