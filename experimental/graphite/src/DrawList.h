@@ -16,13 +16,13 @@
 
 #include <cstdint>
 
-class SkM44;
 class SkPath;
 struct SkIRect;
 
 namespace skgpu {
 
 class Shape;
+class Transform;
 
 // Forward declarations that capture the intermediate state lying between public Skia types and
 // the direct GPU representation.
@@ -67,33 +67,42 @@ public:
     // sense for it to compute these dependent values and provide them here. Storing the scale
     // factor per draw command is low overhead, but unsure about storing 2 matrices per command.
 
-    // NOTE: All path rendering functions, e.g. [fill|stroke|...]Path() that take a geom::Shape
+    // NOTE: All path rendering functions, e.g. [fill|stroke|...]Path() that take a Shape
     // draw using the same underlying techniques regardless of the shape's type. If a Shape has
     // a type matching a simpler primitive technique or coverage AA, the caller must explicitly
     // invoke it to use that rendering algorithms.
+    //
+    // Additionally, DrawList requires that all Transforms passed to its draw calls be valid and
+    // assert as much; invalid transforms should be detected at the Device level or similar.
 
-    void stencilAndFillPath(const SkM44& localToDevice,
+    void stencilAndFillPath(const Transform& localToDevice,
                             const Shape& shape,
                             const SkIRect& scissor, // TBD: expand this to one xformed rrect clip?
                             CompressedPaintersOrder colorDepthOrder,
                             CompressedPaintersOrder stencilOrder,
                             uint16_t depth,
-                            const PaintParams* paint) {}
+                            const PaintParams* paint) {
+        // TODO: Implement this and assert localToDevice.valid()
+    }
 
-    void fillConvexPath(const SkM44& localToDevice,
+    void fillConvexPath(const Transform& localToDevice,
                         const Shape& shape,
                         const SkIRect& scissor,
                         CompressedPaintersOrder colorDepthOrder,
                         uint16_t depth,
-                        const PaintParams* paint) {}
+                        const PaintParams* paint) {
+        // TODO: Implement this and assert localToDevice.valid()
+    }
 
-    void strokePath(const SkM44& localToDevice,
+    void strokePath(const Transform& localToDevice,
                     const Shape& shape,
                     const StrokeParams& stroke,
                     const SkIRect& scissor,
                     CompressedPaintersOrder colorDepthOrder,
                     uint16_t depth,
-                    const PaintParams* paint) {}
+                    const PaintParams* paint) {
+        // TODO: Implement this and assert localToDevice.valid()
+    }
 
     // TODO: fill[R]Rect, stroke[R]Rect (will need to support per-edge aa and arbitrary quads)
     //       fillImage (per-edge aa and arbitrary quad, only if this fast path is required)

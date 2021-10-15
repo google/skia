@@ -20,6 +20,7 @@ class Context;
 class DrawContext;
 class Recorder;
 class Shape;
+class Transform;
 
 struct PaintParams;
 struct StrokeParams;
@@ -140,7 +141,7 @@ private:
     // recorded when popped off the stack. Returns the scissor and minimum compressed painter's
     // order for the draw to be rendered/clipped correctly.
     std::pair<CompressedPaintersOrder, SkIRect>
-    applyClipToDraw(const SkM44&, const Shape&, const SkStrokeRec&);
+    applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&);
 
     sk_sp<Recorder> fRecorder;
     sk_sp<DrawContext> fDC;

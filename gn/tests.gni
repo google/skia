@@ -331,6 +331,7 @@ graphite_tests_sources = [
   "$_tests/graphite/MaskTest.cpp",
   "$_tests/graphite/RectTest.cpp",
   "$_tests/graphite/ShapeTest.cpp",
+  "$_tests/graphite/TransformTest.cpp",
 ]
 
 pathops_tests_sources = [

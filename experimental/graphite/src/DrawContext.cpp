@@ -34,7 +34,7 @@ DrawContext::~DrawContext() {
     SkASSERT(fDrawPasses.empty());
 }
 
-void DrawContext::stencilAndFillPath(const SkM44& localToDevice,
+void DrawContext::stencilAndFillPath(const Transform& localToDevice,
                                      const Shape& shape,
                                      const SkIRect& scissor,
                                      CompressedPaintersOrder colorDepthOrder,
@@ -45,7 +45,7 @@ void DrawContext::stencilAndFillPath(const SkM44& localToDevice,
                                       depth, paint);
 }
 
-void DrawContext::fillConvexPath(const SkM44& localToDevice,
+void DrawContext::fillConvexPath(const Transform& localToDevice,
                                  const Shape& shape,
                                  const SkIRect& scissor,
                                  CompressedPaintersOrder colorDepthOrder,
@@ -54,7 +54,7 @@ void DrawContext::fillConvexPath(const SkM44& localToDevice,
     fPendingDraws->fillConvexPath(localToDevice, shape, scissor, colorDepthOrder, depth, paint);
 }
 
-void DrawContext::strokePath(const SkM44& localToDevice,
+void DrawContext::strokePath(const Transform& localToDevice,
                              const Shape& shape,
                              const StrokeParams& stroke,
                              const SkIRect& scissor,

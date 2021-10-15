@@ -15,12 +15,11 @@
 
 #include <vector>
 
-class SkM44;
-
 namespace skgpu {
 
 class BoundsManager;
 class Shape;
+class Transform;
 
 class DrawList;
 class DrawPass;
@@ -43,7 +42,7 @@ public:
 
     // TODO: need color/depth clearing functions (so DCL will probably need those too)
 
-    void stencilAndFillPath(const SkM44& localToDevice,
+    void stencilAndFillPath(const Transform& localToDevice,
                             const Shape& shape,
                             const SkIRect& scissor,
                             CompressedPaintersOrder colorDepthOrder,
@@ -51,14 +50,14 @@ public:
                             uint16_t depth,
                             const PaintParams* paint);
 
-    void fillConvexPath(const SkM44& localToDevice,
+    void fillConvexPath(const Transform& localToDevice,
                         const Shape& shape,
                         const SkIRect& scissor,
                         CompressedPaintersOrder colorDepthOrder,
                         uint16_t depth,
                         const PaintParams* paint);
 
-    void strokePath(const SkM44& localToDevice,
+    void strokePath(const Transform& localToDevice,
                     const Shape& shape,
                     const StrokeParams& stroke,
                     const SkIRect& scissor,
