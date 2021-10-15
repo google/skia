@@ -346,8 +346,8 @@ SkPDFIndirectReference SkPDFMetadata::MakeXMPObject(
                        "<dc:title><rdf:Alt><rdf:li xml:lang=\"x-default\">",
                        "</rdf:li></rdf:Alt></dc:title>\n");
     SkString author =
-            escape_xml(metadata.fAuthor, "<dc:creator><rdf:Bag><rdf:li>",
-                       "</rdf:li></rdf:Bag></dc:creator>\n");
+            escape_xml(metadata.fAuthor, "<dc:creator><rdf:Seq><rdf:li>",
+                       "</rdf:li></rdf:Seq></dc:creator>\n");
     // TODO: in theory, XMP can support multiple authors.  Split on a delimiter?
     SkString subject = escape_xml(
             metadata.fSubject,
