@@ -83,7 +83,7 @@ public:
                                                       std::move(instance.fProgramElements),
                                                       std::move(instance.fSharedElements),
                                                       std::move(instance.fModifiersPool),
-                                                      std::move(bundle.fSymbolTable),
+                                                      std::move(compiler.fSymbolTable),
                                                       std::move(instance.fPool),
                                                       bundle.fInputs);
         bool success = false;

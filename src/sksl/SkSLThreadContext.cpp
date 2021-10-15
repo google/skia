@@ -46,12 +46,14 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
         fCompiler->fContext->fIntrinsics->resetAlreadyIncluded();
     }
 
-    fCompiler->fIRGenerator->start(module);
+    fCompiler->fSymbolTable = module.fSymbols;
+    fCompiler->fIRGenerator->start(fCompiler->fSymbolTable);
 }
 
 ThreadContext::~ThreadContext() {
     if (SymbolTable()) {
         fCompiler->fIRGenerator->finish();
+        fCompiler->fSymbolTable = nullptr;
         fProgramElements.clear();
     } else {
         // We should only be here with a null symbol table if ReleaseProgram was called
@@ -64,7 +66,6 @@ ThreadContext::~ThreadContext() {
         fPool->detachFromThread();
     }
 }
-
 
 SkSL::IRGenerator& ThreadContext::IRGenerator() {
     return *Compiler().fIRGenerator;
@@ -82,8 +83,8 @@ SkSL::Program::Inputs& ThreadContext::Inputs() {
     return IRGenerator().fInputs;
 }
 
-const std::shared_ptr<SkSL::SymbolTable>& ThreadContext::SymbolTable() {
-    return IRGenerator().fSymbolTable;
+std::shared_ptr<SkSL::SymbolTable>& ThreadContext::SymbolTable() {
+    return Compiler().fSymbolTable;
 }
 
 const SkSL::Modifiers* ThreadContext::Modifiers(const SkSL::Modifiers& modifiers) {

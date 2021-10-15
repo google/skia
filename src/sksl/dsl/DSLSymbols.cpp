@@ -21,15 +21,15 @@ static bool is_type_in_symbol_table(skstd::string_view name, SkSL::SymbolTable* 
 }
 
 void PushSymbolTable() {
-    SymbolTable::Push(&ThreadContext::IRGenerator().symbolTable());
+    SymbolTable::Push(&ThreadContext::SymbolTable());
 }
 
 void PopSymbolTable() {
-    SymbolTable::Pop(&ThreadContext::IRGenerator().symbolTable());
+    SymbolTable::Pop(&ThreadContext::SymbolTable());
 }
 
 std::shared_ptr<SymbolTable> CurrentSymbolTable() {
-    return ThreadContext::IRGenerator().symbolTable();
+    return ThreadContext::SymbolTable();
 }
 
 DSLPossibleExpression Symbol(skstd::string_view name, PositionInfo pos) {

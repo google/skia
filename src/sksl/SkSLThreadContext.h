@@ -88,9 +88,9 @@ public:
     }
 
     /**
-     * Returns the SymbolTable of the current thread's IRGenerator.
+     * Returns the current SymbolTable.
      */
-    static const std::shared_ptr<SkSL::SymbolTable>& SymbolTable();
+    static std::shared_ptr<SkSL::SymbolTable>& SymbolTable();
 
     /**
      * Returns the current memory pool.

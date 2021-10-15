@@ -509,12 +509,12 @@ bool Compiler::runInliner(const std::vector<std::unique_ptr<ProgramElement>>& el
     // irGenerator.convertIdentifier() to look up `length`. convertIdentifier() needs a valid symbol
     // table to find the declaration of `length`. To allow this chain of events to succeed, we
     // re-insert the program's symbol table back into the IRGenerator temporarily.
-    SkASSERT(!fIRGenerator->fSymbolTable);
-    fIRGenerator->fSymbolTable = symbols;
+    SkASSERT(!fSymbolTable);
+    fSymbolTable = symbols;
 
     bool result = fInliner.analyze(elements, symbols, usage);
 
-    fIRGenerator->fSymbolTable = nullptr;
+    fSymbolTable = nullptr;
     return result;
 }
 
@@ -547,7 +547,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     settings.fDSLUseMemoryPool = false;
     dsl::Start(this, program.fConfig->fKind, settings);
     dsl::SetErrorReporter(&fErrorReporter);
-    ThreadContext::IRGenerator().fSymbolTable = program.fSymbols;
+    fSymbolTable = program.fSymbols;
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     SPIRVCodeGenerator cg(fContext.get(), &program, &buffer);
