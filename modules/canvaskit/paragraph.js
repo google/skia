@@ -252,7 +252,6 @@
       // The font family strings will get copied to a vector on the C++ side, which is owned by
       // the text style.
       CanvasKit._free(textStyle['_fontFamiliesPtr']);
-      CanvasKit._free(textStyle['_localePtr']);
       CanvasKit._free(textStyle['_shadowColorsPtr']);
       CanvasKit._free(textStyle['_shadowOffsetsPtr']);
       CanvasKit._free(textStyle['_shadowBlurRadiiPtr']);
