@@ -204,7 +204,6 @@ public:
         return this->name().starts_with("$");
     }
 
-
     bool operator==(const Type& other) const {
         return this->name() == other.name();
     }

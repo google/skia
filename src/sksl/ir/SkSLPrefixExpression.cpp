@@ -141,7 +141,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
     const Type& baseType = base->type();
     switch (op.kind()) {
         case Token::Kind::TK_PLUS:
-            if (!baseType.componentType().isNumber()) {
+            if (baseType.isArray() || !baseType.componentType().isNumber()) {
                 context.fErrors->error(base->fLine,
                                        "'+' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
@@ -149,7 +149,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
             break;
 
         case Token::Kind::TK_MINUS:
-            if (!baseType.componentType().isNumber()) {
+            if (baseType.isArray() || !baseType.componentType().isNumber()) {
                 context.fErrors->error(base->fLine,
                                        "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
@@ -210,10 +210,12 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Opera
                                                    std::unique_ptr<Expression> base) {
     switch (op.kind()) {
         case Token::Kind::TK_PLUS:
+            SkASSERT(!base->type().isArray());
             SkASSERT(base->type().componentType().isNumber());
             return base;
 
         case Token::Kind::TK_MINUS:
+            SkASSERT(!base->type().isArray());
             SkASSERT(base->type().componentType().isNumber());
             return negate_operand(context, std::move(base));
 
