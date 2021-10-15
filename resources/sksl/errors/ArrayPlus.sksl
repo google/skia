@@ -1,0 +1,6 @@
+void array_plus_int    () { int     a[123]; +a; }
+void array_plus_int4   () { int4    a[123]; +a; }
+void array_plus_float  () { float   a[123]; +a; }
+void array_plus_half3  () { half3   a[123]; +a; }
+void array_plus_bool2  () { bool2   a[123]; +a; }
+void array_plus_half4x4() { half4x4 a[123]; +a; }
