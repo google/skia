@@ -21,10 +21,13 @@ public:
     ~Caps() override {}
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                                     uint32_t sampleCount,
                                                      uint32_t levelCount,
                                                      Protected,
                                                      Renderable) = 0;
+
+    virtual TextureInfo getDefaultMSAATextureInfo(SkColorType,
+                                                  uint32_t sampleCount,
+                                                  Protected) = 0;
 
     virtual TextureInfo getDefaultDepthStencilTextureInfo(DepthStencilType,
                                                           uint32_t sampleCount,

@@ -223,7 +223,6 @@ void Caps::initFormatTable() {
 }
 
 skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
-                                                      uint32_t sampleCount,
                                                       uint32_t levelCount,
                                                       Protected,
                                                       Renderable renderable) {
@@ -233,8 +232,23 @@ skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
     }
 
     TextureInfo info;
-    info.fSampleCount = sampleCount;
+    info.fSampleCount = 1;
     info.fLevelCount = levelCount;
+    info.fFormat = SkColorTypeToFormat(colorType);
+    info.fUsage = usage;
+    info.fStorageMode = MTLStorageModePrivate;
+
+    return info;
+}
+
+skgpu::TextureInfo Caps::getDefaultMSAATextureInfo(SkColorType colorType,
+                                                   uint32_t sampleCount,
+                                                   Protected) {
+    MTLTextureUsage usage = MTLTextureUsageRenderTarget;
+
+    TextureInfo info;
+    info.fSampleCount = sampleCount;
+    info.fLevelCount = 1;
     info.fFormat = SkColorTypeToFormat(colorType);
     info.fUsage = usage;
     info.fStorageMode = MTLStorageModePrivate;

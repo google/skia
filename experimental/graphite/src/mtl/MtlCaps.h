@@ -20,10 +20,13 @@ public:
     ~Caps() override {}
 
     skgpu::TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                                    uint32_t sampleCount,
                                                     uint32_t levelCount,
                                                     Protected,
                                                     Renderable) override;
+
+    skgpu::TextureInfo getDefaultMSAATextureInfo(SkColorType,
+                                                 uint32_t sampleCount,
+                                                 Protected) override;
 
     skgpu::TextureInfo getDefaultDepthStencilTextureInfo(DepthStencilType,
                                                          uint32_t sampleCount,
