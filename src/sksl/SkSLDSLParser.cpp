@@ -9,10 +9,10 @@
 
 #include "include/private/SkSLString.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
-
 #include <memory>
 
 using namespace SkSL::dsl;
@@ -389,11 +389,11 @@ SKSL_INT DSLParser::arraySize() {
         return 1;
     }
     std::unique_ptr<SkSL::Expression> sizeLiteral = sizeExpr.release();
-    if (!sizeLiteral->isIntLiteral()) {
-        this->error(sizeLiteral->fLine, "expected int literal");
+    SKSL_INT size;
+    if (!ConstantFolder::GetConstantInt(*sizeLiteral, &size)) {
+        this->error(sizeLiteral->fLine, "array size must be an integer");
         return 1;
     }
-    SKSL_INT size = sizeLiteral->as<Literal>().intValue();
     if (size > INT32_MAX) {
         this->error(sizeLiteral->fLine, "array size out of bounds");
         return 1;

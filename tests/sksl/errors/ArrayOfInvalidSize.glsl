@@ -12,10 +12,10 @@ error: 9: missing index in '[]'
 error: 10: array size must be positive
 error: 11: array size must be positive
 error: 12: array size must be positive
-error: 13: expected int literal
+error: 13: array size must be an integer
 error: 14: array size out of bounds
-error: 15: expected int literal
-error: 16: expected int literal
-error: 17: expected int literal
+error: 15: array size must be an integer
+error: 16: array size must be an integer
+error: 17: array size must be an integer
 error: 18: expected array dimension
 18 errors

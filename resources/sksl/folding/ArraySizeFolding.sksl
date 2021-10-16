@@ -5,9 +5,11 @@ bool check_array_is_int_2(int[2] x) {
 }
 
 bool test() {
+    const int two = 2;
     int a[int4(1, 2, 3, 4).y];
     int b[int(max(-5.5, 2.0))];
-    return check_array_is_int_2(a) && check_array_is_int_2(b);
+    int c[two];
+    return check_array_is_int_2(a) && check_array_is_int_2(b) && check_array_is_int_2(c);
 }
 
 bool check_array_is_float_3(float[3] x) {

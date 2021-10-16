@@ -839,11 +839,11 @@ SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expressi
                                             "' may not be used in an array");
         return 0;
     }
-    if (!size->isIntLiteral()) {
+    SKSL_INT count;
+    if (!ConstantFolder::GetConstantInt(*size, &count)) {
         context.fErrors->error(size->fLine, "array size must be an integer");
         return 0;
     }
-    SKSL_INT count = size->as<Literal>().intValue();
     if (count <= 0) {
         context.fErrors->error(size->fLine, "array size must be positive");
         return 0;

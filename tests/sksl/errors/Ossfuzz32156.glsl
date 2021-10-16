@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected int literal
+error: 1: array size must be an integer
 1 error
