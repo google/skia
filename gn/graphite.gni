@@ -62,6 +62,8 @@ skia_graphite_sources = [
   "$_src/TextureInfo.cpp",
   "$_src/TextureProxy.cpp",
   "$_src/TextureProxy.h",
+  "$_src/UniformDataManager.cpp",
+  "$_src/UniformDataManager.h",
   "$_src/geom/BoundsManager.h",
   "$_src/geom/Rect.h",
   "$_src/geom/Shape.cpp",

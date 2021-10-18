@@ -57,6 +57,74 @@ enum class PrioritizeGpuReads : bool {
     kYes = true,
 };
 
+/**
+ * Types of shader-language-specific boxed variables we can create.
+ */
+enum class SLType {
+    kVoid,
+    kBool,
+    kBool2,
+    kBool3,
+    kBool4,
+    kByte,
+    kByte2,
+    kByte3,
+    kByte4,
+    kUByte,
+    kUByte2,
+    kUByte3,
+    kUByte4,
+    kShort,
+    kShort2,
+    kShort3,
+    kShort4,
+    kUShort,
+    kUShort2,
+    kUShort3,
+    kUShort4,
+    kFloat,
+    kFloat2,
+    kFloat3,
+    kFloat4,
+    kFloat2x2,
+    kFloat3x3,
+    kFloat4x4,
+    kHalf,
+    kHalf2,
+    kHalf3,
+    kHalf4,
+    kHalf2x2,
+    kHalf3x3,
+    kHalf4x4,
+    kInt,
+    kInt2,
+    kInt3,
+    kInt4,
+    kUint,
+    kUint2,
+    kUint3,
+    kUint4,
+    kTexture2DSampler,
+    kTextureExternalSampler,
+    kTexture2DRectSampler,
+    kTexture2D,
+    kSampler,
+    kInput,
+
+    kLast = kInput
+};
+
+enum class CType : unsigned {
+    // Any float/half, vector of floats/half, or matrices of floats/halfs are a tightly
+    // packed array of floats. Similarly, any bool/shorts/ints are a tightly packed array
+    // of int32_t.
+    kDefault,
+    // Can be used with kFloat3x3 or kHalf3x3
+    kSkMatrix,
+
+    kLast = kSkMatrix
+};
+
 } // namespace skgpu
 
 #endif // skgpu_GraphiteTypesPriv_DEFINED
