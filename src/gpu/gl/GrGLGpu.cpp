@@ -1612,6 +1612,13 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
     return this->glCaps().getStencilFormatIndexForFormat(format);
 }
 
+static void set_khr_debug_label(GrGLGpu* gpu, const GrGLuint id) {
+    if (gpu->glCaps().debugSupport()) {
+        const char* label = "Skia";
+        GR_GL_CALL(gpu->glInterface(), ObjectLabel(GR_GL_TEXTURE, id, -1, label));
+    }
+}
+
 GrGLuint GrGLGpu::createCompressedTexture2D(
         SkISize dimensions,
         SkImage::CompressionType compression,
@@ -1628,6 +1635,8 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
     }
 
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, id);
+
+    set_khr_debug_label(this, id);
 
     *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
 
@@ -1651,6 +1660,8 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
     }
 
     this->bindTextureToScratchUnit(target, id);
+
+    set_khr_debug_label(this, id);
 
     if (GrRenderable::kYes == renderable && this->glCaps().textureUsageSupport()) {
         // provides a hint about how this texture will be used
