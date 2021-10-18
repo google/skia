@@ -57,7 +57,9 @@ static constexpr char gNoiseEffectSkSL[] =
 
     "uniform half u_octaves,"      // number of octaves (can be fractional)
                  "u_persistence,"  // relative octave weight
-                 "u_evolution;"    // evolution/seed
+                 "u_evo,"          // evolution
+                 "u_evo_offset,"   // evolution offset (based on rnd seed)
+                 "u_evo_cycle;"    // evolution period
 
     // Hash based on hash13 (https://www.shadertoy.com/view/4djSRW).
     "half hash(half3 v) {"
@@ -72,10 +74,12 @@ static constexpr char gNoiseEffectSkSL[] =
     "half sample_noise(vec2 xy) {"
         "xy = floor(xy);"
 
-        "half e_ = floor(u_evolution),"
-             "t  = u_evolution - e_,"
-             "n0 = hash(half3(xy, e_ + 0)),"
-             "n1 = hash(half3(xy, e_ + 1));"
+        "half e_  = floor(u_evo),"
+             "t   = u_evo - e_,"
+             "np0 = mod(e_ + 0, u_evo_cycle) + u_evo_offset,"
+             "np1 = mod(e_ + 1, u_evo_cycle) + u_evo_offset,"
+             "n0  = hash(half3(xy, np0)),"
+             "n1  = hash(half3(xy, np1));"
 
         // Note: Ideally we would use 4 samples (-1, 0, 1, 2) and cubic interpolation for
         //       better results -- but that's significantly more expensive than lerp.
@@ -235,14 +239,16 @@ class FractalNoiseNode final : public sksg::CustomRenderNode {
 public:
     explicit FractalNoiseNode(sk_sp<RenderNode> child) : INHERITED({std::move(child)}) {}
 
-    SG_ATTRIBUTE(Matrix      , SkMatrix    , fMatrix     )
-    SG_ATTRIBUTE(SubMatrix   , SkMatrix    , fSubMatrix  )
+    SG_ATTRIBUTE(Matrix         , SkMatrix    , fMatrix         )
+    SG_ATTRIBUTE(SubMatrix      , SkMatrix    , fSubMatrix      )
 
-    SG_ATTRIBUTE(NoiseFilter , NoiseFilter , fFilter     )
-    SG_ATTRIBUTE(NoiseFractal, NoiseFractal, fFractal    )
-    SG_ATTRIBUTE(Octaves     , float       , fOctaves    )
-    SG_ATTRIBUTE(Persistence , float       , fPersistence)
-    SG_ATTRIBUTE(Evolution   , float       , fEvolution  )
+    SG_ATTRIBUTE(NoiseFilter    , NoiseFilter , fFilter         )
+    SG_ATTRIBUTE(NoiseFractal   , NoiseFractal, fFractal        )
+    SG_ATTRIBUTE(Octaves        , float       , fOctaves        )
+    SG_ATTRIBUTE(Persistence    , float       , fPersistence    )
+    SG_ATTRIBUTE(Evolution      , float       , fEvolution      )
+    SG_ATTRIBUTE(EvolutionOffset, float       , fEvolutionOffset)
+    SG_ATTRIBUTE(EvolutionCycle , float       , fEvolutionCycle )
 
 private:
     template <NoiseFilter FI, NoiseFractal FR>
@@ -285,10 +291,12 @@ private:
     sk_sp<SkShader> buildEffectShader() const {
         SkRuntimeShaderBuilder builder(this->getEffect());
 
-        builder.uniform("u_octaves")     = fOctaves;
+        builder.uniform("u_octaves"    ) = fOctaves;
         builder.uniform("u_persistence") = fPersistence;
-        builder.uniform("u_evolution")   = fEvolution;
-        builder.uniform("u_submatrix")   = std::array<float,9>{
+        builder.uniform("u_evo"        ) = fEvolution;
+        builder.uniform("u_evo_offset" ) = fEvolutionOffset;
+        builder.uniform("u_evo_cycle"  ) = fEvolutionCycle;
+        builder.uniform("u_submatrix"  ) = std::array<float,9>{
             fSubMatrix.rc(0,0), fSubMatrix.rc(1,0), fSubMatrix.rc(2,0),
             fSubMatrix.rc(0,1), fSubMatrix.rc(1,1), fSubMatrix.rc(2,1),
             fSubMatrix.rc(0,2), fSubMatrix.rc(1,2), fSubMatrix.rc(2,2),
@@ -327,11 +335,13 @@ private:
 
     SkMatrix     fMatrix,
                  fSubMatrix;
-    NoiseFilter  fFilter      = NoiseFilter::kNearest;
-    NoiseFractal fFractal     = NoiseFractal::kBasic;
-    float        fOctaves     = 1,
-                 fPersistence = 1,
-                 fEvolution   = 0;
+    NoiseFilter  fFilter          = NoiseFilter::kNearest;
+    NoiseFractal fFractal         = NoiseFractal::kBasic;
+    float        fOctaves         = 1,
+                 fPersistence     = 1,
+                 fEvolution       = 0,
+                 fEvolutionOffset = 0,
+                 fEvolutionCycle  = SK_ScalarMax;
 
     using INHERITED = sksg::CustomRenderNode;
 };
@@ -370,8 +380,8 @@ public:
              // 22 -- sub settings end-group
             .bind(23, fEvolution       )
              // 24 -- evolution options begin-group
-             // 25 -- cycle evolution
-             // 26 -- cycle revolution
+            .bind(25, fCycleEvolution  )
+            .bind(26, fCycleRevolutions)
             .bind(27, fRandomSeed      )
              // 28 -- evolution options end-group
             .bind(29, fOpacity         );
@@ -379,14 +389,33 @@ public:
     }
 
 private:
-    float evolution() const {
+    std::tuple<float, float, float> evolution() const {
         // Constant chosen to visually match AE's evolution rate.
-        const auto evo = SkDegreesToRadians(fEvolution) * 0.25f;
+        static constexpr auto kEvolutionScale = 0.25f;
 
-        // The random seed determines an arbitrary start plane.
-        const auto base = SkRandom(static_cast<uint32_t>(fRandomSeed)).nextRangeU(0, 100);
+        // Evolution inputs:
+        //
+        //   * evolution         - main evolution control (degrees)
+        //   * cycle evolution   - flag controlling whether evolution cycles
+        //   * cycle revolutions - number of revolutions after which evolution cycles (period)
+        //   * random seed       - determines an arbitrary starting plane (evolution offset)
+        //
+        // The shader uses evolution floor/ceil to select two noise planes, and the fractional part
+        // to interpolate between the two -> in order to wrap around smoothly, the cycle/period
+        // must be integral.
+        const float
+            evo_rad = SkDegreesToRadians(fEvolution),
+            rev_rad = std::max(fCycleRevolutions, 1.0f)*SK_FloatPI*2,
+            cycle   = fCycleEvolution
+                          ? SkScalarRoundToScalar(rev_rad*kEvolutionScale)
+                          : SK_ScalarMax,
+            // Adjust scale when cycling to ensure an integral period (post scaling).
+            scale   = fCycleEvolution
+                          ? cycle/rev_rad
+                          : kEvolutionScale,
+            offset  = SkRandom(static_cast<uint32_t>(fRandomSeed)).nextRangeU(0, 100);
 
-        return evo + base;
+        return std::make_tuple(evo_rad*scale, offset, cycle);
     }
 
     SkMatrix shaderMatrix() const {
@@ -433,9 +462,13 @@ private:
     void onSync() override {
         const auto& n = this->node();
 
+        const auto [evo, evo_offset, evo_cycle] = this->evolution();
+
         n->setOctaves(SkTPin(fComplexity, 1.0f, 20.0f));
         n->setPersistence(SkTPin(fSubInfluence * 0.01f, 0.0f, 100.0f));
-        n->setEvolution(this->evolution());
+        n->setEvolution(evo);
+        n->setEvolutionOffset(evo_offset);
+        n->setEvolutionCycle(evo_cycle);
         n->setNoiseFilter(this->noiseFilter());
         n->setNoiseFractal(this->noiseFractal());
         n->setMatrix(this->shaderMatrix());
@@ -460,6 +493,8 @@ private:
                 fSubRotation      =     0,
 
                 fEvolution        =     0,
+                fCycleEvolution   =     0,
+                fCycleRevolutions =     0,
                 fRandomSeed       =     0,
 
                 fOpacity          =   100, // TODO
