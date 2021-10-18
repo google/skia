@@ -92,6 +92,9 @@ config("skia_private") {
       "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
       "GR_TEST_UTILS=1",
     ]
+    if (skia_enable_graphite) {
+      defines += [ "GRAPHITE_TEST_UTILS=1" ]
+    }
   }
   libs = []
   lib_dirs = []

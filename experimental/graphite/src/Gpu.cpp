@@ -36,14 +36,19 @@ Gpu::~Gpu() {
     fResourceProvider.reset();
 }
 
+sk_sp<const Caps> Gpu::refCaps() const {
+    return fCaps;
+}
+
 bool Gpu::submit(sk_sp<CommandBuffer> commandBuffer) {
     if (!commandBuffer) {
         return false;
     }
 
-    if (!commandBuffer->hasWork()) {
-        return true;
-    }
+// TODO: re-enable when we have work items to include in command buffer
+//    if (!commandBuffer->hasWork()) {
+//        return true;
+//    }
 
     return this->onSubmit(std::move(commandBuffer));
 }

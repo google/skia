@@ -62,4 +62,37 @@ bool Gpu::onSubmit(sk_sp<skgpu::CommandBuffer> commandBuffer) {
     return true;
 }
 
+#if GRAPHITE_TEST_UTILS
+void Gpu::testingOnly_startCapture() {
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        // TODO: add newer Metal interface as well
+        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+        if (captureManager.isCapturing) {
+            return;
+        }
+        if (@available(macOS 10.15, iOS 13.0, *)) {
+            MTLCaptureDescriptor* captureDescriptor = [[MTLCaptureDescriptor alloc] init];
+            captureDescriptor.captureObject = fQueue.get();
+
+            NSError *error;
+            if (![captureManager startCaptureWithDescriptor: captureDescriptor error:&error])
+            {
+                NSLog(@"Failed to start capture, error %@", error);
+            }
+        } else {
+            [captureManager startCaptureWithCommandQueue: fQueue.get()];
+        }
+     }
+}
+
+void Gpu::testingOnly_endCapture() {
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+        if (captureManager.isCapturing) {
+            [captureManager stopCapture];
+        }
+    }
+}
+#endif
+
 } // namespace skgpu::mtl

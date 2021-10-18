@@ -7,13 +7,10 @@
 
 #include "experimental/graphite/src/ContextPriv.h"
 
-#include "experimental/graphite/src/Caps.h"
-#include "experimental/graphite/src/Gpu.h"
-
 namespace skgpu {
 
-const Caps* ContextPriv::caps() {
-    return fContext->fGpu->caps();
+Gpu* ContextPriv::gpu() {
+    return fContext->fGpu.get();
 }
 
 } // namespace skgpu

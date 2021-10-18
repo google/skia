@@ -8,10 +8,12 @@
 #include "tests/Test.h"
 
 #include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/ContextPriv.h"
+#include "experimental/graphite/src/Gpu.h"
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(CapsTest, reporter, context) {
     // TODO: Jim takes this over
-    auto caps = context->priv().caps();
+    auto caps = context->priv().gpu()->caps();
     REPORTER_ASSERT(reporter, caps);
 }

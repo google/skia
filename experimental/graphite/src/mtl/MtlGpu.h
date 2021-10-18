@@ -34,6 +34,11 @@ private:
 
     bool onSubmit(sk_sp<skgpu::CommandBuffer>) override;
 
+#if GRAPHITE_TEST_UTILS
+    void testingOnly_startCapture() override;
+    void testingOnly_endCapture() override;
+#endif
+
     sk_cfp<id<MTLDevice>> fDevice;
     sk_cfp<id<MTLCommandQueue>> fQueue;
 };
