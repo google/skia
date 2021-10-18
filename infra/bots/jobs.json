@@ -387,6 +387,7 @@
   {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan",
    "cq_config": {}
    },
+  {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_NativeFonts"},
   {"name": "Test-Android-Clang-Nexus5-CPU-Snapdragon800-arm-Debug-All-Android"},
   {"name": "Test-Android-Clang-Nexus5-CPU-Snapdragon800-arm-Release-All-Android"},
   {"name": "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android"},
