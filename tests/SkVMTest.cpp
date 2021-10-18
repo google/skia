@@ -102,7 +102,7 @@ DEF_TEST(SkVM_allow_jit, r) {
         b.store32(dst, b.load32(src));
     }
 
-    if (b.done("", /*allow_jit=*/true).hasJIT()) {
+    if (b.done("test-allow_jit", /*allow_jit=*/true).hasJIT()) {
         REPORTER_ASSERT(r, !b.done("", false).hasJIT());
     }
 }
