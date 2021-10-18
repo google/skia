@@ -10,7 +10,6 @@
 
 #include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"

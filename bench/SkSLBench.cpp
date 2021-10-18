@@ -13,7 +13,6 @@
 #include "src/gpu/mock/GrMockCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDSLParser.h"
-#include "src/sksl/SkSLIRGenerator.h"
 
 class SkSLCompilerStartupBench : public Benchmark {
 protected:

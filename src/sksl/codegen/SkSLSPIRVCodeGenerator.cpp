@@ -1095,8 +1095,8 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             this->writeWord(fn, out);
             this->addRTFlipUniform(c.fLine);
             using namespace dsl;
-            DSLExpression rtFlip(ThreadContext::IRGenerator().convertIdentifier(/*line=*/-1,
-                                                                                SKSL_RTFLIP_NAME));
+            DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(/*line=*/-1,
+                    SKSL_RTFLIP_NAME));
             SpvId rtFlipY = this->vectorize(*rtFlip.y().release(), callType.columns(), out);
             SpvId flipped = this->nextId(&callType);
             this->writeInstruction(SpvOpFMul, this->getType(callType), flipped, result, rtFlipY,
@@ -2076,7 +2076,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             // expr isn't actually an lvalue, create a placeholder variable for it. This case
             // happens due to the need to store values in temporary variables during function
             // calls (see comments in getFunctionType); erroneous uses of rvalues as lvalues
-            // should have been caught by IRGenerator
+            // should have been caught before code generation
             SpvId result = this->nextId(nullptr);
             SpvId pointerType = this->getPointerType(type, SpvStorageClassFunction);
             this->writeInstruction(SpvOpVariable, pointerType, result, SpvStorageClassFunction,
@@ -2115,8 +2115,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         // Use a uniform to flip the Y coordinate. The new expression will be written in
         // terms of __device_FragCoords, which is a fake variable that means "access the
         // underlying fragcoords directly without flipping it".
-        DSLExpression rtFlip(ThreadContext::IRGenerator().convertIdentifier(/*line=*/-1,
-                                                                            SKSL_RTFLIP_NAME));
+        DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(/*line=*/-1,
+                SKSL_RTFLIP_NAME));
         if (!symbols[DEVICE_COORDS_NAME]) {
             AutoAttachPoolToThread attach(fProgram.fPool.get());
             Modifiers modifiers;
@@ -2150,8 +2150,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         // Use a uniform to flip the Y coordinate. The new expression will be written in
         // terms of __device_Clockwise, which is a fake variable that means "access the
         // underlying FrontFacing directly".
-        DSLExpression rtFlip(ThreadContext::IRGenerator().convertIdentifier(/*line=*/-1,
-                                                                            SKSL_RTFLIP_NAME));
+        DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(/*line=*/-1,
+                SKSL_RTFLIP_NAME));
         if (!symbols[DEVICE_CLOCKWISE_NAME]) {
             AutoAttachPoolToThread attach(fProgram.fPool.get());
             Modifiers modifiers;

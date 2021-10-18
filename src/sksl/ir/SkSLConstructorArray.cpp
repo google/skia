@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
 

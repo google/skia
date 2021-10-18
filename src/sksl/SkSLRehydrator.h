@@ -20,7 +20,6 @@ namespace SkSL {
 class Context;
 class ErrorReporter;
 class Expression;
-class IRGenerator;
 class ProgramElement;
 class Statement;
 class SymbolTable;

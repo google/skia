@@ -7,6 +7,9 @@
 
 #include "src/sksl/ir/SkSLConstructorStruct.h"
 
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLContext.h"
+
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorStruct::Convert(const Context& context,

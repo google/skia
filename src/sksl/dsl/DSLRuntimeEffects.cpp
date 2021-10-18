@@ -10,7 +10,6 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/sksl/DSLCore.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLThreadContext.h"
 
 namespace SkSL {

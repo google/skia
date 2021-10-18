@@ -45,7 +45,6 @@ namespace dsl {
 
 class ExternalFunction;
 class FunctionDeclaration;
-class IRGenerator;
 class ProgramUsage;
 
 struct LoadedModule {
@@ -141,6 +140,8 @@ public:
             String text,
             Program::Settings settings);
 
+    std::unique_ptr<Expression> convertIdentifier(int line, skstd::string_view name);
+
     bool toSPIRV(Program& program, OutputStream& out);
 
     bool toSPIRV(Program& program, String* out);
@@ -193,10 +194,6 @@ public:
     LoadedModule loadModule(ProgramKind kind, ModuleData data, std::shared_ptr<SymbolTable> base,
                             bool dehydrate);
     ParsedModule parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base);
-
-    IRGenerator& irGenerator() {
-        return *fIRGenerator;
-    }
 
     const ParsedModule& moduleForProgramKind(ProgramKind kind);
 
@@ -255,7 +252,6 @@ private:
 
     Mangler fMangler;
     Inliner fInliner;
-    std::unique_ptr<IRGenerator> fIRGenerator;
     // This is the current symbol table of the code we are processing, and therefore changes during
     // compilation
     std::shared_ptr<SymbolTable> fSymbolTable;

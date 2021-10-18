@@ -14,7 +14,6 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLDSLParser.h"
-#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLIntrinsicMap.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -28,12 +27,16 @@
 #include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExternalFunctionReference.h"
+#include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/transform/SkSLProgramWriter.h"
@@ -132,7 +135,6 @@ Compiler::Compiler(const ShaderCapsClass* caps)
     SkASSERT(caps);
     fRootModule.fSymbols = this->makeRootSymbolTable();
     fPrivateModule.fSymbols = this->makePrivateSymbolTable(fRootModule.fSymbols);
-    fIRGenerator = std::make_unique<IRGenerator>(fContext.get());
 }
 
 Compiler::~Compiler() {}
@@ -445,6 +447,58 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     return DSLParser(this, settings, kind, std::move(text)).program();
 }
 
+std::unique_ptr<Expression> Compiler::convertIdentifier(int line, skstd::string_view name) {
+    const Symbol* result = (*fSymbolTable)[name];
+    if (!result) {
+        this->errorReporter().error(line, "unknown identifier '" + name + "'");
+        return nullptr;
+    }
+    switch (result->kind()) {
+        case Symbol::Kind::kFunctionDeclaration: {
+            std::vector<const FunctionDeclaration*> f = {
+                &result->as<FunctionDeclaration>()
+            };
+            return std::make_unique<FunctionReference>(*fContext, line, f);
+        }
+        case Symbol::Kind::kUnresolvedFunction: {
+            const UnresolvedFunction* f = &result->as<UnresolvedFunction>();
+            return std::make_unique<FunctionReference>(*fContext, line, f->functions());
+        }
+        case Symbol::Kind::kVariable: {
+            const Variable* var = &result->as<Variable>();
+            const Modifiers& modifiers = var->modifiers();
+            switch (modifiers.fLayout.fBuiltin) {
+                case SK_FRAGCOORD_BUILTIN:
+                    if (fContext->fCaps.canUseFragCoord()) {
+                        ThreadContext::Inputs().fUseFlipRTUniform = true;
+                    }
+                    break;
+                case SK_CLOCKWISE_BUILTIN:
+                    ThreadContext::Inputs().fUseFlipRTUniform = true;
+                    break;
+            }
+            // default to kRead_RefKind; this will be corrected later if the variable is written to
+            return VariableReference::Make(line, var, VariableReference::RefKind::kRead);
+        }
+        case Symbol::Kind::kField: {
+            const Field* field = &result->as<Field>();
+            auto base = VariableReference::Make(line, &field->owner(),
+                                                VariableReference::RefKind::kRead);
+            return FieldAccess::Make(*fContext, std::move(base), field->fieldIndex(),
+                                     FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
+        }
+        case Symbol::Kind::kType: {
+            return TypeReference::Convert(*fContext, line, &result->as<Type>());
+        }
+        case Symbol::Kind::kExternal: {
+            const ExternalFunction* r = &result->as<ExternalFunction>();
+            return std::make_unique<ExternalFunctionReference>(line, r);
+        }
+        default:
+            SK_ABORT("unsupported symbol type %d\n", (int) result->kind());
+    }
+}
+
 bool Compiler::optimize(LoadedModule& module) {
     SkASSERT(!this->errorCount());
 
@@ -501,14 +555,14 @@ bool Compiler::optimize(Program& program) {
 bool Compiler::runInliner(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                           std::shared_ptr<SymbolTable> symbols,
                           ProgramUsage* usage) {
-    // The program's SymbolTable was taken out of the IRGenerator when the program was bundled, but
-    // the inliner relies (indirectly) on having a valid SymbolTable in the IRGenerator.
+    // The program's SymbolTable was taken out of fSymbolTable when the program was bundled, but
+    // the inliner relies (indirectly) on having a valid SymbolTable.
     // In particular, inlining can turn a non-optimizable expression like `normalize(myVec)` into
     // `normalize(vec2(7))`, which is now optimizable. The optimizer can use DSL to simplify this
     // expression--e.g., in the case of normalize, using DSL's Length(). The DSL relies on
-    // irGenerator.convertIdentifier() to look up `length`. convertIdentifier() needs a valid symbol
-    // table to find the declaration of `length`. To allow this chain of events to succeed, we
-    // re-insert the program's symbol table back into the IRGenerator temporarily.
+    // convertIdentifier() to look up `length`. convertIdentifier() needs a valid symbol table to
+    // find the declaration of `length`. To allow this chain of events to succeed, we re-insert the
+    // program's symbol table temporarily.
     SkASSERT(!fSymbolTable);
     fSymbolTable = symbols;
 

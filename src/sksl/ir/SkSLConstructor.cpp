@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLConstructor.h"
 
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"

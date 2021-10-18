@@ -6,6 +6,7 @@
  */
 
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 
 #include <algorithm>

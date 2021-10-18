@@ -9,7 +9,6 @@
 #define SKSL_CONSTRUCTOR
 
 #include "include/core/SkSpan.h"
-#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {

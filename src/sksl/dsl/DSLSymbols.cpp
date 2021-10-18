@@ -7,9 +7,10 @@
 
 #include "include/sksl/DSLSymbols.h"
 
-#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 namespace SkSL {
 
@@ -33,7 +34,7 @@ std::shared_ptr<SymbolTable> CurrentSymbolTable() {
 }
 
 DSLPossibleExpression Symbol(skstd::string_view name, PositionInfo pos) {
-    return ThreadContext::IRGenerator().convertIdentifier(pos.line(), name);
+    return ThreadContext::Compiler().convertIdentifier(pos.line(), name);
 }
 
 bool IsType(skstd::string_view name) {

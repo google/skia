@@ -11,17 +11,20 @@
 #include "include/sksl/DSLSymbols.h"
 #include "include/sksl/DSLVar.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
@@ -127,7 +130,7 @@ public:
         static_cast<void>(unused);
 
         return SkSL::FunctionCall::Convert(ThreadContext::Context(), /*line=*/-1,
-                ThreadContext::IRGenerator().convertIdentifier(-1, name), std::move(argArray));
+                ThreadContext::Compiler().convertIdentifier(-1, name), std::move(argArray));
     }
 
     static DSLStatement Break(PositionInfo pos) {

@@ -8,7 +8,6 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 namespace SkSL {

@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLSetting.h"
+
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {

@@ -5,12 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLSwizzle.h"
+
 #include "include/private/SkTOptional.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
-#include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 
 namespace SkSL {
 

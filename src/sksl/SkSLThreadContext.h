@@ -22,7 +22,6 @@ namespace SkSL {
 
 class Compiler;
 class Context;
-class IRGenerator;
 struct ParsedModule;
 class ProgramElement;
 class SymbolTable;
@@ -55,11 +54,6 @@ public:
      * Returns the Compiler used by DSL operations in the current thread.
      */
     static SkSL::Compiler& Compiler() { return *Instance().fCompiler; }
-
-    /**
-     * Returns the IRGenerator used by DSL operations in the current thread.
-     */
-    static SkSL::IRGenerator& IRGenerator();
 
     /**
      * Returns the Context used by DSL operations in the current thread.
@@ -196,6 +190,8 @@ private:
     class DefaultErrorReporter : public ErrorReporter {
         void handleError(skstd::string_view msg, PositionInfo pos) override;
     };
+
+    void setupSymbolTable();
 
     std::unique_ptr<SkSL::ProgramConfig> fConfig;
     std::unique_ptr<SkSL::ModifiersPool> fModifiersPool;

@@ -18,6 +18,7 @@
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
+#include "src/sksl/ir/SkSLTypeReference.h"
 
 #include "include/private/SkFloatingPoint.h"
 #include "include/sksl/DSLCore.h"
