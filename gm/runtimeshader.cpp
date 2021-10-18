@@ -643,3 +643,66 @@ DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
 
     canvas->drawPaint(p);
 }
+
+static sk_sp<SkShader> normal_map_shader() {
+    // Produces a hemispherical normal:
+    static const char* kSrc = R"(
+        half4 main(vec2 p) {
+            p = (p / 256) * 2 - 1;
+            float p2 = dot(p, p);
+            vec3 v = (p2 > 1) ? vec3(0, 0, 1) : vec3(p, sqrt(1 - p2));
+            return (v * 0.5 + 0.5).xyz1;
+        }
+    )";
+    auto effect = SkRuntimeEffect::MakeForShader(SkString(kSrc)).effect;
+    return effect->makeShader(nullptr, {}, nullptr, true);
+}
+
+static sk_sp<SkShader> normal_map_image_shader() {
+    // Above, baked into an image:
+    auto surface = SkSurface::MakeRasterN32Premul(256, 256);
+    SkPaint p;
+    p.setShader(normal_map_shader());
+    surface->getCanvas()->drawPaint(p);
+    auto image = surface->makeImageSnapshot();
+    return image->makeShader(SkSamplingOptions{});
+}
+
+static sk_sp<SkShader> lit_shader(sk_sp<SkShader> normals) {
+    // Simple N.L against a fixed, directional light:
+    static const char* kSrc = R"(
+        uniform shader normals;
+        half4 main(vec2 p) {
+            vec3 n = normalize(normals.eval(p).xyz * 2 - 1);
+            vec3 l = normalize(vec3(1, -1, 1));
+            return dot(n, l).xxx1;
+        }
+    )";
+    auto effect = SkRuntimeEffect::MakeForShader(SkString(kSrc)).effect;
+    return effect->makeShader(nullptr, &normals, 1, nullptr, true);
+}
+
+DEF_SIMPLE_GM(paint_alpha_normals_rt, canvas, 512,512) {
+    // Various draws, with non-opaque paint alpha. This demonstrates several issues around how
+    // paint alpha is applied differently on CPU (globally, after all shaders) and GPU (per shader,
+    // inconsistently). See: skbug.com/11942
+    //
+    // When this works, it will be a demo of applying paint alpha to fade out a complex effect.
+    auto draw_shader = [=](int x, int y, sk_sp<SkShader> shader) {
+        SkPaint p;
+        p.setAlpha(164);
+        p.setShader(shader);
+
+        canvas->save();
+        canvas->translate(x, y);
+        canvas->clipRect({0, 0, 256, 256});
+        canvas->drawPaint(p);
+        canvas->restore();
+    };
+
+    draw_shader(0, 0, normal_map_shader());
+    draw_shader(0, 256, normal_map_image_shader());
+
+    draw_shader(256, 0, lit_shader(normal_map_shader()));
+    draw_shader(256, 256, lit_shader(normal_map_image_shader()));
+}
