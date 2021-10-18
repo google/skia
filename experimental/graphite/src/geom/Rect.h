@@ -70,8 +70,9 @@ public:
     AI void setTopLeft(float2 topLeft) { fVals.xy() = topLeft; }
     AI void setBotRight(float2 botRight) { fVals.zw() = -botRight; }
 
-    AI bool isEmptyOrNegative() const {
-        return any(fVals.xy() + fVals.zw() >= 0);  // == ([l-r, r-b] >= 0) == ([w, h] <= 0)
+    AI bool isEmptyNegativeOrNaN() const {
+        return !all(fVals.xy() + fVals.zw() < 0);  // !([l-r, r-b] < 0) == ([w, h] <= 0)
+                                                   // Use "!(-size < 0)" in order to detect NaN.
     }
 
     AI float2 size() const { return -(fVals.xy() + fVals.zw()); }  // == [-(l-r), -(t-b)] == [w, h]

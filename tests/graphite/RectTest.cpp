@@ -66,6 +66,13 @@ DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
         setTest.setBotRight({r,b});
         CHECK(setTest == rect2);
 
+        for (int i = 0; i < 4; ++i) {
+            Rect rnan = rect2;
+            CHECK(!rnan.isEmptyNegativeOrNaN());
+            rnan.vals()[i] = std::numeric_limits<float>::quiet_NaN();
+            CHECK(rnan.isEmptyNegativeOrNaN());
+        }
+
         CHECK(all(rect2.size() == float2(skRect2.width(), skRect2.height())));
         CHECK(all(rect2.center() == float2(skRect2.centerX(), skRect2.centerY())));
         CHECK(rect2.area() == skRect2.height() * skRect2.width());
@@ -88,7 +95,7 @@ DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
         CHECK(rect.makeJoin(rect2) == skJoin);
         CHECK(rect.makeJoin(rect2) == rect2.makeJoin(rect));
 
-        CHECK(rect.intersects(rect2) == !rect.makeIntersect(rect2).isEmptyOrNegative());
+        CHECK(rect.intersects(rect2) == !rect.makeIntersect(rect2).isEmptyNegativeOrNaN());
         CHECK(rect.makeIntersect(rect2) == rect2.makeIntersect(rect));
         if (rect.intersects(rect2)) {
             CHECK(skRect.intersects(skRect2));
