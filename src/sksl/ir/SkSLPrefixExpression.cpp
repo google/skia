@@ -187,7 +187,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
                         String("operator '") + op.operatorName() + "' is not allowed");
                 return nullptr;
             }
-            if (!baseType.isInteger()) {
+            if (baseType.isArray() || !baseType.componentType().isInteger()) {
                 context.fErrors->error(base->fLine,
                                        String("'") + op.operatorName() + "' cannot operate on '" +
                                        baseType.displayName() + "'");
@@ -229,7 +229,8 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Opera
 
         case Token::Kind::TK_BITWISENOT:
             SkASSERT(!context.fConfig->strictES2Mode());
-            SkASSERT(base->type().isInteger());
+            SkASSERT(!base->type().isArray());
+            SkASSERT(base->type().componentType().isInteger());
             SkASSERT(!base->type().isLiteral());
             break;
 

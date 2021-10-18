@@ -24,6 +24,8 @@ half4 main(float2 coords) {
     x = (colorGreen.xy, 6);
     y = (float(b) * float(c) * float(d) * float(e) * float(f), 6.0);
     z = (colorRed.zw, 6);
+    int2 w = int2(~5);
+    w = ~w;
 
-    return (x == 6 && y == 6 && z == 6) ? colorGreen : colorRed;
+    return (w.x == 5 && w.y == 5 && x == 6 && y == 6 && z == 6) ? colorGreen : colorRed;
 }

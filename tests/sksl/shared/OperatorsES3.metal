@@ -32,6 +32,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     x = 6.0;
     y = 6.0;
     z = 6;
-    _out.sk_FragColor = (x == 6.0 && y == 6.0) && z == 6 ? _uniforms.colorGreen : _uniforms.colorRed;
+    int2 w = int2(~5);
+    w = ~w;
+    _out.sk_FragColor = (((w.x == 5 && w.y == 5) && x == 6.0) && y == 6.0) && z == 6 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
