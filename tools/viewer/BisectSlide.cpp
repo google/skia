@@ -7,17 +7,11 @@
 
 #include "tools/viewer/BisectSlide.h"
 
-#include "include/core/SkPicture.h"
 #include "include/core/SkStream.h"
 #include "src/utils/SkOSPath.h"
+#include "tools/ToolUtils.h"
 
 #include <utility>
-
-#if defined(SK_ENABLE_SVG)
-#include "modules/svg/include/SkSVGDOM.h"
-#include "modules/svg/include/SkSVGNode.h"
-#include "src/xml/SkDOM.h"
-#endif
 
 sk_sp<BisectSlide> BisectSlide::Create(const char filepath[]) {
     SkFILEStream stream(filepath);
@@ -27,45 +21,23 @@ sk_sp<BisectSlide> BisectSlide::Create(const char filepath[]) {
     }
 
     sk_sp<BisectSlide> bisect(new BisectSlide(filepath));
-    if (bisect->fFilePath.endsWith(".svg")) {
-#if defined(SK_ENABLE_SVG)
-        sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream);
-        if (!svg) {
-            SkDebugf("BISECT: couldn't load svg at \"%s\"\n", filepath);
-            return nullptr;
-        }
-        svg->setContainerSize(SkSize::Make(bisect->getDimensions()));
-        svg->render(bisect.get());
-#else
-        return nullptr;
-#endif
-    } else {
-        sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream);
-        if (!skp) {
-            SkDebugf("BISECT: couldn't load skp at \"%s\"\n", filepath);
-            return nullptr;
-        }
-        skp->playback(bisect.get());
-    }
-
+    ToolUtils::sniff_paths(filepath, [&](const SkMatrix& matrix,
+                                         const SkPath& path,
+                                         const SkPaint& paint) {
+        SkRect bounds;
+        SkIRect ibounds;
+        matrix.mapRect(&bounds, path.getBounds());
+        bounds.roundOut(&ibounds);
+        bisect->fDrawBounds.join(ibounds);
+        bisect->fFoundPaths.push_back() = {path, paint, matrix};
+    });
     return bisect;
 }
 
 BisectSlide::BisectSlide(const char filepath[])
-        : SkCanvas(4096, 4096, nullptr)
-        , fFilePath(filepath) {
+        : fFilePath(filepath) {
     const char* basename = strrchr(fFilePath.c_str(), SkOSPath::SEPARATOR);
     fName.printf("BISECT_%s", basename ? basename + 1 : fFilePath.c_str());
-}
-
-// Called through SkPicture::playback only during creation.
-void BisectSlide::onDrawPath(const SkPath& path, const SkPaint& paint) {
-    SkRect bounds;
-    SkIRect ibounds;
-    this->getTotalMatrix().mapRect(&bounds, path.getBounds());
-    bounds.roundOut(&ibounds);
-    fDrawBounds.join(ibounds);
-    fFoundPaths.push_back() = {path, paint, this->getTotalMatrix()};
 }
 
 bool BisectSlide::onChar(SkUnichar c) {

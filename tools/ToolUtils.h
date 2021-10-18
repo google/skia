@@ -290,6 +290,12 @@ private:
     SkIPoint fLoc;
 };
 
+using PathSniffCallback = void(const SkMatrix&, const SkPath&, const SkPaint&);
+
+// Calls the provided PathSniffCallback for each path in the given file.
+// Supported file formats are .svg and .skp.
+void sniff_paths(const char filepath[], std::function<PathSniffCallback>);
+
 }  // namespace ToolUtils
 
 #endif  // ToolUtils_DEFINED

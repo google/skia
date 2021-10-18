@@ -13,6 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint3.h"
@@ -28,6 +29,12 @@
 
 #include <cmath>
 #include <cstring>
+
+#if defined(SK_ENABLE_SVG)
+#include "modules/svg/include/SkSVGDOM.h"
+#include "modules/svg/include/SkSVGNode.h"
+#include "src/xml/SkDOM.h"
+#endif
 
 namespace ToolUtils {
 
@@ -466,6 +473,46 @@ sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
         surf = SkSurface::MakeRaster(info, props);
     }
     return surf;
+}
+
+void sniff_paths(const char filepath[], std::function<PathSniffCallback> callback) {
+    SkFILEStream stream(filepath);
+    if (!stream.isValid()) {
+        SkDebugf("sniff_paths: invalid input file at \"%s\"\n", filepath);
+        return;
+    }
+
+    class PathSniffer : public SkCanvas {
+    public:
+        PathSniffer(std::function<PathSniffCallback> callback)
+                : SkCanvas(4096, 4096, nullptr)
+                , fPathSniffCallback(callback) {}
+    private:
+        void onDrawPath(const SkPath& path, const SkPaint& paint) override {
+            fPathSniffCallback(this->getTotalMatrix(), path, paint);
+        }
+        std::function<PathSniffCallback> fPathSniffCallback;
+    };
+
+    PathSniffer pathSniffer(callback);
+    if (const char* ext = strrchr(filepath, '.'); ext && !strcmp(ext, ".svg")) {
+#if defined(SK_ENABLE_SVG)
+        sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream);
+        if (!svg) {
+            SkDebugf("sniff_paths: couldn't load svg at \"%s\"\n", filepath);
+            return;
+        }
+        svg->setContainerSize(SkSize::Make(pathSniffer.getBaseLayerSize()));
+        svg->render(&pathSniffer);
+#endif
+    } else {
+        sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream);
+        if (!skp) {
+            SkDebugf("sniff_paths: couldn't load skp at \"%s\"\n", filepath);
+            return;
+        }
+        skp->playback(&pathSniffer);
+    }
 }
 
 }  // namespace ToolUtils
