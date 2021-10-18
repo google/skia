@@ -4079,6 +4079,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fMustWriteToFragColor = true;
     }
 
+    // We've seen some PowerVR GE8320 devices (eg, Tecno Spark 3) advertise this extension, but
+    // fail to compile shaders that request it. (b/177473804)
+    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
+        shaderCaps->fNoPerspectiveInterpolationSupport = false;
+    }
+
     // It appears that Qualcomm drivers don't actually support
     // GL_NV_shader_noperspective_interpolation in ES 3.00 or 3.10 shaders, only 3.20.
     // https://crbug.com/986581
