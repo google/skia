@@ -52,6 +52,20 @@ DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
         CHECK(all(rect2.ltrb() == float4(l,t,r,b)));
         CHECK(all(rect2.vals() == float4(l,t,-r,-b)));
 
+        Rect setTest(-99,-99,99,99);
+        CHECK(setTest != rect2);
+        setTest.setLeft(l);
+        setTest.setTop(t);
+        setTest.setRight(r);
+        setTest.setBot(b);
+        CHECK(setTest == rect2);
+
+        setTest = Rect(-99,-99,99,99);
+        CHECK(setTest != rect2);
+        setTest.setTopLeft({l,t});
+        setTest.setBotRight({r,b});
+        CHECK(setTest == rect2);
+
         CHECK(all(rect2.size() == float2(skRect2.width(), skRect2.height())));
         CHECK(all(rect2.center() == float2(skRect2.centerX(), skRect2.centerY())));
         CHECK(rect2.area() == skRect2.height() * skRect2.width());
