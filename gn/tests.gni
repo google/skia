@@ -327,7 +327,6 @@ metal_tests_sources = [
 ]
 
 graphite_tests_sources = [
-  "$_tests/graphite/CapsTest.cpp",
   "$_tests/graphite/CommandBufferTest.cpp",
   "$_tests/graphite/MaskTest.cpp",
   "$_tests/graphite/RectTest.cpp",
