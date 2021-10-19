@@ -12,6 +12,8 @@
 
 namespace skgpu {
 
+class Rect;
+
 // Transform encapsulates an SkM44 matrix, its inverse, and other properties dependent on the
 // original matrix value that are useful when rendering.
 class Transform {
@@ -56,6 +58,9 @@ public:
 
     Type type() const { return fType; }
     bool valid() const { return fType != Type::kInvalid; }
+
+    Rect mapRect(const Rect& rect) const;
+    Rect inverseMapRect(const Rect& rect) const;
 
 private:
     SkM44 fM;
