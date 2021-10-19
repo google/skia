@@ -8,46 +8,42 @@
 #ifndef SKSL_METALCODEGENERATOR
 #define SKSL_METALCODEGENERATOR
 
-#include <set>
-#include <stack>
-#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLConstructor.h"
-#include "src/sksl/ir/SkSLConstructorCompound.h"
-#include "src/sksl/ir/SkSLConstructorMatrixResize.h"
-#include "src/sksl/ir/SkSLDoStatement.h"
-#include "src/sksl/ir/SkSLExtension.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLForStatement.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLFunctionDefinition.h"
-#include "src/sksl/ir/SkSLFunctionPrototype.h"
-#include "src/sksl/ir/SkSLIfStatement.h"
-#include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLInlineMarker.h"
-#include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLLiteral.h"
-#include "src/sksl/ir/SkSLPostfixExpression.h"
-#include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLReturnStatement.h"
-#include "src/sksl/ir/SkSLSetting.h"
-#include "src/sksl/ir/SkSLStructDefinition.h"
-#include "src/sksl/ir/SkSLSwitchStatement.h"
-#include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLTernaryExpression.h"
-#include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {
+
+class BinaryExpression;
+class Block;
+class ConstructorCompound;
+class ConstructorMatrixResize;
+class DoStatement;
+class Extension;
+class FieldAccess;
+class ForStatement;
+class FunctionCall;
+class FunctionDeclaration;
+class FunctionDefinition;
+class FunctionPrototype;
+class IfStatement;
+struct IndexExpression;
+class InterfaceBlock;
+enum IntrinsicKind : int8_t;
+class Literal;
+class PostfixExpression;
+class PrefixExpression;
+class ReturnStatement;
+class Setting;
+class StructDefinition;
+class SwitchStatement;
+struct Swizzle;
+class TernaryExpression;
+class VarDeclaration;
+class VariableReference;
 
 /**
  * Converts a Program into Metal code.

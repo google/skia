@@ -8,13 +8,8 @@
 #ifndef SKSL_GLSLCODEGENERATOR
 #define SKSL_GLSLCODEGENERATOR
 
-#include <set>
-#include <stack>
-#include <tuple>
 #include <unordered_map>
 
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
@@ -46,7 +41,6 @@ class SwitchStatement;
 struct Swizzle;
 class TernaryExpression;
 class VarDeclaration;
-class VarDeclarations;
 class VariableReference;
 
 /**

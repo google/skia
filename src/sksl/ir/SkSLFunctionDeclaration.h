@@ -24,7 +24,7 @@ class FunctionDefinition;
 
 // This enum holds every intrinsic supported by SkSL.
 #define SKSL_INTRINSIC(name) k_##name##_IntrinsicKind,
-enum IntrinsicKind {
+enum IntrinsicKind : int8_t {
     kNotIntrinsic = -1,
     SKSL_INTRINSIC_LIST
 };

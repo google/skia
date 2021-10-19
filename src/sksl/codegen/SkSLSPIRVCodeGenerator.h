@@ -13,44 +13,44 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLStatement.h"
 #include "src/core/SkOpts.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLConstructor.h"
-#include "src/sksl/ir/SkSLConstructorArray.h"
-#include "src/sksl/ir/SkSLConstructorCompound.h"
-#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
-#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
-#include "src/sksl/ir/SkSLConstructorMatrixResize.h"
-#include "src/sksl/ir/SkSLConstructorScalarCast.h"
-#include "src/sksl/ir/SkSLConstructorSplat.h"
-#include "src/sksl/ir/SkSLConstructorStruct.h"
-#include "src/sksl/ir/SkSLDoStatement.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLForStatement.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLFunctionDefinition.h"
-#include "src/sksl/ir/SkSLIfStatement.h"
-#include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLLiteral.h"
-#include "src/sksl/ir/SkSLPostfixExpression.h"
-#include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLReturnStatement.h"
-#include "src/sksl/ir/SkSLSwitchStatement.h"
-#include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLTernaryExpression.h"
-#include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/spirv.h"
 
 namespace SkSL {
+
+class BinaryExpression;
+class Block;
+class ConstructorCompound;
+class ConstructorCompoundCast;
+class ConstructorDiagonalMatrix;
+class ConstructorMatrixResize;
+class ConstructorScalarCast;
+class ConstructorSplat;
+class DoStatement;
+class FieldAccess;
+class ForStatement;
+class FunctionCall;
+class FunctionDeclaration;
+class FunctionDefinition;
+class FunctionPrototype;
+class IfStatement;
+struct IndexExpression;
+class InterfaceBlock;
+enum IntrinsicKind : int8_t;
+class Literal;
+class Operator;
+class PostfixExpression;
+class PrefixExpression;
+class ReturnStatement;
+class Setting;
+class StructDefinition;
+class SwitchStatement;
+struct Swizzle;
+class TernaryExpression;
+class VarDeclaration;
+class VariableReference;
 
 struct SPIRVNumberConstant {
     bool operator==(const SPIRVNumberConstant& that) const {
