@@ -655,13 +655,28 @@ void SkVMBlitter::blitAntiH(int x, int y, const SkAlpha cov[], const int16_t run
     if (fBlitAntiH.empty()) {
         fBlitAntiH = this->buildProgram(Coverage::UniformF);
     }
+    if (fBlitH.empty()) {
+        fBlitH = this->buildProgram(Coverage::Full);
+    }
     for (int16_t run = *runs; run > 0; run = *runs) {
-        this->updateUniforms(x+run, y);
-        const float covF = *cov * (1/255.0f);
-        if (const void* sprite = this->isSprite(x,y)) {
-            fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), sprite, &covF);
-        } else {
-            fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), &covF);
+        const SkAlpha coverage = *cov;
+        if (coverage != 0x00) {
+            this->updateUniforms(x+run, y);
+            const void* sprite = this->isSprite(x,y);
+            if (coverage == 0xFF) {
+                if (sprite) {
+                    fBlitH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), sprite);
+                } else {
+                    fBlitH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y));
+                }
+            } else {
+                const float covF = *cov * (1/255.0f);
+                if (sprite) {
+                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), sprite, &covF);
+                } else {
+                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), &covF);
+                }
+            }
         }
         x    += run;
         runs += run;
