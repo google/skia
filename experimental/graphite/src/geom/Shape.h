@@ -13,6 +13,8 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 
+#include "experimental/graphite/src/geom/Rect.h"
+
 #include <array>
 
 namespace skgpu {
@@ -33,11 +35,13 @@ public:
     Shape(const Shape& shape)            { *this = shape; }
     Shape(Shape&&) = delete;
 
-    Shape(const SkPoint& p0, const SkPoint& p1) { this->setLine(p0, p1); }
-    Shape(const SkV2& p0, const SkV2& p1)       { this->setLine(p0, p1); }
-    explicit Shape(const SkRect& rect)          { this->setRect(rect);   }
-    explicit Shape(const SkRRect& rrect)        { this->setRRect(rrect); }
-    explicit Shape(const SkPath& path)          { this->setPath(path);   }
+    Shape(SkPoint p0, SkPoint p1)        { this->setLine(p0, p1); }
+    Shape(SkV2 p0, SkV2 p1)              { this->setLine(p0, p1); }
+    Shape(float2 p0, float2 p1)          { this->setLine(p0, p1); }
+    explicit Shape(const Rect& rect)     { this->setRect(rect);   }
+    explicit Shape(const SkRect& rect)   { this->setRect(rect);   }
+    explicit Shape(const SkRRect& rrect) { this->setRRect(rrect); }
+    explicit Shape(const SkPath& path)   { this->setPath(path);   }
 
     ~Shape() { this->reset(); }
 
@@ -79,8 +83,8 @@ public:
 
     // True if the given bounding box is completely inside the shape, if it's conservatively treated
     // as a filled, closed shape.
-    bool conservativeContains(const SkRect& rect) const;
-    bool conservativeContains(const SkV2& point) const;
+    bool conservativeContains(const Rect& rect) const;
+    bool conservativeContains(float2 point) const;
 
     // True if the underlying geometry represents a closed shape, without the need for an
     // implicit close.
@@ -91,34 +95,37 @@ public:
     bool convex(bool simpleFill = true) const;
 
     // The bounding box of the shape.
-    SkRect bounds() const;
+    Rect bounds() const;
 
     // Convert the shape into a path that describes the same geometry.
     SkPath asPath() const;
 
     // Access the actual geometric description of the shape. May only access the appropriate type
     // based on what was last set.
-    const SkV2&    p0()    const { SkASSERT(this->isLine());  return fLine[0]; }
-    const SkV2&    p1()    const { SkASSERT(this->isLine());  return fLine[1]; }
-    const SkRect&  rect()  const { SkASSERT(this->isRect());  return fRect;    }
-    const SkRRect& rrect() const { SkASSERT(this->isRRect()); return fRRect;   }
-    const SkPath&  path()  const { SkASSERT(this->isPath());  return fPath;    }
+    float2         p0()    const { SkASSERT(this->isLine());  return fRect.topLeft();  }
+    float2         p1()    const { SkASSERT(this->isLine());  return fRect.botRight(); }
+    const Rect&    rect()  const { SkASSERT(this->isRect());  return fRect;            }
+    const SkRRect& rrect() const { SkASSERT(this->isRRect()); return fRRect;           }
+    const SkPath&  path()  const { SkASSERT(this->isPath());  return fPath;            }
 
     // Update the geometry stored in the Shape and update its associated type to match. This
     // performs no simplification, so calling setRRect() with a round rect that has isRect() return
     // true will still be considered an rrect by Shape.
     //
     // These reset inversion to the default for the geometric type.
-    void setLine(const SkPoint& p0, const SkPoint& p1) {
-        this->setLine(SkV2{p0.fX, p0.fY}, SkV2{p1.fX, p1.fY});
+    void setLine(SkPoint p0, SkPoint p1) {
+        this->setLine(float2{p0.fX, p0.fY}, float2{p1.fX, p1.fY});
     }
-    void setLine(const SkV2& p0, const SkV2& p1) {
+    void setLine(SkV2 p0, SkV2 p1) {
+        this->setLine(float2{p0.x, p0.y}, float2{p1.x, p1.y});
+    }
+    void setLine(float2 p0, float2 p1) {
         this->setType(Type::kLine);
-        fLine[0] = p0;
-        fLine[1] = p1;
+        fRect = Rect(p0, p1);
         fInverted = false;
     }
-    void setRect(const SkRect& rect) {
+    void setRect(const SkRect& rect) { this->setRect(Rect(rect)); }
+    void setRect(const Rect& rect) {
         this->setType(Type::kRect);
         fRect = rect;
         fInverted = false;
@@ -154,8 +161,7 @@ private:
     }
 
     union {
-        SkV2    fLine[2];
-        SkRect  fRect;
+        Rect    fRect; // p0 = top-left, p1 = bot-right if type is kLine (may be unsorted)
         SkRRect fRRect;
         SkPath  fPath;
     };

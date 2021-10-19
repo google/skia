@@ -43,6 +43,9 @@ public:
     AI static Rect WH(float2 size) {
         return Rect(float2(0), size);
     }
+    AI static Rect Point(float2 p) {
+        return Rect(p, p);
+    }
     AI static Rect FromVals(float4 vals) {  // vals.zw must already be negated.
         return Rect(vals);
     }
@@ -69,6 +72,12 @@ public:
     AI void setBot(float bot) { fVals.w() = -bot; }
     AI void setTopLeft(float2 topLeft) { fVals.xy() = topLeft; }
     AI void setBotRight(float2 botRight) { fVals.zw() = -botRight; }
+
+    AI SkRect asSkRect() const {
+        SkRect r;
+        this->ltrb().store(&r);
+        return r;
+    }
 
     AI bool isEmptyNegativeOrNaN() const {
         return !all(fVals.xy() + fVals.zw() < 0);  // !([l-r, r-b] < 0) == ([w, h] <= 0)
@@ -108,7 +117,8 @@ public:
     AI Rect makeOutset(float2 outset) const { return fVals - outset.xyxy(); }
     AI Rect makeOffset(float2 offset) const { return fVals + float4(offset, -offset); }
     AI Rect makeJoin(Rect rect) const { return min(fVals, rect.fVals); }
-    AI Rect makeIntersect(const Rect& rect) const { return max(fVals, rect.fVals); }
+    AI Rect makeIntersect(Rect rect) const { return max(fVals, rect.fVals); }
+    AI Rect makeSorted() const { return min(fVals, -fVals.zwxy()); }
 
     AI Rect& roundIn() { return *this = this->makeRoundIn(); }
     AI Rect& roundOut() { return *this = this->makeRoundOut(); }
@@ -118,7 +128,8 @@ public:
     AI Rect& outset(float2 outset) { return *this = this->makeOutset(outset); }
     AI Rect& offset(float2 offset) { return *this = this->makeOffset(offset); }
     AI Rect& join(Rect rect) { return *this = this->makeJoin(rect); }
-    AI Rect& intersect(Rect& rect) { return *this = this->makeIntersect(rect); }
+    AI Rect& intersect(Rect rect) { return *this = this->makeIntersect(rect); }
+    AI Rect& sort() { return *this = this->makeSorted(); }
 
 private:
     AI static float4 NegateBotRight(float4 vals) {  // Returns [vals.xy, -vals.zw].

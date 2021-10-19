@@ -16,7 +16,8 @@ DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
     const SkRect skRect = SkRect::MakeLTRB(1,-3,4,0);
     const Rect rect = skRect;
     CHECK(rect == rect);
-    CHECK(rect == skRect);
+    CHECK(rect == skRect); // promotes 'skRect' to a Rect for ==
+    CHECK(rect.asSkRect() == skRect); // converts 'rect' to SkRect for ==
 
     for (const float l : {0,1,2}) {
     for (const float t : {-4,-3,-2}) {
@@ -28,6 +29,7 @@ DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
         CHECK(rect2 == rect2);
         CHECK(rect2 == Rect(float2(l,t), float2(r,b)));
         CHECK(rect2 == Rect(skRect2));
+        CHECK(rect2.asSkRect() == skRect2);
 
         CHECK((rect2 == rect) == (rect == rect2));
         CHECK((rect2 != rect) == (rect != rect2));
@@ -103,6 +105,13 @@ DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
             CHECK(skIsect.intersect(skRect, skRect2));
             CHECK(rect.makeIntersect(rect2) == Rect(skIsect));
         }
+
+        const Rect rect3{r,b,l,t}; // intentionally out of order
+        const SkRect skRect3{r,b,l,t};
+        CHECK(rect3.isEmptyNegativeOrNaN());
+        CHECK(skRect3.isEmpty());
+        CHECK(rect3.makeSorted() == skRect3.makeSorted());
+        CHECK(rect3.makeSorted() == rect2);
     }}}}
 }
 
