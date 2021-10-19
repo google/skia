@@ -55,15 +55,15 @@ namespace {
 //   - Contrast/Brightness
 
 static constexpr char gNoiseEffectSkSL[] =
-    "uniform half3x3 u_submatrix;" // sublayer transform
+    "uniform float3x3 u_submatrix;" // sublayer transform
 
-    "uniform half2 u_noise_planes;" // noise planes computed based on evolution params
-    "uniform half  u_noise_weight," // noise planes lerp weight
-                  "u_octaves,"      // number of octaves (can be fractional)
-                  "u_persistence;"  // relative octave weight
+    "uniform float2 u_noise_planes;" // noise planes computed based on evolution params
+    "uniform float  u_noise_weight," // noise planes lerp weight
+                   "u_octaves,"      // number of octaves (can be fractional)
+                   "u_persistence;"  // relative octave weight
 
     // Hash based on hash13 (https://www.shadertoy.com/view/4djSRW).
-    "half hash(half3 v) {"
+    "float hash(float3 v) {"
         "v  = fract(v*0.1031);"
         "v += dot(v, v.zxy + 31.32);"
         "return fract((v.x + v.y)*v.z);"
@@ -72,11 +72,11 @@ static constexpr char gNoiseEffectSkSL[] =
     // The general idea is to compute a coherent hash for two planes in discretized (x,y,e) space,
     // and interpolate between them.  This yields gradual changes when animating |e| - which is the
     // desired outcome.
-    "half sample_noise(vec2 xy) {"
+    "float sample_noise(float2 xy) {"
         "xy = floor(xy);"
 
-        "half n0  = hash(half3(xy, u_noise_planes.x)),"
-             "n1  = hash(half3(xy, u_noise_planes.y));"
+        "float n0  = hash(float3(xy, u_noise_planes.x)),"
+              "n1  = hash(float3(xy, u_noise_planes.y));"
 
         // Note: Ideally we would use 4 samples (-1, 0, 1, 2) and cubic interpolation for
         //       better results -- but that's significantly more expensive than lerp.
@@ -91,15 +91,15 @@ static constexpr char gNoiseEffectSkSL[] =
     "%s"
 
     // Generate ceil(u_octaves) noise layers and combine based on persistentce and sublayer xform.
-    "half4 main(vec2 xy) {"
-        "half oct = u_octaves," // initial octave count (this is the effective loop counter)
-             "amp = 1,"         // initial layer amplitude
-            "wacc = 0,"         // weight accumulator
-               "n = 0;"         // noise accumulator
+    "float4 main(vec2 xy) {"
+        "float oct = u_octaves," // initial octave count (this is the effective loop counter)
+              "amp = 1,"         // initial layer amplitude
+             "wacc = 0,"         // weight accumulator
+                "n = 0;"         // noise accumulator
 
         // Constant loop counter chosen to be >= ceil(u_octaves).
         // The logical counter is actually 'oct'.
-        "for (half i = 0; i < %u; ++i) {"
+        "for (float i = 0; i < %u; ++i) {"
             // effective layer weight computed to accommodate fixed loop counters
             //
             //   -- for full octaves:              layer amplitude
@@ -107,7 +107,7 @@ static constexpr char gNoiseEffectSkSL[] =
             //   -- for octaves > ceil(u_octaves): 0
             //
             // e.g. for 6 loops and u_octaves = 2.3, this generates the sequence [1,1,.3,0,0]
-            "half w = amp*saturate(oct);"
+            "float w = amp*saturate(oct);"
 
             "n += w*fractal(filter(xy));"
 
@@ -115,67 +115,67 @@ static constexpr char gNoiseEffectSkSL[] =
             "amp  *= u_persistence;"
             "oct  -= 1;"
 
-            "xy = (u_submatrix*half3(xy,1)).xy;"
+            "xy = (u_submatrix*float3(xy,1)).xy;"
         "}"
 
         "n /= wacc;"
 
         // TODO: fractal functions
 
-        "return half4(n,n,n,1);"
+        "return float4(n,n,n,1);"
     "}";
 
 static constexpr char gFilterNearestSkSL[] =
-    "half filter(half2 xy) {"
+    "float filter(float2 xy) {"
         "return sample_noise(xy);"
     "}";
 
 static constexpr char gFilterLinearSkSL[] =
-    "half filter(half2 xy) {"
+    "float filter(float2 xy) {"
         "xy -= 0.5;"
 
-        "half n00 = sample_noise(xy + half2(0,0)),"
-             "n10 = sample_noise(xy + half2(1,0)),"
-             "n01 = sample_noise(xy + half2(0,1)),"
-             "n11 = sample_noise(xy + half2(1,1));"
+        "float n00 = sample_noise(xy + float2(0,0)),"
+              "n10 = sample_noise(xy + float2(1,0)),"
+              "n01 = sample_noise(xy + float2(0,1)),"
+              "n11 = sample_noise(xy + float2(1,1));"
 
-        "half2 t = fract(xy);"
+        "float2 t = fract(xy);"
 
         "return mix(mix(n00, n10, t.x), mix(n01, n11, t.x), t.y);"
     "}";
 
 static constexpr char gFilterSoftLinearSkSL[] =
-    "half filter(half2 xy) {"
+    "float filter(float2 xy) {"
         "xy -= 0.5;"
 
-        "half n00 = sample_noise(xy + half2(0,0)),"
-             "n10 = sample_noise(xy + half2(1,0)),"
-             "n01 = sample_noise(xy + half2(0,1)),"
-             "n11 = sample_noise(xy + half2(1,1));"
+        "float n00 = sample_noise(xy + float2(0,0)),"
+              "n10 = sample_noise(xy + float2(1,0)),"
+              "n01 = sample_noise(xy + float2(0,1)),"
+              "n11 = sample_noise(xy + float2(1,1));"
 
-        "half2 t = smoothstep(0, 1, fract(xy));"
+        "float2 t = smoothstep(0, 1, fract(xy));"
 
         "return mix(mix(n00, n10, t.x), mix(n01, n11, t.x), t.y);"
     "}";
 
 static constexpr char gFractalBasicSkSL[] =
-    "half fractal(half n) {"
+    "float fractal(float n) {"
         "return n;"
     "}";
 
 static constexpr char gFractalTurbulentBasicSkSL[] =
-    "half fractal(half n) {"
+    "float fractal(float n) {"
         "return 2*abs(0.5 - n);"
     "}";
 
 static constexpr char gFractalTurbulentSmoothSkSL[] =
-    "half fractal(half n) {"
+    "float fractal(float n) {"
         "n = 2*abs(0.5 - n);"
         "return n*n;"
     "}";
 
 static constexpr char gFractalTurbulentSharpSkSL[] =
-    "half fractal(half n) {"
+    "float fractal(float n) {"
         "return sqrt(2*abs(0.5 - n));"
     "}";
 
