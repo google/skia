@@ -100,7 +100,7 @@ void CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc) {
                                                              descriptor.get());
 
     if (colorTexture) {
-        this->trackResource(sk_ref_sp(colorTexture));
+        this->trackResource(std::move(colorInfo.fTexture));
     }
     this->trackResource(fActiveRenderCommandEncoder);
 
