@@ -129,6 +129,8 @@ bench_sources = [
   "$_bench/WriterBench.cpp",
 ]
 
+graphite_bench_sources = [ "$_bench/graphite/IntersectionTreeBench.cpp" ]
+
 skgpu_v1_bench_sources = [
   "$_bench/BulkRectBench.cpp",
   "$_bench/ClearBench.cpp",

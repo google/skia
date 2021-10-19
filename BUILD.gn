@@ -2038,6 +2038,9 @@ if (skia_enable_tools) {
   import("gn/bench.gni")
   test_lib("bench") {
     sources = bench_sources
+    if (skia_enable_graphite) {
+      sources += graphite_bench_sources
+    }
     if (!skia_enable_skgpu_v1) {
       sources -= skgpu_v1_bench_sources
     }
