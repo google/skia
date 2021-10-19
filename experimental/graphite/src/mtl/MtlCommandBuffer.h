@@ -20,11 +20,12 @@
 
 namespace skgpu::mtl {
 class Gpu;
+class RenderCommandEncoder;
 
 class CommandBuffer final : public skgpu::CommandBuffer {
 public:
     static sk_sp<CommandBuffer> Make(const Gpu*);
-    ~CommandBuffer() override {}
+    ~CommandBuffer() override;
 
     bool isFinished() {
         return (*fCommandBuffer).status == MTLCommandBufferStatusCompleted ||
@@ -40,10 +41,13 @@ public:
     bool commit();
 
 private:
-    CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer)
-        : fCommandBuffer(std::move(cmdBuffer)) {}
+    CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer);
+
+    void beginRenderPass(const RenderPassDesc&) override;
+    void endRenderPass() override;
 
     sk_cfp<id<MTLCommandBuffer>> fCommandBuffer;
+    sk_sp<RenderCommandEncoder> fActiveRenderCommandEncoder;
 };
 
 } // namespace skgpu::mtl

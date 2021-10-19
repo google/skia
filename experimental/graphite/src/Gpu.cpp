@@ -45,10 +45,9 @@ bool Gpu::submit(sk_sp<CommandBuffer> commandBuffer) {
         return false;
     }
 
-// TODO: re-enable when we have work items to include in command buffer
-//    if (!commandBuffer->hasWork()) {
-//        return true;
-//    }
+    if (!commandBuffer->hasWork()) {
+        return true;
+    }
 
     return this->onSubmit(std::move(commandBuffer));
 }
