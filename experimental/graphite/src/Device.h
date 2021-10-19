@@ -12,10 +12,13 @@
 
 #include "src/core/SkDevice.h"
 
+#include "experimental/graphite/src/geom/Rect.h"
+
 class SkStrokeRec;
 
 namespace skgpu {
 
+class BoundsManager;
 class Context;
 class DrawContext;
 class Recorder;
@@ -27,6 +30,8 @@ struct StrokeParams;
 
 class Device final : public SkBaseDevice  {
 public:
+    ~Device() override;
+
     static sk_sp<Device> Make(sk_sp<Recorder>, const SkImageInfo&);
 
     sk_sp<Recorder> refRecorder() { return fRecorder; }
@@ -126,6 +131,12 @@ private:
     };
     SKGPU_DECL_MASK_OPS_FRIENDS(DrawFlags);
 
+    struct ClipResult {
+        SkIRect fScissor; // The device-space scissor-test to apply to the draw
+        Rect fDrawBounds; // The device-space bounds of the draw, with style and scissor applied
+        CompressedPaintersOrder fOrder; // Largest order of clip shapes that affects the draw
+    };
+
     Device(sk_sp<Recorder>, sk_sp<DrawContext>);
 
     // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
@@ -135,16 +146,30 @@ private:
                    const SkStrokeRec&,
                    Mask<DrawFlags> = DrawFlags::kNone);
 
-    // Determines most optimal painters order for a draw of the given shape and style.
+    // Determines most optimal painters order for a draw of the given shape and style. This computes
+    // the draw's bounds, applying both the style and scissor to the returned bounds. Low-level
+    // renderers must not draw outside of these bounds or decisions made about ordering draw
+    // operations at the Device level can be invalidated. In addition to the scissor test and draw
+    // bounds, this returns the largest compressed painter's order of the clip shapes that affect
+    // the draw (the draw's order must be greater than this value to be rendered/clipped correctly).
     //
     // This also records the draw's bounds to any clip elements that affect it so that they are
-    // recorded when popped off the stack. Returns the scissor and minimum compressed painter's
-    // order for the draw to be rendered/clipped correctly.
-    std::pair<CompressedPaintersOrder, SkIRect>
-    applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&);
+    // recorded when popped off the stack, or making an image snapshot of the Device.
+    ClipResult applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&, uint16_t z);
 
     sk_sp<Recorder> fRecorder;
     sk_sp<DrawContext> fDC;
+
+    // Tracks accumulated intersections for ordering dependent use of the color and depth attachment
+    // (i.e. depth-based clipping, and transparent blending)
+    std::unique_ptr<BoundsManager> fColorDepthBoundsManager;
+    // The max recorded painters order sent to the DrawContext, needed to know how many available
+    // values are left before overrunning 16-bit limit and forcing a reset.
+    CompressedPaintersOrder fMaxPaintOrder;
+    // The max depth value sent to the DrawContext, incremented so each draw has a unique value.
+    uint16_t fMaxZ;
+
+    bool fDrawsOverlap;
 };
 
 SKGPU_MAKE_MASK_OPS(Device::DrawFlags)
