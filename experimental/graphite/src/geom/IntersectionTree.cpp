@@ -193,10 +193,11 @@ private:
     int fNumRects;
     float4 fSplittableBounds;  // [maxLeft, maxTop, -minRight, -minBot]
     float4 fRectValsSum;  // [sum(left), sum(top), -sum(right), -sum(bot)]
-    float fLefts[kMaxRectsInList];
-    float fTops[kMaxRectsInList];
-    float fNegRights[kMaxRectsInList];
-    float fNegBots[kMaxRectsInList];
+    alignas(float4) float fLefts[kMaxRectsInList];
+    alignas(float4) float fTops[kMaxRectsInList];
+    alignas(float4) float fNegRights[kMaxRectsInList];
+    alignas(float4) float fNegBots[kMaxRectsInList];
+    static_assert((kMaxRectsInList * sizeof(float)) % sizeof(float4) == 0);
 };
 
 IntersectionTree::IntersectionTree()
