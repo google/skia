@@ -575,10 +575,20 @@ optional("fontmgr_win_gdi") {
 if (skia_lex) {
   skia_executable("sksllex") {
     sources = [
+      "src/sksl/lex/DFA.h",
+      "src/sksl/lex/DFAState.h",
+      "src/sksl/lex/LexUtil.h",
       "src/sksl/lex/Main.cpp",
       "src/sksl/lex/NFA.cpp",
+      "src/sksl/lex/NFA.h",
+      "src/sksl/lex/NFAState.h",
+      "src/sksl/lex/NFAtoDFA.h",
       "src/sksl/lex/RegexNode.cpp",
+      "src/sksl/lex/RegexNode.h",
       "src/sksl/lex/RegexParser.cpp",
+      "src/sksl/lex/RegexParser.h",
+      "src/sksl/lex/TransitionTable.cpp",
+      "src/sksl/lex/TransitionTable.h",
     ]
     include_dirs = [ "." ]
   }
