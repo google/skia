@@ -127,9 +127,11 @@
    "cq_config": {}
    },
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite"},
+  {"name": "Build-Mac-Clang-arm64-Debug-iOS_Graphite"},
   {"name": "Build-Win-Clang-arm64-Release"},
   {"name": "Build-Win-Clang-arm64-Release-ANGLE"},
   {"name": "Build-Mac-Clang-arm64-Release-Graphite"},
+  {"name": "Build-Mac-Clang-arm64-Release-iOS_Graphite"},
   {"name": "Build-Win-Clang-arm64-Release-Android"},
   {"name": "Build-Win-Clang-x86-Debug",
    "cq_config": {}
