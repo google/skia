@@ -22,6 +22,8 @@ class Buffer : public skgpu::Buffer {
 public:
     static sk_sp<Buffer> Make(const Gpu*, size_t size, BufferType type, PrioritizeGpuReads);
 
+    id<MTLBuffer> mtlBuffer() const { return fBuffer.get(); }
+
 private:
     Buffer(size_t size, BufferType type, PrioritizeGpuReads, sk_cfp<id<MTLBuffer>>);
 

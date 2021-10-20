@@ -78,6 +78,7 @@ skia_graphite_mtl_sources = [
   "$_include/mtl/MtlBackendContext.h",
   "$_include/mtl/MtlTypes.h",
   "$_include/private/MtlTypesPriv.h",
+  "$_src/mtl/MtlBlitCommandEncoder.h",
   "$_src/mtl/MtlBuffer.h",
   "$_src/mtl/MtlBuffer.mm",
   "$_src/mtl/MtlCaps.h",

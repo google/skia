@@ -19,6 +19,7 @@
 #import <Metal/Metal.h>
 
 namespace skgpu::mtl {
+class BlitCommandEncoder;
 class Gpu;
 class RenderCommandEncoder;
 
@@ -40,14 +41,25 @@ public:
     }
     bool commit();
 
+    void copyTextureToBuffer(sk_sp<skgpu::Texture>,
+                             SkIRect srcRect,
+                             sk_sp<skgpu::Buffer>,
+                             size_t bufferOffset,
+                             size_t bufferRowBytes) override;
+
 private:
-    CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer);
+    CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const Gpu* gpu);
 
     void beginRenderPass(const RenderPassDesc&) override;
     void endRenderPass() override;
 
+    BlitCommandEncoder* getBlitCommandEncoder();
+
     sk_cfp<id<MTLCommandBuffer>> fCommandBuffer;
     sk_sp<RenderCommandEncoder> fActiveRenderCommandEncoder;
+    sk_sp<BlitCommandEncoder> fActiveBlitCommandEncoder;
+
+    const Gpu* fGpu;
 };
 
 } // namespace skgpu::mtl

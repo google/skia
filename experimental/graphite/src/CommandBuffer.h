@@ -12,7 +12,10 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTArray.h"
 
+struct SkIRect;
+
 namespace skgpu {
+class Buffer;
 class Gpu;
 class Texture;
 
@@ -46,6 +49,12 @@ public:
 
     virtual void beginRenderPass(const RenderPassDesc&) = 0;
     virtual void endRenderPass() = 0;
+
+    virtual void copyTextureToBuffer(sk_sp<Texture>,
+                                     SkIRect srcRect,
+                                     sk_sp<Buffer>,
+                                     size_t bufferOffset,
+                                     size_t bufferRowBytes) = 0;
 
 protected:
     CommandBuffer();
