@@ -9,8 +9,6 @@
 #define GrShaderCaps_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrSwizzle.h"
 #include "src/gpu/glsl/GrGLSL.h"
 
 namespace SkSL {
@@ -35,7 +33,7 @@ public:
         kLast_AdvBlendEqInteraction = kGeneralEnable_AdvBlendEqInteraction
     };
 
-    GrShaderCaps(const GrContextOptions&);
+    GrShaderCaps();
 
     void dumpJSON(SkJSONWriter*) const;
 

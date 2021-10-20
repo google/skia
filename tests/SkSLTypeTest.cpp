@@ -14,7 +14,7 @@
 #include "tests/Test.h"
 
 DEF_TEST(SkSLTypeLimits, r) {
-    GrShaderCaps caps(GrContextOptions{});
+    GrShaderCaps caps;
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::Mangler mangler;
     SkSL::Context context(errors, caps, mangler);

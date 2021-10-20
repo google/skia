@@ -28,7 +28,7 @@ public:
         fMaxVertexAttributes = options.fMaxVertexAttributes;
         fSampleLocationsSupport = true;
 
-        fShaderCaps.reset(new GrShaderCaps(contextOptions));
+        fShaderCaps.reset(new GrShaderCaps());
         fShaderCaps->fIntegerSupport = options.fIntegerSupport;
         fShaderCaps->fFlatInterpolationSupport = options.fFlatInterpolationSupport;
         fShaderCaps->fMaxFragmentSamplers = options.fMaxFragmentSamplers;

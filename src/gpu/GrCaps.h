@@ -18,6 +18,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrSwizzle.h"
 
 class GrBackendFormat;
 class GrBackendRenderTarget;

@@ -67,7 +67,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fTextureBarrierSupport = true;
 
-    fShaderCaps.reset(new GrShaderCaps(contextOptions));
+    fShaderCaps.reset(new GrShaderCaps());
 
     this->init(contextOptions, vkInterface, physDev, features, physicalDeviceVersion, extensions,
                isProtected);

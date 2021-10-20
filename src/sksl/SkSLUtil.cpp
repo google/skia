@@ -25,7 +25,7 @@ ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {
 }
 #else
 ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {
-    return sk_make_sp<GrShaderCaps>(GrContextOptions());
+    return sk_make_sp<GrShaderCaps>();
 }
 #endif  // defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 

@@ -58,7 +58,7 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     // TODO: implement
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
 
-    fShaderCaps.reset(new GrShaderCaps(contextOptions));
+    fShaderCaps.reset(new GrShaderCaps());
 
     this->init(contextOptions, adapter, device);
 }

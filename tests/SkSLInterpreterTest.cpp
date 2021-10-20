@@ -15,7 +15,7 @@
 
 struct ProgramBuilder {
     ProgramBuilder(skiatest::Reporter* r, const char* src)
-            : fCaps(GrContextOptions{}), fCompiler(&fCaps) {
+            : fCompiler(&fCaps) {
         SkSL::Program::Settings settings;
         // The SkSL inliner is well tested in other contexts. Here, we disable inlining entirely,
         // to stress-test the VM generator's handling of function calls with varying signatures.
@@ -623,7 +623,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
 }
 
 static void expect_failure(skiatest::Reporter* r, const char* src) {
-    GrShaderCaps caps(GrContextOptions{});
+    GrShaderCaps caps;
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
     auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
@@ -891,7 +891,7 @@ private:
 };
 
 DEF_TEST(SkSLInterpreterExternalFunction, r) {
-    GrShaderCaps caps(GrContextOptions{});
+    GrShaderCaps caps;
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
     const char* src = "float main() { return externalSqrt(25); }";
@@ -945,7 +945,7 @@ private:
 };
 
 DEF_TEST(SkSLInterpreterExternalTable, r) {
-    GrShaderCaps caps(GrContextOptions{});
+    GrShaderCaps caps;
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
     const char* src =
