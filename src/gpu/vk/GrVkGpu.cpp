@@ -1222,11 +1222,25 @@ static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info
         if (!caps.isVkFormatTexturable(info.fFormat)) {
             return false;
         }
-    } else {
-        SkASSERT(info.fImageTiling == VK_IMAGE_TILING_LINEAR);
+    } else if (info.fImageTiling == VK_IMAGE_TILING_LINEAR) {
         if (!caps.isVkFormatTexturableLinearly(info.fFormat)) {
             return false;
         }
+    } else if (info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT) {
+        if (!caps.supportsDRMFormatModifiers()) {
+            return false;
+        }
+        // To be technically correct we should query the vulkan support for VkFormat and
+        // drmFormatModifier pairs to confirm the required feature support is there. However, we
+        // currently don't have our caps and format tables set up to do this effeciently. So
+        // instead we just rely on the client's passed in VkImageUsageFlags and assume they we set
+        // up using valid features (checked below). In practice this should all be safe because
+        // currently we are setting all drm format modifier textures to have a
+        // GrTextureType::kExternal so we just really need to be able to read these video VkImage in
+        // a shader. The video decoder isn't going to give us VkImages that don't support being
+        // sampled.
+    } else {
+        SkUNREACHABLE;
     }
 
     // We currently require all textures to be made with sample support

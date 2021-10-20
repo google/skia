@@ -113,18 +113,21 @@ GrGLFormat GrBackendFormat::asGLFormat() const {
 #endif
 
 #ifdef SK_VULKAN
-GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
+GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo,
+                                        bool willUseDRMFormatModifiers) {
     SkASSERT(ycbcrInfo.isValid());
-    return GrBackendFormat(ycbcrInfo.fFormat, ycbcrInfo);
+    return GrBackendFormat(ycbcrInfo.fFormat, ycbcrInfo, willUseDRMFormatModifiers);
 }
 
-GrBackendFormat::GrBackendFormat(VkFormat vkFormat, const GrVkYcbcrConversionInfo& ycbcrInfo)
+GrBackendFormat::GrBackendFormat(VkFormat vkFormat, const GrVkYcbcrConversionInfo& ycbcrInfo,
+                                 bool willUseDRMFormatModifiers)
         : fBackend(GrBackendApi::kVulkan)
         , fValid(true)
         , fTextureType(GrTextureType::k2D) {
     fVk.fFormat = vkFormat;
     fVk.fYcbcrConversionInfo = ycbcrInfo;
-    if (fVk.fYcbcrConversionInfo.isValid() && fVk.fYcbcrConversionInfo.fExternalFormat) {
+    if ((fVk.fYcbcrConversionInfo.isValid() && fVk.fYcbcrConversionInfo.fExternalFormat) ||
+        willUseDRMFormatModifiers) {
         fTextureType = GrTextureType::kExternal;
     }
 }
@@ -485,7 +488,8 @@ static GrVkImageInfo apply_default_usage_flags(const GrVkImageInfo& info,
 }
 
 static GrTextureType vk_image_info_to_texture_type(const GrVkImageInfo& info) {
-    if (info.fYcbcrConversionInfo.isValid() && info.fYcbcrConversionInfo.fExternalFormat != 0) {
+    if ((info.fYcbcrConversionInfo.isValid() && info.fYcbcrConversionInfo.fExternalFormat != 0) ||
+        info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT) {
         return GrTextureType::kExternal;
     }
     return GrTextureType::k2D;
@@ -824,11 +828,12 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
             auto info = fVkInfo.snapImageInfo(fMutableState.get());
+            bool usesDRMModifier = info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT;
             if (info.fYcbcrConversionInfo.isValid()) {
                 SkASSERT(info.fFormat == info.fYcbcrConversionInfo.fFormat);
-                return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
+                return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo, usesDRMModifier);
             }
-            return GrBackendFormat::MakeVk(info.fFormat);
+            return GrBackendFormat::MakeVk(info.fFormat, usesDRMModifier);
         }
 #endif
 #ifdef SK_METAL

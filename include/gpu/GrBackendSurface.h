@@ -88,11 +88,12 @@ public:
 #endif
 
 #ifdef SK_VULKAN
-    static GrBackendFormat MakeVk(VkFormat format) {
-        return GrBackendFormat(format, GrVkYcbcrConversionInfo());
+    static GrBackendFormat MakeVk(VkFormat format, bool willUseDRMFormatModifiers = false) {
+        return GrBackendFormat(format, GrVkYcbcrConversionInfo(), willUseDRMFormatModifiers);
     }
 
-    static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo);
+    static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo,
+                                  bool willUseDRMFormatModifiers = false);
 #endif
 
 #ifdef SK_DAWN
@@ -199,7 +200,8 @@ private:
 #endif
 
 #ifdef SK_VULKAN
-    GrBackendFormat(const VkFormat vkFormat, const GrVkYcbcrConversionInfo&);
+    GrBackendFormat(const VkFormat vkFormat, const GrVkYcbcrConversionInfo&,
+                    bool willUseDRMFormatModifiers);
 #endif
 
 #ifdef SK_DAWN

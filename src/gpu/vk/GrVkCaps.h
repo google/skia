@@ -162,6 +162,9 @@ public:
     // Returns true if the device supports protected memory.
     bool supportsProtectedMemory() const { return fSupportsProtectedMemory; }
 
+    // Returns true if the VK_EXT_image_drm_format_modifier is enabled.
+    bool supportsDRMFormatModifiers() const { return fSupportsDRMFormatModifiers; }
+
     // Returns whether we prefer to record draws directly into a primary command buffer.
     bool preferPrimaryOverSecondaryCommandBuffers() const {
         return fPreferPrimaryOverSecondaryCommandBuffers;
@@ -399,6 +402,8 @@ private:
     bool fSupportsYcbcrConversion = false;
 
     bool fSupportsProtectedMemory = false;
+
+    bool fSupportsDRMFormatModifiers = false;
 
     bool fPreferPrimaryOverSecondaryCommandBuffers = true;
     bool fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments = false;

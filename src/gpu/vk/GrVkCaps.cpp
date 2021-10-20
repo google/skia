@@ -383,6 +383,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
+    if (extensions.hasExtension(VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME, 1)) {
+        fSupportsDRMFormatModifiers = true;
+    }
+
     fMaxInputAttachmentDescriptors = properties.limits.maxDescriptorSetInputAttachments;
 
     // On desktop GPUs we have found that this does not provide much benefit. The perf results show

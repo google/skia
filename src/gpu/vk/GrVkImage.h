@@ -77,12 +77,14 @@ public:
     const GrVkImageInfo& vkImageInfo() const { return fInfo; }
     VkFormat imageFormat() const { return fInfo.fFormat; }
     GrBackendFormat backendFormat() const override {
+        bool usesDRMModifier =
+                this->vkImageInfo().fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT;
         if (fResource && this->ycbcrConversionInfo().isValid()) {
             SkASSERT(this->imageFormat() == this->ycbcrConversionInfo().fFormat);
-            return GrBackendFormat::MakeVk(this->ycbcrConversionInfo());
+            return GrBackendFormat::MakeVk(this->ycbcrConversionInfo(), usesDRMModifier);
         }
         SkASSERT(this->imageFormat() != VK_FORMAT_UNDEFINED);
-        return GrBackendFormat::MakeVk(this->imageFormat());
+        return GrBackendFormat::MakeVk(this->imageFormat(), usesDRMModifier);
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
     const GrVkYcbcrConversionInfo& ycbcrConversionInfo() const {

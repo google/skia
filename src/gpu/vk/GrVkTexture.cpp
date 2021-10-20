@@ -116,6 +116,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
 
     bool isExternal = info.fYcbcrConversionInfo.isValid() &&
                       (info.fYcbcrConversionInfo.fExternalFormat != 0);
+    isExternal |= (info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT);
     return sk_sp<GrVkTexture>(new GrVkTexture(gpu, dimensions, std::move(texture), mipmapStatus,
                                               cacheable, ioType, isExternal));
 }
