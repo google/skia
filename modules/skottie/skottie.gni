@@ -44,6 +44,7 @@ skia_skottie_sources = [
   "$_src/effects/BrightnessContrastEffect.cpp",
   "$_src/effects/CCToner.cpp",
   "$_src/effects/CornerPinEffect.cpp",
+  "$_src/effects/DirectionalBlur.cpp",
   "$_src/effects/DisplacementMapEffect.cpp",
   "$_src/effects/DropShadowEffect.cpp",
   "$_src/effects/Effects.cpp",
