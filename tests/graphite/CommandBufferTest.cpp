@@ -37,6 +37,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     auto commandBuffer = gpu->resourceProvider()->createCommandBuffer();
 
     SkISize textureSize = { 1024, 768 };
+    TextureInfo textureInfo;
 #ifdef SK_METAL
     skgpu::mtl::TextureInfo mtlTextureInfo = {
         1,
@@ -45,7 +46,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
         0x0005, // MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead
         2,      // MTLStorageModePrivate
     };
-    TextureInfo textureInfo(mtlTextureInfo);
+    textureInfo = TextureInfo(mtlTextureInfo);
 #endif
 
     sk_sp<Texture> texture = gpu->resourceProvider()->findOrCreateTexture(textureSize,
