@@ -9,6 +9,7 @@
 #define GrMtlGpu_DEFINED
 
 #include "include/gpu/mtl/GrMtlBackendContext.h"
+#include "include/private/GrMtlTypesPriv.h"
 #include "include/private/SkDeque.h"
 
 #include "src/gpu/GrFinishCallbacks.h"

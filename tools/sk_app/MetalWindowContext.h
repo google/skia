@@ -10,6 +10,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/ports/SkCFObject.h"
+#include "include/private/GrMtlTypesPriv.h"
 
 #include "tools/sk_app/WindowContext.h"
 
