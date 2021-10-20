@@ -35,9 +35,8 @@ void PathTessellateOp::prepareTessellator(const GrTessellationShader::ProgramArg
     SkASSERT(!fTessellationProgram);
     auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(appliedClip),
                                                         std::move(fProcessors));
-    fTessellator = skgpu::tess::PathWedgeTessellator::Make(args.fArena, fViewMatrix, fColor,
-                                                           fPath.countVerbs(), *pipeline,
-                                                           *args.fCaps);
+    fTessellator = PathWedgeTessellator::Make(args.fArena, fViewMatrix, fColor, fPath.countVerbs(),
+                                              *pipeline, *args.fCaps);
     fTessellationProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(), pipeline,
                                                              fStencil);
 }

@@ -11,7 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/private/SkVx.h"
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // Represents the upper-left 2x2 matrix of an affine transform for applying to vectors:
 //
@@ -71,6 +71,6 @@ private:
     float4 fSkewXYXY;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_VectorXform_DEFINED

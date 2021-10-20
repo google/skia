@@ -155,21 +155,20 @@ void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramA
                                                                shader,
                                                                stencilPipeline,
                                                                stencilSettings);
-        fTessellator = skgpu::tess::PathCurveTessellator::Make(
-                args.fArena,
-                shaderMatrix,
-                SK_PMColor4fTRANSPARENT,
-                skgpu::tess::PathCurveTessellator::DrawInnerFan::kNo,
-                fTotalCombinedPathVerbCnt,
-                *stencilPipeline,
-                *args.fCaps);
+        fTessellator = PathCurveTessellator::Make(args.fArena,
+                                                  shaderMatrix,
+                                                  SK_PMColor4fTRANSPARENT,
+                                                  PathCurveTessellator::DrawInnerFan::kNo,
+                                                  fTotalCombinedPathVerbCnt,
+                                                  *stencilPipeline,
+                                                  *args.fCaps);
     } else {
-        fTessellator = skgpu::tess::PathWedgeTessellator::Make(args.fArena,
-                                                               shaderMatrix,
-                                                               SK_PMColor4fTRANSPARENT,
-                                                               fTotalCombinedPathVerbCnt,
-                                                               *stencilPipeline,
-                                                               *args.fCaps);
+        fTessellator = PathWedgeTessellator::Make(args.fArena,
+                                                  shaderMatrix,
+                                                  SK_PMColor4fTRANSPARENT,
+                                                  fTotalCombinedPathVerbCnt,
+                                                  *stencilPipeline,
+                                                  *args.fCaps);
     }
     fStencilPathProgram = GrTessellationShader::MakeProgram(args,
                                                             fTessellator->shader(),
@@ -238,8 +237,8 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
         // middle-out topology.
         GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fFanBuffer, &fFanBaseVertex);
-        int maxCombinedFanEdges = skgpu::tess::PathTessellator::MaxCombinedFanEdgesInPathDrawList(
-                fTotalCombinedPathVerbCnt);
+        int maxCombinedFanEdges =
+                PathTessellator::MaxCombinedFanEdgesInPathDrawList(fTotalCombinedPathVerbCnt);
         // A single n-sided polygon is fanned by n-2 triangles. Multiple polygons with a combined
         // edge count of n are fanned by strictly fewer triangles.
         int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
@@ -247,7 +246,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         int fanTriangleCount = 0;
         for (auto [pathMatrix, path] : *fPathDrawList) {
             int numTrianglesWritten;
-            triangleVertexWriter = skgpu::tess::MiddleOutPolygonTriangulator::WritePathInnerFan(
+            triangleVertexWriter = MiddleOutPolygonTriangulator::WritePathInnerFan(
                     std::move(triangleVertexWriter),
                     0,
                     0,

@@ -19,7 +19,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #endif
 
-namespace skgpu::tess {
+namespace skgpu {
 
 namespace {
 
@@ -462,4 +462,4 @@ void StrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
 }
 #endif
 
-}  // namespace skgpu::tess
+}  // namespace skgpu

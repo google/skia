@@ -15,7 +15,7 @@ class GrCaps;
 class GrGpuBuffer;
 class GrPipeline;
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // Draws an array of "outer curve" patches and, optionally, inner fan triangles for
 // GrCubicTessellateShader. Each patch is an independent 4-point curve, representing either a cubic
@@ -79,6 +79,6 @@ private:
     sk_sp<const GrGpuBuffer> fFixedCountIndexBuffer;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_PathCurveTessellator_DEFINED

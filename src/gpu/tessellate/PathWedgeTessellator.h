@@ -15,7 +15,7 @@ class GrCaps;
 class GrGpuBuffer;
 class GrPipeline;
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // Prepares an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent,
 // 5-point closed contour consisting of 4 control points plus an anchor point fanning from the
@@ -52,6 +52,6 @@ private:
     sk_sp<const GrGpuBuffer> fFixedCountIndexBuffer;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_PathWedgeTessellator_DEFINED

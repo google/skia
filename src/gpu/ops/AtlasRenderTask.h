@@ -61,7 +61,7 @@ private:
     const std::unique_ptr<GrDynamicAtlas> fDynamicAtlas;
 
     // Allocate enough inline entries for 16 atlas path draws, then spill to the heap.
-    using PathDrawList = skgpu::tess::PathTessellator::PathDrawList;
+    using PathDrawList = PathTessellator::PathDrawList;
     using PathDrawAllocator = SkTBlockList<PathDrawList, 16>;
     PathDrawAllocator fPathDrawAllocator{64, SkBlockAllocator::GrowthPolicy::kFibonacci};
 

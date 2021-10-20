@@ -11,7 +11,7 @@
 #include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/StrokeTessellator.h"
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // Renders opaque, constant-color strokes by decomposing them into standalone tessellation patches.
 // Each patch is either a "cubic" (single stroked bezier curve with butt caps) or a "join". Requires
@@ -34,6 +34,6 @@ private:
     GrVertexChunkArray fPatchChunks;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_StrokeHardwareTessellator_DEFINED

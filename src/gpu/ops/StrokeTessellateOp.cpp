@@ -199,19 +199,19 @@ void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs
     if (can_use_hardware_tessellation(fTotalCombinedVerbCnt, *pipeline, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
-        fTessellator = arena->make<skgpu::tess::StrokeHardwareTessellator>(*caps.shaderCaps(),
-                                                                           fShaderFlags,
-                                                                           fViewMatrix,
-                                                                           &fPathStrokeList,
-                                                                           matrixMinMaxScales,
-                                                                           strokeCullBounds);
+        fTessellator = arena->make<StrokeHardwareTessellator>(*caps.shaderCaps(),
+                                                              fShaderFlags,
+                                                              fViewMatrix,
+                                                              &fPathStrokeList,
+                                                              matrixMinMaxScales,
+                                                              strokeCullBounds);
     } else {
-        fTessellator = arena->make<skgpu::tess::StrokeFixedCountTessellator>(*caps.shaderCaps(),
-                                                                             fShaderFlags,
-                                                                             fViewMatrix,
-                                                                             &fPathStrokeList,
-                                                                             matrixMinMaxScales,
-                                                                             strokeCullBounds);
+        fTessellator = arena->make<StrokeFixedCountTessellator>(*caps.shaderCaps(),
+                                                                fShaderFlags,
+                                                                fViewMatrix,
+                                                                &fPathStrokeList,
+                                                                matrixMinMaxScales,
+                                                                strokeCullBounds);
     }
 
     auto fillStencil = &GrUserStencilSettings::kUnused;

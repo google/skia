@@ -13,7 +13,7 @@
 #include "src/core/SkPathPriv.h"
 #include <array>
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // This class iterates over the stroke geometry defined by a path and stroke. It automatically
 // converts closes and square caps to lines, and round caps to circles so the user doesn't have to
@@ -366,7 +366,7 @@ private:
     std::array<SkPoint, 2> fBeginningCapPts;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_StrokeIterator_DEFINED
 

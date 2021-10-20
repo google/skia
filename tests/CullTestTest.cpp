@@ -10,7 +10,7 @@
 #include "include/utils/SkRandom.h"
 #include "src/gpu/tessellate/CullTest.h"
 
-namespace skgpu::tess {
+namespace skgpu {
 
 const SkMatrix gMatrices[] = {
     SkMatrix::I(),
@@ -78,4 +78,4 @@ DEF_TEST(CullTestTest, reporter) {
     }
 }
 
-}  // namespace skgpu::tess
+}  // namespace skgpu

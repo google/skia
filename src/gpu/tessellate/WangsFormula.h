@@ -28,8 +28,6 @@
 // to Curves and Surfaces for Geometric Modeling". Morgan Kaufmann Publishers.)
 namespace wangs_formula {
 
-using VectorXform = skgpu::tess::VectorXform;
-
 // Returns the value by which to multiply length in Wang's formula. (See above.)
 template<int Degree> constexpr float length_term(float precision) {
     return (Degree * (Degree - 1) / 8.f) * precision;
@@ -61,7 +59,7 @@ SAI int nextlog16(float x) {
 // Returns Wang's formula, raised to the 4th power, specialized for a quadratic curve.
 SAI float quadratic_pow4(float precision,
                          const SkPoint pts[],
-                         const VectorXform& vectorXform = VectorXform()) {
+                         const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(pts[0]);
     float2 p1 = bit_pun<float2>(pts[1]);
@@ -75,7 +73,7 @@ SAI float quadratic_pow4(float precision,
 // Returns Wang's formula specialized for a quadratic curve.
 SAI float quadratic(float precision,
                     const SkPoint pts[],
-                    const VectorXform& vectorXform = VectorXform()) {
+                    const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     return root4(quadratic_pow4(precision, pts, vectorXform));
 }
 
@@ -83,7 +81,7 @@ SAI float quadratic(float precision,
 // next int.
 SAI int quadratic_log2(float precision,
                        const SkPoint pts[],
-                       const VectorXform& vectorXform = VectorXform()) {
+                       const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     // nextlog16(x) == ceil(log2(sqrt(sqrt(x))))
     return nextlog16(quadratic_pow4(precision, pts, vectorXform));
 }
@@ -91,7 +89,7 @@ SAI int quadratic_log2(float precision,
 // Returns Wang's formula, raised to the 4th power, specialized for a cubic curve.
 SAI float cubic_pow4(float precision,
                      const SkPoint pts[],
-                     const VectorXform& vectorXform = VectorXform()) {
+                     const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     using grvx::float4;
     float4 p01 = float4::Load(pts);
     float4 p12 = float4::Load(pts + 1);
@@ -105,7 +103,7 @@ SAI float cubic_pow4(float precision,
 // Returns Wang's formula specialized for a cubic curve.
 SAI float cubic(float precision,
                 const SkPoint pts[],
-                const VectorXform& vectorXform = VectorXform()) {
+                const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     return root4(cubic_pow4(precision, pts, vectorXform));
 }
 
@@ -113,7 +111,7 @@ SAI float cubic(float precision,
 // int.
 SAI int cubic_log2(float precision,
                    const SkPoint pts[],
-                   const VectorXform& vectorXform = VectorXform()) {
+                   const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     // nextlog16(x) == ceil(log2(sqrt(sqrt(x))))
     return nextlog16(cubic_pow4(precision, pts, vectorXform));
 }
@@ -143,7 +141,7 @@ SAI int worst_case_cubic_log2(float precision, float devWidth, float devHeight) 
 SAI float conic_pow2(float precision,
                      const SkPoint pts[],
                      float w,
-                     const VectorXform& vectorXform = VectorXform()) {
+                     const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     using grvx::dot, grvx::float2, grvx::float4, skvx::bit_pun;
     float2 p0 = vectorXform(bit_pun<float2>(pts[0]));
     float2 p1 = vectorXform(bit_pun<float2>(pts[1]));
@@ -181,7 +179,7 @@ SAI float conic_pow2(float precision,
 SAI float conic(float tolerance,
                 const SkPoint pts[],
                 float w,
-                const VectorXform& vectorXform = VectorXform()) {
+                const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     return sqrtf(conic_pow2(tolerance, pts, w, vectorXform));
 }
 
@@ -190,7 +188,7 @@ SAI float conic(float tolerance,
 SAI int conic_log2(float tolerance,
                    const SkPoint pts[],
                    float w,
-                   const VectorXform& vectorXform = VectorXform()) {
+                   const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
     // nextlog4(x) == ceil(log2(sqrt(x)))
     return nextlog4(conic_pow2(tolerance, pts, w, vectorXform));
 }

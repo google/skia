@@ -16,7 +16,7 @@
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/tessellate/PathXform.h"
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // This class emits a polygon triangulation with a "middle-out" topology. Conceptually, middle-out
 // emits one large triangle with vertices on both endpoints and a middle point, then recurses on
@@ -199,6 +199,6 @@ private:
     int fTotalClosedTriangleCount = 0;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_MiddleOutPolygonTriangulator_DEFINED

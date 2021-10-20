@@ -12,7 +12,7 @@
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // Applies an affine 2d transformation to points and path components. Converts path components to
 // tessellation patches. Uses SIMD, but takes care to map points identically, regardless of which
@@ -94,6 +94,6 @@ private:
     float4 fTrans;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_PathXform_DEFINED

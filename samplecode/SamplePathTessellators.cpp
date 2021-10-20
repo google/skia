@@ -22,6 +22,8 @@
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
+namespace skgpu {
+
 namespace {
 
 enum class Mode {
@@ -83,41 +85,41 @@ private:
         auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
                                                                  fPipelineFlags);
         switch (fMode) {
-            using DrawInnerFan = skgpu::tess::PathCurveTessellator::DrawInnerFan;
+            using DrawInnerFan = PathCurveTessellator::DrawInnerFan;
             case Mode::kWedgeMiddleOut:
-                fTessellator = skgpu::tess::PathWedgeTessellator::Make(alloc,
-                                                                       shaderMatrix,
-                                                                       kCyan,
-                                                                       numVerbsToGetMiddleOut,
-                                                                       *pipeline,
+                fTessellator = PathWedgeTessellator::Make(alloc,
+                                                          shaderMatrix,
+                                                          kCyan,
+                                                          numVerbsToGetMiddleOut,
+                                                          *pipeline,
 
-                                                                       caps);
+                                                          caps);
                 break;
             case Mode::kCurveMiddleOut:
-                fTessellator = skgpu::tess::PathCurveTessellator::Make(alloc,
-                                                                       shaderMatrix,
-                                                                       kCyan,
-                                                                       DrawInnerFan::kYes,
-                                                                       numVerbsToGetMiddleOut,
-                                                                       *pipeline,
-                                                                       caps);
+                fTessellator = PathCurveTessellator::Make(alloc,
+                                                          shaderMatrix,
+                                                          kCyan,
+                                                          DrawInnerFan::kYes,
+                                                          numVerbsToGetMiddleOut,
+                                                          *pipeline,
+                                                          caps);
                 break;
             case Mode::kWedgeTessellate:
-                fTessellator = skgpu::tess::PathWedgeTessellator::Make(alloc,
-                                                                       shaderMatrix,
-                                                                       kCyan,
-                                                                       numVerbsToGetTessellation,
-                                                                       *pipeline,
-                                                                       caps);
+                fTessellator = PathWedgeTessellator::Make(alloc,
+                                                          shaderMatrix,
+                                                          kCyan,
+                                                          numVerbsToGetTessellation,
+                                                          *pipeline,
+                                                          caps);
                 break;
             case Mode::kCurveTessellate:
-                fTessellator = skgpu::tess::PathCurveTessellator::Make(alloc,
-                                                                       shaderMatrix,
-                                                                       kCyan,
-                                                                       DrawInnerFan::kYes,
-                                                                       numVerbsToGetTessellation,
-                                                                       *pipeline,
-                                                                       caps);
+                fTessellator = PathCurveTessellator::Make(alloc,
+                                                          shaderMatrix,
+                                                          kCyan,
+                                                          DrawInnerFan::kYes,
+                                                          numVerbsToGetTessellation,
+                                                          *pipeline,
+                                                          caps);
                 break;
         }
         fTessellator->prepare(flushState, this->bounds(), {pathMatrix, fPath}, fPath.countVerbs());
@@ -138,7 +140,7 @@ private:
     const SkMatrix fMatrix;
     const GrPipeline::InputFlags fPipelineFlags;
     const Mode fMode;
-    skgpu::tess::PathTessellator* fTessellator = nullptr;
+    PathTessellator* fTessellator = nullptr;
     GrProgramInfo* fProgram;
     GrProcessorSet fProcessors{SkBlendMode::kSrcOver};
 
@@ -331,5 +333,7 @@ bool SamplePathTessellators::onChar(SkUnichar unichar) {
 
 Sample* MakeTessellatedPathSample() { return new SamplePathTessellators; }
 static SampleRegistry gTessellatedPathSample(MakeTessellatedPathSample);
+
+}  // namespace skgpu
 
 #endif  // SK_SUPPORT_GPU

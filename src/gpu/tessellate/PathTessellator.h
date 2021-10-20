@@ -19,7 +19,7 @@ class GrGpuBuffer;
 class GrOpFlushState;
 class GrPathTessellationShader;
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // Prepares GPU data for, and then draws a path's tessellated geometry. Depending on the subclass,
 // the caller may or may not be required to draw the path's inner fan separately.
@@ -82,6 +82,6 @@ protected:
     GrPathTessellationShader* fShader;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_PathTessellator_DEFINED

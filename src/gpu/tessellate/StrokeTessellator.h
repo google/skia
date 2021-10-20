@@ -14,7 +14,7 @@
 class GrMeshDrawTarget;
 class GrOpFlushState;
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // Prepares GPU data for, and then draws a stroke's tessellated geometry.
 class StrokeTessellator {
@@ -165,6 +165,6 @@ private:
     int fBufferIdx = 4;  // Initialize the buffer as "empty";
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_StrokeTessellator_DEFINED

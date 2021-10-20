@@ -11,7 +11,7 @@
 #include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/StrokeTessellator.h"
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // Renders strokes as fixed-count triangle strip instances. Any extra triangles not needed by the
 // instance are emitted as degenerate triangles.
@@ -37,6 +37,6 @@ private:
     sk_sp<const GrGpuBuffer> fVertexBufferIfNoIDSupport;
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_StrokeFixedCountTessellator_DEFINED

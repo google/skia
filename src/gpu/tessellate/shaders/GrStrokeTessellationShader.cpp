@@ -349,14 +349,14 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
 
     if (!shader.hasDynamicStroke()) {
         // Set up the tessellation control uniforms.
-        skgpu::tess::StrokeTolerances tolerances;
+        skgpu::StrokeTolerances tolerances;
         if (!stroke.isHairlineStyle()) {
-            tolerances = skgpu::tess::StrokeTolerances::MakeNonHairline(
-                    shader.viewMatrix().getMaxScale(), stroke.getWidth());
+            tolerances = skgpu::StrokeTolerances::MakeNonHairline(shader.viewMatrix().getMaxScale(),
+                                                                  stroke.getWidth());
         } else {
             // In the hairline case we transform prior to tessellation. Set up tolerances for an
             // identity viewMatrix and a strokeWidth of 1.
-            tolerances = skgpu::tess::StrokeTolerances::MakeNonHairline(1, 1);
+            tolerances = skgpu::StrokeTolerances::MakeNonHairline(1, 1);
         }
         float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
         pdman.set4f(fTessControlArgsUniform,
@@ -368,7 +368,7 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
         SkASSERT(!stroke.isHairlineStyle());
         float maxScale = shader.viewMatrix().getMaxScale();
         pdman.set1f(fTessControlArgsUniform,
-                    skgpu::tess::StrokeTolerances::CalcParametricPrecision(maxScale));
+                    skgpu::StrokeTolerances::CalcParametricPrecision(maxScale));
     }
 
     if (shader.mode() == GrStrokeTessellationShader::Mode::kFixedCount) {

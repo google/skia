@@ -25,7 +25,7 @@ public:
 
 private:
     using ShaderFlags = GrStrokeTessellationShader::ShaderFlags;
-    using PathStrokeList = skgpu::tess::StrokeTessellator::PathStrokeList;
+    using PathStrokeList = StrokeTessellator::PathStrokeList;
     DEFINE_OP_CLASS_ID
 
     SkStrokeRec& headStroke() { return fPathStrokeList.fStroke; }
@@ -74,7 +74,7 @@ private:
     GrProcessorSet fProcessors;
     bool fNeedsStencil;
 
-    skgpu::tess::StrokeTessellator* fTessellator = nullptr;
+    StrokeTessellator* fTessellator = nullptr;
     const GrProgramInfo* fStencilProgram = nullptr;  // Only used if the stroke has transparency.
     const GrProgramInfo* fFillProgram = nullptr;
 };

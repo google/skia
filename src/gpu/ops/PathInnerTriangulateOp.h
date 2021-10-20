@@ -13,7 +13,7 @@
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
-namespace skgpu::tess {
+namespace skgpu {
 
 class PathCurveTessellator;
 
@@ -82,7 +82,7 @@ private:
     const GrPipeline* fPipelineForFills = nullptr;
 
     // Tessellates the outer curves.
-    skgpu::tess::PathCurveTessellator* fTessellator = nullptr;
+    PathCurveTessellator* fTessellator = nullptr;
 
     // Pass 1: Tessellate the outer curves into the stencil buffer.
     const GrProgramInfo* fStencilCurvesProgram = nullptr;

@@ -12,7 +12,7 @@
 #include "include/private/SkVx.h"
 #include "src/gpu/GrVx.h"
 
-namespace skgpu::tess {
+namespace skgpu {
 
 // This class determines whether the given local-space points will be contained in the cull bounds
 // post transform. For the versions that take >1 point, it returns whether any region of their
@@ -103,6 +103,6 @@ private:
     grvx::float4 fCullBounds;  // [l, t, -r, -b]
 };
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
 
 #endif  // tessellate_CullTest_DEFINED

@@ -22,7 +22,7 @@ class PathStencilCoverOp final : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
-    using PathDrawList = skgpu::tess::PathTessellator::PathDrawList;
+    using PathDrawList = PathTessellator::PathDrawList;
 
     // If the path is inverse filled, drawBounds must be the entire backing store dimensions of the
     // render target.
@@ -96,7 +96,7 @@ private:
     SkDEBUGCODE(SkRect fOriginalDrawBounds;)
 
     // Decided during prePreparePrograms.
-    skgpu::tess::PathTessellator* fTessellator = nullptr;
+    PathTessellator* fTessellator = nullptr;
     const GrProgramInfo* fStencilFanProgram = nullptr;
     const GrProgramInfo* fStencilPathProgram = nullptr;
     const GrProgramInfo* fCoverBBoxProgram = nullptr;

@@ -244,14 +244,13 @@ void PathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Prog
 
     // Pass 1: Tessellate the outer curves into the stencil buffer.
     if (!isLinear) {
-        fTessellator = skgpu::tess::PathCurveTessellator::Make(
-                args.fArena,
-                fViewMatrix,
-                SK_PMColor4fTRANSPARENT,
-                skgpu::tess::PathCurveTessellator::DrawInnerFan::kNo,
-                fPath.countVerbs(),
-                *pipelineForStencils,
-                *args.fCaps);
+        fTessellator = PathCurveTessellator::Make(args.fArena,
+                                                  fViewMatrix,
+                                                  SK_PMColor4fTRANSPARENT,
+                                                  PathCurveTessellator::DrawInnerFan::kNo,
+                                                  fPath.countVerbs(),
+                                                  *pipelineForStencils,
+                                                  *args.fCaps);
         const GrUserStencilSettings* stencilPathSettings =
                 GrPathTessellationShader::StencilPathSettings(GrFillRuleForSkPath(fPath));
         fStencilCurvesProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),

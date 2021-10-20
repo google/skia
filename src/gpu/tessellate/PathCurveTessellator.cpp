@@ -21,7 +21,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #endif
 
-namespace skgpu::tess {
+namespace skgpu {
 
 namespace {
 
@@ -375,4 +375,4 @@ void PathCurveTessellator::drawHullInstances(GrOpFlushState* flushState,
 }
 #endif
 
-}  // namespace skgpu::tess
+}  // namespace skgpu
