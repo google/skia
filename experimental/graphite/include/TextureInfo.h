@@ -39,6 +39,7 @@ public:
 
     ~TextureInfo() {}
     TextureInfo(const TextureInfo&) = default;
+    TextureInfo& operator=(const TextureInfo&) = delete;
 
     bool operator==(const TextureInfo&) const;
 
