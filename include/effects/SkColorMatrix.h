@@ -8,7 +8,7 @@
 #ifndef SkColorMatrix_DEFINED
 #define SkColorMatrix_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/core/SkImageInfo.h"
 
 #include <algorithm>
 #include <array>
@@ -28,6 +28,9 @@ public:
                  m10, m11, m12, m13, m14,
                  m20, m21, m22, m23, m24,
                  m30, m31, m32, m33, m34 } {}
+
+    static SkColorMatrix RGBtoYUV(SkYUVColorSpace);
+    static SkColorMatrix YUVtoRGB(SkYUVColorSpace);
 
     void setIdentity();
     void setScale(float rScale, float gScale, float bScale, float aScale = 1.0f);

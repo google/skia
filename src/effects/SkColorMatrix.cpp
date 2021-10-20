@@ -6,6 +6,19 @@
  */
 
 #include "include/effects/SkColorMatrix.h"
+#include "src/core/SkYUVMath.h"
+
+SkColorMatrix SkColorMatrix::RGBtoYUV(SkYUVColorSpace cs) {
+    SkColorMatrix m;
+    SkColorMatrix_RGB2YUV(cs, m.fMat.data());
+    return m;
+}
+
+SkColorMatrix SkColorMatrix::YUVtoRGB(SkYUVColorSpace cs) {
+    SkColorMatrix m;
+    SkColorMatrix_YUV2RGB(cs, m.fMat.data());
+    return m;
+}
 
 enum {
     kR_Scale = 0,

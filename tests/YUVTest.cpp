@@ -145,13 +145,8 @@ DEF_TEST(YUVMath, reporter) {
     const float tolerance = 1.0f/(1 << 18);
 
     for (auto cs : spaces) {
-        float r2y[20], y2r[20];
-        SkColorMatrix_RGB2YUV(cs, r2y);
-        SkColorMatrix_YUV2RGB(cs, y2r);
-
-        SkColorMatrix r2ym, y2rm;
-        r2ym.setRowMajor(r2y);
-        y2rm.setRowMajor(y2r);
+        SkColorMatrix r2ym = SkColorMatrix::RGBtoYUV(cs),
+                      y2rm = SkColorMatrix::YUVtoRGB(cs);
         r2ym.postConcat(y2rm);
 
         float tmp[20];
