@@ -113,7 +113,7 @@ static void for_random_beziers(int numPoints, SkRandom* rand,
 }
 
 // Ensure the optimized "*_log2" versions return the same value as ceil(std::log2(f)).
-DEF_TEST(WangsFormula_log2, r) {
+DEF_TEST(wangs_formula_log2, r) {
     // Constructs a cubic such that the 'length' term in wang's formula == term.
     //
     //     f = sqrt(k * length(max(abs(p0 - p1*2 + p2),
@@ -275,12 +275,12 @@ DEF_TEST(WangsFormula_log2, r) {
 }
 
 // Ensure using transformations gives the same result as pre-transforming all points.
-DEF_TEST(WangsFormula_vectorXforms, r) {
+DEF_TEST(wangs_formula_vectorXforms, r) {
     auto check_cubic_log2_with_transform = [&](const SkPoint* pts, const SkMatrix& m){
         SkPoint ptsXformed[4];
         m.mapPoints(ptsXformed, pts, 4);
         int expected = wangs_formula::cubic_log2(kPrecision, ptsXformed);
-        int actual = wangs_formula::cubic_log2(kPrecision, pts, skgpu::VectorXform(m));
+        int actual = wangs_formula::cubic_log2(kPrecision, pts, wangs_formula::VectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
     };
 
@@ -288,7 +288,7 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
         SkPoint ptsXformed[3];
         m.mapPoints(ptsXformed, pts, 3);
         int expected = wangs_formula::quadratic_log2(kPrecision, ptsXformed);
-        int actual = wangs_formula::quadratic_log2(kPrecision, pts, skgpu::VectorXform(m));
+        int actual = wangs_formula::quadratic_log2(kPrecision, pts, wangs_formula::VectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
     };
 
@@ -309,7 +309,7 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
     });
 }
 
-DEF_TEST(WangsFormula_worst_case_cubic, r) {
+DEF_TEST(wangs_formula_worst_case_cubic, r) {
     {
         SkPoint worstP[] = {{0,0}, {100,100}, {0,0}, {0,0}};
         REPORTER_ASSERT(r, wangs_formula::worst_case_cubic(kPrecision, 100, 100) ==
@@ -343,7 +343,7 @@ DEF_TEST(WangsFormula_worst_case_cubic, r) {
 }
 
 // Ensure Wang's formula for quads produces max error within tolerance.
-DEF_TEST(WangsFormula_quad_within_tol, r) {
+DEF_TEST(wangs_formula_quad_within_tol, r) {
     // Wang's formula and the quad math starts to lose precision with very large
     // coordinate values, so limit the magnitude a bit to prevent test failures
     // due to loss of precision.
@@ -395,7 +395,7 @@ DEF_TEST(WangsFormula_quad_within_tol, r) {
 
 // Ensure the specialized version for rational quads reduces to regular Wang's
 // formula when all weights are equal to one
-DEF_TEST(WangsFormula_rational_quad_reduces, r) {
+DEF_TEST(wangs_formula_rational_quad_reduces, r) {
     constexpr static float kTessellationTolerance = 1 / 128.f;
 
     SkRandom rand;
@@ -410,7 +410,7 @@ DEF_TEST(WangsFormula_rational_quad_reduces, r) {
 }
 
 // Ensure the rational quad version (used for conics) produces max error within tolerance.
-DEF_TEST(WangsFormula_conic_within_tol, r) {
+DEF_TEST(wangs_formula_conic_within_tol, r) {
     constexpr int maxExponent = 24;
 
     // Single-precision functions in SkConic/SkGeometry lose too much accuracy with
@@ -472,7 +472,7 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
 }
 
 // Ensure the vectorized conic version equals the reference implementation
-DEF_TEST(WangsFormula_conic_matches_reference, r) {
+DEF_TEST(wangs_formula_conic_matches_reference, r) {
     SkRandom rand;
     for (int i = -10; i <= 10; ++i) {
         const float w = std::ldexp(1 + rand.nextF(), i);
@@ -489,12 +489,12 @@ DEF_TEST(WangsFormula_conic_matches_reference, r) {
 }
 
 // Ensure using transformations gives the same result as pre-transforming all points.
-DEF_TEST(WangsFormula_conic_vectorXforms, r) {
+DEF_TEST(wangs_formula_conic_vectorXforms, r) {
     auto check_conic_with_transform = [&](const SkPoint* pts, float w, const SkMatrix& m) {
         SkPoint ptsXformed[3];
         m.mapPoints(ptsXformed, pts, 3);
         float expected = wangs_formula::conic(kPrecision, ptsXformed, w);
-        float actual = wangs_formula::conic(kPrecision, pts, w, skgpu::VectorXform(m));
+        float actual = wangs_formula::conic(kPrecision, pts, w, wangs_formula::VectorXform(m));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(actual, expected));
     };
 

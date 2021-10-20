@@ -148,7 +148,7 @@ DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {
     int sum = 0;
-    VectorXform xform(matrix);
+    wangs_formula::VectorXform xform(matrix);
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         if (verb == SkPathVerb::kCubic) {
             sum += wangs_formula::cubic_log2(4, pts, xform);
@@ -176,7 +176,7 @@ DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_affine, make_cubic_path(18),
 
 static void benchmark_wangs_formula_conic(const SkMatrix& matrix, const SkPath& path) {
     int sum = 0;
-    VectorXform xform(matrix);
+    wangs_formula::VectorXform xform(matrix);
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         if (verb == SkPathVerb::kConic) {
             sum += wangs_formula::conic(4, pts, *w, xform);
@@ -190,7 +190,7 @@ static void benchmark_wangs_formula_conic(const SkMatrix& matrix, const SkPath& 
 
 static void benchmark_wangs_formula_conic_log2(const SkMatrix& matrix, const SkPath& path) {
     int sum = 0;
-    VectorXform xform(matrix);
+    wangs_formula::VectorXform xform(matrix);
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         if (verb == SkPathVerb::kConic) {
             sum += wangs_formula::conic_log2(4, pts, *w, xform);

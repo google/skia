@@ -259,7 +259,7 @@ private:
 
     GrVertexChunkBuilder fChunker;
     CullTest fCullTest;
-    VectorXform fTotalVectorXform;
+    wangs_formula::VectorXform fTotalVectorXform;
     PathXform fPathXform;
     const float fMaxSegments_pow2;
     const float fMaxSegments_pow4;

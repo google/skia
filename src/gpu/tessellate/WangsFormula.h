@@ -8,13 +8,13 @@
 #ifndef tessellate_WangsFormula_DEFINED
 #define tessellate_WangsFormula_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkString.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/gpu/GrVx.h"
-#include "src/gpu/tessellate/VectorXform.h"
 
-#define SAI SK_MAYBE_UNUSED SK_ALWAYS_INLINE
+#define AI SK_MAYBE_UNUSED SK_ALWAYS_INLINE
 
 // Wang's formula gives the minimum number of evenly spaced (in the parametric sense) line segments
 // that a bezier curve must be chopped into in order to guarantee all lines stay within a distance
@@ -36,7 +36,7 @@ template<int Degree> constexpr float length_term_pow2(float precision) {
     return ((Degree * Degree) * ((Degree - 1) * (Degree - 1)) / 64.f) * (precision * precision);
 }
 
-SAI float root4(float x) {
+AI float root4(float x) {
     return sqrtf(sqrtf(x));
 }
 
@@ -44,7 +44,7 @@ SAI float root4(float x) {
 //
 //   log2(sqrt(x)) == log2(x^(1/2)) == log2(x)/2 == log2(x)/log2(4) == log4(x)
 //
-SAI int nextlog4(float x) {
+AI int nextlog4(float x) {
     return (sk_float_nextlog2(x) + 1) >> 1;
 }
 
@@ -52,14 +52,72 @@ SAI int nextlog4(float x) {
 //
 //   log2(sqrt(sqrt(x))) == log2(x^(1/4)) == log2(x)/4 == log2(x)/log2(16) == log16(x)
 //
-SAI int nextlog16(float x) {
+AI int nextlog16(float x) {
     return (sk_float_nextlog2(x) + 3) >> 2;
 }
 
+// Represents the upper-left 2x2 matrix of an affine transform for applying to vectors:
+//
+//     VectorXform(p1 - p0) == M * float3(p1, 1) - M * float3(p0, 1)
+//
+class VectorXform {
+public:
+    using float2 = skvx::Vec<2, float>;
+    using float4 = skvx::Vec<4, float>;
+    AI explicit VectorXform() : fType(Type::kIdentity) {}
+    AI explicit VectorXform(const SkMatrix& m) { *this = m; }
+    AI VectorXform& operator=(const SkMatrix& m) {
+        SkASSERT(!m.hasPerspective());
+        if (m.getType() & SkMatrix::kAffine_Mask) {
+            fType = Type::kAffine;
+            fScaleXSkewY = {m.getScaleX(), m.getSkewY()};
+            fSkewXScaleY = {m.getSkewX(), m.getScaleY()};
+            fScaleXYXY = {m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()};
+            fSkewXYXY = {m.getSkewX(), m.getSkewY(), m.getSkewX(), m.getSkewY()};
+        } else if (m.getType() & SkMatrix::kScale_Mask) {
+            fType = Type::kScale;
+            fScaleXY = {m.getScaleX(), m.getScaleY()};
+            fScaleXYXY = {m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()};
+        } else {
+            SkASSERT(!(m.getType() & ~SkMatrix::kTranslate_Mask));
+            fType = Type::kIdentity;
+        }
+        return *this;
+    }
+    AI float2 operator()(float2 vector) const {
+        switch (fType) {
+            case Type::kIdentity:
+                return vector;
+            case Type::kScale:
+                return fScaleXY * vector;
+            case Type::kAffine:
+                return fScaleXSkewY * float2(vector[0]) + fSkewXScaleY * vector[1];
+        }
+        SkUNREACHABLE;
+    }
+    AI float4 operator()(float4 vectors) const {
+        switch (fType) {
+            case Type::kIdentity:
+                return vectors;
+            case Type::kScale:
+                return vectors * fScaleXYXY;
+            case Type::kAffine:
+                return fScaleXYXY * vectors + fSkewXYXY * vectors.yxwz();
+        }
+        SkUNREACHABLE;
+    }
+private:
+    enum class Type { kIdentity, kScale, kAffine } fType;
+    union { float2 fScaleXY, fScaleXSkewY; };
+    float2 fSkewXScaleY;
+    float4 fScaleXYXY;
+    float4 fSkewXYXY;
+};
+
 // Returns Wang's formula, raised to the 4th power, specialized for a quadratic curve.
-SAI float quadratic_pow4(float precision,
-                         const SkPoint pts[],
-                         const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI float quadratic_pow4(float precision,
+                        const SkPoint pts[],
+                        const VectorXform& vectorXform = VectorXform()) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(pts[0]);
     float2 p1 = bit_pun<float2>(pts[1]);
@@ -71,25 +129,25 @@ SAI float quadratic_pow4(float precision,
 }
 
 // Returns Wang's formula specialized for a quadratic curve.
-SAI float quadratic(float precision,
-                    const SkPoint pts[],
-                    const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI float quadratic(float precision,
+                   const SkPoint pts[],
+                   const VectorXform& vectorXform = VectorXform()) {
     return root4(quadratic_pow4(precision, pts, vectorXform));
 }
 
 // Returns the log2 value of Wang's formula specialized for a quadratic curve, rounded up to the
 // next int.
-SAI int quadratic_log2(float precision,
-                       const SkPoint pts[],
-                       const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI int quadratic_log2(float precision,
+                      const SkPoint pts[],
+                      const VectorXform& vectorXform = VectorXform()) {
     // nextlog16(x) == ceil(log2(sqrt(sqrt(x))))
     return nextlog16(quadratic_pow4(precision, pts, vectorXform));
 }
 
 // Returns Wang's formula, raised to the 4th power, specialized for a cubic curve.
-SAI float cubic_pow4(float precision,
-                     const SkPoint pts[],
-                     const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI float cubic_pow4(float precision,
+                    const SkPoint pts[],
+                    const VectorXform& vectorXform = VectorXform()) {
     using grvx::float4;
     float4 p01 = float4::Load(pts);
     float4 p12 = float4::Load(pts + 1);
@@ -101,17 +159,17 @@ SAI float cubic_pow4(float precision,
 }
 
 // Returns Wang's formula specialized for a cubic curve.
-SAI float cubic(float precision,
-                const SkPoint pts[],
-                const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI float cubic(float precision,
+               const SkPoint pts[],
+               const VectorXform& vectorXform = VectorXform()) {
     return root4(cubic_pow4(precision, pts, vectorXform));
 }
 
 // Returns the log2 value of Wang's formula specialized for a cubic curve, rounded up to the next
 // int.
-SAI int cubic_log2(float precision,
-                   const SkPoint pts[],
-                   const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI int cubic_log2(float precision,
+                  const SkPoint pts[],
+                  const VectorXform& vectorXform = VectorXform()) {
     // nextlog16(x) == ceil(log2(sqrt(sqrt(x))))
     return nextlog16(cubic_pow4(precision, pts, vectorXform));
 }
@@ -119,14 +177,14 @@ SAI int cubic_log2(float precision,
 // Returns the maximum number of line segments a cubic with the given device-space bounding box size
 // would ever need to be divided into. This is simply a special case of the cubic formula where we
 // maximize its value by placing control points on specific corners of the bounding box.
-SAI float worst_case_cubic(float precision, float devWidth, float devHeight) {
+AI float worst_case_cubic(float precision, float devWidth, float devHeight) {
     float k = length_term<3>(precision);
     return sqrtf(2*k * SkVector::Length(devWidth, devHeight));
 }
 
 // Returns the maximum log2 number of line segments a cubic with the given device-space bounding box
 // size would ever need to be divided into.
-SAI int worst_case_cubic_log2(float precision, float devWidth, float devHeight) {
+AI int worst_case_cubic_log2(float precision, float devWidth, float devHeight) {
     float kk = length_term_pow2<3>(precision);
     // nextlog16(x) == ceil(log2(sqrt(sqrt(x))))
     return nextlog16(4*kk * (devWidth * devWidth + devHeight * devHeight));
@@ -138,10 +196,10 @@ SAI int worst_case_cubic_log2(float precision, float devWidth, float devHeight) 
 // This is not actually due to Wang, but is an analogue from (Theorem 3, corollary 1):
 //   J. Zheng, T. Sederberg. "Estimating Tessellation Parameter Intervals for
 //   Rational Curves and Surfaces." ACM Transactions on Graphics 19(1). 2000.
-SAI float conic_pow2(float precision,
-                     const SkPoint pts[],
-                     float w,
-                     const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI float conic_pow2(float precision,
+                    const SkPoint pts[],
+                    float w,
+                    const VectorXform& vectorXform = VectorXform()) {
     using grvx::dot, grvx::float2, grvx::float4, skvx::bit_pun;
     float2 p0 = vectorXform(bit_pun<float2>(pts[0]));
     float2 p1 = vectorXform(bit_pun<float2>(pts[1]));
@@ -176,19 +234,19 @@ SAI float conic_pow2(float precision,
 }
 
 // Returns the value of Wang's formula specialized for a conic curve.
-SAI float conic(float tolerance,
-                const SkPoint pts[],
-                float w,
-                const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI float conic(float tolerance,
+               const SkPoint pts[],
+               float w,
+               const VectorXform& vectorXform = VectorXform()) {
     return sqrtf(conic_pow2(tolerance, pts, w, vectorXform));
 }
 
 // Returns the log2 value of Wang's formula specialized for a conic curve, rounded up to the next
 // int.
-SAI int conic_log2(float tolerance,
-                   const SkPoint pts[],
-                   float w,
-                   const skgpu::VectorXform& vectorXform = skgpu::VectorXform()) {
+AI int conic_log2(float tolerance,
+                  const SkPoint pts[],
+                  float w,
+                  const VectorXform& vectorXform = VectorXform()) {
     // nextlog4(x) == ceil(log2(sqrt(x)))
     return nextlog4(conic_pow2(tolerance, pts, w, vectorXform));
 }
@@ -253,6 +311,6 @@ SK_MAYBE_UNUSED inline static SkString as_sksl() {
 
 }  // namespace wangs_formula
 
-#undef SAI
+#undef AI
 
 #endif  // tessellate_WangsFormula_DEFINED

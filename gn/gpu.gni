@@ -338,7 +338,6 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/StrokeHardwareTessellator.h",
   "$_src/gpu/tessellate/StrokeIterator.h",
   "$_src/gpu/tessellate/StrokeTessellator.h",
-  "$_src/gpu/tessellate/VectorXform.h",
   "$_src/gpu/tessellate/WangsFormula.h",
 
   # tessellate/shaders
