@@ -1,10 +1,15 @@
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")
+workspace(name = "skia")
 
-new_git_repository(
-    name = "libpng",
-    remote = "https://skia.googlesource.com/third_party/libpng",
-    #tag = "v1.6.37",
-    commit = "a40189cf881e9f0db80511c382292a5604c3c3d1",
-    shallow_since = "1555265432 -0400",
-    build_file = "//bazel:libpng.bazel",
+load("//toolchain:build_toolchain.bzl", "build_cpp_toolchain")
+
+build_cpp_toolchain(
+    # Meant to run on amd64 linux and compile for amd64 linux using musl as the c library.
+    name = "clang_linux_amd64_musl",
+    # From https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz.sha256
+    clang_prefix = "clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-20.04/",
+    clang_sha256 = "2c2fb857af97f41a5032e9ecadf7f78d3eff389a5cd3c9ec620d24f134ceb3c8",
+    clang_url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz",
+    # From https://packages.debian.org/bullseye/amd64/musl-dev/download
+    musl_dev_sha256 = "b017792ad6ba3650b4889238c73cd19c1d6b0e39ca8319cdd3ad9e16374e614e",
+    musl_dev_url = "http://ftp.debian.org/debian/pool/main/m/musl/musl-dev_1.2.2-1_amd64.deb",
 )

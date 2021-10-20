@@ -1,0 +1,6 @@
+build:clang --crosstool_top=//toolchain:clang_suite
+build:clang --compiler=clang
+
+# Use the default Bazel C++ toolchain to build the tools used during the
+# build.
+build:clang --host_crosstool_top=@bazel_tools//tools/cpp:toolchain

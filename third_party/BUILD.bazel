@@ -1,0 +1,87 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+cc_library(
+    name = "libpng",
+    srcs = [
+        "externals/libpng/png.c",
+        "externals/libpng/pngerror.c",
+        "externals/libpng/pngget.c",
+        "externals/libpng/pngmem.c",
+        "externals/libpng/pngpread.c",
+        "externals/libpng/pngread.c",
+        "externals/libpng/pngrio.c",
+        "externals/libpng/pngrtran.c",
+        "externals/libpng/pngrutil.c",
+        "externals/libpng/pngset.c",
+        "externals/libpng/pngtrans.c",
+        "externals/libpng/pngwio.c",
+        "externals/libpng/pngwrite.c",
+        "externals/libpng/pngwtran.c",
+        "externals/libpng/pngwutil.c",
+        # TODO(kjlubick) arm/x86 support
+    ],
+    hdrs = ["libpng/pnglibconf.h"] + glob([
+        "externals/libpng/*.h",
+    ]),
+    copts = [
+        "-Ithird_party/libpng/",
+        "-Wno-unused-but-set-variable",
+    ],
+    includes = [
+        # This adds -isystem "third_party/externals/libpng" to any dependent
+        # compilation steps. This allows #include <png.h> to work
+        "externals/libpng",
+        # png.h attempts to #include "pnglibconf.h" , which we store in //third_party/libpng/
+        # This rule adds -isystem "third_party/externals/libpng" to any dependent
+        # rule on this, which avoids having to add "-Ithird_party/libpng/" to copts for
+        # those dependent rules.
+        "libpng",
+    ],
+    textual_hdrs = ["externals/libpng/scripts/pnglibconf.h.prebuilt"],
+    deps = [":zlib"],
+)
+
+cc_library(
+    name = "zlib",
+    srcs = [
+        "externals/zlib/adler32.c",
+        "externals/zlib/compress.c",
+        "externals/zlib/cpu_features.c",
+        "externals/zlib/crc32.c",
+        "externals/zlib/deflate.c",
+        "externals/zlib/gzclose.c",
+        "externals/zlib/gzlib.c",
+        "externals/zlib/gzread.c",
+        "externals/zlib/gzwrite.c",
+        "externals/zlib/infback.c",
+        "externals/zlib/inffast.c",
+        "externals/zlib/inflate.c",
+        "externals/zlib/inftrees.c",
+        "externals/zlib/trees.c",
+        "externals/zlib/uncompr.c",
+        "externals/zlib/zutil.c",
+    ] + glob([
+        "externals/zlib/**/*.h",
+    ]),
+    hdrs = glob([
+        "externals/zlib/*.h",
+    ]),
+    copts = [
+        "-Wno-unused-function",
+    ],
+    strip_include_prefix = "externals/zlib/",
+)
+
+# This library is used to fix linking errors when trying to statically link in some symbols
+# The symbols defined here:
+# https://github.com/llvm/llvm-project/blob/main/libcxx/include/__support/musl/xlocale.h
+# are defined to be inlined, however they are missing during the final linking of a static
+# executable. By re-defining them in our own .a file, this makes the linker happy.
+cc_library(
+    name = "musl_compat",
+    srcs = [
+        "musl_compat/locale.c",
+    ],
+)
