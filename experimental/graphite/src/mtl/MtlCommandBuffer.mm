@@ -164,12 +164,12 @@ void CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
 #endif
     blitCmdEncoder->copyFromTexture(mtlTexture, srcRect, mtlBuffer, bufferOffset, bufferRowBytes);
 
-#ifdef SK_BUILD_FOR_MAC
     if (fGpu->mtlCaps().isMac()) {
+#ifdef SK_BUILD_FOR_MAC
         // Sync GPU data back to the CPU
         blitCmdEncoder->synchronizeResource(mtlBuffer);
-    }
 #endif
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     blitCmdEncoder->popDebugGroup();
 #endif
