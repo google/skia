@@ -29,8 +29,8 @@ sk_sp<skgpu::CommandBuffer> ResourceProvider::createCommandBuffer() {
     return CommandBuffer::Make(this->mtlGpu());
 }
 
-std::unique_ptr<skgpu::RenderPipeline> ResourceProvider::onCreateRenderPipeline(
-            const RenderPipelineDesc& desc) {
+sk_sp<skgpu::RenderPipeline> ResourceProvider::onCreateRenderPipeline(
+        const RenderPipelineDesc& desc) {
     return RenderPipeline::Make(this->mtlGpu(), desc);
 }
 

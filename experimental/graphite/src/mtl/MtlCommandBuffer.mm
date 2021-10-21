@@ -11,6 +11,7 @@
 #include "experimental/graphite/src/mtl/MtlBuffer.h"
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "experimental/graphite/src/mtl/MtlRenderCommandEncoder.h"
+#include "experimental/graphite/src/mtl/MtlRenderPipeline.h"
 #include "experimental/graphite/src/mtl/MtlTexture.h"
 #include "include/core/SkRect.h"
 
@@ -178,6 +179,36 @@ void CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
     this->trackResource(std::move(buffer));
 
     fHasWork = true;
+}
+
+void CommandBuffer::onSetRenderPipeline(sk_sp<skgpu::RenderPipeline>& renderPipeline) {
+    SkASSERT(fActiveRenderCommandEncoder);
+
+    id<MTLRenderPipelineState> pipelineState =
+            static_cast<RenderPipeline*>(renderPipeline.get())->mtlPipelineState();
+    fActiveRenderCommandEncoder->setRenderPipelineState(pipelineState);
+}
+
+static MTLPrimitiveType graphite_to_mtl_primitive(PrimitiveType primitiveType) {
+    const static MTLPrimitiveType mtlPrimitiveType[] {
+        MTLPrimitiveTypeTriangle,
+        MTLPrimitiveTypeTriangleStrip,
+        MTLPrimitiveTypePoint,
+    };
+    static_assert((int)PrimitiveType::kTriangles == 0);
+    static_assert((int)PrimitiveType::kTriangleStrip == 1);
+    static_assert((int)PrimitiveType::kPoints == 2);
+
+    SkASSERT(primitiveType <= PrimitiveType::kPoints);
+    return mtlPrimitiveType[static_cast<int>(primitiveType)];
+}
+
+void CommandBuffer::onDraw(PrimitiveType type, unsigned int vertexStart, unsigned int vertexCount) {
+    SkASSERT(fActiveRenderCommandEncoder);
+
+    auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
+
+    fActiveRenderCommandEncoder->drawPrimitives(mtlPrimitiveType, vertexStart, vertexCount);
 }
 
 } // namespace skgpu::mtl

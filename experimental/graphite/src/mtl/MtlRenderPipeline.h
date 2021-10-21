@@ -25,8 +25,10 @@ class Gpu;
 
 class RenderPipeline final : public skgpu::RenderPipeline {
 public:
-    static std::unique_ptr<RenderPipeline> Make(const Gpu*, const skgpu::RenderPipelineDesc&);
+    static sk_sp<RenderPipeline> Make(const Gpu*, const skgpu::RenderPipelineDesc&);
     ~RenderPipeline() override {}
+
+    id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState.get(); }
 
 private:
     RenderPipeline(sk_cfp<id<MTLRenderPipelineState>> pso)

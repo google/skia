@@ -30,7 +30,7 @@ public:
 
     virtual sk_sp<CommandBuffer> createCommandBuffer() = 0;
 
-    RenderPipeline* findOrCreateRenderPipeline(const RenderPipelineDesc&);
+    sk_sp<RenderPipeline> findOrCreateRenderPipeline(const RenderPipelineDesc&);
 
     sk_sp<Texture> findOrCreateTexture(SkISize, const TextureInfo&);
 
@@ -42,7 +42,7 @@ protected:
     const Gpu* fGpu;
 
 private:
-    virtual std::unique_ptr<RenderPipeline> onCreateRenderPipeline(const RenderPipelineDesc&) = 0;
+    virtual sk_sp<RenderPipeline> onCreateRenderPipeline(const RenderPipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) = 0;
 
@@ -52,7 +52,7 @@ private:
         ~RenderPipelineCache();
 
         void release();
-        RenderPipeline* refPipeline(const RenderPipelineDesc&);
+        sk_sp<RenderPipeline> refPipeline(const RenderPipelineDesc&);
 
     private:
         struct Entry;

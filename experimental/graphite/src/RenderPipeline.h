@@ -8,12 +8,13 @@
 #ifndef skgpu_RenderPipeline_DEFINED
 #define skgpu_RenderPipeline_DEFINED
 
+#include "include/core/SkRefCnt.h"
+
 namespace skgpu {
 
-// TODO: derive this from something like GrManagedResource
-class RenderPipeline {
+class RenderPipeline : public SkRefCnt {
 public:
-    virtual ~RenderPipeline();
+    ~RenderPipeline() override;
 
 protected:
     RenderPipeline();

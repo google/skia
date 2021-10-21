@@ -60,7 +60,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     commandBuffer->beginRenderPass(renderPassDesc);
 
-    // add test commands here
+    RenderPipelineDesc pipelineDesc;
+    auto renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
+    commandBuffer->setRenderPipeline(std::move(renderPipeline));
+    commandBuffer->draw(PrimitiveType::kTriangleStrip, 0, 4);
 
     commandBuffer->endRenderPass();
 

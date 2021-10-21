@@ -13,11 +13,10 @@
 
 namespace skgpu::mtl {
 
-std::unique_ptr<RenderPipeline> RenderPipeline::Make(const Gpu* gpu,
-                                                     const skgpu::RenderPipelineDesc&) {
+sk_sp<RenderPipeline> RenderPipeline::Make(const Gpu* gpu, const skgpu::RenderPipelineDesc&) {
     sk_cfp<MTLRenderPipelineDescriptor*> psoDescriptor([[MTLRenderPipelineDescriptor alloc] init]);
 
-    // Temp pipeline for now that just fills the viewport with red
+    // Temp pipeline for now that just fills the viewport with blue
     SkSL::String shaderText;
     shaderText.append(
             "#include <metal_stdlib>\n"
@@ -37,7 +36,7 @@ std::unique_ptr<RenderPipeline> RenderPipeline::Make(const Gpu* gpu,
             "}\n"
             "\n"
             "fragment float4 fragmentMain(VertexOutput in [[stage_in]]) {\n"
-            "    return float4(1.0, 0.0, 0.0, 1.0);\n"
+            "    return float4(0.0, 0.0, 1.0, 1.0);\n"
             "}"
     );
 
@@ -67,7 +66,7 @@ std::unique_ptr<RenderPipeline> RenderPipeline::Make(const Gpu* gpu,
     sk_cfp<id<MTLRenderPipelineState>> pso(
             [gpu->device() newRenderPipelineStateWithDescriptor:psoDescriptor.get()
                                                           error:&error]);
-    return std::unique_ptr<RenderPipeline>(new RenderPipeline(std::move(pso)));
+    return sk_sp<RenderPipeline>(new RenderPipeline(std::move(pso)));
 }
 
 } // namespace skgpu::mtl

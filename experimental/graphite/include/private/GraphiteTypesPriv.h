@@ -148,6 +148,15 @@ enum class StoreOp : uint8_t {
 };
 inline static constexpr int kStoreOpCount = (int)(StoreOp::kLast) + 1;
 
+/**
+ * Geometric primitives used for drawing.
+ */
+enum class PrimitiveType : uint8_t {
+    kTriangles,
+    kTriangleStrip,
+    kPoints,
+};
+
 } // namespace skgpu
 
 #endif // skgpu_GraphiteTypesPriv_DEFINED
