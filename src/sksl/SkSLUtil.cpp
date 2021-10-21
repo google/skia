@@ -18,14 +18,12 @@
 namespace SkSL {
 
 #if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
-StandaloneShaderCaps standaloneCaps;
-
 ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {
-    return std::make_shared<StandaloneShaderCaps>();
+    return std::make_unique<StandaloneShaderCaps>();
 }
 #else
 ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {
-    return sk_make_sp<GrShaderCaps>();
+    return std::make_unique<GrShaderCaps>();
 }
 #endif  // defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 

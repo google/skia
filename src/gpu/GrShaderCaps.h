@@ -19,7 +19,7 @@ class SharedCompiler;
 struct GrContextOptions;
 class SkJSONWriter;
 
-class GrShaderCaps : public SkRefCnt {
+class GrShaderCaps {
 public:
     /**
      * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires

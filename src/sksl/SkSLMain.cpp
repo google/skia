@@ -290,7 +290,8 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
     }
 
     SkSL::Program::Settings settings;
-    const SkSL::ShaderCapsClass* caps = &SkSL::standaloneCaps;
+    SkSL::StandaloneShaderCaps standaloneCaps;
+    const SkSL::ShaderCapsClass* caps = &standaloneCaps;
     if (honorSettings) {
         if (!detect_shader_settings(text, &settings, &caps)) {
             return ResultCode::kInputError;

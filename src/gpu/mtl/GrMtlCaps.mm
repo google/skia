@@ -30,7 +30,7 @@ GR_NORETAIN_BEGIN
 
 GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device)
         : INHERITED(contextOptions) {
-    fShaderCaps.reset(new GrShaderCaps());
+    fShaderCaps = std::make_unique<GrShaderCaps>();
 
     this->initGPUFamily(device);
     this->initGrCaps(device);
