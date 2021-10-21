@@ -688,9 +688,8 @@ for (const variant of ['ttf', 'woff', 'woff2']) {
     tests.push({
         description: `Get glyphIDs from a ${variant} font`,
         setup: function (CanvasKit, ctx) {
-            const fontMgr = CanvasKit.FontMgr.RefDefault();
             const robotoData = ctx.files['Roboto-Regular.' + variant];
-            ctx.robotoFace = fontMgr.MakeTypefaceFromData(robotoData);
+            ctx.robotoFace = CanvasKit.Typeface.MakeFreeTypeFaceFromData(robotoData);
             if (!ctx.robotoFace) {
                 throw 'could not load ' + variant;
             }

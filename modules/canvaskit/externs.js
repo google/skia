@@ -381,7 +381,6 @@ var CanvasKit = {
   FontMgr: {
     // public API (from C++ and JS bindings)
     FromData: function() {},
-    RefDefault: function() {},
     countFamilies: function() {},
     getFamilyName: function() {},
 
@@ -1054,8 +1053,6 @@ CanvasKit.Surface.prototype.dispose = function() {};
 CanvasKit.Surface.prototype.flush = function() {};
 CanvasKit.Surface.prototype.requestAnimationFrame = function() {};
 CanvasKit.Surface.prototype.drawOnce = function() {};
-
-CanvasKit.FontMgr.prototype.MakeTypefaceFromData = function() {};
 
 CanvasKit.RuntimeEffect.prototype.makeShader = function() {};
 CanvasKit.RuntimeEffect.prototype.makeShaderWithChildren = function() {};

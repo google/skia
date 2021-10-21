@@ -10,7 +10,6 @@ function HTMLCanvas(skSurface) {
   this._surface = skSurface;
   this._context = new CanvasRenderingContext2D(skSurface.getCanvas());
   this._toCleanup = [];
-  this._fontmgr = CanvasKit.FontMgr.RefDefault();
 
   // Data is either an ArrayBuffer, a TypedArray, or a Node Buffer
   this.decodeImage = function(data) {
@@ -23,7 +22,7 @@ function HTMLCanvas(skSurface) {
   };
 
   this.loadFont = function(buffer, descriptors) {
-    var newFont = this._fontmgr.MakeTypefaceFromData(buffer);
+    var newFont = CanvasKit.Typeface.MakeFreeTypeFaceFromData(buffer);
     if (!newFont) {
       Debug('font could not be processed', descriptors);
       return null;

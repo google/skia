@@ -1763,12 +1763,6 @@ export interface FontMgr extends EmbindObject<FontMgr> {
      * @param index
      */
     getFamilyName(index: number): string;
-
-    /**
-     * Create a typeface for the specified bytes and return it.
-     * @param fontData
-     */
-    MakeTypefaceFromData(fontData: ArrayBuffer): Typeface;
 }
 
 /**
@@ -3196,12 +3190,6 @@ export interface FontMgrFactory {
      * @param buffers
      */
     FromData(...buffers: ArrayBuffer[]): FontMgr | null;
-
-    /**
-     * Return the default FontMgr. This will generally have 0 or 1 fonts in it, depending on if
-     * the demo monospace font was compiled in.
-     */
-    RefDefault(): FontMgr;
 }
 
 /**

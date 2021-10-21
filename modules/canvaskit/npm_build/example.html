@@ -102,9 +102,7 @@
     }
 
     const paint = new CanvasKit.Paint();
-
-    const fontMgr = CanvasKit.FontMgr.RefDefault();
-    const roboto = fontMgr.MakeTypefaceFromData(robotoData);
+    const roboto = CanvasKit.Typeface.MakeFreeTypeFaceFromData(robotoData);
 
     const textPaint = new CanvasKit.Paint();
     textPaint.setColor(CanvasKit.RED);

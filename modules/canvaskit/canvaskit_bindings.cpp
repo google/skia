@@ -1237,7 +1237,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
             return SkFontMgr_New_Custom_Data(skdatas.get(), numFonts);
         }), allow_raw_pointers())
-        .class_function("RefDefault", &SkFontMgr::RefDefault)
         .function("countFamilies", &SkFontMgr::countFamilies)
         .function("getFamilyName", optional_override([](SkFontMgr& self, int index)->JSString {
             if (index < 0 || index >= self.countFamilies()) {

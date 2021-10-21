@@ -40,7 +40,7 @@
 
     // Registers the font (provided as an arrayBuffer) with the alias `family`.
     CanvasKit.TypefaceFontProvider.prototype.registerFont = function(font, family) {
-      var typeface = CanvasKit.FontMgr.RefDefault().MakeTypefaceFromData(font);
+      var typeface = CanvasKit.Typeface.MakeFreeTypeFaceFromData(font);
       if (!typeface) {
           Debug('Could not decode font data');
           // We do not need to free the data since the C++ will do that for us

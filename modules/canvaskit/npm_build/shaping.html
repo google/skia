@@ -49,8 +49,7 @@
       return;
     }
 
-    const fontMgr = CanvasKit.FontMgr.RefDefault();
-    const typeface = fontMgr.MakeTypefaceFromData(fontData);
+    const typeface = CanvasKit.Typeface.MakeFreeTypeFaceFromData(fontData);
 
     const paint = new CanvasKit.Paint();
 

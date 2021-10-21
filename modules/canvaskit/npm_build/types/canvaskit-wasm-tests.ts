@@ -352,16 +352,12 @@ function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {
 }
 
 function fontMgrTests(CK: CanvasKit) {
-    const fm = CK.FontMgr.RefDefault(); // $ExpectType FontMgr
-
     const buff1 = new ArrayBuffer(10);
     const buff2 = new ArrayBuffer(20);
 
-    const fm2 = CK.FontMgr.FromData(buff1, buff2);
+    const fm = CK.FontMgr.FromData(buff1, buff2)!;
     fm.countFamilies();
     fm.getFamilyName(0);
-
-    const tf = fm.MakeTypefaceFromData(buff1); // $ExpectType Typeface
 }
 
 function globalTests(CK: CanvasKit, path?: Path) {
