@@ -8,9 +8,9 @@
 #ifndef GrVertexWriter_DEFINED
 #define GrVertexWriter_DEFINED
 
+#include "include/core/SkRect.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTemplates.h"
-#include "src/gpu/geometry/GrQuad.h"
 #include <type_traits>
 
 /**
@@ -74,18 +74,40 @@ struct GrVertexWriter {
     }
 
     /**
-     * Specialized utility for writing a four-vertices, with some data being replicated at each
+     * Specialized utilities for writing a four-vertices, with some data being replicated at each
      * vertex, and other data being the appropriate 2-components from an SkRect to construct a
      * triangle strip.
      *
-     * writeQuad(A, B, C, ...) is similar to write(A, B, C, ...), except that:
-     *
      * - Four sets of data will be written
-     * - For any arguments of type TriStrip, a unique SkPoint will be written at each vertex,
-     *   in this order: left-top, left-bottom, right-top, right-bottom.
+     *
+     * - For any arguments where is_quad<Type>::value is true, a unique point will be written at
+     *   each vertex. To make a custom type be emitted as a quad, declare:
+     *
+     *       template<> struct GrVertexWriter::is_quad<MyQuadClass> : std::true_type {};
+     *
+     *   and define:
+     *
+     *       MyQuadClass::writeVertex(int cornerIdx, GrVertexWriter&) const { ... }
+     *
+     * - For any arguments where is_quad<Type>::value is false, its value will be replicated at each
+     *   vertex.
      */
     template <typename T>
-    struct TriStrip { T l, t, r, b; };
+    struct is_quad : std::false_type {};
+
+    template <typename T>
+    struct TriStrip {
+        void writeVertex(int cornerIdx, GrVertexWriter& w) const {
+            switch (cornerIdx) {
+                case 0: w << l << t; return;
+                case 1: w << l << b; return;
+                case 2: w << r << t; return;
+                case 3: w << r << b; return;
+            }
+            SkUNREACHABLE;
+        }
+        T l, t, r, b;
+    };
 
     static TriStrip<float> TriStripFromRect(const SkRect& r) {
         return { r.fLeft, r.fTop, r.fRight, r.fBottom };
@@ -96,7 +118,18 @@ struct GrVertexWriter {
     }
 
     template <typename T>
-    struct TriFan { T l, t, r, b; };
+    struct TriFan {
+        void writeVertex(int cornerIdx, GrVertexWriter& w) const {
+            switch (cornerIdx) {
+                case 0: w << l << t; return;
+                case 1: w << l << b; return;
+                case 2: w << r << b; return;
+                case 3: w << r << t; return;
+            }
+            SkUNREACHABLE;
+        }
+        T l, t, r, b;
+    };
 
     static TriFan<float> TriFanFromRect(const SkRect& r) {
         return { r.fLeft, r.fTop, r.fRight, r.fBottom };
@@ -104,53 +137,31 @@ struct GrVertexWriter {
 
     template <typename... Args>
     void writeQuad(const Args&... remainder) {
-        this->writeQuadVert<0>(remainder...);
-        this->writeQuadVert<1>(remainder...);
-        this->writeQuadVert<2>(remainder...);
-        this->writeQuadVert<3>(remainder...);
+        this->writeQuadVertex<0>(remainder...);
+        this->writeQuadVertex<1>(remainder...);
+        this->writeQuadVertex<2>(remainder...);
+        this->writeQuadVertex<3>(remainder...);
     }
 
 private:
     template<typename T> friend GrVertexWriter& operator<<(GrVertexWriter&, const T&);
 
-    template <int corner, typename T, typename... Args>
-    void writeQuadVert(const T& val, const Args&... remainder) {
-        this->writeQuadValue<corner>(val);
-        this->writeQuadVert<corner>(remainder...);
+    template <int kCornerIdx, typename T, typename... Args>
+    std::enable_if_t<!is_quad<T>::value, void> writeQuadVertex(const T& val,
+                                                               const Args&... remainder) {
+        *this << val;  // Non-quads duplicate their value.
+        this->writeQuadVertex<kCornerIdx>(remainder...);
     }
 
-    template <int corner>
-    void writeQuadVert() {}
-
-    template <int corner, typename T>
-    void writeQuadValue(const T& val) {
-        *this << val;
+    template <int kCornerIdx, typename Q, typename... Args>
+    std::enable_if_t<is_quad<Q>::value, void> writeQuadVertex(const Q& quad,
+                                                              const Args&... remainder) {
+        quad.writeVertex(kCornerIdx, *this);  // Quads emit a different corner each time.
+        this->writeQuadVertex<kCornerIdx>(remainder...);
     }
 
-    template <int corner, typename T>
-    void writeQuadValue(const TriStrip<T>& r) {
-        switch (corner) {
-            case 0: *this << r.l << r.t; break;
-            case 1: *this << r.l << r.b; break;
-            case 2: *this << r.r << r.t; break;
-            case 3: *this << r.r << r.b; break;
-        }
-    }
-
-    template <int corner, typename T>
-    void writeQuadValue(const TriFan<T>& r) {
-        switch (corner) {
-            case 0: *this << r.l << r.t; break;
-            case 1: *this << r.l << r.b; break;
-            case 2: *this << r.r << r.b; break;
-            case 3: *this << r.r << r.t; break;
-        }
-    }
-
-    template <int corner>
-    void writeQuadValue(const GrQuad& q) {
-        *this << q.point(corner);
-    }
+    template <int kCornerIdx>
+    void writeQuadVertex() {}
 };
 
 template <typename T>
@@ -182,5 +193,11 @@ SK_MAYBE_UNUSED inline GrVertexWriter& operator<<(GrVertexWriter& w, const Sk4f&
     w = w.makeOffset(sizeof(vector));
     return w;
 }
+
+template <typename T>
+struct GrVertexWriter::is_quad<GrVertexWriter::TriStrip<T>> : std::true_type {};
+
+template <typename T>
+struct GrVertexWriter::is_quad<GrVertexWriter::TriFan<T>> : std::true_type {};
 
 #endif

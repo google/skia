@@ -12,6 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
+#include "src/gpu/GrVertexWriter.h"
 
 enum class GrQuadAAFlags;
 
@@ -64,6 +65,10 @@ public:
         } else {
             return {fX[i], fY[i]};
         }
+    }
+
+    void writeVertex(int cornerIdx, GrVertexWriter& w) const {
+        w << this->point(cornerIdx);
     }
 
     SkRect bounds() const {
@@ -163,6 +168,8 @@ private:
 
     Type fType = Type::kAxisAligned;
 };
+
+template<> struct GrVertexWriter::is_quad<GrQuad> : std::true_type {};
 
 // A simple struct representing the common work unit of a pair of device and local coordinates, as
 // well as the edge flags controlling anti-aliasing for the quadrilateral when drawn.
