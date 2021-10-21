@@ -178,13 +178,6 @@ public:
         return fMustGuardDivisionEvenAfterExplicitZeroCheck;
     }
 
-    // On Pixel 3, 3a, and 4 devices we've noticed that the simple function:
-    // half4 blend(half4 a, half4 b) { return a.a * b; }
-    // may return (0, 0, 0, 1) when b is (0, 0, 0, 0).
-    bool inBlendModesFailRandomlyForAllZeroVec() const {
-        return fInBlendModesFailRandomlyForAllZeroVec;
-    }
-
     // On Nexus 6, the GL context can get lost if a shader does not write a value to gl_FragColor.
     // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
     bool mustWriteToFragColor() const { return fMustWriteToFragColor; }
@@ -315,7 +308,6 @@ private:
     bool fRequiresLocalOutputColorForFBFetch          : 1;
     bool fMustObfuscateUniformColor                   : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
-    bool fInBlendModesFailRandomlyForAllZeroVec       : 1;
     bool fCanUseFragCoord                             : 1;
     bool fIncompleteShortIntPrecision                 : 1;
     bool fAddAndTrueToLoopCondition                   : 1;

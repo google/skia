@@ -275,13 +275,9 @@ half4 blend_src_over(half4 src, half4 dst) { return src + (1 - src.a)*dst; }
 
 half4 blend_dst_over(half4 src, half4 dst) { return (1 - dst.a)*src + dst; }
 
-half4 blend_src_in(half4 src, half4 dst) {
-    return sk_Caps.inBlendModesFailRandomlyForAllZeroVec
-            ? (src == half4(0) ? half4(0) : src*dst.a)
-            : src*dst.a;
-}
+half4 blend_src_in(half4 src, half4 dst) { return src*dst.a; }
 
-half4 blend_dst_in(half4 src, half4 dst) { return blend_src_in(dst, src); }
+half4 blend_dst_in(half4 src, half4 dst) { return dst*src.a; }
 
 half4 blend_src_out(half4 src, half4 dst) { return (1 - dst.a)*src; }
 

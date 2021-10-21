@@ -115,10 +115,6 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_addAndTrueCaps = Factory::AddAndTrueToLoopCondition();
                     *caps = s_addAndTrueCaps.get();
                 }
-                if (settingsText.consumeSuffix(" BlendModesFailRandomlyForAllZeroVec")) {
-                    static auto s_blendZeroCaps = Factory::BlendModesFailRandomlyForAllZeroVec();
-                    *caps = s_blendZeroCaps.get();
-                }
                 if (settingsText.consumeSuffix(" CannotUseFractForNegativeValues")) {
                     static auto s_negativeFractCaps = Factory::CannotUseFractForNegativeValues();
                     *caps = s_negativeFractCaps.get();

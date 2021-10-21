@@ -90,7 +90,6 @@ static const CapsLookupTable& caps_lookup_table() {
         CAP(Bool, mustDeclareFragmentShaderOutput),
         CAP(Bool, mustDoOpBetweenFloorAndAbs),
         CAP(Bool, mustGuardDivisionEvenAfterExplicitZeroCheck),
-        CAP(Bool, inBlendModesFailRandomlyForAllZeroVec),
         CAP(Bool, atan2ImplementedAsAtanYOverX),
         CAP(Bool, canUseAnyFunctionInShader),
         CAP(Bool, floatIs32Bits),

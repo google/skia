@@ -134,11 +134,6 @@ public:
         return fMustGuardDivisionEvenAfterExplicitZeroCheck;
     }
 
-    bool fInBlendModesFailRandomlyForAllZeroVec = false;
-    bool inBlendModesFailRandomlyForAllZeroVec() const {
-        return fInBlendModesFailRandomlyForAllZeroVec;
-    }
-
     bool fMustEnableAdvBlendEqs = false;
     bool mustEnableAdvBlendEqs() const {
         return fMustEnableAdvBlendEqs;
@@ -314,12 +309,6 @@ public:
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
         result->fAddAndTrueToLoopCondition = true;
-        return result;
-    }
-
-    static ShaderCapsPointer BlendModesFailRandomlyForAllZeroVec() {
-        ShaderCapsPointer result = MakeShaderCaps();
-        result->fInBlendModesFailRandomlyForAllZeroVec = true;
         return result;
     }
 
