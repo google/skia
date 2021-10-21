@@ -56,6 +56,10 @@ public:
                    destinationBytesPerImage: bufferRowBytes * srcRect.height()];
     }
 
+    void endEncoding() {
+        [(*fCommandEncoder) endEncoding];
+    }
+
 private:
     BlitCommandEncoder(sk_cfp<id<MTLBlitCommandEncoder>> encoder)
         : fCommandEncoder(std::move(encoder)) {}
