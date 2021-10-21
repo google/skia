@@ -269,7 +269,6 @@ void GrStrokeTessellationShader::InitializeVertexIDFallbackBuffer(GrVertexWriter
     SkASSERT(bufferSize % (sizeof(float) * 2) == 0);
     int edgeCount = bufferSize / (sizeof(float) * 2);
     for (int i = 0; i < edgeCount; ++i) {
-        vertexWriter.write<float>(i);
-        vertexWriter.write<float>(-i);
+        vertexWriter << (float)i << (float)-i;
     }
 }

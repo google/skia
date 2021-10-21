@@ -236,7 +236,7 @@ public:
         }
 
         if (GrVertexWriter patchWriter = fChunkBuilder.appendVertex()) {
-            patchWriter.write(fLastControlPoint);
+            patchWriter << fLastControlPoint;
             patchWriter.writeArray(p, 4);
             this->writeDynamicAttribs(&patchWriter);
         }
@@ -590,19 +590,19 @@ private:
         SkASSERT(fHasLastControlPoint);
 
         if (GrVertexWriter patchWriter = fChunkBuilder.appendVertex()) {
-            patchWriter.write(fLastControlPoint, junctionPoint);
+            patchWriter << fLastControlPoint << junctionPoint;
             if (joinType == JoinType::kBowtie) {
                 // {prevControlPoint, [p0, p0, p0, p3]} is a reserved patch pattern that means this
                 // patch is a bowtie. The bowtie is anchored on p0 and its tangent angles go from
                 // (p0 - prevControlPoint) to (p3 - p0).
-                patchWriter.write(junctionPoint, junctionPoint);
+                patchWriter << junctionPoint << junctionPoint;
             } else {
                 // {prevControlPoint, [p0, p3, p3, p3]} is a reserved patch pattern that means this
                 // patch is a join only (no curve sections in the patch). The join is anchored on p0
                 // and its tangent angles go from (p0 - prevControlPoint) to (p3 - p0).
-                patchWriter.write(nextControlPoint, nextControlPoint);
+                patchWriter << nextControlPoint << nextControlPoint;
             }
-            patchWriter.write(nextControlPoint);
+            patchWriter << (nextControlPoint);
             this->writeDynamicAttribs(&patchWriter);
         }
 
@@ -611,10 +611,10 @@ private:
 
     SK_ALWAYS_INLINE void writeDynamicAttribs(GrVertexWriter* patchWriter) {
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
-            patchWriter->write(fDynamicStroke);
+            *patchWriter << fDynamicStroke;
         }
         if (fShaderFlags & ShaderFlags::kDynamicColor) {
-            patchWriter->write(fDynamicColor);
+            *patchWriter << fDynamicColor;
         }
     }
 

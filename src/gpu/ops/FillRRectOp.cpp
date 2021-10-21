@@ -534,14 +534,12 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
             radiiX *= 2 / (r - l);
             radiiY *= 2 / (b - t);
 
-            instanceWrter.write(
-                    m.getScaleX(), m.getSkewX(), m.getSkewY(), m.getScaleY(),
-                    m.getTranslateX(), m.getTranslateY(),
-                    radiiX,
-                    radiiY,
-                    GrVertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor),
-                    GrVertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
-                                       i->fLocalRect));
+            instanceWrter << m.getScaleX() << m.getSkewX() << m.getSkewY() << m.getScaleY()
+                          << m.getTranslateX() << m.getTranslateY()
+                          << radiiX << radiiY
+                          << GrVertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor)
+                          << GrVertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
+                                                i->fLocalRect);
         }
         SkASSERT(instanceWrter == end);
     }

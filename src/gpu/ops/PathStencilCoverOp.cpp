@@ -272,12 +272,12 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         SkDEBUGCODE(int pathCount = 0;)
         for (auto [pathMatrix, path] : *fPathDrawList) {
             SkDEBUGCODE(auto end = vertexWriter.makeOffset(instanceStride));
-            vertexWriter.write(pathMatrix.getScaleX(),
-                               pathMatrix.getSkewY(),
-                               pathMatrix.getSkewX(),
-                               pathMatrix.getScaleY(),
-                               pathMatrix.getTranslateX(),
-                               pathMatrix.getTranslateY());
+            vertexWriter << pathMatrix.getScaleX()
+                         << pathMatrix.getSkewY()
+                         << pathMatrix.getSkewX()
+                         << pathMatrix.getScaleY()
+                         << pathMatrix.getTranslateX()
+                         << pathMatrix.getTranslateY();
             if (path.isInverseFillType()) {
                 // Fill the entire backing store to make sure we clear every stencil value back to
                 // 0. If there is a scissor it will have already clipped the stencil draw.
@@ -286,12 +286,12 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
                 SkASSERT(rtBounds == fOriginalDrawBounds);
                 SkRect pathSpaceRTBounds;
                 if (SkMatrixPriv::InverseMapRect(pathMatrix, &pathSpaceRTBounds, rtBounds)) {
-                    vertexWriter.write(pathSpaceRTBounds);
+                    vertexWriter << pathSpaceRTBounds;
                 } else {
-                    vertexWriter.write(path.getBounds());
+                    vertexWriter << path.getBounds();
                 }
             } else {
-                vertexWriter.write(path.getBounds());
+                vertexWriter << path.getBounds();
             }
             SkASSERT(vertexWriter == end);
             SkDEBUGCODE(++pathCount;)

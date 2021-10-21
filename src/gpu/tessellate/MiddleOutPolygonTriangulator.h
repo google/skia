@@ -182,7 +182,7 @@ private:
     void popTopTriangle(const SkPoint& lastPt) {
         SkASSERT(fTop > fVertexStack);  // We should never pop the starting point.
         --fTop;
-        fVertexWriter.write(fTop[0].fPoint, fTop[1].fPoint, lastPt);
+        fVertexWriter << fTop[0].fPoint << fTop[1].fPoint << lastPt;
         if (fPad32Count) {
             // Output a 4-point conic with w=Inf.
             fVertexWriter.fill(fPad32Value, fPad32Count);

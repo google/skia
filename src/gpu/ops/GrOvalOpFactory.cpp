@@ -1326,21 +1326,21 @@ private:
                 // compute the vertex position from this.
                 SkScalar dist = std::min(kOctagonOuter[i].dot(geoClipPlane) + offsetClipDist, 0.0f);
                 SkVector offset = kOctagonOuter[i] - geoClipPlane * dist;
-                vertices.write(center + offset * halfWidth,
-                               color,
-                               offset,
-                               radii);
+                vertices << (center + offset * halfWidth)
+                         << color
+                         << offset
+                         << radii;
                 if (fClipPlane) {
-                    vertices.write(circle.fClipPlane);
+                    vertices << circle.fClipPlane;
                 }
                 if (fClipPlaneIsect) {
-                    vertices.write(circle.fIsectPlane);
+                    vertices << circle.fIsectPlane;
                 }
                 if (fClipPlaneUnion) {
-                    vertices.write(circle.fUnionPlane);
+                    vertices << circle.fUnionPlane;
                 }
                 if (fRoundCaps) {
-                    vertices.write(circle.fRoundCapCenters);
+                    vertices << circle.fRoundCapCenters;
                 }
             }
 
@@ -1348,37 +1348,37 @@ private:
                 // compute the inner ring
 
                 for (int i = 0; i < 8; ++i) {
-                    vertices.write(center + kOctagonInner[i] * circle.fInnerRadius,
-                                   color,
-                                   kOctagonInner[i] * innerRadius,
-                                   radii);
+                    vertices << (center + kOctagonInner[i] * circle.fInnerRadius)
+                             << color
+                             << kOctagonInner[i] * innerRadius
+                             << radii;
                     if (fClipPlane) {
-                        vertices.write(circle.fClipPlane);
+                        vertices << circle.fClipPlane;
                     }
                     if (fClipPlaneIsect) {
-                        vertices.write(circle.fIsectPlane);
+                        vertices << circle.fIsectPlane;
                     }
                     if (fClipPlaneUnion) {
-                        vertices.write(circle.fUnionPlane);
+                        vertices << circle.fUnionPlane;
                     }
                     if (fRoundCaps) {
-                        vertices.write(circle.fRoundCapCenters);
+                        vertices << circle.fRoundCapCenters;
                     }
                 }
             } else {
                 // filled
-                vertices.write(center, color, SkPoint::Make(0, 0), radii);
+                vertices << center << color << SkPoint::Make(0, 0) << radii;
                 if (fClipPlane) {
-                    vertices.write(circle.fClipPlane);
+                    vertices << circle.fClipPlane;
                 }
                 if (fClipPlaneIsect) {
-                    vertices.write(circle.fIsectPlane);
+                    vertices << circle.fIsectPlane;
                 }
                 if (fClipPlaneUnion) {
-                    vertices.write(circle.fUnionPlane);
+                    vertices << circle.fUnionPlane;
                 }
                 if (fRoundCaps) {
-                    vertices.write(circle.fRoundCapCenters);
+                    vertices << circle.fRoundCapCenters;
                 }
             }
 
@@ -1695,22 +1695,22 @@ private:
             };
 
             for (int i = 0; i < 8; ++i) {
-                vertices.write(center + kOctagonOuter[i] * halfWidth,
-                               color,
-                               reflectY(kOctagonOuter[i]),
-                               circle.fOuterRadius,
-                               normInnerRadius,
-                               dashParams);
+                vertices << (center + kOctagonOuter[i] * halfWidth)
+                         << color
+                         << reflectY(kOctagonOuter[i])
+                         << circle.fOuterRadius
+                         << normInnerRadius
+                         << dashParams;
             }
 
             // Compute the vertices of the inner octagon.
             for (int i = 0; i < 8; ++i) {
-                vertices.write(center + kOctagonInner[i] * circle.fInnerRadius,
-                               color,
-                               reflectY(kOctagonInner[i]) * normInnerRadius,
-                               circle.fOuterRadius,
-                               normInnerRadius,
-                               dashParams);
+                vertices << (center + kOctagonInner[i] * circle.fInnerRadius)
+                         << color
+                         << (reflectY(kOctagonInner[i]) * normInnerRadius)
+                         << circle.fOuterRadius
+                         << normInnerRadius
+                         << dashParams;
             }
 
             const uint16_t* primIndices = circle_type_to_indices(true);
@@ -2597,48 +2597,48 @@ private:
         SkASSERT(smInset < bigInset);
 
         // TL
-        verts.write(bounds.fLeft + smInset, bounds.fTop + smInset,
-                    color,
-                    xOffset, 0.0f,
-                    outerRadius, innerRadius);
+        verts << (bounds.fLeft + smInset) << (bounds.fTop + smInset)
+              << color
+              << xOffset << 0.0f
+              << outerRadius << innerRadius;
 
         // TR
-        verts.write(bounds.fRight - smInset, bounds.fTop + smInset,
-                    color,
-                    xOffset, 0.0f,
-                    outerRadius, innerRadius);
+        verts << (bounds.fRight - smInset) << (bounds.fTop + smInset)
+              << color
+              << xOffset << 0.0f
+              << outerRadius << innerRadius;
 
-        verts.write(bounds.fLeft + bigInset, bounds.fTop + bigInset,
-                    color,
-                    0.0f, 0.0f,
-                    outerRadius, innerRadius);
+        verts << (bounds.fLeft + bigInset) << (bounds.fTop + bigInset)
+              << color
+              << 0.0f << 0.0f
+              << outerRadius << innerRadius;
 
-        verts.write(bounds.fRight - bigInset, bounds.fTop + bigInset,
-                    color,
-                    0.0f, 0.0f,
-                    outerRadius, innerRadius);
+        verts << (bounds.fRight - bigInset) << (bounds.fTop + bigInset)
+              << color
+              << 0.0f << 0.0f
+              << outerRadius << innerRadius;
 
-        verts.write(bounds.fLeft + bigInset, bounds.fBottom - bigInset,
-                    color,
-                    0.0f, 0.0f,
-                    outerRadius, innerRadius);
+        verts << (bounds.fLeft + bigInset) << (bounds.fBottom - bigInset)
+              << color
+              << 0.0f << 0.0f
+              << outerRadius << innerRadius;
 
-        verts.write(bounds.fRight - bigInset, bounds.fBottom - bigInset,
-                    color,
-                    0.0f, 0.0f,
-                    outerRadius, innerRadius);
+        verts << (bounds.fRight - bigInset) << (bounds.fBottom - bigInset)
+              << color
+              << 0.0f << 0.0f
+              << outerRadius << innerRadius;
 
         // BL
-        verts.write(bounds.fLeft + smInset, bounds.fBottom - smInset,
-                    color,
-                    xOffset, 0.0f,
-                    outerRadius, innerRadius);
+        verts << (bounds.fLeft + smInset) << (bounds.fBottom - smInset)
+              << color
+              << xOffset << 0.0f
+              << outerRadius << innerRadius;
 
         // BR
-        verts.write(bounds.fRight - smInset, bounds.fBottom - smInset,
-                    color,
-                    xOffset, 0.0f,
-                    outerRadius, innerRadius);
+        verts << (bounds.fRight - smInset) << (bounds.fBottom - smInset)
+              << color
+              << xOffset << 0.0f
+              << outerRadius << innerRadius;
     }
 
     GrProgramInfo* programInfo() override { return fProgramInfo; }
@@ -2711,25 +2711,25 @@ private:
                                            ? rrect.fInnerRadius / rrect.fOuterRadius
                                            : -1.0f / rrect.fOuterRadius;
             for (int i = 0; i < 4; ++i) {
-                verts.write(bounds.fLeft, yCoords[i],
-                            color,
-                            -1.0f, yOuterRadii[i],
-                            outerRadius, innerRadius);
+                verts << bounds.fLeft << yCoords[i]
+                      << color
+                      << -1.0f << yOuterRadii[i]
+                      << outerRadius << innerRadius;
 
-                verts.write(bounds.fLeft + outerRadius, yCoords[i],
-                            color,
-                            0.0f, yOuterRadii[i],
-                            outerRadius, innerRadius);
+                verts << (bounds.fLeft + outerRadius) << yCoords[i]
+                      << color
+                      << 0.0f << yOuterRadii[i]
+                      << outerRadius << innerRadius;
 
-                verts.write(bounds.fRight - outerRadius, yCoords[i],
-                            color,
-                            0.0f, yOuterRadii[i],
-                            outerRadius, innerRadius);
+                verts << (bounds.fRight - outerRadius) << yCoords[i]
+                      << color
+                      << 0.0f << yOuterRadii[i]
+                      << outerRadius << innerRadius;
 
-                verts.write(bounds.fRight, yCoords[i],
-                            color,
-                            1.0f, yOuterRadii[i],
-                            outerRadius, innerRadius);
+                verts << bounds.fRight << yCoords[i]
+                      << color
+                      << 1.0f << yOuterRadii[i]
+                      << outerRadius << innerRadius;
             }
             // Add the additional vertices for overstroked rrects.
             // Effectively this is an additional stroked rrect, with its
@@ -3060,29 +3060,29 @@ private:
 
             auto maybeScale = GrVertexWriter::If(fUseScale, std::max(rrect.fXRadius, rrect.fYRadius));
             for (int i = 0; i < 4; ++i) {
-                verts.write(bounds.fLeft, yCoords[i],
-                            color,
-                            xMaxOffset, yOuterOffsets[i],
-                            maybeScale,
-                            reciprocalRadii);
+                verts << bounds.fLeft << yCoords[i]
+                      << color
+                      << xMaxOffset << yOuterOffsets[i]
+                      << maybeScale
+                      << reciprocalRadii;
 
-                verts.write(bounds.fLeft + xOuterRadius, yCoords[i],
-                            color,
-                            SK_ScalarNearlyZero, yOuterOffsets[i],
-                            maybeScale,
-                            reciprocalRadii);
+                verts << (bounds.fLeft + xOuterRadius) << yCoords[i]
+                      << color
+                      << SK_ScalarNearlyZero << yOuterOffsets[i]
+                      << maybeScale
+                      << reciprocalRadii;
 
-                verts.write(bounds.fRight - xOuterRadius, yCoords[i],
-                            color,
-                            SK_ScalarNearlyZero, yOuterOffsets[i],
-                            maybeScale,
-                            reciprocalRadii);
+                verts << (bounds.fRight - xOuterRadius) << yCoords[i]
+                      << color
+                      << SK_ScalarNearlyZero << yOuterOffsets[i]
+                      << maybeScale
+                      << reciprocalRadii;
 
-                verts.write(bounds.fRight, yCoords[i],
-                            color,
-                            xMaxOffset, yOuterOffsets[i],
-                            maybeScale,
-                            reciprocalRadii);
+                verts << bounds.fRight << yCoords[i]
+                      << color
+                      << xMaxOffset << yOuterOffsets[i]
+                      << maybeScale
+                      << reciprocalRadii;
             }
         }
         fMesh = helper.mesh();

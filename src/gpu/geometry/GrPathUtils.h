@@ -141,7 +141,7 @@ inline void writeLineAsCubic(SkPoint startPt, SkPoint endPt, GrVertexWriter* wri
     float2 p0 = bit_pun<float2>(startPt);
     float2 p1 = bit_pun<float2>(endPt);
     float2 v = (p1 - p0) * (1/3.f);
-    writer->write(p0, p0 + v, p1 - v, p1);
+    *writer << p0 << (p0 + v) << (p1 - v) << p1;
 }
 
 // Converts the given quadratic bezier to a cubic.
@@ -151,7 +151,7 @@ inline void writeQuadAsCubic(const SkPoint p[3], GrVertexWriter* writer) {
     float2 p1 = bit_pun<float2>(p[1]);
     float2 p2 = bit_pun<float2>(p[2]);
     float2 c = p1 * (2/3.f);
-    writer->write(p0, p0*(1/3.f) + c, p2 * (1/3.f) + c, p2);
+    *writer << p0 << (p0*(1/3.f) + c) << (p2 * (1/3.f) + c) << p2;
 }
 inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
     GrVertexWriter writer(out);

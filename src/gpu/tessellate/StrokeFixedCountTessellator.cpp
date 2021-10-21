@@ -127,8 +127,8 @@ public:
             // The shader interprets an empty stroke + empty join as a special case that denotes a
             // circle, or 180-degree point stroke.
             writer.fill(location, 5);
-            writer.write(GrVertexWriter::If(!fShaderCaps->infinitySupport(),
-                                            GrTessellationShader::kCubicCurveType));
+            writer << GrVertexWriter::If(!fShaderCaps->infinitySupport(),
+                                         GrTessellationShader::kCubicCurveType);
             this->writeDynamicAttribs(&writer);
         }
     }
@@ -197,9 +197,9 @@ private:
             fHasLastControlPoint = true;
         } else if (GrVertexWriter writer = fChunkBuilder.appendVertex()) {
             writer.writeArray(p, 4);
-            writer.write(fLastControlPoint);
-            writer.write(GrVertexWriter::If(!fShaderCaps->infinitySupport(),
-                                            curveTypeIfUnsupportedInfinity));
+            writer << fLastControlPoint
+                   << GrVertexWriter::If(!fShaderCaps->infinitySupport(),
+                                         curveTypeIfUnsupportedInfinity);
             this->writeDynamicAttribs(&writer);
         }
         fLastControlPoint = endControlPoint;
@@ -207,10 +207,10 @@ private:
 
     SK_ALWAYS_INLINE void writeDynamicAttribs(GrVertexWriter* writer) {
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
-            writer->write(fDynamicStroke);
+            *writer << fDynamicStroke;
         }
         if (fShaderFlags & ShaderFlags::kDynamicColor) {
-            writer->write(fDynamicColor);
+            *writer << fDynamicColor;
         }
     }
 

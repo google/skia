@@ -447,12 +447,12 @@ void DrawVerticesOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
         SkPoint* posBase = (SkPoint*)verts.fPtr;
 
         for (int i = 0; i < vertexCount; ++i) {
-            verts.write(positions[i]);
+            verts << positions[i];
             if (hasColorAttribute) {
-                verts.write(mesh.hasPerVertexColors() ? colors[i] : meshColor);
+                verts << (mesh.hasPerVertexColors() ? colors[i] : meshColor);
             }
             if (hasLocalCoordsAttribute) {
-                verts.write(localCoords[i]);
+                verts << localCoords[i];
             }
         }
 

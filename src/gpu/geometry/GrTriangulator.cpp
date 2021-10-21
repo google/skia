@@ -82,10 +82,10 @@ bool GrTriangulator::Comparator::sweep_lt(const SkPoint& a, const SkPoint& b) co
 
 static inline void* emit_vertex(Vertex* v, bool emitCoverage, void* data) {
     GrVertexWriter verts{data};
-    verts.write(v->fPoint);
+    verts << v->fPoint;
 
     if (emitCoverage) {
-        verts.write(GrNormalizeByteToFloat(v->fAlpha));
+        verts << GrNormalizeByteToFloat(v->fAlpha);
     }
 
     return verts.fPtr;

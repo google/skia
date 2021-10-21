@@ -48,31 +48,33 @@ void write_quad_generic(GrVertexWriter* vb,
     for (int i = 0; i < 4; ++i) {
         // save position, this is a float2 or float3 or float4 depending on the combination of
         // perspective and coverage mode.
-        vb->write(deviceQuad->x(i), deviceQuad->y(i),
-                  If(spec.deviceQuadType() == GrQuad::Type::kPerspective, deviceQuad->w(i)),
-                  If(mode == CoverageMode::kWithPosition, coverage[i]));
+        *vb << deviceQuad->x(i)
+            << deviceQuad->y(i)
+            << If(spec.deviceQuadType() == GrQuad::Type::kPerspective, deviceQuad->w(i))
+            << If(mode == CoverageMode::kWithPosition, coverage[i]);
 
         // save color
         if (spec.hasVertexColors()) {
             bool wide = spec.colorType() == ColorType::kFloat;
-            vb->write(GrVertexColor(color * (mode == CoverageMode::kWithColor ? coverage[i] : 1.f),
-                                    wide));
+            *vb << GrVertexColor(color * (mode == CoverageMode::kWithColor ? coverage[i] : 1.f),
+                                 wide);
         }
 
         // save local position
         if (spec.hasLocalCoords()) {
-            vb->write(localQuad->x(i), localQuad->y(i),
-                      If(spec.localQuadType() == GrQuad::Type::kPerspective, localQuad->w(i)));
+            *vb << localQuad->x(i)
+                << localQuad->y(i)
+                << If(spec.localQuadType() == GrQuad::Type::kPerspective, localQuad->w(i));
         }
 
         // save the geometry subset
         if (spec.requiresGeometrySubset()) {
-            vb->write(geomSubset);
+            *vb << geomSubset;
         }
 
         // save the texture subset
         if (spec.hasSubset()) {
-            vb->write(texSubset);
+            *vb << texSubset;
         }
     }
 }
@@ -106,7 +108,9 @@ void write_2d_color(GrVertexWriter* vb,
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
         SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
-        vb->write(deviceQuad->x(i), deviceQuad->y(i), GrVertexColor(color * coverage[i], wide));
+        *vb << deviceQuad->x(i)
+            << deviceQuad->y(i)
+            << GrVertexColor(color * coverage[i], wide);
     }
 }
 
@@ -130,7 +134,10 @@ void write_2d_uv(GrVertexWriter* vb,
     SkASSERT(localQuad);
 
     for (int i = 0; i < 4; ++i) {
-        vb->write(deviceQuad->x(i), deviceQuad->y(i), localQuad->x(i), localQuad->y(i));
+        *vb << deviceQuad->x(i)
+            << deviceQuad->y(i)
+            << localQuad->x(i)
+            << localQuad->y(i);
     }
 }
 
@@ -158,8 +165,11 @@ void write_2d_color_uv(GrVertexWriter* vb,
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
         SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
-        vb->write(deviceQuad->x(i), deviceQuad->y(i), GrVertexColor(color * coverage[i], wide),
-                  localQuad->x(i), localQuad->y(i));
+        *vb << deviceQuad->x(i)
+            << deviceQuad->y(i)
+            << GrVertexColor(color * coverage[i], wide)
+            << localQuad->x(i)
+            << localQuad->y(i);
     }
 }
 
@@ -183,8 +193,11 @@ void write_2d_cov_uv(GrVertexWriter* vb,
     SkASSERT(localQuad);
 
     for (int i = 0; i < 4; ++i) {
-        vb->write(deviceQuad->x(i), deviceQuad->y(i), coverage[i],
-                  localQuad->x(i), localQuad->y(i));
+        *vb << deviceQuad->x(i)
+            << deviceQuad->y(i)
+            << coverage[i]
+            << localQuad->x(i)
+            << localQuad->y(i);
     }
 }
 
@@ -214,7 +227,11 @@ void write_2d_uv_strict(GrVertexWriter* vb,
     SkASSERT(localQuad);
 
     for (int i = 0; i < 4; ++i) {
-        vb->write(deviceQuad->x(i), deviceQuad->y(i), localQuad->x(i), localQuad->y(i), texSubset);
+        *vb << deviceQuad->x(i)
+            << deviceQuad->y(i)
+            << localQuad->x(i)
+            << localQuad->y(i)
+            << texSubset;
     }
 }
 
@@ -242,8 +259,12 @@ void write_2d_color_uv_strict(GrVertexWriter* vb,
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
         SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
-        vb->write(deviceQuad->x(i), deviceQuad->y(i), GrVertexColor(color * coverage[i], wide),
-                  localQuad->x(i), localQuad->y(i), texSubset);
+        *vb << deviceQuad->x(i)
+            << deviceQuad->y(i)
+            << GrVertexColor(color * coverage[i], wide)
+            << localQuad->x(i)
+            << localQuad->y(i)
+            << texSubset;
     }
 }
 
@@ -267,8 +288,12 @@ void write_2d_cov_uv_strict(GrVertexWriter* vb,
     SkASSERT(localQuad);
 
     for (int i = 0; i < 4; ++i) {
-        vb->write(deviceQuad->x(i), deviceQuad->y(i), coverage[i],
-                  localQuad->x(i), localQuad->y(i), texSubset);
+        *vb << deviceQuad->x(i)
+            << deviceQuad->y(i)
+            << coverage[i]
+            << localQuad->x(i)
+            << localQuad->y(i)
+            << texSubset;
     }
 }
 

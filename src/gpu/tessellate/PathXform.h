@@ -47,11 +47,11 @@ public:
 
     SK_ALWAYS_INLINE void map2Points(GrVertexWriter* writer, const SkPoint pts[2]) const {
         float4 p = float4::Load(pts);
-        writer->write(fScale * p + (fSkew * skvx::shuffle<1,0,3,2>(p) + fTrans));
+        *writer << (fScale * p + (fSkew * skvx::shuffle<1,0,3,2>(p) + fTrans));
     }
 
     SK_ALWAYS_INLINE void map3Points(GrVertexWriter* writer, const SkPoint pts[3]) const {
-        writer->write(this->mapPoint(pts[0]));
+        *writer << this->mapPoint(pts[0]);
         this->map2Points(writer, pts + 1);
     }
 
@@ -67,7 +67,7 @@ public:
         float2 p0 = this->mapPoint(skvx::bit_pun<float2>(startPt));
         float2 p1 = this->mapPoint(skvx::bit_pun<float2>(endPt));
         float2 v = (p1 - p0) * (1/3.f);
-        writer->write(p0, p0 + v, p1 - v, p1);
+        *writer << p0 << (p0 + v) << (p1 - v) << p1;
     }
 
     // Emits a degenerate, 4-point transformed bezier equal to a quadratic.
@@ -76,7 +76,7 @@ public:
         float2 p1 = this->mapPoint(skvx::bit_pun<float2>(pts[1]));
         float2 p2 = this->mapPoint(skvx::bit_pun<float2>(pts[2]));
         float2 c = p1 * (2/3.f);
-        writer->write(p0, p0 * 1/3.f + c, p2 * 1/3.f + c, p2);
+        *writer << p0 << (p0 * 1/3.f + c) << (p2 * 1/3.f + c) << p2;
     }
 
     // Writes out the 3 conic points transformed, plus a 4th point with the conic weight in x and
@@ -85,7 +85,7 @@ public:
                                           const SkPoint pts[3],
                                           float w) const {
         this->map3Points(writer, pts);
-        writer->write(w, GrVertexWriter::kIEEE_32_infinity);
+        *writer << w << GrVertexWriter::kIEEE_32_infinity;
     }
 
 private:

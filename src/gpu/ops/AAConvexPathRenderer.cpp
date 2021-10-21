@@ -398,10 +398,10 @@ void create_vertices(const SegmentArray& segments,
         // FIXME: These tris are inset in the 1 unit arc around the corner
         SkPoint p0 = sega.endPt();
         // Position, Color, UV, D0, D1
-        verts.write(p0,                  color, SkPoint{0, 0},           negOneDists);
-        verts.write(p0 + sega.endNorm(), color, SkPoint{0, -SK_Scalar1}, negOneDists);
-        verts.write(p0 + segb.fMid,      color, SkPoint{0, -SK_Scalar1}, negOneDists);
-        verts.write(p0 + segb.fNorms[0], color, SkPoint{0, -SK_Scalar1}, negOneDists);
+        verts << p0                    << color << SkPoint{0, 0}           << negOneDists;
+        verts << (p0 + sega.endNorm()) << color << SkPoint{0, -SK_Scalar1} << negOneDists;
+        verts << (p0 + segb.fMid)      << color << SkPoint{0, -SK_Scalar1} << negOneDists;
+        verts << (p0 + segb.fNorms[0]) << color << SkPoint{0, -SK_Scalar1} << negOneDists;
 
         idxs[*i + 0] = *v + 0;
         idxs[*i + 1] = *v + 2;
@@ -420,11 +420,11 @@ void create_vertices(const SegmentArray& segments,
             SkPoint v2Pos = segb.fPts[0];
             SkScalar dist = SkPointPriv::DistanceToLineBetween(fanPt, v1Pos, v2Pos);
 
-            verts.write(fanPt,                  color, SkPoint{0, dist},        negOneDists);
-            verts.write(v1Pos,                  color, SkPoint{0, 0},           negOneDists);
-            verts.write(v2Pos,                  color, SkPoint{0, 0},           negOneDists);
-            verts.write(v1Pos + segb.fNorms[0], color, SkPoint{0, -SK_Scalar1}, negOneDists);
-            verts.write(v2Pos + segb.fNorms[0], color, SkPoint{0, -SK_Scalar1}, negOneDists);
+            verts << fanPt                    << color << SkPoint{0, dist}        << negOneDists;
+            verts << v1Pos                    << color << SkPoint{0, 0}           << negOneDists;
+            verts << v2Pos                    << color << SkPoint{0, 0}           << negOneDists;
+            verts << (v1Pos + segb.fNorms[0]) << color << SkPoint{0, -SK_Scalar1} << negOneDists;
+            verts << (v2Pos + segb.fNorms[0]) << color << SkPoint{0, -SK_Scalar1} << negOneDists;
 
             idxs[*i + 0] = *v + 3;
             idxs[*i + 1] = *v + 1;
@@ -474,32 +474,32 @@ void create_vertices(const SegmentArray& segments,
             GrPathUtils::QuadUVMatrix toUV(qpts);
             toUV.apply(posAndUVPoints, 6, sizeof(PosAndUV), sizeof(SkPoint));
 
-            verts.write(posAndUVPoints[0].fPos, color, posAndUVPoints[0].fUV,
-                        -segb.fNorms[0].dot(fanPt) + c0,
-                        -segb.fNorms[1].dot(fanPt) + c1);
+            verts << posAndUVPoints[0].fPos << color << posAndUVPoints[0].fUV
+                  << (-segb.fNorms[0].dot(fanPt) + c0)
+                  << (-segb.fNorms[1].dot(fanPt) + c1);
 
-            verts.write(posAndUVPoints[1].fPos, color, posAndUVPoints[1].fUV,
-                        0.0f,
-                        -segb.fNorms[1].dot(qpts[0]) + c1);
+            verts << posAndUVPoints[1].fPos << color << posAndUVPoints[1].fUV
+                  << 0.0f
+                  << (-segb.fNorms[1].dot(qpts[0]) + c1);
 
-            verts.write(posAndUVPoints[2].fPos, color, posAndUVPoints[2].fUV,
-                        -segb.fNorms[0].dot(qpts[2]) + c0,
-                        0.0f);
+            verts << posAndUVPoints[2].fPos << color << posAndUVPoints[2].fUV
+                  << (-segb.fNorms[0].dot(qpts[2]) + c0)
+                  << 0.0f;
             // We need a negative value that is very large that it won't effect results if it is
             // interpolated with. However, the value can't be too large of a negative that it
             // effects numerical precision on less powerful GPUs.
             static const SkScalar kStableLargeNegativeValue = -SK_ScalarMax/1000000;
-            verts.write(posAndUVPoints[3].fPos, color, posAndUVPoints[3].fUV,
-                        kStableLargeNegativeValue,
-                        kStableLargeNegativeValue);
+            verts << posAndUVPoints[3].fPos << color << posAndUVPoints[3].fUV
+                  << kStableLargeNegativeValue
+                  << kStableLargeNegativeValue;
 
-            verts.write(posAndUVPoints[4].fPos, color, posAndUVPoints[4].fUV,
-                        kStableLargeNegativeValue,
-                        kStableLargeNegativeValue);
+            verts << posAndUVPoints[4].fPos << color << posAndUVPoints[4].fUV
+                  << kStableLargeNegativeValue
+                  << kStableLargeNegativeValue;
 
-            verts.write(posAndUVPoints[5].fPos, color, posAndUVPoints[5].fUV,
-                        kStableLargeNegativeValue,
-                        kStableLargeNegativeValue);
+            verts << posAndUVPoints[5].fPos << color << posAndUVPoints[5].fUV
+                  << kStableLargeNegativeValue
+                  << kStableLargeNegativeValue;
 
             idxs[*i + 0] = *v + 3;
             idxs[*i + 1] = *v + 1;

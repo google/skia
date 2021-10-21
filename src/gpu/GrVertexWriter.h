@@ -8,19 +8,18 @@
 #ifndef GrVertexWriter_DEFINED
 #define GrVertexWriter_DEFINED
 
+#include "include/private/SkNx.h"
 #include "include/private/SkTemplates.h"
-#include "src/gpu/GrColor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include <type_traits>
 
 /**
  * Helper for writing vertex data to a buffer. Usage:
  *  GrVertexWriter vertices{target->makeVertexSpace(...)};
- *  vertices.write(A0, B0, C0, ...);
- *  vertices.write(A1, B1, C1, ...);
+ *  vertices << A0 << B0 << C0 << ...;
+ *  vertices << A1 << B1 << C1 << ...;
  *
- * Supports any number of arguments. Each argument must be POD (plain old data), or an array
- * thereof.
+ * Each value must be POD (plain old data), or have a specialization of the "<<" operator.
  */
 struct GrVertexWriter {
     inline constexpr static uint32_t kIEEE_32_infinity = 0x7f800000;
@@ -47,73 +46,18 @@ struct GrVertexWriter {
     }
 
     template <typename T>
-    class Conditional {
-    public:
-        explicit Conditional(bool condition, const T& value)
-            : fCondition(condition), fValue(value) {}
-    private:
-        friend struct GrVertexWriter;
-
+    struct Conditional {
         bool fCondition;
         T fValue;
     };
 
     template <typename T>
     static Conditional<T> If(bool condition, const T& value) {
-        return Conditional<T>(condition, value);
+        return {condition, value};
     }
 
     template <typename T>
     struct Skip {};
-
-    template <typename T, typename... Args>
-    void write(const T& val, const Args&... remainder) {
-        static_assert(std::is_pod<T>::value, "");
-        memcpy(fPtr, &val, sizeof(T));
-        fPtr = SkTAddOffset<void>(fPtr, sizeof(T));
-        this->write(remainder...);
-    }
-
-    template <typename T, size_t N, typename... Args>
-    void write(const T(&val)[N], const Args&... remainder) {
-        static_assert(std::is_pod<T>::value, "");
-        memcpy(fPtr, val, N * sizeof(T));
-        fPtr = SkTAddOffset<void>(fPtr, N * sizeof(T));
-        this->write(remainder...);
-    }
-
-    template <typename... Args>
-    void write(const GrVertexColor& color, const Args&... remainder) {
-        this->write(color.fColor[0]);
-        if (color.fWideColor) {
-            this->write(color.fColor[1]);
-            this->write(color.fColor[2]);
-            this->write(color.fColor[3]);
-        }
-        this->write(remainder...);
-    }
-
-    template <typename T, typename... Args>
-    void write(const Conditional<T>& val, const Args&... remainder) {
-        if (val.fCondition) {
-            this->write(val.fValue);
-        }
-        this->write(remainder...);
-    }
-
-    template <typename T, typename... Args>
-    void write(const Skip<T>& val, const Args&... remainder) {
-        fPtr = SkTAddOffset<void>(fPtr, sizeof(T));
-        this->write(remainder...);
-    }
-
-    template <typename... Args>
-    void write(const Sk4f& vector, const Args&... remainder) {
-        float buffer[4];
-        vector.store(buffer);
-        this->write<float, 4>(buffer);
-        this->write(remainder...);
-    }
 
     template <typename T>
     void writeArray(const T* array, int count) {
@@ -125,16 +69,9 @@ struct GrVertexWriter {
     template <typename T>
     void fill(const T& val, int repeatCount) {
         for (int i = 0; i < repeatCount; ++i) {
-            this->write(val);
+            *this << val;
         }
     }
-
-    void writeRaw(const void* data, size_t size) {
-        memcpy(fPtr, data, size);
-        fPtr = SkTAddOffset<void>(fPtr, size);
-    }
-
-    void write() {}
 
     /**
      * Specialized utility for writing a four-vertices, with some data being replicated at each
@@ -174,6 +111,8 @@ struct GrVertexWriter {
     }
 
 private:
+    template<typename T> friend GrVertexWriter& operator<<(GrVertexWriter&, const T&);
+
     template <int corner, typename T, typename... Args>
     void writeQuadVert(const T& val, const Args&... remainder) {
         this->writeQuadValue<corner>(val);
@@ -185,33 +124,63 @@ private:
 
     template <int corner, typename T>
     void writeQuadValue(const T& val) {
-        this->write(val);
+        *this << val;
     }
 
     template <int corner, typename T>
     void writeQuadValue(const TriStrip<T>& r) {
         switch (corner) {
-            case 0: this->write(r.l, r.t); break;
-            case 1: this->write(r.l, r.b); break;
-            case 2: this->write(r.r, r.t); break;
-            case 3: this->write(r.r, r.b); break;
+            case 0: *this << r.l << r.t; break;
+            case 1: *this << r.l << r.b; break;
+            case 2: *this << r.r << r.t; break;
+            case 3: *this << r.r << r.b; break;
         }
     }
 
     template <int corner, typename T>
     void writeQuadValue(const TriFan<T>& r) {
         switch (corner) {
-        case 0: this->write(r.l, r.t); break;
-        case 1: this->write(r.l, r.b); break;
-        case 2: this->write(r.r, r.b); break;
-        case 3: this->write(r.r, r.t); break;
+            case 0: *this << r.l << r.t; break;
+            case 1: *this << r.l << r.b; break;
+            case 2: *this << r.r << r.b; break;
+            case 3: *this << r.r << r.t; break;
         }
     }
 
     template <int corner>
     void writeQuadValue(const GrQuad& q) {
-        this->write(q.point(corner));
+        *this << q.point(corner);
     }
 };
+
+template <typename T>
+inline GrVertexWriter& operator<<(GrVertexWriter& w, const T& val) {
+    static_assert(std::is_pod<T>::value, "");
+    memcpy(w.fPtr, &val, sizeof(T));
+    w = w.makeOffset(sizeof(T));
+    return w;
+}
+
+template <typename T>
+inline GrVertexWriter& operator<<(GrVertexWriter& w, const GrVertexWriter::Conditional<T>& val) {
+    static_assert(std::is_pod<T>::value, "");
+    if (val.fCondition) {
+        w << val.fValue;
+    }
+    return w;
+}
+
+template <typename T>
+inline GrVertexWriter& operator<<(GrVertexWriter& w, const GrVertexWriter::Skip<T>& val) {
+    w = w.makeOffset(sizeof(T));
+    return w;
+}
+
+template <>
+SK_MAYBE_UNUSED inline GrVertexWriter& operator<<(GrVertexWriter& w, const Sk4f& vector) {
+    vector.store(w.fPtr);
+    w = w.makeOffset(sizeof(vector));
+    return w;
+}
 
 #endif

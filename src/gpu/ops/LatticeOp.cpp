@@ -300,22 +300,22 @@ private:
                     // However, mapRectToQuad returns them in the order:
                     // left-top, right-top, right-bottom, left-bottom
                     // Thus we write out the vertices to match the writeQuad path.
-                    vertices.write(mappedPts[0],
-                                   SkPoint::Make(texCoords.fLeft, texCoords.fTop),
-                                   texDomain,
-                                   patchColor);
-                    vertices.write(mappedPts[3],
-                                   SkPoint::Make(texCoords.fLeft, texCoords.fBottom),
-                                   texDomain,
-                                   patchColor);
-                    vertices.write(mappedPts[1],
-                                   SkPoint::Make(texCoords.fRight, texCoords.fTop),
-                                   texDomain,
-                                   patchColor);
-                    vertices.write(mappedPts[2],
-                                   SkPoint::Make(texCoords.fRight, texCoords.fBottom),
-                                   texDomain,
-                                   patchColor);
+                    vertices << mappedPts[0]
+                             << SkPoint::Make(texCoords.fLeft, texCoords.fTop)
+                             << texDomain
+                             << patchColor;
+                    vertices << mappedPts[3]
+                             << SkPoint::Make(texCoords.fLeft, texCoords.fBottom)
+                             << texDomain
+                             << patchColor;
+                    vertices << mappedPts[1]
+                             << SkPoint::Make(texCoords.fRight, texCoords.fTop)
+                             << texDomain
+                             << patchColor;
+                    vertices << mappedPts[2]
+                             << SkPoint::Make(texCoords.fRight, texCoords.fBottom)
+                             << texDomain
+                             << patchColor;
                 }
             }
         }
@@ -419,9 +419,9 @@ GrOp::Owner MakeNonAA(GrRecordingContext* context,
 static void init_random_divs(int divs[], int count, int subsetStart, int subsetStop,
                              SkRandom* random) {
     // Rules for lattice divs: Must be strictly increasing and in the range
-    // [subsetStart, subsetStop).
+    // [subsetStart, subsetStop.
     // Not terribly efficient alg for generating random divs:
-    // 1) Start with minimum legal pixels between each div.
+    // 1 Start with minimum legal pixels between each div.
     // 2) Randomly assign the remaining pixels of the subset to divs.
     // 3) Convert from pixel counts to div offsets.
 

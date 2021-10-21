@@ -196,8 +196,8 @@ void GrPathTessellationShader::InitializeVertexBufferForMiddleOutCurves(GrVertex
     //    ...                    ; resolveLevel=...
     //
     // Resolve level 0 is just the beginning and ending vertices.
-    vertexWriter.write<float, float>(0/*resolveLevel*/, 0/*idx*/);
-    vertexWriter.write<float, float>(0/*resolveLevel*/, 1/*idx*/);
+    vertexWriter << (float)0/*resolveLevel*/ << (float)0/*idx*/;
+    vertexWriter << (float)0/*resolveLevel*/ << (float)1/*idx*/;
 
     // Resolve levels 1..kMaxResolveLevel.
     int maxResolveLevel = SkPrevLog2(vertexCount - 1);
@@ -207,7 +207,7 @@ void GrPathTessellationShader::InitializeVertexBufferForMiddleOutCurves(GrVertex
         // Write out the odd vertices in this resolveLevel. The even vertices were already written
         // out in previous resolveLevels and will be indexed from there.
         for (int i = 1; i < numSegmentsInResolveLevel; i += 2) {
-            vertexWriter.write<float, float>(resolveLevel, i);
+            vertexWriter << (float)resolveLevel << (float)i;
         }
     }
 
@@ -218,7 +218,7 @@ void GrPathTessellationShader::InitializeVertexBufferForMiddleOutWedges(GrVertex
                                                                         size_t bufferSize) {
     SkASSERT(bufferSize >= kMiddleOutVertexStride);
     // Start out with the fan point. A negative resolve level indicates the fan point.
-    vertexWriter.write<float, float>(-1/*resolveLevel*/, -1/*idx*/);
+    vertexWriter << (float)-1/*resolveLevel*/ << (float)-1/*idx*/;
 
     InitializeVertexBufferForMiddleOutCurves(std::move(vertexWriter),
                                              bufferSize - kMiddleOutVertexStride);
@@ -277,7 +277,7 @@ void GrPathTessellationShader::InitializeIndexBufferForMiddleOutWedges(GrVertexW
                                                                        size_t bufferSize) {
     SkASSERT(bufferSize >= sizeof(uint16_t) * 3);
     // Start out with the fan triangle.
-    vertexWriter.write<uint16_t, uint16_t, uint16_t>(0, 1, 2);
+    vertexWriter << (uint16_t)0 << (uint16_t)1 << (uint16_t)2;
 
     fill_index_buffer_for_curves(std::move(vertexWriter), bufferSize - sizeof(uint16_t) * 3, 1);
 }

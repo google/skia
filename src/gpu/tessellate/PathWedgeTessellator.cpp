@@ -149,9 +149,9 @@ public:
                                          SkPoint midpoint) {
         if (GrVertexWriter vertexWriter = fChunker.appendVertex()) {
             fPathXform.mapLineToCubic(&vertexWriter, p0, p1);
-            vertexWriter.write(midpoint);
-            vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                                  GrTessellationShader::kCubicCurveType));
+            vertexWriter << midpoint
+                         << GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                               GrTessellationShader::kCubicCurveType);
         }
     }
 
@@ -165,9 +165,9 @@ public:
         }
         if (GrVertexWriter vertexWriter = fChunker.appendVertex()) {
             fPathXform.mapQuadToCubic(&vertexWriter, p);
-            vertexWriter.write(midpoint);
-            vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                                  GrTessellationShader::kCubicCurveType));
+            vertexWriter << midpoint
+                         << GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                               GrTessellationShader::kCubicCurveType);
         }
         fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
     }
@@ -183,9 +183,9 @@ public:
         }
         if (GrVertexWriter vertexWriter = fChunker.appendVertex()) {
             fPathXform.mapConicToPatch(&vertexWriter, p, w);
-            vertexWriter.write(midpoint);
-            vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                                  GrTessellationShader::kConicCurveType));
+            vertexWriter << midpoint
+                         << GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                               GrTessellationShader::kConicCurveType);
         }
         fNumFixedSegments_pow4 = std::max(numSegments_pow2 * numSegments_pow2,
                                           fNumFixedSegments_pow4);
@@ -201,9 +201,9 @@ public:
         }
         if (GrVertexWriter vertexWriter = fChunker.appendVertex()) {
             fPathXform.map4Points(&vertexWriter, p);
-            vertexWriter.write(midpoint);
-            vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                                  GrTessellationShader::kCubicCurveType));
+            vertexWriter << midpoint
+                         << GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                               GrTessellationShader::kCubicCurveType);
         }
         fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
     }

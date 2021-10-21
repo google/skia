@@ -195,11 +195,10 @@ void DrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
                 fProgram->geomProc().instanceStride(), fInstanceCount, &fInstanceBuffer,
                 &fBaseInstance)) {
         for (const Instance* i = fHeadInstance; i; i = i->fNext) {
-            instanceWriter.write(
-                    SkRect::Make(i->fFillBounds),
-                    GrVertexWriter::If(fUsesLocalCoords,
-                                       i->fLocalToDeviceIfUsingLocalCoords),
-                    i->fColor);
+            instanceWriter << SkRect::Make(i->fFillBounds)
+                           << GrVertexWriter::If(fUsesLocalCoords,
+                                                 i->fLocalToDeviceIfUsingLocalCoords)
+                           << i->fColor;
             fAtlasHelper.writeInstanceData(&instanceWriter, &i->fAtlasInstance);
         }
     }

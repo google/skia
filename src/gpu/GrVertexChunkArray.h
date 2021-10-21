@@ -8,6 +8,7 @@
 #ifndef GrVertexChunkArray_DEFINED
 #define GrVertexChunkArray_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrBuffer.h"
