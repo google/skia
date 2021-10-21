@@ -14,8 +14,6 @@
   {"name": "Build-Debian10-Clang-arm-Debug-Android",
    "cq_config": {}
    },
-  {"name": "Build-Debian10-Clang-arm-Debug-Android_ASAN"},
-  {"name": "Build-Debian10-Clang-arm-Debug-Android_ASAN_Vulkan"},
   {"name": "Build-Debian10-Clang-arm-Debug-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-arm-Debug-Chromebook_GLES"},
   {"name": "Build-Debian10-Clang-arm-Release-Android"},
@@ -28,8 +26,6 @@
    "cq_config": {}
    },
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_API30"},
-  {"name": "Build-Debian10-Clang-arm64-Debug-Android_ASAN"},
-  {"name": "Build-Debian10-Clang-arm64-Debug-Android_ASAN_Vulkan"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_HWASAN"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android"},
@@ -404,8 +400,6 @@
   {"name": "Test-Android-Clang-P30-GPU-MaliG76-arm64-Debug-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android"},
   {"name": "Test-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan"},
-  {"name": "Test-Android-Clang-Pixel2XL-CPU-Snapdragon835-arm-Debug-All-Android_ASAN"},
-  {"name": "Test-Android-Clang-Pixel2XL-CPU-Snapdragon835-arm64-Debug-All-Android_ASAN"},
   {"name": "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android"},
   {"name": "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android"},
