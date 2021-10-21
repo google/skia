@@ -2577,6 +2577,16 @@ export type Shader = EmbindObject<Shader>;
 
 export interface Surface extends EmbindObject<Surface> {
     /**
+     * A convenient way to draw exactly once on the canvas associated with this surface.
+     * This requires an environment where a global function called requestAnimationFrame is
+     * available (e.g. on the web, not on Node). Users do not need to flush the surface,
+     * or delete/dispose of it as that is taken care of automatically with this wrapper.
+     *
+     * Node users should call getCanvas() and work with that canvas directly.
+     */
+    drawOnce(drawFrame: (_: Canvas) => void): void;
+
+    /**
      * Clean up the surface and any extra memory.
      * [Deprecated]: In the future, calls to delete() will be sufficient to clean up the memory.
      */
@@ -2643,6 +2653,19 @@ export interface Surface extends EmbindObject<Surface> {
      * Returns if this Surface is a GPU-backed surface or not.
      */
     reportBackendTypeIsGPU(): boolean;
+
+    /**
+     * A convenient way to draw multiple frames on the canvas associated with this surface.
+     * This requires an environment where a global function called requestAnimationFrame is
+     * available (e.g. on the web, not on Node). Users do not need to flush the surface,
+     * as that is taken care of automatically with this wrapper.
+     *
+     * Users should probably call surface.requestAnimationFrame in the callback function to
+     * draw multiple frames, e.g. of an animation.
+     *
+     * Node users should call getCanvas() and work with that canvas directly.
+     */
+    requestAnimationFrame(drawFrame: (_: Canvas) => void): void;
 
     /**
      * If this surface is GPU-backed, return the sample count of the surface.
@@ -2785,7 +2808,7 @@ export interface TextStyle {
     decoration?: number;
     decorationColor?: InputColor;
     decorationThickness?: number;
-    decrationStyle?: DecorationStyle;
+    decorationStyle?: DecorationStyle;
     fontFamilies?: string[];
     fontFeatures?: TextFontFeatures[];
     fontSize?: number;

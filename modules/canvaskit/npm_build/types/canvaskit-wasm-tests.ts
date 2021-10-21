@@ -545,6 +545,7 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
         color: CK.Color(48, 37, 199),
         fontFamilies: ['Noto Serif'],
         decoration: CK.LineThroughDecoration,
+        decorationStyle: CK.DecorationStyle.Dashed,
         decorationThickness: 1.5, // multiplier based on font size
         fontSize: 24,
         fontFeatures: [{name: 'smcp', value: 1}],
@@ -881,6 +882,12 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
         alphaType: CK.AlphaType.Premul,
         colorSpace: CK.ColorSpace.SRGB,
     });
+
+    const drawFrame = (canvas: Canvas) => {
+        canvas.clear([0, 0, 0, 0]);
+    };
+    surfaceFour.requestAnimationFrame(drawFrame);
+    surfaceFour.drawOnce(drawFrame);
 }
 
 function textBlobTests(CK: CanvasKit, font?: Font, path?: Path) {
