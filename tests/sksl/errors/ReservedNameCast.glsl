@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'cast'
+error: 1: 'cast' is a reserved word
 1 error

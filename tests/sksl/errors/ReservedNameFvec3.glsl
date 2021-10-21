@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'fvec3'
+error: 1: 'fvec3' is a reserved word
 1 error

@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'goto'
+error: 1: 'goto' is a reserved word
 1 error

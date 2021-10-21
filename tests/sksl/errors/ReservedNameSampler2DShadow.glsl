@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'sampler2DShadow'
+error: 1: 'sampler2DShadow' is a reserved word
 1 error

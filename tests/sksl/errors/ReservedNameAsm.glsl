@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'asm'
+error: 1: 'asm' is a reserved word
 1 error

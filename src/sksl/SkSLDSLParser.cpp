@@ -123,13 +123,23 @@ Token DSLParser::nextRawToken() {
 }
 
 Token DSLParser::nextToken() {
-    Token token = this->nextRawToken();
-    while (token.fKind == Token::Kind::TK_WHITESPACE ||
-           token.fKind == Token::Kind::TK_LINE_COMMENT ||
-           token.fKind == Token::Kind::TK_BLOCK_COMMENT) {
-        token = this->nextRawToken();
+    for (;;) {
+        Token token = this->nextRawToken();
+        switch (token.fKind) {
+            case Token::Kind::TK_WHITESPACE:
+            case Token::Kind::TK_LINE_COMMENT:
+            case Token::Kind::TK_BLOCK_COMMENT:
+                continue;
+
+            case Token::Kind::TK_RESERVED:
+                this->error(token, "'" + this->text(token) + "' is a reserved word");
+                token.fKind = Token::Kind::TK_IDENTIFIER;
+                [[fallthrough]];
+
+            default:
+                return token;
+        }
     }
-    return token;
 }
 
 void DSLParser::pushback(Token t) {

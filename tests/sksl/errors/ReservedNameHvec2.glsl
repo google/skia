@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'hvec2'
+error: 1: 'hvec2' is a reserved word
 1 error

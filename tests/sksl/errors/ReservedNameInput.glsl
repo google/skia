@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'input'
+error: 1: 'input' is a reserved word
 1 error

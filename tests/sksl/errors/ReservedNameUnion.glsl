@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'union'
+error: 1: 'union' is a reserved word
 1 error

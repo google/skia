@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'dvec2'
+error: 1: 'dvec2' is a reserved word
 1 error

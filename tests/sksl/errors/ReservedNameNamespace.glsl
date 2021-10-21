@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: expected an identifier, but found 'namespace'
+error: 1: 'namespace' is a reserved word
 1 error
