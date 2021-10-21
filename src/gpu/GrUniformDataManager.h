@@ -60,8 +60,13 @@ protected:
         );
     };
 
-    template<int N> inline void setMatrices(UniformHandle, int arrayCount,
-                                            const float matrices[]) const;
+    template <int N, GrSLType kFullType, GrSLType kHalfType>
+    inline void set(UniformHandle u, const void* v) const;
+    template <int N, GrSLType kFullType, GrSLType kHalfType>
+    inline void setv(UniformHandle u, int arrayCount, const void* v) const;
+
+    template <int N> inline void setMatrices(UniformHandle, int arrayCount,
+                                             const float matrices[]) const;
 
     void* getBufferPtrAndMarkDirty(const Uniform& uni) const;
 
