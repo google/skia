@@ -259,11 +259,9 @@ void GrUniformDataManager::setMatrix4fv(UniformHandle u, int arrayCount, const f
     this->setMatrices<4>(u, arrayCount, m);
 }
 
-template<int N> struct set_uniform_matrix;
-
-template<int N> inline void GrUniformDataManager::setMatrices(UniformHandle u,
-                                                              int arrayCount,
-                                                              const float matrices[]) const {
+template <int N> inline void GrUniformDataManager::setMatrices(UniformHandle u,
+                                                               int arrayCount,
+                                                               const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat2x2_GrSLType + (N - 2) ||
              uni.fType == kHalf2x2_GrSLType + (N - 2));
@@ -271,16 +269,11 @@ template<int N> inline void GrUniformDataManager::setMatrices(UniformHandle u,
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
-    void* buffer = fUniformData.get();
-    fUniformsDirty = true;
-
-    set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
-}
-
-template<int N> struct set_uniform_matrix {
-    inline static void set(void* buffer, int uniformOffset, int count, const float matrices[]) {
-        buffer = static_cast<char*>(buffer) + uniformOffset;
-        for (int i = 0; i < count; ++i) {
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    if constexpr (N == 4) {
+        memcpy(buffer, matrices, arrayCount * 16 * sizeof(float));
+    } else {
+        for (int i = 0; i < arrayCount; ++i) {
             const float* matrix = &matrices[N * N * i];
             for (int j = 0; j < N; ++j) {
                 memcpy(buffer, &matrix[j * N], N * sizeof(float));
@@ -288,12 +281,4 @@ template<int N> struct set_uniform_matrix {
             }
         }
     }
-};
-
-template<> struct set_uniform_matrix<4> {
-    inline static void set(void* buffer, int uniformOffset, int count, const float matrices[]) {
-        buffer = static_cast<char*>(buffer) + uniformOffset;
-        memcpy(buffer, matrices, count * 16 * sizeof(float));
-    }
-};
-
+}
