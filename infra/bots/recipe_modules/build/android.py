@@ -47,6 +47,8 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_gl'] = 'false'
   if 'ASAN' in extra_tokens:
     args['sanitize'] = '"ASAN"'
+  if 'HWASAN' in extra_tokens:
+    args['sanitize'] = '"HWASAN"'
   if 'Wuffs' in extra_tokens:
     args['skia_use_wuffs'] = 'true'
 

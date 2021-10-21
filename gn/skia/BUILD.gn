@@ -294,6 +294,8 @@ config("default") {
         # TODO(mtklein): work out UBSAN link errors
         sanitizers = "address"
       }
+    } else if (sanitize == "HWASAN") {
+      sanitizers = "hwaddress"
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
     } else if (sanitize == "MSAN") {

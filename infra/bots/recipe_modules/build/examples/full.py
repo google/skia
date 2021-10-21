@@ -37,6 +37,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker',
   'Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker',
   'Build-Debian10-Clang-arm-Release-Flutter_Android',
+  'Build-Debian10-Clang-arm64-Debug-Android_HWASAN',
   'Build-Debian10-Clang-arm64-Release-Android_Wuffs',
   'Build-Debian10-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian10-Clang-x86_64-Debug-Coverage',
