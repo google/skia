@@ -138,7 +138,7 @@ UNIX_ONLY_TEST(SkText_WrappedText_Spaces, reporter) {
     }
 }
 
-DEF_TEST(SkText_WrappedText_LongRTL, reporter) {
+UNIX_ONLY_TEST(SkText_WrappedText_LongRTL, reporter) {
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Noto Naskh Arabic", 40.0f, SkFontStyle::Normal());
     if (fontChain->empty()) return;
 
