@@ -26,6 +26,8 @@ skia_graphite_sources = [
   "$_src/Context.cpp",
   "$_src/ContextPriv.cpp",
   "$_src/ContextPriv.h",
+  "$_src/CopyTask.cpp",
+  "$_src/CopyTask.h",
   "$_src/Device.cpp",
   "$_src/Device.h",
   "$_src/DrawContext.cpp",

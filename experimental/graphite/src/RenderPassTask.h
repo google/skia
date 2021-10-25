@@ -32,6 +32,8 @@ public:
 
     ~RenderPassTask() override;
 
+    void execute(CommandBuffer*) override {}
+
     // TBD: Expose the surfaces that will need to be attached within the renderpass?
 
 private:
