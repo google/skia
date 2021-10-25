@@ -25,16 +25,18 @@ class DrawPass;
  */
 class RenderPassTask final : public Task {
 public:
-    // TODO: 'prior' isn't actually used yet but is here to represent the dependency between a
-    // series of RenderPassTasks.
-    static sk_sp<RenderPassTask> Make(sk_sp<Task> prior,
-                                      std::vector<std::unique_ptr<DrawPass>> passes);
+    static sk_sp<RenderPassTask> Make(std::vector<std::unique_ptr<DrawPass>> passes);
 
     ~RenderPassTask() override;
 
     void execute(CommandBuffer*) override {}
 
     // TBD: Expose the surfaces that will need to be attached within the renderpass?
+
+    // TODO: for task execution, iterate the draw passes (can assume just 1 for sprint?) and
+    // determine RenderPassDesc. Then start the render pass, then iterate passes again and
+    // possibly(?) start each subpass, and call DrawPass::execute() on the command buffer provided
+    // to the task. Then close the render pass and we should have pixels..
 
 private:
     RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes);

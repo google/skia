@@ -11,9 +11,7 @@
 
 namespace skgpu {
 
-sk_sp<RenderPassTask> RenderPassTask::Make(sk_sp<Task> prior,
-                                           std::vector<std::unique_ptr<DrawPass>> passes) {
-    (void) prior; // unused for now, might be newTask.addDependency(prior)?
+sk_sp<RenderPassTask> RenderPassTask::Make(std::vector<std::unique_ptr<DrawPass>> passes) {
     return sk_sp<RenderPassTask>(new RenderPassTask(std::move(passes)));
 }
 

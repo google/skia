@@ -21,8 +21,7 @@ sk_sp<DrawContext> DrawContext::Make(const SkImageInfo& ii) {
 
 DrawContext::DrawContext(const SkImageInfo& ii)
         : fImageInfo(ii)
-        , fPendingDraws(std::make_unique<DrawList>())
-        , fTail(nullptr) {
+        , fPendingDraws(std::make_unique<DrawList>()) {
     // TBD - Will probably want DrawLists (and its internal commands) to come from an arena
     // that the SDC manages.
 }
@@ -83,11 +82,7 @@ sk_sp<Task> DrawContext::snapRenderPassTask(const BoundsManager* occlusionCuller
         return nullptr;
     }
 
-    // TBD: Record automatically into task graph? If so, why return a value? If not, then caller
-    // will need to actually record the task.
-    auto task = RenderPassTask::Make(std::move(fTail), std::move(fDrawPasses));
-    fTail = task;
-    return std::move(task);
+    return RenderPassTask::Make(std::move(fDrawPasses));
 }
 
 } // namespace skgpu
