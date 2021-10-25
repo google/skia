@@ -20,8 +20,8 @@ thread bool operator!=(const float4x2 left, const float4x2 right);
 thread bool operator==(const float4x3 left, const float4x3 right);
 thread bool operator!=(const float4x3 left, const float4x3 right);
 
-template <int C, int R>
-matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, const matrix<float, C, R> b) {
+template <typename T, int C, int R>
+matrix<T, C, R> matrixCompMult(matrix<T, C, R> a, const matrix<T, C, R> b) {
     for (int c = 0; c < C; ++c) {
         a[c] *= b[c];
     }
