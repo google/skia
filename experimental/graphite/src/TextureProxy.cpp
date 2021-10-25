@@ -12,6 +12,9 @@
 
 namespace skgpu {
 
+TextureProxy::TextureProxy(SkISize dimensions, const TextureInfo& info)
+        : fDimensions(dimensions), fInfo(info) {}
+
 TextureProxy::~TextureProxy() {}
 
 bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {

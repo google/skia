@@ -19,8 +19,7 @@ class Texture;
 
 class TextureProxy : public SkRefCnt {
 public:
-    TextureProxy(SkISize dimensions, const TextureInfo& info)
-            : fDimensions(dimensions), fInfo(info) {}
+    TextureProxy(SkISize dimensions, const TextureInfo& info);
 
     ~TextureProxy() override;
 
