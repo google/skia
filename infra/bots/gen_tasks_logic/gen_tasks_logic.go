@@ -793,7 +793,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"Pixel2XL":        {"taimen", "PPR1.180610.009"},
 				"Pixel3":          {"blueline", "PQ1A.190105.004"},
 				"Pixel3a":         {"sargo", "QP1A.190711.020"},
-				"Pixel4":          {"flame", "RPB2.200611.009"}, // R Preview
+				"Pixel4":          {"flame", "RPB2.200611.009"},       // R Preview
 				"Pixel4a":         {"sunfish", "AOSP.MASTER_7819821"}, // Pixel4a flashed with an Android HWASan build.
 				"Pixel4XL":        {"coral", "QD1A.190821.011.C4"},
 				"Pixel5":          {"redfin", "RD1A.200810.022.A4"},
@@ -957,8 +957,10 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			// Use many-core machines for Build tasks.
 			d["machine_type"] = MACHINE_TYPE_LARGE
 		} else if d["os"] == DEFAULT_OS_MAC {
-			// Mac CPU bots.
-			d["cpu"] = "x86-64-E5-2697_v2"
+			// Mac CPU bots are no longer VMs.
+			d["cpu"] = "x86-64"
+			d["cores"] = "12"
+			delete(d, "gpu")
 		}
 	}
 
@@ -1246,12 +1248,6 @@ func (b *jobBuilder) compile() string {
 				}
 				if b.extraConfig("iOS") {
 					b.asset("provisioning_profile_ios")
-				}
-				// See skbug.com/11129 for more
-				if b.compiler("Xcode11.4.1") {
-					b.dimension("reserved_for_xcode_version:11.4.1")
-				} else {
-					b.dimension("reserved_for_xcode_version:newest")
 				}
 			}
 		})
