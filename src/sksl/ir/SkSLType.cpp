@@ -63,6 +63,11 @@ public:
         return fComponentType.isAllowedInES2();
     }
 
+    size_t slotCount() const override {
+        SkASSERT(fCount > 0);
+        return fCount * fComponentType.slotCount();
+    }
+
 private:
     using INHERITED = Type;
 
@@ -129,6 +134,10 @@ public:
         return true;
     }
 
+    size_t slotCount() const override {
+        return 1;
+    }
+
 private:
     using INHERITED = Type;
 
@@ -176,6 +185,10 @@ public:
         return fNumberKind != NumberKind::kUnsigned;
     }
 
+    size_t slotCount() const override {
+        return 1;
+    }
+
 private:
     using INHERITED = Type;
 
@@ -220,6 +233,10 @@ public:
 
     bool isAllowedInES2() const override {
         return fColumns == fRows;
+    }
+
+    size_t slotCount() const override {
+        return fColumns * fRows;
     }
 
 private:
@@ -339,6 +356,14 @@ public:
         });
     }
 
+    size_t slotCount() const override {
+        size_t slots = 0;
+        for (const Field& field : fFields) {
+            slots += field.fType->slotCount();
+        }
+        return slots;
+    }
+
 private:
     using INHERITED = Type;
 
@@ -379,6 +404,10 @@ public:
 
     bool isAllowedInES2() const override {
         return fComponentType.isAllowedInES2();
+    }
+
+    size_t slotCount() const override {
+        return fColumns;
     }
 
 private:
