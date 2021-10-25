@@ -50,6 +50,7 @@ skia_graphite_sources = [
   "$_src/RenderPipeline.h",
   "$_src/RenderPipelineDesc.cpp",
   "$_src/RenderPipelineDesc.h",
+  "$_src/Renderer.h",
   "$_src/ResourceProvider.cpp",
   "$_src/ResourceProvider.h",
   "$_src/SkStuff.cpp",
@@ -74,6 +75,7 @@ skia_graphite_sources = [
   "$_src/geom/Shape.h",
   "$_src/geom/Transform.cpp",
   "$_src/geom/Transform_graphite.h",
+  "$_src/render/StencilAndFillPathRenderer.cpp",
 ]
 
 skia_graphite_mtl_sources = [
