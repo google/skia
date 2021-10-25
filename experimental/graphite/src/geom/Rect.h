@@ -8,7 +8,7 @@
 #ifndef skgpu_geom_Rect_DEFINED
 #define skgpu_geom_Rect_DEFINED
 
-#include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "include/core/SkRect.h"
 
 namespace skgpu {

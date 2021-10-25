@@ -8,7 +8,7 @@
 #ifndef skgpu_Device_DEFINED
 #define skgpu_Device_DEFINED
 
-#include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 
 #include "src/core/SkDevice.h"
 

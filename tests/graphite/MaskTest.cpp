@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "tests/Test.h"
 
 enum class Flags {
