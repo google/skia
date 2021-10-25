@@ -7,8 +7,10 @@
 
 #include "experimental/graphite/src/Image_Graphite.h"
 
+#if SK_SUPPORT_GPU
 // TODO: move onAsFragmentProcessor off of SkImage_Base and remove this include
 #include "src/gpu/GrFragmentProcessor.h"
+#endif
 
 namespace skgpu {
 
@@ -18,6 +20,7 @@ Image_Graphite::Image_Graphite(const SkImageInfo& ii)
 
 Image_Graphite::~Image_Graphite() {}
 
+#if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> Image_Graphite::onAsFragmentProcessor(
         GrRecordingContext*,
         SkSamplingOptions,
@@ -27,5 +30,6 @@ std::unique_ptr<GrFragmentProcessor> Image_Graphite::onAsFragmentProcessor(
         const SkRect* domain) const {
     return nullptr;
 }
+#endif
 
 } // namespace skgpu

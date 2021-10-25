@@ -50,6 +50,7 @@ public:
 protected:
 
 private:
+#if SK_SUPPORT_GPU
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(
             GrRecordingContext*,
             GrMipmapped,
@@ -64,6 +65,7 @@ private:
             const SkMatrix&,
             const SkRect* subset,
             const SkRect* domain) const override;
+#endif
 
 };
 

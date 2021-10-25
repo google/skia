@@ -236,7 +236,7 @@
 #  define SK_SUPPORT_GPU 1
 #endif
 
-#if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED
 #  if !defined(SK_ENABLE_SKSL)
 #    define SK_ENABLE_SKSL
 #  endif

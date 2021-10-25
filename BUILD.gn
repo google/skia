@@ -843,7 +843,7 @@ optional("gpu") {
   public_configs = []
   public_deps = []
 
-  sources = skia_gpu_sources + skia_sksl_gpu_sources
+  sources = skia_gpu_sources + skia_shared_gpu_sources + skia_sksl_gpu_sources
   if (skia_enable_skgpu_v2) {
     sources += skia_skgpu_v2_sources
   }
@@ -1045,7 +1045,7 @@ optional("graphite") {
   enabled = skia_enable_graphite
   public_defines = [ "SK_GRAPHITE_ENABLED" ]
   public = skia_graphite_public
-  sources = skia_graphite_sources
+  sources = skia_graphite_sources + skia_shared_gpu_sources
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_graphite_mtl_sources
