@@ -21,7 +21,7 @@ public abstract class FontChain {
     }
 
     abstract int count();
-    abstract long getAt();
+    abstract long getAt(int i);
     abstract float fontSize();
     abstract String locale();
 

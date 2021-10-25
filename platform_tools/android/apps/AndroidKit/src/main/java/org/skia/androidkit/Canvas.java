@@ -139,7 +139,7 @@ public class Canvas {
      * @param paint blend, color, and so on, used to draw
      */
     public void drawGlyphs(char[] glyphs, float[] positions, float xOrigin, float yOrigin,
-                           ToyFont font, Paint paint) {
+                           Font font, Paint paint) {
         if (glyphs.length * 2 == positions.length) {
             nDrawGlyphs(mNativeInstance, glyphs, positions, xOrigin, yOrigin,
                         font.getNativeInstance(), paint.getNativeInstance());
