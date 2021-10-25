@@ -11,6 +11,8 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
+using skgpu::VertexWriter;
+
 void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const auto& shader = args.fGeomProc.cast<GrStrokeTessellationShader>();
     SkPaint::Join joinType = shader.stroke().getJoin();
@@ -264,7 +266,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     this->emitFragmentCode(shader, args);
 }
 
-void GrStrokeTessellationShader::InitializeVertexIDFallbackBuffer(GrVertexWriter vertexWriter,
+void GrStrokeTessellationShader::InitializeVertexIDFallbackBuffer(VertexWriter vertexWriter,
                                                                   size_t bufferSize) {
     SkASSERT(bufferSize % (sizeof(float) * 2) == 0);
     int edgeCount = bufferSize / (sizeof(float) * 2);

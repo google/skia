@@ -13,7 +13,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/VertexWriter.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
@@ -200,9 +200,9 @@ void TestRectOp::onCreateProgramInfo(const GrCaps* caps,
 
 void TestRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
     QuadHelper helper(target, fGP.vertexStride(), 1);
-    GrVertexWriter writer{helper.vertices()};
-    auto pos = GrVertexWriter::TriStripFromRect(fDrawRect);
-    auto local = GrVertexWriter::TriStripFromRect(fLocalRect);
+    skgpu::VertexWriter writer{helper.vertices()};
+    auto pos = skgpu::VertexWriter::TriStripFromRect(fDrawRect);
+    auto local = skgpu::VertexWriter::TriStripFromRect(fLocalRect);
     GrVertexColor color(fColor, fGP.wideColor());
     writer.writeQuad(pos, local, color);
 

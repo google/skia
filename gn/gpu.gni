@@ -238,7 +238,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrUtil.h",
   "$_src/gpu/GrVertexChunkArray.cpp",
   "$_src/gpu/GrVertexChunkArray.h",
-  "$_src/gpu/GrVertexWriter.h",
   "$_src/gpu/GrVx.h",
   "$_src/gpu/GrWaitRenderTask.cpp",
   "$_src/gpu/GrWaitRenderTask.h",
@@ -255,6 +254,7 @@ skia_gpu_sources = [
   "$_src/gpu/SurfaceContext.h",
   "$_src/gpu/SurfaceFillContext.cpp",
   "$_src/gpu/SurfaceFillContext.h",
+  "$_src/gpu/VertexWriter.h",
 
   # Ops
   "$_src/gpu/effects/GrBezierEffect.cpp",

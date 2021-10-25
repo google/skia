@@ -215,7 +215,7 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     SkMatrix::I()) {
     sk_sp<const GrBuffer> buffer;
     int baseVertex;
-    GrVertexWriter vertexWriter = static_cast<SkPoint*>(fTarget->makeVertexSpace(
+    VertexWriter vertexWriter = static_cast<SkPoint*>(fTarget->makeVertexSpace(
             sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex));
     int numTrianglesWritten;
     MiddleOutPolygonTriangulator::WritePathInnerFan(std::move(vertexWriter),

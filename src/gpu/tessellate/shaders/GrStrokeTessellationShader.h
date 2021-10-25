@@ -118,7 +118,8 @@ public:
     // and sk_VertexID is not supported. Each vertex is a single float and each edge is composed of
     // two vertices, so the desired edge count in the buffer is presumed to be
     // "bufferSize / (sizeof(float) * 2)". The caller cannot draw more vertices than edgeCount * 2.
-    static void InitializeVertexIDFallbackBuffer(GrVertexWriter vertexWriter, size_t bufferSize);
+    static void InitializeVertexIDFallbackBuffer(skgpu::VertexWriter vertexWriter,
+                                                 size_t bufferSize);
 
 private:
     const char* name() const override {

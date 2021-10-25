@@ -17,14 +17,16 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
+#include "src/gpu/VertexWriter.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+
+namespace skgpu::v1::FillRRectOp {
 
 namespace {
 
@@ -515,8 +517,8 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
 
     size_t instanceStride = fProgramInfo->geomProc().instanceStride();
 
-    if (GrVertexWriter instanceWrter = target->makeVertexSpace(instanceStride, fInstanceCount,
-                                                               &fInstanceBuffer, &fBaseInstance)) {
+    if (VertexWriter instanceWrter = target->makeVertexSpace(instanceStride, fInstanceCount,
+                                                             &fInstanceBuffer, &fBaseInstance)) {
         SkDEBUGCODE(auto end = instanceWrter.makeOffset(instanceStride * fInstanceCount));
         for (Instance* i = fHeadInstance; i; i = i->fNext) {
             auto [l, t, r, b] = i->fRRect.rect();
@@ -538,8 +540,8 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
                           << m.getTranslateX() << m.getTranslateY()
                           << radiiX << radiiY
                           << GrVertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor)
-                          << GrVertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
-                                                i->fLocalRect);
+                          << VertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
+                                              i->fLocalRect);
         }
         SkASSERT(instanceWrter == end);
     }
@@ -847,8 +849,6 @@ bool can_use_hw_derivatives_with_coverage(const GrShaderCaps& shaderCaps,
 }
 
 } // anonymous namespace
-
-namespace skgpu::v1::FillRRectOp {
 
 GrOp::Owner Make(GrRecordingContext* ctx,
                  SkArenaAlloc* arena,

@@ -12,7 +12,7 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/VertexWriter.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
@@ -191,13 +191,13 @@ void DrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
         SkASSERT(fProgram);
     }
 
-    if (GrVertexWriter instanceWriter = flushState->makeVertexSpace(
+    if (VertexWriter instanceWriter = flushState->makeVertexSpace(
                 fProgram->geomProc().instanceStride(), fInstanceCount, &fInstanceBuffer,
                 &fBaseInstance)) {
         for (const Instance* i = fHeadInstance; i; i = i->fNext) {
             instanceWriter << SkRect::Make(i->fFillBounds)
-                           << GrVertexWriter::If(fUsesLocalCoords,
-                                                 i->fLocalToDeviceIfUsingLocalCoords)
+                           << VertexWriter::If(fUsesLocalCoords,
+                                               i->fLocalToDeviceIfUsingLocalCoords)
                            << i->fColor;
             fAtlasHelper.writeInstanceData(&instanceWriter, &i->fAtlasInstance);
         }

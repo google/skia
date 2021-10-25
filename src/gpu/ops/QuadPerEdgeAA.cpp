@@ -24,6 +24,8 @@ static_assert((int)GrQuadAAFlags::kBottom == SkCanvas::kBottom_QuadAAFlag);
 static_assert((int)GrQuadAAFlags::kNone   == SkCanvas::kNone_QuadAAFlags);
 static_assert((int)GrQuadAAFlags::kAll    == SkCanvas::kAll_QuadAAFlags);
 
+namespace skgpu::v1::QuadPerEdgeAA {
+
 namespace {
 
 using VertexSpec = skgpu::v1::QuadPerEdgeAA::VertexSpec;
@@ -32,7 +34,7 @@ using ColorType = skgpu::v1::QuadPerEdgeAA::ColorType;
 
 // Generic WriteQuadProc that can handle any VertexSpec. It writes the 4 vertices in triangle strip
 // order, although the data per-vertex is dependent on the VertexSpec.
-void write_quad_generic(GrVertexWriter* vb,
+void write_quad_generic(VertexWriter* vb,
                         const VertexSpec& spec,
                         const GrQuad* deviceQuad,
                         const GrQuad* localQuad,
@@ -40,7 +42,7 @@ void write_quad_generic(GrVertexWriter* vb,
                         const SkPMColor4f& color,
                         const SkRect& geomSubset,
                         const SkRect& texSubset) {
-    static constexpr auto If = GrVertexWriter::If<float>;
+    static constexpr auto If = VertexWriter::If<float>;
 
     SkASSERT(!spec.hasLocalCoords() || localQuad);
 
@@ -84,7 +86,7 @@ void write_quad_generic(GrVertexWriter* vb,
 
 // 2D (XY), no explicit coverage, vertex color, no locals, no geometry subset, no texture subsetn
 // This represents simple, solid color or shader, non-AA (or AA with cov. as alpha) rects.
-void write_2d_color(GrVertexWriter* vb,
+void write_2d_color(VertexWriter* vb,
                     const VertexSpec& spec,
                     const GrQuad* deviceQuad,
                     const GrQuad* localQuad,
@@ -116,7 +118,7 @@ void write_2d_color(GrVertexWriter* vb,
 
 // 2D (XY), no explicit coverage, UV locals, no color, no geometry subset, no texture subset
 // This represents opaque, non AA, textured rects
-void write_2d_uv(GrVertexWriter* vb,
+void write_2d_uv(VertexWriter* vb,
                  const VertexSpec& spec,
                  const GrQuad* deviceQuad,
                  const GrQuad* localQuad,
@@ -143,7 +145,7 @@ void write_2d_uv(GrVertexWriter* vb,
 
 // 2D (XY), no explicit coverage, UV locals, vertex color, no geometry or texture subsets
 // This represents transparent, non AA (or AA with cov. as alpha), textured rects
-void write_2d_color_uv(GrVertexWriter* vb,
+void write_2d_color_uv(VertexWriter* vb,
                        const VertexSpec& spec,
                        const GrQuad* deviceQuad,
                        const GrQuad* localQuad,
@@ -175,7 +177,7 @@ void write_2d_color_uv(GrVertexWriter* vb,
 
 // 2D (XY), explicit coverage, UV locals, no color, no geometry subset, no texture subset
 // This represents opaque, AA, textured rects
-void write_2d_cov_uv(GrVertexWriter* vb,
+void write_2d_cov_uv(VertexWriter* vb,
                      const VertexSpec& spec,
                      const GrQuad* deviceQuad,
                      const GrQuad* localQuad,
@@ -209,7 +211,7 @@ void write_2d_cov_uv(GrVertexWriter* vb,
 
 // 2D (XY), no explicit coverage, UV locals, no color, tex subset but no geometry subset
 // This represents opaque, non AA, textured rects with strict uv sampling
-void write_2d_uv_strict(GrVertexWriter* vb,
+void write_2d_uv_strict(VertexWriter* vb,
                         const VertexSpec& spec,
                         const GrQuad* deviceQuad,
                         const GrQuad* localQuad,
@@ -237,7 +239,7 @@ void write_2d_uv_strict(GrVertexWriter* vb,
 
 // 2D (XY), no explicit coverage, UV locals, vertex color, tex subset but no geometry subset
 // This represents transparent, non AA (or AA with cov. as alpha), textured rects with strict sample
-void write_2d_color_uv_strict(GrVertexWriter* vb,
+void write_2d_color_uv_strict(VertexWriter* vb,
                               const VertexSpec& spec,
                               const GrQuad* deviceQuad,
                               const GrQuad* localQuad,
@@ -270,7 +272,7 @@ void write_2d_color_uv_strict(GrVertexWriter* vb,
 
 // 2D (XY), explicit coverage, UV locals, no color, tex subset but no geometry subset
 // This represents opaque, AA, textured rects with strict uv sampling
-void write_2d_cov_uv_strict(GrVertexWriter* vb,
+void write_2d_cov_uv_strict(VertexWriter* vb,
                             const VertexSpec& spec,
                             const GrQuad* deviceQuad,
                             const GrQuad* localQuad,
@@ -298,8 +300,6 @@ void write_2d_cov_uv_strict(GrVertexWriter* vb,
 }
 
 } // anonymous namespace
-
-namespace skgpu::v1::QuadPerEdgeAA {
 
 IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads) {
     if (aa == GrAAType::kCoverage) {

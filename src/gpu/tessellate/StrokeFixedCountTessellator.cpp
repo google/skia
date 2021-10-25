@@ -123,12 +123,12 @@ public:
     // Draws a circle whose diameter is equal to the stroke width. We emit circles at cusp points
     // round caps, and empty strokes that are specified to be drawn as circles.
     void writeCircle(SkPoint location) {
-        if (GrVertexWriter writer = fChunkBuilder.appendVertex()) {
+        if (VertexWriter writer = fChunkBuilder.appendVertex()) {
             // The shader interprets an empty stroke + empty join as a special case that denotes a
             // circle, or 180-degree point stroke.
             writer.fill(location, 5);
-            writer << GrVertexWriter::If(!fShaderCaps->infinitySupport(),
-                                         GrTessellationShader::kCubicCurveType);
+            writer << VertexWriter::If(!fShaderCaps->infinitySupport(),
+                                       GrTessellationShader::kCubicCurveType);
             this->writeDynamicAttribs(&writer);
         }
     }
@@ -195,17 +195,17 @@ private:
             fDeferredCurveTypeIfUnsupportedInfinity = curveTypeIfUnsupportedInfinity;
             fHasDeferredFirstStroke = true;
             fHasLastControlPoint = true;
-        } else if (GrVertexWriter writer = fChunkBuilder.appendVertex()) {
+        } else if (VertexWriter writer = fChunkBuilder.appendVertex()) {
             writer.writeArray(p, 4);
             writer << fLastControlPoint
-                   << GrVertexWriter::If(!fShaderCaps->infinitySupport(),
-                                         curveTypeIfUnsupportedInfinity);
+                   << VertexWriter::If(!fShaderCaps->infinitySupport(),
+                                       curveTypeIfUnsupportedInfinity);
             this->writeDynamicAttribs(&writer);
         }
         fLastControlPoint = endControlPoint;
     }
 
-    SK_ALWAYS_INLINE void writeDynamicAttribs(GrVertexWriter* writer) {
+    SK_ALWAYS_INLINE void writeDynamicAttribs(VertexWriter* writer) {
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             *writer << fDynamicStroke;
         }

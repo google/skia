@@ -235,7 +235,7 @@ public:
             fLastControlPoint = p[0];  // Disables the join section of this patch.
         }
 
-        if (GrVertexWriter patchWriter = fChunkBuilder.appendVertex()) {
+        if (VertexWriter patchWriter = fChunkBuilder.appendVertex()) {
             patchWriter << fLastControlPoint;
             patchWriter.writeArray(p, 4);
             this->writeDynamicAttribs(&patchWriter);
@@ -589,7 +589,7 @@ private:
         // We should never write out joins before the first curve.
         SkASSERT(fHasLastControlPoint);
 
-        if (GrVertexWriter patchWriter = fChunkBuilder.appendVertex()) {
+        if (VertexWriter patchWriter = fChunkBuilder.appendVertex()) {
             patchWriter << fLastControlPoint << junctionPoint;
             if (joinType == JoinType::kBowtie) {
                 // {prevControlPoint, [p0, p0, p0, p3]} is a reserved patch pattern that means this
@@ -609,7 +609,7 @@ private:
         fLastControlPoint = nextControlPoint;
     }
 
-    SK_ALWAYS_INLINE void writeDynamicAttribs(GrVertexWriter* patchWriter) {
+    SK_ALWAYS_INLINE void writeDynamicAttribs(VertexWriter* patchWriter) {
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             *patchWriter << fDynamicStroke;
         }

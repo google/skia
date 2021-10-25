@@ -16,7 +16,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
-#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/VertexWriter.h"
 
 /**
  * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. Whether the color is
@@ -87,8 +87,8 @@ static inline uint64_t SkPMColor4f_toFP16(const SkPMColor4f& color) {
 
 /**
  * GrVertexColor is a helper for writing colors to a vertex attribute. It stores either GrColor
- * or four half-float channels, depending on the wideColor parameter. GrVertexWriter will write
- * the correct amount of data. Note that the GP needs to have been constructed with the correct
+ * or four half-float channels, depending on the wideColor parameter. VertexWriter will write the
+ * correct amount of data. Note that the GP needs to have been constructed with the correct
  * attribute type for colors, to match the usage here.
  */
 class GrVertexColor {
@@ -111,14 +111,16 @@ public:
     size_t size() const { return fWideColor ? 16 : 4; }
 
 private:
-    template<typename T> friend GrVertexWriter& operator<<(GrVertexWriter&, const T&);
+    template <typename T>
+    friend skgpu::VertexWriter& skgpu::operator<<(skgpu::VertexWriter&, const T&);
 
     uint32_t fColor[4];
     bool     fWideColor;
 };
 
 template <>
-SK_MAYBE_UNUSED inline GrVertexWriter& operator<<(GrVertexWriter& w, const GrVertexColor& color) {
+SK_MAYBE_UNUSED inline skgpu::VertexWriter& skgpu::operator<<(skgpu::VertexWriter& w,
+                                                              const GrVertexColor& color) {
     w << color.fColor[0];
     if (color.fWideColor) {
         w << color.fColor[1]

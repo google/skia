@@ -122,7 +122,7 @@ DEF_TEST(GrPathUtils_findCubicConvex180Chops, r) {
 
 DEF_TEST(GrPathUtils_convertToCubic, r) {
     SkPoint cubic[4];
-    GrVertexWriter cubicWriter(cubic);
+    skgpu::VertexWriter cubicWriter(cubic);
     GrPathUtils::writeLineAsCubic({0,0}, {3,6}, &cubicWriter);
     REPORTER_ASSERT(r, cubic[0] == SkPoint::Make(0,0));
     REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[1].fX, 1));

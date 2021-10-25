@@ -13,8 +13,6 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-struct GrVertexWriter;
-
 namespace skgpu::v1 {
 
 // This class encapsulates all the necessary steps for an instanced GrGeometryProcessor to clip
@@ -74,7 +72,7 @@ public:
 
     // Writes out the given instance data, formatted for the specific attribs that we added during
     // appendInstanceAttribs().
-    void writeInstanceData(GrVertexWriter* instanceWriter, const Instance*) const;
+    void writeInstanceData(VertexWriter* instanceWriter, const Instance*) const;
 
     // Injects vertex code, fragment code, varyings, and uniforms to ultimately multiply
     // "args.fOutputCoverage" in the fragment shader by the atlas coverage.

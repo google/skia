@@ -54,10 +54,10 @@ public:
             return;
         }
         if (numSegments_pow4 > 1) {
-            if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+            if (VertexWriter vertexWriter = chunker->appendVertex()) {
                 fPathXform.mapQuadToCubic(&vertexWriter, p);
-                vertexWriter << GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                                   GrTessellationShader::kCubicCurveType);
+                vertexWriter << VertexWriter::If(!shaderCaps.infinitySupport(),
+                                                 GrTessellationShader::kCubicCurveType);
             }
             fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
         }
@@ -71,10 +71,10 @@ public:
             return;
         }
         if (numSegments_pow2 > 1) {
-            if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+            if (VertexWriter vertexWriter = chunker->appendVertex()) {
                 fPathXform.mapConicToPatch(&vertexWriter, p, w);
-                vertexWriter << GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                                   GrTessellationShader::kConicCurveType);
+                vertexWriter << VertexWriter::If(!shaderCaps.infinitySupport(),
+                                                 GrTessellationShader::kConicCurveType);
             }
             fNumFixedSegments_pow4 = std::max(numSegments_pow2 * numSegments_pow2,
                                               fNumFixedSegments_pow4);
@@ -89,10 +89,10 @@ public:
             return;
         }
         if (numSegments_pow4 > 1) {
-            if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+            if (VertexWriter vertexWriter = chunker->appendVertex()) {
                 fPathXform.map4Points(&vertexWriter, p);
-                vertexWriter << GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                                   GrTessellationShader::kCubicCurveType);
+                vertexWriter << VertexWriter::If(!shaderCaps.infinitySupport(),
+                                                 GrTessellationShader::kCubicCurveType);
             }
             fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
         }
@@ -146,14 +146,14 @@ private:
 
     void writeTriangle(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker, SkPoint p0,
                        SkPoint p1, SkPoint p2) {
-        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+        if (VertexWriter vertexWriter = chunker->appendVertex()) {
             vertexWriter << fPathXform.mapPoint(p0)
                          << fPathXform.mapPoint(p1)
                          << fPathXform.mapPoint(p2);
             // Mark this instance as a triangle by setting it to a conic with w=Inf.
-            vertexWriter.fill(GrVertexWriter::kIEEE_32_infinity, 2);
-            vertexWriter << GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                               GrTessellationShader::kTriangularConicCurveType);
+            vertexWriter.fill(VertexWriter::kIEEE_32_infinity, 2);
+            vertexWriter << VertexWriter::If(!shaderCaps.infinitySupport(),
+                                             GrTessellationShader::kTriangularConicCurveType);
         }
     }
 
@@ -232,7 +232,7 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
 
     // Write out the triangles.
     if (maxTriangles) {
-        GrVertexWriter vertexWriter = chunker.appendVertices(maxTriangles);
+        VertexWriter vertexWriter = chunker.appendVertices(maxTriangles);
         if (!vertexWriter) {
             return;
         }
@@ -243,7 +243,7 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
             // explicitly tells the shader to interpret these patches as triangles.
             int pad32Count = shaderCaps.infinitySupport() ? 2 : 3;
             uint32_t pad32Value = shaderCaps.infinitySupport()
-                    ? GrVertexWriter::kIEEE_32_infinity
+                    ? VertexWriter::kIEEE_32_infinity
                     : sk_bit_cast<uint32_t>(GrTessellationShader::kTriangularConicCurveType);
             for (auto [pathMatrix, path] : pathDrawList) {
                 int numTrianglesWritten;
@@ -284,9 +284,9 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
                 }
                 vertexWriter.writeArray(tri->fPts, 3);
                 // Mark this instance as a triangle by setting it to a conic with w=Inf.
-                vertexWriter.fill(GrVertexWriter::kIEEE_32_infinity, 2);
-                vertexWriter << GrVertexWriter::If(!shaderCaps.infinitySupport(),
-                                                   GrTessellationShader::kTriangularConicCurveType);
+                vertexWriter.fill(VertexWriter::kIEEE_32_infinity, 2);
+                vertexWriter << VertexWriter::If(!shaderCaps.infinitySupport(),
+                                                 GrTessellationShader::kTriangularConicCurveType);
                 ++numWritten;
             }
             SkASSERT(count == breadcrumbTriangleList->count());

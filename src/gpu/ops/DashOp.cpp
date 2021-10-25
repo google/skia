@@ -20,8 +20,8 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/VertexWriter.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -36,6 +36,8 @@ using AAMode = skgpu::v1::DashOp::AAMode;
 #if GR_TEST_UTILS
 static const int kAAModeCnt = static_cast<int>(skgpu::v1::DashOp::AAMode::kCoverageWithMSAA) + 1;
 #endif
+
+namespace skgpu::v1::DashOp {
 
 namespace {
 
@@ -116,7 +118,7 @@ enum DashCap {
 };
 
 void setup_dashed_rect(const SkRect& rect,
-                       GrVertexWriter& vertices,
+                       VertexWriter& vertices,
                        const SkMatrix& matrix,
                        SkScalar offset,
                        SkScalar bloatX,
@@ -139,7 +141,7 @@ void setup_dashed_rect(const SkRect& rect,
         SkScalar centerX = SkScalarHalf(endInterval);
 
         vertices.writeQuad(GrQuad::MakeFromRect(rect, matrix),
-                           GrVertexWriter::TriStripFromRect(dashRect),
+                           VertexWriter::TriStripFromRect(dashRect),
                            intervalLength,
                            radius,
                            centerX);
@@ -152,7 +154,7 @@ void setup_dashed_rect(const SkRect& rect,
                           halfOffLen + startInterval - 0.5f,  halfStroke - 0.5f);
 
         vertices.writeQuad(GrQuad::MakeFromRect(rect, matrix),
-                           GrVertexWriter::TriStripFromRect(dashRect),
+                           VertexWriter::TriStripFromRect(dashRect),
                            intervalLength,
                            rectParam);
     }
@@ -561,7 +563,7 @@ private:
         }
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), totalRectCount);
-        GrVertexWriter vertices{ helper.vertices() };
+        VertexWriter vertices{ helper.vertices() };
         if (!vertices.fPtr) {
             return;
         }
@@ -1124,90 +1126,6 @@ GrGeometryProcessor* make_dash_gp(SkArenaAlloc* arena,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
-
-#include "src/gpu/GrDrawOpTest.h"
-
-GR_DRAW_OP_TEST_DEFINE(DashOpImpl) {
-    SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
-    AAMode aaMode;
-    do {
-        aaMode = static_cast<AAMode>(random->nextULessThan(kAAModeCnt));
-    } while (AAMode::kCoverageWithMSAA == aaMode && numSamples <= 1);
-
-    // We can only dash either horizontal or vertical lines
-    SkPoint pts[2];
-    if (random->nextBool()) {
-        // vertical
-        pts[0].fX = 1.f;
-        pts[0].fY = random->nextF() * 10.f;
-        pts[1].fX = 1.f;
-        pts[1].fY = random->nextF() * 10.f;
-    } else {
-        // horizontal
-        pts[0].fX = random->nextF() * 10.f;
-        pts[0].fY = 1.f;
-        pts[1].fX = random->nextF() * 10.f;
-        pts[1].fY = 1.f;
-    }
-
-    // pick random cap
-    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::kCapCount));
-
-    SkScalar intervals[2];
-
-    // We can only dash with the following intervals
-    enum Intervals {
-        kOpenOpen_Intervals ,
-        kOpenClose_Intervals,
-        kCloseOpen_Intervals,
-    };
-
-    Intervals intervalType = SkPaint::kRound_Cap == cap ?
-                             kOpenClose_Intervals :
-                             Intervals(random->nextULessThan(kCloseOpen_Intervals + 1));
-    static const SkScalar kIntervalMin = 0.1f;
-    static const SkScalar kIntervalMinCircles = 1.f; // Must be >= to stroke width
-    static const SkScalar kIntervalMax = 10.f;
-    switch (intervalType) {
-        case kOpenOpen_Intervals:
-            intervals[0] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
-            intervals[1] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
-            break;
-        case kOpenClose_Intervals: {
-            intervals[0] = 0.f;
-            SkScalar min = SkPaint::kRound_Cap == cap ? kIntervalMinCircles : kIntervalMin;
-            intervals[1] = random->nextRangeScalar(min, kIntervalMax);
-            break;
-        }
-        case kCloseOpen_Intervals:
-            intervals[0] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
-            intervals[1] = 0.f;
-            break;
-
-    }
-
-    // phase is 0 < sum (i0, i1)
-    SkScalar phase = random->nextRangeScalar(0, intervals[0] + intervals[1]);
-
-    SkPaint p;
-    p.setStyle(SkPaint::kStroke_Style);
-    p.setStrokeWidth(SkIntToScalar(1));
-    p.setStrokeCap(cap);
-    p.setPathEffect(GrTest::TestDashPathEffect::Make(intervals, 2, phase));
-
-    GrStyle style(p);
-
-    return skgpu::v1::DashOp::MakeDashLineOp(context, std::move(paint), viewMatrix, pts, aaMode,
-                                             style, GrGetRandomStencil(random, context));
-}
-
-#endif // GR_TEST_UTILS
-
-///////////////////////////////////////////////////////////////////////////////
-
-namespace skgpu::v1::DashOp {
-
 GrOp::Owner MakeDashLineOp(GrRecordingContext* context,
                            GrPaint&& paint,
                            const SkMatrix& viewMatrix,
@@ -1306,3 +1224,83 @@ bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix&
 }
 
 } // namespace skgpu::v1::DashOp
+
+#if GR_TEST_UTILS
+
+#include "src/gpu/GrDrawOpTest.h"
+
+GR_DRAW_OP_TEST_DEFINE(DashOpImpl) {
+    SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
+    AAMode aaMode;
+    do {
+        aaMode = static_cast<AAMode>(random->nextULessThan(kAAModeCnt));
+    } while (AAMode::kCoverageWithMSAA == aaMode && numSamples <= 1);
+
+    // We can only dash either horizontal or vertical lines
+    SkPoint pts[2];
+    if (random->nextBool()) {
+        // vertical
+        pts[0].fX = 1.f;
+        pts[0].fY = random->nextF() * 10.f;
+        pts[1].fX = 1.f;
+        pts[1].fY = random->nextF() * 10.f;
+    } else {
+        // horizontal
+        pts[0].fX = random->nextF() * 10.f;
+        pts[0].fY = 1.f;
+        pts[1].fX = random->nextF() * 10.f;
+        pts[1].fY = 1.f;
+    }
+
+    // pick random cap
+    SkPaint::Cap cap = SkPaint::Cap(random->nextULessThan(SkPaint::kCapCount));
+
+    SkScalar intervals[2];
+
+    // We can only dash with the following intervals
+    enum Intervals {
+        kOpenOpen_Intervals ,
+        kOpenClose_Intervals,
+        kCloseOpen_Intervals,
+    };
+
+    Intervals intervalType = SkPaint::kRound_Cap == cap ?
+                             kOpenClose_Intervals :
+                             Intervals(random->nextULessThan(kCloseOpen_Intervals + 1));
+    static const SkScalar kIntervalMin = 0.1f;
+    static const SkScalar kIntervalMinCircles = 1.f; // Must be >= to stroke width
+    static const SkScalar kIntervalMax = 10.f;
+    switch (intervalType) {
+        case kOpenOpen_Intervals:
+            intervals[0] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
+            intervals[1] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
+            break;
+        case kOpenClose_Intervals: {
+            intervals[0] = 0.f;
+            SkScalar min = SkPaint::kRound_Cap == cap ? kIntervalMinCircles : kIntervalMin;
+            intervals[1] = random->nextRangeScalar(min, kIntervalMax);
+            break;
+        }
+        case kCloseOpen_Intervals:
+            intervals[0] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
+            intervals[1] = 0.f;
+            break;
+
+    }
+
+    // phase is 0 < sum (i0, i1)
+    SkScalar phase = random->nextRangeScalar(0, intervals[0] + intervals[1]);
+
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(SkIntToScalar(1));
+    p.setStrokeCap(cap);
+    p.setPathEffect(GrTest::TestDashPathEffect::Make(intervals, 2, phase));
+
+    GrStyle style(p);
+
+    return skgpu::v1::DashOp::MakeDashLineOp(context, std::move(paint), viewMatrix, pts, aaMode,
+                                             style, GrGetRandomStencil(random, context));
+}
+
+#endif // GR_TEST_UTILS

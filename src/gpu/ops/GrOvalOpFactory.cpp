@@ -19,7 +19,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/VertexWriter.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -30,13 +30,15 @@
 
 #include <utility>
 
+using skgpu::VertexWriter;
+
 namespace {
 
 static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarity(); }
 
 // Produces TriStrip vertex data for an origin-centered rectangle from [-x, -y] to [x, y]
-static inline GrVertexWriter::TriStrip<float> origin_centered_tri_strip(float x, float y) {
-    return GrVertexWriter::TriStrip<float>{ -x, -y, x, y };
+static inline VertexWriter::TriStrip<float> origin_centered_tri_strip(float x, float y) {
+    return VertexWriter::TriStrip<float>{ -x, -y, x, y };
 };
 
 }  // namespace
@@ -1277,8 +1279,8 @@ private:
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        GrVertexWriter vertices{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
-                                                        fVertCount, &vertexBuffer, &firstVertex)};
+        VertexWriter vertices{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
+                                                      fVertCount, &vertexBuffer, &firstVertex)};
         if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1649,8 +1651,8 @@ private:
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        GrVertexWriter vertices{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
-                                                        fVertCount, &vertexBuffer, &firstVertex)};
+        VertexWriter vertices{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
+                                                      fVertCount, &vertexBuffer, &firstVertex)};
         if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1984,7 +1986,7 @@ private:
         }
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.count());
-        GrVertexWriter verts{helper.vertices()};
+        VertexWriter verts{helper.vertices()};
         if (!verts.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -2017,11 +2019,11 @@ private:
             }
 
             // The inner radius in the vertex data must be specified in normalized space.
-            verts.writeQuad(GrVertexWriter::TriStripFromRect(
+            verts.writeQuad(VertexWriter::TriStripFromRect(
                                     ellipse.fDevBounds.makeOutset(aaBloat, aaBloat)),
                             color,
                             origin_centered_tri_strip(xMaxOffset, yMaxOffset),
-                            GrVertexWriter::If(fUseScale, std::max(xRadius, yRadius)),
+                            VertexWriter::If(fUseScale, std::max(xRadius, yRadius)),
                             invRadii);
         }
         fMesh = helper.mesh();
@@ -2260,7 +2262,7 @@ private:
         }
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.count());
-        GrVertexWriter verts{helper.vertices()};
+        VertexWriter verts{helper.vertices()};
         if (!verts.fPtr) {
             return;
         }
@@ -2292,10 +2294,10 @@ private:
                 innerCoordY = drawBounds.height() / (ellipse.fInnerYRadius * 2);
             }
 
-            verts.writeQuad(GrVertexWriter::TriStripFromRect(drawBounds),
+            verts.writeQuad(VertexWriter::TriStripFromRect(drawBounds),
                             color,
                             origin_centered_tri_strip(outerCoordX, outerCoordY),
-                            GrVertexWriter::If(fUseScale, std::max(xRadius, yRadius)),
+                            VertexWriter::If(fUseScale, std::max(xRadius, yRadius)),
                             origin_centered_tri_strip(innerCoordX, innerCoordY));
         }
         fMesh = helper.mesh();
@@ -2591,7 +2593,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    static void FillInOverstrokeVerts(GrVertexWriter& verts, const SkRect& bounds, SkScalar smInset,
+    static void FillInOverstrokeVerts(VertexWriter& verts, const SkRect& bounds, SkScalar smInset,
                                       SkScalar bigInset, SkScalar xOffset, SkScalar outerRadius,
                                       SkScalar innerRadius, const GrVertexColor& color) {
         SkASSERT(smInset < bigInset);
@@ -2680,7 +2682,7 @@ private:
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
 
-        GrVertexWriter verts{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
+        VertexWriter verts{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
                                                      fVertCount, &vertexBuffer, &firstVertex)};
         if (!verts.fPtr) {
             SkDebugf("Could not allocate vertices\n");
@@ -3011,7 +3013,7 @@ private:
                              fProgramInfo->geomProc().vertexStride(),
                              std::move(indexBuffer), kVertsPerStandardRRect, indicesPerInstance,
                              fRRects.count(), kNumRRectsInIndexBuffer);
-        GrVertexWriter verts{helper.vertices()};
+        VertexWriter verts{helper.vertices()};
         if (!verts.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -3058,7 +3060,7 @@ private:
                                                                // shader, so can't be exactly 0
                                          SK_ScalarNearlyZero, yMaxOffset};
 
-            auto maybeScale = GrVertexWriter::If(fUseScale, std::max(rrect.fXRadius, rrect.fYRadius));
+            auto maybeScale = VertexWriter::If(fUseScale, std::max(rrect.fXRadius, rrect.fYRadius));
             for (int i = 0; i < 4; ++i) {
                 verts << bounds.fLeft << yCoords[i]
                       << color

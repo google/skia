@@ -70,24 +70,24 @@ public:
         constexpr int kMaxVertexCount = (1 << kMaxFixedCountResolveLevel) + 1;
         return kMaxVertexCount * kMiddleOutVertexStride;
     }
-    static void InitializeVertexBufferForMiddleOutCurves(GrVertexWriter, size_t bufferSize);
+    static void InitializeVertexBufferForMiddleOutCurves(skgpu::VertexWriter, size_t bufferSize);
 
     constexpr static size_t SizeOfIndexBufferForMiddleOutCurves() {
         constexpr int kMaxTriangleCount =
                 NumCurveTrianglesAtResolveLevel(kMaxFixedCountResolveLevel);
         return kMaxTriangleCount * 3 * sizeof(uint16_t);
     }
-    static void InitializeIndexBufferForMiddleOutCurves(GrVertexWriter, size_t bufferSize);
+    static void InitializeIndexBufferForMiddleOutCurves(skgpu::VertexWriter, size_t bufferSize);
 
     constexpr static int SizeOfVertexBufferForMiddleOutWedges() {
         return SizeOfVertexBufferForMiddleOutCurves() + kMiddleOutVertexStride;
     }
-    static void InitializeVertexBufferForMiddleOutWedges(GrVertexWriter, size_t bufferSize);
+    static void InitializeVertexBufferForMiddleOutWedges(skgpu::VertexWriter, size_t bufferSize);
 
     constexpr static size_t SizeOfIndexBufferForMiddleOutWedges() {
         return SizeOfIndexBufferForMiddleOutCurves() + 3 * sizeof(uint16_t);
     }
-    static void InitializeIndexBufferForMiddleOutWedges(GrVertexWriter, size_t bufferSize);
+    static void InitializeIndexBufferForMiddleOutWedges(skgpu::VertexWriter, size_t bufferSize);
 
     // Uses GPU tessellation shaders to linearize, triangulate, and render cubic "wedge" patches. A
     // wedge is a 5-point patch consisting of 4 cubic control points, plus an anchor point fanning

@@ -12,8 +12,8 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
+#include "src/gpu/VertexWriter.h"
 
 class SkMatrix;
 
@@ -136,7 +136,7 @@ void convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
 // Converts the given line to a cubic bezier.
 // NOTE: This method interpolates at 1/3 and 2/3, but if suitable in context, the cubic
 // {p0, p0, p1, p1} may also work.
-inline void writeLineAsCubic(SkPoint startPt, SkPoint endPt, GrVertexWriter* writer) {
+inline void writeLineAsCubic(SkPoint startPt, SkPoint endPt, skgpu::VertexWriter* writer) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(startPt);
     float2 p1 = bit_pun<float2>(endPt);
@@ -145,7 +145,7 @@ inline void writeLineAsCubic(SkPoint startPt, SkPoint endPt, GrVertexWriter* wri
 }
 
 // Converts the given quadratic bezier to a cubic.
-inline void writeQuadAsCubic(const SkPoint p[3], GrVertexWriter* writer) {
+inline void writeQuadAsCubic(const SkPoint p[3], skgpu::VertexWriter* writer) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(p[0]);
     float2 p1 = bit_pun<float2>(p[1]);
@@ -154,7 +154,7 @@ inline void writeQuadAsCubic(const SkPoint p[3], GrVertexWriter* writer) {
     *writer << p0 << (p0*(1/3.f) + c) << (p2 * (1/3.f) + c) << p2;
 }
 inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
-    GrVertexWriter writer(out);
+    skgpu::VertexWriter writer(out);
     writeQuadAsCubic(p, &writer);
 }
 

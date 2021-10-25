@@ -24,8 +24,8 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/VertexWriter.h"
 
 const int GrResourceProvider::kMinScratchTextureSize = 16;
 
@@ -437,7 +437,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
         buffer->resourcePriv().setUniqueKey(uniqueKey);
 
         // Map the buffer. Use a staging buffer on the heap if mapping isn't supported.
-        GrVertexWriter vertexWriter = buffer->map();
+        skgpu::VertexWriter vertexWriter = buffer->map();
         SkAutoTMalloc<char> stagingBuffer;
         if (!vertexWriter) {
             SkASSERT(!buffer->isMapped());

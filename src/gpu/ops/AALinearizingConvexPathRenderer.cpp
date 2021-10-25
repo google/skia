@@ -20,7 +20,7 @@
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/VertexWriter.h"
 #include "src/gpu/geometry/GrAAConvexTessellator.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -29,6 +29,8 @@
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+namespace skgpu::v1 {
+
 namespace {
 
 static const int DEFAULT_BUFFER_SIZE = 100;
@@ -44,13 +46,13 @@ void extract_verts(const GrAAConvexTessellator& tess,
                    const GrVertexColor& color,
                    uint16_t firstIndex,
                    uint16_t* idxs) {
-    GrVertexWriter verts{vertData};
+    VertexWriter verts{vertData};
     for (int i = 0; i < tess.numPts(); ++i) {
         SkPoint lc;
         if (localCoordsMatrix) {
             localCoordsMatrix->mapPoints(&lc, &tess.point(i), 1);
         }
-        verts << tess.point(i) << color << GrVertexWriter::If(localCoordsMatrix, lc)
+        verts << tess.point(i) << color << VertexWriter::If(localCoordsMatrix, lc)
               << tess.coverage(i);
     }
 
@@ -339,42 +341,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
-
-GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
-    SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
-    const SkPath& path = GrTest::TestPathConvex(random);
-
-    SkStrokeRec::Style styles[3] = { SkStrokeRec::kFill_Style,
-                                     SkStrokeRec::kStroke_Style,
-                                     SkStrokeRec::kStrokeAndFill_Style };
-
-    SkStrokeRec::Style style = styles[random->nextU() % 3];
-
-    SkScalar strokeWidth = -1.f;
-    SkPaint::Join join = SkPaint::kMiter_Join;
-    SkScalar miterLimit = 0.5f;
-
-    if (SkStrokeRec::kFill_Style != style) {
-        strokeWidth = random->nextRangeF(1.0f, 10.0f);
-        if (random->nextBool()) {
-            join = SkPaint::kMiter_Join;
-        } else {
-            join = SkPaint::kBevel_Join;
-        }
-        miterLimit = random->nextRangeF(0.5f, 2.0f);
-    }
-    const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
-    return AAFlatteningConvexPathOp::Make(context, std::move(paint), viewMatrix, path, strokeWidth,
-                                          style, join, miterLimit, stencilSettings);
-}
-
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-namespace skgpu::v1 {
-
 PathRenderer::CanDrawPath
 AALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (GrAAType::kCoverage != args.fAAType) {
@@ -446,3 +412,36 @@ bool AALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 }
 
 } // namespace skgpu::v1
+
+#if GR_TEST_UTILS
+
+GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
+    SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
+    const SkPath& path = GrTest::TestPathConvex(random);
+
+    SkStrokeRec::Style styles[3] = { SkStrokeRec::kFill_Style,
+                                     SkStrokeRec::kStroke_Style,
+                                     SkStrokeRec::kStrokeAndFill_Style };
+
+    SkStrokeRec::Style style = styles[random->nextU() % 3];
+
+    SkScalar strokeWidth = -1.f;
+    SkPaint::Join join = SkPaint::kMiter_Join;
+    SkScalar miterLimit = 0.5f;
+
+    if (SkStrokeRec::kFill_Style != style) {
+        strokeWidth = random->nextRangeF(1.0f, 10.0f);
+        if (random->nextBool()) {
+            join = SkPaint::kMiter_Join;
+        } else {
+            join = SkPaint::kBevel_Join;
+        }
+        miterLimit = random->nextRangeF(0.5f, 2.0f);
+    }
+    const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
+    return skgpu::v1::AAFlatteningConvexPathOp::Make(context, std::move(paint), viewMatrix, path,
+                                                     strokeWidth, style, join, miterLimit,
+                                                     stencilSettings);
+}
+
+#endif

@@ -19,7 +19,7 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/VertexWriter.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -30,6 +30,8 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+
+namespace skgpu::v1 {
 
 namespace {
 
@@ -364,7 +366,7 @@ void create_vertices(const SegmentArray& segments,
                      const SkPoint& fanPt,
                      const GrVertexColor& color,
                      DrawArray* draws,
-                     GrVertexWriter& verts,
+                     VertexWriter& verts,
                      uint16_t* idxs,
                      size_t vertexStride) {
     Draw* draw = &draws->push_back();
@@ -800,8 +802,10 @@ private:
             sk_sp<const GrBuffer> vertexBuffer;
             int firstVertex;
 
-            GrVertexWriter verts{target->makeVertexSpace(kVertexStride, vertexCount,
-                                                         &vertexBuffer, &firstVertex)};
+            VertexWriter verts{target->makeVertexSpace(kVertexStride,
+                                                       vertexCount,
+                                                       &vertexBuffer,
+                                                       &firstVertex)};
 
             if (!verts.fPtr) {
                 SkDebugf("Could not allocate vertices\n");
@@ -893,22 +897,7 @@ private:
 
 } // anonymous namespace
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if GR_TEST_UTILS
-
-GR_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
-    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
-    const SkPath& path = GrTest::TestPathConvex(random);
-    const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
-    return AAConvexPathOp::Make(context, std::move(paint), viewMatrix, path, stencilSettings);
-}
-
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
-
-namespace skgpu::v1 {
 
 PathRenderer::CanDrawPath AAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This check requires convexity and known direction, since the direction is used to build
@@ -939,3 +928,15 @@ bool AAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 }
 
 } // namespace skgpu::v1
+
+#if GR_TEST_UTILS
+
+GR_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
+    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    const SkPath& path = GrTest::TestPathConvex(random);
+    const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
+    return skgpu::v1::AAConvexPathOp::Make(context, std::move(paint), viewMatrix, path,
+                                           stencilSettings);
+}
+
+#endif

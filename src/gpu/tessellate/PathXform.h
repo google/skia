@@ -9,8 +9,8 @@
 #define tessellate_PathXform_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
+#include "src/gpu/VertexWriter.h"
 
 namespace skgpu {
 
@@ -45,23 +45,23 @@ public:
         return skvx::bit_pun<SkPoint>(this->mapPoint(skvx::bit_pun<float2>(p)));
     }
 
-    SK_ALWAYS_INLINE void map2Points(GrVertexWriter* writer, const SkPoint pts[2]) const {
+    SK_ALWAYS_INLINE void map2Points(VertexWriter* writer, const SkPoint pts[2]) const {
         float4 p = float4::Load(pts);
         *writer << (fScale * p + (fSkew * skvx::shuffle<1,0,3,2>(p) + fTrans));
     }
 
-    SK_ALWAYS_INLINE void map3Points(GrVertexWriter* writer, const SkPoint pts[3]) const {
+    SK_ALWAYS_INLINE void map3Points(VertexWriter* writer, const SkPoint pts[3]) const {
         *writer << this->mapPoint(pts[0]);
         this->map2Points(writer, pts + 1);
     }
 
-    SK_ALWAYS_INLINE void map4Points(GrVertexWriter* writer, const SkPoint pts[4]) const {
+    SK_ALWAYS_INLINE void map4Points(VertexWriter* writer, const SkPoint pts[4]) const {
         this->map2Points(writer, pts);
         this->map2Points(writer, pts + 2);
     }
 
     // Emits a degenerate, 4-point transformed cubic bezier equal to a line.
-    SK_ALWAYS_INLINE void mapLineToCubic(GrVertexWriter* writer,
+    SK_ALWAYS_INLINE void mapLineToCubic(VertexWriter* writer,
                                          SkPoint startPt,
                                          SkPoint endPt) const {
         float2 p0 = this->mapPoint(skvx::bit_pun<float2>(startPt));
@@ -71,7 +71,7 @@ public:
     }
 
     // Emits a degenerate, 4-point transformed bezier equal to a quadratic.
-    SK_ALWAYS_INLINE void mapQuadToCubic(GrVertexWriter* writer, const SkPoint pts[3]) const {
+    SK_ALWAYS_INLINE void mapQuadToCubic(VertexWriter* writer, const SkPoint pts[3]) const {
         float2 p0 = this->mapPoint(skvx::bit_pun<float2>(pts[0]));
         float2 p1 = this->mapPoint(skvx::bit_pun<float2>(pts[1]));
         float2 p2 = this->mapPoint(skvx::bit_pun<float2>(pts[2]));
@@ -81,11 +81,11 @@ public:
 
     // Writes out the 3 conic points transformed, plus a 4th point with the conic weight in x and
     // infinity in y. Infinite y flags the 4-point patch as a conic.
-    SK_ALWAYS_INLINE void mapConicToPatch(GrVertexWriter* writer,
+    SK_ALWAYS_INLINE void mapConicToPatch(VertexWriter* writer,
                                           const SkPoint pts[3],
                                           float w) const {
         this->map3Points(writer, pts);
-        *writer << w << GrVertexWriter::kIEEE_32_infinity;
+        *writer << w << VertexWriter::kIEEE_32_infinity;
     }
 
 private:

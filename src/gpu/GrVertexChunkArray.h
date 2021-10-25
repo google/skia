@@ -12,7 +12,7 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrBuffer.h"
-#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/VertexWriter.h"
 
 class GrMeshDrawTarget;
 
@@ -48,7 +48,7 @@ public:
 
     // Appends 'count' contiguous vertices. These vertices are not guaranteed to be contiguous with
     // previous or future calls to appendVertices.
-    SK_ALWAYS_INLINE GrVertexWriter appendVertices(int count) {
+    SK_ALWAYS_INLINE skgpu::VertexWriter appendVertices(int count) {
         SkASSERT(count > 0);
         if (fCurrChunkVertexCount + count > fCurrChunkVertexCapacity && !this->allocChunk(count)) {
             SkDEBUGCODE(fLastAppendAmount = 0;)
@@ -61,7 +61,7 @@ public:
                              fCurrChunkVertexWriter.makeOffset(fStride * count));
     }
 
-    SK_ALWAYS_INLINE GrVertexWriter appendVertex() { return this->appendVertices(1); }
+    SK_ALWAYS_INLINE skgpu::VertexWriter appendVertex() { return this->appendVertices(1); }
 
     // Pops the most recent 'count' contiguous vertices. Since there is no guarantee of contiguity
     // between appends, 'count' may be no larger than the most recent call to appendVertices().
@@ -82,7 +82,7 @@ private:
     const size_t fStride;
     int fMinVerticesPerChunk;
 
-    GrVertexWriter fCurrChunkVertexWriter;
+    skgpu::VertexWriter fCurrChunkVertexWriter;
     int fCurrChunkVertexCount = 0;
     int fCurrChunkVertexCapacity = 0;
 

@@ -11,6 +11,8 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
+using skgpu::VertexWriter;
+
 namespace {
 
 // Uses instanced draws to triangulate standalone closed curves with a "middle-out" topology.
@@ -179,13 +181,13 @@ GrPathTessellationShader* GrPathTessellationShader::MakeMiddleOutFixedCountShade
     return arena->make<MiddleOutShader>(shaderCaps, viewMatrix, color, patchType);
 }
 
-void GrPathTessellationShader::InitializeVertexBufferForMiddleOutCurves(GrVertexWriter vertexWriter,
+void GrPathTessellationShader::InitializeVertexBufferForMiddleOutCurves(VertexWriter vertexWriter,
                                                                         size_t bufferSize) {
     SkASSERT(bufferSize >= kMiddleOutVertexStride * 2);
     SkASSERT(bufferSize % kMiddleOutVertexStride == 0);
     int vertexCount = bufferSize / kMiddleOutVertexStride;
     SkASSERT(vertexCount > 3);
-    SkDEBUGCODE(GrVertexWriter end = vertexWriter.makeOffset(vertexCount * kMiddleOutVertexStride);)
+    SkDEBUGCODE(VertexWriter end = vertexWriter.makeOffset(vertexCount * kMiddleOutVertexStride);)
 
     // Lay out the vertices in "middle-out" order:
     //
@@ -214,7 +216,7 @@ void GrPathTessellationShader::InitializeVertexBufferForMiddleOutCurves(GrVertex
     SkASSERT(vertexWriter == end);
 }
 
-void GrPathTessellationShader::InitializeVertexBufferForMiddleOutWedges(GrVertexWriter vertexWriter,
+void GrPathTessellationShader::InitializeVertexBufferForMiddleOutWedges(VertexWriter vertexWriter,
                                                                         size_t bufferSize) {
     SkASSERT(bufferSize >= kMiddleOutVertexStride);
     // Start out with the fan point. A negative resolve level indicates the fan point.
@@ -224,7 +226,8 @@ void GrPathTessellationShader::InitializeVertexBufferForMiddleOutWedges(GrVertex
                                              bufferSize - kMiddleOutVertexStride);
 }
 
-static void fill_index_buffer_for_curves(GrVertexWriter vertexWriter, size_t bufferSize,
+static void fill_index_buffer_for_curves(VertexWriter vertexWriter,
+                                         size_t bufferSize,
                                          uint16_t baseIndex) {
     SkASSERT(bufferSize % (sizeof(uint16_t) * 3) == 0);
     int triangleCount = bufferSize / (sizeof(uint16_t) * 3);
@@ -268,12 +271,12 @@ static void fill_index_buffer_for_curves(GrVertexWriter vertexWriter, size_t buf
     vertexWriter.writeArray(indexData.data(), indexData.count());
 }
 
-void GrPathTessellationShader::InitializeIndexBufferForMiddleOutCurves(GrVertexWriter vertexWriter,
+void GrPathTessellationShader::InitializeIndexBufferForMiddleOutCurves(VertexWriter vertexWriter,
                                                                        size_t bufferSize) {
     fill_index_buffer_for_curves(std::move(vertexWriter), bufferSize, 0);
 }
 
-void GrPathTessellationShader::InitializeIndexBufferForMiddleOutWedges(GrVertexWriter vertexWriter,
+void GrPathTessellationShader::InitializeIndexBufferForMiddleOutWedges(VertexWriter vertexWriter,
                                                                        size_t bufferSize) {
     SkASSERT(bufferSize >= sizeof(uint16_t) * 3);
     // Start out with the fan triangle.

@@ -16,13 +16,15 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/VertexWriter.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+
+namespace skgpu::v1::DrawVerticesOp {
 
 namespace {
 
@@ -401,7 +403,7 @@ void DrawVerticesOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
     size_t vertexStride = this->vertexStride();
     sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex = 0;
-    GrVertexWriter verts{
+    VertexWriter verts{
             target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex)};
     if (!verts.fPtr) {
         SkDebugf("Could not allocate vertices\n");
@@ -580,8 +582,6 @@ static GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode
 }
 
 } // anonymous namespace
-
-namespace skgpu::v1::DrawVerticesOp {
 
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,

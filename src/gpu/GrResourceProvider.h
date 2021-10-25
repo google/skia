@@ -24,7 +24,6 @@ class GrRenderTarget;
 class GrResourceProviderPriv;
 class GrSemaphore;
 class GrSingleOwner;
-struct GrVertexWriter;
 class GrTexture;
 struct GrVkDrawableInfo;
 
@@ -32,6 +31,8 @@ class GrStyle;
 class SkDescriptor;
 class SkPath;
 class SkTypeface;
+
+namespace skgpu { struct VertexWriter; }
 
 /**
  * A factory for arbitrary resource types.
@@ -193,7 +194,7 @@ public:
      *
      * @return The buffer if successful, otherwise nullptr.
      */
-    using InitializeBufferFn = void(*)(GrVertexWriter, size_t bufferSize);
+    using InitializeBufferFn = void(*)(skgpu::VertexWriter, size_t bufferSize);
     sk_sp<const GrGpuBuffer> findOrMakeStaticBuffer(GrGpuBufferType intendedType, size_t size,
                                                     const GrUniqueKey& key, InitializeBufferFn);
 
