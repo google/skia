@@ -26,8 +26,6 @@ namespace skgpu {
 struct VertexWriter {
     inline constexpr static uint32_t kIEEE_32_infinity = 0x7f800000;
 
-    void* fPtr;
-
     VertexWriter() = default;
     VertexWriter(void* ptr) : fPtr(ptr) {}
     VertexWriter(const VertexWriter&) = delete;
@@ -42,6 +40,11 @@ struct VertexWriter {
 
     bool operator==(const VertexWriter& that) const { return fPtr == that.fPtr; }
     operator bool() const { return fPtr != nullptr; }
+
+    // TODO: Remove this call. We want all users of VertexWriter to have to go through the vertex
+    // writer functions to write data. We do not want them to directly access fPtr and copy their
+    // own data.
+    void* ptr() const { return fPtr; }
 
     VertexWriter makeOffset(ptrdiff_t offsetInBytes) const {
         return {SkTAddOffset<void>(fPtr, offsetInBytes)};
@@ -162,12 +165,14 @@ private:
 
     template <int kCornerIdx>
     void writeQuadVertex() {}
+
+    void* fPtr;
 };
 
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const T& val) {
     static_assert(std::is_pod<T>::value, "");
-    memcpy(w.fPtr, &val, sizeof(T));
+    memcpy(w.ptr(), &val, sizeof(T));
     w = w.makeOffset(sizeof(T));
     return w;
 }
@@ -189,7 +194,7 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::Skip<T>& va
 
 template <>
 SK_MAYBE_UNUSED inline VertexWriter& operator<<(VertexWriter& w, const Sk4f& vector) {
-    vector.store(w.fPtr);
+    vector.store(w.ptr());
     w = w.makeOffset(sizeof(vector));
     return w;
 }

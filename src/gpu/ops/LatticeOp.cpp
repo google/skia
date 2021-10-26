@@ -250,7 +250,7 @@ private:
         QuadHelper helper(target, kVertexStride, numRects);
 
         VertexWriter vertices{helper.vertices()};
-        if (!vertices.fPtr) {
+        if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }

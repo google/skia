@@ -807,7 +807,7 @@ private:
                                                        &vertexBuffer,
                                                        &firstVertex)};
 
-            if (!verts.fPtr) {
+            if (!verts) {
                 SkDebugf("Could not allocate vertices\n");
                 return;
             }

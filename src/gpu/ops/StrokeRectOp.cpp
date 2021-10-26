@@ -642,7 +642,7 @@ void AAStrokeRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
                          fProgramInfo->geomProc().vertexStride(), std::move(indexBuffer),
                          verticesPerInstance, indicesPerInstance, instanceCount, maxQuads);
     VertexWriter vertices{ helper.vertices() };
-    if (!vertices.fPtr) {
+    if (!vertices) {
         SkDebugf("Could not allocate vertices\n");
         return;
     }

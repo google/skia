@@ -368,7 +368,7 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
                          const SkPMColor4f& color, const SkRect& uvSubset, GrQuadAAFlags aaFlags) {
     // We allow Tessellator to be created with a null vertices pointer for convenience, but it is
     // assumed it will never actually be used in those cases.
-    SkASSERT(fVertexWriter.fPtr);
+    SkASSERT(fVertexWriter);
     SkASSERT(deviceQuad->quadType() <= fVertexSpec.deviceQuadType());
     SkASSERT(localQuad || !fVertexSpec.hasLocalCoords());
     SkASSERT(!fVertexSpec.hasLocalCoords() || localQuad->quadType() <= fVertexSpec.localQuadType());

@@ -1281,7 +1281,7 @@ private:
         int firstVertex;
         VertexWriter vertices{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
                                                       fVertCount, &vertexBuffer, &firstVertex)};
-        if (!vertices.fPtr) {
+        if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -1653,7 +1653,7 @@ private:
         int firstVertex;
         VertexWriter vertices{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
                                                       fVertCount, &vertexBuffer, &firstVertex)};
-        if (!vertices.fPtr) {
+        if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -1987,7 +1987,7 @@ private:
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.count());
         VertexWriter verts{helper.vertices()};
-        if (!verts.fPtr) {
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -2263,7 +2263,7 @@ private:
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.count());
         VertexWriter verts{helper.vertices()};
-        if (!verts.fPtr) {
+        if (!verts) {
             return;
         }
 
@@ -2684,7 +2684,7 @@ private:
 
         VertexWriter verts{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
                                                      fVertCount, &vertexBuffer, &firstVertex)};
-        if (!verts.fPtr) {
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -3014,7 +3014,7 @@ private:
                              std::move(indexBuffer), kVertsPerStandardRRect, indicesPerInstance,
                              fRRects.count(), kNumRRectsInIndexBuffer);
         VertexWriter verts{helper.vertices()};
-        if (!verts.fPtr) {
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }

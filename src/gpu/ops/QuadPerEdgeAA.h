@@ -146,7 +146,7 @@ namespace skgpu::v1::QuadPerEdgeAA {
         void append(GrQuad* deviceQuad, GrQuad* localQuad,
                     const SkPMColor4f& color, const SkRect& uvSubset, GrQuadAAFlags aaFlags);
 
-        SkDEBUGCODE(char* vertices() const { return (char*) fVertexWriter.fPtr; })
+        SkDEBUGCODE(char* vertices() const { return (char*) fVertexWriter.ptr(); })
 
     private:
         // VertexSpec defines many unique ways to write vertex attributes, which can be handled

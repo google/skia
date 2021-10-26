@@ -564,7 +564,7 @@ private:
 
         QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), totalRectCount);
         VertexWriter vertices{ helper.vertices() };
-        if (!vertices.fPtr) {
+        if (!vertices) {
             return;
         }
 

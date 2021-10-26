@@ -405,7 +405,7 @@ void DrawVerticesOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
     int firstVertex = 0;
     VertexWriter verts{
             target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex)};
-    if (!verts.fPtr) {
+    if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return;
     }
@@ -446,7 +446,7 @@ void DrawVerticesOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
         // TODO4F: Preserve float colors
         GrColor meshColor = mesh.fColor.toBytes_RGBA();
 
-        SkPoint* posBase = (SkPoint*)verts.fPtr;
+        SkPoint* posBase = (SkPoint*)verts.ptr();
 
         for (int i = 0; i < vertexCount; ++i) {
             verts << positions[i];
