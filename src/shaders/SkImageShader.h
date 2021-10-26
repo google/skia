@@ -9,6 +9,7 @@
 #define SkImageShader_DEFINED
 
 #include "include/core/SkImage.h"
+#include "include/core/SkM44.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
 

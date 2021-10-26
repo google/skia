@@ -8,6 +8,7 @@
 #ifndef GrSkSLFP_DEFINED
 #define GrSkSLFP_DEFINED
 
+#include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrContextOptions.h"
