@@ -258,52 +258,80 @@ public:
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
 static uint32_t sltype_to_alignment_mask(SLType type) {
-    switch(type) {
-        case SLType::kShort: // fall through
-        case SLType::kUShort:
-            return 0x1;
-        case SLType::kShort2: // fall through
-        case SLType::kUShort2:
-            return 0x3;
-        case SLType::kShort3: // fall through
-        case SLType::kShort4:
-        case SLType::kUShort3:
-        case SLType::kUShort4:
-            return 0x7;
+    switch (type) {
         case SLType::kInt:
         case SLType::kUint:
+        case SLType::kFloat:
             return 0x3;
         case SLType::kInt2:
         case SLType::kUint2:
+        case SLType::kFloat2:
             return 0x7;
         case SLType::kInt3:
         case SLType::kUint3:
+        case SLType::kFloat3:
         case SLType::kInt4:
         case SLType::kUint4:
-            return 0xF;
-        case SLType::kHalf: // fall through
-        case SLType::kFloat:
-            return 0x3;
-        case SLType::kHalf2: // fall through
-        case SLType::kFloat2:
-            return 0x7;
-        case SLType::kHalf3: // fall through
-        case SLType::kFloat3:
-            return 0xF;
-        case SLType::kHalf4: // fall through
         case SLType::kFloat4:
             return 0xF;
-        case SLType::kHalf2x2: // fall through
+
         case SLType::kFloat2x2:
             return 0x7;
-        case SLType::kHalf3x3: // fall through
         case SLType::kFloat3x3:
             return 0xF;
-        case SLType::kHalf4x4: // fall through
         case SLType::kFloat4x4:
             return 0xF;
 
-            // This query is only valid for certain types.
+/*
+        // TODO(skia:12339): Enable these once MetalCodeGenerator supports half-precision types.
+        case SLType::kShort:
+        case SLType::kUShort:
+        case SLType::kHalf:
+            return 0x1;
+        case SLType::kShort2:
+        case SLType::kUShort2:
+        case SLType::kHalf2:
+            return 0x3;
+        case SLType::kShort3:
+        case SLType::kShort4:
+        case SLType::kUShort3:
+        case SLType::kUShort4:
+        case SLType::kHalf3:
+        case SLType::kHalf4:
+            return 0x7;
+
+        case SLType::kHalf2x2:
+            return 0x3;
+        case SLType::kHalf3x3:
+            return 0x7;
+        case SLType::kHalf4x4:
+            return 0x7;
+*/
+        // TODO(skia:12339): Remove these once MetalCodeGenerator supports half-precision types.
+        case SLType::kShort:
+        case SLType::kUShort:
+        case SLType::kHalf:
+            return 0x3;
+        case SLType::kShort2:
+        case SLType::kUShort2:
+        case SLType::kHalf2:
+            return 0x7;
+        case SLType::kShort3:
+        case SLType::kShort4:
+        case SLType::kUShort3:
+        case SLType::kUShort4:
+        case SLType::kHalf3:
+        case SLType::kHalf4:
+            return 0xF;
+
+        case SLType::kHalf2x2:
+            return 0x7;
+        case SLType::kHalf3x3:
+            return 0xF;
+        case SLType::kHalf4x4:
+            return 0xF;
+
+        // This query is only valid for certain types.
         case SLType::kVoid:
         case SLType::kBool:
         case SLType::kBool2:
@@ -322,56 +350,80 @@ static uint32_t sltype_to_alignment_mask(SLType type) {
 
 /** Returns the size in bytes taken up in Metal buffers for GrSLTypes. */
 inline uint32_t sltype_to_mtl_size(SLType type) {
-    switch(type) {
-        case SLType::kShort:
-            return sizeof(int16_t);
-        case SLType::kShort2:
-            return 2 * sizeof(int16_t);
-        case SLType::kShort3:
-            return 4 * sizeof(int16_t);
-        case SLType::kShort4:
-            return 4 * sizeof(int16_t);
-        case SLType::kUShort:
-            return sizeof(uint16_t);
-        case SLType::kUShort2:
-            return 2 * sizeof(uint16_t);
-        case SLType::kUShort3:
-            return 4 * sizeof(uint16_t);
-        case SLType::kUShort4:
-            return 4 * sizeof(uint16_t);
-        case SLType::kHalf: // fall through
-        case SLType::kFloat:
-            return sizeof(float);
-        case SLType::kHalf2: // fall through
-        case SLType::kFloat2:
-            return 2 * sizeof(float);
-        case SLType::kHalf3: // fall through
-        case SLType::kFloat3:
-        case SLType::kHalf4:
-        case SLType::kFloat4:
-            return 4 * sizeof(float);
-        case SLType::kInt: // fall through
+    switch (type) {
+        case SLType::kInt:
         case SLType::kUint:
-            return sizeof(int32_t);
-        case SLType::kInt2: // fall through
+        case SLType::kFloat:
+            return 4;
+        case SLType::kInt2:
         case SLType::kUint2:
-            return 2 * sizeof(int32_t);
-        case SLType::kInt3: // fall through
+        case SLType::kFloat2:
+            return 8;
+        case SLType::kInt3:
         case SLType::kUint3:
+        case SLType::kFloat3:
         case SLType::kInt4:
         case SLType::kUint4:
-            return 4 * sizeof(int32_t);
-        case SLType::kHalf2x2: // fall through
-        case SLType::kFloat2x2:
-            return 4 * sizeof(float);
-        case SLType::kHalf3x3: // fall through
-        case SLType::kFloat3x3:
-            return 12 * sizeof(float);
-        case SLType::kHalf4x4: // fall through
-        case SLType::kFloat4x4:
-            return 16 * sizeof(float);
+        case SLType::kFloat4:
+            return 16;
 
-            // This query is only valid for certain types.
+        case SLType::kFloat2x2:
+            return 16;
+        case SLType::kFloat3x3:
+            return 48;
+        case SLType::kFloat4x4:
+            return 64;
+
+/*
+        // TODO(skia:12339): Enable these once MetalCodeGenerator supports half-precision types.
+        case SLType::kShort:
+        case SLType::kUShort:
+        case SLType::kHalf:
+            return 2;
+        case SLType::kShort2:
+        case SLType::kUShort2:
+        case SLType::kHalf2:
+            return 4;
+        case SLType::kShort3:
+        case SLType::kShort4:
+        case SLType::kUShort3:
+        case SLType::kUShort4:
+        case SLType::kHalf3:
+        case SLType::kHalf4:
+            return 8;
+
+        case SLType::kHalf2x2:
+            return 8;
+        case SLType::kHalf3x3:
+            return 24;
+        case SLType::kHalf4x4:
+            return 32;
+*/
+        // TODO(skia:12339): Remove these once MetalCodeGenerator supports half-precision types.
+        case SLType::kShort:
+        case SLType::kUShort:
+        case SLType::kHalf:
+            return 4;
+        case SLType::kShort2:
+        case SLType::kUShort2:
+        case SLType::kHalf2:
+            return 8;
+        case SLType::kShort3:
+        case SLType::kShort4:
+        case SLType::kUShort3:
+        case SLType::kUShort4:
+        case SLType::kHalf3:
+        case SLType::kHalf4:
+            return 16;
+
+        case SLType::kHalf2x2:
+            return 16;
+        case SLType::kHalf3x3:
+            return 48;
+        case SLType::kHalf4x4:
+            return 64;
+
+        // This query is only valid for certain types.
         case SLType::kVoid:
         case SLType::kBool:
         case SLType::kBool2:

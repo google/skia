@@ -17,58 +17,81 @@
 
 GR_NORETAIN_BEGIN
 
-// TODO: this class is basically copy and pasted from GrVklUniformHandler so that we can have
-// some shaders working. The SkSL Metal code generator was written to work with GLSL generated for
-// the Ganesh Vulkan backend, so it should all work. There might be better ways to do things in
-// Metal and/or some Vulkan GLSLisms left in.
-
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
 static uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
-        case kShort_GrSLType: // fall through
-        case kUShort_GrSLType:
-            return 0x1;
-        case kShort2_GrSLType: // fall through
-        case kUShort2_GrSLType:
-            return 0x3;
-        case kShort3_GrSLType: // fall through
-        case kShort4_GrSLType:
-        case kUShort3_GrSLType:
-        case kUShort4_GrSLType:
-            return 0x7;
         case kInt_GrSLType:
         case kUint_GrSLType:
+        case kFloat_GrSLType:
             return 0x3;
         case kInt2_GrSLType:
         case kUint2_GrSLType:
+        case kFloat2_GrSLType:
             return 0x7;
         case kInt3_GrSLType:
         case kUint3_GrSLType:
+        case kFloat3_GrSLType:
         case kInt4_GrSLType:
         case kUint4_GrSLType:
-            return 0xF;
-        case kHalf_GrSLType: // fall through
-        case kFloat_GrSLType:
-            return 0x3;
-        case kHalf2_GrSLType: // fall through
-        case kFloat2_GrSLType:
-            return 0x7;
-        case kHalf3_GrSLType: // fall through
-        case kFloat3_GrSLType:
-            return 0xF;
-        case kHalf4_GrSLType: // fall through
         case kFloat4_GrSLType:
             return 0xF;
-        case kHalf2x2_GrSLType: // fall through
+
         case kFloat2x2_GrSLType:
             return 0x7;
-        case kHalf3x3_GrSLType: // fall through
         case kFloat3x3_GrSLType:
             return 0xF;
-        case kHalf4x4_GrSLType: // fall through
         case kFloat4x4_GrSLType:
+            return 0xF;
+
+/*
+        // TODO(skia:12339): Enable these once MetalCodeGenerator supports half-precision types.
+        case kShort_GrSLType:
+        case kUShort_GrSLType:
+        case kHalf_GrSLType:
+            return 0x1;
+        case kShort2_GrSLType:
+        case kUShort2_GrSLType:
+        case kHalf2_GrSLType:
+            return 0x3;
+        case kShort3_GrSLType:
+        case kShort4_GrSLType:
+        case kUShort3_GrSLType:
+        case kUShort4_GrSLType:
+        case kHalf3_GrSLType:
+        case kHalf4_GrSLType:
+            return 0x7;
+
+        case kHalf2x2_GrSLType:
+            return 0x3;
+        case kHalf3x3_GrSLType:
+            return 0x7;
+        case kHalf4x4_GrSLType:
+            return 0x7;
+*/
+        // TODO(skia:12339): Remove these once MetalCodeGenerator supports half-precision types.
+        case kShort_GrSLType:
+        case kUShort_GrSLType:
+        case kHalf_GrSLType:
+            return 0x3;
+        case kShort2_GrSLType:
+        case kUShort2_GrSLType:
+        case kHalf2_GrSLType:
+            return 0x7;
+        case kShort3_GrSLType:
+        case kShort4_GrSLType:
+        case kUShort3_GrSLType:
+        case kUShort4_GrSLType:
+        case kHalf3_GrSLType:
+        case kHalf4_GrSLType:
+            return 0xF;
+
+        case kHalf2x2_GrSLType:
+            return 0x7;
+        case kHalf3x3_GrSLType:
+            return 0xF;
+        case kHalf4x4_GrSLType:
             return 0xF;
 
         // This query is only valid for certain types.
@@ -91,53 +114,77 @@ static uint32_t grsltype_to_alignment_mask(GrSLType type) {
 /** Returns the size in bytes taken up in Metal buffers for GrSLTypes. */
 static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
     switch(type) {
-        case kShort_GrSLType:
-            return sizeof(int16_t);
-        case kShort2_GrSLType:
-            return 2 * sizeof(int16_t);
-        case kShort3_GrSLType:
-            return 4 * sizeof(int16_t);
-        case kShort4_GrSLType:
-            return 4 * sizeof(int16_t);
-        case kUShort_GrSLType:
-            return sizeof(uint16_t);
-        case kUShort2_GrSLType:
-            return 2 * sizeof(uint16_t);
-        case kUShort3_GrSLType:
-            return 4 * sizeof(uint16_t);
-        case kUShort4_GrSLType:
-            return 4 * sizeof(uint16_t);
-        case kHalf_GrSLType: // fall through
-        case kFloat_GrSLType:
-            return sizeof(float);
-        case kHalf2_GrSLType: // fall through
-        case kFloat2_GrSLType:
-            return 2 * sizeof(float);
-        case kHalf3_GrSLType: // fall through
-        case kFloat3_GrSLType:
-        case kHalf4_GrSLType:
-        case kFloat4_GrSLType:
-            return 4 * sizeof(float);
-        case kInt_GrSLType: // fall through
+        case kInt_GrSLType:
         case kUint_GrSLType:
-            return sizeof(int32_t);
-        case kInt2_GrSLType: // fall through
+        case kFloat_GrSLType:
+            return 4;
+        case kInt2_GrSLType:
         case kUint2_GrSLType:
-            return 2 * sizeof(int32_t);
-        case kInt3_GrSLType: // fall through
+        case kFloat2_GrSLType:
+            return 8;
+        case kInt3_GrSLType:
         case kUint3_GrSLType:
+        case kFloat3_GrSLType:
         case kInt4_GrSLType:
         case kUint4_GrSLType:
-            return 4 * sizeof(int32_t);
-        case kHalf2x2_GrSLType: // fall through
+        case kFloat4_GrSLType:
+            return 16;
+
         case kFloat2x2_GrSLType:
-            return 4 * sizeof(float);
-        case kHalf3x3_GrSLType: // fall through
+            return 16;
         case kFloat3x3_GrSLType:
-            return 12 * sizeof(float);
-        case kHalf4x4_GrSLType: // fall through
+            return 48;
         case kFloat4x4_GrSLType:
-            return 16 * sizeof(float);
+            return 64;
+
+/*
+        // TODO(skia:12339): Enable these once MetalCodeGenerator supports half-precision types.
+        case kShort_GrSLType:
+        case kUShort_GrSLType:
+        case kHalf_GrSLType:
+            return 2;
+        case kShort2_GrSLType:
+        case kUShort2_GrSLType:
+        case kHalf2_GrSLType:
+            return 4;
+        case kShort3_GrSLType:
+        case kShort4_GrSLType:
+        case kUShort3_GrSLType:
+        case kUShort4_GrSLType:
+        case kHalf3_GrSLType:
+        case kHalf4_GrSLType:
+            return 8;
+
+        case kHalf2x2_GrSLType:
+            return 8;
+        case kHalf3x3_GrSLType:
+            return 24;
+        case kHalf4x4_GrSLType:
+            return 32;
+*/
+        // TODO(skia:12339): Remove these once MetalCodeGenerator supports half-precision types.
+        case kShort_GrSLType:
+        case kUShort_GrSLType:
+        case kHalf_GrSLType:
+            return 4;
+        case kShort2_GrSLType:
+        case kUShort2_GrSLType:
+        case kHalf2_GrSLType:
+            return 8;
+        case kShort3_GrSLType:
+        case kShort4_GrSLType:
+        case kUShort3_GrSLType:
+        case kUShort4_GrSLType:
+        case kHalf3_GrSLType:
+        case kHalf4_GrSLType:
+            return 16;
+
+        case kHalf2x2_GrSLType:
+            return 16;
+        case kHalf3x3_GrSLType:
+            return 48;
+        case kHalf4x4_GrSLType:
+            return 64;
 
         // This query is only valid for certain types.
         case kVoid_GrSLType:
