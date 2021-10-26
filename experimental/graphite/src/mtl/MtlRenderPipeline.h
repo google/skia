@@ -28,7 +28,7 @@ public:
     static sk_sp<RenderPipeline> Make(const Gpu*, const skgpu::RenderPipelineDesc&);
     ~RenderPipeline() override {}
 
-    id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState.get(); }
+    id<MTLRenderPipelineState> mtlPipelineState() const { return fPipelineState.get(); }
 
 private:
     RenderPipeline(sk_cfp<id<MTLRenderPipelineState>> pso)

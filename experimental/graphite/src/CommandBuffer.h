@@ -52,18 +52,24 @@ public:
     void beginRenderPass(const RenderPassDesc&);
     virtual void endRenderPass() = 0;
 
-    void setRenderPipeline(sk_sp<RenderPipeline> renderPipeline);
-
-    void copyTextureToBuffer(sk_sp<Texture>,
-                             SkIRect srcRect,
-                             sk_sp<Buffer>,
-                             size_t bufferOffset,
-                             size_t bufferRowBytes);
+    //---------------------------------------------------------------
+    // Can only be used within renderpasses
+    //---------------------------------------------------------------
+    void bindRenderPipeline(sk_sp<RenderPipeline> renderPipeline);
 
     void draw(PrimitiveType type, unsigned int vertexStart, unsigned int vertexCount) {
         this->onDraw(type, vertexStart, vertexCount);
         fHasWork = true;
     }
+
+    //---------------------------------------------------------------
+    // Can only be used outside renderpasses
+    //---------------------------------------------------------------
+    void copyTextureToBuffer(sk_sp<Texture>,
+                             SkIRect srcRect,
+                             sk_sp<Buffer>,
+                             size_t bufferOffset,
+                             size_t bufferRowBytes);
 
 protected:
     CommandBuffer();
@@ -72,20 +78,19 @@ protected:
         fTrackedResources.push_back(std::move(resource));
     }
 
-    virtual void onBeginRenderPass(const RenderPassDesc&) = 0;
-
-    virtual void onCopyTextureToBuffer(sk_sp<Texture>,
-                                       SkIRect srcRect,
-                                       sk_sp<Buffer>,
-                                       size_t bufferOffset,
-                                       size_t bufferRowBytes) = 0;
-
 private:
     void releaseResources();
 
-    virtual void onSetRenderPipeline(sk_sp<RenderPipeline>&) = 0;
+    virtual void onBeginRenderPass(const RenderPassDesc&) = 0;
 
+    virtual void onBindRenderPipeline(const RenderPipeline*) = 0;
     virtual void onDraw(PrimitiveType type, unsigned int vertexStart, unsigned int vertexCount) = 0;
+
+    virtual void onCopyTextureToBuffer(const Texture*,
+                                       SkIRect srcRect,
+                                       const Buffer*,
+                                       size_t bufferOffset,
+                                       size_t bufferRowBytes) = 0;
 
     bool fHasWork = false;
 
