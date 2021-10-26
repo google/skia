@@ -43,37 +43,40 @@ DrawContext::DrawContext(sk_sp<TextureProxy> target, const SkImageInfo& ii)
 DrawContext::~DrawContext() {
     // If the SDC is destroyed and there are pending commands, they won't be drawn. Maybe that's ok
     // but for now consider it a bug for not calling snapDrawTask() and snapRenderPassTask()
-    SkASSERT(fPendingDraws->count() == 0);
+    SkASSERT(fPendingDraws->drawCount() == 0);
     SkASSERT(fDrawPasses.empty());
 }
 
 void DrawContext::stencilAndFillPath(const Transform& localToDevice,
                                      const Shape& shape,
-                                     const SkIRect& scissor,
+                                     const Clip& clip,
                                      DrawOrder order,
                                      const PaintParams* paint)  {
-    fPendingDraws->stencilAndFillPath(localToDevice, shape, scissor, order,paint);
+    SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(clip.scissor()));
+    fPendingDraws->stencilAndFillPath(localToDevice, shape, clip, order,paint);
 }
 
 void DrawContext::fillConvexPath(const Transform& localToDevice,
                                  const Shape& shape,
-                                 const SkIRect& scissor,
+                                 const Clip& clip,
                                  DrawOrder order,
                                  const PaintParams* paint) {
-    fPendingDraws->fillConvexPath(localToDevice, shape, scissor, order, paint);
+    SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(clip.scissor()));
+    fPendingDraws->fillConvexPath(localToDevice, shape, clip, order, paint);
 }
 
 void DrawContext::strokePath(const Transform& localToDevice,
                              const Shape& shape,
                              const StrokeParams& stroke,
-                             const SkIRect& scissor,
+                             const Clip& clip,
                              DrawOrder order,
                              const PaintParams* paint) {
-    fPendingDraws->strokePath(localToDevice, shape, stroke, scissor, order, paint);
+    SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(clip.scissor()));
+    fPendingDraws->strokePath(localToDevice, shape, stroke, clip, order, paint);
 }
 
 void DrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
-    if (fPendingDraws->count() == 0) {
+    if (fPendingDraws->drawCount() == 0) {
         return;
     }
 

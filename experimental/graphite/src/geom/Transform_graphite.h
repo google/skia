@@ -49,6 +49,7 @@ public:
     operator SkMatrix() const { return fM.asM33(); }
 
     bool operator==(const Transform& t) const;
+    bool operator!=(const Transform& t) const { return !(*this == t); }
 
     const SkM44& matrix() const { return fM; }
     const SkM44& inverse() const { return fInvM; }

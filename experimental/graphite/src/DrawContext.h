@@ -42,26 +42,26 @@ public:
     const SkImageInfo&  imageInfo() const { return fImageInfo;    }
     const TextureProxy* target()    const { return fTarget.get(); }
 
-    int pendingDrawCount() const { return fPendingDraws->count(); }
+    int pendingDrawCount() const { return fPendingDraws->drawCount(); }
 
     // TODO: need color/depth clearing functions (so DCL will probably need those too)
 
     void stencilAndFillPath(const Transform& localToDevice,
                             const Shape& shape,
-                            const SkIRect& scissor,
+                            const Clip& clip,
                             DrawOrder order,
                             const PaintParams* paint);
 
     void fillConvexPath(const Transform& localToDevice,
                         const Shape& shape,
-                        const SkIRect& scissor,
+                        const Clip& clip,
                         DrawOrder order,
                         const PaintParams* paint);
 
     void strokePath(const Transform& localToDevice,
                     const Shape& shape,
                     const StrokeParams& stroke,
-                    const SkIRect& scissor,
+                    const Clip& clip,
                     DrawOrder order,
                     const PaintParams* paint);
 

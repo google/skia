@@ -59,6 +59,8 @@ public:
     void programs() const {}
 
 private:
+    class SortKey;
+
     DrawPass(sk_sp<TextureProxy> target,
              const SkIRect& bounds,
              bool requiresStencil,

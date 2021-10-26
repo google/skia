@@ -19,6 +19,7 @@ class SkStrokeRec;
 namespace skgpu {
 
 class BoundsManager;
+class Clip;
 class Context;
 class DrawContext;
 class Recorder;
@@ -128,12 +129,6 @@ private:
     };
     SKGPU_DECL_MASK_OPS_FRIENDS(DrawFlags);
 
-    struct ClipResult {
-        SkIRect fScissor; // The device-space scissor-test to apply to the draw
-        Rect fDrawBounds; // The device-space bounds of the draw, with style and scissor applied
-        CompressedPaintersOrder fOrder; // Largest order of clip shapes that affects the draw
-    };
-
     Device(sk_sp<Recorder>, sk_sp<DrawContext>);
 
     // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
@@ -152,7 +147,8 @@ private:
     //
     // This also records the draw's bounds to any clip elements that affect it so that they are
     // recorded when popped off the stack, or making an image snapshot of the Device.
-    ClipResult applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&, PaintersDepth z);
+    std::pair<Clip, CompressedPaintersOrder>
+    applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&, PaintersDepth z);
 
     // Ensures clip elements are drawn that will clip previous draw calls, snaps all pending work
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
