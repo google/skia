@@ -120,12 +120,13 @@ class DrawOrder {
 public:
     // The first PaintersDepth is reserved for clearing the depth attachment; any draw using this
     // depth will always fail the depth test.
-    static constexpr PaintersDepth kClearDepth = PaintersDepth::First();
+    inline static constexpr PaintersDepth kClearDepth = PaintersDepth::First();
     // The first CompressedPaintersOrder is reserved to indicate there is no previous draw that
     // must come before a draw.
-    static constexpr CompressedPaintersOrder kNoIntersection = CompressedPaintersOrder::First();
+    inline static constexpr
+            CompressedPaintersOrder kNoIntersection = CompressedPaintersOrder::First();
     // The first DisjointStencilIndex is reserved to indicate an unassigned stencil set.
-    static constexpr DisjointStencilIndex kUnassigned = DisjointStencilIndex::First();
+    inline static constexpr DisjointStencilIndex kUnassigned = DisjointStencilIndex::First();
 
     explicit DrawOrder(PaintersDepth originalOrder)
             : fPaintOrder(kNoIntersection)
