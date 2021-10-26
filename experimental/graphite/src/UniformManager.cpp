@@ -259,17 +259,6 @@ public:
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
 static uint32_t sltype_to_alignment_mask(SLType type) {
     switch(type) {
-        case SLType::kByte: // fall through
-        case SLType::kUByte:
-            return 0x0;
-        case SLType::kByte2: // fall through
-        case SLType::kUByte2:
-            return 0x1;
-        case SLType::kByte3: // fall through
-        case SLType::kByte4:
-        case SLType::kUByte3:
-        case SLType::kUByte4:
-            return 0x3;
         case SLType::kShort: // fall through
         case SLType::kUShort:
             return 0x1;
@@ -334,22 +323,6 @@ static uint32_t sltype_to_alignment_mask(SLType type) {
 /** Returns the size in bytes taken up in Metal buffers for GrSLTypes. */
 inline uint32_t sltype_to_mtl_size(SLType type) {
     switch(type) {
-        case SLType::kByte:
-            return sizeof(int8_t);
-        case SLType::kByte2:
-            return 2 * sizeof(int8_t);
-        case SLType::kByte3:
-            return 4 * sizeof(int8_t);
-        case SLType::kByte4:
-            return 4 * sizeof(int8_t);
-        case SLType::kUByte:
-            return sizeof(uint8_t);
-        case SLType::kUByte2:
-            return 2 * sizeof(uint8_t);
-        case SLType::kUByte3:
-            return 4 * sizeof(uint8_t);
-        case SLType::kUByte4:
-            return 4 * sizeof(uint8_t);
         case SLType::kShort:
             return sizeof(int16_t);
         case SLType::kShort2:
