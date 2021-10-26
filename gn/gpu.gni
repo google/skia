@@ -826,4 +826,4 @@ skia_native_gpu_sources = [
   "$_src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp",
 ]
 
-skia_shared_gpu_sources = [ "$_src/gpu/VertexWriter.h" ]
+skia_shared_gpu_sources = [ "$_src/gpu/BufferWriter.h" ]

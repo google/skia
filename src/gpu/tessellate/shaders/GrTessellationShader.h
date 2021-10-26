@@ -8,9 +8,9 @@
 #ifndef GrTessellationShader_DEFINED
 #define GrTessellationShader_DEFINED
 
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/VertexWriter.h"
 
 class SkArenaAlloc;
 

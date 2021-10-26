@@ -9,8 +9,8 @@
 #define tessellate_PathXform_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrVx.h"
-#include "src/gpu/VertexWriter.h"
 
 namespace skgpu {
 

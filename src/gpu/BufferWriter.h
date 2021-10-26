@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef VertexWriter_DEFINED
-#define VertexWriter_DEFINED
+#ifndef BufferWriter_DEFINED
+#define BufferWriter_DEFINED
 
 #include "include/core/SkRect.h"
 #include "include/private/SkNx.h"
@@ -14,6 +14,25 @@
 #include <type_traits>
 
 namespace skgpu {
+
+struct BufferWriter {
+public:
+    operator bool() const { return fPtr != nullptr; }
+
+protected:
+    BufferWriter() = default;
+    BufferWriter(void* ptr) : fPtr(ptr) {}
+
+    BufferWriter& operator=(const BufferWriter&) = delete;
+    BufferWriter& operator=(BufferWriter&& that) {
+        fPtr = that.fPtr;
+        that.fPtr = nullptr;
+        return *this;
+    }
+
+protected:
+    void* fPtr;
+};
 
 /**
  * Helper for writing vertex data to a buffer. Usage:
@@ -23,23 +42,21 @@ namespace skgpu {
  *
  * Each value must be POD (plain old data), or have a specialization of the "<<" operator.
  */
-struct VertexWriter {
+struct VertexWriter : public BufferWriter {
     inline constexpr static uint32_t kIEEE_32_infinity = 0x7f800000;
 
     VertexWriter() = default;
-    VertexWriter(void* ptr) : fPtr(ptr) {}
+    VertexWriter(void* ptr) : BufferWriter(ptr) {}
     VertexWriter(const VertexWriter&) = delete;
     VertexWriter(VertexWriter&& that) { *this = std::move(that); }
 
     VertexWriter& operator=(const VertexWriter&) = delete;
     VertexWriter& operator=(VertexWriter&& that) {
-        fPtr = that.fPtr;
-        that.fPtr = nullptr;
+        BufferWriter::operator=(std::move(that));
         return *this;
     }
 
     bool operator==(const VertexWriter& that) const { return fPtr == that.fPtr; }
-    operator bool() const { return fPtr != nullptr; }
 
     // TODO: Remove this call. We want all users of VertexWriter to have to go through the vertex
     // writer functions to write data. We do not want them to directly access fPtr and copy their
@@ -166,13 +183,13 @@ private:
     template <int kCornerIdx>
     void writeQuadVertex() {}
 
-    void* fPtr;
+    template <typename T> friend VertexWriter& operator<<(VertexWriter& w, const T& val);
 };
 
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const T& val) {
     static_assert(std::is_pod<T>::value, "");
-    memcpy(w.ptr(), &val, sizeof(T));
+    memcpy(w.fPtr, &val, sizeof(T));
     w = w.makeOffset(sizeof(T));
     return w;
 }
@@ -194,7 +211,7 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::Skip<T>& va
 
 template <>
 SK_MAYBE_UNUSED inline VertexWriter& operator<<(VertexWriter& w, const Sk4f& vector) {
-    vector.store(w.ptr());
+    vector.store(w.fPtr);
     w = w.makeOffset(sizeof(vector));
     return w;
 }
@@ -205,6 +222,58 @@ struct VertexWriter::is_quad<VertexWriter::TriStrip<T>> : std::true_type {};
 template <typename T>
 struct VertexWriter::is_quad<VertexWriter::TriFan<T>> : std::true_type {};
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct IndexWriter : public BufferWriter {
+    IndexWriter() = default;
+    IndexWriter(void* ptr) : BufferWriter(ptr) {}
+    IndexWriter(const IndexWriter&) = delete;
+    IndexWriter(IndexWriter&& that) { *this = std::move(that); }
+
+    IndexWriter& operator=(const IndexWriter&) = delete;
+    IndexWriter& operator=(IndexWriter&& that) {
+        BufferWriter::operator=(std::move(that));
+        return *this;
+    }
+
+    IndexWriter makeAdvance(int numIndices) const {
+        return {SkTAddOffset<void>(fPtr, numIndices * sizeof(uint16_t))};
+    }
+
+    void writeArray(const uint16_t* array, int count) {
+        memcpy(fPtr, array, count * sizeof(uint16_t));
+        fPtr = SkTAddOffset<void>(fPtr, count * sizeof(uint16_t));
+    }
+
+    friend IndexWriter& operator<<(IndexWriter& w, uint16_t val);
+};
+
+inline IndexWriter& operator<<(IndexWriter& w, uint16_t val) {
+    memcpy(w.fPtr, &val, sizeof(uint16_t));
+    w = w.makeAdvance(1);
+    return w;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct UniformWriter : public BufferWriter {
+    UniformWriter() = default;
+    UniformWriter(void* ptr) : BufferWriter(ptr) {}
+    UniformWriter(const UniformWriter&) = delete;
+    UniformWriter(UniformWriter&& that) { *this = std::move(that); }
+
+    UniformWriter& operator=(const UniformWriter&) = delete;
+    UniformWriter& operator=(UniformWriter&& that) {
+        BufferWriter::operator=(std::move(that));
+        return *this;
+    }
+
+    void write(const void* src, size_t bytes) {
+        memcpy(fPtr, src, bytes);
+        fPtr = SkTAddOffset<void>(fPtr, bytes);
+    }
+};
+
 }  // namespace skgpu
 
-#endif
+#endif // BufferWriter_DEFINED

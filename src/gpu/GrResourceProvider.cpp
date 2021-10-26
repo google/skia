@@ -13,6 +13,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDataUtils.h"
@@ -25,7 +26,6 @@
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/VertexWriter.h"
 
 const int GrResourceProvider::kMinScratchTextureSize = 16;
 

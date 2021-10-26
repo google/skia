@@ -12,8 +12,8 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrVx.h"
-#include "src/gpu/VertexWriter.h"
 
 class SkMatrix;
 

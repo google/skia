@@ -7,7 +7,7 @@
 
 #include "src/gpu/ops/AtlasInstancedHelper.h"
 
-#include "src/gpu/VertexWriter.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"

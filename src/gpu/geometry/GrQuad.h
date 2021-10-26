@@ -12,7 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
-#include "src/gpu/VertexWriter.h"
+#include "src/gpu/BufferWriter.h"
 
 enum class GrQuadAAFlags;
 

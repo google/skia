@@ -13,7 +13,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/VertexWriter.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/tessellate/PathXform.h"
 
 namespace skgpu {

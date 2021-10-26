@@ -16,7 +16,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
-#include "src/gpu/VertexWriter.h"
+#include "src/gpu/BufferWriter.h"
 
 /**
  * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. Whether the color is

@@ -7,8 +7,8 @@
 
 #include "src/gpu/geometry/GrTriangulator.h"
 
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
-#include "src/gpu/VertexWriter.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 
 #include "src/core/SkGeometry.h"

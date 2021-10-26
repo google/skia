@@ -11,8 +11,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrBuffer.h"
-#include "src/gpu/VertexWriter.h"
 
 class GrMeshDrawTarget;
 
