@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 
+#include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawOrder.h"
 
 #include <vector>
@@ -25,9 +26,6 @@ class DrawList;
 class DrawPass;
 class Task;
 
-struct PaintParams;
-struct StrokeParams;
-
 /**
  * DrawContext records draw commands into a specific Surface, via a general task graph
  * representing GPU work and their inter-dependencies.
@@ -39,6 +37,8 @@ public:
     ~DrawContext() override;
 
     const SkImageInfo& imageInfo() { return fImageInfo; }
+
+    int pendingDrawCount() const { return fPendingDraws->count(); }
 
     // TODO: need color/depth clearing functions (so DCL will probably need those too)
 

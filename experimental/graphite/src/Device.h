@@ -154,6 +154,12 @@ private:
     // recorded when popped off the stack, or making an image snapshot of the Device.
     ClipResult applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&, PaintersDepth z);
 
+    // Ensures clip elements are drawn that will clip previous draw calls, snaps all pending work
+    // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
+    void flushPendingWorkToRecorder();
+
+    bool needsFlushBeforeDraw(int numNewDraws) const;
+
     sk_sp<Recorder> fRecorder;
     sk_sp<DrawContext> fDC;
 

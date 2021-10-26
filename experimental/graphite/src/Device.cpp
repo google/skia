@@ -70,9 +70,7 @@ sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
-    // TODO: If we're reading back pixels we need to push deferred clip draws and snap off the draw
-    // task so we can have a read back task added to the graph, the same as will be done if the
-    // Device has a snapped special image or is drawn into another device directly.
+    this->flushPendingWorkToRecorder();
     // TODO: actually do a read back
     pm.erase(SK_ColorGREEN);
     return true;
@@ -192,6 +190,12 @@ void Device::drawShape(const Shape& shape,
     SkASSERT(!SkToBool(paint.getPathEffect()) || (flags & DrawFlags::kIgnorePathEffect));
     SkASSERT(!SkToBool(paint.getMaskFilter()) || (flags & DrawFlags::kIgnoreMaskFilter));
 
+    // Check if we have room to record into the current list before determining clipping and order
+    const SkStrokeRec::Style styleType = style.getStyle();
+    if (this->needsFlushBeforeDraw(styleType == SkStrokeRec::kStrokeAndFill_Style ? 2 : 1)) {
+        this->flushPendingWorkToRecorder();
+    }
+
     DrawOrder order(fCurrentDepth.next());
     ClipResult clip = this->applyClipToDraw(localToDevice, shape, style, order.depth());
     if (clip.fDrawBounds.isEmptyNegativeOrNaN()) {
@@ -217,7 +221,6 @@ void Device::drawShape(const Shape& shape,
         order.dependsOnPaintersOrder(prevDraw);
     }
 
-    const SkStrokeRec::Style styleType = style.getStyle();
     if (styleType == SkStrokeRec::kStroke_Style ||
         styleType == SkStrokeRec::kHairline_Style ||
         styleType == SkStrokeRec::kStrokeAndFill_Style) {
@@ -282,6 +285,25 @@ Device::ClipResult Device::applyClipToDraw(const Transform& localToDevice,
     return {scissor, drawBounds, DrawOrder::kNoIntersection};
 }
 
+void Device::flushPendingWorkToRecorder() {
+    // TODO: we may need to further split this function up since device->device drawList and
+    // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
+
+    // TODO: iterate the clip stack and issue a depth-only draw for every clip element that has
+    // a non-empty usage bounds, using that bounds as the scissor.
+    auto drawTask = fDC->snapRenderPassTask(fColorDepthBoundsManager.get());
+    if (drawTask) {
+        fRecorder->add(std::move(drawTask));
+    }
+}
+
+bool Device::needsFlushBeforeDraw(int numNewDraws) const {
+    // TODO: iterate the clip stack and count the number of clip elements (both w/ and w/o usage
+    // since we want to know the max # of clip shapes that flushing might add as draws).
+    // numNewDraws += clip element count...
+    return (DrawList::kMaxDraws - fDC->pendingDrawCount()) < numNewDraws;
+}
+
 sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap&) {
     return nullptr;
 }
@@ -291,6 +313,7 @@ sk_sp<SkSpecialImage> Device::makeSpecial(const SkImage*) {
 }
 
 sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy) {
+    this->flushPendingWorkToRecorder();
     return nullptr;
 }
 

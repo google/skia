@@ -14,7 +14,7 @@
 
 #include "experimental/graphite/src/DrawOrder.h"
 
-#include <cstdint>
+#include <limits>
 
 class SkPath;
 struct SkIRect;
@@ -61,6 +61,14 @@ struct StrokeParams;
  */
 class DrawList {
 public:
+    // The maximum number of draw calls that can be recorded into a DrawList before it must be
+    // converted to a DrawPass. The true fundamental limit is imposed by the limits of the depth
+    // attachment and precision of CompressedPaintersOrder and PaintDepth. These values can be
+    // shared by multiple draw calls so it's more difficult to reason about how much room is left
+    // in a DrawList. Limiting it to this keeps tracking simple and ensures that the sequences in
+    // DrawOrder cannot overflow since they are always less than or equal to the number of draws.
+    static constexpr int kMaxDraws = std::numeric_limits<uint16_t>::max();
+
     // NOTE: All path rendering functions, e.g. [fill|stroke|...]Path() that take a Shape
     // draw using the same underlying techniques regardless of the shape's type. If a Shape has
     // a type matching a simpler primitive technique or coverage AA, the caller must explicitly
