@@ -19,6 +19,7 @@ namespace SkSL {
 
 class BinaryExpression;
 class Block;
+class ConstructorArrayCast;
 class ConstructorCompound;
 class ConstructorMatrixResize;
 class DoStatement;
@@ -209,6 +210,8 @@ protected:
                               const char* leftBracket,
                               const char* rightBracket,
                               Precedence parentPrecedence);
+
+    void writeConstructorArrayCast(const ConstructorArrayCast& c, Precedence parentPrecedence);
 
     void writeFieldAccess(const FieldAccess& f);
 
