@@ -135,7 +135,7 @@ static const struct {
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
 #ifdef SK_METAL
-    { "grmtl",                 "graphite", "api=metal" },
+    { "grmtl",                 "graphite", "api=metal,testPrecompile=true" },
 #endif
 #ifdef SK_VULKAN
     { "grvk",                  "graphite", "api=vulkan" },

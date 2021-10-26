@@ -786,7 +786,7 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
                                                 const GrFPArgs& args) {
     // We add a tiny delta to t. When gradient stops are set up so that a hard stop in a vertically
     // or horizontally oriented gradient falls exactly at a column or row of pixel centers we can
-    // we can get slightly different interpolated t values along the column/row. By adding the delta
+    // get slightly different interpolated t values along the column/row. By adding the delta
     // we will consistently get the color to the "right" of the stop. Of course if the hard stop
     // falls at X.5 - delta then we still could get inconsistent results, but that is much less
     // likely. crbug.com/938592

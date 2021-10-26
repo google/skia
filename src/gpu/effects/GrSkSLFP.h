@@ -181,7 +181,7 @@ private:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
     // An instance of GrSkSLFP is always allocated with a payload immediately following the FP.
-    // First the the values of all the uniforms, and then a set of flags (one per uniform).
+    // First the values of all the uniforms, and then a set of flags (one per uniform).
     static size_t UniformPayloadSize(const SkRuntimeEffect* effect) {
         return effect->uniformSize() + effect->uniforms().count() * sizeof(UniformFlags);
     }
