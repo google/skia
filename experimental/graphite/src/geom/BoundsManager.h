@@ -8,7 +8,7 @@
 #ifndef skgpu_geom_BoundsManager_DEFINED
 #define skgpu_geom_BoundsManager_DEFINED
 
-#include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/src/DrawOrder.h"
 #include "experimental/graphite/src/geom/Rect.h"
 
 #include "src/core/SkTBlockList.h"
@@ -34,9 +34,11 @@ public:
 
     virtual CompressedPaintersOrder getMostRecentDraw(const Rect& bounds) const = 0;
 
-    virtual bool isOccluded(const Rect& bounds, uint16_t z) const = 0;
+    virtual bool isOccluded(const Rect& bounds, PaintersDepth z) const = 0;
 
-    virtual void recordDraw(const Rect& bounds, CompressedPaintersOrder order, uint16_t z,
+    virtual void recordDraw(const Rect& bounds,
+                            CompressedPaintersOrder order,
+                            PaintersDepth z,
                             bool fullyOpaque=false) = 0;
 };
 
@@ -53,17 +55,17 @@ public:
         return fLatestDraw;
     }
 
-    bool isOccluded(const Rect& bounds, uint16_t z) const override { return false; }
+    bool isOccluded(const Rect& bounds, PaintersDepth z) const override { return false; }
 
-    void recordDraw(const Rect& bounds, CompressedPaintersOrder order, uint16_t z,
+    void recordDraw(const Rect& bounds, CompressedPaintersOrder order, PaintersDepth z,
                     bool fullyOpaque=false) override {
-        if (order > fLatestDraw) {
+        if (fLatestDraw < order) {
             fLatestDraw = order;
         }
     }
 
 private:
-    CompressedPaintersOrder fLatestDraw = 0;
+    CompressedPaintersOrder fLatestDraw = CompressedPaintersOrder::First();
 };
 
 // A BoundsManager that tracks every draw and can exactly determine all queries
@@ -73,26 +75,26 @@ public:
     ~BruteForceBoundsManager() override {}
 
     CompressedPaintersOrder getMostRecentDraw(const Rect& bounds) const override {
-        CompressedPaintersOrder max = 0;
+        CompressedPaintersOrder max = CompressedPaintersOrder::First();
         for (const Record& r : fRects.items()) {
-            if (r.fOrder > max && r.fBounds.intersects(bounds)) {
+            if (max < r.fOrder && r.fBounds.intersects(bounds)) {
                 max = r.fOrder;
             }
         }
         return max;
     }
 
-    bool isOccluded(const Rect& bounds, uint16_t z) const override {
+    bool isOccluded(const Rect& bounds, PaintersDepth z) const override {
         // Iterate in reverse since the records were likely recorded in increasing Z
         for (const Record& r : fRects.ritems()) {
-            if (r.fOpaque && r.fZ >= z && r.fBounds.contains(bounds)) {
+            if (r.fOpaque && z < r.fZ && r.fBounds.contains(bounds)) {
                 return true;
             }
         }
         return false;
     }
 
-    void recordDraw(const Rect& bounds, CompressedPaintersOrder order, uint16_t z,
+    void recordDraw(const Rect& bounds, CompressedPaintersOrder order, PaintersDepth z,
                     bool fullyOpaque=false) override {
         fRects.push_back({bounds, order, z, fullyOpaque});
     }
@@ -101,7 +103,7 @@ private:
     struct Record {
         Rect fBounds;
         CompressedPaintersOrder fOrder;
-        uint16_t fZ;
+        PaintersDepth fZ;
         bool fOpaque;
     };
 

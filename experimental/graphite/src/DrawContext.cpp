@@ -36,31 +36,26 @@ DrawContext::~DrawContext() {
 void DrawContext::stencilAndFillPath(const Transform& localToDevice,
                                      const Shape& shape,
                                      const SkIRect& scissor,
-                                     CompressedPaintersOrder colorDepthOrder,
-                                     CompressedPaintersOrder stencilOrder,
-                                     uint16_t depth,
+                                     DrawOrder order,
                                      const PaintParams* paint)  {
-    fPendingDraws->stencilAndFillPath(localToDevice, shape, scissor, colorDepthOrder, stencilOrder,
-                                      depth, paint);
+    fPendingDraws->stencilAndFillPath(localToDevice, shape, scissor, order,paint);
 }
 
 void DrawContext::fillConvexPath(const Transform& localToDevice,
                                  const Shape& shape,
                                  const SkIRect& scissor,
-                                 CompressedPaintersOrder colorDepthOrder,
-                                 uint16_t depth,
+                                 DrawOrder order,
                                  const PaintParams* paint) {
-    fPendingDraws->fillConvexPath(localToDevice, shape, scissor, colorDepthOrder, depth, paint);
+    fPendingDraws->fillConvexPath(localToDevice, shape, scissor, order, paint);
 }
 
 void DrawContext::strokePath(const Transform& localToDevice,
                              const Shape& shape,
                              const StrokeParams& stroke,
                              const SkIRect& scissor,
-                             CompressedPaintersOrder colorDepthOrder,
-                             uint16_t depth,
+                             DrawOrder order,
                              const PaintParams* paint) {
-    fPendingDraws->strokePath(localToDevice, shape, stroke, scissor, colorDepthOrder, depth, paint);
+    fPendingDraws->strokePath(localToDevice, shape, stroke, scissor, order, paint);
 }
 
 void DrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {

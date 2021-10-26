@@ -68,8 +68,8 @@ struct SortKey {
             int pipelineIndex,
             uint16_t geomDataHash,
             uint32_t shadingDataHash)
-        : fPipelineKey{colorDepthOrder,
-                       stencilOrder,
+        : fPipelineKey{colorDepthOrder.bits(),
+                       stencilOrder.bits(),
                        static_cast<uint16_t>(drawStage),
                        static_cast<uint32_t>(pipelineIndex)}
         , fDataHash{geomDataHash,
@@ -86,16 +86,6 @@ struct SortKey {
     int pipelineIndex() const { return static_cast<int>(fPipelineKey.fPipelineIndex); }
 
     DrawStage stage() const { return static_cast<DrawStage>(fPipelineKey.fDrawStage); }
-
-    // Exposed for inspection, but generally the painters ordering isn't needed after sorting
-    // since draws can be merged with different values as long as they have the same pipeline and
-    // their sorted ordering is preserved within the pipeline.
-    CompressedPaintersOrder colorDepthOrder() const {
-        return static_cast<CompressedPaintersOrder>(fPipelineKey.fColorDepthOrder);
-    }
-    CompressedPaintersOrder stencilOrder() const {
-        return static_cast<CompressedPaintersOrder>(fPipelineKey.fStencilOrder);
-    }
 
     // These are exposed to help optimize detecting when new uniforms need to be bound.
     // Differing hashes definitely represent different uniform bindings, but identical hashes

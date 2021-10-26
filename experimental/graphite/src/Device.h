@@ -8,10 +8,10 @@
 #ifndef skgpu_Device_DEFINED
 #define skgpu_Device_DEFINED
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
-
 #include "src/core/SkDevice.h"
 
+#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "experimental/graphite/src/DrawOrder.h"
 #include "experimental/graphite/src/geom/Rect.h"
 
 class SkStrokeRec;
@@ -24,9 +24,6 @@ class DrawContext;
 class Recorder;
 class Shape;
 class Transform;
-
-struct PaintParams;
-struct StrokeParams;
 
 class Device final : public SkBaseDevice  {
 public:
@@ -155,7 +152,7 @@ private:
     //
     // This also records the draw's bounds to any clip elements that affect it so that they are
     // recorded when popped off the stack, or making an image snapshot of the Device.
-    ClipResult applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&, uint16_t z);
+    ClipResult applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&, PaintersDepth z);
 
     sk_sp<Recorder> fRecorder;
     sk_sp<DrawContext> fDC;
@@ -163,11 +160,13 @@ private:
     // Tracks accumulated intersections for ordering dependent use of the color and depth attachment
     // (i.e. depth-based clipping, and transparent blending)
     std::unique_ptr<BoundsManager> fColorDepthBoundsManager;
-    // The max recorded painters order sent to the DrawContext, needed to know how many available
-    // values are left before overrunning 16-bit limit and forcing a reset.
-    CompressedPaintersOrder fMaxPaintOrder;
+
     // The max depth value sent to the DrawContext, incremented so each draw has a unique value.
-    uint16_t fMaxZ;
+    PaintersDepth fCurrentDepth;
+    // TODO: Temporary way to assign stencil IDs for draws, but since each draw gets its own
+    // value, it prevents the ability for draw steps to be re-arranged into blocks of stencil then
+    // covers. However, it does ensure stenciling is correct until we wire up the intersection tree
+    DisjointStencilIndex fMaxStencilIndex;
 
     bool fDrawsOverlap;
 };

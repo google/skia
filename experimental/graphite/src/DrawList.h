@@ -12,7 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 
-#include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/src/DrawOrder.h"
 
 #include <cstdint>
 
@@ -61,12 +61,6 @@ struct StrokeParams;
  */
 class DrawList {
 public:
-    // TBD: Do we always need the inverse deviceToLocal matrix? If not the entire matrix, do we need
-    // some other matrix-dependent value (e.g. scale factor) frequently? Since the localToDevice
-    // transform from the Device changes at the same or slower rate as draw commands, it may make
-    // sense for it to compute these dependent values and provide them here. Storing the scale
-    // factor per draw command is low overhead, but unsure about storing 2 matrices per command.
-
     // NOTE: All path rendering functions, e.g. [fill|stroke|...]Path() that take a Shape
     // draw using the same underlying techniques regardless of the shape's type. If a Shape has
     // a type matching a simpler primitive technique or coverage AA, the caller must explicitly
@@ -78,9 +72,7 @@ public:
     void stencilAndFillPath(const Transform& localToDevice,
                             const Shape& shape,
                             const SkIRect& scissor, // TBD: expand this to one xformed rrect clip?
-                            CompressedPaintersOrder colorDepthOrder,
-                            CompressedPaintersOrder stencilOrder,
-                            uint16_t depth,
+                            DrawOrder ordering,
                             const PaintParams* paint) {
         // TODO: Implement this and assert localToDevice.valid()
     }
@@ -88,8 +80,7 @@ public:
     void fillConvexPath(const Transform& localToDevice,
                         const Shape& shape,
                         const SkIRect& scissor,
-                        CompressedPaintersOrder colorDepthOrder,
-                        uint16_t depth,
+                        DrawOrder ordering,
                         const PaintParams* paint) {
         // TODO: Implement this and assert localToDevice.valid()
     }
@@ -98,8 +89,7 @@ public:
                     const Shape& shape,
                     const StrokeParams& stroke,
                     const SkIRect& scissor,
-                    CompressedPaintersOrder colorDepthOrder,
-                    uint16_t depth,
+                    DrawOrder ordering,
                     const PaintParams* paint) {
         // TODO: Implement this and assert localToDevice.valid()
     }
@@ -111,17 +101,6 @@ public:
     //       dashLine(only if general or rrect version aren't viable)
 
     int count() const { return 0; }
-
-    // TBD: Figure out preparation/flush APIs and/or how to iterate the draw commands. These will
-    // be responsible for sorting by sort z and shading state, doing occlusion culling, and possibly
-    // merging compatible, consecutive remaining commands. It can also easily track if there are
-    // remaining depth-only draws or complex path draws that would trigger DMSAA. I[ml] can see this
-    // all being internal to DrawCommandList, or being supported by accessors and iterators with the
-    // rest of the logic stored in SDC. It is also unknown at this time how much conversion the
-    // PaintParams will need to go through (vs. just building a key) in order to do state sorting.
-
-    // TBD: Any value in de-duplicating paint params/programs during accumulation or being able
-    // to query the set of required programs for a given command list? Any time query or flush time?
 
 private:
     // TODO: actually implement this, probably stl for now but will likely need something that
