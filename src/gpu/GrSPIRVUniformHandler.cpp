@@ -30,17 +30,6 @@ namespace {
 
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
-        case kByte_GrSLType: // fall through
-        case kUByte_GrSLType:
-            return 0x0;
-        case kByte2_GrSLType: // fall through
-        case kUByte2_GrSLType:
-            return 0x1;
-        case kByte3_GrSLType: // fall through
-        case kByte4_GrSLType:
-        case kUByte3_GrSLType:
-        case kUByte4_GrSLType:
-            return 0x3;
         case kShort_GrSLType: // fall through
         case kUShort_GrSLType:
             return 0x1;
@@ -104,18 +93,6 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
 
 static inline uint32_t grsltype_to_size(GrSLType type) {
     switch(type) {
-        case kByte_GrSLType:
-        case kUByte_GrSLType:
-            return 1;
-        case kByte2_GrSLType:
-        case kUByte2_GrSLType:
-            return 2;
-        case kByte3_GrSLType:
-        case kUByte3_GrSLType:
-            return 3;
-        case kByte4_GrSLType:
-        case kUByte4_GrSLType:
-            return 4;
         case kShort_GrSLType:
             return sizeof(int16_t);
         case kShort2_GrSLType:

@@ -23,17 +23,6 @@
 // https://www.khronos.org/registry/vulkan/specs/1.0-wsi_extensions/html/vkspec.html#interfaces-resources-layout
 static uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
-        case kByte_GrSLType: // fall through
-        case kUByte_GrSLType:
-            return 0x0;
-        case kByte2_GrSLType: // fall through
-        case kUByte2_GrSLType:
-            return 0x1;
-        case kByte3_GrSLType: // fall through
-        case kByte4_GrSLType:
-        case kUByte3_GrSLType:
-        case kUByte4_GrSLType:
-            return 0x3;
         case kShort_GrSLType: // fall through
         case kUShort_GrSLType:
             return 0x1;
@@ -98,22 +87,6 @@ static uint32_t grsltype_to_alignment_mask(GrSLType type) {
 /** Returns the size in bytes taken up in vulkanbuffers for GrSLTypes. */
 static inline uint32_t grsltype_to_vk_size(GrSLType type, int layout) {
     switch(type) {
-        case kByte_GrSLType:
-            return sizeof(int8_t);
-        case kByte2_GrSLType:
-            return 2 * sizeof(int8_t);
-        case kByte3_GrSLType:
-            return 3 * sizeof(int8_t);
-        case kByte4_GrSLType:
-            return 4 * sizeof(int8_t);
-        case kUByte_GrSLType:
-            return sizeof(uint8_t);
-        case kUByte2_GrSLType:
-            return 2 * sizeof(uint8_t);
-        case kUByte3_GrSLType:
-            return 3 * sizeof(uint8_t);
-        case kUByte4_GrSLType:
-            return 4 * sizeof(uint8_t);
         case kShort_GrSLType:
             return sizeof(int16_t);
         case kShort2_GrSLType:

@@ -304,14 +304,6 @@ enum GrSLType {
     kBool2_GrSLType,
     kBool3_GrSLType,
     kBool4_GrSLType,
-    kByte_GrSLType,
-    kByte2_GrSLType,
-    kByte3_GrSLType,
-    kByte4_GrSLType,
-    kUByte_GrSLType,
-    kUByte2_GrSLType,
-    kUByte3_GrSLType,
-    kUByte4_GrSLType,
     kShort_GrSLType,
     kShort2_GrSLType,
     kShort3_GrSLType,
@@ -410,14 +402,6 @@ static constexpr bool GrSLTypeIsFloatType(GrSLType type) {
         case kBool2_GrSLType:
         case kBool3_GrSLType:
         case kBool4_GrSLType:
-        case kByte_GrSLType:
-        case kByte2_GrSLType:
-        case kByte3_GrSLType:
-        case kByte4_GrSLType:
-        case kUByte_GrSLType:
-        case kUByte2_GrSLType:
-        case kUByte3_GrSLType:
-        case kUByte4_GrSLType:
         case kShort_GrSLType:
         case kShort2_GrSLType:
         case kShort3_GrSLType:
@@ -445,14 +429,6 @@ static constexpr bool GrSLTypeIsFloatType(GrSLType type) {
 /** Is the shading language type integral (including vectors)? */
 static constexpr bool GrSLTypeIsIntegralType(GrSLType type) {
     switch (type) {
-        case kByte_GrSLType:
-        case kByte2_GrSLType:
-        case kByte3_GrSLType:
-        case kByte4_GrSLType:
-        case kUByte_GrSLType:
-        case kUByte2_GrSLType:
-        case kUByte3_GrSLType:
-        case kUByte4_GrSLType:
         case kShort_GrSLType:
         case kShort2_GrSLType:
         case kShort3_GrSLType:
@@ -515,8 +491,6 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
         case kFloat_GrSLType:
         case kHalf_GrSLType:
         case kBool_GrSLType:
-        case kByte_GrSLType:
-        case kUByte_GrSLType:
         case kShort_GrSLType:
         case kUShort_GrSLType:
         case kInt_GrSLType:
@@ -526,8 +500,6 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
         case kFloat2_GrSLType:
         case kHalf2_GrSLType:
         case kBool2_GrSLType:
-        case kByte2_GrSLType:
-        case kUByte2_GrSLType:
         case kShort2_GrSLType:
         case kUShort2_GrSLType:
         case kInt2_GrSLType:
@@ -537,8 +509,6 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
         case kFloat3_GrSLType:
         case kHalf3_GrSLType:
         case kBool3_GrSLType:
-        case kByte3_GrSLType:
-        case kUByte3_GrSLType:
         case kShort3_GrSLType:
         case kUShort3_GrSLType:
         case kInt3_GrSLType:
@@ -548,8 +518,6 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
         case kFloat4_GrSLType:
         case kHalf4_GrSLType:
         case kBool4_GrSLType:
-        case kByte4_GrSLType:
-        case kUByte4_GrSLType:
         case kShort4_GrSLType:
         case kUShort4_GrSLType:
         case kInt4_GrSLType:
@@ -637,14 +605,6 @@ static constexpr bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kBool2_GrSLType:
         case kBool3_GrSLType:
         case kBool4_GrSLType:
-        case kByte_GrSLType:
-        case kByte2_GrSLType:
-        case kByte3_GrSLType:
-        case kByte4_GrSLType:
-        case kUByte_GrSLType:
-        case kUByte2_GrSLType:
-        case kUByte3_GrSLType:
-        case kUByte4_GrSLType:
         case kShort_GrSLType:
         case kShort2_GrSLType:
         case kShort3_GrSLType:
