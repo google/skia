@@ -1,0 +1,16 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "skdebug",
+    srcs = select({
+        "//bazel/common_config_settings:stdio_skdebug": [
+            "SkDebug_stdio.cpp",
+        ],
+        "//bazel/common_config_settings:win_skdebug": [
+            "SkDebug_win.cpp",
+        ],
+        "//bazel/common_config_settings:android_skdebug": [
+            "SkDebug_android.cpp",
+        ],
+    }),
+)

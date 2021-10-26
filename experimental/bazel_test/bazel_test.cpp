@@ -4,13 +4,15 @@
 #include <ctime>
 #include <iostream>
 
+#include "include/core/SkTypes.h"
+
 void print_localtime() {
     std::time_t result = std::time(nullptr);
     std::cout << std::asctime(std::localtime(&result));
 }
 
 int main(int argc, char** argv) {
-    printf("Hello world\n");
+    SkDebugf("Hello world\n");
     print_localtime();
     // https://docs.bazel.build/versions/main/test-encyclopedia.html#role-of-the-test-runner
     if (png_access_version_number() == 10638) {

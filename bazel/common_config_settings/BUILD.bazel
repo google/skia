@@ -1,0 +1,83 @@
+# @platforms is found at https://github.com/bazelbuild/platforms
+package(default_visibility = ["//:__subpackages__"])
+
+config_setting(
+    name = "linux_x64",
+    constraint_values = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+)
+
+config_setting(
+    name = "windows_x64",
+    constraint_values = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:windows",
+    ],
+)
+
+config_setting(
+    name = "linux_arm64",
+    constraint_values = [
+        "@platforms//cpu:arm64",
+        "@platforms//os:linux",
+    ],
+)
+
+constraint_value(
+    name = "fuchsia",
+    constraint_setting = "@platforms//os:os",
+)
+
+config_setting(
+    name = "fuchsia_arm64",
+    constraint_values = [
+        "@platforms//cpu:arm64",
+        ":fuchsia",
+    ],
+)
+
+# We define this here because the emscripten toolchain calls the cpu wasm, whereas the
+# bazelbuild/platforms call it wasm32. https://github.com/emscripten-core/emsdk/issues/919
+config_setting(
+    name = "cpu_wasm",
+    values = {
+        "cpu": "wasm",
+    },
+)
+
+# =============================================================================
+#                     Configurable Skia Features
+# =============================================================================
+# Below, we define a number of constraint_settings (think enums) and their
+# associated constraint values (think enum values). These let us use select
+# to turn on or off certain Skia features. Many of these are platform-specific,
+# and can be configured as such with the exec_compatible_with.
+#
+# To actually set the values, you need to create a platform() rule. See
+# //bazel/supported_combinations for more.
+#
+# https://docs.bazel.build/versions/main/be/platform.html#constraint_setting
+constraint_setting(
+    name = "skdebug_impl",
+    default_constraint_value = ":stdio_skdebug",
+)
+
+# https://docs.bazel.build/versions/main/be/platform.html#constraint_value
+constraint_value(
+    name = "stdio_skdebug",
+    constraint_setting = ":skdebug_impl",
+)
+
+constraint_value(
+    name = "win_skdebug",
+    constraint_setting = ":skdebug_impl",
+    exec_compatible_with = ["@platforms//os:windows"],
+)
+
+constraint_value(
+    name = "android_skdebug",
+    constraint_setting = ":skdebug_impl",
+    exec_compatible_with = ["@platforms//os:android"],
+)

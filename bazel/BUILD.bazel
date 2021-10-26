@@ -1,2 +1,1 @@
-# This empty BUILD.bazel file allows WORKSPACE.bazel to use
-# the various foo.bazel files for third-party dependencies.
+# Intentionally left blank

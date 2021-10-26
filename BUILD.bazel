@@ -3,6 +3,9 @@ cc_test(
     size = "small",
     srcs = [
         "//experimental/bazel_test:srcs",
+        "//include/config:hdrs",
+        "//include/core:hdrs",
+        "//src/ports:skdebug",
     ],
     deps = [
         "//third_party:libpng",

@@ -2,29 +2,55 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
+LIBPNG_SRCS = [
+    "externals/libpng/png.c",
+    "externals/libpng/pngconf.h",
+    "externals/libpng/pngdebug.h",
+    "externals/libpng/pngerror.c",
+    "externals/libpng/pngget.c",
+    "externals/libpng/pnginfo.h",
+    "externals/libpng/pngmem.c",
+    "externals/libpng/pngpread.c",
+    "externals/libpng/pngpriv.h",
+    "externals/libpng/pngread.c",
+    "externals/libpng/pngrio.c",
+    "externals/libpng/pngrtran.c",
+    "externals/libpng/pngrutil.c",
+    "externals/libpng/pngset.c",
+    "externals/libpng/pngstruct.h",
+    "externals/libpng/pngtrans.c",
+    "externals/libpng/pngwio.c",
+    "externals/libpng/pngwrite.c",
+    "externals/libpng/pngwtran.c",
+    "externals/libpng/pngwutil.c",
+    "libpng/pnglibconf.h",
+] + select({
+    "@platforms//cpu:x86_64": [
+        "externals/libpng/intel/filter_sse2_intrinsics.c",
+        "externals/libpng/intel/intel_init.c",
+    ],
+    "@platforms//cpu:arm": [
+        "externals/libpng/arm/arm_init.c",
+        "externals/libpng/arm/filter_neon_intrinsics.c",
+        "externals/libpng/arm/palette_neon_intrinsics.c",
+    ],
+    # No SIMD support in wasm for now
+    "//bazel/common_config_settings:cpu_wasm": [],
+    # The default is to avoid using SIMD
+    "//conditions:default": [],
+})
+
+PNG_DEFINES = ["PNG_SET_OPTION_SUPPORTED"] + select({
+    "@platforms//cpu:x86_64": ["PNG_INTEL_SSE"],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "libpng",
-    srcs = [
-        "externals/libpng/png.c",
-        "externals/libpng/pngerror.c",
-        "externals/libpng/pngget.c",
-        "externals/libpng/pngmem.c",
-        "externals/libpng/pngpread.c",
-        "externals/libpng/pngread.c",
-        "externals/libpng/pngrio.c",
-        "externals/libpng/pngrtran.c",
-        "externals/libpng/pngrutil.c",
-        "externals/libpng/pngset.c",
-        "externals/libpng/pngtrans.c",
-        "externals/libpng/pngwio.c",
-        "externals/libpng/pngwrite.c",
-        "externals/libpng/pngwtran.c",
-        "externals/libpng/pngwutil.c",
-        # TODO(kjlubick) arm/x86 support
+    srcs = LIBPNG_SRCS,
+    hdrs = [
+        "externals/libpng/png.h",
     ],
-    hdrs = ["libpng/pnglibconf.h"] + glob([
-        "externals/libpng/*.h",
-    ]),
     copts = [
         "-Ithird_party/libpng/",
         "-Wno-unused-but-set-variable",
@@ -39,38 +65,121 @@ cc_library(
         # those dependent rules.
         "libpng",
     ],
+    local_defines = PNG_DEFINES,
+    # This is included by //third_party/libpng/pnglibconf.h, but because it is not a .h
+    # file, we must tell Bazel to explicitly bring it in as an "includable".
     textual_hdrs = ["externals/libpng/scripts/pnglibconf.h.prebuilt"],
     deps = [":zlib"],
 )
 
+ZLIB_SRCS = [
+    "externals/zlib/adler32.c",
+    "externals/zlib/compress.c",
+    "externals/zlib/contrib/optimizations/insert_string.h",
+    "externals/zlib/cpu_features.c",
+    "externals/zlib/cpu_features.h",
+    "externals/zlib/crc32.h",
+    "externals/zlib/crc32.c",
+    "externals/zlib/deflate.c",
+    "externals/zlib/deflate.h",
+    "externals/zlib/gzclose.c",
+    "externals/zlib/gzguts.h",
+    "externals/zlib/gzlib.c",
+    "externals/zlib/gzread.c",
+    "externals/zlib/gzwrite.c",
+    "externals/zlib/infback.c",
+    "externals/zlib/inffast.c",
+    "externals/zlib/inffast.h",
+    "externals/zlib/inflate.h",
+    "externals/zlib/inftrees.c",
+    "externals/zlib/inftrees.h",
+    "externals/zlib/trees.c",
+    "externals/zlib/trees.h",
+    "externals/zlib/uncompr.c",
+    "externals/zlib/inffixed.h",
+    "externals/zlib/zutil.c",
+    "externals/zlib/zutil.h",
+] + select({
+    "@platforms//cpu:x86_64": [
+        "externals/zlib/adler32_simd.h",
+        "externals/zlib/adler32_simd.c",
+        "externals/zlib/contrib/optimizations/chunkcopy.h",
+        "externals/zlib/contrib/optimizations/inffast_chunk.h",
+        "externals/zlib/contrib/optimizations/inffast_chunk.c",
+        "externals/zlib/contrib/optimizations/inflate.c",
+        "externals/zlib/crc32_simd.h",
+        "externals/zlib/crc32_simd.c",
+        "externals/zlib/crc_folding.c",
+        "externals/zlib/fill_window_sse.c",
+    ],
+    "@platforms//cpu:arm": [
+        "externals/zlib/adler32_simd.h",
+        "externals/zlib/adler32_simd.c",
+        "externals/zlib/contrib/optimizations/chunkcopy.h",
+        "externals/zlib/contrib/optimizations/inffast_chunk.h",
+        "externals/zlib/contrib/optimizations/inffast_chunk.c",
+        "externals/zlib/contrib/optimizations/inflate.c",
+        "externals/zlib/crc32_simd.h",
+        "externals/zlib/crc32_simd.c",
+    ],
+    # No SIMD support in wasm for now
+    "//bazel/common_config_settings:cpu_wasm": ["externals/zlib/inflate.c"],
+    # The default is to avoid using SIMD
+    "//conditions:default": ["externals/zlib/inflate.c"],
+})
+
+ZLIB_DEFINES = ["ZLIB_IMPLEMENTATION"] + select({
+    "@platforms//cpu:x86_64": [
+        "ADLER32_SIMD_SSSE3",
+        "CRC32_SIMD_SSE42_PCLMUL",
+        "INFLATE_CHUNK_READ_64LE",
+        "INFLATE_CHUNK_SIMD_SSE2",
+        "DEFLATE_FILL_WINDOW_SSE2",
+    ],
+    "@platforms//cpu:arm": [
+        "ADLER32_SIMD_NEON",
+        "INFLATE_CHUNK_SIMD_NEON",
+    ],
+    "//bazel/common_config_settings:cpu_wasm": ["CPU_NO_SIMD"],
+    "//conditions:default": ["CPU_NO_SIMD"],
+}) + select({
+    "//bazel/common_config_settings:windows_x64": ["X86_WINDOWS"],
+    "//bazel/common_config_settings:linux_x64": ["X86_NOT_WINDOWS"],
+    "//bazel/common_config_settings:fuchsia_arm64": [
+        "X86_NOT_WINDOWS",
+        "ARMV8_OS_FUCHSIA",
+    ],
+    # TODO(kjlubick) other arm flavors
+    "//conditions:default": ["X86_NOT_WINDOWS"],
+})
+
+ZLIB_COPTS = [
+    "-Wno-unused-function",
+    # Make the headers in contrib available, without exposing them in hdrs.
+    "-isystem third_party/externals/zlib/",
+] + select({
+    "//bazel/common_config_settings:linux_x64": [
+        "-mssse3",
+        "-msse4.2",
+        "-mpclmul",
+    ],
+    "@platforms//cpu:arm": ["-march=armv8-a+crc"],
+    # If empty list isn't set for wasm, select picks linux_x64
+    "//bazel/common_config_settings:cpu_wasm": [],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "zlib",
-    srcs = [
-        "externals/zlib/adler32.c",
-        "externals/zlib/compress.c",
-        "externals/zlib/cpu_features.c",
-        "externals/zlib/crc32.c",
-        "externals/zlib/deflate.c",
-        "externals/zlib/gzclose.c",
-        "externals/zlib/gzlib.c",
-        "externals/zlib/gzread.c",
-        "externals/zlib/gzwrite.c",
-        "externals/zlib/infback.c",
-        "externals/zlib/inffast.c",
-        "externals/zlib/inflate.c",
-        "externals/zlib/inftrees.c",
-        "externals/zlib/trees.c",
-        "externals/zlib/uncompr.c",
-        "externals/zlib/zutil.c",
-    ] + glob([
-        "externals/zlib/**/*.h",
-    ]),
-    hdrs = glob([
-        "externals/zlib/*.h",
-    ]),
-    copts = [
-        "-Wno-unused-function",
+    srcs = ZLIB_SRCS,
+    hdrs = [
+        "externals/zlib/chromeconf.h",
+        "externals/zlib/zconf.h",
+        "externals/zlib/zlib.h",
     ],
+    copts = ZLIB_COPTS,
+    local_defines = ZLIB_DEFINES,
+    # This allows users of zlib to just do #include "zlib.h"
     strip_include_prefix = "externals/zlib/",
 )
 

@@ -1,0 +1,17 @@
+# This file contains a set of configurations that are supported. This means these combinations
+# of architectures, operating systems, and features should all compile and pass our tests.
+# Bazel calls the combinations "Platforms" https://docs.bazel.build/versions/main/platforms.html
+# and they all focus on the target environment, that is, where the program using Skia is running.
+# Clients are free to define their own platforms with their own combinations of features,
+# however, not all combinations will work.
+#
+# To specify one of these platforms, include it in the command to bazel, e.g.
+# bazel build --platforms=//bazel/supported_combinations:linux_x64 [rule]
+platform(
+    name = "linux_x64",
+    constraint_values = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+        "//bazel/common_config_settings:stdio_skdebug",
+    ],
+)
