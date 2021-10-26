@@ -29,6 +29,9 @@ using namespace skgpu;
  * This is to test the various pieces of the CommandBuffer interface.
  */
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
+    constexpr int kTextureWidth = 1024;
+    constexpr int kTextureHeight = 768;
+
     auto gpu = context->priv().gpu();
     REPORTER_ASSERT(reporter, gpu);
 
@@ -37,7 +40,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 #endif
     auto commandBuffer = gpu->resourceProvider()->createCommandBuffer();
 
-    SkISize textureSize = { 1024, 768 };
+    SkISize textureSize = { kTextureWidth, kTextureHeight };
 #ifdef SK_METAL
     skgpu::mtl::TextureInfo mtlTextureInfo = {
         1,
@@ -59,31 +62,52 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     renderPassDesc.fColorAttachment.fTexture = texture;
     renderPassDesc.fColorAttachment.fLoadOp = LoadOp::kClear;
     renderPassDesc.fColorAttachment.fStoreOp = StoreOp::kStore;
-    renderPassDesc.fClearColor = { 1, 0, 0, 1 };
+    renderPassDesc.fClearColor = { 1, 0, 0, 1 }; // red
 
     commandBuffer->beginRenderPass(renderPassDesc);
 
     RenderPipelineDesc pipelineDesc;
+    pipelineDesc.setTestingOnlyShaderIndex(1);
     auto renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
     commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+    struct UniformData {
+        float fPosXform[4];
+        float fColor[4];
+    };
+    sk_sp<Buffer> uniformBuffer = gpu->resourceProvider()->findOrCreateBuffer(
+            sizeof(UniformData), BufferType::kUniform, PrioritizeGpuReads::kNo);
+    UniformData* uniforms = (UniformData*)uniformBuffer->map();
+    uniforms->fPosXform[0] = 2;
+    uniforms->fPosXform[1] = 2;
+    uniforms->fPosXform[2] = -1;
+    uniforms->fPosXform[3] = -1;
+    uniforms->fColor[0] = 1;
+    uniforms->fColor[1] = 1;
+    uniforms->fColor[2] = 0;
+    uniforms->fColor[3] = 1;
+    uniformBuffer->unmap();
+    commandBuffer->bindUniformBuffer(uniformBuffer, 0);
     commandBuffer->draw(PrimitiveType::kTriangleStrip, 0, 4);
 
     commandBuffer->endRenderPass();
 
-    sk_sp<Buffer> buffer = gpu->resourceProvider()->findOrCreateBuffer(1024*768*4,
-                                                                       BufferType::kXferGpuToCpu,
-                                                                       PrioritizeGpuReads::kNo);
-    REPORTER_ASSERT(reporter, buffer);
-    SkIRect srcRect = { 0, 0, 1024, 768 };
-    size_t rowBytes = 1024*4;
-    commandBuffer->copyTextureToBuffer(texture, srcRect, buffer, 0, rowBytes);
+    // TODO: add 4-byte transfer buffer alignment for Mac to Caps
+    //       add bpp to Caps
+    size_t rowBytes = 4*kTextureWidth;
+    size_t bufferSize = rowBytes*kTextureHeight;
+    sk_sp<Buffer> copyBuffer = gpu->resourceProvider()->findOrCreateBuffer(
+            bufferSize, BufferType::kXferGpuToCpu, PrioritizeGpuReads::kNo);
+    REPORTER_ASSERT(reporter, copyBuffer);
+    SkIRect srcRect = { 0, 0, kTextureWidth, kTextureHeight };
+    commandBuffer->copyTextureToBuffer(texture, srcRect, copyBuffer, 0, rowBytes);
 
     bool result = gpu->submit(commandBuffer);
     REPORTER_ASSERT(reporter, result);
 
     gpu->checkForFinishedWork(skgpu::SyncToCpu::kYes);
-    uint32_t* pixels = (uint32_t*)(buffer->map());
-    REPORTER_ASSERT(reporter, pixels[0] == 0xffff0000);
+    uint32_t* pixels = (uint32_t*)(copyBuffer->map());
+    REPORTER_ASSERT(reporter, pixels[0] == 0xff00ffff);
+    copyBuffer->unmap();
 
 #if GRAPHITE_TEST_UTILS && CAPTURE_COMMANDBUFFER
     gpu->testingOnly_endCapture();

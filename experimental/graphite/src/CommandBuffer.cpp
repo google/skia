@@ -42,6 +42,12 @@ void CommandBuffer::bindRenderPipeline(sk_sp<RenderPipeline> renderPipeline) {
     fHasWork = true;
 }
 
+void CommandBuffer::bindUniformBuffer(sk_sp<Buffer> uniformBuffer, size_t offset) {
+    this->onBindUniformBuffer(uniformBuffer.get(), offset);
+    this->trackResource(std::move(uniformBuffer));
+    fHasWork = true;
+}
+
 static bool check_max_blit_width(int widthInPixels) {
     if (widthInPixels > 32767) {
         SkASSERT(false); // surfaces should not be this wide anyway

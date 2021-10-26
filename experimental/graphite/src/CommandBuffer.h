@@ -57,6 +57,8 @@ public:
     //---------------------------------------------------------------
     void bindRenderPipeline(sk_sp<RenderPipeline> renderPipeline);
 
+    void bindUniformBuffer(sk_sp<Buffer>, size_t bufferOffset);
+
     void draw(PrimitiveType type, unsigned int vertexStart, unsigned int vertexCount) {
         this->onDraw(type, vertexStart, vertexCount);
         fHasWork = true;
@@ -84,6 +86,9 @@ private:
     virtual void onBeginRenderPass(const RenderPassDesc&) = 0;
 
     virtual void onBindRenderPipeline(const RenderPipeline*) = 0;
+
+    virtual void onBindUniformBuffer(const Buffer*, size_t bufferOffset) = 0;
+
     virtual void onDraw(PrimitiveType type, unsigned int vertexStart, unsigned int vertexCount) = 0;
 
     virtual void onCopyTextureToBuffer(const Texture*,

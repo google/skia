@@ -16,6 +16,8 @@
 
 namespace skgpu::mtl {
 
+static constexpr size_t kUniformBufferIndex = 0;
+
 sk_sp<CommandBuffer> CommandBuffer::Make(const Gpu* gpu) {
     sk_cfp<id<MTLCommandBuffer>> cmdBuffer;
     id<MTLCommandQueue> queue = gpu->queue();
@@ -143,6 +145,14 @@ void CommandBuffer::onBindRenderPipeline(const skgpu::RenderPipeline* renderPipe
     id<MTLRenderPipelineState> pipelineState =
             static_cast<const RenderPipeline*>(renderPipeline)->mtlPipelineState();
     fActiveRenderCommandEncoder->setRenderPipelineState(pipelineState);
+}
+
+void CommandBuffer::onBindUniformBuffer(const skgpu::Buffer* uniformBuffer,
+                                        size_t uniformOffset) {
+    id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(uniformBuffer)->mtlBuffer();
+
+    fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, uniformOffset, kUniformBufferIndex);
+    fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, uniformOffset, kUniformBufferIndex);
 }
 
 static MTLPrimitiveType graphite_to_mtl_primitive(PrimitiveType primitiveType) {

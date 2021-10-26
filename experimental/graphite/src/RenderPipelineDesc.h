@@ -28,12 +28,26 @@ public:
         return fKey.size() * sizeof(uint32_t);
     }
 
-    bool operator== (const RenderPipelineDesc& that) const {
+    bool operator==(const RenderPipelineDesc& that) const {
         return this->fKey == that.fKey;
     }
 
-    bool operator!= (const RenderPipelineDesc& other) const {
+    bool operator!=(const RenderPipelineDesc& other) const {
         return !(*this == other);
+    }
+
+    // TODO: remove this once we have something real working
+    void setTestingOnlyShaderIndex(int index) {
+        fTestingOnlyShaderIndex = index;
+        if (fKey.count() >= 1) {
+            fKey[0] = index;
+        } else {
+            fKey.push_back(index);
+        }
+    }
+
+    int testingOnlyShaderIndex() const {
+        return fTestingOnlyShaderIndex;
     }
 
 private:
@@ -42,6 +56,8 @@ private:
     inline static constexpr int kPreAllocSize = 1;
 
     SkSTArray<kPreAllocSize, uint32_t, true> fKey;
+
+    int fTestingOnlyShaderIndex;
 };
 
 } // namespace skgpu
