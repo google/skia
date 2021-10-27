@@ -8,7 +8,6 @@
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
 namespace {
@@ -62,10 +61,9 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareWedgeShader::makeProgr
             code.appendf(R"(
             #define MAX_TESSELLATION_SEGMENTS %i)", shaderCaps.maxTessellationSegments());
             code.appendf(R"(
-            #define PRECISION %f)", skgpu::kTessellationPrecision);
+            #define PRECISION %f)", GrTessellationShader::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(skgpu::wangs_formula::as_sksl());
-
+            code.append(wangs_formula::as_sksl());
             code.append(R"(
             layout(vertices = 1) out;
 
@@ -191,9 +189,9 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareCurveShader::makeProgr
             code.appendf(R"(
             #define MAX_TESSELLATION_SEGMENTS %i)", shaderCaps.maxTessellationSegments());
             code.appendf(R"(
-            #define PRECISION %f)", skgpu::kTessellationPrecision);
+            #define PRECISION %f)", GrTessellationShader::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(skgpu::wangs_formula::as_sksl());
+            code.append(wangs_formula::as_sksl());
             code.append(R"(
             layout(vertices = 1) out;
 

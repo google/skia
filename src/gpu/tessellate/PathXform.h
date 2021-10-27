@@ -10,7 +10,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/tessellate/Tessellation.h"
+#include "src/gpu/GrVx.h"
 
 namespace skgpu {
 
@@ -21,6 +21,9 @@ namespace skgpu {
 // This class stores redundant data, so it is best used only as a stack-allocated object at the
 // point of use.
 class PathXform {
+    using float2 = grvx::float2;
+    using float4 = grvx::float4;
+
 public:
     PathXform() = default;
     PathXform(const SkMatrix& m) { *this = m; }

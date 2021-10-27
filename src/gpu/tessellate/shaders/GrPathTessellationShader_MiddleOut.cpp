@@ -9,7 +9,6 @@
 
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
 using skgpu::VertexWriter;
@@ -71,10 +70,10 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader& shader,
                             GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
-            v->defineConstant("PRECISION", skgpu::kTessellationPrecision);
+            v->defineConstant("PRECISION", GrTessellationShader::kLinearizationPrecision);
             v->defineConstant("MAX_FIXED_RESOLVE_LEVEL", (float)kMaxFixedCountResolveLevel);
             v->defineConstant("MAX_FIXED_SEGMENTS", (float)kMaxFixedCountSegments);
-            v->insertFunction(skgpu::wangs_formula::as_sksl().c_str());
+            v->insertFunction(wangs_formula::as_sksl().c_str());
             if (shaderCaps.infinitySupport()) {
                 v->insertFunction(R"(
                 bool is_conic_curve() { return isinf(p23.w); }
