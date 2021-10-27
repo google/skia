@@ -4,7 +4,7 @@ error: 1: array size must be positive
 error: 2: array size must be positive
 error: 3: array size must be positive
 error: 4: expected 'int', but found 'float'
-error: 5: array size is too large
+error: 5: integer is out of range for type 'int': 4000000000
 error: 6: expected 'int', but found 'bool'
 error: 7: expected 'int', but found 'bool'
 error: 8: expected 'int', but found 'int2'

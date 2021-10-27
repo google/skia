@@ -770,6 +770,9 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
                                      expr->type().displayName() + "'");
         return nullptr;
     }
+    if (this->checkForOutOfRangeLiteral(context, *expr)) {
+        return nullptr;
+    }
 
     if (this->isScalar()) {
         return ConstructorScalarCast::Make(context, line, *this, std::move(expr));
