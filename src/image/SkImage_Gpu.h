@@ -41,7 +41,7 @@ public:
 
     bool onHasMipmaps() const override;
 
-    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
+    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) const override;
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
@@ -60,7 +60,7 @@ public:
                                      RescaleGamma,
                                      RescaleMode,
                                      ReadPixelsCallback,
-                                     ReadPixelsContext) override;
+                                     ReadPixelsContext) const override;
 
     void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
                                            sk_sp<SkColorSpace>,
@@ -69,7 +69,7 @@ public:
                                            RescaleGamma,
                                            RescaleMode,
                                            ReadPixelsCallback,
-                                           ReadPixelsContext) override;
+                                           ReadPixelsContext) const override;
 
     void generatingSurfaceIsDeleted() override;
 

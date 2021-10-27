@@ -728,14 +728,14 @@ public:
         @param context  the context on which to flush pending usages of the image.
         @param info     flush options
      */
-    GrSemaphoresSubmitted flush(GrDirectContext* context, const GrFlushInfo& flushInfo);
+    GrSemaphoresSubmitted flush(GrDirectContext* context, const GrFlushInfo& flushInfo) const;
 
-    void flush(GrDirectContext* context) { this->flush(context, {}); }
+    void flush(GrDirectContext* context) const { this->flush(context, {}); }
 
     /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
         GPU.
     */
-    void flushAndSubmit(GrDirectContext*);
+    void flushAndSubmit(GrDirectContext*) const;
 
     /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
@@ -921,7 +921,7 @@ public:
                                    RescaleGamma rescaleGamma,
                                    RescaleMode rescaleMode,
                                    ReadPixelsCallback callback,
-                                   ReadPixelsContext context);
+                                   ReadPixelsContext context) const;
 
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
@@ -959,7 +959,7 @@ public:
                                          RescaleGamma rescaleGamma,
                                          RescaleMode rescaleMode,
                                          ReadPixelsCallback callback,
-                                         ReadPixelsContext context);
+                                         ReadPixelsContext context) const;
 
     /** Copies SkImage to dst, scaling pixels to fit dst.width() and dst.height(), and
         converting pixels to match dst.colorType() and dst.alphaType(). Returns true if

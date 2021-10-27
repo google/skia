@@ -30,7 +30,7 @@ public:
 
     bool onHasMipmaps() const override;
 
-    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
+    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) const override;
 
     bool onIsTextureBacked() const override { return true; }
 

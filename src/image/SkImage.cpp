@@ -77,7 +77,7 @@ void SkImage::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                         RescaleGamma rescaleGamma,
                                         RescaleMode rescaleMode,
                                         ReadPixelsCallback callback,
-                                        ReadPixelsContext context) {
+                                        ReadPixelsContext context) const {
     if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) ||
         !SkImageInfoIsValid(info)) {
         callback(context, nullptr);
@@ -94,7 +94,7 @@ void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                               RescaleGamma rescaleGamma,
                                               RescaleMode rescaleMode,
                                               ReadPixelsCallback callback,
-                                              ReadPixelsContext context) {
+                                              ReadPixelsContext context) const {
     if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) || dstSize.isZero() ||
         (dstSize.width() & 0b1) || (dstSize.height() & 0b1)) {
         callback(context, nullptr);
@@ -225,11 +225,12 @@ bool SkImage::isValid(GrRecordingContext* rContext) const {
     return as_IB(this)->onIsValid(rContext);
 }
 
-GrSemaphoresSubmitted SkImage::flush(GrDirectContext* dContext, const GrFlushInfo& flushInfo) {
+GrSemaphoresSubmitted SkImage::flush(GrDirectContext* dContext,
+                                     const GrFlushInfo& flushInfo) const {
     return as_IB(this)->onFlush(dContext, flushInfo);
 }
 
-void SkImage::flushAndSubmit(GrDirectContext* dContext) {
+void SkImage::flushAndSubmit(GrDirectContext* dContext) const {
     this->flush(dContext, {});
     dContext->submit();
 }
@@ -250,11 +251,11 @@ bool SkImage::isValid(GrRecordingContext* rContext) const {
     return as_IB(this)->onIsValid(nullptr);
 }
 
-GrSemaphoresSubmitted SkImage::flush(GrDirectContext*, const GrFlushInfo&) {
+GrSemaphoresSubmitted SkImage::flush(GrDirectContext*, const GrFlushInfo&) const {
     return GrSemaphoresSubmitted::kNo;
 }
 
-void SkImage::flushAndSubmit(GrDirectContext*) {}
+void SkImage::flushAndSubmit(GrDirectContext*) const {}
 
 #endif
 
@@ -274,7 +275,7 @@ void SkImage_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                RescaleGamma rescaleGamma,
                                                RescaleMode rescaleMode,
                                                ReadPixelsCallback callback,
-                                               ReadPixelsContext context) {
+                                               ReadPixelsContext context) const {
     SkBitmap src;
     SkPixmap peek;
     SkIRect srcRect;
@@ -302,7 +303,7 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
                                                      RescaleGamma,
                                                      RescaleMode,
                                                      ReadPixelsCallback callback,
-                                                     ReadPixelsContext context) {
+                                                     ReadPixelsContext context) const {
     // TODO: Call non-YUV asyncRescaleAndReadPixels and then make our callback convert to YUV and
     // call client's callback.
     callback(context, nullptr);
