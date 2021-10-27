@@ -14,6 +14,7 @@
 #include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/PathXform.h"
+#include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
@@ -24,8 +25,6 @@
 namespace skgpu {
 
 namespace {
-
-constexpr static float kPrecision = GrTessellationShader::kLinearizationPrecision;
 
 // Writes out curve patches, chopping as necessary so none require more segments than are
 // supported by the hardware.
@@ -48,7 +47,9 @@ public:
 
     SK_ALWAYS_INLINE void writeQuadratic(const GrShaderCaps& shaderCaps,
                                          GrVertexChunkBuilder* chunker, const SkPoint p[3]) {
-        float numSegments_pow4 = wangs_formula::quadratic_pow4(kPrecision, p, fTotalVectorXform);
+        float numSegments_pow4 = wangs_formula::quadratic_pow4(kTessellationPrecision,
+                                                               p,
+                                                               fTotalVectorXform);
         if (numSegments_pow4 > fMaxSegments_pow4) {
             this->chopAndWriteQuadratic(shaderCaps, chunker, p);
             return;
@@ -65,7 +66,10 @@ public:
 
     SK_ALWAYS_INLINE void writeConic(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
                                      const SkPoint p[3], float w) {
-        float numSegments_pow2 = wangs_formula::conic_pow2(kPrecision, p, w, fTotalVectorXform);
+        float numSegments_pow2 = wangs_formula::conic_pow2(kTessellationPrecision,
+                                                           p,
+                                                           w,
+                                                           fTotalVectorXform);
         if (numSegments_pow2 > fMaxSegments_pow2) {
             this->chopAndWriteConic(shaderCaps, chunker, {p, w});
             return;
@@ -83,7 +87,9 @@ public:
 
     SK_ALWAYS_INLINE void writeCubic(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
                                      const SkPoint p[4]) {
-        float numSegments_pow4 = wangs_formula::cubic_pow4(kPrecision, p, fTotalVectorXform);
+        float numSegments_pow4 = wangs_formula::cubic_pow4(kTessellationPrecision,
+                                                           p,
+                                                           fTotalVectorXform);
         if (numSegments_pow4 > fMaxSegments_pow4) {
             this->chopAndWriteCubic(shaderCaps, chunker, p);
             return;
@@ -247,13 +253,12 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
                     : sk_bit_cast<uint32_t>(GrTessellationShader::kTriangularConicCurveType);
             for (auto [pathMatrix, path] : pathDrawList) {
                 int numTrianglesWritten;
-                vertexWriter = MiddleOutPolygonTriangulator::WritePathInnerFan(
-                        std::move(vertexWriter),
-                        pad32Count,
-                        pad32Value,
-                        pathMatrix,
-                        path,
-                        &numTrianglesWritten);
+                vertexWriter = WritePathMiddleOutInnerFan(std::move(vertexWriter),
+                                                          pad32Count,
+                                                          pad32Value,
+                                                          pathMatrix,
+                                                          path,
+                                                          &numTrianglesWritten);
                 numRemainingTriangles -= numTrianglesWritten;
             }
         }

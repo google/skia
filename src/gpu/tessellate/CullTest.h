@@ -9,8 +9,7 @@
 #define tessellate_CullTest_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkVx.h"
-#include "src/gpu/GrVx.h"
+#include "src/gpu/tessellate/Tessellation.h"
 
 namespace skgpu {
 
@@ -98,9 +97,9 @@ public:
 
 private:
     // [fMatX, fMatY] maps path coordinates to the float4 [x, y, -x, -y] in device space.
-    grvx::float4 fMatX;
-    grvx::float4 fMatY;
-    grvx::float4 fCullBounds;  // [l, t, -r, -b]
+    float4 fMatX;
+    float4 fMatY;
+    float4 fCullBounds;  // [l, t, -r, -b]
 };
 
 }  // namespace skgpu
