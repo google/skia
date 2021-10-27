@@ -46,6 +46,9 @@ std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& contex
                                type.displayName() + "' constructor" + swizzleHint);
         return nullptr;
     }
+    if (type.checkForOutOfRangeLiteral(context, *args[0])) {
+        return nullptr;
+    }
 
     return ConstructorScalarCast::Make(context, line, type, std::move(args[0]));
 }

@@ -340,8 +340,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUInt, r, ctxInfo) {
                 "uint2(0, 1)");
     EXPECT_EQUAL(UInt3(0),
                 "uint3(0)");
-    EXPECT_EQUAL(UInt3(UInt2(0, 1), -2),
-                "uint3(0, 1, -2)");
     EXPECT_EQUAL(UInt3(0, 1, 2),
                 "uint3(0, 1, 2)");
     EXPECT_EQUAL(UInt4(0),
@@ -352,6 +350,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUInt, r, ctxInfo) {
                 "uint4(0, 1, 2, 3)");
     EXPECT_EQUAL(UInt4(0, 1, 2, 3),
                 "uint4(0, 1, 2, 3)");
+
+    {
+        ExpectError error(r, "integer is out of range for type 'uint': -2");
+        UInt3(UInt2(0, 1), -2).release();
+    }
 
     {
         ExpectError error(r, "'uint4' is not a valid parameter to 'uint2' constructor; use '.xy' "
@@ -414,8 +417,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUShort, r, ctxInfo) {
                 "ushort2(0, 1)");
     EXPECT_EQUAL(UShort3(0),
                 "ushort3(0)");
-    EXPECT_EQUAL(UShort3(UShort2(0, 1), -2),
-                "ushort3(0, 1, -2)");
     EXPECT_EQUAL(UShort3(0, 1, 2),
                 "ushort3(0, 1, 2)");
     EXPECT_EQUAL(UShort4(0),
@@ -426,6 +427,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUShort, r, ctxInfo) {
                 "ushort4(0, 1, 2, 3)");
     EXPECT_EQUAL(UShort4(0, 1, 2, 3),
                 "ushort4(0, 1, 2, 3)");
+
+    {
+        ExpectError error(r, "integer is out of range for type 'ushort': -2");
+        UShort3(UShort2(0, 1), -2).release();
+    }
 
     {
         ExpectError error(r, "'ushort4' is not a valid parameter to 'ushort2' constructor; use "

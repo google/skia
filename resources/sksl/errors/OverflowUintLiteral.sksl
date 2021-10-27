@@ -1,11 +1,9 @@
-uint uintMin         = 0;
-uint uintMinMinusOne = -1;
-uint uintMax         = 4294967295;
-uint uintMaxPlusOne  = 4294967296;
+// Expect 4 errors
 
-void main() {
-    sk_FragColor.x = half(uintMin);
-    sk_FragColor.x = half(uintMinMinusOne);
-    sk_FragColor.x = half(uintMax);
-    sk_FragColor.x = half(uintMaxPlusOne);
-}
+uint uintMin         = 0;
+uint uintMinMinusOne = -1;                             // error
+uint uintMax         = 4294967295;
+uint uintMaxPlusOne  = 4294967296;                     // error
+
+ushort4 us4_neg = ushort4(2, 1, 0, -1);                // error -1
+ushort4 us4_pos = ushort4(65536, 65535, 65534, 65533); // error 65536
