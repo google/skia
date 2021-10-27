@@ -1,4 +1,4 @@
-// Expect 10 errors
+// Expect 8 errors
 
 const int intMin         = -2147483648;
 const int intMinMinusOne = -2147483649; // error
@@ -17,12 +17,12 @@ void main() {
                        32767);
 
     int4 i4 = int4(intMin,
-                   intMinMinusOne,  // error
+                   intMinMinusOne,
                    intMax,
                    intMaxPlusOne);  // error
 
     uint4 ui4 = uint4(intMin,          // error
-                      intMinMinusOne,  // error
+                      intMinMinusOne,
                       intMax,
                       intMaxPlusOne);
 }
