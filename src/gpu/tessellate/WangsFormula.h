@@ -173,19 +173,25 @@ AI int cubic_log2(float precision,
 }
 
 // Returns the maximum number of line segments a cubic with the given device-space bounding box size
-// would ever need to be divided into. This is simply a special case of the cubic formula where we
-// maximize its value by placing control points on specific corners of the bounding box.
+// would ever need to be divided into, raised to the 4th power. This is simply a special case of the
+// cubic formula where we maximize its value by placing control points on specific corners of the
+// bounding box.
+AI float worst_case_cubic_pow4(float precision, float devWidth, float devHeight) {
+    float kk = length_term_pow2<3>(precision);
+    return 4*kk * (devWidth * devWidth + devHeight * devHeight);
+}
+
+// Returns the maximum number of line segments a cubic with the given device-space bounding box size
+// would ever need to be divided into.
 AI float worst_case_cubic(float precision, float devWidth, float devHeight) {
-    float k = length_term<3>(precision);
-    return sqrtf(2*k * SkVector::Length(devWidth, devHeight));
+    return root4(worst_case_cubic_pow4(precision, devWidth, devHeight));
 }
 
 // Returns the maximum log2 number of line segments a cubic with the given device-space bounding box
 // size would ever need to be divided into.
 AI int worst_case_cubic_log2(float precision, float devWidth, float devHeight) {
-    float kk = length_term_pow2<3>(precision);
     // nextlog16(x) == ceil(log2(sqrt(sqrt(x))))
-    return nextlog16(4*kk * (devWidth * devWidth + devHeight * devHeight));
+    return nextlog16(worst_case_cubic_pow4(precision, devWidth, devHeight));
 }
 
 // Returns Wang's formula specialized for a conic curve, raised to the second power.

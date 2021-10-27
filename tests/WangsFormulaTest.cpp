@@ -342,6 +342,10 @@ DEF_TEST(wangs_formula_worst_case_cubic, r) {
             check_worst_case_cubic(pts);
         });
     }
+    // Make sure overflow saturates at infinity (not NaN).
+    constexpr static float inf = std::numeric_limits<float>::infinity();
+    REPORTER_ASSERT(r, wangs_formula::worst_case_cubic_pow4(kPrecision, inf, inf) == inf);
+    REPORTER_ASSERT(r, wangs_formula::worst_case_cubic(kPrecision, inf, inf) == inf);
 }
 
 // Ensure Wang's formula for quads produces max error within tolerance.

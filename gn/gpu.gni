@@ -323,7 +323,6 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/GrGradientShader.h",
 
   # tessellate
-  "$_src/gpu/tessellate/CullTest.h",
   "$_src/gpu/tessellate/PathCurveTessellator.cpp",
   "$_src/gpu/tessellate/PathCurveTessellator.h",
   "$_src/gpu/tessellate/PathTessellator.h",
@@ -336,7 +335,6 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/StrokeHardwareTessellator.h",
   "$_src/gpu/tessellate/StrokeIterator.h",
   "$_src/gpu/tessellate/StrokeTessellator.h",
-  "$_src/gpu/tessellate/WangsFormula.h",
 
   # tessellate/shaders
   "$_src/gpu/tessellate/shaders/GrPathTessellationShader.cpp",
@@ -829,7 +827,9 @@ skia_shared_gpu_sources = [
   "$_src/gpu/BufferWriter.h",
 
   # tessellate
+  "$_src/gpu/tessellate/CullTest.h",
   "$_src/gpu/tessellate/MiddleOutPolygonTriangulator.h",
   "$_src/gpu/tessellate/Tessellation.cpp",
   "$_src/gpu/tessellate/Tessellation.h",
+  "$_src/gpu/tessellate/WangsFormula.h",
 ]

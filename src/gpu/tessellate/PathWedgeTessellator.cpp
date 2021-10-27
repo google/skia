@@ -10,7 +10,6 @@
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
-#include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
@@ -130,12 +129,10 @@ public:
             , fMaxSegments_pow4(fMaxSegments_pow2 * fMaxSegments_pow2) {
     }
 
-    void setMatrices(const SkRect& cullBounds,
-                     const SkMatrix& shaderMatrix,
+    void setMatrices(const SkMatrix& shaderMatrix,
                      const SkMatrix& pathMatrix) {
         SkMatrix totalMatrix;
         totalMatrix.setConcat(shaderMatrix, pathMatrix);
-        fCullTest.set(cullBounds, totalMatrix);
         fTotalVectorXform = totalMatrix;
         fPathXform = pathMatrix;
     }
@@ -222,14 +219,8 @@ private:
                                      SkPoint midpoint) {
         SkPoint chops[5];
         SkChopQuadAtHalf(p, chops);
-        for (int i = 0; i < 2; ++i) {
-            const SkPoint* q = chops + i*2;
-            if (fCullTest.areVisible3(q)) {
-                this->writeQuadraticWedge(shaderCaps, q, midpoint);
-            } else {
-                this->writeFlatWedge(shaderCaps, q[0], q[2], midpoint);
-            }
-        }
+        this->writeQuadraticWedge(shaderCaps, chops, midpoint);
+        this->writeQuadraticWedge(shaderCaps, chops + 2, midpoint);
     }
 
     void chopAndWriteConicWedges(const GrShaderCaps& shaderCaps,
@@ -239,13 +230,8 @@ private:
         if (!conic.chopAt(.5, chops)) {
             return;
         }
-        for (int i = 0; i < 2; ++i) {
-            if (fCullTest.areVisible3(chops[i].fPts)) {
-                this->writeConicWedge(shaderCaps, chops[i].fPts, chops[i].fW, midpoint);
-            } else {
-                this->writeFlatWedge(shaderCaps, chops[i].fPts[0], chops[i].fPts[2], midpoint);
-            }
-        }
+        this->writeConicWedge(shaderCaps, chops[0].fPts, chops[0].fW, midpoint);
+        this->writeConicWedge(shaderCaps, chops[1].fPts, chops[1].fW, midpoint);
     }
 
     void chopAndWriteCubicWedges(const GrShaderCaps& shaderCaps,
@@ -253,18 +239,11 @@ private:
                                  SkPoint midpoint) {
         SkPoint chops[7];
         SkChopCubicAtHalf(p, chops);
-        for (int i = 0; i < 2; ++i) {
-            const SkPoint* c = chops + i*3;
-            if (fCullTest.areVisible4(c)) {
-                this->writeCubicWedge(shaderCaps, c, midpoint);
-            } else {
-                this->writeFlatWedge(shaderCaps, c[0], c[3], midpoint);
-            }
-        }
+        this->writeCubicWedge(shaderCaps, chops, midpoint);
+        this->writeCubicWedge(shaderCaps, chops + 3, midpoint);
     }
 
     GrVertexChunkBuilder fChunker;
-    CullTest fCullTest;
     wangs_formula::VectorXform fTotalVectorXform;
     PathXform fPathXform;
     const float fMaxSegments_pow2;
@@ -302,7 +281,6 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
 
 void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
-                                   const SkRect& cullBounds,
                                    const PathDrawList& pathDrawList,
                                    int totalCombinedPathVerbCnt) {
     SkASSERT(fVertexChunkArray.empty());
@@ -327,7 +305,7 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
 
     WedgeWriter wedgeWriter(target, &fVertexChunkArray, patchStride, wedgeAllocCount, maxSegments);
     for (auto [pathMatrix, path] : pathDrawList) {
-        wedgeWriter.setMatrices(cullBounds, fShader->viewMatrix(), pathMatrix);
+        wedgeWriter.setMatrices(fShader->viewMatrix(), pathMatrix);
         MidpointContourParser parser(path);
         while (parser.parseNextContour()) {
             SkPoint midpoint = wedgeWriter.pathXform().mapPoint(parser.currentMidpoint());

@@ -31,10 +31,7 @@ public:
                                  const GrPipeline&,
                                  const GrCaps&);
 
-    void prepare(GrMeshDrawTarget*,
-                 const SkRect& cullBounds,
-                 const PathDrawList&,
-                 int totalCombinedPathVerbCnt) override;
+    void prepare(GrMeshDrawTarget*, const PathDrawList&, int totalCombinedPathVerbCnt) override;
 
 
 #if SK_GPU_V1

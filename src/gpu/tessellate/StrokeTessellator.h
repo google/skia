@@ -36,13 +36,11 @@ public:
                       int8_t maxParametricSegments_log2,
                       const SkMatrix& viewMatrix,
                       PathStrokeList* pathStrokeList,
-                      std::array<float, 2> matrixMinMaxScales,
-                      const SkRect& strokeCullBounds)
+                      std::array<float, 2> matrixMinMaxScales)
             : fShader(shaderCaps, shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
                       pathStrokeList->fColor, maxParametricSegments_log2)
             , fPathStrokeList(pathStrokeList)
-            , fMatrixMinMaxScales(matrixMinMaxScales)
-            , fStrokeCullBounds(strokeCullBounds) {
+            , fMatrixMinMaxScales(matrixMinMaxScales) {
     }
 
     const GrTessellationShader* shader() const { return &fShader; }
@@ -62,7 +60,6 @@ protected:
     GrStrokeTessellationShader fShader;
     PathStrokeList* fPathStrokeList;
     const std::array<float,2> fMatrixMinMaxScales;
-    const SkRect fStrokeCullBounds;  // See SkStrokeRec::inflationRadius.
 };
 
 // These tolerances decide the number of parametric and radial segments the tessellator will
