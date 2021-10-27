@@ -20,7 +20,7 @@
 
 #if GRAPHITE_TEST_UTILS
 // set to 1 if you want to do GPU capture of the commandBuffer
-#define CAPTURE_COMMANDBUFFER 0
+#define CAPTURE_COMMANDBUFFER 1
 #endif
 
 using namespace skgpu;
@@ -66,30 +66,71 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     commandBuffer->beginRenderPass(renderPassDesc);
 
-    RenderPipelineDesc pipelineDesc;
-    pipelineDesc.setTestingOnlyShaderIndex(1);
-    auto renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
-    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+    // Shared uniform buffer
     struct UniformData {
-        float fPosXform[4];
-        float fColor[4];
+        SkPoint fScale;
+        SkPoint fTranslate;
+        SkColor4f fColor;
     };
     sk_sp<Buffer> uniformBuffer = gpu->resourceProvider()->findOrCreateBuffer(
-            sizeof(UniformData), BufferType::kUniform, PrioritizeGpuReads::kNo);
-    UniformData* uniforms = (UniformData*)uniformBuffer->map();
-    uniforms->fPosXform[0] = 2;
-    uniforms->fPosXform[1] = 2;
-    uniforms->fPosXform[2] = -1;
-    uniforms->fPosXform[3] = -1;
-    uniforms->fColor[0] = 1;
-    uniforms->fColor[1] = 1;
-    uniforms->fColor[2] = 0;
-    uniforms->fColor[3] = 1;
-    uniformBuffer->unmap();
-    commandBuffer->bindUniformBuffer(uniformBuffer, 0);
+            2*sizeof(UniformData), BufferType::kUniform, PrioritizeGpuReads::kNo);
+    size_t uniformOffset = 0;
+
+    // Draw blue rectangle over entire rendertarget (which was red)
+    RenderPipelineDesc pipelineDesc;
+    pipelineDesc.setTestingOnlyShaderIndex(0);
+    auto renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
+    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
     commandBuffer->draw(PrimitiveType::kTriangleStrip, 0, 4);
 
+    // Draw inset yellow rectangle using uniforms
+    pipelineDesc.setTestingOnlyShaderIndex(1);
+    renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
+    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+    UniformData* uniforms = (UniformData*)uniformBuffer->map();
+    uniforms->fScale = SkPoint({1.8, 1.8});
+    uniforms->fTranslate = SkPoint({-0.9, -0.9});
+    uniforms->fColor = SkColors::kYellow;
+    commandBuffer->bindUniformBuffer(uniformBuffer, uniformOffset);
+    commandBuffer->draw(PrimitiveType::kTriangleStrip, 0, 4);
+    uniformOffset += sizeof(UniformData);
+    ++uniforms;
+
+    // Draw inset magenta rectangle with triangles in vertex buffer
+    pipelineDesc.setTestingOnlyShaderIndex(2);
+    skgpu::RenderPipelineDesc::Attribute vertexAttributes[1] = {
+        { "position", VertexAttribType::kFloat2, SLType::kFloat2 }
+    };
+    pipelineDesc.setVertexAttributes(vertexAttributes, 1);
+    renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
+    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+
+    struct VertexData {
+        SkPoint fPosition;
+    };
+    sk_sp<Buffer> vertexBuffer = gpu->resourceProvider()->findOrCreateBuffer(
+            6*sizeof(VertexData), BufferType::kUniform, PrioritizeGpuReads::kNo);
+    VertexData* vertices = (VertexData*)vertexBuffer->map();
+    vertices[0].fPosition = SkPoint({0.25f, 0.25f});
+    vertices[1].fPosition = SkPoint({0.25f, 0.75f});
+    vertices[2].fPosition = SkPoint({0.75f, 0.25f});
+    vertices[3].fPosition = SkPoint({0.75f, 0.25f});
+    vertices[4].fPosition = SkPoint({0.25f, 0.75f});
+    vertices[5].fPosition = SkPoint({0.75f, 0.75f});
+    vertexBuffer->unmap();
+    commandBuffer->bindVertexBuffers(vertexBuffer, nullptr);
+
+    uniforms->fScale = SkPoint({2, 2});
+    uniforms->fTranslate = SkPoint({-1, -1});
+    uniforms->fColor = SkColors::kMagenta;
+    commandBuffer->bindUniformBuffer(uniformBuffer, uniformOffset);
+    commandBuffer->draw(PrimitiveType::kTriangles, 0, 6);
+
     commandBuffer->endRenderPass();
+
+    uniformBuffer->unmap();
+
+    // Do readback
 
     // TODO: add 4-byte transfer buffer alignment for Mac to Caps
     //       add bpp to Caps
@@ -106,7 +147,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     gpu->checkForFinishedWork(skgpu::SyncToCpu::kYes);
     uint32_t* pixels = (uint32_t*)(copyBuffer->map());
-    REPORTER_ASSERT(reporter, pixels[0] == 0xff00ffff);
+    REPORTER_ASSERT(reporter, pixels[0] == 0xffff0000);
+    REPORTER_ASSERT(reporter, pixels[51 + 38*kTextureWidth] == 0xff00ffff);
+    REPORTER_ASSERT(reporter, pixels[256 + 192*kTextureWidth] == 0xffff00ff);
     copyBuffer->unmap();
 
 #if GRAPHITE_TEST_UTILS && CAPTURE_COMMANDBUFFER

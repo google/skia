@@ -48,8 +48,9 @@ private:
     void endRenderPass() override;
 
     void onBindRenderPipeline(const skgpu::RenderPipeline*) override;
-
     void onBindUniformBuffer(const skgpu::Buffer*, size_t offset) override;
+    void onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
+                             const skgpu::Buffer* instanceBuffer) override;
 
     void onDraw(PrimitiveType type, unsigned int vertexStart, unsigned int vertexCount) override;
 

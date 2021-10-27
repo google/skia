@@ -166,6 +166,49 @@ enum class PrimitiveType : uint8_t {
 };
 
 /**
+ * Types used to describe format of vertices in buffers.
+ */
+enum class VertexAttribType : uint8_t {
+    kFloat = 0,
+    kFloat2,
+    kFloat3,
+    kFloat4,
+    kHalf,
+    kHalf2,
+    kHalf4,
+
+    kInt2,   // vector of 2 32-bit ints
+    kInt3,   // vector of 3 32-bit ints
+    kInt4,   // vector of 4 32-bit ints
+
+    kByte,  // signed byte
+    kByte2, // vector of 2 8-bit signed bytes
+    kByte4, // vector of 4 8-bit signed bytes
+    kUByte,  // unsigned byte
+    kUByte2, // vector of 2 8-bit unsigned bytes
+    kUByte4, // vector of 4 8-bit unsigned bytes
+
+    kUByte_norm,  // unsigned byte, e.g. coverage, 0 -> 0.0f, 255 -> 1.0f.
+    kUByte4_norm, // vector of 4 unsigned bytes, e.g. colors, 0 -> 0.0f, 255 -> 1.0f.
+
+    kShort2,       // vector of 2 16-bit shorts.
+    kShort4,       // vector of 4 16-bit shorts.
+
+    kUShort2,      // vector of 2 unsigned shorts. 0 -> 0, 65535 -> 65535.
+    kUShort2_norm, // vector of 2 unsigned shorts. 0 -> 0.0f, 65535 -> 1.0f.
+
+    kInt,
+    kUint,
+
+    kUShort_norm,
+
+    kUShort4_norm, // vector of 4 unsigned shorts. 0 -> 0.0f, 65535 -> 1.0f.
+
+    kLast = kUShort4_norm
+};
+static const int kVertexAttribTypeCount = (int)(VertexAttribType::kLast) + 1;
+
+/**
  * Wraps an enum that is used for flags, and enables masking with type safety. Example:
  *
  *   enum class MyFlags {
