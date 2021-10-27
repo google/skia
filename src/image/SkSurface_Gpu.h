@@ -45,7 +45,7 @@ public:
                                            ReadPixelsCallback callback,
                                            ReadPixelsContext context) override;
 
-    void onCopyOnWrite(ContentChangeMode) override;
+    bool onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
                                   const GrBackendSurfaceMutableState*) override;

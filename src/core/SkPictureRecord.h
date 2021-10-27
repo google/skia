@@ -102,7 +102,7 @@ private:
     size_t addDraw(DrawType drawType, size_t* size) {
         size_t offset = fWriter.bytesWritten();
 
-        this->predrawNotify();
+        SkASSERT_RELEASE(this->predrawNotify());
 
         SkASSERT(0 != *size);
         SkASSERT(((uint8_t) drawType) == drawType);

@@ -187,7 +187,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
 // Create a new render target and, if necessary, copy the contents of the old
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
-void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
+bool SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
 
     // are we sharing our backing proxy with the image? Note this call should never create a new
@@ -196,10 +196,13 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     SkASSERT(image);
 
     if (static_cast<SkImage_Gpu*>(image.get())->surfaceMustCopyOnWrite(readSurfaceView.proxy())) {
-        fDevice->replaceBackingProxy(mode);
+        if (!fDevice->replaceBackingProxy(mode)) {
+            return false;
+        }
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
     }
+    return true;
 }
 
 void SkSurface_Gpu::onDiscard() { fDevice->discard(); }
