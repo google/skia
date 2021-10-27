@@ -9,5 +9,9 @@ vec4 main() {
     uint hugeUS = (((((((((((((((32768u * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u;
     int hugeNI = int(((((((((((((((((((-2147483648 * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2);
     int hugeNS = (((((((((((((((-32768 * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2;
-    return ((((((colorGreen * clamp(huge, 0.0, 1.0)) * clamp(float(hugeI), 0.0, 1.0)) * clamp(float(hugeU), 0.0, 1.0)) * clamp(float(hugeS), 0.0, 1.0)) * clamp(float(hugeUS), 0.0, 1.0)) * clamp(float(hugeNI), 0.0, 1.0)) * clamp(float(hugeNS), 0.0, 1.0);
+    const ivec4 i4 = ivec4(2, 2, 2, 2);
+    ivec4 hugeIvec = ((((((((((((((ivec4(1073741824, 1073741824, 1073741824, 1073741824) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4;
+    const uvec4 u4 = uvec4(2u, 2u, 2u, 2u);
+    uvec4 hugeUvec = (((((((((((((uvec4(2147483648u, 2147483648u, 2147483648u, 2147483648u) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4;
+    return ((((((((colorGreen * clamp(huge, 0.0, 1.0)) * clamp(float(hugeI), 0.0, 1.0)) * clamp(float(hugeU), 0.0, 1.0)) * clamp(float(hugeS), 0.0, 1.0)) * clamp(float(hugeUS), 0.0, 1.0)) * clamp(float(hugeNI), 0.0, 1.0)) * clamp(float(hugeNS), 0.0, 1.0)) * clamp(vec4(hugeIvec), 0.0, 1.0)) * clamp(vec4(hugeUvec), 0.0, 1.0);
 }

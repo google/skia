@@ -109,11 +109,21 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     }
 
     const Type& componentType = type.componentType();
+    double minimumValue = -INFINITY, maximumValue = INFINITY;
+    if (componentType.isInteger()) {
+        minimumValue = componentType.minimumValue();
+        maximumValue = componentType.maximumValue();
+    }
+
     ExpressionArray args;
     args.reserve_back(type.columns());
     for (int i = 0; i < type.columns(); i++) {
         double value = foldFn(left.getConstantSubexpression(i)->as<Literal>().value(),
                               right.getConstantSubexpression(i)->as<Literal>().value());
+        if (value < minimumValue || value > maximumValue) {
+            return nullptr;
+        }
+
         args.push_back(Literal::Make(left.fLine, value, &componentType));
     }
     return ConstructorCompound::Make(context, left.fLine, type, std::move(args));

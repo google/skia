@@ -16,6 +16,10 @@ OpName %hugeS "hugeS"
 OpName %hugeUS "hugeUS"
 OpName %hugeNI "hugeNI"
 OpName %hugeNS "hugeNS"
+OpName %i4 "i4"
+OpName %hugeIvec "hugeIvec"
+OpName %u4 "u4"
+OpName %hugeUvec "hugeUvec"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -78,24 +82,36 @@ OpDecorate %161 RelaxedPrecision
 OpDecorate %162 RelaxedPrecision
 OpDecorate %163 RelaxedPrecision
 OpDecorate %164 RelaxedPrecision
-OpDecorate %168 RelaxedPrecision
-OpDecorate %170 RelaxedPrecision
-OpDecorate %172 RelaxedPrecision
-OpDecorate %175 RelaxedPrecision
-OpDecorate %176 RelaxedPrecision
-OpDecorate %179 RelaxedPrecision
-OpDecorate %180 RelaxedPrecision
-OpDecorate %182 RelaxedPrecision
-OpDecorate %183 RelaxedPrecision
-OpDecorate %184 RelaxedPrecision
-OpDecorate %186 RelaxedPrecision
-OpDecorate %187 RelaxedPrecision
-OpDecorate %188 RelaxedPrecision
-OpDecorate %191 RelaxedPrecision
-OpDecorate %192 RelaxedPrecision
-OpDecorate %194 RelaxedPrecision
-OpDecorate %195 RelaxedPrecision
-OpDecorate %196 RelaxedPrecision
+OpDecorate %238 RelaxedPrecision
+OpDecorate %240 RelaxedPrecision
+OpDecorate %242 RelaxedPrecision
+OpDecorate %245 RelaxedPrecision
+OpDecorate %246 RelaxedPrecision
+OpDecorate %249 RelaxedPrecision
+OpDecorate %250 RelaxedPrecision
+OpDecorate %252 RelaxedPrecision
+OpDecorate %253 RelaxedPrecision
+OpDecorate %254 RelaxedPrecision
+OpDecorate %256 RelaxedPrecision
+OpDecorate %257 RelaxedPrecision
+OpDecorate %258 RelaxedPrecision
+OpDecorate %261 RelaxedPrecision
+OpDecorate %262 RelaxedPrecision
+OpDecorate %264 RelaxedPrecision
+OpDecorate %265 RelaxedPrecision
+OpDecorate %266 RelaxedPrecision
+OpDecorate %270 RelaxedPrecision
+OpDecorate %272 RelaxedPrecision
+OpDecorate %274 RelaxedPrecision
+OpDecorate %276 RelaxedPrecision
+OpDecorate %277 RelaxedPrecision
+OpDecorate %280 RelaxedPrecision
+OpDecorate %284 RelaxedPrecision
+OpDecorate %286 RelaxedPrecision
+OpDecorate %288 RelaxedPrecision
+OpDecorate %290 RelaxedPrecision
+OpDecorate %291 RelaxedPrecision
+OpDecorate %294 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -128,6 +144,14 @@ OpDecorate %196 RelaxedPrecision
 %uint_32768 = OpConstant %uint 32768
 %int_n2147483648 = OpConstant %int -2147483648
 %int_n32768 = OpConstant %int -32768
+%v4int = OpTypeVector %int 4
+%_ptr_Function_v4int = OpTypePointer Function %v4int
+%168 = OpConstantComposite %v4int %int_2 %int_2 %int_2 %int_2
+%170 = OpConstantComposite %v4int %int_1073741824 %int_1073741824 %int_1073741824 %int_1073741824
+%v4uint = OpTypeVector %uint 4
+%_ptr_Function_v4uint = OpTypePointer Function %v4uint
+%204 = OpConstantComposite %v4uint %uint_2 %uint_2 %uint_2 %uint_2
+%206 = OpConstantComposite %v4uint %uint_2147483648 %uint_2147483648 %uint_2147483648 %uint_2147483648
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int_0 = OpConstant %int 0
 %float_1 = OpConstant %float 1
@@ -149,6 +173,10 @@ OpFunctionEnd
 %hugeUS = OpVariable %_ptr_Function_uint Function
 %hugeNI = OpVariable %_ptr_Function_int Function
 %hugeNS = OpVariable %_ptr_Function_int Function
+%i4 = OpVariable %_ptr_Function_v4int Function
+%hugeIvec = OpVariable %_ptr_Function_v4int Function
+%u4 = OpVariable %_ptr_Function_v4uint Function
+%hugeUvec = OpVariable %_ptr_Function_v4uint Function
 %30 = OpFMul %float %float_9_00000076e_35 %float_1e_09
 %31 = OpFMul %float %30 %float_1e_09
 %32 = OpFMul %float %31 %float_1e_09
@@ -273,34 +301,124 @@ OpStore %hugeNI %146
 %163 = OpIMul %int %162 %int_2
 %164 = OpIMul %int %163 %int_2
 OpStore %hugeNS %164
-%165 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%168 = OpLoad %v4float %165
-%170 = OpLoad %float %huge
-%169 = OpExtInst %float %1 FClamp %170 %float_0 %float_1
-%172 = OpVectorTimesScalar %v4float %168 %169
-%174 = OpLoad %int %hugeI
-%175 = OpConvertSToF %float %174
-%173 = OpExtInst %float %1 FClamp %175 %float_0 %float_1
-%176 = OpVectorTimesScalar %v4float %172 %173
-%178 = OpLoad %uint %hugeU
-%179 = OpConvertUToF %float %178
-%177 = OpExtInst %float %1 FClamp %179 %float_0 %float_1
-%180 = OpVectorTimesScalar %v4float %176 %177
-%182 = OpLoad %int %hugeS
-%183 = OpConvertSToF %float %182
-%181 = OpExtInst %float %1 FClamp %183 %float_0 %float_1
-%184 = OpVectorTimesScalar %v4float %180 %181
-%186 = OpLoad %uint %hugeUS
-%187 = OpConvertUToF %float %186
-%185 = OpExtInst %float %1 FClamp %187 %float_0 %float_1
-%188 = OpVectorTimesScalar %v4float %184 %185
-%190 = OpLoad %int %hugeNI
-%191 = OpConvertSToF %float %190
-%189 = OpExtInst %float %1 FClamp %191 %float_0 %float_1
-%192 = OpVectorTimesScalar %v4float %188 %189
-%194 = OpLoad %int %hugeNS
-%195 = OpConvertSToF %float %194
-%193 = OpExtInst %float %1 FClamp %195 %float_0 %float_1
-%196 = OpVectorTimesScalar %v4float %192 %193
-OpReturnValue %196
+OpStore %i4 %168
+%171 = OpLoad %v4int %i4
+%172 = OpIMul %v4int %170 %171
+%173 = OpLoad %v4int %i4
+%174 = OpIMul %v4int %172 %173
+%175 = OpLoad %v4int %i4
+%176 = OpIMul %v4int %174 %175
+%177 = OpLoad %v4int %i4
+%178 = OpIMul %v4int %176 %177
+%179 = OpLoad %v4int %i4
+%180 = OpIMul %v4int %178 %179
+%181 = OpLoad %v4int %i4
+%182 = OpIMul %v4int %180 %181
+%183 = OpLoad %v4int %i4
+%184 = OpIMul %v4int %182 %183
+%185 = OpLoad %v4int %i4
+%186 = OpIMul %v4int %184 %185
+%187 = OpLoad %v4int %i4
+%188 = OpIMul %v4int %186 %187
+%189 = OpLoad %v4int %i4
+%190 = OpIMul %v4int %188 %189
+%191 = OpLoad %v4int %i4
+%192 = OpIMul %v4int %190 %191
+%193 = OpLoad %v4int %i4
+%194 = OpIMul %v4int %192 %193
+%195 = OpLoad %v4int %i4
+%196 = OpIMul %v4int %194 %195
+%197 = OpLoad %v4int %i4
+%198 = OpIMul %v4int %196 %197
+%199 = OpLoad %v4int %i4
+%200 = OpIMul %v4int %198 %199
+OpStore %hugeIvec %200
+OpStore %u4 %204
+%207 = OpLoad %v4uint %u4
+%208 = OpIMul %v4uint %206 %207
+%209 = OpLoad %v4uint %u4
+%210 = OpIMul %v4uint %208 %209
+%211 = OpLoad %v4uint %u4
+%212 = OpIMul %v4uint %210 %211
+%213 = OpLoad %v4uint %u4
+%214 = OpIMul %v4uint %212 %213
+%215 = OpLoad %v4uint %u4
+%216 = OpIMul %v4uint %214 %215
+%217 = OpLoad %v4uint %u4
+%218 = OpIMul %v4uint %216 %217
+%219 = OpLoad %v4uint %u4
+%220 = OpIMul %v4uint %218 %219
+%221 = OpLoad %v4uint %u4
+%222 = OpIMul %v4uint %220 %221
+%223 = OpLoad %v4uint %u4
+%224 = OpIMul %v4uint %222 %223
+%225 = OpLoad %v4uint %u4
+%226 = OpIMul %v4uint %224 %225
+%227 = OpLoad %v4uint %u4
+%228 = OpIMul %v4uint %226 %227
+%229 = OpLoad %v4uint %u4
+%230 = OpIMul %v4uint %228 %229
+%231 = OpLoad %v4uint %u4
+%232 = OpIMul %v4uint %230 %231
+%233 = OpLoad %v4uint %u4
+%234 = OpIMul %v4uint %232 %233
+OpStore %hugeUvec %234
+%235 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%238 = OpLoad %v4float %235
+%240 = OpLoad %float %huge
+%239 = OpExtInst %float %1 FClamp %240 %float_0 %float_1
+%242 = OpVectorTimesScalar %v4float %238 %239
+%244 = OpLoad %int %hugeI
+%245 = OpConvertSToF %float %244
+%243 = OpExtInst %float %1 FClamp %245 %float_0 %float_1
+%246 = OpVectorTimesScalar %v4float %242 %243
+%248 = OpLoad %uint %hugeU
+%249 = OpConvertUToF %float %248
+%247 = OpExtInst %float %1 FClamp %249 %float_0 %float_1
+%250 = OpVectorTimesScalar %v4float %246 %247
+%252 = OpLoad %int %hugeS
+%253 = OpConvertSToF %float %252
+%251 = OpExtInst %float %1 FClamp %253 %float_0 %float_1
+%254 = OpVectorTimesScalar %v4float %250 %251
+%256 = OpLoad %uint %hugeUS
+%257 = OpConvertUToF %float %256
+%255 = OpExtInst %float %1 FClamp %257 %float_0 %float_1
+%258 = OpVectorTimesScalar %v4float %254 %255
+%260 = OpLoad %int %hugeNI
+%261 = OpConvertSToF %float %260
+%259 = OpExtInst %float %1 FClamp %261 %float_0 %float_1
+%262 = OpVectorTimesScalar %v4float %258 %259
+%264 = OpLoad %int %hugeNS
+%265 = OpConvertSToF %float %264
+%263 = OpExtInst %float %1 FClamp %265 %float_0 %float_1
+%266 = OpVectorTimesScalar %v4float %262 %263
+%268 = OpLoad %v4int %hugeIvec
+%269 = OpCompositeExtract %int %268 0
+%270 = OpConvertSToF %float %269
+%271 = OpCompositeExtract %int %268 1
+%272 = OpConvertSToF %float %271
+%273 = OpCompositeExtract %int %268 2
+%274 = OpConvertSToF %float %273
+%275 = OpCompositeExtract %int %268 3
+%276 = OpConvertSToF %float %275
+%277 = OpCompositeConstruct %v4float %270 %272 %274 %276
+%278 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_0
+%279 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
+%267 = OpExtInst %v4float %1 FClamp %277 %278 %279
+%280 = OpFMul %v4float %266 %267
+%282 = OpLoad %v4uint %hugeUvec
+%283 = OpCompositeExtract %uint %282 0
+%284 = OpConvertUToF %float %283
+%285 = OpCompositeExtract %uint %282 1
+%286 = OpConvertUToF %float %285
+%287 = OpCompositeExtract %uint %282 2
+%288 = OpConvertUToF %float %287
+%289 = OpCompositeExtract %uint %282 3
+%290 = OpConvertUToF %float %289
+%291 = OpCompositeConstruct %v4float %284 %286 %288 %290
+%292 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_0
+%293 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
+%281 = OpExtInst %v4float %1 FClamp %291 %292 %293
+%294 = OpFMul %v4float %280 %281
+OpReturnValue %294
 OpFunctionEnd

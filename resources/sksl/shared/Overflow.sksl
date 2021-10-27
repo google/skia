@@ -27,7 +27,18 @@ half4 main(float2 coords) {
     short hugeNS = short(-8192)
                 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2;
 
+    const int4 i4 = int4(2, 2, 2, 2);
+    int4 hugeIvec = i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 *
+                    i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 *
+                    i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4 * i4;
+
+    const uint4 u4 = uint4(2, 2, 2, 2);
+    uint4 hugeUvec = u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 *
+                     u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 *
+                     u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4 * u4;
+
     return colorGreen * saturate(huge) * saturate(half(hugeI)) * saturate(half(hugeU)) *
                                          saturate(half(hugeS)) * saturate(half(hugeUS)) *
-                                         saturate(half(hugeNI)) * saturate(half(hugeNS));
+                                         saturate(half(hugeNI)) * saturate(half(hugeNS)) *
+                                         saturate(half4(hugeIvec)) * saturate(half4(hugeUvec));
 }
