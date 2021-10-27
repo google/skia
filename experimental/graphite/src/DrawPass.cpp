@@ -10,6 +10,8 @@
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
+#include "experimental/graphite/src/TextureProxy.h"
+#include "experimental/graphite/src/geom/BoundsManager.h"
 
 #include "src/core/SkUtils.h"
 
@@ -134,9 +136,19 @@ static_assert(sizeof(SortKey) == 16);
 
 } // namespace
 
-std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> cmds, DrawContext* dc) {
-    // TODO: DrawList processing will likely go here and then move the results into the DrawPass
-    return std::unique_ptr<DrawPass>(new DrawPass());
+DrawPass::DrawPass(sk_sp<TextureProxy> target, const SkIRect& bounds,
+                   bool requiresStencil, bool requiresMSAA)
+        : fTarget(std::move(target))
+        , fBounds(bounds)
+        , fRequiresStencil(requiresStencil)
+        , fRequiresMSAA(requiresMSAA) {}
+
+DrawPass::~DrawPass() = default;
+
+std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> draws,
+                                         sk_sp<TextureProxy> target,
+                                         const BoundsManager* occlusionCuller) {
+    return std::unique_ptr<DrawPass>(new DrawPass(std::move(target), {0, 0, 0, 0}, true, true));
 }
 
 } // namespace skgpu

@@ -7,10 +7,15 @@
 
 #include "experimental/graphite/src/Device.h"
 
+#include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/SkStuff.h"
+#include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
+#include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/Recorder.h"
+#include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
@@ -37,7 +42,14 @@ bool is_opaque(const PaintParams& paint) {
 } // anonymous namespace
 
 sk_sp<Device> Device::Make(sk_sp<Recorder> recorder, const SkImageInfo& ii) {
-    sk_sp<DrawContext> dc = DrawContext::Make(ii);
+    const Gpu* gpu = recorder->context()->priv().gpu();
+    auto textureInfo = gpu->caps()->getDefaultSampledTextureInfo(ii.colorType(), /*levelCount=*/1,
+                                                                 Protected::kNo, Renderable::kYes);
+    auto target = sk_sp<TextureProxy>(new TextureProxy(ii.dimensions(), textureInfo));
+    sk_sp<DrawContext> dc = DrawContext::Make(target,
+                                              ii.refColorSpace(),
+                                              ii.colorType(),
+                                              ii.alphaType());
     if (!dc) {
         return nullptr;
     }

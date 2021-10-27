@@ -22,9 +22,9 @@ class BoundsManager;
 class Shape;
 class Transform;
 
-class DrawList;
 class DrawPass;
 class Task;
+class TextureProxy;
 
 /**
  * DrawContext records draw commands into a specific Surface, via a general task graph
@@ -32,11 +32,15 @@ class Task;
  */
 class DrawContext final : public SkRefCnt {
 public:
-    static sk_sp<DrawContext> Make(const SkImageInfo&);
+    static sk_sp<DrawContext> Make(sk_sp<TextureProxy> target,
+                                   sk_sp<SkColorSpace> colorSpace,
+                                   SkColorType colorType,
+                                   SkAlphaType alphaType);
 
     ~DrawContext() override;
 
-    const SkImageInfo& imageInfo() { return fImageInfo; }
+    const SkImageInfo&  imageInfo() const { return fImageInfo;    }
+    const TextureProxy* target()    const { return fTarget.get(); }
 
     int pendingDrawCount() const { return fPendingDraws->count(); }
 
@@ -84,8 +88,9 @@ public:
     sk_sp<Task> snapRenderPassTask(const BoundsManager* occlusionCuller);
 
 private:
-    DrawContext(const SkImageInfo&);
+    DrawContext(sk_sp<TextureProxy>, const SkImageInfo&);
 
+    sk_sp<TextureProxy> fTarget;
     SkImageInfo fImageInfo;
 
     // Stores the most immediately recorded draws into the SDC's surface. This list is mutable and
@@ -97,6 +102,9 @@ private:
     // list of DrawPasses is not final until there is an external dependency on the SDC's content
     // that requires it to be resolved as its own render pass (vs. inlining the SDC's passes into a
     // parent's render pass).
+    // TODO: It will be easier to debug/understand the DrawPass structure of a context if
+    // consecutive DrawPasses to the same target are stored in a DrawPassChain. A DrawContext with
+    // multiple DrawPassChains is then clearly accumulating subpasses across multiple targets.
     std::vector<std::unique_ptr<DrawPass>> fDrawPasses;
 };
 

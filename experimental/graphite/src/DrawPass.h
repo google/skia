@@ -9,13 +9,15 @@
 #define skgpu_DrawPass_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 
 #include <memory>
 
 namespace skgpu {
 
+class BoundsManager;
 class DrawList;
-class DrawContext;
+class TextureProxy;
 
 /**
  * DrawPass is analogous to a subpass, storing the drawing operations in the order they are stored
@@ -31,29 +33,45 @@ class DrawContext;
  */
 class DrawPass {
 public:
+    ~DrawPass();
+
     // TODO: Replace SDC with the SDC's surface proxy view
-    static std::unique_ptr<DrawPass> Make(std::unique_ptr<DrawList>, DrawContext*);
+    static std::unique_ptr<DrawPass> Make(std::unique_ptr<DrawList>, sk_sp<TextureProxy>,
+                                          const BoundsManager* occlusionCuller);
 
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is
     // contained within its dimensions.
-    const SkIRect& bounds() const { return fBounds; }
+    const SkIRect&      bounds() const { return fBounds;       }
+    const TextureProxy* target() const { return fTarget.get(); }
 
-    bool requiresDstTexture() const { return false; }
-    bool requiresDMSAA() const { return true; }
+    bool requiresDstTexture() const { return false;            }
+    bool requiresStencil()    const { return fRequiresStencil; }
+    bool requiresMSAA()       const { return fRequiresMSAA;    }
 
-    size_t vertexBufferSize() const { return 0; }
+    size_t vertexBufferSize()  const { return 0; }
     size_t uniformBufferSize() const { return 0; }
 
-    // TODO: Real return types
+    // TODO: Real return types, but it seems useful for DrawPass to report these as sets so that
+    // task execution can compile necessary programs and track resources within a render pass.
+    // Maybe these won't need to be exposed and RenderPassTask can do it per command as needed when
+    // it iterates over the DrawPass contents.
     void samplers() const {}
     void programs() const {}
 
 private:
-    DrawPass() {}
+    DrawPass(sk_sp<TextureProxy> target,
+             const SkIRect& bounds,
+             bool requiresStencil,
+             bool requiresMSAA);
 
-    SkIRect fBounds;
+    sk_sp<TextureProxy> fTarget;
+    SkIRect             fBounds;
+
+    bool fRequiresStencil;
+    bool fRequiresMSAA;
+
     // TODO: actually implement this. Will own the results of sorting/culling/merging a DrawList,
-    // however that is actually specified, and will have a surface proxy view.
+    // however that is actually specified.
 };
 
 } // namespace skgpu

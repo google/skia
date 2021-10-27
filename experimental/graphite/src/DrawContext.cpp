@@ -10,17 +10,31 @@
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawPass.h"
 #include "experimental/graphite/src/RenderPassTask.h"
+#include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 
 namespace skgpu {
 
-sk_sp<DrawContext> DrawContext::Make(const SkImageInfo& ii) {
-    return sk_sp<DrawContext>(new DrawContext(ii));
+sk_sp<DrawContext> DrawContext::Make(sk_sp<TextureProxy> target,
+                                     sk_sp<SkColorSpace> colorSpace,
+                                     SkColorType colorType,
+                                     SkAlphaType alphaType) {
+    if (!target) {
+        return nullptr;
+    }
+
+    // TODO: validate that the color type and alpha type are compatible with the target's info
+    SkImageInfo imageInfo = SkImageInfo::Make(target->dimensions(),
+                                              colorType,
+                                              alphaType,
+                                              std::move(colorSpace));
+    return sk_sp<DrawContext>(new DrawContext(std::move(target), imageInfo));
 }
 
-DrawContext::DrawContext(const SkImageInfo& ii)
-        : fImageInfo(ii)
+DrawContext::DrawContext(sk_sp<TextureProxy> target, const SkImageInfo& ii)
+        : fTarget(std::move(target))
+        , fImageInfo(ii)
         , fPendingDraws(std::make_unique<DrawList>()) {
     // TBD - Will probably want DrawLists (and its internal commands) to come from an arena
     // that the SDC manages.
@@ -63,10 +77,7 @@ void DrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
         return;
     }
 
-    // TODO: actually sort, cull, and merge the DL for the DrawPass
-    (void) occlusionCuller;
-
-    auto pass = DrawPass::Make(std::move(fPendingDraws), this);
+    auto pass = DrawPass::Make(std::move(fPendingDraws), fTarget, occlusionCuller);
     fDrawPasses.push_back(std::move(pass));
     fPendingDraws = std::make_unique<DrawList>();
 }

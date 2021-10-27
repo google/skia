@@ -225,7 +225,7 @@ void Caps::initFormatTable() {
 skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
                                                       uint32_t levelCount,
                                                       Protected,
-                                                      Renderable renderable) {
+                                                      Renderable renderable) const {
     MTLTextureUsage usage = MTLTextureUsageShaderRead;
     if (renderable == Renderable::kYes) {
         usage |= MTLTextureUsageRenderTarget;
@@ -243,7 +243,7 @@ skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
 
 skgpu::TextureInfo Caps::getDefaultMSAATextureInfo(SkColorType colorType,
                                                    uint32_t sampleCount,
-                                                   Protected) {
+                                                   Protected) const {
     MTLTextureUsage usage = MTLTextureUsageRenderTarget;
 
     TextureInfo info;
@@ -258,7 +258,7 @@ skgpu::TextureInfo Caps::getDefaultMSAATextureInfo(SkColorType colorType,
 
 skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(DepthStencilType depthStencilType,
                                                            uint32_t sampleCount,
-                                                           Protected) {
+                                                           Protected) const {
     TextureInfo info;
     info.fSampleCount = sampleCount;
     info.fLevelCount = 1;

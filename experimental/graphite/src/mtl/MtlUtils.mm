@@ -25,8 +25,10 @@ bool FormatIsDepthOrStencil(MTLPixelFormat format) {
 
 MTLPixelFormat SkColorTypeToFormat(SkColorType colorType) {
     switch (colorType) {
-        case (kRGBA_8888_SkColorType):
+        case kRGBA_8888_SkColorType:
             return MTLPixelFormatRGBA8Unorm;
+        case kAlpha_8_SkColorType:
+            return MTLPixelFormatR8Unorm;
         default:
             // TODO: fill in the rest of the formats
             SkUNREACHABLE;

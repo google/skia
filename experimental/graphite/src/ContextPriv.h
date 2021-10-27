@@ -20,6 +20,7 @@ class Gpu;
 class ContextPriv {
 public:
     Gpu* gpu();
+    const Gpu* gpu() const;
 
 private:
     friend class Context; // to construct/copy this type.

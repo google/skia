@@ -23,6 +23,8 @@ public:
 
     void add(sk_sp<Task>);
 
+    const Context* context() const;
+
     std::unique_ptr<Recording> snap();
 
 protected:

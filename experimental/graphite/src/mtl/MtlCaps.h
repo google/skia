@@ -22,15 +22,15 @@ public:
     skgpu::TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                                     uint32_t levelCount,
                                                     Protected,
-                                                    Renderable) override;
+                                                    Renderable) const override;
 
     skgpu::TextureInfo getDefaultMSAATextureInfo(SkColorType,
                                                  uint32_t sampleCount,
-                                                 Protected) override;
+                                                 Protected) const override;
 
     skgpu::TextureInfo getDefaultDepthStencilTextureInfo(DepthStencilType,
                                                          uint32_t sampleCount,
-                                                         Protected) override;
+                                                         Protected) const override;
 
     bool isMac() const { return fGPUFamily == GPUFamily::kMac; }
     bool isApple()const  { return fGPUFamily == GPUFamily::kApple; }

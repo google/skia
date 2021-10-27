@@ -12,7 +12,6 @@
 #include "experimental/graphite/src/Surface_Graphite.h"
 
 sk_sp<SkSurface> MakeGraphite(sk_sp<skgpu::Recorder> recorder, const SkImageInfo& ii) {
-
     sk_sp<skgpu::Device> device = skgpu::Device::Make(std::move(recorder), ii);
     if (!device) {
         return nullptr;

@@ -16,6 +16,10 @@ namespace skgpu {
 Recorder::Recorder(sk_sp<Context> context) : fContext(std::move(context)) {}
 Recorder::~Recorder() {}
 
+const Context* Recorder::context() const {
+    return fContext.get();
+}
+
 void Recorder::add(sk_sp<Task> task) {
     fGraph.add(std::move(task));
 }
