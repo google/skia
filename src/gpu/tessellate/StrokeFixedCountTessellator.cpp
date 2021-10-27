@@ -11,6 +11,7 @@
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/StrokeIterator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
@@ -32,16 +33,13 @@ class InstanceWriter {
 public:
     using ShaderFlags = StrokeTessellator::ShaderFlags;
 
-    InstanceWriter(const GrShaderCaps* shaderCaps,
-                   ShaderFlags shaderFlags,
-                   GrMeshDrawTarget* target,
-                   float matrixMaxScale,
-                   const SkMatrix& viewMatrix,
-                   GrVertexChunkArray* patchChunks,
-                   size_t instanceStride,
-                   int minInstancesPerChunk)
+    InstanceWriter(const GrShaderCaps* shaderCaps, ShaderFlags shaderFlags,
+                   GrMeshDrawTarget* target, float matrixMaxScale, const SkRect& strokeCullBounds,
+                   const SkMatrix& viewMatrix, GrVertexChunkArray* patchChunks,
+                   size_t instanceStride, int minInstancesPerChunk)
             : fShaderCaps(shaderCaps)
             , fShaderFlags(shaderFlags)
+            , fCullTest(strokeCullBounds, viewMatrix)
             , fChunkBuilder(target, patchChunks, instanceStride, minInstancesPerChunk)
             , fParametricPrecision(StrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
     }
@@ -151,8 +149,14 @@ private:
     void chopQuadraticTo(const SkPoint p[3]) {
         SkPoint chops[5];
         SkChopQuadAtHalf(p, chops);
-        this->quadraticTo(chops);
-        this->quadraticTo(chops + 2);
+        for (int i = 0; i < 2; ++i) {
+            const SkPoint* q = chops + i*2;
+            if (fCullTest.areVisible3(q)) {
+                this->quadraticTo(q);
+            } else {
+                this->discardStroke(q, 3);
+            }
+        }
     }
 
     void chopConicTo(const SkConic& conic) {
@@ -160,15 +164,26 @@ private:
         if (!conic.chopAt(.5f, chops)) {
             return;
         }
-        this->conicTo(chops[0].fPts, chops[0].fW);
-        this->conicTo(chops[1].fPts, chops[1].fW);
+        for (int i = 0; i < 2; ++i) {
+            if (fCullTest.areVisible3(chops[i].fPts)) {
+                this->conicTo(chops[i].fPts, chops[i].fW);
+            } else {
+                this->discardStroke(chops[i].fPts, 3);
+            }
+        }
     }
 
     void chopCubicConvex180To(const SkPoint p[4]) {
         SkPoint chops[7];
         SkChopCubicAtHalf(p, chops);
-        this->cubicConvex180To(chops);
-        this->cubicConvex180To(chops + 3);
+        for (int i = 0; i < 2; ++i) {
+            const SkPoint* c = chops + i*3;
+            if (fCullTest.areVisible4(c)) {
+                this->cubicConvex180To(c);
+            } else {
+                this->discardStroke(c, 4);
+            }
+        }
     }
 
     SK_ALWAYS_INLINE void writeStroke(const SkPoint p[4], SkPoint endControlPoint,
@@ -208,6 +223,7 @@ private:
 
     const GrShaderCaps* fShaderCaps;
     const ShaderFlags fShaderFlags;
+    const CullTest fCullTest;
     GrVertexChunkBuilder fChunkBuilder;
     const float fParametricPrecision;
     float fMaxParametricSegments_pow4 = 1;
@@ -242,10 +258,11 @@ StrokeFixedCountTessellator::StrokeFixedCountTessellator(const GrShaderCaps& sha
                                                          ShaderFlags shaderFlags,
                                                          const SkMatrix& viewMatrix,
                                                          PathStrokeList* pathStrokeList,
-                                                         std::array<float,2> matrixMinMaxScales)
+                                                         std::array<float,2> matrixMinMaxScales,
+                                                         const SkRect& strokeCullBounds)
         : StrokeTessellator(shaderCaps, GrStrokeTessellationShader::Mode::kFixedCount, shaderFlags,
                             kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
-                            matrixMinMaxScales) {
+                            matrixMinMaxScales, strokeCullBounds) {
 }
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
@@ -261,8 +278,8 @@ void StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target, int totalCom
     int capPreallocCount = 8;
     int minInstancesPerChunk = strokePreallocCount + capPreallocCount;
     InstanceWriter instanceWriter(target->caps().shaderCaps(), fShader.flags(), target,
-                                  fMatrixMinMaxScales[1], fShader.viewMatrix(), &fInstanceChunks,
-                                  fShader.instanceStride(), minInstancesPerChunk);
+                                  fMatrixMinMaxScales[1], fStrokeCullBounds, fShader.viewMatrix(),
+                                  &fInstanceChunks, fShader.instanceStride(), minInstancesPerChunk);
 
     if (!fShader.hasDynamicStroke()) {
         // Strokes are static. Calculate tolerances once.

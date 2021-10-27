@@ -69,6 +69,7 @@ private:
     ShaderFlags fShaderFlags = ShaderFlags::kNone;
     PathStrokeList fPathStrokeList;
     PathStrokeList** fPathStrokeTail = &fPathStrokeList.fNext;
+    float fInflationRadius = 0;
     int fTotalCombinedVerbCnt = 0;
     GrProcessorSet fProcessors;
     bool fNeedsStencil;

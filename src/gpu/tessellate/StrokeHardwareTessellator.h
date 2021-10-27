@@ -22,7 +22,8 @@ public:
                               ShaderFlags shaderFlags,
                               const SkMatrix& viewMatrix,
                               PathStrokeList* pathStrokeList,
-                              std::array<float,2> matrixMinMaxScales);
+                              std::array<float,2> matrixMinMaxScales,
+                              const SkRect& strokeCullBounds);
 
     void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) override;
 #if SK_GPU_V1

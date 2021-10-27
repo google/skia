@@ -122,7 +122,7 @@ private:
                                                           caps);
                 break;
         }
-        fTessellator->prepare(flushState, {pathMatrix, fPath}, fPath.countVerbs());
+        fTessellator->prepare(flushState, this->bounds(), {pathMatrix, fPath}, fPath.countVerbs());
         fProgram = GrTessellationShader::MakeProgram({alloc, flushState->writeView(),
                                                      flushState->usesMSAASurface(),
                                                      &flushState->dstProxyView(),

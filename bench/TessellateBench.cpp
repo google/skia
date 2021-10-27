@@ -128,7 +128,8 @@ DEF_PATH_TESS_BENCH(GrPathCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
                                            fTarget->caps().minPathVerbsForHwTessellation(),
                                            noVaryingsPipeline,
                                            fTarget->caps());
-    tess->prepare(fTarget.get(), {gAlmostIdentity, fPath}, fPath.countVerbs());
+    tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), {gAlmostIdentity, fPath},
+                  fPath.countVerbs());
 }
 
 DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
@@ -141,7 +142,8 @@ DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
                                            fTarget->caps().minPathVerbsForHwTessellation(),
                                            noVaryingsPipeline,
                                            fTarget->caps());
-    tess->prepare(fTarget.get(), {gAlmostIdentity, fPath}, fPath.countVerbs());
+    tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), {gAlmostIdentity, fPath},
+                  fPath.countVerbs());
 }
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {
@@ -229,16 +231,19 @@ using MakeTessellatorFn = std::unique_ptr<StrokeTessellator>(*)(ShaderFlags,
                                                                 const GrShaderCaps&,
                                                                 const SkMatrix&,
                                                                 PathStrokeList*,
-                                                                std::array<float, 2>);
+                                                                std::array<float, 2>,
+                                                                const SkRect&);
 
 static std::unique_ptr<StrokeTessellator> make_hw_tessellator(
         ShaderFlags shaderFlags,
         const GrShaderCaps& shaderCaps,
         const SkMatrix& viewMatrix,
         PathStrokeList* pathStrokeList,
-        std::array<float,2> matrixMinMaxScales) {
+        std::array<float,2> matrixMinMaxScales,
+        const SkRect& strokeCullBounds) {
     return std::make_unique<StrokeHardwareTessellator>(shaderCaps, shaderFlags, viewMatrix,
-                                                       pathStrokeList, matrixMinMaxScales);
+                                                       pathStrokeList, matrixMinMaxScales,
+                                                       strokeCullBounds);
 }
 
 static std::unique_ptr<StrokeTessellator> make_fixed_count_tessellator(
@@ -246,9 +251,11 @@ static std::unique_ptr<StrokeTessellator> make_fixed_count_tessellator(
         const GrShaderCaps& shaderCaps,
         const SkMatrix& viewMatrix,
         PathStrokeList* pathStrokeList,
-        std::array<float, 2> matrixMinMaxScales) {
+        std::array<float, 2> matrixMinMaxScales,
+        const SkRect& strokeCullBounds) {
     return std::make_unique<StrokeFixedCountTessellator>(shaderCaps, shaderFlags, viewMatrix,
-                                                         pathStrokeList, matrixMinMaxScales);
+                                                         pathStrokeList, matrixMinMaxScales,
+                                                         strokeCullBounds);
 }
 
 using MakePathStrokesFn = std::vector<PathStrokeList>(*)();
@@ -350,7 +357,8 @@ private:
 
         fTessellator = fMakeTessellatorFn(fShaderFlags, *fTarget->caps().shaderCaps(),
                                           SkMatrix::Scale(fMatrixScale, fMatrixScale),
-                                          fPathStrokes.data(), {fMatrixScale, fMatrixScale});
+                                          fPathStrokes.data(), {fMatrixScale, fMatrixScale},
+                                          SkRectPriv::MakeLargest());
     }
 
     void onDraw(int loops, SkCanvas*) final {

@@ -12,6 +12,7 @@
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
 #if SK_GPU_V1
@@ -57,14 +58,11 @@ public:
         kBowtie = SkPaint::kLast_Join + 1  // Double sided round join.
     };
 
-    PatchWriter(ShaderFlags shaderFlags,
-                GrMeshDrawTarget* target,
-                const SkMatrix& viewMatrix,
-                float matrixMaxScale,
-                GrVertexChunkArray* patchChunks,
-                size_t patchStride,
-                int minPatchesPerChunk)
+    PatchWriter(ShaderFlags shaderFlags, GrMeshDrawTarget* target,
+                const SkRect& strokeCullBounds, const SkMatrix& viewMatrix, float matrixMaxScale,
+                GrVertexChunkArray* patchChunks, size_t patchStride, int minPatchesPerChunk)
             : fShaderFlags(shaderFlags)
+            , fCullTest(strokeCullBounds, viewMatrix)
             , fChunkBuilder(target, patchChunks, patchStride, minPatchesPerChunk)
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
@@ -358,6 +356,11 @@ private:
     // tessellation patches.
     void internalConicPatchesTo(JoinType prevJoinType, const SkPoint p[3], float w,
                                 int maxDepth = -1) {
+        if (!fCullTest.areVisible3(p)) {
+            // The stroke is out of view. Discard it.
+            this->discardStroke(p, 3);
+            return;
+        }
         // Zero-length paths need special treatment because they are spec'd to behave differently.
         // If the control point is colocated on an endpoint then this might end up being the case.
         // Fall back on a lineTo and let it make the final check.
@@ -437,6 +440,11 @@ private:
     // tessellation patches. The cubic must be convex and must not rotate more than 180 degrees.
     void internalCubicConvex180PatchesTo(JoinType prevJoinType, const SkPoint p[4],
                                          int maxDepth = -1) {
+        if (!fCullTest.areVisible4(p)) {
+            // The stroke is out of view. Discard it.
+            this->discardStroke(p, 4);
+            return;
+        }
         // The stroke tessellation shader assigns special meaning to p0==p1==p2 and p1==p2==p3. If
         // this is the case then we need to rewrite the cubic.
         if (p[1] == p[2] && (p[1] == p[0] || p[1] == p[3])) {
@@ -621,6 +629,7 @@ private:
     }
 
     const ShaderFlags fShaderFlags;
+    const CullTest fCullTest;
     GrVertexChunkBuilder fChunkBuilder;
 
     // The maximum number of tessellation segments the hardware can emit for a single patch.
@@ -701,10 +710,11 @@ StrokeHardwareTessellator::StrokeHardwareTessellator(const GrShaderCaps& shaderC
                                                      ShaderFlags shaderFlags,
                                                      const SkMatrix& viewMatrix,
                                                      PathStrokeList* pathStrokeList,
-                                                     std::array<float,2> matrixMinMaxScales)
+                                                     std::array<float,2> matrixMinMaxScales,
+                                                     const SkRect& strokeCullBounds)
         : StrokeTessellator(shaderCaps, GrStrokeTessellationShader::Mode::kHardwareTessellation,
                             shaderFlags, SkNextLog2(shaderCaps.maxTessellationSegments()),
-                            viewMatrix, pathStrokeList, matrixMinMaxScales) {
+                            viewMatrix, pathStrokeList, matrixMinMaxScales, strokeCullBounds) {
 }
 
 void StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target, int totalCombinedVerbCnt) {
@@ -714,8 +724,9 @@ void StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target, int totalCombi
     int strokePreallocCount = totalCombinedVerbCnt * 5/4;
     int capPreallocCount = 8;
     int minPatchesPerChunk = strokePreallocCount + capPreallocCount;
-    PatchWriter patchWriter(fShader.flags(), target, fShader.viewMatrix(), fMatrixMinMaxScales[1],
-                            &fPatchChunks, fShader.vertexStride(), minPatchesPerChunk);
+    PatchWriter patchWriter(fShader.flags(), target, fStrokeCullBounds, fShader.viewMatrix(),
+                            fMatrixMinMaxScales[1], &fPatchChunks, fShader.vertexStride(),
+                            minPatchesPerChunk);
 
     if (!fShader.hasDynamicStroke()) {
         // Strokes are static. Calculate tolerances once.

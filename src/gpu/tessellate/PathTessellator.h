@@ -55,7 +55,10 @@ public:
     //
     // Each path's fPathMatrix in the list is applied on the CPU while the geometry is being written
     // out. This is a tool for batching, and is applied in addition to the shader's on-GPU matrix.
-    virtual void prepare(GrMeshDrawTarget*, const PathDrawList&, int totalCombinedPathVerbCnt) = 0;
+    virtual void prepare(GrMeshDrawTarget*,
+                         const SkRect& cullBounds,
+                         const PathDrawList&,
+                         int totalCombinedPathVerbCnt) = 0;
 
 #if SK_GPU_V1
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
