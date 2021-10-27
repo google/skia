@@ -49,6 +49,10 @@ public:
 
     bool hasWork() { return fHasWork; }
 
+    void trackResource(sk_sp<SkRefCnt> resource) {
+        fTrackedResources.push_back(std::move(resource));
+    }
+
     void beginRenderPass(const RenderPassDesc&);
     virtual void endRenderPass() = 0;
 
@@ -75,10 +79,6 @@ public:
 
 protected:
     CommandBuffer();
-
-    void trackResource(sk_sp<SkRefCnt> resource) {
-        fTrackedResources.push_back(std::move(resource));
-    }
 
 private:
     void releaseResources();

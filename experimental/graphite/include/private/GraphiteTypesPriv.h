@@ -13,6 +13,8 @@
 
 namespace skgpu {
 
+class Buffer;
+
 // Use familiar type names from SkSL.
 template<int N> using vec = skvx::Vec<N, float>;
 using float2 = vec<2>;
@@ -222,6 +224,15 @@ private:
     friend constexpr skgpu::Mask<E> operator&(E, E); \
     friend constexpr skgpu::Mask<E> operator^(E, E); \
     friend constexpr skgpu::Mask<E> operator~(E); \
+
+/*
+ * Struct returned by the DrawBufferManager that can be passed into bind buffer calls on the
+ * CommandBuffer.
+ */
+struct BindBufferInfo {
+    Buffer* fBuffer = nullptr;
+    size_t fOffset = 0;
+};
 
 } // namespace skgpu
 

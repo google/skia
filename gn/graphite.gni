@@ -32,6 +32,8 @@ skia_graphite_sources = [
   "$_src/CopyTask.h",
   "$_src/Device.cpp",
   "$_src/Device.h",
+  "$_src/DrawBufferManager.cpp",
+  "$_src/DrawBufferManager.h",
   "$_src/DrawContext.cpp",
   "$_src/DrawContext.h",
   "$_src/DrawList.h",
