@@ -3,10 +3,10 @@ uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     half4 expected = half4(0);  // derivative of a constant is zero
-    return (dFdx(testInputs.x)    == expected.x     &&
-            dFdx(testInputs.xy)   == expected.xy    &&
-            dFdx(testInputs.xyz)  == expected.xyz   &&
-            dFdx(testInputs.xyzw) == expected.xyzw  &&
+    return (dFdy(testInputs.x)    == expected.x     &&
+            dFdy(testInputs.xy)   == expected.xy    &&
+            dFdy(testInputs.xyz)  == expected.xyz   &&
+            dFdy(testInputs.xyzw) == expected.xyzw  &&
             sign(dFdy(coords.xx)) == half2(0, 0)    &&
             sign(dFdy(coords.yy)) == half2(1, 1)    &&
             sign(dFdy(coords.xy)) == half2(0, 1)) ? colorGreen : colorRed;

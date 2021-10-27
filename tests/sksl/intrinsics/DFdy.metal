@@ -18,6 +18,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float4 expected = float4(0.0);
-    _out.sk_FragColor = (((((dfdx(_uniforms.testInputs.x) == expected.x && all(dfdx(_uniforms.testInputs.xy) == expected.xy)) && all(dfdx(_uniforms.testInputs.xyz) == expected.xyz)) && all(dfdx(_uniforms.testInputs) == expected)) && all(sign(_anonInterface0.u_skRTFlip.y*dfdy(coords.xx)) == float2(0.0, 0.0))) && all(sign(_anonInterface0.u_skRTFlip.y*dfdy(coords.yy)) == float2(1.0, 1.0))) && all(sign(_anonInterface0.u_skRTFlip.y*dfdy(coords)) == float2(0.0, 1.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = (((((_anonInterface0.u_skRTFlip.y*dfdy(_uniforms.testInputs.x) == expected.x && all(_anonInterface0.u_skRTFlip.y*dfdy(_uniforms.testInputs.xy) == expected.xy)) && all(_anonInterface0.u_skRTFlip.y*dfdy(_uniforms.testInputs.xyz) == expected.xyz)) && all(_anonInterface0.u_skRTFlip.y*dfdy(_uniforms.testInputs) == expected)) && all(sign(_anonInterface0.u_skRTFlip.y*dfdy(coords.xx)) == float2(0.0, 0.0))) && all(sign(_anonInterface0.u_skRTFlip.y*dfdy(coords.yy)) == float2(1.0, 1.0))) && all(sign(_anonInterface0.u_skRTFlip.y*dfdy(coords)) == float2(0.0, 1.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
