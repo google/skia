@@ -64,7 +64,7 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
 }
 
 uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) {
-    return max_bezier_vertices(wangs_formula::quadratic_log2(
+    return max_bezier_vertices(skgpu::wangs_formula::quadratic_log2(
             tolerance_to_wangs_precision(tol), points));
 }
 
@@ -94,7 +94,7 @@ uint32_t GrPathUtils::generateQuadraticPoints(const SkPoint& p0,
 }
 
 uint32_t GrPathUtils::cubicPointCount(const SkPoint points[], SkScalar tol) {
-    return max_bezier_vertices(wangs_formula::cubic_log2(
+    return max_bezier_vertices(skgpu::wangs_formula::cubic_log2(
             tolerance_to_wangs_precision(tol), points));
 }
 

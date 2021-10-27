@@ -16,9 +16,9 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
-#include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/PathCurveTessellator.h"
 #include "src/gpu/tessellate/PathWedgeTessellator.h"
+#include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 namespace {
@@ -246,13 +246,12 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         int fanTriangleCount = 0;
         for (auto [pathMatrix, path] : *fPathDrawList) {
             int numTrianglesWritten;
-            triangleVertexWriter = MiddleOutPolygonTriangulator::WritePathInnerFan(
-                    std::move(triangleVertexWriter),
-                    0,
-                    0,
-                    pathMatrix,
-                    path,
-                    &numTrianglesWritten);
+            triangleVertexWriter = WritePathMiddleOutInnerFan(std::move(triangleVertexWriter),
+                                                              0,
+                                                              0,
+                                                              pathMatrix,
+                                                              path,
+                                                              &numTrianglesWritten);
             fanTriangleCount += numTrianglesWritten;
         }
         SkASSERT(fanTriangleCount <= maxTrianglesInFans);

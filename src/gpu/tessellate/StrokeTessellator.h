@@ -8,7 +8,7 @@
 #ifndef tessellate_StrokeTessellator_DEFINED
 #define tessellate_StrokeTessellator_DEFINED
 
-#include "src/gpu/GrVx.h"
+#include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
 class GrMeshDrawTarget;
@@ -71,9 +71,9 @@ struct StrokeTolerances {
     // Decides the number of parametric segments the tessellator adds for each curve. (Uniform
     // steps in parametric space.) The tessellator will add enough parametric segments so that,
     // once transformed into device space, they never deviate by more than
-    // 1/TessellationPathRenderer::kLinearizationPrecision pixels from the true curve.
+    // 1/kTessellationPrecision pixels from the true curve.
     constexpr static float CalcParametricPrecision(float matrixMaxScale) {
-        return matrixMaxScale * GrTessellationShader::kLinearizationPrecision;
+        return matrixMaxScale * kTessellationPrecision;
     }
     // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
     // in tangent angle.) The tessellator will add this number of radial segments for each
@@ -82,9 +82,9 @@ struct StrokeTolerances {
                                                 float strokeWidth) {
         return .5f / acosf(std::max(1 - 2 / (parametricPrecision * strokeWidth), -1.f));
     }
-    template<int N> static grvx::vec<N> ApproxNumRadialSegmentsPerRadian(
-            float parametricPrecision, grvx::vec<N> strokeWidths) {
-        grvx::vec<N> cosTheta = skvx::max(1 - 2 / (parametricPrecision * strokeWidths), -1);
+    template<int N> static vec<N> ApproxNumRadialSegmentsPerRadian(float parametricPrecision,
+                                                                   vec<N> strokeWidths) {
+        vec<N> cosTheta = skvx::max(1 - 2 / (parametricPrecision * strokeWidths), -1);
         // Subtract SKVX_APPROX_ACOS_MAX_ERROR so we never account for too few segments.
         return .5f / (skvx::approx_acos(cosTheta) - SKVX_APPROX_ACOS_MAX_ERROR);
     }
@@ -159,7 +159,7 @@ public:
     }
 
 private:
-    grvx::float4 fStrokeWidths{};  // Must be first for alignment purposes.
+    float4 fStrokeWidths{};  // Must be first for alignment purposes.
     float fNumRadialSegmentsPerRadian[4];
     const float fParametricPrecision;
     int fBufferIdx = 4;  // Initialize the buffer as "empty";

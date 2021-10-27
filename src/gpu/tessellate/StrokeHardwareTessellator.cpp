@@ -11,7 +11,6 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/WangsFormula.h"
@@ -43,7 +42,7 @@ float num_combined_segments(float numParametricSegments, float numRadialSegments
     return numParametricSegments + numRadialSegments - 1;
 }
 
-grvx::float2 pow4(grvx::float2 x) {
+float2 pow4(float2 x) {
     auto xx = x*x;
     return xx*xx;
 }
@@ -102,8 +101,6 @@ public:
     }
 
     void updateTolerances(float numRadialSegmentsPerRadian, SkPaint::Join joinType) {
-        using grvx::float2;
-
         fNumRadialSegmentsPerRadian = numRadialSegmentsPerRadian;
 
         // Calculate the worst-case numbers of parametric segments our hardware can support for the
@@ -675,8 +672,6 @@ private:
 };
 
 SK_ALWAYS_INLINE bool cubic_has_cusp(const SkPoint p[4]) {
-    using grvx::float2;
-
     float2 p0 = skvx::bit_pun<float2>(p[0]);
     float2 p1 = skvx::bit_pun<float2>(p[1]);
     float2 p2 = skvx::bit_pun<float2>(p[2]);
@@ -689,9 +684,9 @@ SK_ALWAYS_INLINE bool cubic_has_cusp(const SkPoint p[4]) {
     float2 B = D - C;
     float2 A = -3*D + E;
 
-    float a = grvx::cross(A, B);
-    float b = grvx::cross(A, C);
-    float c = grvx::cross(B, C);
+    float a = cross(A, B);
+    float b = cross(A, C);
+    float c = cross(B, C);
     float discr = b*b - 4*a*c;
 
     // If -cuspThreshold <= discr <= cuspThreshold, it means the two roots are within a distance of

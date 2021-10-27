@@ -12,7 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkString.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/gpu/GrVx.h"
+#include "src/gpu/tessellate/Tessellation.h"
 
 #define AI SK_MAYBE_UNUSED SK_ALWAYS_INLINE
 
@@ -26,7 +26,7 @@
 //
 // (Goldman, Ron. (2003). 5.6.3 Wang's Formula. "Pyramid Algorithms: A Dynamic Programming Approach
 // to Curves and Surfaces for Geometric Modeling". Morgan Kaufmann Publishers.)
-namespace wangs_formula {
+namespace skgpu::wangs_formula {
 
 // Returns the value by which to multiply length in Wang's formula. (See above.)
 template<int Degree> constexpr float length_term(float precision) {
@@ -118,10 +118,9 @@ private:
 AI float quadratic_pow4(float precision,
                         const SkPoint pts[],
                         const VectorXform& vectorXform = VectorXform()) {
-    using grvx::float2, skvx::bit_pun;
-    float2 p0 = bit_pun<float2>(pts[0]);
-    float2 p1 = bit_pun<float2>(pts[1]);
-    float2 p2 = bit_pun<float2>(pts[2]);
+    float2 p0 = skvx::bit_pun<float2>(pts[0]);
+    float2 p1 = skvx::bit_pun<float2>(pts[1]);
+    float2 p2 = skvx::bit_pun<float2>(pts[2]);
     float2 v = -2*p1 + p0 + p2;
     v = vectorXform(v);
     float2 vv = v*v;
@@ -148,7 +147,6 @@ AI int quadratic_log2(float precision,
 AI float cubic_pow4(float precision,
                     const SkPoint pts[],
                     const VectorXform& vectorXform = VectorXform()) {
-    using grvx::float4;
     float4 p01 = float4::Load(pts);
     float4 p12 = float4::Load(pts + 1);
     float4 p23 = float4::Load(pts + 2);
@@ -200,10 +198,9 @@ AI float conic_pow2(float precision,
                     const SkPoint pts[],
                     float w,
                     const VectorXform& vectorXform = VectorXform()) {
-    using grvx::dot, grvx::float2, grvx::float4, skvx::bit_pun;
-    float2 p0 = vectorXform(bit_pun<float2>(pts[0]));
-    float2 p1 = vectorXform(bit_pun<float2>(pts[1]));
-    float2 p2 = vectorXform(bit_pun<float2>(pts[2]));
+    float2 p0 = vectorXform(skvx::bit_pun<float2>(pts[0]));
+    float2 p1 = vectorXform(skvx::bit_pun<float2>(pts[1]));
+    float2 p2 = vectorXform(skvx::bit_pun<float2>(pts[2]));
 
     // Compute center of bounding box in projected space
     const float2 C = 0.5f * (skvx::min(skvx::min(p0, p1), p2) + skvx::max(skvx::max(p0, p1), p2));
@@ -224,7 +221,7 @@ AI float conic_pow2(float precision,
     // Compute numerator and denominator for parametric step size of linearization. Here, the
     // epsilon referenced from the cited paper is 1/precision.
     const float rp_minus_1 = std::max(0.f, max_len * precision - 1);
-    const float numer = sqrtf(grvx::dot(dp, dp)) * precision + rp_minus_1 * dw;
+    const float numer = sqrtf(dot(dp, dp)) * precision + rp_minus_1 * dw;
     const float denom = 4 * std::min(w, 1.f);
 
     // Number of segments = sqrt(numer / denom).
@@ -309,7 +306,7 @@ SK_MAYBE_UNUSED inline static SkString as_sksl() {
     return code;
 }
 
-}  // namespace wangs_formula
+}  // namespace skgpu::wangs_formula
 
 #undef AI
 
