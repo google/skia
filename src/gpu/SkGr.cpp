@@ -468,28 +468,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                         std::move(paintFP), {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
             }
         } else {
-#if defined(SK_SUPPORT_LEGACY_PAINT_ALPHA_MODULATION)
             grPaint->setColor4f(origColor.premul());
-#else
-            float paintAlpha = skPaint.getColor4f().fA;
-            if (paintAlpha != 1.0f) {
-                // TODO (skbug.com/11942): Can we instead make a single FP that does:
-                //   uniform colorFilter fp;
-                //   half4 main(half4 inColor) {
-                //     return fp.eval(inColor.rgb1) * inColor.a;
-                //   }
-                // That's slightly different - we're relying on the input color being the paint
-                // color, but it would avoid the uniform (so might restore batching)?
-                SkPMColor4f shaderInput = origColor.makeOpaque().premul();
-                paintFP = GrFragmentProcessor::OverrideInput(std::move(paintFP), shaderInput);
-
-                paintFP = GrFragmentProcessor::ModulateRGBA(
-                        std::move(paintFP), {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
-                grPaint->setColor4f(shaderInput);
-            } else {
-                grPaint->setColor4f(origColor.premul());
-            }
-#endif
         }
     } else {
         if (primColorMode) {
