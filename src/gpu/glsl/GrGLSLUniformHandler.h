@@ -92,14 +92,6 @@ public:
     GrShaderVar liftUniformToVertexShader(const GrFragmentProcessor& owner, SkString rawName);
 
 protected:
-    struct UniformMapping {
-        const GrFragmentProcessor* fOwner;
-        int fInfoIndex;
-        SkString fRawName;
-        const char* fFinalName;
-        GrSLType fType;
-    };
-
     explicit GrGLSLUniformHandler(GrGLSLProgramBuilder* program) : fProgramBuilder(program) {}
 
     // This is not owned by the class
