@@ -717,8 +717,9 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             return true;
         }
         case k_dFdy_IntrinsicKind: {
-            this->write(fRTFlipName + ".y*dfdy");
+            this->write("(" + fRTFlipName + ".y * dfdy");
             this->writeArgumentList(c.arguments());
+            this->write(")");
             return true;
         }
         case k_inverse_IntrinsicKind: {
