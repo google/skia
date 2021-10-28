@@ -23,6 +23,7 @@ public:
     virtual const char* name()            const = 0;
     virtual bool        requiresStencil() const = 0;
     virtual bool        requiresMSAA()    const = 0;
+    virtual bool        performsShading() const = 0;
 
     // TODO: Actual API to do things
     // 1. Provide stencil settings
@@ -112,11 +113,14 @@ private:
             , fRequiresStencil(false)
             , fRequiresMSAA(false) {
         static_assert(N <= kMaxRenderSteps);
+        SkDEBUGCODE(bool performsShading = false;)
         for (int i = 0 ; i < fStepCount; ++i) {
             fSteps[i] = steps[i];
             fRequiresStencil |= fSteps[i]->requiresStencil();
             fRequiresMSAA |= fSteps[i]->requiresMSAA();
+            SkDEBUGCODE(performsShading |= fSteps[i]->performsShading());
         }
+        SkASSERT(performsShading); // at least one step needs to actually shade
     }
 
     // Cannot move or copy

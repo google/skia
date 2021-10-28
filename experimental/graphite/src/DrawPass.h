@@ -19,6 +19,8 @@ class BoundsManager;
 class DrawList;
 class TextureProxy;
 
+class CommandBuffer;
+
 /**
  * DrawPass is analogous to a subpass, storing the drawing operations in the order they are stored
  * in the eventual command buffer, as well as the surface proxy the operations are intended for.
@@ -57,6 +59,10 @@ public:
     // it iterates over the DrawPass contents.
     void samplers() const {}
     void programs() const {}
+
+    // Transform this DrawPass into commands issued to the CommandBuffer. Assumes that the buffer
+    // has already begun a correctly configured render pass matching this pass's target.
+    void execute(CommandBuffer* buffer) const;
 
 private:
     class SortKey;

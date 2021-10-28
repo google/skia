@@ -17,6 +17,8 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkUtils.h"
 
+#include <algorithm>
+
 namespace skgpu {
 
 /**
@@ -124,7 +126,103 @@ std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> draws,
     // In pseudo tests, manipulating the pointer or having to mask out indices was about 15% slower
     // than an 8 byte key and unmodified pointer.
     static_assert(sizeof(DrawPass::SortKey) == 16 + sizeof(void*));
-    return std::unique_ptr<DrawPass>(new DrawPass(std::move(target), {0, 0, 0, 0}, true, true));
+
+    bool requiresStencil = false;
+    bool requiresMSAA = false;
+    Rect passBounds = Rect::InfiniteInverted();
+
+    std::vector<SortKey> keys;
+    keys.reserve(draws->renderStepCount()); // will not exceed but may use less with occluded draws
+
+    for (const DrawList::Draw& draw : draws->fDraws.items()) {
+        if (occlusionCuller && occlusionCuller->isOccluded(draw.fClip.drawBounds(),
+                                                           draw.fOrder.depth())) {
+            continue;
+        }
+
+        // TODO: Hand off to Rob/Jim for extracting shader and uniform data to CPU memory
+        // if draw.fPaintParams, analyze params and determine shader code and write out shading
+        // uniforms.
+        // If we have two different descriptors, such that the uniforms from the PaintParams can be
+        // bound independently of those used by the rest of the RenderStep, then we can upload now
+        // and remember 'shadingIndex' for re-use on any RenderStep that does shading.
+        int shadingIndex = 0;
+
+        for (int stepIndex = 0; stepIndex < draw.fRenderer.numRenderSteps(); ++stepIndex) {
+            const RenderStep* const step = draw.fRenderer.steps()[stepIndex];
+
+            // TODO ask step to generate a pipeline description based on the above shading code, and
+            // have pipelineIndex point to that description in the accumulated list of descs
+            int pipelineIndex = 0;
+            // TODO step writes out geometry uniforms and have geomIndex point to that buffer data,
+            // providing shape, transform, scissor, and paint depth to RenderStep
+            int geometryIndex = 0;
+
+            const bool performsShading = draw.fPaintParams.has_value() && step->performsShading();
+            keys.push_back({&draw, stepIndex, pipelineIndex, geometryIndex,
+                            performsShading ? shadingIndex : -1});
+        }
+
+        passBounds.join(draw.fClip.drawBounds());
+        requiresStencil |= draw.fRenderer.requiresStencil();
+        requiresMSAA |= draw.fRenderer.requiresMSAA();
+    }
+
+    // TODO: Explore sorting algorithms; in all likelihood this will be mostly sorted already, so
+    // algorithms that approach O(n) in that condition may be favorable. Alternatively, could
+    // explore radix sort that is always O(n). Brief testing suggested std::sort was faster than
+    // std::stable_sort and SkTQSort on my [ml]'s Windows desktop. Also worth considering in-place
+    // vs. algorithms that require an extra O(n) storage.
+    // TODO: It's not strictly necessary, but would a stable sort be useful or just end up hiding
+    // bugs in the DrawOrder determination code?
+    std::sort(keys.begin(), keys.end());
+
+    int lastPipeline = -1;
+    int lastShadingUniforms = -1;
+    int lastGeometryUniforms = -1;
+    SkIRect lastScissor = SkIRect::MakeSize(target->dimensions());
+    for (const SortKey& key : keys) {
+        const DrawList::Draw& draw = *key.draw();
+        // TODO: Have the render step write out vertices and figure out what draw call function and
+        // primitive type it uses. The vertex buffer binding/offset and draw params will be examined
+        // to determine if the active draw can be updated to include the new vertices, or if it has
+        // to be ended and a new one begun for this step. In addition to checking this state, must
+        // also check if pipeline, uniform, scissor etc. would require the active draw to end.
+        //
+        // const RenderStep* const step = draw.fRenderer.steps()[key.renderStep()];
+
+        if (key.pipeline() != lastPipeline) {
+            // TODO: Look up pipeline description from key's index and record binding it
+            lastPipeline = key.pipeline();
+            lastShadingUniforms = -1;
+            lastGeometryUniforms = -1;
+        }
+        if (key.geometryUniforms() != lastGeometryUniforms) {
+            // TODO: Look up uniform buffer binding info corresponding to key's index and record it
+            lastGeometryUniforms = key.geometryUniforms();
+        }
+        if (key.shadingUniforms() != lastShadingUniforms) {
+            // TODO: As above, but for shading uniforms (assuming we have two descriptor
+            // sets for the different uniform sources).)
+            lastShadingUniforms = key.shadingUniforms();
+        }
+
+        if (draw.fClip.scissor() != lastScissor) {
+            // TODO: Record new scissor rectangle
+        }
+
+        // TODO: Write vertex and index data for the draw step
+    }
+
+    // if (currentDraw) {
+        // TODO: End the current draw if it has pending vertices
+    // }
+
+    passBounds.roundOut();
+    SkIRect pxPassBounds = SkIRect::MakeLTRB((int) passBounds.left(), (int) passBounds.top(),
+                                             (int) passBounds.right(), (int) passBounds.bot());
+    return std::unique_ptr<DrawPass>(new DrawPass(std::move(target), pxPassBounds,
+                                                  requiresStencil, requiresMSAA));
 }
 
 } // namespace skgpu

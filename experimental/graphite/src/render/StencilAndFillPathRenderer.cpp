@@ -23,6 +23,7 @@ public:
     const char* name()            const override { return "stencil-fan"; }
     bool        requiresStencil() const override { return true; }
     bool        requiresMSAA()    const override { return true; }
+    bool        performsShading() const override { return false; }
 
 private:
 };
@@ -38,8 +39,9 @@ public:
     ~StencilCurvesRenderStep() override {}
 
     const char* name()            const override { return "stencil-curves"; }
-    bool        requiresStencil() const override { return true; }
-    bool        requiresMSAA()    const override { return true; }
+    bool        requiresStencil() const override { return true;  }
+    bool        requiresMSAA()    const override { return true;  }
+    bool        performsShading() const override { return false; }
 
 private:
 };
@@ -57,6 +59,7 @@ public:
     // TODO: true when combined with a stencil step
     bool        requiresStencil() const override { return false; }
     bool        requiresMSAA()    const override { return false; }
+    bool        performsShading() const override { return true;  }
 
 private:
 };

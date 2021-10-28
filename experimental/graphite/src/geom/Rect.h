@@ -50,6 +50,15 @@ public:
         return Rect(vals);
     }
 
+    // Constructs a Rect with ltrb = [-inf, -inf, inf, inf], useful for accumulating intersections
+    AI static Rect Infinite() {
+        return FromVals(float4{SK_FloatNegativeInfinity});
+    }
+    // Constructs a negative Rect with ltrb = [inf, inf, -inf, -inf], useful for accumulating unions
+    AI static Rect InfiniteInverted() {
+        return FromVals(float4{SK_FloatInfinity});
+    }
+
     AI bool operator==(Rect rect) const { return all(fVals == rect.fVals); }
     AI bool operator!=(Rect rect) const { return any(fVals != rect.fVals); }
 
