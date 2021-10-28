@@ -112,7 +112,7 @@ bool SkSurface_Base::outstandingImageSnapshot() const {
     return fCachedImage && !fCachedImage->unique();
 }
 
-bool SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
+void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
     this->dirtyGenerationID();
 
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
@@ -123,9 +123,7 @@ bool SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
         // on the image (besides us).
         bool unique = fCachedImage->unique();
         if (!unique) {
-            if (!this->onCopyOnWrite(mode)) {
-                return false;
-            }
+            this->onCopyOnWrite(mode);
         }
 
         // regardless of copy-on-write, we must drop our cached image now, so
@@ -141,7 +139,6 @@ bool SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
     } else if (kDiscard_ContentChangeMode == mode) {
         this->onDiscard();
     }
-    return true;
 }
 
 uint32_t SkSurface_Base::newGenerationID() {
@@ -189,7 +186,7 @@ uint32_t SkSurface::generationID() {
 }
 
 void SkSurface::notifyContentWillChange(ContentChangeMode mode) {
-    sk_ignore_unused_variable(asSB(this)->aboutToDraw(mode));
+    asSB(this)->aboutToDraw(mode);
 }
 
 SkCanvas* SkSurface::getCanvas() {
@@ -295,9 +292,7 @@ void SkSurface::writePixels(const SkPixmap& pmap, int x, int y) {
         if (srcR.contains(dstR)) {
             mode = kDiscard_ContentChangeMode;
         }
-        if (!asSB(this)->aboutToDraw(mode)) {
-            return;
-        }
+        asSB(this)->aboutToDraw(mode);
         asSB(this)->onWritePixels(pmap, x, y);
     }
 }
@@ -376,7 +371,7 @@ protected:
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subsetOrNull) override { return nullptr; }
     void onWritePixels(const SkPixmap&, int x, int y) override {}
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override {}
-    bool onCopyOnWrite(ContentChangeMode) override { return false; }
+    void onCopyOnWrite(ContentChangeMode) override {}
 };
 
 sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {

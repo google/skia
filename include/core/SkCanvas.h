@@ -37,7 +37,6 @@
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
 #endif
 
-class AutoLayerForImageFilter;
 class GrBackendRenderTarget;
 class GrRecordingContext;
 class SkBaseDevice;
@@ -63,10 +62,6 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
-
-namespace skstd {
-    template<typename T> class optional;
-}
 
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -2288,21 +2283,8 @@ private:
 
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
-    // returns false if the copy failed
-    bool SK_WARN_UNUSED_RESULT predrawNotify(bool willOverwritesEntireSurface = false);
-    bool SK_WARN_UNUSED_RESULT predrawNotify(const SkRect*, const SkPaint*, ShaderOverrideOpacity);
-
-    enum class CheckForOverwrite : bool {
-        kNo = false,
-        kYes = true
-    };
-    // call the appropriate predrawNotify and create a layer if needed.
-    skstd::optional<AutoLayerForImageFilter> aboutToDraw(
-        SkCanvas* canvas,
-        const SkPaint& paint,
-        const SkRect* rawBounds = nullptr,
-        CheckForOverwrite = CheckForOverwrite::kNo,
-        ShaderOverrideOpacity = kNone_ShaderOverrideOpacity);
+    void predrawNotify(bool willOverwritesEntireSurface = false);
+    void predrawNotify(const SkRect* rect, const SkPaint* paint, ShaderOverrideOpacity);
 
     // The bottom-most device in the stack, only changed by init(). Image properties and the final
     // canvas pixels are determined by this device.

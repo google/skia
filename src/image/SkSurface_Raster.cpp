@@ -24,7 +24,7 @@ public:
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override;
-    bool onCopyOnWrite(ContentChangeMode) override;
+    void onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
 
 private:
@@ -124,21 +124,17 @@ void SkSurface_Raster::onRestoreBackingMutability() {
     }
 }
 
-bool SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
+void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing pixelrefs with the image?
     sk_sp<SkImage> cached(this->refCachedImage());
     SkASSERT(cached);
     if (SkBitmapImageGetPixelRef(cached.get()) == fBitmap.pixelRef()) {
         SkASSERT(fWeOwnThePixels);
         if (kDiscard_ContentChangeMode == mode) {
-            if (!fBitmap.tryAllocPixels()) {
-                return false;
-            }
+            fBitmap.allocPixels();
         } else {
             SkBitmap prev(fBitmap);
-            if (!fBitmap.tryAllocPixels()) {
-                return false;
-            }
+            fBitmap.allocPixels();
             SkASSERT(prev.info() == fBitmap.info());
             SkASSERT(prev.rowBytes() == fBitmap.rowBytes());
             memcpy(fBitmap.getPixels(), prev.getPixels(), fBitmap.computeByteSize());
@@ -150,7 +146,6 @@ bool SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         SkASSERT(this->getCachedCanvas());
         this->getCachedCanvas()->baseDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

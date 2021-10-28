@@ -94,10 +94,8 @@ public:
      *  If the surface is about to change, we call this so that our subclass
      *  can optionally fork their backend (copy-on-write) in case it was
      *  being shared with the cachedImage.
-     *
-     *  Returns false if the backing cannot be un-shared.
      */
-    virtual bool SK_WARN_UNUSED_RESULT onCopyOnWrite(ContentChangeMode) = 0;
+    virtual void onCopyOnWrite(ContentChangeMode) = 0;
 
     /**
      *  Signal the surface to remind its backing store that it's mutable again.
@@ -143,8 +141,7 @@ private:
     std::unique_ptr<SkCanvas>   fCachedCanvas;
     sk_sp<SkImage>              fCachedImage;
 
-    // Returns false if drawing should not take place (allocation failure).
-    bool SK_WARN_UNUSED_RESULT aboutToDraw(ContentChangeMode mode);
+    void aboutToDraw(ContentChangeMode mode);
 
     // Returns true if there is an outstanding image-snapshot, indicating that a call to aboutToDraw
     // would trigger a copy-on-write.
