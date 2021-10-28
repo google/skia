@@ -66,8 +66,11 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
             // Convert `-matrix(literal)` into `matrix(-literal)`.
             if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
                 const ConstructorDiagonalMatrix& ctor = value->as<ConstructorDiagonalMatrix>();
-                return ConstructorDiagonalMatrix::Make(context, originalExpr.fLine, ctor.type(),
-                                                      simplify_negation(context, *ctor.argument()));
+                if (std::unique_ptr<Expression> simplified = simplify_negation(context,
+                                                                               *ctor.argument())) {
+                    return ConstructorDiagonalMatrix::Make(context, originalExpr.fLine, ctor.type(),
+                                                           std::move(simplified));
+                }
             }
             break;
 
@@ -75,8 +78,11 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
             // Convert `-vector(literal)` into `vector(-literal)`.
             if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
                 const ConstructorSplat& ctor = value->as<ConstructorSplat>();
-                return ConstructorSplat::Make(context, originalExpr.fLine, ctor.type(),
-                                              simplify_negation(context, *ctor.argument()));
+                if (std::unique_ptr<Expression> simplified = simplify_negation(context,
+                                                                               *ctor.argument())) {
+                    return ConstructorSplat::Make(context, originalExpr.fLine, ctor.type(),
+                                                  std::move(simplified));
+                }
             }
             break;
 
