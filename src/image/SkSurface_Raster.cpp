@@ -24,7 +24,11 @@ public:
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override;
+#ifdef SK_SURFACE_COPY_ON_WRITE_CRASHES
     void onCopyOnWrite(ContentChangeMode) override;
+#else
+    bool onCopyOnWrite(ContentChangeMode) override;
+#endif
     void onRestoreBackingMutability() override;
 
 private:
@@ -124,6 +128,7 @@ void SkSurface_Raster::onRestoreBackingMutability() {
     }
 }
 
+#ifdef SK_SURFACE_COPY_ON_WRITE_CRASHES
 void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing pixelrefs with the image?
     sk_sp<SkImage> cached(this->refCachedImage());
@@ -147,6 +152,36 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         this->getCachedCanvas()->baseDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
 }
+#else
+bool SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
+    // are we sharing pixelrefs with the image?
+    sk_sp<SkImage> cached(this->refCachedImage());
+    SkASSERT(cached);
+    if (SkBitmapImageGetPixelRef(cached.get()) == fBitmap.pixelRef()) {
+        SkASSERT(fWeOwnThePixels);
+        if (kDiscard_ContentChangeMode == mode) {
+            if (!fBitmap.tryAllocPixels()) {
+                return false;
+            }
+        } else {
+            SkBitmap prev(fBitmap);
+            if (!fBitmap.tryAllocPixels()) {
+                return false;
+            }
+            SkASSERT(prev.info() == fBitmap.info());
+            SkASSERT(prev.rowBytes() == fBitmap.rowBytes());
+            memcpy(fBitmap.getPixels(), prev.getPixels(), fBitmap.computeByteSize());
+        }
+
+        // Now fBitmap is a deep copy of itself (and therefore different from
+        // what is being used by the image. Next we update the canvas to use
+        // this as its backend, so we can't modify the image's pixels anymore.
+        SkASSERT(this->getCachedCanvas());
+        this->getCachedCanvas()->baseDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
+    }
+    return true;
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

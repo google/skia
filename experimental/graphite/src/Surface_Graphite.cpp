@@ -36,6 +36,10 @@ sk_sp<SkImage> Surface_Graphite::onNewImageSnapshot(const SkIRect* subset) {
 
 void Surface_Graphite::onWritePixels(const SkPixmap&, int x, int y) {}
 
-void Surface_Graphite::onCopyOnWrite(ContentChangeMode) {}
+#ifdef SK_SURFACE_COPY_ON_WRITE_CRASHES
+    void Surface_Graphite::onCopyOnWrite(ContentChangeMode) { }
+#else
+    bool Surface_Graphite::onCopyOnWrite(ContentChangeMode) { return true; }
+#endif
 
 } // namespace skgpu
