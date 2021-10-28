@@ -20,7 +20,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTemplates.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkOpts.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"

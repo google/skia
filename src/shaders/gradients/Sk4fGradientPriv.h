@@ -13,7 +13,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkNx.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkOpts.h"
 
 // Templates shared by various 4f gradient flavors.
 

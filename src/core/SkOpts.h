@@ -82,4 +82,19 @@ namespace SkOpts {
                                   int n, void* args[]);
 }  // namespace SkOpts
 
+/** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
+    @param buffer   The memory to have value copied into it
+    @param value    The value to be copied into buffer
+    @param count    The number of times value should be copied into the buffer.
+*/
+static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
+    SkOpts::memset16(buffer, value, count);
+}
+static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
+    SkOpts::memset32(buffer, value, count);
+}
+static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
+    SkOpts::memset64(buffer, value, count);
+}
+
 #endif//SkOpts_DEFINED

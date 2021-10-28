@@ -50,7 +50,7 @@ size_t GrRingBuffer::getAllocationOffset(size_t size) {
         return fTotalSize;
     }
 
-    fHead = GrAlignTo(head + size, fAlignment);
+    fHead = SkAlignTo(head + size, fAlignment);
     return modHead;
 }
 

@@ -14,7 +14,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkOpts.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 

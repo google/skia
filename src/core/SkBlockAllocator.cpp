@@ -16,7 +16,7 @@ SkBlockAllocator::SkBlockAllocator(GrowthPolicy policy, size_t blockIncrementByt
         : fTail(&fHead)
         // Round up to the nearest max-aligned value, and then divide so that fBlockSizeIncrement
         // can effectively fit higher byte counts in its 16 bits of storage
-        , fBlockIncrement(SkTo<uint16_t>(GrAlignTo(blockIncrementBytes, kAddressAlign)
+        , fBlockIncrement(SkTo<uint16_t>(SkAlignTo(blockIncrementBytes, kAddressAlign)
                                                 / kAddressAlign))
         , fGrowthPolicy(static_cast<uint64_t>(policy))
         , fN0((policy == GrowthPolicy::kLinear || policy == GrowthPolicy::kExponential) ? 1 : 0)

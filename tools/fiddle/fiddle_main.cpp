@@ -12,7 +12,7 @@
 
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipmap.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkOpts.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include "tools/fiddle/fiddle_main.h"

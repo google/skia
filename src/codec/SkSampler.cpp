@@ -8,7 +8,7 @@
 #include "include/codec/SkCodec.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkSampler.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkOpts.h"
 
 void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
                      SkCodec::ZeroInitialized zeroInit) {

@@ -9,7 +9,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkCoreBlitters.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkXfermodePriv.h"
 
 static inline int upscale_31_to_32(int value) {
