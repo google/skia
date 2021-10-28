@@ -216,6 +216,9 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
             if (baseType.isLiteral()) {
                 // The expression `~123` is no longer a literal; coerce to the actual type.
                 base = baseType.scalarTypeForLiteral().coerceExpression(std::move(base), context);
+                if (!base) {
+                    return nullptr;
+                }
             }
             break;
 
