@@ -23,7 +23,7 @@ GrUniformDataManager::GrUniformDataManager(uint32_t uniformCount, uint32_t unifo
 
 void* GrUniformDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
     fUniformsDirty = true;
-    return static_cast<char*>(fUniformData.get())+uni.fOffset;
+    return static_cast<char*>(fUniformData.get()) + uni.fOffset;
 }
 
 template <int N, GrSLType FullType, GrSLType HalfType>

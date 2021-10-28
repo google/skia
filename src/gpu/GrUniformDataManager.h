@@ -53,10 +53,10 @@ public:
 
 protected:
     struct Uniform {
-        uint32_t fOffset;
+        uint32_t fOffset : 24;
+        GrSLType fType : 8;
         SkDEBUGCODE(
-            GrSLType    fType;
-            int         fArrayCount;
+            int  fArrayCount;
         );
     };
 

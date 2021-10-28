@@ -29,9 +29,9 @@ GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoAr
                  uniformInfo.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
             uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
-            uniform.fType = uniformInfo.fVariable.getType();
         )
         uniform.fOffset = uniformInfo.fUBOffset;
+        uniform.fType = uniformInfo.fVariable.getType();
         ++i;
     }
 }
