@@ -14,11 +14,8 @@ Milestone 97
     MakeFromYUVAPixmaps, MakePromiseTexture, MakePromiseYUVATexture, MakeBackendTextureFromSkImage,
     flush, flushAndSubmit, getBackendTexture, makeTextureImage.
     These were all no-ops anyway when just the CPU backend was compiled in.
-  * The following functions and methods are not defined in SkSurface when SK_SUPPORT_GPU is 0:
-    MakeFromBackendTexture, MakeFromBackendRenderTarget, MakeRenderTarget,
-    getBackendTexture, getBackendRenderTarget, replaceBackendTexture. flush() with parameters
-    was removed as well. These were all no-ops anyway when just the CPU backend was compiled in
-    (noting that flush() and flushAndSubmit() are still no-ops on the CPU backend).
+
+* * *
 
 Milestone 96
 ------------

@@ -22,7 +22,6 @@ public:
 
     virtual GrRecordingContext* onGetRecordingContext();
 
-#if SK_SUPPORT_GPU
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
     virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);
     virtual bool onReplaceBackendTexture(const GrBackendTexture&,
@@ -30,18 +29,6 @@ public:
                                          ContentChangeMode,
                                          TextureReleaseProc,
                                          ReleaseContext);
-
-    /**
-     * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
-     * Inserts the requested number of semaphores for the gpu to signal when work is complete on the
-     * gpu and inits the array of GrBackendSemaphores with the signaled semaphores.
-     */
-    virtual GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo&,
-                                          const GrBackendSurfaceMutableState*) {
-        return GrSemaphoresSubmitted::kNo;
-    }
-#endif
-
     /**
      *  Allocate a canvas that will draw into this surface. We will cache this
      *  canvas, to return the same object to the caller multiple times. We
@@ -121,6 +108,16 @@ public:
      *  Called only when we _didn't_ copy-on-write; we assume the copies start mutable.
      */
     virtual void onRestoreBackingMutability() {}
+
+    /**
+     * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
+     * Inserts the requested number of semaphores for the gpu to signal when work is complete on the
+     * gpu and inits the array of GrBackendSemaphores with the signaled semaphores.
+     */
+    virtual GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo&,
+                                          const GrBackendSurfaceMutableState*) {
+        return GrSemaphoresSubmitted::kNo;
+    }
 
     /**
      * Caused the current backend 3D API to wait on the passed in semaphores before executing new
