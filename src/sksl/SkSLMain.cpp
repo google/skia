@@ -6,6 +6,7 @@
  */
 
 #define SK_OPTS_NS skslc_standalone
+#include "src/core/SkOpts.h"
 #include "src/opts/SkChecksum_opts.h"
 #include "src/opts/SkVM_opts.h"
 
