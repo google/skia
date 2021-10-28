@@ -9,6 +9,7 @@
 #define skgpu_ProgramCache_DEFINED
 
 #include <unordered_map>
+#include <string>
 #include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "include/core/SkRefCnt.h"
@@ -28,6 +29,8 @@ public:
 
         uint32_t id() const { return fID; }
         Combination combo() const { return fCombination; }
+
+        std::string getMSL() const;
 
     private:
         const uint32_t    fID;
