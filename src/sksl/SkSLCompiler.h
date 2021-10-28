@@ -11,6 +11,7 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
+#include "include/core/SkSize.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLInliner.h"
