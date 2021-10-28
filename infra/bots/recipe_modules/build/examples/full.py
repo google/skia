@@ -69,6 +69,7 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
   'Build-Mac-Clang-arm64-Debug-iOS',
   "Build-Mac-Clang-arm64-Debug-Graphite",
+  "Build-Mac-Clang-arm64-Debug-Graphite_NoGpu",
   "Build-Mac-Clang-arm64-Release-Graphite",
   'Build-Mac-Xcode11.4.1-arm64-Debug-iOS',
   'Build-Mac-Clang-x86_64-Debug-ASAN',

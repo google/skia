@@ -275,6 +275,8 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Graphite' in extra_tokens:
     args['skia_enable_graphite'] = 'true'
     args['skia_use_metal'] = 'true'
+    if 'NoGpu' in extra_tokens:
+      args['skia_enable_gpu'] = 'false'
   if 'NoDEPS' in extra_tokens:
     args.update({
       'is_official_build':             'true',

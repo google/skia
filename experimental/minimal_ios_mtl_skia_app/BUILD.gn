@@ -4,7 +4,7 @@
 
 import("../../gn/ios.gni")
 
-if (is_ios && skia_use_metal) {
+if (is_ios && skia_use_metal && skia_enable_gpu) {
   ios_app_bundle("minimal_ios_mtl_skia_app") {
     sources = [
       "../../tools/skottie_ios_app/GrContextHolder.h",

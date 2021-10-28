@@ -123,6 +123,9 @@
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite",
    "cq_config": {}
    },
+  {"name": "Build-Mac-Clang-arm64-Debug-Graphite_NoGpu",
+   "cq_config": {}
+   },
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite"},
   {"name": "Build-Mac-Clang-arm64-Debug-iOS_Graphite"},
   {"name": "Build-Win-Clang-arm64-Release"},

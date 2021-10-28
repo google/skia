@@ -386,6 +386,11 @@
         "Build-Mac-Clang-arm64-Debug-Graphite"
       ]
     },
+    "Build-Mac-Clang-arm64-Debug-Graphite_NoGpu": {
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-Graphite_NoGpu"
+      ]
+    },
     "Build-Mac-Clang-arm64-Debug-Metal": {
       "tasks": [
         "Build-Mac-Clang-arm64-Debug-Metal"
@@ -10672,6 +10677,110 @@
         "${ISOLATED_OUTDIR}",
         "compile",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Graphite\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cores:12",
+        "cpu:x86-64",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython",
+          "cipd_bin_packages/cpython/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_LOG_TRACE": [
+          "1"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac-Clang-arm64-Debug-Graphite_NoGpu": {
+      "caches": [
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
+        },
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages/cpython",
+          "version": "version:2@2.7.18.chromium.39"
+        },
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:2@3.8.10.chromium.19"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:904674219c73c0a69c9c4838f1bc378fe90fb9c8"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:904674219c73c0a69c9c4838f1bc378fe90fb9c8"
+        },
+        {
+          "name": "infra/tools/luci/vpython-native/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:7cd120a5d0da5892216fe478f880e9b672428697"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:7cd120a5d0da5892216fe478f880e9b672428697"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Graphite_NoGpu\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -83098,6 +83207,7 @@
     "Build-Debian10-GCC-x86_64-Debug-NoGPU_Docker": {},
     "Build-Debian10-GCC-x86_64-Release-Docker": {},
     "Build-Mac-Clang-arm64-Debug-Graphite": {},
+    "Build-Mac-Clang-arm64-Debug-Graphite_NoGpu": {},
     "Build-Mac-Clang-x86_64-Release": {},
     "Build-Win-Clang-x86-Debug": {},
     "Build-Win-Clang-x86_64-Release-Dawn": {},
