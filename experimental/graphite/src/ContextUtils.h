@@ -10,6 +10,7 @@
 
 #include "experimental/graphite/include/Context.h"
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTileMode.h"
 
 class SkPaint;
@@ -17,6 +18,7 @@ class SkPaint;
 namespace skgpu {
 
 class Uniform;
+class UniformCache;
 
 // A single, fully specified combination resulting from a PaintCombo (i.e., it corresponds to a
 // specific SkPaint)
@@ -32,24 +34,34 @@ struct Combination {
     SkBlendMode fBlendMode = SkBlendMode::kSrc;
 };
 
-struct UniformData {
-    static std::unique_ptr<UniformData> Make(int count,
-                                             const Uniform* uniforms,
-                                             size_t dataSize);
+class UniformData : public SkRefCnt {
+public:
+    static constexpr uint32_t kInvalidUniformID = 0;
 
-    ~UniformData() {
+    static sk_sp<UniformData> Make(int count,
+                                   const Uniform* uniforms,
+                                   size_t dataSize);
+
+    ~UniformData() override {
         // TODO: fOffsets and fData should just be allocated right after UniformData in an arena
         delete [] fOffsets;
         delete [] fData;
     }
 
-    const int fCount;
-    const Uniform* fUniforms;
-    uint32_t* fOffsets; // offset of each uniform in 'fData'
-    char* fData;
-#ifdef SK_DEBUG
-    const size_t fDataSize;
-#endif
+    void setID(uint32_t id) {   // TODO: maybe make privileged for only UniformCache
+        SkASSERT(fID == kInvalidUniformID);
+        fID = id;
+    }
+    uint32_t id() const { return fID; }
+    int count() const { return fCount; }
+    const Uniform* uniforms() const { return fUniforms; }
+    uint32_t* offsets() { return fOffsets; }
+    uint32_t offset(int index) {
+        SkASSERT(index >= 0 && index < fCount);
+        return fOffsets[index];
+    }
+    char* data() { return fData; }
+    size_t dataSize() const { return fDataSize; }
 
 private:
     UniformData(int count,
@@ -61,14 +73,18 @@ private:
             , fUniforms(uniforms)
             , fOffsets(offsets)
             , fData(data)
-#ifdef SK_DEBUG
-            , fDataSize(dataSize)
-#endif
-    {
+            , fDataSize(dataSize) {
     }
+
+    uint32_t fID = kInvalidUniformID;
+    const int fCount;
+    const Uniform* fUniforms;
+    uint32_t* fOffsets; // offset of each uniform in 'fData'
+    char* fData;
+    const size_t fDataSize;
 };
 
-std::tuple<Combination, std::unique_ptr<UniformData>> ExtractCombo(const SkPaint&);
+std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache*, const SkPaint&);
 
 } // namespace skgpu
 

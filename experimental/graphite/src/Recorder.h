@@ -14,7 +14,9 @@
 namespace skgpu {
 
 class Context;
+class ProgramCache;
 class Recording;
+class UniformCache;
 
 class Recorder final : public SkRefCnt {
 public:
@@ -24,6 +26,8 @@ public:
     void add(sk_sp<Task>);
 
     const Context* context() const;
+    ProgramCache* programCache();
+    UniformCache* uniformCache();
 
     std::unique_ptr<Recording> snap();
 
@@ -31,6 +35,8 @@ protected:
 private:
     sk_sp<Context> fContext;
     TaskGraph fGraph;
+    std::unique_ptr<ProgramCache> fProgramCache;
+    std::unique_ptr<UniformCache> fUniformCache;
 };
 
 } // namespace skgpu

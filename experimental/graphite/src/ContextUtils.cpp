@@ -6,7 +6,9 @@
  */
 
 #include "experimental/graphite/src/ContextUtils.h"
+
 #include "experimental/graphite/src/Uniform.h"
+#include "experimental/graphite/src/UniformCache.h"
 #include "experimental/graphite/src/UniformManager.h"
 #include "include/core/SkPaint.h"
 
@@ -23,7 +25,7 @@ static constexpr int kMaxStops = 4;
 //   2 radii
 static constexpr int kNumGradientUniforms = 6;
 
-std::unique_ptr<UniformData> make_gradient_uniform_data_common(void* srcs[kNumGradientUniforms]) {
+sk_sp<UniformData> make_gradient_uniform_data_common(void* srcs[kNumGradientUniforms]) {
     static constexpr Uniform kUniforms[kNumGradientUniforms] {
             {"colors",  SLType::kFloat4 , kMaxStops },
             {"offsets", SLType::kFloat, kMaxStops },
@@ -40,19 +42,19 @@ std::unique_ptr<UniformData> make_gradient_uniform_data_common(void* srcs[kNumGr
     size_t dataSize = mgr.writeUniforms(SkSpan<const Uniform>(kUniforms, kNumGradientUniforms),
                                         nullptr, nullptr, nullptr);
 
-    std::unique_ptr<UniformData> result = UniformData::Make(kNumGradientUniforms,
-                                                            kUniforms,
-                                                            dataSize);
+    sk_sp<UniformData> result = UniformData::Make(kNumGradientUniforms,
+                                                  kUniforms,
+                                                  dataSize);
 
     mgr.writeUniforms(SkSpan<const Uniform>(kUniforms, kNumGradientUniforms),
-                      srcs, result->fOffsets, result->fData);
+                      srcs, result->offsets(), result->data());
     return result;
 }
 
-std::unique_ptr<UniformData> make_linear_gradient_uniform_data(SkPoint startPoint,
-                                                               SkPoint endPoint,
-                                                               SkColor4f colors[kMaxStops],
-                                                               float offsets[kMaxStops]) {
+sk_sp<UniformData> make_linear_gradient_uniform_data(SkPoint startPoint,
+                                                     SkPoint endPoint,
+                                                     SkColor4f colors[kMaxStops],
+                                                     float offsets[kMaxStops]) {
     float unusedRadii[2] = { 0.0f, 0.0f };
     void* srcs[kNumGradientUniforms] = {
             colors,
@@ -66,10 +68,10 @@ std::unique_ptr<UniformData> make_linear_gradient_uniform_data(SkPoint startPoin
     return make_gradient_uniform_data_common(srcs);
 };
 
-std::unique_ptr<UniformData> make_radial_gradient_uniform_data(SkPoint point,
-                                                               float radius,
-                                                               SkColor4f colors[kMaxStops],
-                                                               float offsets[kMaxStops]) {
+sk_sp<UniformData> make_radial_gradient_uniform_data(SkPoint point,
+                                                     float radius,
+                                                     SkColor4f colors[kMaxStops],
+                                                     float offsets[kMaxStops]) {
     SkPoint unusedPoint = {0.0f, 0.0f};
     float unusedRadius = 0.0f;
 
@@ -85,9 +87,9 @@ std::unique_ptr<UniformData> make_radial_gradient_uniform_data(SkPoint point,
     return make_gradient_uniform_data_common(srcs);
 };
 
-std::unique_ptr<UniformData> make_sweep_gradient_uniform_data(SkPoint point,
-                                                              SkColor4f colors[kMaxStops],
-                                                              float offsets[kMaxStops]) {
+sk_sp<UniformData> make_sweep_gradient_uniform_data(SkPoint point,
+                                                    SkColor4f colors[kMaxStops],
+                                                    float offsets[kMaxStops]) {
     SkPoint unusedPoint = {0.0f, 0.0f};
     float unusedRadii[2] = {0.0f, 0.0f};
 
@@ -103,13 +105,12 @@ std::unique_ptr<UniformData> make_sweep_gradient_uniform_data(SkPoint point,
     return make_gradient_uniform_data_common(srcs);
 };
 
-std::unique_ptr<UniformData> make_conical_gradient_uniform_data(SkPoint point0,
-                                                                SkPoint point1,
-                                                                float radius0,
-                                                                float radius1,
-                                                                SkColor4f colors[kMaxStops],
-                                                                float offsets[kMaxStops]) {
-
+sk_sp<UniformData> make_conical_gradient_uniform_data(SkPoint point0,
+                                                      SkPoint point1,
+                                                      float radius0,
+                                                      float radius1,
+                                                      SkColor4f colors[kMaxStops],
+                                                      float offsets[kMaxStops]) {
 
     void* srcs[kNumGradientUniforms] = {
             colors,
@@ -143,7 +144,7 @@ void expand_stops(int numStops, float offsets[kMaxStops]) {
     }
 }
 
-std::unique_ptr<UniformData> make_solid_uniform_data(SkColor4f color) {
+sk_sp<UniformData> make_solid_uniform_data(SkColor4f color) {
     static constexpr int kNumSolidUniforms = 1;
     static constexpr Uniform kUniforms[kNumSolidUniforms] {
         {"color",  SLType::kFloat4 }
@@ -154,31 +155,30 @@ std::unique_ptr<UniformData> make_solid_uniform_data(SkColor4f color) {
     size_t dataSize = mgr.writeUniforms(SkSpan<const Uniform>(kUniforms, kNumSolidUniforms),
                                         nullptr, nullptr, nullptr);
 
-    std::unique_ptr<UniformData> result = UniformData::Make(kNumSolidUniforms, kUniforms, dataSize);
+    sk_sp<UniformData> result = UniformData::Make(kNumSolidUniforms, kUniforms, dataSize);
 
     void* srcs[kNumSolidUniforms] = { &color };
 
     mgr.writeUniforms(SkSpan<const Uniform>(kUniforms, kNumSolidUniforms),
-                      srcs, result->fOffsets, result->fData);
+                      srcs, result->offsets(), result->data());
     return result;
 }
 
 } // anonymous namespace
 
-std::unique_ptr<UniformData> UniformData::Make(int count,
-                                               const Uniform* uniforms,
-                                               size_t dataSize) {
+sk_sp<UniformData> UniformData::Make(int count,
+                                     const Uniform* uniforms,
+                                     size_t dataSize) {
     // TODO: the offsets and data should just be allocated right after UniformData in an arena
     uint32_t* offsets = new uint32_t[count];
-    // TODO: do we need to worry about the alignment of 'data'?
     char* data = new char[dataSize];
 
-    return std::unique_ptr<UniformData>(new UniformData(count, uniforms, offsets, data, dataSize));
+    return sk_sp<UniformData>(new UniformData(count, uniforms, offsets, data, dataSize));
 }
 
-std::tuple<Combination, std::unique_ptr<UniformData>> ExtractCombo(const SkPaint& p) {
+std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache* cache, const SkPaint& p) {
     Combination result;
-    std::unique_ptr<UniformData> uniforms;
+    sk_sp<UniformData> uniforms;
 
     if (auto s = p.getShader()) {
         SkColor colors[kMaxStops];
@@ -263,7 +263,9 @@ std::tuple<Combination, std::unique_ptr<UniformData>> ExtractCombo(const SkPaint
     }
 
     result.fBlendMode = p.getBlendMode_or(SkBlendMode::kSrcOver);
-    return { result, std::move(uniforms) };
+
+    sk_sp<UniformData> trueUD = cache->findOrCreate(std::move(uniforms));
+    return { result, std::move(trueUD) };
 }
 
 } // namespace skgpu
