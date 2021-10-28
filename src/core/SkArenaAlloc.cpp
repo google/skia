@@ -14,8 +14,8 @@ static char* end_chain(char*) { return nullptr; }
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     : fDtorCursor {block}
     , fCursor     {block}
-    , fEnd        {block + ToU32(size)}
-    , fFibonacciProgression{ToU32(size), ToU32(firstHeapAllocation)}
+    , fEnd        {block + SkToU32(size)}
+    , fFibonacciProgression{SkToU32(size), SkToU32(firstHeapAllocation)}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
@@ -128,16 +128,11 @@ restart:
     // Install a skip footer if needed, thus terminating a run of POD data. The calling code is
     // responsible for installing the footer after the object.
     if (needsSkipFooter) {
-        this->installRaw(ToU32(fCursor - fDtorCursor));
+        this->installRaw(SkToU32(fCursor - fDtorCursor));
         this->installFooter(SkipPod, 0);
     }
 
     return objStart;
-}
-
-static uint32_t to_uint32_t(size_t v) {
-    assert(SkTFitsIn<uint32_t>(v));
-    return (uint32_t)v;
 }
 
 SkArenaAllocWithReset::SkArenaAllocWithReset(char* block,
@@ -145,8 +140,8 @@ SkArenaAllocWithReset::SkArenaAllocWithReset(char* block,
                                              size_t firstHeapAllocation)
         : SkArenaAlloc(block, size, firstHeapAllocation)
         , fFirstBlock{block}
-        , fFirstSize{to_uint32_t(size)}
-        , fFirstHeapAllocationSize{to_uint32_t(firstHeapAllocation)} {}
+        , fFirstSize{SkToU32(size)}
+        , fFirstHeapAllocationSize{SkToU32(firstHeapAllocation)} {}
 
 void SkArenaAllocWithReset::reset() {
     this->~SkArenaAllocWithReset();
