@@ -197,8 +197,12 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext
     // TODO: can we do this more efficiently, by telling the generator we want to
     //       "realize" a subset?
 
+#if SK_SUPPORT_GPU
     auto pixels = direct ? this->makeTextureImage(direct)
                          : this->makeRasterImage();
+#else
+    auto pixels = this->makeRasterImage();
+#endif
     return pixels ? pixels->makeSubset(subset, direct) : nullptr;
 }
 

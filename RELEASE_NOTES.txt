@@ -8,6 +8,12 @@ Milestone 97
     internally (versus querying specific modifier support). Clients can either pass a flag to Vulkan
     GrBackendFormat to say it uses modifiers or pass the VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT
     to a GrBackendTexture via the GrVkImageInfo struct.
+  * The following functions and methods are not defined in SkImage when SK_SUPPORT_GPU is 0:
+    MakeTextureFromCompressed, MakeFromTexture, MakeFromCompressedTexture,
+    MakeCrossContextFromPixmap, MakeFromAdoptedTexture, MakeFromYUVATextures,
+    MakeFromYUVAPixmaps, MakePromiseTexture, MakePromiseYUVATexture, MakeBackendTextureFromSkImage,
+    flush, flushAndSubmit, getBackendTexture, makeTextureImage.
+    These were all no-ops anyway when just the CPU backend was compiled in.
 
 * * *
 
