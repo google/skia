@@ -471,7 +471,7 @@ void GrGLSLProgramBuilder::addRTFlipUniform(const char* name) {
     fUniformHandles.fRTFlipUni =
             uniformHandler->internalAddUniformArray(nullptr,
                                                     kFragment_GrShaderFlag,
-                                                    kHalf2_GrSLType,
+                                                    kFloat2_GrSLType,
                                                     name,
                                                     false,
                                                     0,
