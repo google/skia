@@ -6,9 +6,9 @@
  */
 
 #include "include/core/SkPromiseImageTexture.h"
-#include "src/core/SkMessageBus.h"
 
 #if SK_SUPPORT_GPU
+#include "src/core/SkMessageBus.h"
 
 std::atomic<uint32_t> SkPromiseImageTexture::gUniqueID{1};
 
@@ -43,6 +43,6 @@ SkTArray<GrUniqueKey> SkPromiseImageTexture::testingOnly_uniqueKeysToInvalidate(
     }
     return results;
 }
-#endif
+#endif // GR_TEST_UTILS
 
-#endif
+#endif // SK_SUPPORT_GPU

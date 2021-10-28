@@ -8,11 +8,12 @@
 #ifndef SkPromiseImageTexture_DEFINED
 #define SkPromiseImageTexture_DEFINED
 
+#include "include/core/SkTypes.h"
+
+#if SK_SUPPORT_GPU
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/GrResourceKey.h"
-
-#if SK_SUPPORT_GPU
 /**
  * This type is used to fulfill textures for PromiseImages. Once an instance is returned from a
  * PromiseImageTextureFulfillProc the GrBackendTexture it wraps must remain valid until the
@@ -57,6 +58,6 @@ private:
     uint32_t fUniqueID = SK_InvalidUniqueID;
     static std::atomic<uint32_t> gUniqueID;
 };
-#endif
+#endif // SK_SUPPORT_GPU
 
-#endif
+#endif // SkPromiseImageTexture_DEFINED
