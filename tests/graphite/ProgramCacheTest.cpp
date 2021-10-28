@@ -27,6 +27,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ProgramCacheTest, reporter, context) {
         pi1 = cache->findOrCreateProgram(c1);
         REPORTER_ASSERT(reporter, pi1->id() != ProgramCache::kInvalidProgramID);
         REPORTER_ASSERT(reporter, pi1->combo() == c1);
+        sk_sp<ProgramCache::ProgramInfo> lookup = cache->lookup(pi1->id());
+        REPORTER_ASSERT(reporter, lookup->id() == pi1->id());
 
         REPORTER_ASSERT(reporter, cache->count() == 1);
     }
@@ -38,6 +40,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ProgramCacheTest, reporter, context) {
         REPORTER_ASSERT(reporter, pi2->id() != ProgramCache::kInvalidProgramID);
         REPORTER_ASSERT(reporter, pi2->id() == pi1->id());
         REPORTER_ASSERT(reporter, pi2->combo() == c2);
+        sk_sp<ProgramCache::ProgramInfo> lookup = cache->lookup(pi2->id());
+        REPORTER_ASSERT(reporter, lookup->id() == pi2->id());
 
         REPORTER_ASSERT(reporter, cache->count() == 1);
     }
@@ -52,6 +56,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ProgramCacheTest, reporter, context) {
         REPORTER_ASSERT(reporter, pi3->id() != ProgramCache::kInvalidProgramID);
         REPORTER_ASSERT(reporter, pi3->id() != pi1->id());
         REPORTER_ASSERT(reporter, pi3->combo() == c3);
+        sk_sp<ProgramCache::ProgramInfo> lookup = cache->lookup(pi3->id());
+        REPORTER_ASSERT(reporter, lookup->id() == pi3->id());
 
         REPORTER_ASSERT(reporter, cache->count() == 2);
     }

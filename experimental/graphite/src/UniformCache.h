@@ -9,6 +9,7 @@
 #define skgpu_UniformCache_DEFINED
 
 #include <unordered_set>
+#include <vector>
 #include "include/core/SkRefCnt.h"
 
 namespace skgpu {
@@ -17,9 +18,17 @@ class UniformData;
 
 class UniformCache {
 public:
+    UniformCache();
+
     sk_sp<UniformData> findOrCreate(sk_sp<UniformData>);
 
-    size_t count() const { return fUniformData.size(); }
+    sk_sp<UniformData> lookup(uint32_t uniqueID);
+
+    // The number of unique uniformdata objects in the cache
+    size_t count() const {
+        SkASSERT(fUniformDataHash.size()+1 == fUniformDataVector.size());
+        return fUniformDataHash.size();
+    }
 
 private:
     struct Hash {
@@ -30,7 +39,10 @@ private:
         bool operator()(sk_sp<UniformData>, sk_sp<UniformData>) const;
     };
 
-    std::unordered_set<sk_sp<UniformData>, Hash, Eq> fUniformData;
+    std::unordered_set<sk_sp<UniformData>, Hash, Eq> fUniformDataHash;
+    std::vector<sk_sp<UniformData>> fUniformDataVector;
+    // The UniformData's unique ID is only unique w/in a Recorder _not_ globally
+    uint32_t fNextUniqueID = 1;
 };
 
 } // namespace skgpu

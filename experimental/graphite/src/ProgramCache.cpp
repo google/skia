@@ -7,25 +7,11 @@
 
 #include "experimental/graphite/src/ProgramCache.h"
 
-namespace {
-
-static uint32_t next_id() {
-    static std::atomic<uint32_t> nextID{1};
-    uint32_t id;
-    do {
-        id = nextID.fetch_add(1, std::memory_order_relaxed);
-    } while (id == skgpu::ProgramCache::kInvalidProgramID);
-    return id;
-}
-
-} // anonymous namespace
-
 namespace skgpu {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ProgramCache::ProgramInfo::ProgramInfo(Combination c)
-    : fID(next_id())
+ProgramCache::ProgramInfo::ProgramInfo(uint32_t uniqueID, Combination c)
+    : fID(uniqueID)
     , fCombination(c) {
 }
 
@@ -76,6 +62,11 @@ std::string ProgramCache::ProgramInfo::getMSL() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+ProgramCache::ProgramCache() {
+    // kInvalidProgramID (aka 0) is reserved
+    fProgramVector.push_back(nullptr);
+}
+
 size_t ProgramCache::Hash::operator()(Combination c) const {
     return static_cast<int>(c.fShaderType) +
            static_cast<int>(c.fTileMode) +
@@ -83,15 +74,22 @@ size_t ProgramCache::Hash::operator()(Combination c) const {
 }
 
 sk_sp<ProgramCache::ProgramInfo> ProgramCache::findOrCreateProgram(Combination c) {
-    auto iter = fPrograms.find(c);
-    if (iter != fPrograms.end()) {
+    auto iter = fProgramHash.find(c);
+    if (iter != fProgramHash.end()) {
         SkASSERT(iter->second->id() != kInvalidProgramID);
         return iter->second;
     }
 
-    sk_sp<ProgramInfo> pi(new ProgramInfo(c));
-    fPrograms.insert(std::make_pair(c, pi));
+    sk_sp<ProgramInfo> pi(new ProgramInfo(fNextUniqueID++, c));
+    fProgramHash.insert(std::make_pair(c, pi));
+    fProgramVector.push_back(pi);
+    SkASSERT(fProgramVector[pi->id()] == pi);
     return pi;
+}
+
+sk_sp<ProgramCache::ProgramInfo> ProgramCache::lookup(uint32_t uniqueID) {
+    SkASSERT(uniqueID < fProgramVector.size());
+    return fProgramVector[uniqueID];
 }
 
 } // namespace skgpu
