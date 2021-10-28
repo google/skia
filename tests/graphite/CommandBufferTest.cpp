@@ -20,7 +20,7 @@
 
 #if GRAPHITE_TEST_UTILS
 // set to 1 if you want to do GPU capture of the commandBuffer
-#define CAPTURE_COMMANDBUFFER 1
+#define CAPTURE_COMMANDBUFFER 0
 #endif
 
 using namespace skgpu;
@@ -109,22 +109,61 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
         SkPoint fPosition;
     };
     sk_sp<Buffer> vertexBuffer = gpu->resourceProvider()->findOrCreateBuffer(
-            6*sizeof(VertexData), BufferType::kUniform, PrioritizeGpuReads::kNo);
-    VertexData* vertices = (VertexData*)vertexBuffer->map();
+            4*sizeof(VertexData), BufferType::kVertex, PrioritizeGpuReads::kNo);
+    sk_sp<Buffer> indexBuffer = gpu->resourceProvider()->findOrCreateBuffer(
+            6*sizeof(uint16_t), BufferType::kIndex, PrioritizeGpuReads::kNo);
+    auto vertices = (VertexData*)vertexBuffer->map();
     vertices[0].fPosition = SkPoint({0.25f, 0.25f});
     vertices[1].fPosition = SkPoint({0.25f, 0.75f});
     vertices[2].fPosition = SkPoint({0.75f, 0.25f});
-    vertices[3].fPosition = SkPoint({0.75f, 0.25f});
-    vertices[4].fPosition = SkPoint({0.25f, 0.75f});
-    vertices[5].fPosition = SkPoint({0.75f, 0.75f});
+    vertices[3].fPosition = SkPoint({0.75f, 0.75f});
     vertexBuffer->unmap();
+    auto indices = (uint16_t*)indexBuffer->map();
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 2;
+    indices[4] = 1;
+    indices[5] = 3;
+    indexBuffer->unmap();
     commandBuffer->bindVertexBuffers(vertexBuffer, nullptr);
-
+    commandBuffer->bindIndexBuffer(indexBuffer, 0);
     uniforms->fScale = SkPoint({2, 2});
     uniforms->fTranslate = SkPoint({-1, -1});
     uniforms->fColor = SkColors::kMagenta;
     commandBuffer->bindUniformBuffer(uniformBuffer, uniformOffset);
-    commandBuffer->draw(PrimitiveType::kTriangles, 0, 6);
+    commandBuffer->drawIndexed(PrimitiveType::kTriangles, 0, 6, 0);
+
+    // draw rects using instance buffer
+    pipelineDesc.setTestingOnlyShaderIndex(3);
+    skgpu::RenderPipelineDesc::Attribute instanceAttributes[3] = {
+        { "position", VertexAttribType::kFloat2, SLType::kFloat2 },
+        { "dims", VertexAttribType::kFloat2, SLType::kFloat2 },
+        { "color", VertexAttribType::kFloat4, SLType::kFloat4 }
+    };
+    pipelineDesc.setVertexAttributes(nullptr, 0);
+    pipelineDesc.setInstanceAttributes(instanceAttributes, 3);
+    renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
+    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+
+    struct InstanceData {
+        SkPoint fPosition;
+        SkPoint fDims;
+        SkColor4f fColor;
+    };
+    sk_sp<Buffer> instanceBuffer = gpu->resourceProvider()->findOrCreateBuffer(
+            2*sizeof(InstanceData), BufferType::kVertex, PrioritizeGpuReads::kNo);
+    auto instances = (InstanceData*)instanceBuffer->map();
+    instances[0].fPosition = SkPoint({-0.4, -0.4});
+    instances[0].fDims = SkPoint({0.4, 0.4});
+    instances[0].fColor = SkColors::kGreen;
+    instances[1].fPosition = SkPoint({0, 0});
+    instances[1].fDims = SkPoint({0.25, 0.25});
+    instances[1].fColor = SkColors::kCyan;
+    instanceBuffer->unmap();
+    commandBuffer->bindVertexBuffers(nullptr, instanceBuffer);
+//    commandBuffer->drawInstanced(PrimitiveType::kTriangleStrip, 0, 4, 0, 2);
+    commandBuffer->drawIndexedInstanced(PrimitiveType::kTriangles, 0, 6, 0, 0, 2);
 
     commandBuffer->endRenderPass();
 

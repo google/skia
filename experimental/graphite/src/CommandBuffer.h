@@ -62,9 +62,27 @@ public:
     void bindRenderPipeline(sk_sp<RenderPipeline> renderPipeline);
     void bindUniformBuffer(sk_sp<Buffer>, size_t bufferOffset);
     void bindVertexBuffers(sk_sp<Buffer> vertexBuffer, sk_sp<Buffer> instanceBuffer);
+    void bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffset);
 
-    void draw(PrimitiveType type, unsigned int vertexStart, unsigned int vertexCount) {
-        this->onDraw(type, vertexStart, vertexCount);
+    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
+        this->onDraw(type, baseVertex, vertexCount);
+        fHasWork = true;
+    }
+    void drawIndexed(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
+                     unsigned int baseVertex) {
+        this->onDrawIndexed(type, baseIndex, indexCount, baseVertex);
+        fHasWork = true;
+    }
+    void drawInstanced(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount,
+                       unsigned int baseInstance, unsigned int instanceCount) {
+        this->onDrawInstanced(type, baseVertex, vertexCount, baseInstance, instanceCount);
+        fHasWork = true;
+    }
+    void drawIndexedInstanced(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
+                              unsigned int baseVertex, unsigned int baseInstance,
+                              unsigned int instanceCount) {
+        this->onDrawIndexedInstanced(type, baseIndex, indexCount, baseVertex, baseInstance,
+                                     instanceCount);
         fHasWork = true;
     }
 
@@ -88,8 +106,17 @@ private:
     virtual void onBindRenderPipeline(const RenderPipeline*) = 0;
     virtual void onBindUniformBuffer(const Buffer*, size_t bufferOffset) = 0;
     virtual void onBindVertexBuffers(const Buffer* vertexBuffer, const Buffer* instanceBuffer) = 0;
+    virtual void onBindIndexBuffer(const Buffer* indexBuffer, size_t bufferOffset) = 0;
 
-    virtual void onDraw(PrimitiveType type, unsigned int vertexStart, unsigned int vertexCount) = 0;
+    virtual void onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) = 0;
+    virtual void onDrawIndexed(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
+                               unsigned int baseVertex) = 0;
+    virtual void onDrawInstanced(PrimitiveType type,
+                                 unsigned int baseVertex, unsigned int vertexCount,
+                                 unsigned int baseInstance, unsigned int instanceCount) = 0;
+    virtual void onDrawIndexedInstanced(PrimitiveType type, unsigned int baseIndex,
+                                        unsigned int indexCount, unsigned int baseVertex,
+                                        unsigned int baseInstance, unsigned int instanceCount) = 0;
 
     virtual void onCopyTextureToBuffer(const Texture*,
                                        SkIRect srcRect,

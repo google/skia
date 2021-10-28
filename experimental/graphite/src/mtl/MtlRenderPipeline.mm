@@ -96,12 +96,43 @@ static const char* kTestingOnlyShaders[] = {
     "                             VertexOutput in [[stage_in]]) {\n"
     "    return uniforms.uColor;\n"
     "}",
+
+    // draw triangles with vertex ID and instance buffer
+    "#include <metal_stdlib>\n"
+    "#include <simd/simd.h>\n"
+    "using namespace metal;\n"
+    "\n"
+    "typedef struct {\n"
+    "    float2 position [[attribute(0)]];\n"
+    "    float2 dims [[attribute(1)]];\n"
+    "    float4 color [[attribute(2)]];\n"
+    "} InstanceInput;\n"
+    "\n"
+    "typedef struct {\n"
+    "    float4 position [[position]];\n"
+    "    float4 color;\n"
+    "} VertexOutput;\n"
+    "\n"
+    "vertex VertexOutput vertexMain(InstanceInput in [[stage_in]],\n"
+    "                               uint vertexID [[vertex_id]]) {\n"
+    "    VertexOutput out;\n"
+    "    float2 position = float2(float(vertexID >> 1), float(vertexID & 1));\n"
+    "    out.position.xy = position * in.dims + in.position;\n"
+    "    out.position.zw = float2(0.0, 1.0);\n"
+    "    out.color = in.color;"
+    "    return out;\n"
+    "}\n"
+    "\n"
+    "fragment float4 fragmentMain(VertexOutput in [[stage_in]]) {\n"
+    "    return in.color;\n"
+    "}",
 };
 
 static constexpr NSString* kTestingOnlyShaderLabels[]  = {
     @"Clear viewport to blue",
     @"Clear rect with uniforms",
-    @"Clear triangles with uniform color"
+    @"Draw triangles with uniform color",
+    @"Draw triangles with instance buffer"
 };
 
 static inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {
@@ -276,7 +307,8 @@ sk_sp<RenderPipeline> RenderPipeline::Make(const Gpu* gpu, const skgpu::RenderPi
         SkDebugf("Errors:\n%s", error.debugDescription.UTF8String);
         return nullptr;
     }
-    return sk_sp<RenderPipeline>(new RenderPipeline(std::move(pso)));
+    return sk_sp<RenderPipeline>(new RenderPipeline(std::move(pso), desc.vertexStride(),
+                                                    desc.instanceStride()));
 }
 
 } // namespace skgpu::mtl
