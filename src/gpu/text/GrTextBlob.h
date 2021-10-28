@@ -41,6 +41,14 @@ class SkTextBlobRunIterator;
 
 namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 
+// -- SubRun Discussion ----------------------------------------------------------------------------
+// There are two distinct types of SubRun, those that the GrTextBlob hold in the GrTextBlobCache,
+// and those that are not cached at all. The type of SubRun that is not cached has NoCache
+// appended to their name such as DirectMaskSubRunNoCache. The type of SubRun that is cached
+// provides two interfaces the GrSubRun interface which used by the text blob caching system, and
+// the GrAtlasSubRun which allows drawing by the AtlasTextOp system. The *NoCache SubRuns only
+// provide the GrAtlasSubRun interface.
+
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
 // GrAtlasSubRun is the API that AtlasTextOp uses to generate vertex data for drawing.
 //     There are three different ways GrAtlasSubRun is specialized.
@@ -49,10 +57,12 @@ namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 //        SubRun are in device space. This SubRun handles color glyphs.
 //      * TransformedMaskSubRun - handles glyph where the image in the atlas needs to be
 //        transformed to the screen. It is usually used for large color glyph which can't be
-//        drawn with paths or scaled distance fields. The destination rectangles are in source
-//        space.
+//        drawn with paths or scaled distance fields, but will be used to draw bitmap glyphs to
+//        the screen, if the matrix does not map 1:1 to the screen. The destination rectangles
+//        are in source space.
 //      * SDFTSubRun - scaled distance field text handles largish single color glyphs that still
 //        can fit in the atlas; the sizes between direct SubRun, and path SubRun. The destination
+//        rectangles are in source space.
 
 class GrAtlasSubRun;
 using GrAtlasSubRunOwner = std::unique_ptr<GrAtlasSubRun, GrSubRunAllocator::Destroyer>;
@@ -90,14 +100,13 @@ public:
 };
 
 // -- GrSubRun -------------------------------------------------------------------------------------
-// GrSubRun is the API the GrTextBlob uses for the SubRun.
+// GrSubRun provides an interface used by GrTextBlob to manage the caching system.
 // There are several types of SubRun, which can be broken into five classes:
 //   * PathSubRun - handle very large single color glyphs using paths to render the glyph.
 //   * DirectMaskSubRun - handle the majority of the glyphs where the cache entry's pixels are in
 //     1:1 correspondence to the device pixels.
 //   * TransformedMaskSubRun - handle large bitmap/argb glyphs that need to be scaled to the screen.
 //   * SDFTSubRun - use signed distance fields to draw largish glyphs to the screen.
-//   * GrAtlasSubRun - this is an abstract class used for atlas drawing.
 class GrSubRun;
 using GrSubRunOwner = std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>;
 class GrSubRun {
@@ -160,7 +169,7 @@ struct GrSubRunList {
 };
 
 // A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
-// on the GPU.  These are initially created with valid positions and colors, but invalid
+// on the GPU.  These are initially created with valid positions and colors, but with invalid
 // texture coordinates.
 //
 // A GrTextBlob contains a number of SubRuns that are created in the blob's arena. Each SubRun
@@ -170,9 +179,9 @@ struct GrSubRunList {
 //  GrGlyph*... | vertexData... | SubRun | GrGlyph*... | vertexData... | SubRun  etc.
 //
 // In these classes, I'm trying to follow the convention about matrices and origins.
-// * draw Matrix|Origin    - describes the current draw command.
+// * drawMatrix and drawOrigin    - describes transformations for the current draw command.
 // * initial Matrix - describes the combined initial matrix and origin the GrTextBlob was created
-//   with.
+//                    with.
 //
 //
 class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
@@ -231,18 +240,13 @@ public:
     bool hasPerspective() const;
     const SkMatrix& initialMatrix() const { return fInitialMatrix; }
 
-    std::tuple<SkScalar, SkScalar> scaleBounds() const {
-        return {fMaxMinScale, fMinMaxScale};
-    }
-
+    std::tuple<SkScalar, SkScalar> scaleBounds() const { return {fMaxMinScale, fMinMaxScale}; }
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const;
 
     const Key& key() const;
     size_t size() const;
 
-    const GrSubRunList& subRunList() const {
-        return fSubRunList;
-    }
+    const GrSubRunList& subRunList() const { return fSubRunList; }
 
 private:
     GrTextBlob(int allocSize, const SkMatrix& drawMatrix, SkColor initialLuminance);

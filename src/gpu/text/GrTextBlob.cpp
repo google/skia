@@ -70,7 +70,6 @@ struct ARGB3DVertex {
 };
 
 #if SK_GPU_V1
-
 AtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
     switch (grMaskFormat) {
         case kA8_GrMaskFormat:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
@@ -157,7 +156,8 @@ std::tuple<bool, SkVector> check_integer_translate(
     if (initialMatrix.getScaleX() != drawMatrix.getScaleX() ||
         initialMatrix.getScaleY() != drawMatrix.getScaleY() ||
         initialMatrix.getSkewX()  != drawMatrix.getSkewX()  ||
-        initialMatrix.getSkewY()  != drawMatrix.getSkewY()) {
+        initialMatrix.getSkewY()  != drawMatrix.getSkewY())
+    {
         return {false, {0, 0}};
     }
 
@@ -165,7 +165,7 @@ std::tuple<bool, SkVector> check_integer_translate(
     // blob, but only for integer translations.
     // Calculate the translation in source space to a translation in device space by mapping
     // (0, 0) through both the initial matrix and the draw matrix; take the difference.
-    SkVector translation = drawMatrix.mapXY(0, 0) - initialMatrix.mapXY(0, 0);
+    SkVector translation = drawMatrix.mapOrigin() - initialMatrix.mapOrigin();
 
     return {SkScalarIsInt(translation.x()) && SkScalarIsInt(translation.y()), translation};
 }
@@ -563,8 +563,8 @@ GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawa
         return nullptr;
     }
 
-    // If some of the glyphs were excluded by the bounds, then this subrun can't be generally be
-    // used for other draws. Mark the subrun as not general.
+    // If some glyphs were excluded by the bounds, then this subrun can't be generally be used
+    // for other draws. Mark the subrun as not general.
     bool glyphsExcluded = goodPosCount != drawables.size();
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     return alloc->makeUnique<DirectMaskSubRun>(
@@ -572,8 +572,7 @@ GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawa
             GlyphVector{strikeSpec, {glyphIDs, goodPosCount}}, glyphsExcluded);
 }
 
-bool
-DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
+bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
     auto [reuse, translation] = check_integer_translate(fBlob->initialMatrix(), drawMatrix);
 
     // If glyphs were excluded because of position bounds, then this subrun can only be reused if
@@ -722,8 +721,8 @@ DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) 
 
 // The 99% case. No clip. Non-color only.
 void direct_2D(SkZip<Mask2DVertex[4],
-        const GrGlyph*,
-        const DirectMaskSubRun::DevicePosition> quadData,
+               const GrGlyph*,
+               const DirectMaskSubRun::DevicePosition> quadData,
                GrColor color,
                SkIPoint integralOriginOffset) {
     for (auto[quad, glyph, leftTop] : quadData) {
