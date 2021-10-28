@@ -8,13 +8,16 @@
 #include <atomic>
 #include <cmath>
 #include "include/core/SkCanvas.h"
-#include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 #include "src/image/SkSurface_Base.h"
+
+#ifdef SK_SUPPORT_GPU
+#include "include/gpu/GrBackendSurface.h"
+#endif
 
 SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry) {}
 
@@ -51,6 +54,7 @@ GrRecordingContext* SkSurface_Base::onGetRecordingContext() {
     return nullptr;
 }
 
+#if SK_SUPPORT_GPU
 GrBackendTexture SkSurface_Base::onGetBackendTexture(BackendHandleAccess) {
     return GrBackendTexture(); // invalid
 }
@@ -65,6 +69,7 @@ bool SkSurface_Base::onReplaceBackendTexture(const GrBackendTexture&,
                                              ReleaseContext) {
     return false;
 }
+#endif
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
                             const SkSamplingOptions& sampling, const SkPaint* paint) {
@@ -308,6 +313,28 @@ GrRecordingContext* SkSurface::recordingContext() {
     return asSB(this)->onGetRecordingContext();
 }
 
+bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+                     bool deleteSemaphoresAfterWait) {
+    return asSB(this)->onWait(numSemaphores, waitSemaphores, deleteSemaphoresAfterWait);
+}
+
+bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const {
+    return asConstSB(this)->onCharacterize(characterization);
+}
+
+bool SkSurface::isCompatible(const SkSurfaceCharacterization& characterization) const {
+    return asConstSB(this)->onIsCompatible(characterization);
+}
+
+bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yOffset) {
+    if (xOffset != 0 || yOffset != 0) {
+        return false; // the offsets currently aren't supported
+    }
+
+    return asSB(this)->onDraw(std::move(ddl), { xOffset, yOffset });
+}
+
+#if SK_SUPPORT_GPU
 GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
     return asSB(this)->onGetBackendTexture(access);
 }
@@ -333,26 +360,14 @@ GrSemaphoresSubmitted SkSurface::flush(const GrFlushInfo& info,
     return asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, info, newState);
 }
 
-bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
-                     bool deleteSemaphoresAfterWait) {
-    return asSB(this)->onWait(numSemaphores, waitSemaphores, deleteSemaphoresAfterWait);
+void SkSurface::flush() {
+    this->flush({});
 }
+#else
+void SkSurface::flush() {} // Flush is a no-op for CPU surfaces
 
-bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const {
-    return asConstSB(this)->onCharacterize(characterization);
-}
-
-bool SkSurface::isCompatible(const SkSurfaceCharacterization& characterization) const {
-    return asConstSB(this)->onIsCompatible(characterization);
-}
-
-bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yOffset) {
-    if (xOffset != 0 || yOffset != 0) {
-        return false; // the offsets currently aren't supported
-    }
-
-    return asSB(this)->onDraw(std::move(ddl), { xOffset, yOffset });
-}
+void SkSurface::flushAndSubmit(bool syncCpu) {}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////
 #include "include/utils/SkNoDrawCanvas.h"
@@ -383,38 +398,5 @@ sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-#if !SK_SUPPORT_GPU
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
-                                             int, GrSurfaceOrigin, const SkSurfaceProps*, bool) {
-    return nullptr;
-}
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext*, const SkSurfaceCharacterization&,
-                                             SkBudgeted) {
-    return nullptr;
-}
-
-sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext*, const GrBackendTexture&,
-                                                   GrSurfaceOrigin origin, int sampleCnt,
-                                                   SkColorType, sk_sp<SkColorSpace>,
-                                                   const SkSurfaceProps*,
-                                                   TextureReleaseProc, ReleaseContext) {
-    return nullptr;
-}
-
-sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext*,
-                                                        const GrBackendRenderTarget&,
-                                                        GrSurfaceOrigin origin,
-                                                        SkColorType,
-                                                        sk_sp<SkColorSpace>,
-                                                        const SkSurfaceProps*,
-                                                        RenderTargetReleaseProc, ReleaseContext) {
-    return nullptr;
-}
-
-void SkSurface::flushAndSubmit(bool syncCpu) {
-    this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
-}
-
-#endif
