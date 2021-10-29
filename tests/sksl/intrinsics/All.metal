@@ -2,15 +2,15 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    half4 inputH4;
-    half4 expectedH4;
-    half4 colorGreen;
-    half4 colorRed;
+    float4 inputH4;
+    float4 expectedH4;
+    float4 colorGreen;
+    float4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    half4 sk_FragColor [[color(0)]];
+    float4 sk_FragColor [[color(0)]];
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;

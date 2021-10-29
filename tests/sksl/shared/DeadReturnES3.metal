@@ -2,13 +2,13 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    half4 colorGreen;
-    half4 colorRed;
+    float4 colorGreen;
+    float4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    half4 sk_FragColor [[color(0)]];
+    float4 sk_FragColor [[color(0)]];
 };
 bool test_return_b() {
     do {
@@ -29,7 +29,7 @@ bool test_continue_b() {
 }
 bool test_if_return_b(Uniforms _uniforms) {
     do {
-        if (_uniforms.colorGreen.y > 0.0h) {
+        if (_uniforms.colorGreen.y > 0.0) {
             return true;
         } else {
             break;
@@ -40,7 +40,7 @@ bool test_if_return_b(Uniforms _uniforms) {
 }
 bool test_if_break_b(Uniforms _uniforms) {
     do {
-        if (_uniforms.colorGreen.y > 0.0h) {
+        if (_uniforms.colorGreen.y > 0.0) {
             break;
         } else {
             continue;
@@ -50,7 +50,7 @@ bool test_if_break_b(Uniforms _uniforms) {
 }
 bool test_else_b(Uniforms _uniforms) {
     do {
-        if (_uniforms.colorGreen.y == 0.0h) {
+        if (_uniforms.colorGreen.y == 0.0) {
             return false;
         } else {
             return true;

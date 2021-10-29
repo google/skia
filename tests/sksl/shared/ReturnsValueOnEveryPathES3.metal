@@ -2,17 +2,17 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    half4 colorGreen;
-    half4 colorRed;
-    half unknownInput;
+    float4 colorGreen;
+    float4 colorRed;
+    float unknownInput;
 };
 struct Inputs {
 };
 struct Outputs {
-    half4 sk_FragColor [[color(0)]];
+    float4 sk_FragColor [[color(0)]];
 };
 bool return_on_both_sides_b(Uniforms _uniforms) {
-    if (_uniforms.unknownInput == 1.0h) return true; else return true;
+    if (_uniforms.unknownInput == 1.0) return true; else return true;
 }
 bool for_inside_body_b() {
     for (int x = 0;x <= 10; ++x) {
@@ -27,14 +27,14 @@ bool after_for_body_b() {
 }
 bool for_with_double_sided_conditional_return_b(Uniforms _uniforms) {
     for (int x = 0;x <= 10; ++x) {
-        if (_uniforms.unknownInput == 1.0h) return true; else return true;
+        if (_uniforms.unknownInput == 1.0) return true; else return true;
     }
 }
 bool if_else_chain_b(Uniforms _uniforms) {
-    if (_uniforms.unknownInput == 1.0h) return true; else if (_uniforms.unknownInput == 2.0h) return false; else if (_uniforms.unknownInput == 3.0h) return true; else if (_uniforms.unknownInput == 4.0h) return false; else return true;
+    if (_uniforms.unknownInput == 1.0) return true; else if (_uniforms.unknownInput == 2.0) return false; else if (_uniforms.unknownInput == 3.0) return true; else if (_uniforms.unknownInput == 4.0) return false; else return true;
 }
 bool conditional_inside_while_loop_b(Uniforms _uniforms) {
-    while (_uniforms.unknownInput == 123.0h) {
+    while (_uniforms.unknownInput == 123.0) {
         return true;
     }
 }
@@ -116,7 +116,7 @@ bool switch_with_continue_in_loop_b(Uniforms _uniforms) {
 bool switch_with_if_that_returns_b(Uniforms _uniforms) {
     switch (int(_uniforms.unknownInput)) {
         case 1:
-            if (_uniforms.unknownInput == 123.0h) return true; else return true;
+            if (_uniforms.unknownInput == 123.0) return true; else return true;
         default:
             return true;
     }
@@ -124,7 +124,7 @@ bool switch_with_if_that_returns_b(Uniforms _uniforms) {
 bool switch_with_one_sided_if_then_fallthrough_b(Uniforms _uniforms) {
     switch (int(_uniforms.unknownInput)) {
         case 1:
-            if (_uniforms.unknownInput == 123.0h) return true;
+            if (_uniforms.unknownInput == 123.0) return true;
         default:
             return true;
     }

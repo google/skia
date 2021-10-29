@@ -2,14 +2,14 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    half4 colorGreen;
-    half4 colorRed;
+    float4 colorGreen;
+    float4 colorRed;
     float2x2 testMatrix2x2;
 };
 struct Inputs {
 };
 struct Outputs {
-    half4 sk_FragColor [[color(0)]];
+    float4 sk_FragColor [[color(0)]];
 };
 
 thread bool operator==(const float2x2 left, const float2x2 right);

@@ -282,6 +282,8 @@ static uint32_t sltype_to_alignment_mask(SLType type) {
         case SLType::kFloat4x4:
             return 0xF;
 
+/*
+        // TODO(skia:12339): Enable these once MetalCodeGenerator supports half-precision types.
         case SLType::kShort:
         case SLType::kUShort:
         case SLType::kHalf:
@@ -304,6 +306,30 @@ static uint32_t sltype_to_alignment_mask(SLType type) {
             return 0x7;
         case SLType::kHalf4x4:
             return 0x7;
+*/
+        // TODO(skia:12339): Remove these once MetalCodeGenerator supports half-precision types.
+        case SLType::kShort:
+        case SLType::kUShort:
+        case SLType::kHalf:
+            return 0x3;
+        case SLType::kShort2:
+        case SLType::kUShort2:
+        case SLType::kHalf2:
+            return 0x7;
+        case SLType::kShort3:
+        case SLType::kShort4:
+        case SLType::kUShort3:
+        case SLType::kUShort4:
+        case SLType::kHalf3:
+        case SLType::kHalf4:
+            return 0xF;
+
+        case SLType::kHalf2x2:
+            return 0x7;
+        case SLType::kHalf3x3:
+            return 0xF;
+        case SLType::kHalf4x4:
+            return 0xF;
 
         // This query is only valid for certain types.
         case SLType::kVoid:
@@ -348,6 +374,8 @@ inline uint32_t sltype_to_mtl_size(SLType type) {
         case SLType::kFloat4x4:
             return 64;
 
+/*
+        // TODO(skia:12339): Enable these once MetalCodeGenerator supports half-precision types.
         case SLType::kShort:
         case SLType::kUShort:
         case SLType::kHalf:
@@ -370,6 +398,30 @@ inline uint32_t sltype_to_mtl_size(SLType type) {
             return 24;
         case SLType::kHalf4x4:
             return 32;
+*/
+        // TODO(skia:12339): Remove these once MetalCodeGenerator supports half-precision types.
+        case SLType::kShort:
+        case SLType::kUShort:
+        case SLType::kHalf:
+            return 4;
+        case SLType::kShort2:
+        case SLType::kUShort2:
+        case SLType::kHalf2:
+            return 8;
+        case SLType::kShort3:
+        case SLType::kShort4:
+        case SLType::kUShort3:
+        case SLType::kUShort4:
+        case SLType::kHalf3:
+        case SLType::kHalf4:
+            return 16;
+
+        case SLType::kHalf2x2:
+            return 16;
+        case SLType::kHalf3x3:
+            return 48;
+        case SLType::kHalf4x4:
+            return 64;
 
         // This query is only valid for certain types.
         case SLType::kVoid:
