@@ -639,9 +639,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
             if (fBaseVertexBaseInstanceSupport) {
                 fNativeDrawIndirectSupport = (version >= GR_GL_VER(3,1));
-                if (ctxInfo.hasExtension("GL_EXT_multi_draw_indirect")) {
-                    fMultiDrawType = MultiDrawType::kMultiDrawIndirect;
-                }
+                // Don't use GL_EXT_multi_draw_indirect. It doesn't allow VAO 0.
+                // https://github.com/KhronosGroup/OpenGL-Registry/blob/main/extensions/EXT/EXT_multi_draw_indirect.txt#L142
             }
         }
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
