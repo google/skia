@@ -29,6 +29,10 @@ bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {
     return true;
 }
 
+sk_sp<Texture> TextureProxy::refTexture() {
+    return fTexture;
+}
+
 #ifdef SK_DEBUG
 void TextureProxy::validateTexture(const Texture* texture) {
     SkASSERT(fDimensions == texture->dimensions());

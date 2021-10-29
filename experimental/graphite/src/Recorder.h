@@ -25,7 +25,7 @@ public:
 
     void add(sk_sp<Task>);
 
-    const Context* context() const;
+    Context* context() const;
     ProgramCache* programCache();
     UniformCache* uniformCache();
 
