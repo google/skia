@@ -14,6 +14,7 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/GrClip.h"
+#include "src/gpu/GrGlyph.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrRecordingContextPriv.h"

@@ -6,12 +6,8 @@
  */
 
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrColor.h"
-#include "src/gpu/GrDistanceFieldGenFromVector.h"
-#include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/GrGlyph.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
 GrStrikeCache::~GrStrikeCache() {
@@ -22,17 +18,28 @@ void GrStrikeCache::freeAll() {
     fCache.reset();
 }
 
-///////////////////////////////////////////////////////////////////////////////
+sk_sp<GrTextStrike> GrStrikeCache::findOrCreateStrike(const SkStrikeSpec& strikeSpec) {
+    if (sk_sp<GrTextStrike>* cached = fCache.find(strikeSpec.descriptor())) {
+        return *cached;
+    }
+    return this->generateStrike(strikeSpec);
+}
 
-/*
-    The text strike is specific to a given font/style/matrix setup, which is
-    represented by the GrHostFontScaler object we are given in getGlyph().
+sk_sp<GrTextStrike> GrStrikeCache::generateStrike(const SkStrikeSpec& strikeSpec) {
+    sk_sp<GrTextStrike> strike = sk_make_sp<GrTextStrike>(strikeSpec);
+    fCache.set(strike);
+    return strike;
+}
 
-    We map a 32bit glyphID to a GrGlyph record, which in turn points to a
-    atlas and a position within that texture.
- */
+const SkDescriptor& GrStrikeCache::HashTraits::GetKey(const sk_sp<GrTextStrike>& strike) {
+    return strike->fStrikeSpec.descriptor();
+}
 
-GrTextStrike::GrTextStrike(const SkDescriptor& key) : fFontScalerKey(key) {}
+uint32_t GrStrikeCache::HashTraits::Hash(const SkDescriptor& descriptor) {
+    return descriptor.getChecksum();
+}
+
+GrTextStrike::GrTextStrike(const SkStrikeSpec& strikeSpec) : fStrikeSpec{strikeSpec} {}
 
 GrGlyph* GrTextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
     GrGlyph* grGlyph = fCache.findOrNull(packedGlyphID);
@@ -41,5 +48,13 @@ GrGlyph* GrTextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
         fCache.set(grGlyph);
     }
     return grGlyph;
+}
+
+const SkPackedGlyphID& GrTextStrike::HashTraits::GetKey(const GrGlyph* glyph) {
+    return glyph->fPackedID;
+}
+
+uint32_t GrTextStrike::HashTraits::Hash(SkPackedGlyphID key) {
+    return key.hash();
 }
 

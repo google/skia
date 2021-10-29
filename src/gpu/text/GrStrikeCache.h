@@ -10,81 +10,59 @@
 
 #include "include/private/SkTHash.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkDescriptor.h"
-#include "src/gpu/GrGlyph.h"
+#include "src/core/SkStrikeSpec.h"
 
-class GrAtlasManager;
-class GrGpu;
+class GrGlyph;
 class GrStrikeCache;
-class SkBulkGlyphMetricsAndImages;
 
-/**
- *  The GrTextStrike manages a pool of CPU backing memory for GrGlyphs. This backing memory
- *  is indexed by a PackedID and SkStrike. The SkStrike is what actually creates the mask.
- *  The GrTextStrike may outlive the generating SkStrike. However, it retains a copy
- *  of it's SkDescriptor as a key to access (or regenerate) the SkStrike. GrTextStrikes are
- *  created by and owned by a GrStrikeCache.
- */
+
+// The GrTextStrike manages an SkArenaAlloc for GrGlyphs. The SkStrike is what actually creates
+// the mask. The GrTextStrike may outlive the generating SkStrike. However, it retains a copy
+// of it's SkDescriptor as a key to access (or regenerate) the SkStrike. GrTextStrikes are
+// created by and owned by a GrStrikeCache.
 class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
-    GrTextStrike(const SkDescriptor& fontScalerKey);
+    GrTextStrike(const SkStrikeSpec& strikeSpec);
 
     GrGlyph* getGlyph(SkPackedGlyphID);
 
 private:
     struct HashTraits {
-        // GetKey and Hash for the the hash table.
-        static const SkPackedGlyphID& GetKey(const GrGlyph* glyph) {
-            return glyph->fPackedID;
-        }
-
-        static uint32_t Hash(SkPackedGlyphID key) {
-            return SkChecksum::Mix(key.hash());
-        }
+        static const SkPackedGlyphID& GetKey(const GrGlyph* glyph);
+        static uint32_t Hash(SkPackedGlyphID key);
     };
+    // Map SkPackedGlyphID -> GrGlyph*.
     SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
-    SkAutoDescriptor fFontScalerKey;
+
+    // Key for retrieving the SkStrike for creating new atlas data.
+    SkStrikeSpec fStrikeSpec;
+
+    // Store for the glyph information.
     SkArenaAlloc fAlloc{512};
 
     friend class GrStrikeCache;
 };
 
-/**
- * GrStrikeCache manages strikes which are indexed by a SkStrike. These strikes can then be
- * used to generate individual Glyph Masks.
- */
+// GrStrikeCache manages strikes which are indexed by a SkStrike. These strikes can then be
+// used to generate individual Glyph Masks.
 class GrStrikeCache {
 public:
     ~GrStrikeCache();
 
-    // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
-    // another client of the cache may cause the strike to be purged while it is still reffed.
-    // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
-    // interactions with the cache since the strike was received.
-    sk_sp<GrTextStrike> findOrCreateStrike(const SkDescriptor& desc) {
-        if (sk_sp<GrTextStrike>* cached = fCache.find(desc)) {
-            return *cached;
-        }
-        return this->generateStrike(desc);
-    }
+    // The user of the cache may hold a long-lived ref to the returned strike.
+    sk_sp<GrTextStrike> findOrCreateStrike(const SkStrikeSpec& strikeSpec);
 
     void freeAll();
 
 private:
-    sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
-        sk_sp<GrTextStrike> strike = sk_make_sp<GrTextStrike>(desc);
-        fCache.set(strike);
-        return strike;
-    }
+    sk_sp<GrTextStrike> generateStrike(const SkStrikeSpec& strikeSpec);
 
-    struct DescriptorHashTraits {
-        static const SkDescriptor& GetKey(const sk_sp<GrTextStrike>& strike) {
-            return *strike->fFontScalerKey.getDesc();
-        }
-        static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
+    struct HashTraits {
+        static const SkDescriptor& GetKey(const sk_sp<GrTextStrike>& strike);
+        static uint32_t Hash(const SkDescriptor& strikeSpec);
     };
 
-    using StrikeHash = SkTHashTable<sk_sp<GrTextStrike>, SkDescriptor, DescriptorHashTraits>;
+    using StrikeHash = SkTHashTable<sk_sp<GrTextStrike>, const SkDescriptor&, HashTraits>;
 
     StrikeHash fCache;
 };
