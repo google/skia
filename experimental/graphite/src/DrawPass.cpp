@@ -8,8 +8,11 @@
 #include "experimental/graphite/src/DrawPass.h"
 
 #include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
+#include "experimental/graphite/src/ProgramCache.h"
+#include "experimental/graphite/src/Recorder.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
@@ -18,6 +21,27 @@
 #include "src/core/SkUtils.h"
 
 #include <algorithm>
+
+namespace {
+
+// Retrieve the program ID and uniformData ID
+std::tuple<uint32_t, uint32_t> get_ids_from_paint(skgpu::Recorder* recorder,
+                                                  skgpu::PaintParams params) {
+    // TODO: add an ExtractCombo that takes PaintParams directly?
+    SkPaint p;
+
+    p.setColor(params.color());
+    p.setBlendMode(params.blendMode());
+    p.setShader(params.refShader());
+
+    // TODO: perhaps just return the ids here rather than the sk_sps?
+    auto [ combo, uniformData] = ExtractCombo(recorder->uniformCache(), p);
+    auto programInfo = recorder->programCache()->findOrCreateProgram(combo);
+
+    return { programInfo->id(), uniformData->id() };
+}
+
+} // anonymous namespace
 
 namespace skgpu {
 
@@ -108,7 +132,8 @@ DrawPass::DrawPass(sk_sp<TextureProxy> target, const SkIRect& bounds,
 
 DrawPass::~DrawPass() = default;
 
-std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> draws,
+std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
+                                         std::unique_ptr<DrawList> draws,
                                          sk_sp<TextureProxy> target,
                                          const BoundsManager* occlusionCuller) {
     // NOTE: This assert is here to ensure SortKey is as tightly packed as possible. Any change to
@@ -140,13 +165,15 @@ std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> draws,
             continue;
         }
 
-        // TODO: Hand off to Rob/Jim for extracting shader and uniform data to CPU memory
-        // if draw.fPaintParams, analyze params and determine shader code and write out shading
-        // uniforms.
         // If we have two different descriptors, such that the uniforms from the PaintParams can be
         // bound independently of those used by the rest of the RenderStep, then we can upload now
-        // and remember 'shadingIndex' for re-use on any RenderStep that does shading.
-        int shadingIndex = 0;
+        // and remember the location for re-use on any RenderStep that does shading.
+        uint32_t programID = ProgramCache::kInvalidProgramID;
+        uint32_t shadingID = UniformData::kInvalidUniformID;
+        if (draw.fPaintParams.has_value()) {
+            std::tie(programID, shadingID) = get_ids_from_paint(recorder,
+                                                                draw.fPaintParams.value());
+        }
 
         for (int stepIndex = 0; stepIndex < draw.fRenderer.numRenderSteps(); ++stepIndex) {
             const RenderStep* const step = draw.fRenderer.steps()[stepIndex];
@@ -158,9 +185,19 @@ std::unique_ptr<DrawPass> DrawPass::Make(std::unique_ptr<DrawList> draws,
             // providing shape, transform, scissor, and paint depth to RenderStep
             int geometryIndex = 0;
 
+            int shadingIndex = -1;
+
             const bool performsShading = draw.fPaintParams.has_value() && step->performsShading();
-            keys.push_back({&draw, stepIndex, pipelineIndex, geometryIndex,
-                            performsShading ? shadingIndex : -1});
+            if (performsShading) {
+                // TODO: we need to combine the 'programID' with the RenderPass info and the
+                // geometric rendering method to get the true 'pipelineIndex'
+                pipelineIndex = programID;
+                shadingIndex = shadingID;
+            } else {
+                // TODO: fill in 'pipelineIndex' for Chris' stencil/depth draws
+            }
+
+            keys.push_back({&draw, stepIndex, pipelineIndex, geometryIndex, shadingIndex});
         }
 
         passBounds.join(draw.fClip.drawBounds());

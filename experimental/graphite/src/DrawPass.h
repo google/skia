@@ -16,10 +16,10 @@
 namespace skgpu {
 
 class BoundsManager;
-class DrawList;
-class TextureProxy;
-
 class CommandBuffer;
+class DrawList;
+class Recorder;
+class TextureProxy;
 
 /**
  * DrawPass is analogous to a subpass, storing the drawing operations in the order they are stored
@@ -38,7 +38,9 @@ public:
     ~DrawPass();
 
     // TODO: Replace SDC with the SDC's surface proxy view
-    static std::unique_ptr<DrawPass> Make(std::unique_ptr<DrawList>, sk_sp<TextureProxy>,
+    static std::unique_ptr<DrawPass> Make(Recorder*,
+                                          std::unique_ptr<DrawList>,
+                                          sk_sp<TextureProxy>,
                                           const BoundsManager* occlusionCuller);
 
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is

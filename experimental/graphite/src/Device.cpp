@@ -303,7 +303,7 @@ void Device::flushPendingWorkToRecorder() {
 
     // TODO: iterate the clip stack and issue a depth-only draw for every clip element that has
     // a non-empty usage bounds, using that bounds as the scissor.
-    auto drawTask = fDC->snapRenderPassTask(fColorDepthBoundsManager.get());
+    auto drawTask = fDC->snapRenderPassTask(fRecorder.get(), fColorDepthBoundsManager.get());
     if (drawTask) {
         fRecorder->add(std::move(drawTask));
     }

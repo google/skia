@@ -75,18 +75,19 @@ void DrawContext::strokePath(const Transform& localToDevice,
     fPendingDraws->strokePath(localToDevice, shape, stroke, clip, order, paint);
 }
 
-void DrawContext::snapDrawPass(const BoundsManager* occlusionCuller) {
+void DrawContext::snapDrawPass(Recorder* recorder, const BoundsManager* occlusionCuller) {
     if (fPendingDraws->drawCount() == 0) {
         return;
     }
 
-    auto pass = DrawPass::Make(std::move(fPendingDraws), fTarget, occlusionCuller);
+    auto pass = DrawPass::Make(recorder, std::move(fPendingDraws), fTarget, occlusionCuller);
     fDrawPasses.push_back(std::move(pass));
     fPendingDraws = std::make_unique<DrawList>();
 }
 
-sk_sp<Task> DrawContext::snapRenderPassTask(const BoundsManager* occlusionCuller) {
-    this->snapDrawPass(occlusionCuller);
+sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
+                                            const BoundsManager* occlusionCuller) {
+    this->snapDrawPass(recorder, occlusionCuller);
     if (fDrawPasses.empty()) {
         return nullptr;
     }

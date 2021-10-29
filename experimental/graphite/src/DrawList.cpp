@@ -8,8 +8,32 @@
 #include "experimental/graphite/src/DrawList.h"
 
 #include "experimental/graphite/src/Renderer.h"
+#include "include/core/SkShader.h"
 
 namespace skgpu {
+
+PaintParams::PaintParams(const SkColor4f& color,
+                         SkBlendMode blendMode,
+                         sk_sp<SkShader> shader)
+        : fColor(color)
+        , fBlendMode(blendMode)
+        , fShader(std::move(shader)) {
+}
+PaintParams::PaintParams(const PaintParams& other)
+        : fColor(other.fColor)
+        , fBlendMode(other.fBlendMode)
+        , fShader(other.fShader) {
+}
+PaintParams::~PaintParams() {}
+
+PaintParams& PaintParams::operator=(const PaintParams& other) {
+    fColor = other.fColor;
+    fBlendMode = other.fBlendMode;
+    fShader = other.fShader;
+    return *this;
+}
+
+sk_sp<SkShader> PaintParams::refShader() const { return fShader; }
 
 const Transform& DrawList::deduplicateTransform(const Transform& localToDevice) {
     // TODO: This is a pretty simple deduplication strategy and doesn't take advantage of the stack
