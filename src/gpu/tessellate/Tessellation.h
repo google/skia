@@ -35,18 +35,36 @@ template<int N> using uvec = skvx::Vec<N, uint32_t>;
 using uint2 = uvec<2>;
 using uint4 = uvec<4>;
 
-SK_MAYBE_UNUSED SK_ALWAYS_INLINE float dot(float2 a, float2 b) {
+#define AI SK_MAYBE_UNUSED SK_ALWAYS_INLINE
+
+AI float dot(float2 a, float2 b) {
     float2 ab = a*b;
     return ab.x() + ab.y();
 }
 
-SK_MAYBE_UNUSED SK_ALWAYS_INLINE float cross(float2 a, float2 b) {
+AI float cross(float2 a, float2 b) {
     float2 x = a * b.yx();
     return x[0] - x[1];
 }
 
-SK_MAYBE_UNUSED constexpr SK_ALWAYS_INLINE float pow2(float x) { return x*x; }
-SK_MAYBE_UNUSED constexpr SK_ALWAYS_INLINE float pow4(float x) { return pow2(x*x); }
+// This does not return b when t==1, but it otherwise seems to get better precision than
+// "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
+// The responsibility falls on the caller to check that t != 1 before calling.
+template<int N>
+AI vec<N> mix(vec<N> a, vec<N> b, vec<N> T) {
+    SkASSERT(all((0 <= T) & (T < 1)));
+    return (b - a)*T + a;
+}
+
+template<int N>
+AI vec<N> mix(vec<N> a, vec<N> b, float T) {
+    return mix(a, b, vec<N>(T));
+}
+
+AI constexpr float pow2(float x) { return x*x; }
+AI constexpr float pow4(float x) { return pow2(x*x); }
+
+#undef AI
 
 // Don't tessellate paths that might have an individual curve that requires more than 1024 segments.
 // (See wangs_formula::worst_case_cubic). If this is the case, call "PreChopPathCurves" first.

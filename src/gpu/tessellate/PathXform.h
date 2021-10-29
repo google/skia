@@ -38,23 +38,30 @@ public:
         return fScale.lo * p + (fSkew.lo * skvx::shuffle<1,0>(p) + fTrans.lo);
     }
 
+    SK_ALWAYS_INLINE float4 map2Points(float4 p0p1) const {
+        return fScale * p0p1 + (fSkew * p0p1.yxwz() + fTrans);
+    }
+
+    SK_ALWAYS_INLINE float2 map1Point(const SkPoint pt[1]) const {
+        return this->mapPoint(float2::Load(pt));
+    }
+
+    SK_ALWAYS_INLINE float4 map2Points(const SkPoint pts[2]) const {
+        return this->map2Points(float4::Load(pts));
+    }
+
     SK_ALWAYS_INLINE SkPoint mapPoint(SkPoint p) const {
         return skvx::bit_pun<SkPoint>(this->mapPoint(skvx::bit_pun<float2>(p)));
     }
 
-    SK_ALWAYS_INLINE void map2Points(VertexWriter* writer, const SkPoint pts[2]) const {
-        float4 p = float4::Load(pts);
-        *writer << (fScale * p + (fSkew * skvx::shuffle<1,0,3,2>(p) + fTrans));
-    }
-
     SK_ALWAYS_INLINE void map3Points(VertexWriter* writer, const SkPoint pts[3]) const {
-        *writer << this->mapPoint(pts[0]);
-        this->map2Points(writer, pts + 1);
+        *writer << this->map2Points(pts);
+        *writer << this->map1Point(pts + 2);
     }
 
     SK_ALWAYS_INLINE void map4Points(VertexWriter* writer, const SkPoint pts[4]) const {
-        this->map2Points(writer, pts);
-        this->map2Points(writer, pts + 2);
+        *writer << this->map2Points(pts);
+        *writer << this->map2Points(pts + 2);
     }
 
     // Emits a degenerate, 4-point transformed cubic bezier equal to a line.

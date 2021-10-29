@@ -68,6 +68,26 @@ static SkPath make_conic_path() {
     return path;
 }
 
+SK_MAYBE_UNUSED static SkPath make_quad_path(int maxPow2) {
+    SkRandom rand;
+    SkPath path;
+    for (int i = 0; i < kNumCubicsInChalkboard; ++i) {
+        float x = std::ldexp(rand.nextF(), (i % maxPow2)) / 1e3f;
+        path.quadTo(111.625f * x, 308.188f * x, 764.62f * x, -435.688f * x);
+    }
+    return path;
+}
+
+SK_MAYBE_UNUSED static SkPath make_line_path(int maxPow2) {
+    SkRandom rand;
+    SkPath path;
+    for (int i = 0; i < kNumCubicsInChalkboard; ++i) {
+        float x = std::ldexp(rand.nextF(), (i % maxPow2)) / 1e3f;
+        path.lineTo(764.62f * x, -435.688f * x);
+    }
+    return path;
+}
+
 // This serves as a base class for benchmarking individual methods on PathTessellateOp.
 class PathTessellateBenchmark : public Benchmark {
 public:

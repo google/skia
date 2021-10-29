@@ -46,6 +46,8 @@ public:
 
     ~GrVertexChunkBuilder();
 
+    size_t stride() const { return fStride; }
+
     // Appends 'count' contiguous vertices. These vertices are not guaranteed to be contiguous with
     // previous or future calls to appendVertices.
     SK_ALWAYS_INLINE skgpu::VertexWriter appendVertices(int count) {
