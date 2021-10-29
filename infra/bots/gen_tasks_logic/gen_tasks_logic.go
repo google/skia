@@ -830,7 +830,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"MacMini9.1": "arm64-64-Apple_M1",
 				},
 				"AVX": {
-					"VMware7.1": "x86-64-E5-2697_v2",
+					"VMware7.1": "x86-64",
 				},
 				"AVX2": {
 					"GCE":            "x86-64-Haswell_GCE",

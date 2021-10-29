@@ -46857,7 +46857,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
+        "cpu:x86-64",
         "os:Mac-10.13.6",
         "pool:Skia"
       ],
@@ -46963,7 +46963,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
+        "cpu:x86-64",
         "os:Mac-10.14.6",
         "pool:Skia"
       ],
@@ -48753,7 +48753,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
         "pool:Skia"
       ],
