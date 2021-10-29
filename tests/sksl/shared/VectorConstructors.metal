@@ -2,17 +2,17 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
     float unknownInput;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 bool check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3(float2 v1, float2 v2, float2 v3, float3 v4, int2 v5, int2 v6, float2 v7, float2 v8, float4 v9, int2 v10, bool4 v11, float2 v12, float2 v13, float2 v14, bool2 v15, bool2 v16, bool3 v17) {
-    return (((((((((((((((v1.x + v2.x) + v3.x) + v4.x) + float(v5.x)) + float(v6.x)) + v7.x) + v8.x) + v9.x) + float(v10.x)) + float(v11.x)) + v12.x) + v13.x) + v14.x) + float(v15.x)) + float(v16.x)) + float(v17.x) == 17.0;
+    return (((((((((((((((half(v1.x) + half(v2.x)) + half(v3.x)) + half(v4.x)) + half(v5.x)) + half(v6.x)) + half(v7.x)) + half(v8.x)) + half(v9.x)) + half(v10.x)) + half(v11.x)) + half(v12.x)) + half(v13.x)) + half(v14.x)) + half(v15.x)) + half(v16.x)) + half(v17.x) == 17.0h;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;

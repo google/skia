@@ -10,13 +10,13 @@ struct Nested {
     S b;
 };
 struct Uniforms {
-    float4 colorRed;
-    float4 colorGreen;
+    half4 colorRed;
+    half4 colorGreen;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 
 thread bool operator==(thread const S& left, thread const S& right);

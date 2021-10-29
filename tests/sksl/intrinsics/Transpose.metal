@@ -4,13 +4,13 @@ using namespace metal;
 struct Uniforms {
     float2x2 testMatrix2x2;
     float3x3 testMatrix3x3;
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 
 thread bool operator==(const float2x2 left, const float2x2 right);

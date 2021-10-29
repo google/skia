@@ -107,8 +107,9 @@ public:
                 if (type.isBoolean()) {
                     return 1;
                 }
-                // FIXME need to take precision into account, once we figure out how we want to
-                // handle it...
+                if (fStd == kMetal_Standard && !type.highPrecision() && type.isNumber()) {
+                    return 2;
+                }
                 return 4;
             case Type::TypeKind::kVector:
                 if (fStd == kMetal_Standard && type.columns() == 3) {

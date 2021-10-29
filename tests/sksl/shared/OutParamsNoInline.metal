@@ -2,90 +2,90 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float4 colorGreen;
-    float4 colorRed;
-    float4 colorWhite;
+    half4 colorGreen;
+    half4 colorRed;
+    half4 colorWhite;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
-void out_half_vh(Uniforms _uniforms, thread float& v);
-void _skOutParamHelper0_out_half_vh(Uniforms _uniforms, thread float& h) {
-    float _var0;
+void out_half_vh(Uniforms _uniforms, thread half& v);
+void _skOutParamHelper0_out_half_vh(Uniforms _uniforms, thread half& h) {
+    half _var0;
     out_half_vh(_uniforms, _var0);
     h = _var0;
 }
-void out_half2_vh2(Uniforms _uniforms, thread float2& v);
-void _skOutParamHelper1_out_half2_vh2(Uniforms _uniforms, thread float2& h2) {
-    float2 _var0;
+void out_half2_vh2(Uniforms _uniforms, thread half2& v);
+void _skOutParamHelper1_out_half2_vh2(Uniforms _uniforms, thread half2& h2) {
+    half2 _var0;
     out_half2_vh2(_uniforms, _var0);
     h2 = _var0;
 }
-void out_half3_vh3(Uniforms _uniforms, thread float3& v);
-void _skOutParamHelper2_out_half3_vh3(Uniforms _uniforms, thread float3& h3) {
-    float3 _var0;
+void out_half3_vh3(Uniforms _uniforms, thread half3& v);
+void _skOutParamHelper2_out_half3_vh3(Uniforms _uniforms, thread half3& h3) {
+    half3 _var0;
     out_half3_vh3(_uniforms, _var0);
     h3 = _var0;
 }
-void out_half4_vh4(Uniforms _uniforms, thread float4& v);
-void _skOutParamHelper3_out_half4_vh4(Uniforms _uniforms, thread float4& h4) {
-    float4 _var0;
+void out_half4_vh4(Uniforms _uniforms, thread half4& v);
+void _skOutParamHelper3_out_half4_vh4(Uniforms _uniforms, thread half4& h4) {
+    half4 _var0;
     out_half4_vh4(_uniforms, _var0);
     h4 = _var0;
 }
-void out_half_vh(Uniforms _uniforms, thread float& v);
-void _skOutParamHelper4_out_half_vh(Uniforms _uniforms, thread float3& h3) {
-    float _var0;
+void out_half_vh(Uniforms _uniforms, thread half& v);
+void _skOutParamHelper4_out_half_vh(Uniforms _uniforms, thread half3& h3) {
+    half _var0;
     out_half_vh(_uniforms, _var0);
     h3.y = _var0;
 }
-void out_half2_vh2(Uniforms _uniforms, thread float2& v);
-void _skOutParamHelper5_out_half2_vh2(Uniforms _uniforms, thread float3& h3) {
-    float2 _var0;
+void out_half2_vh2(Uniforms _uniforms, thread half2& v);
+void _skOutParamHelper5_out_half2_vh2(Uniforms _uniforms, thread half3& h3) {
+    half2 _var0;
     out_half2_vh2(_uniforms, _var0);
     h3.xz = _var0;
 }
-void out_half4_vh4(Uniforms _uniforms, thread float4& v);
-void _skOutParamHelper6_out_half4_vh4(Uniforms _uniforms, thread float4& h4) {
-    float4 _var0;
+void out_half4_vh4(Uniforms _uniforms, thread half4& v);
+void _skOutParamHelper6_out_half4_vh4(Uniforms _uniforms, thread half4& h4) {
+    half4 _var0;
     out_half4_vh4(_uniforms, _var0);
     h4.zwxy = _var0;
 }
-void out_half2x2_vh22(Uniforms _uniforms, thread float2x2& v);
-void _skOutParamHelper7_out_half2x2_vh22(Uniforms _uniforms, thread float2x2& h2x2) {
-    float2x2 _var0;
+void out_half2x2_vh22(Uniforms _uniforms, thread half2x2& v);
+void _skOutParamHelper7_out_half2x2_vh22(Uniforms _uniforms, thread half2x2& h2x2) {
+    half2x2 _var0;
     out_half2x2_vh22(_uniforms, _var0);
     h2x2 = _var0;
 }
-void out_half3x3_vh33(Uniforms _uniforms, thread float3x3& v);
-void _skOutParamHelper8_out_half3x3_vh33(Uniforms _uniforms, thread float3x3& h3x3) {
-    float3x3 _var0;
+void out_half3x3_vh33(Uniforms _uniforms, thread half3x3& v);
+void _skOutParamHelper8_out_half3x3_vh33(Uniforms _uniforms, thread half3x3& h3x3) {
+    half3x3 _var0;
     out_half3x3_vh33(_uniforms, _var0);
     h3x3 = _var0;
 }
-void out_half4x4_vh44(Uniforms _uniforms, thread float4x4& v);
-void _skOutParamHelper9_out_half4x4_vh44(Uniforms _uniforms, thread float4x4& h4x4) {
-    float4x4 _var0;
+void out_half4x4_vh44(Uniforms _uniforms, thread half4x4& v);
+void _skOutParamHelper9_out_half4x4_vh44(Uniforms _uniforms, thread half4x4& h4x4) {
+    half4x4 _var0;
     out_half4x4_vh44(_uniforms, _var0);
     h4x4 = _var0;
 }
-void out_half3_vh3(Uniforms _uniforms, thread float3& v);
-void _skOutParamHelper10_out_half3_vh3(Uniforms _uniforms, thread float3x3& h3x3) {
-    float3 _var0;
+void out_half3_vh3(Uniforms _uniforms, thread half3& v);
+void _skOutParamHelper10_out_half3_vh3(Uniforms _uniforms, thread half3x3& h3x3) {
+    half3 _var0;
     out_half3_vh3(_uniforms, _var0);
     h3x3[1] = _var0;
 }
-void out_half_vh(Uniforms _uniforms, thread float& v);
-void _skOutParamHelper11_out_half_vh(Uniforms _uniforms, thread float4x4& h4x4) {
-    float _var0;
+void out_half_vh(Uniforms _uniforms, thread half& v);
+void _skOutParamHelper11_out_half_vh(Uniforms _uniforms, thread half4x4& h4x4) {
+    half _var0;
     out_half_vh(_uniforms, _var0);
     h4x4[3].w = _var0;
 }
-void out_half_vh(Uniforms _uniforms, thread float& v);
-void _skOutParamHelper12_out_half_vh(Uniforms _uniforms, thread float2x2& h2x2) {
-    float _var0;
+void out_half_vh(Uniforms _uniforms, thread half& v);
+void _skOutParamHelper12_out_half_vh(Uniforms _uniforms, thread half2x2& h2x2) {
+    half _var0;
     out_half_vh(_uniforms, _var0);
     h2x2[0].x = _var0;
 }
@@ -221,26 +221,26 @@ void _skOutParamHelper34_out_bool_vb(Uniforms _uniforms, thread bool3& b3) {
     out_bool_vb(_uniforms, _var0);
     b3.z = _var0;
 }
-void out_half_vh(Uniforms _uniforms, thread float& v) {
+void out_half_vh(Uniforms _uniforms, thread half& v) {
     v = _uniforms.colorWhite.x;
 }
-void out_half2_vh2(Uniforms _uniforms, thread float2& v) {
-    v = float2(_uniforms.colorWhite.y);
+void out_half2_vh2(Uniforms _uniforms, thread half2& v) {
+    v = half2(_uniforms.colorWhite.y);
 }
-void out_half3_vh3(Uniforms _uniforms, thread float3& v) {
-    v = float3(_uniforms.colorWhite.z);
+void out_half3_vh3(Uniforms _uniforms, thread half3& v) {
+    v = half3(_uniforms.colorWhite.z);
 }
-void out_half4_vh4(Uniforms _uniforms, thread float4& v) {
-    v = float4(_uniforms.colorWhite.w);
+void out_half4_vh4(Uniforms _uniforms, thread half4& v) {
+    v = half4(_uniforms.colorWhite.w);
 }
-void out_half2x2_vh22(Uniforms _uniforms, thread float2x2& v) {
-    v = float2x2(_uniforms.colorWhite.x);
+void out_half2x2_vh22(Uniforms _uniforms, thread half2x2& v) {
+    v = half2x2(_uniforms.colorWhite.x);
 }
-void out_half3x3_vh33(Uniforms _uniforms, thread float3x3& v) {
-    v = float3x3(_uniforms.colorWhite.y);
+void out_half3x3_vh33(Uniforms _uniforms, thread half3x3& v) {
+    v = half3x3(_uniforms.colorWhite.y);
 }
-void out_half4x4_vh44(Uniforms _uniforms, thread float4x4& v) {
-    v = float4x4(_uniforms.colorWhite.z);
+void out_half4x4_vh44(Uniforms _uniforms, thread half4x4& v) {
+    v = half4x4(_uniforms.colorWhite.z);
 }
 void out_int_vi(Uniforms _uniforms, thread int& v) {
     v = int(_uniforms.colorWhite.x);
@@ -255,25 +255,25 @@ void out_int4_vi4(Uniforms _uniforms, thread int4& v) {
     v = int4(int(_uniforms.colorWhite.w));
 }
 void out_float_vf(Uniforms _uniforms, thread float& v) {
-    v = _uniforms.colorWhite.x;
+    v = float(_uniforms.colorWhite.x);
 }
 void out_float2_vf2(Uniforms _uniforms, thread float2& v) {
-    v = float2(_uniforms.colorWhite.y);
+    v = float2(float(_uniforms.colorWhite.y));
 }
 void out_float3_vf3(Uniforms _uniforms, thread float3& v) {
-    v = float3(_uniforms.colorWhite.z);
+    v = float3(float(_uniforms.colorWhite.z));
 }
 void out_float4_vf4(Uniforms _uniforms, thread float4& v) {
-    v = float4(_uniforms.colorWhite.w);
+    v = float4(float(_uniforms.colorWhite.w));
 }
 void out_float2x2_vf22(Uniforms _uniforms, thread float2x2& v) {
-    v = float2x2(_uniforms.colorWhite.x);
+    v = float2x2(float(_uniforms.colorWhite.x));
 }
 void out_float3x3_vf33(Uniforms _uniforms, thread float3x3& v) {
-    v = float3x3(_uniforms.colorWhite.y);
+    v = float3x3(float(_uniforms.colorWhite.y));
 }
 void out_float4x4_vf44(Uniforms _uniforms, thread float4x4& v) {
-    v = float4x4(_uniforms.colorWhite.z);
+    v = float4x4(float(_uniforms.colorWhite.z));
 }
 void out_bool_vb(Uniforms _uniforms, thread bool& v) {
     v = bool(_uniforms.colorWhite.x);
@@ -290,22 +290,22 @@ void out_bool4_vb4(Uniforms _uniforms, thread bool4& v) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float h;
+    half h;
     _skOutParamHelper0_out_half_vh(_uniforms, h);
-    float2 h2;
+    half2 h2;
     _skOutParamHelper1_out_half2_vh2(_uniforms, h2);
-    float3 h3;
+    half3 h3;
     _skOutParamHelper2_out_half3_vh3(_uniforms, h3);
-    float4 h4;
+    half4 h4;
     _skOutParamHelper3_out_half4_vh4(_uniforms, h4);
     _skOutParamHelper4_out_half_vh(_uniforms, h3);
     _skOutParamHelper5_out_half2_vh2(_uniforms, h3);
     _skOutParamHelper6_out_half4_vh4(_uniforms, h4);
-    float2x2 h2x2;
+    half2x2 h2x2;
     _skOutParamHelper7_out_half2x2_vh22(_uniforms, h2x2);
-    float3x3 h3x3;
+    half3x3 h3x3;
     _skOutParamHelper8_out_half3x3_vh33(_uniforms, h3x3);
-    float4x4 h4x4;
+    half4x4 h4x4;
     _skOutParamHelper9_out_half4x4_vh44(_uniforms, h4x4);
     _skOutParamHelper10_out_half3_vh3(_uniforms, h3x3);
     _skOutParamHelper11_out_half_vh(_uniforms, h4x4);
@@ -348,7 +348,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _skOutParamHelper33_out_bool2_vb2(_uniforms, b4);
     _skOutParamHelper34_out_bool_vb(_uniforms, b3);
     bool ok = true;
-    ok = ok && 1.0 == (((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x;
+    ok = ok && 1.0h == (((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x;
     ok = ok && 1.0 == (((((f * f2.x) * f3.x) * f4.x) * f2x2[0].x) * f3x3[0].x) * f4x4[0].x;
     ok = ok && 1 == ((i * i2.x) * i3.x) * i4.x;
     ok = ok && (((b && b2.x) && b3.x) && b4.x);

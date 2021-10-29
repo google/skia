@@ -2,31 +2,31 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
-float4 unpremul_h4h4(float4 color) {
-    return float4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
+half4 unpremul_h4h4(half4 color) {
+    return half4(color.xyz / max(color.w, 9.9999997473787516e-05h), color.w);
 }
-float4 live_fn_h4h4h4(float4 a, float4 b) {
+half4 live_fn_h4h4h4(half4 a, half4 b) {
     return a + b;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 a;
-    float4 b;
+    half4 a;
+    half4 b;
     {
-        a = live_fn_h4h4h4(float4(3.0), float4(-5.0));
+        a = live_fn_h4h4h4(half4(3.0h), half4(-5.0h));
     }
     {
-        b = unpremul_h4h4(float4(1.0));
+        b = unpremul_h4h4(half4(1.0h));
     }
-    _out.sk_FragColor = any(a != float4(0.0)) && any(b != float4(0.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = any(a != half4(0.0h)) && any(b != half4(0.0h)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

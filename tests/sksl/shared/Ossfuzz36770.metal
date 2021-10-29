@@ -4,7 +4,7 @@ using namespace metal;
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 struct T {
     int x;

@@ -6,13 +6,13 @@ struct S {
     int y;
 };
 struct Uniforms {
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 
 template <typename T1, typename T2, size_t N>
@@ -20,8 +20,8 @@ bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& righ
 template <typename T1, typename T2, size_t N>
 bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right);
 
-thread bool operator==(const float2x2 left, const float2x2 right);
-thread bool operator!=(const float2x2 left, const float2x2 right);
+thread bool operator==(const half2x2 left, const half2x2 right);
+thread bool operator!=(const half2x2 left, const half2x2 right);
 
 thread bool operator==(thread const S& left, thread const S& right);
 thread bool operator!=(thread const S& left, thread const S& right);
@@ -40,11 +40,11 @@ template <typename T1, typename T2, size_t N>
 bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right) {
     return !(left == right);
 }
-thread bool operator==(const float2x2 left, const float2x2 right) {
+thread bool operator==(const half2x2 left, const half2x2 right) {
     return all(left[0] == right[0]) &&
            all(left[1] == right[1]);
 }
-thread bool operator!=(const float2x2 left, const float2x2 right) {
+thread bool operator!=(const half2x2 left, const half2x2 right) {
     return !(left == right);
 }
 thread bool operator==(thread const S& left, thread const S& right) {
@@ -63,9 +63,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     array<int3, 2> v1 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, 6)};
     array<int3, 2> v2 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, 6)};
     array<int3, 2> v3 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, -6)};
-    array<float2x2, 3> m1 = array<float2x2, 3>{float2x2(1.0), float2x2(2.0), float2x2(float2(3.0, 4.0), float2(5.0, 6.0))};
-    array<float2x2, 3> m2 = array<float2x2, 3>{float2x2(1.0), float2x2(2.0), float2x2(float2(3.0, 4.0), float2(5.0, 6.0))};
-    array<float2x2, 3> m3 = array<float2x2, 3>{float2x2(1.0), float2x2(float2(2.0, 3.0), float2(4.0, 5.0)), float2x2(6.0)};
+    array<half2x2, 3> m1 = array<half2x2, 3>{half2x2(1.0h), half2x2(2.0h), half2x2(half2(3.0h, 4.0h), half2(5.0h, 6.0h))};
+    array<half2x2, 3> m2 = array<half2x2, 3>{half2x2(1.0h), half2x2(2.0h), half2x2(half2(3.0h, 4.0h), half2(5.0h, 6.0h))};
+    array<half2x2, 3> m3 = array<half2x2, 3>{half2x2(1.0h), half2x2(half2(2.0h, 3.0h), half2(4.0h, 5.0h)), half2x2(6.0h)};
     array<S, 3> s1 = array<S, 3>{S{1, 2}, S{3, 4}, S{5, 6}};
     array<S, 3> s2 = array<S, 3>{S{1, 2}, S{0, 0}, S{5, 6}};
     array<S, 3> s3 = array<S, 3>{S{1, 2}, S{3, 4}, S{5, 6}};

@@ -34,6 +34,8 @@ GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoAr
         uniform.fType = uniformInfo.fVariable.getType();
         ++i;
     }
+
+    fWrite16BitUniforms = true;
 }
 
 void GrMtlPipelineStateDataManager::set1iv(UniformHandle u,
