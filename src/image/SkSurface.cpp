@@ -123,13 +123,9 @@ bool SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
         // on the image (besides us).
         bool unique = fCachedImage->unique();
         if (!unique) {
-#ifdef SK_SURFACE_COPY_ON_WRITE_CRASHES
-            this->onCopyOnWrite(mode);
-#else
             if (!this->onCopyOnWrite(mode)) {
                 return false;
             }
-#endif
         }
 
         // regardless of copy-on-write, we must drop our cached image now, so
@@ -380,11 +376,7 @@ protected:
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subsetOrNull) override { return nullptr; }
     void onWritePixels(const SkPixmap&, int x, int y) override {}
     void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override {}
-#ifdef SK_SURFACE_COPY_ON_WRITE_CRASHES
-    void onCopyOnWrite(ContentChangeMode) override {}
-#else
     bool onCopyOnWrite(ContentChangeMode) override { return true; }
-#endif
 };
 
 sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {

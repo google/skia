@@ -23,11 +23,7 @@ public:
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
-#ifdef SK_SURFACE_COPY_ON_WRITE_CRASHES
-    void onCopyOnWrite(ContentChangeMode) override;
-#else
     bool onCopyOnWrite(ContentChangeMode) override;
-#endif
 
 private:
     sk_sp<Device> fDevice;

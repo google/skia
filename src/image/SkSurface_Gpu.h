@@ -44,11 +44,7 @@ public:
                                            RescaleMode,
                                            ReadPixelsCallback callback,
                                            ReadPixelsContext context) override;
-#ifdef SK_SURFACE_COPY_ON_WRITE_CRASHES
-    void onCopyOnWrite(ContentChangeMode) override;
-#else
     bool onCopyOnWrite(ContentChangeMode) override;
-#endif
     void onDiscard() override;
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
                                   const GrBackendSurfaceMutableState*) override;

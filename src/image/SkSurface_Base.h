@@ -97,11 +97,7 @@ public:
      *
      *  Returns false if the backing cannot be un-shared.
      */
-#ifdef SK_SURFACE_COPY_ON_WRITE_CRASHES
-    virtual void onCopyOnWrite(ContentChangeMode) = 0;
-#else
     virtual bool SK_WARN_UNUSED_RESULT onCopyOnWrite(ContentChangeMode) = 0;
-#endif
 
     /**
      *  Signal the surface to remind its backing store that it's mutable again.
