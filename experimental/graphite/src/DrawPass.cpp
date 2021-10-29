@@ -9,12 +9,14 @@
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "experimental/graphite/src/ContextUtils.h"
+#include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/ProgramCache.h"
 #include "experimental/graphite/src/Recorder.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/TextureProxy.h"
+#include "experimental/graphite/src/UniformCache.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
 
 #include "src/core/SkMathPriv.h"
@@ -72,14 +74,16 @@ class DrawPass::SortKey {
 public:
     SortKey(const DrawList::Draw* draw,
             int renderStep,
-            int pipelineIndex,
-            int geomUniformIndex,
-            int shadingUniformIndex)
+            uint32_t pipelineIndex,
+            uint32_t geomUniformIndex,
+            uint32_t shadingUniformIndex)
         : fPipelineKey{draw->fOrder.paintOrder().bits(),
                        draw->fOrder.stencilIndex().bits(),
                        static_cast<uint32_t>(renderStep),
-                       static_cast<uint32_t>(pipelineIndex)}
-        , fUniformKey{geomUniformIndex, shadingUniformIndex} {}
+                       pipelineIndex}
+        , fUniformKey{geomUniformIndex, shadingUniformIndex}
+        , fDraw(draw) {
+    }
 
     bool operator<(const SortKey& k) const {
         uint64_t k1 = this->pipelineKey();
@@ -88,11 +92,11 @@ public:
     }
 
     const DrawList::Draw* draw() const { return fDraw; }
-    int pipeline() const { return static_cast<int>(fPipelineKey.fPipeline); }
+    uint32_t pipeline() const { return fPipelineKey.fPipeline; }
     int renderStep() const { return static_cast<int>(fPipelineKey.fRenderStep); }
 
-    int geometryUniforms() const { return static_cast<int>(fUniformKey.fGeometryIndex); }
-    int shadingUniforms() const { return static_cast<int>(fUniformKey.fShadingIndex); }
+    uint32_t geometryUniforms() const { return fUniformKey.fGeometryIndex; }
+    uint32_t shadingUniforms() const { return fUniformKey.fShadingIndex; }
 
 private:
     // Fields are ordered from most-significant to lowest when sorting by 128-bit value.
@@ -106,8 +110,8 @@ private:
     uint64_t pipelineKey() const { return sk_bit_cast<uint64_t>(fPipelineKey); }
 
     struct {
-        int32_t fGeometryIndex; // bits >= log2(max steps * max draw count)
-        int32_t fShadingIndex;  //  ""
+        uint32_t fGeometryIndex; // bits >= log2(max steps * max draw count)
+        uint32_t fShadingIndex;  //  ""
     } fUniformKey;
 
     uint64_t uniformKey() const { return sk_bit_cast<uint64_t>(fUniformKey); }
@@ -122,6 +126,16 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+skgpu::UniformData* lookup(skgpu::Recorder* recorder, uint32_t uniformID) {
+    // TODO: just return a raw 'UniformData*' here
+    sk_sp<skgpu::UniformData> tmp = recorder->uniformCache()->lookup(uniformID);
+    return tmp.get();
+}
+
+} // anonymous namespace
 
 DrawPass::DrawPass(sk_sp<TextureProxy> target, const SkIRect& bounds,
                    bool requiresStencil, bool requiresMSAA)
@@ -169,10 +183,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // bound independently of those used by the rest of the RenderStep, then we can upload now
         // and remember the location for re-use on any RenderStep that does shading.
         uint32_t programID = ProgramCache::kInvalidProgramID;
-        uint32_t shadingID = UniformData::kInvalidUniformID;
+        uint32_t shadingUniformID = UniformData::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
-            std::tie(programID, shadingID) = get_ids_from_paint(recorder,
-                                                                draw.fPaintParams.value());
+            std::tie(programID, shadingUniformID) = get_ids_from_paint(recorder,
+                                                                       draw.fPaintParams.value());
         }
 
         for (int stepIndex = 0; stepIndex < draw.fRenderer.numRenderSteps(); ++stepIndex) {
@@ -180,19 +194,19 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
             // TODO ask step to generate a pipeline description based on the above shading code, and
             // have pipelineIndex point to that description in the accumulated list of descs
-            int pipelineIndex = 0;
+            uint32_t pipelineIndex = 0;
             // TODO step writes out geometry uniforms and have geomIndex point to that buffer data,
             // providing shape, transform, scissor, and paint depth to RenderStep
-            int geometryIndex = 0;
+            uint32_t geometryIndex = 0;
 
-            int shadingIndex = -1;
+            uint32_t shadingIndex = UniformData::kInvalidUniformID;
 
             const bool performsShading = draw.fPaintParams.has_value() && step->performsShading();
             if (performsShading) {
                 // TODO: we need to combine the 'programID' with the RenderPass info and the
                 // geometric rendering method to get the true 'pipelineIndex'
                 pipelineIndex = programID;
-                shadingIndex = shadingID;
+                shadingIndex = shadingUniformID;
             } else {
                 // TODO: fill in 'pipelineIndex' for Chris' stencil/depth draws
             }
@@ -214,9 +228,11 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // bugs in the DrawOrder determination code?
     std::sort(keys.begin(), keys.end());
 
-    int lastPipeline = -1;
-    int lastShadingUniforms = -1;
-    int lastGeometryUniforms = -1;
+    DrawBufferManager* bufferMgr = recorder->drawBufferManager();
+
+    uint32_t lastPipeline = 0;
+    uint32_t lastShadingUniforms = UniformData::kInvalidUniformID;
+    uint32_t lastGeometryUniforms = 0;
     SkIRect lastScissor = SkIRect::MakeSize(target->dimensions());
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = *key.draw();
@@ -231,16 +247,20 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         if (key.pipeline() != lastPipeline) {
             // TODO: Look up pipeline description from key's index and record binding it
             lastPipeline = key.pipeline();
-            lastShadingUniforms = -1;
-            lastGeometryUniforms = -1;
+            lastShadingUniforms = UniformData::kInvalidUniformID;
+            lastGeometryUniforms = 0;
         }
         if (key.geometryUniforms() != lastGeometryUniforms) {
             // TODO: Look up uniform buffer binding info corresponding to key's index and record it
             lastGeometryUniforms = key.geometryUniforms();
         }
         if (key.shadingUniforms() != lastShadingUniforms) {
-            // TODO: As above, but for shading uniforms (assuming we have two descriptor
-            // sets for the different uniform sources).)
+            auto ud = lookup(recorder, key.shadingUniforms());
+
+            auto [writer, bufferInfo] = bufferMgr->getUniformWriter(ud->dataSize());
+            writer.write(ud->data(), ud->dataSize());
+            // TODO: recording 'bufferInfo' somewhere to allow a later uniform bind call
+
             lastShadingUniforms = key.shadingUniforms();
         }
 

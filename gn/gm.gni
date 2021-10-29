@@ -198,6 +198,7 @@ gm_sources = [
   "$_gm/gradients_degenerate.cpp",
   "$_gm/gradients_no_texture.cpp",
   "$_gm/gradtext.cpp",
+  "$_gm/graphitestart.cpp",
   "$_gm/grayscalejpg.cpp",
   "$_gm/hairlines.cpp",
   "$_gm/hairmodes.cpp",

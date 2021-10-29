@@ -41,8 +41,8 @@ protected:
 
     bool onClipIsAA() const override { return false; }
     bool onClipIsWideOpen() const override { return false; }
-    ClipType onGetClipType() const override { return ClipType::kEmpty; }
-    SkIRect onDevClipBounds() const override { return {}; }
+    ClipType onGetClipType() const override { return ClipType::kRect; }
+    SkIRect onDevClipBounds() const override;
 
     void onClipRect(const SkRect& rect, SkClipOp, bool aa) override {}
     void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override {}

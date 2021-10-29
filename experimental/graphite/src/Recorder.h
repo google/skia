@@ -14,6 +14,7 @@
 namespace skgpu {
 
 class Context;
+class DrawBufferManager;
 class ProgramCache;
 class Recording;
 class UniformCache;
@@ -28,6 +29,7 @@ public:
     Context* context() const;
     ProgramCache* programCache();
     UniformCache* uniformCache();
+    DrawBufferManager* drawBufferManager();
 
     std::unique_ptr<Recording> snap();
 
@@ -37,6 +39,7 @@ private:
     TaskGraph fGraph;
     std::unique_ptr<ProgramCache> fProgramCache;
     std::unique_ptr<UniformCache> fUniformCache;
+    std::unique_ptr<DrawBufferManager> fDrawBufferManager;
 };
 
 } // namespace skgpu

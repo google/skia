@@ -137,6 +137,11 @@ bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
     return true;
 }
 
+SkIRect Device::onDevClipBounds() const {
+    auto target = fDC->target();
+    return SkIRect::MakeSize(target->dimensions());
+}
+
 void Device::drawPaint(const SkPaint& paint) {
     SkRect deviceBounds = SkRect::Make(this->devClipBounds());
     // TODO: Should be able to get the inverse from the matrix cache
@@ -194,7 +199,7 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
         SkStrokeRec stroke(paint, SkPaint::kStroke_Style);
         size_t inc = (mode == SkCanvas::kLines_PointMode) ? 2 : 1;
         for (size_t i = 0; i < count; i += inc) {
-            this->drawShape(Shape(points[i], points[i + 1]), paint, stroke);
+            this->drawShape(Shape(points[i], points[(i + 1) % count]), paint, stroke);
         }
     }
 }
