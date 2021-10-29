@@ -7,11 +7,14 @@
 
 #include "src/gpu/GrUniformDataManager.h"
 
+#include "include/private/SkHalf.h"
 #include "src/gpu/GrShaderVar.h"
 
 // ensure that these types are the sizes the uniform data is expecting
 static_assert(sizeof(int32_t) == 4);
 static_assert(sizeof(float) == 4);
+static_assert(sizeof(short) == 2);
+static_assert(sizeof(SkHalf) == 2);
 
 GrUniformDataManager::GrUniformDataManager(uint32_t uniformCount, uint32_t uniformSize)
     : fUniformSize(uniformSize)
@@ -26,13 +29,64 @@ void* GrUniformDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
     return static_cast<char*>(fUniformData.get()) + uni.fOffset;
 }
 
+int GrUniformDataManager::copyUniforms(void* dest,
+                                       const void* src,
+                                       int numUniforms,
+                                       GrSLType uniformType) const {
+    if (fWrite16BitUniforms) {
+        switch (uniformType) {
+            case kHalf_GrSLType:
+            case kHalf2_GrSLType:
+            case kHalf3_GrSLType:
+            case kHalf4_GrSLType:
+            case kHalf2x2_GrSLType:
+            case kHalf3x3_GrSLType:
+            case kHalf4x4_GrSLType: {
+                const float* floatBits = static_cast<const float*>(src);
+                SkHalf* halfBits = static_cast<SkHalf*>(dest);
+                while (numUniforms-- > 0) {
+                    *halfBits++ = SkFloatToHalf(*floatBits++);
+                }
+                return 2;
+            }
+
+            case kShort_GrSLType:
+            case kShort2_GrSLType:
+            case kShort3_GrSLType:
+            case kShort4_GrSLType:
+            case kUShort_GrSLType:
+            case kUShort2_GrSLType:
+            case kUShort3_GrSLType:
+            case kUShort4_GrSLType: {
+                const int32_t* intBits = static_cast<const int32_t*>(src);
+                short* shortBits = static_cast<short*>(dest);
+                while (numUniforms-- > 0) {
+                    *shortBits++ = (short)(*intBits++);
+                }
+                return 2;
+            }
+
+            default:
+                // Fall through to memcpy below.
+                break;
+        }
+    }
+
+    memcpy(dest, src, numUniforms * 4);
+    return 4;
+}
+
+static void* advance_buffer(void* buffer, int numUniforms, int uniformSize) {
+    return static_cast<char*>(buffer) + (uniformSize * numUniforms);
+}
+
 template <int N, GrSLType FullType, GrSLType HalfType>
 void GrUniformDataManager::set(UniformHandle u, const void* v) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == FullType || uni.fType == HalfType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
-    memcpy(buffer, v, N * 4);
+    this->copyUniforms(buffer, v, N, uni.fType);
 }
 
 template <int N, GrSLType FullType, GrSLType HalfType>
@@ -45,12 +99,11 @@ void GrUniformDataManager::setv(UniformHandle u, int arrayCount, const void* v) 
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     if constexpr (N == 4) {
-        memcpy(buffer, v, arrayCount * 16);
-    }
-    else {
+        this->copyUniforms(buffer, v, arrayCount * 4, uni.fType);
+    } else {
         for (int i = 0; i < arrayCount; ++i) {
-            memcpy(buffer, v, N * 4);
-            buffer = static_cast<char*>(buffer) + 16;
+            int uniformSize = this->copyUniforms(buffer, v, N, uni.fType);
+            buffer = advance_buffer(buffer, /*numUniforms=*/4, uniformSize);
             v = static_cast<const char*>(v) + N * 4;
         }
     }
@@ -154,48 +207,48 @@ void GrUniformDataManager::set4fv(UniformHandle u,
 }
 
 void GrUniformDataManager::setMatrix2f(UniformHandle u, const float matrix[]) const {
-    this->setMatrices<2>(u, 1, matrix);
+    this->setMatrices<2, kFloat2x2_GrSLType, kHalf2x2_GrSLType>(u, 1, matrix);
 }
 
 void GrUniformDataManager::setMatrix2fv(UniformHandle u, int arrayCount, const float m[]) const {
-    this->setMatrices<2>(u, arrayCount, m);
+    this->setMatrices<2, kFloat2x2_GrSLType, kHalf2x2_GrSLType>(u, arrayCount, m);
 }
 
 void GrUniformDataManager::setMatrix3f(UniformHandle u, const float matrix[]) const {
-    this->setMatrices<3>(u, 1, matrix);
+    this->setMatrices<3, kFloat3x3_GrSLType, kHalf3x3_GrSLType>(u, 1, matrix);
 }
 
 void GrUniformDataManager::setMatrix3fv(UniformHandle u, int arrayCount, const float m[]) const {
-    this->setMatrices<3>(u, arrayCount, m);
+    this->setMatrices<3, kFloat3x3_GrSLType, kHalf3x3_GrSLType>(u, arrayCount, m);
 }
 
 void GrUniformDataManager::setMatrix4f(UniformHandle u, const float matrix[]) const {
-    this->setMatrices<4>(u, 1, matrix);
+    this->setMatrices<4, kFloat4x4_GrSLType, kHalf4x4_GrSLType>(u, 1, matrix);
 }
 
 void GrUniformDataManager::setMatrix4fv(UniformHandle u, int arrayCount, const float m[]) const {
-    this->setMatrices<4>(u, arrayCount, m);
+    this->setMatrices<4, kFloat4x4_GrSLType, kHalf4x4_GrSLType>(u, arrayCount, m);
 }
 
-template <int N> inline void GrUniformDataManager::setMatrices(UniformHandle u,
-                                                               int arrayCount,
-                                                               const float matrices[]) const {
+template <int N, GrSLType FullType, GrSLType HalfType>
+inline void GrUniformDataManager::setMatrices(UniformHandle u,
+                                              int arrayCount,
+                                              const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat2x2_GrSLType + (N - 2) ||
-             uni.fType == kHalf2x2_GrSLType + (N - 2));
+    SkASSERT(uni.fType == FullType || uni.fType == HalfType);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     if constexpr (N == 4) {
-        memcpy(buffer, matrices, arrayCount * 16 * sizeof(float));
+        this->copyUniforms(buffer, matrices, arrayCount * 16, uni.fType);
     } else {
         for (int i = 0; i < arrayCount; ++i) {
             const float* matrix = &matrices[N * N * i];
             for (int j = 0; j < N; ++j) {
-                memcpy(buffer, &matrix[j * N], N * sizeof(float));
-                buffer = static_cast<char*>(buffer) + 4 * sizeof(float);
+                int uniformSize = this->copyUniforms(buffer, &matrix[j * N], N, uni.fType);
+                buffer = advance_buffer(buffer, /*numUniforms=*/4, uniformSize);
             }
         }
     }

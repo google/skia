@@ -39,11 +39,11 @@ public:
     void set4iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
     void set4f(UniformHandle, float, float, float, float) const override;
     void set4fv(UniformHandle, int arrayCount, const float v[]) const override;
-    // matrices are column-major, the first two upload a single matrix, the latter two upload
-    // arrayCount matrices into a uniform array.
+    // Matrices are column-major. The following three calls upload a single matrix into a uniform.
     void setMatrix2f(UniformHandle, const float matrix[]) const override;
     void setMatrix3f(UniformHandle, const float matrix[]) const override;
     void setMatrix4f(UniformHandle, const float matrix[]) const override;
+    // These three calls upload arrayCount matrices into a uniform array.
     void setMatrix2fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
@@ -60,22 +60,24 @@ protected:
         );
     };
 
+    int copyUniforms(void* dest, const void* src, int numUniforms, GrSLType uniformType) const;
+
     template <int N, GrSLType kFullType, GrSLType kHalfType>
     inline void set(UniformHandle u, const void* v) const;
     template <int N, GrSLType kFullType, GrSLType kHalfType>
     inline void setv(UniformHandle u, int arrayCount, const void* v) const;
-
-    template <int N> inline void setMatrices(UniformHandle, int arrayCount,
-                                             const float matrices[]) const;
+    template <int N, GrSLType FullType, GrSLType HalfType>
+    inline void setMatrices(UniformHandle, int arrayCount, const float matrices[]) const;
 
     void* getBufferPtrAndMarkDirty(const Uniform& uni) const;
 
     uint32_t fUniformSize;
+    bool fWrite16BitUniforms = false;
 
     SkTArray<Uniform, true> fUniforms;
 
     mutable SkAutoMalloc fUniformData;
-    mutable bool         fUniformsDirty;
+    mutable bool         fUniformsDirty = false;
 };
 
 #endif
