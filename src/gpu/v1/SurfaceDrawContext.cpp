@@ -335,9 +335,8 @@ void SurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
     drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
     GrSubRunAllocator* const alloc = this->subRunAlloc();
 
+    GrSubRunNoCachePainter painter{this, alloc, clip, viewMatrix, glyphRunList, paint};
     for (auto& glyphRun : glyphRunList) {
-        GrSubRunNoCachePainter painter{this, alloc, clip, viewMatrix, glyphRunList, paint};
-
         // Make and add the text ops.
         fGlyphPainter.processGlyphRun(glyphRun,
                                       drawMatrix,
