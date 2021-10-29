@@ -39,10 +39,9 @@ public:
                                       const GrCaps&);
 
     void prepare(GrMeshDrawTarget* target,
-                 const SkRect& cullBounds,
                  const PathDrawList& pathDrawList,
                  int totalCombinedPathVerbCnt) override {
-        this->prepare(target, cullBounds, pathDrawList, totalCombinedPathVerbCnt, nullptr);
+        this->prepare(target, pathDrawList, totalCombinedPathVerbCnt, nullptr);
     }
 
     // Implements PathTessellator::prepare(), also sending an additional list of breadcrumb
@@ -51,7 +50,6 @@ public:
     // ALSO NOTE: The breadcrumb triangles do not have a matrix. These need to be pre-transformed by
     // the caller if a CPU-side transformation is desired.
     void prepare(GrMeshDrawTarget*,
-                 const SkRect& cullBounds,
                  const PathDrawList&,
                  int totalCombinedPathVerbCnt,
                  const BreadcrumbTriangleList*);

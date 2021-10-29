@@ -11,8 +11,9 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkVx.h"
 
-class SkPath;
 class SkMatrix;
+class SkPath;
+struct SkRect;
 
 namespace skgpu {
 
@@ -44,9 +45,21 @@ SK_MAYBE_UNUSED SK_ALWAYS_INLINE float cross(float2 a, float2 b) {
     return x[0] - x[1];
 }
 
-// Writes out the path's inner fan using a middle-out topology. Writes 3 SkPoints per triangle to
-// the VertexWriter. Additionally writes out "pad32Count" repetitions of "pad32Value" after each
-// triangle. Set pad32Count to 0 if the triangles are to be tightly packed.
+SK_MAYBE_UNUSED constexpr SK_ALWAYS_INLINE float pow2(float x) { return x*x; }
+SK_MAYBE_UNUSED constexpr SK_ALWAYS_INLINE float pow4(float x) { return pow2(x*x); }
+
+// Don't tessellate paths that might have an individual curve that requires more than 1024 segments.
+// (See wangs_formula::worst_case_cubic). If this is the case, call "PreChopPathCurves" first.
+constexpr static float kMaxTessellationSegmentsPerCurve SK_MAYBE_UNUSED = 1024;
+
+// Returns a new path, equivalent to 'path' within the given viewport, whose verbs can all be drawn
+// with 'maxSegments' tessellation segments or fewer. Curves and chops that fall completely outside
+// the viewport are flattened into lines.
+SkPath PreChopPathCurves(const SkPath&, const SkMatrix&, const SkRect& viewport);
+
+// Writes out the path's inner fan using a middle-out topology. Writes 3 points per triangle.
+// Additionally writes out "pad32Count" repetitions of "pad32Value" after each triangle. Set
+// pad32Count to 0 if the triangles are to be tightly packed.
 VertexWriter WritePathMiddleOutInnerFan(VertexWriter&&,
                                         int pad32Count,
                                         uint32_t pad32Value,

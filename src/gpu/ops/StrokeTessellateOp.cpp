@@ -54,15 +54,15 @@ StrokeTessellateOp::StrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatr
     SkRect devBounds = path.getBounds();
     if (!this->headStroke().isHairlineStyle()) {
         // Non-hairlines inflate in local path space (pre-transform).
-        fInflationRadius = stroke.getInflationRadius();
-        devBounds.outset(fInflationRadius, fInflationRadius);
+        float r = stroke.getInflationRadius();
+        devBounds.outset(r, r);
     }
     viewMatrix.mapRect(&devBounds, devBounds);
     if (this->headStroke().isHairlineStyle()) {
         // Hairlines inflate in device space (post-transform).
-        fInflationRadius = SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
-                                                           stroke.getCap(), 1);
-        devBounds.outset(fInflationRadius, fInflationRadius);
+        float r = SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
+                                                  stroke.getCap(), 1);
+        devBounds.outset(r, r);
     }
     this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
 }
@@ -143,7 +143,6 @@ GrOp::CombineResult StrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkArenaA
     fPathStrokeTail = (op->fPathStrokeTail == &op->fPathStrokeList.fNext) ? &headCopy->fNext
                                                                           : op->fPathStrokeTail;
 
-    fInflationRadius = std::max(fInflationRadius, op->fInflationRadius);
     fTotalCombinedVerbCnt += op->fTotalCombinedVerbCnt;
     return CombineResult::kMerged;
 }
@@ -187,12 +186,6 @@ void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs
         matrixMinMaxScales.fill(1);
     }
 
-    float devInflationRadius = fInflationRadius;
-    if (!this->headStroke().isHairlineStyle()) {
-        devInflationRadius *= matrixMinMaxScales[1];
-    }
-    SkRect strokeCullBounds = this->bounds().makeOutset(devInflationRadius, devInflationRadius);
-
     auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(clip),
                                                         std::move(fProcessors));
 
@@ -203,15 +196,13 @@ void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs
                                                               fShaderFlags,
                                                               fViewMatrix,
                                                               &fPathStrokeList,
-                                                              matrixMinMaxScales,
-                                                              strokeCullBounds);
+                                                              matrixMinMaxScales);
     } else {
         fTessellator = arena->make<StrokeFixedCountTessellator>(*caps.shaderCaps(),
                                                                 fShaderFlags,
                                                                 fViewMatrix,
                                                                 &fPathStrokeList,
-                                                                matrixMinMaxScales,
-                                                                strokeCullBounds);
+                                                                matrixMinMaxScales);
     }
 
     auto fillStencil = &GrUserStencilSettings::kUnused;

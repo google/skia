@@ -11,7 +11,6 @@
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
-#include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/Tessellation.h"
@@ -35,12 +34,10 @@ public:
             , fMaxSegments_pow4(fMaxSegments_pow2 * fMaxSegments_pow2) {
     }
 
-    void setMatrices(const SkRect& cullBounds,
-                     const SkMatrix& shaderMatrix,
+    void setMatrices(const SkMatrix& shaderMatrix,
                      const SkMatrix& pathMatrix) {
         SkMatrix totalMatrix;
         totalMatrix.setConcat(shaderMatrix, pathMatrix);
-        fCullTest.set(cullBounds, totalMatrix);
         fTotalVectorXform = totalMatrix;
         fPathXform = pathMatrix;
     }
@@ -111,12 +108,8 @@ private:
                                const SkPoint p[3]) {
         SkPoint chops[5];
         SkChopQuadAtHalf(p, chops);
-        for (int i = 0; i < 2; ++i) {
-            const SkPoint* q = chops + i*2;
-            if (fCullTest.areVisible3(q)) {
-                this->writeQuadratic(shaderCaps, chunker, q);
-            }
-        }
+        this->writeQuadratic(shaderCaps, chunker, chops);
+        this->writeQuadratic(shaderCaps, chunker, chops + 2);
         // Connect the two halves.
         this->writeTriangle(shaderCaps, chunker, chops[0], chops[2], chops[4]);
     }
@@ -127,11 +120,8 @@ private:
         if (!conic.chopAt(.5, chops)) {
             return;
         }
-        for (int i = 0; i < 2; ++i) {
-            if (fCullTest.areVisible3(chops[i].fPts)) {
-                this->writeConic(shaderCaps, chunker, chops[i].fPts, chops[i].fW);
-            }
-        }
+        this->writeConic(shaderCaps, chunker, chops[0].fPts, chops[0].fW);
+        this->writeConic(shaderCaps, chunker, chops[1].fPts, chops[1].fW);
         // Connect the two halves.
         this->writeTriangle(shaderCaps, chunker, conic.fPts[0], chops[0].fPts[2], chops[1].fPts[2]);
     }
@@ -140,12 +130,8 @@ private:
                            const SkPoint p[4]) {
         SkPoint chops[7];
         SkChopCubicAtHalf(p, chops);
-        for (int i = 0; i < 2; ++i) {
-            const SkPoint* c = chops + i*3;
-            if (fCullTest.areVisible4(c)) {
-                this->writeCubic(shaderCaps, chunker, c);
-            }
-        }
+        this->writeCubic(shaderCaps, chunker, chops);
+        this->writeCubic(shaderCaps, chunker, chops + 3);
         // Connect the two halves.
         this->writeTriangle(shaderCaps, chunker, chops[0], chops[3], chops[6]);
     }
@@ -163,7 +149,6 @@ private:
         }
     }
 
-    CullTest fCullTest;
     wangs_formula::VectorXform fTotalVectorXform;
     PathXform fPathXform;
     const float fMaxSegments_pow2;
@@ -206,7 +191,6 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
 
 void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
-                                   const SkRect& cullBounds,
                                    const PathDrawList& pathDrawList,
                                    int totalCombinedPathVerbCnt,
                                    const BreadcrumbTriangleList* breadcrumbTriangleList) {
@@ -312,7 +296,7 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
 
     CurveWriter curveWriter(maxSegments);
     for (auto [pathMatrix, path] : pathDrawList) {
-        curveWriter.setMatrices(cullBounds, fShader->viewMatrix(), pathMatrix);
+        curveWriter.setMatrices(fShader->viewMatrix(), pathMatrix);
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
                 case SkPathVerb::kQuad:
