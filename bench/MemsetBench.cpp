@@ -7,7 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/private/SkTemplates.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkUtils.h"
 
 template <typename T>
 class MemsetBench : public Benchmark {

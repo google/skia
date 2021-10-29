@@ -10,7 +10,6 @@
 
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkSLString.h"
-#include "src/core/SkUtils.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
@@ -676,7 +675,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-SK_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
+GR_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
 
 static inline GrFPResult GrFPFailure(std::unique_ptr<GrFragmentProcessor> fp) {
     return {false, std::move(fp)};

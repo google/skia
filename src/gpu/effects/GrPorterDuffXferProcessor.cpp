@@ -9,7 +9,6 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkUtils.h"
 #include "src/gpu/GrBlend.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrPipeline.h"
@@ -141,7 +140,7 @@ private:
 
 static_assert(4 == sizeof(BlendFormula));
 
-SK_MAKE_BITFIELD_OPS(BlendFormula::Properties)
+GR_MAKE_BITFIELD_OPS(BlendFormula::Properties)
 
 constexpr BlendFormula::Properties BlendFormula::GetProperties(OutputType PrimaryOut,
                                                                OutputType SecondaryOut,

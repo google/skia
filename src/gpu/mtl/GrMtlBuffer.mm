@@ -65,7 +65,7 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
         }
     }
 
-    size = SkAlignTo(size, gpu->mtlCaps().getMinBufferAlignment());
+    size = GrAlignTo(size, gpu->mtlCaps().getMinBufferAlignment());
     fMtlBuffer = size == 0 ? nil :
             [gpu->device() newBufferWithLength: size
                                        options: options];

@@ -14,7 +14,6 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMatrixProvider.h"
-#include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"

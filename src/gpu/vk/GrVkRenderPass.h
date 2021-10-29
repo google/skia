@@ -10,7 +10,6 @@
 
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/core/SkUtils.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
 #include <cinttypes>
@@ -202,7 +201,7 @@ private:
     using INHERITED = GrVkManagedResource;
 };
 
-SK_MAKE_BITFIELD_OPS(GrVkRenderPass::AttachmentFlags)
+GR_MAKE_BITFIELD_OPS(GrVkRenderPass::AttachmentFlags)
 GR_MAKE_BITFIELD_CLASS_OPS(GrVkRenderPass::SelfDependencyFlags)
 
 #endif

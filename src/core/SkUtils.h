@@ -9,7 +9,23 @@
 #define SkUtils_DEFINED
 
 #include "include/core/SkFontTypes.h"
+#include "src/core/SkOpts.h"
 #include "src/utils/SkUTF.h"
+
+/** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
+    @param buffer   The memory to have value copied into it
+    @param value    The value to be copied into buffer
+    @param count    The number of times value should be copied into the buffer.
+*/
+static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
+    SkOpts::memset16(buffer, value, count);
+}
+static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
+    SkOpts::memset32(buffer, value, count);
+}
+static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
+    SkOpts::memset64(buffer, value, count);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -86,33 +102,5 @@ static SK_ALWAYS_INLINE Dst sk_bit_cast(const Src& src) {
     static_assert(sizeof(Dst) == sizeof(Src));
     return sk_unaligned_load<Dst>(&src);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- * Defines overloaded bitwise operators to make it easier to use an enum as a
- * bitfield.
- */
-#define SK_MAKE_BITFIELD_OPS(X) \
-    inline X operator |(X a, X b) { \
-        return (X) (+a | +b); \
-    } \
-    inline X& operator |=(X& a, X b) { \
-        return (a = a | b); \
-    } \
-    inline X operator &(X a, X b) { \
-        return (X) (+a & +b); \
-    } \
-    inline X& operator &=(X& a, X b) { \
-        return (a = a & b); \
-    } \
-    template <typename T> \
-    inline X operator &(T a, X b) { \
-        return (X) (+a & +b); \
-    } \
-    template <typename T> \
-    inline X operator &(X a, T b) { \
-        return (X) (+a & +b); \
-    } \
 
 #endif

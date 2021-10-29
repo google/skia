@@ -557,15 +557,6 @@ template <typename T> static constexpr bool SkIsAlignPtr(T x) {
     return sizeof(void*) == 8 ? SkIsAlign8(x) : SkIsAlign4(x);
 }
 
-/**
- *  align up to a power of 2
- */
-static inline constexpr size_t SkAlignTo(size_t x, size_t alignment) {
-    // The same as alignment && SkIsPow2(value), w/o a dependency cycle.
-    SkASSERT(alignment && (alignment & (alignment - 1)) == 0);
-    return (x + alignment - 1) & ~(alignment - 1);
-}
-
 typedef uint32_t SkFourByteTag;
 static inline constexpr SkFourByteTag SkSetFourByteTag(char a, char b, char c, char d) {
     return (((uint32_t)a << 24) | ((uint32_t)b << 16) | ((uint32_t)c << 8) | (uint32_t)d);

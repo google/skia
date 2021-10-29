@@ -768,7 +768,7 @@ void SurfaceContext::asyncReadPixels(GrDirectContext* dContext,
         auto manager = context->fMappedBufferManager;
         auto result = std::make_unique<AsyncReadResult>(manager->owningDirectContext());
         size_t rowBytes =
-                SkAlignTo(context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType),
+                GrAlignTo(context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType),
                           context->fBufferAlignment);
         if (!result->addTransferResult(context->fTransferResult, context->fSize, rowBytes,
                                        manager)) {
@@ -1002,14 +1002,14 @@ void SurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
         auto manager = context->fMappedBufferManager;
         auto result = std::make_unique<AsyncReadResult>(manager->owningDirectContext());
         size_t rowBytes = SkToSizeT(context->fSize.width());
-        rowBytes = SkAlignTo(rowBytes, context->fBufferAlignment);
+        rowBytes = GrAlignTo(rowBytes, context->fBufferAlignment);
         if (!result->addTransferResult(context->fYTransfer, context->fSize, rowBytes, manager)) {
             (*context->fClientCallback)(context->fClientContext, nullptr);
             delete context;
             return;
         }
         rowBytes = SkToSizeT(context->fSize.width()) / 2;
-        rowBytes = SkAlignTo(rowBytes, context->fBufferAlignment);
+        rowBytes = GrAlignTo(rowBytes, context->fBufferAlignment);
         SkISize uvSize = {context->fSize.width() / 2, context->fSize.height() / 2};
         if (!result->addTransferResult(context->fUTransfer, uvSize, rowBytes, manager)) {
             (*context->fClientCallback)(context->fClientContext, nullptr);
@@ -1262,7 +1262,7 @@ SurfaceContext::PixelTransferResult SurfaceContext::transferPixels(GrColorType d
     }
 
     size_t rowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * rect.width();
-    rowBytes = SkAlignTo(rowBytes, this->caps()->transferBufferAlignment());
+    rowBytes = GrAlignTo(rowBytes, this->caps()->transferBufferAlignment());
     size_t size = rowBytes * rect.height();
     // By using kStream_GrAccessPattern here, we are not able to cache and reuse the buffer for
     // multiple reads. Switching to kDynamic_GrAccessPattern would allow for this, however doing
