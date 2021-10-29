@@ -1,4 +1,4 @@
-// Expect 4 errors
+// Expect 6 errors
 
 const int intMin         = -2147483648;
 const int intMinMinusOne = -2147483649;                 // error
@@ -7,3 +7,6 @@ const int intMaxPlusOne  = 2147483648;                  // error
 
 short4 s4_neg = short4(-32766, -32767, -32769, -32768); // error -32769
 short4 s4_pos = short4(32765, 32768, 32766, 32767);     // error 32768
+
+int   cast_int   = int(2147483648.);                    // error
+short cast_short = short(32768.);                       // error

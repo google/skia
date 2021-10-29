@@ -835,16 +835,17 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
             int numSlots = valueExpr->type().slotCount();
             for (int slot = 0; slot < numSlots; ++slot) {
                 const Expression* subexpr = valueExpr->getConstantSubexpression(slot);
-                if (!subexpr || !subexpr->isIntLiteral()) {
+                if (!subexpr || !subexpr->is<Literal>()) {
                     continue;
                 }
-                // Look for an int Literal value that is out of range for the corresponding type.
-                SKSL_INT value = subexpr->as<Literal>().intValue();
+                // Look for a Literal value that is out of range for the corresponding type.
+                double value = subexpr->as<Literal>().value();
                 if (value < baseType.minimumValue() || value > baseType.maximumValue()) {
                     // We found a value that can't fit in the type. Flag it as an error.
-                    context.fErrors->error(expr.fLine,
-                                           String("integer is out of range for type '") +
-                                           this->displayName().c_str() + "': " + to_string(value));
+                    context.fErrors->error(
+                            expr.fLine,
+                            String("integer is out of range for type '") +
+                            this->displayName().c_str() + "': " + to_string((SKSL_INT)value));
                     foundError = true;
                 }
             }

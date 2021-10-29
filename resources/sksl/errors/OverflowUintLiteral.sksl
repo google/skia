@@ -1,4 +1,4 @@
-// Expect 4 errors
+// Expect 6 errors
 
 uint uintMin         = 0;
 uint uintMinMinusOne = -1;                             // error
@@ -7,3 +7,6 @@ uint uintMaxPlusOne  = 4294967296;                     // error
 
 ushort4 us4_neg = ushort4(2, 1, 0, -1);                // error -1
 ushort4 us4_pos = ushort4(65536, 65535, 65534, 65533); // error 65536
+
+uint   cast_int   = uint(4294967296.);                 // error
+ushort cast_short = ushort(65536.);                    // error
