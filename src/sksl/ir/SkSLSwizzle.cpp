@@ -354,6 +354,12 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
         return nullptr;
     }
 
+    // Coerce literals in expressions such as `(12345).xxx` to their actual type.
+    base = baseType.scalarTypeForLiteral().coerceExpression(std::move(base), context);
+    if (!base) {
+        return nullptr;
+    }
+
     // First, we need a vector expression that is the non-constant portion of the swizzle, packed:
     //   scalar.xxx  -> type3(scalar)
     //   scalar.x0x0 -> type2(scalar)
