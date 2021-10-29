@@ -495,10 +495,9 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             break;
         case k_dFdy_IntrinsicKind:
             // Flipping Y also negates the Y derivatives.
-            this->write("(" SKSL_RTFLIP_NAME ".y * dFdy(");
-            this->writeExpression(*arguments[0], Precedence::kSequence);
-            this->write("))");
-            return;
+            this->write(SKSL_RTFLIP_NAME ".y * dFdy");
+            nameWritten = true;
+            [[fallthrough]];
         case k_dFdx_IntrinsicKind:
         case k_fwidth_IntrinsicKind:
             if (!fFoundDerivatives &&
