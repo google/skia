@@ -1073,16 +1073,6 @@ String MetalCodeGenerator::getMatrixConstructHelper(const AnyConstructor& c) {
     return name;
 }
 
-bool MetalCodeGenerator::canCoerce(const Type& t1, const Type& t2) {
-    if (t1.columns() != t2.columns() || t1.rows() != t2.rows()) {
-        return false;
-    }
-    if (t1.columns() > 1) {
-        return this->canCoerce(t1.componentType(), t2.componentType());
-    }
-    return t1.isFloat() && t2.isFloat();
-}
-
 bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const ConstructorCompound& c) {
     SkASSERT(c.type().isMatrix());
 

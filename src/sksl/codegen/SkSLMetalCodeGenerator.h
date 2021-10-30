@@ -190,8 +190,6 @@ protected:
 
     bool writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind);
 
-    bool canCoerce(const Type& t1, const Type& t2);
-
     void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
 
     void writeConstructorCompoundVector(const ConstructorCompound& c, Precedence parentPrecedence);
