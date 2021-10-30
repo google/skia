@@ -798,6 +798,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"Pixel4XL":        {"coral", "QD1A.190821.011.C4"},
 				"Pixel5":          {"redfin", "RD1A.200810.022.A4"},
 				"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
+				"Wembley":         {"wembley", "SP2A.211004.001"},
 			}[b.parts["model"]]
 			if !ok {
 				log.Fatalf("Entry %q not found in Android mapping.", b.parts["model"])

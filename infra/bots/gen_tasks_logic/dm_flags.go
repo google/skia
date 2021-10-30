@@ -643,9 +643,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("vkddl gm _ compressed_textures")
 	}
 
-	if b.model("TecnoSpark3Pro") {
+	if b.model("TecnoSpark3Pro", "Wembley") {
 		// skbug.com/9421
 		skip("_ test _ InitialTextureClear")
+	}
+
+	if b.model("Wembley") {
+		// These tests run forever on the Wembley.
+		skip("_ gm _ async_rescale_and_read")
 	}
 
 	if b.os("iOS") {
@@ -1015,7 +1020,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~Programs") // skia:7849
 	}
 
-	if b.model("TecnoSpark3Pro") {
+	if b.model("TecnoSpark3Pro", "Wembley") {
 		// skia:9814
 		match = append(match, "~Programs")
 		match = append(match, "~ProcessorCloneTest")
