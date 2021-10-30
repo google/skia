@@ -2,19 +2,19 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float unknownInput;
+    half unknownInput;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 color = float4(0.0);
-    if (_uniforms.unknownInput == 1.0) color.y = 1.0;
-    if (_uniforms.unknownInput == 2.0) ; else color.w = 1.0;
+    half4 color = half4(0.0h);
+    if (_uniforms.unknownInput == 1.0h) color.y = 1.0h;
+    if (_uniforms.unknownInput == 2.0h) ; else color.w = 1.0h;
     _out.sk_FragColor = color;
     return _out;
 }

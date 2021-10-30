@@ -4,123 +4,123 @@ using namespace metal;
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
-void out_half_vh(thread float& v);
-void _skOutParamHelper0_out_half_vh(thread float& h) {
-    float _var0;
+void out_half_vh(thread half& v);
+void _skOutParamHelper0_out_half_vh(thread half& h) {
+    half _var0;
     out_half_vh(_var0);
     h = _var0;
 }
-void out_half2_vh2(thread float2& v);
-void _skOutParamHelper1_out_half2_vh2(thread float2& h2) {
-    float2 _var0;
+void out_half2_vh2(thread half2& v);
+void _skOutParamHelper1_out_half2_vh2(thread half2& h2) {
+    half2 _var0;
     out_half2_vh2(_var0);
     h2 = _var0;
 }
-void out_half3_vh3(thread float3& v);
-void _skOutParamHelper2_out_half3_vh3(thread float3& h3) {
-    float3 _var0;
+void out_half3_vh3(thread half3& v);
+void _skOutParamHelper2_out_half3_vh3(thread half3& h3) {
+    half3 _var0;
     out_half3_vh3(_var0);
     h3 = _var0;
 }
-void out_half4_vh4(thread float4& v);
-void _skOutParamHelper3_out_half4_vh4(thread float4& h4) {
-    float4 _var0;
+void out_half4_vh4(thread half4& v);
+void _skOutParamHelper3_out_half4_vh4(thread half4& h4) {
+    half4 _var0;
     out_half4_vh4(_var0);
     h4 = _var0;
 }
-void out_half_vh(thread float& v);
-void _skOutParamHelper4_out_half_vh(thread float3& h3) {
-    float _var0;
+void out_half_vh(thread half& v);
+void _skOutParamHelper4_out_half_vh(thread half3& h3) {
+    half _var0;
     out_half_vh(_var0);
     h3.y = _var0;
 }
-void out_half2_vh2(thread float2& v);
-void _skOutParamHelper5_out_half2_vh2(thread float3& h3) {
-    float2 _var0;
+void out_half2_vh2(thread half2& v);
+void _skOutParamHelper5_out_half2_vh2(thread half3& h3) {
+    half2 _var0;
     out_half2_vh2(_var0);
     h3.xz = _var0;
 }
-void out_half4_vh4(thread float4& v);
-void _skOutParamHelper6_out_half4_vh4(thread float4& h4) {
-    float4 _var0;
+void out_half4_vh4(thread half4& v);
+void _skOutParamHelper6_out_half4_vh4(thread half4& h4) {
+    half4 _var0;
     out_half4_vh4(_var0);
     h4.zwxy = _var0;
 }
-void out_pair_vhh(thread float& v1, thread float& v2);
-void _skOutParamHelper7_out_pair_vhh(thread float& h, thread float& h1) {
-    float _var0;
-    float _var1;
+void out_pair_vhh(thread half& v1, thread half& v2);
+void _skOutParamHelper7_out_pair_vhh(thread half& h, thread half& h1) {
+    half _var0;
+    half _var1;
     out_pair_vhh(_var0, _var1);
     h = _var0;
     h1 = _var1;
 }
-void out_pair_vhh(thread float& v1, thread float& v2);
-void _skOutParamHelper8_out_pair_vhh(thread float& h, thread float&) {
-    float _var0;
-    float _var1;
+void out_pair_vhh(thread half& v1, thread half& v2);
+void _skOutParamHelper8_out_pair_vhh(thread half& h, thread half&) {
+    half _var0;
+    half _var1;
     out_pair_vhh(_var0, _var1);
     h = _var0;
     h = _var1;
 }
-void out_pair_vhh(thread float& v1, thread float& v2);
-void _skOutParamHelper9_out_pair_vhh(thread float2& h2, thread float2&) {
-    float _var0;
-    float _var1;
+void out_pair_vhh(thread half& v1, thread half& v2);
+void _skOutParamHelper9_out_pair_vhh(thread half2& h2, thread half2&) {
+    half _var0;
+    half _var1;
     out_pair_vhh(_var0, _var1);
     h2.x = _var0;
     h2.y = _var1;
 }
-void out_pair_vhh(thread float& v1, thread float& v2);
-void _skOutParamHelper10_out_pair_vhh(thread float2& h2, thread float2&) {
-    float _var0;
-    float _var1;
+void out_pair_vhh(thread half& v1, thread half& v2);
+void _skOutParamHelper10_out_pair_vhh(thread half2& h2, thread half2&) {
+    half _var0;
+    half _var1;
     out_pair_vhh(_var0, _var1);
     h2.x = _var0;
     h2.x = _var1;
 }
-void out_pair_vhh(thread float& v1, thread float& v2);
-void _skOutParamHelper11_out_pair_vhh(thread float2& h2, thread float3& h3) {
-    float _var0;
-    float _var1;
+void out_pair_vhh(thread half& v1, thread half& v2);
+void _skOutParamHelper11_out_pair_vhh(thread half2& h2, thread half3& h3) {
+    half _var0;
+    half _var1;
     out_pair_vhh(_var0, _var1);
     h2.x = _var0;
     h3.x = _var1;
 }
-void out_half2x2_vh22(thread float2x2& v);
-void _skOutParamHelper12_out_half2x2_vh22(thread float2x2& h2x2) {
-    float2x2 _var0;
+void out_half2x2_vh22(thread half2x2& v);
+void _skOutParamHelper12_out_half2x2_vh22(thread half2x2& h2x2) {
+    half2x2 _var0;
     out_half2x2_vh22(_var0);
     h2x2 = _var0;
 }
-void out_half3x3_vh33(thread float3x3& v);
-void _skOutParamHelper13_out_half3x3_vh33(thread float3x3& h3x3) {
-    float3x3 _var0;
+void out_half3x3_vh33(thread half3x3& v);
+void _skOutParamHelper13_out_half3x3_vh33(thread half3x3& h3x3) {
+    half3x3 _var0;
     out_half3x3_vh33(_var0);
     h3x3 = _var0;
 }
-void out_half4x4_vh44(thread float4x4& v);
-void _skOutParamHelper14_out_half4x4_vh44(thread float4x4& h4x4) {
-    float4x4 _var0;
+void out_half4x4_vh44(thread half4x4& v);
+void _skOutParamHelper14_out_half4x4_vh44(thread half4x4& h4x4) {
+    half4x4 _var0;
     out_half4x4_vh44(_var0);
     h4x4 = _var0;
 }
-void out_half3_vh3(thread float3& v);
-void _skOutParamHelper15_out_half3_vh3(thread float3x3& h3x3) {
-    float3 _var0;
+void out_half3_vh3(thread half3& v);
+void _skOutParamHelper15_out_half3_vh3(thread half3x3& h3x3) {
+    half3 _var0;
     out_half3_vh3(_var0);
     h3x3[1] = _var0;
 }
-void out_half4_vh4(thread float4& v);
-void _skOutParamHelper16_out_half4_vh4(thread float4x4& h4x4) {
-    float4 _var0;
+void out_half4_vh4(thread half4& v);
+void _skOutParamHelper16_out_half4_vh4(thread half4x4& h4x4) {
+    half4 _var0;
     out_half4_vh4(_var0);
     h4x4[3].zwxy = _var0;
 }
-void out_half2_vh2(thread float2& v);
-void _skOutParamHelper17_out_half2_vh2(thread float2x2& h2x2) {
-    float2 _var0;
+void out_half2_vh2(thread half2& v);
+void _skOutParamHelper17_out_half2_vh2(thread half2x2& h2x2) {
+    half2 _var0;
     out_half2_vh2(_var0);
     h2x2[0] = _var0;
 }
@@ -256,26 +256,26 @@ void _skOutParamHelper39_out_bool_vb(thread bool3& b3) {
     out_bool_vb(_var0);
     b3.z = _var0;
 }
-void out_half_vh(thread float& v) {
-    v = 1.0;
+void out_half_vh(thread half& v) {
+    v = 1.0h;
 }
-void out_half2_vh2(thread float2& v) {
-    v = float2(2.0);
+void out_half2_vh2(thread half2& v) {
+    v = half2(2.0h);
 }
-void out_half3_vh3(thread float3& v) {
-    v = float3(3.0);
+void out_half3_vh3(thread half3& v) {
+    v = half3(3.0h);
 }
-void out_half4_vh4(thread float4& v) {
-    v = float4(4.0);
+void out_half4_vh4(thread half4& v) {
+    v = half4(4.0h);
 }
-void out_half2x2_vh22(thread float2x2& v) {
-    v = float2x2(2.0);
+void out_half2x2_vh22(thread half2x2& v) {
+    v = half2x2(2.0h);
 }
-void out_half3x3_vh33(thread float3x3& v) {
-    v = float3x3(3.0);
+void out_half3x3_vh33(thread half3x3& v) {
+    v = half3x3(3.0h);
 }
-void out_half4x4_vh44(thread float4x4& v) {
-    v = float4x4(4.0);
+void out_half4x4_vh44(thread half4x4& v) {
+    v = half4x4(4.0h);
 }
 void out_int_vi(thread int& v) {
     v = 1;
@@ -322,41 +322,41 @@ void out_bool3_vb3(thread bool3& v) {
 void out_bool4_vb4(thread bool4& v) {
     v = bool4(false);
 }
-void out_pair_vhh(thread float& v1, thread float& v2) {
-    v1 = 1.0;
-    v2 = 2.0;
+void out_pair_vhh(thread half& v1, thread half& v2) {
+    v1 = 1.0h;
+    v2 = 2.0h;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float h;
+    half h;
     _skOutParamHelper0_out_half_vh(h);
-    float2 h2;
+    half2 h2;
     _skOutParamHelper1_out_half2_vh2(h2);
-    float3 h3;
+    half3 h3;
     _skOutParamHelper2_out_half3_vh3(h3);
-    float4 h4;
+    half4 h4;
     _skOutParamHelper3_out_half4_vh4(h4);
     _skOutParamHelper4_out_half_vh(h3);
     _skOutParamHelper5_out_half2_vh2(h3);
     _skOutParamHelper6_out_half4_vh4(h4);
-    _out.sk_FragColor = float4(h, h2.x, h3.x, h4.x);
-    float h1;
+    _out.sk_FragColor = half4(h, h2.x, h3.x, h4.x);
+    half h1;
     _skOutParamHelper7_out_pair_vhh(h, h1);
     _skOutParamHelper8_out_pair_vhh(h, h);
     _skOutParamHelper9_out_pair_vhh(h2, h2);
     _skOutParamHelper10_out_pair_vhh(h2, h2);
     _skOutParamHelper11_out_pair_vhh(h2, h3);
-    float2x2 h2x2;
+    half2x2 h2x2;
     _skOutParamHelper12_out_half2x2_vh22(h2x2);
-    float3x3 h3x3;
+    half3x3 h3x3;
     _skOutParamHelper13_out_half3x3_vh33(h3x3);
-    float4x4 h4x4;
+    half4x4 h4x4;
     _skOutParamHelper14_out_half4x4_vh44(h4x4);
     _skOutParamHelper15_out_half3_vh3(h3x3);
     _skOutParamHelper16_out_half4_vh4(h4x4);
     _skOutParamHelper17_out_half2_vh2(h2x2);
-    _out.sk_FragColor = float4(h2x2[0].x, h3x3[0].x, h4x4[0].x, 1.0);
+    _out.sk_FragColor = half4(h2x2[0].x, h3x3[0].x, h4x4[0].x, 1.0h);
     int i;
     _skOutParamHelper18_out_int_vi(i);
     int2 i2;
@@ -366,7 +366,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     int4 i4;
     _skOutParamHelper21_out_int4_vi4(i4);
     _skOutParamHelper22_out_int3_vi3(i4);
-    _out.sk_FragColor = float4(float(i), float(i2.x), float(i3.x), float(i4.x));
+    _out.sk_FragColor = half4(half(i), half(i2.x), half(i3.x), half(i4.x));
     float f;
     _skOutParamHelper23_out_float_vf(f);
     float2 f2;
@@ -377,7 +377,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper26_out_float4_vf4(f4);
     _skOutParamHelper27_out_float2_vf2(f3);
     _skOutParamHelper28_out_float_vf(f2);
-    _out.sk_FragColor = float4(f, f2.x, f3.x, f4.x);
+    _out.sk_FragColor = half4(half(f), half(f2.x), half(f3.x), half(f4.x));
     float2x2 f2x2;
     _skOutParamHelper29_out_float2x2_vf22(f2x2);
     float3x3 f3x3;
@@ -386,7 +386,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper31_out_float4x4_vf44(f4x4);
     _skOutParamHelper32_out_float_vf(f2x2);
     _skOutParamHelper33_out_float4_vf4(f4x4);
-    _out.sk_FragColor = float4(f2x2[0].x, f3x3[0].x, f4x4[0].x, 1.0);
+    _out.sk_FragColor = half4(half(f2x2[0].x), half(f3x3[0].x), half(f4x4[0].x), 1.0h);
     bool b;
     _skOutParamHelper34_out_bool_vb(b);
     bool2 b2;
@@ -397,6 +397,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _skOutParamHelper37_out_bool4_vb4(b4);
     _skOutParamHelper38_out_bool2_vb2(b4);
     _skOutParamHelper39_out_bool_vb(b3);
-    _out.sk_FragColor = float4(float(b), float(b2.x), float(b3.x), float(b4.x));
+    _out.sk_FragColor = half4(half(b), half(b2.x), half(b3.x), half(b4.x));
     return _out;
 }

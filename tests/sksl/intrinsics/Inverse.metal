@@ -2,45 +2,45 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 
-thread bool operator==(const float2x2 left, const float2x2 right);
-thread bool operator!=(const float2x2 left, const float2x2 right);
+thread bool operator==(const half2x2 left, const half2x2 right);
+thread bool operator!=(const half2x2 left, const half2x2 right);
 
-thread bool operator==(const float3x3 left, const float3x3 right);
-thread bool operator!=(const float3x3 left, const float3x3 right);
+thread bool operator==(const half3x3 left, const half3x3 right);
+thread bool operator!=(const half3x3 left, const half3x3 right);
 
-thread bool operator==(const float4x4 left, const float4x4 right);
-thread bool operator!=(const float4x4 left, const float4x4 right);
-thread bool operator==(const float2x2 left, const float2x2 right) {
+thread bool operator==(const half4x4 left, const half4x4 right);
+thread bool operator!=(const half4x4 left, const half4x4 right);
+thread bool operator==(const half2x2 left, const half2x2 right) {
     return all(left[0] == right[0]) &&
            all(left[1] == right[1]);
 }
-thread bool operator!=(const float2x2 left, const float2x2 right) {
+thread bool operator!=(const half2x2 left, const half2x2 right) {
     return !(left == right);
 }
-thread bool operator==(const float3x3 left, const float3x3 right) {
+thread bool operator==(const half3x3 left, const half3x3 right) {
     return all(left[0] == right[0]) &&
            all(left[1] == right[1]) &&
            all(left[2] == right[2]);
 }
-thread bool operator!=(const float3x3 left, const float3x3 right) {
+thread bool operator!=(const half3x3 left, const half3x3 right) {
     return !(left == right);
 }
-thread bool operator==(const float4x4 left, const float4x4 right) {
+thread bool operator==(const half4x4 left, const half4x4 right) {
     return all(left[0] == right[0]) &&
            all(left[1] == right[1]) &&
            all(left[2] == right[2]) &&
            all(left[3] == right[3]);
 }
-thread bool operator!=(const float4x4 left, const float4x4 right) {
+thread bool operator!=(const half4x4 left, const half4x4 right) {
     return !(left == right);
 }
 
@@ -60,9 +60,9 @@ matrix<T, 3, 3> mat3_inverse(matrix<T, 3, 3> m) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float2x2 inv2x2 = float2x2(float2(-2.0, 1.0), float2(1.5, -0.5));
-    float3x3 inv3x3 = float3x3(float3(-24.0, 18.0, 5.0), float3(20.0, -15.0, -4.0), float3(-5.0, 4.0, 1.0));
-    float4x4 inv4x4 = float4x4(float4(-2.0, -0.5, 1.0, 0.5), float4(1.0, 0.5, 0.0, -0.5), float4(-8.0, -1.0, 2.0, 2.0), float4(3.0, 0.5, -1.0, -0.5));
-    _out.sk_FragColor = ((float2x2(float2(-2.0, 1.0), float2(1.5, -0.5)) == inv2x2 && float3x3(float3(-24.0, 18.0, 5.0), float3(20.0, -15.0, -4.0), float3(-5.0, 4.0, 1.0)) == inv3x3) && float4x4(float4(-2.0, -0.5, 1.0, 0.5), float4(1.0, 0.5, 0.0, -0.5), float4(-8.0, -1.0, 2.0, 2.0), float4(3.0, 0.5, -1.0, -0.5)) == inv4x4) && mat3_inverse(float3x3(float3(1.0, 2.0, 3.0), float3(4.0, 5.0, 6.0), float3(7.0, 8.0, 9.0))) != inv3x3 ? _uniforms.colorGreen : _uniforms.colorRed;
+    half2x2 inv2x2 = half2x2(half2(-2.0h, 1.0h), half2(1.5h, -0.5h));
+    half3x3 inv3x3 = half3x3(half3(-24.0h, 18.0h, 5.0h), half3(20.0h, -15.0h, -4.0h), half3(-5.0h, 4.0h, 1.0h));
+    half4x4 inv4x4 = half4x4(half4(-2.0h, -0.5h, 1.0h, 0.5h), half4(1.0h, 0.5h, 0.0h, -0.5h), half4(-8.0h, -1.0h, 2.0h, 2.0h), half4(3.0h, 0.5h, -1.0h, -0.5h));
+    _out.sk_FragColor = ((half2x2(half2(-2.0h, 1.0h), half2(1.5h, -0.5h)) == inv2x2 && half3x3(half3(-24.0h, 18.0h, 5.0h), half3(20.0h, -15.0h, -4.0h), half3(-5.0h, 4.0h, 1.0h)) == inv3x3) && half4x4(half4(-2.0h, -0.5h, 1.0h, 0.5h), half4(1.0h, 0.5h, 0.0h, -0.5h), half4(-8.0h, -1.0h, 2.0h, 2.0h), half4(3.0h, 0.5h, -1.0h, -0.5h)) == inv4x4) && mat3_inverse(half3x3(half3(1.0h, 2.0h, 3.0h), half3(4.0h, 5.0h, 6.0h), half3(7.0h, 8.0h, 9.0h))) != inv3x3 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

@@ -1,9 +1,9 @@
-uniform half4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
+uniform float4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    const half4 constVal = half4(-1.25, 0, 0.75, 2.25);
-    half4 expected = half4(1.25, 0, 0.75, 2.25);
+    const float4 constVal = half4(-1.25, 0, 0.75, 2.25);
+    float4 expected = half4(1.25, 0, 0.75, 2.25);
     return (abs(testInputs.x)    == expected.x     &&
             abs(testInputs.xy)   == expected.xy    &&
             abs(testInputs.xyz)  == expected.xyz   &&

@@ -2,18 +2,18 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float f = _uniforms.colorGreen.y;
+    float f = float(_uniforms.colorGreen.y);
     int i = int(_uniforms.colorGreen.y);
     uint u = uint(_uniforms.colorGreen.y);
     bool b = bool(_uniforms.colorGreen.y);
@@ -33,6 +33,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     bool b2 = bool(i);
     bool b3 = bool(u);
     bool b4 = b;
-    _out.sk_FragColor = ((((((((((((((f1 + f2) + f3) + f4) + float(i1)) + float(i2)) + float(i3)) + float(i4)) + float(u1)) + float(u2)) + float(u3)) + float(u4)) + float(b1)) + float(b2)) + float(b3)) + float(b4) == 16.0 ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((((((((((half(f1) + half(f2)) + half(f3)) + half(f4)) + half(i1)) + half(i2)) + half(i3)) + half(i4)) + half(u1)) + half(u2)) + half(u3)) + half(u4)) + half(b1)) + half(b2)) + half(b3)) + half(b4) == 16.0h ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

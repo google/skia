@@ -108,19 +108,9 @@ String MetalCodeGenerator::typeName(const Type& type) {
                                   to_string(type.rows());
 
         case Type::TypeKind::kSampler:
-            return "texture2d<float>"; // FIXME - support other texture types
+            return "texture2d<half>"; // FIXME - support other texture types
 
         default:
-            // We currently only support full-precision types in MSL to avoid type coercion issues.
-            if (type == *fContext.fTypes.fHalf) {
-                return "float";
-            }
-            if (type == *fContext.fTypes.fShort) {
-                return "int";
-            }
-            if (type == *fContext.fTypes.fUShort) {
-                return "uint";
-            }
             return String(type.name());
     }
 }
@@ -1299,15 +1289,6 @@ void MetalCodeGenerator::writeCastConstructor(const AnyConstructor& c,
                                               const char* leftBracket,
                                               const char* rightBracket,
                                               Precedence parentPrecedence) {
-    // If the type is coercible, emit it directly without the cast.
-    auto args = c.argumentSpan();
-    if (args.size() == 1) {
-        if (this->canCoerce(c.type(), args.front()->type())) {
-            this->writeExpression(*args.front(), parentPrecedence);
-            return;
-        }
-    }
-
     return this->writeAnyConstructor(c, leftBracket, rightBracket, parentPrecedence);
 }
 
@@ -1734,13 +1715,18 @@ void MetalCodeGenerator::writeLiteral(const Literal& l) {
     const Type& type = l.type();
     if (type.isFloat()) {
         this->write(to_string(l.floatValue()));
+        if (!l.type().highPrecision()) {
+            this->write("h");
+        }
         return;
     }
     if (type.isInteger()) {
         if (type == *fContext.fTypes.fUInt) {
-            this->write(to_string(l.intValue() & 0xffffffff) + "u");
+            this->write(to_string(l.intValue() & 0xffffffff));
+            this->write("u");
         } else if (type == *fContext.fTypes.fUShort) {
-            this->write(to_string(l.intValue() & 0xffff) + "u");
+            this->write(to_string(l.intValue() & 0xffff));
+            this->write("u");
         } else {
             this->write(to_string(l.intValue()));
         }
@@ -1861,7 +1847,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                         fContext.fErrors->error(decls.fLine, "Unsupported texture dimensions");
                         return false;
                     }
-                    this->write(", texture2d<float> ");
+                    this->write(", texture2d<half> ");
                     this->writeName(var.var().name());
                     this->write("[[texture(");
                     this->write(to_string(var.var().modifiers().fLayout.fBinding));
@@ -2353,7 +2339,7 @@ void MetalCodeGenerator::writeOutputStruct() {
     if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
         this->write("    float4 sk_Position [[position]];\n");
     } else if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
-        this->write("    float4 sk_FragColor [[color(0)]];\n");
+        this->write("    half4 sk_FragColor [[color(0)]];\n");
     }
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {

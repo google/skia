@@ -2,13 +2,13 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 struct Globals {
     int scratchVar;
@@ -17,7 +17,7 @@ bool test_flat_b() {
     return true;
 }
 bool test_if_b(Uniforms _uniforms, thread Globals& _globals) {
-    if (_uniforms.colorGreen.y > 0.0) {
+    if (_uniforms.colorGreen.y > 0.0h) {
         return true;
     } else {
         ++_globals.scratchVar;
@@ -26,7 +26,7 @@ bool test_if_b(Uniforms _uniforms, thread Globals& _globals) {
     return false;
 }
 bool test_else_b(Uniforms _uniforms) {
-    if (_uniforms.colorGreen.y == 0.0) {
+    if (_uniforms.colorGreen.y == 0.0h) {
         return false;
     } else {
         return true;
@@ -34,7 +34,7 @@ bool test_else_b(Uniforms _uniforms) {
 }
 bool test_loop_if_b(Uniforms _uniforms, thread Globals& _globals) {
     for (int x = 0;x <= 1; ++x) {
-        if (_uniforms.colorGreen.y == 0.0) {
+        if (_uniforms.colorGreen.y == 0.0h) {
             return false;
         } else {
             return true;

@@ -2,13 +2,13 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 
 template <typename T1, typename T2, size_t N>
@@ -20,7 +20,16 @@ thread bool operator==(const float2x2 left, const float2x2 right);
 thread bool operator!=(const float2x2 left, const float2x2 right);
 
 template <size_t N>
-array<float, N> array_of_float_from_float(thread const array<float, N>& x) {
+array<half, N> array_of_half_from_float(thread const array<float, N>& x) {
+    array<half, N> result;
+    for (int i = 0; i < N; ++i) {
+        result[i] = half(x[i]);
+    }
+    return result;
+}
+
+template <size_t N>
+array<float, N> array_of_float_from_half(thread const array<half, N>& x) {
     array<float, N> result;
     for (int i = 0; i < N; ++i) {
         result[i] = float(x[i]);
@@ -29,7 +38,16 @@ array<float, N> array_of_float_from_float(thread const array<float, N>& x) {
 }
 
 template <size_t N>
-array<int3, N> array_of_int3_from_int3(thread const array<int3, N>& x) {
+array<short3, N> array_of_short3_from_int3(thread const array<int3, N>& x) {
+    array<short3, N> result;
+    for (int i = 0; i < N; ++i) {
+        result[i] = short3(x[i]);
+    }
+    return result;
+}
+
+template <size_t N>
+array<int3, N> array_of_int3_from_short3(thread const array<short3, N>& x) {
     array<int3, N> result;
     for (int i = 0; i < N; ++i) {
         result[i] = int3(x[i]);
@@ -38,10 +56,19 @@ array<int3, N> array_of_int3_from_int3(thread const array<int3, N>& x) {
 }
 
 template <size_t N>
-array<float2x2, N> array_of_float2x2_from_float2x2(thread const array<float2x2, N>& x) {
+array<float2x2, N> array_of_float2x2_from_half2x2(thread const array<half2x2, N>& x) {
     array<float2x2, N> result;
     for (int i = 0; i < N; ++i) {
         result[i] = float2x2(x[i]);
+    }
+    return result;
+}
+
+template <size_t N>
+array<half2x2, N> array_of_half2x2_from_float2x2(thread const array<float2x2, N>& x) {
+    array<half2x2, N> result;
+    for (int i = 0; i < N; ++i) {
+        result[i] = half2x2(x[i]);
     }
     return result;
 }
@@ -71,17 +98,17 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     array<float, 4> f = array<float, 4>{1.0, 2.0, 3.0, 4.0};
-    array<float, 4> h = array_of_float_from_float(f);
-    f = array_of_float_from_float(h);
-    h = array_of_float_from_float(f);
+    array<half, 4> h = array_of_half_from_float(f);
+    f = array_of_float_from_half(h);
+    h = array_of_half_from_float(f);
     array<int3, 3> i3 = array<int3, 3>{int3(1), int3(2), int3(3)};
-    array<int3, 3> s3 = array_of_int3_from_int3(i3);
-    i3 = array_of_int3_from_int3(s3);
-    s3 = array_of_int3_from_int3(i3);
-    array<float2x2, 2> h2x2 = array<float2x2, 2>{float2x2(float2(1.0, 2.0), float2(3.0, 4.0)), float2x2(float2(5.0, 6.0), float2(7.0, 8.0))};
-    array<float2x2, 2> f2x2 = array_of_float2x2_from_float2x2(h2x2);
-    f2x2 = array_of_float2x2_from_float2x2(h2x2);
-    h2x2 = array_of_float2x2_from_float2x2(f2x2);
-    _out.sk_FragColor = (f == array_of_float_from_float(h) && i3 == array_of_int3_from_int3(s3)) && f2x2 == array_of_float2x2_from_float2x2(h2x2) ? _uniforms.colorGreen : _uniforms.colorRed;
+    array<short3, 3> s3 = array_of_short3_from_int3(i3);
+    i3 = array_of_int3_from_short3(s3);
+    s3 = array_of_short3_from_int3(i3);
+    array<half2x2, 2> h2x2 = array<half2x2, 2>{half2x2(half2(1.0h, 2.0h), half2(3.0h, 4.0h)), half2x2(half2(5.0h, 6.0h), half2(7.0h, 8.0h))};
+    array<float2x2, 2> f2x2 = array_of_float2x2_from_half2x2(h2x2);
+    f2x2 = array_of_float2x2_from_half2x2(h2x2);
+    h2x2 = array_of_half2x2_from_float2x2(f2x2);
+    _out.sk_FragColor = (f == array_of_float_from_half(h) && i3 == array_of_int3_from_short3(s3)) && f2x2 == array_of_float2x2_from_half2x2(h2x2) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

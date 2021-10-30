@@ -7,7 +7,7 @@ struct Uniforms {
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 struct Globals {
     int b;
@@ -17,6 +17,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_globals;
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor.x = ldexp(_uniforms.a, _globals.b);
+    _out.sk_FragColor.x = half(ldexp(_uniforms.a, _globals.b));
     return _out;
 }

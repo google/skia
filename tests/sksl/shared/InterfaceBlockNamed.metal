@@ -4,7 +4,7 @@ using namespace metal;
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 struct testBlock {
     float x;
@@ -17,6 +17,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant testBlock& test 
     (void)_globals;
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = float4(_uniforms.test.x);
+    _out.sk_FragColor = half4(half(_uniforms.test.x));
     return _out;
 }

@@ -4,13 +4,13 @@ using namespace metal;
 struct Uniforms {
     float testInput;
     float2x2 testMatrix2x2;
-    float4 colorGreen;
-    float4 colorRed;
+    half4 colorGreen;
+    half4 colorRed;
 };
 struct Inputs {
 };
 struct Outputs {
-    float4 sk_FragColor [[color(0)]];
+    half4 sk_FragColor [[color(0)]];
 };
 
 float4 float4_from_float2x2(float2x2 x) {
