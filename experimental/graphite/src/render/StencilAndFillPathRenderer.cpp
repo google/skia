@@ -7,6 +7,9 @@
 
 #include "experimental/graphite/src/Renderer.h"
 
+#include "experimental/graphite/src/geom/Shape.h"
+#include "src/gpu/BufferWriter.h"
+
 namespace skgpu {
 
 namespace {
@@ -60,6 +63,21 @@ public:
     bool        requiresStencil() const override { return false; }
     bool        requiresMSAA()    const override { return false; }
     bool        performsShading() const override { return true;  }
+
+    size_t requiredVertexSpace(const Shape&) const override {
+        return 8 * sizeof(float);
+    }
+
+    size_t requiredIndexSpace(const Shape&) const override {
+        return 0;
+    }
+
+    void writeVertices(VertexWriter vertexWriter,
+                       IndexWriter indexWriter,
+                       const Shape& shape) const override {
+        vertexWriter.writeQuad(VertexWriter::TriStripFromRect(shape.bounds().asSkRect()));
+    }
+
 
 private:
 };
