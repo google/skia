@@ -834,9 +834,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				log.Fatalf("Entry %q not found in iOS mapping.", b.parts["model"])
 			}
 			d["device_type"] = device
-			// Temporarily use this dimension to ensure we only use the new libimobiledevice, since the
-			// old version won't work with current recipes.
-			d["libimobiledevice"] = "1582155448"
 		} else if b.cpu() || b.extraConfig("CanvasKit", "Docker", "SwiftShader") {
 			modelMapping, ok := map[string]map[string]string{
 				"AppleM1": {
