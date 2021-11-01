@@ -410,9 +410,9 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     }
 
     // SkDraw::drawPoints converts to multiple calls to fDevice->drawPath.
-    // We only use this when there's a path effect because of the overhead
+    // We only use this when there's a path effect or perspective because of the overhead
     // of multiple calls to setUpContentEntry it causes.
-    if (paint->getPathEffect()) {
+    if (paint->getPathEffect() || this->localToDevice().hasPerspective()) {
         draw_points(mode, count, points, *paint, this->devClipBounds(), this);
         return;
     }
