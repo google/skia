@@ -8,6 +8,7 @@
 #ifndef GrFragmentProcessor_DEFINED
 #define GrFragmentProcessor_DEFINED
 
+#include "include/private/SkMacros.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkSLString.h"
 #include "src/gpu/GrProcessor.h"
@@ -336,7 +337,7 @@ protected:
                                  kPreservesOpaqueInput_OptimizationFlag |
                                  kConstantOutputForConstantInput_OptimizationFlag
     };
-    GR_DECL_BITFIELD_OPS_FRIENDS(OptimizationFlags)
+    SK_DECL_BITFIELD_OPS_FRIENDS(OptimizationFlags)
 
     /**
      * Can be used as a helper to decide which fragment processor OptimizationFlags should be set.
@@ -675,7 +676,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-GR_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
+SK_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
 
 static inline GrFPResult GrFPFailure(std::unique_ptr<GrFragmentProcessor> fp) {
     return {false, std::move(fp)};

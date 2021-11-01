@@ -15,6 +15,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkMacros.h"
 
 class GrBackendFormat;
 class GrCaps;
@@ -34,14 +35,6 @@ using GrStdSteadyClock = std::chrono::steady_clock;
  */
 
 static inline constexpr size_t GrSizeDivRoundUp(size_t x, size_t y) { return (x + (y - 1)) / y; }
-
-/**
- *  align up to a power of 2
- */
-static inline constexpr size_t GrAlignTo(size_t x, size_t alignment) {
-    SkASSERT(alignment && SkIsPow2(alignment));
-    return (x + alignment - 1) & ~(alignment - 1);
-}
 
 /**
  * Geometric primitives used for drawing.
@@ -373,7 +366,7 @@ enum GrShaderFlags {
     kTessEvaluation_GrShaderFlag = 1 << 2,
     kFragment_GrShaderFlag       = 1 << 3
 };
-GR_MAKE_BITFIELD_OPS(GrShaderFlags)
+SK_MAKE_BITFIELD_OPS(GrShaderFlags)
 
 /** Is the shading language type float (including vectors/matrices)? */
 static constexpr bool GrSLTypeIsFloatType(GrSLType type) {

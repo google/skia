@@ -8,12 +8,17 @@
 #ifndef SkBlockAllocator_DEFINED
 #define SkBlockAllocator_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkASAN.h"
 
 #include <memory>  // std::unique_ptr
 #include <cstddef> // max_align_t
+#include <limits> // numeric_limits
+#include <algorithm> // max
 
 /**
  * SkBlockAllocator provides low-level support for a block allocated arena with a dynamic tail that
@@ -509,12 +514,12 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Template and inline implementations
 
-GR_MAKE_BITFIELD_OPS(SkBlockAllocator::ReserveFlags)
+SK_MAKE_BITFIELD_OPS(SkBlockAllocator::ReserveFlags)
 
 template<size_t Align, size_t Padding>
 constexpr size_t SkBlockAllocator::BlockOverhead() {
-    static_assert(GrAlignTo(kDataStart + Padding, Align) >= sizeof(Block));
-    return GrAlignTo(kDataStart + Padding, Align);
+    static_assert(SkAlignTo(kDataStart + Padding, Align) >= sizeof(Block));
+    return SkAlignTo(kDataStart + Padding, Align);
 }
 
 template<size_t Align, size_t Padding>
@@ -562,7 +567,7 @@ SkBlockAllocator::ByteRange SkBlockAllocator::allocate(size_t size) {
     static constexpr int kBlockOverhead = (int) BlockOverhead<Align, Padding>();
 
     // Ensures 'offset' and 'end' calculations will be valid
-    static_assert((kMaxAllocationSize + GrAlignTo(MaxBlockSize<Align, Padding>(), Align))
+    static_assert((kMaxAllocationSize + SkAlignTo(MaxBlockSize<Align, Padding>(), Align))
                         <= (size_t) std::numeric_limits<int32_t>::max());
     // Ensures size + blockOverhead + addBlock's alignment operations will be valid
     static_assert(kMaxAllocationSize + kBlockOverhead + ((1 << 12) - 1) // 4K align for large blocks
@@ -625,7 +630,7 @@ int SkBlockAllocator::Block::alignedOffset(int offset) const {
                         <= (size_t) std::numeric_limits<int32_t>::max());
 
     if /* constexpr */ (Align <= kAddressAlign) {
-        // Same as GrAlignTo, but operates on ints instead of size_t
+        // Same as SkAlignTo, but operates on ints instead of size_t
         return (offset + Padding + Align - 1) & ~(Align - 1);
     } else {
         // Must take into account that 'this' may be starting at a pointer that doesn't satisfy the

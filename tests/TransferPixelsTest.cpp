@@ -155,7 +155,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     if (!allowedSrc.fOffsetAlignmentForTransferBuffer) {
         return;
     }
-    size_t srcRowBytes = GrAlignTo(GrColorTypeBytesPerPixel(allowedSrc.fColorType) * srcBufferWidth,
+    size_t srcRowBytes = SkAlignTo(GrColorTypeBytesPerPixel(allowedSrc.fColorType) * srcBufferWidth,
                                    caps->transferBufferAlignment());
 
     std::unique_ptr<char[]> srcData(new char[kTexDims.fHeight * srcRowBytes]);
@@ -341,8 +341,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     GrImageInfo readInfo(allowedRead.fColorType, kUnpremul_SkAlphaType, nullptr, kTexDims);
 
     size_t bpp = GrColorTypeBytesPerPixel(allowedRead.fColorType);
-    size_t fullBufferRowBytes = GrAlignTo(kTexDims.fWidth * bpp, caps->transferBufferAlignment());
-    size_t partialBufferRowBytes = GrAlignTo(kPartialWidth * bpp, caps->transferBufferAlignment());
+    size_t fullBufferRowBytes = SkAlignTo(kTexDims.fWidth * bpp, caps->transferBufferAlignment());
+    size_t partialBufferRowBytes = SkAlignTo(kPartialWidth * bpp, caps->transferBufferAlignment());
     size_t offsetAlignment = allowedRead.fOffsetAlignmentForTransferBuffer;
     SkASSERT(offsetAlignment);
 
