@@ -190,12 +190,6 @@ for c in testCases:
         expectPass = False
         print("moved %s to fail" % testName)
 
-    # SkSL does not disallow symbols beginning with gl_. (skia:12498)
-    if (testName == 'gl_begin'):
-        assert not expectPass
-        expectPass = True
-        print("moved %s to pass" % testName)
-
     # Apply fixups to the test code.
     # SkSL doesn't support the `precision` keyword, so comment it out if it appears.
     testCode = testCode.replace("precision highp ",   "// precision highp ");
