@@ -76,10 +76,6 @@ int GrUniformDataManager::copyUniforms(void* dest,
     return 4;
 }
 
-static void* advance_buffer(void* buffer, int numUniforms, int uniformSize) {
-    return static_cast<char*>(buffer) + (uniformSize * numUniforms);
-}
-
 template <int N, GrSLType FullType, GrSLType HalfType>
 void GrUniformDataManager::set(UniformHandle u, const void* v) const {
     const Uniform& uni = fUniforms[u.toIndex()];
@@ -103,7 +99,7 @@ void GrUniformDataManager::setv(UniformHandle u, int arrayCount, const void* v) 
     } else {
         for (int i = 0; i < arrayCount; ++i) {
             int uniformSize = this->copyUniforms(buffer, v, N, uni.fType);
-            buffer = advance_buffer(buffer, /*numUniforms=*/4, uniformSize);
+            buffer = SkTAddOffset<void>(buffer, /*numUniforms*/4 * uniformSize);
             v = static_cast<const char*>(v) + N * 4;
         }
     }
@@ -248,7 +244,7 @@ inline void GrUniformDataManager::setMatrices(UniformHandle u,
             const float* matrix = &matrices[N * N * i];
             for (int j = 0; j < N; ++j) {
                 int uniformSize = this->copyUniforms(buffer, &matrix[j * N], N, uni.fType);
-                buffer = advance_buffer(buffer, /*numUniforms=*/4, uniformSize);
+                buffer = SkTAddOffset<void>(buffer, /*numUniforms*/4 * uniformSize);
             }
         }
     }
