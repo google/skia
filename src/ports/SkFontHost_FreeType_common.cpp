@@ -577,7 +577,7 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
             SkPoint p2 = SkPoint::Make(SkFixedToScalar(linear_gradient.p2.x),
                                        -SkFixedToScalar(linear_gradient.p2.y));
 
-            // Do not draw the gradient of p0p1 is parallel to p0p2.
+            // Do not draw the gradient if p0p1 is parallel to p0p2.
             if (p1 == p0 || p2 == p0 || !SkPoint::CrossProduct(p1 - p0, p2 - p0)) break;
 
             // Follow implementation note in nanoemoji:
@@ -628,7 +628,7 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
                     stops.size(),
                     ToSkTileMode(linear_gradient.colorline.extend)));
             SkASSERT(shader);
-            // An opaque color is needed to ensure the gradient's not modulated by alpha.
+            // An opaque color is needed to ensure the gradient is not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
             paint->setShader(shader);
 
@@ -650,7 +650,7 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
                 return false;
             }
 
-            // An opaque color is needed to ensure the gradient's not modulated by alpha.
+            // An opaque color is needed to ensure the gradient is not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
 
             paint->setShader(SkGradientShader::MakeTwoPointConical(
@@ -671,7 +671,7 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
                 return false;
             }
 
-            // An opaque color is needed to ensure the gradient's not modulated by alpha.
+            // An opaque color is needed to ensure the gradient is not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
 
             // Prepare angles to be within range for the shader.
