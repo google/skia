@@ -42,15 +42,15 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kUShort4_GrSLType:
             return 0x7;
         case kInt_GrSLType:
-        case kUint_GrSLType:
+        case kUInt_GrSLType:
             return 0x3;
         case kInt2_GrSLType:
-        case kUint2_GrSLType:
+        case kUInt2_GrSLType:
             return 0x7;
         case kInt3_GrSLType:
-        case kUint3_GrSLType:
+        case kUInt3_GrSLType:
         case kInt4_GrSLType:
-        case kUint4_GrSLType:
+        case kUInt4_GrSLType:
             return 0xF;
         case kHalf_GrSLType: // fall through
         case kFloat_GrSLType:
@@ -122,16 +122,16 @@ static inline uint32_t grsltype_to_size(GrSLType type) {
         case kFloat4_GrSLType:
             return 4 * sizeof(float);
         case kInt_GrSLType: // fall through
-        case kUint_GrSLType:
+        case kUInt_GrSLType:
             return sizeof(int32_t);
         case kInt2_GrSLType: // fall through
-        case kUint2_GrSLType:
+        case kUInt2_GrSLType:
             return 2 * sizeof(int32_t);
         case kInt3_GrSLType: // fall through
-        case kUint3_GrSLType:
+        case kUInt3_GrSLType:
             return 3 * sizeof(int32_t);
         case kInt4_GrSLType: // fall through
-        case kUint4_GrSLType:
+        case kUInt4_GrSLType:
             return 4 * sizeof(int32_t);
         case kHalf2x2_GrSLType: // fall through
         case kFloat2x2_GrSLType:

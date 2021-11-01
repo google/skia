@@ -260,18 +260,18 @@ public:
 static uint32_t sltype_to_alignment_mask(SLType type) {
     switch (type) {
         case SLType::kInt:
-        case SLType::kUint:
+        case SLType::kUInt:
         case SLType::kFloat:
             return 0x3;
         case SLType::kInt2:
-        case SLType::kUint2:
+        case SLType::kUInt2:
         case SLType::kFloat2:
             return 0x7;
         case SLType::kInt3:
-        case SLType::kUint3:
+        case SLType::kUInt3:
         case SLType::kFloat3:
         case SLType::kInt4:
-        case SLType::kUint4:
+        case SLType::kUInt4:
         case SLType::kFloat4:
             return 0xF;
 
@@ -326,18 +326,18 @@ static uint32_t sltype_to_alignment_mask(SLType type) {
 inline uint32_t sltype_to_mtl_size(SLType type) {
     switch (type) {
         case SLType::kInt:
-        case SLType::kUint:
+        case SLType::kUInt:
         case SLType::kFloat:
             return 4;
         case SLType::kInt2:
-        case SLType::kUint2:
+        case SLType::kUInt2:
         case SLType::kFloat2:
             return 8;
         case SLType::kInt3:
-        case SLType::kUint3:
+        case SLType::kUInt3:
         case SLType::kFloat3:
         case SLType::kInt4:
-        case SLType::kUint4:
+        case SLType::kUInt4:
         case SLType::kFloat4:
             return 16;
 

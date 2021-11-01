@@ -199,7 +199,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type)
             return MTLVertexFormatUShort2Normalized;
         case VertexAttribType::kInt:
             return MTLVertexFormatInt;
-        case VertexAttribType::kUint:
+        case VertexAttribType::kUInt:
             return MTLVertexFormatUInt;
         case VertexAttribType::kUShort_norm:
             if (@available(macOS 10.13, iOS 11.0, *)) {

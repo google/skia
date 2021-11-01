@@ -107,10 +107,10 @@ enum class SLType {
     kInt2,
     kInt3,
     kInt4,
-    kUint,
-    kUint2,
-    kUint3,
-    kUint4,
+    kUInt,
+    kUInt2,
+    kUInt3,
+    kUInt4,
     kTexture2DSampler,
     kTextureExternalSampler,
     kTexture2DRectSampler,
@@ -198,7 +198,7 @@ enum class VertexAttribType : uint8_t {
     kUShort2_norm, // vector of 2 unsigned shorts. 0 -> 0.0f, 65535 -> 1.0f.
 
     kInt,
-    kUint,
+    kUInt,
 
     kUShort_norm,
 

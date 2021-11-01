@@ -67,10 +67,10 @@ bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outTyp
     if (type == *context.fTypes.fInt2    ) { *outType = kInt2_GrSLType;     return true; }
     if (type == *context.fTypes.fInt3    ) { *outType = kInt3_GrSLType;     return true; }
     if (type == *context.fTypes.fInt4    ) { *outType = kInt4_GrSLType;     return true; }
-    if (type == *context.fTypes.fUInt    ) { *outType = kUint_GrSLType;     return true; }
-    if (type == *context.fTypes.fUInt2   ) { *outType = kUint2_GrSLType;    return true; }
-    if (type == *context.fTypes.fUInt3   ) { *outType = kUint3_GrSLType;    return true; }
-    if (type == *context.fTypes.fUInt4   ) { *outType = kUint4_GrSLType;    return true; }
+    if (type == *context.fTypes.fUInt    ) { *outType = kUInt_GrSLType;     return true; }
+    if (type == *context.fTypes.fUInt2   ) { *outType = kUInt2_GrSLType;    return true; }
+    if (type == *context.fTypes.fUInt3   ) { *outType = kUInt3_GrSLType;    return true; }
+    if (type == *context.fTypes.fUInt4   ) { *outType = kUInt4_GrSLType;    return true; }
     return false;
 }
 #endif

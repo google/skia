@@ -222,7 +222,7 @@ static DXGI_FORMAT attrib_type_to_format(GrVertexAttribType type) {
         return DXGI_FORMAT_R16G16_UNORM;
     case kInt_GrVertexAttribType:
         return DXGI_FORMAT_R32_SINT;
-    case kUint_GrVertexAttribType:
+    case kUInt_GrVertexAttribType:
         return DXGI_FORMAT_R32_UINT;
     case kUShort_norm_GrVertexAttribType:
         return DXGI_FORMAT_R16_UNORM;

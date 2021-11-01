@@ -23,18 +23,18 @@ GR_NORETAIN_BEGIN
 static uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
         case kInt_GrSLType:
-        case kUint_GrSLType:
+        case kUInt_GrSLType:
         case kFloat_GrSLType:
             return 0x3;
         case kInt2_GrSLType:
-        case kUint2_GrSLType:
+        case kUInt2_GrSLType:
         case kFloat2_GrSLType:
             return 0x7;
         case kInt3_GrSLType:
-        case kUint3_GrSLType:
+        case kUInt3_GrSLType:
         case kFloat3_GrSLType:
         case kInt4_GrSLType:
-        case kUint4_GrSLType:
+        case kUInt4_GrSLType:
         case kFloat4_GrSLType:
             return 0xF;
 
@@ -89,18 +89,18 @@ static uint32_t grsltype_to_alignment_mask(GrSLType type) {
 static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
     switch(type) {
         case kInt_GrSLType:
-        case kUint_GrSLType:
+        case kUInt_GrSLType:
         case kFloat_GrSLType:
             return 4;
         case kInt2_GrSLType:
-        case kUint2_GrSLType:
+        case kUInt2_GrSLType:
         case kFloat2_GrSLType:
             return 8;
         case kInt3_GrSLType:
-        case kUint3_GrSLType:
+        case kUInt3_GrSLType:
         case kFloat3_GrSLType:
         case kInt4_GrSLType:
-        case kUint4_GrSLType:
+        case kUInt4_GrSLType:
         case kFloat4_GrSLType:
             return 16;
 

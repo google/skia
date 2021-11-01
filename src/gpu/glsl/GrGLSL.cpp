@@ -41,10 +41,10 @@ const char* GrGLSLTypeString(GrSLType t) {
         case kInt2_GrSLType:                   return "int2";
         case kInt3_GrSLType:                   return "int3";
         case kInt4_GrSLType:                   return "int4";
-        case kUint_GrSLType:                   return "uint";
-        case kUint2_GrSLType:                  return "uint2";
-        case kUint3_GrSLType:                  return "uint3";
-        case kUint4_GrSLType:                  return "uint4";
+        case kUInt_GrSLType:                   return "uint";
+        case kUInt2_GrSLType:                  return "uint2";
+        case kUInt3_GrSLType:                  return "uint3";
+        case kUInt4_GrSLType:                  return "uint4";
         case kTexture2DSampler_GrSLType:       return "sampler2D";
         case kTextureExternalSampler_GrSLType: return "samplerExternalOES";
         case kTexture2DRectSampler_GrSLType:   return "sampler2DRect";

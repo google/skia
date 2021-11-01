@@ -66,7 +66,7 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
             return {true, 2, GR_GL_UNSIGNED_SHORT};
         case kInt_GrVertexAttribType:
             return {false, 1, GR_GL_INT};
-        case kUint_GrVertexAttribType:
+        case kUInt_GrVertexAttribType:
             return {false, 1, GR_GL_UNSIGNED_INT};
         case kUShort_norm_GrVertexAttribType:
             return {true, 1, GR_GL_UNSIGNED_SHORT};

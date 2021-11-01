@@ -161,7 +161,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
             return MTLVertexFormatUShort2Normalized;
         case kInt_GrVertexAttribType:
             return MTLVertexFormatInt;
-        case kUint_GrVertexAttribType:
+        case kUInt_GrVertexAttribType:
             return MTLVertexFormatUInt;
         case kUShort_norm_GrVertexAttribType:
             if (@available(macOS 10.13, iOS 11.0, *)) {

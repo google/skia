@@ -237,7 +237,7 @@ static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
             return 2 * sizeof(uint16_t);
         case VertexAttribType::kInt:
             return sizeof(int32_t);
-        case VertexAttribType::kUint:
+        case VertexAttribType::kUInt:
             return sizeof(uint32_t);
         case VertexAttribType::kUShort_norm:
             return sizeof(uint16_t);
