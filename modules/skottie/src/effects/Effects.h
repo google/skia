@@ -79,6 +79,8 @@ private:
                                                            sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachShiftChannelsEffect     (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachSkSLEffect              (const skjson::ArrayValue&,
+                                                           sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachSphereEffect            (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachThresholdEffect         (const skjson::ArrayValue&,
