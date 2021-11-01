@@ -3124,15 +3124,12 @@ bool SPIRVCodeGenerator::isDead(const Variable& var) const {
 
 void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& varDecl) {
     const Variable& var = varDecl.var();
-    // 9999 is a sentinel value used in our built-in modules that causes us to ignore these
-    // declarations, beyond adding them to the symbol table.
-    constexpr int kBuiltinIgnore = 9999;
-    if (var.modifiers().fLayout.fBuiltin == kBuiltinIgnore) {
-        return;
-    }
     if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
         kind != ProgramKind::kFragment) {
         SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
+        return;
+    }
+    if (var.modifiers().fLayout.fBuiltin == SK_SECONDARYFRAGCOLOR_BUILTIN) {
         return;
     }
     if (this->isDead(var)) {

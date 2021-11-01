@@ -775,6 +775,9 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 this->write("gl_FragColor");
             }
             break;
+        case SK_SECONDARYFRAGCOLOR_BUILTIN:
+            this->write("gl_SecondaryFragColorEXT");
+            break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
             break;
