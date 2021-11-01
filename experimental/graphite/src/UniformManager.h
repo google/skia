@@ -39,6 +39,8 @@ public:
                            void *dst);
 
 private:
+    SLType getUniformTypeForLayout(SLType type);
+
     Layout fLayout;
 };
 

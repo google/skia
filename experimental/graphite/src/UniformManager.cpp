@@ -7,11 +7,14 @@
 
 #include "experimental/graphite/src/UniformManager.h"
 #include "include/core/SkMatrix.h"
+#include "include/private/SkHalf.h"
 #include "include/private/SkTemplates.h"
 
 // ensure that these types are the sizes the uniform data is expecting
 static_assert(sizeof(int32_t) == 4);
 static_assert(sizeof(float) == 4);
+static_assert(sizeof(int16_t) == 2);
+static_assert(sizeof(SkHalf) == 2);
 
 namespace skgpu {
 
@@ -145,18 +148,40 @@ struct RulesMetal {
 template<template<typename BaseType, int RowsOrVecLength, int Cols> class Rules>
 class Writer {
 private:
-    template<typename BaseType, int RowsOrVecLength = 1, int Cols = 1>
-    static uint32_t Write(void *dst, int n, const BaseType src[]) {
-        size_t stride = Rules<BaseType, RowsOrVecLength, Cols>::Stride(n);
+    template <typename MemType, typename UniformType>
+    static void CopyUniforms(void* dst, const void* src, int numUniforms) {
+        if constexpr (std::is_same<MemType, UniformType>::value) {
+            // Matching types--use memcpy.
+            std::memcpy(dst, src, numUniforms * sizeof(MemType));
+            return;
+        }
+
+        if constexpr (std::is_same<MemType, float>::value &&
+                      std::is_same<UniformType, SkHalf>::value) {
+            // Convert floats to half.
+            const float* floatBits = static_cast<const float*>(src);
+            SkHalf* halfBits = static_cast<SkHalf*>(dst);
+            while (numUniforms-- > 0) {
+                *halfBits++ = SkFloatToHalf(*floatBits++);
+            }
+            return;
+        }
+
+        SK_ABORT("implement conversion from MemType to UniformType");
+    }
+
+    template <typename MemType, typename UniformType, int RowsOrVecLength = 1, int Cols = 1>
+    static uint32_t Write(void *dst, int n, const MemType src[]) {
+        size_t stride = Rules<UniformType, RowsOrVecLength, Cols>::Stride(n);
         n = (n == Uniform::kNonArray) ? 1 : n;
         n *= Cols;
 
         if (dst) {
-            if (stride == RowsOrVecLength * sizeof(BaseType)) {
-                std::memcpy(dst, src, n * stride);
+            if (stride == RowsOrVecLength * sizeof(UniformType)) {
+                CopyUniforms<MemType, UniformType>(dst, src, n * RowsOrVecLength);
             } else {
                 for (int i = 0; i < n; ++i) {
-                    std::memcpy(dst, src, RowsOrVecLength * sizeof(BaseType));
+                    CopyUniforms<MemType, UniformType>(dst, src, RowsOrVecLength);
                     src += RowsOrVecLength;
                     dst = SkTAddOffset<void>(dst, stride);
                 }
@@ -166,9 +191,10 @@ private:
         return n * stride;
     }
 
+    template <typename UniformType>
     static uint32_t WriteSkMatrices(void *dst, int n, const SkMatrix m[]) {
         // Stride() will give us the stride of each column, so mul by 3 to get matrix stride.
-        size_t stride = 3 * Rules<float, 3, 3>::Stride(1);
+        size_t stride = 3 * Rules<UniformType, 3, 3>::Stride(1);
         n = std::max(n, 1);
 
         if (dst) {
@@ -185,7 +211,7 @@ private:
                         m[i].get(SkMatrix::kMTransY),
                         m[i].get(SkMatrix::kMPersp2),
                 };
-                Write<float, 3, 3>(SkTAddOffset<void>(dst, offset), 1, mt);
+                Write<float, UniformType, 3, 3>(SkTAddOffset<void>(dst, offset), 1, mt);
                 offset += stride;
             }
         }
@@ -201,51 +227,70 @@ public:
         SkASSERT(n >= 1 || n == Uniform::kNonArray);
         switch (type) {
             case SLType::kInt:
-                return Write<int32_t>(dest, n, static_cast<const int32_t *>(src));
+                return Write<int32_t, int32_t>(dest, n, static_cast<const int32_t *>(src));
 
             case SLType::kInt2:
-                return Write<int32_t, 2>(dest, n, static_cast<const int32_t *>(src));
+                return Write<int32_t, int32_t, 2>(dest, n, static_cast<const int32_t *>(src));
 
             case SLType::kInt3:
-                return Write<int32_t, 3>(dest, n, static_cast<const int32_t *>(src));
+                return Write<int32_t, int32_t, 3>(dest, n, static_cast<const int32_t *>(src));
 
             case SLType::kInt4:
-                return Write<int32_t, 4>(dest, n, static_cast<const int32_t *>(src));
+                return Write<int32_t, int32_t, 4>(dest, n, static_cast<const int32_t *>(src));
 
             case SLType::kHalf:
+                return Write<float, SkHalf>(dest, n, static_cast<const float *>(src));
+
             case SLType::kFloat:
-                return Write<float>(dest, n, static_cast<const float *>(src));
+                return Write<float, float>(dest, n, static_cast<const float *>(src));
 
             case SLType::kHalf2:
+                return Write<float, SkHalf, 2>(dest, n, static_cast<const float *>(src));
+
             case SLType::kFloat2:
-                return Write<float, 2>(dest, n, static_cast<const float *>(src));
+                return Write<float, float, 2>(dest, n, static_cast<const float *>(src));
 
             case SLType::kHalf3:
+                return Write<float, SkHalf, 3>(dest, n, static_cast<const float *>(src));
+
             case SLType::kFloat3:
-                return Write<float, 3>(dest, n, static_cast<const float *>(src));
+                return Write<float, float, 3>(dest, n, static_cast<const float *>(src));
 
             case SLType::kHalf4:
+                return Write<float, SkHalf, 4>(dest, n, static_cast<const float *>(src));
+
             case SLType::kFloat4:
-                return Write<float, 4>(dest, n, static_cast<const float *>(src));
+                return Write<float, float, 4>(dest, n, static_cast<const float *>(src));
 
             case SLType::kHalf2x2:
+                return Write<float, SkHalf, 2, 2>(dest, n, static_cast<const float *>(src));
+
             case SLType::kFloat2x2:
-                return Write<float, 2, 2>(dest, n, static_cast<const float *>(src));
+                return Write<float, float, 2, 2>(dest, n, static_cast<const float *>(src));
 
             case SLType::kHalf3x3:
-            case SLType::kFloat3x3: {
                 switch (ctype) {
                     case CType::kDefault:
-                        return Write<float, 3, 3>(dest, n, static_cast<const float *>(src));
+                        return Write<float, SkHalf, 3, 3>(dest, n, static_cast<const float *>(src));
                     case CType::kSkMatrix:
-                        return WriteSkMatrices(dest, n, static_cast<const SkMatrix *>(src));
+                        return WriteSkMatrices<SkHalf>(dest, n, static_cast<const SkMatrix *>(src));
                 }
                 SkUNREACHABLE;
-            }
+
+            case SLType::kFloat3x3:
+                switch (ctype) {
+                    case CType::kDefault:
+                        return Write<float, float, 3, 3>(dest, n, static_cast<const float *>(src));
+                    case CType::kSkMatrix:
+                        return WriteSkMatrices<float>(dest, n, static_cast<const SkMatrix *>(src));
+                }
+                SkUNREACHABLE;
 
             case SLType::kHalf4x4:
+                return Write<float, SkHalf, 4, 4>(dest, n, static_cast<const float *>(src));
+
             case SLType::kFloat4x4:
-                return Write<float, 4, 4>(dest, n, static_cast<const float *>(src));
+                return Write<float, float, 4, 4>(dest, n, static_cast<const float *>(src));
 
             default:
                 SK_ABORT("Unexpected uniform type");
@@ -414,6 +459,37 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
 }
 #endif // SK_DEBUG
 
+SLType UniformManager::getUniformTypeForLayout(SLType type) {
+    if (fLayout != Layout::kMetal) {
+        // GL/Vk expect uniforms in 32-bit precision. Convert lower-precision types to 32-bit.
+        switch (type) {
+            case SLType::kShort:            return SLType::kInt;
+            case SLType::kUShort:           return SLType::kUInt;
+            case SLType::kHalf:             return SLType::kFloat;
+
+            case SLType::kShort2:           return SLType::kInt2;
+            case SLType::kUShort2:          return SLType::kUInt2;
+            case SLType::kHalf2:            return SLType::kFloat2;
+
+            case SLType::kShort3:           return SLType::kInt3;
+            case SLType::kUShort3:          return SLType::kUInt3;
+            case SLType::kHalf3:            return SLType::kFloat3;
+
+            case SLType::kShort4:           return SLType::kInt4;
+            case SLType::kUShort4:          return SLType::kUInt4;
+            case SLType::kHalf4:            return SLType::kFloat4;
+
+            case SLType::kHalf2x2:          return SLType::kFloat2x2;
+            case SLType::kHalf3x3:          return SLType::kFloat3x3;
+            case SLType::kHalf4x4:          return SLType::kFloat4x4;
+
+            default:                        break;
+        }
+    }
+
+    return type;
+}
+
 uint32_t UniformManager::writeUniforms(SkSpan<const Uniform> uniforms,
                                        void** srcs,
                                        uint32_t* offsets,
@@ -440,15 +516,16 @@ uint32_t UniformManager::writeUniforms(SkSpan<const Uniform> uniforms,
 
     for (int i = 0; i < (int) uniforms.size(); ++i) {
         const Uniform& u = uniforms[i];
+        SLType uniformType = this->getUniformTypeForLayout(u.type());
 
 #ifdef SK_DEBUG
         uint32_t debugOffset = get_ubo_aligned_offset(&curUBOOffset,
                                                       &curUBOMaxAlignment,
-                                                      u.type(),
+                                                      uniformType,
                                                       u.count());
 #endif // SK_DEBUG
 
-        uint32_t bytesWritten = write(u.type(),
+        uint32_t bytesWritten = write(uniformType,
                                       CType::kDefault,
                                       dst,
                                       u.count(),

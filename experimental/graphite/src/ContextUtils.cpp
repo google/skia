@@ -27,7 +27,7 @@ static constexpr int kNumGradientUniforms = 6;
 
 sk_sp<UniformData> make_gradient_uniform_data_common(void* srcs[kNumGradientUniforms]) {
     static constexpr Uniform kUniforms[kNumGradientUniforms] {
-            {"colors",  SLType::kFloat4 , kMaxStops },
+            {"colors",  SLType::kHalf4, kMaxStops },
             {"offsets", SLType::kFloat, kMaxStops },
             {"point0",   SLType::kFloat2 },
             {"point1",   SLType::kFloat2 },
