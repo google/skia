@@ -1,18 +1,21 @@
-void a() { float[-2]; }
-void b() { float[-1]; }
-void c() { float[0]; }
-void d() { float[1.5]; }
-void e() { float[4000000000]; }
-void f() { float[true]; }
-void g() { float[false]; }
-void h() { float[int2(2, 2)]; }
-void i() { float[]; }
-void j() { float x[-2]; }
-void k() { float x[-1]; }
-void l() { float x[0]; }
-void m() { float x[1.5]; }
-void n() { float x[4000000000]; }
-void o() { float x[true]; }
-void p() { float x[false]; }
-void q() { float x[int2(2, 2)]; }
-void r() { float x[]; }
+void a1() { float[-2]; }
+void b1() { float[-1]; }
+void c1() { float[0]; }
+void d1() { float[1.5]; }
+void e1() { float[4000000000]; }
+void f1() { float[true]; }
+void g1() { float[false]; }
+void h1() { float[int2(2, 2)]; }
+void i1() { float[]; }
+void j1() { float[int3(4000000000)]; }
+
+void a2() { float x[-2]; }
+void b2() { float x[-1]; }
+void c2() { float x[0]; }
+void d2() { float x[1.5]; }
+void e2() { float x[4000000000]; }
+void f2() { float x[true]; }
+void g2() { float x[false]; }
+void h2() { float x[int2(2, 2)]; }
+void i2() { float x[]; }
+void j2() { float x[int3(4000000000)]; }

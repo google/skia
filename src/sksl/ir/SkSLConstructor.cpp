@@ -55,9 +55,13 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
         if (argument->type().isScalar()) {
             // A constructor containing a single scalar is a splat (for vectors) or diagonal matrix
             // (for matrices). It's legal regardless of the scalar's type, so synthesize an explicit
-            // conversion to the proper type. (This cast is a no-op if it's unnecessary.)
-            std::unique_ptr<Expression> typecast = ConstructorScalarCast::Make(
-                    context, line, type.componentType(), std::move(argument));
+            // conversion to the proper type. (This cast is a no-op if it's unnecessary; it can fail
+            // if we're casting a literal that exceeds the limits of the type.)
+            std::unique_ptr<Expression> typecast = ConstructorScalarCast::Convert(
+                        context, line, type.componentType(), std::move(args));
+            if (!typecast) {
+                return nullptr;
+            }
 
             // Matrix-from-scalar creates a diagonal matrix; vector-from-scalar creates a splat.
             return type.isMatrix()
