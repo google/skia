@@ -941,11 +941,13 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
 
     if (0 == fNumOctaves) {
         if (kFractalNoise_Type == fType) {
-            // Incoming alpha is assumed to be 1. So emit rgba = (1/4, 1/4, 1/4, 1/2)
+            // Extract the incoming alpha and emit rgba = (a/4, a/4, a/4, a/2)
             // TODO: Either treat the output of this shader as sRGB or allow client to specify a
             // color space of the noise. Either way, this case (and the GLSL) need to convert to
             // the destination.
-            return GrFragmentProcessor::MakeColor(SkPMColor4f::FromBytes_RGBA(0x80404040));
+            auto inner = GrFragmentProcessor::ModulateRGBA(
+                    /*child=*/nullptr, SkPMColor4f::FromBytes_RGBA(0x80404040));
+            return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
         }
         // Emit zero.
         return GrFragmentProcessor::MakeColor(SK_PMColor4fTRANSPARENT);
@@ -966,7 +968,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                                                 std::move(noiseView),
                                                 m,
                                                 *context->priv().caps());
-        return GrFragmentProcessor::DisableCoverageAsAlpha(std::move(inner));
+        return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
     }
     return nullptr;
 }

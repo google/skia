@@ -520,12 +520,26 @@ void draw_image(GrRecordingContext* rContext,
             fp = GrBlendFragmentProcessor::Make(
                     std::move(fp), std::move(shaderFP), SkBlendMode::kDstIn);
         } else {
-            // Multiply the input (paint) color by the texture (alpha)
-            fp = GrFragmentProcessor::MulInputByChildAlpha(std::move(fp));
+            // This takes the input (paint) color, premultiplies it, then multiplies by the texture
+            fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
         }
+
     } else {
-        // TODO (skbug.com/11942): Does this belong here? Can we handle this in paint conversion?
-        fp = GrFragmentProcessor::DisableCoverageAsAlpha(std::move(fp));
+        if (paint.getColor4f().isOpaque()) {
+            // If the input alpha is known to be 1, we don't need to take the kSrcIn path. This is
+            // just an optimization. However, we can't just return 'fp' here. We need to actually
+            // inhibit the coverage-as-alpha optimization, or we'll fail to incorporate AA
+            // correctly. The OverrideInput FP happens to do that, so wrap our fp in one of those.
+            // The texture FP doesn't actually use the input color at all, so the overridden input
+            // is irrelevant.
+            fp = GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
+        } else {
+            // If the paint color isn't opaque, then scale the shader's output by input (paint)
+            // alpha.
+            // TODO(skia:11942): Move this alpha modulation to paint-conversion. This won't need to
+            // do anything.
+            fp = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
+        }
     }
 
     GrPaint grPaint;

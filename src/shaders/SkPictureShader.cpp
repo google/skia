@@ -426,7 +426,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
                                  static_cast<GrSamplerState::WrapMode>(fTmy),
                                  fFilter);
 
-    return GrFragmentProcessor::DisableCoverageAsAlpha(
+    return GrFragmentProcessor::MulChildByInputAlpha(
         GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, inv, sampler,
                               *ctx->priv().caps()));
 }
