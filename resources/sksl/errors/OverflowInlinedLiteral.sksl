@@ -1,0 +1,27 @@
+short cast_int_to_short(int x) {
+    return short(x);
+}
+short2 cast_int2_to_short2(int2 x) {
+    return short2(x);
+}
+int cast_float_to_int(float x) {
+    return int(x);
+}
+int3 cast_float3_to_int3(float3 x) {
+    return int3(x);
+}
+short negate_short(short x) {
+    return -x;
+}
+int4 negate_int4(int4 x) {
+    return -x;
+}
+void main() {
+    cast_int_to_short(99999);
+    cast_int2_to_short2(int2(12345, 67890));
+    cast_float_to_int(5000000000.0);
+    cast_float3_to_int3(float3(3000000000, 2000000, 1000));
+    negate_short(-32768);
+    negate_int4(int4(-2147483648));
+}
+

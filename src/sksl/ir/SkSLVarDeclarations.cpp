@@ -225,11 +225,6 @@ std::unique_ptr<Statement> VarDeclaration::Make(const Context& context, Variable
     // 'uniform' variables cannot use initializer expressions
     SkASSERT(!(value && (var->modifiers().fFlags & Modifiers::kUniform_Flag)));
 
-    // Detect and report out-of-range initial-values for this variable.
-    if (value) {
-        var->type().checkForOutOfRangeLiteral(context, *value);
-    }
-
     auto result = std::make_unique<VarDeclaration>(var, baseType, arraySize, std::move(value));
     var->setDeclaration(result.get());
     return std::move(result);

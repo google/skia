@@ -32,14 +32,8 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
             double negated = -value->as<Literal>().value();
             // Don't simplify the expression if the type can't hold the negated value.
             const Type& type = value->type();
-            if (type.isInteger()) {
-                if (negated < type.minimumValue() || negated > type.maximumValue()) {
-                    context.fErrors->error(originalExpr.fLine,
-                                           String("integer is out of range for type '") +
-                                           type.displayName().c_str() + "': -" +
-                                           to_string(value->as<Literal>().intValue()));
-                    return nullptr;
-                }
+            if (type.checkForOutOfRangeLiteral(context, negated, value->fLine)) {
+                return nullptr;
             }
             return Literal::Make(originalExpr.fLine, negated, &type);
         }

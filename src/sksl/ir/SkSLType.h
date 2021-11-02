@@ -512,6 +512,9 @@ public:
     /** Detects any IntLiterals in the expression which can't fit in this type. */
     bool checkForOutOfRangeLiteral(const Context& context, const Expression& expr) const;
 
+    /** Checks if `value` can fit in this type. The type must be scalar. */
+    bool checkForOutOfRangeLiteral(const Context& context, double value, int line) const;
+
     /**
      * Verifies that the expression is a valid constant array size for this type. Returns the array
      * size, or zero if the expression isn't a valid literal value.

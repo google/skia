@@ -770,9 +770,6 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
                                      expr->type().displayName() + "'");
         return nullptr;
     }
-    if (this->checkForOutOfRangeLiteral(context, *expr)) {
-        return nullptr;
-    }
 
     if (this->isScalar()) {
         return ConstructorScalarCast::Make(context, line, *this, std::move(expr));
@@ -835,17 +832,11 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
             int numSlots = valueExpr->type().slotCount();
             for (int slot = 0; slot < numSlots; ++slot) {
                 const Expression* subexpr = valueExpr->getConstantSubexpression(slot);
-                if (!subexpr || !subexpr->is<Literal>()) {
-                    continue;
-                }
-                // Look for a Literal value that is out of range for the corresponding type.
-                double value = subexpr->as<Literal>().value();
-                if (value < baseType.minimumValue() || value > baseType.maximumValue()) {
-                    // We found a value that can't fit in the type. Flag it as an error.
-                    context.fErrors->error(
-                            expr.fLine,
-                            String("integer is out of range for type '") +
-                            this->displayName().c_str() + "': " + to_string((SKSL_INT)value));
+                // Check for Literal values that are out of range for the base type.
+                if (subexpr &&
+                    subexpr->is<Literal>() &&
+                    baseType.checkForOutOfRangeLiteral(context, subexpr->as<Literal>().value(),
+                                                       subexpr->fLine)) {
                     foundError = true;
                 }
             }
@@ -854,6 +845,20 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
 
     // We don't need range checks for floats or booleans; any matched-type value is acceptable.
     return foundError;
+}
+
+bool Type::checkForOutOfRangeLiteral(const Context& context, double value, int line) const {
+    SkASSERT(this->isScalar());
+    if (this->isInteger()) {
+        if (value < this->minimumValue() || value > this->maximumValue()) {
+            // We found a value that can't fit in the type. Flag it as an error.
+            context.fErrors->error(line, String("integer is out of range for type '") +
+                                         this->displayName().c_str() +
+                                         "': " + to_string((SKSL_INT)value));
+            return true;
+        }
+    }
+    return false;
 }
 
 SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expression> size) const {

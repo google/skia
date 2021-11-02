@@ -70,8 +70,12 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
     if (context.fConfig->fSettings.fOptimize) {
         arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
     }
-    // We can cast scalar literals at compile-time.
-    if (arg->is<Literal>()) {
+    // We can cast scalar literals at compile-time when possible. (If the resulting literal would be
+    // out of range for its type, we report an error and return the constructor. This can occur when
+    // code is inlined, so we can't necessarily catch it during Convert. As such, it's not safe to
+    // return null or assert.)
+    if (arg->is<Literal>() &&
+        !type.checkForOutOfRangeLiteral(context, arg->as<Literal>().value(), arg->fLine)) {
         return Literal::Make(line, arg->as<Literal>().value(), &type);
     }
     return std::make_unique<ConstructorScalarCast>(line, type, std::move(arg));
