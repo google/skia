@@ -9,6 +9,7 @@
 #define SkDeferredDisplayListRecorder_DEFINED
 
 #include "include/core/SkDeferredDisplayList.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceCharacterization.h"
@@ -19,8 +20,6 @@ class GrBackendTexture;
 class GrRecordingContext;
 class GrYUVABackendTextureInfo;
 class SkCanvas;
-class SkImage;
-class SkPromiseImageTexture;
 class SkSurface;
 
 /*
@@ -51,6 +50,7 @@ public:
 
     sk_sp<SkDeferredDisplayList> detach();
 
+#if SK_SUPPORT_GPU
     using PromiseImageTextureContext     = SkImage::PromiseImageTextureContext;
     using PromiseImageTextureFulfillProc = SkImage::PromiseImageTextureFulfillProc;
     using PromiseImageTextureReleaseProc = SkImage::PromiseImageTextureReleaseProc;
@@ -75,7 +75,8 @@ public:
                                           PromiseImageTextureFulfillProc textureFulfillProc,
                                           PromiseImageTextureReleaseProc textureReleaseProc,
                                           PromiseImageTextureContext textureContexts[]);
-#endif
+#endif // SK_MAKE_PROMISE_TEXTURE_DISABLE_LEGACY_API
+#endif // SK_SUPPORT_GPU
 
 private:
     SkDeferredDisplayListRecorder(const SkDeferredDisplayListRecorder&) = delete;

@@ -444,14 +444,12 @@ public:
                                               GrMipMapped buildMips = GrMipmapped::kNo,
                                               bool limitToMaxTextureSize = false,
                                               sk_sp<SkColorSpace> imageColorSpace = nullptr);
-#endif // SK_SUPPORT_GPU
 
     using PromiseImageTextureContext = void*;
     using PromiseImageTextureFulfillProc =
             sk_sp<SkPromiseImageTexture> (*)(PromiseImageTextureContext);
     using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
 
-#if SK_SUPPORT_GPU
     /** Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The
         difference is that the caller need not have created the texture nor populated it with the
         image pixel data. Moreover, the SkImage may be created on a thread as the creation of the
