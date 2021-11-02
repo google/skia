@@ -42,7 +42,7 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 
 SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space)
     : fColorSpace(std::move(space))
-    , fColor(color)
+    , fColor({color.fR, color.fG, color.fB, SkTPin(color.fA, 0.0f, 1.0f)})
 {}
 
 sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
