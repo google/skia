@@ -302,7 +302,7 @@ private:
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
         const auto& child = this->children()[0];
-        const auto bounds = child->revalidate(nullptr, SkMatrix::I());
+        const auto bounds = child->revalidate(ic, ctm);
 
         fEffectShader = this->buildEffectShader();
 

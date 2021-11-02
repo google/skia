@@ -26,7 +26,7 @@ public:
 private:
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
         const auto& child = this->children()[0];
-        return child->revalidate(nullptr, SkMatrix::I());
+        return child->revalidate(ic, ctm);
     }
 
     void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
