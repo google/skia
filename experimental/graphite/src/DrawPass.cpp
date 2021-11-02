@@ -8,7 +8,6 @@
 #include "experimental/graphite/src/DrawPass.h"
 
 #include "experimental/graphite/include/GraphiteTypes.h"
-#include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawContext.h"
@@ -22,7 +21,6 @@
 
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkUtils.h"
-#include "src/gpu/BufferWriter.h"
 
 #include <algorithm>
 
@@ -236,36 +234,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     uint32_t lastShadingUniforms = UniformData::kInvalidUniformID;
     uint32_t lastGeometryUniforms = 0;
     SkIRect lastScissor = SkIRect::MakeSize(target->dimensions());
-    Buffer* lastBoundVertexBuffer = nullptr;
-    Buffer* lastBoundIndexBuffer = nullptr;
-
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = *key.draw();
-        int renderStep = key.renderStep();
-
-        size_t vertexSize = draw.requiredVertexSpace(renderStep);
-        size_t indexSize = draw.requiredIndexSpace(renderStep);
-        auto [vertexWriter, vertexInfo] = bufferMgr->getVertexWriter(vertexSize);
-        auto [indexWriter, indexInfo] = bufferMgr->getIndexWriter(indexSize);
-        draw.writeVertices(std::move(vertexWriter), std::move(indexWriter), renderStep);
-
-        if (vertexSize) {
-            SkASSERT(vertexWriter);
-            if (lastBoundVertexBuffer != vertexInfo.fBuffer) {
-                // TODO: Record a vertex bind call that stores the vertexInfo.fBuffer.
-            }
-            // TODO: Store the vertexInfo.fOffset so the draw will know its vertex offset when it
-            // executes.
-        }
-        if (indexSize) {
-            SkASSERT(indexWriter);
-            if (lastBoundIndexBuffer != indexInfo.fBuffer) {
-                // TODO: Record a vertex bind call that stores the vertexInfo.fBuffer.
-            }
-            // TODO: Store the vertexInfo.fOffset so the draw will know its vertex offset when it
-            // executes.
-        }
-
         // TODO: Have the render step write out vertices and figure out what draw call function and
         // primitive type it uses. The vertex buffer binding/offset and draw params will be examined
         // to determine if the active draw can be updated to include the new vertices, or if it has

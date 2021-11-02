@@ -16,10 +16,6 @@
 
 namespace skgpu {
 
-struct IndexWriter;
-class Shape;
-struct VertexWriter;
-
 class RenderStep {
 public:
     virtual ~RenderStep() {}
@@ -28,10 +24,6 @@ public:
     virtual bool        requiresStencil() const = 0;
     virtual bool        requiresMSAA()    const = 0;
     virtual bool        performsShading() const = 0;
-
-    virtual size_t requiredVertexSpace(const Shape&) const = 0;
-    virtual size_t requiredIndexSpace(const Shape&) const = 0;
-    virtual void writeVertices(VertexWriter, IndexWriter, const Shape&) const = 0;
 
     // TODO: Actual API to do things
     // 1. Provide stencil settings

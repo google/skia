@@ -25,9 +25,7 @@ struct SkIRect;
 
 namespace skgpu {
 
-struct IndexWriter;
 class Renderer;
-struct VertexWriter;
 
 // TBD: If occlusion culling is eliminated as a phase, we can easily move the paint conversion
 // back to Device when the command is recorded (similar to SkPaint -> GrPaint), and then
@@ -214,11 +212,6 @@ private:
                 , fOrder(order)
                 , fPaintParams(paint ? skstd::optional<PaintParams>(*paint) : skstd::nullopt)
                 , fStrokeParams(stroke ? skstd::optional<StrokeParams>(*stroke) : skstd::nullopt) {}
-
-        size_t requiredVertexSpace(int renderStep) const;
-        size_t requiredIndexSpace(int renderStep) const;
-
-        void writeVertices(VertexWriter, IndexWriter, int renderStep) const;
     };
 
     // The returned Transform reference remains valid for the lifetime of the DrawList.
