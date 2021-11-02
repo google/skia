@@ -5,28 +5,45 @@
  * found in the LICENSE file.
  */
 
-#include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
 #include "include/private/SkHalf.h"
-#include "src/codec/SkBmpCodec.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
+
+// We always include and compile in these BMP codecs
+#include "src/codec/SkBmpCodec.h"
+#include "src/codec/SkWbmpCodec.h"
+
+#ifdef SK_HAS_ANDROID_CODEC
+#include "include/codec/SkAndroidCodec.h"
+#endif
+
 #ifdef SK_HAS_HEIF_LIBRARY
 #include "src/codec/SkHeifCodec.h"
 #endif
-#include "src/codec/SkIcoCodec.h"
+
+#ifdef SK_CODEC_DECODES_JPEG
 #include "src/codec/SkJpegCodec.h"
+#endif
+
 #ifdef SK_CODEC_DECODES_PNG
+#include "src/codec/SkIcoCodec.h"
 #include "src/codec/SkPngCodec.h"
 #endif
-#include "include/core/SkStream.h"
+
+#ifdef SK_CODEC_DECODES_RAW
 #include "src/codec/SkRawCodec.h"
-#include "src/codec/SkWbmpCodec.h"
+#endif
+
+#ifdef SK_CODEC_DECODES_WEBP
 #include "src/codec/SkWebpCodec.h"
+#endif
+
 #ifdef SK_HAS_WUFFS_LIBRARY
 #include "src/codec/SkWuffsCodec.h"
 #elif defined(SK_USE_LIBGIFCODEC)
