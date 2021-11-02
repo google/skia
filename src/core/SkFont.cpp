@@ -169,7 +169,7 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
     }
     const SkGlyphID* glyphIDs = atg.glyphs();
 
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this, paint);
+    auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(*this, paint);
     SkBulkGlyphMetrics metrics{strikeSpec};
     SkSpan<const SkGlyph*> glyphs = metrics.glyphs(SkMakeSpan(glyphIDs, glyphCount));
 
@@ -189,14 +189,13 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
         }
     }
 
-    const SkScalar scale = strikeSpec.strikeToSourceRatio();
-    if (scale != 1) {
-        width *= scale;
+    if (strikeToSourceScale != 1) {
+        width *= strikeToSourceScale;
         if (bounds) {
-            bounds->fLeft *= scale;
-            bounds->fTop *= scale;
-            bounds->fRight *= scale;
-            bounds->fBottom *= scale;
+            bounds->fLeft   *= strikeToSourceScale;
+            bounds->fTop    *= strikeToSourceScale;
+            bounds->fRight  *= strikeToSourceScale;
+            bounds->fBottom *= strikeToSourceScale;
         }
     }
 
@@ -208,14 +207,12 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphIDs[],
                              SkScalar widths[],
                              SkRect bounds[],
                              const SkPaint* paint) const {
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this, paint);
+    auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(*this, paint);
     SkBulkGlyphMetrics metrics{strikeSpec};
     SkSpan<const SkGlyph*> glyphs = metrics.glyphs(SkMakeSpan(glyphIDs, count));
 
-    SkScalar scale = strikeSpec.strikeToSourceRatio();
-
     if (bounds) {
-        SkMatrix scaleMat = SkMatrix::Scale(scale, scale);
+        SkMatrix scaleMat = SkMatrix::Scale(strikeToSourceScale, strikeToSourceScale);
         SkRect* cursor = bounds;
         for (auto glyph : glyphs) {
             scaleMat.mapRectScaleTranslate(cursor++, glyph->rect());
@@ -225,27 +222,27 @@ void SkFont::getWidthsBounds(const SkGlyphID glyphIDs[],
     if (widths) {
         SkScalar* cursor = widths;
         for (auto glyph : glyphs) {
-            *cursor++ = glyph->advanceX() * scale;
+            *cursor++ = glyph->advanceX() * strikeToSourceScale;
         }
     }
 }
 
 void SkFont::getPos(const SkGlyphID glyphIDs[], int count, SkPoint pos[], SkPoint origin) const {
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this);
+    auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(*this);
     SkBulkGlyphMetrics metrics{strikeSpec};
     SkSpan<const SkGlyph*> glyphs = metrics.glyphs(SkMakeSpan(glyphIDs, count));
 
     SkPoint sum = origin;
     for (auto glyph : glyphs) {
         *pos++ = sum;
-        sum += glyph->advanceVector() * strikeSpec.strikeToSourceRatio();
+        sum += glyph->advanceVector() * strikeToSourceScale;
     }
 }
 
 void SkFont::getXPos(
         const SkGlyphID glyphIDs[], int count, SkScalar xpos[], SkScalar origin) const {
 
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this);
+    auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(*this);
     SkBulkGlyphMetrics metrics{strikeSpec};
     SkSpan<const SkGlyph*> glyphs = metrics.glyphs(SkMakeSpan(glyphIDs, count));
 
@@ -253,7 +250,7 @@ void SkFont::getXPos(
     SkScalar* cursor = xpos;
     for (auto glyph : glyphs) {
         *cursor++ = loc;
-        loc += glyph->advanceX() * strikeSpec.strikeToSourceRatio();
+        loc += glyph->advanceX() * strikeToSourceScale;
     }
 }
 
@@ -290,7 +287,7 @@ bool SkFont::getPath(SkGlyphID glyphID, SkPath* path) const {
 
 SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
 
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeCanonicalized(*this, nullptr);
+    auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(*this, nullptr);
 
     SkFontMetrics storage;
     if (nullptr == metrics) {
@@ -300,8 +297,8 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
     auto cache = strikeSpec.findOrCreateStrike();
     *metrics = cache->getFontMetrics();
 
-    if (strikeSpec.strikeToSourceRatio() != 1) {
-        SkFontPriv::ScaleFontMetrics(metrics, strikeSpec.strikeToSourceRatio());
+    if (strikeToSourceScale != 1) {
+        SkFontPriv::ScaleFontMetrics(metrics, strikeToSourceScale);
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }

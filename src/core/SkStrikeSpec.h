@@ -12,6 +12,8 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeForGPU.h"
 
+#include <tuple>
+
 #if SK_SUPPORT_GPU
 #include "src/gpu/text/GrSDFTControl.h"
 class GrStrikeCache;
@@ -55,15 +57,12 @@ public:
                                            SkScalar maxSourceGlyphDimension);
 
     // Create a canonical strike spec for device-less measurements.
-    static SkStrikeSpec MakeCanonicalized(
+    static std::tuple<SkStrikeSpec, SkScalar> MakeCanonicalized(
             const SkFont& font, const SkPaint* paint = nullptr);
 
     // Create a strike spec without a device, and does not switch over to path for large sizes.
     // This means that strikeToSourceRatio() is always 1.
     static SkStrikeSpec MakeWithNoDevice(const SkFont& font, const SkPaint* paint = nullptr);
-
-    // Make a canonical strike spec for device-less measurements using default typeface and size.
-    static SkStrikeSpec MakeDefault();
 
     // Make a strike spec for PDF Vector strikes
     static SkStrikeSpec MakePDFVector(const SkTypeface& typeface, int* size);
@@ -85,6 +84,7 @@ public:
     sk_sp<SkStrike> findOrCreateStrike(
             SkStrikeCache* cache = SkStrikeCache::GlobalStrikeCache()) const;
 
+    // This call is deprecated.
     SkScalar strikeToSourceRatio() const { return fStrikeToSourceRatio; }
     bool isEmpty() const { return SkScalarNearlyZero(fStrikeToSourceRatio); }
     const SkDescriptor& descriptor() const { return *fAutoDescriptor.getDesc(); }
