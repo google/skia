@@ -72,6 +72,13 @@ public:
             std::unique_ptr<GrFragmentProcessor> child);
 
     /**
+     *  Invokes child with an opaque version of the input color, then applies the input alpha to
+     *  the result. Used to incorporate paint alpha to the evaluation of an SkShader tree FP.
+     */
+    static std::unique_ptr<GrFragmentProcessor> ApplyPaintAlpha(
+            std::unique_ptr<GrFragmentProcessor> child);
+
+    /**
      *  Returns a fragment processor that generates the passed-in color, modulated by the child's
      *  alpha channel. The child's input color will be the parent's fInputColor. (Pass a null FP to
      *  use the alpha from fInputColor instead of a child FP.)

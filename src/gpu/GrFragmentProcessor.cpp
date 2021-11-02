@@ -220,6 +220,20 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
                                           SkBlendMode::kSrcIn);
 }
 
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ApplyPaintAlpha(
+        std::unique_ptr<GrFragmentProcessor> child) {
+    SkASSERT(child);
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+        uniform colorFilter fp;
+        half4 main(half4 inColor) {
+            return fp.eval(inColor.rgb1) * inColor.a;
+        }
+    )");
+    return GrSkSLFP::Make(effect, "ApplyPaintAlpha", /*inputFP=*/nullptr,
+                          GrSkSLFP::OptFlags::kPreservesOpaqueInput,
+                          "fp", std::move(child));
+}
+
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateAlpha(
         std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
     auto colorFP = MakeColor(color);
