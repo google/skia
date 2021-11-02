@@ -9,7 +9,6 @@
 #include "src/gpu/GrShaderCaps.h"
 
 #include "include/gpu/GrContextOptions.h"
-#include "src/utils/SkJSONWriter.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +82,8 @@ GrShaderCaps::GrShaderCaps() {
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+
 void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 

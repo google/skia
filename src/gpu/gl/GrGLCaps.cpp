@@ -22,7 +22,6 @@
 #include "src/gpu/gl/GrGLContext.h"
 #include "src/gpu/gl/GrGLRenderTarget.h"
 #include "src/gpu/gl/GrGLTexture.h"
-#include "src/utils/SkJSONWriter.h"
 
 #if defined(SK_BUILD_FOR_IOS)
 #include <TargetConditionals.h>
@@ -1109,6 +1108,8 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+
 static const char* multi_draw_type_name(GrGLCaps::MultiDrawType multiDrawType) {
     switch (multiDrawType) {
         case GrGLCaps::MultiDrawType::kNone : return "kNone";

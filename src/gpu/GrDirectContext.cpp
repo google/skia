@@ -9,6 +9,7 @@
 #include "include/gpu/GrDirectContext.h"
 
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkTaskGroup.h"
@@ -20,6 +21,7 @@
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/SurfaceContext.h"

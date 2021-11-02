@@ -8,6 +8,7 @@
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 
 #include "include/gpu/GrTypes.h"
+#include "include/private/SkMacros.h"
 #include "include/private/SkTo.h"
 #include "src/gpu/GrBlend.h"
 #include "src/gpu/GrCaps.h"

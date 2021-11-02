@@ -11,7 +11,6 @@
 
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
-#include "src/utils/SkJSONWriter.h"
 
 namespace { // This cannot be static because it is used as a template parameter.
 inline bool extension_compare(const SkString& a, const SkString& b) {
@@ -155,6 +154,8 @@ void GrGLExtensions::add(const char ext[]) {
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+
 void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
     writer->beginArray();
     for (int i = 0; i < fStrings.count(); ++i) {

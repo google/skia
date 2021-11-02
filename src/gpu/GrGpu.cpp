@@ -32,7 +32,6 @@
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTracing.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/utils/SkJSONWriter.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -744,6 +743,8 @@ void GrGpu::callSubmittedProcs(bool success) {
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
+#include "src/utils/SkJSONWriter.h"
+
 void GrGpu::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 

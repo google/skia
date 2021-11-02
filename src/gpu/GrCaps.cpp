@@ -15,7 +15,6 @@
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrWindowRectangles.h"
-#include "src/utils/SkJSONWriter.h"
 
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipmapSupport = false;
@@ -166,6 +165,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
 
 #ifdef SK_ENABLE_DUMP_GPU
 #include "src/gpu/GrTestUtils.h"
+#include "src/utils/SkJSONWriter.h"
 
 static SkString map_flags_to_string(uint32_t flags) {
     SkString str;
