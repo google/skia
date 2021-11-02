@@ -9,6 +9,7 @@
 
 #include "experimental/graphite/src/Renderer.h"
 #include "include/core/SkShader.h"
+#include "src/gpu/BufferWriter.h"
 
 namespace skgpu {
 
@@ -86,6 +87,25 @@ void DrawList::strokePath(const Transform& localToDevice,
     //                   this->deduplicateTransform(localToDevice),
     //                   shape, clip, ordering, paint, stroke});
     // fRenderStepCount += Renderer::StrokePath().numRenderSteps();
+}
+
+size_t DrawList::Draw::requiredVertexSpace(int renderStep) const {
+    SkASSERT(renderStep < fRenderer.numRenderSteps());
+    return fRenderer.steps()[renderStep]->requiredVertexSpace(fShape);
+}
+
+size_t DrawList::Draw::requiredIndexSpace(int renderStep) const {
+    SkASSERT(renderStep < fRenderer.numRenderSteps());
+    return fRenderer.steps()[renderStep]->requiredIndexSpace(fShape);
+}
+
+void DrawList::Draw::writeVertices(VertexWriter vertexWriter,
+                                   IndexWriter indexWriter,
+                                   int renderStep) const {
+    SkASSERT(renderStep < fRenderer.numRenderSteps());
+    fRenderer.steps()[renderStep]->writeVertices(std::move(vertexWriter),
+                                                 std::move(indexWriter),
+                                                 fShape);
 }
 
 } // namespace skgpu
