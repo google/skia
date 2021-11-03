@@ -46,12 +46,14 @@ public:
                     int glyphCount,
                     const SkFontStyle& style,
                     bool isFixed,
+                    bool glyphMaskNeedsCurrentColor,
                     sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
                     bool isLogging = true)
             : INHERITED{style, false}
             , fFontId{fontId}
             , fGlyphCount{glyphCount}
             , fIsLogging{isLogging}
+            , fGlyphMaskNeedsCurrentColor(glyphMaskNeedsCurrentColor)
             , fDiscardableManager{std::move(manager)} {}
     SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
@@ -64,6 +66,9 @@ protected:
     }
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         SK_ABORT("Should never be called.");
+    }
+    bool onGlyphMaskNeedsCurrentColor() const override {
+        return fGlyphMaskNeedsCurrentColor;
     }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override {
@@ -128,6 +133,7 @@ private:
     const SkFontID                                  fFontId;
     const int                                       fGlyphCount;
     const bool                                      fIsLogging;
+    const bool                                      fGlyphMaskNeedsCurrentColor;
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
 
 

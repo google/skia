@@ -377,6 +377,8 @@ protected:
 
     virtual std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const = 0;
 
+    virtual bool onGlyphMaskNeedsCurrentColor() const = 0;
+
     virtual int onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[],
         int coordinateCount) const = 0;
@@ -412,10 +414,17 @@ protected:
     virtual void* onGetCTFontRef() const { return nullptr; }
 
 private:
+    /** Returns true if the typeface's glyph masks may refer to the foreground
+     *  paint foreground color. This is needed to determine caching requirements. Usually true for
+     *  typefaces that contain a COLR table.
+     */
+    bool glyphMaskNeedsCurrentColor() const;
+    friend class SkStrikeServerImpl; // glyphMaskNeedsCurrentColor
+
     /** Retrieve detailed typeface metrics.  Used by the PDF backend.  */
     std::unique_ptr<SkAdvancedTypefaceMetrics> getAdvancedMetrics() const;
-    friend class SkRandomTypeface; // getAdvancedMetrics
-    friend class SkPDFFont;        // getAdvancedMetrics
+    friend class SkRandomTypeface;   // getAdvancedMetrics
+    friend class SkPDFFont;          // getAdvancedMetrics
 
     /** Style specifies the intrinsic style attributes of a given typeface */
     enum Style {
@@ -429,9 +438,9 @@ private:
     static SkFontStyle FromOldStyle(Style oldStyle);
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
 
-    friend class SkFontPriv;       // GetDefaultTypeface
-    friend class SkPaintPriv;      // GetDefaultTypeface
-    friend class SkFont;           // getGlyphToUnicodeMap
+    friend class SkFontPriv;         // GetDefaultTypeface
+    friend class SkPaintPriv;        // GetDefaultTypeface
+    friend class SkFont;             // getGlyphToUnicodeMap
 
 private:
     SkFontID            fUniqueID;

@@ -43,6 +43,7 @@ protected:
 
     void getPostScriptGlyphNames(SkString*) const override;
 
+    bool onGlyphMaskNeedsCurrentColor() const override { return false; }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],

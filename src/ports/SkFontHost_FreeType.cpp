@@ -1627,6 +1627,10 @@ SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateFamilyNameIterator() 
     return nameIter.release();
 }
 
+bool SkTypeface_FreeType::onGlyphMaskNeedsCurrentColor() const {
+    return this->getTableSize(SkSetFourByteTag('C', 'O', 'L', 'R')) > 0;
+}
+
 int SkTypeface_FreeType::onGetVariationDesignPosition(
     SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
 {

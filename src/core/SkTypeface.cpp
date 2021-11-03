@@ -72,6 +72,9 @@ protected:
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         return new EmptyLocalizedStrings;
     }
+    bool onGlyphMaskNeedsCurrentColor() const override {
+        return false;
+    }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override
     {
@@ -230,6 +233,10 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkTypeface::glyphMaskNeedsCurrentColor() const {
+    return this->onGlyphMaskNeedsCurrentColor();
+}
 
 int SkTypeface::getVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const

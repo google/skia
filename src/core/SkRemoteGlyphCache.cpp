@@ -567,13 +567,19 @@ void RemoteStrike::prepareForPathDrawing(
 // -- WireTypeface ---------------------------------------------------------------------------------
 struct WireTypeface {
     WireTypeface() = default;
-    WireTypeface(SkFontID typeface_id, int glyph_count, SkFontStyle style, bool is_fixed)
-            : typefaceID(typeface_id), glyphCount(glyph_count), style(style), isFixed(is_fixed) {}
+    WireTypeface(SkFontID typeface_id, int glyph_count, SkFontStyle style,
+                 bool is_fixed, bool needsCurrentColor)
+      : typefaceID(typeface_id), glyphCount(glyph_count), style(style),
+        isFixed(is_fixed), glyphMaskNeedsCurrentColor(needsCurrentColor) {}
 
     SkFontID        typefaceID{0};
     int             glyphCount{0};
     SkFontStyle     style;
     bool            isFixed{false};
+    // Used for COLRv0 or COLRv1 fonts that may need the 0xFFFF special palette
+    // index to represent foreground color. This information needs to be on here
+    // to determine how this typeface can be cached.
+    bool            glyphMaskNeedsCurrentColor{false};
 };
 
 // -- SkStrikeServerImpl ---------------------------------------------------------------------------
@@ -647,7 +653,7 @@ sk_sp<SkData> SkStrikeServerImpl::serializeTypeface(SkTypeface* tf) {
     }
 
     WireTypeface wire(SkTypeface::UniqueID(tf), tf->countGlyphs(), tf->fontStyle(),
-                      tf->isFixedPitch());
+                      tf->isFixedPitch(), tf->glyphMaskNeedsCurrentColor());
     data = fSerializedTypefaces.set(SkTypeface::UniqueID(tf),
                                     SkData::MakeWithCopy(&wire, sizeof(wire)));
     return *data;
@@ -790,7 +796,8 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
         fCachedTypefaces.add(typefaceId);
         fTypefacesToSend.emplace_back(typefaceId, typeface.countGlyphs(),
                                       typeface.fontStyle(),
-                                      typeface.isFixedPitch());
+                                      typeface.isFixedPitch(),
+                                      typeface.glyphMaskNeedsCurrentColor());
     }
 
     auto context = typeface.createScalerContext(effects, &desc);
@@ -1101,7 +1108,7 @@ sk_sp<SkTypeface> SkStrikeClientImpl::addTypeface(const WireTypeface& wire) {
 
     auto newTypeface = sk_make_sp<SkTypefaceProxy>(
             wire.typefaceID, wire.glyphCount, wire.style, wire.isFixed,
-            fDiscardableHandleManager, fIsLogging);
+            wire.glyphMaskNeedsCurrentColor, fDiscardableHandleManager, fIsLogging);
     fRemoteFontIdToTypeface.set(wire.typefaceID, newTypeface);
     return std::move(newTypeface);
 }

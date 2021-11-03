@@ -82,6 +82,7 @@ private:
     // noops
 
     void getPostScriptGlyphNames(SkString*) const override {}
+    bool onGlyphMaskNeedsCurrentColor() const override { return false; }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate[],
                                      int) const override { return 0; }
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis[],
