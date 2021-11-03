@@ -96,8 +96,8 @@ public:
             if (s.empty()) {
                 return nullptr;
             }
-            if (hash == s.hash && key == Traits::GetKey(s.val)) {
-                return &s.val;
+            if (hash == s.hash && key == Traits::GetKey(*s)) {
+                return &*s;
             }
             index = this->next(index);
         }
@@ -122,8 +122,8 @@ public:
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
-            SkASSERT(!s.empty());
-            if (hash == s.hash && key == Traits::GetKey(s.val)) {
+            SkASSERT(s.has_value());
+            if (hash == s.hash && key == Traits::GetKey(*s)) {
                this->removeSlot(index);
                if (4 * fCount <= fCapacity && fCapacity > 4) {
                    this->resize(fCapacity / 2);
@@ -138,8 +138,8 @@ public:
     template <typename Fn>  // f(T*)
     void foreach(Fn&& fn) {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty()) {
-                fn(&fSlots[i].val);
+            if (fSlots[i].has_value()) {
+                fn(&*fSlots[i]);
             }
         }
     }
@@ -148,8 +148,8 @@ public:
     template <typename Fn>  // f(T) or f(const T&)
     void foreach(Fn&& fn) const {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty()) {
-                fn(fSlots[i].val);
+            if (fSlots[i].has_value()) {
+                fn(*fSlots[i]);
             }
         }
     }
@@ -210,7 +210,7 @@ private:
     // Finds the first non-empty slot for an iterator.
     int firstPopulatedSlot() const {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty()) {
+            if (fSlots[i].has_value()) {
                 return i;
             }
         }
@@ -220,7 +220,7 @@ private:
     // Increments an iterator's slot.
     int nextPopulatedSlot(int currentSlot) const {
         for (int i = currentSlot + 1; i < fCapacity; i++) {
-            if (!fSlots[i].empty()) {
+            if (fSlots[i].has_value()) {
                 return i;
             }
         }
@@ -229,8 +229,8 @@ private:
 
     // Reads from an iterator's slot.
     const T* slot(int i) const {
-        SkASSERT(!fSlots[i].empty());
-        return &fSlots[i].val;
+        SkASSERT(fSlots[i].has_value());
+        return &*fSlots[i];
     }
 
     T* uncheckedSet(T&& val) {
@@ -242,16 +242,15 @@ private:
             Slot& s = fSlots[index];
             if (s.empty()) {
                 // New entry.
-                s.val  = std::move(val);
-                s.hash = hash;
+                s.emplace(std::move(val), hash);
                 fCount++;
-                return &s.val;
+                return &*s;
             }
-            if (hash == s.hash && key == Traits::GetKey(s.val)) {
+            if (hash == s.hash && key == Traits::GetKey(*s)) {
                 // Overwrite previous entry.
                 // Note: this triggers extra copies when adding the same value repeatedly.
-                s.val = std::move(val);
-                return &s.val;
+                s.emplace(std::move(val), hash);
+                return &*s;
             }
 
             index = this->next(index);
@@ -271,8 +270,8 @@ private:
 
         for (int i = 0; i < oldCapacity; i++) {
             Slot& s = oldSlots[i];
-            if (!s.empty()) {
-                this->uncheckedSet(std::move(s.val));
+            if (s.has_value()) {
+                this->uncheckedSet(*std::move(s));
             }
         }
         SkASSERT(fCount == oldCount);
@@ -297,7 +296,7 @@ private:
                 Slot& s = fSlots[index];
                 if (s.empty()) {
                     // We're done shuffling elements around.  Clear the last empty slot.
-                    emptySlot = Slot();
+                    emptySlot.reset();
                     return;
                 }
                 originalIndex = s.hash & (fCapacity - 1);
@@ -323,12 +322,85 @@ private:
 
     struct Slot {
         Slot() = default;
-        Slot(T&& v, uint32_t h) : val(std::move(v)), hash(h) {}
+        ~Slot() { this->reset(); }
 
-        bool empty() const { return this->hash == 0; }
+        Slot(const Slot& that) { *this = that; }
+        Slot& operator=(const Slot& that) {
+            if (this == &that) {
+                return *this;
+            }
+            if (hash) {
+                if (that.hash) {
+                    val.storage = that.val.storage;
+                    hash = that.hash;
+                } else {
+                    this->reset();
+                }
+            } else {
+                if (that.hash) {
+                    new (&val.storage) T(that.val.storage);
+                    hash = that.hash;
+                } else {
+                    // do nothing, no value on either side
+                }
+            }
+            return *this;
+        }
 
-        T        val{};
+        Slot(Slot&& that) { *this = std::move(that); }
+        Slot& operator=(Slot&& that) {
+            if (this == &that) {
+                return *this;
+            }
+            if (hash) {
+                if (that.hash) {
+                    val.storage = std::move(that.val.storage);
+                    hash = that.hash;
+                } else {
+                    this->reset();
+                }
+            } else {
+                if (that.hash) {
+                    new (&val.storage) T(std::move(that.val.storage));
+                    hash = that.hash;
+                } else {
+                    // do nothing, no value on either side
+                }
+            }
+            return *this;
+        }
+
+        T& operator*() & { return val.storage; }
+        const T& operator*() const& { return val.storage; }
+        T&& operator*() && { return std::move(val.storage); }
+        const T&& operator*() const&& { return std::move(val.storage); }
+
+        Slot& emplace(T&& v, uint32_t h) {
+            this->reset();
+            new (&val.storage) T(std::move(v));
+            hash = h;
+            return *this;
+        }
+
+        bool has_value() const { return hash != 0; }
+        explicit operator bool() const { return this->has_value(); }
+        bool empty() const { return !this->has_value(); }
+
+        void reset() {
+            if (hash) {
+                val.storage.~T();
+                hash = 0;
+            }
+        }
+
         uint32_t hash = 0;
+
+    private:
+        union Storage {
+            T storage;
+            Storage() {}
+            ~Storage() {}
+        } val;
     };
 
     int fCount    = 0,

@@ -667,7 +667,6 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
 }
 
 void SkPDFFont::emitSubset(SkPDFDocument* doc) const {
-    SkASSERT(fFontType != SkPDFFont().fFontType); // not default value
     switch (fFontType) {
         case SkAdvancedTypefaceMetrics::kType1CID_Font:
         case SkAdvancedTypefaceMetrics::kTrueType_Font:
