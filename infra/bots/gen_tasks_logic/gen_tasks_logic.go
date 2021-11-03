@@ -929,6 +929,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"IntelUHDGraphics605": "14233.0.0",
 					"RadeonVega3":         "14233.0.0",
 					"Adreno618":           "14150.39.0",
+					"MaliT860":            "14092.77.0",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in ChromeOS GPU mapping.", b.parts["cpu_or_gpu_value"])
