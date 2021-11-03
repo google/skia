@@ -13,6 +13,7 @@
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorFilterBase.h"
+#include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMatrixProvider.h"
@@ -435,16 +436,16 @@ sk_sp<SkFlattenable> SkWorkingFormatColorFilter::CreateProc(SkReadBuffer& buffer
     if (!useDstGamut) { buffer.readScalarArray(&gamut.vals[0][0], 9); }
     if (!useDstAT)    { at = buffer.read32LE(kLastEnum_SkAlphaType); }
 
-    return SkColorFilters::WithWorkingFormat(std::move(child),
-                                             useDstTF    ? nullptr : &tf,
-                                             useDstGamut ? nullptr : &gamut,
-                                             useDstAT    ? nullptr : &at);
+    return SkColorFilterPriv::WithWorkingFormat(std::move(child),
+                                                useDstTF    ? nullptr : &tf,
+                                                useDstGamut ? nullptr : &gamut,
+                                                useDstAT    ? nullptr : &at);
 }
 
-sk_sp<SkColorFilter> SkColorFilters::WithWorkingFormat(sk_sp<SkColorFilter>          child,
-                                                       const skcms_TransferFunction* tf,
-                                                       const skcms_Matrix3x3*        gamut,
-                                                       const SkAlphaType*            at) {
+sk_sp<SkColorFilter> SkColorFilterPriv::WithWorkingFormat(sk_sp<SkColorFilter> child,
+                                                          const skcms_TransferFunction* tf,
+                                                          const skcms_Matrix3x3* gamut,
+                                                          const SkAlphaType* at) {
     return sk_make_sp<SkWorkingFormatColorFilter>(std::move(child), tf, gamut, at);
 }
 
