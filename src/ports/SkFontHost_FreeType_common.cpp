@@ -568,13 +568,14 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
         }
         case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT: {
             FT_PaintLinearGradient& linear_gradient = colrv1_paint.u.linear_gradient;
-            SkPoint line_positions[2] = {
-                    SkPoint::Make(linear_gradient.p0.x, -linear_gradient.p0.y),
-                    SkPoint::Make(linear_gradient.p1.x, -linear_gradient.p1.y)
-            };
+            SkPoint line_positions[2] = {SkPoint::Make(SkFixedToScalar(linear_gradient.p0.x),
+                                                       -SkFixedToScalar(linear_gradient.p0.y)),
+                                         SkPoint::Make(SkFixedToScalar(linear_gradient.p1.x),
+                                                       -SkFixedToScalar(linear_gradient.p1.y))};
             SkPoint p0 = line_positions[0];
             SkPoint p1 = line_positions[1];
-            SkPoint p2 = SkPoint::Make(linear_gradient.p2.x, -linear_gradient.p2.y);
+            SkPoint p2 = SkPoint::Make(SkFixedToScalar(linear_gradient.p2.x),
+                                       -SkFixedToScalar(linear_gradient.p2.y));
 
             // Do not draw the gradient of p0p1 is parallel to p0p2.
             if (p1 == p0 || p2 == p0 || !SkPoint::CrossProduct(p1 - p0, p2 - p0)) break;
@@ -635,10 +636,12 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
         }
         case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT: {
             FT_PaintRadialGradient& radial_gradient = colrv1_paint.u.radial_gradient;
-            SkPoint start = SkPoint::Make(radial_gradient.c0.x, -radial_gradient.c0.y);
-            SkScalar radius = radial_gradient.r0;
-            SkPoint end = SkPoint::Make(radial_gradient.c1.x, -radial_gradient.c1.y);
-            SkScalar end_radius = radial_gradient.r1;
+            SkPoint start = SkPoint::Make(SkFixedToScalar(radial_gradient.c0.x),
+                                          -SkFixedToScalar(radial_gradient.c0.y));
+            SkScalar radius = SkFixedToScalar(radial_gradient.r0);
+            SkPoint end = SkPoint::Make(SkFixedToScalar(radial_gradient.c1.x),
+                                        -SkFixedToScalar(radial_gradient.c1.y));
+            SkScalar end_radius = SkFixedToScalar(radial_gradient.r1);
 
 
             std::vector<SkScalar> stops;
@@ -657,7 +660,8 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
         }
         case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
             FT_PaintSweepGradient& sweep_gradient = colrv1_paint.u.sweep_gradient;
-            SkPoint center = SkPoint::Make(sweep_gradient.center.x, -sweep_gradient.center.y);
+            SkPoint center = SkPoint::Make(SkFixedToScalar(sweep_gradient.center.x),
+                                           -SkFixedToScalar(sweep_gradient.center.y));
             SkScalar startAngle = SkFixedToScalar(sweep_gradient.start_angle * 180.0f);
             SkScalar endAngle = SkFixedToScalar(sweep_gradient.end_angle * 180.0f);
 
