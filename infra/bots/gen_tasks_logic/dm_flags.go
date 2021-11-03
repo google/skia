@@ -939,6 +939,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179
 	}
 
+	if b.matchGpu("Intel") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
+		skip("_", "tests", "_", "SkSLReturnsValueOnEveryPathES3_GPU") // skia:12465
+	}
+
 	if (b.extraConfig("Vulkan") && b.isLinux() && b.matchGpu("Intel")) ||
 		(b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655)")) {
 		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU") // skia:12465
