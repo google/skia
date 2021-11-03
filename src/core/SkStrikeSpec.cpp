@@ -27,9 +27,10 @@ SkStrikeSpec SkStrikeSpec::MakeMask(const SkFont& font, const SkPaint& paint,
     return SkStrikeSpec(font, paint, surfaceProps, scalerContextFlags, deviceMatrix, 1);
 }
 
-SkStrikeSpec SkStrikeSpec::MakePath(const SkFont& font, const SkPaint& paint,
-                                    const SkSurfaceProps& surfaceProps,
-                                    SkScalerContextFlags scalerContextFlags) {
+std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakePath(
+        const SkFont& font, const SkPaint& paint,
+        const SkSurfaceProps& surfaceProps,
+        SkScalerContextFlags scalerContextFlags) {
 
     // setup our std runPaint, in hopes of getting hits in the cache
     SkPaint pathPaint{paint};
@@ -42,8 +43,9 @@ SkStrikeSpec SkStrikeSpec::MakePath(const SkFont& font, const SkPaint& paint,
     // The sub-pixel position will always happen when transforming to the screen.
     pathFont.setSubpixel(false);
 
-    return SkStrikeSpec(pathFont, pathPaint, surfaceProps, scalerContextFlags,
-                        SkMatrix::I(), strikeToSourceRatio);
+    return {SkStrikeSpec(pathFont, pathPaint, surfaceProps, scalerContextFlags,
+                         SkMatrix::I(), strikeToSourceRatio),
+            strikeToSourceRatio};
 }
 
 SkStrikeSpec SkStrikeSpec::MakeSourceFallback(

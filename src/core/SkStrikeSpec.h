@@ -44,7 +44,7 @@ public:
             const SkMatrix& deviceMatrix);
 
     // Create a strike spec for path style cache entries.
-    static SkStrikeSpec MakePath(
+    static std::tuple<SkStrikeSpec, SkScalar> MakePath(
             const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
