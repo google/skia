@@ -14,6 +14,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
+#include "src/core/SkRasterPipeline.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"

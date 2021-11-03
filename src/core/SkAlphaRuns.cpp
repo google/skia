@@ -7,7 +7,7 @@
 
 #include "include/private/SkTo.h"
 #include "src/core/SkAntiRun.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkOpts.h"
 
 void SkAlphaRuns::reset(int width) {
     SkASSERT(width > 0);

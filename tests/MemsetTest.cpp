@@ -6,7 +6,7 @@
  */
 
 #include "include/utils/SkRandom.h"
-#include "src/core/SkUtils.h"
+#include "src/core/SkOpts.h"
 #include "tests/Test.h"
 
 static void set_zero(void* dst, size_t bytes) {

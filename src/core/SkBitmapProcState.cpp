@@ -17,7 +17,6 @@
 #include "src/core/SkMipmapAccessor.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkResourceCache.h"
-#include "src/core/SkUtils.h"
 
 // One-stop-shop shader for,
 //   - nearest-neighbor sampling (_nofilter_),
