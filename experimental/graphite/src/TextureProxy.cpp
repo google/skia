@@ -29,7 +29,7 @@ bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {
     return true;
 }
 
-sk_sp<Texture> TextureProxy::refTexture() {
+sk_sp<Texture> TextureProxy::refTexture() const {
     return fTexture;
 }
 

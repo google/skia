@@ -313,4 +313,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                                   requiresStencil, requiresMSAA));
 }
 
+void DrawPass::execute(CommandBuffer* buffer) const {
+    // TODO
+}
+
 } // namespace skgpu

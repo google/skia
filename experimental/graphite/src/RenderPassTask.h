@@ -14,6 +14,7 @@
 
 namespace skgpu {
 
+class CommandBuffer;
 class DrawPass;
 
 /**
@@ -29,14 +30,7 @@ public:
 
     ~RenderPassTask() override;
 
-    void execute(CommandBuffer*) override {}
-
-    // TBD: Expose the surfaces that will need to be attached within the renderpass?
-
-    // TODO: for task execution, iterate the draw passes (can assume just 1 for sprint?) and
-    // determine RenderPassDesc. Then start the render pass, then iterate passes again and
-    // possibly(?) start each subpass, and call DrawPass::execute() on the command buffer provided
-    // to the task. Then close the render pass and we should have pixels..
+    void execute(CommandBuffer*) override;
 
 private:
     RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes);
