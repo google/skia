@@ -134,10 +134,7 @@ static std::unique_ptr<Expression> cast_expression(const Context& context,
                                                    const Type& type) {
     ExpressionArray ctorArgs;
     ctorArgs.push_back(expr.clone());
-    std::unique_ptr<Expression> ctor = Constructor::Convert(context, expr.fLine, type,
-                                                            std::move(ctorArgs));
-    SkASSERT(ctor);
-    return ctor;
+    return Constructor::Convert(context, expr.fLine, type, std::move(ctorArgs));
 }
 
 bool ConstantFolder::GetConstantInt(const Expression& value, SKSL_INT* out) {
@@ -272,8 +269,9 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
                 return cast_expression(context, left, resultType);
             }
             if (is_constant_value(left, 0.0)) {   // 0 - x (to `-x`)
-                return PrefixExpression::Make(context, Token::Kind::TK_MINUS,
-                                              cast_expression(context, right, resultType));
+                if (std::unique_ptr<Expression> val = cast_expression(context, right, resultType)) {
+                    return PrefixExpression::Make(context, Token::Kind::TK_MINUS, std::move(val));
+                }
             }
             break;
 
@@ -286,18 +284,20 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
         case Token::Kind::TK_PLUSEQ:
         case Token::Kind::TK_MINUSEQ:
             if (is_constant_value(right, 0.0)) {  // x += 0, x -= 0
-                std::unique_ptr<Expression> result = cast_expression(context, left, resultType);
-                Analysis::UpdateVariableRefKind(result.get(), VariableRefKind::kRead);
-                return result;
+                if (std::unique_ptr<Expression> var = cast_expression(context, left, resultType)) {
+                    Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);
+                    return var;
+                }
             }
             break;
 
         case Token::Kind::TK_STAREQ:
         case Token::Kind::TK_SLASHEQ:
             if (is_constant_value(right, 1.0)) {  // x *= 1, x /= 1
-                std::unique_ptr<Expression> result = cast_expression(context, left, resultType);
-                Analysis::UpdateVariableRefKind(result.get(), VariableRefKind::kRead);
-                return result;
+                if (std::unique_ptr<Expression> var = cast_expression(context, left, resultType)) {
+                    Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);
+                    return var;
+                }
             }
             break;
 
