@@ -101,7 +101,7 @@ public:
         }
     }
 
-    int numFixedSegments_pow4() const { return fNumFixedSegments_pow4; }
+    float numFixedSegments_pow4() const { return fNumFixedSegments_pow4; }
 
 private:
     void chopAndWriteQuadratic(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
