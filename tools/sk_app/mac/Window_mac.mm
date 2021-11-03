@@ -7,7 +7,7 @@
 
 #include <Carbon/Carbon.h>
 
-#include "src/core/SkUtils.h"
+#include "include/core/SkTypes.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 #include "tools/sk_app/mac/Window_mac.h"
 #include "tools/skui/ModifierKey.h"

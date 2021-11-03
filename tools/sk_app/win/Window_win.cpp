@@ -13,7 +13,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include "src/core/SkUtils.h"
+#include "src/utils/SkUTF.h"
 #include "tools/sk_app/WindowContext.h"
 #include "tools/sk_app/win/WindowContextFactory_win.h"
 #include "tools/skui/ModifierKey.h"
@@ -243,9 +243,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_CHAR: {
-            const uint16_t* c = reinterpret_cast<uint16_t*>(&wParam);
-            eventHandled = window->onChar(SkUTF16_NextUnichar(&c),
-                                          get_modifiers(message, wParam, lParam));
+            const uint16_t* cPtr = reinterpret_cast<uint16_t*>(&wParam);
+            SkUnichar c = SkUTF::NextUTF16(&cPtr, cPtr + 2);
+            eventHandled = window->onChar(c, get_modifiers(message, wParam, lParam));
         } break;
 
         case WM_KEYDOWN:

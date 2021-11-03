@@ -46,7 +46,6 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkTypefaceCache.h"
-#include "src/core/SkUtils.h"
 #include "src/ports/SkScalerContext_mac_ct.h"
 #include "src/ports/SkTypeface_mac_ct.h"
 #include "src/sfnt/SkOTTableTypes.h"
@@ -1094,7 +1093,7 @@ void SkTypeface_Mac::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID
         int extra = 0;
         for (int i = 0; i < count; ++i) {
             glyphs[i] = macGlyphs[i + extra];
-            if (SkUTF16_IsLeadingSurrogate(src[i + extra])) {
+            if (SkUTF::IsLeadingSurrogateUTF16(src[i + extra])) {
                 ++extra;
             }
         }

@@ -28,13 +28,13 @@
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTypefaceCache.h"
-#include "src/core/SkUtils.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
 #include "src/sfnt/SkOTTable_maxp.h"
 #include "src/sfnt/SkOTTable_name.h"
 #include "src/sfnt/SkOTUtils.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/utils/SkMatrix22.h"
+#include "src/utils/SkUTF.h"
 #include "src/utils/win/SkHRESULT.h"
 
 #include <tchar.h>
