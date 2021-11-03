@@ -825,6 +825,12 @@ if (skia_compile_sksl_tests) {
   }
 }
 
+optional("gpu_shared") {
+  enabled = skia_enable_gpu || skia_enable_graphite
+
+  sources = skia_shared_gpu_sources
+}
+
 optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
@@ -834,6 +840,7 @@ optional("gpu") {
     ":compile_sksl_skvm_tests",
     ":compile_sksl_spirv_tests",
     ":dehydrate_sksl",
+    ":gpu_shared",
     ":run_sksllex",
   ]
   if (skia_generate_workarounds) {
@@ -843,7 +850,7 @@ optional("gpu") {
   public_configs = []
   public_deps = []
 
-  sources = skia_gpu_sources + skia_shared_gpu_sources + skia_sksl_gpu_sources
+  sources = skia_gpu_sources + skia_sksl_gpu_sources
   if (skia_enable_skgpu_v2) {
     sources += skia_skgpu_v2_sources
   }
@@ -1043,6 +1050,7 @@ optional("graphite") {
   frameworks = []
 
   enabled = skia_enable_graphite
+  deps = [ ":gpu_shared" ]
   public_defines = [ "SK_GRAPHITE_ENABLED" ]
   public = skia_graphite_public
   sources = skia_graphite_sources + skia_shared_gpu_sources
