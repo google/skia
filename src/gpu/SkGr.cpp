@@ -475,6 +475,11 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             if (paintAlpha != 1.0f) {
                 // This invokes the shader's FP tree with an opaque version of the paint color,
                 // then multiplies the final result by the incoming (paint) alpha.
+                // We're actually putting the *unpremul* paint color on the GrPaint. This is okay,
+                // because the shader is supposed to see the original (opaque) RGB from the paint.
+                // ApplyPaintAlpha then creates a valid premul color by applying the paint alpha.
+                // Think of this as equivalent to (but faster than) putting origColor.premul() on
+                // the GrPaint, and ApplyPaintAlpha unpremuling it before passing it to the child.
                 paintFP = GrFragmentProcessor::ApplyPaintAlpha(std::move(paintFP));
                 grPaint->setColor4f({origColor.fR, origColor.fG, origColor.fB, origColor.fA});
             } else {
