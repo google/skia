@@ -75,16 +75,6 @@ constexpr static float kMaxTessellationSegmentsPerCurve SK_MAYBE_UNUSED = 1024;
 // the viewport are flattened into lines.
 SkPath PreChopPathCurves(const SkPath&, const SkMatrix&, const SkRect& viewport);
 
-// Writes out the path's inner fan using a middle-out topology. Writes 3 points per triangle.
-// Additionally writes out "pad32Count" repetitions of "pad32Value" after each triangle. Set
-// pad32Count to 0 if the triangles are to be tightly packed.
-VertexWriter WritePathMiddleOutInnerFan(VertexWriter&&,
-                                        int pad32Count,
-                                        uint32_t pad32Value,
-                                        const SkMatrix&,
-                                        const SkPath&,
-                                        int* numTrianglesWritten);
-
 }  // namespace skgpu
 
 #endif  // tessellate_Tessellation_DEFINED

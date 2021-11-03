@@ -228,22 +228,19 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
         }
         int numRemainingTriangles = maxTriangles;
         if (fDrawInnerFan) {
-            // Pad the triangles with 2 infinities. This produces conic patches with w=Infinity. In
-            // the case where infinity is not supported, we also write out a 3rd float that
-            // explicitly tells the shader to interpret these patches as triangles.
-            int pad32Count = shaderCaps.infinitySupport() ? 2 : 3;
-            uint32_t pad32Value = shaderCaps.infinitySupport()
-                    ? VertexWriter::kIEEE_32_infinity
-                    : sk_bit_cast<uint32_t>(GrTessellationShader::kTriangularConicCurveType);
             for (auto [pathMatrix, path] : pathDrawList) {
-                int numTrianglesWritten;
-                vertexWriter = WritePathMiddleOutInnerFan(std::move(vertexWriter),
-                                                          pad32Count,
-                                                          pad32Value,
-                                                          pathMatrix,
-                                                          path,
-                                                          &numTrianglesWritten);
-                numRemainingTriangles -= numTrianglesWritten;
+                PathXform m(pathMatrix);
+                for (PathMiddleOutFanIter it(path); !it.done();) {
+                    for (auto [p0, p1, p2] : it.nextStack()) {
+                        vertexWriter << m.map2Points(p0, p1) << m.mapPoint(p2);
+                        // Mark this instance as a triangle by setting it to a conic with w=Inf.
+                        vertexWriter.fill(VertexWriter::kIEEE_32_infinity, 2);
+                        vertexWriter << VertexWriter::If(
+                                !shaderCaps.infinitySupport(),
+                                GrTessellationShader::kTriangularConicCurveType);
+                        --numRemainingTriangles;
+                    }
+                }
             }
         }
         if (breadcrumbTriangleList) {

@@ -14,6 +14,7 @@
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/PathCurveTessellator.h"
 #include "src/gpu/tessellate/PathWedgeTessellator.h"
+#include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/StrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
@@ -235,13 +236,12 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
     int baseVertex;
     VertexWriter vertexWriter = static_cast<SkPoint*>(fTarget->makeVertexSpace(
             sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex));
-    int numTrianglesWritten;
-    WritePathMiddleOutInnerFan(std::move(vertexWriter),
-                               0,
-                               0,
-                               gAlmostIdentity,
-                               fPath,
-                               &numTrianglesWritten);
+    PathXform m(gAlmostIdentity);
+    for (PathMiddleOutFanIter it(fPath); !it.done();) {
+        for (auto [p0, p1, p2] : it.nextStack()) {
+            vertexWriter << m.map2Points(p0, p1) << m.mapPoint(p2);
+        }
+    }
 }
 
 using PathStrokeList = StrokeTessellator::PathStrokeList;

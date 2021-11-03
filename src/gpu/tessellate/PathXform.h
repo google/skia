@@ -54,6 +54,10 @@ public:
         return skvx::bit_pun<SkPoint>(this->mapPoint(skvx::bit_pun<float2>(p)));
     }
 
+    SK_ALWAYS_INLINE float4 map2Points(SkPoint p0, SkPoint p1) const {
+        return this->map2Points(float4(skvx::bit_pun<float2>(p0), skvx::bit_pun<float2>(p1)));
+    }
+
     SK_ALWAYS_INLINE void map3Points(VertexWriter* writer, const SkPoint pts[3]) const {
         *writer << this->map2Points(pts);
         *writer << this->map1Point(pts + 2);
