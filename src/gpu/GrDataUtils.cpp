@@ -656,6 +656,12 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
             }
             if (alphaOrCSConversion) {
                 steps->apply(&pipeline);
+                // For a simple premul, we could end up in the lowp pipeline. Unfortunately, lowp
+                // premul uses a poor approximation, that doesn't round-trip with the highp (only)
+                // unpremul stage. This breaks tests that verify we can round-trip from premul to
+                // unpremul and back to premul. To fix that, inject a sentinel stage that forces us
+                // to always use highp. skbug.com/12592
+                pipeline.append(SkRasterPipeline::StockStage::force_highp);
             }
             if (clampGamut) {
                 append_clamp_gamut(&pipeline);

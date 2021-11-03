@@ -2889,6 +2889,9 @@ STAGE(swizzle, void* ctx) {
     }
 }
 
+// This stage does nothing. It exists entirely to force a pipeline to use highp.
+STAGE(force_highp, Ctx::None) { }
+
 namespace lowp {
 #if defined(JUMPER_IS_SCALAR) || defined(SK_DISABLE_LOWP_RASTER_PIPELINE)
     // If we're not compiled by Clang, or otherwise switched into scalar mode (old Clang, manually),
@@ -4312,6 +4315,7 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(mask_2pt_conical_nan)
     NOT_IMPLEMENTED(mask_2pt_conical_degenerates)
     NOT_IMPLEMENTED(apply_vector_mask)
+    NOT_IMPLEMENTED(force_highp)
 #undef NOT_IMPLEMENTED
 
 #endif//defined(JUMPER_IS_SCALAR) controlling whether we build lowp stages

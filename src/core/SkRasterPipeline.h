@@ -107,7 +107,8 @@ class SkData;
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
     M(gauss_a_to_rgba)                                             \
     M(emboss)                                                      \
-    M(swizzle)
+    M(swizzle)                                                     \
+    M(force_highp)
 
 // The largest number of pixels we handle at a time.
 static const int SkRasterPipeline_kMaxStride = 16;
