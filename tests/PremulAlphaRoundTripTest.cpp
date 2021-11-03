@@ -9,6 +9,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/gpu/GrPixmap.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
@@ -104,4 +106,119 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) 
     sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.directContext(),
                                                       SkBudgeted::kNo, info));
     test_premul_alpha_roundtrip(reporter, surf.get());
+}
+
+DEF_TEST(PremulAlphaRoundTripGrConvertPixels, reporter) {
+    // Code that does the same thing as above, but using GrConvertPixels. This simulates what
+    // happens if you run the above on a machine with a GPU that doesn't have a valid PM/UPM
+    // conversion pair of FPs.
+    const SkImageInfo upmInfo =
+            SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    const SkImageInfo pmInfo =
+            SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    GrPixmap src = GrPixmap::Allocate(upmInfo);
+    uint32_t* srcPixels = (uint32_t*)src.addr();
+    for (int y = 0; y < 256; ++y) {
+        for (int x = 0; x < 256; ++x) {
+            srcPixels[y * 256 + x] = pack_unpremul_rgba(SkColorSetARGB(y, x, x, x));
+        }
+    }
+
+    GrPixmap surf = GrPixmap::Allocate(pmInfo);
+    GrConvertPixels(surf, src);
+
+    GrPixmap read1 = GrPixmap::Allocate(upmInfo);
+    GrConvertPixels(read1, surf);
+
+    GrPixmap surf2 = GrPixmap::Allocate(pmInfo);
+    GrConvertPixels(surf2, read1);
+
+    GrPixmap read2 = GrPixmap::Allocate(upmInfo);
+    GrConvertPixels(read2, surf2);
+
+    auto get_pixel = [](const GrPixmap& pm, int x, int y) {
+        const uint32_t* addr = (const uint32_t*)pm.addr();
+        return addr[y * 256 + x];
+    };
+    auto dump_pixel_history = [&](int x, int y) {
+        SkDebugf("Pixel history for (%d, %d):\n", x, y);
+        SkDebugf("Src : %08x\n", get_pixel(src, x, y));
+        SkDebugf(" -> : %08x\n", get_pixel(surf, x, y));
+        SkDebugf(" <- : %08x\n", get_pixel(read1, x, y));
+        SkDebugf(" -> : %08x\n", get_pixel(surf2, x, y));
+        SkDebugf(" <- : %08x\n", get_pixel(read2, x, y));
+    };
+
+    bool success = true;
+    for (int y = 0; y < 256 && success; ++y) {
+        const uint32_t* pixels1 = (const uint32_t*) read1.addr();
+        const uint32_t* pixels2 = (const uint32_t*) read2.addr();
+        for (int x = 0; x < 256 && success; ++x) {
+            uint32_t c1 = pixels1[y * 256 + x],
+                     c2 = pixels2[y * 256 + x];
+            // If this ever fails, it's helpful to see where it goes wrong.
+            if (c1 != c2) {
+                dump_pixel_history(x, y);
+            }
+            REPORTER_ASSERT(reporter, success = c1 == c2);
+        }
+    }
+}
+
+DEF_TEST(PremulAlphaRoundTripSkConvertPixels, reporter) {
+    // ... and now using SkConvertPixels, just for completeness
+    const SkImageInfo upmInfo =
+            SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    const SkImageInfo pmInfo =
+            SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    SkBitmap src; src.allocPixels(upmInfo);
+    uint32_t* srcPixels = src.getAddr32(0, 0);
+    for (int y = 0; y < 256; ++y) {
+        for (int x = 0; x < 256; ++x) {
+            srcPixels[y * 256 + x] = pack_unpremul_rgba(SkColorSetARGB(y, x, x, x));
+        }
+    }
+
+    auto convert = [](const SkBitmap& dst, const SkBitmap& src){
+        SkAssertResult(SkConvertPixels(dst.info(), dst.getAddr(0, 0), dst.rowBytes(),
+                                       src.info(), src.getAddr(0, 0), src.rowBytes()));
+    };
+
+    SkBitmap surf; surf.allocPixels(pmInfo);
+    convert(surf, src);
+
+    SkBitmap read1; read1.allocPixels(upmInfo);
+    convert(read1, surf);
+
+    SkBitmap surf2; surf2.allocPixels(pmInfo);
+    convert(surf2, read1);
+
+    SkBitmap read2; read2.allocPixels(upmInfo);
+    convert(read2, surf2);
+
+    auto dump_pixel_history = [&](int x, int y) {
+        SkDebugf("Pixel history for (%d, %d):\n", x, y);
+        SkDebugf("Src : %08x\n", *src.getAddr32(x, y));
+        SkDebugf(" -> : %08x\n", *surf.getAddr32(x, y));
+        SkDebugf(" <- : %08x\n", *read1.getAddr32(x, y));
+        SkDebugf(" -> : %08x\n", *surf2.getAddr32(x, y));
+        SkDebugf(" <- : %08x\n", *read2.getAddr32(x, y));
+    };
+
+    bool success = true;
+    for (int y = 0; y < 256 && success; ++y) {
+        const uint32_t* pixels1 = read1.getAddr32(0, 0);
+        const uint32_t* pixels2 = read2.getAddr32(0, 0);
+        for (int x = 0; x < 256 && success; ++x) {
+            uint32_t c1 = pixels1[y * 256 + x],
+                     c2 = pixels2[y * 256 + x];
+            // If this ever fails, it's helpful to see where it goes wrong.
+            if (c1 != c2) {
+                dump_pixel_history(x, y);
+            }
+            REPORTER_ASSERT(reporter, success = c1 == c2);
+        }
+    }
 }
