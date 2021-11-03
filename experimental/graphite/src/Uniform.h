@@ -26,10 +26,7 @@ public:
     constexpr Uniform(const char* name, SLType type, int count)
             : fType      (static_cast<unsigned>(type))
             , fCount     (static_cast<unsigned>(count))
-#ifdef SK_DEBUG
-            , fName      (name)
-#endif
-    {
+            , fName      (name) {
     }
 
     constexpr Uniform(const Uniform&) = default;
@@ -37,18 +34,14 @@ public:
 
     constexpr bool isInitialized() const { return this->type() != SLType::kVoid; }
 
-#ifdef SK_DEBUG
     constexpr const char* name() const  { return fName; }
-#endif
     constexpr SLType   type() const  { return static_cast<SLType>(fType);  }
     constexpr uint32_t count() const { return static_cast<uint32_t>(fCount); }
 
 private:
     uint32_t    fType    : 6;
     uint32_t    fCount   : 26;
-#ifdef SK_DEBUG
     const char* fName;
-#endif
 
     static_assert(kSLTypeCount <= (1 << 6));
 };

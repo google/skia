@@ -38,6 +38,8 @@ class UniformData : public SkRefCnt {
 public:
     static constexpr uint32_t kInvalidUniformID = 0;
 
+    // TODO: should we require a name (e.g., "gradient_uniforms") for each uniform block so
+    // we can better name the Metal FS uniform struct?
     static sk_sp<UniformData> Make(int count,
                                    const Uniform* uniforms,
                                    size_t dataSize);
@@ -85,6 +87,7 @@ private:
 };
 
 std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache*, const SkPaint&);
+std::string GetMSLUniformStruct(ShaderCombo::ShaderType);
 
 } // namespace skgpu
 

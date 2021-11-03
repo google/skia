@@ -17,48 +17,50 @@ ProgramCache::ProgramInfo::ProgramInfo(uint32_t uniqueID, Combination c)
 
 ProgramCache::ProgramInfo::~ProgramInfo() {}
 
-#if 0
-
-// From MtlToy
-struct FragmentUniforms {
-    vector_float2 startPos;
-    vector_float2 endPos;
-
-    vector_float4 color0;
-    vector_float4 color1;
-    vector_float4 color2;
-    vector_float4 color3;
-
-    vector_float4 stops;
-    simd_uint2 rtSize;
-};
-
-#endif
-
 std::string ProgramCache::ProgramInfo::getMSL() const {
+    std::string msl = GetMSLUniformStruct(fCombination.fShaderType);
+
     switch (fCombination.fShaderType) {
         case ShaderCombo::ShaderType::kLinearGradient:
-            return std::string(
-            "float2 screenPos = float2(2*interpolated.pos.x/uniforms.rtSize[0] - 1,"
-            "                          2*interpolated.pos.y/uniforms.rtSize[1] - 1);"
-            "float2 delta = uniforms.endPos - uniforms.startPos;"
-            "float2 pt = screenPos - uniforms.startPos;"
-            "float t = dot(pt, delta) / dot(delta, delta);"
-            "float4 result = uniforms.color0;"
-            "result = mix(result, uniforms.color1,"
-            "             clamp((t-uniforms.stops.x)/(uniforms.stops.y-uniforms.stops.x), 0, 1));"
-            "result = mix(result, uniforms.color2,"
-            "             clamp((t-uniforms.stops.y)/(uniforms.stops.z-uniforms.stops.y), 0, 1));"
-            "result = mix(result, uniforms.color3,"
-            "             clamp((t-uniforms.stops.z)/(uniforms.stops.w-uniforms.stops.z), 0, 1));"
-            "return result;");
+            // TODO: this MSL uses a 'rtSize' uniform that, presumably, we'll be getting from the
+            // vertex shader side of things (still somewhat TBD)
+            msl += std::string(
+            "fragment float4 fragmentShader(VertexOut interpolated [[stage_in]],\n"
+            "                               constant FragmentUniforms &uniforms [[buffer(0)]])\n"
+            "{"
+            "float2 screenPos = float2(2*interpolated.pos.x/uniforms.rtSize[0] - 1,\n"
+            "                          2*interpolated.pos.y/uniforms.rtSize[1] - 1);\n"
+            "float2 delta = uniforms.point1 - uniforms.point0;\n"
+            "float2 pt = screenPos - uniforms.point0;\n"
+            "float t = dot(pt, delta) / dot(delta, delta);\n"
+            "float4 result = uniforms.colors[0];\n"
+            "result = mix(result, uniforms.colors[1],\n"
+            "             clamp((t-uniforms.offsets[0])/(uniforms.offsets[1]-uniforms.offsets[0]),\n"
+            "                   0, 1));\n"
+            "result = mix(result, uniforms.colors[2],\n"
+            "             clamp((t-uniforms.offsets[1])/(uniforms.offsets[2]-uniforms.offsets[1]),\n"
+            "                   0, 1));\n"
+            "result = mix(result, uniforms.colors[3],\n"
+            "             clamp((t-uniforms.offsets[2])/(uniforms.offsets[3]-uniforms.offsets[2]),\n"
+            "             0, 1));\n"
+            "return result;\n"
+            "}\n");
+            break;
         case ShaderCombo::ShaderType::kRadialGradient:
         case ShaderCombo::ShaderType::kSweepGradient:
         case ShaderCombo::ShaderType::kConicalGradient:
         case ShaderCombo::ShaderType::kNone:
         default:
-            return std::string("return float4(uniforms.color1);");
+            msl += std::string(
+            "fragment float4 fragmentShader(VertexOut interpolated [[stage_in]],\n"
+            "                               constant FragmentUniforms &uniforms [[buffer(0)]])\n"
+            "{\n"
+            "return float4(uniforms.color);\n"
+            "}\n");
+            break;
     }
+
+    return msl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

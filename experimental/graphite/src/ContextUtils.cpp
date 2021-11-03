@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/ContextUtils.h"
 
+#include <string>
 #include "experimental/graphite/src/Uniform.h"
 #include "experimental/graphite/src/UniformCache.h"
 #include "experimental/graphite/src/UniformManager.h"
@@ -24,29 +25,34 @@ static constexpr int kMaxStops = 4;
 //   2 points
 //   2 radii
 static constexpr int kNumGradientUniforms = 6;
+static constexpr Uniform kGradientUniforms[kNumGradientUniforms] {
+        {"colors",  SLType::kHalf4 , kMaxStops },
+        {"offsets", SLType::kFloat, kMaxStops },
+        {"point0",   SLType::kFloat2 },
+        {"point1",   SLType::kFloat2 },
+        {"radius0",  SLType::kFloat },
+        {"radius1",  SLType::kFloat },
+};
+
+static constexpr int kNumSolidUniforms = 1;
+static constexpr Uniform kSolidUniforms[kNumSolidUniforms] {
+        {"color",  SLType::kFloat4 }
+};
 
 sk_sp<UniformData> make_gradient_uniform_data_common(void* srcs[kNumGradientUniforms]) {
-    static constexpr Uniform kUniforms[kNumGradientUniforms] {
-            {"colors",  SLType::kHalf4, kMaxStops },
-            {"offsets", SLType::kFloat, kMaxStops },
-            {"point0",   SLType::kFloat2 },
-            {"point1",   SLType::kFloat2 },
-            {"radius0",  SLType::kFloat },
-            {"radius1",  SLType::kFloat },
-    };
-
     UniformManager mgr(Layout::kMetal);
 
     // TODO: Given that, for the sprint, we always know the uniforms we could cache 'dataSize'
     // for each layout and skip the first call.
-    size_t dataSize = mgr.writeUniforms(SkSpan<const Uniform>(kUniforms, kNumGradientUniforms),
+    size_t dataSize = mgr.writeUniforms(SkSpan<const Uniform>(kGradientUniforms,
+                                                              kNumGradientUniforms),
                                         nullptr, nullptr, nullptr);
 
     sk_sp<UniformData> result = UniformData::Make(kNumGradientUniforms,
-                                                  kUniforms,
+                                                  kGradientUniforms,
                                                   dataSize);
 
-    mgr.writeUniforms(SkSpan<const Uniform>(kUniforms, kNumGradientUniforms),
+    mgr.writeUniforms(SkSpan<const Uniform>(kGradientUniforms, kNumGradientUniforms),
                       srcs, result->offsets(), result->data());
     return result;
 }
@@ -145,21 +151,16 @@ void expand_stops(int numStops, float offsets[kMaxStops]) {
 }
 
 sk_sp<UniformData> make_solid_uniform_data(SkColor4f color) {
-    static constexpr int kNumSolidUniforms = 1;
-    static constexpr Uniform kUniforms[kNumSolidUniforms] {
-        {"color",  SLType::kFloat4 }
-    };
-
     UniformManager mgr(Layout::kMetal);
 
-    size_t dataSize = mgr.writeUniforms(SkSpan<const Uniform>(kUniforms, kNumSolidUniforms),
+    size_t dataSize = mgr.writeUniforms(SkSpan<const Uniform>(kSolidUniforms, kNumSolidUniforms),
                                         nullptr, nullptr, nullptr);
 
-    sk_sp<UniformData> result = UniformData::Make(kNumSolidUniforms, kUniforms, dataSize);
+    sk_sp<UniformData> result = UniformData::Make(kNumSolidUniforms, kSolidUniforms, dataSize);
 
     void* srcs[kNumSolidUniforms] = { &color };
 
-    mgr.writeUniforms(SkSpan<const Uniform>(kUniforms, kNumSolidUniforms),
+    mgr.writeUniforms(SkSpan<const Uniform>(kSolidUniforms, kNumSolidUniforms),
                       srcs, result->offsets(), result->data());
     return result;
 }
@@ -266,6 +267,61 @@ std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache* cache, co
 
     sk_sp<UniformData> trueUD = cache->findOrCreate(std::move(uniforms));
     return { result, std::move(trueUD) };
+}
+
+namespace {
+
+// TODO: use a SkSpan for the parameters
+std::string emit_MSL_uniform_struct(const Uniform *uniforms, int numUniforms) {
+    std::string result;
+
+    result.append("struct FragmentUniforms {\n");
+    for (int i = 0; i < numUniforms; ++i) {
+        // TODO: this is sufficient for the sprint but should be changed to use SkSL's
+        // machinery
+        switch (uniforms[i].type()) {
+            case SLType::kFloat4:
+                result.append("vector_float4");
+                break;
+            case SLType::kFloat2:
+                result.append("vector_float2");
+                break;
+            case SLType::kFloat:
+                result.append("float");
+                break;
+            case SLType::kHalf4:
+                result.append("vector_half4");
+                break;
+            default:
+                SkASSERT(0);
+        }
+
+        result.append(" ");
+        result.append(uniforms[i].name());
+        if (uniforms[i].count()) {
+            result.append("[");
+            result.append(std::to_string(uniforms[i].count()));
+            result.append("]");
+        }
+        result.append(";\n");
+    }
+    result.append("};\n");
+    return result;
+}
+
+} // anonymous namespace
+
+std::string GetMSLUniformStruct(ShaderCombo::ShaderType shaderType) {
+    switch (shaderType) {
+        case ShaderCombo::ShaderType::kLinearGradient:
+        case ShaderCombo::ShaderType::kRadialGradient:
+        case ShaderCombo::ShaderType::kSweepGradient:
+        case ShaderCombo::ShaderType::kConicalGradient:
+            return emit_MSL_uniform_struct(kGradientUniforms, kNumGradientUniforms);
+        case ShaderCombo::ShaderType::kNone:
+        default:
+            return emit_MSL_uniform_struct(kSolidUniforms, kNumSolidUniforms);
+    }
 }
 
 } // namespace skgpu
