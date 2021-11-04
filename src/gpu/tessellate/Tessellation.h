@@ -9,6 +9,7 @@
 #define tessellate_Tessellation_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/SkVx.h"
 
 class SkMatrix;
@@ -21,6 +22,15 @@ struct VertexWriter;
 
 // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
 SK_MAYBE_UNUSED constexpr static float kTessellationPrecision = 4;
+
+// Optional attribs that are included in tessellation patches, following the control points.
+enum class PatchAttribs {
+    kNone = 0,
+    kFanPoint = 1,  // Used by wedges. This is the center point the wedges fan around.
+    kExplicitCurveType = 1 << 1,  // Used when the GPU can't infer curve type based on infinity.
+};
+
+GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)
 
 // Use familiar type names from SkSL.
 template<int N> using vec = skvx::Vec<N, float>;

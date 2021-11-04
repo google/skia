@@ -323,6 +323,8 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/GrGradientShader.h",
 
   # tessellate
+  "$_src/gpu/tessellate/PatchWriter.cpp",
+  "$_src/gpu/tessellate/PatchWriter.h",
   "$_src/gpu/tessellate/PathCurveTessellator.cpp",
   "$_src/gpu/tessellate/PathCurveTessellator.h",
   "$_src/gpu/tessellate/PathTessellator.h",

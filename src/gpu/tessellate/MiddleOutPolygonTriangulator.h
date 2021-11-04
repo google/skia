@@ -118,7 +118,7 @@ public:
 
     // maxPushVertexCalls is an upper bound on the number of times the caller will call
     // pushVertex(). The caller must not call it more times than this. (Beware of int overflow.)
-    MiddleOutPolygonTriangulator(int maxPushVertexCalls) {
+    MiddleOutPolygonTriangulator(int maxPushVertexCalls, SkPoint startPoint = {0,0}) {
         SkASSERT(maxPushVertexCalls >= 0);
         // Determine the deepest our stack can ever go.
         int maxStackDepth = SkNextLog2(maxPushVertexCalls) + 1;
@@ -128,7 +128,7 @@ public:
         SkDEBUGCODE(fStackAllocCount = maxStackDepth;)
         // The stack will always contain a starting point. This is an implicit moveTo(0, 0)
         // initially, but will be overridden if moveTo() gets called before adding geometry.
-        fVertexStack[0] = {{0, 0}, 0};
+        fVertexStack[0] = {startPoint, 0};
         fTop = fVertexStack;
     }
 
