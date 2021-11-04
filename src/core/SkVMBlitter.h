@@ -8,6 +8,7 @@
 #ifndef SkVMBlitter_DEFINED
 #define SkVMBlitter_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkVM.h"

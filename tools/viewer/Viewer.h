@@ -14,6 +14,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkScan.h"
+#include "src/core/SkVMBlitter.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "tools/gpu/MemoryCache.h"
 #include "tools/sk_app/Application.h"
@@ -271,6 +272,9 @@ private:
         kShaderOptLevel_Inline,
     };
     ShaderOptLevel fOptLevel = kShaderOptLevel_Source;
+
+    SkVMBlitter::Key fHoveredKey;
+    skvm::Program    fHoveredProgram;
 };
 
 #endif
