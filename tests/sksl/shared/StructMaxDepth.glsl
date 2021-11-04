@@ -25,27 +25,27 @@ struct S8 {
 };
 in S8 s8;
 struct SA1 {
-    int x[8];
+    int x[2];
 };
 struct SA2 {
-    SA1 x[7];
+    SA1 x[2];
 };
 struct SA3 {
-    SA2 x[6];
+    SA2 x[2];
 };
 struct SA4 {
-    SA3 x[5];
+    SA3 x[2];
 };
 struct SA5 {
-    SA4 x[4];
+    SA4 x[2];
 };
 struct SA6 {
-    SA5 x[3];
+    SA5 x[2];
 };
 struct SA7 {
     SA6 x[2];
 };
 struct SA8 {
-    SA7 x[1];
+    SA7 x[2];
 };
-in SA8 sa8[9];
+in SA8 sa8[2];

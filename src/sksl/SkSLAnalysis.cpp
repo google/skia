@@ -13,6 +13,7 @@
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
@@ -524,7 +525,22 @@ void Analysis::VerifyStaticTestsAndExpressions(const Program& program) {
     public:
         TestsAndExpressions(const Context& ctx) : fContext(ctx) {}
 
-        using ProgramVisitor::visitProgramElement;
+        bool visitProgramElement(const ProgramElement& pe) override {
+            if (pe.kind() == ProgramElement::Kind::kGlobalVar) {
+                const VarDeclaration& decl =
+                        pe.as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
+
+                size_t prevSlotsUsed = fGlobalSlotsUsed;
+                fGlobalSlotsUsed = SkSafeMath::Add(fGlobalSlotsUsed, decl.var().type().slotCount());
+                // To avoid overzealous error reporting, only trigger the error at the first
+                // place where the global limit is exceeded.
+                if (prevSlotsUsed < kVariableSlotLimit && fGlobalSlotsUsed >= kVariableSlotLimit) {
+                    fContext.fErrors->error(pe.fLine, "global variable '" + decl.var().name() +
+                                                      "' exceeds the size limit");
+                }
+            }
+            return INHERITED::visitProgramElement(pe);
+        }
 
         bool visitStatement(const Statement& stmt) override {
             if (!fContext.fConfig->fSettings.fPermitInvalidStaticTests) {
@@ -577,6 +593,7 @@ void Analysis::VerifyStaticTestsAndExpressions(const Program& program) {
 
     private:
         using INHERITED = ProgramVisitor;
+        size_t fGlobalSlotsUsed = 0;
         const Context& fContext;
     };
 

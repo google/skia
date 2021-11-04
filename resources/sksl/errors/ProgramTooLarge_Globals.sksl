@@ -1,0 +1,13 @@
+struct S {
+    half4 ah4[1];
+    half ah[1000];
+    half4 h4;
+    half h;
+};
+
+int small;
+S medium;
+S large[10];
+S extra_large[100];
+S xxl[50000];
+

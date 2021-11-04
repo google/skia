@@ -121,6 +121,7 @@ sksl_error_tests = [
   "/sksl/errors/OverflowInt64Literal.sksl",
   "/sksl/errors/OverflowParamArraySize.sksl",
   "/sksl/errors/OverflowUintLiteral.sksl",
+  "/sksl/errors/ProgramTooLarge_Globals.sksl",
   "/sksl/errors/ProgramTooLarge_Stack.sksl",
   "/sksl/errors/PrototypeInFuncBody.sksl",
   "/sksl/errors/PrivateTypes.sksl",
