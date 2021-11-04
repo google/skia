@@ -1056,7 +1056,7 @@ optional("graphite") {
   deps = [ ":gpu_shared" ]
   public_defines = [ "SK_GRAPHITE_ENABLED" ]
   public = skia_graphite_public
-  sources = skia_graphite_sources + skia_shared_gpu_sources
+  sources = skia_graphite_sources
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_graphite_mtl_sources
