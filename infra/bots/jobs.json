@@ -54,9 +54,6 @@
   {"name": "Build-Debian10-Clang-x86_64-Debug-Tidy",
    "cq_config": {}
    },
-  {"name": "Build-Debian10-Clang-x86_64-Debug-V1only"},
-  {"name": "Build-Debian10-Clang-x86_64-Debug-V1andV2"},
-  {"name": "Build-Debian10-Clang-x86_64-Debug-V2only"},
   {"name": "Build-Debian10-Clang-x86_64-Debug-Vulkan"},
   {"name": "Build-Debian10-Clang-x86_64-Debug-Wuffs",
    "cq_config": {"location_regexes": ["DEPS", "src/codec/SkWuffs.*"]}

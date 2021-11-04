@@ -263,15 +263,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_fontconfig'] = 'false'
   if 'ASAN' in extra_tokens:
     args['skia_enable_spirv_validation'] = 'false'
-  if 'V1only' in extra_tokens:
-    args['skia_enable_skgpu_v1'] = 'true'
-    args['skia_enable_skgpu_v2'] = 'false'
-  if 'V1andV2' in extra_tokens:
-    args['skia_enable_skgpu_v1'] = 'true'
-    args['skia_enable_skgpu_v2'] = 'true'
-  if 'V2only' in extra_tokens:
-    args['skia_enable_skgpu_v1'] = 'false'
-    args['skia_enable_skgpu_v2'] = 'true'
   if 'Graphite' in extra_tokens:
     args['skia_enable_graphite'] = 'true'
     args['skia_use_metal'] = 'true'

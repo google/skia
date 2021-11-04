@@ -13,9 +13,6 @@
     "Graphite",
     "MSAN",
     "TSAN",
-    "V1only",
-    "V1andV2",
-    "V2only",
     "Valgrind",
     "WasmGMTests"
   ],
