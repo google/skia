@@ -1,0 +1,12 @@
+struct S {
+    half4 ah4[1];
+    half ah[99999];
+    half4 h4;
+    half h;
+};
+
+void main() {
+    int small;
+    S big_chungus;
+    S no_report; // we don't need to report overflows past the first
+}

@@ -31,6 +31,11 @@ using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
 // default threshold value is arbitrary, but tends to work well in practice.
 static constexpr int kDefaultInlineThreshold = 50;
 
+// A hard upper limit on the number of variable slots allowed in a function/global scope.
+// This is an arbitrary limit, but is needed to prevent code generation from taking unbounded
+// amounts of time or space.
+static constexpr int kVariableSlotLimit = 100000;
+
 // The SwizzleComponent namespace is used both by the SkSL::Swizzle expression, and the DSL swizzle.
 // This namespace is injected into SkSL::dsl so that `using namespace SkSL::dsl` enables DSL code
 // like `Swizzle(var, X, Y, ONE)` to compile without any extra qualifications.

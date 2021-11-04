@@ -6,6 +6,7 @@
  */
 
 #include "include/sksl/DSLCore.h"
+#include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
@@ -142,6 +143,23 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
 
         bool visitStatement(Statement& stmt) override {
             switch (stmt.kind()) {
+                case Statement::Kind::kVarDeclaration: {
+                    // We count the number of slots used, but don't consider the precision of the
+                    // base type. In practice, this reflects what GPUs really do pretty well.
+                    // (i.e., RelaxedPrecision math doesn't mean your variable takes less space.)
+                    // We also don't attempt to reclaim slots at the end of a Block.
+                    size_t prevSlotsUsed = fSlotsUsed;
+                    fSlotsUsed = SkSafeMath::Add(
+                            fSlotsUsed, stmt.as<VarDeclaration>().var().type().slotCount());
+                    // To avoid overzealous error reporting, only trigger the error at the first
+                    // place where the stack limit is exceeded.
+                    if (prevSlotsUsed < kVariableSlotLimit && fSlotsUsed >= kVariableSlotLimit) {
+                        fContext.fErrors->error(stmt.fLine, "variable '" +
+                                                            stmt.as<VarDeclaration>().var().name() +
+                                                            "' exceeds the stack size limit");
+                    }
+                    break;
+                }
                 case Statement::Kind::kReturn: {
                     // Early returns from a vertex main() function will bypass sk_Position
                     // normalization, so SkASSERT that we aren't doing that. If this becomes an
@@ -224,6 +242,8 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
         IntrinsicSet* fReferencedIntrinsics;
         // how deeply nested we are in breakable constructs (for, do, switch).
         int fBreakableLevel = 0;
+        // number of slots consumed by all variables declared in the function
+        size_t fSlotsUsed = 0;
         // how deeply nested we are in continuable constructs (for, do).
         // We keep a stack (via a forward_list) in order to disallow continue inside of switch.
         std::forward_list<int> fContinuableLevel{0};
@@ -239,7 +259,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
 
     if (Analysis::CanExitWithoutReturningValue(function, *body)) {
         context.fErrors->error(function.fLine, "function '" + function.name() +
-                                                 "' can exit without returning a value");
+                                               "' can exit without returning a value");
     }
 
     return std::make_unique<FunctionDefinition>(line, &function, builtin, std::move(body),

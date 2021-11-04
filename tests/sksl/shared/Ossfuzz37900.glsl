@@ -1,3 +1,4 @@
+### Compilation failed:
 
-void main() {
-}
+error: 2: variable 'a' exceeds the stack size limit
+1 error
