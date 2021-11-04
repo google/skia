@@ -135,6 +135,9 @@ public:
     // Returns an RAII object that first allows the caller to iterate the triangles we will pop,
     // pops those triangles, and finally pushes 'pt' onto the vertex stack.
     SK_WARN_UNUSED_RESULT PoppedTriangleStack pushVertex(SkPoint pt) {
+        if (pt == fVertexStack[0].fPoint) {
+            return this->close();
+        }
         // Our topology wants triangles that have the same vertexIdxDelta on both sides:
         // e.g., a run of 9 points should be triangulated as:
         //
