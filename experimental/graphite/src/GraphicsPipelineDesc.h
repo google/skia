@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_RenderPipelineDesc_DEFINED
-#define skgpu_RenderPipelineDesc_DEFINED
+#ifndef skgpu_GraphicsPipelineDesc_DEFINED
+#define skgpu_GraphicsPipelineDesc_DEFINED
 
 #include "include/core/SkTypes.h"
 
@@ -15,9 +15,13 @@
 
 namespace skgpu {
 
-class RenderPipelineDesc {
+/**
+ * GraphicsPipelineDesc represents the state needed to create a backend specific GraphicsPipeline,
+ * minus the target-specific properties that can be inferred from the DrawPass and RenderPassTask.
+ */
+class GraphicsPipelineDesc {
 public:
-    RenderPipelineDesc();
+    GraphicsPipelineDesc();
 
     /** Describes a vertex or instance attribute. */
     class Attribute {
@@ -95,7 +99,7 @@ public:
         size_t stride() const { return fStride; }
 
     private:
-        friend class RenderPipelineDesc;
+        friend class GraphicsPipelineDesc;
         void init(const Attribute* attrs, int count) {
             fAttributes = attrs;
             fRawCount = count;
@@ -126,11 +130,11 @@ public:
         return fKey.size() * sizeof(uint32_t);
     }
 
-    bool operator==(const RenderPipelineDesc& that) const {
+    bool operator==(const GraphicsPipelineDesc& that) const {
         return this->fKey == that.fKey;
     }
 
-    bool operator!=(const RenderPipelineDesc& other) const {
+    bool operator!=(const GraphicsPipelineDesc& other) const {
         return !(*this == other);
     }
 
@@ -252,10 +256,10 @@ static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
     return 0;
 }
 
-constexpr size_t RenderPipelineDesc::Attribute::size() const {
+constexpr size_t GraphicsPipelineDesc::Attribute::size() const {
     return VertexAttribTypeSize(fCPUType);
 }
 
 } // namespace skgpu
 
-#endif // skgpu_RenderPipelineDesc_DEFINED
+#endif // skgpu_GraphicsPipelineDesc_DEFINED

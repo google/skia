@@ -47,7 +47,7 @@ private:
     void onBeginRenderPass(const RenderPassDesc&) override;
     void endRenderPass() override;
 
-    void onBindRenderPipeline(const skgpu::RenderPipeline*) override;
+    void onBindGraphicsPipeline(const skgpu::GraphicsPipeline*) override;
     void onBindUniformBuffer(const skgpu::Buffer*, size_t offset) override;
     void onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
                              const skgpu::Buffer* instanceBuffer) override;

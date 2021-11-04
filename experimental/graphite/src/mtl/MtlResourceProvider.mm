@@ -12,8 +12,8 @@
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "experimental/graphite/src/mtl/MtlTexture.h"
 
-#include "experimental/graphite/src/RenderPipelineDesc.h"
-#include "experimental/graphite/src/mtl/MtlRenderPipeline.h"
+#include "experimental/graphite/src/GraphicsPipelineDesc.h"
+#include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 
 namespace skgpu::mtl {
 
@@ -29,9 +29,9 @@ sk_sp<skgpu::CommandBuffer> ResourceProvider::createCommandBuffer() {
     return CommandBuffer::Make(this->mtlGpu());
 }
 
-sk_sp<skgpu::RenderPipeline> ResourceProvider::onCreateRenderPipeline(
-        const RenderPipelineDesc& desc) {
-    return RenderPipeline::Make(this->mtlGpu(), desc);
+sk_sp<skgpu::GraphicsPipeline> ResourceProvider::onCreateGraphicsPipeline(
+        const GraphicsPipelineDesc& desc) {
+    return GraphicsPipeline::Make(this->mtlGpu(), desc);
 }
 
 sk_sp<skgpu::Texture> ResourceProvider::createTexture(SkISize dimensions,

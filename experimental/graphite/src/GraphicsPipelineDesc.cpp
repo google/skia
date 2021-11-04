@@ -5,14 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/graphite/src/RenderPipeline.h"
+#include "experimental/graphite/src/GraphicsPipelineDesc.h"
 
 namespace skgpu {
 
-RenderPipeline::RenderPipeline() {
-}
-
-RenderPipeline::~RenderPipeline() {
+GraphicsPipelineDesc::GraphicsPipelineDesc() {
 }
 
 } // namespace skgpu

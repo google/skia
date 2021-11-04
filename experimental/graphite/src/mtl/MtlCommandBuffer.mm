@@ -10,8 +10,8 @@
 #include "experimental/graphite/src/mtl/MtlBlitCommandEncoder.h"
 #include "experimental/graphite/src/mtl/MtlBuffer.h"
 #include "experimental/graphite/src/mtl/MtlGpu.h"
+#include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 #include "experimental/graphite/src/mtl/MtlRenderCommandEncoder.h"
-#include "experimental/graphite/src/mtl/MtlRenderPipeline.h"
 #include "experimental/graphite/src/mtl/MtlTexture.h"
 
 namespace skgpu::mtl {
@@ -137,14 +137,14 @@ void CommandBuffer::endBlitCommandEncoder() {
     }
 }
 
-void CommandBuffer::onBindRenderPipeline(const skgpu::RenderPipeline* renderPipeline) {
+void CommandBuffer::onBindGraphicsPipeline(const skgpu::GraphicsPipeline* graphicsPipeline) {
     SkASSERT(fActiveRenderCommandEncoder);
 
-    auto mtlRenderPipeline = static_cast<const RenderPipeline*>(renderPipeline);
-    auto pipelineState = mtlRenderPipeline->mtlPipelineState();
+    auto mtlPipeline = static_cast<const GraphicsPipeline*>(graphicsPipeline);
+    auto pipelineState = mtlPipeline->mtlPipelineState();
     fActiveRenderCommandEncoder->setRenderPipelineState(pipelineState);
-    fCurrentVertexStride = mtlRenderPipeline->vertexStride();
-    fCurrentInstanceStride = mtlRenderPipeline->instanceStride();
+    fCurrentVertexStride = mtlPipeline->vertexStride();
+    fCurrentInstanceStride = mtlPipeline->instanceStride();
 }
 
 void CommandBuffer::onBindUniformBuffer(const skgpu::Buffer* uniformBuffer,
@@ -154,9 +154,9 @@ void CommandBuffer::onBindUniformBuffer(const skgpu::Buffer* uniformBuffer,
     id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(uniformBuffer)->mtlBuffer();
 
     fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, uniformOffset,
-                                                 RenderPipeline::kUniformBufferIndex);
+                                                 GraphicsPipeline::kUniformBufferIndex);
     fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, uniformOffset,
-                                                   RenderPipeline::kUniformBufferIndex);
+                                                   GraphicsPipeline::kUniformBufferIndex);
 }
 
 void CommandBuffer::onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
@@ -166,12 +166,12 @@ void CommandBuffer::onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
     if (vertexBuffer) {
         id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(vertexBuffer)->mtlBuffer();
         fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, 0,
-                                                     RenderPipeline::kVertexBufferIndex);
+                                                     GraphicsPipeline::kVertexBufferIndex);
     }
     if (instanceBuffer) {
         id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(instanceBuffer)->mtlBuffer();
         fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, 0,
-                                                     RenderPipeline::kInstanceBufferIndex);
+                                                     GraphicsPipeline::kInstanceBufferIndex);
     }
 }
 
@@ -214,7 +214,7 @@ void CommandBuffer::onDrawIndexed(PrimitiveType type, unsigned int baseIndex,
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
 
     fActiveRenderCommandEncoder->setVertexBufferOffset(baseVertex * fCurrentVertexStride,
-                                                       RenderPipeline::kVertexBufferIndex);
+                                                       GraphicsPipeline::kVertexBufferIndex);
     size_t indexOffset =  fCurrentIndexBufferOffset + sizeof(uint16_t )* baseIndex;
     fActiveRenderCommandEncoder->drawIndexedPrimitives(mtlPrimitiveType, indexCount,
                                                        MTLIndexTypeUInt16, fCurrentIndexBuffer,
@@ -241,9 +241,9 @@ void CommandBuffer::onDrawIndexedInstanced(PrimitiveType type, unsigned int base
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
 
     fActiveRenderCommandEncoder->setVertexBufferOffset(baseVertex * fCurrentVertexStride,
-                                                       RenderPipeline::kVertexBufferIndex);
+                                                       GraphicsPipeline::kVertexBufferIndex);
     fActiveRenderCommandEncoder->setVertexBufferOffset(baseInstance * fCurrentInstanceStride,
-                                                       RenderPipeline::kInstanceBufferIndex);
+                                                       GraphicsPipeline::kInstanceBufferIndex);
     size_t indexOffset =  fCurrentIndexBufferOffset + sizeof(uint16_t) * baseIndex;
     fActiveRenderCommandEncoder->drawIndexedPrimitives(mtlPrimitiveType, indexCount,
                                                        MTLIndexTypeUInt16, fCurrentIndexBuffer,

@@ -10,17 +10,15 @@
 
 #include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/CommandBuffer.h"
-#include "experimental/graphite/src/RenderPipeline.h"
-#include "experimental/graphite/src/RenderPipelineDesc.h"
+#include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "include/core/SkSize.h"
 #include "src/core/SkLRUCache.h"
 
 namespace skgpu {
 
 class Buffer;
-class CommandBuffer;
 class Gpu;
-class RenderPipeline;
+class GraphicsPipeline;
 class Texture;
 class TextureInfo;
 
@@ -30,7 +28,7 @@ public:
 
     virtual sk_sp<CommandBuffer> createCommandBuffer() = 0;
 
-    sk_sp<RenderPipeline> findOrCreateRenderPipeline(const RenderPipelineDesc&);
+    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(const GraphicsPipelineDesc&);
 
     sk_sp<Texture> findOrCreateTexture(SkISize, const TextureInfo&);
 
@@ -42,34 +40,34 @@ protected:
     const Gpu* fGpu;
 
 private:
-    virtual sk_sp<RenderPipeline> onCreateRenderPipeline(const RenderPipelineDesc&) = 0;
+    virtual sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) = 0;
 
-    class RenderPipelineCache {
+    class GraphicsPipelineCache {
     public:
-        RenderPipelineCache(ResourceProvider* resourceProvider);
-        ~RenderPipelineCache();
+        GraphicsPipelineCache(ResourceProvider* resourceProvider);
+        ~GraphicsPipelineCache();
 
         void release();
-        sk_sp<RenderPipeline> refPipeline(const RenderPipelineDesc&);
+        sk_sp<GraphicsPipeline> refPipeline(const GraphicsPipelineDesc&);
 
     private:
         struct Entry;
 
         struct DescHash {
-            uint32_t operator()(const RenderPipelineDesc& desc) const {
+            uint32_t operator()(const GraphicsPipelineDesc& desc) const {
                 return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
             }
         };
 
-        SkLRUCache<const RenderPipelineDesc, std::unique_ptr<Entry>, DescHash> fMap;
+        SkLRUCache<const GraphicsPipelineDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
         ResourceProvider* fResourceProvider;
     };
 
-    // Cache of RenderPipelines
-    std::unique_ptr<RenderPipelineCache> fRenderPipelineCache;
+    // Cache of GraphicsPipelines
+    std::unique_ptr<GraphicsPipelineCache> fGraphicsPipelineCache;
 };
 
 } // namespace skgpu

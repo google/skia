@@ -8,7 +8,7 @@
 #include "experimental/graphite/src/CommandBuffer.h"
 
 #include "experimental/graphite/include/private/GraphiteTypesPriv.h"
-#include "experimental/graphite/src/RenderPipeline.h"
+#include "experimental/graphite/src/GraphicsPipeline.h"
 #include "src/core/SkTraceEvent.h"
 
 #include "experimental/graphite/src/Buffer.h"
@@ -36,9 +36,9 @@ void CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc) {
     }
 }
 
-void CommandBuffer::bindRenderPipeline(sk_sp<RenderPipeline> renderPipeline) {
-    this->onBindRenderPipeline(renderPipeline.get());
-    this->trackResource(std::move(renderPipeline));
+void CommandBuffer::bindGraphicsPipeline(sk_sp<GraphicsPipeline> graphicsPipeline) {
+    this->onBindGraphicsPipeline(graphicsPipeline.get());
+    this->trackResource(std::move(graphicsPipeline));
     fHasWork = true;
 }
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/graphite/src/mtl/MtlRenderPipeline.h"
+#include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 
-#include "experimental/graphite/src/RenderPipelineDesc.h"
+#include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 #include "include/private/SkSLString.h"
@@ -213,7 +213,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type)
     SK_ABORT("Unknown vertex attribute type");
 }
 
-static MTLVertexDescriptor* create_vertex_descriptor(const RenderPipelineDesc& desc) {
+static MTLVertexDescriptor* create_vertex_descriptor(const GraphicsPipelineDesc& desc) {
     auto vertexDescriptor = [[MTLVertexDescriptor alloc] init];
     int attributeIndex = 0;
 
@@ -225,7 +225,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const RenderPipelineDesc& d
         SkASSERT(MTLVertexFormatInvalid != format);
         mtlAttribute.format = format;
         mtlAttribute.offset = vertexAttributeOffset;
-        mtlAttribute.bufferIndex = RenderPipeline::kVertexBufferIndex;
+        mtlAttribute.bufferIndex = GraphicsPipeline::kVertexBufferIndex;
 
         vertexAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
@@ -234,7 +234,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const RenderPipelineDesc& d
 
     if (vertexAttributeCount) {
         MTLVertexBufferLayoutDescriptor* vertexBufferLayout =
-                vertexDescriptor.layouts[RenderPipeline::kVertexBufferIndex];
+                vertexDescriptor.layouts[GraphicsPipeline::kVertexBufferIndex];
         vertexBufferLayout.stepFunction = MTLVertexStepFunctionPerVertex;
         vertexBufferLayout.stepRate = 1;
         vertexBufferLayout.stride = vertexAttributeOffset;
@@ -248,7 +248,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const RenderPipelineDesc& d
         SkASSERT(MTLVertexFormatInvalid != format);
         mtlAttribute.format = format;
         mtlAttribute.offset = instanceAttributeOffset;
-        mtlAttribute.bufferIndex = RenderPipeline::kInstanceBufferIndex;
+        mtlAttribute.bufferIndex = GraphicsPipeline::kInstanceBufferIndex;
 
         instanceAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
@@ -257,7 +257,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const RenderPipelineDesc& d
 
     if (instanceAttributeCount) {
         MTLVertexBufferLayoutDescriptor* instanceBufferLayout =
-                vertexDescriptor.layouts[RenderPipeline::kInstanceBufferIndex];
+                vertexDescriptor.layouts[GraphicsPipeline::kInstanceBufferIndex];
         instanceBufferLayout.stepFunction = MTLVertexStepFunctionPerInstance;
         instanceBufferLayout.stepRate = 1;
         instanceBufferLayout.stride = instanceAttributeOffset;
@@ -265,7 +265,8 @@ static MTLVertexDescriptor* create_vertex_descriptor(const RenderPipelineDesc& d
     return vertexDescriptor;
 }
 
-sk_sp<RenderPipeline> RenderPipeline::Make(const Gpu* gpu, const skgpu::RenderPipelineDesc& desc) {
+sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Gpu* gpu,
+                                               const skgpu::GraphicsPipelineDesc& desc) {
     sk_cfp<MTLRenderPipelineDescriptor*> psoDescriptor([[MTLRenderPipelineDescriptor alloc] init]);
 
     // Temp pipeline for now that just fills the viewport with blue
@@ -307,8 +308,8 @@ sk_sp<RenderPipeline> RenderPipeline::Make(const Gpu* gpu, const skgpu::RenderPi
         SkDebugf("Errors:\n%s", error.debugDescription.UTF8String);
         return nullptr;
     }
-    return sk_sp<RenderPipeline>(new RenderPipeline(std::move(pso), desc.vertexStride(),
-                                                    desc.instanceStride()));
+    return sk_sp<GraphicsPipeline>(new GraphicsPipeline(std::move(pso), desc.vertexStride(),
+                                                        desc.instanceStride()));
 }
 
 } // namespace skgpu::mtl

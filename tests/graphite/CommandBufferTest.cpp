@@ -14,7 +14,7 @@
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/Gpu.h"
-#include "experimental/graphite/src/RenderPipeline.h"
+#include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
 
@@ -77,16 +77,16 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     size_t uniformOffset = 0;
 
     // Draw blue rectangle over entire rendertarget (which was red)
-    RenderPipelineDesc pipelineDesc;
+    GraphicsPipelineDesc pipelineDesc;
     pipelineDesc.setTestingOnlyShaderIndex(0);
-    auto renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
-    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+    auto graphicsPipeline = gpu->resourceProvider()->findOrCreateGraphicsPipeline(pipelineDesc);
+    commandBuffer->bindGraphicsPipeline(std::move(graphicsPipeline));
     commandBuffer->draw(PrimitiveType::kTriangleStrip, 0, 4);
 
     // Draw inset yellow rectangle using uniforms
     pipelineDesc.setTestingOnlyShaderIndex(1);
-    renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
-    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+    graphicsPipeline = gpu->resourceProvider()->findOrCreateGraphicsPipeline(pipelineDesc);
+    commandBuffer->bindGraphicsPipeline(std::move(graphicsPipeline));
     UniformData* uniforms = (UniformData*)uniformBuffer->map();
     uniforms->fScale = SkPoint({1.8, 1.8});
     uniforms->fTranslate = SkPoint({-0.9, -0.9});
@@ -98,12 +98,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     // Draw inset magenta rectangle with triangles in vertex buffer
     pipelineDesc.setTestingOnlyShaderIndex(2);
-    skgpu::RenderPipelineDesc::Attribute vertexAttributes[1] = {
+    skgpu::GraphicsPipelineDesc::Attribute vertexAttributes[1] = {
         { "position", VertexAttribType::kFloat2, SLType::kFloat2 }
     };
     pipelineDesc.setVertexAttributes(vertexAttributes, 1);
-    renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
-    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+    graphicsPipeline = gpu->resourceProvider()->findOrCreateGraphicsPipeline(pipelineDesc);
+    commandBuffer->bindGraphicsPipeline(std::move(graphicsPipeline));
 
     struct VertexData {
         SkPoint fPosition;
@@ -136,15 +136,15 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     // draw rects using instance buffer
     pipelineDesc.setTestingOnlyShaderIndex(3);
-    skgpu::RenderPipelineDesc::Attribute instanceAttributes[3] = {
+    skgpu::GraphicsPipelineDesc::Attribute instanceAttributes[3] = {
         { "position", VertexAttribType::kFloat2, SLType::kFloat2 },
         { "dims", VertexAttribType::kFloat2, SLType::kFloat2 },
         { "color", VertexAttribType::kFloat4, SLType::kFloat4 }
     };
     pipelineDesc.setVertexAttributes(nullptr, 0);
     pipelineDesc.setInstanceAttributes(instanceAttributes, 3);
-    renderPipeline = gpu->resourceProvider()->findOrCreateRenderPipeline(pipelineDesc);
-    commandBuffer->bindRenderPipeline(std::move(renderPipeline));
+    graphicsPipeline = gpu->resourceProvider()->findOrCreateGraphicsPipeline(pipelineDesc);
+    commandBuffer->bindGraphicsPipeline(std::move(graphicsPipeline));
 
     struct InstanceData {
         SkPoint fPosition;
