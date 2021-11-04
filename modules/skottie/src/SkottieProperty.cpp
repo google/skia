@@ -51,49 +51,49 @@ bool TransformPropertyValue::operator!=(const TransformPropertyValue& other) con
     return !(*this == other);
 }
 
-template <>
+template <> SK_API
 PropertyHandle<ColorPropertyValue, sksg::Color>::~PropertyHandle() {}
 
-template <>
+template <> SK_API
 ColorPropertyValue PropertyHandle<ColorPropertyValue, sksg::Color>::get() const {
     return fNode->getColor();
 }
 
-template <>
+template <> SK_API
 void PropertyHandle<ColorPropertyValue, sksg::Color>::set(const ColorPropertyValue& c) {
     fNode->setColor(c);
 }
 
-template <>
+template <> SK_API
 PropertyHandle<OpacityPropertyValue, sksg::OpacityEffect>::~PropertyHandle() {}
 
-template <>
+template <> SK_API
 OpacityPropertyValue PropertyHandle<OpacityPropertyValue, sksg::OpacityEffect>::get() const {
     return fNode->getOpacity() * 100;
 }
 
-template <>
+template <> SK_API
 void PropertyHandle<OpacityPropertyValue, sksg::OpacityEffect>::set(const OpacityPropertyValue& o) {
     fNode->setOpacity(o / 100);
 }
 
-template <>
+template <> SK_API
 PropertyHandle<TextPropertyValue, internal::TextAdapter>::~PropertyHandle() {}
 
-template <>
+template <> SK_API
 TextPropertyValue PropertyHandle<TextPropertyValue, internal::TextAdapter>::get() const {
       return fNode->getText();
 }
 
-template<>
+template<> SK_API
 void PropertyHandle<TextPropertyValue, internal::TextAdapter>::set(const TextPropertyValue& t) {
       fNode->setText(t);
 }
 
-template <>
+template <> SK_API
 PropertyHandle<TransformPropertyValue, internal::TransformAdapter2D>::~PropertyHandle() {}
 
-template <>
+template <> SK_API
 TransformPropertyValue PropertyHandle<TransformPropertyValue,
                                       internal::TransformAdapter2D>::get() const {
     return {
@@ -106,7 +106,7 @@ TransformPropertyValue PropertyHandle<TransformPropertyValue,
     };
 }
 
-template <>
+template <> SK_API
 void PropertyHandle<TransformPropertyValue, internal::TransformAdapter2D>::set(
         const TransformPropertyValue& t) {
     fNode->setAnchorPoint(t.fAnchorPoint);
