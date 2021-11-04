@@ -309,6 +309,19 @@ DEF_TEST(SkTOptionalNoDefaultConstructor, r) {
     REPORTER_ASSERT(r, o1->fValue == 5);
 }
 
+DEF_TEST(SkTOptionalDestroyed, r) {
+    bool destroyed = false;
+    struct NotifyWhenDestroyed {
+        NotifyWhenDestroyed(bool* e) : fE(e) {}
+        ~NotifyWhenDestroyed() { *fE = true; }
+        bool* fE;
+    };
+    {
+        skstd::optional<NotifyWhenDestroyed> notify(&destroyed);
+    }
+    REPORTER_ASSERT(r, destroyed);
+}
+
 DEF_TEST(SkTOptionalSelfAssignment, r) {
     skstd::optional<SkString> empty;
     skstd::optional<SkString>& emptyRef = empty;
