@@ -273,6 +273,8 @@ public:
 
     void onAboutToExitScope() override {}
 
+    sk_sp<SkStrike> getUnderlyingStrike() const override { return nullptr; }
+
     bool hasPendingGlyphs() const {
         return !fMasksToSend.empty() || !fPathsToSend.empty();
     }

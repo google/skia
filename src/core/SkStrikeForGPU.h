@@ -22,6 +22,7 @@ class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
 class SkSourceGlyphBuffer;
+class SkStrike;
 class SkTypeface;
 struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
@@ -44,6 +45,9 @@ public:
 
     // Used with SkScopedStrikeForGPU to take action at the end of a scope.
     virtual void onAboutToExitScope() = 0;
+
+    // Return underlying SkStrike for building SubRuns while processing glyph runs.
+    virtual sk_sp<SkStrike> getUnderlyingStrike() const = 0;
 
     // Common categories for glyph types used by GPU.
     static bool CanDrawAsMask(const SkGlyph& glyph);
