@@ -125,6 +125,10 @@ size_t GrMtlFormatBytesPerBlock(MTLPixelFormat);
 
 int GrMtlFormatStencilBits(MTLPixelFormat);
 
+#ifdef SK_BUILD_FOR_IOS
+bool GrMtlIsAppInBackground();
+#endif
+
 GR_NORETAIN_END
 
 #endif

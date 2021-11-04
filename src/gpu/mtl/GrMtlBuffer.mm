@@ -109,6 +109,9 @@ bool GrMtlBuffer::onUpdateData(const void* src, size_t sizeInBytes) {
 
         GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
         id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+        if (!blitCmdEncoder) {
+            return false;
+        }
         GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
         id<MTLBuffer> transferBuffer = mtlBuffer->mtlBuffer();
         [blitCmdEncoder copyFromBuffer: transferBuffer

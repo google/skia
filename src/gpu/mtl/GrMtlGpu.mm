@@ -373,6 +373,9 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder pushDebugGroup:@"uploadToTexture"];
 #endif
@@ -466,6 +469,9 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder pushDebugGroup:@"clearTexture"];
 #endif
@@ -643,6 +649,9 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return nullptr;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder pushDebugGroup:@"onCreateCompressedTexture"];
 #endif
@@ -795,6 +804,9 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
     [blitCmdEncoder generateMipmapsForTexture: mtlTexture];
     this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(grMtlTexture->attachment()));
 
@@ -953,6 +965,9 @@ bool GrMtlGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
 
     GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder pushDebugGroup:@"onClearBackendTexture"];
 #endif
@@ -1052,6 +1067,9 @@ bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
 
     GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder pushDebugGroup:@"onUpdateCompressedBackendTexture"];
 #endif
@@ -1204,6 +1222,9 @@ void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder pushDebugGroup:@"copySurfaceAsBlit"];
 #endif
@@ -1399,6 +1420,9 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder pushDebugGroup:@"onTransferPixelsTo"];
 #endif
@@ -1483,6 +1507,9 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder pushDebugGroup:@"readOrTransferPixels"];
 #endif
@@ -1590,10 +1617,11 @@ void GrMtlGpu::resolve(GrMtlAttachment* resolveAttachment,
 
     GrMtlRenderCommandEncoder* cmdEncoder =
             this->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr, nullptr);
-    SkASSERT(nil != cmdEncoder);
-    cmdEncoder->setLabel(@"resolveTexture");
-    this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(resolveAttachment));
-    this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(msaaAttachment));
+    if (cmdEncoder) {
+        cmdEncoder->setLabel(@"resolveTexture");
+        this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(resolveAttachment));
+        this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(msaaAttachment));
+    }
 }
 
 GrMtlRenderCommandEncoder* GrMtlGpu::loadMSAAFromResolve(
@@ -1628,6 +1656,9 @@ GrMtlRenderCommandEncoder* GrMtlGpu::loadMSAAFromResolve(
     // hence we need to let the previous resolve finish. So we create a new one without checking.
     auto renderCmdEncoder =
                 this->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr);
+    if (!renderCmdEncoder) {
+        return nullptr;
+    }
 
     // Bind pipeline
     renderCmdEncoder->setRenderPipelineState(renderPipeline->mtlPipelineState());

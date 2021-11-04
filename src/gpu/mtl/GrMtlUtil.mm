@@ -19,6 +19,9 @@
 #include "src/sksl/SkSLCompiler.h"
 
 #import <Metal/Metal.h>
+#ifdef SK_BUILD_FOR_IOS
+#import <UIKit/UIApplication.h>
+#endif
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -453,6 +456,13 @@ int GrMtlFormatStencilBits(MTLPixelFormat mtlFormat) {
          return 0;
     }
 }
+
+#ifdef SK_BUILD_FOR_IOS
+bool GrMtlIsAppInBackground() {
+    return [NSThread isMainThread] &&
+           ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground);
+}
+#endif
 
 #if defined(SK_DEBUG) || GR_TEST_UTILS
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat) {

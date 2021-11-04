@@ -86,6 +86,9 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
         fActiveRenderCmdEncoder =
                 fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc,
                                                                fActivePipelineState, this);
+        if (!fActiveRenderCmdEncoder) {
+            return false;
+        }
         fGpu->commandBuffer()->addGrSurface(
                 sk_ref_sp<GrMtlAttachment>(fFramebuffer->colorAttachment()));
     }
@@ -211,6 +214,9 @@ void GrMtlOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUp
 }
 
 void GrMtlOpsRenderPass::initRenderState(GrMtlRenderCommandEncoder* encoder) {
+    if (!encoder) {
+        return;
+    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     encoder->pushDebugGroup(@"initRenderState");
 #endif
@@ -308,7 +314,7 @@ GrMtlRenderCommandEncoder* GrMtlOpsRenderPass::setupResolve() {
         }
     }
 
-    return nil;
+    return nullptr;
 }
 
 void GrMtlOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,

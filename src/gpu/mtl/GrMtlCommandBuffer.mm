@@ -56,6 +56,13 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
     }
 
     this->endAllEncoding();
+#ifdef SK_BUILD_FOR_IOS
+    if (GrMtlIsAppInBackground()) {
+        fActiveBlitCommandEncoder = nil;
+        NSLog(@"GrMtlCommandBuffer: tried to create MTLBlitCommandEncoder while in background.");
+        return nil;
+    }
+#endif
     fActiveBlitCommandEncoder = [fCmdBuffer blitCommandEncoder];
     fHasWork = true;
 
@@ -148,6 +155,13 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
         MTLRenderPassDescriptor* descriptor,
         GrMtlOpsRenderPass* opsRenderPass) {
     this->endAllEncoding();
+#ifdef SK_BUILD_FOR_IOS
+    if (GrMtlIsAppInBackground()) {
+        fActiveRenderCommandEncoder = nullptr;
+        NSLog(@"GrMtlCommandBuffer: tried to create MTLRenderCommandEncoder while in background.");
+        return nullptr;
+    }
+#endif
     fActiveRenderCommandEncoder = GrMtlRenderCommandEncoder::Make(
             [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor]);
     if (opsRenderPass) {
@@ -161,6 +175,12 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
 
 bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
     this->endAllEncoding();
+#ifdef SK_BUILD_FOR_IOS
+    if (GrMtlIsAppInBackground()) {
+        NSLog(@"GrMtlCommandBuffer: Tried to commit command buffer while in background.\n");
+        return false;
+    }
+#endif
     [fCmdBuffer commit];
     if (waitUntilCompleted) {
         this->waitUntilCompleted();
