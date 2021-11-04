@@ -58,6 +58,11 @@ struct SkScalerContextRec {
     SkScalar    fPost2x2[2][2];
     SkScalar    fFrameWidth, fMiterLimit;
 
+    // This will be set if to the paint's foreground color if
+    // kNeedsForegroundColor is set, which will usually be the case for COLRv0 and
+    // COLRv1 fonts.
+    uint32_t fForegroundColor{SK_ColorBLACK};
+
 private:
     //These describe the parameters to create (uniquely identify) the pre-blend.
     uint32_t      fLumBits;
@@ -136,6 +141,7 @@ public:
                    fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
         msg.appendf("      lum bits %x, device gamma %d, paint gamma %d contrast %d\n", fLumBits,
                     fDeviceGamma, fPaintGamma, fContrast);
+        msg.appendf("      foreground color %x", fForegroundColor);
         return msg;
     }
 
@@ -257,6 +263,8 @@ public:
         kGenA8FromLCD_Flag        = 0x0800, // could be 0x200 (bit meaning dependent on fMaskFormat)
         kLinearMetrics_Flag       = 0x1000,
         kBaselineSnap_Flag        = 0x2000,
+
+        kNeedsForegroundColor_Flag = 0x4000,
     };
 
     // computed values

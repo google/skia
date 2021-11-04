@@ -492,10 +492,13 @@ inline SkPoint SkVectorProjection(SkPoint a, SkPoint b) {
     return b_normalized;
 }
 
-bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
-                              FT_COLR_Paint colrv1_paint, SkPaint* paint) {
-
-    auto fetch_color_stops = [&face, &palette](FT_ColorStopIterator& color_stop_iterator,
+bool colrv1_configure_skpaint(FT_Face face,
+                              const SkSpan<FT_Color>& palette,
+                              const SkColor foregroundColor,
+                              FT_COLR_Paint colrv1_paint,
+                              SkPaint* paint) {
+    auto fetch_color_stops = [&face, &palette, &foregroundColor](
+                                               FT_ColorStopIterator& color_stop_iterator,
                                                std::vector<SkScalar>& stops,
                                                std::vector<SkColor>& colors) -> bool {
         const FT_UInt num_color_stops = color_stop_iterator.num_color_stops;
@@ -515,17 +518,18 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
             sorted_stops[index].stop_pos = color_stop.stop_offset / float(1 << 14);
             FT_UInt16& palette_index = color_stop.color.palette_index;
             if (palette_index == kForegroundColorPaletteIndex) {
-                // TODO(https://crbug.com/skia/12576): Ensure 0xFFFF foreground color will be
-                // handled correctly here.
-                sorted_stops[index].color = SK_ColorBLACK;
+                U8CPU newAlpha = SkColorGetA(foregroundColor) *
+                                 SkColrV1AlphaToFloat(color_stop.color.alpha);
+                sorted_stops[index].color = SkColorSetA(foregroundColor, newAlpha);
             } else if (palette_index >= palette.size()) {
                 return false;
             } else {
-                sorted_stops[index].color = SkColorSetARGB(
-                        palette[palette_index].alpha * SkColrV1AlphaToFloat(color_stop.color.alpha),
-                        palette[palette_index].red,
-                        palette[palette_index].green,
-                        palette[palette_index].blue);
+                U8CPU newAlpha = palette[palette_index].alpha *
+                                 SkColrV1AlphaToFloat(color_stop.color.alpha);
+                sorted_stops[index].color = SkColorSetARGB(newAlpha,
+                                                           palette[palette_index].red,
+                                                           palette[palette_index].green,
+                                                           palette[palette_index].blue);
             }
         }
 
@@ -550,14 +554,15 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
             // Dont' draw anything with this color if the palette index is out of bounds.
             SkColor color = SK_ColorTRANSPARENT;
             if (solid.color.palette_index == kForegroundColorPaletteIndex) {
-                // TODO(https://crbug.com/skia/12576): Ensure 0xFFFF foreground color will be
-                // handled correctly here.
-                color = SK_ColorBLACK;
+                U8CPU newAlpha = SkColorGetA(foregroundColor) *
+                                 SkColrV1AlphaToFloat(solid.color.alpha);
+                color = SkColorSetA(foregroundColor, newAlpha);
             } else if (solid.color.palette_index >= palette.size()) {
                 return false;
             } else {
-                color = SkColorSetARGB(palette[solid.color.palette_index].alpha *
-                                               SkColrV1AlphaToFloat(solid.color.alpha),
+                U8CPU newAlpha = palette[solid.color.palette_index].alpha *
+                                 SkColrV1AlphaToFloat(solid.color.alpha);
+                color = SkColorSetARGB(newAlpha,
                                        palette[solid.color.palette_index].red,
                                        palette[solid.color.palette_index].green,
                                        palette[solid.color.palette_index].blue);
@@ -707,9 +712,9 @@ bool colrv1_configure_skpaint(FT_Face face, const SkSpan<FT_Color>& palette,
     return true;
 }
 
-
 void colrv1_draw_paint(SkCanvas* canvas,
                        const SkSpan<FT_Color>& palette,
+                       const SkColor foregroundColor,
                        FT_Face face,
                        FT_COLR_Paint colrv1_paint) {
     SkPaint paint;
@@ -738,7 +743,8 @@ void colrv1_draw_paint(SkCanvas* canvas,
         case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT:
         case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
             SkPaint colrPaint;
-            if (colrv1_configure_skpaint(face, palette, colrv1_paint, &colrPaint)) {
+            if (colrv1_configure_skpaint(
+                        face, palette, foregroundColor, colrv1_paint, &colrPaint)) {
                 canvas->drawPaint(colrPaint);
             }
             break;
@@ -757,7 +763,7 @@ void colrv1_draw_paint(SkCanvas* canvas,
     }
 }
 
-void colrv1_draw_glyph_with_path(SkCanvas* canvas, const SkSpan<FT_Color>& palette, FT_Face face,
+void colrv1_draw_glyph_with_path(SkCanvas* canvas, const SkSpan<FT_Color>& palette, SkColor foregroundColor, FT_Face face,
                                  FT_COLR_Paint glyphPaint, FT_COLR_Paint fillPaint) {
     SkASSERT(glyphPaint.format == FT_COLR_PAINTFORMAT_GLYPH);
     SkASSERT(fillPaint.format == FT_COLR_PAINTFORMAT_SOLID ||
@@ -767,7 +773,7 @@ void colrv1_draw_glyph_with_path(SkCanvas* canvas, const SkSpan<FT_Color>& palet
 
     SkPaint skiaFillPaint;
     skiaFillPaint.setAntiAlias(true);
-    if (!colrv1_configure_skpaint(face, palette, fillPaint, &skiaFillPaint)) {
+    if (!colrv1_configure_skpaint(face, palette, foregroundColor, fillPaint, &skiaFillPaint)) {
       return;
     }
 
@@ -861,12 +867,14 @@ void colrv1_transform(FT_Face face,
 
 bool colrv1_start_glyph(SkCanvas* canvas,
                         const SkSpan<FT_Color>& palette,
+                        const SkColor foregroundColor,
                         FT_Face ft_face,
                         uint16_t glyph_id,
                         FT_Color_Root_Transform root_transform);
 
 bool colrv1_traverse_paint(SkCanvas* canvas,
                            const SkSpan<FT_Color>& palette,
+                           const SkColor foregroundColor,
                            FT_Face face,
                            FT_OpaquePaint opaque_paint,
                            VisitedSet* visited_set) {
@@ -893,7 +901,8 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             FT_OpaquePaint opaque_paint_fetch;
             opaque_paint_fetch.p = nullptr;
             while (FT_Get_Paint_Layers(face, &layer_iterator, &opaque_paint_fetch)) {
-                colrv1_traverse_paint(canvas, palette, face, opaque_paint_fetch, visited_set);
+                colrv1_traverse_paint(canvas, palette, foregroundColor, face,
+                                      opaque_paint_fetch, visited_set);
             }
             break;
         }
@@ -911,55 +920,64 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
                 fillPaint.format == FT_COLR_PAINTFORMAT_LINEAR_GRADIENT ||
                 fillPaint.format == FT_COLR_PAINTFORMAT_RADIAL_GRADIENT ||
                 fillPaint.format == FT_COLR_PAINTFORMAT_SWEEP_GRADIENT) {
-                colrv1_draw_glyph_with_path(canvas, palette, face, paint, fillPaint);
+                colrv1_draw_glyph_with_path(canvas, palette, foregroundColor,
+                                            face, paint, fillPaint);
             } else {
-                colrv1_draw_paint(canvas, palette, face, paint);
-                traverse_result = colrv1_traverse_paint(canvas, palette, face,
-                                                        paint.u.glyph.paint, visited_set);
+                colrv1_draw_paint(canvas, palette, foregroundColor, face, paint);
+                traverse_result = colrv1_traverse_paint(canvas, palette,
+                                                        foregroundColor, face,
+                                                        paint.u.glyph.paint,
+                                                        visited_set);
             }
             break;
         case FT_COLR_PAINTFORMAT_COLR_GLYPH:
-            traverse_result = colrv1_start_glyph(canvas, palette, face, paint.u.colr_glyph.glyphID,
+            traverse_result = colrv1_start_glyph(canvas, palette, foregroundColor,
+                                                 face, paint.u.colr_glyph.glyphID,
                                                  FT_COLOR_NO_ROOT_TRANSFORM);
             break;
         case FT_COLR_PAINTFORMAT_TRANSFORM:
             colrv1_transform(face, paint, canvas);
-            traverse_result = colrv1_traverse_paint(canvas, palette, face,
-                                                    paint.u.transform.paint, visited_set);
+            traverse_result = colrv1_traverse_paint(canvas, palette, foregroundColor,
+                                                    face, paint.u.transform.paint,
+                                                    visited_set);
             break;
         case FT_COLR_PAINTFORMAT_TRANSLATE:
             colrv1_transform(face, paint, canvas);
-            traverse_result = colrv1_traverse_paint(canvas, palette, face,
-                                                    paint.u.translate.paint, visited_set);
+            traverse_result = colrv1_traverse_paint(canvas, palette, foregroundColor,
+                                                    face, paint.u.translate.paint,
+                                                    visited_set);
             break;
         case FT_COLR_PAINTFORMAT_SCALE:
             colrv1_transform(face, paint, canvas);
-            traverse_result = colrv1_traverse_paint(canvas, palette, face,
-                                                    paint.u.scale.paint, visited_set);
+            traverse_result = colrv1_traverse_paint(canvas, palette, foregroundColor,
+                                                    face, paint.u.scale.paint,
+                                                    visited_set);
             break;
         case FT_COLR_PAINTFORMAT_ROTATE:
             colrv1_transform(face, paint, canvas);
             traverse_result =
-                    colrv1_traverse_paint(canvas, palette, face,
+                    colrv1_traverse_paint(canvas, palette, foregroundColor, face,
                                           paint.u.rotate.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_SKEW:
             colrv1_transform(face, paint, canvas);
             traverse_result =
-                    colrv1_traverse_paint(canvas, palette, face,
+                    colrv1_traverse_paint(canvas, palette, foregroundColor, face,
                                           paint.u.skew.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_COMPOSITE: {
             canvas->saveLayer(nullptr, nullptr);
             traverse_result = colrv1_traverse_paint(
-                    canvas, palette, face, paint.u.composite.backdrop_paint, visited_set);
+                    canvas, palette, foregroundColor, face,
+                    paint.u.composite.backdrop_paint, visited_set);
             SkPaint blend_mode_paint;
             blend_mode_paint.setBlendMode(ToSkBlendMode(paint.u.composite.composite_mode));
             canvas->saveLayer(nullptr, &blend_mode_paint);
             traverse_result =
                     traverse_result &&
                     colrv1_traverse_paint(
-                            canvas, palette, face, paint.u.composite.source_paint, visited_set);
+                            canvas, palette, foregroundColor,
+                            face, paint.u.composite.source_paint, visited_set);
             canvas->restore();
             canvas->restore();
             break;
@@ -968,7 +986,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
         case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT:
         case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT:
         case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
-            colrv1_draw_paint(canvas, palette, face, paint);
+            colrv1_draw_paint(canvas, palette, foregroundColor, face, paint);
             break;
         }
         default:
@@ -1046,6 +1064,7 @@ SkPath GetClipBoxPath(FT_Face ft_face, uint16_t glyph_id, bool untransformed) {
 
 bool colrv1_start_glyph(SkCanvas* canvas,
                         const SkSpan<FT_Color>& palette,
+                        const SkColor foregroundColor,
                         FT_Face ft_face,
                         uint16_t glyph_id,
                         FT_Color_Root_Transform root_transform) {
@@ -1062,7 +1081,8 @@ bool colrv1_start_glyph(SkCanvas* canvas,
         }
 
         VisitedSet visited_set;
-        colrv1_traverse_paint(canvas, palette, ft_face, opaque_paint, &visited_set);
+        colrv1_traverse_paint(canvas, palette, foregroundColor,
+                              ft_face, opaque_paint, &visited_set);
     }
     return has_colrv1_layers;
 }
@@ -1275,7 +1295,9 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 // TT_SUPPORT_COLRV1 flag defined by the FreeType headers in
                 // that case.
 
-                haveLayers = colrv1_start_glyph(&canvas, paletteSpan, face, glyph.getGlyphID(),
+                haveLayers = colrv1_start_glyph(&canvas, paletteSpan,
+                                                fRec.fForegroundColor,
+                                                face, glyph.getGlyphID(),
                                                 FT_COLOR_INCLUDE_ROOT_TRANSFORM);
 #else
                 haveLayers = false;
@@ -1290,7 +1312,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                                                     &layerColorIndex, &layerIterator)) {
                         haveLayers = true;
                         if (layerColorIndex == 0xFFFF) {
-                            paint.setColor(SK_ColorBLACK);
+                            paint.setColor(fRec.fForegroundColor);
                         } else {
                             SkColor color = SkColorSetARGB(palette[layerColorIndex].alpha,
                                                            palette[layerColorIndex].red,

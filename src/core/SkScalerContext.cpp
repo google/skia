@@ -1113,6 +1113,10 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     if (font.isBaselineSnap()) {
         flags |= SkScalerContext::kBaselineSnap_Flag;
     }
+    if (typeface->glyphMaskNeedsCurrentColor()) {
+        flags |= SkScalerContext::kNeedsForegroundColor_Flag;
+        rec->fForegroundColor = paint.getColor();
+    }
     rec->fFlags = SkToU16(flags);
 
     // these modify fFlags, so do them after assigning fFlags
