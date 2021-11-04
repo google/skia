@@ -139,7 +139,6 @@ class SkGlyphRunPainterInterface {
 public:
     virtual ~SkGlyphRunPainterInterface() = default;
 
-#if SK_GPU_V1
     virtual void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
@@ -155,7 +154,6 @@ public:
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale) = 0;
-#endif // SK_GPU_V1
 };
 
 #endif  // SkGlyphRunPainter_DEFINED
