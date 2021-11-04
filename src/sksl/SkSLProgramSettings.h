@@ -40,6 +40,10 @@ struct ProgramSettings {
     // At present, zero is always used by our backends.
     int fDefaultUniformSet = 0;
     int fDefaultUniformBinding = 0;
+    // Enables debug trace instructions in SkVM output. Trace instructions are used by the SkSL
+    // debugger to map from SkVM-compiled output back into the original SkSL source. This setting
+    // does nothing when rendering on an actual GPU.
+    bool fSkVMDebugTrace = false;
     // Enables the SkSL optimizer.
     bool fOptimize = true;
     // (Requires fOptimize = true) Removes any uncalled functions other than main(). Note that a

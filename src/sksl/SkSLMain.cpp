@@ -215,6 +215,9 @@ static bool detect_shader_settings(const SkSL::String& text,
                 if (settingsText.consumeSuffix(" Sharpen")) {
                     settings->fSharpenTextures = true;
                 }
+                if (settingsText.consumeSuffix(" SkVMDebugTrace")) {
+                    settings->fSkVMDebugTrace = true;
+                }
 
                 if (settingsText.empty()) {
                     break;
