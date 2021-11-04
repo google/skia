@@ -213,26 +213,24 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     }
 
     SkASSERT(fCurrentCmdBuffer);
-    new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(fCurrentCmdBuffer);
-
-    if (!fCurrentCmdBuffer->commit(sync == SyncQueue::kForce_SyncQueue)) {
-        return false;
+    bool didCommit = fCurrentCmdBuffer->commit(sync == SyncQueue::kForce_SyncQueue);
+    if (didCommit) {
+        new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(fCurrentCmdBuffer);
     }
 
     // We don't create a new command buffer here because we may end up using it
     // in the next frame, and that confuses the GPU debugger. Instead we
     // create when we next need one.
-    fCurrentCmdBuffer = nullptr;
+    fCurrentCmdBuffer.reset();
 
     // If the freeing of any resources held by a finished command buffer causes us to send
-    // a new command to the gpu (like changing the resource state) we'll create the new
-    // command buffer in commandBuffer(), above.
+    // a new command to the gpu we'll create the new command buffer in commandBuffer(), above.
     this->checkForFinishedCommandBuffers();
 
 #if GR_METAL_CAPTURE_COMMANDBUFFER
     this->testingOnly_endCapture();
 #endif
-    return true;
+    return didCommit;
 }
 
 void GrMtlGpu::checkForFinishedCommandBuffers() {
