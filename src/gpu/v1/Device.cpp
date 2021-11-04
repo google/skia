@@ -816,17 +816,16 @@ void Device::drawVertices(const SkVertices* vertices, SkBlendMode mode, const Sk
 
     SkVerticesPriv info(vertices->priv());
 
-    const SkRuntimeEffect* effect =
-            paint.getShader() ? as_SB(paint.getShader())->asRuntimeEffect() : nullptr;
-
     GrPaint grPaint;
     if (!init_vertices_paint(fContext.get(), fSurfaceDrawContext->colorInfo(), paint,
                              this->asMatrixProvider(), mode, info.hasColors(), &grPaint)) {
         return;
     }
-    fSurfaceDrawContext->drawVertices(this->clip(), std::move(grPaint), this->asMatrixProvider(),
-                                      sk_ref_sp(const_cast<SkVertices*>(vertices)), nullptr,
-                                      effect);
+    fSurfaceDrawContext->drawVertices(this->clip(),
+                                      std::move(grPaint),
+                                      this->asMatrixProvider(),
+                                      sk_ref_sp(const_cast<SkVertices*>(vertices)),
+                                      nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

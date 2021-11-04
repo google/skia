@@ -8,7 +8,6 @@
 #include "src/gpu/ops/DrawVerticesOp.h"
 
 #include "include/core/SkM44.h"
-#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkMatrixPriv.h"
@@ -200,9 +199,13 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    DrawVerticesOpImpl(GrProcessorSet*, const SkPMColor4f&, sk_sp<SkVertices>,
-                       GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrixProvider&,
-                       const SkRuntimeEffect*);
+    DrawVerticesOpImpl(GrProcessorSet*,
+                       const SkPMColor4f&,
+                       sk_sp<SkVertices>,
+                       GrPrimitiveType,
+                       GrAAType,
+                       sk_sp<GrColorSpaceXform>,
+                       const SkMatrixProvider&);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -301,8 +304,7 @@ DrawVerticesOpImpl::DrawVerticesOpImpl(GrProcessorSet* processorSet,
                                        GrPrimitiveType primitiveType,
                                        GrAAType aaType,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                       const SkMatrixProvider& matrixProvider,
-                                       const SkRuntimeEffect* effect)
+                                       const SkMatrixProvider& matrixProvider)
         : INHERITED(ClassID())
         , fHelper(processorSet, aaType)
         , fPrimitiveType(primitiveType)
@@ -589,15 +591,18 @@ GrOp::Owner Make(GrRecordingContext* context,
                  const SkMatrixProvider& matrixProvider,
                  GrAAType aaType,
                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                 GrPrimitiveType* overridePrimType,
-                 const SkRuntimeEffect* effect) {
+                 GrPrimitiveType* overridePrimType) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType
                                        ? *overridePrimType
                                        : SkVertexModeToGrPrimitiveType(vertices->priv().mode());
-    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOpImpl>(
-            context, std::move(paint), std::move(vertices), primType, aaType,
-            std::move(colorSpaceXform), matrixProvider, effect);
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOpImpl>(context,
+                                                                       std::move(paint),
+                                                                       std::move(vertices),
+                                                                       primType,
+                                                                       aaType,
+                                                                       std::move(colorSpaceXform),
+                                                                       matrixProvider);
 }
 
 } // namespace skgpu::v1::DrawVerticesOp
@@ -720,9 +725,13 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     if (numSamples > 1 && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return skgpu::v1::DrawVerticesOp::Make(context, std::move(paint), std::move(vertices),
-                                           matrixProvider, aaType, std::move(colorSpaceXform),
-                                           &type, nullptr);
+    return skgpu::v1::DrawVerticesOp::Make(context,
+                                           std::move(paint),
+                                           std::move(vertices),
+                                           matrixProvider,
+                                           aaType,
+                                           std::move(colorSpaceXform),
+                                           &type);
 }
 
 #endif

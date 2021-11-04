@@ -978,8 +978,7 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
                                       GrPaint&& paint,
                                       const SkMatrixProvider& matrixProvider,
                                       sk_sp<SkVertices> vertices,
-                                      GrPrimitiveType* overridePrimType,
-                                      const SkRuntimeEffect* effect) {
+                                      GrPrimitiveType* overridePrimType) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -989,10 +988,13 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
 
     SkASSERT(vertices);
     GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(GrAA::kNo);
-    GrOp::Owner op =
-            DrawVerticesOp::Make(fContext, std::move(paint), std::move(vertices), matrixProvider,
-                                 aaType, this->colorInfo().refColorSpaceXformFromSRGB(),
-                                 overridePrimType, effect);
+    GrOp::Owner op = DrawVerticesOp::Make(fContext,
+                                          std::move(paint),
+                                          std::move(vertices),
+                                          matrixProvider,
+                                          aaType,
+                                          this->colorInfo().refColorSpaceXformFromSRGB(),
+                                          overridePrimType);
     this->addDrawOp(clip, std::move(op));
 }
 
