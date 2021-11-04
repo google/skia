@@ -8,6 +8,7 @@
 #ifndef SkVMBlitter_DEFINED
 #define SkVMBlitter_DEFINED
 
+#include "src/core/SkBlitter.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkVM.h"
 
@@ -102,5 +103,7 @@ private:
                     fBlitMaskA8,
                     fBlitMask3D,
                     fBlitMaskLCD16;
+
+    friend class Viewer;
 };
 #endif  // SkVMBlitter_DEFINED
