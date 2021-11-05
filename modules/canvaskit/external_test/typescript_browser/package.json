@@ -1,0 +1,15 @@
+{
+  "name": "external-typescript-test",
+  "version": "0.0.0",
+  "description": "Tests that clients can import CanvasKit via typescript",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "canvaskit-wasm": "^0.30.0",
+    "typescript": "^4.4.4"
+  }
+}
