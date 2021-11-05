@@ -1034,6 +1034,7 @@ namespace skvm {
         bool hasJIT() const;  // Has this Program been JITted?
 
         void dump(SkWStream* = nullptr) const;
+        void disassemble(SkWStream* = nullptr) const;
 
     private:
         void setupInterpreter(const std::vector<OptimizedInstruction>&);

@@ -4297,6 +4297,57 @@ namespace skvm {
         }
     #endif
     }
+
+    void Program::disassemble(SkWStream* o) const {
+    #if !defined(SK_BUILD_FOR_WIN)
+        SkDebugfStream debug;
+        if (!o) { o = &debug; }
+
+        const void* jit_entry = fImpl->jit_entry.load();
+        size_t jit_size = fImpl->jit_size;
+
+        if (!jit_entry) {
+            o->writeText("Program not JIT'd. Did you pass --jit?\n");
+            return;
+        }
+
+        char path[] = "/tmp/skvm-jit.XXXXXX";
+        int fd = mkstemp(path);
+        ::write(fd, jit_entry, jit_size);
+        close(fd);
+
+        // Convert it in-place to a dynamic library with a single symbol "skvm_jit":
+        SkString cmd = SkStringPrintf(
+                "echo '.global _skvm_jit\n_skvm_jit: .incbin \"%s\"'"
+                " | clang -x assembler -shared - -o %s",
+                path, path);
+        system(cmd.c_str());
+
+        // Now objdump to disassemble our function:
+        // TODO: We could trim this down to just our code using '--disassemble=<symbol name>`,
+        // but the symbol name varies with OS, and that option may be missing from objdump on some
+        // machines? There also apears to be quite a bit of junk after the end of the JIT'd code.
+        // Trimming that would let us pass '--visualize-jumps' and get the loop annotated.
+        // With the junk, we tend to end up with a bunch of stray jumps that pollute the ASCII art.
+        cmd = SkStringPrintf("objdump -D %s", path);
+    #if defined(SK_BUILD_FOR_UNIX)
+        cmd.append(" --section=.text");
+    #endif
+        FILE* fp = popen(cmd.c_str(), "r");
+        if (!fp) {
+            o->writeText("objdump failed\n");
+            return;
+        }
+
+        char line[1024];
+        while (fgets(line, sizeof(line), fp)) {
+            o->writeText(line);
+        }
+
+        pclose(fp);
+    #endif
+    }
+
 #endif
 
 }  // namespace skvm
