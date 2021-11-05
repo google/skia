@@ -192,6 +192,7 @@ namespace skvm {
         struct Shift { int bits; };
         struct Splat { int bits; };
         struct Hex   { int bits; };
+        struct Line  { int bits; };
 
         static void write(SkWStream* o, const char* s) {
             o->writeText(s);
@@ -235,6 +236,10 @@ namespace skvm {
         static void write(SkWStream* o, Hex h) {
             o->writeHexAsText(h.bits);
         }
+        static void write(SkWStream* o, Line d) {
+            write(o, "L");
+            o->writeDecAsText(d.bits);
+        }
 
         template <typename T, typename... Ts>
         static void write(SkWStream* o, T first, Ts... rest) {
@@ -255,6 +260,8 @@ namespace skvm {
             immC = inst.immC;
         switch (op) {
             case Op::assert_true: write(o, op, V{x}, V{y}); break;
+
+            case Op::trace_line:    write(o, op, V{x}, Line{immA}); break;
 
             case Op::store8:   write(o, op, Ptr{immA}, V{x}               ); break;
             case Op::store16:  write(o, op, Ptr{immA}, V{x}               ); break;
@@ -371,6 +378,8 @@ namespace skvm {
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
+                case Op::trace_line:    write(o, op, R{x}, Line{immA}); break;
+
                 case Op::store8:   write(o, op, Ptr{immA}, R{x}                  ); break;
                 case Op::store16:  write(o, op, Ptr{immA}, R{x}                  ); break;
                 case Op::store32:  write(o, op, Ptr{immA}, R{x}                  ); break;
@@ -455,6 +464,29 @@ namespace skvm {
             }
         }
 
+        // After removing non-live instructions, we can be left with redundant back-to-back
+        // trace_line instructions. (e.g. one line could have multiple statements on it.)
+        // Eliminate any duplicate ops.
+        int lastId = -1;
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (!live[id]) {
+                continue;
+            }
+            const Instruction& inst = program[id];
+            if (inst.op != Op::trace_line) {
+                lastId = -1;
+                continue;
+            }
+            if (lastId >= 0) {
+                const Instruction& last = program[lastId];
+                if (inst.immA == last.immA && inst.x == last.x) {
+                    // Found two matching trace_lines in a row. Mark the first one as dead.
+                    live[lastId] = false;
+                }
+            }
+            lastId = id;
+        }
+
         // Rewrite the program with only live Instructions:
         //   - remap IDs in live Instructions to what they'll be once dead Instructions are removed;
         //   - then actually remove the dead Instructions.
@@ -471,6 +503,8 @@ namespace skvm {
                 new_id[id] = next++;
             }
         }
+
+        // Eliminate any non-live ops.
         auto it = std::remove_if(program.begin(), program.end(), [&](const Instruction& inst) {
             Val id = (Val)(&inst - program.data());
             return !live[id];
@@ -501,7 +535,7 @@ namespace skvm {
         // Mark which values don't depend on the loop and can be hoisted.
         for (OptimizedInstruction& inst : optimized) {
             // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
-            if (is_always_varying(inst.op)) {
+            if (is_always_varying(inst.op) || is_trace(inst.op)) {
                 inst.can_hoist = false;
             }
 
@@ -576,7 +610,7 @@ namespace skvm {
         // But we never dedup loads or stores: an intervening store could change that memory.
         // Uniforms and gathers touch only uniform memory, so they're fine to dedup,
         // and index is varying but doesn't touch memory, so it's fine to dedup too.
-        if (!touches_varying_memory(inst.op)) {
+        if (!touches_varying_memory(inst.op) && !is_trace(inst.op)) {
             if (Val* id = fIndex.find(inst)) {
                 return *id;
             }
@@ -599,6 +633,11 @@ namespace skvm {
         if (this->allImm(cond.id,&imm)) { SkASSERT(imm); return; }
         (void)push(Op::assert_true, cond.id, debug.id);
     #endif
+    }
+
+    void Builder::trace_line(I32 mask, int line) {
+        if (this->isImm(mask.id, 0)) { return; }
+        (void)push(Op::trace_line, mask.id,NA,NA,NA, line);
     }
 
     void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA,NA, ptr.ix); }
@@ -2583,6 +2622,10 @@ namespace skvm {
 
                 case Op::assert_true: /*TODO*/ break;
 
+                case Op::trace_line:
+                    /* Only supported in the interpreter. */
+                    break;
+
                 case Op::index:
                     if (I32->isVectorTy()) {
                         std::vector<llvm::Constant*> iota(K);
@@ -3507,6 +3550,10 @@ namespace skvm {
                     a->label(&all_true);
                 } break;
 
+                case Op::trace_line:
+                    /* Only supported in the interpreter. */
+                    break;
+
                 case Op::store8:
                     if (scalar) {
                         a->vpextrb(A::Mem{arg[immA]}, (A::Xmm)r(x), 0);
@@ -3870,6 +3917,10 @@ namespace skvm {
                     a->brk(0);
                     a->label(&all_true);
                 } break;
+
+                case Op::trace_line:
+                    /* Only supported in the interpreter. */
+                    break;
 
                 case Op::index: {
                     A::V tmp = alloc_tmp();

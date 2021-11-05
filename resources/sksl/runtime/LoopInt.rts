@@ -1,3 +1,5 @@
+/*#pragma settings SkVMDebugTrace*/
+
 uniform half4 colorRed, colorGreen;
 
 // Should return 5

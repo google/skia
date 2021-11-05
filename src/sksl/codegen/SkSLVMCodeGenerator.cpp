@@ -1604,6 +1604,9 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 }
 
 void SkVMGenerator::writeStatement(const Statement& s) {
+    if (fProgram.fConfig->fSettings.fSkVMDebugTrace && s.fLine > 0) {
+        fBuilder->trace_line(this->mask(), s.fLine);
+    }
     switch (s.kind()) {
         case Statement::Kind::kBlock:
             this->writeBlock(s.as<Block>());
@@ -1640,7 +1643,8 @@ void SkVMGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kNop:
             break;
         default:
-            SkASSERT(false);
+            SkDEBUGFAIL("Unrecognized statement");
+            break;
     }
 }
 
