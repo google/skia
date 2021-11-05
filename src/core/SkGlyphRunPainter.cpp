@@ -327,7 +327,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                 // processSourcePaths must be called even if there are no glyphs to make sure
                 // runs are set correctly.
                 process->processSourcePaths(
-                        fDrawable.drawable(), runFont, strikeSpec, strikeToSourceScale);
+                        fDrawable.drawable(), runFont, strikeToSourceScale);
             }
         }
     }

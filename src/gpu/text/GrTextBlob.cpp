@@ -9,13 +9,11 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrGlyph.h"
-#include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
@@ -171,7 +169,6 @@ class PathSubRun final : public GrSubRun {
 
 public:
     PathSubRun(bool isAntiAliased,
-               const SkStrikeSpec& strikeSpec,
                SkScalar strikeToSourceScale,
                const GrTextBlob& blob,
                SkSpan<PathGlyph> paths,
@@ -189,7 +186,6 @@ public:
 
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                               bool isAntiAliased,
-                              const SkStrikeSpec& strikeSpec,
                               SkScalar strikeToSourceScale,
                               const GrTextBlob& blob,
                               GrSubRunAllocator* alloc);
@@ -202,20 +198,17 @@ private:
     };
 
     const bool fIsAntiAliased;
-    const SkStrikeSpec fStrikeSpec;
     const SkScalar fStrikeToSourceScale;
     const SkSpan<const PathGlyph> fPaths;
     const std::unique_ptr<PathGlyph[], GrSubRunAllocator::ArrayDestroyer> fPathData;
 };
 
 PathSubRun::PathSubRun(bool isAntiAliased,
-                       const SkStrikeSpec& strikeSpec,
                        SkScalar strikeToSourceScale,
                        const GrTextBlob& blob,
                        SkSpan<PathGlyph> paths,
                        std::unique_ptr<PathGlyph[], GrSubRunAllocator::ArrayDestroyer> pathData)
     : fIsAntiAliased{isAntiAliased}
-    , fStrikeSpec{strikeSpec}
     , fStrikeToSourceScale{strikeToSourceScale}
     , fPaths{paths}
     , fPathData{std::move(pathData)} { }
@@ -280,7 +273,6 @@ bool PathSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) cons
 
 GrSubRunOwner PathSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                bool isAntiAliased,
-                               const SkStrikeSpec& strikeSpec,
                                SkScalar strikeToSourceScale,
                                const GrTextBlob& blob,
                                GrSubRunAllocator* alloc) {
@@ -293,7 +285,7 @@ GrSubRunOwner PathSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
     SkSpan<PathGlyph> paths{pathData.get(), drawables.size()};
 
     return alloc->makeUnique<PathSubRun>(
-            isAntiAliased, strikeSpec, strikeToSourceScale, blob, paths, std::move(pathData));
+            isAntiAliased, strikeToSourceScale, blob, paths, std::move(pathData));
 }
 
 GrAtlasSubRun* PathSubRun::testingOnly_atlasSubRun() {
@@ -1610,11 +1602,9 @@ void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 
 void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkFont& runFont,
-                                    const SkStrikeSpec& strikeSpec,
                                     SkScalar strikeToSourceScale) {
     fSubRunList.append(PathSubRun::Make(drawables,
                                         has_some_antialiasing(runFont),
-                                        strikeSpec,
                                         strikeToSourceScale,
                                         *this,
                                         &fAlloc));
@@ -2346,7 +2336,6 @@ void GrSubRunNoCachePainter::processSourceMasks(
 
 void GrSubRunNoCachePainter::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                                 const SkFont& runFont,
-                                                const SkStrikeSpec& strikeSpec,
                                                 SkScalar strikeToSourceScale) {
     SkASSERT(!drawables.empty());
     SkPoint drawOrigin = fGlyphRunList.origin();
