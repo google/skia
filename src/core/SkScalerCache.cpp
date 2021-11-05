@@ -25,11 +25,9 @@ static SkFontMetrics use_or_generate_metrics(
 }
 
 SkScalerCache::SkScalerCache(
-    const SkDescriptor& desc,
     std::unique_ptr<SkScalerContext> scaler,
     const SkFontMetrics* fontMetrics)
-        : fDesc{desc}
-        , fScalerContext{std::move(scaler)}
+        : fScalerContext{std::move(scaler)}
         , fFontMetrics{use_or_generate_metrics(fontMetrics, fScalerContext.get())}
         , fRoundingSpec{fScalerContext->isSubpixel(),
                         fScalerContext->computeAxisAlignmentForHText()} {
@@ -75,10 +73,6 @@ std::tuple<const SkPath*, size_t> SkScalerCache::mergePath(SkGlyph* glyph, const
         pathDelta = glyph->path()->approximateBytesUsed();
     }
     return {glyph->path(), pathDelta};
-}
-
-const SkDescriptor& SkScalerCache::getDescriptor() const {
-    return *fDesc.getDesc();
 }
 
 int SkScalerCache::countCachedGlyphs() const {

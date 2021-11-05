@@ -29,23 +29,18 @@ SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
     return cache;
 }
 
-auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
-                                       const SkScalerContextEffects& effects,
-                                       const SkTypeface& typeface) -> sk_sp<SkStrike> {
+auto SkStrikeCache::findOrCreateStrike(const SkStrikeSpec& strikeSpec) -> sk_sp<SkStrike> {
     SkAutoMutexExclusive ac(fLock);
-    sk_sp<SkStrike> strike = this->internalFindStrikeOrNull(desc);
+    sk_sp<SkStrike> strike = this->internalFindStrikeOrNull(strikeSpec.descriptor());
     if (strike == nullptr) {
-        auto scaler = typeface.createScalerContext(effects, &desc);
-        strike = this->internalCreateStrike(desc, std::move(scaler));
+        strike = this->internalCreateStrike(strikeSpec);
     }
     this->internalPurge();
     return strike;
 }
 
-SkScopedStrikeForGPU SkStrikeCache::findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                             const SkScalerContextEffects& effects,
-                                                             const SkTypeface& typeface) {
-    return SkScopedStrikeForGPU{this->findOrCreateStrike(desc, effects, typeface).release()};
+SkScopedStrikeForGPU SkStrikeCache::findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) {
+    return SkScopedStrikeForGPU{this->findOrCreateStrike(strikeSpec).release()};
 }
 
 void SkStrikeCache::PurgeAll() {
@@ -151,21 +146,20 @@ auto SkStrikeCache::internalFindStrikeOrNull(const SkDescriptor& desc) -> sk_sp<
 }
 
 sk_sp<SkStrike> SkStrikeCache::createStrike(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
+        const SkStrikeSpec& strikeSpec,
         SkFontMetrics* maybeMetrics,
         std::unique_ptr<SkStrikePinner> pinner) {
     SkAutoMutexExclusive ac(fLock);
-    return this->internalCreateStrike(desc, std::move(scaler), maybeMetrics, std::move(pinner));
+    return this->internalCreateStrike(strikeSpec, maybeMetrics, std::move(pinner));
 }
 
 auto SkStrikeCache::internalCreateStrike(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
+        const SkStrikeSpec& strikeSpec,
         SkFontMetrics* maybeMetrics,
         std::unique_ptr<SkStrikePinner> pinner) -> sk_sp<SkStrike> {
+    std::unique_ptr<SkScalerContext> scaler = strikeSpec.createScalerContext();
     auto strike =
-            sk_make_sp<SkStrike>(this, desc, std::move(scaler), maybeMetrics, std::move(pinner));
+        sk_make_sp<SkStrike>(this, strikeSpec, std::move(scaler), maybeMetrics, std::move(pinner));
     this->internalAttachToHead(strike);
     return strike;
 }

@@ -36,6 +36,7 @@
 #include "src/gpu/text/GrSDFTControl.h"
 #endif
 
+// This essentially replaces the font_id used on the RendererSide with the font_id on the GPU side.
 static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
                                                SkFontID font_id,
                                                SkAutoDescriptor* ad) {
@@ -61,15 +62,6 @@ static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
 
     desc->computeChecksum();
     return desc;
-}
-
-static const SkDescriptor* create_descriptor(
-        const SkPaint& paint, const SkFont& font, const SkMatrix& m,
-        const SkSurfaceProps& props, SkScalerContextFlags flags,
-        SkAutoDescriptor* ad, SkScalerContextEffects* effects) {
-    SkScalerContextRec rec;
-    SkScalerContext::MakeRecAndEffects(font, paint, props, flags, m, &rec, effects);
-    return SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
 }
 
 // -- Serializer -----------------------------------------------------------------------------------
@@ -244,7 +236,7 @@ bool MapOps::operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const 
 class RemoteStrike final : public SkStrikeForGPU {
 public:
     // N.B. RemoteStrike is not valid until ensureScalerContext is called.
-    RemoteStrike(const SkDescriptor& descriptor,
+    RemoteStrike(const SkStrikeSpec& strikeSpec,
                  std::unique_ptr<SkScalerContext> context,
                  SkDiscardableHandleId discardableHandleId);
     ~RemoteStrike() override = default;
@@ -256,7 +248,7 @@ public:
         return *fDescriptor.getDesc();
     }
 
-    void setTypefaceAndEffects(const SkTypeface* typeface, SkScalerContextEffects effects);
+    void setStrikeSpec(const SkStrikeSpec& strikeSpec);
 
     const SkGlyphPositionRoundingSpec& roundingSpec() const override {
         return fRoundingSpec;
@@ -338,10 +330,9 @@ private:
     // The context built using fDescriptor
     std::unique_ptr<SkScalerContext> fContext;
 
-    // These fields are set every time getOrCreateCache. This allows the code to maintain the
-    // fContext as lazy as possible.
-    const SkTypeface* fTypeface{nullptr};
-    SkScalerContextEffects fEffects;
+    // fStrikeSpec is set every time getOrCreateCache is called. This allows the code to maintain
+    // the fContext as lazy as possible.
+    const SkStrikeSpec* fStrikeSpec;
 
     // Have the metrics been sent for this strike. Only send them once.
     bool fHaveSentFontMetrics{false};
@@ -362,10 +353,10 @@ private:
 };
 
 RemoteStrike::RemoteStrike(
-        const SkDescriptor& descriptor,
+        const SkStrikeSpec& strikeSpec,
         std::unique_ptr<SkScalerContext> context,
         uint32_t discardableHandleId)
-        : fDescriptor{descriptor}
+        : fDescriptor{strikeSpec.descriptor()}
         , fDiscardableHandleId(discardableHandleId)
         , fRoundingSpec{context->isSubpixel(), context->computeAxisAlignmentForHText()}
         // N.B. context must come last because it is used above.
@@ -432,19 +423,17 @@ void RemoteStrike::writePendingGlyphs(Serializer* serializer) {
 
 void RemoteStrike::ensureScalerContext() {
     if (fContext == nullptr) {
-        fContext = fTypeface->createScalerContext(fEffects, fDescriptor.getDesc());
+        fContext = fStrikeSpec->createScalerContext();
     }
 }
 
 void RemoteStrike::resetScalerContext() {
-    fContext.reset();
-    fTypeface = nullptr;
+    fContext = nullptr;
+    fStrikeSpec = nullptr;
 }
 
-void RemoteStrike::setTypefaceAndEffects(
-        const SkTypeface* typeface, SkScalerContextEffects effects) {
-    fTypeface = typeface;
-    fEffects = effects;
+void RemoteStrike::setStrikeSpec(const SkStrikeSpec& strikeSpec) {
+    fStrikeSpec = &strikeSpec;
 }
 
 void RemoteStrike::writeGlyphPath(
@@ -594,17 +583,7 @@ public:
     sk_sp<SkData> serializeTypeface(SkTypeface*);
     void writeStrikeData(std::vector<uint8_t>* memory);
 
-    // Methods for SkStrikeForGPUCacheInterface
-    RemoteStrike* getOrCreateCache(const SkPaint&,
-                                   const SkFont& font,
-                                   const SkSurfaceProps&,
-                                   const SkMatrix&,
-                                   SkScalerContextFlags flags,
-                                   SkScalerContextEffects* effects);
-
-    SkScopedStrikeForGPU findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                  const SkScalerContextEffects& effects,
-                                                  const SkTypeface& typeface) override;
+    SkScopedStrikeForGPU findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) override;
 
     // Methods for testing
     void setMaxEntriesInDescriptorMapForTesting(size_t count);
@@ -615,9 +594,7 @@ private:
 
     void checkForDeletedEntries();
 
-    RemoteStrike* getOrCreateCache(const SkDescriptor& desc,
-                                   const SkTypeface& typeface,
-                                   SkScalerContextEffects effects);
+    RemoteStrike* getOrCreateCache(const SkStrikeSpec& strikeSpec);
 
 
     using DescToRemoteStrike =
@@ -722,23 +699,8 @@ void SkStrikeServerImpl::writeStrikeData(std::vector<uint8_t>* memory) {
     #endif
 }
 
-RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
-        const SkPaint& paint,
-        const SkFont& font,
-        const SkSurfaceProps& props,
-        const SkMatrix& matrix,
-        SkScalerContextFlags flags,
-        SkScalerContextEffects* effects) {
-    SkAutoDescriptor descStorage;
-    auto desc = create_descriptor(paint, font, matrix, props, flags, &descStorage, effects);
-
-    return this->getOrCreateCache(*desc, *font.getTypefaceOrDefault(), *effects);
-}
-
-SkScopedStrikeForGPU SkStrikeServerImpl::findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                              const SkScalerContextEffects& effects,
-                                                              const SkTypeface& typeface) {
-    return SkScopedStrikeForGPU{this->getOrCreateCache(desc, typeface, effects)};
+SkScopedStrikeForGPU SkStrikeServerImpl::findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) {
+    return SkScopedStrikeForGPU{this->getOrCreateCache(strikeSpec)};
 }
 
 void SkStrikeServerImpl::checkForDeletedEntries() {
@@ -756,15 +718,15 @@ void SkStrikeServerImpl::checkForDeletedEntries() {
     }
 }
 
-RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
-        const SkDescriptor& desc, const SkTypeface& typeface, SkScalerContextEffects effects) {
+RemoteStrike* SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& strikeSpec) {
 
     // In cases where tracing is turned off, make sure not to get an unused function warning.
     // Lambdaize the function.
     TRACE_EVENT1("skia", "RecForDesc", "rec",
                  TRACE_STR_COPY(
-                         [&desc](){
-                             auto ptr = desc.findEntry(kRec_SkDescriptorTag, nullptr);
+                         [&strikeSpec](){
+                             auto ptr =
+                                 strikeSpec.descriptor().findEntry(kRec_SkDescriptorTag, nullptr);
                              SkScalerContextRec rec;
                              std::memcpy((void*)&rec, ptr, sizeof(rec));
                              return rec.dump();
@@ -772,11 +734,11 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
                  )
     );
 
-    auto it = fDescToRemoteStrike.find(&desc);
+    auto it = fDescToRemoteStrike.find(&strikeSpec.descriptor());
     if (it != fDescToRemoteStrike.end()) {
         // We have processed the RemoteStrike before. Reuse it.
         RemoteStrike* strike = it->second.get();
-        strike->setTypefaceAndEffects(&typeface, effects);
+        strike->setStrikeSpec(strikeSpec);
         if (fRemoteStrikesToSend.contains(strike)) {
             // Already tracking
             return strike;
@@ -792,6 +754,7 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
         fDescToRemoteStrike.erase(it);
     }
 
+    const SkTypeface& typeface = strikeSpec.typeface();
     // Create a new RemoteStrike. Start by processing the typeface.
     const SkFontID typefaceId = typeface.uniqueID();
     if (!fCachedTypefaces.contains(typefaceId)) {
@@ -802,10 +765,10 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
                                       typeface.glyphMaskNeedsCurrentColor());
     }
 
-    auto context = typeface.createScalerContext(effects, &desc);
+    auto context = strikeSpec.createScalerContext();
     auto newHandle = fDiscardableHandleManager->createHandle();  // Locked on creation
-    auto remoteStrike = std::make_unique<RemoteStrike>(desc, std::move(context), newHandle);
-    remoteStrike->setTypefaceAndEffects(&typeface, effects);
+    auto remoteStrike = std::make_unique<RemoteStrike>(strikeSpec, std::move(context), newHandle);
+    remoteStrike->setStrikeSpec(strikeSpec);
     auto remoteStrikePtr = remoteStrike.get();
     fRemoteStrikesToSend.add(remoteStrikePtr);
     auto d = &remoteStrike->getDescriptor();
@@ -813,8 +776,6 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
 
     checkForDeletedEntries();
 
-    // Be sure we can build glyphs with this RemoteStrike.
-    remoteStrikePtr->setTypefaceAndEffects(&typeface, effects);
     return remoteStrikePtr;
 }
 
@@ -1043,10 +1004,9 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
             // Note that we don't need to deserialize the effects since we won't be generating any
             // glyphs here anyway, and the desc is still correct since it includes the serialized
             // effects.
-            SkScalerContextEffects effects;
-            auto scaler = tf->createScalerContext(effects, client_desc);
+            SkStrikeSpec strikeSpec{*client_desc, *tfPtr};
             strike = fStrikeCache->createStrike(
-                    *client_desc, std::move(scaler), &fontMetrics,
+                    strikeSpec, &fontMetrics,
                     std::make_unique<DiscardableStrikePinner>(
                             spec.discardableHandleId, fDiscardableHandleManager));
         }

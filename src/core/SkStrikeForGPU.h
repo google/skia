@@ -23,6 +23,7 @@ class SkMaskFilter;
 class SkPathEffect;
 class SkSourceGlyphBuffer;
 class SkStrike;
+class SkStrikeSpec;
 class SkTypeface;
 struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
@@ -68,8 +69,6 @@ using SkScopedStrikeForGPU = std::unique_ptr<SkStrikeForGPU, SkStrikeForGPU::Del
 class SkStrikeForGPUCacheInterface {
 public:
     virtual ~SkStrikeForGPUCacheInterface() = default;
-    virtual SkScopedStrikeForGPU findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                          const SkScalerContextEffects& effects,
-                                                          const SkTypeface& typeface) = 0;
+    virtual SkScopedStrikeForGPU findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) = 0;
 };
 #endif  //SkStrikeInterface_DEFINED

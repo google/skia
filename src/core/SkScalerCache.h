@@ -52,8 +52,7 @@ private:
 // holds the glyphs for that strike.
 class SkScalerCache {
 public:
-    SkScalerCache(const SkDescriptor& desc,
-                  std::unique_ptr<SkScalerContext> scaler,
+    SkScalerCache(std::unique_ptr<SkScalerContext> scaler,
                   const SkFontMetrics* metrics = nullptr);
 
     // Lookup (or create if needed) the toGlyph using toID. If that glyph is not initialized with
@@ -95,8 +94,6 @@ public:
     const SkGlyphPositionRoundingSpec& roundingSpec() const {
         return fRoundingSpec;
     }
-
-    const SkDescriptor& getDescriptor() const;
 
     size_t prepareForMaskDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
@@ -140,7 +137,6 @@ private:
             PathDetail pathDetail,
             const SkGlyph** results) SK_REQUIRES(fMu);
 
-    const SkAutoDescriptor                 fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;
     const SkFontMetrics                    fFontMetrics;
     const SkGlyphPositionRoundingSpec      fRoundingSpec;

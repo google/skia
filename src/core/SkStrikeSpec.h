@@ -8,8 +8,9 @@
 #ifndef SkStrikeSpec_DEFINED
 #define SkStrikeSpec_DEFINED
 
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPathEffect.h"
 #include "src/core/SkDescriptor.h"
-#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeForGPU.h"
 
 #include <tuple>
@@ -27,13 +28,14 @@ class SkSurfaceProps;
 
 class SkStrikeSpec {
 public:
-    SkStrikeSpec(const SkStrikeSpec&) = default;
+    SkStrikeSpec(const SkDescriptor& descriptor, sk_sp<SkTypeface> typeface);
+    SkStrikeSpec(const SkStrikeSpec&);
     SkStrikeSpec& operator=(const SkStrikeSpec&) = delete;
 
-    SkStrikeSpec(SkStrikeSpec&&) = default;
+    SkStrikeSpec(SkStrikeSpec&&);
     SkStrikeSpec& operator=(SkStrikeSpec&&) = delete;
 
-    ~SkStrikeSpec() = default;
+    ~SkStrikeSpec();
 
     // Create a strike spec for mask style cache entries.
     static SkStrikeSpec MakeMask(
@@ -81,13 +83,20 @@ public:
 
     SkScopedStrikeForGPU findOrCreateScopedStrike(SkStrikeForGPUCacheInterface* cache) const;
 
-    sk_sp<SkStrike> findOrCreateStrike(
-            SkStrikeCache* cache = SkStrikeCache::GlobalStrikeCache()) const;
+    sk_sp<SkStrike> findOrCreateStrike() const;
+
+    sk_sp<SkStrike> findOrCreateStrike(SkStrikeCache* cache) const;
+
+    std::unique_ptr<SkScalerContext> createScalerContext() const {
+        SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
+        return fTypeface->createScalerContext(effects, fAutoDescriptor.getDesc());
+    }
 
     // This call is deprecated.
     SkScalar strikeToSourceRatio() const { return fStrikeToSourceRatio; }
     bool isEmpty() const { return SkScalarNearlyZero(fStrikeToSourceRatio); }
     const SkDescriptor& descriptor() const { return *fAutoDescriptor.getDesc(); }
+    const SkTypeface& typeface() const { return *fTypeface; }
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
     SkString dump() const;
 
@@ -101,10 +110,10 @@ private:
             SkScalar strikeToSourceRatio);
 
     SkAutoDescriptor fAutoDescriptor;
-    sk_sp<SkMaskFilter> fMaskFilter;
-    sk_sp<SkPathEffect> fPathEffect;
+    sk_sp<SkMaskFilter> fMaskFilter{nullptr};
+    sk_sp<SkPathEffect> fPathEffect{nullptr};
     sk_sp<SkTypeface> fTypeface;
-    const SkScalar fStrikeToSourceRatio;
+    const SkScalar fStrikeToSourceRatio{1.0f};
 };
 
 class SkBulkGlyphMetrics {
@@ -123,6 +132,7 @@ class SkBulkGlyphMetricsAndPaths {
 public:
     explicit SkBulkGlyphMetricsAndPaths(const SkStrikeSpec& spec);
     explicit SkBulkGlyphMetricsAndPaths(sk_sp<SkStrike>&& strike);
+    ~SkBulkGlyphMetricsAndPaths();
     SkSpan<const SkGlyph*> glyphs(SkSpan<const SkGlyphID> glyphIDs);
     const SkGlyph* glyph(SkGlyphID glyphID);
     void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
@@ -138,6 +148,7 @@ class SkBulkGlyphMetricsAndImages {
 public:
     explicit SkBulkGlyphMetricsAndImages(const SkStrikeSpec& spec);
     explicit SkBulkGlyphMetricsAndImages(sk_sp<SkStrike>&& strike);
+    ~SkBulkGlyphMetricsAndImages();
     SkSpan<const SkGlyph*> glyphs(SkSpan<const SkPackedGlyphID> packedIDs);
     const SkGlyph* glyph(SkPackedGlyphID packedID);
     const SkDescriptor& descriptor() const;

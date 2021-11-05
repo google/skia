@@ -16,6 +16,7 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeForGPU.h"
+#include "src/core/SkStrikeSpec.h"
 
 class SkTraceMemoryDump;
 class SkStrikeCache;
@@ -39,12 +40,13 @@ public:
 class SkStrike final : public SkRefCnt, public SkStrikeForGPU {
 public:
     SkStrike(SkStrikeCache* strikeCache,
-             const SkDescriptor& desc,
+             const SkStrikeSpec& strikeSpec,
              std::unique_ptr<SkScalerContext> scaler,
              const SkFontMetrics* metrics,
              std::unique_ptr<SkStrikePinner> pinner)
-        : fStrikeCache{strikeCache}
-        , fScalerCache{desc, std::move(scaler), metrics}
+        : fStrikeSpec(strikeSpec)
+        , fStrikeCache{strikeCache}
+        , fScalerCache{std::move(scaler), metrics}
         , fPinner{std::move(pinner)} {}
 
     SkGlyph* mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from) {
@@ -59,6 +61,7 @@ public:
         return glyphPath;
     }
 
+    // [[deprecated]]
     SkScalerContext* getScalerContext() const {
         return fScalerCache.getScalerContext();
     }
@@ -103,7 +106,7 @@ public:
     }
 
     const SkDescriptor& getDescriptor() const override {
-        return fScalerCache.getDescriptor();
+        return fStrikeSpec.descriptor();
     }
 
     void prepareForMaskDrawing(
@@ -134,6 +137,7 @@ public:
 
     void updateDelta(size_t increase);
 
+    const SkStrikeSpec              fStrikeSpec;
     SkStrikeCache* const            fStrikeCache;
     SkStrike*                       fNext{nullptr};
     SkStrike*                       fPrev{nullptr};
@@ -152,20 +156,14 @@ public:
     sk_sp<SkStrike> findStrike(const SkDescriptor& desc) SK_EXCLUDES(fLock);
 
     sk_sp<SkStrike> createStrike(
-            const SkDescriptor& desc,
-            std::unique_ptr<SkScalerContext> scaler,
+            const SkStrikeSpec& strikeSpec,
             SkFontMetrics* maybeMetrics = nullptr,
             std::unique_ptr<SkStrikePinner> = nullptr) SK_EXCLUDES(fLock);
 
-    sk_sp<SkStrike> findOrCreateStrike(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface) SK_EXCLUDES(fLock);
+    sk_sp<SkStrike> findOrCreateStrike(const SkStrikeSpec& strikeSpec) SK_EXCLUDES(fLock);
 
     SkScopedStrikeForGPU findOrCreateScopedStrike(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface) override SK_EXCLUDES(fLock);
+            const SkStrikeSpec& strikeSpec) override SK_EXCLUDES(fLock);
 
     static void PurgeAll();
     static void Dump();
@@ -188,8 +186,7 @@ private:
     friend class SkStrike;  // for SkStrike::updateDelta
     sk_sp<SkStrike> internalFindStrikeOrNull(const SkDescriptor& desc) SK_REQUIRES(fLock);
     sk_sp<SkStrike> internalCreateStrike(
-            const SkDescriptor& desc,
-            std::unique_ptr<SkScalerContext> scaler,
+            const SkStrikeSpec& strikeSpec,
             SkFontMetrics* maybeMetrics = nullptr,
             std::unique_ptr<SkStrikePinner> = nullptr) SK_REQUIRES(fLock);
 
