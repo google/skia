@@ -16,10 +16,10 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/PathCurveTessellator.h"
 #include "src/gpu/tessellate/PathWedgeTessellator.h"
-#include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
@@ -247,7 +247,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         VertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxTrianglesInFans * 3);
         int fanTriangleCount = 0;
         for (auto [pathMatrix, path] : *fPathDrawList) {
-            PathXform m(pathMatrix);
+            AffineMatrix m(pathMatrix);
             for (PathMiddleOutFanIter it(path); !it.done();) {
                 for (auto [p0, p1, p2] : it.nextStack()) {
                     triangleVertexWriter << m.map2Points(p0, p1) << m.mapPoint(p2);

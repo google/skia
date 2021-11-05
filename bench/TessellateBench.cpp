@@ -11,10 +11,10 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
+#include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/PathCurveTessellator.h"
 #include "src/gpu/tessellate/PathWedgeTessellator.h"
-#include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/StrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
@@ -236,7 +236,7 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
     int baseVertex;
     VertexWriter vertexWriter = static_cast<SkPoint*>(fTarget->makeVertexSpace(
             sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex));
-    PathXform m(gAlmostIdentity);
+    AffineMatrix m(gAlmostIdentity);
     for (PathMiddleOutFanIter it(fPath); !it.done();) {
         for (auto [p0, p1, p2] : it.nextStack()) {
             vertexWriter << m.map2Points(p0, p1) << m.mapPoint(p2);

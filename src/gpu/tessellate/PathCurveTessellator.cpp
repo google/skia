@@ -11,9 +11,9 @@
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/PatchWriter.h"
-#include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
@@ -93,7 +93,7 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
     // Write out inner fan triangles.
     if (fDrawInnerFan) {
         for (auto [pathMatrix, path] : pathDrawList) {
-            PathXform m(pathMatrix);
+            AffineMatrix m(pathMatrix);
             for (PathMiddleOutFanIter it(path); !it.done();) {
                 for (auto [p0, p1, p2] : it.nextStack()) {
                     TrianglePatch(patchWriter) << m.map2Points(p0, p1) << m.mapPoint(p2);
@@ -150,13 +150,13 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
     float numFixedSegments_pow4 = 2*2*2*2;
 
     for (auto [pathMatrix, path] : pathDrawList) {
-        PathXform pathXform(pathMatrix);
+        AffineMatrix m(pathMatrix);
         wangs_formula::VectorXform totalXform(SkMatrix::Concat(fShader->viewMatrix(), pathMatrix));
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
                 case SkPathVerb::kQuad: {
-                    auto [p0, p1] = pathXform.map2Points(pts);
-                    auto p2 = pathXform.map1Point(pts+2);
+                    auto [p0, p1] = m.map2Points(pts);
+                    auto p2 = m.map1Point(pts+2);
                     float n4 = wangs_formula::quadratic_pow4(kTessellationPrecision,
                                                              pts,
                                                              totalXform);
@@ -177,8 +177,8 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
                 }
 
                 case SkPathVerb::kConic: {
-                    auto [p0, p1] = pathXform.map2Points(pts);
-                    auto p2 = pathXform.map1Point(pts+2);
+                    auto [p0, p1] = m.map2Points(pts);
+                    auto p2 = m.map1Point(pts+2);
                     float n2 = wangs_formula::conic_pow2(kTessellationPrecision,
                                                          pts,
                                                          *w,
@@ -199,8 +199,8 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
                 }
 
                 case SkPathVerb::kCubic: {
-                    auto [p0, p1] = pathXform.map2Points(pts);
-                    auto [p2, p3] = pathXform.map2Points(pts+2);
+                    auto [p0, p1] = m.map2Points(pts);
+                    auto [p2, p3] = m.map2Points(pts+2);
                     float n4 = wangs_formula::cubic_pow4(kTessellationPrecision,
                                                          pts,
                                                          totalXform);

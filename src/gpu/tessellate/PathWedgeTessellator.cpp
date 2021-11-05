@@ -10,8 +10,8 @@
 #include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/PatchWriter.h"
-#include "src/gpu/tessellate/PathXform.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
@@ -182,11 +182,11 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
     float numFixedSegments_pow4 = 1;
 
     for (auto [pathMatrix, path] : pathDrawList) {
-        PathXform pathXform(pathMatrix);
+        AffineMatrix m(pathMatrix);
         wangs_formula::VectorXform totalXform(SkMatrix::Concat(fShader->viewMatrix(), pathMatrix));
         MidpointContourParser parser(path);
         while (parser.parseNextContour()) {
-            patchWriter.updateFanPointAttrib(pathXform.mapPoint(parser.currentMidpoint()));
+            patchWriter.updateFanPointAttrib(m.mapPoint(parser.currentMidpoint()));
             SkPoint lastPoint = {0, 0};
             SkPoint startPoint = {0, 0};
             for (auto [verb, pts, w] : parser.currentContour()) {
@@ -197,14 +197,14 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
                     }
 
                     case SkPathVerb::kLine: {
-                        CubicPatch(patchWriter) << LineToCubic{pathXform.map2Points(pts)};
+                        CubicPatch(patchWriter) << LineToCubic{m.map2Points(pts)};
                         lastPoint = pts[1];
                         break;
                     }
 
                     case SkPathVerb::kQuad: {
-                        auto [p0, p1] = pathXform.map2Points(pts);
-                        auto p2 = pathXform.map1Point(pts+2);
+                        auto [p0, p1] = m.map2Points(pts);
+                        auto p2 = m.map1Point(pts+2);
                         float n4 = wangs_formula::quadratic_pow4(kTessellationPrecision,
                                                                  pts,
                                                                  totalXform);
@@ -223,8 +223,8 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
                     }
 
                     case SkPathVerb::kConic: {
-                        auto [p0, p1] = pathXform.map2Points(pts);
-                        auto p2 = pathXform.map1Point(pts+2);
+                        auto [p0, p1] = m.map2Points(pts);
+                        auto p2 = m.map1Point(pts+2);
                         float n2 = wangs_formula::conic_pow2(kTessellationPrecision,
                                                              pts,
                                                              *w,
@@ -243,8 +243,8 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
                     }
 
                     case SkPathVerb::kCubic: {
-                        auto [p0, p1] = pathXform.map2Points(pts);
-                        auto [p2, p3] = pathXform.map2Points(pts+2);
+                        auto [p0, p1] = m.map2Points(pts);
+                        auto [p2, p3] = m.map2Points(pts+2);
                         float n4 = wangs_formula::cubic_pow4(kTessellationPrecision,
                                                              pts,
                                                              totalXform);
@@ -269,7 +269,7 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
             }
             if (lastPoint != startPoint) {
                 SkPoint pts[2] = {lastPoint, startPoint};
-                CubicPatch(patchWriter) << LineToCubic{pathXform.map2Points(pts)};
+                CubicPatch(patchWriter) << LineToCubic{m.map2Points(pts)};
             }
         }
     }
