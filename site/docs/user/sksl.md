@@ -62,7 +62,7 @@ own shader code, you don't use `sample`. Instead, the `shader` object has a
 `.eval()` method. Regardless, Skia has simple methods for creating an `SkShader`
 from an `SkImage`, so it's easy to use images in your runtime effects:
 
-<fiddle-embed name='8a895f12c8fd7b976bb68e6002f85a8e'></fiddle-embed>
+<fiddle-embed name='3654053c76b5c23f18eb9a1c82abbde4'></fiddle-embed>
 
 Because the object you bind and evaluate is an `SkShader`, you can directly use
 any Skia shader, without necessarily turning it into an image (texture) first.
@@ -132,4 +132,4 @@ passed to you, the scale is correct. However, if you want to adjust those
 coordinates (to do some kind of re-mapping of the image), remember that the
 coordinates are scaled up to the dimensions of the image:
 
-<fiddle-embed name='cc49d5a7b6b88d6a4dca1619e6df8763'></fiddle-embed>
+<fiddle-embed name='ddbd4142c1c88232ae131d27266e72b3'></fiddle-embed>
