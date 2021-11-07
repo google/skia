@@ -39,7 +39,7 @@ public:
      *
      * If the buffer is of type GrGpuBufferType::kXferGpuToCpu then it is mapped for reading only.
      * Otherwise it is mapped writing only. Writing to a buffer that is mapped for reading or vice
-     * versa produces undefined results. If the buffer is mapped for writing then then the buffer's
+     * versa produces undefined results. If the buffer is mapped for writing then the buffer's
      * previous contents are invalidated.
      *
      * @return a pointer to the data or nullptr if the map fails.
