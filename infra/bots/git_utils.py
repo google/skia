@@ -21,7 +21,7 @@ class GitLocalConfig(object):
     self._previous_values = {}
 
   def __enter__(self):
-    for k, v in self._config_dict.iteritems():
+    for k, v in self._config_dict.items():
       try:
         prev = subprocess.check_output(['git', 'config', '--local', k]).rstrip()
         if prev:

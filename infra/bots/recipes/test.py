@@ -8,6 +8,7 @@
 
 import json
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 DEPS = [
   'env',
@@ -84,12 +85,12 @@ def test_steps(api):
                 f.write(hashes)
                 break
           except Exception as e:
-            print 'Failed to get uninteresting hashes from %s:' % HASHES_URL
-            print e
+            print('Failed to get uninteresting hashes from %s:' % HASHES_URL)
+            print(e)
             if retry == RETRIES:
               raise
             waittime = WAIT_BASE * math.pow(2, retry)
-            print 'Retry in %d seconds.' % waittime
+            print('Retry in %d seconds.' % waittime)
             time.sleep(waittime)
         """,
         args=[api.properties['gold_hashes_url'], host_hashes_file],

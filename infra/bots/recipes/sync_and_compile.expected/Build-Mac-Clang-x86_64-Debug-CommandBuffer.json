@@ -3,7 +3,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\n\nwhich = 'where' if sys.platform == 'win32' else 'which'\ngit = subprocess.check_output([which, 'git'])\nprint 'git was found at %s' % git\nif 'cipd_bin_packages' not in git:\n  print >> sys.stderr, 'Git must be obtained through CIPD.'\n  sys.exit(1)\n"
+      "\nfrom __future__ import print_function\nimport subprocess\nimport sys\n\nwhich = 'where' if sys.platform == 'win32' else 'which'\ngit = subprocess.check_output([which, 'git'])\nprint('git was found at %s' % git)\nif 'cipd_bin_packages' not in git:\n  print('Git must be obtained through CIPD.', file=sys.stderr)\n  sys.exit(1)\n"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -12,14 +12,15 @@
     "name": "Assert that Git is from CIPD",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@from __future__ import print_function@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@which = 'where' if sys.platform == 'win32' else 'which'@@@",
       "@@@STEP_LOG_LINE@python.inline@git = subprocess.check_output([which, 'git'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@print 'git was found at %s' % git@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('git was found at %s' % git)@@@",
       "@@@STEP_LOG_LINE@python.inline@if 'cipd_bin_packages' not in git:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print >> sys.stderr, 'Git must be obtained through CIPD.'@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print('Git must be obtained through CIPD.', file=sys.stderr)@@@",
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
@@ -105,7 +106,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"patch_root\": \"skia\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"properties\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"abc123\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/master@{#164710}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/main@{#164710}\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"root\": \"skia\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"source_manifest\": {@@@",
@@ -123,7 +124,7 @@
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
       "@@@SET_BUILD_PROPERTY@got_revision@\"abc123\"@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision_cp@\"refs/heads/master@{#164710}\"@@@"
+      "@@@SET_BUILD_PROPERTY@got_revision_cp@\"refs/heads/main@{#164710}\"@@@"
     ]
   },
   {
@@ -305,7 +306,7 @@
     "cmd": [
       "python",
       "-u",
-      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'dm.exe', 'dm.app', 'fm', 'fm.exe', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'dm.exe', 'dm.app', 'fm', 'fm.exe', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print('Copying build product %s to %s' % (f, dst_path))\n    shutil.move(f, dst_path)\n",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
@@ -334,7 +335,7 @@
       "@@@STEP_LOG_LINE@python.inline@    dst_path = os.path.join(dst, os.path.relpath(f, src))@@@",
       "@@@STEP_LOG_LINE@python.inline@    if not os.path.isdir(os.path.dirname(dst_path)):@@@",
       "@@@STEP_LOG_LINE@python.inline@      os.makedirs(os.path.dirname(dst_path))@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print 'Copying build product %s to %s' % (f, dst_path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print('Copying build product %s to %s' % (f, dst_path))@@@",
       "@@@STEP_LOG_LINE@python.inline@    shutil.move(f, dst_path)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]

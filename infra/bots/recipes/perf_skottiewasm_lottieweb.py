@@ -5,8 +5,10 @@
 # Recipe which runs Skottie-WASM and Lottie-Web perf.
 
 import calendar
+import json
 import re
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 # trim
 DEPS = [
@@ -195,13 +197,9 @@ def RunSteps(api):
   ts = int(calendar.timegm(now.utctimetuple()))
   json_path = api.flavor.host_dirs.perf_data_dir.join(
       'perf_%s_%d.json' % (api.properties['revision'], ts))
-  api.run(
-      api.python.inline,
-      'write output JSON',
-      program="""import json
-with open('%s', 'w') as outfile:
-  json.dump(obj=%s, fp=outfile, indent=4)
-  """ % (json_path, perf_json))
+  json_contents = json.dumps(
+      perf_json, indent=4, sort_keys=True, separators=(',', ': '))
+  api.file.write_text('write output JSON', json_path, json_contents)
 
 
 def parse_trace(trace_json, lottie_filename, api, renderer):
@@ -229,10 +227,10 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
   renderer = sys.argv[3]  # Unused for now but might be useful in the future.
 
   # Output data about the GPU that was used.
-  print 'GPU data:'
-  print trace_json['metadata'].get('gpu-gl-renderer')
-  print trace_json['metadata'].get('gpu-driver')
-  print trace_json['metadata'].get('gpu-gl-vendor')
+  print('GPU data:')
+  print(trace_json['metadata'].get('gpu-gl-renderer'))
+  print(trace_json['metadata'].get('gpu-driver'))
+  print(trace_json['metadata'].get('gpu-gl-vendor'))
 
   erroneous_termination_statuses = [
       'replaced_by_new_reporter_at_same_stage',
@@ -260,7 +258,7 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
       elif args and (args.get('termination_status') in
                      accepted_termination_statuses):
         if not frame_id_to_start_ts.get(frame_id):
-          print '[No start ts found for %s]' % frame_id
+          print('[No start ts found for %s]' % frame_id)
           continue
         current_frame_duration = trace['ts'] - frame_id_to_start_ts[frame_id]
         total_frames += 1
@@ -272,15 +270,15 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
 
         # We are done with this frame_id so remove it from the dict.
         frame_id_to_start_ts.pop(frame_id)
-        print '%d (%s with %s): %d' % (
+        print('%d (%s with %s): %d' % (
             total_frames, frame_id, args['termination_status'],
-            current_frame_duration)
+            current_frame_duration))
       elif args and (args.get('termination_status') in
                      erroneous_termination_statuses):
         # Invalidate previously collected results for this frame_id.
         if frame_id_to_start_ts.get(frame_id):
-          print '[Invalidating %s due to %s]' % (
-              frame_id, args['termination_status'])
+          print('[Invalidating %s due to %s]' % (
+              frame_id, args['termination_status']))
           frame_id_to_start_ts.pop(frame_id)
 
   # Calculate metrics for total completed frames.
@@ -290,8 +288,8 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
                     total_completed_frames)
   # Get frame avg/min/max for the middle 25 frames.
   start = (total_completed_frames - 25)/2
-  print 'Got %d total completed frames. Using indexes [%d, %d).' % (
-      total_completed_frames, start, start+25)
+  print('Got %d total completed frames. Using indexes [%d, %d).' % (
+      total_completed_frames, start, start+25))
   frame_max = 0
   frame_min = 0
   frame_cumulative = 0
@@ -320,8 +318,8 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
                     total_drawn_frames)
   # Get drawn frame avg/min/max from the middle 25 frames.
   start = (total_drawn_frames - 25)/2
-  print 'Got %d total drawn frames. Using indexes [%d-%d).' % (
-        total_drawn_frames, start, start+25)
+  print('Got %d total drawn frames. Using indexes [%d-%d).' % (
+        total_drawn_frames, start, start+25))
   for frame_id, duration in drawn_frame_id_and_duration[start:start+25]:
     drawn_frame_max = max(drawn_frame_max, duration)
     drawn_frame_min = (min(drawn_frame_min, duration)
@@ -332,7 +330,7 @@ def parse_trace(trace_json, lottie_filename, api, renderer):
   perf_results['drawn_frame_min_us'] = drawn_frame_min
   perf_results['drawn_frame_avg_us'] = drawn_frame_cumulative/25
 
-  print 'Final perf_results dict: %s' % perf_results
+  print('Final perf_results dict: %s' % perf_results)
 
   # Write perf_results to the output json.
   with open(output_json_file, 'w') as f:

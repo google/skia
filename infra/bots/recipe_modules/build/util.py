@@ -29,19 +29,18 @@ DEFAULT_BUILD_PRODUCTS = [
   'run_testlab',
 ]
 
-# TODO(westont): Use this in docker.py, instead of a copy of it.
 def py_to_gn(val):
   """Convert val to a string that can be used as GN args."""
   if isinstance(val, bool):
     return 'true' if val else 'false'
-  elif isinstance(val, basestring):
+  elif '%s' % val == val:
     # TODO(dogben): Handle quoting "$\
     return '"%s"' % val
   elif isinstance(val, (list, tuple)):
     return '[%s]' % (','.join(py_to_gn(x) for x in val))
   elif isinstance(val, dict):
     gn = ' '.join(
-        '%s=%s' % (k, py_to_gn(v)) for (k, v) in sorted(val.iteritems()))
+        '%s=%s' % (k, py_to_gn(v)) for (k, v) in sorted(val.items()))
     return gn
   else:  # pragma: nocover
     raise Exception('Converting %s to gn is not implemented.' % type(val))
@@ -73,7 +72,7 @@ for pattern in build_products:
     dst_path = os.path.join(dst, os.path.relpath(f, src))
     if not os.path.isdir(os.path.dirname(dst_path)):
       os.makedirs(os.path.dirname(dst_path))
-    print 'Copying build product %%s to %%s' %% (f, dst_path)
+    print('Copying build product %%s to %%s' %% (f, dst_path))
     shutil.move(f, dst_path)
 ''' % str(product_list),
       args=[src, dst],

@@ -168,7 +168,7 @@ idle_timer = "10000"
 
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
-print log
+print(log)
 if 'cannot' in log:
   raise Exception('adb root failed')
 
@@ -221,7 +221,7 @@ gov = sys.argv[3]
 
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
-print log
+print(log)
 if 'cannot' in log:
   raise Exception('adb root failed')
 
@@ -258,7 +258,7 @@ value = int(sys.argv[3])
 
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
-print log
+print(log)
 if 'cannot' in log:
   raise Exception('adb root failed')
 
@@ -267,7 +267,7 @@ if 'cannot' in log:
 prior_status = subprocess.check_output([ADB, 'shell', 'cat '
     '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()
 if prior_status == str(value):
-  print 'CPU %d online already %d' % (cpu, value)
+  print('CPU %d online already %d' % (cpu, value))
   sys.exit()
 
 subprocess.check_output([ADB, 'shell', 'echo %s > '
@@ -298,7 +298,7 @@ target_percent = float(sys.argv[2])
 cpu = int(sys.argv[3])
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
-print log
+print(log)
 if 'cannot' in log:
   raise Exception('adb root failed')
 
@@ -324,7 +324,7 @@ for f in reversed(available_freqs):
     freq = f
     break
 
-print 'Setting frequency to %d' % freq
+print('Setting frequency to %d' % freq)
 
 # If scaling_max_freq is lower than our attempted setting, it won't take.
 # We must set min first, because if we try to set max to be less than min
@@ -377,27 +377,27 @@ ASAN_SETUP = sys.argv[2]
 def wait_for_device():
   while True:
     time.sleep(5)
-    print 'Waiting for device'
+    print('Waiting for device')
     subprocess.check_output([ADB, 'wait-for-device'])
     bit1 = subprocess.check_output([ADB, 'shell', 'getprop',
                                    'dev.bootcomplete'])
     bit2 = subprocess.check_output([ADB, 'shell', 'getprop',
                                    'sys.boot_completed'])
     if '1' in bit1 and '1' in bit2:
-      print 'Device detected'
+      print('Device detected')
       break
 
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
-print log
+print(log)
 if 'cannot' in log:
   raise Exception('adb root failed')
 
 output = subprocess.check_output([ADB, 'disable-verity'])
-print output
+print(output)
 
 if 'already disabled' not in output:
-  print 'Rebooting device'
+  print('Rebooting device')
   subprocess.check_output([ADB, 'reboot'])
   wait_for_device()
 
@@ -405,7 +405,7 @@ def installASAN(revert=False):
   # ASAN setup script is idempotent, either it installs it or
   # says it's installed.  Returns True on success, false otherwise.
   out = subprocess.check_output([ADB, 'wait-for-device'])
-  print out
+  print(out)
   cmd = [ASAN_SETUP]
   if revert:
     cmd = [ASAN_SETUP, '--revert']
@@ -414,12 +414,12 @@ def installASAN(revert=False):
 
   # this also blocks until command finishes
   (stdout, stderr) = process.communicate()
-  print stdout
-  print 'Stderr: %s' % stderr
+  print(stdout)
+  print('Stderr: %s' % stderr)
   return process.returncode == 0
 
 if not installASAN():
-  print 'Trying to revert the ASAN install and then re-install'
+  print('Trying to revert the ASAN install and then re-install')
   # ASAN script sometimes has issues if it was interrupted or partially applied
   # Try reverting it, then re-enabling it
   if not installASAN(revert=True):
@@ -485,7 +485,7 @@ time.sleep(60)
                   line = line.replace(addr, addr + ' ' + sym.strip())
                 except subprocess.CalledProcessError:
                   pass
-            print line
+            print(line)
           """ % self.ADB_BINARY,
           args=[self.host_dirs.bin_dir],
           infra_step=True,
@@ -529,7 +529,7 @@ time.sleep(60)
       sys.exit(int(subprocess.check_output(['%s', 'shell', 'cat',
                                             bin_dir + 'rc'])))
     except ValueError:
-      print "Couldn't read the return code.  Probably killed for OOM."
+      print("Couldn't read the return code.  Probably killed for OOM.")
       sys.exit(1)
     """ % (self.ADB_BINARY, self.ADB_BINARY),
       args=[self.device_dirs.bin_dir, sh])
@@ -562,7 +562,7 @@ time.sleep(60)
     rv = self._adb('read %s' % path,
                    'shell', 'cat', path, stdout=self.m.raw_io.output(),
                    **kwargs)
-    return rv.stdout.rstrip() if rv and rv.stdout else None
+    return rv.stdout.decode('utf-8').rstrip() if rv and rv.stdout else None
 
   def remove_file_on_device(self, path):
     self.m.run.with_retry(self.m.python.inline, 'rm %s' % path, 3, program="""

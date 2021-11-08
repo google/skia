@@ -250,7 +250,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))\n",
       "[START_DIR]/skia/resources",
       "foo@127.0.0.1:/home/chronos/user/resources"
     ],
@@ -262,7 +262,7 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
       "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -381,7 +381,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))\n",
       "[START_DIR]/skp",
       "foo@127.0.0.1:/home/chronos/user/skps"
     ],
@@ -393,7 +393,7 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
       "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -525,7 +525,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))\n",
       "[START_DIR]/skimage",
       "foo@127.0.0.1:/home/chronos/user/images"
     ],
@@ -537,7 +537,7 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
       "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -669,7 +669,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))\n",
       "[START_DIR]/svg",
       "foo@127.0.0.1:/home/chronos/user/svgs"
     ],
@@ -681,7 +681,7 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
       "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -720,7 +720,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))\n",
       "foo@127.0.0.1:/home/chronos/user/dm_out",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
@@ -732,7 +732,7 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
       "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },

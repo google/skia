@@ -4,6 +4,8 @@
 
 # Recipe which generates the Gold images for lottie-web using docker
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
+
 DEPS = [
   'checkout',
   'docker',

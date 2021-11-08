@@ -4,6 +4,7 @@
 
 # Recipe which runs the Canvaskit tests using docker
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 DEPS = [
   'checkout',
@@ -37,10 +38,16 @@ def RunSteps(api):
                                  'npm_build', 'bin')
   api.file.ensure_directory('mkdirs copy_dest', copy_dest, mode=0o777)
   base_dir = api.vars.build_dir
-  copies = {
-    base_dir.join('canvaskit.js'): copy_dest.join('canvaskit.js'),
-    base_dir.join('canvaskit.wasm'):    copy_dest.join('canvaskit.wasm'),
-  }
+  copies = [
+    {
+      'src': base_dir.join('canvaskit.js'),
+      'dst': copy_dest.join('canvaskit.js'),
+    },
+    {
+      'src': base_dir.join('canvaskit.wasm'),
+      'dst': copy_dest.join('canvaskit.wasm'),
+    },
+  ]
   recursive_read = [checkout_root.join('skia')]
 
   args = [

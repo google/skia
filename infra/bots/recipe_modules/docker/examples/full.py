@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 DEPS = [
   'docker',
@@ -22,7 +23,7 @@ def RunSteps(api):
       script='./do-stuff.sh',
       args=['--src', api.docker.mount_src(), '--out', api.docker.mount_out()],
       docker_args=['--cpus', '2'],
-      copies={'/copy-src/myfile': '/copy-dst/myfile'},
+      copies=[{'src': '/copy-src/myfile', 'dst': '/copy-dst/myfile'}],
       recursive_read=['/host-src'],
   )
 

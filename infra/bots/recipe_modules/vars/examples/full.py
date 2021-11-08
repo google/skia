@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 DEPS = [
   'recipe_engine/path',
@@ -23,10 +24,8 @@ def RunSteps(api):
   s = api.step('show', cmd=None)
   for p in [
       'build_dir',
-      'builder_cfg',
       'builder_name',
       'cache_dir',
-      'default_env',
       'extra_tokens',
       'internal_hardware_label',
       'is_internal_bot',

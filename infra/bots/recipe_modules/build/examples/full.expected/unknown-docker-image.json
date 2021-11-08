@@ -7,18 +7,18 @@
       "The recipe has crashed at point 'Uncaught exception'!",
       "",
       "Traceback (most recent call last):",
-      "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/examples/full.py\", line 22, in RunSteps",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/examples/full.py\", line 23, in RunSteps",
       "    api.build(checkout_root=checkout_root, out_dir=out_dir)",
       "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/api.py\", line 53, in __call__",
       "    self.compile_fn(self.m, checkout_root, out_dir)",
-      "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/docker.py\", line 78, in compile_fn",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/docker.py\", line 61, in compile_fn",
       "    raise Exception('Not implemented: ' + api.vars.builder_name)",
-      "Exception: Not implemented: Build-Unix-GCC-x86_64-Release-Docker"
+      "Exception('Not implemented: Build-Unix-GCC-x86_64-Release-Docker')"
     ]
   },
   {
     "failure": {
-      "humanReason": "Uncaught Exception: Exception('Not implemented: Build-Unix-GCC-x86_64-Release-Docker',)"
+      "humanReason": "Uncaught Exception: Exception('Not implemented: Build-Unix-GCC-x86_64-Release-Docker')"
     },
     "name": "$result"
   }

@@ -5,6 +5,7 @@
 
 # Recipe for uploading nanobench results.
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 DEPS = [
   'recipe_engine/context',

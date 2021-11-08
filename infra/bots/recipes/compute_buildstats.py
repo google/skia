@@ -5,6 +5,9 @@
 # Recipe which analyzes a compiled binary for information (e.g. file size)
 
 import ast
+import json
+
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 DEPS = [
   'checkout',
@@ -125,11 +128,11 @@ def keys_and_props(api):
 
   if api.vars.is_trybot:
     props.extend([
-      'issue',    str(api.vars.issue),
-      'patchset', str(api.vars.patchset),
+      'issue',    api.vars.issue,
+      'patchset', api.vars.patchset,
       'patch_storage', api.vars.patch_storage,
     ])
-  propstr = ' '.join(props)
+  propstr = ' '.join(str(prop) for prop in props)
   return (keystr, propstr)
 
 
@@ -147,7 +150,7 @@ def analyze_web_file(api, checkout_root, out_dir, files):
                 MAGIC_SEPERATOR],
           stdout=api.raw_io.output())
       if step_data and step_data.stdout:
-        sections = step_data.stdout.split(MAGIC_SEPERATOR)
+        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
         result = api.step.active_result
         logs = result.presentation.logs
         logs['perf_json'] = sections[1].split('\n')
@@ -175,7 +178,7 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
                 MAGIC_SEPERATOR],
           stdout=api.raw_io.output())
       if step_data and step_data.stdout:
-        sections = step_data.stdout.split(MAGIC_SEPERATOR)
+        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
         result = api.step.active_result
         logs = result.presentation.logs
         logs['perf_json'] = sections[2].split('\n')
@@ -208,7 +211,7 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
                                MAGIC_SEPERATOR],
                          stdout=api.raw_io.output())
       if step_data and step_data.stdout:
-        sections = step_data.stdout.split(MAGIC_SEPERATOR)
+        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
         result = api.step.active_result
         logs = result.presentation.logs
         # Skip section 0 because it's everything before first print,
@@ -243,7 +246,7 @@ def analyze_wasm_file(api, checkout_root, out_dir, files):
                                 TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
                           stdout=api.raw_io.output())
       if step_data and step_data.stdout:
-        sections = step_data.stdout.split(MAGIC_SEPERATOR)
+        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
         result = api.step.active_result
         logs = result.presentation.logs
         # Skip section 0 because it's everything before first print,
@@ -252,7 +255,7 @@ def analyze_wasm_file(api, checkout_root, out_dir, files):
         logs['bloaty_symbol_full']  = sections[2].split('\n')
         logs['perf_json']           = sections[3].split('\n')
         add_binary_size_output_property(result, api.path.basename(f), (
-            ast.literal_eval(sections[3])
+            ast.literal_eval(str(sections[3]))
                 .get('results', {})
                 .get(api.path.basename(f), {})
                 .get('default', {})

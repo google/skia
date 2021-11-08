@@ -8,9 +8,11 @@
 
 
 import calendar
+import json
 import re
 import string
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 DEPS = [
   'flavor',
@@ -118,13 +120,9 @@ def perf_steps(api):
   ts = int(calendar.timegm(now.utctimetuple()))
   json_path = api.flavor.host_dirs.perf_data_dir.join(
       'perf_%s_%d.json' % (api.properties['revision'], ts))
-  api.run(
-      api.python.inline,
-      'write output JSON',
-      program="""import json
-with open('%s', 'w') as outfile:
-  json.dump(obj=%s, fp=outfile, indent=4)
-  """ % (json_path, perf_json))
+  json_contents = json.dumps(
+      perf_json, indent=4, sort_keys=True, separators=(',', ': '))
+  api.file.write_text('write output JSON', json_path, json_contents)
 
 
 def get_trace_match(lottie_filename, is_android):

@@ -5,8 +5,8 @@
 
 from recipe_engine import recipe_api
 
-import default
-import ssh
+from . import default
+from . import ssh
 
 
 """Chromebook flavor, used for running code on Chromebooks."""
@@ -46,7 +46,7 @@ class ChromebookFlavor(ssh.SSHFlavor):
     import sys
     src = sys.argv[1] + '/*'
     dest   = sys.argv[2]
-    print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)
+    print(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))
     """, args=[src, dest], infra_step=True)
 
   def copy_directory_contents_to_device(self, host_path, device_path):

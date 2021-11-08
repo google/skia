@@ -18,12 +18,12 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+      "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
     ],
     "name": "get swarming bot id",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_BOT_ID', ''))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -48,7 +48,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/opt/infra-android/tools/adb",
       "0",
       "hotplug"
@@ -72,7 +72,7 @@
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
       "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print log@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
       "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -485,7 +485,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
       "/data/local/tmp/",
       "dm.sh"
     ],
@@ -505,7 +505,7 @@
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
       "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
       "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(\"Couldn't read the return code.  Probably killed for OOM.\")@@@",
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
@@ -699,7 +699,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
       "/data/local/tmp/",
       "dm.sh"
     ],
@@ -719,7 +719,7 @@
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
       "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
       "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(\"Couldn't read the return code.  Probably killed for OOM.\")@@@",
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
@@ -913,7 +913,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
       "/data/local/tmp/",
       "dm.sh"
     ],
@@ -933,7 +933,7 @@
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
       "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
       "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(\"Couldn't read the return code.  Probably killed for OOM.\")@@@",
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
@@ -1074,12 +1074,12 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+      "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
     ],
     "name": "get swarming bot id (2)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_BOT_ID', ''))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -1087,12 +1087,12 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+      "import os\nprint(os.environ.get('SWARMING_TASK_ID', ''))\n"
     ],
     "name": "get swarming task id",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_TASK_ID', ''))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -1113,27 +1113,70 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
-      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {\"lottie(test)'!2.json\": {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie 3!.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'patch_storage': 'gerrit', 'swarming_task_id': '', 'renderer': 'skottie', 'key': {'extra_config': 'Android_SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'Mali400MP2', 'arch': 'arm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'AndroidOne', 'configuration': 'Release', 'os': 'Android', 'compiler': 'Clang'}, 'swarming_bot_id': '', 'patchset': 7, 'issue': 1234}, fp=outfile, indent=4)\n"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "{\n    \"gitHash\": \"abc123\",\n    \"issue\": 1234,\n    \"key\": {\n        \"arch\": \"arm\",\n        \"bench_type\": \"tracing\",\n        \"compiler\": \"Clang\",\n        \"configuration\": \"Release\",\n        \"cpu_or_gpu\": \"GPU\",\n        \"cpu_or_gpu_value\": \"Mali400MP2\",\n        \"extra_config\": \"Android_SkottieTracing\",\n        \"model\": \"AndroidOne\",\n        \"os\": \"Android\",\n        \"source_type\": \"skottie\"\n    },\n    \"patch_storage\": \"gerrit\",\n    \"patchset\": 7,\n    \"renderer\": \"skottie\",\n    \"results\": {\n        \"lottie 3!.json\": {\n            \"gles\": {\n                \"frame_avg_us\": 179.71,\n                \"frame_max_us\": 218.25,\n                \"frame_min_us\": 141.17\n            }\n        },\n        \"lottie(test)'!2.json\": {\n            \"gles\": {\n                \"frame_avg_us\": 179.71,\n                \"frame_max_us\": 218.25,\n                \"frame_min_us\": 141.17\n            }\n        },\n        \"lottie1.json\": {\n            \"gles\": {\n                \"frame_avg_us\": 179.71,\n                \"frame_max_us\": 218.25,\n                \"frame_min_us\": 141.17\n            }\n        }\n    },\n    \"swarming_bot_id\": \"\",\n    \"swarming_task_id\": \"\"\n}",
+      "[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json"
     ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
+    "infra_step": true,
     "name": "write output JSON",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import json@@@",
-      "@@@STEP_LOG_LINE@python.inline@with open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {\"lottie(test)'!2.json\": {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie 3!.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'patch_storage': 'gerrit', 'swarming_task_id': '', 'renderer': 'skottie', 'key': {'extra_config': 'Android_SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'Mali400MP2', 'arch': 'arm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'AndroidOne', 'configuration': 'Release', 'os': 'Android', 'compiler': 'Clang'}, 'swarming_bot_id': '', 'patchset': 7, 'issue': 1234}, fp=outfile, indent=4)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@{@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"gitHash\": \"abc123\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"issue\": 1234,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"key\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"arch\": \"arm\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"bench_type\": \"tracing\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"compiler\": \"Clang\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"configuration\": \"Release\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"cpu_or_gpu\": \"GPU\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"cpu_or_gpu_value\": \"Mali400MP2\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"extra_config\": \"Android_SkottieTracing\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"model\": \"AndroidOne\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"os\": \"Android\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"source_type\": \"skottie\"@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    },@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"patch_storage\": \"gerrit\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"patchset\": 7,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"renderer\": \"skottie\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"results\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"lottie 3!.json\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            \"gles\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_max_us\": 218.25,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            }@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        },@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"lottie(test)'!2.json\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            \"gles\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_max_us\": 218.25,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            }@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        },@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"lottie1.json\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            \"gles\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_max_us\": 218.25,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            }@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        }@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    },@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"swarming_bot_id\": \"\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"swarming_task_id\": \"\"@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@}@@@",
+      "@@@STEP_LOG_END@perf_abc123_1337000001.json@@@"
     ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print line\n",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print(line)\n",
       "[START_DIR]/build"
     ],
     "env": {
@@ -1161,7 +1204,7 @@
       "@@@STEP_LOG_LINE@python.inline@        line = line.replace(addr, addr + ' ' + sym.strip())@@@",
       "@@@STEP_LOG_LINE@python.inline@      except subprocess.CalledProcessError:@@@",
       "@@@STEP_LOG_LINE@python.inline@        pass@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print line@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(line)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },

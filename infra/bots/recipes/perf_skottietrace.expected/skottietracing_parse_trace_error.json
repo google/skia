@@ -18,12 +18,12 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+      "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
     ],
     "name": "get swarming bot id",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_BOT_ID', ''))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -48,7 +48,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/opt/infra-android/tools/adb",
       "0",
       "hotplug"
@@ -72,7 +72,7 @@
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
       "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print log@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
       "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -485,7 +485,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
       "/data/local/tmp/",
       "dm.sh"
     ],
@@ -505,7 +505,7 @@
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
       "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
       "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(\"Couldn't read the return code.  Probably killed for OOM.\")@@@",
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
@@ -603,7 +603,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print line\n",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print(line)\n",
       "[START_DIR]/build"
     ],
     "env": {
@@ -631,7 +631,7 @@
       "@@@STEP_LOG_LINE@python.inline@        line = line.replace(addr, addr + ' ' + sym.strip())@@@",
       "@@@STEP_LOG_LINE@python.inline@      except subprocess.CalledProcessError:@@@",
       "@@@STEP_LOG_LINE@python.inline@        pass@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print line@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(line)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },

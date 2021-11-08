@@ -38,6 +38,7 @@ def main(basedir, cmd):
   proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT)
   for line in iter(proc.stdout.readline, ''):
+    line = line.decode('utf-8')
     sys.stdout.write(line)
     logs.append(line)
   proc.wait()

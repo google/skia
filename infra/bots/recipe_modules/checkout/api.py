@@ -20,14 +20,15 @@ class CheckoutApi(recipe_api.RecipeApi):
   def assert_git_is_from_cipd(self):
     """Fail if git is not obtained from CIPD."""
     self.m.run(self.m.python.inline, 'Assert that Git is from CIPD', program='''
+from __future__ import print_function
 import subprocess
 import sys
 
 which = 'where' if sys.platform == 'win32' else 'which'
 git = subprocess.check_output([which, 'git'])
-print 'git was found at %s' % git
+print('git was found at %s' % git)
 if 'cipd_bin_packages' not in git:
-  print >> sys.stderr, 'Git must be obtained through CIPD.'
+  print('Git must be obtained through CIPD.', file=sys.stderr)
   sys.exit(1)
 ''')
 

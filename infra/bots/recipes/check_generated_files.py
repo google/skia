@@ -5,6 +5,8 @@
 
 # Recipe for the Skia PerCommit Housekeeper.
 
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
+
 DEPS = [
   'build',
   'infra',
@@ -37,7 +39,7 @@ def RunSteps(api):
         api.step,
         'git diff #1',
         cmd=['git', 'diff', '--no-ext-diff'],
-        stdout=api.m.raw_io.output()).stdout
+        stdout=api.m.raw_io.output()).stdout.decode('utf-8')
 
     with api.context(env=api.infra.go_env):
       api.step('generate gl interfaces',
@@ -53,7 +55,7 @@ def RunSteps(api):
         api.step,
         'git diff #2',
         cmd=['git', 'diff', '--no-ext-diff'],
-        stdout=api.m.raw_io.output()).stdout
+        stdout=api.m.raw_io.output()).stdout.decode('utf-8')
 
     api.run(
         api.python.inline,
@@ -64,7 +66,7 @@ diff1 = '''%s'''
 diff2 = '''%s'''
 
 if diff1 != diff2:
-  print 'Generated files have been edited!'
+  print('Generated files have been edited!')
   exit(1)
 """ % (diff1, diff2))
 
