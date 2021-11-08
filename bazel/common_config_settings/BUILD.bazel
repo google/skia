@@ -1,6 +1,8 @@
 # @platforms is found at https://github.com/bazelbuild/platforms
 package(default_visibility = ["//:__subpackages__"])
 
+load(":defs.bzl", "string_flag_with_values")
+
 config_setting(
     name = "linux_x64",
     constraint_values = [
@@ -23,6 +25,16 @@ config_setting(
         "@platforms//cpu:arm64",
         "@platforms//os:linux",
     ],
+)
+
+config_setting(
+    name = "debug_build",
+    values = {"compilation_mode": "dbg"},
+)
+
+config_setting(
+    name = "release_build",
+    values = {"compilation_mode": "opt"},
 )
 
 constraint_value(
@@ -50,34 +62,43 @@ config_setting(
 # =============================================================================
 #                     Configurable Skia Features
 # =============================================================================
-# Below, we define a number of constraint_settings (think enums) and their
-# associated constraint values (think enum values). These let us use select
-# to turn on or off certain Skia features. Many of these are platform-specific,
-# and can be configured as such with the exec_compatible_with.
+# These are flags that we can specify when invoking bazel build to turn on and
+# off certain features, such as GPU backend, or codec support.
+# https://docs.bazel.build/versions/4.2.1/skylark/config.html#using-build-settings-on-the-command-line
+# For example, to use the GL backend with the WebGL flavor, one would run
+# bazel build //:skia-core --//bazel/common_config_settings:gpu_backend=gl_backend \
+#             --//bazel/common_config_settings:with_gl_standard=webgl_standard
+# This is a bit wordy, so we define aliases in the //.bazelrc file that condense this to
+# bazel build //:skia-core --gpu_backend=gl_backend --with_gl_standard=webgl_standard
 #
-# To actually set the values, you need to create a platform() rule. See
-# //bazel/supported_combinations for more.
+# Developers can specify their own short-hands by making a .bazelrc file in their home
+# directory. https://docs.bazel.build/versions/main/guide.html#where-are-the-bazelrc-files
 #
-# https://docs.bazel.build/versions/main/be/platform.html#constraint_setting
-constraint_setting(
-    name = "skdebug_impl",
-    default_constraint_value = ":stdio_skdebug",
+
+# TODO(kjlubick) make gpu_backend a multi-string flag when available in Bazel.
+#  https://docs.bazel.build/versions/main/skylark/config.html#defining-multi-set-string-flags
+string_flag_with_values(
+    flag_name = "gpu_backend",
+    values = [
+        "gl_backend",
+        "vulkan_backend",
+    ],
 )
 
-# https://docs.bazel.build/versions/main/be/platform.html#constraint_value
-constraint_value(
-    name = "stdio_skdebug",
-    constraint_setting = ":skdebug_impl",
+string_flag_with_values(
+    flag_name = "with_gl_standard",
+    values = [
+        "gles_standard",
+        "gl_standard",
+        "webgl_standard",
+    ],
 )
 
-constraint_value(
-    name = "win_skdebug",
-    constraint_setting = ":skdebug_impl",
-    exec_compatible_with = ["@platforms//os:windows"],
-)
-
-constraint_value(
-    name = "android_skdebug",
-    constraint_setting = ":skdebug_impl",
-    exec_compatible_with = ["@platforms//os:android"],
+string_flag_with_values(
+    default = "empty_fontmgr_factory",
+    flag_name = "fontmgr_factory",
+    values = [
+        "empty_fontmgr_factory",
+        "custom_directory_fontmgr_factory",
+    ],
 )

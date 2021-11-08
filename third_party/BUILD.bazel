@@ -2,6 +2,20 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
+cc_library(
+    name = "skcms",
+    srcs = [
+        "skcms/skcms.cc",
+        "skcms/skcms_internal.h",
+        "skcms/src/Transform_inl.h",
+    ],
+    hdrs = [
+        "//include/third_party:skcms-hdrs",
+    ],
+    # needed because skcms.cc just does include skcms.h
+    strip_include_prefix = "//include/third_party/skcms/",
+)
+
 LIBPNG_SRCS = [
     "externals/libpng/png.c",
     "externals/libpng/pngconf.h",

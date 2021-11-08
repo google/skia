@@ -1,0 +1,51 @@
+package(default_visibility = ["//visibility:private"])
+
+filegroup(
+    name = "core-srcs",
+    srcs = [
+        "SkCodec.cpp",
+        "SkCodecImageGenerator.cpp",
+        "SkCodecImageGenerator.h",
+        "SkCodecPriv.h",
+        "SkColorTable.cpp",
+        "SkColorTable.h",
+        "SkFrameHolder.h",
+        "SkMaskSwizzler.cpp",
+        "SkMaskSwizzler.h",
+        "SkMasks.cpp",
+        "SkMasks.h",
+        "SkSampler.cpp",
+        "SkSampler.h",
+        "SkSwizzler.cpp",
+        "SkSwizzler.h",
+    ],
+)
+
+filegroup(
+    name = "bmp-srcs",
+    srcs = [
+        "SkBmpBaseCodec.cpp",
+        "SkBmpBaseCodec.h",
+        "SkBmpCodec.cpp",
+        "SkBmpCodec.h",
+        "SkBmpMaskCodec.cpp",
+        "SkBmpMaskCodec.h",
+        "SkBmpRLECodec.cpp",
+        "SkBmpRLECodec.h",
+        "SkBmpStandardCodec.cpp",
+        "SkBmpStandardCodec.h",
+        "SkWbmpCodec.cpp",
+        "SkWbmpCodec.h",
+    ],
+)
+
+# TODO(kjlubick) add selects here to allow opting in or out of various codecs.
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":bmp-srcs",
+        ":core-srcs",
+    ],
+    visibility = ["//:__subpackages__"],
+)

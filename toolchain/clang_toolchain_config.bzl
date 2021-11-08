@@ -218,7 +218,10 @@ def _make_default_flags():
         flag_groups = [
             flag_group(
                 flags = [
+                    # http://g/skia-staff/bhPPBV4YdeU/5oyG5GRgBQAJ
                     "-std=c++14",
+                    "-Wno-c++17-extensions",
+                    "-Wno-psabi",  # noisy
                     # This define allows libc++ to work with musl. They were discovered by
                     # trying to compile without them, reading errors and source code, e.g.
                     # https://github.com/llvm/llvm-project/blob/f4c1258d5633fcf06385ff3fd1f4bf57ab971964/libcxx/include/__locale#L513

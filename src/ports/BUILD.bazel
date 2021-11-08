@@ -1,16 +1,44 @@
 package(default_visibility = ["//:__subpackages__"])
 
 filegroup(
-    name = "skdebug",
+    name = "fontmgr",
     srcs = select({
-        "//bazel/common_config_settings:stdio_skdebug": [
-            "SkDebug_stdio.cpp",
+        "//bazel/common_config_settings:empty_fontmgr_factory": [
+            "SkFontMgr_empty_factory.cpp",
         ],
-        "//bazel/common_config_settings:win_skdebug": [
-            "SkDebug_win.cpp",
-        ],
-        "//bazel/common_config_settings:android_skdebug": [
-            "SkDebug_android.cpp",
+        "//bazel/common_config_settings:custom_directory_fontmgr_factory": [
+            "SkFontMgr_directory.h",
+            "SkFontMgr_custom_directory.cpp",
         ],
     }),
+)
+
+filegroup(
+    name = "malloc",
+    srcs = [
+        "SkMemory_malloc.cpp",
+    ],
+)
+
+filegroup(
+    name = "skdebug",
+    srcs = select({
+        "@platforms//os:windows": ["SkDebug_win.cpp"],
+        "@platforms//os:android": ["SkDebug_android.cpp"],
+        "//conditions:default": ["SkDebug_stdio.cpp"],
+    }),
+)
+
+filegroup(
+    name = "default_global_init",
+    srcs = [
+        "SkGlobalInitialization_default.cpp",
+    ],
+)
+
+filegroup(
+    name = "skia_image_generator",
+    srcs = [
+        "SkImageGenerator_skia.cpp",
+    ],
 )

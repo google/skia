@@ -1,0 +1,61 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "cmdline",
+    srcs = [
+        "flags/CommandLineFlags.cpp",
+        "flags/CommandLineFlags.h",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    testonly = True,
+    srcs = [
+        "Registry.h",
+        "ResourceFactory.h",
+        "Resources.cpp",
+        "Resources.h",
+        "ToolUtils.cpp",
+        "ToolUtils.h",
+        "flags/CommandLineFlags.cpp",
+        "flags/CommandLineFlags.h",
+        "fonts/TestFontMgr.cpp",
+        "fonts/TestFontMgr.h",
+        "fonts/TestTypeface.cpp",
+        "fonts/TestTypeface.h",
+        "fonts/ToolUtilsFont.cpp",
+        "gpu/FenceSync.h",
+        "gpu/FlushFinishTracker.cpp",
+        "gpu/FlushFinishTracker.h",
+        "gpu/GpuTimer.h",
+        "gpu/GrContextFactory.cpp",
+        "gpu/GrContextFactory.h",
+        "gpu/TestContext.cpp",
+        "gpu/TestContext.h",
+        "gpu/gl/GLTestContext.cpp",
+        "gpu/gl/GLTestContext.h",
+        "gpu/gl/command_buffer/GLTestContext_command_buffer.h",
+        "gpu/mock/MockTestContext.h",
+    ],
+)
+
+filegroup(
+    name = "txts",
+    testonly = True,
+    srcs = [
+        "fonts/test_font_index.inc",
+        "fonts/test_font_monospace.inc",
+        "fonts/test_font_sans_serif.inc",
+        "fonts/test_font_serif.inc",
+    ],
+)
+
+filegroup(
+    name = "hash_and_encode",
+    testonly = True,
+    srcs = [
+        "HashAndEncode.cpp",
+        "HashAndEncode.h",
+    ],
+)

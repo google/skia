@@ -1,0 +1,81 @@
+package(default_visibility = ["//:__subpackages__"])
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
+
+BASE_LINKOPTS = [
+    #"-flto",  # https://github.com/emscripten-core/emsdk/issues/807
+    "--bind",  # Compiles the source code using the Embind bindings to connect C/C++ and JavaScript
+    "-sALLOW_MEMORY_GROWTH",
+    "-sUSE_PTHREADS=0",  # Disable pthreads
+    "-sMODULARIZE",
+    "-sDISABLE_EXCEPTION_CATCHING",  # Disable all exception catching
+    "-sNODEJS_CATCH_EXIT=0",  # We don't have a 'main' so disable exit() catching
+    "-sWASM",
+    "-sMAX_WEBGL_VERSION=2",
+]
+
+RELEASE_OPTS = [
+    # We disable closure for now, because we need a way to pass in the externs file,
+    # which does not appear to be exposed on the emscripten toolchain.
+    # "--closure 1",  # Run the closure compiler
+    "-sASSERTIONS=0",  # Turn off assertions
+]
+
+DEBUG_OPTS = [
+    "--closure 0",  # Do not use closure
+    "-sASSERTIONS",  # Turn on assertions
+    "-sGL_ASSERTIONS",
+]
+
+GM_OPTS = [
+    "-sEXPORT_NAME=InitWasmGMTests",
+    "--pre-js",
+    "modules/canvaskit/gm.js",
+]
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "WasmCommon.h",
+    ],
+)
+
+cc_binary(
+    name = "gm-bindings",
+    testonly = True,
+    srcs = [
+        "gm_bindings.cpp",
+        ":hdrs",
+        "//gm:gms",  # Required for the registry to work
+        "//src/ports:default_global_init",
+        "//src/ports:fontmgr",
+        "//src/ports:malloc",
+        "//src/ports:skdebug",
+        "//src/ports:skia_image_generator",
+    ],
+    additional_linker_inputs = ["gm.js"],
+    linkopts = select({
+        "//bazel/common_config_settings:debug_build": BASE_LINKOPTS + GM_OPTS + DEBUG_OPTS,
+        "//bazel/common_config_settings:release_build": BASE_LINKOPTS + GM_OPTS + RELEASE_OPTS,
+        "//conditions:default": BASE_LINKOPTS + GM_OPTS + RELEASE_OPTS,
+    }),
+    local_defines = [
+        "SK_GL",
+        "SK_USE_WEBGL",
+    ],
+    # This target won't build successfully on its own because of missing emscripten
+    # headers etc. Therefore, we hide it from wildcards.
+    tags = ["manual"],
+    deps = [
+        "//:gms",
+        "//:hash_and_encode",
+        "//:tests",
+    ],
+)
+
+wasm_cc_binary(
+    name = "gm-bindings-wasm",
+    testonly = True,
+    cc_target = ":gm-bindings",
+)

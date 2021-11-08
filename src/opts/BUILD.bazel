@@ -1,0 +1,28 @@
+package(default_visibility = ["//:__subpackages__"])
+
+# TODO(kjlubick) make these sources and headers dependent on target platform, as necessary
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "Sk4px_NEON.h",
+        "Sk4px_SSE2.h",
+        "Sk4px_none.h",
+        "SkBitmapProcState_opts.h",
+        "SkBlitMask_opts.h",
+        "SkBlitRow_opts.h",
+        "SkChecksum_opts.h",
+        "SkOpts_avx.cpp",
+        "SkOpts_crc32.cpp",
+        "SkOpts_hsw.cpp",
+        "SkOpts_skx.cpp",
+        "SkOpts_sse41.cpp",
+        "SkOpts_sse42.cpp",
+        "SkOpts_ssse3.cpp",
+        "SkRasterPipeline_opts.h",
+        "SkSwizzler_opts.h",
+        "SkUtils_opts.h",
+        "SkVM_opts.h",
+        "SkXfermode_opts.h",
+    ],
+)

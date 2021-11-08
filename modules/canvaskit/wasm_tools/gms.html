@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<title>Testing GMs on WebGL 2 compiled with Bazel</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript" src="/build/gm-bindings.js"></script>
+
+<p id="log"></p>
+<!-- Makes png visible to user -->
+<canvas id=png_canvas height=1000 width=1000></canvas>
+<!-- Used for drawing/testing, but nothing is visible -->
+<canvas id=gm_canvas></canvas>
+
+
+<script type="text/javascript" charset="utf-8">
+  function log(s) {
+    document.getElementById("log").innerText = s;
+  }
+  RunGMs();
+  async function RunGMs() {
+    const GM = await InitWasmGMTests({locateFile: (file) => '/build/'+file});
+    GM.Init();
+    const names = GM.ListGMs();
+    names.sort();
+
+    const canvas = document.getElementById('gm_canvas');
+    const ctx = GM.GetWebGLContext(canvas, 2);
+    const grcontext = GM.MakeGrContext(ctx);
+
+    log("Running gm "+ names[0]);
+    const pngAndMetadata = GM.RunGM(grcontext, names[0]);
+
+    const b = new Blob([pngAndMetadata.png.buffer], {type:"image/png"});
+    const bmp = await createImageBitmap(b);
+    const canvasCtx = document.getElementById("png_canvas").getContext("2d");
+    canvasCtx.drawImage(bmp, 0, 0);
+  }
+</script>

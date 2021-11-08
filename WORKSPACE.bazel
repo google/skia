@@ -1,6 +1,23 @@
 workspace(name = "skia")
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//toolchain:build_toolchain.bzl", "build_cpp_toolchain")
+
+# See https://github.com/emscripten-core/emsdk/tree/85d27a4a2a60d591613a305b14ae438c2bb3ce11/bazel#setup-instructions
+http_archive(
+    name = "emsdk",
+    sha256 = "457fa96d4d60867743df7f7e241c9852a3eb7fdbf3091eac7a5712ddc0a5221d",
+    strip_prefix = "emsdk-2.0.32/bazel",
+    url = "https://github.com/emscripten-core/emsdk/archive/refs/tags/2.0.32.tar.gz",
+)
+
+load("@emsdk//:deps.bzl", emsdk_deps = "deps")
+
+emsdk_deps()
+
+load("@emsdk//:emscripten_deps.bzl", emsdk_emscripten_deps = "emscripten_deps")
+
+emsdk_emscripten_deps(emscripten_version = "2.0.32")
 
 build_cpp_toolchain(
     # Meant to run on amd64 linux and compile for amd64 linux using musl as the c library.
@@ -13,3 +30,16 @@ build_cpp_toolchain(
     musl_dev_sha256 = "b017792ad6ba3650b4889238c73cd19c1d6b0e39ca8319cdd3ad9e16374e614e",
     musl_dev_url = "http://ftp.debian.org/debian/pool/main/m/musl/musl-dev_1.2.2-1_amd64.deb",
 )
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
+    urls = [
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+    ],
+)
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()

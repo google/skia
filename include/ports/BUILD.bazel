@@ -1,0 +1,23 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkCFObject.h",
+        "SkFontConfigInterface.h",
+        "SkFontMgr_FontConfigInterface.h",
+        "SkFontMgr_android.h",
+        "SkFontMgr_directory.h",
+        "SkFontMgr_empty.h",
+        "SkFontMgr_fontconfig.h",
+        "SkFontMgr_fuchsia.h",
+        "SkFontMgr_indirect.h",
+        "SkFontMgr_mac_ct.h",
+        "SkImageGeneratorCG.h",
+        "SkImageGeneratorNDK.h",
+        "SkImageGeneratorWIC.h",
+        "SkRemotableFontMgr.h",
+        "SkTypeface_mac.h",
+        "SkTypeface_win.h",
+    ],
+)

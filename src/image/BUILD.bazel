@@ -1,0 +1,46 @@
+package(default_visibility = ["//visibility:private"])
+
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+filegroup(
+    name = "core-srcs",
+    srcs = [
+        "SkImage.cpp",
+        "SkImage_Base.h",
+        "SkImage_Lazy.cpp",
+        "SkImage_Lazy.h",
+        "SkImage_Raster.cpp",
+        "SkReadPixelsRec.h",
+        "SkRescaleAndReadPixels.cpp",
+        "SkRescaleAndReadPixels.h",
+        "SkSurface.cpp",
+        "SkSurface_Base.h",
+        "SkSurface_Raster.cpp",
+    ],
+)
+
+filegroup(
+    name = "gpu-srcs",
+    srcs = [
+        "SkImage_Gpu.cpp",
+        "SkImage_Gpu.h",
+        "SkImage_GpuBase.cpp",
+        "SkImage_GpuBase.h",
+        "SkImage_GpuYUVA.cpp",
+        "SkImage_GpuYUVA.h",
+        "SkSurface_Gpu.cpp",
+        "SkSurface_Gpu.h",
+    ],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [":core-srcs"] + selects.with_or({
+        ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
+            ":gpu-srcs",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = ["//:__subpackages__"],
+)

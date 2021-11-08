@@ -1,0 +1,11 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkEncoder.h",
+        "SkJpegEncoder.h",
+        "SkPngEncoder.h",
+        "SkWebpEncoder.h",
+    ],
+)

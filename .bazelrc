@@ -1,6 +1,12 @@
 build:clang --crosstool_top=//toolchain:clang_suite
 build:clang --compiler=clang
 
-# Use the default Bazel C++ toolchain to build the tools used during the
-# build.
+# Use the default Bazel C++ toolchain to build the tools used during the build.
 build:clang --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+
+# =============================================================================
+# Alias to build configurations below. This makes configuring things from
+# the command line easier.
+build --flag_alias=fontmgr=//bazel/common_config_settings:fontmgr
+build --flag_alias=gpu_backend=//bazel/common_config_settings:gpu_backend
+build --flag_alias=with_gl_standard=//bazel/common_config_settings:with_gl_standard

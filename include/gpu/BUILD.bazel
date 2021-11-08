@@ -1,0 +1,105 @@
+package(default_visibility = ["//visibility:private"])
+
+filegroup(
+    name = "base-hdrs",
+    srcs = [
+        "GrBackendDrawableInfo.h",
+        "GrBackendSemaphore.h",
+        "GrBackendSurface.h",
+        "GrBackendSurfaceMutableState.h",
+        "GrConfig.h",
+        "GrContextOptions.h",
+        "GrContextThreadSafeProxy.h",
+        "GrDirectContext.h",
+        "GrDriverBugWorkarounds.h",
+        "GrDriverBugWorkaroundsAutogen.h",
+        "GrRecordingContext.h",
+        "GrSurfaceInfo.h",
+        "GrTypes.h",
+        "GrYUVABackendTextures.h",
+    ],
+)
+
+filegroup(
+    name = "direct3d-hdrs",
+    srcs = [
+        "d3d/GrD3DBackendContext.h",
+        "d3d/GrD3DTypes.h",
+    ],
+)
+
+filegroup(
+    name = "dawn-hdrs",
+    srcs = [
+        "dawn/GrDawnTypes.h",
+    ],
+)
+
+filegroup(
+    name = "gl-hdrs",
+    srcs = [
+        "gl/GrGLAssembleHelpers.h",
+        "gl/GrGLAssembleInterface.h",
+        "gl/GrGLConfig.h",
+        "gl/GrGLConfig_chrome.h",
+        "gl/GrGLExtensions.h",
+        "gl/GrGLFunctions.h",
+        "gl/GrGLInterface.h",
+        "gl/GrGLTypes.h",
+    ],
+)
+
+filegroup(
+    name = "egl-hdrs",
+    srcs = [
+        "gl/egl/GrGLMakeEGLInterface.h",
+    ],
+)
+
+filegroup(
+    name = "glx-hdrs",
+    srcs = [
+        "gl/glx/GrGLMakeGLXInterface.h",
+    ],
+)
+
+filegroup(
+    name = "mock-hdrs",
+    srcs = [
+        "mock/GrMockTypes.h",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "metal-hdrs",
+    srcs = [
+        "mtl/GrMtlBackendContext.h",
+        "mtl/GrMtlTypes.h",
+    ],
+)
+
+filegroup(
+    name = "vulkan-hdrs",
+    srcs = [
+        "vk/GrVkBackendContext.h",
+        "vk/GrVkExtensions.h",
+        "vk/GrVkMemoryAllocator.h",
+        "vk/GrVkTypes.h",
+        "vk/GrVkVulkan.h",
+    ],
+)
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        ":base-hdrs",
+    ] + select({
+        "//bazel/common_config_settings:gl_backend": [":gl-hdrs"],
+        "//conditions:default": [],
+    }) + select({
+        "//bazel/common_config_settings:vulkan_backend": [":vulkan-hdrs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//:__subpackages__"],
+)

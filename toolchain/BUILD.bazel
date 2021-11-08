@@ -3,10 +3,13 @@ load(":clang_toolchain_config.bzl", "provide_clang_toolchain_config")
 
 package(default_visibility = ["//visibility:public"])
 
+# https://docs.bazel.build/versions/main/be/c-cpp.html#cc_toolchain_suite
 cc_toolchain_suite(
     name = "clang_suite",
     toolchains = {
+        # The key is target_cpu|compiler
         "k8|clang": ":clang_toolchain",
+        "x86_64|clang": ":clang_toolchain",
     },
 )
 

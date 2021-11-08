@@ -1,0 +1,92 @@
+package(default_visibility = ["//visibility:private"])
+
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+filegroup(
+    name = "core-hdrs",
+    srcs = [
+        "SkBitmaskEnum.h",
+        "SkChecksum.h",
+        "SkColorData.h",
+        "SkDeque.h",
+        "SkEncodedInfo.h",
+        "SkFixed.h",
+        "SkFloatBits.h",
+        "SkFloatingPoint.h",
+        "SkHalf.h",
+        "SkIDChangeListener.h",
+        "SkImageInfoPriv.h",
+        "SkMacros.h",
+        "SkMalloc.h",
+        "SkMutex.h",
+        "SkNoncopyable.h",
+        "SkNx.h",
+        "SkNx_neon.h",
+        "SkNx_sse.h",
+        "SkOnce.h",
+        "SkOpts_spi.h",
+        "SkPathRef.h",
+        "SkSLDefines.h",
+        "SkSLIRNode.h",
+        "SkSLLayout.h",
+        "SkSLModifiers.h",
+        "SkSLProgramElement.h",
+        "SkSLProgramKind.h",
+        "SkSLSampleUsage.h",
+        "SkSLStatement.h",
+        "SkSLString.h",
+        "SkSLSymbol.h",
+        "SkSafe32.h",
+        "SkSafe_math.h",
+        "SkSemaphore.h",
+        "SkShadowFlags.h",
+        "SkSpinlock.h",
+        "SkTArray.h",
+        "SkTDArray.h",
+        "SkTFitsIn.h",
+        "SkTHash.h",
+        "SkTLogic.h",
+        "SkTOptional.h",
+        "SkTPin.h",
+        "SkTemplates.h",
+        "SkThreadAnnotations.h",
+        "SkThreadID.h",
+        "SkTo.h",
+        "SkVx.h",
+        "SkWeakRefCnt.h",
+    ],
+)
+
+filegroup(
+    name = "gpu-hdrs",
+    srcs = [
+        "GrContext_Base.h",
+        "GrD3DTypesMinimal.h",
+        "GrDawnTypesPriv.h",
+        "GrGLTypesPriv.h",
+        "GrImageContext.h",
+        "GrMtlTypesPriv.h",
+        "GrResourceKey.h",
+        "GrSingleOwner.h",
+        "GrTypesPriv.h",
+        "GrVkTypesPriv.h",
+    ],
+)
+
+filegroup(
+    name = "mock-hdrs",
+    srcs = ["GrMockTypesPriv.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "hdrs",
+    srcs = [":core-hdrs"] + selects.with_or({
+        ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
+            ":gpu-hdrs",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = ["//:__subpackages__"],
+)

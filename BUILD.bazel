@@ -1,3 +1,8 @@
+package(default_visibility = ["//:__subpackages__"])
+
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
 cc_test(
     name = "bazel_test",
     size = "small",
@@ -11,4 +16,140 @@ cc_test(
         "//third_party:libpng",
         "//third_party:musl_compat",
     ],
+)
+
+CORE_SRCS = [
+    "//include/private:hdrs",
+    "//include/third_party:skcms-hdrs",
+    "//src/codec:srcs",
+    "//src/core:srcs",
+    "//src/image:srcs",
+    "//src/images:srcs",
+    "//src/effects:srcs",
+    "//src/opts:srcs",
+    "//src/pathops:srcs",
+    "//src/sfnt:srcs",
+    "//src/shaders:srcs",
+    "//src/utils:srcs",
+    "//third_party:skcms",
+] + selects.with_or({
+    # https://github.com/bazelbuild/bazel-skylib/blob/main/docs/selects_doc.md#selectswith_or
+    ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
+        "//src/gpu:srcs",
+        "//src/sksl:srcs",
+        # TODO(kjlubick) should mock be test only?
+        "//include/private:mock-hdrs",
+        "//src/gpu:mock-srcs",
+    ],
+    "//conditions:default": [],
+})
+
+CORE_HDRS = [
+    "//include/codec:hdrs",
+    "//include/config:hdrs",
+    "//include/core:hdrs",
+    "//include/effects:hdrs",
+    "//include/encode:hdrs",
+    "//include/pathops:hdrs",
+    "//include/ports:hdrs",
+    "//include/utils:base-hdrs",
+] + selects.with_or({
+    # https://github.com/bazelbuild/bazel-skylib/blob/main/docs/selects_doc.md#selectswith_or
+    ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
+        "//include/sksl:hdrs",
+        "//include/gpu:hdrs",
+        # TODO(kjlubick) should mock be test only?
+        "//include/gpu:mock-hdrs",
+    ],
+    "//conditions:default": [],
+})
+
+# Some of these are documented in SkUserConfig.h
+CORE_DEFINES = select({
+    "//bazel/common_config_settings:debug_build": [
+        "SK_DEBUG",
+    ],
+    "//bazel/common_config_settings:release_build": [
+        "SK_RELEASE",
+    ],
+    "//conditions:default": [
+        "SK_RELEASE",
+    ],
+}) + select({
+    "//bazel/common_config_settings:gl_backend": [
+        "SK_GL",
+        "SK_SUPPORT_GPU=1",
+    ],
+    "//bazel/common_config_settings:vulkan_backend": [
+        "SK_VULKAN",
+        "SK_SUPPORT_GPU=1",
+    ],
+    "//conditions:default": [
+        "SK_SUPPORT_GPU=0",
+    ],
+}) + select({
+    "//bazel/common_config_settings:gl_standard": [
+        "SK_ASSUME_GL=1",
+    ],
+    "//bazel/common_config_settings:gles_standard": [
+        "SK_ASSUME_GL_ES=1",
+    ],
+    "//bazel/common_config_settings:webgl_standard": [
+        "SK_ASSUME_WEBGL=1",
+        "SK_USE_WEBGL",
+    ],
+    "//conditions:default": [],
+})
+
+cc_library(
+    name = "skia-core",
+    srcs = CORE_SRCS,
+    hdrs = CORE_HDRS,
+    local_defines = CORE_DEFINES,
+    textual_hdrs = ["//src/sksl:txts"],
+)
+
+cc_library(
+    name = "hash_and_encode",
+    testonly = True,
+    srcs = [
+        "//tools:cmdline",
+        "//tools:hash_and_encode",
+    ],
+    deps = [
+        ":skia-core",
+        "//third_party:libpng",
+    ],
+)
+
+cc_library(
+    name = "gms",
+    testonly = True,
+    srcs = [
+        "//gm:gms",
+        "//gm:srcs",
+        "//tools:srcs",
+    ],
+    hdrs = [
+        "//gm:hdrs",
+    ],
+    textual_hdrs = ["//tools:txts"],
+    deps = [":skia-core"],
+)
+
+cc_library(
+    name = "tests",
+    testonly = True,
+    srcs = [
+        "//tests:srcs",
+        "//tools:srcs",
+    ],
+    hdrs = [
+        "//tests:hdrs",
+    ],
+    local_defines = [
+        "GR_TEST_UTILS",
+    ],
+    textual_hdrs = ["//tools:txts"],
+    deps = [":skia-core"],
 )

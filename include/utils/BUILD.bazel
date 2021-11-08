@@ -1,0 +1,31 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "base-hdrs",
+    srcs = [
+        "SkAnimCodecPlayer.h",
+        "SkBase64.h",
+        "SkCamera.h",
+        "SkCanvasStateUtils.h",
+        "SkCustomTypeface.h",
+        "SkEventTracer.h",
+        "SkNWayCanvas.h",
+        "SkNoDrawCanvas.h",
+        "SkNullCanvas.h",
+        "SkOrderedFontMgr.h",
+        "SkPaintFilterCanvas.h",
+        "SkParse.h",
+        "SkParsePath.h",
+        "SkRandom.h",
+        "SkShadowUtils.h",
+        "SkTextUtils.h",
+        "SkTraceEventPhase.h",
+    ],
+)
+
+filegroup(
+    name = "mac-hdrs",
+    srcs = [
+        "mac/SkCGUtils.h",
+    ],
+)
