@@ -83403,7 +83403,7 @@
     "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {},
     "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Dawn": {},
     "Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All": {},
-    "Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Direct3D": {},
+    "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D": {},
     "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {}
   }
 }

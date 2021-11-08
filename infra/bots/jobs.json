@@ -637,9 +637,7 @@
   {"name": "Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Debug-All-Vulkan"},
   {"name": "Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All"},
   {"name": "Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-ANGLE"},
-  {"name": "Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Direct3D",
-   "cq_config": {}
-   },
+  {"name": "Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Direct3D"},
   {"name": "Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Vulkan"},
   {"name": "Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All"},
   {"name": "Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE"},
@@ -651,7 +649,9 @@
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Direct3D"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"},
-  {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D"},
+  {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D",
+   "cq_config": {}
+   },
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"},
   {"name": "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All"},
   {"name": "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All"},
