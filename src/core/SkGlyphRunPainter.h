@@ -143,7 +143,8 @@ public:
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                    const SkStrikeSpec& strikeSpec) = 0;
+                                    const SkStrikeSpec& strikeSpec,
+                                    SkScalar strikeToSourceScale) = 0;
 
     virtual void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkFont& runFont,
@@ -151,6 +152,7 @@ public:
 
     virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    const SkStrikeSpec& strikeSpec,
+                                   SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale) = 0;

@@ -249,7 +249,8 @@ private:
     void addMultiMaskFormat(
             AddSingleMaskFormat addSingle,
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
-            const SkStrikeSpec& strikeSpec);
+            const SkStrikeSpec& strikeSpec,
+            SkScalar strikeToSourceScale);
 
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -259,11 +260,13 @@ private:
                             SkScalar strikeToSourceScale) override;
     void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                            const SkStrikeSpec& strikeSpec,
+                           SkScalar strikeToSourceScale,
                            const SkFont& runFont,
                            SkScalar minScale,
                            SkScalar maxScale) override;
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkStrikeSpec& strikeSpec) override;
+                            const SkStrikeSpec& strikeSpec,
+                            SkScalar strikeToSourceScale) override;
 
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
@@ -303,12 +306,15 @@ public:
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkStrikeSpec& strikeSpec) override;
+                            const SkStrikeSpec& strikeSpec,
+                            SkScalar strikeToSourceScale) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkFont& runFont,
                             SkScalar strikeToSourceScale) override;
     void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                           const SkStrikeSpec& strikeSpec, const SkFont& runFont,
+                           const SkStrikeSpec& strikeSpec,
+                           SkScalar strikeToSourceScale,
+                           const SkFont& runFont,
                            SkScalar minScale, SkScalar maxScale) override;
 
 private:
