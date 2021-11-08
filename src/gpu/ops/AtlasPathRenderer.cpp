@@ -270,6 +270,10 @@ PathRenderer::CanDrawPath AtlasPathRenderer::onCanDrawPath(const CanDrawPathArgs
 #else
                        args.fAAType != GrAAType::kNone &&
 #endif
+                       // Non-DMSAA convex paths should be handled by the convex tessellator.
+                       // (With DMSAA we continue to use the atlas for these paths in order to avoid
+                       // triggering MSAA.)
+                       (args.fProxy->numSamples() == 1 || !args.fShape->knownToBeConvex()) &&
                        !args.fShape->style().hasPathEffect() &&
                        !args.fViewMatrix->hasPerspective() &&
                        this->pathFitsInAtlas(args.fViewMatrix->mapRect(args.fShape->bounds()),
