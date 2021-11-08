@@ -18,6 +18,10 @@
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkScalerCache.h"
 
+#if SK_SUPPORT_GPU
+#include "src/gpu/text/GrStrikeCache.h"
+#endif
+
 bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = false;
 
 SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
@@ -339,6 +343,12 @@ void SkStrikeCache::validate() const {
     }
 #endif
 }
+
+#if SK_SUPPORT_GPU
+    sk_sp<GrTextStrike> SkStrike::findOrCreateGrStrike(GrStrikeCache* grStrikeCache) const {
+        return grStrikeCache->findOrCreateStrike(fStrikeSpec);
+    }
+#endif
 
 void SkStrike::updateDelta(size_t increase) {
     if (increase != 0) {

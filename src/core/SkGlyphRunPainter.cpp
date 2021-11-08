@@ -267,7 +267,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                 // processSourceSDFT must be called even if there are no glyphs to make sure
                 // runs are set correctly.
                 process->processSourceSDFT(fDrawable.drawable(),
-                                           strikeSpec,
+                                           strike->getUnderlyingStrike(),
                                            strikeToSourceScale,
                                            runFont,
                                            minScale, maxScale);
@@ -297,7 +297,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         if (process && !fDrawable.drawableIsEmpty()) {
             // processDeviceMasks must be called even if there are no glyphs to make sure runs
             // are set correctly.
-            process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
+            process->processDeviceMasks(fDrawable.drawable(), strike->getUnderlyingStrike());
         }
     }
 
@@ -357,7 +357,8 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
             SkASSERT(fRejects.source().empty());
 
             if (process && !fDrawable.drawableIsEmpty()) {
-                process->processSourceMasks(fDrawable.drawable(), strikeSpec, strikeToSourceScale);
+                process->processSourceMasks(
+                        fDrawable.drawable(), strike->getUnderlyingStrike(), strikeToSourceScale);
             }
         }
     }

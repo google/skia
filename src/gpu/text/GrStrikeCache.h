@@ -25,17 +25,18 @@ public:
     GrTextStrike(const SkStrikeSpec& strikeSpec);
 
     GrGlyph* getGlyph(SkPackedGlyphID);
+    const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
 
 private:
+    // Key for retrieving the SkStrike for creating new atlas data.
+    const SkStrikeSpec fStrikeSpec;
+
     struct HashTraits {
         static const SkPackedGlyphID& GetKey(const GrGlyph* glyph);
         static uint32_t Hash(SkPackedGlyphID key);
     };
     // Map SkPackedGlyphID -> GrGlyph*.
     SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
-
-    // Key for retrieving the SkStrike for creating new atlas data.
-    SkStrikeSpec fStrikeSpec;
 
     // Store for the glyph information.
     SkArenaAlloc fAlloc{512};

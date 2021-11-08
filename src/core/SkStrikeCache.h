@@ -109,6 +109,14 @@ public:
         return fStrikeSpec.descriptor();
     }
 
+    const SkStrikeSpec& strikeSpec() const {
+        return fStrikeSpec;
+    }
+
+#if SK_SUPPORT_GPU
+    sk_sp<GrTextStrike> findOrCreateGrStrike(GrStrikeCache* grStrikeCache) const;
+#endif
+
     void prepareForMaskDrawing(
             SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
         size_t increase = fScalerCache.prepareForMaskDrawing(drawbles, rejects);

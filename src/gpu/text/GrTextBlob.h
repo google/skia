@@ -249,23 +249,23 @@ private:
     void addMultiMaskFormat(
             AddSingleMaskFormat addSingle,
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
-            const SkStrikeSpec& strikeSpec,
+            sk_sp<SkStrike>&& strike,
             SkScalar strikeToSourceScale);
 
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkStrikeSpec& strikeSpec) override;
+                            sk_sp<SkStrike>&& strike) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkFont& runFont,
                             SkScalar strikeToSourceScale) override;
     void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                           const SkStrikeSpec& strikeSpec,
+                           sk_sp<SkStrike>&& strike,
                            SkScalar strikeToSourceScale,
                            const SkFont& runFont,
                            SkScalar minScale,
                            SkScalar maxScale) override;
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkStrikeSpec& strikeSpec,
+                            sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;
 
     // The allocator must come first because it needs to be destroyed last. Other fields of this
@@ -304,15 +304,15 @@ public:
                            const SkGlyphRunList&,
                            const SkPaint&);
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkStrikeSpec& strikeSpec) override;
+                            sk_sp<SkStrike>&& strike) override;
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkStrikeSpec& strikeSpec,
+                            sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkFont& runFont,
                             SkScalar strikeToSourceScale) override;
     void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                           const SkStrikeSpec& strikeSpec,
+                           sk_sp<SkStrike>&& strike,
                            SkScalar strikeToSourceScale,
                            const SkFont& runFont,
                            SkScalar minScale, SkScalar maxScale) override;

@@ -11,6 +11,7 @@
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrGlyph.h"
@@ -298,6 +299,9 @@ PathSubRun::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
         , fOrigin(origin) {}
 
 // -- GlyphVector ----------------------------------------------------------------------------------
+// GlyphVector provides a way to delay the lookup of GrGlyphs until the code is running on the
+// GPU in single threaded mode. The GlyphVector is created in a multi-threaded environment, but
+// the GrStrikeCache is only single threaded (and must be single threaded because of the atlas).
 class GlyphVector {
 public:
     union Variant {
@@ -309,10 +313,10 @@ public:
         Variant(SkPackedGlyphID id) : packedGlyphID{id} {}
     };
 
-    GlyphVector(const SkStrikeSpec& spec, SkSpan<Variant> glyphs);
+    GlyphVector(sk_sp<SkStrike>&& strike, SkSpan<Variant> glyphs);
 
     static GlyphVector Make(
-            const SkStrikeSpec& spec, SkSpan<SkGlyphVariant> glyphs, GrSubRunAllocator* alloc);
+            sk_sp<SkStrike>&& strike, SkSpan<SkGlyphVariant> glyphs, GrSubRunAllocator* alloc);
     SkSpan<const GrGlyph*> glyphs() const;
 
     void packedGlyphIDToGrGlyph(GrStrikeCache* cache);
@@ -329,39 +333,45 @@ public:
     }
 
 private:
-    const SkStrikeSpec fStrikeSpec;
+    sk_sp<SkStrike> fStrike;
     SkSpan<Variant> fGlyphs;
-    sk_sp<GrTextStrike> fStrike{nullptr};
+    sk_sp<GrTextStrike> fGrStrike{nullptr};
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
 };
 
-GlyphVector::GlyphVector(const SkStrikeSpec& spec, SkSpan<Variant> glyphs)
-    : fStrikeSpec{spec}
-    , fGlyphs{glyphs} { }
+GlyphVector::GlyphVector(sk_sp<SkStrike>&& strike, SkSpan<Variant> glyphs)
+        : fStrike{std::move(strike)}
+        , fGlyphs{glyphs} {
+    SkASSERT(fStrike != nullptr);
+}
 
 GlyphVector GlyphVector::Make(
-        const SkStrikeSpec &spec, SkSpan<SkGlyphVariant> glyphs, GrSubRunAllocator* alloc) {
-
+        sk_sp<SkStrike>&& strike, SkSpan<SkGlyphVariant> glyphs, GrSubRunAllocator* alloc) {
     Variant* variants = alloc->makePODArray<Variant>(glyphs.size());
     for (auto [i, gv] : SkMakeEnumerate(glyphs)) {
         variants[i] = gv.glyph()->getPackedID();
     }
 
-    return GlyphVector{spec, SkMakeSpan(variants, glyphs.size())};
+    return GlyphVector{std::move(strike), SkMakeSpan(variants, glyphs.size())};
 }
 
 SkSpan<const GrGlyph*> GlyphVector::glyphs() const {
     return SkMakeSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
 }
 
+// packedGlyphIDToGrGlyph must be run in single-threaded mode.
+// If fStrike != nullptr then the conversion to GrGlyph* has not happened.
 void GlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {
-    if (fStrike == nullptr) {
-        fStrike = fStrikeSpec.findOrCreateGrStrike(cache);
+    if (fStrike != nullptr) {
+        fGrStrike = cache->findOrCreateStrike(fStrike->strikeSpec());
 
         for (auto& variant : fGlyphs) {
-            variant.grGlyph = fStrike->getGlyph(variant.packedGlyphID);
+            variant.grGlyph = fGrStrike->getGlyph(variant.packedGlyphID);
         }
+
+        // Drop the ref on the strike that was taken in the SkGlyphRunPainter process* methods.
+        fStrike = nullptr;
     }
 }
 
@@ -382,7 +392,7 @@ std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
         // is set to kInvalidAtlasGeneration) or the atlas has changed in subsequent calls..
         fBulkUseToken.reset();
 
-        SkBulkGlyphMetricsAndImages metricsAndImages{fStrikeSpec};
+        SkBulkGlyphMetricsAndImages metricsAndImages{fGrStrike->strikeSpec()};
 
         // Update the atlas information in the GrStrike.
         auto tokenTracker = uploadTarget->tokenTracker();
@@ -443,7 +453,7 @@ public:
                      bool glyphsOutOfBounds);
 
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                              const SkStrikeSpec& strikeSpec,
+                              sk_sp<SkStrike>&& strike,
                               SkScalar,
                               GrMaskFormat format,
                               GrTextBlob* blob,
@@ -509,7 +519,7 @@ DirectMaskSubRun::DirectMaskSubRun(GrMaskFormat format,
         , fGlyphs{glyphs} {}
 
 GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                     const SkStrikeSpec& strikeSpec,
+                                     sk_sp<SkStrike>&& strike,
                                      SkScalar,
                                      GrMaskFormat format,
                                      GrTextBlob* blob,
@@ -551,7 +561,7 @@ GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawa
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     return alloc->makeUnique<DirectMaskSubRun>(
             format, blob, runBounds, leftTop,
-            GlyphVector{strikeSpec, {glyphIDs, goodPosCount}}, glyphsExcluded);
+            GlyphVector{std::move(strike), {glyphIDs, goodPosCount}}, glyphsExcluded);
 }
 
 bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
@@ -837,7 +847,7 @@ public:
                           GlyphVector glyphs);
 
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                              const SkStrikeSpec& strikeSpec,
+                              sk_sp<SkStrike>&& strike,
                               SkScalar strikeToSourceScale,
                               GrMaskFormat format,
                               GrTextBlob* blob,
@@ -905,7 +915,7 @@ TransformedMaskSubRun::TransformedMaskSubRun(GrMaskFormat format,
         , fGlyphs{glyphs} { }
 
 GrSubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                          const SkStrikeSpec& strikeSpec,
+                                          sk_sp<SkStrike>&& strike,
                                           SkScalar strikeToSourceScale,
                                           GrMaskFormat format,
                                           GrTextBlob* blob,
@@ -930,7 +940,7 @@ GrSubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& 
 
     return alloc->makeUnique<TransformedMaskSubRun>(
             format, blob, strikeToSourceScale, bounds, vertexData,
-            GlyphVector::Make(strikeSpec, drawables.get<0>(), alloc));
+            GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc));
 }
 
 void TransformedMaskSubRun::draw(const GrClip* clip,
@@ -1098,7 +1108,7 @@ public:
 
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                               const SkFont& runFont,
-                              const SkStrikeSpec& strikeSpec,
+                              sk_sp<SkStrike>&& strike,
                               SkScalar strikeToSourceScale,
                               GrTextBlob* blob,
                               GrSubRunAllocator* alloc);
@@ -1178,7 +1188,7 @@ bool has_some_antialiasing(const SkFont& font ) {
 
 GrSubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                const SkFont& runFont,
-                               const SkStrikeSpec& strikeSpec,
+                               sk_sp<SkStrike>&& strike,
                                SkScalar strikeToSourceScale,
                                GrTextBlob* blob,
                                GrSubRunAllocator* alloc) {
@@ -1205,7 +1215,7 @@ GrSubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
             strikeToSourceScale,
             bounds,
             vertexData,
-            GlyphVector::Make(strikeSpec, drawables.get<0>(), alloc),
+            GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc),
             runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
             has_some_antialiasing(runFont));
 }
@@ -1571,13 +1581,15 @@ template<typename AddSingleMaskFormat>
 void GrTextBlob::addMultiMaskFormat(
         AddSingleMaskFormat addSingle,
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
-        const SkStrikeSpec& strikeSpec,
+        sk_sp<SkStrike>&& strike,
         SkScalar strikeToSourceScale) {
     if (drawables.empty()) { return; }
 
-    auto addSameFormat = [&](const SkZip<SkGlyphVariant, SkPoint>& drawable, GrMaskFormat format) {
+    auto addSameFormat = [&](const SkZip<SkGlyphVariant, SkPoint>& drawable,
+                             GrMaskFormat format,
+                             sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = addSingle(
-                drawable, strikeSpec, strikeToSourceScale, format, this, &fAlloc);
+                drawable, std::move(runStrike), strikeToSourceScale, format, this, &fAlloc);
         if (subRun != nullptr) {
             fSubRunList.append(std::move(subRun));
         } else {
@@ -1594,13 +1606,14 @@ void GrTextBlob::addMultiMaskFormat(
         GrMaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
         if (format != nextFormat) {
             auto sameFormat = drawables.subspan(startIndex, i - startIndex);
-            addSameFormat(sameFormat, format);
+            // Take a ref on the strike. This should rarely happen.
+            addSameFormat(sameFormat, format, sk_sp<SkStrike>(strike));
             format = nextFormat;
             startIndex = i;
         }
     }
     auto sameFormat = drawables.last(drawables.size() - startIndex);
-    addSameFormat(sameFormat, format);
+    addSameFormat(sameFormat, format, std::move(strike));
 }
 
 GrTextBlob::GrTextBlob(int allocSize,
@@ -1612,9 +1625,9 @@ GrTextBlob::GrTextBlob(int allocSize,
         , fInitialLuminance{initialLuminance} { }
 
 void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                    const SkStrikeSpec& strikeSpec) {
-
-    this->addMultiMaskFormat(DirectMaskSubRun::Make, drawables, strikeSpec, 1);
+                                    sk_sp<SkStrike>&& strike) {
+    SkASSERT(strike != nullptr);
+    this->addMultiMaskFormat(DirectMaskSubRun::Make, drawables, std::move(strike), 1);
 }
 
 void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -1628,7 +1641,7 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
 }
 
 void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                   const SkStrikeSpec& strikeSpec,
+                                   sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
                                    SkScalar minScale,
@@ -1637,14 +1650,14 @@ void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawabl
     fMaxMinScale = std::max(minScale, fMaxMinScale);
     fMinMaxScale = std::min(maxScale, fMinMaxScale);
     fSubRunList.append(
-            SDFTSubRun::Make(drawables, runFont, strikeSpec, strikeToSourceScale,this, &fAlloc));
+        SDFTSubRun::Make(drawables, runFont, std::move(strike), strikeToSourceScale,this, &fAlloc));
 }
 
 void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                    const SkStrikeSpec& strikeSpec,
+                                    sk_sp<SkStrike>&& strike,
                                     SkScalar strikeToSourceScale) {
     this->addMultiMaskFormat(
-            TransformedMaskSubRun::Make, drawables, strikeSpec, strikeToSourceScale);
+            TransformedMaskSubRun::Make, drawables, std::move(strike), strikeToSourceScale);
 }
 
 // ----------------------------- Begin no cache implementation -------------------------------------
@@ -1660,7 +1673,7 @@ public:
                             GlyphVector glyphs);
 
     static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                   const SkStrikeSpec& strikeSpec,
+                                   sk_sp<SkStrike>&& strike,
                                    GrMaskFormat format,
                                    GrSubRunAllocator* alloc);
 
@@ -1709,7 +1722,7 @@ DirectMaskSubRunNoCache::DirectMaskSubRunNoCache(GrMaskFormat format,
         , fGlyphs{glyphs} { }
 
 GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                                 const SkStrikeSpec& strikeSpec,
+                                                 sk_sp<SkStrike>&& strike,
                                                  GrMaskFormat format,
                                                  GrSubRunAllocator* alloc) {
     DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(drawables.size());
@@ -1749,7 +1762,7 @@ GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkP
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     return alloc->makeUnique<DirectMaskSubRunNoCache>(
             format, runBounds.rect(), leftTop,
-            GlyphVector{strikeSpec, {glyphIDs, goodPosCount}});
+            GlyphVector{std::move(strike), {glyphIDs, goodPosCount}});
 }
 
 size_t DirectMaskSubRunNoCache::vertexStride(const SkMatrix&) const {
@@ -1901,7 +1914,7 @@ public:
                                  GlyphVector glyphs);
 
     static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                   const SkStrikeSpec& strikeSpec,
+                                   sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    GrMaskFormat format,
                                    GrSubRunAllocator* alloc);
@@ -1958,7 +1971,7 @@ TransformedMaskSubRunNoCache::TransformedMaskSubRunNoCache(GrMaskFormat format,
 
 GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
-        const SkStrikeSpec& strikeSpec,
+        sk_sp<SkStrike>&& strike,
         SkScalar strikeToSourceScale,
         GrMaskFormat format,
         GrSubRunAllocator* alloc) {
@@ -1981,7 +1994,7 @@ GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
 
     return alloc->makeUnique<TransformedMaskSubRunNoCache>(
             format, strikeToSourceScale, bounds, vertexData,
-            GlyphVector::Make(strikeSpec, drawables.get<0>(), alloc));
+            GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc));
 }
 
 std::tuple<const GrClip*, GrOp::Owner>
@@ -2129,7 +2142,7 @@ public:
 
     static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    const SkFont& runFont,
-                                   const SkStrikeSpec& strikeSpec,
+                                   sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    GrSubRunAllocator* alloc);
 
@@ -2194,7 +2207,7 @@ SDFTSubRunNoCache::SDFTSubRunNoCache(GrMaskFormat format,
 GrAtlasSubRunOwner SDFTSubRunNoCache::Make(
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
         const SkFont& runFont,
-        const SkStrikeSpec& strikeSpec,
+        sk_sp<SkStrike>&& strike,
         SkScalar strikeToSourceScale,
         GrSubRunAllocator* alloc) {
 
@@ -2220,7 +2233,7 @@ GrAtlasSubRunOwner SDFTSubRunNoCache::Make(
             strikeToSourceScale,
             bounds,
             vertexData,
-            GlyphVector::Make(strikeSpec, drawables.get<0>(), alloc),
+            GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc),
             runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
             has_some_antialiasing(runFont));
 }
@@ -2322,7 +2335,7 @@ GrSubRunNoCachePainter::GrSubRunNoCachePainter(skgpu::v1::SurfaceDrawContext* sd
             , fPaint {paint} {}
 
 void GrSubRunNoCachePainter::processDeviceMasks(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables, const SkStrikeSpec& strikeSpec) {
+        const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike) {
     if (drawables.empty()) { return; }
 
     auto glyphSpan = drawables.get<0>();
@@ -2334,17 +2347,19 @@ void GrSubRunNoCachePainter::processDeviceMasks(
         GrMaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
         if (format != nextFormat) {
             auto sameFormat = drawables.subspan(startIndex, i - startIndex);
-            this->draw(DirectMaskSubRunNoCache::Make(sameFormat, strikeSpec, format, fAlloc));
+            // Take an extra ref on the strike. This should rarely happen.
+            this->draw(
+                DirectMaskSubRunNoCache::Make(sameFormat, sk_sp<SkStrike>(strike), format, fAlloc));
             format = nextFormat;
             startIndex = i;
         }
     }
     auto sameFormat = drawables.last(drawables.size() - startIndex);
-    this->draw(DirectMaskSubRunNoCache::Make(sameFormat, strikeSpec, format, fAlloc));
+    this->draw(DirectMaskSubRunNoCache::Make(sameFormat, std::move(strike), format, fAlloc));
 }
 
 void GrSubRunNoCachePainter::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                                const SkStrikeSpec& strikeSpec,
+                                                sk_sp<SkStrike>&& strike,
                                                 SkScalar strikeToSourceScale) {
     if (drawables.empty()) {
         return;
@@ -2360,8 +2375,9 @@ void GrSubRunNoCachePainter::processSourceMasks(const SkZip<SkGlyphVariant, SkPo
         if (format != nextFormat) {
             auto sameFormat = drawables.subspan(startIndex, i - startIndex);
             this->draw(
-                    TransformedMaskSubRunNoCache::Make(
-                            sameFormat, strikeSpec, strikeToSourceScale, format, fAlloc));
+                // Add an extra ref to the strike. This should rarely happen.
+                TransformedMaskSubRunNoCache::Make(
+                    sameFormat, sk_sp<SkStrike>(strike), strikeToSourceScale, format, fAlloc));
             format = nextFormat;
             startIndex = i;
         }
@@ -2369,7 +2385,7 @@ void GrSubRunNoCachePainter::processSourceMasks(const SkZip<SkGlyphVariant, SkPo
     auto sameFormat = drawables.last(drawables.size() - startIndex);
     this->draw(
             TransformedMaskSubRunNoCache::Make(
-                    sameFormat, strikeSpec, strikeToSourceScale, format, fAlloc));
+                    sameFormat, std::move(strike), strikeToSourceScale, format, fAlloc));
 }
 
 void GrSubRunNoCachePainter::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -2425,7 +2441,7 @@ void GrSubRunNoCachePainter::processSourcePaths(const SkZip<SkGlyphVariant, SkPo
 }
 
 void GrSubRunNoCachePainter::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                               const SkStrikeSpec& strikeSpec,
+                                               sk_sp<SkStrike>&& strike,
                                                SkScalar strikeToSourceScale,
                                                const SkFont& runFont,
                                                SkScalar minScale, SkScalar maxScale) {
@@ -2433,7 +2449,7 @@ void GrSubRunNoCachePainter::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoi
         return;
     }
     this->draw(SDFTSubRunNoCache::Make(
-            drawables, runFont, strikeSpec, strikeToSourceScale, fAlloc));
+            drawables, runFont, std::move(strike), strikeToSourceScale, fAlloc));
 }
 
 void GrSubRunNoCachePainter::draw(GrAtlasSubRunOwner subRun) {
