@@ -15,7 +15,7 @@
 #include "src/image/SkRescaleAndReadPixels.h"
 #include "src/image/SkSurface_Base.h"
 
-#ifdef SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
 #include "include/gpu/GrBackendSurface.h"
 #endif
 

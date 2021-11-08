@@ -32,7 +32,7 @@
 #include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/JsonWriteBuffer.h"
 
-#ifdef SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
 #else
 class GrDirectContext;
@@ -651,7 +651,7 @@ bool DrawCommand::flatten(const SkImage&  image,
             SkImageInfo::Make(image.dimensions(), kN32_SkColorType, kPremul_SkAlphaType);
     // "cheat" for this debug tool and use image's context
     GrDirectContext* dContext = nullptr;
-#ifdef SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
     dContext = GrAsDirectContext(as_IB(&image)->context());
 #endif
     if (!image.readPixels(dContext, dstInfo, buffer.get(), rowBytes, 0, 0)) {
