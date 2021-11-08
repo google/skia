@@ -16,6 +16,7 @@ namespace skgpu {
 
 class CommandBuffer;
 class DrawPass;
+class ResourceProvider;
 
 /**
  * RenderPassTask handles preparing and recording DrawLists into a single render pass within a
@@ -30,7 +31,7 @@ public:
 
     ~RenderPassTask() override;
 
-    void execute(CommandBuffer*) override;
+    void addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:
     RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes);

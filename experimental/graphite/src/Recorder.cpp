@@ -14,6 +14,7 @@
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/ProgramCache.h"
 #include "experimental/graphite/src/Recording.h"
+#include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/UniformCache.h"
 
 namespace skgpu {
@@ -49,10 +50,14 @@ void Recorder::add(sk_sp<Task> task) {
 }
 
 std::unique_ptr<Recording> Recorder::snap() {
-    // TODO: need to create a CommandBuffer from the Tasks and then we need to call
-    // fDrawBufferManager::transferBuffers() to pass the buffers to the command buffer.
+    auto gpu = fContext->priv().gpu();
+    auto commandBuffer = gpu->resourceProvider()->createCommandBuffer();
+
+    fGraph.addCommands(gpu->resourceProvider(), commandBuffer.get());
+    fDrawBufferManager->transferToCommandBuffer(commandBuffer.get());
+
     fGraph.reset();
-    return std::unique_ptr<Recording>(new Recording(nullptr));
+    return std::unique_ptr<Recording>(new Recording(std::move(commandBuffer)));
 }
 
 } // namespace skgpu

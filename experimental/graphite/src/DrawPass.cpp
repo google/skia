@@ -313,7 +313,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                                   requiresStencil, requiresMSAA));
 }
 
-void DrawPass::execute(CommandBuffer* buffer) const {
+void DrawPass::addCommands(CommandBuffer* buffer) const {
     // TODO
 }
 

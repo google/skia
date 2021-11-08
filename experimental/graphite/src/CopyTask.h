@@ -28,7 +28,7 @@ public:
 
     ~CopyTextureToBufferTask() override;
 
-    void execute(CommandBuffer*) override;
+    void addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:
     CopyTextureToBufferTask(sk_sp<Texture>,

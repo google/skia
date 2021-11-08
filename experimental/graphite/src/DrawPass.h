@@ -46,7 +46,7 @@ public:
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is
     // contained within its dimensions.
     const SkIRect&      bounds() const { return fBounds;       }
-    const TextureProxy* target() const { return fTarget.get(); }
+    TextureProxy* target() const { return fTarget.get(); }
 
     bool requiresDstTexture() const { return false;            }
     bool requiresStencil()    const { return fRequiresStencil; }
@@ -64,7 +64,7 @@ public:
 
     // Transform this DrawPass into commands issued to the CommandBuffer. Assumes that the buffer
     // has already begun a correctly configured render pass matching this pass's target.
-    void execute(CommandBuffer* buffer) const;
+    void addCommands(CommandBuffer* buffer) const;
 
 private:
     class SortKey;

@@ -12,6 +12,8 @@
 #include "experimental/graphite/src/Task.h"
 
 namespace skgpu {
+class CommandBuffer;
+class ResourceProvider;
 
 class TaskGraph {
 public:
@@ -19,6 +21,7 @@ public:
     ~TaskGraph();
 
     void add(sk_sp<Task>);
+    void addCommands(ResourceProvider*, CommandBuffer*);
     void reset();
 
 protected:

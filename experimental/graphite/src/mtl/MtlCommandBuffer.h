@@ -35,9 +35,11 @@ public:
     }
     void waitUntilFinished() {
         // TODO: it's not clear what do to if status is Enqueued. Commit and then wait?
-        if ((*fCommandBuffer).status == MTLCommandBufferStatusCommitted) {
+        if ((*fCommandBuffer).status == MTLCommandBufferStatusScheduled ||
+            (*fCommandBuffer).status == MTLCommandBufferStatusCommitted) {
             [(*fCommandBuffer) waitUntilCompleted];
         }
+        SkASSERT(this->isFinished());
     }
     bool commit();
 

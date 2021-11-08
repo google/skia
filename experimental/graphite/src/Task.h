@@ -13,12 +13,13 @@
 namespace skgpu {
 
 class CommandBuffer;
+class ResourceProvider;
 
 class Task : public SkRefCnt {
 public:
     ~Task() override;
 
-    virtual void execute(CommandBuffer*) = 0;
+    virtual void addCommands(ResourceProvider*, CommandBuffer*) = 0;
 
 protected:
     Task();
