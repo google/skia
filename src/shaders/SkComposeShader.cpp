@@ -166,7 +166,6 @@ skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
 std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
         const GrFPArgs& orig_args) const {
     GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
-    args.fInputColorIsOpaque = true;  // See use of MakeInputOpaqueAndPostApplyAlpha below
     auto fpA = as_SB(fDst)->asFragmentProcessor(args);
     auto fpB = as_SB(fSrc)->asFragmentProcessor(args);
     if (!fpA || !fpB) {

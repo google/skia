@@ -981,18 +981,13 @@ public:
                 get_xformed_uniforms(fEffect.get(), fUniforms, args.fDstColorInfo->colorSpace());
         SkASSERT(uniforms);
 
-        // If we sample children with explicit colors, this may not be true.
-        // TODO: Determine this via analysis?
-        GrFPArgs childArgs = args;
-        childArgs.fInputColorIsOpaque = false;
-
         auto [success, fp] = make_effect_fp(fEffect,
                                             "runtime_shader",
                                             std::move(uniforms),
                                             /*inputFP=*/nullptr,
                                             /*destColorFP=*/nullptr,
                                             SkMakeSpan(fChildren),
-                                            childArgs);
+                                            args);
         if (!success) {
             return nullptr;
         }

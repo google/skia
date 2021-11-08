@@ -28,7 +28,6 @@ struct GrFPArgs {
 
     GrFPArgs withNewMatrixProvider(const SkMatrixProvider& provider) const {
         GrFPArgs newArgs(fContext, provider, fDstColorInfo);
-        newArgs.fInputColorIsOpaque = fInputColorIsOpaque;
         newArgs.fPreLocalMatrix = fPreLocalMatrix;
         return newArgs;
     }
@@ -37,9 +36,6 @@ struct GrFPArgs {
     const SkMatrixProvider& fMatrixProvider;
 
     const SkMatrix* fPreLocalMatrix  = nullptr;
-
-    // Make this SkAlphaType?
-    bool fInputColorIsOpaque = false;
 
     const GrColorInfo* fDstColorInfo;
 };
