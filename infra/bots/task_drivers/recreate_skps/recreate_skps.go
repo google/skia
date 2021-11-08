@@ -134,6 +134,7 @@ func main() {
 		skipBuild        = flag.Bool("skip-build", false, "skip build. Helpful for running locally.")
 		gitCacheDirFlag  = flag.String("git_cache", "", "Git cache directory.")
 		checkoutRootFlag = flag.String("checkout_root", "", "Directory to use for checkouts.")
+		dmPathFlag       = flag.String("dm_path", "", "Path to the DM binary.")
 	)
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
@@ -165,6 +166,10 @@ func main() {
 	if *checkoutRootFlag != "" {
 		checkoutRoot = filepath.Join(cwd, *checkoutRootFlag)
 	}
+	if *dmPathFlag == "" {
+		td.Fatal(ctx, fmt.Errorf("Must specify --dm_path"))
+	}
+	dmPath := filepath.Join(cwd, *dmPathFlag)
 
 	// Fetch `sk`
 	if _, err := exec.RunCwd(ctx, skiaDir, "python3", filepath.Join("bin", "fetch-sk")); err != nil {
@@ -239,6 +244,7 @@ func main() {
 		"vpython3", "-u", script,
 		"--chrome_src_path", chromiumDir,
 		"--browser_executable", filepath.Join(outDir, "chrome"),
+		"--dm_path", dmPath,
 	}
 	if *dryRun {
 		cmd = append(cmd, "--dry_run")

@@ -25,6 +25,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--chrome_src_path', '-c', required=True)
   parser.add_argument('--browser_executable', '-e', required=True)
+  parser.add_argument('--dm_path', '-d', required=True)
   parser.add_argument('--upload_to_partner_bucket', action='store_true')
   parser.add_argument('--dry_run', action='store_true')
   parser.add_argument('--local', action='store_true')
@@ -35,6 +36,7 @@ def main():
   os.environ[create.CHROME_SRC_PATH_ENV_VAR] = args.chrome_src_path
   os.environ[create.UPLOAD_TO_PARTNER_BUCKET_ENV_VAR] = (
       '1' if args.upload_to_partner_bucket else '0')
+  os.environ[create.DM_PATH_ENV_VAR] = args.dm_path
 
   sk = os.path.realpath(os.path.join(
       FILE_DIR, os.pardir, os.pardir, os.pardir, os.pardir, 'bin', 'sk'))

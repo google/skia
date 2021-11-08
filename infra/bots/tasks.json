@@ -18284,9 +18284,12 @@
         "cache/git",
         "--checkout_root",
         "cache/work",
+        "--dm_path",
+        "build/dm",
         "--dry_run"
       ],
       "dependencies": [
+        "Build-Debian10-Clang-x86_64-Release",
         "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
@@ -19766,9 +19769,12 @@
         "--git_cache",
         "cache/git",
         "--checkout_root",
-        "cache/work"
+        "cache/work",
+        "--dm_path",
+        "build/dm"
       ],
       "dependencies": [
+        "Build-Debian10-Clang-x86_64-Release",
         "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [

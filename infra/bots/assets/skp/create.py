@@ -16,6 +16,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 
 FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
@@ -26,6 +27,7 @@ import utils
 BROWSER_EXECUTABLE_ENV_VAR = 'SKP_BROWSER_EXECUTABLE'
 CHROME_SRC_PATH_ENV_VAR = 'SKP_CHROME_SRC_PATH'
 UPLOAD_TO_PARTNER_BUCKET_ENV_VAR = 'SKP_UPLOAD_TO_PARTNER_BUCKET'
+DM_PATH_ENV_VAR = 'DM_PATH'
 
 SKIA_TOOLS = os.path.join(INFRA_BOTS_DIR, os.pardir, os.pardir, 'tools')
 PRIVATE_SKPS_GS = 'gs://skia-skps/private/skps'
@@ -63,16 +65,24 @@ def get_flutter_skps(target_dir):
 
 
 def create_asset(chrome_src_path, browser_executable, target_dir,
-                 upload_to_partner_bucket):
+                 upload_to_partner_bucket, dm_path):
   """Create the SKP asset.
 
   Creates the asset from 3 sources:
   1. From Flutter's skp_generator tool.
   2. The web pages defined in the tools/skp/page_sets/ directory.
-  3. Any private SKPs stored in $PRIVATE_SKPS_GS
+  3. Any private SKPs stored in $PRIVATE_SKPS_GS after running dm on
+     them (see below).
+
+  The script runs the following cmd on the non-generated SKPs stored in
+  $PRIVATE_SKPS_GS -
+  `dm --config skp -w newskps/ --skps oldskps/ --src skp`
+  The cmd updates the version stored in the SKPs so that the versions in
+  them do not eventually become unsupported.
   """
   browser_executable = os.path.realpath(browser_executable)
   chrome_src_path = os.path.realpath(chrome_src_path)
+  dm_path = os.path.realpath(dm_path)
   target_dir = os.path.realpath(target_dir)
 
   if not os.path.exists(target_dir):
@@ -153,10 +163,21 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
     print('Done running webpages_playback.')
 
   # 3. Copy over private SKPs from Google storage into the target_dir.
-  print('Copying SKPs from private GCS bucket...')
-  subprocess.call([
-        'gsutil', 'cp', os.path.join(PRIVATE_SKPS_GS, '*'), target_dir])
-  print('Done copying SKPs from private GCS bucket.')
+  old_skps_dir = tempfile.mkdtemp()
+  new_skps_dir = tempfile.mkdtemp()
+  print('Copying non-generated SKPs from private GCS bucket...')
+  subprocess.check_call([
+    'gsutil', 'cp', os.path.join(PRIVATE_SKPS_GS, '*'), old_skps_dir])
+  print('Updating non-generated SKP versions')
+  subprocess.check_call([
+      dm_path,
+      '--config', 'skp',
+      '-w', new_skps_dir,
+      '--skps', old_skps_dir,
+      '--src', 'skp'])
+  copy_tree(new_skps_dir, target_dir)
+  shutil.rmtree(old_skps_dir)
+  shutil.rmtree(new_skps_dir)
 
 
 def main():
@@ -169,9 +190,10 @@ def main():
   chrome_src_path = getenv(CHROME_SRC_PATH_ENV_VAR)
   browser_executable = getenv(BROWSER_EXECUTABLE_ENV_VAR)
   upload_to_partner_bucket = getenv(UPLOAD_TO_PARTNER_BUCKET_ENV_VAR) == '1'
+  dm_path = getenv(DM_PATH_ENV_VAR)
 
   create_asset(chrome_src_path, browser_executable, args.target_dir,
-               upload_to_partner_bucket)
+               upload_to_partner_bucket, dm_path)
 
 
 if __name__ == '__main__':
