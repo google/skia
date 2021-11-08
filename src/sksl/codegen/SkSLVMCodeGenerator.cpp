@@ -235,9 +235,12 @@ private:
     const SampleColorFilterFn fSampleColorFilter;
     const SampleBlenderFn fSampleBlender;
 
-    // [Variable, first slot in fSlots]
-    std::unordered_map<const Variable*, size_t> fVariableMap;
-    std::vector<skvm::Val> fSlots;
+    struct Slot {
+        skvm::Val val;
+    };
+    std::vector<Slot> fSlots;
+
+    std::unordered_map<const Variable*, size_t> fVariableMap;  // [Variable, first slot in fSlots]
 
     // Conditional execution mask (managed by ScopedCondition, and tied to control-flow scopes)
     skvm::I32 fConditionMask;
@@ -341,10 +344,10 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
                 switch (builtin) {
                     case SK_FRAGCOORD_BUILTIN:
                         SkASSERT(nslots == 4);
-                        fSlots[slot + 0] = device.x.id;
-                        fSlots[slot + 1] = device.y.id;
-                        fSlots[slot + 2] = fBuilder->splat(0.0f).id;
-                        fSlots[slot + 3] = fBuilder->splat(1.0f).id;
+                        fSlots[slot + 0].val = device.x.id;
+                        fSlots[slot + 1].val = device.y.id;
+                        fSlots[slot + 2].val = fBuilder->splat(0.0f).id;
+                        fSlots[slot + 3].val = fBuilder->splat(1.0f).id;
                         break;
                     default:
                         SkDEBUGFAILF("Unsupported builtin %d", builtin);
@@ -355,7 +358,9 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
             // For uniforms, copy the supplied IDs over
             if (is_uniform(var)) {
                 SkASSERT(uniformIter + nslots <= uniforms.end());
-                std::copy(uniformIter, uniformIter + nslots, fSlots.begin() + slot);
+                for (size_t i = 0; i < nslots; ++i) {
+                    fSlots[slot + i].val = uniformIter[i];
+                }
                 uniformIter += nslots;
                 continue;
             }
@@ -364,7 +369,7 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
             if (decl.value()) {
                 Value val = this->writeExpression(*decl.value());
                 for (size_t i = 0; i < nslots; ++i) {
-                    fSlots[slot + i] = val[i];
+                    fSlots[slot + i].val = val[i];
                 }
             }
         }
@@ -387,7 +392,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
                nslots    = p->type().slotCount();
 
         for (size_t i = 0; i < nslots; ++i) {
-            fSlots[paramSlot + i] = arguments[argIdx + i];
+            fSlots[paramSlot + i].val = arguments[argIdx + i];
         }
         argIdx += nslots;
     }
@@ -403,7 +408,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
         if (p->modifiers().fFlags & Modifiers::kOut_Flag) {
             size_t paramSlot = this->getSlot(*p);
             for (size_t i = 0; i < nslots; ++i) {
-                arguments[argIdx + i] = fSlots[paramSlot + i];
+                arguments[argIdx + i] = fSlots[paramSlot + i].val;
             }
         }
         argIdx += nslots;
@@ -421,7 +426,8 @@ size_t SkVMGenerator::getSlot(const Variable& v) {
 
     size_t slot   = fSlots.size(),
            nslots = v.type().slotCount();
-    fSlots.resize(slot + nslots, fBuilder->splat(0.0f).id);
+    Slot initialValue = {fBuilder->splat(0.0f).id};
+    fSlots.resize(slot + nslots, initialValue);
     fVariableMap[&v] = slot;
     return slot;
 }
@@ -794,7 +800,7 @@ Value SkVMGenerator::writeVariableExpression(const VariableReference& expr) {
     size_t slot = this->getSlot(*expr.variable());
     Value val(expr.type().slotCount());
     for (size_t i = 0; i < val.slots(); ++i) {
-        val[i] = fSlots[slot + i];
+        val[i] = fSlots[slot + i].val;
     }
     return val;
 }
@@ -1468,8 +1474,8 @@ Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
     // `slots` are now absolute indices into `fSlots`.
     skvm::I32 mask = this->mask();
     for (size_t i = 0; i < rhs.slots(); ++i) {
-        skvm::Val& slotVal = fSlots[slots[i]];
-        slotVal = this->writeConditionalStore(slotVal, rhs[i], mask);
+        Slot& slot = fSlots[slots[i]];
+        slot.val = this->writeConditionalStore(slot.val, rhs[i], mask);
     }
 
     return rhs;
@@ -1512,9 +1518,9 @@ void SkVMGenerator::writeForStatement(const ForStatement& f) {
               oldContinueMask = fContinueMask;
 
     for (int i = 0; i < loop.fCount; ++i) {
-        fSlots[indexSlot] = loop.fIndex->type().isInteger()
-                                    ? fBuilder->splat(static_cast<int>(val)).id
-                                    : fBuilder->splat(static_cast<float>(val)).id;
+        fSlots[indexSlot].val = loop.fIndex->type().isInteger()
+                                        ? fBuilder->splat(static_cast<int>(val)).id
+                                        : fBuilder->splat(static_cast<float>(val)).id;
 
         fContinueMask = zero;
         this->writeStatement(*f.statement());
@@ -1599,7 +1605,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 
     Value val = decl.value() ? this->writeExpression(*decl.value()) : Value{};
     for (size_t i = 0; i < nslots; ++i) {
-        fSlots[slot + i] = val ? val[i] : fBuilder->splat(0.0f).id;
+        fSlots[slot + i].val = val ? val[i] : fBuilder->splat(0.0f).id;
     }
 }
 
