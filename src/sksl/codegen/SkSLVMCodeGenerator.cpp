@@ -146,6 +146,12 @@ private:
      */
 
     /**
+     * Adds sufficient slots to the end of fSlot to hold the passed-in type.
+     * All new slots will be initialized to `initialValue`.
+     */
+    void addSlotsForType(const Type& type, skvm::Val initialValue);
+
+    /**
      * Returns the slot holding v's Val(s). Allocates storage if this is first time 'v' is
      * referenced. Compound variables (e.g. vectors) will consume more than one slot, with
      * getSlot returning the start of the contiguous chunk of slots.
@@ -236,7 +242,8 @@ private:
     const SampleBlenderFn fSampleBlender;
 
     struct Slot {
-        skvm::Val val;
+        skvm::Val         val;
+        Type::NumberKind  kind;
     };
     std::vector<Slot> fSlots;
 
@@ -418,6 +425,39 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     fFunctionStack.pop_back();
 }
 
+void SkVMGenerator::addSlotsForType(const Type& type, skvm::Val initialValue) {
+    switch (type.typeKind()) {
+        case Type::TypeKind::kArray: {
+            int nslots = type.columns();
+            const Type& elemType = type.componentType();
+            for (int slot = 0; slot < nslots; ++slot) {
+                this->addSlotsForType(elemType, initialValue);
+            }
+            break;
+        }
+        case Type::TypeKind::kStruct: {
+            for (const Type::Field& field : type.fields()) {
+                this->addSlotsForType(*field.fType, initialValue);
+            }
+            break;
+        }
+        default:
+            SkASSERTF(0, "unsupported slot type %d", (int)type.typeKind());
+            [[fallthrough]];
+
+        case Type::TypeKind::kScalar:
+        case Type::TypeKind::kVector:
+        case Type::TypeKind::kMatrix: {
+            Type::NumberKind numberKind = type.componentType().numberKind();
+            int nslots = type.slotCount();
+            for (int slot = 0; slot < nslots; ++slot) {
+                fSlots.push_back(Slot{initialValue, numberKind});
+            }
+            break;
+        }
+    }
+}
+
 size_t SkVMGenerator::getSlot(const Variable& v) {
     auto entry = fVariableMap.find(&v);
     if (entry != fVariableMap.end()) {
@@ -426,8 +466,11 @@ size_t SkVMGenerator::getSlot(const Variable& v) {
 
     size_t slot   = fSlots.size(),
            nslots = v.type().slotCount();
-    Slot initialValue = {fBuilder->splat(0.0f).id};
-    fSlots.resize(slot + nslots, initialValue);
+    fSlots.reserve(slot + nslots);
+    this->addSlotsForType(v.type(), fBuilder->splat(0.0f).id);
+    SkASSERTF(fSlots.size() == slot + nslots,
+              "addSlotsForType wrong for %s", v.type().description().c_str());
+
     fVariableMap[&v] = slot;
     return slot;
 }
@@ -1518,9 +1561,9 @@ void SkVMGenerator::writeForStatement(const ForStatement& f) {
               oldContinueMask = fContinueMask;
 
     for (int i = 0; i < loop.fCount; ++i) {
-        fSlots[indexSlot].val = loop.fIndex->type().isInteger()
-                                        ? fBuilder->splat(static_cast<int>(val)).id
-                                        : fBuilder->splat(static_cast<float>(val)).id;
+        fSlots[indexSlot].val = (fSlots[indexSlot].kind == Type::NumberKind::kFloat)
+                                        ? fBuilder->splat(static_cast<float>(val)).id
+                                        : fBuilder->splat(static_cast<int>(val)).id;
 
         fContinueMask = zero;
         this->writeStatement(*f.statement());
