@@ -53,11 +53,16 @@ public:
             switch (fVerbs[fVerbsIdx]) {
                 case SkPath::kMove_Verb:
                     if (!hasGeometry) {
-                        fMidpoint = fPoints[fPtsIdx];
-                        fMidpointWeight = 1;
-                        this->advance();
-                        ++fPtsIdx;
+                        fMidpoint = {0,0};
+                        fMidpointWeight = 0;
+                        this->advance();  // Resets fPtsIdx to 0 and advances fPoints.
+                        fPtsIdx = 1;  // Increment fPtsIdx past the kMove.
                         continue;
+                    }
+                    if (fPoints[0] != fPoints[fPtsIdx - 1]) {
+                        // There's an implicit close at the end. Add the start point to our mean.
+                        fMidpoint += fPoints[0];
+                        ++fMidpointWeight;
                     }
                     return true;
                 default:
@@ -78,6 +83,11 @@ public:
             fMidpoint += fPoints[fPtsIdx - 1];
             ++fMidpointWeight;
             hasGeometry = true;
+        }
+        if (hasGeometry && fPoints[0] != fPoints[fPtsIdx - 1]) {
+            // There's an implicit close at the end. Add the start point to our mean.
+            fMidpoint += fPoints[0];
+            ++fMidpointWeight;
         }
         return hasGeometry;
     }
