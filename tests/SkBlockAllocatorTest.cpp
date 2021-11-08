@@ -87,7 +87,8 @@ DEF_TEST(SkBlockAllocatorPreallocSize, r) {
     REPORTER_ASSERT(r, placement->preallocSize() == 1024);
     REPORTER_ASSERT(r, placement->preallocUsableSpace() < 1024 &&
                        placement->preallocUsableSpace() >= (1024 - sizeof(SkBlockAllocator)));
-    delete placement;
+    placement->~SkBlockAllocator();
+    operator delete(mem);
 
     // Tests inline increased preallocation, option #3
     SkSBlockAllocator<2048> inlined{};
