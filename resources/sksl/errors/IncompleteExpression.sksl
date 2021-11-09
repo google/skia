@@ -1,0 +1,4 @@
+half4 main(float2 xy) {
+    int;
+    return half4(0);
+}

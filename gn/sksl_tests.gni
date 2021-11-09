@@ -63,6 +63,8 @@ sksl_error_tests = [
   "/sksl/errors/PrecisionQualifiersDisallowed.sksl",
   "/sksl/errors/IfTypeMismatch.sksl",
   "/sksl/errors/InVarWithInitializerExpression.sksl",
+  "/sksl/errors/IncompleteExpression.sksl",
+  "/sksl/errors/IncompleteFunctionCall.sksl",
   "/sksl/errors/InterfaceBlockScope.sksl",
   "/sksl/errors/InterfaceBlockStorageModifiers.sksl",
   "/sksl/errors/InterfaceBlockWithNoMembers.sksl",
