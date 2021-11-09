@@ -675,7 +675,7 @@ static sk_sp<SkShader> lit_shader(sk_sp<SkShader> normals) {
         half4 main(vec2 p) {
             vec3 n = normalize(normals.eval(p).xyz * 2 - 1);
             vec3 l = normalize(vec3(1, -1, 1));
-            return dot(n, l).xxx1;
+            return saturate(dot(n, l)).xxx1;
         }
     )";
     auto effect = SkRuntimeEffect::MakeForShader(SkString(kSrc)).effect;
