@@ -99,14 +99,10 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int lin
         }
     }
 
-    if (next) {
-        // The type of the next-expression doesn't matter, but it needs to be a complete expression.
-        // Report an error on intermediate expressions like FunctionReference or TypeReference.
-        const Type& nextType = next->type();
-        next = nextType.coerceExpression(std::move(next), context);
-        if (!next) {
-            return nullptr;
-        }
+    // The type of the next-expression doesn't matter, but it needs to be a complete expression.
+    // Report an error on intermediate expressions like FunctionReference or TypeReference.
+    if (next && next->isIncomplete(context)) {
+        return nullptr;
     }
 
     std::unique_ptr<LoopUnrollInfo> unrollInfo;

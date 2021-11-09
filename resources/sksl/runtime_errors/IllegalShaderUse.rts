@@ -1,4 +1,4 @@
-// Expect >= 7 errors (currently 9, due to double-reporting)
+// Expect >= 8 errors (currently 12, due to double-reporting)
 
 // Correct declaration (used in some test functions)
 uniform shader s1;
@@ -16,3 +16,4 @@ half4  parameter(shader s) { return s.eval(xy); }
 shader returned()          { return s1; }
 half4  constructed()       { return shader(s1).eval(xy); }
 half4  expression(bool b)  { return (b ? s1 : s2).eval(xy); }
+half4  dangling_eval()     { s1.eval; }

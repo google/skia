@@ -1,5 +1,5 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-vec4 main() {
-    return vec4(0.0);
-}
+error: 2: expected '(' to begin constructor invocation
+error: 3: expected a type, but found 'return'
+2 errors

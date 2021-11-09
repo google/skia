@@ -1,8 +1,12 @@
 ### Compilation failed:
 
-error: 20: static if has non-static test
-error: 24: static if has non-static test
-error: 31: static if has non-static test
-error: 38: static if has non-static test
-error: 44: static if has non-static test
-5 errors
+error: 2: expected '(' to begin constructor invocation
+error: 2: expected a declaration, but found ';'
+error: 2: expected a declaration, but found ';'
+error: 2: expected a declaration, but found ';'
+error: 2: expected a declaration, but found ';'
+error: 2: expected a declaration, but found ';'
+error: 2: expected a declaration, but found ';'
+error: 2: expected a declaration, but found ';'
+error: 3: expected a type, but found '}'
+9 errors

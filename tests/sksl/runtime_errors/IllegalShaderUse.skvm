@@ -10,4 +10,6 @@ error: 15: unknown identifier 's'
 error: 16: functions may not return opaque type 'shader'
 error: 17: cannot construct 'shader'
 error: 18: ternary expression of opaque type 'shader' not allowed
-10 errors
+error: 19: expected '(' to begin method call
+error: 19: expected a type, but found '}'
+12 errors

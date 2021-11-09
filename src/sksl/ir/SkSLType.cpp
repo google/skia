@@ -14,12 +14,9 @@
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
-#include "src/sksl/ir/SkSLExternalFunctionReference.h"
-#include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/ir/SkSLTypeReference.h"
 
 namespace SkSL {
 
@@ -748,22 +745,14 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
 
 std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> expr,
                                                    const Context& context) const {
-    if (!expr) {
-        return nullptr;
-    }
-    const int line = expr->fLine;
-    if (expr->is<FunctionReference>() || expr->is<ExternalFunctionReference>()) {
-        context.fErrors->error(line, "expected '(' to begin function call");
-        return nullptr;
-    }
-    if (expr->is<TypeReference>()) {
-        context.fErrors->error(line, "expected '(' to begin constructor invocation");
+    if (!expr || expr->isIncomplete(context)) {
         return nullptr;
     }
     if (expr->type() == *this) {
         return expr;
     }
 
+    const int line = expr->fLine;
     const Program::Settings& settings = context.fConfig->fSettings;
     if (!expr->coercionCost(*this).isPossible(settings.fAllowNarrowingConversions)) {
         context.fErrors->error(line, "expected '" + this->displayName() + "', but found '" +

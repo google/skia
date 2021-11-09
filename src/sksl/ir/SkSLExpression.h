@@ -133,6 +133,13 @@ public:
     }
 
     /**
+     * Returns true if this expression is incomplete. Specifically, dangling function/method-call
+     * references that were never invoked, or type references that were never constructed, are
+     * considered incomplete expressions and should result in an error.
+     */
+    bool isIncomplete(const Context& context) const;
+
+    /**
      * Compares this constant expression against another constant expression. Returns kUnknown if
      * we aren't able to deduce a result (an expression isn't actually constant, the types are
      * mismatched, etc).
