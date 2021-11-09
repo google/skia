@@ -54,7 +54,7 @@ public:
 
             const SkScalar currPos = fShader.fOrigPos[curr];
             if (currPos != prevPos) {
-                SkASSERT((currPos - prevPos > 0) == (fAdvance > 0));
+                SkASSERT((currPos > prevPos) == (fAdvance > 0));
                 func(colors[prev], colors[curr], prevPos, currPos);
             }
 
