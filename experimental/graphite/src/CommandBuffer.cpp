@@ -48,8 +48,10 @@ void CommandBuffer::bindUniformBuffer(sk_sp<Buffer> uniformBuffer, size_t offset
     fHasWork = true;
 }
 
-void CommandBuffer::bindVertexBuffers(sk_sp<Buffer> vertexBuffer, sk_sp<Buffer> instanceBuffer) {
-    this->onBindVertexBuffers(vertexBuffer.get(), instanceBuffer.get());
+void CommandBuffer::bindVertexBuffers(sk_sp<Buffer> vertexBuffer, size_t vertexOffset,
+                                      sk_sp<Buffer> instanceBuffer, size_t instanceOffset) {
+    this->onBindVertexBuffers(vertexBuffer.get(), vertexOffset,
+                              instanceBuffer.get(), instanceOffset);
     if (vertexBuffer) {
         this->trackResource(std::move(vertexBuffer));
     }

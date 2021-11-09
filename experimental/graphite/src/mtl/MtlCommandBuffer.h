@@ -39,7 +39,11 @@ public:
             (*fCommandBuffer).status == MTLCommandBufferStatusCommitted) {
             [(*fCommandBuffer) waitUntilCompleted];
         }
-        SkASSERT(this->isFinished());
+        if (!this->isFinished()) {
+            SkDebugf("Unfinished command buffer status: %d\n",
+                     (int)(*fCommandBuffer).status);
+            SkASSERT(false);
+        }
     }
     bool commit();
 
@@ -51,8 +55,8 @@ private:
 
     void onBindGraphicsPipeline(const skgpu::GraphicsPipeline*) override;
     void onBindUniformBuffer(const skgpu::Buffer*, size_t offset) override;
-    void onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
-                             const skgpu::Buffer* instanceBuffer) override;
+    void onBindVertexBuffers(const skgpu::Buffer* vertexBuffer, size_t vertexOffset,
+                             const skgpu::Buffer* instanceBuffer, size_t instanceOffset) override;
     void onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t offset) override;
 
     void onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) override;

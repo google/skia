@@ -126,7 +126,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     indices[4] = 1;
     indices[5] = 3;
     indexBuffer->unmap();
-    commandBuffer->bindVertexBuffers(vertexBuffer, nullptr);
+    commandBuffer->bindVertexBuffers(vertexBuffer, 0, nullptr, 0);
     commandBuffer->bindIndexBuffer(indexBuffer, 0);
     uniforms->fScale = SkPoint({2, 2});
     uniforms->fTranslate = SkPoint({-1, -1});
@@ -161,7 +161,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     instances[1].fDims = SkPoint({0.25, 0.25});
     instances[1].fColor = SkColors::kCyan;
     instanceBuffer->unmap();
-    commandBuffer->bindVertexBuffers(nullptr, instanceBuffer);
+    commandBuffer->bindVertexBuffers(nullptr, 0, instanceBuffer, 0);
 //    commandBuffer->drawInstanced(PrimitiveType::kTriangleStrip, 0, 4, 0, 2);
     commandBuffer->drawIndexedInstanced(PrimitiveType::kTriangles, 0, 6, 0, 0, 2);
 

@@ -61,7 +61,8 @@ public:
     //---------------------------------------------------------------
     void bindGraphicsPipeline(sk_sp<GraphicsPipeline> graphicsPipeline);
     void bindUniformBuffer(sk_sp<Buffer>, size_t bufferOffset);
-    void bindVertexBuffers(sk_sp<Buffer> vertexBuffer, sk_sp<Buffer> instanceBuffer);
+    void bindVertexBuffers(sk_sp<Buffer> vertexBuffer, size_t vertexOffset,
+                           sk_sp<Buffer> instanceBuffer, size_t instanceOffset);
     void bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffset);
 
     void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
@@ -105,7 +106,8 @@ private:
 
     virtual void onBindGraphicsPipeline(const GraphicsPipeline*) = 0;
     virtual void onBindUniformBuffer(const Buffer*, size_t bufferOffset) = 0;
-    virtual void onBindVertexBuffers(const Buffer* vertexBuffer, const Buffer* instanceBuffer) = 0;
+    virtual void onBindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
+                                     const Buffer* instanceBuffer, size_t instanceOffset) = 0;
     virtual void onBindIndexBuffer(const Buffer* indexBuffer, size_t bufferOffset) = 0;
 
     virtual void onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) = 0;

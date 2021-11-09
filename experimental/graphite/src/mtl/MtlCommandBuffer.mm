@@ -9,6 +9,7 @@
 
 #include "experimental/graphite/src/mtl/MtlBlitCommandEncoder.h"
 #include "experimental/graphite/src/mtl/MtlBuffer.h"
+#include "experimental/graphite/src/mtl/MtlCaps.h"
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 #include "experimental/graphite/src/mtl/MtlRenderCommandEncoder.h"
@@ -153,6 +154,11 @@ void CommandBuffer::onBindUniformBuffer(const skgpu::Buffer* uniformBuffer,
 
     id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(uniformBuffer)->mtlBuffer();
 
+    if (fGpu->mtlCaps().isMac()) {
+        SkASSERT((uniformOffset & 0xFF) == 0);
+    } else {
+        SkASSERT((uniformOffset & 0xF) == 0);
+    }
     fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, uniformOffset,
                                                  GraphicsPipeline::kUniformBufferIndex);
     fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, uniformOffset,
@@ -160,17 +166,21 @@ void CommandBuffer::onBindUniformBuffer(const skgpu::Buffer* uniformBuffer,
 }
 
 void CommandBuffer::onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
-                                        const skgpu::Buffer* instanceBuffer) {
+                                        size_t vertexOffset,
+                                        const skgpu::Buffer* instanceBuffer,
+                                        size_t instanceOffset) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     if (vertexBuffer) {
         id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(vertexBuffer)->mtlBuffer();
-        fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, 0,
+        SkASSERT((vertexOffset & 0xF) == 0);
+        fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, vertexOffset,
                                                      GraphicsPipeline::kVertexBufferIndex);
     }
     if (instanceBuffer) {
         id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(instanceBuffer)->mtlBuffer();
-        fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, 0,
+        SkASSERT((instanceOffset & 0xF) == 0);
+        fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, instanceOffset,
                                                      GraphicsPipeline::kInstanceBufferIndex);
     }
 }
