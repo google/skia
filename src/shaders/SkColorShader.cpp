@@ -121,8 +121,7 @@ skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
 
 std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
         const GrFPArgs& args) const {
-    return GrFragmentProcessor::ModulateAlpha(/*child=*/nullptr,
-                                              SkColorToPMColor4f(fColor, *args.fDstColorInfo));
+    return GrFragmentProcessor::MakeColor(SkColorToPMColor4f(fColor, *args.fDstColorInfo));
 }
 
 std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
@@ -131,7 +130,7 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
                                   args.fDstColorInfo->colorSpace(), kUnpremul_SkAlphaType };
     SkColor4f color = fColor;
     steps.apply(color.vec());
-    return GrFragmentProcessor::ModulateAlpha(/*child=*/nullptr, color.premul());
+    return GrFragmentProcessor::MakeColor(color.premul());
 }
 
 #endif

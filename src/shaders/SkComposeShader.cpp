@@ -175,8 +175,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
     if (fBlender) {
         return as_BB(fBlender)->asFragmentProcessor(std::move(fpB), std::move(fpA), orig_args);
     } else {
-        auto blend = GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
-        return GrFragmentProcessor::MakeInputOpaqueAndPostApplyAlpha(std::move(blend));
+        return GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
     }
 }
 #endif

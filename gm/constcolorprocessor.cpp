@@ -43,14 +43,13 @@
 
 namespace skiagm {
 /**
- * This GM directly exercises Color, ModulateRGBA and ModulateAlpha.
+ * This GM directly exercises Color and ModulateRGBA.
  */
 class ColorProcessor : public GpuGM {
 public:
     enum class TestMode {
         kConstColor,
-        kModulateRGBA,
-        kModulateAlpha
+        kModulateRGBA
     };
 
     ColorProcessor(TestMode mode) : fMode(mode) {
@@ -62,7 +61,6 @@ protected:
         switch (fMode) {
             case TestMode::kConstColor:    return SkString("const_color_processor");
             case TestMode::kModulateRGBA:  return SkString("modulate_rgba");
-            case TestMode::kModulateAlpha: return SkString("modulate_alpha");
         }
         SkUNREACHABLE;
     }
@@ -132,11 +130,6 @@ protected:
 
                     case TestMode::kModulateRGBA:
                         colorFP = GrFragmentProcessor::ModulateRGBA(
-                                std::move(baseFP), SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
-                        break;
-
-                    case TestMode::kModulateAlpha:
-                        colorFP = GrFragmentProcessor::ModulateAlpha(
                                 std::move(baseFP), SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
                         break;
                 }
@@ -222,6 +215,5 @@ private:
 
 DEF_GM(return new ColorProcessor{ColorProcessor::TestMode::kConstColor};)
 DEF_GM(return new ColorProcessor{ColorProcessor::TestMode::kModulateRGBA};)
-DEF_GM(return new ColorProcessor{ColorProcessor::TestMode::kModulateAlpha};)
 
 }  // namespace skiagm

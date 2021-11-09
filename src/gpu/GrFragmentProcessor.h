@@ -69,14 +69,6 @@ public:
 
     /**
      *  Returns a fragment processor that generates the passed-in color, modulated by the child's
-     *  alpha channel. The child's input color will be the parent's fInputColor. (Pass a null FP to
-     *  use the alpha from fInputColor instead of a child FP.)
-     */
-    static std::unique_ptr<GrFragmentProcessor> ModulateAlpha(
-            std::unique_ptr<GrFragmentProcessor> child, const SkPMColor4f& color);
-
-    /**
-     *  Returns a fragment processor that generates the passed-in color, modulated by the child's
      *  RGBA color. The child's input color will be the parent's fInputColor. (Pass a null FP to use
      *  the color from fInputColor instead of a child FP.)
      */
@@ -109,14 +101,6 @@ public:
             std::unique_ptr<GrFragmentProcessor>);
 
     /**
-     *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
-     *  The parent will unpremul its input color, make it opaque, and pass that as the input to
-     *  the child. Then the original input alpha is applied to the result of the child.
-     */
-    static std::unique_ptr<GrFragmentProcessor> MakeInputOpaqueAndPostApplyAlpha(
-            std::unique_ptr<GrFragmentProcessor>);
-
-    /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
      *  the output.
      */
@@ -128,13 +112,6 @@ public:
      *  the output to [0, 1].
      */
     static std::unique_ptr<GrFragmentProcessor> ClampOutput(std::unique_ptr<GrFragmentProcessor>);
-
-    /**
-     *  Returns a fragment processor that calls the passed in fragment processor, and then ensures
-     *  the output is a valid premul color by clamping RGB to [0, A].
-     */
-    static std::unique_ptr<GrFragmentProcessor> ClampPremulOutput(
-            std::unique_ptr<GrFragmentProcessor>);
 
     /**
      * Returns a fragment processor that composes two fragment processors `f` and `g` into f(g(x)).
