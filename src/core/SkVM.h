@@ -434,7 +434,7 @@ namespace skvm {
     // Order matters a little: Ops <=store128 are treated as having side effects.
     #define SKVM_OPS(M)                                              \
         M(assert_true)                                               \
-        M(trace_line) M(trace_var)                                   \
+        M(trace_line) M(trace_var) M(trace_call)                     \
         M(store8)   M(store16)   M(store32) M(store64) M(store128)   \
         M(load8)    M(load16)    M(load32)  M(load64) M(load128)     \
         M(index)                                                     \
@@ -474,7 +474,7 @@ namespace skvm {
         return Op::store8 <= op && op <= Op::index;
     }
     static inline bool is_trace(Op op) {
-        return Op::trace_line <= op && op <= Op::trace_var;
+        return Op::trace_line <= op && op <= Op::trace_call;
     }
 
     using Val = int;
@@ -636,6 +636,8 @@ namespace skvm {
         void trace_var(I32 mask, int slot, I32 val);
         void trace_var(I32 mask, int slot, F32 val);
         void trace_var(I32 mask, int slot, bool b);
+        void trace_call_enter(I32 mask, int line);
+        void trace_call_exit(I32 mask, int line);
 
         // Store {8,16,32,64,128}-bit varying.
         void store8  (Ptr ptr, I32 val);

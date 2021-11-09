@@ -406,6 +406,10 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     const FunctionDeclaration& decl = function.declaration();
     SkASSERT(decl.returnType().slotCount() == outReturn.size());
 
+    if (fProgram.fConfig->fSettings.fSkVMDebugTrace) {
+        fBuilder->trace_call_enter(this->mask(), function.fLine);
+    }
+
     fFunctionStack.push_back({outReturn, /*returned=*/fBuilder->splat(0)});
 
     // For all parameters, copy incoming argument IDs to our vector of (all) variable IDs
@@ -439,6 +443,10 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     SkASSERT(argIdx == arguments.size());
 
     fFunctionStack.pop_back();
+
+    if (fProgram.fConfig->fSettings.fSkVMDebugTrace) {
+        fBuilder->trace_call_exit(this->mask(), function.fLine);
+    }
 }
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
