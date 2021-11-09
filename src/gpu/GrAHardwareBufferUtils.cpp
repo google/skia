@@ -416,7 +416,6 @@ static GrBackendTexture make_vk_backend_texture(
     phyDevMemProps.pNext = nullptr;
 
     uint32_t typeIndex = 0;
-    uint32_t heapIndex = 0;
     bool foundHeap = false;
     VK_CALL(GetPhysicalDeviceMemoryProperties2(physicalDevice, &phyDevMemProps));
     uint32_t memTypeCnt = phyDevMemProps.memoryProperties.memoryTypeCount;
@@ -427,7 +426,6 @@ static GrBackendTexture make_vk_backend_texture(
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
             if (supportedFlags == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
                 typeIndex = i;
-                heapIndex = pdmp.memoryTypes[i].heapIndex;
                 foundHeap = true;
             }
         }
