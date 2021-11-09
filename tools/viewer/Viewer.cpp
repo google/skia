@@ -2437,6 +2437,17 @@ void Viewer::drawImGui() {
                     }
                 }
 
+                if (ImGui::Button("Spin")) {
+                    float rx = fColorSpacePrimaries.fRX,
+                          ry = fColorSpacePrimaries.fRY;
+                    fColorSpacePrimaries.fRX = fColorSpacePrimaries.fGX;
+                    fColorSpacePrimaries.fRY = fColorSpacePrimaries.fGY;
+                    fColorSpacePrimaries.fGX = fColorSpacePrimaries.fBX;
+                    fColorSpacePrimaries.fGY = fColorSpacePrimaries.fBY;
+                    fColorSpacePrimaries.fBX = rx;
+                    fColorSpacePrimaries.fBY = ry;
+                }
+
                 // Allow direct editing of gamut
                 ImGui_Primaries(&fColorSpacePrimaries, &fImGuiGamutPaint);
             }
