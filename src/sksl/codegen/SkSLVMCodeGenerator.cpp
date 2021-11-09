@@ -163,6 +163,12 @@ private:
      */
     void writeToSlot(int slot, skvm::Val value);
 
+    /**
+     * Emits an trace_line opcode. writeStatement already does this, but statements that alter
+     * control flow may need to explicitly add additional traces.
+     */
+    void emitTraceLine(int line);
+
     /** Initializes uniforms and global variables at the start of main(). */
     void setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device);
 
@@ -1594,6 +1600,7 @@ void SkVMGenerator::writeForStatement(const ForStatement& f) {
         this->writeStatement(*f.statement());
         fLoopMask |= fContinueMask;
 
+        this->emitTraceLine(f.test() ? f.test()->fLine : f.fLine);
         val += loop.fDelta;
     }
 
@@ -1677,10 +1684,15 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
     }
 }
 
-void SkVMGenerator::writeStatement(const Statement& s) {
-    if (fProgram.fConfig->fSettings.fSkVMDebugTrace && s.fLine > 0) {
-        fBuilder->trace_line(this->mask(), s.fLine);
+void SkVMGenerator::emitTraceLine(int line) {
+    if (fProgram.fConfig->fSettings.fSkVMDebugTrace && line > 0) {
+        fBuilder->trace_line(this->mask(), line);
     }
+}
+
+void SkVMGenerator::writeStatement(const Statement& s) {
+    this->emitTraceLine(s.fLine);
+
     switch (s.kind()) {
         case Statement::Kind::kBlock:
             this->writeBlock(s.as<Block>());
