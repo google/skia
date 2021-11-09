@@ -165,12 +165,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
     }
 
     {
-        SkSL::ProgramSettings settings;
-        settings.fOptimize = false;
+        SkSL::ProgramSettings settings = default_settings();
+        settings.fAllowNarrowingConversions = true;
         AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), settings,
                                SkSL::ProgramKind::kFragment);
-        EXPECT_EQUAL(All(GreaterThan(Float4(1), Float4(0))),
-                     "all(greaterThan(float4(1.0), float4(0.0)))");
+        Var x(kHalf_Type, "x");
+        Var y(kFloat_Type, "y");
+        EXPECT_EQUAL(x = y, "(x = half(y))");
     }
 
     {

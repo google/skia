@@ -1013,16 +1013,14 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
                                                ExpressionArray arguments) {
     SkASSERT(function.parameters().size() == arguments.size());
 
-    if (context.fConfig->fSettings.fOptimize) {
-        // We might be able to optimize built-in intrinsics.
-        if (function.isIntrinsic() && has_compile_time_constant_arguments(arguments)) {
-            // The function is an intrinsic and all inputs are compile-time constants. Optimize it.
-            if (std::unique_ptr<Expression> expr = optimize_intrinsic_call(context,
-                                                                           function.intrinsicKind(),
-                                                                           arguments,
-                                                                           *returnType)) {
-                return expr;
-            }
+    // We might be able to optimize built-in intrinsics.
+    if (function.isIntrinsic() && has_compile_time_constant_arguments(arguments)) {
+        // The function is an intrinsic and all inputs are compile-time constants. Optimize it.
+        if (std::unique_ptr<Expression> expr = optimize_intrinsic_call(context,
+                                                                       function.intrinsicKind(),
+                                                                       arguments,
+                                                                       *returnType)) {
+            return expr;
         }
     }
 

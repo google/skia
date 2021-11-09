@@ -77,12 +77,10 @@ std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context
     if (type == arg->type()) {
         return arg;
     }
-    // When optimization is on, look up the value of constant variables. This allows expressions
-    // like `int4(colorGreen)` to be replaced with the compile-time constant `int4(0, 1, 0, 1)`,
-    // which is eligible for constant folding.
-    if (context.fConfig->fSettings.fOptimize) {
-        arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
-    }
+    // Look up the value of constant variables. This allows constant-expressions like
+    // `int4(colorGreen)` to be replaced with the compile-time constant `int4(0, 1, 0, 1)`.
+    arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
+
     // We can cast a vector of compile-time constants at compile-time.
     if (arg->isCompileTimeConstant()) {
         return cast_constant_composite(context, type, std::move(arg));

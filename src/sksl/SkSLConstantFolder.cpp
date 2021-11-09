@@ -342,16 +342,9 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                                                      Operator op,
                                                      const Expression& rightExpr,
                                                      const Type& resultType) {
-    // When optimization is enabled, replace constant variables with trivial initial-values.
-    const Expression* left;
-    const Expression* right;
-    if (context.fConfig->fSettings.fOptimize) {
-        left = GetConstantValueForVariable(leftExpr);
-        right = GetConstantValueForVariable(rightExpr);
-    } else {
-        left = &leftExpr;
-        right = &rightExpr;
-    }
+    // Replace constant variables with their literal values.
+    const Expression* left = GetConstantValueForVariable(leftExpr);
+    const Expression* right = GetConstantValueForVariable(rightExpr);
 
     // If this is the comma operator, the left side is evaluated but not otherwise used in any way.
     // So if the left side has no side effects, it can just be eliminated entirely.

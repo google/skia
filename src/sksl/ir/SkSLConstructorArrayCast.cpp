@@ -53,11 +53,10 @@ std::unique_ptr<Expression> ConstructorArrayCast::Make(const Context& context,
         return arg;
     }
 
-    // When optimization is on, look up the value of constant variables. This allows expressions
-    // like `myArray` to be replaced with the compile-time constant `int[2](0, 1)`.
-    if (context.fConfig->fSettings.fOptimize) {
-        arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
-    }
+    // Look up the value of constant variables. This allows constant-expressions like `myArray` to
+    // be replaced with the compile-time constant `int[2](0, 1)`.
+    arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
+
     // We can cast a vector of compile-time constants at compile-time.
     if (arg->isCompileTimeConstant()) {
         return cast_constant_array(context, type, std::move(arg));

@@ -84,15 +84,15 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
     SkASSERT(baseType.isArray() || baseType.isMatrix() || baseType.isVector());
     SkASSERT(index->type().isInteger());
 
-    if (context.fConfig->fSettings.fOptimize) {
-        // Constant array indexes on vectors can be converted to swizzles: `v[2]` --> `v.z`.
-        // Swizzling is harmless and can unlock further simplifications for some base types.
-        const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
-        if (indexExpr->isIntLiteral() && baseType.isVector()) {
-            SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
-            return Swizzle::Make(context, std::move(base), ComponentArray{(int8_t)indexValue});
-        }
+    // Constant array indexes on vectors can be converted to swizzles: `v[2]` --> `v.z`.
+    // Swizzling is harmless and can unlock further simplifications for some base types.
+    const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
+    if (indexExpr->isIntLiteral() && baseType.isVector()) {
+        SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
+        return Swizzle::Make(context, std::move(base), ComponentArray{(int8_t)indexValue});
     }
+
+    // TODO(skia:12472): constantArray[constantExpr] should be compile-time evaluated.
 
     return std::make_unique<IndexExpression>(context, std::move(base), std::move(index));
 }

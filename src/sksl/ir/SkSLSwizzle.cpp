@@ -458,55 +458,53 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                                       std::move(expr));
     }
 
-    if (context.fConfig->fSettings.fOptimize) {
-        // Detect identity swizzles like `color.rgba` and return the base-expression as-is.
-        if (components.count() == exprType.columns()) {
-            bool identity = true;
-            for (int i = 0; i < components.count(); ++i) {
-                if (components[i] != i) {
-                    identity = false;
-                    break;
-                }
-            }
-            if (identity) {
-                return expr;
+    // Detect identity swizzles like `color.rgba` and return the base-expression as-is.
+    if (components.count() == exprType.columns()) {
+        bool identity = true;
+        for (int i = 0; i < components.count(); ++i) {
+            if (components[i] != i) {
+                identity = false;
+                break;
             }
         }
+        if (identity) {
+            return expr;
+        }
+    }
 
-        // Optimize swizzles of swizzles, e.g. replace `foo.argb.rggg` with `foo.arrr`.
-        if (expr->is<Swizzle>()) {
-            Swizzle& base = expr->as<Swizzle>();
-            ComponentArray combined;
-            for (int8_t c : components) {
-                combined.push_back(base.components()[c]);
-            }
-
-            // It may actually be possible to further simplify this swizzle. Go again.
-            // (e.g. `color.abgr.abgr` --> `color.rgba` --> `color`.)
-            return Swizzle::Make(context, std::move(base.base()), combined);
+    // Optimize swizzles of swizzles, e.g. replace `foo.argb.rggg` with `foo.arrr`.
+    if (expr->is<Swizzle>()) {
+        Swizzle& base = expr->as<Swizzle>();
+        ComponentArray combined;
+        for (int8_t c : components) {
+            combined.push_back(base.components()[c]);
         }
 
-        // If we are swizzling a constant expression, we can use its value instead here (so that
-        // swizzles like `colorWhite.x` can be simplified to `1`).
-        const Expression* value = ConstantFolder::GetConstantValueForVariable(*expr);
+        // It may actually be possible to further simplify this swizzle. Go again.
+        // (e.g. `color.abgr.abgr` --> `color.rgba` --> `color`.)
+        return Swizzle::Make(context, std::move(base.base()), combined);
+    }
 
-        // `half4(scalar).zyy` can be optimized to `half3(scalar)`, and `half3(scalar).y` can be
-        // optimized to just `scalar`. The swizzle components don't actually matter, as every field
-        // in a splat constructor holds the same value.
-        if (value->is<ConstructorSplat>()) {
-            const ConstructorSplat& splat = value->as<ConstructorSplat>();
-            return ConstructorSplat::Make(
-                    context, splat.fLine,
-                    splat.type().componentType().toCompound(context, components.size(), /*rows=*/1),
-                    splat.argument()->clone());
-        }
+    // If we are swizzling a constant expression, we can use its value instead here (so that
+    // swizzles like `colorWhite.x` can be simplified to `1`).
+    const Expression* value = ConstantFolder::GetConstantValueForVariable(*expr);
 
-        // Optimize swizzles of constructors.
-        if (value->isAnyConstructor()) {
-            const AnyConstructor& ctor = value->asAnyConstructor();
-            if (auto replacement = optimize_constructor_swizzle(context, ctor, components)) {
-                return replacement;
-            }
+    // `half4(scalar).zyy` can be optimized to `half3(scalar)`, and `half3(scalar).y` can be
+    // optimized to just `scalar`. The swizzle components don't actually matter, as every field
+    // in a splat constructor holds the same value.
+    if (value->is<ConstructorSplat>()) {
+        const ConstructorSplat& splat = value->as<ConstructorSplat>();
+        return ConstructorSplat::Make(
+                context, splat.fLine,
+                splat.type().componentType().toCompound(context, components.size(), /*rows=*/1),
+                splat.argument()->clone());
+    }
+
+    // Optimize swizzles of constructors.
+    if (value->isAnyConstructor()) {
+        const AnyConstructor& ctor = value->asAnyConstructor();
+        if (auto replacement = optimize_constructor_swizzle(context, ctor, components)) {
+            return replacement;
         }
     }
 

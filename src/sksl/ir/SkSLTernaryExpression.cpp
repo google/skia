@@ -66,13 +66,11 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
     SkASSERT(!ifTrue->type().componentType().isOpaque());
     SkASSERT(!context.fConfig->strictES2Mode() || !ifTrue->type().isOrContainsArray());
 
-    if (context.fConfig->fSettings.fOptimize) {
-        const Expression* testExpr = ConstantFolder::GetConstantValueForVariable(*test);
-        if (testExpr->isBoolLiteral()) {
-            // static boolean test, just return one of the branches
-            return testExpr->as<Literal>().boolValue() ? std::move(ifTrue)
-                                                       : std::move(ifFalse);
-        }
+    const Expression* testExpr = ConstantFolder::GetConstantValueForVariable(*test);
+    if (testExpr->isBoolLiteral()) {
+        // static boolean test, just return one of the branches
+        return testExpr->as<Literal>().boolValue() ? std::move(ifTrue)
+                                                   : std::move(ifFalse);
     }
 
     return std::make_unique<TernaryExpression>(test->fLine, std::move(test), std::move(ifTrue),
