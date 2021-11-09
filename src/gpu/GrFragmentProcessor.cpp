@@ -220,7 +220,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ApplyPaintAlpha(
         }
     )");
     return GrSkSLFP::Make(effect, "ApplyPaintAlpha", /*inputFP=*/nullptr,
-                          GrSkSLFP::OptFlags::kPreservesOpaqueInput,
+                          GrSkSLFP::OptFlags::kPreservesOpaqueInput |
+                          GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                           "fp", std::move(child));
 }
 

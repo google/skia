@@ -299,8 +299,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     if (fImage->isAlphaOnly()) {
         return GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
     } else {
-        // TODO (skbug.com/11942): Does this belong here? Can we handle this in paint conversion?
-        return GrFragmentProcessor::DisableCoverageAsAlpha(std::move(fp));
+        return fp;
     }
 }
 

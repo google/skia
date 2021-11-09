@@ -765,12 +765,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(
             break;
     }
 
-    if (gradient == nullptr) {
-        // Unexpected tile mode
-        return nullptr;
-    }
-    // TODO (skbug.com/11942): Does this belong here? Can we handle this in paint conversion?
-    return GrFragmentProcessor::DisableCoverageAsAlpha(std::move(gradient));
+    return gradient;
 }
 
 namespace GrGradientShader {

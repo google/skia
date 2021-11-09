@@ -523,9 +523,6 @@ void draw_image(GrRecordingContext* rContext,
             // Multiply the input (paint) color by the texture (alpha)
             fp = GrFragmentProcessor::MulInputByChildAlpha(std::move(fp));
         }
-    } else {
-        // TODO (skbug.com/11942): Does this belong here? Can we handle this in paint conversion?
-        fp = GrFragmentProcessor::DisableCoverageAsAlpha(std::move(fp));
     }
 
     GrPaint grPaint;

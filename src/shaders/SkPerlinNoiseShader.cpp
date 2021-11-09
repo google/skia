@@ -958,15 +958,14 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     auto noiseView        = std::get<0>(GrMakeCachedBitmapProxyView(context, noiseBitmap));
 
     if (permutationsView && noiseView) {
-        auto inner = GrPerlinNoise2Effect::Make(fType,
-                                                fNumOctaves,
-                                                fStitchTiles,
-                                                std::move(paintingData),
-                                                std::move(permutationsView),
-                                                std::move(noiseView),
-                                                m,
-                                                *context->priv().caps());
-        return GrFragmentProcessor::DisableCoverageAsAlpha(std::move(inner));
+        return GrPerlinNoise2Effect::Make(fType,
+                                          fNumOctaves,
+                                          fStitchTiles,
+                                          std::move(paintingData),
+                                          std::move(permutationsView),
+                                          std::move(noiseView),
+                                          m,
+                                          *context->priv().caps());
     }
     return nullptr;
 }

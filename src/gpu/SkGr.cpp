@@ -479,6 +479,10 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                 paintFP = GrFragmentProcessor::ApplyPaintAlpha(std::move(paintFP));
                 grPaint->setColor4f({origColor.fR, origColor.fG, origColor.fB, origColor.fA});
             } else {
+                // paintFP will ignore its input color, so we must disable coverage-as-alpha.
+                // TODO(skbug:11942): The alternative would be to always use ApplyPaintAlpha, but
+                // we'd need to measure the cost of that shader math against the CAA benefit.
+                paintFP = GrFragmentProcessor::DisableCoverageAsAlpha(std::move(paintFP));
                 grPaint->setColor4f(origColor.premul());
             }
         }
