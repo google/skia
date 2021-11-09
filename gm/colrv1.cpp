@@ -37,7 +37,8 @@ public:
     kColorFontsRepoSkew,
     kColorFontsRepoTransform,
     kColorFontsRepoClipBox,
-    kColorFontsRepoComposite
+    kColorFontsRepoComposite,
+    kColorFontsRepoForeground
   };
 
   ColrV1GM(ColrV1TestType testType, SkScalar skewX, SkScalar rotateDeg)
@@ -64,6 +65,8 @@ protected:
                 return SkString("clipbox");
             case kColorFontsRepoComposite:
                 return SkString("composite");
+            case kColorFontsRepoForeground:
+                return SkString("foreground");
         }
         SkASSERT(false); /* not reached */
         return SkString();
@@ -112,6 +115,9 @@ protected:
             case kColorFontsRepoComposite:
                 fEmojiFont.fGlyphs = {40, 41, 42, 43, 44, 45, 46};
                 break;
+            case kColorFontsRepoForeground:
+                fEmojiFont.fGlyphs = {47, 48, 49, 50, 51, 52, 53, 54};
+                break;
         }
     }
 
@@ -148,15 +154,20 @@ protected:
 
         SkFontMetrics metrics;
         SkScalar y = 0;
+        std::vector<SkColor> paint_colors = {
+                SK_ColorBLACK, SK_ColorGREEN, SK_ColorRED, SK_ColorBLUE};
+        auto paint_color_iterator = paint_colors.begin();
         for (SkScalar textSize : { 12, 18, 30, 120 }) {
             font.setSize(textSize);
             font.getMetrics(&metrics);
             y += -metrics.fAscent;
+            paint.setColor(*paint_color_iterator);
             canvas->drawSimpleText(fEmojiFont.fGlyphs.data(),
                                    fEmojiFont.bytesize(),
                                    SkTextEncoding::kGlyphID,
                                    10, y, font, paint);
             y += metrics.fDescent + metrics.fLeading;
+            paint_color_iterator++;
         }
         return DrawResult::kOk;
     }
@@ -181,5 +192,6 @@ DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoTransform, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoClipBox, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoClipBox, -0.5f, 20.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoComposite, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoForeground, 0.f, 0.f);)
 
 }  // namespace skiagm
