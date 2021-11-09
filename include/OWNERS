@@ -9,3 +9,8 @@ egdaniel@google.com
 
 # For revert purposes only
 rubber-stamper@appspot.gserviceaccount.com
+
+per-file BUILD.bazel=bungeman@google.com
+per-file BUILD.bazel=jcgregorio@google.com
+per-file BUILD.bazel=kjlubick@google.com
+per-file BUILD.bazel=lovisolo@google.com
