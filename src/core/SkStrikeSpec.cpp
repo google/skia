@@ -44,15 +44,15 @@ std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakePath(
     SkPaint pathPaint{paint};
     SkFont pathFont{font};
 
-    // The factor to get from the size stored in the strike to the size needed for
-    // the source.
-    SkScalar strikeToSourceRatio = pathFont.setupForAsPaths(&pathPaint);
-
     // The sub-pixel position will always happen when transforming to the screen.
     pathFont.setSubpixel(false);
 
+    // The factor to get from the size stored in the strike to the size needed for
+    // the source.
+    SkScalar strikeToSourceScale = pathFont.setupForAsPaths(&pathPaint);
+
     return {SkStrikeSpec(pathFont, pathPaint, surfaceProps, scalerContextFlags, SkMatrix::I()),
-            strikeToSourceRatio};
+            strikeToSourceScale};
 }
 
 std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakeSourceFallback(
@@ -177,8 +177,8 @@ SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
                        const GrSDFTControl& control) {
     SkPaint dfPaint{paint};
     dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
-    SkScalar strikeToSourceRatio;
-    SkFont dfFont = control.getSDFFont(font, deviceMatrix, &strikeToSourceRatio);
+    SkScalar strikeToSourceScale;
+    SkFont dfFont = control.getSDFFont(font, deviceMatrix, &strikeToSourceScale);
 
     // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
@@ -189,7 +189,7 @@ SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
 
     SkStrikeSpec strikeSpec(dfFont, dfPaint, surfaceProps, flags, SkMatrix::I());
 
-    return std::make_tuple(std::move(strikeSpec), strikeToSourceRatio, minScale, maxScale);
+    return std::make_tuple(std::move(strikeSpec), strikeToSourceScale, minScale, maxScale);
 }
 
 sk_sp<GrTextStrike> SkStrikeSpec::findOrCreateGrStrike(GrStrikeCache* cache) const {

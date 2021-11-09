@@ -1149,6 +1149,7 @@ private:
     const GrMaskFormat fMaskFormat;
     GrTextBlob* fBlob;
 
+    // The scale factor between the strike size, and the source size.
     const SkScalar fStrikeToSourceScale;
 
     // The bounds in source space. The bounds are the joined rectangles of all the glyphs.
@@ -1944,6 +1945,7 @@ private:
 
     const GrMaskFormat fMaskFormat;
 
+    // The scale factor between the strike size, and the source size.
     const SkScalar fStrikeToSourceScale;
 
     // The bounds in source space. The bounds are the joined rectangles of all the glyphs.
@@ -2171,6 +2173,7 @@ private:
 
     const GrMaskFormat fMaskFormat;
 
+    // The scale factor between the strike size, and the source size.
     const SkScalar fStrikeToSourceScale;
 
     // The bounds in source space. The bounds are the joined rectangles of all the glyphs.

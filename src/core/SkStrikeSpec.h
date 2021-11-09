@@ -64,7 +64,6 @@ public:
             const SkFont& font, const SkPaint* paint = nullptr);
 
     // Create a strike spec without a device, and does not switch over to path for large sizes.
-    // This means that strikeToSourceRatio() is always 1.
     static SkStrikeSpec MakeWithNoDevice(const SkFont& font, const SkPaint* paint = nullptr);
 
     // Make a strike spec for PDF Vector strikes
