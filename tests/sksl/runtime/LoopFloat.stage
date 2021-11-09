@@ -16,7 +16,8 @@ float return_loop_0()
 {
 	for (float i = kZero_0;i < 10.0; ++i) 
 	{
-		if (i == 5.0) 
+		bool shouldExit = i == float(colorGreen.y * 5.0);
+		if (shouldExit) 
 		{
 			return i;
 		}

@@ -6,7 +6,8 @@ uniform half4 colorRed, colorGreen;
 const int kZero = 0;
 int return_loop() {
     for (int i = kZero; i < 10; ++i) {
-        if (i == 5) { return i; }
+        bool shouldExit = (i == int(colorGreen.g * 5));
+        if (shouldExit) { return i; }
     }
     return 0;
 }

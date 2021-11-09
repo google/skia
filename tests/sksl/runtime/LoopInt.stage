@@ -15,7 +15,8 @@ int return_loop_0()
 {
 	for (int i = kZero_0;i < 10; ++i) 
 	{
-		if (i == 5) 
+		bool shouldExit = i == int(colorGreen.y * 5.0);
+		if (shouldExit) 
 		{
 			return i;
 		}

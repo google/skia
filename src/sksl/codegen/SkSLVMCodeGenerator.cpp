@@ -188,10 +188,15 @@ private:
     }
 
     skvm::I32 mask() {
-        // As we encounter (possibly conditional) return statements, fReturned is updated to store
-        // the lanes that have already returned. For the remainder of the current function, those
-        // lanes should be disabled.
-        return fConditionMask & fLoopMask & ~currentFunction().fReturned;
+        // Mask off execution if we have encountered `break` or `continue` on this path.
+        skvm::I32 result = fConditionMask & fLoopMask;
+        if (!fFunctionStack.empty()) {
+            // As we encounter (possibly conditional) return statements, fReturned is updated to
+            // store the lanes that have already returned. For the remainder of the current
+            // function, those lanes should be disabled.
+            result = result & ~currentFunction().fReturned;
+        }
+        return result;
     }
 
     size_t fieldSlotOffset(const FieldAccess& expr);
@@ -431,6 +436,16 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
 }
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
+    if (fProgram.fConfig->fSettings.fSkVMDebugTrace && fSlots[slot].val != value) {
+        if (fSlots[slot].kind == Type::NumberKind::kFloat) {
+            fBuilder->trace_var(this->mask(), slot, f32(value));
+        } else if (fSlots[slot].kind == Type::NumberKind::kBoolean) {
+            fBuilder->trace_var(this->mask(), slot, bool(value));
+        } else {
+            fBuilder->trace_var(this->mask(), slot, i32(value));
+        }
+    }
+
     fSlots[slot].val = value;
 }
 

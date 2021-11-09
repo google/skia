@@ -192,7 +192,14 @@ namespace skvm {
         struct Shift { int bits; };
         struct Splat { int bits; };
         struct Hex   { int bits; };
+        // For op `trace_line`
         struct Line  { int bits; };
+        // For op `trace_var`
+        struct VarSlot { int bits; };
+        struct VarType { int bits; };
+        static constexpr VarType kVarTypeInt{0};
+        static constexpr VarType kVarTypeFloat{1};
+        static constexpr VarType kVarTypeBool{2};
 
         static void write(SkWStream* o, const char* s) {
             o->writeText(s);
@@ -240,6 +247,21 @@ namespace skvm {
             write(o, "L");
             o->writeDecAsText(d.bits);
         }
+        static void write(SkWStream* o, VarSlot s) {
+            write(o, "$");
+            o->writeDecAsText(s.bits);
+        }
+        static void write(SkWStream* o, VarType n) {
+            if (n.bits == kVarTypeFloat.bits) {
+                write(o, "(F32)");
+            } else if (n.bits == kVarTypeInt.bits) {
+                write(o, "(I32)");
+            } else if (n.bits == kVarTypeBool.bits) {
+                write(o, "(bool)");
+            } else {
+                write(o, "???");
+            }
+        }
 
         template <typename T, typename... Ts>
         static void write(SkWStream* o, T first, Ts... rest) {
@@ -261,7 +283,8 @@ namespace skvm {
         switch (op) {
             case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
-            case Op::trace_line:    write(o, op, V{x}, Line{immA}); break;
+            case Op::trace_line: write(o, op, V{x}, Line{immA}); break;
+            case Op::trace_var: write(o, op, V{x}, VarSlot{immA}, "=", V{y}, VarType{immB}); break;
 
             case Op::store8:   write(o, op, Ptr{immA}, V{x}               ); break;
             case Op::store16:  write(o, op, Ptr{immA}, V{x}               ); break;
@@ -378,7 +401,9 @@ namespace skvm {
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
-                case Op::trace_line:    write(o, op, R{x}, Line{immA}); break;
+                case Op::trace_line: write(o, op, R{x}, Line{immA}); break;
+                case Op::trace_var: write(o, op, R{x}, VarSlot{immA}, "=", R{y}, VarType{immB});
+                                    break;
 
                 case Op::store8:   write(o, op, Ptr{immA}, R{x}                  ); break;
                 case Op::store16:  write(o, op, Ptr{immA}, R{x}                  ); break;
@@ -638,6 +663,19 @@ namespace skvm {
     void Builder::trace_line(I32 mask, int line) {
         if (this->isImm(mask.id, 0)) { return; }
         (void)push(Op::trace_line, mask.id,NA,NA,NA, line);
+    }
+    void Builder::trace_var(I32 mask, int slot, I32 val) {
+        if (this->isImm(mask.id, 0)) { return; }
+        (void)push(Op::trace_var, mask.id,val.id,NA,NA, slot, kVarTypeInt.bits);
+    }
+    void Builder::trace_var(I32 mask, int slot, F32 val) {
+        if (this->isImm(mask.id, 0)) { return; }
+        (void)push(Op::trace_var, mask.id,val.id,NA,NA, slot, kVarTypeFloat.bits);
+    }
+    void Builder::trace_var(I32 mask, int slot, bool b) {
+        if (this->isImm(mask.id, 0)) { return; }
+        I32 val = b ? this->splat(1) : this->splat(0);
+        (void)push(Op::trace_var, mask.id,val.id,NA,NA, slot, kVarTypeBool.bits);
     }
 
     void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA,NA, ptr.ix); }
@@ -2623,6 +2661,7 @@ namespace skvm {
                 case Op::assert_true: /*TODO*/ break;
 
                 case Op::trace_line:
+                case Op::trace_var:
                     /* Only supported in the interpreter. */
                     break;
 
@@ -3551,6 +3590,7 @@ namespace skvm {
                 } break;
 
                 case Op::trace_line:
+                case Op::trace_var:
                     /* Only supported in the interpreter. */
                     break;
 
@@ -3919,6 +3959,7 @@ namespace skvm {
                 } break;
 
                 case Op::trace_line:
+                case Op::trace_var:
                     /* Only supported in the interpreter. */
                     break;
 
