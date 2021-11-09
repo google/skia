@@ -510,6 +510,7 @@ bool Compiler::optimize(LoadedModule& module) {
     config.fIsBuiltinCode = true;
     config.fKind = module.fKind;
     AutoProgramConfig autoConfig(fContext, &config);
+    AutoModifiersPool autoPool(fContext, &fCoreModifiers);
 
     // Reset the Inliner.
     fInliner.reset();
