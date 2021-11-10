@@ -1,6 +1,6 @@
 {
   "gs_bucket_gm": "skia-infra-gm",
-  "gold_hashes_url": "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt",
+  "gold_hashes_url": "https://gold.skia.org/json/v1/hashes",
   "gs_bucket_nano": "skia-perf",
   "gs_bucket_coverage": "skia-coverage",
   "path_to_skia": ".",
