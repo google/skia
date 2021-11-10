@@ -237,6 +237,7 @@ skgpu::TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
     info.fFormat = SkColorTypeToFormat(colorType);
     info.fUsage = usage;
     info.fStorageMode = MTLStorageModePrivate;
+    info.fFramebufferOnly = false;
 
     return info;
 }
@@ -252,6 +253,7 @@ skgpu::TextureInfo Caps::getDefaultMSAATextureInfo(SkColorType colorType,
     info.fFormat = SkColorTypeToFormat(colorType);
     info.fUsage = usage;
     info.fStorageMode = MTLStorageModePrivate;
+    info.fFramebufferOnly = false;
 
     return info;
 }
@@ -265,6 +267,7 @@ skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(DepthStencilType dept
     info.fFormat = DepthStencilTypeToFormat(depthStencilType);
     info.fUsage = MTLTextureUsageRenderTarget;
     info.fStorageMode = MTLStorageModePrivate;
+    info.fFramebufferOnly = false;
 
     return info;
 }

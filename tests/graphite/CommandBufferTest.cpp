@@ -49,6 +49,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
         70,     // MTLPixelFormatRGBA8Unorm
         0x0005, // MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead
         2,      // MTLStorageModePrivate
+        false,  // framebufferOnly
     };
     TextureInfo textureInfo(mtlTextureInfo);
 #else

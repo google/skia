@@ -44,21 +44,25 @@ struct TextureSpec {
     TextureSpec()
             : fFormat(0)
             , fUsage(0)
-            , fStorageMode(0) {}
+            , fStorageMode(0)
+            , fFramebufferOnly(false) {}
     TextureSpec(const TextureInfo& info)
             : fFormat(info.fFormat)
             , fUsage(info.fUsage)
-            , fStorageMode(info.fStorageMode) {}
+            , fStorageMode(info.fStorageMode)
+            , fFramebufferOnly(info.fFramebufferOnly) {}
 
     bool operator==(const TextureSpec& that) const {
         return fFormat == that.fFormat &&
                fUsage == that.fUsage &&
-               fStorageMode == that.fStorageMode;
+               fStorageMode == that.fStorageMode &&
+               fFramebufferOnly == that.fFramebufferOnly;
     }
 
     PixelFormat fFormat;
     TextureUsage fUsage;
     StorageMode fStorageMode;
+    bool fFramebufferOnly;
 };
 
 TextureInfo TextureSpecToTextureInfo(const TextureSpec& mtlSpec,

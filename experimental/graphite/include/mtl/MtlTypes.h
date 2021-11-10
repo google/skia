@@ -34,6 +34,7 @@ namespace skgpu::mtl {
 using PixelFormat = unsigned int;
 using TextureUsage = unsigned int;
 using StorageMode = unsigned int;
+using Handle = const void*;
 
 struct TextureInfo {
     uint32_t fSampleCount = 1;
@@ -44,6 +45,22 @@ struct TextureInfo {
     PixelFormat fFormat = 0;       // MTLPixelFormat fFormat = MTLPixelFormatInvalid;
     TextureUsage fUsage = 0;       // MTLTextureUsage fUsage = MTLTextureUsageUnknown;
     StorageMode fStorageMode = 0;  // MTLStorageMode fStorageMode = MTLStorageModeShared;
+    bool fFramebufferOnly = false;
+
+    TextureInfo() = default;
+    TextureInfo(Handle mtlTexture);
+    TextureInfo(uint32_t sampleCount,
+                uint32_t levelCount,
+                PixelFormat format,
+                TextureUsage usage,
+                StorageMode storageMode,
+                bool framebufferOnly)
+            : fSampleCount(sampleCount)
+            , fLevelCount(levelCount)
+            , fFormat(format)
+            , fUsage(usage)
+            , fStorageMode(storageMode)
+            , fFramebufferOnly(framebufferOnly) {}
 };
 
 } // namespace skgpu::mtl

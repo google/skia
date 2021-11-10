@@ -29,6 +29,7 @@ sk_sp<Texture> Texture::Make(const Gpu* gpu,
     }
 
     const TextureSpec& mtlSpec = info.mtlTextureSpec();
+    SkASSERT(!mtlSpec.fFramebufferOnly);
 
     sk_cfp<MTLTextureDescriptor*> desc([[MTLTextureDescriptor alloc] init]);
     (*desc).textureType = (info.numSamples() > 1) ? MTLTextureType2DMultisample : MTLTextureType2D;
