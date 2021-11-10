@@ -1620,6 +1620,7 @@ func (b *jobBuilder) fm() {
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--bot", b.Name,
 			"--gold="+strconv.FormatBool(!b.matchExtraConfig("SAN")),
+			"--gold_hashes_url", b.cfg.GoldHashesURL,
 			"build/fm${EXECUTABLE_SUFFIX}")
 		b.serviceAccount(b.cfg.ServiceAccountUploadGM)
 		b.swarmDimensions()
@@ -1965,6 +1966,7 @@ func (b *jobBuilder) runWasmGMTests() {
 			"--resource_path", "./resources",
 			"--work_path", "./wasm_gm/work",
 			"--gold_ctl_path", "./cipd_bin_packages/goldctl",
+			"--gold_hashes_url", b.cfg.GoldHashesURL,
 			"--git_commit", specs.PLACEHOLDER_REVISION,
 			"--changelist_id", specs.PLACEHOLDER_ISSUE,
 			"--patchset_order", specs.PLACEHOLDER_PATCHSET,
