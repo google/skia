@@ -17,15 +17,15 @@ bool test() {
     const int b [x[x[z]]]    = int[2](1, 2);
     const int c [x[x[x[z]]]] = int[3](1, 2, 3);
 
-    // The unreferenced array elements are safe to eliminate.
-    int flatten0 = (int[3](side_effecting(1), 2, 3))[0];
-    int flatten1 = (int[3](1, side_effecting(2), 3))[1];
-    int flatten2 = (int[3](1, 2, side_effecting(3)))[2];
+    // Constant-expression arrays can be optimized.
+    int flatten0 = (int[3](1, 2, 3))[0];
+    int flatten1 = (int[3](1, 2, 3))[1];
+    int flatten2 = (int[3](1, 2, 3))[2];
 
-    // Some unreferenced array elements have a side effect and are not safe to eliminate.
+    // Non-constant-expression arrays are not eligible for optimization.
     int noFlatten0 = (int[3](1, side_effecting(2), 3))[0];
     int noFlatten1 = (int[3](side_effecting(1), 2, 3))[1];
-    int noFlatten2 = (int[3](side_effecting(1), side_effecting(2), 3))[2];
+    int noFlatten2 = (int[3](1, 2, side_effecting(3)))[2];
 
     return (x == xx) && !(x != xx) && (x != y) && !(x == y) &&
            (x[0] == y[0]) && (c == x) &&
