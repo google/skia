@@ -4,4 +4,5 @@ half4 main(float2 coords) {
     const bool x = true;
     if (!x) return colorRed;
     if (x) return colorGreen;
+    return colorRed;
 }
