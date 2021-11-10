@@ -1,0 +1,13 @@
+uniform half4 colorGreen, colorRed;
+
+const int[3] values = int[3](1, 1, 1);
+
+inline int indexArray(int index) {
+    return values[index];
+}
+
+half4 main(float2 coords) {
+    int ok = indexArray(0) + indexArray(1) + indexArray(2);
+    int undefined = indexArray(-1) + indexArray(3);
+    return colorGreen;
+}

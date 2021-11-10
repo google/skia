@@ -1,7 +1,9 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-uniform vec4 colorRed;
-uniform vec4 colorGreen;
-vec4 main() {
-    return true ? colorGreen : colorRed;
-}
+error: 16: array size must be an integer
+error: 17: array size must be an integer
+error: 17: expected 'int[1]', but found 'int[2]'
+error: 18: array size must be an integer
+error: 18: expected 'int[1]', but found 'int[3]'
+error: 31: unknown identifier 'c'
+6 errors
