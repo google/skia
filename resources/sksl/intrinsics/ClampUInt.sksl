@@ -1,0 +1,31 @@
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    uint4 uintValues      = uint4(testInputs * 100 + 200);
+
+    uint4 expectedA       = uint4( 100,  200,  275, 300);
+
+    const uint4 clampLow  = uint4( 100,    0,    0, 300);
+    const uint4 constVal  = uint4(  75,  200,  275, 425);
+    uint4 expectedB       = uint4( 100,  200,  250, 425);
+    const uint4 clampHigh = uint4( 300,  400,  250, 500);
+
+    return (clamp(uintValues.x,    100, 300)                      == expectedA.x     &&
+            clamp(uintValues.xy,   100, 300)                      == expectedA.xy    &&
+            clamp(uintValues.xyz,  100, 300)                      == expectedA.xyz   &&
+            clamp(uintValues.xyzw, 100, 300)                      == expectedA.xyzw  &&
+            clamp(constVal.x,      100, 300)                      == expectedA.x     &&
+            clamp(constVal.xy,     100, 300)                      == expectedA.xy    &&
+            clamp(constVal.xyz,    100, 300)                      == expectedA.xyz   &&
+            clamp(constVal.xyzw,   100, 300)                      == expectedA.xyzw  &&
+            clamp(uintValues.x,    clampLow.x,    clampHigh.x   ) == expectedB.x     &&
+            clamp(uintValues.xy,   clampLow.xy,   clampHigh.xy  ) == expectedB.xy    &&
+            clamp(uintValues.xyz,  clampLow.xyz,  clampHigh.xyz ) == expectedB.xyz   &&
+            clamp(uintValues.xyzw, clampLow.xyzw, clampHigh.xyzw) == expectedB.xyzw  &&
+            clamp(constVal.x,      clampLow.x,    clampHigh.x   ) == expectedB.x     &&
+            clamp(constVal.xy,     clampLow.xy,   clampHigh.xy  ) == expectedB.xy    &&
+            clamp(constVal.xyz,    clampLow.xyz,  clampHigh.xyz ) == expectedB.xyz   &&
+            clamp(constVal.xyzw,   clampLow.xyzw, clampHigh.xyzw) == expectedB.xyzw) ? colorGreen
+                                                                                     : colorRed;
+}

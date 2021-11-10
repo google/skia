@@ -281,6 +281,7 @@ sksl_shared_tests = [
   "/sksl/intrinsics/Ceil.sksl",
   "/sksl/intrinsics/ClampFloat.sksl",
   "/sksl/intrinsics/ClampInt.sksl",
+  "/sksl/intrinsics/ClampUInt.sksl",
   "/sksl/intrinsics/Cos.sksl",
   "/sksl/intrinsics/Cosh.sksl",
   "/sksl/intrinsics/Cross.sksl",

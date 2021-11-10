@@ -256,6 +256,8 @@ SKSL_TEST_ES3(SkSLIntrinsicFloatBitsToUint,    "intrinsics/FloatBitsToUint.sksl"
 SKSL_TEST_ES3(SkSLIntrinsicFwidth,             "intrinsics/Fwidth.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicIntBitsToFloat,     "intrinsics/IntBitsToFloat.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicIsInf,              "intrinsics/IsInf.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicClampInt,           "intrinsics/ClampInt.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicClampUInt,          "intrinsics/ClampUInt.sksl")
 // Fails on Adreno 6xx + Vulkan
 SKSL_TEST_CPU(SkSLIntrinsicClampFloat,         "intrinsics/ClampFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMatrixCompMultES2,      "intrinsics/MatrixCompMultES2.sksl")
@@ -375,7 +377,6 @@ SKSL_TEST_ES3(SkSLWhileLoopControlFlow,        "shared/WhileLoopControlFlow.sksl
 TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
 
 SKSL_TEST(SkSLIntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
-SKSL_TEST(SkSLIntrinsicClampInt,               "intrinsics/ClampInt.sksl")
 SKSL_TEST(SkSLIntrinsicMaxInt,                 "intrinsics/MaxInt.sksl")
 SKSL_TEST(SkSLIntrinsicMinInt,                 "intrinsics/MinInt.sksl")
 SKSL_TEST(SkSLIntrinsicMixBool,                "intrinsics/MixBool.sksl")

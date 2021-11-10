@@ -115,6 +115,8 @@ $es3 $genIType max($genIType x, $genIType y);
 $es3 $genIType max($genIType x, int y);
 $es3 $genIType clamp($genIType x, $genIType minVal, $genIType maxVal);
 $es3 $genIType clamp($genIType x, int minVal, int maxVal);
+$es3 $genUType clamp($genUType x, $genUType minVal, $genUType maxVal);
+$es3 $genUType clamp($genUType x, uint minVal, uint maxVal);
 $es3 $genType  mix($genType  x, $genType  y, $genBType a);
 $es3 $genHType mix($genHType x, $genHType y, $genBType a);
 
