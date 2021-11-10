@@ -94,6 +94,7 @@ func main() {
 			DryRun:            true,
 			NoEmail:           true,
 			NoResolveRevision: true,
+			Canary:            true,
 		}
 		if err := td.Do(ctx, td.Props(fmt.Sprintf("Trigger canary roll%s", retryText)).Infra(), func(ctx context.Context) error {
 			return manualRollDB.Put(&req)
