@@ -52,8 +52,7 @@ public:
     static std::unique_ptr<GrFragmentProcessor> MakeColor(SkPMColor4f color);
 
     /**
-     *  Returns the input color, modulated by the child's alpha. The passed in FP will not receive
-     *  an input color.
+     *  Returns the input color, modulated by the child's alpha.
      *
      *  output = input * child.a
      */
@@ -81,8 +80,7 @@ public:
      *  child.
      */
     static std::unique_ptr<GrFragmentProcessor> OverrideInput(std::unique_ptr<GrFragmentProcessor>,
-                                                              const SkPMColor4f&,
-                                                              bool useUniform = true);
+                                                              const SkPMColor4f&);
 
     /**
      *  Returns a parent fragment processor that adopts the passed fragment processor as a child.

@@ -205,9 +205,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrBlendFragmentProcessor::Make(/*src=*/nullptr,
-                                          OverrideInput(std::move(fp), SK_PMColor4fWHITE),
-                                          SkBlendMode::kSrcIn);
+    return GrBlendFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kSrcIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ApplyPaintAlpha(
@@ -316,7 +314,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
 //////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
-        std::unique_ptr<GrFragmentProcessor> fp, const SkPMColor4f& color, bool useUniform) {
+        std::unique_ptr<GrFragmentProcessor> fp, const SkPMColor4f& color) {
     if (!fp) {
         return nullptr;
     }
@@ -332,7 +330,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
                           color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                            : GrSkSLFP::OptFlags::kNone,
                           "fp", std::move(fp),
-                          "color", GrSkSLFP::SpecializeIf(!useUniform, color));
+                          "color", color);
 }
 
 //////////////////////////////////////////////////////////////////////////////

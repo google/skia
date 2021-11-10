@@ -878,8 +878,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo) {
         SkTArray<uint32_t, true>             key;
     };
 
-    // Constant color, but with a similar option to GrFragmentProcessor::OverrideInput
-    // specialize decides if the color is inserted in the SkSL as a literal, or left as a uniform
+    // Constant color, but with an 'specialize' option that decides if the color is inserted in the
+    // SkSL as a literal, or left as a uniform
     auto make_color_fp = [&](SkPMColor4f color, bool specialize) {
         auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
             uniform half4 color;
