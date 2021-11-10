@@ -1931,6 +1931,8 @@ public:
         If vertices colors are defined in vertices, and SkPaint paint contains SkShader,
         SkBlendMode mode combines vertices colors with SkShader.
 
+        SkMaskFilter and SkPathEffect on paint are ignored.
+
         @param vertices  triangle mesh to draw
         @param mode      combines vertices colors with SkShader, if both are present
         @param paint     specifies the SkShader, used as SkVertices texture; may be nullptr
@@ -1952,6 +1954,8 @@ public:
 
         If vertices colors are defined in vertices, and SkPaint paint contains SkShader,
         SkBlendMode mode combines vertices colors with SkShader.
+
+        SkMaskFilter and SkPathEffect on paint are ignored.
 
         @param vertices  triangle mesh to draw
         @param mode      combines vertices colors with SkShader, if both are present
@@ -1987,6 +1991,8 @@ public:
         corners in top-left, top-right, bottom-right, bottom-left order. If texCoords is
         nullptr, SkShader is mapped using positions (derived from cubics).
 
+        SkMaskFilter and SkPathEffect on paint are ignored.
+
         @param cubics     SkPath cubic array, sharing common points
         @param colors     color array, one for each corner
         @param texCoords  SkPoint array of texture coordinates, mapping SkShader to corners;
@@ -2016,6 +2022,8 @@ public:
         corners in top-left, top-right, bottom-right, bottom-left order. If texCoords is
         nullptr, SkShader is mapped using positions (derived from cubics).
 
+        SkMaskFilter and SkPathEffect on paint are ignored.
+
         @param cubics     SkPath cubic array, sharing common points
         @param colors     color array, one for each corner
         @param texCoords  SkPoint array of texture coordinates, mapping SkShader to corners;
@@ -2031,6 +2039,8 @@ public:
         paint uses anti-alias, alpha, SkColorFilter, SkImageFilter, and SkBlendMode
         to draw, if present. For each entry in the array, SkRect tex locates sprite in
         atlas, and SkRSXform xform transforms it into destination space.
+
+        SkMaskFilter and SkPathEffect on paint are ignored.
 
         xform, tex, and colors if present, must contain count entries.
         Optional colors are applied for each sprite using SkBlendMode mode, treating
