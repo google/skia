@@ -9,6 +9,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -113,6 +114,37 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                     SkASSERT(arguments.count() == baseType.columns());
 
                     return arguments[indexValue]->clone();
+                }
+            }
+
+            if (baseType.isMatrix()) {
+                // Matrices can be constructed with vectors that don't line up on column boundaries,
+                // so extracting out the values from the constructor can be tricky. Fortunately, we
+                // can reconstruct an equivalent vector using `getConstantSubexpression`. If we
+                // can't extract the data using `getConstantSubexpression`, it wasn't constant and
+                // we're not obligated to simplify anything.
+                const Expression* baseExpr = ConstantFolder::GetConstantValueForVariable(*base);
+                int vecWidth = baseType.rows();
+                const Type& vecType = baseType.componentType().toCompound(context,
+                                                                          vecWidth,
+                                                                          /*rows=*/1);
+                indexValue *= vecWidth;
+
+                ExpressionArray ctorArgs;
+                ctorArgs.reserve_back(vecWidth);
+                for (int slot = 0; slot < vecWidth; ++slot) {
+                    if (const Expression* subexpr = baseExpr->getConstantSubexpression(indexValue +
+                                                                                       slot)) {
+                        ctorArgs.push_back(subexpr->clone());
+                    } else {
+                        ctorArgs.reset();
+                        break;
+                    }
+                }
+
+                if (!ctorArgs.empty()) {
+                    int line = ctorArgs.front()->fLine;
+                    return ConstructorCompound::Make(context, line, vecType, std::move(ctorArgs));
                 }
             }
         }

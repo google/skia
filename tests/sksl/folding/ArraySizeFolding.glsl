@@ -16,5 +16,6 @@ vec4 main() {
     float g[3];
     int _2_b[2];
     int _3_c[2];
-    return (check_array_is_int_2_bi(_2_b) && check_array_is_int_2_bi(_3_c)) && test_param_bff(f, g) ? colorGreen : colorRed;
+    int _4_d[2];
+    return ((check_array_is_int_2_bi(_2_b) && check_array_is_int_2_bi(_3_c)) && check_array_is_int_2_bi(_4_d)) && test_param_bff(f, g) ? colorGreen : colorRed;
 }
