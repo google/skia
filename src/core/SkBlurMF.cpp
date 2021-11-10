@@ -1507,7 +1507,6 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         if (!fp) {
             return false;
         }
-        paint.setCoverageFragmentProcessor(std::move(fp));
 
         SkRect srcProxyRect = srcRRect.rect();
         // Determine how much to outset the src rect to ensure we hit pixels within three sigma.
@@ -1526,6 +1525,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         }
         srcProxyRect.outset(outsetX, outsetY);
 
+        paint.setCoverageFragmentProcessor(std::move(fp));
         sdc->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
         return true;
     }
