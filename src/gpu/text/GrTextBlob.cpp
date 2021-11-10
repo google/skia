@@ -449,7 +449,7 @@ public:
                      GrTextBlob* blob,
                      const SkGlyphRect& deviceBounds,
                      SkSpan<const DevicePosition> devicePositions,
-                     GlyphVector glyphs,
+                     GlyphVector&& glyphs,
                      bool glyphsOutOfBounds);
 
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -509,14 +509,14 @@ DirectMaskSubRun::DirectMaskSubRun(GrMaskFormat format,
                                    GrTextBlob* blob,
                                    const SkGlyphRect& deviceBounds,
                                    SkSpan<const DevicePosition> devicePositions,
-                                   GlyphVector glyphs,
+                                   GlyphVector&& glyphs,
                                    bool glyphsOutOfBounds)
         : fMaskFormat{format}
         , fBlob{blob}
         , fGlyphDeviceBounds{deviceBounds}
         , fLeftTopDevicePos{devicePositions}
         , fSomeGlyphsExcluded{glyphsOutOfBounds}
-        , fGlyphs{glyphs} {}
+        , fGlyphs{std::move(glyphs)} {}
 
 GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                      sk_sp<SkStrike>&& strike,
@@ -844,7 +844,7 @@ public:
                           SkScalar strikeToSourceScale,
                           const SkRect& bounds,
                           SkSpan<const VertexData> vertexData,
-                          GlyphVector glyphs);
+                          GlyphVector&& glyphs);
 
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                               sk_sp<SkStrike>&& strike,
@@ -906,13 +906,13 @@ TransformedMaskSubRun::TransformedMaskSubRun(GrMaskFormat format,
                                              SkScalar strikeToSourceScale,
                                              const SkRect& bounds,
                                              SkSpan<const VertexData> vertexData,
-                                             GlyphVector glyphs)
+                                             GlyphVector&& glyphs)
         : fMaskFormat{format}
         , fBlob{blob}
         , fStrikeToSourceScale{strikeToSourceScale}
         , fVertexBounds{bounds}
         , fVertexData{vertexData}
-        , fGlyphs{glyphs} { }
+        , fGlyphs{std::move(glyphs)} { }
 
 GrSubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                           sk_sp<SkStrike>&& strike,
@@ -1102,7 +1102,7 @@ public:
                SkScalar strikeToSource,
                SkRect vertexBounds,
                SkSpan<const VertexData> vertexData,
-               GlyphVector glyphs,
+               GlyphVector&& glyphs,
                bool useLCDText,
                bool antiAliased);
 
@@ -1169,7 +1169,7 @@ SDFTSubRun::SDFTSubRun(GrMaskFormat format,
                        SkScalar strikeToSource,
                        SkRect vertexBounds,
                        SkSpan<const VertexData> vertexData,
-                       GlyphVector glyphs,
+                       GlyphVector&& glyphs,
                        bool useLCDText,
                        bool antiAliased)
         : fMaskFormat{format}
@@ -1177,7 +1177,7 @@ SDFTSubRun::SDFTSubRun(GrMaskFormat format,
         , fStrikeToSourceScale{strikeToSource}
         , fVertexBounds{vertexBounds}
         , fVertexData{vertexData}
-        , fGlyphs{glyphs}
+        , fGlyphs{std::move(glyphs)}
         , fUseLCDText{useLCDText}
         , fAntiAliased{antiAliased} {}
 
@@ -1671,7 +1671,7 @@ public:
     DirectMaskSubRunNoCache(GrMaskFormat format,
                             const SkRect& bounds,
                             SkSpan<const DevicePosition> devicePositions,
-                            GlyphVector glyphs);
+                            GlyphVector&& glyphs);
 
     static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    sk_sp<SkStrike>&& strike,
@@ -1716,11 +1716,11 @@ private:
 DirectMaskSubRunNoCache::DirectMaskSubRunNoCache(GrMaskFormat format,
                                                  const SkRect& deviceBounds,
                                                  SkSpan<const DevicePosition> devicePositions,
-                                                 GlyphVector glyphs)
+                                                 GlyphVector&& glyphs)
         : fMaskFormat{format}
         , fGlyphDeviceBounds{deviceBounds}
         , fLeftTopDevicePos{devicePositions}
-        , fGlyphs{glyphs} { }
+        , fGlyphs{std::move(glyphs)} { }
 
 GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                                  sk_sp<SkStrike>&& strike,
@@ -1912,7 +1912,7 @@ public:
                                  SkScalar strikeToSourceScale,
                                  const SkRect& bounds,
                                  SkSpan<const VertexData> vertexData,
-                                 GlyphVector glyphs);
+                                 GlyphVector&& glyphs);
 
     static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    sk_sp<SkStrike>&& strike,
@@ -1964,12 +1964,12 @@ TransformedMaskSubRunNoCache::TransformedMaskSubRunNoCache(GrMaskFormat format,
                                                            SkScalar strikeToSourceScale,
                                                            const SkRect& bounds,
                                                            SkSpan<const VertexData> vertexData,
-                                                           GlyphVector glyphs)
+                                                           GlyphVector&& glyphs)
         : fMaskFormat{format}
         , fStrikeToSourceScale{strikeToSourceScale}
         , fVertexBounds{bounds}
         , fVertexData{vertexData}
-        , fGlyphs{glyphs} {}
+        , fGlyphs{std::move(glyphs)} {}
 
 GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -2138,7 +2138,7 @@ public:
                       SkScalar strikeToSourceScale,
                       SkRect vertexBounds,
                       SkSpan<const VertexData> vertexData,
-                      GlyphVector glyphs,
+                      GlyphVector&& glyphs,
                       bool useLCDText,
                       bool antiAliased);
 
@@ -2195,14 +2195,14 @@ SDFTSubRunNoCache::SDFTSubRunNoCache(GrMaskFormat format,
                                      SkScalar strikeToSourceScale,
                                      SkRect vertexBounds,
                                      SkSpan<const VertexData> vertexData,
-                                     GlyphVector glyphs,
+                                     GlyphVector&& glyphs,
                                      bool useLCDText,
                                      bool antiAliased)
         : fMaskFormat{format}
         , fStrikeToSourceScale{strikeToSourceScale}
         , fVertexBounds{vertexBounds}
         , fVertexData{vertexData}
-        , fGlyphs{glyphs}
+        , fGlyphs{std::move(glyphs)}
         , fUseLCDText{useLCDText}
         , fAntiAliased{antiAliased} {}
 
