@@ -1737,7 +1737,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return s;
         }))
         .function("getUniformCount", optional_override([](SkRuntimeEffect& self)->int {
-            return self.uniforms().count();
+            return self.uniforms().size();
         }))
         .function("getUniformFloatCount", optional_override([](SkRuntimeEffect& self)->int {
             return self.uniformSize() / sizeof(float);

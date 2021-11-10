@@ -210,27 +210,12 @@ public:
 
     const std::string& source() const;
 
-    template <typename T>
-    class ConstIterable {
-    public:
-        ConstIterable(const std::vector<T>& vec) : fVec(vec) {}
-
-        using const_iterator = typename std::vector<T>::const_iterator;
-
-        const_iterator begin() const { return fVec.begin(); }
-        const_iterator end() const { return fVec.end(); }
-        size_t count() const { return fVec.size(); }
-
-    private:
-        const std::vector<T>& fVec;
-    };
-
     // Combined size of all 'uniform' variables. When calling makeColorFilter or makeShader,
     // provide an SkData of this size, containing values for all of those variables.
     size_t uniformSize() const;
 
-    ConstIterable<Uniform> uniforms() const { return ConstIterable<Uniform>(fUniforms); }
-    ConstIterable<Child> children() const { return ConstIterable<Child>(fChildren); }
+    SkSpan<const Uniform> uniforms() const { return SkMakeSpan(fUniforms); }
+    SkSpan<const Child> children() const { return SkMakeSpan(fChildren); }
 
     // Returns pointer to the named uniform variable's description, or nullptr if not found
     const Uniform* findUniform(const char* name) const;
@@ -396,7 +381,7 @@ protected:
     explicit SkRuntimeEffectBuilder(sk_sp<SkRuntimeEffect> effect)
             : fEffect(std::move(effect))
             , fUniforms(SkData::MakeUninitialized(fEffect->uniformSize()))
-            , fChildren(fEffect->children().count()) {}
+            , fChildren(fEffect->children().size()) {}
 
     SkRuntimeEffectBuilder(SkRuntimeEffectBuilder&&) = default;
     SkRuntimeEffectBuilder(const SkRuntimeEffectBuilder&) = default;

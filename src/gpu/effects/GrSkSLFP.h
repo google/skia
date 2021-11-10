@@ -183,7 +183,7 @@ private:
     // An instance of GrSkSLFP is always allocated with a payload immediately following the FP.
     // First the values of all the uniforms, and then a set of flags (one per uniform).
     static size_t UniformPayloadSize(const SkRuntimeEffect* effect) {
-        return effect->uniformSize() + effect->uniforms().count() * sizeof(UniformFlags);
+        return effect->uniformSize() + effect->uniforms().size() * sizeof(UniformFlags);
     }
 
     const uint8_t* uniformData() const { return reinterpret_cast<const uint8_t*>(this + 1); }

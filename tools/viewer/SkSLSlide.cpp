@@ -111,7 +111,7 @@ bool SkSLSlide::rebuild() {
     if (effect->uniformSize() > oldSize) {
         memset(fInputs.get() + oldSize, 0, effect->uniformSize() - oldSize);
     }
-    fChildren.resize_back(effect->children().count());
+    fChildren.resize_back(effect->children().size());
 
     fEffect = effect;
     fCodeIsDirty = false;

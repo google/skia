@@ -161,7 +161,7 @@ static bool read_child_effects(SkReadBuffer& buffer,
                                const SkRuntimeEffect* effect,
                                SkTArray<SkRuntimeEffect::ChildPtr>* children) {
     size_t childCount = buffer.read32();
-    if (!buffer.validate(childCount == effect->children().count())) {
+    if (!buffer.validate(childCount == effect->children().size())) {
         return false;
     }
 
