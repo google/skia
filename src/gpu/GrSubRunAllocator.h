@@ -8,6 +8,7 @@
 #ifndef GrSubRunAllocator_DEFINED
 #define GrSubRunAllocator_DEFINED
 
+#include "include/core/SkMath.h"
 #include "include/core/SkSpan.h"
 #include "src/core/SkArenaAlloc.h"
 
