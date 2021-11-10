@@ -28,6 +28,7 @@ func main() {
 		builtPath       = flag.String("built_path", "", "The directory where the built wasm/js code will be.")
 		gitCommit       = flag.String("git_commit", "", "The commit at which we are testing.")
 		goldCtlPath     = flag.String("gold_ctl_path", "", "Path to the goldctl binary")
+		goldHashesURL   = flag.String("gold_hashes_url", "", "URL from which to download pre-existing hashes")
 		goldKeys        = common.NewMultiStringFlag("gold_key", nil, "The keys that will tag this data")
 		nodeBinPath     = flag.String("node_bin_path", "", "Path to the node bin directory (should have npm also). This directory *must* be on the PATH when this executable is called, otherwise, the wrong node or npm version may be found (e.g. the one on the system), even if we are explicitly calling npm with the absolute path.")
 		projectID       = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -70,6 +71,9 @@ func main() {
 	if err := os_steps.MkdirAll(ctx, testsWorkPath); err != nil {
 		td.Fatal(ctx, err)
 	}
+	if *goldHashesURL == "" {
+		td.Fatalf(ctx, "Must supply --gold_hashes_url")
+	}
 
 	patchset := 0
 	if *patchsetOrder != "" {
@@ -98,7 +102,7 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	if err := downloadKnownHashes(ctx, testsWorkPath); err != nil {
+	if err := downloadKnownHashes(ctx, testsWorkPath, *goldHashesURL); err != nil {
 		td.Fatal(ctx, err)
 	}
 	if err := setupTests(ctx, nodeBinAbsPath, testHarnessAbsPath); err != nil {
@@ -158,11 +162,9 @@ func setupGoldctl(ctx context.Context, local bool, gitCommit, gerritCLID, tryjob
 	return nil
 }
 
-const knownHashesURL = "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt"
-
 // downloadKnownHashes downloads the known hashes from Gold and stores it as a text file in
 // workPath/hashes.txt
-func downloadKnownHashes(ctx context.Context, workPath string) error {
+func downloadKnownHashes(ctx context.Context, workPath, knownHashesURL string) error {
 	ctx = td.StartStep(ctx, td.Props("download known hashes").Infra())
 	defer td.EndStep(ctx)
 

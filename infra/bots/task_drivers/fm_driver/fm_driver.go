@@ -33,12 +33,13 @@ func main() {
 		output    = flag.String("o", "", "Dump JSON step data to the given file, or stdout if -.")
 		local     = flag.Bool("local", true, "Running locally (else on the bots)?")
 
-		resources = flag.String("resources", "resources", "Passed to fm -i.")
-		imgs      = flag.String("imgs", "", "Shorthand `directory` contents as 'imgs'.")
-		skps      = flag.String("skps", "", "Shorthand `directory` contents as 'skps'.")
-		svgs      = flag.String("svgs", "", "Shorthand `directory` contents as 'svgs'.")
-		script    = flag.String("script", "", "File (or - for stdin) with one job per line.")
-		gold      = flag.Bool("gold", false, "Fetch known hashes, upload to Gold, etc.?")
+		resources     = flag.String("resources", "resources", "Passed to fm -i.")
+		imgs          = flag.String("imgs", "", "Shorthand `directory` contents as 'imgs'.")
+		skps          = flag.String("skps", "", "Shorthand `directory` contents as 'skps'.")
+		svgs          = flag.String("svgs", "", "Shorthand `directory` contents as 'svgs'.")
+		script        = flag.String("script", "", "File (or - for stdin) with one job per line.")
+		gold          = flag.Bool("gold", false, "Fetch known hashes, upload to Gold, etc.?")
+		goldHashesURL = flag.String("gold_hashes_url", "", "URL from which to download pre-existing hashes")
 	)
 	flag.Parse()
 
@@ -162,8 +163,7 @@ func main() {
 	}
 	if *gold {
 		func() {
-			url := "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt"
-			resp, err := httpClient(ctx).Get(url)
+			resp, err := httpClient(ctx).Get(*goldHashesURL)
 			if err != nil {
 				fatal(ctx, err)
 			}
