@@ -77,6 +77,8 @@ sksl_error_tests = [
   "/sksl/errors/LastFragColorWithoutCaps.sksl",
   "/sksl/errors/LayoutInFunctions.sksl",
   "/sksl/errors/LayoutRepeatedQualifiers.sksl",
+  "/sksl/errors/MatrixIndexOutOfRange.sksl",
+  "/sksl/errors/MatrixInlinedIndexOutOfRange.sksl",
   "/sksl/errors/MatrixToVectorCast3x3.sksl",
   "/sksl/errors/MatrixToVectorCastBoolean.sksl",
   "/sksl/errors/MatrixToVectorCastInteger.sksl",

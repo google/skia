@@ -38,6 +38,29 @@ bool test() {
     ok = ok &&  (float4(testMatrix2x2) * float4(1)) == float4(testMatrix2x2);
     ok = ok &&  (float4(testMatrix2x2) * float4(0)) == float4(0);
 
+    ok = ok &&  (float2x2(5.0)[0] == float2(5.0, 0.0));
+    ok = ok &&  (float2x2(5.0)[1] == float2(0.0, 5.0));
+
+    ok = ok &&  (float2x2(5.0)[0][0] == 5.0);
+    ok = ok &&  (float2x2(5.0)[0][1] == 0.0);
+    ok = ok &&  (float2x2(5.0)[1][0] == 0.0);
+    ok = ok &&  (float2x2(5.0)[1][1] == 5.0);
+
+    const float3x3 m = float3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ok = ok &&  (m[0] == float3(1, 2, 3));
+    ok = ok &&  (m[1] == float3(4, 5, 6));
+    ok = ok &&  (m[2] == float3(7, 8, 9));
+
+    ok = ok &&  (m[0][0] == 1);
+    ok = ok &&  (m[0][1] == 2);
+    ok = ok &&  (m[0][2] == 3);
+    ok = ok &&  (m[1][0] == 4);
+    ok = ok &&  (m[1][1] == 5);
+    ok = ok &&  (m[1][2] == 6);
+    ok = ok &&  (m[2][0] == 7);
+    ok = ok &&  (m[2][1] == 8);
+    ok = ok &&  (m[2][2] == 9);
+
     return ok;
 }
 
