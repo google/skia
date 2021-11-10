@@ -366,7 +366,7 @@ private:
             advX -= fAdvX;
             fInterval = this->next_interval(fInterval);
             fAdvX = (fInterval->fT1 - fInterval->fT0) / fDx;
-            SkASSERT(fAdvX > 0);
+            SkASSERT(fAdvX >= 0); // fT1 must be bigger than fT0 but fAdvX can underflow.
         } while (advX >= fAdvX);
 
         compute_interval_props(fInterval->fT0);
