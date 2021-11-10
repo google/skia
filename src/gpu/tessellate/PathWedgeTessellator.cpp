@@ -133,22 +133,27 @@ PathTessellator* PathWedgeTessellator::Make(SkArenaAlloc* arena,
                                             const SkPMColor4f& color,
                                             int numPathVerbs,
                                             const GrPipeline& pipeline,
-                                            const GrCaps& caps) {
-    using PatchType = GrPathTessellationShader::PatchType;
+                                            const GrCaps& caps,
+                                            PatchAttribs attribs) {
     GrPathTessellationShader* shader;
+    attribs |= PatchAttribs::kFanPoint;
+    if (!caps.shaderCaps()->infinitySupport()) {
+        attribs |= PatchAttribs::kExplicitCurveType;
+    }
     if (caps.shaderCaps()->tessellationSupport() &&
         caps.shaderCaps()->infinitySupport() &&  // The hw tessellation shaders use infinity.
         !pipeline.usesLocalCoords() &&  // Our tessellation back door doesn't handle varyings.
+        !(attribs & PatchAttribs::kColor) &&  // Input color isn't implemented for tessellation.
         numPathVerbs >= caps.minPathVerbsForHwTessellation()) {
         shader = GrPathTessellationShader::MakeHardwareTessellationShader(arena, viewMatrix, color,
-                                                                          PatchType::kWedges);
+                                                                          attribs);
     } else {
         shader = GrPathTessellationShader::MakeMiddleOutFixedCountShader(*caps.shaderCaps(), arena,
                                                                          viewMatrix, color,
-                                                                         PatchType::kWedges);
+                                                                         attribs);
     }
     return arena->make([=](void* objStart) {
-        return new(objStart) PathWedgeTessellator(shader);
+        return new(objStart) PathWedgeTessellator(shader, attribs);
     });
 }
 
@@ -171,11 +176,7 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
     size_t patchStride = fShader->willUseTessellationShaders() ? fShader->vertexStride() * 5
                                                                : fShader->instanceStride();
 
-    auto attribs = PatchAttribs::kFanPoint;
-    if (!shaderCaps.infinitySupport()) {
-        attribs |= PatchAttribs::kExplicitCurveType;
-    }
-    PatchWriter patchWriter(target, &fVertexChunkArray, patchStride, wedgeAllocCount, attribs);
+    PatchWriter patchWriter(target, &fVertexChunkArray, patchStride, wedgeAllocCount, fAttribs);
 
     int maxFixedCountResolveLevel = GrPathTessellationShader::kMaxFixedCountResolveLevel;
     int maxSegments;
@@ -191,9 +192,12 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
     // emit at least 1 segment.
     float numFixedSegments_pow4 = 1;
 
-    for (auto [pathMatrix, path] : pathDrawList) {
+    for (auto [pathMatrix, path, color] : pathDrawList) {
         AffineMatrix m(pathMatrix);
         wangs_formula::VectorXform totalXform(SkMatrix::Concat(fShader->viewMatrix(), pathMatrix));
+        if (fAttribs & PatchAttribs::kColor) {
+            patchWriter.updateColorAttrib(color);
+        }
         MidpointContourParser parser(path);
         while (parser.parseNextContour()) {
             patchWriter.updateFanPointAttrib(m.mapPoint(parser.currentMidpoint()));

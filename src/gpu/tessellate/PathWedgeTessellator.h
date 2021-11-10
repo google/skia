@@ -29,7 +29,8 @@ public:
                                  const SkPMColor4f&,
                                  int numPathVerbs,
                                  const GrPipeline&,
-                                 const GrCaps&);
+                                 const GrCaps&,
+                                 PatchAttribs = PatchAttribs::kNone);
 
     void prepare(GrMeshDrawTarget*, const PathDrawList&, int totalCombinedPathVerbCnt) override;
 
@@ -39,7 +40,8 @@ public:
 #endif
 
 private:
-    PathWedgeTessellator(GrPathTessellationShader* shader) : PathTessellator(shader) {}
+    PathWedgeTessellator(GrPathTessellationShader* shader, PatchAttribs attribs)
+            : PathTessellator(shader, attribs) {}
 
     GrVertexChunkArray fVertexChunkArray;
 

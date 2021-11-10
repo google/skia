@@ -36,7 +36,8 @@ public:
                                       DrawInnerFan,
                                       int numPathVerbs,
                                       const GrPipeline&,
-                                      const GrCaps&);
+                                      const GrCaps&,
+                                      PatchAttribs = PatchAttribs::kNone);
 
     void prepare(GrMeshDrawTarget* target,
                  const PathDrawList& pathDrawList,
@@ -64,8 +65,10 @@ public:
 #endif
 
 private:
-    PathCurveTessellator(GrPathTessellationShader* shader, DrawInnerFan drawInnerFan)
-            : PathTessellator(shader)
+    PathCurveTessellator(GrPathTessellationShader* shader,
+                         PatchAttribs attribs,
+                         DrawInnerFan drawInnerFan)
+            : PathTessellator(shader, attribs)
             , fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
 
     const bool fDrawInnerFan;

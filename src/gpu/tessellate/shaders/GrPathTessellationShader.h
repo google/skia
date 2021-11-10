@@ -8,6 +8,7 @@
 #ifndef GrPathTessellationShader_DEFINED
 #define GrPathTessellationShader_DEFINED
 
+#include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 // This is the base class for shaders in the GPU tessellator that fill paths.
@@ -28,14 +29,6 @@ public:
         return (1 << resolveLevel) - 1;
     }
 
-    enum class PatchType : bool {
-        // An ice cream cone shaped patch, with 4 curve control points on top of a triangle that
-        // fans from a 5th point at the center of the contour. (5 points per patch.)
-        kWedges,
-        // A standalone closed curve made up 4 control points. (4 points per patch.)
-        kCurves
-    };
-
     // Uses instanced draws to triangulate curves with a "middle-out" topology. Middle-out draws a
     // triangle with vertices at T=[0, 1/2, 1] and then recurses breadth first:
     //
@@ -48,10 +41,14 @@ public:
     // smoothly, and emits empty triangles at any vertices whose sk_VertexIDs are higher than
     // necessary. It is the caller's responsibility to draw enough vertices per instance for the
     // most complex curve in the batch to render smoothly (i.e., NumTrianglesAtResolveLevel() * 3).
+    //
+    // If PatchAttribs::kFanPoint is set, an additional triangle is added, connecting the base of
+    // the curve to the fan point.
     static GrPathTessellationShader* MakeMiddleOutFixedCountShader(const GrShaderCaps&,
                                                                    SkArenaAlloc*,
                                                                    const SkMatrix& viewMatrix,
-                                                                   const SkPMColor4f&, PatchType);
+                                                                   const SkPMColor4f&,
+                                                                   skgpu::PatchAttribs);
 
     // This is the largest number of segments the middle-out shader will accept in a single
     // instance. If a curve requires more segments, it needs to be chopped.
@@ -63,9 +60,6 @@ public:
     // the middle-out fixed count shader. The data sequence is identical for any length of
     // tessellation segments, so the caller can use them with any instance length (up to
     // kMaxFixedCountResolveLevel).
-    //
-    // The "curve" and "wedge" buffers are nearly identical, but we keep them separate for now in
-    // case there is a perf hit in the curve case for not using index 0.
     constexpr static int SizeOfVertexBufferForMiddleOutCurves() {
         constexpr int kMaxVertexCount = (1 << kMaxFixedCountResolveLevel) + 1;
         return kMaxVertexCount * kMiddleOutVertexStride;
@@ -89,12 +83,14 @@ public:
     }
     static void InitializeIndexBufferForMiddleOutWedges(skgpu::VertexWriter, size_t bufferSize);
 
-    // Uses GPU tessellation shaders to linearize, triangulate, and render cubic "wedge" patches. A
-    // wedge is a 5-point patch consisting of 4 cubic control points, plus an anchor point fanning
-    // from the center of the curve's resident contour.
+    // Uses GPU tessellation shaders to linearize, triangulate, and render curves.
+    //
+    // If PatchAttribs::kFanPoint is set, an additional triangle is added, connecting the base of
+    // the curve to the fan point.
     static GrPathTessellationShader* MakeHardwareTessellationShader(SkArenaAlloc*,
                                                                     const SkMatrix& viewMatrix,
-                                                                    const SkPMColor4f&, PatchType);
+                                                                    const SkPMColor4f&,
+                                                                    skgpu::PatchAttribs);
 
     // Returns the stencil settings to use for a standard Redbook "stencil" pass.
     static const GrUserStencilSettings* StencilPathSettings(GrFillRule fillRule) {
@@ -162,9 +158,10 @@ protected:
 
     GrPathTessellationShader(ClassID classID, GrPrimitiveType primitiveType,
                              int tessellationPatchVertexCount, const SkMatrix& viewMatrix,
-                             const SkPMColor4f& color)
+                             const SkPMColor4f& color, skgpu::PatchAttribs attribs)
             : GrTessellationShader(classID, primitiveType, tessellationPatchVertexCount, viewMatrix,
-                                   color) {
+                                   color)
+            , fAttribs(attribs) {
     }
 
     // Default path tessellation shader implementation that manages a uniform matrix and color.
@@ -183,13 +180,19 @@ protected:
         // does not always.
         static const char* kEvalRationalCubicFn;
 
-        virtual void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
-                                    GrGLSLVertexBuilder*, GrGPArgs*) = 0;
+        virtual void emitVertexCode(const GrShaderCaps&,
+                                    const GrPathTessellationShader&,
+                                    GrGLSLVertexBuilder*,
+                                    GrGLSLVaryingHandler*,
+                                    GrGPArgs*) = 0;
 
         GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
         GrGLSLUniformHandler::UniformHandle fTranslateUniform;
         GrGLSLUniformHandler::UniformHandle fColorUniform;
+        SkString fVaryingColorName;
     };
+
+    const skgpu::PatchAttribs fAttribs;
 };
 
 #endif

@@ -34,7 +34,7 @@ private:
                        FillPathFlags pathFlags,
                        const SkRect& drawBounds)
             : GrDrawOp(ClassID())
-            , fPathDrawList(arena->make<PathDrawList>(viewMatrix, path))
+            , fPathDrawList(arena->make<PathDrawList>(viewMatrix, path, SK_PMColor4fTRANSPARENT))
             , fTotalCombinedPathVerbCnt(path.countVerbs())
             , fPathCount(1)
             , fPathFlags(pathFlags)
