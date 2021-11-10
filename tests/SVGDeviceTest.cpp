@@ -588,4 +588,24 @@ DEF_TEST(SVGDevice_relative_path_encoding, reporter) {
     REPORTER_ASSERT(reporter, !strcmp(d, "m100 50l100 0l0 100l-100 -100Z"));
 }
 
+DEF_TEST(SVGDevice_color_shader, reporter) {
+    SkDOM dom;
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+
+        SkPaint paint;
+        paint.setShader(SkShaders::Color(0xffffff00));
+
+        svgCanvas->drawCircle(100, 100, 100, paint);
+    }
+
+    const auto* rootElement = dom.finishParsing();
+    REPORTER_ASSERT(reporter, rootElement, "root element not found");
+    const auto* ellipseElement = dom.getFirstChild(rootElement, "ellipse");
+    REPORTER_ASSERT(reporter, ellipseElement, "ellipse element not found");
+    const auto* fill = dom.findAttr(ellipseElement, "fill");
+    REPORTER_ASSERT(reporter, fill, "fill attribute not found");
+    REPORTER_ASSERT(reporter, !strcmp(fill, "yellow"));
+}
+
 #endif
