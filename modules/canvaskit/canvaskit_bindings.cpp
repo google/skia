@@ -703,7 +703,10 @@ Uint8Array toBytes(sk_sp<SkData> data) {
 JSObject textureCleanup = emscripten::val::null();
 
 struct TextureReleaseContext {
+    // This refers to which webgl context, i.e. which surface, owns the texture. We need this
+    // to route the deleteTexture to the right context.
     uint32_t webglHandle;
+    // This refers to the index of the texture in the complete list of textures.
     uint32_t texHandle;
 };
 

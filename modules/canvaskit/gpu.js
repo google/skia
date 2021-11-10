@@ -155,6 +155,7 @@
       CanvasKit.MakeCanvasSurface = CanvasKit.MakeWebGLCanvasSurface;
 
       CanvasKit.Surface.prototype.makeImageFromTexture = function(tex, info) {
+        CanvasKit.setCurrentContext(this._context);
         if (!info['colorSpace']) {
           info['colorSpace'] = CanvasKit.ColorSpace.SRGB;
         }
@@ -168,7 +169,7 @@
           texHandle = 1;
         }
         GL.textures.push(tex);
-        return this._makeImageFromTexture(GL.currentContext.handle, texHandle, info);
+        return this._makeImageFromTexture(this._context, texHandle, info);
       };
 
       CanvasKit.Surface.prototype.makeImageFromTextureSource = function(src, w, h) {

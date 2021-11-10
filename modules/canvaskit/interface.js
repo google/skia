@@ -934,11 +934,13 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   CanvasKit.Surface.prototype.makeImageSnapshot = function(optionalBoundsRect) {
+    CanvasKit.setCurrentContext(this._context);
     var bPtr = copyIRectToWasm(optionalBoundsRect);
     return this._makeImageSnapshot(bPtr);
   };
 
   CanvasKit.Surface.prototype.makeSurface = function(imageInfo) {
+    CanvasKit.setCurrentContext(this._context);
     var s = this._makeSurface(imageInfo);
     s._context = this._context;
     return s;

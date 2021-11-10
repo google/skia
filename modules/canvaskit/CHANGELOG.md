@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+ - Some `Surface` methods would not properly switch to the right WebGL context.
+
 ### Removed
  - `FontMgr.MakeTypefaceFromData` and `FontMgr.RefDefault` have been removed in favor of
    `Typeface.MakeFreeTypeFaceFromData`
