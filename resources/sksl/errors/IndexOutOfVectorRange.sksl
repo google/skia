@@ -1,0 +1,13 @@
+uniform half4 colorGreen, colorRed;
+
+const int3 values = int3(1);
+
+inline int indexVector(int index) {
+    return values[index];
+}
+
+half4 main(float2 coords) {
+    int ok = indexVector(0) + indexVector(1) + indexVector(2);
+    int undefined = indexVector(-1) + indexVector(3);
+    return colorGreen;
+}

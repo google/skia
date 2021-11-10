@@ -15,6 +15,16 @@
 
 namespace SkSL {
 
+static bool index_out_of_range(const Context& context, SKSL_INT index, const Expression& base) {
+    if (index >= 0 && index < base.type().columns()) {
+        return false;
+    }
+
+    context.fErrors->error(base.fLine, "index " + to_string(index) + " out of range for '" +
+                                       base.type().displayName() + "'");
+    return true;
+}
+
 const Type& IndexExpression::IndexType(const Context& context, const Type& type) {
     if (type.isMatrix()) {
         if (type.componentType() == *context.fTypes.fFloat) {
@@ -67,10 +77,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
     if (indexExpr->isIntLiteral()) {
         SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
-        if (indexValue < 0 || indexValue >= baseType.columns()) {
-            context.fErrors->error(base->fLine, "index " + to_string(indexValue) +
-                                                " out of range for '" + baseType.displayName() +
-                                                "'");
+        if (index_out_of_range(context, indexValue, *base)) {
             return nullptr;
         }
     }
@@ -84,12 +91,16 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
     SkASSERT(baseType.isArray() || baseType.isMatrix() || baseType.isVector());
     SkASSERT(index->type().isInteger());
 
-    // Constant array indexes on vectors can be converted to swizzles: `v[2]` --> `v.z`.
-    // Swizzling is harmless and can unlock further simplifications for some base types.
     const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
-    if (indexExpr->isIntLiteral() && baseType.isVector()) {
+    if (indexExpr->isIntLiteral()) {
         SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
-        return Swizzle::Make(context, std::move(base), ComponentArray{(int8_t)indexValue});
+        if (!index_out_of_range(context, indexValue, *base)) {
+            if (baseType.isVector()) {
+                // Constant array indexes on vectors can be converted to swizzles: `v[2]` --> `v.z`.
+                // Swizzling is harmless and can unlock further simplifications for some base types.
+                return Swizzle::Make(context, std::move(base), ComponentArray{(int8_t)indexValue});
+            }
+        }
     }
 
     // TODO(skia:12472): constantArray[constantExpr] should be compile-time evaluated.

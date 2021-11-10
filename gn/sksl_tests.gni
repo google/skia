@@ -65,6 +65,7 @@ sksl_error_tests = [
   "/sksl/errors/InVarWithInitializerExpression.sksl",
   "/sksl/errors/IncompleteExpression.sksl",
   "/sksl/errors/IncompleteFunctionCall.sksl",
+  "/sksl/errors/IndexOutOfVectorRange.sksl",
   "/sksl/errors/InterfaceBlockScope.sksl",
   "/sksl/errors/InterfaceBlockStorageModifiers.sksl",
   "/sksl/errors/InterfaceBlockWithNoMembers.sksl",
