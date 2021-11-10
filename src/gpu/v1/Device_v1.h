@@ -152,6 +152,12 @@ protected:
 
     void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
 
+    sk_sp<GrSlug> convertGlyphRunListToSlug(
+            const SkGlyphRunList& glyphRunList,
+            const SkPaint& paint) const override;
+
+    void drawSlug(GrSlug* slug) override;
+
     void onClipRect(const SkRect& rect, SkClipOp op, bool aa) override {
         SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
         fClip.clipRect(this->localToDevice(), rect, GrAA(aa), op);
