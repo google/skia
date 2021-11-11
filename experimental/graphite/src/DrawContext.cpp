@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/DrawContext.h"
 
+#include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawPass.h"
 #include "experimental/graphite/src/RenderPassTask.h"
@@ -93,7 +94,16 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
         return nullptr;
     }
 
-    return RenderPassTask::Make(std::move(fDrawPasses));
+    // TODO: At this point we would determine all the targets used by the drawPasses,
+    // build up the union of them and store them in the RenderPassDesc. However, for
+    // the moment we should have only one drawPass.
+    SkASSERT(fDrawPasses.size() == 1);
+    RenderPassDesc desc;
+    desc.fColorAttachment.fTextureProxy = sk_ref_sp(fDrawPasses[0]->target());
+    desc.fColorAttachment.fLoadOp = LoadOp::kLoad;
+    desc.fColorAttachment.fStoreOp = StoreOp::kStore;
+
+    return RenderPassTask::Make(std::move(fDrawPasses), desc);
 }
 
 } // namespace skgpu

@@ -17,6 +17,7 @@
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
+#include "experimental/graphite/src/TextureProxy.h"
 
 #if GRAPHITE_TEST_UTILS
 // set to 1 if you want to do GPU capture of the commandBuffer
@@ -54,16 +55,16 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     TextureInfo textureInfo;
 #endif
 
-    sk_sp<Texture> texture = gpu->resourceProvider()->findOrCreateTexture(textureSize,
-                                                                          textureInfo);
-    REPORTER_ASSERT(reporter, texture);
+    auto target = sk_sp<TextureProxy>(new TextureProxy(textureSize, textureInfo));
+    REPORTER_ASSERT(reporter, target);
 
     RenderPassDesc renderPassDesc = {};
-    renderPassDesc.fColorAttachment.fTexture = texture;
+    renderPassDesc.fColorAttachment.fTextureProxy = target;
     renderPassDesc.fColorAttachment.fLoadOp = LoadOp::kClear;
     renderPassDesc.fColorAttachment.fStoreOp = StoreOp::kStore;
     renderPassDesc.fClearColor = { 1, 0, 0, 1 }; // red
 
+    target->instantiate(gpu->resourceProvider());
     commandBuffer->beginRenderPass(renderPassDesc);
 
     // Shared uniform buffer
@@ -179,7 +180,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
             bufferSize, BufferType::kXferGpuToCpu, PrioritizeGpuReads::kNo);
     REPORTER_ASSERT(reporter, copyBuffer);
     SkIRect srcRect = { 0, 0, kTextureWidth, kTextureHeight };
-    commandBuffer->copyTextureToBuffer(texture, srcRect, copyBuffer, 0, rowBytes);
+    commandBuffer->copyTextureToBuffer(target->refTexture(), srcRect, copyBuffer, 0, rowBytes);
 
     bool result = gpu->submit(commandBuffer);
     REPORTER_ASSERT(reporter, result);

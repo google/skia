@@ -8,6 +8,7 @@
 #ifndef skgpu_RenderPassTask_DEFINED
 #define skgpu_RenderPassTask_DEFINED
 
+#include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/Task.h"
 
 #include <vector>
@@ -27,16 +28,18 @@ class ResourceProvider;
  */
 class RenderPassTask final : public Task {
 public:
-    static sk_sp<RenderPassTask> Make(std::vector<std::unique_ptr<DrawPass>> passes);
+    static sk_sp<RenderPassTask> Make(std::vector<std::unique_ptr<DrawPass>> passes,
+                                      const RenderPassDesc&);
 
     ~RenderPassTask() override;
 
     void addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:
-    RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes);
+    RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes, const RenderPassDesc&);
 
     std::vector<std::unique_ptr<DrawPass>> fDrawPasses;
+    RenderPassDesc fRenderPassDesc;
 };
 
 } // namespace skgpu

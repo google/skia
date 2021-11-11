@@ -33,6 +33,10 @@ sk_sp<Texture> TextureProxy::refTexture() const {
     return fTexture;
 }
 
+const Texture* TextureProxy::texture() const {
+    return fTexture.get();
+}
+
 #ifdef SK_DEBUG
 void TextureProxy::validateTexture(const Texture* texture) {
     SkASSERT(fDimensions == texture->dimensions());

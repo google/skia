@@ -13,6 +13,7 @@
 
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/Texture.h"
+#include "experimental/graphite/src/TextureProxy.h"
 
 namespace skgpu {
 
@@ -28,8 +29,8 @@ void CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc) {
     this->onBeginRenderPass(renderPassDesc);
 
     auto& colorInfo = renderPassDesc.fColorAttachment;
-    if (colorInfo.fTexture) {
-        this->trackResource(std::move(colorInfo.fTexture));
+    if (colorInfo.fTextureProxy) {
+        this->trackResource(colorInfo.fTextureProxy->refTexture());
     }
     if (colorInfo.fStoreOp == StoreOp::kStore) {
         fHasWork = true;

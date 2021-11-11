@@ -20,9 +20,10 @@ class Buffer;
 class Gpu;
 class GraphicsPipeline;
 class Texture;
+class TextureProxy;
 
 struct AttachmentDesc {
-    sk_sp<Texture> fTexture; // the ref on this will be taken by the command buffer
+    sk_sp<TextureProxy> fTextureProxy;
     LoadOp fLoadOp;
     StoreOp fStoreOp;
 };

@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/mtl/MtlCommandBuffer.h"
 
+#include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/mtl/MtlBlitCommandEncoder.h"
 #include "experimental/graphite/src/mtl/MtlBuffer.h"
 #include "experimental/graphite/src/mtl/MtlCaps.h"
@@ -67,8 +68,6 @@ void CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc) {
     SkASSERT(!fActiveRenderCommandEncoder);
     this->endBlitCommandEncoder();
 
-    auto& colorInfo = renderPassDesc.fColorAttachment;
-
     const static MTLLoadAction mtlLoadAction[] {
         MTLLoadActionLoad,
         MTLLoadActionClear,
@@ -89,14 +88,17 @@ void CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc) {
 
     sk_cfp<MTLRenderPassDescriptor*> descriptor([[MTLRenderPassDescriptor alloc] init]);
     // Set up color attachment.
-    auto colorAttachment = (*descriptor).colorAttachments[0];
-    Texture* colorTexture = (Texture*)colorInfo.fTexture.get();
-    colorAttachment.texture = colorTexture->mtlTexture();
-    const std::array<float, 4>& clearColor = renderPassDesc.fClearColor;
-    colorAttachment.clearColor =
-            MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-    colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
-    colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
+    auto& colorInfo = renderPassDesc.fColorAttachment;
+    if (colorInfo.fTextureProxy) {
+        auto colorAttachment = (*descriptor).colorAttachments[0];
+        const Texture* colorTexture = (const Texture*)colorInfo.fTextureProxy->texture();
+        colorAttachment.texture = colorTexture->mtlTexture();
+        const std::array<float, 4>& clearColor = renderPassDesc.fClearColor;
+        colorAttachment.clearColor =
+                MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+        colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
+        colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
+    }
 
     // TODO:
     // * setup resolve
