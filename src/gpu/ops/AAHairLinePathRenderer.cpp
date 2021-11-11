@@ -526,7 +526,7 @@ void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kQuadNumVertices]) {
     DevToUV.apply(verts, kQuadNumVertices, sizeof(BezierVertex), sizeof(SkPoint));
 }
 
-void bloat_quad(const SkPoint qpts[3],
+bool bloat_quad(const SkPoint qpts[3],
                 const SkMatrix* toDevice,
                 const SkMatrix* toSrc,
                 BezierVertex verts[kQuadNumVertices]) {
@@ -568,23 +568,30 @@ void bloat_quad(const SkPoint qpts[3],
 
     // After the transform (or due to floating point math) we might have a line,
     // try to do something reasonable
-    if (SkPointPriv::LengthSqd(ab) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+
+    bool abNormalized = ab.normalize();
+    bool cbNormalized = cb.normalize();
+
+    if (!abNormalized) {
+        if (!cbNormalized) {
+            return false;          // Quad is degenerate so we won't add it.
+        }
+
         ab = cb;
     }
-    if (SkPointPriv::LengthSqd(cb) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+
+    if (!cbNormalized) {
         cb = ab;
     }
 
     // We should have already handled degenerates
     SkASSERT(ab.length() > 0 && cb.length() > 0);
 
-    ab.normalize();
     SkVector abN = SkPointPriv::MakeOrthog(ab, SkPointPriv::kLeft_Side);
     if (abN.dot(ac) > 0) {
         abN.negate();
     }
 
-    cb.normalize();
     SkVector cbN = SkPointPriv::MakeOrthog(cb, SkPointPriv::kLeft_Side);
     if (cbN.dot(ac) < 0) {
         cbN.negate();
@@ -609,6 +616,8 @@ void bloat_quad(const SkPoint qpts[3],
         SkMatrixPriv::MapPointsWithStride(*toSrc, &verts[0].fPos, sizeof(BezierVertex),
                                           kQuadNumVertices);
     }
+
+    return true;
 }
 
 // Equations based off of Loop-Blinn Quadratic GPU Rendering
@@ -636,9 +645,10 @@ void add_conics(const SkPoint p[3],
                 const SkMatrix* toDevice,
                 const SkMatrix* toSrc,
                 BezierVertex** vert) {
-    bloat_quad(p, toDevice, toSrc, *vert);
-    set_conic_coeffs(p, *vert, weight);
-    *vert += kQuadNumVertices;
+    if (bloat_quad(p, toDevice, toSrc, *vert)) {
+        set_conic_coeffs(p, *vert, weight);
+        *vert += kQuadNumVertices;
+    }
 }
 
 void add_quads(const SkPoint p[3],
@@ -665,18 +675,20 @@ void add_quads(const SkPoint p[3],
         SkScalar h = 1.f / stepCount;
         SkChopQuadAt(&choppedQuadPts[2], choppedQuadPts, h);
 
-        bloat_quad(choppedQuadPts, toDevice, toSrc, outVerts);
-        set_uv_quad(choppedQuadPts, outVerts);
-        memcpy(*vert, outVerts, kQuadNumVertices*sizeof(BezierVertex));
-        *vert += kQuadNumVertices;
+        if (bloat_quad(choppedQuadPts, toDevice, toSrc, outVerts)) {
+            set_uv_quad(choppedQuadPts, outVerts);
+            memcpy(*vert, outVerts, kQuadNumVertices * sizeof(BezierVertex));
+            *vert += kQuadNumVertices;
+        }
         --stepCount;
     }
 
     // finish up, write out the final quad
-    bloat_quad(&choppedQuadPts[2], toDevice, toSrc, outVerts);
-    set_uv_quad(&choppedQuadPts[2], outVerts);
-    memcpy(*vert, outVerts, kQuadNumVertices * sizeof(BezierVertex));
-    *vert += kQuadNumVertices;
+    if (bloat_quad(&choppedQuadPts[2], toDevice, toSrc, outVerts)) {
+        set_uv_quad(&choppedQuadPts[2], outVerts);
+        memcpy(*vert, outVerts, kQuadNumVertices * sizeof(BezierVertex));
+        *vert += kQuadNumVertices;
+    }
 }
 
 void add_line(const SkPoint p[2],
