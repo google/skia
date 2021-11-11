@@ -1,7 +1,7 @@
+load(":defs.bzl", "string_flag_with_values")
+
 # @platforms is found at https://github.com/bazelbuild/platforms
 package(default_visibility = ["//:__subpackages__"])
-
-load(":defs.bzl", "string_flag_with_values")
 
 config_setting(
     name = "linux_x64",
@@ -75,10 +75,9 @@ config_setting(
 # directory. https://docs.bazel.build/versions/main/guide.html#where-are-the-bazelrc-files
 #
 
-# TODO(kjlubick) make gpu_backend a multi-string flag when available in Bazel.
-#  https://docs.bazel.build/versions/main/skylark/config.html#defining-multi-set-string-flags
 string_flag_with_values(
     flag_name = "gpu_backend",
+    multiple = True,
     values = [
         "gl_backend",
         "vulkan_backend",
@@ -100,5 +99,17 @@ string_flag_with_values(
     values = [
         "empty_fontmgr_factory",
         "custom_directory_fontmgr_factory",
+    ],
+)
+
+string_flag_with_values(
+    flag_name = "include_codec",
+    multiple = True,
+    values = [
+        "gif_codec",
+        "jpeg_codec",
+        "png_codec",
+        "raw_codec",
+        "webp_codec",
     ],
 )

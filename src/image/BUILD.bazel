@@ -1,7 +1,7 @@
-package(default_visibility = ["//visibility:private"])
-
 # https://github.com/bazelbuild/bazel-skylib
 load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = ["//visibility:private"])
 
 filegroup(
     name = "core-srcs",

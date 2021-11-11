@@ -1002,6 +1002,12 @@ optional("heif") {
   enabled = skia_use_libheif
   public_defines = [ "SK_HAS_HEIF_LIBRARY" ]
 
+  # This HEIF decoding functionality is a part of the Android Framework.
+  # https://android.googlesource.com/platform/frameworks/av/+/master/media/libheif/include/HeifDecoderAPI.h
+  # There isn't a way to compile that library outside of it, so we just link against
+  # the library. This feature is not supported on other platforms (and we haven't
+  # yet tried something like https://github.com/strukturag/libheif/tree/master/libheif).
+  # The dependency for Android is set in gn_to_bp.py.
   deps = []
 
   sources = [ "src/codec/SkHeifCodec.cpp" ]
