@@ -61,6 +61,36 @@ bool test() {
     ok = ok &&  (m[2][1] == 8);
     ok = ok &&  (m[2][2] == 9);
 
+    {
+        // This `five` is constant and should always fold.
+        const float five = 5.0;
+        ok = ok &&  (float2x2(five)[0] == float2(five, 0.0));
+        ok = ok &&  (float2x2(five)[1] == float2(0.0, five));
+
+        ok = ok &&  (float2x2(five)[0][0] == five);
+        ok = ok &&  (float2x2(five)[0][1] == 0.0);
+        ok = ok &&  (float2x2(five)[1][0] == 0.0);
+        ok = ok &&  (float2x2(five)[1][1] == five);
+
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[0] == float3(1, 2, 3));
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[1] == float3(4, five, 6));
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[2] == float3(7, 8, 9));
+    }
+    {
+        // This `five` cannot be folded, but the first and third columns should still be foldable.
+        float five = 5.0;
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[0] == float3(1, 2, 3));
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[1] == float3(4, five, 6));
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[2] == float3(7, 8, 9));
+    }
+    {
+        // Side-effecting expressions should never be folded away.
+        float num = 6.0;
+        ok = ok &&  (float3x3(1, 2, 3, 4, 5, num++, 7, 8, 9)[0] == float3(1, 2, 3));
+        ok = ok &&  (float3x3(1, 2, 3, 4, 5, 6, num++, 8, 9)[1] == float3(4, 5, 6));
+        ok = ok &&  (float3x3(1, 2, 3, 4, 5, 6, 7, num++, 9)[2] == float3(7, 8, 9));
+    }
+
     return ok;
 }
 

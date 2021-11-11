@@ -8,11 +8,12 @@ int side_effecting_ii(int value) {
     return value;
 }
 vec4 main() {
-    int _7_flatten0 = 1;
-    int _8_flatten1 = 2;
-    int _9_flatten2 = 3;
-    int _10_noFlatten0 = int[3](1, side_effecting_ii(2), 3)[0];
-    int _11_noFlatten1 = int[3](side_effecting_ii(1), 2, 3)[1];
-    int _12_noFlatten2 = int[3](1, 2, side_effecting_ii(3))[2];
-    return (_7_flatten0 == _10_noFlatten0 && _8_flatten1 == _11_noFlatten1) && _9_flatten2 == _12_noFlatten2 ? colorGreen : colorRed;
+    int _7_two = 2;
+    int _8_flatten0 = 1;
+    int _9_flatten1 = _7_two;
+    int _10_flatten2 = 3;
+    int _11_noFlatten0 = int[3](--_7_two, side_effecting_ii(2), 3)[0];
+    int _12_noFlatten1 = int[3](side_effecting_ii(1), 2, 3)[1];
+    int _13_noFlatten2 = int[3](1, ++_7_two, 3)[2];
+    return (_8_flatten0 == _11_noFlatten0 && _9_flatten1 == _12_noFlatten1) && _10_flatten2 == _13_noFlatten2 ? colorGreen : colorRed;
 }

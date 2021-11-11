@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -20,6 +21,11 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
     SkASSERT(type.isAllowedInES2(context));
     SkASSERT(arg->type().isScalar());
     SkASSERT(arg->type() == type.componentType());
+
+    // Look up the value of constant variables. This allows constant-expressions like `mat4(five)`
+    // to be replaced with `mat4(5.0)`.
+    arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
+
     return std::make_unique<ConstructorDiagonalMatrix>(line, type, std::move(arg));
 }
 
