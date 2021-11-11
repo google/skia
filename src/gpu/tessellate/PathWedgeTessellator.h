@@ -8,23 +8,14 @@
 #ifndef tessellate_PathWedgeTessellator_DEFINED
 #define tessellate_PathWedgeTessellator_DEFINED
 
-#include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/PathTessellator.h"
-
-class GrCaps;
-class GrPipeline;
-
-#if SK_GPU_V1
-class GrGpuBuffer;
-class GrResourceProvider;
-#endif
 
 namespace skgpu {
 
-// Prepares an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent,
-// 5-point closed contour consisting of 4 control points plus an anchor point fanning from the
-// center of the curve's resident contour. A wedge can be either a cubic or a conic. Quadratics and
-// lines are converted to cubics. Once stencilled, these wedges alone define the complete path.
+// Prepares an array of "wedge" patches. A wedge is an independent, 5-point closed contour
+// consisting of 4 control points plus an anchor point fanning from the center of the curve's
+// resident contour. A wedge can be either a cubic or a conic. Quadratics and lines are converted to
+// cubics. Once stencilled, these wedges alone define the complete path.
 class PathWedgeTessellator final : public PathTessellator {
 public:
     static PathWedgeTessellator* Make(SkArenaAlloc* arena,
@@ -38,11 +29,12 @@ public:
         fAttribs |= PatchAttribs::kFanPoint;
     }
 
-    void prepare(GrMeshDrawTarget*,
-                 int maxTessellationSegments,
-                 const SkMatrix& shaderMatrix,
-                 const PathDrawList&,
-                 int totalCombinedPathVerbCnt) final;
+    int patchPreallocCount(int totalCombinedPathVerbCnt) const final;
+
+    void writePatches(PatchWriter&,
+                      int maxTessellationSegments,
+                      const SkMatrix& shaderMatrix,
+                      const PathDrawList&) final;
 
     // Size of the vertex buffer to use when rendering with a fixed count shader.
     constexpr static int FixedVertexBufferSize(int maxFixedResolveLevel) {
@@ -62,14 +54,11 @@ public:
     static void WriteFixedIndexBuffer(VertexWriter vertexWriter, size_t bufferSize);
 
 #if SK_GPU_V1
-    void prepareFixedCountBuffers(GrResourceProvider*) final;
+    void prepareFixedCountBuffers(GrMeshDrawTarget*) final;
 
     void drawTessellated(GrOpFlushState*) const final;
     void drawFixedCount(GrOpFlushState*) const final;
 #endif
-
-private:
-    GrVertexChunkArray fVertexChunkArray;
 };
 
 }  // namespace skgpu

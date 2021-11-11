@@ -7,9 +7,22 @@
 
 #include "src/gpu/tessellate/PatchWriter.h"
 
+#include "src/gpu/tessellate/PathTessellator.h"
+
 namespace skgpu {
 
 SK_ALWAYS_INLINE SkPoint to_skpoint(float2 p) { return skvx::bit_pun<SkPoint>(p); }
+
+#if SK_GPU_V1
+PatchWriter::PatchWriter(GrMeshDrawTarget* target,
+                         PathTessellator* tessellator,
+                         int initialPatchAllocCount)
+        : PatchWriter(target,
+                      &tessellator->fVertexChunkArray,
+                      tessellator->fAttribs,
+                      initialPatchAllocCount) {
+}
+#endif
 
 void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatches) {
     // If we aren't fanning, we need to fill the space between chops with triangles.

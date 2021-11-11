@@ -126,23 +126,16 @@ private:
 
 }  // namespace
 
-void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
-                                   int maxTessellationSegments,
-                                   const SkMatrix& shaderMatrix,
-                                   const PathDrawList& pathDrawList,
-                                   int totalCombinedPathVerbCnt) {
-    SkASSERT(fVertexChunkArray.empty());
-    SkASSERT(!fFixedResolveLevel);
-
+int PathWedgeTessellator::patchPreallocCount(int totalCombinedPathVerbCnt) const {
     // Over-allocate enough wedges for 1 in 4 to chop.
     int maxWedges = MaxCombinedFanEdgesInPathDrawList(totalCombinedPathVerbCnt);
-    int wedgeAllocCount = (maxWedges * 5 + 3) / 4;  // i.e., ceil(maxWedges * 5/4)
-    if (!wedgeAllocCount) {
-        return;
-    }
-    PatchWriter patchWriter(target, &fVertexChunkArray, PatchStride(fAttribs), wedgeAllocCount,
-                            fAttribs);
+    return (maxWedges * 5 + 3) / 4;  // i.e., ceil(maxWedges * 5/4)
+}
 
+void PathWedgeTessellator::writePatches(PatchWriter& patchWriter,
+                                        int maxTessellationSegments,
+                                        const SkMatrix& shaderMatrix,
+                                        const PathDrawList& pathDrawList) {
     float maxSegments_pow2 = pow2(maxTessellationSegments);
     float maxSegments_pow4 = pow2(maxSegments_pow2);
 
@@ -249,8 +242,9 @@ void PathWedgeTessellator::prepare(GrMeshDrawTarget* target,
     // log16(n^4) == log2(n).
     // We already chopped curves to make sure none needed a higher resolveLevel than
     // kMaxFixedResolveLevel.
-    fFixedResolveLevel = std::min(wangs_formula::nextlog16(numFixedSegments_pow4),
-                                  int(kMaxFixedResolveLevel));
+    fFixedResolveLevel = SkTPin(wangs_formula::nextlog16(numFixedSegments_pow4),
+                                fFixedResolveLevel,
+                                int(kMaxFixedResolveLevel));
 }
 
 void PathWedgeTessellator::WriteFixedVertexBuffer(VertexWriter vertexWriter, size_t bufferSize) {
@@ -281,7 +275,9 @@ void PathWedgeTessellator::WriteFixedIndexBuffer(VertexWriter vertexWriter, size
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedVertexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedIndexBufferKey);
 
-void PathWedgeTessellator::prepareFixedCountBuffers(GrResourceProvider* rp) {
+void PathWedgeTessellator::prepareFixedCountBuffers(GrMeshDrawTarget* target) {
+    GrResourceProvider* rp = target->resourceProvider();
+
     GR_DEFINE_STATIC_UNIQUE_KEY(gFixedVertexBufferKey);
 
     fFixedVertexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kVertex,

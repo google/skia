@@ -25,85 +25,18 @@ using CubicPatch = PatchWriter::CubicPatch;
 using ConicPatch = PatchWriter::ConicPatch;
 using TrianglePatch = PatchWriter::TrianglePatch;
 
-void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
-                                   int maxTessellationSegments,
-                                   const SkMatrix& shaderMatrix,
-                                   const PathDrawList& pathDrawList,
-                                   int totalCombinedPathVerbCnt,
-                                   const BreadcrumbTriangleList* breadcrumbTriangleList) {
-    SkASSERT(fVertexChunkArray.empty());
-    SkASSERT(!fFixedResolveLevel);
-
-    // Determine how many triangles to allocate.
-    int maxTriangles = 0;
-    if (fDrawInnerFan) {
-        int maxCombinedFanEdges = MaxCombinedFanEdgesInPathDrawList(totalCombinedPathVerbCnt);
-        // A single n-sided polygon is fanned by n-2 triangles. Multiple polygons with a combined
-        // edge count of n are fanned by strictly fewer triangles.
-        int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
-        maxTriangles += maxTrianglesInFans;
-    }
-    if (breadcrumbTriangleList) {
-        maxTriangles += breadcrumbTriangleList->count();
-    }
+int PathCurveTessellator::patchPreallocCount(int totalCombinedPathVerbCnt) const {
     // Over-allocate enough curves for 1 in 4 to chop.
-    int curveAllocCount = (totalCombinedPathVerbCnt * 5 + 3) / 4;  // i.e., ceil(numVerbs * 5/4)
-    int patchAllocCount = maxTriangles + curveAllocCount;
-    if (!patchAllocCount) {
-        return;
-    }
-    PatchWriter patchWriter(target, &fVertexChunkArray, PatchStride(fAttribs), patchAllocCount,
-                            fAttribs);
+    int approxNumChops = (totalCombinedPathVerbCnt + 3) / 4;
+    // Every chop introduces 2 new patches: another curve patch and a triangle patch that glues the
+    // two chops together.
+    return totalCombinedPathVerbCnt + approxNumChops * 2;
+}
 
-    // Write out inner fan triangles.
-    if (fDrawInnerFan) {
-        for (auto [pathMatrix, path, color] : pathDrawList) {
-            AffineMatrix m(pathMatrix);
-            if (fAttribs & PatchAttribs::kColor) {
-                patchWriter.updateColorAttrib(color);
-            }
-            for (PathMiddleOutFanIter it(path); !it.done();) {
-                for (auto [p0, p1, p2] : it.nextStack()) {
-                    TrianglePatch(patchWriter) << m.map2Points(p0, p1) << m.mapPoint(p2);
-                }
-            }
-        }
-    }
-
-    // Write out breadcrumb triangles.
-    if (breadcrumbTriangleList) {
-        SkDEBUGCODE(int count = 0;)
-#ifdef SK_DEBUG
-        for (auto [pathMatrix, path, color] : pathDrawList) {
-            // This assert isn't actually necessary, but we currently only use breadcrumb triangles
-            // with an identity pathMatrix and transparent color. If that ever changes, this assert
-            // will serve as a gentle reminder to make sure the breadcrumb triangles are also
-            // transformed on the CPU.
-            SkASSERT(pathMatrix.isIdentity());
-            SkASSERT(color == SK_PMColor4fTRANSPARENT);
-        }
-#endif
-        if (fAttribs & PatchAttribs::kColor) {
-            patchWriter.updateColorAttrib(SK_PMColor4fTRANSPARENT);
-        }
-        for (const auto* tri = breadcrumbTriangleList->head(); tri; tri = tri->fNext) {
-            SkDEBUGCODE(++count;)
-            auto p0 = float2::Load(tri->fPts);
-            auto p1 = float2::Load(tri->fPts + 1);
-            auto p2 = float2::Load(tri->fPts + 2);
-            if (skvx::any((p0 == p1) & (p1 == p2))) {
-                // Cull completely horizontal or vertical triangles. GrTriangulator can't always
-                // get these breadcrumb edges right when they run parallel to the sweep
-                // direction because their winding is undefined by its current definition.
-                // FIXME(skia:12060): This seemed safe, but if there is a view matrix it will
-                // introduce T-junctions.
-                continue;
-            }
-            TrianglePatch(patchWriter) << p0 << p1 << p2;
-        }
-        SkASSERT(count == breadcrumbTriangleList->count());
-    }
-
+void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
+                                        int maxTessellationSegments,
+                                        const SkMatrix& shaderMatrix,
+                                        const PathDrawList& pathDrawList) {
     float maxSegments_pow2 = pow2(maxTessellationSegments);
     float maxSegments_pow4 = pow2(maxSegments_pow2);
 
@@ -193,8 +126,9 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
     // log16(n^4) == log2(n).
     // We already chopped curves to make sure none needed a higher resolveLevel than
     // kMaxFixedResolveLevel.
-    fFixedResolveLevel = std::min(wangs_formula::nextlog16(numFixedSegments_pow4),
-                                  int(kMaxFixedResolveLevel));
+    fFixedResolveLevel = SkTPin(wangs_formula::nextlog16(numFixedSegments_pow4),
+                                fFixedResolveLevel,
+                                int(kMaxFixedResolveLevel));
 }
 
 void PathCurveTessellator::WriteFixedVertexBuffer(VertexWriter vertexWriter, size_t bufferSize) {
@@ -280,7 +214,9 @@ void PathCurveTessellator::WriteFixedIndexBufferBaseIndex(VertexWriter vertexWri
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedVertexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedIndexBufferKey);
 
-void PathCurveTessellator::prepareFixedCountBuffers(GrResourceProvider* rp) {
+void PathCurveTessellator::prepareFixedCountBuffers(GrMeshDrawTarget* target) {
+    GrResourceProvider* rp = target->resourceProvider();
+
     GR_DEFINE_STATIC_UNIQUE_KEY(gFixedVertexBufferKey);
 
     fFixedVertexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kVertex,

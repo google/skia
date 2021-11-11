@@ -251,7 +251,6 @@ void PathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Prog
     // Pass 1: Tessellate the outer curves into the stencil buffer.
     if (!isLinear) {
         fTessellator = PathCurveTessellator::Make(args.fArena,
-                                                  PathCurveTessellator::DrawInnerFan::kNo,
                                                   args.fCaps->shaderCaps()->infinitySupport());
         auto* tessShader = GrPathTessellationShader::Make(args.fArena,
                                                           fViewMatrix,
@@ -401,11 +400,13 @@ void PathInnerTriangulateOp::onPrePrepare(GrRecordingContext* context,
 GR_DECLARE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);
 
 void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
+    const GrCaps& caps = flushState->caps();
+
     if (!fFanTriangulator) {
         this->prePreparePrograms({flushState->allocator(), flushState->writeView(),
                                  flushState->usesMSAASurface(), &flushState->dstProxyView(),
                                  flushState->renderPassBarriers(), flushState->colorLoadOp(),
-                                 &flushState->caps()}, flushState->detachAppliedClip());
+                                 &caps}, flushState->detachAppliedClip());
         if (!fFanTriangulator) {
             return;
         }
@@ -417,20 +418,45 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     }
 
     if (fTessellator) {
-        // Must be called after polysToTriangles() in order for fFanBreadcrumbs to be complete.
+        int patchPreallocCount = fFanBreadcrumbs.count() +
+                                 fTessellator->patchPreallocCount(fPath.countVerbs());
+        SkASSERT(patchPreallocCount);  // Otherwise fTessellator should be null.
+
+        PatchWriter patchWriter(flushState, fTessellator, patchPreallocCount);
+
+        // Write out breadcrumb triangles. This must be called after polysToTriangles() in order for
+        // fFanBreadcrumbs to be complete.
+        SkDEBUGCODE(int breadcrumbCount = 0;)
+        for (const auto* tri = fFanBreadcrumbs.head(); tri; tri = tri->fNext) {
+            SkDEBUGCODE(++breadcrumbCount;)
+            auto p0 = float2::Load(tri->fPts);
+            auto p1 = float2::Load(tri->fPts + 1);
+            auto p2 = float2::Load(tri->fPts + 2);
+            if (skvx::any((p0 == p1) & (p1 == p2))) {
+                // Cull completely horizontal or vertical triangles. GrTriangulator can't always
+                // get these breadcrumb edges right when they run parallel to the sweep
+                // direction because their winding is undefined by its current definition.
+                // FIXME(skia:12060): This seemed safe, but if there is a view matrix it will
+                // introduce T-junctions.
+                continue;
+            }
+            PatchWriter::TrianglePatch(patchWriter) << p0 << p1 << p2;
+        }
+        SkASSERT(breadcrumbCount == fFanBreadcrumbs.count());
+
+        // Write out the curves.
         auto tessShader = &fStencilCurvesProgram->geomProc().cast<GrPathTessellationShader>();
-        fTessellator->prepare(flushState,
-                              tessShader->maxTessellationSegments(*flushState->caps().shaderCaps()),
-                              tessShader->viewMatrix(),
-                              {SkMatrix::I(), fPath, SK_PMColor4fTRANSPARENT},
-                              fPath.countVerbs(),
-                              &fFanBreadcrumbs);
+        fTessellator->writePatches(patchWriter,
+                                   tessShader->maxTessellationSegments(*caps.shaderCaps()),
+                                   tessShader->viewMatrix(),
+                                   {SkMatrix::I(), fPath, SK_PMColor4fTRANSPARENT});
+
         if (!tessShader->willUseTessellationShaders()) {
-            fTessellator->prepareFixedCountBuffers(flushState->resourceProvider());
+            fTessellator->prepareFixedCountBuffers(flushState);
         }
     }
 
-    if (!flushState->caps().shaderCaps()->vertexIDSupport()) {
+    if (!caps.shaderCaps()->vertexIDSupport()) {
         constexpr static float kStripOrderIDs[4] = {0, 1, 3, 2};
 
         GR_DEFINE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);

@@ -158,7 +158,6 @@ void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramA
                                                                stencilPipeline,
                                                                stencilSettings);
         fTessellator = PathCurveTessellator::Make(args.fArena,
-                                                  PathCurveTessellator::DrawInnerFan::kNo,
                                                   args.fCaps->shaderCaps()->infinitySupport());
     } else {
         fTessellator = PathWedgeTessellator::Make(args.fArena,
@@ -264,10 +263,8 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
                           tessShader->maxTessellationSegments(*flushState->caps().shaderCaps()),
                           tessShader->viewMatrix(),
                           *fPathDrawList,
-                          fTotalCombinedPathVerbCnt);
-    if (!tessShader->willUseTessellationShaders()) {
-        fTessellator->prepareFixedCountBuffers(flushState->resourceProvider());
-    }
+                          fTotalCombinedPathVerbCnt,
+                          tessShader->willUseTessellationShaders());
 
     if (fCoverBBoxProgram) {
         size_t instanceStride = fCoverBBoxProgram->geomProc().instanceStride();

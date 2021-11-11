@@ -114,10 +114,8 @@ void PathTessellateOp::onPrepare(GrOpFlushState* flushState) {
                           tessShader->maxTessellationSegments(*flushState->caps().shaderCaps()),
                           fShaderMatrix,
                           *fPathDrawList,
-                          fTotalCombinedPathVerbCnt);
-    if (!tessShader->willUseTessellationShaders()) {
-        fTessellator->prepareFixedCountBuffers(flushState->resourceProvider());
-    }
+                          fTotalCombinedPathVerbCnt,
+                          tessShader->willUseTessellationShaders());
 }
 
 void PathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
