@@ -1,12 +1,38 @@
 uniform half4 colorGreen;
 
-// We don't inline functions with out parameters. (skia:11326)
-inline void outParameter(inout half4 x) {
+inline void outParameterWrite(out half4 x) {
+    x = colorGreen;
+}
+
+inline void inoutParameterWrite(inout half4 x) {
     x *= x;
 }
 
+inline void inoutParameterRead(inout half4 x) {
+    half4 scratch = x * x;
+}
+
+inline void inoutParameterIgnore(inout half4 x) {
+    half4 scratch = colorGreen * colorGreen;
+}
+
+inline void outParameterIgnore(out half4 x) {
+    half4 scratch = colorGreen * colorGreen;
+}
+
+// We don't inline functions that write to out parameters. (skia:11326)
 half4 main(float2 coords) {
-    half4 c = colorGreen;
-    outParameter(c);
+    half4 c;
+
+    // These calls are ineligible for inlining, because they write to their `out` param.
+    outParameterWrite(c);
+    inoutParameterWrite(c);
+
+    // TODO(skia:12636): These calls are eligible for inlining, because they don't write to their
+    // `out` param.
+    inoutParameterRead(c);
+    inoutParameterIgnore(c);
+    outParameterIgnore(c);
+
     return c;
 }
