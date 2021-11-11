@@ -109,7 +109,7 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256 * 2) {
     }
 }
 
-DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 256, 256) {
+DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
     constexpr SkRect r = SkRect::MakeWH(128, 128);
 
     // Make a vertices that draws the same as SkRect 'r'.
