@@ -28,6 +28,8 @@ public:
         this->setVertexAttributes(&kInputPointAttrib, 1);
     }
 
+    int maxTessellationSegments(const GrShaderCaps&) const override { SkUNREACHABLE; }
+
 private:
     const char* name() const final { return "tessellate_SimpleTriangleShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
@@ -53,6 +55,27 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> SimpleTriangleShader::makeProg
 }
 
 }  // namespace
+
+GrPathTessellationShader* GrPathTessellationShader::Make(SkArenaAlloc* arena,
+                                                         const SkMatrix& viewMatrix,
+                                                         const SkPMColor4f& color,
+                                                         int totalCombinedPathVerbCnt,
+                                                         const GrPipeline& pipeline,
+                                                         skgpu::PatchAttribs attribs,
+                                                         const GrCaps& caps) {
+    if (caps.shaderCaps()->tessellationSupport() &&
+        totalCombinedPathVerbCnt >= caps.minPathVerbsForHwTessellation() &&
+        !pipeline.usesLocalCoords() &&  // Our tessellation back door doesn't handle varyings.
+        // Input color and explicit curve type workarounds aren't implemented yet for tessellation.
+        !(attribs & (PatchAttribs::kColor | PatchAttribs::kExplicitCurveType))) {
+        return GrPathTessellationShader::MakeHardwareTessellationShader(arena, viewMatrix, color,
+                                                                        attribs);
+    } else {
+        return GrPathTessellationShader::MakeMiddleOutFixedCountShader(*caps.shaderCaps(), arena,
+                                                                       viewMatrix, color,
+                                                                       attribs);
+    }
+}
 
 GrPathTessellationShader* GrPathTessellationShader::MakeSimpleTriangleShader(
         SkArenaAlloc* arena, const SkMatrix& viewMatrix, const SkPMColor4f& color) {
@@ -92,6 +115,12 @@ float2 eval_rational_cubic(float4x3 P, float T) {
 
 void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const auto& shader = args.fGeomProc.cast<GrPathTessellationShader>();
+
+    // We should use explicit curve type when, and only when, there isn't infinity support.
+    // Otherwise the GPU can infer curve type based on infinity.
+    SkASSERT(args.fShaderCaps->infinitySupport() !=
+             (shader.fAttribs & PatchAttribs::kExplicitCurveType));
+
     args.fVaryingHandler->emitAttributes(shader);
 
     // Vertex shader.

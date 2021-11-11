@@ -158,22 +158,21 @@ void PathStencilCoverOp::prePreparePrograms(const GrTessellationShader::ProgramA
                                                                stencilPipeline,
                                                                stencilSettings);
         fTessellator = PathCurveTessellator::Make(args.fArena,
-                                                  shaderMatrix,
-                                                  SK_PMColor4fTRANSPARENT,
                                                   PathCurveTessellator::DrawInnerFan::kNo,
-                                                  fTotalCombinedPathVerbCnt,
-                                                  *stencilPipeline,
-                                                  *args.fCaps);
+                                                  args.fCaps->shaderCaps()->infinitySupport());
     } else {
         fTessellator = PathWedgeTessellator::Make(args.fArena,
-                                                  shaderMatrix,
-                                                  SK_PMColor4fTRANSPARENT,
-                                                  fTotalCombinedPathVerbCnt,
-                                                  *stencilPipeline,
-                                                  *args.fCaps);
+                                                  args.fCaps->shaderCaps()->infinitySupport());
     }
+    auto* tessShader = GrPathTessellationShader::Make(args.fArena,
+                                                      shaderMatrix,
+                                                      SK_PMColor4fTRANSPARENT,
+                                                      fTotalCombinedPathVerbCnt,
+                                                      *stencilPipeline,
+                                                      fTessellator->patchAttribs(),
+                                                      *args.fCaps);
     fStencilPathProgram = GrTessellationShader::MakeProgram(args,
-                                                            fTessellator->shader(),
+                                                            tessShader,
                                                             stencilPipeline,
                                                             stencilSettings);
 
@@ -260,7 +259,15 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         vertexAlloc.unlock(fFanVertexCount);
     }
 
-    fTessellator->prepare(flushState, *fPathDrawList, fTotalCombinedPathVerbCnt);
+    auto tessShader = &fStencilPathProgram->geomProc().cast<GrPathTessellationShader>();
+    fTessellator->prepare(flushState,
+                          tessShader->maxTessellationSegments(*flushState->caps().shaderCaps()),
+                          tessShader->viewMatrix(),
+                          *fPathDrawList,
+                          fTotalCombinedPathVerbCnt);
+    if (!tessShader->willUseTessellationShaders()) {
+        fTessellator->prepareFixedCountBuffers(flushState->resourceProvider());
+    }
 
     if (fCoverBBoxProgram) {
         size_t instanceStride = fCoverBBoxProgram->geomProc().instanceStride();
@@ -325,7 +332,7 @@ void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
     // Stencil the rest of the path.
     SkASSERT(fStencilPathProgram);
     flushState->bindPipelineAndScissorClip(*fStencilPathProgram, this->bounds());
-    fTessellator->draw(flushState);
+    fTessellator->draw(flushState, fStencilPathProgram->geomProc().willUseTessellationShaders());
     if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
         flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
     }

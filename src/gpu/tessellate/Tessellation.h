@@ -38,6 +38,16 @@ enum class PatchAttribs {
 
 GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)
 
+// Returns the packed size in bytes of a tessellation patch (or instance) in GPU buffers.
+constexpr size_t PatchStride(PatchAttribs attribs) {
+    return sizeof(float) * 8 +  // 4 control points
+           (attribs & PatchAttribs::kFanPoint ? sizeof(float) * 2 : 0) +
+           (attribs & PatchAttribs::kColor
+                    ? (attribs & PatchAttribs::kWideColorIfEnabled ? sizeof(float)
+                                                                   : sizeof(uint8_t)) * 4 : 0) +
+           (attribs & PatchAttribs::kExplicitCurveType ? sizeof(float) : 0);
+}
+
 // Use familiar type names from SkSL.
 template<int N> using vec = skvx::Vec<N, float>;
 using float2 = vec<2>;

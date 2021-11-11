@@ -19,15 +19,15 @@ public:
                                                               const SkMatrix& viewMatrix,
                                                               const SkPMColor4f&);
 
-    // How many triangles are in a curve with 2^resolveLevel line segments?
-    constexpr static int NumCurveTrianglesAtResolveLevel(int resolveLevel) {
-        // resolveLevel=0 -> 0 line segments -> 0 triangles
-        // resolveLevel=1 -> 2 line segments -> 1 triangle
-        // resolveLevel=2 -> 4 line segments -> 3 triangles
-        // resolveLevel=3 -> 8 line segments -> 7 triangles
-        // ...
-        return (1 << resolveLevel) - 1;
-    }
+    // Creates either a hardware tessellation or middle-out instanced shader, depending on support
+    // and which is expected to perform better.
+    static GrPathTessellationShader* Make(SkArenaAlloc*,
+                                          const SkMatrix& viewMatrix,
+                                          const SkPMColor4f&,
+                                          int totalCombinedPathVerbCnt,
+                                          const GrPipeline&,
+                                          skgpu::PatchAttribs,
+                                          const GrCaps&);
 
     // Uses instanced draws to triangulate curves with a "middle-out" topology. Middle-out draws a
     // triangle with vertices at T=[0, 1/2, 1] and then recurses breadth first:
@@ -49,39 +49,6 @@ public:
                                                                    const SkMatrix& viewMatrix,
                                                                    const SkPMColor4f&,
                                                                    skgpu::PatchAttribs);
-
-    // This is the largest number of segments the middle-out shader will accept in a single
-    // instance. If a curve requires more segments, it needs to be chopped.
-    constexpr static int kMaxFixedCountSegments = 32;
-    constexpr static int kMaxFixedCountResolveLevel = 5;  // log2(kMaxFixedCountSegments)
-    static_assert(kMaxFixedCountSegments == 1 << kMaxFixedCountResolveLevel);
-
-    // These functions define the vertex and index buffers that should be bound when drawing with
-    // the middle-out fixed count shader. The data sequence is identical for any length of
-    // tessellation segments, so the caller can use them with any instance length (up to
-    // kMaxFixedCountResolveLevel).
-    constexpr static int SizeOfVertexBufferForMiddleOutCurves() {
-        constexpr int kMaxVertexCount = (1 << kMaxFixedCountResolveLevel) + 1;
-        return kMaxVertexCount * kMiddleOutVertexStride;
-    }
-    static void InitializeVertexBufferForMiddleOutCurves(skgpu::VertexWriter, size_t bufferSize);
-
-    constexpr static size_t SizeOfIndexBufferForMiddleOutCurves() {
-        constexpr int kMaxTriangleCount =
-                NumCurveTrianglesAtResolveLevel(kMaxFixedCountResolveLevel);
-        return kMaxTriangleCount * 3 * sizeof(uint16_t);
-    }
-    static void InitializeIndexBufferForMiddleOutCurves(skgpu::VertexWriter, size_t bufferSize);
-
-    constexpr static int SizeOfVertexBufferForMiddleOutWedges() {
-        return SizeOfVertexBufferForMiddleOutCurves() + kMiddleOutVertexStride;
-    }
-    static void InitializeVertexBufferForMiddleOutWedges(skgpu::VertexWriter, size_t bufferSize);
-
-    constexpr static size_t SizeOfIndexBufferForMiddleOutWedges() {
-        return SizeOfIndexBufferForMiddleOutCurves() + 3 * sizeof(uint16_t);
-    }
-    static void InitializeIndexBufferForMiddleOutWedges(skgpu::VertexWriter, size_t bufferSize);
 
     // Uses GPU tessellation shaders to linearize, triangulate, and render curves.
     //
@@ -152,6 +119,8 @@ public:
             GrAAType,
             const GrAppliedHardClip&,
             GrPipeline::InputFlags = GrPipeline::InputFlags::kNone);
+
+    virtual int maxTessellationSegments(const GrShaderCaps&) const = 0;
 
 protected:
     constexpr static size_t kMiddleOutVertexStride = 2 * sizeof(float);
