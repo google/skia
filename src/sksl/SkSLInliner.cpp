@@ -621,7 +621,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     // end.
     SkASSERT(fContext);
     SkASSERT(call);
-    SkASSERT(this->isSafeToInline(call->function().definition()));
+    SkASSERT(this->isSafeToInline(call->function().definition(), usage));
 
     ExpressionArray& arguments = call->arguments();
     const int line = call->fLine;
@@ -717,7 +717,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     return inlinedCall;
 }
 
-bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
+bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const ProgramUsage& usage) {
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
     if (this->settings().fInlineThreshold <= 0) {
         return false;
@@ -738,10 +738,14 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
-    // We don't allow inlining a function with out parameters. (See skia:11326 for rationale.)
+    // We don't allow inlining a function with out parameters that are written to.
+    // (See skia:11326 for rationale.)
     for (const Variable* param : functionDef->declaration().parameters()) {
         if (param->modifiers().fFlags & Modifiers::Flag::kOut_Flag) {
-            return false;
+            ProgramUsage::VariableCounts counts = usage.get(*param);
+            if (counts.fWrite > 0) {
+                return false;
+            }
         }
     }
 
@@ -1046,12 +1050,14 @@ static const FunctionDeclaration& candidate_func(const InlineCandidate& candidat
     return (*candidate.fCandidateExpr)->as<FunctionCall>().function();
 }
 
-bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache) {
+bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate,
+                                    const ProgramUsage& usage,
+                                    InlinabilityCache* cache) {
     const FunctionDeclaration& funcDecl = candidate_func(candidate);
     auto [iter, wasInserted] = cache->insert({&funcDecl, false});
     if (wasInserted) {
         // Recursion is forbidden here to avoid an infinite death spiral of inlining.
-        iter->second = this->isSafeToInline(funcDecl.definition()) &&
+        iter->second = this->isSafeToInline(funcDecl.definition(), usage) &&
                        !contains_recursive_call(funcDecl);
     }
 
@@ -1088,7 +1094,8 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
     candidates.erase(std::remove_if(candidates.begin(),
                                     candidates.end(),
                                     [&](const InlineCandidate& candidate) {
-                                        return !this->candidateCanBeInlined(candidate, &cache);
+                                        return !this->candidateCanBeInlined(
+                                                candidate, *usage, &cache);
                                     }),
                      candidates.end());
 

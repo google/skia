@@ -84,7 +84,9 @@ private:
     static ReturnComplexity GetReturnComplexity(const FunctionDefinition& funcDef);
 
     using InlinabilityCache = std::unordered_map<const FunctionDeclaration*, bool>;
-    bool candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache);
+    bool candidateCanBeInlined(const InlineCandidate& candidate,
+                               const ProgramUsage& usage,
+                               InlinabilityCache* cache);
 
     using FunctionSizeCache = std::unordered_map<const FunctionDeclaration*, int>;
     int getFunctionSize(const FunctionDeclaration& fnDecl, FunctionSizeCache* cache);
@@ -107,7 +109,7 @@ private:
     void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);
 
     /** Checks whether inlining is viable for a FunctionCall, modulo recursion and function size. */
-    bool isSafeToInline(const FunctionDefinition* functionDef);
+    bool isSafeToInline(const FunctionDefinition* functionDef, const ProgramUsage& usage);
 
     const Context* fContext = nullptr;
     int fInlinedStatementCounter = 0;

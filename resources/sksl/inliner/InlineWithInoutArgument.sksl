@@ -4,8 +4,16 @@ inline void outParameterWrite(out half4 x) {
     x = colorGreen;
 }
 
+inline void outParameterWriteIndirect(out half4 c) {
+    outParameterWrite(c);
+}
+
 inline void inoutParameterWrite(inout half4 x) {
     x *= x;
+}
+
+inline void inoutParameterWriteIndirect(inout half4 x) {
+    inoutParameterWrite(x);
 }
 
 inline void inoutParameterRead(inout half4 x) {
@@ -26,10 +34,11 @@ half4 main(float2 coords) {
 
     // These calls are ineligible for inlining, because they write to their `out` param.
     outParameterWrite(c);
+    outParameterWriteIndirect(c);
     inoutParameterWrite(c);
+    inoutParameterWriteIndirect(c);
 
-    // TODO(skia:12636): These calls are eligible for inlining, because they don't write to their
-    // `out` param.
+    // These calls are eligible for inlining, because they don't write to their `out` param.
     inoutParameterRead(c);
     inoutParameterIgnore(c);
     outParameterIgnore(c);
