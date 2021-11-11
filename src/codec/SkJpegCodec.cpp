@@ -16,7 +16,6 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegDecoderMgr.h"
 #include "src/codec/SkParseEncodedOrigin.h"
-#include "src/pdf/SkJpegInfo.h"
 
 // stdio is needed for libjpeg-turbo
 #include <stdio.h>
