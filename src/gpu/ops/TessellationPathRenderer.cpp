@@ -165,14 +165,9 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     // Handle convex paths.
     if (args.fShape->knownToBeConvex() && !path.isInverseFillType()) {
-        auto op = GrOp::Make<PathTessellateOp>(args.fContext,
-                                               args.fSurfaceDrawContext->arenaAlloc(),
-                                               args.fAAType,
-                                               args.fUserStencilSettings,
-                                               *args.fViewMatrix,
-                                               path,
-                                               std::move(args.fPaint),
-                                               pathDevBounds);
+        auto op = GrOp::Make<PathTessellateOp>(args.fContext, *args.fViewMatrix, path,
+                                               std::move(args.fPaint), args.fAAType,
+                                               args.fUserStencilSettings, pathDevBounds);
         sdc->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -226,13 +221,8 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
         GrPaint stencilPaint;
         stencilPaint.setXPFactory(GrDisableColorXPFactory::Get());
-        auto op = GrOp::Make<PathTessellateOp>(args.fContext,
-                                               args.fSurfaceDrawContext->arenaAlloc(),
-                                               aaType,
-                                               &kMarkStencil,
-                                               *args.fViewMatrix,
-                                               path,
-                                               std::move(stencilPaint),
+        auto op = GrOp::Make<PathTessellateOp>(args.fContext, *args.fViewMatrix, path,
+                                               std::move(stencilPaint), aaType, &kMarkStencil,
                                                pathDevBounds);
         sdc->addDrawOp(args.fClip, std::move(op));
         return;

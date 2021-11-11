@@ -28,18 +28,10 @@ public:
     }
 
     // Updates the fan point that will be written out with each patch (i.e., the point that wedges
-    // fan around).
-    // PathPatchAttrib::kFanPoint must be enabled.
+    // fan around). PathPatchAttrib::kFanPoint must be enabled.
     void updateFanPointAttrib(SkPoint fanPoint) {
         SkASSERT(fPatchAttribs & PatchAttribs::kFanPoint);
         fFanPointAttrib = fanPoint;
-    }
-
-    // Updates the color that will be written out with each patch.
-    // PathPatchAttrib::kColor must be enabled.
-    void updateColorAttrib(const SkPMColor4f& color) {
-        SkASSERT(fPatchAttribs & PatchAttribs::kColor);
-        fColorAttrib.set(color, fPatchAttribs & PatchAttribs::kWideColorIfEnabled);
     }
 
     // RAII. Appends a patch during construction and writes the remaining data for a cubic during
@@ -130,13 +122,11 @@ private:
 
     void outputPatchAttribs(VertexWriter vertexWriter, float explicitCurveType) {
         vertexWriter << If((fPatchAttribs & PatchAttribs::kFanPoint), fFanPointAttrib)
-                     << If((fPatchAttribs & PatchAttribs::kColor), fColorAttrib)
                      << If((fPatchAttribs & PatchAttribs::kExplicitCurveType), explicitCurveType);
     }
 
     const PatchAttribs fPatchAttribs;
     SkPoint fFanPointAttrib;
-    GrVertexColor fColorAttrib;
 
     GrVertexChunkBuilder fChunker;
 

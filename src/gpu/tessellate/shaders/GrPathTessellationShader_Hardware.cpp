@@ -11,8 +11,6 @@
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
-using skgpu::PatchAttribs;
-
 namespace {
 
 // Converts keywords from shared SkSL strings to native GLSL keywords.
@@ -32,11 +30,9 @@ constexpr static char kSkSLTypeDefs[] = R"(
 // TODO: Eventually we want to use rational cubic wedges in order to support perspective and conics.
 class HardwareWedgeShader : public GrPathTessellationShader {
 public:
-    HardwareWedgeShader(const SkMatrix& viewMatrix,
-                        const SkPMColor4f& color,
-                        PatchAttribs attribs)
+    HardwareWedgeShader(const SkMatrix& viewMatrix, const SkPMColor4f& color)
             : GrPathTessellationShader(kTessellate_HardwareWedgeShader_ClassID,
-                                       GrPrimitiveType::kPatches, 5, viewMatrix, color, attribs) {
+                                       GrPrimitiveType::kPatches, 5, viewMatrix, color) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
@@ -51,11 +47,8 @@ private:
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareWedgeShader::makeProgramImpl(
         const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrShaderCaps&,
-                            const GrPathTessellationShader&,
-                            GrGLSLVertexBuilder* v,
-                            GrGLSLVaryingHandler*,
-                            GrGPArgs*) override {
+        void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
+                            GrGLSLVertexBuilder* v, GrGPArgs*) override {
             v->declareGlobal(GrShaderVar("vsPt", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
             v->codeAppend(R"(
             // If y is infinity then x is a conic weight. Don't transform.
@@ -166,12 +159,9 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareWedgeShader::makeProgr
 // TODO: Eventually we want to use rational cubic wedges in order to support perspective and conics.
 class HardwareCurveShader : public GrPathTessellationShader {
 public:
-    HardwareCurveShader(const SkMatrix& viewMatrix,
-                        const SkPMColor4f& color,
-                        PatchAttribs attribs)
+    HardwareCurveShader(const SkMatrix& viewMatrix, const SkPMColor4f& color)
             : GrPathTessellationShader(kTessellate_HardwareCurveShader_ClassID,
-                                       GrPrimitiveType::kPatches, 4, viewMatrix, color,
-                                       attribs) {
+                                       GrPrimitiveType::kPatches, 4, viewMatrix, color) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
@@ -186,11 +176,8 @@ private:
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareCurveShader::makeProgramImpl(
         const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrShaderCaps&,
-                            const GrPathTessellationShader&,
-                            GrGLSLVertexBuilder* v,
-                            GrGLSLVaryingHandler*,
-                            GrGPArgs*) override {
+        void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
+                            GrGLSLVertexBuilder* v, GrGPArgs*) override {
             v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
             v->codeAppend(R"(
             // If y is infinity then x is a conic weight. Don't transform.
@@ -328,11 +315,12 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareCurveShader::makeProgr
 
 GrPathTessellationShader* GrPathTessellationShader::MakeHardwareTessellationShader(
         SkArenaAlloc* arena, const SkMatrix& viewMatrix, const SkPMColor4f& color,
-        PatchAttribs attribs) {
-    SkASSERT(!(attribs & PatchAttribs::kColor));  // Not yet implemented.
-    if (attribs & PatchAttribs::kFanPoint) {
-        return arena->make<HardwareWedgeShader>(viewMatrix, color, attribs);
-    } else {
-        return arena->make<HardwareCurveShader>(viewMatrix, color, attribs);
+        PatchType patchType) {
+    switch (patchType) {
+        case PatchType::kWedges:
+            return arena->make<HardwareWedgeShader>(viewMatrix, color);
+        case PatchType::kCurves:
+            return arena->make<HardwareCurveShader>(viewMatrix, color);
     }
+    SkUNREACHABLE;
 }

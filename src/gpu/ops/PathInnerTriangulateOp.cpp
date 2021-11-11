@@ -24,8 +24,7 @@ class HullShader : public GrPathTessellationShader {
 public:
     HullShader(const SkMatrix& viewMatrix, SkPMColor4f color, const GrShaderCaps& shaderCaps)
             : GrPathTessellationShader(kTessellate_HullShader_ClassID,
-                                       GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color,
-                                       skgpu::PatchAttribs::kNone) {
+                                       GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color) {
         fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         if (!shaderCaps.infinitySupport()) {
@@ -56,11 +55,8 @@ private:
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
         const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrShaderCaps& shaderCaps,
-                            const GrPathTessellationShader&,
-                            GrGLSLVertexBuilder* v,
-                            GrGLSLVaryingHandler*,
-                            GrGPArgs* gpArgs) override {
+        void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader&,
+                            GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
             if (shaderCaps.infinitySupport()) {
                 v->insertFunction(R"(
                 bool is_conic_curve() { return isinf(p23.w); }
@@ -413,7 +409,7 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     if (fTessellator) {
         // Must be called after polysToTriangles() in order for fFanBreadcrumbs to be complete.
         fTessellator->prepare(flushState,
-                              {SkMatrix::I(), fPath, SK_PMColor4fTRANSPARENT},
+                              {SkMatrix::I(), fPath},
                               fPath.countVerbs(),
                               &fFanBreadcrumbs);
     }

@@ -33,26 +33,22 @@ PathCurveTessellator* PathCurveTessellator::Make(SkArenaAlloc* arena,
                                                  DrawInnerFan drawInnerFan,
                                                  int numPathVerbs,
                                                  const GrPipeline& pipeline,
-                                                 const GrCaps& caps,
-                                                 PatchAttribs attribs) {
-    if (!caps.shaderCaps()->infinitySupport()) {
-        attribs |= PatchAttribs::kExplicitCurveType;
-    }
+                                                 const GrCaps& caps) {
+    using PatchType = GrPathTessellationShader::PatchType;
     GrPathTessellationShader* shader;
     if (caps.shaderCaps()->tessellationSupport() &&
         caps.shaderCaps()->infinitySupport() &&  // The hw tessellation shaders use infinity.
         !pipeline.usesLocalCoords() &&  // Our tessellation back door doesn't handle varyings.
-        !(attribs & PatchAttribs::kColor) &&  // Input color isn't implemented for tessellation.
         numPathVerbs >= caps.minPathVerbsForHwTessellation()) {
         shader = GrPathTessellationShader::MakeHardwareTessellationShader(arena, viewMatrix, color,
-                                                                          attribs);
+                                                                          PatchType::kCurves);
     } else {
         shader = GrPathTessellationShader::MakeMiddleOutFixedCountShader(*caps.shaderCaps(), arena,
                                                                          viewMatrix, color,
-                                                                         attribs);
+                                                                         PatchType::kCurves);
     }
     return arena->make([=](void* objStart) {
-        return new(objStart) PathCurveTessellator(shader, attribs, drawInnerFan);
+        return new(objStart) PathCurveTessellator(shader, drawInnerFan);
     });
 }
 
@@ -88,15 +84,16 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
     size_t patchStride = fShader->willUseTessellationShaders() ? fShader->vertexStride() * 4
                                                                : fShader->instanceStride();
 
-    PatchWriter patchWriter(target, &fVertexChunkArray, patchStride, patchAllocCount, fAttribs);
+    auto attribs = PatchAttribs::kNone;
+    if (!shaderCaps.infinitySupport()) {
+        attribs |= PatchAttribs::kExplicitCurveType;
+    }
+    PatchWriter patchWriter(target, &fVertexChunkArray, patchStride, patchAllocCount, attribs);
 
     // Write out inner fan triangles.
     if (fDrawInnerFan) {
-        for (auto [pathMatrix, path, color] : pathDrawList) {
+        for (auto [pathMatrix, path] : pathDrawList) {
             AffineMatrix m(pathMatrix);
-            if (fAttribs & PatchAttribs::kColor) {
-                patchWriter.updateColorAttrib(color);
-            }
             for (PathMiddleOutFanIter it(path); !it.done();) {
                 for (auto [p0, p1, p2] : it.nextStack()) {
                     TrianglePatch(patchWriter) << m.map2Points(p0, p1) << m.mapPoint(p2);
@@ -109,18 +106,14 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
     if (breadcrumbTriangleList) {
         SkDEBUGCODE(int count = 0;)
 #ifdef SK_DEBUG
-        for (auto [pathMatrix, path, color] : pathDrawList) {
-            // This assert isn't actually necessary, but we currently only use breadcrumb triangles
-            // with an identity pathMatrix and transparent color. If that ever changes, this assert
-            // will serve as a gentle reminder to make sure the breadcrumb triangles are also
+        for (auto [pathMatrix, path] : pathDrawList) {
+            // This assert isn't actually necessary, but we currently only use breadcrumb
+            // triangles with an identity pathMatrix. If that ever changes, this assert will
+            // serve as a gentle reminder to make sure the breadcrumb triangles are also
             // transformed on the CPU.
             SkASSERT(pathMatrix.isIdentity());
-            SkASSERT(color == SK_PMColor4fTRANSPARENT);
         }
 #endif
-        if (fAttribs & PatchAttribs::kColor) {
-            patchWriter.updateColorAttrib(SK_PMColor4fTRANSPARENT);
-        }
         for (const auto* tri = breadcrumbTriangleList->head(); tri; tri = tri->fNext) {
             SkDEBUGCODE(++count;)
             auto p0 = float2::Load(tri->fPts);
@@ -156,12 +149,9 @@ void PathCurveTessellator::prepare(GrMeshDrawTarget* target,
     // emit at least 2 segments so we can support triangles.
     float numFixedSegments_pow4 = 2*2*2*2;
 
-    for (auto [pathMatrix, path, color] : pathDrawList) {
+    for (auto [pathMatrix, path] : pathDrawList) {
         AffineMatrix m(pathMatrix);
         wangs_formula::VectorXform totalXform(SkMatrix::Concat(fShader->viewMatrix(), pathMatrix));
-        if (fAttribs & PatchAttribs::kColor) {
-            patchWriter.updateColorAttrib(color);
-        }
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
                 case SkPathVerb::kQuad: {

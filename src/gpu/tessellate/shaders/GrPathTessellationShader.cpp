@@ -12,8 +12,6 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-using skgpu::PatchAttribs;
-
 namespace {
 
 // Draws a simple array of triangles.
@@ -21,8 +19,7 @@ class SimpleTriangleShader : public GrPathTessellationShader {
 public:
     SimpleTriangleShader(const SkMatrix& viewMatrix, SkPMColor4f color)
             : GrPathTessellationShader(kTessellate_SimpleTriangleShader_ClassID,
-                                       GrPrimitiveType::kTriangles, 0, viewMatrix, color,
-                                       PatchAttribs::kNone) {
+                                       GrPrimitiveType::kTriangles, 0, viewMatrix, color) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
@@ -37,11 +34,8 @@ private:
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> SimpleTriangleShader::makeProgramImpl(
         const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrShaderCaps&,
-                            const GrPathTessellationShader&,
-                            GrGLSLVertexBuilder* v,
-                            GrGLSLVaryingHandler*,
-                            GrGPArgs* gpArgs) override {
+        void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
+                            GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
             v->codeAppend(R"(
             float2 localcoord = inputPoint;
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
@@ -103,34 +97,23 @@ void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
                                                          kFloat2_GrSLType, "translate", &translate);
     args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);", affineMatrix);
     args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;", translate);
-    this->emitVertexCode(*args.fShaderCaps,
-                         shader,
-                         args.fVertBuilder,
-                         args.fVaryingHandler,
-                         gpArgs);
+    this->emitVertexCode(*args.fShaderCaps, shader, args.fVertBuilder, gpArgs);
 
     // Fragment shader.
-    if (!(shader.fAttribs & PatchAttribs::kColor)) {
-        const char* color;
-        fColorUniform = args.fUniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
-                                                         kHalf4_GrSLType, "color", &color);
-        args.fFragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, color);
-    } else {
-        args.fFragBuilder->codeAppendf("half4 %s = %s;",
-                                       args.fOutputColor, fVaryingColorName.c_str());
-    }
+    const char* color;
+    fColorUniform = args.fUniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
+                                                     kHalf4_GrSLType, "color", &color);
+    args.fFragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, color);
     args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
 }
 
 void GrPathTessellationShader::Impl::setData(const GrGLSLProgramDataManager& pdman, const
                                              GrShaderCaps&, const GrGeometryProcessor& geomProc) {
-    const auto& shader = geomProc.cast<GrPathTessellationShader>();
+    const auto& shader = geomProc.cast<GrTessellationShader>();
     const SkMatrix& m = shader.viewMatrix();
     pdman.set4f(fAffineMatrixUniform, m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY());
     pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
 
-    if (!(shader.fAttribs & PatchAttribs::kColor)) {
-        const SkPMColor4f& color = shader.color();
-        pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
-    }
+    const SkPMColor4f& color = shader.color();
+    pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
 }

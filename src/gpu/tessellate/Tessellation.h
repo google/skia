@@ -23,17 +23,11 @@ struct VertexWriter;
 // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
 SK_MAYBE_UNUSED constexpr static float kTessellationPrecision = 4;
 
-// Optional attribs that are included in tessellation patches, following the control points and in
-// the same order as they appear here.
+// Optional attribs that are included in tessellation patches, following the control points.
 enum class PatchAttribs {
-    // Attribs.
     kNone = 0,
-    kFanPoint = 1 << 0,  // [float2] Used by wedges. This is the center point the wedges fan around.
-    kColor = 1 << 1,  // [ubyte4 or float4] Used by direct-rendered convex paths.
-    kExplicitCurveType = 1 << 2,  // [float] Used when GPU can't infer curve type based on infinity.
-
-    // Extra flags.
-    kWideColorIfEnabled = 1 << 3,  // If kColor is set, specifies it to be float4 wide color.
+    kFanPoint = 1,  // Used by wedges. This is the center point the wedges fan around.
+    kExplicitCurveType = 1 << 1,  // Used when the GPU can't infer curve type based on infinity.
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)

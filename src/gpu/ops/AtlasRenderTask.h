@@ -68,8 +68,7 @@ private:
     class AtlasPathList : SkNoncopyable {
     public:
         void add(PathDrawAllocator* alloc, const SkMatrix& pathMatrix, const SkPath& path) {
-            fPathDrawList = &alloc->emplace_back(pathMatrix, path, SK_PMColor4fTRANSPARENT,
-                                                 fPathDrawList);
+            fPathDrawList = &alloc->emplace_back(pathMatrix, path, fPathDrawList);
             if (path.isInverseFillType()) {
                 // The atlas never has inverse paths. The inversion happens later.
                 fPathDrawList->fPath.toggleInverseFillType();
