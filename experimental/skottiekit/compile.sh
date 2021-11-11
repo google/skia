@@ -163,7 +163,6 @@ echo "Compiling bitcode"
   ${GN_GPU} \
   \
   skia_enable_skshaper=true \
-  skia_enable_skgpu_v2=false \
   skia_enable_pdf=false"
 
 # Build all the libs we will need below

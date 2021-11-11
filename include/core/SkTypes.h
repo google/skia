@@ -400,10 +400,6 @@
 #  define GR_TEST_UTILS 0
 #endif
 
-#ifndef SK_GPU_V2
-#  define SK_GPU_V2 0
-#endif
-
 #ifndef SK_GPU_V1
 #  define SK_GPU_V1 1
 #endif

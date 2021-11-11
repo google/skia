@@ -46,8 +46,6 @@ static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
 static DEFINE_bool(dontReduceOpsTaskSplitting, false,
                    "Don't reorder tasks to reduce render passes");
 
-static DEFINE_bool(skgpuv2, false, "use the new GPU backend");
-
 static DEFINE_int(gpuResourceCacheLimit, -1,
                   "Maximum number of bytes to use for budgeted GPU resources. "
                   "Default is -1, which means GrResourceCache::kDefaultMaxSize.");
@@ -123,10 +121,6 @@ void SetCtxOptions(GrContextOptions* ctxOptions) {
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
     } else {
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kYes;
-    }
-
-    if (FLAGS_skgpuv2) {
-        ctxOptions->fUseSkGpuV2 = GrContextOptions::Enable::kYes;
     }
 }
 

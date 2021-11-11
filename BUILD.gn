@@ -57,9 +57,6 @@ config("skia_public") {
       "SK_USE_WEBGL",
     ]
   }
-  if (skia_enable_skgpu_v2) {
-    defines += [ "SK_GPU_V2=1" ]
-  }
   if (!skia_enable_skgpu_v1) {
     defines += [ "SK_GPU_V1=0" ]
   }
@@ -851,9 +848,6 @@ optional("gpu") {
   public_deps = []
 
   sources = skia_gpu_sources + skia_sksl_gpu_sources
-  if (skia_enable_skgpu_v2) {
-    sources += skia_skgpu_v2_sources
-  }
   if (!skia_enable_skgpu_v1) {
     sources -= skia_skgpu_v1_sources
   }

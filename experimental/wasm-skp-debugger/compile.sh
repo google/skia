@@ -110,7 +110,6 @@ echo "Compiling bitcode"
   skia_gl_standard=\"webgl\" \
   skia_enable_tools=false \
   skia_enable_skshaper=false \
-  skia_enable_skgpu_v2=false \
   skia_enable_fontmgr_custom_directory=false \
   skia_enable_fontmgr_custom_embedded=true \
   skia_enable_fontmgr_custom_empty=false \

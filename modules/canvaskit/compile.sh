@@ -103,13 +103,13 @@ if [[ $@ == *no_skottie* ]]; then
   SKOTTIE_BINDINGS=""
 fi
 
-GN_VIEWER="skia_use_expat=false skia_enable_skgpu_v2=false"
+GN_VIEWER="skia_use_expat=false"
 VIEWER_BINDINGS=""
 VIEWER_LIB=""
 
 if [[ $@ == *viewer* ]]; then
   echo "Including viewer"
-  GN_VIEWER="skia_use_expat=true skia_enable_skgpu_v2=false"
+  GN_VIEWER="skia_use_expat=true"
   VIEWER_BINDINGS="$BASE_DIR/viewer_bindings.cpp"
   VIEWER_LIB="$BUILD_DIR/libviewer_wasm.a"
   IS_OFFICIAL_BUILD="false"

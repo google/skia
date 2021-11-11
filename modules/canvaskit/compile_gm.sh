@@ -128,7 +128,6 @@ echo "Compiling bitcode"
   ${GN_GPU} \
   ${GN_FONT} \
   skia_use_expat=true \
-  skia_enable_skgpu_v2=false \
   skia_enable_svg=true \
   skia_enable_skshaper=true \
   skia_enable_skparagraph=true \

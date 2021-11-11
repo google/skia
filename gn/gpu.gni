@@ -477,16 +477,6 @@ skia_gl_gpu_sources = [
 
 skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
 
-skia_skgpu_v2_sources = [
-  # Sk files
-  "$_src/gpu/v2/Device.cpp",
-  "$_src/gpu/v2/Device_v2.h",
-  "$_src/gpu/v2/SurfaceDrawContext.cpp",
-  "$_src/gpu/v2/SurfaceDrawContext_v2.h",
-  "$_src/gpu/v2/SurfaceFillContext_v2.cpp",
-  "$_src/gpu/v2/SurfaceFillContext_v2.h",
-]
-
 skia_skgpu_v1_sources = [
   "$_src/gpu/GrAuditTrail.cpp",
   "$_src/gpu/GrBlurUtils.cpp",
