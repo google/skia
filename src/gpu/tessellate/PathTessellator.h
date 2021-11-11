@@ -12,6 +12,7 @@
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrInnerFanTriangulator.h"
+#include "src/gpu/tessellate/Tessellation.h"
 
 class SkPath;
 class GrMeshDrawTarget;
@@ -28,18 +29,22 @@ public:
     using BreadcrumbTriangleList = GrInnerFanTriangulator::BreadcrumbTriangleList;
 
     struct PathDrawList {
-        PathDrawList(const SkMatrix& pathMatrix, const SkPath& path, PathDrawList* next = nullptr)
-                : fPathMatrix(pathMatrix), fPath(path), fNext(next) {}
+        PathDrawList(const SkMatrix& pathMatrix,
+                     const SkPath& path,
+                     const SkPMColor4f& color,
+                     PathDrawList* next = nullptr)
+                : fPathMatrix(pathMatrix), fPath(path), fColor(color), fNext(next) {}
 
         SkMatrix fPathMatrix;
         SkPath fPath;
+        SkPMColor4f fColor;
         PathDrawList* fNext;
 
         struct Iter {
             void operator++() { fHead = fHead->fNext; }
             bool operator!=(const Iter& b) const { return fHead != b.fHead; }
-            std::tuple<const SkMatrix&, const SkPath&> operator*() const {
-                return {fHead->fPathMatrix, fHead->fPath};
+            std::tuple<const SkMatrix&, const SkPath&, const SkPMColor4f&> operator*() const {
+                return {fHead->fPathMatrix, fHead->fPath, fHead->fColor};
             }
             const PathDrawList* fHead;
         };
@@ -74,9 +79,11 @@ public:
     }
 
 protected:
-    PathTessellator(GrPathTessellationShader* shader) : fShader(shader) {}
+    PathTessellator(GrPathTessellationShader* shader, PatchAttribs attribs)
+            : fShader(shader), fAttribs(attribs) {}
 
-    GrPathTessellationShader* fShader;
+    GrPathTessellationShader* const fShader;
+    const PatchAttribs fAttribs;
 };
 
 }  // namespace skgpu

@@ -246,7 +246,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
         VertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxTrianglesInFans * 3);
         int fanTriangleCount = 0;
-        for (auto [pathMatrix, path] : *fPathDrawList) {
+        for (auto [pathMatrix, path, color] : *fPathDrawList) {
             AffineMatrix m(pathMatrix);
             for (PathMiddleOutFanIter it(path); !it.done();) {
                 for (auto [p0, p1, p2] : it.nextStack()) {
@@ -269,7 +269,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
                                                                 &fBBoxBuffer,
                                                                 &fBBoxBaseInstance);
         SkDEBUGCODE(int pathCount = 0;)
-        for (auto [pathMatrix, path] : *fPathDrawList) {
+        for (auto [pathMatrix, path, color] : *fPathDrawList) {
             SkDEBUGCODE(auto end = vertexWriter.makeOffset(instanceStride));
             vertexWriter << pathMatrix.getScaleX()
                          << pathMatrix.getSkewY()
