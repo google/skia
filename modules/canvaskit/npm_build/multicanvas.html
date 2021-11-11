@@ -15,14 +15,27 @@
 <canvas id=api2 width=300 height=300></canvas>
 <canvas id=api3 width=300 height=300></canvas>
 
+<br>
+
+<img id="src" src="https://storage.googleapis.com/skia-cdn/misc/test.png"
+  width=40 height=40 crossorigin="anonymous">
+
+<canvas id=api4 width=300 height=300></canvas>
+<canvas id=api5 width=300 height=300></canvas>
+<canvas id=api6 width=300 height=300></canvas>
+
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 <script type="text/javascript" charset="utf-8">
   const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
 
   const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
   const loadTestImage = fetch(cdn + 'test.png').then((response) => response.arrayBuffer());
+  const imageEle = document.getElementById("src");
 
-  Promise.all([ckLoaded, loadTestImage]).then((results) => {MultiCanvasExample(...results)});
+  Promise.all([ckLoaded, loadTestImage, imageEle.decode()]).then((results) => {
+    ContextSharingExample(results[0]);
+    MultiCanvasExample(...results);
+  });
 
   // This example shows how CanvasKit can automatically switch between multiple canvases
   // with different WebGL contexts.
@@ -77,9 +90,41 @@
 
       canvasThree.drawImageCubic(img, 100, 100, 0.3, 0.3, null);
       surfThree.flush();
+      img.delete();
     }
 
     window.requestAnimationFrame(firstFrame);
-
   }
+
+  function ContextSharingExample(CanvasKit) {
+    const img = CanvasKit.MakeLazyImageFromTextureSource(imageEle);
+
+    const surfOne = CanvasKit.MakeWebGLCanvasSurface("api4");
+    const surfTwo = CanvasKit.MakeWebGLCanvasSurface("api5");
+    const surfThree = CanvasKit.MakeWebGLCanvasSurface("api6");
+
+    let i = 0;
+    function drawFrame(canvas) {
+      canvas.drawImageCubic(img, 5+i, 5+i, 0.3, 0.3, null);
+      i += 1
+      if (i >= 3) {
+        if (i > 60) {
+          img.delete();
+          return;
+        }
+        if (i % 2) {
+          surfOne.requestAnimationFrame(drawFrame);
+        } else {
+          surfTwo.requestAnimationFrame(drawFrame);
+        }
+
+      }
+    }
+
+    surfOne.requestAnimationFrame(drawFrame);
+    surfTwo.requestAnimationFrame(drawFrame);
+    surfThree.requestAnimationFrame(drawFrame);
+  }
+
+
 </script>

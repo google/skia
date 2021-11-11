@@ -17,6 +17,7 @@
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkImageGenerator.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMaskFilter.h"
@@ -57,12 +58,15 @@
 #include "modules/canvaskit/WasmCommon.h"
 #include <emscripten.h>
 #include <emscripten/bind.h>
+#include <emscripten/html5.h>
 
 #ifdef SK_GL
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
 
 #include "webgl/webgl1.h"
@@ -665,23 +669,23 @@ void castUniforms(void* data, size_t dataLen, const SkRuntimeEffect& effect) {
 namespace emscripten {
     namespace internal {
         template<typename ClassType>
-        void raw_destructor(ClassType *);
+        void raw_destructor(ClassType*);
 
         template<>
-        void raw_destructor<SkContourMeasure>(SkContourMeasure *ptr) {
+        void raw_destructor<SkContourMeasure>(SkContourMeasure* ptr) {
         }
 
         template<>
-        void raw_destructor<SkVertices>(SkVertices *ptr) {
+        void raw_destructor<SkVertices>(SkVertices* ptr) {
         }
 
 #ifndef SK_NO_FONTS
         template<>
-        void raw_destructor<SkTextBlob>(SkTextBlob *ptr) {
+        void raw_destructor<SkTextBlob>(SkTextBlob* ptr) {
         }
 
         template<>
-        void raw_destructor<SkTypeface>(SkTypeface *ptr) {
+        void raw_destructor<SkTypeface>(SkTypeface* ptr) {
         }
 #endif
     }
@@ -697,6 +701,7 @@ Uint8Array toBytes(sk_sp<SkData> data) {
     ).call<Uint8Array>("slice"); // slice with no args makes a copy of the memory view.
 }
 
+#ifdef SK_GL
 // We need to call into the JS side of things to free webGL contexts. This object will be called
 // with _setTextureCleanup after CanvasKit loads. The object will have one attribute,
 // a function called deleteTexture that takes two ints.
@@ -715,6 +720,76 @@ void deleteJSTexture(SkImage::ReleaseContext rc) {
     textureCleanup.call<void>("deleteTexture", ctx->webglHandle, ctx->texHandle);
     delete ctx;
 }
+
+class WebGLTextureImageGenerator : public SkImageGenerator {
+public:
+    WebGLTextureImageGenerator(int width, int height, JSObject callbackObj):
+            SkImageGenerator(SkImageInfo::MakeN32Premul(width, height)),
+            fCallback(callbackObj) {}
+
+    ~WebGLTextureImageGenerator() {
+        // This cleans up the associated TextureSource at is used to make the texture
+        // (i.e. "makeTexture" below). We expect this destructor to be called when the
+        // SkImage that this Generator belongs to is destroyed.
+        fCallback.call<void>("freeSrc");
+    }
+
+protected:
+    GrSurfaceProxyView onGenerateTexture(GrRecordingContext* ctx,
+                                         const SkImageInfo& info,
+                                         const SkIPoint& origin,
+                                         GrMipmapped mipMapped,
+                                         GrImageTexGenPolicy texGenPolicy) {
+        if (ctx->backend() != GrBackendApi::kOpenGL) {
+            return {};
+        }
+
+        GrGLTextureInfo glInfo;
+        glInfo.fID     = fCallback.call<uint32_t>("makeTexture");
+        // The format and target should match how we make the texture on the JS side
+        // See the implementation of the makeTexture function.
+        glInfo.fFormat = GR_GL_RGBA8;
+        glInfo.fTarget = GR_GL_TEXTURE_2D;
+
+        static constexpr auto kMipmapped = GrMipmapped::kNo;
+        GrBackendTexture backendTexture(info.width(), info.height(), kMipmapped, glInfo);
+
+        const GrBackendFormat& format    = backendTexture.getBackendFormat();
+        const GrColorType      colorType = SkColorTypeToGrColorType(info.colorType());
+        if (!ctx->priv().caps()->areColorTypeAndFormatCompatible(colorType, format)) {
+            return {};
+        }
+
+        uint32_t webGLCtx = emscripten_webgl_get_current_context();
+        auto releaseCtx = new TextureReleaseContext{webGLCtx, glInfo.fID};
+        auto cleanupCallback = GrRefCntedCallback::Make(deleteJSTexture, releaseCtx);
+
+        sk_sp<GrSurfaceProxy> proxy = ctx->priv().proxyProvider()->wrapBackendTexture(
+                backendTexture,
+                kBorrow_GrWrapOwnership,
+                GrWrapCacheable::kYes,
+                kRead_GrIOType,
+                std::move(cleanupCallback));
+        if (!proxy) {
+            return {};
+        }
+        static constexpr auto kOrigin = kTopLeft_GrSurfaceOrigin;
+        GrSwizzle swizzle = ctx->priv().caps()->getReadSwizzle(format, colorType);
+        return GrSurfaceProxyView(std::move(proxy), kOrigin, swizzle);
+    }
+
+private:
+    JSObject fCallback;
+};
+
+// callbackObj has two functions in it, one to create a texture "makeTexture" and one to clean up
+// the underlying texture source "freeSrc". This way, we can create WebGL textures for each
+// surface/WebGLContext that the image is used on (we cannot share WebGLTextures across contexts).
+sk_sp<SkImage> MakeImageFromGenerator(int width, int height, JSObject callbackObj) {
+    auto gen = std::make_unique<WebGLTextureImageGenerator>(width, height, callbackObj);
+    return SkImage::MakeFromGenerator(std::move(gen));
+}
+#endif // SK_GL
 
 EMSCRIPTEN_BINDINGS(Skia) {
 #ifdef SK_GL
@@ -1272,6 +1347,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkImage>("Image")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<Image>")
+#if SK_GL
+        .class_function("_makeFromGenerator", &MakeImageFromGenerator)
+#endif
         // Note that this needs to be cleaned up with delete().
         .function("getColorSpace", optional_override([](sk_sp<SkImage> self)->sk_sp<SkColorSpace> {
             return self->imageInfo().refColorSpace();

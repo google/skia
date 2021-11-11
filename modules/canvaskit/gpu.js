@@ -55,7 +55,7 @@
       };
 
       CanvasKit._setTextureCleanup({
-        "deleteTexture": function(webglHandle, texHandle) {
+        'deleteTexture': function(webglHandle, texHandle) {
           var tex = GL.textures[texHandle];
           if (tex) {
             GL.getContext(webglHandle).GLctx.deleteTexture(tex);
@@ -154,11 +154,7 @@
       // Default to trying WebGL first.
       CanvasKit.MakeCanvasSurface = CanvasKit.MakeWebGLCanvasSurface;
 
-      CanvasKit.Surface.prototype.makeImageFromTexture = function(tex, info) {
-        CanvasKit.setCurrentContext(this._context);
-        if (!info['colorSpace']) {
-          info['colorSpace'] = CanvasKit.ColorSpace.SRGB;
-        }
+      function pushTexture(tex) {
         // GL is an emscripten object that holds onto WebGL state. One item in that state is
         // an array of textures, of which the index is the handle/id.
         var texHandle = GL.textures.length;
@@ -169,15 +165,36 @@
           texHandle = 1;
         }
         GL.textures.push(tex);
+        return texHandle
+      }
+
+      CanvasKit.Surface.prototype.makeImageFromTexture = function(tex, info) {
+        CanvasKit.setCurrentContext(this._context);
+        if (!info['colorSpace']) {
+          info['colorSpace'] = CanvasKit.ColorSpace.SRGB;
+        }
+        var texHandle = pushTexture(tex);
         return this._makeImageFromTexture(this._context, texHandle, info);
       };
 
+      // If the user specified a height or width in the image info, we use that. Otherwise,
+      // we try to find the natural media type (for <img> and <video>), display* for
+      // https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame and then fall back to
+      // the height and width (to cover <canvas>, ImageBitmap or ImageData).
+      function getHeight(src, h) {
+        return h || src['naturalHeight'] || src['videoHeight'] ||
+          src['displayHeight'] || src['height'];
+      }
+
+      function getWidth(src, w) {
+        return w || src['naturalWidth'] || src['videoWidth'] ||
+          src['displayWidth'] || src['width'];
+      }
+
       CanvasKit.Surface.prototype.makeImageFromTextureSource = function(src, w, h) {
-        // If the user specified a height or width in the image info, we use that. Otherwise,
-        // we try to find the natural media type (for <img> and <video>) and then fall back to
-        // the height and width (to cover <canvas>, ImageBitmap or ImageData).
-        var height = h || src.naturalHeight || src.videoHeight || src.height;
-        var width = w || src.naturalWidth || src.videoWidth || src.width;
+        var height = getHeight(src, h);
+        var width = getWidth(src, w);
+
         // We want to be pointing at the context associated with this surface.
         CanvasKit.setCurrentContext(this._context);
         var glCtx = GL.currentContext.GLctx;
@@ -198,6 +215,44 @@
         };
         return this.makeImageFromTexture(newTex, info);
       };
+
+      CanvasKit.MakeLazyImageFromTextureSource = function(src, w, h) {
+        var height = getHeight(src, h);
+        var width = getWidth(src, w);
+
+        var callbackObj = {
+          'makeTexture': function() {
+            // This callback function will make a texture on the current drawing surface (i.e.
+            // the current WebGL context). It assumes that Skia is just about to draw the texture
+            // to the desired surface, and thus the currentContext is the correct one.
+            // This is a lot easier than needing to pass the surface handle from the C++ side here.
+            var ctx = GL.currentContext;
+            var glCtx = ctx.GLctx;
+            var newTex = glCtx.createTexture();
+            glCtx.bindTexture(glCtx.TEXTURE_2D, newTex);
+            if (ctx.version === 2) {
+              glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, width, height, 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+            } else {
+              glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+            }
+            glCtx.bindTexture(glCtx.TEXTURE_2D, null);
+            return pushTexture(newTex);
+          },
+          'freeSrc': function() {
+            // This callback will be executed whenever the returned image is deleted. This gives
+            // us a chance to free up the src (which we now own). Generally, there's nothing
+            // we need to do (we can let JS garbage collection do its thing). The one exception
+            // is for https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame, which we should
+            // close when we are done.
+          },
+        }
+        if (src.constructor.name === 'VideoFrame') {
+          callbackObj['freeSrc'] = function() {
+            src.close();
+          }
+        }
+        return CanvasKit.Image._makeFromGenerator(width, height, callbackObj);
+      }
 
       CanvasKit.setCurrentContext = function(ctx) {
         if (!ctx) {

@@ -260,6 +260,7 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
       colorType: CK.ColorType.RGBA_8888,
       colorSpace: CK.ColorSpace.SRGB
     }, Uint8Array.of(255, 0, 0, 250), 4);
+    const img4 = CK.MakeLazyImageFromTextureSource(imgElement); // $ExpectType Image
     if (!img) return;
     const dOne = img.encodeToBytes(); // $ExpectType Uint8Array | null
     const dTwo = img.encodeToBytes(CK.ImageFormat.JPEG, 97);
