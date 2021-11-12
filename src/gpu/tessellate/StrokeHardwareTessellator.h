@@ -19,7 +19,7 @@ namespace skgpu {
 class StrokeHardwareTessellator : public StrokeTessellator {
 public:
     StrokeHardwareTessellator(const GrShaderCaps& shaderCaps,
-                              ShaderFlags shaderFlags,
+                              PatchAttribs,
                               const SkMatrix& viewMatrix,
                               PathStrokeList* pathStrokeList,
                               std::array<float,2> matrixMinMaxScales);

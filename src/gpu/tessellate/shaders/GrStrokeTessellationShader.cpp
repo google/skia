@@ -12,10 +12,12 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/StrokeTessellator.h"
 
-GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shaderCaps, Mode mode,
-                                                       ShaderFlags shaderFlags,
+GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shaderCaps,
+                                                       Mode mode,
+                                                       PatchAttribs attribs,
                                                        const SkMatrix& viewMatrix,
-                                                       const SkStrokeRec& stroke, SkPMColor4f color,
+                                                       const SkStrokeRec& stroke,
+                                                       SkPMColor4f color,
                                                        int8_t maxParametricSegments_log2)
         : GrTessellationShader(kTessellate_GrStrokeTessellationShader_ClassID,
                                (mode == Mode::kHardwareTessellation)
@@ -23,9 +25,16 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
                                        : GrPrimitiveType::kTriangleStrip,
                                (mode == Mode::kHardwareTessellation) ? 1 : 0, viewMatrix, color)
         , fMode(mode)
-        , fShaderFlags(shaderFlags)
+        , fPatchAttribs(attribs)
         , fStroke(stroke)
         , fMaxParametricSegments_log2(maxParametricSegments_log2) {
+    // We should use explicit curve type when, and only when, there isn't infinity support.
+    // Otherwise the GPU can infer curve type based on infinity.
+    SkASSERT(shaderCaps.infinitySupport() != (attribs & PatchAttribs::kExplicitCurveType));
+    if (fMode == Mode::kHardwareTessellation) {
+        // Explicit curve type is not implemented for tessellation shaders.
+        SkASSERT(!(attribs & PatchAttribs::kExplicitCurveType));
+    }
     if (fMode == Mode::kHardwareTessellation) {
         // A join calculates its starting angle using prevCtrlPtAttr.
         fAttribs.emplace_back("prevCtrlPtAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
@@ -63,23 +72,23 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
             // argsAttr contains the lastControlPoint for setting up the join.
             fAttribs.emplace_back("argsAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
         }
-        if (!shaderCaps.infinitySupport()) {
-            // A conic curve is written out with p3=[w,Infinity], but GPUs that don't support
-            // infinity can't detect this. On these platforms we write out an extra float with each
-            // patch that explicitly tells the shader what type of curve it is.
-            fAttribs.emplace_back("curveTypeAttr", kFloat_GrVertexAttribType, kFloat_GrSLType);
-        }
     }
-    if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+    if (fPatchAttribs & PatchAttribs::kStrokeParams) {
         fAttribs.emplace_back("dynamicStrokeAttr", kFloat2_GrVertexAttribType,
                               kFloat2_GrSLType);
     }
-    if (fShaderFlags & ShaderFlags::kDynamicColor) {
+    if (fPatchAttribs & PatchAttribs::kColor) {
         fAttribs.emplace_back("dynamicColorAttr",
-                              (fShaderFlags & ShaderFlags::kWideColor)
+                              (fPatchAttribs & PatchAttribs::kWideColorIfEnabled)
                                       ? kFloat4_GrVertexAttribType
                                       : kUByte4_norm_GrVertexAttribType,
                               kHalf4_GrSLType);
+    }
+    if (fPatchAttribs & PatchAttribs::kExplicitCurveType) {
+        // A conic curve is written out with p3=[w,Infinity], but GPUs that don't support
+        // infinity can't detect this. On these platforms we write out an extra float with each
+        // patch that explicitly tells the shader what type of curve it is.
+        fAttribs.emplace_back("curveTypeAttr", kFloat_GrVertexAttribType, kFloat_GrSLType);
     }
     if (fMode == Mode::kHardwareTessellation) {
         this->setVertexAttributes(fAttribs.data(), fAttribs.count());
@@ -389,12 +398,12 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
 
 void GrStrokeTessellationShader::addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     bool keyNeedsJoin = (fMode != Mode::kHardwareTessellation) &&
-                        !(fShaderFlags & ShaderFlags::kDynamicStroke);
+                        !(fPatchAttribs & PatchAttribs::kStrokeParams);
     SkASSERT((int)fMode >> 2 == 0);
     SkASSERT(fStroke.getJoin() >> 2 == 0);
     // Attribs get worked into the key automatically during GrGeometryProcessor::getAttributeKey().
     // When color is in a uniform, it's always wide. kWideColor doesn't need to be considered here.
-    uint32_t key = (uint32_t)(fShaderFlags & ~ShaderFlags::kWideColor);
+    uint32_t key = (uint32_t)(fPatchAttribs & ~PatchAttribs::kColor);
     key = (key << 2) | (uint32_t)fMode;
     key = (key << 2) | ((keyNeedsJoin) ? fStroke.getJoin() : 0);
     key = (key << 1) | (uint32_t)fStroke.isHairlineStyle();

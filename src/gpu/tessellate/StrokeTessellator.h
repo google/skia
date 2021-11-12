@@ -19,8 +19,6 @@ namespace skgpu {
 // Prepares GPU data for, and then draws a stroke's tessellated geometry.
 class StrokeTessellator {
 public:
-    using ShaderFlags = GrStrokeTessellationShader::ShaderFlags;
-
     struct PathStrokeList {
         PathStrokeList(const SkPath& path, const SkStrokeRec& stroke, const SkPMColor4f& color)
                 : fPath(path), fStroke(stroke), fColor(color) {}
@@ -32,12 +30,13 @@ public:
 
     StrokeTessellator(const GrShaderCaps& shaderCaps,
                       GrStrokeTessellationShader::Mode shaderMode,
-                      ShaderFlags shaderFlags,
+                      PatchAttribs attribs,
                       int8_t maxParametricSegments_log2,
                       const SkMatrix& viewMatrix,
                       PathStrokeList* pathStrokeList,
                       std::array<float, 2> matrixMinMaxScales)
-            : fShader(shaderCaps, shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
+            : fAttribs(attribs)
+            , fShader(shaderCaps, shaderMode, fAttribs, viewMatrix, pathStrokeList->fStroke,
                       pathStrokeList->fColor, maxParametricSegments_log2)
             , fPathStrokeList(pathStrokeList)
             , fMatrixMinMaxScales(matrixMinMaxScales) {
@@ -57,6 +56,7 @@ public:
     virtual ~StrokeTessellator() {}
 
 protected:
+    PatchAttribs fAttribs;
     GrStrokeTessellationShader fShader;
     PathStrokeList* fPathStrokeList;
     const std::array<float,2> fMatrixMinMaxScales;

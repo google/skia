@@ -30,18 +30,14 @@ constexpr static int8_t kMaxParametricSegments_log2 = 5;  // log2(32)
 // will just add enough additional segments to handle a worst-case 180 degree stroke.)
 class InstanceWriter {
 public:
-    using ShaderFlags = StrokeTessellator::ShaderFlags;
-
-    InstanceWriter(const GrShaderCaps* shaderCaps,
-                   ShaderFlags shaderFlags,
+    InstanceWriter(PatchAttribs attribs,
                    GrMeshDrawTarget* target,
                    float matrixMaxScale,
                    const SkMatrix& viewMatrix,
                    GrVertexChunkArray* patchChunks,
                    size_t instanceStride,
                    int minInstancesPerChunk)
-            : fShaderCaps(shaderCaps)
-            , fShaderFlags(shaderFlags)
+            : fAttribs(attribs)
             , fChunkBuilder(target, patchChunks, instanceStride, minInstancesPerChunk)
             , fParametricPrecision(StrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
     }
@@ -55,15 +51,15 @@ public:
     // Updates the dynamic stroke state that we will write out with each instance.
     void updateDynamicStroke(const SkStrokeRec& stroke) {
         SkASSERT(!fHasDeferredFirstStroke);
-        SkASSERT(fShaderFlags & ShaderFlags::kDynamicStroke);
+        SkASSERT(fAttribs & PatchAttribs::kStrokeParams);
         fDynamicStroke.set(stroke);
     }
 
     // Updates the dynamic color state that we will write out with each instance.
     void updateDynamicColor(const SkPMColor4f& color) {
         SkASSERT(!fHasDeferredFirstStroke);
-        SkASSERT(fShaderFlags & ShaderFlags::kDynamicColor);
-        bool wideColor = fShaderFlags & ShaderFlags::kWideColor;
+        SkASSERT(fAttribs & PatchAttribs::kColor);
+        bool wideColor = fAttribs & PatchAttribs::kWideColorIfEnabled;
         SkASSERT(wideColor || color.fitsInBytes());
         fDynamicColor.set(color, wideColor);
     }
@@ -129,9 +125,7 @@ public:
             // The shader interprets an empty stroke + empty join as a special case that denotes a
             // circle, or 180-degree point stroke.
             writer.fill(location, 5);
-            writer << VertexWriter::If(!fShaderCaps->infinitySupport(),
-                                       GrTessellationShader::kCubicCurveType);
-            this->writeDynamicAttribs(&writer);
+            this->writeDynamicAttribs(&writer, GrTessellationShader::kCubicCurveType);
         }
     }
 
@@ -182,20 +176,22 @@ private:
             fHasLastControlPoint = true;
         } else if (VertexWriter writer = fChunkBuilder.appendVertex()) {
             writer.writeArray(p, 4);
-            writer << fLastControlPoint
-                   << VertexWriter::If(!fShaderCaps->infinitySupport(),
-                                       curveTypeIfUnsupportedInfinity);
-            this->writeDynamicAttribs(&writer);
+            writer << fLastControlPoint;
+            this->writeDynamicAttribs(&writer, curveTypeIfUnsupportedInfinity);
         }
         fLastControlPoint = endControlPoint;
     }
 
-    SK_ALWAYS_INLINE void writeDynamicAttribs(VertexWriter* writer) {
-        if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+    SK_ALWAYS_INLINE void writeDynamicAttribs(VertexWriter* writer,
+                                              float curveTypeIfUnsupportedInfinity) {
+        if (fAttribs & PatchAttribs::kStrokeParams) {
             *writer << fDynamicStroke;
         }
-        if (fShaderFlags & ShaderFlags::kDynamicColor) {
+        if (fAttribs & PatchAttribs::kColor) {
             *writer << fDynamicColor;
+        }
+        if (fAttribs & PatchAttribs::kExplicitCurveType) {
+            *writer << curveTypeIfUnsupportedInfinity;
         }
     }
 
@@ -206,8 +202,7 @@ private:
         fHasLastControlPoint = true;
     }
 
-    const GrShaderCaps* fShaderCaps;
-    const ShaderFlags fShaderFlags;
+    const PatchAttribs fAttribs;
     GrVertexChunkBuilder fChunkBuilder;
     const float fParametricPrecision;
     float fMaxParametricSegments_pow4 = 1;
@@ -239,12 +234,16 @@ int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegmentsPerR
 
 
 StrokeFixedCountTessellator::StrokeFixedCountTessellator(const GrShaderCaps& shaderCaps,
-                                                         ShaderFlags shaderFlags,
+                                                         PatchAttribs attribs,
                                                          const SkMatrix& viewMatrix,
                                                          PathStrokeList* pathStrokeList,
                                                          std::array<float,2> matrixMinMaxScales)
-        : StrokeTessellator(shaderCaps, GrStrokeTessellationShader::Mode::kFixedCount, shaderFlags,
-                            kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
+        : StrokeTessellator(shaderCaps,
+                            GrStrokeTessellationShader::Mode::kFixedCount,
+                            attribs,
+                            kMaxParametricSegments_log2,
+                            viewMatrix,
+                            pathStrokeList,
                             matrixMinMaxScales) {
 }
 
@@ -260,9 +259,13 @@ void StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target, int totalCom
     int strokePreallocCount = totalCombinedVerbCnt * 2;
     int capPreallocCount = 8;
     int minInstancesPerChunk = strokePreallocCount + capPreallocCount;
-    InstanceWriter instanceWriter(target->caps().shaderCaps(), fShader.flags(), target,
-                                  fMatrixMinMaxScales[1], fShader.viewMatrix(), &fInstanceChunks,
-                                  fShader.instanceStride(), minInstancesPerChunk);
+    InstanceWriter instanceWriter(fAttribs,
+                                  target,
+                                  fMatrixMinMaxScales[1],
+                                  fShader.viewMatrix(),
+                                  &fInstanceChunks,
+                                  fShader.instanceStride(),
+                                  minInstancesPerChunk);
 
     if (!fShader.hasDynamicStroke()) {
         // Strokes are static. Calculate tolerances once.

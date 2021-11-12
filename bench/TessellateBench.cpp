@@ -21,8 +21,6 @@
 #include "tools/ToolUtils.h"
 #include <vector>
 
-using ShaderFlags = GrStrokeTessellationShader::ShaderFlags;
-
 namespace skgpu {
 
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
@@ -246,29 +244,29 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
 }
 
 using PathStrokeList = StrokeTessellator::PathStrokeList;
-using MakeTessellatorFn = std::unique_ptr<StrokeTessellator>(*)(ShaderFlags,
+using MakeTessellatorFn = std::unique_ptr<StrokeTessellator>(*)(PatchAttribs,
                                                                 const GrShaderCaps&,
                                                                 const SkMatrix&,
                                                                 PathStrokeList*,
                                                                 std::array<float, 2>);
 
 static std::unique_ptr<StrokeTessellator> make_hw_tessellator(
-        ShaderFlags shaderFlags,
+        PatchAttribs attribs,
         const GrShaderCaps& shaderCaps,
         const SkMatrix& viewMatrix,
         PathStrokeList* pathStrokeList,
         std::array<float,2> matrixMinMaxScales) {
-    return std::make_unique<StrokeHardwareTessellator>(shaderCaps, shaderFlags, viewMatrix,
+    return std::make_unique<StrokeHardwareTessellator>(shaderCaps, attribs, viewMatrix,
                                                        pathStrokeList, matrixMinMaxScales);
 }
 
 static std::unique_ptr<StrokeTessellator> make_fixed_count_tessellator(
-        ShaderFlags shaderFlags,
+        PatchAttribs attribs,
         const GrShaderCaps& shaderCaps,
         const SkMatrix& viewMatrix,
         PathStrokeList* pathStrokeList,
         std::array<float, 2> matrixMinMaxScales) {
-    return std::make_unique<StrokeFixedCountTessellator>(shaderCaps, shaderFlags, viewMatrix,
+    return std::make_unique<StrokeFixedCountTessellator>(shaderCaps, attribs, viewMatrix,
                                                          pathStrokeList, matrixMinMaxScales);
 }
 
@@ -342,10 +340,10 @@ static std::vector<PathStrokeList> make_motionmark_paths() {
 class TessPrepareBench : public Benchmark {
 public:
     TessPrepareBench(MakePathStrokesFn makePathStrokesFn, MakeTessellatorFn makeTessellatorFn,
-                     ShaderFlags shaderFlags, float matrixScale, const char* suffix)
+                     PatchAttribs attribs, float matrixScale, const char* suffix)
             : fMakePathStrokesFn(makePathStrokesFn)
             , fMakeTessellatorFn(makeTessellatorFn)
-            , fShaderFlags(shaderFlags)
+            , fPatchAttribs(attribs)
             , fMatrixScale(matrixScale) {
         fName.printf("tessellate_%s", suffix);
     }
@@ -369,7 +367,7 @@ private:
             fTotalVerbCount += fPathStrokes[i].fPath.countVerbs();
         }
 
-        fTessellator = fMakeTessellatorFn(fShaderFlags, *fTarget->caps().shaderCaps(),
+        fTessellator = fMakeTessellatorFn(fPatchAttribs, *fTarget->caps().shaderCaps(),
                                           SkMatrix::Scale(fMatrixScale, fMatrixScale),
                                           fPathStrokes.data(), {fMatrixScale, fMatrixScale});
     }
@@ -384,7 +382,7 @@ private:
     SkString fName;
     MakePathStrokesFn fMakePathStrokesFn;
     MakeTessellatorFn fMakeTessellatorFn;
-    const ShaderFlags fShaderFlags;
+    const PatchAttribs fPatchAttribs;
     float fMatrixScale;
     std::unique_ptr<GrMockOpTarget> fTarget;
     std::vector<PathStrokeList> fPathStrokes;
@@ -394,32 +392,32 @@ private:
 };
 
 DEF_BENCH(return new TessPrepareBench(
-        make_simple_cubic_path, make_hw_tessellator, ShaderFlags::kNone, 1,
+        make_simple_cubic_path, make_hw_tessellator, PatchAttribs::kNone, 1,
         "GrStrokeHardwareTessellator");
 )
 
 DEF_BENCH(return new TessPrepareBench(
-        make_simple_cubic_path, make_hw_tessellator, ShaderFlags::kNone, 5,
+        make_simple_cubic_path, make_hw_tessellator, PatchAttribs::kNone, 5,
         "GrStrokeHardwareTessellator_one_chop");
 )
 
 DEF_BENCH(return new TessPrepareBench(
-        make_motionmark_paths, make_hw_tessellator, ShaderFlags::kDynamicStroke, 1,
+        make_motionmark_paths, make_hw_tessellator, PatchAttribs::kStrokeParams, 1,
         "GrStrokeHardwareTessellator_motionmark");
 )
 
 DEF_BENCH(return new TessPrepareBench(
-        make_simple_cubic_path, make_fixed_count_tessellator, ShaderFlags::kNone, 1,
+        make_simple_cubic_path, make_fixed_count_tessellator, PatchAttribs::kNone, 1,
         "GrStrokeFixedCountTessellator");
 )
 
 DEF_BENCH(return new TessPrepareBench(
-        make_simple_cubic_path, make_fixed_count_tessellator, ShaderFlags::kNone, 5,
+        make_simple_cubic_path, make_fixed_count_tessellator, PatchAttribs::kNone, 5,
         "GrStrokeFixedCountTessellator_one_chop");
 )
 
 DEF_BENCH(return new TessPrepareBench(
-        make_motionmark_paths, make_fixed_count_tessellator, ShaderFlags::kDynamicStroke, 1,
+        make_motionmark_paths, make_fixed_count_tessellator, PatchAttribs::kStrokeParams, 1,
         "GrStrokeFixedCountTessellator_motionmark");
 )
 

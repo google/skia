@@ -18,7 +18,7 @@ namespace skgpu {
 class StrokeFixedCountTessellator : public StrokeTessellator {
 public:
     StrokeFixedCountTessellator(const GrShaderCaps&,
-                                ShaderFlags,
+                                PatchAttribs,
                                 const SkMatrix&,
                                 PathStrokeList*,
                                 std::array<float, 2> matrixMinMaxScales);

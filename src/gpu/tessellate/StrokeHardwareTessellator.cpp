@@ -48,8 +48,6 @@ float2 pow4(float2 x) {
 
 class PatchWriter {
 public:
-    using ShaderFlags = StrokeTessellator::ShaderFlags;
-
     enum class JoinType {
         kMiter = SkPaint::kMiter_Join,
         kRound = SkPaint::kRound_Join,
@@ -57,14 +55,14 @@ public:
         kBowtie = SkPaint::kLast_Join + 1  // Double sided round join.
     };
 
-    PatchWriter(ShaderFlags shaderFlags,
+    PatchWriter(PatchAttribs attribs,
                 GrMeshDrawTarget* target,
                 const SkMatrix& viewMatrix,
                 float matrixMaxScale,
                 GrVertexChunkArray* patchChunks,
                 size_t patchStride,
                 int minPatchesPerChunk)
-            : fShaderFlags(shaderFlags)
+            : fAttribs(attribs)
             , fChunkBuilder(target, patchChunks, patchStride, minPatchesPerChunk)
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
@@ -141,13 +139,13 @@ public:
     }
 
     void updateDynamicStroke(const SkStrokeRec& stroke) {
-        SkASSERT(fShaderFlags & ShaderFlags::kDynamicStroke);
+        SkASSERT(fAttribs & PatchAttribs::kStrokeParams);
         fDynamicStroke.set(stroke);
     }
 
     void updateDynamicColor(const SkPMColor4f& color) {
-        SkASSERT(fShaderFlags & ShaderFlags::kDynamicColor);
-        bool wideColor = fShaderFlags & ShaderFlags::kWideColor;
+        SkASSERT(fAttribs & PatchAttribs::kColor);
+        bool wideColor = fAttribs & PatchAttribs::kWideColorIfEnabled;
         SkASSERT(wideColor || color.fitsInBytes());
         fDynamicColor.set(color, wideColor);
     }
@@ -599,12 +597,13 @@ private:
     }
 
     SK_ALWAYS_INLINE void writeDynamicAttribs(VertexWriter* patchWriter) {
-        if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+        if (fAttribs & PatchAttribs::kStrokeParams) {
             *patchWriter << fDynamicStroke;
         }
-        if (fShaderFlags & ShaderFlags::kDynamicColor) {
+        if (fAttribs & PatchAttribs::kColor) {
             *patchWriter << fDynamicColor;
         }
+        SkASSERT(!(fAttribs & PatchAttribs::kExplicitCurveType));
     }
 
     void discardStroke(const SkPoint p[], int numPoints) {
@@ -620,7 +619,7 @@ private:
         fLastControlPoint = p[numPoints - 1];
     }
 
-    const ShaderFlags fShaderFlags;
+    const PatchAttribs fAttribs;
     GrVertexChunkBuilder fChunkBuilder;
 
     // The maximum number of tessellation segments the hardware can emit for a single patch.
@@ -698,13 +697,17 @@ SK_ALWAYS_INLINE bool cubic_has_cusp(const SkPoint p[4]) {
 
 
 StrokeHardwareTessellator::StrokeHardwareTessellator(const GrShaderCaps& shaderCaps,
-                                                     ShaderFlags shaderFlags,
+                                                     PatchAttribs attribs,
                                                      const SkMatrix& viewMatrix,
                                                      PathStrokeList* pathStrokeList,
                                                      std::array<float,2> matrixMinMaxScales)
-        : StrokeTessellator(shaderCaps, GrStrokeTessellationShader::Mode::kHardwareTessellation,
-                            shaderFlags, SkNextLog2(shaderCaps.maxTessellationSegments()),
-                            viewMatrix, pathStrokeList, matrixMinMaxScales) {
+        : StrokeTessellator(shaderCaps,
+                            GrStrokeTessellationShader::Mode::kHardwareTessellation,
+                            attribs,
+                            SkNextLog2(shaderCaps.maxTessellationSegments()),
+                            viewMatrix,
+                            pathStrokeList,
+                            matrixMinMaxScales) {
 }
 
 void StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target, int totalCombinedVerbCnt) {
@@ -714,7 +717,7 @@ void StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target, int totalCombi
     int strokePreallocCount = totalCombinedVerbCnt * 5/4;
     int capPreallocCount = 8;
     int minPatchesPerChunk = strokePreallocCount + capPreallocCount;
-    PatchWriter patchWriter(fShader.flags(), target, fShader.viewMatrix(), fMatrixMinMaxScales[1],
+    PatchWriter patchWriter(fAttribs, target, fShader.viewMatrix(), fMatrixMinMaxScales[1],
                             &fPatchChunks, fShader.vertexStride(), minPatchesPerChunk);
 
     if (!fShader.hasDynamicStroke()) {

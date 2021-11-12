@@ -29,11 +29,12 @@ enum class PatchAttribs {
     // Attribs.
     kNone = 0,
     kFanPoint = 1 << 0,  // [float2] Used by wedges. This is the center point the wedges fan around.
-    kColor = 1 << 1,  // [ubyte4 or float4] Used by direct-rendered convex paths.
-    kExplicitCurveType = 1 << 2,  // [float] Used when GPU can't infer curve type based on infinity.
+    kStrokeParams = 1 << 1,  // [float2] Used when strokes have different widths or join types.
+    kColor = 1 << 2,  // [ubyte4 or float4] Used when patches have different colors.
+    kExplicitCurveType = 1 << 3,  // [float] Used when GPU can't infer curve type based on infinity.
 
     // Extra flags.
-    kWideColorIfEnabled = 1 << 3,  // If kColor is set, specifies it to be float4 wide color.
+    kWideColorIfEnabled = 1 << 4,  // If kColor is set, specifies it to be float4 wide color.
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)

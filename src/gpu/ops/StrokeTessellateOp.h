@@ -24,7 +24,6 @@ public:
     StrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
 
 private:
-    using ShaderFlags = GrStrokeTessellationShader::ShaderFlags;
     using PathStrokeList = StrokeTessellator::PathStrokeList;
     DEFINE_OP_CLASS_ID
 
@@ -34,11 +33,11 @@ private:
     // Returns whether it is a good tradeoff to use the dynamic states flagged in the given
     // bitfield. Dynamic states improve batching, but if they aren't already enabled, they come at
     // the cost of having to write out more data with each patch or instance.
-    bool shouldUseDynamicStates(ShaderFlags neededDynamicStates) const {
+    bool shouldUseDynamicStates(PatchAttribs neededDynamicStates) const {
         // Use the dynamic states if either (1) they are all already enabled anyway, or (2) we don't
         // have many verbs.
         constexpr static int kMaxVerbsToEnableDynamicState = 50;
-        bool anyStateDisabled = (bool)(~fShaderFlags & neededDynamicStates);
+        bool anyStateDisabled = (bool)(~fPatchAttribs & neededDynamicStates);
         bool allStatesEnabled = !anyStateDisabled;
         return allStatesEnabled || (fTotalCombinedVerbCnt <= kMaxVerbsToEnableDynamicState);
     }
@@ -66,7 +65,7 @@ private:
 
     const GrAAType fAAType;
     const SkMatrix fViewMatrix;
-    ShaderFlags fShaderFlags = ShaderFlags::kNone;
+    PatchAttribs fPatchAttribs = PatchAttribs::kNone;
     PathStrokeList fPathStrokeList;
     PathStrokeList** fPathStrokeTail = &fPathStrokeList.fNext;
     int fTotalCombinedVerbCnt = 0;

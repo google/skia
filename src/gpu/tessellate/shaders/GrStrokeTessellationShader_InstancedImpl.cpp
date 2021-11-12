@@ -85,12 +85,12 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
     args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;\n", translateName);
 
-    if (args.fShaderCaps->infinitySupport()) {
-        args.fVertBuilder->insertFunction(R"(
-        bool is_conic_curve() { return isinf(pts23Attr.w); })");
-    } else {
+    if (shader.hasExplicitCurveType()) {
         args.fVertBuilder->insertFunction(SkStringPrintf(R"(
         bool is_conic_curve() { return curveTypeAttr != %g; })", kCubicCurveType).c_str());
+    } else {
+        args.fVertBuilder->insertFunction(R"(
+        bool is_conic_curve() { return isinf(pts23Attr.w); })");
     }
 
     // Tessellation code.
