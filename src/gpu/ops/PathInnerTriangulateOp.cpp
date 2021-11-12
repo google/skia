@@ -478,12 +478,14 @@ void PathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect&
         }
     }
 
-    for (const GrProgramInfo* fanProgram : fFanPrograms) {
-        SkASSERT(fFanBuffer);
-        flushState->bindPipelineAndScissorClip(*fanProgram, this->bounds());
-        flushState->bindTextures(fanProgram->geomProc(), nullptr, fanProgram->pipeline());
-        flushState->bindBuffers(nullptr, nullptr, fFanBuffer);
-        flushState->draw(fFanVertexCount, fBaseFanVertex);
+    // Allocation of the fan vertex buffer may have failed but we already pushed back fan programs.
+    if (fFanBuffer) {
+        for (const GrProgramInfo* fanProgram : fFanPrograms) {
+            flushState->bindPipelineAndScissorClip(*fanProgram, this->bounds());
+            flushState->bindTextures(fanProgram->geomProc(), nullptr, fanProgram->pipeline());
+            flushState->bindBuffers(nullptr, nullptr, fFanBuffer);
+            flushState->draw(fFanVertexCount, fBaseFanVertex);
+        }
     }
 
     if (fCoverHullsProgram) {
