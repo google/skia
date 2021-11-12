@@ -152,14 +152,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                  ctxInfo.hasExtension("GL_NV_texture_barrier");
     } else if (GR_IS_GR_GL_ES(standard)) {
         fTextureBarrierSupport = ctxInfo.hasExtension("GL_NV_texture_barrier");
-    } // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fTextureBarrierSupport = false;
+    }
 
     if (GR_IS_GR_GL(standard)) {
         fSampleLocationsSupport = version >= GR_GL_VER(3,2) ||
                                   ctxInfo.hasExtension("GL_ARB_texture_multisample");
     } else if (GR_IS_GR_GL_ES(standard)) {
         fSampleLocationsSupport = version >= GR_GL_VER(3,1);
-    }  // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fSampleLocationsSupport = false;
+    }
 
     fImagingSupport = GR_IS_GR_GL(standard) &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
@@ -205,7 +209,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDebugSupport = true;
     } else if (GR_IS_GR_GL_ES(standard)) {
         fDebugSupport = ctxInfo.hasExtension("GL_KHR_debug");
-    } // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fDebugSupport = false;
+    }
 
     if (GR_IS_GR_GL(standard)) {
         fES2CompatibilitySupport = ctxInfo.hasExtension("GL_ARB_ES2_compatibility");
@@ -220,7 +226,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fClientCanDisableMultisample = true;
     } else if (GR_IS_GR_GL_ES(standard)) {
         fClientCanDisableMultisample = ctxInfo.hasExtension("GL_EXT_multisample_compatibility");
-    } // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fClientCanDisableMultisample = false;
+    }
 
     if (GR_IS_GR_GL(standard)) {
         // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
@@ -262,7 +270,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         if (version >= GR_GL_VER(3, 0) && ctxInfo.hasExtension("GL_EXT_blend_func_extended")) {
             fBindFragDataLocationSupport = true;
         }
-    } // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fBindFragDataLocationSupport = false;
+    }
 
     fBindUniformLocationSupport = ctxInfo.hasExtension("GL_CHROMIUM_bind_uniform_location");
 
@@ -274,7 +284,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else if (GR_IS_GR_GL_ES(standard)) {
         fRectangleTextureSupport = ctxInfo.hasExtension("GL_ARB_texture_rectangle") ||
                                    ctxInfo.hasExtension("GL_ANGLE_texture_rectangle");
-    } // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fRectangleTextureSupport = false;
+    }
 
     // GrCaps defaults fClampToBorderSupport to true, so disable when unsupported
     if (GR_IS_GR_GL(standard)) {
@@ -302,7 +314,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         if (version >= GR_GL_VER(3,0)) {
             fTextureSwizzleSupport = true;
         }
-    } // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fTextureSwizzleSupport = false;
+    }
 
     if (GR_IS_GR_GL(standard)) {
         fMipmapLevelControlSupport = true;
@@ -312,7 +326,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fMipmapLevelControlSupport = true;
             fMipmapLodControlSupport = true;
         }
-    } // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fMipmapLevelControlSupport = false;
+        fMipmapLodControlSupport = false;
+    }
 
     // Chrome's command buffer will zero out a buffer if null is passed to glBufferData to avoid
     // letting an application see uninitialized memory. WebGL spec explicitly disallows null values.
@@ -323,7 +340,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                 ctxInfo.hasExtension("GL_ARB_clear_texture"));
     } else if (GR_IS_GR_GL_ES(standard)) {
         fClearTextureSupport = ctxInfo.hasExtension("GL_EXT_clear_texture");
-    }  // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fClearTextureSupport = false;
+    }
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
     fSupportsAHardwareBufferImages = true;
@@ -513,7 +532,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 //            fTransferFromSurfaceToBufferSupport = false;
 //            fTransferBufferType = TransferBufferType::kChromium;
         }
-    } // no WebGL support
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fTransferFromBufferToTextureSupport = false;
+        fTransferFromSurfaceToBufferSupport = false;
+    }
 
     // On many GPUs, map memory is very expensive, so we effectively disable it here by setting the
     // threshold to the maximum unless the client gives us a hint that map memory is cheap.

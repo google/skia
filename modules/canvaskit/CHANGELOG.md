@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - Some `Surface` methods would not properly switch to the right WebGL context.
+ - Warnings about `INVALID_ENUM: enable: invalid capability` should be reduced/eliminated.
 
 ### Removed
  - `FontMgr.MakeTypefaceFromData` and `FontMgr.RefDefault` have been removed in favor of
