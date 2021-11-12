@@ -1245,6 +1245,12 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
         colorRenderbufferFormat = this->glCaps().getRenderbufferInternalFormat(desc.fFormat);
     }
 
+#if defined(__has_feature)
+#define IS_TSAN __has_feature(thread_sanitizer)
+#else
+#define IS_TSAN 0
+#endif
+
     // below here we may bind the FBO
     fHWBoundRenderTargetUniqueID.makeInvalid();
     if (rtIDs->fMSColorRenderbufferID) {
@@ -1259,6 +1265,8 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
                                         rtIDs->fMSColorRenderbufferID));
+// See skbug.com/12644
+#if !IS_TSAN
         if (!this->glCaps().skipErrorChecks()) {
             GrGLenum status;
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
@@ -1276,15 +1284,17 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                                 rtIDs->fMSColorRenderbufferID));
             }
         }
+#endif
         rtIDs->fTotalMemorySamplesPerPixel += sampleCount;
     }
-
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fSingleSampleFBOID);
     GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                  GR_GL_COLOR_ATTACHMENT0,
                                  desc.fTarget,
                                  desc.fID,
                                  0));
+// See skbug.com/12644
+#if !IS_TSAN
     if (!this->glCaps().skipErrorChecks()) {
         GrGLenum status;
         GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
@@ -1304,6 +1314,9 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                          0));
         }
     }
+#endif
+
+#undef IS_TSAN
     ++rtIDs->fTotalMemorySamplesPerPixel;
 
     // We did it!
