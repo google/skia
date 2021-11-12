@@ -6,6 +6,8 @@ struct S { float x; int y; };
 
 struct Nested { S a, b; };
 
+struct Compound { float4 f4; int3 i3; };
+
 S returns_a_struct() {
     S s;
     s.x = 1;
@@ -40,8 +42,14 @@ half4 main(float2 coords) {
     n3 = n2;
     modifies_a_struct(n3.b);
 
+    Compound c1 = Compound(float4(1, 2, 3, 4), int3(5, 6, 7));
+    Compound c2 = Compound(float4(colorGreen.g, 2, 3, 4), int3(5, 6, 7));
+    Compound c3 = Compound(float4(colorGreen.r, 2, 3, 4), int3(5, 6, 7));
+
     bool valid = (x == 3) && (s.x == 2) && (s.y == 3) &&
                  (s == expected) && (s == S(2, 3)) && (s != returns_a_struct()) &&
-                 (n1 == n2) && (n1 != n3) && (n3 == Nested(S(1, 2), S(2, 3)));
+                 (n1 == n2) && (n1 != n3) && (n3 == Nested(S(1, 2), S(2, 3))) &&
+                 (c1 == c2) && (c2 != c3);
+
     return valid ? colorGreen : colorRed;
 }
