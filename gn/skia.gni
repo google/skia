@@ -28,6 +28,7 @@ declare_args() {
   skia_enable_svg = !is_component_build
   skia_enable_tools = is_skia_dev_build
   skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
+  skia_disable_vma_stl_shared_mutex = false
   skia_enable_winuwp = false
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
