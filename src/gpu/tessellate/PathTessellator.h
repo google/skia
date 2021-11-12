@@ -118,7 +118,7 @@ protected:
 
     PathTessellator(bool infinitySupport, PatchAttribs attribs) : fAttribs(attribs) {
         if (!infinitySupport) {
-            attribs |= PatchAttribs::kExplicitCurveType;
+            fAttribs |= PatchAttribs::kExplicitCurveType;
         }
     }
 

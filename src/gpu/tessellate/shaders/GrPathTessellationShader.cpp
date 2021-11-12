@@ -115,12 +115,6 @@ float2 eval_rational_cubic(float4x3 P, float T) {
 
 void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const auto& shader = args.fGeomProc.cast<GrPathTessellationShader>();
-
-    // We should use explicit curve type when, and only when, there isn't infinity support.
-    // Otherwise the GPU can infer curve type based on infinity.
-    SkASSERT(args.fShaderCaps->infinitySupport() !=
-             (shader.fAttribs & PatchAttribs::kExplicitCurveType));
-
     args.fVaryingHandler->emitAttributes(shader);
 
     // Vertex shader.

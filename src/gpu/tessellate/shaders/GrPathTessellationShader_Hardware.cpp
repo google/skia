@@ -343,6 +343,7 @@ GrPathTessellationShader* GrPathTessellationShader::MakeHardwareTessellationShad
         SkArenaAlloc* arena, const SkMatrix& viewMatrix, const SkPMColor4f& color,
         PatchAttribs attribs) {
     SkASSERT(!(attribs & PatchAttribs::kColor));  // Not yet implemented.
+    SkASSERT(!(attribs & PatchAttribs::kExplicitCurveType));  // Not yet implemented.
     if (attribs & PatchAttribs::kFanPoint) {
         return arena->make<HardwareWedgeShader>(viewMatrix, color, attribs);
     } else {

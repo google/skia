@@ -210,7 +210,13 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
 }  // namespace
 
 GrPathTessellationShader* GrPathTessellationShader::MakeMiddleOutFixedCountShader(
-        const GrShaderCaps& shaderCaps, SkArenaAlloc* arena, const SkMatrix& viewMatrix,
-        const SkPMColor4f& color, PatchAttribs attribs) {
+        const GrShaderCaps& shaderCaps,
+        SkArenaAlloc* arena,
+        const SkMatrix& viewMatrix,
+        const SkPMColor4f& color,
+        PatchAttribs attribs) {
+    // We should use explicit curve type when, and only when, there isn't infinity support.
+    // Otherwise the GPU can infer curve type based on infinity.
+    SkASSERT(shaderCaps.infinitySupport() != (attribs & PatchAttribs::kExplicitCurveType));
     return arena->make<MiddleOutShader>(shaderCaps, viewMatrix, color, attribs);
 }
