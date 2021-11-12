@@ -24,11 +24,11 @@
 <canvas id=api5 width=300 height=300></canvas>
 <canvas id=api6 width=300 height=300></canvas>
 
-<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+<script type="text/javascript" src="/build/canvaskit.js"></script>
 <script type="text/javascript" charset="utf-8">
   const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
 
-  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/build/'+file});
   const loadTestImage = fetch(cdn + 'test.png').then((response) => response.arrayBuffer());
   const imageEle = document.getElementById("src");
 

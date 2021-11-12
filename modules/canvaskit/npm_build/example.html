@@ -51,14 +51,14 @@
 <h2> Interactive drawPatch</h2>
 <canvas id=interdrawpatch width=512 height=512></canvas>
 
-<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+<script type="text/javascript" src="/build/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
 
   var CanvasKit = null;
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
 
-  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/build/'+file});
 
   const loadRoboto = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
   const loadNotoSerif = fetch(cdn + 'NotoSerif-Regular.ttf').then((response) => response.arrayBuffer());

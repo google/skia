@@ -1,0 +1,9 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkAndroidFrameworkUtils.cpp",
+        "SkAnimatedImage.cpp",
+    ],
+)

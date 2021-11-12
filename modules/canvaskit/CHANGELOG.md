@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `FontMgr.MakeTypefaceFromData` and `FontMgr.RefDefault` have been removed in favor of
    `Typeface.MakeFreeTypeFaceFromData`
 
+### Changed
+ - `make release`, `make debug`, and variants put the output in a different location (./build).
+ - Example .html files load CanvasKit from the new location (./build).
+
 ### Type Changes (index.d.ts)
  - `Surface.requestAnimationFrame` and `Surface.drawOnce` are properly documented.
  - Fixed typo in TextStyle (decrationStyle => decorationStyle)

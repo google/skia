@@ -117,6 +117,7 @@ filegroup(
         "ir/SkSLDiscardStatement.h",
         "ir/SkSLDoStatement.cpp",
         "ir/SkSLDoStatement.h",
+        "ir/SkSLExpression.cpp",
         "ir/SkSLExpression.h",
         "ir/SkSLExpressionStatement.cpp",
         "ir/SkSLExpressionStatement.h",

@@ -1,0 +1,9 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkAndroidFrameworkUtils.h",
+        "SkAnimatedImage.h",
+    ],
+)

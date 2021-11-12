@@ -22,6 +22,7 @@ cc_test(
 CORE_SRCS = [
     "//include/private:hdrs",
     "//include/third_party:skcms-hdrs",
+    "//src/android:srcs",
     "//src/codec:srcs",
     "//src/core:srcs",
     "//src/image:srcs",
@@ -46,6 +47,7 @@ CORE_SRCS = [
 })
 
 CORE_HDRS = [
+    "//include/android:hdrs",
     "//include/codec:hdrs",
     "//include/config:hdrs",
     "//include/core:hdrs",

@@ -49,7 +49,6 @@
 #include "include/private/SkShadowFlags.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
-#include "modules/skparagraph/include/Paragraph.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkResourceCache.h"
 #include "src/image/SkImage_Base.h"
@@ -77,6 +76,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
+#include "modules/skparagraph/include/Paragraph.h"
 #endif
 
 #ifdef SK_INCLUDE_PATHOPS
@@ -2149,5 +2149,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("ShadowGeometricOnly", (int)SkShadowFlags::kGeometricOnly_ShadowFlag);
     constant("ShadowDirectionalLight", (int)SkShadowFlags::kDirectionalLight_ShadowFlag);
 
+#ifndef SK_NO_FONTS
     constant("_GlyphRunFlags_isWhiteSpace", (int)skia::textlayout::Paragraph::kWhiteSpace_VisitorFlag);
+#endif
 }

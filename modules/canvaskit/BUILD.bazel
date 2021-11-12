@@ -6,6 +6,7 @@ package(default_visibility = ["//:__subpackages__"])
 BASE_LINKOPTS = [
     #"-flto",  # https://github.com/emscripten-core/emsdk/issues/807
     "--bind",  # Compiles the source code using the Embind bindings to connect C/C++ and JavaScript
+    "--no-entry",
     "-sALLOW_MEMORY_GROWTH",
     "-sUSE_PTHREADS=0",  # Disable pthreads
     "-sMODULARIZE",
@@ -13,6 +14,8 @@ BASE_LINKOPTS = [
     "-sNODEJS_CATCH_EXIT=0",  # We don't have a 'main' so disable exit() catching
     "-sWASM",
     "-sMAX_WEBGL_VERSION=2",
+    "-sFORCE_FILESYSTEM=0",
+    "-sFILESYSTEM=0",
 ]
 
 RELEASE_OPTS = [
@@ -78,4 +81,84 @@ wasm_cc_binary(
     name = "gm-bindings-wasm",
     testonly = True,
     cc_target = ":gm-bindings",
+)
+
+CK_DEFINES = [
+    "SK_NO_FONTS",  #TODO(kjlubick)
+    "SK_DISABLE_LEGACY_SHADERCONTEXT",
+] + select({
+    "//bazel/common_config_settings:gl_backend": [
+        "SK_GL",
+        "SK_SUPPORT_GPU=1",
+    ],
+    "//conditions:default": [
+        "SK_SUPPORT_GPU=0",
+    ],
+})
+
+CK_OPTS = BASE_LINKOPTS + [
+    "-sEXPORT_NAME=CanvasKitInit",
+    # The order of these --pre-js flags matters! The preamble is a partially open scope and the
+    # postamble closes it.
+    "--pre-js",
+    "modules/canvaskit/preamble.js",
+    "--pre-js",
+    "modules/canvaskit/color.js",
+    "--pre-js",
+    "modules/canvaskit/memory.js",
+    "--pre-js",
+    "modules/canvaskit/util.js",
+    "--pre-js",
+    "modules/canvaskit/interface.js",
+    "--pre-js",
+    "modules/canvaskit/postamble.js",
+    "-sINITIAL_MEMORY=128MB",
+] + select({
+    "//bazel/common_config_settings:gl_backend": [
+        "--pre-js",
+        "modules/canvaskit/cpu.js",
+        "--pre-js",
+        "modules/canvaskit/gpu.js",
+    ],
+    "//conditions:default": [
+        "--pre-js",
+        "modules/canvaskit/cpu.js",
+    ],
+}) + select({
+    "//bazel/common_config_settings:debug_build": DEBUG_OPTS,
+    "//conditions:default": RELEASE_OPTS,
+})
+
+cc_binary(
+    name = "canvaskit",
+    srcs = [
+        "canvaskit_bindings.cpp",
+        ":hdrs",
+        "//src/ports:default_global_init",
+        "//src/ports:fontmgr",
+        "//src/ports:malloc",
+        "//src/ports:skdebug",
+        "//src/ports:skia_image_generator",
+    ],
+    additional_linker_inputs = [
+        "color.js",
+        "interface.js",
+        "memory.js",
+        "postamble.js",
+        "preamble.js",
+        "util.js",
+    ],
+    linkopts = CK_OPTS,
+    local_defines = CK_DEFINES,
+    # This target won't build successfully on its own because of missing emscripten
+    # headers etc. Therefore, we hide it from wildcards.
+    tags = ["manual"],
+    deps = [
+        "//:skia-core",
+    ],
+)
+
+wasm_cc_binary(
+    name = "canvaskit-wasm",
+    cc_target = ":canvaskit",
 )

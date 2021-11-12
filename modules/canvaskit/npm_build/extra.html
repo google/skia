@@ -44,7 +44,7 @@
 <a href="chrome://flags/#force-color-profile">Force P3 profile</a>
 <canvas id=colorsupport width=300 height=300></canvas>
 
-<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+<script type="text/javascript" src="/build/canvaskit.js"></script>
 
 <script type="text/javascript" src="textapi_utils.js"></script>
 
@@ -53,7 +53,7 @@
   var CanvasKit = null;
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
 
-  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/build/'+file});
 
   const loadLegoJSON = fetch(cdn + 'lego_loader.json').then((response) => response.text());
   const loadDrinksJSON = fetch(cdn + 'drinks.json').then((response) => response.text());

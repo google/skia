@@ -1,64 +1,63 @@
 clean:
-	rm -rf ../../out/canvaskit_wasm
-	rm -rf ./npm_build/bin
+	- rm -rf ../../out/canvaskit_wasm
+	- rm -rf ./npm_build/bin
+	- rm -rf ./build/
 	$(MAKE) release
 
 release:
 	# Does an incremental build where possible.
 	./compile.sh
-	mkdir -p ./npm_build/bin
-	cp ../../out/canvaskit_wasm/canvaskit.js   ./npm_build/bin
-	cp ../../out/canvaskit_wasm/canvaskit.wasm ./npm_build/bin
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./build/
 
 release_cpu:
 	# Does an incremental build where possible.
 	./compile.sh cpu_only
-	mkdir -p ./npm_build/bin
-	cp ../../out/canvaskit_wasm/canvaskit.js   ./npm_build/bin
-	cp ../../out/canvaskit_wasm/canvaskit.wasm ./npm_build/bin
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./build/
 
 release_viewer:
 	# Does an incremental build where possible.
 	./compile.sh viewer
-	mkdir -p ./npm_build/bin
-	cp ../../out/canvaskit_wasm/canvaskit.js   ./npm_build/bin
-	cp ../../out/canvaskit_wasm/canvaskit.wasm ./npm_build/bin
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./build/
 
 debug:
 	# Does an incremental build where possible.
 	./compile.sh debug
-	mkdir -p ./npm_build/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./npm_build/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./npm_build/bin
-	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./npm_build/bin
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./build/
 
 debug_cpu:
 	# Does an incremental build where possible.
 	./compile.sh debug cpu_only
-	mkdir -p ./npm_build/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./npm_build/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./npm_build/bin
-	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./npm_build/bin
-
-experimental_simd:
-	# Does an incremental build where possible.
-	./compile.sh simd
-	mkdir -p ./npm_build/bin
-	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.js   ./npm_build/bin
-	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm ./npm_build/bin
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./build/
 
 debug_viewer:
 	# Does an incremental build where possible.
 	./compile.sh debug viewer
-	mkdir -p ./npm_build/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./npm_build/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./npm_build/bin
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./build/
 
 profile:
 	./compile.sh profiling
-	mkdir -p ./npm_build/bin
-	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./npm_build/bin
-	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./npm_build/bin
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm_profile/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm ./build/
 
 npm:
 	rm -rf ./npm_build/bin
@@ -149,3 +148,14 @@ bazel_gms_debug:
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/gm-bindings-wasm/gm-bindings.js build/gm-bindings.js
 	cp ../../bazel-bin/modules/canvaskit/gm-bindings-wasm/gm-bindings.wasm build/gm-bindings.wasm
+
+bazel_canvaskit_debug:
+	# See above note about spawn_strategy
+	bazelisk build :canvaskit-wasm --compilation_mode dbg --spawn_strategy=local \
+		--gpu_backend=gl_backend --with_gl_standard=webgl_standard \
+		--include_codec=jpeg_codec --include_codec=png_codec --include_codec=webp_codec \
+		--include_codec=gif_codec
+	- rm -rf build/
+	mkdir build
+	cp ../../bazel-bin/modules/canvaskit/canvaskit-wasm/canvaskit.js build/canvaskit.js
+	cp ../../bazel-bin/modules/canvaskit/canvaskit-wasm/canvaskit.wasm build/canvaskit.wasm
