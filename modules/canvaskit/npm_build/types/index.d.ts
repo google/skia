@@ -274,12 +274,10 @@ export interface CanvasKit {
      * Not available for software-backed surfaces.
      * @param src - CanvasKit will take ownership of the TextureSource and clean it up when
      *              the image is destroyed.
-     * @param width - If provided, will be used as the width of src. Otherwise, the natural
-     *                width of src (if available) will be used.
-     * @param height - If provided, will be used as the height of src. Otherwise, the natural
-     *                height of src (if available) will be used.
+     * @param info - If provided, will be used to determine the width/height/format of the
+     *               source image. If not, sensible defaults will be used.
      */
-    MakeLazyImageFromTextureSource(src: TextureSource, width?: number, height?: number): Image;
+    MakeLazyImageFromTextureSource(src: TextureSource, info?: ImageInfo | PartialImageInfo): Image;
 
     /**
      * Deletes the associated WebGLContext. Function not available on the CPU version.
@@ -2642,12 +2640,10 @@ export interface Surface extends EmbindObject<Surface> {
      *
      * Not available for software-backed surfaces.
      * @param src
-     * @param width - If provided, will be used as the width of src. Otherwise, the natural
-     *                width of src (if available) will be used.
-     * @param height - If provided, will be used as the height of src. Otherwise, the natural
-     *                height of src (if available) will be used.
+     * @param info - If provided, will be used to determine the width/height/format of the
+     *               source image. If not, sensible defaults will be used.
      */
-    makeImageFromTextureSource(src: TextureSource, width?: number, height?: number): Image | null;
+    makeImageFromTextureSource(src: TextureSource, info?: ImageInfo | PartialImageInfo): Image | null;
 
     /**
      * Returns current contents of the surface as an Image. This image will be optimized to be

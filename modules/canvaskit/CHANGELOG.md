@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKit.MakeLazyImageFromTextureSource`, which is similar to
    `Surface.makeImageFromTextureSource`, but can be re-used across different WebGL contexts.
 
+### Breaking
+ - `Surface.makeImageFromTextureSource` now takes an optional ImageInfo or PartialImageInfo
+   instead of optional width and height. Sensible defaults will be used if not supplied.
+
 ### Fixed
  - Some `Surface` methods would not properly switch to the right WebGL context.
 

@@ -261,6 +261,12 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
       colorSpace: CK.ColorSpace.SRGB
     }, Uint8Array.of(255, 0, 0, 250), 4);
     const img4 = CK.MakeLazyImageFromTextureSource(imgElement); // $ExpectType Image
+    const img5 = CK.MakeLazyImageFromTextureSource(imgElement, {
+      width: 1,
+      height: 1,
+      alphaType: CK.AlphaType.Premul,
+      colorType: CK.ColorType.RGBA_8888,
+    });
     if (!img) return;
     const dOne = img.encodeToBytes(); // $ExpectType Uint8Array | null
     const dTwo = img.encodeToBytes(CK.ImageFormat.JPEG, 97);
@@ -860,7 +866,12 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
     });
     const img4 = surfaceFour.makeImageFromTextureSource(new Image()); // $ExpectType Image | null
     const videoEle = document.createElement('video');
-    const img5 = surfaceFour.makeImageFromTextureSource(videoEle, 30, 10); // $ExpectType Image | null
+    const img5 = surfaceFour.makeImageFromTextureSource(videoEle, {
+      height: 40,
+      width: 80,
+      colorType: CK.ColorType.RGBA_8888,
+      alphaType: CK.AlphaType.Unpremul,
+    });
     const img6 = surfaceFour.makeImageFromTextureSource(new ImageData(40, 80)); // $ExpectType Image | null
 
     surfaceSeven.delete();

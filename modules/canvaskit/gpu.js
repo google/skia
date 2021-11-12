@@ -170,30 +170,36 @@
 
       CanvasKit.Surface.prototype.makeImageFromTexture = function(tex, info) {
         CanvasKit.setCurrentContext(this._context);
-        if (!info['colorSpace']) {
-          info['colorSpace'] = CanvasKit.ColorSpace.SRGB;
-        }
         var texHandle = pushTexture(tex);
         return this._makeImageFromTexture(this._context, texHandle, info);
       };
 
-      // If the user specified a height or width in the image info, we use that. Otherwise,
-      // we try to find the natural media type (for <img> and <video>), display* for
+      // We try to find the natural media type (for <img> and <video>), display* for
       // https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame and then fall back to
       // the height and width (to cover <canvas>, ImageBitmap or ImageData).
-      function getHeight(src, h) {
-        return h || src['naturalHeight'] || src['videoHeight'] ||
-          src['displayHeight'] || src['height'];
+      function getHeight(src) {
+        return src['naturalHeight'] || src['videoHeight'] || src['displayHeight'] || src['height'];
       }
 
-      function getWidth(src, w) {
-        return w || src['naturalWidth'] || src['videoWidth'] ||
-          src['displayWidth'] || src['width'];
+      function getWidth(src) {
+        return src['naturalWidth'] || src['videoWidth'] || src['displayWidth'] || src['width'];
       }
 
-      CanvasKit.Surface.prototype.makeImageFromTextureSource = function(src, w, h) {
-        var height = getHeight(src, h);
-        var width = getWidth(src, w);
+      CanvasKit.Surface.prototype.makeImageFromTextureSource = function(src, info) {
+        if (!info) {
+          info = {
+            'height': getHeight(src),
+            'width': getWidth(src),
+            'colorType': CanvasKit.ColorType.RGBA_8888,
+            'alphaType': CanvasKit.AlphaType.Unpremul,
+          };
+        }
+        if (!info['colorSpace']) {
+          info['colorSpace'] = CanvasKit.ColorSpace.SRGB;
+        }
+        if (info['colorType'] !== CanvasKit.ColorType.RGBA_8888) {
+          Debug('colorType currently has no impact on makeImageFromTextureSource');
+        }
 
         // We want to be pointing at the context associated with this surface.
         CanvasKit.setCurrentContext(this._context);
@@ -201,24 +207,29 @@
         var newTex = glCtx.createTexture();
         glCtx.bindTexture(glCtx.TEXTURE_2D, newTex);
         if (GL.currentContext.version === 2) {
-          glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, width, height, 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+          glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, info['width'], info['height'], 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         } else {
           glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         }
         glCtx.bindTexture(glCtx.TEXTURE_2D, null);
-        var info = {
-          'height': height,
-          'width': width,
-          'colorType': CanvasKit.ColorType.RGBA_8888,
-          'alphaType': CanvasKit.AlphaType.Unpremul,
-          'colorSpace': CanvasKit.ColorSpace.SRGB,
-        };
         return this.makeImageFromTexture(newTex, info);
       };
 
-      CanvasKit.MakeLazyImageFromTextureSource = function(src, w, h) {
-        var height = getHeight(src, h);
-        var width = getWidth(src, w);
+      CanvasKit.MakeLazyImageFromTextureSource = function(src, info) {
+        if (!info) {
+          info = {
+            'height': getHeight(src),
+            'width': getWidth(src),
+            'colorType': CanvasKit.ColorType.RGBA_8888,
+            'alphaType': CanvasKit.AlphaType.Unpremul,
+          };
+        }
+        if (!info['colorSpace']) {
+          info['colorSpace'] = CanvasKit.ColorSpace.SRGB;
+        }
+        if (info['colorType'] !== CanvasKit.ColorType.RGBA_8888) {
+          Debug('colorType currently has no impact on MakeLazyImageFromTextureSource');
+        }
 
         var callbackObj = {
           'makeTexture': function() {
@@ -231,7 +242,7 @@
             var newTex = glCtx.createTexture();
             glCtx.bindTexture(glCtx.TEXTURE_2D, newTex);
             if (ctx.version === 2) {
-              glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, width, height, 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+              glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, info['width'], info['height'], 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
             } else {
               glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
             }
@@ -251,7 +262,7 @@
             src.close();
           }
         }
-        return CanvasKit.Image._makeFromGenerator(width, height, callbackObj);
+        return CanvasKit.Image._makeFromGenerator(info, callbackObj);
       }
 
       CanvasKit.setCurrentContext = function(ctx) {
