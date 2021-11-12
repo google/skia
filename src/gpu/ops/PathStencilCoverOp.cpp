@@ -242,14 +242,15 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         // A single n-sided polygon is fanned by n-2 triangles. Multiple polygons with a combined
         // edge count of n are fanned by strictly fewer triangles.
         int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
-        VertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxTrianglesInFans * 3);
         int fanTriangleCount = 0;
-        for (auto [pathMatrix, path, color] : *fPathDrawList) {
-            AffineMatrix m(pathMatrix);
-            for (PathMiddleOutFanIter it(path); !it.done();) {
-                for (auto [p0, p1, p2] : it.nextStack()) {
-                    triangleVertexWriter << m.map2Points(p0, p1) << m.mapPoint(p2);
-                    ++fanTriangleCount;
+        if (VertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxTrianglesInFans * 3)) {
+            for (auto [pathMatrix, path, color] : *fPathDrawList) {
+                AffineMatrix m(pathMatrix);
+                for (PathMiddleOutFanIter it(path); !it.done();) {
+                    for (auto [p0, p1, p2] : it.nextStack()) {
+                        triangleVertexWriter << m.map2Points(p0, p1) << m.mapPoint(p2);
+                        ++fanTriangleCount;
+                    }
                 }
             }
         }
@@ -314,6 +315,12 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
 
 void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fTessellator) {
+        return;
+    }
+
+    if (fCoverBBoxProgram &&
+        fCoverBBoxProgram->geomProc().hasVertexAttributes() &&
+        !fBBoxVertexBufferIfNoIDSupport) {
         return;
     }
 

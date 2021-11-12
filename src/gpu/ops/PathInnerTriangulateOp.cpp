@@ -468,6 +468,12 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
 }
 
 void PathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    if (fCoverHullsProgram &&
+        fCoverHullsProgram->geomProc().hasVertexAttributes() &&
+        !fHullVertexBufferIfNoIDSupport) {
+        return;
+    }
+
     if (fStencilCurvesProgram) {
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fStencilCurvesProgram, this->bounds());

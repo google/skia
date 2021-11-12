@@ -214,6 +214,9 @@ void DrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
 }
 
 void DrawAtlasPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    if (fProgram->geomProc().hasVertexAttributes() && !fVertexBufferIfNoIDSupport) {
+        return;
+    }
     flushState->bindPipelineAndScissorClip(*fProgram, this->bounds());
     flushState->bindTextures(fProgram->geomProc(), *fAtlasHelper.proxy(), fProgram->pipeline());
     flushState->bindBuffers(nullptr, std::move(fInstanceBuffer), fVertexBufferIfNoIDSupport);

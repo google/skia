@@ -438,6 +438,10 @@ void StrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
     if (fInstanceChunks.empty() || fFixedVertexCount <= 0) {
         return;
     }
+    if (!flushState->caps().shaderCaps()->vertexIDSupport() &&
+        !fVertexBufferIfNoIDSupport) {
+        return;
+    }
     for (const auto& instanceChunk : fInstanceChunks) {
         flushState->bindBuffers(nullptr, instanceChunk.fBuffer, fVertexBufferIfNoIDSupport);
         flushState->drawInstanced(instanceChunk.fCount, instanceChunk.fBase, fFixedVertexCount, 0);
