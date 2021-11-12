@@ -4,31 +4,30 @@ uniform half4 colorRed, colorGreen;
 
 // Should return 5
 const float kZero = 0;
-float return_loop() {
+float return_loop(float five) {
     for (float i = kZero; i < 10; ++i) {
-        bool shouldExit = (i == float(colorGreen.g * 5));
-        if (shouldExit) { return i; }
+        if (i == five) { return i; }
     }
     return 0;
 }
 
 // Should return 35
 const float kTen = kZero + 10;
-float continue_loop() {
+float continue_loop(float five) {
     float sum = 0;
     for (float i = 0; i < kTen; ++i) {
-        if (i < 5) { continue; }
+        if (i < five) { continue; }
         sum += i;
     }
     return sum;
 }
 
 // Should return 15
-float break_loop() {
+float break_loop(float five) {
     float sum = 0;
     const float kOne = 1;
     for (float i = 0; i < 10; i += kOne) {
-        if (i > 5) { break; }
+        if (i > five) { break; }
         sum += i;
     }
     return sum;
@@ -113,9 +112,10 @@ bool loop_operator_eq() {
     return result == float4(9, 9, 9, 1);
 }
 
-half4 main(float2 xy) {
-    return (return_loop() == 5 && continue_loop() == 35 &&
-            break_loop() == 15 && abs(float_loop()) < 0.025 &&
+half4 main(float2 pos) {
+    float five = clamp(pos.x, colorGreen.g, colorGreen.a) * 5.0;
+    return (return_loop(five) == 5 && continue_loop(five) == 35 &&
+            break_loop(five) == 15 && abs(float_loop()) < 0.025 &&
             loop_operator_le() && loop_operator_lt() &&
             loop_operator_ge() && loop_operator_gt() &&
             loop_operator_eq() && loop_operator_ne()) ? colorGreen : colorRed;

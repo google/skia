@@ -279,8 +279,8 @@ SKSL_TEST_ES3(SkSLIntrinsicTranspose,          "intrinsics/Transpose.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicUintBitsToFloat,    "intrinsics/UintBitsToFloat.sksl")
 
 SKSL_TEST_ES3(SkSLArrayNarrowingConversions,   "runtime/ArrayNarrowingConversions.rts")
-SKSL_TEST_ES3(SkSLLoopFloat,                   "runtime/LoopFloat.rts")
-SKSL_TEST_ES3(SkSLLoopInt,                     "runtime/LoopInt.rts")
+SKSL_TEST(SkSLLoopFloat,                       "runtime/LoopFloat.rts")
+SKSL_TEST(SkSLLoopInt,                         "runtime/LoopInt.rts")
 SKSL_TEST(SkSLQualifierOrder,                  "runtime/QualifierOrder.rts")
 SKSL_TEST(SkSLPrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
 

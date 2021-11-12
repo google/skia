@@ -4,31 +4,30 @@ uniform half4 colorRed, colorGreen;
 
 // Should return 5
 const int kZero = 0;
-int return_loop() {
+int return_loop(int five) {
     for (int i = kZero; i < 10; ++i) {
-        bool shouldExit = (i == int(colorGreen.g * 5));
-        if (shouldExit) { return i; }
+        if (i == five) { return i; }
     }
     return 0;
 }
 
 // Should return 35
 const int kTen = kZero + 10;
-int continue_loop() {
+int continue_loop(int five) {
     int sum = 0;
     for (int i = 0; i < kTen; ++i) {
-        if (i < 5) { continue; }
+        if (i < five) { continue; }
         sum += i;
     }
     return sum;
 }
 
 // Should return 15
-int break_loop() {
+int break_loop(int five) {
     int sum = 0;
     const int kOne = 1;
     for (int i = 0; i < 10; i += kOne) {
-        if (i > 5) { break; }
+        if (i > five) { break; }
         sum += i;
     }
     return sum;
@@ -104,8 +103,9 @@ bool loop_operator_eq() {
     return result == int4(9, 9, 9, 1);
 }
 
-half4 main(float2 xy) {
-    return (return_loop() == 5 && continue_loop() == 35 && break_loop() == 15 &&
+half4 main(float2 pos) {
+    int five = int(clamp(pos.x, colorGreen.g, colorGreen.a)) * 5;
+    return (return_loop(five) == 5 && continue_loop(five) == 35 && break_loop(five) == 15 &&
             loop_operator_le() && loop_operator_lt() &&
             loop_operator_ge() && loop_operator_gt() &&
             loop_operator_eq() && loop_operator_ne()) ? colorGreen : colorRed;

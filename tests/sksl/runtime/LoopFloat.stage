@@ -1,10 +1,10 @@
 uniform half4 colorRed;
 uniform half4 colorGreen;
 const float kZero_0 = 0.0;
-float return_loop_0();
+float return_loop_0(float five);
 const float kTen_0 = 10.0;
-float continue_loop_0();
-float break_loop_0();
+float continue_loop_0(float five);
+float break_loop_0(float five);
 float float_loop_0();
 bool loop_operator_le_0();
 bool loop_operator_lt_0();
@@ -12,24 +12,23 @@ bool loop_operator_ge_0();
 bool loop_operator_gt_0();
 bool loop_operator_ne_0();
 bool loop_operator_eq_0();
-float return_loop_0()
+float return_loop_0(float five)
 {
 	for (float i = kZero_0;i < 10.0; ++i) 
 	{
-		bool shouldExit = i == float(colorGreen.y * 5.0);
-		if (shouldExit) 
+		if (i == five) 
 		{
 			return i;
 		}
 	}
 	return 0.0;
 }
-float continue_loop_0()
+float continue_loop_0(float five)
 {
 	float sum = 0.0;
 	for (float i = 0.0;i < kTen_0; ++i) 
 	{
-		if (i < 5.0) 
+		if (i < five) 
 		{
 			continue;
 		}
@@ -37,13 +36,13 @@ float continue_loop_0()
 	}
 	return sum;
 }
-float break_loop_0()
+float break_loop_0(float five)
 {
 	float sum = 0.0;
 	const float kOne = 1.0;
 	for (float i = 0.0;i < 10.0; i += kOne) 
 	{
-		if (i > 5.0) 
+		if (i > five) 
 		{
 			break;
 		}
@@ -124,7 +123,8 @@ bool loop_operator_eq_0()
 	}
 	return result == float4(9.0, 9.0, 9.0, 1.0);
 }
-half4 main(float2 xy)
+half4 main(float2 pos)
 {
-	return half4(((((((((return_loop_0() == 5.0 && continue_loop_0() == 35.0) && break_loop_0() == 15.0) && abs(float_loop_0()) < 0.02500000037252903) && loop_operator_le_0()) && loop_operator_lt_0()) && loop_operator_ge_0()) && loop_operator_gt_0()) && loop_operator_eq_0()) && loop_operator_ne_0() ? colorGreen : colorRed);
+	float five = clamp(_coords.x, float(colorGreen.y), float(colorGreen.w)) * 5.0;
+	return half4(((((((((return_loop_0(five) == 5.0 && continue_loop_0(five) == 35.0) && break_loop_0(five) == 15.0) && abs(float_loop_0()) < 0.02500000037252903) && loop_operator_le_0()) && loop_operator_lt_0()) && loop_operator_ge_0()) && loop_operator_gt_0()) && loop_operator_eq_0()) && loop_operator_ne_0() ? colorGreen : colorRed);
 }
