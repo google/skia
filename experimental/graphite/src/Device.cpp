@@ -143,6 +143,12 @@ SkIRect Device::onDevClipBounds() const {
 }
 
 void Device::drawPaint(const SkPaint& paint) {
+    // TODO: check paint params as well
+     if (this->clipIsWideOpen()) {
+        // do fullscreen clear
+        fDC->clear(paint.getColor4f());
+        return;
+    }
     SkRect deviceBounds = SkRect::Make(this->devClipBounds());
     // TODO: Should be able to get the inverse from the matrix cache
     SkM44 devToLocal;

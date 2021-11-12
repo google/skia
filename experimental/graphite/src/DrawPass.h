@@ -8,8 +8,11 @@
 #ifndef skgpu_DrawPass_DEFINED
 #define skgpu_DrawPass_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+
+#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 
 #include <memory>
 
@@ -41,12 +44,16 @@ public:
     static std::unique_ptr<DrawPass> Make(Recorder*,
                                           std::unique_ptr<DrawList>,
                                           sk_sp<TextureProxy>,
+                                          std::pair<LoadOp, StoreOp>,
+                                          std::array<float, 4> clearColor,
                                           const BoundsManager* occlusionCuller);
 
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is
     // contained within its dimensions.
     const SkIRect&      bounds() const { return fBounds;       }
     TextureProxy* target() const { return fTarget.get(); }
+    std::pair<LoadOp, StoreOp> ops() const { return fOps; }
+    std::array<float, 4> clearColor() const { return fClearColor; }
 
     bool requiresDstTexture() const { return false;            }
     bool requiresStencil()    const { return fRequiresStencil; }
@@ -71,17 +78,18 @@ private:
 
     DrawPass(sk_sp<TextureProxy> target,
              const SkIRect& bounds,
+             std::pair<LoadOp, StoreOp> ops,
+             std::array<float, 4> clearColor,
              bool requiresStencil,
              bool requiresMSAA);
 
     sk_sp<TextureProxy> fTarget;
     SkIRect             fBounds;
+    std::pair<LoadOp, StoreOp> fOps;
+    std::array<float, 4> fClearColor;
 
     bool fRequiresStencil;
     bool fRequiresMSAA;
-
-    // TODO: actually implement this. Will own the results of sorting/culling/merging a DrawList,
-    // however that is actually specified.
 };
 
 } // namespace skgpu

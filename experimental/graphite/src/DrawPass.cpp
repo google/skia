@@ -140,9 +140,12 @@ skgpu::UniformData* lookup(skgpu::Recorder* recorder, uint32_t uniformID) {
 } // anonymous namespace
 
 DrawPass::DrawPass(sk_sp<TextureProxy> target, const SkIRect& bounds,
+                   std::pair<LoadOp, StoreOp> ops, std::array<float, 4> clearColor,
                    bool requiresStencil, bool requiresMSAA)
         : fTarget(std::move(target))
         , fBounds(bounds)
+        , fOps(ops)
+        , fClearColor(clearColor)
         , fRequiresStencil(requiresStencil)
         , fRequiresMSAA(requiresMSAA) {}
 
@@ -151,6 +154,8 @@ DrawPass::~DrawPass() = default;
 std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                          std::unique_ptr<DrawList> draws,
                                          sk_sp<TextureProxy> target,
+                                         std::pair<LoadOp, StoreOp> ops,
+                                         std::array<float, 4> clearColor,
                                          const BoundsManager* occlusionCuller) {
     // NOTE: This assert is here to ensure SortKey is as tightly packed as possible. Any change to
     // its size should be done with care and good reason. The performance of sorting the keys is
@@ -309,7 +314,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     passBounds.roundOut();
     SkIRect pxPassBounds = SkIRect::MakeLTRB((int) passBounds.left(), (int) passBounds.top(),
                                              (int) passBounds.right(), (int) passBounds.bot());
-    return std::unique_ptr<DrawPass>(new DrawPass(std::move(target), pxPassBounds,
+    return std::unique_ptr<DrawPass>(new DrawPass(std::move(target), pxPassBounds, ops, clearColor,
                                                   requiresStencil, requiresMSAA));
 }
 

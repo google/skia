@@ -7,6 +7,8 @@
 
 #include "experimental/graphite/src/DrawContext.h"
 
+#include "include/private/SkColorData.h"
+
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawPass.h"
@@ -77,14 +79,29 @@ void DrawContext::strokePath(const Transform& localToDevice,
     fPendingDraws->strokePath(localToDevice, shape, stroke, clip, order, paint);
 }
 
+void DrawContext::clear(const SkColor4f& clearColor) {
+    fPendingLoadOp = LoadOp::kClear;
+    SkPMColor4f pmColor = clearColor.premul();
+    fPendingClearColor = pmColor.array();
+
+    // a fullscreen clear will overwrite anything that came before, so start a new DrawList
+    // and clear any drawpasses that haven't been snapped yet
+    fPendingDraws = std::make_unique<DrawList>();
+    fDrawPasses.clear();
+}
+
 void DrawContext::snapDrawPass(Recorder* recorder, const BoundsManager* occlusionCuller) {
     if (fPendingDraws->drawCount() == 0) {
         return;
     }
 
-    auto pass = DrawPass::Make(recorder, std::move(fPendingDraws), fTarget, occlusionCuller);
+    auto pass = DrawPass::Make(recorder, std::move(fPendingDraws), fTarget,
+                               std::make_pair(fPendingLoadOp, fPendingStoreOp), fPendingClearColor,
+                               occlusionCuller);
     fDrawPasses.push_back(std::move(pass));
     fPendingDraws = std::make_unique<DrawList>();
+    fPendingLoadOp = LoadOp::kLoad;
+    fPendingStoreOp = StoreOp::kStore;
 }
 
 sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
@@ -100,8 +117,8 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
     SkASSERT(fDrawPasses.size() == 1);
     RenderPassDesc desc;
     desc.fColorAttachment.fTextureProxy = sk_ref_sp(fDrawPasses[0]->target());
-    desc.fColorAttachment.fLoadOp = LoadOp::kLoad;
-    desc.fColorAttachment.fStoreOp = StoreOp::kStore;
+    std::tie(desc.fColorAttachment.fLoadOp, desc.fColorAttachment.fStoreOp) = fDrawPasses[0]->ops();
+    desc.fClearColor = fDrawPasses[0]->clearColor();
 
     return RenderPassTask::Make(std::move(fDrawPasses), desc);
 }

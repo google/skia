@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 
+#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawOrder.h"
 
@@ -47,6 +48,8 @@ public:
     int pendingDrawCount() const { return fPendingDraws->drawCount(); }
 
     // TODO: need color/depth clearing functions (so DCL will probably need those too)
+
+    void clear(const SkColor4f& clearColor);
 
     void stencilAndFillPath(const Transform& localToDevice,
                             const Shape& shape,
@@ -98,6 +101,10 @@ private:
     // Stores the most immediately recorded draws into the SDC's surface. This list is mutable and
     // can be appended to, or have its commands rewritten if they are inlined into a parent SDC.
     std::unique_ptr<DrawList> fPendingDraws;
+    // Load and store information for the current pending draws.
+    LoadOp fPendingLoadOp = LoadOp::kLoad;
+    StoreOp fPendingStoreOp = StoreOp::kStore;
+    std::array<float, 4> fPendingClearColor = { 0, 0, 0, 0 };
 
     // Stores previously snapped DrawPasses of this SDC, or inlined child SDCs whose content
     // couldn't have been copied directly to fPendingDraws. While each DrawPass is immutable, the

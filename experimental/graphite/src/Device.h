@@ -40,7 +40,7 @@ protected:
     void onRestore() override {}
 
     bool onClipIsAA() const override { return false; }
-    bool onClipIsWideOpen() const override { return false; }
+    bool onClipIsWideOpen() const override { return true; }
     ClipType onGetClipType() const override { return ClipType::kRect; }
     SkIRect onDevClipBounds() const override;
 

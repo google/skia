@@ -9,6 +9,7 @@
 #define skgpu_CommandBuffer_DEFINED
 
 #include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTArray.h"
