@@ -9,10 +9,6 @@ struct Nested {
     S a;
     S b;
 };
-struct Compound {
-    float4 f4;
-    int3 i3;
-};
 struct Uniforms {
     half4 colorRed;
     half4 colorGreen;
@@ -28,9 +24,6 @@ thread bool operator!=(thread const S& left, thread const S& right);
 
 thread bool operator==(thread const Nested& left, thread const Nested& right);
 thread bool operator!=(thread const Nested& left, thread const Nested& right);
-
-thread bool operator==(thread const Compound& left, thread const Compound& right);
-thread bool operator!=(thread const Compound& left, thread const Compound& right);
 void modifies_a_struct_vS(thread S& s);
 void _skOutParamHelper0_modifies_a_struct_vS(thread S& s) {
     S _var0 = s;
@@ -44,24 +37,17 @@ void _skOutParamHelper1_modifies_a_struct_vS(thread Nested& n3) {
     n3.b = _var0;
 }
 thread bool operator==(thread const S& left, thread const S& right) {
-    return all(left.x == right.x) &&
-           all(left.y == right.y);
+    return (left.x == right.x) &&
+           (left.y == right.y);
 }
 thread bool operator!=(thread const S& left, thread const S& right) {
     return !(left == right);
 }
 thread bool operator==(thread const Nested& left, thread const Nested& right) {
-    return all(left.a == right.a) &&
-           all(left.b == right.b);
+    return (left.a == right.a) &&
+           (left.b == right.b);
 }
 thread bool operator!=(thread const Nested& left, thread const Nested& right) {
-    return !(left == right);
-}
-thread bool operator==(thread const Compound& left, thread const Compound& right) {
-    return all(left.f4 == right.f4) &&
-           all(left.i3 == right.i3);
-}
-thread bool operator!=(thread const Compound& left, thread const Compound& right) {
     return !(left == right);
 }
 S returns_a_struct_S() {
@@ -95,10 +81,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     n2 = n1;
     n3 = n2;
     _skOutParamHelper1_modifies_a_struct_vS(n3);
-    Compound c1 = Compound{float4(1.0, 2.0, 3.0, 4.0), int3(5, 6, 7)};
-    Compound c2 = Compound{float4(float(_uniforms.colorGreen.y), 2.0, 3.0, 4.0), int3(5, 6, 7)};
-    Compound c3 = Compound{float4(float(_uniforms.colorGreen.x), 2.0, 3.0, 4.0), int3(5, 6, 7)};
-    bool valid = (((((((((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s == S{2.0, 3}) && s != returns_a_struct_S()) && n1 == n2) && n1 != n3) && n3 == Nested{S{1.0, 2}, S{2.0, 3}}) && c1 == c2) && c2 != c3;
+    bool valid = (((((((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s == S{2.0, 3}) && s != returns_a_struct_S()) && n1 == n2) && n1 != n3) && n3 == Nested{S{1.0, 2}, S{2.0, 3}};
     _out.sk_FragColor = valid ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

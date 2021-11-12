@@ -39,22 +39,6 @@ bool test_matrix() {
     return mp2 == hp2 && hp3 == mp3 && mp4 == hp4;
 }
 
-struct MyStruct {
-    highp   float  hf;
-    mediump float  mf;
-    highp   int    hi;
-    mediump int    mi;
-    highp   float2 hv;
-    mediump int3   mv;
-};
-
-bool test_struct() {
-    MyStruct a = MyStruct(1, 2, 3, 4, float2(5, 6), int3(7, 8, 9));
-    MyStruct b = MyStruct(1, 2, 3, 4, float2(5, 6), int3(7, 8, 9));
-    MyStruct c = MyStruct(1, 2, 3, 4, float2(5, 6), int3(7, 8, -9));
-    return (a == b) && (b != c);
-}
-
 bool test_array() {
     mediump float  mf[1]; mf[0] = 1;
     highp   float  hf[1]; hf[0] = 1;
@@ -77,6 +61,6 @@ vec4 main(vec2 coords) {
     highp vec4 red = colorRed;
     red = (red + zero) * one;
 
-    return (test_scalar() && test_vector() && test_matrix() && test_array() && test_struct() &&
+    return (test_scalar() && test_vector() && test_matrix() && test_array() &&
             highp_param(1) && mediump_param(2) && lowp_param(3)) ? green : red;
 }

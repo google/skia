@@ -48,8 +48,8 @@ thread bool operator!=(const half2x2 left, const half2x2 right) {
     return !(left == right);
 }
 thread bool operator==(thread const S& left, thread const S& right) {
-    return all(left.x == right.x) &&
-           all(left.y == right.y);
+    return (left.x == right.x) &&
+           (left.y == right.y);
 }
 thread bool operator!=(thread const S& left, thread const S& right) {
     return !(left == right);

@@ -1532,7 +1532,7 @@ thread bool operator!=(thread const %s& left, thread const %s& right);
 
         const char* separator = "";
         for (const Type::Field& field : type.fields()) {
-            fExtraFunctions.printf("%sall(left.%.*s == right.%.*s)",
+            fExtraFunctions.printf("%s(left.%.*s == right.%.*s)",
                                    separator,
                                    (int)field.fName.size(), field.fName.data(),
                                    (int)field.fName.size(), field.fName.data());
