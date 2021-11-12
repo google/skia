@@ -40,15 +40,13 @@ DrawContext::DrawContext(sk_sp<TextureProxy> target, const SkImageInfo& ii)
         , fImageInfo(ii)
         , fPendingDraws(std::make_unique<DrawList>()) {
     // TBD - Will probably want DrawLists (and its internal commands) to come from an arena
-    // that the SDC manages.
+    // that the DC manages.
 }
 
 DrawContext::~DrawContext() {
-    // If the SDC is destroyed and there are pending commands, they won't be drawn. Maybe that's ok
-    // but for now consider it a bug for not calling snapDrawTask() and snapRenderPassTask()
-    // TODO: determine why these asserts are firing on the GMs and re-enable
-//    SkASSERT(fPendingDraws->drawCount() == 0);
-//    SkASSERT(fDrawPasses.empty());
+    // If the DC is destroyed and there are pending commands, they won't be drawn.
+    fPendingDraws.reset();
+    fDrawPasses.clear();
 }
 
 void DrawContext::stencilAndFillPath(const Transform& localToDevice,
