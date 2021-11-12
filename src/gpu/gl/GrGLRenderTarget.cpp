@@ -247,7 +247,8 @@ void GrGLRenderTarget::bindInternal(GrGLenum fboTarget, bool useMultisampleFBO) 
                                             0));
         }
 #ifdef SK_DEBUG
-        if (!this->getGLGpu()->glCaps().skipErrorChecks()) {
+        if (!this->getGLGpu()->glCaps().skipErrorChecks() &&
+            !this->getGLGpu()->glCaps().rebindColorAttachmentAfterCheckFramebufferStatus()) {
             GrGLenum status;
             GL_CALL_RET(status, CheckFramebufferStatus(fboTarget));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {

@@ -519,6 +519,25 @@ static std::tuple<GrGLDriver, GrGLDriverVersion> get_driver_and_version(GrGLStan
                 // doesn't fit into the 'patch' bits, so omit it until we need it.
                 driverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
+        } else if (vendor == GrGLVendor::kARM) {
+            // Example:
+            // OpenGL ES 3.2 v1.r26p0-01rel0.217d2597f6bd19b169343737782e56e3
+            // It's unclear how to interpret what comes between "p" and "rel". Every string we've
+            // seen so far has "0-01" there. We ignore it for now.
+            int ignored0;
+            int ignored1;
+            int n = sscanf(versionString,
+                           "OpenGL ES %d.%d v%d.r%dp%d-%drel",
+                           &major,
+                           &minor,
+                           &driverMajor,
+                           &driverMinor,
+                           &ignored0,
+                           &ignored1);
+            if (n == 6) {
+                driver = GrGLDriver::kARM;
+                driverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
+            }
         } else {
             static constexpr char kEmulatorPrefix[] = "Android Emulator OpenGL ES Translator";
             if (0 == strncmp(kEmulatorPrefix, rendererString, strlen(kEmulatorPrefix))) {

@@ -214,6 +214,7 @@ enum class GrGLDriver {
     kFreedreno,
     kAndroidEmulator,
     kImagination,
+    kARM,
     kUnknown
 };
 

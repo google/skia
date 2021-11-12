@@ -61,6 +61,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDisallowDynamicMSAA = false;
     fMustResetBlendFuncBetweenDualSourceAndDisable = false;
     fBindTexture0WhenChangingTextureFBOMultisampleCount = false;
+    fRebindColorAttachmentAfterCheckFramebufferStatus = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -4258,29 +4259,48 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // non-MSAA we get corruption in the texture contents. Binding texture 0 and then rebinding the
     // original texture avoids this.
     // This was found on Nexus 5, Android 6.0.1, build M4B30Z
-    // GL_VENDOR:   "Qualcomm"
+    // GL_VENDOR  : "Qualcomm"
     // GL_RENDERER: "Adreno (TM) 330"
-    // GL_VERSION:  "OpenGL ES 3.0 V@127.0 AU@  (GIT@I96aee987eb)"
+    // GL_VERSION : "OpenGL ES 3.0 V@127.0 AU@  (GIT@I96aee987eb)"
     //
     // We also so alpha blending issues on these GMs skbug_9819, p3_ovals, p3 on Mali-Gxx devices
     // The GM issues were observed on a Galaxy S9 running Android 10:
-    // GL_VERSION:  "OpenGL ES 3.2 v1.r19p0-01rel0.###other-sha0123456789ABCDEF0###"
+    // GL_VERSION : "OpenGL ES 3.2 v1.r19p0-01rel0.###other-sha0123456789ABCDEF0###"
     // GL_RENDERER: "Mali-G72"
-    // GL_VENDOR:   "ARM"
+    // GL_VENDOR  : "ARM"
     // and a P30 running Android 9:
-    // GL_VERSION:  "OpenGL ES 3.2 v1.r16p0-01rel0.4aee637066427cbcd25297324dba15f5"
+    // GL_VERSION : "OpenGL ES 3.2 v1.r16p0-01rel0.4aee637066427cbcd25297324dba15f5"
     // GL_RENDERER: "Mali-G76"
-    // GL_VENDOR:   "ARM"
+    // GL_VENDOR  : "ARM"
     // but *not* a Galaxy S20 running Android 10:
-    // GL_VERSION:  "OpenGL ES 3.2 v1.r20p0-01rel0.###other-sha0123456789ABCDEF0###"
+    // GL_VERSION : "OpenGL ES 3.2 v1.r20p0-01rel0.###other-sha0123456789ABCDEF0###"
     // GL_RENDERER: "Mali-G77"
-    // GL_VENDOR:   "ARM"
+    // GL_VENDOR  : "ARM"
     // It's unclear if the difference is driver version or Bifrost vs Valhall. The workaround is
     // fairly trivial so just applying to all Bifrost and Valhall.
     if ((ctxInfo.renderer() == GrGLRenderer::kAdreno3xx &&
          ctxInfo.driver()   == GrGLDriver::kQualcomm) ||
         (ctxInfo.renderer() == GrGLRenderer::kMaliG)) {
         fBindTexture0WhenChangingTextureFBOMultisampleCount = true;
+    }
+
+    // skbug.com/12640
+    // We found that on the Galaxy S7 the TransferPixelsTo test would fail after adding
+    // glCheckFramebufferStatus() checks when making new FBOs. Note that the returned status was
+    // GL_FRAMEBUFFER_COMPLETE. Switching the color binding to ID 0 and back to the original
+    // afterwards works around the issue.
+    // GL_VENDOR  : "ARM"
+    // GL_RENDERER: "Mali-T880"
+    // GL_VERSION : "OpenGL ES 3.2 v1.r22p0-01rel0.f294e54ceb2cb2d81039204fa4b0402e"
+    //
+    // This *didn't* reproduce on a Kevin ChromeOS device:
+    // GL_VENDOR  : "ARM"
+    // GL_RENDERER: "Mali-T860"
+    // GL_VERSION : "OpenGL ES 3.2 v1.r26p0-01rel0.217d2597f6bd19b169343737782e56e3"
+    if (ctxInfo.renderer()      == GrGLRenderer::kMaliT &&
+        ctxInfo.driver()        == GrGLDriver::kARM     &&
+        ctxInfo.driverVersion()  < GR_GL_DRIVER_VER(1, 26, 0)) {
+        fRebindColorAttachmentAfterCheckFramebufferStatus = true;
     }
 }
 

@@ -1265,6 +1265,16 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 return false;
             }
+            if (this->glCaps().rebindColorAttachmentAfterCheckFramebufferStatus()) {
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                GR_GL_COLOR_ATTACHMENT0,
+                                                GR_GL_RENDERBUFFER,
+                                                0));
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                GR_GL_COLOR_ATTACHMENT0,
+                                                GR_GL_RENDERBUFFER,
+                                                rtIDs->fMSColorRenderbufferID));
+            }
         }
         rtIDs->fTotalMemorySamplesPerPixel += sampleCount;
     }
@@ -1280,6 +1290,18 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
         GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             return false;
+        }
+        if (this->glCaps().rebindColorAttachmentAfterCheckFramebufferStatus()) {
+            GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
+                                         GR_GL_COLOR_ATTACHMENT0,
+                                         desc.fTarget,
+                                         0,
+                                         0));
+            GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
+                                         GR_GL_COLOR_ATTACHMENT0,
+                                         desc.fTarget,
+                                         desc.fID,
+                                         0));
         }
     }
     ++rtIDs->fTotalMemorySamplesPerPixel;
@@ -2231,7 +2253,9 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool useM
         // lots of repeated command buffer flushes when the compositor is
         // rendering with Ganesh, which is really slow; even too slow for
         // Debug mode.
-        if (!this->glCaps().skipErrorChecks()) {
+        // Also don't do this when we know glCheckFramebufferStatus() may have side effects.
+        if (!this->glCaps().skipErrorChecks() &&
+            !this->glCaps().rebindColorAttachmentAfterCheckFramebufferStatus()) {
             GrGLenum status;
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
