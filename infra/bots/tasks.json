@@ -10650,11 +10650,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10742,8 +10741,8 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
         "pool:Skia"
       ],
@@ -10846,11 +10845,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10956,11 +10954,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11066,11 +11063,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11171,11 +11167,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11276,11 +11271,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11386,11 +11380,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11496,11 +11489,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11606,11 +11598,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11711,11 +11702,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11816,11 +11806,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11921,11 +11910,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12053,11 +12041,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12157,11 +12144,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12262,11 +12248,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12394,11 +12379,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12498,11 +12482,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12603,11 +12586,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12708,11 +12690,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:newest"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12818,11 +12799,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:11.4.1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -12928,11 +12908,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:11.4.1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -13038,11 +13017,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:11.4.1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -13148,11 +13126,10 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
-        "pool:Skia",
-        "reserved_for_xcode_version:11.4.1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -17904,8 +17881,8 @@
         "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
         "pool:Skia"
       ],
@@ -17954,8 +17931,8 @@
         "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
         "pool:Skia"
       ],
@@ -18004,8 +17981,8 @@
         "Housekeeper-PerCommit-BuildTaskDrivers_darwin_amd64"
       ],
       "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
+        "cores:12",
+        "cpu:x86-64",
         "os:Mac-10.15.7",
         "pool:Skia"
       ],
