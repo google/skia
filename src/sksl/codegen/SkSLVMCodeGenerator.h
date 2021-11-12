@@ -24,10 +24,15 @@ using SampleShaderFn = std::function<skvm::Color(int, skvm::Coord)>;
 using SampleColorFilterFn = std::function<skvm::Color(int, skvm::Color)>;
 using SampleBlenderFn = std::function<skvm::Color(int, skvm::Color, skvm::Color)>;
 
+struct SkVMDebugInfo {
+    // TODO(skia:12614): add debug information here
+};
+
 // Convert 'function' to skvm instructions in 'builder', for use by blends, shaders, & color filters
 skvm::Color ProgramToSkVM(const Program& program,
                           const FunctionDefinition& function,
                           skvm::Builder* builder,
+                          SkVMDebugInfo* debugInfo,
                           SkSpan<skvm::Val> uniforms,
                           skvm::Coord device,
                           skvm::Coord local,
@@ -59,6 +64,7 @@ struct SkVMSignature {
 bool ProgramToSkVM(const Program& program,
                    const FunctionDefinition& function,
                    skvm::Builder* b,
+                   SkVMDebugInfo* debugInfo,
                    SkSpan<skvm::Val> uniforms,
                    SkVMSignature* outSignature = nullptr);
 
@@ -78,7 +84,9 @@ struct UniformInfo {
 
 std::unique_ptr<UniformInfo> Program_GetUniformInfo(const Program& program);
 
-bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* builder);
+bool testingOnly_ProgramToSkVMShader(const Program& program,
+                                     skvm::Builder* builder,
+                                     SkVMDebugInfo* debugInfo);
 
 }  // namespace SkSL
 

@@ -115,6 +115,7 @@ class SkVMGenerator {
 public:
     SkVMGenerator(const Program& program,
                   skvm::Builder* builder,
+                  SkVMDebugInfo* debugInfo,
                   SampleShaderFn sampleShader,
                   SampleColorFilterFn sampleColorFilter,
                   SampleBlenderFn sampleBlender);
@@ -252,6 +253,7 @@ private:
     //
     const Program& fProgram;
     skvm::Builder* fBuilder;
+    SkVMDebugInfo* fDebugInfo;
 
     const SampleShaderFn fSampleShader;
     const SampleColorFilterFn fSampleColorFilter;
@@ -313,11 +315,13 @@ static inline bool is_uniform(const SkSL::Variable& var) {
 
 SkVMGenerator::SkVMGenerator(const Program& program,
                              skvm::Builder* builder,
+                             SkVMDebugInfo* debugInfo,
                              SampleShaderFn sampleShader,
                              SampleColorFilterFn sampleColorFilter,
                              SampleBlenderFn sampleBlender)
         : fProgram(program)
         , fBuilder(builder)
+        , fDebugInfo(debugInfo)
         , fSampleShader(std::move(sampleShader))
         , fSampleColorFilter(std::move(sampleColorFilter))
         , fSampleBlender(std::move(sampleBlender)) {}
@@ -406,7 +410,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     const FunctionDeclaration& decl = function.declaration();
     SkASSERT(decl.returnType().slotCount() == outReturn.size());
 
-    if (fProgram.fConfig->fSettings.fSkVMDebugTrace) {
+    if (fDebugInfo) {
         fBuilder->trace_call_enter(this->mask(), function.fLine);
     }
 
@@ -444,13 +448,13 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
 
     fFunctionStack.pop_back();
 
-    if (fProgram.fConfig->fSettings.fSkVMDebugTrace) {
+    if (fDebugInfo) {
         fBuilder->trace_call_exit(this->mask(), function.fLine);
     }
 }
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
-    if (fProgram.fConfig->fSettings.fSkVMDebugTrace && fSlots[slot].val != value) {
+    if (fDebugInfo && fSlots[slot].val != value) {
         if (fSlots[slot].kind == Type::NumberKind::kFloat) {
             fBuilder->trace_var(this->mask(), slot, f32(value));
         } else if (fSlots[slot].kind == Type::NumberKind::kBoolean) {
@@ -1693,7 +1697,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 }
 
 void SkVMGenerator::emitTraceLine(int line) {
-    if (fProgram.fConfig->fSettings.fSkVMDebugTrace && line > 0) {
+    if (fDebugInfo && line > 0) {
         fBuilder->trace_line(this->mask(), line);
     }
 }
@@ -1745,6 +1749,7 @@ void SkVMGenerator::writeStatement(const Statement& s) {
 skvm::Color ProgramToSkVM(const Program& program,
                           const FunctionDefinition& function,
                           skvm::Builder* builder,
+                          SkVMDebugInfo* debugInfo,
                           SkSpan<skvm::Val> uniforms,
                           skvm::Coord device,
                           skvm::Coord local,
@@ -1789,7 +1794,7 @@ skvm::Color ProgramToSkVM(const Program& program,
     }
     SkASSERT(argSlots <= SK_ARRAY_COUNT(args));
 
-    SkVMGenerator generator(program, builder, std::move(sampleShader),
+    SkVMGenerator generator(program, builder, debugInfo, std::move(sampleShader),
                             std::move(sampleColorFilter), std::move(sampleBlender));
     generator.writeProgram(uniforms, device, function, {args, argSlots}, SkMakeSpan(result));
 
@@ -1802,6 +1807,7 @@ skvm::Color ProgramToSkVM(const Program& program,
 bool ProgramToSkVM(const Program& program,
                    const FunctionDefinition& function,
                    skvm::Builder* b,
+                   SkVMDebugInfo* debugInfo,
                    SkSpan<skvm::Val> uniforms,
                    SkVMSignature* outSignature) {
     SkVMSignature ignored,
@@ -1844,7 +1850,7 @@ bool ProgramToSkVM(const Program& program,
 
     skvm::F32 zero = b->splat(0.0f);
     skvm::Coord zeroCoord = {zero, zero};
-    SkVMGenerator generator(program, b, sampleShader, sampleColorFilter, sampleBlender);
+    SkVMGenerator generator(program, b, debugInfo, sampleShader, sampleColorFilter, sampleBlender);
     generator.writeProgram(uniforms, /*device=*/zeroCoord,
                            function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
@@ -1930,7 +1936,9 @@ std::unique_ptr<UniformInfo> Program_GetUniformInfo(const Program& program) {
  * Testing utility function that emits program's "main" with a minimal harness. Used to create
  * representative skvm op sequences for SkSL tests.
  */
-bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* builder) {
+bool testingOnly_ProgramToSkVMShader(const Program& program,
+                                     skvm::Builder* builder,
+                                     SkVMDebugInfo* debugInfo) {
     const SkSL::FunctionDefinition* main = Program_GetFunction(program, "main");
     if (!main) {
         return false;
@@ -1983,9 +1991,9 @@ bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* buil
     skvm::Color inColor = builder->uniformColor(SkColors::kWhite, &uniforms);
     skvm::Color destColor = builder->uniformColor(SkColors::kBlack, &uniforms);
 
-    skvm::Color result = SkSL::ProgramToSkVM(program, *main, builder, SkMakeSpan(uniformVals),
-                                             device, local, inColor, destColor, sampleShader,
-                                             /*sampleColorFilter=*/nullptr,
+    skvm::Color result = SkSL::ProgramToSkVM(program, *main, builder, debugInfo,
+                                             SkMakeSpan(uniformVals), device, local, inColor,
+                                             destColor, sampleShader, /*sampleColorFilter=*/nullptr,
                                              /*sampleBlender=*/nullptr);
 
     storeF(builder->varying<float>(), result.r);
@@ -1994,7 +2002,6 @@ bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* buil
     storeF(builder->varying<float>(), result.a);
 
     return true;
-
 }
 
 }  // namespace SkSL

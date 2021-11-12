@@ -649,6 +649,7 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
     skvm::Color result = SkSL::ProgramToSkVM(*effect->fBaseProgram,
                                              effect->fMain,
                                              &p,
+                                             /*debugInfo=*/nullptr,
                                              SkMakeSpan(uniform),
                                              /*device=*/zeroCoord,
                                              /*local=*/zeroCoord,
@@ -883,9 +884,9 @@ public:
         // There should be no way for the color filter to use device coords, but we need to supply
         // something. (Uninitialized values can trigger asserts in skvm::Builder).
         skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
-        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                   /*device=*/zeroCoord, /*local=*/zeroCoord, c, c, sampleShader,
-                                   sampleColorFilter, sampleBlender);
+        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, /*debugInfo=*/nullptr,
+                                   SkMakeSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
+                                   c, c, sampleShader, sampleColorFilter, sampleBlender);
     }
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
@@ -1044,9 +1045,9 @@ public:
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
 
-        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                   device, local, paint, paint, sampleShader, sampleColorFilter,
-                                   sampleBlender);
+        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, /*debugInfo=*/nullptr,
+                                   SkMakeSpan(uniform), device, local, paint, paint, sampleShader,
+                                   sampleColorFilter, sampleBlender);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -1156,9 +1157,9 @@ public:
 
         // Emit the blend function as an SkVM program.
         skvm::Coord zeroCoord = {p->splat(0.0f), p->splat(0.0f)};
-        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                  /*device=*/zeroCoord, /*local=*/zeroCoord, src, dst,
-                                  sampleShader, sampleColorFilter, sampleBlender);
+        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, /*debugInfo=*/nullptr,
+                                   SkMakeSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
+                                   src, dst, sampleShader, sampleColorFilter, sampleBlender);
     }
 
 #if SK_SUPPORT_GPU

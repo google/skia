@@ -92,7 +92,8 @@ static SkSL::String base_name(const SkSL::String& fpPath, const char* prefix, co
 // The passed-in Settings object will be updated accordingly. Any number of options can be provided.
 static bool detect_shader_settings(const SkSL::String& text,
                                    SkSL::Program::Settings* settings,
-                                   const SkSL::ShaderCapsClass** caps) {
+                                   const SkSL::ShaderCapsClass** caps,
+                                   std::unique_ptr<SkSL::SkVMDebugInfo>* debugInfo) {
     using Factory = SkSL::ShaderCapsFactory;
 
     // Find a matching comment and isolate the name portion.
@@ -216,7 +217,8 @@ static bool detect_shader_settings(const SkSL::String& text,
                     settings->fSharpenTextures = true;
                 }
                 if (settingsText.consumeSuffix(" SkVMDebugTrace")) {
-                    settings->fSkVMDebugTrace = true;
+                    settings->fOptimize = false;
+                    *debugInfo = std::make_unique<SkSL::SkVMDebugInfo>();
                 }
 
                 if (settingsText.empty()) {
@@ -296,8 +298,9 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
     SkSL::Program::Settings settings;
     SkSL::StandaloneShaderCaps standaloneCaps;
     const SkSL::ShaderCapsClass* caps = &standaloneCaps;
+    std::unique_ptr<SkSL::SkVMDebugInfo> debugInfo;
     if (honorSettings) {
-        if (!detect_shader_settings(text, &settings, &caps)) {
+        if (!detect_shader_settings(text, &settings, &caps, &debugInfo)) {
             return ResultCode::kInputError;
         }
     }
@@ -377,9 +380,10 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 });
     } else if (outputPath.ends_with(".skvm")) {
         return compileProgram(
-                [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
+                [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
-                    if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder)) {
+                    if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
+                                                               debugInfo.get())) {
                         return false;
                     }
 

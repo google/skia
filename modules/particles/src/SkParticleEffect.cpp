@@ -186,7 +186,8 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
             for (int i = 0; i < uniformInfo->fUniformSlotCount; ++i) {
                 uniformIDs.push_back(b.uniform32(skslUniformPtr, i * sizeof(int)).id);
             }
-            if (!SkSL::ProgramToSkVM(*program, *fn, &b, SkMakeSpan(uniformIDs))) {
+            if (!SkSL::ProgramToSkVM(*program, *fn, &b, /*debugInfo=*/nullptr,
+                                     SkMakeSpan(uniformIDs))) {
                 return skvm::Program{};
             }
             return b.done();
