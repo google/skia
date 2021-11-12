@@ -115,8 +115,8 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(const Context& ctx,
 
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
-        canvas->translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
-                          SkIntToScalar(srcOffset.fY - bounds.fTop));
+        canvas->translate(SkIntToScalar(Sk32_sat_sub(srcOffset.fX, bounds.fLeft)),
+                          SkIntToScalar(Sk32_sat_sub(srcOffset.fY, bounds.fTop)));
 
         input->draw(canvas, vec.fX, vec.fY, SkSamplingOptions(), &paint);
 
