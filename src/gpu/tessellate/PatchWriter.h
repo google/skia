@@ -25,9 +25,10 @@ public:
     PatchWriter(GrMeshDrawTarget* target,
                 GrVertexChunkArray* vertexChunkArray,
                 PatchAttribs attribs,
+                size_t patchStride,
                 int initialAllocCount)
             : fPatchAttribs(attribs)
-            , fChunker(target, vertexChunkArray, PatchStride(fPatchAttribs), initialAllocCount) {
+            , fChunker(target, vertexChunkArray, patchStride, initialAllocCount) {
     }
 
 #if SK_GPU_V1

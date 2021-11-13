@@ -58,7 +58,8 @@ public:
         }
         this->setInstanceAttributes(fInstanceAttribs.data(), fInstanceAttribs.count());
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribCount);
-        SkASSERT(this->instanceStride() == skgpu::PatchStride(fAttribs));
+        SkASSERT(this->instanceStride() ==
+                 sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
 
         constexpr static Attribute kVertexAttrib("resolveLevel_and_idx", kFloat2_GrVertexAttribType,
                                                  kFloat2_GrSLType);

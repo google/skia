@@ -8,7 +8,7 @@
 #ifndef tessellate_Tessellation_DEFINED
 #define tessellate_Tessellation_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/core/SkStrokeRec.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkVx.h"
 
@@ -19,35 +19,6 @@ struct SkRect;
 namespace skgpu {
 
 struct VertexWriter;
-
-// Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
-SK_MAYBE_UNUSED constexpr static float kTessellationPrecision = 4;
-
-// Optional attribs that are included in tessellation patches, following the control points and in
-// the same order as they appear here.
-enum class PatchAttribs {
-    // Attribs.
-    kNone = 0,
-    kFanPoint = 1 << 0,  // [float2] Used by wedges. This is the center point the wedges fan around.
-    kStrokeParams = 1 << 1,  // [float2] Used when strokes have different widths or join types.
-    kColor = 1 << 2,  // [ubyte4 or float4] Used when patches have different colors.
-    kExplicitCurveType = 1 << 3,  // [float] Used when GPU can't infer curve type based on infinity.
-
-    // Extra flags.
-    kWideColorIfEnabled = 1 << 4,  // If kColor is set, specifies it to be float4 wide color.
-};
-
-GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)
-
-// Returns the packed size in bytes of a tessellation patch (or instance) in GPU buffers.
-constexpr size_t PatchStride(PatchAttribs attribs) {
-    return sizeof(float) * 8 +  // 4 control points
-           (attribs & PatchAttribs::kFanPoint ? sizeof(float) * 2 : 0) +
-           (attribs & PatchAttribs::kColor
-                    ? (attribs & PatchAttribs::kWideColorIfEnabled ? sizeof(float)
-                                                                   : sizeof(uint8_t)) * 4 : 0) +
-           (attribs & PatchAttribs::kExplicitCurveType ? sizeof(float) : 0);
-}
 
 // Use familiar type names from SkSL.
 template<int N> using vec = skvx::Vec<N, float>;
@@ -92,6 +63,65 @@ AI constexpr float pow2(float x) { return x*x; }
 AI constexpr float pow4(float x) { return pow2(x*x); }
 
 #undef AI
+
+// Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
+SK_MAYBE_UNUSED constexpr static float kTessellationPrecision = 4;
+
+// Optional attribs that are included in tessellation patches, following the control points and in
+// the same order as they appear here.
+enum class PatchAttribs {
+    // Attribs.
+    kNone = 0,
+    kFanPoint = 1 << 0,  // [float2] Used by wedges. This is the center point the wedges fan around.
+    kStrokeParams = 1 << 1,  // [float2] Used when strokes have different widths or join types.
+    kColor = 1 << 2,  // [ubyte4 or float4] Used when patches have different colors.
+    kExplicitCurveType = 1 << 3,  // [float] Used when GPU can't infer curve type based on infinity.
+
+    // Extra flags.
+    kWideColorIfEnabled = 1 << 4,  // If kColor is set, specifies it to be float4 wide color.
+};
+
+GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)
+
+// We encode all of a join's information in a single float value:
+//
+//     Negative => Round Join
+//     Zero     => Bevel Join
+//     Positive => Miter join, and the value is also the miter limit
+//
+static float GetJoinType(const SkStrokeRec& stroke) {
+    switch (stroke.getJoin()) {
+        case SkPaint::kRound_Join: return -1;
+        case SkPaint::kBevel_Join: return 0;
+        case SkPaint::kMiter_Join: SkASSERT(stroke.getMiter() >= 0); return stroke.getMiter();
+    }
+    SkUNREACHABLE;
+}
+
+// This float2 gets written out with each patch/instance if PatchAttribs::kStrokeParams is enabled.
+struct StrokeParams {
+    static bool StrokesHaveEqualParams(const SkStrokeRec& a, const SkStrokeRec& b) {
+        return a.getWidth() == b.getWidth() && a.getJoin() == b.getJoin() &&
+               (a.getJoin() != SkPaint::kMiter_Join || a.getMiter() == b.getMiter());
+    }
+    void set(const SkStrokeRec& stroke) {
+        fRadius = stroke.getWidth() * .5f;
+        fJoinType = GetJoinType(stroke);
+    }
+    float fRadius;
+    float fJoinType;  // See GetJoinType().
+};
+
+// Returns the packed size in bytes of the attribs portion of tessellation patches (or instances) in
+// GPU buffers.
+constexpr size_t PatchAttribsStride(PatchAttribs attribs) {
+    return (attribs & PatchAttribs::kFanPoint ? sizeof(float) * 2 : 0) +
+           (attribs & PatchAttribs::kStrokeParams ? sizeof(float) * 2 : 0) +
+           (attribs & PatchAttribs::kColor
+                    ? (attribs & PatchAttribs::kWideColorIfEnabled ? sizeof(float)
+                                                                   : sizeof(uint8_t)) * 4 : 0) +
+           (attribs & PatchAttribs::kExplicitCurveType ? sizeof(float) : 0);
+}
 
 // Don't tessellate paths that might have an individual curve that requires more than 1024 segments.
 // (See wangs_formula::worst_case_cubic). If this is the case, call "PreChopPathCurves" first.

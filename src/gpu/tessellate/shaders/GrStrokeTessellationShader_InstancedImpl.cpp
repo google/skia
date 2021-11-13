@@ -9,6 +9,7 @@
 
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
 using skgpu::VertexWriter;
@@ -180,7 +181,8 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
         }
     } else {
         args.fVertBuilder->codeAppendf(R"(
-        float numEdgesInJoin = %i;)", GrStrokeTessellationShader::NumFixedEdgesInJoin(joinType));
+        float numEdgesInJoin = %i;)",
+        skgpu::StrokeFixedCountTessellator::NumFixedEdgesInJoin(joinType));
     }
 
     args.fVertBuilder->codeAppend(R"(
@@ -264,13 +266,4 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     this->emitTessellationCode(shader, &args.fVertBuilder->code(), gpArgs, *args.fShaderCaps);
 
     this->emitFragmentCode(shader, args);
-}
-
-void GrStrokeTessellationShader::InitializeVertexIDFallbackBuffer(VertexWriter vertexWriter,
-                                                                  size_t bufferSize) {
-    SkASSERT(bufferSize % (sizeof(float) * 2) == 0);
-    int edgeCount = bufferSize / (sizeof(float) * 2);
-    for (int i = 0; i < edgeCount; ++i) {
-        vertexWriter << (float)i << (float)-i;
-    }
 }

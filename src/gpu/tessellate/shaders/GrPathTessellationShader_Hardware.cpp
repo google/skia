@@ -40,7 +40,8 @@ public:
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
-        SkASSERT(this->vertexStride() * 5 == skgpu::PatchStride(fAttribs));
+        SkASSERT(this->vertexStride() * 5 ==
+                 sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
     }
 
     int maxTessellationSegments(const GrShaderCaps& shaderCaps) const override {
@@ -180,7 +181,8 @@ public:
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
-        SkASSERT(this->vertexStride() * 4 == skgpu::PatchStride(fAttribs));
+        SkASSERT(this->vertexStride() * 4 ==
+                 sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
     }
 
     int maxTessellationSegments(const GrShaderCaps& shaderCaps) const override {

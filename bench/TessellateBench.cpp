@@ -244,30 +244,14 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
 }
 
 using PathStrokeList = StrokeTessellator::PathStrokeList;
-using MakeTessellatorFn = std::unique_ptr<StrokeTessellator>(*)(PatchAttribs,
-                                                                const GrShaderCaps&,
-                                                                const SkMatrix&,
-                                                                PathStrokeList*,
-                                                                std::array<float, 2>);
+using MakeTessellatorFn = std::unique_ptr<StrokeTessellator>(*)(PatchAttribs);
 
-static std::unique_ptr<StrokeTessellator> make_hw_tessellator(
-        PatchAttribs attribs,
-        const GrShaderCaps& shaderCaps,
-        const SkMatrix& viewMatrix,
-        PathStrokeList* pathStrokeList,
-        std::array<float,2> matrixMinMaxScales) {
-    return std::make_unique<StrokeHardwareTessellator>(shaderCaps, attribs, viewMatrix,
-                                                       pathStrokeList, matrixMinMaxScales);
+static std::unique_ptr<StrokeTessellator> make_hw_tessellator(PatchAttribs attribs) {
+    return std::make_unique<StrokeHardwareTessellator>(attribs);
 }
 
-static std::unique_ptr<StrokeTessellator> make_fixed_count_tessellator(
-        PatchAttribs attribs,
-        const GrShaderCaps& shaderCaps,
-        const SkMatrix& viewMatrix,
-        PathStrokeList* pathStrokeList,
-        std::array<float, 2> matrixMinMaxScales) {
-    return std::make_unique<StrokeFixedCountTessellator>(shaderCaps, attribs, viewMatrix,
-                                                         pathStrokeList, matrixMinMaxScales);
+static std::unique_ptr<StrokeTessellator> make_fixed_count_tessellator(PatchAttribs attribs) {
+    return std::make_unique<StrokeFixedCountTessellator>(attribs);
 }
 
 using MakePathStrokesFn = std::vector<PathStrokeList>(*)();
@@ -367,14 +351,16 @@ private:
             fTotalVerbCount += fPathStrokes[i].fPath.countVerbs();
         }
 
-        fTessellator = fMakeTessellatorFn(fPatchAttribs, *fTarget->caps().shaderCaps(),
-                                          SkMatrix::Scale(fMatrixScale, fMatrixScale),
-                                          fPathStrokes.data(), {fMatrixScale, fMatrixScale});
+        fTessellator = fMakeTessellatorFn(fPatchAttribs);
     }
 
     void onDraw(int loops, SkCanvas*) final {
         for (int i = 0; i < loops; ++i) {
-            fTessellator->prepare(fTarget.get(), fTotalVerbCount);
+            fTessellator->prepare(fTarget.get(),
+                                  SkMatrix::Scale(fMatrixScale, fMatrixScale),
+                                  {fMatrixScale, fMatrixScale},
+                                  fPathStrokes.data(),
+                                  fTotalVerbCount);
             fTarget->resetAllocator();
         }
     }

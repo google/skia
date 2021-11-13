@@ -18,13 +18,13 @@ namespace skgpu {
 // MSAA if antialiasing is desired.
 class StrokeHardwareTessellator : public StrokeTessellator {
 public:
-    StrokeHardwareTessellator(const GrShaderCaps& shaderCaps,
-                              PatchAttribs,
-                              const SkMatrix& viewMatrix,
-                              PathStrokeList* pathStrokeList,
-                              std::array<float,2> matrixMinMaxScales);
+    StrokeHardwareTessellator(PatchAttribs attribs) : StrokeTessellator(attribs) {}
 
-    void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) override;
+    int prepare(GrMeshDrawTarget*,
+                const SkMatrix& shaderMatrix,
+                std::array<float,2> matrixMinMaxScales,
+                PathStrokeList*,
+                int totalCombinedVerbCnt) override;
 #if SK_GPU_V1
     void draw(GrOpFlushState*) const override;
 #endif

@@ -14,6 +14,7 @@
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 class GrRecordingContext;
+class GrStrokeTessellationShader;
 
 namespace skgpu::v1 {
 
@@ -73,6 +74,7 @@ private:
     bool fNeedsStencil;
 
     StrokeTessellator* fTessellator = nullptr;
+    GrStrokeTessellationShader* fTessellationShader;
     const GrProgramInfo* fStencilProgram = nullptr;  // Only used if the stroke has transparency.
     const GrProgramInfo* fFillProgram = nullptr;
 };

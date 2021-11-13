@@ -92,8 +92,10 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
     }
     if (fMode == Mode::kHardwareTessellation) {
         this->setVertexAttributes(fAttribs.data(), fAttribs.count());
+        SkASSERT(this->vertexStride() == sizeof(SkPoint) * 5 + PatchAttribsStride(fPatchAttribs));
     } else {
         this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
+        SkASSERT(this->instanceStride() == sizeof(SkPoint) * 5 + PatchAttribsStride(fPatchAttribs));
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kVertexAttrib("edgeID", kFloat_GrVertexAttribType,
                                                      kFloat_GrSLType);
@@ -371,7 +373,7 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
         pdman.set4f(fTessControlArgsUniform,
                     tolerances.fParametricPrecision,  // PARAMETRIC_PRECISION
                     tolerances.fNumRadialSegmentsPerRadian,  // NUM_RADIAL_SEGMENTS_PER_RADIAN
-                    GrStrokeTessellationShader::GetJoinType(stroke),  // JOIN_TYPE
+                    skgpu::GetJoinType(stroke),  // JOIN_TYPE
                     strokeRadius);  // STROKE_RADIUS
     } else {
         SkASSERT(!stroke.isHairlineStyle());
