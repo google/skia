@@ -175,7 +175,10 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
       '-w', new_skps_dir,
       '--skps', old_skps_dir,
       '--src', 'skp'])
-  copy_tree(new_skps_dir, target_dir)
+  for f in os.listdir(new_skps_dir):
+    if f.endswith('.skp'):
+      shutil.copyfile(
+          os.path.join(new_skps_dir, f), os.path.join(target_dir, f))
   shutil.rmtree(old_skps_dir)
   shutil.rmtree(new_skps_dir)
 
