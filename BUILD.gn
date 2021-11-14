@@ -14,7 +14,7 @@ if (is_fuchsia) {
 }
 
 if (skia_use_dawn) {
-  import("third_party/externals/dawn/scripts/dawn_features.gni")
+  import("//third_party/externals/dawn/scripts/dawn_features.gni")
 }
 
 if (defined(skia_settings)) {
@@ -928,8 +928,11 @@ optional("gpu") {
     deps += [
       "//third_party/externals/dawn/src/dawn:dawn_proc",
       "//third_party/externals/dawn/src/dawn:dawncpp",
-      "//third_party/externals/dawn/src/dawn_native",
     ]
+    if (dawn_enable_d3d12 || dawn_enable_desktop_gl || dawn_enable_metal ||
+        dawn_enable_opengles || dawn_enable_vulkan) {
+      deps += [ "//third_party/externals/dawn/src/dawn_native" ]
+    }
     if (dawn_enable_d3d12) {
       libs += [
         "d3d12.lib",
