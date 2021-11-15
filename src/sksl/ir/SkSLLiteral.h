@@ -128,13 +128,13 @@ public:
         return std::make_unique<Literal>(fLine, this->value(), &this->type());
     }
 
-    bool allowsConstantSubexpressions() const override {
+    bool supportsConstantValues() const override {
         return true;
     }
 
-    const Expression* getConstantSubexpression(int n) const override {
+    skstd::optional<double> getConstantValue(int n) const override {
         SkASSERT(n == 0);
-        return this;
+        return fValue;
     }
 
 private:

@@ -120,22 +120,21 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
             if (baseType.isMatrix() && !base->hasSideEffects()) {
                 // Matrices can be constructed with vectors that don't line up on column boundaries,
                 // so extracting out the values from the constructor can be tricky. Fortunately, we
-                // can reconstruct an equivalent vector using `getConstantSubexpression`. If we
-                // can't extract the data using `getConstantSubexpression`, it wasn't constant and
+                // can reconstruct an equivalent vector using `getConstantValue`. If we
+                // can't extract the data using `getConstantValue`, it wasn't constant and
                 // we're not obligated to simplify anything.
                 const Expression* baseExpr = ConstantFolder::GetConstantValueForVariable(*base);
                 int vecWidth = baseType.rows();
-                const Type& vecType = baseType.componentType().toCompound(context,
-                                                                          vecWidth,
-                                                                          /*rows=*/1);
+                const Type& scalarType = baseType.componentType();
+                const Type& vecType = scalarType.toCompound(context, vecWidth, /*rows=*/1);
                 indexValue *= vecWidth;
 
                 ExpressionArray ctorArgs;
                 ctorArgs.reserve_back(vecWidth);
                 for (int slot = 0; slot < vecWidth; ++slot) {
-                    if (const Expression* subexpr = baseExpr->getConstantSubexpression(indexValue +
-                                                                                       slot)) {
-                        ctorArgs.push_back(subexpr->clone());
+                    skstd::optional<double> slotVal = baseExpr->getConstantValue(indexValue + slot);
+                    if (slotVal.has_value()) {
+                        ctorArgs.push_back(Literal::Make(baseExpr->fLine, *slotVal, &scalarType));
                     } else {
                         ctorArgs.reset();
                         break;

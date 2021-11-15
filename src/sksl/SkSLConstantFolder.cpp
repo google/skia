@@ -118,8 +118,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     ExpressionArray args;
     args.reserve_back(type.columns());
     for (int i = 0; i < type.columns(); i++) {
-        double value = foldFn(left.getConstantSubexpression(i)->as<Literal>().value(),
-                              right.getConstantSubexpression(i)->as<Literal>().value());
+        double value = foldFn(*left.getConstantValue(i), *right.getConstantValue(i));
         if (value < minimumValue || value > maximumValue) {
             return nullptr;
         }
@@ -155,16 +154,11 @@ bool ConstantFolder::GetConstantValue(const Expression& value, double* out) {
     return true;
 }
 
-static bool is_constant_scalar_value(const Expression& inExpr, double match) {
-    const Expression* expr = ConstantFolder::GetConstantValueForVariable(inExpr);
-    return (expr->is<Literal>() && expr->as<Literal>().value() == match);
-}
-
 static bool contains_constant_zero(const Expression& expr) {
     int numSlots = expr.type().slotCount();
     for (int index = 0; index < numSlots; ++index) {
-        const Expression* subexpr = expr.getConstantSubexpression(index);
-        if (subexpr && is_constant_scalar_value(*subexpr, 0.0)) {
+        skstd::optional<double> slotVal = expr.getConstantValue(index);
+        if (slotVal.has_value() && *slotVal == 0.0) {
             return true;
         }
     }
@@ -174,8 +168,8 @@ static bool contains_constant_zero(const Expression& expr) {
 static bool is_constant_value(const Expression& expr, double value) {
     int numSlots = expr.type().slotCount();
     for (int index = 0; index < numSlots; ++index) {
-        const Expression* subexpr = expr.getConstantSubexpression(index);
-        if (!subexpr || !is_constant_scalar_value(*subexpr, value)) {
+        skstd::optional<double> slotVal = expr.getConstantValue(index);
+        if (!slotVal.has_value() || *slotVal != value) {
             return false;
         }
     }

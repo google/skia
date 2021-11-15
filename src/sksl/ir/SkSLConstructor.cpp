@@ -173,47 +173,44 @@ std::unique_ptr<Expression> Constructor::Convert(const Context& context,
     return nullptr;
 }
 
-const Expression* AnyConstructor::getConstantSubexpression(int n) const {
+skstd::optional<double> AnyConstructor::getConstantValue(int n) const {
     SkASSERT(n >= 0 && n < (int)this->type().slotCount());
     for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
         int argSlots = arg->type().slotCount();
         if (n < argSlots) {
-            return arg->getConstantSubexpression(n);
+            return arg->getConstantValue(n);
         }
         n -= argSlots;
     }
 
     SkDEBUGFAIL("argument-list slot count doesn't match constructor-type slot count");
-    return nullptr;
+    return skstd::nullopt;
 }
 
 Expression::ComparisonResult AnyConstructor::compareConstant(const Expression& other) const {
     SkASSERT(this->type().slotCount() == other.type().slotCount());
 
-    if (!other.allowsConstantSubexpressions()) {
+    if (!other.supportsConstantValues()) {
         return ComparisonResult::kUnknown;
     }
 
-    ComparisonResult result = ComparisonResult::kEqual;
     int exprs = this->type().slotCount();
     for (int n = 0; n < exprs; ++n) {
         // Get the n'th subexpression from each side. If either one is null, return "unknown."
-        const Expression* left = this->getConstantSubexpression(n);
-        if (!left) {
+        skstd::optional<double> left = this->getConstantValue(n);
+        if (!left.has_value()) {
             return ComparisonResult::kUnknown;
         }
-        const Expression* right = other.getConstantSubexpression(n);
-        if (!right) {
+        skstd::optional<double> right = other.getConstantValue(n);
+        if (!right.has_value()) {
             return ComparisonResult::kUnknown;
         }
-        // Recurse into the subexpressions; the literal types will perform real comparisons, and
-        // most other expressions fall back on the base class Expression which returns unknown.
-        result = left->compareConstant(*right);
-        if (result != ComparisonResult::kEqual) {
-            break;
+        // Both sides are known and can be compared for equality directly.
+        if (*left != *right) {
+            return ComparisonResult::kNotEqual;
         }
     }
-    return result;
+    return ComparisonResult::kEqual;
 }
 
 AnyConstructor& Expression::asAnyConstructor() {

@@ -1291,13 +1291,14 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const AnyConstructor& c) {
     SPIRVVectorConstant key{this->getType(type),
                             /*fValueId=*/{SpvId(-1), SpvId(-1), SpvId(-1), SpvId(-1)}};
 
+    const Type& scalarType = type.componentType();
     for (int n = 0; n < type.columns(); n++) {
-        const Expression* expr = c.getConstantSubexpression(n);
-        if (!expr) {
+        skstd::optional<double> slotVal = c.getConstantValue(n);
+        if (!slotVal.has_value()) {
             SkDEBUGFAILF("writeConstantVector: %s not actually constant", c.description().c_str());
             return (SpvId)-1;
         }
-        key.fValueId[n] = this->writeExpression(*expr, fConstantBuffer);
+        key.fValueId[n] = this->writeLiteral(*slotVal, scalarType);
     }
 
     // Check to see if we've already synthesized this vector constant.
@@ -2903,29 +2904,30 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
 }
 
 SpvId SPIRVCodeGenerator::writeLiteral(const Literal& l) {
+    return this->writeLiteral(l.value(), l.type());
+}
+
+SpvId SPIRVCodeGenerator::writeLiteral(double value, const Type& type) {
     int32_t valueBits;
-    if (l.isFloatLiteral()) {
-        float value = l.floatValue();
-        memcpy(&valueBits, &value, sizeof(valueBits));
-    } else if (l.isIntLiteral()) {
-        // intValue() returns a 64-bit signed value, which will be truncated here.
-        // The hash key also contains the numberKind, so -1 won't overlap with 0xFFFFFFFFu.
-        valueBits = l.intValue();
+    if (type.isFloat()) {
+        float fValue = value;
+        memcpy(&valueBits, &fValue, sizeof(valueBits));
     } else {
-        valueBits = l.boolValue();
+        SKSL_INT iValue = value;
+        valueBits = iValue;
     }
 
-    SPIRVNumberConstant key{valueBits, l.type().numberKind()};
+    SPIRVNumberConstant key{valueBits, type.numberKind()};
     auto [iter, newlyCreated] = fNumberConstants.insert({key, (SpvId)-1});
     if (newlyCreated) {
         SpvId result = this->nextId(nullptr);
         iter->second = result;
 
-        if (l.isBoolLiteral()) {
-            this->writeInstruction(l.boolValue() ? SpvOpConstantTrue : SpvOpConstantFalse,
-                                   this->getType(l.type()), result, fConstantBuffer);
+        if (type.isBoolean()) {
+            this->writeInstruction(valueBits ? SpvOpConstantTrue : SpvOpConstantFalse,
+                                   this->getType(type), result, fConstantBuffer);
         } else {
-            this->writeInstruction(SpvOpConstant, this->getType(l.type()), result,
+            this->writeInstruction(SpvOpConstant, this->getType(type), result,
                                    (SpvId)valueBits, fConstantBuffer);
         }
     }

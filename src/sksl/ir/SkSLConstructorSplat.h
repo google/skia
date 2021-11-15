@@ -44,13 +44,13 @@ public:
         return std::make_unique<ConstructorSplat>(fLine, this->type(), argument()->clone());
     }
 
-    bool allowsConstantSubexpressions() const override {
+    bool supportsConstantValues() const override {
         return true;
     }
 
-    const Expression* getConstantSubexpression(int n) const override {
+    skstd::optional<double> getConstantValue(int n) const override {
         SkASSERT(n >= 0 && n < this->type().columns());
-        return this->argument()->getConstantSubexpression(0);
+        return this->argument()->getConstantValue(0);
     }
 
 private:

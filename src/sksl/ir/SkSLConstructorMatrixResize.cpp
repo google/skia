@@ -28,7 +28,7 @@ std::unique_ptr<Expression> ConstructorMatrixResize::Make(const Context& context
     return std::make_unique<ConstructorMatrixResize>(line, type, std::move(arg));
 }
 
-const Expression* ConstructorMatrixResize::getConstantSubexpression(int n) const {
+skstd::optional<double> ConstructorMatrixResize::getConstantValue(int n) const {
     int rows = this->type().rows();
     int row = n % rows;
     int col = n / rows;
@@ -44,15 +44,15 @@ const Expression* ConstructorMatrixResize::getConstantSubexpression(int n) const
     //  |0 0 1|
     // Where `m` is the matrix being wrapped, and other cells contain the identity matrix.
 
-    // Forward `getConstantSubexpression` to the wrapped matrix if the position is in its bounds.
+    // Forward `getConstantValue` to the wrapped matrix if the position is in its bounds.
     if (col < this->argument()->type().columns() && row < this->argument()->type().rows()) {
         // Recalculate `n` in terms of the inner matrix's dimensions.
         n = row + (col * this->argument()->type().rows());
-        return this->argument()->getConstantSubexpression(n);
+        return this->argument()->getConstantValue(n);
     }
 
     // Synthesize an identity matrix for out-of-bounds positions.
-    return (col == row) ? &fOneLiteral : &fZeroLiteral;
+    return (col == row) ? 1.0 : 0.0;
 }
 
 }  // namespace SkSL

@@ -386,6 +386,8 @@ private:
 
     SpvId writeLiteral(const Literal& f);
 
+    SpvId writeLiteral(double value, const Type& type);
+
     void writeStatement(const Statement& s, OutputStream& out);
 
     void writeBlock(const Block& b, OutputStream& out);

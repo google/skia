@@ -40,13 +40,6 @@ static bool has_compile_time_constant_arguments(const ExpressionArray& arguments
     return true;
 }
 
-static double as_double(const Expression* expr) {
-    if (expr && expr->is<Literal>()) {
-        return expr->as<Literal>().value();
-    }
-    return 0.0;
-}
-
 template <typename T>
 static void type_check_expression(const Expression& expr);
 
@@ -111,18 +104,18 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     int arg0Index = 0;
     int arg1Index = 0;
     for (int index = 0; index < vecType.columns(); ++index) {
-        const Expression* arg0Subexpr = arg0->getConstantSubexpression(arg0Index);
+        skstd::optional<double> arg0Value = arg0->getConstantValue(arg0Index);
         arg0Index += arg0->type().isVector() ? 1 : 0;
-        SkASSERT(arg0Subexpr);
+        SkASSERT(arg0Value.has_value());
 
-        const Expression* arg1Subexpr = nullptr;
+        skstd::optional<double> arg1Value = 0.0;
         if (arg1) {
-            arg1Subexpr = arg1->getConstantSubexpression(arg1Index);
+            arg1Value = arg1->getConstantValue(arg1Index);
             arg1Index += arg1->type().isVector() ? 1 : 0;
-            SkASSERT(arg1Subexpr);
+            SkASSERT(arg1Value.has_value());
         }
 
-        value = coalesce(value, as_double(arg0Subexpr), as_double(arg1Subexpr));
+        value = coalesce(value, *arg0Value, *arg1Value);
 
         // If coalescing the intrinsic yields a non-finite value, do not optimize.
         if (!std::isfinite(value)) {
@@ -186,11 +179,11 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
     double array[4];
 
     for (int index = 0; index < type.columns(); ++index) {
-        const Expression* leftSubexpr = left->getConstantSubexpression(index);
-        const Expression* rightSubexpr = right->getConstantSubexpression(index);
-        SkASSERT(leftSubexpr);
-        SkASSERT(rightSubexpr);
-        array[index] = compare(as_double(leftSubexpr), as_double(rightSubexpr)) ? 1.0 : 0.0;
+        skstd::optional<double> leftValue = left->getConstantValue(index);
+        skstd::optional<double> rightValue = right->getConstantValue(index);
+        SkASSERT(leftValue.has_value());
+        SkASSERT(rightValue.has_value());
+        array[index] = compare(*leftValue, *rightValue) ? 1.0 : 0.0;
     }
 
     const Type& bvecType = context.fTypes.fBool->toCompound(context, type.columns(), /*rows=*/1);
@@ -223,25 +216,25 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
     int arg1Index = 0;
     int arg2Index = 0;
     for (int index = 0; index < slots; ++index) {
-        const Expression* arg0Subexpr = arg0->getConstantSubexpression(arg0Index);
+        skstd::optional<double> arg0Value = arg0->getConstantValue(arg0Index);
         arg0Index += arg0->type().isScalar() ? 0 : 1;
-        SkASSERT(arg0Subexpr);
+        SkASSERT(arg0Value.has_value());
 
-        const Expression* arg1Subexpr = nullptr;
+        skstd::optional<double> arg1Value = 0.0;
         if (arg1) {
-            arg1Subexpr = arg1->getConstantSubexpression(arg1Index);
+            arg1Value = arg1->getConstantValue(arg1Index);
             arg1Index += arg1->type().isScalar() ? 0 : 1;
-            SkASSERT(arg1Subexpr);
+            SkASSERT(arg1Value.has_value());
         }
 
-        const Expression* arg2Subexpr = nullptr;
+        skstd::optional<double> arg2Value = 0.0;
         if (arg2) {
-            arg2Subexpr = arg2->getConstantSubexpression(arg2Index);
+            arg2Value = arg2->getConstantValue(arg2Index);
             arg2Index += arg2->type().isScalar() ? 0 : 1;
-            SkASSERT(arg2Subexpr);
+            SkASSERT(arg2Value.has_value());
         }
 
-        array[index] = eval(as_double(arg0Subexpr), as_double(arg1Subexpr), as_double(arg2Subexpr));
+        array[index] = eval(*arg0Value, *arg1Value, *arg2Value);
 
         // If evaluation of the intrinsic yields a non-finite value, do not optimize.
         if (!std::isfinite(array[index])) {
@@ -433,7 +426,7 @@ double evaluate_uintBitsToFloat(double a, double, double) { return pun_value<uin
 static void extract_matrix(const Expression* expr, float mat[16]) {
     size_t numSlots = expr->type().slotCount();
     for (size_t index = 0; index < numSlots; ++index) {
-        mat[index] = expr->getConstantSubexpression(index)->as<Literal>().floatValue();
+        mat[index] = *expr->getConstantValue(index);
     }
 }
 
@@ -449,7 +442,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
     }
 
     auto Get = [&](int idx, int col) -> float {
-        return arguments[idx]->getConstantSubexpression(col)->as<Literal>().floatValue();
+        return *arguments[idx]->getConstantValue(col);
     };
 
     using namespace SkSL::dsl;
@@ -614,7 +607,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                         ((Pack(1) << 16) & 0xFFFF0000)).release();
         }
         case k_unpackUnorm2x16_IntrinsicKind: {
-            SKSL_INT x = arguments[0]->getConstantSubexpression(0)->as<Literal>().intValue();
+            SKSL_INT x = *arguments[0]->getConstantValue(0);
             return Float2(double((x >> 0)  & 0x0000FFFF) / 65535.0,
                           double((x >> 16) & 0x0000FFFF) / 65535.0).release();
         }

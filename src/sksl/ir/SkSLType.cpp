@@ -816,16 +816,14 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
     if (baseType.isInteger()) {
         // Replace constant expressions with their corresponding values.
         const Expression* valueExpr = ConstantFolder::GetConstantValueForVariable(expr);
-        if (valueExpr->allowsConstantSubexpressions()) {
+        if (valueExpr->supportsConstantValues()) {
             // Iterate over every constant subexpression in the value.
             int numSlots = valueExpr->type().slotCount();
             for (int slot = 0; slot < numSlots; ++slot) {
-                const Expression* subexpr = valueExpr->getConstantSubexpression(slot);
+                skstd::optional<double> slotVal = valueExpr->getConstantValue(slot);
                 // Check for Literal values that are out of range for the base type.
-                if (subexpr &&
-                    subexpr->is<Literal>() &&
-                    baseType.checkForOutOfRangeLiteral(context, subexpr->as<Literal>().value(),
-                                                       subexpr->fLine)) {
+                if (slotVal.has_value() &&
+                    baseType.checkForOutOfRangeLiteral(context, *slotVal, valueExpr->fLine)) {
                     foundError = true;
                 }
             }

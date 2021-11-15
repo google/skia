@@ -28,9 +28,7 @@ public:
     inline static constexpr Kind kExpressionKind = Kind::kConstructorMatrixResize;
 
     ConstructorMatrixResize(int line, const Type& type, std::unique_ptr<Expression> arg)
-            : INHERITED(line, kExpressionKind, &type, std::move(arg))
-            , fZeroLiteral(line, /*value=*/0.0, &type.componentType())
-            , fOneLiteral(line, /*value=*/1.0, &type.componentType()) {}
+            : INHERITED(line, kExpressionKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             int line,
@@ -42,13 +40,11 @@ public:
                                                          argument()->clone());
     }
 
-    bool allowsConstantSubexpressions() const override { return true; }
-    const Expression* getConstantSubexpression(int n) const override;
+    bool supportsConstantValues() const override { return true; }
+    skstd::optional<double> getConstantValue(int n) const override;
 
 private:
     using INHERITED = SingleArgumentConstructor;
-    const Literal fZeroLiteral;
-    const Literal fOneLiteral;
 };
 
 }  // namespace SkSL

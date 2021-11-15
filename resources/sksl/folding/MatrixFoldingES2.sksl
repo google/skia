@@ -90,6 +90,13 @@ bool test() {
         ok = ok &&  (float3x3(1, 2, 3, 4, 5, 6, num++, 8, 9)[1] == float3(4, 5, 6));
         ok = ok &&  (float3x3(1, 2, 3, 4, 5, 6, 7, num++, 9)[2] == float3(7, 8, 9));
     }
+    {
+        // The upper-left 2x2 of the matrix is unknown, but the bottom two rows are still foldable.
+        ok = ok && float4x4(half3x3(testMatrix2x2))[0] == float4(1, 2, 0, 0);
+        ok = ok && float4x4(half3x3(testMatrix2x2))[1] == float4(3, 4, 0, 0);
+        ok = ok && float4x4(half3x3(testMatrix2x2))[2] == float4(0, 0, 1, 0);
+        ok = ok && float4x4(half3x3(testMatrix2x2))[3] == float4(0, 0, 0, 1);
+    }
 
     return ok;
 }

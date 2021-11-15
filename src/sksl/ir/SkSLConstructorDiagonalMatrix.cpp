@@ -29,7 +29,7 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
     return std::make_unique<ConstructorDiagonalMatrix>(line, type, std::move(arg));
 }
 
-const Expression* ConstructorDiagonalMatrix::getConstantSubexpression(int n) const {
+skstd::optional<double> ConstructorDiagonalMatrix::getConstantValue(int n) const {
     int rows = this->type().rows();
     int row = n % rows;
     int col = n / rows;
@@ -39,7 +39,7 @@ const Expression* ConstructorDiagonalMatrix::getConstantSubexpression(int n) con
     SkASSERT(col < this->type().columns());
     SkASSERT(row < this->type().rows());
 
-    return (col == row) ? this->argument()->getConstantSubexpression(0) : &fZeroLiteral;
+    return (col == row) ? this->argument()->getConstantValue(0) : 0.0;
 }
 
 }  // namespace SkSL

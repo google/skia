@@ -10,6 +10,7 @@
 
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTHash.h"
+#include "include/private/SkTOptional.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <unordered_map>
@@ -177,30 +178,30 @@ public:
     }
 
     /**
-     * Returns true if this expression type supports `getConstantSubexpression`. (This particular
-     * expression may or may not actually contain a constant value.) It's harmless to call
-     * `getConstantSubexpression` on expressions which don't allow constant subexpressions or don't
-     * contain any constant values, but if `allowsConstantSubexpressions` returns false, you can
-     * assume that `getConstantSubexpression` will return null for every slot of this expression.
-     * This allows for early-out opportunities in some cases. (Some expressions have tons of slots
-     * but never have a constant subexpression; e.g. a variable holding a very large array.)
+     * Returns true if this expression type supports `getConstantValue`. (This particular expression
+     * may or may not actually contain a constant value.) It's harmless to call `getConstantValue`
+     * on expressions which don't support constant values or don't contain any constant values, but
+     * if `supportsConstantValues` returns false, you can assume that `getConstantValue` will return
+     * nullopt for every slot of this expression. This allows for early-out opportunities in some
+     * cases. (Some expressions have tons of slots but never hold a constant value; e.g. a variable
+     * holding a very large array.)
      */
-    virtual bool allowsConstantSubexpressions() const {
+    virtual bool supportsConstantValues() const {
         return false;
     }
 
     /**
-     * Returns the n'th compile-time constant expression within a literal or constructor.
-     * Use Type::slotCount to determine the number of subexpressions within an expression.
-     * Subexpressions which are not compile-time constants will return null.
-     * `vec4(1, vec2(2), 3)` contains four subexpressions: (1, 2, 2, 3)
-     * `mat2(f)` contains four subexpressions: (null, 0,
-     *                                          0, null)
-     * All classes which override this function must also implement `allowsConstantSubexpression`.
+     * Returns the n'th compile-time constant value within a literal or constructor.
+     * Use Type::slotCount to determine the number of slots within an expression.
+     * Slots which do not contain compile-time constant values will return nullopt.
+     * `vec4(1, vec2(2), 3)` contains four compile-time constants: (1, 2, 2, 3)
+     * `mat2(f)` contains four slots, and two are constant: (nullopt, 0,
+     *                                                       0, nullopt)
+     * All classes which override this function must also implement `supportsConstantValues`.
      */
-    virtual const Expression* getConstantSubexpression(int n) const {
-        SkASSERT(!this->allowsConstantSubexpressions());
-        return nullptr;
+    virtual skstd::optional<double> getConstantValue(int n) const {
+        SkASSERT(!this->supportsConstantValues());
+        return skstd::nullopt;
     }
 
     virtual std::unique_ptr<Expression> clone() const = 0;
