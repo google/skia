@@ -517,7 +517,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
     SkASSERT(subRun);
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(
-            nullptr, mtxProvider, glyphRunList, skPaint, sdc, nullptr);
+            nullptr, mtxProvider, glyphRunList.origin(), skPaint, sdc, nullptr);
     return op;
 }
 

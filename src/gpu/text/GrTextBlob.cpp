@@ -468,7 +468,7 @@ public:
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList& glyphRunList,
+                    SkPoint drawOrigin,
                     const SkPaint& paint,
                     skgpu::v1::SurfaceDrawContext* sdc,
                     GrAtlasSubRunOwner) const override;
@@ -594,7 +594,7 @@ void DirectMaskSubRun::draw(const GrClip* clip,
                             const SkPaint& paint,
                             skgpu::v1::SurfaceDrawContext* sdc) const{
     auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, glyphRunList, paint, sdc, nullptr);
+            clip, viewMatrix, glyphRunList.origin(), paint, sdc, nullptr);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }
@@ -643,15 +643,15 @@ calculate_clip(const GrClip* clip, SkRect deviceBounds, SkRect glyphBounds) {
 }  // namespace
 
 std::tuple<const GrClip*, GrOp::Owner>
-DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& viewMatrix,
-                                  const SkGlyphRunList& glyphRunList,
+DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip,
+                                  const SkMatrixProvider& viewMatrix,
+                                  SkPoint drawOrigin,
                                   const SkPaint& paint,
                                   skgpu::v1::SurfaceDrawContext* sdc,
                                   GrAtlasSubRunOwner) const {
     SkASSERT(this->glyphCount() != 0);
 
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-    const SkPoint drawOrigin = glyphRunList.origin();
 
     // We can clip geometrically using clipRect and ignore clip when an axis-aligned rectangular
     // non-AA clip is used. If clipRect is empty, and clip is nullptr, then there is no clipping
@@ -862,7 +862,7 @@ public:
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip*,
                     const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList&,
+                    SkPoint drawOrigin,
                     const SkPaint&,
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
@@ -949,7 +949,7 @@ void TransformedMaskSubRun::draw(const GrClip* clip,
                                  const SkPaint& paint,
                                  skgpu::v1::SurfaceDrawContext* sdc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, glyphRunList, paint, sdc, nullptr);
+            clip, viewMatrix, glyphRunList.origin(), paint, sdc, nullptr);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }
@@ -958,13 +958,12 @@ void TransformedMaskSubRun::draw(const GrClip* clip,
 std::tuple<const GrClip*, GrOp::Owner>
 TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
                                        const SkMatrixProvider& viewMatrix,
-                                       const SkGlyphRunList& glyphRunList,
+                                       SkPoint drawOrigin,
                                        const SkPaint& paint,
                                        skgpu::v1::SurfaceDrawContext* sdc,
                                        GrAtlasSubRunOwner) const {
     SkASSERT(this->glyphCount() != 0);
 
-    SkPoint drawOrigin = glyphRunList.origin();
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
 
     GrPaint grPaint;
@@ -1122,7 +1121,7 @@ public:
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip*,
                     const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList&,
+                    SkPoint drawOrigin,
                     const SkPaint&,
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
@@ -1227,7 +1226,7 @@ void SDFTSubRun::draw(const GrClip* clip,
                       const SkPaint& paint,
                       skgpu::v1::SurfaceDrawContext* sdc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, glyphRunList, paint, sdc, nullptr);
+            clip, viewMatrix, glyphRunList.origin(), paint, sdc, nullptr);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }
@@ -1264,14 +1263,13 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
 std::tuple<const GrClip*, GrOp::Owner >
 SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
                             const SkMatrixProvider& viewMatrix,
-                            const SkGlyphRunList& glyphRunList,
+                            SkPoint drawOrigin,
                             const SkPaint& paint,
                             skgpu::v1::SurfaceDrawContext* sdc,
                             GrAtlasSubRunOwner) const {
     SkASSERT(this->glyphCount() != 0);
     SkASSERT(!viewMatrix.localToDevice().hasPerspective());
 
-    SkPoint drawOrigin = glyphRunList.origin();
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
 
     GrPaint grPaint;
@@ -1685,7 +1683,7 @@ public:
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip*,
                     const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList&,
+                    SkPoint,
                     const SkPaint&,
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
@@ -1781,14 +1779,13 @@ int DirectMaskSubRunNoCache::glyphCount() const {
 std::tuple<const GrClip*, GrOp::Owner>
 DirectMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
                                          const SkMatrixProvider& viewMatrix,
-                                         const SkGlyphRunList& glyphRunList,
+                                         SkPoint drawOrigin,
                                          const SkPaint& paint,
                                          skgpu::v1::SurfaceDrawContext* sdc,
                                          GrAtlasSubRunOwner subRunOwner) const {
     SkASSERT(this->glyphCount() != 0);
 
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-    const SkPoint drawOrigin = glyphRunList.origin();
 
     // We can clip geometrically using clipRect and ignore clip when an axis-aligned rectangular
     // non-AA clip is used. If clipRect is empty, and clip is nullptr, then there is no clipping
@@ -1923,7 +1920,7 @@ public:
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip*,
                     const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList&,
+                    SkPoint drawOrigin,
                     const SkPaint&,
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
@@ -2002,13 +1999,12 @@ GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
 std::tuple<const GrClip*, GrOp::Owner>
 TransformedMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
                                               const SkMatrixProvider& viewMatrix,
-                                              const SkGlyphRunList& glyphRunList,
+                                              SkPoint drawOrigin,
                                               const SkPaint& paint,
                                               skgpu::v1::SurfaceDrawContext* sdc,
                                               GrAtlasSubRunOwner subRunOwner) const {
     SkASSERT(this->glyphCount() != 0);
 
-    SkPoint drawOrigin = glyphRunList.origin();
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
 
     GrPaint grPaint;
@@ -2124,7 +2120,6 @@ SkRect TransformedMaskSubRunNoCache::deviceRect(
     return drawMatrix.mapRect(outBounds);
 }
 
-
 // -- SDFTSubRunNoCache ----------------------------------------------------------------------------
 class SDFTSubRunNoCache final : public GrAtlasSubRun {
 public:
@@ -2151,7 +2146,7 @@ public:
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip*,
                     const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList&,
+                    SkPoint drawOrigin,
                     const SkPaint&,
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
@@ -2244,13 +2239,12 @@ GrAtlasSubRunOwner SDFTSubRunNoCache::Make(
 std::tuple<const GrClip*, GrOp::Owner>
 SDFTSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
                                    const SkMatrixProvider& viewMatrix,
-                                   const SkGlyphRunList& glyphRunList,
+                                   SkPoint drawOrigin,
                                    const SkPaint& paint,
                                    skgpu::v1::SurfaceDrawContext* sdc,
                                    GrAtlasSubRunOwner subRunOwner) const {
     SkASSERT(this->glyphCount() != 0);
 
-    SkPoint drawOrigin = glyphRunList.origin();
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
 
     GrPaint grPaint;
@@ -2461,7 +2455,7 @@ void GrSubRunNoCachePainter::draw(GrAtlasSubRunOwner subRun) {
     }
     GrAtlasSubRun* subRunPtr = subRun.get();
     auto [drawingClip, op] = subRunPtr->makeAtlasTextOp(
-            fClip, fViewMatrix, fGlyphRunList, fPaint, fSDC, std::move(subRun));
+            fClip, fViewMatrix, fGlyphRunList.origin(), fPaint, fSDC, std::move(subRun));
     if (op != nullptr) {
         fSDC->addDrawOp(drawingClip, std::move(op));
     }
