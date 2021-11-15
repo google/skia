@@ -3620,136 +3620,34 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
+        /*
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
-        TextStyle roboto;
-        roboto.setColor(SK_ColorBLACK);
-        roboto.setFontFamilies({SkString("Roboto")});
-        roboto.setFontSize(20.0f);
-
-        TextStyle assyrian;
-        assyrian.setColor(SK_ColorRED);
-        assyrian.setFontFamilies({SkString("Assyrian")});
-        assyrian.setFontSize(40.0f);
+        */
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setFontSize(10);
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextStyle(roboto);
+        paragraph_style.setTextStyle(text_style);
+        paragraph_style.setTextDirection(TextDirection::kLtr);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-
-        roboto.setBaselineShift(0.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Notice that the line height increased on the lines with ");
-        assyrian.setBaselineShift(.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("baseline shifts:\n");
-
-        roboto.setBaselineShift(0.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Zero baseline shift text ");
-
-        assyrian.setBaselineShift(-20.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Up20");
-
-        roboto.setBaselineShift(-40.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Up40");
-
-        assyrian.setBaselineShift(-60.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Up60");
-
-        roboto.setBaselineShift(-40.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Up40");
-
-        assyrian.setBaselineShift(-20.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Up20");
-
-        roboto.setBaselineShift(-0.0f);
-        builder.pushStyle(roboto);
-        builder.addText(" Zero baseline shift text\n");
-
-        assyrian.addShadow(TextShadow(SK_ColorGREEN, SkPoint::Make(5, 5), 2));
-        assyrian.setDecorationStyle(TextDecorationStyle::kSolid);
-        assyrian.setDecoration(TextDecoration::kUnderline);
-        assyrian.setDecorationColor(SK_ColorBLUE);
-
-        roboto.setBaselineShift(0.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Notice that shadows and decorations are shifted if there is a text with ");
-        assyrian.setBaselineShift(.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("baseline shifts:\n");
-
-        assyrian.setDecoration(TextDecoration::kNoDecoration);
-
-        roboto.setBaselineShift(0.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Zero baseline shift text ");
-
-        assyrian.setBaselineShift(20.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Down20");
-
-        roboto.setBaselineShift(40.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Down40");
-
-        assyrian.setBaselineShift(60.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Down60");
-
-        roboto.setBaselineShift(40.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Down40");
-
-        assyrian.setBaselineShift(20.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Down20");
-
-        roboto.setBaselineShift(0.0f);
-        builder.pushStyle(roboto);
-        builder.addText(" Zero baseline shift text\n");
-
-        assyrian.resetShadows();
-        assyrian.setDecorationStyle(TextDecorationStyle::kSolid);
-        assyrian.setDecoration(TextDecoration::kUnderline);
-        assyrian.setDecorationColor(SK_ColorBLUE);
-
-        roboto.setBaselineShift(0.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Zero baseline shift text ");
-
-        assyrian.setBaselineShift(-20.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Up20");
-
-        roboto.setBaselineShift(-40.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Up40");
-
-        assyrian.setBaselineShift(-60.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Up60");
-
-        roboto.setBaselineShift(-40.0f);
-        builder.pushStyle(roboto);
-        builder.addText("Up40");
-
-        assyrian.setBaselineShift(-20.0f);
-        builder.pushStyle(assyrian);
-        builder.addText("Up20");
-
-        roboto.setBaselineShift(-0.0f);
-        builder.pushStyle(roboto);
-        builder.addText(" Zero baseline shift text");
-
+        builder.pushStyle(text_style);
+        builder.addText(u"\u05D0\u05D0\u05D0ABC");
         auto paragraph = builder.Build();
-        paragraph->layout(SK_ScalarInfinity);
+        paragraph->layout(100);
         paragraph->paint(canvas, 0, 0);
+        auto boxes = paragraph->getRectsForRange(0, paragraph->getMaxWidth(), RectHeightStyle::kTight, RectWidthStyle::kTight);
+        for (auto& box : boxes) {
+            SkDebugf("[%f, %f, %f, %f]: %s\n", box.rect.left(), box.rect.top(), box.rect.right(), box.rect.bottom(), box.direction == TextDirection::kLtr ? "left" : "right");
+        }
+        std::vector<SkScalar> widths = { -10, 0, 10, 20, 30, 40, 50, 60 };
+        for (auto w : widths) {
+            auto pos = paragraph->getGlyphPositionAtCoordinate(w, 0);
+            SkDebugf("%f: %d, %s\n", w, pos.position, pos.affinity == Affinity::kDownstream ? "down" : "up");
+        }
     }
 
 private:
