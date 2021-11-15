@@ -4,7 +4,7 @@
 
 # Recipe which runs the PathKit tests using docker
 
-PYTHON_VERSION_COMPATIBILITY = "PY2+3"
+PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'checkout',

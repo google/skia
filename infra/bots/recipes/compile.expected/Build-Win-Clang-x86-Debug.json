@@ -100,7 +100,7 @@
     "cmd": [
       "vpython",
       "-u",
-      "\n# [VPYTHON:BEGIN]\n# wheel: <\n#  name: \"infra/python/wheels/psutil/${vpython_platform}\"\n#  version: \"version:5.4.7\"\n# >\n# [VPYTHON:END]\n\nimport psutil\nfor p in psutil.process_iter():\n  try:\n    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):\n      p.kill()\n  except psutil._error.AccessDenied:\n    pass\n"
+      "\n# [VPYTHON:BEGIN]\n# wheel: <\n#  name: \"infra/python/wheels/psutil/${vpython_platform}\"\n#  version: \"version:5.8.0.chromium.2\"\n# >\n# [VPYTHON:END]\n\nimport psutil\nfor p in psutil.process_iter():\n  try:\n    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):\n      p.kill()\n  except psutil._error.AccessDenied:\n    pass\n"
     ],
     "infra_step": true,
     "name": "cleanup",
@@ -109,7 +109,7 @@
       "@@@STEP_LOG_LINE@python.inline@# [VPYTHON:BEGIN]@@@",
       "@@@STEP_LOG_LINE@python.inline@# wheel: <@@@",
       "@@@STEP_LOG_LINE@python.inline@#  name: \"infra/python/wheels/psutil/${vpython_platform}\"@@@",
-      "@@@STEP_LOG_LINE@python.inline@#  version: \"version:5.4.7\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@#  version: \"version:5.8.0.chromium.2\"@@@",
       "@@@STEP_LOG_LINE@python.inline@# >@@@",
       "@@@STEP_LOG_LINE@python.inline@# [VPYTHON:END]@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
