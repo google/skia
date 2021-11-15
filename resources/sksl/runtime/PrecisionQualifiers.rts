@@ -1,3 +1,5 @@
+/*#pragma settings SkVMDebugTrace*/
+
 uniform half4 colorGreen, colorRed;
 
 bool test_scalar() {

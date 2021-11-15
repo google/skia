@@ -1,29 +1,204 @@
-13 registers, 27 instructions:
-0	r0 = uniform32 ptr0 4
-1	r1 = uniform32 ptr0 14
-2	r2 = uniform32 ptr0 18
-3	r3 = uniform32 ptr0 1C
-4	r4 = uniform32 ptr0 20
-5	r5 = uniform32 ptr0 24
-6	r6 = uniform32 ptr0 2C
-7	r7 = uniform32 ptr0 30
-8	r8 = uniform32 ptr0 38
-9	r9 = uniform32 ptr0 48
-10	r10 = uniform32 ptr0 54
-11	r11 = uniform32 ptr0 64
-12	r12 = splat 0 (0)
-13	r3 = add_f32 r4 r3
-14	r2 = add_f32 r3 r2
-15	r1 = add_f32 r2 r1
-16	r5 = mul_f32 r5 r5
-17	r6 = mul_f32 r5 r6
-18	r7 = mul_f32 r6 r7
-19	r8 = sub_f32 r12 r8
-20	r9 = sub_f32 r8 r9
-21	r10 = sub_f32 r9 r10
-22	r11 = sub_f32 r10 r11
+$0 = u1[0] (float, L3)
+$1 = u1[1] (float, L3)
+$2 = u1[2] (float, L3)
+$3 = u1[3] (float, L3)
+$4 = u2[0] (float, L8)
+$5 = u2[1] (float, L8)
+$6 = u2[2] (float, L8)
+$7 = u2[3] (float, L8)
+$8 = u3[0] (float, L17)
+$9 = u3[1] (float, L17)
+$10 = u3[2] (float, L17)
+$11 = u3[3] (float, L17)
+$12 = u4[0] (float, L26)
+$13 = u4[1] (float, L26)
+$14 = u4[2] (float, L26)
+$15 = u4[3] (float, L26)
+$16 = u4[4] (float, L26)
+$17 = u4[5] (float, L26)
+$18 = u4[6] (float, L26)
+$19 = u4[7] (float, L26)
+$20 = u4[8] (float, L26)
+$21 = u4[9] (float, L26)
+$22 = u4[10] (float, L26)
+$23 = u4[11] (float, L26)
+$24 = u4[12] (float, L26)
+$25 = u4[13] (float, L26)
+$26 = u4[14] (float, L26)
+$27 = u4[15] (float, L26)
+$28 = xy (float2 : slot 1/2, L37)
+$29 = xy (float2 : slot 2/2, L37)
+$30 = sum (float, L10)
+$31 = i (int, L11)
+$32 = prod (float, L19)
+$33 = i (int, L20)
+$34 = sum (float, L28)
+$35 = f (float, L29)
+
+52 registers, 165 instructions:
+0	r0 = uniform32 ptr0 0
+1	r1 = uniform32 ptr0 4
+2	r2 = uniform32 ptr0 8
+3	r3 = uniform32 ptr0 C
+4	r4 = uniform32 ptr0 10
+5	r5 = uniform32 ptr0 14
+6	r6 = uniform32 ptr0 18
+7	r7 = uniform32 ptr0 1C
+8	r8 = uniform32 ptr0 20
+9	r9 = uniform32 ptr0 24
+10	r10 = uniform32 ptr0 28
+11	r11 = uniform32 ptr0 2C
+12	r12 = uniform32 ptr0 30
+13	r13 = uniform32 ptr0 34
+14	r14 = uniform32 ptr0 38
+15	r15 = uniform32 ptr0 3C
+16	r16 = uniform32 ptr0 40
+17	r17 = uniform32 ptr0 44
+18	r18 = uniform32 ptr0 48
+19	r19 = uniform32 ptr0 4C
+20	r20 = uniform32 ptr0 50
+21	r21 = uniform32 ptr0 54
+22	r22 = uniform32 ptr0 58
+23	r23 = uniform32 ptr0 5C
+24	r24 = uniform32 ptr0 60
+25	r25 = uniform32 ptr0 64
+26	r26 = uniform32 ptr0 68
+27	r27 = uniform32 ptr0 6C
+28	r28 = uniform32 ptr0 70
+29	r29 = splat 0 (0)
+30	r30 = splat FFFFFFFF (nan)
+31	r31 = splat 3 (4.2038954e-45)
+32	r32 = splat 2 (2.8025969e-45)
+33	r33 = add_f32 r8 r7
+34	r34 = splat 1 (1.4012985e-45)
+35	r35 = add_f32 r33 r6
+36	r36 = add_f32 r35 r5
+37	r37 = splat 3F800000 (1)
+38	r38 = mul_f32 r9 r9
+39	r39 = mul_f32 r38 r11
+40	r40 = mul_f32 r39 r12
+41	r41 = splat C0133333 (-2.3)
+42	r42 = splat 3FB33334 (1.4000001)
+43	r43 = sub_f32 r29 r14
+44	r44 = splat 40A33334 (5.1000004)
+45	r45 = sub_f32 r43 r18
+46	r46 = splat 410CCCCD (8.8000002)
+47	r47 = sub_f32 r45 r21
+48	r48 = splat 41480000 (12.5)
+49	r49 = sub_f32 r47 r25
+50	r50 = splat 4181999A (16.200001)
 loop:
-23	    store32 ptr1 r0
-24	    store32 ptr2 r1
-25	    store32 ptr3 r7
-26	    store32 ptr4 r11
+51	    r51 = index
+52	    trace_var r30 $0 = r1 (F32)
+53	    trace_var r30 $1 = r2 (F32)
+54	    trace_var r30 $2 = r3 (F32)
+55	    trace_var r30 $3 = r4 (F32)
+56	    trace_var r30 $4 = r5 (F32)
+57	    trace_var r30 $5 = r6 (F32)
+58	    trace_var r30 $6 = r7 (F32)
+59	    trace_var r30 $7 = r8 (F32)
+60	    trace_var r30 $8 = r9 (F32)
+61	    trace_var r30 $9 = r10 (F32)
+62	    trace_var r30 $10 = r11 (F32)
+63	    trace_var r30 $11 = r12 (F32)
+64	    trace_var r30 $12 = r13 (F32)
+65	    trace_var r30 $13 = r14 (F32)
+66	    trace_var r30 $14 = r15 (F32)
+67	    trace_var r30 $15 = r16 (F32)
+68	    trace_var r30 $16 = r17 (F32)
+69	    trace_var r30 $17 = r18 (F32)
+70	    trace_var r30 $18 = r19 (F32)
+71	    trace_var r30 $19 = r20 (F32)
+72	    trace_var r30 $20 = r21 (F32)
+73	    trace_var r30 $21 = r22 (F32)
+74	    trace_var r30 $22 = r23 (F32)
+75	    trace_var r30 $23 = r24 (F32)
+76	    trace_var r30 $24 = r25 (F32)
+77	    trace_var r30 $25 = r26 (F32)
+78	    trace_var r30 $26 = r27 (F32)
+79	    trace_var r30 $27 = r28 (F32)
+80	    trace_call r30 L37 (enter)
+81	    trace_var r30 $28 = r51 (F32)
+82	    trace_var r30 $29 = r0 (F32)
+83	    trace_line r30 L38
+84	    trace_call r30 L4 (enter)
+85	    trace_line r30 L5
+86	    trace_call r30 L4 (exit)
+87	    trace_call r30 L9 (enter)
+88	    trace_line r30 L10
+89	    trace_line r30 L11
+90	    trace_var r30 $31 = r31 (I32)
+91	    trace_line r30 L12
+92	    trace_var r30 $30 = r8 (F32)
+93	    trace_line r30 L11
+94	    trace_var r30 $31 = r32 (I32)
+95	    trace_line r30 L12
+96	    trace_var r30 $30 = r33 (F32)
+97	    trace_line r30 L11
+98	    trace_var r30 $31 = r34 (I32)
+99	    trace_line r30 L12
+100	    trace_var r30 $30 = r35 (F32)
+101	    trace_line r30 L11
+102	    trace_var r30 $31 = r29 (I32)
+103	    trace_line r30 L12
+104	    trace_var r30 $30 = r36 (F32)
+105	    trace_line r30 L11
+106	    trace_line r30 L14
+107	    trace_call r30 L9 (exit)
+108	    trace_call r30 L18 (enter)
+109	    trace_line r30 L19
+110	    trace_var r30 $32 = r37 (F32)
+111	    trace_line r30 L20
+112	    trace_line r30 L21
+113	    trace_var r30 $32 = r9 (F32)
+114	    trace_line r30 L20
+115	    trace_var r30 $33 = r34 (I32)
+116	    trace_line r30 L21
+117	    trace_var r30 $32 = r38 (F32)
+118	    trace_line r30 L20
+119	    trace_var r30 $33 = r32 (I32)
+120	    trace_line r30 L21
+121	    trace_var r30 $32 = r39 (F32)
+122	    trace_line r30 L20
+123	    trace_var r30 $33 = r31 (I32)
+124	    trace_line r30 L21
+125	    trace_var r30 $32 = r40 (F32)
+126	    trace_line r30 L20
+127	    trace_line r30 L23
+128	    trace_call r30 L18 (exit)
+129	    trace_call r30 L27 (enter)
+130	    trace_line r30 L28
+131	    trace_line r30 L29
+132	    trace_var r30 $35 = r41 (F32)
+133	    trace_line r30 L30
+134	    trace_line r30 L29
+135	    trace_var r30 $35 = r42 (F32)
+136	    trace_line r30 L30
+137	    trace_line r30 L31
+138	    trace_var r30 $34 = r43 (F32)
+139	    trace_line r30 L29
+140	    trace_var r30 $35 = r44 (F32)
+141	    trace_line r30 L30
+142	    trace_line r30 L31
+143	    trace_var r30 $34 = r45 (F32)
+144	    trace_line r30 L29
+145	    trace_var r30 $35 = r46 (F32)
+146	    trace_line r30 L30
+147	    trace_line r30 L31
+148	    trace_var r30 $34 = r47 (F32)
+149	    trace_line r30 L29
+150	    trace_var r30 $35 = r48 (F32)
+151	    trace_line r30 L30
+152	    trace_line r30 L31
+153	    trace_var r30 $34 = r49 (F32)
+154	    trace_line r30 L29
+155	    trace_var r30 $35 = r50 (F32)
+156	    trace_line r30 L30
+157	    trace_line r30 L29
+158	    trace_line r30 L34
+159	    trace_call r30 L27 (exit)
+160	    trace_call r30 L37 (exit)
+161	    store32 ptr1 r1
+162	    store32 ptr2 r36
+163	    store32 ptr3 r40
+164	    store32 ptr4 r49

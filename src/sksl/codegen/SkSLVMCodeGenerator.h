@@ -15,6 +15,8 @@
 
 #include <functional>
 
+class SkWStream;
+
 namespace SkSL {
 
 class FunctionDefinition;
@@ -24,8 +26,23 @@ using SampleShaderFn = std::function<skvm::Color(int, skvm::Coord)>;
 using SampleColorFilterFn = std::function<skvm::Color(int, skvm::Color)>;
 using SampleBlenderFn = std::function<skvm::Color(int, skvm::Color, skvm::Color)>;
 
+struct SkVMSlotInfo {
+    /** The full name of this variable (without component): (e.g. `myArray[3].myStruct.myVector`) */
+    std::string             name;
+    /** The dimensions of this variable: 1x1 is a scalar, Nx1 is a vector, NxM is a matrix. */
+    uint8_t                 columns = 1, rows = 1;
+    /** Which component of the variable is this slot? (e.g. `vec4.z` is component 2) */
+    uint8_t                 componentIndex = 0;
+    /** What kind of numbers belong in this slot? */
+    SkSL::Type::NumberKind  numberKind = SkSL::Type::NumberKind::kNonnumeric;
+    /** Where is this variable located in the program? */
+    int                     line;
+};
+
 struct SkVMDebugInfo {
-    // TODO(skia:12614): add debug information here
+    void dump(SkWStream* o) const;
+
+    std::vector<SkVMSlotInfo> fSlotInfo;
 };
 
 // Convert 'function' to skvm instructions in 'builder', for use by blends, shaders, & color filters

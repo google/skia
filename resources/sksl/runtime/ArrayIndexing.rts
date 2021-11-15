@@ -1,3 +1,5 @@
+/*#pragma settings SkVMDebugTrace*/
+
 uniform float u1[4];
 float index_by_literal() {
     return u1[0];

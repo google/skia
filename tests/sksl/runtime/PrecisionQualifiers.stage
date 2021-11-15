@@ -1,11 +1,20 @@
 uniform half4 colorGreen;
 uniform half4 colorRed;
+bool test_scalar_0();
 bool test_vector_0();
 bool test_matrix_0();
 bool test_array_0();
 bool highp_param_0(float value);
 bool mediump_param_0(half value);
 bool lowp_param_0(half value);
+bool test_scalar_0()
+{
+	half mp = 0.5;
+	float hp = float(mp);
+	int ihp = 2;
+	short imp = short(ihp);
+	return float(mp) == hp && ihp == int(imp);
+}
 bool test_vector_0()
 {
 	half2 mp2 = half2(2.0);
@@ -66,9 +75,5 @@ float4 main(float2 coords)
 	green = half4(float4(green * one) + zero);
 	float4 red = float4(colorRed);
 	red = (red + zero) * float4(one);
-	half _0_mp = 0.5;
-	float _1_hp = float(_0_mp);
-	int _2_ihp = 2;
-	short _3_imp = short(_2_ihp);
-	return half4(((((((float(_0_mp) == _1_hp && _2_ihp == int(_3_imp)) && test_vector_0()) && test_matrix_0()) && test_array_0()) && highp_param_0(1.0)) && mediump_param_0(2.0)) && lowp_param_0(3.0) ? float4(green) : red);
+	return half4((((((test_scalar_0() && test_vector_0()) && test_matrix_0()) && test_array_0()) && highp_param_0(1.0)) && mediump_param_0(2.0)) && lowp_param_0(3.0) ? float4(green) : red);
 }

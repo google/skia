@@ -1,10 +1,312 @@
-4 registers, 8 instructions:
-0	r0 = uniform32 ptr0 4
-1	r1 = uniform32 ptr0 8
-2	r2 = uniform32 ptr0 C
-3	r3 = uniform32 ptr0 10
+$0 = colorGreen (float4 : slot 1/4, L3)
+$1 = colorGreen (float4 : slot 2/4, L3)
+$2 = colorGreen (float4 : slot 3/4, L3)
+$3 = colorGreen (float4 : slot 4/4, L3)
+$4 = colorRed (float4 : slot 1/4, L3)
+$5 = colorRed (float4 : slot 2/4, L3)
+$6 = colorRed (float4 : slot 3/4, L3)
+$7 = colorRed (float4 : slot 4/4, L3)
+$8 = coords (float2 : slot 1/2, L57)
+$9 = coords (float2 : slot 2/2, L57)
+$10 = zero (float4 : slot 1/4, L58)
+$11 = zero (float4 : slot 2/4, L58)
+$12 = zero (float4 : slot 3/4, L58)
+$13 = zero (float4 : slot 4/4, L58)
+$14 = one (float4 : slot 1/4, L59)
+$15 = one (float4 : slot 2/4, L59)
+$16 = one (float4 : slot 3/4, L59)
+$17 = one (float4 : slot 4/4, L59)
+$18 = green (float4 : slot 1/4, L60)
+$19 = green (float4 : slot 2/4, L60)
+$20 = green (float4 : slot 3/4, L60)
+$21 = green (float4 : slot 4/4, L60)
+$22 = red (float4 : slot 1/4, L63)
+$23 = red (float4 : slot 2/4, L63)
+$24 = red (float4 : slot 3/4, L63)
+$25 = red (float4 : slot 4/4, L63)
+$26 = mp (float, L6)
+$27 = hp (float, L7)
+$28 = ihp (int, L8)
+$29 = imp (int, L9)
+$30 = mp2 (float2 : slot 1/2, L15)
+$31 = mp2 (float2 : slot 2/2, L15)
+$32 = hp2 (float2 : slot 1/2, L16)
+$33 = hp2 (float2 : slot 2/2, L16)
+$34 = mp3 (float3 : slot 1/3, L17)
+$35 = mp3 (float3 : slot 2/3, L17)
+$36 = mp3 (float3 : slot 3/3, L17)
+$37 = hp3 (float3 : slot 1/3, L18)
+$38 = hp3 (float3 : slot 2/3, L18)
+$39 = hp3 (float3 : slot 3/3, L18)
+$40 = mp4 (float4 : slot 1/4, L19)
+$41 = mp4 (float4 : slot 2/4, L19)
+$42 = mp4 (float4 : slot 3/4, L19)
+$43 = mp4 (float4 : slot 4/4, L19)
+$44 = hp4 (float4 : slot 1/4, L20)
+$45 = hp4 (float4 : slot 2/4, L20)
+$46 = hp4 (float4 : slot 3/4, L20)
+$47 = hp4 (float4 : slot 4/4, L20)
+$48 = ihp2 (int2 : slot 1/2, L22)
+$49 = ihp2 (int2 : slot 2/2, L22)
+$50 = imp2 (int2 : slot 1/2, L23)
+$51 = imp2 (int2 : slot 2/2, L23)
+$52 = ihp3 (int3 : slot 1/3, L24)
+$53 = ihp3 (int3 : slot 2/3, L24)
+$54 = ihp3 (int3 : slot 3/3, L24)
+$55 = imp3 (int3 : slot 1/3, L25)
+$56 = imp3 (int3 : slot 2/3, L25)
+$57 = imp3 (int3 : slot 3/3, L25)
+$58 = ihp4 (int4 : slot 1/4, L26)
+$59 = ihp4 (int4 : slot 2/4, L26)
+$60 = ihp4 (int4 : slot 3/4, L26)
+$61 = ihp4 (int4 : slot 4/4, L26)
+$62 = imp4 (int4 : slot 1/4, L27)
+$63 = imp4 (int4 : slot 2/4, L27)
+$64 = imp4 (int4 : slot 3/4, L27)
+$65 = imp4 (int4 : slot 4/4, L27)
+$66 = mp2 (float2x2 : slot 1/4, L34)
+$67 = mp2 (float2x2 : slot 2/4, L34)
+$68 = mp2 (float2x2 : slot 3/4, L34)
+$69 = mp2 (float2x2 : slot 4/4, L34)
+$70 = hp2 (float2x2 : slot 1/4, L35)
+$71 = hp2 (float2x2 : slot 2/4, L35)
+$72 = hp2 (float2x2 : slot 3/4, L35)
+$73 = hp2 (float2x2 : slot 4/4, L35)
+$74 = mp3 (float3x3 : slot 1/9, L36)
+$75 = mp3 (float3x3 : slot 2/9, L36)
+$76 = mp3 (float3x3 : slot 3/9, L36)
+$77 = mp3 (float3x3 : slot 4/9, L36)
+$78 = mp3 (float3x3 : slot 5/9, L36)
+$79 = mp3 (float3x3 : slot 6/9, L36)
+$80 = mp3 (float3x3 : slot 7/9, L36)
+$81 = mp3 (float3x3 : slot 8/9, L36)
+$82 = mp3 (float3x3 : slot 9/9, L36)
+$83 = hp3 (float3x3 : slot 1/9, L37)
+$84 = hp3 (float3x3 : slot 2/9, L37)
+$85 = hp3 (float3x3 : slot 3/9, L37)
+$86 = hp3 (float3x3 : slot 4/9, L37)
+$87 = hp3 (float3x3 : slot 5/9, L37)
+$88 = hp3 (float3x3 : slot 6/9, L37)
+$89 = hp3 (float3x3 : slot 7/9, L37)
+$90 = hp3 (float3x3 : slot 8/9, L37)
+$91 = hp3 (float3x3 : slot 9/9, L37)
+$92 = mp4 (float4x4 : slot 1/16, L38)
+$93 = mp4 (float4x4 : slot 2/16, L38)
+$94 = mp4 (float4x4 : slot 3/16, L38)
+$95 = mp4 (float4x4 : slot 4/16, L38)
+$96 = mp4 (float4x4 : slot 5/16, L38)
+$97 = mp4 (float4x4 : slot 6/16, L38)
+$98 = mp4 (float4x4 : slot 7/16, L38)
+$99 = mp4 (float4x4 : slot 8/16, L38)
+$100 = mp4 (float4x4 : slot 9/16, L38)
+$101 = mp4 (float4x4 : slot 10/16, L38)
+$102 = mp4 (float4x4 : slot 11/16, L38)
+$103 = mp4 (float4x4 : slot 12/16, L38)
+$104 = mp4 (float4x4 : slot 13/16, L38)
+$105 = mp4 (float4x4 : slot 14/16, L38)
+$106 = mp4 (float4x4 : slot 15/16, L38)
+$107 = mp4 (float4x4 : slot 16/16, L38)
+$108 = hp4 (float4x4 : slot 1/16, L39)
+$109 = hp4 (float4x4 : slot 2/16, L39)
+$110 = hp4 (float4x4 : slot 3/16, L39)
+$111 = hp4 (float4x4 : slot 4/16, L39)
+$112 = hp4 (float4x4 : slot 5/16, L39)
+$113 = hp4 (float4x4 : slot 6/16, L39)
+$114 = hp4 (float4x4 : slot 7/16, L39)
+$115 = hp4 (float4x4 : slot 8/16, L39)
+$116 = hp4 (float4x4 : slot 9/16, L39)
+$117 = hp4 (float4x4 : slot 10/16, L39)
+$118 = hp4 (float4x4 : slot 11/16, L39)
+$119 = hp4 (float4x4 : slot 12/16, L39)
+$120 = hp4 (float4x4 : slot 13/16, L39)
+$121 = hp4 (float4x4 : slot 14/16, L39)
+$122 = hp4 (float4x4 : slot 15/16, L39)
+$123 = hp4 (float4x4 : slot 16/16, L39)
+$124 = mf[0] (float, L45)
+$125 = hf[0] (float, L46)
+$126 = mv[0] (float2 : slot 1/2, L47)
+$127 = mv[0] (float2 : slot 2/2, L47)
+$128 = mv[1] (float2 : slot 1/2, L47)
+$129 = mv[1] (float2 : slot 2/2, L47)
+$130 = hv[0] (float2 : slot 1/2, L48)
+$131 = hv[0] (float2 : slot 2/2, L48)
+$132 = hv[1] (float2 : slot 1/2, L48)
+$133 = hv[1] (float2 : slot 2/2, L48)
+$134 = value (float, L53)
+$135 = value (float, L54)
+$136 = value (float, L55)
+
+19 registers, 172 instructions:
+0	r0 = uniform32 ptr0 0
+1	r1 = uniform32 ptr0 4
+2	r2 = uniform32 ptr0 8
+3	r3 = uniform32 ptr0 C
+4	r4 = uniform32 ptr0 10
+5	r5 = uniform32 ptr0 14
+6	r6 = uniform32 ptr0 18
+7	r7 = uniform32 ptr0 1C
+8	r8 = uniform32 ptr0 20
+9	r9 = splat FFFFFFFF (nan)
+10	r10 = splat 3F800000 (1)
+11	r11 = splat 3F000000 (0.5)
+12	r12 = splat 2 (2.8025969e-45)
+13	r13 = splat 40000000 (2)
+14	r14 = splat 40400000 (3)
+15	r15 = splat 40800000 (4)
+16	r16 = splat 3 (4.2038954e-45)
+17	r17 = splat 4 (5.6051939e-45)
 loop:
-4	    store32 ptr1 r0
-5	    store32 ptr2 r1
-6	    store32 ptr3 r2
-7	    store32 ptr4 r3
+18	    r18 = index
+19	    trace_var r9 $0 = r1 (F32)
+20	    trace_var r9 $1 = r2 (F32)
+21	    trace_var r9 $2 = r3 (F32)
+22	    trace_var r9 $3 = r4 (F32)
+23	    trace_var r9 $4 = r5 (F32)
+24	    trace_var r9 $5 = r6 (F32)
+25	    trace_var r9 $6 = r7 (F32)
+26	    trace_var r9 $7 = r8 (F32)
+27	    trace_call r9 L57 (enter)
+28	    trace_var r9 $8 = r18 (F32)
+29	    trace_var r9 $9 = r0 (F32)
+30	    trace_line r9 L58
+31	    trace_line r9 L59
+32	    trace_var r9 $14 = r10 (F32)
+33	    trace_var r9 $15 = r10 (F32)
+34	    trace_var r9 $16 = r10 (F32)
+35	    trace_var r9 $17 = r10 (F32)
+36	    trace_line r9 L60
+37	    trace_var r9 $18 = r1 (F32)
+38	    trace_var r9 $19 = r2 (F32)
+39	    trace_var r9 $20 = r3 (F32)
+40	    trace_var r9 $21 = r4 (F32)
+41	    trace_line r9 L61
+42	    trace_line r9 L63
+43	    trace_var r9 $22 = r5 (F32)
+44	    trace_var r9 $23 = r6 (F32)
+45	    trace_var r9 $24 = r7 (F32)
+46	    trace_var r9 $25 = r8 (F32)
+47	    trace_line r9 L64
+48	    trace_line r9 L66
+49	    trace_call r9 L5 (enter)
+50	    trace_line r9 L6
+51	    trace_var r9 $26 = r11 (F32)
+52	    trace_line r9 L7
+53	    trace_var r9 $27 = r11 (F32)
+54	    trace_line r9 L8
+55	    trace_var r9 $28 = r12 (I32)
+56	    trace_line r9 L9
+57	    trace_var r9 $29 = r12 (I32)
+58	    trace_line r9 L11
+59	    trace_call r9 L5 (exit)
+60	    trace_call r9 L14 (enter)
+61	    trace_line r9 L15
+62	    trace_var r9 $30 = r13 (F32)
+63	    trace_var r9 $31 = r13 (F32)
+64	    trace_line r9 L16
+65	    trace_var r9 $32 = r13 (F32)
+66	    trace_var r9 $33 = r13 (F32)
+67	    trace_line r9 L17
+68	    trace_var r9 $34 = r14 (F32)
+69	    trace_var r9 $35 = r14 (F32)
+70	    trace_var r9 $36 = r14 (F32)
+71	    trace_line r9 L18
+72	    trace_var r9 $37 = r14 (F32)
+73	    trace_var r9 $38 = r14 (F32)
+74	    trace_var r9 $39 = r14 (F32)
+75	    trace_line r9 L19
+76	    trace_var r9 $40 = r15 (F32)
+77	    trace_var r9 $41 = r15 (F32)
+78	    trace_var r9 $42 = r15 (F32)
+79	    trace_var r9 $43 = r15 (F32)
+80	    trace_line r9 L20
+81	    trace_var r9 $44 = r15 (F32)
+82	    trace_var r9 $45 = r15 (F32)
+83	    trace_var r9 $46 = r15 (F32)
+84	    trace_var r9 $47 = r15 (F32)
+85	    trace_line r9 L22
+86	    trace_var r9 $48 = r12 (I32)
+87	    trace_var r9 $49 = r12 (I32)
+88	    trace_line r9 L23
+89	    trace_var r9 $50 = r12 (I32)
+90	    trace_var r9 $51 = r12 (I32)
+91	    trace_line r9 L24
+92	    trace_var r9 $52 = r16 (I32)
+93	    trace_var r9 $53 = r16 (I32)
+94	    trace_var r9 $54 = r16 (I32)
+95	    trace_line r9 L25
+96	    trace_var r9 $55 = r16 (I32)
+97	    trace_var r9 $56 = r16 (I32)
+98	    trace_var r9 $57 = r16 (I32)
+99	    trace_line r9 L26
+100	    trace_var r9 $58 = r17 (I32)
+101	    trace_var r9 $59 = r17 (I32)
+102	    trace_var r9 $60 = r17 (I32)
+103	    trace_var r9 $61 = r17 (I32)
+104	    trace_line r9 L27
+105	    trace_var r9 $62 = r17 (I32)
+106	    trace_var r9 $63 = r17 (I32)
+107	    trace_var r9 $64 = r17 (I32)
+108	    trace_var r9 $65 = r17 (I32)
+109	    trace_line r9 L29
+110	    trace_call r9 L14 (exit)
+111	    trace_call r9 L33 (enter)
+112	    trace_line r9 L34
+113	    trace_var r9 $66 = r13 (F32)
+114	    trace_var r9 $69 = r13 (F32)
+115	    trace_line r9 L35
+116	    trace_var r9 $70 = r13 (F32)
+117	    trace_var r9 $73 = r13 (F32)
+118	    trace_line r9 L36
+119	    trace_var r9 $74 = r14 (F32)
+120	    trace_var r9 $78 = r14 (F32)
+121	    trace_var r9 $82 = r14 (F32)
+122	    trace_line r9 L37
+123	    trace_var r9 $83 = r14 (F32)
+124	    trace_var r9 $87 = r14 (F32)
+125	    trace_var r9 $91 = r14 (F32)
+126	    trace_line r9 L38
+127	    trace_var r9 $92 = r15 (F32)
+128	    trace_var r9 $97 = r15 (F32)
+129	    trace_var r9 $102 = r15 (F32)
+130	    trace_var r9 $107 = r15 (F32)
+131	    trace_line r9 L39
+132	    trace_var r9 $108 = r15 (F32)
+133	    trace_var r9 $113 = r15 (F32)
+134	    trace_var r9 $118 = r15 (F32)
+135	    trace_var r9 $123 = r15 (F32)
+136	    trace_line r9 L41
+137	    trace_call r9 L33 (exit)
+138	    trace_call r9 L44 (enter)
+139	    trace_line r9 L45
+140	    trace_var r9 $124 = r10 (F32)
+141	    trace_line r9 L46
+142	    trace_var r9 $125 = r10 (F32)
+143	    trace_line r9 L47
+144	    trace_var r9 $127 = r10 (F32)
+145	    trace_line r9 L47
+146	    trace_var r9 $128 = r13 (F32)
+147	    trace_var r9 $129 = r14 (F32)
+148	    trace_line r9 L48
+149	    trace_var r9 $131 = r10 (F32)
+150	    trace_line r9 L48
+151	    trace_var r9 $132 = r13 (F32)
+152	    trace_var r9 $133 = r14 (F32)
+153	    trace_line r9 L50
+154	    trace_call r9 L44 (exit)
+155	    trace_call r9 L53 (enter)
+156	    trace_var r9 $134 = r10 (F32)
+157	    trace_line r9 L53
+158	    trace_call r9 L53 (exit)
+159	    trace_call r9 L54 (enter)
+160	    trace_var r9 $135 = r13 (F32)
+161	    trace_line r9 L54
+162	    trace_call r9 L54 (exit)
+163	    trace_call r9 L55 (enter)
+164	    trace_var r9 $136 = r14 (F32)
+165	    trace_line r9 L55
+166	    trace_call r9 L55 (exit)
+167	    trace_call r9 L57 (exit)
+168	    store32 ptr1 r1
+169	    store32 ptr2 r2
+170	    store32 ptr3 r3
+171	    store32 ptr4 r4

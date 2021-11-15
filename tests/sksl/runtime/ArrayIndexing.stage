@@ -1,26 +1,46 @@
 uniform float u1[4];
+float index_by_literal_0();
 uniform float u2[4];
+float index_by_loop_0();
 uniform float u3[4];
+float index_by_complex_loop_0();
 uniform float u4[16];
-float4 main(float2 xy)
+float index_out_of_bounds_checked_0();
+float index_by_literal_0()
 {
-	float _0_sum = 0.0;
-	for (int _1_i = 3;_1_i >= 0; --_1_i) 
+	return u1[0];
+}
+float index_by_loop_0()
+{
+	float sum = 0.0;
+	for (int i = 3;i >= 0; --i) 
 	{
-		_0_sum += u2[_1_i];
+		sum += u2[i];
 	}
-	float _2_prod = 1.0;
-	for (int _3_i = 0;_3_i < 4; ++_3_i) 
+	return sum;
+}
+float index_by_complex_loop_0()
+{
+	float prod = 1.0;
+	for (int i = 0;i < 4; ++i) 
 	{
-		_2_prod *= u3[_3_i < 2 ? 0 : _3_i];
+		prod *= u3[i < 2 ? 0 : i];
 	}
-	float _4_sum = 0.0;
-	for (float _5_f = -2.2999999523162842;_5_f < 17.0; _5_f += 3.7000000476837158) 
+	return prod;
+}
+float index_out_of_bounds_checked_0()
+{
+	float sum = 0.0;
+	for (float f = -2.2999999523162842;f < 17.0; f += 3.7000000476837158) 
 	{
-		if (_5_f > 0.0 && _5_f < 16.0) 
+		if (f > 0.0 && f < 16.0) 
 		{
-			_4_sum -= u4[int(_5_f)];
+			sum -= u4[int(f)];
 		}
 	}
-	return half4(float4(u1[0], _0_sum, _2_prod, _4_sum));
+	return sum;
+}
+float4 main(float2 xy)
+{
+	return half4(float4(index_by_literal_0(), index_by_loop_0(), index_by_complex_loop_0(), index_out_of_bounds_checked_0()));
 }

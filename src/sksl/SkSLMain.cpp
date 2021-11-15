@@ -388,6 +388,9 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     }
 
                     std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
+                    if (debugInfo) {
+                        debugInfo->dump(redirect.get());
+                    }
                     builder.done().dump(redirect.get());
                     return true;
                 });
