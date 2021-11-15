@@ -12,6 +12,8 @@ Milestone 98
   * GrBackendSemaphore only includes methods that match the GPU backend that Skia was compiled for.
     For example, initVulkan and vkSemaphore are not defined unless the Vulkan backend is compiled
     into Skia.
+  * Surfaces and images are now limited to just under 2GB of total size. Previously, larger images
+    could be created, but the CPU backend would fail to index them correctly.
 
 
 Milestone 97

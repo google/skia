@@ -2057,3 +2057,15 @@ DEF_TEST(PictureImageSourceBounds, reporter) {
                                                              SkImageFilter::kReverse_MapDirection,
                                                              &input));
 }
+
+DEF_TEST(DropShadowImageFilter_Huge, reporter) {
+    // Successful if it doesn't crash or trigger ASAN. (crbug.com/1264705)
+    auto surf = SkSurface::MakeRasterN32Premul(300, 150);
+
+    SkPaint paint;
+    paint.setImageFilter(SkImageFilters::DropShadowOnly(
+            0.0f, 0.437009f, 14129.6f, 14129.6f, SK_ColorGRAY, nullptr));
+
+    surf->getCanvas()->saveLayer(nullptr, &paint);
+    surf->getCanvas()->restore();
+}
