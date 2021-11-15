@@ -8,6 +8,7 @@
 #include "experimental/graphite/src/ContextUtils.h"
 
 #include <string>
+#include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/Uniform.h"
 #include "experimental/graphite/src/UniformCache.h"
 #include "experimental/graphite/src/UniformManager.h"

@@ -8,11 +8,10 @@
 #ifndef skgpu_DrawPass_DEFINED
 #define skgpu_DrawPass_DEFINED
 
+#include "experimental/graphite/src/DrawTypes.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 
 #include <memory>
 

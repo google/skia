@@ -10,8 +10,8 @@
 
 #include "src/core/SkDevice.h"
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/DrawOrder.h"
+#include "experimental/graphite/src/EnumBitMask.h"
 #include "experimental/graphite/src/geom/Rect.h"
 
 class SkStrokeRec;

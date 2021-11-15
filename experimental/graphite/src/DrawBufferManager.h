@@ -8,7 +8,7 @@
 #ifndef skgpu_DrawBufferManager_DEFINED
 #define skgpu_DrawBufferManager_DEFINED
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "experimental/graphite/src/DrawTypes.h"
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/BufferWriter.h"
 

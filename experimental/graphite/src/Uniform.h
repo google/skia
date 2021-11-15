@@ -8,7 +8,7 @@
 #ifndef skgpu_Uniform_DEFINED
 #define skgpu_Uniform_DEFINED
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "experimental/graphite/src/DrawTypes.h"
 
 namespace skgpu {
 

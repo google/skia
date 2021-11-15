@@ -8,7 +8,7 @@
 #ifndef skgpu_Buffer_DEFINED
 #define skgpu_Buffer_DEFINED
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkRefCnt.h"
 
 namespace skgpu {

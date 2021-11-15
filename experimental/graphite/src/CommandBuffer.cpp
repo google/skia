@@ -7,7 +7,6 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "src/core/SkTraceEvent.h"
 

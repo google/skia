@@ -7,7 +7,6 @@
 
 #include "experimental/graphite/src/UniformCache.h"
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "src/core/SkOpts.h"
 

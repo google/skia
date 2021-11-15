@@ -49,7 +49,7 @@ sk_sp<Buffer> Buffer::Make(const Gpu* gpu,
         }
     }
 
-    size = AlignTo(size, mtlCaps.getMinBufferAlignment());
+    size = SkAlignTo(size, mtlCaps.getMinBufferAlignment());
     sk_cfp<id<MTLBuffer>> buffer([gpu->device() newBufferWithLength: size options: options]);
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     (*buffer).label = kBufferTypeNames[(int)type];

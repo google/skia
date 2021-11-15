@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "experimental/graphite/src/DrawTypes.h"
 #include "include/private/SkTArray.h"
 
 namespace skgpu {

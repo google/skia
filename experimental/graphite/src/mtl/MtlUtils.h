@@ -8,7 +8,7 @@
 #ifndef skgpu_MtlUtils_DEFINED
 #define skgpu_MtlUtils_DEFINED
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkImageInfo.h"
 #include "include/ports/SkCFObject.h"
 

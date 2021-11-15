@@ -17,7 +17,6 @@ skia_graphite_sources = [
   "$_include/Context.h",
   "$_include/SkStuff.h",
   "$_include/TextureInfo.h",
-  "$_include/private/GraphiteTypesPriv.h",
   "$_src/BackendTexture.cpp",
   "$_src/Buffer.cpp",
   "$_src/Buffer.h",
@@ -43,6 +42,8 @@ skia_graphite_sources = [
   "$_src/DrawOrder.h",
   "$_src/DrawPass.cpp",
   "$_src/DrawPass.h",
+  "$_src/DrawTypes.h",
+  "$_src/EnumBitMask.h",
   "$_src/Gpu.cpp",
   "$_src/Gpu.h",
   "$_src/GpuWorkSubmission.h",
@@ -63,6 +64,7 @@ skia_graphite_sources = [
   "$_src/Renderer.h",
   "$_src/ResourceProvider.cpp",
   "$_src/ResourceProvider.h",
+  "$_src/ResourceTypes.h",
   "$_src/SkStuff.cpp",
   "$_src/Surface_Graphite.cpp",
   "$_src/Surface_Graphite.h",
@@ -88,6 +90,7 @@ skia_graphite_sources = [
   "$_src/geom/Shape.h",
   "$_src/geom/Transform.cpp",
   "$_src/geom/Transform_graphite.h",
+  "$_src/geom/VectorTypes.h",
   "$_src/render/StencilAndFillPathRenderer.cpp",
 ]
 

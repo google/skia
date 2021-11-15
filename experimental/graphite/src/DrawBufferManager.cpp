@@ -29,7 +29,7 @@ static bool can_fit(size_t requestedSize,
                     Buffer* buffer,
                     size_t currentOffset,
                     size_t alignment) {
-    size_t startOffset = AlignTo(currentOffset, alignment);
+    size_t startOffset = SkAlignTo(currentOffset, alignment);
     return requestedSize <= (buffer->size() - startOffset);
 }
 
@@ -117,7 +117,7 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
             return {UniformWriter(), BindBufferInfo()};
         }
     }
-    fUniformOffset = AlignTo(fUniformOffset, fUniformStartAlignment);
+    fUniformOffset = SkAlignTo(fUniformOffset, fUniformStartAlignment);
     BindBufferInfo bindInfo;
     bindInfo.fBuffer = fCurrentUniformBuffer.get();
     bindInfo.fOffset = fUniformOffset;

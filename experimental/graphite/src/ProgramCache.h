@@ -11,7 +11,6 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "include/core/SkRefCnt.h"
 

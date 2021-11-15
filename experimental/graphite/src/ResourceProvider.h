@@ -8,9 +8,9 @@
 #ifndef skgpu_ResourceProvider_DEFINED
 #define skgpu_ResourceProvider_DEFINED
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
+#include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkSize.h"
 #include "src/core/SkLRUCache.h"
 

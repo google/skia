@@ -8,7 +8,7 @@
 #ifndef skgpu_CommandBuffer_DEFINED
 #define skgpu_CommandBuffer_DEFINED
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "experimental/graphite/src/DrawTypes.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"

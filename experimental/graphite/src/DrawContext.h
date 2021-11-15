@@ -11,9 +11,9 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawOrder.h"
+#include "experimental/graphite/src/DrawTypes.h"
 
 #include <vector>
 

@@ -8,7 +8,7 @@
 #ifndef skgpu_Caps_DEFINED
 #define skgpu_Caps_DEFINED
 
-#include "experimental/graphite/include/private/GraphiteTypesPriv.h"
+#include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 
