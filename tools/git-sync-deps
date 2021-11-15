@@ -100,11 +100,14 @@ def is_git_toplevel(git, directory):
 
 
 def status(directory, commithash, change):
-  def truncate(s, length):
+  def truncate_beginning(s, length):
+    return s if len(s) <= length else '...' + s[-(length-3):]
+  def truncate_end(s, length):
     return s if len(s) <= length else s[:(length - 3)] + '...'
+
   dlen = 36
-  directory = truncate(directory, dlen)
-  commithash = truncate(commithash, 40)
+  directory = truncate_beginning(directory, dlen)
+  commithash = truncate_end(commithash, 40)
   symbol = '>' if change else '@'
   sys.stdout.write('%-*s %s %s\n' % (dlen, directory, symbol, commithash))
 
