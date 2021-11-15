@@ -57,7 +57,7 @@ namespace {
 // symbols vs. characters.  Rarely is a font the right character set to call it
 // non-symbolic, so always call it symbolic.  (PDF 1.4 spec, section 5.7.1)
 static const int32_t kPdfSymbolic = 4;
-
+static const SkFontTableTag kCOLRTableTag = SkSetFourByteTag('C', 'O', 'L', 'R');
 
 // scale from em-units to base-1000, returning as a SkScalar
 inline SkScalar from_font_units(SkScalar scaled, uint16_t emSize) {
@@ -166,10 +166,16 @@ const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typefac
     return *canon->fToUnicodeMap.set(id, std::move(buffer));
 }
 
-SkAdvancedTypefaceMetrics::FontType SkPDFFont::FontType(const SkAdvancedTypefaceMetrics& metrics) {
+SkAdvancedTypefaceMetrics::FontType SkPDFFont::FontType(const SkTypeface& typeface,
+                                                        const SkAdvancedTypefaceMetrics& metrics) {
     if (SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kVariable_FontFlag) ||
         SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag)) {
         // force Type3 fallback.
+        return SkAdvancedTypefaceMetrics::kOther_Font;
+    }
+    if (typeface.getTableSize(kCOLRTableTag)) {
+        // https://bugs.chromium.org/p/skia/issues/detail?id=12650
+        // Don't embed COLRv0 / COLRv1 fonts, fall back to bitmaps.
         return SkAdvancedTypefaceMetrics::kOther_Font;
     }
     return metrics.fType;
@@ -188,7 +194,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFDocument* doc,
     SkASSERT(fontMetrics);  // SkPDFDevice::internalDrawText ensures the typeface is good.
                             // GetMetrics only returns null to signify a bad typeface.
     const SkAdvancedTypefaceMetrics& metrics = *fontMetrics;
-    SkAdvancedTypefaceMetrics::FontType type = SkPDFFont::FontType(metrics);
+    SkAdvancedTypefaceMetrics::FontType type = SkPDFFont::FontType(*face, metrics);
     if (!(glyph->isEmpty() || glyph->path())) {
         type = SkAdvancedTypefaceMetrics::kOther_Font;
     }
