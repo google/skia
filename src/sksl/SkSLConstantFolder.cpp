@@ -176,8 +176,8 @@ static bool is_constant_value(const Expression& expr, double value) {
     return true;
 }
 
-bool ConstantFolder::ErrorOnDivideByZero(const Context& context, int line, Operator op,
-                                         const Expression& right) {
+static bool error_on_divide_by_zero(const Context& context, int line, Operator op,
+                                    const Expression& right) {
     switch (op.kind()) {
         case Token::Kind::TK_SLASH:
         case Token::Kind::TK_SLASHEQ:
@@ -398,7 +398,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         return Literal::MakeBool(context, leftExpr.fLine, /*value=*/false);
     }
 
-    if (ErrorOnDivideByZero(context, line, op, *right)) {
+    if (error_on_divide_by_zero(context, line, op, *right)) {
         return nullptr;
     }
 
