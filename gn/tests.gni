@@ -257,6 +257,7 @@ tests_sources = [
   "$_tests/SkTBlockListTest.cpp",
   "$_tests/SkTOptionalTest.cpp",
   "$_tests/SkUTFTest.cpp",
+  "$_tests/SkVMDebugInfoTest.cpp",
   "$_tests/SkVMTest.cpp",
   "$_tests/SkVxTest.cpp",
   "$_tests/Skbug12214.cpp",

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkStream.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTArray.h"
@@ -14,6 +13,7 @@
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/codegen/SkVMDebugInfo.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -298,42 +298,6 @@ private:
         skvm::I32 fOldConditionMask;
     };
 };
-
-void SkVMDebugInfo::dump(SkWStream* o) const {
-    for (size_t index = 0; index < fSlotInfo.size(); ++index) {
-        const SkVMSlotInfo& info = fSlotInfo[index];
-
-        o->writeText("$");
-        o->writeDecAsText(index);
-        o->writeText(" = ");
-        o->writeText(info.name.c_str());
-        o->writeText(" (");
-        switch (info.numberKind) {
-            case Type::NumberKind::kFloat:      o->writeText("float"); break;
-            case Type::NumberKind::kSigned:     o->writeText("int"); break;
-            case Type::NumberKind::kUnsigned:   o->writeText("uint"); break;
-            case Type::NumberKind::kBoolean:    o->writeText("bool"); break;
-            case Type::NumberKind::kNonnumeric: o->writeText("???"); break;
-        }
-        if (info.rows * info.columns > 1) {
-            o->writeDecAsText(info.columns);
-            if (info.rows != 1) {
-                o->writeText("x");
-                o->writeDecAsText(info.rows);
-            }
-            o->writeText(" : ");
-            o->writeText("slot ");
-            o->writeDecAsText(info.componentIndex + 1);
-            o->writeText("/");
-            o->writeDecAsText(info.rows * info.columns);
-        }
-        o->writeText(", L");
-        o->writeDecAsText(info.line);
-        o->writeText(")");
-        o->newline();
-    }
-    o->newline();
-}
 
 static Type::NumberKind base_number_kind(const Type& type) {
     if (type.typeKind() == Type::TypeKind::kMatrix || type.typeKind() == Type::TypeKind::kVector) {
