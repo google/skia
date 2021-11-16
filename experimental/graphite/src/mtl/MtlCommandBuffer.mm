@@ -202,6 +202,32 @@ void CommandBuffer::onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t o
     }
 }
 
+void CommandBuffer::onSetScissor(unsigned int left, unsigned int top,
+                                 unsigned int width, unsigned int height) {
+    SkASSERT(fActiveRenderCommandEncoder);
+    MTLScissorRect scissorRect = { left, top, width, height };
+    fActiveRenderCommandEncoder->setScissorRect(scissorRect);
+}
+
+void CommandBuffer::onSetViewport(float x, float y, float width, float height,
+                                  float minDepth, float maxDepth) {
+    SkASSERT(fActiveRenderCommandEncoder);
+    MTLViewport viewport = { x, y, width, height, minDepth, maxDepth };
+    fActiveRenderCommandEncoder->setViewport(viewport);
+}
+
+void CommandBuffer::onSetStencilReference(unsigned int referenceValue) {
+    SkASSERT(fActiveRenderCommandEncoder);
+
+    fActiveRenderCommandEncoder->setStencilReferenceValue(referenceValue);
+}
+
+void CommandBuffer::onSetBlendConstants(std::array<float, 4> blendConstants) {
+    SkASSERT(fActiveRenderCommandEncoder);
+
+    fActiveRenderCommandEncoder->setBlendColor(blendConstants.data());
+}
+
 static MTLPrimitiveType graphite_to_mtl_primitive(PrimitiveType primitiveType) {
     const static MTLPrimitiveType mtlPrimitiveType[] {
         MTLPrimitiveTypeTriangle,

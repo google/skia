@@ -59,6 +59,13 @@ private:
                              const skgpu::Buffer* instanceBuffer, size_t instanceOffset) override;
     void onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t offset) override;
 
+    void onSetScissor(unsigned int left, unsigned int top,
+                      unsigned int width, unsigned int height) override;
+    void onSetViewport(float x, float y, float width, float height,
+                       float minDepth, float maxDepth) override;
+    void onSetStencilReference(unsigned int referenceValue) override;
+    void onSetBlendConstants(std::array<float, 4> blendConstants) override;
+
     void onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) override;
     void onDrawIndexed(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
                        unsigned int baseVertex) override;

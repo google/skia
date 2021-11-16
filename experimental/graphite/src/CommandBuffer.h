@@ -77,6 +77,29 @@ public:
                            sk_sp<Buffer> instanceBuffer, size_t instanceOffset);
     void bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffset);
 
+    // TODO: do we want to handle multiple scissor rects and viewports?
+    void setScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height) {
+        this->onSetScissor(left, top, width, height);
+        fHasWork = true;
+    }
+
+    void setViewport(float x, float y, float width, float height,
+                     float minDepth = 0, float maxDepth = 1) {
+        this->onSetViewport(x, y, width, height, minDepth, maxDepth);
+        fHasWork = true;
+    }
+
+    // TODO: do we want to support front and back reference values for platforms that support it?
+    void setStencilReference(unsigned int referenceValue) {
+        this->onSetStencilReference(referenceValue);
+        fHasWork = true;
+    }
+
+    void setBlendConstants(std::array<float, 4> blendConstants) {
+        this->onSetBlendConstants(blendConstants);
+        fHasWork = true;
+    }
+
     void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
         this->onDraw(type, baseVertex, vertexCount);
         fHasWork = true;
@@ -121,6 +144,13 @@ private:
     virtual void onBindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
                                      const Buffer* instanceBuffer, size_t instanceOffset) = 0;
     virtual void onBindIndexBuffer(const Buffer* indexBuffer, size_t bufferOffset) = 0;
+
+    virtual void onSetScissor(unsigned int left, unsigned int top,
+                              unsigned int width, unsigned int height) = 0;
+    virtual void onSetViewport(float x, float y, float width, float height,
+                               float minDepth, float maxDepth) = 0;
+    virtual void onSetStencilReference(unsigned int referenceValue) = 0;
+    virtual void onSetBlendConstants(std::array<float, 4> blendConstants) = 0;
 
     virtual void onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) = 0;
     virtual void onDrawIndexed(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
