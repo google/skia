@@ -1,0 +1,5 @@
+// Expect 2 errors
+void func();
+
+void a;
+void b = func();

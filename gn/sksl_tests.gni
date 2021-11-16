@@ -221,6 +221,7 @@ sksl_error_tests = [
   "/sksl/errors/VectorInlinedIndexOutOfRange.sksl",
   "/sksl/errors/VectorSlice.sksl",
   "/sksl/errors/VertexEarlyReturn.vert",
+  "/sksl/errors/VoidVariable.sksl",
   "/sksl/errors/WhileTypeMismatch.sksl",
 ]
 
