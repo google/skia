@@ -112,9 +112,9 @@ public:
                  bool useCenter, const SkPaint& paint) override;
     void drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) override;
 
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
-    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, SkBlendMode,
+    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
                    const SkPaint&) override;
 
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,

@@ -90,7 +90,7 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
                        const SkRect textures[],
                        const SkColor colors[],
                        int count,
-                       SkBlendMode bmode,
+                       sk_sp<SkBlender> blender,
                        const SkPaint& paint) {
     sk_sp<SkShader> atlasShader = paint.refShader();
     if (!atlasShader) {
@@ -122,7 +122,8 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
             p.setShader(atlasShader);
             for (int i = 0; i < count; ++i) {
                 if (colors) {
-                    p.setShader(SkShaders::Blend(bmode, SkShaders::Color(colors[i]), atlasShader));
+                    p.setShader(
+                            SkShaders::Blend(blender, SkShaders::Color(colors[i]), atlasShader));
                 }
                 SkMatrix mx;
                 mx.setRSXform(xform[i]);
@@ -142,7 +143,11 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
             // we will late-bind the values in ctx, once for each color in the loop
             uniformCtx = alloc.make<SkRasterPipeline_UniformColorCtx>();
             rec.fPipeline->append(SkRasterPipeline::uniform_color_dst, uniformCtx);
-            SkBlendMode_AppendStages(bmode, rec.fPipeline);
+            if (skstd::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode(); bm.has_value()) {
+                SkBlendMode_AppendStages(*bm, rec.fPipeline);
+            } else {
+                return false;
+            }
         }
 
         bool isOpaque = !colors && atlasShader->isOpaque();
@@ -185,7 +190,7 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
         if (colors) {
             colorShader = alloc.make<UpdatableColorShader>(fDst.colorSpace());
             shader = alloc.make<SkShader_Blend>(
-                    bmode, sk_ref_sp(colorShader), sk_ref_sp(updateShader));
+                    std::move(blender), sk_ref_sp(colorShader), sk_ref_sp(updateShader));
         } else {
             shader = as_SB(updateShader);
         }

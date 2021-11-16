@@ -269,8 +269,10 @@ SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorInfo& colorInfo) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline bool blend_requires_shader(const SkBlendMode mode) {
-    return SkBlendMode::kDst != mode;
+static inline bool blender_requires_shader(const SkBlender* blender) {
+    SkASSERT(blender);
+    skstd::optional<SkBlendMode> mode = as_BB(blender)->asBlendMode();
+    return !mode.has_value() || *mode != SkBlendMode::kDst;
 }
 
 #ifndef SK_IGNORE_GPU_DITHER
@@ -416,7 +418,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                            const SkPaint& skPaint,
                                            const SkMatrixProvider& matrixProvider,
                                            std::unique_ptr<GrFragmentProcessor>* shaderProcessor,
-                                           SkBlendMode* primColorMode,
+                                           SkBlender* primColorBlender,
                                            GrPaint* grPaint) {
     // Convert SkPaint color to 4f format in the destination color space
     SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), dstColorInfo);
@@ -426,7 +428,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
     std::unique_ptr<GrFragmentProcessor> paintFP;
-    if (!primColorMode || blend_requires_shader(*primColorMode)) {
+    if (!primColorBlender || blender_requires_shader(primColorBlender)) {
         if (shaderProcessor) {
             paintFP = std::move(*shaderProcessor);
         } else {
@@ -444,7 +446,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     // conversion without converting the color filter to a GrFragmentProcessor.
     bool applyColorFilterToPaintColor = false;
     if (paintFP) {
-        if (primColorMode) {
+        if (primColorBlender) {
             // There is a blend between the primitive color and the shader color. The shader sees
             // the opaque paint color. The shader's output is blended using the provided mode by
             // the primitive color. The blended color is then modulated by the paint's alpha.
@@ -454,9 +456,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
             SkPMColor4f shaderInput = origColor.makeOpaque().premul();
             paintFP = GrFragmentProcessor::OverrideInput(std::move(paintFP), shaderInput);
-            paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP),
-                                                     /*dst=*/nullptr,
-                                                     *primColorMode);
+            paintFP = as_BB(primColorBlender)->asFragmentProcessor(std::move(paintFP),
+                                                                   /*dstFP=*/nullptr,
+                                                                   fpArgs);
 
             // We can ignore origColor here - alpha is unchanged by gamma
             float paintAlpha = skPaint.getColor4f().fA;
@@ -487,13 +489,14 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             }
         }
     } else {
-        if (primColorMode) {
+        if (primColorBlender) {
             // Examining all of the SkPaintToGrPaintFoo methods and their uses, it turns out that
             // we can only encounter this code path when we're *just* using the primitive color.
             // Literally no code path cares about blending the primitive color with the paint
             // color. This makes sense, if you think about the SkCanvas draw calls that use
             // primitive color - none of them are specified to do anything with paint color.
-            SkASSERT(*primColorMode == SkBlendMode::kDst);
+            SkASSERT(as_BB(primColorBlender)->asBlendMode().has_value() &&
+                     *as_BB(primColorBlender)->asBlendMode() == SkBlendMode::kDst);
 
             // There is no "blend" - the output of that blend is just the primitive color.
             // We still put the opaque paint color on the GrPaint.
@@ -549,6 +552,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     }
 #endif
 
+    // Note that for the final blend onto the canvas, we should prefer to use the GrXferProcessor
+    // instead of a SkBlendModeBlender to perform the blend. The Xfer processor is able to perform
+    // coefficient-based blends directly, without readback. This will be much more efficient.
     if (auto bm = skPaint.asBlendMode()) {
         // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field
         // on the GrPaint to also be null (also kSrcOver).
@@ -590,8 +596,13 @@ bool SkPaintToGrPaint(GrRecordingContext* context,
                       const SkPaint& skPaint,
                       const SkMatrixProvider& matrixProvider,
                       GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider,
-                                   /*shaderProcessor=*/nullptr, /*primColorMode=*/nullptr, grPaint);
+    return skpaint_to_grpaint_impl(context,
+                                   dstColorInfo,
+                                   skPaint,
+                                   matrixProvider,
+                                   /*shaderProcessor=*/nullptr,
+                                   /*primColorBlender=*/nullptr,
+                                   grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
@@ -604,18 +615,42 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext* context,
     if (!shaderFP) {
         return false;
     }
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &shaderFP,
-                                   /*primColorMode=*/nullptr, grPaint);
+    return skpaint_to_grpaint_impl(context,
+                                   dstColorInfo,
+                                   skPaint,
+                                   matrixProvider,
+                                   &shaderFP,
+                                   /*primColorBlender=*/nullptr,
+                                   grPaint);
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
-    be setup as a vertex attribute using the specified SkBlendMode. */
+    be setup as a vertex attribute using the specified SkBlender. */
+bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
+                               const GrColorInfo& dstColorInfo,
+                               const SkPaint& skPaint,
+                               const SkMatrixProvider& matrixProvider,
+                               SkBlender* primColorBlender,
+                               GrPaint* grPaint) {
+    return skpaint_to_grpaint_impl(context,
+                                   dstColorInfo,
+                                   skPaint,
+                                   matrixProvider,
+                                   /*shaderProcessor=*/nullptr,
+                                   primColorBlender,
+                                   grPaint);
+}
+
 bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                const GrColorInfo& dstColorInfo,
                                const SkPaint& skPaint,
                                const SkMatrixProvider& matrixProvider,
                                SkBlendMode primColorMode,
                                GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider,
-                                   /*shaderProcessor=*/nullptr, &primColorMode, grPaint);
+    return SkPaintToGrPaintWithBlend(context,
+                                     dstColorInfo,
+                                     skPaint,
+                                     matrixProvider,
+                                     SkBlender::Mode(primColorMode).get(),
+                                     grPaint);
 }

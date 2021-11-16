@@ -2416,7 +2416,7 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmod
 
     auto layer = this->aboutToDraw(this, simplePaint, &bounds);
     if (layer) {
-        this->topDevice()->drawVertices(vertices, bmode, layer->paint());
+        this->topDevice()->drawVertices(vertices, SkBlender::Mode(bmode), layer->paint());
     }
 }
 
@@ -2447,7 +2447,8 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
 
     auto layer = this->aboutToDraw(this, simplePaint, &bounds);
     if (layer) {
-        this->topDevice()->drawPatch(cubics, colors, texCoords, bmode, layer->paint());
+        this->topDevice()->drawPatch(cubics, colors, texCoords, SkBlender::Mode(bmode),
+                                     layer->paint());
     }
 }
 
@@ -2497,7 +2498,8 @@ void SkCanvas::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[], const
 
     auto layer = this->aboutToDraw(this, realPaint);
     if (layer) {
-        this->topDevice()->drawAtlas(xform, tex, colors, count, bmode, layer->paint());
+        this->topDevice()->drawAtlas(xform, tex, colors, count, SkBlender::Mode(bmode),
+                                     layer->paint());
     }
 }
 

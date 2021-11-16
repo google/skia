@@ -94,8 +94,8 @@ protected:
                        const SkSamplingOptions&, const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
 
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
-    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, SkBlendMode,
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override;
+    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
                    const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////

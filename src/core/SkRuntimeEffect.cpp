@@ -795,9 +795,10 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
             childFPs.push_back(std::move(childFP));
         } else if (type == ChildType::kBlender) {
             // Convert a SkBlender into a child FP.
-            auto childFP = as_BB(child.blender())->asFragmentProcessor(/*srcFP=*/nullptr,
-                                                                       /*dstFP=*/nullptr,
-                                                                       childArgs);
+            auto childFP = as_BB(child.blender())->asFragmentProcessor(
+                    /*srcFP=*/nullptr,
+                    GrFragmentProcessor::UseDestColorAsInput(/*dstFP=*/nullptr),
+                    childArgs);
             if (!childFP) {
                 return GrFPFailure(std::move(inputFP));
             }

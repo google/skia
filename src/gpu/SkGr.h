@@ -8,6 +8,7 @@
 #ifndef SkGr_DEFINED
 #define SkGr_DEFINED
 
+#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
@@ -101,11 +102,11 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
     GrOp's GrPrimitiveProcesssor. */
-bool SkPaintToGrPaintWithBlend(GrRecordingContext*,
+bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                const GrColorInfo& dstColorInfo,
                                const SkPaint& skPaint,
                                const SkMatrixProvider& matrixProvider,
-                               SkBlendMode primColorMode,
+                               SkBlender* primColorBlender,
                                GrPaint* grPaint);
 
 /** This is used when there is a primitive color, but the shader should be ignored. Currently,
@@ -117,8 +118,12 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrRecordingContext* context,
                                                const SkPaint& skPaint,
                                                const SkMatrixProvider& matrixProvider,
                                                GrPaint* grPaint) {
-    return SkPaintToGrPaintWithBlend(context, dstColorInfo, skPaint, matrixProvider,
-                                     SkBlendMode::kDst, grPaint);
+    return SkPaintToGrPaintWithBlend(context,
+                                     dstColorInfo,
+                                     skPaint,
+                                     matrixProvider,
+                                     SkBlender::Mode(SkBlendMode::kDst).get(),
+                                     grPaint);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkBitmapDevice.h"
+
+#include "include/core/SkBlender.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -14,7 +17,6 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
-#include "src/core/SkBitmapDevice.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
@@ -543,23 +545,24 @@ void SkBitmapDevice::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, cons
     LOOP_TILER( drawGlyphRunList(glyphRunList, paint, &fGlyphPainter), nullptr )
 }
 
-void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
+void SkBitmapDevice::drawVertices(const SkVertices* vertices,
+                                  sk_sp<SkBlender> blender,
                                   const SkPaint& paint) {
-    BDDraw(this).drawVertices(vertices, bmode, paint);
+    BDDraw(this).drawVertices(vertices, std::move(blender), paint);
 }
 
 void SkBitmapDevice::drawAtlas(const SkRSXform xform[],
                                const SkRect tex[],
                                const SkColor colors[],
                                int count,
-                               SkBlendMode mode,
+                               sk_sp<SkBlender> blender,
                                const SkPaint& paint) {
     // set this to true for performance comparisons with the old drawVertices way
     if (false) {
-        this->INHERITED::drawAtlas(xform, tex, colors, count, mode, paint);
+        this->INHERITED::drawAtlas(xform, tex, colors, count, std::move(blender), paint);
         return;
     }
-    BDDraw(this).drawAtlas(xform, tex, colors, count, mode, paint);
+    BDDraw(this).drawAtlas(xform, tex, colors, count, std::move(blender), paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -8,6 +8,7 @@
 #ifndef SkDevice_DEFINED
 #define SkDevice_DEFINED
 
+#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
@@ -270,16 +271,16 @@ protected:
     virtual void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                                   const SkRect& dst, SkFilterMode, const SkPaint&);
 
-    virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
+    virtual void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
+                           const SkPoint texCoords[4], sk_sp<SkBlender>, const SkPaint& paint);
 
     // default implementation calls drawVertices
     virtual void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
-                           SkBlendMode, const SkPaint&);
+                           sk_sp<SkBlender>, const SkPaint&);
 
     virtual void drawAnnotation(const SkRect&, const char[], SkData*) {}
 
@@ -519,7 +520,7 @@ protected:
     void drawRRect(const SkRRect&, const SkPaint&) override {}
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
     void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override {}
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override {}
 
     void drawFilteredImage(const skif::Mapping&, SkSpecialImage* src, const SkImageFilter*,
                            const SkSamplingOptions&, const SkPaint&) override {}

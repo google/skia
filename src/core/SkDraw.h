@@ -64,9 +64,9 @@ public:
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
                              const SkPaint& paint,
                              SkGlyphRunListPainter* glyphPainter) const;
-    void    drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) const;
+    void    drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) const;
     void  drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
-                    SkBlendMode, const SkPaint&);
+                    sk_sp<SkBlender>, const SkPaint&);
 
     /**
      *  Overwrite the target with the path's coverage (i.e. its mask).
@@ -125,7 +125,7 @@ public:
 private:
     void drawBitmapAsMask(const SkBitmap&, const SkSamplingOptions&, const SkPaint&) const;
     void drawFixedVertices(const SkVertices* vertices,
-                           SkBlendMode blendMode,
+                           sk_sp<SkBlender> blender,
                            const SkPaint& paint,
                            const SkMatrix& ctmInverse,
                            const SkPoint* dev2,

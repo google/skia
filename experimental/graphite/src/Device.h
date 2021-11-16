@@ -96,11 +96,11 @@ protected:
                        SkCanvas::SrcRectConstraint) override {}
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override {}
-    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, SkBlendMode,
+    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
                    const SkPaint&) override {}
 
     void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*) override {}
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override {}
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override {}
     void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {}
 

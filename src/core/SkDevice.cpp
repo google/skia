@@ -159,12 +159,13 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
 }
 
 void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SkBlendMode bmode, const SkPaint& paint) {
+                             const SkPoint texCoords[4], sk_sp<SkBlender> blender,
+                             const SkPaint& paint) {
     SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->localToDevice());
     auto vertices = SkPatchUtils::MakeVertices(cubics, colors, texCoords, lod.width(), lod.height(),
                                                this->imageInfo().colorSpace());
     if (vertices) {
-        this->drawVertices(vertices.get(), bmode, paint);
+        this->drawVertices(vertices.get(), std::move(blender), paint);
     }
 }
 
@@ -212,7 +213,7 @@ void SkBaseDevice::drawAtlas(const SkRSXform xform[],
                              const SkRect tex[],
                              const SkColor colors[],
                              int quadCount,
-                             SkBlendMode mode,
+                             sk_sp<SkBlender> blender,
                              const SkPaint& paint) {
     const int triCount = quadCount << 1;
     const int vertexCount = triCount * 3;
@@ -238,7 +239,7 @@ void SkBaseDevice::drawAtlas(const SkRSXform xform[],
             vCol += 6;
         }
     }
-    this->drawVertices(builder.detach().get(), mode, paint);
+    this->drawVertices(builder.detach().get(), std::move(blender), paint);
 }
 
 void SkBaseDevice::drawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], SkCanvas::QuadAAFlags aa,

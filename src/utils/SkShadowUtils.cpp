@@ -644,7 +644,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     this,
                     hasPerspective ? SkMatrix::I()
                                    : this->localToDevice() * SkMatrix::Translate(tx, ty));
-            this->drawVertices(vertices, mode, paint);
+            this->drawVertices(vertices, SkBlender::Mode(mode), paint);
         }
     };
 
@@ -683,7 +683,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     SkColorFilters::Blend(rec.fAmbientColor,
                                                   SkBlendMode::kModulate)->makeComposed(
                                                                SkColorFilterPriv::MakeGaussian()));
-                this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+                this->drawVertices(vertices.get(), SkBlender::Mode(SkBlendMode::kModulate), paint);
                 success = true;
             }
         }
@@ -765,7 +765,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     SkColorFilters::Blend(rec.fSpotColor,
                                                   SkBlendMode::kModulate)->makeComposed(
                                                       SkColorFilterPriv::MakeGaussian()));
-                this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+                this->drawVertices(vertices.get(), SkBlender::Mode(SkBlendMode::kModulate), paint);
                 success = true;
             }
         }

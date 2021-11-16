@@ -305,9 +305,12 @@ static void fill_triangle(const VertState& state, SkBlitter* blitter, const SkRa
 
 extern bool gUseSkVMBlitter;
 
-void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode,
-                               const SkPaint& paint, const SkMatrix& ctmInverse,
-                               const SkPoint* dev2, const SkPoint3* dev3,
+void SkDraw::drawFixedVertices(const SkVertices* vertices,
+                               sk_sp<SkBlender> blender,
+                               const SkPaint& paint,
+                               const SkMatrix& ctmInverse,
+                               const SkPoint* dev2,
+                               const SkPoint3* dev3,
                                SkArenaAlloc* outerAlloc) const {
     SkVerticesPriv info(vertices->priv());
 
@@ -330,8 +333,9 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
 
     // We can simplify things for certain blend modes. This is for speed, and SkComposeShader
     // itself insists we don't pass kSrc or kDst to it.
-    if (colors && texCoords) {
-        switch (blendMode) {
+    if (skstd::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode();
+        bm.has_value() && colors && texCoords) {
+        switch (*bm) {
             case SkBlendMode::kSrc:
                 colors = nullptr;
                 break;
@@ -363,7 +367,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
                                                            usePerspective);
             if (shader) {
                 shader = outerAlloc->make<SkShader_Blend>(
-                        blendMode, sk_ref_sp(triShader), sk_ref_sp(shader));
+                        blender, sk_ref_sp(triShader), sk_ref_sp(shader));
             } else {
                 shader = triShader;
             }
@@ -482,7 +486,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
             dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc);
             if (shader) {
                 shader = outerAlloc->make<SkShader_Blend>(
-                        blendMode, sk_ref_sp(colorShader), sk_ref_sp(shader));
+                        std::move(blender), sk_ref_sp(colorShader), sk_ref_sp(shader));
             } else {
                 shader = colorShader;
             }
@@ -512,7 +516,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     }
 }
 
-void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
+void SkDraw::drawVertices(const SkVertices* vertices,
+                          sk_sp<SkBlender> blender,
                           const SkPaint& paint) const {
     SkVerticesPriv info(vertices->priv());
     const int vertexCount = info.vertexCount();
@@ -556,5 +561,5 @@ void SkDraw::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         }
     }
 
-    this->drawFixedVertices(vertices, bmode, paint, ctmInv, dev2, dev3, &outerAlloc);
+    this->drawFixedVertices(vertices, std::move(blender), paint, ctmInv, dev2, dev3, &outerAlloc);
 }
