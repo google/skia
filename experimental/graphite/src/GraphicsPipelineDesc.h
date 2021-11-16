@@ -39,11 +39,11 @@ public:
 
         constexpr bool isInitialized() const { return fGPUType != SLType::kVoid; }
 
-        constexpr const char* name() const { return fName; }
+        constexpr const char*      name()    const { return fName; }
         constexpr VertexAttribType cpuType() const { return fCPUType; }
         constexpr SLType           gpuType() const { return fGPUType; }
 
-        inline constexpr size_t size() const;
+        constexpr size_t size()       const { return VertexAttribTypeSize(fCPUType); }
         constexpr size_t sizeAlign4() const { return SkAlign4(this->size()); }
 
     private:
@@ -187,78 +187,6 @@ private:
     AttributeSet fVertexAttributes;
     AttributeSet fInstanceAttributes;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-/**
- * Returns the size of the attrib type in bytes.
- * Placed here in service of Skia dependents that build with C++11.
- */
-static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
-    switch (type) {
-        case VertexAttribType::kFloat:
-            return sizeof(float);
-        case VertexAttribType::kFloat2:
-            return 2 * sizeof(float);
-        case VertexAttribType::kFloat3:
-            return 3 * sizeof(float);
-        case VertexAttribType::kFloat4:
-            return 4 * sizeof(float);
-        case VertexAttribType::kHalf:
-            return sizeof(uint16_t);
-        case VertexAttribType::kHalf2:
-            return 2 * sizeof(uint16_t);
-        case VertexAttribType::kHalf4:
-            return 4 * sizeof(uint16_t);
-        case VertexAttribType::kInt2:
-            return 2 * sizeof(int32_t);
-        case VertexAttribType::kInt3:
-            return 3 * sizeof(int32_t);
-        case VertexAttribType::kInt4:
-            return 4 * sizeof(int32_t);
-        case VertexAttribType::kByte:
-            return 1 * sizeof(char);
-        case VertexAttribType::kByte2:
-            return 2 * sizeof(char);
-        case VertexAttribType::kByte4:
-            return 4 * sizeof(char);
-        case VertexAttribType::kUByte:
-            return 1 * sizeof(char);
-        case VertexAttribType::kUByte2:
-            return 2 * sizeof(char);
-        case VertexAttribType::kUByte4:
-            return 4 * sizeof(char);
-        case VertexAttribType::kUByte_norm:
-            return 1 * sizeof(char);
-        case VertexAttribType::kUByte4_norm:
-            return 4 * sizeof(char);
-        case VertexAttribType::kShort2:
-            return 2 * sizeof(int16_t);
-        case VertexAttribType::kShort4:
-            return 4 * sizeof(int16_t);
-        case VertexAttribType::kUShort2: // fall through
-        case VertexAttribType::kUShort2_norm:
-            return 2 * sizeof(uint16_t);
-        case VertexAttribType::kInt:
-            return sizeof(int32_t);
-        case VertexAttribType::kUInt:
-            return sizeof(uint32_t);
-        case VertexAttribType::kUShort_norm:
-            return sizeof(uint16_t);
-        case VertexAttribType::kUShort4_norm:
-            return 4 * sizeof(uint16_t);
-    }
-    // GCC fails because SK_ABORT evaluates to non constexpr. clang and cl.exe think this is
-    // unreachable and don't complain.
-#if defined(__clang__) || !defined(__GNUC__)
-    SK_ABORT("Unsupported type conversion");
-#endif
-    return 0;
-}
-
-constexpr size_t GraphicsPipelineDesc::Attribute::size() const {
-    return VertexAttribTypeSize(fCPUType);
-}
 
 } // namespace skgpu
 

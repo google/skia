@@ -150,6 +150,66 @@ enum class VertexAttribType : uint8_t {
 };
 static const int kVertexAttribTypeCount = (int)(VertexAttribType::kLast) + 1;
 
+
+/**
+ * Returns the size of the attrib type in bytes.
+ */
+static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
+    switch (type) {
+        case VertexAttribType::kFloat:
+            return sizeof(float);
+        case VertexAttribType::kFloat2:
+            return 2 * sizeof(float);
+        case VertexAttribType::kFloat3:
+            return 3 * sizeof(float);
+        case VertexAttribType::kFloat4:
+            return 4 * sizeof(float);
+        case VertexAttribType::kHalf:
+            return sizeof(uint16_t);
+        case VertexAttribType::kHalf2:
+            return 2 * sizeof(uint16_t);
+        case VertexAttribType::kHalf4:
+            return 4 * sizeof(uint16_t);
+        case VertexAttribType::kInt2:
+            return 2 * sizeof(int32_t);
+        case VertexAttribType::kInt3:
+            return 3 * sizeof(int32_t);
+        case VertexAttribType::kInt4:
+            return 4 * sizeof(int32_t);
+        case VertexAttribType::kByte:
+            return 1 * sizeof(char);
+        case VertexAttribType::kByte2:
+            return 2 * sizeof(char);
+        case VertexAttribType::kByte4:
+            return 4 * sizeof(char);
+        case VertexAttribType::kUByte:
+            return 1 * sizeof(char);
+        case VertexAttribType::kUByte2:
+            return 2 * sizeof(char);
+        case VertexAttribType::kUByte4:
+            return 4 * sizeof(char);
+        case VertexAttribType::kUByte_norm:
+            return 1 * sizeof(char);
+        case VertexAttribType::kUByte4_norm:
+            return 4 * sizeof(char);
+        case VertexAttribType::kShort2:
+            return 2 * sizeof(int16_t);
+        case VertexAttribType::kShort4:
+            return 4 * sizeof(int16_t);
+        case VertexAttribType::kUShort2: [[fallthrough]];
+        case VertexAttribType::kUShort2_norm:
+            return 2 * sizeof(uint16_t);
+        case VertexAttribType::kInt:
+            return sizeof(int32_t);
+        case VertexAttribType::kUInt:
+            return sizeof(uint32_t);
+        case VertexAttribType::kUShort_norm:
+            return sizeof(uint16_t);
+        case VertexAttribType::kUShort4_norm:
+            return 4 * sizeof(uint16_t);
+    }
+}
+
 /*
  * Struct returned by the DrawBufferManager that can be passed into bind buffer calls on the
  * CommandBuffer.
@@ -162,4 +222,3 @@ struct BindBufferInfo {
 };  // namespace skgpu
 
 #endif // skgpu_DrawTypes_DEFINED
-
