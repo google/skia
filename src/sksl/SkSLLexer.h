@@ -19,6 +19,7 @@ struct Token {
         TK_END_OF_FILE,
         TK_FLOAT_LITERAL,
         TK_INT_LITERAL,
+        TK_BAD_OCTAL,
         TK_TRUE_LITERAL,
         TK_FALSE_LITERAL,
         TK_IF,

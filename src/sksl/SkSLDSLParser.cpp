@@ -114,12 +114,32 @@ DSLParser::DSLParser(Compiler* compiler, const ProgramSettings& settings, Progra
 }
 
 Token DSLParser::nextRawToken() {
+    Token token;
     if (fPushback.fKind != Token::Kind::TK_NONE) {
-        Token result = fPushback;
+        // Retrieve the token from the pushback buffer.
+        token = fPushback;
         fPushback.fKind = Token::Kind::TK_NONE;
-        return result;
+    } else {
+        // Fetch a token from the lexer.
+        token = fLexer.next();
+
+        // Some tokens are always invalid, so we detect and report them here.
+        switch (token.fKind) {
+            case Token::Kind::TK_RESERVED:
+                this->error(token, "'" + this->text(token) + "' is a reserved word");
+                token.fKind = Token::Kind::TK_IDENTIFIER;  // reduces additional follow-up errors
+                break;
+
+            case Token::Kind::TK_BAD_OCTAL:
+                this->error(token, "'" + this->text(token) + "' is not a valid octal number");
+                break;
+
+            default:
+                break;
+        }
     }
-    return fLexer.next();
+
+    return token;
 }
 
 Token DSLParser::nextToken() {
@@ -130,11 +150,6 @@ Token DSLParser::nextToken() {
             case Token::Kind::TK_LINE_COMMENT:
             case Token::Kind::TK_BLOCK_COMMENT:
                 continue;
-
-            case Token::Kind::TK_RESERVED:
-                this->error(token, "'" + this->text(token) + "' is a reserved word");
-                token.fKind = Token::Kind::TK_IDENTIFIER;
-                [[fallthrough]];
 
             default:
                 return token;
