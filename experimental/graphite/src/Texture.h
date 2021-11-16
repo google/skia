@@ -9,6 +9,7 @@
 #define skgpu_Texture_DEFINED
 
 #include "experimental/graphite/include/TextureInfo.h"
+#include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 
@@ -25,11 +26,14 @@ public:
     const TextureInfo& textureInfo() const { return fInfo; }
 
 protected:
-    Texture(SkISize dimensions, const TextureInfo& info);
+    Texture(SkISize dimensions, const TextureInfo& info, Ownership);
+
+    Ownership ownership() const { return fOwnership; }
 
 private:
     SkISize fDimensions;
     TextureInfo fInfo;
+    Ownership fOwnership;
 };
 
 } // namepsace skgpu

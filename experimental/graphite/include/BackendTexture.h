@@ -29,6 +29,12 @@ public:
 
     SkISize dimensions() const { return fDimensions; }
 
+    const TextureInfo& info() const { return fInfo; }
+
+#ifdef SK_METAL
+    sk_cfp<mtl::Handle> getMtlTexture() const;
+#endif
+
 private:
     SkISize fDimensions;
     TextureInfo fInfo;

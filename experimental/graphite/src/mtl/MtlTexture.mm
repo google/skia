@@ -16,8 +16,9 @@ namespace skgpu::mtl {
 
 Texture::Texture(SkISize dimensions,
                  const skgpu::TextureInfo& info,
-                 sk_cfp<id<MTLTexture>> texture)
-        : skgpu::Texture(dimensions, info)
+                 sk_cfp<id<MTLTexture>> texture,
+                 Ownership ownership)
+        : skgpu::Texture(dimensions, info, ownership)
         , fTexture(std::move(texture)) {}
 
 sk_sp<Texture> Texture::Make(const Gpu* gpu,
@@ -69,7 +70,13 @@ sk_sp<Texture> Texture::Make(const Gpu* gpu,
     }
 #endif
 
-    return sk_sp<Texture>(new Texture(dimensions, info, std::move(texture)));
+    return sk_sp<Texture>(new Texture(dimensions, info, std::move(texture), Ownership::kOwned));
+}
+
+sk_sp<Texture> Texture::MakeWrapped(SkISize dimensions,
+                                    const skgpu::TextureInfo& info,
+                                    sk_cfp<id<MTLTexture>> texture) {
+    return sk_sp<Texture>(new Texture(dimensions, info, std::move(texture), Ownership::kWrapped));
 }
 
 } // namespace skgpu::mtl

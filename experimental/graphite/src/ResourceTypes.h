@@ -48,6 +48,11 @@ enum class PrioritizeGpuReads : bool {
     kYes = true,
 };
 
+enum class Ownership {
+    kOwned,
+    kWrapped,
+};
+
 };  // namespace skgpu
 
 #endif // skgpu_ResourceTypes_DEFINED

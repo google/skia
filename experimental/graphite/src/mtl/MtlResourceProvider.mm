@@ -7,13 +7,15 @@
 
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
 
+#include "experimental/graphite/include/BackendTexture.h"
+#include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/mtl/MtlBuffer.h"
 #include "experimental/graphite/src/mtl/MtlCommandBuffer.h"
 #include "experimental/graphite/src/mtl/MtlGpu.h"
+#include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 #include "experimental/graphite/src/mtl/MtlTexture.h"
 
-#include "experimental/graphite/src/GraphicsPipelineDesc.h"
-#include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
+#import <Metal/Metal.h>
 
 namespace skgpu::mtl {
 
@@ -38,6 +40,16 @@ sk_sp<skgpu::Texture> ResourceProvider::createTexture(SkISize dimensions,
                                                       const skgpu::TextureInfo& info) {
     return Texture::Make(this->mtlGpu(), dimensions, info);
 }
+
+sk_sp<skgpu::Texture> ResourceProvider::createWrappedTexture(const BackendTexture& texture) {
+    sk_cfp<mtl::Handle> mtlHandleTexture = texture.getMtlTexture();
+    if (!mtlHandleTexture) {
+        return nullptr;
+    }
+    sk_cfp<id<MTLTexture>> mtlTexture((id<MTLTexture>)mtlHandleTexture.release());
+    return Texture::MakeWrapped(texture.dimensions(), texture.info(), std::move(mtlTexture));
+}
+
 
 sk_sp<skgpu::Buffer> ResourceProvider::createBuffer(size_t size,
                                                     BufferType type,

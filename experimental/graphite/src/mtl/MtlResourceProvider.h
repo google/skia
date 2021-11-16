@@ -25,6 +25,8 @@ public:
     ResourceProvider(const skgpu::Gpu* gpu);
     ~ResourceProvider() override {}
 
+    sk_sp<skgpu::Texture> createWrappedTexture(const BackendTexture&) override;
+
 private:
     const Gpu* mtlGpu();
 

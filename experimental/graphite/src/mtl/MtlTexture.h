@@ -22,6 +22,10 @@ public:
                                SkISize dimensions,
                                const skgpu::TextureInfo&);
 
+    static sk_sp<Texture> MakeWrapped(SkISize dimensions,
+                                      const skgpu::TextureInfo&,
+                                      sk_cfp<id<MTLTexture>>);
+
     ~Texture() override {}
 
     id<MTLTexture> mtlTexture() const { return fTexture.get(); }
@@ -29,7 +33,8 @@ public:
 private:
     Texture(SkISize dimensions,
             const skgpu::TextureInfo& info,
-            sk_cfp<id<MTLTexture>> texture);
+            sk_cfp<id<MTLTexture>>,
+            Ownership);
 
     sk_cfp<id<MTLTexture>> fTexture;
 };
