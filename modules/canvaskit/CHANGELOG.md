@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.0] - 2021-11-16
+
 ### Added
  - `CanvasKit.MakeLazyImageFromTextureSource`, which is similar to
    `Surface.makeImageFromTextureSource`, but can be re-used across different WebGL contexts.

@@ -1,6 +1,6 @@
 {
   "name": "canvaskit-wasm",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "description": "A WASM version of Skia's Canvas API",
   "main": "bin/canvaskit.js",
   "homepage": "https://github.com/google/skia/tree/main/modules/canvaskit",
