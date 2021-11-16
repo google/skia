@@ -40,11 +40,11 @@ public:
                  const SkMatrix& drawMatrix,
                  SkPoint drawOrigin,
                  SkIRect clipRect,
-                 sk_sp<GrTextBlob> blob,
+                 sk_sp<SkRefCnt> supportData,
                  GrAtlasSubRunOwner subRunOwner,
                  const SkPMColor4f& color)
             : fSubRun{subRun}
-            , fSupportDataKeepAlive{std::move(blob)}
+            , fSupportDataKeepAlive{std::move(supportData)}
             , fSubRunDtor{std::move(subRunOwner)}
             , fDrawMatrix{drawMatrix}
             , fDrawOrigin{drawOrigin}
@@ -58,7 +58,7 @@ public:
                                      const SkMatrix& drawMatrix,
                                      SkPoint drawOrigin,
                                      SkIRect clipRect,
-                                     sk_sp<GrTextBlob> blob,
+                                     sk_sp<SkRefCnt> supportData,
                                      const SkPMColor4f& color,
                                      SkArenaAlloc* alloc);
 
