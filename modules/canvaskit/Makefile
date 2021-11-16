@@ -151,10 +151,13 @@ bazel_gms_debug:
 
 bazel_canvaskit_debug:
 	# See above note about spawn_strategy
+	# TODO(kjlubick): Can we use transitions to have defaults set?
+	#  https://github.com/bazelbuild/examples/tree/main/rules/starlark_configurations/cc_binary_selectable_copts
 	bazelisk build :canvaskit-wasm --compilation_mode dbg --spawn_strategy=local \
 		--gpu_backend=gl_backend --with_gl_standard=webgl_standard \
 		--include_codec=jpeg_codec --include_codec=png_codec --include_codec=webp_codec \
-		--include_codec=gif_codec
+		--include_codec=gif_codec --include_fontmgr=custom_embedded_fontmgr \
+		--fontmgr_factory=custom_embedded_fontmgr_factory
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/canvaskit-wasm/canvaskit.js build/canvaskit.js

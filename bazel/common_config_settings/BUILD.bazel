@@ -98,7 +98,17 @@ string_flag_with_values(
     flag_name = "fontmgr_factory",
     values = [
         "empty_fontmgr_factory",
-        "custom_directory_fontmgr_factory",
+        "custom_embedded_fontmgr_factory",
+    ],
+)
+
+string_flag_with_values(
+    flag_name = "include_fontmgr",
+    multiple = True,
+    values = [
+        "custom_directory_fontmgr",
+        "custom_embedded_fontmgr",
+        "custom_empty_fontmgr",
     ],
 )
 

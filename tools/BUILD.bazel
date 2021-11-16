@@ -1,3 +1,5 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+
 package(default_visibility = ["//:__subpackages__"])
 
 filegroup(
@@ -58,4 +60,9 @@ filegroup(
         "HashAndEncode.cpp",
         "HashAndEncode.h",
     ],
+)
+
+py_binary(
+    name = "embed_resources",
+    srcs = ["embed_resources.py"],
 )

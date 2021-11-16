@@ -1,22 +1,86 @@
-package(default_visibility = ["//:__subpackages__"])
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//bazel:macros.bzl", "select_multi")
+
+package(default_visibility = ["//visibility:private"])
 
 filegroup(
-    name = "fontmgr",
-    srcs = select({
-        "//bazel/common_config_settings:empty_fontmgr_factory": [
+    name = "typeface_freetype",
+    srcs = [
+        "SkFontHost_FreeType.cpp",
+        "SkFontHost_FreeType_common.cpp",
+        "SkFontHost_FreeType_common.h",
+    ],
+)
+
+filegroup(
+    name = "fontmgr_factory",
+    srcs = selects.with_or({
+        "//bazel/common_config_settings:custom_embedded_fontmgr_factory": [
+            "SkFontMgr_custom_embedded_factory.cpp",
+        ],
+        ("//bazel/common_config_settings:empty_fontmgr_factory", "//conditions:default"): [
             "SkFontMgr_empty_factory.cpp",
         ],
-        "//bazel/common_config_settings:custom_directory_fontmgr_factory": [
-            "SkFontMgr_directory.h",
-            "SkFontMgr_custom_directory.cpp",
-        ],
+    }),
+)
+
+filegroup(
+    name = "custom_directory_fontmgr_srcs",
+    srcs = [
+        "SkFontMgr_custom.cpp",
+        "SkFontMgr_custom.h",
+        "SkFontMgr_custom_directory.cpp",
+        ":typeface_freetype",
+    ],
+)
+
+filegroup(
+    name = "custom_embedded_fontmgr_srcs",
+    srcs = [
+        "SkFontMgr_custom.cpp",
+        "SkFontMgr_custom.h",
+        "SkFontMgr_custom_embedded.cpp",
+        ":typeface_freetype",
+    ],
+)
+
+filegroup(
+    name = "custom_empty_fontmgr_srcs",
+    srcs = [
+        "SkFontMgr_custom.cpp",
+        "SkFontMgr_custom.h",
+        "SkFontMgr_custom_empty.cpp",
+        ":typeface_freetype",
+    ],
+)
+
+filegroup(
+    name = "global_init",
+    srcs = [
+        "SkGlobalInitialization_default.cpp",  # TODO(kjlubick) use select
+    ],
+)
+
+filegroup(
+    name = "image_generator",
+    srcs = [
+        "SkImageGenerator_skia.cpp",  # TODO(kjlubick) use select
+    ],
+)
+
+filegroup(
+    name = "osfile",
+    srcs = ["SkOSFile_stdio.cpp"] + select({
+        "@platforms//os:windows": ["SkOSFile_win.cpp"],
+        "//conditions:default": ["SkOSFile_posix.cpp"],
     }),
 )
 
 filegroup(
     name = "malloc",
     srcs = [
-        "SkMemory_malloc.cpp",
+        "SkMemory_malloc.cpp",  # TODO(kjlubick) use select
     ],
 )
 
@@ -27,18 +91,32 @@ filegroup(
         "@platforms//os:android": ["SkDebug_android.cpp"],
         "//conditions:default": ["SkDebug_stdio.cpp"],
     }),
+    visibility = ["//:__subpackages__"],
+)
+
+any_fontmgr = (
+    "//bazel/common_config_settings:custom_directory_fontmgr",
+    "//bazel/common_config_settings:custom_embedded_fontmgr",
+    "//bazel/common_config_settings:custom_empty_fontmgr",
 )
 
 filegroup(
-    name = "default_global_init",
+    name = "srcs",
     srcs = [
-        "SkGlobalInitialization_default.cpp",
-    ],
-)
-
-filegroup(
-    name = "skia_image_generator",
-    srcs = [
-        "SkImageGenerator_skia.cpp",
-    ],
+        ":fontmgr",
+        ":fontmgr_factory",
+        ":global_init",
+        ":image_generator",
+        ":malloc",
+        ":osfile",
+        ":skdebug",
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:custom_directory_fontmgr": [":custom_directory_fontmgr_srcs"],
+            "//bazel/common_config_settings:custom_embedded_fontmgr": [":custom_embedded_fontmgr_srcs"],
+            "//bazel/common_config_settings:custom_empty_fontmgr": [":custom_empty_fontmgr_srcs"],
+        },
+        default = [],
+    ),
+    visibility = ["//:__subpackages__"],
 )

@@ -1,5 +1,5 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
+load("//bazel/common_config_settings:defs.bzl", "bool_flag")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -51,11 +51,6 @@ cc_binary(
         "gm_bindings.cpp",
         ":hdrs",
         "//gm:gms",  # Required for the registry to work
-        "//src/ports:default_global_init",
-        "//src/ports:fontmgr",
-        "//src/ports:malloc",
-        "//src/ports:skdebug",
-        "//src/ports:skia_image_generator",
     ],
     additional_linker_inputs = ["gm.js"],
     linkopts = select({
@@ -83,9 +78,24 @@ wasm_cc_binary(
     cc_target = ":gm-bindings",
 )
 
+# See https://stackoverflow.com/a/57499321 for reference.
+genrule(
+    name = "create_notomono_cpp",
+    srcs = ["fonts/NotoMono-Regular.ttf"],
+    outs = ["fonts/NotoMono-Regular.ttf.bazel.cpp"],  # Distinct name from compile.sh's version
+    cmd = "$(location //tools:embed_resources) --name=SK_EMBEDDED_FONTS " +
+          "--input=modules/canvaskit/fonts/NotoMono-Regular.ttf " +
+          # The $@ means substitute in the one and only output location, which will be located
+          # in //bazel-out, not in the fonts subdirectory (although it will be available to clients
+          # in the fonts/ subdirectory as if it had been there all along.
+          "--output=$@ " +
+          "--align=4",
+    tools = ["//tools:embed_resources"],
+)
+
 CK_DEFINES = [
-    "SK_NO_FONTS",  #TODO(kjlubick)
     "SK_DISABLE_LEGACY_SHADERCONTEXT",
+    "SK_FORCE_8_BYTE_ALIGNMENT",  # working around https://github.com/emscripten-core/emscripten/issues/10072
 ] + select({
     "//bazel/common_config_settings:gl_backend": [
         "SK_GL",
@@ -94,10 +104,14 @@ CK_DEFINES = [
     "//conditions:default": [
         "SK_SUPPORT_GPU=0",
     ],
+}) + select({
+    ":enable_fonts_true": [],
+    ":enable_fonts_false": ["SK_NO_FONTS"],
 })
 
 CK_OPTS = BASE_LINKOPTS + [
     "-sEXPORT_NAME=CanvasKitInit",
+    "-sINITIAL_MEMORY=128MB",
     # The order of these --pre-js flags matters! The preamble is a partially open scope and the
     # postamble closes it.
     "--pre-js",
@@ -110,9 +124,6 @@ CK_OPTS = BASE_LINKOPTS + [
     "modules/canvaskit/util.js",
     "--pre-js",
     "modules/canvaskit/interface.js",
-    "--pre-js",
-    "modules/canvaskit/postamble.js",
-    "-sINITIAL_MEMORY=128MB",
 ] + select({
     "//bazel/common_config_settings:gl_backend": [
         "--pre-js",
@@ -125,27 +136,47 @@ CK_OPTS = BASE_LINKOPTS + [
         "modules/canvaskit/cpu.js",
     ],
 }) + select({
-    "//bazel/common_config_settings:debug_build": DEBUG_OPTS,
-    "//conditions:default": RELEASE_OPTS,
+    ":enable_fonts_true": [
+        "--pre-js",
+        "modules/canvaskit/font.js",
+    ],
+    ":enable_fonts_false": [],
+}) + [
+    "--pre-js",
+    "modules/canvaskit/postamble.js",
+] + select({
+    "//bazel/common_config_settings:debug_build": DEBUG_OPTS + [
+        "--pre-js",
+        "modules/canvaskit/debug.js",
+    ],
+    "//conditions:default": RELEASE_OPTS + [
+        "--pre-js",
+        "modules/canvaskit/release.js",
+    ],
+})
+
+CK_SRCS = [
+    "canvaskit_bindings.cpp",
+    ":hdrs",
+] + select({
+    ":include_embedded_font_true": ["fonts/NotoMono-Regular.ttf.bazel.cpp"],
+    ":include_embedded_font_false": [],
 })
 
 cc_binary(
     name = "canvaskit",
-    srcs = [
-        "canvaskit_bindings.cpp",
-        ":hdrs",
-        "//src/ports:default_global_init",
-        "//src/ports:fontmgr",
-        "//src/ports:malloc",
-        "//src/ports:skdebug",
-        "//src/ports:skia_image_generator",
-    ],
+    srcs = CK_SRCS,
     additional_linker_inputs = [
         "color.js",
+        "cpu.js",
+        "debug.js",
+        "font.js",
+        "gpu.js",
         "interface.js",
         "memory.js",
         "postamble.js",
         "preamble.js",
+        "release.js",
         "util.js",
     ],
     linkopts = CK_OPTS,
@@ -161,4 +192,14 @@ cc_binary(
 wasm_cc_binary(
     name = "canvaskit-wasm",
     cc_target = ":canvaskit",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_fonts",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "include_embedded_font",
 )

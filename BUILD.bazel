@@ -30,6 +30,7 @@ CORE_SRCS = [
     "//src/effects:srcs",
     "//src/opts:srcs",
     "//src/pathops:srcs",
+    "//src/ports:srcs",
     "//src/sfnt:srcs",
     "//src/shaders:srcs",
     "//src/utils:srcs",
@@ -114,6 +115,19 @@ CORE_DEFINES = ["SK_HAS_ANDROID_CODEC"] + select({
         "//bazel/common_config_settings:webp_codec": ["SK_CODEC_DECODES_WEBP"],
     },
     default = [],
+) + select({
+    # working around https://github.com/emscripten-core/emscripten/issues/10072
+    "//bazel/common_config_settings:cpu_wasm": ["SK_FORCE_8_BYTE_ALIGNMENT"],
+    "//conditions:default": [],
+})
+
+selects.config_setting_group(
+    name = "any_freetype_fontmgr",
+    match_any = [
+        "//bazel/common_config_settings:custom_directory_fontmgr",
+        "//bazel/common_config_settings:custom_embedded_fontmgr",
+        "//bazel/common_config_settings:custom_empty_fontmgr",
+    ],
 )
 
 CORE_DEPS = [] + select_multi(
@@ -131,6 +145,11 @@ CORE_DEPS = [] + select_multi(
     # The RAW codec require JPEG, but we cannot list libjpeg-turbo twice in the above list, or
     # Bazel gets sad.
     ("//bazel/common_config_settings:jpeg_codec", "//bazel/common_config_settings:raw_codec"): ["//third_party:libjpeg-turbo"],
+    "//conditions:default": [],
+}) + select({
+    ":any_freetype_fontmgr": [
+        "//third_party:freetype2",
+    ],
     "//conditions:default": [],
 })
 

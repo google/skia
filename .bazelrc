@@ -7,7 +7,13 @@ build:clang --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from
 # the command line easier.
-build --flag_alias=fontmgr=//bazel/common_config_settings:fontmgr
+build --flag_alias=include_fontmgr=//bazel/common_config_settings:include_fontmgr
+build --flag_alias=fontmgr_factory=//bazel/common_config_settings:fontmgr_factory
 build --flag_alias=gpu_backend=//bazel/common_config_settings:gpu_backend
 build --flag_alias=include_codec=//bazel/common_config_settings:include_codec
 build --flag_alias=with_gl_standard=//bazel/common_config_settings:with_gl_standard
+
+
+# CanvasKit flags
+build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts
+build --flag_alias=ck_disable_fonts=no//modules/canvaskit:enable_fonts

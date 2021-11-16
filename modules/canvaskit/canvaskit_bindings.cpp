@@ -76,8 +76,10 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
+#ifdef SK_INCLUDE_PARAGRAPH
 #include "modules/skparagraph/include/Paragraph.h"
-#endif
+#endif // SK_INCLUDE_PARAGRAPH
+#endif // SK_NO_FONTS
 
 #ifdef SK_INCLUDE_PATHOPS
 #include "include/pathops/SkPathOps.h"
@@ -2149,7 +2151,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("ShadowGeometricOnly", (int)SkShadowFlags::kGeometricOnly_ShadowFlag);
     constant("ShadowDirectionalLight", (int)SkShadowFlags::kDirectionalLight_ShadowFlag);
 
-#ifndef SK_NO_FONTS
+#ifdef SK_INCLUDE_PARAGRAPH
     constant("_GlyphRunFlags_isWhiteSpace", (int)skia::textlayout::Paragraph::kWhiteSpace_VisitorFlag);
 #endif
 }

@@ -75,14 +75,18 @@
     TextOnPathAPI1(CanvasKit);
     DrawGlyphsAPI1(CanvasKit);
     SurfaceAPI1(CanvasKit);
-    CanvasAPI1(CanvasKit);
-    CanvasAPI2(CanvasKit);
-    CanvasAPI3(CanvasKit);
-    CanvasAPI4(CanvasKit);
-    CanvasAPI5(CanvasKit);
-    CanvasAPI6(CanvasKit);
-    CanvasAPI7(CanvasKit);
-    CanvasAPI8(CanvasKit);
+    if (CanvasKit.MakeCanvas){
+      CanvasAPI1(CanvasKit);
+      CanvasAPI2(CanvasKit);
+      CanvasAPI3(CanvasKit);
+      CanvasAPI4(CanvasKit);
+      CanvasAPI5(CanvasKit);
+      CanvasAPI6(CanvasKit);
+      CanvasAPI7(CanvasKit);
+      CanvasAPI8(CanvasKit);
+    } else {
+      console.log("Skipping CanvasAPI1 because it's not compiled in");
+    }
     InteractivePatch(CanvasKit);
   });
 
