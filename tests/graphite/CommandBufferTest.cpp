@@ -93,7 +93,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     uniforms->fScale = SkPoint({1.8, 1.8});
     uniforms->fTranslate = SkPoint({-0.9, -0.9});
     uniforms->fColor = SkColors::kYellow;
-    commandBuffer->bindUniformBuffer(uniformBuffer, uniformOffset);
+    commandBuffer->bindUniformBuffer(UniformSlot::kRenderStep, uniformBuffer, uniformOffset);
     commandBuffer->draw(PrimitiveType::kTriangleStrip, 0, 4);
     uniformOffset += sizeof(UniformData);
     ++uniforms;
@@ -133,7 +133,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     uniforms->fScale = SkPoint({2, 2});
     uniforms->fTranslate = SkPoint({-1, -1});
     uniforms->fColor = SkColors::kMagenta;
-    commandBuffer->bindUniformBuffer(uniformBuffer, uniformOffset);
+    commandBuffer->bindUniformBuffer(UniformSlot::kRenderStep, uniformBuffer, uniformOffset);
     commandBuffer->drawIndexed(PrimitiveType::kTriangles, 0, 6, 0);
 
     // draw rects using instance buffer

@@ -42,8 +42,10 @@ void CommandBuffer::bindGraphicsPipeline(sk_sp<GraphicsPipeline> graphicsPipelin
     fHasWork = true;
 }
 
-void CommandBuffer::bindUniformBuffer(sk_sp<Buffer> uniformBuffer, size_t offset) {
-    this->onBindUniformBuffer(uniformBuffer.get(), offset);
+void CommandBuffer::bindUniformBuffer(UniformSlot slot,
+                                      sk_sp<Buffer> uniformBuffer,
+                                      size_t offset) {
+    this->onBindUniformBuffer(slot, uniformBuffer.get(), offset);
     this->trackResource(std::move(uniformBuffer));
     fHasWork = true;
 }
