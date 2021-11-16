@@ -3,9 +3,9 @@ uniform half4 colorGreen;
 half4 main(float2 coords) {
     uint u1 = 0x0;
     u1++;
-    uint u2 = 0X1234abcd;
+    uint u2 = 0X1234abcdu;
     u2++;
-    uint u3 = 0x7ffffffe;
+    uint u3 = 0x7ffffffeU;
     u3++;
     uint u4 = 0Xfffffffe;
     u4++;

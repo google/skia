@@ -2,8 +2,8 @@ uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
     int i1 = 01;
-    int i2 = 01234567;
-    int i3 = 016715312000;
+    int i2 = 01234567u;
+    int i3 = 016715312000U;
     int i4 = -016715312000;
 
     return (i1 == 1 && i2 == 342391 && i3 == 2000000000 && i4 == -2000000000)

@@ -64,8 +64,8 @@ String to_string(uint32_t value);
 String to_string(int64_t value);
 String to_string(uint64_t value);
 
-bool stod(const skstd::string_view& s, SKSL_FLOAT* value);
-bool stoi(const skstd::string_view& s, SKSL_INT* value);
+bool stod(skstd::string_view s, SKSL_FLOAT* value);
+bool stoi(skstd::string_view s, SKSL_INT* value);
 
 } // namespace SkSL
 
