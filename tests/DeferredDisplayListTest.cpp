@@ -306,7 +306,6 @@ public:
         vkInfo.fCompatibleRenderPass = (VkRenderPass)1;
         vkInfo.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
         vkInfo.fDrawBounds = nullptr;
-        vkInfo.fImage = (VkImage)1;
 
         return GrVkSecondaryCBDrawContext::Make(dContext, imageInfo, vkInfo, &fSurfaceProps);
     }

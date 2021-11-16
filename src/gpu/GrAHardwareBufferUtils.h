@@ -60,7 +60,8 @@ GrBackendTexture MakeBackendTexture(GrDirectContext* context, AHardwareBuffer* h
                                     TexImageCtx* imageCtx,
                                     bool isProtectedContent,
                                     const GrBackendFormat& backendFormat,
-                                    bool isRenderable);
+                                    bool isRenderable,
+                                    bool fromAndroidWindow = false);
 
 } // GrAHardwareBufferUtils
 

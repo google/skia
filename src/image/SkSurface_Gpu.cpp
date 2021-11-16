@@ -640,7 +640,11 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* dContext,
                                                     AHardwareBuffer* hardwareBuffer,
                                                     GrSurfaceOrigin origin,
                                                     sk_sp<SkColorSpace> colorSpace,
-                                                    const SkSurfaceProps* surfaceProps) {
+                                                    const SkSurfaceProps* surfaceProps
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+                                                    , bool fromWindow
+#endif
+                                                    ) {
     AHardwareBuffer_Desc bufferDesc;
     AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
 
@@ -666,12 +670,23 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* dContext,
         bool isProtectedContent =
                 SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
 
+        bool fromWindowLocal = false;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        fromWindowLocal = fromWindow;
+#endif
+
         GrBackendTexture backendTexture =
-                GrAHardwareBufferUtils::MakeBackendTexture(dContext, hardwareBuffer,
-                                                           bufferDesc.width, bufferDesc.height,
-                                                           &deleteImageProc, &updateImageProc,
-                                                           &deleteImageCtx, isProtectedContent,
-                                                           backendFormat, true);
+                GrAHardwareBufferUtils::MakeBackendTexture(dContext,
+                                                           hardwareBuffer,
+                                                           bufferDesc.width,
+                                                           bufferDesc.height,
+                                                           &deleteImageProc,
+                                                           &updateImageProc,
+                                                           &deleteImageCtx,
+                                                           isProtectedContent,
+                                                           backendFormat,
+                                                           true,
+                                                           fromWindowLocal);
         if (!backendTexture.isValid()) {
             return nullptr;
         }
