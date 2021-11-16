@@ -8,6 +8,7 @@
 #include "experimental/graphite/src/ContextUtils.h"
 
 #include <string>
+#include "experimental/graphite/src/DrawList.h" // TODO: split PaintParams out into their own header
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/Uniform.h"
 #include "experimental/graphite/src/UniformCache.h"
@@ -178,11 +179,12 @@ sk_sp<UniformData> UniformData::Make(int count,
     return sk_sp<UniformData>(new UniformData(count, uniforms, offsets, data, dataSize));
 }
 
-std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache* cache, const SkPaint& p) {
+std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache* cache,
+                                                         const PaintParams& p) {
     Combination result;
     sk_sp<UniformData> uniforms;
 
-    if (auto s = p.getShader()) {
+    if (auto s = p.shader()) {
         SkColor colors[kMaxStops];
         SkColor4f color4fs[kMaxStops];
         float offsets[kMaxStops];
@@ -250,21 +252,21 @@ std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache* cache, co
             case SkShader::GradientType::kColor_GradientType:
             case SkShader::GradientType::kNone_GradientType:
             default:
-                result.fShaderType = ShaderCombo::ShaderType::kNone;
-                result.fTileMode = SkTileMode::kRepeat;
+                result.fShaderType = ShaderCombo::ShaderType::kSolidColor;
+                result.fTileMode = SkTileMode::kClamp;
 
-                uniforms = make_solid_uniform_data(p.getColor4f());
+                uniforms = make_solid_uniform_data(p.color());
                 break;
         }
     } else {
         // Solid colored paint
-        result.fShaderType = ShaderCombo::ShaderType::kNone;
-        result.fTileMode = SkTileMode::kRepeat;
+        result.fShaderType = ShaderCombo::ShaderType::kSolidColor;
+        result.fTileMode = SkTileMode::kClamp;
 
-        uniforms = make_solid_uniform_data(p.getColor4f());
+        uniforms = make_solid_uniform_data(p.color());
     }
 
-    result.fBlendMode = p.getBlendMode_or(SkBlendMode::kSrcOver);
+    result.fBlendMode = p.blendMode();
 
     sk_sp<UniformData> trueUD = cache->findOrCreate(std::move(uniforms));
     return { result, std::move(trueUD) };
@@ -320,6 +322,8 @@ std::string GetMSLUniformStruct(ShaderCombo::ShaderType shaderType) {
         case ShaderCombo::ShaderType::kConicalGradient:
             return emit_MSL_uniform_struct(kGradientUniforms, kNumGradientUniforms);
         case ShaderCombo::ShaderType::kNone:
+            return "";
+        case ShaderCombo::ShaderType::kSolidColor:
         default:
             return emit_MSL_uniform_struct(kSolidUniforms, kNumSolidUniforms);
     }

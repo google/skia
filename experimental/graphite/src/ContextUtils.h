@@ -13,15 +13,14 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTileMode.h"
 
-class SkPaint;
-
 namespace skgpu {
 
+class PaintParams;
 class Uniform;
 class UniformCache;
 
 // A single, fully specified combination resulting from a PaintCombo (i.e., it corresponds to a
-// specific SkPaint)
+// specific skgpu::PaintParams object (a subset of SkPaint))
 struct Combination {
     bool operator==(const Combination& other) const {
         return fShaderType == other.fShaderType &&
@@ -29,8 +28,16 @@ struct Combination {
                fBlendMode == other.fBlendMode;
     }
 
+    uint32_t key() const {
+        return (static_cast<int>(fShaderType) << 9) | // 6 values  -> 3 bits
+               (static_cast<int>(fTileMode)   << 7) | // 4 values  -> 2 bits
+               (static_cast<int>(fBlendMode)  << 2);  // 29 values -> 5 bits
+    }
+
     ShaderCombo::ShaderType fShaderType = ShaderCombo::ShaderType::kNone;
-    SkTileMode fTileMode = SkTileMode::kRepeat;
+    // Tile mode and blend mode are ignored if shader type is kNone; tile mode is ignored if
+    // shader type is kSolidColor.
+    SkTileMode fTileMode = SkTileMode::kClamp;
     SkBlendMode fBlendMode = SkBlendMode::kSrc;
 };
 
@@ -86,7 +93,7 @@ private:
     const size_t fDataSize;
 };
 
-std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache*, const SkPaint&);
+std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(UniformCache*, const PaintParams&);
 std::string GetMSLUniformStruct(ShaderCombo::ShaderType);
 
 } // namespace skgpu

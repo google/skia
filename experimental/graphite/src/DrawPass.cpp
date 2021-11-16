@@ -31,15 +31,8 @@ namespace {
 // Retrieve the program ID and uniformData ID
 std::tuple<uint32_t, uint32_t> get_ids_from_paint(skgpu::Recorder* recorder,
                                                   skgpu::PaintParams params) {
-    // TODO: add an ExtractCombo that takes PaintParams directly?
-    SkPaint p;
-
-    p.setColor(params.color());
-    p.setBlendMode(params.blendMode());
-    p.setShader(params.refShader());
-
     // TODO: perhaps just return the ids here rather than the sk_sps?
-    auto [ combo, uniformData] = ExtractCombo(recorder->uniformCache(), p);
+    auto [ combo, uniformData] = ExtractCombo(recorder->uniformCache(), params);
     auto programInfo = recorder->programCache()->findOrCreateProgram(combo);
 
     return { programInfo->id(), uniformData->id() };

@@ -46,10 +46,18 @@ std::string ProgramCache::ProgramInfo::getMSL() const {
             "return result;\n"
             "}\n");
             break;
+        case ShaderCombo::ShaderType::kNone:
+            // TODO: kNone is for depth-only draws, so should actually have a fragment output type
+            // that only defines a [[depth]] attribute but no color calculation.
+            msl +=
+                    "fragment float4 fragmentMain(VertexOutput interpolated [[stage_in]]) {\n"
+                    "    return float4(0.0, 0.0, 1.0, 1.0);\n"
+                    "}\n";
+            break;
         case ShaderCombo::ShaderType::kRadialGradient:
         case ShaderCombo::ShaderType::kSweepGradient:
         case ShaderCombo::ShaderType::kConicalGradient:
-        case ShaderCombo::ShaderType::kNone:
+        case ShaderCombo::ShaderType::kSolidColor:
         default:
             msl += std::string(
             "fragment float4 fragmentShader(VertexOut interpolated [[stage_in]],\n"

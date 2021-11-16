@@ -38,6 +38,8 @@ struct VertexWriter;
 class PaintParams {
 public:
     PaintParams(const SkColor4f& color, SkBlendMode, sk_sp<SkShader>);
+    explicit PaintParams(const SkPaint& paint);
+
     PaintParams(const PaintParams&);
     ~PaintParams();
 

@@ -23,7 +23,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ProgramCacheTest, reporter, context) {
     // Add an initial unique program
     sk_sp<ProgramCache::ProgramInfo> pi1;
     {
-        Combination c1 { ShaderCombo::ShaderType::kNone, SkTileMode::kRepeat, SkBlendMode::kSrc };
+        Combination c1 { ShaderCombo::ShaderType::kSolidColor,
+                         SkTileMode::kRepeat,
+                         SkBlendMode::kSrc };
         pi1 = cache->findOrCreateProgram(c1);
         REPORTER_ASSERT(reporter, pi1->id() != ProgramCache::kInvalidProgramID);
         REPORTER_ASSERT(reporter, pi1->combo() == c1);
@@ -35,7 +37,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ProgramCacheTest, reporter, context) {
 
     // Try to add a duplicate program
     {
-        Combination c2 { ShaderCombo::ShaderType::kNone, SkTileMode::kRepeat, SkBlendMode::kSrc };
+        Combination c2 { ShaderCombo::ShaderType::kSolidColor,
+                         SkTileMode::kRepeat,
+                         SkBlendMode::kSrc };
         sk_sp<ProgramCache::ProgramInfo> pi2 = cache->findOrCreateProgram(c2);
         REPORTER_ASSERT(reporter, pi2->id() != ProgramCache::kInvalidProgramID);
         REPORTER_ASSERT(reporter, pi2->id() == pi1->id());

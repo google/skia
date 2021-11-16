@@ -278,14 +278,10 @@ void Device::drawShape(const Shape& shape,
     // A draw's order always depends on the clips that must be drawn before it
     order.dependsOnPaintersOrder(clipOrder);
 
-    auto blendMode = paint.asBlendMode();
-    PaintParams shading{paint.getColor4f(),
-                        blendMode.has_value() ? *blendMode : SkBlendMode::kSrcOver,
-                        paint.refShader()};
-
     // If a draw is not opaque, it must be drawn after the most recent draw it intersects with in
     // order to blend correctly. We always query the most recent draw (even when opaque) because it
     // also lets Device easily track whether or not there are any overlapping draws.
+    PaintParams shading{paint};
     const bool opaque = is_opaque(shading);
     CompressedPaintersOrder prevDraw =
             fColorDepthBoundsManager->getMostRecentDraw(clip.drawBounds());

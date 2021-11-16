@@ -2129,7 +2129,7 @@ namespace {
 void precompile(skgpu::Context* context) {
     using ShaderType = skgpu::ShaderCombo::ShaderType;
 
-    skgpu::PaintCombo c1 { { skgpu::ShaderCombo({ ShaderType::kNone },
+    skgpu::PaintCombo c1 { { skgpu::ShaderCombo({ ShaderType::kSolidColor },
                                                 { SkTileMode::kRepeat }) },
                            { SkBlendMode::kSrcOver, SkBlendMode::kSrc } };
     context->preCompile(c1);
