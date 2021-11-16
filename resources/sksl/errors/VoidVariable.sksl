@@ -1,4 +1,4 @@
-// Expect 2 errors
+// Expect 3 errors
 void func();
 
 void a;

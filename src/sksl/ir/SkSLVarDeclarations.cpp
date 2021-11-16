@@ -36,10 +36,17 @@ String VarDeclaration::description() const {
     return result;
 }
 
-void VarDeclaration::ErrorCheck(const Context& context, int line, const Modifiers& modifiers,
-        const Type* baseType, Variable::Storage storage) {
+void VarDeclaration::ErrorCheck(const Context& context,
+                                int line,
+                                const Modifiers& modifiers,
+                                const Type* baseType,
+                                Variable::Storage storage) {
     if (*baseType == *context.fTypes.fInvalid) {
         context.fErrors->error(line, "invalid type");
+        return;
+    }
+    if (baseType->isVoid()) {
+        context.fErrors->error(line, "variables of type 'void' are not allowed");
         return;
     }
     if (context.fConfig->strictES2Mode() && baseType->isArray()) {
