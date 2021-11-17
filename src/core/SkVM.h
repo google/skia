@@ -636,8 +636,8 @@ namespace skvm {
         void trace_var(I32 mask, int slot, I32 val);
         void trace_var(I32 mask, int slot, F32 val);
         void trace_var(I32 mask, int slot, bool b);
-        void trace_call_enter(I32 mask, int line);
-        void trace_call_exit(I32 mask, int line);
+        void trace_call_enter(I32 mask, int fnIdx);
+        void trace_call_exit(I32 mask, int fnIdx);
 
         // Store {8,16,32,64,128}-bit varying.
         void store8  (Ptr ptr, I32 val);

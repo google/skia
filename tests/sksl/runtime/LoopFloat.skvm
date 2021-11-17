@@ -52,6 +52,17 @@ $50 = result (float4 : slot 2/4, L97)
 $51 = result (float4 : slot 3/4, L97)
 $52 = result (float4 : slot 4/4, L97)
 $53 = i (float, L98)
+F0 = half4 main(float2 pos)
+F1 = float return_loop(float five)
+F2 = float continue_loop(float five)
+F3 = float break_loop(float five)
+F4 = float float_loop()
+F5 = bool loop_operator_le()
+F6 = bool loop_operator_lt()
+F7 = bool loop_operator_ge()
+F8 = bool loop_operator_gt()
+F9 = bool loop_operator_eq()
+F10 = bool loop_operator_ne()
 
 38 registers, 709 instructions:
 0	r0 = uniform32 ptr0 0
@@ -96,7 +107,7 @@ loop:
 38	    trace_var r10 $6 = r7 (F32)
 39	    trace_var r10 $7 = r8 (F32)
 40	    trace_var r10 $9 = r11 (F32)
-41	    trace_call r10 L115 (enter)
+41	    trace_call r10 F0 (enter)
 42	    trace_var r10 $10 = r31 (F32)
 43	    trace_var r10 $11 = r0 (F32)
 44	    trace_line r10 L116
@@ -105,7 +116,7 @@ loop:
 47	    r31 = mul_f32 r31 r12
 48	    trace_var r10 $12 = r31 (F32)
 49	    trace_line r10 L117
-50	    trace_call r10 L7 (enter)
+50	    trace_call r10 F1 (enter)
 51	    trace_var r10 $13 = r31 (F32)
 52	    trace_line r10 L8
 53	    trace_line r10 L9
@@ -196,9 +207,9 @@ loop:
 138	    trace_line r33 L8
 139	    trace_line r33 L11
 140	    r33 = bit_clear r34 r33
-141	    trace_call r10 L7 (exit)
+141	    trace_call r10 F1 (exit)
 142	    r33 = eq_f32 r33 r12
-143	    trace_call r33 L16 (enter)
+143	    trace_call r33 F2 (enter)
 144	    trace_var r33 $15 = r31 (F32)
 145	    trace_line r33 L17
 146	    trace_line r33 L18
@@ -357,10 +368,10 @@ loop:
 299	    trace_line r34 L18
 300	    trace_line r33 L22
 301	    r36 = bit_and r36 r33
-302	    trace_call r33 L16 (exit)
+302	    trace_call r33 F2 (exit)
 303	    r36 = eq_f32 r36 r21
 304	    r36 = bit_and r33 r36
-305	    trace_call r36 L26 (enter)
+305	    trace_call r36 F3 (enter)
 306	    trace_var r36 $18 = r31 (F32)
 307	    trace_line r36 L27
 308	    trace_line r36 L28
@@ -501,10 +512,10 @@ loop:
 443	    trace_line r31 L29
 444	    trace_line r36 L33
 445	    r32 = bit_and r32 r36
-446	    trace_call r36 L26 (exit)
+446	    trace_call r36 F3 (exit)
 447	    r32 = eq_f32 r32 r22
 448	    r32 = bit_and r36 r32
-449	    trace_call r32 L37 (enter)
+449	    trace_call r32 F4 (enter)
 450	    trace_line r32 L38
 451	    trace_line r32 L39
 452	    trace_var r32 $23 = r23 (F32)
@@ -539,11 +550,11 @@ loop:
 481	    trace_line r32 L42
 482	    r36 = sub_f32 r36 r28
 483	    r36 = bit_and r36 r32
-484	    trace_call r32 L37 (exit)
+484	    trace_call r32 F4 (exit)
 485	    r36 = bit_and r36 r29
 486	    r36 = gt_f32 r30 r36
 487	    r36 = bit_and r32 r36
-488	    trace_call r36 L45 (enter)
+488	    trace_call r36 F5 (enter)
 489	    trace_line r36 L47
 490	    trace_line r36 L48
 491	    trace_line r36 L50
@@ -580,9 +591,9 @@ loop:
 522	    r31 = bit_and r33 r31
 523	    r32 = bit_and r31 r32
 524	    r32 = bit_and r32 r36
-525	    trace_call r36 L45 (exit)
+525	    trace_call r36 F5 (exit)
 526	    r32 = bit_and r36 r32
-527	    trace_call r32 L57 (enter)
+527	    trace_call r32 F6 (enter)
 528	    trace_line r32 L59
 529	    trace_line r32 L60
 530	    trace_line r32 L62
@@ -619,9 +630,9 @@ loop:
 561	    r31 = bit_and r33 r31
 562	    r36 = bit_and r31 r36
 563	    r36 = bit_and r36 r32
-564	    trace_call r32 L57 (exit)
+564	    trace_call r32 F6 (exit)
 565	    r36 = bit_and r32 r36
-566	    trace_call r36 L69 (enter)
+566	    trace_call r36 F7 (enter)
 567	    trace_line r36 L71
 568	    trace_line r36 L72
 569	    trace_line r36 L74
@@ -658,9 +669,9 @@ loop:
 600	    r31 = bit_and r33 r31
 601	    r32 = bit_and r31 r32
 602	    r32 = bit_and r32 r36
-603	    trace_call r36 L69 (exit)
+603	    trace_call r36 F7 (exit)
 604	    r32 = bit_and r36 r32
-605	    trace_call r32 L81 (enter)
+605	    trace_call r32 F8 (enter)
 606	    trace_line r32 L83
 607	    trace_line r32 L84
 608	    trace_line r32 L86
@@ -697,9 +708,9 @@ loop:
 639	    r31 = bit_and r33 r31
 640	    r36 = bit_and r31 r36
 641	    r36 = bit_and r36 r32
-642	    trace_call r32 L81 (exit)
+642	    trace_call r32 F8 (exit)
 643	    r36 = bit_and r32 r36
-644	    trace_call r36 L104 (enter)
+644	    trace_call r36 F9 (enter)
 645	    trace_line r36 L106
 646	    trace_line r36 L108
 647	    trace_var r36 $44 = r20 (F32)
@@ -715,9 +726,9 @@ loop:
 657	    trace_line r36 L112
 658	    r32 = eq_f32 r32 r13
 659	    r32 = bit_and r32 r36
-660	    trace_call r36 L104 (exit)
+660	    trace_call r36 F9 (exit)
 661	    r32 = bit_and r36 r32
-662	    trace_call r32 L93 (enter)
+662	    trace_call r32 F10 (enter)
 663	    trace_line r32 L95
 664	    trace_line r32 L97
 665	    trace_var r32 $49 = r20 (F32)
@@ -753,13 +764,13 @@ loop:
 695	    r31 = bit_and r33 r31
 696	    r36 = bit_and r31 r36
 697	    r36 = bit_and r36 r32
-698	    trace_call r32 L93 (exit)
+698	    trace_call r32 F10 (exit)
 699	    r36 = bit_and r32 r36
 700	    r32 = select r36 r5 r1
 701	    r31 = select r36 r6 r2
 702	    r33 = select r36 r7 r3
 703	    r36 = select r36 r8 r4
-704	    trace_call r10 L115 (exit)
+704	    trace_call r10 F0 (exit)
 705	    store32 ptr1 r32
 706	    store32 ptr2 r31
 707	    store32 ptr3 r33

@@ -201,6 +201,7 @@ namespace skvm {
         static constexpr VarType kVarTypeFloat{1};
         static constexpr VarType kVarTypeBool{2};
         // For op `trace_call`
+        struct FnIdx { int bits; };
         struct CallType { int bits; };
         static constexpr CallType kCallTypeEnter{1};
         static constexpr CallType kCallTypeExit{0};
@@ -266,6 +267,10 @@ namespace skvm {
                 write(o, "???");
             }
         }
+        static void write(SkWStream* o, FnIdx s) {
+            write(o, "F");
+            o->writeDecAsText(s.bits);
+        }
         static void write(SkWStream* o, CallType n) {
             if (n.bits == kCallTypeEnter.bits) {
                 write(o, "(enter)");
@@ -298,7 +303,7 @@ namespace skvm {
 
             case Op::trace_line: write(o, op, V{x}, Line{immA}); break;
             case Op::trace_var:  write(o, op, V{x}, VarSlot{immA}, "=", V{y}, VarType{immB}); break;
-            case Op::trace_call: write(o, op, V{x}, Line{immA}, CallType{immB}); break;
+            case Op::trace_call: write(o, op, V{x}, FnIdx{immA}, CallType{immB}); break;
 
             case Op::store8:   write(o, op, Ptr{immA}, V{x}               ); break;
             case Op::store16:  write(o, op, Ptr{immA}, V{x}               ); break;
@@ -418,7 +423,7 @@ namespace skvm {
                 case Op::trace_line: write(o, op, R{x}, Line{immA}); break;
                 case Op::trace_var: write(o, op, R{x}, VarSlot{immA}, "=", R{y}, VarType{immB});
                                     break;
-                case Op::trace_call: write(o, op, R{x}, Line{immA}, CallType{immB}); break;
+                case Op::trace_call: write(o, op, R{x}, FnIdx{immA}, CallType{immB}); break;
 
                 case Op::store8:   write(o, op, Ptr{immA}, R{x}                  ); break;
                 case Op::store16:  write(o, op, Ptr{immA}, R{x}                  ); break;
@@ -692,13 +697,13 @@ namespace skvm {
         I32 val = b ? this->splat(1) : this->splat(0);
         (void)push(Op::trace_var, mask.id,val.id,NA,NA, slot, kVarTypeBool.bits);
     }
-    void Builder::trace_call_enter(I32 mask, int line) {
+    void Builder::trace_call_enter(I32 mask, int fnIdx) {
         if (this->isImm(mask.id, 0)) { return; }
-        (void)push(Op::trace_call, mask.id,NA,NA,NA, line, kCallTypeEnter.bits);
+        (void)push(Op::trace_call, mask.id,NA,NA,NA, fnIdx, kCallTypeEnter.bits);
     }
-    void Builder::trace_call_exit(I32 mask, int line) {
+    void Builder::trace_call_exit(I32 mask, int fnIdx) {
         if (this->isImm(mask.id, 0)) { return; }
-        (void)push(Op::trace_call, mask.id,NA,NA,NA, line, kCallTypeExit.bits);
+        (void)push(Op::trace_call, mask.id,NA,NA,NA, fnIdx, kCallTypeExit.bits);
     }
 
     void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA,NA, ptr.ix); }

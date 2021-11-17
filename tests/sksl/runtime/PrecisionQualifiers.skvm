@@ -135,6 +135,14 @@ $133 = hv[1] (float2 : slot 2/2, L48)
 $134 = value (float, L53)
 $135 = value (float, L54)
 $136 = value (float, L55)
+F0 = float4 main(float2 coords)
+F1 = bool test_scalar()
+F2 = bool test_vector()
+F3 = bool test_matrix()
+F4 = bool test_array()
+F5 = bool highp_param(float value)
+F6 = bool mediump_param(half value)
+F7 = bool lowp_param(half value)
 
 19 registers, 172 instructions:
 0	r0 = uniform32 ptr0 0
@@ -165,7 +173,7 @@ loop:
 24	    trace_var r9 $5 = r6 (F32)
 25	    trace_var r9 $6 = r7 (F32)
 26	    trace_var r9 $7 = r8 (F32)
-27	    trace_call r9 L57 (enter)
+27	    trace_call r9 F0 (enter)
 28	    trace_var r9 $8 = r18 (F32)
 29	    trace_var r9 $9 = r0 (F32)
 30	    trace_line r9 L58
@@ -187,7 +195,7 @@ loop:
 46	    trace_var r9 $25 = r8 (F32)
 47	    trace_line r9 L64
 48	    trace_line r9 L66
-49	    trace_call r9 L5 (enter)
+49	    trace_call r9 F1 (enter)
 50	    trace_line r9 L6
 51	    trace_var r9 $26 = r11 (F32)
 52	    trace_line r9 L7
@@ -197,8 +205,8 @@ loop:
 56	    trace_line r9 L9
 57	    trace_var r9 $29 = r12 (I32)
 58	    trace_line r9 L11
-59	    trace_call r9 L5 (exit)
-60	    trace_call r9 L14 (enter)
+59	    trace_call r9 F1 (exit)
+60	    trace_call r9 F2 (enter)
 61	    trace_line r9 L15
 62	    trace_var r9 $30 = r13 (F32)
 63	    trace_var r9 $31 = r13 (F32)
@@ -248,8 +256,8 @@ loop:
 107	    trace_var r9 $64 = r17 (I32)
 108	    trace_var r9 $65 = r17 (I32)
 109	    trace_line r9 L29
-110	    trace_call r9 L14 (exit)
-111	    trace_call r9 L33 (enter)
+110	    trace_call r9 F2 (exit)
+111	    trace_call r9 F3 (enter)
 112	    trace_line r9 L34
 113	    trace_var r9 $66 = r13 (F32)
 114	    trace_var r9 $69 = r13 (F32)
@@ -275,8 +283,8 @@ loop:
 134	    trace_var r9 $118 = r15 (F32)
 135	    trace_var r9 $123 = r15 (F32)
 136	    trace_line r9 L41
-137	    trace_call r9 L33 (exit)
-138	    trace_call r9 L44 (enter)
+137	    trace_call r9 F3 (exit)
+138	    trace_call r9 F4 (enter)
 139	    trace_line r9 L45
 140	    trace_var r9 $124 = r10 (F32)
 141	    trace_line r9 L46
@@ -292,20 +300,20 @@ loop:
 151	    trace_var r9 $132 = r13 (F32)
 152	    trace_var r9 $133 = r14 (F32)
 153	    trace_line r9 L50
-154	    trace_call r9 L44 (exit)
-155	    trace_call r9 L53 (enter)
+154	    trace_call r9 F4 (exit)
+155	    trace_call r9 F5 (enter)
 156	    trace_var r9 $134 = r10 (F32)
 157	    trace_line r9 L53
-158	    trace_call r9 L53 (exit)
-159	    trace_call r9 L54 (enter)
+158	    trace_call r9 F5 (exit)
+159	    trace_call r9 F6 (enter)
 160	    trace_var r9 $135 = r13 (F32)
 161	    trace_line r9 L54
-162	    trace_call r9 L54 (exit)
-163	    trace_call r9 L55 (enter)
+162	    trace_call r9 F6 (exit)
+163	    trace_call r9 F7 (enter)
 164	    trace_var r9 $136 = r14 (F32)
 165	    trace_line r9 L55
-166	    trace_call r9 L55 (exit)
-167	    trace_call r9 L57 (exit)
+166	    trace_call r9 F7 (exit)
+167	    trace_call r9 F0 (exit)
 168	    store32 ptr1 r1
 169	    store32 ptr2 r2
 170	    store32 ptr3 r3

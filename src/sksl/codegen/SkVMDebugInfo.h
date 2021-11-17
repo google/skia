@@ -31,6 +31,11 @@ struct SkVMSlotInfo {
     int                     line;
 };
 
+struct SkVMFunctionInfo {
+    /** Full function declaration: `float myFunction(half4 color)`) */
+    std::string             name;
+};
+
 class SkVMDebugInfo {
 public:
     /** Serialization for .trace files. */
@@ -42,6 +47,7 @@ public:
 
     /** A 1:1 mapping of slot numbers to debug information. */
     std::vector<SkVMSlotInfo> fSlotInfo;
+    std::vector<SkVMFunctionInfo> fFuncInfo;
 };
 
 }  // namespace SkSL

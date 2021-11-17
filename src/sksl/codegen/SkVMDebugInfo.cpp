@@ -45,6 +45,17 @@ void SkVMDebugInfo::dump(SkWStream* o) const {
         o->writeText(")");
         o->newline();
     }
+
+    for (size_t index = 0; index < fFuncInfo.size(); ++index) {
+        const SkVMFunctionInfo& info = fFuncInfo[index];
+
+        o->writeText("F");
+        o->writeDecAsText(index);
+        o->writeText(" = ");
+        o->writeText(info.name.c_str());
+        o->newline();
+    }
+
     o->newline();
 }
 
@@ -69,6 +80,18 @@ void SkVMDebugInfo::writeTrace(SkWStream* w) const {
     }
 
     json.endArray(); // slots
+    json.beginArray("functions");
+
+    for (size_t index = 0; index < fFuncInfo.size(); ++index) {
+        const SkVMFunctionInfo& info = fFuncInfo[index];
+
+        json.beginObject();
+        json.appendS32("slot", index);
+        json.appendString("name", info.name.c_str());
+        json.endObject();
+    }
+
+    json.endArray(); // functions
     json.endObject(); // root
     json.flush();
 }
@@ -117,6 +140,35 @@ bool SkVMDebugInfo::readTrace(SkStream* r) {
         info.componentIndex = **index;
         info.numberKind = (SkSL::Type::NumberKind)(int)**kind;
         info.line = **line;
+    }
+
+    const skjson::ArrayValue* functions = (*root)["functions"];
+    if (!slots) {
+        return false;
+    }
+
+    fFuncInfo.clear();
+    for (const skjson::ObjectValue* element : *functions) {
+        if (!element) {
+            return false;
+        }
+
+        // Grow the function array to hold this element. (But don't shrink it if we somehow get our
+        // functions out of order!)
+        const skjson::NumberValue* slot = (*element)["slot"];
+        if (!slot) {
+            return false;
+        }
+        fFuncInfo.resize(std::max(fFuncInfo.size(), (size_t)(**slot + 1)));
+        SkVMFunctionInfo& info = fFuncInfo[(size_t)(**slot)];
+
+        // Populate the FunctionInfo with our JSON data.
+        const skjson::StringValue* name = (*element)["name"];
+        if (!name) {
+            return false;
+        }
+
+        info.name = name->begin();
     }
 
     return true;

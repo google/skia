@@ -151,6 +151,12 @@ private:
     void addDebugSlotInfo(String varName, const Type& type, int line);
 
     /**
+     * Returns the slot index of this function inside the SkVMFunctionInfo array in SkVMDebugInfo.
+     * The SkVMFunctionInfo slot will be created if it doesn't already exist.
+     */
+    int getDebugFunctionInfo(const FunctionDeclaration& decl);
+
+    /**
      * Returns the slot holding v's Val(s). Allocates storage if this is first time 'v' is
      * referenced. Compound variables (e.g. vectors) will consume more than one slot, with
      * getSlot returning the start of the contiguous chunk of slots.
@@ -402,14 +408,34 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
     SkASSERT(uniformIter == uniforms.end());
 }
 
+int SkVMGenerator::getDebugFunctionInfo(const FunctionDeclaration& decl) {
+    SkASSERT(fDebugInfo);
+
+    std::string name = decl.description();
+
+    // Look for a matching SkVMFunctionInfo slot.
+    for (size_t index = 0; index < fDebugInfo->fFuncInfo.size(); ++index) {
+        if (fDebugInfo->fFuncInfo[index].name == name) {
+            return index;
+        }
+    }
+
+    // We've never called this function before; create a new slot to hold its information.
+    int slot = (int)fDebugInfo->fFuncInfo.size();
+    fDebugInfo->fFuncInfo.push_back(SkVMFunctionInfo{std::move(name)});
+    return slot;
+}
+
 void SkVMGenerator::writeFunction(const FunctionDefinition& function,
                                   SkSpan<skvm::Val> arguments,
                                   SkSpan<skvm::Val> outReturn) {
     const FunctionDeclaration& decl = function.declaration();
     SkASSERT(decl.returnType().slotCount() == outReturn.size());
 
+    int funcIndex = -1;
     if (fDebugInfo) {
-        fBuilder->trace_call_enter(this->mask(), function.fLine);
+        funcIndex = this->getDebugFunctionInfo(decl);
+        fBuilder->trace_call_enter(this->mask(), funcIndex);
     }
 
     fFunctionStack.push_back({outReturn, /*returned=*/fBuilder->splat(0)});
@@ -447,7 +473,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     fFunctionStack.pop_back();
 
     if (fDebugInfo) {
-        fBuilder->trace_call_exit(this->mask(), function.fLine);
+        fBuilder->trace_call_exit(this->mask(), funcIndex);
     }
 }
 

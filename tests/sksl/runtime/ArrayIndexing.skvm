@@ -34,6 +34,11 @@ $32 = prod (float, L19)
 $33 = i (int, L20)
 $34 = sum (float, L28)
 $35 = f (float, L29)
+F0 = float4 main(float2 xy)
+F1 = float index_by_literal()
+F2 = float index_by_loop()
+F3 = float index_by_complex_loop()
+F4 = float index_out_of_bounds_checked()
 
 52 registers, 165 instructions:
 0	r0 = uniform32 ptr0 0
@@ -117,14 +122,14 @@ loop:
 77	    trace_var r30 $25 = r26 (F32)
 78	    trace_var r30 $26 = r27 (F32)
 79	    trace_var r30 $27 = r28 (F32)
-80	    trace_call r30 L37 (enter)
+80	    trace_call r30 F0 (enter)
 81	    trace_var r30 $28 = r51 (F32)
 82	    trace_var r30 $29 = r0 (F32)
 83	    trace_line r30 L38
-84	    trace_call r30 L4 (enter)
+84	    trace_call r30 F1 (enter)
 85	    trace_line r30 L5
-86	    trace_call r30 L4 (exit)
-87	    trace_call r30 L9 (enter)
+86	    trace_call r30 F1 (exit)
+87	    trace_call r30 F2 (enter)
 88	    trace_line r30 L10
 89	    trace_line r30 L11
 90	    trace_var r30 $31 = r31 (I32)
@@ -144,8 +149,8 @@ loop:
 104	    trace_var r30 $30 = r36 (F32)
 105	    trace_line r30 L11
 106	    trace_line r30 L14
-107	    trace_call r30 L9 (exit)
-108	    trace_call r30 L18 (enter)
+107	    trace_call r30 F2 (exit)
+108	    trace_call r30 F3 (enter)
 109	    trace_line r30 L19
 110	    trace_var r30 $32 = r37 (F32)
 111	    trace_line r30 L20
@@ -165,8 +170,8 @@ loop:
 125	    trace_var r30 $32 = r40 (F32)
 126	    trace_line r30 L20
 127	    trace_line r30 L23
-128	    trace_call r30 L18 (exit)
-129	    trace_call r30 L27 (enter)
+128	    trace_call r30 F3 (exit)
+129	    trace_call r30 F4 (enter)
 130	    trace_line r30 L28
 131	    trace_line r30 L29
 132	    trace_var r30 $35 = r41 (F32)
@@ -196,8 +201,8 @@ loop:
 156	    trace_line r30 L30
 157	    trace_line r30 L29
 158	    trace_line r30 L34
-159	    trace_call r30 L27 (exit)
-160	    trace_call r30 L37 (exit)
+159	    trace_call r30 F4 (exit)
+160	    trace_call r30 F0 (exit)
 161	    store32 ptr1 r1
 162	    store32 ptr2 r36
 163	    store32 ptr3 r40
