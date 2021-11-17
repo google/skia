@@ -349,6 +349,9 @@ void SkVMGenerator::writeProgram(SkSpan<skvm::Val> uniforms,
 
 void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device) {
     if (fDebugInfo) {
+        // Copy the program source into the debug info so that it will be written in the trace file.
+        fDebugInfo->setSource(*fProgram.fSource);
+
         // If we are debugging, we need to create a trace mask. This will be true when the current
         // device coordinates match the requested trace coordinates.
         if (fDebugInfo->fTraceCoord) {

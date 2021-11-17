@@ -10,12 +10,22 @@
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"
 
+#include <sstream>
+
 namespace SkSL {
 
 void SkVMDebugInfo::setTraceCoord(skvm::Coord coord) {
     // The SkVM blitter generates centered pixel coordinates. (0.5, 1.5, 2.5, 3.5, etc.)
     // Add 0.5 to the requested trace coordinate to match this.
     fTraceCoord = {coord.x + 0.5, coord.y + 0.5};
+}
+
+void SkVMDebugInfo::setSource(std::string source) {
+    std::stringstream stream{std::move(source)};
+    while (stream.good()) {
+        fSource.push_back({});
+        std::getline(stream, fSource.back(), '\n');
+    }
 }
 
 void SkVMDebugInfo::dump(SkWStream* o) const {
@@ -69,6 +79,13 @@ void SkVMDebugInfo::writeTrace(SkWStream* w) const {
     SkJSONWriter json(w);
 
     json.beginObject(); // root
+    json.beginArray("source");
+
+    for (const std::string& line : fSource) {
+        json.appendString(line.c_str());
+    }
+
+    json.endArray(); // code
     json.beginArray("slots");
 
     for (size_t index = 0; index < fSlotInfo.size(); ++index) {
@@ -109,6 +126,20 @@ bool SkVMDebugInfo::readTrace(SkStream* r) {
     if (!root) {
         return false;
     }
+
+    const skjson::ArrayValue* source = (*root)["source"];
+    if (!source) {
+        return false;
+    }
+
+    fSource.clear();
+    for (const skjson::StringValue* line : *source) {
+        if (!line) {
+            return false;
+        }
+        fSource.push_back(line->begin());
+    }
+
     const skjson::ArrayValue* slots = (*root)["slots"];
     if (!slots) {
         return false;
