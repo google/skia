@@ -17,6 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
@@ -968,8 +969,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
-    if (bitmap.colorType() != kAlpha_8_SkColorType
-        && SkTreatAsSprite(matrix, bitmap.dimensions(), sampling, *paint)) {
+    if (!SkColorTypeIsAlphaOnly(bitmap.colorType()) &&
+        SkTreatAsSprite(matrix, bitmap.dimensions(), sampling, *paint)) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.

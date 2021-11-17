@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkColorSpace.h"
+#include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
@@ -120,16 +121,16 @@ public:
         SkRasterPipeline p(fAlloc);
         p.append_load(fSource.colorType(), &fSrcPtr);
 
-        if (fSource.colorType() == kAlpha_8_SkColorType) {
+        if (SkColorTypeIsAlphaOnly(fSource.colorType())) {
             // The color for A8 images comes from the (sRGB) paint color.
             p.append_set_rgb(fAlloc, fPaintColor);
             p.append(SkRasterPipeline::premul);
         }
         if (auto dstCS = fDst.colorSpace()) {
             auto srcCS = fSource.colorSpace();
-            if (!srcCS || fSource.colorType() == kAlpha_8_SkColorType) {
+            if (!srcCS || SkColorTypeIsAlphaOnly(fSource.colorType())) {
                 // We treat untagged images as sRGB.
-                // A8 images get their r,g,b from the paint color, so they're also sRGB.
+                // Alpha-only images get their r,g,b from the paint color, so they're also sRGB.
                 srcCS = sk_srgb_singleton();
             }
             auto srcAT = fSource.isOpaque() ? kOpaque_SkAlphaType
