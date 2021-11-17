@@ -102,8 +102,6 @@ public:
                            SkMask* mask, SkMask::CreateMode mode,
                            SkStrokeRec::InitStyle style);
 
-    void drawDevMask(const SkMask& mask, const SkPaint&) const;
-
     enum RectType {
         kHair_RectType,
         kFill_RectType,
@@ -123,7 +121,6 @@ public:
                                     SkPoint* strokeSize);
 
 private:
-    void drawBitmapAsMask(const SkBitmap&, const SkSamplingOptions&, const SkPaint&) const;
     void drawFixedVertices(const SkVertices* vertices,
                            sk_sp<SkBlender> blender,
                            const SkPaint& paint,

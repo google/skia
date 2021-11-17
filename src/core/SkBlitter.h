@@ -132,7 +132,6 @@ public:
     }
 
     ///@name non-virtual helpers
-    void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);
     void blitRegion(const SkRegion& clip);
     ///@}

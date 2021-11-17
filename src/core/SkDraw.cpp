@@ -700,37 +700,6 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
     }
 }
 
-void SkDraw::drawDevMask(const SkMask& srcM, const SkPaint& paint) const {
-    if (srcM.fBounds.isEmpty()) {
-        return;
-    }
-
-    const SkMask* mask = &srcM;
-
-    SkMask dstM;
-    if (paint.getMaskFilter() &&
-        as_MFB(paint.getMaskFilter())
-                ->filterMask(&dstM, srcM, fMatrixProvider->localToDevice(), nullptr)) {
-        mask = &dstM;
-    }
-    SkAutoMaskFreeImage ami(dstM.fImage);
-
-    SkAutoBlitterChoose blitterChooser(*this, nullptr, paint);
-    SkBlitter* blitter = blitterChooser.get();
-
-    SkAAClipBlitterWrapper wrapper;
-    const SkRegion* clipRgn;
-
-    if (fRC->isBW()) {
-        clipRgn = &fRC->bwRgn();
-    } else {
-        wrapper.init(*fRC, blitter);
-        clipRgn = &wrapper.getRgn();
-        blitter = wrapper.getBlitter();
-    }
-    blitter->blitMaskRegion(*mask, *clipRgn);
-}
-
 static SkScalar fast_len(const SkVector& vec) {
     SkScalar x = SkScalarAbs(vec.fX);
     SkScalar y = SkScalarAbs(vec.fY);
@@ -957,92 +926,6 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill);
 }
 
-void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& sampling,
-                              const SkPaint& paint) const {
-    SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
-
-    // nothing to draw
-    if (fRC->isEmpty()) {
-        return;
-    }
-
-    SkMatrix ctm = fMatrixProvider->localToDevice();
-    if (SkTreatAsSprite(ctm, bitmap.dimensions(), sampling, paint))
-    {
-        int ix = SkScalarRoundToInt(ctm.getTranslateX());
-        int iy = SkScalarRoundToInt(ctm.getTranslateY());
-
-        SkPixmap pmap;
-        if (!bitmap.peekPixels(&pmap)) {
-            return;
-        }
-        SkMask  mask;
-        mask.fBounds.setXYWH(ix, iy, pmap.width(), pmap.height());
-        mask.fFormat = SkMask::kA8_Format;
-        mask.fRowBytes = SkToU32(pmap.rowBytes());
-        // fImage is typed as writable, but in this case it is used read-only
-        mask.fImage = (uint8_t*)pmap.addr8(0, 0);
-
-        this->drawDevMask(mask, paint);
-    } else {    // need to xform the bitmap first
-        SkRect  r;
-        SkMask  mask;
-
-        r.setIWH(bitmap.width(), bitmap.height());
-        ctm.mapRect(&r);
-        r.round(&mask.fBounds);
-
-        // set the mask's bounds to the transformed bitmap-bounds,
-        // clipped to the actual device and further limited by the clip bounds
-        {
-            SkASSERT(fDst.bounds().contains(fRC->getBounds()));
-            SkIRect devBounds = fDst.bounds();
-            devBounds.intersect(fRC->getBounds().makeOutset(1, 1));
-            // need intersect(l, t, r, b) on irect
-            if (!mask.fBounds.intersect(devBounds)) {
-                return;
-            }
-        }
-
-        mask.fFormat = SkMask::kA8_Format;
-        mask.fRowBytes = SkAlign4(mask.fBounds.width());
-        size_t size = mask.computeImageSize();
-        if (0 == size) {
-            // the mask is too big to allocated, draw nothing
-            return;
-        }
-
-        // allocate (and clear) our temp buffer to hold the transformed bitmap
-        SkAutoTMalloc<uint8_t> storage(size);
-        mask.fImage = storage.get();
-        memset(mask.fImage, 0, size);
-
-        // now draw our bitmap(src) into mask(dst), transformed by the matrix
-        {
-            SkBitmap    device;
-            device.installPixels(SkImageInfo::MakeA8(mask.fBounds.width(), mask.fBounds.height()),
-                                 mask.fImage, mask.fRowBytes);
-
-            SkCanvas c(device);
-            // need the unclipped top/left for the translate
-            c.translate(-SkIntToScalar(mask.fBounds.fLeft),
-                        -SkIntToScalar(mask.fBounds.fTop));
-            c.concat(ctm);
-
-            // We can't call drawBitmap, or we'll infinitely recurse. Instead
-            // we manually build a shader and draw that into our new mask
-            SkPaint tmpPaint;
-            tmpPaint.setAntiAlias(paint.isAntiAlias());
-            tmpPaint.setDither(paint.isDither());
-            SkPaint paintWithShader = make_paint_with_image(tmpPaint, bitmap, sampling);
-            SkRect rr;
-            rr.setIWH(bitmap.width(), bitmap.height());
-            c.drawRect(rr, paintWithShader);
-        }
-        this->drawDevMask(mask, paint);
-    }
-}
-
 static bool clipped_out(const SkMatrix& m, const SkRasterClip& c,
                         const SkRect& srcR) {
     SkRect  dstR;
@@ -1116,16 +999,12 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     SkDraw draw(*this);
     draw.fMatrixProvider = &matrixProvider;
 
-    if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter()) {
-        draw.drawBitmapAsMask(bitmap, sampling, *paint);
+    SkPaint paintWithShader = make_paint_with_image(*paint, bitmap, sampling);
+    const SkRect srcBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
+    if (dstBounds) {
+        this->drawRect(srcBounds, paintWithShader, &prematrix, dstBounds);
     } else {
-        SkPaint paintWithShader = make_paint_with_image(*paint, bitmap, sampling);
-        const SkRect srcBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
-        if (dstBounds) {
-            this->drawRect(srcBounds, paintWithShader, &prematrix, dstBounds);
-        } else {
-            draw.drawRect(srcBounds, paintWithShader);
-        }
+        draw.drawRect(srcBounds, paintWithShader);
     }
 }
 
