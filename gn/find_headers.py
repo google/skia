@@ -34,9 +34,9 @@ gn_desc_cmd = [gn, 'desc', '.', '--root=%s' % absolute_source, '--format=json',
 
 desc_json_txt = ''
 try:
-  desc_json_txt = subprocess.check_output(gn_desc_cmd).decode('utf-8')
+  desc_json_txt = subprocess.check_output(gn_desc_cmd)
 except subprocess.CalledProcessError as e:
-  print(e.output.decode('utf-8'))
+  print(e.output)
   raise
 
 desc_json = {}

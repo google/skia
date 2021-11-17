@@ -40,9 +40,9 @@ def main():
   ibtool_section_re = re.compile(r'/\*.*\*/')
   ibtool_re = re.compile(r'.*note:.*is clipping its content')
   try:
-    stdout = subprocess.check_output(ibtool_args).decode('utf-8')
+    stdout = subprocess.check_output(ibtool_args)
   except subprocess.CalledProcessError as e:
-    print(e.output.decode('utf-8'))
+    print(e.output)
     raise
   current_section_header = None
   for line in stdout.splitlines():

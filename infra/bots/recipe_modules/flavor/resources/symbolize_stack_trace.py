@@ -77,8 +77,7 @@ def main(basedir, cmd):
         if not addr or not addr.startswith('0x'):
           addr = addr2
         try:
-          sym = subprocess.check_output([
-              'addr2line', '-Cfpe', path, addr]).decode('utf-8')
+          sym = subprocess.check_output(['addr2line', '-Cfpe', path, addr])
         except subprocess.CalledProcessError:
           sym = ''
         sym = sym.strip()

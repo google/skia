@@ -23,8 +23,7 @@ class GitLocalConfig(object):
   def __enter__(self):
     for k, v in self._config_dict.items():
       try:
-        prev = subprocess.check_output([
-            'git', 'config', '--local', k]).decode('utf-8').rstrip()
+        prev = subprocess.check_output(['git', 'config', '--local', k]).rstrip()
         if prev:
           self._previous_values[k] = prev
       except subprocess.CalledProcessError:
@@ -61,8 +60,7 @@ class GitBranch(object):
   def __enter__(self):
     subprocess.check_call(['git', 'reset', '--hard', 'HEAD'])
     subprocess.check_call(['git', 'checkout', 'main'])
-    if self._branch_name in subprocess.check_output([
-        'git', 'branch']).decode('utf-8').split():
+    if self._branch_name in subprocess.check_output(['git', 'branch']).split():
       subprocess.check_call(['git', 'branch', '-D', self._branch_name])
     subprocess.check_call(['git', 'checkout', '-b', self._branch_name,
                            '-t', 'origin/main'])
@@ -83,8 +81,7 @@ class GitBranch(object):
     if self._cc_list:
       upload_cmd.extend(['--cc=%s' % ','.join(self._cc_list)])
     subprocess.check_call(upload_cmd)
-    output = subprocess.check_output([
-        'git', 'cl', 'issue']).decode('utf-8').rstrip()
+    output = subprocess.check_output(['git', 'cl', 'issue']).rstrip()
     return re.match('^Issue number: (?P<issue>\d+) \((?P<issue_url>.+)\)$',
                     output).group('issue_url')
 
@@ -148,7 +145,7 @@ class NewGitCheckout(utils.tmp_dir):
     remote = self._repository
     if self._local:
       remote = self._local
-    subprocess.check_call(['git', 'clone', remote])
+    subprocess.check_output(args=['git', 'clone', remote])
     repo_name = remote.split('/')[-1]
     if repo_name.endswith('.git'):
       repo_name = repo_name[:-len('.git')]

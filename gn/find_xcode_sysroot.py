@@ -12,5 +12,4 @@ import sys
 
 (sdk,) = sys.argv[1:]
 
-print(subprocess.check_output([
-    'xcrun', '--sdk', sdk, '--show-sdk-path']).decode('utf-8'))
+print(subprocess.check_output(['xcrun', '--sdk', sdk, '--show-sdk-path']))

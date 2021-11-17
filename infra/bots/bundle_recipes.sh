@@ -6,10 +6,8 @@
 
 set -x -e
 
-which vpython3
-vpython3 --version
 cd skia
 git init
 git add .
 git commit -m "Commit Recipes"
-vpython3 infra/bots/recipes.py bundle --destination ${1}/recipe_bundle
+python infra/bots/recipes.py bundle --destination ${1}/recipe_bundle

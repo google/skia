@@ -2093,10 +2093,6 @@ go.skia.org/infra v0.0.0-20210910143316-141caab7391e h1:klXhFdngbjdDI+e9m+iLvFqu
 go.skia.org/infra v0.0.0-20210910143316-141caab7391e/go.mod h1:BX7j5CR8GabRog5/v70hZ7QERcahOEUvzkDN/oBJSEM=
 go.skia.org/infra v0.0.0-20211110142552-553519b41e71 h1:MsyIiBuNicDVyMBAECY6QO6A/BpjTdRgImiWQ9iaQro=
 go.skia.org/infra v0.0.0-20211110142552-553519b41e71/go.mod h1:BX7j5CR8GabRog5/v70hZ7QERcahOEUvzkDN/oBJSEM=
-go.skia.org/infra v0.0.0-20211111154509-8e43ef9acc1b h1:eXp9iKtrRzPRdvGSPh+QH1MPP0ZoRYs3nF1UGW1aoFQ=
-go.skia.org/infra v0.0.0-20211111154509-8e43ef9acc1b/go.mod h1:BX7j5CR8GabRog5/v70hZ7QERcahOEUvzkDN/oBJSEM=
-go.skia.org/infra v0.0.0-20211115132608-15374cc24841 h1:DCO1fLr8bVXYJJJUR1t1K1kjt4hMHQn85n4CZiSunE4=
-go.skia.org/infra v0.0.0-20211115132608-15374cc24841/go.mod h1:BX7j5CR8GabRog5/v70hZ7QERcahOEUvzkDN/oBJSEM=
 go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5/go.mod h1:nmDLcffg48OtT/PSW0Hg7FvpRQsQh5OSqIylirxKC7o=
 go.starlark.net v0.0.0-20201118183435-e55f603d8c79 h1:JPjLPz44y2N9mkzh2N344kTk1Y4/V4yJAjTrXGmzv8I=
 go.starlark.net v0.0.0-20201118183435-e55f603d8c79/go.mod h1:5YFcFnRptTN+41758c2bMPiqpGg4zBfYji1IQz8wNFk=

@@ -10,7 +10,7 @@ import calendar
 import json
 import os
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
+PYTHON_VERSION_COMPATIBILITY = "PY2+3"
 
 DEPS = [
   'env',
