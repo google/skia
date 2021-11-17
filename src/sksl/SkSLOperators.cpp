@@ -289,6 +289,9 @@ bool Operator::determineBinaryType(const Context& context,
                    right.canCoerceTo(*context.fTypes.fBool, allowNarrowing);
 
         case Token::Kind::TK_COMMA:  // left, right
+            if (left.isOpaque() || right.isOpaque()) {
+                return false;
+            }
             *outLeftType = &left;
             *outRightType = &right;
             *outResultType = &right;

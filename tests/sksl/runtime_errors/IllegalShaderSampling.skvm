@@ -1,15 +1,18 @@
 ### Compilation failed:
 
-error: 10: no match for shader::eval(float2, half4)
-error: 11: no match for shader::eval(half4)
-error: 12: no match for shader::eval(half4, float2)
-error: 13: no match for shader::eval()
-error: 14: no match for shader::eval(float3x3)
-error: 16: no match for colorFilter::eval()
-error: 17: no match for colorFilter::eval(float2)
-error: 18: no match for colorFilter::eval(float2, half4)
-error: 20: no match for blender::eval()
-error: 21: no match for blender::eval(half4)
-error: 22: no match for blender::eval(float2)
-error: 23: no match for blender::eval(float2, half4)
-12 errors
+error: 11: no match for shader::eval(float2, half4)
+error: 12: no match for shader::eval(half4)
+error: 13: no match for shader::eval(half4, float2)
+error: 14: no match for shader::eval()
+error: 15: no match for shader::eval(float3x3)
+error: 16: type mismatch: ',' cannot operate on 'int', 'shader'
+error: 18: no match for colorFilter::eval()
+error: 19: no match for colorFilter::eval(float2)
+error: 20: no match for colorFilter::eval(float2, half4)
+error: 21: type mismatch: ',' cannot operate on 'shader', 'colorFilter'
+error: 23: no match for blender::eval()
+error: 24: no match for blender::eval(half4)
+error: 25: no match for blender::eval(float2)
+error: 26: no match for blender::eval(float2, half4)
+error: 27: type mismatch: ',' cannot operate on 'blender', 'blender'
+15 errors

@@ -1,4 +1,4 @@
-// Expect 12 errors
+// Expect 15 errors
 
 uniform shader      s;
 uniform colorFilter f;
@@ -6,21 +6,25 @@ uniform blender     b;
 
 uniform float2 xy;
 uniform half4  color;
+int i;
 
-half4 eval_shader_xy_color() { return s.eval(xy, color); }
-half4 eval_shader_color()    { return s.eval(color); }
-half4 eval_shader_color_xy() { return s.eval(color, xy); }
-half4 eval_shader_empty()    { return s.eval(); }
-half4 eval_shader_matrix()   { return s.eval(float3x3(1)); }
+half4 eval_shader_xy_color()   { return s.eval(xy, color); }
+half4 eval_shader_color()      { return s.eval(color); }
+half4 eval_shader_color_xy()   { return s.eval(color, xy); }
+half4 eval_shader_empty()      { return s.eval(); }
+half4 eval_shader_matrix()     { return s.eval(float3x3(1)); }
+half4 eval_shader_comma_expr() { return (i++, s).eval(xy); }
 
-half4 eval_colorFilter_empty()    { return f.eval(); }
-half4 eval_colorFilter_xy()       { return f.eval(xy); }
-half4 eval_colorFilter_xy_color() { return f.eval(xy, color); }
+half4 eval_colorFilter_empty()      { return f.eval(); }
+half4 eval_colorFilter_xy()         { return f.eval(xy); }
+half4 eval_colorFilter_xy_color()   { return f.eval(xy, color); }
+half4 eval_colorFilter_comma_expr() { return (s, f).eval(color); }
 
-half4 eval_blender_empty()    { return b.eval(); }
-half4 eval_blender_color()    { return b.eval(color); }
-half4 eval_blender_xy()       { return b.eval(xy); }
-half4 eval_blender_xy_color() { return b.eval(xy, color); }
+half4 eval_blender_empty()      { return b.eval(); }
+half4 eval_blender_color()      { return b.eval(color); }
+half4 eval_blender_xy()         { return b.eval(xy); }
+half4 eval_blender_xy_color()   { return b.eval(xy, color); }
+half4 eval_blender_comma_expr() { return (b, b).eval(color, color); }
 
 // Correct usage (EXPECT NO ERRORS)
 
