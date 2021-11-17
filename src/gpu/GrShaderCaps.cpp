@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 GrShaderCaps::GrShaderCaps() {
-    fGLSLGeneration = k330_GrGLSLGeneration;
+    fGLSLGeneration = SkSL::GLSLGeneration::k330;
     fShaderDerivativeSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;

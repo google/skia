@@ -13,6 +13,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "include/private/SkSLDefines.h"
+#include "src/sksl/SkSLGLSL.h"
 #include "src/sksl/SkSLLexer.h"
 
 #ifndef SKSL_STANDALONE
@@ -35,23 +36,10 @@ class Type;
 
 #if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 
-// we're being compiled standalone, so we don't have access to caps...
-enum GrGLSLGeneration {
-    k110_GrGLSLGeneration,
-    k130_GrGLSLGeneration,
-    k140_GrGLSLGeneration,
-    k150_GrGLSLGeneration,
-    k330_GrGLSLGeneration,
-    k400_GrGLSLGeneration,
-    k420_GrGLSLGeneration,
-    k310es_GrGLSLGeneration,
-    k320es_GrGLSLGeneration,
-};
-
 class StandaloneShaderCaps {
 public:
-    GrGLSLGeneration fGLSLGeneration = k400_GrGLSLGeneration;
-    GrGLSLGeneration generation() const {
+    SkSL::GLSLGeneration fGLSLGeneration = SkSL::GLSLGeneration::k400;
+    SkSL::GLSLGeneration generation() const {
         return fGLSLGeneration;
     }
 
@@ -86,7 +74,7 @@ public:
     }
 
     bool mustDeclareFragmentShaderOutput() const {
-        return fGLSLGeneration > k110_GrGLSLGeneration;
+        return fGLSLGeneration > SkSL::GLSLGeneration::k110;
     }
 
     bool fFBFetchSupport = false;
@@ -441,7 +429,7 @@ public:
     static ShaderCapsPointer Version110() {
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 110";
-        result->fGLSLGeneration = GrGLSLGeneration::k110_GrGLSLGeneration;
+        result->fGLSLGeneration = SkSL::GLSLGeneration::k110;
         return result;
     }
 

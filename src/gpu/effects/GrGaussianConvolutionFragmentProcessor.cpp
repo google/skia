@@ -41,7 +41,7 @@ enum class LoopType {
 
 static LoopType loop_type(const GrShaderCaps& caps) {
     // This checks that bitwise integer operations and array indexing by non-consts are allowed.
-    if (caps.generation() < k130_GrGLSLGeneration) {
+    if (caps.generation() < SkSL::GLSLGeneration::k130) {
         return LoopType::kUnrolled;
     }
     // If we're in reduced shader mode and we can have a loop then use a uniform to limit the

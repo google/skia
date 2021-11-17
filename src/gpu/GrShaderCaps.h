@@ -104,7 +104,7 @@ public:
      */
     bool supportsSkSLES3() const {
         return fShaderDerivativeSupport && fNonsquareMatrixSupport && fIntegerSupport &&
-               fGLSLGeneration >= k330_GrGLSLGeneration;
+               fGLSLGeneration >= SkSL::GLSLGeneration::k330;
     }
 
     // SkSL only.
@@ -118,7 +118,9 @@ public:
         return fAdvBlendEqInteraction >= kGeneralEnable_AdvBlendEqInteraction;
     }
 
-    bool mustDeclareFragmentShaderOutput() const { return fGLSLGeneration > k110_GrGLSLGeneration; }
+    bool mustDeclareFragmentShaderOutput() const {
+        return fGLSLGeneration > SkSL::GLSLGeneration::k110;
+    }
 
     bool usesPrecisionModifiers() const { return fUsesPrecisionModifiers; }
 
@@ -263,12 +265,12 @@ public:
 
     bool tessellationSupport() const { return SkToBool(fMaxTessellationSegments);}
 
-    GrGLSLGeneration generation() const { return fGLSLGeneration; }
+    SkSL::GLSLGeneration generation() const { return fGLSLGeneration; }
 
 private:
     void applyOptionsOverrides(const GrContextOptions& options);
 
-    GrGLSLGeneration fGLSLGeneration;
+    SkSL::GLSLGeneration fGLSLGeneration;
 
     bool fShaderDerivativeSupport           : 1;
     bool fDstReadInShaderSupport            : 1;

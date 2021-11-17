@@ -46,7 +46,7 @@ public:
     const GrGLContextInfo& ctxInfo() const { return *fGLContext; }
     GrGLStandard glStandard() const { return fGLContext->standard(); }
     GrGLVersion glVersion() const { return fGLContext->version(); }
-    GrGLSLGeneration glslGeneration() const { return fGLContext->glslGeneration(); }
+    SkSL::GLSLGeneration glslGeneration() const { return fGLContext->glslGeneration(); }
     const GrGLCaps& glCaps() const { return *fGLContext->caps(); }
 
     // Used by GrGLProgram to configure OpenGL state.

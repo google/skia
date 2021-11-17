@@ -30,7 +30,7 @@ public:
 
     GrGLStandard standard() const { return fInterface->fStandard; }
     GrGLVersion version() const { return fDriverInfo.fVersion; }
-    GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
+    SkSL::GLSLGeneration glslGeneration() const { return fGLSLGeneration; }
     GrGLVendor vendor() const { return fDriverInfo.fVendor; }
     GrGLRenderer renderer() const { return fDriverInfo.fRenderer; }
     GrGLANGLEBackend angleBackend() const { return fDriverInfo.fANGLEBackend; }
@@ -65,7 +65,7 @@ protected:
     struct ConstructorArgs {
         sk_sp<const GrGLInterface>          fInterface;
         GrGLDriverInfo                      fDriverInfo;
-        GrGLSLGeneration                    fGLSLGeneration;
+        SkSL::GLSLGeneration                fGLSLGeneration;
         const  GrContextOptions*            fContextOptions;
     };
 
@@ -73,7 +73,7 @@ protected:
 
     sk_sp<const GrGLInterface> fInterface;
     GrGLDriverInfo             fDriverInfo;
-    GrGLSLGeneration           fGLSLGeneration;
+    SkSL::GLSLGeneration       fGLSLGeneration;
     sk_sp<GrGLCaps>            fGLCaps;
 };
 

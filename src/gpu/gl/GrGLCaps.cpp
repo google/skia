@@ -381,32 +381,40 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fDualSourceBlendingSupport =
                 (version >= GR_GL_VER(3, 3) ||
                  ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
-                ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
 
         shaderCaps->fShaderDerivativeSupport = true;
 
         shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
-            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+            ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
 
-        shaderCaps->fNonsquareMatrixSupport = ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
-        shaderCaps->fInverseHyperbolicSupport = ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+        shaderCaps->fNonsquareMatrixSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
+        shaderCaps->fInverseHyperbolicSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
     } else if (GR_IS_GR_GL_ES(standard)) {
         shaderCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
 
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
 
-        shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
-            ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
-        shaderCaps->fNonsquareMatrixSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
-        shaderCaps->fInverseHyperbolicSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
+        shaderCaps->fIntegerSupport =
+                // We use this value for GLSL ES 3.0.
+                version >= GR_GL_VER(3, 0) &&
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+        shaderCaps->fNonsquareMatrixSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+        shaderCaps->fInverseHyperbolicSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
     } else if (GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(2, 0) ||
                                                ctxInfo.hasExtension("GL_OES_standard_derivatives") ||
                                                ctxInfo.hasExtension("OES_standard_derivatives");
         shaderCaps->fIntegerSupport = (version >= GR_GL_VER(2, 0));
-        shaderCaps->fNonsquareMatrixSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
-        shaderCaps->fInverseHyperbolicSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
+        shaderCaps->fNonsquareMatrixSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+        shaderCaps->fInverseHyperbolicSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
     }
 
     if (ctxInfo.hasExtension("GL_NV_conservative_raster")) {
@@ -419,10 +427,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fRewriteSwitchStatements =
-                ctxInfo.glslGeneration() < k130_GrGLSLGeneration;  // introduced in GLSL 1.3
+                ctxInfo.glslGeneration() < SkSL::GLSLGeneration::k130;  // introduced in GLSL 1.3
     } else if (GR_IS_GR_GL_ES(standard)) {
         shaderCaps->fRewriteSwitchStatements =
-                ctxInfo.glslGeneration() < k330_GrGLSLGeneration;  // introduced in GLSL ES3
+                ctxInfo.glslGeneration() < SkSL::GLSLGeneration::k330;  // introduced in GLSL ES3
     } else if (GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(2, 0);  // introduced in WebGL 2
     }
@@ -783,35 +791,35 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     shaderCaps->fDstReadInShaderSupport = shaderCaps->fFBFetchSupport;
 }
 
-const char* get_glsl_version_decl_string(GrGLStandard standard, GrGLSLGeneration generation,
+const char* get_glsl_version_decl_string(GrGLStandard standard, SkSL::GLSLGeneration generation,
                                          bool isCoreProfile) {
     if (GR_IS_GR_GL(standard)) {
         switch (generation) {
-            case k110_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k110:
                 return "#version 110\n";
-            case k130_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k130:
                 return "#version 130\n";
-            case k140_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k140:
                 return "#version 140\n";
-            case k150_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k150:
                 if (isCoreProfile) {
                     return "#version 150\n";
                 } else {
                     return "#version 150 compatibility\n";
                 }
-            case k330_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k330:
                 if (isCoreProfile) {
                     return "#version 330\n";
                 } else {
                     return "#version 330 compatibility\n";
                 }
-            case k400_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k400:
                 if (isCoreProfile) {
                     return "#version 400\n";
                 } else {
                     return "#version 400 compatibility\n";
                 }
-            case k420_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k420:
                 if (isCoreProfile) {
                     return "#version 420\n";
                 } else {
@@ -822,15 +830,15 @@ const char* get_glsl_version_decl_string(GrGLStandard standard, GrGLSLGeneration
         }
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
         switch (generation) {
-            case k110_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k110:
                 // ES2s shader language is based on version 1.20 but is version
                 // 1.00 of the ES language.
                 return "#version 100\n";
-            case k330_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k330:
                 return "#version 300 es\n";
-            case k310es_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k310es:
                 return "#version 310 es\n";
-            case k320es_GrGLSLGeneration:
+            case SkSL::GLSLGeneration::k320es:
                 return "#version 320 es\n";
             default:
                 break;
@@ -907,10 +915,12 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }
 
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fFlatInterpolationSupport = ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
-    } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fFlatInterpolationSupport =
-            ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // This is the value for GLSL ES 3.0.
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
+    } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
+        // This is the value for GLSL ES 3.0.
+        shaderCaps->fFlatInterpolationSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
     } // not sure for WebGL
 
     // Flat interpolation appears to be slow on Qualcomm GPUs (tested Adreno 405 and 530).
@@ -921,10 +931,10 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
                                            ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown;
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fNoPerspectiveInterpolationSupport =
-            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+            ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
     } else if (GR_IS_GR_GL_ES(standard)) {
         if (ctxInfo.hasExtension("GL_NV_shader_noperspective_interpolation") &&
-            ctxInfo.glslGeneration() >= k330_GrGLSLGeneration /* GLSL ES 3.0 */) {
+            ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330 /* GLSL ES 3.0 */) {
             shaderCaps->fNoPerspectiveInterpolationSupport = true;
             shaderCaps->fNoPerspectiveInterpolationExtensionString =
                 "GL_NV_shader_noperspective_interpolation";
@@ -932,9 +942,9 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }  // Not sure for WebGL
 
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fSampleMaskSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
+        shaderCaps->fSampleMaskSupport = ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k400;
     } else if (GR_IS_GR_GL_ES(standard)) {
-        if (ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
+        if (ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k320es) {
             shaderCaps->fSampleMaskSupport = true;
         } else if (ctxInfo.hasExtension("GL_OES_sample_variables")) {
             shaderCaps->fSampleMaskSupport = true;
@@ -964,7 +974,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
                                                                   fIsCoreProfile);
 
     if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
-        if (k110_GrGLSLGeneration == shaderCaps->fGLSLGeneration) {
+        if (SkSL::GLSLGeneration::k110 == shaderCaps->fGLSLGeneration) {
             shaderCaps->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
         }
     } // WebGL might have to check for OES_standard_derivatives
@@ -974,7 +984,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }
 
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external")) {
-        if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
+        if (ctxInfo.glslGeneration() == SkSL::GLSLGeneration::k110) {
             shaderCaps->fExternalTextureSupport = true;
             shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
         } else if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
@@ -989,7 +999,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fVertexIDSupport = true;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
         // Desktop GLSL 3.30 == ES GLSL 3.00.
-        shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
+        shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
     }
 
     if (GR_IS_GR_GL(standard)) {
@@ -997,13 +1007,15 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
         // Desktop GLSL 3.30 == ES GLSL 3.00.
         shaderCaps->fInfinitySupport = shaderCaps->fNonconstantArrayIndexSupport =
-                (ctxInfo.glslGeneration() >= k330_GrGLSLGeneration);
+                (ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330);
     }
 
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fBitManipulationSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
+        shaderCaps->fBitManipulationSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k400;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
-        shaderCaps->fBitManipulationSupport = ctxInfo.glslGeneration() >= k310es_GrGLSLGeneration;
+        shaderCaps->fBitManipulationSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k310es;
     }
 
     shaderCaps->fFloatIs32Bits = is_float_fp32(ctxInfo, gli, GR_GL_HIGH_FLOAT);
@@ -1011,12 +1023,14 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     shaderCaps->fHasLowFragmentPrecision = ctxInfo.renderer() == GrGLRenderer::kMali4xx;
 
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fBuiltinFMASupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
+        shaderCaps->fBuiltinFMASupport =
+                 ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k400;
     } else if (GR_IS_GR_GL_ES(standard)) {
-        shaderCaps->fBuiltinFMASupport = ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration;
+        shaderCaps->fBuiltinFMASupport =
+                 ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k320es;
     }
 
-    shaderCaps->fBuiltinDeterminantSupport = ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
+    shaderCaps->fBuiltinDeterminantSupport = ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k150;
 
     if (GR_IS_GR_WEBGL(standard)) {
       // WebGL 1.0 doesn't support do-while loops.
@@ -1066,8 +1080,8 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
     GrShaderCaps* shaderCaps = static_cast<GrShaderCaps*>(fShaderCaps.get());
 
     bool layoutQualifierSupport = false;
-    if ((GR_IS_GR_GL(fStandard) && shaderCaps->generation() >= k140_GrGLSLGeneration)  ||
-        (GR_IS_GR_GL_ES(fStandard) && shaderCaps->generation() >= k330_GrGLSLGeneration)) {
+    if ((GR_IS_GR_GL(fStandard) && shaderCaps->generation() >= SkSL::GLSLGeneration::k140)  ||
+        (GR_IS_GR_GL_ES(fStandard) && shaderCaps->generation() >= SkSL::GLSLGeneration::k330)) {
         layoutQualifierSupport = true;
     } else if (GR_IS_GR_WEBGL(fStandard)) {
         return;
@@ -4023,7 +4037,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // extension to be enabled, even when using ESSL3. Enabling both extensions fixes both cases.
     // skbug.com/7713
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external") &&
-        ctxInfo.glslGeneration() >= k330_GrGLSLGeneration &&
+        ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330 &&
         !shaderCaps->fExternalTextureSupport) { // i.e. Missing the _essl3 extension
         shaderCaps->fExternalTextureSupport = true;
         shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
@@ -4110,7 +4124,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // GL_NV_shader_noperspective_interpolation in ES 3.00 or 3.10 shaders, only 3.20.
     // https://crbug.com/986581
     if (ctxInfo.vendor() == GrGLVendor::kQualcomm &&
-        k320es_GrGLSLGeneration != ctxInfo.glslGeneration()) {
+        SkSL::GLSLGeneration::k320es != ctxInfo.glslGeneration()) {
         shaderCaps->fNoPerspectiveInterpolationSupport = false;
     }
 
