@@ -105,14 +105,16 @@ CORE_DEFINES = ["SK_HAS_ANDROID_CODEC"] + select({
     "//conditions:default": [],
 }) + select_multi(
     {
-        "//bazel/common_config_settings:gif_codec": ["SK_HAS_WUFFS_LIBRARY"],
-        "//bazel/common_config_settings:jpeg_codec": ["SK_CODEC_DECODES_JPEG"],
-        "//bazel/common_config_settings:png_codec": ["SK_CODEC_DECODES_PNG"],
-        "//bazel/common_config_settings:raw_codec": [
+        "//bazel/common_config_settings:gif_decode_codec": ["SK_HAS_WUFFS_LIBRARY"],
+        "//bazel/common_config_settings:jpeg_decode_codec": ["SK_CODEC_DECODES_JPEG"],
+        "//bazel/common_config_settings:jpeg_encode_codec": ["SK_ENCODE_JPEG"],
+        "//bazel/common_config_settings:png_decode_codec": ["SK_CODEC_DECODES_PNG"],
+        "//bazel/common_config_settings:png_encode_codec": ["SK_ENCODE_PNG"],
+        "//bazel/common_config_settings:raw_decode_codec": [
             "SK_CODEC_DECODES_RAW",
             "SK_CODEC_DECODES_JPEG",
         ],
-        "//bazel/common_config_settings:webp_codec": ["SK_CODEC_DECODES_WEBP"],
+        "//bazel/common_config_settings:webp_decode_codec": ["SK_CODEC_DECODES_WEBP"],
     },
     default = [],
 ) + select({
@@ -120,6 +122,37 @@ CORE_DEFINES = ["SK_HAS_ANDROID_CODEC"] + select({
     "//bazel/common_config_settings:cpu_wasm": ["SK_FORCE_8_BYTE_ALIGNMENT"],
     "//conditions:default": [],
 })
+
+freetype_fontmgrs = (
+    "//bazel/common_config_settings:custom_directory_fontmgr",
+    "//bazel/common_config_settings:custom_embedded_fontmgr",
+    "//bazel/common_config_settings:custom_empty_fontmgr",
+)
+
+selects.config_setting_group(
+    name = "needs_jpeg",
+    match_any = [
+        "//bazel/common_config_settings:raw_decode_codec",
+        "//bazel/common_config_settings:jpeg_decode_codec",
+        "//bazel/common_config_settings:jpeg_encode_codec",
+    ],
+)
+
+selects.config_setting_group(
+    name = "needs_png",
+    match_any = [
+        "//bazel/common_config_settings:png_decode_codec",
+        "//bazel/common_config_settings:png_encode_codec",
+    ],
+)
+
+selects.config_setting_group(
+    name = "needs_webp",
+    match_any = [
+        "//bazel/common_config_settings:webp_decode_codec",
+        "//bazel/common_config_settings:webp_encode_codec",
+    ],
+)
 
 selects.config_setting_group(
     name = "any_freetype_fontmgr",
@@ -132,21 +165,17 @@ selects.config_setting_group(
 
 CORE_DEPS = [] + select_multi(
     {
-        "//bazel/common_config_settings:gif_codec": ["//third_party:wuffs"],
-        "//bazel/common_config_settings:png_codec": ["//third_party:libpng"],
-        "//bazel/common_config_settings:raw_codec": [
+        "//bazel/common_config_settings:gif_decode_codec": ["//third_party:wuffs"],
+        ":needs_png": ["//third_party:libpng"],
+        "//bazel/common_config_settings:raw_decode_codec": [
             "//third_party:piex",
             "//third_party:dng_sdk",
         ],
-        "//bazel/common_config_settings:webp_codec": ["//third_party:libwebp"],
+        ":needs_webp": ["//third_party:libwebp"],
+        ":needs_jpeg": ["//third_party:libjpeg-turbo"],
     },
     default = [],
-) + selects.with_or({
-    # The RAW codec require JPEG, but we cannot list libjpeg-turbo twice in the above list, or
-    # Bazel gets sad.
-    ("//bazel/common_config_settings:jpeg_codec", "//bazel/common_config_settings:raw_codec"): ["//third_party:libjpeg-turbo"],
-    "//conditions:default": [],
-}) + select({
+) + select({
     ":any_freetype_fontmgr": [
         "//third_party:freetype2",
     ],

@@ -124,6 +124,8 @@ CK_OPTS = BASE_LINKOPTS + [
     "modules/canvaskit/util.js",
     "--pre-js",
     "modules/canvaskit/interface.js",
+    "--pre-js",
+    "modules/canvaskit/matrix.js",
 ] + select({
     "//bazel/common_config_settings:gl_backend": [
         "--pre-js",
@@ -141,6 +143,34 @@ CK_OPTS = BASE_LINKOPTS + [
         "modules/canvaskit/font.js",
     ],
     ":enable_fonts_false": [],
+}) + select({
+    ":enable_canvas_polyfill_true": [
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/preamble.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/util.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/color.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/font.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/canvas2dcontext.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/htmlcanvas.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/imagedata.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/lineargradient.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/path2d.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/pattern.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/radialgradient.js",
+        "--pre-js",
+        "modules/canvaskit/htmlcanvas/postamble.js",
+    ],
+    ":enable_canvas_polyfill_false": [],
 }) + [
     "--pre-js",
     "modules/canvaskit/postamble.js",
@@ -155,6 +185,42 @@ CK_OPTS = BASE_LINKOPTS + [
     ],
 })
 
+# All JS files that could be included via --pre-js or --post-js
+JS_INTERFACE_FILES = [
+    "color.js",
+    "cpu.js",
+    "debug.js",
+    "externs.js",
+    "font.js",
+    "gpu.js",
+    "interface.js",
+    "matrix.js",
+    "memory.js",
+    "paragraph.js",
+    "particles.js",
+    "pathops.js",
+    "postamble.js",
+    "preamble.js",
+    "release.js",
+    "rt_shader.js",
+    "skottie.js",
+    "skp.js",
+    "util.js",
+] + [
+    "htmlcanvas/canvas2dcontext.js",
+    "htmlcanvas/color.js",
+    "htmlcanvas/font.js",
+    "htmlcanvas/htmlcanvas.js",
+    "htmlcanvas/imagedata.js",
+    "htmlcanvas/lineargradient.js",
+    "htmlcanvas/path2d.js",
+    "htmlcanvas/pattern.js",
+    "htmlcanvas/postamble.js",
+    "htmlcanvas/preamble.js",
+    "htmlcanvas/radialgradient.js",
+    "htmlcanvas/util.js",
+]
+
 CK_SRCS = [
     "canvaskit_bindings.cpp",
     ":hdrs",
@@ -166,19 +232,7 @@ CK_SRCS = [
 cc_binary(
     name = "canvaskit",
     srcs = CK_SRCS,
-    additional_linker_inputs = [
-        "color.js",
-        "cpu.js",
-        "debug.js",
-        "font.js",
-        "gpu.js",
-        "interface.js",
-        "memory.js",
-        "postamble.js",
-        "preamble.js",
-        "release.js",
-        "util.js",
-    ],
+    additional_linker_inputs = JS_INTERFACE_FILES,
     linkopts = CK_OPTS,
     local_defines = CK_DEFINES,
     # This target won't build successfully on its own because of missing emscripten
@@ -192,6 +246,11 @@ cc_binary(
 wasm_cc_binary(
     name = "canvaskit-wasm",
     cc_target = ":canvaskit",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_canvas_polyfill",
 )
 
 bool_flag(

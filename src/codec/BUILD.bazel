@@ -111,6 +111,15 @@ filegroup(
     ],
 )
 
+selects.config_setting_group(
+    name = "needs_jpeg",
+    match_any = [
+        "//bazel/common_config_settings:raw_decode_codec",
+        "//bazel/common_config_settings:jpeg_decode_codec",
+        "//bazel/common_config_settings:jpeg_encode_codec",
+    ],
+)
+
 filegroup(
     name = "srcs",
     srcs = [
@@ -119,17 +128,13 @@ filegroup(
         ":core-srcs",
     ] + select_multi(
         {
-            "//bazel/common_config_settings:gif_codec": [":gif-srcs"],
-            "//bazel/common_config_settings:png_codec": [":png-srcs"],
-            "//bazel/common_config_settings:raw_codec": [":raw-srcs"],
-            "//bazel/common_config_settings:webp_codec": [":webp-srcs"],
+            "//bazel/common_config_settings:gif_decode_codec": [":gif-srcs"],
+            ":needs_jpeg": [":jpeg-srcs"],
+            "//bazel/common_config_settings:png_decode_codec": [":png-srcs"],
+            "//bazel/common_config_settings:raw_decode_codec": [":raw-srcs"],
+            "//bazel/common_config_settings:webp_decode_codec": [":webp-srcs"],
         },
         default = [],
-    ) + selects.with_or({
-        # The RAW codec depends on JPEG, but we cannot list jpeg twice in the above list, or
-        # Bazel gets sad.
-        ("//bazel/common_config_settings:jpeg_codec", "//bazel/common_config_settings:raw_codec"): [":jpeg-srcs"],
-        "//conditions:default": [],
-    }),
+    ),
     visibility = ["//:__subpackages__"],
 )

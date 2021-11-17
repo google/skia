@@ -94,12 +94,6 @@ filegroup(
     visibility = ["//:__subpackages__"],
 )
 
-any_fontmgr = (
-    "//bazel/common_config_settings:custom_directory_fontmgr",
-    "//bazel/common_config_settings:custom_embedded_fontmgr",
-    "//bazel/common_config_settings:custom_empty_fontmgr",
-)
-
 filegroup(
     name = "srcs",
     srcs = [

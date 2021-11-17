@@ -131,8 +131,8 @@ bazel_gms_release:
 	# to 1 minute. https://docs.bazel.build/versions/main/user-manual.html#strategy-options
 	bazelisk build :gm-bindings-wasm --compilation_mode opt --spawn_strategy=local \
 		--gpu_backend=gl_backend --with_gl_standard=webgl_standard \
-		--included_codec=jpeg_codec --included_codec=png_codec --include_codec=webp_codec \
-		--include_codec=gif_codec
+		--include_decoder=jpeg_decode_codec --include_decoder=png_decode_codec \
+		--include_decoder=webp_decode_codec --include_decoder=gif_decode_codec
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/gm-bindings-wasm/gm-bindings.js build/gm-bindings.js
@@ -142,8 +142,8 @@ bazel_gms_debug:
 	# See above note about spawn_strategy
 	bazelisk build :gm-bindings-wasm --compilation_mode dbg --spawn_strategy=local \
 		--gpu_backend=gl_backend --with_gl_standard=webgl_standard \
-		--include_codec=jpeg_codec --include_codec=png_codec --include_codec=webp_codec \
-		--include_codec=gif_codec
+		--include_decoder=jpeg_decode_codec --include_decoder=png_decode_codec \
+		--include_decoder=webp_decode_codec --include_decoder=gif_decode_codec
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/gm-bindings-wasm/gm-bindings.js build/gm-bindings.js
@@ -155,9 +155,10 @@ bazel_canvaskit_debug:
 	#  https://github.com/bazelbuild/examples/tree/main/rules/starlark_configurations/cc_binary_selectable_copts
 	bazelisk build :canvaskit-wasm --compilation_mode dbg --spawn_strategy=local \
 		--gpu_backend=gl_backend --with_gl_standard=webgl_standard \
-		--include_codec=jpeg_codec --include_codec=png_codec --include_codec=webp_codec \
-		--include_codec=gif_codec --include_fontmgr=custom_embedded_fontmgr \
-		--fontmgr_factory=custom_embedded_fontmgr_factory
+		--include_decoder=jpeg_decode_codec --include_decoder=png_decode_codec \
+		--include_decoder=webp_decode_codec --include_decoder=gif_decode_codec \
+		--include_encoder=jpeg_encode_codec --include_encoder=png_encode_codec \
+		--include_fontmgr=custom_embedded_fontmgr --fontmgr_factory=custom_embedded_fontmgr_factory
 	- rm -rf build/
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/canvaskit-wasm/canvaskit.js build/canvaskit.js

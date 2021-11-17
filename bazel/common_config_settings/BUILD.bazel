@@ -113,13 +113,23 @@ string_flag_with_values(
 )
 
 string_flag_with_values(
-    flag_name = "include_codec",
+    flag_name = "include_decoder",
     multiple = True,
     values = [
-        "gif_codec",
-        "jpeg_codec",
-        "png_codec",
-        "raw_codec",
-        "webp_codec",
+        "gif_decode_codec",
+        "jpeg_decode_codec",
+        "png_decode_codec",
+        "raw_decode_codec",
+        "webp_decode_codec",
+    ],
+)
+
+string_flag_with_values(
+    flag_name = "include_encoder",
+    multiple = True,
+    values = [
+        "jpeg_encode_codec",
+        "png_encode_codec",
+        "webp_encode_codec",
     ],
 )

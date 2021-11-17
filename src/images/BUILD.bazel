@@ -1,3 +1,5 @@
+load("//bazel:macros.bzl", "select_multi")
+
 package(default_visibility = ["//visibility:private"])
 
 filegroup(
@@ -9,12 +11,40 @@ filegroup(
     ],
 )
 
-# TODO(kjlubick) add selects here to allow opting in or out of various codecs.
+filegroup(
+    name = "jpeg-srcs",
+    srcs = [
+        "SkJPEGWriteUtility.cpp",
+        "SkJPEGWriteUtility.h",
+        "SkJpegEncoder.cpp",
+    ],
+)
+
+filegroup(
+    name = "png-srcs",
+    srcs = [
+        "SkPngEncoder.cpp",
+    ],
+)
+
+filegroup(
+    name = "webp-srcs",
+    srcs = [
+        "SkWebpEncoder.cpp",
+    ],
+)
 
 filegroup(
     name = "srcs",
     srcs = [
         ":core-srcs",
-    ],
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:jpeg_encode_codec": [":jpeg-srcs"],
+            "//bazel/common_config_settings:png_encode_codec": [":png-srcs"],
+            "//bazel/common_config_settings:webp_encode_codec": [":webp-srcs"],
+        },
+        default = [],
+    ),
     visibility = ["//:__subpackages__"],
 )
