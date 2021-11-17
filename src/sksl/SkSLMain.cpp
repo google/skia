@@ -383,6 +383,12 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         return compileProgram(
                 [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
+                    if (debugInfo) {
+                        // Debug traces will only be created if we choose a pixel.
+                        // Set an arbitrary trace pixel of (100, 100).
+                        debugInfo->setTraceCoord(skvm::Coord{builder.splat(100.0f),
+                                                             builder.splat(100.0f)});
+                    }
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
                                                                debugInfo.get())) {
                         return false;

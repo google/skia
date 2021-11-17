@@ -210,6 +210,10 @@ private:
         return result;
     }
 
+    skvm::I32 traceMask() {
+        return this->mask() & fTraceMask;
+    }
+
     size_t fieldSlotOffset(const FieldAccess& expr);
     size_t indexSlotOffset(const IndexExpression& expr);
 
@@ -269,6 +273,9 @@ private:
     std::vector<Slot> fSlots;
 
     std::unordered_map<const Variable*, size_t> fVariableMap;  // [Variable, first slot in fSlots]
+
+    // Debug trace mask (set to true when fTraceCoord matches device coordinates)
+    skvm::I32 fTraceMask;
 
     // Conditional execution mask (managed by ScopedCondition, and tied to control-flow scopes)
     skvm::I32 fConditionMask;
@@ -341,6 +348,18 @@ void SkVMGenerator::writeProgram(SkSpan<skvm::Val> uniforms,
 }
 
 void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device) {
+    if (fDebugInfo) {
+        // If we are debugging, we need to create a trace mask. This will be true when the current
+        // device coordinates match the requested trace coordinates.
+        if (fDebugInfo->fTraceCoord) {
+            fTraceMask = (device.x == fDebugInfo->fTraceCoord.x) &
+                         (device.y == fDebugInfo->fTraceCoord.y);
+        } else {
+            // No debug coordinates were specified, so tracing will never occur.
+            fTraceMask = fBuilder->splat(0);
+        }
+    }
+
     // Add storage for each global variable (including uniforms) to fSlots, and entries in
     // fVariableMap to remember where every variable is stored.
     const skvm::Val* uniformIter = uniforms.begin();
@@ -435,7 +454,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     int funcIndex = -1;
     if (fDebugInfo) {
         funcIndex = this->getDebugFunctionInfo(decl);
-        fBuilder->trace_call_enter(this->mask(), funcIndex);
+        fBuilder->trace_call_enter(this->traceMask(), funcIndex);
     }
 
     fFunctionStack.push_back({outReturn, /*returned=*/fBuilder->splat(0)});
@@ -473,18 +492,18 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     fFunctionStack.pop_back();
 
     if (fDebugInfo) {
-        fBuilder->trace_call_exit(this->mask(), funcIndex);
+        fBuilder->trace_call_exit(this->traceMask(), funcIndex);
     }
 }
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
     if (fDebugInfo && fSlots[slot].val != value) {
         if (fDebugInfo->fSlotInfo[slot].numberKind == Type::NumberKind::kFloat) {
-            fBuilder->trace_var(this->mask(), slot, f32(value));
+            fBuilder->trace_var(this->traceMask(), slot, f32(value));
         } else if (fDebugInfo->fSlotInfo[slot].numberKind == Type::NumberKind::kBoolean) {
-            fBuilder->trace_var(this->mask(), slot, bool(value));
+            fBuilder->trace_var(this->traceMask(), slot, bool(value));
         } else {
-            fBuilder->trace_var(this->mask(), slot, i32(value));
+            fBuilder->trace_var(this->traceMask(), slot, i32(value));
         }
     }
 
@@ -1748,7 +1767,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 
 void SkVMGenerator::emitTraceLine(int line) {
     if (fDebugInfo && line > 0) {
-        fBuilder->trace_line(this->mask(), line);
+        fBuilder->trace_line(this->traceMask(), line);
     }
 }
 
