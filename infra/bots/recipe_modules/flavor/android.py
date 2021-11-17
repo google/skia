@@ -333,11 +333,11 @@ print('Setting frequency to %d' % freq)
 # We must set min first, because if we try to set max to be less than min
 # (which sometimes happens after certain devices reboot) it returns a
 # perplexing permissions error.
-subprocess.check_([ADB, 'shell', 'echo 0 > '
+subprocess.check_call([ADB, 'shell', 'echo 0 > '
     '%s/scaling_min_freq' % root])
-subprocess.check_([ADB, 'shell', 'echo %d > '
+subprocess.check_call([ADB, 'shell', 'echo %d > '
     '%s/scaling_max_freq' % (freq, root)])
-subprocess.check_([ADB, 'shell', 'echo %d > '
+subprocess.check_call([ADB, 'shell', 'echo %d > '
     '%s/scaling_setspeed' % (freq, root)])
 time.sleep(5)
 actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
@@ -381,7 +381,7 @@ def wait_for_device():
   while True:
     time.sleep(5)
     print('Waiting for device')
-    subprocess.check_([ADB, 'wait-for-device'])
+    subprocess.check_call([ADB, 'wait-for-device'])
     bit1 = subprocess.check_output([ADB, 'shell', 'getprop',
                                    'dev.bootcomplete']).decode('utf-8')
     bit2 = subprocess.check_output([ADB, 'shell', 'getprop',
