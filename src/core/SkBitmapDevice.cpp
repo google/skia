@@ -117,8 +117,6 @@ public:
             fDraw.fMatrixProvider = dev;
             fDraw.fRC = &dev->fRCStack.rc();
             fOrigin.set(0, 0);
-
-            fDraw.fCoverage = dev->accessCoverage();
         }
     }
 
@@ -196,7 +194,6 @@ public:
         }
         fMatrixProvider = dev;
         fRC = &dev->fRCStack.rc();
-        fCoverage = dev->accessCoverage();
     }
 };
 
@@ -230,7 +227,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
-                               SkRasterHandleAllocator::Handle hndl, const SkBitmap* coverage)
+                               SkRasterHandleAllocator::Handle hndl)
         : INHERITED(bitmap.info(), surfaceProps)
         , fBitmap(bitmap)
         , fRasterHandle(hndl)
@@ -240,17 +237,10 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
                         bitmap.colorSpace(),
                         SkStrikeCache::GlobalStrikeCache()) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
-
-    if (coverage) {
-        SkASSERT(coverage->width() == bitmap.width());
-        SkASSERT(coverage->height() == bitmap.height());
-        fCoverage = std::make_unique<SkBitmap>(*coverage);
-    }
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
                                        const SkSurfaceProps& surfaceProps,
-                                       bool trackCoverage,
                                        SkRasterHandleAllocator* allocator) {
     SkAlphaType newAT = origInfo.alphaType();
     if (!valid_for_bitmap_device(origInfo, &newAT)) {
@@ -284,16 +274,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    SkBitmap coverage;
-    if (trackCoverage) {
-        SkImageInfo ci =
-                SkImageInfo::Make(info.dimensions(), kAlpha_8_SkColorType, kPremul_SkAlphaType);
-        if (!coverage.tryAllocPixelsFlags(ci, SkBitmap::kZeroPixels_AllocFlag)) {
-            return nullptr;
-        }
-    }
-
-    return new SkBitmapDevice(bitmap, surfaceProps, hndl, trackCoverage ? &coverage : nullptr);
+    return new SkBitmapDevice(bitmap, surfaceProps, hndl);
 }
 
 void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
@@ -315,7 +296,7 @@ SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPa
         info = info.makeColorType(kN32_SkColorType);
     }
 
-    return SkBitmapDevice::Create(info, surfaceProps, cinfo.fTrackCoverage, cinfo.fAllocator);
+    return SkBitmapDevice::Create(info, surfaceProps, cinfo.fAllocator);
 }
 
 bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
@@ -572,22 +553,7 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkSamplingOptions& s
     SkASSERT(!paint.getImageFilter());
     SkASSERT(!paint.getMaskFilter());
 
-    // hack to test coverage
-    SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
-    if (src->fCoverage) {
-        SkDraw draw;
-        SkSimpleMatrixProvider matrixProvider(device->getRelativeTransform(*this));
-        draw.fDst = fBitmap.pixmap();
-        draw.fMatrixProvider = &matrixProvider;
-        draw.fRC = &fRCStack.rc();
-
-        SkPaint deviceAsShader = paint;
-        SkSamplingOptions nearest;    // nearest-neighbor, since we in sprite mode
-        deviceAsShader.setShader(src->fBitmap.makeShader(nearest));
-        draw.drawBitmap(*src->fCoverage, SkMatrix::I(), nullptr, sampling, deviceAsShader);
-    } else {
-        this->INHERITED::drawDevice(device, sampling, paint);
-    }
+    this->INHERITED::drawDevice(device, sampling, paint);
 }
 
 void SkBitmapDevice::drawSpecial(SkSpecialImage* src,

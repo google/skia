@@ -41,12 +41,6 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) 
     SkSTArenaAlloc<3308> alloc;
     SkBlitter* blitter =
             SkBlitter::Choose(fDst, *fMatrixProvider, paint, &alloc, false, fRC->clipShader());
-    if (fCoverage) {
-        blitter = alloc.make<SkPairBlitter>(
-                blitter,
-                SkBlitter::Choose(
-                        *fCoverage, *fMatrixProvider, SkPaint(), &alloc, true, fRC->clipShader()));
-    }
 
     SkAAClipBlitterWrapper wrapper{*fRC, blitter};
     blitter = wrapper.getBlitter();

@@ -37,14 +37,6 @@ public:
         }
         fBlitter = SkBlitter::Choose(draw.fDst, *matrixProvider, paint, &fAlloc, drawCoverage,
                                      draw.fRC->clipShader());
-
-        if (draw.fCoverage) {
-            // hmm, why can't choose ignore the paint if drawCoverage is true?
-            SkBlitter* coverageBlitter =
-                    SkBlitter::Choose(*draw.fCoverage, *matrixProvider, SkPaint(), &fAlloc, true,
-                                      draw.fRC->clipShader());
-            fBlitter = fAlloc.make<SkPairBlitter>(fBlitter, coverageBlitter);
-        }
         return fBlitter;
     }
 
