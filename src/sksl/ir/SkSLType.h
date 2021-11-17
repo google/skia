@@ -296,7 +296,6 @@ public:
         switch (fTypeKind) {
             case TypeKind::kBlender:
             case TypeKind::kColorFilter:
-            case TypeKind::kOther:
             case TypeKind::kSampler:
             case TypeKind::kSeparateSampler:
             case TypeKind::kShader:
