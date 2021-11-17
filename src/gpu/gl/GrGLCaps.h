@@ -470,6 +470,8 @@ public:
     /** Skip checks for GL errors, shader compilation success, program link success. */
     bool skipErrorChecks() const { return fSkipErrorChecks; }
 
+    bool supportsProtected() const { return fSupportsProtected; }
+
     bool clientCanDisableMultisample() const { return fClientCanDisableMultisample; }
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
@@ -583,6 +585,7 @@ private:
     bool fSRGBWriteControl : 1;
     bool fSkipErrorChecks : 1;
     bool fClientCanDisableMultisample : 1;
+    bool fSupportsProtected : 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;

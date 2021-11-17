@@ -297,7 +297,8 @@ private:
                            GrGLenum target,
                            GrRenderable,
                            GrGLTextureParameters::SamplerOverriddenState*,
-                           int mipLevelCount);
+                           int mipLevelCount,
+                           GrProtected isProtected);
 
     GrGLuint createCompressedTexture2D(SkISize dimensions,
                                        SkImage::CompressionType compression,
