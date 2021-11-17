@@ -57,8 +57,7 @@ static bool check_return_type(const Context& context, int line, const Type& retu
         errors.error(line, "functions may not return structs containing arrays");
         return false;
     }
-    if (!context.fConfig->fIsBuiltinCode && !returnType.isVoid() &&
-        returnType.componentType().isOpaque()) {
+    if (!context.fConfig->fIsBuiltinCode && returnType.componentType().isOpaque()) {
         errors.error(line, "functions may not return opaque type '" + returnType.displayName() +
                            "'");
         return false;

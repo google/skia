@@ -271,9 +271,11 @@ DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo po
         }
 
         const SkSL::Type& type = field.fType.skslType();
-        if (type.isOpaque()) {
+        if (type.isVoid()) {
+            ThreadContext::ReportError("type 'void' is not permitted in a struct", field.fPosition);
+        } else if (type.isOpaque()) {
             ThreadContext::ReportError("opaque type '" + type.displayName() +
-                    "' is not permitted in a struct", field.fPosition);
+                                       "' is not permitted in a struct", field.fPosition);
         }
         skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &type);
     }

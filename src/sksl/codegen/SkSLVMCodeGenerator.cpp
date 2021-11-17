@@ -353,8 +353,9 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
                 continue;
             }
 
-            // Opaque types include fragment processors, GL objects (samplers, textures, etc), and
-            // special types like 'void'. Of those, only fragment processors are legal variables.
+            // Opaque types include child processors and GL objects (samplers, textures, etc).
+            // Of those, only child processors are legal variables.
+            SkASSERT(!var.type().isVoid());
             SkASSERT(!var.type().isOpaque());
 
             // getSlot() allocates space for the variable's value in fSlots, initializes it to zero,
