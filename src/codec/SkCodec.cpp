@@ -190,6 +190,10 @@ SkCodec::SkCodec(SkEncodedInfo&& info, XformFormat srcFormat, std::unique_ptr<Sk
 
 SkCodec::~SkCodec() {}
 
+void SkCodec::setSrcXformFormat(XformFormat pixelFormat) {
+    fSrcXformFormat = pixelFormat;
+}
+
 bool SkCodec::queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
                             SkYUVAPixmapInfo* yuvaPixmapInfo) const {
     if (!yuvaPixmapInfo) {

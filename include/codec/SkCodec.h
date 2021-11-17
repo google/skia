@@ -758,6 +758,8 @@ protected:
             std::unique_ptr<SkStream>,
             SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
 
+    void setSrcXformFormat(XformFormat pixelFormat);
+
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
         return this->dimensions();
@@ -876,7 +878,7 @@ protected:
 
 private:
     const SkEncodedInfo                fEncodedInfo;
-    const XformFormat                  fSrcXformFormat;
+    XformFormat                        fSrcXformFormat;
     std::unique_ptr<SkStream>          fStream;
     bool                               fNeedsRewind;
     const SkEncodedOrigin              fOrigin;
