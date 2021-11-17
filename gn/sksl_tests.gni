@@ -13,7 +13,6 @@ sksl_error_tests = [
   "/sksl/errors/ArrayNegation.sksl",
   "/sksl/errors/ArrayOfInvalidSize.sksl",
   "/sksl/errors/ArrayOfVoid.sksl",
-  "/sksl/errors/ArrayOfVoidInStruct.sksl",
   "/sksl/errors/ArrayPlus.sksl",
   "/sksl/errors/ArrayReturnTypes.sksl",
   "/sksl/errors/ArraySplitDimensions.sksl",
@@ -221,6 +220,7 @@ sksl_error_tests = [
   "/sksl/errors/VectorInlinedIndexOutOfRange.sksl",
   "/sksl/errors/VectorSlice.sksl",
   "/sksl/errors/VertexEarlyReturn.vert",
+  "/sksl/errors/VoidInStruct.sksl",
   "/sksl/errors/VoidVariable.sksl",
   "/sksl/errors/WhileTypeMismatch.sksl",
 ]

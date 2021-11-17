@@ -1,0 +1,8 @@
+// Expect 4 errors
+
+struct S {
+    void a;
+    void b[2];
+    void[2] c;
+    void[2] d[2];
+};

@@ -1,6 +1,7 @@
 ### Compilation failed:
 
-error: 4: type 'void' may not be used in an array
 error: 5: type 'void' may not be used in an array
 error: 6: type 'void' may not be used in an array
-3 errors
+error: 7: type 'void' may not be used in an array
+error: 4: opaque type 'void' is not permitted in a struct
+4 errors
