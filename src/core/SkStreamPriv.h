@@ -9,10 +9,9 @@
 #define SkStreamPriv_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
 
 class SkData;
-class SkStream;
-class SkWStream;
 
 /**
  *  Copy the provided stream to an SkData variable.
@@ -30,5 +29,15 @@ sk_sp<SkData> SkCopyStreamToData(SkStream* stream);
  *  Does not rewind the input stream.
  */
 bool SkStreamCopy(SkWStream* out, SkStream* input);
+
+/** A SkWStream that writes all output to SkDebugf, for debugging purposes. */
+class SkDebugfStream final : public SkWStream {
+public:
+    bool write(const void* buffer, size_t size) override;
+    size_t bytesWritten() const override;
+
+private:
+    size_t fBytesWritten = 0;
+};
 
 #endif  // SkStreamPriv_DEFINED

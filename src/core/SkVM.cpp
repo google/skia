@@ -15,6 +15,7 @@
 #include "src/core/SkCpu.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkStreamPriv.h"
 #include "src/core/SkVM.h"
 #include <algorithm>
 #include <atomic>
@@ -173,20 +174,6 @@ namespace skvm {
     // Debugging tools, mostly for printing various data structures out to a stream.
 
     namespace {
-        class SkDebugfStream final : public SkWStream {
-            size_t fBytesWritten = 0;
-
-            bool write(const void* buffer, size_t size) override {
-                SkDebugf("%.*s", (int)size, (const char*)buffer);
-                fBytesWritten += size;
-                return true;
-            }
-
-            size_t bytesWritten() const override {
-                return fBytesWritten;
-            }
-        };
-
         struct V { Val id; };
         struct R { Reg id; };
         struct Shift { int bits; };

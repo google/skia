@@ -891,6 +891,18 @@ std::unique_ptr<SkStreamAsset> SkDynamicMemoryWStream::detachAsStream() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkDebugfStream::write(const void* buffer, size_t size) {
+    SkDebugf("%.*s", (int)size, (const char*)buffer);
+    fBytesWritten += size;
+    return true;
+}
+
+size_t SkDebugfStream::bytesWritten() const {
+    return fBytesWritten;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkData> mmap_filename(const char path[]) {
