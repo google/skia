@@ -638,8 +638,10 @@ public:
     enum SaveLayerFlagsSet {
         kPreserveLCDText_SaveLayerFlag  = 1 << 1,
         kInitWithPrevious_SaveLayerFlag = 1 << 2, //!< initializes with previous contents
+        kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag =
+                                          1 << 3, //!< experimental: do not use
         // instead of matching previous layer's colortype, use F16
-        kF16ColorType                   = 1 << 3,
+        kF16ColorType                   = 1 << 4,
     };
 
     typedef uint32_t SaveLayerFlags;

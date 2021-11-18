@@ -447,7 +447,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)), fProps(props) {
     inc_canvas();
 
-    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
+    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps, nullptr, nullptr));
     this->init(device);
 }
 
@@ -458,7 +458,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap,
         , fAllocator(std::move(alloc)) {
     inc_canvas();
 
-    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps, hndl));
+    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps, hndl, nullptr));
     this->init(device);
 }
 
@@ -917,7 +917,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
                                                           requiredInput.height(), false),
                                           SkPixelGeometry::kUnknown_SkPixelGeometry,
                                           SkBaseDevice::TileUsage::kNever_TileUsage,
-                                          fAllocator.get());
+                                          false, fAllocator.get());
             sk_sp<SkBaseDevice> intermediateDevice(src->onCreateDevice(info, &paint));
             if (!intermediateDevice) {
                 return;
@@ -1077,8 +1077,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         SkPixelGeometry geo = rec.fSaveLayerFlags & kPreserveLCDText_SaveLayerFlag
                                       ? fProps.pixelGeometry()
                                       : kUnknown_SkPixelGeometry;
+        const bool trackCoverage = SkToBool(
+                rec.fSaveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
         const auto createInfo = SkBaseDevice::CreateInfo(info, geo, SkBaseDevice::kNever_TileUsage,
-                                                         fAllocator.get());
+                                                         trackCoverage, fAllocator.get());
         // Use the original paint as a hint so that it includes the image filter
         newDevice.reset(priorDevice->onCreateDevice(createInfo, rec.fPaint));
     }

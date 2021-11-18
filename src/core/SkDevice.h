@@ -371,16 +371,19 @@ protected:
         CreateInfo(const SkImageInfo& info,
                    SkPixelGeometry geo,
                    TileUsage tileUsage,
+                   bool trackCoverage,
                    SkRasterHandleAllocator* allocator)
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(geo)
+            , fTrackCoverage(trackCoverage)
             , fAllocator(allocator)
         {}
 
         const SkImageInfo       fInfo;
         const TileUsage         fTileUsage;
         const SkPixelGeometry   fPixelGeometry;
+        const bool              fTrackCoverage = false;
         SkRasterHandleAllocator* fAllocator = nullptr;
     };
 

@@ -158,6 +158,9 @@ public:
     const SkMatrixProvider* fMatrixProvider{nullptr};  // required
     const SkRasterClip*     fRC{nullptr};              // required
 
+    // optional, will be same dimensions as fDst if present
+    const SkPixmap* fCoverage{nullptr};
+
 #ifdef SK_DEBUG
     void validate() const;
 #else
