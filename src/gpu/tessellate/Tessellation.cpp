@@ -96,6 +96,14 @@ private:
 }  // namespace
 
 SkPath PreChopPathCurves(const SkPath& path, const SkMatrix& matrix, const SkRect& viewport) {
+    // If the viewport is exceptionally large, we could end up blowing out memory with an unbounded
+    // number of of chops. Therefore, we require that the viewport is manageable enough that a fully
+    // contained curve can be tessellated in kMaxTessellationSegmentsPerCurve or fewer. (Any larger
+    // and that amount of pixels wouldn't fit in memory anyway.)
+    SkASSERT(wangs_formula::worst_case_cubic(
+                     kTessellationPrecision,
+                     viewport.width(),
+                     viewport.height()) <= kMaxTessellationSegmentsPerCurve);
     PathChopper chopper(matrix, viewport);
     for (auto [verb, p, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {

@@ -98,6 +98,15 @@ PathRenderer::CanDrawPath TessellationPathRenderer::onCanDrawPath(
         if (shape.inverseFilled()) {
             return CanDrawPath::kNo;
         }
+        if (shape.style().strokeRec().getWidth() * args.fViewMatrix->getMaxScale() > 10000) {
+            // crbug.com/1266446 -- Don't draw massively wide strokes with the tessellator. Since we
+            // outset the viewport by stroke width for pre-chopping, astronomically wide strokes can
+            // result in an astronomical viewport size, and therefore an exponential explosion chops
+            // and memory usage. It is also simply inefficient to tessellate these strokes due to
+            // the number of radial edges required. We're better off just converting them to a path
+            // after a certain point.
+            return CanDrawPath::kNo;
+        }
     }
     if (args.fHasUserStencilSettings) {
         // Non-convex paths and strokes use the stencil buffer internally, so they can't support
@@ -116,10 +125,10 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fShape->asPath(&path);
 
     const SkRect pathDevBounds = args.fViewMatrix->mapRect(args.fShape->bounds());
-    float n = wangs_formula::worst_case_cubic_pow4(kTessellationPrecision,
-                                                   pathDevBounds.width(),
-                                                   pathDevBounds.height());
-    if (n > pow4(kMaxTessellationSegmentsPerCurve)) {
+    float n4 = wangs_formula::worst_case_cubic_pow4(kTessellationPrecision,
+                                                    pathDevBounds.width(),
+                                                    pathDevBounds.height());
+    if (n4 > pow4(kMaxTessellationSegmentsPerCurve)) {
         // The path is extremely large. Pre-chop its curves to keep the number of tessellation
         // segments tractable. This will also flatten curves that fall completely outside the
         // viewport.
@@ -206,10 +215,10 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    float n = wangs_formula::worst_case_cubic_pow4(kTessellationPrecision,
-                                                   pathDevBounds.width(),
-                                                   pathDevBounds.height());
-    if (n > pow4(kMaxTessellationSegmentsPerCurve)) {
+    float n4 = wangs_formula::worst_case_cubic_pow4(kTessellationPrecision,
+                                                    pathDevBounds.width(),
+                                                    pathDevBounds.height());
+    if (n4 > pow4(kMaxTessellationSegmentsPerCurve)) {
         SkRect viewport = SkRect::Make(*args.fClipConservativeBounds);
         path = PreChopPathCurves(path, *args.fViewMatrix, viewport);
     }
