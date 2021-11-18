@@ -1920,11 +1920,14 @@ bool ProgramToSkVM(const Program& program,
         return skvm::Color{};
     };
 
-    skvm::F32 zero = b->splat(0.0f);
-    skvm::Coord zeroCoord = {zero, zero};
+    // Set up device coordinates so that the rightmost evaluated pixel will be centered on (0, 0).
+    // (If the coordinates aren't used, dead-code elimination will optimize this away.)
+    skvm::F32 pixelCenter = b->splat(0.5f);
+    skvm::Coord device = {pixelCenter, pixelCenter};
+    device.x += to_F32(b->splat(1) - b->index());
+
     SkVMGenerator generator(program, b, debugInfo, sampleShader, sampleColorFilter, sampleBlender);
-    generator.writeProgram(uniforms, /*device=*/zeroCoord,
-                           function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
+    generator.writeProgram(uniforms, device, function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
     // If the SkSL tried to use any shader, colorFilter, or blender objects - we don't have a
     // mechanism (yet) for binding to those.
