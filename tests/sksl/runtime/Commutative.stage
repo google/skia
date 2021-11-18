@@ -1,0 +1,38 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+uniform int a;
+uniform int b;
+uniform float c;
+uniform float d;
+half4 main(float2 xy)
+{
+	bool ok = true;
+	int a_and_b = a & b;
+	int b_and_a = b & a;
+	ok = ok && a_and_b == b_and_a;
+	int a_or_b = a | b;
+	int b_or_a = b | a;
+	ok = ok && a_or_b == b_or_a;
+	int a_xor_b = a ^ b;
+	int b_xor_a = b ^ a;
+	ok = ok && a_xor_b == b_xor_a;
+	bool a_eq_b = a == b;
+	bool b_eq_a = b == a;
+	ok = ok && a_eq_b == b_eq_a;
+	bool a_neq_b = a != b;
+	bool b_neq_a = b != a;
+	ok = ok && a_neq_b == b_neq_a;
+	int a_add_b = a + b;
+	int b_add_a = b + a;
+	ok = ok && a_add_b == b_add_a;
+	float c_add_d = c + d;
+	float d_add_c = d + c;
+	ok = ok && c_add_d == d_add_c;
+	int a_mul_b = a * b;
+	int b_mul_a = b * a;
+	ok = ok && a_mul_b == b_mul_a;
+	float c_mul_d = c * d;
+	float d_mul_c = d * c;
+	ok = ok && c_mul_d == d_mul_c;
+	return half4(ok ? colorGreen : colorRed);
+}

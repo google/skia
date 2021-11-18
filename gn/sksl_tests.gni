@@ -610,6 +610,7 @@ sksl_rte_tests = [
   "/sksl/runtime/ArrayIndexing.rts",
   "/sksl/runtime/ArrayNarrowingConversions.rts",
   "/sksl/runtime/Blend.rtb",
+  "/sksl/runtime/Commutative.rts",
   "/sksl/runtime/ConstPreservation.rts",
   "/sksl/runtime/ConversionConstructors.rts",
   "/sksl/runtime/GLSLTypeNames.rts",
