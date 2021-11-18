@@ -350,8 +350,8 @@ void SurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
                                                    const SkMatrixProvider& viewMatrix,
                                                    const SkGlyphRunList& glyphRunList,
                                                    const SkPaint& paint) {
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
+    SkMatrix positionMatrix{viewMatrix.localToDevice()};
+    positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
     GrSDFTControl control =
             this->recordingContext()->priv().getSDFTControl(
@@ -361,7 +361,7 @@ void SurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
                                                  paint,
                                                  fSurfaceProps,
                                                  this->colorInfo(),
-                                                 drawMatrix,
+                                                 positionMatrix,
                                                  control);
 
     sk_sp<GrTextBlob> blob;
@@ -370,7 +370,7 @@ void SurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
         blob = textBlobCache->find(key);
     }
 
-    if (blob == nullptr || !blob->canReuse(paint, drawMatrix)) {
+    if (blob == nullptr || !blob->canReuse(paint, positionMatrix)) {
         if (blob != nullptr) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away with reuse most of the time if the pointer is unique,
@@ -378,7 +378,7 @@ void SurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
             textBlobCache->remove(blob.get());
         }
 
-        blob = GrTextBlob::Make(glyphRunList, paint, drawMatrix, control, &fGlyphPainter);
+        blob = GrTextBlob::Make(glyphRunList, paint, positionMatrix, control, &fGlyphPainter);
 
         if (canCache) {
             blob->addKey(key);

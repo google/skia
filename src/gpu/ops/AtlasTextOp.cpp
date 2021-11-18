@@ -123,10 +123,8 @@ auto AtlasTextOp::Geometry::MakeForBlob(const GrAtlasSubRun& subRun,
 }
 
 void AtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
-    SkMatrix positionMatrix = fDrawMatrix;
-    positionMatrix.preTranslate(fDrawOrigin.x(), fDrawOrigin.y());
     fSubRun.fillVertexData(
-            dst, offset, count, fColor.toBytes_RGBA(), positionMatrix, fClipRect);
+            dst, offset, count, fColor.toBytes_RGBA(), fDrawMatrix, fDrawOrigin, fClipRect);
 }
 
 void AtlasTextOp::visitProxies(const GrVisitProxyFunc& func) const {
