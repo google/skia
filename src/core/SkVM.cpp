@@ -765,7 +765,7 @@ namespace skvm {
                 return {this, this->push(Op::fma_f32, fProgram[y.id].x, fProgram[y.id].y, x.id)};
             }
         }
-        return {this, this->push(Op::add_f32, x.id, y.id)};
+        return {this, this->push(Op::add_f32, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
 
     F32 Builder::sub(F32 x, F32 y) {
@@ -786,7 +786,7 @@ namespace skvm {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X*Y); }
         if (this->isImm(y.id, 1.0f)) { return x; }  // x*1 == x
         if (this->isImm(x.id, 1.0f)) { return y; }  // 1*y == y
-        return {this, this->push(Op::mul_f32, x.id, y.id)};
+        return {this, this->push(Op::mul_f32, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
 
     F32 Builder::fast_mul(F32 x, F32 y) {
@@ -977,7 +977,7 @@ namespace skvm {
         if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X+Y); }
         if (this->isImm(x.id, 0)) { return y; }
         if (this->isImm(y.id, 0)) { return x; }
-        return {this, this->push(Op::add_i32, x.id, y.id)};
+        return {this, this->push(Op::add_i32, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
     SK_ATTRIBUTE(no_sanitize("signed-integer-overflow"))
     I32 Builder::sub(I32 x, I32 y) {
@@ -992,7 +992,7 @@ namespace skvm {
         if (this->isImm(y.id, 0)) { return splat(0); }
         if (this->isImm(x.id, 1)) { return y; }
         if (this->isImm(y.id, 1)) { return x; }
-        return {this, this->push(Op::mul_i32, x.id, y.id)};
+        return {this, this->push(Op::mul_i32, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
 
     SK_ATTRIBUTE(no_sanitize("shift"))
@@ -1014,11 +1014,11 @@ namespace skvm {
 
     I32 Builder:: eq(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X==Y ? ~0 : 0); }
-        return {this, this->push(Op::eq_f32, x.id, y.id)};
+        return {this, this->push(Op::eq_f32, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
     I32 Builder::neq(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X!=Y ? ~0 : 0); }
-        return {this, this->push(Op::neq_f32, x.id, y.id)};
+        return {this, this->push(Op::neq_f32, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
     I32 Builder::lt(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(Y> X ? ~0 : 0); }
@@ -1040,7 +1040,7 @@ namespace skvm {
     I32 Builder:: eq(I32 x, I32 y) {
         if (x.id == y.id) { return splat(~0); }
         if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X==Y ? ~0 : 0); }
-        return {this, this->push(Op:: eq_i32, x.id, y.id)};
+        return {this, this->push(Op:: eq_i32, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
     I32 Builder::neq(I32 x, I32 y) {
         if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X!=Y ? ~0 : 0); }
@@ -1065,7 +1065,7 @@ namespace skvm {
         if (this->isImm(x.id, 0)) { return splat(0); }   // (false & y) == false
         if (this->isImm(y.id,~0)) { return x; }          // (x & true) == x
         if (this->isImm(x.id,~0)) { return y; }          // (true & y) == y
-        return {this, this->push(Op::bit_and, x.id, y.id)};
+        return {this, this->push(Op::bit_and, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
     I32 Builder::bit_or(I32 x, I32 y) {
         if (x.id == y.id) { return x; }
@@ -1074,14 +1074,14 @@ namespace skvm {
         if (this->isImm(x.id, 0)) { return y; }           // (false | y) == y
         if (this->isImm(y.id,~0)) { return splat(~0); }   // (x | true) == true
         if (this->isImm(x.id,~0)) { return splat(~0); }   // (true | y) == true
-        return {this, this->push(Op::bit_or, x.id, y.id)};
+        return {this, this->push(Op::bit_or, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
     I32 Builder::bit_xor(I32 x, I32 y) {
         if (x.id == y.id) { return splat(0); }
         if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X^Y); }
         if (this->isImm(y.id, 0)) { return x; }   // (x ^ false) == x
         if (this->isImm(x.id, 0)) { return y; }   // (false ^ y) == y
-        return {this, this->push(Op::bit_xor, x.id, y.id)};
+        return {this, this->push(Op::bit_xor, std::min(x.id, y.id), std::max(x.id, y.id))};
     }
 
     I32 Builder::bit_clear(I32 x, I32 y) {

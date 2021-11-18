@@ -6,15 +6,15 @@
 4	r4 = splat FFFFFFFF (nan)
 5	r5 = neq_f32 r0 r3
 6	r6 = splat 3F800000 (1)
-7	r6 = bit_and r6 r2
+7	r6 = bit_and r2 r6
 8	r7 = to_f32 r1
 9	r7 = select r5 r6 r7
 10	r3 = eq_i32 r1 r3
 11	r3 = bit_xor r4 r3
 12	r4 = splat 1 (1.4012985e-45)
-13	r2 = bit_and r4 r2
+13	r4 = bit_and r2 r4
 14	r0 = trunc r0
-15	r0 = select r3 r2 r0
+15	r0 = select r3 r4 r0
 16	r0 = to_f32 r0
 17	r0 = mul_f32 r7 r0
 loop:

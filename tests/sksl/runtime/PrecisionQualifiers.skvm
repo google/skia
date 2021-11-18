@@ -156,7 +156,7 @@ F7 = bool lowp_param(half value)
 8	r8 = uniform32 ptr0 18
 9	r9 = uniform32 ptr0 1C
 10	r10 = uniform32 ptr0 20
-11	r11 = eq_f32 r2 r1
+11	r11 = eq_f32 r1 r2
 12	r12 = splat 3F800000 (1)
 13	r13 = splat 2 (2.8025969e-45)
 14	r14 = splat 40000000 (2)
@@ -166,7 +166,7 @@ F7 = bool lowp_param(half value)
 18	r18 = splat 4 (5.6051939e-45)
 loop:
 19	    r19 = index
-20	    r20 = eq_f32 r19 r1
+20	    r20 = eq_f32 r1 r19
 21	    r20 = bit_and r20 r11
 22	    trace_var r20 $0 = r3 (F32)
 23	    trace_var r20 $1 = r4 (F32)

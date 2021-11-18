@@ -18,19 +18,19 @@
 16	r15 = bit_xor r9 r8
 17	r8 = bit_and r8 r15
 18	r16 = splat 1 (1.4012985e-45)
-19	r10 = eq_i32 r16 r10
-20	r10 = bit_or r8 r10
-21	r10 = bit_and r10 r15
-22	r11 = select r10 r0 r11
-23	r12 = select r10 r1 r12
-24	r13 = select r10 r2 r13
-25	r14 = select r10 r3 r14
-26	r10 = bit_xor r9 r10
-27	r10 = bit_and r15 r10
-28	r11 = select r10 r4 r11
-29	r12 = select r10 r5 r12
-30	r13 = select r10 r6 r13
-31	r14 = select r10 r7 r14
+19	r16 = eq_i32 r10 r16
+20	r16 = bit_or r8 r16
+21	r16 = bit_and r15 r16
+22	r11 = select r16 r0 r11
+23	r12 = select r16 r1 r12
+24	r13 = select r16 r2 r13
+25	r14 = select r16 r3 r14
+26	r16 = bit_xor r9 r16
+27	r16 = bit_and r15 r16
+28	r11 = select r16 r4 r11
+29	r12 = select r16 r5 r12
+30	r13 = select r16 r6 r13
+31	r14 = select r16 r7 r14
 loop:
 32	    store32 ptr1 r11
 33	    store32 ptr2 r12

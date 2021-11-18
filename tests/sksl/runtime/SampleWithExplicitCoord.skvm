@@ -8,7 +8,7 @@
 loop:
 6	    r5 = index
 7	    r5 = trunc r5
-8	    r5 = mul_i32 r5 r1
+8	    r5 = mul_i32 r1 r5
 9	    r5 = add_i32 r0 r5
 10	    r5 = shl_i32 r5 2
 11	    r6 = gather32 ptr0 4 r5

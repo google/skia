@@ -1,4 +1,4 @@
-17 registers, 56 instructions:
+11 registers, 23 instructions:
 0	r0 = uniform32 ptr0 4
 1	r1 = uniform32 ptr0 8
 2	r2 = uniform32 ptr0 C
@@ -7,52 +7,19 @@
 5	r5 = uniform32 ptr0 18
 6	r6 = uniform32 ptr0 1C
 7	r7 = uniform32 ptr0 20
-8	r8 = uniform32 ptr0 24
-9	r9 = uniform32 ptr0 28
-10	r10 = uniform32 ptr0 2C
-11	r11 = uniform32 ptr0 30
-12	r12 = splat FFFFFFFF (nan)
-13	r13 = bit_and r8 r9
-14	r14 = bit_and r9 r8
-15	r14 = eq_i32 r13 r14
-16	r13 = bit_or r8 r9
-17	r15 = bit_or r9 r8
-18	r15 = eq_i32 r13 r15
-19	r15 = bit_and r14 r15
-20	r14 = bit_xor r8 r9
-21	r13 = bit_xor r9 r8
-22	r13 = eq_i32 r14 r13
-23	r13 = bit_and r15 r13
-24	r15 = eq_i32 r8 r9
-25	r14 = eq_i32 r9 r8
-26	r16 = eq_i32 r15 r14
-27	r16 = bit_and r13 r16
-28	r15 = bit_xor r12 r15
-29	r14 = bit_xor r12 r14
-30	r14 = eq_i32 r15 r14
-31	r14 = bit_and r16 r14
-32	r16 = add_i32 r8 r9
-33	r15 = add_i32 r9 r8
-34	r15 = eq_i32 r16 r15
-35	r15 = bit_and r14 r15
-36	r14 = add_f32 r10 r11
-37	r16 = add_f32 r11 r10
-38	r16 = eq_f32 r14 r16
-39	r16 = bit_and r15 r16
-40	r15 = mul_i32 r8 r9
-41	r8 = mul_i32 r9 r8
-42	r8 = eq_i32 r15 r8
-43	r8 = bit_and r16 r8
-44	r16 = mul_f32 r10 r11
-45	r10 = mul_f32 r11 r10
-46	r10 = eq_f32 r16 r10
-47	r10 = bit_and r8 r10
-48	r4 = select r10 r0 r4
-49	r5 = select r10 r1 r5
-50	r6 = select r10 r2 r6
-51	r7 = select r10 r3 r7
+8	r8 = uniform32 ptr0 2C
+9	r9 = uniform32 ptr0 30
+10	r10 = add_f32 r8 r9
+11	r10 = eq_f32 r10 r10
+12	r9 = mul_f32 r8 r9
+13	r9 = eq_f32 r9 r9
+14	r9 = bit_and r10 r9
+15	r4 = select r9 r0 r4
+16	r5 = select r9 r1 r5
+17	r6 = select r9 r2 r6
+18	r7 = select r9 r3 r7
 loop:
-52	    store32 ptr1 r4
-53	    store32 ptr2 r5
-54	    store32 ptr3 r6
-55	    store32 ptr4 r7
+19	    store32 ptr1 r4
+20	    store32 ptr2 r5
+21	    store32 ptr3 r6
+22	    store32 ptr4 r7
