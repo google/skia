@@ -20,7 +20,10 @@ public:
         aaTriangulator.fRoundVerticesToQuarterPixel = true;
         aaTriangulator.fEmitCoverage = true;
         bool isLinear;
-        Poly* polys = aaTriangulator.pathToPolys(tolerance, clipBounds, &isLinear);
+        auto [ polys, success ] = aaTriangulator.pathToPolys(tolerance, clipBounds, &isLinear);
+        if (!success) {
+            return 0;
+        }
         return aaTriangulator.polysToAATriangles(polys, vertexAllocator);
     }
 
@@ -33,7 +36,7 @@ public:
         SSEdge* fEdge;
         SkPoint fPoint;
         uint8_t fAlpha;
-        void apply(VertexList* mesh, const Comparator&, EventList* events, const GrAATriangulator*);
+        void apply(VertexList* mesh, const Comparator&, EventList* events, GrAATriangulator*);
     };
     struct EventComparator {
         enum class Op { kLessThan, kGreaterThan };
@@ -54,28 +57,28 @@ private:
     // 5b) Apply fill rules to extract boundary contours from the polygons:
     void extractBoundary(EdgeList* boundary, Edge* e) const;
     void extractBoundaries(const VertexList& inMesh, VertexList* innerVertices,
-                           const Comparator&) const;
+                           const Comparator&);
 
     // 5c) Simplify boundaries to remove "pointy" vertices that cause inversions:
-    void simplifyBoundary(EdgeList* boundary, const Comparator&) const;
+    void simplifyBoundary(EdgeList* boundary, const Comparator&);
 
     // 5d) Displace edges by half a pixel inward and outward along their normals. Intersect to find
     //     new vertices, and set zero alpha on the exterior and one alpha on the interior. Build a
     //     new antialiased mesh from those vertices:
-    void strokeBoundary(EdgeList* boundary, VertexList* innerMesh, const Comparator&) const;
+    void strokeBoundary(EdgeList* boundary, VertexList* innerMesh, const Comparator&);
 
     // Run steps 3-6 above on the new mesh, and produce antialiased triangles.
-    Poly* tessellate(const VertexList& mesh, const Comparator&) const override;
+    std::tuple<Poly*, bool> tessellate(const VertexList& mesh, const Comparator&) override;
     int polysToAATriangles(Poly*, GrEagerVertexAllocator*) const;
 
     // Additional helpers and driver functions.
     void makeEvent(SSEdge*, EventList* events) const;
     void makeEvent(SSEdge*, Vertex* v, SSEdge* other, Vertex* dest, EventList* events,
                    const Comparator&) const;
-    void connectPartners(VertexList* mesh, const Comparator&) const;
+    void connectPartners(VertexList* mesh, const Comparator&);
     void removeNonBoundaryEdges(const VertexList& mesh) const;
-    void connectSSEdge(Vertex* v, Vertex* dest, const Comparator&) const;
-    bool collapseOverlapRegions(VertexList* mesh, const Comparator&, EventComparator comp) const;
+    void connectSSEdge(Vertex* v, Vertex* dest, const Comparator&);
+    bool collapseOverlapRegions(VertexList* mesh, const Comparator&, EventComparator comp);
 
     // FIXME: fOuterMesh should be plumbed through function parameters instead.
     mutable VertexList fOuterMesh;
