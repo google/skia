@@ -984,7 +984,11 @@ DEF_TEST(SkSLInterpreterTrace, r) {
     constexpr const char kSrc[] =
 R"(bool less_than(int left, int right) {
     bool comparison = left < right;
-    return comparison;
+    if (comparison) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 int main() {
@@ -1034,37 +1038,44 @@ int main() {
     REPORTER_ASSERT(r, result == 40);
     REPORTER_ASSERT(r, hook.fTrace ==
 R"(enter int main()
-line 7
+line 11
 loop = 10
-line 8
+line 12
 enter bool less_than(int left, int right)
 left = 10
 right = 20
 line 2
 comparison = 1
 line 3
+line 4
 exit bool less_than(int left, int right)
 function_result = 1
-line 7
+line 11
 loop = 20
-line 8
+line 12
 enter bool less_than(int left, int right)
 left = 20
+right = 20
 line 2
 comparison = 0
 line 3
+line 6
 exit bool less_than(int left, int right)
 function_result = 0
-line 7
+line 11
 loop = 30
-line 8
+line 12
 enter bool less_than(int left, int right)
 left = 30
+right = 20
 line 2
+comparison = 0
 line 3
+line 6
 exit bool less_than(int left, int right)
-line 7
-line 10
+function_result = 0
+line 11
+line 14
 exit int main()
 )", "Trace output does not match expectation:\n%s\n", hook.fTrace.c_str());
 }

@@ -268,7 +268,8 @@ private:
     const SampleBlenderFn fSampleBlender;
 
     struct Slot {
-        skvm::Val         val;
+        skvm::Val  val;
+        bool       writtenTo = false;
     };
     std::vector<Slot> fSlots;
 
@@ -469,6 +470,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
                nslots    = p->type().slotCount();
 
         for (size_t i = 0; i < nslots; ++i) {
+            fSlots[paramSlot + i].writtenTo = false;
             this->writeToSlot(paramSlot + i, arguments[argIdx + i]);
         }
         argIdx += nslots;
@@ -500,7 +502,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
 }
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
-    if (fDebugInfo && fSlots[slot].val != value) {
+    if (fDebugInfo && (!fSlots[slot].writtenTo || fSlots[slot].val != value)) {
         if (fDebugInfo->fSlotInfo[slot].numberKind == Type::NumberKind::kFloat) {
             fBuilder->trace_var(this->traceMask(), slot, f32(value));
         } else if (fDebugInfo->fSlotInfo[slot].numberKind == Type::NumberKind::kBoolean) {
@@ -508,6 +510,7 @@ void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
         } else {
             fBuilder->trace_var(this->traceMask(), slot, i32(value));
         }
+        fSlots[slot].writtenTo = true;
     }
 
     fSlots[slot].val = value;
@@ -1764,6 +1767,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 
     Value val = decl.value() ? this->writeExpression(*decl.value()) : Value{};
     for (size_t i = 0; i < nslots; ++i) {
+        fSlots[slot + i].writtenTo = false;
         this->writeToSlot(slot + i, val ? val[i] : fBuilder->splat(0.0f).id);
     }
 }
