@@ -69,6 +69,7 @@ filegroup(
         "codegen/SkSLSPIRVtoHLSL.h",
         "codegen/SkSLVMCodeGenerator.cpp",
         "codegen/SkSLVMCodeGenerator.h",
+        "codegen/SkVMDebugInfo.h",
         "dsl/DSLBlock.cpp",
         "dsl/DSLCase.cpp",
         "dsl/DSLCore.cpp",

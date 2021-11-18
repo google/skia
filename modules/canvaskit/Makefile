@@ -129,37 +129,24 @@ bazel_gms_release:
 	# unit, by letting the cache be used (and not dropped from the sandbox), which gets expensive.
 	# Local testing showed using the local strategy sped up a clean build from 9.5 minutes
 	# to 1 minute. https://docs.bazel.build/versions/main/user-manual.html#strategy-options
-	bazelisk build :gm-bindings-wasm --compilation_mode opt --spawn_strategy=local \
-		--gpu_backend=gl_backend --with_gl_standard=webgl_standard \
-		--include_decoder=jpeg_decode_codec --include_decoder=png_decode_codec \
-		--include_decoder=webp_decode_codec --include_decoder=gif_decode_codec
+	bazelisk build :gm_bindings_wasm --compilation_mode opt --spawn_strategy=local
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/gm-bindings-wasm/gm-bindings.js build/gm-bindings.js
-	cp ../../bazel-bin/modules/canvaskit/gm-bindings-wasm/gm-bindings.wasm build/gm-bindings.wasm
+	cp ../../bazel-bin/modules/canvaskit/gm_bindings_wasm/gm_bindings.js build/gm_bindings.js
+	cp ../../bazel-bin/modules/canvaskit/gm_bindings_wasm/gm_bindings.wasm build/gm_bindings.wasm
 
 bazel_gms_debug:
 	# See above note about spawn_strategy
-	bazelisk build :gm-bindings-wasm --compilation_mode dbg --spawn_strategy=local \
-		--gpu_backend=gl_backend --with_gl_standard=webgl_standard \
-		--include_decoder=jpeg_decode_codec --include_decoder=png_decode_codec \
-		--include_decoder=webp_decode_codec --include_decoder=gif_decode_codec
+	bazelisk build :gm_bindings_wasm --compilation_mode dbg --spawn_strategy=local
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/gm-bindings-wasm/gm-bindings.js build/gm-bindings.js
-	cp ../../bazel-bin/modules/canvaskit/gm-bindings-wasm/gm-bindings.wasm build/gm-bindings.wasm
+	cp ../../bazel-bin/modules/canvaskit/gm_bindings_wasm/gm_bindings.js build/gm_bindings.js
+	cp ../../bazel-bin/modules/canvaskit/gm_bindings_wasm/gm_bindings.wasm build/gm_bindings.wasm
 
 bazel_canvaskit_debug:
 	# See above note about spawn_strategy
-	# TODO(kjlubick): Can we use transitions to have defaults set?
-	#  https://github.com/bazelbuild/examples/tree/main/rules/starlark_configurations/cc_binary_selectable_copts
-	bazelisk build :canvaskit-wasm --compilation_mode dbg --spawn_strategy=local \
-		--gpu_backend=gl_backend --with_gl_standard=webgl_standard \
-		--include_decoder=jpeg_decode_codec --include_decoder=png_decode_codec \
-		--include_decoder=webp_decode_codec --include_decoder=gif_decode_codec \
-		--include_encoder=jpeg_encode_codec --include_encoder=png_encode_codec \
-		--include_fontmgr=custom_embedded_fontmgr --fontmgr_factory=custom_embedded_fontmgr_factory
+	bazelisk build :canvaskit_wasm --compilation_mode dbg --spawn_strategy=local
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/canvaskit-wasm/canvaskit.js build/canvaskit.js
-	cp ../../bazel-bin/modules/canvaskit/canvaskit-wasm/canvaskit.wasm build/canvaskit.wasm
+	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.js build/canvaskit.js
+	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.wasm build/canvaskit.wasm

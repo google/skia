@@ -1,5 +1,6 @@
 load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
 load("//bazel/common_config_settings:defs.bzl", "bool_flag")
+load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -44,8 +45,8 @@ filegroup(
     ],
 )
 
-cc_binary(
-    name = "gm-bindings",
+cc_binary_with_flags(
+    name = "gm_bindings_with_flags",
     testonly = True,
     srcs = [
         "gm_bindings.cpp",
@@ -53,6 +54,7 @@ cc_binary(
         "//gm:gms",  # Required for the registry to work
     ],
     additional_linker_inputs = ["gm.js"],
+    cc_binary_name = "gm_bindings",
     linkopts = select({
         "//bazel/common_config_settings:debug_build": BASE_LINKOPTS + GM_OPTS + DEBUG_OPTS,
         "//bazel/common_config_settings:release_build": BASE_LINKOPTS + GM_OPTS + RELEASE_OPTS,
@@ -62,6 +64,20 @@ cc_binary(
         "SK_GL",
         "SK_USE_WEBGL",
     ],
+    set_flags = {
+        "include_decoder": [
+            "jpeg_decode_codec",
+            "png_decode_codec",
+            "webp_decode_codec",
+            "gif_decode_codec",
+        ],
+        "gpu_backend": [
+            "gl_backend",
+        ],
+        "with_gl_standard": [
+            "webgl_standard",
+        ],
+    },
     # This target won't build successfully on its own because of missing emscripten
     # headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
@@ -73,9 +89,9 @@ cc_binary(
 )
 
 wasm_cc_binary(
-    name = "gm-bindings-wasm",
+    name = "gm_bindings_wasm",
     testonly = True,
-    cc_target = ":gm-bindings",
+    cc_target = ":gm_bindings_with_flags",
 )
 
 # See https://stackoverflow.com/a/57499321 for reference.
@@ -229,12 +245,40 @@ CK_SRCS = [
     ":include_embedded_font_false": [],
 })
 
-cc_binary(
-    name = "canvaskit",
+cc_binary_with_flags(
+    name = "canvaskit_with_flags",
     srcs = CK_SRCS,
     additional_linker_inputs = JS_INTERFACE_FILES,
+    # wasm_cc_binary makes the canvaskit.js/canvaskit.wasm based on the actual name
+    # of the executable.
+    cc_binary_name = "canvaskit",
     linkopts = CK_OPTS,
     local_defines = CK_DEFINES,
+    set_flags = {
+        "include_decoder": [
+            "jpeg_decode_codec",
+            "png_decode_codec",
+            "webp_decode_codec",
+            "gif_decode_codec",
+        ],
+        "include_encoder": [
+            "jpeg_encode_codec",
+            "png_encode_codec",
+        ],
+        # TODO(kjlubick) make this optional, depending on enable_fonts
+        "fontmgr_factory": [
+            "custom_embedded_fontmgr_factory",
+        ],
+        "include_fontmgr": [
+            "custom_embedded_fontmgr",
+        ],
+        "gpu_backend": [
+            "gl_backend",
+        ],
+        "with_gl_standard": [
+            "webgl_standard",
+        ],
+    },
     # This target won't build successfully on its own because of missing emscripten
     # headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
@@ -244,8 +288,8 @@ cc_binary(
 )
 
 wasm_cc_binary(
-    name = "canvaskit-wasm",
-    cc_target = ":canvaskit",
+    name = "canvaskit_wasm",
+    cc_target = ":canvaskit_with_flags",
 )
 
 bool_flag(
