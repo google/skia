@@ -111,6 +111,14 @@ sk_sp<SkData> SkData::MakeUninitialized(size_t length) {
     return PrivateNewWithCopy(nullptr, length);
 }
 
+sk_sp<SkData> SkData::MakeZeroInitialized(size_t length) {
+    auto data = MakeUninitialized(length);
+    if (length != 0) {
+        memset(data->writable_data(), 0, data->size());
+    }
+    return data;
+}
+
 sk_sp<SkData> SkData::MakeWithProc(const void* ptr, size_t length, ReleaseProc proc, void* ctx) {
     return sk_sp<SkData>(new SkData(ptr, length, proc, ctx));
 }

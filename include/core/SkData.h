@@ -87,6 +87,12 @@ public:
     static sk_sp<SkData> MakeUninitialized(size_t length);
 
     /**
+     *  Create a new data with zero-initialized contents. The caller should call writable_data()
+     *  to write into the buffer, but this must be done before another ref() is made.
+     */
+    static sk_sp<SkData> MakeZeroInitialized(size_t length);
+
+    /**
      *  Create a new dataref by copying the specified c-string
      *  (a null-terminated array of bytes). The returned SkData will have size()
      *  equal to strlen(cstr) + 1. If cstr is NULL, it will be treated the same

@@ -380,7 +380,7 @@ protected:
     SkRuntimeEffectBuilder() = delete;
     explicit SkRuntimeEffectBuilder(sk_sp<SkRuntimeEffect> effect)
             : fEffect(std::move(effect))
-            , fUniforms(SkData::MakeUninitialized(fEffect->uniformSize()))
+            , fUniforms(SkData::MakeZeroInitialized(fEffect->uniformSize()))
             , fChildren(fEffect->children().size()) {}
 
     SkRuntimeEffectBuilder(SkRuntimeEffectBuilder&&) = default;
