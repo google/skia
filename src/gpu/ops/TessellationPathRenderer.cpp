@@ -148,7 +148,7 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
             }
             viewport.outset(inflationRadius, inflationRadius);
         }
-        path = PreChopPathCurves(path, *args.fViewMatrix, viewport);
+        path = PreChopPathCurves(kTessellationPrecision, path, *args.fViewMatrix, viewport);
     }
 
     // Handle strokes first.
@@ -172,8 +172,9 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         return true;
     }
 
-    // Handle convex paths.
-    if (args.fShape->knownToBeConvex() && !path.isInverseFillType()) {
+    // Handle convex paths. Make sure to check 'path' for convexity since it may have been
+    // pre-chopped, not 'fShape'.
+    if (path.isConvex() && !path.isInverseFillType()) {
         auto op = GrOp::Make<PathTessellateOp>(args.fContext,
                                                args.fSurfaceDrawContext->arenaAlloc(),
                                                args.fAAType,
@@ -220,10 +221,11 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
                                                     pathDevBounds.height());
     if (n4 > pow4(kMaxTessellationSegmentsPerCurve)) {
         SkRect viewport = SkRect::Make(*args.fClipConservativeBounds);
-        path = PreChopPathCurves(path, *args.fViewMatrix, viewport);
+        path = PreChopPathCurves(kTessellationPrecision, path, *args.fViewMatrix, viewport);
     }
 
-    if (args.fShape->knownToBeConvex()) {
+    // Make sure to check 'path' for convexity since it may have been pre-chopped, not 'fShape'.
+    if (path.isConvex()) {
         constexpr static GrUserStencilSettings kMarkStencil(
             GrUserStencilSettings::StaticInit<
                 0x0001,

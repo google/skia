@@ -65,6 +65,9 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                         // This quad already fits in "maxTessellationSegments".
                         CubicPatch(patchWriter) << QuadToCubic{p0, p1, p2};
                     } else {
+                        // The path should have been pre-chopped if needed, so all curves fit in
+                        // kMaxTessellationSegmentsPerCurve.
+                        n4 = std::min(n4, pow4(kMaxTessellationSegmentsPerCurve));
                         // Chop until each quad tessellation requires "maxSegments" or fewer.
                         int numPatches =
                                 SkScalarCeilToInt(wangs_formula::root4(n4/maxSegments_pow4));
@@ -88,6 +91,9 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                         // This conic already fits in "maxTessellationSegments".
                         ConicPatch(patchWriter) << p0 << p1 << p2 << *w;
                     } else {
+                        // The path should have been pre-chopped if needed, so all curves fit in
+                        // kMaxTessellationSegmentsPerCurve.
+                        n2 = std::min(n2, pow2(kMaxTessellationSegmentsPerCurve));
                         // Chop until each conic tessellation requires "maxSegments" or fewer.
                         int numPatches = SkScalarCeilToInt(sqrtf(n2/maxSegments_pow2));
                         patchWriter.chopAndWriteConics(p0, p1, p2, *w, numPatches);
@@ -109,6 +115,9 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                         // This cubic already fits in "maxTessellationSegments".
                         CubicPatch(patchWriter) << p0 << p1 << p2 << p3;
                     } else {
+                        // The path should have been pre-chopped if needed, so all curves fit in
+                        // kMaxTessellationSegmentsPerCurve.
+                        n4 = std::min(n4, pow4(kMaxTessellationSegmentsPerCurve));
                         // Chop until each cubic tessellation requires "maxSegments" or fewer.
                         int numPatches =
                                 SkScalarCeilToInt(wangs_formula::root4(n4/maxSegments_pow4));

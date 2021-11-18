@@ -128,9 +128,13 @@ constexpr size_t PatchAttribsStride(PatchAttribs attribs) {
 constexpr static float kMaxTessellationSegmentsPerCurve SK_MAYBE_UNUSED = 1024;
 
 // Returns a new path, equivalent to 'path' within the given viewport, whose verbs can all be drawn
-// with 'maxSegments' tessellation segments or fewer. Curves and chops that fall completely outside
-// the viewport are flattened into lines.
-SkPath PreChopPathCurves(const SkPath&, const SkMatrix&, const SkRect& viewport);
+// with 'maxSegments' tessellation segments or fewer, while staying within '1/tessellationPrecision'
+// pixels of the true curve. Curves and chops that fall completely outside the viewport are
+// flattened into lines.
+SkPath PreChopPathCurves(float tessellationPrecision,
+                         const SkPath&,
+                         const SkMatrix&,
+                         const SkRect& viewport);
 
 }  // namespace skgpu
 
