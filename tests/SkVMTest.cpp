@@ -881,13 +881,77 @@ DEF_TEST(SkVM_assert, r) {
 }
 
 DEF_TEST(SkVM_trace_line, r) {
+    class TestTraceHook : public skvm::TraceHook {
+    public:
+        void var(int, int32_t) override { fBuffer.push_back(-9999999); }
+        void call(int, bool) override   { fBuffer.push_back(-9999999); }
+        void line(int lineNum) override { fBuffer.push_back(lineNum); }
+
+        std::vector<int> fBuffer;
+    };
+
     skvm::Builder b;
     b.trace_line(b.splat(0xFFFFFFFF), 123);
+    b.trace_line(b.splat(0x00000000), 456);
+    b.trace_line(b.splat(0xFFFFFFFF), 789);
+    skvm::Program p = b.done();
+    TestTraceHook testTrace;
+    p.attachTraceHook(&testTrace);
+    p.eval(1);
 
-    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
-        // The trace_line instruction has no behavior yet.
-        program.eval(1);
-    });
+    REPORTER_ASSERT(r, (testTrace.fBuffer == std::vector<int>{123, 789}));
+}
+
+DEF_TEST(SkVM_trace_var, r) {
+    class TestTraceHook : public skvm::TraceHook {
+    public:
+        void line(int) override                  { fBuffer.push_back(-9999999); }
+        void call(int, bool) override            { fBuffer.push_back(-9999999); }
+        void var(int slot, int32_t val) override {
+            fBuffer.push_back(slot);
+            fBuffer.push_back(val);
+        }
+
+        std::vector<int> fBuffer;
+    };
+
+    skvm::Builder b;
+    b.trace_var(b.splat(0x00000000), 2, b.splat(333));
+    b.trace_var(b.splat(0xFFFFFFFF), 4, b.splat(555));
+    b.trace_var(b.splat(0xFFFFFFFF), 6, b.splat(777));
+    b.trace_var(b.splat(0x00000000), 8, b.splat(999));
+    skvm::Program p = b.done();
+    TestTraceHook testTrace;
+    p.attachTraceHook(&testTrace);
+    p.eval(1);
+
+    REPORTER_ASSERT(r, (testTrace.fBuffer == std::vector<int>{4, 555, 6, 777}));
+}
+
+DEF_TEST(SkVM_trace_call, r) {
+    class TestTraceHook : public skvm::TraceHook {
+    public:
+        void line(int) override                   { fBuffer.push_back(-9999999); }
+        void var(int, int32_t) override           { fBuffer.push_back(-9999999); }
+        void call(int fnIdx, bool enter) override {
+            fBuffer.push_back(fnIdx);
+            fBuffer.push_back((int)enter);
+        }
+
+        std::vector<int> fBuffer;
+    };
+
+    skvm::Builder b;
+    b.trace_call_enter(b.splat(0xFFFFFFFF), 12);
+    b.trace_call_enter(b.splat(0x00000000), 34);
+    b.trace_call_exit(b.splat(0xFFFFFFFF), 56);
+    b.trace_call_exit(b.splat(0x00000000), 78);
+    skvm::Program p = b.done();
+    TestTraceHook testTrace;
+    p.attachTraceHook(&testTrace);
+    p.eval(1);
+
+    REPORTER_ASSERT(r, (testTrace.fBuffer == std::vector<int>{12, 1, 56, 0}));
 }
 
 DEF_TEST(SkVM_premul, reporter) {

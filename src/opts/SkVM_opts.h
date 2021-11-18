@@ -49,8 +49,8 @@ namespace SkVMInterpreterTypes {
 
     inline void interpret_skvm(const skvm::InterpreterInstruction insts[], const int ninsts,
                                const int nregs, const int loop,
-                               const int strides[], const int nargs,
-                               int n, void* args[]) {
+                               const int strides[], skvm::TraceHook* traceHook,
+                               const int nargs, int n, void* args[]) {
         using namespace skvm;
 
         using SkVMInterpreterTypes::K;
@@ -218,25 +218,27 @@ namespace SkVMInterpreterTypes {
                     break;
 
                     CASE(Op::trace_line):
-                    #ifdef SK_DEBUG
-                    // TODO(skia:12614): this opcode will check the mask; if it's set, we write the
-                    // line number from immA into the trace buffer.
-                    #endif
-                    break;
+                        if (traceHook && any(r[x].i32)) {
+                            traceHook->line(immA);
+                        }
+                        break;
 
                     CASE(Op::trace_var):
-                    #ifdef SK_DEBUG
-                    // TODO(skia:12614): this opcode will check the mask; if it's set, we write the
-                    // variable-assignment slot and value to the trace buffer.
-                    #endif
-                    break;
+                        if (traceHook && any(r[x].i32)) {
+                            for (int i = 0; i < K; ++i) {
+                                if (r[x].i32[i]) {
+                                    traceHook->var(immA, r[y].i32[i]);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
 
                     CASE(Op::trace_call):
-                    #ifdef SK_DEBUG
-                    // TODO(skia:12614): this opcode will be used to keep track of function entrance
-                    // and exits, enabling step-over of function calls.
-                    #endif
-                    break;
+                        if (traceHook && any(r[x].i32)) {
+                            traceHook->call(immA, (bool)immB);
+                        }
+                        break;
 
                     CASE(Op::index): {
                         const int iota[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,

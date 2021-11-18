@@ -14,7 +14,10 @@
 #include "src/core/SkXfermodePriv.h"
 
 struct SkBitmapProcState;
-namespace skvm { struct InterpreterInstruction; }
+namespace skvm {
+struct InterpreterInstruction;
+class TraceHook;
+}
 
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
@@ -78,8 +81,8 @@ namespace SkOpts {
 #undef M
 
     extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
-                                  int nregs, int loop, const int strides[], int nargs,
-                                  int n, void* args[]);
+                                  int nregs, int loop, const int strides[],
+                                  skvm::TraceHook* traceHook, int nargs, int n, void* args[]);
 }  // namespace SkOpts
 
 /** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.

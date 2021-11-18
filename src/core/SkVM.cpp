@@ -159,6 +159,7 @@ namespace skvm {
         int regs = 0;
         int loop = 0;
         std::vector<int> strides;
+        TraceHook* traceHook = nullptr;
 
         std::atomic<void*> jit_entry{nullptr};   // TODO: minimal std::memory_orders
         size_t jit_size = 0;
@@ -179,7 +180,7 @@ namespace skvm {
         struct Shift { int bits; };
         struct Splat { int bits; };
         struct Hex   { int bits; };
-        // For op `trace_line` or `trace_call`
+        // For op `trace_line`
         struct Line  { int bits; };
         // For op `trace_var`
         struct VarSlot { int bits; };
@@ -2602,8 +2603,8 @@ namespace skvm {
 
         // So we'll sometimes use the interpreter here even if later calls will use the JIT.
         SkOpts::interpret_skvm(fImpl->instructions.data(), (int)fImpl->instructions.size(),
-                               this->nregs(), this->loop(), fImpl->strides.data(), this->nargs(),
-                               n, args);
+                               this->nregs(), this->loop(), fImpl->strides.data(), fImpl->traceHook,
+                               this->nargs(), n, args);
     }
 
     #if defined(SKVM_LLVM)
@@ -3088,6 +3089,8 @@ namespace skvm {
         // Might as well do this after setupLLVM() to get a little more time to compile.
         this->setupInterpreter(instructions);
     }
+
+    void Program::attachTraceHook(TraceHook* hook) const { fImpl->traceHook = hook; }
 
     std::vector<InterpreterInstruction> Program::instructions() const { return fImpl->instructions; }
     int  Program::nargs() const { return (int)fImpl->strides.size(); }
