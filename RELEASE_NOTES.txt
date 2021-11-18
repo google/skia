@@ -14,7 +14,8 @@ Milestone 98
     into Skia.
   * Surfaces and images are now limited to just under 2GB of total size. Previously, larger images
     could be created, but the CPU backend would fail to index them correctly.
-
+  * SkCanvas::drawVertices and SkCanvas::drawPatch variants that did not take SkBlendMode are
+    removed.
 
 Milestone 97
 ------------

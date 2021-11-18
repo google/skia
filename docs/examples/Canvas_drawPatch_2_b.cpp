@@ -14,6 +14,6 @@ void draw(SkCanvas* canvas) {
     SkPoint texCoords[] = { { 0, 0 }, { 0, 62}, { 62, 62}, { 62, 0 } };
     paint.setShader(source.makeShader(SkSamplingOptions(SkFilterMode::kLinear)));
     canvas->scale(30, 30);
-    canvas->drawPatch(cubics, nullptr, texCoords, paint);
+    canvas->drawPatch(cubics, nullptr, texCoords, SkBlendMode::kModulate, paint);
 }
 }  // END FIDDLE

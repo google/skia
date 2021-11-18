@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
                       /* { 1, 5 }, */ { 2, 4 }, { 1, 3 }, /* { 3, 1 } */ };
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorYELLOW, SK_ColorCYAN };
     canvas->scale(30, 30);
-    canvas->drawPatch(cubics, colors, nullptr, paint);
+    canvas->drawPatch(cubics, colors, nullptr, SkBlendMode::kModulate, paint);
     SkPoint text[] = { {3,0.9f}, {4,2.5f}, {5,0.9f}, {7.5f,3.2f}, {5.5f,4.2f},
             {7.5f,5.2f}, {5,7.5f}, {4,5.9f}, {3,7.5f}, {0.5f,5.2f}, {2.5f,4.2f},
             {0.5f,3.2f} };

@@ -1939,13 +1939,6 @@ public:
     */
     void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint);
 
-    /** Variant of 3-parameter drawVertices, using the default of Modulate for the blend
-     *  parameter. Note that SkVertices that include per-vertex-data ignore this mode parameter.
-     */
-    void drawVertices(const SkVertices* vertices, const SkPaint& paint) {
-        this->drawVertices(vertices, SkBlendMode::kModulate, paint);
-    }
-
     /** Draws SkVertices vertices, a triangle mesh, using clip and SkMatrix.
         If paint contains an SkShader and vertices does not contain texCoords, the shader
         is mapped using the vertices' positions.
@@ -1962,13 +1955,6 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_drawVertices_2
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
-
-    /** Variant of 3-parameter drawVertices, using the default of Modulate for the blend
-     *  parameter. Note that SkVertices that include per-vertex-data ignore this mode parameter.
-     */
-    void drawVertices(const sk_sp<SkVertices>& vertices, const SkPaint& paint) {
-        this->drawVertices(vertices, SkBlendMode::kModulate, paint);
-    }
 
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture SkPoint, with each corner.
@@ -2000,38 +1986,6 @@ public:
     */
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
-
-    /** Draws SkPath cubic Coons patch: the interpolation of four cubics with shared corners,
-        associating a color, and optionally a texture SkPoint, with each corner.
-
-        Coons patch uses clip and SkMatrix, paint SkShader, SkColorFilter,
-        alpha, SkImageFilter, and SkBlendMode. If SkShader is provided it is treated
-        as Coons patch texture; SkBlendMode mode combines color colors and SkShader if
-        both are provided.
-
-        SkPoint array cubics specifies four SkPath cubic starting at the top-left corner,
-        in clockwise order, sharing every fourth point. The last SkPath cubic ends at the
-        first point.
-
-        Color array color associates colors with corners in top-left, top-right,
-        bottom-right, bottom-left order.
-
-        If paint contains SkShader, SkPoint array texCoords maps SkShader as texture to
-        corners in top-left, top-right, bottom-right, bottom-left order. If texCoords is
-        nullptr, SkShader is mapped using positions (derived from cubics).
-
-        SkMaskFilter and SkPathEffect on paint are ignored.
-
-        @param cubics     SkPath cubic array, sharing common points
-        @param colors     color array, one for each corner
-        @param texCoords  SkPoint array of texture coordinates, mapping SkShader to corners;
-                          may be nullptr
-        @param paint      SkShader, SkColorFilter, SkBlendMode, used to draw
-    */
-    void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                   const SkPoint texCoords[4], const SkPaint& paint) {
-        this->drawPatch(cubics, colors, texCoords, SkBlendMode::kModulate, paint);
-    }
 
     /** Draws a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
         paint uses anti-alias, alpha, SkColorFilter, SkImageFilter, and SkBlendMode

@@ -301,12 +301,12 @@ DEF_SIMPLE_GM(vertices_perspective, canvas, 256, 256) {
     canvas->save();
     canvas->translate(0, r.height());
     canvas->concat(persp);
-    canvas->drawVertices(verts, paint);
+    canvas->drawVertices(verts, SkBlendMode::kModulate, paint);
     canvas->restore();
 
     canvas->save();
     canvas->translate(r.width(), r.height());
     canvas->concat(persp);
-    canvas->drawVertices(verts, paint);
+    canvas->drawVertices(verts, SkBlendMode::kModulate, paint);
     canvas->restore();
 }
