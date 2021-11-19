@@ -156,23 +156,21 @@ void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> 
 }
 
 // Check for integer translate with the same 2x2 matrix.
-std::tuple<bool, SkVector> check_integer_translate(
-        const SkMatrix& initialMatrix, const SkMatrix& drawMatrix) {
-    if (initialMatrix.getScaleX() != drawMatrix.getScaleX() ||
-        initialMatrix.getScaleY() != drawMatrix.getScaleY() ||
-        initialMatrix.getSkewX()  != drawMatrix.getSkewX()  ||
-        initialMatrix.getSkewY()  != drawMatrix.getSkewY())
-    {
-        return {false, {0, 0}};
-    }
-
-    // We can update the positions in the text blob without regenerating the whole
-    // blob, but only for integer translations.
+// Returns the translation, and true if the change from initial matrix to the position matrix
+// support using direct glyph masks.
+std::tuple<bool, SkVector> can_use_direct(
+        const SkMatrix& initialPositionMatrix, const SkMatrix& positionMatrix) {
+    // The existing direct glyph info can be used if the initialPositionMatrix, and the
+    // positionMatrix have the same 2x2, and the translation between them is integer.
     // Calculate the translation in source space to a translation in device space by mapping
-    // (0, 0) through both the initial matrix and the draw matrix; take the difference.
-    SkVector translation = drawMatrix.mapOrigin() - initialMatrix.mapOrigin();
-
-    return {SkScalarIsInt(translation.x()) && SkScalarIsInt(translation.y()), translation};
+    // (0, 0) through both the initial position matrix and the position matrix; take the difference.
+    SkVector translation = positionMatrix.mapOrigin() - initialPositionMatrix.mapOrigin();
+    return {initialPositionMatrix.getScaleX() == positionMatrix.getScaleX() &&
+            initialPositionMatrix.getScaleY() == positionMatrix.getScaleY() &&
+            initialPositionMatrix.getSkewX()  == positionMatrix.getSkewX()  &&
+            initialPositionMatrix.getSkewY()  == positionMatrix.getSkewY()  &&
+            SkScalarIsInt(translation.x()) && SkScalarIsInt(translation.y()),
+            translation};
 }
 
 // -- PathSubRun -----------------------------------------------------------------------------------
@@ -578,8 +576,7 @@ GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawa
 }
 
 bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
-    auto [reuse, translation] =
-            check_integer_translate(fBlob->initialPositionMatrix(), positionMatrix);
+    auto [reuse, translation] = can_use_direct(fBlob->initialPositionMatrix(), positionMatrix);
 
     // If glyphs were excluded because of position bounds, then this subrun can only be reused if
     // there is no change in position.
@@ -1514,7 +1511,7 @@ bool GrTextBlob::Key::operator==(const GrTextBlob::Key& that) const {
     }
 
     if (fSetOfDrawingTypes & GrSDFTControl::kDirect) {
-        auto [compatible, _] = check_integer_translate(fPositionMatrix, that.fPositionMatrix);
+        auto [compatible, _] = can_use_direct(fPositionMatrix, that.fPositionMatrix);
         return compatible;
     }
 
