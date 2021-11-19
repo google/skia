@@ -258,7 +258,7 @@ private:
         for (int i = 0; i < patchCnt; i++) {
             const Patch& patch = fPatches[i];
 
-            GrVertexColor patchColor(patch.fColor, fWideColor);
+            VertexColor patchColor(patch.fColor, fWideColor);
 
             // Apply the view matrix here if it is scale-translate.  Otherwise, we need to
             // wait until we've created the dst rects.

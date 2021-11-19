@@ -310,7 +310,7 @@ private:
             auto uploadTarget = target->deferredUploadTarget();
             atlasMgr->setUseToken(shapeData, uploadTarget->tokenTracker()->nextDrawToken());
 
-            this->writePathVertices(vertices, GrVertexColor(args.fColor, fWideColor),
+            this->writePathVertices(vertices, VertexColor(args.fColor, fWideColor),
                                     args.fViewMatrix, shapeData);
             flushInfo.fInstancesToFlush++;
         }
@@ -513,7 +513,7 @@ private:
     }
 
     void writePathVertices(VertexWriter& vertices,
-                           const GrVertexColor& color,
+                           const VertexColor& color,
                            const SkMatrix& ctm,
                            const skgpu::v1::SmallPathShapeData* shapeData) const {
         SkRect translatedBounds(shapeData->fBounds);

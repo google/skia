@@ -31,6 +31,7 @@
 #include <utility>
 
 using skgpu::VertexWriter;
+using skgpu::VertexColor;
 
 namespace {
 
@@ -1298,7 +1299,7 @@ private:
         for (const auto& circle : fCircles) {
             SkScalar innerRadius = circle.fInnerRadius;
             SkScalar outerRadius = circle.fOuterRadius;
-            GrVertexColor color(circle.fColor, fWideColor);
+            VertexColor color(circle.fColor, fWideColor);
             const SkRect& bounds = circle.fDevBounds;
 
             // The inner radius in the vertex data must be specified in normalized space.
@@ -1683,7 +1684,7 @@ private:
                 dashParams.startAngle = -dashParams.startAngle;
             }
 
-            GrVertexColor color(circle.fColor, fWideColor);
+            VertexColor color(circle.fColor, fWideColor);
 
             // The bounding geometry for the circle is composed of an outer bounding octagon and
             // an inner bounded octagon.
@@ -1997,7 +1998,7 @@ private:
         float aaBloat = target->usesMSAASurface() ? SK_ScalarSqrt2 : .5f;
 
         for (const auto& ellipse : fEllipses) {
-            GrVertexColor color(ellipse.fColor, fWideColor);
+            VertexColor color(ellipse.fColor, fWideColor);
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
 
@@ -2268,7 +2269,7 @@ private:
         }
 
         for (const auto& ellipse : fEllipses) {
-            GrVertexColor color(ellipse.fColor, fWideColor);
+            VertexColor color(ellipse.fColor, fWideColor);
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
 
@@ -2595,7 +2596,7 @@ public:
 private:
     static void FillInOverstrokeVerts(VertexWriter& verts, const SkRect& bounds, SkScalar smInset,
                                       SkScalar bigInset, SkScalar xOffset, SkScalar outerRadius,
-                                      SkScalar innerRadius, const GrVertexColor& color) {
+                                      SkScalar innerRadius, const VertexColor& color) {
         SkASSERT(smInset < bigInset);
 
         // TL
@@ -2699,7 +2700,7 @@ private:
 
         int currStartVertex = 0;
         for (const auto& rrect : fRRects) {
-            GrVertexColor color(rrect.fColor, fWideColor);
+            VertexColor color(rrect.fColor, fWideColor);
             SkScalar outerRadius = rrect.fOuterRadius;
             const SkRect& bounds = rrect.fDevBounds;
 
@@ -3020,7 +3021,7 @@ private:
         }
 
         for (const auto& rrect : fRRects) {
-            GrVertexColor color(rrect.fColor, fWideColor);
+            VertexColor color(rrect.fColor, fWideColor);
             // Compute the reciprocals of the radii here to save time in the shader
             float reciprocalRadii[4] = {
                 SkScalarInvert(rrect.fXRadius),

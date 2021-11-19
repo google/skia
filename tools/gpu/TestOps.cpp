@@ -203,7 +203,7 @@ void TestRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
     skgpu::VertexWriter writer{helper.vertices()};
     auto pos = skgpu::VertexWriter::TriStripFromRect(fDrawRect);
     auto local = skgpu::VertexWriter::TriStripFromRect(fLocalRect);
-    GrVertexColor color(fColor, fGP.wideColor());
+    skgpu::VertexColor color(fColor, fGP.wideColor());
     writer.writeQuad(pos, local, color);
 
     fMesh = helper.mesh();

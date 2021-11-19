@@ -364,7 +364,7 @@ typedef SkTArray<Draw, true> DrawArray;
 
 void create_vertices(const SegmentArray& segments,
                      const SkPoint& fanPt,
-                     const GrVertexColor& color,
+                     const VertexColor& color,
                      DrawArray* draws,
                      VertexWriter& verts,
                      uint16_t* idxs,
@@ -822,7 +822,7 @@ private:
             }
 
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
-            GrVertexColor color(args.fColor, fWideColor);
+            VertexColor color(args.fColor, fWideColor);
             create_vertices(segments, fanPt, color, &draws, verts, idxs, kVertexStride);
 
             GrSimpleMesh* meshes = target->allocMeshes(draws.count());

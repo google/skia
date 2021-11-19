@@ -859,8 +859,8 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(VertexWriter& vertices,
         interiorCoverage -= interiorExtraBloat;
     }
 
-    GrVertexColor innerColor(tweakAlphaForCoverage ? color * innerCoverage : color, wideColor);
-    GrVertexColor outerColor(tweakAlphaForCoverage ? SK_PMColor4fTRANSPARENT : color, wideColor);
+    VertexColor innerColor(tweakAlphaForCoverage ? color * innerCoverage : color, wideColor);
+    VertexColor outerColor(tweakAlphaForCoverage ? SK_PMColor4fTRANSPARENT : color, wideColor);
 
     // Exterior outset rect (away from stroke).
     vertices.writeQuad(inset_fan(devOutside, -outset, -outset),
@@ -913,8 +913,8 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(VertexWriter& vertices,
             interiorCoverage += interiorCoverage * (1 - coverageBackset) +
                                 innerCoverage * coverageBackset;
         }
-        GrVertexColor interiorColor(tweakAlphaForCoverage ? color * interiorCoverage : color,
-                                    wideColor);
+        VertexColor interiorColor(tweakAlphaForCoverage ? color * interiorCoverage : color,
+                                  wideColor);
         vertices.writeQuad(VertexWriter::TriFanFromRect(interiorAABoundary),
                            interiorColor,
                            maybe_coverage(interiorCoverage));

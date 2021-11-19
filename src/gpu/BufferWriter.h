@@ -9,6 +9,7 @@
 #define BufferWriter_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/private/SkColorData.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTemplates.h"
 #include <type_traits>
@@ -248,6 +249,49 @@ struct VertexWriter::is_quad<VertexWriter::TriStrip<T>> : std::true_type {};
 
 template <typename T>
 struct VertexWriter::is_quad<VertexWriter::TriFan<T>> : std::true_type {};
+
+/**
+ * VertexColor is a helper for writing colors to a vertex buffer. It outputs either four bytes or
+ * or four float32 channels, depending on the wideColor parameter. Note that the GP needs to have
+ * been constructed with the correct attribute type for colors, to match the usage here.
+ */
+class VertexColor {
+public:
+    VertexColor() = default;
+
+    explicit VertexColor(const SkPMColor4f& color, bool wideColor) {
+        this->set(color, wideColor);
+    }
+
+    void set(const SkPMColor4f& color, bool wideColor) {
+        if (wideColor) {
+            memcpy(fColor, color.vec(), sizeof(fColor));
+        } else {
+            fColor[0] = color.toBytes_RGBA();
+        }
+        fWideColor = wideColor;
+    }
+
+    size_t size() const { return fWideColor ? 16 : 4; }
+
+private:
+    template <typename T>
+    friend VertexWriter& operator<<(VertexWriter&, const T&);
+
+    uint32_t fColor[4];
+    bool     fWideColor;
+};
+
+template <>
+SK_MAYBE_UNUSED inline VertexWriter& operator<<(VertexWriter& w, const VertexColor& color) {
+    w << color.fColor[0];
+    if (color.fWideColor) {
+        w << color.fColor[1]
+          << color.fColor[2]
+          << color.fColor[3];
+    }
+    return w;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

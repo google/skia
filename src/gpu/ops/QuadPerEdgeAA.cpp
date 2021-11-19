@@ -58,8 +58,7 @@ void write_quad_generic(VertexWriter* vb,
         // save color
         if (spec.hasVertexColors()) {
             bool wide = spec.colorType() == ColorType::kFloat;
-            *vb << GrVertexColor(color * (mode == CoverageMode::kWithColor ? coverage[i] : 1.f),
-                                 wide);
+            *vb << VertexColor(color * (mode == CoverageMode::kWithColor ? coverage[i] : 1), wide);
         }
 
         // save local position
@@ -112,7 +111,7 @@ void write_2d_color(VertexWriter* vb,
         SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
         *vb << deviceQuad->x(i)
             << deviceQuad->y(i)
-            << GrVertexColor(color * coverage[i], wide);
+            << VertexColor(color * coverage[i], wide);
     }
 }
 
@@ -169,7 +168,7 @@ void write_2d_color_uv(VertexWriter* vb,
         SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
         *vb << deviceQuad->x(i)
             << deviceQuad->y(i)
-            << GrVertexColor(color * coverage[i], wide)
+            << VertexColor(color * coverage[i], wide)
             << localQuad->x(i)
             << localQuad->y(i);
     }
@@ -263,7 +262,7 @@ void write_2d_color_uv_strict(VertexWriter* vb,
         SkASSERT(spec.coverageMode() == CoverageMode::kWithColor || coverage[i] == 1.f);
         *vb << deviceQuad->x(i)
             << deviceQuad->y(i)
-            << GrVertexColor(color * coverage[i], wide)
+            << VertexColor(color * coverage[i], wide)
             << localQuad->x(i)
             << localQuad->y(i)
             << texSubset;

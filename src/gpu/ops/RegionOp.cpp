@@ -131,7 +131,7 @@ private:
         }
 
         for (int i = 0; i < numRegions; i++) {
-            GrVertexColor color(fRegions[i].fColor, fWideColor);
+            VertexColor color(fRegions[i].fColor, fWideColor);
             SkRegion::Iterator iter(fRegions[i].fRegion);
             while (!iter.done()) {
                 SkRect rect = SkRect::Make(iter.rect());

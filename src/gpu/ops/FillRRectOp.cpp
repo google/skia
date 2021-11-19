@@ -539,7 +539,7 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
             instanceWrter << m.getScaleX() << m.getSkewX() << m.getSkewY() << m.getScaleY()
                           << m.getTranslateX() << m.getTranslateY()
                           << radiiX << radiiY
-                          << GrVertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor)
+                          << VertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor)
                           << VertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
                                               i->fLocalRect);
         }

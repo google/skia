@@ -43,7 +43,7 @@ static const SkScalar kMaxStrokeWidth = 20.0;
 void extract_verts(const GrAAConvexTessellator& tess,
                    const SkMatrix* localCoordsMatrix,
                    void* vertData,
-                   const GrVertexColor& color,
+                   const VertexColor& color,
                    uint16_t firstIndex,
                    uint16_t* idxs) {
     VertexWriter verts{vertData};
@@ -267,8 +267,7 @@ private:
             }
 
             extract_verts(tess, localCoordsMatrix, vertices + vertexStride * vertexCount,
-                          GrVertexColor(args.fColor, fWideColor), vertexCount,
-                          indices + indexCount);
+                          VertexColor(args.fColor, fWideColor), vertexCount, indices + indexCount);
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
