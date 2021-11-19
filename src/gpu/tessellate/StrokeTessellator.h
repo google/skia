@@ -13,10 +13,10 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
-class GrMeshDrawTarget;
-
 #if SK_GPU_V1
 #include "src/gpu/GrVertexChunkArray.h"
+
+class GrMeshDrawTarget;
 class GrOpFlushState;
 #endif
 

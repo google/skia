@@ -11,7 +11,6 @@
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/StrokeIterator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
-#include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 #if SK_GPU_V1
 #include "src/gpu/GrMeshDrawTarget.h"
@@ -45,7 +44,7 @@ public:
     SK_ALWAYS_INLINE void lineTo(SkPoint start, SkPoint end) {
         SkPoint cubic[] = {start, start, end, end};
         SkPoint endControlPoint = start;
-        this->writeStroke(cubic, endControlPoint, GrTessellationShader::kCubicCurveType);
+        this->writeStroke(cubic, endControlPoint, kCubicCurveType);
     }
 
     SK_ALWAYS_INLINE void quadraticTo(const SkPoint p[3]) {
@@ -57,7 +56,7 @@ public:
         SkPoint cubic[4];
         VertexWriter(cubic) << QuadToCubic(p);
         SkPoint endControlPoint = cubic[2];
-        this->writeStroke(cubic, endControlPoint, GrTessellationShader::kCubicCurveType);
+        this->writeStroke(cubic, endControlPoint, kCubicCurveType);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }
@@ -69,10 +68,9 @@ public:
             this->chopConicTo({p, w});
             return;
         }
-        SkPoint conic[4];
-        GrTessellationShader::WriteConicPatch(p, w, conic);
+        SkPoint conic[4] = {p[0], p[1], p[2], {w, std::numeric_limits<float>::infinity()}};
         SkPoint endControlPoint = conic[1];
-        this->writeStroke(conic, endControlPoint, GrTessellationShader::kConicCurveType);
+        this->writeStroke(conic, endControlPoint, kConicCurveType);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }
@@ -84,7 +82,7 @@ public:
             return;
         }
         SkPoint endControlPoint = (p[3] != p[2]) ? p[2] : (p[2] != p[1]) ? p[1] : p[0];
-        this->writeStroke(p, endControlPoint, GrTessellationShader::kCubicCurveType);
+        this->writeStroke(p, endControlPoint, kCubicCurveType);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }

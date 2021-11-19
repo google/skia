@@ -88,7 +88,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
 
     if (shader.hasExplicitCurveType()) {
         args.fVertBuilder->insertFunction(SkStringPrintf(R"(
-        bool is_conic_curve() { return curveTypeAttr != %g; })", kCubicCurveType).c_str());
+        bool is_conic_curve() { return curveTypeAttr != %g; })", skgpu::kCubicCurveType).c_str());
     } else {
         args.fVertBuilder->insertFunction(R"(
         bool is_conic_curve() { return isinf(pts23Attr.w); })");

@@ -8,6 +8,7 @@
 #ifndef tessellate_PathCurveTessellator_DEFINED
 #define tessellate_PathCurveTessellator_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/tessellate/PathTessellator.h"
 
 namespace skgpu {

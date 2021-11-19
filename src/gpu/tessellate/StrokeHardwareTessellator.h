@@ -8,7 +8,6 @@
 #ifndef tessellate_StrokeHardwareTessellator_DEFINED
 #define tessellate_StrokeHardwareTessellator_DEFINED
 
-#include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/StrokeTessellator.h"
 
 namespace skgpu {

@@ -10,6 +10,8 @@
 
 #include "src/gpu/tessellate/PathTessellator.h"
 
+#include "src/core/SkArenaAlloc.h"
+
 namespace skgpu {
 
 // Prepares an array of "wedge" patches. A wedge is an independent, 5-point closed contour

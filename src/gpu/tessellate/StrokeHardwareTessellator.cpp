@@ -11,7 +11,6 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/WangsFormula.h"
-#include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 #if SK_GPU_V1
 #include "src/gpu/GrMeshDrawTarget.h"
@@ -351,7 +350,8 @@ private:
         if (w == 1) {
             VertexWriter(asPatch) << QuadToCubic(p);
         } else {
-            GrTessellationShader::WriteConicPatch(p, w, asPatch);
+            memcpy(asPatch, p, sizeof(SkPoint) * 3);
+            asPatch[3] = {w, std::numeric_limits<float>::infinity()};
         }
 
         float numParametricSegments_pow4;
@@ -806,7 +806,8 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
                     // case. Write it out directly.
                     prevJoinFitsInPatch = hwPatchWriter.stroke180FitsInPatch_withJoin(
                             numParametricSegments_pow4);
-                    GrTessellationShader::WriteConicPatch(p, *w, scratchPts);
+                    memcpy(scratchPts, p, sizeof(SkPoint) * 3);
+                    scratchPts[3] = {*w, std::numeric_limits<float>::infinity()};
                     patchPts = scratchPts;
                     endControlPoint = p[1];
                     break;

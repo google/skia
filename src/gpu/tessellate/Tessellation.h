@@ -116,6 +116,12 @@ struct StrokeParams {
     float fJoinType;  // See GetJoinType().
 };
 
+// When PatchAttribs::kExplicitCurveType is set, these are the values that tell the GPU what type of
+// curve is being drawn.
+constexpr static float kCubicCurveType SK_MAYBE_UNUSED = 0;
+constexpr static float kConicCurveType SK_MAYBE_UNUSED = 1;
+constexpr static float kTriangularConicCurveType SK_MAYBE_UNUSED = 2;  // Conic curve with w=Inf.
+
 // Returns the packed size in bytes of the attribs portion of tessellation patches (or instances) in
 // GPU buffers.
 constexpr size_t PatchAttribsStride(PatchAttribs attribs) {

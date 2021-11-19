@@ -16,6 +16,8 @@
 #include "src/gpu/tessellate/PathCurveTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
+namespace skgpu::v1 {
+
 namespace {
 
 // Fills an array of convex hulls surrounding 4-point cubic or conic instances. This shader is used
@@ -163,8 +165,6 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
 }
 
 }  // anonymous namespace
-
-namespace skgpu::v1 {
 
 void PathInnerTriangulateOp::visitProxies(const GrVisitProxyFunc& func) const {
     if (fPipelineForFills) {

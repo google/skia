@@ -102,11 +102,13 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
             v->insertFunction(skgpu::wangs_formula::as_sksl().c_str());
             if (middleOutShader.fAttribs & PatchAttribs::kExplicitCurveType) {
                 v->insertFunction(SkStringPrintf(R"(
-                bool is_conic_curve() { return curveType != %g; })", kCubicCurveType).c_str());
+                bool is_conic_curve() {
+                    return curveType != %g;
+                })", skgpu::kCubicCurveType).c_str());
                 v->insertFunction(SkStringPrintf(R"(
                 bool is_triangular_conic_curve() {
                     return curveType == %g;
-                })", kTriangularConicCurveType).c_str());
+                })", skgpu::kTriangularConicCurveType).c_str());
             } else {
                 SkASSERT(shaderCaps.infinitySupport());
                 v->insertFunction(R"(

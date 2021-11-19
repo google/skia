@@ -8,10 +8,10 @@
 #ifndef tessellate_PatchWriter_DEFINED
 #define tessellate_PatchWriter_DEFINED
 
+#include "include/private/SkColorData.h"
 #include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/Tessellation.h"
-#include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 namespace skgpu {
 
@@ -87,7 +87,7 @@ public:
     //    CubicPatch(patchWriter) << p0 << p1 << p2 << p3;
     //
     struct CubicPatch : public Patch {
-        CubicPatch(PatchWriter& w) : Patch(w, GrTessellationShader::kCubicCurveType) {}
+        CubicPatch(PatchWriter& w) : Patch(w, kCubicCurveType) {}
     };
 
     // RAII. Appends a patch during construction and writes the remaining data for a conic during
@@ -96,7 +96,7 @@ public:
     //     ConicPatch(patchWriter) << p0 << p1 << p2 << w;
     //
     struct ConicPatch : public Patch {
-        ConicPatch(PatchWriter& w) : Patch(w, GrTessellationShader::kConicCurveType) {}
+        ConicPatch(PatchWriter& w) : Patch(w, kConicCurveType) {}
         ~ConicPatch() {
             fVertexWriter << VertexWriter::kIEEE_32_infinity;  // p3.y=Inf indicates a conic.
         }
@@ -108,7 +108,7 @@ public:
     //     TrianglePatch(patchWriter) << p0 << p1 << p2;
     //
     struct TrianglePatch : public Patch {
-        TrianglePatch(PatchWriter& w) : Patch(w, GrTessellationShader::kTriangularConicCurveType) {}
+        TrianglePatch(PatchWriter& w) : Patch(w, kTriangularConicCurveType) {}
         ~TrianglePatch() {
             // Mark this patch as a triangle by setting it to a conic with w=Inf.
             fVertexWriter << VertexWriter::Repeat<2>(VertexWriter::kIEEE_32_infinity);

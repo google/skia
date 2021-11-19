@@ -8,9 +8,11 @@
 #ifndef tessellate_StrokeFixedCountTessellator_DEFINED
 #define tessellate_StrokeFixedCountTessellator_DEFINED
 
-#include "src/gpu/GrGpuBuffer.h"
-#include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/StrokeTessellator.h"
+
+#if SK_GPU_V1
+#include "src/gpu/GrGpuBuffer.h"
+#endif
 
 namespace skgpu {
 

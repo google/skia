@@ -13,14 +13,12 @@
 class SkPath;
 
 #if SK_GPU_V1
-
+#include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 
-class GrGpuBuffer;
 class GrMeshDrawTarget;
 class GrOpFlushState;
-
 #endif
 
 namespace skgpu {
