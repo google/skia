@@ -67,7 +67,6 @@ public:
     }
 
 private:
-    GrVertexChunkArray fInstanceChunks;
     int fFixedEdgeCount = 0;
 
     // Only used if sk_VertexID is not supported.

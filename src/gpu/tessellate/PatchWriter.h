@@ -17,6 +17,7 @@ namespace skgpu {
 
 #if SK_GPU_V1
 class PathTessellator;
+class StrokeTessellator;
 #endif
 
 // Writes out tessellation patches, formatted with their specific attribs, to a GPU buffer.
@@ -27,29 +28,39 @@ public:
                 PatchAttribs attribs,
                 size_t patchStride,
                 int initialAllocCount)
-            : fPatchAttribs(attribs)
+            : fAttribs(attribs)
             , fChunker(target, vertexChunkArray, patchStride, initialAllocCount) {
     }
 
 #if SK_GPU_V1
-    // Creates a PatchWriter that writes directly to the GrVertexChunkArray stored on the provided
-    // PathTessellator.
-    PatchWriter(GrMeshDrawTarget*, PathTessellator* tessellator, int initialPatchAllocCount);
+    // Create PatchWriters that write directly to the GrVertexChunkArrays stored on the provided
+    // tessellators.
+    PatchWriter(GrMeshDrawTarget*, PathTessellator*, int initialPatchAllocCount);
+    PatchWriter(GrMeshDrawTarget*, StrokeTessellator*, int initialPatchAllocCount);
 #endif
+
+    PatchAttribs attribs() const { return fAttribs; }
 
     // Updates the fan point that will be written out with each patch (i.e., the point that wedges
     // fan around).
     // PathPatchAttrib::kFanPoint must be enabled.
     void updateFanPointAttrib(SkPoint fanPoint) {
-        SkASSERT(fPatchAttribs & PatchAttribs::kFanPoint);
+        SkASSERT(fAttribs & PatchAttribs::kFanPoint);
         fFanPointAttrib = fanPoint;
+    }
+
+    // Updates the stroke params that are written out with each patch.
+    // PathPatchAttrib::kStrokeParams must be enabled.
+    void updateStrokeParamsAttrib(StrokeParams strokeParams) {
+        SkASSERT(fAttribs & PatchAttribs::kStrokeParams);
+        fStrokeParamsAttrib = strokeParams;
     }
 
     // Updates the color that will be written out with each patch.
     // PathPatchAttrib::kColor must be enabled.
     void updateColorAttrib(const SkPMColor4f& color) {
-        SkASSERT(fPatchAttribs & PatchAttribs::kColor);
-        fColorAttrib.set(color, fPatchAttribs & PatchAttribs::kWideColorIfEnabled);
+        SkASSERT(fAttribs & PatchAttribs::kColor);
+        fColorAttrib.set(color, fAttribs & PatchAttribs::kWideColorIfEnabled);
     }
 
     // RAII. Appends a patch during construction and writes the attribs during destruction.
@@ -62,7 +73,7 @@ public:
                 , fVertexWriter(w.appendPatch())
                 , fExplicitCurveType(explicitCurveType) {}
         ~Patch() {
-            fPatchWriter.outputPatchAttribs(std::move(fVertexWriter), fExplicitCurveType);
+            fPatchWriter.emitPatchAttribs(std::move(fVertexWriter), fExplicitCurveType);
         }
         operator VertexWriter&() { return fVertexWriter; }
         PatchWriter& fPatchWriter;
@@ -100,7 +111,7 @@ public:
         TrianglePatch(PatchWriter& w) : Patch(w, GrTessellationShader::kTriangularConicCurveType) {}
         ~TrianglePatch() {
             // Mark this patch as a triangle by setting it to a conic with w=Inf.
-            fVertexWriter.fill(VertexWriter::kIEEE_32_infinity, 2);
+            fVertexWriter << VertexWriter::Repeat<2>(VertexWriter::kIEEE_32_infinity);
         }
     };
 
@@ -139,14 +150,16 @@ private:
     template <typename T>
     static VertexWriter::Conditional<T> If(bool c, const T& v) { return VertexWriter::If(c,v); }
 
-    void outputPatchAttribs(VertexWriter vertexWriter, float explicitCurveType) {
-        vertexWriter << If((fPatchAttribs & PatchAttribs::kFanPoint), fFanPointAttrib)
-                     << If((fPatchAttribs & PatchAttribs::kColor), fColorAttrib)
-                     << If((fPatchAttribs & PatchAttribs::kExplicitCurveType), explicitCurveType);
+    void emitPatchAttribs(VertexWriter vertexWriter, float explicitCurveType) {
+        vertexWriter << If((fAttribs & PatchAttribs::kFanPoint), fFanPointAttrib)
+                     << If((fAttribs & PatchAttribs::kStrokeParams), fStrokeParamsAttrib)
+                     << If((fAttribs & PatchAttribs::kColor), fColorAttrib)
+                     << If((fAttribs & PatchAttribs::kExplicitCurveType), explicitCurveType);
     }
 
-    const PatchAttribs fPatchAttribs;
+    const PatchAttribs fAttribs;
     SkPoint fFanPointAttrib;
+    StrokeParams fStrokeParamsAttrib;
     GrVertexColor fColorAttrib;
 
     GrVertexChunkBuilder fChunker;

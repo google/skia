@@ -44,10 +44,10 @@ public:
 
     // Fills in a 4-point patch in such a way that the shader will recognize it as a conic.
     static void WriteConicPatch(const SkPoint pts[3], float w, skgpu::VertexWriter* writer) {
+        using skgpu::VertexWriter;
         // Write out the 3 conic points to patch[0..2], the weight to patch[3].x, and then set
         // patch[3].y as NaN to flag this patch as a conic.
-        writer->writeArray(pts, 3);
-        *writer << w << skgpu::VertexWriter::kIEEE_32_infinity;
+        *writer << VertexWriter::Array(pts, 3) << w << VertexWriter::kIEEE_32_infinity;
     }
     static void WriteConicPatch(const SkPoint pts[3], float w, SkPoint patch[4]) {
         skgpu::VertexWriter writer(patch);

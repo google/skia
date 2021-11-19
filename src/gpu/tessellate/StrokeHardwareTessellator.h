@@ -28,9 +28,6 @@ public:
 #if SK_GPU_V1
     void draw(GrOpFlushState*) const override;
 #endif
-
-private:
-    GrVertexChunkArray fPatchChunks;
 };
 
 }  // namespace skgpu

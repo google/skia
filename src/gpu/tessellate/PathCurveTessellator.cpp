@@ -215,7 +215,7 @@ void PathCurveTessellator::WriteFixedIndexBufferBaseIndex(VertexWriter vertexWri
     SkASSERT(indexData.count() == triangleCount);
     SkASSERT(nextIndex == baseIndex + triangleCount + 2);
 
-    vertexWriter.writeArray(indexData.data(), indexData.count());
+    vertexWriter << VertexWriter::Array(indexData.data(), indexData.count());
 }
 
 #if SK_GPU_V1

@@ -7,7 +7,10 @@
 
 #include "src/gpu/tessellate/PatchWriter.h"
 
+#if SK_GPU_V1
 #include "src/gpu/tessellate/PathTessellator.h"
+#include "src/gpu/tessellate/StrokeTessellator.h"
+#endif
 
 namespace skgpu {
 
@@ -23,11 +26,21 @@ PatchWriter::PatchWriter(GrMeshDrawTarget* target,
                       sizeof(SkPoint) * 4 + PatchAttribsStride(tessellator->fAttribs),
                       initialPatchAllocCount) {
 }
+
+PatchWriter::PatchWriter(GrMeshDrawTarget* target,
+                         StrokeTessellator* tessellator,
+                         int initialPatchAllocCount)
+        : PatchWriter(target,
+                      &tessellator->fVertexChunkArray,
+                      tessellator->fAttribs,
+                      sizeof(SkPoint) * 5 + PatchAttribsStride(tessellator->fAttribs),
+                      initialPatchAllocCount) {
+}
 #endif
 
 void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatches) {
     // If we aren't fanning, we need to fill the space between chops with triangles.
-    bool needsInnerTriangles = !(fPatchAttribs & PatchAttribs::kFanPoint);
+    bool needsInnerTriangles = !(fAttribs & PatchAttribs::kFanPoint);
     MiddleOutPolygonTriangulator innerTriangulator(numPatches, to_skpoint(p0));
     for (; numPatches >= 3; numPatches -= 2) {
         // Chop into 3 quads.
@@ -71,7 +84,7 @@ void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatc
 
 void PatchWriter::chopAndWriteConics(float2 p0, float2 p1, float2 p2, float w, int numPatches) {
     // If we aren't fanning, we need to fill the space between chops with triangles.
-    bool needsInnerTriangles = !(fPatchAttribs & PatchAttribs::kFanPoint);
+    bool needsInnerTriangles = !(fAttribs & PatchAttribs::kFanPoint);
     MiddleOutPolygonTriangulator innerTriangulator(numPatches, to_skpoint(p0));
     // Load the conic in 3d homogeneous (unprojected) space.
     float4 h0 = float4(p0,1,1);
@@ -109,7 +122,7 @@ void PatchWriter::chopAndWriteConics(float2 p0, float2 p1, float2 p2, float w, i
 
 void PatchWriter::chopAndWriteCubics(float2 p0, float2 p1, float2 p2, float2 p3, int numPatches) {
     // If we aren't fanning, we need to fill the space between chops with triangles.
-    bool needsInnerTriangles = !(fPatchAttribs & PatchAttribs::kFanPoint);
+    bool needsInnerTriangles = !(fAttribs & PatchAttribs::kFanPoint);
     MiddleOutPolygonTriangulator innerTriangulator(numPatches, to_skpoint(p0));
     for (; numPatches >= 3; numPatches -= 2) {
         // Chop into 3 cubics.

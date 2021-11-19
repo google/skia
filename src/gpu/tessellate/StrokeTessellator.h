@@ -14,7 +14,11 @@
 #include "src/gpu/tessellate/Tessellation.h"
 
 class GrMeshDrawTarget;
+
+#if SK_GPU_V1
+#include "src/gpu/GrVertexChunkArray.h"
 class GrOpFlushState;
+#endif
 
 namespace skgpu {
 
@@ -51,7 +55,13 @@ public:
     virtual ~StrokeTessellator() {}
 
 protected:
-    PatchAttribs fAttribs;
+    const PatchAttribs fAttribs;
+
+#if SK_GPU_V1
+    GrVertexChunkArray fVertexChunkArray;
+
+    friend class PatchWriter;  // To access fVertexChunkArray.
+#endif
 };
 
 // These tolerances decide the number of parametric and radial segments the tessellator will

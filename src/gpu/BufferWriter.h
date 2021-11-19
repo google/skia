@@ -81,18 +81,25 @@ struct VertexWriter : public BufferWriter {
     template <typename T>
     struct Skip {};
 
-    template <typename T>
-    void writeArray(const T* array, int count) {
-        static_assert(std::is_pod<T>::value, "");
-        memcpy(fPtr, array, count * sizeof(T));
-        fPtr = SkTAddOffset<void>(fPtr, count * sizeof(T));
-    }
+    template<typename T>
+    struct ArrayDesc {
+        const T* fArray;
+        int fCount;
+    };
 
     template <typename T>
-    void fill(const T& val, int repeatCount) {
-        for (int i = 0; i < repeatCount; ++i) {
-            *this << val;
-        }
+    static ArrayDesc<T> Array(const T* array, int count) {
+        return {array, count};
+    }
+
+    template<int kCount, typename T>
+    struct RepeatDesc {
+        const T& fVal;
+    };
+
+    template <int kCount, typename T>
+    static RepeatDesc<kCount, T> Repeat(const T& val) {
+        return {val};
     }
 
     /**
@@ -183,7 +190,11 @@ private:
     template <int kCornerIdx>
     void writeQuadVertex() {}
 
-    template <typename T> friend VertexWriter& operator<<(VertexWriter& w, const T& val);
+    template <typename T>
+    friend VertexWriter& operator<<(VertexWriter&, const T&);
+
+    template <typename T>
+    friend VertexWriter& operator<<(VertexWriter&, const ArrayDesc<T>&);
 };
 
 template <typename T>
@@ -206,6 +217,22 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::Conditional
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::Skip<T>& val) {
     w = w.makeOffset(sizeof(T));
+    return w;
+}
+
+template <typename T>
+inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::ArrayDesc<T>& array) {
+    static_assert(std::is_pod<T>::value, "");
+    memcpy(w.fPtr, array.fArray, array.fCount * sizeof(T));
+    w = w.makeOffset(sizeof(T) * array.fCount);
+    return w;
+}
+
+template <int kCount, typename T>
+inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::RepeatDesc<kCount,T>& repeat) {
+    for (int i = 0; i < kCount; ++i) {
+        w << repeat.fVal;
+    }
     return w;
 }
 

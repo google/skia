@@ -100,13 +100,17 @@ static float GetJoinType(const SkStrokeRec& stroke) {
 
 // This float2 gets written out with each patch/instance if PatchAttribs::kStrokeParams is enabled.
 struct StrokeParams {
-    static bool StrokesHaveEqualParams(const SkStrokeRec& a, const SkStrokeRec& b) {
-        return a.getWidth() == b.getWidth() && a.getJoin() == b.getJoin() &&
-               (a.getJoin() != SkPaint::kMiter_Join || a.getMiter() == b.getMiter());
+    StrokeParams() = default;
+    StrokeParams(const SkStrokeRec& stroke) {
+        this->set(stroke);
     }
     void set(const SkStrokeRec& stroke) {
         fRadius = stroke.getWidth() * .5f;
         fJoinType = GetJoinType(stroke);
+    }
+    static bool StrokesHaveEqualParams(const SkStrokeRec& a, const SkStrokeRec& b) {
+        return a.getWidth() == b.getWidth() && a.getJoin() == b.getJoin() &&
+               (a.getJoin() != SkPaint::kMiter_Join || a.getMiter() == b.getMiter());
     }
     float fRadius;
     float fJoinType;  // See GetJoinType().
