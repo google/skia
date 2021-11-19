@@ -40,6 +40,7 @@
 class AutoLayerForImageFilter;
 class GrBackendRenderTarget;
 class GrRecordingContext;
+class GrSlug;
 class SkBaseDevice;
 class SkBitmap;
 class SkData;
@@ -2376,6 +2377,19 @@ private:
     SkCanvas(const SkCanvas&) = delete;
     SkCanvas& operator=(SkCanvas&&) = delete;
     SkCanvas& operator=(const SkCanvas&) = delete;
+
+#if SK_SUPPORT_GPU
+    friend class GrSlug;
+    /** Experimental
+     * Convert a SkTextBlob to a GrSlug using the current canvas state.
+     */
+    sk_sp<GrSlug> convertBlobToSlug(const SkTextBlob& blob, SkPoint origin, const SkPaint& paint);
+
+    /** Experimental
+     * Draw an GrSlug given the current canvas state.
+     */
+    void drawSlug(GrSlug* slug);
+#endif
 
     /** Experimental
      *  Saves the specified subset of the current pixels in the current layer,

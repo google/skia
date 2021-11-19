@@ -53,6 +53,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/chromium/GrSlug.h"
 #include "src/gpu/BaseDevice.h"
 #include "src/gpu/SkGr.h"
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
@@ -2302,6 +2303,21 @@ void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPa
         this->topDevice()->drawGlyphRunList(glyphRunList, layer->paint());
     }
 }
+
+#if SK_SUPPORT_GPU
+sk_sp<GrSlug> SkCanvas::convertBlobToSlug(
+        const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+
+    // TODO: implement convert
+    return nullptr;
+}
+
+void SkCanvas::drawSlug(GrSlug* slug) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    // TODO: implement draw
+}
+#endif
 
 // These call the (virtual) onDraw... method
 void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
