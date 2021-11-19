@@ -93,8 +93,8 @@ private:
             fCompiler = new SkSL::Compiler(fCaps.get());
         }
 
-        SkSL::ShaderCapsPointer fCaps;
-        SkSL::Compiler*         fCompiler;
+        std::unique_ptr<SkSL::ShaderCaps> fCaps;
+        SkSL::Compiler*                   fCompiler;
     };
 
     static Impl* gImpl;

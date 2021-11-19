@@ -101,11 +101,11 @@ public:
     }
 
 private:
-    skiatest::Reporter*             fReporter;
-    SkSL::ShaderCapsPointer         fCaps;
-    std::unique_ptr<SkSL::Compiler> fCompiler;
-    sk_sp<SkSurface>                fSurface;
-    SkTLazy<SkRuntimeShaderBuilder> fBuilder;
+    skiatest::Reporter*               fReporter;
+    std::unique_ptr<SkSL::ShaderCaps> fCaps;
+    std::unique_ptr<SkSL::Compiler>   fCompiler;
+    sk_sp<SkSurface>                  fSurface;
+    SkTLazy<SkRuntimeShaderBuilder>   fBuilder;
 };
 
 static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext* rContext) {

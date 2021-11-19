@@ -10,7 +10,7 @@
 
 namespace SkSL {
 
-Context::Context(ErrorReporter& errors, const ShaderCapsClass& caps, Mangler& mangler)
+Context::Context(ErrorReporter& errors, const ShaderCaps& caps, Mangler& mangler)
         : fCaps(caps)
         , fErrors(&errors)
         , fMangler(&mangler) {

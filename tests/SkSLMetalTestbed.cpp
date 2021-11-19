@@ -10,7 +10,7 @@
 #include "tests/Test.h"
 
 static void test(skiatest::Reporter* r,
-                 const GrShaderCaps& caps,
+                 const SkSL::ShaderCaps& caps,
                  const char* src,
                  SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
     SkSL::Compiler compiler(&caps);

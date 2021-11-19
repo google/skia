@@ -138,7 +138,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
     }
 
     auto buildProgram = [this](const SkSL::String& code) -> std::unique_ptr<SkParticleProgram> {
-        SkSL::ShaderCapsPointer caps = SkSL::ShaderCapsFactory::Standalone();
+        std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
         SkSL::Compiler compiler(caps.get());
 
         // We use two separate blocks of uniforms (ie two args of stride 0). The first is for skvm

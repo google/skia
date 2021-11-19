@@ -93,7 +93,7 @@ static SkSL::String base_name(const SkSL::String& fpPath, const char* prefix, co
 // The passed-in Settings object will be updated accordingly. Any number of options can be provided.
 static bool detect_shader_settings(const SkSL::String& text,
                                    SkSL::Program::Settings* settings,
-                                   const SkSL::ShaderCapsClass** caps,
+                                   const SkSL::ShaderCaps** caps,
                                    std::unique_ptr<SkSL::SkVMDebugInfo>* debugInfo) {
     using Factory = SkSL::ShaderCapsFactory;
 
@@ -297,8 +297,8 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
     }
 
     SkSL::Program::Settings settings;
-    SkSL::StandaloneShaderCaps standaloneCaps;
-    const SkSL::ShaderCapsClass* caps = &standaloneCaps;
+    auto standaloneCaps = SkSL::ShaderCapsFactory::Standalone();
+    const SkSL::ShaderCaps* caps = standaloneCaps.get();
     std::unique_ptr<SkSL::SkVMDebugInfo> debugInfo;
     if (honorSettings) {
         if (!detect_shader_settings(text, &settings, &caps, &debugInfo)) {

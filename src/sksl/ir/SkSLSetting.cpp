@@ -26,7 +26,7 @@ public:
 
 class BoolCapsLookup : public CapsLookupMethod {
 public:
-    using CapsFn = bool (ShaderCapsClass::*)() const;
+    using CapsFn = bool (ShaderCaps::*)() const;
 
     BoolCapsLookup(const CapsFn& fn) : fGetCap(fn) {}
 
@@ -43,7 +43,7 @@ private:
 
 class IntCapsLookup : public CapsLookupMethod {
 public:
-    using CapsFn = int (ShaderCapsClass::*)() const;
+    using CapsFn = int (ShaderCaps::*)() const;
 
     IntCapsLookup(const CapsFn& fn) : fGetCap(fn) {}
 
@@ -78,9 +78,9 @@ private:
 };
 
 static const CapsLookupTable& caps_lookup_table() {
-    // Create a lookup table that converts strings into the equivalent ShaderCapsClass methods.
+    // Create a lookup table that converts strings into the equivalent ShaderCaps methods.
     static CapsLookupTable* sCapsLookupTable = new CapsLookupTable({
-    #define CAP(T, name) CapsLookupTable::Pair{#name, new T##CapsLookup{&ShaderCapsClass::name}}
+    #define CAP(T, name) CapsLookupTable::Pair{#name, new T##CapsLookup{&ShaderCaps::name}}
         CAP(Bool, fbFetchSupport),
         CAP(Bool, fbFetchNeedsCustomOutput),
         CAP(Bool, flatInterpolationSupport),

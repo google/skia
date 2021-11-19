@@ -48,6 +48,7 @@ namespace dsl {
 class ExternalFunction;
 class FunctionDeclaration;
 class ProgramUsage;
+class ShaderCaps;
 
 struct LoadedModule {
     ProgramKind                                  fKind;
@@ -113,7 +114,7 @@ public:
         StatementArray fOwnedStatements;
     };
 
-    Compiler(const ShaderCapsClass* caps);
+    Compiler(const ShaderCaps* caps);
 
     ~Compiler();
 

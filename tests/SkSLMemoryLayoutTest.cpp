@@ -14,7 +14,7 @@
 
 DEF_TEST(SkSLMemoryLayout140Test, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    GrShaderCaps caps;
+    SkSL::ShaderCaps caps;
     SkSL::Mangler mangler;
     SkSL::Context context(errors, caps, mangler);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k140_Standard);
@@ -102,7 +102,7 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
 
 DEF_TEST(SkSLMemoryLayout430Test, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    GrShaderCaps caps;
+    SkSL::ShaderCaps caps;
     SkSL::Mangler mangler;
     SkSL::Context context(errors, caps, mangler);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k430_Standard);

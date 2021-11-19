@@ -131,7 +131,7 @@ public:
     Context* fContext;
 };
 
-Compiler::Compiler(const ShaderCapsClass* caps)
+Compiler::Compiler(const ShaderCaps* caps)
         : fErrorReporter(this)
         , fContext(std::make_shared<Context>(fErrorReporter, *caps, fMangler))
         , fInliner(fContext.get()) {
