@@ -1,6 +1,6 @@
 
 out vec4 sk_FragColor;
-layout (set = 0) uniform mat4 colorXform;
+uniform mat4 colorXform;
 layout (binding = 0) uniform sampler2D s;
 void main() {
     vec4 tmpColor;

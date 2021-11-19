@@ -194,6 +194,7 @@ void Dehydrator::write(const Symbol& s) {
                         this->write(f.fName);
                         this->write(*f.fType);
                     }
+                    this->writeU8(t.isInterfaceBlock());
                     break;
                 default:
                     this->writeCommand(Rehydrator::kSystemType_Command);

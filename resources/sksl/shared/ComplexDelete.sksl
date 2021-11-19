@@ -1,4 +1,4 @@
-layout(set=0) uniform float4x4 colorXform;
+uniform float4x4 colorXform;
 layout(binding=0) uniform sampler2D s;
 
 void main() {

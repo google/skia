@@ -191,9 +191,10 @@ const Symbol* Rehydrator::symbol() {
                 const Type* type = this->type();
                 fields.emplace_back(m, fieldName, type);
             }
+            bool interfaceBlock = this->readU8();
             skstd::string_view nameChars(*fSymbolTable->takeOwnershipOfString(std::move(name)));
-            const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeStructType(/*line=*/-1, nameChars, std::move(fields)));
+            const Type* result = fSymbolTable->takeOwnershipOfSymbol(Type::MakeStructType(
+                    /*line=*/-1, nameChars, std::move(fields), interfaceBlock));
             this->addSymbol(id, result);
             return result;
         }
