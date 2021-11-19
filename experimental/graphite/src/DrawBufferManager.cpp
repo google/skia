@@ -13,10 +13,21 @@
 
 namespace skgpu {
 
+namespace {
+
 // TODO: Tune these values on real world data
 static constexpr size_t kVertexBufferSize = 2 << 10;
 static constexpr size_t kIndexBufferSize = 2 << 10;
 static constexpr size_t kUniformBufferSize = 2 << 10;
+
+void* map_offset(BindBufferInfo binding) {
+    // DrawBufferManager owns the Buffer, and this is only ever called when we know
+    // it's okay to remove 'const' from the Buffer*
+    return SkTAddOffset<void>(const_cast<Buffer*>(binding.fBuffer)->map(),
+                              static_cast<ptrdiff_t>(binding.fOffset));
+}
+
+} // anonymous namespace
 
 DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
                                      size_t uniformStartAlignment)
@@ -59,7 +70,7 @@ std::tuple<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size
     bindInfo.fBuffer = fCurrentVertexBuffer.get();
     bindInfo.fOffset = fVertexOffset;
     fVertexOffset += requiredBytes;
-    return {VertexWriter(fCurrentVertexBuffer->map()), bindInfo};
+    return {VertexWriter(map_offset(bindInfo)), bindInfo};
 }
 
 std::tuple<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t requiredBytes) {
@@ -88,7 +99,7 @@ std::tuple<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t
     bindInfo.fBuffer = fCurrentIndexBuffer.get();
     bindInfo.fOffset = fIndexOffset;
     fIndexOffset += requiredBytes;
-    return {IndexWriter(fCurrentIndexBuffer->map()), bindInfo};
+    return {IndexWriter(map_offset(bindInfo)), bindInfo};
 }
 
 std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
@@ -122,7 +133,7 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
     bindInfo.fBuffer = fCurrentUniformBuffer.get();
     bindInfo.fOffset = fUniformOffset;
     fUniformOffset += requiredBytes;
-    return {UniformWriter(fCurrentUniformBuffer->map()), bindInfo};
+    return {UniformWriter(map_offset(bindInfo)), bindInfo};
 }
 
 void DrawBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {
@@ -134,4 +145,3 @@ void DrawBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {
 }
 
 } // namespace skgpu
-
