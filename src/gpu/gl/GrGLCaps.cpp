@@ -680,11 +680,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fUseClientSideIndirectBuffers = true;
         } else {
             fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
-            if (fBaseVertexBaseInstanceSupport) {
-                fNativeDrawIndirectSupport = (version >= GR_GL_VER(3,1));
-                // Don't use GL_EXT_multi_draw_indirect. It doesn't allow VAO 0.
-                // https://github.com/KhronosGroup/OpenGL-Registry/blob/main/extensions/EXT/EXT_multi_draw_indirect.txt#L142
-            }
+            // Don't support indirect draws on ES. They don't allow VAO 0.
+            //
+            // "An INVALID_OPERATION error is generated if zero is bound to VERTEX_ARRAY_BINDING,
+            // DRAW_INDIRECT_BUFFER or to any enabled vertex array."
+            //
+            // https://www.khronos.org/registry/OpenGL/specs/es/3.1/es_spec_3.1.pdf
         }
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     } else if (GR_IS_GR_WEBGL(standard)) {
