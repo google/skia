@@ -97,7 +97,19 @@ void VarDeclaration::ErrorCheck(const Context& context,
                      Modifiers::kFlat_Flag | Modifiers::kNoPerspective_Flag;
     }
     // TODO(skbug.com/11301): Migrate above checks into building a mask of permitted layout flags
-    modifiers.checkPermitted(context, line, permitted, /*permittedLayoutFlags=*/~0);
+
+    int permittedLayoutFlags = ~0;
+    // We don't allow 'binding' or 'set' on normal uniform variables, only on textures, samplers,
+    // and interface blocks (holding uniform variables).
+    bool permitBindingAndSet = baseType->typeKind() == Type::TypeKind::kSampler ||
+                               baseType->typeKind() == Type::TypeKind::kSeparateSampler ||
+                               baseType->typeKind() == Type::TypeKind::kTexture ||
+                               baseType->isInterfaceBlock();
+    if ((modifiers.fFlags & Modifiers::kUniform_Flag) && !permitBindingAndSet) {
+        permittedLayoutFlags &= ~Layout::kBinding_Flag;
+        permittedLayoutFlags &= ~Layout::kSet_Flag;
+    }
+    modifiers.checkPermitted(context, line, permitted, permittedLayoutFlags);
 }
 
 bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable& var,

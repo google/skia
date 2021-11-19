@@ -1,4 +1,4 @@
-layout(set=0) uniform half zoom;
+uniform half zoom;
 
 void main() {
     sk_Position = half4(1);
