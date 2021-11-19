@@ -8,7 +8,6 @@
 #include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
 
 #include "src/core/SkGeometry.h"
-#include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/StrokeIterator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
@@ -56,7 +55,7 @@ public:
             return;
         }
         SkPoint cubic[4];
-        GrPathUtils::convertQuadToCubic(p, cubic);
+        VertexWriter(cubic) << QuadToCubic(p);
         SkPoint endControlPoint = cubic[2];
         this->writeStroke(cubic, endControlPoint, GrTessellationShader::kCubicCurveType);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
@@ -259,7 +258,7 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
                     instanceWriter.lineTo(p[0], p[1]);
                     break;
                 case Verb::kQuad:
-                    if (GrPathUtils::conicHasCusp(p)) {
+                    if (ConicHasCusp(p)) {
                         // The cusp is always at the midtandent.
                         SkPoint cusp = SkEvalQuadAt(p, SkFindQuadMidTangent(p));
                         instanceWriter.writeCircle(cusp);
@@ -271,7 +270,7 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
                     }
                     break;
                 case Verb::kConic:
-                    if (GrPathUtils::conicHasCusp(p)) {
+                    if (ConicHasCusp(p)) {
                         // The cusp is always at the midtandent.
                         SkConic conic(p, strokeIter.w());
                         SkPoint cusp = conic.evalAt(conic.findMidTangent());
@@ -287,7 +286,7 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
                     SkPoint chops[10];
                     float T[2];
                     bool areCusps;
-                    numChops = GrPathUtils::findCubicConvex180Chops(p, T, &areCusps);
+                    numChops = FindCubicConvex180Chops(p, T, &areCusps);
                     if (numChops == 0) {
                         instanceWriter.cubicConvex180To(p);
                     } else if (numChops == 1) {

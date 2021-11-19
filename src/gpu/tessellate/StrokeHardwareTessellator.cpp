@@ -7,8 +7,8 @@
 
 #include "src/gpu/tessellate/StrokeHardwareTessellator.h"
 
+#include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
@@ -163,7 +163,7 @@ public:
         SkPoint chops[10];
         float chopT[2];
         bool areCusps;
-        int numChops = GrPathUtils::findCubicConvex180Chops(p, chopT, &areCusps);
+        int numChops = FindCubicConvex180Chops(p, chopT, &areCusps);
         if (numChops == 0) {
             // The curve is already convex and rotates no more than 180 degrees.
             this->internalCubicConvex180PatchesTo(fStrokeJoinType, p);
@@ -349,7 +349,7 @@ private:
         // Convert to a patch.
         SkPoint asPatch[4];
         if (w == 1) {
-            GrPathUtils::convertQuadToCubic(p, asPatch);
+            VertexWriter(asPatch) << QuadToCubic(p);
         } else {
             GrTessellationShader::WriteConicPatch(p, w, asPatch);
         }
@@ -634,7 +634,7 @@ SK_ALWAYS_INLINE bool cubic_has_cusp(const SkPoint p[4]) {
     float2 p2 = skvx::bit_pun<float2>(p[2]);
     float2 p3 = skvx::bit_pun<float2>(p[3]);
 
-    // See GrPathUtils::findCubicConvex180Chops() for the math.
+    // See FindCubicConvex180Chops() for the math.
     float2 C = p1 - p0;
     float2 D = p2 - p1;
     float2 E = p3 - p0;
@@ -747,7 +747,7 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
                         hwPatchWriter.writeLineTo(p[0], p[2]);
                         continue;
                     }
-                    if (GrPathUtils::conicHasCusp(p)) {
+                    if (ConicHasCusp(p)) {
                         // Cusps are rare, but the tessellation shader can't handle them. Chop the
                         // curve into segments that the shader can handle.
                         SkPoint cusp = SkEvalQuadAt(p, SkFindQuadMidTangent(p));
@@ -767,7 +767,7 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
                     // Write it out directly.
                     prevJoinFitsInPatch = hwPatchWriter.stroke180FitsInPatch_withJoin(
                             numParametricSegments_pow4);
-                    GrPathUtils::convertQuadToCubic(p, scratchPts);
+                    VertexWriter(scratchPts) << QuadToCubic(p);
                     patchPts = scratchPts;
                     endControlPoint = patchPts[2];
                     break;
@@ -782,7 +782,7 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
                         hwPatchWriter.writeLineTo(p[0], p[2]);
                         continue;
                     }
-                    if (GrPathUtils::conicHasCusp(p)) {
+                    if (ConicHasCusp(p)) {
                         // Cusps are rare, but the tessellation shader can't handle them. Chop the
                         // curve into segments that the shader can handle.
                         SkConic conic(p, *w);

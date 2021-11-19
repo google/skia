@@ -182,6 +182,9 @@ SK_MAYBE_UNUSED SK_ALWAYS_INLINE VertexWriter& operator<<(VertexWriter& vertexWr
 
 // Converts a quadratic to a cubic when being output via '<<' to a VertexWriter.
 struct QuadToCubic {
+    QuadToCubic(float2 p0, float2 p1, float2 p2) : fP0(p0), fP1(p1), fP2(p2) {}
+    QuadToCubic(const SkPoint p[3])
+            : QuadToCubic(float2::Load(p), float2::Load(p+1), float2::Load(p+2)) {}
     float2 fP0, fP1, fP2;
 };
 
@@ -189,6 +192,11 @@ SK_MAYBE_UNUSED SK_ALWAYS_INLINE VertexWriter& operator<<(VertexWriter& vertexWr
                                                           const QuadToCubic& quadratic) {
     auto [p0, p1, p2] = quadratic;
     return vertexWriter << p0 << mix(float4(p0,p2), p1.xyxy(), 2/3.f) << p2;
+}
+
+SK_MAYBE_UNUSED SK_ALWAYS_INLINE VertexWriter& operator<<(VertexWriter&& vertexWriter,
+                                                          const QuadToCubic& quadratic) {
+    return vertexWriter << quadratic;
 }
 
 SK_MAYBE_UNUSED SK_ALWAYS_INLINE void operator<<(

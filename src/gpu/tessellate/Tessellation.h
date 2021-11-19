@@ -140,6 +140,28 @@ SkPath PreChopPathCurves(float tessellationPrecision,
                          const SkMatrix&,
                          const SkRect& viewport);
 
+// Finds 0, 1, or 2 T values at which to chop the given curve in order to guarantee the resulting
+// cubics are convex and rotate no more than 180 degrees.
+//
+//   - If the cubic is "serpentine", then the T values are any inflection points in [0 < T < 1].
+//   - If the cubic is linear, then the T values are any 180-degree cusp points in [0 < T < 1].
+//   - Otherwise the T value is the point at which rotation reaches 180 degrees, iff in [0 < T < 1].
+//
+// 'areCusps' is set to true if the chop point occurred at a cusp (within tolerance), or if the chop
+// point(s) occurred at 180-degree turnaround points on a degenerate flat line.
+int FindCubicConvex180Chops(const SkPoint[], float T[2], bool* areCusps);
+
+// Returns true if the given conic (or quadratic) has a cusp point. The w value is not necessary in
+// determining this. If there is a cusp, it can be found at the midtangent.
+inline bool ConicHasCusp(const SkPoint p[3]) {
+    SkVector a = p[1] - p[0];
+    SkVector b = p[2] - p[1];
+    // A conic of any class can only have a cusp if it is a degenerate flat line with a 180 degree
+    // turnarund. To detect this, the beginning and ending tangents must be parallel
+    // (a.cross(b) == 0) and pointing in opposite directions (a.dot(b) < 0).
+    return a.cross(b) == 0 && a.dot(b) < 0;
+}
+
 }  // namespace skgpu
 
 #endif  // tessellate_Tessellation_DEFINED

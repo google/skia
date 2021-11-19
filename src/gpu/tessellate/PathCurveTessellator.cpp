@@ -7,7 +7,6 @@
 
 #include "src/gpu/tessellate/PathCurveTessellator.h"
 
-#include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/PatchWriter.h"
