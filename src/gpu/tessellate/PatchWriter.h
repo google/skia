@@ -52,20 +52,31 @@ public:
         fColorAttrib.set(color, fPatchAttribs & PatchAttribs::kWideColorIfEnabled);
     }
 
+    // RAII. Appends a patch during construction and writes the attribs during destruction.
+    //
+    //    Patch(patchWriter, explicitCurveType) << p0 << p1 << ...;
+    //
+    struct Patch {
+        Patch(PatchWriter& w, float explicitCurveType)
+                : fPatchWriter(w)
+                , fVertexWriter(w.appendPatch())
+                , fExplicitCurveType(explicitCurveType) {}
+        ~Patch() {
+            fPatchWriter.outputPatchAttribs(std::move(fVertexWriter), fExplicitCurveType);
+        }
+        operator VertexWriter&() { return fVertexWriter; }
+        PatchWriter& fPatchWriter;
+        VertexWriter fVertexWriter;
+        const float fExplicitCurveType;
+    };
+
     // RAII. Appends a patch during construction and writes the remaining data for a cubic during
     // destruction. The caller outputs p0,p1,p2,p3 (8 floats):
     //
     //    CubicPatch(patchWriter) << p0 << p1 << p2 << p3;
     //
-    struct CubicPatch {
-        CubicPatch(PatchWriter& w) : fPatchWriter(w), fVertexWriter(w.appendPatch()) {}
-        ~CubicPatch() {
-            fPatchWriter.outputPatchAttribs(std::move(fVertexWriter),
-                                            GrTessellationShader::kCubicCurveType);
-        }
-        operator VertexWriter&() { return fVertexWriter; }
-        PatchWriter& fPatchWriter;
-        VertexWriter fVertexWriter;
+    struct CubicPatch : public Patch {
+        CubicPatch(PatchWriter& w) : Patch(w, GrTessellationShader::kCubicCurveType) {}
     };
 
     // RAII. Appends a patch during construction and writes the remaining data for a conic during
@@ -73,16 +84,11 @@ public:
     //
     //     ConicPatch(patchWriter) << p0 << p1 << p2 << w;
     //
-    struct ConicPatch {
-        ConicPatch(PatchWriter& w) : fPatchWriter(w), fVertexWriter(w.appendPatch()) {}
+    struct ConicPatch : public Patch {
+        ConicPatch(PatchWriter& w) : Patch(w, GrTessellationShader::kConicCurveType) {}
         ~ConicPatch() {
             fVertexWriter << VertexWriter::kIEEE_32_infinity;  // p3.y=Inf indicates a conic.
-            fPatchWriter.outputPatchAttribs(std::move(fVertexWriter),
-                                            GrTessellationShader::kConicCurveType);
         }
-        operator VertexWriter&() { return fVertexWriter; }
-        PatchWriter& fPatchWriter;
-        VertexWriter fVertexWriter;
     };
 
     // RAII. Appends a patch during construction and writes the remaining data for a triangle during
@@ -90,17 +96,12 @@ public:
     //
     //     TrianglePatch(patchWriter) << p0 << p1 << p2;
     //
-    struct TrianglePatch {
-        TrianglePatch(PatchWriter& w) : fPatchWriter(w), fVertexWriter(w.appendPatch()) {}
+    struct TrianglePatch : public Patch {
+        TrianglePatch(PatchWriter& w) : Patch(w, GrTessellationShader::kTriangularConicCurveType) {}
         ~TrianglePatch() {
             // Mark this patch as a triangle by setting it to a conic with w=Inf.
             fVertexWriter.fill(VertexWriter::kIEEE_32_infinity, 2);
-            fPatchWriter.outputPatchAttribs(std::move(fVertexWriter),
-                                            GrTessellationShader::kTriangularConicCurveType);
         }
-        operator VertexWriter&() { return fVertexWriter; }
-        PatchWriter& fPatchWriter;
-        VertexWriter fVertexWriter;
     };
 
     // Chops the given quadratic into 'numPatches' equal segments (in the parametric sense) and
