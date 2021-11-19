@@ -18,8 +18,6 @@ OpMemberDecorate %testBlock 1 ColMajor
 OpMemberDecorate %testBlock 1 MatrixStride 8
 OpMemberDecorate %testBlock 1 RelaxedPrecision
 OpDecorate %testBlock Block
-OpDecorate %3 Binding 456
-OpDecorate %3 DescriptorSet 0
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0

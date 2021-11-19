@@ -24,7 +24,6 @@ OpMemberDecorate %A 1 Offset 4
 OpDecorate %_arr_float_int_2 ArrayStride 16
 OpMemberDecorate %B 0 Offset 0
 OpMemberDecorate %B 1 Offset 16
-OpMemberDecorate %B 2 Binding 1
 OpMemberDecorate %B 2 Offset 48
 OpMemberDecorate %B 2 RelaxedPrecision
 OpDecorate %30 RelaxedPrecision

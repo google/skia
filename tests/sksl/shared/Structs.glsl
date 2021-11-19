@@ -8,7 +8,7 @@ A a1;
 struct B {
     float x;
     float y[2];
-    layout (binding = 1) A z;
+    A z;
 };
 B b1;
 void main() {

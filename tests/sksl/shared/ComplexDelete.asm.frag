@@ -17,7 +17,6 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %s RelaxedPrecision
 OpDecorate %s Binding 0
 OpDecorate %s DescriptorSet 0
-OpMemberDecorate %_UniformBuffer 0 DescriptorSet 0
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 ColMajor
 OpMemberDecorate %_UniformBuffer 0 MatrixStride 16

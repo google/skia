@@ -11,7 +11,6 @@ OpName %main "main"
 OpMemberDecorate %sk_PerVertex 0 BuiltIn Position
 OpMemberDecorate %sk_PerVertex 1 BuiltIn PointSize
 OpDecorate %sk_PerVertex Block
-OpMemberDecorate %_UniformBuffer 0 DescriptorSet 0
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpDecorate %_UniformBuffer Block
 OpDecorate %8 Binding 0

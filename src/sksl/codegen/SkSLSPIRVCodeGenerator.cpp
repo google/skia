@@ -2951,11 +2951,12 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
 }
 
 void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
+    bool isPushConstant = (layout.fFlags & Layout::kPushConstant_Flag);
     if (layout.fLocation >= 0) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationLocation, layout.fLocation,
                                fDecorationBuffer);
     }
-    if (layout.fBinding >= 0) {
+    if (layout.fBinding >= 0 && !isPushConstant) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationBinding, layout.fBinding,
                                fDecorationBuffer);
     }
@@ -2963,7 +2964,7 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationIndex, layout.fIndex,
                                fDecorationBuffer);
     }
-    if (layout.fSet >= 0) {
+    if (layout.fSet >= 0 && !isPushConstant) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationDescriptorSet, layout.fSet,
                                fDecorationBuffer);
     }
@@ -2983,17 +2984,9 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int mem
         this->writeInstruction(SpvOpMemberDecorate, target, member, SpvDecorationLocation,
                                layout.fLocation, fDecorationBuffer);
     }
-    if (layout.fBinding >= 0) {
-        this->writeInstruction(SpvOpMemberDecorate, target, member, SpvDecorationBinding,
-                               layout.fBinding, fDecorationBuffer);
-    }
     if (layout.fIndex >= 0) {
         this->writeInstruction(SpvOpMemberDecorate, target, member, SpvDecorationIndex,
                                layout.fIndex, fDecorationBuffer);
-    }
-    if (layout.fSet >= 0) {
-        this->writeInstruction(SpvOpMemberDecorate, target, member, SpvDecorationDescriptorSet,
-                               layout.fSet, fDecorationBuffer);
     }
     if (layout.fInputAttachmentIndex >= 0) {
         this->writeInstruction(SpvOpDecorate, target, member, SpvDecorationInputAttachmentIndex,
