@@ -1628,7 +1628,11 @@ SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateFamilyNameIterator() 
 }
 
 bool SkTypeface_FreeType::onGlyphMaskNeedsCurrentColor() const {
-    return this->getTableSize(SkSetFourByteTag('C', 'O', 'L', 'R')) > 0;
+    fGlyphMasksMayNeedCurrentColorOnce([this]{
+        static constexpr SkFourByteTag COLRTag = SkSetFourByteTag('C', 'O', 'L', 'R');
+        fGlyphMasksMayNeedCurrentColor = this->getTableSize(COLRTag) > 0;
+    });
+    return fGlyphMasksMayNeedCurrentColor;
 }
 
 int SkTypeface_FreeType::onGetVariationDesignPosition(
