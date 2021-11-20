@@ -503,13 +503,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
     if (fDebugInfo && (!fSlots[slot].writtenTo || fSlots[slot].val != value)) {
-        if (fDebugInfo->fSlotInfo[slot].numberKind == Type::NumberKind::kFloat) {
-            fBuilder->trace_var(this->traceMask(), slot, f32(value));
-        } else if (fDebugInfo->fSlotInfo[slot].numberKind == Type::NumberKind::kBoolean) {
-            fBuilder->trace_var(this->traceMask(), slot, bool(value));
-        } else {
-            fBuilder->trace_var(this->traceMask(), slot, i32(value));
-        }
+        fBuilder->trace_var(this->traceMask(), slot, i32(value));
         fSlots[slot].writtenTo = true;
     }
 

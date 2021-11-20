@@ -982,8 +982,8 @@ DEF_TEST(SkSLInterpreterTrace, r) {
     settings.fOptimize = false;
 
     constexpr const char kSrc[] =
-R"(bool less_than(int left, int right) {
-    bool comparison = left < right;
+R"(bool less_than(float left, int right) {
+    bool comparison = left < float(right);
     if (comparison) {
         return true;
     } else {
@@ -992,7 +992,7 @@ R"(bool less_than(int left, int right) {
 }
 
 int main() {
-    for (int loop = 10; loop <= 30; loop += 10) {
+    for (float loop = 10; loop <= 30; loop += 10) {
         bool function_result = less_than(loop, 20);
     }
     return 40;
@@ -1017,7 +1017,25 @@ int main() {
             fTrace.appendf("line %d\n", lineNum);
         }
         void var(int slot, int32_t val) override {
-            fTrace.appendf("%s = %d\n", fDebugInfo->fSlotInfo[slot].name.c_str(), val);
+            fTrace += fDebugInfo->fSlotInfo[slot].name.c_str();
+            switch (fDebugInfo->fSlotInfo[slot].numberKind) {
+                case SkSL::Type::NumberKind::kSigned:
+                case SkSL::Type::NumberKind::kUnsigned:
+                default:
+                    fTrace.appendf(" = %d\n", val);
+                    break;
+                case SkSL::Type::NumberKind::kBoolean:
+                    fTrace.appendf(" = %s\n", val ? "true" : "false");
+                    break;
+                case SkSL::Type::NumberKind::kFloat: {
+                    float floatVal;
+                    static_assert(sizeof(floatVal) == sizeof(val));
+                    memcpy(&floatVal, &val, sizeof(floatVal));
+                    fTrace.appendf(" = %g\n", floatVal);
+                    break;
+                }
+            }
+
         }
         void call(int fnIdx, bool enter) override {
             fTrace.appendf("%s %s\n", enter ? "enter" : "exit",
@@ -1041,39 +1059,39 @@ R"(enter int main()
 line 11
 loop = 10
 line 12
-enter bool less_than(int left, int right)
+enter bool less_than(float left, int right)
 left = 10
 right = 20
 line 2
-comparison = 1
+comparison = true
 line 3
 line 4
-exit bool less_than(int left, int right)
-function_result = 1
+exit bool less_than(float left, int right)
+function_result = true
 line 11
 loop = 20
 line 12
-enter bool less_than(int left, int right)
+enter bool less_than(float left, int right)
 left = 20
 right = 20
 line 2
-comparison = 0
+comparison = false
 line 3
 line 6
-exit bool less_than(int left, int right)
-function_result = 0
+exit bool less_than(float left, int right)
+function_result = false
 line 11
 loop = 30
 line 12
-enter bool less_than(int left, int right)
+enter bool less_than(float left, int right)
 left = 30
 right = 20
 line 2
-comparison = 0
+comparison = false
 line 3
 line 6
-exit bool less_than(int left, int right)
-function_result = 0
+exit bool less_than(float left, int right)
+function_result = false
 line 11
 line 14
 exit int main()

@@ -169,210 +169,210 @@ loop:
 20	    r20 = index
 21	    r21 = eq_f32 r1 r20
 22	    r21 = bit_and r21 r12
-23	    trace_var r21 $0 = r3 (F32)
-24	    trace_var r21 $1 = r4 (F32)
-25	    trace_var r21 $2 = r5 (F32)
-26	    trace_var r21 $3 = r6 (F32)
-27	    trace_var r21 $4 = r7 (F32)
-28	    trace_var r21 $5 = r8 (F32)
-29	    trace_var r21 $6 = r9 (F32)
-30	    trace_var r21 $7 = r10 (F32)
+23	    trace_var r21 $0 = r3
+24	    trace_var r21 $1 = r4
+25	    trace_var r21 $2 = r5
+26	    trace_var r21 $3 = r6
+27	    trace_var r21 $4 = r7
+28	    trace_var r21 $5 = r8
+29	    trace_var r21 $6 = r9
+30	    trace_var r21 $7 = r10
 31	    trace_call r21 F0 (enter)
-32	    trace_var r21 $8 = r20 (F32)
-33	    trace_var r21 $9 = r2 (F32)
+32	    trace_var r21 $8 = r20
+33	    trace_var r21 $9 = r2
 34	    trace_line r21 L58
-35	    trace_var r21 $10 = r11 (F32)
-36	    trace_var r21 $11 = r11 (F32)
-37	    trace_var r21 $12 = r11 (F32)
-38	    trace_var r21 $13 = r11 (F32)
+35	    trace_var r21 $10 = r11
+36	    trace_var r21 $11 = r11
+37	    trace_var r21 $12 = r11
+38	    trace_var r21 $13 = r11
 39	    trace_line r21 L59
-40	    trace_var r21 $14 = r13 (F32)
-41	    trace_var r21 $15 = r13 (F32)
-42	    trace_var r21 $16 = r13 (F32)
-43	    trace_var r21 $17 = r13 (F32)
+40	    trace_var r21 $14 = r13
+41	    trace_var r21 $15 = r13
+42	    trace_var r21 $16 = r13
+43	    trace_var r21 $17 = r13
 44	    trace_line r21 L60
-45	    trace_var r21 $18 = r3 (F32)
-46	    trace_var r21 $19 = r4 (F32)
-47	    trace_var r21 $20 = r5 (F32)
-48	    trace_var r21 $21 = r6 (F32)
+45	    trace_var r21 $18 = r3
+46	    trace_var r21 $19 = r4
+47	    trace_var r21 $20 = r5
+48	    trace_var r21 $21 = r6
 49	    trace_line r21 L61
 50	    trace_line r21 L63
-51	    trace_var r21 $22 = r7 (F32)
-52	    trace_var r21 $23 = r8 (F32)
-53	    trace_var r21 $24 = r9 (F32)
-54	    trace_var r21 $25 = r10 (F32)
+51	    trace_var r21 $22 = r7
+52	    trace_var r21 $23 = r8
+53	    trace_var r21 $24 = r9
+54	    trace_var r21 $25 = r10
 55	    trace_line r21 L64
 56	    trace_line r21 L66
 57	    trace_call r21 F1 (enter)
 58	    trace_line r21 L6
-59	    trace_var r21 $26 = r0 (F32)
+59	    trace_var r21 $26 = r0
 60	    trace_line r21 L7
-61	    trace_var r21 $27 = r0 (F32)
+61	    trace_var r21 $27 = r0
 62	    trace_line r21 L8
-63	    trace_var r21 $28 = r14 (I32)
+63	    trace_var r21 $28 = r14
 64	    trace_line r21 L9
-65	    trace_var r21 $29 = r14 (I32)
+65	    trace_var r21 $29 = r14
 66	    trace_line r21 L11
 67	    trace_call r21 F1 (exit)
 68	    trace_call r21 F2 (enter)
 69	    trace_line r21 L15
-70	    trace_var r21 $30 = r15 (F32)
-71	    trace_var r21 $31 = r15 (F32)
+70	    trace_var r21 $30 = r15
+71	    trace_var r21 $31 = r15
 72	    trace_line r21 L16
-73	    trace_var r21 $32 = r15 (F32)
-74	    trace_var r21 $33 = r15 (F32)
+73	    trace_var r21 $32 = r15
+74	    trace_var r21 $33 = r15
 75	    trace_line r21 L17
-76	    trace_var r21 $34 = r16 (F32)
-77	    trace_var r21 $35 = r16 (F32)
-78	    trace_var r21 $36 = r16 (F32)
+76	    trace_var r21 $34 = r16
+77	    trace_var r21 $35 = r16
+78	    trace_var r21 $36 = r16
 79	    trace_line r21 L18
-80	    trace_var r21 $37 = r16 (F32)
-81	    trace_var r21 $38 = r16 (F32)
-82	    trace_var r21 $39 = r16 (F32)
+80	    trace_var r21 $37 = r16
+81	    trace_var r21 $38 = r16
+82	    trace_var r21 $39 = r16
 83	    trace_line r21 L19
-84	    trace_var r21 $40 = r17 (F32)
-85	    trace_var r21 $41 = r17 (F32)
-86	    trace_var r21 $42 = r17 (F32)
-87	    trace_var r21 $43 = r17 (F32)
+84	    trace_var r21 $40 = r17
+85	    trace_var r21 $41 = r17
+86	    trace_var r21 $42 = r17
+87	    trace_var r21 $43 = r17
 88	    trace_line r21 L20
-89	    trace_var r21 $44 = r17 (F32)
-90	    trace_var r21 $45 = r17 (F32)
-91	    trace_var r21 $46 = r17 (F32)
-92	    trace_var r21 $47 = r17 (F32)
+89	    trace_var r21 $44 = r17
+90	    trace_var r21 $45 = r17
+91	    trace_var r21 $46 = r17
+92	    trace_var r21 $47 = r17
 93	    trace_line r21 L22
-94	    trace_var r21 $48 = r14 (I32)
-95	    trace_var r21 $49 = r14 (I32)
+94	    trace_var r21 $48 = r14
+95	    trace_var r21 $49 = r14
 96	    trace_line r21 L23
-97	    trace_var r21 $50 = r14 (I32)
-98	    trace_var r21 $51 = r14 (I32)
+97	    trace_var r21 $50 = r14
+98	    trace_var r21 $51 = r14
 99	    trace_line r21 L24
-100	    trace_var r21 $52 = r18 (I32)
-101	    trace_var r21 $53 = r18 (I32)
-102	    trace_var r21 $54 = r18 (I32)
+100	    trace_var r21 $52 = r18
+101	    trace_var r21 $53 = r18
+102	    trace_var r21 $54 = r18
 103	    trace_line r21 L25
-104	    trace_var r21 $55 = r18 (I32)
-105	    trace_var r21 $56 = r18 (I32)
-106	    trace_var r21 $57 = r18 (I32)
+104	    trace_var r21 $55 = r18
+105	    trace_var r21 $56 = r18
+106	    trace_var r21 $57 = r18
 107	    trace_line r21 L26
-108	    trace_var r21 $58 = r19 (I32)
-109	    trace_var r21 $59 = r19 (I32)
-110	    trace_var r21 $60 = r19 (I32)
-111	    trace_var r21 $61 = r19 (I32)
+108	    trace_var r21 $58 = r19
+109	    trace_var r21 $59 = r19
+110	    trace_var r21 $60 = r19
+111	    trace_var r21 $61 = r19
 112	    trace_line r21 L27
-113	    trace_var r21 $62 = r19 (I32)
-114	    trace_var r21 $63 = r19 (I32)
-115	    trace_var r21 $64 = r19 (I32)
-116	    trace_var r21 $65 = r19 (I32)
+113	    trace_var r21 $62 = r19
+114	    trace_var r21 $63 = r19
+115	    trace_var r21 $64 = r19
+116	    trace_var r21 $65 = r19
 117	    trace_line r21 L29
 118	    trace_call r21 F2 (exit)
 119	    trace_call r21 F3 (enter)
 120	    trace_line r21 L34
-121	    trace_var r21 $66 = r15 (F32)
-122	    trace_var r21 $67 = r11 (F32)
-123	    trace_var r21 $68 = r11 (F32)
-124	    trace_var r21 $69 = r15 (F32)
+121	    trace_var r21 $66 = r15
+122	    trace_var r21 $67 = r11
+123	    trace_var r21 $68 = r11
+124	    trace_var r21 $69 = r15
 125	    trace_line r21 L35
-126	    trace_var r21 $70 = r15 (F32)
-127	    trace_var r21 $71 = r11 (F32)
-128	    trace_var r21 $72 = r11 (F32)
-129	    trace_var r21 $73 = r15 (F32)
+126	    trace_var r21 $70 = r15
+127	    trace_var r21 $71 = r11
+128	    trace_var r21 $72 = r11
+129	    trace_var r21 $73 = r15
 130	    trace_line r21 L36
-131	    trace_var r21 $74 = r16 (F32)
-132	    trace_var r21 $75 = r11 (F32)
-133	    trace_var r21 $76 = r11 (F32)
-134	    trace_var r21 $77 = r11 (F32)
-135	    trace_var r21 $78 = r16 (F32)
-136	    trace_var r21 $79 = r11 (F32)
-137	    trace_var r21 $80 = r11 (F32)
-138	    trace_var r21 $81 = r11 (F32)
-139	    trace_var r21 $82 = r16 (F32)
+131	    trace_var r21 $74 = r16
+132	    trace_var r21 $75 = r11
+133	    trace_var r21 $76 = r11
+134	    trace_var r21 $77 = r11
+135	    trace_var r21 $78 = r16
+136	    trace_var r21 $79 = r11
+137	    trace_var r21 $80 = r11
+138	    trace_var r21 $81 = r11
+139	    trace_var r21 $82 = r16
 140	    trace_line r21 L37
-141	    trace_var r21 $83 = r16 (F32)
-142	    trace_var r21 $84 = r11 (F32)
-143	    trace_var r21 $85 = r11 (F32)
-144	    trace_var r21 $86 = r11 (F32)
-145	    trace_var r21 $87 = r16 (F32)
-146	    trace_var r21 $88 = r11 (F32)
-147	    trace_var r21 $89 = r11 (F32)
-148	    trace_var r21 $90 = r11 (F32)
-149	    trace_var r21 $91 = r16 (F32)
+141	    trace_var r21 $83 = r16
+142	    trace_var r21 $84 = r11
+143	    trace_var r21 $85 = r11
+144	    trace_var r21 $86 = r11
+145	    trace_var r21 $87 = r16
+146	    trace_var r21 $88 = r11
+147	    trace_var r21 $89 = r11
+148	    trace_var r21 $90 = r11
+149	    trace_var r21 $91 = r16
 150	    trace_line r21 L38
-151	    trace_var r21 $92 = r17 (F32)
-152	    trace_var r21 $93 = r11 (F32)
-153	    trace_var r21 $94 = r11 (F32)
-154	    trace_var r21 $95 = r11 (F32)
-155	    trace_var r21 $96 = r11 (F32)
-156	    trace_var r21 $97 = r17 (F32)
-157	    trace_var r21 $98 = r11 (F32)
-158	    trace_var r21 $99 = r11 (F32)
-159	    trace_var r21 $100 = r11 (F32)
-160	    trace_var r21 $101 = r11 (F32)
-161	    trace_var r21 $102 = r17 (F32)
-162	    trace_var r21 $103 = r11 (F32)
-163	    trace_var r21 $104 = r11 (F32)
-164	    trace_var r21 $105 = r11 (F32)
-165	    trace_var r21 $106 = r11 (F32)
-166	    trace_var r21 $107 = r17 (F32)
+151	    trace_var r21 $92 = r17
+152	    trace_var r21 $93 = r11
+153	    trace_var r21 $94 = r11
+154	    trace_var r21 $95 = r11
+155	    trace_var r21 $96 = r11
+156	    trace_var r21 $97 = r17
+157	    trace_var r21 $98 = r11
+158	    trace_var r21 $99 = r11
+159	    trace_var r21 $100 = r11
+160	    trace_var r21 $101 = r11
+161	    trace_var r21 $102 = r17
+162	    trace_var r21 $103 = r11
+163	    trace_var r21 $104 = r11
+164	    trace_var r21 $105 = r11
+165	    trace_var r21 $106 = r11
+166	    trace_var r21 $107 = r17
 167	    trace_line r21 L39
-168	    trace_var r21 $108 = r17 (F32)
-169	    trace_var r21 $109 = r11 (F32)
-170	    trace_var r21 $110 = r11 (F32)
-171	    trace_var r21 $111 = r11 (F32)
-172	    trace_var r21 $112 = r11 (F32)
-173	    trace_var r21 $113 = r17 (F32)
-174	    trace_var r21 $114 = r11 (F32)
-175	    trace_var r21 $115 = r11 (F32)
-176	    trace_var r21 $116 = r11 (F32)
-177	    trace_var r21 $117 = r11 (F32)
-178	    trace_var r21 $118 = r17 (F32)
-179	    trace_var r21 $119 = r11 (F32)
-180	    trace_var r21 $120 = r11 (F32)
-181	    trace_var r21 $121 = r11 (F32)
-182	    trace_var r21 $122 = r11 (F32)
-183	    trace_var r21 $123 = r17 (F32)
+168	    trace_var r21 $108 = r17
+169	    trace_var r21 $109 = r11
+170	    trace_var r21 $110 = r11
+171	    trace_var r21 $111 = r11
+172	    trace_var r21 $112 = r11
+173	    trace_var r21 $113 = r17
+174	    trace_var r21 $114 = r11
+175	    trace_var r21 $115 = r11
+176	    trace_var r21 $116 = r11
+177	    trace_var r21 $117 = r11
+178	    trace_var r21 $118 = r17
+179	    trace_var r21 $119 = r11
+180	    trace_var r21 $120 = r11
+181	    trace_var r21 $121 = r11
+182	    trace_var r21 $122 = r11
+183	    trace_var r21 $123 = r17
 184	    trace_line r21 L41
 185	    trace_call r21 F3 (exit)
 186	    trace_call r21 F4 (enter)
 187	    trace_line r21 L45
-188	    trace_var r21 $124 = r11 (F32)
+188	    trace_var r21 $124 = r11
 189	    trace_line r21 L45
-190	    trace_var r21 $124 = r13 (F32)
+190	    trace_var r21 $124 = r13
 191	    trace_line r21 L46
-192	    trace_var r21 $125 = r11 (F32)
+192	    trace_var r21 $125 = r11
 193	    trace_line r21 L46
-194	    trace_var r21 $125 = r13 (F32)
+194	    trace_var r21 $125 = r13
 195	    trace_line r21 L47
-196	    trace_var r21 $126 = r11 (F32)
-197	    trace_var r21 $127 = r11 (F32)
-198	    trace_var r21 $128 = r11 (F32)
-199	    trace_var r21 $129 = r11 (F32)
+196	    trace_var r21 $126 = r11
+197	    trace_var r21 $127 = r11
+198	    trace_var r21 $128 = r11
+199	    trace_var r21 $129 = r11
 200	    trace_line r21 L47
-201	    trace_var r21 $127 = r13 (F32)
+201	    trace_var r21 $127 = r13
 202	    trace_line r21 L47
-203	    trace_var r21 $128 = r15 (F32)
-204	    trace_var r21 $129 = r16 (F32)
+203	    trace_var r21 $128 = r15
+204	    trace_var r21 $129 = r16
 205	    trace_line r21 L48
-206	    trace_var r21 $130 = r11 (F32)
-207	    trace_var r21 $131 = r11 (F32)
-208	    trace_var r21 $132 = r11 (F32)
-209	    trace_var r21 $133 = r11 (F32)
+206	    trace_var r21 $130 = r11
+207	    trace_var r21 $131 = r11
+208	    trace_var r21 $132 = r11
+209	    trace_var r21 $133 = r11
 210	    trace_line r21 L48
-211	    trace_var r21 $131 = r13 (F32)
+211	    trace_var r21 $131 = r13
 212	    trace_line r21 L48
-213	    trace_var r21 $132 = r15 (F32)
-214	    trace_var r21 $133 = r16 (F32)
+213	    trace_var r21 $132 = r15
+214	    trace_var r21 $133 = r16
 215	    trace_line r21 L50
 216	    trace_call r21 F4 (exit)
 217	    trace_call r21 F5 (enter)
-218	    trace_var r21 $134 = r13 (F32)
+218	    trace_var r21 $134 = r13
 219	    trace_line r21 L53
 220	    trace_call r21 F5 (exit)
 221	    trace_call r21 F6 (enter)
-222	    trace_var r21 $135 = r15 (F32)
+222	    trace_var r21 $135 = r15
 223	    trace_line r21 L54
 224	    trace_call r21 F6 (exit)
 225	    trace_call r21 F7 (enter)
-226	    trace_var r21 $136 = r16 (F32)
+226	    trace_var r21 $136 = r16
 227	    trace_line r21 L55
 228	    trace_call r21 F7 (exit)
 229	    trace_call r21 F0 (exit)
