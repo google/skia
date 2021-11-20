@@ -16,21 +16,28 @@ namespace skgpu {
 
 // Renders strokes as fixed-count triangle strip instances. Any extra triangles not needed by the
 // instance are emitted as degenerate triangles.
-class StrokeFixedCountTessellator : public StrokeTessellator {
+class StrokeFixedCountTessellator final : public StrokeTessellator {
 public:
     constexpr static float kMaxParametricSegments_pow4 = 32*32*32*32;  // 32^4
     constexpr static int8_t kMaxParametricSegments_log2 = 5;  // log2(32)
 
     StrokeFixedCountTessellator(PatchAttribs attribs) : StrokeTessellator(attribs) {}
 
+    int patchPreallocCount(int totalCombinedStrokeVerbCnt) const final;
+
+    int writePatches(PatchWriter&,
+                     const SkMatrix& shaderMatrix,
+                     std::array<float,2> matrixMinMaxScales,
+                     PathStrokeList*) final;
+
+#if SK_GPU_V1
     int prepare(GrMeshDrawTarget*,
                 const SkMatrix& shaderMatrix,
                 std::array<float,2> matrixMinMaxScales,
                 PathStrokeList*,
-                int totalCombinedVerbCnt) override;
+                int totalCombinedStrokeVerbCnt) final;
 
-#if SK_GPU_V1
-    void draw(GrOpFlushState*) const override;
+    void draw(GrOpFlushState*) const final;
 #endif
 
     // Initializes the fallback vertex buffer that should be bound when sk_VertexID is not
@@ -67,10 +74,12 @@ public:
     }
 
 private:
+#if SK_GPU_V1
     int fFixedEdgeCount = 0;
 
     // Only used if sk_VertexID is not supported.
     sk_sp<const GrGpuBuffer> fVertexBufferIfNoIDSupport;
+#endif
 };
 
 }  // namespace skgpu

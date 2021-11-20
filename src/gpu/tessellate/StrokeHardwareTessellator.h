@@ -16,18 +16,30 @@ namespace skgpu {
 // Renders opaque, constant-color strokes by decomposing them into standalone tessellation patches.
 // Each patch is either a "cubic" (single stroked bezier curve with butt caps) or a "join". Requires
 // MSAA if antialiasing is desired.
-class StrokeHardwareTessellator : public StrokeTessellator {
+class StrokeHardwareTessellator final : public StrokeTessellator {
 public:
-    StrokeHardwareTessellator(PatchAttribs attribs) : StrokeTessellator(attribs) {}
+    StrokeHardwareTessellator(PatchAttribs attribs, int maxTessellationSegments)
+            : StrokeTessellator(attribs), fMaxTessellationSegments(maxTessellationSegments) {}
 
+    int patchPreallocCount(int totalCombinedStrokeVerbCnt) const final;
+
+    int writePatches(PatchWriter&,
+                     const SkMatrix& shaderMatrix,
+                     std::array<float,2> matrixMinMaxScales,
+                     PathStrokeList*) final;
+
+#if SK_GPU_V1
     int prepare(GrMeshDrawTarget*,
                 const SkMatrix& shaderMatrix,
                 std::array<float,2> matrixMinMaxScales,
                 PathStrokeList*,
-                int totalCombinedVerbCnt) override;
-#if SK_GPU_V1
-    void draw(GrOpFlushState*) const override;
+                int totalCombinedStrokeVerbCnt) final;
+
+    void draw(GrOpFlushState*) const final;
 #endif
+
+private:
+    const int fMaxTessellationSegments;
 };
 
 }  // namespace skgpu

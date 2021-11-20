@@ -8,8 +8,6 @@
 #include "src/gpu/tessellate/StrokeFixedCountTessellator.h"
 
 #include "src/core/SkGeometry.h"
-#include "src/gpu/GrMeshDrawTarget.h"
-#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/StrokeIterator.h"
@@ -17,7 +15,9 @@
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 #if SK_GPU_V1
+#include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrResourceProvider.h"
 #endif
 
 namespace skgpu {
@@ -190,23 +190,22 @@ int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegmentsPerR
 }  // namespace
 
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
-
-int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
-                                         const SkMatrix& shaderMatrix,
-                                         std::array<float,2> matrixMinMaxScales,
-                                         PathStrokeList* pathStrokeList,
-                                         int totalCombinedVerbCnt) {
-    int maxEdgesInJoin = 0;
-    float maxRadialSegmentsPerRadian = 0;
-
+int StrokeFixedCountTessellator::patchPreallocCount(int totalCombinedStrokeVerbCnt) const {
     // Over-allocate enough patches for each stroke to chop once, and for 8 extra caps. Since we
     // have to chop at inflections, points of 180 degree rotation, and anywhere a stroke requires
     // too many parametric segments, many strokes will end up getting choppped.
-    int strokePreallocCount = totalCombinedVerbCnt * 2;
+    int strokePreallocCount = totalCombinedStrokeVerbCnt * 2;
     int capPreallocCount = 8;
-    int minInstancesPerChunk = strokePreallocCount + capPreallocCount;
-    PatchWriter patchWriter(target, this, minInstancesPerChunk);
+    return strokePreallocCount + capPreallocCount;
+}
+
+int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
+                                              const SkMatrix& shaderMatrix,
+                                              std::array<float,2> matrixMinMaxScales,
+                                              PathStrokeList* pathStrokeList) {
+    int maxEdgesInJoin = 0;
+    float maxRadialSegmentsPerRadian = 0;
+
     InstanceWriter instanceWriter(patchWriter, matrixMinMaxScales[1]);
 
     if (!(fAttribs & PatchAttribs::kStrokeParams)) {
@@ -352,7 +351,33 @@ int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
     // number of edges in an instance is the sum of edges from the join and stroke sections both.
     // NOTE: The final join edge and the first stroke edge are co-located, however we still need to
     // emit both because the join's edge is half-width and the stroke's is full-width.
-    fFixedEdgeCount = maxEdgesInJoin + maxEdgesInStroke;
+    return maxEdgesInJoin + maxEdgesInStroke;
+}
+
+void StrokeFixedCountTessellator::InitializeVertexIDFallbackBuffer(VertexWriter vertexWriter,
+                                                                   size_t bufferSize) {
+    SkASSERT(bufferSize % (sizeof(float) * 2) == 0);
+    int edgeCount = bufferSize / (sizeof(float) * 2);
+    for (int i = 0; i < edgeCount; ++i) {
+        vertexWriter << (float)i << (float)-i;
+    }
+}
+
+#if SK_GPU_V1
+
+GR_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
+
+int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
+                                         const SkMatrix& shaderMatrix,
+                                         std::array<float,2> matrixMinMaxScales,
+                                         PathStrokeList* pathStrokeList,
+                                         int totalCombinedStrokeVerbCnt) {
+    PatchWriter patchWriter(target, this, this->patchPreallocCount(totalCombinedStrokeVerbCnt));
+
+    fFixedEdgeCount = this->writePatches(patchWriter,
+                                         shaderMatrix,
+                                         matrixMinMaxScales,
+                                         pathStrokeList);
 
     // Don't draw more vertices than can be indexed by a signed short. We just have to draw the line
     // somewhere and this seems reasonable enough. (There are two vertices per edge, so 2^14 edges
@@ -377,16 +402,6 @@ int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
     return fFixedEdgeCount;
 }
 
-void StrokeFixedCountTessellator::InitializeVertexIDFallbackBuffer(VertexWriter vertexWriter,
-                                                                   size_t bufferSize) {
-    SkASSERT(bufferSize % (sizeof(float) * 2) == 0);
-    int edgeCount = bufferSize / (sizeof(float) * 2);
-    for (int i = 0; i < edgeCount; ++i) {
-        vertexWriter << (float)i << (float)-i;
-    }
-}
-
-#if SK_GPU_V1
 void StrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
     if (fVertexChunkArray.empty() || fFixedEdgeCount <= 0) {
         return;
@@ -403,6 +418,7 @@ void StrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
                                   0);
     }
 }
+
 #endif
 
 }  // namespace skgpu

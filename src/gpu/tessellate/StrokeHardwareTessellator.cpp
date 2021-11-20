@@ -8,14 +8,13 @@
 #include "src/gpu/tessellate/StrokeHardwareTessellator.h"
 
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/GrMeshDrawTarget.h"
-#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 #if SK_GPU_V1
+#include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrOpFlushState.h"
 #endif
 
@@ -56,11 +55,11 @@ public:
         kBowtie = SkPaint::kLast_Join + 1  // Double sided round join.
     };
 
-    HwPatchWriter(PatchWriter& patchWriter, const GrShaderCaps& shaderCaps, float matrixMaxScale)
+    HwPatchWriter(PatchWriter& patchWriter, int maxTessellationSegments, float matrixMaxScale)
             : fPatchWriter(patchWriter)
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
-            , fMaxTessellationSegments(shaderCaps.maxTessellationSegments() - 2)
+            , fMaxTessellationSegments(std::max(maxTessellationSegments - 2, 1))
             , fParametricPrecision(StrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
     }
 
@@ -664,19 +663,20 @@ SK_ALWAYS_INLINE bool cubic_has_cusp(const SkPoint p[4]) {
 }  // namespace
 
 
-int StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target,
-                                       const SkMatrix& shaderMatrix,
-                                       std::array<float,2> matrixMinMaxScales,
-                                       PathStrokeList* pathStrokeList,
-                                       int totalCombinedVerbCnt) {
+int StrokeHardwareTessellator::patchPreallocCount(int totalCombinedStrokeVerbCnt) const {
+    // Over-allocate enough patches for 1 in 4 strokes to chop and for 8 extra caps.
+    int strokePreallocCount = (totalCombinedStrokeVerbCnt * 5) / 4;
+    int capPreallocCount = 8;
+    return strokePreallocCount + capPreallocCount;
+}
+
+int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
+                                            const SkMatrix& shaderMatrix,
+                                            std::array<float,2> matrixMinMaxScales,
+                                            PathStrokeList* pathStrokeList) {
     using JoinType = HwPatchWriter::JoinType;
 
-    // Over-allocate enough patches for 1 in 4 strokes to chop and for 8 extra caps.
-    int strokePreallocCount = totalCombinedVerbCnt * 5/4;
-    int capPreallocCount = 8;
-    int minPatchesPerChunk = strokePreallocCount + capPreallocCount;
-    PatchWriter patchWriter(target, this, minPatchesPerChunk);
-    HwPatchWriter hwPatchWriter(patchWriter, *target->caps().shaderCaps(), matrixMinMaxScales[1]);
+    HwPatchWriter hwPatchWriter(patchWriter, fMaxTessellationSegments, matrixMinMaxScales[1]);
 
     if (!(fAttribs & PatchAttribs::kStrokeParams)) {
         // Strokes are static. Calculate tolerances once.
@@ -851,12 +851,23 @@ int StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target,
 }
 
 #if SK_GPU_V1
+
+int StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target,
+                                       const SkMatrix& shaderMatrix,
+                                       std::array<float,2> matrixMinMaxScales,
+                                       PathStrokeList* pathStrokeList,
+                                       int totalCombinedStrokeVerbCnt) {
+    PatchWriter patchWriter(target, this, this->patchPreallocCount(totalCombinedStrokeVerbCnt));
+    return this->writePatches(patchWriter, shaderMatrix, matrixMinMaxScales, pathStrokeList);
+}
+
 void StrokeHardwareTessellator::draw(GrOpFlushState* flushState) const {
     for (const auto& vertexChunk : fVertexChunkArray) {
         flushState->bindBuffers(nullptr, nullptr, vertexChunk.fBuffer);
         flushState->draw(vertexChunk.fCount, vertexChunk.fBase);
     }
 }
+
 #endif
 
 }  // namespace skgpu

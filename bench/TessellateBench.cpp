@@ -247,7 +247,7 @@ using PathStrokeList = StrokeTessellator::PathStrokeList;
 using MakeTessellatorFn = std::unique_ptr<StrokeTessellator>(*)(PatchAttribs);
 
 static std::unique_ptr<StrokeTessellator> make_hw_tessellator(PatchAttribs attribs) {
-    return std::make_unique<StrokeHardwareTessellator>(attribs);
+    return std::make_unique<StrokeHardwareTessellator>(attribs, 64);
 }
 
 static std::unique_ptr<StrokeTessellator> make_fixed_count_tessellator(PatchAttribs attribs) {

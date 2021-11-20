@@ -193,7 +193,8 @@ void StrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs
     if (can_use_hardware_tessellation(fTotalCombinedVerbCnt, *pipeline, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
-        fTessellator = arena->make<StrokeHardwareTessellator>(fPatchAttribs);
+        fTessellator = arena->make<StrokeHardwareTessellator>(
+                fPatchAttribs, caps.shaderCaps()->maxTessellationSegments());
         shaderMode = GrStrokeTessellationShader::Mode::kHardwareTessellation;
         // This sets a limit on the number of binary search iterations inside the shader, so we
         // round up to the next log2 to guarantee it makes enough.
