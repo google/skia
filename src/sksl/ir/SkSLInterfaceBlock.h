@@ -31,22 +31,15 @@ class InterfaceBlock final : public ProgramElement {
 public:
     inline static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
 
-    InterfaceBlock(int line,
-                   const Variable& var,
-                   skstd::string_view typeName,
-                   skstd::string_view instanceName,
-                   int arraySize,
+    InterfaceBlock(int line, const Variable& var, skstd::string_view typeName,
+                   skstd::string_view instanceName, int arraySize,
                    std::shared_ptr<SymbolTable> typeOwner)
-            : INHERITED(line, kProgramElementKind)
-            , fVariable(var)
-            , fTypeName(typeName)
-            , fInstanceName(instanceName)
-            , fArraySize(arraySize)
-            , fTypeOwner(std::move(typeOwner)) {
-        SkASSERT(fVariable.type().isInterfaceBlock() ||
-                 (fVariable.type().isArray() &&
-                  fVariable.type().componentType().isInterfaceBlock()));
-    }
+    : INHERITED(line, kProgramElementKind)
+    , fVariable(var)
+    , fTypeName(typeName)
+    , fInstanceName(instanceName)
+    , fArraySize(arraySize)
+    , fTypeOwner(std::move(typeOwner)) {}
 
     const Variable& variable() const {
         return fVariable;

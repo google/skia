@@ -141,10 +141,8 @@ public:
                                                  Type::TypeKind typeKind);
 
     /** Creates a struct type with the given fields. */
-    static std::unique_ptr<Type> MakeStructType(int line,
-                                                skstd::string_view name,
-                                                std::vector<Field> fields,
-                                                bool interfaceBlock = false);
+    static std::unique_ptr<Type> MakeStructType(int line, skstd::string_view name,
+                                                std::vector<Field> fields);
 
     /** Create a texture type. */
     static std::unique_ptr<Type> MakeTextureType(const char* name, SpvDim_ dimensions,
@@ -446,10 +444,6 @@ public:
     }
 
     virtual bool isStruct() const {
-        return false;
-    }
-
-    virtual bool isInterfaceBlock() const {
         return false;
     }
 

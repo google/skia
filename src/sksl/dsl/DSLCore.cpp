@@ -251,9 +251,8 @@ public:
             skslFields.push_back(SkSL::Type::Field(field.fModifiers.fModifiers, field.fName,
                                                    &field.fType.skslType()));
         }
-        const SkSL::Type* structType =
-                ThreadContext::SymbolTable()->takeOwnershipOfSymbol(SkSL::Type::MakeStructType(
-                        pos.line(), typeName, std::move(skslFields), /*interfaceBlock=*/true));
+        const SkSL::Type* structType = ThreadContext::SymbolTable()->takeOwnershipOfSymbol(
+                SkSL::Type::MakeStructType(pos.line(), typeName, std::move(skslFields)));
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
         DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName, DSLExpression(),
                 pos);

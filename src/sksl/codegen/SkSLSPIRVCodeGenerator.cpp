@@ -2980,9 +2980,6 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
 }
 
 void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int member) {
-    // 'binding' and 'set' can not be applied to struct members
-    SkASSERT(layout.fBinding == -1);
-    SkASSERT(layout.fSet == -1);
     if (layout.fLocation >= 0) {
         this->writeInstruction(SpvOpMemberDecorate, target, member, SpvDecorationLocation,
                                layout.fLocation, fDecorationBuffer);
@@ -3035,9 +3032,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                             fContext.fTypes.fFloat2.get());
         {
             AutoAttachPoolToThread attach(fProgram.fPool.get());
-            const Type* rtFlipStructType =
-                    fProgram.fSymbols->takeOwnershipOfSymbol(Type::MakeStructType(
-                            type.fLine, type.name(), std::move(fields), /*interfaceBlock=*/true));
+            const Type* rtFlipStructType = fProgram.fSymbols->takeOwnershipOfSymbol(
+                    Type::MakeStructType(type.fLine, type.name(), std::move(fields)));
             const Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(intfVar.fLine,
                                                &intfVar.modifiers(),
@@ -3436,8 +3432,8 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
         fTopLevelUniformMap[var] = (int)fields.size();
         fields.emplace_back(var->modifiers(), var->name(), &var->type());
     }
-    fUniformBuffer.fStruct = Type::MakeStructType(
-            /*line=*/-1, kUniformBufferName, std::move(fields), /*interfaceBlock=*/true);
+    fUniformBuffer.fStruct = Type::MakeStructType(/*line=*/-1, kUniformBufferName,
+                                                 std::move(fields));
 
     // Create a global variable to contain this struct.
     Layout layout;
@@ -3481,8 +3477,8 @@ void SPIRVCodeGenerator::addRTFlipUniform(int line) {
                         SKSL_RTFLIP_NAME,
                         fContext.fTypes.fFloat2.get());
     skstd::string_view name = "sksl_synthetic_uniforms";
-    const Type* intfStruct = fSynthetics.takeOwnershipOfSymbol(
-            Type::MakeStructType(/*line=*/-1, name, fields, /*interfaceBlock=*/true));
+    const Type* intfStruct =
+            fSynthetics.takeOwnershipOfSymbol(Type::MakeStructType(/*line=*/-1, name, fields));
     int binding = fProgram.fConfig->fSettings.fRTFlipBinding;
     if (binding == -1) {
         fContext.fErrors->error(line, "layout(binding=...) is required in SPIR-V");
