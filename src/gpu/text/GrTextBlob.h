@@ -114,7 +114,7 @@ public:
     // Produce GPU ops for this subRun.
     virtual void draw(const GrClip*,
                       const SkMatrixProvider& viewMatrix,
-                      const SkGlyphRunList&,
+                      SkPoint drawOrigin,
                       const SkPaint&,
                       skgpu::v1::SurfaceDrawContext*) const = 0;
 

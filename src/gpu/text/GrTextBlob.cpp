@@ -185,8 +185,8 @@ public:
 
     void draw(const GrClip*,
               const SkMatrixProvider& viewMatrix,
-              const SkGlyphRunList&,
-              const SkPaint&,
+              SkPoint drawOrigin,
+              const SkPaint& paint,
               skgpu::v1::SurfaceDrawContext*) const override;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
@@ -222,11 +222,10 @@ PathSubRun::PathSubRun(bool isAntiAliased,
 
 void PathSubRun::draw(const GrClip* clip,
                       const SkMatrixProvider& viewMatrix,
-                      const SkGlyphRunList& glyphRunList,
+                      SkPoint drawOrigin,
                       const SkPaint& paint,
                       skgpu::v1::SurfaceDrawContext* sdc) const {
     SkASSERT(!fPaths.empty());
-    SkPoint drawOrigin = glyphRunList.origin();
     SkPaint runPaint{paint};
     runPaint.setAntiAlias(fIsAntiAliased);
     // If there are shaders, blurs or styles, the path must be scaled into source
@@ -466,8 +465,8 @@ public:
 
     void draw(const GrClip*,
               const SkMatrixProvider& viewMatrix,
-              const SkGlyphRunList&,
-              const SkPaint&,
+              SkPoint drawOrigin,
+              const SkPaint& paint,
               skgpu::v1::SurfaceDrawContext*) const override;
 
     std::tuple<const GrClip*, GrOp::Owner>
@@ -597,11 +596,11 @@ int DirectMaskSubRun::glyphCount() const {
 
 void DirectMaskSubRun::draw(const GrClip* clip,
                             const SkMatrixProvider& viewMatrix,
-                            const SkGlyphRunList& glyphRunList,
+                            SkPoint drawOrigin,
                             const SkPaint& paint,
                             skgpu::v1::SurfaceDrawContext* sdc) const{
     auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, glyphRunList.origin(), paint, sdc, nullptr);
+            clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }
@@ -865,8 +864,8 @@ public:
 
     void draw(const GrClip*,
               const SkMatrixProvider& viewMatrix,
-              const SkGlyphRunList&,
-              const SkPaint&,
+              SkPoint drawOrigin,
+              const SkPaint& paint,
               skgpu::v1::SurfaceDrawContext*) const override;
 
     std::tuple<const GrClip*, GrOp::Owner>
@@ -957,11 +956,11 @@ GrSubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& 
 
 void TransformedMaskSubRun::draw(const GrClip* clip,
                                  const SkMatrixProvider& viewMatrix,
-                                 const SkGlyphRunList& glyphRunList,
+                                 SkPoint drawOrigin,
                                  const SkPaint& paint,
                                  skgpu::v1::SurfaceDrawContext* sdc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, glyphRunList.origin(), paint, sdc, nullptr);
+            clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }
@@ -1128,7 +1127,7 @@ public:
 
     void draw(const GrClip*,
               const SkMatrixProvider& viewMatrix,
-              const SkGlyphRunList&,
+              SkPoint drawOrigin,
               const SkPaint&,
               skgpu::v1::SurfaceDrawContext*) const override;
 
@@ -1238,11 +1237,11 @@ GrSubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
 
 void SDFTSubRun::draw(const GrClip* clip,
                       const SkMatrixProvider& viewMatrix,
-                      const SkGlyphRunList& glyphRunList,
+                      SkPoint drawOrigin,
                       const SkPaint& paint,
                       skgpu::v1::SurfaceDrawContext* sdc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(
-            clip, viewMatrix, glyphRunList.origin(), paint, sdc, nullptr);
+            clip, viewMatrix, drawOrigin, paint, sdc, nullptr);
     if (op != nullptr) {
         sdc->addDrawOp(drawingClip, std::move(op));
     }

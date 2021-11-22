@@ -389,7 +389,7 @@ void SurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
     }
 
     for (const GrSubRun& subRun : blob->subRunList()) {
-        subRun.draw(clip, viewMatrix, glyphRunList, paint, this);
+        subRun.draw(clip, viewMatrix, glyphRunList.origin(), paint, this);
     }
 }
 
