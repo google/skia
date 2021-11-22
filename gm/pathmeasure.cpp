@@ -13,7 +13,7 @@
 #include "include/effects/SkDashPathEffect.h"
 
 // Repro case for skia:7674.  Requires lots of RAM to run, and currently triggers UB:
-// ../include/private/SkTDArray.h:382:26:
+// //include/private/SkTDArray.h:382:26:
 //   runtime error: signed integer overflow: 2147483644 + 4 cannot be represented in type 'int'
 
 static SK_UNUSED void path_measure_explosion(SkCanvas* canvas) {

@@ -12,4 +12,6 @@ with open('all_examples.cpp', 'w') as o:
             'governed by a BSD-style license that can be found in the '
             'LICENSE file.\n')
     for path in sorted(glob.glob('../../docs/examples/*.cpp')):
+        # strip ../../
+        path = path[6:]
         o.write('#include "%s"\n' % path)
