@@ -11,7 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/private/GrTypesPriv.h"
 
-class GrShaderCaps;
+struct GrShaderCaps;
 
 /**
  * Represents a variable in a shader

@@ -14,7 +14,6 @@
 
 #import <Metal/Metal.h>
 
-class GrShaderCaps;
 class GrMtlRenderTarget;
 
 /**

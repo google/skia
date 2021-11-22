@@ -15,7 +15,7 @@
 class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
-class GrShaderCaps;
+struct GrShaderCaps;
 class GrStyle;
 class SkMatrix;
 struct SkRect;

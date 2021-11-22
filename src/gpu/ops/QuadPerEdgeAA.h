@@ -22,7 +22,7 @@
 class GrCaps;
 class GrColorSpaceXform;
 class GrMeshDrawTarget;
-class GrShaderCaps;
+struct GrShaderCaps;
 struct VertexWriter;
 
 namespace skgpu::v1::QuadPerEdgeAA {

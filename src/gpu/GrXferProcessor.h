@@ -18,7 +18,7 @@
 
 class GrGLSLXPFragmentBuilder;
 class GrGLSLProgramDataManager;
-class GrShaderCaps;
+struct GrShaderCaps;
 
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes

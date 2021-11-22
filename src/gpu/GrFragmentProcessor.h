@@ -21,7 +21,7 @@ class GrGLSLProgramDataManager;
 class GrPaint;
 class GrPipeline;
 class GrProcessorKeyBuilder;
-class GrShaderCaps;
+struct GrShaderCaps;
 class GrSwizzle;
 class GrTextureEffect;
 

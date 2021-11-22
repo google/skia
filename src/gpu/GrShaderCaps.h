@@ -15,10 +15,12 @@
 struct GrContextOptions;
 class SkJSONWriter;
 
-class GrShaderCaps : public SkSL::ShaderCaps {
-public:
+struct GrShaderCaps : SkSL::ShaderCaps {
     GrShaderCaps() {}
 
+    //
+    // TODO: Remove these unnecessary accessors
+    //
     void dumpJSON(SkJSONWriter*) const;
 
     bool supportsDistanceFieldText() const { return fShaderDerivativeSupport; }
@@ -107,7 +109,6 @@ public:
 
     bool tessellationSupport() const { return SkToBool(fMaxTessellationSegments);}
 
-private:
     void applyOptionsOverrides(const GrContextOptions& options);
 
     bool fDstReadInShaderSupport = false;
@@ -138,14 +139,6 @@ private:
 
     int fMaxFragmentSamplers = 0;
     int fMaxTessellationSegments = 0;
-
-    friend class GrCaps;  // For initialization.
-    friend class GrDawnCaps;
-    friend class GrD3DCaps;
-    friend class GrGLCaps;
-    friend class GrMockCaps;
-    friend class GrMtlCaps;
-    friend class GrVkCaps;
 };
 
 #endif

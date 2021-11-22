@@ -18,7 +18,7 @@
 #include <utility>
 #include <vector>
 
-class GrShaderCaps;
+struct GrShaderCaps;
 class SkData;
 class SkRuntimeEffect;
 

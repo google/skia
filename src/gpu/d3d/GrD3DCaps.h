@@ -14,8 +14,6 @@
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/d3d/GrD3DAttachment.h"
 
-class GrShaderCaps;
-
 /**
  * Stores some capabilities of a D3D backend.
  */

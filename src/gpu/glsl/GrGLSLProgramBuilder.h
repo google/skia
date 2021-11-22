@@ -26,7 +26,7 @@ class GrRenderTarget;
 class GrShaderVar;
 class GrGLSLVaryingHandler;
 class SkString;
-class GrShaderCaps;
+struct GrShaderCaps;
 
 class GrGLSLProgramBuilder {
 public:

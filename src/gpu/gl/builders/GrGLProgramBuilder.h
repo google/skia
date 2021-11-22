@@ -21,7 +21,7 @@ class GrFragmentProcessor;
 class GrGLContextInfo;
 class GrProgramDesc;
 class GrGLSLShaderBuilder;
-class GrShaderCaps;
+struct GrShaderCaps;
 
 struct GrGLPrecompiledProgram {
     GrGLPrecompiledProgram(GrGLuint programID = 0,

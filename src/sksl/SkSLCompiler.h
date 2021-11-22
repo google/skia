@@ -48,7 +48,7 @@ namespace dsl {
 class ExternalFunction;
 class FunctionDeclaration;
 class ProgramUsage;
-class ShaderCaps;
+struct ShaderCaps;
 
 struct LoadedModule {
     ProgramKind                                  fKind;

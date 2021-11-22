@@ -18,7 +18,6 @@
 class GrCaps;
 class GrProgramInfo;
 class GrRenderTarget;
-class GrShaderCaps;
 
 class GrProcessorKeyBuilder {
 public:

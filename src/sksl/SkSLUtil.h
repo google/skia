@@ -24,8 +24,6 @@
 #endif // SK_SUPPORT_GPU
 #endif // SKSL_STANDALONE
 
-class GrShaderCaps;
-
 namespace SkSL {
 
 class Context;
@@ -34,8 +32,7 @@ class ShaderCapsFactory;
 class StringStream;
 class Type;
 
-class ShaderCaps {
-public:
+struct ShaderCaps {
     /**
      * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
      * special layout qualifiers in the fragment shader.
@@ -48,6 +45,9 @@ public:
         kLast_AdvBlendEqInteraction = kGeneralEnable_AdvBlendEqInteraction
     };
 
+    //
+    // TODO: Remove these accessors
+    //
     bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
     bool nonsquareMatrixSupport() const { return fNonsquareMatrixSupport; }
 
@@ -194,7 +194,6 @@ public:
 
     SkSL::GLSLGeneration generation() const { return fGLSLGeneration; }
 
-protected:
     SkSL::GLSLGeneration fGLSLGeneration = SkSL::GLSLGeneration::k330;
 
     bool fShaderDerivativeSupport = false;
@@ -247,9 +246,6 @@ protected:
     const char* fFBFetchColorName = nullptr;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
-
-    friend class ShaderCapsFactory;
-    friend class SharedCompiler;
 };
 
 // Various sets of caps for use in tests
