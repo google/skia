@@ -51,6 +51,10 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
             return kRGB_888x_SkColorType;
         case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
             return kRGBA_1010102_SkColorType;
+#if __ANDROID_API__ >= 33
+        case AHARDWAREBUFFER_FORMAT_R8_UNORM:
+            return kAlpha_8_SkColorType;
+#endif
         default:
             // Given that we only use this texture as a source, colorType will not impact how Skia
             // uses the texture.  The only potential affect this is anticipated to have is that for
@@ -78,6 +82,10 @@ GrBackendFormat GetBackendFormat(GrDirectContext* dContext, AHardwareBuffer* har
                 return GrBackendFormat::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_EXTERNAL);
             case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
                 return GrBackendFormat::MakeGL(GR_GL_RGB8, GR_GL_TEXTURE_EXTERNAL);
+#if __ANDROID_API__ >= 33
+            case AHARDWAREBUFFER_FORMAT_R8_UNORM:
+                return GrBackendFormat::MakeGL(GR_GL_R8, GR_GL_TEXTURE_EXTERNAL);
+#endif
             default:
                 if (requireKnownFormat) {
                     return GrBackendFormat();
@@ -100,6 +108,10 @@ GrBackendFormat GetBackendFormat(GrDirectContext* dContext, AHardwareBuffer* har
                 return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
             case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
                 return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM);
+#if __ANDROID_API__ >= 33
+            case AHARDWAREBUFFER_FORMAT_R8_UNORM:
+                return GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM);
+#endif
             default: {
                 if (requireKnownFormat) {
                     return GrBackendFormat();
