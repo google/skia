@@ -10,8 +10,8 @@
 
 #include <cstdarg>
 #include <memory>
-#include "stdlib.h"
-#include "string.h"
+#include <stdlib.h>
+#include <string.h>
 #include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLGLSL.h"
 #include "src/sksl/SkSLLexer.h"
