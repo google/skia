@@ -8,8 +8,11 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/effects/SkRuntimeEffect.h"
+#include "src/effects/imagefilters/SkRuntimeImageFilter.h"
 #include "tests/Test.h"
 
 static void test_unscaled(skiatest::Reporter* reporter) {
@@ -113,4 +116,79 @@ static void test_scaled(skiatest::Reporter* reporter) {
 DEF_TEST(PaintImageFilter, reporter) {
     test_unscaled(reporter);
     test_scaled(reporter);
+}
+
+static void test_runtime_shader(skiatest::Reporter* r, SkSurface* surface) {
+    sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForShader(SkString(R"(
+        uniform shader child;
+        vec4 main(vec2 coord) {
+            return child.eval(coord) * 0.5;
+        }
+    )"))
+                                            .effect;
+    SkRuntimeShaderBuilder builder(effect);
+
+    // create a red image filter to feed as input into the SkImageFilters::RuntimeShader
+    SkPaint redPaint;
+    redPaint.setColor(SK_ColorRED);
+    sk_sp<SkImageFilter> input = SkImageFilters::Paint(redPaint);
+
+    // Create the different variations of SkImageFilters::RuntimeShader
+    // All 3 variations should produce the same pixel output
+    std::vector<sk_sp<SkImageFilter>> filters = {
+            SkMakeRuntimeImageFilter(effect, /*uniforms=*/nullptr, input),
+            SkImageFilters::RuntimeShader(builder, /*childShaderName=*/nullptr, input),
+            SkImageFilters::RuntimeShader(builder, /*childShaderName=*/"child", input)};
+
+    for (auto&& filter : filters) {
+        auto canvas = surface->getCanvas();
+
+        // clear to transparent
+        SkPaint paint;
+        paint.setColor(SK_ColorTRANSPARENT);
+        paint.setBlendMode(SkBlendMode::kSrc);
+        canvas->drawPaint(paint);
+
+        SkPaint filterPaint;
+        // the green color will be ignored by the filter within the runtime shader
+        filterPaint.setColor(SK_ColorGREEN);
+        filterPaint.setImageFilter(filter);
+        canvas->saveLayer(nullptr, &filterPaint);
+        // the blue color will be ignored by the filter because the input to the image filter is not
+        // null
+        canvas->drawColor(SK_ColorBLUE);
+        canvas->restore();
+
+        // This is expected to read back the half transparent red pixel produced by the image filter
+        SkBitmap bitmap;
+        REPORTER_ASSERT(r, bitmap.tryAllocPixels(surface->imageInfo()));
+        REPORTER_ASSERT(r,
+                        surface->readPixels(bitmap.info(),
+                                            bitmap.getPixels(),
+                                            bitmap.rowBytes(),
+                                            /*srcX=*/0,
+                                            /*srcY=*/0));
+        SkColor color = bitmap.getColor(/*x=*/0, /*y=*/0);
+
+        // check alpha with a small tolerance
+        SkAlpha alpha = SkColorGetA(color);
+        REPORTER_ASSERT(r, alpha >= 127 && alpha <= 129, "Expected: %d Actual: %d", 128, alpha);
+
+        // check each color channel
+        color = SkColorSetA(color, 255);
+        REPORTER_ASSERT(r, SK_ColorRED == color, "Expected: %08x Actual: %08x", SK_ColorRED, color);
+    }
+}
+
+DEF_TEST(SkRuntimeShaderImageFilter_CPU, r) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
+    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
+    test_runtime_shader(r, surface.get());
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU, r, ctxInfo) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
+    sk_sp<SkSurface> surface(
+            SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));
+    test_runtime_shader(r, surface.get());
 }

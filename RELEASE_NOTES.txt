@@ -16,6 +16,10 @@ Milestone 98
     could be created, but the CPU backend would fail to index them correctly.
   * SkCanvas::drawVertices and SkCanvas::drawPatch variants that did not take SkBlendMode are
     removed.
+  * SkImageFilters::RuntimeShader is a new public API that enables adding RuntimeShaderEffects into
+    image filter graph.
+
+* * *
 
 Milestone 97
 ------------
