@@ -1,4 +1,4 @@
-layout(push_constant, binding=456) uniform testBlock {
+layout(push_constant) uniform testBlock {
     layout(offset=16) half2x2 m1;
     layout(offset=32) half2x2 m2;
 };
