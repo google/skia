@@ -33,6 +33,9 @@
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 #include "src/utils/SkPatchUtils.h"
+#if SK_SUPPORT_GPU
+#include "include/private/chromium/GrSlug.h"
+#endif
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
         : SkMatrixProvider(/* localToDevice = */ SkMatrix::I())
@@ -488,6 +491,18 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphR
         }
     }
 }
+
+#if SK_SUPPORT_GPU
+sk_sp<GrSlug> SkBaseDevice::convertGlyphRunListToSlug(
+        const SkGlyphRunList& glyphRunList,
+        const SkPaint& paint) const {
+    return nullptr;
+}
+
+void SkBaseDevice::drawSlug(GrSlug* slug) {
+    SK_ABORT("GrSlug drawing not supported.");
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
 

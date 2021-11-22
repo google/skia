@@ -302,6 +302,14 @@ protected:
     // Only called with glyphRunLists that do not contain RSXForm.
     virtual void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) = 0;
 
+    // GrSlug handling routines.
+#if SK_SUPPORT_GPU
+    virtual sk_sp<GrSlug> convertGlyphRunListToSlug(
+            const SkGlyphRunList& glyphRunList,
+            const SkPaint& paint) const;
+    virtual void drawSlug(GrSlug* slug);
+#endif
+
     /**
      * The SkDevice passed will be an SkDevice which was returned by a call to
      * onCreateDevice on this device with kNeverTile_TileExpectation.

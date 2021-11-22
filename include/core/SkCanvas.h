@@ -2241,6 +2241,17 @@ protected:
 
     virtual void onDiscard();
 
+#if SK_SUPPORT_GPU
+    /** Experimental
+     */
+    virtual sk_sp<GrSlug> doConvertBlobToSlug(
+            const SkTextBlob& blob, SkPoint origin, const SkPaint& paint);
+
+    /** Experimental
+     */
+    virtual void doDrawSlug(GrSlug* slug);
+#endif
+
 private:
 
     enum ShaderOverrideOpacity {
