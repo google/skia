@@ -180,7 +180,6 @@ class PathSubRun final : public GrSubRun {
 public:
     PathSubRun(bool isAntiAliased,
                SkScalar strikeToSourceScale,
-               const GrTextBlob& blob,
                SkSpan<PathGlyph> paths,
                std::unique_ptr<PathGlyph[], GrSubRunAllocator::ArrayDestroyer> pathData);
 
@@ -197,7 +196,6 @@ public:
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                               bool isAntiAliased,
                               SkScalar strikeToSourceScale,
-                              const GrTextBlob& blob,
                               GrSubRunAllocator* alloc);
 
 private:
@@ -215,7 +213,6 @@ private:
 
 PathSubRun::PathSubRun(bool isAntiAliased,
                        SkScalar strikeToSourceScale,
-                       const GrTextBlob& blob,
                        SkSpan<PathGlyph> paths,
                        std::unique_ptr<PathGlyph[], GrSubRunAllocator::ArrayDestroyer> pathData)
     : fIsAntiAliased{isAntiAliased}
@@ -284,7 +281,6 @@ bool PathSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) 
 GrSubRunOwner PathSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                bool isAntiAliased,
                                SkScalar strikeToSourceScale,
-                               const GrTextBlob& blob,
                                GrSubRunAllocator* alloc) {
     auto pathData = alloc->makeUniqueArray<PathGlyph>(
             drawables.size(),
@@ -295,7 +291,7 @@ GrSubRunOwner PathSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
     SkSpan<PathGlyph> paths{pathData.get(), drawables.size()};
 
     return alloc->makeUnique<PathSubRun>(
-            isAntiAliased, strikeToSourceScale, blob, paths, std::move(pathData));
+            isAntiAliased, strikeToSourceScale, paths, std::move(pathData));
 }
 
 GrAtlasSubRun* PathSubRun::testingOnly_atlasSubRun() {
@@ -1658,7 +1654,6 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
     fSubRunList.append(PathSubRun::Make(drawables,
                                         has_some_antialiasing(runFont),
                                         strikeToSourceScale,
-                                        *this,
                                         &fAlloc));
 }
 
