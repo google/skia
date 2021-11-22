@@ -215,8 +215,10 @@ static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
  * CommandBuffer.
  */
 struct BindBufferInfo {
-    Buffer* fBuffer = nullptr;
+    const Buffer* fBuffer = nullptr;
     size_t fOffset = 0;
+
+    operator bool() const { return SkToBool(fBuffer); }
 };
 
 };  // namespace skgpu

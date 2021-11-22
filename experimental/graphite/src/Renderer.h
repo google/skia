@@ -8,6 +8,8 @@
 #ifndef skgpu_Renderer_DEFINED
 #define skgpu_Renderer_DEFINED
 
+#include "experimental/graphite/src/DrawTypes.h"
+
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
@@ -16,9 +18,10 @@
 
 namespace skgpu {
 
-struct IndexWriter;
+class DrawWriter;
+class ResourceProvider;
 class Shape;
-struct VertexWriter;
+class Uniform;
 
 class RenderStep {
 public:
@@ -29,22 +32,21 @@ public:
     virtual bool        requiresMSAA()    const = 0;
     virtual bool        performsShading() const = 0;
 
-    virtual size_t requiredVertexSpace(const Shape&) const = 0;
-    virtual size_t requiredIndexSpace(const Shape&) const = 0;
-    virtual void writeVertices(VertexWriter, IndexWriter, const Shape&) const = 0;
+    // The DrawWriter is configured with the vertex and instance strides of the RenderStep, and its
+    // primitive type. The recorded draws will be executed with a graphics pipeline compatible with
+    // this RenderStep.
+    virtual void writeVertices(DrawWriter*, const Shape&) const = 0;
+
+    // While RenderStep does not define the full program that's run for a draw, it defines the
+    // entire vertex layout of the pipeline.
+    virtual size_t        vertexStride()   const = 0;
+    virtual size_t        instanceStride() const = 0;
+    virtual PrimitiveType primitiveType()  const = 0;
 
     // TODO: Actual API to do things
     // 1. Provide stencil settings
     // 2. Provide shader key or MSL(?) for the vertex stage
-    // 3. Write vertex data given a Shape/Transform/Stroke info
     // 4. Write uniform data given a Shape/Transform/Stroke info
-    // 5. Somehow specify the draw call that needs to be made, although this can't just be "record"
-    //    the draw call, since we want multiple draws to accumulate into the same vertex buffer,
-    //    and the final draw totals aren't known until we have done #3 for another draw and it
-    //    requires binding a new vertex buffer/offset.
-    //    - maybe if it just says what it's primitive type is and instanced/indexed/etc. and then
-    //      the DrawPass building is able to track the total number of vertices/indices written for
-    //      the draws in the batch and can handle recording the draw command itself.
     // 6. Some Renderers benefit from being able to share vertices between RenderSteps. Must find a
     //    way to support that. It may mean that RenderSteps get state per draw.
     //    - Does Renderer make RenderStepFactories that create steps for each DrawList::Draw?

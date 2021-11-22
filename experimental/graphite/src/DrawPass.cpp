@@ -9,10 +9,12 @@
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 #include "experimental/graphite/src/Buffer.h"
+#include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
+#include "experimental/graphite/src/DrawWriter.h"
 #include "experimental/graphite/src/ProgramCache.h"
 #include "experimental/graphite/src/Recorder.h"
 #include "experimental/graphite/src/Renderer.h"
@@ -78,6 +80,7 @@ public:
                        pipelineIndex}
         , fUniformKey{geomUniformIndex, shadingUniformIndex}
         , fDraw(draw) {
+        SkASSERT(renderStep <= draw->fRenderer.numRenderSteps());
     }
 
     bool operator<(const SortKey& k) const {
@@ -88,7 +91,9 @@ public:
 
     const DrawList::Draw* draw() const { return fDraw; }
     uint32_t pipeline() const { return fPipelineKey.fPipeline; }
-    int renderStep() const { return static_cast<int>(fPipelineKey.fRenderStep); }
+    const RenderStep& renderStep() const {
+        return *fDraw->fRenderer.steps()[fPipelineKey.fRenderStep];
+    }
 
     uint32_t geometryUniforms() const { return fUniformKey.fGeometryIndex; }
     uint32_t shadingUniforms() const { return fUniformKey.fShadingIndex; }
@@ -118,6 +123,40 @@ private:
     static_assert(16 >= sizeof(DisjointStencilIndex));
     static_assert(2  >= SkNextLog2_portable(Renderer::kMaxRenderSteps));
     static_assert(30 >= SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
+};
+
+class DrawPass::Drawer final : public DrawDispatcher {
+public:
+    Drawer() {}
+    ~Drawer() override = default;
+
+    void bindDrawBuffers(BindBufferInfo vertexAttribs,
+                         BindBufferInfo instanceAttribs,
+                         BindBufferInfo indices) override {
+        // TODO: Actually record bind vertex buffers struct into DrawPass' command list
+    }
+
+    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) override {
+        // TODO: Actually record draw struct into DrawPass' command list
+    }
+
+    void drawIndexed(PrimitiveType type, unsigned int baseIndex,
+                     unsigned int indexCount, unsigned int baseVertex) override {
+        // TODO: Actually record draw struct into DrawPass' command list
+    }
+
+    void drawInstanced(PrimitiveType type,
+                       unsigned int baseVertex, unsigned int vertexCount,
+                       unsigned int baseInstance, unsigned int instanceCount) override {
+        // TODO: Actually record draw struct into DrawPass' command list
+    }
+
+    void drawIndexedInstanced(PrimitiveType type,
+                              unsigned int baseIndex, unsigned int indexCount,
+                              unsigned int baseVertex, unsigned int baseInstance,
+                              unsigned int instanceCount) override {
+        // TODO: Actually record draw struct into DrawPass' command list
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,79 +269,65 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     DrawBufferManager* bufferMgr = recorder->drawBufferManager();
 
+    // Used to record vertex/instance data, buffer binds, and draw calls
+    Drawer drawer;
+    DrawWriter drawWriter(&drawer, bufferMgr);
+
+    // Used to track when a new pipeline or dynamic state needs recording between draw steps
     uint32_t lastPipeline = 0;
     uint32_t lastShadingUniforms = UniformData::kInvalidUniformID;
     uint32_t lastGeometryUniforms = 0;
     SkIRect lastScissor = SkIRect::MakeSize(target->dimensions());
-    Buffer* lastBoundVertexBuffer = nullptr;
-    Buffer* lastBoundIndexBuffer = nullptr;
 
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = *key.draw();
-        int renderStep = key.renderStep();
+        const RenderStep& renderStep = key.renderStep();
 
-        size_t vertexSize = draw.requiredVertexSpace(renderStep);
-        size_t indexSize = draw.requiredIndexSpace(renderStep);
-        auto [vertexWriter, vertexInfo] = bufferMgr->getVertexWriter(vertexSize);
-        auto [indexWriter, indexInfo] = bufferMgr->getIndexWriter(indexSize);
-        // TODO: handle the case where we fail to get a vertex or index writer besides asserting
-        SkASSERT(!vertexSize || (vertexWriter && vertexInfo.fBuffer));
-        SkASSERT(!indexSize || (indexWriter && indexInfo.fBuffer));
-        draw.writeVertices(std::move(vertexWriter), std::move(indexWriter), renderStep);
+        const bool pipelineChange = key.pipeline() != lastPipeline;
+        const bool stateChange = key.geometryUniforms() != lastGeometryUniforms ||
+                                 key.shadingUniforms() != lastShadingUniforms ||
+                                 draw.fClip.scissor() != lastScissor;
 
-        if (vertexSize) {
-            if (lastBoundVertexBuffer != vertexInfo.fBuffer) {
-                // TODO: Record a vertex bind call that stores the vertexInfo.fBuffer.
-            }
-            // TODO: Store the vertexInfo.fOffset so the draw will know its vertex offset when it
-            // executes.
-        }
-        if (indexSize) {
-            if (lastBoundIndexBuffer != indexInfo.fBuffer) {
-                // TODO: Record a vertex bind call that stores the vertexInfo.fBuffer.
-            }
-            // TODO: Store the vertexInfo.fOffset so the draw will know its vertex offset when it
-            // executes.
+        // Update DrawWriter *before* we actually change any state so that accumulated draws from
+        // the previous state use the proper state.
+        if (pipelineChange) {
+            drawWriter.newPipelineState(renderStep.primitiveType(),
+                                        renderStep.vertexStride(),
+                                        renderStep.instanceStride());
+        } else if (stateChange) {
+            drawWriter.newDynamicState();
         }
 
-        // TODO: Have the render step write out vertices and figure out what draw call function and
-        // primitive type it uses. The vertex buffer binding/offset and draw params will be examined
-        // to determine if the active draw can be updated to include the new vertices, or if it has
-        // to be ended and a new one begun for this step. In addition to checking this state, must
-        // also check if pipeline, uniform, scissor etc. would require the active draw to end.
-        //
-        // const RenderStep* const step = draw.fRenderer.steps()[key.renderStep()];
-
-        if (key.pipeline() != lastPipeline) {
+        // Make state changes before accumulating new draw data
+        if (pipelineChange) {
             // TODO: Look up pipeline description from key's index and record binding it
             lastPipeline = key.pipeline();
             lastShadingUniforms = UniformData::kInvalidUniformID;
             lastGeometryUniforms = 0;
         }
-        if (key.geometryUniforms() != lastGeometryUniforms) {
-            // TODO: Look up uniform buffer binding info corresponding to key's index and record it
-            lastGeometryUniforms = key.geometryUniforms();
+        if (stateChange) {
+            if (key.geometryUniforms() != lastGeometryUniforms) {
+                // TODO: Look up uniform buffer binding info corresponding to key's index and record
+                lastGeometryUniforms = key.geometryUniforms();
+            }
+            if (key.shadingUniforms() != lastShadingUniforms) {
+                auto ud = lookup(recorder, key.shadingUniforms());
+
+                auto [writer, bufferInfo] = bufferMgr->getUniformWriter(ud->dataSize());
+                writer.write(ud->data(), ud->dataSize());
+                // TODO: recording 'bufferInfo' somewhere to allow a later uniform bind call
+
+                lastShadingUniforms = key.shadingUniforms();
+            }
+            if (draw.fClip.scissor() != lastScissor) {
+                // TODO: Record new scissor rectangle
+            }
         }
-        if (key.shadingUniforms() != lastShadingUniforms) {
-            auto ud = lookup(recorder, key.shadingUniforms());
 
-            auto [writer, bufferInfo] = bufferMgr->getUniformWriter(ud->dataSize());
-            writer.write(ud->data(), ud->dataSize());
-            // TODO: recording 'bufferInfo' somewhere to allow a later uniform bind call
-
-            lastShadingUniforms = key.shadingUniforms();
-        }
-
-        if (draw.fClip.scissor() != lastScissor) {
-            // TODO: Record new scissor rectangle
-        }
-
-        // TODO: Write vertex and index data for the draw step
+        renderStep.writeVertices(&drawWriter, draw.fShape);
     }
-
-    // if (currentDraw) {
-        // TODO: End the current draw if it has pending vertices
-    // }
+    // Finish recording draw calls for any collected data at the end of the loop
+    drawWriter.flush();
 
     passBounds.roundOut();
     SkIRect pxPassBounds = SkIRect::MakeLTRB((int) passBounds.left(), (int) passBounds.top(),

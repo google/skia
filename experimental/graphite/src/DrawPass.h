@@ -74,6 +74,7 @@ public:
 
 private:
     class SortKey;
+    class Drawer;
 
     DrawPass(sk_sp<TextureProxy> target,
              const SkIRect& bounds,

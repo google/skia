@@ -325,6 +325,8 @@ inline IndexWriter& operator<<(IndexWriter& w, uint16_t val) {
     return w;
 }
 
+inline IndexWriter& operator<<(IndexWriter& w, int val) { return (w << SkTo<uint16_t>(val)); }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct UniformWriter : public BufferWriter {

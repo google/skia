@@ -71,6 +71,14 @@ void CommandBuffer::bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffs
     fHasWork = true;
 }
 
+void CommandBuffer::bindDrawBuffers(BindBufferInfo vertices,
+                                    BindBufferInfo instances,
+                                    BindBufferInfo indices) {
+    this->bindVertexBuffers(sk_ref_sp(vertices.fBuffer), vertices.fOffset,
+                            sk_ref_sp(instances.fBuffer), instances.fOffset);
+    this->bindIndexBuffer(sk_ref_sp(indices.fBuffer), indices.fOffset);
+}
+
 static bool check_max_blit_width(int widthInPixels) {
     if (widthInPixels > 32767) {
         SkASSERT(false); // surfaces should not be this wide anyway

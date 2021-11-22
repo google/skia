@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/Renderer.h"
 
+#include "experimental/graphite/src/DrawWriter.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "src/gpu/BufferWriter.h"
 
@@ -52,7 +53,7 @@ private:
 
 // TODO: Hand off to csmartdalton, this should roughly correspond to the fCoverBBoxProgram stage
 // of skgpu::v1::PathStencilCoverOp.
-class FillBoundsRenderStep : public RenderStep {
+class FillBoundsRenderStep final : public RenderStep {
 public:
     FillBoundsRenderStep() {}
 
@@ -64,20 +65,23 @@ public:
     bool        requiresMSAA()    const override { return false; }
     bool        performsShading() const override { return true;  }
 
-    size_t requiredVertexSpace(const Shape&) const override {
-        return 8 * sizeof(float);
+    PrimitiveType primitiveType()  const override { return PrimitiveType::kTriangleStrip; }
+    size_t        instanceStride() const override { return 0; }
+    size_t        vertexStride()   const override {
+        return VertexAttribTypeSize(VertexAttribType::kFloat2);
     }
 
-    size_t requiredIndexSpace(const Shape&) const override {
-        return 0;
+    void writeVertices(DrawWriter* writer, const Shape& shape) const override {
+        // TODO: Need to account for the transform eventually, but that requires more plumbing
+        writer->appendVertices(4)
+               .writeQuad(VertexWriter::TriStripFromRect(shape.bounds().asSkRect()));
+        // TODO: triangle strip/fan is actually tricky to merge correctly, since we want strips
+        // for everything that was appended by the RenderStep, but no connection across RenderSteps,
+        // so either we need a way to end it here, or switch to instance rendering w/o instance
+        // data so that vertices are still clustered appripriately. But that would require updating
+        // the DrawWriter to support appending both vertex and instance data simultaneously, which
+        // would need to return 2 vertex writers?
     }
-
-    void writeVertices(VertexWriter vertexWriter,
-                       IndexWriter indexWriter,
-                       const Shape& shape) const override {
-        vertexWriter.writeQuad(VertexWriter::TriStripFromRect(shape.bounds().asSkRect()));
-    }
-
 
 private:
 };
