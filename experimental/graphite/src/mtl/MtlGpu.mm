@@ -14,6 +14,19 @@
 namespace skgpu::mtl {
 
 sk_sp<skgpu::Gpu> Gpu::Make(const BackendContext& context) {
+    // TODO: This was taken from GrMtlGpu.mm's Make, does graphite deserve a higher version?
+    if (@available(macOS 10.14, iOS 10.0, *)) {
+        // no warning needed
+    } else {
+        SkDebugf("*** Error ***: Skia's Graphite backend no longer supports this OS version.\n");
+#ifdef SK_BUILD_FOR_IOS
+        SkDebugf("Minimum supported version is iOS 10.0.\n");
+#else
+        SkDebugf("Minimum supported version is MacOS 10.14.\n");
+#endif
+        return nullptr;
+    }
+
     sk_cfp<id<MTLDevice>> device = sk_ret_cfp((id<MTLDevice>)(context.fDevice.get()));
     sk_cfp<id<MTLCommandQueue>> queue = sk_ret_cfp((id<MTLCommandQueue>)(context.fQueue.get()));
 

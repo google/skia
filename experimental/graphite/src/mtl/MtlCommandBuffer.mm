@@ -254,14 +254,19 @@ void CommandBuffer::onDrawIndexed(PrimitiveType type, unsigned int baseIndex,
                                   unsigned int indexCount, unsigned int baseVertex) {
     SkASSERT(fActiveRenderCommandEncoder);
 
-    auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
+        size_t indexOffset =  fCurrentIndexBufferOffset + sizeof(uint16_t )* baseIndex;
+        // Use the "instance" variant witha count of 1 so that we can pass in a base vertex
+        // instead of rebinding a vertex buffer offset.
+        fActiveRenderCommandEncoder->drawIndexedPrimitives(mtlPrimitiveType, indexCount,
+                                                           MTLIndexTypeUInt16, fCurrentIndexBuffer,
+                                                           indexOffset, 1, baseVertex, 0);
 
-    fActiveRenderCommandEncoder->setVertexBufferOffset(baseVertex * fCurrentVertexStride,
-                                                       GraphicsPipeline::kVertexBufferIndex);
-    size_t indexOffset =  fCurrentIndexBufferOffset + sizeof(uint16_t )* baseIndex;
-    fActiveRenderCommandEncoder->drawIndexedPrimitives(mtlPrimitiveType, indexCount,
-                                                       MTLIndexTypeUInt16, fCurrentIndexBuffer,
-                                                       indexOffset);
+    } else {
+        // TODO: Do nothing, fatal failure, or just the regular graphite error reporting overhaul?
+        SkDebugf("[graphite] WARNING - Skipping unsupported draw call.\n");
+    }
 }
 
 void CommandBuffer::onDrawInstanced(PrimitiveType type, unsigned int baseVertex,
@@ -281,17 +286,17 @@ void CommandBuffer::onDrawIndexedInstanced(PrimitiveType type, unsigned int base
                                            unsigned int baseInstance, unsigned int instanceCount) {
     SkASSERT(fActiveRenderCommandEncoder);
 
-    auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
-
-    fActiveRenderCommandEncoder->setVertexBufferOffset(baseVertex * fCurrentVertexStride,
-                                                       GraphicsPipeline::kVertexBufferIndex);
-    fActiveRenderCommandEncoder->setVertexBufferOffset(baseInstance * fCurrentInstanceStride,
-                                                       GraphicsPipeline::kInstanceBufferIndex);
-    size_t indexOffset =  fCurrentIndexBufferOffset + sizeof(uint16_t) * baseIndex;
-    fActiveRenderCommandEncoder->drawIndexedPrimitives(mtlPrimitiveType, indexCount,
-                                                       MTLIndexTypeUInt16, fCurrentIndexBuffer,
-                                                       indexOffset, instanceCount,
-                                                       baseVertex, baseInstance);
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
+        size_t indexOffset =  fCurrentIndexBufferOffset + sizeof(uint16_t) * baseIndex;
+        fActiveRenderCommandEncoder->drawIndexedPrimitives(mtlPrimitiveType, indexCount,
+                                                           MTLIndexTypeUInt16, fCurrentIndexBuffer,
+                                                           indexOffset, instanceCount,
+                                                           baseVertex, baseInstance);
+    } else {
+        // TODO: Do nothing, fatal failure, or just the regular graphite error reporting overhaul?
+        SkDebugf("[graphite] WARNING - Skipping unsupported draw call.\n");
+    }
 }
 
 void CommandBuffer::onCopyTextureToBuffer(const skgpu::Texture* texture,
