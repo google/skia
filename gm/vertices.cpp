@@ -252,6 +252,7 @@ static void draw_batching(SkCanvas* canvas) {
                 canvas->concat(m);
                 SkPaint paint;
                 paint.setShader(useShader ? shader : nullptr);
+                paint.setColor(SK_ColorWHITE);
 
                 const SkPoint* t = useTex ? texs : nullptr;
                 auto v = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, kMeshVertexCnt,

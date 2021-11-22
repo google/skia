@@ -124,7 +124,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
                                   kPremul_SkAlphaType,
                                   canvas->imageInfo().refColorSpace());
     auto surf = SkSurface::MakeRaster(info);
-    surf->getCanvas()->drawVertices(verts, SkBlendMode::kModulate, SkPaint());
+    surf->getCanvas()->drawVertices(verts, SkBlendMode::kDst, SkPaint());
     auto atlas = surf->makeImageSnapshot();
     auto xform = SkRSXform::Make(1, 0, 0, 0);
 
@@ -158,7 +158,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
         SkAutoCanvasRestore acr(canvas, /*doSave=*/true);
         canvas->translate(x, 0);
         // Use just the shader or just the vertex colors.
-        auto mode = useShader ? SkBlendMode::kDst : SkBlendMode::kSrc;
+        auto mode = useShader ? SkBlendMode::kSrc : SkBlendMode::kDst;
         canvas->drawVertices(verts, mode, makePaint(useCF, useShader));
     };
 

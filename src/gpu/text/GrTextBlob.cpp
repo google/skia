@@ -93,12 +93,12 @@ SkPMColor4f calculate_colors(skgpu::SurfaceContext* sc,
     GrRecordingContext* rContext = sc->recordingContext();
     const GrColorInfo& colorInfo = sc->colorInfo();
     if (grMaskFormat == kARGB_GrMaskFormat) {
-        SkPaintToGrPaintWithPrimitiveColor(rContext, colorInfo, paint, matrix, grPaint);
-        return SK_PMColor4fWHITE;
-    } else {
-        SkPaintToGrPaint(rContext, colorInfo, paint, matrix, grPaint);
-        return grPaint->getColor4f();
+        SkPaintToGrPaintReplaceShader(rContext, colorInfo, paint, matrix, nullptr, grPaint);
+        float a = grPaint->getColor4f().fA;
+        return {a, a, a, a};
     }
+    SkPaintToGrPaint(rContext, colorInfo, paint, matrix, grPaint);
+    return grPaint->getColor4f();
 }
 
 template<typename Quad, typename VertexData>

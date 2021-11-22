@@ -529,6 +529,11 @@ void SkBitmapDevice::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, cons
 void SkBitmapDevice::drawVertices(const SkVertices* vertices,
                                   sk_sp<SkBlender> blender,
                                   const SkPaint& paint) {
+#ifdef SK_LEGACY_IGNORE_DRAW_VERTICES_BLEND_WITH_NO_SHADER
+    if (!paint.getShader()) {
+        blender = SkBlender::Mode(SkBlendMode::kDst);
+    }
+#endif
     BDDraw(this).drawVertices(vertices, std::move(blender), paint);
 }
 
