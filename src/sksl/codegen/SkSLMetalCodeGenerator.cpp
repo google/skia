@@ -1827,26 +1827,22 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
                 const VarDeclaration& var = decls.declaration()->as<VarDeclaration>();
                 if (var.var().type().typeKind() == Type::TypeKind::kSampler) {
-                    if (var.var().modifiers().fLayout.fBinding < 0) {
-                        fContext.fErrors->error(decls.fLine,
-                                                "Metal samplers must have 'layout(binding=...)'");
-                        return false;
-                    }
                     if (var.var().type().dimensions() != SpvDim2D) {
                         // Not yet implemented--Skia currently only uses 2D textures.
                         fContext.fErrors->error(decls.fLine, "Unsupported texture dimensions");
                         return false;
                     }
+                    int binding = getUniformBinding(var.var().modifiers());
                     this->write(", texture2d<half> ");
                     this->writeName(var.var().name());
                     this->write("[[texture(");
-                    this->write(to_string(var.var().modifiers().fLayout.fBinding));
+                    this->write(to_string(binding));
                     this->write(")]]");
                     this->write(", sampler ");
                     this->writeName(var.var().name());
                     this->write(SAMPLER_SUFFIX);
                     this->write("[[sampler(");
-                    this->write(to_string(var.var().modifiers().fLayout.fBinding));
+                    this->write(to_string(binding));
                     this->write(")]]");
                 }
             } else if (e->is<InterfaceBlock>()) {
