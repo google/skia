@@ -55,21 +55,16 @@ private:
 // of skgpu::v1::PathStencilCoverOp.
 class FillBoundsRenderStep final : public RenderStep {
 public:
-    FillBoundsRenderStep() {}
+    // TODO: Will need to add kRequiresStencil when we support specifying stencil settings and
+    // the Renderer includes the stenciling step first.
+    FillBoundsRenderStep()
+            : RenderStep(Flags::kPerformsShading, PrimitiveType::kTriangleStrip,
+                         /*vertexAttrs=*/{{"position", VertexAttribType::kFloat2, SLType::kFloat2}},
+                         /*instanceAttrs=*/{}) {}
 
     ~FillBoundsRenderStep() override {}
 
-    const char* name()            const override { return "fill-bounds"; }
-    // TODO: true when combined with a stencil step
-    bool        requiresStencil() const override { return false; }
-    bool        requiresMSAA()    const override { return false; }
-    bool        performsShading() const override { return true;  }
-
-    PrimitiveType primitiveType()  const override { return PrimitiveType::kTriangleStrip; }
-    size_t        instanceStride() const override { return 0; }
-    size_t        vertexStride()   const override {
-        return VertexAttribTypeSize(VertexAttribType::kFloat2);
-    }
+    const char* name() const override { return "fill-bounds"; }
 
     void writeVertices(DrawWriter* writer, const Shape& shape) const override {
         // TODO: Need to account for the transform eventually, but that requires more plumbing
@@ -82,8 +77,6 @@ public:
         // the DrawWriter to support appending both vertex and instance data simultaneously, which
         // would need to return 2 vertex writers?
     }
-
-private:
 };
 
 } // anonymous namespace

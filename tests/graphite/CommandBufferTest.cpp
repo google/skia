@@ -70,7 +70,6 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     target->instantiate(gpu->resourceProvider());
     DrawBufferManager bufferMgr(gpu->resourceProvider(), 4);
 
-
     commandBuffer->beginRenderPass(renderPassDesc);
 
     DrawWriter drawWriter(commandBuffer->asDrawDispatcher(), &bufferMgr);
@@ -113,7 +112,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     // Draw inset magenta rectangle with triangles in vertex buffer
     pipelineDesc.setTestingOnlyShaderIndex(2);
-    skgpu::GraphicsPipelineDesc::Attribute vertexAttributes[1] = {
+    Attribute vertexAttributes[1] = {
         { "position", VertexAttribType::kFloat2, SLType::kFloat2 }
     };
     pipelineDesc.setVertexAttributes(vertexAttributes, 1);
@@ -125,9 +124,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     auto [vertexWriter, vertices] = bufferMgr.getVertexWriter(4 * pipelineDesc.vertexStride());
     vertexWriter << SkPoint{0.25f, 0.25f}
-                    << SkPoint{0.25f, 0.75f}
-                    << SkPoint{0.75f, 0.25f}
-                    << SkPoint{0.75f, 0.75f};
+                 << SkPoint{0.25f, 0.75f}
+                 << SkPoint{0.75f, 0.25f}
+                 << SkPoint{0.75f, 0.75f};
     auto [indexWriter, indices] = bufferMgr.getIndexWriter(6 * sizeof(uint16_t));
     indexWriter << 0 << 1 << 2
                 << 2 << 1 << 3;
@@ -140,7 +139,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
     // draw rects using instance buffer
     pipelineDesc.setTestingOnlyShaderIndex(3);
-    skgpu::GraphicsPipelineDesc::Attribute instanceAttributes[3] = {
+    Attribute instanceAttributes[3] = {
         { "position", VertexAttribType::kFloat2, SLType::kFloat2 },
         { "dims", VertexAttribType::kFloat2, SLType::kFloat2 },
         { "color", VertexAttribType::kFloat4, SLType::kFloat4 }
@@ -156,7 +155,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     drawWriter.setInstanceTemplate({}, indices, 6);
     auto instanceWriter = drawWriter.appendInstances(2);
     instanceWriter << SkPoint{-0.4f, -0.4f}  << SkPoint{0.4f, 0.4f}   << SkColors::kGreen
-                    << SkPoint{0.f, 0.f}      << SkPoint{0.25f, 0.25f} << SkColors::kCyan;
+                   << SkPoint{0.f, 0.f}      << SkPoint{0.25f, 0.25f} << SkColors::kCyan;
 
     drawWriter.flush();
     uniformBuffer->unmap();
