@@ -10,6 +10,7 @@
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::mtl {
 
@@ -52,6 +53,54 @@ MTLPixelFormat DepthStencilTypeToFormat(DepthStencilType type) {
     }
 }
 
+// Print the source code for all shaders generated.
+static const bool gPrintSKSL = false;
+static const bool gPrintMSL = false;
+
+// TODO: add errorHandler support
+static void compile_error(const char* shaderSource, const char* errorText) {
+    SkDebugf("Shader compilation error\n"
+             "------------------------\n");
+    SkDebugf("%s", shaderSource);
+    SkDebugf("Errors:\n%s", errorText);
+}
+
+bool GrSkSLToMSL(const Gpu* gpu,
+                 const SkSL::String& sksl,
+                 SkSL::ProgramKind programKind,
+                 const SkSL::Program::Settings& settings,
+                 SkSL::String* msl,
+                 SkSL::Program::Inputs* outInputs) {
+    const SkSL::String& src = sksl;
+    SkSL::Compiler* compiler = gpu->shaderCompiler();
+    std::unique_ptr<SkSL::Program> program =
+            gpu->shaderCompiler()->convertProgram(programKind,
+                                                  src,
+                                                  settings);
+    if (!program || !compiler->toMetal(*program, msl)) {
+        compile_error(src.c_str(), compiler->errorText().c_str());
+        return false;
+    }
+
+    if (gPrintSKSL || gPrintMSL) {
+        // TODO: add GrShaderUtils support
+        SkDebugf("------- Shader --------\n");
+        if (gPrintSKSL) {
+            SkDebugf("SKSL:\n");
+            // TODO: add GrShaderUtils support
+            SkDebugf("%s\n", sksl.c_str());
+        }
+        if (gPrintMSL) {
+            SkDebugf("MSL:\n");
+            // TODO: add GrShaderUtils support
+            SkDebugf("%s\n", msl->c_str());
+        }
+    }
+
+    *outInputs = program->fInputs;
+    return true;
+}
+
 sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
                                             const SkSL::String& msl) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
@@ -76,11 +125,7 @@ sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
                                                                        options:options
                                                                          error:&error]);
     if (!compiledLibrary) {
-        SkDebugf("Shader compilation error\n"
-                 "------------------------\n");
-        SkDebugf("%s", msl.c_str());
-        SkDebugf("Errors:\n%s", error.debugDescription.UTF8String);
-
+        compile_error(msl.c_str(), error.debugDescription.UTF8String);
         return nil;
     }
 

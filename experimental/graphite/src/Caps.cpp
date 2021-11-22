@@ -6,10 +6,14 @@
  */
 
 #include "experimental/graphite/src/Caps.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace skgpu {
 
 Caps::Caps() {
+}
+
+Caps::~Caps() {
 }
 
 } // namespace skgpu

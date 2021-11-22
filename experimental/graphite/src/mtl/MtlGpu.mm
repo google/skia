@@ -39,6 +39,7 @@ Gpu::Gpu(sk_cfp<id<MTLDevice>> device, sk_cfp<id<MTLCommandQueue>> queue, sk_sp<
     : skgpu::Gpu(std::move(caps))
     , fDevice(std::move(device))
     , fQueue(std::move(queue)) {
+    this->initCompiler();
     fResourceProvider.reset(new ResourceProvider(this));
 }
 

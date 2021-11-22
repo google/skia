@@ -13,6 +13,10 @@
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 
+namespace SkSL {
+    class Compiler;
+}
+
 namespace skgpu {
 
 class Caps;
@@ -30,6 +34,8 @@ public:
     const Caps* caps() const { return fCaps.get(); }
     sk_sp<const Caps> refCaps() const;
 
+    SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
+
     ResourceProvider* resourceProvider() const { return fResourceProvider.get(); }
 
     bool submit(sk_sp<CommandBuffer>);
@@ -43,6 +49,9 @@ public:
 protected:
     Gpu(sk_sp<const Caps>);
 
+    // Subclass must call this to initialize compiler in its constructor.
+    void initCompiler();
+
     std::unique_ptr<ResourceProvider> fResourceProvider;
 
     using OutstandingSubmission = std::unique_ptr<GpuWorkSubmission>;
@@ -52,6 +61,9 @@ private:
     virtual bool onSubmit(sk_sp<CommandBuffer>) = 0;
 
     sk_sp<const Caps> fCaps;
+    // Compiler used for compiling SkSL into backend shader code. We only want to create the
+    // compiler once, as there is significant overhead to the first compile.
+    std::unique_ptr<SkSL::Compiler> fCompiler;
 };
 
 } // namespace skgpu

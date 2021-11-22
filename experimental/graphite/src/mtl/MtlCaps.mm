@@ -10,12 +10,13 @@
 #include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/include/mtl/MtlTypes.h"
 #include "experimental/graphite/src/mtl/MtlUtils.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace skgpu::mtl {
 
 Caps::Caps(const id<MTLDevice> device)
         : skgpu::Caps() {
-    // TODO: allocate shadercaps
+    fShaderCaps = std::make_unique<SkSL::ShaderCaps>();
 
     this->initGPUFamily(device);
     this->initCaps(device);
@@ -215,7 +216,31 @@ void Caps::initCaps(const id<MTLDevice> device) {
 }
 
 void Caps::initShaderCaps() {
-    // TODO
+    SkSL::ShaderCaps* shaderCaps = fShaderCaps.get();
+
+    // Setting this true with the assumption that this cap will eventually mean we support varying
+    // precisions and not just via modifiers.
+    shaderCaps->fUsesPrecisionModifiers = true;
+    shaderCaps->fFlatInterpolationSupport = true;
+
+    shaderCaps->fShaderDerivativeSupport = true;
+
+    // TODO(skia:8270): Re-enable this once bug 8270 is fixed
+#if 0
+    if (this->isApple()) {
+        shaderCaps->fFBFetchSupport = true;
+        shaderCaps->fFBFetchNeedsCustomOutput = true; // ??
+        shaderCaps->fFBFetchColorName = ""; // Somehow add [[color(0)]] to arguments to frag shader
+    }
+#endif
+
+    shaderCaps->fIntegerSupport = true;
+    shaderCaps->fNonsquareMatrixSupport = true;
+    shaderCaps->fInverseHyperbolicSupport = true;
+
+    // Metal uses IEEE floats so assuming those values here.
+    // TODO: add fHalfIs32Bits?
+    shaderCaps->fFloatIs32Bits = true;
 }
 
 void Caps::initFormatTable() {
@@ -271,8 +296,5 @@ skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(DepthStencilType dept
 
     return info;
 }
-
-
-
 
 } // namespace skgpu::mtl

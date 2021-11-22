@@ -11,6 +11,7 @@
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GpuWorkSubmission.h"
 #include "experimental/graphite/src/ResourceProvider.h"
+#include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu {
 
@@ -34,6 +35,10 @@ Gpu::~Gpu() {
     // TODO: how do we handle command buffers that haven't been submitted yet?
     this->checkForFinishedWork(SyncToCpu::kYes);
     fResourceProvider.reset();
+}
+
+void Gpu::initCompiler() {
+    fCompiler = std::make_unique<SkSL::Compiler>(fCaps->shaderCaps());
 }
 
 sk_sp<const Caps> Gpu::refCaps() const {

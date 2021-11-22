@@ -12,13 +12,19 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 
+namespace SkSL {
+struct ShaderCaps;
+}
+
 namespace skgpu {
 
 class TextureInfo;
 
 class Caps : public SkRefCnt {
 public:
-    ~Caps() override {}
+    ~Caps() override;
+
+    const SkSL::ShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                                      uint32_t levelCount,
@@ -35,6 +41,8 @@ public:
 
 protected:
     Caps();
+
+    std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
 
 private:
 };
