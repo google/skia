@@ -152,10 +152,8 @@ int main(int argc, char** argv) {
         SkDebugf("No frames.\n");
         return 1;
     }
-    // The SkCodec::getFrameInfo comment says that this vector will be empty
-    // for still (not animated) images, even though frameCount should be 1.
     std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
-    bool                            stillImage = frameInfos.empty();
+    bool                            stillImage = frameInfos.size() <= 1;
 
     for (int i = 0; i < frameCount; i++) {
         SkCodec::Options opts;
