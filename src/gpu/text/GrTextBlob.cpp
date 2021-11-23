@@ -728,11 +728,11 @@ void direct_2D(SkZip<Mask2DVertex[4],
                const GrGlyph*,
                const DirectMaskSubRun::DevicePosition> quadData,
                GrColor color,
-               SkIPoint integralOriginOffset) {
+               SkPoint originOffset) {
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        SkScalar dl = leftTop[0] + integralOriginOffset.x(),
-                 dt = leftTop[1] + integralOriginOffset.y(),
+        SkScalar dl = leftTop[0] + originOffset.x(),
+                 dt = leftTop[1] + originOffset.y(),
                  dr = dl + (ar - al),
                  db = dt + (ab - at);
 
@@ -752,14 +752,14 @@ auto ltbr(const Rect& r) {
 template<typename Quad, typename VertexData>
 void generalized_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
                            GrColor color,
-                           SkIPoint integralOriginOffset,
+                           SkPoint originOffset,
                            SkIRect* clip = nullptr) {
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         uint16_t w = ar - al,
                  h = ab - at;
-        SkScalar l = (SkScalar)leftTop[0] + integralOriginOffset.x(),
-                 t = (SkScalar)leftTop[1] + integralOriginOffset.y();
+        SkScalar l = (SkScalar)leftTop[0] + originOffset.x(),
+                 t = (SkScalar)leftTop[1] + originOffset.y();
         if (clip == nullptr) {
             auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
             quad[0] = {{dl, dt}, color, {al, at}};  // L,T
@@ -804,28 +804,26 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
     };
 
     SkPoint originOffset = positionMatrix.mapOrigin() - fBlob->initialPositionMatrix().mapOrigin();
-    SkIPoint integralOriginOffset =
-            {SkScalarRoundToInt(originOffset.x()), SkScalarRoundToInt(originOffset.y())};
 
     if (clip.isEmpty()) {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset);
+            direct_2D(quadData((Quad*)vertexDst), color, originOffset);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset);
         }
     } else {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset, &clip);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset, &clip);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
         }
     }
 }
