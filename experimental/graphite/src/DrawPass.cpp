@@ -34,10 +34,10 @@ namespace {
 std::tuple<uint32_t, uint32_t> get_ids_from_paint(skgpu::Recorder* recorder,
                                                   skgpu::PaintParams params) {
     // TODO: perhaps just return the ids here rather than the sk_sps?
-    auto [ combo, uniformData] = ExtractCombo(recorder->uniformCache(), params);
+    auto [ combo, uniformData] = ExtractCombo(params);
     auto programInfo = recorder->programCache()->findOrCreateProgram(combo);
-
-    return { programInfo->id(), uniformData->id() };
+    auto uniformID = recorder->uniformCache()->insert(std::move(uniformData));
+    return { programInfo->id(), uniformID };
 }
 
 } // anonymous namespace
@@ -222,7 +222,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // bound independently of those used by the rest of the RenderStep, then we can upload now
         // and remember the location for re-use on any RenderStep that does shading.
         uint32_t programID = ProgramCache::kInvalidProgramID;
-        uint32_t shadingUniformID = UniformData::kInvalidUniformID;
+        uint32_t shadingUniformID = UniformCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
             std::tie(programID, shadingUniformID) = get_ids_from_paint(recorder,
                                                                        draw.fPaintParams.value());
@@ -238,7 +238,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             // providing shape, transform, scissor, and paint depth to RenderStep
             uint32_t geometryIndex = 0;
 
-            uint32_t shadingIndex = UniformData::kInvalidUniformID;
+            uint32_t shadingIndex = UniformCache::kInvalidUniformID;
 
             const bool performsShading = draw.fPaintParams.has_value() && step->performsShading();
             if (performsShading) {
@@ -275,8 +275,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     // Used to track when a new pipeline or dynamic state needs recording between draw steps
     uint32_t lastPipeline = 0;
-    uint32_t lastShadingUniforms = UniformData::kInvalidUniformID;
-    uint32_t lastGeometryUniforms = 0;
+    uint32_t lastShadingUniforms = UniformCache::kInvalidUniformID;
+    uint32_t lastGeometryUniforms = UniformCache::kInvalidUniformID;
     SkIRect lastScissor = SkIRect::MakeSize(target->dimensions());
 
     for (const SortKey& key : keys) {
@@ -302,8 +302,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         if (pipelineChange) {
             // TODO: Look up pipeline description from key's index and record binding it
             lastPipeline = key.pipeline();
-            lastShadingUniforms = UniformData::kInvalidUniformID;
-            lastGeometryUniforms = 0;
+            lastShadingUniforms = UniformCache::kInvalidUniformID;
+            lastGeometryUniforms = UniformCache::kInvalidUniformID;
         }
         if (stateChange) {
             if (key.geometryUniforms() != lastGeometryUniforms) {

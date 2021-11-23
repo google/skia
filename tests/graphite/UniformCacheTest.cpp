@@ -47,15 +47,22 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformCacheTest, reporter, context) {
 
     REPORTER_ASSERT(reporter, cache->count() == 0);
 
-    // Add a new unique UD
-    sk_sp<UniformData> result1;
+    // Nullptr should already be in the cache and return kInvalidUniformID
     {
-        sk_sp<UniformData> ud1 = make_ud(2, 16);
-        result1 = cache->findOrCreate(ud1);
-        REPORTER_ASSERT(reporter, result1->id() != UniformData::kInvalidUniformID);
-        REPORTER_ASSERT(reporter, ud1->id() == result1->id());
-        sk_sp<UniformData> lookup = cache->lookup(result1->id());
-        REPORTER_ASSERT(reporter, lookup->id() == result1->id());
+        uint32_t result0 = cache->insert(nullptr);
+        REPORTER_ASSERT(reporter, result0 == UniformCache::kInvalidUniformID);
+        REPORTER_ASSERT(reporter, cache->count() == 0);
+    }
+
+    // Add a new unique UD
+    sk_sp<UniformData> ud1;
+    uint32_t result1;
+    {
+        ud1 = make_ud(2, 16);
+        result1 = cache->insert(ud1);
+        REPORTER_ASSERT(reporter, result1 != UniformCache::kInvalidUniformID);
+        sk_sp<UniformData> lookup = cache->lookup(result1);
+        REPORTER_ASSERT(reporter, lookup.get() == ud1.get());
 
         REPORTER_ASSERT(reporter, cache->count() == 1);
     }
@@ -63,12 +70,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformCacheTest, reporter, context) {
     // Try to add a duplicate UD
     {
         sk_sp<UniformData> ud2 = make_ud(2, 16);
-        sk_sp<UniformData> result2 = cache->findOrCreate(ud2);
-        REPORTER_ASSERT(reporter, result2->id() != UniformData::kInvalidUniformID);
-        REPORTER_ASSERT(reporter, ud2->id() == UniformData::kInvalidUniformID);
-        REPORTER_ASSERT(reporter, result2->id() == result1->id());
-        sk_sp<UniformData> lookup = cache->lookup(result2->id());
-        REPORTER_ASSERT(reporter, lookup->id() == result2->id());
+        uint32_t result2 = cache->insert(ud2);
+        REPORTER_ASSERT(reporter, result2 != UniformCache::kInvalidUniformID);
+        REPORTER_ASSERT(reporter, result2 == result1);
+        sk_sp<UniformData> lookup = cache->lookup(result2);
+        REPORTER_ASSERT(reporter, lookup.get() != ud2.get());
+        REPORTER_ASSERT(reporter, lookup.get() == ud1.get());
 
         REPORTER_ASSERT(reporter, cache->count() == 1);
     }
@@ -76,12 +83,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformCacheTest, reporter, context) {
     // Add a second new unique UD
     {
         sk_sp<UniformData> ud3 = make_ud(3, 16);
-        sk_sp<UniformData> result3 = cache->findOrCreate(ud3);
-        REPORTER_ASSERT(reporter, result3->id() != UniformData::kInvalidUniformID);
-        REPORTER_ASSERT(reporter, ud3->id() == result3->id());
-        REPORTER_ASSERT(reporter, result3->id() != result1->id());
-        sk_sp<UniformData> lookup = cache->lookup(result3->id());
-        REPORTER_ASSERT(reporter, lookup->id() == result3->id());
+        uint32_t result3 = cache->insert(ud3);
+        REPORTER_ASSERT(reporter, result3 != UniformCache::kInvalidUniformID);
+        REPORTER_ASSERT(reporter, result3 != result1);
+        sk_sp<UniformData> lookup = cache->lookup(result3);
+        REPORTER_ASSERT(reporter, lookup.get() == ud3.get());
+        REPORTER_ASSERT(reporter, lookup.get() != ud1.get());
 
         REPORTER_ASSERT(reporter, cache->count() == 2);
     }

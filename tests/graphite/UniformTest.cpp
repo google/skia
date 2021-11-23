@@ -9,7 +9,6 @@
 
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawList.h" // TODO: split PaintParams out into their own header
-#include "experimental/graphite/src/UniformCache.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 
@@ -62,8 +61,6 @@ std::tuple<SkPaint, int> create_paint(skgpu::Combination combo) {
 DEF_GRAPHITE_TEST(UniformTest, reporter) {
     using namespace skgpu;
 
-    UniformCache cache;
-
     // Intentionally does not include ShaderType::kNone, which represents no fragment shading stage
     // and is thus not relevant to uniform extraction/caching.
     for (auto s : { ShaderCombo::ShaderType::kSolidColor,
@@ -87,13 +84,12 @@ DEF_GRAPHITE_TEST(UniformTest, reporter) {
                 expected.fBlendMode = bm;
 
                 auto [ p, expectedNumUniforms ] = create_paint(expected);
-                auto [ actual, ud] = ExtractCombo(&cache, PaintParams(p));
+                auto [ actual, ud] = ExtractCombo(PaintParams(p));
                 REPORTER_ASSERT(reporter, expected == actual);
                 REPORTER_ASSERT(reporter, expectedNumUniforms == ud->count());
                 for (int i = 0; i < ud->count(); ++i) {
                     REPORTER_ASSERT(reporter, ud->offset(i) >= 0 && ud->offset(i) < ud->dataSize());
                 }
-                REPORTER_ASSERT(reporter, ud->id() != UniformData::kInvalidUniformID);
             }
         }
     }
