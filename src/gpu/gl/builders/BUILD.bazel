@@ -1,0 +1,75 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrGLProgramBuilder_hdr",
+    hdrs = ["GrGLProgramBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu/gl:GrGLProgramDataManager_hdr",
+        "//src/gpu/gl:GrGLProgram_hdr",
+        "//src/gpu/gl:GrGLUniformHandler_hdr",
+        "//src/gpu/gl:GrGLVaryingHandler_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLProgramBuilder_src",
+    srcs = ["GrGLProgramBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLProgramBuilder_hdr",
+        ":GrGLShaderStringBuilder_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/core:SkATrace_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrAutoLocaleSetter_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrPersistentCacheUtils_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrShaderUtils_hdr",
+        "//src/gpu:GrSwizzle_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/gl:GrGLGpu_hdr",
+        "//src/gpu/gl:GrGLProgram_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLShaderStringBuilder_hdr",
+    hdrs = ["GrGLShaderStringBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu/gl:GrGLContext_hdr",
+        "//src/sksl/codegen:SkSLGLSLCodeGenerator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLShaderStringBuilder_src",
+    srcs = ["GrGLShaderStringBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLShaderStringBuilder_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrShaderUtils_hdr",
+        "//src/gpu/gl:GrGLGpu_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl/codegen:SkSLGLSLCodeGenerator_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)

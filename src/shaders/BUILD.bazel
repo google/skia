@@ -1,42 +1,329 @@
-package(default_visibility = ["//:__subpackages__"])
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-filegroup(
-    name = "srcs",
-    srcs = [
-        "SkBitmapProcShader.cpp",
-        "SkBitmapProcShader.h",
-        "SkColorFilterShader.cpp",
-        "SkColorFilterShader.h",
-        "SkColorShader.cpp",
-        "SkColorShader.h",
-        "SkComposeShader.cpp",
-        "SkComposeShader.h",
-        "SkEmptyShader.h",
-        "SkImageShader.cpp",
-        "SkImageShader.h",
-        "SkLocalMatrixShader.cpp",
-        "SkLocalMatrixShader.h",
-        "SkPerlinNoiseShader.cpp",
-        "SkPictureShader.cpp",
-        "SkPictureShader.h",
-        "SkShader.cpp",
-        "SkShaderBase.h",
-        "SkTransformShader.cpp",
-        "SkTransformShader.h",
-        "gradients/Sk4fGradientBase.cpp",
-        "gradients/Sk4fGradientBase.h",
-        "gradients/Sk4fGradientPriv.h",
-        "gradients/Sk4fLinearGradient.cpp",
-        "gradients/Sk4fLinearGradient.h",
-        "gradients/SkGradientShader.cpp",
-        "gradients/SkGradientShaderPriv.h",
-        "gradients/SkLinearGradient.cpp",
-        "gradients/SkLinearGradient.h",
-        "gradients/SkRadialGradient.cpp",
-        "gradients/SkRadialGradient.h",
-        "gradients/SkSweepGradient.cpp",
-        "gradients/SkSweepGradient.h",
-        "gradients/SkTwoPointConicalGradient.cpp",
-        "gradients/SkTwoPointConicalGradient.h",
+generated_cc_atom(
+    name = "SkBitmapProcShader_hdr",
+    hdrs = ["SkBitmapProcShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkShaderBase_hdr",
+        "//src/core:SkImagePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkBitmapProcShader_src",
+    srcs = ["SkBitmapProcShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapProcShader_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkBitmapProcState_hdr",
+        "//src/core:SkPaintPriv_hdr",
+        "//src/core:SkXfermodePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkColorFilterShader_hdr",
+    hdrs = ["SkColorFilterShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkShaderBase_hdr",
+        "//src/core:SkColorFilterBase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkColorFilterShader_src",
+    srcs = ["SkColorFilterShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkColorFilterShader_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkString_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkColorFilterBase_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkColorShader_hdr",
+    hdrs = ["SkColorShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkShaderBase_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkColorShader_src",
+    srcs = ["SkColorShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkColorShader_hdr",
+        "//include/core:SkColorSpace_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkColorSpaceXformSteps_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkUtils_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/gpu:GrColorInfo_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:SkGr_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkComposeShader_hdr",
+    hdrs = ["SkComposeShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkShaderBase_hdr",
+        "//include/core:SkBlendMode_hdr",
+        "//src/core:SkBlendModePriv_hdr",
+        "//src/core:SkBlenderBase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkComposeShader_src",
+    srcs = ["SkComposeShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkColorShader_hdr",
+        ":SkComposeShader_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/core:SkString_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkBlendModePriv_hdr",
+        "//src/core:SkBlenderBase_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu/effects:GrBlendFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkEmptyShader_hdr",
+    hdrs = ["SkEmptyShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkShaderBase_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkImageShader_hdr",
+    hdrs = ["SkImageShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapProcShader_hdr",
+        ":SkShaderBase_hdr",
+        "//include/core:SkImage_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImageShader_src",
+    srcs = ["SkImageShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapProcShader_hdr",
+        ":SkEmptyShader_hdr",
+        ":SkImageShader_hdr",
+        ":SkTransformShader_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkColorSpaceXformSteps_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkMipmapAccessor_hdr",
+        "//src/core:SkOpts_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSamplingPriv_hdr",
+        "//src/core:SkScopeExit_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrColorInfo_hdr",
+        "//src/gpu/effects:GrBlendFragmentProcessor_hdr",
+        "//src/image:SkImage_Base_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkLocalMatrixShader_hdr",
+    hdrs = ["SkLocalMatrixShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkShaderBase_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkLocalMatrixShader_src",
+    srcs = ["SkLocalMatrixShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkLocalMatrixShader_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu/effects:GrMatrixEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPerlinNoiseShader_src",
+    srcs = ["SkPerlinNoiseShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkUnPreMultiply_hdr",
+        "//include/effects:SkPerlinNoiseShader_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrMatrixEffect_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPictureShader_hdr",
+    hdrs = ["SkPictureShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkShaderBase_hdr",
+        "//include/core:SkTileMode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPictureShader_src",
+    srcs = ["SkPictureShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapProcShader_hdr",
+        ":SkImageShader_hdr",
+        ":SkPictureShader_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkMatrixUtils_hdr",
+        "//src/core:SkPicturePriv_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkResourceCache_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColorInfo_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/image:SkImage_Base_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShaderBase_hdr",
+    hdrs = ["SkShaderBase.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkSamplingOptions_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/private:SkNoncopyable_hdr",
+        "//src/core:SkEffectPriv_hdr",
+        "//src/core:SkMask_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/core:SkVM_fwd_hdr",
+        "//src/gpu:GrFPArgs_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShader_src",
+    srcs = ["SkShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapProcShader_hdr",
+        ":SkColorShader_hdr",
+        ":SkEmptyShader_hdr",
+        ":SkImageShader_hdr",
+        ":SkPictureShader_hdr",
+        ":SkShaderBase_hdr",
+        ":SkTransformShader_hdr",
+        "//include/core:SkMallocPixelRef_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkScalar_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkColorSpaceXformSteps_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTransformShader_hdr",
+    hdrs = ["SkTransformShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkShaderBase_hdr",
+        "//src/core:SkVM_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTransformShader_src",
+    srcs = ["SkTransformShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkTransformShader_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkRasterPipeline_hdr",
     ],
 )

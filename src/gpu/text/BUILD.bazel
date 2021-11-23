@@ -1,0 +1,206 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrAtlasManager_hdr",
+    hdrs = ["GrAtlasManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDrawOpAtlas_hdr",
+        "//src/gpu:GrOnFlushResourceProvider_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrAtlasManager_src",
+    srcs = ["GrAtlasManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrAtlasManager_hdr",
+        ":GrStrikeCache_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkImageEncoder_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/codec:SkMasks_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrGlyph_hdr",
+        "//src/gpu:GrImageInfo_hdr",
+        "//src/gpu:GrSurfaceProxy_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:SurfaceContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrDistanceFieldAdjustTable_hdr",
+    hdrs = ["GrDistanceFieldAdjustTable.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkScalar_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrDistanceFieldAdjustTable_src",
+    srcs = ["GrDistanceFieldAdjustTable.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrDistanceFieldAdjustTable_hdr",
+        "//src/core:SkScalerContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrSDFMaskFilter_hdr",
+    hdrs = ["GrSDFMaskFilter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkMaskFilter_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrSDFMaskFilter_src",
+    srcs = ["GrSDFMaskFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrSDFMaskFilter_hdr",
+        "//include/core:SkString_hdr",
+        "//src/core:SkDistanceFieldGen_hdr",
+        "//src/core:SkMaskFilterBase_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSafeMath_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrSDFTControl_hdr",
+    hdrs = ["GrSDFTControl.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFont_hdr",
+        "//include/core:SkScalar_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrSDFTControl_src",
+    srcs = ["GrSDFTControl.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrSDFTControl_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkGraphics_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkSurfaceProps_hdr",
+        "//src/core:SkGlyphRunPainter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrSlug_src",
+    srcs = ["GrSlug.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/private/chromium:GrSlug_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrStrikeCache_hdr",
+    hdrs = ["GrStrikeCache.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrStrikeCache_src",
+    srcs = ["GrStrikeCache.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrStrikeCache_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+        "//src/gpu:GrGlyph_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTextBlobCache_hdr",
+    hdrs = ["GrTextBlobCache.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrTextBlob_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:SkSpinlock_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkMessageBus_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTextBlobCache_src",
+    srcs = ["GrTextBlobCache.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrTextBlobCache_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrTextBlob_hdr",
+    hdrs = ["GrTextBlob.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPoint3_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//src/core:SkGlyphRunPainter_hdr",
+        "//src/core:SkIPoint16_hdr",
+        "//src/core:SkMaskFilterBase_hdr",
+        "//src/core:SkOpts_hdr",
+        "//src/core:SkRectPriv_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+        "//src/core:SkTInternalLList_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/gpu:GrColor_hdr",
+        "//src/gpu:GrSubRunAllocator_hdr",
+        "//src/gpu/ops:GrOp_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTextBlob_src",
+    srcs = ["GrTextBlob.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrAtlasManager_hdr",
+        ":GrStrikeCache_hdr",
+        ":GrTextBlob_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/core:SkMaskFilterBase_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkPaintPriv_hdr",
+        "//src/core:SkStrikeCache_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+        "//src/gpu:GrBlurUtils_hdr",
+        "//src/gpu:GrClip_hdr",
+        "//src/gpu:GrGlyph_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrStyle_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrDistanceFieldGeoProc_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/ops:AtlasTextOp_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)

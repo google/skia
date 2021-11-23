@@ -49,3 +49,21 @@ def select_multi(values_map, default, name = ""):
             "//conditions:default": default,
         })
     return rv
+
+def generated_cc_atom(name, **kwargs):
+    """A self-annotating label for a generated cc_library for exactly one file.
+
+    Args:
+        name: string, the name of the cc_library
+        **kwargs: All other arguments are passed verbatim to cc_library
+    """
+    if len(kwargs.get("srcs", [])) > 1 or len(kwargs.get("hdrs", [])) > 1:
+        fail("Cannot have more than one src or hdr file in generated_cc_atom")
+    if len(kwargs.get("srcs", [])) > 0 and len(kwargs.get("hdrs", [])) > 0:
+        fail("Cannot set both srcs and hdrs in generated_cc_atom")
+    if len(kwargs.get("srcs", [])) == 0 and len(kwargs.get("hdrs", [])) == 0:
+        fail("Must set exactly one of srcs or hdrs in generated_cc_atom")
+    native.cc_library(
+        name = name,
+        **kwargs
+    )

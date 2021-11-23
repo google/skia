@@ -1,0 +1,1328 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "AAConvexPathRenderer_hdr",
+    hdrs = ["AAConvexPathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/v1:PathRenderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "AAConvexPathRenderer_src",
+    srcs = ["AAConvexPathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AAConvexPathRenderer_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelperWithStencil_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu/geometry:GrPathUtils_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AAHairLinePathRenderer_hdr",
+    hdrs = ["AAHairLinePathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/v1:PathRenderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "AAHairLinePathRenderer_src",
+    srcs = ["AAHairLinePathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AAHairLinePathRenderer_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelperWithStencil_hdr",
+        "//include/core:SkPoint3_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/core:SkRectPriv_hdr",
+        "//src/core:SkStroke_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrBuffer_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDefaultGeoProcFactory_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:GrStyle_hdr",
+        "//src/gpu:GrUtil_hdr",
+        "//src/gpu/effects:GrBezierEffect_hdr",
+        "//src/gpu/geometry:GrPathUtils_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AALinearizingConvexPathRenderer_hdr",
+    hdrs = ["AALinearizingConvexPathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/v1:PathRenderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "AALinearizingConvexPathRenderer_src",
+    srcs = ["AALinearizingConvexPathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AALinearizingConvexPathRenderer_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelperWithStencil_hdr",
+        "//include/core:SkString_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDefaultGeoProcFactory_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrStyle_hdr",
+        "//src/gpu/geometry:GrAAConvexTessellator_hdr",
+        "//src/gpu/geometry:GrPathUtils_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasInstancedHelper_hdr",
+    hdrs = ["AtlasInstancedHelper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkIPoint16_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrSurfaceProxyView_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasInstancedHelper_src",
+    srcs = ["AtlasInstancedHelper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AtlasInstancedHelper_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasPathRenderer_hdr",
+    hdrs = ["AtlasPathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrTypes_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkIPoint16_hdr",
+        "//src/gpu:GrDynamicAtlas_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrOnFlushResourceProvider_hdr",
+        "//src/gpu/v1:PathRenderer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasPathRenderer_src",
+    srcs = ["AtlasPathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AtlasPathRenderer_hdr",
+        ":AtlasRenderTask_hdr",
+        ":DrawAtlasPathOp_hdr",
+        ":TessellationPathRenderer_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/core:SkIPoint16_hdr",
+        "//src/gpu:GrClip_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrVx_hdr",
+        "//src/gpu/effects:GrModulateAtlasCoverageEffect_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/tessellate/shaders:GrTessellationShader_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasRenderTask_hdr",
+    hdrs = ["AtlasRenderTask.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":OpsTask_hdr",
+        "//include/core:SkPath_hdr",
+        "//src/core:SkTBlockList_hdr",
+        "//src/gpu:GrDynamicAtlas_hdr",
+        "//src/gpu/tessellate:PathTessellator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasRenderTask_src",
+    srcs = ["AtlasRenderTask.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AtlasRenderTask_hdr",
+        ":FillRectOp_hdr",
+        ":PathStencilCoverOp_hdr",
+        "//src/core:SkBlendModePriv_hdr",
+        "//src/core:SkIPoint16_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsTypes_hdr",
+        "//src/gpu/geometry:GrQuad_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasTextOp_hdr",
+    hdrs = ["AtlasTextOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMeshDrawOp_hdr",
+        "//src/gpu/effects:GrDistanceFieldGeoProc_hdr",
+        "//src/gpu/text:GrTextBlob_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "AtlasTextOp_src",
+    srcs = ["AtlasTextOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AtlasTextOp_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        "//include/core:SkPoint3_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkStrikeCache_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrBitmapTextGeoProc_hdr",
+        "//src/gpu/effects:GrDistanceFieldGeoProc_hdr",
+        "//src/gpu/text:GrAtlasManager_hdr",
+        "//src/gpu/text:GrDistanceFieldAdjustTable_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ClearOp_hdr",
+    hdrs = ["ClearOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//src/gpu:GrScissorState_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ClearOp_src",
+    srcs = ["ClearOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ClearOp_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DashLinePathRenderer_hdr",
+    hdrs = ["DashLinePathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/v1:PathRenderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "DashLinePathRenderer_src",
+    srcs = ["DashLinePathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DashLinePathRenderer_hdr",
+        ":DashOp_hdr",
+        ":GrMeshDrawOp_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DashOp_hdr",
+    hdrs = ["DashOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/gpu:GrTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DashOp_src",
+    srcs = ["DashOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DashOp_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrAppliedClip_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDefaultGeoProcFactory_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrStyle_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/geometry:GrQuad_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DefaultPathRenderer_hdr",
+    hdrs = ["DefaultPathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/v1:PathRenderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "DefaultPathRenderer_src",
+    srcs = ["DefaultPathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DefaultPathRenderer_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrPathStencilSettings_hdr",
+        ":GrSimpleMeshDrawOpHelperWithStencil_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrClip_hdr",
+        "//src/gpu:GrDefaultGeoProcFactory_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrSimpleMesh_hdr",
+        "//src/gpu:GrStyle_hdr",
+        "//src/gpu:GrUtil_hdr",
+        "//src/gpu/effects:GrDisableColorXP_hdr",
+        "//src/gpu/geometry:GrPathUtils_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawAtlasOp_hdr",
+    hdrs = ["DrawAtlasOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawAtlasOp_src",
+    srcs = ["DrawAtlasOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DrawAtlasOp_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        "//include/core:SkRSXform_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/utils:SkRandom_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkRectPriv_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDefaultGeoProcFactory_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawAtlasPathOp_hdr",
+    hdrs = ["DrawAtlasPathOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AtlasInstancedHelper_hdr",
+        ":GrDrawOp_hdr",
+        "//src/core:SkIPoint16_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawAtlasPathOp_src",
+    srcs = ["DrawAtlasPathOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DrawAtlasPathOp_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawVerticesOp_hdr",
+    hdrs = ["DrawVerticesOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawVerticesOp_src",
+    srcs = ["DrawVerticesOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DrawVerticesOp_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        "//include/core:SkM44_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkDevice_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkVerticesPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/glsl:GrGLSLColorSpaceXformHelper_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawableOp_hdr",
+    hdrs = ["DrawableOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/core:SkDrawable_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawableOp_src",
+    srcs = ["DrawableOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DrawableOp_hdr",
+        "//include/core:SkDrawable_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FillPathFlags_hdr",
+    hdrs = ["FillPathFlags.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/gpu:GrTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "FillRRectOp_hdr",
+    hdrs = ["FillRRectOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FillRRectOp_src",
+    srcs = ["FillRRectOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FillRRectOp_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/core:SkRRectPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:GrVx_hdr",
+        "//src/gpu/geometry:GrShape_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FillRectOp_hdr",
+    hdrs = ["FillRectOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FillRectOp_src",
+    srcs = ["FillRectOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FillRectOp_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelperWithStencil_hdr",
+        ":QuadPerEdgeAA_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkRect_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrOpsTypes_hdr",
+        "//src/gpu:GrPaint_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/geometry:GrQuadBuffer_hdr",
+        "//src/gpu/geometry:GrQuadUtils_hdr",
+        "//src/gpu/geometry:GrQuad_hdr",
+        "//src/gpu/glsl:GrGLSLColorSpaceXformHelper_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrDrawOp_hdr",
+    hdrs = ["GrDrawOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//src/core:SkIPoint16_hdr",
+        "//src/gpu:GrDeferredUpload_hdr",
+        "//src/gpu:GrPipeline_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMeshDrawOp_hdr",
+    hdrs = ["GrMeshDrawOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrDrawOp_hdr",
+        "//src/gpu:GrAppliedClip_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMeshDrawOp_src",
+    srcs = ["GrMeshDrawOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMeshDrawOp_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrOp_hdr",
+    hdrs = ["GrOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkString_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/gpu:GrGpuResource_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTracing_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrOp_src",
+    srcs = ["GrOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrOp_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrOvalOpFactory_hdr",
+    hdrs = ["GrOvalOpFactory.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//src/gpu:GrColor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrOvalOpFactory_src",
+    srcs = ["GrOvalOpFactory.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMeshDrawOp_hdr",
+        ":GrOvalOpFactory_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkRRectPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrStyle_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrPathStencilSettings_hdr",
+    hdrs = ["GrPathStencilSettings.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu:GrUserStencilSettings_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrSimpleMeshDrawOpHelperWithStencil_hdr",
+    hdrs = ["GrSimpleMeshDrawOpHelperWithStencil.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrSimpleMeshDrawOpHelper_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrSimpleMeshDrawOpHelperWithStencil_src",
+    srcs = ["GrSimpleMeshDrawOpHelperWithStencil.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrSimpleMeshDrawOpHelperWithStencil_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrSimpleMeshDrawOpHelper_hdr",
+    hdrs = ["GrSimpleMeshDrawOpHelper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMeshDrawOp_hdr",
+        ":GrOp_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrSimpleMeshDrawOpHelper_src",
+    srcs = ["GrSimpleMeshDrawOpHelper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        "//src/gpu:GrAppliedClip_hdr",
+        "//src/gpu:GrProcessorSet_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrUserStencilSettings_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/geometry:GrRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "LatticeOp_hdr",
+    hdrs = ["LatticeOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//src/gpu:GrSamplerState_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "LatticeOp_src",
+    srcs = ["LatticeOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        ":LatticeOp_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkRect_hdr",
+        "//src/core:SkLatticeIter_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceProviderPriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/glsl:GrGLSLColorSpaceXformHelper_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "OpsTask_hdr",
+    hdrs = ["OpsTask.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkClipStack_hdr",
+        "//src/core:SkStringUtils_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/gpu:GrAppliedClip_hdr",
+        "//src/gpu:GrDstProxyView_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProcessorSet_hdr",
+        "//src/gpu:GrRenderTask_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "OpsTask_src",
+    srcs = ["OpsTask.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":OpsTask_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/core:SkRectPriv_hdr",
+        "//src/core:SkScopeExit_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrAttachment_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrResourceAllocator_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/geometry:GrRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathInnerTriangulateOp_hdr",
+    hdrs = ["PathInnerTriangulateOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FillPathFlags_hdr",
+        ":GrDrawOp_hdr",
+        "//src/gpu/geometry:GrInnerFanTriangulator_hdr",
+        "//src/gpu/tessellate/shaders:GrTessellationShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathInnerTriangulateOp_src",
+    srcs = ["PathInnerTriangulateOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PathInnerTriangulateOp_hdr",
+        "//src/gpu:GrEagerVertexAllocator_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/tessellate:PathCurveTessellator_hdr",
+        "//src/gpu/tessellate/shaders:GrPathTessellationShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathStencilCoverOp_hdr",
+    hdrs = ["PathStencilCoverOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FillPathFlags_hdr",
+        ":GrDrawOp_hdr",
+        "//src/gpu/tessellate:PathTessellator_hdr",
+        "//src/gpu/tessellate/shaders:GrTessellationShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathStencilCoverOp_src",
+    srcs = ["PathStencilCoverOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        ":PathStencilCoverOp_hdr",
+        "//src/gpu:GrEagerVertexAllocator_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/tessellate:AffineMatrix_hdr",
+        "//src/gpu/tessellate:MiddleOutPolygonTriangulator_hdr",
+        "//src/gpu/tessellate:PathCurveTessellator_hdr",
+        "//src/gpu/tessellate:PathWedgeTessellator_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+        "//src/gpu/tessellate/shaders:GrPathTessellationShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathTessellateOp_hdr",
+    hdrs = ["PathTessellateOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrDrawOp_hdr",
+        "//src/gpu/tessellate:PathTessellator_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+        "//src/gpu/tessellate/shaders:GrTessellationShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathTessellateOp_src",
+    srcs = ["PathTessellateOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PathTessellateOp_hdr",
+        "//src/gpu:GrAppliedClip_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu/tessellate:PathWedgeTessellator_hdr",
+        "//src/gpu/tessellate/shaders:GrPathTessellationShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "QuadPerEdgeAA_hdr",
+    hdrs = ["QuadPerEdgeAA.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TextureOp_hdr",
+        "//include/core:SkPoint3_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrColor_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrSamplerState_hdr",
+        "//src/gpu/geometry:GrQuadUtils_hdr",
+        "//src/gpu/geometry:GrQuad_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "QuadPerEdgeAA_src",
+    srcs = ["QuadPerEdgeAA.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":QuadPerEdgeAA_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/geometry:GrQuadUtils_hdr",
+        "//src/gpu/glsl:GrGLSLColorSpaceXformHelper_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RegionOp_hdr",
+    hdrs = ["RegionOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RegionOp_src",
+    srcs = ["RegionOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelperWithStencil_hdr",
+        ":RegionOp_hdr",
+        "//include/core:SkRegion_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDefaultGeoProcFactory_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ShadowRRectOp_hdr",
+    hdrs = ["ShadowRRectOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//src/gpu:GrColor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ShadowRRectOp_src",
+    srcs = ["ShadowRRectOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        ":ShadowRRectOp_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/core:SkRRectPriv_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrThreadSafeCache_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrShadowGeoProc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SmallPathAtlasMgr_hdr",
+    hdrs = ["SmallPathAtlasMgr.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkTDynamicHash_hdr",
+        "//src/core:SkTInternalLList_hdr",
+        "//src/gpu:GrDrawOpAtlas_hdr",
+        "//src/gpu:GrOnFlushResourceProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SmallPathAtlasMgr_src",
+    srcs = ["SmallPathAtlasMgr.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SmallPathAtlasMgr_hdr",
+        ":SmallPathShapeData_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SmallPathRenderer_hdr",
+    hdrs = ["SmallPathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/v1:PathRenderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "SmallPathRenderer_src",
+    srcs = ["SmallPathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelperWithStencil_hdr",
+        ":SmallPathAtlasMgr_hdr",
+        ":SmallPathRenderer_hdr",
+        ":SmallPathShapeData_hdr",
+        "//include/core:SkPaint_hdr",
+        "//src/core:SkAutoPixmapStorage_hdr",
+        "//src/core:SkDistanceFieldGen_hdr",
+        "//src/core:SkDraw_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/core:SkRasterClip_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrBuffer_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDistanceFieldGenFromVector_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu/effects:GrBitmapTextGeoProc_hdr",
+        "//src/gpu/effects:GrDistanceFieldGeoProc_hdr",
+        "//src/gpu/geometry:GrQuad_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SmallPathShapeData_hdr",
+    hdrs = ["SmallPathShapeData.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkOpts_hdr",
+        "//src/gpu:GrDrawOpAtlas_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SmallPathShapeData_src",
+    srcs = ["SmallPathShapeData.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SmallPathShapeData_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SoftwarePathRenderer_hdr",
+    hdrs = ["SoftwarePathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/gpu:GrSurfaceProxyView_hdr",
+        "//src/gpu/v1:PathRenderer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SoftwarePathRenderer_src",
+    srcs = ["SoftwarePathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrDrawOp_hdr",
+        ":SoftwarePathRenderer_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/private:SkSemaphore_hdr",
+        "//src/core:SkTaskGroup_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrClip_hdr",
+        "//src/gpu:GrDeferredProxyUploader_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrGpuResourcePriv_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrSWMaskHelper_hdr",
+        "//src/gpu:GrUtil_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeRectOp_hdr",
+    hdrs = ["StrokeRectOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeRectOp_src",
+    srcs = ["StrokeRectOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FillRectOp_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        ":StrokeRectOp_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/private:GrResourceKey_hdr",
+        "//include/utils:SkRandom_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColor_hdr",
+        "//src/gpu:GrDefaultGeoProcFactory_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu/geometry:GrQuad_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeTessellateOp_hdr",
+    hdrs = ["StrokeTessellateOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrDrawOp_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//src/gpu/tessellate:StrokeTessellator_hdr",
+        "//src/gpu/tessellate/shaders:GrTessellationShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeTessellateOp_src",
+    srcs = ["StrokeTessellateOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":StrokeTessellateOp_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/gpu:GrAppliedClip_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu/tessellate:StrokeFixedCountTessellator_hdr",
+        "//src/gpu/tessellate:StrokeHardwareTessellator_hdr",
+        "//src/gpu/tessellate/shaders:GrStrokeTessellationShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TessellationPathRenderer_hdr",
+    hdrs = ["TessellationPathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrTypes_hdr",
+        "//src/gpu/v1:PathRenderer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TessellationPathRenderer_src",
+    srcs = ["TessellationPathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PathInnerTriangulateOp_hdr",
+        ":PathStencilCoverOp_hdr",
+        ":PathTessellateOp_hdr",
+        ":StrokeTessellateOp_hdr",
+        ":TessellationPathRenderer_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/gpu:GrClip_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrVx_hdr",
+        "//src/gpu/effects:GrDisableColorXP_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextureOp_hdr",
+    hdrs = ["TextureOp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOp_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrColor_hdr",
+        "//src/gpu:GrSamplerState_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextureOp_src",
+    srcs = ["TextureOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FillRectOp_hdr",
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelper_hdr",
+        ":QuadPerEdgeAA_hdr",
+        ":TextureOp_hdr",
+        "//include/core:SkPoint3_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/core:SkRectPriv_hdr",
+        "//src/gpu:GrAppliedClip_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrMemoryPool_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsTypes_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceProviderPriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrBlendFragmentProcessor_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/geometry:GrQuadBuffer_hdr",
+        "//src/gpu/geometry:GrQuadUtils_hdr",
+        "//src/gpu/geometry:GrQuad_hdr",
+        "//src/gpu/geometry:GrRect_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TriangulatingPathRenderer_hdr",
+    hdrs = ["TriangulatingPathRenderer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/v1:PathRenderer_hdr"],
+)
+
+generated_cc_atom(
+    name = "TriangulatingPathRenderer_src",
+    srcs = ["TriangulatingPathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMeshDrawOp_hdr",
+        ":GrSimpleMeshDrawOpHelperWithStencil_hdr",
+        ":TriangulatingPathRenderer_hdr",
+        "//include/private:SkIDChangeListener_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDefaultGeoProcFactory_hdr",
+        "//src/gpu:GrDrawOpTest_hdr",
+        "//src/gpu:GrEagerVertexAllocator_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceCache_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:GrSimpleMesh_hdr",
+        "//src/gpu:GrStyle_hdr",
+        "//src/gpu:GrThreadSafeCache_hdr",
+        "//src/gpu/geometry:GrAATriangulator_hdr",
+        "//src/gpu/geometry:GrPathUtils_hdr",
+        "//src/gpu/geometry:GrStyledShape_hdr",
+        "//src/gpu/geometry:GrTriangulator_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)

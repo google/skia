@@ -1,53 +1,323 @@
-package(default_visibility = ["//:__subpackages__"])
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-filegroup(
-    name = "srcs",
-    srcs = [
-        "Sk1DPathEffect.cpp",
-        "Sk2DPathEffect.cpp",
-        "SkBlenders.cpp",
-        "SkColorMatrix.cpp",
-        "SkColorMatrixFilter.cpp",
-        "SkCornerPathEffect.cpp",
-        "SkDashImpl.h",
-        "SkDashPathEffect.cpp",
-        "SkDiscretePathEffect.cpp",
-        "SkEmbossMask.cpp",
-        "SkEmbossMask.h",
-        "SkEmbossMaskFilter.cpp",
-        "SkEmbossMaskFilter.h",
-        "SkHighContrastFilter.cpp",
-        "SkLayerDrawLooper.cpp",
-        "SkLumaColorFilter.cpp",
-        "SkOpPE.h",
-        "SkOpPathEffect.cpp",
-        "SkOverdrawColorFilter.cpp",
-        "SkShaderMaskFilter.cpp",
-        "SkTableColorFilter.cpp",
-        "SkTableMaskFilter.cpp",
-        "SkTrimPE.h",
-        "SkTrimPathEffect.cpp",
-        "imagefilters/SkAlphaThresholdImageFilter.cpp",
-        "imagefilters/SkArithmeticImageFilter.cpp",
-        "imagefilters/SkBlendImageFilter.cpp",
-        "imagefilters/SkBlurImageFilter.cpp",
-        "imagefilters/SkColorFilterImageFilter.cpp",
-        "imagefilters/SkComposeImageFilter.cpp",
-        "imagefilters/SkCropImageFilter.cpp",
-        "imagefilters/SkCropImageFilter.h",
-        "imagefilters/SkDisplacementMapImageFilter.cpp",
-        "imagefilters/SkDropShadowImageFilter.cpp",
-        "imagefilters/SkImageImageFilter.cpp",
-        "imagefilters/SkLightingImageFilter.cpp",
-        "imagefilters/SkMagnifierImageFilter.cpp",
-        "imagefilters/SkMatrixConvolutionImageFilter.cpp",
-        "imagefilters/SkMergeImageFilter.cpp",
-        "imagefilters/SkMorphologyImageFilter.cpp",
-        "imagefilters/SkOffsetImageFilter.cpp",
-        "imagefilters/SkPictureImageFilter.cpp",
-        "imagefilters/SkRuntimeImageFilter.cpp",
-        "imagefilters/SkRuntimeImageFilter.h",
-        "imagefilters/SkShaderImageFilter.cpp",
-        "imagefilters/SkTileImageFilter.cpp",
+generated_cc_atom(
+    name = "Sk1DPathEffect_src",
+    srcs = ["Sk1DPathEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPathMeasure_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/effects:Sk1DPathEffect_hdr",
+        "//src/core:SkPathEffectBase_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Sk2DPathEffect_src",
+    srcs = ["Sk2DPathEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//include/core:SkRegion_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/effects:Sk2DPathEffect_hdr",
+        "//src/core:SkPathEffectBase_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkBlenders_src",
+    srcs = ["SkBlenders.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkScalar_hdr",
+        "//include/effects:SkBlenders_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkColorMatrixFilter_src",
+    srcs = ["SkColorMatrixFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/effects:SkColorMatrixFilter_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkColorMatrix_src",
+    srcs = ["SkColorMatrix.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkColorMatrix_hdr",
+        "//src/core:SkYUVMath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkCornerPathEffect_src",
+    srcs = ["SkCornerPathEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/effects:SkCornerPathEffect_hdr",
+        "//src/core:SkPathEffectBase_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDashImpl_hdr",
+    hdrs = ["SkDashImpl.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/core:SkPathEffectBase_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkDashPathEffect_src",
+    srcs = ["SkDashPathEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDashImpl_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/effects:SkDashPathEffect_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/utils:SkDashPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDiscretePathEffect_src",
+    srcs = ["SkDiscretePathEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPathMeasure_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/effects:SkDiscretePathEffect_hdr",
+        "//include/private:SkFixed_hdr",
+        "//src/core:SkPathEffectBase_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkEmbossMaskFilter_hdr",
+    hdrs = ["SkEmbossMaskFilter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/core:SkMaskFilterBase_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkEmbossMaskFilter_src",
+    srcs = ["SkEmbossMaskFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkEmbossMaskFilter_hdr",
+        ":SkEmbossMask_hdr",
+        "//include/core:SkColorPriv_hdr",
+        "//include/core:SkString_hdr",
+        "//include/effects:SkBlurMaskFilter_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkBlurMask_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkEmbossMask_hdr",
+    hdrs = ["SkEmbossMask.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkEmbossMaskFilter_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkEmbossMask_src",
+    srcs = ["SkEmbossMask.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkEmbossMask_hdr",
+        "//include/core:SkMath_hdr",
+        "//include/private:SkFixed_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkMathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkHighContrastFilter_src",
+    srcs = ["SkHighContrastFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkString_hdr",
+        "//include/effects:SkHighContrastFilter_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkColorFilterPriv_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkLayerDrawLooper_src",
+    srcs = ["SkLayerDrawLooper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkMaskFilter_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkUnPreMultiply_hdr",
+        "//include/effects:SkBlurDrawLooper_hdr",
+        "//include/effects:SkLayerDrawLooper_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkBlendModePriv_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkMaskFilterBase_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkStringUtils_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/core:SkXfermodePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkLumaColorFilter_src",
+    srcs = ["SkLumaColorFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkString_hdr",
+        "//include/effects:SkLumaColorFilter_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpPE_hdr",
+    hdrs = ["SkOpPE.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/pathops:SkPathOps_hdr",
+        "//src/core:SkPathEffectBase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpPathEffect_src",
+    srcs = ["SkOpPathEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpPE_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/effects:SkOpPathEffect_hdr",
+        "//include/effects:SkStrokeAndFillPathEffect_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkRectPriv_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOverdrawColorFilter_src",
+    srcs = ["SkOverdrawColorFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkData_hdr",
+        "//include/effects:SkOverdrawColorFilter_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShaderMaskFilter_src",
+    srcs = ["SkShaderMaskFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkString_hdr",
+        "//include/effects:SkShaderMaskFilter_hdr",
+        "//src/core:SkMaskFilterBase_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/shaders:SkShaderBase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTableColorFilter_src",
+    srcs = ["SkTableColorFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkString_hdr",
+        "//include/effects:SkTableColorFilter_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkColorFilterBase_hdr",
+        "//src/core:SkEffectPriv_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrColorInfo_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTableMaskFilter_src",
+    srcs = ["SkTableMaskFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkString_hdr",
+        "//include/effects:SkTableMaskFilter_hdr",
+        "//include/private:SkFixed_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTrimPE_hdr",
+    hdrs = ["SkTrimPE.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkTrimPathEffect_hdr",
+        "//src/core:SkPathEffectBase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTrimPathEffect_src",
+    srcs = ["SkTrimPathEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkTrimPE_hdr",
+        "//include/core:SkPathMeasure_hdr",
+        "//include/effects:SkTrimPathEffect_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
     ],
 )

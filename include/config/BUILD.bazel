@@ -1,8 +1,7 @@
-package(default_visibility = ["//:__subpackages__"])
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "SkUserConfig.h",
-    ],
+generated_cc_atom(
+    name = "SkUserConfig_hdr",
+    hdrs = ["SkUserConfig.h"],
+    visibility = ["//:__subpackages__"],
 )

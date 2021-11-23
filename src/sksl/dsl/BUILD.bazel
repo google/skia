@@ -1,0 +1,181 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "DSLBlock_src",
+    srcs = ["DSLBlock.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSLBlock_hdr",
+        "//include/sksl:DSLStatement_hdr",
+        "//src/sksl/ir:SkSLBlock_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLCase_src",
+    srcs = ["DSLCase.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkSLStatement_hdr",
+        "//include/sksl:DSLCase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLCore_src",
+    srcs = ["DSLCore.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkSLDefines_hdr",
+        "//include/sksl:DSLCore_hdr",
+        "//include/sksl:DSLSymbols_hdr",
+        "//include/sksl:DSLVar_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/dsl/priv:DSLWriter_hdr",
+        "//src/sksl/ir:SkSLBlock_hdr",
+        "//src/sksl/ir:SkSLBreakStatement_hdr",
+        "//src/sksl/ir:SkSLContinueStatement_hdr",
+        "//src/sksl/ir:SkSLDiscardStatement_hdr",
+        "//src/sksl/ir:SkSLDoStatement_hdr",
+        "//src/sksl/ir:SkSLExtension_hdr",
+        "//src/sksl/ir:SkSLField_hdr",
+        "//src/sksl/ir:SkSLForStatement_hdr",
+        "//src/sksl/ir:SkSLFunctionCall_hdr",
+        "//src/sksl/ir:SkSLIfStatement_hdr",
+        "//src/sksl/ir:SkSLInterfaceBlock_hdr",
+        "//src/sksl/ir:SkSLModifiersDeclaration_hdr",
+        "//src/sksl/ir:SkSLReturnStatement_hdr",
+        "//src/sksl/ir:SkSLStructDefinition_hdr",
+        "//src/sksl/ir:SkSLSwitchStatement_hdr",
+        "//src/sksl/ir:SkSLSwizzle_hdr",
+        "//src/sksl/ir:SkSLTernaryExpression_hdr",
+        "//src/sksl/transform:SkSLTransform_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLExpression_src",
+    srcs = ["DSLExpression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSLCore_hdr",
+        "//include/sksl:DSLExpression_hdr",
+        "//include/sksl:DSLVar_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/dsl/priv:DSLWriter_hdr",
+        "//src/sksl/ir:SkSLBinaryExpression_hdr",
+        "//src/sksl/ir:SkSLFieldAccess_hdr",
+        "//src/sksl/ir:SkSLFunctionCall_hdr",
+        "//src/sksl/ir:SkSLIndexExpression_hdr",
+        "//src/sksl/ir:SkSLLiteral_hdr",
+        "//src/sksl/ir:SkSLPoison_hdr",
+        "//src/sksl/ir:SkSLPostfixExpression_hdr",
+        "//src/sksl/ir:SkSLPrefixExpression_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLFunction_src",
+    srcs = ["DSLFunction.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSLFunction_hdr",
+        "//include/sksl:DSLVar_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/dsl/priv:DSLWriter_hdr",
+        "//src/sksl/ir:SkSLFunctionCall_hdr",
+        "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLFunctionPrototype_hdr",
+        "//src/sksl/ir:SkSLReturnStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLLayout_src",
+    srcs = ["DSLLayout.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSLLayout_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLRuntimeEffects_src",
+    srcs = ["DSLRuntimeEffects.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/sksl:DSLCore_hdr",
+        "//include/sksl:DSLRuntimeEffects_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLStatement_src",
+    srcs = ["DSLStatement.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSLBlock_hdr",
+        "//include/sksl:DSLExpression_hdr",
+        "//include/sksl:DSLStatement_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/ir:SkSLBlock_hdr",
+        "//src/sksl/ir:SkSLExpressionStatement_hdr",
+        "//src/sksl/ir:SkSLNop_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLSymbols_src",
+    srcs = ["DSLSymbols.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSLSymbols_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/dsl/priv:DSLWriter_hdr",
+        "//src/sksl/ir:SkSLVariable_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLType_src",
+    srcs = ["DSLType.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSLType_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/ir:SkSLConstructor_hdr",
+        "//src/sksl/ir:SkSLStructDefinition_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLVar_src",
+    srcs = ["DSLVar.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSLModifiers_hdr",
+        "//include/sksl:DSLType_hdr",
+        "//include/sksl:DSLVar_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+        "//src/sksl/dsl/priv:DSLWriter_hdr",
+        "//src/sksl/ir:SkSLBinaryExpression_hdr",
+        "//src/sksl/ir:SkSLFunctionCall_hdr",
+        "//src/sksl/ir:SkSLSymbolTable_hdr",
+        "//src/sksl/ir:SkSLVariableReference_hdr",
+        "//src/sksl/ir:SkSLVariable_hdr",
+    ],
+)

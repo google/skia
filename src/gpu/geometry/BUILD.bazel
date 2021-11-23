@@ -1,0 +1,227 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrAAConvexTessellator_hdr",
+    hdrs = ["GrAAConvexTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkPointPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrAAConvexTessellator_src",
+    srcs = ["GrAAConvexTessellator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrAAConvexTessellator_hdr",
+        ":GrPathUtils_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkGeometry_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrAATriangulator_hdr",
+    hdrs = ["GrAATriangulator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrTriangulator_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrAATriangulator_src",
+    srcs = ["GrAATriangulator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrAATriangulator_hdr",
+        "//src/gpu:GrEagerVertexAllocator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrInnerFanTriangulator_hdr",
+    hdrs = ["GrInnerFanTriangulator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrTriangulator_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrPathUtils_hdr",
+    hdrs = ["GrPathUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRect_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrVx_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrPathUtils_src",
+    srcs = ["GrPathUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrPathUtils_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/core:SkUtils_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrQuadBuffer_hdr",
+    hdrs = ["GrQuadBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrQuad_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrQuadUtils_hdr",
+    hdrs = ["GrQuadUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrQuad_hdr",
+        "//include/private:SkVx_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrQuadUtils_src",
+    srcs = ["GrQuadUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrQuadUtils_hdr",
+        ":GrQuad_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrQuad_hdr",
+    hdrs = ["GrQuad.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPoint3_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/gpu:BufferWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrQuad_src",
+    srcs = ["GrQuad.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrQuad_hdr",
+        "//include/core:SkMatrix_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrRect_hdr",
+    hdrs = ["GrRect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrShape_hdr",
+    hdrs = ["GrShape.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRRect_hdr",
+        "//include/core:SkRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrShape_src",
+    srcs = ["GrShape.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrShape_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkRRectPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrStyledShape_hdr",
+    hdrs = ["GrStyledShape.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrShape_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkRRect_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/gpu:GrStyle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrStyledShape_src",
+    srcs = ["GrStyledShape.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrStyledShape_hdr",
+        "//include/private:SkIDChangeListener_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTriangulator_hdr",
+    hdrs = ["GrTriangulator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/gpu:GrColor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTriangulator_src",
+    srcs = ["GrTriangulator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrPathUtils_hdr",
+        ":GrTriangulator_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrEagerVertexAllocator_hdr",
+    ],
+)

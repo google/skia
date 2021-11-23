@@ -1,0 +1,584 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrGLAssembleGLESInterfaceAutogen_src",
+    srcs = ["GrGLAssembleGLESInterfaceAutogen.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLUtil_hdr",
+        "//include/gpu/gl:GrGLAssembleHelpers_hdr",
+        "//include/gpu/gl:GrGLAssembleInterface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLAssembleGLInterfaceAutogen_src",
+    srcs = ["GrGLAssembleGLInterfaceAutogen.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLUtil_hdr",
+        "//include/gpu/gl:GrGLAssembleHelpers_hdr",
+        "//include/gpu/gl:GrGLAssembleInterface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLAssembleHelpers_src",
+    srcs = ["GrGLAssembleHelpers.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLUtil_hdr",
+        "//include/gpu/gl:GrGLAssembleHelpers_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLAssembleInterface_src",
+    srcs = ["GrGLAssembleInterface.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLUtil_hdr",
+        "//include/gpu/gl:GrGLAssembleHelpers_hdr",
+        "//include/gpu/gl:GrGLAssembleInterface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLAssembleWebGLInterfaceAutogen_src",
+    srcs = ["GrGLAssembleWebGLInterfaceAutogen.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLUtil_hdr",
+        "//include/gpu/gl:GrGLAssembleHelpers_hdr",
+        "//include/gpu/gl:GrGLAssembleInterface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLAttachment_hdr",
+    hdrs = ["GrGLAttachment.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//src/gpu:GrAttachment_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLAttachment_src",
+    srcs = ["GrGLAttachment.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLAttachment_hdr",
+        ":GrGLGpu_hdr",
+        "//include/core:SkTraceMemoryDump_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLBuffer_hdr",
+    hdrs = ["GrGLBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/gl:GrGLTypes_hdr",
+        "//src/gpu:GrGpuBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLBuffer_src",
+    srcs = ["GrGLBuffer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLBuffer_hdr",
+        ":GrGLCaps_hdr",
+        ":GrGLGpu_hdr",
+        "//include/core:SkTraceMemoryDump_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrGpuResourcePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLCaps_hdr",
+    hdrs = ["GrGLCaps.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLAttachment_hdr",
+        ":GrGLUtil_hdr",
+        "//include/private:GrGLTypesPriv_hdr",
+        "//include/private:SkChecksum_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrSwizzle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLCaps_src",
+    srcs = ["GrGLCaps.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLCaps_hdr",
+        ":GrGLContext_hdr",
+        ":GrGLRenderTarget_hdr",
+        ":GrGLTexture_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+        "//src/core:SkCompressedDataUtils_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/core:SkTSearch_hdr",
+        "//src/gpu:GrBackendUtils_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrSurfaceProxyPriv_hdr",
+        "//src/gpu:GrTextureProxyPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLContext_hdr",
+    hdrs = ["GrGLContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLCaps_hdr",
+        ":GrGLUtil_hdr",
+        "//include/gpu/gl:GrGLExtensions_hdr",
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//src/gpu/glsl:GrGLSL_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLContext_src",
+    srcs = ["GrGLContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLContext_hdr",
+        ":GrGLGLSL_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLDefines_hdr",
+    hdrs = ["GrGLDefines.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "GrGLExtensions_src",
+    srcs = ["GrGLExtensions.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLDefines_hdr",
+        ":GrGLUtil_hdr",
+        "//include/gpu/gl:GrGLExtensions_hdr",
+        "//src/core:SkTSearch_hdr",
+        "//src/core:SkTSort_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLGLSL_hdr",
+    hdrs = ["GrGLGLSL.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/glsl:GrGLSL_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrGLGLSL_src",
+    srcs = ["GrGLGLSL.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLGLSL_hdr",
+        ":GrGLUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLGpuProgramCache_src",
+    srcs = ["GrGLGpuProgramCache.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLGpu_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+        "//src/gpu/gl/builders:GrGLProgramBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLGpu_hdr",
+    hdrs = ["GrGLGpu.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLAttachment_hdr",
+        ":GrGLContext_hdr",
+        ":GrGLProgram_hdr",
+        ":GrGLRenderTarget_hdr",
+        ":GrGLTexture_hdr",
+        ":GrGLVertexArray_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/core:SkLRUCache_hdr",
+        "//src/gpu:GrFinishCallbacks_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrNativeRect_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+        "//src/gpu:GrThreadSafePipelineBuilder_hdr",
+        "//src/gpu:GrWindowRectsState_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLGpu_src",
+    srcs = ["GrGLGpu.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLAttachment_hdr",
+        ":GrGLBuffer_hdr",
+        ":GrGLGpu_hdr",
+        ":GrGLOpsRenderPass_hdr",
+        ":GrGLSemaphore_hdr",
+        ":GrGLTextureRenderTarget_hdr",
+        "//include/core:SkPixmap_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/gpu:GrBackendSemaphore_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/private:SkHalf_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//src/core:SkCompressedDataUtils_hdr",
+        "//src/core:SkMipmap_hdr",
+        "//src/core:SkScopeExit_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrBackendUtils_hdr",
+        "//src/gpu:GrCpuBuffer_hdr",
+        "//src/gpu:GrDataUtils_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrGpuResourcePriv_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrSurfaceProxyPriv_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/gl/builders:GrGLShaderStringBuilder_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLInterfaceAutogen_src",
+    srcs = ["GrGLInterfaceAutogen.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLUtil_hdr",
+        "//include/gpu/gl:GrGLExtensions_hdr",
+        "//include/gpu/gl:GrGLInterface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLMakeNativeInterface_none_src",
+    srcs = ["GrGLMakeNativeInterface_none.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/gpu/gl:GrGLInterface_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrGLOpsRenderPass_hdr",
+    hdrs = ["GrGLOpsRenderPass.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLGpu_hdr",
+        ":GrGLRenderTarget_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLOpsRenderPass_src",
+    srcs = ["GrGLOpsRenderPass.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLOpsRenderPass_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLProgramDataManager_hdr",
+    hdrs = ["GrGLProgramDataManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/gl:GrGLTypes_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/core:SkTBlockList_hdr",
+        "//src/gpu:GrShaderVar_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLProgramDataManager_src",
+    srcs = ["GrGLProgramDataManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLGpu_hdr",
+        ":GrGLProgramDataManager_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLProgram_hdr",
+    hdrs = ["GrGLProgram.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLProgramDataManager_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLProgram_src",
+    srcs = ["GrGLProgram.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLBuffer_hdr",
+        ":GrGLGpu_hdr",
+        ":GrGLProgram_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLRenderTarget_hdr",
+    hdrs = ["GrGLRenderTarget.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLDefines_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLRenderTarget_src",
+    srcs = ["GrGLRenderTarget.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLGpu_hdr",
+        ":GrGLRenderTarget_hdr",
+        ":GrGLUtil_hdr",
+        "//include/core:SkTraceMemoryDump_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu:GrBackendUtils_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrGpuResourcePriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSemaphore_hdr",
+    hdrs = ["GrGLSemaphore.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrBackendSemaphore_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrSemaphore_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSemaphore_src",
+    srcs = ["GrGLSemaphore.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLGpu_hdr",
+        ":GrGLSemaphore_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLTextureRenderTarget_hdr",
+    hdrs = ["GrGLTextureRenderTarget.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLRenderTarget_hdr",
+        ":GrGLTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLTextureRenderTarget_src",
+    srcs = ["GrGLTextureRenderTarget.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLGpu_hdr",
+        ":GrGLTextureRenderTarget_hdr",
+        "//include/core:SkTraceMemoryDump_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLTexture_hdr",
+    hdrs = ["GrGLTexture.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLUtil_hdr",
+        "//include/private:GrGLTypesPriv_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLTexture_src",
+    srcs = ["GrGLTexture.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLGpu_hdr",
+        ":GrGLTexture_hdr",
+        "//include/core:SkTraceMemoryDump_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrSemaphore_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLTypesPriv_src",
+    srcs = ["GrGLTypesPriv.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLDefines_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/private:GrGLTypesPriv_hdr",
+        "//src/gpu:GrSwizzle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLUniformHandler_hdr",
+    hdrs = ["GrGLUniformHandler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLUniformHandler_src",
+    srcs = ["GrGLUniformHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLCaps_hdr",
+        ":GrGLGpu_hdr",
+        ":GrGLUniformHandler_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/gl/builders:GrGLProgramBuilder_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLUtil_hdr",
+    hdrs = ["GrGLUtil.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLDefines_hdr",
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
+        "//src/gpu:GrDataUtils_hdr",
+        "//src/gpu:GrStencilSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLUtil_src",
+    srcs = ["GrGLUtil.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLUtil_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrDataUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLVaryingHandler_hdr",
+    hdrs = ["GrGLVaryingHandler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLProgramDataManager_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLVertexArray_hdr",
+    hdrs = ["GrGLVertexArray.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLDefines_hdr",
+        "//include/gpu/gl:GrGLTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/gpu:GrGpuResource_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLVertexArray_src",
+    srcs = ["GrGLVertexArray.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLBuffer_hdr",
+        ":GrGLGpu_hdr",
+        ":GrGLVertexArray_hdr",
+        "//src/gpu:GrCpuBuffer_hdr",
+    ],
+)

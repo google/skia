@@ -1,0 +1,73 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkDOM_hdr",
+    hdrs = ["SkDOM.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkNoncopyable_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDOM_src",
+    srcs = ["SkDOM.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDOM_hdr",
+        ":SkXMLParser_hdr",
+        ":SkXMLWriter_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//include/private:SkTo_hdr",
+        "//include/utils:SkParse_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkXMLParser_hdr",
+    hdrs = ["SkXMLParser.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkString_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkXMLParser_src",
+    srcs = ["SkXMLParser.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkXMLParser_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkXMLWriter_hdr",
+    hdrs = ["SkXMLWriter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDOM_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkXMLWriter_src",
+    srcs = ["SkXMLWriter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkXMLParser_hdr",
+        ":SkXMLWriter_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)

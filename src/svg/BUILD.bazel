@@ -1,0 +1,59 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkSVGCanvas_src",
+    srcs = ["SkSVGCanvas.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGDevice_hdr",
+        "//include/svg:SkSVGCanvas_hdr",
+        "//src/xml:SkXMLWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGDevice_hdr",
+    hdrs = ["SkSVGDevice.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/utils:SkParsePath_hdr",
+        "//src/core:SkClipStackDevice_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGDevice_src",
+    srcs = ["SkSVGDevice.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGDevice_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImageEncoder_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPathBuilder_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkChecksum_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/private:SkTPin_hdr",
+        "//include/private:SkTo_hdr",
+        "//include/svg:SkSVGCanvas_hdr",
+        "//include/utils:SkBase64_hdr",
+        "//src/codec:SkJpegCodec_hdr",
+        "//src/core:SkAnnotationKeys_hdr",
+        "//src/core:SkClipStack_hdr",
+        "//src/core:SkDraw_hdr",
+        "//src/core:SkFontPriv_hdr",
+        "//src/core:SkUtils_hdr",
+        "//src/image:SkImage_Base_hdr",
+        "//src/shaders:SkShaderBase_hdr",
+        "//src/xml:SkXMLWriter_hdr",
+    ],
+)

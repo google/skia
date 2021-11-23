@@ -1,0 +1,80 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "sk_c_from_to_hdr",
+    hdrs = ["sk_c_from_to.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "sk_effects_src",
+    srcs = ["sk_effects.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":sk_types_priv_hdr",
+        "//include/c:sk_maskfilter_hdr",
+        "//include/c:sk_shader_hdr",
+        "//include/core:SkMaskFilter_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/effects:SkGradientShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "sk_imageinfo_src",
+    srcs = ["sk_imageinfo.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/c:sk_colorspace_hdr",
+        "//include/c:sk_imageinfo_hdr",
+        "//include/core:SkColorSpace_hdr",
+        "//include/core:SkImageInfo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "sk_paint_src",
+    srcs = ["sk_paint.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":sk_c_from_to_hdr",
+        ":sk_types_priv_hdr",
+        "//include/c:sk_paint_hdr",
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkMaskFilter_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "sk_surface_src",
+    srcs = ["sk_surface.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":sk_types_priv_hdr",
+        "//include/c:sk_canvas_hdr",
+        "//include/c:sk_data_hdr",
+        "//include/c:sk_image_hdr",
+        "//include/c:sk_paint_hdr",
+        "//include/c:sk_path_hdr",
+        "//include/c:sk_picture_hdr",
+        "//include/c:sk_surface_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkMaskFilter_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPathBuilder_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkSurface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "sk_types_priv_hdr",
+    hdrs = ["sk_types_priv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/c:sk_types_hdr"],
+)

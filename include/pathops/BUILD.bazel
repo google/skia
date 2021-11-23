@@ -1,8 +1,12 @@
-package(default_visibility = ["//visibility:public"])
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-filegroup(
-    name = "hdrs",
-    srcs = [
-        "SkPathOps.h",
+generated_cc_atom(
+    name = "SkPathOps_hdr",
+    hdrs = ["SkPathOps.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTDArray_hdr",
     ],
 )

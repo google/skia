@@ -1,0 +1,183 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Sk4fGradientBase_hdr",
+    hdrs = ["Sk4fGradientBase.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Sk4fGradientPriv_hdr",
+        ":SkGradientShaderPriv_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/private:SkNx_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/shaders:SkShaderBase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Sk4fGradientBase_src",
+    srcs = ["Sk4fGradientBase.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Sk4fGradientBase_hdr",
+        "//include/core:SkPaint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Sk4fGradientPriv_hdr",
+    hdrs = ["Sk4fGradientPriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkHalf_hdr",
+        "//include/private:SkNx_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Sk4fLinearGradient_hdr",
+    hdrs = ["Sk4fLinearGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Sk4fGradientBase_hdr",
+        ":SkLinearGradient_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Sk4fLinearGradient_src",
+    srcs = ["Sk4fLinearGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Sk4fLinearGradient_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/private:SkTPin_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkGradientShaderPriv_hdr",
+    hdrs = ["SkGradientShaderPriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkMatrix_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/shaders:SkShaderBase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkGradientShader_src",
+    srcs = ["SkGradientShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Sk4fLinearGradient_hdr",
+        ":SkGradientShaderPriv_hdr",
+        ":SkLinearGradient_hdr",
+        ":SkRadialGradient_hdr",
+        ":SkSweepGradient_hdr",
+        ":SkTwoPointConicalGradient_hdr",
+        "//include/core:SkMallocPixelRef_hdr",
+        "//include/private:SkFloatBits_hdr",
+        "//include/private:SkHalf_hdr",
+        "//include/private:SkTPin_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkConvertPixels_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkLinearGradient_hdr",
+    hdrs = ["SkLinearGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkGradientShaderPriv_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkLinearGradient_src",
+    srcs = ["SkLinearGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Sk4fLinearGradient_hdr",
+        ":SkLinearGradient_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu/gradients:GrGradientShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRadialGradient_hdr",
+    hdrs = ["SkRadialGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkGradientShaderPriv_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkRadialGradient_src",
+    srcs = ["SkRadialGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkRadialGradient_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu/gradients:GrGradientShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSweepGradient_hdr",
+    hdrs = ["SkSweepGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkGradientShaderPriv_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSweepGradient_src",
+    srcs = ["SkSweepGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSweepGradient_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu/gradients:GrGradientShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTwoPointConicalGradient_hdr",
+    hdrs = ["SkTwoPointConicalGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkGradientShaderPriv_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkTwoPointConicalGradient_src",
+    srcs = ["SkTwoPointConicalGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkTwoPointConicalGradient_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+        "//src/core:SkRasterPipeline_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu/gradients:GrGradientShader_hdr",
+    ],
+)

@@ -1,0 +1,13 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrGLMakeNativeInterface_mac_src",
+    srcs = ["GrGLMakeNativeInterface_mac.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/gpu/gl:GrGLAssembleInterface_hdr",
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//include/private:SkTemplates_hdr",
+    ],
+)

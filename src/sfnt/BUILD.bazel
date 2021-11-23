@@ -1,36 +1,322 @@
-package(default_visibility = ["//:__subpackages__"])
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-filegroup(
-    name = "srcs",
-    srcs = [
-        "SkIBMFamilyClass.h",
-        "SkOTTableTypes.h",
-        "SkOTTable_EBDT.h",
-        "SkOTTable_EBLC.h",
-        "SkOTTable_EBSC.h",
-        "SkOTTable_OS_2.h",
-        "SkOTTable_OS_2_V0.h",
-        "SkOTTable_OS_2_V1.h",
-        "SkOTTable_OS_2_V2.h",
-        "SkOTTable_OS_2_V3.h",
-        "SkOTTable_OS_2_V4.h",
-        "SkOTTable_OS_2_VA.h",
-        "SkOTTable_fvar.h",
-        "SkOTTable_gasp.h",
-        "SkOTTable_glyf.h",
-        "SkOTTable_head.h",
-        "SkOTTable_hhea.h",
-        "SkOTTable_loca.h",
-        "SkOTTable_maxp.h",
-        "SkOTTable_maxp_CFF.h",
-        "SkOTTable_maxp_TT.h",
-        "SkOTTable_name.cpp",
-        "SkOTTable_name.h",
-        "SkOTTable_post.h",
-        "SkOTUtils.cpp",
-        "SkOTUtils.h",
-        "SkPanose.h",
-        "SkSFNTHeader.h",
-        "SkTTCFHeader.h",
+generated_cc_atom(
+    name = "SkIBMFamilyClass_hdr",
+    hdrs = ["SkIBMFamilyClass.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkOTTableTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkOTTableTypes_hdr",
+    hdrs = ["SkOTTableTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_EBDT_hdr",
+    hdrs = ["SkOTTable_EBDT.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        ":SkOTTable_head_hdr",
+        ":SkOTTable_loca_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_EBLC_hdr",
+    hdrs = ["SkOTTable_EBLC.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        ":SkOTTable_EBDT_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_EBSC_hdr",
+    hdrs = ["SkOTTable_EBSC.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        ":SkOTTable_EBLC_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_OS_2_V0_hdr",
+    hdrs = ["SkOTTable_OS_2_V0.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIBMFamilyClass_hdr",
+        ":SkOTTableTypes_hdr",
+        ":SkPanose_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_OS_2_V1_hdr",
+    hdrs = ["SkOTTable_OS_2_V1.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIBMFamilyClass_hdr",
+        ":SkOTTableTypes_hdr",
+        ":SkPanose_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_OS_2_V2_hdr",
+    hdrs = ["SkOTTable_OS_2_V2.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIBMFamilyClass_hdr",
+        ":SkOTTableTypes_hdr",
+        ":SkPanose_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_OS_2_V3_hdr",
+    hdrs = ["SkOTTable_OS_2_V3.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIBMFamilyClass_hdr",
+        ":SkOTTableTypes_hdr",
+        ":SkPanose_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_OS_2_V4_hdr",
+    hdrs = ["SkOTTable_OS_2_V4.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIBMFamilyClass_hdr",
+        ":SkOTTableTypes_hdr",
+        ":SkPanose_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_OS_2_VA_hdr",
+    hdrs = ["SkOTTable_OS_2_VA.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIBMFamilyClass_hdr",
+        ":SkOTTableTypes_hdr",
+        ":SkPanose_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_OS_2_hdr",
+    hdrs = ["SkOTTable_OS_2.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTable_OS_2_V0_hdr",
+        ":SkOTTable_OS_2_V1_hdr",
+        ":SkOTTable_OS_2_V2_hdr",
+        ":SkOTTable_OS_2_V3_hdr",
+        ":SkOTTable_OS_2_V4_hdr",
+        ":SkOTTable_OS_2_VA_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_fvar_hdr",
+    hdrs = ["SkOTTable_fvar.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_gasp_hdr",
+    hdrs = ["SkOTTable_gasp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_glyf_hdr",
+    hdrs = ["SkOTTable_glyf.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        ":SkOTTable_head_hdr",
+        ":SkOTTable_loca_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_head_hdr",
+    hdrs = ["SkOTTable_head.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_hhea_hdr",
+    hdrs = ["SkOTTable_hhea.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_loca_hdr",
+    hdrs = ["SkOTTable_loca.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_maxp_CFF_hdr",
+    hdrs = ["SkOTTable_maxp_CFF.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_maxp_TT_hdr",
+    hdrs = ["SkOTTable_maxp_TT.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_maxp_hdr",
+    hdrs = ["SkOTTable_maxp.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        ":SkOTTable_maxp_CFF_hdr",
+        ":SkOTTable_maxp_TT_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_name_hdr",
+    hdrs = ["SkOTTable_name.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//include/core:SkString_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_name_src",
+    srcs = ["SkOTTable_name.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTable_name_hdr",
+        "//src/core:SkEndian_hdr",
+        "//src/core:SkStringUtils_hdr",
+        "//src/core:SkTSearch_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTTable_post_hdr",
+    hdrs = ["SkOTTable_post.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTUtils_hdr",
+    hdrs = ["SkOTUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        ":SkOTTable_OS_2_V4_hdr",
+        ":SkOTTable_name_hdr",
+        "//include/core:SkTypeface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOTUtils_src",
+    srcs = ["SkOTUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        ":SkOTTable_head_hdr",
+        ":SkOTTable_name_hdr",
+        ":SkOTUtils_hdr",
+        ":SkSFNTHeader_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkAdvancedTypefaceMetrics_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPanose_hdr",
+    hdrs = ["SkPanose.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkOTTableTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSFNTHeader_hdr",
+    hdrs = ["SkSFNTHeader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        "//src/core:SkEndian_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTTCFHeader_hdr",
+    hdrs = ["SkTTCFHeader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTableTypes_hdr",
+        ":SkSFNTHeader_hdr",
     ],
 )

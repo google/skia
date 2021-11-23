@@ -1,0 +1,63 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrGradientBitmapCache_hdr",
+    hdrs = ["GrGradientBitmapCache.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkMutex_hdr",
+        "//include/private:SkNoncopyable_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGradientBitmapCache_src",
+    srcs = ["GrGradientBitmapCache.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGradientBitmapCache_hdr",
+        "//include/private:SkFloatBits_hdr",
+        "//include/private:SkHalf_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//include/private:SkTemplates_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGradientShader_hdr",
+    hdrs = ["GrGradientShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/utils:SkRandom_hdr",
+        "//src/gpu:GrFPArgs_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/shaders/gradients:SkGradientShaderPriv_hdr",
+        "//src/shaders/gradients:SkLinearGradient_hdr",
+        "//src/shaders/gradients:SkRadialGradient_hdr",
+        "//src/shaders/gradients:SkSweepGradient_hdr",
+        "//src/shaders/gradients:SkTwoPointConicalGradient_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGradientShader_src",
+    srcs = ["GrGradientShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGradientBitmapCache_hdr",
+        ":GrGradientShader_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColorInfo_hdr",
+        "//src/gpu:GrColor_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrMatrixEffect_hdr",
+        "//src/gpu/effects:GrSkSLFP_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+    ],
+)

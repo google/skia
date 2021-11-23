@@ -1,46 +1,383 @@
-# https://github.com/bazelbuild/bazel-skylib
-load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-package(default_visibility = ["//visibility:private"])
-
-filegroup(
-    name = "core-srcs",
-    srcs = [
-        "SkImage.cpp",
-        "SkImage_Base.h",
-        "SkImage_Lazy.cpp",
-        "SkImage_Lazy.h",
-        "SkImage_Raster.cpp",
-        "SkReadPixelsRec.h",
-        "SkRescaleAndReadPixels.cpp",
-        "SkRescaleAndReadPixels.h",
-        "SkSurface.cpp",
-        "SkSurface_Base.h",
-        "SkSurface_Raster.cpp",
-    ],
-)
-
-filegroup(
-    name = "gpu-srcs",
-    srcs = [
-        "SkImage_Gpu.cpp",
-        "SkImage_Gpu.h",
-        "SkImage_GpuBase.cpp",
-        "SkImage_GpuBase.h",
-        "SkImage_GpuYUVA.cpp",
-        "SkImage_GpuYUVA.h",
-        "SkSurface_Gpu.cpp",
-        "SkSurface_Gpu.h",
-    ],
-)
-
-filegroup(
-    name = "srcs",
-    srcs = [":core-srcs"] + selects.with_or({
-        ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
-            ":gpu-srcs",
-        ],
-        "//conditions:default": [],
-    }),
+generated_cc_atom(
+    name = "SkImage_Base_hdr",
+    hdrs = ["SkImage_Base.h"],
     visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkImage_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkMipmap_hdr",
+        "//src/gpu:GrSurfaceProxyView_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:SkGr_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_GpuBase_hdr",
+    hdrs = ["SkImage_GpuBase.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_Base_hdr",
+        "//include/core:SkDeferredDisplayListRecorder_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/core:SkYUVAInfoLocation_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_GpuBase_src",
+    srcs = ["SkImage_GpuBase.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_GpuBase_hdr",
+        ":SkImage_Gpu_hdr",
+        ":SkReadPixelsRec_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkPromiseImageTexture_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/gpu:GrYUVABackendTextures_hdr",
+        "//src/core:SkBitmapCache_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrImageContextPriv_hdr",
+        "//src/gpu:GrImageInfo_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:GrYUVATextureProxies_hdr",
+        "//src/gpu:SurfaceContext_hdr",
+        "//src/gpu/effects:GrYUVtoRGBEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_GpuYUVA_hdr",
+    hdrs = ["SkImage_GpuYUVA.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_GpuBase_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//src/core:SkCachedData_hdr",
+        "//src/gpu:GrYUVATextureProxies_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_GpuYUVA_src",
+    srcs = ["SkImage_GpuYUVA.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_GpuYUVA_hdr",
+        ":SkImage_Gpu_hdr",
+        "//include/core:SkYUVAPixmaps_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/gpu:GrYUVABackendTextures_hdr",
+        "//src/core:SkAutoPixmapStorage_hdr",
+        "//src/core:SkMipmap_hdr",
+        "//src/core:SkScopeExit_hdr",
+        "//src/gpu:GrClip_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrImageContextPriv_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/effects:GrBicubicEffect_hdr",
+        "//src/gpu/effects:GrYUVtoRGBEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_Gpu_hdr",
+    hdrs = ["SkImage_Gpu.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_GpuBase_hdr",
+        "//include/private:SkSpinlock_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/gpu:GrGpuResourcePriv_hdr",
+        "//src/gpu:GrSurfaceProxyPriv_hdr",
+        "//src/gpu:GrSurfaceProxyView_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_Gpu_src",
+    srcs = ["SkImage_Gpu.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_Gpu_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/gpu:GrYUVABackendTextures_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
+        "//src/core:SkAutoPixmapStorage_hdr",
+        "//src/core:SkBitmapCache_hdr",
+        "//src/core:SkMipmap_hdr",
+        "//src/core:SkScopeExit_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrAHardwareBufferImageGenerator_hdr",
+        "//src/gpu:GrAHardwareBufferUtils_hdr",
+        "//src/gpu:GrBackendTextureImageGenerator_hdr",
+        "//src/gpu:GrBackendUtils_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+        "//src/gpu:GrContextThreadSafeProxyPriv_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrDrawingManager_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrImageContextPriv_hdr",
+        "//src/gpu:GrImageInfo_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrSemaphore_hdr",
+        "//src/gpu:GrTextureProxyPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:GrYUVATextureProxies_hdr",
+        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/gl:GrGLTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_Lazy_hdr",
+    hdrs = ["SkImage_Lazy.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_Base_hdr",
+        "//include/core:SkYUVAPixmaps_hdr",
+        "//include/private:SkIDChangeListener_hdr",
+        "//include/private:SkMutex_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_Lazy_src",
+    srcs = ["SkImage_Lazy.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_Lazy_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImageGenerator_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:GrResourceKey_hdr",
+        "//src/core:SkBitmapCache_hdr",
+        "//src/core:SkCachedData_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkNextID_hdr",
+        "//src/core:SkResourceCache_hdr",
+        "//src/core:SkYUVPlanesCache_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+        "//src/gpu:GrGpuResourcePriv_hdr",
+        "//src/gpu:GrPaint_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrSamplerState_hdr",
+        "//src/gpu:GrYUVATextureProxies_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/effects:GrYUVtoRGBEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_Raster_src",
+    srcs = ["SkImage_Raster.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_Base_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkPixelRef_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
+        "//src/codec:SkColorTable_hdr",
+        "//src/core:SkCompressedDataUtils_hdr",
+        "//src/core:SkConvertPixels_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrBicubicEffect_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/shaders:SkBitmapProcShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImage_src",
+    srcs = ["SkImage.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_Base_hdr",
+        ":SkImage_Gpu_hdr",
+        ":SkReadPixelsRec_hdr",
+        ":SkRescaleAndReadPixels_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImageEncoder_hdr",
+        "//include/core:SkImageFilter_hdr",
+        "//include/core:SkImageGenerator_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrContextThreadSafeProxy_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/core:SkBitmapCache_hdr",
+        "//src/core:SkCachedData_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkImageFilterCache_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkMipmapBuilder_hdr",
+        "//src/core:SkMipmap_hdr",
+        "//src/core:SkNextID_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSamplingPriv_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrImageContextPriv_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrBicubicEffect_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/shaders:SkImageShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkReadPixelsRec_hdr",
+    hdrs = ["SkReadPixelsRec.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkPixmap_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRescaleAndReadPixels_hdr",
+    hdrs = ["SkRescaleAndReadPixels.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkSamplingOptions_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRescaleAndReadPixels_src",
+    srcs = ["SkRescaleAndReadPixels.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkSurface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSurface_Base_hdr",
+    hdrs = ["SkSurface_Base.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkDeferredDisplayList_hdr",
+        "//include/core:SkSurface_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkSurfacePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSurface_Gpu_hdr",
+    hdrs = ["SkSurface_Gpu.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSurface_Base_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSurface_Gpu_src",
+    srcs = ["SkSurface_Gpu.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_Base_hdr",
+        ":SkImage_Gpu_hdr",
+        ":SkSurface_Base_hdr",
+        ":SkSurface_Gpu_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkDeferredDisplayList_hdr",
+        "//include/core:SkSurfaceCharacterization_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkSurfacePriv_hdr",
+        "//src/gpu:BaseDevice_hdr",
+        "//src/gpu:GrAHardwareBufferUtils_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrContextThreadSafeProxyPriv_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSurface_Raster_src",
+    srcs = ["SkSurface_Raster.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSurface_Base_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkMallocPixelRef_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
+        "//src/core:SkDevice_hdr",
+        "//src/core:SkImagePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSurface_src",
+    srcs = ["SkSurface.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkImage_Base_hdr",
+        ":SkRescaleAndReadPixels_hdr",
+        ":SkSurface_Base_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/utils:SkNoDrawCanvas_hdr",
+        "//src/core:SkAutoPixmapStorage_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkPaintPriv_hdr",
+    ],
 )

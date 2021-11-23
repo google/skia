@@ -1,0 +1,63 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "DSLFPs_hdr",
+    hdrs = ["DSLFPs.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/sksl:DSL_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLFPs_src",
+    srcs = ["DSLFPs.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DSLFPs_hdr",
+        ":DSLWriter_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/ir:SkSLCodeStringExpression_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLWriter_hdr",
+    hdrs = ["DSLWriter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkStringView_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSLWriter_src",
+    srcs = ["DSLWriter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DSLWriter_hdr",
+        "//include/sksl:DSLCore_hdr",
+        "//include/sksl:DSLStatement_hdr",
+        "//include/sksl:DSLSymbols_hdr",
+        "//include/sksl:DSLVar_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/ir:SkSLBlock_hdr",
+        "//src/sksl/ir:SkSLNop_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/sksl/ir:SkSLVariable_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DSL_priv_hdr",
+    hdrs = ["DSL_priv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkSLProgramKind_hdr",
+        "//src/sksl:SkSLParsedModule_hdr",
+    ],
+)

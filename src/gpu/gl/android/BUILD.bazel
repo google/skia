@@ -1,0 +1,11 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrGLMakeNativeInterface_android_src",
+    srcs = ["GrGLMakeNativeInterface_android.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/gpu/gl/egl:GrGLMakeEGLInterface_src",
+        "//src/gpu/gl/egl:GrGLMakeNativeInterface_egl_src",
+    ],
+)

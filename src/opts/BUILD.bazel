@@ -1,28 +1,185 @@
-package(default_visibility = ["//:__subpackages__"])
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-# TODO(kjlubick) make these sources and headers dependent on target platform, as necessary
+generated_cc_atom(
+    name = "Sk4px_NEON_hdr",
+    hdrs = ["Sk4px_NEON.h"],
+    visibility = ["//:__subpackages__"],
+)
 
-filegroup(
-    name = "srcs",
-    srcs = [
-        "Sk4px_NEON.h",
-        "Sk4px_SSE2.h",
-        "Sk4px_none.h",
-        "SkBitmapProcState_opts.h",
-        "SkBlitMask_opts.h",
-        "SkBlitRow_opts.h",
-        "SkChecksum_opts.h",
-        "SkOpts_avx.cpp",
-        "SkOpts_crc32.cpp",
-        "SkOpts_hsw.cpp",
-        "SkOpts_skx.cpp",
-        "SkOpts_sse41.cpp",
-        "SkOpts_sse42.cpp",
-        "SkOpts_ssse3.cpp",
-        "SkRasterPipeline_opts.h",
-        "SkSwizzler_opts.h",
-        "SkUtils_opts.h",
-        "SkVM_opts.h",
-        "SkXfermode_opts.h",
+generated_cc_atom(
+    name = "Sk4px_SSE2_hdr",
+    hdrs = ["Sk4px_SSE2.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "Sk4px_none_hdr",
+    hdrs = ["Sk4px_none.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/core:SkUtils_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkBitmapProcState_opts_hdr",
+    hdrs = ["SkBitmapProcState_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkVx_hdr",
+        "//src/core:SkBitmapProcState_hdr",
+        "//src/core:SkMSAN_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkBlitMask_opts_hdr",
+    hdrs = ["SkBlitMask_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/core:Sk4px_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkBlitRow_opts_hdr",
+    hdrs = ["SkBlitRow_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/core:SkMSAN_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkChecksum_opts_hdr",
+    hdrs = ["SkChecksum_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkChecksum_hdr",
+        "//src/core:SkUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpts_avx_src",
+    srcs = ["SkOpts_avx.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkUtils_opts_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpts_crc32_src",
+    srcs = ["SkOpts_crc32.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkChecksum_opts_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpts_hsw_src",
+    srcs = ["SkOpts_hsw.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapProcState_opts_hdr",
+        ":SkBlitRow_opts_hdr",
+        ":SkRasterPipeline_opts_hdr",
+        ":SkSwizzler_opts_hdr",
+        ":SkUtils_opts_hdr",
+        ":SkVM_opts_hdr",
+        "//src/core:SkCubicSolver_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpts_skx_src",
+    srcs = ["SkOpts_skx.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkVM_opts_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpts_sse41_src",
+    srcs = ["SkOpts_sse41.cpp"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkOpts_sse42_src",
+    srcs = ["SkOpts_sse42.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkChecksum_opts_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpts_ssse3_src",
+    srcs = ["SkOpts_ssse3.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapProcState_opts_hdr",
+        ":SkBlitMask_opts_hdr",
+        ":SkSwizzler_opts_hdr",
+        ":SkXfermode_opts_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRasterPipeline_opts_hdr",
+    hdrs = ["SkRasterPipeline_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkData_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/core:SkUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSwizzler_opts_hdr",
+    hdrs = ["SkSwizzler_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkVx_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkUtils_opts_hdr",
+    hdrs = ["SkUtils_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/private:SkNx_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkVM_opts_hdr",
+    hdrs = ["SkVM_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkVx_hdr",
+        "//src/core:SkVM_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkXfermode_opts_hdr",
+    hdrs = ["SkXfermode_opts.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkNx_hdr",
+        "//src/core:Sk4px_hdr",
+        "//src/core:SkMSAN_hdr",
+        "//src/core:SkXfermodePriv_hdr",
     ],
 )

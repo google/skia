@@ -1,0 +1,184 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkAutoCoInitialize_hdr",
+    hdrs = ["SkAutoCoInitialize.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkNoncopyable_hdr",
+        "//src/core:SkLeanWindows_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkAutoCoInitialize_src",
+    srcs = ["SkAutoCoInitialize.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkAutoCoInitialize_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDWriteFontFileStream_hdr",
+    hdrs = ["SkDWriteFontFileStream.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkObjBase_hdr",
+        ":SkTScopedComPtr_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkMutex_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDWriteFontFileStream_src",
+    srcs = ["SkDWriteFontFileStream.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDWriteFontFileStream_hdr",
+        ":SkHRESULT_hdr",
+        ":SkTScopedComPtr_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTFitsIn_hdr",
+        "//include/private:SkTemplates_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDWriteGeometrySink_hdr",
+    hdrs = ["SkDWriteGeometrySink.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkObjBase_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDWriteGeometrySink_src",
+    srcs = ["SkDWriteGeometrySink.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDWriteGeometrySink_hdr",
+        ":SkObjBase_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/utils:SkFloatUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDWriteNTDDI_VERSION_hdr",
+    hdrs = ["SkDWriteNTDDI_VERSION.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkDWrite_hdr",
+    hdrs = ["SkDWrite.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontStyle_hdr",
+        "//include/private:SkTemplates_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDWrite_src",
+    srcs = ["SkDWrite.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDWrite_hdr",
+        ":SkHRESULT_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkOnce_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkHRESULT_hdr",
+    hdrs = ["SkHRESULT.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//src/core:SkLeanWindows_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkHRESULT_src",
+    srcs = ["SkHRESULT.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkHRESULT_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkIStream_hdr",
+    hdrs = ["SkIStream.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkObjBase_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/core:SkLeanWindows_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkIStream_src",
+    srcs = ["SkIStream.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIStream_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkObjBase_hdr",
+    hdrs = ["SkObjBase.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/core:SkLeanWindows_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkTScopedComPtr_hdr",
+    hdrs = ["SkTScopedComPtr.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkObjBase_hdr",
+        "//src/core:SkLeanWindows_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkWGL_hdr",
+    hdrs = ["SkWGL.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//src/core:SkLeanWindows_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkWGL_win_src",
+    srcs = ["SkWGL_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkWGL_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkOnce_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkTSearch_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)

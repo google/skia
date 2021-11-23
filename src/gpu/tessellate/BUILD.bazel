@@ -1,0 +1,234 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "AffineMatrix_hdr",
+    hdrs = ["AffineMatrix.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Tessellation_hdr",
+        "//include/core:SkMatrix_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CullTest_hdr",
+    hdrs = ["CullTest.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Tessellation_hdr",
+        "//include/core:SkMatrix_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MiddleOutPolygonTriangulator_hdr",
+    hdrs = ["MiddleOutPolygonTriangulator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PatchWriter_hdr",
+    hdrs = ["PatchWriter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":MiddleOutPolygonTriangulator_hdr",
+        ":Tessellation_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/gpu:GrVertexChunkArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PatchWriter_src",
+    srcs = ["PatchWriter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PatchWriter_hdr",
+        ":PathTessellator_hdr",
+        ":StrokeTessellator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathCurveTessellator_hdr",
+    hdrs = ["PathCurveTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PathTessellator_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathCurveTessellator_src",
+    srcs = ["PathCurveTessellator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AffineMatrix_hdr",
+        ":MiddleOutPolygonTriangulator_hdr",
+        ":PatchWriter_hdr",
+        ":PathCurveTessellator_hdr",
+        ":WangsFormula_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathTessellator_hdr",
+    hdrs = ["PathTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PatchWriter_hdr",
+        ":Tessellation_hdr",
+        "//src/gpu:GrGpuBuffer_hdr",
+        "//src/gpu:GrVertexChunkArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathWedgeTessellator_hdr",
+    hdrs = ["PathWedgeTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PathTessellator_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PathWedgeTessellator_src",
+    srcs = ["PathWedgeTessellator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AffineMatrix_hdr",
+        ":PatchWriter_hdr",
+        ":PathCurveTessellator_hdr",
+        ":PathWedgeTessellator_hdr",
+        ":WangsFormula_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeFixedCountTessellator_hdr",
+    hdrs = ["StrokeFixedCountTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":StrokeTessellator_hdr",
+        "//src/gpu:GrGpuBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeFixedCountTessellator_src",
+    srcs = ["StrokeFixedCountTessellator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PatchWriter_hdr",
+        ":StrokeFixedCountTessellator_hdr",
+        ":StrokeIterator_hdr",
+        ":WangsFormula_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeHardwareTessellator_hdr",
+    hdrs = ["StrokeHardwareTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":StrokeTessellator_hdr"],
+)
+
+generated_cc_atom(
+    name = "StrokeHardwareTessellator_src",
+    srcs = ["StrokeHardwareTessellator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":PatchWriter_hdr",
+        ":StrokeHardwareTessellator_hdr",
+        ":WangsFormula_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeIterator_hdr",
+    hdrs = ["StrokeIterator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StrokeTessellator_hdr",
+    hdrs = ["StrokeTessellator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Tessellation_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/gpu:GrVertexChunkArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Tessellation_hdr",
+    hdrs = ["Tessellation.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkStrokeRec_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/private:SkVx_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Tessellation_src",
+    srcs = ["Tessellation.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CullTest_hdr",
+        ":MiddleOutPolygonTriangulator_hdr",
+        ":Tessellation_hdr",
+        ":WangsFormula_hdr",
+        "//include/core:SkPath_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkUtils_hdr",
+        "//src/gpu:BufferWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "WangsFormula_hdr",
+    hdrs = ["WangsFormula.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Tessellation_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+    ],
+)

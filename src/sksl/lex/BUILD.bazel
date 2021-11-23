@@ -1,0 +1,116 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "DFAState_hdr",
+    hdrs = ["DFAState.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":LexUtil_hdr"],
+)
+
+generated_cc_atom(
+    name = "DFA_hdr",
+    hdrs = ["DFA.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "LexUtil_hdr",
+    hdrs = ["LexUtil.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "Main_src",
+    srcs = ["Main.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":NFAtoDFA_hdr",
+        ":RegexParser_hdr",
+        ":TransitionTable_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "NFAState_hdr",
+    hdrs = ["NFAState.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":LexUtil_hdr"],
+)
+
+generated_cc_atom(
+    name = "NFA_hdr",
+    hdrs = ["NFA.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":NFAState_hdr",
+        ":RegexNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "NFA_src",
+    srcs = ["NFA.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":NFA_hdr"],
+)
+
+generated_cc_atom(
+    name = "NFAtoDFA_hdr",
+    hdrs = ["NFAtoDFA.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DFAState_hdr",
+        ":DFA_hdr",
+        ":NFAState_hdr",
+        ":NFA_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RegexNode_hdr",
+    hdrs = ["RegexNode.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "RegexNode_src",
+    srcs = ["RegexNode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":NFA_hdr",
+        ":RegexNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RegexParser_hdr",
+    hdrs = ["RegexParser.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":RegexNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "RegexParser_src",
+    srcs = ["RegexParser.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":LexUtil_hdr",
+        ":RegexParser_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TransitionTable_hdr",
+    hdrs = ["TransitionTable.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "TransitionTable_src",
+    srcs = ["TransitionTable.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DFA_hdr",
+        ":TransitionTable_hdr",
+    ],
+)

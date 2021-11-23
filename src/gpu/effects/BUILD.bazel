@@ -1,0 +1,556 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrAtlasedShaderHelpers_hdr",
+    hdrs = ["GrAtlasedShaderHelpers.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/gpu:GrDrawOpAtlas_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrBezierEffect_hdr",
+    hdrs = ["GrBezierEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:GrTypesPriv_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrBezierEffect_src",
+    srcs = ["GrBezierEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrBezierEffect_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrBicubicEffect_hdr",
+    hdrs = ["GrBicubicEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu:GrFragmentProcessor_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrBicubicEffect_src",
+    srcs = ["GrBicubicEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrBicubicEffect_hdr",
+        ":GrMatrixEffect_hdr",
+        ":GrTextureEffect_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/shaders:SkImageShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrBitmapTextGeoProc_hdr",
+    hdrs = ["GrBitmapTextGeoProc.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrBitmapTextGeoProc_src",
+    srcs = ["GrBitmapTextGeoProc.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrAtlasedShaderHelpers_hdr",
+        ":GrBitmapTextGeoProc_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrBlendFragmentProcessor_hdr",
+    hdrs = ["GrBlendFragmentProcessor.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrBlendFragmentProcessor_src",
+    srcs = ["GrBlendFragmentProcessor.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrBlendFragmentProcessor_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/glsl:GrGLSLBlend_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrConvexPolyEffect_hdr",
+    hdrs = ["GrConvexPolyEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrConvexPolyEffect_src",
+    srcs = ["GrConvexPolyEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrConvexPolyEffect_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/sksl/dsl/priv:DSLFPs_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrCoverageSetOpXP_hdr",
+    hdrs = ["GrCoverageSetOpXP.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRegion_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrCoverageSetOpXP_src",
+    srcs = ["GrCoverageSetOpXP.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrCoverageSetOpXP_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColor_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/glsl:GrGLSLBlend_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrCustomXfermode_hdr",
+    hdrs = ["GrCustomXfermode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrCustomXfermode_src",
+    srcs = ["GrCustomXfermode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrCustomXfermode_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/glsl:GrGLSLBlend_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrDisableColorXP_hdr",
+    hdrs = ["GrDisableColorXP.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrDisableColorXP_src",
+    srcs = ["GrDisableColorXP.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrDisableColorXP_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrDistanceFieldGeoProc_hdr",
+    hdrs = ["GrDistanceFieldGeoProc.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrDistanceFieldGeoProc_src",
+    srcs = ["GrDistanceFieldGeoProc.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrAtlasedShaderHelpers_hdr",
+        ":GrDistanceFieldGeoProc_hdr",
+        "//src/core:SkDistanceFieldGen_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGaussianConvolutionFragmentProcessor_hdr",
+    hdrs = ["GrGaussianConvolutionFragmentProcessor.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu:GrFragmentProcessor_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrGaussianConvolutionFragmentProcessor_src",
+    srcs = ["GrGaussianConvolutionFragmentProcessor.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGaussianConvolutionFragmentProcessor_hdr",
+        ":GrTextureEffect_hdr",
+        "//src/core:SkGpuBlurUtils_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/sksl/dsl/priv:DSLFPs_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMatrixConvolutionEffect_hdr",
+    hdrs = ["GrMatrixConvolutionEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu:GrFragmentProcessor_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrMatrixConvolutionEffect_src",
+    srcs = ["GrMatrixConvolutionEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMatrixConvolutionEffect_hdr",
+        ":GrTextureEffect_hdr",
+        "//include/private:SkHalf_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:GrThreadSafeCache_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMatrixEffect_hdr",
+    hdrs = ["GrMatrixEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkM44_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMatrixEffect_src",
+    srcs = ["GrMatrixEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMatrixEffect_hdr",
+        ":GrTextureEffect_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrModulateAtlasCoverageEffect_hdr",
+    hdrs = ["GrModulateAtlasCoverageEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu:GrFragmentProcessor_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrModulateAtlasCoverageEffect_src",
+    srcs = ["GrModulateAtlasCoverageEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrModulateAtlasCoverageEffect_hdr",
+        ":GrTextureEffect_hdr",
+        "//src/gpu:GrDynamicAtlas_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrOvalEffect_hdr",
+    hdrs = ["GrOvalEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrOvalEffect_src",
+    srcs = ["GrOvalEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrOvalEffect_hdr",
+        "//include/core:SkRect_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrPorterDuffXferProcessor_hdr",
+    hdrs = ["GrPorterDuffXferProcessor.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBlendMode_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/private:SkMacros_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrPorterDuffXferProcessor_src",
+    srcs = ["GrPorterDuffXferProcessor.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrPorterDuffXferProcessor_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/private:SkMacros_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/gpu:GrBlend_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrProcessorAnalysis_hdr",
+        "//src/gpu:GrProcessor_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/glsl:GrGLSLBlend_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrRRectEffect_hdr",
+    hdrs = ["GrRRectEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrRRectEffect_src",
+    srcs = ["GrRRectEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrConvexPolyEffect_hdr",
+        ":GrOvalEffect_hdr",
+        ":GrRRectEffect_hdr",
+        "//src/core:SkRRectPriv_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrShadowGeoProc_hdr",
+    hdrs = ["GrShadowGeoProc.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrShadowGeoProc_src",
+    srcs = ["GrShadowGeoProc.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrShadowGeoProc_hdr",
+        "//src/gpu:GrSurfaceProxyView_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrSkSLFP_hdr",
+    hdrs = ["GrSkSLFP.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrSkSLFP_src",
+    srcs = ["GrSkSLFP.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrSkSLFP_hdr",
+        "//include/effects:SkOverdrawColorFilter_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:GrContext_Base_hdr",
+        "//include/private:SkSLString_hdr",
+        "//src/core:SkColorFilterBase_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/gpu:GrBaseContextPriv_hdr",
+        "//src/gpu:GrColorInfo_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+        "//src/sksl/codegen:SkSLPipelineStageCodeGenerator_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTextureEffect_hdr",
+    hdrs = ["GrTextureEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrSurfaceProxyView_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTextureEffect_src",
+    srcs = ["GrTextureEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMatrixEffect_hdr",
+        ":GrTextureEffect_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrYUVtoRGBEffect_hdr",
+    hdrs = ["GrYUVtoRGBEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkYUVAInfo_hdr",
+        "//src/core:SkYUVAInfoLocation_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrYUVtoRGBEffect_src",
+    srcs = ["GrYUVtoRGBEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMatrixEffect_hdr",
+        ":GrTextureEffect_hdr",
+        ":GrYUVtoRGBEffect_hdr",
+        "//include/core:SkYUVAInfo_hdr",
+        "//src/core:SkYUVMath_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:GrYUVATextureProxies_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+    ],
+)

@@ -1,0 +1,236 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrGLSLBlend_hdr",
+    hdrs = ["GrGLSLBlend.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkBlendMode_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrGLSLBlend_src",
+    srcs = ["GrGLSLBlend.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLBlend_hdr",
+        ":GrGLSLFragmentShaderBuilder_hdr",
+        ":GrGLSLProgramBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLColorSpaceXformHelper_hdr",
+    hdrs = ["GrGLSLColorSpaceXformHelper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLUniformHandler_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkColorSpaceXformSteps_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLFragmentShaderBuilder_hdr",
+    hdrs = ["GrGLSLFragmentShaderBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLShaderBuilder_hdr",
+        "//src/gpu:GrBlend_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLFragmentShaderBuilder_src",
+    srcs = ["GrGLSLFragmentShaderBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLFragmentShaderBuilder_hdr",
+        ":GrGLSLProgramBuilder_hdr",
+        ":GrGLSLUniformHandler_hdr",
+        ":GrGLSLVarying_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLProgramBuilder_hdr",
+    hdrs = ["GrGLSLProgramBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLFragmentShaderBuilder_hdr",
+        ":GrGLSLProgramDataManager_hdr",
+        ":GrGLSLUniformHandler_hdr",
+        ":GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLProgramBuilder_src",
+    srcs = ["GrGLSLProgramBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLProgramBuilder_hdr",
+        ":GrGLSLVarying_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl/dsl/priv:DSLFPs_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLProgramDataManager_hdr",
+    hdrs = ["GrGLSLProgramDataManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkNoncopyable_hdr",
+        "//src/gpu:GrResourceHandle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLProgramDataManager_src",
+    srcs = ["GrGLSLProgramDataManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLProgramDataManager_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLShaderBuilder_hdr",
+    hdrs = ["GrGLSLShaderBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLUniformHandler_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//include/private:SkSLString_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkTBlockList_hdr",
+        "//src/gpu:GrShaderVar_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLShaderBuilder_src",
+    srcs = ["GrGLSLShaderBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLBlend_hdr",
+        ":GrGLSLColorSpaceXformHelper_hdr",
+        ":GrGLSLProgramBuilder_hdr",
+        ":GrGLSLShaderBuilder_hdr",
+        "//include/sksl:DSL_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrShaderVar_hdr",
+        "//src/gpu:GrSwizzle_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLUniformHandler_hdr",
+    hdrs = ["GrGLSLUniformHandler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLProgramDataManager_hdr",
+        "//src/gpu:GrShaderVar_hdr",
+        "//src/gpu:GrSwizzle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLUniformHandler_src",
+    srcs = ["GrGLSLUniformHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLShaderBuilder_hdr",
+        ":GrGLSLUniformHandler_hdr",
+        ":GrGLSL_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLVarying_hdr",
+    hdrs = ["GrGLSLVarying.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLProgramDataManager_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/core:SkTBlockList_hdr",
+        "//src/gpu:GrShaderVar_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLVarying_src",
+    srcs = ["GrGLSLVarying.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLProgramBuilder_hdr",
+        ":GrGLSLVarying_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLVertexGeoBuilder_hdr",
+    hdrs = ["GrGLSLVertexGeoBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLShaderBuilder_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSLVertexGeoBuilder_src",
+    srcs = ["GrGLSLVertexGeoBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrGLSLProgramBuilder_hdr",
+        ":GrGLSLVarying_hdr",
+        ":GrGLSLVertexGeoBuilder_hdr",
+        "//include/gpu:GrTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSL_hdr",
+    hdrs = ["GrGLSL.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:GrTypesPriv_hdr",
+        "//src/sksl:SkSLGLSL_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLSL_src",
+    srcs = ["GrGLSL.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrGLSL_hdr"],
+)

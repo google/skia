@@ -1,0 +1,675 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkBitmapKey_hdr",
+    hdrs = ["SkBitmapKey.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRect_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkClusterator_hdr",
+    hdrs = ["SkClusterator.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkClusterator_src",
+    srcs = ["SkClusterator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkClusterator_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkGlyphRun_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDeflate_hdr",
+    hdrs = ["SkDeflate.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkStream_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkDeflate_src",
+    srcs = ["SkDeflate.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDeflate_hdr",
+        "//include/core:SkData_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//third_party:zlib",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDocument_PDF_None_src",
+    srcs = ["SkDocument_PDF_None.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkJpegInfo_hdr",
+    hdrs = ["SkJpegInfo.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/codec:SkEncodedOrigin_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/private:SkEncodedInfo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkJpegInfo_src",
+    srcs = ["SkJpegInfo.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkJpegInfo_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkKeyedImage_hdr",
+    hdrs = ["SkKeyedImage.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapKey_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkImage_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkKeyedImage_src",
+    srcs = ["SkKeyedImage.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkKeyedImage_hdr",
+        "//src/image:SkImage_Base_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFBitmap_hdr",
+    hdrs = ["SkPDFBitmap.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkPDFBitmap_src",
+    srcs = ["SkPDFBitmap.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDeflate_hdr",
+        ":SkJpegInfo_hdr",
+        ":SkPDFBitmap_hdr",
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFTypes_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkExecutor_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkImageInfoPriv_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFDevice_hdr",
+    hdrs = ["SkPDFDevice.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkKeyedImage_hdr",
+        ":SkPDFGraphicStackState_hdr",
+        ":SkPDFTypes_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkClipStackDevice_hdr",
+        "//src/core:SkClipStack_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFDevice_src",
+    srcs = ["SkPDFDevice.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapKey_hdr",
+        ":SkClusterator_hdr",
+        ":SkPDFBitmap_hdr",
+        ":SkPDFDevice_hdr",
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFFont_hdr",
+        ":SkPDFFormXObject_hdr",
+        ":SkPDFGraphicState_hdr",
+        ":SkPDFResourceDict_hdr",
+        ":SkPDFShader_hdr",
+        ":SkPDFTypes_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkPathEffect_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkRRect_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+        "//include/encode:SkJpegEncoder_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkAdvancedTypefaceMetrics_hdr",
+        "//src/core:SkAnnotationKeys_hdr",
+        "//src/core:SkBitmapDevice_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkDraw_hdr",
+        "//src/core:SkGlyphRun_hdr",
+        "//src/core:SkImageFilterCache_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkMaskFilterBase_hdr",
+        "//src/core:SkRasterClip_hdr",
+        "//src/core:SkScalerCache_hdr",
+        "//src/core:SkScopeExit_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+        "//src/core:SkTextFormatParams_hdr",
+        "//src/core:SkXfermodeInterpretation_hdr",
+        "//src/utils:SkClipStackUtils_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFDocumentPriv_hdr",
+    hdrs = ["SkPDFDocumentPriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFMetadata_hdr",
+        ":SkPDFTag_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+        "//include/private:SkMutex_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFDocument_src",
+    srcs = ["SkPDFDocument.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFDevice_hdr",
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFFont_hdr",
+        ":SkPDFGradientShader_hdr",
+        ":SkPDFGraphicState_hdr",
+        ":SkPDFShader_hdr",
+        ":SkPDFTag_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFFont_hdr",
+    hdrs = ["SkPDFFont.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFGlyphUse_hdr",
+        ":SkPDFTypes_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/core:SkAdvancedTypefaceMetrics_hdr",
+        "//src/core:SkStrikeCache_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFFont_src",
+    srcs = ["SkPDFFont.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFBitmap_hdr",
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFFont_hdr",
+        ":SkPDFMakeCIDGlyphWidthsArray_hdr",
+        ":SkPDFMakeToUnicodeCmap_hdr",
+        ":SkPDFSubsetFont_hdr",
+        ":SkPDFType1Font_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFontTypes_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkSurfaceProps_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+        "//include/private:SkBitmaskEnum_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkGlyph_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkMask_hdr",
+        "//src/core:SkScalerCache_hdr",
+        "//src/core:SkScalerContext_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFFormXObject_hdr",
+    hdrs = ["SkPDFFormXObject.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFDevice_hdr",
+        ":SkPDFTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFFormXObject_src",
+    srcs = ["SkPDFFormXObject.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFFormXObject_hdr",
+        ":SkPDFUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFGlyphUse_hdr",
+    hdrs = ["SkPDFGlyphUse.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//src/utils:SkBitSet_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFGradientShader_hdr",
+    hdrs = ["SkPDFGradientShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFTypes_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFGradientShader_src",
+    srcs = ["SkPDFGradientShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFFormXObject_hdr",
+        ":SkPDFGradientShader_hdr",
+        ":SkPDFGraphicState_hdr",
+        ":SkPDFResourceDict_hdr",
+        ":SkPDFTypes_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFGraphicStackState_hdr",
+    hdrs = ["SkPDFGraphicStackState.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkScalar_hdr",
+        "//src/core:SkClipStack_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFGraphicStackState_src",
+    srcs = ["SkPDFGraphicStackState.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFGraphicStackState_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//src/utils:SkClipStackUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFGraphicState_hdr",
+    hdrs = ["SkPDFGraphicState.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFTypes_hdr",
+        "//include/private:SkMacros_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFGraphicState_src",
+    srcs = ["SkPDFGraphicState.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFFormXObject_hdr",
+        ":SkPDFGraphicState_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFMakeCIDGlyphWidthsArray_hdr",
+    hdrs = ["SkPDFMakeCIDGlyphWidthsArray.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPDFTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkPDFMakeCIDGlyphWidthsArray_src",
+    srcs = ["SkPDFMakeCIDGlyphWidthsArray.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFGlyphUse_hdr",
+        ":SkPDFMakeCIDGlyphWidthsArray_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkScalerCache_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFMakeToUnicodeCmap_hdr",
+    hdrs = ["SkPDFMakeToUnicodeCmap.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFFont_hdr",
+        "//include/core:SkStream_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFMakeToUnicodeCmap_src",
+    srcs = ["SkPDFMakeToUnicodeCmap.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFMakeToUnicodeCmap_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFMetadata_hdr",
+    hdrs = ["SkPDFMetadata.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFTypes_hdr",
+        ":SkUUID_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFMetadata_src",
+    srcs = ["SkPDFMetadata.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFMetadata_hdr",
+        ":SkPDFTypes_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkMD5_hdr",
+        "//src/core:SkUtils_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFResourceDict_hdr",
+    hdrs = ["SkPDFResourceDict.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPDFFont_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkPDFResourceDict_src",
+    srcs = ["SkPDFResourceDict.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFResourceDict_hdr",
+        ":SkPDFTypes_hdr",
+        "//include/core:SkStream_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFShader_hdr",
+    hdrs = ["SkPDFShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapKey_hdr",
+        ":SkPDFTypes_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/private:SkMacros_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFShader_src",
+    srcs = ["SkPDFShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFDevice_hdr",
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFFormXObject_hdr",
+        ":SkPDFGradientShader_hdr",
+        ":SkPDFGraphicState_hdr",
+        ":SkPDFResourceDict_hdr",
+        ":SkPDFShader_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkMath_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+        "//include/private:SkTPin_hdr",
+        "//include/private:SkTemplates_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFSubsetFont_hdr",
+    hdrs = ["SkPDFSubsetFont.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFGlyphUse_hdr",
+        "//include/core:SkData_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFSubsetFont_src",
+    srcs = ["SkPDFSubsetFont.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFSubsetFont_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/utils:SkCallableTraits_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFTag_hdr",
+    hdrs = ["SkPDFTag.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/docs:SkPDFDocument_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFTag_src",
+    srcs = ["SkPDFTag.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFTag_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFType1Font_hdr",
+    hdrs = ["SkPDFType1Font.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFFont_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFType1Font_src",
+    srcs = ["SkPDFType1Font.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFType1Font_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFTypes_hdr",
+    hdrs = ["SkPDFTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFTypes_src",
+    srcs = ["SkPDFTypes.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDeflate_hdr",
+        ":SkPDFDocumentPriv_hdr",
+        ":SkPDFTypes_hdr",
+        ":SkPDFUnion_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkExecutor_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkStreamPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFUnion_hdr",
+    hdrs = ["SkPDFUnion.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPDFTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkPDFUtils_hdr",
+    hdrs = ["SkPDFUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFTypes_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkStream_hdr",
+        "//src/core:SkUtils_hdr",
+        "//src/shaders:SkShaderBase_hdr",
+        "//src/utils:SkFloatToDecimal_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPDFUtils_src",
+    srcs = ["SkPDFUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPDFResourceDict_hdr",
+        ":SkPDFTypes_hdr",
+        ":SkPDFUtils_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkFixed_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/image:SkImage_Base_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkUUID_hdr",
+    hdrs = ["SkUUID.h"],
+    visibility = ["//:__subpackages__"],
+)

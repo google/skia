@@ -1,0 +1,436 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkAlphaThresholdImageFilter_src",
+    srcs = ["SkAlphaThresholdImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkRegion_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu/effects:GrSkSLFP_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkArithmeticImageFilter_src",
+    srcs = ["SkArithmeticImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkNx_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/effects:GrSkSLFP_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkBlendImageFilter_src",
+    srcs = ["SkBlendImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/core:SkBlendModePriv_hdr",
+        "//src/core:SkBlenderBase_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkMatrixProvider_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/effects:GrBlendFragmentProcessor_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkBlurImageFilter_src",
+    srcs = ["SkBlurImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkTileMode_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkTFitsIn_hdr",
+        "//include/private:SkTPin_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkAutoPixmapStorage_hdr",
+        "//src/core:SkGpuBlurUtils_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkOpts_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkColorFilterImageFilter_src",
+    srcs = ["SkColorFilterImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkColorFilterBase_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkComposeImageFilter_src",
+    srcs = ["SkComposeImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkCropImageFilter_hdr",
+    hdrs = ["SkCropImageFilter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkCropImageFilter_src",
+    srcs = ["SkCropImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkCropImageFilter_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkValidationUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDisplacementMapImageFilter_src",
+    srcs = ["SkDisplacementMapImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkUnPreMultiply_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkColorData_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDropShadowImageFilter_src",
+    srcs = ["SkDropShadowImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkImageImageFilter_src",
+    srcs = ["SkImageImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkString_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSamplingPriv_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkLightingImageFilter_src",
+    srcs = ["SkLightingImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkPoint3_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrPaint_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkMagnifierImageFilter_src",
+    srcs = ["SkMagnifierImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkValidationUtils_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrColorSpaceXform_hdr",
+        "//src/gpu/effects:GrSkSLFP_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkMatrixConvolutionImageFilter_src",
+    srcs = ["SkMatrixConvolutionImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkTileMode_hdr",
+        "//include/core:SkUnPreMultiply_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu/effects:GrMatrixConvolutionEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkMergeImageFilter_src",
+    srcs = ["SkMergeImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkValidationUtils_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkMorphologyImageFilter_src",
+    srcs = ["SkMorphologyImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkVx_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/gpu:GrTextureProxy_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:SkGr_hdr",
+        "//src/gpu:SurfaceFillContext_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOffsetImageFilter_src",
+    srcs = ["SkOffsetImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPictureImageFilter_src",
+    srcs = ["SkPictureImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkPicturePriv_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkValidationUtils_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRuntimeImageFilter_hdr",
+    hdrs = ["SkRuntimeImageFilter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkRuntimeImageFilter_src",
+    srcs = ["SkRuntimeImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkRuntimeImageFilter_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkRuntimeEffectPriv_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShaderImageFilter_src",
+    srcs = ["SkShaderImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkTileImageFilter_src",
+    srcs = ["SkTileImageFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//src/core:SkImageFilter_Base_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkSpecialImage_hdr",
+        "//src/core:SkSpecialSurface_hdr",
+        "//src/core:SkValidationUtils_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+    ],
+)

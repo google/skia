@@ -1,64 +1,659 @@
-package(default_visibility = ["//:__subpackages__"])
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-filegroup(
-    name = "srcs",
-    srcs = [
-        "SkAddIntersections.cpp",
-        "SkAddIntersections.h",
-        "SkDConicLineIntersection.cpp",
-        "SkDCubicLineIntersection.cpp",
-        "SkDCubicToQuads.cpp",
-        "SkDLineIntersection.cpp",
-        "SkDQuadLineIntersection.cpp",
-        "SkIntersectionHelper.h",
-        "SkIntersections.cpp",
-        "SkIntersections.h",
-        "SkLineParameters.h",
-        "SkOpAngle.cpp",
-        "SkOpAngle.h",
-        "SkOpBuilder.cpp",
-        "SkOpCoincidence.cpp",
-        "SkOpCoincidence.h",
-        "SkOpContour.cpp",
-        "SkOpContour.h",
-        "SkOpCubicHull.cpp",
-        "SkOpEdgeBuilder.cpp",
-        "SkOpEdgeBuilder.h",
-        "SkOpSegment.cpp",
-        "SkOpSegment.h",
-        "SkOpSpan.cpp",
-        "SkOpSpan.h",
-        "SkPathOpsAsWinding.cpp",
-        "SkPathOpsBounds.h",
-        "SkPathOpsCommon.cpp",
-        "SkPathOpsCommon.h",
-        "SkPathOpsConic.cpp",
-        "SkPathOpsConic.h",
-        "SkPathOpsCubic.cpp",
-        "SkPathOpsCubic.h",
-        "SkPathOpsCurve.cpp",
-        "SkPathOpsCurve.h",
-        "SkPathOpsDebug.cpp",
-        "SkPathOpsDebug.h",
-        "SkPathOpsLine.cpp",
-        "SkPathOpsLine.h",
-        "SkPathOpsOp.cpp",
-        "SkPathOpsPoint.h",
-        "SkPathOpsQuad.cpp",
-        "SkPathOpsQuad.h",
-        "SkPathOpsRect.cpp",
-        "SkPathOpsRect.h",
-        "SkPathOpsSimplify.cpp",
-        "SkPathOpsTCurve.h",
-        "SkPathOpsTSect.cpp",
-        "SkPathOpsTSect.h",
-        "SkPathOpsTightBounds.cpp",
-        "SkPathOpsTypes.cpp",
-        "SkPathOpsTypes.h",
-        "SkPathOpsWinding.cpp",
-        "SkPathWriter.cpp",
-        "SkPathWriter.h",
-        "SkReduceOrder.cpp",
-        "SkReduceOrder.h",
+generated_cc_atom(
+    name = "SkAddIntersections_hdr",
+    hdrs = ["SkAddIntersections.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersectionHelper_hdr",
+        ":SkIntersections_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkAddIntersections_src",
+    srcs = ["SkAddIntersections.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkAddIntersections_hdr",
+        ":SkOpCoincidence_hdr",
+        ":SkPathOpsBounds_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDConicLineIntersection_src",
+    srcs = ["SkDConicLineIntersection.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersections_hdr",
+        ":SkPathOpsConic_hdr",
+        ":SkPathOpsCurve_hdr",
+        ":SkPathOpsLine_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDCubicLineIntersection_src",
+    srcs = ["SkDCubicLineIntersection.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersections_hdr",
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsCurve_hdr",
+        ":SkPathOpsLine_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDCubicToQuads_src",
+    srcs = ["SkDCubicToQuads.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsQuad_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDLineIntersection_src",
+    srcs = ["SkDLineIntersection.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersections_hdr",
+        ":SkPathOpsLine_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDQuadLineIntersection_src",
+    srcs = ["SkDQuadLineIntersection.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersections_hdr",
+        ":SkPathOpsCurve_hdr",
+        ":SkPathOpsLine_hdr",
+        ":SkPathOpsQuad_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkIntersectionHelper_hdr",
+    hdrs = ["SkIntersectionHelper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpContour_hdr",
+        ":SkOpSegment_hdr",
+        ":SkPathOpsPoint_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkIntersections_hdr",
+    hdrs = ["SkIntersections.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsConic_hdr",
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsLine_hdr",
+        ":SkPathOpsPoint_hdr",
+        ":SkPathOpsQuad_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkIntersections_src",
+    srcs = ["SkIntersections.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkIntersections_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkLineParameters_hdr",
+    hdrs = ["SkLineParameters.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsLine_hdr",
+        ":SkPathOpsQuad_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpAngle_hdr",
+    hdrs = ["SkOpAngle.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkLineParameters_hdr",
+        ":SkPathOpsCurve_hdr",
+        "//include/core:SkString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpAngle_src",
+    srcs = ["SkOpAngle.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpAngle_hdr",
+        ":SkOpSegment_hdr",
+        ":SkPathOpsCurve_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpBuilder_src",
+    srcs = ["SkOpBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpEdgeBuilder_hdr",
+        ":SkPathOpsCommon_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpCoincidence_hdr",
+    hdrs = ["SkOpCoincidence.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpSpan_hdr",
+        ":SkPathOpsTypes_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpCoincidence_src",
+    srcs = ["SkOpCoincidence.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpCoincidence_hdr",
+        ":SkOpSegment_hdr",
+        ":SkPathOpsTSect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpContour_hdr",
+    hdrs = ["SkOpContour.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpSegment_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpContour_src",
+    srcs = ["SkOpContour.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpContour_hdr",
+        ":SkPathWriter_hdr",
+        ":SkReduceOrder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpCubicHull_src",
+    srcs = ["SkOpCubicHull.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPathOpsCubic_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkOpEdgeBuilder_hdr",
+    hdrs = ["SkOpEdgeBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpContour_hdr",
+        ":SkPathWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpEdgeBuilder_src",
+    srcs = ["SkOpEdgeBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpEdgeBuilder_hdr",
+        ":SkReduceOrder_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpSegment_hdr",
+    hdrs = ["SkOpSegment.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpAngle_hdr",
+        ":SkOpSpan_hdr",
+        ":SkPathOpsBounds_hdr",
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsCurve_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpSegment_src",
+    srcs = ["SkOpSegment.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpCoincidence_hdr",
+        ":SkOpContour_hdr",
+        ":SkOpSegment_hdr",
+        ":SkPathWriter_hdr",
+        "//src/core:SkPointPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpSpan_hdr",
+    hdrs = ["SkOpSpan.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsDebug_hdr",
+        ":SkPathOpsTypes_hdr",
+        "//include/core:SkPoint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkOpSpan_src",
+    srcs = ["SkOpSpan.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpCoincidence_hdr",
+        ":SkOpContour_hdr",
+        ":SkOpSegment_hdr",
+        ":SkPathWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsAsWinding_src",
+    srcs = ["SkPathOpsAsWinding.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpEdgeBuilder_hdr",
+        ":SkPathOpsCommon_hdr",
+        "//include/core:SkRect_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsBounds_hdr",
+    hdrs = ["SkPathOpsBounds.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsRect_hdr",
+        "//include/core:SkRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsCommon_hdr",
+    hdrs = ["SkPathOpsCommon.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpAngle_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsCommon_src",
+    srcs = ["SkPathOpsCommon.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkAddIntersections_hdr",
+        ":SkOpCoincidence_hdr",
+        ":SkOpEdgeBuilder_hdr",
+        ":SkPathOpsCommon_hdr",
+        ":SkPathWriter_hdr",
+        "//include/private:SkMacros_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsConic_hdr",
+    hdrs = ["SkPathOpsConic.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPathOpsQuad_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsConic_src",
+    srcs = ["SkPathOpsConic.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersections_hdr",
+        ":SkLineParameters_hdr",
+        ":SkPathOpsConic_hdr",
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsQuad_hdr",
+        ":SkPathOpsRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsCubic_hdr",
+    hdrs = ["SkPathOpsCubic.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsTCurve_hdr",
+        "//include/core:SkPath_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsCubic_src",
+    srcs = ["SkPathOpsCubic.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkLineParameters_hdr",
+        ":SkPathOpsConic_hdr",
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsCurve_hdr",
+        ":SkPathOpsLine_hdr",
+        ":SkPathOpsQuad_hdr",
+        ":SkPathOpsRect_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsCurve_hdr",
+    hdrs = ["SkPathOpsCurve.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersections_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsCurve_src",
+    srcs = ["SkPathOpsCurve.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsBounds_hdr",
+        ":SkPathOpsCurve_hdr",
+        ":SkPathOpsRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsDebug_hdr",
+    hdrs = ["SkPathOpsDebug.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/pathops:SkPathOps_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsDebug_src",
+    srcs = ["SkPathOpsDebug.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersectionHelper_hdr",
+        ":SkIntersections_hdr",
+        ":SkOpAngle_hdr",
+        ":SkOpCoincidence_hdr",
+        ":SkOpContour_hdr",
+        ":SkOpSegment_hdr",
+        ":SkPathOpsConic_hdr",
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsDebug_hdr",
+        ":SkPathOpsTypes_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkMutex_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsLine_hdr",
+    hdrs = ["SkPathOpsLine.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPathOpsPoint_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsLine_src",
+    srcs = ["SkPathOpsLine.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPathOpsLine_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsOp_src",
+    srcs = ["SkPathOpsOp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkAddIntersections_hdr",
+        ":SkOpCoincidence_hdr",
+        ":SkOpEdgeBuilder_hdr",
+        ":SkPathOpsCommon_hdr",
+        ":SkPathWriter_hdr",
+        "//include/private:SkMutex_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsPoint_hdr",
+    hdrs = ["SkPathOpsPoint.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsTypes_hdr",
+        "//include/core:SkPoint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsQuad_hdr",
+    hdrs = ["SkPathOpsQuad.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsTCurve_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsQuad_src",
+    srcs = ["SkPathOpsQuad.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersections_hdr",
+        ":SkLineParameters_hdr",
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsCurve_hdr",
+        ":SkPathOpsQuad_hdr",
+        ":SkPathOpsRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsRect_hdr",
+    hdrs = ["SkPathOpsRect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPathOpsPoint_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsRect_src",
+    srcs = ["SkPathOpsRect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsConic_hdr",
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsLine_hdr",
+        ":SkPathOpsQuad_hdr",
+        ":SkPathOpsRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsSimplify_src",
+    srcs = ["SkPathOpsSimplify.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkAddIntersections_hdr",
+        ":SkOpCoincidence_hdr",
+        ":SkOpEdgeBuilder_hdr",
+        ":SkPathOpsCommon_hdr",
+        ":SkPathWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsTCurve_hdr",
+    hdrs = ["SkPathOpsTCurve.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkPathOpsPoint_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsTSect_hdr",
+    hdrs = ["SkPathOpsTSect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkIntersections_hdr",
+        ":SkPathOpsBounds_hdr",
+        ":SkPathOpsRect_hdr",
+        ":SkPathOpsTCurve_hdr",
+        "//include/private:SkMacros_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsTSect_src",
+    srcs = ["SkPathOpsTSect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsTSect_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsTightBounds_src",
+    srcs = ["SkPathOpsTightBounds.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpEdgeBuilder_hdr",
+        ":SkPathOpsCommon_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsTypes_hdr",
+    hdrs = ["SkPathOpsTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsDebug_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+        "//include/private:SkSafe_math_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsTypes_src",
+    srcs = ["SkPathOpsTypes.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpCoincidence_hdr",
+        ":SkPathOpsTypes_hdr",
+        "//include/private:SkFloatBits_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathOpsWinding_src",
+    srcs = ["SkPathOpsWinding.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpContour_hdr",
+        ":SkOpSegment_hdr",
+        ":SkPathOpsCurve_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathWriter_hdr",
+    hdrs = ["SkPathWriter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkPathWriter_src",
+    srcs = ["SkPathWriter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpSegment_hdr",
+        ":SkOpSpan_hdr",
+        ":SkPathOpsPoint_hdr",
+        ":SkPathWriter_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkReduceOrder_hdr",
+    hdrs = ["SkReduceOrder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPathOpsCubic_hdr",
+        ":SkPathOpsLine_hdr",
+        ":SkPathOpsQuad_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkReduceOrder_src",
+    srcs = ["SkReduceOrder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkReduceOrder_hdr",
+        "//src/core:SkGeometry_hdr",
     ],
 )

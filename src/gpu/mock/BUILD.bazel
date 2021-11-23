@@ -1,0 +1,135 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrMockAttachment_hdr",
+    hdrs = ["GrMockAttachment.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMockGpu_hdr",
+        "//src/gpu:GrAttachment_hdr",
+        "//src/gpu:GrBackendUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockBuffer_hdr",
+    hdrs = ["GrMockBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMockGpu_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrGpuBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockCaps_hdr",
+    hdrs = ["GrMockCaps.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/mock:GrMockTypes_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:SkGr_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockCaps_src",
+    srcs = ["GrMockCaps.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMockCaps_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockGpu_hdr",
+    hdrs = ["GrMockGpu.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTHash_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrSemaphore_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockGpu_src",
+    srcs = ["GrMockGpu.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMockAttachment_hdr",
+        ":GrMockBuffer_hdr",
+        ":GrMockCaps_hdr",
+        ":GrMockGpu_hdr",
+        ":GrMockOpsRenderPass_hdr",
+        ":GrMockTexture_hdr",
+        "//src/gpu:GrThreadSafePipelineBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockOpTarget_hdr",
+    hdrs = ["GrMockOpTarget.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu:GrAppliedClip_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrDstProxyView_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockOpsRenderPass_hdr",
+    hdrs = ["GrMockOpsRenderPass.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMockGpu_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockRenderTask_hdr",
+    hdrs = ["GrMockRenderTask.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu:GrRenderTask_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrMockSurfaceProxy_hdr",
+    hdrs = ["GrMockSurfaceProxy.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu:GrSurfaceProxy_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrMockTexture_hdr",
+    hdrs = ["GrMockTexture.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMockGpu_hdr",
+        "//include/gpu/mock:GrMockTypes_hdr",
+        "//src/gpu:GrAttachment_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMockTypes_src",
+    srcs = ["GrMockTypes.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu/mock:GrMockTypes_hdr",
+    ],
+)

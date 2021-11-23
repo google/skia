@@ -1,0 +1,22 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrGLMakeEGLInterface_src",
+    srcs = ["GrGLMakeEGLInterface.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/gl:GrGLAssembleInterface_hdr",
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//src/gpu/gl:GrGLUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGLMakeNativeInterface_egl_src",
+    srcs = ["GrGLMakeNativeInterface_egl.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//include/gpu/gl/egl:GrGLMakeEGLInterface_hdr",
+    ],
+)

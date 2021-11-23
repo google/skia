@@ -1,0 +1,638 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrD3DAMDMemoryAllocator_hdr",
+    hdrs = ["GrD3DAMDMemoryAllocator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DAMDMemoryAllocator_src",
+    srcs = ["GrD3DAMDMemoryAllocator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DAMDMemoryAllocator_hdr",
+        ":GrD3DUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DAttachment_hdr",
+    hdrs = ["GrD3DAttachment.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DDescriptorHeap_hdr",
+        ":GrD3DTextureResource_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrAttachment_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DAttachment_src",
+    srcs = ["GrD3DAttachment.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DAttachment_hdr",
+        ":GrD3DGpu_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DBuffer_hdr",
+    hdrs = ["GrD3DBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrGpuBuffer_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DBuffer_src",
+    srcs = ["GrD3DBuffer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DBuffer_hdr",
+        ":GrD3DGpu_hdr",
+        ":GrD3DUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DCaps_hdr",
+    hdrs = ["GrD3DCaps.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DAttachment_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrCaps_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DCaps_src",
+    srcs = ["GrD3DCaps.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DCaps_hdr",
+        ":GrD3DGpu_hdr",
+        ":GrD3DRenderTarget_hdr",
+        ":GrD3DTexture_hdr",
+        ":GrD3DUtil_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+        "//include/gpu/d3d:GrD3DBackendContext_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/core:SkCompressedDataUtils_hdr",
+        "//src/gpu:GrBackendUtils_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrStencilSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DCommandList_hdr",
+    hdrs = ["GrD3DCommandList.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DRootSignature_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+        "//src/gpu:GrRingBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DCommandList_src",
+    srcs = ["GrD3DCommandList.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DAttachment_hdr",
+        ":GrD3DBuffer_hdr",
+        ":GrD3DCommandList_hdr",
+        ":GrD3DCommandSignature_hdr",
+        ":GrD3DGpu_hdr",
+        ":GrD3DPipeline_hdr",
+        ":GrD3DRenderTarget_hdr",
+        ":GrD3DTextureResource_hdr",
+        ":GrD3DTexture_hdr",
+        ":GrD3DUtil_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrScissorState_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DCommandSignature_hdr",
+    hdrs = ["GrD3DCommandSignature.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DCommandSignature_src",
+    srcs = ["GrD3DCommandSignature.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DCommandSignature_hdr",
+        ":GrD3DGpu_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DCpuDescriptorManager_hdr",
+    hdrs = ["GrD3DCpuDescriptorManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrD3DDescriptorHeap_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrD3DCpuDescriptorManager_src",
+    srcs = ["GrD3DCpuDescriptorManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DCpuDescriptorManager_hdr",
+        ":GrD3DGpu_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DDescriptorHeap_hdr",
+    hdrs = ["GrD3DDescriptorHeap.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+        "//src/utils:SkBitSet_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DDescriptorHeap_src",
+    srcs = ["GrD3DDescriptorHeap.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DDescriptorHeap_hdr",
+        ":GrD3DGpu_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DDescriptorTableManager_hdr",
+    hdrs = ["GrD3DDescriptorTableManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrD3DDescriptorHeap_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrD3DDescriptorTableManager_src",
+    srcs = ["GrD3DDescriptorTableManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DDescriptorTableManager_hdr",
+        ":GrD3DGpu_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DGpu_hdr",
+    hdrs = ["GrD3DGpu.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DCaps_hdr",
+        ":GrD3DCommandList_hdr",
+        ":GrD3DResourceProvider_hdr",
+        "//include/private:SkDeque_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrSemaphore_hdr",
+        "//src/gpu:GrStagingBufferManager_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DGpu_src",
+    srcs = ["GrD3DGpu.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DAMDMemoryAllocator_hdr",
+        ":GrD3DAttachment_hdr",
+        ":GrD3DBuffer_hdr",
+        ":GrD3DCaps_hdr",
+        ":GrD3DGpu_hdr",
+        ":GrD3DOpsRenderPass_hdr",
+        ":GrD3DSemaphore_hdr",
+        ":GrD3DTextureRenderTarget_hdr",
+        ":GrD3DTexture_hdr",
+        ":GrD3DUtil_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu/d3d:GrD3DBackendContext_hdr",
+        "//src/core:SkConvertPixels_hdr",
+        "//src/core:SkMipmap_hdr",
+        "//src/gpu:GrBackendUtils_hdr",
+        "//src/gpu:GrDataUtils_hdr",
+        "//src/gpu:GrTexture_hdr",
+        "//src/gpu:GrThreadSafePipelineBuilder_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DOpsRenderPass_hdr",
+    hdrs = ["GrD3DOpsRenderPass.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DOpsRenderPass_src",
+    srcs = ["GrD3DOpsRenderPass.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DBuffer_hdr",
+        ":GrD3DCommandSignature_hdr",
+        ":GrD3DGpu_hdr",
+        ":GrD3DOpsRenderPass_hdr",
+        ":GrD3DPipelineStateBuilder_hdr",
+        ":GrD3DPipelineState_hdr",
+        ":GrD3DRenderTarget_hdr",
+        ":GrD3DTexture_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu:GrBackendUtils_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrStencilSettings_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DPipelineStateBuilder_hdr",
+    hdrs = ["GrD3DPipelineStateBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DPipelineState_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu:GrSPIRVUniformHandler_hdr",
+        "//src/gpu:GrSPIRVVaryingHandler_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DPipelineStateBuilder_src",
+    srcs = ["GrD3DPipelineStateBuilder.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DGpu_hdr",
+        ":GrD3DPipelineStateBuilder_hdr",
+        ":GrD3DPipeline_hdr",
+        ":GrD3DRenderTarget_hdr",
+        ":GrD3DRootSignature_hdr",
+        ":GrD3DUtil_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/gpu:GrAutoLocaleSetter_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrPersistentCacheUtils_hdr",
+        "//src/gpu:GrShaderCaps_hdr",
+        "//src/gpu:GrShaderUtils_hdr",
+        "//src/gpu:GrStencilSettings_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DPipelineStateDataManager_hdr",
+    hdrs = ["GrD3DPipelineStateDataManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrSPIRVUniformHandler_hdr",
+        "//src/gpu:GrUniformDataManager_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DPipelineStateDataManager_src",
+    srcs = ["GrD3DPipelineStateDataManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DGpu_hdr",
+        ":GrD3DPipelineStateDataManager_hdr",
+        ":GrD3DResourceProvider_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DPipelineState_hdr",
+    hdrs = ["GrD3DPipelineState.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DPipelineStateDataManager_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DPipelineState_src",
+    srcs = ["GrD3DPipelineState.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DBuffer_hdr",
+        ":GrD3DGpu_hdr",
+        ":GrD3DPipelineState_hdr",
+        ":GrD3DPipeline_hdr",
+        ":GrD3DRootSignature_hdr",
+        ":GrD3DTexture_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/gpu:GrFragmentProcessor_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+        "//src/gpu:GrStencilSettings_hdr",
+        "//src/gpu:GrXferProcessor_hdr",
+        "//src/gpu/effects:GrTextureEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DPipeline_hdr",
+    hdrs = ["GrD3DPipeline.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DRenderTarget_hdr",
+    hdrs = ["GrD3DRenderTarget.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DDescriptorHeap_hdr",
+        ":GrD3DResourceProvider_hdr",
+        ":GrD3DTextureResource_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DRenderTarget_src",
+    srcs = ["GrD3DRenderTarget.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DGpu_hdr",
+        ":GrD3DRenderTarget_hdr",
+        ":GrD3DResourceProvider_hdr",
+        ":GrD3DTextureResource_hdr",
+        ":GrD3DUtil_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DResourceProvider_hdr",
+    hdrs = ["GrD3DResourceProvider.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DCommandSignature_hdr",
+        ":GrD3DCpuDescriptorManager_hdr",
+        ":GrD3DDescriptorTableManager_hdr",
+        ":GrD3DPipeline_hdr",
+        ":GrD3DRootSignature_hdr",
+        ":GrD3DUtil_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkLRUCache_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+        "//src/gpu:GrRingBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DResourceProvider_src",
+    srcs = ["GrD3DResourceProvider.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DBuffer_hdr",
+        ":GrD3DCommandList_hdr",
+        ":GrD3DGpu_hdr",
+        ":GrD3DPipelineStateBuilder_hdr",
+        ":GrD3DPipelineState_hdr",
+        ":GrD3DRenderTarget_hdr",
+        ":GrD3DResourceProvider_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/private:SkOpts_spi_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DResourceState_hdr",
+    hdrs = ["GrD3DResourceState.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DRootSignature_hdr",
+    hdrs = ["GrD3DRootSignature.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DRootSignature_src",
+    srcs = ["GrD3DRootSignature.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DGpu_hdr",
+        ":GrD3DRootSignature_hdr",
+        "//src/gpu:GrSPIRVUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DSemaphore_hdr",
+    hdrs = ["GrD3DSemaphore.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrBackendSemaphore_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrSemaphore_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DSemaphore_src",
+    srcs = ["GrD3DSemaphore.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DGpu_hdr",
+        ":GrD3DSemaphore_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DTextureRenderTarget_hdr",
+    hdrs = ["GrD3DTextureRenderTarget.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DRenderTarget_hdr",
+        ":GrD3DTexture_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DTextureRenderTarget_src",
+    srcs = ["GrD3DTextureRenderTarget.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DGpu_hdr",
+        ":GrD3DTextureRenderTarget_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DTextureResource_hdr",
+    hdrs = ["GrD3DTextureResource.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DResourceState_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DTextureResource_src",
+    srcs = ["GrD3DTextureResource.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DAMDMemoryAllocator_hdr",
+        ":GrD3DGpu_hdr",
+        ":GrD3DTextureResource_hdr",
+        "//src/gpu:GrGpuResourcePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DTexture_hdr",
+    hdrs = ["GrD3DTexture.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DDescriptorHeap_hdr",
+        ":GrD3DTextureResource_hdr",
+        "//src/core:SkLRUCache_hdr",
+        "//src/gpu:GrSamplerState_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DTexture_src",
+    srcs = ["GrD3DTexture.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DGpu_hdr",
+        ":GrD3DTexture_hdr",
+        ":GrD3DUtil_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DTypesMinimal_src",
+    srcs = ["GrD3DTypesMinimal.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DResourceState_hdr",
+        ":GrD3DTypesPriv_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//include/private:GrD3DTypesMinimal_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DTypesPriv_hdr",
+    hdrs = ["GrD3DTypesPriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/gpu/d3d:GrD3DTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrD3DTypesPriv_src",
+    srcs = ["GrD3DTypesPriv.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrD3DTypesPriv_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrD3DUtil_hdr",
+    hdrs = ["GrD3DUtil.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkImage_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//include/gpu/d3d:GrD3DTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrD3DUtil_src",
+    srcs = ["GrD3DUtil.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrD3DGpu_hdr",
+        ":GrD3DUtil_hdr",
+        "//src/gpu:GrDataUtils_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+    ],
+)

@@ -1,0 +1,105 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkSLCanExitWithoutReturningValue_src",
+    srcs = ["SkSLCanExitWithoutReturningValue.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLProgramVisitor_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl/ir:SkSLDoStatement_hdr",
+        "//src/sksl/ir:SkSLForStatement_hdr",
+        "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
+        "//src/sksl/ir:SkSLIfStatement_hdr",
+        "//src/sksl/ir:SkSLSwitchStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLCheckProgramUnrolledSize_src",
+    srcs = ["SkSLCheckProgramUnrolledSize.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLProgramVisitor_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//src/core:SkSafeMath_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl/ir:SkSLForStatement_hdr",
+        "//src/sksl/ir:SkSLFunctionCall_hdr",
+        "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLGetLoopUnrollInfo_src",
+    srcs = ["SkSLGetLoopUnrollInfo.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkFloatingPoint_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl/ir:SkSLBinaryExpression_hdr",
+        "//src/sksl/ir:SkSLForStatement_hdr",
+        "//src/sksl/ir:SkSLPostfixExpression_hdr",
+        "//src/sksl/ir:SkSLPrefixExpression_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/sksl/ir:SkSLVariableReference_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLIsConstantExpression_src",
+    srcs = ["SkSLIsConstantExpression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLProgramVisitor_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl/ir:SkSLDoStatement_hdr",
+        "//src/sksl/ir:SkSLForStatement_hdr",
+        "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
+        "//src/sksl/ir:SkSLIfStatement_hdr",
+        "//src/sksl/ir:SkSLSwitchStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLProgramUsage_src",
+    srcs = ["SkSLProgramUsage.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLProgramVisitor_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl/ir:SkSLFunctionCall_hdr",
+        "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
+        "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLInterfaceBlock_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/sksl/ir:SkSLVariableReference_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLProgramVisitor_hdr",
+    hdrs = ["SkSLProgramVisitor.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkSLSwitchCaseContainsExit_src",
+    srcs = ["SkSLSwitchCaseContainsExit.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLProgramVisitor_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+    ],
+)

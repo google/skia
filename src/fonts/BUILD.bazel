@@ -1,0 +1,32 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkFontMgr_indirect_src",
+    srcs = ["SkFontMgr_indirect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/ports:SkFontMgr_indirect_hdr",
+        "//include/ports:SkRemotableFontMgr_hdr",
+        "//include/private:SkMutex_hdr",
+        "//include/private:SkOnce_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTemplates_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRemotableFontMgr_src",
+    srcs = ["SkRemotableFontMgr.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/ports:SkRemotableFontMgr_hdr",
+        "//include/private:SkOnce_hdr",
+    ],
+)

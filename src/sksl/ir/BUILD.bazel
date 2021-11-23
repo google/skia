@@ -1,0 +1,1158 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkSLBinaryExpression_hdr",
+    hdrs = ["SkSLBinaryExpression.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLFieldAccess_hdr",
+        ":SkSLIndexExpression_hdr",
+        ":SkSLSwizzle_hdr",
+        ":SkSLTernaryExpression_hdr",
+        "//src/sksl:SkSLLexer_hdr",
+        "//src/sksl:SkSLOperators_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLBinaryExpression_src",
+    srcs = ["SkSLBinaryExpression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBinaryExpression_hdr",
+        ":SkSLIndexExpression_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLSetting_hdr",
+        ":SkSLSwizzle_hdr",
+        ":SkSLTernaryExpression_hdr",
+        ":SkSLType_hdr",
+        ":SkSLVariableReference_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLBlock_hdr",
+    hdrs = ["SkSLBlock.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLSymbolTable_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLBlock_src",
+    srcs = ["SkSLBlock.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBlock_hdr",
+        ":SkSLNop_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLBreakStatement_hdr",
+    hdrs = ["SkSLBreakStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLChildCall_hdr",
+    hdrs = ["SkSLChildCall.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLVariable_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLChildCall_src",
+    srcs = ["SkSLChildCall.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLChildCall_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLCodeStringExpression_hdr",
+    hdrs = ["SkSLCodeStringExpression.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSLExpression_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorArrayCast_hdr",
+    hdrs = ["SkSLConstructorArrayCast.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorArrayCast_src",
+    srcs = ["SkSLConstructorArrayCast.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorArrayCast_hdr",
+        ":SkSLConstructorArray_hdr",
+        ":SkSLConstructorCompoundCast_hdr",
+        ":SkSLConstructorScalarCast_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorArray_hdr",
+    hdrs = ["SkSLConstructorArray.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSLConstructor_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorArray_src",
+    srcs = ["SkSLConstructorArray.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorArrayCast_hdr",
+        ":SkSLConstructorArray_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorCompoundCast_hdr",
+    hdrs = ["SkSLConstructorCompoundCast.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorCompoundCast_src",
+    srcs = ["SkSLConstructorCompoundCast.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorCompoundCast_hdr",
+        ":SkSLConstructorCompound_hdr",
+        ":SkSLConstructorDiagonalMatrix_hdr",
+        ":SkSLConstructorScalarCast_hdr",
+        ":SkSLConstructorSplat_hdr",
+        ":SkSLConstructor_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorCompound_hdr",
+    hdrs = ["SkSLConstructorCompound.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorCompound_src",
+    srcs = ["SkSLConstructorCompound.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorCompound_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorDiagonalMatrix_hdr",
+    hdrs = ["SkSLConstructorDiagonalMatrix.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLExpression_hdr",
+        ":SkSLLiteral_hdr",
+        "//include/private:SkSLDefines_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorDiagonalMatrix_src",
+    srcs = ["SkSLConstructorDiagonalMatrix.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorDiagonalMatrix_hdr",
+        ":SkSLConstructor_hdr",
+        ":SkSLType_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorMatrixResize_hdr",
+    hdrs = ["SkSLConstructorMatrixResize.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLExpression_hdr",
+        ":SkSLLiteral_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorMatrixResize_src",
+    srcs = ["SkSLConstructorMatrixResize.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorMatrixResize_hdr",
+        ":SkSLConstructor_hdr",
+        ":SkSLType_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorScalarCast_hdr",
+    hdrs = ["SkSLConstructorScalarCast.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLDefines_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorScalarCast_src",
+    srcs = ["SkSLConstructorScalarCast.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorScalarCast_hdr",
+        ":SkSLLiteral_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorSplat_hdr",
+    hdrs = ["SkSLConstructorSplat.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorSplat_src",
+    srcs = ["SkSLConstructorSplat.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorSplat_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorStruct_hdr",
+    hdrs = ["SkSLConstructorStruct.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSLConstructor_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructorStruct_src",
+    srcs = ["SkSLConstructorStruct.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorStruct_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructor_hdr",
+    hdrs = ["SkSLConstructor.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/core:SkSpan_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLConstructor_src",
+    srcs = ["SkSLConstructor.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorArray_hdr",
+        ":SkSLConstructorCompoundCast_hdr",
+        ":SkSLConstructorCompound_hdr",
+        ":SkSLConstructorDiagonalMatrix_hdr",
+        ":SkSLConstructorMatrixResize_hdr",
+        ":SkSLConstructorScalarCast_hdr",
+        ":SkSLConstructorSplat_hdr",
+        ":SkSLConstructorStruct_hdr",
+        ":SkSLConstructor_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLPrefixExpression_hdr",
+        ":SkSLType_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLContinueStatement_hdr",
+    hdrs = ["SkSLContinueStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLDiscardStatement_hdr",
+    hdrs = ["SkSLDiscardStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLDoStatement_hdr",
+    hdrs = ["SkSLDoStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLDoStatement_src",
+    srcs = ["SkSLDoStatement.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLDoStatement_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLExpressionStatement_hdr",
+    hdrs = ["SkSLExpressionStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLExpressionStatement_src",
+    srcs = ["SkSLExpressionStatement.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpressionStatement_hdr",
+        ":SkSLNop_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLExpression_hdr",
+    hdrs = ["SkSLExpression.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLType_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/private:SkTOptional_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLExpression_src",
+    srcs = ["SkSLExpression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLExtension_hdr",
+    hdrs = ["SkSLExtension.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/private:SkSLProgramElement_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLExternalFunctionCall_hdr",
+    hdrs = ["SkSLExternalFunctionCall.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLExternalFunction_hdr",
+        ":SkSLFunctionDeclaration_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLExternalFunctionReference_hdr",
+    hdrs = ["SkSLExternalFunctionReference.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLExternalFunction_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLExternalFunction_hdr",
+    hdrs = ["SkSLExternalFunction.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkSLSymbol_hdr",
+        "//src/core:SkVM_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFieldAccess_hdr",
+    hdrs = ["SkSLFieldAccess.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFieldAccess_src",
+    srcs = ["SkSLFieldAccess.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLFieldAccess_hdr",
+        ":SkSLMethodReference_hdr",
+        ":SkSLSetting_hdr",
+        ":SkSLSymbolTable_hdr",
+        ":SkSLUnresolvedFunction_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLField_hdr",
+    hdrs = ["SkSLField.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLType_hdr",
+        ":SkSLVariable_hdr",
+        "//include/private:SkSLModifiers_hdr",
+        "//include/private:SkSLSymbol_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLForStatement_hdr",
+    hdrs = ["SkSLForStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLSymbolTable_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLForStatement_src",
+    srcs = ["SkSLForStatement.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBlock_hdr",
+        ":SkSLExpressionStatement_hdr",
+        ":SkSLForStatement_hdr",
+        ":SkSLNop_hdr",
+        ":SkSLSymbolTable_hdr",
+        ":SkSLType_hdr",
+        ":SkSLVarDeclarations_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFunctionCall_hdr",
+    hdrs = ["SkSLFunctionCall.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLFunctionDeclaration_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFunctionCall_src",
+    srcs = ["SkSLFunctionCall.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLChildCall_hdr",
+        ":SkSLConstructorCompound_hdr",
+        ":SkSLExternalFunctionCall_hdr",
+        ":SkSLExternalFunctionReference_hdr",
+        ":SkSLFunctionCall_hdr",
+        ":SkSLFunctionReference_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLMethodReference_hdr",
+        ":SkSLTypeReference_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+        "//include/sksl:DSLCore_hdr",
+        "//src/core:SkMatrixInvert_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl/dsl/priv:DSLWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFunctionDeclaration_hdr",
+    hdrs = ["SkSLFunctionDeclaration.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLSymbolTable_hdr",
+        ":SkSLType_hdr",
+        ":SkSLVariable_hdr",
+        "//include/private:SkSLModifiers_hdr",
+        "//include/private:SkSLProgramKind_hdr",
+        "//include/private:SkSLSymbol_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/sksl:SkSLIntrinsicList_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFunctionDeclaration_src",
+    srcs = ["SkSLFunctionDeclaration.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLFunctionDeclaration_hdr",
+        ":SkSLUnresolvedFunction_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFunctionDefinition_hdr",
+    hdrs = ["SkSLFunctionDefinition.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBlock_hdr",
+        ":SkSLFunctionDeclaration_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFunctionDefinition_src",
+    srcs = ["SkSLFunctionDefinition.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLFieldAccess_hdr",
+        ":SkSLFunctionCall_hdr",
+        ":SkSLFunctionDefinition_hdr",
+        ":SkSLInterfaceBlock_hdr",
+        ":SkSLReturnStatement_hdr",
+        "//include/sksl:DSLCore_hdr",
+        "//src/core:SkSafeMath_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLIntrinsicMap_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/transform:SkSLProgramWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFunctionPrototype_hdr",
+    hdrs = ["SkSLFunctionPrototype.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBlock_hdr",
+        ":SkSLFunctionDeclaration_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLFunctionReference_hdr",
+    hdrs = ["SkSLFunctionReference.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLFunctionDeclaration_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLIfStatement_hdr",
+    hdrs = ["SkSLIfStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLIfStatement_src",
+    srcs = ["SkSLIfStatement.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpressionStatement_hdr",
+        ":SkSLIfStatement_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLNop_hdr",
+        ":SkSLType_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLIndexExpression_hdr",
+    hdrs = ["SkSLIndexExpression.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLIndexExpression_src",
+    srcs = ["SkSLIndexExpression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBinaryExpression_hdr",
+        ":SkSLConstructorArray_hdr",
+        ":SkSLConstructorCompound_hdr",
+        ":SkSLIndexExpression_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLSwizzle_hdr",
+        ":SkSLSymbolTable_hdr",
+        ":SkSLTypeReference_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLInlineMarker_hdr",
+    hdrs = ["SkSLInlineMarker.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLFunctionDeclaration_hdr",
+        ":SkSLSymbolTable_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLInterfaceBlock_hdr",
+    hdrs = ["SkSLInterfaceBlock.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLSymbolTable_hdr",
+        ":SkSLVarDeclarations_hdr",
+        "//include/core:SkStringView_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLLiteral_hdr",
+    hdrs = ["SkSLLiteral.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLMethodReference_hdr",
+    hdrs = ["SkSLMethodReference.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLModifiersDeclaration_hdr",
+    hdrs = ["SkSLModifiersDeclaration.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkSLModifiers_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLModifiers_src",
+    srcs = ["SkSLModifiers.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkSLModifiers_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLNop_hdr",
+    hdrs = ["SkSLNop.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLSymbolTable_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLPoison_hdr",
+    hdrs = ["SkSLPoison.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLPostfixExpression_hdr",
+    hdrs = ["SkSLPostfixExpression.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLLexer_hdr",
+        "//src/sksl:SkSLOperators_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLPostfixExpression_src",
+    srcs = ["SkSLPostfixExpression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLPostfixExpression_hdr",
+        ":SkSLVariableReference_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLPrefixExpression_hdr",
+    hdrs = ["SkSLPrefixExpression.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLLexer_hdr",
+        "//src/sksl:SkSLOperators_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLPrefixExpression_src",
+    srcs = ["SkSLPrefixExpression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorArray_hdr",
+        ":SkSLConstructorCompound_hdr",
+        ":SkSLConstructorDiagonalMatrix_hdr",
+        ":SkSLConstructorSplat_hdr",
+        ":SkSLConstructor_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLPrefixExpression_hdr",
+        ":SkSLVariableReference_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLProgram_hdr",
+    hdrs = ["SkSLProgram.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLSymbolTable_hdr",
+        "//include/private:SkSLDefines_hdr",
+        "//include/private:SkSLModifiers_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/gpu/vk:GrVkCaps_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLReturnStatement_hdr",
+    hdrs = ["SkSLReturnStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSetting_hdr",
+    hdrs = ["SkSLSetting.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSetting_src",
+    srcs = ["SkSLSetting.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLLiteral_hdr",
+        ":SkSLSetting_hdr",
+        ":SkSLVariableReference_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLStructDefinition_hdr",
+    hdrs = ["SkSLStructDefinition.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLSymbolTable_hdr",
+        ":SkSLType_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSwitchCase_hdr",
+    hdrs = ["SkSLSwitchCase.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSwitchStatement_hdr",
+    hdrs = ["SkSLSwitchStatement.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLSwitchCase_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSwitchStatement_src",
+    srcs = ["SkSLSwitchStatement.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBlock_hdr",
+        ":SkSLNop_hdr",
+        ":SkSLSwitchStatement_hdr",
+        ":SkSLSymbolTable_hdr",
+        ":SkSLType_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSwizzle_hdr",
+    hdrs = ["SkSLSwizzle.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLExpression_hdr",
+        "//include/private:SkSLDefines_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSwizzle_src",
+    srcs = ["SkSLSwizzle.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorScalarCast_hdr",
+        ":SkSLConstructorSplat_hdr",
+        ":SkSLConstructor_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLSwizzle_hdr",
+        "//include/private:SkTOptional_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSymbolAlias_hdr",
+    hdrs = ["SkSLSymbolAlias.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/private:SkSLSymbol_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLSymbolTable_hdr",
+    hdrs = ["SkSLSymbolTable.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkSLString_hdr",
+        "//include/private:SkSLSymbol_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSymbolTable_src",
+    srcs = ["SkSLSymbolTable.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLSymbolAlias_hdr",
+        ":SkSLSymbolTable_hdr",
+        ":SkSLType_hdr",
+        ":SkSLUnresolvedFunction_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLTernaryExpression_hdr",
+    hdrs = ["SkSLTernaryExpression.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSLExpression_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLTernaryExpression_src",
+    srcs = ["SkSLTernaryExpression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLLiteral_hdr",
+        ":SkSLTernaryExpression_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLOperators_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLTypeReference_hdr",
+    hdrs = ["SkSLTypeReference.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        "//src/sksl:SkSLContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLTypeReference_src",
+    srcs = ["SkSLTypeReference.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLTypeReference_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLType_hdr",
+    hdrs = ["SkSLType.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkStringView_hdr",
+        "//include/private:SkSLModifiers_hdr",
+        "//include/private:SkSLSymbol_hdr",
+        "//src/sksl:SkSLUtil_hdr",
+        "//src/sksl:spirv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLType_src",
+    srcs = ["SkSLType.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructorArrayCast_hdr",
+        ":SkSLConstructorCompoundCast_hdr",
+        ":SkSLConstructorScalarCast_hdr",
+        ":SkSLConstructor_hdr",
+        ":SkSLProgram_hdr",
+        ":SkSLSymbolTable_hdr",
+        ":SkSLType_hdr",
+        "//src/sksl:SkSLConstantFolder_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLUnresolvedFunction_hdr",
+    hdrs = ["SkSLUnresolvedFunction.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSLFunctionDeclaration_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLVarDeclarations_hdr",
+    hdrs = ["SkSLVarDeclarations.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLVariable_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//include/private:SkSLStatement_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLVarDeclarations_src",
+    srcs = ["SkSLVarDeclarations.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLVarDeclarations_hdr",
+        "//include/sksl:SkSLErrorReporter_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLVariableReference_hdr",
+    hdrs = ["SkSLVariableReference.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSLExpression_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLVariableReference_src",
+    srcs = ["SkSLVariableReference.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLConstructor_hdr",
+        ":SkSLLiteral_hdr",
+        ":SkSLSetting_hdr",
+        ":SkSLVariableReference_hdr",
+        ":SkSLVariable_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLVariable_hdr",
+    hdrs = ["SkSLVariable.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLExpression_hdr",
+        ":SkSLType_hdr",
+        ":SkSLVariableReference_hdr",
+        "//include/private:SkSLModifiers_hdr",
+        "//include/private:SkSLSymbol_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLVariable_src",
+    srcs = ["SkSLVariable.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLSymbolTable_hdr",
+        ":SkSLVarDeclarations_hdr",
+        ":SkSLVariable_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLMangler_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+    ],
+)

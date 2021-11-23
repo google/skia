@@ -1,9 +1,32 @@
-package(default_visibility = ["//:__subpackages__"])
+load("//bazel:macros.bzl", "generated_cc_atom")
 
-filegroup(
-    name = "srcs",
-    srcs = [
-        "SkAndroidFrameworkUtils.cpp",
-        "SkAnimatedImage.cpp",
+generated_cc_atom(
+    name = "SkAndroidFrameworkUtils_src",
+    srcs = ["SkAndroidFrameworkUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/android:SkAndroidFrameworkUtils_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/utils:SkPaintFilterCanvas_hdr",
+        "//src/core:SkDevice_hdr",
+        "//src/image:SkSurface_Base_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkAnimatedImage_src",
+    srcs = ["SkAnimatedImage.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/android:SkAnimatedImage_hdr",
+        "//include/codec:SkAndroidCodec_hdr",
+        "//include/codec:SkCodec_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkPixelRef_hdr",
+        "//src/codec:SkCodecPriv_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkPixmapPriv_hdr",
     ],
 )

@@ -1,0 +1,286 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrMtlAttachment_hdr",
+    hdrs = ["GrMtlAttachment.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/mtl:GrMtlTypes_hdr",
+        "//src/gpu:GrAttachment_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlBuffer_hdr",
+    hdrs = ["GrMtlBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlUniformHandler_hdr",
+        "//src/gpu:GrGpuBuffer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlCaps_hdr",
+    hdrs = ["GrMtlCaps.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlAttachment_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/gpu:GrCaps_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlCommandBuffer_hdr",
+    hdrs = ["GrMtlCommandBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlRenderCommandEncoder_hdr",
+        ":GrMtlUtil_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu:GrTypes_hdr",
+        "//src/gpu:GrBuffer_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+        "//src/gpu:GrRefCnt_hdr",
+        "//src/gpu:GrSurface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlCppUtil_hdr",
+    hdrs = ["GrMtlCppUtil.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkImage_hdr",
+        "//include/gpu/mtl:GrMtlTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlDepthStencil_hdr",
+    hdrs = ["GrMtlDepthStencil.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrTypes_hdr",
+        "//src/core:SkOpts_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlFramebuffer_hdr",
+    hdrs = ["GrMtlFramebuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrTypes_hdr",
+        "//include/gpu/mtl:GrMtlTypes_hdr",
+        "//include/private:GrTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlGpu_hdr",
+    hdrs = ["GrMtlGpu.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlAttachment_hdr",
+        ":GrMtlCaps_hdr",
+        ":GrMtlCommandBuffer_hdr",
+        ":GrMtlResourceProvider_hdr",
+        ":GrMtlUtil_hdr",
+        "//include/gpu/mtl:GrMtlBackendContext_hdr",
+        "//include/private:GrMtlTypesPriv_hdr",
+        "//include/private:SkDeque_hdr",
+        "//src/gpu:GrFinishCallbacks_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrRingBuffer_hdr",
+        "//src/gpu:GrSemaphore_hdr",
+        "//src/gpu:GrStagingBufferManager_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlOpsRenderPass_hdr",
+    hdrs = ["GrMtlOpsRenderPass.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlGpu_hdr",
+        "//src/gpu:GrOpFlushState_hdr",
+        "//src/gpu:GrOpsRenderPass_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlPipelineStateBuilder_hdr",
+    hdrs = ["GrMtlPipelineStateBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlUniformHandler_hdr",
+        ":GrMtlVaryingHandler_hdr",
+        "//src/gpu:GrPipeline_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlPipelineStateDataManager_hdr",
+    hdrs = ["GrMtlPipelineStateDataManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlUniformHandler_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//src/gpu:GrUniformDataManager_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlPipelineState_hdr",
+    hdrs = ["GrMtlPipelineState.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlBuffer_hdr",
+        ":GrMtlPipelineStateDataManager_hdr",
+        ":GrMtlPipeline_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrStencilSettings_hdr",
+        "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlPipeline_hdr",
+    hdrs = ["GrMtlPipeline.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu:GrManagedResource_hdr"],
+)
+
+generated_cc_atom(
+    name = "GrMtlRenderCommandEncoder_hdr",
+    hdrs = ["GrMtlRenderCommandEncoder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlSampler_hdr",
+        ":GrMtlUniformHandler_hdr",
+        ":GrMtlUtil_hdr",
+        "//src/gpu:GrSamplerState_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlRenderTarget_hdr",
+    hdrs = ["GrMtlRenderTarget.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlAttachment_hdr",
+        ":GrMtlFramebuffer_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrRenderTarget_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlResourceProvider_hdr",
+    hdrs = ["GrMtlResourceProvider.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlDepthStencil_hdr",
+        ":GrMtlPipelineStateBuilder_hdr",
+        ":GrMtlPipeline_hdr",
+        ":GrMtlSampler_hdr",
+        "//include/private:SkSpinlock_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/core:SkLRUCache_hdr",
+        "//src/core:SkTDynamicHash_hdr",
+        "//src/gpu:GrProgramDesc_hdr",
+        "//src/gpu:GrThreadSafePipelineBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlSampler_hdr",
+    hdrs = ["GrMtlSampler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkOpts_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlSemaphore_hdr",
+    hdrs = ["GrMtlSemaphore.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlUtil_hdr",
+        "//include/gpu:GrBackendSemaphore_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/gpu:GrManagedResource_hdr",
+        "//src/gpu:GrSemaphore_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlTextureRenderTarget_hdr",
+    hdrs = ["GrMtlTextureRenderTarget.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlRenderTarget_hdr",
+        ":GrMtlTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlTexture_hdr",
+    hdrs = ["GrMtlTexture.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrMtlAttachment_hdr",
+        "//src/gpu:GrTexture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlTrampoline_hdr",
+    hdrs = ["GrMtlTrampoline.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/gpu:GrTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlUniformHandler_hdr",
+    hdrs = ["GrMtlUniformHandler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/core:SkTBlockList_hdr",
+        "//src/gpu:GrShaderVar_hdr",
+        "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlUtil_hdr",
+    hdrs = ["GrMtlUtil.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/private:GrMtlTypesPriv_hdr",
+        "//include/private:GrTypesPriv_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrMtlVaryingHandler_hdr",
+    hdrs = ["GrMtlVaryingHandler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/gpu/glsl:GrGLSLVarying_hdr"],
+)

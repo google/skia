@@ -1,0 +1,89 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkSLBuiltinVariableScanner_src",
+    srcs = ["SkSLBuiltinVariableScanner.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLTransform_hdr",
+        "//include/private:SkSLProgramKind_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLIntrinsicMap_hdr",
+        "//src/sksl:SkSLThreadContext_hdr",
+        "//src/sksl/analysis:SkSLProgramVisitor_hdr",
+        "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLInterfaceBlock_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLEliminateDeadFunctions_src",
+    srcs = ["SkSLEliminateDeadFunctions.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLTransform_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLEliminateDeadGlobalVariables_src",
+    srcs = ["SkSLEliminateDeadGlobalVariables.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLTransform_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLEliminateDeadLocalVariables_src",
+    srcs = ["SkSLEliminateDeadLocalVariables.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLProgramWriter_hdr",
+        ":SkSLTransform_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//src/sksl/ir:SkSLExpressionStatement_hdr",
+        "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLNop_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLEliminateUnreachableCode_src",
+    srcs = ["SkSLEliminateUnreachableCode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLProgramWriter_hdr",
+        ":SkSLTransform_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLIfStatement_hdr",
+        "//src/sksl/ir:SkSLNop_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLProgramWriter_hdr",
+    hdrs = ["SkSLProgramWriter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/sksl/analysis:SkSLProgramVisitor_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLTransform_hdr",
+    hdrs = ["SkSLTransform.h"],
+    visibility = ["//:__subpackages__"],
+)

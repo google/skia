@@ -1,0 +1,15 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkShaper_hdr",
+    hdrs = ["SkShaper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)

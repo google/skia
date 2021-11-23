@@ -1,0 +1,82 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkShaper_coretext_src",
+    srcs = ["SkShaper_coretext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/ports:SkTypeface_mac_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+        "//src/utils:SkUTF_hdr",
+        "//src/utils/mac:SkCGBase_hdr",
+        "//src/utils/mac:SkUniqueCFRef_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShaper_harfbuzz_src",
+    srcs = ["SkShaper_harfbuzz.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontArguments_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkFontTypes_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkBitmaskEnum_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//include/private:SkMutex_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTFitsIn_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/private:SkTo_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+        "//modules/skunicode/include:SkUnicode_hdr",
+        "//src/core:SkLRUCache_hdr",
+        "//src/core:SkTDPQueue_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShaper_primitive_src",
+    srcs = ["SkShaper_primitive.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkTo_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShaper_src",
+    srcs = ["SkShaper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkTFitsIn_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+        "//modules/skunicode/include:SkUnicode_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)

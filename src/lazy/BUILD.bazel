@@ -1,0 +1,25 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkDiscardableMemoryPool_hdr",
+    hdrs = ["SkDiscardableMemoryPool.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkMutex_hdr",
+        "//src/core:SkDiscardableMemory_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDiscardableMemoryPool_src",
+    srcs = ["SkDiscardableMemoryPool.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDiscardableMemoryPool_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//include/private:SkMutex_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//src/core:SkDiscardableMemory_hdr",
+        "//src/core:SkTInternalLList_hdr",
+    ],
+)

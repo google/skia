@@ -1,0 +1,120 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrPathTessellationShader_Hardware_src",
+    srcs = ["GrPathTessellationShader_Hardware.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrPathTessellationShader_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrPathTessellationShader_MiddleOut_src",
+    srcs = ["GrPathTessellationShader_MiddleOut.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrPathTessellationShader_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/tessellate:PathTessellator_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrPathTessellationShader_hdr",
+    hdrs = ["GrPathTessellationShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrTessellationShader_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrPathTessellationShader_src",
+    srcs = ["GrPathTessellationShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrPathTessellationShader_hdr",
+        "//src/gpu/effects:GrDisableColorXP_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrStrokeTessellationShader_HardwareImpl_src",
+    srcs = ["GrStrokeTessellationShader_HardwareImpl.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrStrokeTessellationShader_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrStrokeTessellationShader_InstancedImpl_src",
+    srcs = ["GrStrokeTessellationShader_InstancedImpl.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrStrokeTessellationShader_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/tessellate:StrokeFixedCountTessellator_hdr",
+        "//src/gpu/tessellate:WangsFormula_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrStrokeTessellationShader_hdr",
+    hdrs = ["GrStrokeTessellationShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrTessellationShader_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//src/gpu:GrVx_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/tessellate:Tessellation_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrStrokeTessellationShader_src",
+    srcs = ["GrStrokeTessellationShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrStrokeTessellationShader_hdr",
+        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
+        "//src/gpu/glsl:GrGLSLVarying_hdr",
+        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
+        "//src/gpu/tessellate:StrokeTessellator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTessellationShader_hdr",
+    hdrs = ["GrTessellationShader.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu:GrGeometryProcessor_hdr",
+        "//src/gpu:GrProgramInfo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTessellationShader_src",
+    srcs = ["GrTessellationShader.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrTessellationShader_hdr"],
+)
