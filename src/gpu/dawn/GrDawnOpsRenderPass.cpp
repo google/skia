@@ -10,6 +10,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/dawn/GrDawnAttachment.h"
 #include "src/gpu/dawn/GrDawnBuffer.h"
@@ -119,12 +120,25 @@ void GrDawnOpsRenderPass::inlineUpload(GrOpFlushState* state,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Our caps require there to be a single reference value for both faces. However, our stencil
+// object asserts if the correct face getter is not queried.
+static uint16_t get_stencil_ref(const GrProgramInfo& info) {
+    GrStencilSettings stencilSettings = info.nonGLStencilSettings();
+    if (stencilSettings.isTwoSided()) {
+        SkASSERT(stencilSettings.postOriginCCWFace(info.origin()).fRef ==
+                 stencilSettings.postOriginCWFace(info.origin()).fRef);
+        return stencilSettings.postOriginCCWFace(info.origin()).fRef;
+    } else {
+        return stencilSettings.singleSidedFace().fRef;
+    }
+}
+
 void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo& programInfo) {
     auto bindGroup = program->setUniformData(fGpu, fRenderTarget, programInfo);
     fPassEncoder.SetPipeline(program->fRenderPipeline);
     fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);
     if (programInfo.isStencilEnabled()) {
-        fPassEncoder.SetStencilReference(programInfo.userStencilSettings()->fCCWFace.fRef);
+        fPassEncoder.SetStencilReference(get_stencil_ref(programInfo));
     }
     const GrPipeline& pipeline = programInfo.pipeline();
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();

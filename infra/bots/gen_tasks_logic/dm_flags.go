@@ -287,7 +287,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("Dawn") {
 			// tint:1045: Tint doesn't implement MatrixInverse yet.
 			skip("_", "gm", "_", "runtime_intrinsics_matrix")
-			skip("_ test _ crbug_1271431") // skia:12675
 			configs = []string{"dawn"}
 		}
 

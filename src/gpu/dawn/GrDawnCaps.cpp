@@ -21,6 +21,7 @@ GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(conte
     fClampToBorderSupport = false;
     fPerformPartialClearsAsDraws = true;
     fDynamicStateArrayGeometryProcessorTextureSupport = true;
+    fTwoSidedStencilRefsAndMasksMustMatch = true;
 
     fShaderCaps->fFlatInterpolationSupport = true;
     fShaderCaps->fIntegerSupport = true;
