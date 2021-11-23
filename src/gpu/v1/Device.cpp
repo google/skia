@@ -18,6 +18,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkShadowFlags.h"
 #include "include/private/SkTo.h"
+#include "include/private/chromium/GrSlug.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
@@ -46,6 +47,9 @@
 #include "src/image/SkReadPixelsRec.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "src/utils/SkUTF.h"
+
+// Define this for testing text blob draw using a slug.
+// #define SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
@@ -899,6 +903,12 @@ void Device::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPain
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawGlyphRunList", fContext.get());
     SkASSERT(!glyphRunList.hasRSXForm());
+
+    #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
+        auto slug = this->convertGlyphRunListToSlug(glyphRunList, paint);
+        this->drawSlug(slug.get());
+        return;
+    #endif
 
     fSurfaceDrawContext->drawGlyphRunList(
         this->clip(), this->asMatrixProvider(), glyphRunList, paint);

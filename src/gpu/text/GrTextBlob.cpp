@@ -29,6 +29,10 @@
 #include "src/gpu/ops/AtlasTextOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
+// Defining SK_EXPERIMENTAL_ADD_ATLAS_PADDING will cause all glyphs in the atlas to have a one
+// pixel border to support bi-lerping on demand.
+// #define SK_EXPERIMENTAL_ADD_ATLAS_PADDING
+
 // Naming conventions
 //  * drawMatrix - the CTM from the canvas.
 //  * drawOrigin - the x, y location of the drawTextBlob call.
@@ -712,7 +716,11 @@ void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) 
 
 std::tuple<bool, int>
 DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
+    #if defined(SK_EXPERIMENTAL_ADD_ATLAS_PADDING)
+        return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
+    #else
+        return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target, false);
+    #endif
 }
 
 // The 99% case. No clip. Non-color only.
@@ -1861,7 +1869,11 @@ void DirectMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *
 
 std::tuple<bool, int>
 DirectMaskSubRunNoCache::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
+    #if defined(SK_EXPERIMENTAL_ADD_ATLAS_PADDING)
+        return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
+    #else
+        return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target, false);
+    #endif
 }
 
 // The 99% case. No clip. Non-color only.
