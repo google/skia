@@ -95,6 +95,7 @@ generated_cc_atom(
         "//include/gpu:GrRecordingContext_hdr",
         "//include/private:SkShadowFlags_hdr",
         "//include/private:SkTo_hdr",
+        "//include/private/chromium:GrSlug_hdr",
         "//src/core:SkCanvasPriv_hdr",
         "//src/core:SkClipStack_hdr",
         "//src/core:SkDraw_hdr",

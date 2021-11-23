@@ -1,6 +1,7 @@
 # https://github.com/bazelbuild/bazel-skylib
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//bazel:macros.bzl", "select_multi")
+load("@bazel_gazelle//:def.bzl", "gazelle")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -238,3 +239,6 @@ cc_library(
     textual_hdrs = ["//tools:txts"],
     deps = [":skia-core"],
 )
+
+# gazelle:prefix go.skia.org/skia
+gazelle(name = "gazelle")

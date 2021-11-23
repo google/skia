@@ -1306,6 +1306,7 @@ generated_cc_atom(
         "//include/core:SkShader_hdr",
         "//include/core:SkVertices_hdr",
         "//include/private:SkTo_hdr",
+        "//include/private/chromium:GrSlug_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/shaders:SkLocalMatrixShader_hdr",
         "//src/utils:SkPatchUtils_hdr",

@@ -1,5 +1,6 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary")
 
 cc_binary(
     name = "bazel_test_exe",
@@ -23,3 +24,9 @@ generated_cc_atom(
         "//third_party:libpng",
     ],
 )
+
+go_binary(
+    name = "hello_world",
+    srcs = ["hello_world.go"],
+)
+
