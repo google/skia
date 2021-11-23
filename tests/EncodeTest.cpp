@@ -20,7 +20,7 @@
 #include "include/encode/SkWebpEncoder.h"
 #include "include/private/SkImageInfoPriv.h"
 
-#include "png.h"
+#include <png.h>
 
 #include <algorithm>
 #include <string>

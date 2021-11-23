@@ -19,16 +19,16 @@
 #include <utility>
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_BITMAP_H
+#include <freetype/freetype.h>
+#include <freetype/ftbitmap.h>
 #ifdef FT_COLOR_H
-#   include FT_COLOR_H
+#   include <freetype/ftcolor.h>
 #endif
-#include FT_IMAGE_H
-#include FT_OUTLINE_H
-#include FT_SIZES_H
+#include <freetype/ftimage.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftsizes.h>
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
-#include FT_SYNTHESIS_H
+#include <freetype/ftsynth.h>
 
 #ifdef TT_SUPPORT_COLRV1
 #include "src/core/SkScopeExit.h"

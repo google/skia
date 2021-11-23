@@ -49,7 +49,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#include "png.h"
+#include <png.h>
 
 #include <setjmp.h>
 #include <cstring>

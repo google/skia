@@ -4,7 +4,8 @@
 #include "include/core/SkICC.h"
 #include "include/core/SkString.h"
 #include "tools/HashAndEncode.h"
-#include "png.h"
+
+#include <png.h>
 
 static sk_sp<SkColorSpace> rec2020() {
     return SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020);

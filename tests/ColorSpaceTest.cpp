@@ -17,7 +17,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include "png.h"
+#include <png.h>
 
 #include <string.h>
 #include <memory>
