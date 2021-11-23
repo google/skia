@@ -16,6 +16,8 @@
 
 namespace skgpu {
 
+class RenderStep;
+
 /**
  * GraphicsPipelineDesc represents the state needed to create a backend specific GraphicsPipeline,
  * minus the target-specific properties that can be inferred from the DrawPass and RenderPassTask.
@@ -23,74 +25,6 @@ namespace skgpu {
 class GraphicsPipelineDesc {
 public:
     GraphicsPipelineDesc();
-
-    // TODO: Iter and AttributeSet go away when the RenderStep is part of the GraphicsPipelineDesc.
-    class Iter {
-    public:
-        Iter() : fCurr(nullptr), fRemaining(0) {}
-        Iter(const Iter& iter) : fCurr(iter.fCurr), fRemaining(iter.fRemaining) {}
-        Iter& operator= (const Iter& iter) {
-            fCurr = iter.fCurr;
-            fRemaining = iter.fRemaining;
-            return *this;
-        }
-        Iter(const Attribute* attrs, int count) : fCurr(attrs), fRemaining(count) {
-            this->skipUninitialized();
-        }
-
-        bool operator!=(const Iter& that) const { return fCurr != that.fCurr; }
-        const Attribute& operator*() const { return *fCurr; }
-        void operator++() {
-            if (fRemaining) {
-                fRemaining--;
-                fCurr++;
-                this->skipUninitialized();
-            }
-        }
-
-    private:
-        void skipUninitialized() {
-            if (!fRemaining) {
-                fCurr = nullptr;
-            } else {
-                while (!fCurr->isInitialized()) {
-                    ++fCurr;
-                }
-            }
-        }
-
-        const Attribute* fCurr;
-        int fRemaining;
-    };
-
-    class AttributeSet {
-    public:
-        Iter begin() const { return Iter(fAttributes, fCount); }
-        Iter end() const { return Iter(); }
-
-        int count() const { return fCount; }
-        size_t stride() const { return fStride; }
-
-    private:
-        friend class GraphicsPipelineDesc;
-        void init(const Attribute* attrs, int count) {
-            fAttributes = attrs;
-            fRawCount = count;
-            fCount = 0;
-            fStride = 0;
-            for (int i = 0; i < count; ++i) {
-                if (attrs[i].isInitialized()) {
-                    fCount++;
-                    fStride += attrs[i].sizeAlign4();
-                }
-            }
-        }
-
-        const Attribute* fAttributes = nullptr;
-        int              fRawCount = 0;
-        int              fCount = 0;
-        size_t           fStride = 0;
-    };
 
     // Returns this as a uint32_t array to be used as a key in the pipeline cache.
     // TODO: Do we want to do anything here with a tuple or an SkSpan?
@@ -111,54 +45,39 @@ public:
         return !(*this == other);
     }
 
-    // TODO: remove this once we have something real working
-    void setTestingOnlyShaderIndex(int index) {
-        fTestingOnlyShaderIndex = index;
-        if (fKey.count() >= 1) {
-            fKey[0] = index;
-        } else {
-            fKey.push_back(index);
+    const RenderStep* renderStep() const { return fRenderStep; }
+    void setRenderStep(const RenderStep* step) {
+        SkASSERT(step);
+        fRenderStep = step;
+
+        static constexpr int kWords = sizeof(uintptr_t) / sizeof(uint32_t);
+        static_assert(sizeof(uintptr_t) % sizeof(uint32_t) == 0);
+
+        if (fKey.count() < kWords) {
+            fKey.push_back_n(kWords - fKey.count());
         }
-    }
-    int testingOnlyShaderIndex() const {
-        return fTestingOnlyShaderIndex;
-    }
 
-    void setVertexAttributes(const Attribute* attrs, int attrCount) {
-        fVertexAttributes.init(attrs, attrCount);
+        uintptr_t addr = reinterpret_cast<uintptr_t>(fRenderStep);
+        memcpy(fKey.data(), &addr, sizeof(uintptr_t));
     }
-    void setInstanceAttributes(const Attribute* attrs, int attrCount) {
-        SkASSERT(attrCount >= 0);
-        fInstanceAttributes.init(attrs, attrCount);
-    }
-
-    int numVertexAttributes() const { return fVertexAttributes.fCount; }
-    const AttributeSet& vertexAttributes() const { return fVertexAttributes; }
-    int numInstanceAttributes() const { return fInstanceAttributes.fCount; }
-    const AttributeSet& instanceAttributes() const { return fInstanceAttributes; }
-
-    bool hasVertexAttributes() const { return SkToBool(fVertexAttributes.fCount); }
-    bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributes.fCount); }
-
-    /**
-     * A common practice is to populate the the vertex/instance's memory using an implicit array of
-     * structs. In this case, it is best to assert that:
-     *     stride == sizeof(struct)
-     */
-    size_t vertexStride() const { return fVertexAttributes.fStride; }
-    size_t instanceStride() const { return fInstanceAttributes.fStride; }
 
 private:
     // Estimate of max expected key size
     // TODO: flesh this out
     inline static constexpr int kPreAllocSize = 1;
 
+    // TODO: I wonder if we could expose the "key" as just a char[] union over the renderstep and
+    // paint combination? That would avoid extra size, but definitely locks GraphicsPipelineDesc
+    // keys to the current process, which is probably okay since we can have something a with a more
+    // stable hash used for the pre-compilation combos.
     SkSTArray<kPreAllocSize, uint32_t, true> fKey;
 
-    int fTestingOnlyShaderIndex;
-
-    AttributeSet fVertexAttributes;
-    AttributeSet fInstanceAttributes;
+    // Each RenderStep defines a fixed set of attributes and rasterization state, as well as the
+    // shader fragments that control the geometry and coverage calculations. The RenderStep's shader
+    // is combined with the rest of the shader generated from the PaintParams. Because each
+    // RenderStep is fixed, its pointer can be used as a proxy for everything that it specifies in
+    // the GraphicsPipeline.
+    const RenderStep* fRenderStep = nullptr;
 };
 
 } // namespace skgpu

@@ -70,6 +70,14 @@ public:
 
     const char* name() const override { return "fill-bounds"; }
 
+    const char* vertexMSL() const override {
+        // TODO: apply transform matrix from uniform data
+        // TODO: RenderSteps should not worry about RTAdjust, but currently the mtl pipeline does
+        // account for it, so this geometry won't be in the right coordinate system yet.
+        return "out.position.xy = vtx.position;\n"
+               "out.position.zw = float2(0.0, 1.0);\n";
+    }
+
     void writeVertices(DrawWriter* writer, const Shape& shape) const override {
         // TODO: Need to account for the transform eventually, but that requires more plumbing
         writer->appendVertices(4)
