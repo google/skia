@@ -237,7 +237,7 @@ public:
     const SkMatrix& initialPositionMatrix() const { return fInitialPositionMatrix; }
 
     std::tuple<SkScalar, SkScalar> scaleBounds() const { return {fMaxMinScale, fMinMaxScale}; }
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const;
+    bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
 
     const Key& key() const;
     size_t size() const;
