@@ -191,13 +191,13 @@ func (b *jobBuilder) genTasksForJob() {
 			b.g3FrameworkCanary()
 			return
 		} else if b.project("Android") {
-			b.canary("android-master-autoroll")
+			b.canary("android-master-autoroll", "Canary-Android-Topic", "https://googleplex-android-review.googlesource.com/q/topic:")
 			return
 		} else if b.project("Chromium") {
-			b.canary("skia-autoroll")
+			b.canary("skia-autoroll", "Canary-Chromium-CL", "https://chromium-review.googlesource.com/c/")
 			return
 		} else if b.project("Flutter") {
-			b.canary("skia-flutter-autoroll")
+			b.canary("skia-flutter-autoroll", "Canary-Flutter-PR", "https://github.com/flutter/engine/pull/")
 			return
 		}
 	}
