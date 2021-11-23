@@ -20,6 +20,7 @@
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/UniformCache.h"
+#include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
 
 #include "src/core/SkMathPriv.h"
@@ -209,6 +210,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     bool requiresMSAA = false;
     Rect passBounds = Rect::InfiniteInverted();
 
+    DrawBufferManager* bufferMgr = recorder->drawBufferManager();
+    UniformCache geometryUniforms;
+    std::unordered_map<uint32_t, BindBufferInfo> geometryUniformBindings;
+
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount()); // will not exceed but may use less with occluded draws
 
@@ -234,9 +239,20 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             // TODO ask step to generate a pipeline description based on the above shading code, and
             // have pipelineIndex point to that description in the accumulated list of descs
             uint32_t pipelineIndex = 0;
-            // TODO step writes out geometry uniforms and have geomIndex point to that buffer data,
-            // providing shape, transform, scissor, and paint depth to RenderStep
-            uint32_t geometryIndex = 0;
+
+            uint32_t geometryIndex = UniformCache::kInvalidUniformID;
+            if (step->numUniforms() > 0) {
+                // TODO: Get layout from the GPU
+                sk_sp<UniformData> uniforms = step->writeUniforms(Layout::kMetal, draw.fShape);
+                geometryIndex = geometryUniforms.insert(uniforms);
+
+                // Upload the data to the GPU if it's the first time encountered
+                if (geometryUniformBindings.find(geometryIndex) == geometryUniformBindings.end()) {
+                    auto [writer, bufferInfo] = bufferMgr->getUniformWriter(uniforms->dataSize());
+                    writer.write(uniforms->data(), uniforms->dataSize());
+                    geometryUniformBindings.insert({geometryIndex, bufferInfo});
+                }
+            }
 
             uint32_t shadingIndex = UniformCache::kInvalidUniformID;
 
@@ -266,8 +282,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // TODO: It's not strictly necessary, but would a stable sort be useful or just end up hiding
     // bugs in the DrawOrder determination code?
     std::sort(keys.begin(), keys.end());
-
-    DrawBufferManager* bufferMgr = recorder->drawBufferManager();
 
     // Used to record vertex/instance data, buffer binds, and draw calls
     Drawer drawer;
@@ -307,10 +321,17 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         }
         if (stateChange) {
             if (key.geometryUniforms() != lastGeometryUniforms) {
-                // TODO: Look up uniform buffer binding info corresponding to key's index and record
+                if (key.geometryUniforms() != UniformCache::kInvalidUniformID) {
+                    auto binding = geometryUniformBindings.find(key.geometryUniforms())->second;
+                    // TODO: Record bind 'binding' buffer + offset to kRenderStep slot
+                    (void) binding;
+                }
                 lastGeometryUniforms = key.geometryUniforms();
             }
             if (key.shadingUniforms() != lastShadingUniforms) {
+                // TODO: We should not re-upload the uniforms for every draw that referenced them,
+                // they should be uploaded first time seen in the earlier loop of DrawPass::Make and
+                // then this can lookup the cached BindBufferInfo, similar to geometryUniformBinding
                 auto ud = lookup(recorder, key.shadingUniforms());
 
                 auto [writer, bufferInfo] = bufferMgr->getUniformWriter(ud->dataSize());
