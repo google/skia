@@ -97,6 +97,18 @@ public:
             int begin, int end, GrMeshDrawTarget* target) const = 0;
 };
 
+class GrDrawableSubRun {
+public:
+    virtual ~GrDrawableSubRun() = default;
+
+    // Produce GPU ops for this subRun.
+    virtual void draw(const GrClip*,
+                      const SkMatrixProvider& viewMatrix,
+                      SkPoint drawOrigin,
+                      const SkPaint&,
+                      skgpu::v1::SurfaceDrawContext*) const = 0;
+};
+
 // -- GrSubRun -------------------------------------------------------------------------------------
 // GrSubRun provides an interface used by GrTextBlob to manage the caching system.
 // There are several types of SubRun, which can be broken into five classes:
@@ -107,17 +119,8 @@ public:
 //   * SDFTSubRun - use signed distance fields to draw largish glyphs to the screen.
 class GrSubRun;
 using GrSubRunOwner = std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>;
-class GrSubRun {
+class GrSubRun : public GrDrawableSubRun {
 public:
-    virtual ~GrSubRun() = default;
-
-    // Produce GPU ops for this subRun.
-    virtual void draw(const GrClip*,
-                      const SkMatrixProvider& viewMatrix,
-                      SkPoint drawOrigin,
-                      const SkPaint&,
-                      skgpu::v1::SurfaceDrawContext*) const = 0;
-
     // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
     // position.
     virtual bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const = 0;
