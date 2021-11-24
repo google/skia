@@ -77,7 +77,7 @@ commit() {
   HB_PREVIOUS_REV_SHORT=$(expr substr "${HB_PREVIOUS_REV}" 1 8) &&
   HB_NEXT_REV_SHORT=$(expr substr "${HB_NEXT_REV}" 1 8) &&
   HB_COMMIT_COUNT=$(git -C ${HB_GIT_DIR} rev-list --count ${HB_PREVIOUS_REV}..${HB_NEXT_REV}) &&
-  git -m"Roll HarfBuzz from ${HB_PREVIOUS_REV_SHORT} to ${HB_NEXT_REV_SHORT} (${HB_COMMIT_COUNT} commits)
+  git commit -m"Roll HarfBuzz from ${HB_PREVIOUS_REV_SHORT} to ${HB_NEXT_REV_SHORT} (${HB_COMMIT_COUNT} commits)
 
 ${HB_GIT_REPO}/+log/${HB_PREVIOUS_REV}..${HB_NEXT_REV}
 
