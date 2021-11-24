@@ -268,8 +268,10 @@ def codec_srcs(limited):
 
 GL_SRCS_UNIX = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
+        "src/gpu/gl/*.cpp",
+        "src/gpu/gl/*.h",
+        "src/gpu/gl/builders/*.cpp",
+        "src/gpu/gl/builders/*.h",
     ],
     exclude = [],
 )
@@ -300,8 +302,10 @@ PORTS_SRCS_UNIX = struct(
 
 GL_SRCS_ANDROID = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
+        "src/gpu/gl/*.cpp",
+        "src/gpu/gl/*.h",
+        "src/gpu/gl/builders/*.cpp",
+        "src/gpu/gl/builders/*.h",
         "src/gpu/gl/android/*.cpp",
     ],
     exclude = [
@@ -336,8 +340,10 @@ PORTS_SRCS_ANDROID = struct(
 
 GL_SRCS_IOS = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
+        "src/gpu/gl/*.cpp",
+        "src/gpu/gl/*.h",
+        "src/gpu/gl/builders/*.cpp",
+        "src/gpu/gl/builders/*.h",
         "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp",
     ],
     exclude = [
@@ -376,8 +382,10 @@ PORTS_SRCS_IOS = struct(
 
 GL_SRCS_WASM = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
+        "src/gpu/gl/*.cpp",
+        "src/gpu/gl/*.h",
+        "src/gpu/gl/builders/*.cpp",
+        "src/gpu/gl/builders/*.h",
         "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
         "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
     ],
@@ -422,7 +430,8 @@ PORTS_SRCS_WASM = struct(
 
 GL_SRCS_FUCHSIA = struct(
     include = [
-        "src/gpu/vk/*",
+        "src/gpu/vk/*.cpp",
+        "src/gpu/vk/*.h",
     ],
     exclude = [],
 )
@@ -461,8 +470,10 @@ PORTS_SRCS_FUCHSIA = struct(
 
 GL_SRCS_MACOS = struct(
     include = [
-        "src/gpu/gl/*",
-        "src/gpu/gl/builders/*",
+        "src/gpu/gl/*.cpp",
+        "src/gpu/gl/*.h",
+        "src/gpu/gl/builders/*.cpp",
+        "src/gpu/gl/builders/*.h",
         "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp",
     ],
     exclude = [
