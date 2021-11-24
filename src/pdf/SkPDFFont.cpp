@@ -150,6 +150,8 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typefac
             metrics->fCapHeight = SkToS16(SkScalarRoundToInt(capHeight / 2));
         }
     }
+    // Fonts are always subset, so always prepend the subset tag.
+    metrics->fPostScriptName.prepend(canon->nextFontSubsetTag());
     return canon->fTypefaceMetrics.set(id, std::move(metrics))->get();
 }
 

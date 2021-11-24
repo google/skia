@@ -129,6 +129,9 @@ public:
 
     SkPDFIndirectReference reserveRef() { return SkPDFIndirectReference{fNextObjectNumber++}; }
 
+    // Returns a tag to prepend to a PostScript name of a subset font. Includes the '+'.
+    SkString nextFontSubsetTag();
+
     SkExecutor* executor() const { return fExecutor; }
     void incrementJobCount();
     void signalJobComplete();
@@ -164,6 +167,7 @@ private:
     sk_sp<SkPDFDevice> fPageDevice;
     std::atomic<int> fNextObjectNumber = {1};
     std::atomic<int> fJobCount = {0};
+    uint32_t fNextFontSubsetTag = {0};
     SkUUID fUUID;
     SkPDFIndirectReference fInfoDict;
     SkPDFIndirectReference fXMP;

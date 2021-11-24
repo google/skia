@@ -547,6 +547,23 @@ static std::vector<const SkPDFFont*> get_fonts(const SkPDFDocument& canon) {
     return fonts;
 }
 
+SkString SkPDFDocument::nextFontSubsetTag() {
+    // PDF 32000-1:2008 Section 9.6.4 FontSubsets "The tag shall consist of six uppercase letters"
+    // "followed by a plus sign" "different subsets in the same PDF file shall have different tags."
+    // There are 26^6 or 308,915,776 possible values. So start in range then increment and mod.
+    uint32_t thisFontSubsetTag = fNextFontSubsetTag;
+    fNextFontSubsetTag = (fNextFontSubsetTag + 1u) % 308915776u;
+
+    SkString subsetTag(7);
+    char* subsetTagData = subsetTag.writable_str();
+    for (size_t i = 0; i < 6; ++i) {
+        subsetTagData[i] = 'A' + (thisFontSubsetTag % 26);
+        thisFontSubsetTag /= 26;
+    }
+    subsetTagData[6] = '+';
+    return subsetTag;
+}
+
 void SkPDFDocument::onClose(SkWStream* stream) {
     SkASSERT(fCanvas.imageInfo().dimensions().isZero());
     if (fPages.empty()) {
