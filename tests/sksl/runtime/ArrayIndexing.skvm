@@ -96,7 +96,7 @@ F4 = float index_out_of_bounds_checked()
 loop:
 52	    r52 = index
 53	    r53 = eq_f32 r0 r52
-54	    r53 = bit_and r53 r31
+54	    r53 = bit_and r31 r53
 55	    trace_var r53 $0 = r2
 56	    trace_var r53 $1 = r3
 57	    trace_var r53 $2 = r4

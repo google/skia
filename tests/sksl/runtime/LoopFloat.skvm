@@ -101,7 +101,7 @@ F10 = bool loop_operator_ne()
 loop:
 33	    r33 = index
 34	    r34 = eq_f32 r0 r33
-35	    r34 = bit_and r34 r12
+35	    r34 = bit_and r12 r34
 36	    trace_var r34 $0 = r2
 37	    trace_var r34 $1 = r3
 38	    trace_var r34 $2 = r4
