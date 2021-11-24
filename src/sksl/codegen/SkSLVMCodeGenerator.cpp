@@ -356,8 +356,10 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
         // If we are debugging, we need to create a trace mask. This will be true when the current
         // device coordinates match the requested trace coordinates.
         if (fDebugInfo->fTraceCoord) {
-            fTraceMask = (device.x == fDebugInfo->fTraceCoord.x) &
-                         (device.y == fDebugInfo->fTraceCoord.y);
+            // Evaluate each side of '&' explicitly, to guarantee consistent order of evaluation:
+            skvm::I32 xMask = (device.x == fDebugInfo->fTraceCoord.x),
+                      yMask = (device.y == fDebugInfo->fTraceCoord.y);
+            fTraceMask = xMask & yMask;
         } else {
             // No debug coordinates were specified, so tracing will never occur.
             fTraceMask = fBuilder->splat(0);
