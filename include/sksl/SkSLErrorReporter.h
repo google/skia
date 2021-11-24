@@ -39,7 +39,7 @@ public:
         return fFile;
     }
 
-    int line() {
+    int line() const {
         return fLine;
     }
 

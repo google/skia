@@ -1,0 +1,6 @@
+struct A { int x; };
+
+t {
+    layout(binding=1) A y;  // Not allowed
+    layout(set=0) A z;      // Not allowed
+};

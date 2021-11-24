@@ -245,7 +245,7 @@ public:
             if (baseType->isArray()) {
                 baseType = &baseType->componentType();
             }
-            SkSL::VarDeclaration::ErrorCheck(ThreadContext::Context(), pos.line(),
+            SkSL::VarDeclaration::ErrorCheck(ThreadContext::Context(), field.fPosition.line(),
                     field.fModifiers.fModifiers, baseType, Variable::Storage::kInterfaceBlock);
             GetErrorReporter().reportPendingErrors(field.fPosition);
             skslFields.push_back(SkSL::Type::Field(field.fModifiers.fModifiers, field.fName,

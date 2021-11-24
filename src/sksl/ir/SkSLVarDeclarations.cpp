@@ -100,12 +100,14 @@ void VarDeclaration::ErrorCheck(const Context& context,
 
     int permittedLayoutFlags = ~0;
     // We don't allow 'binding' or 'set' on normal uniform variables, only on textures, samplers,
-    // and interface blocks (holding uniform variables).
+    // and interface blocks (holding uniform variables). They're also only allowed at global scope,
+    // not on interface block fields (or locals/parameters).
     bool permitBindingAndSet = baseType->typeKind() == Type::TypeKind::kSampler ||
                                baseType->typeKind() == Type::TypeKind::kSeparateSampler ||
                                baseType->typeKind() == Type::TypeKind::kTexture ||
                                baseType->isInterfaceBlock();
-    if ((modifiers.fFlags & Modifiers::kUniform_Flag) && !permitBindingAndSet) {
+    if (storage != Variable::Storage::kGlobal ||
+        ((modifiers.fFlags & Modifiers::kUniform_Flag) && !permitBindingAndSet)) {
         permittedLayoutFlags &= ~Layout::kBinding_Flag;
         permittedLayoutFlags &= ~Layout::kSet_Flag;
     }

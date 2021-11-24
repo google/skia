@@ -1,5 +1,5 @@
 InterfaceBlock {
-    layout(set=0) $mat g;
+    $mat g;
 };
 
 struct S {
