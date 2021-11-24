@@ -40,6 +40,30 @@ static constexpr Uniform kSolidUniforms[kNumSolidUniforms] {
         {"color",  SLType::kFloat4 }
 };
 
+static const char* kLinearGradientMSL =
+        // TODO: This should use local coords
+        "float2 pos = interpolated.position.xy;\n"
+        "float2 delta = uniforms.point1 - uniforms.point0;\n"
+        "float2 pt = pos - uniforms.point0;\n"
+        "float t = dot(pt, delta) / dot(delta, delta);\n"
+        "float4 result = uniforms.colors[0];\n"
+        "result = mix(result, uniforms.colors[1],\n"
+        "             clamp((t-uniforms.offsets[0])/(uniforms.offsets[1]-uniforms.offsets[0]),\n"
+        "                   0, 1));\n"
+        "result = mix(result, uniforms.colors[2],\n"
+        "             clamp((t-uniforms.offsets[1])/(uniforms.offsets[2]-uniforms.offsets[1]),\n"
+        "                   0, 1));\n"
+        "result = mix(result, uniforms.colors[3],\n"
+        "             clamp((t-uniforms.offsets[2])/(uniforms.offsets[3]-uniforms.offsets[2]),\n"
+        "             0, 1));\n"
+        "out.color = result;\n";
+
+static const char* kSolidColorMSL = "out.color = float4(uniforms.color);\n";
+
+// TODO: kNone is for depth-only draws, so should actually have a fragment output type
+// that only defines a [[depth]] attribute but no color calculation.
+static const char* kNoneMSL = "out.color float4(0.0, 0.0, 1.0, 1.0);\n";
+
 sk_sp<UniformData> make_gradient_uniform_data_common(void* srcs[kNumGradientUniforms]) {
     UniformManager mgr(Layout::kMetal);
 
@@ -268,60 +292,33 @@ std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(const PaintParams& p) {
     return { result, std::move(uniforms) };
 }
 
-namespace {
-
-// TODO: use a SkSpan for the parameters
-std::string emit_MSL_uniform_struct(const Uniform *uniforms, int numUniforms) {
-    std::string result;
-
-    result.append("struct FragmentUniforms {\n");
-    for (int i = 0; i < numUniforms; ++i) {
-        // TODO: this is sufficient for the sprint but should be changed to use SkSL's
-        // machinery
-        switch (uniforms[i].type()) {
-            case SLType::kFloat4:
-                result.append("vector_float4");
-                break;
-            case SLType::kFloat2:
-                result.append("vector_float2");
-                break;
-            case SLType::kFloat:
-                result.append("float");
-                break;
-            case SLType::kHalf4:
-                result.append("vector_half4");
-                break;
-            default:
-                SkASSERT(0);
-        }
-
-        result.append(" ");
-        result.append(uniforms[i].name());
-        if (uniforms[i].count()) {
-            result.append("[");
-            result.append(std::to_string(uniforms[i].count()));
-            result.append("]");
-        }
-        result.append(";\n");
-    }
-    result.append("};\n");
-    return result;
-}
-
-} // anonymous namespace
-
-std::string GetMSLUniformStruct(ShaderCombo::ShaderType shaderType) {
+SkSpan<const Uniform> GetUniforms(ShaderCombo::ShaderType shaderType) {
     switch (shaderType) {
         case ShaderCombo::ShaderType::kLinearGradient:
         case ShaderCombo::ShaderType::kRadialGradient:
         case ShaderCombo::ShaderType::kSweepGradient:
         case ShaderCombo::ShaderType::kConicalGradient:
-            return emit_MSL_uniform_struct(kGradientUniforms, kNumGradientUniforms);
+            return SkMakeSpan(kGradientUniforms, kNumGradientUniforms);
         case ShaderCombo::ShaderType::kNone:
-            return "";
+            return {nullptr, 0};
         case ShaderCombo::ShaderType::kSolidColor:
         default:
-            return emit_MSL_uniform_struct(kSolidUniforms, kNumSolidUniforms);
+            return SkMakeSpan(kSolidUniforms, kNumSolidUniforms);
+    }
+}
+
+const char* GetShaderMSL(ShaderCombo::ShaderType shaderType) {
+    switch (shaderType) {
+        case ShaderCombo::ShaderType::kLinearGradient:
+            return kLinearGradientMSL;
+        case ShaderCombo::ShaderType::kNone:
+            return kNoneMSL;
+        case ShaderCombo::ShaderType::kRadialGradient:
+        case ShaderCombo::ShaderType::kSweepGradient:
+        case ShaderCombo::ShaderType::kConicalGradient:
+        case ShaderCombo::ShaderType::kSolidColor:
+        default:
+            return kSolidColorMSL;
     }
 }
 

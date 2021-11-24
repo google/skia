@@ -257,6 +257,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     DrawBufferManager bufferMgr(gpu->resourceProvider(), 4);
 
     commandBuffer->beginRenderPass(renderPassDesc);
+
     DrawWriter drawWriter(commandBuffer->asDrawDispatcher(), &bufferMgr);
 
     struct RectAndColor {
@@ -265,8 +266,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     };
 
     auto draw = [&](const RenderStep* step, std::vector<RectAndColor> draws) {
+        Combination shader{ShaderCombo::ShaderType::kSolidColor};
         GraphicsPipelineDesc pipelineDesc;
-        pipelineDesc.setRenderStep(step);
+        pipelineDesc.setProgram(step, shader);
         drawWriter.newPipelineState(step->primitiveType(),
                                     step->vertexStride(),
                                     step->instanceStride());
@@ -283,17 +285,16 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
                         bufferMgr.getUniformWriter(renderStepUniforms->dataSize());
                 writer.write(renderStepUniforms->data(), renderStepUniforms->dataSize());
                 commandBuffer->bindUniformBuffer(UniformSlot::kRenderStep,
-                                                    sk_ref_sp(bindInfo.fBuffer),
-                                                    bindInfo.fOffset);
+                                                 sk_ref_sp(bindInfo.fBuffer),
+                                                 bindInfo.fOffset);
             }
 
-            // TODO: Hard-coded solid color uniform for the fragment shader is always combined
-            // with the RenderStep's vertex shader.
+            // TODO: Rely on uniform writer and GetUniforms(kSolidColor).
             auto [writer, bindInfo] = bufferMgr.getUniformWriter(sizeof(SkColor4f));
             writer.write(&d.fColor, sizeof(SkColor4f));
             commandBuffer->bindUniformBuffer(UniformSlot::kPaint,
-                                                sk_ref_sp(bindInfo.fBuffer),
-                                                bindInfo.fOffset);
+                                             sk_ref_sp(bindInfo.fBuffer),
+                                             bindInfo.fOffset);
 
             step->writeVertices(&drawWriter, shape);
         }
@@ -309,8 +310,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     draw(TriangleRectDraw::Singleton(), {{{-.5f, -.5f, .5f, .5f}, SkColors::kMagenta}});
 
     // Draw green and cyan rects using instance buffer
-    draw(InstanceRectDraw::Singleton(), { {{0.4f, -0.4f, 0.4f, 0.4f}, SkColors::kGreen},
-                                            {{0.f, 0.f, 0.25f, 0.25f},  SkColors::kCyan} });
+    draw(InstanceRectDraw::Singleton(), { {{-0.4f, -0.4f, 0.0f, 0.0f}, SkColors::kGreen},
+                                          {{0.f, 0.f, 0.25f, 0.25f},   SkColors::kCyan} });
 
     drawWriter.flush();
     bufferMgr.transferToCommandBuffer(commandBuffer.get());

@@ -11,9 +11,11 @@
 #include "include/core/SkTypes.h"
 
 #include "experimental/graphite/src/Attribute.h"
+#include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawTypes.h"
 #include "include/private/SkTArray.h"
 
+#include <array>
 namespace skgpu {
 
 class RenderStep;
@@ -45,32 +47,32 @@ public:
         return !(*this == other);
     }
 
+    // Describes the geometric portion of the pipeline's program and the pipeline's fixed state
+    // (except for renderpass-level state that will never change between draws).
     const RenderStep* renderStep() const { return fRenderStep; }
-    void setRenderStep(const RenderStep* step) {
+    // Key describing the color shading tree of the pipeline's program
+    Combination shaderCombo() const { return fCombination; }
+
+    void setProgram(const RenderStep* step, const Combination& shaderCombo) {
         SkASSERT(step);
         fRenderStep = step;
-
-        static constexpr int kWords = sizeof(uintptr_t) / sizeof(uint32_t);
-        static_assert(sizeof(uintptr_t) % sizeof(uint32_t) == 0);
-
-        if (fKey.count() < kWords) {
-            fKey.push_back_n(kWords - fKey.count());
-        }
+        fCombination = shaderCombo;
 
         uintptr_t addr = reinterpret_cast<uintptr_t>(fRenderStep);
         memcpy(fKey.data(), &addr, sizeof(uintptr_t));
+        fKey[kWords - 1] = shaderCombo.key();
     }
 
 private:
-    // Estimate of max expected key size
-    // TODO: flesh this out
-    inline static constexpr int kPreAllocSize = 1;
+    // The key is the RenderStep address and the uint32_t key from Combination
+    static constexpr int kWords = sizeof(uintptr_t) / sizeof(uint32_t) + 1;
+    static_assert(sizeof(uintptr_t) % sizeof(uint32_t) == 0);
 
     // TODO: I wonder if we could expose the "key" as just a char[] union over the renderstep and
     // paint combination? That would avoid extra size, but definitely locks GraphicsPipelineDesc
     // keys to the current process, which is probably okay since we can have something a with a more
     // stable hash used for the pre-compilation combos.
-    SkSTArray<kPreAllocSize, uint32_t, true> fKey;
+    std::array<uint32_t, kWords> fKey;
 
     // Each RenderStep defines a fixed set of attributes and rasterization state, as well as the
     // shader fragments that control the geometry and coverage calculations. The RenderStep's shader
@@ -78,6 +80,12 @@ private:
     // RenderStep is fixed, its pointer can be used as a proxy for everything that it specifies in
     // the GraphicsPipeline.
     const RenderStep* fRenderStep = nullptr;
+
+    // TODO: Right now the Combination is roughly the equivalent of the PaintBlob description, so
+    // eventually it won't be a fixed size, as it can eventually represent arbitrary shader trees.
+    // However, in that world, each PaintBlob structure will have a unique ID and a map from ID to
+    // blob, so the GraphicsPipelineDesc can be reduced to just storing RenderStep + unique ID int.
+    Combination fCombination;
 };
 
 } // namespace skgpu

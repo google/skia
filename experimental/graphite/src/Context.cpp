@@ -11,9 +11,10 @@
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/Gpu.h"
-#include "experimental/graphite/src/ProgramCache.h"
+#include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Recorder.h"
 #include "experimental/graphite/src/Recording.h"
+#include "experimental/graphite/src/Renderer.h"
 
 #ifdef SK_METAL
 #include "experimental/graphite/src/mtl/MtlTrampoline.h"
@@ -55,21 +56,23 @@ void Context::submit(SyncToCpu syncToCpu) {
 }
 
 void Context::preCompile(const PaintCombo& paintCombo) {
-    ProgramCache cache;
-
     for (auto bm: paintCombo.fBlendModes) {
         for (auto& shaderCombo: paintCombo.fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
                 for (auto tm: shaderCombo.fTileModes) {
                     Combination c {shaderType, tm, bm};
 
-                    sk_sp<ProgramCache::ProgramInfo> pi = cache.findOrCreateProgram(c);
-                    // TODO: this should be getSkSL
-                    // TODO: it should also return the uniform information
-                    std::string msl = pi->getMSL();
-                    // TODO: compile the MSL and store the result back into the ProgramInfo
-                    // To do this we will need the path rendering options from Chris and
-                    // a stock set of RenderPasses.
+                    GraphicsPipelineDesc desc;
+
+                    for (const Renderer* r : {&Renderer::StencilAndFillPath()}) {
+                        for (auto&& s : r->steps()) {
+                            desc.setProgram(s, c);
+                            // TODO: Combine with renderpass description set to generate full
+                            // GraphicsPipeline and MSL program. Cache that compiled pipeline on
+                            // the resource provider in a map from desc -> pipeline so that any
+                            // later desc created from equivalent RenderStep + Combination get it.
+                        }
+                    }
                 }
             }
         }
