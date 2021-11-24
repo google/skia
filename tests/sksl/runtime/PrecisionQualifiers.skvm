@@ -168,7 +168,7 @@ F7 = bool lowp_param(half value)
 loop:
 20	    r20 = index
 21	    r21 = eq_f32 r1 r20
-22	    r21 = bit_and r12 r21
+22	    r21 = bit_and r21 r12
 23	    trace_var r21 $0 = r3
 24	    trace_var r21 $1 = r4
 25	    trace_var r21 $2 = r5

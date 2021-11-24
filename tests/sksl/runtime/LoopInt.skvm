@@ -90,7 +90,7 @@ F9 = bool loop_operator_ne()
 loop:
 25	    r25 = index
 26	    r26 = eq_f32 r0 r25
-27	    r26 = bit_and r12 r26
+27	    r26 = bit_and r26 r12
 28	    trace_var r26 $0 = r2
 29	    trace_var r26 $1 = r3
 30	    trace_var r26 $2 = r4
