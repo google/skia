@@ -375,16 +375,14 @@ protected:
 
     /** Generates the contents of glyph.fWidth, fHeight, fTop, fLeft,
      *  as well as fAdvanceX and fAdvanceY if not already set.
-     *
-     *  TODO: fMaskFormat is set by internalMakeGlyph later; cannot be set here.
+     *  The fMaskFormat will already be set to a requested format but may be changed.
      */
     virtual void generateMetrics(SkGlyph* glyph) = 0;
 
     /** Generates the contents of glyph.fImage.
      *  When called, glyph.fImage will be pointing to a pre-allocated,
      *  uninitialized region of memory of size glyph.imageSize().
-     *  This method may change glyph.fMaskFormat if the new image size is
-     *  less than or equal to the old image size.
+     *  This method may not change glyph.fMaskFormat.
      *
      *  Because glyph.imageSize() will determine the size of fImage,
      *  generateMetrics will be called before generateImage.
