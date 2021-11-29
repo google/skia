@@ -72,6 +72,8 @@ public:
 
         if (this->bind(abuilder, jmask["f"], fFeather)) {
             fMaskFilter = sksg::BlurImageFilter::Make();
+            // Mask feathers don't repeat edge pixels.
+            fMaskFilter->setTileMode(SkTileMode::kDecal);
         }
     }
 
