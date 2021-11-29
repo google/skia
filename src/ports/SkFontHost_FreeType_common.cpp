@@ -883,7 +883,8 @@ bool colrv1_start_glyph(SkCanvas* canvas,
                         const SkColor foregroundColor,
                         FT_Face ft_face,
                         uint16_t glyph_id,
-                        FT_Color_Root_Transform root_transform);
+                        FT_Color_Root_Transform root_transform,
+                        VisitedSet* visited_set);
 
 bool colrv1_traverse_paint(SkCanvas* canvas,
                            const SkSpan<FT_Color>& palette,
@@ -946,7 +947,8 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
         case FT_COLR_PAINTFORMAT_COLR_GLYPH:
             traverse_result = colrv1_start_glyph(canvas, palette, foregroundColor,
                                                  face, paint.u.colr_glyph.glyphID,
-                                                 FT_COLOR_NO_ROOT_TRANSFORM);
+                                                 FT_COLOR_NO_ROOT_TRANSFORM,
+                                                 visited_set);
             break;
         case FT_COLR_PAINTFORMAT_TRANSFORM:
             colrv1_transform(face, paint, canvas);
@@ -1080,7 +1082,8 @@ bool colrv1_start_glyph(SkCanvas* canvas,
                         const SkColor foregroundColor,
                         FT_Face ft_face,
                         uint16_t glyph_id,
-                        FT_Color_Root_Transform root_transform) {
+                        FT_Color_Root_Transform root_transform,
+                        VisitedSet* visited_set) {
     FT_OpaquePaint opaque_paint;
     opaque_paint.p = nullptr;
     bool has_colrv1_layers = false;
@@ -1093,9 +1096,8 @@ bool colrv1_start_glyph(SkCanvas* canvas,
             canvas->clipPath(clipBoxPath, true);
         }
 
-        VisitedSet visited_set;
         colrv1_traverse_paint(canvas, palette, foregroundColor,
-                              ft_face, opaque_paint, &visited_set);
+                              ft_face, opaque_paint, visited_set);
     }
     return has_colrv1_layers;
 }
@@ -1104,7 +1106,8 @@ bool colrv1_start_glyph_bounds(SkMatrix *ctm,
                                SkRect* bounds,
                                FT_Face ft_face,
                                uint16_t glyph_id,
-                               FT_Color_Root_Transform root_transform);
+                               FT_Color_Root_Transform root_transform,
+                               VisitedSet* visited_set);
 
 bool colrv1_traverse_paint_bounds(SkMatrix* ctm,
                                   SkRect* bounds,
@@ -1150,8 +1153,10 @@ bool colrv1_traverse_paint_bounds(SkMatrix* ctm,
             break;
         }
         case FT_COLR_PAINTFORMAT_COLR_GLYPH:
-            traverse_result = colrv1_start_glyph_bounds(
-                    ctm, bounds, face, paint.u.colr_glyph.glyphID, FT_COLOR_NO_ROOT_TRANSFORM);
+            traverse_result = colrv1_start_glyph_bounds(ctm, bounds, face,
+                                                        paint.u.colr_glyph.glyphID,
+                                                        FT_COLOR_NO_ROOT_TRANSFORM,
+                                                        visited_set);
             break;
 
         case FT_COLR_PAINTFORMAT_TRANSFORM: {
@@ -1219,14 +1224,14 @@ bool colrv1_start_glyph_bounds(SkMatrix *ctm,
                                SkRect* bounds,
                                FT_Face ft_face,
                                uint16_t glyph_id,
-                               FT_Color_Root_Transform root_transform) {
+                               FT_Color_Root_Transform root_transform,
+                               VisitedSet* visited_set) {
     FT_OpaquePaint opaque_paint;
     opaque_paint.p = nullptr;
     bool has_colrv1_layers = false;
     if (FT_Get_Color_Glyph_Paint(ft_face, glyph_id, root_transform, &opaque_paint)) {
         has_colrv1_layers = true;
-        VisitedSet visited_set;
-        colrv1_traverse_paint_bounds(ctm, bounds, ft_face, opaque_paint, &visited_set);
+        colrv1_traverse_paint_bounds(ctm, bounds, ft_face, opaque_paint, visited_set);
     }
     return has_colrv1_layers;
 }
@@ -1307,11 +1312,12 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 // to have the COLRv1 additions, as indicated by the
                 // TT_SUPPORT_COLRV1 flag defined by the FreeType headers in
                 // that case.
-
+                VisitedSet visited_set;
                 haveLayers = colrv1_start_glyph(&canvas, paletteSpan,
                                                 fRec.fForegroundColor,
                                                 face, glyph.getGlyphID(),
-                                                FT_COLOR_INCLUDE_ROOT_TRANSFORM);
+                                                FT_COLOR_INCLUDE_ROOT_TRANSFORM,
+                                                &visited_set);
 #else
                 haveLayers = false;
 #endif
@@ -1754,7 +1760,9 @@ bool SkScalerContext_FreeType_Base::computeColrV1GlyphBoundingBox(FT_Face face,
 #ifdef TT_SUPPORT_COLRV1
     SkMatrix ctm;
     SkRect bounds = SkRect::MakeEmpty();
-    if (!colrv1_start_glyph_bounds(&ctm, &bounds, face, glyphID, FT_COLOR_INCLUDE_ROOT_TRANSFORM)) {
+    VisitedSet visited_set;
+    if (!colrv1_start_glyph_bounds(&ctm, &bounds, face, glyphID,
+                                   FT_COLOR_INCLUDE_ROOT_TRANSFORM, &visited_set)) {
         return false;
     }
 
