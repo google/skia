@@ -12,13 +12,6 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 
-// Fraction of the text size to lower a strike through line below the baseline.
-#define kStdStrikeThru_Offset       (-SK_Scalar1 * 6 / 21)
-// Fraction of the text size to lower a underline below the baseline.
-#define kStdUnderline_Offset        (SK_Scalar1 / 9)
-// Fraction of the text size to use for a strike through or under-line.
-#define kStdUnderline_Thickness     (SK_Scalar1 / 18)
-
 // The fraction of text size to embolden fake bold text scales with text size.
 // At 9 points or below, the stroke width is increased by text size / 24.
 // At 36 points and above, it is increased by text size / 32.  In between,
