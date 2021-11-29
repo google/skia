@@ -65,19 +65,19 @@ F9 = bool loop_operator_eq()
 F10 = bool loop_operator_ne()
 
 43 registers, 799 instructions:
-0	r0 = splat 42C90000 (100.5)
-1	r1 = uniform32 ptr0 0
-2	r2 = uniform32 ptr0 4
-3	r3 = uniform32 ptr0 8
-4	r4 = uniform32 ptr0 C
-5	r5 = uniform32 ptr0 10
-6	r6 = uniform32 ptr0 14
-7	r7 = uniform32 ptr0 18
-8	r8 = uniform32 ptr0 1C
-9	r9 = uniform32 ptr0 20
-10	r10 = splat 0 (0)
-11	r11 = splat FFFFFFFF (nan)
-12	r12 = eq_f32 r0 r1
+0	r0 = uniform32 ptr0 0
+1	r1 = uniform32 ptr0 4
+2	r2 = uniform32 ptr0 8
+3	r3 = uniform32 ptr0 C
+4	r4 = uniform32 ptr0 10
+5	r5 = uniform32 ptr0 14
+6	r6 = uniform32 ptr0 18
+7	r7 = uniform32 ptr0 1C
+8	r8 = uniform32 ptr0 20
+9	r9 = splat 0 (0)
+10	r10 = splat FFFFFFFF (nan)
+11	r11 = splat 3F000000 (0.5)
+12	r12 = eq_f32 r0 r11
 13	r13 = splat 41200000 (10)
 14	r14 = splat 40A00000 (5)
 15	r15 = splat 3F800000 (1)
@@ -100,36 +100,36 @@ F10 = bool loop_operator_ne()
 32	r32 = splat 3CCCCCCD (0.025)
 loop:
 33	    r33 = index
-34	    r34 = eq_f32 r0 r33
+34	    r34 = eq_f32 r33 r11
 35	    r34 = bit_and r34 r12
-36	    trace_var r34 $0 = r2
-37	    trace_var r34 $1 = r3
-38	    trace_var r34 $2 = r4
-39	    trace_var r34 $3 = r5
-40	    trace_var r34 $4 = r6
-41	    trace_var r34 $5 = r7
-42	    trace_var r34 $6 = r8
-43	    trace_var r34 $7 = r9
-44	    trace_var r34 $8 = r10
+36	    trace_var r34 $0 = r1
+37	    trace_var r34 $1 = r2
+38	    trace_var r34 $2 = r3
+39	    trace_var r34 $3 = r4
+40	    trace_var r34 $4 = r5
+41	    trace_var r34 $5 = r6
+42	    trace_var r34 $6 = r7
+43	    trace_var r34 $7 = r8
+44	    trace_var r34 $8 = r9
 45	    trace_var r34 $9 = r13
 46	    trace_enter r34 F0
 47	    trace_var r34 $10 = r33
-48	    trace_var r34 $11 = r1
+48	    trace_var r34 $11 = r0
 49	    trace_line r34 L116
-50	    r33 = min_f32 r33 r9
-51	    r33 = max_f32 r7 r33
+50	    r33 = min_f32 r33 r8
+51	    r33 = max_f32 r6 r33
 52	    r33 = mul_f32 r33 r14
 53	    trace_var r34 $12 = r33
 54	    trace_line r34 L117
 55	    trace_enter r34 F1
 56	    trace_var r34 $13 = r33
 57	    trace_line r34 L8
-58	    trace_var r34 $14 = r10
+58	    trace_var r34 $14 = r9
 59	    trace_line r34 L9
-60	    r35 = eq_f32 r10 r33
+60	    r35 = eq_f32 r9 r33
 61	    r36 = bit_and r34 r35
 62	    trace_line r36 L9
-63	    r36 = bit_xor r11 r35
+63	    r36 = bit_xor r10 r35
 64	    r37 = bit_and r34 r36
 65	    trace_line r37 L8
 66	    trace_var r37 $14 = r15
@@ -140,7 +140,7 @@ loop:
 71	    trace_line r36 L9
 72	    r36 = bit_and r15 r37
 73	    r37 = bit_or r35 r37
-74	    r35 = bit_xor r11 r37
+74	    r35 = bit_xor r10 r37
 75	    r38 = bit_and r34 r35
 76	    trace_line r38 L8
 77	    trace_var r38 $14 = r16
@@ -151,7 +151,7 @@ loop:
 82	    trace_line r35 L9
 83	    r36 = select r38 r16 r36
 84	    r38 = bit_or r37 r38
-85	    r37 = bit_xor r11 r38
+85	    r37 = bit_xor r10 r38
 86	    r35 = bit_and r34 r37
 87	    trace_line r35 L8
 88	    trace_var r35 $14 = r17
@@ -162,7 +162,7 @@ loop:
 93	    trace_line r37 L9
 94	    r36 = select r35 r17 r36
 95	    r35 = bit_or r38 r35
-96	    r38 = bit_xor r11 r35
+96	    r38 = bit_xor r10 r35
 97	    r37 = bit_and r34 r38
 98	    trace_line r37 L8
 99	    trace_var r37 $14 = r18
@@ -173,7 +173,7 @@ loop:
 104	    trace_line r38 L9
 105	    r36 = select r37 r18 r36
 106	    r37 = bit_or r35 r37
-107	    r35 = bit_xor r11 r37
+107	    r35 = bit_xor r10 r37
 108	    r38 = bit_and r34 r35
 109	    trace_line r38 L8
 110	    trace_var r38 $14 = r14
@@ -184,7 +184,7 @@ loop:
 115	    trace_line r35 L9
 116	    r36 = select r38 r14 r36
 117	    r38 = bit_or r37 r38
-118	    r37 = bit_xor r11 r38
+118	    r37 = bit_xor r10 r38
 119	    r35 = bit_and r34 r37
 120	    trace_line r35 L8
 121	    trace_var r35 $14 = r19
@@ -195,7 +195,7 @@ loop:
 126	    trace_line r37 L9
 127	    r36 = select r35 r19 r36
 128	    r35 = bit_or r38 r35
-129	    r38 = bit_xor r11 r35
+129	    r38 = bit_xor r10 r35
 130	    r37 = bit_and r34 r38
 131	    trace_line r37 L8
 132	    trace_var r37 $14 = r20
@@ -206,7 +206,7 @@ loop:
 137	    trace_line r38 L9
 138	    r36 = select r37 r20 r36
 139	    r37 = bit_or r35 r37
-140	    r35 = bit_xor r11 r37
+140	    r35 = bit_xor r10 r37
 141	    r38 = bit_and r34 r35
 142	    trace_line r38 L8
 143	    trace_var r38 $14 = r21
@@ -217,7 +217,7 @@ loop:
 148	    trace_line r35 L9
 149	    r36 = select r38 r21 r36
 150	    r38 = bit_or r37 r38
-151	    r37 = bit_xor r11 r38
+151	    r37 = bit_xor r10 r38
 152	    r35 = bit_and r34 r37
 153	    trace_line r35 L8
 154	    trace_var r35 $14 = r22
@@ -228,7 +228,7 @@ loop:
 159	    trace_line r37 L9
 160	    r36 = select r35 r22 r36
 161	    r35 = bit_or r38 r35
-162	    r35 = bit_xor r11 r35
+162	    r35 = bit_xor r10 r35
 163	    r38 = bit_and r34 r35
 164	    trace_line r38 L8
 165	    trace_line r38 L11
@@ -239,15 +239,15 @@ loop:
 170	    trace_enter r36 F2
 171	    trace_var r36 $15 = r33
 172	    trace_line r36 L17
-173	    trace_var r36 $16 = r10
+173	    trace_var r36 $16 = r9
 174	    trace_line r36 L18
-175	    trace_var r36 $17 = r10
+175	    trace_var r36 $17 = r9
 176	    trace_line r36 L19
-177	    r38 = gt_f32 r33 r10
+177	    r38 = gt_f32 r33 r9
 178	    r38 = bit_and r35 r38
 179	    r37 = bit_and r34 r38
 180	    trace_line r37 L19
-181	    r37 = bit_xor r11 r38
+181	    r37 = bit_xor r10 r38
 182	    r39 = bit_and r35 r37
 183	    r39 = bit_and r34 r39
 184	    trace_line r39 L20
@@ -262,7 +262,7 @@ loop:
 193	    r38 = bit_and r37 r38
 194	    r39 = bit_and r34 r38
 195	    trace_line r39 L19
-196	    r39 = bit_xor r11 r38
+196	    r39 = bit_xor r10 r38
 197	    r39 = bit_and r37 r39
 198	    r37 = bit_and r35 r39
 199	    r40 = bit_and r34 r37
@@ -280,7 +280,7 @@ loop:
 211	    r38 = bit_and r39 r38
 212	    r40 = bit_and r34 r38
 213	    trace_line r40 L19
-214	    r40 = bit_xor r11 r38
+214	    r40 = bit_xor r10 r38
 215	    r40 = bit_and r39 r40
 216	    r39 = bit_and r35 r40
 217	    r41 = bit_and r34 r39
@@ -299,7 +299,7 @@ loop:
 230	    r38 = bit_and r40 r38
 231	    r41 = bit_and r34 r38
 232	    trace_line r41 L19
-233	    r41 = bit_xor r11 r38
+233	    r41 = bit_xor r10 r38
 234	    r41 = bit_and r40 r41
 235	    r40 = bit_and r35 r41
 236	    r42 = bit_and r34 r40
@@ -318,7 +318,7 @@ loop:
 249	    r38 = bit_and r41 r38
 250	    r42 = bit_and r34 r38
 251	    trace_line r42 L19
-252	    r42 = bit_xor r11 r38
+252	    r42 = bit_xor r10 r38
 253	    r42 = bit_and r41 r42
 254	    r41 = bit_and r35 r42
 255	    r39 = bit_and r34 r41
@@ -337,7 +337,7 @@ loop:
 268	    r38 = bit_and r42 r38
 269	    r39 = bit_and r34 r38
 270	    trace_line r39 L19
-271	    r39 = bit_xor r11 r38
+271	    r39 = bit_xor r10 r38
 272	    r39 = bit_and r42 r39
 273	    r42 = bit_and r35 r39
 274	    r40 = bit_and r34 r42
@@ -356,7 +356,7 @@ loop:
 287	    r38 = bit_and r39 r38
 288	    r40 = bit_and r34 r38
 289	    trace_line r40 L19
-290	    r40 = bit_xor r11 r38
+290	    r40 = bit_xor r10 r38
 291	    r40 = bit_and r39 r40
 292	    r39 = bit_and r35 r40
 293	    r41 = bit_and r34 r39
@@ -375,7 +375,7 @@ loop:
 306	    r38 = bit_and r40 r38
 307	    r41 = bit_and r34 r38
 308	    trace_line r41 L19
-309	    r41 = bit_xor r11 r38
+309	    r41 = bit_xor r10 r38
 310	    r41 = bit_and r40 r41
 311	    r40 = bit_and r35 r41
 312	    r42 = bit_and r34 r40
@@ -394,7 +394,7 @@ loop:
 325	    r38 = bit_and r41 r38
 326	    r42 = bit_and r34 r38
 327	    trace_line r42 L19
-328	    r42 = bit_xor r11 r38
+328	    r42 = bit_xor r10 r38
 329	    r42 = bit_and r41 r42
 330	    r41 = bit_and r35 r42
 331	    r39 = bit_and r34 r41
@@ -413,7 +413,7 @@ loop:
 344	    r38 = bit_and r42 r38
 345	    r39 = bit_and r34 r38
 346	    trace_line r39 L19
-347	    r39 = bit_xor r11 r38
+347	    r39 = bit_xor r10 r38
 348	    r39 = bit_and r42 r39
 349	    r42 = bit_and r35 r39
 350	    r40 = bit_and r34 r42
@@ -434,17 +434,17 @@ loop:
 365	    trace_enter r35 F3
 366	    trace_var r35 $18 = r33
 367	    trace_line r35 L27
-368	    trace_var r35 $19 = r10
+368	    trace_var r35 $19 = r9
 369	    trace_line r35 L28
 370	    trace_var r35 $20 = r15
 371	    trace_line r35 L29
-372	    trace_var r35 $21 = r10
+372	    trace_var r35 $21 = r9
 373	    trace_line r35 L30
-374	    r36 = gt_f32 r10 r33
+374	    r36 = gt_f32 r9 r33
 375	    r36 = bit_and r37 r36
 376	    r39 = bit_and r34 r36
 377	    trace_line r39 L30
-378	    r36 = bit_xor r11 r36
+378	    r36 = bit_xor r10 r36
 379	    r39 = bit_and r37 r36
 380	    r39 = bit_and r34 r39
 381	    trace_line r39 L31
@@ -456,7 +456,7 @@ loop:
 387	    r39 = bit_and r36 r39
 388	    r38 = bit_and r34 r39
 389	    trace_line r38 L30
-390	    r39 = bit_xor r11 r39
+390	    r39 = bit_xor r10 r39
 391	    r39 = bit_and r36 r39
 392	    r36 = bit_and r37 r39
 393	    r38 = bit_and r34 r36
@@ -471,7 +471,7 @@ loop:
 402	    r38 = bit_and r39 r38
 403	    r40 = bit_and r34 r38
 404	    trace_line r40 L30
-405	    r38 = bit_xor r11 r38
+405	    r38 = bit_xor r10 r38
 406	    r38 = bit_and r39 r38
 407	    r39 = bit_and r37 r38
 408	    r40 = bit_and r34 r39
@@ -487,7 +487,7 @@ loop:
 418	    r40 = bit_and r38 r40
 419	    r41 = bit_and r34 r40
 420	    trace_line r41 L30
-421	    r40 = bit_xor r11 r40
+421	    r40 = bit_xor r10 r40
 422	    r40 = bit_and r38 r40
 423	    r38 = bit_and r37 r40
 424	    r41 = bit_and r34 r38
@@ -503,7 +503,7 @@ loop:
 434	    r41 = bit_and r40 r41
 435	    r39 = bit_and r34 r41
 436	    trace_line r39 L30
-437	    r41 = bit_xor r11 r41
+437	    r41 = bit_xor r10 r41
 438	    r41 = bit_and r40 r41
 439	    r40 = bit_and r37 r41
 440	    r39 = bit_and r34 r40
@@ -519,7 +519,7 @@ loop:
 450	    r39 = bit_and r41 r39
 451	    r38 = bit_and r34 r39
 452	    trace_line r38 L30
-453	    r39 = bit_xor r11 r39
+453	    r39 = bit_xor r10 r39
 454	    r39 = bit_and r41 r39
 455	    r41 = bit_and r37 r39
 456	    r38 = bit_and r34 r41
@@ -535,7 +535,7 @@ loop:
 466	    r38 = bit_and r39 r38
 467	    r40 = bit_and r34 r38
 468	    trace_line r40 L30
-469	    r38 = bit_xor r11 r38
+469	    r38 = bit_xor r10 r38
 470	    r38 = bit_and r39 r38
 471	    r39 = bit_and r37 r38
 472	    r40 = bit_and r34 r39
@@ -551,7 +551,7 @@ loop:
 482	    r40 = bit_and r38 r40
 483	    r41 = bit_and r34 r40
 484	    trace_line r41 L30
-485	    r40 = bit_xor r11 r40
+485	    r40 = bit_xor r10 r40
 486	    r40 = bit_and r38 r40
 487	    r38 = bit_and r37 r40
 488	    r41 = bit_and r34 r38
@@ -567,7 +567,7 @@ loop:
 498	    r41 = bit_and r40 r41
 499	    r39 = bit_and r34 r41
 500	    trace_line r39 L30
-501	    r41 = bit_xor r11 r41
+501	    r41 = bit_xor r10 r41
 502	    r41 = bit_and r40 r41
 503	    r40 = bit_and r37 r41
 504	    r39 = bit_and r34 r40
@@ -583,7 +583,7 @@ loop:
 514	    r33 = bit_and r41 r33
 515	    r39 = bit_and r34 r33
 516	    trace_line r39 L30
-517	    r33 = bit_xor r11 r33
+517	    r33 = bit_xor r10 r33
 518	    r33 = bit_and r41 r33
 519	    r33 = bit_and r37 r33
 520	    r41 = bit_and r34 r33
@@ -600,7 +600,7 @@ loop:
 531	    r37 = bit_and r34 r36
 532	    trace_enter r37 F4
 533	    trace_line r37 L38
-534	    trace_var r37 $22 = r10
+534	    trace_var r37 $22 = r9
 535	    trace_line r37 L39
 536	    trace_var r37 $23 = r25
 537	    trace_line r37 L40
@@ -856,10 +856,10 @@ loop:
 787	    r41 = bit_and r37 r41
 788	    trace_exit r35 F10
 789	    r41 = bit_and r37 r41
-790	    r37 = select r41 r6 r2
-791	    r35 = select r41 r7 r3
-792	    r36 = select r41 r8 r4
-793	    r41 = select r41 r9 r5
+790	    r37 = select r41 r5 r1
+791	    r35 = select r41 r6 r2
+792	    r36 = select r41 r7 r3
+793	    r41 = select r41 r8 r4
 794	    trace_exit r34 F0
 795	    store32 ptr1 r37
 796	    store32 ptr2 r35

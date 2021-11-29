@@ -8,6 +8,7 @@
 #ifndef SKVMDEBUGINFO
 #define SKVMDEBUGINFO
 
+#include "include/core/SkPoint.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -40,10 +41,9 @@ struct SkVMFunctionInfo {
 class SkVMDebugInfo {
 public:
     /**
-     * Sets the device-coordinate pixel to trace. Callers should set this before compilation.
-     * If it's not set, the debugger will not emit trace data.
+     * Sets the device-coordinate pixel to trace. If it's not set, the point at (0, 0) will be used.
      */
-    void setTraceCoord(skvm::Coord coord);
+    void setTraceCoord(const SkIPoint& coord);
 
     /** Attaches the SkSL source to be debugged. */
     void setSource(std::string source);
@@ -55,14 +55,15 @@ public:
     /** Write a human-readable dump of the DebugInfo to a .skvm file. */
     void dump(SkWStream* o) const;
 
+    /** The device-coordinate pixel to trace (controlled by setTraceCoord) */
+    SkIPoint fTraceCoord = {};
+
     /** A 1:1 mapping of slot numbers to debug information. */
     std::vector<SkVMSlotInfo> fSlotInfo;
     std::vector<SkVMFunctionInfo> fFuncInfo;
 
     /** The SkSL code, split line-by-line. */
     std::vector<std::string> fSource;
-
-    skvm::Coord fTraceCoord;
 };
 
 }  // namespace SkSL

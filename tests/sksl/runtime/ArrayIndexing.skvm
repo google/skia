@@ -41,104 +41,104 @@ F3 = float index_by_complex_loop()
 F4 = float index_out_of_bounds_checked()
 
 54 registers, 171 instructions:
-0	r0 = splat 42C90000 (100.5)
-1	r1 = uniform32 ptr0 0
-2	r2 = uniform32 ptr0 4
-3	r3 = uniform32 ptr0 8
-4	r4 = uniform32 ptr0 C
-5	r5 = uniform32 ptr0 10
-6	r6 = uniform32 ptr0 14
-7	r7 = uniform32 ptr0 18
-8	r8 = uniform32 ptr0 1C
-9	r9 = uniform32 ptr0 20
-10	r10 = uniform32 ptr0 24
-11	r11 = uniform32 ptr0 28
-12	r12 = uniform32 ptr0 2C
-13	r13 = uniform32 ptr0 30
-14	r14 = uniform32 ptr0 34
-15	r15 = uniform32 ptr0 38
-16	r16 = uniform32 ptr0 3C
-17	r17 = uniform32 ptr0 40
-18	r18 = uniform32 ptr0 44
-19	r19 = uniform32 ptr0 48
-20	r20 = uniform32 ptr0 4C
-21	r21 = uniform32 ptr0 50
-22	r22 = uniform32 ptr0 54
-23	r23 = uniform32 ptr0 58
-24	r24 = uniform32 ptr0 5C
-25	r25 = uniform32 ptr0 60
-26	r26 = uniform32 ptr0 64
-27	r27 = uniform32 ptr0 68
-28	r28 = uniform32 ptr0 6C
-29	r29 = uniform32 ptr0 70
-30	r30 = splat 0 (0)
-31	r31 = eq_f32 r0 r1
+0	r0 = uniform32 ptr0 0
+1	r1 = uniform32 ptr0 4
+2	r2 = uniform32 ptr0 8
+3	r3 = uniform32 ptr0 C
+4	r4 = uniform32 ptr0 10
+5	r5 = uniform32 ptr0 14
+6	r6 = uniform32 ptr0 18
+7	r7 = uniform32 ptr0 1C
+8	r8 = uniform32 ptr0 20
+9	r9 = uniform32 ptr0 24
+10	r10 = uniform32 ptr0 28
+11	r11 = uniform32 ptr0 2C
+12	r12 = uniform32 ptr0 30
+13	r13 = uniform32 ptr0 34
+14	r14 = uniform32 ptr0 38
+15	r15 = uniform32 ptr0 3C
+16	r16 = uniform32 ptr0 40
+17	r17 = uniform32 ptr0 44
+18	r18 = uniform32 ptr0 48
+19	r19 = uniform32 ptr0 4C
+20	r20 = uniform32 ptr0 50
+21	r21 = uniform32 ptr0 54
+22	r22 = uniform32 ptr0 58
+23	r23 = uniform32 ptr0 5C
+24	r24 = uniform32 ptr0 60
+25	r25 = uniform32 ptr0 64
+26	r26 = uniform32 ptr0 68
+27	r27 = uniform32 ptr0 6C
+28	r28 = uniform32 ptr0 70
+29	r29 = splat 0 (0)
+30	r30 = splat 3F000000 (0.5)
+31	r31 = eq_f32 r0 r30
 32	r32 = splat 3 (4.2038954e-45)
 33	r33 = splat 2 (2.8025969e-45)
-34	r34 = add_f32 r8 r9
+34	r34 = add_f32 r7 r8
 35	r35 = splat 1 (1.4012985e-45)
-36	r36 = add_f32 r7 r34
-37	r37 = add_f32 r6 r36
+36	r36 = add_f32 r6 r34
+37	r37 = add_f32 r5 r36
 38	r38 = splat 3F800000 (1)
-39	r39 = mul_f32 r10 r10
-40	r40 = mul_f32 r12 r39
-41	r41 = mul_f32 r13 r40
+39	r39 = mul_f32 r9 r9
+40	r40 = mul_f32 r11 r39
+41	r41 = mul_f32 r12 r40
 42	r42 = splat C0133333 (-2.3)
 43	r43 = splat 3FB33334 (1.4000001)
-44	r44 = sub_f32 r30 r15
+44	r44 = sub_f32 r29 r14
 45	r45 = splat 40A33334 (5.1000004)
-46	r46 = sub_f32 r44 r19
+46	r46 = sub_f32 r44 r18
 47	r47 = splat 410CCCCD (8.8000002)
-48	r48 = sub_f32 r46 r22
+48	r48 = sub_f32 r46 r21
 49	r49 = splat 41480000 (12.5)
-50	r50 = sub_f32 r48 r26
+50	r50 = sub_f32 r48 r25
 51	r51 = splat 4181999A (16.200001)
 loop:
 52	    r52 = index
-53	    r53 = eq_f32 r0 r52
+53	    r53 = eq_f32 r52 r30
 54	    r53 = bit_and r53 r31
-55	    trace_var r53 $0 = r2
-56	    trace_var r53 $1 = r3
-57	    trace_var r53 $2 = r4
-58	    trace_var r53 $3 = r5
-59	    trace_var r53 $4 = r6
-60	    trace_var r53 $5 = r7
-61	    trace_var r53 $6 = r8
-62	    trace_var r53 $7 = r9
-63	    trace_var r53 $8 = r10
-64	    trace_var r53 $9 = r11
-65	    trace_var r53 $10 = r12
-66	    trace_var r53 $11 = r13
-67	    trace_var r53 $12 = r14
-68	    trace_var r53 $13 = r15
-69	    trace_var r53 $14 = r16
-70	    trace_var r53 $15 = r17
-71	    trace_var r53 $16 = r18
-72	    trace_var r53 $17 = r19
-73	    trace_var r53 $18 = r20
-74	    trace_var r53 $19 = r21
-75	    trace_var r53 $20 = r22
-76	    trace_var r53 $21 = r23
-77	    trace_var r53 $22 = r24
-78	    trace_var r53 $23 = r25
-79	    trace_var r53 $24 = r26
-80	    trace_var r53 $25 = r27
-81	    trace_var r53 $26 = r28
-82	    trace_var r53 $27 = r29
+55	    trace_var r53 $0 = r1
+56	    trace_var r53 $1 = r2
+57	    trace_var r53 $2 = r3
+58	    trace_var r53 $3 = r4
+59	    trace_var r53 $4 = r5
+60	    trace_var r53 $5 = r6
+61	    trace_var r53 $6 = r7
+62	    trace_var r53 $7 = r8
+63	    trace_var r53 $8 = r9
+64	    trace_var r53 $9 = r10
+65	    trace_var r53 $10 = r11
+66	    trace_var r53 $11 = r12
+67	    trace_var r53 $12 = r13
+68	    trace_var r53 $13 = r14
+69	    trace_var r53 $14 = r15
+70	    trace_var r53 $15 = r16
+71	    trace_var r53 $16 = r17
+72	    trace_var r53 $17 = r18
+73	    trace_var r53 $18 = r19
+74	    trace_var r53 $19 = r20
+75	    trace_var r53 $20 = r21
+76	    trace_var r53 $21 = r22
+77	    trace_var r53 $22 = r23
+78	    trace_var r53 $23 = r24
+79	    trace_var r53 $24 = r25
+80	    trace_var r53 $25 = r26
+81	    trace_var r53 $26 = r27
+82	    trace_var r53 $27 = r28
 83	    trace_enter r53 F0
 84	    trace_var r53 $28 = r52
-85	    trace_var r53 $29 = r1
+85	    trace_var r53 $29 = r0
 86	    trace_line r53 L38
 87	    trace_enter r53 F1
 88	    trace_line r53 L5
 89	    trace_exit r53 F1
 90	    trace_enter r53 F2
 91	    trace_line r53 L10
-92	    trace_var r53 $30 = r30
+92	    trace_var r53 $30 = r29
 93	    trace_line r53 L11
 94	    trace_var r53 $31 = r32
 95	    trace_line r53 L12
-96	    trace_var r53 $30 = r9
+96	    trace_var r53 $30 = r8
 97	    trace_line r53 L11
 98	    trace_var r53 $31 = r33
 99	    trace_line r53 L12
@@ -148,7 +148,7 @@ loop:
 103	    trace_line r53 L12
 104	    trace_var r53 $30 = r36
 105	    trace_line r53 L11
-106	    trace_var r53 $31 = r30
+106	    trace_var r53 $31 = r29
 107	    trace_line r53 L12
 108	    trace_var r53 $30 = r37
 109	    trace_line r53 L11
@@ -158,9 +158,9 @@ loop:
 113	    trace_line r53 L19
 114	    trace_var r53 $32 = r38
 115	    trace_line r53 L20
-116	    trace_var r53 $33 = r30
+116	    trace_var r53 $33 = r29
 117	    trace_line r53 L21
-118	    trace_var r53 $32 = r10
+118	    trace_var r53 $32 = r9
 119	    trace_line r53 L20
 120	    trace_var r53 $33 = r35
 121	    trace_line r53 L21
@@ -178,7 +178,7 @@ loop:
 133	    trace_exit r53 F3
 134	    trace_enter r53 F4
 135	    trace_line r53 L28
-136	    trace_var r53 $34 = r30
+136	    trace_var r53 $34 = r29
 137	    trace_line r53 L29
 138	    trace_var r53 $35 = r42
 139	    trace_line r53 L30
@@ -209,7 +209,7 @@ loop:
 164	    trace_line r53 L34
 165	    trace_exit r53 F4
 166	    trace_exit r53 F0
-167	    store32 ptr1 r2
+167	    store32 ptr1 r1
 168	    store32 ptr2 r37
 169	    store32 ptr3 r41
 170	    store32 ptr4 r50

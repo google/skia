@@ -1005,8 +1005,6 @@ int main() {
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
     SkSL::SkVMDebugInfo debugInfo;
-    skvm::Coord zero = {b.splat(0.0f), b.splat(0.0f)};
-    debugInfo.setTraceCoord(zero);
     SkSL::ProgramToSkVM(*program, *main, &b, &debugInfo, /*uniforms=*/{});
     skvm::Program p = b.done();
     REPORTER_ASSERT(r, p.nargs() == 1);

@@ -14,10 +14,8 @@
 
 namespace SkSL {
 
-void SkVMDebugInfo::setTraceCoord(skvm::Coord coord) {
-    // The SkVM blitter generates centered pixel coordinates. (0.5, 1.5, 2.5, 3.5, etc.)
-    // Add 0.5 to the requested trace coordinate to match this.
-    fTraceCoord = {coord.x + 0.5, coord.y + 0.5};
+void SkVMDebugInfo::setTraceCoord(const SkIPoint& coord) {
+    fTraceCoord = coord;
 }
 
 void SkVMDebugInfo::setSource(std::string source) {
