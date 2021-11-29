@@ -369,7 +369,7 @@ describe('Core canvas behavior', () => {
          const texs = [0,0, 16,0, 16,16, 0,16];
 
          const params = [
-             [  0,   0, colors, null, null,   null],
+             [  0,   0, colors, null, null,   CanvasKit.BlendMode.Dst],
              [256,   0, null,   texs, shader, null],
              [  0, 256, colors, texs, shader, null],
              [256, 256, colors, texs, shader, CanvasKit.BlendMode.Screen],

@@ -216,7 +216,7 @@
          const cubics = patch_to_cubics(patch);
 
          canvas.drawColor(CanvasKit.WHITE);
-         canvas.drawPatch(cubics, colors, null, null, paint);
+         canvas.drawPatch(cubics, colors, null, CanvasKit.BlendMode.Dst, paint);
          if (live_corner) {
              canvas.drawPoints(CanvasKit.PointMode.Polygon, live_corner, line_paint);
          }
@@ -991,7 +991,7 @@
                                             points, null, colors,
                                             false /*isVolatile*/);
 
-    canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+    canvas.drawVertices(vertices, CanvasKit.BlendMode.Dst, paint);
 
     vertices.delete();
 

@@ -698,7 +698,7 @@ describe('Canvas Behavior', () => {
         const bounds = vertices.bounds();
         expect(bounds).toEqual(CanvasKit.LTRBRect(0, 0, 250, 250));
 
-        canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+        canvas.drawVertices(vertices, CanvasKit.BlendMode.Dst, paint);
         vertices.delete();
         paint.delete();
     });
@@ -717,7 +717,7 @@ describe('Canvas Behavior', () => {
         const bounds = vertices.bounds();
         expect(bounds).toEqual(CanvasKit.LTRBRect(0, 0, 250, 250));
 
-        canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+        canvas.drawVertices(vertices, CanvasKit.BlendMode.Dst, paint);
         vertices.delete();
         paint.delete();
     });
