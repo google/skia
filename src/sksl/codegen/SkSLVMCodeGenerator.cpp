@@ -460,7 +460,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     int funcIndex = -1;
     if (fDebugInfo) {
         funcIndex = this->getDebugFunctionInfo(decl);
-        fBuilder->trace_call_enter(this->traceMask(), funcIndex);
+        fBuilder->trace_enter(this->traceMask(), funcIndex);
     }
 
     fFunctionStack.push_back({outReturn, /*returned=*/fBuilder->splat(0)});
@@ -499,7 +499,7 @@ void SkVMGenerator::writeFunction(const FunctionDefinition& function,
     fFunctionStack.pop_back();
 
     if (fDebugInfo) {
-        fBuilder->trace_call_exit(this->traceMask(), funcIndex);
+        fBuilder->trace_exit(this->traceMask(), funcIndex);
     }
 }
 

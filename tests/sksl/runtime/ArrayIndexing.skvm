@@ -125,14 +125,14 @@ loop:
 80	    trace_var r53 $25 = r27
 81	    trace_var r53 $26 = r28
 82	    trace_var r53 $27 = r29
-83	    trace_call r53 F0 (enter)
+83	    trace_enter r53 F0
 84	    trace_var r53 $28 = r52
 85	    trace_var r53 $29 = r1
 86	    trace_line r53 L38
-87	    trace_call r53 F1 (enter)
+87	    trace_enter r53 F1
 88	    trace_line r53 L5
-89	    trace_call r53 F1 (exit)
-90	    trace_call r53 F2 (enter)
+89	    trace_exit r53 F1
+90	    trace_enter r53 F2
 91	    trace_line r53 L10
 92	    trace_var r53 $30 = r30
 93	    trace_line r53 L11
@@ -153,8 +153,8 @@ loop:
 108	    trace_var r53 $30 = r37
 109	    trace_line r53 L11
 110	    trace_line r53 L14
-111	    trace_call r53 F2 (exit)
-112	    trace_call r53 F3 (enter)
+111	    trace_exit r53 F2
+112	    trace_enter r53 F3
 113	    trace_line r53 L19
 114	    trace_var r53 $32 = r38
 115	    trace_line r53 L20
@@ -175,8 +175,8 @@ loop:
 130	    trace_var r53 $32 = r41
 131	    trace_line r53 L20
 132	    trace_line r53 L23
-133	    trace_call r53 F3 (exit)
-134	    trace_call r53 F4 (enter)
+133	    trace_exit r53 F3
+134	    trace_enter r53 F4
 135	    trace_line r53 L28
 136	    trace_var r53 $34 = r30
 137	    trace_line r53 L29
@@ -207,8 +207,8 @@ loop:
 162	    trace_line r53 L30
 163	    trace_line r53 L29
 164	    trace_line r53 L34
-165	    trace_call r53 F4 (exit)
-166	    trace_call r53 F0 (exit)
+165	    trace_exit r53 F4
+166	    trace_exit r53 F0
 167	    store32 ptr1 r2
 168	    store32 ptr2 r37
 169	    store32 ptr3 r41

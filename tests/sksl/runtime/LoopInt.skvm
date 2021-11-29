@@ -101,7 +101,7 @@ loop:
 35	    trace_var r26 $7 = r9
 36	    trace_var r26 $8 = r10
 37	    trace_var r26 $9 = r13
-38	    trace_call r26 F0 (enter)
+38	    trace_enter r26 F0
 39	    trace_var r26 $10 = r25
 40	    trace_var r26 $11 = r1
 41	    trace_line r26 L107
@@ -111,7 +111,7 @@ loop:
 45	    r25 = mul_i32 r25 r14
 46	    trace_var r26 $12 = r25
 47	    trace_line r26 L108
-48	    trace_call r26 F1 (enter)
+48	    trace_enter r26 F1
 49	    trace_var r26 $13 = r25
 50	    trace_line r26 L8
 51	    trace_var r26 $14 = r10
@@ -223,10 +223,10 @@ loop:
 157	    trace_line r30 L8
 158	    trace_line r30 L11
 159	    r27 = bit_clear r28 r27
-160	    trace_call r26 F1 (exit)
+160	    trace_exit r26 F1
 161	    r27 = eq_i32 r14 r27
 162	    r28 = bit_and r26 r27
-163	    trace_call r28 F2 (enter)
+163	    trace_enter r28 F2
 164	    trace_var r28 $15 = r25
 165	    trace_line r28 L17
 166	    trace_var r28 $16 = r10
@@ -417,11 +417,11 @@ loop:
 351	    trace_line r31 L18
 352	    trace_line r28 L22
 353	    r29 = bit_and r27 r29
-354	    trace_call r28 F2 (exit)
+354	    trace_exit r28 F2
 355	    r29 = eq_i32 r29 r23
 356	    r29 = bit_and r27 r29
 357	    r27 = bit_and r26 r29
-358	    trace_call r27 F3 (enter)
+358	    trace_enter r27 F3
 359	    trace_var r27 $18 = r25
 360	    trace_line r27 L27
 361	    trace_var r27 $19 = r10
@@ -584,11 +584,11 @@ loop:
 518	    trace_line r33 L29
 519	    trace_line r27 L33
 520	    r28 = bit_and r29 r28
-521	    trace_call r27 F3 (exit)
+521	    trace_exit r27 F3
 522	    r28 = eq_i32 r28 r24
 523	    r28 = bit_and r29 r28
 524	    r29 = bit_and r26 r28
-525	    trace_call r29 F4 (enter)
+525	    trace_enter r29 F4
 526	    trace_line r29 L38
 527	    trace_line r29 L39
 528	    trace_line r29 L41
@@ -625,10 +625,10 @@ loop:
 559	    r33 = bit_and r31 r33
 560	    r33 = bit_and r27 r33
 561	    r33 = bit_and r28 r33
-562	    trace_call r29 F4 (exit)
+562	    trace_exit r29 F4
 563	    r33 = bit_and r28 r33
 564	    r28 = bit_and r26 r33
-565	    trace_call r28 F5 (enter)
+565	    trace_enter r28 F5
 566	    trace_line r28 L50
 567	    trace_line r28 L51
 568	    trace_line r28 L53
@@ -665,10 +665,10 @@ loop:
 599	    r27 = bit_and r31 r27
 600	    r27 = bit_and r29 r27
 601	    r27 = bit_and r33 r27
-602	    trace_call r28 F5 (exit)
+602	    trace_exit r28 F5
 603	    r27 = bit_and r33 r27
 604	    r33 = bit_and r26 r27
-605	    trace_call r33 F6 (enter)
+605	    trace_enter r33 F6
 606	    trace_line r33 L62
 607	    trace_line r33 L63
 608	    trace_line r33 L65
@@ -705,10 +705,10 @@ loop:
 639	    r29 = bit_and r31 r29
 640	    r29 = bit_and r28 r29
 641	    r29 = bit_and r27 r29
-642	    trace_call r33 F6 (exit)
+642	    trace_exit r33 F6
 643	    r29 = bit_and r27 r29
 644	    r27 = bit_and r26 r29
-645	    trace_call r27 F7 (enter)
+645	    trace_enter r27 F7
 646	    trace_line r27 L74
 647	    trace_line r27 L75
 648	    trace_line r27 L77
@@ -745,10 +745,10 @@ loop:
 679	    r28 = bit_and r31 r28
 680	    r28 = bit_and r33 r28
 681	    r28 = bit_and r29 r28
-682	    trace_call r27 F7 (exit)
+682	    trace_exit r27 F7
 683	    r28 = bit_and r29 r28
 684	    r29 = bit_and r26 r28
-685	    trace_call r29 F8 (enter)
+685	    trace_enter r29 F8
 686	    trace_line r29 L97
 687	    trace_line r29 L99
 688	    trace_var r29 $42 = r22
@@ -764,10 +764,10 @@ loop:
 698	    trace_line r29 L103
 699	    r27 = eq_i32 r15 r27
 700	    r27 = bit_and r28 r27
-701	    trace_call r29 F8 (exit)
+701	    trace_exit r29 F8
 702	    r27 = bit_and r28 r27
 703	    r28 = bit_and r26 r27
-704	    trace_call r28 F9 (enter)
+704	    trace_enter r28 F9
 705	    trace_line r28 L86
 706	    trace_line r28 L88
 707	    trace_var r28 $47 = r22
@@ -803,13 +803,13 @@ loop:
 737	    r33 = bit_and r31 r33
 738	    r33 = bit_and r29 r33
 739	    r33 = bit_and r27 r33
-740	    trace_call r28 F9 (exit)
+740	    trace_exit r28 F9
 741	    r33 = bit_and r27 r33
 742	    r27 = select r33 r6 r2
 743	    r28 = select r33 r7 r3
 744	    r29 = select r33 r8 r4
 745	    r33 = select r33 r9 r5
-746	    trace_call r26 F0 (exit)
+746	    trace_exit r26 F0
 747	    store32 ptr1 r27
 748	    store32 ptr2 r28
 749	    store32 ptr3 r29

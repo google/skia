@@ -112,7 +112,7 @@ loop:
 43	    trace_var r34 $7 = r9
 44	    trace_var r34 $8 = r10
 45	    trace_var r34 $9 = r13
-46	    trace_call r34 F0 (enter)
+46	    trace_enter r34 F0
 47	    trace_var r34 $10 = r33
 48	    trace_var r34 $11 = r1
 49	    trace_line r34 L116
@@ -121,7 +121,7 @@ loop:
 52	    r33 = mul_f32 r33 r14
 53	    trace_var r34 $12 = r33
 54	    trace_line r34 L117
-55	    trace_call r34 F1 (enter)
+55	    trace_enter r34 F1
 56	    trace_var r34 $13 = r33
 57	    trace_line r34 L8
 58	    trace_var r34 $14 = r10
@@ -233,10 +233,10 @@ loop:
 164	    trace_line r38 L8
 165	    trace_line r38 L11
 166	    r35 = bit_clear r36 r35
-167	    trace_call r34 F1 (exit)
+167	    trace_exit r34 F1
 168	    r35 = eq_f32 r14 r35
 169	    r36 = bit_and r34 r35
-170	    trace_call r36 F2 (enter)
+170	    trace_enter r36 F2
 171	    trace_var r36 $15 = r33
 172	    trace_line r36 L17
 173	    trace_var r36 $16 = r10
@@ -427,11 +427,11 @@ loop:
 358	    trace_line r39 L18
 359	    trace_line r36 L22
 360	    r37 = bit_and r35 r37
-361	    trace_call r36 F2 (exit)
+361	    trace_exit r36 F2
 362	    r37 = eq_f32 r37 r23
 363	    r37 = bit_and r35 r37
 364	    r35 = bit_and r34 r37
-365	    trace_call r35 F3 (enter)
+365	    trace_enter r35 F3
 366	    trace_var r35 $18 = r33
 367	    trace_line r35 L27
 368	    trace_var r35 $19 = r10
@@ -594,11 +594,11 @@ loop:
 525	    trace_line r41 L29
 526	    trace_line r35 L33
 527	    r36 = bit_and r37 r36
-528	    trace_call r35 F3 (exit)
+528	    trace_exit r35 F3
 529	    r36 = eq_f32 r36 r24
 530	    r36 = bit_and r37 r36
 531	    r37 = bit_and r34 r36
-532	    trace_call r37 F4 (enter)
+532	    trace_enter r37 F4
 533	    trace_line r37 L38
 534	    trace_var r37 $22 = r10
 535	    trace_line r37 L39
@@ -634,12 +634,12 @@ loop:
 565	    trace_line r37 L42
 566	    r35 = sub_f32 r35 r30
 567	    r35 = bit_and r36 r35
-568	    trace_call r37 F4 (exit)
+568	    trace_exit r37 F4
 569	    r35 = bit_and r35 r31
 570	    r35 = gt_f32 r32 r35
 571	    r35 = bit_and r36 r35
 572	    r36 = bit_and r34 r35
-573	    trace_call r36 F5 (enter)
+573	    trace_enter r36 F5
 574	    trace_line r36 L47
 575	    trace_line r36 L48
 576	    trace_line r36 L50
@@ -676,10 +676,10 @@ loop:
 607	    r41 = bit_and r39 r41
 608	    r41 = bit_and r37 r41
 609	    r41 = bit_and r35 r41
-610	    trace_call r36 F5 (exit)
+610	    trace_exit r36 F5
 611	    r41 = bit_and r35 r41
 612	    r35 = bit_and r34 r41
-613	    trace_call r35 F6 (enter)
+613	    trace_enter r35 F6
 614	    trace_line r35 L59
 615	    trace_line r35 L60
 616	    trace_line r35 L62
@@ -716,10 +716,10 @@ loop:
 647	    r37 = bit_and r39 r37
 648	    r37 = bit_and r36 r37
 649	    r37 = bit_and r41 r37
-650	    trace_call r35 F6 (exit)
+650	    trace_exit r35 F6
 651	    r37 = bit_and r41 r37
 652	    r41 = bit_and r34 r37
-653	    trace_call r41 F7 (enter)
+653	    trace_enter r41 F7
 654	    trace_line r41 L71
 655	    trace_line r41 L72
 656	    trace_line r41 L74
@@ -756,10 +756,10 @@ loop:
 687	    r36 = bit_and r39 r36
 688	    r36 = bit_and r35 r36
 689	    r36 = bit_and r37 r36
-690	    trace_call r41 F7 (exit)
+690	    trace_exit r41 F7
 691	    r36 = bit_and r37 r36
 692	    r37 = bit_and r34 r36
-693	    trace_call r37 F8 (enter)
+693	    trace_enter r37 F8
 694	    trace_line r37 L83
 695	    trace_line r37 L84
 696	    trace_line r37 L86
@@ -796,10 +796,10 @@ loop:
 727	    r35 = bit_and r39 r35
 728	    r35 = bit_and r41 r35
 729	    r35 = bit_and r36 r35
-730	    trace_call r37 F8 (exit)
+730	    trace_exit r37 F8
 731	    r35 = bit_and r36 r35
 732	    r36 = bit_and r34 r35
-733	    trace_call r36 F9 (enter)
+733	    trace_enter r36 F9
 734	    trace_line r36 L106
 735	    trace_line r36 L108
 736	    trace_var r36 $44 = r22
@@ -815,10 +815,10 @@ loop:
 746	    trace_line r36 L112
 747	    r37 = eq_f32 r15 r37
 748	    r37 = bit_and r35 r37
-749	    trace_call r36 F9 (exit)
+749	    trace_exit r36 F9
 750	    r37 = bit_and r35 r37
 751	    r35 = bit_and r34 r37
-752	    trace_call r35 F10 (enter)
+752	    trace_enter r35 F10
 753	    trace_line r35 L95
 754	    trace_line r35 L97
 755	    trace_var r35 $49 = r22
@@ -854,13 +854,13 @@ loop:
 785	    r41 = bit_and r39 r41
 786	    r41 = bit_and r36 r41
 787	    r41 = bit_and r37 r41
-788	    trace_call r35 F10 (exit)
+788	    trace_exit r35 F10
 789	    r41 = bit_and r37 r41
 790	    r37 = select r41 r6 r2
 791	    r35 = select r41 r7 r3
 792	    r36 = select r41 r8 r4
 793	    r41 = select r41 r9 r5
-794	    trace_call r34 F0 (exit)
+794	    trace_exit r34 F0
 795	    store32 ptr1 r37
 796	    store32 ptr2 r35
 797	    store32 ptr3 r36

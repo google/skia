@@ -234,9 +234,15 @@ namespace SkVMInterpreterTypes {
                         }
                         break;
 
-                    CASE(Op::trace_call):
+                    CASE(Op::trace_enter):
                         if (traceHook && any(r[x].i32)) {
-                            traceHook->call(immA, (bool)immB);
+                            traceHook->enter(immA);
+                        }
+                        break;
+
+                    CASE(Op::trace_exit):
+                        if (traceHook && any(r[x].i32)) {
+                            traceHook->exit(immA);
                         }
                         break;
 

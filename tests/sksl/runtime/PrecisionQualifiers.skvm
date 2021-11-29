@@ -177,7 +177,7 @@ loop:
 28	    trace_var r21 $5 = r8
 29	    trace_var r21 $6 = r9
 30	    trace_var r21 $7 = r10
-31	    trace_call r21 F0 (enter)
+31	    trace_enter r21 F0
 32	    trace_var r21 $8 = r20
 33	    trace_var r21 $9 = r2
 34	    trace_line r21 L58
@@ -203,7 +203,7 @@ loop:
 54	    trace_var r21 $25 = r10
 55	    trace_line r21 L64
 56	    trace_line r21 L66
-57	    trace_call r21 F1 (enter)
+57	    trace_enter r21 F1
 58	    trace_line r21 L6
 59	    trace_var r21 $26 = r0
 60	    trace_line r21 L7
@@ -213,8 +213,8 @@ loop:
 64	    trace_line r21 L9
 65	    trace_var r21 $29 = r14
 66	    trace_line r21 L11
-67	    trace_call r21 F1 (exit)
-68	    trace_call r21 F2 (enter)
+67	    trace_exit r21 F1
+68	    trace_enter r21 F2
 69	    trace_line r21 L15
 70	    trace_var r21 $30 = r15
 71	    trace_var r21 $31 = r15
@@ -264,8 +264,8 @@ loop:
 115	    trace_var r21 $64 = r19
 116	    trace_var r21 $65 = r19
 117	    trace_line r21 L29
-118	    trace_call r21 F2 (exit)
-119	    trace_call r21 F3 (enter)
+118	    trace_exit r21 F2
+119	    trace_enter r21 F3
 120	    trace_line r21 L34
 121	    trace_var r21 $66 = r15
 122	    trace_var r21 $67 = r11
@@ -331,8 +331,8 @@ loop:
 182	    trace_var r21 $122 = r11
 183	    trace_var r21 $123 = r17
 184	    trace_line r21 L41
-185	    trace_call r21 F3 (exit)
-186	    trace_call r21 F4 (enter)
+185	    trace_exit r21 F3
+186	    trace_enter r21 F4
 187	    trace_line r21 L45
 188	    trace_var r21 $124 = r11
 189	    trace_line r21 L45
@@ -362,20 +362,20 @@ loop:
 213	    trace_var r21 $132 = r15
 214	    trace_var r21 $133 = r16
 215	    trace_line r21 L50
-216	    trace_call r21 F4 (exit)
-217	    trace_call r21 F5 (enter)
+216	    trace_exit r21 F4
+217	    trace_enter r21 F5
 218	    trace_var r21 $134 = r13
 219	    trace_line r21 L53
-220	    trace_call r21 F5 (exit)
-221	    trace_call r21 F6 (enter)
+220	    trace_exit r21 F5
+221	    trace_enter r21 F6
 222	    trace_var r21 $135 = r15
 223	    trace_line r21 L54
-224	    trace_call r21 F6 (exit)
-225	    trace_call r21 F7 (enter)
+224	    trace_exit r21 F6
+225	    trace_enter r21 F7
 226	    trace_var r21 $136 = r16
 227	    trace_line r21 L55
-228	    trace_call r21 F7 (exit)
-229	    trace_call r21 F0 (exit)
+228	    trace_exit r21 F7
+229	    trace_exit r21 F0
 230	    store32 ptr1 r3
 231	    store32 ptr2 r4
 232	    store32 ptr3 r5

@@ -1037,9 +1037,11 @@ int main() {
             }
 
         }
-        void call(int fnIdx, bool enter) override {
-            fTrace.appendf("%s %s\n", enter ? "enter" : "exit",
-                                      fDebugInfo->fFuncInfo[fnIdx].name.c_str());
+        void enter(int fnIdx) override {
+            fTrace.appendf("enter %s\n", fDebugInfo->fFuncInfo[fnIdx].name.c_str());
+        }
+        void exit(int fnIdx) override {
+            fTrace.appendf("exit %s\n", fDebugInfo->fFuncInfo[fnIdx].name.c_str());
         }
 
         const SkSL::SkVMDebugInfo* fDebugInfo;

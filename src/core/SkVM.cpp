@@ -184,11 +184,8 @@ namespace skvm {
         struct Line  { int bits; };
         // For op `trace_var`
         struct VarSlot { int bits; };
-        // For op `trace_call`
+        // For op `trace_enter`/`trace_exit`
         struct FnIdx { int bits; };
-        struct CallType { int bits; };
-        static constexpr CallType kCallTypeEnter{1};
-        static constexpr CallType kCallTypeExit{0};
 
         static void write(SkWStream* o, const char* s) {
             o->writeText(s);
@@ -244,16 +241,6 @@ namespace skvm {
             write(o, "F");
             o->writeDecAsText(s.bits);
         }
-        static void write(SkWStream* o, CallType n) {
-            if (n.bits == kCallTypeEnter.bits) {
-                write(o, "(enter)");
-            } else if (n.bits == kCallTypeExit.bits) {
-                write(o, "(exit)");
-            } else {
-                write(o, "???");
-            }
-        }
-
         template <typename T, typename... Ts>
         static void write(SkWStream* o, T first, Ts... rest) {
             write(o, first);
@@ -274,9 +261,10 @@ namespace skvm {
         switch (op) {
             case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
-            case Op::trace_line: write(o, op, V{x}, Line{immA}); break;
-            case Op::trace_var:  write(o, op, V{x}, VarSlot{immA}, "=", V{y}); break;
-            case Op::trace_call: write(o, op, V{x}, FnIdx{immA}, CallType{immB}); break;
+            case Op::trace_line:  write(o, op, V{x}, Line{immA}); break;
+            case Op::trace_var:   write(o, op, V{x}, VarSlot{immA}, "=", V{y}); break;
+            case Op::trace_enter: write(o, op, V{x}, FnIdx{immA}); break;
+            case Op::trace_exit:  write(o, op, V{x}, FnIdx{immA}); break;
 
             case Op::store8:   write(o, op, Ptr{immA}, V{x}               ); break;
             case Op::store16:  write(o, op, Ptr{immA}, V{x}               ); break;
@@ -393,9 +381,10 @@ namespace skvm {
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
-                case Op::trace_line: write(o, op, R{x}, Line{immA}); break;
-                case Op::trace_var: write(o, op, R{x}, VarSlot{immA}, "=", R{y}); break;
-                case Op::trace_call: write(o, op, R{x}, FnIdx{immA}, CallType{immB}); break;
+                case Op::trace_line:  write(o, op, R{x}, Line{immA}); break;
+                case Op::trace_var:   write(o, op, R{x}, VarSlot{immA}, "=", R{y}); break;
+                case Op::trace_enter: write(o, op, R{x}, FnIdx{immA}); break;
+                case Op::trace_exit:  write(o, op, R{x}, FnIdx{immA}); break;
 
                 case Op::store8:   write(o, op, Ptr{immA}, R{x}                  ); break;
                 case Op::store16:  write(o, op, Ptr{immA}, R{x}                  ); break;
@@ -660,13 +649,13 @@ namespace skvm {
         if (this->isImm(mask.id, 0)) { return; }
         (void)push(Op::trace_var, mask.id,val.id,NA,NA, slot);
     }
-    void Builder::trace_call_enter(I32 mask, int fnIdx) {
+    void Builder::trace_enter(I32 mask, int fnIdx) {
         if (this->isImm(mask.id, 0)) { return; }
-        (void)push(Op::trace_call, mask.id,NA,NA,NA, fnIdx, kCallTypeEnter.bits);
+        (void)push(Op::trace_enter, mask.id,NA,NA,NA, fnIdx);
     }
-    void Builder::trace_call_exit(I32 mask, int fnIdx) {
+    void Builder::trace_exit(I32 mask, int fnIdx) {
         if (this->isImm(mask.id, 0)) { return; }
-        (void)push(Op::trace_call, mask.id,NA,NA,NA, fnIdx, kCallTypeExit.bits);
+        (void)push(Op::trace_exit, mask.id,NA,NA,NA, fnIdx);
     }
 
     void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA,NA, ptr.ix); }
@@ -2653,7 +2642,8 @@ namespace skvm {
 
                 case Op::trace_line:
                 case Op::trace_var:
-                case Op::trace_call:
+                case Op::trace_enter:
+                case Op::trace_exit:
                     /* Force this program to run in the interpreter. */
                     return false;
 
@@ -3585,7 +3575,8 @@ namespace skvm {
 
                 case Op::trace_line:
                 case Op::trace_var:
-                case Op::trace_call:
+                case Op::trace_enter:
+                case Op::trace_exit:
                     /* Force this program to run in the interpreter. */
                     return false;
 
@@ -3955,7 +3946,8 @@ namespace skvm {
 
                 case Op::trace_line:
                 case Op::trace_var:
-                case Op::trace_call:
+                case Op::trace_enter:
+                case Op::trace_exit:
                     /* Force this program to run in the interpreter. */
                     return false;
 
