@@ -28,7 +28,6 @@ public:
 
     void reset(GrVkGpu* gpu);
 
-    void releaseResources();
 
     GrVkPrimaryCommandBuffer* getPrimaryCommandBuffer() { return fPrimaryCommandBuffer.get(); }
 
@@ -54,6 +53,8 @@ private:
     GrVkCommandPool() = delete;
 
     GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool, GrVkPrimaryCommandBuffer*);
+
+    void releaseResources();
 
     void freeGPUData() const override;
 

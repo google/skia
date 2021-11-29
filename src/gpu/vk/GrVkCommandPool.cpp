@@ -77,14 +77,25 @@ void GrVkCommandPool::close() {
 }
 
 void GrVkCommandPool::reset(GrVkGpu* gpu) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(!fOpen);
-    fOpen = true;
     // We can't use the normal result macro calls here because we may call reset on a different
     // thread and we can't be modifying the lost state on the GrVkGpu. We just call
     // vkResetCommandPool and assume the "next" vulkan call will catch the lost device.
     SkDEBUGCODE(VkResult result = )GR_VK_CALL(gpu->vkInterface(),
                                               ResetCommandPool(gpu->device(), fCommandPool, 0));
     SkASSERT(result == VK_SUCCESS || result == VK_ERROR_DEVICE_LOST);
+
+    // It should be safe to release the resources before actually resetting the VkCommandPool.
+    // However, on qualcomm devices running R drivers there was a few months period where the driver
+    // had a bug which it incorrectly was accessing objects on the command buffer while it was being
+    // reset. If these objects were already destroyed (which is a valid thing to do) it would crash.
+    // So to be safe we do the reset first since it doesn't really matter when single threaded. If
+    // we ever add back in threaded resets we'll want to add checks to make sure everything happens
+    // in the right order (and probably do single threaded resets on bad devices).
+    this->releaseResources();
+
+    fOpen = true;
 }
 
 void GrVkCommandPool::releaseResources() {

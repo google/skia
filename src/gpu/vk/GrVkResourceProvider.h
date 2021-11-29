@@ -215,10 +215,6 @@ public:
     // objects from the cache are probably not worth the complexity of safely releasing them.
     void releaseUnlockedBackendObjects();
 
-    void backgroundReset(GrVkCommandPool* pool);
-
-    void reset(GrVkCommandPool* pool);
-
 #if GR_TEST_UTILS
     void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
 #endif
@@ -315,10 +311,8 @@ private:
     // Array of command pools that we are waiting on
     SkSTArray<4, GrVkCommandPool*, true> fActiveCommandPools;
 
-    SkMutex fBackgroundMutex;
-
     // Array of available command pools that are not in flight
-    SkSTArray<4, GrVkCommandPool*, true> fAvailableCommandPools SK_GUARDED_BY(fBackgroundMutex);
+    SkSTArray<4, GrVkCommandPool*, true> fAvailableCommandPools;
 
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates

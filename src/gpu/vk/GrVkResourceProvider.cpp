@@ -398,7 +398,6 @@ void GrVkResourceProvider::recycleDescriptorSet(const GrVkDescriptorSet* descSet
 }
 
 GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
-    SkAutoMutexExclusive lock(fBackgroundMutex);
     GrVkCommandPool* result;
     if (fAvailableCommandPools.count()) {
         result = fAvailableCommandPools.back();
@@ -440,10 +439,17 @@ void GrVkResourceProvider::checkCommandBuffers() {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
             if (buffer->finished(fGpu)) {
                 fActiveCommandPools.removeShuffle(i);
-                // This passes ownership of the pool to the backgroundReset call. The pool should
-                // not be used again from this function.
-                // TODO: We should see if we can use sk_sps here to make this more explicit.
-                this->backgroundReset(pool);
+                SkASSERT(pool->unique());
+                pool->reset(fGpu);
+                // After resetting the pool (specifically releasing the pool's resources) we may
+                // have called a client callback proc which may have disconnected the GrVkGpu. In
+                // that case we do not want to push the pool back onto the cache, but instead just
+                // drop the pool.
+                if (fGpu->disconnected()) {
+                    pool->unref();
+                    return;
+                }
+                fAvailableCommandPools.push_back(pool);
             }
         }
     }
@@ -506,14 +512,11 @@ void GrVkResourceProvider::destroyResources() {
     }
     fActiveCommandPools.reset();
 
-    {
-        SkAutoMutexExclusive lock(fBackgroundMutex);
-        for (GrVkCommandPool* pool : fAvailableCommandPools) {
-            SkASSERT(pool->unique());
-            pool->unref();
-        }
-        fAvailableCommandPools.reset();
+    for (GrVkCommandPool* pool : fAvailableCommandPools) {
+        SkASSERT(pool->unique());
+        pool->unref();
     }
+    fAvailableCommandPools.reset();
 
     // We must release/destroy all command buffers and pipeline states before releasing the
     // GrVkDescriptorSetManagers. Additionally, we must release all uniform buffers since they hold
@@ -526,41 +529,11 @@ void GrVkResourceProvider::destroyResources() {
 }
 
 void GrVkResourceProvider::releaseUnlockedBackendObjects() {
-    SkAutoMutexExclusive lock(fBackgroundMutex);
     for (GrVkCommandPool* pool : fAvailableCommandPools) {
         SkASSERT(pool->unique());
         pool->unref();
     }
     fAvailableCommandPools.reset();
-}
-
-void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    SkASSERT(pool->unique());
-    pool->releaseResources();
-    // After releasing resources we may have called a client callback proc which may have
-    // disconnected the GrVkGpu. In that case we do not want to push the pool back onto the cache,
-    // but instead just drop the pool.
-    if (fGpu->disconnected()) {
-        pool->unref();
-        return;
-    }
-    SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
-    if (taskGroup) {
-        taskGroup->add([this, pool]() {
-            this->reset(pool);
-        });
-    } else {
-        this->reset(pool);
-    }
-}
-
-void GrVkResourceProvider::reset(GrVkCommandPool* pool) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    SkASSERT(pool->unique());
-    pool->reset(fGpu);
-    SkAutoMutexExclusive lock(fBackgroundMutex);
-    fAvailableCommandPools.push_back(pool);
 }
 
 void GrVkResourceProvider::storePipelineCacheData() {
