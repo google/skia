@@ -39,12 +39,18 @@ public:
                                                           uint32_t sampleCount,
                                                           Protected) const = 0;
 
+    bool areColorTypeAndTextureInfoCompatible(SkColorType, const TextureInfo&) const;
+
+    virtual bool isTexturable(const TextureInfo&) const = 0;
+    virtual bool isRenderable(const TextureInfo&) const = 0;
+
 protected:
     Caps();
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
 
 private:
+    virtual bool onAreColorTypeAndTextureInfoCompatible(SkColorType, const TextureInfo&) const = 0;
 };
 
 } // namespace skgpu
