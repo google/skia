@@ -355,30 +355,35 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
     SkMatrix ctm = fMatrixProvider->localToDevice();
     const bool usePerspective = ctm.hasPerspective();
 
-    SkShader* shader = paintShader;
-    SkTriColorShader* triShader = nullptr;
+    SkTriColorShader* triColorShader = nullptr;
     SkPMColor4f* dstColors = nullptr;
-
     if (colors) {
         dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc);
-        triShader = outerAlloc->make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
-                                                       usePerspective);
-        if (blenderIsDst) {
-            shader = triShader;
-        } else {
-            if (!shader) {
-                // When there is no shader then the blender applies to the vertex colors and
-                // opaque paint color.
-                shader = outerAlloc->make<SkColor4Shader>(paint.getColor4f().makeOpaque(), nullptr);
-            }
-            shader = outerAlloc->make<SkShader_Blend>(
-                    blender, sk_ref_sp(triShader), sk_ref_sp(shader));
-        }
+        triColorShader = outerAlloc->make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
+                                                            usePerspective);
     }
+
+    // Combines per-vertex colors with 'shader' using 'blender'.
+    auto applyShaderColorBlend = [&](SkShader* shader) -> SkShader* {
+        if (!colors) {
+            return shader;
+        }
+        if (blenderIsDst) {
+            return triColorShader;
+        }
+        if (!shader) {
+            // When there is no shader then the blender applies to the vertex colors and opaque
+            // paint color.
+            shader = outerAlloc->make<SkColor4Shader>(paint.getColor4f().makeOpaque(), nullptr);
+        }
+        return outerAlloc->make<SkShader_Blend>(
+                blender, sk_ref_sp(triColorShader), sk_ref_sp(shader));
+    };
 
     auto rpblit = [&]() {
         VertState state(vertexCount, indices, indexCount);
         VertState::Proc vertProc = state.chooseProc(info.mode());
+        SkShader* shader = applyShaderColorBlend(paintShader);
 
         SkPaint shaderPaint(paint);
         shaderPaint.setShader(sk_ref_sp(shader));
@@ -390,9 +395,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
                 return false;
             }
             while (vertProc(&state)) {
-                if (triShader &&
-                    !triShader->update(ctmInverse, positions, dstColors,
-                                       state.f0, state.f1, state.f2)) {
+                if (triColorShader && !triColorShader->update(ctmInverse, positions, dstColors,
+                                                              state.f0, state.f1, state.f2)) {
                     continue;
                 }
                 fill_triangle(state, blitter, *fRC, dev2, dev3);
@@ -410,7 +414,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
                           *fMatrixProvider};
         if (auto updater = as_SB(shader)->appendUpdatableStages(rec)) {
             bool isOpaque = shader->isOpaque();
-            if (triShader) {
+            if (triColorShader) {
                 isOpaque = false;  // unless we want to walk all the colors, and see if they are
                                    // all opaque (and the blend mode will keep them that way
             }
@@ -428,8 +432,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
                 return false;
             }
             while (vertProc(&state)) {
-                if (triShader && !triShader->update(ctmInverse, positions, dstColors,
-                                                    state.f0, state.f1, state.f2)) {
+                if (triColorShader && !triColorShader->update(ctmInverse, positions, dstColors,
+                                                              state.f0, state.f1, state.f2)) {
                     continue;
                 }
 
@@ -443,8 +447,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
         } else {
             // must rebuild pipeline for each triangle, to pass in the computed ctm
             while (vertProc(&state)) {
-                if (triShader && !triShader->update(ctmInverse, positions, dstColors,
-                                                    state.f0, state.f1, state.f2)) {
+                if (triColorShader && !triColorShader->update(ctmInverse, positions, dstColors,
+                                                              state.f0, state.f1, state.f2)) {
                     continue;
                 }
 
@@ -478,11 +482,13 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
 
         // No colors are changing and no texture coordinates are changing, so no updates between
         // triangles are needed. Use SkVM to blit the triangles.
+        SkShader* shader = paintShader;
         SkUpdatableShader* texCoordShader = nullptr;
         if (texCoords && texCoords != positions) {
             texCoordShader = as_SB(shader)->updatableShader(outerAlloc);
             shader = texCoordShader;
         }
+        shader = applyShaderColorBlend(shader);
 
         SkPaint shaderPaint{paint};
         shaderPaint.setShader(sk_ref_sp(shader));
@@ -498,8 +504,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
                 continue;
             }
 
-            if (triShader && !triShader->update(ctmInverse, positions, dstColors,state.f0,
-                                                state.f1, state.f2)) {
+            if (triColorShader && !triColorShader->update(ctmInverse, positions, dstColors,state.f0,
+                                                          state.f1, state.f2)) {
                 continue;
             }
 
