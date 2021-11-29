@@ -146,11 +146,11 @@ static void test_permutations(skiatest::Reporter* r,
     test_one_permutation(r, surface, testFile, " (NoInline)", options);
 }
 
-static void test_cpu(skiatest::Reporter* r, const char* testFile) {
+static void test_cpu(skiatest::Reporter* r, const char* testFile, bool worksInES2) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
 
-    test_permutations(r, surface.get(), testFile, /*worksInES2=*/true);
+    test_permutations(r, surface.get(), testFile, worksInES2);
 }
 
 static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
@@ -173,7 +173,13 @@ static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
 
 #define SKSL_TEST_CPU(name, path)                                   \
     DEF_TEST(name ## _CPU, r) {                                     \
-        test_cpu(r, path);                                          \
+        test_cpu(r, path, true);                                    \
+    }
+// The CPU backend lacks support for MANY ES3 features. However, if you know a test uses a subset
+// of ES3 that is supported, you can force it to run there:
+#define SKSL_TEST_CPU_ES3(name, path)                               \
+    DEF_TEST(name ## _CPU, r) {                                     \
+        test_cpu(r, path, false);                                   \
     }
 #define SKSL_TEST_GPU(name, path)                                   \
     DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## _GPU, r, ctxInfo) {  \
@@ -319,8 +325,10 @@ SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
 SKSL_TEST_ES3(SkSLHexUnsigned,                 "shared/HexUnsigned.sksl")
 SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
 SKSL_TEST_ES3(SkSLMatricesNonsquare,           "shared/MatricesNonsquare.sksl")
-SKSL_TEST(SkSLMatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
-SKSL_TEST_ES3(SkSLMatrixConstructorsES3,       "shared/MatrixConstructorsES3.sksl")
+// TODO(skia:12443) These tests actually don't work on MANY devices. The GLSL conformance suite
+// does a terrible job of enforcing this rule. We still test them on CPU.
+SKSL_TEST_CPU(SkSLMatrixConstructorsES2,       "shared/MatrixConstructorsES2.sksl")
+SKSL_TEST_CPU_ES3(SkSLMatrixConstructorsES3,   "shared/MatrixConstructorsES3.sksl")
 SKSL_TEST(SkSLMatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(SkSLMatrixScalarSplat,               "shared/MatrixScalarSplat.sksl")
 SKSL_TEST(SkSLMatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
