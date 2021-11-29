@@ -71,14 +71,21 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
                              SkTileMode tmx, SkTileMode tmy,
                              const SkSamplingOptions& sampling,
                              const SkMatrix* localMatrix,
+                             bool raw,
                              bool clampAsIfUnpremul)
-    : INHERITED(localMatrix)
-    , fImage(std::move(img))
-    , fSampling(sampling)
-    , fTileModeX(optimize(tmx, fImage->width()))
-    , fTileModeY(optimize(tmy, fImage->height()))
-    , fClampAsIfUnpremul(clampAsIfUnpremul)
-{}
+        : INHERITED(localMatrix)
+        , fImage(std::move(img))
+        , fSampling(sampling)
+        , fTileModeX(optimize(tmx, fImage->width()))
+        , fTileModeY(optimize(tmy, fImage->height()))
+        , fRaw(raw)
+        , fClampAsIfUnpremul(clampAsIfUnpremul) {
+    // These options should never appear together:
+    SkASSERT(!fRaw || !fClampAsIfUnpremul);
+
+    // Bicubic filtering of raw image shaders would add a surprising clamp - so we don't support it
+    SkASSERT(!fRaw || !fSampling.useCubic);
+}
 
 // just used for legacy-unflattening
 enum class LegacyFilterEnum {
@@ -122,7 +129,11 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return SkImageShader::Make(std::move(img), tmx, tmy, sampling, &localMatrix);
+    bool raw = buffer.isVersionLT(SkPicturePriv::Version::kRawImageShaders) ? false
+                                                                            : buffer.readBool();
+
+    return raw ? SkImageShader::MakeRaw(std::move(img), tmx, tmy, sampling, &localMatrix)
+               : SkImageShader::Make(std::move(img), tmx, tmy, sampling, &localMatrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
@@ -134,6 +145,8 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
+
+    buffer.writeBool(fRaw);
 }
 
 bool SkImageShader::isOpaque() const {
@@ -263,9 +276,22 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
     if (!image) {
         return sk_make_sp<SkEmptyShader>();
     }
-    return sk_sp<SkShader>{
-        new SkImageShader(image, tmx, tmy, options, localMatrix, clampAsIfUnpremul)
-    };
+    return sk_sp<SkShader>{new SkImageShader(
+            image, tmx, tmy, options, localMatrix, /*raw=*/false, clampAsIfUnpremul)};
+}
+
+sk_sp<SkShader> SkImageShader::MakeRaw(sk_sp<SkImage> image,
+                                       SkTileMode tmx, SkTileMode tmy,
+                                       const SkSamplingOptions& options,
+                                       const SkMatrix* localMatrix) {
+    if (options.useCubic) {
+        return nullptr;
+    }
+    if (!image) {
+        return sk_make_sp<SkEmptyShader>();
+    }
+    return sk_sp<SkShader>{new SkImageShader(
+            image, tmx, tmy, options, localMatrix, /*raw=*/true, /*clampAsIfUnpremul=*/false)};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -292,16 +318,19 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                       fImage->colorSpace(),
-                                       fImage->alphaType(),
-                                       args.fDstColorInfo->colorSpace(),
-                                       kPremul_SkAlphaType);
-    if (fImage->isAlphaOnly()) {
-        return GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
-    } else {
-        return fp;
+    if (!fRaw) {
+        fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                           fImage->colorSpace(),
+                                           fImage->alphaType(),
+                                           args.fDstColorInfo->colorSpace(),
+                                           kPremul_SkAlphaType);
+
+        if (fImage->isAlphaOnly()) {
+            fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
+        }
     }
+
+    return fp;
 }
 
 #endif
@@ -519,7 +548,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
         SkAlphaType   at = pm.alphaType();
 
         // Color for alpha-only images comes from the paint.
-        if (SkColorTypeIsAlphaOnly(pm.colorType())) {
+        if (SkColorTypeIsAlphaOnly(pm.colorType()) && !fRaw) {
             SkColor4f rgb = rec.fPaint.getColor4f();
             p->append_set_rgb(alloc, rgb);
 
@@ -536,9 +565,9 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
         }
 
         // Transform color space and alpha type to match shader convention (dst CS, premul alpha).
-        alloc->make<SkColorSpaceXformSteps>(cs, at,
-                                            rec.fDstCS, kPremul_SkAlphaType)
-            ->apply(p);
+        if (!fRaw) {
+            alloc->make<SkColorSpaceXformSteps>(cs, at, rec.fDstCS, kPremul_SkAlphaType)->apply(p);
+        }
 
         return true;
     };
@@ -913,7 +942,7 @@ skvm::Color SkImageShader::makeProgram(
     // Alpha-only images get their color from the paint (already converted to dst color space).
     SkColorSpace* cs = upper.colorSpace();
     SkAlphaType   at = upper.alphaType();
-    if (SkColorTypeIsAlphaOnly(upper.colorType())) {
+    if (SkColorTypeIsAlphaOnly(upper.colorType()) && !fRaw) {
         c.r = paint.r;
         c.g = paint.g;
         c.b = paint.b;
@@ -934,5 +963,7 @@ skvm::Color SkImageShader::makeProgram(
         c.b = clamp(c.b, 0.0f, limit);
     }
 
-    return SkColorSpaceXformSteps{cs,at, dst.colorSpace(),dst.alphaType()}.program(p, uniforms, c);
+    return fRaw ? c
+                : SkColorSpaceXformSteps{cs, at, dst.colorSpace(), dst.alphaType()}.program(
+                          p, uniforms, c);
 }

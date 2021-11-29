@@ -658,14 +658,45 @@ static sk_sp<SkShader> normal_map_shader() {
     return effect->makeShader(nullptr, {}, nullptr, true);
 }
 
-static sk_sp<SkShader> normal_map_image_shader() {
+static sk_sp<SkImage> normal_map_image() {
     // Above, baked into an image:
-    auto surface = SkSurface::MakeRasterN32Premul(256, 256);
+    auto info = SkImageInfo::Make(256, 256, kN32_SkColorType, kPremul_SkAlphaType);
+    auto surface = SkSurface::MakeRaster(info);
     SkPaint p;
     p.setShader(normal_map_shader());
     surface->getCanvas()->drawPaint(p);
-    auto image = surface->makeImageSnapshot();
-    return image->makeShader(SkSamplingOptions{});
+    return surface->makeImageSnapshot();
+}
+
+static sk_sp<SkShader> normal_map_image_shader() {
+    return normal_map_image()->makeShader(SkSamplingOptions{});
+}
+
+static sk_sp<SkShader> normal_map_raw_image_shader() {
+    return normal_map_image()->makeRawShader(SkSamplingOptions{});
+}
+
+static sk_sp<SkImage> normal_map_unpremul_image() {
+    auto image = normal_map_image();
+    SkPixmap pm;
+    SkAssertResult(image->peekPixels(&pm));
+    SkBitmap bmp;
+    bmp.allocPixels(image->imageInfo().makeAlphaType(kUnpremul_SkAlphaType));
+    // Copy all pixels over, but set alpha to 0
+    for (int y = 0; y < pm.height(); y++) {
+        for (int x = 0; x < pm.width(); x++) {
+            *bmp.getAddr32(x, y) = *pm.addr32(x, y) & 0x00FFFFFF;
+        }
+    }
+    return bmp.asImage();
+}
+
+static sk_sp<SkShader> normal_map_unpremul_image_shader() {
+    return normal_map_unpremul_image()->makeShader(SkSamplingOptions{});
+}
+
+static sk_sp<SkShader> normal_map_raw_unpremul_image_shader() {
+    return normal_map_unpremul_image()->makeRawShader(SkSamplingOptions{});
 }
 
 static sk_sp<SkShader> lit_shader(sk_sp<SkShader> normals) {
@@ -705,4 +736,56 @@ DEF_SIMPLE_GM(paint_alpha_normals_rt, canvas, 512,512) {
 
     draw_shader(256, 0, lit_shader(normal_map_shader()));
     draw_shader(256, 256, lit_shader(normal_map_image_shader()));
+}
+
+DEF_SIMPLE_GM(raw_image_shader_normals_rt, canvas, 768, 512) {
+    // Demonstrates the utility of SkImage::makeRawShader, for non-color child shaders.
+
+    // First, make an offscreen surface, so we can control the destination color space:
+    auto surfInfo = SkImageInfo::Make(512, 512,
+                                      kN32_SkColorType,
+                                      kPremul_SkAlphaType,
+                                      SkColorSpace::MakeSRGB()->makeColorSpin());
+    auto surface = canvas->makeSurface(surfInfo);
+    if (!surface) {
+        surface = SkSurface::MakeRaster(surfInfo);
+    }
+
+    auto draw_shader = [](int x, int y, sk_sp<SkShader> shader, SkCanvas* canvas) {
+        SkPaint p;
+        p.setShader(shader);
+
+        canvas->save();
+        canvas->translate(x, y);
+        canvas->clipRect({0, 0, 256, 256});
+        canvas->drawPaint(p);
+        canvas->restore();
+    };
+
+    sk_sp<SkShader> colorNormals = normal_map_image_shader(),
+                    rawNormals = normal_map_raw_image_shader();
+
+    // Draw our normal map as colors (will be color-rotated), and raw (untransformed)
+    draw_shader(0, 0, colorNormals, surface->getCanvas());
+    draw_shader(0, 256, rawNormals, surface->getCanvas());
+
+    // Now draw our lighting shader using the normal and raw versions of the normals as children.
+    // The top image will have the normals rotated (incorrectly), so the lighting is very dark.
+    draw_shader(256, 0, lit_shader(colorNormals), surface->getCanvas());
+    draw_shader(256, 256, lit_shader(rawNormals), surface->getCanvas());
+
+    // Now draw the offscreen surface back to our original canvas. If we do this naively, the image
+    // will be un-transformed back to the canvas' color space. That will have the effect of undoing
+    // the color spin on the upper-left, and APPLYING a color-spin on the bottom left. To preserve
+    // the intent of this GM (and make it draw consistently whether or not the original surface has
+    // a color space attached), we reinterpret the offscreen image as being in sRGB:
+    canvas->drawImage(
+            surface->makeImageSnapshot()->reinterpretColorSpace(SkColorSpace::MakeSRGB()), 0, 0);
+
+    // Finally, to demonstrate that raw unpremul image shaders don't premul, draw lighting two more
+    // times, with an unpremul normal map (containing ZERO in the alpha channel). THe top will
+    // premultiply the normals, resulting in totally dark lighting. The bottom will retain the RGB
+    // encoded normals, even with zero alpha:
+    draw_shader(512, 0, lit_shader(normal_map_unpremul_image_shader()), canvas);
+    draw_shader(512, 256, lit_shader(normal_map_raw_unpremul_image_shader()), canvas);
 }

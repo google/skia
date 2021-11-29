@@ -21,6 +21,12 @@ public:
                                 const SkMatrix* localMatrix,
                                 bool clampAsIfUnpremul = false);
 
+    static sk_sp<SkShader> MakeRaw(sk_sp<SkImage>,
+                                   SkTileMode tmx,
+                                   SkTileMode tmy,
+                                   const SkSamplingOptions&,
+                                   const SkMatrix* localMatrix);
+
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
@@ -37,7 +43,8 @@ private:
                   SkTileMode tmy,
                   const SkSamplingOptions&,
                   const SkMatrix* localMatrix,
-                  bool clampAsIfUnpremul = false);
+                  bool raw,
+                  bool clampAsIfUnpremul);
 
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -66,6 +73,7 @@ private:
     const SkSamplingOptions fSampling;
     const SkTileMode        fTileModeX;
     const SkTileMode        fTileModeY;
+    const bool              fRaw;
     const bool              fClampAsIfUnpremul;
 
     friend class SkShaderBase;

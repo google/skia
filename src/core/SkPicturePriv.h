@@ -111,10 +111,11 @@ public:
         kBlenderInEffects                   = 88,
         kNoExpandingClipOps                 = 89,
         kBackdropScaleFactor                = 90,
+        kRawImageShaders                    = 91,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kBackdropScaleFactor
+        kCurrent_Version = kRawImageShaders
     };
 };
 

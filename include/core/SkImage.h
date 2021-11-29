@@ -682,6 +682,34 @@ public:
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, lm);
     }
 
+    /**
+     *  makeRawShader functions like makeShader, but for images that contain non-color data.
+     *  This includes images encoding things like normals, material properties (eg, roughness),
+     *  heightmaps, or any other purely mathematical data that happens to be stored in an image.
+     *  These types of images are useful with some programmable shaders (see: SkRuntimeEffect).
+     *
+     *  Raw image shaders work like regular image shaders (including filtering and tiling), with
+     *  a few major differences:
+     *    - No color space transformation is ever applied (the color space of the image is ignored).
+     *    - Images with an alpha type of kUnpremul are *not* automatically premultiplied.
+     *    - Bicubic filtering is not supported. If SkSamplingOptions::useCubic is true, these
+     *      factories will return nullptr.
+     */
+    sk_sp<SkShader> makeRawShader(SkTileMode tmx, SkTileMode tmy, const SkSamplingOptions&,
+                                  const SkMatrix* localMatrix = nullptr) const;
+
+    sk_sp<SkShader> makeRawShader(SkTileMode tmx, SkTileMode tmy, const SkSamplingOptions& sampling,
+                                  const SkMatrix& lm) const {
+        return this->makeRawShader(tmx, tmy, sampling, &lm);
+    }
+    sk_sp<SkShader> makeRawShader(const SkSamplingOptions& sampling, const SkMatrix& lm) const {
+        return this->makeRawShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &lm);
+    }
+    sk_sp<SkShader> makeRawShader(const SkSamplingOptions& sampling,
+                                  const SkMatrix* lm = nullptr) const {
+        return this->makeRawShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, lm);
+    }
+
     using CubicResampler = SkCubicResampler;
 
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
