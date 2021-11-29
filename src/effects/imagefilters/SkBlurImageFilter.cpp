@@ -111,6 +111,29 @@ int calculate_window(double sigma) {
     return std::max(1, possibleWindow);
 }
 
+// This rather arbitrary-looking value results in a maximum box blur kernel size
+// of 1000 pixels on the raster path, which matches the WebKit and Firefox
+// implementations. Since the GPU path does not compute a box blur, putting
+// the limit on sigma ensures consistent behaviour between the GPU and
+// raster paths.
+static constexpr SkScalar kMaxSigma = 532.f;
+
+static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
+    SkVector sigma = SkVector::Make(localSigma.width(), localSigma.height());
+    ctm.mapVectors(&sigma, 1);
+    sigma.fX = std::min(SkScalarAbs(sigma.fX), kMaxSigma);
+    sigma.fY = std::min(SkScalarAbs(sigma.fY), kMaxSigma);
+    // Disable blurring on axes that were never finite, or became non-finite after mapping by ctm.
+    if (!SkScalarIsFinite(sigma.fX)) {
+        sigma.fX = 0.f;
+    }
+    if (!SkScalarIsFinite(sigma.fY)) {
+        sigma.fY = 0.f;
+    }
+    return sigma;
+}
+
+
 class Pass {
 public:
     explicit Pass(int border) : fBorder(border) {}
@@ -459,8 +482,8 @@ private:
 // The TentPass is limit to processing sigmas < 2183.
 class TentPass final : public Pass {
 public:
-    // NB 136 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
-    // using the Gauss filter. It also limits the size of buffers used hold intermediate values.
+    // NB 2183 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
+    // using the Tent filter. It also limits the size of buffers used hold intermediate values.
     // Explanation of maximums:
     //   sum0 = window * 255
     //   sum1 = window * sum0 -> window * window * 255
@@ -757,11 +780,14 @@ sk_sp<SkSpecialImage> cpu_blur(
         const SkImageFilter_Base::Context& ctx,
         SkVector sigma, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
-    SkVector limitedSigma = {SkTPin(sigma.x(), 0.0f, 2183.0f), SkTPin(sigma.y(), 0.0f, 2183.0f)};
+    // map_sigma limits sigma to 532 to match 1000px box filter limit of WebKit and Firefox.
+    // Since this does not exceed the limits of the TentPass (2183), there won't be overflow when
+    // computing a kernel over a pixel window filled with 255.
+    static_assert(kMaxSigma <= 2183.0f);
 
     SkSTArenaAlloc<1024> alloc;
     auto makeMaker = [&](double sigma) -> PassMaker* {
-        SkASSERT(0 <= sigma && sigma <= 2183);
+        SkASSERT(0 <= sigma && sigma <= 2183); // should be guaranteed after map_sigma
         if (PassMaker* maker = GaussPass::MakeMaker(sigma, &alloc)) {
             return maker;
         }
@@ -771,8 +797,8 @@ sk_sp<SkSpecialImage> cpu_blur(
         SK_ABORT("Sigma is out of range.");
     };
 
-    PassMaker* makerX = makeMaker(limitedSigma.x());
-    PassMaker* makerY = makeMaker(limitedSigma.y());
+    PassMaker* makerX = makeMaker(sigma.x());
+    PassMaker* makerY = makeMaker(sigma.y());
 
     if (makerX->window() <= 1 && makerY->window() <= 1) {
         return copy_image_with_bounds(ctx, input, srcBounds, dstBounds);
@@ -880,21 +906,6 @@ sk_sp<SkSpecialImage> cpu_blur(
 }
 }  // namespace
 
-// This rather arbitrary-looking value results in a maximum box blur kernel size
-// of 1000 pixels on the raster path, which matches the WebKit and Firefox
-// implementations. Since the GPU path does not compute a box blur, putting
-// the limit on sigma ensures consistent behaviour between the GPU and
-// raster paths.
-#define MAX_SIGMA SkIntToScalar(532)
-
-static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
-    SkVector sigma = SkVector::Make(localSigma.width(), localSigma.height());
-    ctm.mapVectors(&sigma, 1);
-    sigma.fX = std::min(SkScalarAbs(sigma.fX), MAX_SIGMA);
-    sigma.fY = std::min(SkScalarAbs(sigma.fY), MAX_SIGMA);
-    return sigma;
-}
-
 sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
                                                        SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
@@ -924,9 +935,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
     dstBounds.offset(-inputOffset);
 
     SkVector sigma = map_sigma(fSigma, ctx.ctm());
-    if (sigma.x() < 0 || sigma.y() < 0) {
-        return nullptr;
-    }
+    SkASSERT(SkScalarIsFinite(sigma.x()) && sigma.x() >= 0.f && sigma.x() <= kMaxSigma &&
+             SkScalarIsFinite(sigma.y()) && sigma.y() >= 0.f && sigma.y() <= kMaxSigma);
 
     sk_sp<SkSpecialImage> result;
 #if SK_SUPPORT_GPU
@@ -940,12 +950,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
     } else
 #endif
     {
-        // Please see the comment on TentPass::MakeMaker for how the limit of 2183 for sigma is
-        // calculated. The effective limit of blur is 532 which is set by the GPU above in
-        // map_sigma.
-        sigma.fX = SkTPin(sigma.fX, 0.0f, 2183.0f);
-        sigma.fY = SkTPin(sigma.fY, 0.0f, 2183.0f);
-
         result = cpu_blur(ctx, sigma, input, inputBounds, dstBounds);
     }
 
