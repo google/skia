@@ -179,10 +179,18 @@ std::tuple<bool, SkVector> can_use_direct(
             translation};
 }
 
+// -- PathGlyph ------------------------------------------------------------------------------------
+// The encoding of a specific path at a specific source location.
+struct PathGlyph {
+    PathGlyph(const SkPath& path, SkPoint origin)
+        : fPath(path)
+        , fOrigin(origin) {}
+    SkPath fPath;
+    SkPoint fOrigin;
+};
+
 // -- PathSubRun -----------------------------------------------------------------------------------
 class PathSubRun final : public GrSubRun {
-    struct PathGlyph;
-
 public:
     PathSubRun(bool isAntiAliased,
                SkScalar strikeToSourceScale,
@@ -205,12 +213,6 @@ public:
                               GrSubRunAllocator* alloc);
 
 private:
-    struct PathGlyph {
-        PathGlyph(const SkPath& path, SkPoint origin);
-        SkPath fPath;
-        SkPoint fOrigin;
-    };
-
     const bool fIsAntiAliased;
     const SkScalar fStrikeToSourceScale;
     const SkSpan<const PathGlyph> fPaths;
@@ -302,11 +304,6 @@ GrSubRunOwner PathSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
 GrAtlasSubRun* PathSubRun::testingOnly_atlasSubRun() {
     return nullptr;
 };
-
-// -- PathSubRun::PathGlyph ------------------------------------------------------------------------
-PathSubRun::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
-        : fPath(path)
-        , fOrigin(origin) {}
 
 // -- GlyphVector ----------------------------------------------------------------------------------
 // GlyphVector provides a way to delay the lookup of GrGlyphs until the code is running on the
@@ -3018,8 +3015,6 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
 
 // -- PathSubRunSlug -------------------------------------------------------------------------------
 class PathSubRunSlug final : public SlugSubRun {
-    struct PathGlyph;
-
 public:
     PathSubRunSlug(bool isAntiAliased,
                    SkScalar strikeToSourceScale,
@@ -3038,11 +3033,6 @@ public:
                                 GrSubRunAllocator* alloc);
 
 private:
-    struct PathGlyph {
-        PathGlyph(const SkPath& path, SkPoint origin);
-        SkPath fPath;
-        SkPoint fOrigin;
-    };
 
     const bool fIsAntiAliased;
     const SkScalar fStrikeToSourceScale;
@@ -3129,11 +3119,6 @@ SlugSubRunOwner PathSubRunSlug::Make(const SkZip<SkGlyphVariant, SkPoint>& drawa
             isAntiAliased, strikeToSourceScale, paths, std::move(pathData));
 }
 
-// -- PathSubRun::PathGlyph ------------------------------------------------------------------------
-PathSubRunSlug::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
-        : fPath(path)
-        , fOrigin(origin) {}
-
 void Slug::processSourcePaths(const SkZip<SkGlyphVariant,
                               SkPoint>& drawables,
                               const SkFont& runFont,
@@ -3143,7 +3128,6 @@ void Slug::processSourcePaths(const SkZip<SkGlyphVariant,
                                          strikeToSourceScale,
                                          &fAlloc));
 }
-
 
 // -- SDFTSubRunSlug -------------------------------------------------------------------------------
 class SDFTSubRunSlug final : public SlugAtlasSubRun {
