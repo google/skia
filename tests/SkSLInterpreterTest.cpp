@@ -1066,6 +1066,7 @@ line 2
 comparison = true
 line 3
 line 4
+[less_than].result = true
 exit bool less_than(float left, int right)
 function_result = true
 line 11
@@ -1078,6 +1079,7 @@ line 2
 comparison = false
 line 3
 line 6
+[less_than].result = false
 exit bool less_than(float left, int right)
 function_result = false
 line 11
@@ -1090,10 +1092,12 @@ line 2
 comparison = false
 line 3
 line 6
+[less_than].result = false
 exit bool less_than(float left, int right)
 function_result = false
 line 11
 line 14
+[main].result = 40
 exit int main()
 )", "Trace output does not match expectation:\n%s\n", hook.fTrace.c_str());
 }
