@@ -19,7 +19,7 @@ class SkTextBlob;
 // manipulated using matrix and clip changes to the canvas. If the canvas is transformed, then
 // the GrSlug will also transform with smaller glyphs using bi-linear interpolation to render. You
 // can think of a GrSlug as making a rubber stamp out of a SkTextBlob.
-class GrSlug : public SkRefCnt {
+class SK_API GrSlug : public SkRefCnt {
 public:
     ~GrSlug() override;
     // Return nullptr if the blob would not draw. This is not because of clipping, but because of
