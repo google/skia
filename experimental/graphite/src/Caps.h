@@ -44,8 +44,12 @@ public:
     virtual bool isTexturable(const TextureInfo&) const = 0;
     virtual bool isRenderable(const TextureInfo&) const = 0;
 
+    int maxTextureSize() const { return fMaxTextureSize; }
+
 protected:
     Caps();
+
+    int fMaxTextureSize = 0;
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
 

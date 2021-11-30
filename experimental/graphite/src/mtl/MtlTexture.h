@@ -18,6 +18,10 @@ class Gpu;
 
 class Texture : public skgpu::Texture {
 public:
+    static sk_cfp<id<MTLTexture>> MakeMtlTexture(const Gpu*,
+                                                 SkISize dimensions,
+                                                 const skgpu::TextureInfo&);
+
     static sk_sp<Texture> Make(const Gpu* gpu,
                                SkISize dimensions,
                                const skgpu::TextureInfo&);

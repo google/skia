@@ -9,6 +9,30 @@
 
 namespace skgpu {
 
+TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
+    if (!that.isValid()) {
+        fValid = false;
+        return *this;
+    }
+    fBackend = that.fBackend;
+    fSampleCount = that.fSampleCount;
+    fLevelCount = that.fLevelCount;
+    fProtected = that.fProtected;
+
+    switch (that.backend()) {
+#ifdef SK_METAL
+        case BackendApi::kMetal:
+            fMtlSpec = that.fMtlSpec;
+            break;
+#endif
+        default:
+            SK_ABORT("Unsupport Backend");
+    }
+
+    fValid = true;
+    return *this;
+}
+
 bool TextureInfo::operator==(const TextureInfo& that) const {
     if (!this->isValid() || !that.isValid()) {
         return false;

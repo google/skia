@@ -20,9 +20,21 @@ namespace skgpu {
 
 class BackendTexture {
 public:
+    BackendTexture() {}
 #ifdef SK_METAL
-    BackendTexture(SkISize dimensions, sk_cfp<mtl::Handle> mtlTexture);
+    // The BackendTexture will not call retain or release on the passed in mtl::Handle. Thus the
+    // client must keep the mtl::Handle valid until they are no longer using the BackendTexture.
+    BackendTexture(SkISize dimensions, mtl::Handle mtlTexture);
 #endif
+
+    BackendTexture(const BackendTexture&);
+
+    ~BackendTexture();
+
+    BackendTexture& operator=(const BackendTexture&);
+
+    bool operator==(const BackendTexture&) const;
+    bool operator!=(const BackendTexture& that) const { return !(*this == that); }
 
     bool isValid() const { return fInfo.isValid(); }
     BackendApi backend() const { return fInfo.backend(); }
@@ -32,7 +44,7 @@ public:
     const TextureInfo& info() const { return fInfo; }
 
 #ifdef SK_METAL
-    sk_cfp<mtl::Handle> getMtlTexture() const;
+    mtl::Handle getMtlTexture() const;
 #endif
 
 private:
@@ -41,7 +53,7 @@ private:
 
     union {
 #ifdef SK_METAL
-        sk_cfp<mtl::Handle> fMtlTexture;
+        mtl::Handle fMtlTexture;
 #endif
     };
 };

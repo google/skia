@@ -42,11 +42,11 @@ sk_sp<skgpu::Texture> ResourceProvider::createTexture(SkISize dimensions,
 }
 
 sk_sp<skgpu::Texture> ResourceProvider::createWrappedTexture(const BackendTexture& texture) {
-    sk_cfp<mtl::Handle> mtlHandleTexture = texture.getMtlTexture();
+    mtl::Handle mtlHandleTexture = texture.getMtlTexture();
     if (!mtlHandleTexture) {
         return nullptr;
     }
-    sk_cfp<id<MTLTexture>> mtlTexture((id<MTLTexture>)mtlHandleTexture.release());
+    sk_cfp<id<MTLTexture>> mtlTexture = sk_ret_cfp((id<MTLTexture>)mtlHandleTexture);
     return Texture::MakeWrapped(texture.dimensions(), texture.info(), std::move(mtlTexture));
 }
 

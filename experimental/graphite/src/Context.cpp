@@ -7,6 +7,8 @@
 
 #include "experimental/graphite/include/Context.h"
 
+#include "experimental/graphite/include/BackendTexture.h"
+#include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextUtils.h"
@@ -22,7 +24,7 @@
 
 namespace skgpu {
 
-Context::Context(sk_sp<Gpu> gpu) : fGpu(std::move(gpu)) {}
+Context::Context(sk_sp<Gpu> gpu, BackendApi backend) : fGpu(std::move(gpu)), fBackend(backend) {}
 Context::~Context() {}
 
 #ifdef SK_METAL
@@ -32,7 +34,7 @@ sk_sp<Context> Context::MakeMetal(const mtl::BackendContext& backendContext) {
         return nullptr;
     }
 
-    return sk_sp<Context>(new Context(std::move(gpu)));
+    return sk_sp<Context>(new Context(std::move(gpu), BackendApi::kMetal));
 }
 #endif
 
@@ -77,6 +79,20 @@ void Context::preCompile(const PaintCombo& paintCombo) {
             }
         }
     }
+}
+
+BackendTexture Context::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
+    if (!info.isValid() || info.backend() != this->backend()) {
+        return {};
+    }
+    return fGpu->createBackendTexture(dimensions, info);
+}
+
+void Context::deleteBackendTexture(BackendTexture& texture) {
+    if (!texture.isValid() || texture.backend() != this->backend()) {
+        return;
+    }
+    fGpu->deleteBackendTexture(texture);
 }
 
 } // namespace skgpu

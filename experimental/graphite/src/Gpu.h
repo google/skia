@@ -9,6 +9,7 @@
 #define skgpu_Gpu_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/private/SkDeque.h"
 
 #include "experimental/graphite/include/GraphiteTypes.h"
@@ -19,10 +20,12 @@ namespace SkSL {
 
 namespace skgpu {
 
+class BackendTexture;
 class Caps;
-class ResourceProvider;
 class CommandBuffer;
 class GpuWorkSubmission;
+class ResourceProvider;
+class TextureInfo;
 
 class Gpu : public SkRefCnt {
 public:
@@ -40,6 +43,9 @@ public:
 
     bool submit(sk_sp<CommandBuffer>);
     void checkForFinishedWork(SyncToCpu);
+
+    BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
+    void deleteBackendTexture(BackendTexture&);
 
 #if GRAPHITE_TEST_UTILS
     virtual void testingOnly_startCapture() {}
@@ -59,6 +65,9 @@ protected:
 
 private:
     virtual bool onSubmit(sk_sp<CommandBuffer>) = 0;
+
+    virtual BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) = 0;
+    virtual void onDeleteBackendTexture(BackendTexture&) = 0;
 
     sk_sp<const Caps> fCaps;
     // Compiler used for compiling SkSL into backend shader code. We only want to create the

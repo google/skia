@@ -7,6 +7,8 @@
 
 #include "experimental/graphite/src/Gpu.h"
 
+#include "experimental/graphite/include/BackendTexture.h"
+#include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GpuWorkSubmission.h"
@@ -82,5 +84,21 @@ void Gpu::checkForFinishedWork(SyncToCpu sync) {
     }
     SkASSERT(sync == SyncToCpu::kNo || fOutstandingSubmissions.empty());
 }
+
+BackendTexture Gpu::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
+    if (dimensions.isEmpty() || dimensions.width()  > this->caps()->maxTextureSize() ||
+                                dimensions.height() > this->caps()->maxTextureSize()) {
+        return {};
+    }
+
+    return this->onCreateBackendTexture(dimensions, info);
+}
+
+void Gpu::deleteBackendTexture(BackendTexture& texture) {
+    this->onDeleteBackendTexture(texture);
+    // Invalidate the texture;
+    texture = BackendTexture();
+}
+
 
 } // namespace skgpu

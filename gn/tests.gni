@@ -330,6 +330,7 @@ metal_tests_sources = [
 ]
 
 graphite_tests_sources = [
+  "$_tests/graphite/BackendTextureTest.cpp",
   "$_tests/graphite/CommandBufferTest.cpp",
   "$_tests/graphite/IntersectionTreeTest.cpp",
   "$_tests/graphite/MaskTest.cpp",
@@ -339,6 +340,8 @@ graphite_tests_sources = [
   "$_tests/graphite/UniformCacheTest.cpp",
   "$_tests/graphite/UniformTest.cpp",
 ]
+
+graphite_metal_tests_sources = [ "$_tests/graphite/MtlBackendTextureTest.mm" ]
 
 pathops_tests_sources = [
   "$_tests/PathOpsAngleIdeas.cpp",

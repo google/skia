@@ -212,7 +212,11 @@ void Caps::initGPUFamily(id<MTLDevice> device) {
 }
 
 void Caps::initCaps(const id<MTLDevice> device) {
-    // TODO
+    if (this->isMac() || fFamilyGroup >= 3) {
+        fMaxTextureSize = 16384;
+    } else {
+        fMaxTextureSize = 8192;
+    }
 }
 
 void Caps::initShaderCaps() {

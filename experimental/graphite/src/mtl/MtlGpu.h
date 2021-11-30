@@ -34,6 +34,9 @@ private:
 
     bool onSubmit(sk_sp<skgpu::CommandBuffer>) override;
 
+    BackendTexture onCreateBackendTexture(SkISize dimensions, const skgpu::TextureInfo&) override;
+    void onDeleteBackendTexture(BackendTexture&) override;
+
 #if GRAPHITE_TEST_UTILS
     void testingOnly_startCapture() override;
     void testingOnly_endCapture() override;
