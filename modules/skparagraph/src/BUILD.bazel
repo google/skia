@@ -1,0 +1,322 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Decorations_hdr",
+    hdrs = ["Decorations.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TextLine_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPath_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Decorations_src",
+    srcs = ["Decorations.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Decorations_hdr",
+        "//include/core:SkPathBuilder_hdr",
+        "//include/effects:SkDashPathEffect_hdr",
+        "//include/effects:SkDiscretePathEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FontCollection_src",
+    srcs = ["FontCollection.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ParagraphImpl_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//modules/skparagraph/include:FontCollection_hdr",
+        "//modules/skparagraph/include:Paragraph_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Iterators_hdr",
+    hdrs = ["Iterators.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "OneLineShaper_hdr",
+    hdrs = ["OneLineShaper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ParagraphImpl_hdr",
+        ":Run_hdr",
+        "//include/core:SkSpan_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "OneLineShaper_src",
+    srcs = ["OneLineShaper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Iterators_hdr",
+        ":OneLineShaper_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParagraphBuilderImpl_hdr",
+    hdrs = ["ParagraphBuilderImpl.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skparagraph/include:FontCollection_hdr",
+        "//modules/skparagraph/include:ParagraphBuilder_hdr",
+        "//modules/skparagraph/include:ParagraphStyle_hdr",
+        "//modules/skparagraph/include:Paragraph_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+        "//modules/skunicode/include:SkUnicode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParagraphBuilderImpl_src",
+    srcs = ["ParagraphBuilderImpl.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ParagraphBuilderImpl_hdr",
+        ":ParagraphImpl_hdr",
+        "//include/core:SkTypes_hdr",
+        "//modules/skparagraph/include:FontCollection_hdr",
+        "//modules/skparagraph/include:ParagraphBuilder_hdr",
+        "//modules/skparagraph/include:ParagraphStyle_hdr",
+        "//modules/skparagraph/include:Paragraph_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+        "//src/core:SkStringUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParagraphCache_src",
+    srcs = ["ParagraphCache.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ParagraphImpl_hdr",
+        "//modules/skparagraph/include:ParagraphCache_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParagraphImpl_hdr",
+    hdrs = ["ParagraphImpl.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Run_hdr",
+        ":TextLine_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkBitmaskEnum_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//modules/skparagraph/include:DartTypes_hdr",
+        "//modules/skparagraph/include:FontCollection_hdr",
+        "//modules/skparagraph/include:ParagraphCache_hdr",
+        "//modules/skparagraph/include:ParagraphStyle_hdr",
+        "//modules/skparagraph/include:Paragraph_hdr",
+        "//modules/skparagraph/include:TextShadow_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+        "//modules/skunicode/include:SkUnicode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParagraphImpl_src",
+    srcs = ["ParagraphImpl.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":OneLineShaper_hdr",
+        ":ParagraphImpl_hdr",
+        ":Run_hdr",
+        ":TextLine_hdr",
+        ":TextWrapper_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkTFitsIn_hdr",
+        "//include/private:SkTo_hdr",
+        "//modules/skparagraph/include:Metrics_hdr",
+        "//modules/skparagraph/include:ParagraphStyle_hdr",
+        "//modules/skparagraph/include:Paragraph_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParagraphStyle_src",
+    srcs = ["ParagraphStyle.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skparagraph/include:DartTypes_hdr",
+        "//modules/skparagraph/include:ParagraphStyle_hdr",
+        "//src/core:SkStringUtils_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Run_hdr",
+    hdrs = ["Run.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTArray_hdr",
+        "//modules/skparagraph/include:DartTypes_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Run_src",
+    srcs = ["Run.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ParagraphImpl_hdr",
+        ":Run_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//include/private:SkTo_hdr",
+        "//modules/skparagraph/include:DartTypes_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextLine_hdr",
+    hdrs = ["TextLine.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Run_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/private:SkTArray_hdr",
+        "//modules/skparagraph/include:DartTypes_hdr",
+        "//modules/skparagraph/include:Metrics_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextLine_src",
+    srcs = ["TextLine.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Decorations_hdr",
+        ":ParagraphImpl_hdr",
+        ":TextLine_hdr",
+        "//include/core:SkBlurTypes_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkMaskFilter_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/private:SkTo_hdr",
+        "//modules/skparagraph/include:DartTypes_hdr",
+        "//modules/skparagraph/include:Metrics_hdr",
+        "//modules/skparagraph/include:ParagraphStyle_hdr",
+        "//modules/skparagraph/include:TextShadow_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextShadow_src",
+    srcs = ["TextShadow.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//modules/skparagraph/include:TextShadow_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextStyle_src",
+    srcs = ["TextStyle.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//modules/skparagraph/include:TextStyle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextWrapper_hdr",
+    hdrs = ["TextWrapper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TextLine_hdr",
+        "//include/core:SkSpan_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextWrapper_src",
+    srcs = ["TextWrapper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ParagraphImpl_hdr",
+        ":TextWrapper_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TypefaceFontProvider_src",
+    srcs = ["TypefaceFontProvider.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//modules/skparagraph/include:TypefaceFontProvider_hdr",
+        "//src/core:SkFontDescriptor_hdr",
+    ],
+)

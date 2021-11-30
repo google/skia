@@ -293,6 +293,7 @@ generated_cc_atom(
     hdrs = ["SkVMDebugInfo.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkPoint_hdr",
         "//src/core:SkVM_hdr",
         "//src/sksl/ir:SkSLType_hdr",
     ],

@@ -1,0 +1,24 @@
+cc_library(
+    name = "skparagraph",
+    hdrs = ["//modules/skparagraph/include:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skparagraph/src:Decorations_src",
+        "//modules/skparagraph/src:FontCollection_src",
+        "//modules/skparagraph/src:OneLineShaper_src",
+        "//modules/skparagraph/src:ParagraphBuilderImpl_src",
+        "//modules/skparagraph/src:ParagraphCache_src",
+        "//modules/skparagraph/src:ParagraphImpl_src",
+        "//modules/skparagraph/src:ParagraphStyle_src",
+        "//modules/skparagraph/src:Run_src",
+        "//modules/skparagraph/src:TextLine_src",
+        "//modules/skparagraph/src:TextShadow_src",
+        "//modules/skparagraph/src:TextStyle_src",
+        "//modules/skparagraph/src:TextWrapper_src",
+        "//modules/skparagraph/src:TypefaceFontProvider_src",
+        # TODO(kjlubick) Can this make a bigger, clearer error if harfbuzz and ICU are not
+        #   available?
+        "//modules/skshaper",
+        "//modules/skunicode",
+    ],
+)

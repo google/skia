@@ -1,0 +1,134 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "DartTypes.h",
+        "FontCollection.h",
+        "Metrics.h",
+        "Paragraph.h",
+        "ParagraphBuilder.h",
+        "ParagraphCache.h",
+        "ParagraphStyle.h",
+        "TextShadow.h",
+        "TextStyle.h",
+        "TypefaceFontProvider.h",
+    ],
+    visibility = ["//modules/skparagraph:__pkg__"],
+)
+
+generated_cc_atom(
+    name = "DartTypes_hdr",
+    hdrs = ["DartTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRect_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FontCollection_hdr",
+    hdrs = ["FontCollection.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ParagraphCache_hdr",
+        ":TextStyle_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Metrics_hdr",
+    hdrs = ["Metrics.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":TextStyle_hdr"],
+)
+
+generated_cc_atom(
+    name = "ParagraphBuilder_hdr",
+    hdrs = ["ParagraphBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FontCollection_hdr",
+        ":ParagraphStyle_hdr",
+        ":Paragraph_hdr",
+        ":TextStyle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParagraphCache_hdr",
+    hdrs = ["ParagraphCache.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkMutex_hdr",
+        "//src/core:SkLRUCache_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParagraphStyle_hdr",
+    hdrs = ["ParagraphStyle.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DartTypes_hdr",
+        ":TextStyle_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Paragraph_hdr",
+    hdrs = ["Paragraph.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":FontCollection_hdr",
+        ":Metrics_hdr",
+        ":ParagraphStyle_hdr",
+        ":TextStyle_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextShadow_hdr",
+    hdrs = ["TextShadow.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkPoint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextStyle_hdr",
+    hdrs = ["TextStyle.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DartTypes_hdr",
+        ":TextShadow_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkScalar_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TypefaceFontProvider_hdr",
+    hdrs = ["TypefaceFontProvider.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)

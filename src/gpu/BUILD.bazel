@@ -190,6 +190,7 @@ cc_library(
         "//src/gpu/text:GrDistanceFieldAdjustTable_src",
         "//src/gpu/text:GrSDFMaskFilter_src",
         "//src/gpu/text:GrSDFTControl_src",
+        "//src/gpu/text:GrSlug_src",
         "//src/gpu/text:GrStrikeCache_src",
         "//src/gpu/text:GrTextBlobCache_src",
         "//src/gpu/text:GrTextBlob_src",

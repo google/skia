@@ -389,6 +389,7 @@ generated_cc_atom(
         "//include/core:SkPaint_hdr",
         "//include/effects:SkImageFilters_hdr",
         "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkSpinlock_hdr",
         "//src/core:SkImageFilter_Base_hdr",
         "//src/core:SkReadBuffer_hdr",
         "//src/core:SkRuntimeEffectPriv_hdr",

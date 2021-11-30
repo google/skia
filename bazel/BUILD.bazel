@@ -63,8 +63,22 @@ PLATFORM_DEFINES = select({
     "//conditions:default": [],
 })
 
+SHAPER_DEFINES = select_multi(
+    {
+        "//bazel/common_config_settings:coretext_shaper": ["SK_SHAPER_CORETEXT_AVAILABLE"],
+        "//bazel/common_config_settings:harfbuzz_shaper": ["SK_SHAPER_HARFBUZZ_AVAILABLE"],
+    },
+    default = [],
+)
+
+UNICODE_DEFINES = select({
+    "//bazel/common_config_settings:use_icu_true": ["SK_UNICODE_AVAILABLE"],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "defines_from_flags",
-    defines = GENERAL_DEFINES + GPU_DEFINES + CODEC_DEFINES + PLATFORM_DEFINES,
+    defines = GENERAL_DEFINES + GPU_DEFINES + CODEC_DEFINES + PLATFORM_DEFINES +
+              SHAPER_DEFINES + UNICODE_DEFINES,
     visibility = ["//:__subpackages__"],
 )

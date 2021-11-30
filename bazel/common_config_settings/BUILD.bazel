@@ -1,4 +1,4 @@
-load(":defs.bzl", "string_flag_with_values")
+load(":defs.bzl", "bool_flag", "string_flag_with_values")
 
 # @platforms is found at https://github.com/bazelbuild/platforms
 package(default_visibility = ["//:__subpackages__"])
@@ -132,4 +132,18 @@ string_flag_with_values(
         "png_encode_codec",
         "webp_encode_codec",
     ],
+)
+
+string_flag_with_values(
+    flag_name = "shaper_backend",
+    multiple = True,
+    values = [
+        "harfbuzz_shaper",
+        "coretext_shaper",
+    ],
+)
+
+bool_flag(
+    default = False,
+    flag_name = "use_icu",
 )

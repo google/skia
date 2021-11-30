@@ -1,0 +1,10 @@
+cc_library(
+    name = "skunicode",
+    hdrs = ["//modules/skunicode/include:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skunicode/src:SkUnicode_icu_src",
+        "//modules/skunicode/src:SkUnicode_icu_builtin_src",
+        # TODO(kjlubick,bungeman) make runtime available for Android
+    ],
+)

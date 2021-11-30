@@ -12,8 +12,11 @@ build --flag_alias=gpu_backend=//bazel/common_config_settings:gpu_backend
 build --flag_alias=include_decoder=//bazel/common_config_settings:include_decoder
 build --flag_alias=include_encoder=//bazel/common_config_settings:include_encoder
 build --flag_alias=include_fontmgr=//bazel/common_config_settings:include_fontmgr
+build --flag_alias=shaper_backend=//bazel/common_config_settings:shaper_backend
 build --flag_alias=with_gl_standard=//bazel/common_config_settings:with_gl_standard
 
+build --flag_alias=with_icu=//bazel/common_config_settings:use_icu
+build --flag_alias=with_no_icu=no//bazel/common_config_settings:use_icu
 
 # CanvasKit flags
 build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts

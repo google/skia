@@ -1,0 +1,12 @@
+cc_library(
+    name = "skshaper",
+    hdrs = ["//modules/skshaper/include:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skshaper/src:SkShaper_primitive_src",
+        "//modules/skshaper/src:SkShaper_src",
+    ] + select({
+        "//bazel/common_config_settings:harfbuzz_shaper": ["//modules/skshaper/src:SkShaper_harfbuzz_src"],
+        "//conditions:default": [],
+    }),
+)

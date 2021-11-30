@@ -186,6 +186,7 @@ generated_cc_atom(
         "//include/core:SkColorFilter_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//include/private:SkTemplates_hdr",
+        "//include/private/chromium:GrSlug_hdr",
         "//src/core:SkMaskFilterBase_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkPaintPriv_hdr",
@@ -201,6 +202,7 @@ generated_cc_atom(
         "//src/gpu/effects:GrDistanceFieldGeoProc_hdr",
         "//src/gpu/geometry:GrStyledShape_hdr",
         "//src/gpu/ops:AtlasTextOp_hdr",
+        "//src/gpu/v1:Device_v1_hdr",
         "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
     ],
 )

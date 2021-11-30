@@ -45,6 +45,7 @@ generated_cc_atom(
         "//src/core:SkLRUCache_hdr",
         "//src/core:SkTDPQueue_hdr",
         "//src/utils:SkUTF_hdr",
+        "//third_party:harfbuzz",
     ],
 )
 

@@ -29,8 +29,11 @@
   "freetype/t1tables.h": "//third_party:freetype2",
   "freetype/ftfntfmt.h": "//third_party:freetype2",
 
-  "hb-subset.h": "SK_GAZELLE_IGNORE TODO //third_party:harfbuzz",
-  "hb.h": "SK_GAZELLE_IGNORE TODO //third_party:harfbuzz",
+  "hb-subset.h": "//third_party:harfbuzz",
+  "hb.h": "//third_party:harfbuzz",
+
+  "SkLoadICU.h": "//third_party:icu",
+  "unicode/ubidi.h": "//third_party:icu",
 
   "imgui.h": "SK_GAZELLE_IGNORE TODO //third_party:imgui",
 

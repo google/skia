@@ -1,0 +1,47 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkUnicode_icu_builtin_src",
+    srcs = ["SkUnicode_icu_builtin.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkUnicode_icu_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkUnicode_icu_hdr",
+    hdrs = ["SkUnicode_icu.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTemplates_hdr",
+        "//third_party:icu",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkUnicode_icu_runtime_src",
+    srcs = ["SkUnicode_icu_runtime.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkUnicode_icu_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkUnicode_icu_src",
+    srcs = ["SkUnicode_icu.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkUnicode_icu_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkMutex_hdr",
+        "//include/private:SkOnce_hdr",
+        "//include/private:SkTFitsIn_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//modules/skunicode/include:SkUnicode_hdr",
+        "//src/utils:SkUTF_hdr",
+        "//third_party:icu",
+    ],
+)

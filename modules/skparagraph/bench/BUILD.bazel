@@ -1,0 +1,17 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "ParagraphBench_src",
+    srcs = ["ParagraphBench.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//bench:Benchmark_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//modules/skparagraph/include:FontCollection_hdr",
+        "//modules/skparagraph/include:Paragraph_hdr",
+        "//modules/skparagraph/src:ParagraphBuilderImpl_hdr",
+        "//modules/skparagraph/src:ParagraphImpl_hdr",
+        "//modules/skparagraph/utils:TestFontCollection_hdr",
+        "//tools:Resources_hdr",
+    ],
+)

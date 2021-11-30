@@ -1,0 +1,20 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkUnicode.h",
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+generated_cc_atom(
+    name = "SkUnicode_hdr",
+    hdrs = ["SkUnicode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkTypes_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)

@@ -1,0 +1,25 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "simple_gm_src",
+    srcs = ["simple_gm.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//gm:gm_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkFontTypes_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//modules/skparagraph/include:Paragraph_hdr",
+        "//modules/skparagraph/src:ParagraphBuilderImpl_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)

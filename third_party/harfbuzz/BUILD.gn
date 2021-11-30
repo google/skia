@@ -261,7 +261,7 @@ if (skia_use_system_harfbuzz) {
       "config-override.h",
     ]
 
-    # The following sources are explictly not used.
+    # The following sources are explicitly not used.
     # They are referenced to aid in detecting previously uncategorized files.
     unused_sources = [
       "$_src/hb-coretext.cc",

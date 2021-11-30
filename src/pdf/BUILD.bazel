@@ -547,6 +547,7 @@ generated_cc_atom(
         "//include/private:SkTemplates_hdr",
         "//include/private:SkTo_hdr",
         "//src/utils:SkCallableTraits_hdr",
+        "//third_party:harfbuzz",
     ],
 )
 

@@ -6,6 +6,10 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 
 """
 
+_bool_flags = [
+    "//bazel/common_config_settings:use_icu",
+]
+
 _string_flags = [
     "//bazel/common_config_settings:fontmgr_factory",
     "//bazel/common_config_settings:with_gl_standard",
@@ -16,10 +20,11 @@ _string_list_flags = [
     "//bazel/common_config_settings:include_decoder",
     "//bazel/common_config_settings:include_encoder",
     "//bazel/common_config_settings:include_fontmgr",
+    "//bazel/common_config_settings:shaper_backend",
 ]
 
 # These are the flags that we support setting via set_flags
-_flags = _string_flags + _string_list_flags
+_flags = _bool_flags + _string_flags + _string_list_flags
 
 def _flag_transition_impl(settings, attr):
     rv = {}
@@ -41,6 +46,11 @@ def _flag_transition_impl(settings, attr):
                 rv[key] = flag_setting[0]
             else:
                 rv[key] = flag_setting  # we know flag_setting is a string (e.g. the default).
+        elif key in _bool_flags:
+            if type(flag_setting) == "list":
+                rv[key] = flag_setting[0] == "True"
+            else:
+                rv[key] = flag_setting  # flag_setting will be a boolean, the default
     return rv
 
 # This defines a Starlark transition and which flags it reads and writes.

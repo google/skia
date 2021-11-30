@@ -1,5 +1,13 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkShaper.h",
+    ],
+    visibility = ["//modules/skshaper:__pkg__"],
+)
+
 generated_cc_atom(
     name = "SkShaper_hdr",
     hdrs = ["SkShaper.h"],
