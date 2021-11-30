@@ -5,7 +5,7 @@
 
 # Recipe for uploading buildstats results to Perf.
 
-PYTHON_VERSION_COMPATIBILITY = "PY2+3"
+PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'recipe_engine/context',

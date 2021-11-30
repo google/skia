@@ -90,8 +90,17 @@ func (b *taskBuilder) cas(casSpec string) {
 	b.Spec.CasSpec = casSpec
 }
 
-// env appends the given values to the given environment variable for the task.
-func (b *taskBuilder) env(key string, values ...string) {
+// env sets the value for the given environment variable for the task.
+func (b *taskBuilder) env(key, value string) {
+	if b.Spec.Environment == nil {
+		b.Spec.Environment = map[string]string{}
+	}
+	b.Spec.Environment[key] = value
+}
+
+// envPrefixes appends the given values to the given environment variable for
+// the task.
+func (b *taskBuilder) envPrefixes(key string, values ...string) {
 	if b.Spec.EnvPrefixes == nil {
 		b.Spec.EnvPrefixes = map[string][]string{}
 	}
@@ -104,7 +113,7 @@ func (b *taskBuilder) env(key string, values ...string) {
 
 // addToPATH adds the given locations to PATH for the task.
 func (b *taskBuilder) addToPATH(loc ...string) {
-	b.env("PATH", loc...)
+	b.envPrefixes("PATH", loc...)
 }
 
 // output adds the given paths as outputs to the task, which results in their
@@ -218,7 +227,7 @@ func (b *taskBuilder) usesGo() {
 	}
 	b.cipd(pkg)
 	b.addToPATH(pkg.Path + "/go/bin")
-	b.env("GOROOT", pkg.Path+"/go")
+	b.envPrefixes("GOROOT", pkg.Path+"/go")
 }
 
 // usesDocker adds attributes to tasks which use docker.
@@ -303,7 +312,7 @@ func (b *taskBuilder) usesPython() {
 		Name: "vpython",
 		Path: "cache/vpython",
 	})
-	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
+	b.envPrefixes("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
 	b.env("VPYTHON_LOG_TRACE", "1")
 }
 

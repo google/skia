@@ -46,7 +46,8 @@ class ChromebookFlavor(ssh.SSHFlavor):
     import sys
     src = sys.argv[1] + '/*'
     dest   = sys.argv[2]
-    print(subprocess.check_output('scp -r %s %s' % (src, dest), shell=True))
+    print(subprocess.check_output(
+        'scp -r %s %s' % (src, dest), shell=True).decode('utf-8'))
     """, args=[src, dest], infra_step=True)
 
   def copy_directory_contents_to_device(self, host_path, device_path):

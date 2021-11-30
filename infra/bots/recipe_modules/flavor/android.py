@@ -166,37 +166,37 @@ ADB = sys.argv[1]
 freq = sys.argv[2]
 idle_timer = "10000"
 
-log = subprocess.check_output([ADB, 'root'])
+log = subprocess.check_output([ADB, 'root']).decode('utf-8')
 # check for message like 'adbd cannot run as root in production builds'
 print(log)
 if 'cannot' in log:
   raise Exception('adb root failed')
 
-subprocess.check_output([ADB, 'shell', 'stop', 'thermald'])
+subprocess.check_output([ADB, 'shell', 'stop', 'thermald']).decode('utf-8')
 
 subprocess.check_output([ADB, 'shell', 'echo "%s" > '
-    '/sys/class/kgsl/kgsl-3d0/gpuclk' % freq])
+    '/sys/class/kgsl/kgsl-3d0/gpuclk' % freq]).decode('utf-8')
 
 actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/class/kgsl/kgsl-3d0/gpuclk']).strip()
+    '/sys/class/kgsl/kgsl-3d0/gpuclk']).decode('utf-8').strip()
 if actual_freq != freq:
   raise Exception('Frequency (actual, expected) (%s, %s)'
                   % (actual_freq, freq))
 
-subprocess.check_output([ADB, 'shell', 'echo "%s" > '
+subprocess.check_call([ADB, 'shell', 'echo "%s" > '
     '/sys/class/kgsl/kgsl-3d0/idle_timer' % idle_timer])
 
 actual_timer = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/class/kgsl/kgsl-3d0/idle_timer']).strip()
+    '/sys/class/kgsl/kgsl-3d0/idle_timer']).decode('utf-8').strip()
 if actual_timer != idle_timer:
   raise Exception('idle_timer (actual, expected) (%s, %s)'
                   % (actual_timer, idle_timer))
 
 for s in ['force_bus_on', 'force_rail_on', 'force_clk_on']:
-  subprocess.check_output([ADB, 'shell', 'echo "1" > '
+  subprocess.check_call([ADB, 'shell', 'echo "1" > '
       '/sys/class/kgsl/kgsl-3d0/%s' % s])
   actual_set = subprocess.check_output([ADB, 'shell', 'cat '
-      '/sys/class/kgsl/kgsl-3d0/%s' % s]).strip()
+      '/sys/class/kgsl/kgsl-3d0/%s' % s]).decode('utf-8').strip()
   if actual_set != "1":
     raise Exception('%s (actual, expected) (%s, 1)'
                     % (s, actual_set))
@@ -219,16 +219,19 @@ ADB = sys.argv[1]
 cpu = int(sys.argv[2])
 gov = sys.argv[3]
 
-log = subprocess.check_output([ADB, 'root'])
+log = subprocess.check_output([ADB, 'root']).decode('utf-8')
 # check for message like 'adbd cannot run as root in production builds'
 print(log)
 if 'cannot' in log:
   raise Exception('adb root failed')
 
-subprocess.check_output([ADB, 'shell', 'echo "%s" > '
-    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])
-actual_gov = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()
+subprocess.check_output([
+    ADB, 'shell',
+    'echo "%s" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (
+        gov, cpu)]).decode('utf-8')
+actual_gov = subprocess.check_output([
+    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %
+        cpu]).decode('utf-8').strip()
 if actual_gov != gov:
   raise Exception('(actual, expected) (%s, %s)'
                   % (actual_gov, gov))
@@ -256,7 +259,7 @@ ADB = sys.argv[1]
 cpu = int(sys.argv[2])
 value = int(sys.argv[3])
 
-log = subprocess.check_output([ADB, 'root'])
+log = subprocess.check_output([ADB, 'root']).decode('utf-8')
 # check for message like 'adbd cannot run as root in production builds'
 print(log)
 if 'cannot' in log:
@@ -265,15 +268,15 @@ if 'cannot' in log:
 # If we try to echo 1 to an already online cpu, adb returns exit code 1.
 # So, check the value before trying to write it.
 prior_status = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()
+    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()
 if prior_status == str(value):
   print('CPU %d online already %d' % (cpu, value))
   sys.exit()
 
-subprocess.check_output([ADB, 'shell', 'echo %s > '
+subprocess.check_call([ADB, 'shell', 'echo %s > '
     '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])
 actual_status = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()
+    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()
 if actual_status != str(value):
   raise Exception('(actual, expected) (%s, %d)'
                   % (actual_status, value))
@@ -296,7 +299,7 @@ import time
 ADB = sys.argv[1]
 target_percent = float(sys.argv[2])
 cpu = int(sys.argv[3])
-log = subprocess.check_output([ADB, 'root'])
+log = subprocess.check_output([ADB, 'root']).decode('utf-8')
 # check for message like 'adbd cannot run as root in production builds'
 print(log)
 if 'cannot' in log:
@@ -306,7 +309,7 @@ root = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu
 
 # All devices we test on give a list of their available frequencies.
 available_freqs = subprocess.check_output([ADB, 'shell',
-    'cat %s/scaling_available_frequencies' % root])
+    'cat %s/scaling_available_frequencies' % root]).decode('utf-8')
 
 # Check for message like '/system/bin/sh: file not found'
 if available_freqs and '/system/bin/sh' not in available_freqs:
@@ -330,15 +333,15 @@ print('Setting frequency to %d' % freq)
 # We must set min first, because if we try to set max to be less than min
 # (which sometimes happens after certain devices reboot) it returns a
 # perplexing permissions error.
-subprocess.check_output([ADB, 'shell', 'echo 0 > '
+subprocess.check_call([ADB, 'shell', 'echo 0 > '
     '%s/scaling_min_freq' % root])
-subprocess.check_output([ADB, 'shell', 'echo %d > '
+subprocess.check_call([ADB, 'shell', 'echo %d > '
     '%s/scaling_max_freq' % (freq, root)])
-subprocess.check_output([ADB, 'shell', 'echo %d > '
+subprocess.check_call([ADB, 'shell', 'echo %d > '
     '%s/scaling_setspeed' % (freq, root)])
 time.sleep(5)
 actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
-    '%s/scaling_cur_freq' % root]).strip()
+    '%s/scaling_cur_freq' % root]).decode('utf-8').strip()
 if actual_freq != str(freq):
   raise Exception('(actual, expected) (%s, %d)'
                   % (actual_freq, freq))
@@ -378,33 +381,33 @@ def wait_for_device():
   while True:
     time.sleep(5)
     print('Waiting for device')
-    subprocess.check_output([ADB, 'wait-for-device'])
+    subprocess.check_call([ADB, 'wait-for-device'])
     bit1 = subprocess.check_output([ADB, 'shell', 'getprop',
-                                   'dev.bootcomplete'])
+                                   'dev.bootcomplete']).decode('utf-8')
     bit2 = subprocess.check_output([ADB, 'shell', 'getprop',
-                                   'sys.boot_completed'])
+                                   'sys.boot_completed']).decode('utf-8')
     if '1' in bit1 and '1' in bit2:
       print('Device detected')
       break
 
-log = subprocess.check_output([ADB, 'root'])
+log = subprocess.check_output([ADB, 'root']).decode('utf-8')
 # check for message like 'adbd cannot run as root in production builds'
 print(log)
 if 'cannot' in log:
   raise Exception('adb root failed')
 
-output = subprocess.check_output([ADB, 'disable-verity'])
+output = subprocess.check_output([ADB, 'disable-verity']).decode('utf-8')
 print(output)
 
 if 'already disabled' not in output:
   print('Rebooting device')
-  subprocess.check_output([ADB, 'reboot'])
+  subprocess.check_call([ADB, 'reboot'])
   wait_for_device()
 
 def installASAN(revert=False):
   # ASAN setup script is idempotent, either it installs it or
   # says it's installed.  Returns True on success, false otherwise.
-  out = subprocess.check_output([ADB, 'wait-for-device'])
+  out = subprocess.check_output([ADB, 'wait-for-device']).decode('utf-8')
   print(out)
   cmd = [ASAN_SETUP]
   if revert:
@@ -414,8 +417,8 @@ def installASAN(revert=False):
 
   # this also blocks until command finishes
   (stdout, stderr) = process.communicate()
-  print(stdout)
-  print('Stderr: %s' % stderr)
+  print(stdout.decode('utf-8'))
+  print('Stderr: %s' % stderr.decode('utf-8'))
   return process.returncode == 0
 
 if not installASAN():
@@ -473,7 +476,7 @@ time.sleep(60)
           import subprocess
           import sys
           out = sys.argv[1]
-          log = subprocess.check_output(['%s', 'logcat', '-d'])
+          log = subprocess.check_output(['%s', 'logcat', '-d']).decode('utf-8')
           for line in log.split('\\n'):
             tokens = line.split()
             if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':
@@ -481,7 +484,8 @@ time.sleep(60)
               local = os.path.join(out, os.path.basename(path))
               if os.path.exists(local):
                 try:
-                  sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
+                  sym = subprocess.check_output([
+                      'addr2line', '-Cfpe', local, addr]).decode('utf-8')
                   line = line.replace(addr, addr + ' ' + sym.strip())
                 except subprocess.CalledProcessError:
                   pass
@@ -526,8 +530,8 @@ time.sleep(60)
     sh      = sys.argv[2]
     subprocess.check_call(['%s', 'shell', 'sh', bin_dir + sh])
     try:
-      sys.exit(int(subprocess.check_output(['%s', 'shell', 'cat',
-                                            bin_dir + 'rc'])))
+      sys.exit(int(subprocess.check_output([
+          '%s', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))
     except ValueError:
       print("Couldn't read the return code.  Probably killed for OOM.")
       sys.exit(1)
@@ -582,9 +586,10 @@ time.sleep(60)
         cmd = [adb, 'shell', 'ls', path]
         print(' '.join(cmd))
         try:
-          output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+          output = subprocess.check_output(
+              cmd, stderr=subprocess.STDOUT).decode('utf-8')
         except subprocess.CalledProcessError as e:
-          output = e.output
+          output = e.output.decode('utf-8')
         print('Output was:')
         print('======')
         print(output)

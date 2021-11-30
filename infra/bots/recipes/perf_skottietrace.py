@@ -12,7 +12,7 @@ import json
 import re
 import string
 
-PYTHON_VERSION_COMPATIBILITY = "PY2+3"
+PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'flavor',
