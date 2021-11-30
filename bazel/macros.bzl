@@ -63,6 +63,9 @@ def generated_cc_atom(name, **kwargs):
         fail("Cannot set both srcs and hdrs in generated_cc_atom")
     if len(kwargs.get("srcs", [])) == 0 and len(kwargs.get("hdrs", [])) == 0:
         fail("Must set exactly one of srcs or hdrs in generated_cc_atom")
+    deps = kwargs.get("deps", [])
+    deps.append("//bazel:defines_from_flags")
+    kwargs["deps"] = deps
     native.cc_library(
         name = name,
         **kwargs

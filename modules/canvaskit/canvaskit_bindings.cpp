@@ -68,7 +68,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
 
-#include "webgl/webgl1.h"
+#include <webgl/webgl1.h>
 #endif
 
 #ifndef SK_NO_FONTS

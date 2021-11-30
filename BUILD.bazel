@@ -20,116 +20,6 @@ cc_test(
     ],
 )
 
-CORE_SRCS = [
-    "//include/private:hdrs",
-    "//include/third_party:skcms-hdrs",
-    "//src/android:srcs",
-    "//src/codec:srcs",
-    "//src/core:srcs",
-    "//src/image:srcs",
-    "//src/images:srcs",
-    "//src/effects:srcs",
-    "//src/opts:srcs",
-    "//src/pathops:srcs",
-    "//src/ports:srcs",
-    "//src/sfnt:srcs",
-    "//src/shaders:srcs",
-    "//src/utils:srcs",
-    "//third_party:skcms",
-] + selects.with_or({
-    # https://github.com/bazelbuild/bazel-skylib/blob/main/docs/selects_doc.md#selectswith_or
-    ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
-        "//src/gpu:srcs",
-        "//src/sksl:srcs",
-        # TODO(kjlubick) should mock be test only?
-        "//include/private:mock-hdrs",
-        "//src/gpu:mock-srcs",
-    ],
-    "//conditions:default": [],
-})
-
-CORE_HDRS = [
-    "//include/android:hdrs",
-    "//include/codec:hdrs",
-    "//include/config:hdrs",
-    "//include/core:hdrs",
-    "//include/effects:hdrs",
-    "//include/encode:hdrs",
-    "//include/pathops:hdrs",
-    "//include/ports:hdrs",
-    "//include/utils:base-hdrs",
-] + selects.with_or({
-    # https://github.com/bazelbuild/bazel-skylib/blob/main/docs/selects_doc.md#selectswith_or
-    ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
-        "//include/sksl:hdrs",
-        "//include/gpu:hdrs",
-        # TODO(kjlubick) should mock be test only?
-        "//include/gpu:mock-hdrs",
-    ],
-    "//conditions:default": [],
-})
-
-# Some of these are documented in SkUserConfig.h
-CORE_DEFINES = ["SK_HAS_ANDROID_CODEC"] + select({
-    "//bazel/common_config_settings:debug_build": [
-        "SK_DEBUG",
-    ],
-    "//bazel/common_config_settings:release_build": [
-        "SK_RELEASE",
-    ],
-    "//conditions:default": [
-        "SK_RELEASE",
-    ],
-}) + select({
-    "//bazel/common_config_settings:gl_backend": [
-        "SK_GL",
-        "SK_SUPPORT_GPU=1",
-    ],
-    "//bazel/common_config_settings:vulkan_backend": [
-        "SK_VULKAN",
-        "SK_SUPPORT_GPU=1",
-    ],
-    "//conditions:default": [
-        "SK_SUPPORT_GPU=0",
-    ],
-}) + select({
-    "//bazel/common_config_settings:gl_standard": [
-        "SK_ASSUME_GL=1",
-    ],
-    "//bazel/common_config_settings:gles_standard": [
-        "SK_ASSUME_GL_ES=1",
-    ],
-    "//bazel/common_config_settings:webgl_standard": [
-        "SK_ASSUME_WEBGL=1",
-        "SK_USE_WEBGL",
-    ],
-    "//conditions:default": [],
-}) + select_multi(
-    {
-        "//bazel/common_config_settings:gif_decode_codec": ["SK_HAS_WUFFS_LIBRARY"],
-        "//bazel/common_config_settings:jpeg_decode_codec": ["SK_CODEC_DECODES_JPEG"],
-        "//bazel/common_config_settings:jpeg_encode_codec": ["SK_ENCODE_JPEG"],
-        "//bazel/common_config_settings:png_decode_codec": ["SK_CODEC_DECODES_PNG"],
-        "//bazel/common_config_settings:png_encode_codec": ["SK_ENCODE_PNG"],
-        "//bazel/common_config_settings:raw_decode_codec": [
-            "SK_CODEC_DECODES_RAW",
-            "SK_CODEC_DECODES_JPEG",
-        ],
-        "//bazel/common_config_settings:webp_decode_codec": ["SK_CODEC_DECODES_WEBP"],
-    },
-    default = [],
-) + select({
-    # working around https://github.com/emscripten-core/emscripten/issues/10072
-    "//bazel/common_config_settings:cpu_wasm": ["SK_FORCE_8_BYTE_ALIGNMENT"],
-    "//conditions:default": [],
-})
-
-freetype_fontmgrs = (
-    "//bazel/common_config_settings:custom_directory_fontmgr",
-    "//bazel/common_config_settings:custom_embedded_fontmgr",
-    "//bazel/common_config_settings:custom_empty_fontmgr",
-)
-
 selects.config_setting_group(
     name = "needs_jpeg",
     match_any = [
@@ -164,7 +54,30 @@ selects.config_setting_group(
     ],
 )
 
-CORE_DEPS = [] + select_multi(
+CORE_DEPS = [
+    "//src/android:srcs",
+    "//src/codec:srcs",
+    "//src/core:srcs",
+    "//src/image:srcs",
+    "//src/images:srcs",
+    "//src/effects:srcs",
+    "//src/opts:srcs",
+    "//src/pathops:srcs",
+    "//src/ports:srcs",
+    "//src/sfnt:srcs",
+    "//src/shaders:srcs",
+    "//src/utils:srcs",
+    "//third_party:skcms",
+] + selects.with_or({
+    # https://github.com/bazelbuild/bazel-skylib/blob/main/docs/selects_doc.md#selectswith_or
+    ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
+        "//src/gpu:srcs",
+        "//src/sksl:srcs",
+        # TODO(kjlubick) should mock be test only?
+        "//src/gpu:mock_srcs",
+    ],
+    "//conditions:default": [],
+}) + select_multi(
     {
         "//bazel/common_config_settings:gif_decode_codec": ["//third_party:wuffs"],
         ":needs_png": ["//third_party:libpng"],
@@ -183,14 +96,8 @@ CORE_DEPS = [] + select_multi(
     "//conditions:default": [],
 })
 
-CORE_COPTS = []
-
 cc_library(
-    name = "skia-core",
-    srcs = CORE_SRCS,
-    hdrs = CORE_HDRS,
-    copts = CORE_COPTS,
-    local_defines = CORE_DEFINES,
+    name = "skia_core",
     textual_hdrs = ["//src/sksl:txts"],
     deps = CORE_DEPS,
 )

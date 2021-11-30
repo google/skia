@@ -1,0 +1,484 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkSVGAttributeParser_hdr",
+    hdrs = ["SkSVGAttributeParser.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTypes_hdr",
+        "//include/private:SkNoncopyable_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGAttribute_hdr",
+    hdrs = ["SkSVGAttribute.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTypes_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGCircle_hdr",
+    hdrs = ["SkSVGCircle.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGShape_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGClipPath_hdr",
+    hdrs = ["SkSVGClipPath.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGHiddenContainer_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGContainer_hdr",
+    hdrs = ["SkSVGContainer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTransformableNode_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGDOM_hdr",
+    hdrs = ["SkSVGDOM.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGIDMapper_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGDefs_hdr",
+    hdrs = ["SkSVGDefs.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSVGHiddenContainer_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSVGEllipse_hdr",
+    hdrs = ["SkSVGEllipse.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGShape_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeBlend_hdr",
+    hdrs = ["SkSVGFeBlend.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeColorMatrix_hdr",
+    hdrs = ["SkSVGFeColorMatrix.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+        "//include/effects:SkColorMatrix_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeComposite_hdr",
+    hdrs = ["SkSVGFeComposite.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+        "//include/core:SkBlendMode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeDisplacementMap_hdr",
+    hdrs = ["SkSVGFeDisplacementMap.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeFlood_hdr",
+    hdrs = ["SkSVGFeFlood.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeGaussianBlur_hdr",
+    hdrs = ["SkSVGFeGaussianBlur.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeImage_hdr",
+    hdrs = ["SkSVGFeImage.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeLightSource_hdr",
+    hdrs = ["SkSVGFeLightSource.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGHiddenContainer_hdr",
+        ":SkSVGTypes_hdr",
+        "//include/core:SkPoint3_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeLighting_hdr",
+    hdrs = ["SkSVGFeLighting.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeMorphology_hdr",
+    hdrs = ["SkSVGFeMorphology.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeOffset_hdr",
+    hdrs = ["SkSVGFeOffset.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeTurbulence_hdr",
+    hdrs = ["SkSVGFeTurbulence.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGFe_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFe_hdr",
+    hdrs = ["SkSVGFe.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSVGHiddenContainer_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSVGFilterContext_hdr",
+    hdrs = ["SkSVGFilterContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTypes_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFilter_hdr",
+    hdrs = ["SkSVGFilter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGHiddenContainer_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGG_hdr",
+    hdrs = ["SkSVGG.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSVGContainer_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSVGGradient_hdr",
+    hdrs = ["SkSVGGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGHiddenContainer_hdr",
+        ":SkSVGTypes_hdr",
+        "//include/core:SkShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGHiddenContainer_hdr",
+    hdrs = ["SkSVGHiddenContainer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSVGContainer_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSVGIDMapper_hdr",
+    hdrs = ["SkSVGIDMapper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGImage_hdr",
+    hdrs = ["SkSVGImage.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTransformableNode_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGLine_hdr",
+    hdrs = ["SkSVGLine.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGShape_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGLinearGradient_hdr",
+    hdrs = ["SkSVGLinearGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGGradient_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGMask_hdr",
+    hdrs = ["SkSVGMask.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGHiddenContainer_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGNode_hdr",
+    hdrs = ["SkSVGNode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGAttributeParser_hdr",
+        ":SkSVGAttribute_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGPath_hdr",
+    hdrs = ["SkSVGPath.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGShape_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGPattern_hdr",
+    hdrs = ["SkSVGPattern.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGHiddenContainer_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGPoly_hdr",
+    hdrs = ["SkSVGPoly.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGShape_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGRadialGradient_hdr",
+    hdrs = ["SkSVGRadialGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGGradient_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGRect_hdr",
+    hdrs = ["SkSVGRect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGShape_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGRenderContext_hdr",
+    hdrs = ["SkSVGRenderContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGAttribute_hdr",
+        ":SkSVGIDMapper_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/core:SkTypes_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGSVG_hdr",
+    hdrs = ["SkSVGSVG.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGContainer_hdr",
+        ":SkSVGTypes_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGShape_hdr",
+    hdrs = ["SkSVGShape.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTransformableNode_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGStop_hdr",
+    hdrs = ["SkSVGStop.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGHiddenContainer_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGText_hdr",
+    hdrs = ["SkSVGText.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTransformableNode_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGTransformableNode_hdr",
+    hdrs = ["SkSVGTransformableNode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGNode_hdr",
+        "//include/core:SkMatrix_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGTypes_hdr",
+    hdrs = ["SkSVGTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGUse_hdr",
+    hdrs = ["SkSVGUse.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTransformableNode_hdr",
+        ":SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGValue_hdr",
+    hdrs = ["SkSVGValue.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTypes_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkNoncopyable_hdr",
+    ],
+)

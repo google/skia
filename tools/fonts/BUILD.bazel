@@ -1,0 +1,251 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "RandomScalerContext_hdr",
+    hdrs = ["RandomScalerContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypeface_hdr",
+        "//src/core:SkScalerContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RandomScalerContext_src",
+    srcs = ["RandomScalerContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":RandomScalerContext_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPath_hdr",
+        "//src/core:SkAdvancedTypefaceMetrics_hdr",
+        "//src/core:SkGlyph_hdr",
+        "//src/core:SkRectPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TestEmptyTypeface_hdr",
+    hdrs = ["TestEmptyTypeface.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//src/core:SkAdvancedTypefaceMetrics_hdr",
+        "//src/core:SkScalerContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TestFontMgr_hdr",
+    hdrs = ["TestFontMgr.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkFontMgr_hdr"],
+)
+
+generated_cc_atom(
+    name = "TestFontMgr_src",
+    srcs = ["TestFontMgr.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TestFontMgr_hdr",
+        ":TestSVGTypeface_hdr",
+        ":TestTypeface_hdr",
+        ":test_font_index_hdr",
+        ":test_font_monospace_hdr",
+        ":test_font_sans_serif_hdr",
+        ":test_font_serif_hdr",
+        "//src/core:SkFontDescriptor_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TestSVGTypeface_hdr",
+    hdrs = ["TestSVGTypeface.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontArguments_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//include/private:SkMutex_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TestSVGTypeface_src",
+    srcs = ["TestSVGTypeface.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TestSVGTypeface_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkEncodedImageFormat_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPathEffect_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPixmap_hdr",
+        "//include/core:SkRRect_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/utils:SkNoDrawCanvas_hdr",
+        "//modules/svg/include:SkSVGDOM_hdr",
+        "//modules/svg/include:SkSVGNode_hdr",
+        "//src/core:SkAdvancedTypefaceMetrics_hdr",
+        "//src/core:SkFontDescriptor_hdr",
+        "//src/core:SkFontPriv_hdr",
+        "//src/core:SkGeometry_hdr",
+        "//src/core:SkGlyph_hdr",
+        "//src/core:SkMask_hdr",
+        "//src/core:SkPaintPriv_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkPointPriv_hdr",
+        "//src/core:SkScalerContext_hdr",
+        "//src/core:SkUtils_hdr",
+        "//src/sfnt:SkOTUtils_hdr",
+        "//tools:Resources_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TestTypeface_hdr",
+    hdrs = ["TestTypeface.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontArguments_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkFixed_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TestTypeface_src",
+    srcs = ["TestTypeface.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TestTypeface_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPathBuilder_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkAdvancedTypefaceMetrics_hdr",
+        "//src/core:SkFontDescriptor_hdr",
+        "//src/core:SkFontPriv_hdr",
+        "//src/core:SkGlyph_hdr",
+        "//src/core:SkPaintPriv_hdr",
+        "//src/core:SkScalerContext_hdr",
+        "//src/core:SkUtils_hdr",
+        "//src/sfnt:SkOTUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ToolUtilsFont_src",
+    srcs = ["ToolUtilsFont.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TestFontMgr_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkMutex_hdr",
+        "//include/utils:SkCustomTypeface_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/utils:SkUTF_hdr",
+        "//tools:Resources_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "create_test_font_color_src",
+    srcs = ["create_test_font_color.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TestSVGTypeface_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "create_test_font_src",
+    srcs = ["create_test_font.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "test_font_index_hdr",
+    hdrs = ["test_font_index.inc"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "test_font_monospace_hdr",
+    hdrs = ["test_font_monospace.inc"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "test_font_sans_serif_hdr",
+    hdrs = ["test_font_sans_serif.inc"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "test_font_serif_hdr",
+    hdrs = ["test_font_serif.inc"],
+    visibility = ["//:__subpackages__"],
+)

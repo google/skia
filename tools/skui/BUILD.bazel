@@ -1,0 +1,20 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "InputState_hdr",
+    hdrs = ["InputState.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "Key_hdr",
+    hdrs = ["Key.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "ModifierKey_hdr",
+    hdrs = ["ModifierKey.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/private:SkBitmaskEnum_hdr"],
+)

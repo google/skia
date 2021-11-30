@@ -1,0 +1,119 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "ANGLEWindowContext_win_src",
+    srcs = ["ANGLEWindowContext_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_win_hdr",
+        "//include/gpu/gl:GrGLAssembleInterface_hdr",
+        "//src/gpu/gl:GrGLDefines_hdr",
+        "//tools/sk_app:GLWindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "D3D12WindowContext_win_src",
+    srcs = ["D3D12WindowContext_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_win_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu/d3d:GrD3DBackendContext_hdr",
+        "//tools/gpu/d3d:D3DTestUtils_hdr",
+        "//tools/sk_app:WindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DawnD3D12WindowContext_win_src",
+    srcs = ["DawnD3D12WindowContext_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_win_hdr",
+        "//dawn:dawn_wsi_hdr",
+        "//dawn_native:D3D12Backend_hdr",
+        "//dawn_native:DawnNative_hdr",
+        "//tools/sk_app:DawnWindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GLWindowContext_win_src",
+    srcs = ["GLWindowContext_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_win_hdr",
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//src/utils/win:SkWGL_hdr",
+        "//tools/sk_app:GLWindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RasterWindowContext_win_src",
+    srcs = ["RasterWindowContext_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_win_hdr",
+        "//include/core:SkSurface_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//tools/sk_app:RasterWindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VulkanWindowContext_win_src",
+    srcs = ["VulkanWindowContext_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_win_hdr",
+        ":Window_win_hdr",
+        "//include/gpu/vk:GrVkVulkan_hdr",
+        "//src/gpu/vk:GrVkInterface_hdr",
+        "//src/gpu/vk:GrVkUtil_hdr",
+        "//tools/gpu/vk:VkTestUtils_hdr",
+        "//tools/sk_app:VulkanWindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "WindowContextFactory_win_hdr",
+    hdrs = ["WindowContextFactory_win.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "Window_win_hdr",
+    hdrs = ["Window_win.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//tools/sk_app:Window_hdr"],
+)
+
+generated_cc_atom(
+    name = "Window_win_src",
+    srcs = ["Window_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_win_hdr",
+        ":Window_win_hdr",
+        "//include/gpu/vk:GrVkVulkan_hdr",
+        "//src/utils:SkUTF_hdr",
+        "//tools/sk_app:VulkanWindowContext_hdr",
+        "//tools/sk_app:WindowContext_hdr",
+        "//tools/skui:ModifierKey_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "main_win_src",
+    srcs = ["main_win.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Window_win_hdr",
+        "//include/core:SkTypes_hdr",
+        "//tools/sk_app:Application_hdr",
+        "//tools/timer:Timer_hdr",
+    ],
+)

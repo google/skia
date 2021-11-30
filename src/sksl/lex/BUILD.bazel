@@ -1,5 +1,17 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+cc_binary(
+    name = "sksllex",
+    deps = [
+        ":Main_src",
+        "//src/sksl/lex:NFA_src",
+        "//src/sksl/lex:RegexNode_src",
+        "//src/sksl/lex:RegexParser_src",
+        "//src/sksl/lex:TransitionTable_src",
+        "//third_party:musl_compat",
+    ],
+)
+
 generated_cc_atom(
     name = "DFAState_hdr",
     hdrs = ["DFAState.h"],

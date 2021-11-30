@@ -1,0 +1,103 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrVulkanDefines_hdr",
+    hdrs = ["GrVulkanDefines.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "VkTestContext_hdr",
+    hdrs = ["VkTestContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrVulkanDefines_hdr",
+        "//include/gpu/vk:GrVkBackendContext_hdr",
+        "//tools/gpu:TestContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VkTestContext_src",
+    srcs = ["VkTestContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":VkTestContext_hdr",
+        ":VkTestUtils_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu/vk:GrVkExtensions_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VkTestHelper_hdr",
+    hdrs = ["VkTestHelper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/gpu/vk:GrVkBackendContext_hdr",
+        "//include/gpu/vk:GrVkExtensions_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VkTestHelper_src",
+    srcs = ["VkTestHelper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":VkTestHelper_hdr",
+        ":VkTestUtils_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VkTestUtils_hdr",
+    hdrs = ["VkTestUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrVulkanDefines_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/gpu/vk:GrVkBackendContext_hdr",
+        "//include/gpu/vk:GrVkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VkTestUtils_src",
+    srcs = ["VkTestUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":VkTestUtils_hdr",
+        "//include/gpu/vk:GrVkBackendContext_hdr",
+        "//include/gpu/vk:GrVkExtensions_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//src/ports:SkOSLibrary_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VkYcbcrSamplerHelper_hdr",
+    hdrs = ["VkYcbcrSamplerHelper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VkYcbcrSamplerHelper_src",
+    srcs = ["VkYcbcrSamplerHelper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":VkYcbcrSamplerHelper_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu/vk:GrVkGpu_hdr",
+        "//src/gpu/vk:GrVkUtil_hdr",
+    ],
+)

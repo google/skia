@@ -1,5 +1,21 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+# TODO(kjlubick) make these sources dependent on target platform, as necessary
+
+cc_library(
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOpts_avx_src",
+        ":SkOpts_crc32_src",
+        ":SkOpts_hsw_src",
+        ":SkOpts_skx_src",
+        ":SkOpts_sse41_src",
+        ":SkOpts_sse42_src",
+        ":SkOpts_ssse3_src",
+    ],
+)
+
 generated_cc_atom(
     name = "Sk4px_NEON_hdr",
     hdrs = ["Sk4px_NEON.h"],

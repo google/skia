@@ -24,6 +24,7 @@ RELEASE_OPTS = [
     # which does not appear to be exposed on the emscripten toolchain.
     # "--closure 1",  # Run the closure compiler
     "-sASSERTIONS=0",  # Turn off assertions
+    "-Oz",
 ]
 
 DEBUG_OPTS = [
@@ -109,18 +110,7 @@ genrule(
     tools = ["//tools:embed_resources"],
 )
 
-CK_DEFINES = [
-    "SK_DISABLE_LEGACY_SHADERCONTEXT",
-    "SK_FORCE_8_BYTE_ALIGNMENT",  # working around https://github.com/emscripten-core/emscripten/issues/10072
-] + select({
-    "//bazel/common_config_settings:gl_backend": [
-        "SK_GL",
-        "SK_SUPPORT_GPU=1",
-    ],
-    "//conditions:default": [
-        "SK_SUPPORT_GPU=0",
-    ],
-}) + select({
+CK_DEFINES = select({
     ":enable_fonts_true": [],
     ":enable_fonts_false": ["SK_NO_FONTS"],
 })
@@ -252,6 +242,10 @@ cc_binary_with_flags(
     # wasm_cc_binary makes the canvaskit.js/canvaskit.wasm based on the actual name
     # of the executable.
     cc_binary_name = "canvaskit",
+    features = [
+        # https://github.com/emscripten-core/emsdk/blob/846f683bea839899164cdbe287f92f7ae952428e/bazel/emscripten_toolchain/crosstool.bzl#L1051
+        "emcc_debug_link",
+    ],
     linkopts = CK_OPTS,
     local_defines = CK_DEFINES,
     set_flags = {
@@ -283,7 +277,7 @@ cc_binary_with_flags(
     # headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
     deps = [
-        "//:skia-core",
+        "//:skia_core",
     ],
 )
 

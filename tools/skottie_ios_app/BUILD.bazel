@@ -1,0 +1,34 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GrContextHolder_hdr",
+    hdrs = ["GrContextHolder.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkMetalViewBridge_hdr",
+    hdrs = ["SkMetalViewBridge.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GrContextHolder_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkiaContext_hdr",
+    hdrs = ["SkiaContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkottieViewController_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkiaViewController_hdr",
+    hdrs = ["SkiaViewController.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkottieViewController_hdr",
+    hdrs = ["SkottieViewController.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkiaViewController_hdr"],
+)

@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "fm_bot_lib",
+    srcs = ["fm_bot.go"],
+    importpath = "go.skia.org/skia/tools/fm/fm_bot",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "fm_bot",
+    embed = [":fm_bot_lib"],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,24 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GLTestContext_hdr",
+    hdrs = ["GLTestContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//src/gpu/gl:GrGLUtil_hdr",
+        "//tools/gpu:TestContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GLTestContext_src",
+    srcs = ["GLTestContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GLTestContext_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/gpu/gl:GrGLUtil_hdr",
+        "//tools/gpu:GpuTimer_hdr",
+    ],
+)

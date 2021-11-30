@@ -1,0 +1,11 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "MtlTestContext_hdr",
+    hdrs = ["MtlTestContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu/mtl:GrMtlBackendContext_hdr",
+        "//tools/gpu:TestContext_hdr",
+    ],
+)

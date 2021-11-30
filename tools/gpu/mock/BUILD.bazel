@@ -1,0 +1,18 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "MockTestContext_hdr",
+    hdrs = ["MockTestContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//tools/gpu:TestContext_hdr"],
+)
+
+generated_cc_atom(
+    name = "MockTestContext_src",
+    srcs = ["MockTestContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":MockTestContext_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+    ],
+)

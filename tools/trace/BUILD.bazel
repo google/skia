@@ -1,0 +1,72 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "ChromeTracingTracer_hdr",
+    hdrs = ["ChromeTracingTracer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":EventTracingPriv_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkSpinlock_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/utils:SkEventTracer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ChromeTracingTracer_src",
+    srcs = ["ChromeTracingTracer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ChromeTracingTracer_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkThreadID_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+        "//src/utils:SkOSPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "EventTracingPriv_hdr",
+    hdrs = ["EventTracingPriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/private:SkMutex_hdr"],
+)
+
+generated_cc_atom(
+    name = "EventTracingPriv_src",
+    srcs = ["EventTracingPriv.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ChromeTracingTracer_hdr",
+        ":EventTracingPriv_hdr",
+        ":SkDebugfTracer_hdr",
+        "//include/utils:SkEventTracer_hdr",
+        "//src/core:SkATrace_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDebugfTracer_hdr",
+    hdrs = ["SkDebugfTracer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":EventTracingPriv_hdr",
+        "//include/core:SkString_hdr",
+        "//include/utils:SkEventTracer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkDebugfTracer_src",
+    srcs = ["SkDebugfTracer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkDebugfTracer_hdr",
+        "//src/core:SkTraceEvent_hdr",
+    ],
+)

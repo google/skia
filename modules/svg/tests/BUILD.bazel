@@ -1,0 +1,25 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Filters_src",
+    srcs = ["Filters.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkStream_hdr",
+        "//include/utils:SkNoDrawCanvas_hdr",
+        "//modules/svg/include:SkSVGDOM_hdr",
+        "//modules/svg/include:SkSVGNode_hdr",
+        "//tests:Test_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Text_src",
+    srcs = ["Text.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/utils:SkNoDrawCanvas_hdr",
+        "//modules/svg/src:SkSVGTextPriv_hdr",
+        "//tests:Test_hdr",
+    ],
+)

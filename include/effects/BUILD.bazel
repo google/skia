@@ -97,7 +97,6 @@ generated_cc_atom(
     hdrs = ["SkImageFilters.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkRuntimeEffect_hdr",
         "//include/core:SkBlendMode_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkImageFilter_hdr",
@@ -105,7 +104,6 @@ generated_cc_atom(
         "//include/core:SkPicture_hdr",
         "//include/core:SkRect_hdr",
         "//include/core:SkTileMode_hdr",
-        "//include/core:SkTypes_hdr",
     ],
 )
 

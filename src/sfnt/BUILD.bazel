@@ -1,5 +1,14 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+cc_library(
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkOTTable_name_src",
+        ":SkOTUtils_src",
+    ],
+)
+
 generated_cc_atom(
     name = "SkIBMFamilyClass_hdr",
     hdrs = ["SkIBMFamilyClass.h"],

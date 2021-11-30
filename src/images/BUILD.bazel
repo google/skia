@@ -1,4 +1,48 @@
-load("//bazel:macros.bzl", "generated_cc_atom")
+load("//bazel:macros.bzl", "generated_cc_atom", "select_multi")
+
+cc_library(
+    name = "core_srcs",
+    deps = [
+        ":SkImageEncoder_src",
+    ],
+)
+
+cc_library(
+    name = "jpeg_srcs",
+    deps = [
+        ":SkJPEGWriteUtility_src",
+        ":SkJpegEncoder_src",
+    ],
+)
+
+cc_library(
+    name = "png_srcs",
+    deps = [
+        ":SkPngEncoder_src",
+    ],
+)
+
+cc_library(
+    name = "webp_srcs",
+    deps = [
+        ":SkWebpEncoder_src",
+    ],
+)
+
+cc_library(
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":core_srcs",
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:jpeg_encode_codec": [":jpeg_srcs"],
+            "//bazel/common_config_settings:png_encode_codec": [":png_srcs"],
+            "//bazel/common_config_settings:webp_encode_codec": [":webp_srcs"],
+        },
+        default = [],
+    ),
+)
 
 generated_cc_atom(
     name = "SkImageEncoderFns_hdr",

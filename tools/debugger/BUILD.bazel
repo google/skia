@@ -1,0 +1,141 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "DebugCanvas_hdr",
+    hdrs = ["DebugCanvas.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DebugLayerManager_hdr",
+        ":DrawCommand_hdr",
+        "//include/core:SkCanvasVirtualEnforcer_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkVertices_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//include/private:SkTArray_hdr",
+        "//tools:UrlDataManager_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DebugCanvas_src",
+    srcs = ["DebugCanvas.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DebugCanvas_hdr",
+        ":DebugLayerManager_hdr",
+        ":DrawCommand_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/utils:SkPaintFilterCanvas_hdr",
+        "//src/core:SkCanvasPriv_hdr",
+        "//src/core:SkRectPriv_hdr",
+        "//src/gpu:GrAuditTrail_hdr",
+        "//src/gpu:GrRecordingContextPriv_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DebugLayerManager_hdr",
+    hdrs = ["DebugLayerManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DebugCanvas_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DebugLayerManager_src",
+    srcs = ["DebugLayerManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DebugCanvas_hdr",
+        ":DebugLayerManager_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawCommand_hdr",
+    hdrs = ["DrawCommand.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFlattenable_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkRRect_hdr",
+        "//include/core:SkRSXform_hdr",
+        "//include/core:SkRegion_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkVertices_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkDrawShadowInfo_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+        "//tools:UrlDataManager_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DrawCommand_src",
+    srcs = ["DrawCommand.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DebugLayerManager_hdr",
+        ":DrawCommand_hdr",
+        ":JsonWriteBuffer_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/core:SkDrawable_hdr",
+        "//include/core:SkImageFilter_hdr",
+        "//include/core:SkPathEffect_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/effects:SkDashPathEffect_hdr",
+        "//include/encode:SkPngEncoder_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/private:SkShadowFlags_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//src/core:SkCanvasPriv_hdr",
+        "//src/core:SkLatticeIter_hdr",
+        "//src/core:SkMaskFilterBase_hdr",
+        "//src/core:SkPaintDefaults_hdr",
+        "//src/core:SkPaintPriv_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkRectPriv_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/image:SkImage_Base_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "JsonWriteBuffer_hdr",
+    hdrs = ["JsonWriteBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/core:SkWriteBuffer_hdr"],
+)
+
+generated_cc_atom(
+    name = "JsonWriteBuffer_src",
+    srcs = ["JsonWriteBuffer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DrawCommand_hdr",
+        ":JsonWriteBuffer_hdr",
+    ],
+)

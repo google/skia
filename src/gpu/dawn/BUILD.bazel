@@ -137,6 +137,7 @@ generated_cc_atom(
         "//src/gpu:GrOpFlushState_hdr",
         "//src/gpu:GrPipeline_hdr",
         "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:GrStencilSettings_hdr",
         "//src/gpu:GrTexture_hdr",
         "//src/sksl:SkSLCompiler_hdr",
     ],

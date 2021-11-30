@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "interface_lib",
+    srcs = [
+        "gen_interface.go",
+        "templates.go",
+    ],
+    importpath = "go.skia.org/skia/tools/gpu/gl/interface",
+    visibility = ["//visibility:private"],
+    deps = ["@com_github_flynn_json5//:json5"],
+)
+
+go_binary(
+    name = "interface",
+    embed = [":interface_lib"],
+    visibility = ["//visibility:public"],
+)

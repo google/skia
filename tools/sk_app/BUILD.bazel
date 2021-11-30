@@ -1,0 +1,210 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Application_hdr",
+    hdrs = ["Application.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "CommandSet_hdr",
+    hdrs = ["CommandSet.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Window_hdr",
+        "//include/core:SkString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommandSet_src",
+    srcs = ["CommandSet.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommandSet_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFont_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DawnWindowContext_hdr",
+    hdrs = ["DawnWindowContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContext_hdr",
+        "//dawn:dawn_wsi_hdr",
+        "//dawn_native:DawnNative_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSurface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DawnWindowContext_src",
+    srcs = ["DawnWindowContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DawnWindowContext_hdr",
+        "//dawn:dawn_proc_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DisplayParams_hdr",
+    hdrs = ["DisplayParams.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkSurfaceProps_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GLWindowContext_hdr",
+    hdrs = ["GLWindowContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContext_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu/gl:GrGLInterface_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GLWindowContext_src",
+    srcs = ["GLWindowContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GLWindowContext_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/core:SkMathPriv_hdr",
+        "//src/gpu:GrCaps_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu/gl:GrGLDefines_hdr",
+        "//src/gpu/gl:GrGLUtil_hdr",
+        "//src/image:SkImage_Base_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GraphiteMetalWindowContext_hdr",
+    hdrs = ["GraphiteMetalWindowContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContext_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/ports:SkCFObject_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MetalWindowContext_hdr",
+    hdrs = ["MetalWindowContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContext_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/ports:SkCFObject_hdr",
+        "//include/private:GrMtlTypesPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RasterWindowContext_hdr",
+    hdrs = ["RasterWindowContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":WindowContext_hdr"],
+)
+
+generated_cc_atom(
+    name = "VulkanWindowContext_hdr",
+    hdrs = ["VulkanWindowContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContext_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/gpu/vk:GrVkBackendContext_hdr",
+        "//include/gpu/vk:GrVkVulkan_hdr",
+        "//src/gpu/vk:GrVkInterface_hdr",
+        "//tools/gpu/vk:VkTestUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VulkanWindowContext_src",
+    srcs = ["VulkanWindowContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":VulkanWindowContext_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrBackendSemaphore_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu/vk:GrVkExtensions_hdr",
+        "//include/gpu/vk:GrVkTypes_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+        "//src/gpu/vk:GrVkImage_hdr",
+        "//src/gpu/vk:GrVkUtil_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "WindowContext_hdr",
+    hdrs = ["WindowContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DisplayParams_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSurfaceProps_hdr",
+        "//include/gpu:GrTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "WindowContext_src",
+    srcs = ["WindowContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContext_hdr",
+        "//experimental/graphite/include:Context_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Window_hdr",
+    hdrs = ["Window.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DisplayParams_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//tools/skui:InputState_hdr",
+        "//tools/skui:Key_hdr",
+        "//tools/skui:ModifierKey_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Window_src",
+    srcs = ["Window.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContext_hdr",
+        ":Window_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkSurface_hdr",
+    ],
+)

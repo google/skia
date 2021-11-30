@@ -1,0 +1,25 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "TimeUtils_hdr",
+    hdrs = ["TimeUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Timer_hdr",
+    hdrs = ["Timer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkString_hdr"],
+)
+
+generated_cc_atom(
+    name = "Timer_src",
+    srcs = ["Timer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":Timer_hdr"],
+)

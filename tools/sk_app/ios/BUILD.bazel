@@ -1,0 +1,22 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "WindowContextFactory_ios_hdr",
+    hdrs = ["WindowContextFactory_ios.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Window_ios_hdr",
+        "//tools/sk_app:WindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Window_ios_hdr",
+    hdrs = ["Window_ios.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkChecksum_hdr",
+        "//src/core:SkTDynamicHash_hdr",
+        "//tools/sk_app:Window_hdr",
+    ],
+)

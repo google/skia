@@ -1,0 +1,481 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "AnimTimer_hdr",
+    hdrs = ["AnimTimer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkTime_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "BisectSlide_hdr",
+    hdrs = ["BisectSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "BisectSlide_src",
+    srcs = ["BisectSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":BisectSlide_hdr",
+        "//include/core:SkStream_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GMSlide_hdr",
+    hdrs = ["GMSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//gm:gm_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GMSlide_src",
+    srcs = ["GMSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GMSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrRecordingContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ImGuiLayer_hdr",
+    hdrs = ["ImGuiLayer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPaint_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTPin_hdr",
+        "//tools/sk_app:Window_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ImGuiLayer_src",
+    srcs = ["ImGuiLayer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ImGuiLayer_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkPixmap_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/core:SkSwizzle_hdr",
+        "//include/core:SkTime_hdr",
+        "//include/core:SkVertices_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ImageSlide_hdr",
+    hdrs = ["ImageSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkPicture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ImageSlide_src",
+    srcs = ["ImageSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ImageSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImage_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MSKPSlide_hdr",
+    hdrs = ["MSKPSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//tools:MSKPPlayer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MSKPSlide_src",
+    srcs = ["MSKPSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":MSKPSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTPin_hdr",
+        "//src/core:SkOSFile_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParticlesSlide_hdr",
+    hdrs = ["ParticlesSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/utils:SkRandom_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ParticlesSlide_src",
+    srcs = ["ParticlesSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ImGuiLayer_hdr",
+        ":ParticlesSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//modules/particles/include:SkParticleEffect_hdr",
+        "//modules/particles/include:SkParticleSerialization_hdr",
+        "//modules/particles/include:SkReflected_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/sksl/codegen:SkSLVMCodeGenerator_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//tools:Resources_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SKPSlide_hdr",
+    hdrs = ["SKPSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//include/core:SkPicture_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SKPSlide_src",
+    srcs = ["SKPSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SKPSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkStream_hdr",
+        "//src/core:SkOSFile_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SampleSlide_hdr",
+    hdrs = ["SampleSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//samplecode:Sample_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SampleSlide_src",
+    srcs = ["SampleSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SampleSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkStream_hdr",
+        "//src/core:SkOSFile_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRiveSlide_hdr",
+    hdrs = ["SkRiveSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//experimental/skrive/include:SkRive_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRiveSlide_src",
+    srcs = ["SkRiveSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkRiveSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkStream_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSlide_hdr",
+    hdrs = ["SkSLSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSlide_src",
+    srcs = ["SkSLSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLSlide_hdr",
+        ":Viewer_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//include/effects:SkPerlinNoiseShader_hdr",
+        "//src/core:SkEnumerate_hdr",
+        "//tools:Resources_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieSlide_hdr",
+    hdrs = ["SkottieSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/sksg/include:SkSGInvalidationController_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieSlide_src",
+    srcs = ["SkottieSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkottieSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkTime_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/audioplayer:SkAudioPlayer_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/skottie/utils:SkottieUtils_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//tools/timer:TimeUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SlideDir_hdr",
+    hdrs = ["SlideDir.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Slide_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SlideDir_src",
+    srcs = ["SlideDir.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SlideDir_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkCubicMap_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/sksg/include:SkSGDraw_hdr",
+        "//modules/sksg/include:SkSGGroup_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//modules/sksg/include:SkSGPlane_hdr",
+        "//modules/sksg/include:SkSGRect_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+        "//modules/sksg/include:SkSGScene_hdr",
+        "//modules/sksg/include:SkSGText_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+        "//tools/timer:TimeUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Slide_hdr",
+    hdrs = ["Slide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/core:SkString_hdr",
+        "//tools/sk_app:Window_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StatsLayer_hdr",
+    hdrs = ["StatsLayer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkString_hdr",
+        "//tools/sk_app:Window_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "StatsLayer_src",
+    srcs = ["StatsLayer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":StatsLayer_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/core:SkTime_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SvgSlide_hdr",
+    hdrs = ["SvgSlide.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":Slide_hdr"],
+)
+
+generated_cc_atom(
+    name = "SvgSlide_src",
+    srcs = ["SvgSlide.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SvgSlide_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkStream_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+        "//modules/svg/include:SkSVGDOM_hdr",
+        "//modules/svg/include:SkSVGNode_hdr",
+        "//src/utils:SkOSPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TouchGesture_hdr",
+    hdrs = ["TouchGesture.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkMatrix_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TouchGesture_src",
+    srcs = ["TouchGesture.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TouchGesture_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkTime_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Viewer_hdr",
+    hdrs = ["Viewer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":AnimTimer_hdr",
+        ":ImGuiLayer_hdr",
+        ":Slide_hdr",
+        ":StatsLayer_hdr",
+        ":TouchGesture_hdr",
+        "//gm:gm_hdr",
+        "//include/core:SkExecutor_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+        "//include/private:SkSLString_hdr",
+        "//src/core:SkScan_hdr",
+        "//src/core:SkVMBlitter_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+        "//tools/gpu:MemoryCache_hdr",
+        "//tools/sk_app:Application_hdr",
+        "//tools/sk_app:CommandSet_hdr",
+        "//tools/sk_app:Window_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Viewer_src",
+    srcs = ["Viewer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":BisectSlide_hdr",
+        ":GMSlide_hdr",
+        ":ImageSlide_hdr",
+        ":MSKPSlide_hdr",
+        ":ParticlesSlide_hdr",
+        ":SKPSlide_hdr",
+        ":SampleSlide_hdr",
+        ":SkRiveSlide_hdr",
+        ":SkSLSlide_hdr",
+        ":SkottieSlide_hdr",
+        ":SlideDir_hdr",
+        ":SvgSlide_hdr",
+        ":Viewer_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkGraphics_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/private:SkTPin_hdr",
+        "//include/private:SkTo_hdr",
+        "//include/utils:SkPaintFilterCanvas_hdr",
+        "//misc/cpp:imgui_stdlib_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkImagePriv_hdr",
+        "//src/core:SkMD5_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkScan_hdr",
+        "//src/core:SkSurfacePriv_hdr",
+        "//src/core:SkTSort_hdr",
+        "//src/core:SkTaskGroup_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+        "//src/core:SkVMBlitter_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/gpu:GrGpu_hdr",
+        "//src/gpu:GrPersistentCacheUtils_hdr",
+        "//src/gpu:GrShaderUtils_hdr",
+        "//src/gpu/ops:AtlasPathRenderer_hdr",
+        "//src/gpu/ops:TessellationPathRenderer_hdr",
+        "//src/image:SkImage_Base_hdr",
+        "//src/sksl:SkSLCompiler_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//tools:Resources_hdr",
+        "//tools:RuntimeBlendUtils_hdr",
+        "//tools:ToolUtils_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+        "//tools/flags:CommonFlags_hdr",
+        "//tools/trace:EventTracingPriv_hdr",
+    ],
+)

@@ -1,0 +1,99 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "GLWindowContext_android_src",
+    srcs = ["GLWindowContext_android.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_android_hdr",
+        "//include/gpu/gl:GrGLInterface_hdr",
+        "//tools/sk_app:GLWindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RasterWindowContext_android_src",
+    srcs = ["RasterWindowContext_android.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_android_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//tools/sk_app:RasterWindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VulkanWindowContext_android_src",
+    srcs = ["VulkanWindowContext_android.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_android_hdr",
+        "//include/gpu/vk:GrVkVulkan_hdr",
+        "//tools/gpu/vk:VkTestUtils_hdr",
+        "//tools/sk_app:VulkanWindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "WindowContextFactory_android_hdr",
+    hdrs = ["WindowContextFactory_android.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "Window_android_hdr",
+    hdrs = ["Window_android.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":surface_glue_android_hdr",
+        "//tools/sk_app:Window_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Window_android_src",
+    srcs = ["Window_android.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":WindowContextFactory_android_hdr",
+        ":Window_android_hdr",
+        "//tools/sk_app:WindowContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "main_android_src",
+    srcs = ["main_android.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//tools/sk_app:Application_hdr",
+        "//tools/timer:Timer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "surface_glue_android_hdr",
+    hdrs = ["surface_glue_android.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkString_hdr",
+        "//tools/sk_app:Application_hdr",
+        "//tools/sk_app:Window_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "surface_glue_android_src",
+    srcs = ["surface_glue_android.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Window_android_hdr",
+        ":surface_glue_android_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/utils:SkUTF_hdr",
+        "//tools:ResourceFactory_hdr",
+        "//tools/sk_app:Application_hdr",
+    ],
+)

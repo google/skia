@@ -1,6 +1,6 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
-load("@io_bazel_rules_go//go:def.bzl", "go_binary")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
 cc_binary(
     name = "bazel_test_exe",
@@ -27,6 +27,13 @@ generated_cc_atom(
 
 go_binary(
     name = "hello_world",
-    srcs = ["hello_world.go"],
+    embed = [":bazel_test_lib"],
+    visibility = ["//visibility:public"],
 )
 
+go_library(
+    name = "bazel_test_lib",
+    srcs = ["hello_world.go"],
+    importpath = "go.skia.org/skia/experimental/bazel_test",
+    visibility = ["//visibility:private"],
+)

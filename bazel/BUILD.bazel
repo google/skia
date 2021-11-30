@@ -1,1 +1,70 @@
-# Intentionally left blank
+load("//bazel:macros.bzl", "select_multi")
+
+GENERAL_DEFINES = ["SK_HAS_ANDROID_CODEC"] + select({
+    "//bazel/common_config_settings:debug_build": [
+        "SK_DEBUG",
+    ],
+    "//bazel/common_config_settings:release_build": [
+        "SK_RELEASE",
+    ],
+    "//conditions:default": [
+        "SK_RELEASE",
+    ],
+})
+
+GPU_DEFINES = select({
+    "//bazel/common_config_settings:gl_backend": [
+        "SK_GL",
+        "SK_SUPPORT_GPU=1",
+    ],
+    "//bazel/common_config_settings:vulkan_backend": [
+        "SK_VULKAN",
+        "SK_SUPPORT_GPU=1",
+    ],
+    "//conditions:default": [
+        "SK_SUPPORT_GPU=0",
+    ],
+}) + select({
+    "//bazel/common_config_settings:gl_standard": [
+        "SK_ASSUME_GL=1",
+    ],
+    "//bazel/common_config_settings:gles_standard": [
+        "SK_ASSUME_GL_ES=1",
+    ],
+    "//bazel/common_config_settings:webgl_standard": [
+        "SK_ASSUME_WEBGL=1",
+        "SK_USE_WEBGL",
+    ],
+    "//conditions:default": [],
+})
+
+CODEC_DEFINES = select_multi(
+    {
+        "//bazel/common_config_settings:gif_decode_codec": ["SK_HAS_WUFFS_LIBRARY"],
+        "//bazel/common_config_settings:jpeg_decode_codec": ["SK_CODEC_DECODES_JPEG"],
+        "//bazel/common_config_settings:jpeg_encode_codec": ["SK_ENCODE_JPEG"],
+        "//bazel/common_config_settings:png_decode_codec": ["SK_CODEC_DECODES_PNG"],
+        "//bazel/common_config_settings:png_encode_codec": ["SK_ENCODE_PNG"],
+        "//bazel/common_config_settings:raw_decode_codec": [
+            "SK_CODEC_DECODES_RAW",
+            "SK_CODEC_DECODES_JPEG",
+        ],
+        "//bazel/common_config_settings:webp_decode_codec": ["SK_CODEC_DECODES_WEBP"],
+    },
+    default = [],
+)
+
+PLATFORM_DEFINES = select({
+    "//bazel/common_config_settings:cpu_wasm": [
+        # working around https://github.com/emscripten-core/emscripten/issues/10072
+        "SK_FORCE_8_BYTE_ALIGNMENT",
+        "SK_DISABLE_LEGACY_SHADERCONTEXT",
+    ],
+    "//conditions:default": [],
+})
+
+cc_library(
+    name = "defines_from_flags",
+    defines = GENERAL_DEFINES + GPU_DEFINES + CODEC_DEFINES + PLATFORM_DEFINES,
+    visibility = ["//:__subpackages__"],
+)

@@ -1,0 +1,105 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "CommandLineFlags_hdr",
+    hdrs = ["CommandLineFlags.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkString_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommandLineFlags_src",
+    srcs = ["CommandLineFlags.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommandLineFlags_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkTSort_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommonFlagsAA_src",
+    srcs = ["CommonFlagsAA.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommonFlags_hdr",
+        "//src/core:SkScan_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommonFlagsConfig_hdr",
+    hdrs = ["CommonFlagsConfig.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommandLineFlags_hdr",
+        "//tools/gpu:GrContextFactory_hdr",
+        "//tools/graphite:ContextFactory_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommonFlagsConfig_src",
+    srcs = ["CommonFlagsConfig.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommonFlagsConfig_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkStringView_hdr",
+        "//include/core:SkSurfaceProps_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkSurfacePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommonFlagsFontMgr_src",
+    srcs = ["CommonFlagsFontMgr.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommandLineFlags_hdr",
+        ":CommonFlags_hdr",
+        "//include/ports:SkTypeface_win_hdr",
+        "//src/core:SkFontMgrPriv_hdr",
+        "//tools/fonts:TestFontMgr_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommonFlagsGpu_src",
+    srcs = ["CommonFlagsGpu.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommonFlags_hdr",
+        "//include/core:SkExecutor_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommonFlagsImages_src",
+    srcs = ["CommonFlagsImages.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommonFlags_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/utils:SkOSPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CommonFlags_hdr",
+    hdrs = ["CommonFlags.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CommandLineFlags_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)

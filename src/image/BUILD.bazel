@@ -1,4 +1,39 @@
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//bazel:macros.bzl", "generated_cc_atom")
+
+cc_library(
+    name = "core_srcs",
+    deps = [
+        ":SkImage_Lazy_src",
+        ":SkImage_Raster_src",
+        ":SkImage_src",
+        ":SkRescaleAndReadPixels_src",
+        ":SkSurface_Raster_src",
+        ":SkSurface_src",
+    ],
+)
+
+cc_library(
+    name = "gpu_srcs",
+    deps = [
+        ":SkImage_GpuBase_src",
+        ":SkImage_GpuYUVA_src",
+        ":SkImage_Gpu_src",
+        ":SkSurface_Gpu_src",
+    ],
+)
+
+cc_library(
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
+    deps = [":core_srcs"] + selects.with_or({
+        ("//bazel/common_config_settings:gl_backend", "//bazel/common_config_settings:vulkan_backend"): [
+            ":gpu_srcs",
+        ],
+        "//conditions:default": [],
+    }),
+)
 
 generated_cc_atom(
     name = "SkImage_Base_hdr",

@@ -1,5 +1,29 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+cc_library(
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkBitmapProcShader_src",
+        ":SkColorFilterShader_src",
+        ":SkColorShader_src",
+        ":SkComposeShader_src",
+        ":SkImageShader_src",
+        ":SkLocalMatrixShader_src",
+        ":SkPerlinNoiseShader_src",
+        ":SkPictureShader_src",
+        ":SkShader_src",
+        ":SkTransformShader_src",
+        "//src/shaders/gradients:Sk4fGradientBase_src",
+        "//src/shaders/gradients:Sk4fLinearGradient_src",
+        "//src/shaders/gradients:SkGradientShader_src",
+        "//src/shaders/gradients:SkLinearGradient_src",
+        "//src/shaders/gradients:SkRadialGradient_src",
+        "//src/shaders/gradients:SkSweepGradient_src",
+        "//src/shaders/gradients:SkTwoPointConicalGradient_src",
+    ],
+)
+
 generated_cc_atom(
     name = "SkBitmapProcShader_hdr",
     hdrs = ["SkBitmapProcShader.h"],

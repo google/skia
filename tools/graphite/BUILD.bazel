@@ -1,0 +1,40 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "ContextFactory_hdr",
+    hdrs = ["ContextFactory.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GraphiteTestContext_hdr",
+        "//experimental/graphite/include:GraphiteTypes_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ContextFactory_src",
+    srcs = ["ContextFactory.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ContextFactory_hdr",
+        "//experimental/graphite/include:Context_hdr",
+        "//tools/graphite/mtl:GraphiteMtlTestContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GraphiteTestContext_hdr",
+    hdrs = ["GraphiteTestContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/include:GraphiteTypes_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GraphiteTestContext_src",
+    srcs = ["GraphiteTestContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":GraphiteTestContext_hdr"],
+)

@@ -8,8 +8,8 @@
 #include "include/core/SkTypes.h"
 
 #include "tools/gpu/gl/GLTestContext.h"
-#include "AvailabilityMacros.h"
 
+#include <AvailabilityMacros.h>
 #include <OpenGL/OpenGL.h>
 #include <dlfcn.h>
 

@@ -32,6 +32,8 @@
   "hb-subset.h": "SK_GAZELLE_IGNORE TODO //third_party:harfbuzz",
   "hb.h": "SK_GAZELLE_IGNORE TODO //third_party:harfbuzz",
 
+  "imgui.h": "SK_GAZELLE_IGNORE TODO //third_party:imgui",
+
   "png.h": "//third_party:libpng",
 
   "jerror.h": "//third_party:libjpeg-turbo",
@@ -41,6 +43,8 @@
   "webp/demux.h": "//third_party:libwebp",
   "webp/encode.h": "//third_party:libwebp",
   "webp/mux.h": "//third_party:libwebp",
+
+  "microhttpd.h": "SK_GAZELLE_IGNORE TODO //third_party:microhttpd",
 
   "src/piex.h": "//third_party:piex",
 

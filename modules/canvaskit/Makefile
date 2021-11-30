@@ -150,3 +150,12 @@ bazel_canvaskit_debug:
 	mkdir build
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.js build/canvaskit.js
 	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.wasm build/canvaskit.wasm
+
+bazel_canvaskit_release:
+	# See above note about spawn_strategy
+	bazelisk build :canvaskit_wasm --compilation_mode opt --spawn_strategy=local
+	- rm -rf build/
+	mkdir build
+	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.js build/canvaskit.js
+	cp ../../bazel-bin/modules/canvaskit/canvaskit_wasm/canvaskit.wasm build/canvaskit.wasm
+	ls -l build

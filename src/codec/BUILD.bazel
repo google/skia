@@ -1,4 +1,111 @@
-load("//bazel:macros.bzl", "generated_cc_atom")
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//bazel:macros.bzl", "generated_cc_atom", "select_multi")
+
+cc_library(
+    name = "androidcodec_srcs",
+    deps = [
+        ":SkAndroidCodecAdapter_src",
+        ":SkAndroidCodec_src",
+        ":SkSampledCodec_src",
+    ],
+)
+
+cc_library(
+    name = "bmp_srcs",
+    deps = [
+        ":SkBmpBaseCodec_src",
+        ":SkBmpCodec_src",
+        ":SkBmpMaskCodec_src",
+        ":SkBmpRLECodec_src",
+        ":SkBmpStandardCodec_src",
+        ":SkWbmpCodec_src",
+    ],
+)
+
+cc_library(
+    name = "core_srcs",
+    deps = [
+        ":SkCodecImageGenerator_src",
+        ":SkCodec_src",
+        ":SkColorTable_src",
+        ":SkMaskSwizzler_src",
+        ":SkMasks_src",
+        ":SkSampler_src",
+        ":SkSwizzler_src",
+    ],
+)
+
+cc_library(
+    name = "gif_srcs",
+    deps = [
+        ":SkWuffsCodec_src",
+    ],
+)
+
+cc_library(
+    name = "jpeg_srcs",
+    deps = [
+        ":SkEncodedInfo_src",
+        ":SkJpegCodec_src",
+        ":SkJpegDecoderMgr_src",
+        ":SkJpegUtility_src",
+        ":SkParseEncodedOrigin_src",
+    ],
+)
+
+cc_library(
+    name = "png_srcs",
+    deps = [
+        ":SkEncodedInfo_src",
+        ":SkIcoCodec_src",
+        ":SkPngCodec_src",
+    ],
+)
+
+cc_library(
+    name = "raw_srcs",
+    deps = [
+        ":SkRawCodec_src",
+    ],
+)
+
+cc_library(
+    name = "webp_srcs",
+    deps = [
+        ":SkEncodedInfo_src",
+        ":SkParseEncodedOrigin_src",
+        ":SkWebpCodec_src",
+    ],
+)
+
+selects.config_setting_group(
+    name = "needs_jpeg",
+    match_any = [
+        "//bazel/common_config_settings:raw_decode_codec",
+        "//bazel/common_config_settings:jpeg_decode_codec",
+        "//bazel/common_config_settings:jpeg_encode_codec",
+    ],
+)
+
+cc_library(
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":androidcodec_srcs",
+        ":bmp_srcs",
+        ":core_srcs",
+    ] + select_multi(
+        {
+            "//bazel/common_config_settings:gif_decode_codec": [":gif_srcs"],
+            ":needs_jpeg": [":jpeg_srcs"],
+            "//bazel/common_config_settings:png_decode_codec": [":png_srcs"],
+            "//bazel/common_config_settings:raw_decode_codec": [":raw_srcs"],
+            "//bazel/common_config_settings:webp_decode_codec": [":webp_srcs"],
+        },
+        default = [],
+    ),
+)
 
 generated_cc_atom(
     name = "SkAndroidCodecAdapter_hdr",

@@ -1,0 +1,110 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+cc_binary(
+    name = "skdiff",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":skdiff_html_src",
+        ":skdiff_main_src",
+        ":skdiff_src",
+        ":skdiff_utils_src",
+        "//:skia_core",
+        "//third_party:musl_compat",
+        "//third_party:skcms",
+        "//tools:Resources_src",
+        "//tools:ToolUtils_src",
+        "//tools/flags:CommandLineFlags_src",
+        "//tools/fonts:TestFontMgr_src",
+        "//tools/fonts:TestTypeface_src",
+        "//tools/fonts:ToolUtilsFont_src",
+    ],
+)
+
+generated_cc_atom(
+    name = "skdiff_hdr",
+    hdrs = ["skdiff.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorPriv_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "skdiff_html_hdr",
+    hdrs = ["skdiff_html.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":skdiff_hdr"],
+)
+
+generated_cc_atom(
+    name = "skdiff_html_src",
+    srcs = ["skdiff_html.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":skdiff_hdr",
+        ":skdiff_html_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTime_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "skdiff_main_src",
+    srcs = ["skdiff_main.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":skdiff_hdr",
+        ":skdiff_html_hdr",
+        ":skdiff_utils_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImageEncoder_hdr",
+        "//include/core:SkPixelRef_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/core:SkTSearch_hdr",
+        "//src/utils:SkOSPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "skdiff_src",
+    srcs = ["skdiff.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":skdiff_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorPriv_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "skdiff_utils_hdr",
+    hdrs = ["skdiff_utils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":skdiff_hdr"],
+)
+
+generated_cc_atom(
+    name = "skdiff_utils_src",
+    srcs = ["skdiff_utils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":skdiff_hdr",
+        ":skdiff_utils_hdr",
+        "//include/codec:SkCodec_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImageEncoder_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypes_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)

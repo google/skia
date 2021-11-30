@@ -1,5 +1,56 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+cc_library(
+    name = "core_srcs",
+    deps = [
+        ":SkAnimCodecPlayer_src",
+        ":SkBase64_src",
+        ":SkCamera_src",
+        ":SkCanvasStack_src",
+        ":SkCanvasStateUtils_src",
+        ":SkCharToGlyphCache_src",
+        ":SkClipStackUtils_src",
+        ":SkCustomTypeface_src",
+        ":SkDashPath_src",
+        ":SkEventTracer_src",
+        ":SkFloatToDecimal_src",
+        ":SkMatrix22_src",
+        ":SkMultiPictureDocument_src",
+        ":SkNWayCanvas_src",
+        ":SkNullCanvas_src",
+        ":SkOSPath_src",
+        ":SkOrderedFontMgr_src",
+        ":SkPaintFilterCanvas_src",
+        ":SkParseColor_src",
+        ":SkParsePath_src",
+        ":SkParse_src",
+        ":SkPatchUtils_src",
+        ":SkPolyUtils_src",
+        ":SkShadowTessellator_src",
+        ":SkShadowUtils_src",
+        ":SkTextUtils_src",
+        ":SkUTF_src",
+    ],
+)
+
+cc_library(
+    name = "json_srcs",
+    deps = [
+        ":SkJSONWriter_src",
+        ":SkJSON_src",
+        ":SkShaperJSONWriter_src",
+    ],
+)
+
+# TODO(kjlubick) add selects here to allow opting in or out of things like JSON
+cc_library(
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":core_srcs",
+    ],
+)
+
 generated_cc_atom(
     name = "SkAnimCodecPlayer_src",
     srcs = ["SkAnimCodecPlayer.cpp"],

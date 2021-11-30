@@ -1,0 +1,593 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkSVGAttributeParser_src",
+    srcs = ["SkSVGAttributeParser.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTPin_hdr",
+        "//include/utils:SkParse_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGAttribute_src",
+    srcs = ["SkSVGAttribute.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//modules/svg/include:SkSVGAttribute_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSVGCircle_src",
+    srcs = ["SkSVGCircle.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//modules/svg/include:SkSVGCircle_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGClipPath_src",
+    srcs = ["SkSVGClipPath.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/svg/include:SkSVGClipPath_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGContainer_src",
+    srcs = ["SkSVGContainer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//modules/svg/include:SkSVGContainer_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGDOM_src",
+    srcs = ["SkSVGDOM.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTo_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGCircle_hdr",
+        "//modules/svg/include:SkSVGClipPath_hdr",
+        "//modules/svg/include:SkSVGDOM_hdr",
+        "//modules/svg/include:SkSVGDefs_hdr",
+        "//modules/svg/include:SkSVGEllipse_hdr",
+        "//modules/svg/include:SkSVGFeBlend_hdr",
+        "//modules/svg/include:SkSVGFeColorMatrix_hdr",
+        "//modules/svg/include:SkSVGFeComposite_hdr",
+        "//modules/svg/include:SkSVGFeDisplacementMap_hdr",
+        "//modules/svg/include:SkSVGFeFlood_hdr",
+        "//modules/svg/include:SkSVGFeGaussianBlur_hdr",
+        "//modules/svg/include:SkSVGFeImage_hdr",
+        "//modules/svg/include:SkSVGFeLightSource_hdr",
+        "//modules/svg/include:SkSVGFeLighting_hdr",
+        "//modules/svg/include:SkSVGFeMorphology_hdr",
+        "//modules/svg/include:SkSVGFeOffset_hdr",
+        "//modules/svg/include:SkSVGFeTurbulence_hdr",
+        "//modules/svg/include:SkSVGFilter_hdr",
+        "//modules/svg/include:SkSVGG_hdr",
+        "//modules/svg/include:SkSVGImage_hdr",
+        "//modules/svg/include:SkSVGLine_hdr",
+        "//modules/svg/include:SkSVGLinearGradient_hdr",
+        "//modules/svg/include:SkSVGMask_hdr",
+        "//modules/svg/include:SkSVGNode_hdr",
+        "//modules/svg/include:SkSVGPath_hdr",
+        "//modules/svg/include:SkSVGPattern_hdr",
+        "//modules/svg/include:SkSVGPoly_hdr",
+        "//modules/svg/include:SkSVGRadialGradient_hdr",
+        "//modules/svg/include:SkSVGRect_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGSVG_hdr",
+        "//modules/svg/include:SkSVGStop_hdr",
+        "//modules/svg/include:SkSVGText_hdr",
+        "//modules/svg/include:SkSVGTypes_hdr",
+        "//modules/svg/include:SkSVGUse_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+        "//src/core:SkTSearch_hdr",
+        "//src/core:SkTraceEvent_hdr",
+        "//src/xml:SkDOM_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGEllipse_src",
+    srcs = ["SkSVGEllipse.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//modules/svg/include:SkSVGEllipse_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeBlend_src",
+    srcs = ["SkSVGFeBlend.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeBlend_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeColorMatrix_src",
+    srcs = ["SkSVGFeColorMatrix.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColorFilter_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/private:SkColorData_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeColorMatrix_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeComposite_src",
+    srcs = ["SkSVGFeComposite.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeComposite_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeDisplacementMap_src",
+    srcs = ["SkSVGFeDisplacementMap.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeDisplacementMap_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeFlood_src",
+    srcs = ["SkSVGFeFlood.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGFeFlood_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeGaussianBlur_src",
+    srcs = ["SkSVGFeGaussianBlur.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeGaussianBlur_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeImage_src",
+    srcs = ["SkSVGFeImage.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkSamplingOptions_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGFeImage_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGImage_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeLightSource_src",
+    srcs = ["SkSVGFeLightSource.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeLightSource_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeLighting_src",
+    srcs = ["SkSVGFeLighting.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPoint3_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeLightSource_hdr",
+        "//modules/svg/include:SkSVGFeLighting_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeMorphology_src",
+    srcs = ["SkSVGFeMorphology.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeMorphology_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeOffset_src",
+    srcs = ["SkSVGFeOffset.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeOffset_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFeTurbulence_src",
+    srcs = ["SkSVGFeTurbulence.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//include/effects:SkPerlinNoiseShader_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFeTurbulence_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFe_src",
+    srcs = ["SkSVGFe.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGFe_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFilterContext_src",
+    srcs = ["SkSVGFilterContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColorFilter_hdr",
+        "//include/effects:SkColorMatrix_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGNode_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGFilter_src",
+    srcs = ["SkSVGFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColorFilter_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//modules/svg/include:SkSVGFe_hdr",
+        "//modules/svg/include:SkSVGFilterContext_hdr",
+        "//modules/svg/include:SkSVGFilter_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGGradient_src",
+    srcs = ["SkSVGGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTPin_hdr",
+        "//modules/svg/include:SkSVGGradient_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGStop_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGImage_src",
+    srcs = ["SkSVGImage.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImage_hdr",
+        "//modules/svg/include:SkSVGAttributeParser_hdr",
+        "//modules/svg/include:SkSVGImage_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+        "//src/utils:SkOSPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGLine_src",
+    srcs = ["SkSVGLine.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//modules/svg/include:SkSVGLine_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGLinearGradient_src",
+    srcs = ["SkSVGLinearGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkGradientShader_hdr",
+        "//modules/svg/include:SkSVGLinearGradient_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGMask_src",
+    srcs = ["SkSVGMask.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/effects:SkLumaColorFilter_hdr",
+        "//modules/svg/include:SkSVGMask_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGNode_src",
+    srcs = ["SkSVGNode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/svg/include:SkSVGNode_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGPath_src",
+    srcs = ["SkSVGPath.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/utils:SkParsePath_hdr",
+        "//modules/svg/include:SkSVGPath_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGPattern_src",
+    srcs = ["SkSVGPattern.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkShader_hdr",
+        "//modules/svg/include:SkSVGPattern_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGPoly_src",
+    srcs = ["SkSVGPoly.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//modules/svg/include:SkSVGPoly_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGRadialGradient_src",
+    srcs = ["SkSVGRadialGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/effects:SkGradientShader_hdr",
+        "//modules/svg/include:SkSVGRadialGradient_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGRect_src",
+    srcs = ["SkSVGRect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkRect_hdr",
+        "//modules/svg/include:SkSVGRect_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGRenderContext_src",
+    srcs = ["SkSVGRenderContext.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImageFilter_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/effects:SkDashPathEffect_hdr",
+        "//include/private:SkTo_hdr",
+        "//modules/svg/include:SkSVGAttribute_hdr",
+        "//modules/svg/include:SkSVGClipPath_hdr",
+        "//modules/svg/include:SkSVGFilter_hdr",
+        "//modules/svg/include:SkSVGMask_hdr",
+        "//modules/svg/include:SkSVGNode_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGSVG_src",
+    srcs = ["SkSVGSVG.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGSVG_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGShape_src",
+    srcs = ["SkSVGShape.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGShape_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGStop_src",
+    srcs = ["SkSVGStop.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTPin_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGStop_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGTextPriv_hdr",
+    hdrs = ["SkSVGTextPriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skshaper/include:SkShaper_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGText_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGText_src",
+    srcs = ["SkSVGText.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSVGTextPriv_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkContourMeasure_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPathBuilder_hdr",
+        "//include/core:SkRSXform_hdr",
+        "//include/core:SkString_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGText_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGTransformableNode_src",
+    srcs = ["SkSVGTransformableNode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGTransformableNode_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGUse_src",
+    srcs = ["SkSVGUse.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//modules/svg/include:SkSVGRenderContext_hdr",
+        "//modules/svg/include:SkSVGUse_hdr",
+        "//modules/svg/include:SkSVGValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSVGValue_src",
+    srcs = ["SkSVGValue.cpp"],
+    visibility = ["//:__subpackages__"],
+)

@@ -1,0 +1,8 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "CreatePlatformGLTestContext_none_src",
+    srcs = ["CreatePlatformGLTestContext_none.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//tools/gpu/gl:GLTestContext_hdr"],
+)

@@ -1,0 +1,173 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "BreakHandler_src",
+    srcs = ["BreakHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ClipAlphaHandler_src",
+    srcs = ["ClipAlphaHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CmdHandler_src",
+    srcs = ["CmdHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ColorModeHandler_src",
+    srcs = ["ColorModeHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DataHandler_src",
+    srcs = ["DataHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DownloadHandler_src",
+    srcs = ["DownloadHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "EnableGPUHandler_src",
+    srcs = ["EnableGPUHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ImgHandler_src",
+    srcs = ["ImgHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "InfoHandler_src",
+    srcs = ["InfoHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "OpBoundsHandler_src",
+    srcs = ["OpBoundsHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "OpsHandler_src",
+    srcs = ["OpsHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "OverdrawHandler_src",
+    srcs = ["OverdrawHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "PostHandler_src",
+    srcs = ["PostHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "QuitHandler_src",
+    srcs = ["QuitHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RootHandler_src",
+    srcs = ["RootHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":UrlHandler_hdr",
+        "//tools/skiaserve:Request_hdr",
+        "//tools/skiaserve:Response_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "UrlHandler_hdr",
+    hdrs = ["UrlHandler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkColor_hdr"],
+)

@@ -1,0 +1,61 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Request_hdr",
+    hdrs = ["Request.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//tools:UrlDataManager_hdr",
+        "//tools/debugger:DebugCanvas_hdr",
+        "//tools/gpu:GrContextFactory_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Request_src",
+    srcs = ["Request.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Request_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Response_hdr",
+    hdrs = ["Response.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "Response_src",
+    srcs = ["Response.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Request_hdr",
+        ":Response_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkString_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "skiaserve_src",
+    srcs = ["skiaserve.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Request_hdr",
+        ":Response_hdr",
+        "//include/core:SkGraphics_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+        "//tools/skiaserve/urlhandlers:UrlHandler_hdr",
+    ],
+)

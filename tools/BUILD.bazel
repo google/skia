@@ -1,68 +1,655 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
 load("@rules_python//python:defs.bzl", "py_binary")
-
-package(default_visibility = ["//:__subpackages__"])
-
-filegroup(
-    name = "cmdline",
-    srcs = [
-        "flags/CommandLineFlags.cpp",
-        "flags/CommandLineFlags.h",
-    ],
-)
-
-filegroup(
-    name = "srcs",
-    testonly = True,
-    srcs = [
-        "Registry.h",
-        "ResourceFactory.h",
-        "Resources.cpp",
-        "Resources.h",
-        "ToolUtils.cpp",
-        "ToolUtils.h",
-        "flags/CommandLineFlags.cpp",
-        "flags/CommandLineFlags.h",
-        "fonts/TestFontMgr.cpp",
-        "fonts/TestFontMgr.h",
-        "fonts/TestTypeface.cpp",
-        "fonts/TestTypeface.h",
-        "fonts/ToolUtilsFont.cpp",
-        "gpu/FenceSync.h",
-        "gpu/FlushFinishTracker.cpp",
-        "gpu/FlushFinishTracker.h",
-        "gpu/GpuTimer.h",
-        "gpu/GrContextFactory.cpp",
-        "gpu/GrContextFactory.h",
-        "gpu/TestContext.cpp",
-        "gpu/TestContext.h",
-        "gpu/gl/GLTestContext.cpp",
-        "gpu/gl/GLTestContext.h",
-        "gpu/gl/command_buffer/GLTestContext_command_buffer.h",
-        "gpu/mock/MockTestContext.h",
-    ],
-)
-
-filegroup(
-    name = "txts",
-    testonly = True,
-    srcs = [
-        "fonts/test_font_index.inc",
-        "fonts/test_font_monospace.inc",
-        "fonts/test_font_sans_serif.inc",
-        "fonts/test_font_serif.inc",
-    ],
-)
-
-filegroup(
-    name = "hash_and_encode",
-    testonly = True,
-    srcs = [
-        "HashAndEncode.cpp",
-        "HashAndEncode.h",
-    ],
-)
 
 py_binary(
     name = "embed_resources",
     srcs = ["embed_resources.py"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "AndroidSkDebugToStdOut_src",
+    srcs = ["AndroidSkDebugToStdOut.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "AutoreleasePool_hdr",
+    hdrs = ["AutoreleasePool.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "CrashHandler_hdr",
+    hdrs = ["CrashHandler.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "CrashHandler_src",
+    srcs = ["CrashHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":CrashHandler_hdr",
+        "//base:config_hdr",
+        "//base:process_state_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//src/core:SkLeanWindows_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DDLPromiseImageHelper_hdr",
+    hdrs = ["DDLPromiseImageHelper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkDeferredDisplayListRecorder_hdr",
+        "//include/core:SkPromiseImageTexture_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkYUVAPixmaps_hdr",
+        "//include/gpu:GrBackendSurface_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/core:SkCachedData_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DDLPromiseImageHelper_src",
+    srcs = ["DDLPromiseImageHelper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DDLPromiseImageHelper_hdr",
+        "//include/core:SkDeferredDisplayListRecorder_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkSerialProcs_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/gpu:GrYUVABackendTextures_hdr",
+        "//src/codec:SkCodecImageGenerator_hdr",
+        "//src/core:SkCachedData_hdr",
+        "//src/core:SkMipmap_hdr",
+        "//src/core:SkTaskGroup_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/image:SkImage_Base_hdr",
+        "//src/image:SkImage_GpuYUVA_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DDLTileHelper_hdr",
+    hdrs = ["DDLTileHelper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkDeferredDisplayList_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkSurfaceCharacterization_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DDLTileHelper_src",
+    srcs = ["DDLTileHelper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DDLPromiseImageHelper_hdr",
+        ":DDLTileHelper_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkDeferredDisplayListRecorder_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkSurfaceCharacterization_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//src/core:SkDeferredDisplayListPriv_hdr",
+        "//src/core:SkTaskGroup_hdr",
+        "//src/gpu:GrDirectContextPriv_hdr",
+        "//src/image:SkImage_Gpu_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "HashAndEncode_hdr",
+    hdrs = ["HashAndEncode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkStream_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "HashAndEncode_src",
+    srcs = ["HashAndEncode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":HashAndEncode_hdr",
+        "//include/core:SkICC_hdr",
+        "//include/core:SkString_hdr",
+        "//third_party:libpng",
+    ],
+)
+
+generated_cc_atom(
+    name = "LsanSuppressions_src",
+    srcs = ["LsanSuppressions.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "MSKPPlayer_hdr",
+    hdrs = ["MSKPPlayer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSize_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MSKPPlayer_src",
+    srcs = ["MSKPPlayer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":MSKPPlayer_hdr",
+        ":SkSharingProc_hdr",
+        "//include/core:SkCanvasVirtualEnforcer_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/gpu:GrDirectContext_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/utils:SkNoDrawCanvas_hdr",
+        "//src/core:SkCanvasPriv_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/utils:SkMultiPictureDocument_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "OverwriteLine_hdr",
+    hdrs = ["OverwriteLine.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "ProcStats_hdr",
+    hdrs = ["ProcStats.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "ProcStats_src",
+    srcs = ["ProcStats.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ProcStats_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Registry_hdr",
+    hdrs = ["Registry.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkNoncopyable_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ResourceFactory_hdr",
+    hdrs = ["ResourceFactory.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkData_hdr"],
+)
+
+generated_cc_atom(
+    name = "Resources_hdr",
+    hdrs = ["Resources.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkImage_hdr",
+        "//include/core:SkString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Resources_src",
+    srcs = ["Resources.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ResourceFactory_hdr",
+        ":Resources_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImageGenerator_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RuntimeBlendUtils_hdr",
+    hdrs = ["RuntimeBlendUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RuntimeBlendUtils_src",
+    srcs = ["RuntimeBlendUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkMetaData_hdr",
+    hdrs = ["SkMetaData.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkScalar_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkMetaData_src",
+    srcs = ["SkMetaData.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkMetaData_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSharingProc_hdr",
+    hdrs = ["SkSharingProc.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkData_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkSerialProcs_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSharingProc_src",
+    srcs = ["SkSharingProc.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSharingProc_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkSerialProcs_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Stats_hdr",
+    hdrs = ["Stats.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkString_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ToolUtils_hdr",
+    hdrs = ["ToolUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkEncodedImageFormat_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkFontTypes_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkImageEncoder_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkPixmap_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTDArray_hdr",
+        "//include/utils:SkRandom_hdr",
+        "//src/core:SkTInternalLList_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ToolUtils_src",
+    srcs = ["ToolUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ToolUtils_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkColorPriv_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPathBuilder_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkPixelRef_hdr",
+        "//include/core:SkPixmap_hdr",
+        "//include/core:SkPoint3_hdr",
+        "//include/core:SkRRect_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/ports:SkTypeface_win_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkFloatingPoint_hdr",
+        "//modules/svg/include:SkSVGDOM_hdr",
+        "//modules/svg/include:SkSVGNode_hdr",
+        "//src/core:SkFontPriv_hdr",
+        "//src/xml:SkDOM_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "UrlDataManager_hdr",
+    hdrs = ["UrlDataManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkData_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkString_hdr",
+        "//src/core:SkOpts_hdr",
+        "//src/core:SkTDynamicHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "UrlDataManager_src",
+    srcs = ["UrlDataManager.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":UrlDataManager_hdr"],
+)
+
+generated_cc_atom(
+    name = "blob_cache_sim_src",
+    srcs = ["blob_cache_sim.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//src/core:SkRemoteGlyphCache_hdr",
+        "//src/core:SkScalerContext_hdr",
+        "//src/core:SkTextBlobTrace_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "chrome_fuzz_src",
+    srcs = ["chrome_fuzz.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImageFilter_hdr",
+        "//include/core:SkString_hdr",
+        "//src/core:SkOSFile_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "convert-to-nia_src",
+    srcs = ["convert-to-nia.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/codec:SkCodec_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//src/core:SkAutoMalloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "cpu_modules_src",
+    srcs = ["cpu_modules.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//modules/particles/include:SkParticleEffect_hdr"],
+)
+
+generated_cc_atom(
+    name = "dump_record_src",
+    srcs = ["dump_record.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTime_hdr",
+        "//src/core:SkPicturePriv_hdr",
+        "//src/core:SkRecordDraw_hdr",
+        "//src/core:SkRecordOpts_hdr",
+        "//src/core:SkRecord_hdr",
+        "//src/core:SkRecorder_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "force_older_glibc_math_hdr",
+    hdrs = ["force_older_glibc_math.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "get_current_monitor_profile_src",
+    srcs = ["get_current_monitor_profile.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkStream_hdr"],
+)
+
+generated_cc_atom(
+    name = "get_images_from_skps_src",
+    srcs = ["get_images_from_skps.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/codec:SkCodec_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkColorSpace_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkSerialProcs_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkMD5_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "image_diff_metric_src",
+    srcs = ["image_diff_metric.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/codec:SkCodec_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkPixmap_hdr",
+        "//include/core:SkSize_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "imgcvt_src",
+    srcs = ["imgcvt.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/third_party/skcms:skcms_hdr",
+        "//src/core:SkColorSpacePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ios_utils_hdr",
+    hdrs = ["ios_utils.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "list_gms_src",
+    srcs = ["list_gms.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//gm:gm_hdr"],
+)
+
+generated_cc_atom(
+    name = "list_gpu_unit_tests_src",
+    srcs = ["list_gpu_unit_tests.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//tests:Test_hdr"],
+)
+
+generated_cc_atom(
+    name = "public_headers_warnings_check_src",
+    srcs = ["public_headers_warnings_check.cpp"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "random_parse_path_hdr",
+    hdrs = ["random_parse_path.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkString_hdr"],
+)
+
+generated_cc_atom(
+    name = "random_parse_path_src",
+    srcs = ["random_parse_path.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":random_parse_path_hdr",
+        "//include/utils:SkRandom_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "remote_demo_src",
+    srcs = ["remote_demo.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkGraphics_hdr",
+        "//include/core:SkSurface_hdr",
+        "//src/core:SkRemoteGlyphCache_hdr",
+        "//src/core:SkScalerContext_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "skottie2movie_src",
+    srcs = ["skottie2movie.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/ffmpeg:SkVideoEncoder_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkGraphics_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/core:SkTime_hdr",
+        "//include/gpu:GrContextOptions_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+        "//tools/gpu:GrContextFactory_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "skp_parser_src",
+    srcs = ["skp_parser.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/utils:SkNullCanvas_hdr",
+        "//tools/debugger:DebugCanvas_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "skpinfo_src",
+    srcs = ["skpinfo.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTo_hdr",
+        "//src/core:SkFontDescriptor_hdr",
+        "//src/core:SkPictureCommon_hdr",
+        "//src/core:SkPictureData_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "using_skia_and_harfbuzz_src",
+    srcs = ["using_skia_and_harfbuzz.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/docs:SkPDFDocument_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "win_dbghelp_hdr",
+    hdrs = ["win_dbghelp.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "win_dbghelp_src",
+    srcs = ["win_dbghelp.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":win_dbghelp_hdr"],
+)
+
+generated_cc_atom(
+    name = "win_lcid_src",
+    srcs = ["win_lcid.cpp"],
+    visibility = ["//:__subpackages__"],
 )

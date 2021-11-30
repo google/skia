@@ -1,0 +1,45 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Model_hdr",
+    hdrs = ["Model.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkBitmap_hdr",
+        "//include/private:SkTDArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Model_src",
+    srcs = ["Model.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Model_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPicture_hdr",
+        "//include/core:SkStream_hdr",
+        "//tools/debugger:DebugCanvas_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "main_src",
+    srcs = ["main.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":mainwindow_hdr"],
+)
+
+generated_cc_atom(
+    name = "mainwindow_hdr",
+    hdrs = ["mainwindow.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":Model_hdr"],
+)
+
+generated_cc_atom(
+    name = "mainwindow_src",
+    srcs = ["mainwindow.cpp"],
+    visibility = ["//:__subpackages__"],
+)
