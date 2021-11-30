@@ -2675,7 +2675,7 @@ public:
 
     DirectMaskSubRunSlug(Slug* slug,
                          GrMaskFormat format,
-                         const SkRect& bounds,
+                         SkGlyphRect deviceBounds,
                          SkSpan<const DevicePosition> devicePositions,
                          GlyphVector&& glyphs);
 
@@ -2721,11 +2721,15 @@ public:
                         SkIRect clip) const override;
 
 private:
+    // The rectangle that surrounds all the glyph bounding boxes in device space accounting for
+    // the drawMatrix and drawOrigin.
+    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
+
     Slug* const fSlug;
     const GrMaskFormat fMaskFormat;
 
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
-    const SkRect fGlyphDeviceBounds;
+    const SkGlyphRect fGlyphDeviceBounds;
     const SkSpan<const DevicePosition> fLeftTopDevicePos;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
@@ -2735,7 +2739,7 @@ private:
 
 DirectMaskSubRunSlug::DirectMaskSubRunSlug(Slug* slug,
                                            GrMaskFormat format,
-                                           const SkRect& deviceBounds,
+                                           SkGlyphRect deviceBounds,
                                            SkSpan<const DevicePosition> devicePositions,
                                            GlyphVector&& glyphs)
         : fSlug{slug}
@@ -2786,7 +2790,7 @@ SlugSubRunOwner DirectMaskSubRunSlug::Make(Slug* slug,
 
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     return alloc->makeUnique<DirectMaskSubRunSlug>(
-            slug, format, runBounds.rect(), leftTop,
+            slug, format, runBounds, leftTop,
             GlyphVector{std::move(strike), {glyphIDs, goodPosCount}});
 }
 
@@ -2818,8 +2822,9 @@ DirectMaskSubRunSlug::makeAtlasTextOp(const GrClip* clip,
     // We can clip geometrically using clipRect and ignore clip when an axis-aligned rectangular
     // non-AA clip is used. If clipRect is empty, and clip is nullptr, then there is no clipping
     // needed.
+    const SkRect subRunDeviceBounds = this->deviceRect(drawMatrix, drawOrigin);
     const SkRect deviceBounds = SkRect::MakeWH(sdc->width(), sdc->height());
-    auto [clipMethod, clipRect] = calculate_clip(clip, deviceBounds, fGlyphDeviceBounds);
+    auto [clipMethod, clipRect] = calculate_clip(clip, deviceBounds, subRunDeviceBounds);
 
     switch (clipMethod) {
         case kClippedOut:
@@ -2854,7 +2859,7 @@ DirectMaskSubRunSlug::makeAtlasTextOp(const GrClip* clip,
                                              op_mask_type(fMaskFormat),
                                              !noTransformNeeded,
                                              this->glyphCount(),
-                                             fGlyphDeviceBounds,
+                                             subRunDeviceBounds,
                                              geometry,
                                              std::move(grPaint));
     return {clip, std::move(op)};
@@ -2962,6 +2967,17 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
             transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
         }
     }
+}
+
+SkRect DirectMaskSubRunSlug::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
+    // Calculate the offset from the initial device origin to the current device origin.
+    SkVector offset = drawMatrix.mapPoint(drawOrigin) - fSlug->initialPositionMatrix().mapOrigin();
+
+    // The offset should be integer, but make sure.
+    SkIVector iOffset = {SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y())};
+
+    SkIRect outBounds = fGlyphDeviceBounds.iRect();
+    return SkRect::Make(outBounds.makeOffset(iOffset));
 }
 
 void Slug::processDeviceMasks(
