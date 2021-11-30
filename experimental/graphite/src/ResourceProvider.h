@@ -57,13 +57,9 @@ private:
     private:
         struct Entry;
 
-        struct DescHash {
-            uint32_t operator()(const GraphicsPipelineDesc& desc) const {
-                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
-            }
-        };
-
-        SkLRUCache<const GraphicsPipelineDesc, std::unique_ptr<Entry>, DescHash> fMap;
+        SkLRUCache<const GraphicsPipelineDesc,
+                   std::unique_ptr<Entry>,
+                   GraphicsPipelineDesc::Hash> fMap;
 
         ResourceProvider* fResourceProvider;
     };

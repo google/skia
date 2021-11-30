@@ -13,6 +13,8 @@
 #include "experimental/graphite/src/Attribute.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawTypes.h"
+#include "include/core/SkSpan.h"
+#include "include/private/SkOpts_spi.h"
 #include "include/private/SkTArray.h"
 
 #include <array>
@@ -28,16 +30,7 @@ class GraphicsPipelineDesc {
 public:
     GraphicsPipelineDesc();
 
-    // Returns this as a uint32_t array to be used as a key in the pipeline cache.
-    // TODO: Do we want to do anything here with a tuple or an SkSpan?
-    const uint32_t* asKey() const {
-        return fKey.data();
-    }
-
-    // Gets the number of bytes in asKey(). It will be a 4-byte aligned value.
-    uint32_t keyLength() const {
-        return fKey.size() * sizeof(uint32_t);
-    }
+    SkSpan<const uint32_t> asKey() const { return SkMakeSpan(fKey.data(), fKey.size()); }
 
     bool operator==(const GraphicsPipelineDesc& that) const {
         return this->fKey == that.fKey;
@@ -62,6 +55,12 @@ public:
         memcpy(fKey.data(), &addr, sizeof(uintptr_t));
         fKey[kWords - 1] = shaderCombo.key();
     }
+
+    struct Hash {
+        uint32_t operator()(const GraphicsPipelineDesc& desc) const {
+            return SkOpts::hash_fn(desc.fKey.data(), desc.fKey.size() * sizeof(uint32_t), 0);
+        }
+    };
 
 private:
     // The key is the RenderStep address and the uint32_t key from Combination

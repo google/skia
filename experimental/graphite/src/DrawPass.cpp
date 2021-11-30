@@ -24,6 +24,7 @@
 #include "experimental/graphite/src/geom/BoundsManager.h"
 
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkTBlockList.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/BufferWriter.h"
 
@@ -151,11 +152,53 @@ public:
 
 namespace {
 
-skgpu::UniformData* lookup(skgpu::Recorder* recorder, uint32_t uniformID) {
-    // TODO: just return a raw 'UniformData*' here
-    sk_sp<skgpu::UniformData> tmp = recorder->uniformCache()->lookup(uniformID);
-    return tmp.get();
-}
+class UniformBindingCache {
+public:
+    UniformBindingCache(DrawBufferManager* bufferMgr, UniformCache* cache)
+            : fBufferMgr(bufferMgr), fCache(cache) {}
+
+    uint32_t addUniforms(sk_sp<UniformData> data) {
+        if (!data) {
+            return UniformCache::kInvalidUniformID;
+        }
+
+        uint32_t index = fCache->insert(data);
+        if (fBindings.find(index) == fBindings.end()) {
+            // First time encountering this data, so upload to the GPU
+            auto [writer, bufferInfo] = fBufferMgr->getUniformWriter(data->dataSize());
+            writer.write(data->data(), data->dataSize());
+            fBindings.insert({index, bufferInfo});
+        }
+
+        return index;
+    }
+
+    BindBufferInfo getBinding(uint32_t uniformIndex) {
+        auto lookup = fBindings.find(uniformIndex);
+        SkASSERT(lookup != fBindings.end());
+        return lookup->second;
+    }
+
+private:
+    DrawBufferManager* fBufferMgr;
+    UniformCache*      fCache;
+
+    std::unordered_map<uint32_t, BindBufferInfo> fBindings;
+};
+
+// std::unordered_map implementation for GraphicsPipelineDesc* that de-reference the pointers.
+struct Hash {
+    size_t operator()(const skgpu::GraphicsPipelineDesc* desc) const noexcept {
+        return skgpu::GraphicsPipelineDesc::Hash()(*desc);
+    }
+};
+
+struct Eq {
+    bool operator()(const skgpu::GraphicsPipelineDesc* a,
+                    const skgpu::GraphicsPipelineDesc* b) const noexcept {
+        return *a == *b;
+    }
+};
 
 } // anonymous namespace
 
@@ -199,7 +242,11 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     DrawBufferManager* bufferMgr = recorder->drawBufferManager();
     UniformCache geometryUniforms;
-    std::unordered_map<uint32_t, BindBufferInfo> geometryUniformBindings;
+    UniformBindingCache geometryUniformBindings(bufferMgr, &geometryUniforms);
+    UniformBindingCache shadingUniformBindings(bufferMgr, recorder->uniformCache());
+
+    SkTBlockList<GraphicsPipelineDesc> pipelineDescs; // pointers to items will not move
+    std::unordered_map<const GraphicsPipelineDesc*, uint32_t, Hash, Eq> pipelineDescToIndex;
 
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount()); // will not exceed but may use less with occluded draws
@@ -218,7 +265,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         uint32_t shadingIndex = UniformCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
             std::tie(shader, shadingUniforms) = ExtractCombo(draw.fPaintParams.value());
-            shadingIndex = recorder->uniformCache()->insert(shadingUniforms);
+            shadingIndex = shadingUniformBindings.addUniforms(shadingUniforms);
         } // else depth-only
 
         for (int stepIndex = 0; stepIndex < draw.fRenderer.numRenderSteps(); ++stepIndex) {
@@ -235,22 +282,23 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             uint32_t geometryIndex = UniformCache::kInvalidUniformID;
             if (step->numUniforms() > 0) {
                 // TODO: Get layout from the GPU
-                sk_sp<UniformData> uniforms = step->writeUniforms(Layout::kMetal, draw.fShape);
-                geometryIndex = geometryUniforms.insert(uniforms);
-
-                // Upload the data to the GPU if it's the first time encountered
-                if (geometryUniformBindings.find(geometryIndex) == geometryUniformBindings.end()) {
-                    auto [writer, bufferInfo] = bufferMgr->getUniformWriter(uniforms->dataSize());
-                    writer.write(uniforms->data(), uniforms->dataSize());
-                    geometryUniformBindings.insert({geometryIndex, bufferInfo});
-                }
+                geometryIndex = geometryUniformBindings.addUniforms(
+                        step->writeUniforms(Layout::kMetal, draw.fShape));
             }
 
             GraphicsPipelineDesc desc;
             desc.setProgram(step, stepShader);
             uint32_t pipelineIndex = 0;
-
-            // TODO: Have a map from descriptions to uint32_ts for the SortKey
+            auto pipelineLookup = pipelineDescToIndex.find(&desc);
+            if (pipelineLookup == pipelineDescToIndex.end()) {
+                // Assign new index to first appearance of this pipeline description
+                pipelineIndex = SkTo<uint32_t>(pipelineDescs.count());
+                const GraphicsPipelineDesc& finalDesc = pipelineDescs.push_back(desc);
+                pipelineDescToIndex.insert({&finalDesc, pipelineIndex});
+            } else {
+                // Reuse the existing pipeline description for better batching after sorting
+                pipelineIndex = pipelineLookup->second;
+            }
 
             keys.push_back({&draw, stepIndex, pipelineIndex, geometryIndex, stepShadingIndex});
         }
@@ -301,7 +349,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
         // Make state changes before accumulating new draw data
         if (pipelineChange) {
-            // TODO: Look up pipeline description from key's index and record binding it
+            // TODO: Record binding of the pipeline index == key.pipeline()
             lastPipeline = key.pipeline();
             lastShadingUniforms = UniformCache::kInvalidUniformID;
             lastGeometryUniforms = UniformCache::kInvalidUniformID;
@@ -309,22 +357,16 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         if (stateChange) {
             if (key.geometryUniforms() != lastGeometryUniforms) {
                 if (key.geometryUniforms() != UniformCache::kInvalidUniformID) {
-                    auto binding = geometryUniformBindings.find(key.geometryUniforms())->second;
+                    auto binding = geometryUniformBindings.getBinding(key.geometryUniforms());
                     // TODO: Record bind 'binding' buffer + offset to kRenderStep slot
                     (void) binding;
                 }
                 lastGeometryUniforms = key.geometryUniforms();
             }
             if (key.shadingUniforms() != lastShadingUniforms) {
-                // TODO: We should not re-upload the uniforms for every draw that referenced them,
-                // they should be uploaded first time seen in the earlier loop of DrawPass::Make and
-                // then this can lookup the cached BindBufferInfo, similar to geometryUniformBinding
-                auto ud = lookup(recorder, key.shadingUniforms());
-
-                auto [writer, bufferInfo] = bufferMgr->getUniformWriter(ud->dataSize());
-                writer.write(ud->data(), ud->dataSize());
-                // TODO: recording 'bufferInfo' somewhere to allow a later uniform bind call
-
+                auto binding = shadingUniformBindings.getBinding(key.shadingUniforms());
+                // TODO: Record bind 'binding' buffer + offset to kPaint slot
+                (void) binding;
                 lastShadingUniforms = key.shadingUniforms();
             }
             if (draw.fClip.scissor() != lastScissor) {
