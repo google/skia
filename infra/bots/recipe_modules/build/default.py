@@ -337,7 +337,7 @@ def compile_fn(api, checkout_root, out_dir):
     'target_os': 'ios' if 'iOS' in extra_tokens else '',
     'win_sdk': win_toolchain + '/win_sdk' if 'Win' in os else '',
     'win_vc': win_toolchain + '/VC' if 'Win' in os else '',
-  }.iteritems():
+  }.items():
     if v:
       args[k] = '"%s"' % v
   if extra_cflags:
@@ -345,7 +345,7 @@ def compile_fn(api, checkout_root, out_dir):
   if extra_ldflags:
     args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
-  gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
+  gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.items()))
   gn = skia_dir.join('bin', 'gn')
 
   with api.context(cwd=skia_dir):

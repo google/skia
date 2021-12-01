@@ -37,7 +37,7 @@
     "cmd": [
       "python",
       "-u",
-      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['pathkit.*']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    # Because Docker usually has some strange permissions (like root\n    # ownership), we'd rather not keep those around. copyfile doesn't\n    # keep the metadata around, so that helps us.\n    shutil.copyfile(f, dst_path)\n",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['pathkit.*']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print('Copying build product %s to %s' % (f, dst_path))\n    # Because Docker usually has some strange permissions (like root\n    # ownership), we'd rather not keep those around. copyfile doesn't\n    # keep the metadata around, so that helps us.\n    shutil.copyfile(f, dst_path)\n",
       "[START_DIR]/cache/docker/pathkit",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
     ],
@@ -66,7 +66,7 @@
       "@@@STEP_LOG_LINE@python.inline@    dst_path = os.path.join(dst, os.path.relpath(f, src))@@@",
       "@@@STEP_LOG_LINE@python.inline@    if not os.path.isdir(os.path.dirname(dst_path)):@@@",
       "@@@STEP_LOG_LINE@python.inline@      os.makedirs(os.path.dirname(dst_path))@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print 'Copying build product %s to %s' % (f, dst_path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print('Copying build product %s to %s' % (f, dst_path))@@@",
       "@@@STEP_LOG_LINE@python.inline@    # Because Docker usually has some strange permissions (like root@@@",
       "@@@STEP_LOG_LINE@python.inline@    # ownership), we'd rather not keep those around. copyfile doesn't@@@",
       "@@@STEP_LOG_LINE@python.inline@    # keep the metadata around, so that helps us.@@@",

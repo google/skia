@@ -83,7 +83,7 @@ for pattern in build_products:
     dst_path = os.path.join(dst, os.path.relpath(f, src))
     if not os.path.isdir(os.path.dirname(dst_path)):
       os.makedirs(os.path.dirname(dst_path))
-    print 'Copying build product %%s to %%s' %% (f, dst_path)
+    print('Copying build product %%s to %%s' %% (f, dst_path))
     # Because Docker usually has some strange permissions (like root
     # ownership), we'd rather not keep those around. copyfile doesn't
     # keep the metadata around, so that helps us.
