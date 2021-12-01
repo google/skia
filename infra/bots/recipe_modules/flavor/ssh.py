@@ -5,7 +5,7 @@
 
 from recipe_engine import recipe_api
 
-import default
+from . import default
 
 
 """SSH flavor, used for running code on a remote device via SSH.
@@ -60,7 +60,7 @@ class SSHFlavor(default.DefaultFlavor):
     rv = self.ssh('read %s' % path,
                    'cat', path, stdout=self.m.raw_io.output(),
                    **kwargs)
-    return rv.stdout.rstrip() if rv and rv.stdout else None
+    return rv.stdout.decode('utf-8').rstrip() if rv and rv.stdout else None
 
   def remove_file_on_device(self, path):
     # use -f to silently return if path doesn't exist

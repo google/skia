@@ -36,7 +36,7 @@ class GSUtilApi(recipe_api.RecipeApi):
     cmd.extend([src, dst])
 
     name = 'upload %s' % name
-    for i in xrange(UPLOAD_ATTEMPTS):
+    for i in range(UPLOAD_ATTEMPTS):
       step_name = name
       if i > 0:
         step_name += ' (attempt %d)' % (i+1)

@@ -67,7 +67,7 @@ def compare_trees(test, a, b):
       test.assertEqual(contentsA, contentsB)
 
     # Recurse on subdirectories.
-    for prefix, obj in dcmp.subdirs.iteritems():
+    for prefix, obj in dcmp.subdirs.items():
       _cmp(prefix, obj)
 
   _cmp('', filecmp.dircmp(a, b))

@@ -8,6 +8,7 @@
 
 import calendar
 
+PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'checkout',

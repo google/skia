@@ -17,23 +17,6 @@ IMAGES = {
 }
 
 
-def py_to_gn(val):
-  """Convert val to a string that can be used as GN args."""
-  if isinstance(val, bool):
-    return 'true' if val else 'false'
-  elif isinstance(val, basestring):
-    # TODO(dogben): Handle quoting "$\
-    return '"%s"' % val
-  elif isinstance(val, (list, tuple)):
-    return '[%s]' % (','.join(py_to_gn(x) for x in val))
-  elif isinstance(val, dict):
-    gn = ' '.join(
-        '%s=%s' % (k, py_to_gn(v)) for (k, v) in sorted(val.iteritems()))
-    return gn
-  else:  # pragma: nocover
-    raise Exception('Converting %s to gn is not implemented.' % type(val))
-
-
 def compile_fn(api, checkout_root, out_dir):
   compiler = api.vars.builder_cfg.get('compiler', '')
   configuration = api.vars.builder_cfg.get('configuration', '')
@@ -86,7 +69,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   script = api.build.resource('docker-compile.sh')
   api.docker.run('Run build script in Docker', image_hash,
-                 checkout_root, out_dir, script, args=[py_to_gn(args)])
+                 checkout_root, out_dir, script, args=[util.py_to_gn(args)])
 
 def copy_build_products(api, src, dst):
   util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)

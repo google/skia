@@ -45,6 +45,7 @@ var (
 	explicitPaths = []string{
 		".clang-format",
 		".clang-tidy",
+		".vpython",
 		"bin/fetch-clang-format",
 		"bin/fetch-gn",
 		"buildtools",
