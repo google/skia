@@ -9,9 +9,11 @@
 #define skgpu_DrawPass_DEFINED
 
 #include "experimental/graphite/src/DrawTypes.h"
+#include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "src/core/SkTBlockList.h"
 
 #include <memory>
 
@@ -21,7 +23,9 @@ class BoundsManager;
 class CommandBuffer;
 class DrawList;
 class Recorder;
+class ResourceProvider;
 class TextureProxy;
+enum class UniformSlot;
 
 /**
  * DrawPass is analogous to a subpass, storing the drawing operations in the order they are stored
@@ -70,23 +74,123 @@ public:
 
     // Transform this DrawPass into commands issued to the CommandBuffer. Assumes that the buffer
     // has already begun a correctly configured render pass matching this pass's target.
-    void addCommands(CommandBuffer* buffer) const;
+    void addCommands(CommandBuffer* buffer, ResourceProvider*) const;
 
 private:
     class SortKey;
     class Drawer;
 
+    struct BindGraphicsPipeline {
+        // Points to a GraphicsPipelineDesc in DrawPass's fPipelineDescs array. It will also
+        // index into a parallel array of full GraphicsPipelines when commands are added to the CB.
+        uint32_t fPipelineIndex;
+    };
+    struct BindUniformBuffer {
+        BindBufferInfo fInfo;
+        UniformSlot fSlot;
+    };
+    struct BindDrawBuffers {
+        BindBufferInfo fVertices;
+        BindBufferInfo fInstances;
+        BindBufferInfo fIndices;
+    };
+    struct Draw {
+        PrimitiveType fType;
+        uint32_t fBaseVertex;
+        uint32_t fVertexCount;
+    };
+    struct DrawIndexed {
+        PrimitiveType fType;
+        uint32_t fBaseIndex;
+        uint32_t fIndexCount;
+        uint32_t fBaseVertex;
+    };
+    struct DrawInstanced {
+        PrimitiveType fType;
+        uint32_t fBaseVertex;
+        uint32_t fVertexCount;
+        uint32_t fBaseInstance;
+        uint32_t fInstanceCount;
+    };
+    struct DrawIndexedInstanced {
+        PrimitiveType fType;
+        uint32_t fBaseIndex;
+        uint32_t fIndexCount;
+        uint32_t fBaseVertex;
+        uint32_t fBaseInstance;
+        uint32_t fInstanceCount;
+    };
+    struct SetScissor {
+        SkIRect fScissor;
+    };
+
+    // TODO: BindSampler
+
+    enum class CommandType {
+        kBindGraphicsPipeline,
+        kBindUniformBuffer,
+        kBindDrawBuffers,
+        kDraw,
+        kDrawIndexed,
+        kDrawInstanced,
+        kDrawIndexedInstanced,
+        kSetScissor,
+        // kBindSampler
+    };
+    // TODO: The goal is keep all command data in line, vs. type + void* to another data array, but
+    // the current union is memory inefficient. It would be better to have a byte buffer with per
+    // type advances, but then we need to work out alignment etc. so that will be easier to add
+    // once we have something up and running.
+    struct Command {
+        CommandType fType;
+        union {
+            BindGraphicsPipeline fBindGraphicsPipeline;
+            BindUniformBuffer    fBindUniformBuffer;
+            BindDrawBuffers      fBindDrawBuffers;
+            Draw                 fDraw;
+            DrawIndexed          fDrawIndexed;
+            DrawInstanced        fDrawInstanced;
+            DrawIndexedInstanced fDrawIndexedInstanced;
+            SetScissor           fSetScissor;
+        };
+
+        explicit Command(BindGraphicsPipeline d)
+                : fType(CommandType::kBindGraphicsPipeline), fBindGraphicsPipeline(d) {}
+        explicit Command(BindUniformBuffer d)
+                : fType(CommandType::kBindUniformBuffer), fBindUniformBuffer(d) {}
+        explicit Command(BindDrawBuffers d)
+                : fType(CommandType::kBindDrawBuffers), fBindDrawBuffers(d) {}
+        explicit Command(Draw d)
+                : fType(CommandType::kDraw), fDraw(d) {}
+        explicit Command(DrawIndexed d)
+                : fType(CommandType::kDrawIndexed), fDrawIndexed(d) {}
+        explicit Command(DrawInstanced d)
+                : fType(CommandType::kDrawInstanced), fDrawInstanced(d) {}
+        explicit Command(DrawIndexedInstanced d)
+                : fType(CommandType::kDrawIndexedInstanced), fDrawIndexedInstanced(d) {}
+        explicit Command(SetScissor d)
+                : fType(CommandType::kSetScissor), fSetScissor(d) {}
+    };
+    // Not strictly necessary, but keeping Command trivially destructible means the command list
+    // can be cleaned up efficiently once it's converted to a command buffer.
+    static_assert(std::is_trivially_destructible<Command>::value);
+
     DrawPass(sk_sp<TextureProxy> target,
-             const SkIRect& bounds,
              std::pair<LoadOp, StoreOp> ops,
              std::array<float, 4> clearColor,
-             bool requiresStencil,
-             bool requiresMSAA);
+             int renderStepCount);
+
+    SkTBlockList<Command, 32> fCommands;
+    // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into a
+    // an array of actual GraphicsPipelines. fPipelineDescs only needs to accumulate encountered
+    // GraphicsPipelineDescs and provide stable pointers, hence SkTBlockList.
+    SkTBlockList<GraphicsPipelineDesc, 32> fPipelineDescs;
 
     sk_sp<TextureProxy> fTarget;
     SkIRect             fBounds;
+
     std::pair<LoadOp, StoreOp> fOps;
-    std::array<float, 4> fClearColor;
+    std::array<float, 4>       fClearColor;
 
     bool fRequiresStencil;
     bool fRequiresMSAA;

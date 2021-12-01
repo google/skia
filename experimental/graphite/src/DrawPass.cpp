@@ -15,9 +15,11 @@
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawWriter.h"
+#include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Recorder.h"
 #include "experimental/graphite/src/Renderer.h"
+#include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/UniformCache.h"
 #include "experimental/graphite/src/UniformManager.h"
@@ -116,36 +118,41 @@ private:
 
 class DrawPass::Drawer final : public DrawDispatcher {
 public:
-    Drawer() {}
+    Drawer(DrawPass* drawPass) : fPass(drawPass) {}
     ~Drawer() override = default;
 
     void bindDrawBuffers(BindBufferInfo vertexAttribs,
                          BindBufferInfo instanceAttribs,
                          BindBufferInfo indices) override {
-        // TODO: Actually record bind vertex buffers struct into DrawPass' command list
+        fPass->fCommands.emplace_back(BindDrawBuffers{vertexAttribs, instanceAttribs, indices});
     }
 
     void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) override {
-        // TODO: Actually record draw struct into DrawPass' command list
+        fPass->fCommands.emplace_back(Draw{type, baseVertex, vertexCount});
     }
 
     void drawIndexed(PrimitiveType type, unsigned int baseIndex,
                      unsigned int indexCount, unsigned int baseVertex) override {
-        // TODO: Actually record draw struct into DrawPass' command list
+        fPass->fCommands.emplace_back(DrawIndexed{type, baseIndex, indexCount, baseVertex});
     }
 
     void drawInstanced(PrimitiveType type,
                        unsigned int baseVertex, unsigned int vertexCount,
                        unsigned int baseInstance, unsigned int instanceCount) override {
-        // TODO: Actually record draw struct into DrawPass' command list
+        fPass->fCommands.emplace_back(DrawInstanced{type, baseVertex, vertexCount,
+                                                    baseInstance, instanceCount});
     }
 
     void drawIndexedInstanced(PrimitiveType type,
                               unsigned int baseIndex, unsigned int indexCount,
                               unsigned int baseVertex, unsigned int baseInstance,
                               unsigned int instanceCount) override {
-        // TODO: Actually record draw struct into DrawPass' command list
+        fPass->fCommands.emplace_back(DrawIndexedInstanced{type, baseIndex, indexCount, baseVertex,
+                                                           baseInstance, instanceCount});
     }
+
+private:
+    DrawPass* fPass;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,15 +209,22 @@ struct Eq {
 
 } // anonymous namespace
 
-DrawPass::DrawPass(sk_sp<TextureProxy> target, const SkIRect& bounds,
-                   std::pair<LoadOp, StoreOp> ops, std::array<float, 4> clearColor,
-                   bool requiresStencil, bool requiresMSAA)
-        : fTarget(std::move(target))
-        , fBounds(bounds)
+DrawPass::DrawPass(sk_sp<TextureProxy> target,
+                   std::pair<LoadOp, StoreOp> ops,
+                   std::array<float, 4> clearColor,
+                   int renderStepCount)
+        : fCommands(std::max(1, renderStepCount / 4), SkBlockAllocator::GrowthPolicy::kFibonacci)
+        , fTarget(std::move(target))
+        , fBounds(SkIRect::MakeEmpty())
         , fOps(ops)
         , fClearColor(clearColor)
-        , fRequiresStencil(requiresStencil)
-        , fRequiresMSAA(requiresMSAA) {}
+        , fRequiresStencil(false)
+        , fRequiresMSAA(false) {
+    // TODO: Tune this estimate and the above "itemPerBlock" value for the command buffer sequence
+    // After merging, etc. one pipeline per recorded draw+step combo is likely unnecessary.
+    fPipelineDescs.reserve(renderStepCount);
+    fCommands.reserve(renderStepCount);
+}
 
 DrawPass::~DrawPass() = default;
 
@@ -236,8 +250,11 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // than an 8 byte key and unmodified pointer.
     static_assert(sizeof(DrawPass::SortKey) == 16 + sizeof(void*));
 
-    bool requiresStencil = false;
-    bool requiresMSAA = false;
+    // The DrawList is converted directly into the DrawPass' data structures, but once the DrawPass
+    // is returned from Make(), it is considered immutable.
+    std::unique_ptr<DrawPass> drawPass(new DrawPass(std::move(target), ops, clearColor,
+                                                    draws->renderStepCount()));
+
     Rect passBounds = Rect::InfiniteInverted();
 
     DrawBufferManager* bufferMgr = recorder->drawBufferManager();
@@ -245,7 +262,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     UniformBindingCache geometryUniformBindings(bufferMgr, &geometryUniforms);
     UniformBindingCache shadingUniformBindings(bufferMgr, recorder->uniformCache());
 
-    SkTBlockList<GraphicsPipelineDesc> pipelineDescs; // pointers to items will not move
     std::unordered_map<const GraphicsPipelineDesc*, uint32_t, Hash, Eq> pipelineDescToIndex;
 
     std::vector<SortKey> keys;
@@ -292,8 +308,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             auto pipelineLookup = pipelineDescToIndex.find(&desc);
             if (pipelineLookup == pipelineDescToIndex.end()) {
                 // Assign new index to first appearance of this pipeline description
-                pipelineIndex = SkTo<uint32_t>(pipelineDescs.count());
-                const GraphicsPipelineDesc& finalDesc = pipelineDescs.push_back(desc);
+                pipelineIndex = SkTo<uint32_t>(drawPass->fPipelineDescs.count());
+                const GraphicsPipelineDesc& finalDesc = drawPass->fPipelineDescs.push_back(desc);
                 pipelineDescToIndex.insert({&finalDesc, pipelineIndex});
             } else {
                 // Reuse the existing pipeline description for better batching after sorting
@@ -304,8 +320,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         }
 
         passBounds.join(draw.fClip.drawBounds());
-        requiresStencil |= draw.fRenderer.requiresStencil();
-        requiresMSAA |= draw.fRenderer.requiresMSAA();
+        drawPass->fRequiresStencil |= draw.fRenderer.requiresStencil();
+        drawPass->fRequiresMSAA |= draw.fRenderer.requiresMSAA();
     }
 
     // TODO: Explore sorting algorithms; in all likelihood this will be mostly sorted already, so
@@ -318,7 +334,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     std::sort(keys.begin(), keys.end());
 
     // Used to record vertex/instance data, buffer binds, and draw calls
-    Drawer drawer;
+    Drawer drawer(drawPass.get());
     DrawWriter drawWriter(&drawer, bufferMgr);
 
     // Used to track when a new pipeline or dynamic state needs recording between draw steps.
@@ -326,7 +342,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     uint32_t lastPipeline = draws->renderStepCount();
     uint32_t lastShadingUniforms = UniformCache::kInvalidUniformID;
     uint32_t lastGeometryUniforms = UniformCache::kInvalidUniformID;
-    SkIRect lastScissor = SkIRect::MakeSize(target->dimensions());
+    SkIRect lastScissor = SkIRect::MakeSize(drawPass->fTarget->dimensions());
 
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = *key.draw();
@@ -349,7 +365,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
         // Make state changes before accumulating new draw data
         if (pipelineChange) {
-            // TODO: Record binding of the pipeline index == key.pipeline()
+            drawPass->fCommands.emplace_back(BindGraphicsPipeline{key.pipeline()});
             lastPipeline = key.pipeline();
             lastShadingUniforms = UniformCache::kInvalidUniformID;
             lastGeometryUniforms = UniformCache::kInvalidUniformID;
@@ -358,19 +374,22 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             if (key.geometryUniforms() != lastGeometryUniforms) {
                 if (key.geometryUniforms() != UniformCache::kInvalidUniformID) {
                     auto binding = geometryUniformBindings.getBinding(key.geometryUniforms());
-                    // TODO: Record bind 'binding' buffer + offset to kRenderStep slot
-                    (void) binding;
+                    drawPass->fCommands.emplace_back(
+                            BindUniformBuffer{binding, UniformSlot::kRenderStep});
                 }
                 lastGeometryUniforms = key.geometryUniforms();
             }
             if (key.shadingUniforms() != lastShadingUniforms) {
-                auto binding = shadingUniformBindings.getBinding(key.shadingUniforms());
-                // TODO: Record bind 'binding' buffer + offset to kPaint slot
-                (void) binding;
+                if (key.shadingUniforms() != UniformCache::kInvalidUniformID) {
+                    auto binding = shadingUniformBindings.getBinding(key.shadingUniforms());
+                    drawPass->fCommands.emplace_back(
+                            BindUniformBuffer{binding, UniformSlot::kPaint});
+                }
                 lastShadingUniforms = key.shadingUniforms();
             }
             if (draw.fClip.scissor() != lastScissor) {
-                // TODO: Record new scissor rectangle
+                drawPass->fCommands.emplace_back(SetScissor{draw.fClip.scissor()});
+                lastScissor = draw.fClip.scissor();
             }
         }
 
@@ -380,14 +399,63 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     drawWriter.flush();
 
     passBounds.roundOut();
-    SkIRect pxPassBounds = SkIRect::MakeLTRB((int) passBounds.left(), (int) passBounds.top(),
-                                             (int) passBounds.right(), (int) passBounds.bot());
-    return std::unique_ptr<DrawPass>(new DrawPass(std::move(target), pxPassBounds, ops, clearColor,
-                                                  requiresStencil, requiresMSAA));
+    drawPass->fBounds = SkIRect::MakeLTRB((int) passBounds.left(), (int) passBounds.top(),
+                                          (int) passBounds.right(), (int) passBounds.bot());
+    return drawPass;
 }
 
-void DrawPass::addCommands(CommandBuffer* buffer) const {
-    // TODO
+void DrawPass::addCommands(CommandBuffer* buffer, ResourceProvider* resourceProvider) const {
+    // TODO: Validate RenderPass state against DrawPass's target and requirements?
+    // Generate actual GraphicsPipeline objects combining the target-level properties and each of
+    // the GraphicsPipelineDesc's referenced in this DrawPass.
+
+    // Use a vector instead of SkTBlockList for the full pipelines so that random access is fast.
+    std::vector<sk_sp<GraphicsPipeline>> fullPipelines;
+    fullPipelines.reserve(fPipelineDescs.count());
+    for (const GraphicsPipelineDesc& desc : fPipelineDescs.items()) {
+        fullPipelines.push_back(resourceProvider->findOrCreateGraphicsPipeline(desc));
+    }
+
+    for (const Command& c : fCommands.items()) {
+        switch(c.fType) {
+            case CommandType::kBindGraphicsPipeline: {
+                auto& d = c.fBindGraphicsPipeline;
+                buffer->bindGraphicsPipeline(fullPipelines[d.fPipelineIndex]);
+                break; }
+            case CommandType::kBindUniformBuffer: {
+                auto& d = c.fBindUniformBuffer;
+                buffer->bindUniformBuffer(d.fSlot, sk_ref_sp(d.fInfo.fBuffer), d.fInfo.fOffset);
+                break; }
+            case CommandType::kBindDrawBuffers: {
+                auto& d = c.fBindDrawBuffers;
+                buffer->bindDrawBuffers(d.fVertices, d.fInstances, d.fIndices);
+                break; }
+            case CommandType::kDraw: {
+                auto& d = c.fDraw;
+                buffer->draw(d.fType, d.fBaseVertex, d.fVertexCount);
+                break; }
+            case CommandType::kDrawIndexed: {
+                auto& d = c.fDrawIndexed;
+                buffer->drawIndexed(d.fType, d.fBaseIndex, d.fIndexCount, d.fBaseVertex);
+                break; }
+            case CommandType::kDrawInstanced: {
+                auto& d = c.fDrawInstanced;
+                buffer->drawInstanced(d.fType, d.fBaseVertex, d.fVertexCount,
+                                      d.fBaseInstance, d.fInstanceCount);
+                break; }
+            case CommandType::kDrawIndexedInstanced: {
+                auto& d = c.fDrawIndexedInstanced;
+                buffer->drawIndexedInstanced(d.fType, d.fBaseIndex, d.fIndexCount, d.fBaseVertex,
+                                             d.fBaseInstance, d.fInstanceCount);
+                break; }
+            case CommandType::kSetScissor: {
+                auto& d = c.fSetScissor;
+                buffer->setScissor(d.fScissor.fLeft, d.fScissor.fTop,
+                                   d.fScissor.fRight, d.fScissor.fBottom);
+                break;
+            }
+        }
+    }
 }
 
 } // namespace skgpu
