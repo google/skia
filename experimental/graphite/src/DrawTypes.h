@@ -219,6 +219,13 @@ struct BindBufferInfo {
     size_t fOffset = 0;
 
     operator bool() const { return SkToBool(fBuffer); }
+
+    bool operator==(const BindBufferInfo& o) const {
+        return fBuffer == o.fBuffer && (!fBuffer || fOffset == o.fOffset);
+    }
+    bool operator!=(const BindBufferInfo& o) const {
+        return !(*this == o);
+    }
 };
 
 };  // namespace skgpu
