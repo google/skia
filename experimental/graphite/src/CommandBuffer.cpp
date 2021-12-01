@@ -40,17 +40,18 @@ void CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     if (depthStencilTexture) {
         this->trackResource(std::move(depthStencilTexture));
     }
+#ifdef SK_DEBUG
     if (renderPassDesc.fColorAttachment.fLoadOp == LoadOp::kClear &&
         (renderPassDesc.fColorAttachment.fStoreOp == StoreOp::kStore ||
          renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore)) {
         fHasWork = true;
     }
+#endif
 }
 
 void CommandBuffer::bindGraphicsPipeline(sk_sp<GraphicsPipeline> graphicsPipeline) {
     this->onBindGraphicsPipeline(graphicsPipeline.get());
     this->trackResource(std::move(graphicsPipeline));
-    fHasWork = true;
 }
 
 void CommandBuffer::bindUniformBuffer(UniformSlot slot,
@@ -58,7 +59,6 @@ void CommandBuffer::bindUniformBuffer(UniformSlot slot,
                                       size_t offset) {
     this->onBindUniformBuffer(slot, uniformBuffer.get(), offset);
     this->trackResource(std::move(uniformBuffer));
-    fHasWork = true;
 }
 
 void CommandBuffer::bindVertexBuffers(sk_sp<Buffer> vertexBuffer, size_t vertexOffset,
@@ -71,7 +71,6 @@ void CommandBuffer::bindVertexBuffers(sk_sp<Buffer> vertexBuffer, size_t vertexO
     if (instanceBuffer) {
         this->trackResource(std::move(instanceBuffer));
     }
-    fHasWork = true;
 }
 
 void CommandBuffer::bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffset) {
@@ -79,7 +78,6 @@ void CommandBuffer::bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffs
     if (indexBuffer) {
         this->trackResource(std::move(indexBuffer));
     }
-    fHasWork = true;
 }
 
 void CommandBuffer::bindDrawBuffers(BindBufferInfo vertices,
@@ -112,7 +110,7 @@ void CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
     this->trackResource(std::move(texture));
     this->trackResource(std::move(buffer));
 
-    fHasWork = true;
+    SkDEBUGCODE(fHasWork = true;)
 }
 
 } // namespace skgpu

@@ -52,9 +52,7 @@ bool Gpu::submit(sk_sp<CommandBuffer> commandBuffer) {
         return false;
     }
 
-    if (!commandBuffer->hasWork()) {
-        return true;
-    }
+    SkDEBUGCODE(if (!commandBuffer->hasWork()) SkDebugf("Submitting empty command buffer!\n");)
 
     return this->onSubmit(std::move(commandBuffer));
 }
