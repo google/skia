@@ -552,7 +552,9 @@ optional("fontmgr_win") {
     "src/fonts/SkFontMgr_indirect.cpp",
     "src/ports/SkFontMgr_win_dw.cpp",
     "src/ports/SkScalerContext_win_dw.cpp",
+    "src/ports/SkScalerContext_win_dw.h",
     "src/ports/SkTypeface_win_dw.cpp",
+    "src/ports/SkTypeface_win_dw.h",
   ]
 }
 optional("fontmgr_win_factory") {

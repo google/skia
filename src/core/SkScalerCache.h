@@ -64,7 +64,7 @@ public:
 
     // If the path has never been set, then add a path to glyph.
     std::tuple<const SkPath*, size_t> mergePath(
-            SkGlyph* glyph, const SkPath* path) SK_EXCLUDES(fMu);
+            SkGlyph* glyph, const SkPath* path, bool hairline) SK_EXCLUDES(fMu);
 
     /** Return the number of glyphs currently cached. */
     int countCachedGlyphs() const SK_EXCLUDES(fMu);

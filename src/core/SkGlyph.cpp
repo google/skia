@@ -117,6 +117,8 @@ size_t SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
         if (from.fImage != nullptr && this->setImage(alloc, from.image())) {
             return this->imageSize();
         }
+
+        SkDEBUGCODE(fAdvancesBoundsFormatAndInitialPathDone = from.fAdvancesBoundsFormatAndInitialPathDone;)
     }
     return 0;
 }
@@ -141,7 +143,7 @@ size_t SkGlyph::imageSize() const {
     return size;
 }
 
-void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path) {
+void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline) {
     SkASSERT(fPathData == nullptr);
     SkASSERT(!this->setPathHasBeenCalled());
     fPathData = alloc->make<SkGlyph::PathData>();
@@ -150,26 +152,23 @@ void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path) {
         fPathData->fPath.updateBoundsCache();
         fPathData->fPath.getGenerationID();
         fPathData->fHasPath = true;
+        fPathData->fHairline = hairline;
     }
 }
 
 bool SkGlyph::setPath(SkArenaAlloc* alloc, SkScalerContext* scalerContext) {
     if (!this->setPathHasBeenCalled()) {
-        SkPath path;
-        if (scalerContext->getPath(this->getPackedID(), &path)) {
-            this->installPath(alloc, &path);
-        } else {
-            this->installPath(alloc, nullptr);
-        }
+        scalerContext->getPath(*this, alloc);
+        SkASSERT(this->setPathHasBeenCalled());
         return this->path() != nullptr;
     }
 
     return false;
 }
 
-bool SkGlyph::setPath(SkArenaAlloc* alloc, const SkPath* path) {
+bool SkGlyph::setPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline) {
     if (!this->setPathHasBeenCalled()) {
-        this->installPath(alloc, path);
+        this->installPath(alloc, path, hairline);
         return this->path() != nullptr;
     }
     return false;
@@ -182,6 +181,12 @@ const SkPath* SkGlyph::path() const {
         return &fPathData->fPath;
     }
     return nullptr;
+}
+
+bool SkGlyph::pathIsHairline() const {
+    // setPath must have been called previously.
+    SkASSERT(this->setPathHasBeenCalled());
+    return fPathData->fHairline;
 }
 
 static std::tuple<SkScalar, SkScalar> calculate_path_gap(

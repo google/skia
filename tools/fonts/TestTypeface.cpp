@@ -170,7 +170,7 @@ protected:
         return true;
     }
 
-    void generateMetrics(SkGlyph* glyph) override {
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
         glyph->zeroMetrics();
         this->generateAdvance(glyph);
         // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
@@ -178,8 +178,8 @@ protected:
 
     void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }
 
-    bool generatePath(SkGlyphID glyph, SkPath* path) override {
-        *path = this->getTestTypeface()->getPath(glyph).makeTransform(fMatrix);
+    bool generatePath(const SkGlyph& glyph, SkPath* path) override {
+        *path = this->getTestTypeface()->getPath(glyph.getGlyphID()).makeTransform(fMatrix);
         return true;
     }
 

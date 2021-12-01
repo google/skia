@@ -55,8 +55,8 @@ public:
         return glyph;
     }
 
-    const SkPath* mergePath(SkGlyph* glyph, const SkPath* path) {
-        auto [glyphPath, increase] = fScalerCache.mergePath(glyph, path);
+    const SkPath* mergePath(SkGlyph* glyph, const SkPath* path, bool hairline) {
+        auto [glyphPath, increase] = fScalerCache.mergePath(glyph, path, hairline);
         this->updateDelta(increase);
         return glyphPath;
     }
