@@ -48,13 +48,14 @@ protected:
     void onDraw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorGRAY);
-        SkScalar y = 0;
+        SkPaint paint;
+        paint.setColor(SK_ColorCYAN);
 
+        SkScalar y = 0;
         for (const auto& typeface: typefaces) {
             SkFont font(typeface);
             font.setEdging(SkFont::Edging::kAlias);
 
-            SkPaint paint;
             const char*   text = ToolUtils::emoji_sample_text();
             SkFontMetrics metrics;
 
@@ -63,11 +64,20 @@ protected:
                 font.getMetrics(&metrics);
                 // All typefaces should support subpixel mode
                 font.setSubpixel(true);
+
                 y += -metrics.fAscent;
 
-                canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8,
-                                       10, y, font, paint);
+                SkScalar x = 0;
+                for (bool fakeBold : { false, true }) {
+                    font.setEmbolden(fakeBold);
+                    SkRect bounds;
+                    font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds, &paint);
+                    canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8,
+                                           x + bounds.left(), y, font, paint);
+                    x += bounds.width() * 1.2;
+                }
                 y += metrics.fDescent + metrics.fLeading;
+                x = 0;
             }
         }
     }

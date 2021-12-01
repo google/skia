@@ -548,6 +548,9 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
 }
 
 bool SkScalerContext_DW::isColorGlyph(const SkGlyph& glyph) {
+    // One would think that with newer DirectWrite that this could be like isPngGlyph
+    // except test for DWRITE_GLYPH_IMAGE_FORMATS_COLR, but that doesn't seem to work.
+
     SkTScopedComPtr<IDWriteColorGlyphRunEnumerator> colorLayer;
     return getColorGlyphRun(glyph, &colorLayer);
 }
@@ -593,10 +596,10 @@ bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
     return true;
 }
 
-void SkScalerContext_DW::generateColorMetrics(SkGlyph* glyph) {
+bool SkScalerContext_DW::generateColorMetrics(SkGlyph* glyph) {
     SkTScopedComPtr<IDWriteColorGlyphRunEnumerator> colorLayers;
     if (!getColorGlyphRun(*glyph, &colorLayers)) {
-        return;
+        return false;
     }
     SkASSERT(colorLayers.get());
 
@@ -604,15 +607,15 @@ void SkScalerContext_DW::generateColorMetrics(SkGlyph* glyph) {
     BOOL hasNextRun = FALSE;
     while (SUCCEEDED(colorLayers->MoveNext(&hasNextRun)) && hasNextRun) {
         const DWRITE_COLOR_GLYPH_RUN* colorGlyph;
-        HRVM(colorLayers->GetCurrentRun(&colorGlyph), "Could not get current color glyph run");
+        HRBM(colorLayers->GetCurrentRun(&colorGlyph), "Could not get current color glyph run");
 
         SkPath path;
         SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
-        HRVM(SkDWriteGeometrySink::Create(&path, &geometryToPath),
+        HRBM(SkDWriteGeometrySink::Create(&path, &geometryToPath),
             "Could not create geometry to path converter.");
         {
             Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
-            HRVM(colorGlyph->glyphRun.fontFace->GetGlyphRunOutline(
+            HRBM(colorGlyph->glyphRun.fontFace->GetGlyphRunOutline(
                     colorGlyph->glyphRun.fontEmSize,
                     colorGlyph->glyphRun.glyphIndices,
                     colorGlyph->glyphRun.glyphAdvances,
@@ -638,6 +641,7 @@ void SkScalerContext_DW::generateColorMetrics(SkGlyph* glyph) {
     glyph->fHeight = ibounds.fBottom - ibounds.fTop;
     glyph->fLeft = ibounds.fLeft;
     glyph->fTop = ibounds.fTop;
+    return true;
 }
 
 namespace {
@@ -657,15 +661,14 @@ static void ReleaseProc(const void* ptr, void* context) {
 }
 }
 
-void SkScalerContext_DW::generatePngMetrics(SkGlyph* glyph) {
+bool SkScalerContext_DW::generatePngMetrics(SkGlyph* glyph) {
     SkASSERT(isPngGlyph(*glyph));
-    SkASSERT(glyph->fMaskFormat == SkMask::Format::kARGB32_Format);
     SkASSERT(this->getDWriteTypeface()->fDWriteFontFace4);
 
     IDWriteFontFace4* fontFace4 = this->getDWriteTypeface()->fDWriteFontFace4.get();
     DWRITE_GLYPH_IMAGE_DATA glyphData;
     void* glyphDataContext;
-    HRVM(fontFace4->GetGlyphImageData(glyph->getGlyphID(),
+    HRBM(fontFace4->GetGlyphImageData(glyph->getGlyphID(),
                                       fTextSizeRender,
                                       DWRITE_GLYPH_IMAGE_FORMATS_PNG,
                                       &glyphData,
@@ -680,7 +683,7 @@ void SkScalerContext_DW::generatePngMetrics(SkGlyph* glyph) {
 
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(std::move(data));
     if (!codec) {
-        return;
+        return false;
     }
 
     SkImageInfo info = codec->getInfo();
@@ -704,10 +707,10 @@ void SkScalerContext_DW::generatePngMetrics(SkGlyph* glyph) {
     glyph->fHeight = bounds.height();
     glyph->fLeft = bounds.left();
     glyph->fTop = bounds.top();
-    return;
+    return true;
 }
 
-void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
+void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
 
      // GetAlphaTextureBounds succeeds but sometimes returns empty bounds like
      // { 0x80000000, 0x80000000, 0x80000000, 0x80000000 }
@@ -736,21 +739,20 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
     glyph->fHeight = 0;
     glyph->fLeft = 0;
     glyph->fTop = 0;
-    glyph->fMaskFormat = fRec.fMaskFormat;
 
     if (!this->generateAdvance(glyph)) {
         return;
     }
 
-    if (fIsColorFont && isColorGlyph(*glyph)) {
+    if (fIsColorFont && isColorGlyph(*glyph) && generateColorMetrics(glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
-        generateColorMetrics(glyph);
+        glyph->setPath(alloc, nullptr, false);
         return;
     }
 
-    if (fIsColorFont && isPngGlyph(*glyph)) {
+    if (fIsColorFont && isPngGlyph(*glyph) && generatePngMetrics(glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
-        generatePngMetrics(glyph);
+        glyph->setPath(alloc, nullptr, false);
         return;
     }
 
@@ -1229,20 +1231,22 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
 }
 
-bool SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
+bool SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkASSERT(path);
     path->reset();
 
+    SkGlyphID glyphID = glyph.getGlyphID();
+
     // DirectWrite treats all out of bounds glyph ids as having the same data as glyph 0.
     // For consistency with all other backends, treat out of range glyph ids as an error.
-    if (fGlyphCount <= glyph) {
+    if (fGlyphCount <= glyphID) {
         return false;
     }
 
     SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
     HRBM(SkDWriteGeometrySink::Create(path, &geometryToPath),
          "Could not create geometry to path converter.");
-    UINT16 glyphId = SkTo<UINT16>(glyph);
+    UINT16 glyphId = SkTo<UINT16>(glyphID);
     {
         Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
         //TODO: convert to<->from DIUs? This would make a difference if hinting.

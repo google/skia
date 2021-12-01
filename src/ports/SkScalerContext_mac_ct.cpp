@@ -269,7 +269,7 @@ bool SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
     return false;
 }
 
-void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
+void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     glyph->fMaskFormat = fRec.fMaskFormat;
 
     const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID();
@@ -609,7 +609,7 @@ public:
  */
 #define kScaleForSubPixelPositionHinting (4.0f)
 
-bool SkScalerContext_Mac::generatePath(SkGlyphID glyph, SkPath* path) {
+bool SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkScalar scaleX = SK_Scalar1;
     SkScalar scaleY = SK_Scalar1;
 
@@ -643,7 +643,7 @@ bool SkScalerContext_Mac::generatePath(SkGlyphID glyph, SkPath* path) {
         xform = CGAffineTransformConcat(fTransform, scale);
     }
 
-    CGGlyph cgGlyph = SkTo<CGGlyph>(glyph);
+    CGGlyph cgGlyph = SkTo<CGGlyph>(glyph.getGlyphID());
     SkUniqueCFRef<CGPathRef> cgPath(CTFontCreatePathForGlyph(fCTFont.get(), cgGlyph, &xform));
 
     path->reset();

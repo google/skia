@@ -194,12 +194,13 @@ protected:
         return true;
     }
 
-    void generateMetrics(SkGlyph* glyph) override {
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) override {
         SkGlyphID glyphID = glyph->getGlyphID();
         glyphID           = glyphID < this->getTestSVGTypeface()->fGlyphCount ? glyphID : 0;
 
         glyph->zeroMetrics();
         glyph->fMaskFormat = SkMask::kARGB32_Format;
+        glyph->setPath(alloc, nullptr, false);
         this->generateAdvance(glyph);
 
         TestSVGTypeface::Glyph& glyphData = this->getTestSVGTypeface()->fGlyphs[glyphID];
@@ -247,7 +248,9 @@ protected:
         glyphData.render(&canvas);
     }
 
-    bool generatePath(SkGlyphID glyph, SkPath* path) override {
+    bool generatePath(const SkGlyph& glyph, SkPath* path) override {
+        // Should never get here since generateMetrics always sets the path to not exist.
+        SK_ABORT("Path requested, but it should have been indicated that there isn't one.");
         path->reset();
         return false;
     }

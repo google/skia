@@ -23,7 +23,7 @@ bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {
     return false;
 }
 
-void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
+void SkScalerContextProxy::generateMetrics(SkGlyph* glyph, SkArenaAlloc*) {
     TRACE_EVENT1("skia", "generateMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generateMetrics: %s\n", this->getRec().dump().c_str());
@@ -47,7 +47,7 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
             SkStrikeClient::CacheMissType::kGlyphImage, fRec.fTextSize);
 }
 
-bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
+bool SkScalerContextProxy::generatePath(const SkGlyph& glyph, SkPath* path) {
     TRACE_EVENT1("skia", "generatePath", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generatePath: %s\n", this->getRec().dump().c_str());

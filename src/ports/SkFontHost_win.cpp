@@ -565,9 +565,9 @@ public:
 
 protected:
     bool generateAdvance(SkGlyph* glyph) override;
-    void generateMetrics(SkGlyph* glyph) override;
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
-    bool generatePath(SkGlyphID glyph, SkPath* path) override;
+    bool generatePath(const SkGlyph& glyph, SkPath* path) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
@@ -802,7 +802,7 @@ bool SkScalerContext_GDI::generateAdvance(SkGlyph* glyph) {
     return false;
 }
 
-void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
+void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     SkASSERT(fDDC);
 
     glyph->fMaskFormat = fRec.fMaskFormat;
@@ -844,6 +844,9 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
         // Apply matrix to advance.
         glyph->fAdvanceY = -SkFIXEDToFloat(fMat22.eM12) * glyph->fAdvanceX;
         glyph->fAdvanceX *= SkFIXEDToFloat(fMat22.eM11);
+
+        // These do not have an outline path at all.
+        glyph->setPath(alloc, nullptr, false);
 
         return;
     }
@@ -1531,11 +1534,13 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
     return total_size;
 }
 
-bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
+bool SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkASSERT(path);
     SkASSERT(fDDC);
 
     path->reset();
+
+    SkGlyphID glyphID = glyph.getGlyphID();
 
     // Out of all the fonts on a typical Windows box,
     // 25% of glyphs require more than 2KB.
@@ -1551,7 +1556,7 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
         format |= GGO_UNHINTED;
     }
     SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
-    DWORD total_size = getGDIGlyphPath(glyph, format, &glyphbuf);
+    DWORD total_size = getGDIGlyphPath(glyphID, format, &glyphbuf);
     if (0 == total_size) {
         return false;
     }
@@ -1562,7 +1567,7 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     } else {
         SkAutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
         //GDI only uses hinted outlines when axis aligned.
-        DWORD hinted_total_size = getGDIGlyphPath(glyph, GGO_NATIVE | GGO_GLYPH_INDEX,
+        DWORD hinted_total_size = getGDIGlyphPath(glyphID, GGO_NATIVE | GGO_GLYPH_INDEX,
                                                   &hintedGlyphbuf);
         if (0 == hinted_total_size) {
             return false;

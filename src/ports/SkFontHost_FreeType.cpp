@@ -369,9 +369,9 @@ public:
 
 protected:
     bool generateAdvance(SkGlyph* glyph) override;
-    void generateMetrics(SkGlyph* glyph) override;
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
-    bool generatePath(SkGlyphID glyphID, SkPath* path) override;
+    bool generatePath(const SkGlyph& glyph, SkPath* path) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
@@ -1071,10 +1071,8 @@ bool SkScalerContext_FreeType::shouldSubpixelBitmap(const SkGlyph& glyph, const 
     return mechanism && policy;
 }
 
-void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
+void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     SkAutoMutexExclusive  ac(f_t_mutex());
-
-    glyph->fMaskFormat = fRec.fMaskFormat;
 
     if (this->setupSize()) {
         glyph->zeroMetrics();
@@ -1191,6 +1189,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 
         if (haveLayers) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
+            glyph->setPath(alloc, nullptr, false);
             if (!(bounds.xMin < bounds.xMax && bounds.yMin < bounds.yMax)) {
                 bounds = { 0, 0, 0, 0 };
             }
@@ -1320,11 +1319,12 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 }
 
 
-bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
+bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkASSERT(path);
 
     SkAutoMutexExclusive  ac(f_t_mutex());
 
+    SkGlyphID glyphID = glyph.getGlyphID();
     // FT_IS_SCALABLE is documented to mean the face contains outline glyphs.
     if (!FT_IS_SCALABLE(fFace) || this->setupSize()) {
         path->reset();

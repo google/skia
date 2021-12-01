@@ -49,9 +49,14 @@ private:
         SkFont defaultFont;
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
         auto strike = strikeSpec.findOrCreateStrike();
+        SkArenaAlloc alloc(1 << 12); // This is a mock SkStrikeCache.
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkPackedGlyphID id(defaultFont.unicharToGlyph(kGlyphs[i]));
-            sk_ignore_unused_variable(strike->getScalerContext()->getPath(id, &fGlyphs[i]));
+            SkGlyph glyph = strike->getScalerContext()->makeGlyph(id, &alloc);
+            strike->getScalerContext()->getPath(glyph, &alloc);
+            if (glyph.path()) {
+                fGlyphs[i] = *glyph.path();
+            }
             fGlyphs[i].setIsVolatile(fUncached);
         }
 
