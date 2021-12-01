@@ -220,10 +220,6 @@ private:
         return result;
     }
 
-    skvm::I32 traceMask() {
-        return this->mask() & fTraceMask;
-    }
-
     size_t fieldSlotOffset(const FieldAccess& expr);
     size_t indexSlotOffset(const IndexExpression& expr);
 
@@ -485,7 +481,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
     int funcIndex = -1;
     if (fDebugInfo) {
         funcIndex = this->getDebugFunctionInfo(decl);
-        fBuilder->trace_enter(this->traceMask(), funcIndex);
+        fBuilder->trace_enter(this->mask(), fTraceMask, funcIndex);
     }
 
     size_t returnSlot = this->getSlot(function);
@@ -525,7 +521,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
     fFunctionStack.pop_back();
 
     if (fDebugInfo) {
-        fBuilder->trace_exit(this->traceMask(), funcIndex);
+        fBuilder->trace_exit(this->mask(), fTraceMask, funcIndex);
     }
 
     return returnSlot;
@@ -534,7 +530,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
     if (fDebugInfo && (!fSlots[slot].writtenTo || fSlots[slot].val != value)) {
         if (fProgram.fConfig->fSettings.fAllowTraceVarInSkVMDebugTrace) {
-            fBuilder->trace_var(this->traceMask(), slot, i32(value));
+            fBuilder->trace_var(this->mask(), fTraceMask, slot, i32(value));
         }
         fSlots[slot].writtenTo = true;
     }
@@ -1811,7 +1807,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 
 void SkVMGenerator::emitTraceLine(int line) {
     if (fDebugInfo && line > 0) {
-        fBuilder->trace_line(this->traceMask(), line);
+        fBuilder->trace_line(this->mask(), fTraceMask, line);
     }
 }
 

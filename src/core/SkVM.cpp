@@ -261,10 +261,10 @@ namespace skvm {
         switch (op) {
             case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
-            case Op::trace_line:  write(o, op, V{x}, Line{immA}); break;
-            case Op::trace_var:   write(o, op, V{x}, VarSlot{immA}, "=", V{y}); break;
-            case Op::trace_enter: write(o, op, V{x}, FnIdx{immA}); break;
-            case Op::trace_exit:  write(o, op, V{x}, FnIdx{immA}); break;
+            case Op::trace_line:  write(o, op, V{x}, V{y}, Line{immA}); break;
+            case Op::trace_var:   write(o, op, V{x}, V{y}, VarSlot{immA}, "=", V{z}); break;
+            case Op::trace_enter: write(o, op, V{x}, V{y}, FnIdx{immA}); break;
+            case Op::trace_exit:  write(o, op, V{x}, V{y}, FnIdx{immA}); break;
 
             case Op::store8:   write(o, op, Ptr{immA}, V{x}               ); break;
             case Op::store16:  write(o, op, Ptr{immA}, V{x}               ); break;
@@ -381,10 +381,10 @@ namespace skvm {
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
-                case Op::trace_line:  write(o, op, R{x}, Line{immA}); break;
-                case Op::trace_var:   write(o, op, R{x}, VarSlot{immA}, "=", R{y}); break;
-                case Op::trace_enter: write(o, op, R{x}, FnIdx{immA}); break;
-                case Op::trace_exit:  write(o, op, R{x}, FnIdx{immA}); break;
+                case Op::trace_line:  write(o, op, R{x}, R{y}, Line{immA}); break;
+                case Op::trace_var:   write(o, op, R{x}, R{y}, VarSlot{immA}, "=", R{z}); break;
+                case Op::trace_enter: write(o, op, R{x}, R{y}, FnIdx{immA}); break;
+                case Op::trace_exit:  write(o, op, R{x}, R{y}, FnIdx{immA}); break;
 
                 case Op::store8:   write(o, op, Ptr{immA}, R{x}                  ); break;
                 case Op::store16:  write(o, op, Ptr{immA}, R{x}                  ); break;
@@ -618,21 +618,33 @@ namespace skvm {
     #endif
     }
 
-    void Builder::trace_line(I32 mask, int line) {
-        if (this->isImm(mask.id, 0)) { return; }
-        (void)push(Op::trace_line, mask.id,NA,NA,NA, line);
+    void Builder::trace_line(I32 mask, I32 traceMask, int line) {
+        if (this->isImm(mask.id,      0)) { return; }
+        if (this->isImm(traceMask.id, 0)) { return; }
+        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
+        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        (void)push(Op::trace_line, mask.id,traceMask.id,NA,NA, line);
     }
-    void Builder::trace_var(I32 mask, int slot, I32 val) {
-        if (this->isImm(mask.id, 0)) { return; }
-        (void)push(Op::trace_var, mask.id,val.id,NA,NA, slot);
+    void Builder::trace_var(I32 mask, I32 traceMask, int slot, I32 val) {
+        if (this->isImm(mask.id,      0)) { return; }
+        if (this->isImm(traceMask.id, 0)) { return; }
+        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
+        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        (void)push(Op::trace_var, mask.id,traceMask.id,val.id,NA, slot);
     }
-    void Builder::trace_enter(I32 mask, int fnIdx) {
-        if (this->isImm(mask.id, 0)) { return; }
-        (void)push(Op::trace_enter, mask.id,NA,NA,NA, fnIdx);
+    void Builder::trace_enter(I32 mask, I32 traceMask, int fnIdx) {
+        if (this->isImm(mask.id,      0)) { return; }
+        if (this->isImm(traceMask.id, 0)) { return; }
+        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
+        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        (void)push(Op::trace_enter, mask.id,traceMask.id,NA,NA, fnIdx);
     }
-    void Builder::trace_exit(I32 mask, int fnIdx) {
-        if (this->isImm(mask.id, 0)) { return; }
-        (void)push(Op::trace_exit, mask.id,NA,NA,NA, fnIdx);
+    void Builder::trace_exit(I32 mask, I32 traceMask, int fnIdx) {
+        if (this->isImm(mask.id,      0)) { return; }
+        if (this->isImm(traceMask.id, 0)) { return; }
+        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
+        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        (void)push(Op::trace_exit, mask.id,traceMask.id,NA,NA, fnIdx);
     }
 
     void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA,NA, ptr.ix); }

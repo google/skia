@@ -632,10 +632,10 @@ namespace skvm {
         void assert_true(I32 cond)            { assert_true(cond, cond); }
 
         // Insert debug traces into the instruction stream
-        void trace_line(I32 mask, int line);
-        void trace_var(I32 mask, int slot, I32 val);
-        void trace_enter(I32 mask, int fnIdx);
-        void trace_exit(I32 mask, int fnIdx);
+        void trace_line(I32 mask, I32 traceMask, int line);
+        void trace_var(I32 mask, I32 traceMask, int slot, I32 val);
+        void trace_enter(I32 mask, I32 traceMask, int fnIdx);
+        void trace_exit(I32 mask, I32 traceMask, int fnIdx);
 
         // Store {8,16,32,64,128}-bit varying.
         void store8  (Ptr ptr, I32 val);

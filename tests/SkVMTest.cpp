@@ -892,9 +892,11 @@ DEF_TEST(SkVM_trace_line, r) {
     };
 
     skvm::Builder b;
-    b.trace_line(b.splat(0xFFFFFFFF), 123);
-    b.trace_line(b.splat(0x00000000), 456);
-    b.trace_line(b.splat(0xFFFFFFFF), 789);
+    b.trace_line(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 123);
+    b.trace_line(b.splat(0x00000000), b.splat(0xFFFFFFFF), 456);
+    b.trace_line(b.splat(0xFFFFFFFF), b.splat(0x00000000), 567);
+    b.trace_line(b.splat(0x00000000), b.splat(0x00000000), 678);
+    b.trace_line(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 789);
     skvm::Program p = b.done();
     TestTraceHook testTrace;
     p.attachTraceHook(&testTrace);
@@ -918,10 +920,11 @@ DEF_TEST(SkVM_trace_var, r) {
     };
 
     skvm::Builder b;
-    b.trace_var(b.splat(0x00000000), 2, b.splat(333));
-    b.trace_var(b.splat(0xFFFFFFFF), 4, b.splat(555));
-    b.trace_var(b.splat(0xFFFFFFFF), 6, b.splat(777));
-    b.trace_var(b.splat(0x00000000), 8, b.splat(999));
+    b.trace_var(b.splat(0x00000000), b.splat(0xFFFFFFFF), 2, b.splat(333));
+    b.trace_var(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 4, b.splat(555));
+    b.trace_var(b.splat(0x00000000), b.splat(0x00000000), 5, b.splat(666));
+    b.trace_var(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 6, b.splat(777));
+    b.trace_var(b.splat(0xFFFFFFFF), b.splat(0x00000000), 8, b.splat(999));
     skvm::Program p = b.done();
     TestTraceHook testTrace;
     p.attachTraceHook(&testTrace);
@@ -948,10 +951,12 @@ DEF_TEST(SkVM_trace_enter_exit, r) {
     };
 
     skvm::Builder b;
-    b.trace_enter(b.splat(0xFFFFFFFF), 12);
-    b.trace_enter(b.splat(0x00000000), 34);
-    b.trace_exit(b.splat(0xFFFFFFFF), 56);
-    b.trace_exit(b.splat(0x00000000), 78);
+    b.trace_enter(b.splat(0x00000000), b.splat(0x00000000), 99);
+    b.trace_enter(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 12);
+    b.trace_enter(b.splat(0x00000000), b.splat(0xFFFFFFFF), 34);
+    b.trace_exit(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 56);
+    b.trace_exit(b.splat(0xFFFFFFFF), b.splat(0x00000000), 78);
+    b.trace_exit(b.splat(0x00000000), b.splat(0x00000000), 90);
     skvm::Program p = b.done();
     TestTraceHook testTrace;
     p.attachTraceHook(&testTrace);

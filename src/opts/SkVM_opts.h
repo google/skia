@@ -218,16 +218,16 @@ namespace SkVMInterpreterTypes {
                     break;
 
                     CASE(Op::trace_line):
-                        if (traceHook && any(r[x].i32)) {
+                        if (traceHook && any(r[x].i32 & r[y].i32)) {
                             traceHook->line(immA);
                         }
                         break;
 
                     CASE(Op::trace_var):
-                        if (traceHook && any(r[x].i32)) {
+                        if (traceHook && any(r[x].i32 & r[y].i32)) {
                             for (int i = 0; i < K; ++i) {
-                                if (r[x].i32[i]) {
-                                    traceHook->var(immA, r[y].i32[i]);
+                                if (r[x].i32[i] & r[y].i32[i]) {
+                                    traceHook->var(immA, r[z].i32[i]);
                                     break;
                                 }
                             }
@@ -235,13 +235,13 @@ namespace SkVMInterpreterTypes {
                         break;
 
                     CASE(Op::trace_enter):
-                        if (traceHook && any(r[x].i32)) {
+                        if (traceHook && any(r[x].i32 & r[y].i32)) {
                             traceHook->enter(immA);
                         }
                         break;
 
                     CASE(Op::trace_exit):
-                        if (traceHook && any(r[x].i32)) {
+                        if (traceHook && any(r[x].i32 & r[y].i32)) {
                             traceHook->exit(immA);
                         }
                         break;
