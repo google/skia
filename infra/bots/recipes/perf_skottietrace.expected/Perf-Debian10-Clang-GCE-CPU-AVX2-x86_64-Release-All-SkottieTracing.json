@@ -507,12 +507,12 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+      "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
     ],
     "name": "get swarming bot id",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_BOT_ID', ''))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -520,12 +520,12 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+      "import os\nprint(os.environ.get('SWARMING_TASK_ID', ''))\n"
     ],
     "name": "get swarming task id",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_TASK_ID', ''))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -546,20 +546,60 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
-      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {\"lottie(test)'!2.json\": {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie 3!.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie', 'key': {'extra_config': 'SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'x86_64', 'source_type': 'skottie', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian10', 'compiler': 'Clang'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)\n"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "{\n    \"gitHash\": \"abc123\",\n    \"key\": {\n        \"arch\": \"x86_64\",\n        \"bench_type\": \"tracing\",\n        \"compiler\": \"Clang\",\n        \"configuration\": \"Release\",\n        \"cpu_or_gpu\": \"CPU\",\n        \"cpu_or_gpu_value\": \"AVX2\",\n        \"extra_config\": \"SkottieTracing\",\n        \"model\": \"GCE\",\n        \"os\": \"Debian10\",\n        \"source_type\": \"skottie\"\n    },\n    \"renderer\": \"skottie\",\n    \"results\": {\n        \"lottie 3!.json\": {\n            \"gles\": {\n                \"frame_avg_us\": 179.71,\n                \"frame_max_us\": 218.25,\n                \"frame_min_us\": 141.17\n            }\n        },\n        \"lottie(test)'!2.json\": {\n            \"gles\": {\n                \"frame_avg_us\": 179.71,\n                \"frame_max_us\": 218.25,\n                \"frame_min_us\": 141.17\n            }\n        },\n        \"lottie1.json\": {\n            \"gles\": {\n                \"frame_avg_us\": 179.71,\n                \"frame_max_us\": 218.25,\n                \"frame_min_us\": 141.17\n            }\n        }\n    },\n    \"swarming_bot_id\": \"\",\n    \"swarming_task_id\": \"\"\n}",
+      "[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json"
     ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
+    "infra_step": true,
     "name": "write output JSON",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import json@@@",
-      "@@@STEP_LOG_LINE@python.inline@with open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {\"lottie(test)'!2.json\": {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie 3!.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie', 'key': {'extra_config': 'SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'AVX2', 'arch': 'x86_64', 'source_type': 'skottie', 'cpu_or_gpu': 'CPU', 'model': 'GCE', 'configuration': 'Release', 'os': 'Debian10', 'compiler': 'Clang'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@{@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"gitHash\": \"abc123\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"key\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"arch\": \"x86_64\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"bench_type\": \"tracing\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"compiler\": \"Clang\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"configuration\": \"Release\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"cpu_or_gpu\": \"CPU\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"cpu_or_gpu_value\": \"AVX2\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"extra_config\": \"SkottieTracing\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"model\": \"GCE\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"os\": \"Debian10\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"source_type\": \"skottie\"@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    },@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"renderer\": \"skottie\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"results\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"lottie 3!.json\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            \"gles\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_max_us\": 218.25,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            }@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        },@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"lottie(test)'!2.json\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            \"gles\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_max_us\": 218.25,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            }@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        },@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        \"lottie1.json\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            \"gles\": {@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_max_us\": 218.25,@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@                \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@            }@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@        }@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    },@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"swarming_bot_id\": \"\",@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@    \"swarming_task_id\": \"\"@@@",
+      "@@@STEP_LOG_LINE@perf_abc123_1337000001.json@}@@@",
+      "@@@STEP_LOG_END@perf_abc123_1337000001.json@@@"
     ]
   },
   {

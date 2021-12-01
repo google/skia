@@ -7,13 +7,13 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint '%d:%d' % (os.getuid(), os.getgid())\n"
+      "import os\nprint('%d:%d' % (os.getuid(), os.getgid()))\n"
     ],
     "name": "Docker setup.Get uid and gid",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print '%d:%d' % (os.getuid(), os.getgid())@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('%d:%d' % (os.getuid(), os.getgid()))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },

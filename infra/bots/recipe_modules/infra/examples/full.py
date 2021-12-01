@@ -5,6 +5,7 @@
 
 # Recipe which runs the Skia infra tests.
 
+PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'infra',

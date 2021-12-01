@@ -23,7 +23,7 @@ ASSET = os.path.basename(FILE_DIR)
 
 def main():
   if 'linux' not in sys.platform:
-    print >> sys.stderr, 'This script only runs on Linux.'
+    print('This script only runs on Linux.', file=sys.stderr)
     sys.exit(1)
   parser = argparse.ArgumentParser()
   parser.add_argument('--lib_path', '-l', required=True)

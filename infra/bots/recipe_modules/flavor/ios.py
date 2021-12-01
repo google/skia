@@ -64,7 +64,8 @@ time.sleep(2)
     image_info = self._run('list mounted image',
                            'ideviceimagemounter', '--list',
                            stdout=self.m.raw_io.output())
-    image_info_out = image_info.stdout.strip() if image_info.stdout else ''
+    image_info_out = (
+      image_info.stdout.decode('utf-8').strip() if image_info.stdout else '')
 
     if 'ImageSignature' not in image_info_out:
       image_pkgs = self.m.file.glob_paths('locate ios-dev-image package',
@@ -117,7 +118,7 @@ time.sleep(2)
   def step(self, name, cmd, **kwargs):
     app_name = cmd[0]
     bundle_id = 'com.google.%s' % app_name
-    args = [bundle_id] + map(str, cmd[1:])
+    args = [bundle_id] + [str(ele) for ele in cmd[1:]]
     success = False
     with self.context():
       try:
@@ -164,4 +165,4 @@ time.sleep(2)
                       stdout=self.m.raw_io.output(),
                       infra_step=True,
                       **kwargs)
-      return rv.stdout.rstrip() if rv and rv.stdout else None
+      return rv.stdout.decode('utf-8').rstrip() if rv and rv.stdout else None
