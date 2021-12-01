@@ -42,7 +42,18 @@ def add_path(path):
         else:
             add_path(head)
             parent_map[path] = head
-        print("['" + path + "', '" + parent_map[path] + "', 0],")
+
+        # We add a suffix to paths to eliminate the chances of a path name colliding with a symbol
+        # name. This is important because google.visualization.TreeMap requires node names to be
+        # unique, and a file such as test/foo/bar.cpp would create a node named "test", which could
+        # collide with a symbol named "test" defined in a C++ file.
+        #
+        # Assumptions made:
+        #  - No C++ symbol ends with " (Path)".
+        #  - No C++ symbol is named "ROOT".
+        parent = parent_map[path]
+        if parent != "ROOT": parent = "%s (Path)" % parent
+        print("['%s (Path)', '%s', 0]," % (path, parent))
 
 def main():
     # HTML/script header, plus the first two (fixed) rows of the data table
@@ -58,7 +69,7 @@ def main():
                         ['Name', 'Parent', 'Size'],
                         ['ROOT', null, 0],""")
 
-    all_symbols = {}
+    symbol_frequencies = {}
 
     # Skip header row
     # TODO: In the future, we could use this to automatically detect the source columns
@@ -95,13 +106,17 @@ def main():
         # Ensure that we've added intermediate nodes for all portions of this file path
         add_path(filepath)
 
-        # Ensure that our final symbol name is unique
-        while symbol in all_symbols:
-            symbol += "_x"
-        all_symbols[symbol] = True
+        # Ensure that our final symbol name is unique (a repeated "foo" symbol becomes "foo_1",
+        # "foo_2", etc.)
+        if symbol not in symbol_frequencies:
+            symbol_frequencies[symbol] = 1
+        else:
+            freq = symbol_frequencies[symbol]
+            symbol_frequencies[symbol] = freq + 1
+            symbol += "_" + str(freq)
 
         # Append another row for our sanitized data
-        print("['" + symbol + "', '" + filepath + "', " + filesize + "],")
+        print("['%s', '%s (Path)', %d]," % (symbol, filepath, int(filesize)))
 
     # HTML/script footer
     print("""       ]);
