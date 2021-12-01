@@ -20,9 +20,9 @@ BASE_LINKOPTS = [
 ]
 
 RELEASE_OPTS = [
-    # We disable closure for now, because we need a way to pass in the externs file,
-    # which does not appear to be exposed on the emscripten toolchain.
-    # "--closure 1",  # Run the closure compiler
+    "--closure 1",  # Run the closure compiler
+    # pass the externs file in
+    "--closure-args=--externs=modules/canvaskit/externs.js",
     "-sASSERTIONS=0",  # Turn off assertions
     "-Oz",
 ]
@@ -198,7 +198,6 @@ JS_INTERFACE_FILES = [
     "color.js",
     "cpu.js",
     "debug.js",
-    "externs.js",
     "font.js",
     "gpu.js",
     "interface.js",
@@ -246,14 +245,10 @@ CK_SRCS = [
 cc_binary_with_flags(
     name = "canvaskit_with_flags",
     srcs = CK_SRCS,
-    additional_linker_inputs = JS_INTERFACE_FILES,
+    additional_linker_inputs = JS_INTERFACE_FILES + ["externs.js"],
     # wasm_cc_binary makes the canvaskit.js/canvaskit.wasm based on the actual name
     # of the executable.
     cc_binary_name = "canvaskit",
-    features = [
-        # https://github.com/emscripten-core/emsdk/blob/846f683bea839899164cdbe287f92f7ae952428e/bazel/emscripten_toolchain/crosstool.bzl#L1051
-        "emcc_debug_link",
-    ],
     linkopts = CK_OPTS,
     local_defines = CK_DEFINES,
     set_flags = {
