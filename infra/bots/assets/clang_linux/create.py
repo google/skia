@@ -42,8 +42,8 @@ def create_asset(target_dir):
   subprocess.check_call(["cp", "bin/llvm-symbolizer", target_dir + "/bin"])
   subprocess.check_call(["cp", "bin/llvm-profdata", target_dir + "/bin"])
   subprocess.check_call(["cp", "bin/llvm-cov", target_dir + "/bin"])
-  libstdcpp = subprocess.check_output(["c++",
-                                       "-print-file-name=libstdc++.so.6"])
+  libstdcpp = subprocess.check_output([
+      "c++", "-print-file-name=libstdc++.so.6"]).decode('utf-8')
   subprocess.check_call(["cp", libstdcpp.strip(), target_dir + "/lib"])
 
   # Finally, build libc++ for TSAN and MSAN bots using the Clang we just built.

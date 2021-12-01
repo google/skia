@@ -43,27 +43,29 @@ BUILDER_ROLES = (BUILDER_ROLE_BUILD,
 def _LoadSchema():
   """ Load the builder naming schema from the JSON file. """
 
-  def _UnicodeToStr(obj):
+  def ToStr(obj):
     """ Convert all unicode strings in obj to Python strings. """
-    if isinstance(obj, unicode):
-      return str(obj)
+    if isinstance(obj, str):
+      return obj  # pragma: nocover
     elif isinstance(obj, dict):
-      return dict(map(_UnicodeToStr, obj.iteritems()))
+      return dict(map(ToStr, obj.items()))
     elif isinstance(obj, list):
-      return list(map(_UnicodeToStr, obj))
+      return list(map(ToStr, obj))
     elif isinstance(obj, tuple):
-      return tuple(map(_UnicodeToStr, obj))
+      return tuple(map(ToStr, obj))
+    else:
+      return obj.decode('utf-8')
 
   builder_name_json_filename = os.path.join(
       os.path.dirname(__file__), 'builder_name_schema.json')
   builder_name_schema_json = json.load(open(builder_name_json_filename))
 
   global BUILDER_NAME_SCHEMA
-  BUILDER_NAME_SCHEMA = _UnicodeToStr(
+  BUILDER_NAME_SCHEMA = ToStr(
       builder_name_schema_json['builder_name_schema'])
 
   global BUILDER_NAME_SEP
-  BUILDER_NAME_SEP = _UnicodeToStr(
+  BUILDER_NAME_SEP = ToStr(
       builder_name_schema_json['builder_name_sep'])
 
   # Since the builder roles are dictionary keys, just assert that the global
@@ -77,7 +79,7 @@ _LoadSchema()
 
 
 def MakeBuilderName(**parts):
-  for v in parts.itervalues():
+  for v in parts.values():
     if BUILDER_NAME_SEP in v:
       raise ValueError('Parts cannot contain "%s"' % BUILDER_NAME_SEP)
 
@@ -152,19 +154,19 @@ def DictForBuilderName(builder_name):
     if not schema:
       raise ValueError('Invalid builder name: %s' % builder_name)
     if depth == 0:
-      result['role'] = role
+      result['role'] = str(role)
     else:
-      result['sub-role-%d' % depth] = role
+      result['sub-role-%d' % depth] = str(role)
     for key in schema.get('keys', []):
       value, parts = pop_front(parts)
-      result[key] = value
+      result[key] = str(value)
     for sub_role in schema.get('recurse_roles', []):
       if len(parts) > 0 and sub_role == parts[0]:
         parts = _parse(depth+1, parts[0], parts[1:])
     for key in schema.get('optional_keys', []):
       if parts:
         value, parts = pop_front(parts)
-        result[key] = value
+        result[key] = str(value)
     if parts:
       raise ValueError('Invalid builder name: %s' % builder_name)
     return parts

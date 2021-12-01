@@ -99,9 +99,9 @@ class SkiaVarsApi(recipe_api.RecipeApi):
       step_stdout = self.m.python.inline(
           name='get swarming bot id',
           program='''import os
-print os.environ.get('SWARMING_BOT_ID', '')
+print(os.environ.get('SWARMING_BOT_ID', ''))
 ''',
-          stdout=self.m.raw_io.output()).stdout
+          stdout=self.m.raw_io.output()).stdout.decode('utf-8')
       self._swarming_bot_id = step_stdout.rstrip() if step_stdout else ''
     return self._swarming_bot_id
 
@@ -111,8 +111,8 @@ print os.environ.get('SWARMING_BOT_ID', '')
       step_stdout = self.m.python.inline(
           name='get swarming task id',
           program='''import os
-print os.environ.get('SWARMING_TASK_ID', '')
+print(os.environ.get('SWARMING_TASK_ID', ''))
 ''',
-          stdout=self.m.raw_io.output()).stdout
+          stdout=self.m.raw_io.output()).stdout.decode('utf-8')
       self._swarming_task_id = step_stdout.rstrip() if step_stdout else ''
     return self._swarming_task_id

@@ -80,7 +80,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
 
   def with_retry(self, steptype, name, attempts, between_attempts_fn=None,
                  abort_on_failure=True, fail_build_on_failure=True, **kwargs):
-    for attempt in xrange(attempts):
+    for attempt in range(attempts):
       step_name = name
       if attempt > 0:
         step_name += ' (attempt %d)' % (attempt + 1)
