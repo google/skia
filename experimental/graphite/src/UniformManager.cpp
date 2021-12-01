@@ -491,7 +491,7 @@ SLType UniformManager::getUniformTypeForLayout(SLType type) {
 }
 
 uint32_t UniformManager::writeUniforms(SkSpan<const Uniform> uniforms,
-                                       void** srcs,
+                                       const void** srcs,
                                        uint32_t* offsets,
                                        void *dst) {
     decltype(&Writer<Rules140>::WriteUniform) write;

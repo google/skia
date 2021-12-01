@@ -34,7 +34,7 @@ public:
      *   writeUniforms(definitions, src, offsets, dst);
      */
     uint32_t writeUniforms(SkSpan<const Uniform> definitions,
-                           void** srcs,
+                           const void** srcs,
                            uint32_t* offsets,
                            void *dst);
 

@@ -26,6 +26,7 @@ namespace skgpu {
 class DrawWriter;
 class ResourceProvider;
 class Shape;
+class Transform;
 class UniformData;
 
 enum class Layout;
@@ -37,7 +38,7 @@ public:
     // The DrawWriter is configured with the vertex and instance strides of the RenderStep, and its
     // primitive type. The recorded draws will be executed with a graphics pipeline compatible with
     // this RenderStep.
-    virtual void writeVertices(DrawWriter*, const Shape&) const = 0;
+    virtual void writeVertices(DrawWriter*, const Transform&, const Shape&) const = 0;
 
     // Write out the uniform values (aligned for the layout). These values will be de-duplicated
     // across all draws using the RenderStep before uploading to the GPU, but it can be assumed the
@@ -48,7 +49,9 @@ public:
     // nice if we could remember the offsets for the layout/gpu and reuse them across draws.
     // Similarly, it would be nice if this could write into reusable storage and then DrawPass or
     // UniformCache handles making an sk_sp if we need to assign a new unique ID to the uniform data
-    virtual sk_sp<UniformData> writeUniforms(Layout layout, const Shape&) const = 0;
+    virtual sk_sp<UniformData> writeUniforms(Layout layout,
+                                             const Transform&,
+                                             const Shape&) const = 0;
 
     virtual const char* name()      const = 0;
 

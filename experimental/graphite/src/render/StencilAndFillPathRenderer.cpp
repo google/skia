@@ -11,6 +11,7 @@
 #include "experimental/graphite/src/DrawWriter.h"
 #include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
+#include "experimental/graphite/src/geom/Transform_graphite.h"
 #include "src/gpu/BufferWriter.h"
 
 namespace skgpu {
@@ -61,7 +62,7 @@ public:
     // the Renderer includes the stenciling step first.
     FillBoundsRenderStep()
             : RenderStep(Flags::kPerformsShading,
-                         /*uniforms=*/{},
+                         /*uniforms=*/{{"localToDevice", SLType::kFloat4x4}},
                          PrimitiveType::kTriangleStrip,
                          /*vertexAttrs=*/{{"position", VertexAttribType::kFloat2, SLType::kFloat2}},
                          /*instanceAttrs=*/{}) {}
@@ -71,30 +72,39 @@ public:
     const char* name() const override { return "fill-bounds"; }
 
     const char* vertexMSL() const override {
-        // TODO: apply transform matrix from uniform data
         // TODO: RenderSteps should not worry about RTAdjust, but currently the mtl pipeline does
         // account for it, so this geometry won't be in the right coordinate system yet.
-        return "out.position.xy = vtx.position;\n"
-               "out.position.zw = float2(0.0, 1.0);\n";
+        return "out.position = uniforms.localToDevice * float4(vtx.position, 0.0, 1.0);\n";
     }
 
-    void writeVertices(DrawWriter* writer, const Shape& shape) const override {
-        // TODO: Need to account for the transform eventually, but that requires more plumbing
+    void writeVertices(DrawWriter* writer, const Transform&, const Shape& shape) const override {
+        // TODO: For now the transform is handled as a uniform so writeVertices ignores it, but
+        // for something as simple as the bounding box, CPU transformation might be best.
         writer->appendVertices(4)
                .writeQuad(VertexWriter::TriStripFromRect(shape.bounds().asSkRect()));
-        // TODO: triangle strip/fan is actually tricky to merge correctly, since we want strips
-        // for everything that was appended by the RenderStep, but no connection across RenderSteps,
-        // so either we need a way to end it here, or switch to instance rendering w/o instance
-        // data so that vertices are still clustered appripriately. But that would require updating
-        // the DrawWriter to support appending both vertex and instance data simultaneously, which
-        // would need to return 2 vertex writers?
+        // Since we upload 4 dynamic verts as a triangle strip, we need to actually draw them
+        // otherwise the next writeVertices() call would get connected to our verts.
+        // TODO: Primitive restart? Just use indexed drawing? Just write 6 verts?
+        writer->flush();
     }
 
-    sk_sp<UniformData> writeUniforms(Layout layout, const Shape&) const override {
-        // TODO: Return the uniform data that is needed for this draw, but since there are no
-        // declared uniforms right now, just return nullptr. Eventually, the uniforms should include
-        // the draw's transform (at least until we use storage buffers).
-        return nullptr;
+    sk_sp<UniformData> writeUniforms(Layout layout,
+                                     const Transform& localToDevice,
+                                     const Shape&) const override {
+        // TODO: Given that a RenderStep has its own uniform binding slot, these offsets never
+        // change so we could cache them per layout.
+        UniformManager mgr(layout);
+        size_t dataSize = mgr.writeUniforms(this->uniforms(), nullptr, nullptr, nullptr);
+        sk_sp<UniformData> transformData = UniformData::Make((int) this->numUniforms(),
+                                                             this->uniforms().data(),
+                                                             dataSize);
+
+        const void* transform[1] = {&localToDevice.matrix()};
+        mgr.writeUniforms(this->uniforms(),
+                          transform,
+                          transformData->offsets(),
+                          transformData->data());
+        return transformData;
     }
 };
 

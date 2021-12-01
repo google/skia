@@ -64,7 +64,7 @@ static const char* kSolidColorMSL = "out.color = float4(uniforms.color);\n";
 // that only defines a [[depth]] attribute but no color calculation.
 static const char* kNoneMSL = "out.color float4(0.0, 0.0, 1.0, 1.0);\n";
 
-sk_sp<UniformData> make_gradient_uniform_data_common(void* srcs[kNumGradientUniforms]) {
+sk_sp<UniformData> make_gradient_uniform_data_common(const void* srcs[kNumGradientUniforms]) {
     UniformManager mgr(Layout::kMetal);
 
     // TODO: Given that, for the sprint, we always know the uniforms we could cache 'dataSize'
@@ -87,7 +87,7 @@ sk_sp<UniformData> make_linear_gradient_uniform_data(SkPoint startPoint,
                                                      SkColor4f colors[kMaxStops],
                                                      float offsets[kMaxStops]) {
     float unusedRadii[2] = { 0.0f, 0.0f };
-    void* srcs[kNumGradientUniforms] = {
+    const void* srcs[kNumGradientUniforms] = {
             colors,
             offsets,
             &startPoint,
@@ -106,7 +106,7 @@ sk_sp<UniformData> make_radial_gradient_uniform_data(SkPoint point,
     SkPoint unusedPoint = {0.0f, 0.0f};
     float unusedRadius = 0.0f;
 
-    void* srcs[kNumGradientUniforms] = {
+    const void* srcs[kNumGradientUniforms] = {
             colors,
             offsets,
             &point,
@@ -124,7 +124,7 @@ sk_sp<UniformData> make_sweep_gradient_uniform_data(SkPoint point,
     SkPoint unusedPoint = {0.0f, 0.0f};
     float unusedRadii[2] = {0.0f, 0.0f};
 
-    void* srcs[kNumGradientUniforms] = {
+    const void* srcs[kNumGradientUniforms] = {
             colors,
             offsets,
             &point,
@@ -143,7 +143,7 @@ sk_sp<UniformData> make_conical_gradient_uniform_data(SkPoint point0,
                                                       SkColor4f colors[kMaxStops],
                                                       float offsets[kMaxStops]) {
 
-    void* srcs[kNumGradientUniforms] = {
+    const void* srcs[kNumGradientUniforms] = {
             colors,
             offsets,
             &point0,
@@ -183,7 +183,7 @@ sk_sp<UniformData> make_solid_uniform_data(SkColor4f color) {
 
     sk_sp<UniformData> result = UniformData::Make(kNumSolidUniforms, kSolidUniforms, dataSize);
 
-    void* srcs[kNumSolidUniforms] = { &color };
+    const void* srcs[kNumSolidUniforms] = { &color };
 
     mgr.writeUniforms(SkSpan<const Uniform>(kSolidUniforms, kNumSolidUniforms),
                       srcs, result->offsets(), result->data());

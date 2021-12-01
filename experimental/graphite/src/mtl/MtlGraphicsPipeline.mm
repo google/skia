@@ -36,6 +36,9 @@ SkSL::String emit_MSL_uniform_struct(const char* structName, SkSpan<const Unifor
             case SLType::kFloat:
                 result.append("float");
                 break;
+            case SLType::kFloat4x4:
+                result.append("float4x4");
+                break;
             case SLType::kHalf4:
                 result.append("half4");
                 break;
