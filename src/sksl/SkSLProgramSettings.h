@@ -68,6 +68,11 @@ struct ProgramSettings {
     // If true, configurations which demand strict ES2 conformance (runtime effects, generic
     // programs, and SkVM rendering) will fail during compilation if ES2 restrictions are violated.
     bool fEnforceES2Restrictions = true;
+    // If true, SkVM debug traces will contain the `trace_var` opcode. This opcode can cause the
+    // generated code to contain a lot of extra computations, because we need to explicitly compute
+    // every temporary value, even ones that would otherwise be optimized away entirely. The other
+    // debug opcodes are much less invasive on the generated code.
+    bool fAllowTraceVarInSkVMDebugTrace = true;
     // If true, the DSL should automatically mangle symbol names.
     bool fDSLMangling = true;
     // If true, the DSL should automatically mark variables declared upon creation.

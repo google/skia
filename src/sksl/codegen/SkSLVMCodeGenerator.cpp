@@ -533,7 +533,9 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
     if (fDebugInfo && (!fSlots[slot].writtenTo || fSlots[slot].val != value)) {
-        fBuilder->trace_var(this->traceMask(), slot, i32(value));
+        if (fProgram.fConfig->fSettings.fAllowTraceVarInSkVMDebugTrace) {
+            fBuilder->trace_var(this->traceMask(), slot, i32(value));
+        }
         fSlots[slot].writtenTo = true;
     }
 

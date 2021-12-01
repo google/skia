@@ -211,6 +211,9 @@ static bool detect_shader_settings(const SkSL::String& text,
                 if (settingsText.consumeSuffix(" NoInline")) {
                     settings->fInlineThreshold = 0;
                 }
+                if (settingsText.consumeSuffix(" NoTraceVarInSkVMDebugTrace")) {
+                    settings->fAllowTraceVarInSkVMDebugTrace = false;
+                }
                 if (settingsText.consumeSuffix(" InlineThresholdMax")) {
                     settings->fInlineThreshold = INT_MAX;
                 }

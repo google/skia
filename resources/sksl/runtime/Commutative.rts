@@ -1,4 +1,4 @@
-/*#pragma settings SkVMDebugTrace NoES2Restrictions*/
+/*#pragma settings SkVMDebugTrace NoES2Restrictions NoTraceVarInSkVMDebugTrace*/
 // We use bitwise ops below, which SkVM supports but ES2 technically does not.
 
 uniform half4 colorGreen, colorRed;
