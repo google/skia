@@ -347,6 +347,18 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         return ResultCode::kSuccess;
     };
 
+    auto compileProgramForSkVM = [&](const auto& writeFn) -> ResultCode {
+        if (kind == SkSL::ProgramKind::kVertex) {
+            printf("%s: SkVM does not support vertex programs\n", outputPath.c_str());
+            return ResultCode::kOutputError;
+        }
+        if (kind == SkSL::ProgramKind::kFragment) {
+            // Handle .sksl and .frag programs as runtime shaders.
+            kind = SkSL::ProgramKind::kRuntimeShader;
+        }
+        return compileProgram(writeFn);
+    };
+
     if (outputPath.ends_with(".spirv")) {
         return compileProgram(
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
@@ -383,7 +395,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     return compiler.toMetal(program, out);
                 });
     } else if (outputPath.ends_with(".skvm")) {
-        return compileProgram(
+        return compileProgramForSkVM(
                 [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
