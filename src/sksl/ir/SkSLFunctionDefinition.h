@@ -14,8 +14,6 @@
 
 namespace SkSL {
 
-struct ASTNode;
-
 /**
  * A function definition (a declaration plus an associated block of code).
  */
@@ -31,8 +29,7 @@ public:
         , fDeclaration(declaration)
         , fBuiltin(builtin)
         , fBody(std::move(body))
-        , fReferencedIntrinsics(std::move(referencedIntrinsics))
-        , fSource(nullptr) {}
+        , fReferencedIntrinsics(std::move(referencedIntrinsics)) {}
 
     /**
      * Coerces `return` statements to the return type of the function, and reports errors in the
@@ -71,14 +68,6 @@ public:
         return fReferencedIntrinsics;
     }
 
-    const ASTNode* source() const {
-        return fSource;
-    }
-
-    void setSource(const ASTNode* source) {
-        fSource = source;
-    }
-
     std::unique_ptr<ProgramElement> clone() const override {
         return std::make_unique<FunctionDefinition>(fLine, &this->declaration(),
                                                     /*builtin=*/false, this->body()->clone(),
@@ -96,11 +85,6 @@ private:
     // We track intrinsic functions we reference so that we can ensure that all of them end up
     // copied into the final output.
     IntrinsicSet fReferencedIntrinsics;
-    // This pointer may be null, and even when non-null is not guaranteed to remain valid for
-    // the entire lifespan of this object. The parse tree's lifespan is normally controlled by
-    // IRGenerator, so the IRGenerator being destroyed or being used to compile another file
-    // will invalidate this pointer.
-    const ASTNode* fSource;
 
     using INHERITED = ProgramElement;
 };

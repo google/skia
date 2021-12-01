@@ -14,8 +14,6 @@
 
 namespace SkSL {
 
-struct ASTNode;
-
 /**
  * A function prototype (a function declaration as a top-level program element)
  */
