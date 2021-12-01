@@ -114,11 +114,12 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
     // the moment we should have only one drawPass.
     SkASSERT(fDrawPasses.size() == 1);
     RenderPassDesc desc;
-    desc.fColorAttachment.fTextureProxy = sk_ref_sp(fDrawPasses[0]->target());
+    desc.fColorAttachment.fTextureInfo = fDrawPasses[0]->target()->textureInfo();
     std::tie(desc.fColorAttachment.fLoadOp, desc.fColorAttachment.fStoreOp) = fDrawPasses[0]->ops();
     desc.fClearColor = fDrawPasses[0]->clearColor();
 
-    return RenderPassTask::Make(std::move(fDrawPasses), desc);
+    sk_sp<TextureProxy> targetProxy = sk_ref_sp(fDrawPasses[0]->target());
+    return RenderPassTask::Make(std::move(fDrawPasses), desc, std::move(targetProxy));
 }
 
 } // namespace skgpu

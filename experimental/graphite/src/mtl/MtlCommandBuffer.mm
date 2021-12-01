@@ -15,6 +15,7 @@
 #include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 #include "experimental/graphite/src/mtl/MtlRenderCommandEncoder.h"
 #include "experimental/graphite/src/mtl/MtlTexture.h"
+#include "experimental/graphite/src/mtl/MtlUtils.h"
 
 namespace skgpu::mtl {
 
@@ -64,7 +65,10 @@ bool CommandBuffer::commit() {
     return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
 }
 
-void CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc) {
+void CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
+                                      const skgpu::Texture* colorTexture,
+                                      const skgpu::Texture* resolveTexture,
+                                      const skgpu::Texture* depthStencilTexture) {
     SkASSERT(!fActiveRenderCommandEncoder);
     this->endBlitCommandEncoder();
 
@@ -89,20 +93,61 @@ void CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc) {
     sk_cfp<MTLRenderPassDescriptor*> descriptor([[MTLRenderPassDescriptor alloc] init]);
     // Set up color attachment.
     auto& colorInfo = renderPassDesc.fColorAttachment;
-    if (colorInfo.fTextureProxy) {
+    if (colorTexture) {
+        // TODO: check Texture matches RenderPassDesc
         auto colorAttachment = (*descriptor).colorAttachments[0];
-        const Texture* colorTexture = (const Texture*)colorInfo.fTextureProxy->texture();
-        colorAttachment.texture = colorTexture->mtlTexture();
+        colorAttachment.texture = ((Texture*)colorTexture)->mtlTexture();
         const std::array<float, 4>& clearColor = renderPassDesc.fClearColor;
         colorAttachment.clearColor =
                 MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
         colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
         colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
+        // Set up resolve attachment
+        if (resolveTexture) {
+            SkASSERT(renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore);
+            // TODO: check Texture matches RenderPassDesc
+            colorAttachment.resolveTexture = ((Texture*)resolveTexture)->mtlTexture();
+            // Inclusion of a resolve texture implies the client wants to finish the
+            // renderpass with a resolve.
+            if (@available(macOS 10.12, iOS 10.0, *)) {
+                if (colorAttachment.storeAction == MTLStoreActionStore) {
+                    colorAttachment.storeAction = MTLStoreActionStoreAndMultisampleResolve;
+                } else {
+                    SkASSERT(colorAttachment.storeAction == MTLStoreActionDontCare);
+                    colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
+                }
+            } else {
+                // We expect at least Metal 2
+                // TODO: Add error output
+                SkASSERT(false);
+            }
+        }
     }
 
-    // TODO:
-    // * setup resolve
-    // * set up stencil and depth
+    // Set up stencil/depth attachment
+    auto& depthStencilInfo = renderPassDesc.fDepthStencilAttachment;
+    if (depthStencilTexture) {
+        // TODO: check Texture matches RenderPassDesc
+        id<MTLTexture> mtlTexture = ((Texture*)depthStencilTexture)->mtlTexture();
+        if (FormatIsDepth(mtlTexture.pixelFormat)) {
+            auto depthAttachment = (*descriptor).depthAttachment;
+            depthAttachment.texture = mtlTexture;
+            depthAttachment.clearDepth = renderPassDesc.fClearDepth;
+            depthAttachment.loadAction =
+                     mtlLoadAction[static_cast<int>(depthStencilInfo.fLoadOp)];
+            depthAttachment.storeAction =
+                     mtlStoreAction[static_cast<int>(depthStencilInfo.fStoreOp)];
+        }
+        if (FormatIsStencil(mtlTexture.pixelFormat)) {
+            auto stencilAttachment = (*descriptor).stencilAttachment;
+            stencilAttachment.texture = mtlTexture;
+            stencilAttachment.clearStencil = renderPassDesc.fClearStencil;
+            stencilAttachment.loadAction =
+                     mtlLoadAction[static_cast<int>(depthStencilInfo.fLoadOp)];
+            stencilAttachment.storeAction =
+                     mtlStoreAction[static_cast<int>(depthStencilInfo.fStoreOp)];
+        }
+    }
 
     fActiveRenderCommandEncoder = RenderCommandEncoder::Make(fCommandBuffer.get(),
                                                              descriptor.get());

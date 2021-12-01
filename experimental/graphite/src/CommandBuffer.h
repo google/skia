@@ -8,6 +8,7 @@
 #ifndef skgpu_CommandBuffer_DEFINED
 #define skgpu_CommandBuffer_DEFINED
 
+#include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/DrawWriter.h"
 #include "include/core/SkColor.h"
@@ -35,7 +36,7 @@ enum class UniformSlot {
 };
 
 struct AttachmentDesc {
-    sk_sp<TextureProxy> fTextureProxy;
+    TextureInfo fTextureInfo;
     LoadOp fLoadOp;
     StoreOp fStoreOp;
 };
@@ -45,9 +46,9 @@ struct RenderPassDesc {
     std::array<float, 4> fClearColor;
     AttachmentDesc fColorResolveAttachment;
 
-    AttachmentDesc fStencilDepthAttachment;
-    uint32_t fClearStencil;
+    AttachmentDesc fDepthStencilAttachment;
     float fClearDepth;
+    uint32_t fClearStencil;
 
     // TODO:
     // * bounds (TBD whether exact bounds vs. granular)
@@ -66,7 +67,10 @@ public:
         fTrackedResources.push_back(std::move(resource));
     }
 
-    void beginRenderPass(const RenderPassDesc&);
+    void beginRenderPass(const RenderPassDesc&,
+                         sk_sp<Texture> colorTexture,
+                         sk_sp<Texture> resolveTexture,
+                         sk_sp<Texture> depthStencilTexture);
     virtual void endRenderPass() = 0;
 
     //---------------------------------------------------------------
@@ -151,7 +155,10 @@ private:
                            sk_sp<Buffer> instanceBuffer, size_t instanceOffset);
     void bindIndexBuffer(sk_sp<Buffer> indexBuffer, size_t bufferOffset);
 
-    virtual void onBeginRenderPass(const RenderPassDesc&) = 0;
+    virtual void onBeginRenderPass(const RenderPassDesc&,
+                                   const Texture* colorTexture,
+                                   const Texture* resolveTexture,
+                                   const Texture* depthStencilTexture) = 0;
 
     virtual void onBindGraphicsPipeline(const GraphicsPipeline*) = 0;
     virtual void onBindUniformBuffer(UniformSlot, const Buffer*, size_t bufferOffset) = 0;

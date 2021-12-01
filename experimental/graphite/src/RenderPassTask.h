@@ -29,17 +29,21 @@ class ResourceProvider;
 class RenderPassTask final : public Task {
 public:
     static sk_sp<RenderPassTask> Make(std::vector<std::unique_ptr<DrawPass>> passes,
-                                      const RenderPassDesc&);
+                                      const RenderPassDesc&,
+                                      sk_sp<TextureProxy> target);
 
     ~RenderPassTask() override;
 
     void addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:
-    RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes, const RenderPassDesc&);
+    RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,
+                   const RenderPassDesc&,
+                   sk_sp<TextureProxy> target);
 
     std::vector<std::unique_ptr<DrawPass>> fDrawPasses;
     RenderPassDesc fRenderPassDesc;
+    sk_sp<TextureProxy> fTarget;
 };
 
 } // namespace skgpu

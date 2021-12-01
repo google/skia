@@ -50,7 +50,10 @@ public:
 private:
     CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const Gpu* gpu);
 
-    void onBeginRenderPass(const RenderPassDesc&) override;
+    void onBeginRenderPass(const RenderPassDesc&,
+                           const skgpu::Texture* colorTexture,
+                           const skgpu::Texture* resolveTexture,
+                           const skgpu::Texture* depthStencilTexture) override;
     void endRenderPass() override;
 
     void onBindGraphicsPipeline(const skgpu::GraphicsPipeline*) override;

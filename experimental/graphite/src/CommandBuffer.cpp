@@ -24,14 +24,25 @@ void CommandBuffer::releaseResources() {
     fTrackedResources.reset();
 }
 
-void CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc) {
-    this->onBeginRenderPass(renderPassDesc);
+void CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
+                                    sk_sp<Texture> colorTexture,
+                                    sk_sp<Texture> resolveTexture,
+                                    sk_sp<Texture> depthStencilTexture) {
+    this->onBeginRenderPass(renderPassDesc, colorTexture.get(), resolveTexture.get(),
+                            depthStencilTexture.get());
 
-    auto& colorInfo = renderPassDesc.fColorAttachment;
-    if (colorInfo.fTextureProxy) {
-        this->trackResource(colorInfo.fTextureProxy->refTexture());
+    if (colorTexture) {
+        this->trackResource(std::move(colorTexture));
     }
-    if (colorInfo.fStoreOp == StoreOp::kStore) {
+    if (resolveTexture) {
+        this->trackResource(std::move(resolveTexture));
+    }
+    if (depthStencilTexture) {
+        this->trackResource(std::move(depthStencilTexture));
+    }
+    if (renderPassDesc.fColorAttachment.fLoadOp == LoadOp::kClear &&
+        (renderPassDesc.fColorAttachment.fStoreOp == StoreOp::kStore ||
+         renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore)) {
         fHasWork = true;
     }
 }

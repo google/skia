@@ -24,6 +24,25 @@ bool FormatIsDepthOrStencil(MTLPixelFormat format) {
     }
 }
 
+bool FormatIsDepth(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatDepth32Float_Stencil8:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool FormatIsStencil(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatStencil8: // fallthrough
+        case MTLPixelFormatDepth32Float_Stencil8:
+            return true;
+        default:
+            return false;
+    }
+}
+
 MTLPixelFormat SkColorTypeToFormat(SkColorType colorType) {
     switch (colorType) {
         case kRGBA_8888_SkColorType:
@@ -65,12 +84,12 @@ static void compile_error(const char* shaderSource, const char* errorText) {
     SkDebugf("Errors:\n%s", errorText);
 }
 
-bool GrSkSLToMSL(const Gpu* gpu,
-                 const SkSL::String& sksl,
-                 SkSL::ProgramKind programKind,
-                 const SkSL::Program::Settings& settings,
-                 SkSL::String* msl,
-                 SkSL::Program::Inputs* outInputs) {
+bool SkSLToMSL(const Gpu* gpu,
+               const SkSL::String& sksl,
+               SkSL::ProgramKind programKind,
+               const SkSL::Program::Settings& settings,
+               SkSL::String* msl,
+               SkSL::Program::Inputs* outInputs) {
     const SkSL::String& src = sksl;
     SkSL::Compiler* compiler = gpu->shaderCompiler();
     std::unique_ptr<SkSL::Program> program =

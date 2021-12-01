@@ -248,7 +248,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     REPORTER_ASSERT(reporter, target);
 
     RenderPassDesc renderPassDesc = {};
-    renderPassDesc.fColorAttachment.fTextureProxy = target;
+    renderPassDesc.fColorAttachment.fTextureInfo = target->textureInfo();
     renderPassDesc.fColorAttachment.fLoadOp = LoadOp::kClear;
     renderPassDesc.fColorAttachment.fStoreOp = StoreOp::kStore;
     renderPassDesc.fClearColor = { 1, 0, 0, 1 }; // red
@@ -256,8 +256,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     target->instantiate(gpu->resourceProvider());
     DrawBufferManager bufferMgr(gpu->resourceProvider(), 4);
 
-    commandBuffer->beginRenderPass(renderPassDesc);
-
+    commandBuffer->beginRenderPass(renderPassDesc, target->refTexture(), nullptr, nullptr);
     DrawWriter drawWriter(commandBuffer->asDrawDispatcher(), &bufferMgr);
 
     struct RectAndColor {

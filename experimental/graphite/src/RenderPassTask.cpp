@@ -15,17 +15,20 @@
 namespace skgpu {
 
 sk_sp<RenderPassTask> RenderPassTask::Make(std::vector<std::unique_ptr<DrawPass>> passes,
-                                           const RenderPassDesc& desc) {
+                                           const RenderPassDesc& desc,
+                                           sk_sp<TextureProxy> target) {
     // For now we have one DrawPass per RenderPassTask
     SkASSERT(passes.size() == 1);
 
-    return sk_sp<RenderPassTask>(new RenderPassTask(std::move(passes), desc));
+    return sk_sp<RenderPassTask>(new RenderPassTask(std::move(passes), desc, target));
 }
 
 RenderPassTask::RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,
-                               const RenderPassDesc& desc)
+                               const RenderPassDesc& desc,
+                               sk_sp<TextureProxy> target)
         : fDrawPasses(std::move(passes))
-        , fRenderPassDesc(desc) {}
+        , fRenderPassDesc(desc)
+        , fTarget(std::move(target)) {}
 
 RenderPassTask::~RenderPassTask() = default;
 
@@ -36,19 +39,18 @@ void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
     // possibly(?) start each subpass, and call DrawPass::addCommands() on the command buffer
     // provided to the task. Then close the render pass and we should have pixels..
 
-    // Instantiate the attachments
-    if (fRenderPassDesc.fColorAttachment.fTextureProxy) {
-        auto target = fRenderPassDesc.fColorAttachment.fTextureProxy;
-        if (!target->instantiate(resourceProvider)) {
+    // Instantiate the target
+    if (fTarget) {
+        if (!fTarget->instantiate(resourceProvider)) {
             SkDebugf("WARNING: given invalid texture proxy. Will not create renderpass!\n");
-            SkDebugf("Dimensions are (%d, %d).\n", target->dimensions().width(),
-                     target->dimensions().height());
+            SkDebugf("Dimensions are (%d, %d).\n", fTarget->dimensions().width(),
+                     fTarget->dimensions().height());
             return;
         }
     }
-    // TODO: instantiate depth and stencil
+    // TODO: set up depth and stencil
 
-    commandBuffer->beginRenderPass(fRenderPassDesc);
+    commandBuffer->beginRenderPass(fRenderPassDesc, fTarget->refTexture(), nullptr, nullptr);
 
     // Assuming one draw pass per renderpasstask for now
     SkASSERT(fDrawPasses.size() == 1);
