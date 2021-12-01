@@ -470,29 +470,6 @@ namespace skvm {
             }
         }
 
-        // After removing non-live instructions, we can be left with redundant back-to-back
-        // trace_line instructions. (e.g. one line could have multiple statements on it.)
-        // Eliminate any duplicate ops.
-        int lastId = -1;
-        for (Val id = 0; id < (Val)program.size(); id++) {
-            if (!live[id]) {
-                continue;
-            }
-            const Instruction& inst = program[id];
-            if (inst.op != Op::trace_line) {
-                lastId = -1;
-                continue;
-            }
-            if (lastId >= 0) {
-                const Instruction& last = program[lastId];
-                if (inst.immA == last.immA && inst.x == last.x) {
-                    // Found two matching trace_lines in a row. Mark the first one as dead.
-                    live[lastId] = false;
-                }
-            }
-            lastId = id;
-        }
-
         // Rewrite the program with only live Instructions:
         //   - remap IDs in live Instructions to what they'll be once dead Instructions are removed;
         //   - then actually remove the dead Instructions.
