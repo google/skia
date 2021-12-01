@@ -204,3 +204,37 @@ DEF_SIMPLE_GM(drawimage_sampling, canvas, 500, 500) {
     }
 
 }
+
+// Test case for skbug.com/12685 (texture-backed image shaders silently fail drawing to CPU canvas)
+DEF_SIMPLE_GM(textureimage_and_shader, canvas, 100, 50) {
+    canvas->clear(SK_ColorGREEN);
+
+    sk_sp<SkImage> image;
+    if (canvas->getSurface()) {
+        image = canvas->getSurface()->makeImageSnapshot();
+        canvas->clear(SK_ColorRED);
+    } else {
+        auto greenSurface = SkSurface::MakeRasterN32Premul(50, 50);
+        greenSurface->getCanvas()->clear(SK_ColorGREEN);
+        image = greenSurface->makeImageSnapshot();
+    }
+
+    // At this point, 'image' contains a green image. If our original canvas is GPU-backed, then
+    // the snapped image will be a (GPU) texture. We will try to draw that image to a non-GPU
+    // surface, to ensure that we get automatic read-back. If all goes well, we will get a pure
+    // green result. If either draw fails, we'll get red (most likely).
+
+    auto surface = SkSurface::MakeRasterN32Premul(50, 50);
+
+    // First, use drawImage:
+    surface->getCanvas()->clear(SK_ColorRED);
+    surface->getCanvas()->drawImage(image, 0, 0);
+    canvas->drawImage(surface->makeImageSnapshot(), 0, 0);
+
+    // Now, use an image shader:
+    SkPaint paint;
+    paint.setShader(image->makeShader(SkSamplingOptions()));
+    surface->getCanvas()->clear(SK_ColorRED);
+    surface->getCanvas()->drawPaint(paint);
+    canvas->drawImage(surface->makeImageSnapshot(), 50, 0);
+}
