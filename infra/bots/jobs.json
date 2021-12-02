@@ -223,6 +223,7 @@
   {"name": "Housekeeper-PerCommit-IsolateSkImage"},
   {"name": "Housekeeper-PerCommit-PushAppsFromSkiaDockerImage"},
   {"name": "Housekeeper-PerCommit-PushAppsFromWASMDockerImage"},
+  {"name": "Housekeeper-PerCommit-PushBazelAppsFromWASMDockerImage"},
   {"name": "Housekeeper-PerCommit-RunGnToBp",
    "cq_config": {}
    },

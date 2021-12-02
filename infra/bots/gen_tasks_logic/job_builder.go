@@ -124,6 +124,9 @@ func (b *jobBuilder) genTasksForJob() {
 	} else if b.extraConfig("PushAppsFromWASMDockerImage") {
 		b.createPushAppsFromWASMDockerImage()
 		return
+	} else if b.extraConfig("PushBazelAppsFromWASMDockerImage") {
+		b.createPushBazelAppsFromWASMDockerImage()
+		return
 	}
 
 	// Infra tests.

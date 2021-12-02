@@ -1093,7 +1093,7 @@ func (b *jobBuilder) createDockerImage(wasm bool) string {
 }
 
 // createPushAppsFromSkiaDockerImage creates and pushes docker images of some apps
-// (eg: fiddler, debugger, api) using the skia-release docker image.
+// (eg: fiddler, api) using the skia-release docker image.
 func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		// TODO(borenet): Make this task not use Git.
@@ -1149,6 +1149,39 @@ func (b *jobBuilder) createPushAppsFromWASMDockerImage() {
 		// TODO(borenet): Does this task need go/go/bin in PATH?
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.cas(CAS_EMPTY)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+		b.usesDocker()
+		b.cache(CACHES_DOCKER...)
+	})
+}
+
+// createPushBazelAppsFromWASMDockerImage pushes those infra apps that have been ported to Bazel
+// and require assets built in the WASM docker image.
+// TODO(kjlubick) The inputs to this job should not be the docker build, but a Bazel build.
+func (b *jobBuilder) createPushBazelAppsFromWASMDockerImage() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		// TODO(borenet): Make this task not use Git.
+		b.usesGit()
+		b.cmd(
+			"./push_bazel_apps_from_wasm_image",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--workdir", ".",
+			"--gerrit_project", "buildbot",
+			"--gerrit_url", "https://skia-review.googlesource.com",
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+		)
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
+		b.dep(b.createDockerImage(true))
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "bazel/bin")
+		b.cas(CAS_EMPTY)
+		b.cipd(b.MustGetCipdPackageFromAsset("bazel"))
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
