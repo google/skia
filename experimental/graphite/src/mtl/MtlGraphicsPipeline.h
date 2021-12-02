@@ -24,10 +24,11 @@ class Gpu;
 
 class GraphicsPipeline final : public skgpu::GraphicsPipeline {
 public:
-    inline static constexpr unsigned int kRenderStepUniformBufferIndex = 0;
-    inline static constexpr unsigned int kPaintUniformBufferIndex = 1;
-    inline static constexpr unsigned int kVertexBufferIndex = 2;
-    inline static constexpr unsigned int kInstanceBufferIndex = 3;
+    inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
+    inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
+    inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
+    inline static constexpr unsigned int kVertexBufferIndex = 3;
+    inline static constexpr unsigned int kInstanceBufferIndex = 4;
 
     static sk_sp<GraphicsPipeline> Make(const Gpu*, const skgpu::GraphicsPipelineDesc&);
     ~GraphicsPipeline() override {}

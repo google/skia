@@ -35,40 +35,6 @@ using namespace skgpu;
 
 namespace {
 
-class FullscreenRectDraw final : public RenderStep {
-public:
-    ~FullscreenRectDraw() override {}
-
-    static const RenderStep* Singleton() {
-        static const FullscreenRectDraw kSingleton;
-        return &kSingleton;
-    }
-
-    const char* name() const override { return "fullscreen-rect"; }
-
-    const char* vertexMSL() const override {
-        return "float2 position = float2(float(vertexID >> 1), float(vertexID & 1));\n"
-               "out.position.xy = position * 2 - 1;\n"
-               "out.position.zw = float2(0.0, 1.0);\n";
-    }
-
-    void writeVertices(DrawWriter* writer, const Transform&, const Shape&) const override {
-        // This RenderStep ignores shape and just needs to draw 4 data-less vertices
-        writer->draw({}, {}, 4);
-    }
-
-    sk_sp<UniformData> writeUniforms(Layout, const Transform&, const Shape&) const override {
-        return nullptr;
-    }
-
-private:
-    FullscreenRectDraw() : RenderStep(Flags::kPerformsShading,
-                                      /*uniforms=*/{},
-                                      PrimitiveType::kTriangleStrip,
-                                      /*vertexAttrs=*/{},
-                                      /*instanceAttrs=*/{}) {}
-};
-
 class UniformRectDraw final : public RenderStep {
 public:
     ~UniformRectDraw() override {}
@@ -260,6 +226,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     DrawBufferManager bufferMgr(gpu->resourceProvider(), 4);
 
     commandBuffer->beginRenderPass(renderPassDesc, target->refTexture(), nullptr, nullptr);
+
+    commandBuffer->setViewport(0.f, 0.f, kTextureWidth, kTextureHeight);
+
     DrawWriter drawWriter(commandBuffer->asDrawDispatcher(), &bufferMgr);
 
     struct RectAndColor {
@@ -305,18 +274,24 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
         }
     };
 
+    SkRect fullRect = SkRect::MakeIWH(kTextureWidth, kTextureHeight);
     // Draw blue rectangle over entire rendertarget (which was red)
-    draw(FullscreenRectDraw::Singleton(), {{SkRect::MakeEmpty(), SkColors::kBlue}});
+    draw(UniformRectDraw::Singleton(), {{fullRect, SkColors::kBlue}});
 
     // Draw inset yellow rectangle using uniforms
-    draw(UniformRectDraw::Singleton(), {{{-0.9f, -0.9f, 0.9f, 0.9f}, SkColors::kYellow}});
+    draw(UniformRectDraw::Singleton(),
+         {{fullRect.makeInset(kTextureWidth/20.f, kTextureHeight/20.f), SkColors::kYellow}});
 
     // Draw inset magenta rectangle with triangles in vertex buffer
-    draw(TriangleRectDraw::Singleton(), {{{-.5f, -.5f, .5f, .5f}, SkColors::kMagenta}});
+    draw(TriangleRectDraw::Singleton(),
+         {{fullRect.makeInset(kTextureWidth/4.f, kTextureHeight/4.f), SkColors::kMagenta}});
 
     // Draw green and cyan rects using instance buffer
-    draw(InstanceRectDraw::Singleton(), { {{-0.4f, -0.4f, 0.0f, 0.0f}, SkColors::kGreen},
-                                          {{0.f, 0.f, 0.25f, 0.25f},   SkColors::kCyan} });
+    draw(InstanceRectDraw::Singleton(),
+         { {{kTextureWidth/3.f, kTextureHeight/3.f,
+             kTextureWidth/2.f, kTextureHeight/2.f}, SkColors::kGreen},
+           {{kTextureWidth/2.f, kTextureHeight/2.f,
+             5.f*kTextureWidth/8.f, 5.f*kTextureHeight/8.f}, SkColors::kCyan} });
 
     drawWriter.flush();
     bufferMgr.transferToCommandBuffer(commandBuffer.get());

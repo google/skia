@@ -252,7 +252,7 @@ private:
     id<MTLRenderPipelineState> fCurrentRenderPipelineState = nil;
     id<MTLDepthStencilState> fCurrentDepthStencilState = nil;
 
-    inline static constexpr int kMaxExpectedBuffers = 4;
+    inline static constexpr int kMaxExpectedBuffers = 5;
     id<MTLBuffer> fCurrentVertexBuffer[kMaxExpectedBuffers];
     NSUInteger fCurrentVertexOffset[kMaxExpectedBuffers];
     id<MTLBuffer> fCurrentFragmentBuffer[kMaxExpectedBuffers];

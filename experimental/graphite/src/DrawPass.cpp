@@ -416,6 +416,11 @@ void DrawPass::addCommands(CommandBuffer* buffer, ResourceProvider* resourceProv
         fullPipelines.push_back(resourceProvider->findOrCreateGraphicsPipeline(desc));
     }
 
+    // Set viewport to the entire texture for now (eventually, we may have logically smaller bounds
+    // within an approx-sized texture). It is assumed that this also configures the sk_rtAdjust
+    // intrinsic for programs (however the backend chooses to do so).
+    buffer->setViewport(0, 0, fTarget->dimensions().width(), fTarget->dimensions().height());
+
     for (const Command& c : fCommands.items()) {
         switch(c.fType) {
             case CommandType::kBindGraphicsPipeline: {

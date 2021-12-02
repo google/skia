@@ -259,6 +259,12 @@ void CommandBuffer::onSetViewport(float x, float y, float width, float height,
     SkASSERT(fActiveRenderCommandEncoder);
     MTLViewport viewport = { x, y, width, height, minDepth, maxDepth };
     fActiveRenderCommandEncoder->setViewport(viewport);
+
+    float invTwoW = 2.f / width;
+    float invTwoH = 2.f / height;
+    float rtAdjust[4] = {invTwoW, invTwoH, -1.f - x * invTwoW, -1.f - y * invTwoH};
+    fActiveRenderCommandEncoder->setVertexBytes(rtAdjust, 4 * sizeof(float),
+                                                GraphicsPipeline::kIntrinsicUniformBufferIndex);
 }
 
 void CommandBuffer::onSetStencilReference(unsigned int referenceValue) {
