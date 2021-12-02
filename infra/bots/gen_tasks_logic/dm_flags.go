@@ -952,7 +952,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.gpu("Tegra3") {
 		// Tegra3 fails to compile break stmts inside a for loop (skia:12477)
-		skip("_", "tests", "_", "SkSLReturnsValueOnEveryPathES2_GPU")
 		skip("_", "tests", "_", "SkSLSwitch_GPU")
 		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU")
 		skip("_", "tests", "_", "SkSLSwitchWithFallthrough_GPU")

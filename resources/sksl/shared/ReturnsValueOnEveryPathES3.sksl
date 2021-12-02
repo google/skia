@@ -34,10 +34,69 @@ bool after_while_loop() {
     return true;
 }
 
+bool switch_with_all_returns() {
+    switch (int(unknownInput)) {
+        case 1:  return true;
+        case 2:  return false;
+        default: return false;
+    }
+}
+
+bool switch_fallthrough() {
+    switch (int(unknownInput)) {
+        case 1:  return true;
+        case 2:
+        default: return false;
+    }
+}
+
+bool switch_fallthrough_twice() {
+    switch (int(unknownInput)) {
+        case 1:
+        case 2:
+        default: return true;
+    }
+}
+
+bool switch_with_break_in_loop() {
+    switch (int(unknownInput)) {
+        case 1:  for (int x=0; x<=10; ++x) { break; }
+        default: return true;
+    }
+}
+
+bool switch_with_continue_in_loop() {
+    switch (int(unknownInput)) {
+        case 1:  for (int x=0; x<=10; ++x) { continue; }
+        default: return true;
+    }
+}
+
+bool switch_with_if_that_returns() {
+    switch (int(unknownInput)) {
+        case 1:  if (unknownInput == 123) return false; else return true;
+        default: return true;
+    }
+}
+
+bool switch_with_one_sided_if_then_fallthrough() {
+    switch (int(unknownInput)) {
+        case 1:  if (unknownInput == 123) return false;
+        default: return true;
+    }
+}
+
 half4 main(float2 coords) {
     return  inside_while_loop() &&
             inside_infinite_do_loop() &&
             inside_infinite_while_loop() &&
             after_do_loop() &&
-            after_while_loop() ? colorGreen : colorRed;
+            after_while_loop() &&
+            switch_with_all_returns() &&
+            switch_fallthrough() &&
+            switch_fallthrough_twice() &&
+            switch_with_break_in_loop() &&
+            switch_with_continue_in_loop() &&
+            switch_with_if_that_returns() &&
+            switch_with_one_sided_if_then_fallthrough() ? colorGreen : colorRed;
 }
