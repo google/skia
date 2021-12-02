@@ -1995,7 +1995,6 @@ void GrGLGpu::endCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
         if (GrStoreOp::kDiscard == stencilLoadStore.fStoreOp) {
             discardAttachments.push_back(
                     rt->isFBO0(useMultisampleFBO) ? GR_GL_STENCIL : GR_GL_STENCIL_ATTACHMENT);
-
         }
 
         if (!discardAttachments.empty()) {
@@ -2196,7 +2195,9 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, bool useMultisampleFBO
 void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool useMultisampleFBO) {
     SkASSERT(target);
     GrGpuResource::UniqueID rtID = target->uniqueID();
-    if (fHWBoundRenderTargetUniqueID != rtID || fHWBoundFramebufferIsMSAA != useMultisampleFBO) {
+    if (fHWBoundRenderTargetUniqueID != rtID           ||
+        fHWBoundFramebufferIsMSAA != useMultisampleFBO ||
+        target->mustRebind(useMultisampleFBO)) {
         target->bind(useMultisampleFBO);
 #ifdef SK_DEBUG
         // don't do this check in Chromium -- this is causing

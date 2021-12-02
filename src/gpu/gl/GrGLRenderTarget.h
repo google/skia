@@ -70,6 +70,11 @@ public:
         this->bindInternal(GR_GL_FRAMEBUFFER, useMultisampleFBO);
     }
 
+    // Must be rebound even if this is already the currently bound render target.
+    bool mustRebind(bool useMultisampleFBO) const {
+        return fNeedsStencilAttachmentBind[useMultisampleFBO];
+    }
+
     // Binds the render target for copying, reading, or clearing pixel values. If we are an MSAA
     // render target with a separate resolve texture, we bind the multisampled FBO. Otherwise we
     // bind the single sample FBO.

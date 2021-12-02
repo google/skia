@@ -132,6 +132,7 @@ tests_sources = [
   "$_tests/JSONTest.cpp",
   "$_tests/LListTest.cpp",
   "$_tests/LRUCacheTest.cpp",
+  "$_tests/LazyStencilAttachmentTest.cpp",
   "$_tests/M44Test.cpp",
   "$_tests/MD5Test.cpp",
   "$_tests/MallocPixelRefTest.cpp",
