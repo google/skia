@@ -18,6 +18,7 @@ class GrRecordingContext;
 class SkArenaAlloc;
 class SkBitmap;
 class SkColorSpace;
+class SkRuntimeEffect;
 struct SkStageRec;
 using GrFPResult = std::tuple<bool, std::unique_ptr<GrFragmentProcessor>>;
 
@@ -54,6 +55,8 @@ public:
     }
 
     static void RegisterFlattenables();
+
+    virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
 
     static SkFlattenable::Type GetFlattenableType() {
         return kSkColorFilter_Type;

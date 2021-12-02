@@ -929,6 +929,8 @@ public:
         write_child_effects(buffer, fChildren);
     }
 
+    SkRuntimeEffect* asRuntimeEffect() const override { return fEffect.get(); }
+
     SK_FLATTENABLE_HOOKS(SkRuntimeColorFilter)
 
 private:
