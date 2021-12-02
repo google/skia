@@ -684,9 +684,21 @@ public:
     /**
      *  Return info about a single frame.
      *
-     *  Only supported by multi-frame images. Does not read through the stream,
-     *  so it should be called after getFrameCount() to parse any frames that
-     *  have not already been parsed.
+     *  Does not read through the stream, so it should be called after
+     *  getFrameCount() to parse any frames that have not already been parsed.
+     *
+     *  Only supported by animated (multi-frame) codecs. Note that this is a
+     *  property of the codec (the SkCodec subclass), not the image.
+     *
+     *  To elaborate, some codecs support animation (e.g. GIF). Others do not
+     *  (e.g. BMP). Animated codecs can still represent single frame images.
+     *  Calling getFrameInfo(0, etc) will return true for a single frame GIF
+     *  even if the overall image is not animated (in that the pixels on screen
+     *  do not change over time). When incrementally decoding a GIF image, we
+     *  might only know that there's a single frame *so far*.
+     *
+     *  For non-animated SkCodec subclasses, it's sufficient but not necessary
+     *  for this method to always return false.
      */
     bool getFrameInfo(int index, FrameInfo* info) const {
         if (index < 0) {
@@ -703,7 +715,8 @@ public:
      *
      *  As such, future decoding calls may require a rewind.
      *
-     *  For still (non-animated) image codecs, this will return an empty vector.
+     *  This may return an empty vector for non-animated codecs. See the
+     *  getFrameInfo(int, FrameInfo*) comment.
      */
     std::vector<FrameInfo> getFrameInfo();
 
