@@ -188,6 +188,7 @@ private:
     bool                   fShowImGuiDebugWindow;
     bool                   fShowSlidePicker;
     bool                   fShowImGuiTestWindow;
+    bool                   fShowHistogramWindow;
 
     bool                   fShowZoomWindow;
     bool                   fZoomWindowFixed;

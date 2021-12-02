@@ -17,6 +17,7 @@
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkPaintFilterCanvas.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMD5.h"
@@ -331,6 +332,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fShowImGuiDebugWindow(false)
     , fShowSlidePicker(false)
     , fShowImGuiTestWindow(false)
+    , fShowHistogramWindow(false)
     , fShowZoomWindow(false)
     , fZoomWindowFixed(false)
     , fZoomWindowLocation{0.0f, 0.0f}
@@ -470,6 +472,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('0', "Overlays", "Reset stats", [this]() {
         fStatsLayer.resetMeasurements();
         this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('C', "GUI", "Toggle color histogram", [this]() {
+        this->fShowHistogramWindow = !this->fShowHistogramWindow;
         fWindow->inval();
     });
     fCommands.addCommand('c', "Modes", "Cycle color mode", [this]() {
@@ -1520,6 +1526,7 @@ void Viewer::drawSlide(SkSurface* surface) {
     sk_sp<SkSurface> offscreenSurface = nullptr;
     if (kPerspective_Fake == fPerspectiveMode ||
         fShowZoomWindow ||
+        fShowHistogramWindow ||
         Window::kRaster_BackendType == fBackendType ||
         colorSpace != nullptr ||
         FLAGS_offscreen) {
@@ -2789,6 +2796,40 @@ void Viewer::drawImGui() {
                 outline.setStyle(SkPaint::kStroke_Style);
                 c->drawRect(SkRect::MakeXYWH(x, y, 1, 1), outline);
             });
+        }
+
+        ImGui::End();
+    }
+
+    if (fShowHistogramWindow && fLastImage) {
+        ImGui::SetNextWindowSize(ImVec2(450, 500));
+        ImGui::SetNextWindowBgAlpha(0.5f);
+        if (ImGui::Begin("Color Histogram (R,G,B)", &fShowHistogramWindow)) {
+            const auto info = SkImageInfo::MakeN32Premul(fWindow->width(), fWindow->height());
+            SkAutoPixmapStorage pixmap;
+            pixmap.alloc(info);
+
+            if (fLastImage->readPixels(fWindow->directContext(), info, pixmap.writable_addr(),
+                                       info.minRowBytes(), 0, 0)) {
+                std::vector<float> r(256), g(256), b(256);
+                for (int y = 0; y < info.height(); ++y) {
+                    for (int x = 0; x < info.width(); ++x) {
+                        const auto pmc = *pixmap.addr32(x, y);
+                        r[SkGetPackedR32(pmc)]++;
+                        g[SkGetPackedG32(pmc)]++;
+                        b[SkGetPackedB32(pmc)]++;
+                    }
+                }
+
+                ImGui::PushItemWidth(-1);
+                ImGui::PlotHistogram("R", r.data(), r.size(), 0, nullptr,
+                                     FLT_MAX, FLT_MAX, ImVec2(0, 150));
+                ImGui::PlotHistogram("G", g.data(), g.size(), 0, nullptr,
+                                     FLT_MAX, FLT_MAX, ImVec2(0, 150));
+                ImGui::PlotHistogram("B", b.data(), b.size(), 0, nullptr,
+                                     FLT_MAX, FLT_MAX, ImVec2(0, 150));
+                ImGui::PopItemWidth();
+            }
         }
 
         ImGui::End();
