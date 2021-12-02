@@ -8,6 +8,8 @@
 #include "experimental/graphite/src/Device.h"
 
 #include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/include/Recording.h"
 #include "experimental/graphite/include/SkStuff.h"
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/Caps.h"
@@ -16,8 +18,6 @@
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/Gpu.h"
-#include "experimental/graphite/src/Recorder.h"
-#include "experimental/graphite/src/Recording.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"

@@ -8,14 +8,14 @@
 #include "experimental/graphite/include/Context.h"
 
 #include "experimental/graphite/include/BackendTexture.h"
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/include/Recording.h"
 #include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
-#include "experimental/graphite/src/Recorder.h"
-#include "experimental/graphite/src/Recording.h"
 #include "experimental/graphite/src/Renderer.h"
 
 #ifdef SK_METAL
@@ -39,7 +39,7 @@ sk_sp<Context> Context::MakeMetal(const mtl::BackendContext& backendContext) {
 #endif
 
 sk_sp<Recorder> Context::createRecorder() {
-    return sk_make_sp<Recorder>(sk_ref_sp(this));
+    return sk_sp<Recorder>(new Recorder(sk_ref_sp(this)));
 }
 
 void Context::insertRecording(std::unique_ptr<Recording> recording) {

@@ -20,7 +20,6 @@ class UniformCache;
 
 class Recorder final : public SkRefCnt {
 public:
-    Recorder(sk_sp<Context>);
     ~Recorder() override;
 
     void add(sk_sp<Task>);
@@ -33,6 +32,9 @@ public:
 
 protected:
 private:
+    friend class Context; // For ctor
+    Recorder(sk_sp<Context>);
+
     sk_sp<Context> fContext;
     TaskGraph fGraph;
     std::unique_ptr<UniformCache> fUniformCache;

@@ -16,12 +16,13 @@ class CommandBuffer;
 
 class Recording final {
 public:
-    Recording(sk_sp<CommandBuffer>);
     ~Recording();
 
 protected:
 private:
-    friend class Context; // for access to fCommandBuffer
+    friend class Context; // for access fCommandBuffer
+    friend class Recorder; // for ctor
+    Recording(sk_sp<CommandBuffer>);
 
     sk_sp<CommandBuffer> fCommandBuffer;
 };

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/graphite/src/Recorder.h"
+#include "experimental/graphite/include/Recorder.h"
 
 #include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/include/Recording.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/Gpu.h"
-#include "experimental/graphite/src/Recording.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/UniformCache.h"
 

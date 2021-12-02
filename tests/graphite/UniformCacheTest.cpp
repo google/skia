@@ -8,8 +8,8 @@
 #include "tests/Test.h"
 
 #include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/ContextUtils.h"
-#include "experimental/graphite/src/Recorder.h"
 #include "experimental/graphite/src/Uniform.h"
 #include "experimental/graphite/src/UniformCache.h"
 
@@ -41,9 +41,9 @@ sk_sp<UniformData> make_ud(int numUniforms, int dataSize) {
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformCacheTest, reporter, context) {
-    Recorder recorder(sk_ref_sp(context));
+    sk_sp<Recorder> recorder = context->createRecorder();
 
-    auto cache = recorder.uniformCache();
+    auto cache = recorder->uniformCache();
 
     REPORTER_ASSERT(reporter, cache->count() == 0);
 

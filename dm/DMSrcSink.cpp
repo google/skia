@@ -81,9 +81,9 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/include/Recording.h"
 #include "experimental/graphite/include/SkStuff.h"
-#include "experimental/graphite/src/Recorder.h"
-#include "experimental/graphite/src/Recording.h"
 #include "tools/graphite/ContextFactory.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #endif

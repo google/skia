@@ -8,6 +8,7 @@
 #include "experimental/graphite/src/DrawPass.h"
 
 #include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
@@ -17,7 +18,6 @@
 #include "experimental/graphite/src/DrawWriter.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
-#include "experimental/graphite/src/Recorder.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/TextureProxy.h"

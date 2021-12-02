@@ -7,10 +7,10 @@
 
 #include "experimental/graphite/src/Surface_Graphite.h"
 
+#include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/include/SkStuff.h"
 #include "experimental/graphite/src/Device.h"
 #include "experimental/graphite/src/Image_Graphite.h"
-#include "experimental/graphite/src/Recorder.h"
 
 namespace skgpu {
 
