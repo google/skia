@@ -476,7 +476,8 @@ time.sleep(60)
           import subprocess
           import sys
           out = sys.argv[1]
-          log = subprocess.check_output(['%s', 'logcat', '-d']).decode('utf-8')
+          log = subprocess.check_output([
+              '%s', 'logcat', '-d']).decode('utf-8', errors='ignore')
           for line in log.split('\\n'):
             tokens = line.split()
             if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':
