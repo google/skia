@@ -170,11 +170,13 @@ sk_sp<SkData> SkImage::refEncodedData() const {
     return sk_sp<SkData>(as_IB(this)->onRefEncoded());
 }
 
-sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded) {
+sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded,
+                                        skstd::optional<SkAlphaType> alphaType) {
     if (nullptr == encoded || 0 == encoded->size()) {
         return nullptr;
     }
-    return SkImage::MakeFromGenerator(SkImageGenerator::MakeFromEncoded(std::move(encoded)));
+    return SkImage::MakeFromGenerator(
+            SkImageGenerator::MakeFromEncoded(std::move(encoded), alphaType));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1307,6 +1307,21 @@ DEF_TEST(image_roundtrip_premul, reporter) {
     REPORTER_ASSERT(reporter, equal(bm0, bm2));
 }
 
+DEF_TEST(image_from_encoded_alphatype_override, reporter) {
+    sk_sp<SkData> data = GetResourceAsData("images/mandrill_32.png");
+
+    // Ensure that we can decode the image when we specifically request premul or unpremul, but
+    // not when we request kOpaque
+    REPORTER_ASSERT(reporter, SkImage::MakeFromEncoded(data, kPremul_SkAlphaType));
+    REPORTER_ASSERT(reporter, SkImage::MakeFromEncoded(data, kUnpremul_SkAlphaType));
+    REPORTER_ASSERT(reporter, !SkImage::MakeFromEncoded(data, kOpaque_SkAlphaType));
+
+    // Same tests as above, but using SkImageGenerator::MakeFromEncoded
+    REPORTER_ASSERT(reporter, SkImageGenerator::MakeFromEncoded(data, kPremul_SkAlphaType));
+    REPORTER_ASSERT(reporter, SkImageGenerator::MakeFromEncoded(data, kUnpremul_SkAlphaType));
+    REPORTER_ASSERT(reporter, !SkImageGenerator::MakeFromEncoded(data, kOpaque_SkAlphaType));
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void check_scaled_pixels(skiatest::Reporter* reporter, SkPixmap* pmap, uint32_t expected) {

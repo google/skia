@@ -13,6 +13,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/private/SkTOptional.h"
 
 class GrRecordingContext;
 class GrSurfaceProxyView;
@@ -152,8 +153,12 @@ public:
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
      *  the caller is still responsible for managing their ownership of the data.
+     *  By default, images will be converted to premultiplied pixels. The alpha type can be
+     *  overridden by specifying kPremul_SkAlphaType or kUnpremul_SkAlphaType. Specifying
+     *  kOpaque_SkAlphaType is not supported, and will return NULL.
      */
-    static std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData>);
+    static std::unique_ptr<SkImageGenerator> MakeFromEncoded(
+            sk_sp<SkData>, skstd::optional<SkAlphaType> = skstd::nullopt);
 
     /** Return a new image generator backed by the specified picture.  If the size is empty or
      *  the picture is NULL, this returns NULL.
@@ -192,7 +197,8 @@ private:
     // This is our default impl, which may be different on different platforms.
     // It is called from NewFromEncoded() after it has checked for any runtime factory.
     // The SkData will never be NULL, as that will have been checked by NewFromEncoded.
-    static std::unique_ptr<SkImageGenerator> MakeFromEncodedImpl(sk_sp<SkData>);
+    static std::unique_ptr<SkImageGenerator> MakeFromEncodedImpl(sk_sp<SkData>,
+                                                                 skstd::optional<SkAlphaType>);
 
     SkImageGenerator(SkImageGenerator&&) = delete;
     SkImageGenerator(const SkImageGenerator&) = delete;

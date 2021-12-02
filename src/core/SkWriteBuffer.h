@@ -151,6 +151,7 @@ enum SkWriteBufferImageFlags {
 
     kHasSubsetRect  = 1 << 8,
     kHasMipmap      = 1 << 9,
+    kUnpremul       = 1 << 10,
 };
 
 

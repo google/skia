@@ -332,7 +332,11 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
             image = fProcs.fImageProc(data->data(), data->size(), fProcs.fImageCtx);
         }
         if (!image) {
-            image = SkImage::MakeFromEncoded(std::move(data));
+            skstd::optional<SkAlphaType> alphaType = skstd::nullopt;
+            if (flags & SkWriteBufferImageFlags::kUnpremul) {
+                alphaType = kUnpremul_SkAlphaType;
+            }
+            image = SkImage::MakeFromEncoded(std::move(data), alphaType);
         }
     }
 
