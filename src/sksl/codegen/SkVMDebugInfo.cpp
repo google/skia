@@ -113,6 +113,25 @@ void SkVMDebugInfo::writeTrace(SkWStream* w) const {
     }
 
     json.endArray(); // functions
+    json.beginArray("trace");
+
+    for (size_t index = 0; index < fTraceInfo.size(); ++index) {
+        const SkVMTraceInfo& trace = fTraceInfo[index];
+        json.beginArray();
+        json.appendS32((int)trace.op);
+
+        // Skip trailing zeros in the data (since most ops only use one value).
+        int lastDataIdx = SK_ARRAY_COUNT(trace.data) - 1;
+        while (lastDataIdx >= 0 && !trace.data[lastDataIdx]) {
+            --lastDataIdx;
+        }
+        for (int dataIdx = 0; dataIdx <= lastDataIdx; ++dataIdx) {
+            json.appendS32(trace.data[dataIdx]);
+        }
+        json.endArray();
+    }
+
+    json.endArray(); // trace
     json.endObject(); // root
     json.flush();
 }
@@ -178,7 +197,7 @@ bool SkVMDebugInfo::readTrace(SkStream* r) {
     }
 
     const skjson::ArrayValue* functions = (*root)["functions"];
-    if (!slots) {
+    if (!functions) {
         return false;
     }
 
@@ -204,6 +223,34 @@ bool SkVMDebugInfo::readTrace(SkStream* r) {
         }
 
         info.name = name->begin();
+    }
+
+    const skjson::ArrayValue* trace = (*root)["trace"];
+    if (!trace) {
+        return false;
+    }
+
+    fTraceInfo.clear();
+    fTraceInfo.reserve(trace->size());
+    for (const skjson::ArrayValue* element : *trace) {
+        fTraceInfo.push_back(SkVMTraceInfo{});
+        SkVMTraceInfo& info = fTraceInfo.back();
+
+        if (!element || element->size() < 1 || element->size() > (1 + SK_ARRAY_COUNT(info.data))) {
+            return false;
+        }
+        const skjson::NumberValue* opVal = (*element)[0];
+        if (!opVal) {
+            return false;
+        }
+        info.op = (SkVMTraceInfo::Op)(int)**opVal;
+        for (size_t elemIdx = 1; elemIdx < element->size(); ++elemIdx) {
+            const skjson::NumberValue* dataVal = (*element)[elemIdx];
+            if (!dataVal) {
+                return false;
+            }
+            info.data[elemIdx - 1] = **dataVal;
+        }
     }
 
     return true;

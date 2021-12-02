@@ -37,6 +37,12 @@ DEF_TEST(SkVMDebugInfoWriteTrace, r) {
     i.fFuncInfo = {
         {"void testFunc();"},
     };
+    i.fTraceInfo = {
+        {SkSL::SkVMTraceInfo::Op::kEnter, {0, 0}},
+        {SkSL::SkVMTraceInfo::Op::kLine,  {5, 0}},
+        {SkSL::SkVMTraceInfo::Op::kVar,   {10, 15}},
+        {SkSL::SkVMTraceInfo::Op::kExit,  {20, 0}},
+    };
     SkDynamicMemoryWStream wstream;
     i.writeTrace(&wstream);
     sk_sp<SkData> trace = wstream.detachAsData();
@@ -45,7 +51,8 @@ DEF_TEST(SkVMDebugInfoWriteTrace, r) {
             R"({"source":["\t// first line","// \"second line\"","//\\\\//\\\\ third line"],"s)"
             R"(lots":[{"slot":0,"name":"SkVM_Debug_Info","columns":1,"rows":2,"index":3,"kind")"
             R"(:4,"line":5},{"slot":1,"name":"Unit_Test","columns":6,"rows":7,"index":8,"kind")"
-            R"(:9,"line":10}],"functions":[{"slot":0,"name":"void testFunc();"}]})";
+            R"(:9,"line":10}],"functions":[{"slot":0,"name":"void testFunc();"}],"trace":[[2],)"
+            R"([0,5],[1,10,15],[3,20]]})";
 
     skstd::string_view actual{reinterpret_cast<const char*>(trace->bytes()), trace->size()};
 
@@ -59,7 +66,8 @@ DEF_TEST(SkVMDebugInfoReadTrace, r) {
             R"({"source":["\t// first line","// \"second line\"","//\\\\//\\\\ third line"],"s)"
             R"(lots":[{"slot":0,"name":"SkVM_Debug_Info","columns":1,"rows":2,"index":3,"kind")"
             R"(:4,"line":5},{"slot":1,"name":"Unit_Test","columns":6,"rows":7,"index":8,"kind")"
-            R"(:9,"line":10}],"functions":[{"slot":0,"name":"void testFunc();"}]})";
+            R"(:9,"line":10}],"functions":[{"slot":0,"name":"void testFunc();"}],"trace":[[2],)"
+            R"([0,5],[1,10,15],[3,20]]})";
 
     SkMemoryStream stream(kJSONTrace.data(), kJSONTrace.size(), /*copyData=*/false);
     SkSL::SkVMDebugInfo i;
@@ -68,6 +76,7 @@ DEF_TEST(SkVMDebugInfoReadTrace, r) {
     REPORTER_ASSERT(r, i.fSource.size() == 3);
     REPORTER_ASSERT(r, i.fSlotInfo.size() == 2);
     REPORTER_ASSERT(r, i.fFuncInfo.size() == 1);
+    REPORTER_ASSERT(r, i.fTraceInfo.size() == 4);
 
     REPORTER_ASSERT(r, i.fSource[0] == "\t// first line");
     REPORTER_ASSERT(r, i.fSource[1] == "// \"second line\"");
@@ -88,4 +97,20 @@ DEF_TEST(SkVMDebugInfoReadTrace, r) {
     REPORTER_ASSERT(r, i.fSlotInfo[1].line == 10);
 
     REPORTER_ASSERT(r, i.fFuncInfo[0].name == "void testFunc();");
+
+    REPORTER_ASSERT(r, i.fTraceInfo[0].op == SkSL::SkVMTraceInfo::Op::kEnter);
+    REPORTER_ASSERT(r, i.fTraceInfo[0].data[0] == 0);
+    REPORTER_ASSERT(r, i.fTraceInfo[0].data[1] == 0);
+
+    REPORTER_ASSERT(r, i.fTraceInfo[1].op == SkSL::SkVMTraceInfo::Op::kLine);
+    REPORTER_ASSERT(r, i.fTraceInfo[1].data[0] == 5);
+    REPORTER_ASSERT(r, i.fTraceInfo[1].data[1] == 0);
+
+    REPORTER_ASSERT(r, i.fTraceInfo[2].op == SkSL::SkVMTraceInfo::Op::kVar);
+    REPORTER_ASSERT(r, i.fTraceInfo[2].data[0] == 10);
+    REPORTER_ASSERT(r, i.fTraceInfo[2].data[1] == 15);
+
+    REPORTER_ASSERT(r, i.fTraceInfo[3].op == SkSL::SkVMTraceInfo::Op::kExit);
+    REPORTER_ASSERT(r, i.fTraceInfo[3].data[0] == 20);
+    REPORTER_ASSERT(r, i.fTraceInfo[3].data[1] == 0);
 }

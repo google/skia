@@ -38,6 +38,17 @@ struct SkVMFunctionInfo {
     std::string             name;
 };
 
+struct SkVMTraceInfo {
+    enum class Op {
+        kLine,  /** data: line number, (unused) */
+        kVar,   /** data: slot, value */
+        kEnter, /** data: function index, (unused) */
+        kExit,  /** data: function index, (unused) */
+    };
+    Op op;
+    int32_t data[2];
+};
+
 class SkVMDebugInfo {
 public:
     /**
@@ -61,6 +72,9 @@ public:
     /** A 1:1 mapping of slot numbers to debug information. */
     std::vector<SkVMSlotInfo> fSlotInfo;
     std::vector<SkVMFunctionInfo> fFuncInfo;
+
+    /** The SkSL debug trace. */
+    std::vector<SkVMTraceInfo> fTraceInfo;
 
     /** The SkSL code, split line-by-line. */
     std::vector<std::string> fSource;
