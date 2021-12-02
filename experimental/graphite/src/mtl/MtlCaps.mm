@@ -217,6 +217,16 @@ void Caps::initCaps(const id<MTLDevice> device) {
     } else {
         fMaxTextureSize = 8192;
     }
+
+    // We use constant address space for our uniform buffers which has various alignment
+    // requirements for the offset when binding the buffer. On MacOS the offset must align to 256.
+    // On iOS we must align to the max of the data type consumed by the vertex function or 4 bytes.
+    // We can ignore the data type and just always use 16 bytes on iOS.
+    if (this->isMac()) {
+        fRequiredUniformBufferAlignment = 256;
+    } else {
+        fRequiredUniformBufferAlignment = 16;
+    }
 }
 
 void Caps::initShaderCaps() {

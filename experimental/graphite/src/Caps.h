@@ -46,10 +46,15 @@ public:
 
     int maxTextureSize() const { return fMaxTextureSize; }
 
+    // Returns the required alignment in bytes for the offset into a uniform buffer when binding it
+    // to a draw.
+    size_t requiredUniformBufferAlignment() const { return fRequiredUniformBufferAlignment; }
+
 protected:
     Caps();
 
     int fMaxTextureSize = 0;
+    size_t fRequiredUniformBufferAlignment = 0;
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
 
