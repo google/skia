@@ -1,0 +1,42 @@
+uniform half4 colorGreen, colorRed;
+
+bool test_same_vectors(bool eq, float f1, float f2, float f3, float f4) {
+    float one = colorGreen.r + 1;
+    vec4 a = float4(f1,       f2,       f3,       f4);
+    vec4 b = float4(f1 * one, f2 * one, f3 * one, f4 * one);
+    return eq ? a == b : a != b;
+}
+
+bool test_diff_vectors(bool eq, float f1, float f2, float f3, float f4) {
+    float two = colorGreen.r + 2;
+    vec4 a = float4(f1,       f2,       f3,       f4);
+    vec4 b = float4(f1 * two, f2 * two, f3 * two, f4 * two);
+    return eq ? a == b : a != b;
+}
+
+vec4 main(vec2 coords) {
+
+    float NAN1 = colorGreen.r/colorGreen.b;
+    float NAN2 = colorGreen.b/colorGreen.r;
+    float ZP = +colorGreen.r*colorGreen.b;
+    float ZM = -colorGreen.r*colorGreen.b;
+    float F42 = colorGreen.g * 42.0;
+    float F43 = colorGreen.g * 43.0;
+    float F44 = colorGreen.g * 44.0;
+    float F45 = colorGreen.g * 45.0;
+
+    bool EQ = true;     // Tests for ==
+    bool NE = false;    // Tests for !=
+
+    return  true
+            && test_same_vectors(EQ, F42, ZM, ZP, F43)      // equal, including -0 and +0 values
+            && !test_same_vectors(NE, F42, ZM, ZP, F43)     // not (not equal)
+            && test_same_vectors(NE, F42, NAN1, NAN2, F43)  // NA values always not equal
+            && !test_same_vectors(EQ, F42, NAN1, NAN2, F43)
+            && test_diff_vectors(NE, F42, F43, F44, F45)    // one of the normal values not equal
+            && !test_diff_vectors(EQ, F42, F43, F44, F45)
+            && test_diff_vectors(NE, NAN1, ZM, ZP, F42)     // one of the normal values not equal
+            && !test_diff_vectors(EQ, NAN1, ZM, ZP, F42)
+
+           ? colorGreen : colorRed;
+}

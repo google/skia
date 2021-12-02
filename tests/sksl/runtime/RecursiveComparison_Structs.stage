@@ -1,0 +1,59 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+struct S_0 
+{
+	float f1;
+	float f2;
+	float f3;
+}
+;
+bool test_same_structs_0(bool eq, float f1, float f2, float f3);
+bool test_diff_structs_0(bool eq, float f1, float f2, float f3);
+bool test_same_structs_0(bool eq, float f1, float f2, float f3)
+{
+	float one = float(colorGreen.x + 1.0);
+	S_0 a;
+	a.f1 = f1;
+	a.f2 = f2;
+	a.f3 = f3;
+	S_0 b;
+	b.f1 = f1 * one;
+	b.f2 = f2 * one;
+	b.f3 = f3 * one;
+	return eq ? a == b : a != b;
+}
+bool test_diff_structs_0(bool eq, float f1, float f2, float f3)
+{
+	float two = float(colorGreen.x + 2.0);
+	S_0 a;
+	a.f1 = f1;
+	a.f2 = f2;
+	a.f3 = f3;
+	S_0 b;
+	b.f1 = f1 * two;
+	b.f2 = f2 * two;
+	b.f3 = f3;
+	return eq ? a == b : a != b;
+}
+float4 main(float2 coords)
+{
+	float NAN1 = float(colorGreen.x / colorGreen.z);
+	float NAN2 = float(colorGreen.z / colorGreen.x);
+	float ZP = float(colorGreen.x * colorGreen.z);
+	float ZM = float(-colorGreen.x * colorGreen.z);
+	float F42 = float(colorGreen.y * 42.0);
+	float F43 = float(colorGreen.y * 43.0);
+	float F44 = float(colorGreen.y * 44.0);
+	bool EQ = true;
+	bool NE = false;
+	float _0_one = float(colorGreen.x + 1.0);
+	S_0 _1_a;
+	_1_a.f1 = F42;
+	_1_a.f2 = ZM;
+	_1_a.f3 = ZP;
+	S_0 _2_b;
+	_2_b.f1 = F42 * _0_one;
+	_2_b.f2 = ZM * _0_one;
+	_2_b.f3 = ZP * _0_one;
+	return half4(float4((((((((EQ ? _1_a == _2_b : _1_a != _2_b) && !test_same_structs_0(NE, F42, ZM, ZP)) && test_same_structs_0(NE, F42, NAN1, NAN2)) && !test_same_structs_0(EQ, F42, NAN1, NAN2)) && test_diff_structs_0(NE, F42, F43, F44)) && !test_diff_structs_0(EQ, F42, F43, F44)) && test_diff_structs_0(NE, NAN1, ZM, ZP)) && !test_diff_structs_0(EQ, NAN1, ZM, ZP) ? colorGreen : colorRed));
+}

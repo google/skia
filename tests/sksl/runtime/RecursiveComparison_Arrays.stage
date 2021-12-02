@@ -1,0 +1,52 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+bool test_same_arrays_0(bool eq, float f1, float f2, float f3);
+bool test_diff_arrays_0(bool eq, float f1, float f2, float f3);
+bool test_same_arrays_0(bool eq, float f1, float f2, float f3)
+{
+	float one = float(colorGreen.x + 1.0);
+	float a[3];
+	a[0] = f1;
+	a[1] = f2;
+	a[2] = f3;
+	float b[3];
+	b[0] = f1 * one;
+	b[1] = f2 * one;
+	b[2] = f3 * one;
+	return eq ? a == b : a != b;
+}
+bool test_diff_arrays_0(bool eq, float f1, float f2, float f3)
+{
+	float two = float(colorGreen.x + 2.0);
+	float a[3];
+	a[0] = f1;
+	a[1] = f2;
+	a[2] = f3;
+	float b[3];
+	b[0] = f1 * two;
+	b[1] = f2 * two;
+	b[2] = f3;
+	return eq ? a == b : a != b;
+}
+float4 main(float2 coords)
+{
+	float NAN1 = float(colorGreen.x / colorGreen.z);
+	float NAN2 = float(colorGreen.z / colorGreen.x);
+	float ZP = float(colorGreen.x * colorGreen.z);
+	float ZM = float(-colorGreen.x * colorGreen.z);
+	float F42 = float(colorGreen.y * 42.0);
+	float F43 = float(colorGreen.y * 43.0);
+	float F44 = float(colorGreen.y * 44.0);
+	bool EQ = true;
+	bool NE = false;
+	float _0_one = float(colorGreen.x + 1.0);
+	float _1_a[3];
+	_1_a[0] = F42;
+	_1_a[1] = ZM;
+	_1_a[2] = ZP;
+	float _2_b[3];
+	_2_b[0] = F42 * _0_one;
+	_2_b[1] = ZM * _0_one;
+	_2_b[2] = ZP * _0_one;
+	return half4(float4((((((((EQ ? _1_a == _2_b : _1_a != _2_b) && !test_same_arrays_0(NE, F42, ZM, ZP)) && test_same_arrays_0(NE, F42, NAN1, NAN2)) && !test_same_arrays_0(EQ, F42, NAN1, NAN2)) && test_diff_arrays_0(NE, F42, F43, F44)) && !test_diff_arrays_0(EQ, F42, F43, F44)) && test_diff_arrays_0(NE, NAN1, ZM, ZP)) && !test_diff_arrays_0(EQ, NAN1, ZM, ZP) ? colorGreen : colorRed));
+}

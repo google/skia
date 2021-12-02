@@ -1,0 +1,35 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+bool test_same_vectors_0(bool eq, float f1, float f2, float f3, float f4);
+bool test_diff_vectors_0(bool eq, float f1, float f2, float f3, float f4);
+bool test_same_vectors_0(bool eq, float f1, float f2, float f3, float f4)
+{
+	float one = float(colorGreen.x + 1.0);
+	float4 a = float4(f1, f2, f3, f4);
+	float4 b = float4(f1 * one, f2 * one, f3 * one, f4 * one);
+	return eq ? a == b : a != b;
+}
+bool test_diff_vectors_0(bool eq, float f1, float f2, float f3, float f4)
+{
+	float two = float(colorGreen.x + 2.0);
+	float4 a = float4(f1, f2, f3, f4);
+	float4 b = float4(f1 * two, f2 * two, f3 * two, f4 * two);
+	return eq ? a == b : a != b;
+}
+float4 main(float2 coords)
+{
+	float NAN1 = float(colorGreen.x / colorGreen.z);
+	float NAN2 = float(colorGreen.z / colorGreen.x);
+	float ZP = float(colorGreen.x * colorGreen.z);
+	float ZM = float(-colorGreen.x * colorGreen.z);
+	float F42 = float(colorGreen.y * 42.0);
+	float F43 = float(colorGreen.y * 43.0);
+	float F44 = float(colorGreen.y * 44.0);
+	float F45 = float(colorGreen.y * 45.0);
+	bool EQ = true;
+	bool NE = false;
+	float _0_one = float(colorGreen.x + 1.0);
+	float4 _1_a = float4(F42, ZM, ZP, F43);
+	float4 _2_b = float4(F42 * _0_one, ZM * _0_one, ZP * _0_one, F43 * _0_one);
+	return half4(float4((((((((EQ ? _1_a == _2_b : _1_a != _2_b) && !test_same_vectors_0(NE, F42, ZM, ZP, F43)) && test_same_vectors_0(NE, F42, NAN1, NAN2, F43)) && !test_same_vectors_0(EQ, F42, NAN1, NAN2, F43)) && test_diff_vectors_0(NE, F42, F43, F44, F45)) && !test_diff_vectors_0(EQ, F42, F43, F44, F45)) && test_diff_vectors_0(NE, NAN1, ZM, ZP, F42)) && !test_diff_vectors_0(EQ, NAN1, ZM, ZP, F42) ? colorGreen : colorRed));
+}

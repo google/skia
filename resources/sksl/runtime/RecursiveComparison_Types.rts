@@ -1,0 +1,50 @@
+/*#pragma settings NoES2Restrictions*/
+uniform half4 colorGreen, colorRed;
+
+struct S {float f1; vec2 v2; };
+
+bool test_same_types(bool eq, float f1, float v2, float f3, float f4, float f5, float f6) {
+    float one = colorGreen.r + 1;
+    S a[2]; a[0].f1 = f1;       a[0].v2 = vec2(v2, f3);
+            a[1].f1 = f4;       a[1].v2 = vec2(f5, f6);
+    S b[2]; b[0].f1 = f1 * one; b[0].v2 = vec2(v2 * one, f3 * one);
+            b[1].f1 = f4 * one; b[1].v2 = vec2(f5 * one, f6 * one);
+    return eq ? a == b : a != b;
+}
+
+bool test_diff_types(bool eq, float f1, float v2, float f3, float f4, float f5, float f6) {
+    float two = colorGreen.r + 2;
+    S a[2]; a[0].f1 = f1;       a[0].v2 = vec2(v2, f3);
+            a[1].f1 = f4;       a[1].v2 = vec2(f5, f6);
+    S b[2]; b[0].f1 = f1 * two; b[0].v2 = vec2(v2 * two, f3 * two);
+            b[1].f1 = f4 * two; b[1].v2 = vec2(f5 * two, f6);
+    return eq ? a == b : a != b;
+}
+
+vec4 main(vec2 coords) {
+
+    float NAN1 = colorGreen.r/colorGreen.b;
+    float NAN2 = colorGreen.b/colorGreen.r;
+    float ZP = +colorGreen.r*colorGreen.b;
+    float ZM = -colorGreen.r*colorGreen.b;
+    float F42 = colorGreen.g * 42.0;
+    float F43 = colorGreen.g * 43.0;
+    float F44 = colorGreen.g * 44.0;
+    float F45 = colorGreen.g * 45.0;
+    float F46 = colorGreen.g * 46.0;
+    float F47 = colorGreen.g * 47.0;
+
+    bool EQ = true;     // Tests for ==
+    bool NE = false;    // Tests for !=
+
+    return  true
+    && test_same_types(EQ, F42, ZM, ZP, F43, F44, F45)      // equal, including -0 and +0 values
+    && !test_same_types(NE, F42, ZM, ZP, F43, F44, F45)     // not (not equal)
+    && test_same_types(NE, F42, NAN1, NAN2, F43, F44, F45)  // NA values always not equal
+    && !test_same_types(EQ, F42, NAN1, NAN2, F43, F44, F45)
+    && test_diff_types(NE, F42, F43, F44, F45, F46, F47)    // one of the normal values not equal
+    && !test_diff_types(EQ, F42, F43, F44, F45, F46, F47)
+    && test_diff_types(NE, NAN1, ZM, ZP, F42, F43, F44)     // one of the normal values not equal
+    && !test_diff_types(EQ, NAN1, ZM, ZP, F42, F43, F44)
+   ? colorGreen : colorRed;
+}

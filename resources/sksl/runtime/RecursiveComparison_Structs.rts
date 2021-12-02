@@ -1,0 +1,43 @@
+uniform half4 colorGreen, colorRed;
+
+struct S {float f1; float f2; float f3; };
+
+bool test_same_structs(bool eq, float f1, float f2, float f3) {
+    float one = colorGreen.r + 1;
+    S a; a.f1 = f1;       a.f2 = f2;       a.f3 = f3;
+    S b; b.f1 = f1 * one; b.f2 = f2 * one; b.f3 = f3 * one;
+    return eq ? a == b : a != b;
+}
+
+bool test_diff_structs(bool eq, float f1, float f2, float f3) {
+    float two = colorGreen.r + 2;
+    S a; a.f1 = f1;       a.f2 = f2;       a.f3 = f3;
+    S b; b.f1 = f1 * two; b.f2 = f2 * two; b.f3 = f3;
+    return eq ? a == b : a != b;
+}
+
+vec4 main(vec2 coords) {
+
+    float NAN1 = colorGreen.r/colorGreen.b;
+    float NAN2 = colorGreen.b/colorGreen.r;
+    float ZP = +colorGreen.r*colorGreen.b;
+    float ZM = -colorGreen.r*colorGreen.b;
+    float F42 = colorGreen.g * 42.0;
+    float F43 = colorGreen.g * 43.0;
+    float F44 = colorGreen.g * 44.0;
+
+    bool EQ = true;     // Tests for ==
+    bool NE = false;    // Tests for !=
+
+    return  true
+            && test_same_structs(EQ, F42, ZM, ZP)      // equal, including -0 and +0 values
+            && !test_same_structs(NE, F42, ZM, ZP)     // not (not equal)
+            && test_same_structs(NE, F42, NAN1, NAN2)  // NA values always not equal
+            && !test_same_structs(EQ, F42, NAN1, NAN2)
+            && test_diff_structs(NE, F42, F43, F44)    // one of the normal values not equal
+            && !test_diff_structs(EQ, F42, F43, F44)
+            && test_diff_structs(NE, NAN1, ZM, ZP)     // one of the normal values not equal
+            && !test_diff_structs(EQ, NAN1, ZM, ZP)
+
+           ? colorGreen : colorRed;
+}

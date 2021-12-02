@@ -1,0 +1,67 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+struct S_0 
+{
+	float f1;
+	float2 v2;
+}
+;
+bool test_same_types_0(bool eq, float f1, float v2, float f3, float f4, float f5, float f6);
+bool test_diff_types_0(bool eq, float f1, float v2, float f3, float f4, float f5, float f6);
+bool test_same_types_0(bool eq, float f1, float v2, float f3, float f4, float f5, float f6)
+{
+	float one = float(colorGreen.x + 1.0);
+	S_0 a[2];
+	a[0].f1 = f1;
+	a[0].v2 = float2(v2, f3);
+	a[1].f1 = f4;
+	a[1].v2 = float2(f5, f6);
+	S_0 b[2];
+	b[0].f1 = f1 * one;
+	b[0].v2 = float2(v2 * one, f3 * one);
+	b[1].f1 = f4 * one;
+	b[1].v2 = float2(f5 * one, f6 * one);
+	return eq ? a == b : a != b;
+}
+bool test_diff_types_0(bool eq, float f1, float v2, float f3, float f4, float f5, float f6)
+{
+	float two = float(colorGreen.x + 2.0);
+	S_0 a[2];
+	a[0].f1 = f1;
+	a[0].v2 = float2(v2, f3);
+	a[1].f1 = f4;
+	a[1].v2 = float2(f5, f6);
+	S_0 b[2];
+	b[0].f1 = f1 * two;
+	b[0].v2 = float2(v2 * two, f3 * two);
+	b[1].f1 = f4 * two;
+	b[1].v2 = float2(f5 * two, f6);
+	return eq ? a == b : a != b;
+}
+float4 main(float2 coords)
+{
+	float NAN1 = float(colorGreen.x / colorGreen.z);
+	float NAN2 = float(colorGreen.z / colorGreen.x);
+	float ZP = float(colorGreen.x * colorGreen.z);
+	float ZM = float(-colorGreen.x * colorGreen.z);
+	float F42 = float(colorGreen.y * 42.0);
+	float F43 = float(colorGreen.y * 43.0);
+	float F44 = float(colorGreen.y * 44.0);
+	float F45 = float(colorGreen.y * 45.0);
+	float F46 = float(colorGreen.y * 46.0);
+	float F47 = float(colorGreen.y * 47.0);
+	bool EQ = true;
+	bool NE = false;
+	float _0_one = float(colorGreen.x + 1.0);
+	S_0 _1_a[2];
+	_1_a[0].f1 = F42;
+	_1_a[0].v2 = float2(ZM, ZP);
+	_1_a[1].f1 = F43;
+	_1_a[1].v2 = float2(F44, F45);
+	S_0 _2_b[2];
+	_2_b[0].f1 = F42 * _0_one;
+	_2_b[0].v2 = float2(ZM * _0_one, ZP * _0_one);
+	_2_b[1].f1 = F43 * _0_one;
+	_2_b[1].v2 = float2(F44 * _0_one, F45 * _0_one);
+	return half4(float4((((((((EQ ? _1_a == _2_b : _1_a != _2_b) && !test_same_types_0(NE, F42, ZM, ZP, F43, F44, F45)) && test_same_types_0(NE, F42, NAN1, NAN2, F43, F44, F45)) && !test_same_types_0(EQ, F42, NAN1, NAN2, F43, F44, F45)) && test_diff_types_0(NE, F42, F43, F44, F45, F46, F47)) && !test_diff_types_0(EQ, F42, F43, F44, F45, F46, F47)) && test_diff_types_0(NE, NAN1, ZM, ZP, F42, F43, F44)) && !test_diff_types_0(EQ, NAN1, ZM, ZP, F42, F43, F44) ? colorGreen : colorRed));
+}
