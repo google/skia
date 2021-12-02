@@ -55,7 +55,7 @@ protected:
         sk_sp<SkTextBlob> blob(this->makeBlob());
         SkPaint p;
         p.setAntiAlias(true);
-        canvas->clipIRect(SkIRect::MakeSize(this->getISize()));
+        canvas->clipIRect(SkIRect::MakeSize(this->getISize()).makeInset(40, 50));
         canvas->scale(1.3f, 1.3f);
         sk_sp<GrSlug> slug = GrSlug::ConvertBlob(canvas, *blob, {10, 10}, p);
         if (slug == nullptr) {

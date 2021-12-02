@@ -2721,9 +2721,10 @@ public:
                         SkIRect clip) const override;
 
 private:
-    // The rectangle that surrounds all the glyph bounding boxes in device space accounting for
-    // the drawMatrix and drawOrigin.
-    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
+    // Return true if the positionMatrix represents an integer translation. Return the device
+    // bounding box of all the glyphs. If the bounding box is empty, then something went singular
+    // and this operation should be dropped.
+    std::tuple<bool, SkRect> deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const;
 
     Slug* const fSlug;
     const GrMaskFormat fMaskFormat;
@@ -2816,31 +2817,37 @@ DirectMaskSubRunSlug::makeAtlasTextOp(const GrClip* clip,
     SkASSERT(this->glyphCount() != 0);
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
     const SkMatrix& positionMatrix = position_matrix(drawMatrix, drawOrigin);
-    auto [noTransformNeeded, originOffset] =
-            can_use_direct(fSlug->initialPositionMatrix(), positionMatrix);
 
-    // We can clip geometrically using clipRect and ignore clip when an axis-aligned rectangular
-    // non-AA clip is used. If clipRect is empty, and clip is nullptr, then there is no clipping
-    // needed.
-    const SkRect subRunDeviceBounds = this->deviceRect(drawMatrix, drawOrigin);
-    const SkRect deviceBounds = SkRect::MakeWH(sdc->width(), sdc->height());
-    auto [clipMethod, clipRect] = calculate_clip(clip, deviceBounds, subRunDeviceBounds);
-
-    switch (clipMethod) {
-        case kClippedOut:
-            // Returning nullptr as op means skip this op.
-            return {nullptr, nullptr};
-        case kUnclipped:
-        case kGeometryClipped:
-            // GPU clip is not needed.
-            clip = nullptr;
-            break;
-        case kGPUClipped:
-            // Use th GPU clip; clipRect is ignored.
-            break;
+    auto [integerTranslate, subRunDeviceBounds] = this->deviceRectAndCheckTransform(positionMatrix);
+    if (subRunDeviceBounds.isEmpty()) {
+        return {nullptr, nullptr};
     }
+    // Rect for optimized bounds clipping when doing an integer translate.
+    SkIRect geometricClipRect = SkIRect::MakeEmpty();
+    if (integerTranslate) {
+        // We can clip geometrically using clipRect and ignore clip when an axis-aligned rectangular
+        // non-AA clip is used. If clipRect is empty, and clip is nullptr, then there is no clipping
+        // needed.
+        const SkRect deviceBounds = SkRect::MakeWH(sdc->width(), sdc->height());
+        auto [clipMethod, clipRect] = calculate_clip(clip, deviceBounds, subRunDeviceBounds);
 
-    if (!clipRect.isEmpty()) { SkASSERT(clip == nullptr); }
+        switch (clipMethod) {
+            case kClippedOut:
+                // Returning nullptr as op means skip this op.
+                return {nullptr, nullptr};
+            case kUnclipped:
+            case kGeometryClipped:
+                // GPU clip is not needed.
+                clip = nullptr;
+                break;
+            case kGPUClipped:
+                // Use th GPU clip; clipRect is ignored.
+                break;
+        }
+        geometricClipRect = clipRect;
+
+        if (!geometricClipRect.isEmpty()) { SkASSERT(clip == nullptr); }
+    }
 
     GrPaint grPaint;
     const SkPMColor4f drawingColor =
@@ -2849,7 +2856,7 @@ DirectMaskSubRunSlug::makeAtlasTextOp(const GrClip* clip,
     auto geometry = AtlasTextOp::Geometry::MakeForBlob(*this,
                                                        drawMatrix,
                                                        drawOrigin,
-                                                       clipRect,
+                                                       geometricClipRect,
                                                        sk_ref_sp<GrSlug>(fSlug),
                                                        drawingColor,
                                                        sdc->arenaAlloc());
@@ -2857,7 +2864,7 @@ DirectMaskSubRunSlug::makeAtlasTextOp(const GrClip* clip,
     GrRecordingContext* const rContext = sdc->recordingContext();
     GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
                                              op_mask_type(fMaskFormat),
-                                             !noTransformNeeded,
+                                             !integerTranslate,
                                              this->glyphCount(),
                                              subRunDeviceBounds,
                                              geometry,
@@ -2969,15 +2976,24 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
     }
 }
 
-SkRect DirectMaskSubRunSlug::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
-    // Calculate the offset from the initial device origin to the current device origin.
-    SkVector offset = drawMatrix.mapPoint(drawOrigin) - fSlug->initialPositionMatrix().mapOrigin();
+// true if only need to translate by integer amount, device rect.
+std::tuple<bool, SkRect>
+DirectMaskSubRunSlug::deviceRectAndCheckTransform(const SkMatrix& positionMatrix) const {
+    SkPoint offset = positionMatrix.mapOrigin() - fSlug->initialPositionMatrix().mapOrigin();
+    if (positionMatrix.isTranslate() && SkScalarIsInt(offset.x()) && SkScalarIsInt(offset.y())) {
+        // Handle the integer offset case.
+        // The offset should be integer, but make sure.
+        SkIVector iOffset = {SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y())};
 
-    // The offset should be integer, but make sure.
-    SkIVector iOffset = {SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y())};
+        SkIRect outBounds = fGlyphDeviceBounds.iRect();
+        return {true, SkRect::Make(outBounds.makeOffset(iOffset))};
+    } else if (SkMatrix inverse; fSlug->initialPositionMatrix().invert(&inverse)) {
+        SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
+        return {false, viewDifference.mapRect(fGlyphDeviceBounds.rect())};
+    }
 
-    SkIRect outBounds = fGlyphDeviceBounds.iRect();
-    return SkRect::Make(outBounds.makeOffset(iOffset));
+    // initialPositionMatrix is singular. Do nothing.
+    return {false, SkRect::MakeEmpty()};
 }
 
 void Slug::processDeviceMasks(
