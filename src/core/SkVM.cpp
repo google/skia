@@ -159,7 +159,7 @@ namespace skvm {
         int regs = 0;
         int loop = 0;
         std::vector<int> strides;
-        TraceHook* traceHook = nullptr;
+        std::vector<TraceHook*> traceHooks;
 
         std::atomic<void*> jit_entry{nullptr};   // TODO: minimal std::memory_orders
         size_t jit_size = 0;
@@ -177,9 +177,10 @@ namespace skvm {
     namespace {
         struct V { Val id; };
         struct R { Reg id; };
-        struct Shift { int bits; };
-        struct Splat { int bits; };
-        struct Hex   { int bits; };
+        struct Shift       { int bits; };
+        struct Splat       { int bits; };
+        struct Hex         { int bits; };
+        struct TraceHookID { int bits; };
         // For op `trace_line`
         struct Line  { int bits; };
         // For op `trace_var`
@@ -229,6 +230,9 @@ namespace skvm {
         static void write(SkWStream* o, Hex h) {
             o->writeHexAsText(h.bits);
         }
+        static void write(SkWStream* o, TraceHookID h) {
+            o->writeDecAsText(h.bits);
+        }
         static void write(SkWStream* o, Line d) {
             write(o, "L");
             o->writeDecAsText(d.bits);
@@ -261,10 +265,11 @@ namespace skvm {
         switch (op) {
             case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
-            case Op::trace_line:  write(o, op, V{x}, V{y}, Line{immA}); break;
-            case Op::trace_var:   write(o, op, V{x}, V{y}, VarSlot{immA}, "=", V{z}); break;
-            case Op::trace_enter: write(o, op, V{x}, V{y}, FnIdx{immA}); break;
-            case Op::trace_exit:  write(o, op, V{x}, V{y}, FnIdx{immA}); break;
+            case Op::trace_line:  write(o, op, TraceHookID{immA}, V{x}, V{y}, Line{immB}); break;
+            case Op::trace_var:   write(o, op, TraceHookID{immA}, V{x}, V{y},
+                                                                  VarSlot{immB}, "=", V{z}); break;
+            case Op::trace_enter: write(o, op, TraceHookID{immA}, V{x}, V{y}, FnIdx{immB}); break;
+            case Op::trace_exit:  write(o, op, TraceHookID{immA}, V{x}, V{y}, FnIdx{immB}); break;
 
             case Op::store8:   write(o, op, Ptr{immA}, V{x}               ); break;
             case Op::store16:  write(o, op, Ptr{immA}, V{x}               ); break;
@@ -381,10 +386,14 @@ namespace skvm {
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
-                case Op::trace_line:  write(o, op, R{x}, R{y}, Line{immA}); break;
-                case Op::trace_var:   write(o, op, R{x}, R{y}, VarSlot{immA}, "=", R{z}); break;
-                case Op::trace_enter: write(o, op, R{x}, R{y}, FnIdx{immA}); break;
-                case Op::trace_exit:  write(o, op, R{x}, R{y}, FnIdx{immA}); break;
+                case Op::trace_line:  write(o, op, TraceHookID{immA},
+                                                   R{x}, R{y}, Line{immB}); break;
+                case Op::trace_var:   write(o, op, TraceHookID{immA}, R{x}, R{y},
+                                                   VarSlot{immB}, "=", R{z}); break;
+                case Op::trace_enter: write(o, op, TraceHookID{immA},
+                                                   R{x}, R{y}, FnIdx{immB}); break;
+                case Op::trace_exit:  write(o, op, TraceHookID{immA},
+                                                   R{x}, R{y}, FnIdx{immB}); break;
 
                 case Op::store8:   write(o, op, Ptr{immA}, R{x}                  ); break;
                 case Op::store16:  write(o, op, Ptr{immA}, R{x}                  ); break;
@@ -557,7 +566,7 @@ namespace skvm {
             debug_name = buf;
         }
 
-        return {this->optimize(), fStrides, debug_name, allow_jit};
+        return {this->optimize(), fStrides, fTraceHooks, debug_name, allow_jit};
     }
 
     uint64_t Builder::hash() const {
@@ -618,33 +627,47 @@ namespace skvm {
     #endif
     }
 
-    void Builder::trace_line(I32 mask, I32 traceMask, int line) {
-        if (this->isImm(mask.id,      0)) { return; }
-        if (this->isImm(traceMask.id, 0)) { return; }
-        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
-        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
-        (void)push(Op::trace_line, mask.id,traceMask.id,NA,NA, line);
+    int Builder::attachTraceHook(TraceHook* hook) {
+        int traceHookID = (int)fTraceHooks.size();
+        fTraceHooks.push_back(hook);
+        return traceHookID;
     }
-    void Builder::trace_var(I32 mask, I32 traceMask, int slot, I32 val) {
+
+    void Builder::trace_line(int traceHookID, I32 mask, I32 traceMask, int line) {
+        SkASSERT(traceHookID >= 0);
+        SkASSERT(traceHookID < (int)fTraceHooks.size());
         if (this->isImm(mask.id,      0)) { return; }
         if (this->isImm(traceMask.id, 0)) { return; }
         if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
         if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
-        (void)push(Op::trace_var, mask.id,traceMask.id,val.id,NA, slot);
+        (void)push(Op::trace_line, mask.id,traceMask.id,NA,NA, traceHookID, line);
     }
-    void Builder::trace_enter(I32 mask, I32 traceMask, int fnIdx) {
+    void Builder::trace_var(int traceHookID, I32 mask, I32 traceMask, int slot, I32 val) {
+        SkASSERT(traceHookID >= 0);
+        SkASSERT(traceHookID < (int)fTraceHooks.size());
         if (this->isImm(mask.id,      0)) { return; }
         if (this->isImm(traceMask.id, 0)) { return; }
         if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
         if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
-        (void)push(Op::trace_enter, mask.id,traceMask.id,NA,NA, fnIdx);
+        (void)push(Op::trace_var, mask.id,traceMask.id,val.id,NA, traceHookID, slot);
     }
-    void Builder::trace_exit(I32 mask, I32 traceMask, int fnIdx) {
+    void Builder::trace_enter(int traceHookID, I32 mask, I32 traceMask, int fnIdx) {
+        SkASSERT(traceHookID >= 0);
+        SkASSERT(traceHookID < (int)fTraceHooks.size());
         if (this->isImm(mask.id,      0)) { return; }
         if (this->isImm(traceMask.id, 0)) { return; }
         if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
         if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
-        (void)push(Op::trace_exit, mask.id,traceMask.id,NA,NA, fnIdx);
+        (void)push(Op::trace_enter, mask.id,traceMask.id,NA,NA, traceHookID, fnIdx);
+    }
+    void Builder::trace_exit(int traceHookID, I32 mask, I32 traceMask, int fnIdx) {
+        SkASSERT(traceHookID >= 0);
+        SkASSERT(traceHookID < (int)fTraceHooks.size());
+        if (this->isImm(mask.id,      0)) { return; }
+        if (this->isImm(traceMask.id, 0)) { return; }
+        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
+        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        (void)push(Op::trace_exit, mask.id,traceMask.id,NA,NA, traceHookID, fnIdx);
     }
 
     void Builder::store8 (Ptr ptr, I32 val) { (void)push(Op::store8 , val.id,NA,NA,NA, ptr.ix); }
@@ -2556,7 +2579,8 @@ namespace skvm {
 
         // So we'll sometimes use the interpreter here even if later calls will use the JIT.
         SkOpts::interpret_skvm(fImpl->instructions.data(), (int)fImpl->instructions.size(),
-                               this->nregs(), this->loop(), fImpl->strides.data(), fImpl->traceHook,
+                               this->nregs(), this->loop(), fImpl->strides.data(),
+                               fImpl->traceHooks.data(), fImpl->traceHooks.size(),
                                this->nargs(), n, args);
     }
 
@@ -3030,8 +3054,10 @@ namespace skvm {
 
     Program::Program(const std::vector<OptimizedInstruction>& instructions,
                      const std::vector<int>& strides,
+                     const std::vector<TraceHook*>& traceHooks,
                      const char* debug_name, bool allow_jit) : Program() {
         fImpl->strides = strides;
+        fImpl->traceHooks = traceHooks;
         if (gSkVMAllowJIT && allow_jit) {
         #if 1 && defined(SKVM_LLVM)
             this->setupLLVM(instructions, debug_name);
@@ -3043,8 +3069,6 @@ namespace skvm {
         // Might as well do this after setupLLVM() to get a little more time to compile.
         this->setupInterpreter(instructions);
     }
-
-    void Program::attachTraceHook(TraceHook* hook) const { fImpl->traceHook = hook; }
 
     std::vector<InterpreterInstruction> Program::instructions() const { return fImpl->instructions; }
     int  Program::nargs() const { return (int)fImpl->strides.size(); }

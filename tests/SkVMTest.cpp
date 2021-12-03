@@ -892,14 +892,14 @@ DEF_TEST(SkVM_trace_line, r) {
     };
 
     skvm::Builder b;
-    b.trace_line(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 123);
-    b.trace_line(b.splat(0x00000000), b.splat(0xFFFFFFFF), 456);
-    b.trace_line(b.splat(0xFFFFFFFF), b.splat(0x00000000), 567);
-    b.trace_line(b.splat(0x00000000), b.splat(0x00000000), 678);
-    b.trace_line(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 789);
-    skvm::Program p = b.done();
     TestTraceHook testTrace;
-    p.attachTraceHook(&testTrace);
+    int traceHookID = b.attachTraceHook(&testTrace);
+    b.trace_line(traceHookID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 123);
+    b.trace_line(traceHookID, b.splat(0x00000000), b.splat(0xFFFFFFFF), 456);
+    b.trace_line(traceHookID, b.splat(0xFFFFFFFF), b.splat(0x00000000), 567);
+    b.trace_line(traceHookID, b.splat(0x00000000), b.splat(0x00000000), 678);
+    b.trace_line(traceHookID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 789);
+    skvm::Program p = b.done();
     p.eval(1);
 
     REPORTER_ASSERT(r, (testTrace.fBuffer == std::vector<int>{123, 789}));
@@ -920,14 +920,14 @@ DEF_TEST(SkVM_trace_var, r) {
     };
 
     skvm::Builder b;
-    b.trace_var(b.splat(0x00000000), b.splat(0xFFFFFFFF), 2, b.splat(333));
-    b.trace_var(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 4, b.splat(555));
-    b.trace_var(b.splat(0x00000000), b.splat(0x00000000), 5, b.splat(666));
-    b.trace_var(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 6, b.splat(777));
-    b.trace_var(b.splat(0xFFFFFFFF), b.splat(0x00000000), 8, b.splat(999));
-    skvm::Program p = b.done();
     TestTraceHook testTrace;
-    p.attachTraceHook(&testTrace);
+    int traceHookID = b.attachTraceHook(&testTrace);
+    b.trace_var(traceHookID, b.splat(0x00000000), b.splat(0xFFFFFFFF), 2, b.splat(333));
+    b.trace_var(traceHookID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 4, b.splat(555));
+    b.trace_var(traceHookID, b.splat(0x00000000), b.splat(0x00000000), 5, b.splat(666));
+    b.trace_var(traceHookID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 6, b.splat(777));
+    b.trace_var(traceHookID, b.splat(0xFFFFFFFF), b.splat(0x00000000), 8, b.splat(999));
+    skvm::Program p = b.done();
     p.eval(1);
 
     REPORTER_ASSERT(r, (testTrace.fBuffer == std::vector<int>{4, 555, 6, 777}));
@@ -951,18 +951,48 @@ DEF_TEST(SkVM_trace_enter_exit, r) {
     };
 
     skvm::Builder b;
-    b.trace_enter(b.splat(0x00000000), b.splat(0x00000000), 99);
-    b.trace_enter(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 12);
-    b.trace_enter(b.splat(0x00000000), b.splat(0xFFFFFFFF), 34);
-    b.trace_exit(b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 56);
-    b.trace_exit(b.splat(0xFFFFFFFF), b.splat(0x00000000), 78);
-    b.trace_exit(b.splat(0x00000000), b.splat(0x00000000), 90);
-    skvm::Program p = b.done();
     TestTraceHook testTrace;
-    p.attachTraceHook(&testTrace);
+    int traceHookID = b.attachTraceHook(&testTrace);
+    b.trace_enter(traceHookID, b.splat(0x00000000), b.splat(0x00000000), 99);
+    b.trace_enter(traceHookID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 12);
+    b.trace_enter(traceHookID, b.splat(0x00000000), b.splat(0xFFFFFFFF), 34);
+    b.trace_exit(traceHookID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 56);
+    b.trace_exit(traceHookID, b.splat(0xFFFFFFFF), b.splat(0x00000000), 78);
+    b.trace_exit(traceHookID, b.splat(0x00000000), b.splat(0x00000000), 90);
+    skvm::Program p = b.done();
     p.eval(1);
 
     REPORTER_ASSERT(r, (testTrace.fBuffer == std::vector<int>{12, 1, 56, 0}));
+}
+
+DEF_TEST(SkVM_trace_multiple_hooks, r) {
+    class TestTraceHook : public skvm::TraceHook {
+    public:
+        void var(int, int32_t) override { fBuffer.push_back(-9999999); }
+        void enter(int) override        { fBuffer.push_back(-9999999); }
+        void exit(int) override         { fBuffer.push_back(-9999999); }
+        void line(int lineNum) override { fBuffer.push_back(lineNum); }
+
+        std::vector<int> fBuffer;
+    };
+
+    skvm::Builder b;
+    TestTraceHook testTraceA, testTraceB, testTraceC;
+    int traceHookAID = b.attachTraceHook(&testTraceA);
+    int traceHookBID = b.attachTraceHook(&testTraceB);
+    int traceHookCID = b.attachTraceHook(&testTraceC);
+    b.trace_line(traceHookCID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 111);
+    b.trace_line(traceHookAID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 222);
+    b.trace_line(traceHookCID, b.splat(0x00000000), b.splat(0x00000000), 333);
+    b.trace_line(traceHookBID, b.splat(0xFFFFFFFF), b.splat(0x00000000), 444);
+    b.trace_line(traceHookAID, b.splat(0x00000000), b.splat(0xFFFFFFFF), 555);
+    b.trace_line(traceHookBID, b.splat(0xFFFFFFFF), b.splat(0xFFFFFFFF), 666);
+    skvm::Program p = b.done();
+    p.eval(1);
+
+    REPORTER_ASSERT(r, (testTraceA.fBuffer == std::vector<int>{222}));
+    REPORTER_ASSERT(r, (testTraceB.fBuffer == std::vector<int>{666}));
+    REPORTER_ASSERT(r, (testTraceC.fBuffer == std::vector<int>{111}));
 }
 
 DEF_TEST(SkVM_premul, reporter) {

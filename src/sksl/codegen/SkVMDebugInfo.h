@@ -78,6 +78,12 @@ public:
 
     /** The SkSL code, split line-by-line. */
     std::vector<std::string> fSource;
+
+    /**
+     * A trace hook which populates fTraceInfo during SkVM program evaluation. This will be created
+     * automatically by the SkSLVMCodeGenerator.
+     */
+    std::unique_ptr<skvm::TraceHook> fTraceHook;
 };
 
 }  // namespace SkSL

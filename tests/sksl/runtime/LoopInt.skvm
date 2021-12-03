@@ -104,670 +104,670 @@ loop:
 25	    r25 = index
 26	    r26 = eq_f32 r25 r11
 27	    r26 = bit_and r26 r12
-28	    trace_var r26 r26 $0 = r1
-29	    trace_var r26 r26 $1 = r2
-30	    trace_var r26 r26 $2 = r3
-31	    trace_var r26 r26 $3 = r4
-32	    trace_var r26 r26 $4 = r5
-33	    trace_var r26 r26 $5 = r6
-34	    trace_var r26 r26 $6 = r7
-35	    trace_var r26 r26 $7 = r8
-36	    trace_var r26 r26 $8 = r9
-37	    trace_var r26 r26 $9 = r13
-38	    trace_enter r26 r26 F0
-39	    trace_var r26 r26 $14 = r25
-40	    trace_var r26 r26 $15 = r0
-41	    trace_line r26 r26 L107
+28	    trace_var 0 r26 r26 $0 = r1
+29	    trace_var 0 r26 r26 $1 = r2
+30	    trace_var 0 r26 r26 $2 = r3
+31	    trace_var 0 r26 r26 $3 = r4
+32	    trace_var 0 r26 r26 $4 = r5
+33	    trace_var 0 r26 r26 $5 = r6
+34	    trace_var 0 r26 r26 $6 = r7
+35	    trace_var 0 r26 r26 $7 = r8
+36	    trace_var 0 r26 r26 $8 = r9
+37	    trace_var 0 r26 r26 $9 = r13
+38	    trace_enter 0 r26 r26 F0
+39	    trace_var 0 r26 r26 $14 = r25
+40	    trace_var 0 r26 r26 $15 = r0
+41	    trace_line 0 r26 r26 L107
 42	    r25 = min_f32 r25 r8
 43	    r25 = max_f32 r6 r25
 44	    r25 = trunc r25
 45	    r25 = mul_i32 r25 r14
-46	    trace_var r26 r26 $16 = r25
-47	    trace_line r26 r26 L108
-48	    trace_enter r26 r26 F1
-49	    trace_var r26 r26 $18 = r25
-50	    trace_line r26 r26 L8
-51	    trace_var r26 r26 $19 = r9
-52	    trace_line r26 r26 L9
+46	    trace_var 0 r26 r26 $16 = r25
+47	    trace_line 0 r26 r26 L108
+48	    trace_enter 0 r26 r26 F1
+49	    trace_var 0 r26 r26 $18 = r25
+50	    trace_line 0 r26 r26 L8
+51	    trace_var 0 r26 r26 $19 = r9
+52	    trace_line 0 r26 r26 L9
 53	    r27 = eq_i32 r9 r25
-54	    trace_line r27 r26 L9
-55	    trace_var r27 r26 $17 = r9
+54	    trace_line 0 r27 r26 L9
+55	    trace_var 0 r27 r26 $17 = r9
 56	    r28 = bit_xor r10 r27
-57	    trace_line r28 r26 L8
-58	    trace_var r28 r26 $19 = r15
-59	    trace_line r28 r26 L9
+57	    trace_line 0 r28 r26 L8
+58	    trace_var 0 r28 r26 $19 = r15
+59	    trace_line 0 r28 r26 L9
 60	    r29 = eq_i32 r25 r15
 61	    r29 = bit_and r28 r29
-62	    trace_line r29 r26 L9
+62	    trace_line 0 r29 r26 L9
 63	    r28 = bit_and r15 r29
-64	    trace_var r29 r26 $17 = r28
+64	    trace_var 0 r29 r26 $17 = r28
 65	    r29 = bit_or r27 r29
 66	    r27 = bit_xor r10 r29
-67	    trace_line r27 r26 L8
-68	    trace_var r27 r26 $19 = r16
-69	    trace_line r27 r26 L9
+67	    trace_line 0 r27 r26 L8
+68	    trace_var 0 r27 r26 $19 = r16
+69	    trace_line 0 r27 r26 L9
 70	    r30 = eq_i32 r25 r16
 71	    r30 = bit_and r27 r30
-72	    trace_line r30 r26 L9
+72	    trace_line 0 r30 r26 L9
 73	    r28 = select r30 r16 r28
-74	    trace_var r30 r26 $17 = r28
+74	    trace_var 0 r30 r26 $17 = r28
 75	    r30 = bit_or r29 r30
 76	    r29 = bit_xor r10 r30
-77	    trace_line r29 r26 L8
-78	    trace_var r29 r26 $19 = r17
-79	    trace_line r29 r26 L9
+77	    trace_line 0 r29 r26 L8
+78	    trace_var 0 r29 r26 $19 = r17
+79	    trace_line 0 r29 r26 L9
 80	    r27 = eq_i32 r25 r17
 81	    r27 = bit_and r29 r27
-82	    trace_line r27 r26 L9
+82	    trace_line 0 r27 r26 L9
 83	    r28 = select r27 r17 r28
-84	    trace_var r27 r26 $17 = r28
+84	    trace_var 0 r27 r26 $17 = r28
 85	    r27 = bit_or r30 r27
 86	    r30 = bit_xor r10 r27
-87	    trace_line r30 r26 L8
-88	    trace_var r30 r26 $19 = r18
-89	    trace_line r30 r26 L9
+87	    trace_line 0 r30 r26 L8
+88	    trace_var 0 r30 r26 $19 = r18
+89	    trace_line 0 r30 r26 L9
 90	    r29 = eq_i32 r25 r18
 91	    r29 = bit_and r30 r29
-92	    trace_line r29 r26 L9
+92	    trace_line 0 r29 r26 L9
 93	    r28 = select r29 r18 r28
-94	    trace_var r29 r26 $17 = r28
+94	    trace_var 0 r29 r26 $17 = r28
 95	    r29 = bit_or r27 r29
 96	    r27 = bit_xor r10 r29
-97	    trace_line r27 r26 L8
-98	    trace_var r27 r26 $19 = r14
-99	    trace_line r27 r26 L9
+97	    trace_line 0 r27 r26 L8
+98	    trace_var 0 r27 r26 $19 = r14
+99	    trace_line 0 r27 r26 L9
 100	    r30 = eq_i32 r14 r25
 101	    r30 = bit_and r27 r30
-102	    trace_line r30 r26 L9
+102	    trace_line 0 r30 r26 L9
 103	    r28 = select r30 r14 r28
-104	    trace_var r30 r26 $17 = r28
+104	    trace_var 0 r30 r26 $17 = r28
 105	    r30 = bit_or r29 r30
 106	    r29 = bit_xor r10 r30
-107	    trace_line r29 r26 L8
-108	    trace_var r29 r26 $19 = r19
-109	    trace_line r29 r26 L9
+107	    trace_line 0 r29 r26 L8
+108	    trace_var 0 r29 r26 $19 = r19
+109	    trace_line 0 r29 r26 L9
 110	    r27 = eq_i32 r25 r19
 111	    r27 = bit_and r29 r27
-112	    trace_line r27 r26 L9
+112	    trace_line 0 r27 r26 L9
 113	    r28 = select r27 r19 r28
-114	    trace_var r27 r26 $17 = r28
+114	    trace_var 0 r27 r26 $17 = r28
 115	    r27 = bit_or r30 r27
 116	    r30 = bit_xor r10 r27
-117	    trace_line r30 r26 L8
-118	    trace_var r30 r26 $19 = r20
-119	    trace_line r30 r26 L9
+117	    trace_line 0 r30 r26 L8
+118	    trace_var 0 r30 r26 $19 = r20
+119	    trace_line 0 r30 r26 L9
 120	    r29 = eq_i32 r25 r20
 121	    r29 = bit_and r30 r29
-122	    trace_line r29 r26 L9
+122	    trace_line 0 r29 r26 L9
 123	    r28 = select r29 r20 r28
-124	    trace_var r29 r26 $17 = r28
+124	    trace_var 0 r29 r26 $17 = r28
 125	    r29 = bit_or r27 r29
 126	    r27 = bit_xor r10 r29
-127	    trace_line r27 r26 L8
-128	    trace_var r27 r26 $19 = r21
-129	    trace_line r27 r26 L9
+127	    trace_line 0 r27 r26 L8
+128	    trace_var 0 r27 r26 $19 = r21
+129	    trace_line 0 r27 r26 L9
 130	    r30 = eq_i32 r25 r21
 131	    r30 = bit_and r27 r30
-132	    trace_line r30 r26 L9
+132	    trace_line 0 r30 r26 L9
 133	    r28 = select r30 r21 r28
-134	    trace_var r30 r26 $17 = r28
+134	    trace_var 0 r30 r26 $17 = r28
 135	    r30 = bit_or r29 r30
 136	    r29 = bit_xor r10 r30
-137	    trace_line r29 r26 L8
-138	    trace_var r29 r26 $19 = r22
-139	    trace_line r29 r26 L9
+137	    trace_line 0 r29 r26 L8
+138	    trace_var 0 r29 r26 $19 = r22
+139	    trace_line 0 r29 r26 L9
 140	    r27 = eq_i32 r25 r22
 141	    r27 = bit_and r29 r27
-142	    trace_line r27 r26 L9
+142	    trace_line 0 r27 r26 L9
 143	    r28 = select r27 r22 r28
-144	    trace_var r27 r26 $17 = r28
+144	    trace_var 0 r27 r26 $17 = r28
 145	    r27 = bit_or r30 r27
 146	    r27 = bit_xor r10 r27
-147	    trace_line r27 r26 L8
-148	    trace_line r27 r26 L11
+147	    trace_line 0 r27 r26 L8
+148	    trace_line 0 r27 r26 L11
 149	    r28 = bit_clear r28 r27
-150	    trace_var r27 r26 $17 = r28
-151	    trace_exit r26 r26 F1
+150	    trace_var 0 r27 r26 $17 = r28
+151	    trace_exit 0 r26 r26 F1
 152	    r28 = eq_i32 r14 r28
-153	    trace_enter r28 r26 F2
-154	    trace_var r28 r26 $21 = r25
-155	    trace_line r28 r26 L17
-156	    trace_var r28 r26 $22 = r9
-157	    trace_line r28 r26 L18
-158	    trace_var r28 r26 $23 = r9
-159	    trace_line r28 r26 L19
+153	    trace_enter 0 r28 r26 F2
+154	    trace_var 0 r28 r26 $21 = r25
+155	    trace_line 0 r28 r26 L17
+156	    trace_var 0 r28 r26 $22 = r9
+157	    trace_line 0 r28 r26 L18
+158	    trace_var 0 r28 r26 $23 = r9
+159	    trace_line 0 r28 r26 L19
 160	    r27 = gt_i32 r25 r9
 161	    r27 = bit_and r28 r27
-162	    trace_line r27 r26 L19
+162	    trace_line 0 r27 r26 L19
 163	    r30 = bit_xor r10 r27
 164	    r29 = bit_and r28 r30
-165	    trace_line r29 r26 L20
+165	    trace_line 0 r29 r26 L20
 166	    r30 = bit_or r27 r30
 167	    r27 = bit_and r28 r30
-168	    trace_line r27 r26 L18
-169	    trace_var r27 r26 $23 = r15
-170	    trace_line r27 r26 L19
+168	    trace_line 0 r27 r26 L18
+169	    trace_var 0 r27 r26 $23 = r15
+170	    trace_line 0 r27 r26 L19
 171	    r27 = gt_i32 r25 r15
 172	    r27 = bit_and r28 r27
 173	    r27 = bit_and r30 r27
-174	    trace_line r27 r26 L19
+174	    trace_line 0 r27 r26 L19
 175	    r29 = bit_xor r10 r27
 176	    r29 = bit_and r30 r29
 177	    r30 = bit_and r28 r29
-178	    trace_line r30 r26 L20
+178	    trace_line 0 r30 r26 L20
 179	    r31 = bit_and r15 r30
-180	    trace_var r30 r26 $22 = r31
+180	    trace_var 0 r30 r26 $22 = r31
 181	    r29 = bit_or r27 r29
 182	    r27 = bit_and r28 r29
-183	    trace_line r27 r26 L18
-184	    trace_var r27 r26 $23 = r16
-185	    trace_line r27 r26 L19
+183	    trace_line 0 r27 r26 L18
+184	    trace_var 0 r27 r26 $23 = r16
+185	    trace_line 0 r27 r26 L19
 186	    r27 = gt_i32 r25 r16
 187	    r27 = bit_and r28 r27
 188	    r27 = bit_and r29 r27
-189	    trace_line r27 r26 L19
+189	    trace_line 0 r27 r26 L19
 190	    r30 = bit_xor r10 r27
 191	    r30 = bit_and r29 r30
 192	    r29 = bit_and r28 r30
-193	    trace_line r29 r26 L20
+193	    trace_line 0 r29 r26 L20
 194	    r32 = add_i32 r16 r31
 195	    r31 = select r29 r32 r31
-196	    trace_var r29 r26 $22 = r31
+196	    trace_var 0 r29 r26 $22 = r31
 197	    r30 = bit_or r27 r30
 198	    r27 = bit_and r28 r30
-199	    trace_line r27 r26 L18
-200	    trace_var r27 r26 $23 = r17
-201	    trace_line r27 r26 L19
+199	    trace_line 0 r27 r26 L18
+200	    trace_var 0 r27 r26 $23 = r17
+201	    trace_line 0 r27 r26 L19
 202	    r27 = gt_i32 r25 r17
 203	    r27 = bit_and r28 r27
 204	    r27 = bit_and r30 r27
-205	    trace_line r27 r26 L19
+205	    trace_line 0 r27 r26 L19
 206	    r29 = bit_xor r10 r27
 207	    r29 = bit_and r30 r29
 208	    r30 = bit_and r28 r29
-209	    trace_line r30 r26 L20
+209	    trace_line 0 r30 r26 L20
 210	    r32 = add_i32 r17 r31
 211	    r31 = select r30 r32 r31
-212	    trace_var r30 r26 $22 = r31
+212	    trace_var 0 r30 r26 $22 = r31
 213	    r29 = bit_or r27 r29
 214	    r27 = bit_and r28 r29
-215	    trace_line r27 r26 L18
-216	    trace_var r27 r26 $23 = r18
-217	    trace_line r27 r26 L19
+215	    trace_line 0 r27 r26 L18
+216	    trace_var 0 r27 r26 $23 = r18
+217	    trace_line 0 r27 r26 L19
 218	    r27 = gt_i32 r25 r18
 219	    r27 = bit_and r28 r27
 220	    r27 = bit_and r29 r27
-221	    trace_line r27 r26 L19
+221	    trace_line 0 r27 r26 L19
 222	    r30 = bit_xor r10 r27
 223	    r30 = bit_and r29 r30
 224	    r29 = bit_and r28 r30
-225	    trace_line r29 r26 L20
+225	    trace_line 0 r29 r26 L20
 226	    r32 = add_i32 r18 r31
 227	    r31 = select r29 r32 r31
-228	    trace_var r29 r26 $22 = r31
+228	    trace_var 0 r29 r26 $22 = r31
 229	    r30 = bit_or r27 r30
 230	    r27 = bit_and r28 r30
-231	    trace_line r27 r26 L18
-232	    trace_var r27 r26 $23 = r14
-233	    trace_line r27 r26 L19
+231	    trace_line 0 r27 r26 L18
+232	    trace_var 0 r27 r26 $23 = r14
+233	    trace_line 0 r27 r26 L19
 234	    r27 = gt_i32 r25 r14
 235	    r27 = bit_and r28 r27
 236	    r27 = bit_and r30 r27
-237	    trace_line r27 r26 L19
+237	    trace_line 0 r27 r26 L19
 238	    r29 = bit_xor r10 r27
 239	    r29 = bit_and r30 r29
 240	    r30 = bit_and r28 r29
-241	    trace_line r30 r26 L20
+241	    trace_line 0 r30 r26 L20
 242	    r32 = add_i32 r14 r31
 243	    r31 = select r30 r32 r31
-244	    trace_var r30 r26 $22 = r31
+244	    trace_var 0 r30 r26 $22 = r31
 245	    r29 = bit_or r27 r29
 246	    r27 = bit_and r28 r29
-247	    trace_line r27 r26 L18
-248	    trace_var r27 r26 $23 = r19
-249	    trace_line r27 r26 L19
+247	    trace_line 0 r27 r26 L18
+248	    trace_var 0 r27 r26 $23 = r19
+249	    trace_line 0 r27 r26 L19
 250	    r27 = gt_i32 r25 r19
 251	    r27 = bit_and r28 r27
 252	    r27 = bit_and r29 r27
-253	    trace_line r27 r26 L19
+253	    trace_line 0 r27 r26 L19
 254	    r30 = bit_xor r10 r27
 255	    r30 = bit_and r29 r30
 256	    r29 = bit_and r28 r30
-257	    trace_line r29 r26 L20
+257	    trace_line 0 r29 r26 L20
 258	    r32 = add_i32 r19 r31
 259	    r31 = select r29 r32 r31
-260	    trace_var r29 r26 $22 = r31
+260	    trace_var 0 r29 r26 $22 = r31
 261	    r30 = bit_or r27 r30
 262	    r27 = bit_and r28 r30
-263	    trace_line r27 r26 L18
-264	    trace_var r27 r26 $23 = r20
-265	    trace_line r27 r26 L19
+263	    trace_line 0 r27 r26 L18
+264	    trace_var 0 r27 r26 $23 = r20
+265	    trace_line 0 r27 r26 L19
 266	    r27 = gt_i32 r25 r20
 267	    r27 = bit_and r28 r27
 268	    r27 = bit_and r30 r27
-269	    trace_line r27 r26 L19
+269	    trace_line 0 r27 r26 L19
 270	    r29 = bit_xor r10 r27
 271	    r29 = bit_and r30 r29
 272	    r30 = bit_and r28 r29
-273	    trace_line r30 r26 L20
+273	    trace_line 0 r30 r26 L20
 274	    r32 = add_i32 r20 r31
 275	    r31 = select r30 r32 r31
-276	    trace_var r30 r26 $22 = r31
+276	    trace_var 0 r30 r26 $22 = r31
 277	    r29 = bit_or r27 r29
 278	    r27 = bit_and r28 r29
-279	    trace_line r27 r26 L18
-280	    trace_var r27 r26 $23 = r21
-281	    trace_line r27 r26 L19
+279	    trace_line 0 r27 r26 L18
+280	    trace_var 0 r27 r26 $23 = r21
+281	    trace_line 0 r27 r26 L19
 282	    r27 = gt_i32 r25 r21
 283	    r27 = bit_and r28 r27
 284	    r27 = bit_and r29 r27
-285	    trace_line r27 r26 L19
+285	    trace_line 0 r27 r26 L19
 286	    r30 = bit_xor r10 r27
 287	    r30 = bit_and r29 r30
 288	    r29 = bit_and r28 r30
-289	    trace_line r29 r26 L20
+289	    trace_line 0 r29 r26 L20
 290	    r32 = add_i32 r21 r31
 291	    r31 = select r29 r32 r31
-292	    trace_var r29 r26 $22 = r31
+292	    trace_var 0 r29 r26 $22 = r31
 293	    r30 = bit_or r27 r30
 294	    r27 = bit_and r28 r30
-295	    trace_line r27 r26 L18
-296	    trace_var r27 r26 $23 = r22
-297	    trace_line r27 r26 L19
+295	    trace_line 0 r27 r26 L18
+296	    trace_var 0 r27 r26 $23 = r22
+297	    trace_line 0 r27 r26 L19
 298	    r27 = gt_i32 r25 r22
 299	    r27 = bit_and r28 r27
 300	    r27 = bit_and r30 r27
-301	    trace_line r27 r26 L19
+301	    trace_line 0 r27 r26 L19
 302	    r29 = bit_xor r10 r27
 303	    r29 = bit_and r30 r29
 304	    r30 = bit_and r28 r29
-305	    trace_line r30 r26 L20
+305	    trace_line 0 r30 r26 L20
 306	    r32 = add_i32 r22 r31
 307	    r31 = select r30 r32 r31
-308	    trace_var r30 r26 $22 = r31
+308	    trace_var 0 r30 r26 $22 = r31
 309	    r29 = bit_or r27 r29
 310	    r29 = bit_and r28 r29
-311	    trace_line r29 r26 L18
-312	    trace_line r28 r26 L22
+311	    trace_line 0 r29 r26 L18
+312	    trace_line 0 r28 r26 L22
 313	    r31 = bit_and r28 r31
-314	    trace_var r28 r26 $20 = r31
-315	    trace_exit r28 r26 F2
+314	    trace_var 0 r28 r26 $20 = r31
+315	    trace_exit 0 r28 r26 F2
 316	    r31 = eq_i32 r31 r23
 317	    r31 = bit_and r28 r31
-318	    trace_enter r31 r26 F3
-319	    trace_var r31 r26 $25 = r25
-320	    trace_line r31 r26 L27
-321	    trace_var r31 r26 $26 = r9
-322	    trace_line r31 r26 L28
-323	    trace_var r31 r26 $27 = r15
-324	    trace_line r31 r26 L29
-325	    trace_var r31 r26 $28 = r9
-326	    trace_line r31 r26 L30
+318	    trace_enter 0 r31 r26 F3
+319	    trace_var 0 r31 r26 $25 = r25
+320	    trace_line 0 r31 r26 L27
+321	    trace_var 0 r31 r26 $26 = r9
+322	    trace_line 0 r31 r26 L28
+323	    trace_var 0 r31 r26 $27 = r15
+324	    trace_line 0 r31 r26 L29
+325	    trace_var 0 r31 r26 $28 = r9
+326	    trace_line 0 r31 r26 L30
 327	    r28 = gt_i32 r9 r25
 328	    r28 = bit_and r31 r28
-329	    trace_line r28 r26 L30
+329	    trace_line 0 r28 r26 L30
 330	    r28 = bit_xor r10 r28
 331	    r29 = bit_and r31 r28
-332	    trace_line r29 r26 L31
-333	    trace_line r29 r26 L29
-334	    trace_var r29 r26 $28 = r15
-335	    trace_line r29 r26 L30
+332	    trace_line 0 r29 r26 L31
+333	    trace_line 0 r29 r26 L29
+334	    trace_var 0 r29 r26 $28 = r15
+335	    trace_line 0 r29 r26 L30
 336	    r29 = gt_i32 r15 r25
 337	    r29 = bit_and r31 r29
 338	    r29 = bit_and r28 r29
-339	    trace_line r29 r26 L30
+339	    trace_line 0 r29 r26 L30
 340	    r29 = bit_xor r10 r29
 341	    r29 = bit_and r28 r29
 342	    r28 = bit_and r31 r29
-343	    trace_line r28 r26 L31
+343	    trace_line 0 r28 r26 L31
 344	    r27 = bit_and r15 r28
-345	    trace_var r28 r26 $26 = r27
-346	    trace_line r28 r26 L29
-347	    trace_var r28 r26 $28 = r16
-348	    trace_line r28 r26 L30
+345	    trace_var 0 r28 r26 $26 = r27
+346	    trace_line 0 r28 r26 L29
+347	    trace_var 0 r28 r26 $28 = r16
+348	    trace_line 0 r28 r26 L30
 349	    r28 = gt_i32 r16 r25
 350	    r28 = bit_and r31 r28
 351	    r28 = bit_and r29 r28
-352	    trace_line r28 r26 L30
+352	    trace_line 0 r28 r26 L30
 353	    r28 = bit_xor r10 r28
 354	    r28 = bit_and r29 r28
 355	    r29 = bit_and r31 r28
-356	    trace_line r29 r26 L31
+356	    trace_line 0 r29 r26 L31
 357	    r30 = add_i32 r16 r27
 358	    r27 = select r29 r30 r27
-359	    trace_var r29 r26 $26 = r27
-360	    trace_line r29 r26 L29
-361	    trace_var r29 r26 $28 = r17
-362	    trace_line r29 r26 L30
+359	    trace_var 0 r29 r26 $26 = r27
+360	    trace_line 0 r29 r26 L29
+361	    trace_var 0 r29 r26 $28 = r17
+362	    trace_line 0 r29 r26 L30
 363	    r29 = gt_i32 r17 r25
 364	    r29 = bit_and r31 r29
 365	    r29 = bit_and r28 r29
-366	    trace_line r29 r26 L30
+366	    trace_line 0 r29 r26 L30
 367	    r29 = bit_xor r10 r29
 368	    r29 = bit_and r28 r29
 369	    r28 = bit_and r31 r29
-370	    trace_line r28 r26 L31
+370	    trace_line 0 r28 r26 L31
 371	    r30 = add_i32 r17 r27
 372	    r27 = select r28 r30 r27
-373	    trace_var r28 r26 $26 = r27
-374	    trace_line r28 r26 L29
-375	    trace_var r28 r26 $28 = r18
-376	    trace_line r28 r26 L30
+373	    trace_var 0 r28 r26 $26 = r27
+374	    trace_line 0 r28 r26 L29
+375	    trace_var 0 r28 r26 $28 = r18
+376	    trace_line 0 r28 r26 L30
 377	    r28 = gt_i32 r18 r25
 378	    r28 = bit_and r31 r28
 379	    r28 = bit_and r29 r28
-380	    trace_line r28 r26 L30
+380	    trace_line 0 r28 r26 L30
 381	    r28 = bit_xor r10 r28
 382	    r28 = bit_and r29 r28
 383	    r29 = bit_and r31 r28
-384	    trace_line r29 r26 L31
+384	    trace_line 0 r29 r26 L31
 385	    r30 = add_i32 r18 r27
 386	    r27 = select r29 r30 r27
-387	    trace_var r29 r26 $26 = r27
-388	    trace_line r29 r26 L29
-389	    trace_var r29 r26 $28 = r14
-390	    trace_line r29 r26 L30
+387	    trace_var 0 r29 r26 $26 = r27
+388	    trace_line 0 r29 r26 L29
+389	    trace_var 0 r29 r26 $28 = r14
+390	    trace_line 0 r29 r26 L30
 391	    r29 = gt_i32 r14 r25
 392	    r29 = bit_and r31 r29
 393	    r29 = bit_and r28 r29
-394	    trace_line r29 r26 L30
+394	    trace_line 0 r29 r26 L30
 395	    r29 = bit_xor r10 r29
 396	    r29 = bit_and r28 r29
 397	    r28 = bit_and r31 r29
-398	    trace_line r28 r26 L31
+398	    trace_line 0 r28 r26 L31
 399	    r30 = add_i32 r14 r27
 400	    r27 = select r28 r30 r27
-401	    trace_var r28 r26 $26 = r27
-402	    trace_line r28 r26 L29
-403	    trace_var r28 r26 $28 = r19
-404	    trace_line r28 r26 L30
+401	    trace_var 0 r28 r26 $26 = r27
+402	    trace_line 0 r28 r26 L29
+403	    trace_var 0 r28 r26 $28 = r19
+404	    trace_line 0 r28 r26 L30
 405	    r28 = gt_i32 r19 r25
 406	    r28 = bit_and r31 r28
 407	    r28 = bit_and r29 r28
-408	    trace_line r28 r26 L30
+408	    trace_line 0 r28 r26 L30
 409	    r28 = bit_xor r10 r28
 410	    r28 = bit_and r29 r28
 411	    r29 = bit_and r31 r28
-412	    trace_line r29 r26 L31
+412	    trace_line 0 r29 r26 L31
 413	    r30 = add_i32 r19 r27
 414	    r27 = select r29 r30 r27
-415	    trace_var r29 r26 $26 = r27
-416	    trace_line r29 r26 L29
-417	    trace_var r29 r26 $28 = r20
-418	    trace_line r29 r26 L30
+415	    trace_var 0 r29 r26 $26 = r27
+416	    trace_line 0 r29 r26 L29
+417	    trace_var 0 r29 r26 $28 = r20
+418	    trace_line 0 r29 r26 L30
 419	    r29 = gt_i32 r20 r25
 420	    r29 = bit_and r31 r29
 421	    r29 = bit_and r28 r29
-422	    trace_line r29 r26 L30
+422	    trace_line 0 r29 r26 L30
 423	    r29 = bit_xor r10 r29
 424	    r29 = bit_and r28 r29
 425	    r28 = bit_and r31 r29
-426	    trace_line r28 r26 L31
+426	    trace_line 0 r28 r26 L31
 427	    r30 = add_i32 r20 r27
 428	    r27 = select r28 r30 r27
-429	    trace_var r28 r26 $26 = r27
-430	    trace_line r28 r26 L29
-431	    trace_var r28 r26 $28 = r21
-432	    trace_line r28 r26 L30
+429	    trace_var 0 r28 r26 $26 = r27
+430	    trace_line 0 r28 r26 L29
+431	    trace_var 0 r28 r26 $28 = r21
+432	    trace_line 0 r28 r26 L30
 433	    r28 = gt_i32 r21 r25
 434	    r28 = bit_and r31 r28
 435	    r28 = bit_and r29 r28
-436	    trace_line r28 r26 L30
+436	    trace_line 0 r28 r26 L30
 437	    r28 = bit_xor r10 r28
 438	    r28 = bit_and r29 r28
 439	    r29 = bit_and r31 r28
-440	    trace_line r29 r26 L31
+440	    trace_line 0 r29 r26 L31
 441	    r30 = add_i32 r21 r27
 442	    r27 = select r29 r30 r27
-443	    trace_var r29 r26 $26 = r27
-444	    trace_line r29 r26 L29
-445	    trace_var r29 r26 $28 = r22
-446	    trace_line r29 r26 L30
+443	    trace_var 0 r29 r26 $26 = r27
+444	    trace_line 0 r29 r26 L29
+445	    trace_var 0 r29 r26 $28 = r22
+446	    trace_line 0 r29 r26 L30
 447	    r25 = gt_i32 r22 r25
 448	    r25 = bit_and r31 r25
 449	    r25 = bit_and r28 r25
-450	    trace_line r25 r26 L30
+450	    trace_line 0 r25 r26 L30
 451	    r25 = bit_xor r10 r25
 452	    r25 = bit_and r28 r25
 453	    r25 = bit_and r31 r25
-454	    trace_line r25 r26 L31
+454	    trace_line 0 r25 r26 L31
 455	    r28 = add_i32 r22 r27
 456	    r27 = select r25 r28 r27
-457	    trace_var r25 r26 $26 = r27
-458	    trace_line r25 r26 L29
-459	    trace_line r31 r26 L33
+457	    trace_var 0 r25 r26 $26 = r27
+458	    trace_line 0 r25 r26 L29
+459	    trace_line 0 r31 r26 L33
 460	    r27 = bit_and r31 r27
-461	    trace_var r31 r26 $24 = r27
-462	    trace_exit r31 r26 F3
+461	    trace_var 0 r31 r26 $24 = r27
+462	    trace_exit 0 r31 r26 F3
 463	    r27 = eq_i32 r27 r24
 464	    r27 = bit_and r31 r27
-465	    trace_enter r27 r26 F4
-466	    trace_line r27 r26 L38
-467	    trace_line r27 r26 L39
-468	    trace_line r27 r26 L41
-469	    trace_var r27 r26 $30 = r22
-470	    trace_var r27 r26 $31 = r22
-471	    trace_var r27 r26 $32 = r22
-472	    trace_var r27 r26 $33 = r22
-473	    trace_line r27 r26 L42
-474	    trace_var r27 r26 $34 = r15
-475	    trace_line r27 r26 L43
+465	    trace_enter 0 r27 r26 F4
+466	    trace_line 0 r27 r26 L38
+467	    trace_line 0 r27 r26 L39
+468	    trace_line 0 r27 r26 L41
+469	    trace_var 0 r27 r26 $30 = r22
+470	    trace_var 0 r27 r26 $31 = r22
+471	    trace_var 0 r27 r26 $32 = r22
+472	    trace_var 0 r27 r26 $33 = r22
+473	    trace_line 0 r27 r26 L42
+474	    trace_var 0 r27 r26 $34 = r15
+475	    trace_line 0 r27 r26 L43
 476	    r31 = select r27 r15 r22
-477	    trace_var r27 r26 $33 = r31
-478	    trace_line r27 r26 L42
-479	    trace_var r27 r26 $34 = r16
-480	    trace_line r27 r26 L43
+477	    trace_var 0 r27 r26 $33 = r31
+478	    trace_line 0 r27 r26 L42
+479	    trace_var 0 r27 r26 $34 = r16
+480	    trace_line 0 r27 r26 L43
 481	    r25 = select r27 r31 r22
-482	    trace_var r27 r26 $32 = r25
+482	    trace_var 0 r27 r26 $32 = r25
 483	    r31 = select r27 r16 r31
-484	    trace_var r27 r26 $33 = r31
-485	    trace_line r27 r26 L42
-486	    trace_var r27 r26 $34 = r17
-487	    trace_line r27 r26 L43
+484	    trace_var 0 r27 r26 $33 = r31
+485	    trace_line 0 r27 r26 L42
+486	    trace_var 0 r27 r26 $34 = r17
+487	    trace_line 0 r27 r26 L43
 488	    r28 = select r27 r25 r22
-489	    trace_var r27 r26 $31 = r28
+489	    trace_var 0 r27 r26 $31 = r28
 490	    r25 = select r27 r31 r25
-491	    trace_var r27 r26 $32 = r25
+491	    trace_var 0 r27 r26 $32 = r25
 492	    r31 = select r27 r17 r31
-493	    trace_var r27 r26 $33 = r31
-494	    trace_line r27 r26 L42
-495	    trace_line r27 r26 L45
+493	    trace_var 0 r27 r26 $33 = r31
+494	    trace_line 0 r27 r26 L42
+495	    trace_line 0 r27 r26 L45
 496	    r28 = eq_i32 r15 r28
 497	    r25 = eq_i32 r16 r25
 498	    r31 = eq_i32 r17 r31
 499	    r25 = bit_and r28 r25
 500	    r25 = bit_and r31 r25
 501	    r25 = bit_and r27 r25
-502	    trace_var r27 r26 $29 = r25
-503	    trace_exit r27 r26 F4
+502	    trace_var 0 r27 r26 $29 = r25
+503	    trace_exit 0 r27 r26 F4
 504	    r25 = bit_and r27 r25
-505	    trace_enter r25 r26 F5
-506	    trace_line r25 r26 L50
-507	    trace_line r25 r26 L51
-508	    trace_line r25 r26 L53
-509	    trace_var r25 r26 $36 = r22
-510	    trace_var r25 r26 $37 = r22
-511	    trace_var r25 r26 $38 = r22
-512	    trace_var r25 r26 $39 = r22
-513	    trace_line r25 r26 L54
-514	    trace_var r25 r26 $40 = r15
-515	    trace_line r25 r26 L55
+505	    trace_enter 0 r25 r26 F5
+506	    trace_line 0 r25 r26 L50
+507	    trace_line 0 r25 r26 L51
+508	    trace_line 0 r25 r26 L53
+509	    trace_var 0 r25 r26 $36 = r22
+510	    trace_var 0 r25 r26 $37 = r22
+511	    trace_var 0 r25 r26 $38 = r22
+512	    trace_var 0 r25 r26 $39 = r22
+513	    trace_line 0 r25 r26 L54
+514	    trace_var 0 r25 r26 $40 = r15
+515	    trace_line 0 r25 r26 L55
 516	    r27 = select r25 r15 r22
-517	    trace_var r25 r26 $39 = r27
-518	    trace_line r25 r26 L54
-519	    trace_var r25 r26 $40 = r16
-520	    trace_line r25 r26 L55
+517	    trace_var 0 r25 r26 $39 = r27
+518	    trace_line 0 r25 r26 L54
+519	    trace_var 0 r25 r26 $40 = r16
+520	    trace_line 0 r25 r26 L55
 521	    r31 = select r25 r27 r22
-522	    trace_var r25 r26 $38 = r31
+522	    trace_var 0 r25 r26 $38 = r31
 523	    r27 = select r25 r16 r27
-524	    trace_var r25 r26 $39 = r27
-525	    trace_line r25 r26 L54
-526	    trace_var r25 r26 $40 = r17
-527	    trace_line r25 r26 L55
+524	    trace_var 0 r25 r26 $39 = r27
+525	    trace_line 0 r25 r26 L54
+526	    trace_var 0 r25 r26 $40 = r17
+527	    trace_line 0 r25 r26 L55
 528	    r28 = select r25 r31 r22
-529	    trace_var r25 r26 $37 = r28
+529	    trace_var 0 r25 r26 $37 = r28
 530	    r31 = select r25 r27 r31
-531	    trace_var r25 r26 $38 = r31
+531	    trace_var 0 r25 r26 $38 = r31
 532	    r27 = select r25 r17 r27
-533	    trace_var r25 r26 $39 = r27
-534	    trace_line r25 r26 L54
-535	    trace_line r25 r26 L57
+533	    trace_var 0 r25 r26 $39 = r27
+534	    trace_line 0 r25 r26 L54
+535	    trace_line 0 r25 r26 L57
 536	    r28 = eq_i32 r15 r28
 537	    r31 = eq_i32 r16 r31
 538	    r27 = eq_i32 r17 r27
 539	    r31 = bit_and r28 r31
 540	    r31 = bit_and r27 r31
 541	    r31 = bit_and r25 r31
-542	    trace_var r25 r26 $35 = r31
-543	    trace_exit r25 r26 F5
+542	    trace_var 0 r25 r26 $35 = r31
+543	    trace_exit 0 r25 r26 F5
 544	    r31 = bit_and r25 r31
-545	    trace_enter r31 r26 F6
-546	    trace_line r31 r26 L62
-547	    trace_line r31 r26 L63
-548	    trace_line r31 r26 L65
-549	    trace_var r31 r26 $42 = r22
-550	    trace_var r31 r26 $43 = r22
-551	    trace_var r31 r26 $44 = r22
-552	    trace_var r31 r26 $45 = r22
-553	    trace_line r31 r26 L66
-554	    trace_var r31 r26 $46 = r17
-555	    trace_line r31 r26 L67
+545	    trace_enter 0 r31 r26 F6
+546	    trace_line 0 r31 r26 L62
+547	    trace_line 0 r31 r26 L63
+548	    trace_line 0 r31 r26 L65
+549	    trace_var 0 r31 r26 $42 = r22
+550	    trace_var 0 r31 r26 $43 = r22
+551	    trace_var 0 r31 r26 $44 = r22
+552	    trace_var 0 r31 r26 $45 = r22
+553	    trace_line 0 r31 r26 L66
+554	    trace_var 0 r31 r26 $46 = r17
+555	    trace_line 0 r31 r26 L67
 556	    r25 = select r31 r17 r22
-557	    trace_var r31 r26 $45 = r25
-558	    trace_line r31 r26 L66
-559	    trace_var r31 r26 $46 = r16
-560	    trace_line r31 r26 L67
+557	    trace_var 0 r31 r26 $45 = r25
+558	    trace_line 0 r31 r26 L66
+559	    trace_var 0 r31 r26 $46 = r16
+560	    trace_line 0 r31 r26 L67
 561	    r27 = select r31 r25 r22
-562	    trace_var r31 r26 $44 = r27
+562	    trace_var 0 r31 r26 $44 = r27
 563	    r25 = select r31 r16 r25
-564	    trace_var r31 r26 $45 = r25
-565	    trace_line r31 r26 L66
-566	    trace_var r31 r26 $46 = r15
-567	    trace_line r31 r26 L67
+564	    trace_var 0 r31 r26 $45 = r25
+565	    trace_line 0 r31 r26 L66
+566	    trace_var 0 r31 r26 $46 = r15
+567	    trace_line 0 r31 r26 L67
 568	    r28 = select r31 r27 r22
-569	    trace_var r31 r26 $43 = r28
+569	    trace_var 0 r31 r26 $43 = r28
 570	    r27 = select r31 r25 r27
-571	    trace_var r31 r26 $44 = r27
+571	    trace_var 0 r31 r26 $44 = r27
 572	    r25 = select r31 r15 r25
-573	    trace_var r31 r26 $45 = r25
-574	    trace_line r31 r26 L66
-575	    trace_line r31 r26 L69
+573	    trace_var 0 r31 r26 $45 = r25
+574	    trace_line 0 r31 r26 L66
+575	    trace_line 0 r31 r26 L69
 576	    r28 = eq_i32 r17 r28
 577	    r27 = eq_i32 r16 r27
 578	    r25 = eq_i32 r15 r25
 579	    r27 = bit_and r28 r27
 580	    r27 = bit_and r25 r27
 581	    r27 = bit_and r31 r27
-582	    trace_var r31 r26 $41 = r27
-583	    trace_exit r31 r26 F6
+582	    trace_var 0 r31 r26 $41 = r27
+583	    trace_exit 0 r31 r26 F6
 584	    r27 = bit_and r31 r27
-585	    trace_enter r27 r26 F7
-586	    trace_line r27 r26 L74
-587	    trace_line r27 r26 L75
-588	    trace_line r27 r26 L77
-589	    trace_var r27 r26 $48 = r22
-590	    trace_var r27 r26 $49 = r22
-591	    trace_var r27 r26 $50 = r22
-592	    trace_var r27 r26 $51 = r22
-593	    trace_line r27 r26 L78
-594	    trace_var r27 r26 $52 = r17
-595	    trace_line r27 r26 L79
+585	    trace_enter 0 r27 r26 F7
+586	    trace_line 0 r27 r26 L74
+587	    trace_line 0 r27 r26 L75
+588	    trace_line 0 r27 r26 L77
+589	    trace_var 0 r27 r26 $48 = r22
+590	    trace_var 0 r27 r26 $49 = r22
+591	    trace_var 0 r27 r26 $50 = r22
+592	    trace_var 0 r27 r26 $51 = r22
+593	    trace_line 0 r27 r26 L78
+594	    trace_var 0 r27 r26 $52 = r17
+595	    trace_line 0 r27 r26 L79
 596	    r31 = select r27 r17 r22
-597	    trace_var r27 r26 $51 = r31
-598	    trace_line r27 r26 L78
-599	    trace_var r27 r26 $52 = r16
-600	    trace_line r27 r26 L79
+597	    trace_var 0 r27 r26 $51 = r31
+598	    trace_line 0 r27 r26 L78
+599	    trace_var 0 r27 r26 $52 = r16
+600	    trace_line 0 r27 r26 L79
 601	    r25 = select r27 r31 r22
-602	    trace_var r27 r26 $50 = r25
+602	    trace_var 0 r27 r26 $50 = r25
 603	    r31 = select r27 r16 r31
-604	    trace_var r27 r26 $51 = r31
-605	    trace_line r27 r26 L78
-606	    trace_var r27 r26 $52 = r15
-607	    trace_line r27 r26 L79
+604	    trace_var 0 r27 r26 $51 = r31
+605	    trace_line 0 r27 r26 L78
+606	    trace_var 0 r27 r26 $52 = r15
+607	    trace_line 0 r27 r26 L79
 608	    r28 = select r27 r25 r22
-609	    trace_var r27 r26 $49 = r28
+609	    trace_var 0 r27 r26 $49 = r28
 610	    r25 = select r27 r31 r25
-611	    trace_var r27 r26 $50 = r25
+611	    trace_var 0 r27 r26 $50 = r25
 612	    r31 = select r27 r15 r31
-613	    trace_var r27 r26 $51 = r31
-614	    trace_line r27 r26 L78
-615	    trace_line r27 r26 L81
+613	    trace_var 0 r27 r26 $51 = r31
+614	    trace_line 0 r27 r26 L78
+615	    trace_line 0 r27 r26 L81
 616	    r28 = eq_i32 r17 r28
 617	    r25 = eq_i32 r16 r25
 618	    r31 = eq_i32 r15 r31
 619	    r25 = bit_and r28 r25
 620	    r25 = bit_and r31 r25
 621	    r25 = bit_and r27 r25
-622	    trace_var r27 r26 $47 = r25
-623	    trace_exit r27 r26 F7
+622	    trace_var 0 r27 r26 $47 = r25
+623	    trace_exit 0 r27 r26 F7
 624	    r25 = bit_and r27 r25
-625	    trace_enter r25 r26 F8
-626	    trace_line r25 r26 L97
-627	    trace_line r25 r26 L99
-628	    trace_var r25 r26 $54 = r22
-629	    trace_var r25 r26 $55 = r22
-630	    trace_var r25 r26 $56 = r22
-631	    trace_var r25 r26 $57 = r22
-632	    trace_line r25 r26 L100
-633	    trace_var r25 r26 $58 = r15
-634	    trace_line r25 r26 L101
+625	    trace_enter 0 r25 r26 F8
+626	    trace_line 0 r25 r26 L97
+627	    trace_line 0 r25 r26 L99
+628	    trace_var 0 r25 r26 $54 = r22
+629	    trace_var 0 r25 r26 $55 = r22
+630	    trace_var 0 r25 r26 $56 = r22
+631	    trace_var 0 r25 r26 $57 = r22
+632	    trace_line 0 r25 r26 L100
+633	    trace_var 0 r25 r26 $58 = r15
+634	    trace_line 0 r25 r26 L101
 635	    r27 = select r25 r15 r22
-636	    trace_var r25 r26 $57 = r27
-637	    trace_line r25 r26 L100
-638	    trace_line r25 r26 L103
+636	    trace_var 0 r25 r26 $57 = r27
+637	    trace_line 0 r25 r26 L100
+638	    trace_line 0 r25 r26 L103
 639	    r27 = eq_i32 r15 r27
 640	    r27 = bit_and r25 r27
-641	    trace_var r25 r26 $53 = r27
-642	    trace_exit r25 r26 F8
+641	    trace_var 0 r25 r26 $53 = r27
+642	    trace_exit 0 r25 r26 F8
 643	    r27 = bit_and r25 r27
-644	    trace_enter r27 r26 F9
-645	    trace_line r27 r26 L86
-646	    trace_line r27 r26 L88
-647	    trace_var r27 r26 $60 = r22
-648	    trace_var r27 r26 $61 = r22
-649	    trace_var r27 r26 $62 = r22
-650	    trace_var r27 r26 $63 = r22
-651	    trace_line r27 r26 L89
-652	    trace_var r27 r26 $64 = r15
-653	    trace_line r27 r26 L90
+644	    trace_enter 0 r27 r26 F9
+645	    trace_line 0 r27 r26 L86
+646	    trace_line 0 r27 r26 L88
+647	    trace_var 0 r27 r26 $60 = r22
+648	    trace_var 0 r27 r26 $61 = r22
+649	    trace_var 0 r27 r26 $62 = r22
+650	    trace_var 0 r27 r26 $63 = r22
+651	    trace_line 0 r27 r26 L89
+652	    trace_var 0 r27 r26 $64 = r15
+653	    trace_line 0 r27 r26 L90
 654	    r25 = select r27 r15 r22
-655	    trace_var r27 r26 $63 = r25
-656	    trace_line r27 r26 L89
-657	    trace_var r27 r26 $64 = r16
-658	    trace_line r27 r26 L90
+655	    trace_var 0 r27 r26 $63 = r25
+656	    trace_line 0 r27 r26 L89
+657	    trace_var 0 r27 r26 $64 = r16
+658	    trace_line 0 r27 r26 L90
 659	    r31 = select r27 r25 r22
-660	    trace_var r27 r26 $62 = r31
+660	    trace_var 0 r27 r26 $62 = r31
 661	    r25 = select r27 r16 r25
-662	    trace_var r27 r26 $63 = r25
-663	    trace_line r27 r26 L89
-664	    trace_var r27 r26 $64 = r17
-665	    trace_line r27 r26 L90
+662	    trace_var 0 r27 r26 $63 = r25
+663	    trace_line 0 r27 r26 L89
+664	    trace_var 0 r27 r26 $64 = r17
+665	    trace_line 0 r27 r26 L90
 666	    r28 = select r27 r31 r22
-667	    trace_var r27 r26 $61 = r28
+667	    trace_var 0 r27 r26 $61 = r28
 668	    r31 = select r27 r25 r31
-669	    trace_var r27 r26 $62 = r31
+669	    trace_var 0 r27 r26 $62 = r31
 670	    r25 = select r27 r17 r25
-671	    trace_var r27 r26 $63 = r25
-672	    trace_line r27 r26 L89
-673	    trace_line r27 r26 L92
+671	    trace_var 0 r27 r26 $63 = r25
+672	    trace_line 0 r27 r26 L89
+673	    trace_line 0 r27 r26 L92
 674	    r28 = eq_i32 r15 r28
 675	    r31 = eq_i32 r16 r31
 676	    r25 = eq_i32 r17 r25
 677	    r31 = bit_and r28 r31
 678	    r31 = bit_and r25 r31
 679	    r31 = bit_and r27 r31
-680	    trace_var r27 r26 $59 = r31
-681	    trace_exit r27 r26 F9
+680	    trace_var 0 r27 r26 $59 = r31
+681	    trace_exit 0 r27 r26 F9
 682	    r31 = bit_and r27 r31
 683	    r27 = select r31 r5 r1
 684	    r25 = select r31 r6 r2
 685	    r28 = select r31 r7 r3
 686	    r31 = select r31 r8 r4
-687	    trace_var r26 r26 $10 = r27
-688	    trace_var r26 r26 $11 = r25
-689	    trace_var r26 r26 $12 = r28
-690	    trace_var r26 r26 $13 = r31
-691	    trace_exit r26 r26 F0
+687	    trace_var 0 r26 r26 $10 = r27
+688	    trace_var 0 r26 r26 $11 = r25
+689	    trace_var 0 r26 r26 $12 = r28
+690	    trace_var 0 r26 r26 $13 = r31
+691	    trace_exit 0 r26 r26 F0
 692	    store32 ptr1 r27
 693	    store32 ptr2 r25
 694	    store32 ptr3 r28

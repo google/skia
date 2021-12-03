@@ -1009,52 +1009,51 @@ int main() {
     skvm::Program p = b.done();
     REPORTER_ASSERT(r, p.nargs() == 1);
 
-    class TestTraceHook : public skvm::TraceHook {
-    public:
-        void line(int lineNum) override {
-            fTrace.appendf("line %d\n", lineNum);
-        }
-        void var(int slot, int32_t val) override {
-            fTrace += fDebugInfo->fSlotInfo[slot].name.c_str();
-            switch (fDebugInfo->fSlotInfo[slot].numberKind) {
-                case SkSL::Type::NumberKind::kSigned:
-                case SkSL::Type::NumberKind::kUnsigned:
-                default:
-                    fTrace.appendf(" = %d\n", val);
-                    break;
-                case SkSL::Type::NumberKind::kBoolean:
-                    fTrace.appendf(" = %s\n", val ? "true" : "false");
-                    break;
-                case SkSL::Type::NumberKind::kFloat: {
-                    float floatVal;
-                    static_assert(sizeof(floatVal) == sizeof(val));
-                    memcpy(&floatVal, &val, sizeof(floatVal));
-                    fTrace.appendf(" = %g\n", floatVal);
-                    break;
-                }
-            }
-
-        }
-        void enter(int fnIdx) override {
-            fTrace.appendf("enter %s\n", fDebugInfo->fFuncInfo[fnIdx].name.c_str());
-        }
-        void exit(int fnIdx) override {
-            fTrace.appendf("exit %s\n", fDebugInfo->fFuncInfo[fnIdx].name.c_str());
-        }
-
-        const SkSL::SkVMDebugInfo* fDebugInfo;
-        SkSL::String fTrace;
-    };
-
-    TestTraceHook hook;
-    hook.fDebugInfo = &debugInfo;
-    p.attachTraceHook(&hook);
-
     int result;
     p.eval(1, &result);
 
+    SkSL::String trace;
+    for (const SkSL::SkVMTraceInfo& traceInfo : debugInfo.fTraceInfo) {
+        int data0 = traceInfo.data[0];
+        int data1 = traceInfo.data[1];
+        switch (traceInfo.op) {
+            case SkSL::SkVMTraceInfo::Op::kLine:
+                trace.appendf("line %d\n", data0);
+                break;
+
+            case SkSL::SkVMTraceInfo::Op::kVar:
+                trace += debugInfo.fSlotInfo[data0].name.c_str();
+                switch (debugInfo.fSlotInfo[data0].numberKind) {
+                    case SkSL::Type::NumberKind::kSigned:
+                    case SkSL::Type::NumberKind::kUnsigned:
+                    default:
+                        trace.appendf(" = %d\n", data1);
+                        break;
+                    case SkSL::Type::NumberKind::kBoolean:
+                        trace.appendf(" = %s\n", data1 ? "true" : "false");
+                        break;
+                    case SkSL::Type::NumberKind::kFloat: {
+                        float floatVal;
+                        static_assert(sizeof(floatVal) == sizeof(data1));
+                        memcpy(&floatVal, &data1, sizeof(floatVal));
+                        trace.appendf(" = %g\n", floatVal);
+                        break;
+                    }
+                }
+                break;
+
+            case SkSL::SkVMTraceInfo::Op::kEnter:
+                trace.appendf("enter %s\n", debugInfo.fFuncInfo[data0].name.c_str());
+                break;
+
+            case SkSL::SkVMTraceInfo::Op::kExit:
+                trace.appendf("exit %s\n", debugInfo.fFuncInfo[data0].name.c_str());
+                break;
+        }
+    }
+
     REPORTER_ASSERT(r, result == 40);
-    REPORTER_ASSERT(r, hook.fTrace ==
+    REPORTER_ASSERT(r, trace ==
 R"(enter int main()
 line 11
 loop = 10
@@ -1099,5 +1098,5 @@ line 11
 line 14
 [main].result = 40
 exit int main()
-)", "Trace output does not match expectation:\n%s\n", hook.fTrace.c_str());
+)", "Trace output does not match expectation:\n%s\n", trace.c_str());
 }

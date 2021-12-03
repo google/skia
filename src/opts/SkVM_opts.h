@@ -49,7 +49,8 @@ namespace SkVMInterpreterTypes {
 
     inline void interpret_skvm(const skvm::InterpreterInstruction insts[], const int ninsts,
                                const int nregs, const int loop,
-                               const int strides[], skvm::TraceHook* traceHook,
+                               const int strides[],
+                               skvm::TraceHook* traceHooks[], const int nTraceHooks,
                                const int nargs, int n, void* args[]) {
         using namespace skvm;
 
@@ -83,6 +84,9 @@ namespace SkVMInterpreterTypes {
             r = (Slot*)addr;
         }
 
+        const auto should_trace = [&](int immA, Reg x, Reg y) -> bool {
+            return immA >= 0 && immA < nTraceHooks && any(r[x].i32 & r[y].i32);
+        };
 
         // Step each argument pointer ahead by its stride a number of times.
         auto step_args = [&](int times) {
@@ -218,16 +222,16 @@ namespace SkVMInterpreterTypes {
                     break;
 
                     CASE(Op::trace_line):
-                        if (traceHook && any(r[x].i32 & r[y].i32)) {
-                            traceHook->line(immA);
+                        if (should_trace(immA, x, y)) {
+                            traceHooks[immA]->line(immB);
                         }
                         break;
 
                     CASE(Op::trace_var):
-                        if (traceHook && any(r[x].i32 & r[y].i32)) {
+                        if (should_trace(immA, x, y)) {
                             for (int i = 0; i < K; ++i) {
                                 if (r[x].i32[i] & r[y].i32[i]) {
-                                    traceHook->var(immA, r[z].i32[i]);
+                                    traceHooks[immA]->var(immB, r[z].i32[i]);
                                     break;
                                 }
                             }
@@ -235,14 +239,14 @@ namespace SkVMInterpreterTypes {
                         break;
 
                     CASE(Op::trace_enter):
-                        if (traceHook && any(r[x].i32 & r[y].i32)) {
-                            traceHook->enter(immA);
+                        if (should_trace(immA, x, y)) {
+                            traceHooks[immA]->enter(immB);
                         }
                         break;
 
                     CASE(Op::trace_exit):
-                        if (traceHook && any(r[x].i32 & r[y].i32)) {
-                            traceHook->exit(immA);
+                        if (should_trace(immA, x, y)) {
+                            traceHooks[immA]->exit(immB);
                         }
                         break;
 

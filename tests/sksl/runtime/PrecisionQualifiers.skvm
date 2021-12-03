@@ -180,224 +180,224 @@ loop:
 20	    r20 = index
 21	    r21 = eq_f32 r20 r11
 22	    r21 = bit_and r21 r12
-23	    trace_var r21 r21 $0 = r1
-24	    trace_var r21 r21 $1 = r2
-25	    trace_var r21 r21 $2 = r3
-26	    trace_var r21 r21 $3 = r4
-27	    trace_var r21 r21 $4 = r5
-28	    trace_var r21 r21 $5 = r6
-29	    trace_var r21 r21 $6 = r7
-30	    trace_var r21 r21 $7 = r8
-31	    trace_enter r21 r21 F0
-32	    trace_var r21 r21 $12 = r20
-33	    trace_var r21 r21 $13 = r0
-34	    trace_line r21 r21 L58
-35	    trace_var r21 r21 $14 = r9
-36	    trace_var r21 r21 $15 = r9
-37	    trace_var r21 r21 $16 = r9
-38	    trace_var r21 r21 $17 = r9
-39	    trace_line r21 r21 L59
-40	    trace_var r21 r21 $18 = r13
-41	    trace_var r21 r21 $19 = r13
-42	    trace_var r21 r21 $20 = r13
-43	    trace_var r21 r21 $21 = r13
-44	    trace_line r21 r21 L60
-45	    trace_var r21 r21 $22 = r1
-46	    trace_var r21 r21 $23 = r2
-47	    trace_var r21 r21 $24 = r3
-48	    trace_var r21 r21 $25 = r4
-49	    trace_line r21 r21 L61
-50	    trace_line r21 r21 L63
-51	    trace_var r21 r21 $26 = r5
-52	    trace_var r21 r21 $27 = r6
-53	    trace_var r21 r21 $28 = r7
-54	    trace_var r21 r21 $29 = r8
-55	    trace_line r21 r21 L64
-56	    trace_line r21 r21 L66
-57	    trace_enter r21 r21 F1
-58	    trace_line r21 r21 L6
-59	    trace_var r21 r21 $31 = r11
-60	    trace_line r21 r21 L7
-61	    trace_var r21 r21 $32 = r11
-62	    trace_line r21 r21 L8
-63	    trace_var r21 r21 $33 = r14
-64	    trace_line r21 r21 L9
-65	    trace_var r21 r21 $34 = r14
-66	    trace_line r21 r21 L11
-67	    trace_var r21 r21 $30 = r10
-68	    trace_exit r21 r21 F1
-69	    trace_enter r21 r21 F2
-70	    trace_line r21 r21 L15
-71	    trace_var r21 r21 $36 = r15
-72	    trace_var r21 r21 $37 = r15
-73	    trace_line r21 r21 L16
-74	    trace_var r21 r21 $38 = r15
-75	    trace_var r21 r21 $39 = r15
-76	    trace_line r21 r21 L17
-77	    trace_var r21 r21 $40 = r16
-78	    trace_var r21 r21 $41 = r16
-79	    trace_var r21 r21 $42 = r16
-80	    trace_line r21 r21 L18
-81	    trace_var r21 r21 $43 = r16
-82	    trace_var r21 r21 $44 = r16
-83	    trace_var r21 r21 $45 = r16
-84	    trace_line r21 r21 L19
-85	    trace_var r21 r21 $46 = r17
-86	    trace_var r21 r21 $47 = r17
-87	    trace_var r21 r21 $48 = r17
-88	    trace_var r21 r21 $49 = r17
-89	    trace_line r21 r21 L20
-90	    trace_var r21 r21 $50 = r17
-91	    trace_var r21 r21 $51 = r17
-92	    trace_var r21 r21 $52 = r17
-93	    trace_var r21 r21 $53 = r17
-94	    trace_line r21 r21 L22
-95	    trace_var r21 r21 $54 = r14
-96	    trace_var r21 r21 $55 = r14
-97	    trace_line r21 r21 L23
-98	    trace_var r21 r21 $56 = r14
-99	    trace_var r21 r21 $57 = r14
-100	    trace_line r21 r21 L24
-101	    trace_var r21 r21 $58 = r18
-102	    trace_var r21 r21 $59 = r18
-103	    trace_var r21 r21 $60 = r18
-104	    trace_line r21 r21 L25
-105	    trace_var r21 r21 $61 = r18
-106	    trace_var r21 r21 $62 = r18
-107	    trace_var r21 r21 $63 = r18
-108	    trace_line r21 r21 L26
-109	    trace_var r21 r21 $64 = r19
-110	    trace_var r21 r21 $65 = r19
-111	    trace_var r21 r21 $66 = r19
-112	    trace_var r21 r21 $67 = r19
-113	    trace_line r21 r21 L27
-114	    trace_var r21 r21 $68 = r19
-115	    trace_var r21 r21 $69 = r19
-116	    trace_var r21 r21 $70 = r19
-117	    trace_var r21 r21 $71 = r19
-118	    trace_line r21 r21 L29
-119	    trace_var r21 r21 $35 = r10
-120	    trace_exit r21 r21 F2
-121	    trace_enter r21 r21 F3
-122	    trace_line r21 r21 L34
-123	    trace_var r21 r21 $73 = r15
-124	    trace_var r21 r21 $74 = r9
-125	    trace_var r21 r21 $75 = r9
-126	    trace_var r21 r21 $76 = r15
-127	    trace_line r21 r21 L35
-128	    trace_var r21 r21 $77 = r15
-129	    trace_var r21 r21 $78 = r9
-130	    trace_var r21 r21 $79 = r9
-131	    trace_var r21 r21 $80 = r15
-132	    trace_line r21 r21 L36
-133	    trace_var r21 r21 $81 = r16
-134	    trace_var r21 r21 $82 = r9
-135	    trace_var r21 r21 $83 = r9
-136	    trace_var r21 r21 $84 = r9
-137	    trace_var r21 r21 $85 = r16
-138	    trace_var r21 r21 $86 = r9
-139	    trace_var r21 r21 $87 = r9
-140	    trace_var r21 r21 $88 = r9
-141	    trace_var r21 r21 $89 = r16
-142	    trace_line r21 r21 L37
-143	    trace_var r21 r21 $90 = r16
-144	    trace_var r21 r21 $91 = r9
-145	    trace_var r21 r21 $92 = r9
-146	    trace_var r21 r21 $93 = r9
-147	    trace_var r21 r21 $94 = r16
-148	    trace_var r21 r21 $95 = r9
-149	    trace_var r21 r21 $96 = r9
-150	    trace_var r21 r21 $97 = r9
-151	    trace_var r21 r21 $98 = r16
-152	    trace_line r21 r21 L38
-153	    trace_var r21 r21 $99 = r17
-154	    trace_var r21 r21 $100 = r9
-155	    trace_var r21 r21 $101 = r9
-156	    trace_var r21 r21 $102 = r9
-157	    trace_var r21 r21 $103 = r9
-158	    trace_var r21 r21 $104 = r17
-159	    trace_var r21 r21 $105 = r9
-160	    trace_var r21 r21 $106 = r9
-161	    trace_var r21 r21 $107 = r9
-162	    trace_var r21 r21 $108 = r9
-163	    trace_var r21 r21 $109 = r17
-164	    trace_var r21 r21 $110 = r9
-165	    trace_var r21 r21 $111 = r9
-166	    trace_var r21 r21 $112 = r9
-167	    trace_var r21 r21 $113 = r9
-168	    trace_var r21 r21 $114 = r17
-169	    trace_line r21 r21 L39
-170	    trace_var r21 r21 $115 = r17
-171	    trace_var r21 r21 $116 = r9
-172	    trace_var r21 r21 $117 = r9
-173	    trace_var r21 r21 $118 = r9
-174	    trace_var r21 r21 $119 = r9
-175	    trace_var r21 r21 $120 = r17
-176	    trace_var r21 r21 $121 = r9
-177	    trace_var r21 r21 $122 = r9
-178	    trace_var r21 r21 $123 = r9
-179	    trace_var r21 r21 $124 = r9
-180	    trace_var r21 r21 $125 = r17
-181	    trace_var r21 r21 $126 = r9
-182	    trace_var r21 r21 $127 = r9
-183	    trace_var r21 r21 $128 = r9
-184	    trace_var r21 r21 $129 = r9
-185	    trace_var r21 r21 $130 = r17
-186	    trace_line r21 r21 L41
-187	    trace_var r21 r21 $72 = r10
-188	    trace_exit r21 r21 F3
-189	    trace_enter r21 r21 F4
-190	    trace_line r21 r21 L45
-191	    trace_var r21 r21 $132 = r9
-192	    trace_line r21 r21 L45
-193	    trace_var r21 r21 $132 = r13
-194	    trace_line r21 r21 L46
-195	    trace_var r21 r21 $133 = r9
-196	    trace_line r21 r21 L46
-197	    trace_var r21 r21 $133 = r13
-198	    trace_line r21 r21 L47
-199	    trace_var r21 r21 $134 = r9
-200	    trace_var r21 r21 $135 = r9
-201	    trace_var r21 r21 $136 = r9
-202	    trace_var r21 r21 $137 = r9
-203	    trace_line r21 r21 L47
-204	    trace_var r21 r21 $135 = r13
-205	    trace_line r21 r21 L47
-206	    trace_var r21 r21 $136 = r15
-207	    trace_var r21 r21 $137 = r16
-208	    trace_line r21 r21 L48
-209	    trace_var r21 r21 $138 = r9
-210	    trace_var r21 r21 $139 = r9
-211	    trace_var r21 r21 $140 = r9
-212	    trace_var r21 r21 $141 = r9
-213	    trace_line r21 r21 L48
-214	    trace_var r21 r21 $139 = r13
-215	    trace_line r21 r21 L48
-216	    trace_var r21 r21 $140 = r15
-217	    trace_var r21 r21 $141 = r16
-218	    trace_line r21 r21 L50
-219	    trace_var r21 r21 $131 = r10
-220	    trace_exit r21 r21 F4
-221	    trace_enter r21 r21 F5
-222	    trace_var r21 r21 $143 = r13
-223	    trace_line r21 r21 L53
-224	    trace_var r21 r21 $142 = r10
-225	    trace_exit r21 r21 F5
-226	    trace_enter r21 r21 F6
-227	    trace_var r21 r21 $145 = r15
-228	    trace_line r21 r21 L54
-229	    trace_var r21 r21 $144 = r10
-230	    trace_exit r21 r21 F6
-231	    trace_enter r21 r21 F7
-232	    trace_var r21 r21 $147 = r16
-233	    trace_line r21 r21 L55
-234	    trace_var r21 r21 $146 = r10
-235	    trace_exit r21 r21 F7
-236	    trace_var r21 r21 $8 = r1
-237	    trace_var r21 r21 $9 = r2
-238	    trace_var r21 r21 $10 = r3
-239	    trace_var r21 r21 $11 = r4
-240	    trace_exit r21 r21 F0
+23	    trace_var 0 r21 r21 $0 = r1
+24	    trace_var 0 r21 r21 $1 = r2
+25	    trace_var 0 r21 r21 $2 = r3
+26	    trace_var 0 r21 r21 $3 = r4
+27	    trace_var 0 r21 r21 $4 = r5
+28	    trace_var 0 r21 r21 $5 = r6
+29	    trace_var 0 r21 r21 $6 = r7
+30	    trace_var 0 r21 r21 $7 = r8
+31	    trace_enter 0 r21 r21 F0
+32	    trace_var 0 r21 r21 $12 = r20
+33	    trace_var 0 r21 r21 $13 = r0
+34	    trace_line 0 r21 r21 L58
+35	    trace_var 0 r21 r21 $14 = r9
+36	    trace_var 0 r21 r21 $15 = r9
+37	    trace_var 0 r21 r21 $16 = r9
+38	    trace_var 0 r21 r21 $17 = r9
+39	    trace_line 0 r21 r21 L59
+40	    trace_var 0 r21 r21 $18 = r13
+41	    trace_var 0 r21 r21 $19 = r13
+42	    trace_var 0 r21 r21 $20 = r13
+43	    trace_var 0 r21 r21 $21 = r13
+44	    trace_line 0 r21 r21 L60
+45	    trace_var 0 r21 r21 $22 = r1
+46	    trace_var 0 r21 r21 $23 = r2
+47	    trace_var 0 r21 r21 $24 = r3
+48	    trace_var 0 r21 r21 $25 = r4
+49	    trace_line 0 r21 r21 L61
+50	    trace_line 0 r21 r21 L63
+51	    trace_var 0 r21 r21 $26 = r5
+52	    trace_var 0 r21 r21 $27 = r6
+53	    trace_var 0 r21 r21 $28 = r7
+54	    trace_var 0 r21 r21 $29 = r8
+55	    trace_line 0 r21 r21 L64
+56	    trace_line 0 r21 r21 L66
+57	    trace_enter 0 r21 r21 F1
+58	    trace_line 0 r21 r21 L6
+59	    trace_var 0 r21 r21 $31 = r11
+60	    trace_line 0 r21 r21 L7
+61	    trace_var 0 r21 r21 $32 = r11
+62	    trace_line 0 r21 r21 L8
+63	    trace_var 0 r21 r21 $33 = r14
+64	    trace_line 0 r21 r21 L9
+65	    trace_var 0 r21 r21 $34 = r14
+66	    trace_line 0 r21 r21 L11
+67	    trace_var 0 r21 r21 $30 = r10
+68	    trace_exit 0 r21 r21 F1
+69	    trace_enter 0 r21 r21 F2
+70	    trace_line 0 r21 r21 L15
+71	    trace_var 0 r21 r21 $36 = r15
+72	    trace_var 0 r21 r21 $37 = r15
+73	    trace_line 0 r21 r21 L16
+74	    trace_var 0 r21 r21 $38 = r15
+75	    trace_var 0 r21 r21 $39 = r15
+76	    trace_line 0 r21 r21 L17
+77	    trace_var 0 r21 r21 $40 = r16
+78	    trace_var 0 r21 r21 $41 = r16
+79	    trace_var 0 r21 r21 $42 = r16
+80	    trace_line 0 r21 r21 L18
+81	    trace_var 0 r21 r21 $43 = r16
+82	    trace_var 0 r21 r21 $44 = r16
+83	    trace_var 0 r21 r21 $45 = r16
+84	    trace_line 0 r21 r21 L19
+85	    trace_var 0 r21 r21 $46 = r17
+86	    trace_var 0 r21 r21 $47 = r17
+87	    trace_var 0 r21 r21 $48 = r17
+88	    trace_var 0 r21 r21 $49 = r17
+89	    trace_line 0 r21 r21 L20
+90	    trace_var 0 r21 r21 $50 = r17
+91	    trace_var 0 r21 r21 $51 = r17
+92	    trace_var 0 r21 r21 $52 = r17
+93	    trace_var 0 r21 r21 $53 = r17
+94	    trace_line 0 r21 r21 L22
+95	    trace_var 0 r21 r21 $54 = r14
+96	    trace_var 0 r21 r21 $55 = r14
+97	    trace_line 0 r21 r21 L23
+98	    trace_var 0 r21 r21 $56 = r14
+99	    trace_var 0 r21 r21 $57 = r14
+100	    trace_line 0 r21 r21 L24
+101	    trace_var 0 r21 r21 $58 = r18
+102	    trace_var 0 r21 r21 $59 = r18
+103	    trace_var 0 r21 r21 $60 = r18
+104	    trace_line 0 r21 r21 L25
+105	    trace_var 0 r21 r21 $61 = r18
+106	    trace_var 0 r21 r21 $62 = r18
+107	    trace_var 0 r21 r21 $63 = r18
+108	    trace_line 0 r21 r21 L26
+109	    trace_var 0 r21 r21 $64 = r19
+110	    trace_var 0 r21 r21 $65 = r19
+111	    trace_var 0 r21 r21 $66 = r19
+112	    trace_var 0 r21 r21 $67 = r19
+113	    trace_line 0 r21 r21 L27
+114	    trace_var 0 r21 r21 $68 = r19
+115	    trace_var 0 r21 r21 $69 = r19
+116	    trace_var 0 r21 r21 $70 = r19
+117	    trace_var 0 r21 r21 $71 = r19
+118	    trace_line 0 r21 r21 L29
+119	    trace_var 0 r21 r21 $35 = r10
+120	    trace_exit 0 r21 r21 F2
+121	    trace_enter 0 r21 r21 F3
+122	    trace_line 0 r21 r21 L34
+123	    trace_var 0 r21 r21 $73 = r15
+124	    trace_var 0 r21 r21 $74 = r9
+125	    trace_var 0 r21 r21 $75 = r9
+126	    trace_var 0 r21 r21 $76 = r15
+127	    trace_line 0 r21 r21 L35
+128	    trace_var 0 r21 r21 $77 = r15
+129	    trace_var 0 r21 r21 $78 = r9
+130	    trace_var 0 r21 r21 $79 = r9
+131	    trace_var 0 r21 r21 $80 = r15
+132	    trace_line 0 r21 r21 L36
+133	    trace_var 0 r21 r21 $81 = r16
+134	    trace_var 0 r21 r21 $82 = r9
+135	    trace_var 0 r21 r21 $83 = r9
+136	    trace_var 0 r21 r21 $84 = r9
+137	    trace_var 0 r21 r21 $85 = r16
+138	    trace_var 0 r21 r21 $86 = r9
+139	    trace_var 0 r21 r21 $87 = r9
+140	    trace_var 0 r21 r21 $88 = r9
+141	    trace_var 0 r21 r21 $89 = r16
+142	    trace_line 0 r21 r21 L37
+143	    trace_var 0 r21 r21 $90 = r16
+144	    trace_var 0 r21 r21 $91 = r9
+145	    trace_var 0 r21 r21 $92 = r9
+146	    trace_var 0 r21 r21 $93 = r9
+147	    trace_var 0 r21 r21 $94 = r16
+148	    trace_var 0 r21 r21 $95 = r9
+149	    trace_var 0 r21 r21 $96 = r9
+150	    trace_var 0 r21 r21 $97 = r9
+151	    trace_var 0 r21 r21 $98 = r16
+152	    trace_line 0 r21 r21 L38
+153	    trace_var 0 r21 r21 $99 = r17
+154	    trace_var 0 r21 r21 $100 = r9
+155	    trace_var 0 r21 r21 $101 = r9
+156	    trace_var 0 r21 r21 $102 = r9
+157	    trace_var 0 r21 r21 $103 = r9
+158	    trace_var 0 r21 r21 $104 = r17
+159	    trace_var 0 r21 r21 $105 = r9
+160	    trace_var 0 r21 r21 $106 = r9
+161	    trace_var 0 r21 r21 $107 = r9
+162	    trace_var 0 r21 r21 $108 = r9
+163	    trace_var 0 r21 r21 $109 = r17
+164	    trace_var 0 r21 r21 $110 = r9
+165	    trace_var 0 r21 r21 $111 = r9
+166	    trace_var 0 r21 r21 $112 = r9
+167	    trace_var 0 r21 r21 $113 = r9
+168	    trace_var 0 r21 r21 $114 = r17
+169	    trace_line 0 r21 r21 L39
+170	    trace_var 0 r21 r21 $115 = r17
+171	    trace_var 0 r21 r21 $116 = r9
+172	    trace_var 0 r21 r21 $117 = r9
+173	    trace_var 0 r21 r21 $118 = r9
+174	    trace_var 0 r21 r21 $119 = r9
+175	    trace_var 0 r21 r21 $120 = r17
+176	    trace_var 0 r21 r21 $121 = r9
+177	    trace_var 0 r21 r21 $122 = r9
+178	    trace_var 0 r21 r21 $123 = r9
+179	    trace_var 0 r21 r21 $124 = r9
+180	    trace_var 0 r21 r21 $125 = r17
+181	    trace_var 0 r21 r21 $126 = r9
+182	    trace_var 0 r21 r21 $127 = r9
+183	    trace_var 0 r21 r21 $128 = r9
+184	    trace_var 0 r21 r21 $129 = r9
+185	    trace_var 0 r21 r21 $130 = r17
+186	    trace_line 0 r21 r21 L41
+187	    trace_var 0 r21 r21 $72 = r10
+188	    trace_exit 0 r21 r21 F3
+189	    trace_enter 0 r21 r21 F4
+190	    trace_line 0 r21 r21 L45
+191	    trace_var 0 r21 r21 $132 = r9
+192	    trace_line 0 r21 r21 L45
+193	    trace_var 0 r21 r21 $132 = r13
+194	    trace_line 0 r21 r21 L46
+195	    trace_var 0 r21 r21 $133 = r9
+196	    trace_line 0 r21 r21 L46
+197	    trace_var 0 r21 r21 $133 = r13
+198	    trace_line 0 r21 r21 L47
+199	    trace_var 0 r21 r21 $134 = r9
+200	    trace_var 0 r21 r21 $135 = r9
+201	    trace_var 0 r21 r21 $136 = r9
+202	    trace_var 0 r21 r21 $137 = r9
+203	    trace_line 0 r21 r21 L47
+204	    trace_var 0 r21 r21 $135 = r13
+205	    trace_line 0 r21 r21 L47
+206	    trace_var 0 r21 r21 $136 = r15
+207	    trace_var 0 r21 r21 $137 = r16
+208	    trace_line 0 r21 r21 L48
+209	    trace_var 0 r21 r21 $138 = r9
+210	    trace_var 0 r21 r21 $139 = r9
+211	    trace_var 0 r21 r21 $140 = r9
+212	    trace_var 0 r21 r21 $141 = r9
+213	    trace_line 0 r21 r21 L48
+214	    trace_var 0 r21 r21 $139 = r13
+215	    trace_line 0 r21 r21 L48
+216	    trace_var 0 r21 r21 $140 = r15
+217	    trace_var 0 r21 r21 $141 = r16
+218	    trace_line 0 r21 r21 L50
+219	    trace_var 0 r21 r21 $131 = r10
+220	    trace_exit 0 r21 r21 F4
+221	    trace_enter 0 r21 r21 F5
+222	    trace_var 0 r21 r21 $143 = r13
+223	    trace_line 0 r21 r21 L53
+224	    trace_var 0 r21 r21 $142 = r10
+225	    trace_exit 0 r21 r21 F5
+226	    trace_enter 0 r21 r21 F6
+227	    trace_var 0 r21 r21 $145 = r15
+228	    trace_line 0 r21 r21 L54
+229	    trace_var 0 r21 r21 $144 = r10
+230	    trace_exit 0 r21 r21 F6
+231	    trace_enter 0 r21 r21 F7
+232	    trace_var 0 r21 r21 $147 = r16
+233	    trace_line 0 r21 r21 L55
+234	    trace_var 0 r21 r21 $146 = r10
+235	    trace_exit 0 r21 r21 F7
+236	    trace_var 0 r21 r21 $8 = r1
+237	    trace_var 0 r21 r21 $9 = r2
+238	    trace_var 0 r21 r21 $10 = r3
+239	    trace_var 0 r21 r21 $11 = r4
+240	    trace_exit 0 r21 r21 F0
 241	    store32 ptr1 r1
 242	    store32 ptr2 r2
 243	    store32 ptr3 r3

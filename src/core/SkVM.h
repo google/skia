@@ -604,6 +604,15 @@ namespace skvm {
         bool fp16  = false;
     };
 
+    class TraceHook {
+    public:
+        virtual ~TraceHook() = default;
+        virtual void line(int lineNum) = 0;
+        virtual void var(int slot, int32_t val) = 0;
+        virtual void enter(int fnIdx) = 0;
+        virtual void exit(int fnIdx) = 0;
+    };
+
     class Builder {
     public:
 
@@ -615,6 +624,9 @@ namespace skvm {
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
         std::vector<OptimizedInstruction> optimize() const;
+
+        // Returns a trace-hook ID which must be passed to the trace opcodes.
+        int attachTraceHook(TraceHook*);
 
         // Convenience arg() wrappers for most common strides, sizeof(T) and 0.
         template <typename T>
@@ -632,10 +644,10 @@ namespace skvm {
         void assert_true(I32 cond)            { assert_true(cond, cond); }
 
         // Insert debug traces into the instruction stream
-        void trace_line(I32 mask, I32 traceMask, int line);
-        void trace_var(I32 mask, I32 traceMask, int slot, I32 val);
-        void trace_enter(I32 mask, I32 traceMask, int fnIdx);
-        void trace_exit(I32 mask, I32 traceMask, int fnIdx);
+        void trace_line (int traceHookID, I32 mask, I32 traceMask, int line);
+        void trace_var  (int traceHookID, I32 mask, I32 traceMask, int slot, I32 val);
+        void trace_enter(int traceHookID, I32 mask, I32 traceMask, int fnIdx);
+        void trace_exit (int traceHookID, I32 mask, I32 traceMask, int fnIdx);
 
         // Store {8,16,32,64,128}-bit varying.
         void store8  (Ptr ptr, I32 val);
@@ -992,6 +1004,7 @@ namespace skvm {
 
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
+        std::vector<TraceHook*>                       fTraceHooks;
         std::vector<int>                              fStrides;
         const Features                                fFeatures;
     };
@@ -1010,19 +1023,11 @@ namespace skvm {
         int immA,immB,immC;
     };
 
-    class TraceHook {
-    public:
-        virtual ~TraceHook() = default;
-        virtual void line(int lineNum) = 0;
-        virtual void var(int slot, int32_t val) = 0;
-        virtual void enter(int fnIdx) = 0;
-        virtual void exit(int fnIdx) = 0;
-    };
-
     class Program {
     public:
         Program(const std::vector<OptimizedInstruction>& instructions,
                 const std::vector<int>& strides,
+                const std::vector<TraceHook*>& traceHooks,
                 const char* debug_name, bool allow_jit);
 
         Program();
@@ -1033,8 +1038,6 @@ namespace skvm {
 
         Program(const Program&) = delete;
         Program& operator=(const Program&) = delete;
-
-        void attachTraceHook(TraceHook*) const;
 
         void eval(int n, void* args[]) const;
 

@@ -82,7 +82,8 @@ namespace SkOpts {
 
     extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
                                   int nregs, int loop, const int strides[],
-                                  skvm::TraceHook* traceHook, int nargs, int n, void* args[]);
+                                  skvm::TraceHook* traceHooks[], int nTraceHooks,
+                                  int nargs, int n, void* args[]);
 }  // namespace SkOpts
 
 /** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.

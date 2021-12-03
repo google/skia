@@ -57,7 +57,37 @@ namespace {
     static FastF32 operator*(skvm::F32 y) { return {y}; }
     static skvm::F32 operator*(skvm::F32 x, FastF32 y) { return fast_mul(x, y.val); }
     static skvm::F32 operator*(float     x, FastF32 y) { return fast_mul(x, y.val); }
+
+    class SkSLTracer : public skvm::TraceHook {
+    public:
+        static std::unique_ptr<SkSLTracer> Make(SkSL::SkVMDebugInfo* debugInfo) {
+            auto hook = std::make_unique<SkSLTracer>();
+            hook->fDebugInfo = debugInfo;
+            return hook;
+        }
+
+        void line(int lineNum) override {
+            fDebugInfo->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kLine,
+                                              /*data=*/{lineNum, 0}});
+        }
+        void var(int slot, int32_t val) override {
+            fDebugInfo->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kVar,
+                                              /*data=*/{slot, val}});
+        }
+        void enter(int fnIdx) override {
+            fDebugInfo->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kEnter,
+                                              /*data=*/{fnIdx, 0}});
+        }
+        void exit(int fnIdx) override {
+            fDebugInfo->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kExit,
+                                              /*data=*/{fnIdx, 0}});
+        }
+
+    private:
+        SkSL::SkVMDebugInfo* fDebugInfo;
+    };
 }
+
 
 namespace SkSL {
 
@@ -268,6 +298,7 @@ private:
     const Program& fProgram;
     skvm::Builder* fBuilder;
     SkVMDebugInfo* fDebugInfo;
+    int fTraceHookID = -1;
 
     const SampleShaderFn fSampleShader;
     const SampleColorFilterFn fSampleColorFilter;
@@ -367,6 +398,10 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
     if (fDebugInfo) {
         // Copy the program source into the debug info so that it will be written in the trace file.
         fDebugInfo->setSource(*fProgram.fSource);
+
+        // Create a trace hook and attach it to the builder.
+        fDebugInfo->fTraceHook = SkSLTracer::Make(fDebugInfo);
+        fTraceHookID = fBuilder->attachTraceHook(fDebugInfo->fTraceHook.get());
 
         // The SkVM blitter generates centered pixel coordinates. (0.5, 1.5, 2.5, 3.5, etc.)
         // Add 0.5 to the requested trace coordinate to match this.
@@ -481,7 +516,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
     int funcIndex = -1;
     if (fDebugInfo) {
         funcIndex = this->getDebugFunctionInfo(decl);
-        fBuilder->trace_enter(this->mask(), fTraceMask, funcIndex);
+        fBuilder->trace_enter(fTraceHookID, this->mask(), fTraceMask, funcIndex);
     }
 
     size_t returnSlot = this->getSlot(function);
@@ -521,7 +556,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
     fFunctionStack.pop_back();
 
     if (fDebugInfo) {
-        fBuilder->trace_exit(this->mask(), fTraceMask, funcIndex);
+        fBuilder->trace_exit(fTraceHookID, this->mask(), fTraceMask, funcIndex);
     }
 
     return returnSlot;
@@ -530,7 +565,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
     if (fDebugInfo && (!fSlots[slot].writtenTo || fSlots[slot].val != value)) {
         if (fProgram.fConfig->fSettings.fAllowTraceVarInSkVMDebugTrace) {
-            fBuilder->trace_var(this->mask(), fTraceMask, slot, i32(value));
+            fBuilder->trace_var(fTraceHookID, this->mask(), fTraceMask, slot, i32(value));
         }
         fSlots[slot].writtenTo = true;
     }
@@ -1807,7 +1842,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 
 void SkVMGenerator::emitTraceLine(int line) {
     if (fDebugInfo && line > 0) {
-        fBuilder->trace_line(this->mask(), fTraceMask, line);
+        fBuilder->trace_line(fTraceHookID, this->mask(), fTraceMask, line);
     }
 }
 
