@@ -2795,11 +2795,19 @@ SlugSubRunOwner DirectMaskSubRunSlug::Make(Slug* slug,
             GlyphVector{std::move(strike), {glyphIDs, goodPosCount}});
 }
 
-size_t DirectMaskSubRunSlug::vertexStride(const SkMatrix&) const {
-    if (fMaskFormat != kARGB_GrMaskFormat) {
-        return sizeof(Mask2DVertex);
+size_t DirectMaskSubRunSlug::vertexStride(const SkMatrix& positionMatrix) const {
+    if (!positionMatrix.hasPerspective()) {
+        if (fMaskFormat != kARGB_GrMaskFormat) {
+            return sizeof(Mask2DVertex);
+        } else {
+            return sizeof(ARGB2DVertex);
+        }
     } else {
-        return sizeof(ARGB2DVertex);
+        if (fMaskFormat != kARGB_GrMaskFormat) {
+            return sizeof(Mask3DVertex);
+        } else {
+            return sizeof(ARGB3DVertex);
+        }
     }
 }
 
@@ -2926,6 +2934,33 @@ void transformed_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadDat
     }
 }
 
+template<typename Quad, typename VertexData>
+void transformed_direct_3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                           GrColor color,
+                           const SkMatrix& matrix) {
+    auto mapXYZ = [&](SkScalar x, SkScalar y) {
+        SkPoint pt{x, y};
+        SkPoint3 result;
+        matrix.mapHomogeneousPoints(&result, &pt, 1);
+        return result;
+    };
+    for (auto[quad, glyph, leftTop] : quadData) {
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        SkScalar dl = leftTop[0],
+                 dt = leftTop[1],
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
+        SkPoint3 lt = mapXYZ(dl, dt),
+                 lb = mapXYZ(dl, db),
+                 rt = mapXYZ(dr, dt),
+                 rb = mapXYZ(dr, db);
+        quad[0] = {lt, color, {al, at}};  // L,T
+        quad[1] = {lb, color, {al, ab}};  // L,B
+        quad[2] = {rt, color, {ar, at}};  // R,T
+        quad[3] = {rb, color, {ar, ab}};  // R,B
+    }
+}
+
 void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count,
                                           GrColor color,
                                           const SkMatrix& drawMatrix, SkPoint drawOrigin,
@@ -2964,14 +2999,26 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
         }
     } else if (SkMatrix inverse; fSlug->initialPositionMatrix().invert(&inverse)) {
         SkMatrix viewDifference = SkMatrix::Concat(positionMatrix, inverse);
-        if (fMaskFormat != kARGB_GrMaskFormat) {
-            using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
+        if (!viewDifference.hasPerspective()) {
+            if (fMaskFormat != kARGB_GrMaskFormat) {
+                using Quad = Mask2DVertex[4];
+                SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+                transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
+            } else {
+                using Quad = ARGB2DVertex[4];
+                SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+                transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
+            }
         } else {
-            using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
+            if (fMaskFormat != kARGB_GrMaskFormat) {
+                using Quad = Mask3DVertex[4];
+                SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+                transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
+            } else {
+                using Quad = ARGB3DVertex[4];
+                SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+                transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
+            }
         }
     }
 }
