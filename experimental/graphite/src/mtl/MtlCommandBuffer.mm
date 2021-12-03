@@ -262,7 +262,10 @@ void CommandBuffer::onSetViewport(float x, float y, float width, float height,
 
     float invTwoW = 2.f / width;
     float invTwoH = 2.f / height;
-    float rtAdjust[4] = {invTwoW, invTwoH, -1.f - x * invTwoW, -1.f - y * invTwoH};
+    // Metal's framebuffer space has (0, 0) at the top left. This agrees with Skia's device coords.
+    // However, in NDC (-1, -1) is the bottom left. So we flip the origin here (assuming all
+    // surfaces we have are TopLeft origin).
+    float rtAdjust[4] = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
     fActiveRenderCommandEncoder->setVertexBytes(rtAdjust, 4 * sizeof(float),
                                                 GraphicsPipeline::kIntrinsicUniformBufferIndex);
 }
