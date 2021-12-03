@@ -202,7 +202,8 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "kill-server"
+      "reconnect",
+      "device"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -252,7 +253,8 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "kill-server"
+      "reconnect",
+      "device"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
