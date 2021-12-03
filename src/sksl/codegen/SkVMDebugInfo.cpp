@@ -71,6 +71,59 @@ void SkVMDebugInfo::dump(SkWStream* o) const {
     }
 
     o->newline();
+
+    if (!fTraceInfo.empty()) {
+        std::string indent = "";
+        for (const SkSL::SkVMTraceInfo& traceInfo : fTraceInfo) {
+            int data0 = traceInfo.data[0];
+            int data1 = traceInfo.data[1];
+            switch (traceInfo.op) {
+                case SkSL::SkVMTraceInfo::Op::kLine:
+                    o->writeText(indent.c_str());
+                    o->writeText("line ");
+                    o->writeDecAsText(data0);
+                    break;
+
+                case SkSL::SkVMTraceInfo::Op::kVar:
+                    o->writeText(indent.c_str());
+                    o->writeText(fSlotInfo[data0].name.c_str());
+                    o->writeText(" = ");
+                    switch (fSlotInfo[data0].numberKind) {
+                        case SkSL::Type::NumberKind::kSigned:
+                        case SkSL::Type::NumberKind::kUnsigned:
+                        default:
+                            o->writeDecAsText(data1);
+                            break;
+                        case SkSL::Type::NumberKind::kBoolean:
+                            o->writeText(data1 ? "true" : "false");
+                            break;
+                        case SkSL::Type::NumberKind::kFloat: {
+                            float floatVal;
+                            static_assert(sizeof(floatVal) == sizeof(data1));
+                            memcpy(&floatVal, &data1, sizeof(floatVal));
+                            o->writeScalarAsText(floatVal);
+                            break;
+                        }
+                    }
+                    break;
+
+                case SkSL::SkVMTraceInfo::Op::kEnter:
+                    o->writeText(indent.c_str());
+                    o->writeText("enter ");
+                    o->writeText(fFuncInfo[data0].name.c_str());
+                    indent += "  ";
+                    break;
+
+                case SkSL::SkVMTraceInfo::Op::kExit:
+                    indent.resize(indent.size() - 2);
+                    o->writeText(indent.c_str());
+                    o->writeText("exit ");
+                    o->writeText(fFuncInfo[data0].name.c_str());
+                    break;
+            }
+            o->newline();
+        }
+    }
 }
 
 void SkVMDebugInfo::writeTrace(SkWStream* w) const {

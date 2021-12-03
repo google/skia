@@ -1012,91 +1012,67 @@ int main() {
     int result;
     p.eval(1, &result);
 
-    SkSL::String trace;
-    for (const SkSL::SkVMTraceInfo& traceInfo : debugInfo.fTraceInfo) {
-        int data0 = traceInfo.data[0];
-        int data1 = traceInfo.data[1];
-        switch (traceInfo.op) {
-            case SkSL::SkVMTraceInfo::Op::kLine:
-                trace.appendf("line %d\n", data0);
-                break;
+    SkDynamicMemoryWStream streamDump;
+    debugInfo.dump(&streamDump);
 
-            case SkSL::SkVMTraceInfo::Op::kVar:
-                trace += debugInfo.fSlotInfo[data0].name.c_str();
-                switch (debugInfo.fSlotInfo[data0].numberKind) {
-                    case SkSL::Type::NumberKind::kSigned:
-                    case SkSL::Type::NumberKind::kUnsigned:
-                    default:
-                        trace.appendf(" = %d\n", data1);
-                        break;
-                    case SkSL::Type::NumberKind::kBoolean:
-                        trace.appendf(" = %s\n", data1 ? "true" : "false");
-                        break;
-                    case SkSL::Type::NumberKind::kFloat: {
-                        float floatVal;
-                        static_assert(sizeof(floatVal) == sizeof(data1));
-                        memcpy(&floatVal, &data1, sizeof(floatVal));
-                        trace.appendf(" = %g\n", floatVal);
-                        break;
-                    }
-                }
-                break;
-
-            case SkSL::SkVMTraceInfo::Op::kEnter:
-                trace.appendf("enter %s\n", debugInfo.fFuncInfo[data0].name.c_str());
-                break;
-
-            case SkSL::SkVMTraceInfo::Op::kExit:
-                trace.appendf("exit %s\n", debugInfo.fFuncInfo[data0].name.c_str());
-                break;
-        }
-    }
+    sk_sp<SkData> dataDump = streamDump.detachAsData();
+    skstd::string_view trace{static_cast<const char*>(dataDump->data()), dataDump->size()};
 
     REPORTER_ASSERT(r, result == 40);
     REPORTER_ASSERT(r, trace ==
-R"(enter int main()
-line 11
-loop = 10
-line 12
-enter bool less_than(float left, int right)
-left = 10
-right = 20
-line 2
-comparison = true
-line 3
-line 4
-[less_than].result = true
-exit bool less_than(float left, int right)
-function_result = true
-line 11
-loop = 20
-line 12
-enter bool less_than(float left, int right)
-left = 20
-right = 20
-line 2
-comparison = false
-line 3
-line 6
-[less_than].result = false
-exit bool less_than(float left, int right)
-function_result = false
-line 11
-loop = 30
-line 12
-enter bool less_than(float left, int right)
-left = 30
-right = 20
-line 2
-comparison = false
-line 3
-line 6
-[less_than].result = false
-exit bool less_than(float left, int right)
-function_result = false
-line 11
-line 14
-[main].result = 40
+R"($0 = [main].result (int, L10)
+$1 = loop (float, L11)
+$2 = function_result (bool, L12)
+$3 = [less_than].result (bool, L1)
+$4 = left (float, L1)
+$5 = right (int, L1)
+$6 = comparison (bool, L2)
+F0 = int main()
+F1 = bool less_than(float left, int right)
+
+enter int main()
+  line 11
+  loop = 10
+  line 12
+  enter bool less_than(float left, int right)
+    left = 10
+    right = 20
+    line 2
+    comparison = true
+    line 3
+    line 4
+    [less_than].result = true
+  exit bool less_than(float left, int right)
+  function_result = true
+  line 11
+  loop = 20
+  line 12
+  enter bool less_than(float left, int right)
+    left = 20
+    right = 20
+    line 2
+    comparison = false
+    line 3
+    line 6
+    [less_than].result = false
+  exit bool less_than(float left, int right)
+  function_result = false
+  line 11
+  loop = 30
+  line 12
+  enter bool less_than(float left, int right)
+    left = 30
+    right = 20
+    line 2
+    comparison = false
+    line 3
+    line 6
+    [less_than].result = false
+  exit bool less_than(float left, int right)
+  function_result = false
+  line 11
+  line 14
+  [main].result = 40
 exit int main()
-)", "Trace output does not match expectation:\n%s\n", trace.c_str());
+)", "Trace output does not match expectation:\n%.*s\n", (int)trace.size(), trace.data());
 }
