@@ -50,11 +50,84 @@ sk_sp<skgpu::Texture> ResourceProvider::createWrappedTexture(const BackendTextur
     return Texture::MakeWrapped(texture.dimensions(), texture.info(), std::move(mtlTexture));
 }
 
-
 sk_sp<skgpu::Buffer> ResourceProvider::createBuffer(size_t size,
                                                     BufferType type,
                                                     PrioritizeGpuReads prioritizeGpuReads) {
     return Buffer::Make(this->mtlGpu(), size, type, prioritizeGpuReads);
+}
+
+namespace {
+MTLCompareFunction compare_op_to_mtl(CompareOp op) {
+    switch (op) {
+        case CompareOp::kAlways:
+            return MTLCompareFunctionAlways;
+        case CompareOp::kNever:
+            return MTLCompareFunctionNever;
+        case CompareOp::kGreater:
+            return MTLCompareFunctionGreater;
+        case CompareOp::kGEqual:
+            return MTLCompareFunctionGreaterEqual;
+        case CompareOp::kLess:
+            return MTLCompareFunctionLess;
+        case CompareOp::kLEqual:
+            return MTLCompareFunctionLessEqual;
+        case CompareOp::kEqual:
+            return MTLCompareFunctionEqual;
+        case CompareOp::kNotEqual:
+            return MTLCompareFunctionNotEqual;
+    }
+}
+
+MTLStencilOperation stencil_op_to_mtl(StencilOp op) {
+    switch (op) {
+        case StencilOp::kKeep:
+            return MTLStencilOperationKeep;
+        case StencilOp::kZero:
+            return MTLStencilOperationZero;
+        case StencilOp::kReplace:
+            return MTLStencilOperationReplace;
+        case StencilOp::kInvert:
+            return MTLStencilOperationInvert;
+        case StencilOp::kIncWrap:
+            return MTLStencilOperationIncrementWrap;
+        case StencilOp::kDecWrap:
+            return MTLStencilOperationDecrementWrap;
+        case StencilOp::kIncClamp:
+            return MTLStencilOperationIncrementClamp;
+        case StencilOp::kDecClamp:
+            return MTLStencilOperationDecrementClamp;
+    }
+}
+
+MTLStencilDescriptor* stencil_face_to_mtl(DepthStencilSettings::Face face) {
+    MTLStencilDescriptor* result = [[MTLStencilDescriptor alloc] init];
+    result.stencilCompareFunction = compare_op_to_mtl(face.fStencilCompareOp);
+    result.readMask = face.fReadMask;
+    result.writeMask = face.fWriteMask;
+    result.depthStencilPassOperation = stencil_op_to_mtl(face.fDepthStencilPassOp);
+    result.stencilFailureOperation = stencil_op_to_mtl(face.fStencilFailureOp);
+    return result;
+}
+}  // anonymous namespace
+
+id<MTLDepthStencilState> ResourceProvider::findOrCreateCompatibleDepthStencilState(
+            const DepthStencilSettings& depthStencilSettings) {
+    sk_cfp<id<MTLDepthStencilState>>* depthStencilState;
+    depthStencilState = fDepthStencilStates.find(depthStencilSettings);
+    if (!depthStencilState) {
+        MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
+        desc.depthCompareFunction = compare_op_to_mtl(depthStencilSettings.fDepthCompareOp);
+        desc.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
+        desc.frontFaceStencil = stencil_face_to_mtl(depthStencilSettings.fFrontStencil);
+        desc.backFaceStencil = stencil_face_to_mtl(depthStencilSettings.fBackStencil);
+
+        sk_cfp<id<MTLDepthStencilState>> dss(
+                [this->mtlGpu()->device() newDepthStencilStateWithDescriptor: desc]);
+        depthStencilState = fDepthStencilStates.set(depthStencilSettings, std::move(dss));
+    }
+
+    SkASSERT(depthStencilState);
+    return depthStencilState->get();
 }
 
 } // namespace skgpu::mtl

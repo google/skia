@@ -228,6 +228,67 @@ struct BindBufferInfo {
     }
 };
 
+/*
+ * Depth and stencil settings
+ */
+enum class CompareOp : uint8_t {
+    kAlways,
+    kNever,
+    kGreater,
+    kGEqual,
+    kLess,
+    kLEqual,
+    kEqual,
+    kNotEqual
+};
+static constexpr int kCompareOpCount = 1 + (int)CompareOp::kNotEqual;
+
+enum class StencilOp : uint8_t {
+    kKeep,
+    kZero,
+    kReplace, // Replace stencil value with reference (only the bits enabled in fWriteMask).
+    kInvert,
+    kIncWrap,
+    kDecWrap,
+    // NOTE: clamping occurs before the write mask. So if the MSB is zero and masked out, stencil
+    // values will still wrap when using clamping ops.
+    kIncClamp,
+    kDecClamp
+};
+static constexpr int kStencilOpCount = 1 + (int)StencilOp::kDecClamp;
+
+struct DepthStencilSettings {
+    struct Face {
+        StencilOp fStencilFailureOp = StencilOp::kKeep;
+        StencilOp fDepthFailureOp = StencilOp::kKeep;
+        StencilOp fDepthStencilPassOp = StencilOp::kKeep;
+        CompareOp fStencilCompareOp = CompareOp::kAlways;
+        uint32_t fReadMask = 0xffffffff;
+        uint32_t fWriteMask = 0xffffffff;
+
+        bool operator==(const Face& that) const {
+            return this->fStencilFailureOp == that.fStencilFailureOp &&
+                   this->fDepthFailureOp == that.fDepthFailureOp &&
+                   this->fDepthStencilPassOp == that.fDepthStencilPassOp &&
+                   this->fStencilCompareOp == that.fStencilCompareOp &&
+                   this->fReadMask == that.fReadMask &&
+                   this->fWriteMask == that.fWriteMask;
+        }
+    };
+
+    bool operator==(const DepthStencilSettings& that) const {
+        return this->fFrontStencil == that.fFrontStencil &&
+               this->fBackStencil == that.fBackStencil &&
+               this->fDepthCompareOp == that.fDepthCompareOp &&
+               this->fDepthWriteEnabled == that.fDepthWriteEnabled;
+    }
+
+    Face fFrontStencil;
+    Face fBackStencil;
+    CompareOp fDepthCompareOp = CompareOp::kGreater;
+    bool fDepthWriteEnabled = false;
+};
+
 };  // namespace skgpu
 
 #endif // skgpu_DrawTypes_DEFINED

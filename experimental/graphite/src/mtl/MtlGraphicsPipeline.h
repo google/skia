@@ -34,18 +34,22 @@ public:
     ~GraphicsPipeline() override {}
 
     id<MTLRenderPipelineState> mtlPipelineState() const { return fPipelineState.get(); }
+    id<MTLDepthStencilState> mtlDepthStencilState() const { return fDepthStencilState; }
     size_t vertexStride() const { return fVertexStride; }
     size_t instanceStride() const { return fInstanceStride; }
 
 private:
     GraphicsPipeline(sk_cfp<id<MTLRenderPipelineState>> pso,
+                     id<MTLDepthStencilState> dss,
                      size_t vertexStride,
                      size_t instanceStride)
         : fPipelineState(std::move(pso))
+        , fDepthStencilState(dss)
         , fVertexStride(vertexStride)
         , fInstanceStride(instanceStride) {}
 
     sk_cfp<id<MTLRenderPipelineState>> fPipelineState;
+    id<MTLDepthStencilState> fDepthStencilState;
     size_t fVertexStride = 0;
     size_t fInstanceStride = 0;
 };
