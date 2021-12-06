@@ -18,7 +18,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/codegen/SkVMDebugInfo.h"
+#include "src/sksl/codegen/SkVMDebugTrace.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -94,7 +94,7 @@ static SkSL::String base_name(const SkSL::String& fpPath, const char* prefix, co
 static bool detect_shader_settings(const SkSL::String& text,
                                    SkSL::Program::Settings* settings,
                                    const SkSL::ShaderCaps** caps,
-                                   std::unique_ptr<SkSL::SkVMDebugInfo>* debugInfo) {
+                                   std::unique_ptr<SkSL::SkVMDebugTrace>* debugTrace) {
     using Factory = SkSL::ShaderCapsFactory;
 
     // Find a matching comment and isolate the name portion.
@@ -222,7 +222,7 @@ static bool detect_shader_settings(const SkSL::String& text,
                 }
                 if (settingsText.consumeSuffix(" SkVMDebugTrace")) {
                     settings->fOptimize = false;
-                    *debugInfo = std::make_unique<SkSL::SkVMDebugInfo>();
+                    *debugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
                 }
 
                 if (settingsText.empty()) {
@@ -302,9 +302,9 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
     SkSL::Program::Settings settings;
     auto standaloneCaps = SkSL::ShaderCapsFactory::Standalone();
     const SkSL::ShaderCaps* caps = standaloneCaps.get();
-    std::unique_ptr<SkSL::SkVMDebugInfo> debugInfo;
+    std::unique_ptr<SkSL::SkVMDebugTrace> debugTrace;
     if (honorSettings) {
-        if (!detect_shader_settings(text, &settings, &caps, &debugInfo)) {
+        if (!detect_shader_settings(text, &settings, &caps, &debugTrace)) {
             return ResultCode::kInputError;
         }
     }
@@ -399,13 +399,13 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
-                                                               debugInfo.get())) {
+                                                               debugTrace.get())) {
                         return false;
                     }
 
                     std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
-                    if (debugInfo) {
-                        debugInfo->dump(redirect.get());
+                    if (debugTrace) {
+                        debugTrace->dump(redirect.get());
                     }
                     builder.done().dump(redirect.get());
                     return true;

@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKVMDEBUGINFO
-#define SKVMDEBUGINFO
+#ifndef SKVMDEBUGTRACE
+#define SKVMDEBUGTRACE
 
 #include "include/core/SkPoint.h"
+#include "include/sksl/SkSLDebugTrace.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -49,7 +50,7 @@ struct SkVMTraceInfo {
     int32_t data[2];
 };
 
-class SkVMDebugInfo {
+class SkVMDebugTrace : public DebugTrace {
 public:
     /**
      * Sets the device-coordinate pixel to trace. If it's not set, the point at (0, 0) will be used.
@@ -59,12 +60,12 @@ public:
     /** Attaches the SkSL source to be debugged. */
     void setSource(std::string source);
 
-    /** Serialization for .trace files. */
+    /** Serializes a debug trace to JSON which can be parsed by our debugger. */
     bool readTrace(SkStream* r);
-    void writeTrace(SkWStream* w) const;
+    void writeTrace(SkWStream* w) const override;
 
-    /** Write a human-readable dump of the DebugInfo to a .skvm file. */
-    void dump(SkWStream* o) const;
+    /** Generates a human-readable dump of the debug trace. */
+    void dump(SkWStream* o) const override;
 
     /** The device-coordinate pixel to trace (controlled by setTraceCoord) */
     SkIPoint fTraceCoord = {};

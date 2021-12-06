@@ -8,7 +8,7 @@
 #include "include/core/SkM44.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/codegen/SkVMDebugInfo.h"
+#include "src/sksl/codegen/SkVMDebugTrace.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/utils/SkJSON.h"
 
@@ -89,7 +89,7 @@ void test(skiatest::Reporter* r, const char* src, float* in, const float* expect
 
     skvm::Builder b;
     SkSL::SkVMSignature sig;
-    SkSL::ProgramToSkVM(*program, *main, &b, /*debugInfo=*/nullptr, /*uniforms=*/{}, &sig);
+    SkSL::ProgramToSkVM(*program, *main, &b, /*debugTrace=*/nullptr, /*uniforms=*/{}, &sig);
     skvm::Program p = b.done();
 
     REPORTER_ASSERT(r, p.nargs() == (int)(sig.fParameterSlots + sig.fReturnSlots));
@@ -119,7 +119,7 @@ void test(skiatest::Reporter* r, const char* src,
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b, /*debugInfo=*/nullptr, /*uniforms=*/{});
+    SkSL::ProgramToSkVM(*program, *main, &b, /*debugTrace=*/nullptr, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     // TODO: Test with and without JIT?
@@ -533,7 +533,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         for (int i = 0; i < 16; ++i) {
             uniforms[i] = b.uniform32(uniformPtr, i * sizeof(int)).id;
         }
-        SkSL::ProgramToSkVM(*program, *fn, &b, /*debugInfo=*/nullptr, SkMakeSpan(uniforms));
+        SkSL::ProgramToSkVM(*program, *fn, &b, /*debugTrace=*/nullptr, SkMakeSpan(uniforms));
         return b.done();
     };
 
@@ -652,7 +652,7 @@ DEF_TEST(SkSLInterpreterReturnThenCall, r) {
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b, /*debugInfo=*/nullptr, /*uniforms=*/{});
+    SkSL::ProgramToSkVM(*program, *main, &b, /*debugTrace=*/nullptr, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     float xs[] = { -2.0f, 0.0f, 3.0f, -1.0f };
@@ -674,7 +674,7 @@ DEF_TEST(SkSLInterpreterEarlyReturn, r) {
     REPORTER_ASSERT(r, main);
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b, /*debugInfo=*/nullptr, /*uniforms=*/{});
+    SkSL::ProgramToSkVM(*program, *main, &b, /*debugTrace=*/nullptr, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     float xs[] = { 1.0f, 3.0f },
@@ -716,7 +716,7 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
 
     auto test_fn = [&](const SkSL::FunctionDefinition* fn, float in, float expected) {
         skvm::Builder b;
-        SkSL::ProgramToSkVM(*program, *fn, &b, /*debugInfo=*/nullptr, /*uniforms=*/{});
+        SkSL::ProgramToSkVM(*program, *fn, &b, /*debugTrace=*/nullptr, /*uniforms=*/{});
         skvm::Program p = b.done();
 
         float out = 0.0f;
@@ -906,7 +906,7 @@ DEF_TEST(SkSLInterpreterExternalFunction, r) {
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
 
     skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main, &b, /*debugInfo=*/nullptr, /*uniforms=*/{});
+    SkSL::ProgramToSkVM(*program, *main, &b, /*debugTrace=*/nullptr, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     float out;
@@ -964,7 +964,7 @@ DEF_TEST(SkSLInterpreterExternalTable, r) {
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
 
-    SkSL::ProgramToSkVM(*program, *main, &b, /*debugInfo=*/nullptr, /*uniforms=*/{});
+    SkSL::ProgramToSkVM(*program, *main, &b, /*debugTrace=*/nullptr, /*uniforms=*/{});
     skvm::Program p = b.done();
 
     float out[4];
@@ -1004,8 +1004,8 @@ int main() {
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
-    SkSL::SkVMDebugInfo debugInfo;
-    SkSL::ProgramToSkVM(*program, *main, &b, &debugInfo, /*uniforms=*/{});
+    SkSL::SkVMDebugTrace debugTrace;
+    SkSL::ProgramToSkVM(*program, *main, &b, &debugTrace, /*uniforms=*/{});
     skvm::Program p = b.done();
     REPORTER_ASSERT(r, p.nargs() == 1);
 
@@ -1013,7 +1013,7 @@ int main() {
     p.eval(1, &result);
 
     SkDynamicMemoryWStream streamDump;
-    debugInfo.dump(&streamDump);
+    debugTrace.dump(&streamDump);
 
     sk_sp<SkData> dataDump = streamDump.detachAsData();
     skstd::string_view trace{static_cast<const char*>(dataDump->data()), dataDump->size()};

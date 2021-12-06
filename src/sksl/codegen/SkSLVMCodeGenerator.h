@@ -19,7 +19,7 @@ namespace SkSL {
 
 class FunctionDefinition;
 struct Program;
-class SkVMDebugInfo;
+class SkVMDebugTrace;
 
 using SampleShaderFn = std::function<skvm::Color(int, skvm::Coord)>;
 using SampleColorFilterFn = std::function<skvm::Color(int, skvm::Color)>;
@@ -29,7 +29,7 @@ using SampleBlenderFn = std::function<skvm::Color(int, skvm::Color, skvm::Color)
 skvm::Color ProgramToSkVM(const Program& program,
                           const FunctionDefinition& function,
                           skvm::Builder* builder,
-                          SkVMDebugInfo* debugInfo,
+                          SkVMDebugTrace* debugTrace,
                           SkSpan<skvm::Val> uniforms,
                           skvm::Coord device,
                           skvm::Coord local,
@@ -61,7 +61,7 @@ struct SkVMSignature {
 bool ProgramToSkVM(const Program& program,
                    const FunctionDefinition& function,
                    skvm::Builder* b,
-                   SkVMDebugInfo* debugInfo,
+                   SkVMDebugTrace* debugTrace,
                    SkSpan<skvm::Val> uniforms,
                    SkVMSignature* outSignature = nullptr);
 
@@ -83,7 +83,7 @@ std::unique_ptr<UniformInfo> Program_GetUniformInfo(const Program& program);
 
 bool testingOnly_ProgramToSkVMShader(const Program& program,
                                      skvm::Builder* builder,
-                                     SkVMDebugInfo* debugInfo);
+                                     SkVMDebugTrace* debugTrace);
 
 }  // namespace SkSL
 

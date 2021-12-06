@@ -13,7 +13,7 @@
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/codegen/SkVMDebugInfo.h"
+#include "src/sksl/codegen/SkVMDebugTrace.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -60,31 +60,31 @@ namespace {
 
     class SkSLTracer : public skvm::TraceHook {
     public:
-        static std::unique_ptr<SkSLTracer> Make(SkSL::SkVMDebugInfo* debugInfo) {
+        static std::unique_ptr<SkSLTracer> Make(SkSL::SkVMDebugTrace* trace) {
             auto hook = std::make_unique<SkSLTracer>();
-            hook->fDebugInfo = debugInfo;
+            hook->fTrace = trace;
             return hook;
         }
 
         void line(int lineNum) override {
-            fDebugInfo->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kLine,
+            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kLine,
                                               /*data=*/{lineNum, 0}});
         }
         void var(int slot, int32_t val) override {
-            fDebugInfo->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kVar,
-                                              /*data=*/{slot, val}});
+            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kVar,
+                                          /*data=*/{slot, val}});
         }
         void enter(int fnIdx) override {
-            fDebugInfo->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kEnter,
-                                              /*data=*/{fnIdx, 0}});
+            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kEnter,
+                                          /*data=*/{fnIdx, 0}});
         }
         void exit(int fnIdx) override {
-            fDebugInfo->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kExit,
-                                              /*data=*/{fnIdx, 0}});
+            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kExit,
+                                          /*data=*/{fnIdx, 0}});
         }
 
     private:
-        SkSL::SkVMDebugInfo* fDebugInfo;
+        SkSL::SkVMDebugTrace* fTrace;
     };
 }
 
@@ -146,7 +146,7 @@ class SkVMGenerator {
 public:
     SkVMGenerator(const Program& program,
                   skvm::Builder* builder,
-                  SkVMDebugInfo* debugInfo,
+                  SkVMDebugTrace* debugTrace,
                   SampleShaderFn sampleShader,
                   SampleColorFilterFn sampleColorFilter,
                   SampleBlenderFn sampleBlender);
@@ -181,12 +181,12 @@ private:
     Value getSlotValue(size_t slot, size_t nslots);
 
     /**
-     * Returns the slot index of this function inside the SkVMFunctionInfo array in SkVMDebugInfo.
+     * Returns the slot index of this function inside the SkVMFunctionInfo array in SkVMDebugTrace.
      * The SkVMFunctionInfo slot will be created if it doesn't already exist.
      */
     int getDebugFunctionInfo(const FunctionDeclaration& decl);
 
-    /** Used by `createSlot` to add this variable to the SkVMSlotInfo array inside SkVMDebugInfo. */
+    /** Used by `createSlot` to add this variable to the SkVMSlotInfo array inside SkVMDebugTrace.*/
     void addDebugSlotInfo(String varName, const Type& type, int line);
 
     /** Used by `getSlot` to create a new slot on its first access. */
@@ -297,7 +297,7 @@ private:
     //
     const Program& fProgram;
     skvm::Builder* fBuilder;
-    SkVMDebugInfo* fDebugInfo;
+    SkVMDebugTrace* fDebugTrace;
     int fTraceHookID = -1;
 
     const SampleShaderFn fSampleShader;
@@ -366,13 +366,13 @@ static inline bool is_uniform(const SkSL::Variable& var) {
 
 SkVMGenerator::SkVMGenerator(const Program& program,
                              skvm::Builder* builder,
-                             SkVMDebugInfo* debugInfo,
+                             SkVMDebugTrace* debugTrace,
                              SampleShaderFn sampleShader,
                              SampleColorFilterFn sampleColorFilter,
                              SampleBlenderFn sampleBlender)
         : fProgram(program)
         , fBuilder(builder)
-        , fDebugInfo(debugInfo)
+        , fDebugTrace(debugTrace)
         , fSampleShader(std::move(sampleShader))
         , fSampleColorFilter(std::move(sampleColorFilter))
         , fSampleBlender(std::move(sampleBlender)) {}
@@ -395,18 +395,18 @@ void SkVMGenerator::writeProgram(SkSpan<skvm::Val> uniforms,
 }
 
 void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device) {
-    if (fDebugInfo) {
+    if (fDebugTrace) {
         // Copy the program source into the debug info so that it will be written in the trace file.
-        fDebugInfo->setSource(*fProgram.fSource);
+        fDebugTrace->setSource(*fProgram.fSource);
 
         // Create a trace hook and attach it to the builder.
-        fDebugInfo->fTraceHook = SkSLTracer::Make(fDebugInfo);
-        fTraceHookID = fBuilder->attachTraceHook(fDebugInfo->fTraceHook.get());
+        fDebugTrace->fTraceHook = SkSLTracer::Make(fDebugTrace);
+        fTraceHookID = fBuilder->attachTraceHook(fDebugTrace->fTraceHook.get());
 
         // The SkVM blitter generates centered pixel coordinates. (0.5, 1.5, 2.5, 3.5, etc.)
         // Add 0.5 to the requested trace coordinate to match this.
-        skvm::Coord traceCoord = {to_F32(fBuilder->splat(fDebugInfo->fTraceCoord.fX)) + 0.5f,
-                                  to_F32(fBuilder->splat(fDebugInfo->fTraceCoord.fY)) + 0.5f};
+        skvm::Coord traceCoord = {to_F32(fBuilder->splat(fDebugTrace->fTraceCoord.fX)) + 0.5f,
+                                  to_F32(fBuilder->splat(fDebugTrace->fTraceCoord.fY)) + 0.5f};
 
         // If we are debugging, we need to create a trace mask. This will be true when the current
         // device coordinates match the requested trace coordinates. We calculate each mask
@@ -492,20 +492,20 @@ Value SkVMGenerator::getSlotValue(size_t slot, size_t nslots) {
 }
 
 int SkVMGenerator::getDebugFunctionInfo(const FunctionDeclaration& decl) {
-    SkASSERT(fDebugInfo);
+    SkASSERT(fDebugTrace);
 
     std::string name = decl.description();
 
     // Look for a matching SkVMFunctionInfo slot.
-    for (size_t index = 0; index < fDebugInfo->fFuncInfo.size(); ++index) {
-        if (fDebugInfo->fFuncInfo[index].name == name) {
+    for (size_t index = 0; index < fDebugTrace->fFuncInfo.size(); ++index) {
+        if (fDebugTrace->fFuncInfo[index].name == name) {
             return index;
         }
     }
 
     // We've never called this function before; create a new slot to hold its information.
-    int slot = (int)fDebugInfo->fFuncInfo.size();
-    fDebugInfo->fFuncInfo.push_back(SkVMFunctionInfo{std::move(name)});
+    int slot = (int)fDebugTrace->fFuncInfo.size();
+    fDebugTrace->fFuncInfo.push_back(SkVMFunctionInfo{std::move(name)});
     return slot;
 }
 
@@ -514,7 +514,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
     const FunctionDeclaration& decl = function.declaration();
 
     int funcIndex = -1;
-    if (fDebugInfo) {
+    if (fDebugTrace) {
         funcIndex = this->getDebugFunctionInfo(decl);
         fBuilder->trace_enter(fTraceHookID, this->mask(), fTraceMask, funcIndex);
     }
@@ -555,7 +555,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
 
     fFunctionStack.pop_back();
 
-    if (fDebugInfo) {
+    if (fDebugTrace) {
         fBuilder->trace_exit(fTraceHookID, this->mask(), fTraceMask, funcIndex);
     }
 
@@ -563,7 +563,7 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
 }
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
-    if (fDebugInfo && (!fSlots[slot].writtenTo || fSlots[slot].val != value)) {
+    if (fDebugTrace && (!fSlots[slot].writtenTo || fSlots[slot].val != value)) {
         if (fProgram.fConfig->fSettings.fAllowTraceVarInSkVMDebugTrace) {
             fBuilder->trace_var(fTraceHookID, this->mask(), fTraceMask, slot, i32(value));
         }
@@ -574,7 +574,7 @@ void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
 }
 
 void SkVMGenerator::addDebugSlotInfo(String varName, const Type& type, int line) {
-    SkASSERT(fDebugInfo);
+    SkASSERT(fDebugTrace);
     switch (type.typeKind()) {
         case Type::TypeKind::kArray: {
             int nslots = type.columns();
@@ -612,7 +612,7 @@ void SkVMGenerator::addDebugSlotInfo(String varName, const Type& type, int line)
                 slotInfo.componentIndex = slot;
                 slotInfo.numberKind = numberKind;
                 slotInfo.line = line;
-                fDebugInfo->fSlotInfo.push_back(std::move(slotInfo));
+                fDebugTrace->fSlotInfo.push_back(std::move(slotInfo));
             }
             break;
         }
@@ -623,16 +623,16 @@ size_t SkVMGenerator::createSlot(const String& name, const Type& type, int line)
     size_t slot   = fSlots.size(),
            nslots = type.slotCount();
 
-    if (fDebugInfo) {
+    if (fDebugTrace) {
         // Our debug slot-info table should always have the same length as the actual slot table.
-        SkASSERT(fDebugInfo->fSlotInfo.size() == slot);
+        SkASSERT(fDebugTrace->fSlotInfo.size() == slot);
 
         // Append slot names and types to our debug slot-info table.
-        fDebugInfo->fSlotInfo.reserve(slot + nslots);
+        fDebugTrace->fSlotInfo.reserve(slot + nslots);
         this->addDebugSlotInfo(name, type, line);
 
         // Confirm that we added the expected number of slots.
-        SkASSERT(fDebugInfo->fSlotInfo.size() == (slot + nslots));
+        SkASSERT(fDebugTrace->fSlotInfo.size() == (slot + nslots));
     }
 
     // Create brand new slots initialized to zero.
@@ -1841,7 +1841,7 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 }
 
 void SkVMGenerator::emitTraceLine(int line) {
-    if (fDebugInfo && line > 0) {
+    if (fDebugTrace && line > 0) {
         fBuilder->trace_line(fTraceHookID, this->mask(), fTraceMask, line);
     }
 }
@@ -1893,7 +1893,7 @@ void SkVMGenerator::writeStatement(const Statement& s) {
 skvm::Color ProgramToSkVM(const Program& program,
                           const FunctionDefinition& function,
                           skvm::Builder* builder,
-                          SkVMDebugInfo* debugInfo,
+                          SkVMDebugTrace* debugTrace,
                           SkSpan<skvm::Val> uniforms,
                           skvm::Coord device,
                           skvm::Coord local,
@@ -1938,7 +1938,7 @@ skvm::Color ProgramToSkVM(const Program& program,
     }
     SkASSERT(argSlots <= SK_ARRAY_COUNT(args));
 
-    SkVMGenerator generator(program, builder, debugInfo, std::move(sampleShader),
+    SkVMGenerator generator(program, builder, debugTrace, std::move(sampleShader),
                             std::move(sampleColorFilter), std::move(sampleBlender));
     generator.writeProgram(uniforms, device, function, {args, argSlots}, SkMakeSpan(result));
 
@@ -1951,7 +1951,7 @@ skvm::Color ProgramToSkVM(const Program& program,
 bool ProgramToSkVM(const Program& program,
                    const FunctionDefinition& function,
                    skvm::Builder* b,
-                   SkVMDebugInfo* debugInfo,
+                   SkVMDebugTrace* debugTrace,
                    SkSpan<skvm::Val> uniforms,
                    SkVMSignature* outSignature) {
     SkVMSignature ignored,
@@ -1998,7 +1998,7 @@ bool ProgramToSkVM(const Program& program,
     skvm::Coord device = {pixelCenter, pixelCenter};
     device.x += to_F32(b->splat(1) - b->index());
 
-    SkVMGenerator generator(program, b, debugInfo, sampleShader, sampleColorFilter, sampleBlender);
+    SkVMGenerator generator(program, b, debugTrace, sampleShader, sampleColorFilter, sampleBlender);
     generator.writeProgram(uniforms, device, function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
     // If the SkSL tried to use any shader, colorFilter, or blender objects - we don't have a
@@ -2085,7 +2085,7 @@ std::unique_ptr<UniformInfo> Program_GetUniformInfo(const Program& program) {
  */
 bool testingOnly_ProgramToSkVMShader(const Program& program,
                                      skvm::Builder* builder,
-                                     SkVMDebugInfo* debugInfo) {
+                                     SkVMDebugTrace* debugTrace) {
     const SkSL::FunctionDefinition* main = Program_GetFunction(program, "main");
     if (!main) {
         return false;
@@ -2138,7 +2138,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
     skvm::Color inColor = builder->uniformColor(SkColors::kWhite, &uniforms);
     skvm::Color destColor = builder->uniformColor(SkColors::kBlack, &uniforms);
 
-    skvm::Color result = SkSL::ProgramToSkVM(program, *main, builder, debugInfo,
+    skvm::Color result = SkSL::ProgramToSkVM(program, *main, builder, debugTrace,
                                              SkMakeSpan(uniformVals), device, local, inColor,
                                              destColor, sampleShader, /*sampleColorFilter=*/nullptr,
                                              /*sampleBlender=*/nullptr);

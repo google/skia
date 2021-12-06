@@ -6,7 +6,7 @@
  */
 
 #include "src/core/SkStreamPriv.h"
-#include "src/sksl/codegen/SkVMDebugInfo.h"
+#include "src/sksl/codegen/SkVMDebugTrace.h"
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"
 
@@ -14,11 +14,11 @@
 
 namespace SkSL {
 
-void SkVMDebugInfo::setTraceCoord(const SkIPoint& coord) {
+void SkVMDebugTrace::setTraceCoord(const SkIPoint& coord) {
     fTraceCoord = coord;
 }
 
-void SkVMDebugInfo::setSource(std::string source) {
+void SkVMDebugTrace::setSource(std::string source) {
     std::stringstream stream{std::move(source)};
     while (stream.good()) {
         fSource.push_back({});
@@ -26,7 +26,7 @@ void SkVMDebugInfo::setSource(std::string source) {
     }
 }
 
-void SkVMDebugInfo::dump(SkWStream* o) const {
+void SkVMDebugTrace::dump(SkWStream* o) const {
     for (size_t index = 0; index < fSlotInfo.size(); ++index) {
         const SkVMSlotInfo& info = fSlotInfo[index];
 
@@ -126,7 +126,7 @@ void SkVMDebugInfo::dump(SkWStream* o) const {
     }
 }
 
-void SkVMDebugInfo::writeTrace(SkWStream* w) const {
+void SkVMDebugTrace::writeTrace(SkWStream* w) const {
     SkJSONWriter json(w);
 
     json.beginObject(); // root
@@ -189,7 +189,7 @@ void SkVMDebugInfo::writeTrace(SkWStream* w) const {
     json.flush();
 }
 
-bool SkVMDebugInfo::readTrace(SkStream* r) {
+bool SkVMDebugTrace::readTrace(SkStream* r) {
     sk_sp<SkData> data = SkCopyStreamToData(r);
     skjson::DOM json(reinterpret_cast<const char*>(data->bytes()), data->size());
     const skjson::ObjectValue* root = json.root();
