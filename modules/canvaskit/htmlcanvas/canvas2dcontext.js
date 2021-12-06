@@ -572,6 +572,9 @@ function CanvasRenderingContext2D(skcanvas) {
     // - image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight
     // use the fillPaint, which has the globalAlpha in it
     // which drawImageRect will use.
+    if (img instanceof HTMLImage) {
+      img = img.getSkImage();
+    }
     var iPaint = this._fillPaint();
     if (arguments.length === 3 || arguments.length === 5) {
       var destRect = CanvasKit.XYWHRect(arguments[1], arguments[2],

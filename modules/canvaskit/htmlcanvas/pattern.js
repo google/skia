@@ -1,6 +1,9 @@
 function CanvasPattern(image, repetition) {
   this._shader = null;
   // image should be an Image returned from HTMLCanvas.decodeImage()
+  if (image instanceof HTMLImage) {
+    image = image.getSkImage();
+  }
   this._image = image;
   this._transform = CanvasKit.Matrix.identity();
 

@@ -165,6 +165,7 @@ HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
 --pre-js $BASE_DIR/htmlcanvas/font.js \
 --pre-js $BASE_DIR/htmlcanvas/canvas2dcontext.js \
 --pre-js $BASE_DIR/htmlcanvas/htmlcanvas.js \
+--pre-js $BASE_DIR/htmlcanvas/htmlimage.js \
 --pre-js $BASE_DIR/htmlcanvas/imagedata.js \
 --pre-js $BASE_DIR/htmlcanvas/lineargradient.js \
 --pre-js $BASE_DIR/htmlcanvas/path2d.js \
