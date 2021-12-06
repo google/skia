@@ -47,7 +47,7 @@ bool Modifiers::checkPermitted(const Context& context, int line, int permittedMo
         { Layout::kOriginUpperLeft_Flag,          "origin_upper_left"},
         { Layout::kPushConstant_Flag,             "push_constant"},
         { Layout::kBlendSupportAllEquations_Flag, "blend_support_all_equations"},
-        { Layout::kSRGBUnpremul_Flag,             "srgb_unpremul"},
+        { Layout::kColor_Flag,                    "color"},
         { Layout::kLocation_Flag,                 "location"},
         { Layout::kOffset_Flag,                   "offset"},
         { Layout::kBinding_Flag,                  "binding"},

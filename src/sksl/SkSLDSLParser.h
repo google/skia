@@ -41,7 +41,7 @@ public:
         ORIGIN_UPPER_LEFT,
         BLEND_SUPPORT_ALL_EQUATIONS,
         PUSH_CONSTANT,
-        SRGB_UNPREMUL,
+        COLOR,
     };
 
     DSLParser(Compiler* compiler, const ProgramSettings& settings, ProgramKind kind,

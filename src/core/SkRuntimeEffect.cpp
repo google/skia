@@ -344,8 +344,8 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
                     RETURN_FAILURE("Invalid uniform type: '%s'", type->displayName().c_str());
                 }
 
-                if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
-                    uni.flags |= Uniform::kSRGBUnpremul_Flag;
+                if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kColor_Flag) {
+                    uni.flags |= Uniform::kColor_Flag;
                 }
 
                 uni.offset = offset;
@@ -736,7 +736,7 @@ static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
     };
 
     for (const auto& v : effect->uniforms()) {
-        if (v.flags & Flags::kSRGBUnpremul_Flag) {
+        if (v.flags & Flags::kColor_Flag) {
             SkASSERT(v.type == Type::kFloat3 || v.type == Type::kFloat4);
             if (steps.flags.mask()) {
                 float* color = SkTAddOffset<float>(writableData(), v.offset);

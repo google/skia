@@ -92,7 +92,7 @@ void DSLParser::InitLayoutMap() {
     TOKEN(ORIGIN_UPPER_LEFT,            "origin_upper_left");
     TOKEN(BLEND_SUPPORT_ALL_EQUATIONS,  "blend_support_all_equations");
     TOKEN(PUSH_CONSTANT,                "push_constant");
-    TOKEN(SRGB_UNPREMUL,                "srgb_unpremul");
+    TOKEN(COLOR,                        "color");
     #undef TOKEN
 }
 
@@ -723,8 +723,8 @@ DSLLayout DSLParser::layout() {
                     case LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS:
                         result.blendSupportAllEquations(this->position(t));
                         break;
-                    case LayoutToken::SRGB_UNPREMUL:
-                        result.srgbUnpremul(this->position(t));
+                    case LayoutToken::COLOR:
+                        result.color(this->position(t));
                         break;
                     case LayoutToken::LOCATION:
                         result.location(this->layoutInt(), this->position(t));

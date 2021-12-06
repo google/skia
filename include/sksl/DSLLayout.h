@@ -34,8 +34,8 @@ public:
                           "blend_support_all_equations", pos);
     }
 
-    DSLLayout& srgbUnpremul(PositionInfo pos = PositionInfo::Capture()) {
-        return this->flag(SkSL::Layout::kSRGBUnpremul_Flag, "srgb_unpremul", pos);
+    DSLLayout& color(PositionInfo pos = PositionInfo::Capture()) {
+        return this->flag(SkSL::Layout::kColor_Flag, "color", pos);
     }
 
     DSLLayout& location(int location, PositionInfo pos = PositionInfo::Capture()) {

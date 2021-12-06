@@ -65,8 +65,13 @@ public:
         };
 
         enum Flags {
-            kArray_Flag         = 0x1,
-            kSRGBUnpremul_Flag  = 0x2,
+            // Uniform is an declared as an array. 'count' contains array length.
+            kArray_Flag = 0x1,
+
+            // Uniform is declared with layout(color). Colors should be supplied as unpremultiplied,
+            // extended-range (unclamped) sRGB (ie SkColor4f). The uniform will be automatically
+            // transformed to unpremultiplied extended-range working-space colors.
+            kColor_Flag = 0x2,
         };
 
         SkString  name;
@@ -76,6 +81,7 @@ public:
         uint32_t  flags;
 
         bool isArray() const { return SkToBool(this->flags & kArray_Flag); }
+        bool isColor() const { return SkToBool(this->flags & kColor_Flag); }
         size_t sizeInBytes() const;
     };
 

@@ -22,7 +22,7 @@ struct Layout {
         kOriginUpperLeft_Flag            = 1 <<  0,
         kPushConstant_Flag               = 1 <<  1,
         kBlendSupportAllEquations_Flag   = 1 <<  2,
-        kSRGBUnpremul_Flag               = 1 <<  3,
+        kColor_Flag                      = 1 <<  3,
 
         // These flags indicate if the qualifier appeared, regardless of the accompanying value.
         kLocation_Flag                   = 1 <<  4,
@@ -100,8 +100,8 @@ struct Layout {
         if (fFlags & kPushConstant_Flag) {
             result += separator() + "push_constant";
         }
-        if (fFlags & kSRGBUnpremul_Flag) {
-            result += separator() + "srgb_unpremul";
+        if (fFlags & kColor_Flag) {
+            result += separator() + "color";
         }
         if (result.size() > 0) {
             result = "layout (" + result + ")";

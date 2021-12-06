@@ -189,8 +189,8 @@ public:
     SpiralRT() : RuntimeShaderGM("spiral_rt", {512, 512}, R"(
         uniform float rad_scale;
         uniform float2 in_center;
-        layout(srgb_unpremul) uniform float4 in_colors0;
-        layout(srgb_unpremul) uniform float4 in_colors1;
+        layout(color) uniform float4 in_colors0;
+        layout(color) uniform float4 in_colors1;
 
         half4 main(float2 p) {
             float2 pp = p - in_center;
@@ -209,8 +209,8 @@ public:
 
         builder.uniform("rad_scale")  = std::sin(fSecs * 0.5f + 2.0f) / 5;
         builder.uniform("in_center")  = SkV2{256, 256};
-        builder.uniform("in_colors0") = SkV4{1, 0, 0, 1};
-        builder.uniform("in_colors1") = SkV4{0, 1, 0, 1};
+        builder.uniform("in_colors0") = SkColors::kRed;
+        builder.uniform("in_colors1") = SkColors::kGreen;
 
         SkPaint paint;
         paint.setShader(builder.makeShader(nullptr, true));
