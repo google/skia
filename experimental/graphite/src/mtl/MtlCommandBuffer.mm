@@ -191,6 +191,11 @@ void CommandBuffer::onBindGraphicsPipeline(const skgpu::GraphicsPipeline* graphi
     auto mtlPipeline = static_cast<const GraphicsPipeline*>(graphicsPipeline);
     auto pipelineState = mtlPipeline->mtlPipelineState();
     fActiveRenderCommandEncoder->setRenderPipelineState(pipelineState);
+    auto depthStencilState = mtlPipeline->mtlDepthStencilState();
+    fActiveRenderCommandEncoder->setDepthStencilState(depthStencilState);
+    uint32_t stencilRefValue = mtlPipeline->stencilReferenceValue();
+    fActiveRenderCommandEncoder->setStencilReferenceValue(stencilRefValue);
+
     fCurrentVertexStride = mtlPipeline->vertexStride();
     fCurrentInstanceStride = mtlPipeline->instanceStride();
 }
@@ -268,12 +273,6 @@ void CommandBuffer::onSetViewport(float x, float y, float width, float height,
     float rtAdjust[4] = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
     fActiveRenderCommandEncoder->setVertexBytes(rtAdjust, 4 * sizeof(float),
                                                 GraphicsPipeline::kIntrinsicUniformBufferIndex);
-}
-
-void CommandBuffer::onSetStencilReference(unsigned int referenceValue) {
-    SkASSERT(fActiveRenderCommandEncoder);
-
-    fActiveRenderCommandEncoder->setStencilReferenceValue(referenceValue);
 }
 
 void CommandBuffer::onSetBlendConstants(std::array<float, 4> blendConstants) {

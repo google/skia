@@ -95,11 +95,6 @@ public:
         this->onSetViewport(x, y, width, height, minDepth, maxDepth);
     }
 
-    // TODO: do we want to support front and back reference values for platforms that support it?
-    void setStencilReference(unsigned int referenceValue) {
-        this->onSetStencilReference(referenceValue);
-    }
-
     void setBlendConstants(std::array<float, 4> blendConstants) {
         this->onSetBlendConstants(blendConstants);
     }
@@ -168,7 +163,6 @@ private:
                               unsigned int width, unsigned int height) = 0;
     virtual void onSetViewport(float x, float y, float width, float height,
                                float minDepth, float maxDepth) = 0;
-    virtual void onSetStencilReference(unsigned int referenceValue) = 0;
     virtual void onSetBlendConstants(std::array<float, 4> blendConstants) = 0;
 
     virtual void onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) = 0;

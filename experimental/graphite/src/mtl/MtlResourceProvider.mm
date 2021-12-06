@@ -101,11 +101,11 @@ MTLStencilOperation stencil_op_to_mtl(StencilOp op) {
 
 MTLStencilDescriptor* stencil_face_to_mtl(DepthStencilSettings::Face face) {
     MTLStencilDescriptor* result = [[MTLStencilDescriptor alloc] init];
-    result.stencilCompareFunction = compare_op_to_mtl(face.fStencilCompareOp);
+    result.stencilCompareFunction = compare_op_to_mtl(face.fCompareOp);
     result.readMask = face.fReadMask;
     result.writeMask = face.fWriteMask;
     result.depthStencilPassOperation = stencil_op_to_mtl(face.fDepthStencilPassOp);
-    result.stencilFailureOperation = stencil_op_to_mtl(face.fStencilFailureOp);
+    result.stencilFailureOperation = stencil_op_to_mtl(face.fStencilFailOp);
     return result;
 }
 }  // anonymous namespace
@@ -116,10 +116,16 @@ id<MTLDepthStencilState> ResourceProvider::findOrCreateCompatibleDepthStencilSta
     depthStencilState = fDepthStencilStates.find(depthStencilSettings);
     if (!depthStencilState) {
         MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
+        SkASSERT(depthStencilSettings.fDepthTestEnabled ||
+                 depthStencilSettings.fDepthCompareOp == CompareOp::kAlways);
         desc.depthCompareFunction = compare_op_to_mtl(depthStencilSettings.fDepthCompareOp);
-        desc.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
-        desc.frontFaceStencil = stencil_face_to_mtl(depthStencilSettings.fFrontStencil);
-        desc.backFaceStencil = stencil_face_to_mtl(depthStencilSettings.fBackStencil);
+        if (depthStencilSettings.fDepthTestEnabled) {
+            desc.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
+        }
+        if (depthStencilSettings.fStencilTestEnabled) {
+            desc.frontFaceStencil = stencil_face_to_mtl(depthStencilSettings.fFrontStencil);
+            desc.backFaceStencil = stencil_face_to_mtl(depthStencilSettings.fBackStencil);
+        }
 
         sk_cfp<id<MTLDepthStencilState>> dss(
                 [this->mtlGpu()->device() newDepthStencilStateWithDescriptor: desc]);

@@ -72,7 +72,9 @@ public:
     // hardcoded MSL prefixes and suffices, and then including the function bodies returned here.
     virtual const char* vertexMSL() const = 0;
 
-    bool          requiresStencil() const { return fFlags & Flags::kRequiresStencil; }
+    bool          requiresStencil() const { return fDepthStencilSettings.fStencilTestEnabled; }
+    bool          requiresDepth()   const { return fDepthStencilSettings.fDepthTestEnabled ||
+                                                   fDepthStencilSettings.fDepthWriteEnabled; }
     bool          requiresMSAA()    const { return fFlags & Flags::kRequiresMSAA;    }
     bool          performsShading() const { return fFlags & Flags::kPerformsShading; }
 
@@ -103,9 +105,8 @@ public:
 protected:
     enum class Flags : unsigned {
         kNone            = 0b000,
-        kRequiresStencil = 0b001,
-        kRequiresMSAA    = 0b010,
-        kPerformsShading = 0b100,
+        kRequiresMSAA    = 0b001,
+        kPerformsShading = 0b010,
     };
     SKGPU_DECL_MASK_OPS_FRIENDS(Flags);
 

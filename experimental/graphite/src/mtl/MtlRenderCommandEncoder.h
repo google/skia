@@ -153,15 +153,11 @@ public:
                                        alpha: blendConst[3]];
     }
 
-    void setStencilFrontBackReferenceValues(uint32_t frontReferenceValue,
-                                            uint32_t backReferenceValue)
-            SK_API_AVAILABLE(macos(10.11), ios(9.0)) {
-        [(*fCommandEncoder)
-                setStencilFrontReferenceValue:frontReferenceValue
-                           backReferenceValue:backReferenceValue];
-    }
     void setStencilReferenceValue(uint32_t referenceValue) {
-        [(*fCommandEncoder) setStencilReferenceValue:referenceValue];
+        if (referenceValue != fCurrentStencilReferenceValue) {
+            [(*fCommandEncoder) setStencilReferenceValue:referenceValue];
+            fCurrentStencilReferenceValue = referenceValue;
+        }
     }
     void setDepthStencilState(id<MTLDepthStencilState> depthStencilState) {
         if (depthStencilState != fCurrentDepthStencilState) {
@@ -251,6 +247,7 @@ private:
 
     id<MTLRenderPipelineState> fCurrentRenderPipelineState = nil;
     id<MTLDepthStencilState> fCurrentDepthStencilState = nil;
+    uint32_t fCurrentStencilReferenceValue = 0; // Metal default value
 
     inline static constexpr int kMaxExpectedBuffers = 5;
     id<MTLBuffer> fCurrentVertexBuffer[kMaxExpectedBuffers];

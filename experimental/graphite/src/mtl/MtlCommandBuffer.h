@@ -66,7 +66,6 @@ private:
                       unsigned int width, unsigned int height) override;
     void onSetViewport(float x, float y, float width, float height,
                        float minDepth, float maxDepth) override;
-    void onSetStencilReference(unsigned int referenceValue) override;
     void onSetBlendConstants(std::array<float, 4> blendConstants) override;
 
     void onDraw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) override;

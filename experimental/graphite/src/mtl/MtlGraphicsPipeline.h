@@ -35,21 +35,25 @@ public:
 
     id<MTLRenderPipelineState> mtlPipelineState() const { return fPipelineState.get(); }
     id<MTLDepthStencilState> mtlDepthStencilState() const { return fDepthStencilState; }
+    uint32_t stencilReferenceValue() const { return fStencilReferenceValue; }
     size_t vertexStride() const { return fVertexStride; }
     size_t instanceStride() const { return fInstanceStride; }
 
 private:
     GraphicsPipeline(sk_cfp<id<MTLRenderPipelineState>> pso,
                      id<MTLDepthStencilState> dss,
+                     uint32_t refValue,
                      size_t vertexStride,
                      size_t instanceStride)
         : fPipelineState(std::move(pso))
         , fDepthStencilState(dss)
+        , fStencilReferenceValue(refValue)
         , fVertexStride(vertexStride)
         , fInstanceStride(instanceStride) {}
 
     sk_cfp<id<MTLRenderPipelineState>> fPipelineState;
     id<MTLDepthStencilState> fDepthStencilState;
+    uint32_t fStencilReferenceValue;
     size_t fVertexStride = 0;
     size_t fInstanceStride = 0;
 };

@@ -258,19 +258,20 @@ enum class StencilOp : uint8_t {
 static constexpr int kStencilOpCount = 1 + (int)StencilOp::kDecClamp;
 
 struct DepthStencilSettings {
+    // Per-face settings for stencil
     struct Face {
-        StencilOp fStencilFailureOp = StencilOp::kKeep;
-        StencilOp fDepthFailureOp = StencilOp::kKeep;
+        StencilOp fStencilFailOp = StencilOp::kKeep;
+        StencilOp fDepthFailOp = StencilOp::kKeep;
         StencilOp fDepthStencilPassOp = StencilOp::kKeep;
-        CompareOp fStencilCompareOp = CompareOp::kAlways;
+        CompareOp fCompareOp = CompareOp::kAlways;
         uint32_t fReadMask = 0xffffffff;
         uint32_t fWriteMask = 0xffffffff;
 
         bool operator==(const Face& that) const {
-            return this->fStencilFailureOp == that.fStencilFailureOp &&
-                   this->fDepthFailureOp == that.fDepthFailureOp &&
+            return this->fStencilFailOp == that.fStencilFailOp &&
+                   this->fDepthFailOp == that.fDepthFailOp &&
                    this->fDepthStencilPassOp == that.fDepthStencilPassOp &&
-                   this->fStencilCompareOp == that.fStencilCompareOp &&
+                   this->fCompareOp == that.fCompareOp &&
                    this->fReadMask == that.fReadMask &&
                    this->fWriteMask == that.fWriteMask;
         }
@@ -279,13 +280,19 @@ struct DepthStencilSettings {
     bool operator==(const DepthStencilSettings& that) const {
         return this->fFrontStencil == that.fFrontStencil &&
                this->fBackStencil == that.fBackStencil &&
+               this->fStencilReferenceValue == that.fStencilReferenceValue &&
                this->fDepthCompareOp == that.fDepthCompareOp &&
+               this->fStencilTestEnabled == that.fStencilTestEnabled &&
+               this->fDepthTestEnabled == that.fDepthTestEnabled &&
                this->fDepthWriteEnabled == that.fDepthWriteEnabled;
     }
 
     Face fFrontStencil;
     Face fBackStencil;
-    CompareOp fDepthCompareOp = CompareOp::kGreater;
+    uint32_t fStencilReferenceValue = 0;
+    CompareOp fDepthCompareOp = CompareOp::kAlways;
+    bool fStencilTestEnabled = false;
+    bool fDepthTestEnabled = false;
     bool fDepthWriteEnabled = false;
 };
 
