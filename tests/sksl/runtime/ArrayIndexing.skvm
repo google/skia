@@ -48,7 +48,7 @@ F2 = float index_by_loop()
 F3 = float index_by_complex_loop()
 F4 = float index_out_of_bounds_checked()
 
-54 registers, 179 instructions:
+54 registers, 180 instructions:
 0	r0 = uniform32 ptr0 0
 1	r1 = uniform32 ptr0 4
 2	r2 = uniform32 ptr0 8
@@ -225,7 +225,8 @@ loop:
 172	    trace_var 0 r53 r53 $30 = r41
 173	    trace_var 0 r53 r53 $31 = r50
 174	    trace_exit 0 r53 r53 F0
-175	    store32 ptr1 r1
-176	    store32 ptr2 r37
-177	    store32 ptr3 r41
-178	    store32 ptr4 r50
+175	    trace_done 0 r53
+176	    store32 ptr1 r1
+177	    store32 ptr2 r37
+178	    store32 ptr3 r41
+179	    store32 ptr4 r50

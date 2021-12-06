@@ -37,7 +37,7 @@ $35 = c_mul_d (float, L43)
 $36 = d_mul_c (float, L44)
 F0 = half4 main(float2 xy)
 
-13 registers, 60 instructions:
+13 registers, 61 instructions:
 0	r0 = uniform32 ptr0 0
 1	r1 = uniform32 ptr0 4
 2	r2 = uniform32 ptr0 8
@@ -95,7 +95,8 @@ loop:
 53	    trace_line 0 r4 r4 L45
 54	    trace_line 0 r4 r4 L47
 55	    trace_exit 0 r4 r4 F0
-56	    store32 ptr1 r5
-57	    store32 ptr2 r6
-58	    store32 ptr3 r7
-59	    store32 ptr4 r8
+56	    trace_done 0 r4
+57	    store32 ptr1 r5
+58	    store32 ptr2 r6
+59	    store32 ptr3 r7
+60	    store32 ptr4 r8

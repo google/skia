@@ -432,29 +432,29 @@ namespace skvm {
     };
 
     // Order matters a little: Ops <=store128 are treated as having side effects.
-    #define SKVM_OPS(M)                                              \
-        M(assert_true)                                               \
-        M(trace_line) M(trace_var) M(trace_enter) M(trace_exit)      \
-        M(store8)   M(store16)   M(store32) M(store64) M(store128)   \
-        M(load8)    M(load16)    M(load32)  M(load64) M(load128)     \
-        M(index)                                                     \
-        M(gather8)  M(gather16)  M(gather32)                         \
-                                 M(uniform32)                        \
-                                 M(array32)                          \
-        M(splat)                                                     \
-        M(add_f32) M(add_i32)                                        \
-        M(sub_f32) M(sub_i32)                                        \
-        M(mul_f32) M(mul_i32)                                        \
-        M(div_f32)                                                   \
-        M(min_f32) M(max_f32)                                        \
-        M(fma_f32) M(fms_f32) M(fnma_f32)                            \
-        M(sqrt_f32)                                                  \
-        M(shl_i32) M(shr_i32) M(sra_i32)                             \
-        M(ceil) M(floor) M(trunc) M(round) M(to_fp16) M(from_fp16)   \
-        M(to_f32)                                                    \
-        M(neq_f32) M(eq_f32) M(eq_i32)                               \
-        M(gte_f32) M(gt_f32) M(gt_i32)                               \
-        M(bit_and)     M(bit_or)     M(bit_xor)     M(bit_clear)     \
+    #define SKVM_OPS(M)                                                       \
+        M(assert_true)                                                        \
+        M(trace_line) M(trace_var) M(trace_enter) M(trace_exit) M(trace_done) \
+        M(store8)   M(store16)   M(store32) M(store64) M(store128)            \
+        M(load8)    M(load16)    M(load32)  M(load64) M(load128)              \
+        M(index)                                                              \
+        M(gather8)  M(gather16)  M(gather32)                                  \
+                                 M(uniform32)                                 \
+                                 M(array32)                                   \
+        M(splat)                                                              \
+        M(add_f32) M(add_i32)                                                 \
+        M(sub_f32) M(sub_i32)                                                 \
+        M(mul_f32) M(mul_i32)                                                 \
+        M(div_f32)                                                            \
+        M(min_f32) M(max_f32)                                                 \
+        M(fma_f32) M(fms_f32) M(fnma_f32)                                     \
+        M(sqrt_f32)                                                           \
+        M(shl_i32) M(shr_i32) M(sra_i32)                                      \
+        M(ceil) M(floor) M(trunc) M(round) M(to_fp16) M(from_fp16)            \
+        M(to_f32)                                                             \
+        M(neq_f32) M(eq_f32) M(eq_i32)                                        \
+        M(gte_f32) M(gt_f32) M(gt_i32)                                        \
+        M(bit_and)     M(bit_or)     M(bit_xor)     M(bit_clear)              \
         M(select)
     // End of SKVM_OPS
 
@@ -474,11 +474,11 @@ namespace skvm {
         return Op::store8 <= op && op <= Op::index;
     }
     static inline bool is_trace(Op op) {
-        return Op::trace_line <= op && op <= Op::trace_exit;
+        return Op::trace_line <= op && op <= Op::trace_done;
     }
 
     using Val = int;
-    // We reserve an impossibe Val ID as a sentinel
+    // We reserve an impossible Val ID as a sentinel
     // NA meaning none, n/a, null, nil, etc.
     static const Val NA = -1;
 
@@ -611,6 +611,7 @@ namespace skvm {
         virtual void var(int slot, int32_t val) = 0;
         virtual void enter(int fnIdx) = 0;
         virtual void exit(int fnIdx) = 0;
+        virtual void done() = 0;
     };
 
     class Builder {
@@ -648,6 +649,7 @@ namespace skvm {
         void trace_var  (int traceHookID, I32 mask, I32 traceMask, int slot, I32 val);
         void trace_enter(int traceHookID, I32 mask, I32 traceMask, int fnIdx);
         void trace_exit (int traceHookID, I32 mask, I32 traceMask, int fnIdx);
+        void trace_done (int traceHookID, I32 traceMask);
 
         // Store {8,16,32,64,128}-bit varying.
         void store8  (Ptr ptr, I32 val);
