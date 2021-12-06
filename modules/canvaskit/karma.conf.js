@@ -10,10 +10,10 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      { pattern: 'npm_build/bin/canvaskit.wasm', included:false, served:true},
+      { pattern: 'build/canvaskit.wasm', included:false, served:true},
       { pattern: 'tests/assets/*', included:false, served:true},
       'tests/testReporter.js',
-      'npm_build/bin/canvaskit.js',
+      'build/canvaskit.js',
       'tests/canvaskitinit.js',
       'tests/util.js',
       'tests/*.spec.js'
@@ -21,7 +21,7 @@ module.exports = function(config) {
 
     proxies: {
       '/assets/': '/base/tests/assets/',
-      '/npm_build/': '/base/npm_build/bin/',
+      '/build/': '/base/build/',
     },
 
     // test results reporter to use
