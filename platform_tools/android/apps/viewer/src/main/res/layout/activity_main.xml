@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.v4.widget.DrawerLayout
+<androidx.core.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
@@ -34,5 +34,5 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"
         android:background="@android:color/background_light"/>
-</android.support.v4.widget.DrawerLayout>
+</androidx.core.widget.DrawerLayout>
 
