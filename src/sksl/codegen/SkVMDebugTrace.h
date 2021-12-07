@@ -9,7 +9,6 @@
 #define SKVMDEBUGTRACE
 
 #include "include/core/SkPoint.h"
-#include "include/sksl/SkSLDebugTrace.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -50,7 +49,7 @@ struct SkVMTraceInfo {
     int32_t data[2];
 };
 
-class SkVMDebugTrace : public DebugTrace {
+class SkVMDebugTrace {
 public:
     /**
      * Sets the device-coordinate pixel to trace. If it's not set, the point at (0, 0) will be used.
@@ -62,10 +61,10 @@ public:
 
     /** Serializes a debug trace to JSON which can be parsed by our debugger. */
     bool readTrace(SkStream* r);
-    void writeTrace(SkWStream* w) const override;
+    void writeTrace(SkWStream* w) const;
 
     /** Generates a human-readable dump of the debug trace. */
-    void dump(SkWStream* o) const override;
+    void dump(SkWStream* o) const;
 
     /** The device-coordinate pixel to trace (controlled by setTraceCoord) */
     SkIPoint fTraceCoord = {};
