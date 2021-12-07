@@ -80,7 +80,7 @@ APIs and some documentation about them.
 
 ## Drop-in Canvas2D replacement
 For environments where an HTML canvas is not available (e.g. Node, headless servers),
-CanvasKit has an optional API (included by default) that mirrors the HTML canvas.
+CanvasKit has an optional API (included by default) that mostly mirrors the HTML canvas.
 
     let skcanvas = CanvasKit.MakeCanvas(600, 600);
 
@@ -101,6 +101,11 @@ CanvasKit has an optional API (included by default) that mirrors the HTML canvas
 
 See more examples in `example.html` and `node.example.js`.
 
+### Known issues with Canvas2D Emulation layer
+ - measureText returns width only and does no shaping. It is only sort of valid with ASCII letters.
+ - textAlign is not supported.
+ - textBaseAlign is not supported.
+ - fillText does not support the width parameter.
 
 # Filing bugs
 

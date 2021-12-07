@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `Canvas.drawVertices` and `Canvas.drawPatch` treat the default blend mode differently.
    See https://bugs.chromium.org/p/skia/issues/detail?id=12662.
 
+### Added
+ - Rough implementation of `measureText` to Canvas2D emulation layer. For accurate numbers, clients
+   should use a real shaping library, like SkParagraph.
+
 ## [0.31.0] - 2021-11-16
 
 ### Added

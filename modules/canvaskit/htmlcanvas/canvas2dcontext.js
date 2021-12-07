@@ -781,7 +781,15 @@ function CanvasRenderingContext2D(skcanvas) {
   };
 
   this.measureText = function(text) {
-    throw new Error('Clients wishing to properly measure text should use the Paragraph API');
+    const ids = this._font.getGlyphIDs(text);
+    const widths = this._font.getGlyphWidths(ids);
+    let totalWidth = 0;
+    for (const w of widths) {
+      totalWidth += w;
+    }
+    return {
+      "width": totalWidth,
+    };
   };
 
   this.moveTo = function(x, y) {

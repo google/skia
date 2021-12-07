@@ -727,7 +727,7 @@ describe('Canvas 2D emulation', () => {
 
         describe('loading custom fonts', () => {
             const realFontLoaded = new FontFace('BungeeNonSystem', 'url(/assets/Bungee-Regular.ttf)', {
-                'family': 'BungeeNonSystem', //Make sure the canvas does not use the system font
+                'family': 'BungeeNonSystem', // Make sure the canvas does not use the system font
                 'style': 'normal',
                 'weight': '400',
             }).load().then((font) => {
@@ -762,6 +762,10 @@ describe('Canvas 2D emulation', () => {
                 ctx.font = '2.0em BungeeNonSystem';
                 ctx.fillText('2.0em Bungee filled', 10, 80);
                 ctx.strokeText('2.0em Bungee stroked', 10, 130);
+
+                const m = ctx.measureText('A phrase in English');
+                expect(m).toBeTruthy();
+                expect(m['width']).toBeTruthy();
 
                 ctx.font = '40pt monospace';
                 ctx.strokeText('40pt monospace', 10, 200);

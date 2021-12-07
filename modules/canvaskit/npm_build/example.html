@@ -491,8 +491,9 @@
         ctx.fillStyle = 'black';
         ctx.font = '26px Bungee';
         ctx.rotate(.1);
+        let text = ctx.measureText('Awesome');
         ctx.fillText('Awesome ', 25, 100);
-        ctx.strokeText('Groovy!', 200, 100);
+        ctx.strokeText('Groovy!', 35 + text.width, 100);
 
         // Draw line under Awesome
         ctx.strokeStyle = 'rgba(125,0,0,0.5)';
