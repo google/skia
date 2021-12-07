@@ -2,6 +2,22 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 99
+------------
+  * Added two new intrinsic functions to SkSL for use in runtime effects:
+      vec3 toLinearSrgb(vec3 color)
+      vec3 fromLinearSrgb(vec3 color)
+    These convert RGB color values between the working color space (the color space of the
+    destination surface) and a known, fixed color space. `toLinearSrgb` converts a color to the
+    sRGB color gamut, with a linear transfer function. `fromLinearSrgb` converts a color from that
+    same color space. These are helpful for effects that need to work in a specific color space, or
+    want to apply effects (like lighting) that work best in a linear color space.
+    Note that if the destination surface has no color space (color space is `nullptr`), these
+    intrinsics will do no conversion, and return the input color unchanged.
+    https://review.skia.org/481416
+
+* * *
+
 Milestone 98
 ------------
   * The following functions and methods are not defined in SkSurface when SK_SUPPORT_GPU is 0:

@@ -56,6 +56,8 @@ bool ReferencesFragCoords(const Program& program);
 
 bool CallsSampleOutsideMain(const Program& program);
 
+bool CallsColorTransformIntrinsics(const Program& program);
+
 /**
  * Computes the size of the program in a completely flattened state--loops fully unrolled,
  * function calls inlined--and rejects programs that exceed an arbitrary upper bound. This is

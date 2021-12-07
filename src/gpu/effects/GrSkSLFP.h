@@ -103,6 +103,7 @@ public:
     static std::unique_ptr<GrSkSLFP> MakeWithData(
             sk_sp<SkRuntimeEffect> effect,
             const char* name,
+            sk_sp<SkColorSpace> dstColorSpace,
             std::unique_ptr<GrFragmentProcessor> inputFP,
             std::unique_ptr<GrFragmentProcessor> destColorFP,
             sk_sp<SkData> uniforms,
@@ -149,6 +150,10 @@ public:
                   effect->fChildren.end(),
                   std::forward<Args>(args)...);
 #endif
+        // This factory is used internally (for "runtime FPs"). We don't pass/know the destination
+        // color space, so these effects can't use the color transform intrinsics. Callers of this
+        // factory should instead construct an GrColorSpaceXformEffect as part of the FP tree.
+        SkASSERT(!effect->usesColorTransform());
 
         size_t uniformPayloadSize = UniformPayloadSize(effect.get());
         std::unique_ptr<GrSkSLFP> fp(new (uniformPayloadSize)
@@ -172,6 +177,7 @@ private:
     void addChild(std::unique_ptr<GrFragmentProcessor> child, bool mergeOptFlags);
     void setInput(std::unique_ptr<GrFragmentProcessor> input);
     void setDestColorFP(std::unique_ptr<GrFragmentProcessor> destColorFP);
+    void addColorTransformChildren(sk_sp<SkColorSpace> dstColorSpace);
 
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
@@ -406,6 +412,8 @@ private:
     uint32_t               fUniformSize;
     int                    fInputChildIndex = -1;
     int                    fDestColorChildIndex = -1;
+    int                    fToLinearSrgbChildIndex = -1;
+    int                    fFromLinearSrgbChildIndex = -1;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

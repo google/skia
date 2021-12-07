@@ -232,6 +232,10 @@ $es3 $genHType fwidth($genHType p);
 half4  unpremul(half4  color) { return half4 (color.rgb / max(color.a, 0.0001), color.a); }
 float4 unpremul(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
 
+// Color space transformation, between the working (destination) space and fixed (known) spaces:
+half3 toLinearSrgb(half3 color);
+half3 fromLinearSrgb(half3 color);
+
 // SkSL intrinsics that reflect Skia's C++ object model:
 half4 $eval(float2 coords, shader s);
 half4 $eval(half4 color, colorFilter f);

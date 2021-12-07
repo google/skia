@@ -49,6 +49,9 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
         String sampleBlender(int index, String src, String dst) override {
             return "child_" + SkSL::to_string(index) + ".eval(" + src + ", " + dst + ")";
         }
+
+        String toLinearSrgb(String color) override { return color; }
+        String fromLinearSrgb(String color) override { return color; }
     };
 
     Callbacks callbacks;

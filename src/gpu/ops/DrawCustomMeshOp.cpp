@@ -126,6 +126,14 @@ private:
                 SK_ABORT("No children allowed.");
             }
 
+            String toLinearSrgb(String color) override {
+                SK_ABORT("Color transform intrinsics not allowed.");
+            }
+
+            String fromLinearSrgb(String Color) override {
+                SK_ABORT("Color transform intrinsics not allowed.");
+            }
+
             Impl*                 fSelf;
             GrGLSLShaderBuilder*  fBuilder;
             const char*           fMainName;

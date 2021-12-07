@@ -249,6 +249,12 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
         flags |= kSamplesOutsideMain_Flag;
     }
 
+    // Determine if this effect uses of the color transform intrinsics. Effects need to know this
+    // so they can allocate color transform objects, etc.
+    if (SkSL::Analysis::CallsColorTransformIntrinsics(*program)) {
+        flags |= kUsesColorTransform_Flag;
+    }
+
     size_t offset = 0;
     std::vector<Uniform> uniforms;
     std::vector<Child> children;
@@ -519,6 +525,14 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
         return nullptr;
     }
 
+    // TODO(skia:10479): Can we support this? When the color filter is invoked like this, there
+    // may not be a real working space? If there is, we'd need to add it as a parameter to eval,
+    // and then coordinate where the relevant uniforms go. For now, just fall back to the slow
+    // path if we see these intrinsics being called.
+    if (effect->usesColorTransform()) {
+        return nullptr;
+    }
+
     // We require that any children are color filters (not shaders or blenders). In theory, we could
     // detect the coords being passed to shader children, and replicate those calls, but that's very
     // complicated, and has diminishing returns. (eg, for table lookup color filters).
@@ -622,6 +636,17 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
         }
         skvm::Color sampleBlender(int, skvm::Color, skvm::Color) override {
             SkDEBUGFAIL("Unexpected child type");
+            return {};
+        }
+
+        // We did an early return from this function if we saw any call to these intrinsics, so it
+        // should be impossible for either of these callbacks to occur:
+        skvm::Color toLinearSrgb(skvm::Color color) override {
+            SkDEBUGFAIL("Unexpected color transform intrinsic");
+            return {};
+        }
+        skvm::Color fromLinearSrgb(skvm::Color color) override {
+            SkDEBUGFAIL("Unexpected color transform intrinsic");
             return {};
         }
 
@@ -800,6 +825,7 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
     }
     auto fp = GrSkSLFP::MakeWithData(std::move(effect),
                                      name,
+                                     childArgs.fDstColorInfo->refColorSpace(),
                                      std::move(inputFP),
                                      std::move(destColorFP),
                                      std::move(uniforms),
@@ -845,6 +871,26 @@ public:
             return as_BB(blender)->program(fBuilder, src, dst, fColorInfo, fUniforms, fAlloc);
         }
         return blend(SkBlendMode::kSrcOver, src, dst);
+    }
+
+    skvm::Color toLinearSrgb(skvm::Color color) override {
+        if (!fColorInfo.colorSpace()) {
+            // These intrinsics do nothing when color management is disabled
+            return color;
+        }
+        return SkColorSpaceXformSteps{fColorInfo.colorSpace(),    kUnpremul_SkAlphaType,
+                                      sk_srgb_linear_singleton(), kUnpremul_SkAlphaType}
+                .program(fBuilder, fUniforms, color);
+    }
+
+    skvm::Color fromLinearSrgb(skvm::Color color) override {
+        if (!fColorInfo.colorSpace()) {
+            // These intrinsics do nothing when color management is disabled
+            return color;
+        }
+        return SkColorSpaceXformSteps{sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
+                                      fColorInfo.colorSpace(),    kUnpremul_SkAlphaType}
+                .program(fBuilder, fUniforms, color);
     }
 
     skvm::Builder* fBuilder;
@@ -1276,6 +1322,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
         }
         auto fp = GrSkSLFP::MakeWithData(sk_ref_sp(this),
                                          "runtime_image",
+                                         colorInfo.refColorSpace(),
                                          /*inputFP=*/nullptr,
                                          /*destColorFP=*/nullptr,
                                          std::move(uniforms),

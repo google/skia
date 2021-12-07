@@ -33,6 +33,9 @@ namespace PipelineStage {
         virtual String sampleShader(int index, String coords) = 0;
         virtual String sampleColorFilter(int index, String color) = 0;
         virtual String sampleBlender(int index, String src, String dst) = 0;
+
+        virtual String toLinearSrgb(String color) = 0;
+        virtual String fromLinearSrgb(String color) = 0;
     };
 
     /*

@@ -213,6 +213,30 @@ void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
 
+    if (function.intrinsicKind() == IntrinsicKind::k_toLinearSrgb_IntrinsicKind ||
+        function.intrinsicKind() == IntrinsicKind::k_fromLinearSrgb_IntrinsicKind) {
+        SkASSERT(c.arguments().size() == 1);
+        String colorArg;
+        {
+            AutoOutputBuffer exprBuffer(this);
+            this->writeExpression(*c.arguments()[0], Precedence::kSequence);
+            colorArg = exprBuffer.fBuffer.str();
+        }
+
+        switch (function.intrinsicKind()) {
+            case IntrinsicKind::k_toLinearSrgb_IntrinsicKind:
+                this->write(fCallbacks->toLinearSrgb(std::move(colorArg)));
+                break;
+            case IntrinsicKind::k_fromLinearSrgb_IntrinsicKind:
+                this->write(fCallbacks->fromLinearSrgb(std::move(colorArg)));
+                break;
+            default:
+                SkUNREACHABLE;
+        }
+
+        return;
+    }
+
     if (function.isBuiltin()) {
         this->write(function.name());
     } else {

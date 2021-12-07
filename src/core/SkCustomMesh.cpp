@@ -244,6 +244,9 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
         if (!has_main(*vsProgram)) {
             RETURN_FAILURE("Vertex shader must have main function.");
         }
+        if (SkSL::Analysis::CallsColorTransformIntrinsics(*vsProgram)) {
+            RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
+        }
 
         fsProgram = compiler->convertProgram(SkSL::ProgramKind::kCustomMeshFragment,
                                              SkSL::String(fs.c_str()),
@@ -253,6 +256,9 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
         }
         if (!has_main(*fsProgram)) {
             RETURN_FAILURE("Fragment shader must have main function.");
+        }
+        if (SkSL::Analysis::CallsColorTransformIntrinsics(*fsProgram)) {
+            RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
         }
     }
 

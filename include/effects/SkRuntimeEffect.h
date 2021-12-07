@@ -255,11 +255,12 @@ public:
 
 private:
     enum Flags {
-        kUsesSampleCoords_Flag   = 0x1,
-        kAllowColorFilter_Flag   = 0x2,
-        kAllowShader_Flag        = 0x4,
-        kAllowBlender_Flag       = 0x8,
+        kUsesSampleCoords_Flag   = 0x01,
+        kAllowColorFilter_Flag   = 0x02,
+        kAllowShader_Flag        = 0x04,
+        kAllowBlender_Flag       = 0x08,
         kSamplesOutsideMain_Flag = 0x10,
+        kUsesColorTransform_Flag = 0x20,
     };
 
     SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
@@ -281,11 +282,12 @@ private:
                                SkSL::ProgramKind kind);
 
     uint32_t hash() const { return fHash; }
-    bool usesSampleCoords()   const { return (fFlags & kUsesSampleCoords_Flag); }
-    bool allowShader()        const { return (fFlags & kAllowShader_Flag);      }
-    bool allowColorFilter()   const { return (fFlags & kAllowColorFilter_Flag); }
-    bool allowBlender()       const { return (fFlags & kAllowBlender_Flag);     }
+    bool usesSampleCoords()   const { return (fFlags & kUsesSampleCoords_Flag);   }
+    bool allowShader()        const { return (fFlags & kAllowShader_Flag);        }
+    bool allowColorFilter()   const { return (fFlags & kAllowColorFilter_Flag);   }
+    bool allowBlender()       const { return (fFlags & kAllowBlender_Flag);       }
     bool samplesOutsideMain() const { return (fFlags & kSamplesOutsideMain_Flag); }
+    bool usesColorTransform() const { return (fFlags & kUsesColorTransform_Flag); }
 
     const SkFilterColorProgram* getFilterColorProgram();
 

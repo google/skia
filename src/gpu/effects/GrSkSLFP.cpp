@@ -155,6 +155,30 @@ public:
                 return String(fSelf->invokeChild(index, src.c_str(), dst.c_str(), fArgs).c_str());
             }
 
+            // These intrinsics take and return 3-component vectors, but child FPs operate on
+            // 4-component vectors. We use swizzles here to paper over the difference.
+            String toLinearSrgb(String color) override {
+                const GrSkSLFP& fp = fArgs.fFp.cast<GrSkSLFP>();
+                if (fp.fToLinearSrgbChildIndex < 0) {
+                    return color;
+                }
+                color = String::printf("(%s).rgb1", color.c_str());
+                SkString xformedColor = fSelf->invokeChild(
+                        fp.fToLinearSrgbChildIndex, color.c_str(), fArgs);
+                return String::printf("(%s).rgb", xformedColor.c_str());
+            }
+
+            String fromLinearSrgb(String color) override {
+                const GrSkSLFP& fp = fArgs.fFp.cast<GrSkSLFP>();
+                if (fp.fFromLinearSrgbChildIndex < 0) {
+                    return color;
+                }
+                color = String::printf("(%s).rgb1", color.c_str());
+                SkString xformedColor = fSelf->invokeChild(
+                        fp.fFromLinearSrgbChildIndex, color.c_str(), fArgs);
+                return String::printf("(%s).rgb", xformedColor.c_str());
+            }
+
             Impl*                         fSelf;
             EmitArgs&                     fArgs;
             const char*                   fInputColor;
@@ -266,6 +290,7 @@ private:
 std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
         sk_sp<SkRuntimeEffect> effect,
         const char* name,
+        sk_sp<SkColorSpace> dstColorSpace,
         std::unique_ptr<GrFragmentProcessor> inputFP,
         std::unique_ptr<GrFragmentProcessor> destColorFP,
         sk_sp<SkData> uniforms,
@@ -286,6 +311,9 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
     }
     if (destColorFP) {
         fp->setDestColorFP(std::move(destColorFP));
+    }
+    if (fp->fEffect->usesColorTransform() && dstColorSpace) {
+        fp->addColorTransformChildren(std::move(dstColorSpace));
     }
     return fp;
 }
@@ -314,7 +342,9 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fName(other.fName)
         , fUniformSize(other.fUniformSize)
         , fInputChildIndex(other.fInputChildIndex)
-        , fDestColorChildIndex(other.fDestColorChildIndex) {
+        , fDestColorChildIndex(other.fDestColorChildIndex)
+        , fToLinearSrgbChildIndex(other.fToLinearSrgbChildIndex)
+        , fFromLinearSrgbChildIndex(other.fFromLinearSrgbChildIndex) {
     sk_careful_memcpy(this->uniformFlags(),
                       other.uniformFlags(),
                       fEffect->uniforms().size() * sizeof(UniformFlags));
@@ -347,6 +377,33 @@ void GrSkSLFP::setDestColorFP(std::unique_ptr<GrFragmentProcessor> destColorFP) 
     SkASSERT((size_t)fDestColorChildIndex >= fEffect->fSampleUsages.size());
     this->mergeOptimizationFlags(ProcessorOptimizationFlags(destColorFP.get()));
     this->registerChild(std::move(destColorFP), SkSL::SampleUsage::PassThrough());
+}
+
+void GrSkSLFP::addColorTransformChildren(sk_sp<SkColorSpace> dstColorSpace) {
+    SkASSERTF(fToLinearSrgbChildIndex == -1 && fFromLinearSrgbChildIndex == -1,
+              "addColorTransformChildren should not be called more than once");
+
+    // We use child FPs for the color transforms. They're really just code snippets that get
+    // invoked, but each one injects a collection of uniforms and helper functions. Doing it
+    // this way leverages per-FP name mangling to avoid conflicts.
+    auto workingToLinear = GrColorSpaceXformEffect::Make(nullptr,
+                                                         dstColorSpace.get(),
+                                                         kUnpremul_SkAlphaType,
+                                                         sk_srgb_linear_singleton(),
+                                                         kUnpremul_SkAlphaType);
+    auto linearToWorking = GrColorSpaceXformEffect::Make(nullptr,
+                                                         sk_srgb_linear_singleton(),
+                                                         kUnpremul_SkAlphaType,
+                                                         dstColorSpace.get(),
+                                                         kUnpremul_SkAlphaType);
+
+    fToLinearSrgbChildIndex = this->numChildProcessors();
+    SkASSERT((size_t)fToLinearSrgbChildIndex >= fEffect->fSampleUsages.size());
+    this->registerChild(std::move(workingToLinear), SkSL::SampleUsage::PassThrough());
+
+    fFromLinearSrgbChildIndex = this->numChildProcessors();
+    SkASSERT((size_t)fFromLinearSrgbChildIndex >= fEffect->fSampleUsages.size());
+    this->registerChild(std::move(linearToWorking), SkSL::SampleUsage::PassThrough());
 }
 
 std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrSkSLFP::onMakeProgramImpl() const {

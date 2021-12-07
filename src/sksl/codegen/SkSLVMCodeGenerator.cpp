@@ -1480,6 +1480,27 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         }
         case k_not_IntrinsicKind: return unary(args[0], [](skvm::I32 x) { return ~x; });
 
+        case k_toLinearSrgb_IntrinsicKind: {
+            skvm::Color color = {
+                    f32(args[0][0]), f32(args[0][1]), f32(args[0][2]), fBuilder->splat(1.0f)};
+            color = fCallbacks->toLinearSrgb(color);
+            Value result(3);
+            result[0] = color.r;
+            result[1] = color.g;
+            result[2] = color.b;
+            return result;
+        }
+        case k_fromLinearSrgb_IntrinsicKind: {
+            skvm::Color color = {
+                    f32(args[0][0]), f32(args[0][1]), f32(args[0][2]), fBuilder->splat(1.0f)};
+            color = fCallbacks->fromLinearSrgb(color);
+            Value result(3);
+            result[0] = color.r;
+            result[1] = color.g;
+            result[2] = color.b;
+            return result;
+        }
+
         default:
             SkDEBUGFAILF("unsupported intrinsic %s", c.function().description().c_str());
             return {};
@@ -2107,6 +2128,15 @@ bool ProgramToSkVM(const Program& program,
             return fColor;
         }
 
+        skvm::Color toLinearSrgb(skvm::Color) override {
+            fUsedUnsupportedFeatures = true;
+            return fColor;
+        }
+        skvm::Color fromLinearSrgb(skvm::Color) override {
+            fUsedUnsupportedFeatures = true;
+            return fColor;
+        }
+
         bool fUsedUnsupportedFeatures = false;
         const skvm::Color fColor;
     };
@@ -2258,6 +2288,15 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
 
         skvm::Color sampleBlender(int i, skvm::Color src, skvm::Color dst) override {
             return blend(SkBlendMode::kSrcOver, src, dst);
+        }
+
+        // TODO(skia:10479): Make these actually convert to/from something like sRGB, for use in
+        // test files.
+        skvm::Color toLinearSrgb(skvm::Color color) override {
+            return color;
+        }
+        skvm::Color fromLinearSrgb(skvm::Color color) override {
+            return color;
         }
 
         struct Child {
