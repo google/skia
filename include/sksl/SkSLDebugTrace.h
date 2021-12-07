@@ -8,14 +8,14 @@
 #ifndef SKSL_DEBUG_TRACE
 #define SKSL_DEBUG_TRACE
 
+#include "include/core/SkRefCnt.h"
+
 class SkWStream;
 
 namespace SkSL {
 
-class DebugTrace {
+class DebugTrace : public SkRefCnt {
 public:
-    virtual ~DebugTrace() = default;
-
     /** Serializes a debug trace to JSON which can be parsed by our debugger. */
     virtual void writeTrace(SkWStream* w) const = 0;
 

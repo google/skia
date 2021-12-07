@@ -15,6 +15,7 @@
 #include "include/effects/SkBlenders.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/sksl/SkSLDebugTrace.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
@@ -347,6 +348,28 @@ public:
         verify_2x2_surface_results(fReporter, fBuilder->effect(), fSurface.get(), expected);
     }
 
+    std::string trace(const SkIPoint& traceCoord) {
+        sk_sp<SkShader> shader = fBuilder->makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
+        if (!shader) {
+            REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));
+            return {};
+        }
+
+        auto [debugShader, debugTrace] = SkRuntimeEffect::MakeTraced(std::move(shader), traceCoord);
+
+        SkCanvas* canvas = fSurface->getCanvas();
+        SkPaint paint;
+        paint.setShader(std::move(debugShader));
+        paint.setBlendMode(SkBlendMode::kSrc);
+
+        paint_canvas(canvas, &paint, /*preTestCallback=*/nullptr);
+
+        SkDynamicMemoryWStream wstream;
+        debugTrace->dump(&wstream);
+        sk_sp<SkData> streamData = wstream.detachAsData();
+        return std::string(static_cast<const char*>(streamData->data()), streamData->size());
+    }
+
     void test(GrColor expected, PreTestFn preTestCallback = nullptr) {
         this->test({expected, expected, expected, expected}, preTestCallback);
     }
@@ -523,6 +546,47 @@ DEF_TEST(SkRuntimeEffectSimple, r) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU, r, ctxInfo) {
     test_RuntimeEffect_Shaders(r, ctxInfo.directContext());
+}
+
+DEF_TEST(SkRuntimeEffectTraceShader, r) {
+    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+    REPORTER_ASSERT(r, surface);
+    TestEffect effect(r, surface);
+    std::string dump;
+
+    effect.build(R"(
+        half4 main(float2 p) {
+            float2 val = p - 0.5;
+            return half4(val, 0, 1);
+        }
+    )");
+    dump = effect.trace({0, 1});
+    REPORTER_ASSERT(r, dump == R"($0 = [main].result (float4 : slot 1/4, L2)
+$1 = [main].result (float4 : slot 2/4, L2)
+$2 = [main].result (float4 : slot 3/4, L2)
+$3 = [main].result (float4 : slot 4/4, L2)
+$4 = p (float2 : slot 1/2, L2)
+$5 = p (float2 : slot 2/2, L2)
+$6 = val (float2 : slot 1/2, L3)
+$7 = val (float2 : slot 2/2, L3)
+F0 = half4 main(float2 p)
+
+enter half4 main(float2 p)
+  p.x = 0.5
+  p.y = 1.5
+  line 3
+  val.x = 0
+  val.y = 1
+  line 4
+exit half4 main(float2 p)
+[main].result.x = 0
+[main].result.y = 1
+[main].result.z = 0
+[main].result.w = 1
+)",
+                    "Trace output does not match expectation:\n%.*s\n",
+                    (int)dump.size(), dump.data());
 }
 
 static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContext* rContext) {
