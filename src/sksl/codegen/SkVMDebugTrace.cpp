@@ -84,11 +84,27 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
                     o->writeDecAsText(data0);
                     break;
 
-                case SkSL::SkVMTraceInfo::Op::kVar:
+                case SkSL::SkVMTraceInfo::Op::kVar: {
+                    const SkVMSlotInfo& slot = fSlotInfo[data0];
                     o->writeText(indent.c_str());
-                    o->writeText(fSlotInfo[data0].name.c_str());
+                    o->writeText(slot.name.c_str());
+                    if (slot.rows > 1) {
+                        o->writeText("[");
+                        o->writeDecAsText(slot.componentIndex / slot.rows);
+                        o->writeText("][");
+                        o->writeDecAsText(slot.componentIndex % slot.rows);
+                        o->writeText("]");
+                    } else if (slot.columns > 1) {
+                        switch (slot.componentIndex) {
+                            case 0:  o->writeText(".x"); break;
+                            case 1:  o->writeText(".y"); break;
+                            case 2:  o->writeText(".z"); break;
+                            case 3:  o->writeText(".w"); break;
+                            default: o->writeText("[???]"); break;
+                        }
+                    }
                     o->writeText(" = ");
-                    switch (fSlotInfo[data0].numberKind) {
+                    switch (slot.numberKind) {
                         case SkSL::Type::NumberKind::kSigned:
                         case SkSL::Type::NumberKind::kUnsigned:
                         default:
@@ -106,7 +122,7 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
                         }
                     }
                     break;
-
+                }
                 case SkSL::SkVMTraceInfo::Op::kEnter:
                     o->writeText(indent.c_str());
                     o->writeText("enter ");
