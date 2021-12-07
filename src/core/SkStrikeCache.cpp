@@ -63,7 +63,7 @@ void SkStrikeCache::Dump() {
     auto visitor = [&counter](const SkStrike& strike) {
         const SkScalerContextRec& rec = strike.fScalerCache.getScalerContext()->getRec();
 
-        SkDebugf("index %d\n", counter);
+        SkDebugf("index %d checksum: %x\n", counter, strike.getDescriptor().getChecksum());
         SkDebugf("%s", rec.dump().c_str());
         counter += 1;
     };

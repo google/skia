@@ -92,7 +92,8 @@ public:
                          const SkPaint& drawPaint,
                          const GrSDFTControl& control,
                          SkGlyphRunPainterInterface* process,
-                         const char* tag = nullptr);
+                         const char* tag = nullptr,
+                         uint64_t blobID = SK_InvalidUniqueID);
 #endif  // SK_SUPPORT_GPU
 
 private:

@@ -141,7 +141,7 @@ public:
                    fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
         msg.appendf("      lum bits %x, device gamma %d, paint gamma %d contrast %d\n", fLumBits,
                     fDeviceGamma, fPaintGamma, fContrast);
-        msg.appendf("      foreground color %x", fForegroundColor);
+        msg.appendf("      foreground color %x\n", fForegroundColor);
         return msg;
     }
 

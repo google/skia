@@ -1551,13 +1551,15 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
     sk_sp<GrTextBlob> blob{new (allocation)
                             GrTextBlob(bytesNeededForSubRun, positionMatrix, initialLuminance)};
 
+    const uint64_t uniqueID = glyphRunList.uniqueID();
     for (auto& glyphRun : glyphRunList) {
         painter->processGlyphRun(glyphRun,
                                  positionMatrix,
                                  paint,
                                  control,
                                  blob.get(),
-                                 "GrTextBlob");
+                                 "GrTextBlob",
+                                 uniqueID);
     }
 
     return blob;
@@ -3080,13 +3082,15 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
                                   glyphRunList.origin(),
                                   bytesNeededForSubRun)};
 
+    const uint64_t uniqueID = glyphRunList.uniqueID();
     for (auto& glyphRun : glyphRunList) {
         painter->processGlyphRun(glyphRun,
                                  positionMatrix,
                                  paint,
                                  control,
                                  slug.get(),
-                                 "Slug");
+                                 "Slug",
+                                 uniqueID);
     }
 
     return slug;

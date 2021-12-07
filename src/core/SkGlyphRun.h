@@ -74,8 +74,6 @@ public:
 
     SkGlyphRunList(const SkGlyphRun& glyphRun, const SkRect& bounds, SkPoint origin);
 
-
-
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
     void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const;

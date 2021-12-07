@@ -26,7 +26,8 @@ bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {
 void SkScalerContextProxy::generateMetrics(SkGlyph* glyph, SkArenaAlloc*) {
     TRACE_EVENT1("skia", "generateMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
-        SkDebugf("GlyphCacheMiss generateMetrics: %s\n", this->getRec().dump().c_str());
+        SkDebugf("GlyphCacheMiss generateMetrics looking for glyph: %x\n  generateMetrics: %s\n",
+                 glyph->getPackedID().value(), this->getRec().dump().c_str());
     }
 
     glyph->fMaskFormat = fRec.fMaskFormat;

@@ -35,6 +35,7 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTraceEvent.h"
 
+#include <cinttypes>
 #include <climits>
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
@@ -229,14 +230,21 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                                             const SkPaint& runPaint,
                                             const GrSDFTControl& control,
                                             SkGlyphRunPainterInterface* process,
-                                            const char* tag) {
+                                            const char* tag,
+                                            uint64_t uniqueID) {
     #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
         SkString msg;
         msg.appendf("\nStart glyph run processing");
         if (tag != nullptr) {
             msg.appendf(" for %s ", tag);
+            if (uniqueID != SK_InvalidUniqueID) {
+                msg.appendf(" uniqueID: %" PRIu64, uniqueID);
+            }
         }
-        msg.appendf("\n");
+        msg.appendf("\n   matrix\n");
+        msg.appendf("   %7.3g %7.3g %7.3g\n   %7.3g %7.3g %7.3g\n",
+                    drawMatrix[0], drawMatrix[1], drawMatrix[2],
+                    drawMatrix[3], drawMatrix[4], drawMatrix[5]);
     #endif
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
     fRejects.setSource(glyphRun.source());

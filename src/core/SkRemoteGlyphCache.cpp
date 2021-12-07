@@ -808,13 +808,15 @@ protected:
 
         SkMatrix drawMatrix = this->localToDevice();
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
+        const uint64_t uniqueID = glyphRunList.uniqueID();
         for (auto& glyphRun : glyphRunList) {
             fPainter.processGlyphRun(glyphRun,
                                      drawMatrix,
                                      paint,
                                      control,
                                      nullptr,
-                                     "Cache Diff");
+                                     "Cache Diff",
+                                     uniqueID);
         }
         #endif  // SK_SUPPORT_GPU
     }

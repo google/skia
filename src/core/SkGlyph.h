@@ -101,6 +101,14 @@ struct SkPackedGlyphID {
         return str;
     }
 
+    SkString shortDump() const {
+        SkString str;
+        str.appendf("0x%x|%1d|%1d", this->glyphID(),
+                                    this->subPixelField(kSubPixelX),
+                                    this->subPixelField(kSubPixelY));
+        return str;
+    }
+
 private:
     static constexpr uint32_t PackIDSubXSubY(SkGlyphID glyphID, uint32_t x, uint32_t y) {
         SkASSERT(x < (1u << kSubPixelPosLen));
@@ -164,8 +172,12 @@ private:
         return ((uint32_t)n >> kFixedPointSubPixelPosBits) & kSubPixelPosMask;
     }
 
+    constexpr uint32_t subPixelField(uint32_t subPixelPosBit) const {
+        return (fID >> subPixelPosBit) & kSubPixelPosMask;
+    }
+
     constexpr SkFixed subToFixed(uint32_t subPixelPosBit) const {
-        uint32_t subPixelPosition = (fID >> subPixelPosBit) & kSubPixelPosMask;
+        uint32_t subPixelPosition = this->subPixelField(subPixelPosBit);
         return subPixelPosition << kFixedPointSubPixelPosBits;
     }
 
