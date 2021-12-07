@@ -702,7 +702,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
+    "name": "push --sync [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
   },
   {
     "cmd": [
@@ -897,7 +897,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
+    "name": "push --sync [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
   },
   {
     "cmd": [
@@ -1108,7 +1108,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images"
+    "name": "push --sync [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images"
   },
   {
     "cmd": [
@@ -1319,7 +1319,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs"
+    "name": "push --sync [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs"
   },
   {
     "cmd": [

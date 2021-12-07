@@ -237,7 +237,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
+    "name": "push --sync [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
   },
   {
     "cmd": [

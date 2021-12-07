@@ -139,7 +139,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
+    "name": "push --sync [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
   },
   {
     "cmd": [
@@ -334,7 +334,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/lottie-samples/* /sdcard/revenge_of_the_skiabot/lotties"
+    "name": "push --sync [START_DIR]/lottie-samples/* /sdcard/revenge_of_the_skiabot/lotties"
   },
   {
     "cmd": [
