@@ -31,6 +31,7 @@ skia_sksl_sources = [
   "$_include/sksl/DSLSymbols.h",
   "$_include/sksl/DSLType.h",
   "$_include/sksl/DSLVar.h",
+  "$_include/sksl/SkSLDebugTrace.h",
   "$_include/sksl/SkSLErrorReporter.h",
   "$_src/sksl/SkSLAnalysis.cpp",
   "$_src/sksl/SkSLAnalysis.h",
