@@ -23,6 +23,16 @@ DEF_TEST(SkVMDebugTraceSetSource, r) {
     REPORTER_ASSERT(r, i.fSource[3] == "\t// third line");
 }
 
+DEF_TEST(SkVMDebugTraceSetSourceReplacesExistingText, r) {
+    SkSL::SkVMDebugTrace i;
+    i.setSource("One");
+    i.setSource("Two");
+    i.setSource("Three");
+
+    REPORTER_ASSERT(r, i.fSource.size() == 1);
+    REPORTER_ASSERT(r, i.fSource[0] == "Three");
+}
+
 DEF_TEST(SkVMDebugTraceWrite, r) {
     SkSL::SkVMDebugTrace i;
     i.fSource = {

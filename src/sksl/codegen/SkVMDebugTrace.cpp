@@ -19,6 +19,7 @@ void SkVMDebugTrace::setTraceCoord(const SkIPoint& coord) {
 }
 
 void SkVMDebugTrace::setSource(std::string source) {
+    fSource.clear();
     std::stringstream stream{std::move(source)};
     while (stream.good()) {
         fSource.push_back({});
