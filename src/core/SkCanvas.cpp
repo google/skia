@@ -2315,6 +2315,9 @@ sk_sp<GrSlug>
 SkCanvas::doConvertBlobToSlug(const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
     auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(blob, origin);
     SkRect bounds = glyphRunList.sourceBounds();
+    if (bounds.isEmpty() || !bounds.isFinite() || paint.nothingToDraw()) {
+        return nullptr;
+    }
     auto layer = this->aboutToDraw(this, paint, &bounds);
     if (layer) {
         return this->topDevice()->convertGlyphRunListToSlug(glyphRunList, layer->paint());

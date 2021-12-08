@@ -906,7 +906,9 @@ void Device::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPain
 
     #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
         auto slug = this->convertGlyphRunListToSlug(glyphRunList, paint);
-        this->drawSlug(slug.get());
+        if (slug != nullptr) {
+            this->drawSlug(slug.get());
+        }
         return;
     #endif
 
