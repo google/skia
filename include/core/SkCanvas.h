@@ -1927,14 +1927,17 @@ public:
         If paint contains an SkShader and vertices does not contain texCoords, the shader
         is mapped using the vertices' positions.
 
-        If vertices colors are defined in vertices, and SkPaint paint contains SkShader,
-        SkBlendMode mode combines vertices colors with SkShader.
+        SkBlendMode is ignored if SkVertices does not have colors. Otherwise, it combines
+           - the SkShader if SkPaint contains SkShader
+           - or the opaque SkPaint color if SkPaint does not contain SkShader
+        as the src of the blend and the interpolated vertex colors as the dst.
 
-        SkMaskFilter and SkPathEffect on paint are ignored.
+        SkMaskFilter, SkPathEffect, and antialiasing on SkPaint are ignored.
 
         @param vertices  triangle mesh to draw
-        @param mode      combines vertices colors with SkShader, if both are present
-        @param paint     specifies the SkShader, used as SkVertices texture; may be nullptr
+        @param mode      combines vertices' colors with SkShader if present or SkPaint opaque color
+                         if not. Ignored if the vertices do not contain color.
+        @param paint     specifies the SkShader, used as SkVertices texture, and SkColorFilter.
 
         example: https://fiddle.skia.org/c/@Canvas_drawVertices
     */
@@ -1944,13 +1947,16 @@ public:
         If paint contains an SkShader and vertices does not contain texCoords, the shader
         is mapped using the vertices' positions.
 
-        If vertices colors are defined in vertices, and SkPaint paint contains SkShader,
-        SkBlendMode mode combines vertices colors with SkShader.
+        SkBlendMode is ignored if SkVertices does not have colors. Otherwise, it combines
+           - the SkShader if SkPaint contains SkShader
+           - or the opaque SkPaint color if SkPaint does not contain SkShader
+        as the src of the blend and the interpolated vertex colors as the dst.
 
-        SkMaskFilter and SkPathEffect on paint are ignored.
+        SkMaskFilter, SkPathEffect, and antialiasing on SkPaint are ignored.
 
         @param vertices  triangle mesh to draw
-        @param mode      combines vertices colors with SkShader, if both are present
+        @param mode      combines vertices' colors with SkShader if present or SkPaint opaque color
+                         if not. Ignored if the vertices do not contain color.
         @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
 
         example: https://fiddle.skia.org/c/@Canvas_drawVertices_2
@@ -1959,11 +1965,6 @@ public:
 
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture SkPoint, with each corner.
-
-        Coons patch uses clip and SkMatrix, paint SkShader, SkColorFilter,
-        alpha, SkImageFilter, and SkBlendMode. If SkShader is provided it is treated
-        as Coons patch texture; SkBlendMode mode combines color colors and SkShader if
-        both are provided.
 
         SkPoint array cubics specifies four SkPath cubic starting at the top-left corner,
         in clockwise order, sharing every fourth point. The last SkPath cubic ends at the
@@ -1976,13 +1977,19 @@ public:
         corners in top-left, top-right, bottom-right, bottom-left order. If texCoords is
         nullptr, SkShader is mapped using positions (derived from cubics).
 
-        SkMaskFilter and SkPathEffect on paint are ignored.
+        SkBlendMode is ignored if colors is null. Otherwise, it combines
+            - the SkShader if SkPaint contains SkShader
+            - or the opaque SkPaint color if SkPaint does not contain SkShader
+        as the src of the blend and the interpolated patch colors as the dst.
+
+        SkMaskFilter, SkPathEffect, and antialiasing on SkPaint are ignored.
 
         @param cubics     SkPath cubic array, sharing common points
         @param colors     color array, one for each corner
         @param texCoords  SkPoint array of texture coordinates, mapping SkShader to corners;
                           may be nullptr
-        @param mode       SkBlendMode for colors, and for SkShader if paint has one
+        @param mode       combines patch's colors with SkShader if present or SkPaint opaque color
+                          if not. Ignored if colors is null.
         @param paint      SkShader, SkColorFilter, SkBlendMode, used to draw
     */
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
