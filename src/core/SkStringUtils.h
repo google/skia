@@ -32,4 +32,10 @@ SkString SkTabString(const SkString& string, int tabCnt);
 
 SkString SkStringFromUTF16(const uint16_t* src, size_t count);
 
+#if defined(SK_BUILD_FOR_WIN)
+    #define SK_strcasecmp   _stricmp
+#else
+    #define SK_strcasecmp   strcasecmp
+#endif
+
 #endif

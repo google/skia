@@ -367,6 +367,7 @@ skia_core_sources = [
   "$_src/core/SkStrikeSpec.h",
   "$_src/core/SkString.cpp",
   "$_src/core/SkStringUtils.cpp",
+  "$_src/core/SkStringUtils.h",
   "$_src/core/SkStringView.cpp",
   "$_src/core/SkStroke.cpp",
   "$_src/core/SkStroke.h",
