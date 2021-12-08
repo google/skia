@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/effects/SkRuntimeEffect.h"
+
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkCanvasPriv.h"
@@ -26,6 +27,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLSharedCompiler.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/codegen/SkVMDebugTrace.h"
@@ -49,61 +51,6 @@
 using ChildType = SkRuntimeEffect::ChildType;
 
 #ifdef SK_ENABLE_SKSL
-
-namespace SkSL {
-class SharedCompiler {
-public:
-    SharedCompiler() : fLock(compiler_mutex()) {
-        if (!gImpl) {
-            gImpl = new Impl();
-        }
-    }
-
-    SkSL::Compiler* operator->() const { return gImpl->fCompiler; }
-
-private:
-    SkAutoMutexExclusive fLock;
-
-    static SkMutex& compiler_mutex() {
-        static SkMutex& mutex = *(new SkMutex);
-        return mutex;
-    }
-
-    struct Impl {
-        Impl() {
-            // These caps are configured to apply *no* workarounds. This avoids changes that are
-            // unnecessary (GLSL intrinsic rewrites), or possibly incorrect (adding do-while loops).
-            // We may apply other "neutral" transformations to the user's SkSL, including inlining.
-            // Anything determined by the device caps is deferred to the GPU backend. The processor
-            // set produces the final program (including our re-emitted SkSL), and the backend's
-            // compiler resolves any necessary workarounds.
-            fCaps = ShaderCapsFactory::Standalone();
-            fCaps->fBuiltinFMASupport = true;
-            fCaps->fBuiltinDeterminantSupport = true;
-            // Don't inline if it would require a do loop, some devices don't support them.
-            fCaps->fCanUseDoLoops = false;
-
-            // SkSL created by the GPU backend is typically parsed, converted to a backend format,
-            // and the IR is immediately discarded. In that situation, it makes sense to use node
-            // pools to accelerate the IR allocations. Here, SkRuntimeEffect instances are often
-            // long-lived (especially those created internally for runtime FPs). In this situation,
-            // we're willing to pay for a slightly longer compile so that we don't waste huge
-            // amounts of memory.
-            fCaps->fUseNodePools = false;
-
-            fCompiler = new SkSL::Compiler(fCaps.get());
-        }
-
-        std::unique_ptr<SkSL::ShaderCaps> fCaps;
-        SkSL::Compiler*                   fCompiler;
-    };
-
-    static Impl* gImpl;
-};
-
-SharedCompiler::Impl* SharedCompiler::gImpl = nullptr;
-
-}  // namespace SkSL
 
 static sk_sp<SkSL::SkVMDebugTrace> make_skvm_debug_trace(SkRuntimeEffect* effect,
                                                          const SkIPoint& coord) {

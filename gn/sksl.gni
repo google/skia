@@ -73,6 +73,8 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLRehydrator.cpp",
   "$_src/sksl/SkSLRehydrator.h",
   "$_src/sksl/SkSLSampleUsage.cpp",
+  "$_src/sksl/SkSLSharedCompiler.cpp",
+  "$_src/sksl/SkSLSharedCompiler.h",
   "$_src/sksl/SkSLString.cpp",
   "$_src/sksl/SkSLStringStream.h",
   "$_src/sksl/SkSLThreadContext.cpp",
