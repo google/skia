@@ -89,11 +89,11 @@ private:
 std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(const PaintParams&);
 SkSpan<const Uniform> GetUniforms(ShaderCombo::ShaderType);
 
-// TODO: Temporary way to get at MSL snippet for handling the given shader type, which will be
+// TODO: Temporary way to get at SkSL snippet for handling the given shader type, which will be
 // embedded in the fragment function's body. It has access to the vertex output via a "interpolated"
 // variable, and must have a statement that writes to a float4 "out.color". Its uniforms (as defined
 // by GetUniforms(type)) are available as a variable named "uniforms".
-const char* GetShaderMSL(ShaderCombo::ShaderType);
+const char* GetShaderSkSL(ShaderCombo::ShaderType);
 
 } // namespace skgpu
 

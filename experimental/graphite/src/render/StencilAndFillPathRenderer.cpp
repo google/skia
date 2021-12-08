@@ -71,10 +71,10 @@ public:
 
     const char* name() const override { return "fill-bounds"; }
 
-    const char* vertexMSL() const override {
+    const char* vertexSkSL() const override {
         // TODO: RenderSteps should not worry about RTAdjust, but currently the mtl pipeline does
         // account for it, so this geometry won't be in the right coordinate system yet.
-        return "out.position = uniforms.localToDevice * float4(vtx.position, 0.0, 1.0);\n";
+        return "     float4 devPosition = localToDevice * float4(position, 0.0, 1.0);\n";
     }
 
     void writeVertices(DrawWriter* writer, const Transform&, const Shape& shape) const override {
