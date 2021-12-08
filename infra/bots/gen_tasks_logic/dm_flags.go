@@ -825,6 +825,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "gm", "_", "verylarge_picture_image")
 		skip("_", "svg", "_", "A_large_blank_world_map_with_oceans_marked_in_blue.svg")
 		skip("_", "tests", "_", "ImageFilterBlurLargeImage_Gpu")
+		skip("_", "gm", "_", "wacky_yuv")
 	}
 	if b.matchOs("Mac") && b.cpu() {
 		// skia:6992
