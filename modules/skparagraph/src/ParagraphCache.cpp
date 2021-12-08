@@ -29,18 +29,42 @@ public:
         : fText(paragraph->fText.c_str(), paragraph->fText.size())
         , fPlaceholders(paragraph->fPlaceholders)
         , fTextStyles(paragraph->fTextStyles)
-        , fParagraphStyle(paragraph->paragraphStyle()) { }
+        , fParagraphStyle(paragraph->paragraphStyle()) {
+        fHash = computeHash();
+    }
+
+    ParagraphCacheKey(const ParagraphCacheKey& other) = default;
+
+    ParagraphCacheKey(ParagraphCacheKey&& other)
+        : fText(std::move(other.fText))
+        , fPlaceholders(std::move(other.fPlaceholders))
+        , fTextStyles(std::move(other.fTextStyles))
+        , fParagraphStyle(std::move(other.fParagraphStyle))
+        , fHash(other.fHash) {
+        other.fHash = 0;
+    }
+
+    bool operator==(const ParagraphCacheKey& other) const;
+
+    uint32_t hash() const { return fHash; }
+
+    const SkString& text() const { return fText; }
+
+private:
+    static uint32_t mix(uint32_t hash, uint32_t data);
+    uint32_t computeHash() const;
 
     SkString fText;
     SkTArray<Placeholder, true> fPlaceholders;
     SkTArray<Block, true> fTextStyles;
     ParagraphStyle fParagraphStyle;
+    uint32_t fHash;
 };
 
 class ParagraphCacheValue {
 public:
-    ParagraphCacheValue(const ParagraphImpl* paragraph)
-        : fKey(ParagraphCacheKey(paragraph))
+    ParagraphCacheValue(ParagraphCacheKey&& key, const ParagraphImpl* paragraph)
+        : fKey(std::move(key))
         , fRuns(paragraph->fRuns)
         , fCodeUnitProperties(paragraph->fCodeUnitProperties)
         , fWords(paragraph->fWords)
@@ -61,16 +85,16 @@ public:
     SkTArray<size_t, true> fUTF16IndexForUTF8Index;
 };
 
-uint32_t ParagraphCache::KeyHash::mix(uint32_t hash, uint32_t data) const {
+uint32_t ParagraphCacheKey::mix(uint32_t hash, uint32_t data) {
     hash += data;
     hash += (hash << 10);
     hash ^= (hash >> 6);
     return hash;
 }
 
-uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const {
+uint32_t ParagraphCacheKey::computeHash() const {
     uint32_t hash = 0;
-    for (auto& ph : key.fPlaceholders) {
+    for (auto& ph : fPlaceholders) {
         if (ph.fRange.width() == 0) {
             continue;
         }
@@ -85,7 +109,7 @@ uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const
         }
     }
 
-    for (auto& ts : key.fTextStyles) {
+    for (auto& ts : fTextStyles) {
         if (ts.fStyle.isPlaceholder()) {
             continue;
         }
@@ -106,10 +130,10 @@ uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const
         hash = mix(hash, SkGoodHash()(ts.fRange));
     }
 
-    hash = mix(hash, SkGoodHash()(relax(key.fParagraphStyle.getHeight())));
-    hash = mix(hash, SkGoodHash()(key.fParagraphStyle.getTextDirection()));
+    hash = mix(hash, SkGoodHash()(relax(fParagraphStyle.getHeight())));
+    hash = mix(hash, SkGoodHash()(fParagraphStyle.getTextDirection()));
 
-    auto& strutStyle = key.fParagraphStyle.getStrutStyle();
+    auto& strutStyle = fParagraphStyle.getStrutStyle();
     if (strutStyle.getStrutEnabled()) {
         hash = mix(hash, SkGoodHash()(relax(strutStyle.getHeight())));
         hash = mix(hash, SkGoodHash()(relax(strutStyle.getLeading())));
@@ -122,39 +146,43 @@ uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const
         }
     }
 
-    hash = mix(hash, SkGoodHash()(key.fText));
+    hash = mix(hash, SkGoodHash()(fText));
     return hash;
 }
 
-bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
-    if (a.fText.size() != b.fText.size()) {
+uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const {
+    return key.hash();
+}
+
+bool ParagraphCacheKey::operator==(const ParagraphCacheKey& other) const {
+    if (fText.size() != other.fText.size()) {
         return false;
     }
-    if (a.fPlaceholders.count() != b.fPlaceholders.count()) {
+    if (fPlaceholders.count() != other.fPlaceholders.count()) {
         return false;
     }
-    if (a.fText != b.fText) {
+    if (fText != other.fText) {
         return false;
     }
-    if (a.fTextStyles.size() != b.fTextStyles.size()) {
+    if (fTextStyles.size() != other.fTextStyles.size()) {
         return false;
     }
 
     // There is no need to compare default paragraph styles - they are included into fTextStyles
-    if (!exactlyEqual(a.fParagraphStyle.getHeight(), b.fParagraphStyle.getHeight())) {
+    if (!exactlyEqual(fParagraphStyle.getHeight(), other.fParagraphStyle.getHeight())) {
         return false;
     }
-    if (a.fParagraphStyle.getTextDirection() != b.fParagraphStyle.getTextDirection()) {
-        return false;
-    }
-
-    if (!(a.fParagraphStyle.getStrutStyle() == b.fParagraphStyle.getStrutStyle())) {
+    if (fParagraphStyle.getTextDirection() != other.fParagraphStyle.getTextDirection()) {
         return false;
     }
 
-    for (size_t i = 0; i < a.fTextStyles.size(); ++i) {
-        auto& tsa = a.fTextStyles[i];
-        auto& tsb = b.fTextStyles[i];
+    if (!(fParagraphStyle.getStrutStyle() == other.fParagraphStyle.getStrutStyle())) {
+        return false;
+    }
+
+    for (size_t i = 0; i < fTextStyles.size(); ++i) {
+        auto& tsa = fTextStyles[i];
+        auto& tsb = other.fTextStyles[i];
         if (tsa.fStyle.isPlaceholder()) {
             continue;
         }
@@ -168,9 +196,9 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
             return false;
         }
     }
-    for (size_t i = 0; i < a.fPlaceholders.size(); ++i) {
-        auto& tsa = a.fPlaceholders[i];
-        auto& tsb = b.fPlaceholders[i];
+    for (size_t i = 0; i < fPlaceholders.size(); ++i) {
+        auto& tsa = fPlaceholders[i];
+        auto& tsb = other.fPlaceholders[i];
         if (tsa.fRange.width() == 0 && tsb.fRange.width() == 0) {
             continue;
         }
@@ -288,8 +316,8 @@ bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
             // Skip this paragraph
             return false;
         }
-        ParagraphCacheValue* value = new ParagraphCacheValue(paragraph);
-        fLRUCacheMap.insert(key, std::make_unique<Entry>(value));
+        ParagraphCacheValue* value = new ParagraphCacheValue(std::move(key), paragraph);
+        fLRUCacheMap.insert(value->fKey, std::make_unique<Entry>(value));
         fChecker(paragraph, "addedParagraph", true);
         fLastCachedValue = value;
         return true;
@@ -306,7 +334,7 @@ bool ParagraphCache::isPossiblyTextEditing(ParagraphImpl* paragraph) {
         return false;
     }
 
-    auto& lastText = fLastCachedValue->fKey.fText;
+    auto& lastText = fLastCachedValue->fKey.text();
     auto& text = paragraph->fText;
 
     if ((lastText.size() < NOCACHE_PREFIX_LENGTH) || (text.size() < NOCACHE_PREFIX_LENGTH)) {
@@ -319,7 +347,7 @@ bool ParagraphCache::isPossiblyTextEditing(ParagraphImpl* paragraph) {
         return true;
     }
 
-    if (std::strncmp(&lastText[lastText.size() - NOCACHE_PREFIX_LENGTH], &text[text.size() - NOCACHE_PREFIX_LENGTH], NOCACHE_PREFIX_LENGTH) == 0) {
+    if (std::strncmp(lastText.c_str() + lastText.size() - NOCACHE_PREFIX_LENGTH, &text[text.size() - NOCACHE_PREFIX_LENGTH], NOCACHE_PREFIX_LENGTH) == 0) {
         // Texts have the same ends
         return true;
     }
