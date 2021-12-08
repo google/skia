@@ -3017,6 +3017,11 @@ namespace skvm {
     #endif
     }
 
+    bool Program::hasTraceHooks() const {
+        // Identifies a program which has been instrumented for debugging.
+        return !fImpl->traceHooks.empty();
+    }
+
     bool Program::hasJIT() const {
         // Program::hasJIT() is really just a debugging / test aid,
         // so we don't mind adding a sync point here to wait for compilation.

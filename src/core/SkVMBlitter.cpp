@@ -542,7 +542,7 @@ SkVMBlitter::SkVMBlitter(const SkPixmap& device,
 SkVMBlitter::~SkVMBlitter() {
     if (SkLRUCache<Key, skvm::Program>* cache = TryAcquireProgramCache()) {
         auto cache_program = [&](skvm::Program&& program, Coverage coverage) {
-            if (!program.empty()) {
+            if (!program.empty() && !program.hasTraceHooks()) {
                 cache->insert_or_update(fKey.withCoverage(coverage), std::move(program));
             }
         };
@@ -610,7 +610,7 @@ skvm::Program SkVMBlitter::buildProgram(Coverage coverage) {
     skvm::Program program = builder.done(DebugName(key).c_str());
     if (false) {
         static std::atomic<int> missed{0},
-                total{0};
+                                total{0};
         if (!program.hasJIT()) {
             SkDebugf("\ncouldn't JIT %s\n", DebugName(key).c_str());
             builder.dump();
