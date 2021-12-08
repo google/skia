@@ -297,13 +297,13 @@ skgpu::TextureInfo Caps::getDefaultMSAATextureInfo(SkColorType colorType,
     return info;
 }
 
-skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(DepthStencilType depthStencilType,
+skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags> depthStencilType,
                                                            uint32_t sampleCount,
                                                            Protected) const {
     TextureInfo info;
     info.fSampleCount = sampleCount;
     info.fLevelCount = 1;
-    info.fFormat = DepthStencilTypeToFormat(depthStencilType);
+    info.fFormat = DepthStencilFlagsToFormat(depthStencilType);
     info.fUsage = MTLTextureUsageRenderTarget;
     info.fStorageMode = MTLStorageModePrivate;
     info.fFramebufferOnly = false;

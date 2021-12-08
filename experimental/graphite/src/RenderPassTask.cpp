@@ -9,6 +9,7 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/DrawPass.h"
+#include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 
@@ -48,9 +49,17 @@ void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
             return;
         }
     }
-    // TODO: set up depth and stencil
 
-    commandBuffer->beginRenderPass(fRenderPassDesc, fTarget->refTexture(), nullptr, nullptr);
+    sk_sp<Texture> depthStencilTexture;
+    if (fRenderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
+        // TODO: ensure this is a scratch/recycled texture
+        depthStencilTexture = resourceProvider->findOrCreateTexture(
+                fTarget->dimensions(), fRenderPassDesc.fDepthStencilAttachment.fTextureInfo);
+        SkASSERT(depthStencilTexture);
+    }
+
+    commandBuffer->beginRenderPass(fRenderPassDesc, fTarget->refTexture(), nullptr,
+                                   std::move(depthStencilTexture));
 
     // Assuming one draw pass per renderpasstask for now
     SkASSERT(fDrawPasses.size() == 1);

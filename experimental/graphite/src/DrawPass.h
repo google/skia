@@ -60,6 +60,7 @@ public:
 
     bool requiresDstTexture() const { return false;            }
     bool requiresStencil()    const { return fRequiresStencil; }
+    bool requiresDepth()      const { return fRequiresDepth; }
     bool requiresMSAA()       const { return fRequiresMSAA;    }
 
     size_t vertexBufferSize()  const { return 0; }
@@ -193,6 +194,7 @@ private:
     std::array<float, 4>       fClearColor;
 
     bool fRequiresStencil;
+    bool fRequiresDepth;
     bool fRequiresMSAA;
 };
 

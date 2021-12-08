@@ -57,19 +57,20 @@ MTLPixelFormat SkColorTypeToFormat(SkColorType colorType) {
     }
 }
 
-MTLPixelFormat DepthStencilTypeToFormat(DepthStencilType type) {
+MTLPixelFormat DepthStencilFlagsToFormat(Mask<DepthStencilFlags> mask) {
     // TODO: Decide if we want to change this to always return a combined depth and stencil format
     // to allow more sharing of depth stencil allocations.
-    switch (type) {
-        case DepthStencilType::kDepthOnly:
-            // MTLPixelFormatDepth16Unorm is also a universally supported option here
-            return MTLPixelFormatDepth32Float;
-        case DepthStencilType::kStencilOnly:
-            return MTLPixelFormatStencil8;
-        case DepthStencilType::kDepthStencil:
-            // MTLPixelFormatDepth24Unorm_Stencil8 is supported on Mac family GPUs.
-            return MTLPixelFormatDepth32Float_Stencil8;
+    if (mask == DepthStencilFlags::kDepth) {
+        // MTLPixelFormatDepth16Unorm is also a universally supported option here
+        return MTLPixelFormatDepth32Float;
+    } else if (mask == DepthStencilFlags::kStencil) {
+        return MTLPixelFormatStencil8;
+    } else if (mask == DepthStencilFlags::kDepthStencil) {
+        // MTLPixelFormatDepth24Unorm_Stencil8 is supported on Mac family GPUs.
+        return MTLPixelFormatDepth32Float_Stencil8;
     }
+    SkASSERT(false);
+    return MTLPixelFormatInvalid;
 }
 
 // Print the source code for all shaders generated.

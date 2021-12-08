@@ -28,7 +28,7 @@ public:
                                                  uint32_t sampleCount,
                                                  Protected) const override;
 
-    skgpu::TextureInfo getDefaultDepthStencilTextureInfo(DepthStencilType,
+    skgpu::TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
                                                          uint32_t sampleCount,
                                                          Protected) const override;
 

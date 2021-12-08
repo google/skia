@@ -35,7 +35,7 @@ public:
                                                   uint32_t sampleCount,
                                                   Protected) const = 0;
 
-    virtual TextureInfo getDefaultDepthStencilTextureInfo(DepthStencilType,
+    virtual TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
                                                           uint32_t sampleCount,
                                                           Protected) const = 0;
 

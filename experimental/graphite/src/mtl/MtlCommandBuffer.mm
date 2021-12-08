@@ -147,6 +147,8 @@ void CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
             stencilAttachment.storeAction =
                      mtlStoreAction[static_cast<int>(depthStencilInfo.fStoreOp)];
         }
+    } else {
+        SkASSERT(!depthStencilInfo.fTextureInfo.isValid());
     }
 
     fActiveRenderCommandEncoder = RenderCommandEncoder::Make(fCommandBuffer.get(),

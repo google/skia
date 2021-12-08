@@ -362,18 +362,34 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Gpu* gpu,
 
     (*psoDescriptor).colorAttachments[0] = mtlColorAttachment;
 
-    DepthStencilType depthStencilType = desc.renderStep()->requiresStencil()
-                                      ? DepthStencilType::kDepthStencil
-                                      : DepthStencilType::kDepthOnly;
-    skgpu::TextureInfo texInfo = gpu->caps()->getDefaultDepthStencilTextureInfo(depthStencilType,
-                                                                                1 /*sampleCount*/,
-                                                                                Protected::kNo);
-    mtl::TextureInfo mtlTexInfo;
-    texInfo.getMtlTextureInfo(&mtlTexInfo);
-    if (depthStencilType != DepthStencilType::kDepthOnly) {
-        (*psoDescriptor).stencilAttachmentPixelFormat = (MTLPixelFormat)mtlTexInfo.fFormat;
+    Mask<DepthStencilFlags> depthStencilFlags = DepthStencilFlags::kNone;
+    if (desc.renderStep()->requiresDepth()) {
+        depthStencilFlags |= DepthStencilFlags::kDepth;
     }
-    (*psoDescriptor).depthAttachmentPixelFormat = (MTLPixelFormat)mtlTexInfo.fFormat;
+    if (desc.renderStep()->requiresStencil()){
+        depthStencilFlags |= DepthStencilFlags::kStencil;
+    }
+    if (depthStencilFlags != DepthStencilFlags::kNone) {
+        skgpu::TextureInfo texInfo =
+                gpu->caps()->getDefaultDepthStencilTextureInfo(depthStencilFlags,
+                                                               1 /*sampleCount*/, // TODO: MSAA
+                                                               Protected::kNo);
+        mtl::TextureInfo mtlTexInfo;
+        texInfo.getMtlTextureInfo(&mtlTexInfo);
+        if (depthStencilFlags & DepthStencilFlags::kStencil) {
+            (*psoDescriptor).stencilAttachmentPixelFormat = (MTLPixelFormat)mtlTexInfo.fFormat;
+        } else {
+            (*psoDescriptor).stencilAttachmentPixelFormat = MTLPixelFormatInvalid;
+        }
+        if (depthStencilFlags & DepthStencilFlags::kDepth) {
+            (*psoDescriptor).depthAttachmentPixelFormat = (MTLPixelFormat)mtlTexInfo.fFormat;
+        } else {
+            (*psoDescriptor).depthAttachmentPixelFormat = MTLPixelFormatInvalid;
+        }
+    } else {
+        (*psoDescriptor).stencilAttachmentPixelFormat = MTLPixelFormatInvalid;
+        (*psoDescriptor).depthAttachmentPixelFormat = MTLPixelFormatInvalid;
+    }
 
     NSError* error;
     sk_cfp<id<MTLRenderPipelineState>> pso(

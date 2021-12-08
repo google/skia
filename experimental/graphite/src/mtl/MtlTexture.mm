@@ -31,7 +31,8 @@ sk_cfp<id<MTLTexture>> Texture::MakeMtlTexture(const Gpu* gpu,
         return nullptr;
     }
 
-    if (mtlSpec.fUsage & MTLTextureUsageRenderTarget && !caps->isRenderable(info)) {
+    if (mtlSpec.fUsage & MTLTextureUsageRenderTarget &&
+        !(caps->isRenderable(info) || FormatIsDepthOrStencil((MTLPixelFormat)mtlSpec.fFormat))) {
         return nullptr;
     }
 

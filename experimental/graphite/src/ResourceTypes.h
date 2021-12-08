@@ -9,6 +9,7 @@
 #define skgpu_ResourceTypes_DEFINED
 
 #include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/src/EnumBitMask.h"
 
 namespace skgpu {
 
@@ -20,11 +21,13 @@ enum class Renderable : bool {
     kYes = true,
 };
 
-enum class DepthStencilType {
-    kDepthOnly,
-    kStencilOnly,
-    kDepthStencil,
+enum class DepthStencilFlags : int {
+    kNone = 0b000,
+    kDepth = 0b001,
+    kStencil = 0b010,
+    kDepthStencil = kDepth | kStencil,
 };
+SKGPU_MAKE_MASK_OPS(DepthStencilFlags);
 
 /**
  * What a GPU buffer will be used for
