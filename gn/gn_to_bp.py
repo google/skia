@@ -293,6 +293,7 @@ cc_defaults {
         "libwebp-decode",
         "libwebp-encode",
         "libsfntly",
+        "libwuffs_mirror_release_c",
     ],
     target: {
       android: {
@@ -408,7 +409,6 @@ def generate_args(target_os, enable_gpu, renderengine = False):
 
     'skia_use_fontconfig':                  'false',
     'skia_include_multiframe_procs':        'false',
-    'skia_libgifcodec_path':                '"third_party/libgifcodec"',
   }
   d['target_os'] = target_os
   if target_os == '"android"':
@@ -454,6 +454,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_use_freetype'] = 'true'
     d['skia_use_fixed_gamma_text'] = 'true'
     d['skia_enable_fontmgr_custom_empty'] = 'true'
+    d['skia_use_wuffs'] = 'true'
 
   return d
 
