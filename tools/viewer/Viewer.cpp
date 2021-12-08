@@ -24,6 +24,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScan.h"
+#include "src/core/SkStringUtils.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkTaskGroup.h"
@@ -839,28 +840,31 @@ void Viewer::initSlides() {
     for (skiagm::GMFactory gmFactory : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm = gmFactory();
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
-            sk_sp<Slide> slide(new GMSlide(std::move(gm)));
+            auto slide = sk_make_sp<GMSlide>(std::move(gm));
             fSlides.push_back(std::move(slide));
         }
     }
-    // reverse gms
-    int numGMs = fSlides.count() - firstGM;
-    for (int i = 0; i < numGMs/2; ++i) {
-        std::swap(fSlides[firstGM + i], fSlides[fSlides.count() - i - 1]);
-    }
+
+    auto orderBySlideName = [](sk_sp<Slide> a, sk_sp<Slide> b) {
+        return SK_strcasecmp(a->getName().c_str(), b->getName().c_str()) < 0;
+    };
+    std::sort(fSlides.begin() + firstGM, fSlides.end(), orderBySlideName);
 
     // samples
+    int firstSample = fSlides.count();
     for (const SampleFactory factory : SampleRegistry::Range()) {
-        sk_sp<Slide> slide(new SampleSlide(factory));
+        auto slide = sk_make_sp<SampleSlide>(factory);
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
             fSlides.push_back(slide);
         }
     }
 
+    std::sort(fSlides.begin() + firstSample, fSlides.end(), orderBySlideName);
+
     // Particle demo
     {
         // TODO: Convert this to a sample
-        sk_sp<Slide> slide(new ParticlesSlide());
+        auto slide = sk_make_sp<ParticlesSlide>();
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
             fSlides.push_back(std::move(slide));
         }
@@ -868,7 +872,7 @@ void Viewer::initSlides() {
 
     // Runtime shader editor
     {
-        sk_sp<Slide> slide(new SkSLSlide());
+        auto slide = sk_make_sp<SkSLSlide>();
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
             fSlides.push_back(std::move(slide));
         }
@@ -908,7 +912,7 @@ void Viewer::initSlides() {
     }
 
     if (!fSlides.count()) {
-        sk_sp<Slide> slide(new NullSlide());
+        auto slide = sk_make_sp<NullSlide>();
         fSlides.push_back(std::move(slide));
     }
 }
