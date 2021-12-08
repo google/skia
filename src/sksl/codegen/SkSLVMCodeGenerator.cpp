@@ -147,9 +147,7 @@ public:
     SkVMGenerator(const Program& program,
                   skvm::Builder* builder,
                   SkVMDebugTrace* debugTrace,
-                  SampleShaderFn sampleShader,
-                  SampleColorFilterFn sampleColorFilter,
-                  SampleBlenderFn sampleBlender);
+                  SkVMCallbacks* callbacks);
 
     void writeProgram(SkSpan<skvm::Val> uniforms,
                       skvm::Coord device,
@@ -305,10 +303,7 @@ private:
     skvm::Builder* fBuilder;
     SkVMDebugTrace* fDebugTrace;
     int fTraceHookID = -1;
-
-    const SampleShaderFn fSampleShader;
-    const SampleColorFilterFn fSampleColorFilter;
-    const SampleBlenderFn fSampleBlender;
+    SkVMCallbacks* fCallbacks;
 
     struct Slot {
         skvm::Val  val;
@@ -373,15 +368,11 @@ static inline bool is_uniform(const SkSL::Variable& var) {
 SkVMGenerator::SkVMGenerator(const Program& program,
                              skvm::Builder* builder,
                              SkVMDebugTrace* debugTrace,
-                             SampleShaderFn sampleShader,
-                             SampleColorFilterFn sampleColorFilter,
-                             SampleBlenderFn sampleBlender)
+                             SkVMCallbacks* callbacks)
         : fProgram(program)
         , fBuilder(builder)
         , fDebugTrace(debugTrace)
-        , fSampleShader(std::move(sampleShader))
-        , fSampleColorFilter(std::move(sampleColorFilter))
-        , fSampleBlender(std::move(sampleBlender)) {}
+        , fCallbacks(callbacks) {}
 
 void SkVMGenerator::writeProgram(SkSpan<skvm::Val> uniforms,
                                  skvm::Coord device,
@@ -1227,7 +1218,7 @@ Value SkVMGenerator::writeChildCall(const ChildCall& c) {
             SkASSERT(c.arguments().size() == 1);
             SkASSERT(arg->type() == *fProgram.fContext->fTypes.fFloat2);
             skvm::Coord coord = {f32(argVal[0]), f32(argVal[1])};
-            color = fSampleShader(child_it->second, coord);
+            color = fCallbacks->sampleShader(child_it->second, coord);
             break;
         }
         case Type::TypeKind::kColorFilter: {
@@ -1235,7 +1226,7 @@ Value SkVMGenerator::writeChildCall(const ChildCall& c) {
             SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
                      arg->type() == *fProgram.fContext->fTypes.fFloat4);
             skvm::Color inColor = {f32(argVal[0]), f32(argVal[1]), f32(argVal[2]), f32(argVal[3])};
-            color = fSampleColorFilter(child_it->second, inColor);
+            color = fCallbacks->sampleColorFilter(child_it->second, inColor);
             break;
         }
         case Type::TypeKind::kBlender: {
@@ -1250,7 +1241,7 @@ Value SkVMGenerator::writeChildCall(const ChildCall& c) {
                      arg->type() == *fProgram.fContext->fTypes.fFloat4);
             skvm::Color dstColor = {f32(argVal[0]), f32(argVal[1]), f32(argVal[2]), f32(argVal[3])};
 
-            color = fSampleBlender(child_it->second, srcColor, dstColor);
+            color = fCallbacks->sampleBlender(child_it->second, srcColor, dstColor);
             break;
         }
         default: {
@@ -1985,9 +1976,7 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord local,
                           skvm::Color inputColor,
                           skvm::Color destColor,
-                          SampleShaderFn sampleShader,
-                          SampleColorFilterFn sampleColorFilter,
-                          SampleBlenderFn sampleBlender) {
+                          SkVMCallbacks* callbacks) {
     skvm::Val zero = builder->splat(0.0f).id;
     skvm::Val result[4] = {zero,zero,zero,zero};
 
@@ -2031,8 +2020,7 @@ skvm::Color ProgramToSkVM(const Program& program,
         debugTrace->fTraceInfo.clear();
     }
 
-    SkVMGenerator generator(program, builder, debugTrace, std::move(sampleShader),
-                            std::move(sampleColorFilter), std::move(sampleBlender));
+    SkVMGenerator generator(program, builder, debugTrace, callbacks);
     generator.writeProgram(uniforms, device, function, {args, argSlots}, SkMakeSpan(result));
 
     return skvm::Color{{builder, result[0]},
@@ -2071,18 +2059,25 @@ bool ProgramToSkVM(const Program& program,
         returnVals.push_back(b->splat(0.0f).id);
     }
 
-    bool sampledChildEffects = false;
-    auto sampleShader = [&](int, skvm::Coord) {
-        sampledChildEffects = true;
-        return skvm::Color{};
-    };
-    auto sampleColorFilter = [&](int, skvm::Color) {
-        sampledChildEffects = true;
-        return skvm::Color{};
-    };
-    auto sampleBlender = [&](int, skvm::Color, skvm::Color) {
-        sampledChildEffects = true;
-        return skvm::Color{};
+    class Callbacks : public SkVMCallbacks {
+    public:
+        Callbacks(skvm::Color color) : fColor(color) {}
+
+        skvm::Color sampleShader(int, skvm::Coord) override {
+            fUsedUnsupportedFeatures = true;
+            return fColor;
+        }
+        skvm::Color sampleColorFilter(int, skvm::Color) override {
+            fUsedUnsupportedFeatures = true;
+            return fColor;
+        }
+        skvm::Color sampleBlender(int, skvm::Color, skvm::Color) override {
+            fUsedUnsupportedFeatures = true;
+            return fColor;
+        }
+
+        bool fUsedUnsupportedFeatures = false;
+        const skvm::Color fColor;
     };
 
     // Set up device coordinates so that the rightmost evaluated pixel will be centered on (0, 0).
@@ -2091,12 +2086,16 @@ bool ProgramToSkVM(const Program& program,
     skvm::Coord device = {pixelCenter, pixelCenter};
     device.x += to_F32(b->splat(1) - b->index());
 
-    SkVMGenerator generator(program, b, debugTrace, sampleShader, sampleColorFilter, sampleBlender);
+    skvm::F32 zero = b->splat(0.0f);
+    skvm::Color sampledColor{zero, zero, zero, zero};
+    Callbacks callbacks(sampledColor);
+
+    SkVMGenerator generator(program, b, debugTrace, &callbacks);
     generator.writeProgram(uniforms, device, function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
     // If the SkSL tried to use any shader, colorFilter, or blender objects - we don't have a
     // mechanism (yet) for binding to those.
-    if (sampledChildEffects) {
+    if (callbacks.fUsedUnsupportedFeatures) {
         return false;
     }
 
@@ -2206,22 +2205,37 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
     skvm::Coord device = {pun_to_F32(builder->index()), new_uni()};
     skvm::Coord local  = device;
 
-    struct Child {
-        skvm::Uniform addr;
-        skvm::I32     rowBytesAsPixels;
-    };
+    class Callbacks : public SkVMCallbacks {
+    public:
+        Callbacks(skvm::Builder* builder, skvm::Uniforms* uniforms, int numChildren) {
+            for (int i = 0; i < numChildren; ++i) {
+                fChildren.push_back(
+                        {uniforms->pushPtr(nullptr), builder->uniform32(uniforms->push(0))});
+            }
+        }
 
-    std::vector<Child> children;
-    for (int i = 0; i < childSlots; ++i) {
-        children.push_back({uniforms.pushPtr(nullptr), builder->uniform32(uniforms.push(0))});
-    }
+        skvm::Color sampleShader(int i, skvm::Coord coord) override {
+            skvm::PixelFormat pixelFormat = skvm::SkColorType_to_PixelFormat(kRGBA_F32_SkColorType);
+            skvm::I32 index  = trunc(coord.x);
+                      index += trunc(coord.y) * fChildren[i].rowBytesAsPixels;
+            return gather(pixelFormat, fChildren[i].addr, index);
+        }
 
-    auto sampleShader = [&](int i, skvm::Coord coord) {
-        skvm::PixelFormat pixelFormat = skvm::SkColorType_to_PixelFormat(kRGBA_F32_SkColorType);
-        skvm::I32 index  = trunc(coord.x);
-                  index += trunc(coord.y) * children[i].rowBytesAsPixels;
-        return gather(pixelFormat, children[i].addr, index);
+        skvm::Color sampleColorFilter(int i, skvm::Color color) override {
+            return color;
+        }
+
+        skvm::Color sampleBlender(int i, skvm::Color src, skvm::Color dst) override {
+            return blend(SkBlendMode::kSrcOver, src, dst);
+        }
+
+        struct Child {
+            skvm::Uniform addr;
+            skvm::I32     rowBytesAsPixels;
+        };
+        std::vector<Child> fChildren;
     };
+    Callbacks callbacks(builder, &uniforms, childSlots);
 
     std::vector<skvm::Val> uniformVals;
     for (size_t i = 0; i < uniformSlots; ++i) {
@@ -2233,8 +2247,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
 
     skvm::Color result = SkSL::ProgramToSkVM(program, *main, builder, debugTrace,
                                              SkMakeSpan(uniformVals), device, local, inColor,
-                                             destColor, sampleShader, /*sampleColorFilter=*/nullptr,
-                                             /*sampleBlender=*/nullptr);
+                                             destColor, &callbacks);
 
     storeF(builder->varying<float>(), result.r);
     storeF(builder->varying<float>(), result.g);

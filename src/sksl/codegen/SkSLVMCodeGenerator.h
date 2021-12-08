@@ -21,9 +21,14 @@ class FunctionDefinition;
 struct Program;
 class SkVMDebugTrace;
 
-using SampleShaderFn = std::function<skvm::Color(int, skvm::Coord)>;
-using SampleColorFilterFn = std::function<skvm::Color(int, skvm::Color)>;
-using SampleBlenderFn = std::function<skvm::Color(int, skvm::Color, skvm::Color)>;
+class SkVMCallbacks {
+public:
+    virtual ~SkVMCallbacks() = default;
+
+    virtual skvm::Color sampleShader(int index, skvm::Coord coord) = 0;
+    virtual skvm::Color sampleColorFilter(int index, skvm::Color color) = 0;
+    virtual skvm::Color sampleBlender(int index, skvm::Color src, skvm::Color dst) = 0;
+};
 
 // Convert 'function' to skvm instructions in 'builder', for use by blends, shaders, & color filters
 skvm::Color ProgramToSkVM(const Program& program,
@@ -35,9 +40,7 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord local,
                           skvm::Color inputColor,
                           skvm::Color destColor,
-                          SampleShaderFn sampleShader,
-                          SampleColorFilterFn sampleColorFilter,
-                          SampleBlenderFn sampleBlender);
+                          SkVMCallbacks* callbacks);
 
 struct SkVMSignature {
     size_t fParameterSlots = 0;
