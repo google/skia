@@ -116,7 +116,7 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
                                                     outputColor->c_str(),
                                                     outputCoverage->c_str(),
                                                     texSamplers.get());
-    fFPCoordsMap = fGPImpl->emitCode(args, this->pipeline());
+    std::tie(fFPCoordsMap, fLocalCoordsVar) = fGPImpl->emitCode(args, this->pipeline());
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
@@ -134,7 +134,7 @@ bool GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
         SkString output;
         const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
         fFPImpls.push_back(fp.makeProgramImpl());
-        output = this->emitFragProc(fp, *fFPImpls.back(), *inOut, output);
+        output = this->emitRootFragProc(fp, *fFPImpls.back(), *inOut, output);
         if (output.isEmpty()) {
             return false;
         }
@@ -143,10 +143,10 @@ bool GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
     return true;
 }
 
-SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
-                                            GrFragmentProcessor::ProgramImpl& impl,
-                                            const SkString& input,
-                                            SkString output) {
+SkString GrGLSLProgramBuilder::emitRootFragProc(const GrFragmentProcessor& fp,
+                                                GrFragmentProcessor::ProgramImpl& impl,
+                                                const SkString& input,
+                                                SkString output) {
     SkASSERT(input.size());
 
     // Program builders have a bit of state we need to clear with each effect
@@ -178,10 +178,28 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
     this->writeFPFunction(fp, impl);
 
     if (fp.isBlendFunction()) {
-        fFS.codeAppendf(
-                "%s = %s(%s, half4(1));", output.c_str(), impl.functionName(), input.c_str());
+        if (this->fragmentProcessorHasCoordsParam(&fp)) {
+            fFS.codeAppendf("%s = %s(%s, half4(1), %s);",
+                            output.c_str(),
+                            impl.functionName(),
+                            input.c_str(),
+                            fLocalCoordsVar.c_str());
+        } else {
+            fFS.codeAppendf("%s = %s(%s, half4(1));",
+                            output.c_str(),
+                            impl.functionName(),
+                            input.c_str());
+        }
     } else {
-        fFS.codeAppendf("%s = %s(%s);", output.c_str(), impl.functionName(), input.c_str());
+        if (this->fragmentProcessorHasCoordsParam(&fp)) {
+            fFS.codeAppendf("%s = %s(%s, %s);",
+                            output.c_str(),
+                            impl.functionName(),
+                            input.c_str(),
+                            fLocalCoordsVar.c_str());
+        } else {
+            fFS.codeAppendf("%s = %s(%s);", output.c_str(), impl.functionName(), input.c_str());
+        }
     }
 
     // We have to check that effects and the code they emit are consistent, ie if an effect asks

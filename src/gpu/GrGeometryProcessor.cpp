@@ -63,7 +63,8 @@ void GrGeometryProcessor::TextureSampler::reset(GrSamplerState samplerState,
 
 using ProgramImpl = GrGeometryProcessor::ProgramImpl;
 
-ProgramImpl::FPCoordsMap ProgramImpl::emitCode(EmitArgs& args, const GrPipeline& pipeline) {
+std::tuple<ProgramImpl::FPCoordsMap, GrShaderVar>
+ProgramImpl::emitCode(EmitArgs& args, const GrPipeline& pipeline) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
 
@@ -75,31 +76,31 @@ ProgramImpl::FPCoordsMap ProgramImpl::emitCode(EmitArgs& args, const GrPipeline&
     FPCoordsMap transformMap = this->collectTransforms(args.fVertBuilder,
                                                        args.fVaryingHandler,
                                                        args.fUniformHandler,
+                                                       gpArgs.fLocalCoordShader,
                                                        gpArgs.fLocalCoordVar,
                                                        positionVar,
                                                        pipeline);
 
-    if (args.fGeomProc.willUseTessellationShaders()) {
-        // Tessellation shaders are temporarily responsible for integrating their own code strings
-        // while we work out full support.
-        return transformMap;
+    // Tessellation shaders are temporarily responsible for integrating their own code strings
+    // while we work out full support.
+    if (!args.fGeomProc.willUseTessellationShaders()) {
+        GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
+        // Emit the vertex position to the hardware in the normalized window coordinates it expects.
+        SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
+                 kFloat3_GrSLType == gpArgs.fPositionVar.getType());
+        vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(),
+                                           gpArgs.fPositionVar.getType());
+        if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
+            args.fVaryingHandler->setNoPerspective();
+        }
     }
-
-    GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
-    // Emit the vertex position to the hardware in the normalized window coordinates it expects.
-    SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
-                kFloat3_GrSLType == gpArgs.fPositionVar.getType());
-    vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(),
-                                        gpArgs.fPositionVar.getType());
-    if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
-        args.fVaryingHandler->setNoPerspective();
-    }
-    return transformMap;
+    return {transformMap, gpArgs.fLocalCoordVar};
 }
 
 ProgramImpl::FPCoordsMap ProgramImpl::collectTransforms(GrGLSLVertexBuilder* vb,
                                                         GrGLSLVaryingHandler* varyingHandler,
                                                         GrGLSLUniformHandler* uniformHandler,
+                                                        GrShaderType localCoordsShader,
                                                         const GrShaderVar& localCoordsVar,
                                                         const GrShaderVar& positionVar,
                                                         const GrPipeline& pipeline) {
@@ -112,15 +113,21 @@ ProgramImpl::FPCoordsMap ProgramImpl::collectTransforms(GrGLSLVertexBuilder* vb,
 
     enum class BaseCoord { kNone, kLocal, kPosition };
 
-    auto baseLocalCoordFSVar = [&, baseLocalCoord = GrGLSLVarying()]() mutable {
-        SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
-        if (baseLocalCoord.type() == kVoid_GrSLType) {
-            // Initialize to the GP provided coordinate
-            baseLocalCoord = GrGLSLVarying(localCoordsVar.getType());
-            varyingHandler->addVarying("LocalCoord", &baseLocalCoord);
-            vb->codeAppendf("%s = %s;\n", baseLocalCoord.vsOut(), localCoordsVar.getName().c_str());
+    auto baseLocalCoordFSVar = [&, baseLocalCoordVarying = GrGLSLVarying()]() mutable {
+        if (localCoordsShader == kFragment_GrShaderType) {
+            return localCoordsVar;
         }
-        return baseLocalCoord.fsInVar();
+        SkASSERT(localCoordsShader == kVertex_GrShaderType);
+        SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
+        if (baseLocalCoordVarying.type() == kVoid_GrSLType) {
+            // Initialize to the GP provided coordinate
+            baseLocalCoordVarying = GrGLSLVarying(localCoordsVar.getType());
+            varyingHandler->addVarying("LocalCoord", &baseLocalCoordVarying);
+            vb->codeAppendf("%s = %s;\n",
+                            baseLocalCoordVarying.vsOut(),
+                            localCoordsVar.getName().c_str());
+        }
+        return baseLocalCoordVarying.fsInVar();
     };
 
     bool canUsePosition = positionVar.getType() != kVoid_GrSLType;
@@ -137,28 +144,34 @@ ProgramImpl::FPCoordsMap ProgramImpl::collectTransforms(GrGLSLVertexBuilder* vb,
                                   int lastMatrixTraversalIndex = -1,
                                   BaseCoord baseCoord = BaseCoord::kLocal) mutable -> void {
         ++traversalIndex;
-        switch (fp.sampleUsage().kind()) {
-            case SkSL::SampleUsage::Kind::kNone:
-                // This should only happen at the root. Otherwise how did this FP get added?
-                SkASSERT(!fp.parent());
-                break;
-            case SkSL::SampleUsage::Kind::kPassThrough:
-                break;
-            case SkSL::SampleUsage::Kind::kUniformMatrix:
-                // Update tracking of last matrix and matrix props.
-                hasPerspective |= fp.sampleUsage().hasPerspective();
-                lastMatrixFP = &fp;
-                lastMatrixTraversalIndex = traversalIndex;
-                break;
-            case SkSL::SampleUsage::Kind::kFragCoord:
-                hasPerspective = positionVar.getType() == kFloat3_GrSLType;
-                lastMatrixFP = nullptr;
-                lastMatrixTraversalIndex = -1;
-                baseCoord = BaseCoord::kPosition;
-                break;
-            case SkSL::SampleUsage::Kind::kExplicit:
-                baseCoord = BaseCoord::kNone;
-                break;
+        if (localCoordsShader == kVertex_GrShaderType) {
+            switch (fp.sampleUsage().kind()) {
+                case SkSL::SampleUsage::Kind::kNone:
+                    // This should only happen at the root. Otherwise how did this FP get added?
+                    SkASSERT(!fp.parent());
+                    break;
+                case SkSL::SampleUsage::Kind::kPassThrough:
+                    break;
+                case SkSL::SampleUsage::Kind::kUniformMatrix:
+                    // Update tracking of last matrix and matrix props.
+                    hasPerspective |= fp.sampleUsage().hasPerspective();
+                    lastMatrixFP = &fp;
+                    lastMatrixTraversalIndex = traversalIndex;
+                    break;
+                case SkSL::SampleUsage::Kind::kFragCoord:
+                    hasPerspective = positionVar.getType() == kFloat3_GrSLType;
+                    lastMatrixFP = nullptr;
+                    lastMatrixTraversalIndex = -1;
+                    baseCoord = BaseCoord::kPosition;
+                    break;
+                case SkSL::SampleUsage::Kind::kExplicit:
+                    baseCoord = BaseCoord::kNone;
+                    break;
+            }
+        } else {
+            // If the GP doesn't provide an interpolatable local coord then there is no hope to
+            // lift.
+            baseCoord = BaseCoord::kNone;
         }
 
         auto& [varyingFSVar, hasCoordsParam] = result[&fp];

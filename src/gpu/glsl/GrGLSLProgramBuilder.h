@@ -141,10 +141,10 @@ private:
     /** Adds the root FPs */
     bool emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
     /** Adds a single root FP tree. */
-    SkString emitFragProc(const GrFragmentProcessor&,
-                          GrFragmentProcessor::ProgramImpl&,
-                          const SkString& input,
-                          SkString output);
+    SkString emitRootFragProc(const GrFragmentProcessor& fp,
+                              GrFragmentProcessor::ProgramImpl& impl,
+                              const SkString& input,
+                              SkString output);
     /** Recursive step to write out children FPs' functions before parent's. */
     void writeChildFPFunctions(const GrFragmentProcessor& fp,
                                GrFragmentProcessor::ProgramImpl& impl);
@@ -166,6 +166,7 @@ private:
     int fNumFragmentSamplers;
 
     GrGeometryProcessor::ProgramImpl::FPCoordsMap fFPCoordsMap;
+    GrShaderVar                                   fLocalCoordsVar;
 
     /**
      * Each root processor has an stage index. The GP is stage 0. The first root FP is stage 1,

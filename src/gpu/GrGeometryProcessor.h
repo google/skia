@@ -321,9 +321,10 @@ public:
     /**
      * Emits the code from this geometry processor into the shaders. For any FP in the pipeline that
      * has its input coords implemented by the GP as a varying, the varying will be accessible in
-     * the returned map and should be used when the FP code is emitted.
+     * the returned map and should be used when the FP code is emitted. The FS variable containing
+     * the GP's output local coords is also returned.
      **/
-    FPCoordsMap emitCode(EmitArgs&, const GrPipeline& pipeline);
+    std::tuple<FPCoordsMap, GrShaderVar> emitCode(EmitArgs&, const GrPipeline& pipeline);
 
     /**
      * Called after all effect emitCode() functions, to give the processor a chance to write out
@@ -420,6 +421,10 @@ protected:
         // variable can be an attribute or local variable, but should not itself be a varying.
         // ProgramImpl automatically determines if this must be passed to a FS.
         GrShaderVar fLocalCoordVar;
+        // The GP can specify the local coord var either in the VS or FS. When either is possible
+        // the VS is preferable. It may allow derived coordinates to be interpolated from the VS
+        // instead of computed in the FS per pixel.
+        GrShaderType fLocalCoordShader = kVertex_GrShaderType;
     };
 
     // Helpers for adding code to write the transformed vertex position. The first simple version
@@ -461,6 +466,7 @@ private:
     FPCoordsMap collectTransforms(GrGLSLVertexBuilder* vb,
                                   GrGLSLVaryingHandler* varyingHandler,
                                   GrGLSLUniformHandler* uniformHandler,
+                                  GrShaderType localCoordsShader,
                                   const GrShaderVar& localCoordsVar,
                                   const GrShaderVar& positionVar,
                                   const GrPipeline& pipeline);
