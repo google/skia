@@ -155,7 +155,7 @@ F5 = bool highp_param(float value)
 F6 = bool mediump_param(half value)
 F7 = bool lowp_param(half value)
 
-22 registers, 246 instructions:
+22 registers, 245 instructions:
 0	r0 = uniform32 ptr0 0
 1	r1 = uniform32 ptr0 4
 2	r2 = uniform32 ptr0 8
@@ -398,8 +398,7 @@ loop:
 238	    trace_var 0 r21 r21 $9 = r2
 239	    trace_var 0 r21 r21 $10 = r3
 240	    trace_var 0 r21 r21 $11 = r4
-241	    trace_done 0 r21
-242	    store32 ptr1 r1
-243	    store32 ptr2 r2
-244	    store32 ptr3 r3
-245	    store32 ptr4 r4
+241	    store32 ptr1 r1
+242	    store32 ptr2 r2
+243	    store32 ptr3 r3
+244	    store32 ptr4 r4

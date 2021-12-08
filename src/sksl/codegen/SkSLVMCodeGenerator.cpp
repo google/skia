@@ -82,14 +82,12 @@ namespace {
             fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kExit,
                                           /*data=*/{fnIdx, 0}});
         }
-        void done() override {
-            // TODO(skia:12708): write the trace here
-        }
 
     private:
         SkSL::SkVMDebugTrace* fTrace;
     };
-}  // namespace
+}
+
 
 namespace SkSL {
 
@@ -394,10 +392,6 @@ void SkVMGenerator::writeProgram(SkSpan<skvm::Val> uniforms,
 
     this->setupGlobals(uniforms, device);
     size_t returnSlot = this->writeFunction(function, arguments);
-
-    if (fDebugTrace) {
-        fBuilder->trace_done(fTraceHookID, fTraceMask);
-    }
 
     // Copy the value from the return slot into outReturn.
     SkASSERT(function.declaration().returnType().slotCount() == outReturn.size());

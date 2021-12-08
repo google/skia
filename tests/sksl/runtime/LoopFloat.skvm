@@ -78,7 +78,7 @@ F8 = bool loop_operator_gt()
 F9 = bool loop_operator_eq()
 F10 = bool loop_operator_ne()
 
-41 registers, 735 instructions:
+41 registers, 734 instructions:
 0	r0 = uniform32 ptr0 0
 1	r1 = uniform32 ptr0 4
 2	r2 = uniform32 ptr0 8
@@ -810,8 +810,7 @@ loop:
 727	    trace_var 0 r34 r34 $11 = r33
 728	    trace_var 0 r34 r34 $12 = r35
 729	    trace_var 0 r34 r34 $13 = r36
-730	    trace_done 0 r34
-731	    store32 ptr1 r39
-732	    store32 ptr2 r33
-733	    store32 ptr3 r35
-734	    store32 ptr4 r36
+730	    store32 ptr1 r39
+731	    store32 ptr2 r33
+732	    store32 ptr3 r35
+733	    store32 ptr4 r36
