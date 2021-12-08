@@ -45,7 +45,6 @@ namespace SkRecords {
     M(Save)                                                         \
     M(SaveLayer)                                                    \
     M(SaveBehind)                                                   \
-    M(MarkCTM)                                                      \
     M(SetMatrix)                                                    \
     M(SetM44)                                                       \
     M(Translate)                                                    \
@@ -173,8 +172,6 @@ RECORD(SaveLayer, kHasPaint_Tag,
 RECORD(SaveBehind, 0,
        Optional<SkRect> subset);
 
-RECORD(MarkCTM, 0,
-       SkString name);
 RECORD(SetMatrix, 0,
         TypedMatrix matrix);
 RECORD(SetM44, 0,

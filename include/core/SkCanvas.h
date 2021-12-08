@@ -51,7 +51,6 @@ class SkGlyphRunBuilder;
 class SkGlyphRunList;
 class SkImage;
 class SkImageFilter;
-class SkMarkerStack;
 class SkPaintFilterCanvas;
 class SkPath;
 class SkPicture;
@@ -857,20 +856,6 @@ public:
     */
     void concat(const SkMatrix& matrix);
     void concat(const SkM44&);
-
-    /**
-     *  Record a marker (provided by caller) for the current CTM. This does not change anything
-     *  about the ctm or clip, but does "name" this matrix value, so it can be referenced by
-     *  custom effects (who access it by specifying the same name).
-     *
-     *  Within a save frame, marking with the same name more than once just replaces the previous
-     *  value. However, between save frames, marking with the same name does not lose the marker
-     *  in the previous save frame. It is "visible" when the current save() is balanced with
-     *  a restore().
-     */
-    void markCTM(const char* name);
-
-    bool findMarkedCTM(const char* name, SkM44*) const;
 
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
@@ -2177,7 +2162,6 @@ protected:
     virtual void willRestore() {}
     virtual void didRestore() {}
 
-    virtual void onMarkCTM(const char*) {}
     virtual void didConcat44(const SkM44&) {}
     virtual void didSetM44(const SkM44&) {}
     virtual void didTranslate(SkScalar, SkScalar) {}
@@ -2343,8 +2327,6 @@ private:
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
-
-    sk_sp<SkMarkerStack> fMarkerStack;
 
     // the first N recs that can fit here mean we won't call malloc
     static constexpr int kMCRecSize      = 96; // most recent measurement

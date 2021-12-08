@@ -28,7 +28,6 @@ class SkGlyphRunList;
 class SkImageFilter;
 class SkImageFilterCache;
 struct SkIRect;
-class SkMarkerStack;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
 
@@ -141,11 +140,7 @@ public:
 
     virtual void* getRasterHandle() const { return nullptr; }
 
-    SkMarkerStack* markerStack() const { return fMarkerStack; }
-    void setMarkerStack(SkMarkerStack* ms) { fMarkerStack = ms; }
-
     // SkMatrixProvider interface:
-    bool getLocalToMarker(uint32_t, SkM44* localToMarker) const override;
     bool localToDeviceHitsPixelCenters() const override { return true; }
 
     const SkMatrixProvider& asMatrixProvider() const { return *this; }
@@ -455,8 +450,6 @@ private:
     void privateResize(int w, int h) {
         *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
     }
-
-    SkMarkerStack* fMarkerStack = nullptr;  // does not own this, set in setMarkerStack()
 
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;

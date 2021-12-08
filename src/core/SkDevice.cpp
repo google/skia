@@ -21,7 +21,6 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkLatticeIter.h"
-#include "src/core/SkMarkerStack.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkPathPriv.h"
@@ -99,21 +98,6 @@ SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& dstDevice) const
     // To get the transform from this space to the other device's, transform from our space to
     // global and then from global to the other device.
     return (dstDevice.fGlobalToDevice * fDeviceToGlobal).asM33();
-}
-
-bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
-    // The marker stack stores CTM snapshots, which are "marker to global" matrices.
-    // We ask for the (cached) inverse, which is a "global to marker" matrix.
-    SkM44 globalToMarker;
-    // ID 0 is special, and refers to the CTM (local-to-global)
-    if (fMarkerStack && (id == 0 || fMarkerStack->findMarkerInverse(id, &globalToMarker))) {
-        if (localToMarker) {
-            // globalToMarker will still be the identity if id is zero
-            *localToMarker = globalToMarker * fDeviceToGlobal * fLocalToDevice;
-        }
-        return true;
-    }
-    return false;
 }
 
 static inline bool is_int(float x) {

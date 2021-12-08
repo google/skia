@@ -31,8 +31,6 @@ public:
     const SkMatrix& localToDevice() const { return fLocalToDevice33; }
     const SkM44& localToDevice44() const { return fLocalToDevice; }
 
-    virtual bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const = 0;
-
     virtual bool localToDeviceHitsPixelCenters() const = 0;
 
 private:
@@ -42,73 +40,40 @@ private:
     SkMatrix fLocalToDevice33;  // Cached SkMatrix version of above, for legacy usage
 };
 
+// Logically, this is equivalent to SkSimpleMatrixProvider (below), but we keep it distinct. This
+// is for cases where there is an existing matrix provider, but we're replacing the local-to-device.
 class SkOverrideDeviceMatrixProvider : public SkMatrixProvider {
 public:
     SkOverrideDeviceMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& localToDevice)
-        : SkMatrixProvider(localToDevice)
-        , fParent(parent) {}
-
-    bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
-        return fParent.getLocalToMarker(id, localToMarker);
-    }
+            : SkMatrixProvider(localToDevice) {}
 
     // We've replaced parent's localToDevice matrix,
     // so we can't guarantee localToDevice() hits pixel centers anymore.
     bool localToDeviceHitsPixelCenters() const override { return false; }
-
-private:
-    const SkMatrixProvider& fParent;
 };
 
 class SkPostTranslateMatrixProvider : public SkMatrixProvider {
 public:
     SkPostTranslateMatrixProvider(const SkMatrixProvider& parent, SkScalar dx, SkScalar dy)
-            : SkMatrixProvider(SkM44::Translate(dx, dy) * parent.localToDevice44())
-            , fParent(parent) {}
-
-    // Assume that the post-translation doesn't apply to any marked matrices
-    bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
-        return fParent.getLocalToMarker(id, localToMarker);
-    }
+            : SkMatrixProvider(SkM44::Translate(dx, dy) * parent.localToDevice44()) {}
 
     // parent.localToDevice() is folded into our localToDevice().
     bool localToDeviceHitsPixelCenters() const override { return true; }
-
-private:
-    const SkMatrixProvider& fParent;
 };
 
 class SkPreConcatMatrixProvider : public SkMatrixProvider {
 public:
     SkPreConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& preMatrix)
-            : SkMatrixProvider(parent.localToDevice44() * SkM44(preMatrix))
-            , fParent(parent)
-            , fPreMatrix(preMatrix) {}
-
-    bool getLocalToMarker(uint32_t id, SkM44* localToMarker) const override {
-        if (fParent.getLocalToMarker(id, localToMarker)) {
-            if (localToMarker) {
-                localToMarker->preConcat(fPreMatrix);
-            }
-            return true;
-        }
-        return false;
-    }
+            : SkMatrixProvider(parent.localToDevice44() * SkM44(preMatrix)) {}
 
     // parent.localToDevice() is folded into our localToDevice().
     bool localToDeviceHitsPixelCenters() const override { return true; }
-
-private:
-    const SkMatrixProvider& fParent;
-    const SkMatrix          fPreMatrix;
 };
 
 class SkSimpleMatrixProvider : public SkMatrixProvider {
 public:
     SkSimpleMatrixProvider(const SkMatrix& localToDevice)
         : SkMatrixProvider(localToDevice) {}
-
-    bool getLocalToMarker(uint32_t, SkM44*) const override { return false; }
 
     // No trickiness to reason about here... we take this case to be axiomatically true.
     bool localToDeviceHitsPixelCenters() const override { return true; }

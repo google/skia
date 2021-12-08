@@ -29,6 +29,8 @@ Milestone 98
       - Images with an alpha type of kUnpremul are not automatically premultiplied.
       - Bicubic filtering is not supported. If SkSamplingOptions::useCubic is true, these factories
         will return nullptr.
+  * Removed SkCanvas::markCTM and SkCanvas::findMarkedCTM. These were created to be used with other
+    features that have since been deleted, so they served no purpose.
 
 * * *
 

@@ -93,14 +93,6 @@ void SkNWayCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkNWayCanvas::onMarkCTM(const char* name) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->markCTM(name);
-    }
-    this->INHERITED::onMarkCTM(name);
-}
-
 void SkNWayCanvas::didConcat44(const SkM44& m) {
     Iter iter(fList);
     while (iter.next()) {

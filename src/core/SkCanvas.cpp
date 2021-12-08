@@ -33,7 +33,6 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMSAN.h"
-#include "src/core/SkMarkerStack.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPaintPriv.h"
@@ -403,11 +402,9 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
 
     fSaveCount = 1;
     fMCRec = new (fMCStack.push_back()) MCRec(device.get());
-    fMarkerStack = sk_make_sp<SkMarkerStack>();
 
     // The root device and the canvas should always have the same pixel geometry
     SkASSERT(fProps.pixelGeometry() == device->surfaceProps().pixelGeometry());
-    device->setMarkerStack(fMarkerStack.get());
 
     fSurfaceBase = nullptr;
     fBaseDevice = std::move(device);
@@ -1100,7 +1097,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     // The setDeviceCoordinateSystem applies the prior device's global transform since
     // 'newLayerMapping' only defines the transforms between the two devices and it must be updated
     // to the global coordinate system.
-    newDevice->setMarkerStack(fMarkerStack.get());
     if (!newDevice->setDeviceCoordinateSystem(priorDevice->deviceToGlobal() *
                                               SkM44(newLayerMapping.deviceMatrix()),
                                               SkM44(newLayerMapping.layerMatrix()),
@@ -1192,8 +1188,6 @@ void SkCanvas::internalRestore() {
     // now detach these from fMCRec so we can pop(). Gets freed after its drawn
     std::unique_ptr<Layer> layer = std::move(fMCRec->fLayer);
     std::unique_ptr<BackImage> backImage = std::move(fMCRec->fBackImage);
-
-    fMarkerStack->restore(fMCRec);
 
     // now do the normal restore()
     fMCRec->~MCRec();       // balanced in save()
@@ -1402,19 +1396,6 @@ void SkCanvas::setMatrix(const SkM44& m) {
 
 void SkCanvas::resetMatrix() {
     this->setMatrix(SkM44());
-}
-
-void SkCanvas::markCTM(const char* name) {
-    if (SkCanvasPriv::ValidateMarker(name)) {
-        fMarkerStack->setMarker(SkOpts::hash_fn(name, strlen(name), 0),
-                                this->getLocalToDevice(), fMCRec);
-        this->onMarkCTM(name);
-    }
-}
-
-bool SkCanvas::findMarkedCTM(const char* name, SkM44* mx) const {
-    return SkCanvasPriv::ValidateMarker(name) &&
-           fMarkerStack->findMarker(SkOpts::hash_fn(name, strlen(name), 0), mx);
 }
 
 //////////////////////////////////////////////////////////////////////////////

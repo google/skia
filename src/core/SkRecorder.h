@@ -61,7 +61,6 @@ public:
     void willRestore() override {}
     void didRestore() override;
 
-    void onMarkCTM(const char*) override;
     void didConcat44(const SkM44&) override;
     void didSetM44(const SkM44&) override;
     void didScale(SkScalar, SkScalar) override;

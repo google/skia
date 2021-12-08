@@ -63,16 +63,6 @@ void SkPictureRecord::recordSave() {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onMarkCTM(const char* name) {
-    size_t nameLen = SkWriter32::WriteStringSize(name);
-    size_t size = sizeof(kUInt32Size) + nameLen; // op + name
-    size_t initialOffset = this->addDraw(MARK_CTM, &size);
-    fWriter.writeString(name);
-    this->validate(initialOffset, size);
-
-    this->INHERITED::onMarkCTM(name);
-}
-
 SkCanvas::SaveLayerStrategy SkPictureRecord::getSaveLayerStrategy(const SaveLayerRec& rec) {
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.

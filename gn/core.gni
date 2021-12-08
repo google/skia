@@ -253,7 +253,6 @@ skia_core_sources = [
   "$_src/core/SkMSAN.h",
   "$_src/core/SkMalloc.cpp",
   "$_src/core/SkMallocPixelRef.cpp",
-  "$_src/core/SkMarkerStack.cpp",
   "$_src/core/SkMask.cpp",
   "$_src/core/SkMask.h",
   "$_src/core/SkMaskBlurFilter.cpp",

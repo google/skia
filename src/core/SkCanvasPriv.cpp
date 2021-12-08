@@ -101,23 +101,6 @@ void SkCanvasPriv::GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[]
     *totalMatrixCount = maxMatrixIndex + 1;
 }
 
-bool SkCanvasPriv::ValidateMarker(const char* name) {
-    if (!name) {
-        return false;
-    }
-
-    std::locale loc(std::locale::classic());
-    if (!std::isalpha(*name, loc)) {
-        return false;
-    }
-    while (*(++name)) {
-        if (!std::isalnum(*name, loc) && *name != '_') {
-            return false;
-        }
-    }
-    return true;
-}
-
 #if GR_TEST_UTILS
 
 #if SK_SUPPORT_GPU

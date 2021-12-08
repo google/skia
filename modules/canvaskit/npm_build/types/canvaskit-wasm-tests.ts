@@ -147,12 +147,10 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     canvas.drawText('foo', 1, 2, paint, font);
     canvas.drawTextBlob(textBlob, 10, 20, paint);
     canvas.drawVertices(verts, CK.BlendMode.DstOut, paint);
-    const matrOne = canvas.findMarkedCTM('thing'); // $ExpectType Float32Array | null
     const matrTwo = canvas.getLocalToDevice(); // $ExpectType Float32Array
     const sc = canvas.getSaveCount(); // $ExpectType number
     const matrThree = canvas.getTotalMatrix(); // $ExpectType number[]
     const surface = canvas.makeSurface(imageInfo); // $ExpectType Surface | null
-    canvas.markCTM('more ctm');
     const pixels = canvas.readPixels(85, 1000, {// $Uint8Array | Float32Array | null
         width: 79,
         height: 205,

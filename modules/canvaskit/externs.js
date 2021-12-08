@@ -205,8 +205,6 @@ var CanvasKit = {
     clipPath: function() {},
     getSaveCount: function() {},
     makeSurface: function() {},
-    markCTM: function() {},
-    findMarkedCTM: function() {},
     restore: function() {},
     restoreToCount: function() {},
     rotate: function() {},

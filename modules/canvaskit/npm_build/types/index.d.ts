@@ -1416,13 +1416,6 @@ export interface Canvas extends EmbindObject<Canvas> {
     drawVertices(verts: Vertices, mode: BlendMode, paint: Paint): void;
 
     /**
-     * Returns the 4x4 matrix matching the given marker or null if there was none.
-     * See also markCTM.
-     * @param marker
-     */
-    findMarkedCTM(marker: string): Matrix4x4 | null;
-
-    /**
      * Returns the current transform from local coordinates to the 'device', which for most
      * purposes means pixels.
      */
@@ -1447,15 +1440,6 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param info
      */
     makeSurface(info: ImageInfo): Surface | null;
-
-    /**
-     * Record a marker (provided by caller) for the current CTM. This does not change anything
-     * about the ctm or clip, but does "name" this matrix value, so it can be referenced by
-     * custom effects (who access it by specifying the same name).
-     * See also findMarkedCTM.
-     * @param marker
-     */
-    markCTM(marker: string): void;
 
     /**
      * Returns a TypedArray containing the pixels reading starting at (srcX, srcY) and does not

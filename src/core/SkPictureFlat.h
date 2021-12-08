@@ -106,7 +106,7 @@ enum DrawType {
     DRAW_BEHIND_PAINT,
     CONCAT44,
     CLIP_SHADER_IN_PAINT,
-    MARK_CTM,
+    MARK_CTM, // deprecated
     SET_M44,
 
     DRAW_IMAGE2,

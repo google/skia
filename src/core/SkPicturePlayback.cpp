@@ -613,12 +613,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawVertices(vertices, bmode, paint);
             }
         } break;
-        case MARK_CTM: {
-            SkString name;
-            reader->readString(&name);
-            BREAK_ON_READ_ERROR(reader);
-            canvas->markCTM(name.c_str());
-        } break;
         case RESTORE:
             canvas->restore();
             break;

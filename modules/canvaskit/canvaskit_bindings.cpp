@@ -1117,18 +1117,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
 #endif
         .function("_drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
-        .function("_findMarkedCTM", optional_override([](SkCanvas& self, std::string marker, WASMPointerF32 mPtr) -> bool {
-            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
-            if (!sixteenMatrixValues) {
-                return false; // matrix cannot be null
-            }
-            SkM44 m;
-            if (self.findMarkedCTM(marker.c_str(), &m)) {
-                m.getRowMajor(sixteenMatrixValues);
-                return true;
-            }
-            return false;
-        }))
         // 4x4 matrix functions
         // Just like with getTotalMatrix, we allocate the buffer for the 16 floats to go in from
         // interface.js, so it can also free them when its done.
@@ -1155,9 +1143,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_makeSurface", optional_override([](SkCanvas& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
             return self.makeSurface(toSkImageInfo(sii), nullptr);
         }), allow_raw_pointers())
-        .function("markCTM", optional_override([](SkCanvas& self, std::string marker) {
-            self.markCTM(marker.c_str());
-        }))
 
         .function("_readPixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
                                                       WASMPointerU8 pPtr,
