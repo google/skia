@@ -63,12 +63,11 @@ DEF_GRAPHITE_TEST(UniformTest, reporter) {
 
     // Intentionally does not include ShaderType::kNone, which represents no fragment shading stage
     // and is thus not relevant to uniform extraction/caching.
-    // TODO(robertphillips): Renable gradient shader types when MSL compiles correctly
-    for (auto s : { ShaderCombo::ShaderType::kSolidColor}) {
-                    // ShaderCombo::ShaderType::kLinearGradient,
-                    // ShaderCombo::ShaderType::kRadialGradient,
-                    // ShaderCombo::ShaderType::kSweepGradient,
-                    // ShaderCombo::ShaderType::kConicalGradient }) {
+    for (auto s : { ShaderCombo::ShaderType::kSolidColor,
+                    ShaderCombo::ShaderType::kLinearGradient,
+                    ShaderCombo::ShaderType::kRadialGradient,
+                    ShaderCombo::ShaderType::kSweepGradient,
+                    ShaderCombo::ShaderType::kConicalGradient }) {
         for (auto tm: { SkTileMode::kClamp,
                         SkTileMode::kRepeat,
                         SkTileMode::kMirror,

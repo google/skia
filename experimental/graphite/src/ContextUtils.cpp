@@ -42,7 +42,7 @@ static constexpr Uniform kSolidUniforms[kNumSolidUniforms] {
 
 static const char* kGradientSkSL =
         // TODO: This should use local coords
-        "float2 pos = coord.xy;\n"
+        "float2 pos = sk_FragCoord.xy;\n"
         "float2 delta = point1 - point0;\n"
         "float2 pt = pos - point0;\n"
         "float t = dot(pt, delta) / dot(delta, delta);\n"
@@ -56,7 +56,7 @@ static const char* kGradientSkSL =
         "result = mix(result, colors[3],\n"
         "             clamp((t-offsets[2])/(offsets[3]-offsets[2]),\n"
         "             0, 1));\n"
-        "outColor = result;\n";
+        "outColor = half4(result);\n";
 
 static const char* kSolidColorSkSL = "    outColor = half4(color);\n";
 
@@ -220,8 +220,6 @@ std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(const PaintParams& p) {
         if (gradInfo.fColorCount > kMaxStops) {
             type = SkShader::GradientType::kNone_GradientType;
         }
-        // TODO(robertphillips): Remove once gradient MSL compiles
-        type = SkShader::GradientType::kNone_GradientType;
 
         switch (type) {
             case SkShader::kLinear_GradientType: {
@@ -298,15 +296,14 @@ std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(const PaintParams& p) {
 
 SkSpan<const Uniform> GetUniforms(ShaderCombo::ShaderType shaderType) {
     switch (shaderType) {
+        case ShaderCombo::ShaderType::kNone:
+            return {nullptr, 0};
         case ShaderCombo::ShaderType::kLinearGradient:
+            return SkMakeSpan(kGradientUniforms, kNumGradientUniforms);
         case ShaderCombo::ShaderType::kRadialGradient:
         case ShaderCombo::ShaderType::kSweepGradient:
         case ShaderCombo::ShaderType::kConicalGradient:
-            // TODO(robertphillips): return gradient uniforms when MSL is ready
-            // return SkMakeSpan(kGradientUniforms, kNumGradientUniforms);
-            return SkMakeSpan(kSolidUniforms, kNumSolidUniforms);
-        case ShaderCombo::ShaderType::kNone:
-            return {nullptr, 0};
+        case ShaderCombo::ShaderType::kSolidColor:
         default:
             return SkMakeSpan(kSolidUniforms, kNumSolidUniforms);
     }
@@ -314,15 +311,13 @@ SkSpan<const Uniform> GetUniforms(ShaderCombo::ShaderType shaderType) {
 
 const char* GetShaderSkSL(ShaderCombo::ShaderType shaderType) {
     switch (shaderType) {
+        case ShaderCombo::ShaderType::kNone:
+            return kNoneSkSL;
         case ShaderCombo::ShaderType::kLinearGradient:
+            return kGradientSkSL;
         case ShaderCombo::ShaderType::kRadialGradient:
         case ShaderCombo::ShaderType::kSweepGradient:
         case ShaderCombo::ShaderType::kConicalGradient:
-            // TODO(robertphillips): return gradient MSL when ready
-            (void) kGradientSkSL;
-            return kSolidColorSkSL;
-        case ShaderCombo::ShaderType::kNone:
-            return kNoneSkSL;
         case ShaderCombo::ShaderType::kSolidColor:
         default:
             return kSolidColorSkSL;
