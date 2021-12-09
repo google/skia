@@ -817,41 +817,18 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     size_t nslots = std::max(lVal.slots(), rVal.slots());
 
     auto binary = [&](const std::function <Value(skvm::F32 x, skvm::F32 y)>& f_fn,
-                      const std::function <Value(skvm::I32 x, skvm::I32 y)>& i_fn) -> Value {
+                      const std::function <Value(skvm::I32 x, skvm::I32 y)>& i_fn,
+                      bool foldResults = false) -> Value {
 
-        SkASSERT(op.kind() != Token::Kind::TK_EQEQ &&
-                 op.kind() != Token::Kind::TK_NEQ);
         Value result(nslots);
-        for (size_t slot = 0; slot < nslots; ++slot) {
-            // If one side is scalar, replicate it to all channels
-            skvm::Val L = lVal.slots() == 1 ? lVal[0] : lVal[slot],
-                      R = rVal.slots() == 1 ? rVal[0] : rVal[slot];
-
-            if (nk == Type::NumberKind::kFloat) {
-                result[slot] = i32(f_fn(f32(L), f32(R)));
-            } else {
-                result[slot] = i32(i_fn(i32(L), i32(R)));
-            }
-        }
-        return isAssignment ? this->writeStore(left, result) : result;
-    };
-
-    auto compare = [&](const std::function <Value(skvm::F32 x, skvm::F32 y)>& f_fn,
-                       const std::function <Value(skvm::I32 x, skvm::I32 y)>& i_fn) -> Value {
-
-        SkASSERT(op.kind() == Token::Kind::TK_EQEQ ||
-                 op.kind() == Token::Kind::TK_NEQ);
-        SkASSERT(!isAssignment);
-        Value result(nslots);
-        if (lType.typeKind() == Type::TypeKind::kStruct ||
-            lType.typeKind() == Type::TypeKind::kArray) {
+        if (op.isEquality() && (lType.typeKind() == Type::TypeKind::kStruct ||
+                                lType.typeKind() == Type::TypeKind::kArray)) {
             // Shifting over lVal and rVal
             size_t slotOffset = 0;
-            this->recursiveBinaryCompare
-                    (lVal, lType, rVal, rType, &slotOffset, &result, f_fn, i_fn);
+            this->recursiveBinaryCompare(
+                    lVal, lType, rVal, rType, &slotOffset, &result, f_fn, i_fn);
             SkASSERT(slotOffset == nslots);
         } else {
-            // Just to keep the old code a working in simple cases
             for (size_t slot = 0; slot < nslots; ++slot) {
                 // If one side is scalar, replicate it to all channels
                 skvm::Val L = lVal.slots() == 1 ? lVal[0] : lVal[slot],
@@ -865,15 +842,21 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
             }
         }
 
-        skvm::I32 folded = i32(result[0]);
-        for (size_t i = 1; i < nslots; ++i) {
-            if (op.kind() == Token::Kind::TK_NEQ) {
-                folded |= i32(result[i]);
-            } else {
-                folded &= i32(result[i]);
+        if (foldResults) {
+            // Just to be more explicit here we ask for a parameter and not detect it ourselves
+            SkASSERT(op.isEquality());
+            skvm::I32 folded = i32(result[0]);
+            for (size_t i = 1; i < nslots; ++i) {
+                if (op.kind() == Token::Kind::TK_NEQ) {
+                    folded |= i32(result[i]);
+                } else {
+                    folded &= i32(result[i]);
+                }
             }
+            return folded;
         }
-        return folded;
+
+        return isAssignment ? this->writeStore(left, result) : result;
     };
 
     auto unsupported_f = [&](skvm::F32, skvm::F32) {
@@ -884,12 +867,12 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     switch (op.kind()) {
         case Token::Kind::TK_EQEQ:
             SkASSERT(!isAssignment);
-            return compare([](skvm::F32 x, skvm::F32 y) { return x == y; },
-                           [](skvm::I32 x, skvm::I32 y) { return x == y; });
+            return binary([](skvm::F32 x, skvm::F32 y) { return x == y; },
+                          [](skvm::I32 x, skvm::I32 y) { return x == y; }, /*foldResults=*/ true);
         case Token::Kind::TK_NEQ:
             SkASSERT(!isAssignment);
-            return compare([](skvm::F32 x, skvm::F32 y) { return x != y; },
-                           [](skvm::I32 x, skvm::I32 y) { return x != y; });
+            return binary([](skvm::F32 x, skvm::F32 y) { return x != y; },
+                          [](skvm::I32 x, skvm::I32 y) { return x != y; }, /*foldResults=*/ true);
         case Token::Kind::TK_GT:
             return binary([](skvm::F32 x, skvm::F32 y) { return x > y; },
                           [](skvm::I32 x, skvm::I32 y) { return x > y; });

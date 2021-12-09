@@ -48,6 +48,10 @@ public:
 
     Token::Kind kind() const { return fKind; }
 
+    bool isEquality() const {
+        return fKind == Token::Kind::TK_EQEQ || fKind == Token::Kind::TK_NEQ;
+    }
+
     Precedence getBinaryPrecedence() const;
 
     const char* operatorName() const;
