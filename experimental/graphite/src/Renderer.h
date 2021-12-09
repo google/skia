@@ -11,6 +11,7 @@
 #include "experimental/graphite/src/Attribute.h"
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/EnumBitMask.h"
+#include "experimental/graphite/src/ResourceTypes.h"
 #include "experimental/graphite/src/Uniform.h"
 
 #include "include/core/SkSpan.h"
@@ -70,9 +71,6 @@ public:
     // and then including the function bodies returned here.
     virtual const char* vertexSkSL() const = 0;
 
-    bool          requiresStencil() const { return fDepthStencilSettings.fStencilTestEnabled; }
-    bool          requiresDepth()   const { return fDepthStencilSettings.fDepthTestEnabled ||
-                                                   fDepthStencilSettings.fDepthWriteEnabled; }
     bool          requiresMSAA()    const { return fFlags & Flags::kRequiresMSAA;    }
     bool          performsShading() const { return fFlags & Flags::kPerformsShading; }
 
@@ -81,6 +79,13 @@ public:
     size_t        instanceStride()  const { return fInstanceStride; }
 
     const DepthStencilSettings& depthStencilSettings() const { return fDepthStencilSettings; }
+
+    Mask<DepthStencilFlags> depthStencilFlags() const {
+        return (fDepthStencilSettings.fStencilTestEnabled
+                        ? DepthStencilFlags::kStencil : DepthStencilFlags::kNone) |
+               (fDepthStencilSettings.fDepthTestEnabled || fDepthStencilSettings.fDepthWriteEnabled
+                        ? DepthStencilFlags::kDepth : DepthStencilFlags::kNone);
+    }
 
     size_t numUniforms()            const { return fUniforms.size();      }
     size_t numVertexAttributes()    const { return fVertexAttrs.size();   }
@@ -91,6 +96,7 @@ public:
     SkSpan<const Uniform>   uniforms()           const { return SkMakeSpan(fUniforms);      }
     SkSpan<const Attribute> vertexAttributes()   const { return SkMakeSpan(fVertexAttrs);   }
     SkSpan<const Attribute> instanceAttributes() const { return SkMakeSpan(fInstanceAttrs); }
+
 
     // TODO: Actual API to do things
     // 1. Provide stencil settings
@@ -193,9 +199,9 @@ public:
 
     const char* name()            const { return fName.c_str();    }
     int         numRenderSteps()  const { return fStepCount;       }
-    bool        requiresStencil() const { return fRequiresStencil; }
-    bool        requiresDepth()   const { return fRequiresDepth; }
     bool        requiresMSAA()    const { return fRequiresMSAA;    }
+
+    Mask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 
 private:
     // max render steps is 4, so just spell the options out for now...
@@ -215,17 +221,12 @@ private:
     template<size_t N>
     Renderer(const char* name, std::array<const RenderStep*, N> steps)
             : fName(name)
-            , fStepCount(SkTo<int>(N))
-            , fRequiresStencil(false)
-            , fRequiresDepth(false)
-            , fRequiresMSAA(false) {
+            , fStepCount(SkTo<int>(N)) {
         static_assert(N <= kMaxRenderSteps);
         SkDEBUGCODE(bool performsShading = false;)
         for (int i = 0 ; i < fStepCount; ++i) {
             fSteps[i] = steps[i];
-            fRequiresStencil |= fSteps[i]->requiresStencil();
-            fRequiresDepth |= fSteps[i]->requiresDepth();
-            fRequiresMSAA |= fSteps[i]->requiresMSAA();
+            fDepthStencilFlags |= fSteps[i]->depthStencilFlags();
             SkDEBUGCODE(performsShading |= fSteps[i]->performsShading());
         }
         SkASSERT(performsShading); // at least one step needs to actually shade
@@ -239,9 +240,9 @@ private:
 
     SkString fName;
     int      fStepCount;
-    bool     fRequiresStencil;
-    bool     fRequiresDepth;
-    bool     fRequiresMSAA;
+    bool     fRequiresMSAA = false;
+
+    Mask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
 };
 
 } // skgpu namespace

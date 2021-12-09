@@ -125,17 +125,10 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
     std::tie(desc.fColorAttachment.fLoadOp, desc.fColorAttachment.fStoreOp) = drawPass->ops();
     desc.fClearColor = drawPass->clearColor();
 
-    skgpu::Mask<DepthStencilFlags> dsFlags = DepthStencilFlags::kNone;
-    if (drawPass->requiresDepth()) {
-        dsFlags |= DepthStencilFlags::kDepth;
-    }
-    if (drawPass->requiresStencil()) {
-        dsFlags |= DepthStencilFlags::kStencil;
-    }
-    if (dsFlags != DepthStencilFlags::kNone) {
+    if (drawPass->depthStencilFlags() != DepthStencilFlags::kNone) {
         const Caps* caps = recorder->context()->priv().gpu()->caps();
         desc.fDepthStencilAttachment.fTextureInfo =
-                caps->getDefaultDepthStencilTextureInfo(dsFlags,
+                caps->getDefaultDepthStencilTextureInfo(drawPass->depthStencilFlags(),
                                                         1 /*sampleCount*/, // TODO: MSAA
                                                         Protected::kNo);
         // TODO: handle clears

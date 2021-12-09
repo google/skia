@@ -10,6 +10,7 @@
 
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
+#include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -59,9 +60,9 @@ public:
     std::array<float, 4> clearColor() const { return fClearColor; }
 
     bool requiresDstTexture() const { return false;            }
-    bool requiresStencil()    const { return fRequiresStencil; }
-    bool requiresDepth()      const { return fRequiresDepth; }
     bool requiresMSAA()       const { return fRequiresMSAA;    }
+
+    Mask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 
     size_t vertexBufferSize()  const { return 0; }
     size_t uniformBufferSize() const { return 0; }
@@ -193,9 +194,8 @@ private:
     std::pair<LoadOp, StoreOp> fOps;
     std::array<float, 4>       fClearColor;
 
-    bool fRequiresStencil;
-    bool fRequiresDepth;
-    bool fRequiresMSAA;
+    Mask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
+    bool                    fRequiresMSAA = false;
 };
 
 } // namespace skgpu

@@ -217,10 +217,7 @@ DrawPass::DrawPass(sk_sp<TextureProxy> target,
         , fTarget(std::move(target))
         , fBounds(SkIRect::MakeEmpty())
         , fOps(ops)
-        , fClearColor(clearColor)
-        , fRequiresStencil(false)
-        , fRequiresDepth(false)
-        , fRequiresMSAA(false) {
+        , fClearColor(clearColor) {
     // TODO: Tune this estimate and the above "itemPerBlock" value for the command buffer sequence
     // After merging, etc. one pipeline per recorded draw+step combo is likely unnecessary.
     fPipelineDescs.reserve(renderStepCount);
@@ -321,8 +318,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         }
 
         passBounds.join(draw.fClip.drawBounds());
-        drawPass->fRequiresStencil |= draw.fRenderer.requiresStencil();
-        drawPass->fRequiresDepth |= draw.fRenderer.requiresDepth();
+        drawPass->fDepthStencilFlags |= draw.fRenderer.depthStencilFlags();
         drawPass->fRequiresMSAA |= draw.fRenderer.requiresMSAA();
     }
 
