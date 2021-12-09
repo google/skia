@@ -20252,9 +20252,9 @@
           "version": "git_revision:bad9cab78683fb56589867eaf035a048da903374"
         },
         {
-          "name": "skia/bots/bazel",
-          "path": "bazel",
-          "version": "version:3"
+          "name": "skia/bots/bazelisk",
+          "path": "bazelisk",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -20267,20 +20267,8 @@
         "Housekeeper-PerCommit-PushBazelAppsFromWASMDockerImage",
         "--workdir",
         ".",
-        "--gerrit_project",
-        "buildbot",
-        "--gerrit_url",
-        "https://skia-review.googlesource.com",
-        "--repo",
-        "<(REPO)",
-        "--revision",
-        "<(REVISION)",
-        "--patch_issue",
-        "<(ISSUE)",
-        "--patch_set",
-        "<(PATCHSET)",
-        "--patch_server",
-        "<(CODEREVIEW_SERVER)"
+        "--skia_revision",
+        "<(REVISION)"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64",
@@ -20298,7 +20286,7 @@
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "bazel/bin"
+          "bazelisk"
         ]
       },
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"

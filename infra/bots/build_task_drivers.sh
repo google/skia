@@ -24,7 +24,6 @@ go install -v go.skia.org/infra/infra/bots/task_drivers/build_push_docker_image
 go install -v go.skia.org/infra/infra/bots/task_drivers/canary
 go install -v go.skia.org/infra/infra/bots/task_drivers/push_apps_from_skia_image
 go install -v go.skia.org/infra/infra/bots/task_drivers/push_apps_from_wasm_image
-go install -v go.skia.org/infra/infra/bots/task_drivers/push_bazel_apps_from_wasm_image
 go install -v go.skia.org/infra/infra/bots/task_drivers/update_go_deps
 
 goos=$2
