@@ -45,7 +45,6 @@ var (
 
 const (
 	debuggerImageName  = "debugger-app"
-	jsfiddleImageName  = "jsfiddle"
 	particlesImageName = "particles"
 	shaderImageName    = "shaders"
 	skottieImageName   = "skottie"
@@ -57,20 +56,6 @@ var (
 		"ROOT=/WORKSPACE",
 	}
 )
-
-func buildPushJsFiddleImage(ctx context.Context, tag, repo, wasmProductsDir, configDir string, topic *pubsub.Topic) error {
-	tempDir, err := os_steps.TempDir(ctx, "", "")
-	if err != nil {
-		return err
-	}
-	image := fmt.Sprintf("gcr.io/skia-public/%s", jsfiddleImageName)
-	cmd := []string{"/bin/sh", "-c", "cd /home/skia/golib/src/go.skia.org/infra/jsfiddle && make release_ci"}
-	volumes := []string{
-		fmt.Sprintf("%s:/OUT", wasmProductsDir),
-		fmt.Sprintf("%s:/WORKSPACE", tempDir),
-	}
-	return docker.BuildPushImageFromInfraImage(ctx, "JsFiddle", image, tag, repo, configDir, tempDir, "prod", topic, cmd, volumes, infraCommonEnv, nil)
-}
 
 func buildPushSkottieImage(ctx context.Context, tag, repo, wasmProductsDir, configDir string, topic *pubsub.Topic) error {
 	tempDir, err := os_steps.TempDir(ctx, "", "")
@@ -197,9 +182,6 @@ func main() {
 	}
 
 	// Build and push all apps of interest below.
-	if err := buildPushJsFiddleImage(ctx, tag, rs.Repo, wasmProductsDir, configDir, topic); err != nil {
-		td.Fatal(ctx, err)
-	}
 	if err := buildPushSkottieImage(ctx, tag, rs.Repo, wasmProductsDir, configDir, topic); err != nil {
 		td.Fatal(ctx, err)
 	}
