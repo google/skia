@@ -15,6 +15,11 @@ class SkCanvas;
 class SkPaint;
 class SkTextBlob;
 
+// You can use GrSlug to simulate drawTextBlob by defining the following at compile time.
+//    SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG
+// For Skia, add this to your args.gn file.
+//    extra_cflags = ["-D", "SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG"]
+
 // GrSlug encapsulates an SkTextBlob at a specific origin, using a specific paint. It can be
 // manipulated using matrix and clip changes to the canvas. If the canvas is transformed, then
 // the GrSlug will also transform with smaller glyphs using bi-linear interpolation to render. You

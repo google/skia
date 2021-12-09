@@ -48,9 +48,6 @@
 #include "src/image/SkSurface_Gpu.h"
 #include "src/utils/SkUTF.h"
 
-// Define this for testing text blob draw using a slug.
-// #define SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG
-
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
 

@@ -505,7 +505,8 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
             rContext->priv().getSDFTControl(sdc->surfaceProps().isUseDeviceIndependentFonts());
 
     SkGlyphRunListPainter* painter = sdc->glyphRunPainter();
-    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, skPaint, drawMatrix, control, painter);
+    sk_sp<GrTextBlob> blob = GrTextBlob::Make(
+            glyphRunList, skPaint, drawMatrix, false, control, painter);
 
     if (blob->subRunList().isEmpty()) {
         return nullptr;

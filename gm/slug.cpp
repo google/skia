@@ -25,7 +25,7 @@
 #include "include/private/chromium/GrSlug.h"
 #include "tools/ToolUtils.h"
 
-#if SK_SUPPORT_GPU && defined(SK_EXPERIMENTAL_ADD_ATLAS_PADDING)
+#if SK_SUPPORT_GPU && defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
 class SlugGM : public skiagm::GM {
 public:
     SlugGM(const char* txt)

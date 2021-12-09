@@ -31,9 +31,8 @@
 #include "src/gpu/v1/Device_v1.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
-// Defining SK_EXPERIMENTAL_ADD_ATLAS_PADDING will cause all glyphs in the atlas to have a one
-// pixel border to support bi-lerping on demand.
-// #define SK_EXPERIMENTAL_ADD_ATLAS_PADDING
+// Note:
+//   In order to use GrSlugs, you need to set the fSupportBilerpFromGlyphAtlas on GrContextOptions.
 
 // Naming conventions
 //  * drawMatrix - the CTM from the canvas.
@@ -713,11 +712,11 @@ void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) 
 
 std::tuple<bool, int>
 DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    #if defined(SK_EXPERIMENTAL_ADD_ATLAS_PADDING)
+    if (fBlob->supportBilerpAtlas()) {
         return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
-    #else
+    } else {
         return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target, false);
-    #endif
+    }
 }
 
 // The 99% case. No clip. Non-color only.
@@ -1553,6 +1552,7 @@ GrTextBlob::~GrTextBlob() = default;
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                                    const SkPaint& paint,
                                    const SkMatrix& positionMatrix,
+                                   bool supportBilerpAtlas,
                                    const GrSDFTControl& control,
                                    SkGlyphRunListPainter* painter) {
     // The difference in alignment from the per-glyph data to the SubRun;
@@ -1573,8 +1573,9 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
     void* allocation = ::operator new (allocationSize);
 
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(paint);
-    sk_sp<GrTextBlob> blob{new (allocation)
-                            GrTextBlob(bytesNeededForSubRun, positionMatrix, initialLuminance)};
+    sk_sp<GrTextBlob> blob{
+        new (allocation) GrTextBlob(
+                bytesNeededForSubRun, supportBilerpAtlas, positionMatrix, initialLuminance)};
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
     for (auto& glyphRun : glyphRunList) {
@@ -1627,10 +1628,12 @@ const GrTextBlob::Key& GrTextBlob::key() const { return fKey; }
 size_t GrTextBlob::size() const { return fSize; }
 
 GrTextBlob::GrTextBlob(int allocSize,
+                       bool supportBilerpAtlas,
                        const SkMatrix& positionMatrix,
                        SkColor initialLuminance)
         : fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2}
         , fSize{allocSize}
+        , fSupportBilerpAtlas{supportBilerpAtlas}
         , fInitialPositionMatrix{positionMatrix}
         , fInitialLuminance{initialLuminance} { }
 
@@ -1698,6 +1701,7 @@ public:
     using DevicePosition = skvx::Vec<2, int16_t>;
 
     DirectMaskSubRunNoCache(GrMaskFormat format,
+                            bool supportBilerpAtlas,
                             const SkRect& bounds,
                             SkSpan<const DevicePosition> devicePositions,
                             GlyphVector&& glyphs);
@@ -1705,6 +1709,7 @@ public:
     static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    sk_sp<SkStrike>&& strike,
                                    GrMaskFormat format,
+                                   bool supportBilerpAtlas,
                                    GrSubRunAllocator* alloc);
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
@@ -1732,6 +1737,9 @@ public:
 private:
     const GrMaskFormat fMaskFormat;
 
+    // Support bilerping from the atlas.
+    const bool fSupportBilerpAtlas;
+
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fGlyphDeviceBounds;
     const SkSpan<const DevicePosition> fLeftTopDevicePos;
@@ -1745,10 +1753,12 @@ private:
 };
 
 DirectMaskSubRunNoCache::DirectMaskSubRunNoCache(GrMaskFormat format,
+                                                 bool supportBilerpAtlas,
                                                  const SkRect& deviceBounds,
                                                  SkSpan<const DevicePosition> devicePositions,
                                                  GlyphVector&& glyphs)
         : fMaskFormat{format}
+        , fSupportBilerpAtlas{supportBilerpAtlas}
         , fGlyphDeviceBounds{deviceBounds}
         , fLeftTopDevicePos{devicePositions}
         , fGlyphs{std::move(glyphs)} { }
@@ -1756,6 +1766,7 @@ DirectMaskSubRunNoCache::DirectMaskSubRunNoCache(GrMaskFormat format,
 GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                                  sk_sp<SkStrike>&& strike,
                                                  GrMaskFormat format,
+                                                 bool supportBilerpAtlas,
                                                  GrSubRunAllocator* alloc) {
     DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(drawables.size());
 
@@ -1793,7 +1804,7 @@ GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkP
 
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     return alloc->makeUnique<DirectMaskSubRunNoCache>(
-            format, runBounds.rect(), leftTop,
+            format, supportBilerpAtlas, runBounds.rect(), leftTop,
             GlyphVector{std::move(strike), {glyphIDs, goodPosCount}});
 }
 
@@ -1875,11 +1886,11 @@ void DirectMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *
 
 std::tuple<bool, int>
 DirectMaskSubRunNoCache::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    #if defined(SK_EXPERIMENTAL_ADD_ATLAS_PADDING)
+    if (fSupportBilerpAtlas) {
         return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
-    #else
+    } else {
         return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target, false);
-    #endif
+    }
 }
 
 // The 99% case. No clip. Non-color only.
@@ -2389,7 +2400,10 @@ void GrSubRunNoCachePainter::processDeviceMasks(
     auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& drawable,
                                         GrMaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
-        this->draw(DirectMaskSubRunNoCache::Make(drawable, std::move(runStrike), format, fAlloc));
+        const bool padAtlas =
+                fSDC->recordingContext()->priv().options().fSupportBilerpFromGlyphAtlas;
+        this->draw(DirectMaskSubRunNoCache::Make(
+                drawable, std::move(runStrike), format, padAtlas, fAlloc));
     };
 
     add_multi_mask_format(addGlyphsWithSameFormat, drawables, std::move(strike));
@@ -2818,11 +2832,7 @@ void DirectMaskSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cac
 
 std::tuple<bool, int>
 DirectMaskSubRunSlug::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
-    #if defined(SK_EXPERIMENTAL_ADD_ATLAS_PADDING)
-        return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
-    #else
-        return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target, false);
-    #endif
+    return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
 }
 
 // The 99% case. No clip. Non-color only.
@@ -3662,6 +3672,8 @@ sk_sp<GrSlug>
 SurfaceDrawContext::convertGlyphRunListToSlug(const SkMatrixProvider& viewMatrix,
                                               const SkGlyphRunList& glyphRunList,
                                               const SkPaint& paint) {
+    SkASSERT(fContext->priv().options().fSupportBilerpFromGlyphAtlas);
+
     GrSDFTControl control =
             this->recordingContext()->priv().getSDFTControl(
                     this->surfaceProps().isUseDeviceIndependentFonts());
