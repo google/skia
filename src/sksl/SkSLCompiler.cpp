@@ -675,13 +675,28 @@ bool Compiler::toGLSL(Program& program, String* out) {
     return result;
 }
 
+bool Compiler::toHLSL(Program& program, OutputStream& out) {
+    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toHLSL");
+    String hlsl;
+    if (!this->toHLSL(program, &hlsl)) {
+        return false;
+    }
+    out.writeString(hlsl);
+    return true;
+}
+
 bool Compiler::toHLSL(Program& program, String* out) {
     String spirv;
     if (!this->toSPIRV(program, &spirv)) {
         return false;
     }
 
-    return SPIRVtoHLSL(spirv, out);
+    if (!SPIRVtoHLSL(spirv, out)) {
+        fErrorText += "HLSL cross-compilation not enabled";
+        return false;
+    }
+
+    return true;
 }
 
 bool Compiler::toMetal(Program& program, OutputStream& out) {

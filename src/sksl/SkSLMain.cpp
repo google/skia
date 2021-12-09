@@ -394,6 +394,11 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toMetal(program, out);
                 });
+    } else if (outputPath.ends_with(".hlsl")) {
+        return compileProgram(
+                [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    return compiler.toHLSL(program, out);
+                });
     } else if (outputPath.ends_with(".skvm")) {
         return compileProgramForSkVM(
                 [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
@@ -505,8 +510,8 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
             return ResultCode::kOutputError;
         }
     } else {
-        printf("expected output path to end with one of: .glsl, .metal, .spirv, .asm.frag, .skvm, "
-               ".stage, .asm.vert (got '%s')\n", outputPath.c_str());
+        printf("expected output path to end with one of: .glsl, .metal, .hlsl, .spirv, .asm.frag, "
+               ".skvm, .stage, .asm.vert, .dehydrated.sksl (got '%s')\n", outputPath.c_str());
         return ResultCode::kConfigurationError;
     }
     return ResultCode::kSuccess;

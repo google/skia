@@ -627,6 +627,7 @@ if (skia_compile_sksl_tests) {
     defines = [
       "SKSL_STANDALONE",
       "SK_DISABLE_TRACING",
+      "SK_ENABLE_SPIRV_CROSS",
       "SK_ENABLE_SPIRV_VALIDATION",
     ]
     sources = [
@@ -668,6 +669,7 @@ if (skia_compile_sksl_tests) {
       ":run_sksllex",
       "//third_party/externals/spirv-tools:spvtools",
       "//third_party/externals/spirv-tools:spvtools_val",
+      "//third_party/spirv-cross:spirv_cross",
     ]
   }
 
@@ -951,7 +953,10 @@ optional("gpu") {
   }
 
   if (skia_use_direct3d) {
-    public_defines += [ "SK_DIRECT3D" ]
+    public_defines += [
+      "SK_DIRECT3D",
+      "SK_ENABLE_SPIRV_CROSS",
+    ]
     deps += [
       "//third_party/d3d12allocator",
       "//third_party/spirv-cross:spirv_cross",

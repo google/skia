@@ -7,7 +7,7 @@
 
 #include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
 
-#if defined(SK_DIRECT3D)
+#if defined(SK_ENABLE_SPIRV_CROSS)
 
 #include "third_party/externals/spirv-cross/spirv_hlsl.hpp"
 
