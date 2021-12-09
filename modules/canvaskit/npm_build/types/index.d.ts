@@ -303,6 +303,9 @@ export interface CanvasKit {
     /**
      * Decodes the given bytes into an animated image. Returns null if the bytes were invalid.
      * The passed in bytes will be copied into the WASM heap, so the caller can dispose of them.
+     *
+     * The returned AnimatedImage will be "pointing to" the first frame, i.e. currentFrameDuration
+     * and makeImageAtCurrentFrame will be referring to the first frame.
      * @param bytes
      */
     MakeAnimatedImageFromEncoded(bytes: Uint8Array | ArrayBuffer): AnimatedImage | null;
@@ -1015,7 +1018,12 @@ export interface SkSLUniform {
  */
 export interface AnimatedImage extends EmbindObject<AnimatedImage> {
     /**
-     * Decodes the next frame. Returns -1 when the animation is on the last frame.
+     * Returns the length of the current frame in ms.
+     */
+    currentFrameDuration(): number;
+    /**
+     * Decodes the next frame. Returns the length of that new frame in ms.
+     * Returns -1 when the animation is on the last frame.
      */
     decodeNextFrame(): number;
 

@@ -172,6 +172,7 @@ describe('Core canvas behavior', () => {
         expect(aImg.width()).toEqual(320);
         expect(aImg.height()).toEqual(240);
         expect(aImg.getFrameCount()).toEqual(60);
+        expect(aImg.currentFrameDuration()).toEqual(60);
 
         const drawCurrentFrame = function(x, y) {
             let img = aImg.makeImageAtCurrentFrame();

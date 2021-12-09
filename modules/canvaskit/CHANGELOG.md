@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking
  - `Canvas.drawVertices` and `Canvas.drawPatch` treat the default blend mode differently.
    See https://bugs.chromium.org/p/skia/issues/detail?id=12662.
+ - `Canvas.markCTM` and `Canvas.findMarkedCTM` have been removed. They were effectively no-ops.
 
 ### Added
  - Rough implementation of `measureText` to Canvas2D emulation layer. For accurate numbers, clients
    should use a real shaping library, like SkParagraph.
+ - `AnimatedImage.currentFrameDuration` has been added, as well as some clarifying documentation.
 
 ## [0.31.0] - 2021-11-16
 

@@ -65,6 +65,7 @@ function animatedImageTests(CK: CanvasKit) {
     const r = img.getRepetitionCount(); // $ExpectType number
     const h = img.height(); // $ExpectType number
     const still = img.makeImageAtCurrentFrame(); // $ExpectType Image | null
+    const ms = img.currentFrameDuration(); // $ExpectType number
     img.reset();
     const w = img.width(); // $ExpectType number
 }

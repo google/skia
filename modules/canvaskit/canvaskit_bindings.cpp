@@ -896,6 +896,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkAnimatedImage>("AnimatedImage")
         .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<AnimatedImage>")
+        .function("currentFrameDuration", &SkAnimatedImage::currentFrameDuration)
         .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame)
         .function("getFrameCount", &SkAnimatedImage::getFrameCount)
         .function("getRepetitionCount", &SkAnimatedImage::getRepetitionCount)
