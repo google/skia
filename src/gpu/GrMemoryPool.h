@@ -88,6 +88,7 @@ public:
      */
     size_t preallocSize() const {
         // Account for the debug-only fields in this count, the offset is 0 for release builds
+        static_assert(std::is_standard_layout<GrMemoryPool>::value, "");
         return offsetof(GrMemoryPool, fAllocator) + fAllocator.preallocSize();
     }
 
@@ -119,8 +120,14 @@ private:
     GrMemoryPool(size_t preallocSize, size_t minAllocSize);
 
 #ifdef SK_DEBUG
-    SkTHashSet<int>  fAllocatedIDs;
-    int              fAllocationCount;
+    // Because this exists preallocSize wants to use offsetof, so keep GrMemoryPool standard layout
+    // without depending on SkTHashSet being standard layout. Note that std::unique_ptr may not be
+    // standard layout.
+    struct Debug{
+        SkTHashSet<int>  fAllocatedIDs;
+        int              fAllocationCount;
+    };
+    Debug* fDebug{nullptr};
 #endif
 
     SkBlockAllocator fAllocator; // Must be the last field, in order to use extra allocated space

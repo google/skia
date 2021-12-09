@@ -32,20 +32,24 @@ std::unique_ptr<GrMemoryPool> GrMemoryPool::Make(size_t preallocSize, size_t min
 GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize)
         : fAllocator(SkBlockAllocator::GrowthPolicy::kFixed, minAllocSize,
                      preallocSize - offsetof(GrMemoryPool, fAllocator) - sizeof(SkBlockAllocator)) {
-    SkDEBUGCODE(fAllocationCount = 0;)
+    SkDEBUGCODE(
+        fDebug = new Debug;
+        fDebug->fAllocationCount = 0;
+    )
 }
 
 GrMemoryPool::~GrMemoryPool() {
     this->reportLeaks();
-    SkASSERT(0 == fAllocationCount);
+    SkASSERT(0 == fDebug->fAllocationCount);
     SkASSERT(this->isEmpty());
+    SkDEBUGCODE(delete fDebug;)
 }
 
 void GrMemoryPool::reportLeaks() const {
 #ifdef SK_DEBUG
     int i = 0;
-    int n = fAllocatedIDs.count();
-    for (int id : fAllocatedIDs) {
+    int n = fDebug->fAllocatedIDs.count();
+    for (int id : fDebug->fAllocatedIDs) {
         if (++i == 1) {
             SkDebugf("Leaked %d IDs (in no particular order): %d%s", n, id, (n == i) ? "\n" : "");
         } else if (i < 11) {
@@ -85,8 +89,8 @@ void* GrMemoryPool::allocate(size_t size) {
     }();
 
     // You can set a breakpoint here when a leaked ID is allocated to see the stack frame.
-    fAllocatedIDs.add(header->fID);
-    fAllocationCount++;
+    fDebug->fAllocatedIDs.add(header->fID);
+    fDebug->fAllocationCount++;
 #endif
 
     // User-facing pointer is after the header padding
@@ -104,8 +108,8 @@ void GrMemoryPool::release(void* p) {
 #endif
 
 #if defined(SK_DEBUG)
-    fAllocatedIDs.remove(header->fID);
-    fAllocationCount--;
+    fDebug->fAllocatedIDs.remove(header->fID);
+    fDebug->fAllocationCount--;
 #endif
 
     SkBlockAllocator::Block* block = fAllocator.owningBlock<kAlignment>(header, header->fStart);
@@ -138,8 +142,8 @@ void GrMemoryPool::validate() const {
     for (const auto* b : fAllocator.blocks()) {
         allocCount += b->metadata();
     }
-    SkASSERT(allocCount == fAllocationCount);
-    SkASSERT(fAllocationCount == fAllocatedIDs.count());
+    SkASSERT(allocCount == fDebug->fAllocationCount);
+    SkASSERT(fDebug->fAllocationCount == fDebug->fAllocatedIDs.count());
     SkASSERT(allocCount > 0 || this->isEmpty());
 }
 #endif
