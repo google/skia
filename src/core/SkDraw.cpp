@@ -1054,7 +1054,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
     matrix.setTranslate(r.fLeft, r.fTop);
     SkPaint paintWithShader = make_paint_with_image(paint, bitmap, SkSamplingOptions(), &matrix);
     SkDraw draw(*this);
-    SkOverrideDeviceMatrixProvider matrixProvider(*fMatrixProvider, SkMatrix::I());
+    SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
     draw.fMatrixProvider = &matrixProvider;
     // call ourself with a rect
     draw.drawRect(r, paintWithShader);
@@ -1137,7 +1137,7 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
     matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft),
                         -SkIntToScalar(mask.fBounds.fTop));
 
-    SkSimpleMatrixProvider matrixProvider(matrix);
+    SkMatrixProvider matrixProvider(matrix);
     draw.fRC             = &clip;
     draw.fMatrixProvider = &matrixProvider;
     paint.setAntiAlias(true);

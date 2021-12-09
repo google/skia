@@ -168,7 +168,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         SkPaint clipPaint;  // just need default values
         SkColorType clipCT = kRGBA_8888_SkColorType;
         SkColorSpace* clipCS = nullptr;
-        SkSimpleMatrixProvider clipMatrixProvider(SkMatrix::I());
+        SkMatrixProvider clipMatrixProvider(SkMatrix::I());
         SkStageRec rec = {clipP, alloc, clipCT, clipCS, clipPaint, nullptr, clipMatrixProvider};
         if (as_SB(clipShader)->appendStages(rec)) {
             struct Storage {
@@ -189,7 +189,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // If there's a color filter it comes next.
     if (auto colorFilter = paint.getColorFilter()) {
-        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+        SkMatrixProvider matrixProvider(SkMatrix::I());
         SkStageRec rec = {
             colorPipeline, alloc, dst.colorType(), dst.colorSpace(), paint, nullptr, matrixProvider
         };

@@ -107,7 +107,7 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     SkRasterPipeline    pipeline(&alloc);
     pipeline.append_constant_color(&alloc, color.vec());
     SkPaint blankPaint;
-    SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+    SkMatrixProvider matrixProvider(SkMatrix::I());
     SkStageRec rec = {
         &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, blankPaint, nullptr, matrixProvider
     };

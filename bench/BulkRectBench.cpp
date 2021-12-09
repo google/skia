@@ -148,7 +148,7 @@ protected:
 
         auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
         SkMatrix view = canvas->getLocalToDeviceAs3x3();
-        SkSimpleMatrixProvider matrixProvider(view);
+        SkMatrixProvider matrixProvider(view);
         GrPaint grPaint;
         SkPaintToGrPaint(context, sdc->colorInfo(), paint, matrixProvider, &grPaint);
         sdc->drawQuadSet(nullptr, std::move(grPaint), GrAA::kYes, view, batch, kRectCount);

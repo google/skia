@@ -526,7 +526,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
 #if GR_TEST_UTILS
 
 GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
-    SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
+    SkMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
 
     SkPaint skPaint;
     skPaint.setColor(random->nextU());

@@ -47,7 +47,7 @@ static void draw_paint_with_dmsaa(skgpu::v1::SurfaceDrawContext* sdc,
     GrPaint paint;
     paint.setColor4f(color);
     paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
-    sdc->drawVertices(nullptr, std::move(paint), SkSimpleMatrixProvider(SkMatrix::I()), vertices);
+    sdc->drawVertices(nullptr, std::move(paint), SkMatrixProvider(SkMatrix::I()), vertices);
 }
 
 static bool fuzzy_equals(const float a[4], const SkPMColor4f& b) {

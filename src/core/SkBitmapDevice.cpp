@@ -572,7 +572,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
     SkBitmap resultBM;
     if (src->getROPixels(&resultBM)) {
         SkDraw draw;
-        SkSimpleMatrixProvider matrixProvider(localToDevice);
+        SkMatrixProvider matrixProvider(localToDevice);
         draw.fDst = fBitmap.pixmap();
         draw.fMatrixProvider = &matrixProvider;
         draw.fRC = &fRCStack.rc();

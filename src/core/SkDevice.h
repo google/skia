@@ -140,9 +140,6 @@ public:
 
     virtual void* getRasterHandle() const { return nullptr; }
 
-    // SkMatrixProvider interface:
-    bool localToDeviceHitsPixelCenters() const override { return true; }
-
     const SkMatrixProvider& asMatrixProvider() const { return *this; }
 
     void save() { this->onSave(); }

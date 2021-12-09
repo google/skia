@@ -419,7 +419,7 @@ private:
             SkRasterClip rasterClip;
             rasterClip.setRect(devPathBounds);
             draw.fRC = &rasterClip;
-            SkSimpleMatrixProvider matrixProvider(drawMatrix);
+            SkMatrixProvider matrixProvider(drawMatrix);
             draw.fMatrixProvider = &matrixProvider;
             draw.fDst = dst;
 
@@ -499,7 +499,7 @@ private:
         rasterClip.setRect(devPathBounds);
         draw.fRC = &rasterClip;
         drawMatrix.postTranslate(translateX, translateY);
-        SkSimpleMatrixProvider matrixProvider(drawMatrix);
+        SkMatrixProvider matrixProvider(drawMatrix);
         draw.fMatrixProvider = &matrixProvider;
         draw.fDst = dst;
 

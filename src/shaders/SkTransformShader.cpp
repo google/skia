@@ -17,7 +17,7 @@ skvm::Color SkTransformShader::onProgram(skvm::Builder* b,
                       const SkColorInfo& dst,
                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Coord newLocal = this->applyMatrix(b, matrices.localToDevice(), local, uniforms);
-    SkSimpleMatrixProvider matrixProvider{SkMatrix::I()};
+    SkMatrixProvider matrixProvider{SkMatrix::I()};
     return fShader.program(
             b, device, newLocal, color, matrixProvider, localM, dst, uniforms, alloc);
 }

@@ -113,7 +113,7 @@ protected:
                 std::unique_ptr<GrFragmentProcessor> baseFP;
                 if (paintType >= SK_ARRAY_COUNT(kPaintColors)) {
                     GrColorInfo colorInfo;
-                    GrFPArgs args(rContext, SkSimpleMatrixProvider(SkMatrix::I()), &colorInfo);
+                    GrFPArgs args(rContext, SkMatrixProvider(SkMatrix::I()), &colorInfo);
                     baseFP = as_SB(fShader)->asFragmentProcessor(args);
                 } else {
                     baseFP = GrFragmentProcessor::MakeColor(

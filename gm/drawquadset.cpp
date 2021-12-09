@@ -84,7 +84,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
             if (sdc) {
                 // Use non-public API to leverage general GrPaint capabilities
                 SkMatrix view = canvas->getTotalMatrix();
-                SkSimpleMatrixProvider matrixProvider(view);
+                SkMatrixProvider matrixProvider(view);
                 GrPaint grPaint;
                 SkPaintToGrPaint(rContext, sdc->colorInfo(), paint, matrixProvider, &grPaint);
                 sdc->fillRectWithEdgeAA(nullptr, std::move(grPaint), GrAA::kYes,

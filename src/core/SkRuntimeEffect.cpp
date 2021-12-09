@@ -792,7 +792,8 @@ public:
                 get_xformed_uniforms(fEffect.get(), fUniforms, colorInfo.colorSpace());
         SkASSERT(uniforms);
 
-        GrFPArgs childArgs(context, SkSimpleMatrixProvider(SkMatrix::I()), &colorInfo);
+        SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
+        GrFPArgs childArgs(context, matrixProvider, &colorInfo);
         return make_effect_fp(fEffect,
                               "runtime_color_filter",
                               std::move(uniforms),
@@ -816,9 +817,9 @@ public:
 
         auto sampleShader = [&](int ix, skvm::Coord coord) {
             if (SkShader* shader = fChildren[ix].shader()) {
-                SkSimpleMatrixProvider mats{SkMatrix::I()};
-                return as_SB(shader)->program(p, coord, coord, c, mats, /*localM=*/nullptr,
-                                              colorInfo, uniforms, alloc);
+                SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
+                return as_SB(shader)->program(p, coord, coord, c, matrixProvider,
+                                              /*localM=*/nullptr, colorInfo, uniforms, alloc);
             }
             return c;
         };
@@ -993,9 +994,9 @@ public:
 
         auto sampleShader = [&](int ix, skvm::Coord coord) {
             if (SkShader* shader = fChildren[ix].shader()) {
-                SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                return as_SB(shader)->program(p, device, coord, paint, mats, /*localM=*/nullptr,
-                                              colorInfo, uniforms, alloc);
+                SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
+                return as_SB(shader)->program(p, device, coord, paint, matrixProvider,
+                                              /*localM=*/nullptr, colorInfo, uniforms, alloc);
             }
             return paint;
         };
@@ -1104,9 +1105,9 @@ public:
 
         auto sampleShader = [&](int ix, skvm::Coord coord) {
             if (SkShader* shader = fChildren[ix].shader()) {
-                SkSimpleMatrixProvider mats{SkMatrix::I()};
-                return as_SB(shader)->program(p, coord, coord, src, mats, /*localM=*/nullptr,
-                                              colorInfo, uniforms, alloc);
+                SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
+                return as_SB(shader)->program(p, coord, coord, src, matrixProvider,
+                                              /*localM=*/nullptr, colorInfo, uniforms, alloc);
             }
             return src;
         };
@@ -1242,7 +1243,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
         uniforms = get_xformed_uniforms(this, std::move(uniforms), resultInfo.colorSpace());
         SkASSERT(uniforms);
 
-        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+        SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
         GrColorInfo colorInfo(resultInfo.colorInfo());
         GrFPArgs args(rContext, matrixProvider, &colorInfo);
         SkSTArray<8, std::unique_ptr<GrFragmentProcessor>> childFPs;

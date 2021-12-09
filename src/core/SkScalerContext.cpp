@@ -523,7 +523,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     sk_bzero(dst.writable_addr(), dst.computeByteSize());
 
     SkDraw  draw;
-    SkSimpleMatrixProvider matrixProvider(matrix);
+    SkMatrixProvider matrixProvider(matrix);
     draw.fDst            = dst;
     draw.fRC             = &clip;
     draw.fMatrixProvider = &matrixProvider;

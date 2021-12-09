@@ -50,7 +50,7 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegi
                               uint8_t alpha) {
     SkMatrix translatedMatrix = matrix;
     translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
-    SkSimpleMatrixProvider matrixProvider(translatedMatrix);
+    SkMatrixProvider matrixProvider(translatedMatrix);
     fDraw.fMatrixProvider = &matrixProvider;
 
     fDraw.drawRect(rect, get_paint(op, aa, alpha));
@@ -60,7 +60,7 @@ void GrSWMaskHelper::drawRRect(const SkRRect& rrect, const SkMatrix& matrix, SkR
                                GrAA aa, uint8_t alpha) {
     SkMatrix translatedMatrix = matrix;
     translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
-    SkSimpleMatrixProvider matrixProvider(translatedMatrix);
+    SkMatrixProvider matrixProvider(translatedMatrix);
     fDraw.fMatrixProvider = &matrixProvider;
 
     fDraw.drawRRect(rrect, get_paint(op, aa, alpha));
@@ -77,7 +77,7 @@ void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matri
 
     SkMatrix translatedMatrix = matrix;
     translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
-    SkSimpleMatrixProvider matrixProvider(translatedMatrix);
+    SkMatrixProvider matrixProvider(translatedMatrix);
     fDraw.fMatrixProvider = &matrixProvider;
 
     SkPath path;
@@ -96,7 +96,7 @@ void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkR
 
     SkMatrix translatedMatrix = matrix;
     translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
-    SkSimpleMatrixProvider matrixProvider(translatedMatrix);
+    SkMatrixProvider matrixProvider(translatedMatrix);
     fDraw.fMatrixProvider = &matrixProvider;
 
     if (shape.inverted()) {

@@ -712,7 +712,7 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
                          hasIndices);
     }
 
-    SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrix(random));
+    SkMatrixProvider matrixProvider(GrTest::TestMatrix(random));
 
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(random);
 

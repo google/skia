@@ -142,7 +142,7 @@ protected:
 #endif
 
     bool onAppendStages(const SkStageRec& rec) const override {
-        SkOverrideDeviceMatrixProvider matrixProvider(rec.fMatrixProvider, fCTM);
+        SkOverrideDeviceMatrixProvider matrixProvider(fCTM);
         SkStageRec newRec = {
             rec.fPipeline,
             rec.fAlloc,
@@ -160,7 +160,7 @@ protected:
                           const SkMatrixProvider& matrices, const SkMatrix* localM,
                           const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        SkOverrideDeviceMatrixProvider matrixProvider(matrices, fCTM);
+        SkOverrideDeviceMatrixProvider matrixProvider(fCTM);
         return as_SB(fProxyShader)->program(p, device,local, paint,
                                             matrixProvider,localM, dst,
                                             uniforms,alloc);
@@ -184,7 +184,7 @@ std::unique_ptr<GrFragmentProcessor> SkCTMShader::asFragmentProcessor(
         return nullptr;
     }
 
-    auto ctmProvider = SkOverrideDeviceMatrixProvider(args.fMatrixProvider, fCTM);
+    auto ctmProvider = SkOverrideDeviceMatrixProvider(fCTM);
     auto base = as_SB(fProxyShader)->asFragmentProcessor(
         GrFPArgs::WithPreLocalMatrix(args.withNewMatrixProvider(ctmProvider),
                                      this->getLocalMatrix()));

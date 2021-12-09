@@ -189,7 +189,7 @@ bool SkPixmap::erase(const SkColor4f& color, SkColorSpace* cs, const SkIRect* su
     SkRasterClip rc{clip};
 
     SkDraw draw;
-    SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+    SkMatrixProvider matrixProvider(SkMatrix::I());
     draw.fDst            = *this;
     draw.fMatrixProvider = &matrixProvider;
     draw.fRC             = &rc;

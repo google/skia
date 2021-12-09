@@ -770,6 +770,6 @@ SkVMBlitter* SkVMBlitter::Make(const SkPixmap& device,
     bool ok = true;
     auto blitter = alloc->make<SkVMBlitter>(
             device, paint, &sprite, SkIPoint{left,top},
-            SkSimpleMatrixProvider{SkMatrix{}}, std::move(clip), &ok);
+            SkMatrixProvider{SkMatrix{}}, std::move(clip), &ok);
     return ok ? blitter : nullptr;
 }

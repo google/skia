@@ -306,7 +306,7 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
                                              foreground->alphaType(), ctx.colorSpace(),
                                              kPremul_SkAlphaType);
 
-        GrFPArgs args(rContext, SkSimpleMatrixProvider(SkMatrix::I()), &info.colorInfo());
+        GrFPArgs args(rContext, SkMatrixProvider(SkMatrix::I()), &info.colorInfo());
 
         fp = as_BB(fBlender)->asFragmentProcessor(std::move(fgFP), std::move(fp), args);
     }
