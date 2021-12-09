@@ -216,10 +216,10 @@ static bool recursive_edge_intersect(const Line& u, SkPoint u0, SkPoint u1,
                           (float) (0.5 * u0.fY + 0.5 * u1.fY)};
             sScale = 0.5;
             if (*s >= 0.5) {
-                u1 = uM;
+                u0 = uM;
                 sShift = 0.5;
             } else {
-                u0 = uM;
+                u1 = uM;
             }
         }
         if (vNeedsSplit) {
@@ -227,10 +227,10 @@ static bool recursive_edge_intersect(const Line& u, SkPoint u0, SkPoint u1,
                           (float) (0.5 * v0.fY + 0.5 * v1.fY)};
             tScale = 0.5;
             if (*t >= 0.5) {
-                v1 = vM;
+                v0 = vM;
                 tShift = 0.5;
             } else {
-                v0 = vM;
+                v1 = vM;
             }
         }
 
@@ -937,29 +937,44 @@ bool GrTriangulator::intersectEdgePair(Edge* left, Edge* right, EdgeList* active
     if (left->fTop == right->fTop || left->fBottom == right->fBottom) {
         return false;
     }
+
+    // Check if the lines intersect as determined by isLeftOf and isRightOf, since that is the
+    // source of ground truth. It may suggest an intersection even if Edge::intersect() did not have
+    // the precision to check it. In this case we are explicitly correcting the edge topology to
+    // match the sided-ness checks.
+    Edge* split = nullptr;
+    Vertex* splitAt = nullptr;
     if (c.sweep_lt(left->fTop->fPoint, right->fTop->fPoint)) {
         if (!left->isLeftOf(right->fTop)) {
-            rewind(activeEdges, current, right->fTop, c);
-            return this->splitEdge(left, right->fTop, activeEdges, current, c);
+            split = left;
+            splitAt = right->fTop;
         }
     } else {
         if (!right->isRightOf(left->fTop)) {
-            rewind(activeEdges, current, left->fTop, c);
-            return this->splitEdge(right, left->fTop, activeEdges, current, c);
+            split = right;
+            splitAt = left->fTop;
         }
     }
     if (c.sweep_lt(right->fBottom->fPoint, left->fBottom->fPoint)) {
         if (!left->isLeftOf(right->fBottom)) {
-            rewind(activeEdges, current, right->fBottom, c);
-            return this->splitEdge(left, right->fBottom, activeEdges, current, c);
+            split = left;
+            splitAt = right->fBottom;
         }
     } else {
         if (!right->isRightOf(left->fBottom)) {
-            rewind(activeEdges, current, left->fBottom, c);
-            return this->splitEdge(right, left->fBottom, activeEdges, current, c);
+            split = right;
+            splitAt = left->fBottom;
         }
     }
-    return false;
+
+    if (!split) {
+        return false;
+    }
+
+    // Rewind to the top of the edge that is "moving" since this topology correction can change the
+    // geometry of the split edge.
+    rewind(activeEdges, current, split->fTop, c);
+    return this->splitEdge(split, splitAt, activeEdges, current, c);
 }
 
 Edge* GrTriangulator::makeConnectingEdge(Vertex* prev, Vertex* next, EdgeType type,
