@@ -32,6 +32,8 @@ struct SkVMSlotInfo {
     SkSL::Type::NumberKind  numberKind = SkSL::Type::NumberKind::kNonnumeric;
     /** Where is this variable located in the program? */
     int                     line;
+    /** If this slot holds a function's return value, its FunctionInfo index; if not, -1. */
+    int                     fnReturnValue;
 };
 
 struct SkVMFunctionInfo {

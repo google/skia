@@ -185,10 +185,10 @@ private:
     int getDebugFunctionInfo(const FunctionDeclaration& decl);
 
     /** Used by `createSlot` to add this variable to the SkVMSlotInfo array inside SkVMDebugTrace.*/
-    void addDebugSlotInfo(String varName, const Type& type, int line);
+    void addDebugSlotInfo(String varName, const Type& type, int line, int fnReturnValue);
 
     /** Used by `getSlot` to create a new slot on its first access. */
-    size_t createSlot(const String& name, const Type& type, int line);
+    size_t createSlot(const String& name, const Type& type, int line, int fnReturnValue);
 
     /**
      * Returns the slot holding v's Val(s). Allocates storage if this is first time 'v' is
@@ -578,7 +578,10 @@ void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
     fSlots[slot].val = value;
 }
 
-void SkVMGenerator::addDebugSlotInfo(String varName, const Type& type, int line) {
+void SkVMGenerator::addDebugSlotInfo(String varName,
+                                     const Type& type,
+                                     int line,
+                                     int fnReturnValue) {
     SkASSERT(fDebugTrace);
     switch (type.typeKind()) {
         case Type::TypeKind::kArray: {
@@ -586,16 +589,14 @@ void SkVMGenerator::addDebugSlotInfo(String varName, const Type& type, int line)
             const Type& elemType = type.componentType();
             for (int slot = 0; slot < nslots; ++slot) {
                 this->addDebugSlotInfo(varName + "[" + to_string(slot) + "]",
-                                       elemType,
-                                       line);
+                                       elemType, line, fnReturnValue);
             }
             break;
         }
         case Type::TypeKind::kStruct: {
             for (const Type::Field& field : type.fields()) {
                 this->addDebugSlotInfo(varName + "." + field.fName,
-                                       *field.fType,
-                                       line);
+                                       *field.fType, line, fnReturnValue);
             }
             break;
         }
@@ -617,6 +618,7 @@ void SkVMGenerator::addDebugSlotInfo(String varName, const Type& type, int line)
                 slotInfo.componentIndex = slot;
                 slotInfo.numberKind = numberKind;
                 slotInfo.line = line;
+                slotInfo.fnReturnValue = fnReturnValue;
                 fDebugTrace->fSlotInfo.push_back(std::move(slotInfo));
             }
             break;
@@ -624,7 +626,10 @@ void SkVMGenerator::addDebugSlotInfo(String varName, const Type& type, int line)
     }
 }
 
-size_t SkVMGenerator::createSlot(const String& name, const Type& type, int line) {
+size_t SkVMGenerator::createSlot(const String& name,
+                                 const Type& type,
+                                 int line,
+                                 int fnReturnValue) {
     size_t slot   = fSlots.size(),
            nslots = type.slotCount();
 
@@ -634,7 +639,7 @@ size_t SkVMGenerator::createSlot(const String& name, const Type& type, int line)
 
         // Append slot names and types to our debug slot-info table.
         fDebugTrace->fSlotInfo.reserve(slot + nslots);
-        this->addDebugSlotInfo(name, type, line);
+        this->addDebugSlotInfo(name, type, line, fnReturnValue);
 
         // Confirm that we added the expected number of slots.
         SkASSERT(fDebugTrace->fSlotInfo.size() == (slot + nslots));
@@ -652,7 +657,7 @@ size_t SkVMGenerator::getSlot(const Variable& v) {
         return entry->second;
     }
 
-    size_t slot = this->createSlot(String(v.name()), v.type(), v.fLine);
+    size_t slot = this->createSlot(String(v.name()), v.type(), v.fLine, /*fnReturnValue=*/-1);
     fVariableMap[&v] = slot;
     return slot;
 }
@@ -663,9 +668,13 @@ size_t SkVMGenerator::getSlot(const FunctionDefinition& fn) {
         return entry->second;
     }
 
-    size_t slot = this->createSlot("[" + fn.declaration().name() + "].result",
-                                   fn.declaration().returnType(),
-                                   fn.fLine);
+    const FunctionDeclaration& decl = fn.declaration();
+    int fnReturnValue = fDebugTrace ? this->getDebugFunctionInfo(decl) : -1;
+
+    size_t slot = this->createSlot("[" + decl.name() + "].result",
+                                   decl.returnType(),
+                                   fn.fLine,
+                                   fnReturnValue);
     fReturnValueMap[&fn] = slot;
     return slot;
 }

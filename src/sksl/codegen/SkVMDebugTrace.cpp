@@ -167,6 +167,9 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
         json.appendS32("index", info.componentIndex);
         json.appendS32("kind", (int)info.numberKind);
         json.appendS32("line", info.line);
+        if (info.fnReturnValue >= 0) {
+            json.appendS32("retval", info.fnReturnValue);
+        }
         json.endObject();
     }
 
@@ -254,6 +257,7 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
         const skjson::NumberValue* index   = (*element)["index"];
         const skjson::NumberValue* kind    = (*element)["kind"];
         const skjson::NumberValue* line    = (*element)["line"];
+        const skjson::NumberValue* retval  = (*element)["retval"];
         if (!name || !columns || !rows || !index || !kind || !line) {
             return false;
         }
@@ -264,6 +268,7 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
         info.componentIndex = **index;
         info.numberKind = (SkSL::Type::NumberKind)(int)**kind;
         info.line = **line;
+        info.fnReturnValue = retval ? **retval : -1;
     }
 
     const skjson::ArrayValue* functions = (*root)["functions"];
