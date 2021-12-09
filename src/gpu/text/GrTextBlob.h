@@ -250,13 +250,6 @@ public:
 private:
     GrTextBlob(int allocSize, const SkMatrix& positionMatrix, SkColor initialLuminance);
 
-    template<typename AddSingleMaskFormat>
-    void addMultiMaskFormat(
-            AddSingleMaskFormat addSingle,
-            const SkZip<SkGlyphVariant, SkPoint>& drawables,
-            sk_sp<SkStrike>&& strike,
-            SkScalar strikeToSourceScale);
-
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             sk_sp<SkStrike>&& strike) override;
