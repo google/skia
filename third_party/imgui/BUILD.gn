@@ -13,10 +13,17 @@ third_party("imgui") {
   public_defines = [ "IMGUI_ENABLE_OSX_DEFAULT_CLIPBOARD_FUNCTIONS" ]
 
   sources = [
+    "../externals/imgui/imconfig.h",
     "../externals/imgui/imgui.cpp",
+    "../externals/imgui/imgui.h",
     "../externals/imgui/imgui_demo.cpp",
     "../externals/imgui/imgui_draw.cpp",
+    "../externals/imgui/imgui_internal.h",
+    "../externals/imgui/imgui_tables.cpp",
     "../externals/imgui/imgui_widgets.cpp",
+    "../externals/imgui/imstb_rectpack.h",
+    "../externals/imgui/imstb_textedit.h",
+    "../externals/imgui/imstb_truetype.h",
     "../externals/imgui/misc/cpp/imgui_stdlib.cpp",
   ]
 }

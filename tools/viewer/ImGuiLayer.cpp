@@ -76,7 +76,7 @@ void ImGuiLayer::setScaleFactor(float scaleFactor) {
     atlas.Clear();
     ImFontConfig cfg;
     cfg.SizePixels = 13 * scaleFactor;
-    atlas.AddFontDefault(&cfg)->DisplayOffset.y = scaleFactor;
+    atlas.AddFontDefault(&cfg);
     build_ImFontAtlas(atlas, fFontPaint);
 }
 
