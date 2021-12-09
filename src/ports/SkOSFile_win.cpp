@@ -20,6 +20,10 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+void sk_fsync(FILE* f) {
+    _commit(sk_fileno(f));
+}
+
 bool sk_exists(const char *path, SkFILE_Flags flags) {
     int mode = 0; // existence
     if (flags & kRead_SkFILE_Flag) {

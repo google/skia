@@ -26,11 +26,6 @@
 #endif
 #endif
 
-// For _POSIX_VERSION
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-#include <unistd.h>
-#endif
-
 constexpr float SK_FloatSqrt2 = 1.41421356f;
 constexpr float SK_FloatPI    = 3.14159265f;
 constexpr double SK_DoublePI  = 3.14159265358979323846264338327950288;

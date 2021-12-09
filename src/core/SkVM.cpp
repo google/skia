@@ -36,6 +36,10 @@
     #endif
 #endif
 
+#if !defined(SK_BUILD_FOR_WIN)
+#include <unistd.h>
+#endif
+
 // #define SKVM_LLVM_WAIT_FOR_COMPILATION
 
 bool gSkVMAllowJIT{false};

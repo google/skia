@@ -24,6 +24,13 @@
 #include "src/ports/SkOSFile_ios.h"
 #endif
 
+void sk_fsync(FILE* f) {
+#if !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__) && !defined(_NEWLIB_VERSION)
+    int fd = fileno(f);
+    fsync(fd);
+#endif
+}
+
 bool sk_exists(const char *path, SkFILE_Flags flags) {
     int mode = F_OK;
     if (flags & kRead_SkFILE_Flag) {

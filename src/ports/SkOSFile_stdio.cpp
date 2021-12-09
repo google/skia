@@ -12,10 +12,6 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-#ifdef SK_BUILD_FOR_UNIX
-#include <unistd.h>
-#endif
-
 #ifdef _WIN32
 #include <direct.h>
 #include <io.h>
@@ -126,14 +122,6 @@ size_t sk_fwrite(const void* buffer, size_t byteCount, FILE* f) {
 void sk_fflush(FILE* f) {
     SkASSERT(f);
     fflush(f);
-}
-
-void sk_fsync(FILE* f) {
-#if !defined(_WIN32) && !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__) \
-        && !defined(_NEWLIB_VERSION)
-    int fd = fileno(f);
-    fsync(fd);
-#endif
 }
 
 size_t sk_ftell(FILE* f) {
