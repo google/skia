@@ -13,7 +13,6 @@
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/codegen/SkVMDebugTrace.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -46,6 +45,7 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #include <algorithm>
 #include <unordered_map>

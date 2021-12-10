@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkStream.h"
-#include "src/sksl/codegen/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "tests/Test.h"
 
 DEF_TEST(SkVMDebugTraceSetSource, r) {

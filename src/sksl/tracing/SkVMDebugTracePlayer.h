@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/codegen/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkBitSet.h"
 
 namespace SkSL {

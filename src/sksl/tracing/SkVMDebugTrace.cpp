@@ -6,7 +6,7 @@
  */
 
 #include "src/core/SkStreamPriv.h"
-#include "src/sksl/codegen/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"
 

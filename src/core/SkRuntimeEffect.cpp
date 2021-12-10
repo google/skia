@@ -30,9 +30,9 @@
 #include "src/sksl/SkSLSharedCompiler.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/codegen/SkVMDebugTrace.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"

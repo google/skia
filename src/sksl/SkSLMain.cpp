@@ -18,9 +18,9 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/codegen/SkVMDebugTrace.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #include "spirv-tools/libspirv.hpp"
 
