@@ -554,14 +554,6 @@ size_t SkVMGenerator::writeFunction(const FunctionDefinition& function,
 
     if (fDebugTrace) {
         fBuilder->trace_exit(fTraceHookID, this->mask(), fTraceMask, funcIndex);
-
-        if (fProgram.fConfig->fSettings.fAllowTraceVarInSkVMDebugTrace) {
-            size_t nslots = function.declaration().returnType().slotCount();
-            for (size_t i = 0; i < nslots; ++i) {
-                fBuilder->trace_var(fTraceHookID, this->mask(), fTraceMask,
-                                    returnSlot + i, i32(fSlots[returnSlot + i].val));
-            }
-        }
     }
 
     return returnSlot;
@@ -1871,8 +1863,10 @@ void SkVMGenerator::writeReturnStatement(const ReturnStatement& r) {
         size_t slot = currentFunction().fReturnSlot;
         size_t nslots = r.expression()->type().slotCount();
         for (size_t i = 0; i < nslots; ++i) {
-            fSlots[slot + i].val = this->writeConditionalStore(fSlots[slot + i].val, val[i],
-                                                               returnsHere);
+            fSlots[slot + i].writtenTo = false;
+            skvm::Val conditionalStore = this->writeConditionalStore(fSlots[slot + i].val, val[i],
+                                                                     returnsHere);
+            this->writeToSlot(slot + i, conditionalStore);
         }
     }
 

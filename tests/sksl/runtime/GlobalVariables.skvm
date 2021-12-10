@@ -32,11 +32,11 @@ loop:
 17	    trace_var 0 r7 r7 $2 = r5
 18	    trace_exit 0 r7 r7 F1
 19	    trace_line 0 r7 r7 L13
-20	    trace_exit 0 r7 r7 F0
-21	    trace_var 0 r7 r7 $3 = r1
-22	    trace_var 0 r7 r7 $4 = r5
-23	    trace_var 0 r7 r7 $5 = r1
-24	    trace_var 0 r7 r7 $6 = r5
+20	    trace_var 0 r7 r7 $3 = r1
+21	    trace_var 0 r7 r7 $4 = r5
+22	    trace_var 0 r7 r7 $5 = r1
+23	    trace_var 0 r7 r7 $6 = r5
+24	    trace_exit 0 r7 r7 F0
 25	    store32 ptr1 r1
 26	    store32 ptr2 r5
 27	    store32 ptr3 r1

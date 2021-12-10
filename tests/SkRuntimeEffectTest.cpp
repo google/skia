@@ -579,11 +579,11 @@ enter half4 main(float2 p)
   val.x = 0
   val.y = 1
   line 4
+  [main].result.x = 0
+  [main].result.y = 1
+  [main].result.z = 0
+  [main].result.w = 1
 exit half4 main(float2 p)
-[main].result.x = 0
-[main].result.y = 1
-[main].result.z = 0
-[main].result.w = 1
 )",
                     "Trace output does not match expectation:\n%.*s\n",
                     (int)dump.size(), dump.data());
