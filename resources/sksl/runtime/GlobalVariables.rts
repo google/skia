@@ -1,4 +1,4 @@
-/*#pragma settings NoInline*/
+/*#pragma settings NoInline SkVMDebugTrace*/
 
 const float gInitialized = -1.0;
 float gInitializedFromOther = -gInitialized;

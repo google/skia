@@ -1,3 +1,4 @@
+const float gInitialized_0 = -1.0;
 float gInitializedFromOther_0 = 1.0;
 float gUninitialized_0;
 void init_globals_0();

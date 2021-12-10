@@ -1,8 +1,43 @@
-2 registers, 6 instructions:
-0	r0 = splat 0 (0)
-1	r1 = splat 3F800000 (1)
+$0 = gInitialized (float, L3)
+$1 = gInitializedFromOther (float, L4)
+$2 = gUninitialized (float, L5)
+$3 = [main].result (float4 : slot 1/4, L11)
+$4 = [main].result (float4 : slot 2/4, L11)
+$5 = [main].result (float4 : slot 3/4, L11)
+$6 = [main].result (float4 : slot 4/4, L11)
+$7 = xy (float2 : slot 1/2, L11)
+$8 = xy (float2 : slot 2/2, L11)
+F0 = float4 main(float2 xy)
+F1 = void init_globals()
+
+8 registers, 29 instructions:
+0	r0 = uniform32 ptr0 0
+1	r1 = splat 0 (0)
+2	r2 = splat 3F000000 (0.5)
+3	r3 = eq_f32 r0 r2
+4	r4 = splat BF800000 (-1)
+5	r5 = splat 3F800000 (1)
 loop:
-2	    store32 ptr1 r0
-3	    store32 ptr2 r1
-4	    store32 ptr3 r0
-5	    store32 ptr4 r1
+6	    r6 = index
+7	    r7 = eq_f32 r6 r2
+8	    r7 = bit_and r7 r3
+9	    trace_var 0 r7 r7 $0 = r4
+10	    trace_var 0 r7 r7 $1 = r5
+11	    trace_enter 0 r7 r7 F0
+12	    trace_var 0 r7 r7 $7 = r6
+13	    trace_var 0 r7 r7 $8 = r0
+14	    trace_line 0 r7 r7 L12
+15	    trace_enter 0 r7 r7 F1
+16	    trace_line 0 r7 r7 L8
+17	    trace_var 0 r7 r7 $2 = r5
+18	    trace_exit 0 r7 r7 F1
+19	    trace_line 0 r7 r7 L13
+20	    trace_exit 0 r7 r7 F0
+21	    trace_var 0 r7 r7 $3 = r1
+22	    trace_var 0 r7 r7 $4 = r5
+23	    trace_var 0 r7 r7 $5 = r1
+24	    trace_var 0 r7 r7 $6 = r5
+25	    store32 ptr1 r1
+26	    store32 ptr2 r5
+27	    store32 ptr3 r1
+28	    store32 ptr4 r5

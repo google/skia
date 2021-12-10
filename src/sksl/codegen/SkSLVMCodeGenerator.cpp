@@ -633,21 +633,23 @@ size_t SkVMGenerator::createSlot(const String& name,
     size_t slot   = fSlots.size(),
            nslots = type.slotCount();
 
-    if (fDebugTrace) {
-        // Our debug slot-info table should always have the same length as the actual slot table.
-        SkASSERT(fDebugTrace->fSlotInfo.size() == slot);
+    if (nslots > 0) {
+        if (fDebugTrace) {
+            // Our debug slot-info table should have the same length as the actual slot table.
+            SkASSERT(fDebugTrace->fSlotInfo.size() == slot);
 
-        // Append slot names and types to our debug slot-info table.
-        fDebugTrace->fSlotInfo.reserve(slot + nslots);
-        this->addDebugSlotInfo(name, type, line, fnReturnValue);
+            // Append slot names and types to our debug slot-info table.
+            fDebugTrace->fSlotInfo.reserve(slot + nslots);
+            this->addDebugSlotInfo(name, type, line, fnReturnValue);
 
-        // Confirm that we added the expected number of slots.
-        SkASSERT(fDebugTrace->fSlotInfo.size() == (slot + nslots));
+            // Confirm that we added the expected number of slots.
+            SkASSERT(fDebugTrace->fSlotInfo.size() == (slot + nslots));
+        }
+
+        // Create brand new slots initialized to zero.
+        skvm::Val initialValue = fBuilder->splat(0.0f).id;
+        fSlots.insert(fSlots.end(), nslots, Slot{initialValue});
     }
-
-    // Create brand new slots initialized to zero.
-    skvm::Val initialValue = fBuilder->splat(0.0f).id;
-    fSlots.insert(fSlots.end(), nslots, Slot{initialValue});
     return slot;
 }
 
