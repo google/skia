@@ -142,6 +142,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "sksl_metal_tests", Rules: []string{"//resources/sksl:sksl_metal_tests"}},
 		{Var: "sksl_spirv_tests", Rules: []string{"//resources/sksl:sksl_spirv_tests"}},
 		{Var: "sksl_wgsl_tests", Rules: []string{"//resources/sksl:sksl_wgsl_tests"}},
+		{Var: "sksl_inverse_hyperbolic_intrinsics_tests",
+			Rules: []string{"//resources/sksl:sksl_inverse_hyperbolic_intrinsics_tests"}},
 		{Var: "sksl_shared_tests", Rules: []string{"//resources/sksl:sksl_shared_tests"}},
 		{Var: "sksl_folding_tests", Rules: []string{"//resources/sksl:sksl_folding_tests"}},
 		{Var: "sksl_inliner_tests", Rules: []string{"//resources/sksl:sksl_inliner_tests"}},

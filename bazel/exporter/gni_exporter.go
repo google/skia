@@ -84,17 +84,22 @@ skia_core_public += skia_skpicture_public`
 // The footer written to gn/sksl_tests.gni.
 const skslTestsFooter = `sksl_glsl_tests_sources =
     sksl_error_tests + sksl_glsl_tests + sksl_inliner_tests +
-    sksl_folding_tests + sksl_shared_tests
+    sksl_folding_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests
 
 sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
 
 sksl_metal_tests_sources =
-    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
+    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests
+
+sksl_hlsl_tests_sources = sksl_blend_tests + sksl_shared_tests
 
 sksl_wgsl_tests_sources = sksl_wgsl_tests
 
 sksl_spirv_tests_sources =
-    sksl_blend_tests + sksl_shared_tests + sksl_spirv_tests
+    sksl_blend_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests + sksl_spirv_tests
 
 sksl_skvm_tests_sources = sksl_rte_tests + sksl_rte_error_tests
 

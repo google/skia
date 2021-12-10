@@ -78,6 +78,12 @@ compile_sksl(
 )
 
 compile_sksl(
+    name = "hlsl_tests",
+    inputs = "//resources/sksl:sksl_hlsl_tests_sources",
+    lang = "hlsl",
+)
+
+compile_sksl(
     name = "wgsl_tests",
     inputs = "//resources/sksl:sksl_wgsl_tests_sources",
     lang = "wgsl",
