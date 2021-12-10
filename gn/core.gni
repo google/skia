@@ -146,6 +146,7 @@ skia_core_sources = [
   "$_src/core/SkCanvas.cpp",
   "$_src/core/SkCanvasPriv.cpp",
   "$_src/core/SkCanvasPriv.h",
+  "$_src/core/SkChromeRemoteGlyphCache.cpp",
   "$_src/core/SkClipStack.cpp",
   "$_src/core/SkClipStack.h",
   "$_src/core/SkClipStackDevice.cpp",
@@ -325,7 +326,6 @@ skia_core_sources = [
   "$_src/core/SkRegion.cpp",
   "$_src/core/SkRegionPriv.h",
   "$_src/core/SkRegion_path.cpp",
-  "$_src/core/SkRemoteGlyphCache.cpp",
   "$_src/core/SkRemoteGlyphCache.h",
   "$_src/core/SkResourceCache.cpp",
   "$_src/core/SkRuntimeEffect.cpp",
@@ -495,6 +495,7 @@ skia_core_sources = [
   "$_include/private/SkThreadID.h",
   "$_include/private/SkVx.h",
   "$_include/private/SkWeakRefCnt.h",
+  "$_include/private/chromium/SkChromeRemoteGlyphCache.h",
 ]
 
 skia_pathops_public = [ "$_include/pathops/SkPathOps.h" ]

@@ -18,7 +18,7 @@
 
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
-#include "src/core/SkRemoteGlyphCache.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkScalerContext.h"
 
 static std::string gSkpName;

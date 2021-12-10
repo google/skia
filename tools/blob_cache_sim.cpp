@@ -8,7 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
-#include "src/core/SkRemoteGlyphCache.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkTextBlobTrace.h"
 

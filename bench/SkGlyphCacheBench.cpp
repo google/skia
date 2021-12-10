@@ -11,7 +11,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
-#include "src/core/SkRemoteGlyphCache.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTaskGroup.h"

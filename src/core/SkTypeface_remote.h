@@ -11,10 +11,10 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkRemoteGlyphCache.h"
 #include "src/core/SkScalerContext.h"
 
 class SkTypefaceProxy;
