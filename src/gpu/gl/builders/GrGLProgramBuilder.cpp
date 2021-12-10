@@ -20,12 +20,12 @@
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLProgram.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
+#include "src/utils/SkShaderUtils.h"
 
 #include <memory>
 #include "src/gpu/gl/builders/GrGLShaderStringBuilder.h"
@@ -441,7 +441,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
                 GrContextOptions::ShaderCacheStrategy::kSkSL) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                glsl[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
+                glsl[i] = SkShaderUtils::PrettyPrint(*sksl[i]);
             }
             isSkSL = true;
         }

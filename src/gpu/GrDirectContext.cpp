@@ -22,7 +22,6 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrSkSLFP.h"
@@ -30,6 +29,7 @@
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #include "src/image/SkImage_GpuBase.h"
+#include "src/utils/SkShaderUtils.h"
 #if SK_GPU_V1
 #include "src/gpu/ops/SmallPathAtlasMgr.h"
 #else

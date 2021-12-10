@@ -11,12 +11,12 @@
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/utils/SkShaderUtils.h"
 
 #import <Metal/Metal.h>
 #ifdef SK_BUILD_FOR_IOS
@@ -65,7 +65,7 @@ bool GrSkSLToMSL(const GrMtlGpu* gpu,
                  SkSL::Program::Inputs* outInputs,
                  GrContextOptions::ShaderErrorHandler* errorHandler) {
 #ifdef SK_DEBUG
-    SkSL::String src = GrShaderUtils::PrettyPrint(sksl);
+    SkSL::String src = SkShaderUtils::PrettyPrint(sksl);
 #else
     const SkSL::String& src = sksl;
 #endif
@@ -80,14 +80,14 @@ bool GrSkSLToMSL(const GrMtlGpu* gpu,
     }
 
     if (gPrintSKSL || gPrintMSL) {
-        GrShaderUtils::PrintShaderBanner(programKind);
+        SkShaderUtils::PrintShaderBanner(programKind);
         if (gPrintSKSL) {
             SkDebugf("SKSL:\n");
-            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
         }
         if (gPrintMSL) {
             SkDebugf("MSL:\n");
-            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(*msl));
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*msl));
         }
     }
 

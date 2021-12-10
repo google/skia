@@ -17,7 +17,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipeline.h"
@@ -25,6 +24,7 @@
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/utils/SkShaderUtils.h"
 
 #include <d3dcompiler.h>
 
@@ -140,7 +140,7 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
         SkSL::Program::Inputs* outInputs,
         SkSL::String* outHLSL) {
 #ifdef SK_DEBUG
-    SkSL::String src = GrShaderUtils::PrettyPrint(sksl);
+    SkSL::String src = SkShaderUtils::PrettyPrint(sksl);
 #else
     const SkSL::String& src = sksl;
 #endif
@@ -156,14 +156,14 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
     *outInputs = program->fInputs;
 
     if (gPrintSKSL || gPrintHLSL) {
-        GrShaderUtils::PrintShaderBanner(kind);
+        SkShaderUtils::PrintShaderBanner(kind);
         if (gPrintSKSL) {
             SkDebugf("SKSL:\n");
-            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
         }
         if (gPrintHLSL) {
             SkDebugf("HLSL:\n");
-            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(*outHLSL));
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*outHLSL));
         }
     }
 
@@ -627,7 +627,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
                 // Replace the HLSL with formatted SkSL to be cached. This looks odd, but this is
                 // the last time we're going to use these strings, so it's safe.
                 for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                    hlsl[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
+                    hlsl[i] = SkShaderUtils::PrettyPrint(*sksl[i]);
                 }
             }
             sk_sp<SkData> key =

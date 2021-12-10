@@ -189,8 +189,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrSemaphore.h",
   "$_src/gpu/GrShaderCaps.cpp",
   "$_src/gpu/GrShaderCaps.h",
-  "$_src/gpu/GrShaderUtils.cpp",
-  "$_src/gpu/GrShaderUtils.h",
   "$_src/gpu/GrShaderVar.cpp",
   "$_src/gpu/GrShaderVar.h",
   "$_src/gpu/GrSimpleMesh.h",
@@ -818,7 +816,9 @@ skia_native_gpu_sources = [
 ]
 
 skia_shared_gpu_sources = [
+  "$_include/gpu/ShaderErrorHandler.h",
   "$_src/gpu/BufferWriter.h",
+  "$_src/gpu/ShaderErrorHandler.cpp",
 
   # tessellate
   "$_src/gpu/tessellate/CullTest.h",

@@ -37,9 +37,9 @@
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
+#include "src/utils/SkShaderUtils.h"
 #include "tools/AutoreleasePool.h"
 #include "tools/CrashHandler.h"
 #include "tools/MSKPPlayer.h"
@@ -1161,7 +1161,7 @@ class NanobenchShaderErrorHandler : public GrContextOptions::ShaderErrorHandler 
     void compileError(const char* shader, const char* errors) override {
         // Nanobench should abort if any shader can't compile. Failure is much better than
         // reporting meaningless performance metrics.
-        SkSL::String message = GrShaderUtils::BuildShaderErrorMessage(shader, errors);
+        SkSL::String message = SkShaderUtils::BuildShaderErrorMessage(shader, errors);
         SK_ABORT("\n%s", message.c_str());
     }
 };

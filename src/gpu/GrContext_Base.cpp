@@ -7,10 +7,10 @@
 
 #include "include/private/GrContext_Base.h"
 
+#include "include/gpu/ShaderErrorHandler.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
 GrContext_Base::GrContext_Base(sk_sp<GrContextThreadSafeProxy> proxy)
@@ -54,5 +54,5 @@ sk_sp<const GrCaps> GrBaseContextPriv::refCaps() const {
 GrContextOptions::ShaderErrorHandler* GrBaseContextPriv::getShaderErrorHandler() const {
     const GrContextOptions& options(this->options());
     return options.fShaderErrorHandler ? options.fShaderErrorHandler
-                                       : GrShaderUtils::DefaultShaderErrorHandler();
+                                       : skgpu::DefaultShaderErrorHandler();
 }

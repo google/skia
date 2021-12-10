@@ -68,6 +68,8 @@ skia_utils_sources = [
   "$_src/utils/SkPatchUtils.h",
   "$_src/utils/SkPolyUtils.cpp",
   "$_src/utils/SkPolyUtils.h",
+  "$_src/utils/SkShaderUtils.cpp",
+  "$_src/utils/SkShaderUtils.h",
   "$_src/utils/SkShadowTessellator.cpp",
   "$_src/utils/SkShadowTessellator.h",
   "$_src/utils/SkShadowUtils.cpp",
