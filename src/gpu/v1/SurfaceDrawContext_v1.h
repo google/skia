@@ -484,17 +484,6 @@ public:
      * @param viewMatrix      transformationMatrix
      * @param glyphRunList    text, text positions, and paint.
      */
-    void drawGlyphRunListWithCache(const GrClip*,
-                                   const SkMatrixProvider& viewMatrix,
-                                   const SkGlyphRunList& glyphRunList,
-                                   const SkPaint& paint);
-
-    /**
-     * Draw the text specified by the SkGlyphRunList.
-     *
-     * @param viewMatrix      transformationMatrix
-     * @param glyphRunList    text, text positions, and paint.
-     */
     void drawGlyphRunListNoCache(const GrClip*,
                                  const SkMatrixProvider& viewMatrix,
                                  const SkGlyphRunList& glyphRunList,

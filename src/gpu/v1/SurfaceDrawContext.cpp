@@ -346,53 +346,6 @@ void SurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
     }
 }
 
-void SurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
-                                                   const SkMatrixProvider& viewMatrix,
-                                                   const SkGlyphRunList& glyphRunList,
-                                                   const SkPaint& paint) {
-    SkMatrix positionMatrix{viewMatrix.localToDevice()};
-    positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
-
-    GrSDFTControl control =
-            this->recordingContext()->priv().getSDFTControl(
-                    this->surfaceProps().isUseDeviceIndependentFonts());
-
-    auto [canCache, key] = GrTextBlob::Key::Make(glyphRunList,
-                                                 paint,
-                                                 fSurfaceProps,
-                                                 this->colorInfo(),
-                                                 positionMatrix,
-                                                 control);
-
-    sk_sp<GrTextBlob> blob;
-    GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
-    if (canCache) {
-        blob = textBlobCache->find(key);
-    }
-
-    if (blob == nullptr || !blob->canReuse(paint, positionMatrix)) {
-        if (blob != nullptr) {
-            // We have to remake the blob because changes may invalidate our masks.
-            // TODO we could probably get away with reuse most of the time if the pointer is unique,
-            //      but we'd have to clear the SubRun information
-            textBlobCache->remove(blob.get());
-        }
-
-        blob = GrTextBlob::Make(glyphRunList, paint, positionMatrix, control, &fGlyphPainter);
-
-        if (canCache) {
-            blob->addKey(key);
-            // The blob may already have been created on a different thread. Use the first one
-            // that was there.
-            blob = textBlobCache->addOrReturnExisting(glyphRunList, blob);
-        }
-    }
-
-    for (const GrSubRun& subRun : blob->subRunList()) {
-        subRun.draw(clip, viewMatrix, glyphRunList.origin(), paint, this);
-    }
-}
-
 // choose to use the GrTextBlob cache or not.
 bool gGrDrawTextNoCache = false;
 void SurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
@@ -417,7 +370,8 @@ void SurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         // build the sub run directly and place it in the op.
         this->drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList, paint);
     } else {
-        this->drawGlyphRunListWithCache(clip, viewMatrix, glyphRunList, paint);
+        GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
+        textBlobCache->drawGlyphRunList(clip, viewMatrix, glyphRunList, paint, this);
     }
 }
 

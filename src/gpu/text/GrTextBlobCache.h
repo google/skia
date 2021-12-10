@@ -22,13 +22,11 @@ class GrTextBlobCache {
 public:
     GrTextBlobCache(uint32_t messageBusID);
 
-    // If not already in the cache, then add it else, return the text blob from the cache.
-    sk_sp<GrTextBlob> addOrReturnExisting(
-            const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) SK_EXCLUDES(fSpinLock);
-
-    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) SK_EXCLUDES(fSpinLock);
-
-    void remove(GrTextBlob* blob) SK_EXCLUDES(fSpinLock);
+    void drawGlyphRunList(const GrClip* clip,
+                          const SkMatrixProvider& viewMatrix,
+                          const SkGlyphRunList& glyphRunList,
+                          const SkPaint& paint,
+                          skgpu::v1::SurfaceDrawContext* sdc);
 
     void freeAll() SK_EXCLUDES(fSpinLock);
 
@@ -71,6 +69,14 @@ private:
         // linear search is acceptable.  If usage changes, we should re-evaluate this structure.
         SkSTArray<1, sk_sp<GrTextBlob>> fBlobs;
     };
+
+    // If not already in the cache, then add it else, return the text blob from the cache.
+    sk_sp<GrTextBlob> addOrReturnExisting(
+            const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) SK_EXCLUDES(fSpinLock);
+
+    sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) SK_EXCLUDES(fSpinLock);
+
+    void remove(GrTextBlob* blob) SK_EXCLUDES(fSpinLock);
 
     void internalPurgeStaleBlobs() SK_REQUIRES(fSpinLock);
 

@@ -7,6 +7,8 @@
 
 #include "src/gpu/text/GrTextBlobCache.h"
 
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+
 DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage, uint32_t, true)
 
 // This function is captured by the above macro using implementations from SkMessageBus.h
@@ -19,6 +21,52 @@ GrTextBlobCache::GrTextBlobCache(uint32_t messageBusID)
         : fSizeBudget(kDefaultBudget)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
+
+void GrTextBlobCache::drawGlyphRunList(const GrClip* clip,
+                                       const SkMatrixProvider& viewMatrix,
+                                       const SkGlyphRunList& glyphRunList,
+                                       const SkPaint& paint,
+                                       skgpu::v1::SurfaceDrawContext* sdc) {
+
+    SkMatrix positionMatrix{viewMatrix.localToDevice()};
+    positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
+
+    GrSDFTControl control =
+            sdc->recordingContext()->priv().getSDFTControl(
+                    sdc->surfaceProps().isUseDeviceIndependentFonts());
+
+    auto [canCache, key] = GrTextBlob::Key::Make(glyphRunList,
+                                                 paint,
+                                                 sdc->surfaceProps(),
+                                                 sdc->colorInfo(),
+                                                 positionMatrix,
+                                                 control);
+    sk_sp<GrTextBlob> blob;
+    if (canCache) {
+        blob = this->find(key);
+    }
+
+    if (blob == nullptr || !blob->canReuse(paint, positionMatrix)) {
+        if (blob != nullptr) {
+            // We have to remake the blob because changes may invalidate our masks.
+            this->remove(blob.get());
+        }
+
+        blob = GrTextBlob::Make(
+                glyphRunList, paint, positionMatrix, control, sdc->glyphRunPainter());
+
+        if (canCache) {
+            blob->addKey(key);
+            // The blob may already have been created on a different thread. Use the first one
+            // that was there.
+            blob = this->addOrReturnExisting(glyphRunList, blob);
+        }
+    }
+
+    for (const GrSubRun& subRun : blob->subRunList()) {
+        subRun.draw(clip, viewMatrix, glyphRunList.origin(), paint, sdc);
+    }
+}
 
 sk_sp<GrTextBlob> GrTextBlobCache::addOrReturnExisting(
         const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) {
