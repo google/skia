@@ -46,6 +46,7 @@ var (
 
 const (
 	infraRepo = "https://skia.googlesource.com/buildbot.git"
+	skiaRepo  = "https://skia.googlesource.com/skia.git"
 )
 
 func main() {
@@ -150,17 +151,17 @@ func buildPushJSFiddle(ctx context.Context, wasmProductsDir, checkoutDir, skiaRe
 	if err != nil {
 		return err
 	}
-	return publishToTopic(ctx, "jsfiddle", skiaRevision, "skia", topic)
+	return publishToTopic(ctx, "gcr.io/skia-public/jsfiddle", skiaRevision, topic)
 }
 
-func publishToTopic(ctx context.Context, image, tag, repo string, topic *pubsub.Topic) error {
+func publishToTopic(ctx context.Context, image, tag string, topic *pubsub.Topic) error {
 	return td.Do(ctx, td.Props(fmt.Sprintf("Publish pubsub msg to %s", docker_pubsub.TOPIC)).Infra(), func(ctx context.Context) error {
 		// Publish to the pubsub topic which is subscribed to by
 		// https://github.com/google/skia-buildbot/blob/cd593cf6c534ba7a1bd2d88a488d37840663230d/docker_pushes_watcher/go/docker_pushes_watcher/main.go#L335
 		b, err := json.Marshal(&docker_pubsub.BuildInfo{
 			ImageName: image,
 			Tag:       tag,
-			Repo:      repo,
+			Repo:      skiaRepo,
 		})
 		if err != nil {
 			return err
