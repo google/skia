@@ -82,6 +82,10 @@ for input, targetDir in pairwise(inputs):
         worklist.write(input + "\n")
         worklist.write(target + ".metal\n")
         worklist.write(settings + "\n\n")
+    elif lang == "--hlsl":
+        worklist.write(input + "\n")
+        worklist.write(target + ".hlsl\n")
+        worklist.write(settings + "\n\n")
     elif lang == "--spirv":
         worklist.write(input + "\n")
         worklist.write(target + ".asm" + extensionForSpirvAsm(ext) + "\n")
@@ -95,7 +99,7 @@ for input, targetDir in pairwise(inputs):
         worklist.write(target + ".stage\n")
         worklist.write(settings + "\n\n")
     else:
-        sys.exit("### Expected one of: --glsl --metal --spirv --skvm --stage --dsl, got " + lang)
+        sys.exit("### Expected one of: --glsl --metal --hlsl --spirv --skvm --stage --dsl, got " + lang)
 
     # Compile items one at a time.
     if not batchCompile:

@@ -803,6 +803,12 @@ if (skia_compile_sksl_tests) {
     lang = "--metal"
     settings = "--settings"
   }
+  compile_sksl("hlsl_tests") {
+    sources = sksl_hlsl_tests_sources
+    outExtensions = [ ".hlsl" ]
+    lang = "--hlsl"
+    settings = "--settings"
+  }
   compile_sksl("skvm_tests") {
     sources = sksl_skvm_tests_sources
     outExtensions = [ ".skvm" ]
@@ -827,6 +833,8 @@ if (skia_compile_sksl_tests) {
   group("compile_sksl_glsl_nosettings_tests") {
   }
   group("compile_sksl_metal_tests") {
+  }
+  group("compile_sksl_hlsl_tests") {
   }
   group("compile_sksl_skvm_tests") {
   }
