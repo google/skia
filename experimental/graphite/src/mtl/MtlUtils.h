@@ -19,7 +19,10 @@ namespace SkSL {
 class String;
 }
 
-namespace skgpu::mtl {
+namespace skgpu {
+class ShaderErrorHandler;
+
+namespace mtl {
 
 class Gpu;
 
@@ -39,11 +42,13 @@ bool SkSLToMSL(const Gpu* gpu,
                SkSL::ProgramKind kind,
                const SkSL::Program::Settings& settings,
                SkSL::String* msl,
-               SkSL::Program::Inputs* outInputs);
+               SkSL::Program::Inputs* outInputs,
+               ShaderErrorHandler* errorHandler);
 
 sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
-                                            const SkSL::String& msl);
-
+                                            const SkSL::String& msl,
+                                            ShaderErrorHandler* errorHandler);
 } // namespace skgpu::mtl
+} // namespace skgpu
 
 #endif // skgpu_MtlUtils_DEFINED

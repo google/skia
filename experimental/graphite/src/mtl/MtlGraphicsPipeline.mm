@@ -14,6 +14,7 @@
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 #include "include/core/SkSpan.h"
+#include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/SkSLString.h"
 
 namespace skgpu::mtl {
@@ -315,12 +316,14 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Gpu* gpu,
     SkSL::Program::Inputs inputs[kShaderTypeCount];
     SkSL::Program::Settings settings;
 
+    ShaderErrorHandler* errorHandler = DefaultShaderErrorHandler();
     if (!SkSLToMSL(gpu,
                    get_sksl_vs(desc),
                    SkSL::ProgramKind::kVertex,
                    settings,
                    &msl[kVertex_ShaderType],
-                   &inputs[kVertex_ShaderType])) {
+                   &inputs[kVertex_ShaderType],
+                   errorHandler)) {
         return nullptr;
     }
 
@@ -329,16 +332,19 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Gpu* gpu,
                    SkSL::ProgramKind::kFragment,
                    settings,
                    &msl[kFragment_ShaderType],
-                   &inputs[kFragment_ShaderType])) {
+                   &inputs[kFragment_ShaderType],
+                   errorHandler)) {
         return nullptr;
     }
 
     sk_cfp<id<MTLLibrary>> shaderLibraries[kShaderTypeCount];
 
     shaderLibraries[kVertex_ShaderType] = CompileShaderLibrary(gpu,
-                                                               msl[kVertex_ShaderType]);
+                                                               msl[kVertex_ShaderType],
+                                                               errorHandler);
     shaderLibraries[kFragment_ShaderType] = CompileShaderLibrary(gpu,
-                                                                 msl[kFragment_ShaderType]);
+                                                                 msl[kFragment_ShaderType],
+                                                                 errorHandler);
     if (!shaderLibraries[kVertex_ShaderType] || !shaderLibraries[kFragment_ShaderType]) {
         return nullptr;
     }

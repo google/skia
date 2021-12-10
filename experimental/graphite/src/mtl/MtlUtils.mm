@@ -8,9 +8,11 @@
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 
 #include "experimental/graphite/src/mtl/MtlGpu.h"
+#include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/utils/SkShaderUtils.h"
 
 namespace skgpu::mtl {
 
@@ -77,43 +79,37 @@ MTLPixelFormat DepthStencilFlagsToFormat(Mask<DepthStencilFlags> mask) {
 static const bool gPrintSKSL = false;
 static const bool gPrintMSL = false;
 
-// TODO: add errorHandler support
-static void compile_error(const char* shaderSource, const char* errorText) {
-    SkDebugf("Shader compilation error\n"
-             "------------------------\n");
-    SkDebugf("%s", shaderSource);
-    SkDebugf("Errors:\n%s", errorText);
-}
-
 bool SkSLToMSL(const Gpu* gpu,
                const SkSL::String& sksl,
                SkSL::ProgramKind programKind,
                const SkSL::Program::Settings& settings,
                SkSL::String* msl,
-               SkSL::Program::Inputs* outInputs) {
+               SkSL::Program::Inputs* outInputs,
+               ShaderErrorHandler* errorHandler) {
+#ifdef SK_DEBUG
+    SkSL::String src = SkShaderUtils::PrettyPrint(sksl);
+#else
     const SkSL::String& src = sksl;
+#endif
     SkSL::Compiler* compiler = gpu->shaderCompiler();
     std::unique_ptr<SkSL::Program> program =
             gpu->shaderCompiler()->convertProgram(programKind,
                                                   src,
                                                   settings);
     if (!program || !compiler->toMetal(*program, msl)) {
-        compile_error(src.c_str(), compiler->errorText().c_str());
+        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
         return false;
     }
 
     if (gPrintSKSL || gPrintMSL) {
-        // TODO: add GrShaderUtils support
-        SkDebugf("------- Shader --------\n");
+        SkShaderUtils::PrintShaderBanner(programKind);
         if (gPrintSKSL) {
             SkDebugf("SKSL:\n");
-            // TODO: add GrShaderUtils support
-            SkDebugf("%s\n", sksl.c_str());
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
         }
         if (gPrintMSL) {
             SkDebugf("MSL:\n");
-            // TODO: add GrShaderUtils support
-            SkDebugf("%s\n", msl->c_str());
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*msl));
         }
     }
 
@@ -122,7 +118,8 @@ bool SkSLToMSL(const Gpu* gpu,
 }
 
 sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
-                                            const SkSL::String& msl) {
+                                            const SkSL::String& msl,
+                                            ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
     auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
                                                    length:msl.size()
@@ -145,7 +142,7 @@ sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
                                                                        options:options
                                                                          error:&error]);
     if (!compiledLibrary) {
-        compile_error(msl.c_str(), error.debugDescription.UTF8String);
+        errorHandler->compileError(msl.c_str(), error.debugDescription.UTF8String);
         return nil;
     }
 
