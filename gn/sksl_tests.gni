@@ -377,17 +377,22 @@ sksl_wgsl_tests = [
   "wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
 ]
 
+# TODO(skia:12352): HLSL doesn't support inverse hyperbolic functions as intrinsics. These tests are
+# grouped separately for HLSL tests until there is a reasonable workaround in place.
+sksl_inverse_hyperbolic_intrinsics_tests = [
+  "intrinsics/Acosh.sksl",
+  "intrinsics/Asinh.sksl",
+  "intrinsics/Atanh.sksl",
+]
+
 sksl_shared_tests = [
   "intrinsics/AbsFloat.sksl",
   "intrinsics/AbsInt.sksl",
   "intrinsics/Acos.sksl",
-  "intrinsics/Acosh.sksl",
   "intrinsics/All.sksl",
   "intrinsics/Any.sksl",
   "intrinsics/Asin.sksl",
-  "intrinsics/Asinh.sksl",
   "intrinsics/Atan.sksl",
-  "intrinsics/Atanh.sksl",
   "intrinsics/BitCount.sksl",
   "intrinsics/Ceil.sksl",
   "intrinsics/ClampFloat.sksl",
@@ -838,17 +843,22 @@ sksl_rte_error_tests = [
 
 sksl_glsl_tests_sources =
     sksl_error_tests + sksl_glsl_tests + sksl_inliner_tests +
-    sksl_folding_tests + sksl_shared_tests
+    sksl_folding_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests
 
 sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
 
 sksl_metal_tests_sources =
-    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
+    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests
+
+sksl_hlsl_tests_sources = sksl_blend_tests + sksl_shared_tests
 
 sksl_wgsl_tests_sources = sksl_wgsl_tests
 
 sksl_spirv_tests_sources =
-    sksl_blend_tests + sksl_shared_tests + sksl_spirv_tests
+    sksl_blend_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests + sksl_spirv_tests
 
 sksl_skvm_tests_sources = sksl_rte_tests + sksl_rte_error_tests
 
