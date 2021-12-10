@@ -184,13 +184,23 @@ private:
     SkVector fOffset;
     TextIndex fClusterStart;
     SkShaper::RunHandler::Range fUtf8Range;
-    SkSTArray<128, SkGlyphID, true> fGlyphs;
-    SkSTArray<128, SkPoint, true> fPositions;
-    SkSTArray<128, SkPoint, true> fJustificationShifts; // For justification (current and prev shifts)
-    SkSTArray<128, uint32_t, true> fClusterIndexes;
-    SkSTArray<128, SkRect, true> fBounds;
+
+    // These fields are not modified after shaping completes and can safely be
+    // shared among copies of the run that are held by different paragraphs.
+    struct GlyphData {
+        SkSTArray<128, SkGlyphID, true> glyphs;
+        SkSTArray<128, SkPoint, true> positions;
+        SkSTArray<128, uint32_t, true> clusterIndexes;
+        SkSTArray<128, SkRect, true> bounds;
+    };
+    std::shared_ptr<GlyphData> fGlyphData;
+    SkSTArray<128, SkGlyphID, true>& fGlyphs;
+    SkSTArray<128, SkPoint, true>& fPositions;
+    SkSTArray<128, uint32_t, true>& fClusterIndexes;
+    SkSTArray<128, SkRect, true>& fBounds;
 
     SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing)
+    SkSTArray<128, SkPoint, true> fJustificationShifts; // For justification (current and prev shifts)
 
     SkFontMetrics fFontMetrics;
     const SkScalar fHeightMultiplier;

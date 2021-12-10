@@ -27,6 +27,11 @@ Run::Run(ParagraphImpl* owner,
     , fClusterRange(EMPTY_CLUSTERS)
     , fFont(info.fFont)
     , fClusterStart(firstChar)
+    , fGlyphData(std::make_shared<GlyphData>())
+    , fGlyphs(fGlyphData->glyphs)
+    , fPositions(fGlyphData->positions)
+    , fClusterIndexes(fGlyphData->clusterIndexes)
+    , fBounds(fGlyphData->bounds)
     , fHeightMultiplier(heightMultiplier)
     , fUseHalfLeading(useHalfLeading)
     , fBaselineShift(baselineShift)
@@ -36,6 +41,7 @@ Run::Run(ParagraphImpl* owner,
     fIndex = index;
     fUtf8Range = info.utf8Range;
     fOffset = SkVector::Make(offsetX, 0);
+
     fGlyphs.push_back_n(info.glyphCount);
     fBounds.push_back_n(info.glyphCount);
     fPositions.push_back_n(info.glyphCount + 1);
