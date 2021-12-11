@@ -2810,6 +2810,8 @@ if (skia_enable_tools) {
         "tools/viewer/SampleSlide.h",
         "tools/viewer/SkRiveSlide.cpp",
         "tools/viewer/SkRiveSlide.h",
+        "tools/viewer/SkSLDebuggerSlide.cpp",
+        "tools/viewer/SkSLDebuggerSlide.h",
         "tools/viewer/SkSLSlide.cpp",
         "tools/viewer/SkSLSlide.h",
         "tools/viewer/SkottieSlide.cpp",
