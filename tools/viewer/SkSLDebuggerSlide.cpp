@@ -68,20 +68,60 @@ void SkSLDebuggerSlide::showLoadTraceGUI() {
 }
 
 void SkSLDebuggerSlide::showDebuggerGUI() {
+    bool updateScroll = false;
+
     if (ImGui::Button("Step")) {
         fPlayer.step();
+        updateScroll = true;
     }
     ImGui::SameLine();
     if (ImGui::Button("Step Over")) {
         fPlayer.stepOver();
+        updateScroll = true;
     }
-    for (size_t line = 0; line < fTrace->fSource.size(); ++line) {
-        size_t humanReadableLine = line + 1;
-        bool isCurrentLine = (fPlayer.getCurrentLine() == (int)humanReadableLine);
-        ImGui::Text("%s%03zu %s",
-                    isCurrentLine ? "-> " : "   ",
-                    humanReadableLine,
-                    fTrace->fSource[line].c_str());
+
+    constexpr ImGuiTableFlags kTableFlags =
+            ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
+            ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable |
+            ImGuiTableFlags_Hideable;
+    constexpr ImGuiTableColumnFlags kColumnFlags =
+            ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder |
+            ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoSort |
+            ImGuiTableColumnFlags_NoHeaderLabel;
+
+    ImVec2 contentRect = ImGui::GetContentRegionAvail();
+    ImVec2 codeViewSize = ImVec2(0.0f, contentRect.y);
+    if (ImGui::BeginTable("Code View", /*column=*/2, kTableFlags, codeViewSize)) {
+        ImGui::TableSetupColumn("", kColumnFlags | ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Code", kColumnFlags | ImGuiTableColumnFlags_WidthStretch);
+
+        ImGuiListClipper clipper;
+        clipper.Begin(fTrace->fSource.size());
+        while (clipper.Step()) {
+            for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+                size_t humanReadableLine = row + 1;
+
+                ImGui::TableNextRow();
+                if (fPlayer.getCurrentLine() == (int)humanReadableLine) {
+                    ImGui::TableSetBgColor(
+                            ImGuiTableBgTarget_RowBg1,
+                            ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_TextSelectedBg)));
+                }
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%03zu ", humanReadableLine);
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%s", fTrace->fSource[row].c_str());
+            }
+        }
+
+        if (updateScroll) {
+            int linesVisible = contentRect.y / ImGui::GetTextLineHeightWithSpacing();
+            int centerLine = (fPlayer.getCurrentLine() - 1) - (linesVisible / 2);
+            centerLine = std::max(0, centerLine);
+            ImGui::SetScrollY(clipper.ItemsHeight * centerLine);
+        }
+
+        ImGui::EndTable();
     }
 }
 
