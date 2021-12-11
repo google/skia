@@ -24,6 +24,9 @@ public:
     /** Advances the simulation to the next Line op, skipping past matched Enter/Exit pairs. */
     void stepOver();
 
+    /** Advances the simulation until we exit from the current stack frame. */
+    void stepOut();
+
     /** Returns true if we have reached the end of the trace. */
     bool traceHasCompleted() const;
 

@@ -39,6 +39,15 @@ void SkVMDebugTracePlayer::stepOver() {
     }
 }
 
+void SkVMDebugTracePlayer::stepOut() {
+    size_t initialStackDepth = fStack.size();
+    while (!this->traceHasCompleted()) {
+        if (this->execute(fCursor++) && (fStack.size() < initialStackDepth)) {
+            break;
+        }
+    }
+}
+
 bool SkVMDebugTracePlayer::traceHasCompleted() const {
     return !fDebugTrace || fCursor >= fDebugTrace->fTraceInfo.size();
 }

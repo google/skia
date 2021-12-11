@@ -79,6 +79,11 @@ void SkSLDebuggerSlide::showDebuggerGUI() {
         fPlayer.stepOver();
         updateScroll = true;
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Step Out")) {
+        fPlayer.stepOut();
+        updateScroll = true;
+    }
 
     constexpr ImGuiTableFlags kTableFlags =
             ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |

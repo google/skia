@@ -440,3 +440,52 @@ int main() {                       // Line 2
     REPORTER_ASSERT(r, player.traceHasCompleted());
     REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "[main].result:0 = 2");
 }
+
+DEF_TEST(SkSLTracePlayerStepOut, r) {
+    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+R"(               // Line 1
+int fn() {        // Line 2
+    int a = 11;   // Line 3
+    int b = 22;   // Line 4
+    int c = 33;   // Line 5
+    int d = 44;   // Line 6
+    return d;     // Line 7
+}                 // Line 8
+int main() {      // Line 9
+    return fn();  // Line 10
+}                 // Line 11
+)");
+    SkSL::SkVMDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
+
+    // We should now be inside main.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
+    player.step();
+
+    // We should now be inside fn.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> int fn()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
+    player.step();
+
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> int fn()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "a:0 = 11");
+    player.step();
+
+    REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> int fn()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "a:0 = 11, b:0 = 22");
+    player.stepOut();
+
+    // We should now be back inside main(), right where we left off.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "[fn].result:0 = 44");
+    player.stepOut();
+
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "[main].result:0 = 44");
+}
