@@ -69,6 +69,9 @@ public:
     /** Generates a human-readable dump of the debug trace. */
     void dump(SkWStream* o) const override;
 
+    /** Returns a slot's component as a variable-name suffix, e.g. ".x" or "[2][2]". */
+    std::string getSlotComponentSuffix(int slotIndex) const;
+
     /** The device-coordinate pixel to trace (controlled by setTraceCoord) */
     SkIPoint fTraceCoord = {};
 

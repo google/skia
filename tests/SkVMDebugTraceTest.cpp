@@ -126,3 +126,49 @@ DEF_TEST(SkVMDebugTraceRead, r) {
     REPORTER_ASSERT(r, i.fTraceInfo[3].data[0] == 20);
     REPORTER_ASSERT(r, i.fTraceInfo[3].data[1] == 0);
 }
+
+DEF_TEST(SkVMDebugTraceGetSlotComponentSuffix, r) {
+    // SkVMSlotInfo fields:
+    // - name
+    // - columns
+    // - rows
+    // - componentIndex
+    // - numberKind
+    // - line
+    // - fnReturnValue
+
+    SkSL::SkVMDebugTrace i;
+    i.fSlotInfo = {{"s", 1, 1, 0, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"v", 4, 1, 0, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"v", 4, 1, 1, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"v", 4, 1, 2, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"v", 4, 1, 3, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 0, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 1, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 2, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 3, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 4, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 5, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 6, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 7, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 8, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 9, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 10, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 11, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 12, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 13, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 14, SkSL::Type::NumberKind::kFloat, 0, -1},
+                   {"m", 4, 4, 15, SkSL::Type::NumberKind::kFloat, 0, -1}};
+
+    const std::string kExpected[] = {"",
+                                     ".x",     ".y",     ".z",     ".w",
+                                     "[0][0]", "[0][1]", "[0][2]", "[0][3]",
+                                     "[1][0]", "[1][1]", "[1][2]", "[1][3]",
+                                     "[2][0]", "[2][1]", "[2][2]", "[2][3]",
+                                     "[3][0]", "[3][1]", "[3][2]", "[3][3]"};
+
+    REPORTER_ASSERT(r, i.fSlotInfo.size() == SK_ARRAY_COUNT(kExpected));
+    for (size_t index = 0; index < SK_ARRAY_COUNT(kExpected); ++index) {
+        REPORTER_ASSERT(r, kExpected[index] == i.getSlotComponentSuffix(index));
+    }
+}

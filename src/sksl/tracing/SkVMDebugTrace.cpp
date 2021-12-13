@@ -14,6 +14,26 @@
 
 namespace SkSL {
 
+std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const {
+    const SkSL::SkVMSlotInfo& slot = fSlotInfo[slotIndex];
+
+    if (slot.rows > 1) {
+        return "["  + std::to_string(slot.componentIndex / slot.rows) +
+               "][" + std::to_string(slot.componentIndex % slot.rows) +
+               "]";
+    }
+    if (slot.columns > 1) {
+        switch (slot.componentIndex) {
+            case 0:  return ".x"; break;
+            case 1:  return ".y"; break;
+            case 2:  return ".z"; break;
+            case 3:  return ".w"; break;
+            default: return "[???]"; break;
+        }
+    }
+    return {};
+}
+
 void SkVMDebugTrace::setTraceCoord(const SkIPoint& coord) {
     fTraceCoord = coord;
 }
@@ -89,21 +109,7 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
                     const SkVMSlotInfo& slot = fSlotInfo[data0];
                     o->writeText(indent.c_str());
                     o->writeText(slot.name.c_str());
-                    if (slot.rows > 1) {
-                        o->writeText("[");
-                        o->writeDecAsText(slot.componentIndex / slot.rows);
-                        o->writeText("][");
-                        o->writeDecAsText(slot.componentIndex % slot.rows);
-                        o->writeText("]");
-                    } else if (slot.columns > 1) {
-                        switch (slot.componentIndex) {
-                            case 0:  o->writeText(".x"); break;
-                            case 1:  o->writeText(".y"); break;
-                            case 2:  o->writeText(".z"); break;
-                            case 3:  o->writeText(".w"); break;
-                            default: o->writeText("[???]"); break;
-                        }
-                    }
+                    o->writeText(this->getSlotComponentSuffix(data0).c_str());
                     o->writeText(" = ");
                     switch (slot.numberKind) {
                         case SkSL::Type::NumberKind::kSigned:
