@@ -1,9 +1,9 @@
 /*
-* Copyright 2021 Google LLC
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2021 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #ifndef SkSLDebuggerSlide_DEFINED
 #define SkSLDebuggerSlide_DEFINED
@@ -32,9 +32,12 @@ private:
     void showRootGUI();
     void showLoadTraceGUI();
     void showDebuggerGUI();
+    void showCodeTable();
+    void showVariableTable();
 
     sk_sp<SkSL::SkVMDebugTrace> fTrace;
     SkSL::SkVMDebugTracePlayer fPlayer;
+    bool fRefresh = false;
 
     char fTraceFile[256] = "SkVMDebugTrace.json";
 };
