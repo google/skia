@@ -131,8 +131,11 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
                 caps->getDefaultDepthStencilTextureInfo(drawPass->depthStencilFlags(),
                                                         1 /*sampleCount*/, // TODO: MSAA
                                                         Protected::kNo);
-        // TODO: handle clears
-        desc.fDepthStencilAttachment.fLoadOp = LoadOp::kDiscard;
+        // Always clear the depth and stencil to 0 at the start of a DrawPass, but discard at the
+        // end since their contents do not affect the next frame.
+        desc.fDepthStencilAttachment.fLoadOp = LoadOp::kClear;
+        desc.fClearDepth = 0.f;
+        desc.fClearStencil = 0;
         desc.fDepthStencilAttachment.fStoreOp = StoreOp::kDiscard;
     }
 
