@@ -56,9 +56,9 @@ void DrawWriter::drawInternal(BindBufferInfo instances,
     // the simpler draw APIs.
     // TODO: Is there any benefit to this? Does it help hint to drivers? Avoid more bugs?
     // Or should we always call drawInstanced and drawIndexedInstanced?
-    const bool useNonInstancedDraw =
-            !SkToBool(instances) && base == 0 && instanceCount == 1;
-    SkASSERT(!useNonInstancedDraw || fInstanceStride == 0);
+    const bool useInstancedDraw = fInstanceStride > 0 || instanceCount > 1;
+    SkASSERT(useInstancedDraw ||
+             (fInstanceStride == 0 && instanceCount == 1 && !SkToBool(instances)));
 
     // Issue new buffer binds only as necessary
     // TODO: Should this instead be the responsibility of the CB or DrawDispatcher to remember
@@ -69,7 +69,16 @@ void DrawWriter::drawInternal(BindBufferInfo instances,
         fLastInstanceBuffer = instances;
     }
 
-    if (useNonInstancedDraw) {
+    if (useInstancedDraw) {
+        // 'base' offsets accumulated instance data (or is 0 for a direct instanced draw). It is
+        // assumed that any base vertex and index have been folded into the BindBufferInfos already.
+        if (fFixedIndexBuffer) {
+            fDispatcher->drawIndexedInstanced(fPrimitiveType, 0, fFixedVertexCount, 0,
+                                              base, instanceCount);
+        } else {
+            fDispatcher->drawInstanced(fPrimitiveType, 0, fFixedVertexCount, base, instanceCount);
+        }
+    } else {
         if (fFixedIndexBuffer) {
             // Should only get here from a direct draw, in which case base should be 0 and any
             // offset needs to be embedded in the BindBufferInfo by caller.
@@ -78,15 +87,6 @@ void DrawWriter::drawInternal(BindBufferInfo instances,
         } else {
             // 'base' offsets accumulated vertex data from another DrawWriter across a state change.
             fDispatcher->draw(fPrimitiveType, base, fFixedVertexCount);
-        }
-    } else {
-        // 'base' offsets accumulated instance data (or is 0 for a direct instanced draw). It is
-        // assumed that any base vertex and index have been folded into the BindBufferInfos already.
-        if (fFixedIndexBuffer) {
-            fDispatcher->drawIndexedInstanced(fPrimitiveType, 0, fFixedVertexCount, 0,
-                                              base, instanceCount);
-        } else {
-            fDispatcher->drawInstanced(fPrimitiveType, 0, fFixedVertexCount, base, instanceCount);
         }
     }
 }
