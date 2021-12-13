@@ -243,9 +243,9 @@ int main() {                    // Line 8
 DEF_TEST(SkSLTracePlayerVariables, r) {
     sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
 R"(                                   // Line 1
-void func() {                         // Line 2
-    int z = 456;                      // Line 3
-    return;                           // Line 4
+float func() {                        // Line 2
+    float z = 456;                    // Line 3
+    return z;                         // Line 4
 }                                     // Line 5
 int main() {                          // Line 6
     int a = 123;                      // Line 7
@@ -277,18 +277,19 @@ int main() {                          // Line 6
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> void func()");
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> float func()");
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> void func()");
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> float func()");
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##z = 456");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 9);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "a = 123, b = true");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
+                       "a = 123, b = true, ##[func].result = 456");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 10);

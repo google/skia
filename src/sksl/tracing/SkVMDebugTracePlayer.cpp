@@ -20,10 +20,17 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
                       /*fLine=*/-1,
                       /*fDisplayMask=*/SkBitSet(nslots)});
     fDirtyMask.emplace(nslots);
+    fReturnValues.emplace(nslots);
+
+    for (size_t slotIdx = 0; slotIdx < nslots; ++slotIdx) {
+        if (fDebugTrace->fSlotInfo[slotIdx].fnReturnValue >= 0) {
+            fReturnValues->set(slotIdx);
+        }
+    }
 }
 
 void SkVMDebugTracePlayer::step() {
-    fDirtyMask->reset();
+    this->tidy();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++)) {
             break;
@@ -32,7 +39,7 @@ void SkVMDebugTracePlayer::step() {
 }
 
 void SkVMDebugTracePlayer::stepOver() {
-    fDirtyMask->reset();
+    this->tidy();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
         bool canEscapeFromThisStackDepth = (fStack.size() <= initialStackDepth);
@@ -43,13 +50,23 @@ void SkVMDebugTracePlayer::stepOver() {
 }
 
 void SkVMDebugTracePlayer::stepOut() {
-    fDirtyMask->reset();
+    this->tidy();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++) && (fStack.size() < initialStackDepth)) {
             break;
         }
     }
+}
+
+void SkVMDebugTracePlayer::tidy() {
+    fDirtyMask->reset();
+
+    // Conceptually this is `fStack.back().fDisplayMask &= ~fReturnValues`, but SkBitSet doesn't
+    // support masking one set of bits against another.
+    fReturnValues->forEachSetIndex([&](int slot) {
+        fStack.back().fDisplayMask.reset(slot);
+    });
 }
 
 bool SkVMDebugTracePlayer::traceHasCompleted() const {

@@ -146,6 +146,8 @@ void SkSLDebuggerSlide::showVariableTable() {
     std::vector<SkSL::SkVMDebugTracePlayer::VariableData> vars;
     if (frame >= 0) {
         vars = fPlayer.getLocalVariables(frame);
+    } else {
+        vars = fPlayer.getGlobalVariables();
     }
     if (vars.empty()) {
         return;

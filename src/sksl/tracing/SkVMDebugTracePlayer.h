@@ -59,6 +59,11 @@ private:
      */
     bool execute(size_t position);
 
+    /**
+     * Cleans up temporary state between steps, such as the dirty mask and function return values.
+     */
+    void tidy();
+
     /** Returns a vector of the indices and values of each slot that is enabled in `bits`. */
     std::vector<VariableData> getVariablesForDisplayMask(const SkBitSet& bits) const;
 
@@ -73,6 +78,7 @@ private:
     std::vector<StackFrame>     fStack;        // the execution stack
     skstd::optional<SkBitSet>   fDirtyMask;    // variable slots touched during the most-recently
                                                // executed step
+    skstd::optional<SkBitSet>   fReturnValues; // variable slots containing return values
 };
 
 }  // namespace SkSL
