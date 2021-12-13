@@ -239,15 +239,18 @@ void PathSegment::init() {
     if (fType == PathSegment::kLine) {
         fScalingFactorSqd = fScalingFactor = 1.0;
         double hypotenuse = p0.distance(p2);
+        if (SkTAbs(hypotenuse) < 1.0e-100) {
+            fXformMatrix.reset();
+        } else {
+            const double cosTheta = (p2x - p0x) / hypotenuse;
+            const double sinTheta = (p2y - p0y) / hypotenuse;
 
-        const double cosTheta = (p2x - p0x) / hypotenuse;
-        const double sinTheta = (p2y - p0y) / hypotenuse;
-
-        // rotates the segment to the x-axis, with p0 at the origin
-        fXformMatrix.setAffine(
-            cosTheta, sinTheta, -(cosTheta * p0x) - (sinTheta * p0y),
-            -sinTheta, cosTheta, (sinTheta * p0x) - (cosTheta * p0y)
-        );
+            // rotates the segment to the x-axis, with p0 at the origin
+            fXformMatrix.setAffine(
+                cosTheta, sinTheta, -(cosTheta * p0x) - (sinTheta * p0y),
+                -sinTheta, cosTheta, (sinTheta * p0x) - (cosTheta * p0y)
+            );
+        }
     } else {
         SkASSERT(fType == PathSegment::kQuad);
 
