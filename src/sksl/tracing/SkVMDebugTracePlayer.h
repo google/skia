@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkTOptional.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkBitSet.h"
 
@@ -45,6 +46,7 @@ public:
     /** Returns variables from a stack frame, or from global scope. */
     struct VariableData {
         int      fSlotIndex;
+        bool     fDirty;  // has this slot been written-to since the last step call?
         int32_t  fValue;  // caller must type-pun bits to float/bool based on slot type
     };
     std::vector<VariableData> getLocalVariables(int stackFrameIndex) const;
@@ -69,6 +71,8 @@ private:
     size_t                      fCursor = 0;   // position of the read head
     std::vector<int32_t>        fSlots;        // values in each slot
     std::vector<StackFrame>     fStack;        // the execution stack
+    skstd::optional<SkBitSet>   fDirtyMask;    // variable slots touched during the most-recently
+                                               // executed step
 };
 
 }  // namespace SkSL

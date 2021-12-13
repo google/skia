@@ -19,9 +19,11 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
     fStack.push_back({/*fFunction=*/-1,
                       /*fLine=*/-1,
                       /*fDisplayMask=*/SkBitSet(nslots)});
+    fDirtyMask.emplace(nslots);
 }
 
 void SkVMDebugTracePlayer::step() {
+    fDirtyMask->reset();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++)) {
             break;
@@ -30,6 +32,7 @@ void SkVMDebugTracePlayer::step() {
 }
 
 void SkVMDebugTracePlayer::stepOver() {
+    fDirtyMask->reset();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
         bool canEscapeFromThisStackDepth = (fStack.size() <= initialStackDepth);
@@ -40,6 +43,7 @@ void SkVMDebugTracePlayer::stepOver() {
 }
 
 void SkVMDebugTracePlayer::stepOut() {
+    fDirtyMask->reset();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++) && (fStack.size() < initialStackDepth)) {
@@ -78,7 +82,7 @@ std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getVariabl
 
     std::vector<VariableData> vars;
     bits.forEachSetIndex([&](int slot) {
-        vars.push_back({slot, fSlots[slot]});
+        vars.push_back({slot, fDirtyMask->test(slot), fSlots[slot]});
     });
     return vars;
 }
@@ -134,6 +138,7 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
                 SkASSERT(fStack.size() > 1);
                 fStack.rbegin()[1].fDisplayMask.set(slot);
             }
+            fDirtyMask->set(slot);
             break;
         }
         case SkVMTraceInfo::Op::kEnter: { // data: function index, (unused)
