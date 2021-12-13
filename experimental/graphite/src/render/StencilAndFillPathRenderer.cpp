@@ -12,6 +12,7 @@
 #include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
+#include "include/core/SkPathTypes.h"
 #include "src/gpu/BufferWriter.h"
 
 namespace skgpu {
@@ -111,7 +112,7 @@ public:
 
 } // anonymous namespace
 
-const Renderer& Renderer::StencilAndFillPath() {
+const Renderer& Renderer::StencilAndFillPath(SkPathFillType fillType) {
     // TODO: Uncomment and include in kRenderer to draw flattened paths instead of bboxes
     // static const StencilFanRenderStep kStencilFan;
     // TODO: Uncomment and include in kRenderer to draw curved paths
@@ -121,6 +122,8 @@ const Renderer& Renderer::StencilAndFillPath() {
     static const Renderer kRenderer("stencil-and-fill",
                                     /*&kStencilFan,*/ /*&kStencilCurves,*/ &kCover);
 
+    // TODO: actually configure 4 different combinations of fill+stencil steps to match the
+    // path fill types.
     return kRenderer;
 }
 

@@ -22,6 +22,9 @@
 #include <initializer_list>
 #include <vector>
 
+
+enum class SkPathFillType;
+
 namespace skgpu {
 
 class DrawWriter;
@@ -162,6 +165,7 @@ private:
     size_t fVertexStride;   // derived from vertex attribute set
     size_t fInstanceStride; // derived from instance attribute set
 };
+SKGPU_MAKE_MASK_OPS(RenderStep::Flags);
 
 /**
  * The actual technique for rasterizing a high-level draw recorded in a DrawList is handled by a
@@ -183,8 +187,8 @@ public:
     // Graphite defines a limited set of renderers in order to increase likelihood of batching
     // across draw calls, and reduce the number of shader permutations required. These Renderers
     // are stateless singletons and remain alive for the entire program. Each Renderer corresponds
-    // to a specific recording function on DrawList.
-    static const Renderer& StencilAndFillPath();
+    // to a specific recording function on DrawList and fill type.
+    static const Renderer& StencilAndFillPath(SkPathFillType);
     // TODO: Not on the immediate sprint target, but show what needs to be added for DrawList's API
     // static const Renderer& FillConvexPath();
     // static const Renderer& StrokePath();

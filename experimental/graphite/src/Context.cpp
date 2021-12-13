@@ -17,6 +17,7 @@
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Renderer.h"
+#include "include/core/SkPathTypes.h"
 
 #ifdef SK_METAL
 #include "experimental/graphite/src/mtl/MtlTrampoline.h"
@@ -58,6 +59,13 @@ void Context::submit(SyncToCpu syncToCpu) {
 }
 
 void Context::preCompile(const PaintCombo& paintCombo) {
+    static const Renderer* kRenderers[] = {
+            &Renderer::StencilAndFillPath(SkPathFillType::kWinding),
+            &Renderer::StencilAndFillPath(SkPathFillType::kEvenOdd),
+            &Renderer::StencilAndFillPath(SkPathFillType::kInverseWinding),
+            &Renderer::StencilAndFillPath(SkPathFillType::kInverseEvenOdd)
+    };
+
     for (auto bm: paintCombo.fBlendModes) {
         for (auto& shaderCombo: paintCombo.fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
@@ -66,9 +74,11 @@ void Context::preCompile(const PaintCombo& paintCombo) {
 
                     GraphicsPipelineDesc desc;
 
-                    for (const Renderer* r : {&Renderer::StencilAndFillPath()}) {
+                    for (const Renderer* r : kRenderers) {
                         for (auto&& s : r->steps()) {
-                            desc.setProgram(s, c);
+                            if (s->performsShading()) {
+                                desc.setProgram(s, c);
+                            }
                             // TODO: Combine with renderpass description set to generate full
                             // GraphicsPipeline and MSL program. Cache that compiled pipeline on
                             // the resource provider in a map from desc -> pipeline so that any
@@ -79,6 +89,8 @@ void Context::preCompile(const PaintCombo& paintCombo) {
             }
         }
     }
+    // TODO: Iterate over the renderers and make descriptions for the steps that don't perform
+    // shading, and just use ShaderType::kNone.
 }
 
 BackendTexture Context::createBackendTexture(SkISize dimensions, const TextureInfo& info) {

@@ -47,10 +47,11 @@ void DrawList::stencilAndFillPath(const Transform& localToDevice,
                                   const PaintParams* paint) {
     SkASSERT(localToDevice.valid());
     SkASSERT(!shape.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
-    fDraws.push_back({Renderer::StencilAndFillPath(),
-                      this->deduplicateTransform(localToDevice),
+
+    const Renderer& renderer = Renderer::StencilAndFillPath(shape.fillType());
+    fDraws.push_back({renderer, this->deduplicateTransform(localToDevice),
                       shape, clip, ordering, paint, nullptr});
-    fRenderStepCount += Renderer::StencilAndFillPath().numRenderSteps();
+    fRenderStepCount += renderer.numRenderSteps();
 }
 
 void DrawList::fillConvexPath(const Transform& localToDevice,
