@@ -68,7 +68,7 @@
 #include "src/gpu/ops/StrokeRectOp.h"
 #include "src/gpu/ops/TextureOp.h"
 #include "src/gpu/text/GrSDFTControl.h"
-#include "src/gpu/text/GrTextBlobCache.h"
+#include "src/gpu/text/GrTextBlobRedrawCoordinator.h"
 #include "src/gpu/v1/PathRenderer.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
@@ -370,7 +370,7 @@ void SurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         // build the sub run directly and place it in the op.
         this->drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList, paint);
     } else {
-        GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
+        GrTextBlobRedrawCoordinator* textBlobCache = fContext->priv().getTextBlobCache();
         textBlobCache->drawGlyphRunList(clip, viewMatrix, glyphRunList, paint, this);
     }
 }

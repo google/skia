@@ -21,7 +21,7 @@
 class GrBackendFormat;
 class GrCaps;
 class GrContextThreadSafeProxyPriv;
-class GrTextBlobCache;
+class GrTextBlobRedrawCoordinator;
 class GrThreadSafeCache;
 class GrThreadSafePipelineBuilder;
 class SkSurfaceCharacterization;
@@ -142,14 +142,14 @@ private:
     // `init` method on GrContext_Base).
     void init(sk_sp<const GrCaps>, sk_sp<GrThreadSafePipelineBuilder>);
 
-    const GrBackendApi                      fBackend;
-    const GrContextOptions                  fOptions;
-    const uint32_t                          fContextID;
-    sk_sp<const GrCaps>                     fCaps;
-    std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
-    std::unique_ptr<GrThreadSafeCache>      fThreadSafeCache;
-    sk_sp<GrThreadSafePipelineBuilder>      fPipelineBuilder;
-    std::atomic<bool>                       fAbandoned{false};
+    const GrBackendApi                           fBackend;
+    const GrContextOptions                       fOptions;
+    const uint32_t                               fContextID;
+    sk_sp<const GrCaps>                          fCaps;
+    std::unique_ptr<GrTextBlobRedrawCoordinator> fTextBlobRedrawCoordinator;
+    std::unique_ptr<GrThreadSafeCache>           fThreadSafeCache;
+    sk_sp<GrThreadSafePipelineBuilder>           fPipelineBuilder;
+    std::atomic<bool>                            fAbandoned{false};
 };
 
 #else // !SK_SUPPORT_GPU

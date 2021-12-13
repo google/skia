@@ -53,7 +53,9 @@ public:
         this->context()->detachProgramData(dst);
     }
 
-    GrTextBlobCache* getTextBlobCache() { return this->context()->getTextBlobCache(); }
+    GrTextBlobRedrawCoordinator* getTextBlobCache() {
+        return this->context()->getTextBlobRedrawCoordinator();
+    }
 
     GrThreadSafeCache* threadSafeCache() { return this->context()->threadSafeCache(); }
 

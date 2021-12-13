@@ -23,7 +23,7 @@
 #include <new>
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrTextBlobCache.h"
+#include "src/gpu/text/GrTextBlobRedrawCoordinator.h"
 #endif
 
 namespace {
@@ -149,7 +149,7 @@ SkTextBlob::SkTextBlob(const SkRect& bounds)
 SkTextBlob::~SkTextBlob() {
 #if SK_SUPPORT_GPU
     if (SK_InvalidUniqueID != fCacheID.load()) {
-        GrTextBlobCache::PostPurgeBlobMessage(fUniqueID, fCacheID);
+        GrTextBlobRedrawCoordinator::PostPurgeBlobMessage(fUniqueID, fCacheID);
     }
 #endif
 

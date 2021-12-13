@@ -41,7 +41,7 @@ GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
                                     sk_sp<GrThreadSafePipelineBuilder> pipelineBuilder) {
     fCaps = std::move(caps);
-    fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
+    fTextBlobRedrawCoordinator = std::make_unique<GrTextBlobRedrawCoordinator>(fContextID);
     fThreadSafeCache = std::make_unique<GrThreadSafeCache>();
     fPipelineBuilder = std::move(pipelineBuilder);
 }
@@ -164,7 +164,7 @@ GrBackendFormat GrContextThreadSafeProxy::compressedBackendFormat(SkImage::Compr
 
 void GrContextThreadSafeProxy::abandonContext() {
     if (!fAbandoned.exchange(true)) {
-        fTextBlobCache->freeAll();
+        fTextBlobRedrawCoordinator->freeAll();
     }
 }
 

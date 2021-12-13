@@ -24,7 +24,7 @@
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/text/GrAtlasManager.h"
-#include "src/gpu/text/GrTextBlobCache.h"
+#include "src/gpu/text/GrTextBlobRedrawCoordinator.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 

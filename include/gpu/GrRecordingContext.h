@@ -28,7 +28,7 @@ class GrProxyProvider;
 class GrRecordingContextPriv;
 class GrSubRunAllocator;
 class GrSurfaceProxy;
-class GrTextBlobCache;
+class GrTextBlobRedrawCoordinator;
 class GrThreadSafeCache;
 class SkArenaAlloc;
 class SkJSONWriter;
@@ -182,8 +182,8 @@ protected:
     // same lifetime at the DDL itself.
     virtual void detachProgramData(SkTArray<ProgramData>*) {}
 
-    GrTextBlobCache* getTextBlobCache();
-    const GrTextBlobCache* getTextBlobCache() const;
+    GrTextBlobRedrawCoordinator* getTextBlobRedrawCoordinator();
+    const GrTextBlobRedrawCoordinator* getTextBlobRedrawCoordinator() const;
 
     GrThreadSafeCache* threadSafeCache();
     const GrThreadSafeCache* threadSafeCache() const;

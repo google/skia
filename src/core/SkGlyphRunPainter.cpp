@@ -15,7 +15,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/text/GrSDFTControl.h"
-#include "src/gpu/text/GrTextBlobCache.h"
+#include "src/gpu/text/GrTextBlobRedrawCoordinator.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #endif // SK_SUPPORT_GPU
 

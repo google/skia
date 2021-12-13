@@ -25,7 +25,7 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/text/GrStrikeCache.h"
-#include "src/gpu/text/GrTextBlobCache.h"
+#include "src/gpu/text/GrTextBlobRedrawCoordinator.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "src/image/SkImage_Gpu.h"
 

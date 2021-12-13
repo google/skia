@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTextBlobCache_DEFINED
-#define GrTextBlobCache_DEFINED
+#ifndef GrTextBlobRedrawCoordinator_DEFINED
+#define GrTextBlobRedrawCoordinator_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkSpinlock.h"
@@ -18,9 +18,16 @@
 
 #include <functional>
 
-class GrTextBlobCache {
+// GrTextBlobRedrawCoordinator reuses data from previous drawing operations using multiple criteria
+// to pick the best data for the draw. In addition, it provides a central service for managing
+// resource usage through a messageBus.
+// The draw data is stored in a three-tiered system. The first tier is keyed by the SkTextBlob's
+// uniqueID. The second tier uses the GrTextBlob's key to get a general match for the draw. The
+// last tier queries each sub run using canReuse to determine if each sub run can handle the
+// drawing parameters.
+class GrTextBlobRedrawCoordinator {
 public:
-    GrTextBlobCache(uint32_t messageBusID);
+    GrTextBlobRedrawCoordinator(uint32_t messageBusID);
 
     void drawGlyphRunList(const GrClip* clip,
                           const SkMatrixProvider& viewMatrix,
@@ -97,5 +104,4 @@ private:
     const uint32_t fMessageBusID;
     SkMessageBus<PurgeBlobMessage, uint32_t>::Inbox fPurgeBlobInbox SK_GUARDED_BY(fSpinLock);
 };
-
-#endif
+#endif  // GrTextBlobRedrawCoordinator_DEFINED
