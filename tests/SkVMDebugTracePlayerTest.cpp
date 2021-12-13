@@ -74,30 +74,7 @@ static std::string make_vars_string(
         text += slot.name;
         text += trace.getSlotComponentSuffix(var.fSlotIndex);
         text += " = ";
-
-        switch (slot.numberKind) {
-            default:
-                text += "???";
-                break;
-            case SkSL::Type::NumberKind::kSigned:
-                text += std::to_string(var.fValue);
-                break;
-            case SkSL::Type::NumberKind::kBoolean:
-                text += var.fValue ? "true" : "false";
-                break;
-            case SkSL::Type::NumberKind::kUnsigned: {
-                uint32_t uintValue;
-                memcpy(&uintValue, &var.fValue, sizeof(uint32_t));
-                text += std::to_string(uintValue);
-                break;
-            }
-            case SkSL::Type::NumberKind::kFloat: {
-                float floatValue;
-                memcpy(&floatValue, &var.fValue, sizeof(float));
-                text += std::to_string(floatValue);
-                break;
-            }
-        }
+        text += trace.getSlotValue(var.fSlotIndex, var.fValue);
     }
 
     return text;
@@ -322,18 +299,16 @@ int main() {                          // Line 6
     REPORTER_ASSERT(r, player.getCurrentLine() == 11);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                    "a = 123, b = true, ##c.x = 0.000000, ##c.y = 0.500000, ##c.z = 1.000000, "
-                    "##c.w = -1.000000");
+                    "a = 123, b = true, ##c.x = 0, ##c.y = 0.5, ##c.z = 1, ##c.w = -1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 12);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                    "a = 123, b = true, c.x = 0.000000, c.y = 0.500000, c.z = 1.000000, "
-                    "c.w = -1.000000, ##d[0][0] = 2.000000, ##d[0][1] = 0.000000, "
-                    "##d[0][2] = 0.000000, ##d[1][0] = 0.000000, ##d[1][1] = 2.000000, "
-                    "##d[1][2] = 0.000000, ##d[2][0] = 0.000000, ##d[2][1] = 0.000000, "
-                    "##d[2][2] = 2.000000");
+                    "a = 123, b = true, c.x = 0, c.y = 0.5, c.z = 1, c.w = -1, "
+                    "##d[0][0] = 2, ##d[0][1] = 0, ##d[0][2] = 0, "
+                    "##d[1][0] = 0, ##d[1][1] = 2, ##d[1][2] = 0, "
+                    "##d[2][0] = 0, ##d[2][1] = 0, ##d[2][2] = 2");
 
     player.step();
     REPORTER_ASSERT(r, player.traceHasCompleted());

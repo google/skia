@@ -72,6 +72,9 @@ public:
     /** Returns a slot's component as a variable-name suffix, e.g. ".x" or "[2][2]". */
     std::string getSlotComponentSuffix(int slotIndex) const;
 
+    /** Returns a slot's value in human-readable form, e.g. "3.14" or "true" or "12345". */
+    std::string getSlotValue(int slotIndex, int32_t value) const;
+
     /** The device-coordinate pixel to trace (controlled by setTraceCoord) */
     SkIPoint fTraceCoord = {};
 

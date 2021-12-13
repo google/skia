@@ -34,6 +34,32 @@ std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const {
     return {};
 }
 
+std::string SkVMDebugTrace::getSlotValue(int slotIndex, int32_t value) const {
+    const SkSL::SkVMSlotInfo& slot = fSlotInfo[slotIndex];
+    switch (slot.numberKind) {
+        case SkSL::Type::NumberKind::kBoolean:
+            return value ? "true" : "false";
+
+        case SkSL::Type::NumberKind::kSigned:
+        default:
+            return std::to_string(value);
+
+        case SkSL::Type::NumberKind::kUnsigned: {
+            uint32_t unsignedVal;
+            memcpy(&unsignedVal, &value, sizeof(unsignedVal));
+            return std::to_string(unsignedVal);
+        }
+        case SkSL::Type::NumberKind::kFloat: {
+            float floatVal;
+            static_assert(sizeof(floatVal) == sizeof(value));
+            memcpy(&floatVal, &value, sizeof(floatVal));
+            char buffer[32];
+            snprintf(buffer, SK_ARRAY_COUNT(buffer), "%.8g", floatVal);
+            return buffer;
+        }
+    }
+}
+
 void SkVMDebugTrace::setTraceCoord(const SkIPoint& coord) {
     fTraceCoord = coord;
 }
@@ -111,23 +137,7 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
                     o->writeText(slot.name.c_str());
                     o->writeText(this->getSlotComponentSuffix(data0).c_str());
                     o->writeText(" = ");
-                    switch (slot.numberKind) {
-                        case SkSL::Type::NumberKind::kSigned:
-                        case SkSL::Type::NumberKind::kUnsigned:
-                        default:
-                            o->writeDecAsText(data1);
-                            break;
-                        case SkSL::Type::NumberKind::kBoolean:
-                            o->writeText(data1 ? "true" : "false");
-                            break;
-                        case SkSL::Type::NumberKind::kFloat: {
-                            float floatVal;
-                            static_assert(sizeof(floatVal) == sizeof(data1));
-                            memcpy(&floatVal, &data1, sizeof(floatVal));
-                            o->writeScalarAsText(floatVal);
-                            break;
-                        }
-                    }
+                    o->writeText(this->getSlotValue(data0, data1).c_str());
                     break;
                 }
                 case SkSL::SkVMTraceInfo::Op::kEnter:
