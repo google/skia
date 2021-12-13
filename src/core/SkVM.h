@@ -455,7 +455,8 @@ namespace skvm {
         M(neq_f32) M(eq_f32) M(eq_i32)                               \
         M(gte_f32) M(gt_f32) M(gt_i32)                               \
         M(bit_and)     M(bit_or)     M(bit_xor)     M(bit_clear)     \
-        M(select)
+        M(select)                                                    \
+        M(duplicate)
     // End of SKVM_OPS
 
     enum class Op : int {
@@ -616,8 +617,8 @@ namespace skvm {
     class Builder {
     public:
 
-        Builder();
-        explicit Builder(Features);
+        Builder(bool createDuplicates = false);
+        Builder(Features, bool createDuplicates = false);
 
         Program done(const char* debug_name = nullptr, bool allow_jit=true) const;
 
@@ -1007,6 +1008,7 @@ namespace skvm {
         std::vector<TraceHook*>                       fTraceHooks;
         std::vector<int>                              fStrides;
         const Features                                fFeatures;
+        bool                                          fCreateDuplicates;
     };
 
     // Optimization passes and data structures normally used by Builder::optimize(),

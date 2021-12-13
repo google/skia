@@ -154,8 +154,10 @@ namespace skvm {
         return { fma, fp16 };
     }
 
-    Builder::Builder()                  : fFeatures(detect_features()) {}
-    Builder::Builder(Features features) : fFeatures(features         ) {}
+    Builder::Builder(bool createDuplicates)
+        : fFeatures(detect_features()), fCreateDuplicates(createDuplicates) {}
+    Builder::Builder(Features features, bool createDuplicates)
+        : fFeatures(features         ), fCreateDuplicates(createDuplicates) {}
 
 
     struct Program::Impl {
@@ -343,6 +345,8 @@ namespace skvm {
             case Op::from_fp16: write(o, V{id}, "=", op, V{x}); break;
             case Op::trunc:     write(o, V{id}, "=", op, V{x}); break;
             case Op::round:     write(o, V{id}, "=", op, V{x}); break;
+
+            case Op::duplicate: write(o, V{id}, "=", op, Hex{immA}); break;
         }
 
         write(o, "\n");
@@ -465,6 +469,8 @@ namespace skvm {
                 case Op::from_fp16: write(o, R{d}, "=", op, R{x}); break;
                 case Op::trunc:     write(o, R{d}, "=", op, R{x}); break;
                 case Op::round:     write(o, R{d}, "=", op, R{x}); break;
+
+                case Op::duplicate: write(o, R{d}, "=", op, Hex{immA}); break;
             }
             write(o, "\n");
         }
@@ -608,9 +614,15 @@ namespace skvm {
         // and index is varying but doesn't touch memory, so it's fine to dedup too.
         if (!touches_varying_memory(inst.op) && !is_trace(inst.op)) {
             if (Val* id = fIndex.find(inst)) {
+                if (fCreateDuplicates) {
+                    inst.op = Op::duplicate;
+                    inst.immA = *id;
+                    fProgram.push_back(inst);
+                }
                 return *id;
             }
         }
+
         Val id = static_cast<Val>(fProgram.size());
         fProgram.push_back(inst);
         fIndex.set(inst, id);
@@ -3956,6 +3968,8 @@ namespace skvm {
                     a->vcvtph2ps(dst(), dst());        // f16 xmm -> f32 ymm
                     break;
 
+                case Op::duplicate: break;
+
             #elif defined(__aarch64__)
                 case Op::assert_true: {
                     a->uminv4s(dst(), r(x));   // uminv acts like an all() across the vector.
@@ -4216,6 +4230,8 @@ namespace skvm {
                     a->xtns2h(dst(x), r(x));     // pack even 16-bit lanes into bottom four lanes
                     a->fcvtl (dst(), dst());     // 4x f16 -> 4x f32
                     break;
+
+                case Op::duplicate: break;
             #endif
             }
 

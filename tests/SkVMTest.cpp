@@ -2714,3 +2714,52 @@ DEF_TEST(SkVM_fast_mul, r) {
         }
     });
 }
+
+DEF_TEST(SkVM_duplicates, reporter) {
+    {
+        skvm::Builder p(true);
+        auto rptr = p.varying<int>();
+
+        skvm::F32 r = p.loadF(rptr),
+                  g = p.splat(0.0f),
+                  b = p.splat(0.0f),
+                  a = p.splat(1.0f);
+
+        p.unpremul(&r, &g, &b, a);
+        p.storeF(rptr, r);
+
+        std::vector<skvm::Instruction> program = b->program();
+
+        auto withDuplicates = skvm::finalize(program);
+        int duplicates = 0;
+        for (const auto& instr : withDuplicates) {
+            if (instr.op == skvm::Op::duplicate) {
+                ++duplicates;
+            }
+        }
+        REPORTER_ASSERT(reporter, duplicates > 0);
+
+        auto eliminatedAsDeadCode = skvm::eliminate_dead_code(program);
+        for (const auto& instr : eliminatedAsDeadCode) {
+            REPORTER_ASSERT(reporter, instr.op != skvm::Op::duplicate);
+        }
+    }
+
+    {
+        skvm::Builder p(false);
+        auto rptr = p.varying<int>();
+
+        skvm::F32 r = p.loadF(rptr),
+                  g = p.splat(0.0f),
+                  b = p.splat(0.0f),
+                  a = p.splat(1.0f);
+
+        p.unpremul(&r, &g, &b, a);
+        p.storeF(rptr, r);
+
+        auto withoutDuplicates = p.done().instructions();
+        for (const auto& instr : withoutDuplicates) {
+            REPORTER_ASSERT(reporter, instr.op != skvm::Op::duplicate);
+        }
+    }
+}
