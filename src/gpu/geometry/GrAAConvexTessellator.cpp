@@ -48,11 +48,16 @@ static bool intersect(const SkPoint& p0, const SkPoint& n0,
 
 // This is a special case version of intersect where we have the vector
 // perpendicular to the second line rather than the vector parallel to it.
-static SkScalar perp_intersect(const SkPoint& p0, const SkPoint& n0,
-                               const SkPoint& p1, const SkPoint& perp) {
+static bool perp_intersect(const SkPoint& p0, const SkPoint& n0,
+                           const SkPoint& p1, const SkPoint& perp,
+                           SkScalar* t) {
     const SkPoint v = p1 - p0;
     SkScalar perpDot = n0.dot(perp);
-    return v.dot(perp) / perpDot;
+    if (SkScalarNearlyZero(perpDot)) {
+        return false;
+    }
+    *t = v.dot(perp) / perpDot;
+    return SkScalarIsFinite(*t);
 }
 
 static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
@@ -355,7 +360,10 @@ bool GrAAConvexTessellator::computePtAlongBisector(int startIdx,
     // First find the point where the edge and the bisector intersect
     SkPoint newP;
 
-    SkScalar t = perp_intersect(fPts[startIdx], bisector, fPts[edgeIdx], norm);
+    SkScalar t;
+    if (!perp_intersect(fPts[startIdx], bisector, fPts[edgeIdx], norm, &t)) {
+        return false;
+    }
     if (SkScalarNearlyEqual(t, 0.0f)) {
         // the start point was one of the original ring points
         SkASSERT(startIdx < fPts.count());
