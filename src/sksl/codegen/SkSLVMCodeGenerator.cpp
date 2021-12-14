@@ -212,10 +212,13 @@ private:
     void writeToSlot(int slot, skvm::Val value);
 
     /**
-     * Emits an trace_line opcode. writeStatement already does this, but statements that alter
-     * control flow may need to explicitly add additional traces.
+     * Emits an trace_line opcode. writeStatement does this, and statements that alter control flow
+     * may need to explicitly add additional traces.
      */
     void emitTraceLine(int line);
+
+    /** Emits an trace_scope opcode, which alters the SkSL variable-scope depth. */
+    void emitTraceScope(skvm::I32 executionMask, int delta);
 
     /** Initializes uniforms and global variables at the start of main(). */
     void setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device);
@@ -1795,9 +1798,14 @@ skvm::Val SkVMGenerator::writeConditionalStore(skvm::Val lhs, skvm::Val rhs, skv
 }
 
 void SkVMGenerator::writeBlock(const Block& b) {
+    skvm::I32 mask = this->mask();
+    this->emitTraceScope(mask, +1);
+
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
         this->writeStatement(*stmt);
     }
+
+    this->emitTraceScope(mask, -1);
 }
 
 void SkVMGenerator::writeBreakStatement() {
@@ -1828,17 +1836,26 @@ void SkVMGenerator::writeForStatement(const ForStatement& f) {
 
     const Type::NumberKind indexKind = base_number_kind(loop.fIndex->type());
 
-    for (int i = 0; i < loop.fCount; ++i) {
-        this->writeToSlot(indexSlot, (indexKind == Type::NumberKind::kFloat)
-                                        ? fBuilder->splat(static_cast<float>(val)).id
-                                        : fBuilder->splat(static_cast<int>(val)).id);
+    // We want the loop index to disappear at the end of the loop, so wrap the for statement in a
+    // trace scope.
+    if (loop.fCount > 0) {
+        skvm::I32 mask = this->mask();
+        this->emitTraceScope(mask, +1);
 
-        fContinueMask = zero;
-        this->writeStatement(*f.statement());
-        fLoopMask |= fContinueMask;
+        for (int i = 0; i < loop.fCount; ++i) {
+            this->writeToSlot(indexSlot, (indexKind == Type::NumberKind::kFloat)
+                                            ? fBuilder->splat(static_cast<float>(val)).id
+                                            : fBuilder->splat(static_cast<int>(val)).id);
 
-        this->emitTraceLine(f.test() ? f.test()->fLine : f.fLine);
-        val += loop.fDelta;
+            fContinueMask = zero;
+            this->writeStatement(*f.statement());
+            fLoopMask |= fContinueMask;
+
+            this->emitTraceLine(f.test() ? f.test()->fLine : f.fLine);
+            val += loop.fDelta;
+        }
+
+        this->emitTraceScope(mask, -1);
     }
 
     fLoopMask     = oldLoopMask;
@@ -1928,6 +1945,12 @@ void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 void SkVMGenerator::emitTraceLine(int line) {
     if (fDebugTrace && line > 0) {
         fBuilder->trace_line(fTraceHookID, this->mask(), fTraceMask, line);
+    }
+}
+
+void SkVMGenerator::emitTraceScope(skvm::I32 executionMask, int delta) {
+    if (fDebugTrace) {
+        fBuilder->trace_scope(fTraceHookID, executionMask, fTraceMask, delta);
     }
 }
 

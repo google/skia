@@ -37,7 +37,7 @@ $35 = c_mul_d (float, L43)
 $36 = d_mul_c (float, L44)
 F0 = half4 main(float2 xy)
 
-13 registers, 60 instructions:
+13 registers, 62 instructions:
 0	r0 = uniform32 ptr0 0
 1	r1 = uniform32 ptr0 4
 2	r2 = uniform32 ptr0 8
@@ -65,37 +65,39 @@ loop:
 23	    r4 = eq_f32 r4 r11
 24	    r4 = bit_and r4 r0
 25	    trace_enter 0 r4 r4 F0
-26	    trace_line 0 r4 r4 L9
-27	    trace_line 0 r4 r4 L11
-28	    trace_line 0 r4 r4 L12
-29	    trace_line 0 r4 r4 L13
-30	    trace_line 0 r4 r4 L15
-31	    trace_line 0 r4 r4 L16
-32	    trace_line 0 r4 r4 L17
-33	    trace_line 0 r4 r4 L19
-34	    trace_line 0 r4 r4 L20
-35	    trace_line 0 r4 r4 L21
-36	    trace_line 0 r4 r4 L23
-37	    trace_line 0 r4 r4 L24
-38	    trace_line 0 r4 r4 L25
-39	    trace_line 0 r4 r4 L27
-40	    trace_line 0 r4 r4 L28
-41	    trace_line 0 r4 r4 L29
-42	    trace_line 0 r4 r4 L31
-43	    trace_line 0 r4 r4 L32
-44	    trace_line 0 r4 r4 L33
-45	    trace_line 0 r4 r4 L35
-46	    trace_line 0 r4 r4 L36
-47	    trace_line 0 r4 r4 L37
-48	    trace_line 0 r4 r4 L39
-49	    trace_line 0 r4 r4 L40
-50	    trace_line 0 r4 r4 L41
-51	    trace_line 0 r4 r4 L43
-52	    trace_line 0 r4 r4 L44
-53	    trace_line 0 r4 r4 L45
-54	    trace_line 0 r4 r4 L47
-55	    trace_exit 0 r4 r4 F0
-56	    store32 ptr1 r5
-57	    store32 ptr2 r6
-58	    store32 ptr3 r7
-59	    store32 ptr4 r8
+26	    trace_scope 0 r4 r4 1
+27	    trace_line 0 r4 r4 L9
+28	    trace_line 0 r4 r4 L11
+29	    trace_line 0 r4 r4 L12
+30	    trace_line 0 r4 r4 L13
+31	    trace_line 0 r4 r4 L15
+32	    trace_line 0 r4 r4 L16
+33	    trace_line 0 r4 r4 L17
+34	    trace_line 0 r4 r4 L19
+35	    trace_line 0 r4 r4 L20
+36	    trace_line 0 r4 r4 L21
+37	    trace_line 0 r4 r4 L23
+38	    trace_line 0 r4 r4 L24
+39	    trace_line 0 r4 r4 L25
+40	    trace_line 0 r4 r4 L27
+41	    trace_line 0 r4 r4 L28
+42	    trace_line 0 r4 r4 L29
+43	    trace_line 0 r4 r4 L31
+44	    trace_line 0 r4 r4 L32
+45	    trace_line 0 r4 r4 L33
+46	    trace_line 0 r4 r4 L35
+47	    trace_line 0 r4 r4 L36
+48	    trace_line 0 r4 r4 L37
+49	    trace_line 0 r4 r4 L39
+50	    trace_line 0 r4 r4 L40
+51	    trace_line 0 r4 r4 L41
+52	    trace_line 0 r4 r4 L43
+53	    trace_line 0 r4 r4 L44
+54	    trace_line 0 r4 r4 L45
+55	    trace_line 0 r4 r4 L47
+56	    trace_scope 0 r4 r4 -1
+57	    trace_exit 0 r4 r4 F0
+58	    store32 ptr1 r5
+59	    store32 ptr2 r6
+60	    store32 ptr3 r7
+61	    store32 ptr4 r8

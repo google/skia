@@ -1047,101 +1047,123 @@ F0 = int main()
 F1 = bool less_than(float left, int right)
 
 enter int main()
-  line 11
-  a[0].x = 0
-  a[0].y = 0
-  a[1].x = 0
-  a[1].y = 0
-  line 12
-  loop = 10
-  line 13
-  v.x = 10
-  v.y = 11
-  v.z = 12
-  v.w = 13
-  line 14
-  m[0][0] = 10
-  m[0][1] = 11
-  m[1][0] = 12
-  m[1][1] = 13
-  line 15
-  a[0].x = 10
-  a[0].y = 11
-  line 15
-  a[1].x = 12
-  a[1].y = 13
-  line 16
-  enter bool less_than(float left, int right)
-    left = 10
-    right = 20
-    line 2
-    comparison = true
-    line 3
-    line 4
-    [less_than].result = true
-  exit bool less_than(float left, int right)
-  function_result = true
-  line 12
-  loop = 20
-  line 13
-  v.x = 20
-  v.y = 21
-  v.z = 22
-  v.w = 23
-  line 14
-  m[0][0] = 20
-  m[0][1] = 21
-  m[1][0] = 22
-  m[1][1] = 23
-  line 15
-  a[0].x = 20
-  a[0].y = 21
-  line 15
-  a[1].x = 22
-  a[1].y = 23
-  line 16
-  enter bool less_than(float left, int right)
-    left = 20
-    right = 20
-    line 2
-    comparison = false
-    line 3
-    line 6
-    [less_than].result = false
-  exit bool less_than(float left, int right)
-  function_result = false
-  line 12
-  loop = 30
-  line 13
-  v.x = 30
-  v.y = 31
-  v.z = 32
-  v.w = 33
-  line 14
-  m[0][0] = 30
-  m[0][1] = 31
-  m[1][0] = 32
-  m[1][1] = 33
-  line 15
-  a[0].x = 30
-  a[0].y = 31
-  line 15
-  a[1].x = 32
-  a[1].y = 33
-  line 16
-  enter bool less_than(float left, int right)
-    left = 30
-    right = 20
-    line 2
-    comparison = false
-    line 3
-    line 6
-    [less_than].result = false
-  exit bool less_than(float left, int right)
-  function_result = false
-  line 12
-  line 18
-  [main].result = 40
+  scope +1
+   line 11
+   a[0].x = 0
+   a[0].y = 0
+   a[1].x = 0
+   a[1].y = 0
+   line 12
+   scope +1
+    loop = 10
+    scope +1
+     line 13
+     v.x = 10
+     v.y = 11
+     v.z = 12
+     v.w = 13
+     line 14
+     m[0][0] = 10
+     m[0][1] = 11
+     m[1][0] = 12
+     m[1][1] = 13
+     line 15
+     a[0].x = 10
+     a[0].y = 11
+     line 15
+     a[1].x = 12
+     a[1].y = 13
+     line 16
+     enter bool less_than(float left, int right)
+       left = 10
+       right = 20
+       scope +1
+        line 2
+        comparison = true
+        line 3
+        scope +1
+         line 4
+         [less_than].result = true
+        scope -1
+       scope -1
+     exit bool less_than(float left, int right)
+     function_result = true
+    scope -1
+    line 12
+    loop = 20
+    scope +1
+     line 13
+     v.x = 20
+     v.y = 21
+     v.z = 22
+     v.w = 23
+     line 14
+     m[0][0] = 20
+     m[0][1] = 21
+     m[1][0] = 22
+     m[1][1] = 23
+     line 15
+     a[0].x = 20
+     a[0].y = 21
+     line 15
+     a[1].x = 22
+     a[1].y = 23
+     line 16
+     enter bool less_than(float left, int right)
+       left = 20
+       right = 20
+       scope +1
+        line 2
+        comparison = false
+        line 3
+        scope +1
+         line 6
+         [less_than].result = false
+        scope -1
+       scope -1
+     exit bool less_than(float left, int right)
+     function_result = false
+    scope -1
+    line 12
+    loop = 30
+    scope +1
+     line 13
+     v.x = 30
+     v.y = 31
+     v.z = 32
+     v.w = 33
+     line 14
+     m[0][0] = 30
+     m[0][1] = 31
+     m[1][0] = 32
+     m[1][1] = 33
+     line 15
+     a[0].x = 30
+     a[0].y = 31
+     line 15
+     a[1].x = 32
+     a[1].y = 33
+     line 16
+     enter bool less_than(float left, int right)
+       left = 30
+       right = 20
+       scope +1
+        line 2
+        comparison = false
+        line 3
+        scope +1
+         line 6
+         [less_than].result = false
+        scope -1
+       scope -1
+     exit bool less_than(float left, int right)
+     function_result = false
+    scope -1
+    line 12
+   scope -1
+   line 18
+   [main].result = 40
+  scope -1
 exit int main()
 )", "Trace output does not match expectation:\n%.*s\n", (int)trace.size(), trace.data());
 }

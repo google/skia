@@ -48,7 +48,7 @@ F2 = float index_by_loop()
 F3 = float index_by_complex_loop()
 F4 = float index_out_of_bounds_checked()
 
-54 registers, 179 instructions:
+54 registers, 231 instructions:
 0	r0 = uniform32 ptr0 0
 1	r1 = uniform32 ptr0 4
 2	r2 = uniform32 ptr0 8
@@ -136,96 +136,148 @@ loop:
 83	    trace_enter 0 r53 r53 F0
 84	    trace_var 0 r53 r53 $32 = r52
 85	    trace_var 0 r53 r53 $33 = r0
-86	    trace_line 0 r53 r53 L38
-87	    trace_enter 0 r53 r53 F1
-88	    trace_line 0 r53 r53 L5
-89	    trace_var 0 r53 r53 $34 = r1
-90	    trace_exit 0 r53 r53 F1
-91	    trace_enter 0 r53 r53 F2
-92	    trace_line 0 r53 r53 L10
-93	    trace_var 0 r53 r53 $36 = r29
-94	    trace_line 0 r53 r53 L11
-95	    trace_var 0 r53 r53 $37 = r32
-96	    trace_line 0 r53 r53 L12
-97	    trace_var 0 r53 r53 $36 = r8
+86	    trace_scope 0 r53 r53 1
+87	    trace_line 0 r53 r53 L38
+88	    trace_enter 0 r53 r53 F1
+89	    trace_scope 0 r53 r53 1
+90	    trace_line 0 r53 r53 L5
+91	    trace_var 0 r53 r53 $34 = r1
+92	    trace_scope 0 r53 r53 -1
+93	    trace_exit 0 r53 r53 F1
+94	    trace_enter 0 r53 r53 F2
+95	    trace_scope 0 r53 r53 1
+96	    trace_line 0 r53 r53 L10
+97	    trace_var 0 r53 r53 $36 = r29
 98	    trace_line 0 r53 r53 L11
-99	    trace_var 0 r53 r53 $37 = r33
-100	    trace_line 0 r53 r53 L12
-101	    trace_var 0 r53 r53 $36 = r34
-102	    trace_line 0 r53 r53 L11
-103	    trace_var 0 r53 r53 $37 = r35
-104	    trace_line 0 r53 r53 L12
-105	    trace_var 0 r53 r53 $36 = r36
-106	    trace_line 0 r53 r53 L11
-107	    trace_var 0 r53 r53 $37 = r29
+99	    trace_scope 0 r53 r53 1
+100	    trace_var 0 r53 r53 $37 = r32
+101	    trace_scope 0 r53 r53 1
+102	    trace_line 0 r53 r53 L12
+103	    trace_var 0 r53 r53 $36 = r8
+104	    trace_scope 0 r53 r53 -1
+105	    trace_line 0 r53 r53 L11
+106	    trace_var 0 r53 r53 $37 = r33
+107	    trace_scope 0 r53 r53 1
 108	    trace_line 0 r53 r53 L12
-109	    trace_var 0 r53 r53 $36 = r37
-110	    trace_line 0 r53 r53 L11
-111	    trace_line 0 r53 r53 L14
-112	    trace_var 0 r53 r53 $35 = r37
-113	    trace_exit 0 r53 r53 F2
-114	    trace_enter 0 r53 r53 F3
-115	    trace_line 0 r53 r53 L19
-116	    trace_var 0 r53 r53 $39 = r38
-117	    trace_line 0 r53 r53 L20
-118	    trace_var 0 r53 r53 $40 = r29
-119	    trace_line 0 r53 r53 L21
-120	    trace_var 0 r53 r53 $39 = r9
-121	    trace_line 0 r53 r53 L20
-122	    trace_var 0 r53 r53 $40 = r35
-123	    trace_line 0 r53 r53 L21
-124	    trace_var 0 r53 r53 $39 = r39
-125	    trace_line 0 r53 r53 L20
-126	    trace_var 0 r53 r53 $40 = r33
-127	    trace_line 0 r53 r53 L21
-128	    trace_var 0 r53 r53 $39 = r40
-129	    trace_line 0 r53 r53 L20
-130	    trace_var 0 r53 r53 $40 = r32
-131	    trace_line 0 r53 r53 L21
-132	    trace_var 0 r53 r53 $39 = r41
+109	    trace_var 0 r53 r53 $36 = r34
+110	    trace_scope 0 r53 r53 -1
+111	    trace_line 0 r53 r53 L11
+112	    trace_var 0 r53 r53 $37 = r35
+113	    trace_scope 0 r53 r53 1
+114	    trace_line 0 r53 r53 L12
+115	    trace_var 0 r53 r53 $36 = r36
+116	    trace_scope 0 r53 r53 -1
+117	    trace_line 0 r53 r53 L11
+118	    trace_var 0 r53 r53 $37 = r29
+119	    trace_scope 0 r53 r53 1
+120	    trace_line 0 r53 r53 L12
+121	    trace_var 0 r53 r53 $36 = r37
+122	    trace_scope 0 r53 r53 -1
+123	    trace_line 0 r53 r53 L11
+124	    trace_scope 0 r53 r53 -1
+125	    trace_line 0 r53 r53 L14
+126	    trace_var 0 r53 r53 $35 = r37
+127	    trace_scope 0 r53 r53 -1
+128	    trace_exit 0 r53 r53 F2
+129	    trace_enter 0 r53 r53 F3
+130	    trace_scope 0 r53 r53 1
+131	    trace_line 0 r53 r53 L19
+132	    trace_var 0 r53 r53 $39 = r38
 133	    trace_line 0 r53 r53 L20
-134	    trace_line 0 r53 r53 L23
-135	    trace_var 0 r53 r53 $38 = r41
-136	    trace_exit 0 r53 r53 F3
-137	    trace_enter 0 r53 r53 F4
-138	    trace_line 0 r53 r53 L28
-139	    trace_var 0 r53 r53 $42 = r29
-140	    trace_line 0 r53 r53 L29
-141	    trace_var 0 r53 r53 $43 = r42
-142	    trace_line 0 r53 r53 L30
-143	    trace_line 0 r53 r53 L29
-144	    trace_var 0 r53 r53 $43 = r43
-145	    trace_line 0 r53 r53 L30
-146	    trace_line 0 r53 r53 L31
-147	    trace_var 0 r53 r53 $42 = r44
-148	    trace_line 0 r53 r53 L29
-149	    trace_var 0 r53 r53 $43 = r45
-150	    trace_line 0 r53 r53 L30
-151	    trace_line 0 r53 r53 L31
-152	    trace_var 0 r53 r53 $42 = r46
-153	    trace_line 0 r53 r53 L29
-154	    trace_var 0 r53 r53 $43 = r47
-155	    trace_line 0 r53 r53 L30
-156	    trace_line 0 r53 r53 L31
-157	    trace_var 0 r53 r53 $42 = r48
-158	    trace_line 0 r53 r53 L29
-159	    trace_var 0 r53 r53 $43 = r49
-160	    trace_line 0 r53 r53 L30
-161	    trace_line 0 r53 r53 L31
-162	    trace_var 0 r53 r53 $42 = r50
-163	    trace_line 0 r53 r53 L29
-164	    trace_var 0 r53 r53 $43 = r51
-165	    trace_line 0 r53 r53 L30
-166	    trace_line 0 r53 r53 L29
-167	    trace_line 0 r53 r53 L34
-168	    trace_var 0 r53 r53 $41 = r50
-169	    trace_exit 0 r53 r53 F4
-170	    trace_var 0 r53 r53 $28 = r1
-171	    trace_var 0 r53 r53 $29 = r37
-172	    trace_var 0 r53 r53 $30 = r41
-173	    trace_var 0 r53 r53 $31 = r50
-174	    trace_exit 0 r53 r53 F0
-175	    store32 ptr1 r1
-176	    store32 ptr2 r37
-177	    store32 ptr3 r41
-178	    store32 ptr4 r50
+134	    trace_scope 0 r53 r53 1
+135	    trace_var 0 r53 r53 $40 = r29
+136	    trace_scope 0 r53 r53 1
+137	    trace_line 0 r53 r53 L21
+138	    trace_var 0 r53 r53 $39 = r9
+139	    trace_scope 0 r53 r53 -1
+140	    trace_line 0 r53 r53 L20
+141	    trace_var 0 r53 r53 $40 = r35
+142	    trace_scope 0 r53 r53 1
+143	    trace_line 0 r53 r53 L21
+144	    trace_var 0 r53 r53 $39 = r39
+145	    trace_scope 0 r53 r53 -1
+146	    trace_line 0 r53 r53 L20
+147	    trace_var 0 r53 r53 $40 = r33
+148	    trace_scope 0 r53 r53 1
+149	    trace_line 0 r53 r53 L21
+150	    trace_var 0 r53 r53 $39 = r40
+151	    trace_scope 0 r53 r53 -1
+152	    trace_line 0 r53 r53 L20
+153	    trace_var 0 r53 r53 $40 = r32
+154	    trace_scope 0 r53 r53 1
+155	    trace_line 0 r53 r53 L21
+156	    trace_var 0 r53 r53 $39 = r41
+157	    trace_scope 0 r53 r53 -1
+158	    trace_line 0 r53 r53 L20
+159	    trace_scope 0 r53 r53 -1
+160	    trace_line 0 r53 r53 L23
+161	    trace_var 0 r53 r53 $38 = r41
+162	    trace_scope 0 r53 r53 -1
+163	    trace_exit 0 r53 r53 F3
+164	    trace_enter 0 r53 r53 F4
+165	    trace_scope 0 r53 r53 1
+166	    trace_line 0 r53 r53 L28
+167	    trace_var 0 r53 r53 $42 = r29
+168	    trace_line 0 r53 r53 L29
+169	    trace_scope 0 r53 r53 1
+170	    trace_var 0 r53 r53 $43 = r42
+171	    trace_scope 0 r53 r53 1
+172	    trace_line 0 r53 r53 L30
+173	    trace_scope 0 r53 r53 -1
+174	    trace_line 0 r53 r53 L29
+175	    trace_var 0 r53 r53 $43 = r43
+176	    trace_scope 0 r53 r53 1
+177	    trace_line 0 r53 r53 L30
+178	    trace_scope 0 r53 r53 1
+179	    trace_line 0 r53 r53 L31
+180	    trace_var 0 r53 r53 $42 = r44
+181	    trace_scope 0 r53 r53 -1
+182	    trace_scope 0 r53 r53 -1
+183	    trace_line 0 r53 r53 L29
+184	    trace_var 0 r53 r53 $43 = r45
+185	    trace_scope 0 r53 r53 1
+186	    trace_line 0 r53 r53 L30
+187	    trace_scope 0 r53 r53 1
+188	    trace_line 0 r53 r53 L31
+189	    trace_var 0 r53 r53 $42 = r46
+190	    trace_scope 0 r53 r53 -1
+191	    trace_scope 0 r53 r53 -1
+192	    trace_line 0 r53 r53 L29
+193	    trace_var 0 r53 r53 $43 = r47
+194	    trace_scope 0 r53 r53 1
+195	    trace_line 0 r53 r53 L30
+196	    trace_scope 0 r53 r53 1
+197	    trace_line 0 r53 r53 L31
+198	    trace_var 0 r53 r53 $42 = r48
+199	    trace_scope 0 r53 r53 -1
+200	    trace_scope 0 r53 r53 -1
+201	    trace_line 0 r53 r53 L29
+202	    trace_var 0 r53 r53 $43 = r49
+203	    trace_scope 0 r53 r53 1
+204	    trace_line 0 r53 r53 L30
+205	    trace_scope 0 r53 r53 1
+206	    trace_line 0 r53 r53 L31
+207	    trace_var 0 r53 r53 $42 = r50
+208	    trace_scope 0 r53 r53 -1
+209	    trace_scope 0 r53 r53 -1
+210	    trace_line 0 r53 r53 L29
+211	    trace_var 0 r53 r53 $43 = r51
+212	    trace_scope 0 r53 r53 1
+213	    trace_line 0 r53 r53 L30
+214	    trace_scope 0 r53 r53 -1
+215	    trace_line 0 r53 r53 L29
+216	    trace_scope 0 r53 r53 -1
+217	    trace_line 0 r53 r53 L34
+218	    trace_var 0 r53 r53 $41 = r50
+219	    trace_scope 0 r53 r53 -1
+220	    trace_exit 0 r53 r53 F4
+221	    trace_var 0 r53 r53 $28 = r1
+222	    trace_var 0 r53 r53 $29 = r37
+223	    trace_var 0 r53 r53 $30 = r41
+224	    trace_var 0 r53 r53 $31 = r50
+225	    trace_scope 0 r53 r53 -1
+226	    trace_exit 0 r53 r53 F0
+227	    store32 ptr1 r1
+228	    store32 ptr2 r37
+229	    store32 ptr3 r41
+230	    store32 ptr4 r50

@@ -575,14 +575,16 @@ F0 = half4 main(float2 p)
 enter half4 main(float2 p)
   p.x = 0.5
   p.y = 1.5
-  line 3
-  val.x = 0
-  val.y = 1
-  line 4
-  [main].result.x = 0
-  [main].result.y = 1
-  [main].result.z = 0
-  [main].result.w = 1
+  scope +1
+   line 3
+   val.x = 0
+   val.y = 1
+   line 4
+   [main].result.x = 0
+   [main].result.y = 1
+   [main].result.z = 0
+   [main].result.w = 1
+  scope -1
 exit half4 main(float2 p)
 )",
                     "Trace output does not match expectation:\n%.*s\n",
