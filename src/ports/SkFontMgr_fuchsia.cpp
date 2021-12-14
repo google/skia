@@ -369,9 +369,8 @@ SkTypeface* SkFontMgr_Fuchsia::onMatchFamilyStyleCharacter(const char familyName
     return typeface.release();
 }
 
-sk_sp<SkTypeface> SkFontMgr_Fuchsia::onMakeFromData(sk_sp<SkData>, int ttcIndex) const {
-    SkASSERT(false);
-    return nullptr;
+sk_sp<SkTypeface> SkFontMgr_Fuchsia::onMakeFromData(sk_sp<SkData> data, int ttcIndex) const {
+    return makeFromStream(std::make_unique<SkMemoryStream>(std::move(data)), ttcIndex);
 }
 
 sk_sp<SkTypeface> SkFontMgr_Fuchsia::onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> asset,
