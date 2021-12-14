@@ -46,7 +46,7 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::strin
     if (fModifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
         if (ThreadContext::InFragmentProcessor()) {
-            const SkSL::Type& skslType = type.skslType();
+            const SkSL::Type& skslType = fType.skslType();
             GrSLType grslType;
             int count;
             if (skslType.isArray()) {
