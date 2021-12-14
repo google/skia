@@ -32,8 +32,11 @@ private:
     void showRootGUI();
     void showLoadTraceGUI();
     void showDebuggerGUI();
-    void showCodeTable();
+    void showStackTraceTable();
     void showVariableTable();
+    void showCodeTable();
+
+    static constexpr int kNumTopRows = 12;
 
     sk_sp<SkSL::SkVMDebugTrace> fTrace;
     SkSL::SkVMDebugTracePlayer fPlayer;

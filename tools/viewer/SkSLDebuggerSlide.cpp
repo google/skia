@@ -84,6 +84,7 @@ void SkSLDebuggerSlide::showDebuggerGUI() {
         fRefresh = true;
     }
 
+    this->showStackTraceTable();
     this->showVariableTable();
     this->showCodeTable();
 }
@@ -134,6 +135,42 @@ void SkSLDebuggerSlide::showCodeTable() {
     }
 }
 
+void SkSLDebuggerSlide::showStackTraceTable() {
+    constexpr ImGuiTableFlags kTableFlags =
+            ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
+            ImGuiTableFlags_BordersV | ImGuiTableFlags_NoHostExtendX;
+    constexpr ImGuiTableColumnFlags kColumnFlags =
+            ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoHide |
+            ImGuiTableColumnFlags_NoSort;
+
+    std::vector<int> callStack = fPlayer.getCallStack();
+
+    ImVec2 contentRect = ImGui::GetContentRegionAvail();
+    ImVec2 stackViewSize = ImVec2(contentRect.x / 3.0f,
+                                  ImGui::GetTextLineHeightWithSpacing() * kNumTopRows);
+    if (ImGui::BeginTable("Call Stack", /*column=*/1, kTableFlags, stackViewSize)) {
+        ImGui::TableSetupColumn("Stack", kColumnFlags);
+        ImGui::TableHeadersRow();
+
+        ImGuiListClipper clipper;
+        clipper.Begin(callStack.size());
+        while (clipper.Step()) {
+            for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+                int funcIdx = callStack.rbegin()[row];
+                SkASSERT(funcIdx >= 0 && (size_t)funcIdx < fTrace->fFuncInfo.size());
+                const SkSL::SkVMFunctionInfo& funcInfo = fTrace->fFuncInfo[funcIdx];
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", funcInfo.name.c_str());
+            }
+        }
+        ImGui::EndTable();
+    }
+
+    ImGui::SameLine();
+}
+
 void SkSLDebuggerSlide::showVariableTable() {
     constexpr ImGuiTableFlags kTableFlags =
             ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
@@ -152,8 +189,7 @@ void SkSLDebuggerSlide::showVariableTable() {
     if (vars.empty()) {
         return;
     }
-    constexpr int kVarNumRows = 12;
-    ImVec2 varViewSize = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * kVarNumRows);
+    ImVec2 varViewSize = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * kNumTopRows);
     if (ImGui::BeginTable("Variables", /*column=*/2, kTableFlags, varViewSize)) {
         ImGui::TableSetupColumn("Variable", kColumnFlags);
         ImGui::TableSetupColumn("Value", kColumnFlags);
