@@ -219,7 +219,7 @@ SkPDFDocument::SkPDFDocument(SkWStream* stream,
     if (fMetadata.fStructureElementTreeRoot) {
         fTagTree.init(fMetadata.fStructureElementTreeRoot);
     }
-    fExecutor = metadata.fExecutor;
+    fExecutor = fMetadata.fExecutor;
 }
 
 SkPDFDocument::~SkPDFDocument() {
