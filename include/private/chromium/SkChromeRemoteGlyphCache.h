@@ -49,8 +49,7 @@ public:
 
         // Returns true if a handle has been deleted on the remote client. It is
         // invalid to use a handle id again with this manager once this returns true.
-        // TODO(khushalsagar): Make pure virtual once chrome implementation lands.
-        SK_SPI virtual bool isHandleDeleted(SkDiscardableHandleId) { return false; }
+        SK_SPI virtual bool isHandleDeleted(SkDiscardableHandleId) = 0;
     };
 
     SK_SPI explicit SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
@@ -94,7 +93,7 @@ public:
 
         // (DEPRECATED) The original glyph could not be found and a fallback was used.
         kGlyphMetricsFallback = 4,
-        kGlyphPathFallback = 5,
+        kGlyphPathFallback    = 5,
 
         kLast = kGlyphPath
     };
@@ -108,12 +107,7 @@ public:
         // successful, subsequent attempts to delete the same handle are invalid.
         virtual bool deleteHandle(SkDiscardableHandleId) = 0;
 
-        // TODO: remove this old interface when Chrome has moved over to the one below.
-        virtual void notifyCacheMiss(CacheMissType type) { }
-
-        virtual void notifyCacheMiss(CacheMissType type, int fontSize) {
-            this->notifyCacheMiss(type);
-        }
+        virtual void notifyCacheMiss(CacheMissType type, int fontSize) = 0;
 
         struct ReadFailureData {
             size_t memorySize;
