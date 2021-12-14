@@ -16,8 +16,8 @@
 
 namespace SkSL {
 
+class BuiltinMap;
 class ErrorReporter;
-class IntrinsicMap;
 class Mangler;
 class ModifiersPool;
 struct ProgramConfig;
@@ -49,7 +49,7 @@ public:
     Mangler* fMangler = nullptr;
 
     // Symbols which have definitions in the include files.
-    IntrinsicMap* fIntrinsics = nullptr;
+    BuiltinMap* fBuiltins = nullptr;
 };
 
 }  // namespace SkSL

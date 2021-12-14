@@ -8,9 +8,9 @@
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include "include/private/SkSLProgramKind.h"
+#include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLIntrinsicMap.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
@@ -31,8 +31,8 @@ void FindAndDeclareBuiltinVariables(const Context& context,
         void addDeclaringElement(const String& name) {
             // If this is the *first* time we've seen this builtin, findAndInclude will return
             // the corresponding ProgramElement.
-            IntrinsicMap& intrinsics = *fContext.fIntrinsics;
-            if (const ProgramElement* decl = intrinsics.findAndInclude(name)) {
+            BuiltinMap& builtins = *fContext.fBuiltins;
+            if (const ProgramElement* decl = builtins.findAndInclude(name)) {
                 SkASSERT(decl->is<GlobalVarDeclaration>() || decl->is<InterfaceBlock>());
                 fNewElements.push_back(decl);
             }

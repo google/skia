@@ -73,7 +73,7 @@ public:
         SkSL::Compiler& compiler = *instance.fCompiler;
         const SkSL::Context& context = *compiler.fContext;
         // Variables defined in the pre-includes need their declaring elements added to the program
-        if (!instance.fConfig->fIsBuiltinCode && context.fIntrinsics) {
+        if (!instance.fConfig->fIsBuiltinCode && context.fBuiltins) {
             Transform::FindAndDeclareBuiltinVariables(context, instance.fConfig->fKind,
                     instance.fSharedElements);
         }

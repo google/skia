@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKSL_INTRINSICMAP
-#define SKSL_INTRINSICMAP
+#ifndef SKSL_BUILTINMAP
+#define SKSL_BUILTINMAP
+
+#include "include/private/SkSLString.h"
 
 #include <memory>
 #include <unordered_map>
@@ -14,14 +16,13 @@
 namespace SkSL {
 
 class ProgramElement;
-class String;
 
 /**
- * Represents the intrinsics in the Context.
+ * Represents the builtin elements in the Context.
  */
-class IntrinsicMap {
+class BuiltinMap {
 public:
-    IntrinsicMap(IntrinsicMap* parent) : fParent(parent) {}
+    BuiltinMap(BuiltinMap* parent) : fParent(parent) {}
 
     void insertOrDie(String key, std::unique_ptr<ProgramElement> element);
 
@@ -32,13 +33,13 @@ public:
     void resetAlreadyIncluded();
 
 private:
-    struct Intrinsic {
-        std::unique_ptr<ProgramElement> fIntrinsic;
+    struct BuiltinElement {
+        std::unique_ptr<ProgramElement> fElement;
         bool fAlreadyIncluded = false;
     };
 
-    std::unordered_map<String, Intrinsic> fIntrinsics;
-    IntrinsicMap* fParent = nullptr;
+    std::unordered_map<String, BuiltinElement> fElements;
+    BuiltinMap* fParent = nullptr;
 };
 
 } // namespace SkSL

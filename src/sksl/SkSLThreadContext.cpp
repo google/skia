@@ -11,8 +11,8 @@
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLIntrinsicMap.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
 
 namespace SkSL {
@@ -41,9 +41,9 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
     fConfig->fIsBuiltinCode = isModule;
     fCompiler->fContext->fConfig = fConfig.get();
     fCompiler->fContext->fErrors = &fDefaultErrorReporter;
-    fCompiler->fContext->fIntrinsics = module.fIntrinsics.get();
-    if (fCompiler->fContext->fIntrinsics) {
-        fCompiler->fContext->fIntrinsics->resetAlreadyIncluded();
+    fCompiler->fContext->fBuiltins = module.fElements.get();
+    if (fCompiler->fContext->fBuiltins) {
+        fCompiler->fContext->fBuiltins->resetAlreadyIncluded();
     }
 
     fCompiler->fSymbolTable = module.fSymbols;

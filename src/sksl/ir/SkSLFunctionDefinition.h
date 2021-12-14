@@ -21,15 +21,15 @@ class FunctionDefinition final : public ProgramElement {
 public:
     inline static constexpr Kind kProgramElementKind = Kind::kFunction;
 
-    using IntrinsicSet = std::unordered_set<const FunctionDeclaration*>;
+    using FunctionSet = std::unordered_set<const FunctionDeclaration*>;
 
     FunctionDefinition(int line, const FunctionDeclaration* declaration, bool builtin,
-                       std::unique_ptr<Statement> body, IntrinsicSet referencedIntrinsics)
+                       std::unique_ptr<Statement> body, FunctionSet referencedBuiltinFunctions)
         : INHERITED(line, kProgramElementKind)
         , fDeclaration(declaration)
         , fBuiltin(builtin)
         , fBody(std::move(body))
-        , fReferencedIntrinsics(std::move(referencedIntrinsics)) {}
+        , fReferencedBuiltinFunctions(std::move(referencedBuiltinFunctions)) {}
 
     /**
      * Coerces `return` statements to the return type of the function, and reports errors in the
@@ -64,14 +64,14 @@ public:
         return fBody;
     }
 
-    const std::unordered_set<const FunctionDeclaration*>& referencedIntrinsics() const {
-        return fReferencedIntrinsics;
+    const FunctionSet& referencedBuiltinFunctions() const {
+        return fReferencedBuiltinFunctions;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
         return std::make_unique<FunctionDefinition>(fLine, &this->declaration(),
                                                     /*builtin=*/false, this->body()->clone(),
-                                                    this->referencedIntrinsics());
+                                                    this->referencedBuiltinFunctions());
     }
 
     String description() const override {
@@ -82,9 +82,9 @@ private:
     const FunctionDeclaration* fDeclaration;
     bool fBuiltin;
     std::unique_ptr<Statement> fBody;
-    // We track intrinsic functions we reference so that we can ensure that all of them end up
+    // We track the builtin functions we reference so that we can ensure that all of them end up
     // copied into the final output.
-    IntrinsicSet fReferencedIntrinsics;
+    FunctionSet fReferencedBuiltinFunctions;
 
     using INHERITED = ProgramElement;
 };
