@@ -262,6 +262,9 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                                                "' can exit without returning a value");
     }
 
+    SkASSERTF(!function.isIntrinsic(),
+              "Intrinsic %s should not have a definition",
+              String(function.name()).c_str());
     return std::make_unique<FunctionDefinition>(line, &function, builtin, std::move(body),
                                                 std::move(referencedIntrinsics));
 }
