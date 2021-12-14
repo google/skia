@@ -543,12 +543,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
     SkASSERT(proxy);
     SK_AT_SCOPE_EXIT(proxy->clearArenas());
 
-    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
-    // can end up with OpsTasks that only have a discard load op and no ops. For vulkan validation
-    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
-    // we shouldn't end up with OpsTasks with only discard.
-    if (this->isColorNoOp() ||
-        (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+    if (this->isColorNoOp() || fClippedContentBounds.isEmpty()) {
         return false;
     }
 
