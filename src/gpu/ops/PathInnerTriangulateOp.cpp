@@ -106,9 +106,9 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
             float2 v3 = p3 - p0;
 
             // Reorder the points so v2 bisects v1 and v3.
-            if (sign(cross(v2, v1)) == sign(cross(v2, v3))) {
+            if (sign(cross_length_2d(v2, v1)) == sign(cross_length_2d(v2, v3))) {
                 float2 tmp = p2;
-                if (sign(cross(v1, v2)) != sign(cross(v1, v3))) {
+                if (sign(cross_length_2d(v1, v2)) != sign(cross_length_2d(v1, v3))) {
                     p2 = p1;  // swap(p2, p1)
                     p1 = tmp;
                 } else {
@@ -141,7 +141,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
                 v->codeAppendf(R"(
                 next = p%i - p%i;)", (i + 1) % 4, i);
                 v->codeAppendf(R"(
-                dir = sign(cross(prev, next));
+                dir = sign(cross_length_2d(prev, next));
                 if (vertexidx == %i) {
                     vertexdir = dir;
                     localcoord = p%i;

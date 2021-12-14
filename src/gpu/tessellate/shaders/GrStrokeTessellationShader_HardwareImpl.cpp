@@ -150,7 +150,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     // Calculate the number of segments to chop the join into.
     float cosTheta = cosine_between_vectors(prevJoinTangent, tan0);
     float joinRotation = (cosTheta == 1) ? 0 : acos(cosTheta);
-    if (cross(prevJoinTangent, tan0) < 0) {
+    if (cross_length_2d(prevJoinTangent, tan0) < 0) {
         joinRotation = -joinRotation;
     }
     float joinRadialSegments = abs(joinRotation) * NUM_RADIAL_SEGMENTS_PER_RADIAN;
@@ -202,9 +202,9 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     // We formulate this as a quadratic equation:  F' x F'' == aT^2 + bT + c == 0.
     // See: https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
     // NOTE: We only need the roots, so a uniform scale factor does not affect the solution.
-    float a = cross(A, B);
-    float b = cross(A, C);
-    float c = cross(B, C);
+    float a = cross_length_2d(A, B);
+    float b = cross_length_2d(A, C);
+    float c = cross_length_2d(B, C);
     float b_over_2 = b*.5;
     float discr_over_4 = b_over_2*b_over_2 - a*c;
 

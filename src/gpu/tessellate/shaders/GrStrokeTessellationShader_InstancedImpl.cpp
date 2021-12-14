@@ -189,7 +189,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     // Find which direction the curve turns.
     // NOTE: Since the curve is not allowed to inflect, we can just check F'(.5) x F''(.5).
     // NOTE: F'(.5) x F''(.5) has the same sign as (P2 - P0) x (P3 - P1)
-    float turn = cross(p2 - p0, p3 - p1);
+    float turn = cross_length_2d(p2 - p0, p3 - p1);
     float combinedEdgeID = abs(edgeID) - numEdgesInJoin;
     if (combinedEdgeID < 0) {
         tan1 = tan0;
@@ -199,7 +199,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
         if (lastControlPoint != p0) {
             tan0 = p0 - lastControlPoint;
         }
-        turn = cross(tan0, tan1);
+        turn = cross_length_2d(tan0, tan1);
     }
 
     // Calculate the curve's starting angle and rotation.

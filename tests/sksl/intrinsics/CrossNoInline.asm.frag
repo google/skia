@@ -10,8 +10,8 @@ OpMemberName %_UniformBuffer 0 "ah"
 OpMemberName %_UniformBuffer 1 "bh"
 OpMemberName %_UniformBuffer 2 "af"
 OpMemberName %_UniformBuffer 3 "bf"
-OpName %cross_hh2h2 "cross_hh2h2"
-OpName %cross_ff2f2 "cross_ff2f2"
+OpName %cross_length_2d_hh2h2 "cross_length_2d_hh2h2"
+OpName %cross_length_2d_ff2f2 "cross_length_2d_ff2f2"
 OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -61,7 +61,7 @@ OpDecorate %57 RelaxedPrecision
 %_ptr_Output_float = OpTypePointer Output %float
 %int_2 = OpConstant %int 2
 %int_3 = OpConstant %int 3
-%cross_hh2h2 = OpFunction %float None %16
+%cross_length_2d_hh2h2 = OpFunction %float None %16
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpFunctionParameter %_ptr_Function_v2float
 %20 = OpLabel
@@ -78,7 +78,7 @@ OpDecorate %57 RelaxedPrecision
 %31 = OpFSub %float %25 %30
 OpReturnValue %31
 OpFunctionEnd
-%cross_ff2f2 = OpFunction %float None %16
+%cross_length_2d_ff2f2 = OpFunction %float None %16
 %32 = OpFunctionParameter %_ptr_Function_v2float
 %33 = OpFunctionParameter %_ptr_Function_v2float
 %34 = OpLabel
@@ -107,7 +107,7 @@ OpStore %54 %53
 %55 = OpAccessChain %_ptr_Uniform_v2float %12 %int_1
 %57 = OpLoad %v2float %55
 OpStore %58 %57
-%59 = OpFunctionCall %float %cross_hh2h2 %54 %58
+%59 = OpFunctionCall %float %cross_length_2d_hh2h2 %54 %58
 %60 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 OpStore %60 %59
 %62 = OpAccessChain %_ptr_Uniform_v2float %12 %int_2
@@ -116,7 +116,7 @@ OpStore %65 %64
 %66 = OpAccessChain %_ptr_Uniform_v2float %12 %int_3
 %68 = OpLoad %v2float %66
 OpStore %69 %68
-%70 = OpFunctionCall %float %cross_ff2f2 %65 %69
+%70 = OpFunctionCall %float %cross_length_2d_ff2f2 %65 %69
 %71 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_1
 OpStore %71 %70
 OpReturn

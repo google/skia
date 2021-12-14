@@ -3,6 +3,6 @@
 uniform half2  ah, bh;
 uniform float2 af, bf;
 void main() {
-    sk_FragColor.x = cross(ah, bh);
-    sk_FragColor.y = half(cross(af, bf));
+    sk_FragColor.x = cross_length_2d(ah, bh);
+    sk_FragColor.y = half(cross_length_2d(af, bf));
 }
