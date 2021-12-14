@@ -113,7 +113,7 @@ GrResourceAllocator::Register::Register(GrSurfaceProxy* originatingProxy,
     SkASSERT(!originatingProxy->isInstantiated());
     SkASSERT(!originatingProxy->isLazy());
     SkDEBUGCODE(fUniqueID = CreateUniqueID();)
-    if (scratchKey.isValid()) {
+    if (fScratchKey.isValid()) {
         if (can_proxy_use_scratch(*provider->caps(), originatingProxy)) {
             fExistingSurface = provider->findAndRefScratchTexture(fScratchKey);
         }
