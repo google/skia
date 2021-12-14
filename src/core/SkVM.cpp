@@ -652,49 +652,42 @@ namespace skvm {
         return traceHookID;
     }
 
+    bool Builder::mergeMasks(I32& mask, I32& traceMask) {
+        if (this->isImm(mask.id,      0)) { return false; }
+        if (this->isImm(traceMask.id, 0)) { return false; }
+        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
+        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        return true;
+    }
+
     void Builder::trace_line(int traceHookID, I32 mask, I32 traceMask, int line) {
         SkASSERT(traceHookID >= 0);
         SkASSERT(traceHookID < (int)fTraceHooks.size());
-        if (this->isImm(mask.id,      0)) { return; }
-        if (this->isImm(traceMask.id, 0)) { return; }
-        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
-        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        if (!this->mergeMasks(mask, traceMask)) { return; }
         (void)push(Op::trace_line, mask.id,traceMask.id,NA,NA, traceHookID, line);
     }
     void Builder::trace_var(int traceHookID, I32 mask, I32 traceMask, int slot, I32 val) {
         SkASSERT(traceHookID >= 0);
         SkASSERT(traceHookID < (int)fTraceHooks.size());
-        if (this->isImm(mask.id,      0)) { return; }
-        if (this->isImm(traceMask.id, 0)) { return; }
-        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
-        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        if (!this->mergeMasks(mask, traceMask)) { return; }
         (void)push(Op::trace_var, mask.id,traceMask.id,val.id,NA, traceHookID, slot);
     }
     void Builder::trace_enter(int traceHookID, I32 mask, I32 traceMask, int fnIdx) {
         SkASSERT(traceHookID >= 0);
         SkASSERT(traceHookID < (int)fTraceHooks.size());
-        if (this->isImm(mask.id,      0)) { return; }
-        if (this->isImm(traceMask.id, 0)) { return; }
-        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
-        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        if (!this->mergeMasks(mask, traceMask)) { return; }
         (void)push(Op::trace_enter, mask.id,traceMask.id,NA,NA, traceHookID, fnIdx);
     }
     void Builder::trace_exit(int traceHookID, I32 mask, I32 traceMask, int fnIdx) {
         SkASSERT(traceHookID >= 0);
         SkASSERT(traceHookID < (int)fTraceHooks.size());
-        if (this->isImm(mask.id,      0)) { return; }
-        if (this->isImm(traceMask.id, 0)) { return; }
-        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
-        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        if (!this->mergeMasks(mask, traceMask)) { return; }
         (void)push(Op::trace_exit, mask.id,traceMask.id,NA,NA, traceHookID, fnIdx);
     }
     void Builder::trace_scope(int traceHookID, I32 mask, I32 traceMask, int delta) {
         SkASSERT(traceHookID >= 0);
         SkASSERT(traceHookID < (int)fTraceHooks.size());
-        if (this->isImm(mask.id,      0)) { return; }
-        if (this->isImm(traceMask.id, 0)) { return; }
-        if (this->isImm(mask.id,     ~0)) { mask = traceMask; }
-        if (this->isImm(traceMask.id,~0)) { traceMask = mask; }
+        if (!this->mergeMasks(mask, traceMask)) { return; }
         (void)push(Op::trace_scope, mask.id,traceMask.id,NA,NA, traceHookID, delta);
     }
 

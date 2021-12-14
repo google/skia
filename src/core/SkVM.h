@@ -647,6 +647,7 @@ namespace skvm {
         void assert_true(I32 cond)            { assert_true(cond, cond); }
 
         // Insert debug traces into the instruction stream
+        bool mergeMasks(I32& mask, I32& traceMask);
         void trace_line (int traceHookID, I32 mask, I32 traceMask, int line);
         void trace_var  (int traceHookID, I32 mask, I32 traceMask, int slot, I32 val);
         void trace_enter(int traceHookID, I32 mask, I32 traceMask, int fnIdx);
