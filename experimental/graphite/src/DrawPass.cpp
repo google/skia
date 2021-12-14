@@ -27,13 +27,23 @@
 
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkTBlockList.h"
-#include "src/core/SkUtils.h"
 #include "src/gpu/BufferWriter.h"
 
 #include <algorithm>
 #include <unordered_map>
 
 namespace skgpu {
+
+// Helper to manage packed fields within a uint64_t
+template <uint64_t Bits, uint64_t Offset>
+struct Bitfield {
+    static constexpr uint64_t kMask = ((uint64_t) 1 << Bits) - 1;
+    static constexpr uint64_t kOffset = Offset;
+    static constexpr uint64_t kBits = Bits;
+
+    static uint32_t get(uint64_t v) { return static_cast<uint32_t>((v >> kOffset) & kMask); }
+    static uint64_t set(uint32_t v) { return (v & kMask) << kOffset; }
+};
 
 /**
  * Each Draw in a DrawList might be processed by multiple RenderSteps (determined by the Draw's
@@ -65,55 +75,55 @@ public:
             uint32_t pipelineIndex,
             uint32_t geomUniformIndex,
             uint32_t shadingUniformIndex)
-        : fPipelineKey{draw->fOrder.paintOrder().bits(),
-                       draw->fOrder.stencilIndex().bits(),
-                       static_cast<uint32_t>(renderStep),
-                       pipelineIndex}
-        , fUniformKey{geomUniformIndex, shadingUniformIndex}
+        : fPipelineKey(ColorDepthOrderField::set(draw->fOrder.paintOrder().bits()) |
+                       StencilIndexField::set(draw->fOrder.stencilIndex().bits())  |
+                       RenderStepField::set(static_cast<uint32_t>(renderStep))     |
+                       PipelineField::set(pipelineIndex))
+        , fUniformKey(GeometryUniformField::set(geomUniformIndex) |
+                      ShadingUniformField::set(shadingUniformIndex))
         , fDraw(draw) {
         SkASSERT(renderStep <= draw->fRenderer.numRenderSteps());
     }
 
     bool operator<(const SortKey& k) const {
-        uint64_t k1 = this->pipelineKey();
-        uint64_t k2 = k.pipelineKey();
-        return k1 < k2 || (k1 == k2 && this->uniformKey() < k.uniformKey());
+        return fPipelineKey < k.fPipelineKey ||
+               (fPipelineKey == k.fPipelineKey && fUniformKey < k.fUniformKey);
+    }
+
+    const RenderStep& renderStep() const {
+        return *fDraw->fRenderer.steps()[RenderStepField::get(fPipelineKey)];
     }
 
     const DrawList::Draw* draw() const { return fDraw; }
-    uint32_t pipeline() const { return fPipelineKey.fPipeline; }
-    const RenderStep& renderStep() const {
-        return *fDraw->fRenderer.steps()[fPipelineKey.fRenderStep];
-    }
 
-    uint32_t geometryUniforms() const { return fUniformKey.fGeometryIndex; }
-    uint32_t shadingUniforms() const { return fUniformKey.fShadingIndex; }
+    uint32_t pipeline()          const { return PipelineField::get(fPipelineKey);       }
+    uint32_t geometryUniforms()  const { return GeometryUniformField::get(fUniformKey); }
+    uint32_t shadingUniforms()   const { return ShadingUniformField::get(fUniformKey);  }
 
 private:
-    // Fields are ordered from most-significant to lowest when sorting by 128-bit value.
-    struct {
-        uint32_t fColorDepthOrder : 16; // sizeof(CompressedPaintersOrder)
-        uint32_t fStencilOrder    : 16; // sizeof(DisjointStencilIndex)
-        uint32_t fRenderStep      : 2;  // bits >= log2(Renderer::kMaxRenderSteps)
-        uint32_t fPipeline        : 30; // bits >= log2(max steps * DrawList::kMaxDraws)
-    } fPipelineKey; // NOTE: named for bit-punning, can't take address of a bit-field
+    // Fields are ordered from most-significant to least when sorting by 128-bit value.
+    // NOTE: We don't use bit fields because field ordering is implementation defined and we need
+    // to sort consistently.
+    using ColorDepthOrderField = Bitfield<16, 48>; // sizeof(CompressedPaintersOrder)
+    using StencilIndexField    = Bitfield<16, 32>; // sizeof(DisjointStencilIndex)
+    using RenderStepField      = Bitfield<2,  30>; // bits >= log2(Renderer::kMaxRenderSteps)
+    using PipelineField        = Bitfield<30, 0>;  // bits >= log2(max steps*DrawList::kMaxDraws)
+    uint64_t fPipelineKey;
 
-    uint64_t pipelineKey() const { return sk_bit_cast<uint64_t>(fPipelineKey); }
-
-    struct {
-        uint32_t fGeometryIndex; // bits >= log2(max steps * max draw count)
-        uint32_t fShadingIndex;  //  ""
-    } fUniformKey;
-
-    uint64_t uniformKey() const { return sk_bit_cast<uint64_t>(fUniformKey); }
+    using GeometryUniformField = Bitfield<32, 32>; // bits >= log2(max steps * max draw count)
+    using ShadingUniformField  = Bitfield<32, 0>;  //  ""
+    uint64_t fUniformKey;
 
     // Backpointer to the draw that produced the sort key
     const DrawList::Draw* fDraw;
 
-    static_assert(16 >= sizeof(CompressedPaintersOrder));
-    static_assert(16 >= sizeof(DisjointStencilIndex));
-    static_assert(2  >= SkNextLog2_portable(Renderer::kMaxRenderSteps));
-    static_assert(30 >= SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
+    static_assert(ColorDepthOrderField::kBits >= sizeof(CompressedPaintersOrder));
+    static_assert(StencilIndexField::kBits    >= sizeof(DisjointStencilIndex));
+    static_assert(RenderStepField::kBits      >= SkNextLog2_portable(Renderer::kMaxRenderSteps));
+    static_assert(PipelineField::kBits        >=
+                        SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
+    static_assert(GeometryUniformField::kBits >= PipelineField::kBits);
+    static_assert(ShadingUniformField::kBits  >= PipelineField::kBits);
 };
 
 class DrawPass::Drawer final : public DrawDispatcher {
