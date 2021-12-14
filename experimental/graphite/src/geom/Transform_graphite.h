@@ -63,6 +63,9 @@ public:
     Rect mapRect(const Rect& rect) const;
     Rect inverseMapRect(const Rect& rect) const;
 
+    void mapPoints(const Rect& localRect, SkV4 deviceOut[4]) const;
+    void mapPoints(const SkV2* localIn, SkV4* deviceOut, int count) const;
+
 private:
     SkM44 fM;
     SkM44 fInvM; // M^-1

@@ -37,11 +37,13 @@ using namespace skgpu;
 namespace {
 
 const DepthStencilSettings kTestDepthStencilSettings = {
+    // stencil
     {},
     {},
     0,
-    CompareOp::kAlways,
     true,
+    // depth
+    CompareOp::kAlways,
     true,
     false,
 };
@@ -62,12 +64,16 @@ public:
                "float4 devPosition = float4(tmpPosition * scale + translate, 0.0, 1.0);\n";
     }
 
-    void writeVertices(DrawWriter* writer, const Transform&, const Shape&) const override {
+    void writeVertices(DrawWriter* writer,
+                       const SkIRect&,
+                       const Transform&,
+                       const Shape&) const override {
         // The shape is upload via uniforms, so this just needs to record 4 data-less vertices
         writer->draw({}, {}, 4);
     }
 
     sk_sp<UniformData> writeUniforms(Layout layout,
+                                     const SkIRect&,
                                      const Transform&,
                                      const Shape& shape) const override {
         SkASSERT(shape.isRect());
@@ -107,7 +113,10 @@ public:
         return "float4 devPosition = float4(position * scale + translate, 0.0, 1.0);\n";
     }
 
-    void writeVertices(DrawWriter* writer, const Transform&, const Shape& shape) const override {
+    void writeVertices(DrawWriter* writer,
+                       const SkIRect&,
+                       const Transform&,
+                       const Shape& shape) const override {
         DrawBufferManager* bufferMgr = writer->bufferManager();
         auto [vertexWriter, vertices] = bufferMgr->getVertexWriter(4 * this->vertexStride());
         vertexWriter << 0.5f * (shape.rect().left() + 1.f)  << 0.5f * (shape.rect().top() + 1.f)
@@ -123,7 +132,10 @@ public:
         writer->draw(vertices, indices, 6);
     }
 
-    sk_sp<UniformData> writeUniforms(Layout layout, const Transform&, const Shape&) const override {
+    sk_sp<UniformData> writeUniforms(Layout layout,
+                                     const SkIRect&,
+                                     const Transform&,
+                                     const Shape&) const override {
         auto uniforms = UniformData::Make(this->numUniforms(), this->uniforms().data(),
                                           sizeof(float) * 4);
         float data[4] = {2.f, 2.f, -1.f, -1.f};
@@ -158,7 +170,10 @@ public:
                "float4 devPosition = float4(tmpPosition * dims + position, 0.0, 1.0);\n";
     }
 
-    void writeVertices(DrawWriter* writer, const Transform&, const Shape& shape) const override {
+    void writeVertices(DrawWriter* writer,
+                       const SkIRect&,
+                       const Transform&,
+                       const Shape& shape) const override {
         SkASSERT(shape.isRect());
 
         DrawBufferManager* bufferMgr = writer->bufferManager();
@@ -174,7 +189,10 @@ public:
         instanceWriter << shape.rect().topLeft() << shape.rect().size();
     }
 
-    sk_sp<UniformData> writeUniforms(Layout, const Transform&, const Shape&) const override {
+    sk_sp<UniformData> writeUniforms(Layout,
+                                     const SkIRect&,
+                                     const Transform&,
+                                     const Shape&) const override {
         return nullptr;
     }
 
@@ -269,12 +287,15 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 
         // All of the test RenderSteps ignore the transform, so just use the identity
         static const Transform kIdentity{SkM44()};
+        // No set scissor, so use entire render target dimensions
+        static const SkIRect kBounds = SkIRect::MakeWH(kTextureWidth, kTextureHeight);
 
         for (auto d : draws) {
             drawWriter.newDynamicState();
             Shape shape(d.fRect);
 
-            auto renderStepUniforms = step->writeUniforms(Layout::kMetal, kIdentity, shape);
+            auto renderStepUniforms =
+                    step->writeUniforms(Layout::kMetal, kBounds, kIdentity, shape);
             if (renderStepUniforms) {
                 auto [writer, bindInfo] =
                         bufferMgr.getUniformWriter(renderStepUniforms->dataSize());
@@ -291,7 +312,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
                                              sk_ref_sp(bindInfo.fBuffer),
                                              bindInfo.fOffset);
 
-            step->writeVertices(&drawWriter, kIdentity, shape);
+            step->writeVertices(&drawWriter, kBounds, kIdentity, shape);
         }
     };
 

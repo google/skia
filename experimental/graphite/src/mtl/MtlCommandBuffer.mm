@@ -252,13 +252,15 @@ void CommandBuffer::onBindVertexBuffers(const skgpu::Buffer* vertexBuffer,
 
     if (vertexBuffer) {
         id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(vertexBuffer)->mtlBuffer();
-        SkASSERT((vertexOffset & 0xF) == 0);
+        // Metal requires buffer offsets to be aligned to the data type, which is at most 4 bytes
+        // since we use [[attribute]] to automatically unpack float components into SIMD arrays.
+        SkASSERT((vertexOffset & 0b11) == 0);
         fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, vertexOffset,
                                                      GraphicsPipeline::kVertexBufferIndex);
     }
     if (instanceBuffer) {
         id<MTLBuffer> mtlBuffer = static_cast<const Buffer*>(instanceBuffer)->mtlBuffer();
-        SkASSERT((instanceOffset & 0xF) == 0);
+        SkASSERT((instanceOffset & 0b11) == 0);
         fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, instanceOffset,
                                                      GraphicsPipeline::kInstanceBufferIndex);
     }

@@ -22,7 +22,7 @@
 #include <initializer_list>
 #include <vector>
 
-
+struct SkIRect;
 enum class SkPathFillType;
 
 namespace skgpu {
@@ -42,7 +42,10 @@ public:
     // The DrawWriter is configured with the vertex and instance strides of the RenderStep, and its
     // primitive type. The recorded draws will be executed with a graphics pipeline compatible with
     // this RenderStep.
-    virtual void writeVertices(DrawWriter*, const Transform&, const Shape&) const = 0;
+    virtual void writeVertices(DrawWriter*,
+                               const SkIRect& bounds,
+                               const Transform&,
+                               const Shape&) const = 0;
 
     // Write out the uniform values (aligned for the layout). These values will be de-duplicated
     // across all draws using the RenderStep before uploading to the GPU, but it can be assumed the
@@ -54,6 +57,7 @@ public:
     // Similarly, it would be nice if this could write into reusable storage and then DrawPass or
     // UniformCache handles making an sk_sp if we need to assign a new unique ID to the uniform data
     virtual sk_sp<UniformData> writeUniforms(Layout layout,
+                                             const SkIRect& bounds,
                                              const Transform&,
                                              const Shape&) const = 0;
 

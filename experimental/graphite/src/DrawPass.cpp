@@ -306,8 +306,11 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             uint32_t geometryIndex = UniformCache::kInvalidUniformID;
             if (step->numUniforms() > 0) {
                 // TODO: Get layout from the GPU
-                geometryIndex = geometryUniformBindings.addUniforms(
-                        step->writeUniforms(Layout::kMetal, draw.fTransform, draw.fShape));
+                auto uniforms = step->writeUniforms(Layout::kMetal,
+                                                    draw.fClip.scissor(),
+                                                    draw.fTransform,
+                                                    draw.fShape);
+                geometryIndex = geometryUniformBindings.addUniforms(std::move(uniforms));
             }
 
             GraphicsPipelineDesc desc;
@@ -401,7 +404,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             }
         }
 
-        renderStep.writeVertices(&drawWriter, draw.fTransform, draw.fShape);
+        renderStep.writeVertices(&drawWriter, draw.fClip.scissor(), draw.fTransform, draw.fShape);
     }
     // Finish recording draw calls for any collected data at the end of the loop
     drawWriter.flush();
