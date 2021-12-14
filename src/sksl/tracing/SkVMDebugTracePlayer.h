@@ -64,6 +64,9 @@ private:
      */
     void tidy();
 
+    /** Updates fWriteTime for the entire variable at a given slot. */
+    void updateVariableWriteTime(int slotIdx, size_t writeTime);
+
     /** Returns a vector of the indices and values of each slot that is enabled in `bits`. */
     std::vector<VariableData> getVariablesForDisplayMask(const SkBitSet& bits) const;
 
@@ -73,12 +76,14 @@ private:
         SkBitSet  fDisplayMask;  // the variable slots which have been touched in this function
     };
     sk_sp<SkVMDebugTrace>       fDebugTrace;
-    size_t                      fCursor = 0;   // position of the read head
-    std::vector<int32_t>        fSlots;        // values in each slot
-    std::vector<StackFrame>     fStack;        // the execution stack
-    skstd::optional<SkBitSet>   fDirtyMask;    // variable slots touched during the most-recently
-                                               // executed step
-    skstd::optional<SkBitSet>   fReturnValues; // variable slots containing return values
+    size_t                      fCursor = 0;      // position of the read head
+    std::vector<int32_t>        fSlots;           // values in each slot
+    std::vector<size_t>         fWriteTime;       // when was the variable in this slot most
+                                                  // recently written? (cursor position per slot)
+    std::vector<StackFrame>     fStack;           // the execution stack
+    skstd::optional<SkBitSet>   fDirtyMask;       // variable slots touched during the most-recently
+                                                  // executed step
+    skstd::optional<SkBitSet>   fReturnValues;    // variable slots containing return values
 };
 
 }  // namespace SkSL

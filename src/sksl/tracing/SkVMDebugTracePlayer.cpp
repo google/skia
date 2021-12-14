@@ -15,6 +15,8 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
     fCursor = 0;
     fSlots.clear();
     fSlots.resize(nslots);
+    fWriteTime.clear();
+    fWriteTime.resize(nslots);
     fStack.clear();
     fStack.push_back({/*fFunction=*/-1,
                       /*fLine=*/-1,
@@ -101,6 +103,10 @@ std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getVariabl
     bits.forEachSetIndex([&](int slot) {
         vars.push_back({slot, fDirtyMask->test(slot), fSlots[slot]});
     });
+    // Order the variable list so that the most recently-written variables are shown at the top.
+    std::stable_sort(vars.begin(), vars.end(), [&](const VariableData& a, const VariableData& b) {
+        return fWriteTime[a.fSlotIndex] > fWriteTime[b.fSlotIndex];
+    });
     return vars;
 }
 
@@ -121,6 +127,19 @@ std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getGlobalV
         return {};
     }
     return this->getVariablesForDisplayMask(fStack.front().fDisplayMask);
+}
+
+void SkVMDebugTracePlayer::updateVariableWriteTime(int slotIdx, size_t cursor) {
+    // The slotIdx could point to any slot within a variable.
+    // We want to update the write time on EVERY slot associated with this variable.
+    // The SlotInfo gives us enough information to find the affected range.
+    const SkSL::SkVMSlotInfo& changedSlot = fDebugTrace->fSlotInfo[slotIdx];
+    slotIdx -= changedSlot.componentIndex;
+    int lastSlotIdx = slotIdx + (changedSlot.columns * changedSlot.rows);
+
+    for (; slotIdx < lastSlotIdx; ++slotIdx) {
+        fWriteTime[slotIdx] = cursor;
+    }
 }
 
 bool SkVMDebugTracePlayer::execute(size_t position) {
@@ -145,6 +164,7 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
             SkASSERT(slot >= 0);
             SkASSERT((size_t)slot < fDebugTrace->fSlotInfo.size());
             fSlots[slot] = value;
+            this->updateVariableWriteTime(slot, position);
             if (fDebugTrace->fSlotInfo[slot].fnReturnValue < 0) {
                 // Normal variables are associated with the current function.
                 SkASSERT(fStack.size() > 0);

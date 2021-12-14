@@ -273,7 +273,7 @@ int main() {                          // Line 6
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 9);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "a = 123, ##b = true");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##b = true, a = 123");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 3);
@@ -289,27 +289,28 @@ int main() {                          // Line 6
     REPORTER_ASSERT(r, player.getCurrentLine() == 9);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                       "a = 123, b = true, ##[func].result = 456");
+                       "##[func].result = 456, b = true, a = 123");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 10);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "a = 123, b = true");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "b = true, a = 123");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 11);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                    "a = 123, b = true, ##c.x = 0, ##c.y = 0.5, ##c.z = 1, ##c.w = -1");
+                       "##c.x = 0, ##c.y = 0.5, ##c.z = 1, ##c.w = -1, b = true, a = 123");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 12);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                    "a = 123, b = true, c.x = 0, c.y = 0.5, c.z = 1, c.w = -1, "
-                    "##d[0][0] = 2, ##d[0][1] = 0, ##d[0][2] = 0, "
-                    "##d[1][0] = 0, ##d[1][1] = 2, ##d[1][2] = 0, "
-                    "##d[2][0] = 0, ##d[2][1] = 0, ##d[2][2] = 2");
+                       "##d[0][0] = 2, ##d[0][1] = 0, ##d[0][2] = 0, "
+                       "##d[1][0] = 0, ##d[1][1] = 2, ##d[1][2] = 0, "
+                       "##d[2][0] = 0, ##d[2][1] = 0, ##d[2][2] = 2, "
+                       "c.x = 0, c.y = 0.5, c.z = 1, c.w = -1, b = true, a = 123");
+
 
     player.step();
     REPORTER_ASSERT(r, player.traceHasCompleted());
@@ -395,7 +396,7 @@ int main() {                       // Line 2
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 5);
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 0, ##x = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##x = 1, val = 0");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
@@ -403,7 +404,7 @@ int main() {                       // Line 2
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 5);
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 1, ##x = 2");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##x = 2, val = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
@@ -454,7 +455,7 @@ int main() {      // Line 9
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 5);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> int fn()");
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "a = 11, ##b = 22");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##b = 22, a = 11");
     player.stepOut();
 
     // We should now be back inside main(), right where we left off.
