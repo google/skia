@@ -47,6 +47,7 @@ struct SkVMTraceInfo {
         kVar,   /** data: slot, value */
         kEnter, /** data: function index, (unused) */
         kExit,  /** data: function index, (unused) */
+        kScope, /** data: scope delta, (unused) */
     };
     Op op;
     int32_t data[2];

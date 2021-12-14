@@ -193,6 +193,10 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
             fStack.pop_back();
             return true;
         }
+        case SkVMTraceInfo::Op::kScope: { // data: scope delta, (unused)
+            // TODO(skia:12741): track scope depth of variables
+            return false;
+        }
     }
 
     return false;

@@ -153,6 +153,19 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
                     o->writeText("exit ");
                     o->writeText(fFuncInfo[data0].name.c_str());
                     break;
+
+                case SkSL::SkVMTraceInfo::Op::kScope:
+                    for (int delta = data0; delta < 0; ++delta) {
+                        indent.pop_back();
+                    }
+                    o->writeText(indent.c_str());
+                    o->writeText("scope ");
+                    o->writeText((data0 >= 0) ? "+" : "");
+                    o->writeDecAsText(data0);
+                    for (int delta = data0; delta > 0; --delta) {
+                        indent.push_back(' ');
+                    }
+                    break;
             }
             o->newline();
         }
