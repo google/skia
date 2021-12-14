@@ -64,7 +64,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     SkASSERT(fColorAttachment);
 
     if (fColorAttachment->numSamples() == 1 && fColorAttachment->supportsInputAttachmentUsage()) {
-        SkASSERT(!resolveAttachment);
+        SkASSERT(!fResolveAttachment);
         // When we have a single sampled color attachment, we set both the color and resolve
         // to the same attachment. This way if we use DMAA on this render target we will resolve
         // to the single target attachment.
