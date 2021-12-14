@@ -364,7 +364,9 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Gpu* gpu,
 
     mtlColorAttachment.pixelFormat = MTLPixelFormatRGBA8Unorm;
     mtlColorAttachment.blendingEnabled = FALSE;
-    mtlColorAttachment.writeMask = MTLColorWriteMaskAll;
+
+    const bool writesColor = desc.shaderCombo().fShaderType != ShaderCombo::ShaderType::kNone;
+    mtlColorAttachment.writeMask = writesColor ? MTLColorWriteMaskAll : MTLColorWriteMaskNone;
 
     (*psoDescriptor).colorAttachments[0] = mtlColorAttachment;
 
