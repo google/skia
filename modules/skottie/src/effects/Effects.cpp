@@ -50,6 +50,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         { "ADBE Pro Levels2"            , &EffectBuilder::attachProLevelsEffect          },
         { "ADBE Radial Wipe"            , &EffectBuilder::attachRadialWipeEffect         },
         { "ADBE Ramp"                   , &EffectBuilder::attachGradientEffect           },
+        { "ADBE Sharpen"                , &EffectBuilder::attachSharpenEffect            },
         { "ADBE Shift Channels"         , &EffectBuilder::attachShiftChannelsEffect      },
         { "ADBE Threshold2"             , &EffectBuilder::attachThresholdEffect          },
         { "ADBE Tile"                   , &EffectBuilder::attachMotionTileEffect         },

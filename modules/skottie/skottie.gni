@@ -64,6 +64,7 @@ skia_skottie_sources = [
   "$_src/effects/MotionTileEffect.cpp",
   "$_src/effects/RadialWipeEffect.cpp",
   "$_src/effects/ShadowStyles.cpp",
+  "$_src/effects/SharpenEffect.cpp",
   "$_src/effects/ShiftChannelsEffect.cpp",
   "$_src/effects/SkSLEffect.cpp",
   "$_src/effects/SphereEffect.cpp",
