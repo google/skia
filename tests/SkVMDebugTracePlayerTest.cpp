@@ -361,17 +361,16 @@ int main() {          // Line 2
 
     // We skip over the false-branch.
     REPORTER_ASSERT(r, player.getCurrentLine() == 10);
-    // TODO(skia:12741): `temp` should fall out of scope and disappear
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##val = 1, temp = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##val = 1");
     player.step();
 
     // We skip over the true-branch.
     REPORTER_ASSERT(r, player.getCurrentLine() == 14);
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 1, temp = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 16);
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##val = 4, temp = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##val = 4");
     player.step();
 
     REPORTER_ASSERT(r, player.traceHasCompleted());
@@ -419,8 +418,7 @@ int main() {                       // Line 2
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 7);
-    // TODO(skia:12741): `x` should fall out of scope and disappear
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 2, x = 2");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 2");
     player.step();
 
     REPORTER_ASSERT(r, player.traceHasCompleted());
@@ -519,40 +517,31 @@ int main() {                // Line 2
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 9);
-    // TODO(skia:17421): `c` should fall out of scope
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##c = 3, b = 2, a = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "b = 2, a = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 11);
-    // TODO(skia:17421): `b` and `d` should fall out of scope
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##d = 4, c = 3, b = 2, a = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "a = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 13);
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                       "##e = 5, d = 4, c = 3, b = 2, a = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##e = 5, a = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 15);
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                       "##f = 6, e = 5, d = 4, c = 3, b = 2, a = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##f = 6, e = 5, a = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 17);
-    // TODO(skia:17421): `g` should fall out of scope
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                       "##g = 7, f = 6, e = 5, d = 4, c = 3, b = 2, a = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "f = 6, e = 5, a = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 19);
-    // TODO(skia:17421): `f` and `h` should fall out of scope
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                       "##h = 8, g = 7, f = 6, e = 5, d = 4, c = 3, b = 2, a = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "e = 5, a = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 20);
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) ==
-                       "##i = 9, h = 8, g = 7, f = 6, e = 5, d = 4, c = 3, b = 2, a = 1");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##i = 9, e = 5, a = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.traceHasCompleted());

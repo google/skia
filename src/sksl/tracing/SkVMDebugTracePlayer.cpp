@@ -14,9 +14,9 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
     fDebugTrace = debugTrace;
     fCursor = 0;
     fSlots.clear();
-    fSlots.resize(nslots);
-    fWriteTime.clear();
-    fWriteTime.resize(nslots);
+    fSlots.resize(nslots, {/*fValue=*/0,
+                           /*fScope=*/INT_MAX,
+                           /*fWriteTime=*/0});
     fStack.clear();
     fStack.push_back({/*fFunction=*/-1,
                       /*fLine=*/-1,
@@ -101,11 +101,11 @@ std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getVariabl
 
     std::vector<VariableData> vars;
     bits.forEachSetIndex([&](int slot) {
-        vars.push_back({slot, fDirtyMask->test(slot), fSlots[slot]});
+        vars.push_back({slot, fDirtyMask->test(slot), fSlots[slot].fValue});
     });
     // Order the variable list so that the most recently-written variables are shown at the top.
     std::stable_sort(vars.begin(), vars.end(), [&](const VariableData& a, const VariableData& b) {
-        return fWriteTime[a.fSlotIndex] > fWriteTime[b.fSlotIndex];
+        return fSlots[a.fSlotIndex].fWriteTime > fSlots[b.fSlotIndex].fWriteTime;
     });
     return vars;
 }
@@ -138,7 +138,7 @@ void SkVMDebugTracePlayer::updateVariableWriteTime(int slotIdx, size_t cursor) {
     int lastSlotIdx = slotIdx + (changedSlot.columns * changedSlot.rows);
 
     for (; slotIdx < lastSlotIdx; ++slotIdx) {
-        fWriteTime[slotIdx] = cursor;
+        fSlots[slotIdx].fWriteTime = cursor;
     }
 }
 
@@ -159,23 +159,24 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
             return true;
         }
         case SkVMTraceInfo::Op::kVar: {  // data: slot, value
-            int slot = trace.data[0];
+            int slotIdx = trace.data[0];
             int value = trace.data[1];
-            SkASSERT(slot >= 0);
-            SkASSERT((size_t)slot < fDebugTrace->fSlotInfo.size());
-            fSlots[slot] = value;
-            this->updateVariableWriteTime(slot, position);
-            if (fDebugTrace->fSlotInfo[slot].fnReturnValue < 0) {
+            SkASSERT(slotIdx >= 0);
+            SkASSERT((size_t)slotIdx < fDebugTrace->fSlotInfo.size());
+            fSlots[slotIdx].fValue = value;
+            fSlots[slotIdx].fScope = std::min<>(fSlots[slotIdx].fScope, fScope);
+            this->updateVariableWriteTime(slotIdx, position);
+            if (fDebugTrace->fSlotInfo[slotIdx].fnReturnValue < 0) {
                 // Normal variables are associated with the current function.
                 SkASSERT(fStack.size() > 0);
-                fStack.rbegin()[0].fDisplayMask.set(slot);
+                fStack.rbegin()[0].fDisplayMask.set(slotIdx);
             } else {
                 // Return values are associated with the parent function (since the current function
                 // is exiting and we won't see them there).
                 SkASSERT(fStack.size() > 1);
-                fStack.rbegin()[1].fDisplayMask.set(slot);
+                fStack.rbegin()[1].fDisplayMask.set(slotIdx);
             }
-            fDirtyMask->set(slot);
+            fDirtyMask->set(slotIdx);
             break;
         }
         case SkVMTraceInfo::Op::kEnter: { // data: function index, (unused)
@@ -194,7 +195,17 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
             return true;
         }
         case SkVMTraceInfo::Op::kScope: { // data: scope delta, (unused)
-            // TODO(skia:12741): track scope depth of variables
+            SkASSERT(!fStack.empty());
+            fScope += trace.data[0];
+            if (trace.data[0] < 0) {
+                // If the scope is being reduced, discard variables that are now out of scope.
+                for (size_t slotIdx = 0; slotIdx < fSlots.size(); ++slotIdx) {
+                    if (fScope < fSlots[slotIdx].fScope) {
+                        fSlots[slotIdx].fScope = INT_MAX;
+                        fStack.back().fDisplayMask.reset(slotIdx);
+                    }
+                }
+            }
             return false;
         }
     }

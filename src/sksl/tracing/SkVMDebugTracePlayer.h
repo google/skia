@@ -75,11 +75,17 @@ private:
         int32_t   fLine;         // our current line number within the function
         SkBitSet  fDisplayMask;  // the variable slots which have been touched in this function
     };
+    struct Slot {
+        int32_t   fValue;        // values in each slot
+        int       fScope;        // the scope value of each slot
+        size_t    fWriteTime;    // when was the variable in this slot most recently written?
+                                 // (by cursor position)
+    };
     sk_sp<SkVMDebugTrace>       fDebugTrace;
     size_t                      fCursor = 0;      // position of the read head
-    std::vector<int32_t>        fSlots;           // values in each slot
-    std::vector<size_t>         fWriteTime;       // when was the variable in this slot most
-                                                  // recently written? (cursor position per slot)
+    int                         fScope = 0;       // the current scope depth (as tracked by
+                                                  // trace_scope)
+    std::vector<Slot>           fSlots;           // the array of all slots
     std::vector<StackFrame>     fStack;           // the execution stack
     skstd::optional<SkBitSet>   fDirtyMask;       // variable slots touched during the most-recently
                                                   // executed step
