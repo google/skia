@@ -115,6 +115,10 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
+	if err := changeBazelCacheDir(ctx, "/mnt/pd0/bazel_cache"); err != nil {
+		td.Fatal(ctx, err)
+	}
+
 	// TODO(kjlubick) Build and push all apps of interest as they are ported.
 	if err := buildPushJSFiddle(ctx, wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
 		td.Fatal(ctx, err)
@@ -152,6 +156,20 @@ func buildPushJSFiddle(ctx context.Context, wasmProductsDir, checkoutDir, skiaRe
 		return err
 	}
 	return publishToTopic(ctx, "gcr.io/skia-public/jsfiddle", skiaRevision, topic)
+}
+
+// changeBazelCacheDir writes an entry to the user's bazelrc file that will make all invocations of
+// bazel use the given directory as their cache file.
+// TODO(kjlubick) Migrate this to be something more generic like "Ensure BazelRC file" and take in
+//   an options struct.
+func changeBazelCacheDir(ctx context.Context, path string) error {
+	// https://docs.bazel.build/versions/main/guide.html#where-are-the-bazelrc-files
+	// We go for the user's .bazelrc file instead of the system one because the swarming user does
+	// not have access to write to /etc/bazel.bazelrc
+	const userBazelRCLocation = "/home/chrome-bot/.bazelrc"
+	const bazelRCFileContents = `startup --output_user_root=%s
+`
+	return os_steps.WriteFile(ctx, userBazelRCLocation, []byte(fmt.Sprintf(bazelRCFileContents, path)), 0666)
 }
 
 func publishToTopic(ctx context.Context, image, tag string, topic *pubsub.Topic) error {
