@@ -332,7 +332,8 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
             #endif
             strike->prepareForPathDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
-            maxDimensionInSourceSpace = fRejects.rejectedMaxDimension() * strikeToSourceScale;
+            maxDimensionInSourceSpace =
+                    SkScalarCeilToScalar(fRejects.rejectedMaxDimension() * strikeToSourceScale);
 
             if (process && !fDrawable.drawableIsEmpty()) {
                 // processSourcePaths must be called even if there are no glyphs to make sure
