@@ -747,11 +747,16 @@ protected:
         }
 
         GrGLTextureInfo glInfo;
+        // This callback is defined in gpu.js
         glInfo.fID     = fCallback.call<uint32_t>("makeTexture");
         // The format and target should match how we make the texture on the JS side
         // See the implementation of the makeTexture function.
         glInfo.fFormat = GR_GL_RGBA8;
         glInfo.fTarget = GR_GL_TEXTURE_2D;
+
+        // In order to bind the image source to the texture, makeTexture has changed which
+        // texture is "in focus" for the WebGL context.
+        GrAsDirectContext(ctx)->resetContext(kTextureBinding_GrGLBackendState);
 
         static constexpr auto kMipmapped = GrMipmapped::kNo;
         GrBackendTexture backendTexture(info.width(), info.height(), kMipmapped, glInfo);

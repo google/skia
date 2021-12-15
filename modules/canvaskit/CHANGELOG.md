@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    should use a real shaping library, like SkParagraph.
  - `AnimatedImage.currentFrameDuration` has been added, as well as some clarifying documentation.
 
+### Fixed
+ - Drawing images created from MakeLazyImageFromTextureSource should no longer cause a draw to only
+   partially show up on some frames <https://crbug.com/skia/12740>.
+
 ## [0.31.0] - 2021-11-16
 
 ### Added
