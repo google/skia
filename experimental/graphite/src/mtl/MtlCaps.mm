@@ -311,7 +311,7 @@ skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlag
     return info;
 }
 
-bool Caps::isTexturable(const skgpu::TextureInfo& info) const {
+bool Caps::onIsTexturable(const skgpu::TextureInfo& info) const {
     return info.mtlTextureSpec().fUsage & MTLTextureUsageShaderRead &&
            this->isTexturable((MTLPixelFormat)info.mtlTextureSpec().fFormat);
 }

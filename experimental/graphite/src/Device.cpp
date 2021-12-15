@@ -48,14 +48,33 @@ bool is_opaque(const PaintParams& paint) {
 } // anonymous namespace
 
 sk_sp<Device> Device::Make(sk_sp<Recorder> recorder, const SkImageInfo& ii) {
+    if (!recorder) {
+        return nullptr;
+    }
     const Gpu* gpu = recorder->context()->priv().gpu();
     auto textureInfo = gpu->caps()->getDefaultSampledTextureInfo(ii.colorType(), /*levelCount=*/1,
                                                                  Protected::kNo, Renderable::kYes);
-    auto target = sk_sp<TextureProxy>(new TextureProxy(ii.dimensions(), textureInfo));
-    sk_sp<DrawContext> dc = DrawContext::Make(target,
-                                              ii.refColorSpace(),
-                                              ii.colorType(),
-                                              ii.alphaType());
+    sk_sp<TextureProxy> target(new TextureProxy(ii.dimensions(), textureInfo));
+    return Make(std::move(recorder),
+                std::move(target),
+                ii.refColorSpace(),
+                ii.colorType(),
+                ii.alphaType());
+}
+
+sk_sp<Device> Device::Make(sk_sp<Recorder> recorder,
+                           sk_sp<TextureProxy> target,
+                           sk_sp<SkColorSpace> colorSpace,
+                           SkColorType colorType,
+                           SkAlphaType alphaType) {
+    if (!recorder) {
+        return nullptr;
+    }
+
+    sk_sp<DrawContext> dc = DrawContext::Make(std::move(target),
+                                              std::move(colorSpace),
+                                              colorType,
+                                              alphaType);
     if (!dc) {
         return nullptr;
     }

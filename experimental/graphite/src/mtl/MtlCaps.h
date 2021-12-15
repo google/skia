@@ -37,7 +37,6 @@ public:
 
     size_t getMinBufferAlignment() const { return this->isMac() ? 4 : 1; }
 
-    bool isTexturable(const skgpu::TextureInfo&) const override;
     bool isRenderable(const skgpu::TextureInfo&) const override;
 
 private:
@@ -57,6 +56,8 @@ private:
 
     bool onAreColorTypeAndTextureInfoCompatible(SkColorType,
                                                 const skgpu::TextureInfo&) const override;
+
+    bool onIsTexturable(const skgpu::TextureInfo&) const override;
     bool isTexturable(MTLPixelFormat) const;
     bool isRenderable(MTLPixelFormat, uint32_t numSamples) const;
 

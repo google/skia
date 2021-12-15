@@ -6,12 +6,21 @@
  */
 
 #include "experimental/graphite/src/Caps.h"
+
+#include "experimental/graphite/include/TextureInfo.h"
 #include "src/sksl/SkSLUtil.h"
 
 namespace skgpu {
 
 Caps::Caps() {}
 Caps::~Caps() {}
+
+bool Caps::isTexturable(const TextureInfo& info) const {
+    if (info.numSamples() > 1) {
+        return false;
+    }
+    return this->onIsTexturable(info);
+}
 
 bool Caps::areColorTypeAndTextureInfoCompatible(SkColorType type, const TextureInfo& info) const {
     if (type == kUnknown_SkColorType) {

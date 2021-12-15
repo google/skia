@@ -20,6 +20,7 @@ class Texture;
 class TextureProxy : public SkRefCnt {
 public:
     TextureProxy(SkISize dimensions, const TextureInfo& info);
+    TextureProxy(sk_sp<Texture>);
 
     ~TextureProxy() override;
 
