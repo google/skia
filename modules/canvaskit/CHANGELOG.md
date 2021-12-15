@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.0] - 2021-12-15
+
 ### Breaking
  - `Canvas.drawVertices` and `Canvas.drawPatch` treat the default blend mode differently.
    See https://bugs.chromium.org/p/skia/issues/detail?id=12662.
