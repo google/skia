@@ -21,7 +21,7 @@ What does a GPU Gardener do?
 
 The GPU Gardener has three main jobs:
 
-1) Stay on top of incoming GPU-related bugs from clients in various bug trackers. This means triaging and assigning bugs that have a clear owner and investigating and possibly fixing bugs that don't.
+1) Stay on top of incoming GPU-related bugs from clients in various bug trackers. This means triaging and assigning bugs that have a clear owner and investigating and possibly fixing bugs that don't. Also triage the "OSS-Fuzz" untriaged bugs that are displayed on Skia's [status page](https://status.skia.org/). If required, ask for view access to the oss-fuzz bugs from the Skia members listed [here](https://github.com/google/oss-fuzz/blob/master/projects/skia/project.yaml).
 
 
 2) Improve the reliability of the GPU bots. This includes dealing with flaky images, crashing bots, etc. We have a never ending set of machine or driver specific issues to deal with. We often brush them under the rug so that we have time for the "real work." When you're gardener this is "real work."
