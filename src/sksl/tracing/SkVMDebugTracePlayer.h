@@ -43,6 +43,9 @@ public:
     /** Returns the size of the call stack. */
     int getStackDepth() const;
 
+    /** Returns every line number actually reached in the debug trace. */
+    const std::unordered_set<int>& getLineNumbersReached() const { return fLineNumbers; }
+
     /** Returns variables from a stack frame, or from global scope. */
     struct VariableData {
         int      fSlotIndex;
@@ -90,6 +93,7 @@ private:
     skstd::optional<SkBitSet>   fDirtyMask;       // variable slots touched during the most-recently
                                                   // executed step
     skstd::optional<SkBitSet>   fReturnValues;    // variable slots containing return values
+    std::unordered_set<int>     fLineNumbers;     // every line number reached during execution
 };
 
 }  // namespace SkSL

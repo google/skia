@@ -29,6 +29,12 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
             fReturnValues->set(slotIdx);
         }
     }
+
+    for (const SkVMTraceInfo& trace : fDebugTrace->fTraceInfo) {
+        if (trace.op == SkVMTraceInfo::Op::kLine) {
+            fLineNumbers.insert(trace.data[0]);
+        }
+    }
 }
 
 void SkVMDebugTracePlayer::step() {

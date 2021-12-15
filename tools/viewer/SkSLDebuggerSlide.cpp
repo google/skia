@@ -117,7 +117,11 @@ void SkSLDebuggerSlide::showCodeTable() {
                             ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_TextSelectedBg)));
                 }
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%03zu ", humanReadableLine);
+                ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 0.75f);
+                if (!fPlayer.getLineNumbersReached().count(humanReadableLine)) {
+                    color.w = 0.25f;
+                }
+                ImGui::TextColored(color, "%03zu ", humanReadableLine);
                 ImGui::TableSetColumnIndex(1);
                 ImGui::Text("%s", fTrace->fSource[row].c_str());
             }

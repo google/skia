@@ -110,6 +110,7 @@ int main() {       // Line 2
     REPORTER_ASSERT(r, !player.traceHasCompleted());
     REPORTER_ASSERT(r, player.getCallStack().empty());
     REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == std::unordered_set<int>{3});
 
     player.step();
 
@@ -189,6 +190,7 @@ int main() {                    // Line 8
     REPORTER_ASSERT(r, !player.traceHasCompleted());
     REPORTER_ASSERT(r, player.getCallStack().empty());
     REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, (player.getLineNumbersReached() == std::unordered_set<int>{3, 6, 9}));
 
     player.step();
 
@@ -259,6 +261,8 @@ int main() {                          // Line 6
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
 
+    REPORTER_ASSERT(r, (player.getLineNumbersReached() ==
+                            std::unordered_set<int>{3, 4, 7, 8, 9, 10, 11, 12}));
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 7);
@@ -341,6 +345,8 @@ int main() {          // Line 2
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
 
+    REPORTER_ASSERT(r, (player.getLineNumbersReached() ==
+                            std::unordered_set<int>{3, 4, 5, 6, 10, 14, 16}));
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 3);
@@ -391,6 +397,7 @@ int main() {                       // Line 2
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
 
+    REPORTER_ASSERT(r, (player.getLineNumbersReached() == std::unordered_set<int>{3, 4, 5, 7}));
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 3);
@@ -441,6 +448,8 @@ int main() {      // Line 9
 )");
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
+    REPORTER_ASSERT(r, (player.getLineNumbersReached() ==
+                            std::unordered_set<int>{3, 4, 5, 6, 7, 10}));
     player.step();
 
     // We should now be inside main.
@@ -501,6 +510,8 @@ int main() {                // Line 2
 )");
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
+    REPORTER_ASSERT(r, (player.getLineNumbersReached() ==
+                            std::unordered_set<int>{3, 5, 7, 9, 11, 13, 15, 17, 19, 20}));
     player.step();
 
     // We should now be inside main.
