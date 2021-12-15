@@ -894,7 +894,7 @@ private:
             fTexSubset = {"texSubset", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         }
 
-        this->setVertexAttributes(&fPosition, 6);
+        this->setVertexAttributesWithImplicitOffsets(&fPosition, 6);
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }

@@ -469,15 +469,15 @@ private:
         if (instanced) {
             fInstanceLocation = {"location", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
             fInstanceColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-            this->setInstanceAttributes(&fInstanceLocation, 2);
+            this->setInstanceAttributesWithImplicitOffsets(&fInstanceLocation, 2);
             if (hasVertexBuffer) {
                 fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-                this->setVertexAttributes(&fVertexPosition, 1);
+                this->setVertexAttributesWithImplicitOffsets(&fVertexPosition, 1);
             }
         } else {
             fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
             fVertexColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-            this->setVertexAttributes(&fVertexPosition, 2);
+            this->setVertexAttributesWithImplicitOffsets(&fVertexPosition, 2);
         }
     }
 

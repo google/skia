@@ -223,7 +223,7 @@ private:
         if (fFlags & kCoverageAttribute_GPFlag) {
             fInCoverage = {"inCoverage", kFloat_GrVertexAttribType, kHalf_GrSLType};
         }
-        this->setVertexAttributes(&fInPosition, 4);
+        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
     }
 
     Attribute fInPosition;

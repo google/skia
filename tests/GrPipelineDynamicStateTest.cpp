@@ -72,7 +72,7 @@ public:
 
 private:
     PipelineDynamicStateTestProcessor() : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID) {
-        this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
+        this->setVertexAttributesWithImplicitOffsets(kAttributes, SK_ARRAY_COUNT(kAttributes));
     }
 
     const Attribute& inVertex() const { return kAttributes[0]; }
