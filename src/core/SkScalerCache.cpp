@@ -40,7 +40,7 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::glyph(SkPackedGlyphID packedGlyphID)
 }
 
 std::tuple<SkGlyphDigest, size_t> SkScalerCache::digest(SkPackedGlyphID packedGlyphID) {
-    SkGlyphDigest* digest = fDigestForPackedGlyphID.find(packedGlyphID);
+    SkGlyphDigest* digest = fDigestForPackedGlyphID.find(packedGlyphID.value());
 
     if (digest != nullptr) {
         return {*digest, 0};
@@ -53,7 +53,7 @@ std::tuple<SkGlyphDigest, size_t> SkScalerCache::digest(SkPackedGlyphID packedGl
 SkGlyphDigest SkScalerCache::addGlyph(SkGlyph* glyph) {
     size_t index = fGlyphForIndex.size();
     SkGlyphDigest digest = SkGlyphDigest{index, *glyph};
-    fDigestForPackedGlyphID.set(glyph->getPackedID(), digest);
+    fDigestForPackedGlyphID.set(digest);
     fGlyphForIndex.push_back(glyph);
     return digest;
 }
@@ -110,7 +110,7 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
         SkPackedGlyphID toID, const SkGlyph& from) {
     SkAutoMutexExclusive lock{fMu};
     // TODO(herb): remove finding the glyph when we are sure there are no glyph collisions.
-    SkGlyphDigest* digest = fDigestForPackedGlyphID.find(toID);
+    SkGlyphDigest* digest = fDigestForPackedGlyphID.find(toID.value());
     if (digest != nullptr) {
         // Since there is no search for replacement glyphs, this glyph should not exist yet.
         SkDEBUGFAIL("This implies adding to an existing glyph. This should not happen.");
