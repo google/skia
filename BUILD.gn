@@ -1079,6 +1079,9 @@ optional("graphite") {
     }
     frameworks += [ "Metal.framework" ]
     frameworks += [ "Foundation.framework" ]
+    if (is_ios) {
+      frameworks += [ "UIKit.framework" ]
+    }
   }
 }
 

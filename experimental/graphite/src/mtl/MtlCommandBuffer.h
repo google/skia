@@ -50,7 +50,7 @@ public:
 private:
     CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const Gpu* gpu);
 
-    void onBeginRenderPass(const RenderPassDesc&,
+    bool onBeginRenderPass(const RenderPassDesc&,
                            const skgpu::Texture* colorTexture,
                            const skgpu::Texture* resolveTexture,
                            const skgpu::Texture* depthStencilTexture) override;
@@ -78,7 +78,7 @@ private:
                                 unsigned int indexCount, unsigned int baseVertex,
                                 unsigned int baseInstance, unsigned int instanceCount) override;
 
-    void onCopyTextureToBuffer(const skgpu::Texture*,
+    bool onCopyTextureToBuffer(const skgpu::Texture*,
                                SkIRect srcRect,
                                const skgpu::Buffer*,
                                size_t bufferOffset,

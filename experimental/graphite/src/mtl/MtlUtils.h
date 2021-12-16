@@ -48,6 +48,10 @@ bool SkSLToMSL(const Gpu* gpu,
 sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
                                             const SkSL::String& msl,
                                             ShaderErrorHandler* errorHandler);
+
+#ifdef SK_BUILD_FOR_IOS
+bool IsAppInBackground();
+#endif
 } // namespace skgpu::mtl
 } // namespace skgpu
 

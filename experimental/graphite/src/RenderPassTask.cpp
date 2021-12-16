@@ -58,16 +58,16 @@ void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
         SkASSERT(depthStencilTexture);
     }
 
-    commandBuffer->beginRenderPass(fRenderPassDesc, fTarget->refTexture(), nullptr,
-                                   std::move(depthStencilTexture));
+    if (commandBuffer->beginRenderPass(fRenderPassDesc, fTarget->refTexture(), nullptr,
+                                       std::move(depthStencilTexture))) {
+        // Assuming one draw pass per renderpasstask for now
+        SkASSERT(fDrawPasses.size() == 1);
+        for (const auto& drawPass: fDrawPasses) {
+            drawPass->addCommands(commandBuffer, resourceProvider);
+        }
 
-    // Assuming one draw pass per renderpasstask for now
-    SkASSERT(fDrawPasses.size() == 1);
-    for (const auto& drawPass: fDrawPasses) {
-        drawPass->addCommands(commandBuffer, resourceProvider);
+        commandBuffer->endRenderPass();
     }
-
-    commandBuffer->endRenderPass();
 }
 
 } // namespace skgpu

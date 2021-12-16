@@ -24,12 +24,14 @@ void CommandBuffer::releaseResources() {
     fTrackedResources.reset();
 }
 
-void CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
+bool CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
                                     sk_sp<Texture> colorTexture,
                                     sk_sp<Texture> resolveTexture,
                                     sk_sp<Texture> depthStencilTexture) {
-    this->onBeginRenderPass(renderPassDesc, colorTexture.get(), resolveTexture.get(),
-                            depthStencilTexture.get());
+    if (!this->onBeginRenderPass(renderPassDesc, colorTexture.get(), resolveTexture.get(),
+                                 depthStencilTexture.get())) {
+        return false;
+    }
 
     if (colorTexture) {
         this->trackResource(std::move(colorTexture));
@@ -47,6 +49,8 @@ void CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         fHasWork = true;
     }
 #endif
+
+    return true;
 }
 
 void CommandBuffer::bindGraphicsPipeline(sk_sp<GraphicsPipeline> graphicsPipeline) {
@@ -96,21 +100,26 @@ static bool check_max_blit_width(int widthInPixels) {
     return true;
 }
 
-void CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
+bool CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
                                         SkIRect srcRect,
                                         sk_sp<skgpu::Buffer> buffer,
                                         size_t bufferOffset,
                                         size_t bufferRowBytes) {
     if (!check_max_blit_width(srcRect.width())) {
-        return;
+        return false;
     }
 
-    this->onCopyTextureToBuffer(texture.get(), srcRect, buffer.get(), bufferOffset, bufferRowBytes);
+    if (!this->onCopyTextureToBuffer(texture.get(), srcRect, buffer.get(), bufferOffset,
+                                     bufferRowBytes)) {
+        return false;
+    }
 
     this->trackResource(std::move(texture));
     this->trackResource(std::move(buffer));
 
     SkDEBUGCODE(fHasWork = true;)
+
+    return true;
 }
 
 } // namespace skgpu
