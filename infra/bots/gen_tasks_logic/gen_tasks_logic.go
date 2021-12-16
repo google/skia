@@ -780,10 +780,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			// ChOps VMs are at a newer version of MacOS.
 			d["os"] = "Mac-10.15.7"
 		}
-		if b.parts["model"] == "iPhone6" {
-			// This is the latest iOS that supports iPhone6.
-			d["os"] = "iOS-12.4.5"
-		}
 		if b.parts["model"] == "iPhone11" {
 			d["os"] = "iOS-13.6"
 		}
@@ -829,7 +825,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		} else if b.os("iOS") {
 			device, ok := map[string]string{
 				"iPadMini4": "iPad5,1",
-				"iPhone6":   "iPhone7,2",
 				"iPhone7":   "iPhone9,1",
 				"iPhone8":   "iPhone10,1",
 				"iPhone11":  "iPhone12,1",
@@ -1186,8 +1181,6 @@ func (b *taskBuilder) maybeAddIosDevImage() {
 			// Other patch versions can be added to the same case.
 			case "11.4.1":
 				asset = "ios-dev-image-11.4"
-			case "12.4.5":
-				asset = "ios-dev-image-12.4"
 			case "13.3.1":
 				asset = "ios-dev-image-13.3"
 			case "13.4.1":

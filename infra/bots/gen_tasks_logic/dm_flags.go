@@ -243,7 +243,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// The Tegra3 doesn't support MSAA
 		if b.gpu("Tegra3") ||
 			// We aren't interested in fixing msaa bugs on current iOS devices.
-			b.model("iPad4", "iPadPro", "iPhone6", "iPhone7") ||
+			b.model("iPad4", "iPadPro", "iPhone7") ||
 			// skia:5792
 			b.gpu("IntelHD530", "IntelIris540") {
 			configs = removeContains(configs, "msaa")
@@ -819,13 +819,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		for _, test := range []string{"verylargebitmap", "verylarge_picture_image"} {
 			skip("serialize-8888", "gm", "_", test)
 		}
-	}
-	if b.model("iPhone6") {
-		skip("_", "gm", "_", "verylargebitmap")
-		skip("_", "gm", "_", "verylarge_picture_image")
-		skip("_", "svg", "_", "A_large_blank_world_map_with_oceans_marked_in_blue.svg")
-		skip("_", "tests", "_", "ImageFilterBlurLargeImage_Gpu")
-		skip("_", "gm", "_", "wacky_yuv")
 	}
 	if b.matchOs("Mac") && b.cpu() {
 		// skia:6992
