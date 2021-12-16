@@ -55,7 +55,7 @@ class TessellationTestTriShader : public GrGeometryProcessor {
 public:
     TessellationTestTriShader(const SkMatrix& viewMatrix)
             : GrGeometryProcessor(kTessellationTestTriShader_ClassID), fViewMatrix(viewMatrix) {
-        this->setVertexAttributesWithImplicitOffsets(&kPositionAttrib, 1);
+        this->setVertexAttributes(&kPositionAttrib, 1);
         this->setWillUseTessellationShaders();
     }
 

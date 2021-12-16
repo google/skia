@@ -118,7 +118,7 @@ private:
             fInRoundCapCenters =
                     {"inRoundCapCenters", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         }
-        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 7);
+        this->setVertexAttributes(&fInPosition, 7);
     }
 
     class Impl : public ProgramImpl {
@@ -298,7 +298,7 @@ private:
         fInColor = MakeColorAttribute("inColor", wideColor);
         fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         fInDashParams = {"inDashParams", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
+        this->setVertexAttributes(&fInPosition, 4);
     }
 
     class Impl : public ProgramImpl {
@@ -562,7 +562,7 @@ private:
             fInEllipseOffset = {"inEllipseOffset", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         }
         fInEllipseRadii = {"inEllipseRadii", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
+        this->setVertexAttributes(&fInPosition, 4);
     }
 
     class Impl : public ProgramImpl {
@@ -761,7 +761,7 @@ private:
                                   kFloat2_GrSLType};
         }
         fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
+        this->setVertexAttributes(&fInPosition, 4);
     }
 
     class Impl : public ProgramImpl {

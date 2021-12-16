@@ -91,15 +91,15 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
         fAttribs.emplace_back("curveTypeAttr", kFloat_GrVertexAttribType, kFloat_GrSLType);
     }
     if (fMode == Mode::kHardwareTessellation) {
-        this->setVertexAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.count());
+        this->setVertexAttributes(fAttribs.data(), fAttribs.count());
         SkASSERT(this->vertexStride() == sizeof(SkPoint) * 5 + PatchAttribsStride(fPatchAttribs));
     } else {
-        this->setInstanceAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.count());
+        this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
         SkASSERT(this->instanceStride() == sizeof(SkPoint) * 5 + PatchAttribsStride(fPatchAttribs));
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kVertexAttrib("edgeID", kFloat_GrVertexAttribType,
                                                      kFloat_GrSLType);
-            this->setVertexAttributesWithImplicitOffsets(&kVertexAttrib, 1);
+            this->setVertexAttributes(&kVertexAttrib, 1);
         }
     }
     SkASSERT(fAttribs.count() <= kMaxAttribCount);

@@ -26,7 +26,7 @@ public:
     GP(const SkMatrix& localMatrix, bool wideColor)
             : GrGeometryProcessor(kTestRectOp_ClassID), fLocalMatrix(localMatrix) {
         fInColor = MakeColorAttribute("color", wideColor);
-        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
+        this->setVertexAttributes(&fInPosition, 3);
     }
 
     const char* name() const override { return "TestRectOp::GP"; }

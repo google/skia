@@ -63,28 +63,11 @@ public:
     /** Describes a vertex or instance attribute. */
     class Attribute {
     public:
-        static constexpr size_t AlignOffset(size_t offset) { return SkAlign4(offset); }
-
         constexpr Attribute() = default;
-        /**
-         * Makes an attribute whose offset will be implicitly determined by the types and ordering
-         * of an array attributes.
-         */
         constexpr Attribute(const char* name,
                             GrVertexAttribType cpuType,
                             GrSLType gpuType)
                 : fName(name), fCPUType(cpuType), fGPUType(gpuType) {
-            SkASSERT(name && gpuType != kVoid_GrSLType);
-        }
-        /**
-         * Makes an attribute with an explicit offset.
-         */
-        constexpr Attribute(const char*        name,
-                            GrVertexAttribType cpuType,
-                            GrSLType           gpuType,
-                            size_t             offset)
-                : fName(name), fCPUType(cpuType), fGPUType(gpuType), fOffset(SkToU32(offset)) {
-            SkASSERT(AlignOffset(offset) == offset);
             SkASSERT(name && gpuType != kVoid_GrSLType);
         }
         constexpr Attribute(const Attribute&) = default;
@@ -93,81 +76,85 @@ public:
 
         constexpr bool isInitialized() const { return fGPUType != kVoid_GrSLType; }
 
-        constexpr const char*           name() const { return fName; }
+        constexpr const char* name() const { return fName; }
         constexpr GrVertexAttribType cpuType() const { return fCPUType; }
         constexpr GrSLType           gpuType() const { return fGPUType; }
-        /**
-         * Returns the offset if attributes were specified with explicit offsets. Otherwise,
-         * offsets (and total vertex stride) are implicitly determined from attribute order and
-         * types.
-         */
-        skstd::optional<size_t> offset() const {
-            if (fOffset != kImplicitOffset) {
-                SkASSERT(AlignOffset(fOffset) == fOffset);
-                return {fOffset};
-            }
-            return skstd::nullopt;
-        }
 
         inline constexpr size_t size() const;
+        constexpr size_t sizeAlign4() const { return SkAlign4(this->size()); }
 
         GrShaderVar asShaderVar() const {
             return {fName, fGPUType, GrShaderVar::TypeModifier::In};
         }
 
     private:
-        static constexpr uint32_t kImplicitOffset = 1;  // 1 is not valid because it isn't aligned.
-
-        const char*        fName    = nullptr;
+        const char* fName = nullptr;
         GrVertexAttribType fCPUType = kFloat_GrVertexAttribType;
-        GrSLType           fGPUType = kVoid_GrSLType;
-        uint32_t           fOffset  = kImplicitOffset;
+        GrSLType fGPUType = kVoid_GrSLType;
     };
 
-    /**
-     * A set of attributes that can iterated. The iterator handles hides two pieces of complexity:
-     * 1) It skips uninitialized attributes.
-     * 2) It always returns an attribute with a known offset.
-     */
-    class AttributeSet {
-        class Iter {
-        public:
-            Iter() = default;
-            Iter(const Iter& iter) = default;
-            Iter& operator=(const Iter& iter) = default;
+    class Iter {
+    public:
+        Iter() : fCurr(nullptr), fRemaining(0) {}
+        Iter(const Iter& iter) : fCurr(iter.fCurr), fRemaining(iter.fRemaining) {}
+        Iter& operator= (const Iter& iter) {
+            fCurr = iter.fCurr;
+            fRemaining = iter.fRemaining;
+            return *this;
+        }
+        Iter(const Attribute* attrs, int count) : fCurr(attrs), fRemaining(count) {
+            this->skipUninitialized();
+        }
 
-            Iter(const Attribute* attrs, int count) : fCurr(attrs), fRemaining(count) {
+        bool operator!=(const Iter& that) const { return fCurr != that.fCurr; }
+        const Attribute& operator*() const { return *fCurr; }
+        void operator++() {
+            if (fRemaining) {
+                fRemaining--;
+                fCurr++;
                 this->skipUninitialized();
             }
+        }
 
-            bool operator!=(const Iter& that) const { return fCurr != that.fCurr; }
-            Attribute operator*() const;
-            void operator++();
+    private:
+        void skipUninitialized() {
+            if (!fRemaining) {
+                fCurr = nullptr;
+            } else {
+                while (!fCurr->isInitialized()) {
+                    ++fCurr;
+                }
+            }
+        }
 
-        private:
-            void skipUninitialized();
+        const Attribute* fCurr;
+        int fRemaining;
+    };
 
-            const Attribute* fCurr           = nullptr;
-            int              fRemaining      = 0;
-            size_t           fImplicitOffset = 0;
-        };
-
+    class AttributeSet {
     public:
-        Iter begin() const;
-        Iter end() const;
+        Iter begin() const { return Iter(fAttributes, fCount); }
+        Iter end() const { return Iter(); }
 
         int count() const { return fCount; }
         size_t stride() const { return fStride; }
 
-        // Init with implicit offsets and stride. No attributes can have a predetermined stride.
-        void initImplicit(const Attribute* attrs, int count);
-        // Init with explicit offsets and stride. All attributes must be initialized and have
-        // an explicit offset aligned to 4 bytes and with no attribute crossing stride boundaries.
-        void initExplicit(const Attribute* attrs, int count, size_t stride);
-
-        void addToKey(GrProcessorKeyBuilder* b) const;
-
     private:
+        friend class GrGeometryProcessor;
+
+        void init(const Attribute* attrs, int count) {
+            fAttributes = attrs;
+            fRawCount = count;
+            fCount = 0;
+            fStride = 0;
+            for (int i = 0; i < count; ++i) {
+                if (attrs[i].isInitialized()) {
+                    fCount++;
+                    fStride += attrs[i].sizeAlign4();
+                }
+            }
+        }
+
         const Attribute* fAttributes = nullptr;
         int              fRawCount = 0;
         int              fCount = 0;
@@ -178,21 +165,21 @@ public:
 
     int numTextureSamplers() const { return fTextureSamplerCnt; }
     const TextureSampler& textureSampler(int index) const;
-    int numVertexAttributes() const { return fVertexAttributes.count(); }
+    int numVertexAttributes() const { return fVertexAttributes.fCount; }
     const AttributeSet& vertexAttributes() const { return fVertexAttributes; }
-    int numInstanceAttributes() const { return fInstanceAttributes.count(); }
+    int numInstanceAttributes() const { return fInstanceAttributes.fCount; }
     const AttributeSet& instanceAttributes() const { return fInstanceAttributes; }
 
-    bool hasVertexAttributes() const { return SkToBool(fVertexAttributes.count()); }
-    bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributes.count()); }
+    bool hasVertexAttributes() const { return SkToBool(fVertexAttributes.fCount); }
+    bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributes.fCount); }
 
     /**
      * A common practice is to populate the the vertex/instance's memory using an implicit array of
      * structs. In this case, it is best to assert that:
      *     stride == sizeof(struct)
      */
-    size_t vertexStride() const { return fVertexAttributes.stride(); }
-    size_t instanceStride() const { return fInstanceAttributes.stride(); }
+    size_t vertexStride() const { return fVertexAttributes.fStride; }
+    size_t instanceStride() const { return fInstanceAttributes.fStride; }
 
     bool willUseTessellationShaders() const {
         return fShaders & (kTessControl_GrShaderFlag | kTessEvaluation_GrShaderFlag);
@@ -213,10 +200,23 @@ public:
     virtual void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
     void getAttributeKey(GrProcessorKeyBuilder* b) const {
-        b->appendComment("vertex attributes");
-        fVertexAttributes.addToKey(b);
-        b->appendComment("instance attributes");
-        fInstanceAttributes.addToKey(b);
+        // Ensure that our CPU and GPU type fields fit together in a 32-bit value, and we never
+        // collide with the "uninitialized" value.
+        static_assert(kGrVertexAttribTypeCount < (1 << 8), "");
+        static_assert(kGrSLTypeCount           < (1 << 8), "");
+
+        auto add_attributes = [=](const Attribute* attrs, int attrCount) {
+            for (int i = 0; i < attrCount; ++i) {
+                const Attribute& attr = attrs[i];
+                b->appendComment(attr.isInitialized() ? attr.name() : "unusedAttr");
+                b->addBits(8, attr.isInitialized() ? attr.cpuType() : 0xff, "attrType");
+                b->addBits(8, attr.isInitialized() ? attr.gpuType() : 0xff, "attrGpuType");
+            }
+        };
+        b->add32(fVertexAttributes.fRawCount, "numVertexAttributes");
+        add_attributes(fVertexAttributes.fAttributes, fVertexAttributes.fRawCount);
+        b->add32(fInstanceAttributes.fRawCount, "numInstanceAttributes");
+        add_attributes(fInstanceAttributes.fAttributes, fInstanceAttributes.fRawCount);
     }
 
     /**
@@ -233,20 +233,13 @@ protected:
                  wideColor ? kFloat4_GrVertexAttribType : kUByte4_norm_GrVertexAttribType,
                  kHalf4_GrSLType };
     }
-    void setVertexAttributes(const Attribute* attrs, int attrCount, size_t stride) {
-        fVertexAttributes.initExplicit(attrs, attrCount, stride);
-    }
-    void setInstanceAttributes(const Attribute* attrs, int attrCount, size_t stride) {
-        SkASSERT(attrCount >= 0);
-        fInstanceAttributes.initExplicit(attrs, attrCount, stride);
-    }
 
-    void setVertexAttributesWithImplicitOffsets(const Attribute* attrs, int attrCount) {
-        fVertexAttributes.initImplicit(attrs, attrCount);
+    void setVertexAttributes(const Attribute* attrs, int attrCount) {
+        fVertexAttributes.init(attrs, attrCount);
     }
-    void setInstanceAttributesWithImplicitOffsets(const Attribute* attrs, int attrCount) {
+    void setInstanceAttributes(const Attribute* attrs, int attrCount) {
         SkASSERT(attrCount >= 0);
-        fInstanceAttributes.initImplicit(attrs, attrCount);
+        fInstanceAttributes.init(attrs, attrCount);
     }
     void setWillUseTessellationShaders() {
         fShaders |= kTessControl_GrShaderFlag | kTessEvaluation_GrShaderFlag;

@@ -36,14 +36,13 @@ public:
             // each patch that explicitly tells the shader what type of curve it is.
             fInstanceAttribs.emplace_back("curveType", kFloat_GrVertexAttribType, kFloat_GrSLType);
         }
-        this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.data(),
-                                                       fInstanceAttribs.count());
+        this->setInstanceAttributes(fInstanceAttribs.data(), fInstanceAttribs.count());
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribCount);
 
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kVertexIdxAttrib("vertexidx", kFloat_GrVertexAttribType,
                                                         kFloat_GrSLType);
-            this->setVertexAttributesWithImplicitOffsets(&kVertexIdxAttrib, 1);
+            this->setVertexAttributes(&kVertexIdxAttrib, 1);
         }
     }
 

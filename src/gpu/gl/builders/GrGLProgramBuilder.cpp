@@ -123,23 +123,25 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
     fInstanceAttributeCnt = geomProc.numInstanceAttributes();
     fAttributes = std::make_unique<GrGLProgram::Attribute[]>(
             fVertexAttributeCnt + fInstanceAttributeCnt);
-    auto addAttr = [&](int i, const auto& a) {
+    auto addAttr = [&](int i, const auto& a, size_t* stride) {
         fAttributes[i].fCPUType = a.cpuType();
         fAttributes[i].fGPUType = a.gpuType();
-        fAttributes[i].fOffset = *a.offset();
+        fAttributes[i].fOffset = *stride;
+        *stride += a.sizeAlign4();
         fAttributes[i].fLocation = i;
         if (bindAttribLocations) {
             GL_CALL(BindAttribLocation(programID, i, a.name()));
         }
     };
-    fVertexStride = geomProc.vertexStride();
+    fVertexStride = 0;
     int i = 0;
     for (const auto& attr : geomProc.vertexAttributes()) {
-        addAttr(i++, attr);
+        addAttr(i++, attr, &fVertexStride);
     }
-    fInstanceStride = geomProc.instanceStride();
+    SkASSERT(fVertexStride == geomProc.vertexStride());
+    fInstanceStride = 0;
     for (const auto& attr : geomProc.instanceAttributes()) {
-        addAttr(i++, attr);
+        addAttr(i++, attr, &fInstanceStride);
     }
     SkASSERT(fInstanceStride == geomProc.instanceStride());
 }

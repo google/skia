@@ -174,7 +174,7 @@ private:
                         ? Attribute{"inLocalCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType}
                         : missingAttr);
 
-        this->setVertexAttributesWithImplicitOffsets(fAttributes.data(), fAttributes.size());
+        this->setVertexAttributes(fAttributes.data(), fAttributes.size());
     }
 
     enum {

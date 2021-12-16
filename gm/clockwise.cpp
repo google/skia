@@ -84,7 +84,7 @@ private:
     ClockwiseTestProcessor(bool readSkFragCoord)
             : GrGeometryProcessor(kClockwiseTestProcessor_ClassID)
             , fReadSkFragCoord(readSkFragCoord) {
-        this->setVertexAttributesWithImplicitOffsets(&gVertex, 1);
+        this->setVertexAttributes(&gVertex, 1);
     }
 
     const bool fReadSkFragCoord;

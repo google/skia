@@ -867,7 +867,7 @@ DashingCircleEffect::DashingCircleEffect(const SkPMColor4f& color,
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInDashParams = {"inDashParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
     fInCircleParams = {"inCircleParams", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-    this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
+    this->setVertexAttributes(&fInPosition, 3);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
@@ -1081,7 +1081,7 @@ DashingLineEffect::DashingLineEffect(const SkPMColor4f& color,
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInDashParams = {"inDashParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
     fInRect = {"inRect", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
-    this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
+    this->setVertexAttributes(&fInPosition, 3);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);

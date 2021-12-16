@@ -111,7 +111,7 @@ private:
         fInTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInTextureDomain = {"textureDomain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         fInColor = MakeColorAttribute("color", wideColor);
-        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
+        this->setVertexAttributes(&fInPosition, 4);
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }

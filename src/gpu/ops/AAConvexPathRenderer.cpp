@@ -577,7 +577,7 @@ private:
         fInColor = MakeColorAttribute("inColor", wideColor);
         // GL on iOS 14 needs more precision for the quadedge attributes
         fInQuadEdge = {"inQuadEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
+        this->setVertexAttributes(&fInPosition, 3);
     }
 
     Attribute fInPosition;

@@ -39,7 +39,7 @@ public:
                                        GrPrimitiveType::kPatches, 5, viewMatrix, color, attribs) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
-        this->setVertexAttributesWithImplicitOffsets(&kInputPointAttrib, 1);
+        this->setVertexAttributes(&kInputPointAttrib, 1);
         SkASSERT(this->vertexStride() * 5 ==
                  sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
     }
@@ -180,7 +180,7 @@ public:
                                        attribs) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
-        this->setVertexAttributesWithImplicitOffsets(&kInputPointAttrib, 1);
+        this->setVertexAttributes(&kInputPointAttrib, 1);
         SkASSERT(this->vertexStride() * 4 ==
                  sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
     }

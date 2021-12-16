@@ -199,30 +199,33 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrGeometryProcessor& 
     if (writer) {
         writer->writeInt(vertexAttributeCount);
     }
+    size_t vertexAttributeOffset = 0;
     for (const auto& attribute : geomProc.vertexAttributes()) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         MTLVertexFormat format = attribute_type_to_mtlformat(attribute.cpuType());
         SkASSERT(MTLVertexFormatInvalid != format);
         mtlAttribute.format = format;
-        mtlAttribute.offset = *attribute.offset();
+        mtlAttribute.offset = vertexAttributeOffset;
         mtlAttribute.bufferIndex = vertexBinding;
         if (writer) {
             writer->writeInt(format);
-            writer->writeUInt(*attribute.offset());
+            writer->writeUInt(vertexAttributeOffset);
             writer->writeUInt(vertexBinding);
         }
 
+        vertexAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
     }
+    SkASSERT(vertexAttributeOffset == geomProc.vertexStride());
 
     if (vertexAttributeCount) {
         MTLVertexBufferLayoutDescriptor* vertexBufferLayout =
                 vertexDescriptor.layouts[vertexBinding];
         vertexBufferLayout.stepFunction = MTLVertexStepFunctionPerVertex;
         vertexBufferLayout.stepRate = 1;
-        vertexBufferLayout.stride = geomProc.vertexStride();
+        vertexBufferLayout.stride = vertexAttributeOffset;
         if (writer) {
-            writer->writeUInt(geomProc.vertexStride());
+            writer->writeUInt(vertexAttributeOffset);
         }
     }
 
@@ -230,30 +233,33 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrGeometryProcessor& 
     if (writer) {
         writer->writeInt(instanceAttributeCount);
     }
+    size_t instanceAttributeOffset = 0;
     for (const auto& attribute : geomProc.instanceAttributes()) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         MTLVertexFormat format = attribute_type_to_mtlformat(attribute.cpuType());
         SkASSERT(MTLVertexFormatInvalid != format);
         mtlAttribute.format = format;
-        mtlAttribute.offset = *attribute.offset();
+        mtlAttribute.offset = instanceAttributeOffset;
         mtlAttribute.bufferIndex = instanceBinding;
         if (writer) {
             writer->writeInt(format);
-            writer->writeUInt(*attribute.offset());
+            writer->writeUInt(instanceAttributeOffset);
             writer->writeUInt(instanceBinding);
         }
 
+        instanceAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
     }
+    SkASSERT(instanceAttributeOffset == geomProc.instanceStride());
 
     if (instanceAttributeCount) {
         MTLVertexBufferLayoutDescriptor* instanceBufferLayout =
                 vertexDescriptor.layouts[instanceBinding];
         instanceBufferLayout.stepFunction = MTLVertexStepFunctionPerInstance;
         instanceBufferLayout.stepRate = 1;
-        instanceBufferLayout.stride = geomProc.instanceStride();
+        instanceBufferLayout.stride = instanceAttributeOffset;
         if (writer) {
-            writer->writeUInt(geomProc.instanceStride());
+            writer->writeUInt(instanceAttributeOffset);
         }
     }
     return vertexDescriptor;

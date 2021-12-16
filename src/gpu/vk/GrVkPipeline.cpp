@@ -100,33 +100,39 @@ static void setup_vertex_input_state(
 
     // setup attribute descriptions
     int attribIndex = 0;
+    size_t vertexAttributeOffset = 0;
     for (const auto& attrib : vertexAttribs) {
         VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
         vkAttrib.location = attribIndex++;  // for now assume location = attribIndex
         vkAttrib.binding = vertexBinding;
         vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
-        vkAttrib.offset = *attrib.offset();
+        vkAttrib.offset = vertexAttributeOffset;
+        vertexAttributeOffset += attrib.sizeAlign4();
     }
+    SkASSERT(vertexAttributeOffset == vertexAttribs.stride());
 
+    size_t instanceAttributeOffset = 0;
     for (const auto& attrib : instanceAttribs) {
         VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
         vkAttrib.location = attribIndex++;  // for now assume location = attribIndex
         vkAttrib.binding = instanceBinding;
         vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
-        vkAttrib.offset = *attrib.offset();
+        vkAttrib.offset = instanceAttributeOffset;
+        instanceAttributeOffset += attrib.sizeAlign4();
     }
+    SkASSERT(instanceAttributeOffset == instanceAttribs.stride());
 
     if (vaCount) {
         bindingDescs->push_back() = {
                 vertexBinding,
-                (uint32_t) vertexAttribs.stride(),
+                (uint32_t) vertexAttributeOffset,
                 VK_VERTEX_INPUT_RATE_VERTEX
         };
     }
     if (iaCount) {
         bindingDescs->push_back() = {
                 instanceBinding,
-                (uint32_t) instanceAttribs.stride(),
+                (uint32_t) instanceAttributeOffset,
                 VK_VERTEX_INPUT_RATE_INSTANCE
         };
     }

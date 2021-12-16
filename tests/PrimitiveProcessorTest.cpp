@@ -115,7 +115,7 @@ private:
                                                                    kFloat2_GrSLType};
                     }
                 }
-                this->setVertexAttributesWithImplicitOffsets(fAttributes.get(), numAttribs);
+                this->setVertexAttributes(fAttributes.get(), numAttribs);
             }
 
             int fNumAttribs;

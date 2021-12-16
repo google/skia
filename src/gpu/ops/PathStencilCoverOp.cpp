@@ -36,15 +36,14 @@ public:
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kUnitCoordAttrib("unitCoord", kFloat2_GrVertexAttribType,
                                                         kFloat2_GrSLType);
-            this->setVertexAttributesWithImplicitOffsets(&kUnitCoordAttrib, 1);
+            this->setVertexAttributes(&kUnitCoordAttrib, 1);
         }
         constexpr static Attribute kInstanceAttribs[] = {
             {"matrix2d", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
             {"pathBounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType}
         };
-        this->setInstanceAttributesWithImplicitOffsets(kInstanceAttribs,
-                                                       SK_ARRAY_COUNT(kInstanceAttribs));
+        this->setInstanceAttributes(kInstanceAttribs, SK_ARRAY_COUNT(kInstanceAttribs));
     }
 
 private:
