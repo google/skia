@@ -28,6 +28,9 @@ public:
     /** Advances the simulation until we exit from the current stack frame. */
     void stepOut();
 
+    /** Advances the simulation until we hit a breakpoint, or the trace completes. */
+    void stepToBreakpoint(const std::unordered_set<int>& breakpointLines);
+
     /** Returns true if we have reached the end of the trace. */
     bool traceHasCompleted() const;
 

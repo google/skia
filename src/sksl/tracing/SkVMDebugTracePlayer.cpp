@@ -67,6 +67,15 @@ void SkVMDebugTracePlayer::stepOut() {
     }
 }
 
+void SkVMDebugTracePlayer::stepToBreakpoint(const std::unordered_set<int>& breakpointLines) {
+    this->tidy();
+    while (!this->traceHasCompleted()) {
+        if (this->execute(fCursor++) && breakpointLines.count(this->getCurrentLine())) {
+            break;
+        }
+    }
+}
+
 void SkVMDebugTracePlayer::tidy() {
     fDirtyMask->reset();
 

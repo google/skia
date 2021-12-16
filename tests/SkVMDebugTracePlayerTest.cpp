@@ -557,3 +557,46 @@ int main() {                // Line 2
 
     REPORTER_ASSERT(r, player.traceHasCompleted());
 }
+
+DEF_TEST(SkSLTracePlayerBreakpoint, r) {
+    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+R"(                                // Line 1
+int counter = 0;                   // Line 2
+void func() {                      // Line 3
+    --counter;                     // Line 4   BREAKPOINT 4 5
+}                                  // Line 5
+int main() {                       // Line 6
+    for (int x = 1; x <= 3; ++x) { // Line 7
+        ++counter;                 // Line 8   BREAKPOINT 1 2 3
+    }                              // Line 9
+    func();                        // Line 10
+    func();                        // Line 11
+    ++counter;                     // Line 12  BREAKPOINT 6
+    return counter;                // Line 13
+}                                  // Line 14
+)");
+    const std::unordered_set<int> kBreakpoints = {4, 8, 12};
+    SkSL::SkVMDebugTracePlayer player;
+    player.reset(trace);
+
+    player.stepToBreakpoint(kBreakpoints);
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+
+    player.stepToBreakpoint(kBreakpoints);
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+
+    player.stepToBreakpoint(kBreakpoints);
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+
+    player.stepToBreakpoint(kBreakpoints);
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+
+    player.stepToBreakpoint(kBreakpoints);
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+
+    player.stepToBreakpoint(kBreakpoints);
+    REPORTER_ASSERT(r, player.getCurrentLine() == 12);
+
+    player.stepToBreakpoint(kBreakpoints);
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+}
