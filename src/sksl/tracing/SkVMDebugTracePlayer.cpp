@@ -51,8 +51,10 @@ void SkVMDebugTracePlayer::stepOver() {
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
         bool canEscapeFromThisStackDepth = (fStack.size() <= initialStackDepth);
-        if (this->execute(fCursor++) && canEscapeFromThisStackDepth) {
-            break;
+        if (this->execute(fCursor++)) {
+            if (canEscapeFromThisStackDepth || this->atBreakpoint()) {
+                break;
+            }
         }
     }
 }
@@ -61,17 +63,22 @@ void SkVMDebugTracePlayer::stepOut() {
     this->tidy();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
-        if (this->execute(fCursor++) && (fStack.size() < initialStackDepth)) {
-            break;
+        if (this->execute(fCursor++)) {
+            bool hasEscapedFromInitialStackDepth = (fStack.size() < initialStackDepth);
+            if (hasEscapedFromInitialStackDepth || this->atBreakpoint()) {
+                break;
+            }
         }
     }
 }
 
-void SkVMDebugTracePlayer::stepToBreakpoint(const std::unordered_set<int>& breakpointLines) {
+void SkVMDebugTracePlayer::run() {
     this->tidy();
     while (!this->traceHasCompleted()) {
-        if (this->execute(fCursor++) && breakpointLines.count(this->getCurrentLine())) {
-            break;
+        if (this->execute(fCursor++)) {
+            if (this->atBreakpoint()) {
+                break;
+            }
         }
     }
 }
@@ -93,6 +100,14 @@ bool SkVMDebugTracePlayer::traceHasCompleted() const {
 int32_t SkVMDebugTracePlayer::getCurrentLine() const {
     SkASSERT(!fStack.empty());
     return fStack.back().fLine;
+}
+
+bool SkVMDebugTracePlayer::atBreakpoint() const {
+    return fBreakpointLines.count(this->getCurrentLine());
+}
+
+void SkVMDebugTracePlayer::setBreakpoints(std::unordered_set<int> breakpointLines) {
+    fBreakpointLines = std::move(breakpointLines);
 }
 
 std::vector<int> SkVMDebugTracePlayer::getCallStack() const {

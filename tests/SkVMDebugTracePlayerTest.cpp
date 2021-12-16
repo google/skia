@@ -575,28 +575,110 @@ int main() {                       // Line 6
     return counter;                // Line 13
 }                                  // Line 14
 )");
-    const std::unordered_set<int> kBreakpoints = {4, 8, 12};
+    // Run the simulation with a variety of breakpoints set.
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
-
-    player.stepToBreakpoint(kBreakpoints);
+    player.setBreakpoints(std::unordered_set<int>{8, 13, 20});
+    player.run();
     REPORTER_ASSERT(r, player.getCurrentLine() == 8);
 
-    player.stepToBreakpoint(kBreakpoints);
+    player.run();
     REPORTER_ASSERT(r, player.getCurrentLine() == 8);
 
-    player.stepToBreakpoint(kBreakpoints);
+    player.setBreakpoints(std::unordered_set<int>{1, 4, 8});
+    player.run();
     REPORTER_ASSERT(r, player.getCurrentLine() == 8);
 
-    player.stepToBreakpoint(kBreakpoints);
+    player.run();
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
 
-    player.stepToBreakpoint(kBreakpoints);
+    player.setBreakpoints(std::unordered_set<int>{4, 12, 14});
+    player.run();
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
 
-    player.stepToBreakpoint(kBreakpoints);
+    player.run();
     REPORTER_ASSERT(r, player.getCurrentLine() == 12);
 
-    player.stepToBreakpoint(kBreakpoints);
+    player.run();
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+
+    // Run the simulation again with no breakpoints set. We should reach the end of the trace
+    // instantly.
+    player.reset(trace);
+    player.setBreakpoints(std::unordered_set<int>{});
+    REPORTER_ASSERT(r, !player.traceHasCompleted());
+
+    player.run();
     REPORTER_ASSERT(r, player.traceHasCompleted());
 }
+
+DEF_TEST(SkSLTracePlayerStepOverWithBreakpoint, r) {
+    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+R"(                   // Line 1
+int counter = 0;      // Line 2
+void func() {         // Line 3
+    ++counter;        // Line 4   BREAKPOINT
+}                     // Line 5
+int main() {          // Line 6
+    func();           // Line 7
+    return counter;   // Line 8
+}                     // Line 9
+)");
+    // Try stepping over with no breakpoint set; we will step over.
+    SkSL::SkVMDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+
+    player.stepOver();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+
+    // Try stepping over with a breakpoint set; we will stop at the breakpoint.
+    player.reset(trace);
+    player.setBreakpoints(std::unordered_set<int>{4});
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+
+    player.stepOver();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+}
+
+DEF_TEST(SkSLTracePlayerStepOutWithBreakpoint, r) {
+    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+R"(                   // Line 1
+int counter = 0;      // Line 2
+void func() {         // Line 3
+    ++counter;        // Line 4
+    ++counter;        // Line 5
+    ++counter;        // Line 6   BREAKPOINT
+}                     // Line 7
+int main() {          // Line 8
+    func();           // Line 9
+    return counter;   // Line 10
+}                     // Line 11
+)");
+    // Try stepping out with no breakpoint set; we will step out.
+    SkSL::SkVMDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+
+    player.stepOut();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+
+    // Try stepping out with a breakpoint set; we will stop at the breakpoint.
+    player.reset(trace);
+    player.setBreakpoints(std::unordered_set<int>{6});
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+
+    player.stepOut();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 6);
+}
+

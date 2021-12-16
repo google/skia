@@ -16,23 +16,35 @@ namespace SkSL {
  */
 class SkVMDebugTracePlayer {
 public:
-    /** Resets playback. */
+    /** Resets playback to the start of the trace. Breakpoints are not cleared. */
     void reset(sk_sp<SkVMDebugTrace> trace);
 
     /** Advances the simulation to the next Line op. */
     void step();
 
-    /** Advances the simulation to the next Line op, skipping past matched Enter/Exit pairs. */
+    /**
+     * Advances the simulation to the next Line op, skipping past matched Enter/Exit pairs.
+     * Breakpoints will also stop the simulation even if we haven't reached an Exit.
+     */
     void stepOver();
 
-    /** Advances the simulation until we exit from the current stack frame. */
+    /**
+     * Advances the simulation until we exit from the current stack frame.
+     * Breakpoints will also stop the simulation even if we haven't left the stack frame.
+     */
     void stepOut();
 
     /** Advances the simulation until we hit a breakpoint, or the trace completes. */
-    void stepToBreakpoint(const std::unordered_set<int>& breakpointLines);
+    void run();
+
+    /** Breakpoints will force the simulation to stop whenever a desired line is reached. */
+    void setBreakpoints(std::unordered_set<int> breakpointLines);
 
     /** Returns true if we have reached the end of the trace. */
     bool traceHasCompleted() const;
+
+    /** Returns true if there is a breakpoint set at the current line. */
+    bool atBreakpoint() const;
 
     /** Retrieves the cursor position. */
     size_t cursor() { return fCursor; }
@@ -97,6 +109,7 @@ private:
                                                   // executed step
     skstd::optional<SkBitSet>   fReturnValues;    // variable slots containing return values
     std::unordered_set<int>     fLineNumbers;     // every line number reached during execution
+    std::unordered_set<int>     fBreakpointLines; // all breakpoints set by setBreakpointLines
 };
 
 }  // namespace SkSL
