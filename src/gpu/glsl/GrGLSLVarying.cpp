@@ -58,10 +58,10 @@ void GrGLSLVaryingHandler::addVarying(const char* name, GrGLSLVarying* varying,
 }
 
 void GrGLSLVaryingHandler::emitAttributes(const GrGeometryProcessor& gp) {
-    for (const auto& attr : gp.vertexAttributes()) {
+    for (auto attr : gp.vertexAttributes()) {
         this->addAttribute(attr.asShaderVar());
     }
-    for (const auto& attr : gp.instanceAttributes()) {
+    for (auto attr : gp.instanceAttributes()) {
         this->addAttribute(attr.asShaderVar());
     }
 }

@@ -25,7 +25,7 @@ public:
                                        PatchAttribs::kNone) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
-        this->setVertexAttributes(&kInputPointAttrib, 1);
+        this->setVertexAttributesWithImplicitOffsets(&kInputPointAttrib, 1);
     }
 
     int maxTessellationSegments(const GrShaderCaps&) const override { SkUNREACHABLE; }

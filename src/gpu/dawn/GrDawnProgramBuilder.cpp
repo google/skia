@@ -338,18 +338,16 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     const GrGeometryProcessor& geomProc = programInfo.geomProc();
     int i = 0;
     if (geomProc.numVertexAttributes() > 0) {
-        size_t offset = 0;
-        for (const auto& attrib : geomProc.vertexAttributes()) {
+        for (auto attrib : geomProc.vertexAttributes()) {
             wgpu::VertexAttribute attribute;
             attribute.shaderLocation = i;
-            attribute.offset = offset;
+            attribute.offset = *attrib.offset();
             attribute.format = to_dawn_vertex_format(attrib.cpuType());
             vertexAttributes.push_back(attribute);
-            offset += attrib.sizeAlign4();
             i++;
         }
         wgpu::VertexBufferLayout input;
-        input.arrayStride = offset;
+        input.arrayStride = geomProc.vertexStride();
         input.stepMode = wgpu::VertexStepMode::Vertex;
         input.attributeCount = vertexAttributes.size();
         input.attributes = &vertexAttributes.front();
@@ -357,18 +355,16 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     }
     std::vector<wgpu::VertexAttribute> instanceAttributes;
     if (geomProc.numInstanceAttributes() > 0) {
-        size_t offset = 0;
-        for (const auto& attrib : geomProc.instanceAttributes()) {
+        for (auto attrib : geomProc.instanceAttributes()) {
             wgpu::VertexAttribute attribute;
             attribute.shaderLocation = i;
-            attribute.offset = offset;
+            attribute.offset = *attrib.offset();
             attribute.format = to_dawn_vertex_format(attrib.cpuType());
             instanceAttributes.push_back(attribute);
-            offset += attrib.sizeAlign4();
             i++;
         }
         wgpu::VertexBufferLayout input;
-        input.arrayStride = offset;
+        input.arrayStride = geomProc.instanceStride();
         input.stepMode = wgpu::VertexStepMode::Instance;
         input.attributeCount = instanceAttributes.size();
         input.attributes = &instanceAttributes.front();

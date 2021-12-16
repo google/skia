@@ -32,6 +32,7 @@ public:
     enum ClassID {
         kNull_ClassID,  // Reserved ID for missing (null) processors
 
+        kAttributeTestProcessor_ClassID,
         kBigKeyProcessor_ClassID,
         kBlendFragmentProcessor_ClassID,
         kBlockInputFragmentProcessor_ClassID,

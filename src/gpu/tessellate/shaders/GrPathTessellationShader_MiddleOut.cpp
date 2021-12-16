@@ -56,14 +56,15 @@ public:
             // each patch that explicitly tells the shader what type of curve it is.
             fInstanceAttribs.emplace_back("curveType", kFloat_GrVertexAttribType, kFloat_GrSLType);
         }
-        this->setInstanceAttributes(fInstanceAttribs.data(), fInstanceAttribs.count());
+        this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.data(),
+                                                       fInstanceAttribs.count());
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribCount);
         SkASSERT(this->instanceStride() ==
                  sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
 
         constexpr static Attribute kVertexAttrib("resolveLevel_and_idx", kFloat2_GrVertexAttribType,
                                                  kFloat2_GrSLType);
-        this->setVertexAttributes(&kVertexAttrib, 1);
+        this->setVertexAttributesWithImplicitOffsets(&kVertexAttrib, 1);
     }
 
     int maxTessellationSegments(const GrShaderCaps&) const override {

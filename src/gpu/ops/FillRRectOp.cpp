@@ -353,7 +353,8 @@ private:
     Processor(GrAAType aaType, ProcessorFlags flags)
             : GrGeometryProcessor(kGrFillRRectOp_Processor_ClassID)
             , fFlags(flags) {
-        this->setVertexAttributes(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
+        this->setVertexAttributesWithImplicitOffsets(kVertexAttribs,
+                                                     SK_ARRAY_COUNT(kVertexAttribs));
 
         fInstanceAttribs.emplace_back("skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         fInstanceAttribs.emplace_back("translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
@@ -366,7 +367,8 @@ private:
                     "local_rect", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         }
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribs);
-        this->setInstanceAttributes(fInstanceAttribs.begin(), fInstanceAttribs.count());
+        this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.begin(),
+                                                       fInstanceAttribs.count());
     }
 
     inline static constexpr Attribute kVertexAttribs[] = {

@@ -117,7 +117,7 @@ private:
                 fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
                 break;
         }
-        this->setVertexAttributes(&fInPosition, 2);
+        this->setVertexAttributesWithImplicitOffsets(&fInPosition, 2);
     }
 
     Mode fMode;
