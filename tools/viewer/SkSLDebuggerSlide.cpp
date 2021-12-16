@@ -28,6 +28,7 @@ void SkSLDebuggerSlide::load(SkScalar winWidth, SkScalar winHeight) {}
 void SkSLDebuggerSlide::unload() {
     fTrace = sk_make_sp<SkSL::SkVMDebugTrace>();
     fPlayer.reset(nullptr);
+    fPlayer.setBreakpoints(std::unordered_set<int>{});
 }
 
 void SkSLDebuggerSlide::showLoadTraceGUI() {
@@ -69,6 +70,11 @@ void SkSLDebuggerSlide::showLoadTraceGUI() {
 }
 
 void SkSLDebuggerSlide::showDebuggerGUI() {
+    if (ImGui::Button("Reset")) {
+        fPlayer.reset(fTrace);
+        fRefresh = true;
+    }
+    ImGui::SameLine(/*offset_from_start_x=*/0, /*spacing=*/100);
     if (ImGui::Button("Step")) {
         fPlayer.step();
         fRefresh = true;
@@ -81,6 +87,11 @@ void SkSLDebuggerSlide::showDebuggerGUI() {
     ImGui::SameLine();
     if (ImGui::Button("Step Out")) {
         fPlayer.stepOut();
+        fRefresh = true;
+    }
+    ImGui::SameLine(/*offset_from_start_x=*/0, /*spacing=*/100);
+    if (ImGui::Button(fPlayer.getBreakpoints().empty() ? "Run" : "Run to Breakpoint")) {
+        fPlayer.run();
         fRefresh = true;
     }
 
@@ -116,12 +127,37 @@ void SkSLDebuggerSlide::showCodeTable() {
                             ImGuiTableBgTarget_RowBg1,
                             ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_TextSelectedBg)));
                 }
+
+                // Show line numbers and breakpoints.
                 ImGui::TableSetColumnIndex(0);
-                ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 0.75f);
-                if (!fPlayer.getLineNumbersReached().count(humanReadableLine)) {
-                    color.w = 0.25f;
+                bool reachable = fPlayer.getLineNumbersReached().count(humanReadableLine);
+                bool breakpointOn = reachable && fPlayer.getBreakpoints().count(humanReadableLine);
+                if (breakpointOn) {
+                    ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(1.0f, 0.0f, 0.0f, 0.70f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 0.85f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                } else if (reachable) {
+                    ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.0f, 1.0f, 1.0f, 0.75f));
+                    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.0f, 1.0f, 1.0f, 0.4f));
+                } else {
+                    ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.0f, 1.0f, 1.0f, 0.25f));
+                    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
                 }
-                ImGui::TextColored(color, "%03zu ", humanReadableLine);
+                if (ImGui::SmallButton(SkStringPrintf("%03zu ", humanReadableLine).c_str())) {
+                    if (breakpointOn) {
+                        fPlayer.removeBreakpoint(humanReadableLine);
+                    } else if (reachable) {
+                        fPlayer.addBreakpoint(humanReadableLine);
+                    }
+                }
+                ImGui::PopStyleColor(4);
+
+                // Show lines of code.
                 ImGui::TableSetColumnIndex(1);
                 ImGui::Text("%s", fTrace->fSource[row].c_str());
             }

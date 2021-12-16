@@ -110,6 +110,14 @@ void SkVMDebugTracePlayer::setBreakpoints(std::unordered_set<int> breakpointLine
     fBreakpointLines = std::move(breakpointLines);
 }
 
+void SkVMDebugTracePlayer::addBreakpoint(int line) {
+    fBreakpointLines.insert(line);
+}
+
+void SkVMDebugTracePlayer::removeBreakpoint(int line) {
+    fBreakpointLines.erase(line);
+}
+
 std::vector<int> SkVMDebugTracePlayer::getCallStack() const {
     SkASSERT(!fStack.empty());
     std::vector<int> funcs;
