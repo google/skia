@@ -17,6 +17,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
+#include "src/core/SkStreamPriv.h"
 #include "src/core/SkUtils.h"
 
 #include <limits.h>
@@ -930,6 +931,13 @@ bool SkWuffsCodec_IsFormat(const void* buf, size_t bytesRead) {
 
 std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> stream,
                                                      SkCodec::Result*          result) {
+    // Some clients (e.g. Android) need to be able to seek the stream, but may
+    // not provide a seekable stream. Copy the stream to one that can seek.
+    if (!stream->hasPosition() || !stream->hasLength()) {
+        auto data = SkCopyStreamToData(stream.get());
+        stream.reset(new SkMemoryStream(std::move(data)));
+    }
+
     uint8_t               buffer[SK_WUFFS_CODEC_BUFFER_SIZE];
     wuffs_base__io_buffer iobuf =
         wuffs_base__make_io_buffer(wuffs_base__make_slice_u8(buffer, SK_WUFFS_CODEC_BUFFER_SIZE),

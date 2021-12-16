@@ -1368,6 +1368,45 @@ DEF_TEST(Codec_fallBack, r) {
     }
 }
 
+static void seek_and_decode(const char* file, std::unique_ptr<SkStream> stream,
+                            skiatest::Reporter* r) {
+    if (!stream) {
+        SkDebugf("Missing resources (%s). Set --resourcePath.\n", file);
+        return;
+    }
+
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec for %s,", file);
+        return;
+    }
+
+    // Trigger reading through the stream, so that decoding the first frame will
+    // require a rewind.
+    (void) codec->getFrameCount();
+
+    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap bm;
+    bm.allocPixels(info);
+    auto result = codec->getPixels(bm.pixmap());
+    if (result != SkCodec::kSuccess) {
+        ERRORF(r, "Failed to decode %s with error %s", file, SkCodec::ResultToString(result));
+    }
+}
+
+DEF_TEST(Wuffs_seek_and_decode, r) {
+    const char* file = "images/flightAnim.gif";
+    auto stream = LimitedRewindingStream::Make(file, SkCodec::MinBufferedBytesNeeded());
+    seek_and_decode(file, std::move(stream), r);
+
+#if defined(SK_ENABLE_ANDROID_UTILS)
+    // Test using FrontBufferedStream, as Android does
+    auto bufferedStream = android::skia::FrontBufferedStream::Make(
+            GetResourceAsStream(file), SkCodec::MinBufferedBytesNeeded());
+    seek_and_decode(file, std::move(bufferedStream), r);
+#endif
+}
+
 // This test verifies that we fixed an assert statement that fired when reusing a png codec
 // after scaling.
 DEF_TEST(Codec_reusePng, r) {
