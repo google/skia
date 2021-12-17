@@ -277,6 +277,16 @@ class SkUnicode_icu : public SkUnicode {
         Position pos8 = 0;
         Position pos16 = 0;
         Position end16 = sk_ubidi_getLength(bidi.get());
+
+        if (end16 == 0) {
+            return true;
+        }
+        if (sk_ubidi_getDirection(bidi.get()) != UBIDI_MIXED) {
+            // The entire paragraph is unidirectional.
+            bidiRegions->emplace_back(0, utf8Units, sk_ubidi_getLevelAt(bidi.get(), 0));
+            return true;
+        }
+
         while (pos16 < end16) {
             auto level = sk_ubidi_getLevelAt(bidi.get(), pos16);
             if (pos16 == 0) {
