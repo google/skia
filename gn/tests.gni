@@ -52,6 +52,7 @@ tests_sources = [
   "$_tests/CopySurfaceTest.cpp",
   "$_tests/CubicMapTest.cpp",
   "$_tests/CullTestTest.cpp",
+  "$_tests/CustomMeshTest.cpp",
   "$_tests/DashPathEffectTest.cpp",
   "$_tests/DataRefTest.cpp",
   "$_tests/DebugLayerManagerTest.cpp",
