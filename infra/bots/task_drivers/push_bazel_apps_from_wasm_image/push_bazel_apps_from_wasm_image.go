@@ -124,6 +124,10 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
+	if err := buildPushParticles(ctx, wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
+		td.Fatal(ctx, err)
+	}
+
 	// Remove all temporary files from the host machine. Swarming gets upset if there are root-owned
 	// files it cannot clean up.
 	cleanupCmd := []string{"/bin/sh", "-c", "rm -rf /OUT/*"}
@@ -156,6 +160,32 @@ func buildPushJSFiddle(ctx context.Context, wasmProductsDir, checkoutDir, skiaRe
 		return err
 	}
 	return publishToTopic(ctx, "gcr.io/skia-public/jsfiddle", skiaRevision, topic)
+}
+
+func buildPushParticles(ctx context.Context, wasmProductsDir, checkoutDir, skiaRevision string, topic *pubsub.Topic) error {
+	err := td.Do(ctx, td.Props("Build particles image").Infra(), func(ctx context.Context) error {
+		runCmd := &sk_exec.Command{
+			Name:       "make",
+			Args:       []string{"bazel_release_ci"},
+			InheritEnv: true,
+			Env: []string{
+				"COPY_FROM_DIR=" + wasmProductsDir,
+				"STABLE_DOCKER_TAG=" + skiaRevision,
+			},
+			Dir:       filepath.Join(checkoutDir, "particles"),
+			LogStdout: true,
+			LogStderr: true,
+		}
+		_, err := sk_exec.RunCommand(ctx, runCmd)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return publishToTopic(ctx, "gcr.io/skia-public/particles", skiaRevision, topic)
 }
 
 // changeBazelCacheDir writes an entry to the user's bazelrc file that will make all invocations of
