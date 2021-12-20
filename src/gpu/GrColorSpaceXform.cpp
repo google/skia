@@ -10,6 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/GrColorInfo.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
@@ -82,7 +83,7 @@ bool GrColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) const {
     return GrColorSpaceXform::Equals(fColorXform.get(), other.fColorXform.get());
 }
 
-void GrColorSpaceXformEffect::onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
+void GrColorSpaceXformEffect::onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder* b) const {
     b->add32(GrColorSpaceXform::XformKey(fColorXform.get()));
 }
 

@@ -16,6 +16,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
@@ -1038,7 +1039,7 @@ GrCaps::SupportedRead GrD3DCaps::onSupportedReadPixelsColorType(
     return { GrColorType::kUnknown, 0 };
 }
 
-void GrD3DCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
+void GrD3DCaps::addExtraSamplerKey(skgpu::KeyBuilder* b,
                                    GrSamplerState samplerState,
                                    const GrBackendFormat& format) const {
     // TODO
@@ -1054,7 +1055,7 @@ GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt,
     GrProgramDesc desc;
     GrProgramDesc::Build(&desc, programInfo, *this);
 
-    GrProcessorKeyBuilder b(desc.key());
+    skgpu::KeyBuilder b(desc.key());
 
     GrD3DRenderTarget* d3dRT = (GrD3DRenderTarget*) rt;
     d3dRT->genKey(&b);

@@ -8,6 +8,7 @@
 #include "src/gpu/effects/GrModulateAtlasCoverageEffect.h"
 
 #include "src/gpu/GrDynamicAtlas.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
 GrModulateAtlasCoverageEffect::GrModulateAtlasCoverageEffect(
@@ -31,6 +32,11 @@ GrModulateAtlasCoverageEffect::GrModulateAtlasCoverageEffect(
         : GrFragmentProcessor(that)
         , fFlags(that.fFlags)
         , fBounds(that.fBounds) {}
+
+void GrModulateAtlasCoverageEffect::onAddToKey(const GrShaderCaps&,
+                                               skgpu::KeyBuilder* b) const {
+    b->add32(fFlags & Flags::kCheckBounds);
+}
 
 std::unique_ptr<GrFragmentProcessor::ProgramImpl>
 GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_MiddleOutPolygonTriangulator_DEFINED
-#define tessellate_MiddleOutPolygonTriangulator_DEFINED
+#ifndef skgpu_tessellate_MiddleOutPolygonTriangulator_DEFINED
+#define skgpu_tessellate_MiddleOutPolygonTriangulator_DEFINED
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
@@ -239,4 +239,4 @@ private:
 
 }  // namespace skgpu
 
-#endif  // tessellate_MiddleOutPolygonTriangulator_DEFINED
+#endif  // skgpu_tessellate_MiddleOutPolygonTriangulator_DEFINED

@@ -8,6 +8,7 @@
 #include "src/gpu/vk/GrVkRenderPass.h"
 
 #include "src/gpu/GrProcessor.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/vk/GrVkFramebuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
@@ -441,12 +442,12 @@ bool GrVkRenderPass::equalLoadStoreOps(const LoadStoreOps& colorOps,
     return true;
 }
 
-void GrVkRenderPass::genKey(GrProcessorKeyBuilder* b) const {
+void GrVkRenderPass::genKey(skgpu::KeyBuilder* b) const {
     GenKey(b, fAttachmentFlags, fAttachmentsDescriptor, fSelfDepFlags,
            fLoadFromResolve, (uint64_t)fRenderPass);
 }
 
-void GrVkRenderPass::GenKey(GrProcessorKeyBuilder* b,
+void GrVkRenderPass::GenKey(skgpu::KeyBuilder* b,
                             AttachmentFlags attachmentFlags,
                             const AttachmentsDescriptor& attachmentsDescriptor,
                             SelfDependencyFlags selfDepFlags,

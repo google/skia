@@ -20,6 +20,7 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -559,7 +560,7 @@ public:
 
     const char* name() const override { return "QuadEdge"; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, KeyBuilder* b) const override {
         b->addBool(fUsesLocalCoords, "usesLocalCoords");
         b->addBits(ProgramImpl::kMatrixKeyBits,
                    ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),

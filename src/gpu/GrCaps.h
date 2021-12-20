@@ -24,12 +24,15 @@ class GrBackendFormat;
 class GrBackendRenderTarget;
 class GrBackendTexture;
 struct GrContextOptions;
-class GrProcessorKeyBuilder;
 class GrProgramDesc;
 class GrProgramInfo;
 class GrRenderTargetProxy;
 class GrSurface;
 class SkJSONWriter;
+
+namespace skgpu {
+class KeyBuilder;
+}
 
 /**
  * Represents the capabilities of a GrContext.
@@ -456,7 +459,7 @@ public:
      * in parameters. Currently this extra keying is only needed when building a vulkan pipeline
      * with immutable samplers.
      */
-    virtual void addExtraSamplerKey(GrProcessorKeyBuilder*,
+    virtual void addExtraSamplerKey(skgpu::KeyBuilder*,
                                     GrSamplerState,
                                     const GrBackendFormat&) const {}
 

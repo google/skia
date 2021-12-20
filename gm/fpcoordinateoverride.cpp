@@ -46,7 +46,7 @@ public:
         return nullptr;
     }
 
-    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override {}
 
     bool onIsEqual(const GrFragmentProcessor&) const override {
         SkASSERT(false);

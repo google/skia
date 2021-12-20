@@ -15,9 +15,11 @@
 
 #include <cinttypes>
 
-class GrProcessorKeyBuilder;
 class GrVkGpu;
 class GrVkRenderTarget;
+namespace skgpu {
+class KeyBuilder;
+}
 
 class GrVkRenderPass : public GrVkManagedResource {
 public:
@@ -156,9 +158,9 @@ public:
     uint32_t clearValueCount() const { return fClearValueCount; }
 
 
-    void genKey(GrProcessorKeyBuilder*) const;
+    void genKey(skgpu::KeyBuilder*) const;
 
-    static void GenKey(GrProcessorKeyBuilder*,
+    static void GenKey(skgpu::KeyBuilder*,
                        AttachmentFlags,
                        const AttachmentsDescriptor&,
                        SelfDependencyFlags selfDepFlags,

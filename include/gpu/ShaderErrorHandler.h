@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef ShaderErrorHandler_DEFINED
-#define ShaderErrorHandler_DEFINED
+#ifndef skgpu_ShaderErrorHandler_DEFINED
+#define skgpu_ShaderErrorHandler_DEFINED
 
 #include "include/core/SkTypes.h"
 
@@ -33,4 +33,4 @@ ShaderErrorHandler* DefaultShaderErrorHandler();
 
 }  // namespace skgpu
 
-#endif
+#endif // skgpu_ShaderErrorHandler_DEFINED

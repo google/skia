@@ -64,7 +64,7 @@ private:
         }
         SkUNREACHABLE;
     }
-    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void addToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override;
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
     const Mode fMode;

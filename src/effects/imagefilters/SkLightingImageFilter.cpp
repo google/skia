@@ -24,6 +24,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
@@ -636,7 +637,7 @@ protected:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
 private:
-    void onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const override {
         b->add32(fBoundaryMode << 2 | fLight->type());
     }
 

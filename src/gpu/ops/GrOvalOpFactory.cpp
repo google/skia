@@ -20,6 +20,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -78,7 +79,7 @@ public:
 
     const char* name() const override { return "CircleGeometryProcessor"; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const override {
         b->addBool(fStroke,                             "stroked"        );
         b->addBool(fInClipPlane.isInitialized(),        "clipPlane"      );
         b->addBool(fInIsectPlane.isInitialized(),       "isectPlane"     );
@@ -280,7 +281,7 @@ public:
 
     const char* name() const override { return "ButtCapDashedCircleGeometryProcessor"; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const override {
         b->addBits(ProgramImpl::kMatrixKeyBits,
                    ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),
                    "localMatrixType");
@@ -536,7 +537,7 @@ public:
 
     const char* name() const override { return "EllipseGeometryProcessor"; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const override {
         b->addBool(fStroke, "stroked");
         b->addBits(ProgramImpl::kMatrixKeyBits,
                    ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),
@@ -733,7 +734,7 @@ public:
 
     const char* name() const override { return "DIEllipseGeometryProcessor"; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const override {
         b->addBits(2, static_cast<uint32_t>(fStyle), "style");
         b->addBits(ProgramImpl::kMatrixKeyBits,
                    ProgramImpl::ComputeMatrixKey(caps, fViewMatrix),

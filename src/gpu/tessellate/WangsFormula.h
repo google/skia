@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_WangsFormula_DEFINED
-#define tessellate_WangsFormula_DEFINED
+#ifndef skgpu_tessellate_WangsFormula_DEFINED
+#define skgpu_tessellate_WangsFormula_DEFINED
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
@@ -316,4 +316,4 @@ SK_MAYBE_UNUSED inline static SkString as_sksl() {
 
 #undef AI
 
-#endif  // tessellate_WangsFormula_DEFINED
+#endif  // skgpu_tessellate_WangsFormula_DEFINED

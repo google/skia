@@ -8,11 +8,16 @@
 #include "src/gpu/ops/AtlasInstancedHelper.h"
 
 #include "src/gpu/BufferWriter.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 namespace skgpu::v1 {
+
+void AtlasInstancedHelper::getKeyBits(KeyBuilder* b) const {
+    b->addBits(kNumShaderFlags, (int)fShaderFlags, "atlasFlags");
+}
 
 void AtlasInstancedHelper::appendInstanceAttribs(
         SkTArray<GrGeometryProcessor::Attribute>* instanceAttribs) const {

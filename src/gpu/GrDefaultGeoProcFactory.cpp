@@ -11,6 +11,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -48,7 +49,7 @@ public:
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const override {
         uint32_t key = fFlags;
         key |= fCoverage == 0xff      ?  0x80 : 0;
         key |= fLocalCoordsWillBeRead ? 0x100 : 0;

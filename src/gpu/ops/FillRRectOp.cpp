@@ -19,6 +19,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrVx.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -341,7 +342,7 @@ public:
 
     const char* name() const override { return "FillRRectOp::Processor"; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, KeyBuilder* b) const override {
         b->addBits(kNumProcessorFlags, (uint32_t)fFlags,  "flags");
     }
 

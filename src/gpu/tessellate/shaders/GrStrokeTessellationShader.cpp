@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
@@ -398,7 +399,7 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
     }
 }
 
-void GrStrokeTessellationShader::addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
+void GrStrokeTessellationShader::addToKey(const GrShaderCaps&, skgpu::KeyBuilder* b) const {
     bool keyNeedsJoin = (fMode != Mode::kHardwareTessellation) &&
                         !(fPatchAttribs & PatchAttribs::kStrokeParams);
     SkASSERT((int)fMode >> 2 == 0);

@@ -9,6 +9,7 @@
 
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrPipeline.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -31,6 +32,13 @@ uint32_t GrGeometryProcessor::ComputeCoordTransformsKey(const GrFragmentProcesso
         key |= 0b1;
     }
     return key;
+}
+
+void GrGeometryProcessor::getAttributeKey(skgpu::KeyBuilder* b) const {
+    b->appendComment("vertex attributes");
+    fVertexAttributes.addToKey(b);
+    b->appendComment("instance attributes");
+    fInstanceAttributes.addToKey(b);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -545,7 +553,7 @@ void AttributeSet::initExplicit(const Attribute* attrs, int count, size_t stride
     }
 }
 
-void AttributeSet::addToKey(GrProcessorKeyBuilder* b) const {
+void AttributeSet::addToKey(skgpu::KeyBuilder* b) const {
     int rawCount = SkAbs32(fRawCount);
     b->addBits(16, SkToU16(this->stride()), "stride");
     b->addBits(16, rawCount, "attribute count");

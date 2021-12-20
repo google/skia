@@ -190,7 +190,7 @@ public:
     GrXferBarrierType xferBarrierType(const GrCaps&) const;
 
     // Used by Vulkan and Metal to cache their respective pipeline objects
-    void genKey(GrProcessorKeyBuilder*, const GrCaps&) const;
+    void genKey(skgpu::KeyBuilder*, const GrCaps&) const;
 
     const GrSwizzle& writeSwizzle() const { return fWriteSwizzle; }
 

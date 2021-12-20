@@ -11,6 +11,7 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLBlend.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -27,7 +28,7 @@ public:
     std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
 private:
-    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
@@ -43,7 +44,7 @@ private:
     using INHERITED = GrXferProcessor;
 };
 
-void CoverageSetOpXP::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+void CoverageSetOpXP::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const {
     b->addBool(fInvertCoverage, "invert coverage");
 }
 

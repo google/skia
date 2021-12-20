@@ -10,6 +10,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
@@ -190,7 +191,7 @@ DXGI_FORMAT GrD3DRenderTarget::stencilDxgiFormat() const {
     return DXGI_FORMAT_UNKNOWN;
 }
 
-void GrD3DRenderTarget::genKey(GrProcessorKeyBuilder* b) const {
+void GrD3DRenderTarget::genKey(skgpu::KeyBuilder* b) const {
     b->add32(this->dxgiFormat());
     b->add32(this->numSamples());
     b->add32(this->stencilDxgiFormat());

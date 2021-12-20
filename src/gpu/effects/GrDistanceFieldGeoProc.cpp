@@ -9,6 +9,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/effects/GrAtlasedShaderHelpers.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -265,7 +266,7 @@ void GrDistanceFieldA8TextGeoProc::addNewViews(const GrSurfaceProxyView* views,
 }
 
 void GrDistanceFieldA8TextGeoProc::addToKey(const GrShaderCaps& caps,
-                                            GrProcessorKeyBuilder* b) const {
+                                            skgpu::KeyBuilder* b) const {
     uint32_t key = 0;
     key |= fFlags;
     key |= ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix) << 16;
@@ -532,7 +533,7 @@ void GrDistanceFieldPathGeoProc::addNewViews(const GrSurfaceProxyView* views,
 }
 
 void GrDistanceFieldPathGeoProc::addToKey(const GrShaderCaps& caps,
-                                          GrProcessorKeyBuilder* b) const {
+                                          skgpu::KeyBuilder* b) const {
     uint32_t key = fFlags;
     key |= ProgramImpl::ComputeMatrixKey(caps, fMatrix) << 16;
     key |= fMatrix.hasPerspective() << (16 + ProgramImpl::kMatrixKeyBits);
@@ -845,7 +846,7 @@ void GrDistanceFieldLCDTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
 }
 
 void GrDistanceFieldLCDTextGeoProc::addToKey(const GrShaderCaps& caps,
-                                             GrProcessorKeyBuilder* b) const {
+                                             skgpu::KeyBuilder* b) const {
     uint32_t key = 0;
     key |= ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix);
     key |= fFlags << 16;

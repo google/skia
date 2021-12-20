@@ -61,7 +61,7 @@ public:
 
 private:
     const char* name() const final { return "TessellationTestTriShader"; }
-    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    void addToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const final {}
 
     class Impl : public ProgramImpl {
     public:
@@ -179,7 +179,7 @@ public:
 
     const char* name() const final { return "TessellationTestRectShader"; }
 
-    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    void addToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const final {}
 
 private:
     class Impl : public ProgramImpl {

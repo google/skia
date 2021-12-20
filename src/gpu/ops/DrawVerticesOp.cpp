@@ -16,6 +16,7 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -59,7 +60,7 @@ public:
     const Attribute& colorAttr() const { return fAttributes[kColorIndex]; }
     const Attribute& localCoordsAttr() const { return fAttributes[kLocalCoordsIndex]; }
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, KeyBuilder* b) const override {
         uint32_t key = 0;
         key |= (fColorArrayType == ColorArrayType::kSkColor) ? 0x1 : 0;
         key |= ProgramImpl::ComputeMatrixKey(caps, fViewMatrix) << 20;

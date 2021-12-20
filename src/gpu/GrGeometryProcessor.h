@@ -165,7 +165,7 @@ public:
         // an explicit offset aligned to 4 bytes and with no attribute crossing stride boundaries.
         void initExplicit(const Attribute* attrs, int count, size_t stride);
 
-        void addToKey(GrProcessorKeyBuilder* b) const;
+        void addToKey(skgpu::KeyBuilder* b) const;
 
     private:
         const Attribute* fAttributes = nullptr;
@@ -207,17 +207,12 @@ public:
     inline static constexpr int kCoordTransformKeyBits = 4;
 
     /**
-     * Adds a key on the GrProcessorKeyBuilder that reflects any variety in the code that the
+     * Adds a key on the skgpu::KeyBuilder that reflects any variety in the code that the
      * geometry processor subclass can emit.
      */
-    virtual void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
+    virtual void addToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const = 0;
 
-    void getAttributeKey(GrProcessorKeyBuilder* b) const {
-        b->appendComment("vertex attributes");
-        fVertexAttributes.addToKey(b);
-        b->appendComment("instance attributes");
-        fInstanceAttributes.addToKey(b);
-    }
+    void getAttributeKey(skgpu::KeyBuilder* b) const;
 
     /**
      * Returns a new instance of the appropriate implementation class for the given

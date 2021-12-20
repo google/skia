@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_Tessellation_DEFINED
-#define tessellate_Tessellation_DEFINED
+#ifndef skgpu_tessellate_Tessellation_DEFINED
+#define skgpu_tessellate_Tessellation_DEFINED
 
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/GrTypes.h"

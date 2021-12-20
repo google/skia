@@ -21,6 +21,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -718,7 +719,7 @@ public:
 
     const char* name() const override { return "DashingCircleEffect"; }
 
-    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void addToKey(const GrShaderCaps&, KeyBuilder*) const override;
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
@@ -842,7 +843,7 @@ GrGeometryProcessor* DashingCircleEffect::Make(SkArenaAlloc* arena,
     });
 }
 
-void DashingCircleEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+void DashingCircleEffect::addToKey(const GrShaderCaps& caps, KeyBuilder* b) const {
     uint32_t key = 0;
     key |= fUsesLocalCoords ? 0x1 : 0x0;
     key |= static_cast<uint32_t>(fAAMode) << 1;
@@ -910,7 +911,7 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void addToKey(const GrShaderCaps&, KeyBuilder*) const override;
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
@@ -1056,7 +1057,7 @@ GrGeometryProcessor* DashingLineEffect::Make(SkArenaAlloc* arena,
     });
 }
 
-void DashingLineEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+void DashingLineEffect::addToKey(const GrShaderCaps& caps, KeyBuilder* b) const {
     uint32_t key = 0;
     key |= fUsesLocalCoords ? 0x1 : 0x0;
     key |= static_cast<int>(fAAMode) << 1;

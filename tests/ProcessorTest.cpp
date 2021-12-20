@@ -16,6 +16,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -98,7 +99,7 @@ public:
 
     const char* name() const override { return "test"; }
 
-    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+    void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder* b) const override {
         static std::atomic<int32_t> nextKey{0};
         b->add32(nextKey++);
     }

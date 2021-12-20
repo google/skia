@@ -17,6 +17,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
@@ -54,7 +55,7 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
     return SkToU32(samplerTypeKey | swizzleKey << kSamplerOrImageTypeKeyBits);
 }
 
-static void add_geomproc_sampler_keys(GrProcessorKeyBuilder* b,
+static void add_geomproc_sampler_keys(skgpu::KeyBuilder* b,
                                       const GrGeometryProcessor& geomProc,
                                       const GrCaps& caps) {
     int numTextureSamplers = geomProc.numTextureSamplers();
@@ -82,7 +83,7 @@ static constexpr uint32_t kClassIDBits = 8;
  */
 static void gen_geomproc_key(const GrGeometryProcessor& geomProc,
                              const GrCaps& caps,
-                             GrProcessorKeyBuilder* b) {
+                             skgpu::KeyBuilder* b) {
     b->appendComment(geomProc.name());
     b->addBits(kClassIDBits, geomProc.classID(), "geomProcClassID");
 
@@ -95,7 +96,7 @@ static void gen_geomproc_key(const GrGeometryProcessor& geomProc,
 static void gen_xp_key(const GrXferProcessor& xp,
                        const GrCaps& caps,
                        const GrPipeline& pipeline,
-                       GrProcessorKeyBuilder* b) {
+                       skgpu::KeyBuilder* b) {
     b->appendComment(xp.name());
     b->addBits(kClassIDBits, xp.classID(), "xpClassID");
 
@@ -114,7 +115,7 @@ static void gen_xp_key(const GrXferProcessor& xp,
 
 static void gen_fp_key(const GrFragmentProcessor& fp,
                        const GrCaps& caps,
-                       GrProcessorKeyBuilder* b) {
+                       skgpu::KeyBuilder* b) {
     b->appendComment(fp.name());
     b->addBits(kClassIDBits, fp.classID(), "fpClassID");
     b->addBits(GrGeometryProcessor::kCoordTransformKeyBits,
@@ -141,7 +142,7 @@ static void gen_fp_key(const GrFragmentProcessor& fp,
     }
 }
 
-static void gen_key(GrProcessorKeyBuilder* b,
+static void gen_key(skgpu::KeyBuilder* b,
                     const GrProgramInfo& programInfo,
                     const GrCaps& caps) {
     gen_geomproc_key(programInfo.geomProc(), caps, b);
@@ -170,7 +171,7 @@ void GrProgramDesc::Build(GrProgramDesc* desc,
                           const GrProgramInfo& programInfo,
                           const GrCaps& caps) {
     desc->reset();
-    GrProcessorKeyBuilder b(desc->key());
+    skgpu::KeyBuilder b(desc->key());
     gen_key(&b, programInfo, caps);
     desc->fInitialKeyLength = desc->keyLength();
 }
@@ -178,7 +179,7 @@ void GrProgramDesc::Build(GrProgramDesc* desc,
 SkString GrProgramDesc::Describe(const GrProgramInfo& programInfo,
                                  const GrCaps& caps) {
     GrProgramDesc desc;
-    GrProcessorStringKeyBuilder b(desc.key());
+    skgpu::StringKeyBuilder b(desc.key());
     gen_key(&b, programInfo, caps);
     b.flush();
     return b.description();

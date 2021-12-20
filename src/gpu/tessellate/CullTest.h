@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef tessellate_CullTest_DEFINED
-#define tessellate_CullTest_DEFINED
+#ifndef skgpu_tessellate_CullTest_DEFINED
+#define skgpu_tessellate_CullTest_DEFINED
 
 #include "include/core/SkMatrix.h"
 #include "src/gpu/tessellate/Tessellation.h"
@@ -104,4 +104,4 @@ private:
 
 }  // namespace skgpu
 
-#endif  // tessellate_CullTest_DEFINED
+#endif  // skgpu_tessellate_CullTest_DEFINED

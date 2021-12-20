@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkPathPriv.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
+
+#include "src/core/SkPathPriv.h"
+#include "src/gpu/KeyBuilder.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -85,7 +87,7 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
 
-void GrConvexPolyEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrConvexPolyEffect::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* b) const {
     static_assert(kGrClipEdgeTypeCnt <= 8);
     uint32_t key = (fEdgeCount << 3) | static_cast<int>(fEdgeType);
     b->add32(key);
