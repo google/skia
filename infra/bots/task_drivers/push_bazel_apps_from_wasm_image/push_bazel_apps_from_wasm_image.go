@@ -16,6 +16,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"go.skia.org/infra/task_driver/go/lib/bazel"
+
 	"cloud.google.com/go/pubsub"
 	"google.golang.org/api/option"
 
@@ -115,16 +117,23 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	if err := changeBazelCacheDir(ctx, "/mnt/pd0/bazel_cache"); err != nil {
+	opts := bazel.BazelOptions{
+		CachePath: "/mnt/pd0/bazel_cache",
+	}
+	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
 		td.Fatal(ctx, err)
 	}
 
 	// TODO(kjlubick) Build and push all apps of interest as they are ported.
-	if err := buildPushJSFiddle(ctx, wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
+	if err := buildPush(ctx, "jsfiddle", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	if err := buildPushParticles(ctx, wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
+	if err := buildPush(ctx, "particles", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
+		td.Fatal(ctx, err)
+	}
+
+	if err := buildPush(ctx, "shaders", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
 		td.Fatal(ctx, err)
 	}
 
@@ -136,8 +145,11 @@ func main() {
 	}
 }
 
-func buildPushJSFiddle(ctx context.Context, wasmProductsDir, checkoutDir, skiaRevision string, topic *pubsub.Topic) error {
-	err := td.Do(ctx, td.Props("Build jsfiddle image").Infra(), func(ctx context.Context) error {
+// buildPush pushes the app in the given skia-infra folder using `make bazel_release_ci`.
+// By convention, all of these apps should have the k8s deployment name be the same as the app
+// name and be built using the same Make target.
+func buildPush(ctx context.Context, appName, wasmProductsDir, checkoutDir, skiaRevision string, topic *pubsub.Topic) error {
+	err := td.Do(ctx, td.Props("Build "+appName+" image").Infra(), func(ctx context.Context) error {
 		runCmd := &sk_exec.Command{
 			Name:       "make",
 			Args:       []string{"bazel_release_ci"},
@@ -146,7 +158,7 @@ func buildPushJSFiddle(ctx context.Context, wasmProductsDir, checkoutDir, skiaRe
 				"COPY_FROM_DIR=" + wasmProductsDir,
 				"STABLE_DOCKER_TAG=" + skiaRevision,
 			},
-			Dir:       filepath.Join(checkoutDir, "jsfiddle"),
+			Dir:       filepath.Join(checkoutDir, appName),
 			LogStdout: true,
 			LogStderr: true,
 		}
@@ -159,53 +171,15 @@ func buildPushJSFiddle(ctx context.Context, wasmProductsDir, checkoutDir, skiaRe
 	if err != nil {
 		return err
 	}
-	return publishToTopic(ctx, "gcr.io/skia-public/jsfiddle", skiaRevision, topic)
+	return publishToTopic(ctx, "gcr.io/skia-public/"+appName, skiaRevision, topic)
 }
 
-func buildPushParticles(ctx context.Context, wasmProductsDir, checkoutDir, skiaRevision string, topic *pubsub.Topic) error {
-	err := td.Do(ctx, td.Props("Build particles image").Infra(), func(ctx context.Context) error {
-		runCmd := &sk_exec.Command{
-			Name:       "make",
-			Args:       []string{"bazel_release_ci"},
-			InheritEnv: true,
-			Env: []string{
-				"COPY_FROM_DIR=" + wasmProductsDir,
-				"STABLE_DOCKER_TAG=" + skiaRevision,
-			},
-			Dir:       filepath.Join(checkoutDir, "particles"),
-			LogStdout: true,
-			LogStderr: true,
-		}
-		_, err := sk_exec.RunCommand(ctx, runCmd)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-	return publishToTopic(ctx, "gcr.io/skia-public/particles", skiaRevision, topic)
-}
-
-// changeBazelCacheDir writes an entry to the user's bazelrc file that will make all invocations of
-// bazel use the given directory as their cache file.
-// TODO(kjlubick) Migrate this to be something more generic like "Ensure BazelRC file" and take in
-//   an options struct.
-func changeBazelCacheDir(ctx context.Context, path string) error {
-	// https://docs.bazel.build/versions/main/guide.html#where-are-the-bazelrc-files
-	// We go for the user's .bazelrc file instead of the system one because the swarming user does
-	// not have access to write to /etc/bazel.bazelrc
-	const userBazelRCLocation = "/home/chrome-bot/.bazelrc"
-	const bazelRCFileContents = `startup --output_user_root=%s
-`
-	return os_steps.WriteFile(ctx, userBazelRCLocation, []byte(fmt.Sprintf(bazelRCFileContents, path)), 0666)
-}
-
+// publishToTopic publishes a message to the pubsub topic which is subscribed to by
+// https://github.com/google/skia-buildbot/blob/cd593cf6c534ba7a1bd2d88a488d37840663230d/docker_pushes_watcher/go/docker_pushes_watcher/main.go#L335
+// The tag will be used to determine if the image should be updated, as such, it is the
+// skia revision that was used to build the wasm components.
 func publishToTopic(ctx context.Context, image, tag string, topic *pubsub.Topic) error {
 	return td.Do(ctx, td.Props(fmt.Sprintf("Publish pubsub msg to %s", docker_pubsub.TOPIC)).Infra(), func(ctx context.Context) error {
-		// Publish to the pubsub topic which is subscribed to by
-		// https://github.com/google/skia-buildbot/blob/cd593cf6c534ba7a1bd2d88a488d37840663230d/docker_pushes_watcher/go/docker_pushes_watcher/main.go#L335
 		b, err := json.Marshal(&docker_pubsub.BuildInfo{
 			ImageName: image,
 			Tag:       tag,

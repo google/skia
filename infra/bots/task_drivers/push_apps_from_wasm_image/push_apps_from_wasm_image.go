@@ -45,7 +45,6 @@ var (
 
 const (
 	debuggerImageName = "debugger-app"
-	shaderImageName   = "shaders"
 	skottieImageName  = "skottie"
 )
 
@@ -82,20 +81,6 @@ func buildPushDebuggerImage(ctx context.Context, tag, repo, wasmProductsDir, con
 		fmt.Sprintf("%s:/WORKSPACE", tempDir),
 	}
 	return docker.BuildPushImageFromInfraImage(ctx, "Debugger-App", image, tag, repo, configDir, tempDir, "prod", topic, cmd, volumes, infraCommonEnv, nil)
-}
-
-func buildPushShadersImage(ctx context.Context, tag, repo, wasmProductsDir, configDir string, topic *pubsub.Topic) error {
-	tempDir, err := os_steps.TempDir(ctx, "", "")
-	if err != nil {
-		return err
-	}
-	image := fmt.Sprintf("gcr.io/skia-public/%s", shaderImageName)
-	cmd := []string{"/bin/sh", "-c", "cd /home/skia/golib/src/go.skia.org/infra/shaders && make release_ci"}
-	volumes := []string{
-		fmt.Sprintf("%s:/OUT", wasmProductsDir),
-		fmt.Sprintf("%s:/WORKSPACE", tempDir),
-	}
-	return docker.BuildPushImageFromInfraImage(ctx, "Shaders", image, tag, repo, configDir, tempDir, "prod", topic, cmd, volumes, infraCommonEnv, nil)
 }
 
 func main() {
@@ -171,9 +156,6 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 	if err := buildPushDebuggerImage(ctx, tag, rs.Repo, wasmProductsDir, configDir, topic); err != nil {
-		td.Fatal(ctx, err)
-	}
-	if err := buildPushShadersImage(ctx, tag, rs.Repo, wasmProductsDir, configDir, topic); err != nil {
 		td.Fatal(ctx, err)
 	}
 
