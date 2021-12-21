@@ -33,16 +33,6 @@ struct PromiseTextureChecker {
     int fFulfillCount = 0;
     int fReleaseCount = 0;
 
-    /**
-     * Releases the SkPromiseImageTexture. Used to test that cached GrTexture representations
-     * in the cache are freed.
-     */
-    void releaseTexture() { fTexture.reset(); }
-
-    SkTArray<GrUniqueKey> uniqueKeys() const {
-        return fTexture->testingOnly_uniqueKeysToInvalidate();
-    }
-
     static sk_sp<SkPromiseImageTexture> Fulfill(void* self) {
         auto checker = static_cast<PromiseTextureChecker*>(self);
         checker->fFulfillCount++;
