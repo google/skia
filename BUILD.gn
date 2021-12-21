@@ -656,21 +656,17 @@ if (skia_compile_sksl_tests) {
       "src/utils/SkParse.cpp",
       "src/utils/SkShaderUtils.cpp",
       "src/utils/SkUTF.cpp",
-      "src/utils/SkVMVisualizer.cpp",
     ]
-    libs = []
     if (is_win) {
       sources += [ "src/ports/SkOSFile_win.cpp" ]
     } else {
       sources += [ "src/ports/SkOSFile_posix.cpp" ]
-      libs += [ "dl" ]
     }
     sources += skia_sksl_sources
     sources += skia_sksl_gpu_sources
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
-      ":skvm_jit",
       "//third_party/externals/spirv-tools:spvtools",
       "//third_party/externals/spirv-tools:spvtools_val",
       "//third_party/spirv-cross:spirv_cross",

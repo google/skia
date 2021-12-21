@@ -42,10 +42,6 @@ class SkWStream;
 
 namespace skvm {
 
-    namespace viz {
-        class Visualizer;
-    }
-
     class Assembler {
     public:
         explicit Assembler(void* buf);
@@ -622,18 +618,15 @@ namespace skvm {
 
     class Builder {
     public:
+
         Builder(bool createDuplicates = false);
         Builder(Features, bool createDuplicates = false);
 
-        Program done(const char* debug_name,
-                     bool allow_jit,
-                     std::unique_ptr<viz::Visualizer> visualizer) const;
-        Program done(const char* debug_name = nullptr,
-                     bool allow_jit=true) const;
+        Program done(const char* debug_name = nullptr, bool allow_jit=true) const;
 
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
-        std::vector<OptimizedInstruction> optimize(viz::Visualizer* visualizer = nullptr) const;
+        std::vector<OptimizedInstruction> optimize() const;
 
         // Returns a trace-hook ID which must be passed to the trace opcodes.
         int attachTraceHook(TraceHook*);
@@ -1024,10 +1017,8 @@ namespace skvm {
 
     // Optimization passes and data structures normally used by Builder::optimize(),
     // extracted here so they can be unit tested.
-    std::vector<Instruction> eliminate_dead_code(std::vector<Instruction>,
-                                                 viz::Visualizer* visualizer = nullptr);
-    std::vector<OptimizedInstruction> finalize(std::vector<Instruction>,
-                                               viz::Visualizer* visualizer = nullptr);
+    std::vector<Instruction>          eliminate_dead_code(std::vector<Instruction>);
+    std::vector<OptimizedInstruction> finalize           (std::vector<Instruction>);
 
     using Reg = int;
 
@@ -1041,7 +1032,6 @@ namespace skvm {
     class Program {
     public:
         Program(const std::vector<OptimizedInstruction>& instructions,
-                std::unique_ptr<viz::Visualizer> visualizer,
                 const std::vector<int>& strides,
                 const std::vector<TraceHook*>& traceHooks,
                 const char* debug_name, bool allow_jit);
@@ -1074,10 +1064,8 @@ namespace skvm {
         bool hasJIT() const;         // Has this Program been JITted?
         bool hasTraceHooks() const;  // Is this program instrumented for debugging?
 
-        void visualize(SkWStream* output, const char* code) const;
         void dump(SkWStream* = nullptr) const;
         void disassemble(SkWStream* = nullptr) const;
-        viz::Visualizer* visualizer();
 
     private:
         void setupInterpreter(const std::vector<OptimizedInstruction>&);

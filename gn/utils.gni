@@ -80,8 +80,6 @@ skia_utils_sources = [
   "$_src/utils/SkThreadUtils_win.cpp",
   "$_src/utils/SkUTF.cpp",
   "$_src/utils/SkUTF.h",
-  "$_src/utils/SkVMVisualizer.cpp",
-  "$_src/utils/SkVMVisualizer.h",
 
   #mac
   "$_src/utils/mac/SkCGBase.h",
