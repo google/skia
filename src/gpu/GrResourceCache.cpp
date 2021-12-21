@@ -26,39 +26,11 @@
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage, uint32_t, true);
+DECLARE_SKMESSAGEBUS_MESSAGE(skgpu::UniqueKeyInvalidatedMessage, uint32_t, true);
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrTextureFreedMessage, GrDirectContext::DirectContextID, true);
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fSingleOwner)
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
-    static std::atomic<int32_t> nextType{INHERITED::kInvalidDomain + 1};
-
-    int32_t type = nextType.fetch_add(1, std::memory_order_relaxed);
-    if (type > SkTo<int32_t>(UINT16_MAX)) {
-        SK_ABORT("Too many Resource Types");
-    }
-
-    return static_cast<ResourceType>(type);
-}
-
-GrUniqueKey::Domain GrUniqueKey::GenerateDomain() {
-    static std::atomic<int32_t> nextDomain{INHERITED::kInvalidDomain + 1};
-
-    int32_t domain = nextDomain.fetch_add(1, std::memory_order_relaxed);
-    if (domain > SkTo<int32_t>(UINT16_MAX)) {
-        SK_ABORT("Too many GrUniqueKey Domains");
-    }
-
-    return static_cast<Domain>(domain);
-}
-
-uint32_t GrResourceKeyHash(const uint32_t* data, size_t size) {
-    return SkOpts::hash(data, size);
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -290,7 +262,7 @@ public:
     }
 };
 
-GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& scratchKey) {
+GrGpuResource* GrResourceCache::findAndRefScratchResource(const skgpu::ScratchKey& scratchKey) {
     SkASSERT(scratchKey.isValid());
 
     GrGpuResource* resource = fScratchMap.find(scratchKey, AvailableForScratchUse());
@@ -330,7 +302,7 @@ void GrResourceCache::removeUniqueKey(GrGpuResource* resource) {
     this->validate();
 }
 
-void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey& newKey) {
+void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const skgpu::UniqueKey& newKey) {
     ASSERT_SINGLE_OWNER
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
@@ -522,7 +494,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 }
 
 void GrResourceCache::purgeAsNeeded() {
-    SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
+    SkTArray<skgpu::UniqueKeyInvalidatedMessage> invalidKeyMsgs;
     fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
     if (invalidKeyMsgs.count()) {
         SkASSERT(fProxyProvider);
@@ -919,8 +891,8 @@ void GrResourceCache::validate() const {
                 ++fLocked;
             }
 
-            const GrScratchKey& scratchKey = resource->resourcePriv().getScratchKey();
-            const GrUniqueKey& uniqueKey = resource->getUniqueKey();
+            const skgpu::ScratchKey& scratchKey = resource->resourcePriv().getScratchKey();
+            const skgpu::UniqueKey& uniqueKey = resource->getUniqueKey();
 
             if (resource->cacheAccess().isUsableAsScratch()) {
                 SkASSERT(!uniqueKey.isValid());

@@ -18,7 +18,6 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/GrResourceKey.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkYUVPlanesCache.h"
 #include "src/gpu/GrCaps.h"
@@ -29,6 +28,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrYUVATextureProxies.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
@@ -426,7 +426,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
 
     enum { kLockTexturePathCount = kRGBA_LockTexturePath + 1 };
 
-    GrUniqueKey key;
+    skgpu::UniqueKey key;
     if (texGenPolicy == GrImageTexGenPolicy::kDraw) {
         GrMakeKeyFromImageID(&key, this->uniqueID(), SkIRect::MakeSize(this->dimensions()));
     }

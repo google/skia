@@ -7,7 +7,6 @@
 
 #include "src/gpu/GrAttachment.h"
 
-#include "include/private/GrResourceKey.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDataUtils.h"
@@ -34,7 +33,7 @@ size_t GrAttachment::onGpuMemorySize() const {
     return 0;
 }
 
-static void build_key(GrResourceKey::Builder* builder,
+static void build_key(skgpu::ResourceKey::Builder* builder,
                       const GrCaps& caps,
                       const GrBackendFormat& format,
                       SkISize dimensions,
@@ -69,10 +68,10 @@ void GrAttachment::ComputeSharedAttachmentUniqueKey(const GrCaps& caps,
                                                     GrMipmapped mipmapped,
                                                     GrProtected isProtected,
                                                     GrMemoryless memoryless,
-                                                    GrUniqueKey* key) {
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+                                                    skgpu::UniqueKey* key) {
+    static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
 
-    GrUniqueKey::Builder builder(key, kDomain, 5);
+    skgpu::UniqueKey::Builder builder(key, kDomain, 5);
     build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, mipmapped, isProtected,
               memoryless);
 }
@@ -85,15 +84,15 @@ void GrAttachment::ComputeScratchKey(const GrCaps& caps,
                                      GrMipmapped mipmapped,
                                      GrProtected isProtected,
                                      GrMemoryless memoryless,
-                                     GrScratchKey* key) {
-    static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
+                                     skgpu::ScratchKey* key) {
+    static const skgpu::ScratchKey::ResourceType kType = skgpu::ScratchKey::GenerateResourceType();
 
-    GrScratchKey::Builder builder(key, kType, 5);
+    skgpu::ScratchKey::Builder builder(key, kType, 5);
     build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, mipmapped, isProtected,
               memoryless);
 }
 
-void GrAttachment::computeScratchKey(GrScratchKey* key) const {
+void GrAttachment::computeScratchKey(skgpu::ScratchKey* key) const {
     if (!SkToBool(fSupportedUsages & UsageFlags::kStencilAttachment)) {
         auto isProtected = this->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         ComputeScratchKey(*this->getGpu()->caps(),

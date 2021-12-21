@@ -12,7 +12,6 @@
 #include "src/gpu/GrSurface.h"
 
 class GrRenderTarget;
-class GrResourceKey;
 
 /**
  * This is a generic attachment class for out GrSurfaces. It always represents a single gpu
@@ -55,7 +54,7 @@ public:
                                                  GrMipmapped mipmapped,
                                                  GrProtected isProtected,
                                                  GrMemoryless memoryless,
-                                                 GrUniqueKey* key);
+                                                 skgpu::UniqueKey* key);
 
     // TODO: Once attachments start having multiple usages, we'll need to figure out how to search
     // the cache for an attachment that simply contains the requested usage instead of equaling it.
@@ -67,7 +66,7 @@ public:
                                   GrMipmapped mipmapped,
                                   GrProtected,
                                   GrMemoryless,
-                                  GrScratchKey* key);
+                                  skgpu::ScratchKey* key);
 
 protected:
     GrAttachment(GrGpu* gpu, SkISize dimensions, UsageFlags supportedUsages, int sampleCnt,
@@ -82,7 +81,7 @@ protected:
 private:
     size_t onGpuMemorySize() const final;
 
-    void computeScratchKey(GrScratchKey*) const final;
+    void computeScratchKey(skgpu::ScratchKey*) const final;
 
     const char* getResourceType() const override {
         if (fSupportedUsages == UsageFlags::kStencilAttachment) {

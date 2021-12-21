@@ -278,15 +278,15 @@ bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    GrUniqueKey maskKey;
+    skgpu::UniqueKey maskKey;
     if (useCache) {
         // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
         SkScalar sx = args.fViewMatrix->get(SkMatrix::kMScaleX);
         SkScalar sy = args.fViewMatrix->get(SkMatrix::kMScaleY);
         SkScalar kx = args.fViewMatrix->get(SkMatrix::kMSkewX);
         SkScalar ky = args.fViewMatrix->get(SkMatrix::kMSkewY);
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(&maskKey, kDomain, 7 + args.fShape->unstyledKeySize(),
+        static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
+        skgpu::UniqueKey::Builder builder(&maskKey, kDomain, 7 + args.fShape->unstyledKeySize(),
                                      "SW Path Mask");
         builder[0] = boundsForMask->width();
         builder[1] = boundsForMask->height();

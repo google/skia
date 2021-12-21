@@ -142,8 +142,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
     }
     fRefHelper->fBorrowingContextID = dContext->directContextID();
     if (!fRefHelper->fBorrowedTextureKey.isValid()) {
-        static const auto kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(&fRefHelper->fBorrowedTextureKey, kDomain, 1);
+        static const auto kDomain = skgpu::UniqueKey::GenerateDomain();
+        skgpu::UniqueKey::Builder builder(&fRefHelper->fBorrowedTextureKey, kDomain, 1);
         builder[0] = this->uniqueID();
     }
     fBorrowingMutex.release();

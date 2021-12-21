@@ -141,7 +141,7 @@ void GrGpuResource::removeUniqueKey() {
     get_resource_cache(fGpu)->resourceAccess().removeUniqueKey(this);
 }
 
-void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
+void GrGpuResource::setUniqueKey(const skgpu::UniqueKey& key) {
     SkASSERT(this->internalHasRef());
     SkASSERT(key.isValid());
 

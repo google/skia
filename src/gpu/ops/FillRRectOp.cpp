@@ -470,7 +470,7 @@ static constexpr CoverageVertex kVertexData[] = {
         {{{0,0,0,1}},  {{-1,+1}},  {{0,-kOctoOffset}},  {{-1,+1}},  0,  0},
         {{{0,0,0,1}},  {{-1,+1}},  {{+kOctoOffset,0}},  {{-1,+1}},  0,  0}};
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
 static constexpr uint16_t kIndexData[] = {
         // Inset octagon (solid coverage).
@@ -511,7 +511,7 @@ static constexpr uint16_t kIndexData[] = {
         39, 36, 38,
         36, 38, 37};
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
     if (!fProgramInfo) {
@@ -549,13 +549,13 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
         SkASSERT(instanceWrter == end);
     }
 
-    GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
+    SKGPU_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
     fIndexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
                                                                       sizeof(kIndexData),
                                                                       kIndexData, gIndexBufferKey);
 
-    GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
+    SKGPU_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
     fVertexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(GrGpuBufferType::kVertex,
                                                                       sizeof(kVertexData),

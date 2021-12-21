@@ -5,25 +5,28 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrResourceKey_DEFINED
-#define GrResourceKey_DEFINED
+#ifndef skgpu_ResourceKey_DEFINED
+#define skgpu_ResourceKey_DEFINED
 
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 #include <new>
 
-uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
+class TestResource;
+
+namespace skgpu {
+
+uint32_t ResourceKeyHash(const uint32_t* data, size_t size);
 
 /**
- * Base class for all GrGpuResource cache keys. There are two types of cache keys. Refer to the
+ * Base class for all gpu Resource cache keys. There are two types of cache keys. Refer to the
  * comments for each key type below.
  */
-class GrResourceKey {
+class ResourceKey {
 public:
     uint32_t hash() const {
         this->validate();
@@ -46,7 +49,7 @@ public:
                 return;
             }
             uint32_t* hash = &fKey->fKey[kHash_MetaDataIdx];
-            *hash = GrResourceKeyHash(hash + 1, fKey->internalSize() - sizeof(uint32_t));
+            *hash = ResourceKeyHash(hash + 1, fKey->internalSize() - sizeof(uint32_t));
             fKey->validate();
             fKey = nullptr;
         }
@@ -59,7 +62,7 @@ public:
         }
 
     protected:
-        Builder(GrResourceKey* key, uint32_t domain, int data32Count) : fKey(key) {
+        Builder(ResourceKey* key, uint32_t domain, int data32Count) : fKey(key) {
             size_t count = SkToSizeT(data32Count);
             SkASSERT(domain != kInvalidDomain);
             key->fKey.reset(kMetaDataCnt + count);
@@ -70,13 +73,13 @@ public:
         }
 
     private:
-        GrResourceKey* fKey;
+        ResourceKey* fKey;
     };
 
 protected:
     static const uint32_t kInvalidDomain = 0;
 
-    GrResourceKey() { this->reset(); }
+    ResourceKey() { this->reset(); }
 
     /** Reset to an invalid key. */
     void reset() {
@@ -85,14 +88,14 @@ protected:
         fKey[kDomainAndSize_MetaDataIdx] = kInvalidDomain;
     }
 
-    bool operator==(const GrResourceKey& that) const {
+    bool operator==(const ResourceKey& that) const {
         // Both keys should be sized to at least contain the meta data. The metadata contains each
         // key's length. So the second memcmp should only run if the keys have the same length.
         return 0 == memcmp(fKey.get(), that.fKey.get(), kMetaDataCnt*sizeof(uint32_t)) &&
                0 == memcmp(&fKey[kMetaDataCnt], &that.fKey[kMetaDataCnt], this->dataSize());
     }
 
-    GrResourceKey& operator=(const GrResourceKey& that) {
+    ResourceKey& operator=(const ResourceKey& that) {
         if (this != &that) {
             if (!that.isValid()) {
                 this->reset();
@@ -152,12 +155,12 @@ private:
     void validate() const {
         SkASSERT(this->isValid());
         SkASSERT(fKey[kHash_MetaDataIdx] ==
-                 GrResourceKeyHash(&fKey[kHash_MetaDataIdx] + 1,
-                                   this->internalSize() - sizeof(uint32_t)));
+                 ResourceKeyHash(&fKey[kHash_MetaDataIdx] + 1,
+                                 this->internalSize() - sizeof(uint32_t)));
         SkASSERT(SkIsAlign4(this->internalSize()));
     }
 
-    friend class TestResource;  // For unit test to access kMetaDataCnt.
+    friend class ::TestResource;  // For unit test to access kMetaDataCnt.
 
     // bmp textures require 5 uint32_t values.
     SkAutoSTMalloc<kMetaDataCnt + 5, uint32_t> fKey;
@@ -184,10 +187,7 @@ private:
  *  consume_blur(texture[0]);
  *  texture[0]->unref();  // texture 0 can now be recycled for the next request with scratchKey
  */
-class GrScratchKey : public GrResourceKey {
-private:
-    using INHERITED = GrResourceKey;
-
+class ScratchKey : public ResourceKey {
 public:
     /** Uniquely identifies the type of resource that is cached as scratch. */
     typedef uint32_t ResourceType;
@@ -196,29 +196,29 @@ public:
     static ResourceType GenerateResourceType();
 
     /** Creates an invalid scratch key. It must be initialized using a Builder object before use. */
-    GrScratchKey() {}
+    ScratchKey() {}
 
-    GrScratchKey(const GrScratchKey& that) { *this = that; }
+    ScratchKey(const ScratchKey& that) { *this = that; }
 
     /** reset() returns the key to the invalid state. */
-    using INHERITED::reset;
+    using ResourceKey::reset;
 
-    using INHERITED::isValid;
+    using ResourceKey::isValid;
 
     ResourceType resourceType() const { return this->domain(); }
 
-    GrScratchKey& operator=(const GrScratchKey& that) {
-        this->INHERITED::operator=(that);
+    ScratchKey& operator=(const ScratchKey& that) {
+        this->ResourceKey::operator=(that);
         return *this;
     }
 
-    bool operator==(const GrScratchKey& that) const { return this->INHERITED::operator==(that); }
-    bool operator!=(const GrScratchKey& that) const { return !(*this == that); }
+    bool operator==(const ScratchKey& that) const { return this->ResourceKey::operator==(that); }
+    bool operator!=(const ScratchKey& that) const { return !(*this == that); }
 
-    class Builder : public INHERITED::Builder {
+    class Builder : public ResourceKey::Builder {
     public:
-        Builder(GrScratchKey* key, ResourceType type, int data32Count)
-                : INHERITED::Builder(key, type, data32Count) {}
+        Builder(ScratchKey* key, ResourceType type, int data32Count)
+                : ResourceKey::Builder(key, type, data32Count) {}
     };
 };
 
@@ -236,34 +236,31 @@ public:
  * Unique keys preempt scratch keys. While a resource has a unique key it is inaccessible via its
  * scratch key. It can become scratch again if the unique key is removed.
  */
-class GrUniqueKey : public GrResourceKey {
-private:
-    using INHERITED = GrResourceKey;
-
+class UniqueKey : public ResourceKey {
 public:
     typedef uint32_t Domain;
     /** Generate a Domain for unique keys. */
     static Domain GenerateDomain();
 
     /** Creates an invalid unique key. It must be initialized using a Builder object before use. */
-    GrUniqueKey() : fTag(nullptr) {}
+    UniqueKey() : fTag(nullptr) {}
 
-    GrUniqueKey(const GrUniqueKey& that) { *this = that; }
+    UniqueKey(const UniqueKey& that) { *this = that; }
 
     /** reset() returns the key to the invalid state. */
-    using INHERITED::reset;
+    using ResourceKey::reset;
 
-    using INHERITED::isValid;
+    using ResourceKey::isValid;
 
-    GrUniqueKey& operator=(const GrUniqueKey& that) {
-        this->INHERITED::operator=(that);
+    UniqueKey& operator=(const UniqueKey& that) {
+        this->ResourceKey::operator=(that);
         this->setCustomData(sk_ref_sp(that.getCustomData()));
         fTag = that.fTag;
         return *this;
     }
 
-    bool operator==(const GrUniqueKey& that) const { return this->INHERITED::operator==(that); }
-    bool operator!=(const GrUniqueKey& that) const { return !(*this == that); }
+    bool operator==(const UniqueKey& that) const { return this->ResourceKey::operator==(that); }
+    bool operator!=(const UniqueKey& that) const { return !(*this == that); }
 
     void setCustomData(sk_sp<SkData> data) { fData = std::move(data); }
     SkData* getCustomData() const { return fData.get(); }
@@ -274,21 +271,23 @@ public:
 #ifdef SK_DEBUG
     void dump(const char* label) const {
         SkDebugf("%s tag: %s\n", label, fTag ? fTag : "None");
-        this->INHERITED::dump();
+        this->ResourceKey::dump();
     }
 #endif
 
-    class Builder : public INHERITED::Builder {
+    class Builder : public ResourceKey::Builder {
     public:
-        Builder(GrUniqueKey* key, Domain type, int data32Count, const char* tag = nullptr)
-                : INHERITED::Builder(key, type, data32Count) {
+        Builder(UniqueKey* key, Domain type, int data32Count, const char* tag = nullptr)
+                : ResourceKey::Builder(key, type, data32Count) {
             key->fTag = tag;
         }
 
         /** Used to build a key that wraps another key and adds additional data. */
-        Builder(GrUniqueKey* key, const GrUniqueKey& innerKey, Domain domain, int extraData32Cnt,
+        Builder(UniqueKey* key, const UniqueKey& innerKey, Domain domain, int extraData32Cnt,
                 const char* tag = nullptr)
-                : INHERITED::Builder(key, domain, Data32CntForInnerKey(innerKey) + extraData32Cnt) {
+                : ResourceKey::Builder(key,
+                                       domain,
+                                       Data32CntForInnerKey(innerKey) + extraData32Cnt) {
             SkASSERT(&innerKey != key);
             // add the inner key to the end of the key so that op[] can be indexed normally.
             uint32_t* innerKeyData = &this->operator[](extraData32Cnt);
@@ -299,7 +298,7 @@ public:
         }
 
     private:
-        static int Data32CntForInnerKey(const GrUniqueKey& innerKey) {
+        static int Data32CntForInnerKey(const UniqueKey& innerKey) {
             // key data + domain
             return SkToInt((innerKey.dataSize() >> 2) + 1);
         }
@@ -311,52 +310,56 @@ private:
 };
 
 /**
- * It is common to need a frequently reused GrUniqueKey where the only requirement is that the key
+ * It is common to need a frequently reused UniqueKey where the only requirement is that the key
  * is unique. These macros create such a key in a thread safe manner so the key can be truly global
  * and only constructed once.
  */
 
 /** Place outside of function/class definitions. */
-#define GR_DECLARE_STATIC_UNIQUE_KEY(name) static SkOnce name##_once
+#define SKGPU_DECLARE_STATIC_UNIQUE_KEY(name) static SkOnce name##_once
 
 /** Place inside function where the key is used. */
-#define GR_DEFINE_STATIC_UNIQUE_KEY(name)                         \
-    static SkAlignedSTStorage<1, GrUniqueKey> name##_storage;     \
-    name##_once(gr_init_static_unique_key_once, &name##_storage); \
-    static const GrUniqueKey& name = *reinterpret_cast<GrUniqueKey*>(name##_storage.get())
+#define SKGPU_DEFINE_STATIC_UNIQUE_KEY(name)                                \
+    static SkAlignedSTStorage<1, skgpu::UniqueKey> name##_storage;          \
+    name##_once(skgpu::skgpu_init_static_unique_key_once, &name##_storage); \
+    static const skgpu::UniqueKey& name =                                   \
+        *reinterpret_cast<skgpu::UniqueKey*>(name##_storage.get())
 
-static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1, GrUniqueKey>* keyStorage) {
-    GrUniqueKey* key = new (keyStorage->get()) GrUniqueKey;
-    GrUniqueKey::Builder builder(key, GrUniqueKey::GenerateDomain(), 0);
+static inline void skgpu_init_static_unique_key_once(SkAlignedSTStorage<1, UniqueKey>* keyStorage) {
+    UniqueKey* key = new (keyStorage->get()) UniqueKey;
+    UniqueKey::Builder builder(key, UniqueKey::GenerateDomain(), 0);
 }
 
 // The cache listens for these messages to purge junk resources proactively.
-class GrUniqueKeyInvalidatedMessage {
+class UniqueKeyInvalidatedMessage {
 public:
-    GrUniqueKeyInvalidatedMessage() = default;
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID,
-                                  bool inThreadSafeCache = false)
+    UniqueKeyInvalidatedMessage() = default;
+    UniqueKeyInvalidatedMessage(const UniqueKey& key,
+                                uint32_t contextUniqueID,
+                                bool inThreadSafeCache = false)
             : fKey(key), fContextID(contextUniqueID), fInThreadSafeCache(inThreadSafeCache) {
         SkASSERT(SK_InvalidUniqueID != contextUniqueID);
     }
 
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage&) = default;
+    UniqueKeyInvalidatedMessage(const UniqueKeyInvalidatedMessage&) = default;
 
-    GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage&) = default;
+    UniqueKeyInvalidatedMessage& operator=(const UniqueKeyInvalidatedMessage&) = default;
 
-    const GrUniqueKey& key() const { return fKey; }
+    const UniqueKey& key() const { return fKey; }
     uint32_t contextID() const { return fContextID; }
     bool inThreadSafeCache() const { return fInThreadSafeCache; }
 
 private:
-    GrUniqueKey fKey;
+    UniqueKey fKey;
     uint32_t fContextID = SK_InvalidUniqueID;
     bool fInThreadSafeCache = false;
 };
 
-static inline bool SkShouldPostMessageToBus(const GrUniqueKeyInvalidatedMessage& msg,
+static inline bool SkShouldPostMessageToBus(const UniqueKeyInvalidatedMessage& msg,
                                             uint32_t msgBusUniqueID) {
     return msg.contextID() == msgBusUniqueID;
 }
 
-#endif
+} // namespace skgpu
+
+#endif // skgpu_ResourceKey_DEFINED

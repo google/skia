@@ -422,14 +422,14 @@ GrSurfaceProxyView SkImage_Base::FindOrMakeCachedMipmappedView(GrRecordingContex
     }
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
-    GrUniqueKey baseKey;
+    skgpu::UniqueKey baseKey;
     GrMakeKeyFromImageID(&baseKey, imageUniqueID, SkIRect::MakeSize(view.dimensions()));
     SkASSERT(baseKey.isValid());
-    GrUniqueKey mipmappedKey;
-    static const GrUniqueKey::Domain kMipmappedDomain = GrUniqueKey::GenerateDomain();
+    skgpu::UniqueKey mipmappedKey;
+    static const skgpu::UniqueKey::Domain kMipmappedDomain = skgpu::UniqueKey::GenerateDomain();
     {  // No extra values beyond the domain are required. Must name the var to please
        // clang-tidy.
-        GrUniqueKey::Builder b(&mipmappedKey, baseKey, kMipmappedDomain, 0);
+        skgpu::UniqueKey::Builder b(&mipmappedKey, baseKey, kMipmappedDomain, 0);
     }
     SkASSERT(mipmappedKey.isValid());
     if (sk_sp<GrTextureProxy> cachedMippedView =

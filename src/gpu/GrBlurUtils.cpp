@@ -101,7 +101,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
                                                   const SkIRect& unclippedDevShapeBounds,
                                                   const SkIRect& clipBounds,
                                                   SkIRect* drawRect,
-                                                  GrUniqueKey* key) {
+                                                  skgpu::UniqueKey* key) {
     SkASSERT(filter);
     SkASSERT(!shape.style().applies());
 
@@ -283,7 +283,7 @@ static bool get_shape_and_clip_bounds(skgpu::v1::SurfaceDrawContext* sdc,
 // The key and clip-bounds are computed together because the caching decision can impact the
 // clip-bound - since we only cache un-clipped masks the clip can be removed entirely.
 // A 'false' return value indicates that the shape is known to be clipped away.
-static bool compute_key_and_clip_bounds(GrUniqueKey* maskKey,
+static bool compute_key_and_clip_bounds(skgpu::UniqueKey* maskKey,
                                         SkIRect* boundsForClip,
                                         const GrCaps* caps,
                                         const SkMatrix& viewMatrix,
@@ -326,8 +326,8 @@ static bool compute_key_and_clip_bounds(GrUniqueKey* maskKey,
     }
 
     if (useCache) {
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(maskKey, kDomain, 5 + 2 + shape.unstyledKeySize(),
+        static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
+        skgpu::UniqueKey::Builder builder(maskKey, kDomain, 5 + 2 + shape.unstyledKeySize(),
                                      "Mask Filtered Masks");
 
         // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
@@ -375,7 +375,7 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
                                                   const SkIRect& unclippedDevShapeBounds,
                                                   const SkIRect& clipBounds,
                                                   SkIRect* maskRect,
-                                                  GrUniqueKey* key) {
+                                                  skgpu::UniqueKey* key) {
     if (!filter->canFilterMaskGPU(shape,
                                   unclippedDevShapeBounds,
                                   clipBounds,
@@ -508,7 +508,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* rContext,
         }
     }
 
-    GrUniqueKey maskKey;
+    skgpu::UniqueKey maskKey;
     SkIRect boundsForClip;
     if (!compute_key_and_clip_bounds(&maskKey, &boundsForClip,
                                      sdc->caps(),

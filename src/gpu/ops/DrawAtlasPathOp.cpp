@@ -181,7 +181,7 @@ void DrawAtlasPathOp::onPrePrepare(GrRecordingContext* rContext,
     rContext->priv().recordProgramInfo(fProgram);
 }
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
 
 void DrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
     if (!fProgram) {
@@ -207,7 +207,7 @@ void DrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
     if (!flushState->caps().shaderCaps()->vertexIDSupport()) {
         constexpr static SkPoint kUnitQuad[4] = {{0,0}, {0,1}, {1,0}, {1,1}};
 
-        GR_DEFINE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
+        SKGPU_DEFINE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
 
         fVertexBufferIfNoIDSupport = flushState->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kVertex, sizeof(kUnitQuad), kUnitQuad, gUnitQuadBufferKey);

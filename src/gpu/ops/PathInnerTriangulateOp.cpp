@@ -398,7 +398,7 @@ void PathInnerTriangulateOp::onPrePrepare(GrRecordingContext* context,
     }
 }
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);
 
 void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     const GrCaps& caps = flushState->caps();
@@ -460,7 +460,7 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     if (!caps.shaderCaps()->vertexIDSupport()) {
         constexpr static float kStripOrderIDs[4] = {0, 1, 3, 2};
 
-        GR_DEFINE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);
+        SKGPU_DEFINE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);
 
         fHullVertexBufferIfNoIDSupport = flushState->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kVertex, sizeof(kStripOrderIDs), kStripOrderIDs,

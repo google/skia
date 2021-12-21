@@ -742,12 +742,12 @@ ClipStack::ClipState ClipStack::RawElement::clipType() const {
 ClipStack::Mask::Mask(const SaveRecord& current, const SkIRect& drawBounds)
         : fBounds(drawBounds)
         , fGenID(current.genID()) {
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    static const UniqueKey::Domain kDomain = UniqueKey::GenerateDomain();
 
     // The gen ID should not be invalid, empty, or wide open, since those do not require masks
     SkASSERT(fGenID != kInvalidGenID && fGenID != kEmptyGenID && fGenID != kWideOpenGenID);
 
-    GrUniqueKey::Builder builder(&fKey, kDomain, 5, "clip_mask");
+    UniqueKey::Builder builder(&fKey, kDomain, 5, "clip_mask");
     builder[0] = fGenID;
     builder[1] = drawBounds.fLeft;
     builder[2] = drawBounds.fRight;

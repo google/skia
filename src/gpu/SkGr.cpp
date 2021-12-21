@@ -48,12 +48,12 @@
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
 
-void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds) {
+void GrMakeKeyFromImageID(skgpu::UniqueKey* key, uint32_t imageID, const SkIRect& imageBounds) {
     SkASSERT(key);
     SkASSERT(imageID);
     SkASSERT(!imageBounds.isEmpty());
-    static const GrUniqueKey::Domain kImageIDDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kImageIDDomain, 5, "Image");
+    static const skgpu::UniqueKey::Domain kImageIDDomain = skgpu::UniqueKey::GenerateDomain();
+    skgpu::UniqueKey::Builder builder(key, kImageIDDomain, 5, "Image");
     builder[0] = imageID;
     builder[1] = imageBounds.fLeft;
     builder[2] = imageBounds.fTop;
@@ -63,18 +63,19 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 
 ////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey* key,
+sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(skgpu::UniqueKey* key,
                                                               uint32_t contextID) {
     class Listener : public SkIDChangeListener {
     public:
-        Listener(const GrUniqueKey& key, uint32_t contextUniqueID) : fMsg(key, contextUniqueID) {}
+        Listener(const skgpu::UniqueKey& key, uint32_t contextUniqueID)
+                : fMsg(key, contextUniqueID) {}
 
         void changed() override {
-            SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Post(fMsg);
+            SkMessageBus<skgpu::UniqueKeyInvalidatedMessage, uint32_t>::Post(fMsg);
         }
 
     private:
-        GrUniqueKeyInvalidatedMessage fMsg;
+        skgpu::UniqueKeyInvalidatedMessage fMsg;
     };
 
     auto listener = sk_make_sp<Listener>(*key, contextID);
@@ -176,7 +177,7 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
     const GrCaps* caps = rContext->priv().caps();
 
-    GrUniqueKey key;
+    skgpu::UniqueKey key;
     SkIPoint origin = bitmap.pixelRefOrigin();
     SkIRect subset = SkIRect::MakePtSize(origin, bitmap.dimensions());
     GrMakeKeyFromImageID(&key, bitmap.pixelRef()->getGenerationID(), subset);

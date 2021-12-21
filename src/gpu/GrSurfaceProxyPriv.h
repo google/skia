@@ -17,7 +17,7 @@ class GrResourceProvider;
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
-    void computeScratchKey(const GrCaps& caps, GrScratchKey* key) const {
+    void computeScratchKey(const GrCaps& caps, skgpu::ScratchKey* key) const {
         return fProxy->computeScratchKey(caps, key);
     }
 

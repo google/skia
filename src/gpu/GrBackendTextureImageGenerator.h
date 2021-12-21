@@ -10,9 +10,9 @@
 #include "include/core/SkImageGenerator.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/GrResourceKey.h"
 #include "include/private/SkMutex.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/ResourceKey.h"
 
 class GrSemaphore;
 
@@ -70,7 +70,7 @@ private:
 
         // We use this key so that we don't rewrap the GrBackendTexture in a GrTexture for each
         // proxy created from this generator for a particular borrowing context.
-        GrUniqueKey                      fBorrowedTextureKey;
+        skgpu::UniqueKey                 fBorrowedTextureKey;
         // There is no ref associated with this pointer. We rely on our atomic bookkeeping with the
         // context ID to know when this pointer is valid and safe to use. This is used to make sure
         // all uses of the wrapped texture are finished on the borrowing context before we open

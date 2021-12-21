@@ -219,20 +219,20 @@ void PathCurveTessellator::WriteFixedIndexBufferBaseIndex(VertexWriter vertexWri
 
 #if SK_GPU_V1
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gFixedVertexBufferKey);
-GR_DECLARE_STATIC_UNIQUE_KEY(gFixedIndexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gFixedVertexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gFixedIndexBufferKey);
 
 void PathCurveTessellator::prepareFixedCountBuffers(GrMeshDrawTarget* target) {
     GrResourceProvider* rp = target->resourceProvider();
 
-    GR_DEFINE_STATIC_UNIQUE_KEY(gFixedVertexBufferKey);
+    SKGPU_DEFINE_STATIC_UNIQUE_KEY(gFixedVertexBufferKey);
 
     fFixedVertexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kVertex,
                                                     FixedVertexBufferSize(kMaxFixedResolveLevel),
                                                     gFixedVertexBufferKey,
                                                     WriteFixedVertexBuffer);
 
-    GR_DEFINE_STATIC_UNIQUE_KEY(gFixedIndexBufferKey);
+    SKGPU_DEFINE_STATIC_UNIQUE_KEY(gFixedIndexBufferKey);
 
     fFixedIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
                                                    FixedIndexBufferSize(kMaxFixedResolveLevel),

@@ -75,10 +75,10 @@ static const uint16_t kQuadIdxBufPattern[] = {
 static const int kIdxsPerQuad = SK_ARRAY_COUNT(kQuadIdxBufPattern);
 static const int kQuadNumVertices = 5;
 static const int kQuadsNumInIdxBuffer = 256;
-GR_DECLARE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
 
 sk_sp<const GrBuffer> get_quads_index_buffer(GrResourceProvider* resourceProvider) {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
+    SKGPU_DEFINE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
     return resourceProvider->findOrCreatePatternedIndexBuffer(
         kQuadIdxBufPattern, kIdxsPerQuad, kQuadsNumInIdxBuffer, kQuadNumVertices,
         gQuadsIndexBufferKey);
@@ -109,10 +109,10 @@ static const int kIdxsPerLineSeg = SK_ARRAY_COUNT(kLineSegIdxBufPattern);
 static const int kLineSegNumVertices = 6;
 static const int kLineSegsNumInIdxBuffer = 256;
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
 
 sk_sp<const GrBuffer> get_lines_index_buffer(GrResourceProvider* resourceProvider) {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
+    SKGPU_DEFINE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
     return resourceProvider->findOrCreatePatternedIndexBuffer(
         kLineSegIdxBufPattern, kIdxsPerLineSeg,  kLineSegsNumInIdxBuffer, kLineSegNumVertices,
         gLinesIndexBufferKey);

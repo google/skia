@@ -12,7 +12,6 @@
 #include <vector>
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/GrResourceKey.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -23,6 +22,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
@@ -34,7 +34,7 @@
 #define WRITE_PNG_CONTEXT_TYPE kANGLE_D3D11_ES3_ContextType
 #endif
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 static constexpr int kBoxSize = 2;
 static constexpr int kBoxCountY = 8;
@@ -545,7 +545,7 @@ sk_sp<const GrBuffer> DrawMeshHelper::makeVertexBuffer(const T* data, int count)
 }
 
 sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
+    SKGPU_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
     return fState->resourceProvider()->findOrCreatePatternedIndexBuffer(
             kIndexPattern, 6, kIndexPatternRepeatCount, 4, gIndexBufferKey);
 }

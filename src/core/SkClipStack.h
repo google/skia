@@ -21,7 +21,7 @@
 #if SK_SUPPORT_GPU
 class GrProxyProvider;
 
-#include "include/private/GrResourceKey.h"
+#include "src/gpu/ResourceKey.h"
 #endif
 
 // Because a single save/restore state can have multiple clips, this class
@@ -195,7 +195,7 @@ public:
          * the element is destroyed because their key is based on this element's gen ID.
          */
         void addResourceInvalidationMessage(GrProxyProvider* proxyProvider,
-                                            const GrUniqueKey& key) const {
+                                            const skgpu::UniqueKey& key) const {
             SkASSERT(proxyProvider);
 
             if (!fProxyProvider) {
@@ -238,8 +238,8 @@ public:
 
         uint32_t fGenID;
 #if SK_SUPPORT_GPU
-        mutable GrProxyProvider*      fProxyProvider = nullptr;
-        mutable SkTArray<GrUniqueKey> fKeysToInvalidate;
+        mutable GrProxyProvider*           fProxyProvider = nullptr;
+        mutable SkTArray<skgpu::UniqueKey> fKeysToInvalidate;
 #endif
         Element(int saveCount) {
             this->initCommon(saveCount, SkClipOp::kIntersect, false);

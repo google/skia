@@ -387,9 +387,9 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         info.imageInfo = info.imageInfo.makeColorType(kRGBA_8888_SkColorType);
     }
 
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey key;
-    GrUniqueKey::Builder builder(&key, kDomain, 10, "Picture Shader Image");
+    static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
+    skgpu::UniqueKey key;
+    skgpu::UniqueKey::Builder builder(&key, kDomain, 10, "Picture Shader Image");
     builder[0] = dstCS->toXYZD50Hash();
     builder[1] = dstCS->transferFnHash();
     builder[2] = static_cast<uint32_t>(dstColorType);

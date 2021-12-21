@@ -58,10 +58,11 @@ bool GrGpuBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     return result;
 }
 
-void GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(size_t size, GrGpuBufferType intendedType,
-                                                 GrScratchKey* key) {
-    static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
-    GrScratchKey::Builder builder(key, kType, 1 + (sizeof(size_t) + 3) / 4);
+void GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(size_t size,
+                                                    GrGpuBufferType intendedType,
+                                                    skgpu::ScratchKey* key) {
+    static const skgpu::ScratchKey::ResourceType kType = skgpu::ScratchKey::GenerateResourceType();
+    skgpu::ScratchKey::Builder builder(key, kType, 1 + (sizeof(size_t) + 3) / 4);
     builder[0] = SkToU32(intendedType);
     builder[1] = (uint32_t)size;
     if (sizeof(size_t) > 4) {
@@ -69,7 +70,7 @@ void GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(size_t size, GrGpuBufferType
     }
 }
 
-void GrGpuBuffer::computeScratchKey(GrScratchKey* key) const {
+void GrGpuBuffer::computeScratchKey(skgpu::ScratchKey* key) const {
     if (SkIsPow2(fSizeInBytes) && kDynamic_GrAccessPattern == fAccessPattern) {
         ComputeScratchKeyForDynamicBuffer(fSizeInBytes, fIntendedType, key);
     }

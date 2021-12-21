@@ -10,7 +10,6 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/GrResourceKey.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkMessageBus.h"
@@ -20,6 +19,7 @@
 #include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/ResourceKey.h"
 
 class GrCaps;
 class GrProxyProvider;
@@ -123,11 +123,11 @@ public:
     /**
      * Find a resource that matches a scratch key.
      */
-    GrGpuResource* findAndRefScratchResource(const GrScratchKey& scratchKey);
+    GrGpuResource* findAndRefScratchResource(const skgpu::ScratchKey& scratchKey);
 
 #ifdef SK_DEBUG
     // This is not particularly fast and only used for validation, so debug only.
-    int countScratchEntriesForKey(const GrScratchKey& scratchKey) const {
+    int countScratchEntriesForKey(const skgpu::ScratchKey& scratchKey) const {
         return fScratchMap.countForKey(scratchKey);
     }
 #endif
@@ -135,7 +135,7 @@ public:
     /**
      * Find a resource that matches a unique key.
      */
-    GrGpuResource* findAndRefUniqueResource(const GrUniqueKey& key) {
+    GrGpuResource* findAndRefUniqueResource(const skgpu::UniqueKey& key) {
         GrGpuResource* resource = fUniqueHash.find(key);
         if (resource) {
             this->refAndMakeResourceMRU(resource);
@@ -146,7 +146,7 @@ public:
     /**
      * Query whether a unique key exists in the cache.
      */
-    bool hasUniqueKey(const GrUniqueKey& key) const {
+    bool hasUniqueKey(const skgpu::UniqueKey& key) const {
         return SkToBool(fUniqueHash.find(key));
     }
 
@@ -260,7 +260,7 @@ private:
     void insertResource(GrGpuResource*);
     void removeResource(GrGpuResource*);
     void notifyARefCntReachedZero(GrGpuResource*, GrGpuResource::LastRemovedRef);
-    void changeUniqueKey(GrGpuResource*, const GrUniqueKey&);
+    void changeUniqueKey(GrGpuResource*, const skgpu::UniqueKey&);
     void removeUniqueKey(GrGpuResource*);
     void willRemoveScratchKey(const GrGpuResource*);
     void didChangeBudgetStatus(GrGpuResource*);
@@ -291,21 +291,21 @@ private:
     class AvailableForScratchUse;
 
     struct ScratchMapTraits {
-        static const GrScratchKey& GetKey(const GrGpuResource& r) {
+        static const skgpu::ScratchKey& GetKey(const GrGpuResource& r) {
             return r.resourcePriv().getScratchKey();
         }
 
-        static uint32_t Hash(const GrScratchKey& key) { return key.hash(); }
+        static uint32_t Hash(const skgpu::ScratchKey& key) { return key.hash(); }
         static void OnFree(GrGpuResource*) { }
     };
-    typedef SkTMultiMap<GrGpuResource, GrScratchKey, ScratchMapTraits> ScratchMap;
+    typedef SkTMultiMap<GrGpuResource, skgpu::ScratchKey, ScratchMapTraits> ScratchMap;
 
     struct UniqueHashTraits {
-        static const GrUniqueKey& GetKey(const GrGpuResource& r) { return r.getUniqueKey(); }
+        static const skgpu::UniqueKey& GetKey(const GrGpuResource& r) { return r.getUniqueKey(); }
 
-        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
+        static uint32_t Hash(const skgpu::UniqueKey& key) { return key.hash(); }
     };
-    typedef SkTDynamicHash<GrGpuResource, GrUniqueKey, UniqueHashTraits> UniqueHash;
+    typedef SkTDynamicHash<GrGpuResource, skgpu::UniqueKey, UniqueHashTraits> UniqueHash;
 
     class TextureAwaitingUnref {
     public:
@@ -337,7 +337,7 @@ private:
     using TextureFreedMessageBus = SkMessageBus<GrTextureFreedMessage,
                                                 GrDirectContext::DirectContextID>;
 
-    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Inbox InvalidUniqueKeyInbox;
+    typedef SkMessageBus<skgpu::UniqueKeyInvalidatedMessage, uint32_t>::Inbox InvalidUniqueKeyInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
@@ -433,7 +433,7 @@ private:
     /**
      * Called by GrGpuResources to change their unique keys.
      */
-    void changeUniqueKey(GrGpuResource* resource, const GrUniqueKey& newKey) {
+    void changeUniqueKey(GrGpuResource* resource, const skgpu::UniqueKey& newKey) {
          fCache->changeUniqueKey(resource, newKey);
     }
 

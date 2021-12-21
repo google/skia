@@ -362,7 +362,7 @@ void StrokeFixedCountTessellator::InitializeVertexIDFallbackBuffer(VertexWriter 
 
 #if SK_GPU_V1
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
 
 int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                                          const SkMatrix& shaderMatrix,
@@ -387,7 +387,7 @@ int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
         constexpr static int kMaxVerticesInFallbackBuffer = 2048;
         fFixedEdgeCount = std::min(fFixedEdgeCount, kMaxVerticesInFallbackBuffer/2);
 
-        GR_DEFINE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
+        SKGPU_DEFINE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
 
         fVertexBufferIfNoIDSupport = target->resourceProvider()->findOrMakeStaticBuffer(
                 GrGpuBufferType::kVertex,

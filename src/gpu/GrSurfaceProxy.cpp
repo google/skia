@@ -174,7 +174,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
                                      GrRenderable renderable, GrMipmapped mipMapped,
-                                     const GrUniqueKey* uniqueKey) {
+                                     const skgpu::UniqueKey* uniqueKey) {
     SkASSERT(!this->isLazy());
     if (fTarget) {
         if (uniqueKey && uniqueKey->isValid()) {
@@ -205,7 +205,7 @@ void GrSurfaceProxy::deinstantiate() {
     fTarget = nullptr;
 }
 
-void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, GrScratchKey* key) const {
+void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, skgpu::ScratchKey* key) const {
     SkASSERT(!this->isFullyLazy());
     GrRenderable renderable = GrRenderable::kNo;
     int sampleCount = 1;
@@ -446,7 +446,7 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     if (GrTextureProxy* texProxy = fProxy->asTextureProxy()) {
         texProxy->setTargetKeySync(syncKey);
         if (syncKey) {
-            const GrUniqueKey& key = texProxy->getUniqueKey();
+            const skgpu::UniqueKey& key = texProxy->getUniqueKey();
             if (key.isValid()) {
                 if (!surface->asTexture()->getUniqueKey().isValid()) {
                     // If 'surface' is newly created, attach the unique key

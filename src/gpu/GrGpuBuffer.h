@@ -19,7 +19,7 @@ public:
      * Computes a scratch key for a GPU-side buffer with a "dynamic" access pattern. (Buffers with
      * "static" and "stream" patterns are disqualified by nature from being cached and reused.)
      */
-    static void ComputeScratchKeyForDynamicBuffer(size_t size, GrGpuBufferType, GrScratchKey*);
+    static void ComputeScratchKeyForDynamicBuffer(size_t size, GrGpuBufferType, skgpu::ScratchKey*);
 
     GrAccessPattern accessPattern() const { return fAccessPattern; }
 
@@ -93,7 +93,7 @@ private:
 
     size_t onGpuMemorySize() const override { return fSizeInBytes; }
     const char* getResourceType() const override { return "Buffer Object"; }
-    void computeScratchKey(GrScratchKey* key) const override;
+    void computeScratchKey(skgpu::ScratchKey* key) const override;
 
     size_t            fSizeInBytes;
     GrAccessPattern   fAccessPattern;

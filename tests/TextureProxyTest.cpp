@@ -80,12 +80,12 @@ static sk_sp<GrTextureProxy> wrapped(skiatest::Reporter* reporter, GrRecordingCo
 
 static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter, GrRecordingContext*,
                                               GrProxyProvider* proxyProvider, SkBackingFit fit) {
-    static GrUniqueKey::Domain d = GrUniqueKey::GenerateDomain();
+    static skgpu::UniqueKey::Domain d = skgpu::UniqueKey::GenerateDomain();
     static int kUniqueKeyData = 0;
 
-    GrUniqueKey key;
+    skgpu::UniqueKey key;
 
-    GrUniqueKey::Builder builder(&key, d, 1, nullptr);
+    skgpu::UniqueKey::Builder builder(&key, d, 1, nullptr);
     builder[0] = kUniqueKeyData++;
     builder.finish();
 
@@ -131,7 +131,7 @@ static void basic_test(GrDirectContext* dContext,
 
     int startCacheCount = cache->getResourceCount();
 
-    GrUniqueKey key;
+    skgpu::UniqueKey key;
     if (proxy->getUniqueKey().isValid()) {
         key = proxy->getUniqueKey();
     } else {
@@ -157,7 +157,7 @@ static void basic_test(GrDirectContext* dContext,
 
     // Once instantiated, the backing resource should have the same key
     SkAssertResult(proxy->instantiate(resourceProvider));
-    const GrUniqueKey texKey = proxy->peekSurface()->getUniqueKey();
+    const skgpu::UniqueKey texKey = proxy->peekSurface()->getUniqueKey();
     REPORTER_ASSERT(reporter, texKey.isValid());
     REPORTER_ASSERT(reporter, key == texKey);
 
@@ -202,8 +202,8 @@ static void basic_test(GrDirectContext* dContext,
 
     if (expectResourceToOutliveProxy) {
         proxy.reset();
-        GrUniqueKeyInvalidatedMessage msg(texKey, dContext->priv().contextID());
-        SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Post(msg);
+        skgpu::UniqueKeyInvalidatedMessage msg(texKey, dContext->priv().contextID());
+        SkMessageBus<skgpu::UniqueKeyInvalidatedMessage, uint32_t>::Post(msg);
         cache->purgeAsNeeded();
         expectedCacheCount -= cacheEntriesPerProxy;
         proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
@@ -291,9 +291,9 @@ static void invalidation_and_instantiation_test(GrDirectContext* dContext,
     GrResourceCache* cache = dContext->priv().getResourceCache();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 
-    static GrUniqueKey::Domain d = GrUniqueKey::GenerateDomain();
-    GrUniqueKey key;
-    GrUniqueKey::Builder builder(&key, d, 1, nullptr);
+    static skgpu::UniqueKey::Domain d = skgpu::UniqueKey::GenerateDomain();
+    skgpu::UniqueKey key;
+    skgpu::UniqueKey::Builder builder(&key, d, 1, nullptr);
     builder[0] = 0;
     builder.finish();
 
@@ -303,8 +303,8 @@ static void invalidation_and_instantiation_test(GrDirectContext* dContext,
     SkAssertResult(proxyProvider->assignUniqueKeyToProxy(key, proxy.get()));
 
     // Send an invalidation message, which will be sitting in the cache's inbox
-    SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Post(
-            GrUniqueKeyInvalidatedMessage(key, dContext->priv().contextID()));
+    SkMessageBus<skgpu::UniqueKeyInvalidatedMessage, uint32_t>::Post(
+            skgpu::UniqueKeyInvalidatedMessage(key, dContext->priv().contextID()));
 
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());

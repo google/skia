@@ -8,9 +8,9 @@
 #ifndef GrGpuResource_DEFINED
 #define GrGpuResource_DEFINED
 
-#include "include/private/GrResourceKey.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/gpu/ResourceKey.h"
 
 class GrGpu;
 class GrResourceCache;
@@ -172,7 +172,7 @@ public:
 
     /** Returns the current unique key for the resource. It will be invalid if the resource has no
         associated unique key. */
-    const GrUniqueKey& getUniqueKey() const { return fUniqueKey; }
+    const skgpu::UniqueKey& getUniqueKey() const { return fUniqueKey; }
 
     /**
      * Internal-only helper class used for manipulations of the resource by the cache.
@@ -264,7 +264,7 @@ private:
      * resources and populate the scratchKey with the key.
      * By default resources are not recycled as scratch.
      **/
-    virtual void computeScratchKey(GrScratchKey*) const {}
+    virtual void computeScratchKey(skgpu::ScratchKey*) const {}
 
     /**
      * Removes references to objects in the underlying 3D API without freeing them.
@@ -280,7 +280,7 @@ private:
     virtual size_t onGpuMemorySize() const = 0;
 
     // See comments in CacheAccess and ResourcePriv.
-    void setUniqueKey(const GrUniqueKey&);
+    void setUniqueKey(const skgpu::UniqueKey&);
     void removeUniqueKey();
     void notifyARefCntIsZero(LastRemovedRef removedRef) const;
     void removeScratchKey();
@@ -300,8 +300,8 @@ private:
     GrStdSteadyClock::time_point fTimeWhenBecamePurgeable;
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
-    GrScratchKey fScratchKey;
-    GrUniqueKey fUniqueKey;
+    skgpu::ScratchKey fScratchKey;
+    skgpu::UniqueKey fUniqueKey;
 
     // This is not ref'ed but abandon() or release() will be called before the GrGpu object
     // is destroyed. Those calls set will this to NULL.

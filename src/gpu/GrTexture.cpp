@@ -8,7 +8,6 @@
 #include "include/core/SkMath.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrResourceKey.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpu.h"
@@ -86,7 +85,7 @@ bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
     return true;
 }
 
-void GrTexture::computeScratchKey(GrScratchKey* key) const {
+void GrTexture::computeScratchKey(skgpu::ScratchKey* key) const {
     if (!this->getGpu()->caps()->isFormatCompressed(this->backendFormat())) {
         int sampleCount = 1;
         GrRenderable renderable = GrRenderable::kNo;
@@ -107,8 +106,8 @@ void GrTexture::ComputeScratchKey(const GrCaps& caps,
                                   int sampleCnt,
                                   GrMipmapped mipMapped,
                                   GrProtected isProtected,
-                                  GrScratchKey* key) {
-    static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
+                                  skgpu::ScratchKey* key) {
+    static const skgpu::ScratchKey::ResourceType kType = skgpu::ScratchKey::GenerateResourceType();
     SkASSERT(!dimensions.isEmpty());
     SkASSERT(sampleCnt > 0);
     SkASSERT(1 == sampleCnt || renderable == GrRenderable::kYes);
@@ -120,7 +119,7 @@ void GrTexture::ComputeScratchKey(const GrCaps& caps,
 
     uint64_t formatKey = caps.computeFormatKey(format);
 
-    GrScratchKey::Builder builder(key, kType, 5);
+    skgpu::ScratchKey::Builder builder(key, kType, 5);
     builder[0] = dimensions.width();
     builder[1] = dimensions.height();
     builder[2] = formatKey & 0xFFFFFFFF;

@@ -789,9 +789,9 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
     // 1 / textureRadius. This is done to avoid overflow in length().
     SkMatrix texM = SkMatrix::Scale(kProfileTextureWidth, 1.f);
 
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey key;
-    GrUniqueKey::Builder builder(&key, kDomain, 1, "1-D Circular Blur");
+    static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
+    skgpu::UniqueKey key;
+    skgpu::UniqueKey::Builder builder(&key, kDomain, 1, "1-D Circular Blur");
     builder[0] = sigmaToCircleRRatioFixed;
     builder.finish();
 
@@ -872,9 +872,9 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_integral_fp(GrRecordingCon
 
     int width = SkGpuBlurUtils::CreateIntegralTable(sixSigma, nullptr);
 
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey key;
-    GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
+    static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
+    skgpu::UniqueKey key;
+    skgpu::UniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
     builder[0] = width;
     builder.finish();
 
@@ -1040,13 +1040,13 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
 
 static constexpr auto kBlurredRRectMaskOrigin = kTopLeft_GrSurfaceOrigin;
 
-static void make_blurred_rrect_key(GrUniqueKey* key,
+static void make_blurred_rrect_key(skgpu::UniqueKey* key,
                                    const SkRRect& rrectToDraw,
                                    float xformedSigma) {
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
 
-    GrUniqueKey::Builder builder(key, kDomain, 9, "RoundRect Blur Mask");
+    skgpu::UniqueKey::Builder builder(key, kDomain, 9, "RoundRect Blur Mask");
     builder[0] = SkScalarCeilToInt(xformedSigma - 1 / 6.0f);
 
     int index = 1;
@@ -1262,7 +1262,7 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
         const SkISize& dimensions,
         float xformedSigma) {
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
-    GrUniqueKey key;
+    skgpu::UniqueKey key;
     make_blurred_rrect_key(&key, rrectToDraw, xformedSigma);
 
     auto threadSafeCache = rContext->priv().threadSafeCache();

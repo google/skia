@@ -83,13 +83,15 @@ bool is_newer_better(SkData* incumbent, SkData* challenger) {
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
 class UniqueKeyInvalidator : public SkIDChangeListener {
 public:
-    UniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
+    UniqueKeyInvalidator(const skgpu::UniqueKey& key, uint32_t contextUniqueID)
             : fMsg(key, contextUniqueID, /* inThreadSafeCache */ true) {}
 
 private:
-    GrUniqueKeyInvalidatedMessage fMsg;
+    skgpu::UniqueKeyInvalidatedMessage fMsg;
 
-    void changed() override { SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Post(fMsg); }
+    void changed() override {
+        SkMessageBus<skgpu::UniqueKeyInvalidatedMessage, uint32_t>::Post(fMsg);
+    }
 };
 
 class StaticVertexAllocator : public GrEagerVertexAllocator {
@@ -230,17 +232,17 @@ private:
         return path;
     }
 
-    static void CreateKey(GrUniqueKey* key,
+    static void CreateKey(skgpu::UniqueKey* key,
                           const GrStyledShape& shape,
                           const SkIRect& devClipBounds) {
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+        static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
 
         bool inverseFill = shape.inverseFilled();
 
         static constexpr int kClipBoundsCnt = sizeof(devClipBounds) / sizeof(uint32_t);
         int shapeKeyDataCnt = shape.unstyledKeySize();
         SkASSERT(shapeKeyDataCnt >= 0);
-        GrUniqueKey::Builder builder(key, kDomain, shapeKeyDataCnt + kClipBoundsCnt, "Path");
+        skgpu::UniqueKey::Builder builder(key, kDomain, shapeKeyDataCnt + kClipBoundsCnt, "Path");
         shape.writeUnstyledKey(&builder[0]);
         // For inverse fills, the tessellation is dependent on clip bounds.
         if (inverseFill) {
@@ -280,7 +282,7 @@ private:
         GrResourceProvider* rp = target->resourceProvider();
         auto threadSafeCache = target->threadSafeCache();
 
-        GrUniqueKey key;
+        skgpu::UniqueKey key;
         CreateKey(&key, fShape, fDevClipBounds);
 
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
@@ -439,7 +441,7 @@ private:
 
         auto threadSafeViewCache = rContext->priv().threadSafeCache();
 
-        GrUniqueKey key;
+        skgpu::UniqueKey key;
         CreateKey(&key, fShape, fDevClipBounds);
 
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,

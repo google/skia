@@ -11,10 +11,10 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
-#include "include/private/GrResourceKey.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrSurfaceProxyView.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/geometry/GrShape.h"
 
 class GrAppliedClip;
@@ -80,8 +80,8 @@ public:
     SkIRect getConservativeBounds() const override;
 
 #if GR_TEST_UTILS
-    GrUniqueKey testingOnly_getLastSWMaskKey() const {
-        return fMasks.empty() ? GrUniqueKey() : fMasks.back().key();
+    UniqueKey testingOnly_getLastSWMaskKey() const {
+        return fMasks.empty() ? UniqueKey() : fMasks.back().key();
     }
 #endif
 
@@ -176,16 +176,16 @@ private:
             SkASSERT(!fKey.isValid());
         }
 
-        const GrUniqueKey& key() const { return fKey; }
-        const SkIRect&     bounds() const { return fBounds; }
-        uint32_t           genID() const { return fGenID; }
+        const UniqueKey& key() const { return fKey; }
+        const SkIRect&   bounds() const { return fBounds; }
+        uint32_t         genID() const { return fGenID; }
 
         bool appliesToDraw(const SaveRecord& current, const SkIRect& drawBounds) const;
         void invalidate(GrProxyProvider* proxyProvider);
 
         SkDEBUGCODE(const SaveRecord* owner() const { return fOwner; })
     private:
-        GrUniqueKey fKey;
+        UniqueKey fKey;
         // The gen ID of the save record and the query bounds uniquely define the set of elements
         // that would go into a mask. If the save record adds new elements, its gen ID would change.
         // If the draw had different bounds it would select a different set of masked elements.

@@ -36,7 +36,7 @@ struct ProxyParams {
         kInstantiated
     };
     Kind            fKind;
-    GrUniqueKey     fUniqueKey = GrUniqueKey();
+    skgpu::UniqueKey     fUniqueKey = skgpu::UniqueKey();
     // TODO: do we care about mipmapping
 };
 

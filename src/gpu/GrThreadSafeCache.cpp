@@ -108,7 +108,7 @@ void GrThreadSafeCache::makeExistingEntryMRU(Entry* entry) {
 }
 
 std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalFind(
-                                                       const GrUniqueKey& key) {
+                                                       const skgpu::UniqueKey& key) {
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);
     if (tmp) {
         this->makeExistingEntryMRU(tmp);
@@ -119,7 +119,7 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalFind(
 }
 
 #ifdef SK_DEBUG
-bool GrThreadSafeCache::has(const GrUniqueKey& key) {
+bool GrThreadSafeCache::has(const skgpu::UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);
@@ -127,7 +127,7 @@ bool GrThreadSafeCache::has(const GrUniqueKey& key) {
 }
 #endif
 
-GrSurfaceProxyView GrThreadSafeCache::find(const GrUniqueKey& key) {
+GrSurfaceProxyView GrThreadSafeCache::find(const skgpu::UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     GrSurfaceProxyView view;
@@ -136,13 +136,13 @@ GrSurfaceProxyView GrThreadSafeCache::find(const GrUniqueKey& key) {
 }
 
 std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::findWithData(
-                                                                        const GrUniqueKey& key) {
+        const skgpu::UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     return this->internalFind(key);
 }
 
-GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
+GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const skgpu::UniqueKey& key,
                                                       const GrSurfaceProxyView& view) {
     Entry* entry;
 
@@ -166,7 +166,7 @@ GrThreadSafeCache::Entry* GrThreadSafeCache::makeNewEntryMRU(Entry* entry) {
     return entry;
 }
 
-GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
+GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const skgpu::UniqueKey& key,
                                                       sk_sp<VertexData> vertData) {
     Entry* entry;
 
@@ -193,7 +193,7 @@ void GrThreadSafeCache::recycleEntry(Entry* dead) {
 }
 
 std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalAdd(
-                                                                const GrUniqueKey& key,
+                                                                const skgpu::UniqueKey& key,
                                                                 const GrSurfaceProxyView& view) {
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);
     if (!tmp) {
@@ -205,7 +205,8 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalAdd(
     return { tmp->view(), tmp->refCustomData() };
 }
 
-GrSurfaceProxyView GrThreadSafeCache::add(const GrUniqueKey& key, const GrSurfaceProxyView& view) {
+GrSurfaceProxyView GrThreadSafeCache::add(const skgpu::UniqueKey& key,
+                                          const GrSurfaceProxyView& view) {
     SkAutoSpinlock lock{fSpinLock};
 
     GrSurfaceProxyView newView;
@@ -214,14 +215,14 @@ GrSurfaceProxyView GrThreadSafeCache::add(const GrUniqueKey& key, const GrSurfac
 }
 
 std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::addWithData(
-                                                                const GrUniqueKey& key,
+                                                                const skgpu::UniqueKey& key,
                                                                 const GrSurfaceProxyView& view) {
     SkAutoSpinlock lock{fSpinLock};
 
     return this->internalAdd(key, view);
 }
 
-GrSurfaceProxyView GrThreadSafeCache::findOrAdd(const GrUniqueKey& key,
+GrSurfaceProxyView GrThreadSafeCache::findOrAdd(const skgpu::UniqueKey& key,
                                                 const GrSurfaceProxyView& v) {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -236,7 +237,7 @@ GrSurfaceProxyView GrThreadSafeCache::findOrAdd(const GrUniqueKey& key,
 }
 
 std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::findOrAddWithData(
-                                                                      const GrUniqueKey& key,
+                                                                      const skgpu::UniqueKey& key,
                                                                       const GrSurfaceProxyView& v) {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -260,8 +261,8 @@ sk_sp<GrThreadSafeCache::VertexData> GrThreadSafeCache::MakeVertexData(sk_sp<GrG
     return sk_sp<VertexData>(new VertexData(std::move(buffer), vertexCount, vertexSize));
 }
 
-std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::internalFindVerts(
-                                                                         const GrUniqueKey& key) {
+std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>>
+        GrThreadSafeCache::internalFindVerts(const skgpu::UniqueKey& key) {
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);
     if (tmp) {
         this->makeExistingEntryMRU(tmp);
@@ -271,15 +272,15 @@ std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCach
     return {};
 }
 
-std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::findVertsWithData(
-                                                                          const GrUniqueKey& key) {
+std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>>
+        GrThreadSafeCache::findVertsWithData(const skgpu::UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     return this->internalFindVerts(key);
 }
 
 std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::internalAddVerts(
-                                                                    const GrUniqueKey& key,
+                                                                    const skgpu::UniqueKey& key,
                                                                     sk_sp<VertexData> vertData,
                                                                     IsNewerBetter isNewerBetter) {
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);
@@ -297,7 +298,7 @@ std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCach
 }
 
 std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::addVertsWithData(
-                                                                    const GrUniqueKey& key,
+                                                                    const skgpu::UniqueKey& key,
                                                                     sk_sp<VertexData> vertData,
                                                                     IsNewerBetter isNewerBetter) {
     SkAutoSpinlock lock{fSpinLock};
@@ -305,7 +306,7 @@ std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCach
     return this->internalAddVerts(key, std::move(vertData), isNewerBetter);
 }
 
-void GrThreadSafeCache::remove(const GrUniqueKey& key) {
+void GrThreadSafeCache::remove(const skgpu::UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);

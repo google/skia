@@ -11,7 +11,6 @@
 #include "include/core/SkImage.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/GrImageContext.h"
-#include "include/private/GrResourceKey.h"
 #include "include/private/GrSingleOwner.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -50,7 +49,7 @@ GrProxyProvider::~GrProxyProvider() {
     }
 }
 
-bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
+bool GrProxyProvider::assignUniqueKeyToProxy(const skgpu::UniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER
     SkASSERT(key.isValid());
     if (this->isAbandoned() || !proxy) {
@@ -102,7 +101,7 @@ void GrProxyProvider::removeUniqueKeyFromProxy(GrTextureProxy* proxy) {
     this->processInvalidUniqueKey(proxy->getUniqueKey(), proxy, InvalidateGPUResource::kYes);
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& key) {
+sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const skgpu::UniqueKey& key) {
     ASSERT_SINGLE_OWNER
 
     if (this->isAbandoned()) {
@@ -213,7 +212,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrapped(sk_sp<GrTexture> tex,
     }
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniqueKey& key,
+sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const skgpu::UniqueKey& key,
                                                                     UseAllocator useAllocator) {
     ASSERT_SINGLE_OWNER
 
@@ -248,10 +247,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     return result;
 }
 
-GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const GrUniqueKey& key,
-                                                                         GrSurfaceOrigin origin,
-                                                                         GrColorType ct,
-                                                                         int sampleCnt) {
+GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(
+        const skgpu::UniqueKey& key,
+        GrSurfaceOrigin origin,
+        GrColorType ct,
+        int sampleCnt) {
     auto proxy = this->findOrCreateProxyByUniqueKey(key);
     if (!proxy) {
         return {};
@@ -862,12 +862,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
     }
 }
 
-void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,
+void GrProxyProvider::processInvalidUniqueKey(const skgpu::UniqueKey& key,
+                                              GrTextureProxy* proxy,
                                               InvalidateGPUResource invalidateGPUResource) {
     this->processInvalidUniqueKeyImpl(key, proxy, invalidateGPUResource, RemoveTableEntry::kYes);
 }
 
-void GrProxyProvider::processInvalidUniqueKeyImpl(const GrUniqueKey& key, GrTextureProxy* proxy,
+void GrProxyProvider::processInvalidUniqueKeyImpl(const skgpu::UniqueKey& key,
+                                                  GrTextureProxy* proxy,
                                                   InvalidateGPUResource invalidateGPUResource,
                                                   RemoveTableEntry removeTableEntry) {
     SkASSERT(key.isValid());

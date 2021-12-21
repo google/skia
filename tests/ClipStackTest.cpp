@@ -21,7 +21,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/GrResourceKey.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkClipStack.h"

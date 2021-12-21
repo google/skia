@@ -8,7 +8,6 @@
 #include "src/gpu/ops/StrokeRectOp.h"
 
 #include "include/core/SkStrokeRec.h"
-#include "include/private/GrResourceKey.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/BufferWriter.h"
@@ -19,6 +18,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
@@ -277,8 +277,8 @@ private:
 // AA Stroking
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
-GR_DECLARE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
+SKGPU_DECLARE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
 
 bool stroke_dev_half_size_supported(SkVector devHalfStrokeSize) {
     // Since the horizontal and vertical strokes share internal corners, the coverage value at that
@@ -695,7 +695,7 @@ sk_sp<const GrGpuBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* reso
         };
         // clang-format on
         static_assert(SK_ARRAY_COUNT(gMiterIndices) == kMiterIndexCnt);
-        GR_DEFINE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
+        SKGPU_DEFINE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
         return resourceProvider->findOrCreatePatternedIndexBuffer(
                 gMiterIndices, kMiterIndexCnt, kNumMiterRectsInIndexBuffer, kMiterVertexCnt,
                 gMiterIndexBufferKey);
@@ -760,7 +760,7 @@ sk_sp<const GrGpuBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* reso
         // clang-format on
         static_assert(SK_ARRAY_COUNT(gBevelIndices) == kBevelIndexCnt);
 
-        GR_DEFINE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
+        SKGPU_DEFINE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
         return resourceProvider->findOrCreatePatternedIndexBuffer(
                 gBevelIndices, kBevelIndexCnt, kNumBevelRectsInIndexBuffer, kBevelVertexCnt,
                 gBevelIndexBufferKey);

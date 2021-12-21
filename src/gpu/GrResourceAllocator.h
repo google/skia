@@ -134,21 +134,21 @@ private:
     Register* findOrCreateRegisterFor(GrSurfaceProxy* proxy);
 
     struct FreePoolTraits {
-        static const GrScratchKey& GetKey(const Register& r) {
+        static const skgpu::ScratchKey& GetKey(const Register& r) {
             return r.scratchKey();
         }
 
-        static uint32_t Hash(const GrScratchKey& key) { return key.hash(); }
+        static uint32_t Hash(const skgpu::ScratchKey& key) { return key.hash(); }
         static void OnFree(Register* r) { }
     };
-    typedef SkTMultiMap<Register, GrScratchKey, FreePoolTraits> FreePoolMultiMap;
+    typedef SkTMultiMap<Register, skgpu::ScratchKey, FreePoolTraits> FreePoolMultiMap;
 
     typedef SkTHashMap<uint32_t, Interval*, GrCheapHash>        IntvlHash;
 
     struct UniqueKeyHash {
-        uint32_t operator()(const GrUniqueKey& key) const { return key.hash(); }
+        uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
     };
-    typedef SkTHashMap<GrUniqueKey, Register*, UniqueKeyHash> UniqueKeyRegisterHash;
+    typedef SkTHashMap<skgpu::UniqueKey, Register*, UniqueKeyHash> UniqueKeyRegisterHash;
 
     // Each proxy – with some exceptions – is assigned a register. After all assignments are made,
     // another pass is performed to instantiate and assign actual surfaces to the proxies. Right
@@ -157,10 +157,10 @@ private:
     class Register {
     public:
         // It's OK to pass an invalid scratch key iff the proxy has a unique key.
-        Register(GrSurfaceProxy* originatingProxy, GrScratchKey, GrResourceProvider*);
+        Register(GrSurfaceProxy* originatingProxy, skgpu::ScratchKey, GrResourceProvider*);
 
-        const GrScratchKey& scratchKey() const { return fScratchKey; }
-        const GrUniqueKey& uniqueKey() const { return fOriginatingProxy->getUniqueKey(); }
+        const skgpu::ScratchKey& scratchKey() const { return fScratchKey; }
+        const skgpu::UniqueKey& uniqueKey() const { return fOriginatingProxy->getUniqueKey(); }
 
         bool accountedForInBudget() const { return fAccountedForInBudget; }
         void setAccountedForInBudget() { fAccountedForInBudget = true; }
@@ -178,10 +178,10 @@ private:
         SkDEBUGCODE(uint32_t uniqueID() const { return fUniqueID; })
 
     private:
-        GrSurfaceProxy*  fOriginatingProxy;
-        GrScratchKey     fScratchKey; // free pool wants a reference to this.
-        sk_sp<GrSurface> fExistingSurface; // queried from resource cache. may be null.
-        bool             fAccountedForInBudget = false;
+        GrSurfaceProxy*   fOriginatingProxy;
+        skgpu::ScratchKey fScratchKey; // free pool wants a reference to this.
+        sk_sp<GrSurface>  fExistingSurface; // queried from resource cache. may be null.
+        bool              fAccountedForInBudget = false;
 
 #ifdef SK_DEBUG
         uint32_t         fUniqueID;

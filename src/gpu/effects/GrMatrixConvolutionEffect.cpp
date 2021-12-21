@@ -86,10 +86,10 @@ GrMatrixConvolutionEffect::KernelWrapper::Make(GrRecordingContext* rContext,
     // TODO: Pick cache or dont-cache based on observed perf.
     static constexpr bool kCacheKernelTexture = true;
 
-    GrUniqueKey key;
+    skgpu::UniqueKey key;
     if (kCacheKernelTexture) {
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(&key, kDomain, length, "Matrix Convolution Kernel");
+        static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
+        skgpu::UniqueKey::Builder builder(&key, kDomain, length, "Matrix Convolution Kernel");
         // Texture cache key is the exact content of the kernel.
         static_assert(sizeof(float) == 4);
         for (int i = 0; i < length; i++) {
