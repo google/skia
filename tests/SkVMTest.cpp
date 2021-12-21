@@ -2799,7 +2799,7 @@ DEF_TEST(SkVM_duplicates, reporter) {
     }
 }
 
-UNIX_ONLY_TEST(SkVM_Visualizer, r) {
+DEF_TEST(SkVM_Visualizer, r) {
     const char* src =
             "int main(int x, int y) {\n"
             "   int a = 99;\n"
@@ -2827,7 +2827,7 @@ UNIX_ONLY_TEST(SkVM_Visualizer, r) {
     auto dumpData = asmFile.detachAsData();
     std::string dumpString((const char*)dumpData->data(), dumpData->size());
 #else
-    std::string dumpString(nullptr, 0);
+    std::string dumpString;
 #endif
     SkDynamicMemoryWStream vizFile;
     p.visualizer()->dump(&vizFile, dumpString.c_str());
