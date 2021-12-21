@@ -313,7 +313,8 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fEffect(other.fEffect)
         , fName(other.fName)
         , fUniformSize(other.fUniformSize)
-        , fInputChildIndex(other.fInputChildIndex) {
+        , fInputChildIndex(other.fInputChildIndex)
+        , fDestColorChildIndex(other.fDestColorChildIndex) {
     sk_careful_memcpy(this->uniformFlags(),
                       other.uniformFlags(),
                       fEffect->uniforms().size() * sizeof(UniformFlags));
