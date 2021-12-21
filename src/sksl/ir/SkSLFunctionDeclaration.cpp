@@ -102,9 +102,7 @@ static bool check_parameters(const Context& context,
         }
 
         if (isMain) {
-            if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind) &&
-                context.fConfig->fKind != ProgramKind::kCustomMeshFragment &&
-                context.fConfig->fKind != ProgramKind::kCustomMeshVertex) {
+            if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
                 // We verify that the signature is fully correct later. For now, if this is a
                 // runtime effect of any flavor, a float2 param is supposed to be the coords, and a
                 // half4/float parameter is supposed to be the input or destination color:
@@ -143,14 +141,6 @@ static bool check_main_signature(const Context& context, int line, const Type& r
         return type == *context.fTypes.fHalf4 || type == *context.fTypes.fFloat4;
     };
 
-    auto typeIsValidForAttributes = [&](const Type& type) {
-        return type.isStruct() && type.name() == "Attributes";
-    };
-
-    auto typeIsValidForVaryings = [&](const Type& type) {
-        return type.isStruct() && type.name() == "Varyings";
-    };
-
     auto paramIsCoords = [&](int idx) {
         const Variable& p = *parameters[idx];
         return p.type() == *context.fTypes.fFloat2 &&
@@ -163,26 +153,6 @@ static bool check_main_signature(const Context& context, int line, const Type& r
         return typeIsValidForColor(p.type()) &&
                p.modifiers().fFlags == 0 &&
                p.modifiers().fLayout.fBuiltin == builtinID;
-    };
-
-    auto paramIsInAttributes = [&](int idx) {
-        const Variable& p = *parameters[idx];
-        return typeIsValidForAttributes(p.type()) && p.modifiers().fFlags == 0;
-    };
-
-    auto paramIsOutVaryings = [&](int idx) {
-        const Variable& p = *parameters[idx];
-        return typeIsValidForVaryings(p.type()) && p.modifiers().fFlags == Modifiers::kOut_Flag;
-    };
-
-    auto paramIsInVaryings = [&](int idx) {
-        const Variable& p = *parameters[idx];
-        return typeIsValidForVaryings(p.type()) && p.modifiers().fFlags == 0;
-    };
-
-    auto paramIsOutColor = [&](int idx) {
-        const Variable& p = *parameters[idx];
-        return typeIsValidForColor(p.type()) && p.modifiers().fFlags == Modifiers::kOut_Flag;
     };
 
     auto paramIsInputColor = [&](int n) { return paramIsBuiltinColor(n, SK_INPUT_COLOR_BUILTIN); };
@@ -228,31 +198,6 @@ static bool check_main_signature(const Context& context, int line, const Type& r
                   paramIsDestColor(1))) {
                 errors.error(line, "'main' parameters must be (vec4|float4|half4, "
                                                                 "vec4|float4|half4)");
-                return false;
-            }
-            break;
-        }
-        case ProgramKind::kCustomMeshVertex: {
-            // float2 main(Attributes, out Varyings)
-            if (returnType != *context.fTypes.fFloat2) {
-                errors.error(line, "'main' must return: 'vec2' or 'float2'");
-                return false;
-            }
-            if (!(parameters.size() == 2 && paramIsInAttributes(0) && paramIsOutVaryings(1))) {
-                errors.error(line, "'main' parameters must be (Attributes, out Varyings");
-                return false;
-            }
-            break;
-        }
-        case ProgramKind::kCustomMeshFragment: {
-            // float2 main(Varyings) -or- float2 main(Varyings, out half4|float4])
-            if (returnType != *context.fTypes.fFloat2) {
-                errors.error(line, "'main' must return: 'vec2' or 'float2'");
-                return false;
-            }
-            if (!((parameters.size() == 1 && paramIsInVaryings(0)) ||
-                  (parameters.size() == 2 && paramIsInVaryings(0) && paramIsOutColor(1)))) {
-                errors.error(line, "'main' parameters must be (Varyings, (out (half4|float4))?)");
                 return false;
             }
             break;

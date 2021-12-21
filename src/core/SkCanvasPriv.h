@@ -92,11 +92,6 @@ public:
     static void SetBackdropScaleFactor(SkCanvas::SaveLayerRec* rec, SkScalar scale) {
         rec->fExperimentalBackdropScale = scale;
     }
-
-    static void DrawCustomMesh(SkCanvas*,
-                               SkCustomMesh cm,
-                               sk_sp<SkBlender> blender,
-                               const SkPaint& paint);
 };
 
 /**

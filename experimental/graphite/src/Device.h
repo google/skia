@@ -107,7 +107,6 @@ private:
 
     void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*) override {}
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override {}
-    void drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) override {}
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override {}
     void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {}
 

@@ -537,10 +537,6 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices,
     BDDraw(this).drawVertices(vertices, std::move(blender), paint);
 }
 
-void SkBitmapDevice::drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) {
-    // TODO: Implement
-}
-
 void SkBitmapDevice::drawAtlas(const SkRSXform xform[],
                                const SkRect tex[],
                                const SkColor colors[],

@@ -305,7 +305,7 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
 
 String PipelineStageCodeGenerator::functionName(const FunctionDeclaration& decl) {
     if (decl.isMain()) {
-        return String(fCallbacks->getMainName());
+        return String(decl.name());
     }
 
     auto it = fFunctionNames.find(&decl);
@@ -327,9 +327,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     // if the return type is float4 - injecting it unconditionally reduces the risk of an
     // obscure bug.
     const FunctionDeclaration& decl = f.declaration();
-    if (decl.isMain() &&
-        fProgram.fConfig->fKind != SkSL::ProgramKind::kCustomMeshVertex &&
-        fProgram.fConfig->fKind != SkSL::ProgramKind::kCustomMeshFragment) {
+    if (decl.isMain()) {
         fCastReturnsToHalf = true;
     }
 

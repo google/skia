@@ -104,9 +104,7 @@ struct ProgramConfig {
     static bool IsRuntimeEffect(ProgramKind kind) {
         return (kind == ProgramKind::kRuntimeColorFilter ||
                 kind == ProgramKind::kRuntimeShader ||
-                kind == ProgramKind::kRuntimeBlender ||
-                kind == ProgramKind::kCustomMeshVertex ||
-                kind == ProgramKind::kCustomMeshFragment);
+                kind == ProgramKind::kRuntimeBlender);
     }
 };
 
