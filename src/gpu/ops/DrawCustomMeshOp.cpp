@@ -159,7 +159,7 @@ private:
                                      vsCallbacks.getMangledName("Attributes").c_str());
             size_t i = 0;
             SkASSERT(cmgp.vertexAttributes().count() == (int)cmgp.fSpec->attributes().size());
-            for (const auto& attr : cmgp.vertexAttributes()) {
+            for (auto attr : cmgp.vertexAttributes()) {
                 vertBuilder->codeAppendf("attributes.%s = %s;",
                                          cmgp.fSpec->attributes()[i++].name.c_str(),
                                          attr.name());
