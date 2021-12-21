@@ -123,39 +123,6 @@ public:
 
         return makeBidiIterator(utf16.get(), utf16Units, dir);
     }
-
-    // This method returns the final results only: a list of bidi regions
-    // (this is all SkParagraph really needs; SkShaper however uses the iterator itself)
-    static std::vector<Region> getBidiRegions(const char utf8[], int utf8Units, Direction dir) {
-
-        auto bidiIterator = makeBidiIterator(utf8, utf8Units, dir);
-        std::vector<Region> bidiRegions;
-        const char* start8 = utf8;
-        const char* end8 = utf8 + utf8Units;
-        SkBidiIterator::Level currentLevel = 0;
-
-        Position pos8 = 0;
-        Position pos16 = 0;
-        Position end16 = bidiIterator->getLength();
-        while (pos16 < end16) {
-            auto level = bidiIterator->getLevelAt(pos16);
-            if (pos16 == 0) {
-                currentLevel = level;
-            } else if (level != currentLevel) {
-                auto end = SkTo<Position>(start8 - utf8);
-                bidiRegions.emplace_back(pos8, end, currentLevel);
-                currentLevel = level;
-                pos8 = end;
-            }
-            SkUnichar u = utf8_next(&start8, end8);
-            pos16 += SkUTF::ToUTF16(u);
-        }
-        auto end = start8 - utf8;
-        if (end != pos8) {
-            bidiRegions.emplace_back(pos8, end, currentLevel);
-        }
-        return bidiRegions;
-    }
 };
 
 void SkBidiIterator::ReorderVisual(const Level runLevels[], int levelsCount,
