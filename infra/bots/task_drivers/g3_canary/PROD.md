@@ -11,7 +11,7 @@ g3_canary_infra_failures
 ------------------------
 
 Happens when the skia_try_service in G3 returns an exception.
-Check the skia_try_service's error logs in [go/skia-borg-jobs](go/skia-borg-jobs).
+Check the skia_try_service's error logs in [go/skia-borg-jobs](go/skia-borg-jobs)
 
 For errors that do not seem to be transient, restarting the borg job has worked
 in the past:
