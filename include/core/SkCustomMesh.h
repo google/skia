@@ -152,19 +152,29 @@ private:
  * This is a placeholder object. We will want something that allows the client to incrementally
  * update the mesh that can be synchronized with the GPU backend without requiring extra copies.
  *
- * A buffer of vertices, a topology, and a compatible SkCustomMeshSpecification. The data in 'vb'
- * is expected to contain the attributes described in 'spec' for 'vcount' vertices. The size of the
- * buffer must be at least spec->stride()*vcount (even if vertex attributes contains pad at the end
- * of the stride). If 'bounds' does not contain all points output by 'spec''s vertex program when
- * applied to the vertices in 'vb' a draw of the custom mesh produces undefined results.
+ * A buffer of vertices, a topology, optionally indices, and a compatible SkCustomMeshSpecification.
+ * The data in 'vb' is expected to contain the attributes described in 'spec' for 'vcount' vertices.
+ * The size of the buffer must be at least spec->stride()*vcount (even if vertex attributes contains
+ * pad at the end of the stride). If 'bounds' does not contain all points output by 'spec''s vertex
+ * program when applied to the vertices in 'vb' a draw of the custom mesh produces undefined
+ * results.
+ *
+ * If indices is null then then 'icount' must be <= 0. 'vcount' vertices will be selected from 'vb'
+ * to create the topology indicated by 'mode'.
+ *
+ * If indices is not null then icount must be >= 3. 'vb' will be indexed by 'icount' successive
+ * values in 'indices' to create the topology indicated by 'mode'. The values in 'indices' must be
+ * less than 'vcount'
  */
 struct SkCustomMesh {
     enum class Mode { kTriangles, kTriangleStrip };
     sk_sp<SkCustomMeshSpecification>  spec;
-    Mode                              mode    = Mode::kTriangles;
-    SkRect                            bounds  = SkRect::MakeEmpty();
-    const void*                       vb      = nullptr;
-    int                               vcount  = 0;
+    Mode                              mode     = Mode::kTriangles;
+    SkRect                            bounds   = SkRect::MakeEmpty();
+    const void*                       vb       = nullptr;
+    int                               vcount   = 0;
+    const uint16_t*                   indices  = nullptr;
+    int                               icount   = 0;
 };
 
 #endif

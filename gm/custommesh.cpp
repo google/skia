@@ -104,6 +104,7 @@ protected:
     SkString onShortName() override { return SkString("custommesh"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString*) override {
+        int i = 0;
         for (const sk_sp<SkBlender>& blender : {SkBlender::Mode(SkBlendMode::kDst),
                                                 SkBlender::Mode(SkBlendMode::kSrc),
                                                 SkBlender::Mode(SkBlendMode::kSaturation)}) {
@@ -111,14 +112,23 @@ protected:
             for (uint8_t alpha  : {0xFF , 0x40})
             for (bool    colors : {false, true})
             for (bool    shader : {false, true}) {
-
                 SkCustomMesh cm;
                 cm.spec   = colors ? fSpecWithColor : fSpecWithNoColor;
-                cm.vb     = colors ? static_cast<const void*>(kColorQuad)
-                                   : static_cast<const void*>(kNoColorQuad);
                 cm.bounds = kRect;
-                cm.vcount = 4;
-                cm.mode   = SkCustomMesh::Mode::kTriangleStrip;
+                // Rather than pile onto the combinatorics we draw every other test case indexed.
+                if ((i & 1) == 0) {
+                    cm.vb     = colors ? static_cast<const void*>(kColorQuad)
+                                       : static_cast<const void*>(kNoColorQuad);
+                    cm.vcount = 4;
+                    cm.mode   = SkCustomMesh::Mode::kTriangleStrip;
+                } else {
+                    cm.vb      = colors ? static_cast<const void*>(kColorIndexedQuad)
+                                        : static_cast<const void*>(kNoColorIndexedQuad);
+                    cm.vcount  = 6;
+                    cm.icount  = 6;
+                    cm.indices = kIndices;
+                    cm.mode   = SkCustomMesh::Mode::kTriangles;
+                }
 
                 SkPaint paint;
                 paint.setColor(SK_ColorGREEN);
@@ -128,6 +138,7 @@ protected:
                 SkCanvasPriv::DrawCustomMesh(canvas, std::move(cm), blender, paint);
 
                 canvas->translate(0, 150);
+                ++i;
             }
             canvas->restore();
             canvas->translate(150, 0);
@@ -163,6 +174,28 @@ private:
             {{kRect.right(), kUV.right(), kRect.bottom(), kUV.bottom()}},
     };
 
+    // The indexed quads draw the same as the non-indexed. They just have unused vertices that the
+    // index buffer skips over draw with triangles instead of a triangle strip.
+    static constexpr ColorVertex kColorIndexedQuad[] {
+            {0, 0x00FFFF00, {kRect.left(),  kUV.left(),  kRect.top(),    kUV.top()   }},
+            {0, 0x00000000, {        100.f,        0.f,        100.f,    5.f         }}, // unused
+            {0, 0x00FFFFFF, {kRect.right(), kUV.right(), kRect.top(),    kUV.top()   }},
+            {0, 0x00000000, {        200.f,        10.f,        200.f,   10.f        }}, // unused
+            {0, 0xFFFF00FF, {kRect.left(),  kUV.left(),  kRect.bottom(), kUV.bottom()}},
+            {0, 0xFFFFFF00, {kRect.right(), kUV.right(), kRect.bottom(), kUV.bottom()}},
+    };
+
+    static constexpr NoColorVertex kNoColorIndexedQuad[]{
+            {{kRect.left(),  kUV.left(),  kRect.top(),    kUV.top()   }},
+            {{        100.f,        0.f,        100.f,    5.f         }}, // unused
+            {{kRect.right(), kUV.right(), kRect.top(),    kUV.top()   }},
+            {{        200.f,        10.f,        200.f,   10.f        }}, // unused
+            {{kRect.left(),  kUV.left(),  kRect.bottom(), kUV.bottom()}},
+            {{kRect.right(), kUV.right(), kRect.bottom(), kUV.bottom()}},
+    };
+
+    static constexpr uint16_t kIndices[]{0, 2, 4, 2, 5, 4};
+
     sk_sp<SkShader> fShader;
 
     sk_sp<SkCustomMeshSpecification> fSpecWithColor;
@@ -174,6 +207,10 @@ constexpr SkRect CustomMeshGM::kUV;
 
 constexpr CustomMeshGM::ColorVertex   CustomMeshGM::kColorQuad[];
 constexpr CustomMeshGM::NoColorVertex CustomMeshGM::kNoColorQuad[];
+constexpr CustomMeshGM::ColorVertex   CustomMeshGM::kColorIndexedQuad[];
+constexpr CustomMeshGM::NoColorVertex CustomMeshGM::kNoColorIndexedQuad[];
+
+constexpr uint16_t CustomMeshGM::kIndices[];
 
 DEF_GM( return new CustomMeshGM; )
 

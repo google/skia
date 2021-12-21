@@ -27,6 +27,7 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkColorFilterBase.h"
+#include "src/core/SkCustomMeshPriv.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
@@ -1798,11 +1799,7 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
 
 void SkCanvas::drawCustomMesh(SkCustomMesh cm, sk_sp<SkBlender> blender, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(cm.vb);
-    RETURN_ON_NULL(cm.spec);
-    if (cm.vcount <= 0) {
-        return;
-    }
+    RETURN_ON_FALSE(SkValidateCustomMesh(cm));
     if (!blender) {
         blender = SkBlender::Mode(SkBlendMode::kModulate);
     }

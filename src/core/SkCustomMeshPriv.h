@@ -67,6 +67,10 @@ struct SkCustomMeshSpecificationPriv {
     }
 };
 
+bool SkValidateCustomMesh(const SkCustomMesh&);
+
 std::unique_ptr<const char[]> SkCopyCustomMeshVB(const SkCustomMesh& cm);
+
+std::unique_ptr<const uint16_t[]> SkCopyCustomMeshIB(const SkCustomMesh& cm);
 
 #endif

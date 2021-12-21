@@ -341,8 +341,10 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps&) override;
 
     struct Mesh {
-        std::unique_ptr<const char[]> vb;
-        int                           vcount;
+        std::unique_ptr<const char[]>     vb;
+        std::unique_ptr<const uint16_t[]> indices;
+        int                               vcount;
+        int                               icount;
     };
 
     Helper                           fHelper;
@@ -372,8 +374,10 @@ CustomMeshOp::CustomMeshOp(GrProcessorSet* processorSet,
         , fColor(color)
         , fViewMatrix(matrixProvider.localToDevice()) {
     Mesh m;
-    m.vb     = SkCopyCustomMeshVB(cm);
-    m.vcount = cm.vcount;
+    m.vb      = SkCopyCustomMeshVB(cm);
+    m.vcount  = cm.vcount;
+    m.indices = SkCopyCustomMeshIB(cm);
+    m.icount  = cm.icount;
     fMeshes.push_back(std::move(m));
 
     fSpecification = std::move(cm.spec);
@@ -446,7 +450,7 @@ void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
                                                       &vertexBuffer,
                                                       &firstVertex)};
     if (!verts) {
-        SkDebugf("Could not allocate vertices\n");
+        SkDebugf("Could not allocate vertices.\n");
         return;
     }
 
@@ -455,9 +459,34 @@ void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
                                             vertexStride * m.vcount);
     }
 
+    sk_sp<const GrBuffer> indexBuffer;
+    int firstIndex = 0;
+    uint16_t* indices = nullptr;
+    if (fMeshes[0].icount) {
+        SkASSERT(fMeshes.size() == 1);
+        indices = target->makeIndexSpace(fMeshes[0].icount, &indexBuffer, &firstIndex);
+        if (!indices) {
+            SkDebugf("Could not allocate indices.\n");
+            return;
+        }
+        std::copy_n(fMeshes[0].indices.get(), fMeshes[0].icount, indices);
+    }
+
     SkASSERT(!fMesh);
     fMesh = target->allocMesh();
-    fMesh->set(std::move(vertexBuffer), vcount, firstVertex);
+
+    if (indices) {
+        fMesh->setIndexed(std::move(indexBuffer),
+                          fMeshes[0].icount,
+                          firstIndex,
+                          /*minIndexValue=*/0,
+                          fMeshes[0].vcount,
+                          GrPrimitiveRestart::kNo,
+                          std::move(vertexBuffer),
+                          firstVertex);
+    } else {
+        fMesh->set(std::move(vertexBuffer), vcount, firstVertex);
+    }
 }
 
 void CustomMeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -483,6 +512,10 @@ GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, co
 
     if (fMode       == SkCustomMesh::Mode::kTriangleStrip ||
         that->fMode == SkCustomMesh::Mode::kTriangleStrip) {
+        return CombineResult::kCannotCombine;
+    }
+
+    if (this->fMeshes[0].indices || that->fMeshes[0].indices) {
         return CombineResult::kCannotCombine;
     }
 
