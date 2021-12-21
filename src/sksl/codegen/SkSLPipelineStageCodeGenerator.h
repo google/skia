@@ -22,6 +22,7 @@ namespace PipelineStage {
     public:
         virtual ~Callbacks() = default;
 
+        virtual String getMainName() { return "main"; }
         virtual String getMangledName(const char* name) { return name; }
         virtual void   defineFunction(const char* declaration, const char* body, bool isMain) = 0;
         virtual void   declareFunction(const char* declaration) = 0;

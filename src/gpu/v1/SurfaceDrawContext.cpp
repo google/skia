@@ -55,6 +55,7 @@
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/ClearOp.h"
 #include "src/gpu/ops/DrawAtlasOp.h"
+#include "src/gpu/ops/DrawCustomMeshOp.h"
 #include "src/gpu/ops/DrawVerticesOp.h"
 #include "src/gpu/ops/DrawableOp.h"
 #include "src/gpu/ops/FillRRectOp.h"
@@ -949,6 +950,28 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
                                           aaType,
                                           this->colorInfo().refColorSpaceXformFromSRGB(),
                                           overridePrimType);
+    this->addDrawOp(clip, std::move(op));
+}
+
+void SurfaceDrawContext::drawCustomMesh(const GrClip* clip,
+                                        GrPaint&& paint,
+                                        const SkMatrixProvider& matrixProvider,
+                                        SkCustomMesh cm) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceDrawContext", "drawVertices", fContext);
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    SkASSERT(cm.vb);
+    GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(GrAA::kNo);
+    GrOp::Owner op = DrawCustomMeshOp::Make(fContext,
+                                            std::move(paint),
+                                            std::move(cm),
+                                            matrixProvider,
+                                            aaType,
+                                            this->colorInfo().refColorSpaceXformFromSRGB());
     this->addDrawOp(clip, std::move(op));
 }
 

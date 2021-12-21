@@ -21,6 +21,7 @@
 #include "include/private/chromium/GrSlug.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
+#include "src/core/SkCustomMeshPriv.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -842,6 +843,29 @@ void Device::drawVertices(const SkVertices* vertices,
                                       this->asMatrixProvider(),
                                       sk_ref_sp(const_cast<SkVertices*>(vertices)),
                                       nullptr);
+}
+
+void Device::drawCustomMesh(SkCustomMesh customMesh,
+                            sk_sp<SkBlender> blender,
+                            const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawCustomMesh", fContext.get());
+    SkASSERT(customMesh.vb);
+
+    GrPaint grPaint;
+    if (!init_vertices_paint(fContext.get(),
+                             fSurfaceDrawContext->colorInfo(),
+                             paint,
+                             this->asMatrixProvider(),
+                             std::move(blender),
+                             SkCustomMeshSpecificationPriv::HasColors(*customMesh.spec),
+                             &grPaint)) {
+        return;
+    }
+    fSurfaceDrawContext->drawCustomMesh(this->clip(),
+                                        std::move(grPaint),
+                                        this->asMatrixProvider(),
+                                        std::move(customMesh));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
