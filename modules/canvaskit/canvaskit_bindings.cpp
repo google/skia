@@ -128,7 +128,8 @@ struct SimpleImageInfo {
 };
 
 SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
-    return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType, sii.colorSpace);
+    return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType,
+                             sii.colorSpace ? sii.colorSpace : SkColorSpace::MakeSRGB());
 }
 
 #ifdef SK_GL
@@ -179,6 +180,10 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int widt
     GrGLint stencil;
     emscripten_glGetIntegerv(GL_STENCIL_BITS, &stencil);
 
+    if (!colorSpace) {
+        colorSpace = SkColorSpace::MakeSRGB();
+    }
+
     const auto colorSettings = ColorSettings(colorSpace);
     info.fFormat = colorSettings.pixFormat;
     GrBackendRenderTarget target(width, height, sampleCnt, stencil, info);
@@ -188,7 +193,8 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int widt
 }
 
 sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, int width, int height) {
-    SkImageInfo info = SkImageInfo::MakeN32(width, height, SkAlphaType::kPremul_SkAlphaType);
+    SkImageInfo info = SkImageInfo::MakeN32(
+            width, height, SkAlphaType::kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
 
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
                              SkBudgeted::kYes,
