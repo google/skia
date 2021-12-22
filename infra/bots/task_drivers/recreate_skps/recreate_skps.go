@@ -9,7 +9,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,12 +18,22 @@ import (
 	"go.skia.org/infra/go/gerrit"
 	"go.skia.org/infra/go/git/git_common"
 	"go.skia.org/infra/go/sklog"
+	"go.skia.org/infra/promk/go/pushgateway"
 	"go.skia.org/infra/task_driver/go/lib/auth_steps"
 	"go.skia.org/infra/task_driver/go/lib/checkout"
 	"go.skia.org/infra/task_driver/go/lib/gerrit_steps"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
 	"go.skia.org/infra/task_scheduler/go/types"
+)
+
+const (
+	// Metric constants for pushgateway.
+	jobName                       = "recreate-skps"
+	buildFailureMetricName        = "recreate_skps_build_failure"
+	creatingSKPsFailureMetricName = "recreate_skps_creation_failure"
+	metricValue_NoFailure         = "0"
+	metricValue_Failure           = "1"
 )
 
 func botUpdate(ctx context.Context, checkoutRoot, gitCacheDir, skiaRev, patchRef, depotToolsDir string, local bool) error {
@@ -140,14 +149,12 @@ func main() {
 	defer td.EndRun(ctx)
 
 	// Setup.
-	var client *http.Client
+	client, err := auth_steps.InitHttpClient(ctx, *local, gerrit.AuthScope)
+	if err != nil {
+		td.Fatal(ctx, err)
+	}
 	var g gerrit.GerritInterface
 	if !*dryRun {
-		var err error
-		client, err = auth_steps.InitHttpClient(ctx, *local, gerrit.AuthScope)
-		if err != nil {
-			td.Fatal(ctx, err)
-		}
 		g, err = gerrit.NewGerrit("https://skia-review.googlesource.com", client)
 		if err != nil {
 			td.Fatal(ctx, err)
@@ -205,6 +212,9 @@ func main() {
 		}
 	}
 
+	// For updating metrics.
+	pg := pushgateway.New(client, jobName, pushgateway.DefaultPushgatewayURL)
+
 	chromiumDir := filepath.Join(checkoutRoot, "src")
 	outDir := filepath.Join(chromiumDir, "out", "Release")
 
@@ -234,8 +244,12 @@ func main() {
 			}
 			return nil
 		}); err != nil {
+			// Report that the build failed.
+			pg.Push(ctx, buildFailureMetricName, metricValue_Failure)
 			td.Fatal(ctx, err)
 		}
+		// Report that the build was successful.
+		pg.Push(ctx, buildFailureMetricName, metricValue_NoFailure)
 	}
 
 	// Capture and upload the SKPs.
@@ -262,8 +276,12 @@ func main() {
 	}
 	sklog.Infof("Running command: %s %s", command.Name, strings.Join(command.Args, " "))
 	if err := exec.Run(ctx, command); err != nil {
+		// Creating SKP asset in RecreateSKPs failed.
+		pg.Push(ctx, creatingSKPsFailureMetricName, metricValue_Failure)
 		td.Fatal(ctx, err)
 	}
+	// Report that the asset creation was successful.
+	pg.Push(ctx, creatingSKPsFailureMetricName, metricValue_NoFailure)
 	if *dryRun {
 		return
 	}
