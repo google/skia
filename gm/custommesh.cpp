@@ -295,6 +295,7 @@ protected:
                 return DrawResult::kSkip;
             }
             c = surface->getCanvas();
+            c->clear(SK_ColorWHITE);
         }
         for (bool unpremul : {false, true}) {
             c->save();
