@@ -13,6 +13,7 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
     size_t nslots = debugTrace ? debugTrace->fSlotInfo.size() : 0;
     fDebugTrace = debugTrace;
     fCursor = 0;
+    fScope = 0;
     fSlots.clear();
     fSlots.resize(nslots, {/*fValue=*/0,
                            /*fScope=*/INT_MAX,
@@ -32,7 +33,7 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
 
     for (const SkVMTraceInfo& trace : fDebugTrace->fTraceInfo) {
         if (trace.op == SkVMTraceInfo::Op::kLine) {
-            fLineNumbers.insert(trace.data[0]);
+            fLineNumbers[trace.data[0]] += 1;
         }
     }
 }
@@ -193,7 +194,9 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
             int lineNumber = trace.data[0];
             SkASSERT(lineNumber >= 0);
             SkASSERT((size_t)lineNumber < fDebugTrace->fSource.size());
+            SkASSERT(fLineNumbers[lineNumber] > 0);
             fStack.back().fLine = lineNumber;
+            fLineNumbers[lineNumber] -= 1;
             return true;
         }
         case SkVMTraceInfo::Op::kVar: {  // data: slot, value

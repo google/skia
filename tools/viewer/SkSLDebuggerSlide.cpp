@@ -15,6 +15,7 @@
 #include "imgui.h"
 
 using namespace sk_app;
+using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -130,8 +131,10 @@ void SkSLDebuggerSlide::showCodeTable() {
 
                 // Show line numbers and breakpoints.
                 ImGui::TableSetColumnIndex(0);
-                bool reachable = fPlayer.getLineNumbersReached().count(humanReadableLine);
-                bool breakpointOn = reachable && fPlayer.getBreakpoints().count(humanReadableLine);
+                const LineNumberMap& lineNumberMap = fPlayer.getLineNumbersReached();
+                LineNumberMap::const_iterator iter = lineNumberMap.find(humanReadableLine);
+                bool reachable = iter != lineNumberMap.end() && iter->second > 0;
+                bool breakpointOn = fPlayer.getBreakpoints().count(humanReadableLine);
                 if (breakpointOn) {
                     ImGui::PushStyleColor(ImGuiCol_Text,          ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
                     ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(1.0f, 0.0f, 0.0f, 0.70f));

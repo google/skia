@@ -13,6 +13,8 @@
 
 #include "tests/Test.h"
 
+using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
+
 static sk_sp<SkSL::SkVMDebugTrace> make_trace(skiatest::Reporter* r, SkSL::String src) {
     SkSL::ShaderCaps caps;
     SkSL::Compiler compiler(&caps);
@@ -110,7 +112,7 @@ int main() {       // Line 2
     REPORTER_ASSERT(r, !player.traceHasCompleted());
     REPORTER_ASSERT(r, player.getCallStack().empty());
     REPORTER_ASSERT(r, player.getGlobalVariables().empty());
-    REPORTER_ASSERT(r, player.getLineNumbersReached() == std::unordered_set<int>{3});
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}}));
 
     player.step();
 
@@ -190,7 +192,7 @@ int main() {                    // Line 8
     REPORTER_ASSERT(r, !player.traceHasCompleted());
     REPORTER_ASSERT(r, player.getCallStack().empty());
     REPORTER_ASSERT(r, player.getGlobalVariables().empty());
-    REPORTER_ASSERT(r, (player.getLineNumbersReached() == std::unordered_set<int>{3, 6, 9}));
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {6, 1}, {9, 1}}));
 
     player.step();
 
@@ -261,8 +263,9 @@ int main() {                          // Line 6
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
 
-    REPORTER_ASSERT(r, (player.getLineNumbersReached() ==
-                            std::unordered_set<int>{3, 4, 7, 8, 9, 10, 11, 12}));
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 1}, {7, 1},
+                                                                        {8, 1}, {9, 1}, {10, 1},
+                                                                        {11, 1}, {12, 1}}));
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 7);
@@ -345,8 +348,9 @@ int main() {          // Line 2
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
 
-    REPORTER_ASSERT(r, (player.getLineNumbersReached() ==
-                            std::unordered_set<int>{3, 4, 5, 6, 10, 14, 16}));
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 1}, {5, 1},
+                                                                        {6, 1}, {10, 1}, {14, 1},
+                                                                        {16, 1}}));
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 3);
@@ -397,34 +401,49 @@ int main() {                       // Line 2
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
 
-    REPORTER_ASSERT(r, (player.getLineNumbersReached() == std::unordered_set<int>{3, 4, 5, 7}));
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 3}, {5, 2},
+                                                                        {7, 1}}));
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 3}, {5, 2},
+                                                                        {7, 1}}));
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 2}, {5, 2},
+                                                                        {7, 1}}));
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##val = 0");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 2}, {5, 1},
+                                                                        {7, 1}}));
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##x = 1, val = 0");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 1}, {5, 1},
+                                                                        {7, 1}}));
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##val = 1, x = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 1}, {5, 0},
+                                                                        {7, 1}}));
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##x = 2, val = 1");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 0}, {5, 0},
+                                                                        {7, 1}}));
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##val = 2, x = 2");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 0}, {5, 0},
+                                                                        {7, 0}}));
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 2");
     player.step();
 
@@ -448,8 +467,8 @@ int main() {      // Line 9
 )");
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
-    REPORTER_ASSERT(r, (player.getLineNumbersReached() ==
-                            std::unordered_set<int>{3, 4, 5, 6, 7, 10}));
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 1}, {5, 1},
+                                                                        {6, 1}, {7, 1}, {10, 1}}));
     player.step();
 
     // We should now be inside main.
@@ -510,8 +529,10 @@ int main() {                // Line 2
 )");
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
-    REPORTER_ASSERT(r, (player.getLineNumbersReached() ==
-                            std::unordered_set<int>{3, 5, 7, 9, 11, 13, 15, 17, 19, 20}));
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {5, 1}, {7, 1},
+                                                                        {9, 1}, {11, 1}, {13, 1},
+                                                                        {15, 1}, {17, 1}, {19, 1},
+                                                                        {20, 1}}));
     player.step();
 
     // We should now be inside main.

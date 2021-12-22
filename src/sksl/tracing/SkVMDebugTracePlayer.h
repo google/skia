@@ -9,6 +9,7 @@
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkBitSet.h"
 
+#include <unordered_map>
 #include <unordered_set>
 
 namespace SkSL {
@@ -43,7 +44,8 @@ public:
     void setBreakpoints(std::unordered_set<int> breakpointLines);
     void addBreakpoint(int line);
     void removeBreakpoint(int line);
-    const std::unordered_set<int>& getBreakpoints() { return fBreakpointLines; }
+    using BreakpointSet = std::unordered_set<int>;
+    const BreakpointSet& getBreakpoints() { return fBreakpointLines; }
 
     /** Returns true if we have reached the end of the trace. */
     bool traceHasCompleted() const;
@@ -63,8 +65,12 @@ public:
     /** Returns the size of the call stack. */
     int getStackDepth() const;
 
-    /** Returns every line number actually reached in the debug trace. */
-    const std::unordered_set<int>& getLineNumbersReached() const { return fLineNumbers; }
+    /**
+     * Returns every line number reached inside this debug trace, along with the remaining number of
+     * times that this trace will reach it. e.g. {100, 2} means line 100 will be reached twice.
+     */
+    using LineNumberMap = std::unordered_map<int, int>;
+    const LineNumberMap& getLineNumbersReached() const { return fLineNumbers; }
 
     /** Returns variables from a stack frame, or from global scope. */
     struct VariableData {
@@ -104,17 +110,18 @@ private:
         size_t    fWriteTime;    // when was the variable in this slot most recently written?
                                  // (by cursor position)
     };
-    sk_sp<SkVMDebugTrace>       fDebugTrace;
-    size_t                      fCursor = 0;      // position of the read head
-    int                         fScope = 0;       // the current scope depth (as tracked by
-                                                  // trace_scope)
-    std::vector<Slot>           fSlots;           // the array of all slots
-    std::vector<StackFrame>     fStack;           // the execution stack
-    skstd::optional<SkBitSet>   fDirtyMask;       // variable slots touched during the most-recently
-                                                  // executed step
-    skstd::optional<SkBitSet>   fReturnValues;    // variable slots containing return values
-    std::unordered_set<int>     fLineNumbers;     // every line number reached during execution
-    std::unordered_set<int>     fBreakpointLines; // all breakpoints set by setBreakpointLines
+    sk_sp<SkVMDebugTrace>      fDebugTrace;
+    size_t                     fCursor = 0;      // position of the read head
+    int                        fScope = 0;       // the current scope depth (as tracked by
+                                                 // trace_scope)
+    std::vector<Slot>          fSlots;           // the array of all slots
+    std::vector<StackFrame>    fStack;           // the execution stack
+    skstd::optional<SkBitSet>  fDirtyMask;       // variable slots touched during the most-recently
+                                                 // executed step
+    skstd::optional<SkBitSet>  fReturnValues;    // variable slots containing return values
+    LineNumberMap              fLineNumbers;     // holds [line number, the remaining number of
+                                                 // times to reach this line during the trace]
+    BreakpointSet              fBreakpointLines; // all breakpoints set by setBreakpointLines
 };
 
 }  // namespace SkSL
