@@ -506,10 +506,6 @@ void CustomMeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
     auto that = t->cast<CustomMeshOp>();
 
-    // NOTE: The source color space is always sRGB, and the destination gamut is determined by the
-    // render target context. A mis-match should be impossible.
-    SkASSERT(GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get()));
-
     if (fMode       == SkCustomMesh::Mode::kTriangleStrip ||
         that->fMode == SkCustomMesh::Mode::kTriangleStrip) {
         return CombineResult::kCannotCombine;
@@ -527,6 +523,14 @@ GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, co
         fViewMatrix != that->fViewMatrix) {
         return CombineResult::kCannotCombine;
     }
+
+    if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
+        return CombineResult::kCannotCombine;
+    }
+
+    // NOTE: The source color space is part of the spec, and the destination gamut is determined by
+    // the render target context. A mis-match should be impossible.
+    SkASSERT(GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get()));
 
     fMeshes.move_back_n(that->fMeshes.count(), that->fMeshes.begin());
     return CombineResult::kMerged;

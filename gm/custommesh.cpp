@@ -9,6 +9,7 @@
 #include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCustomMesh.h"
+#include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkCanvasPriv.h"
 
@@ -213,5 +214,144 @@ constexpr CustomMeshGM::NoColorVertex CustomMeshGM::kNoColorIndexedQuad[];
 constexpr uint16_t CustomMeshGM::kIndices[];
 
 DEF_GM( return new CustomMeshGM; )
+
+class CustomMeshColorSpaceGM : public skiagm::GM {
+public:
+    CustomMeshColorSpaceGM() {}
+
+protected:
+    using Attribute = SkCustomMeshSpecification::Attribute;
+    using Varying   = SkCustomMeshSpecification::Varying;
+
+    SkISize onISize() override { return {258, 258}; }
+
+    void onOnceBeforeDraw() override {
+        static const Attribute kAttributes[]{
+                {Attribute::Type::kFloat2,  0, SkString{"pos"}  },
+                {Attribute::Type::kFloat2,  8, SkString{"uv"}   },
+                {Attribute::Type::kFloat4, 16, SkString{"color"}},
+        };
+        static const Varying kVaryings[]{
+                {Varying::Type::kHalf4,  SkString{"color"}},
+                {Varying::Type::kFloat2, SkString{"uv"}   },
+        };
+        static constexpr char kPremulVS[] = R"(
+                float2 main(in Attributes attributes, out Varyings varyings) {
+                    varyings.color = half4(attributes.color.a*attributes.color.rgb,
+                                           attributes.color.a);
+                    varyings.uv = attributes.uv;
+                    return attributes.pos;
+                }
+        )";
+        static constexpr char kUnpremulVS[] = R"(
+                float2 main(in Attributes attributes, out Varyings varyings) {
+                    varyings.color = attributes.color;
+                    varyings.uv = attributes.uv;
+                    return attributes.pos;
+                }
+        )";
+        static constexpr char kFS[] = R"(
+                float2 main(in Varyings varyings, out half4 color) {
+                    color = varyings.color;
+                    return varyings.uv;
+                }
+        )";
+        for (bool unpremul : {false, true}) {
+            auto at = unpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
+            auto vs = unpremul ? kUnpremulVS : kPremulVS;
+            for (bool spin : {false, true}) {
+                auto cs = SkColorSpace::MakeSRGB();
+                if (spin) {
+                    cs = cs->makeColorSpin();
+                }
+
+                auto [spec, error] = SkCustomMeshSpecification::Make(
+                        SkMakeSpan(kAttributes, SK_ARRAY_COUNT(kAttributes)),
+                        sizeof(Vertex),
+                        SkMakeSpan(kVaryings, SK_ARRAY_COUNT(kVaryings)),
+                        SkString(vs),
+                        SkString(kFS),
+                        std::move(cs),
+                        at);
+                if (!spec) {
+                    SkDebugf("%s\n", error.c_str());
+                }
+                fSpecs[SpecIndex(unpremul, spin)] = std::move(spec);
+            }
+        }
+    }
+
+    SkString onShortName() override { return SkString("custommesh_cs"); }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
+        // Force an intermediate surface if the canvas is in "legacy" mode
+        SkCanvas* c = canvas;
+        sk_sp<SkSurface> surface;
+        if (!c->imageInfo().colorSpace()) {
+            SkImageInfo info = canvas->imageInfo().makeColorSpace(SkColorSpace::MakeSRGB());
+            surface = canvas->makeSurface(info);
+            if (!surface) {
+                // This GM won't work on configs that use a recording canvas.
+                return DrawResult::kSkip;
+            }
+            c = surface->getCanvas();
+        }
+        for (bool unpremul : {false, true}) {
+            c->save();
+            for (bool spin : {false, true}) {
+                SkCustomMesh cm;
+                cm.spec   = fSpecs[SpecIndex(unpremul, spin)];
+                cm.bounds = kRect;
+                cm.vb     = kQuad;
+                cm.vcount = 4;
+                cm.mode   = SkCustomMesh::Mode::kTriangleStrip;
+
+                SkCanvasPriv::DrawCustomMesh(c,
+                                             std::move(cm),
+                                             SkBlender::Mode(SkBlendMode::kDst),
+                                             SkPaint{});
+
+                c->translate(0, kRect.height() + 10);
+            }
+            c->restore();
+            c->translate(kRect.width() + 10, 0);
+            c->save();
+        }
+        if (surface) {
+            surface->draw(canvas, 0, 0);
+        }
+        return DrawResult::kOk;
+    }
+
+private:
+    struct Vertex {
+        SkPoint   pos;
+        SkPoint   uv;
+        SkColor4f color;
+    };
+
+    static int SpecIndex(bool spin, bool unpremul) {
+        return static_cast<int>(spin) + 2*static_cast<int>(unpremul);
+    }
+
+    static constexpr auto  kRect   = SkRect::MakeLTRB(20, 20, 120, 120);
+    static constexpr auto  kUV     = SkRect::MakeLTRB( 0,  0,  20,  20);
+
+    static constexpr Vertex kQuad[] {
+            {{kRect.left() , kRect.top()   }, {kUV.left(),  kUV.top()   }, {1, 0, 0, 1}},
+            {{kRect.right(), kRect.top()   }, {kUV.right(), kUV.top()   }, {0, 1, 0, 0}},
+            {{kRect.left() , kRect.bottom()}, {kUV.left(),  kUV.bottom()}, {1, 1, 0, 0}},
+            {{kRect.right(), kRect.bottom()}, {kUV.right(), kUV.bottom()}, {0, 0, 1, 1}},
+    };
+
+    sk_sp<SkCustomMeshSpecification> fSpecs[4];
+};
+
+constexpr SkRect CustomMeshColorSpaceGM::kRect;
+constexpr SkRect CustomMeshColorSpaceGM::kUV;
+
+constexpr CustomMeshColorSpaceGM::Vertex CustomMeshColorSpaceGM::kQuad[];
+
+DEF_GM( return new CustomMeshColorSpaceGM; )
 
 }  // namespace skiagm

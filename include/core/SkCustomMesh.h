@@ -8,6 +8,8 @@
 #ifndef SkCustomMesh_DEFINED
 #define SkCustomMesh_DEFINED
 
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
@@ -33,8 +35,7 @@ namespace SkSL { struct Program; }
  *
  * where the return value is the local coordinates that will be used to access SkShader. If the
  * color variant is used it will be blended with SkShader (or SkPaint color in absence of a shader)
- * using the SkBlender provided to the SkCanvas draw call. The output color is assumed to be premul
- * and in the sRGB colorspace.
+ * using the SkBlender provided to the SkCanvas draw call.
  */
 class SkCustomMeshSpecification : public SkNVRefCnt<SkCustomMeshSpecification> {
 public:
@@ -101,12 +102,18 @@ public:
      * @param fs             The fragment code that computes a local coordinate and optionally a
      *                       color from the varyings. The local coordinate is used to sample
      *                       SkShader.
+     * @param cs             The colorspace of the color produced by 'fs'. Ignored if 'fs's main()
+     *                       function does not have a color out param.
+     * @param at             The alpha type of the color produced by 'fs'. Ignored if 'fs's main()
+     *                       function does not have a color out param. Cannot be kUnknown.
      */
     static Result Make(SkSpan<const Attribute> attributes,
                        size_t                  vertexStride,
                        SkSpan<const Varying>   varyings,
                        const SkString&         vs,
-                       const SkString&         fs);
+                       const SkString&         fs,
+                       sk_sp<SkColorSpace>     cs = SkColorSpace::MakeSRGB(),
+                       SkAlphaType             at = kPremul_SkAlphaType);
 
     SkSpan<const Attribute> attributes() const { return SkMakeSpan(fAttributes); }
 
@@ -125,13 +132,18 @@ private:
                                             size_t                  stride,
                                             SkSpan<const Varying>   varyings,
                                             const SkString&         vs,
-                                            const SkString&         fs);
+                                            const SkString&         fs,
+                                            sk_sp<SkColorSpace>     cs,
+                                            SkAlphaType             at);
 
     SkCustomMeshSpecification(SkSpan<const Attribute>,
                               size_t,
                               SkSpan<const Varying>,
                               std::unique_ptr<SkSL::Program>,
-                              std::unique_ptr<SkSL::Program>);
+                              std::unique_ptr<SkSL::Program>,
+                              ColorType,
+                              sk_sp<SkColorSpace>,
+                              SkAlphaType);
 
     SkCustomMeshSpecification(const SkCustomMeshSpecification&) = delete;
     SkCustomMeshSpecification(SkCustomMeshSpecification&&) = delete;
@@ -146,6 +158,8 @@ private:
     size_t                             fStride;
     uint32_t                           fHash;
     ColorType                          fColorType;
+    sk_sp<SkColorSpace>                fColorSpace;
+    SkAlphaType                        fAlphaType;
 };
 
 /**

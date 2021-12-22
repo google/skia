@@ -30,6 +30,12 @@ struct SkCustomMeshSpecificationPriv {
         return GetColorType(spec) != ColorType::kNone;
     }
 
+    static SkColorSpace* ColorSpace(const SkCustomMeshSpecification& spec) {
+        return spec.fColorSpace.get();
+    }
+
+    static SkAlphaType AlphaType(const SkCustomMeshSpecification& spec) { return spec.fAlphaType; }
+
     static GrSLType VaryingTypeAsSLType(Varying::Type type) {
         switch (type) {
             case Varying::Type::kFloat:  return kFloat_GrSLType;

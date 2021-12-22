@@ -154,13 +154,14 @@ check_vertex_offsets_and_stride(SkSpan<const Attribute> attributes,
     RETURN_SUCCESS;
 }
 
-
 SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
         SkSpan<const Attribute> attributes,
-        size_t vertexStride,
+        size_t                  vertexStride,
         SkSpan<const Varying>   varyings,
         const SkString&         vs,
-        const SkString&         fs) {
+        const SkString&         fs,
+        sk_sp<SkColorSpace>     cs,
+        SkAlphaType             at) {
     SkString attributesStruct("struct Attributes {\n");
     for (const auto& a : attributes) {
         attributesStruct.appendf("  %s %s;\n", attribute_type_string(a.type), a.name.c_str());
@@ -186,7 +187,13 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
     fullFS.append(varyingStruct.c_str());
     fullFS.append(fs.c_str());
 
-    return MakeFromSourceWithStructs(attributes, vertexStride, varyings, fullVS, fullFS);
+    return MakeFromSourceWithStructs(attributes,
+                                     vertexStride,
+                                     varyings,
+                                     fullVS,
+                                     fullFS,
+                                     std::move(cs),
+                                     at);
 }
 
 SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithStructs(
@@ -194,7 +201,9 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
         size_t                  stride,
         SkSpan<const Varying>   varyings,
         const SkString&         vs,
-        const SkString&         fs) {
+        const SkString&         fs,
+        sk_sp<SkColorSpace>     cs,
+        SkAlphaType             at) {
     if (auto [ok, error] = check_vertex_offsets_and_stride(attributes, stride); !ok) {
         return {nullptr, error};
     }
@@ -247,12 +256,29 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
         }
     }
 
+    ColorType ct = color_type(*fsProgram);
+
+    if (ct == ColorType::kNone) {
+        cs = nullptr;
+        at = kPremul_SkAlphaType;
+    } else {
+        if (!cs) {
+            return {nullptr, SkString{"Must provide a color space if FS returns a color."}};
+        }
+        if (at == kUnknown_SkAlphaType) {
+            return {nullptr, SkString{"Must provide a valid alpha type if FS returns a color."}};
+        }
+    }
+
     return {sk_sp<SkCustomMeshSpecification>(new SkCustomMeshSpecification(attributes,
                                                                            stride,
                                                                            varyings,
                                                                            std::move(vsProgram),
-                                                                           std::move(fsProgram))),
-            /*error*/{}};
+                                                                           std::move(fsProgram),
+                                                                           ct,
+                                                                           std::move(cs),
+                                                                           at)),
+            /*error=*/ {}};
 }
 
 SkCustomMeshSpecification::~SkCustomMeshSpecification() = default;
@@ -261,15 +287,21 @@ SkCustomMeshSpecification::SkCustomMeshSpecification(SkSpan<const Attribute>    
                                                      size_t                         stride,
                                                      SkSpan<const Varying>          varyings,
                                                      std::unique_ptr<SkSL::Program> vs,
-                                                     std::unique_ptr<SkSL::Program> fs)
+                                                     std::unique_ptr<SkSL::Program> fs,
+                                                     ColorType                      ct,
+                                                     sk_sp<SkColorSpace>            cs,
+                                                     SkAlphaType                    at)
         : fAttributes(attributes.begin(), attributes.end())
         , fVaryings(varyings.begin(), varyings.end())
         , fVS(std::move(vs))
         , fFS(std::move(fs))
         , fStride(stride)
-        , fColorType(color_type(*fFS)) {
+        , fColorType(ct)
+        , fColorSpace(std::move(cs))
+        , fAlphaType(at) {
     fHash = SkOpts::hash_fn(fVS->fSource->c_str(), fVS->fSource->size(), 0);
     fHash = SkOpts::hash_fn(fFS->fSource->c_str(), fFS->fSource->size(), fHash);
+
     // The attributes and varyings SkSL struct declarations are included in the program source.
     // However, the attribute offsets and types need to be included, the latter because the SkSL
     // struct definition has the GPU type but not the CPU data format.
@@ -277,5 +309,12 @@ SkCustomMeshSpecification::SkCustomMeshSpecification(SkSpan<const Attribute>    
         fHash = SkOpts::hash_fn(&a.offset, sizeof(a.offset), fHash);
         fHash = SkOpts::hash_fn(&a.type,   sizeof(a.type),   fHash);
     }
+
     fHash = SkOpts::hash_fn(&stride, sizeof(stride), fHash);
+
+    uint64_t csHash = fColorSpace ? fColorSpace->hash() : 0;
+    fHash = SkOpts::hash_fn(&csHash, sizeof(csHash), fHash);
+
+    auto atInt = static_cast<uint32_t>(fAlphaType);
+    fHash = SkOpts::hash_fn(&atInt, sizeof(atInt), fHash);
 }
