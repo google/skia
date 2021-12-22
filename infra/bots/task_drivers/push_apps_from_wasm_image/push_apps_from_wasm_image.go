@@ -152,9 +152,6 @@ func main() {
 	}
 
 	// Build and push all apps of interest below.
-	if err := buildPushSkottieImage(ctx, tag, rs.Repo, wasmProductsDir, configDir, topic); err != nil {
-		td.Fatal(ctx, err)
-	}
 	if err := buildPushDebuggerImage(ctx, tag, rs.Repo, wasmProductsDir, configDir, topic); err != nil {
 		td.Fatal(ctx, err)
 	}

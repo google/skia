@@ -137,6 +137,9 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
+	if err := buildPush(ctx, "skottie", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
+		td.Fatal(ctx, err)
+	}
 	// Remove all temporary files from the host machine. Swarming gets upset if there are root-owned
 	// files it cannot clean up.
 	cleanupCmd := []string{"/bin/sh", "-c", "rm -rf /OUT/*"}
