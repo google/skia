@@ -38,10 +38,10 @@ void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
 }
 
 char* SkArenaAlloc::SkipPod(char* footerEnd) {
-    char* objEnd = footerEnd - (sizeof(Footer) + sizeof(int32_t));
-    int32_t skip;
-    memmove(&skip, objEnd, sizeof(int32_t));
-    return objEnd - skip;
+    char* objEnd = footerEnd - (sizeof(Footer) + sizeof(uint32_t));
+    uint32_t skip;
+    memmove(&skip, objEnd, sizeof(uint32_t));
+    return objEnd - (ptrdiff_t) skip;
 }
 
 void SkArenaAlloc::RunDtorsOnBlock(char* footerEnd) {
