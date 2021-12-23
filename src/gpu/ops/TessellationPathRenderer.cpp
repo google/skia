@@ -30,6 +30,7 @@ GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
                                     skgpu::v1::FillPathFlags fillPathFlags,
                                     GrAAType aaType,
                                     const SkRect& drawBounds,
+                                    const SkIRect& clipBounds,
                                     const SkMatrix& viewMatrix,
                                     const SkPath& path,
                                     GrPaint&& paint) {
@@ -40,19 +41,22 @@ GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
         // on the CPU. This is our fastest approach. It allows us to stencil only the curves,
         // and then fill the inner fan directly to the final render target, thus drawing the
         // majority of pixels in a single render pass.
-        float gpuFragmentWork = drawBounds.height() * drawBounds.width();
-        float cpuTessellationWork = numVerbs * SkNextLog2(numVerbs);  // N log N.
-        constexpr static float kCpuWeight = 512;
-        constexpr static float kMinNumPixelsToTriangulate = 256 * 256;
-        if (cpuTessellationWork * kCpuWeight + kMinNumPixelsToTriangulate < gpuFragmentWork) {
-            return GrOp::Make<skgpu::v1::PathInnerTriangulateOp>(rContext,
-                                                                 viewMatrix,
-                                                                 path,
-                                                                 std::move(paint),
-                                                                 aaType,
-                                                                 fillPathFlags,
-                                                                 drawBounds);
-        }
+        SkRect clippedDrawBounds = SkRect::Make(clipBounds);
+        if (clippedDrawBounds.intersect(drawBounds)) {
+            float gpuFragmentWork = clippedDrawBounds.height() * clippedDrawBounds.width();
+            float cpuTessellationWork = numVerbs * SkNextLog2(numVerbs);  // N log N.
+            constexpr static float kCpuWeight = 512;
+            constexpr static float kMinNumPixelsToTriangulate = 256 * 256;
+            if (cpuTessellationWork * kCpuWeight + kMinNumPixelsToTriangulate < gpuFragmentWork) {
+                return GrOp::Make<skgpu::v1::PathInnerTriangulateOp>(rContext,
+                                                                     viewMatrix,
+                                                                     path,
+                                                                     std::move(paint),
+                                                                     aaType,
+                                                                     fillPathFlags,
+                                                                     drawBounds);
+            }
+        } // we should be clipped out when the GrClip is analyzed, so just return the default op
     }
     return GrOp::Make<skgpu::v1::PathStencilCoverOp>(rContext,
                                                      arena,
@@ -196,6 +200,7 @@ bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                       FillPathFlags::kNone,
                                       args.fAAType,
                                       drawBounds,
+                                      *args.fClipConservativeBounds,
                                       *args.fViewMatrix,
                                       path,
                                       std::move(args.fPaint));
@@ -254,6 +259,7 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
                                       FillPathFlags::kStencilOnly,
                                       aaType,
                                       pathDevBounds,
+                                      *args.fClipConservativeBounds,
                                       *args.fViewMatrix,
                                       path,
                                       GrPaint());
