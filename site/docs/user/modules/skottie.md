@@ -20,6 +20,14 @@ contributing advancements back to Bodymovin/Lottie.
 
 Here are some test samples rendering with Skia's animation player:
 
+<script src="https://skottie.skia.org/static/canvaskit.js"></script>
+<script src="https://skottie.skia.org/static/inline-bundle.js"></script>
+<style>
+    skottie-inline-sk {
+        display: inline-block;
+    }
+</style>
+
 <a href="https://skottie.skia.org/e6741dda67629da1f80c254dad3df865">
   <skottie-inline-sk src="https://skottie.skia.org/_/j/e6741dda67629da1f80c254dad3df865" width=200 height=200></skottie-inline-sk>
 </a>
