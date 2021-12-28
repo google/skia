@@ -118,10 +118,6 @@ private:
     void error(Token token, String msg);
     void error(int line, String msg);
 
-    SymbolTable& symbols() {
-        return *dsl::CurrentSymbolTable();
-    }
-
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
     // file have comments describing the grammar rules.
@@ -165,7 +161,7 @@ private:
     dsl::DSLStatement localVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
             dsl::DSLType baseType, skstd::string_view name);
 
-    skstd::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter();
+    skstd::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter(size_t paramIndex);
 
     int layoutInt();
 

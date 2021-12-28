@@ -387,7 +387,8 @@ bool DSLParser::functionDeclarationEnd(const DSLModifiers& modifiers,
         this->nextToken();
     } else {
         for (;;) {
-            skstd::optional<DSLWrapper<DSLParameter>> parameter = this->parameter();
+            size_t paramIndex = parameters.size();
+            skstd::optional<DSLWrapper<DSLParameter>> parameter = this->parameter(paramIndex);
             if (!parameter) {
                 return false;
             }
@@ -666,20 +667,27 @@ SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& 
 }
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
-skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter() {
+skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter(size_t paramIndex) {
     DSLModifiers modifiers = this->modifiers();
     skstd::optional<DSLType> type = this->type(&modifiers);
     if (!type) {
         return skstd::nullopt;
     }
     Token name;
-    if (!this->expectIdentifier(&name)) {
-        return skstd::nullopt;
+    skstd::string_view paramText;
+    PositionInfo paramPos;
+    if (this->checkIdentifier(&name)) {
+        paramPos = this->position(name);
+        paramText = this->text(name);
+    } else {
+        String anonymousName = String::printf("_skAnonymousParam%zu", paramIndex);
+        paramPos = this->position(this->peek());
+        paramText = *CurrentSymbolTable()->takeOwnershipOfString(std::move(anonymousName));
     }
     if (!this->parseArrayDimensions(name.fLine, &type.value())) {
         return skstd::nullopt;
     }
-    return {{DSLParameter(modifiers, *type, this->text(name), this->position(name))}};
+    return {{DSLParameter(modifiers, *type, paramText, paramPos)}};
 }
 
 /** EQ INT_LITERAL */
