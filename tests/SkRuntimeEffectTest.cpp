@@ -550,20 +550,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU, r, ctxInfo) {
 }
 
 DEF_TEST(SkRuntimeEffectTraceShader, r) {
-    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
-    REPORTER_ASSERT(r, surface);
-    TestEffect effect(r, surface);
-    std::string dump;
+    for (int imageSize : {2, 80}) {
+        SkImageInfo info = SkImageInfo::Make(imageSize, imageSize, kRGBA_8888_SkColorType,
+                                             kPremul_SkAlphaType);
+        sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+        REPORTER_ASSERT(r, surface);
+        TestEffect effect(r, surface);
 
-    effect.build(R"(
-        half4 main(float2 p) {
-            float2 val = p - 0.5;
-            return half4(val, 0, 1);
-        }
-    )");
-    dump = effect.trace({0, 1});
-    REPORTER_ASSERT(r, dump == R"($0 = [main].result (float4 : slot 1/4, L2)
+        effect.build(R"(
+            half4 main(float2 p) {
+                float2 val = p - 0.5;
+                return val.0y01;
+            }
+        )");
+        int center = imageSize / 2;
+        std::string dump = effect.trace({center, 1});
+        auto expectation = SkSL::String::printf(R"($0 = [main].result (float4 : slot 1/4, L2)
 $1 = [main].result (float4 : slot 2/4, L2)
 $2 = [main].result (float4 : slot 3/4, L2)
 $3 = [main].result (float4 : slot 4/4, L2)
@@ -574,11 +576,11 @@ $7 = val (float2 : slot 2/2, L3)
 F0 = half4 main(float2 p)
 
 enter half4 main(float2 p)
-  p.x = 0.5
+  p.x = %d.5
   p.y = 1.5
   scope +1
    line 3
-   val.x = 0
+   val.x = %d
    val.y = 1
    line 4
    [main].result.x = 0
@@ -587,9 +589,11 @@ enter half4 main(float2 p)
    [main].result.w = 1
   scope -1
 exit half4 main(float2 p)
-)",
-                    "Trace output does not match expectation:\n%.*s\n",
-                    (int)dump.size(), dump.data());
+)", center, center);
+        REPORTER_ASSERT(r, dump == expectation,
+                        "Trace output does not match expectation for %dx%d:\n%.*s\n",
+                        imageSize, imageSize, (int)dump.size(), dump.data());
+    }
 }
 
 static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContext* rContext) {

@@ -84,8 +84,16 @@ namespace SkVMInterpreterTypes {
             r = (Slot*)addr;
         }
 
-        const auto should_trace = [&](int immA, Reg x, Reg y) -> bool {
-            return immA >= 0 && immA < nTraceHooks && any(r[x].i32 & r[y].i32);
+        const auto should_trace = [&](int stride, int immA, Reg x, Reg y) -> bool {
+            if (immA < 0 || immA >= nTraceHooks) {
+                return false;
+            }
+            // When stride == K, all lanes are used.
+            if (stride == K) {
+                return any(r[x].i32 & r[y].i32);
+            }
+            // When stride == 1, only the first lane is used; the rest are not meaningful.
+            return r[x].i32[0] & r[y].i32[0];
         };
 
         // Step each argument pointer ahead by its stride a number of times.
@@ -222,13 +230,13 @@ namespace SkVMInterpreterTypes {
                     break;
 
                     CASE(Op::trace_line):
-                        if (should_trace(immA, x, y)) {
+                        if (should_trace(stride, immA, x, y)) {
                             traceHooks[immA]->line(immB);
                         }
                         break;
 
                     CASE(Op::trace_var):
-                        if (should_trace(immA, x, y)) {
+                        if (should_trace(stride, immA, x, y)) {
                             for (int i = 0; i < K; ++i) {
                                 if (r[x].i32[i] & r[y].i32[i]) {
                                     traceHooks[immA]->var(immB, r[z].i32[i]);
@@ -239,19 +247,19 @@ namespace SkVMInterpreterTypes {
                         break;
 
                     CASE(Op::trace_enter):
-                        if (should_trace(immA, x, y)) {
+                        if (should_trace(stride, immA, x, y)) {
                             traceHooks[immA]->enter(immB);
                         }
                         break;
 
                     CASE(Op::trace_exit):
-                        if (should_trace(immA, x, y)) {
+                        if (should_trace(stride, immA, x, y)) {
                             traceHooks[immA]->exit(immB);
                         }
                         break;
 
                     CASE(Op::trace_scope):
-                        if (should_trace(immA, x, y)) {
+                        if (should_trace(stride, immA, x, y)) {
                             traceHooks[immA]->scope(immB);
                         }
                         break;

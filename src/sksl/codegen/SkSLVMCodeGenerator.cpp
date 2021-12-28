@@ -68,7 +68,7 @@ namespace {
 
         void line(int lineNum) override {
             fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kLine,
-                                              /*data=*/{lineNum, 0}});
+                                          /*data=*/{lineNum, 0}});
         }
         void var(int slot, int32_t val) override {
             fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kVar,
