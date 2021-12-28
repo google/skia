@@ -52,6 +52,7 @@ private:
     SkV3 fResolution = { 1, 1, 1 };
     SkV4 fMousePos;
     int fTraceCoord[2] = {64, 64};
+    bool fShadertoyUniforms = true;
 
     // Named shaders that can be selected as inputs
     SkTArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
