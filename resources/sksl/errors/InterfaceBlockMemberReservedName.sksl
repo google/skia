@@ -1,0 +1,7 @@
+IB {
+    float float;
+} ib;
+
+float4 main() {
+    return ib.float.xxxx;
+}
