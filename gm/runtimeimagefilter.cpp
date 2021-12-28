@@ -20,6 +20,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/utils/SkRandom.h"
 #include "src/effects/imagefilters/SkRuntimeImageFilter.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkImageFilter> make_filter() {
@@ -69,4 +70,36 @@ DEF_SIMPLE_GM_BG(rtif_distort, canvas, 500, 750, SK_ColorBLACK) {
     p.setPerspX(0.0015f);
     p.setPerspY(-0.0015f);
     draw_layer(250, 500, p);
+}
+
+DEF_SIMPLE_GM(rtif_unsharp, canvas, 512, 256) {
+    // Similar to "unsharp_rt", which does the entire unsharp filter in a single shader. This uses
+    // the image filter DAG to compute the blurred version, then does the weighted subtraction.
+    sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForShader(SkString(R"(
+        uniform shader content;
+        uniform shader blurred;
+        vec4 main(vec2 coord) {
+            vec4 c = content.eval(coord);
+            vec4 b = blurred.eval(coord);
+            return c + (c - b) * 4;
+        }
+    )")).effect;
+    SkRuntimeShaderBuilder builder(std::move(effect));
+
+    auto image = GetResourceAsImage("images/mandrill_256.png");
+    auto blurredSrc = SkImageFilters::Blur(1, 1, /*input=*/nullptr);
+
+    const char* childNames[] = { "content", "blurred" };
+    sk_sp<SkImageFilter> childNodes[] = { nullptr, blurredSrc };
+
+    auto sharpened = SkImageFilters::RuntimeShader(builder, childNames, childNodes, 2);
+
+    canvas->drawImage(image, 0, 0);
+    canvas->translate(256, 0);
+
+    SkPaint paint;
+    paint.setImageFilter(sharpened);
+    canvas->saveLayer({ 0, 0, 256, 256 }, &paint);
+    canvas->drawImage(image, 0, 0);
+    canvas->restore();
 }

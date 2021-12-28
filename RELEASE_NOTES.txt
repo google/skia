@@ -15,6 +15,8 @@ Milestone 99
     Note that if the destination surface has no color space (color space is `nullptr`), these
     intrinsics will do no conversion, and return the input color unchanged.
     https://review.skia.org/481416
+  * Added a new variant of SkImageFilters::RuntimeShader that supports multiple child nodes.
+    https://review.skia.org/489536
 
 * * *
 

@@ -352,6 +352,26 @@ public:
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
                                               const char* childShaderName,
                                               sk_sp<SkImageFilter> input);
+
+    /**
+     *  Create a filter that fills the output with the per-pixel evaluation of the SkShader produced
+     *  by the SkRuntimeShaderBuilder. The shader is defined in the image filter's local coordinate
+     *  system, so it will automatically be affected by SkCanvas' transform.
+     *
+     *  @param builder          The builder used to produce the runtime shader, that will in turn
+     *                          fill the result image
+     *  @param childShaderNames The names of the child shaders defined in the builder that will be
+     *                          bound to the input params (or the source image if the input param
+     *                          is null). If any name is null, or appears more than once, factory
+     *                          fails and returns nullptr.
+     *  @param inputs           The image filters that will be provided as input to the runtime
+     *                          shader. If any are null, the implicit source image is used instead.
+     *  @param inputCount       How many entries are present in 'childShaderNames' and 'inputs'.
+     */
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                              const char* childShaderNames[],
+                                              const sk_sp<SkImageFilter> inputs[],
+                                              int inputCount);
 #endif  // SK_ENABLE_SKSL
 
     enum class Dither : bool {

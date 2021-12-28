@@ -27,13 +27,17 @@ public:
                          sk_sp<SkImageFilter> input)
             : INHERITED(&input, 1, /*cropRect=*/nullptr)
             , fShaderBuilder(std::move(effect), std::move(uniforms))
-            , fChildShaderName(fShaderBuilder.effect()->children().front().name) {}
+            , fChildShaderNames(&fShaderBuilder.effect()->children().front().name, 1) {}
     SkRuntimeImageFilter(const SkRuntimeShaderBuilder& builder,
-                         const char* childShaderName,
-                         sk_sp<SkImageFilter> input)
-            : INHERITED(&input, 1, /*cropRect=*/nullptr)
-            , fShaderBuilder(builder)
-            , fChildShaderName(childShaderName) {}
+                         const char* childShaderNames[],
+                         const sk_sp<SkImageFilter> inputs[],
+                         int inputCount)
+            : INHERITED(inputs, inputCount, /*cropRect=*/nullptr)
+            , fShaderBuilder(builder) {
+        for (int i = 0; i < inputCount; i++) {
+            fChildShaderNames.push_back(SkString(childShaderNames[i]));
+        }
+    }
 
     bool onAffectsTransparentBlack() const override { return true; }
     MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kTranslate; }
@@ -48,7 +52,7 @@ private:
 
     mutable SkSpinlock fShaderBuilderLock;
     mutable SkRuntimeShaderBuilder fShaderBuilder;
-    SkString fChildShaderName;
+    SkSTArray<1, SkString> fChildShaderNames;
 
     using INHERITED = SkImageFilter_Base;
 };
@@ -74,7 +78,8 @@ void SkRegisterRuntimeImageFilterFlattenable() {
 }
 
 sk_sp<SkFlattenable> SkRuntimeImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    // We don't know how many inputs to expect yet. Passing -1 allows any number of children.
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, -1);
     if (common.cropRect()) {
         return nullptr;
     }
@@ -93,11 +98,14 @@ sk_sp<SkFlattenable> SkRuntimeImageFilter::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    // Read the child shader name and make sure it matches one declared in the effect
-    SkString childShaderName;
-    buffer.readString(&childShaderName);
-    if (!buffer.validate(effect->findChild(childShaderName.c_str()) != nullptr)) {
-        return nullptr;
+    // Read the child shader names
+    SkSTArray<4, const char*> childShaderNames;
+    SkSTArray<4, SkString> childShaderNameStrings;
+    childShaderNames.resize(common.inputCount());
+    childShaderNameStrings.resize(common.inputCount());
+    for (int i = 0; i < common.inputCount(); i++) {
+        buffer.readString(&childShaderNameStrings[i]);
+        childShaderNames[i] = childShaderNameStrings[i].c_str();
     }
 
     SkRuntimeShaderBuilder builder(std::move(effect), std::move(uniforms));
@@ -125,7 +133,8 @@ sk_sp<SkFlattenable> SkRuntimeImageFilter::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return SkImageFilters::RuntimeShader(builder, childShaderName.c_str(), common.getInput(0));
+    return SkImageFilters::RuntimeShader(
+            builder, childShaderNames.data(), common.inputs(), common.inputCount());
 }
 
 void SkRuntimeImageFilter::flatten(SkWriteBuffer& buffer) const {
@@ -133,7 +142,9 @@ void SkRuntimeImageFilter::flatten(SkWriteBuffer& buffer) const {
     fShaderBuilderLock.acquire();
     buffer.writeString(fShaderBuilder.effect()->source().c_str());
     buffer.writeDataAsByteArray(fShaderBuilder.uniforms().get());
-    buffer.writeString(fChildShaderName.c_str());
+    for (const SkString& name : fChildShaderNames) {
+        buffer.writeString(name.c_str());
+    }
     for (size_t x = 0; x < fShaderBuilder.numChildren(); x++) {
         buffer.writeFlattenable(fShaderBuilder.children()[x].flattenable());
     }
@@ -144,12 +155,6 @@ void SkRuntimeImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
                                                           SkIPoint* offset) const {
-    SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
-    if (!input) {
-        return nullptr;
-    }
-
     SkIRect outputBounds = SkIRect(ctx.desiredOutput());
     sk_sp<SkSpecialSurface> surf(ctx.makeSurface(outputBounds.size()));
     if (!surf) {
@@ -160,20 +165,37 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
     SkMatrix inverse;
     SkAssertResult(ctm.invert(&inverse));
 
-    SkMatrix localM = inverse *
-                      SkMatrix::Translate(inputOffset) *
-                      SkMatrix::Translate(-input->subset().topLeft());
-    sk_sp<SkShader> inputShader =
-            input->asImage()->makeShader(SkSamplingOptions(SkFilterMode::kLinear), &localM);
-    SkASSERT(inputShader);
+    const int inputCount = this->countInputs();
+    SkASSERT(inputCount == fChildShaderNames.count());
+
+    SkSTArray<1, sk_sp<SkShader>> inputShaders;
+    for (int i = 0; i < inputCount; i++) {
+        SkIPoint inputOffset = SkIPoint::Make(0, 0);
+        sk_sp<SkSpecialImage> input(this->filterInput(i, ctx, &inputOffset));
+        if (!input) {
+            return nullptr;
+        }
+
+        SkMatrix localM = inverse *
+                          SkMatrix::Translate(inputOffset) *
+                          SkMatrix::Translate(-input->subset().topLeft());
+        sk_sp<SkShader> inputShader =
+                input->asImage()->makeShader(SkSamplingOptions(SkFilterMode::kLinear), &localM);
+        SkASSERT(inputShader);
+        inputShaders.push_back(std::move(inputShader));
+    }
 
     // lock the mutation of the builder and creation of the shader so that the builder's state is
     // const and is safe for multi-threaded access.
     fShaderBuilderLock.acquire();
-    fShaderBuilder.child(fChildShaderName.c_str()) = inputShader;
-    sk_sp<SkShader>   shader = fShaderBuilder.makeShader(nullptr, false);
-    // Remove the shader from the builder to avoid unnecessarily prolonging the shader's lifetime
-    fShaderBuilder.child(fChildShaderName.c_str()) = nullptr;
+    for (int i = 0; i < inputCount; i++) {
+        fShaderBuilder.child(fChildShaderNames[i].c_str()) = inputShaders[i];
+    }
+    sk_sp<SkShader> shader = fShaderBuilder.makeShader(nullptr, false);
+    // Remove the inputs from the builder to avoid unnecessarily prolonging the shader's lifetime
+    for (int i = 0; i < inputCount; i++) {
+        fShaderBuilder.child(fChildShaderNames[i].c_str()) = nullptr;
+    }
     fShaderBuilderLock.release();
 
     SkASSERT(shader.get());
@@ -196,6 +218,10 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
     return surf->makeImageSnapshot();
 }
 
+static bool child_is_shader(const SkRuntimeEffect::Child* child) {
+    return child && child->type == SkRuntimeEffect::ChildType::kShader;
+}
+
 sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
                                                    const char* childShaderName,
                                                    sk_sp<SkImageFilter> input) {
@@ -207,13 +233,32 @@ sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder&
             return nullptr;
         }
         childShaderName = children.front().name.c_str();
-    } else if (builder.effect()->findChild(childShaderName) == nullptr) {
-        // there was no child declared in the runtime effect that matches the provided name
-        return nullptr;
+    }
+
+    return SkImageFilters::RuntimeShader(builder, &childShaderName, &input, 1);
+}
+
+sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                                   const char* childShaderNames[],
+                                                   const sk_sp<SkImageFilter> inputs[],
+                                                   int inputCount) {
+    for (int i = 0; i < inputCount; i++) {
+        const char* name = childShaderNames[i];
+        // All names must be non-null, and present as a child shader in the effect:
+        if (!name || !child_is_shader(builder.effect()->findChild(name))) {
+            return nullptr;
+        }
+
+        // We don't allow duplicates, either:
+        for (int j = 0; j < i; j++) {
+            if (!strcmp(name, childShaderNames[j])) {
+                return nullptr;
+            }
+        }
     }
 
     return sk_sp<SkImageFilter>(
-            new SkRuntimeImageFilter(builder, childShaderName, std::move(input)));
+            new SkRuntimeImageFilter(builder, childShaderNames, inputs, inputCount));
 }
 
 #endif  // SK_ENABLE_SKSL
