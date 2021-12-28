@@ -545,6 +545,7 @@ linux_defines        = get_defines(js_linux)
 mac_defines          = get_defines(js_mac)
 win_defines          = get_defines(js_win)
 renderengine_defines = get_defines(js_renderengine)
+renderengine_defines.add('SK_IN_RENDERENGINE')
 
 def mkdir_if_not_exists(path):
   if not os.path.exists(path):
