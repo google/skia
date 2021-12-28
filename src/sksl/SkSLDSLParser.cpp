@@ -895,7 +895,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         }
         do {
             Token fieldName;
-            if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &fieldName)) {
+            if (!this->expectIdentifier(&fieldName)) {
                 return false;
             }
             DSLType actualType = *type;

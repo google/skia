@@ -1,7 +1,4 @@
+### Compilation failed:
 
-IB {
-    float float;
-} ib;
-vec4 main() {
-    return vec4(ib.float);
-}
+error: 2: expected an identifier, but found type 'float'
+1 error
