@@ -1,0 +1,7 @@
+struct S {
+    float f;
+} float;
+
+float4 main() {
+    return float.f.xxxx;
+}
