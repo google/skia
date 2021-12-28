@@ -1,0 +1,15 @@
+uniform half4 colorGreen, colorRed;
+
+struct S { int i; };
+
+half4 fnGreen(bool b, float2) {
+    return colorGreen;
+}
+
+half4 fnRed(int, float f, S) {
+    return colorRed;
+}
+
+half4 main(float2 coords) {
+    return bool(colorGreen.g) ? fnGreen(true, coords) : fnRed(123, 3.14, S(0));
+}

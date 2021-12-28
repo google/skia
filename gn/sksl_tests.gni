@@ -396,6 +396,7 @@ sksl_shared_tests = [
   "/sksl/shared/ForLoopControlFlow.sksl",
   "/sksl/shared/ForLoopMultipleInit.sksl",
   "/sksl/shared/FragCoords.sksl",
+  "/sksl/shared/FunctionAnonymousParameters.sksl",
   "/sksl/shared/FunctionArgTypeMatch.sksl",
   "/sksl/shared/FunctionReturnTypeMatch.sksl",
   "/sksl/shared/FunctionPrototype.sksl",
