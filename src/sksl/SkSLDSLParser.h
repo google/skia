@@ -89,6 +89,13 @@ private:
     bool checkNext(Token::Kind kind, Token* result = nullptr);
 
     /**
+     * Behaves like checkNext(TK_IDENTIFIER), but also verifies that identifier is not a builtin
+     * type. If the token was actually a builtin type, false is returned (the next token is not
+     * considered to be an identifier).
+     */
+    bool checkIdentifier(Token* result = nullptr);
+
+    /**
      * Reads the next non-whitespace token and generates an error if it is not the expected type.
      * The 'expected' string is part of the error message, which reads:
      *

@@ -1,7 +1,4 @@
+### Compilation failed:
 
-IB {
-    float f;
-} float;
-vec4 main() {
-    return vec4(float.f);
-}
+error: 3: expected ';', but found 'float'
+1 error

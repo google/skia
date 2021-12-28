@@ -212,6 +212,17 @@ bool DSLParser::expectIdentifier(Token* result) {
     return true;
 }
 
+bool DSLParser::checkIdentifier(Token* result) {
+    if (!this->checkNext(Token::Kind::TK_IDENTIFIER, result)) {
+        return false;
+    }
+    if (IsBuiltinType(this->text(*result))) {
+        this->pushback(std::move(*result));
+        return false;
+    }
+    return true;
+}
+
 skstd::string_view DSLParser::text(Token token) {
     return skstd::string_view(fText->data() + token.fOffset, token.fLength);
 }
@@ -645,9 +656,9 @@ SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& 
         return {};
     }
     Token name;
-    if (this->checkNext(Token::Kind::TK_IDENTIFIER, &name)) {
+    if (this->checkIdentifier(&name)) {
         this->globalVarDeclarationEnd(this->position(name), modifiers, std::move(*type),
-                this->text(name));
+                                      this->text(name));
     } else {
         this->expect(Token::Kind::TK_SEMICOLON, "';'");
     }
@@ -901,7 +912,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     skstd::string_view instanceName;
     Token instanceNameToken;
     SKSL_INT arraySize = 0;
-    if (this->checkNext(Token::Kind::TK_IDENTIFIER, &instanceNameToken)) {
+    if (this->checkIdentifier(&instanceNameToken)) {
         instanceName = this->text(instanceNameToken);
         if (this->checkNext(Token::Kind::TK_LBRACKET)) {
             arraySize = this->arraySize();
