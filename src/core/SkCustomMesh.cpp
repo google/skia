@@ -224,42 +224,36 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
         }
     }
 
-    std::unique_ptr<SkSL::Program> vsProgram;
-    std::unique_ptr<SkSL::Program> fsProgram;
-    {
-        // We keep this SharedCompiler in a separate scope to make sure it's destroyed before
-        // calling the Make overload at the end, which creates its own (non-reentrant)
-        // SharedCompiler instance
-        SkSL::SharedCompiler compiler;
-        SkSL::Program::Settings settings;
-        settings.fInlineThreshold = 0;
-        settings.fForceNoInline = true;
-        settings.fEnforceES2Restrictions = true;
-        vsProgram = compiler->convertProgram(SkSL::ProgramKind::kCustomMeshVertex,
-                                             SkSL::String(vs.c_str()),
-                                             settings);
-        if (!vsProgram) {
-            RETURN_FAILURE("VS: %s", compiler->errorText().c_str());
-        }
-        if (!has_main(*vsProgram)) {
-            RETURN_FAILURE("Vertex shader must have main function.");
-        }
-        if (SkSL::Analysis::CallsColorTransformIntrinsics(*vsProgram)) {
-            RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
-        }
+    SkSL::SharedCompiler compiler;
+    SkSL::Program::Settings settings;
+    settings.fEnforceES2Restrictions = true;
+    std::unique_ptr<SkSL::Program> vsProgram = compiler->convertProgram(
+            SkSL::ProgramKind::kCustomMeshVertex,
+            SkSL::String(vs.c_str()),
+            settings);
+    if (!vsProgram) {
+        RETURN_FAILURE("VS: %s", compiler->errorText().c_str());
+    }
+    if (!has_main(*vsProgram)) {
+        RETURN_FAILURE("Vertex shader must have main function.");
+    }
+    if (SkSL::Analysis::CallsColorTransformIntrinsics(*vsProgram)) {
+        RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
+    }
 
-        fsProgram = compiler->convertProgram(SkSL::ProgramKind::kCustomMeshFragment,
-                                             SkSL::String(fs.c_str()),
-                                             settings);
-        if (!fsProgram) {
-            RETURN_FAILURE("FS: %s", compiler->errorText().c_str());
-        }
-        if (!has_main(*fsProgram)) {
-            RETURN_FAILURE("Fragment shader must have main function.");
-        }
-        if (SkSL::Analysis::CallsColorTransformIntrinsics(*fsProgram)) {
-            RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
-        }
+    std::unique_ptr<SkSL::Program> fsProgram = compiler->convertProgram(
+            SkSL::ProgramKind::kCustomMeshFragment,
+            SkSL::String(fs.c_str()),
+            settings);
+
+    if (!fsProgram) {
+        RETURN_FAILURE("FS: %s", compiler->errorText().c_str());
+    }
+    if (!has_main(*fsProgram)) {
+        RETURN_FAILURE("Fragment shader must have main function.");
+    }
+    if (SkSL::Analysis::CallsColorTransformIntrinsics(*fsProgram)) {
+        RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
     }
 
     ColorType ct = color_type(*fsProgram);
