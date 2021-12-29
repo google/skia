@@ -74,9 +74,9 @@ public:
 
     /** Returns variables from a stack frame, or from global scope. */
     struct VariableData {
-        int      fSlotIndex;
-        bool     fDirty;  // has this slot been written-to since the last step call?
-        int32_t  fValue;  // caller must type-pun bits to float/bool based on slot type
+        int     fSlotIndex;
+        bool    fDirty;  // has this slot been written-to since the last step call?
+        double  fValue;  // value in slot (with type-conversion applied)
     };
     std::vector<VariableData> getLocalVariables(int stackFrameIndex) const;
     std::vector<VariableData> getGlobalVariables() const;

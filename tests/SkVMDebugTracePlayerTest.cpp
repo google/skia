@@ -76,18 +76,15 @@ static std::string make_vars_string(
         text += slot.name;
         text += trace.getSlotComponentSuffix(var.fSlotIndex);
         text += " = ";
-        text += trace.getSlotValue(var.fSlotIndex, var.fValue);
+        text += trace.slotValueToString(var.fSlotIndex, var.fValue);
     }
 
     return text;
 }
 
 static std::string make_local_vars_string(const SkSL::SkVMDebugTrace& trace,
-                                          const SkSL::SkVMDebugTracePlayer& player,
-                                          int frame = -1) {
-    if (frame == -1) {
-        frame = player.getStackDepth() - 1;
-    }
+                                          const SkSL::SkVMDebugTracePlayer& player) {
+    int frame = player.getStackDepth() - 1;
     return make_vars_string(trace, player.getLocalVariables(frame));
 }
 

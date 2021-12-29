@@ -254,7 +254,8 @@ void SkSLDebuggerSlide::showVariableTable() {
                     ImGui::Text("%s%s", slotInfo.name.c_str(),
                                         fTrace->getSlotComponentSuffix(var.fSlotIndex).c_str());
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::Text("%s", fTrace->getSlotValue(var.fSlotIndex, var.fValue).c_str());
+                    ImGui::Text("%s",
+                                fTrace->slotValueToString(var.fSlotIndex, var.fValue).c_str());
                 }
             }
         }

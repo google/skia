@@ -135,12 +135,13 @@ int SkVMDebugTracePlayer::getStackDepth() const {
 }
 
 std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getVariablesForDisplayMask(
-        const SkBitSet& bits) const {
-    SkASSERT(bits.size() == fSlots.size());
+        const SkBitSet& displayMask) const {
+    SkASSERT(displayMask.size() == fSlots.size());
 
     std::vector<VariableData> vars;
-    bits.forEachSetIndex([&](int slot) {
-        vars.push_back({slot, fDirtyMask->test(slot), fSlots[slot].fValue});
+    displayMask.forEachSetIndex([&](int slot) {
+        double typedValue = fDebugTrace->interpretValueBits(slot, fSlots[slot].fValue);
+        vars.push_back({slot, fDirtyMask->test(slot), typedValue});
     });
     // Order the variable list so that the most recently-written variables are shown at the top.
     std::stable_sort(vars.begin(), vars.end(), [&](const VariableData& a, const VariableData& b) {

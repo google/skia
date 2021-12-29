@@ -24,40 +24,55 @@ std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const {
     }
     if (slot.columns > 1) {
         switch (slot.componentIndex) {
-            case 0:  return ".x"; break;
-            case 1:  return ".y"; break;
-            case 2:  return ".z"; break;
-            case 3:  return ".w"; break;
-            default: return "[???]"; break;
+            case 0:  return ".x";
+            case 1:  return ".y";
+            case 2:  return ".z";
+            case 3:  return ".w";
+            default: return "[???]";
         }
     }
     return {};
 }
 
-std::string SkVMDebugTrace::getSlotValue(int slotIndex, int32_t value) const {
-    const SkSL::SkVMSlotInfo& slot = fSlotInfo[slotIndex];
-    switch (slot.numberKind) {
-        case SkSL::Type::NumberKind::kBoolean:
-            return value ? "true" : "false";
-
-        case SkSL::Type::NumberKind::kSigned:
-        default:
-            return std::to_string(value);
-
+double SkVMDebugTrace::interpretValueBits(int slotIndex, int32_t valueBits) const {
+    SkASSERT(slotIndex >= 0);
+    SkASSERT((size_t)slotIndex < fSlotInfo.size());
+    switch (fSlotInfo[slotIndex].numberKind) {
         case SkSL::Type::NumberKind::kUnsigned: {
-            uint32_t unsignedVal;
-            memcpy(&unsignedVal, &value, sizeof(unsignedVal));
-            return std::to_string(unsignedVal);
+            uint32_t uintValue;
+            static_assert(sizeof(uintValue) == sizeof(valueBits));
+            memcpy(&uintValue, &valueBits, sizeof(uintValue));
+            return uintValue;
         }
         case SkSL::Type::NumberKind::kFloat: {
-            float floatVal;
-            static_assert(sizeof(floatVal) == sizeof(value));
-            memcpy(&floatVal, &value, sizeof(floatVal));
+            float floatValue;
+            static_assert(sizeof(floatValue) == sizeof(valueBits));
+            memcpy(&floatValue, &valueBits, sizeof(floatValue));
+            return floatValue;
+        }
+        default: {
+            return valueBits;
+        }
+    }
+}
+
+std::string SkVMDebugTrace::slotValueToString(int slotIndex, double value) const {
+    SkASSERT(slotIndex >= 0);
+    SkASSERT((size_t)slotIndex < fSlotInfo.size());
+    switch (fSlotInfo[slotIndex].numberKind) {
+        case SkSL::Type::NumberKind::kBoolean: {
+            return value ? "true" : "false";
+        }
+        default: {
             char buffer[32];
-            snprintf(buffer, SK_ARRAY_COUNT(buffer), "%.8g", floatVal);
+            snprintf(buffer, SK_ARRAY_COUNT(buffer), "%.8g", value);
             return buffer;
         }
     }
+}
+
+std::string SkVMDebugTrace::getSlotValue(int slotIndex, int32_t valueBits) const {
+    return this->slotValueToString(slotIndex, this->interpretValueBits(slotIndex, valueBits));
 }
 
 void SkVMDebugTrace::setTraceCoord(const SkIPoint& coord) {
