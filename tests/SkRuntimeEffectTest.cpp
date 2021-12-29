@@ -596,6 +596,111 @@ exit half4 main(float2 p)
     }
 }
 
+DEF_TEST(SkRuntimeEffectTracesAreUnoptimized, r) {
+    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+    REPORTER_ASSERT(r, surface);
+    TestEffect effect(r, surface);
+
+    effect.build(R"(
+        int globalUnreferencedVar = 7;
+        half inlinableFunction() {
+            return 1;
+        }
+        half4 main(float2 p) {
+            if (true) {
+                int localUnreferencedVar = 7;
+            }
+            return inlinableFunction().xxxx;
+        }
+    )");
+    std::string dump = effect.trace({1, 1});
+    constexpr char kExpectation[] = R"($0 = globalUnreferencedVar (int, L2)
+$1 = [main].result (float4 : slot 1/4, L6)
+$2 = [main].result (float4 : slot 2/4, L6)
+$3 = [main].result (float4 : slot 3/4, L6)
+$4 = [main].result (float4 : slot 4/4, L6)
+$5 = p (float2 : slot 1/2, L6)
+$6 = p (float2 : slot 2/2, L6)
+$7 = localUnreferencedVar (int, L8)
+$8 = [inlinableFunction].result (float, L3)
+F0 = half4 main(float2 p)
+F1 = half inlinableFunction()
+
+globalUnreferencedVar = 7
+enter half4 main(float2 p)
+  p.x = 1.5
+  p.y = 1.5
+  scope +1
+   line 7
+   scope +1
+    line 8
+    localUnreferencedVar = 7
+   scope -1
+   line 10
+   enter half inlinableFunction()
+     scope +1
+      line 4
+      [inlinableFunction].result = 1
+     scope -1
+   exit half inlinableFunction()
+   [main].result.x = 1
+   [main].result.y = 1
+   [main].result.z = 1
+   [main].result.w = 1
+  scope -1
+exit half4 main(float2 p)
+)";
+    REPORTER_ASSERT(r, dump == kExpectation,
+                    "Trace output does not match expectation:\n%.*s\n",
+                    (int)dump.size(), dump.data());
+}
+
+DEF_TEST(SkRuntimeEffectTraceCodeThatCannotBeUnoptimized, r) {
+    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+    REPORTER_ASSERT(r, surface);
+    TestEffect effect(r, surface);
+
+    effect.build(R"(
+        half4 main(float2 p) {
+            int variableThatGetsOptimizedAway = 7;
+            if (true) {
+                return half4(1);
+            }
+            // This (unreachable) path doesn't return a value.
+            // Without optimization, SkSL thinks this code doesn't return a value on every path.
+        }
+    )");
+    std::string dump = effect.trace({1, 1});
+    constexpr char kExpectation[] = R"($0 = [main].result (float4 : slot 1/4, L2)
+$1 = [main].result (float4 : slot 2/4, L2)
+$2 = [main].result (float4 : slot 3/4, L2)
+$3 = [main].result (float4 : slot 4/4, L2)
+$4 = p (float2 : slot 1/2, L2)
+$5 = p (float2 : slot 2/2, L2)
+F0 = half4 main(float2 p)
+
+enter half4 main(float2 p)
+  p.x = 1.5
+  p.y = 1.5
+  scope +1
+   line 4
+   scope +1
+    line 5
+    [main].result.x = 1
+    [main].result.y = 1
+    [main].result.z = 1
+    [main].result.w = 1
+   scope -1
+  scope -1
+exit half4 main(float2 p)
+)";
+    REPORTER_ASSERT(r, dump == kExpectation,
+                    "Trace output does not match expectation:\n%.*s\n",
+                    (int)dump.size(), dump.data());
+}
+
 static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContext* rContext) {
     SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> surface = rContext

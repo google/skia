@@ -35,6 +35,7 @@ class DebugTrace;
 class FunctionDefinition;
 struct Program;
 enum class ProgramKind : int8_t;
+struct ProgramSettings;
 }  // namespace SkSL
 
 namespace skvm {
@@ -271,6 +272,8 @@ private:
                     std::vector<SkSL::SampleUsage>&& sampleUsages,
                     uint32_t flags);
 
+    sk_sp<SkRuntimeEffect> makeUnoptimizedClone();
+
     static Result MakeFromSource(SkString sksl, const Options& options, SkSL::ProgramKind kind);
 
     static Result MakeFromDSL(std::unique_ptr<SkSL::Program> program,
@@ -280,6 +283,8 @@ private:
     static Result MakeInternal(std::unique_ptr<SkSL::Program> program,
                                const Options& options,
                                SkSL::ProgramKind kind);
+
+    static SkSL::ProgramSettings MakeSettings(const Options& options, bool optimize);
 
     uint32_t hash() const { return fHash; }
     bool usesSampleCoords()   const { return (fFlags & kUsesSampleCoords_Flag);   }
