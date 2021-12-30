@@ -78,7 +78,7 @@ std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context
     SkASSERT(type.rows() == arg->type().rows());
 
     // If this is a no-op cast, return the expression as-is.
-    if (type == arg->type()) {
+    if (type.matches(arg->type())) {
         return arg;
     }
     // Look up the value of constant variables. This allows constant-expressions like

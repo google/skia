@@ -49,7 +49,7 @@ std::unique_ptr<Expression> ConstructorStruct::Convert(const Context& context,
     for (int index = 0; index < args.count(); ++index) {
         const std::unique_ptr<Expression>& argument = args[index];
         const Type::Field& field = type.fields()[index];
-        if (argument->type() != *field.fType) {
+        if (!argument->type().matches(*field.fType)) {
             return false;
         }
     }

@@ -1035,7 +1035,7 @@ Value SkVMGenerator::writeConstructorSplat(const ConstructorSplat& c) {
 Value SkVMGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& ctor) {
     const Type& dstType = ctor.type();
     SkASSERT(dstType.isMatrix());
-    SkASSERT(ctor.argument()->type() == dstType.componentType());
+    SkASSERT(ctor.argument()->type().matches(dstType.componentType()));
 
     Value src = this->writeExpression(*ctor.argument());
     Value dst(dstType.rows() * dstType.columns());
@@ -1225,29 +1225,29 @@ Value SkVMGenerator::writeChildCall(const ChildCall& c) {
     switch (c.child().type().typeKind()) {
         case Type::TypeKind::kShader: {
             SkASSERT(c.arguments().size() == 1);
-            SkASSERT(arg->type() == *fProgram.fContext->fTypes.fFloat2);
+            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fFloat2));
             skvm::Coord coord = {f32(argVal[0]), f32(argVal[1])};
             color = fCallbacks->sampleShader(child_it->second, coord);
             break;
         }
         case Type::TypeKind::kColorFilter: {
             SkASSERT(c.arguments().size() == 1);
-            SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                     arg->type() == *fProgram.fContext->fTypes.fFloat4);
+            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
             skvm::Color inColor = {f32(argVal[0]), f32(argVal[1]), f32(argVal[2]), f32(argVal[3])};
             color = fCallbacks->sampleColorFilter(child_it->second, inColor);
             break;
         }
         case Type::TypeKind::kBlender: {
             SkASSERT(c.arguments().size() == 2);
-            SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                     arg->type() == *fProgram.fContext->fTypes.fFloat4);
+            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
             skvm::Color srcColor = {f32(argVal[0]), f32(argVal[1]), f32(argVal[2]), f32(argVal[3])};
 
             arg = c.arguments()[1].get();
             argVal = this->writeExpression(*arg);
-            SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                     arg->type() == *fProgram.fContext->fTypes.fFloat4);
+            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
             skvm::Color dstColor = {f32(argVal[0]), f32(argVal[1]), f32(argVal[2]), f32(argVal[3])};
 
             color = fCallbacks->sampleBlender(child_it->second, srcColor, dstColor);

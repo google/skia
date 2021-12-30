@@ -97,7 +97,7 @@ protected:
             SkASSERT(arguments.size() >= 1);
 
             const Expression* maybeCoords = arguments[0].get();
-            if (maybeCoords->type() == *fContext.fTypes.fFloat2) {
+            if (maybeCoords->type().matches(*fContext.fTypes.fFloat2)) {
                 // If the coords are a direct reference to the program's sample-coords, and those
                 // coords are never modified, we can conservatively turn this into PassThrough
                 // sampling. In all other cases, we consider it Explicit.
@@ -426,7 +426,7 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
 }
 
 bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& right) {
-    if (left.kind() != right.kind() || left.type() != right.type()) {
+    if (left.kind() != right.kind() || !left.type().matches(right.type())) {
         return false;
     }
 
@@ -593,7 +593,7 @@ void Analysis::VerifyStaticTestsAndExpressions(const Program& program) {
                     fContext.fErrors->error(expr.fLine, "invalid expression");
                     break;
                 default:
-                    if (expr.type() == *fContext.fTypes.fInvalid) {
+                    if (expr.type().matches(*fContext.fTypes.fInvalid)) {
                         fContext.fErrors->error(expr.fLine, "invalid expression");
                     }
                     break;

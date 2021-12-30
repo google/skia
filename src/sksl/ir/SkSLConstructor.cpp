@@ -33,7 +33,7 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
     if (args.size() == 1) {
         std::unique_ptr<Expression>& argument = args.front();
         if (type.isVector() && argument->type().isVector() &&
-            argument->type().componentType() == type.componentType() &&
+            argument->type().componentType().matches(type.componentType()) &&
             argument->type().slotCount() > type.slotCount()) {
             // Casting a vector-type into a smaller matching vector-type is a slice in GLSL.
             // We don't allow those casts in SkSL; recommend a swizzle instead.
@@ -151,7 +151,7 @@ std::unique_ptr<Expression> Constructor::Convert(const Context& context,
                                                  int line,
                                                  const Type& type,
                                                  ExpressionArray args) {
-    if (args.size() == 1 && args[0]->type() == type && !type.componentType().isOpaque()) {
+    if (args.size() == 1 && args[0]->type().matches(type) && !type.componentType().isOpaque()) {
         // Don't generate redundant casts; if the expression is already of the correct type, just
         // return it as-is.
         return std::move(args[0]);

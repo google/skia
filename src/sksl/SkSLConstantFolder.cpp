@@ -88,7 +88,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
                                                    Operator op,
                                                    const Expression& right) {
     SkASSERT(left.type().isVector());
-    SkASSERT(left.type() == right.type());
+    SkASSERT(left.type().matches(right.type()));
     const Type& type = left.type();
 
     // Handle equality operations: == !=
@@ -501,7 +501,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     }
 
     // Perform constant folding on pairs of vectors.
-    if (leftType.isVector() && leftType == rightType) {
+    if (leftType.isVector() && leftType.matches(rightType)) {
         if (leftType.componentType().isFloat()) {
             return simplify_vector(context, *left, op, *right);
         }
@@ -515,7 +515,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     }
 
     // Perform constant folding on vectors against scalars, e.g.: half4(2) + 2
-    if (leftType.isVector() && leftType.componentType() == rightType) {
+    if (leftType.isVector() && leftType.componentType().matches(rightType)) {
         if (rightType.isFloat()) {
             return simplify_vector(context, *left, op, ConstructorSplat(*right, left->type()));
         }
@@ -530,7 +530,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     }
 
     // Perform constant folding on scalars against vectors, e.g.: 2 + half4(2)
-    if (rightType.isVector() && rightType.componentType() == leftType) {
+    if (rightType.isVector() && rightType.componentType().matches(leftType)) {
         if (leftType.isFloat()) {
             return simplify_vector(context, ConstructorSplat(*left, right->type()), op, *right);
         }

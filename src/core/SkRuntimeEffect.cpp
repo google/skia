@@ -64,25 +64,25 @@ static bool init_uniform_type(const SkSL::Context& ctx,
                               const SkSL::Type* type,
                               SkRuntimeEffect::Uniform* v) {
     using Type = SkRuntimeEffect::Uniform::Type;
-    if (*type == *ctx.fTypes.fFloat)    { v->type = Type::kFloat;    return true; }
-    if (*type == *ctx.fTypes.fHalf)     { v->type = Type::kFloat;    return true; }
-    if (*type == *ctx.fTypes.fFloat2)   { v->type = Type::kFloat2;   return true; }
-    if (*type == *ctx.fTypes.fHalf2)    { v->type = Type::kFloat2;   return true; }
-    if (*type == *ctx.fTypes.fFloat3)   { v->type = Type::kFloat3;   return true; }
-    if (*type == *ctx.fTypes.fHalf3)    { v->type = Type::kFloat3;   return true; }
-    if (*type == *ctx.fTypes.fFloat4)   { v->type = Type::kFloat4;   return true; }
-    if (*type == *ctx.fTypes.fHalf4)    { v->type = Type::kFloat4;   return true; }
-    if (*type == *ctx.fTypes.fFloat2x2) { v->type = Type::kFloat2x2; return true; }
-    if (*type == *ctx.fTypes.fHalf2x2)  { v->type = Type::kFloat2x2; return true; }
-    if (*type == *ctx.fTypes.fFloat3x3) { v->type = Type::kFloat3x3; return true; }
-    if (*type == *ctx.fTypes.fHalf3x3)  { v->type = Type::kFloat3x3; return true; }
-    if (*type == *ctx.fTypes.fFloat4x4) { v->type = Type::kFloat4x4; return true; }
-    if (*type == *ctx.fTypes.fHalf4x4)  { v->type = Type::kFloat4x4; return true; }
+    if (type->matches(*ctx.fTypes.fFloat))    { v->type = Type::kFloat;    return true; }
+    if (type->matches(*ctx.fTypes.fHalf))     { v->type = Type::kFloat;    return true; }
+    if (type->matches(*ctx.fTypes.fFloat2))   { v->type = Type::kFloat2;   return true; }
+    if (type->matches(*ctx.fTypes.fHalf2))    { v->type = Type::kFloat2;   return true; }
+    if (type->matches(*ctx.fTypes.fFloat3))   { v->type = Type::kFloat3;   return true; }
+    if (type->matches(*ctx.fTypes.fHalf3))    { v->type = Type::kFloat3;   return true; }
+    if (type->matches(*ctx.fTypes.fFloat4))   { v->type = Type::kFloat4;   return true; }
+    if (type->matches(*ctx.fTypes.fHalf4))    { v->type = Type::kFloat4;   return true; }
+    if (type->matches(*ctx.fTypes.fFloat2x2)) { v->type = Type::kFloat2x2; return true; }
+    if (type->matches(*ctx.fTypes.fHalf2x2))  { v->type = Type::kFloat2x2; return true; }
+    if (type->matches(*ctx.fTypes.fFloat3x3)) { v->type = Type::kFloat3x3; return true; }
+    if (type->matches(*ctx.fTypes.fHalf3x3))  { v->type = Type::kFloat3x3; return true; }
+    if (type->matches(*ctx.fTypes.fFloat4x4)) { v->type = Type::kFloat4x4; return true; }
+    if (type->matches(*ctx.fTypes.fHalf4x4))  { v->type = Type::kFloat4x4; return true; }
 
-    if (*type == *ctx.fTypes.fInt)  { v->type = Type::kInt;  return true; }
-    if (*type == *ctx.fTypes.fInt2) { v->type = Type::kInt2; return true; }
-    if (*type == *ctx.fTypes.fInt3) { v->type = Type::kInt3; return true; }
-    if (*type == *ctx.fTypes.fInt4) { v->type = Type::kInt4; return true; }
+    if (type->matches(*ctx.fTypes.fInt))  { v->type = Type::kInt;  return true; }
+    if (type->matches(*ctx.fTypes.fInt2)) { v->type = Type::kInt2; return true; }
+    if (type->matches(*ctx.fTypes.fInt3)) { v->type = Type::kInt3; return true; }
+    if (type->matches(*ctx.fTypes.fInt4)) { v->type = Type::kInt4; return true; }
 
     return false;
 }

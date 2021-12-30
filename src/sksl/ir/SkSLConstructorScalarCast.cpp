@@ -33,7 +33,7 @@ std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& contex
         // Casting a vector-type into its scalar component type is treated as a slice in GLSL.
         // We don't allow those casts in SkSL; recommend a .x swizzle instead.
         const char* swizzleHint = "";
-        if (argType.componentType() == type) {
+        if (argType.componentType().matches(type)) {
             if (argType.isVector()) {
                 swizzleHint = "; use '.x' instead";
             } else if (argType.isMatrix()) {
@@ -62,7 +62,7 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
     SkASSERT(arg->type().isScalar());
 
     // No cast required when the types match.
-    if (arg->type() == type) {
+    if (arg->type().matches(type)) {
         return arg;
     }
     // Look up the value of constant variables. This allows constant-expressions like `int(zero)` to

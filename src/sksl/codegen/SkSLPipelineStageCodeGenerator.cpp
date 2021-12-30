@@ -175,23 +175,23 @@ void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
         switch (c.child().type().typeKind()) {
             case Type::TypeKind::kShader: {
                 SkASSERT(arguments.size() == 1);
-                SkASSERT(arguments[0]->type() == *fProgram.fContext->fTypes.fFloat2);
+                SkASSERT(arguments[0]->type().matches(*fProgram.fContext->fTypes.fFloat2));
                 sampleOutput = fCallbacks->sampleShader(index, exprBuffer.fBuffer.str());
                 break;
             }
             case Type::TypeKind::kColorFilter: {
                 SkASSERT(arguments.size() == 1);
-                SkASSERT(arguments[0]->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                         arguments[0]->type() == *fProgram.fContext->fTypes.fFloat4);
+                SkASSERT(arguments[0]->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                         arguments[0]->type().matches(*fProgram.fContext->fTypes.fFloat4));
                 sampleOutput = fCallbacks->sampleColorFilter(index, exprBuffer.fBuffer.str());
                 break;
             }
             case Type::TypeKind::kBlender: {
                 SkASSERT(arguments.size() == 2);
-                SkASSERT(arguments[0]->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                         arguments[0]->type() == *fProgram.fContext->fTypes.fFloat4);
-                SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                         arguments[1]->type() == *fProgram.fContext->fTypes.fFloat4);
+                SkASSERT(arguments[0]->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                         arguments[0]->type().matches(*fProgram.fContext->fTypes.fFloat4));
+                SkASSERT(arguments[1]->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                         arguments[1]->type().matches(*fProgram.fContext->fTypes.fFloat4));
 
                 AutoOutputBuffer exprBuffer2(this);
                 this->writeExpression(*arguments[1], Precedence::kSequence);

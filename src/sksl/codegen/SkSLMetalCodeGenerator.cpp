@@ -1711,10 +1711,10 @@ void MetalCodeGenerator::writeLiteral(const Literal& l) {
         return;
     }
     if (type.isInteger()) {
-        if (type == *fContext.fTypes.fUInt) {
+        if (type.matches(*fContext.fTypes.fUInt)) {
             this->write(to_string(l.intValue() & 0xffffffff));
             this->write("u");
-        } else if (type == *fContext.fTypes.fUShort) {
+        } else if (type.matches(*fContext.fTypes.fUShort)) {
             this->write(to_string(l.intValue() & 0xffff));
             this->write("u");
         } else {
@@ -2234,7 +2234,7 @@ void MetalCodeGenerator::writeReturnStatementFromMain() {
 void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     if (fCurrentFunction && fCurrentFunction->isMain()) {
         if (r.expression()) {
-            if (r.expression()->type() == *fContext.fTypes.fHalf4) {
+            if (r.expression()->type().matches(*fContext.fTypes.fHalf4)) {
                 this->write("_out.sk_FragColor = ");
                 this->writeExpression(*r.expression(), Precedence::kTopLevel);
                 this->writeLine(";");

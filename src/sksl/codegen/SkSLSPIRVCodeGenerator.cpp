@@ -532,13 +532,13 @@ const Type& SPIRVCodeGenerator::getActualType(const Type& type) {
         return *fContext.fTypes.fUInt;
     }
     if (type.isMatrix() || type.isVector()) {
-        if (type.componentType() == *fContext.fTypes.fHalf) {
+        if (type.componentType().matches(*fContext.fTypes.fHalf)) {
             return fContext.fTypes.fFloat->toCompound(fContext, type.columns(), type.rows());
         }
-        if (type.componentType() == *fContext.fTypes.fShort) {
+        if (type.componentType().matches(*fContext.fTypes.fShort)) {
             return fContext.fTypes.fInt->toCompound(fContext, type.columns(), type.rows());
         }
-        if (type.componentType() == *fContext.fTypes.fUShort) {
+        if (type.componentType().matches(*fContext.fTypes.fUShort)) {
             return fContext.fTypes.fUInt->toCompound(fContext, type.columns(), type.rows());
         }
     }
@@ -1036,24 +1036,24 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             const Type& arg1Type = arguments[1]->type();
             switch (arguments[0]->type().dimensions()) {
                 case SpvDim1D:
-                    if (arg1Type == *fContext.fTypes.fFloat2) {
+                    if (arg1Type.matches(*fContext.fTypes.fFloat2)) {
                         op = SpvOpImageSampleProjImplicitLod;
                     } else {
-                        SkASSERT(arg1Type == *fContext.fTypes.fFloat);
+                        SkASSERT(arg1Type.matches(*fContext.fTypes.fFloat));
                     }
                     break;
                 case SpvDim2D:
-                    if (arg1Type == *fContext.fTypes.fFloat3) {
+                    if (arg1Type.matches(*fContext.fTypes.fFloat3)) {
                         op = SpvOpImageSampleProjImplicitLod;
                     } else {
-                        SkASSERT(arg1Type == *fContext.fTypes.fFloat2);
+                        SkASSERT(arg1Type.matches(*fContext.fTypes.fFloat2));
                     }
                     break;
                 case SpvDim3D:
-                    if (arg1Type == *fContext.fTypes.fFloat4) {
+                    if (arg1Type.matches(*fContext.fTypes.fFloat4)) {
                         op = SpvOpImageSampleProjImplicitLod;
                     } else {
-                        SkASSERT(arg1Type == *fContext.fTypes.fFloat3);
+                        SkASSERT(arg1Type.matches(*fContext.fTypes.fFloat3));
                     }
                     break;
                 case SpvDimCube:   // fall through
@@ -1509,7 +1509,7 @@ SpvId SPIRVCodeGenerator::writeMatrixCopy(SpvId src, const Type& srcType, const 
                                           OutputStream& out) {
     SkASSERT(srcType.isMatrix());
     SkASSERT(dstType.isMatrix());
-    SkASSERT(srcType.componentType() == dstType.componentType());
+    SkASSERT(srcType.componentType().matches(dstType.componentType()));
     SpvId id = this->nextId(&dstType);
     SpvId srcColumnType = this->getType(srcType.componentType().toCompound(fContext,
                                                                            srcType.rows(),
@@ -1673,7 +1673,7 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
     arguments.reserve(c.arguments().size());
     for (size_t i = 0; i < c.arguments().size(); i++) {
         const Type& argType = c.arguments()[i]->type();
-        SkASSERT(componentType == argType.componentType());
+        SkASSERT(componentType.matches(argType.componentType()));
 
         SpvId arg = this->writeExpression(*c.arguments()[i], out);
         if (argType.isMatrix()) {
@@ -1751,7 +1751,7 @@ SpvId SPIRVCodeGenerator::writeCompositeConstructor(const AnyConstructor& c, Out
 SpvId SPIRVCodeGenerator::writeConstructorScalarCast(const ConstructorScalarCast& c,
                                                      OutputStream& out) {
     const Type& type = c.type();
-    if (this->getActualType(type) == this->getActualType(c.argument()->type())) {
+    if (this->getActualType(type).matches(this->getActualType(c.argument()->type()))) {
         return this->writeExpression(*c.argument(), out);
     }
 
@@ -1768,7 +1768,7 @@ SpvId SPIRVCodeGenerator::writeConstructorCompoundCast(const ConstructorCompound
 
     // Write the composite that we are casting. If the actual type matches, we are done.
     SpvId compositeId = this->writeExpression(*c.argument(), out);
-    if (this->getActualType(ctorType) == this->getActualType(argType)) {
+    if (this->getActualType(ctorType).matches(this->getActualType(argType))) {
         return compositeId;
     }
 
@@ -2334,7 +2334,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
     const Type* operandType;
     // IR allows mismatched types in expressions (e.g. float2 * float), but they need special
     // handling in SPIR-V
-    if (this->getActualType(leftType) != this->getActualType(rightType)) {
+    if (!this->getActualType(leftType).matches(this->getActualType(rightType))) {
         if (leftType.isVector() && rightType.isNumber()) {
             if (resultType.componentType().isFloat()) {
                 switch (op.kind()) {
@@ -2441,7 +2441,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         }
     } else {
         operandType = &this->getActualType(leftType);
-        SkASSERT(*operandType == this->getActualType(rightType));
+        SkASSERT(operandType->matches(this->getActualType(rightType)));
     }
     switch (op.kind()) {
         case Token::Kind::TK_EQEQ: {
@@ -2517,14 +2517,14 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                               SpvOpULessThanEqual, SpvOpUndef, out);
         case Token::Kind::TK_PLUS:
             if (leftType.isMatrix() && rightType.isMatrix()) {
-                SkASSERT(leftType == rightType);
+                SkASSERT(leftType.matches(rightType));
                 return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFAdd, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFAdd,
                                               SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
         case Token::Kind::TK_MINUS:
             if (leftType.isMatrix() && rightType.isMatrix()) {
-                SkASSERT(leftType == rightType);
+                SkASSERT(leftType.matches(rightType));
                 return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFSub, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFSub,
@@ -2541,7 +2541,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                               SpvOpIMul, SpvOpIMul, SpvOpUndef, out);
         case Token::Kind::TK_SLASH:
             if (leftType.isMatrix() && rightType.isMatrix()) {
-                SkASSERT(leftType == rightType);
+                SkASSERT(leftType.matches(rightType));
                 return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFDiv, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFDiv,
@@ -3377,14 +3377,14 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     auto skFragColorRef = std::make_unique<VariableReference>(/*line=*/-1, &skFragColorVar,
                                                               VariableReference::RefKind::kWrite);
     // Synthesize a call to the `main()` function.
-    if (main.returnType() != skFragColorRef->type()) {
+    if (!main.returnType().matches(skFragColorRef->type())) {
         fContext.fErrors->error(main.fLine, "SPIR-V does not support returning '" +
                                             main.returnType().description() + "' from main()");
         return {};
     }
     ExpressionArray args;
     if (main.parameters().size() == 1) {
-        if (main.parameters()[0]->type() != *fContext.fTypes.fFloat2) {
+        if (!main.parameters()[0]->type().matches(*fContext.fTypes.fFloat2)) {
             fContext.fErrors->error(main.fLine,
                     "SPIR-V does not support parameter of type '" +
                     main.parameters()[0]->type().description() + "' to main()");
@@ -3588,7 +3588,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     // If main() returns a half4, synthesize a tiny entrypoint function which invokes the real
     // main() and stores the result into sk_FragColor.
     EntrypointAdapter adapter;
-    if (main->returnType() == *fContext.fTypes.fHalf4) {
+    if (main->returnType().matches(*fContext.fTypes.fHalf4)) {
         adapter = this->writeEntrypointAdapter(*main);
         if (adapter.entrypointDecl) {
             fFunctionMap[adapter.entrypointDecl.get()] = this->nextId(nullptr);

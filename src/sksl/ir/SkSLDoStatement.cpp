@@ -35,7 +35,7 @@ std::unique_ptr<Statement> DoStatement::Make(const Context& context,
                                              std::unique_ptr<Statement> stmt,
                                              std::unique_ptr<Expression> test) {
     SkASSERT(!context.fConfig->strictES2Mode());
-    SkASSERT(test->type() == *context.fTypes.fBool);
+    SkASSERT(test->type().matches(*context.fTypes.fBool));
     SkASSERT(!Analysis::DetectVarDeclarationWithoutScope(*stmt));
     return std::make_unique<DoStatement>(stmt->fLine, std::move(stmt), std::move(test));
 }

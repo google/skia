@@ -206,12 +206,8 @@ public:
         return this->name().starts_with("$");
     }
 
-    bool operator==(const Type& other) const {
+    bool matches(const Type& other) const {
         return this->name() == other.name();
-    }
-
-    bool operator!=(const Type& other) const {
-        return this->name() != other.name();
     }
 
     /**

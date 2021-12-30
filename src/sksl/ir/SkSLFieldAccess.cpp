@@ -53,7 +53,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
             }
         }
     }
-    if (baseType == *context.fTypes.fSkCaps) {
+    if (baseType.matches(*context.fTypes.fSkCaps)) {
         return Setting::Convert(context, base->fLine, field);
     }
 

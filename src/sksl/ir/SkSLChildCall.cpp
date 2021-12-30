@@ -60,7 +60,7 @@ String ChildCall::description() const {
         return false;
     }
     for (size_t i = 0; i < arguments.size(); i++) {
-        if (arguments[i]->type() != *params[i]) {
+        if (!arguments[i]->type().matches(*params[i])) {
             return false;
         }
     }

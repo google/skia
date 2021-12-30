@@ -44,7 +44,7 @@ void FindAndDeclareBuiltinVariables(const Context& context,
                 // We synthesize writes to sk_FragColor if main() returns a color, even if it's
                 // otherwise unreferenced. Check main's return type to see if it's half4.
                 if (funcDef.declaration().isMain() &&
-                    funcDef.declaration().returnType() == *fContext.fTypes.fHalf4) {
+                    funcDef.declaration().returnType().matches(*fContext.fTypes.fHalf4)) {
                     fPreserveFragColor = true;
                 }
             }

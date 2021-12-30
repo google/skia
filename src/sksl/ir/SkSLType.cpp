@@ -479,7 +479,7 @@ std::unique_ptr<Type> Type::MakeVectorType(skstd::string_view name, const char* 
 }
 
 CoercionCost Type::coercionCost(const Type& other) const {
-    if (*this == other) {
+    if (this->matches(other)) {
         return CoercionCost::Free();
     }
     if (this->typeKind() == other.typeKind() &&
@@ -507,7 +507,7 @@ CoercionCost Type::coercionCost(const Type& other) const {
     if (fTypeKind == TypeKind::kGeneric) {
         const std::vector<const Type*>& types = this->coercibleTypes();
         for (size_t i = 0; i < types.size(); i++) {
-            if (*types[i] == other) {
+            if (types[i]->matches(other)) {
                 return CoercionCost::Normal((int) i + 1);
             }
         }
@@ -591,7 +591,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
     if (columns == 1 && rows == 1) {
         return *this;
     }
-    if (*this == *context.fTypes.fFloat || *this == *context.fTypes.fFloatLiteral) {
+    if (this->matches(*context.fTypes.fFloat) || this->matches(*context.fTypes.fFloatLiteral)) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -624,7 +624,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: SK_ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fTypes.fHalf) {
+    } else if (this->matches(*context.fTypes.fHalf)) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -657,7 +657,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: SK_ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fTypes.fInt || *this == *context.fTypes.fIntLiteral) {
+    } else if (this->matches(*context.fTypes.fInt) || this->matches(*context.fTypes.fIntLiteral)) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -669,7 +669,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: SK_ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fTypes.fShort) {
+    } else if (this->matches(*context.fTypes.fShort)) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -681,7 +681,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: SK_ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fTypes.fUInt) {
+    } else if (this->matches(*context.fTypes.fUInt)) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -693,7 +693,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: SK_ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fTypes.fUShort) {
+    } else if (this->matches(*context.fTypes.fUShort)) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -705,7 +705,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: SK_ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fTypes.fBool) {
+    } else if (this->matches(*context.fTypes.fBool)) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -755,7 +755,7 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     if (!expr || expr->isIncomplete(context)) {
         return nullptr;
     }
-    if (expr->type() == *this) {
+    if (expr->type().matches(*this)) {
         return expr;
     }
 

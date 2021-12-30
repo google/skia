@@ -49,7 +49,7 @@ std::unique_ptr<Expression> ConstructorArrayCast::Make(const Context& context,
     SkASSERT(type.columns() == arg->type().columns());
 
     // If this is a no-op cast, return the expression as-is.
-    if (type == arg->type()) {
+    if (type.matches(arg->type())) {
         return arg;
     }
 

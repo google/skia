@@ -50,9 +50,9 @@ static SkCustomMeshSpecificationPriv::ColorType color_type(const SkSL::Program& 
                     return SkCustomMeshSpecificationPriv::ColorType::kNone;
                 }
                 const SkSL::Type& type = decl.parameters()[1]->type();
-                SkASSERT(type == *fsProgram.fContext->fTypes.fHalf4 ||
-                         type == *fsProgram.fContext->fTypes.fFloat4);
-                return type == *fsProgram.fContext->fTypes.fHalf4
+                SkASSERT(type.matches(*fsProgram.fContext->fTypes.fHalf4) ||
+                         type.matches(*fsProgram.fContext->fTypes.fFloat4));
+                return type.matches(*fsProgram.fContext->fTypes.fHalf4)
                                ? SkCustomMeshSpecificationPriv::ColorType::kHalf4
                                : SkCustomMeshSpecificationPriv::ColorType::kFloat4;
             }

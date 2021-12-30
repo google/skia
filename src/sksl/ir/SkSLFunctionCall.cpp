@@ -97,8 +97,8 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     const Type& vecType =          arg0->type().isVector()  ? arg0->type() :
                           (arg1 && arg1->type().isVector()) ? arg1->type() :
                                                               arg0->type();
-    SkASSERT(         arg0->type().componentType() == vecType.componentType());
-    SkASSERT(!arg1 || arg1->type().componentType() == vecType.componentType());
+    SkASSERT(         arg0->type().componentType().matches(vecType.componentType()));
+    SkASSERT(!arg1 || arg1->type().componentType().matches(vecType.componentType()));
 
     double value = startingState;
     int arg0Index = 0;
@@ -174,7 +174,7 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
     const Type& type = left->type();
     SkASSERT(type.isVector());
     SkASSERT(type.componentType().isScalar());
-    SkASSERT(type == right->type());
+    SkASSERT(type.matches(right->type()));
 
     double array[4];
 

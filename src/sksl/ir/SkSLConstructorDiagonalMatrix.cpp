@@ -20,7 +20,7 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
     SkASSERT(type.isMatrix());
     SkASSERT(type.isAllowedInES2(context));
     SkASSERT(arg->type().isScalar());
-    SkASSERT(arg->type() == type.componentType());
+    SkASSERT(arg->type().matches(type.componentType()));
 
     // Look up the value of constant variables. This allows constant-expressions like `mat4(five)`
     // to be replaced with `mat4(5.0)`.

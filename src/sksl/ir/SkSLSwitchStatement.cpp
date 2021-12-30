@@ -238,7 +238,7 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
     // Confirm that every switch-case has been coerced to the proper type.
     SkASSERT(std::all_of(cases.begin(), cases.end(), [&](const std::unique_ptr<Statement>& stmt) {
         return !stmt->as<SwitchCase>().value() ||  // `default` case has a null value
-               value->type() == stmt->as<SwitchCase>().value()->type();
+               value->type().matches(stmt->as<SwitchCase>().value()->type());
     }));
 
     // Confirm that every switch-case value is unique.

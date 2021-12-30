@@ -25,7 +25,7 @@ public:
         , fTest(std::move(test))
         , fIfTrue(std::move(ifTrue))
         , fIfFalse(std::move(ifFalse)) {
-        SkASSERT(this->ifTrue()->type() == this->ifFalse()->type());
+        SkASSERT(this->ifTrue()->type().matches(this->ifFalse()->type()));
     }
 
     // Creates a potentially-simplified form of the ternary. Typechecks and coerces input

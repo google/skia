@@ -30,14 +30,14 @@ static bool index_out_of_range(const Context& context, SKSL_INT index, const Exp
 
 const Type& IndexExpression::IndexType(const Context& context, const Type& type) {
     if (type.isMatrix()) {
-        if (type.componentType() == *context.fTypes.fFloat) {
+        if (type.componentType().matches(*context.fTypes.fFloat)) {
             switch (type.rows()) {
                 case 2: return *context.fTypes.fFloat2;
                 case 3: return *context.fTypes.fFloat3;
                 case 4: return *context.fTypes.fFloat4;
                 default: SkASSERT(false);
             }
-        } else if (type.componentType() == *context.fTypes.fHalf) {
+        } else if (type.componentType().matches(*context.fTypes.fHalf)) {
             switch (type.rows()) {
                 case 2: return *context.fTypes.fHalf2;
                 case 3: return *context.fTypes.fHalf3;

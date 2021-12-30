@@ -31,7 +31,7 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     Operator equalityOp(Token::Kind::TK_EQEQ);
     if (!equalityOp.determineBinaryType(context, ifTrue->type(), ifFalse->type(),
                                         &trueType, &falseType, &resultType) ||
-        (*trueType != *falseType)) {
+        !trueType->matches(*falseType)) {
         context.fErrors->error(line, "ternary operator result mismatch: '" +
                                      ifTrue->type().displayName() + "', '" +
                                      ifFalse->type().displayName() + "'");
@@ -62,7 +62,7 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
                                                     std::unique_ptr<Expression> test,
                                                     std::unique_ptr<Expression> ifTrue,
                                                     std::unique_ptr<Expression> ifFalse) {
-    SkASSERT(ifTrue->type() == ifFalse->type());
+    SkASSERT(ifTrue->type().matches(ifFalse->type()));
     SkASSERT(!ifTrue->type().componentType().isOpaque());
     SkASSERT(!context.fConfig->strictES2Mode() || !ifTrue->type().isOrContainsArray());
 

@@ -64,7 +64,7 @@ std::unique_ptr<Statement> IfStatement::Make(const Context& context, int line, b
                                              std::unique_ptr<Expression> test,
                                              std::unique_ptr<Statement> ifTrue,
                                              std::unique_ptr<Statement> ifFalse) {
-    SkASSERT(test->type() == *context.fTypes.fBool);
+    SkASSERT(test->type().matches(*context.fTypes.fBool));
     SkASSERT(!Analysis::DetectVarDeclarationWithoutScope(*ifTrue));
     SkASSERT(!ifFalse || !Analysis::DetectVarDeclarationWithoutScope(*ifFalse));
 

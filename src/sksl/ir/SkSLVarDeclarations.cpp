@@ -41,7 +41,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
                                 const Modifiers& modifiers,
                                 const Type* baseType,
                                 Variable::Storage storage) {
-    if (*baseType == *context.fTypes.fInvalid) {
+    if (baseType->matches(*context.fTypes.fInvalid)) {
         context.fErrors->error(line, "invalid type");
         return;
     }
@@ -213,7 +213,7 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
             context.fErrors->error(var->fLine, "duplicate definition of 'sk_RTAdjust'");
             return nullptr;
         }
-        if (var->type() != *context.fTypes.fFloat4) {
+        if (!var->type().matches(*context.fTypes.fFloat4)) {
             context.fErrors->error(var->fLine, "sk_RTAdjust must have type 'float4'");
             return nullptr;
         }
