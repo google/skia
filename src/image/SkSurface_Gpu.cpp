@@ -24,6 +24,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/SkRenderEngineAbortf.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Base.h"
@@ -425,12 +426,6 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
     return result;
 }
 
-#ifdef SK_IN_RENDERENGINE
-#define RENDERENGINE_ABORTF(...) SK_ABORT(__VA_ARGS__)
-#else
-#define RENDERENGINE_ABORTF(...)
-#endif
-
 static bool validate_backend_texture(const GrCaps* caps, const GrBackendTexture& tex,
                                      int sampleCnt, GrColorType grCT,
                                      bool texturable) {
@@ -525,8 +520,18 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
             tex, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
             std::move(releaseHelper)));
     if (!proxy) {
-        RENDERENGINE_ABORTF("%s failed to wrap the texture into a renderable target ",
-                                __func__);
+#ifdef SK_IN_RENDERENGINE
+        GrGLTextureInfo textureInfo;
+        bool retrievedTextureInfo = tex.getGLTextureInfo(&textureInfo);
+        RENDERENGINE_ABORTF("%s failed to wrap the texture into a renderable target "
+             "\n\tGrBackendTexture: (%i x %i) hasMipmaps: %i isProtected: %i texType: %i"
+             "\n\t\tGrGLTextureInfo: success: %i fTarget: %u fFormat: %u"
+             "\n\tmaxRenderTargetSize: %d",
+             __func__, tex.width(), tex.height(), tex.hasMipmaps(),
+             tex.isProtected(), static_cast<int>(tex.textureType()),
+             retrievedTextureInfo, textureInfo.fTarget, textureInfo.fFormat,
+             rContext->priv().caps()->maxRenderTargetSize());
+#endif
         return nullptr;
     }
 
