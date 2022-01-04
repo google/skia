@@ -16,8 +16,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"go.skia.org/infra/task_driver/go/lib/bazel"
-
 	"cloud.google.com/go/pubsub"
 	"google.golang.org/api/option"
 
@@ -25,6 +23,7 @@ import (
 	docker_pubsub "go.skia.org/infra/go/docker/build/pubsub"
 	sk_exec "go.skia.org/infra/go/exec"
 	"go.skia.org/infra/task_driver/go/lib/auth_steps"
+	"go.skia.org/infra/task_driver/go/lib/bazel"
 	"go.skia.org/infra/task_driver/go/lib/checkout"
 	"go.skia.org/infra/task_driver/go/lib/docker"
 	"go.skia.org/infra/task_driver/go/lib/golang"
@@ -124,7 +123,10 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	// TODO(kjlubick) Build and push all apps of interest as they are ported.
+	if err := buildPush(ctx, "debugger-app", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
+		td.Fatal(ctx, err)
+	}
+
 	if err := buildPush(ctx, "jsfiddle", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
 		td.Fatal(ctx, err)
 	}
@@ -140,6 +142,7 @@ func main() {
 	if err := buildPush(ctx, "skottie", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
 		td.Fatal(ctx, err)
 	}
+
 	// Remove all temporary files from the host machine. Swarming gets upset if there are root-owned
 	// files it cannot clean up.
 	cleanupCmd := []string{"/bin/sh", "-c", "rm -rf /OUT/*"}

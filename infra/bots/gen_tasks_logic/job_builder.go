@@ -121,9 +121,6 @@ func (b *jobBuilder) genTasksForJob() {
 	if b.extraConfig("PushAppsFromSkiaDockerImage") {
 		b.createPushAppsFromSkiaDockerImage()
 		return
-	} else if b.extraConfig("PushAppsFromWASMDockerImage") {
-		b.createPushAppsFromWASMDockerImage()
-		return
 	} else if b.extraConfig("PushBazelAppsFromWASMDockerImage") {
 		b.createPushBazelAppsFromWASMDockerImage()
 		return

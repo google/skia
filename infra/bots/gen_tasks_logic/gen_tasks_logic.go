@@ -1116,35 +1116,6 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 	})
 }
 
-// createPushAppsFromWASMDockerImage creates and pushes docker images of some apps
-// (eg: jsfiddle, skottie, particles) using the skia-wasm-release docker image.
-func (b *jobBuilder) createPushAppsFromWASMDockerImage() {
-	b.addTask(b.Name, func(b *taskBuilder) {
-		// TODO(borenet): Make this task not use Git.
-		b.usesGit()
-		b.cmd(
-			"./push_apps_from_wasm_image",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", b.Name,
-			"--workdir", ".",
-			"--repo", specs.PLACEHOLDER_REPO,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--patch_issue", specs.PLACEHOLDER_ISSUE,
-			"--patch_set", specs.PLACEHOLDER_PATCHSET,
-			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-		)
-		b.dep(b.buildTaskDrivers("linux", "amd64"))
-		b.dep(b.createDockerImage(true))
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
-		b.cas(CAS_EMPTY)
-		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		b.usesDocker()
-		b.cache(CACHES_DOCKER...)
-	})
-}
-
 // createPushBazelAppsFromWASMDockerImage pushes those infra apps that have been ported to Bazel
 // and require assets built in the WASM docker image.
 // TODO(kjlubick) The inputs to this job should not be the docker build, but a Bazel build.

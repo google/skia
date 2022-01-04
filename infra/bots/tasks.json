@@ -889,11 +889,6 @@
         "Housekeeper-PerCommit-PushAppsFromSkiaDockerImage"
       ]
     },
-    "Housekeeper-PerCommit-PushAppsFromWASMDockerImage": {
-      "tasks": [
-        "Housekeeper-PerCommit-PushAppsFromWASMDockerImage"
-      ]
-    },
     "Housekeeper-PerCommit-PushBazelAppsFromWASMDockerImage": {
       "tasks": [
         "Housekeeper-PerCommit-PushBazelAppsFromWASMDockerImage"
@@ -20100,80 +20095,6 @@
       "dependencies": [
         "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64",
         "Housekeeper-PerCommit-CreateDockerImage_Skia_Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia",
-        "docker_installed:true"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ]
-      },
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Housekeeper-PerCommit-PushAppsFromWASMDockerImage": {
-      "caches": [
-        {
-          "name": "docker",
-          "path": "cache/docker"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        }
-      ],
-      "casSpec": "empty",
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/linux-amd64",
-          "path": "cipd_bin_packages",
-          "version": "version:2@2.34.1.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:749deb20c96c279223a5325eaf327d41ef1716f9"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:749deb20c96c279223a5325eaf327d41ef1716f9"
-        }
-      ],
-      "command": [
-        "./push_apps_from_wasm_image",
-        "--project_id",
-        "skia-swarming-bots",
-        "--task_id",
-        "<(TASK_ID)",
-        "--task_name",
-        "Housekeeper-PerCommit-PushAppsFromWASMDockerImage",
-        "--workdir",
-        ".",
-        "--repo",
-        "<(REPO)",
-        "--revision",
-        "<(REVISION)",
-        "--patch_issue",
-        "<(ISSUE)",
-        "--patch_set",
-        "<(PATCHSET)",
-        "--patch_server",
-        "<(CODEREVIEW_SERVER)"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64",
-        "Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
