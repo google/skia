@@ -305,7 +305,8 @@ void DSLParser::directive() {
         return;
     }
     skstd::string_view text = this->text(start);
-    if (text == "#extension") {
+    const bool allowExtensions = !ProgramConfig::IsRuntimeEffect(fKind);
+    if (text == "#extension" && allowExtensions) {
         Token name;
         if (!this->expectIdentifier(&name)) {
             return;

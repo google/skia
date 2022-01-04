@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 1: unsupported directive '#extension'
+error: 1: no type named 'i'
+error: 1: expected a type, but found ':'
+3 errors
