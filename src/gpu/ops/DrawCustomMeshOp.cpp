@@ -39,12 +39,14 @@ public:
                                      sk_sp<SkCustomMeshSpecification> spec,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                      const SkMatrix& viewMatrix,
-                                     const skstd::optional<SkPMColor4f>& color) {
+                                     const skstd::optional<SkPMColor4f>& color,
+                                     bool needsLocalCoords) {
         return arena->make([&](void* ptr) {
             return new (ptr) CustomMeshGP(std::move(spec),
                                           std::move(colorSpaceXform),
                                           viewMatrix,
-                                          std::move(color));
+                                          std::move(color),
+                                          needsLocalCoords);
         });
     }
 
@@ -233,8 +235,15 @@ private:
                                                            "color",
                                                            &uniformColorName);
             }
+            SkString localCoordAssignment;
+            if (SkCustomMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec) &&
+                cmgp.fNeedsLocalCoords) {
+                localCoordAssignment = "float2 local =";
+            }
             if (meshColorType == SkCustomMeshSpecificationPriv::ColorType::kNone) {
-                fragBuilder->codeAppendf("float2 local = %s(varyings);", userFragName.c_str());
+                fragBuilder->codeAppendf("%s %s(varyings);",
+                                         localCoordAssignment.c_str(),
+                                         userFragName.c_str());
                 SkASSERT(uniformColorName);
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, uniformColorName);
             } else {
@@ -248,7 +257,8 @@ private:
                     fragBuilder->codeAppendf("half4 color;");
                 }
 
-                fragBuilder->codeAppendf("float2 local = %s(varyings, color);",
+                fragBuilder->codeAppendf("%s %s(varyings, color);",
+                                         localCoordAssignment.c_str(),
                                          userFragName.c_str());
                 // We ignore the user's color if analysis told us to emit a specific color. The user
                 // color might be float4 and we expect a half4 in the colorspace helper.
@@ -257,8 +267,15 @@ private:
                 fragBuilder->appendColorGamutXform(&xformedColor, color, &fColorSpaceHelper);
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
             }
-            gpArgs->fLocalCoordVar = GrShaderVar("local", kFloat2_GrSLType);
-            gpArgs->fLocalCoordShader = kFragment_GrShaderType;
+            if (cmgp.fNeedsLocalCoords) {
+                if (SkCustomMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec)) {
+                    gpArgs->fLocalCoordVar = GrShaderVar("local", kFloat2_GrSLType);
+                    gpArgs->fLocalCoordShader = kFragment_GrShaderType;
+                } else {
+                    gpArgs->fLocalCoordVar = GrShaderVar("pos", kFloat2_GrSLType);
+                    gpArgs->fLocalCoordShader = kVertex_GrShaderType;
+                }
+            }
         }
 
     private:
@@ -273,11 +290,13 @@ private:
     CustomMeshGP(sk_sp<SkCustomMeshSpecification> spec,
                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                  const SkMatrix& viewMatrix,
-                 const skstd::optional<SkPMColor4f>& color)
+                 const skstd::optional<SkPMColor4f>& color,
+                 bool needsLocalCoords)
             : INHERITED(kVerticesGP_ClassID)
             , fSpec(std::move(spec))
             , fViewMatrix(viewMatrix)
-            , fColorSpaceXform(std::move(colorSpaceXform)) {
+            , fColorSpaceXform(std::move(colorSpaceXform))
+            , fNeedsLocalCoords(needsLocalCoords) {
         fColor = color.value_or(SK_PMColor4fILLEGAL);
         for (const auto& srcAttr : fSpec->attributes()) {
             fAttributes.emplace_back(
@@ -294,6 +313,7 @@ private:
     SkMatrix                         fViewMatrix;
     SkPMColor4f                      fColor;
     sk_sp<GrColorSpaceXform>         fColorSpaceXform;
+    bool                             fNeedsLocalCoords;
 
     using INHERITED = GrGeometryProcessor;
 };
@@ -422,7 +442,8 @@ GrGeometryProcessor* CustomMeshOp::makeGP(SkArenaAlloc* arena) {
     if (fIgnoreSpecColor || !SkCustomMeshSpecificationPriv::HasColors(*fSpecification)) {
         color.emplace(fColor);
     }
-    return CustomMeshGP::Make(arena, fSpecification, fColorSpaceXform, fViewMatrix, color);
+    return CustomMeshGP::Make(arena, fSpecification, fColorSpaceXform, fViewMatrix, color,
+                              fHelper.usesLocalCoords());
 }
 
 void CustomMeshOp::onCreateProgramInfo(const GrCaps* caps,

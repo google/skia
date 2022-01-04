@@ -245,9 +245,11 @@ static bool check_main_signature(const Context& context, int line, const Type& r
             break;
         }
         case ProgramKind::kCustomMeshFragment: {
-            // float2 main(Varyings) -or- float2 main(Varyings, out half4|float4])
-            if (!returnType.matches(*context.fTypes.fFloat2)) {
-                errors.error(line, "'main' must return: 'vec2' or 'float2'");
+            // float2 main(Varyings) -or- float2 main(Varyings, out half4|float4]) -or-
+            // void main(Varyings) -or- void main(Varyings, out half4|float4])
+            if (!returnType.matches(*context.fTypes.fFloat2) &&
+                !returnType.matches(*context.fTypes.fVoid)) {
+                errors.error(line, "'main' must return: 'vec2', 'float2', 'or' 'void'");
                 return false;
             }
             if (!((parameters.size() == 1 && paramIsInVaryings(0)) ||

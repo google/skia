@@ -36,6 +36,10 @@ struct SkCustomMeshSpecificationPriv {
 
     static SkAlphaType AlphaType(const SkCustomMeshSpecification& spec) { return spec.fAlphaType; }
 
+    static bool HasLocalCoords(const SkCustomMeshSpecification& spec) {
+        return spec.fHasLocalCoords;
+    }
+
     static GrSLType VaryingTypeAsSLType(Varying::Type type) {
         switch (type) {
             case Varying::Type::kFloat:  return kFloat_GrSLType;

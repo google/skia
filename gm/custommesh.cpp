@@ -223,37 +223,32 @@ protected:
     using Attribute = SkCustomMeshSpecification::Attribute;
     using Varying   = SkCustomMeshSpecification::Varying;
 
-    SkISize onISize() override { return {258, 258}; }
+    SkISize onISize() override { return {468, 258}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
-                {Attribute::Type::kFloat2,  0, SkString{"pos"}  },
-                {Attribute::Type::kFloat2,  8, SkString{"uv"}   },
-                {Attribute::Type::kFloat4, 16, SkString{"color"}},
+                {Attribute::Type::kFloat2, 0, SkString{"pos"}  },
+                {Attribute::Type::kFloat4, 8, SkString{"color"}},
         };
         static const Varying kVaryings[]{
                 {Varying::Type::kHalf4,  SkString{"color"}},
-                {Varying::Type::kFloat2, SkString{"uv"}   },
         };
         static constexpr char kPremulVS[] = R"(
                 float2 main(in Attributes attributes, out Varyings varyings) {
                     varyings.color = half4(attributes.color.a*attributes.color.rgb,
                                            attributes.color.a);
-                    varyings.uv = attributes.uv;
                     return attributes.pos;
                 }
         )";
         static constexpr char kUnpremulVS[] = R"(
                 float2 main(in Attributes attributes, out Varyings varyings) {
                     varyings.color = attributes.color;
-                    varyings.uv = attributes.uv;
                     return attributes.pos;
                 }
         )";
         static constexpr char kFS[] = R"(
-                float2 main(in Varyings varyings, out half4 color) {
+                void main(in Varyings varyings, out half4 color) {
                     color = varyings.color;
-                    return varyings.uv;
                 }
         )";
         for (bool unpremul : {false, true}) {
@@ -279,6 +274,9 @@ protected:
                 fSpecs[SpecIndex(unpremul, spin)] = std::move(spec);
             }
         }
+        SkPoint pts[]    = {{kRect.fLeft, 0}, {kRect.centerX(), 0}};
+        SkColor colors[] = {SK_ColorWHITE,    SK_ColorTRANSPARENT};
+        fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
     }
 
     SkString onShortName() override { return SkString("custommesh_cs"); }
@@ -297,7 +295,8 @@ protected:
             c = surface->getCanvas();
             c->clear(SK_ColorWHITE);
         }
-        for (bool unpremul : {false, true}) {
+        for (bool useShader : {false, true})
+        for (bool unpremul  : {false, true}) {
             c->save();
             for (bool spin : {false, true}) {
                 SkCustomMesh cm;
@@ -307,10 +306,13 @@ protected:
                 cm.vcount = 4;
                 cm.mode   = SkCustomMesh::Mode::kTriangleStrip;
 
+                SkPaint paint;
+                paint.setShader(useShader ? fShader : nullptr);
+                SkBlendMode mode = useShader ? SkBlendMode::kModulate : SkBlendMode::kDst;
                 SkCanvasPriv::DrawCustomMesh(c,
                                              std::move(cm),
-                                             SkBlender::Mode(SkBlendMode::kDst),
-                                             SkPaint{});
+                                             SkBlender::Mode(mode),
+                                             paint);
 
                 c->translate(0, kRect.height() + 10);
             }
@@ -327,7 +329,6 @@ protected:
 private:
     struct Vertex {
         SkPoint   pos;
-        SkPoint   uv;
         SkColor4f color;
     };
 
@@ -335,21 +336,21 @@ private:
         return static_cast<int>(spin) + 2*static_cast<int>(unpremul);
     }
 
-    static constexpr auto  kRect   = SkRect::MakeLTRB(20, 20, 120, 120);
-    static constexpr auto  kUV     = SkRect::MakeLTRB( 0,  0,  20,  20);
+    static constexpr auto kRect = SkRect::MakeLTRB(20, 20, 120, 120);
 
     static constexpr Vertex kQuad[] {
-            {{kRect.left() , kRect.top()   }, {kUV.left(),  kUV.top()   }, {1, 0, 0, 1}},
-            {{kRect.right(), kRect.top()   }, {kUV.right(), kUV.top()   }, {0, 1, 0, 0}},
-            {{kRect.left() , kRect.bottom()}, {kUV.left(),  kUV.bottom()}, {1, 1, 0, 0}},
-            {{kRect.right(), kRect.bottom()}, {kUV.right(), kUV.bottom()}, {0, 0, 1, 1}},
+            {{kRect.left() , kRect.top()   }, {1, 0, 0, 1}},
+            {{kRect.right(), kRect.top()   }, {0, 1, 0, 0}},
+            {{kRect.left() , kRect.bottom()}, {1, 1, 0, 0}},
+            {{kRect.right(), kRect.bottom()}, {0, 0, 1, 1}},
     };
 
     sk_sp<SkCustomMeshSpecification> fSpecs[4];
+
+    sk_sp<SkShader> fShader;
 };
 
 constexpr SkRect CustomMeshColorSpaceGM::kRect;
-constexpr SkRect CustomMeshColorSpaceGM::kUV;
 
 constexpr CustomMeshColorSpaceGM::Vertex CustomMeshColorSpaceGM::kQuad[];
 

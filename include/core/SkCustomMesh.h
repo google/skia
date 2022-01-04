@@ -29,13 +29,14 @@ namespace SkSL { struct Program; }
  * where the return value is a local position that will be transformed by SkCanvas's matrix.
  *
  * The signature of the fragment program must be either:
- *   float2 main(Varyings)
+ *   (float2|void) main(Varyings)
  * or
- *   float2 main(Varyings, out (half4|float4) color)
+ *   (float2|void) main(Varyings, out (half4|float4) color)
  *
  * where the return value is the local coordinates that will be used to access SkShader. If the
- * color variant is used it will be blended with SkShader (or SkPaint color in absence of a shader)
- * using the SkBlender provided to the SkCanvas draw call.
+ * return type is void then the interpolated position from vertex shader return is used as the local
+ * coordinate. If the color variant is used it will be blended with SkShader (or SkPaint color in
+ * absence of a shader) using the SkBlender provided to the SkCanvas draw call.
  */
 class SkCustomMeshSpecification : public SkNVRefCnt<SkCustomMeshSpecification> {
 public:
@@ -44,7 +45,7 @@ public:
     static constexpr size_t kMaxAttributes   = 8;
     static constexpr size_t kStrideAlignment = 4;
     static constexpr size_t kOffsetAlignment = 4;
-    static constexpr size_t kMaxVaryings     = 7;
+    static constexpr size_t kMaxVaryings     = 6;
 
     struct Attribute {
         enum class Type : uint32_t {  // CPU representation     Shader Type
@@ -142,6 +143,7 @@ private:
                               std::unique_ptr<SkSL::Program>,
                               std::unique_ptr<SkSL::Program>,
                               ColorType,
+                              bool hasLocalCoords,
                               sk_sp<SkColorSpace>,
                               SkAlphaType);
 
@@ -158,6 +160,7 @@ private:
     size_t                             fStride;
     uint32_t                           fHash;
     ColorType                          fColorType;
+    bool                               fHasLocalCoords;
     sk_sp<SkColorSpace>                fColorSpace;
     SkAlphaType                        fAlphaType;
 };
