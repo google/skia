@@ -11,7 +11,6 @@ set -e
 cd "$(dirname "$0")/../.."
 cd platform_tools/android/apps
 git clean -fxd skqp/build \
-               skqp/src/main/assets/gmkb \
                skqp/src/main/assets/resources \
                skqp/src/main/libs \
                .gradle build viewer/build

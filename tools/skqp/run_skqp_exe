@@ -24,8 +24,6 @@ def skqp(build):
     adb('push',
         os.path.join(*'platform_tools/android/apps/skqp/src/main/assets/skqp'.split('/')),
         '/data/local/tmp/skqp/skqp_assets')
-    adb('push',
-        os.path.join(*'out/skqp/gmkb'.split('/')), '/data/local/tmp/skqp/skqp_assets')
     adb('push', 'resources', '/data/local/tmp/skqp/skqp_assets')
 
     adb('push', os.path.join(build, 'skqp'), '/data/local/tmp/skqp/skqp')

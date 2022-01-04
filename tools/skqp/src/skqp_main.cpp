@@ -117,19 +117,19 @@ int main(int argc, char *argv[]) {
             if (should_skip(matchRules, matchRulesCount, testName.c_str())) {
                 continue;
             }
-            out << "Starting: " << testName << std::endl;
+            out << "Starting: " << testName << "  ";
             SkQP::RenderOutcome outcome;
             std::string except;
 
             std::tie(outcome, except) = skqp.evaluateGM(backend, gmFactory);
             if (!except.empty()) {
-                out << "ERROR:    " << testName << " (" << except << ")\n";
+                out << "[ERROR: " << except << "]" << std::endl;
                 ret = 1;
             } else if (outcome.fMaxError != 0) {
-                out << "FAILED:   " << testName << " (" << outcome.fMaxError << ")\n";
+                out << "[FAILED: " << outcome.fMaxError << "]" << std::endl;
                 ret = 1;
             } else {
-                out << "Passed:   " << testName << "\n";
+                out << "[PASSED]" << std::endl;
             }
             out.flush();
         }
@@ -141,16 +141,16 @@ int main(int argc, char *argv[]) {
         if (should_skip(matchRules, matchRulesCount, testName.c_str())) {
             continue;
         }
-        out << "Starting test: " << testName << std::endl;
+        out << "Starting: " << testName << " ";
         std::vector<std::string> errors = skqp.executeTest(test);
         if (!errors.empty()) {
-            out << "TEST FAILED (" << errors.size() << "): " << testName << "\n";
+            out << "[FAILED: " << errors.size() << " error(s)]" << std::endl;
             for (const std::string& error : errors) {
-                out << error << "\n";
+                out << "  " <<  error << std::endl;
             }
             ret = 1;
         } else {
-            out << "Test passed:   " << testName << "\n";
+            out << "[PASSED]" << std::endl;
         }
         out.flush();
     }

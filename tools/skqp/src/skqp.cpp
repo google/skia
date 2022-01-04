@@ -34,7 +34,15 @@
 #include <cinttypes>
 #include <sstream>
 
-#include "tools/skqp/src/skqp_model.h"
+namespace skqp {
+
+/** Prefered colortype for comparing test outcomes. */
+constexpr SkColorType kColorType = kRGBA_8888_SkColorType;
+
+/** Prefered alphatype for comparing test outcomes. */
+constexpr SkAlphaType kAlphaType = kUnpremul_SkAlphaType;
+
+}
 
 #define IMAGES_DIRECTORY_PATH "images"
 #define PATH_MAX_PNG "max.png"
@@ -215,19 +223,6 @@ static void print_backend_info(const char* dstPath,
 #endif
 }
 
-static void encode_png(const SkBitmap& src, const std::string& dst) {
-    SkFILEWStream wStream(dst.c_str());
-    SkPngEncoder::Options options;
-    bool success = wStream.isValid() && SkPngEncoder::Encode(&wStream, src.pixmap(), options);
-    SkASSERT_RELEASE(success);
-}
-
-static void write_to_file(const sk_sp<SkData>& src, const std::string& dst) {
-    SkFILEWStream wStream(dst.c_str());
-    bool success = wStream.isValid() && wStream.write(src->data(), src->size());
-    SkASSERT_RELEASE(success);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 const char* SkQP::GetBackendName(SkQP::SkiaBackend b) {
@@ -310,35 +305,7 @@ std::tuple<SkQP::RenderOutcome, std::string> SkQP::evaluateGM(SkQP::SkiaBackend 
     }
     int64_t passingThreshold = fGMThresholds.empty() ? -1 : fGMThresholds[std::string(name)];
 
-    if (-1 == passingThreshold) {
-        return std::make_tuple(kPass, "");
-    }
-    skqp::ModelResult modelResult =
-        skqp::CheckAgainstModel(name, image.pixmap(), fAssetManager);
-
-    if (!modelResult.fErrorString.empty()) {
-        return std::make_tuple(kError, std::move(modelResult.fErrorString));
-    }
-    fRenderResults.push_back(SkQP::RenderResult{backend, gmFact, modelResult.fOutcome});
-    if (modelResult.fOutcome.fMaxError <= passingThreshold) {
-        return std::make_tuple(kPass, "");
-    }
-    std::string imagesDirectory = fReportDirectory + "/" IMAGES_DIRECTORY_PATH;
-    if (!sk_mkdir(imagesDirectory.c_str())) {
-        SkDebugf("ERROR: sk_mkdir('%s');\n", imagesDirectory.c_str());
-        return std::make_tuple(modelResult.fOutcome, "");
-    }
-    std::ostringstream tmp;
-    tmp << imagesDirectory << '/' << SkQP::GetBackendName(backend) << '_' << name << '_';
-    std::string imagesPathPrefix1 = tmp.str();
-    tmp = std::ostringstream();
-    tmp << imagesDirectory << '/' << PATH_MODEL << '_' << name << '_';
-    std::string imagesPathPrefix2 = tmp.str();
-    encode_png(image,                  imagesPathPrefix1 + PATH_IMG_PNG);
-    encode_png(modelResult.fErrors,    imagesPathPrefix1 + PATH_ERR_PNG);
-    write_to_file(modelResult.fMaxPng, imagesPathPrefix2 + PATH_MAX_PNG);
-    write_to_file(modelResult.fMinPng, imagesPathPrefix2 + PATH_MIN_PNG);
-    return std::make_tuple(modelResult.fOutcome, "");
+    return std::make_tuple(kPass, "");
 }
 
 std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {

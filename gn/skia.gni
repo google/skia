@@ -35,7 +35,6 @@ declare_args() {
   skia_lex = false
   skia_libgifcodec_path = "third_party/externals/libgifcodec"
   skia_qt_path = getenv("QT_PATH")
-  skia_skqp_global_error_tolerance = 0
   skia_tools_require_resources = false
   skia_update_fuchsia_sdk = false
   skia_use_angle = false

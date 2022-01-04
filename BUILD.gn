@@ -2120,11 +2120,6 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("make_skqp_model") {
-    sources = [ "tools/skqp/make_skqp_model.cpp" ]
-    deps = [ ":skia" ]
-  }
-
   import("gn/samples.gni")
   test_lib("samples") {
     sources = samples_sources
@@ -2486,12 +2481,9 @@ if (skia_enable_tools) {
       check_includes = false
       testonly = true
       public_configs = [ ":skia_private" ]
-      defines =
-          [ "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance" ]
       sources = [
         "dm/DMGpuTestProcs.cpp",
         "tools/skqp/src/skqp.cpp",
-        "tools/skqp/src/skqp_model.cpp",
       ]
       deps = [
         ":gm",
@@ -2505,14 +2497,6 @@ if (skia_enable_tools) {
       include_dirs = [ "//" ]
       lib_dirs = []
       deps = [ ":skqp_lib" ]
-    }
-    test_app("jitter_gms") {
-      sources = [ "tools/skqp/jitter_gms.cpp" ]
-      deps = [
-        ":gm",
-        ":skia",
-        ":skqp_lib",
-      ]
     }
   }
   if (is_fuchsia) {
