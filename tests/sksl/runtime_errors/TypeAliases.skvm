@@ -1,0 +1,9 @@
+### Compilation failed:
+
+error: 9: expected 'vec2', but found 'int'
+error: 10: expected 'int', but found 'mat2'
+error: 11: expected 'bvec2', but found 'vec2'
+error: 12: expected 'float2', but found 'vec3'
+error: 13: expected 'mat4', but found 'float3x3'
+error: 14: expected 'vec4', but found 'ivec4'
+6 errors

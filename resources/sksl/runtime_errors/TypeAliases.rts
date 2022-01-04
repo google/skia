@@ -1,0 +1,15 @@
+vec4 main(vec2 coords) {
+    // it's ok to mix aliased with non-aliased types
+    bvec2 ok1 = bool2(true);
+    int3 ok2 = ivec3(1);
+    float2x2 ok3 = mat2(1);
+
+    // these all generate errors, and the error messages should refer to the type as written,
+    // preserving aliases
+    vec2 bad1 = 0;
+    int bad2 = mat2(0);
+    bvec2 bad3 = vec2(0);
+    float2 bad4 = vec3(0);
+    mat4 bad5 = float3x3(0);
+    return ivec4(1);
+}

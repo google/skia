@@ -76,6 +76,18 @@ BuiltinTypes::BuiltinTypes()
         , fHalf4x2(Type::MakeMatrixType("half4x2", "h42", *fHalf, /*columns=*/4, /*rows=*/2))
         , fHalf4x3(Type::MakeMatrixType("half4x3", "h43", *fHalf, /*columns=*/4, /*rows=*/3))
         , fHalf4x4(Type::MakeMatrixType("half4x4", "h44", *fHalf, /*columns=*/4, /*rows=*/4))
+        , fVec2(Type::MakeAliasType("vec2", *fFloat2))
+        , fVec3(Type::MakeAliasType("vec3", *fFloat3))
+        , fVec4(Type::MakeAliasType("vec4", *fFloat4))
+        , fIVec2(Type::MakeAliasType("ivec2", *fInt2))
+        , fIVec3(Type::MakeAliasType("ivec3", *fInt3))
+        , fIVec4(Type::MakeAliasType("ivec4", *fInt4))
+        , fBVec2(Type::MakeAliasType("bvec2", *fBool2))
+        , fBVec3(Type::MakeAliasType("bvec3", *fBool3))
+        , fBVec4(Type::MakeAliasType("bvec4", *fBool4))
+        , fMat2(Type::MakeAliasType("mat2", *fFloat2x2))
+        , fMat3(Type::MakeAliasType("mat3", *fFloat3x3))
+        , fMat4(Type::MakeAliasType("mat4", *fFloat4x4))
         , fTexture1D(Type::MakeTextureType("texture1D",
                                            SpvDim1D,
                                            /*isDepth=*/false,

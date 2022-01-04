@@ -22,6 +22,98 @@ namespace SkSL {
 
 static constexpr int kMaxStructDepth = 8;
 
+class AliasType final : public Type {
+public:
+    AliasType(skstd::string_view name, const Type& targetType)
+        : INHERITED(name, targetType.abbreviatedName(), targetType.typeKind())
+        , fTargetType(targetType) {}
+
+    const Type& resolve() const override {
+        return fTargetType;
+    }
+
+    const Type& componentType() const override {
+        return fTargetType.componentType();
+    }
+
+    NumberKind numberKind() const override {
+        return fTargetType.numberKind();
+    }
+
+    int priority() const override {
+        return fTargetType.priority();
+    }
+
+    int columns() const override {
+        return fTargetType.columns();
+    }
+
+    int rows() const override {
+        return fTargetType.rows();
+    }
+
+    int bitWidth() const override {
+        return fTargetType.bitWidth();
+    }
+
+    bool isPrivate() const override {
+        return fTargetType.isPrivate();
+    }
+
+    bool isAllowedInES2() const override {
+        return fTargetType.isAllowedInES2();
+    }
+
+    size_t slotCount() const override {
+        return fTargetType.slotCount();
+    }
+
+    bool isDepth() const override {
+        return fTargetType.isDepth();
+    }
+
+    bool isArrayedTexture() const override {
+        return fTargetType.isArrayedTexture();
+    }
+
+    bool isScalar() const override {
+        return fTargetType.isScalar();
+    }
+
+    bool isLiteral() const override {
+        return fTargetType.isLiteral();
+    }
+
+    bool isVector() const override {
+        return fTargetType.isVector();
+    }
+
+    bool isMatrix() const override {
+        return fTargetType.isMatrix();
+    }
+
+    bool isArray() const override {
+        return fTargetType.isArray();
+    }
+
+    bool isStruct() const override {
+        return fTargetType.isStruct();
+    }
+
+    bool isInterfaceBlock() const override {
+        return fTargetType.isInterfaceBlock();
+    }
+
+    const std::vector<const Type*>& coercibleTypes() const override {
+        return fTargetType.coercibleTypes();
+    }
+
+private:
+    using INHERITED = Type;
+
+    const Type& fTargetType;
+};
+
 class ArrayType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kArray;
@@ -423,6 +515,10 @@ private:
 String Type::getArrayName(int arraySize) const {
     skstd::string_view name = this->name();
     return String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize);
+}
+
+std::unique_ptr<Type> Type::MakeAliasType(const char* name, const Type& targetType) {
+    return std::make_unique<AliasType>(std::move(name), targetType);
 }
 
 std::unique_ptr<Type> Type::MakeArrayType(skstd::string_view name, const Type& componentType,

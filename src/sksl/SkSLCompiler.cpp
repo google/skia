@@ -249,21 +249,21 @@ const ParsedModule& Compiler::loadVertexModule() {
 
 static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
     // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL.
-    symbols->addAlias("vec2", types.fFloat2.get());
-    symbols->addAlias("vec3", types.fFloat3.get());
-    symbols->addAlias("vec4", types.fFloat4.get());
+    symbols->addWithoutOwnership(types.fVec2.get());
+    symbols->addWithoutOwnership(types.fVec3.get());
+    symbols->addWithoutOwnership(types.fVec4.get());
 
-    symbols->addAlias("ivec2", types.fInt2.get());
-    symbols->addAlias("ivec3", types.fInt3.get());
-    symbols->addAlias("ivec4", types.fInt4.get());
+    symbols->addWithoutOwnership(types.fIVec2.get());
+    symbols->addWithoutOwnership(types.fIVec3.get());
+    symbols->addWithoutOwnership(types.fIVec4.get());
 
-    symbols->addAlias("bvec2", types.fBool2.get());
-    symbols->addAlias("bvec3", types.fBool3.get());
-    symbols->addAlias("bvec4", types.fBool4.get());
+    symbols->addWithoutOwnership(types.fBVec2.get());
+    symbols->addWithoutOwnership(types.fBVec3.get());
+    symbols->addWithoutOwnership(types.fBVec4.get());
 
-    symbols->addAlias("mat2", types.fFloat2x2.get());
-    symbols->addAlias("mat3", types.fFloat3x3.get());
-    symbols->addAlias("mat4", types.fFloat4x4.get());
+    symbols->addWithoutOwnership(types.fMat2.get());
+    symbols->addWithoutOwnership(types.fMat3.get());
+    symbols->addWithoutOwnership(types.fMat4.get());
 
     // Alias every private type to "invalid". This will prevent code from using built-in names like
     // `sampler2D` as variable names.

@@ -688,6 +688,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/ReservedNameSubpassInput.rts",
   "/sksl/runtime_errors/ReservedNameSubpassInputMS.rts",
   "/sksl/runtime_errors/ReservedNameTexture2D.rts",
+  "/sksl/runtime_errors/TypeAliases.rts",
   "/sksl/runtime_errors/UnsupportedExtension.rts",
   "/sksl/runtime_errors/UnsupportedTypeFragmentProcessor.rts",
   "/sksl/runtime_errors/UnsupportedTypeSampler.rts",

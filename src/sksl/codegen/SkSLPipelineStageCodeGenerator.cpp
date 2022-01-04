@@ -466,7 +466,8 @@ void PipelineStageCodeGenerator::writeProgramElementSecondPass(const ProgramElem
     }
 }
 
-String PipelineStageCodeGenerator::typeName(const Type& type) {
+String PipelineStageCodeGenerator::typeName(const Type& raw) {
+    const Type& type = raw.resolve();
     if (type.isArray()) {
         // This is necessary so that name mangling on arrays-of-structs works properly.
         String arrayName = this->typeName(type.componentType());

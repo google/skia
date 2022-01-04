@@ -112,6 +112,11 @@ public:
     String getArrayName(int arraySize) const;
 
     /**
+     * Creates an alias which maps to another type.
+     */
+    static std::unique_ptr<Type> MakeAliasType(const char* name, const Type& targetType);
+
+    /**
      * Create a generic type which maps to the listed types--e.g. $genType is a generic type which
      * can match float, float2, float3 or float4.
      */
@@ -206,8 +211,14 @@ public:
         return this->name().starts_with("$");
     }
 
+    /** If this is an alias, returns the underlying type, otherwise returns this. */
+    virtual const Type& resolve() const {
+        return *this;
+    }
+
+    /** Returns true if these types are equal after alias resolution. */
     bool matches(const Type& other) const {
-        return this->name() == other.name();
+        return this->resolve().name() == other.resolve().name();
     }
 
     /**

@@ -78,7 +78,8 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
 }
 
 // Returns the name of the type with array dimensions, e.g. `float[2]`.
-String GLSLCodeGenerator::getTypeName(const Type& type) {
+String GLSLCodeGenerator::getTypeName(const Type& raw) {
+    const Type& type = raw.resolve();
     switch (type.typeKind()) {
         case Type::TypeKind::kVector: {
             const Type& component = type.componentType();
