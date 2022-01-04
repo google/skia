@@ -47,13 +47,6 @@ GrSDFTControl::GrSDFTControl(
 
 auto GrSDFTControl::drawingType(
         const SkFont& font, const SkPaint& paint, const SkMatrix& viewMatrix) const -> DrawingType {
-
-    // Use paths as the first choice for hairlines and perspective.
-    if ((paint.getStyle() == SkPaint::kStroke_Style && paint.getStrokeWidth() == 0)
-            || viewMatrix.hasPerspective()) {
-        return kPath;
-    }
-
     SkScalar maxScale = viewMatrix.getMaxScale();
     SkScalar scaledTextSize = maxScale * font.getSize();
 
