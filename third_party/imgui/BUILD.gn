@@ -9,10 +9,14 @@ declare_args() {
 import("../third_party.gni")
 
 third_party("imgui") {
-  public_include_dirs = [ "../externals/imgui" ]
+  public_include_dirs = [
+    "../externals/imgui",
+    "../externals/ImGuiColorTextEdit",
+  ]
   public_defines = [ "IMGUI_ENABLE_OSX_DEFAULT_CLIPBOARD_FUNCTIONS" ]
 
   sources = [
+    "../externals/ImGuiColorTextEdit/TextEditor.cpp",
     "../externals/imgui/imconfig.h",
     "../externals/imgui/imgui.cpp",
     "../externals/imgui/imgui.h",
