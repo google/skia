@@ -13,6 +13,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
@@ -694,7 +695,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     // A scale transform forces fallback to dft.
     SkMatrix matrix = SkMatrix::Scale(16, 16);
     GrSDFTControl control = direct->priv().asRecordingContext()->priv().getSDFTControl(true);
-    REPORTER_ASSERT(reporter, control.drawingType(font, paint, matrix) == GrSDFTControl::kSDFT);
+    SkScalar approximateDeviceTextSize = SkFontPriv::ApproximateTransformedTextSize(font, matrix);
+    REPORTER_ASSERT(reporter, control.isSDFT(approximateDeviceTextSize, paint));
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());

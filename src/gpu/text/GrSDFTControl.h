@@ -18,20 +18,15 @@ class GrSDFTControl {
 public:
     GrSDFTControl(bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max);
 
-    enum DrawingType : uint8_t {
-        kDirect = 1,
-        kSDFT = 2,
-        kPath = 4
-    };
-
-    DrawingType drawingType(
-            const SkFont& font, const SkPaint& paint, const SkMatrix& viewMatrix) const;
-
     SkFont getSDFFont(const SkFont& font,
                       const SkMatrix& viewMatrix,
                       SkScalar* textRatio) const;
     std::pair<SkScalar, SkScalar> computeSDFMinMaxScale(
             SkScalar textSize, const SkMatrix& viewMatrix) const;
+
+    bool isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const;
+    bool isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint) const;
+
 private:
     static SkScalar MinSDFTRange(bool useSDFTForSmallText, SkScalar min);
 

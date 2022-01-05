@@ -9,6 +9,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/chromium/GrSlug.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
@@ -1481,13 +1482,15 @@ auto GrTextBlob::Key::Make(const SkGlyphRunList& glyphRunList,
         key.fCanonicalColor = canonicalColor;
         key.fScalerContextFlags = scalerContextFlags;
 
-        // Calculate the set of drawing types.
-        key.fSetOfDrawingTypes = 0;
+        // Do any runs use direct drawing types?.
+        key.fHasSomeDirectSubRuns = false;
         for (auto& run : glyphRunList) {
-            key.fSetOfDrawingTypes |= control.drawingType(run.font(), paint, drawMatrix);
+            SkScalar approximateDeviceTextSize =
+                    SkFontPriv::ApproximateTransformedTextSize(run.font(), drawMatrix);
+            key.fHasSomeDirectSubRuns |= control.isDirect(approximateDeviceTextSize, paint);
         }
 
-        if (key.fSetOfDrawingTypes & GrSDFTControl::kDirect) {
+        if (key.fHasSomeDirectSubRuns) {
             // Store the fractional offset of the position. We know that the matrix can't be
             // perspective at this point.
             SkPoint mappedOrigin = drawMatrix.mapOrigin();
@@ -1530,11 +1533,11 @@ bool GrTextBlob::Key::operator==(const GrTextBlob::Key& that) const {
         return false;
     }
 
-    if (fSetOfDrawingTypes != that.fSetOfDrawingTypes) {
+    if (fHasSomeDirectSubRuns != that.fHasSomeDirectSubRuns) {
         return false;
     }
 
-    if (fSetOfDrawingTypes & GrSDFTControl::kDirect) {
+    if (fHasSomeDirectSubRuns) {
         auto [compatible, _] = can_use_direct(fPositionMatrix, that.fPositionMatrix);
         return compatible;
     }

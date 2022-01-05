@@ -343,6 +343,10 @@ SkRect SkFontPriv::GetFontBounds(const SkFont& font) {
     return bounds;
 }
 
+SkScalar SkFontPriv::ApproximateTransformedTextSize(const SkFont& font, const SkMatrix& matrix) {
+    return font.getSize() * matrix.getMaxScale();
+}
+
 int SkFontPriv::CountTextElements(const void* text, size_t byteLength, SkTextEncoding encoding) {
     switch (encoding) {
         case SkTextEncoding::kUTF8:

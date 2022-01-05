@@ -208,7 +208,7 @@ public:
         uint32_t fScalerContextFlags;
         SkMatrix fPositionMatrix;
         // Below here fields are of size 1 byte.
-        uint8_t fSetOfDrawingTypes;
+        bool fHasSomeDirectSubRuns;
         bool fHasBlur;
         SkPaint::Style fStyle;
         SkPaint::Join fJoin;

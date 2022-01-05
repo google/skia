@@ -45,20 +45,17 @@ GrSDFTControl::GrSDFTControl(
     SkASSERT_RELEASE(0 < min && min <= max);
 }
 
-auto GrSDFTControl::drawingType(
-        const SkFont& font, const SkPaint& paint, const SkMatrix& viewMatrix) const -> DrawingType {
-    SkScalar scaledTextSize = viewMatrix.getMaxScale() * font.getSize();
+bool GrSDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
+    return !isSDFT(approximateDeviceTextSize, paint) &&
+            approximateDeviceTextSize < SkStrikeCommon::kSkSideTooBigForAtlas;
+}
 
-    // Use SDFT if filled, no mask, and in the right size range.
-    if (fAbleToUseSDFT &&
-        paint.getMaskFilter() == nullptr &&
-        paint.getStyle() == SkPaint::kFill_Style &&
-        fMinDistanceFieldFontSize <= scaledTextSize && scaledTextSize <= fMaxDistanceFieldFontSize){
-            return kSDFT;
-    }
-
-    // Choose to use path if it is likely that a direct mask will be too big.
-    return scaledTextSize < SkStrikeCommon::kSkSideTooBigForAtlas ? kDirect : kPath;
+bool GrSDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
+    return fAbleToUseSDFT &&
+           paint.getMaskFilter() == nullptr &&
+           paint.getStyle() == SkPaint::kFill_Style &&
+           fMinDistanceFieldFontSize <= approximateDeviceTextSize &&
+           approximateDeviceTextSize <= fMaxDistanceFieldFontSize;
 }
 
 SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
