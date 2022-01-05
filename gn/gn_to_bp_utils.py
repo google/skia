@@ -39,8 +39,11 @@ def GrabDependentValues(js, name, value_type, list_to_extend, exclude):
       continue   # We've handled all third-party DEPS as static or shared_libs.
     if 'none' in dep:
       continue   # We'll handle all cpu-specific sources manually later.
-    if exclude and exclude in dep:
+    if exclude and isinstance(exclude, str) and exclude == dep:
       continue
+    if exclude and isinstance(exclude, list) and dep in exclude:
+      continue
+
     list_to_extend.update(_strip_slash(js['targets'][dep].get(value_type, [])))
     GrabDependentValues(js, dep, value_type, list_to_extend, exclude)
 
