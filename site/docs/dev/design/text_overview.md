@@ -1,5 +1,8 @@
-Text API Overview
-=============
+---
+title: 'Text API Overview'
+linkTitle: 'Text API Overview'
+---
+
 *2D Graphics* is a broad area. It consists of a host of related, but different ideas and primitives
 - rectangles, lines, paths
 - images (often scaled, transformed, filtered)
@@ -58,16 +61,16 @@ Determining what glyphs, in what order and positions, are needed to represent a 
 
 We posit that drawing *internationally correct* Text is critical to most Web Apps, and that it is both complex to get correct, and can be computationally expensive. We propose exposing this processing to apps, providing them with results that can be efficiently drawn / animated.
 
-The core [Shaping APIs](text_shaper.md) are detailed here.
+The core [Shaping APIs](/docs/dev/design/text_shaper) are detailed here.
 
-Assocated [Canvas2D extensions](text_c2d.md) are detailed here.
+Associated [Canvas2D extensions](/docs/dev/design/text_c2d) are detailed here.
 
 Note: it is an explicit goal to **not** tie Shaping or its results to Canvas2D. We envision multiple scenarios where a framework or app will want to shape text, but not need a Canvas2D context .
 - drawn using WebGL or WebGPU
 - drawn using DOM (but utilizing line-breaking and metrics results)
 - drawn using a bespoke (i.e. wasm) renderer
 
-We are also proposing a lower level interface, one that just addresses exposing [unicode properties](uni_characterize.md).
+We are also proposing a lower level interface, one that just addresses exposing [unicode properties](/docs/dev/design/uni_characterize).
 
 
 ## Contributors:

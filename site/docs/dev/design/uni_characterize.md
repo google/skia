@@ -1,5 +1,8 @@
-Text Properties API
-=============
+---
+title: 'Text Properties API'
+linkTitle: 'Text Properties API'
+---
+
 A variety of (internationally correct) text processing requires know the *properties* of unicode characters.
 For example, where in a string are the word boundaries (needed for line-breaking), which need to be ordered
 right-to-left or left-to-right?
@@ -90,14 +93,14 @@ results[34] --> HardLineBreak
 
 Some facilities for characterizing Unicode already exist, either as part of EcmaScript or the Web api. See [intl segmenter](https://github.com/tc39/proposal-intl-segmenter). This
 proposal acknowledges these, but suggests that any potential overlap in functionality is OK,
-given the design constraint spelled out in the [Ergonomics](#Ergonomics) section.
+given the design constraint spelled out in the [Ergonomics](#ergonomics) section.
 
 Similar to the contrast between canvas2d and webgl, this proposal seeks to provide very efficient,
 lower level access to unicode propoerties, specifically for sophisticated (possibly native ported to wasm)
 frameworks and apps. It is not intended to replace existing facilities (i.e. Segmenter), but rather
 to offer an alternative interface more suited to high-performance clients.
 
-We also propose a higher level interface specfically aimed at [Text Shaping](text_overview.md).
+We also propose a higher level interface specfically aimed at [Text Shaping](/docs/dev/design/text_overview).
 
 ## Contributors:
  [mikerreed](https://github.com/mikerreed),

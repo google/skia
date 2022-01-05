@@ -1,6 +1,9 @@
-Canvas2D extensions for Shaped Text
-=============
-[Shaped Text](text_shaper.md) is a proposal for exposing the Browser's text shaping engine. It takes in
+---
+title: 'Canvas2D Shaped Text Extensions'
+linkTitle: 'Canvas2D Text Extensions'
+---
+
+[Shaped Text](/docs/dev/design/text_shaper) is a proposal for exposing the Browser's text shaping engine. It takes in
 a block of (annoated) text, and returns the low-level information needed to correctly measure, hit-test,
 and draw the text as positioned glyphs. This processing step is needed whenever text is measured or
 drawn in the browser, and this processing can be complex and time consuming. The output of this processing
@@ -33,9 +36,9 @@ with the exception of the actual text attributes:
 - direction
 
 These are ignored, because they have already been 'computed' by the Shape Text processing, and their
-results are represented in the glyphs, positions, and [Font](text_shaper.md) parameters.
+results are represented in the glyphs, positions, and [Font](/docs/dev/design/text_shaper) parameters.
 
-[Font](text_shaper.md) is far more specific in this extension that the existing context.font attribute. In
+[Font](/docs/dev/design/text_shaper) is far more specific in this extension that the existing context.font attribute. In
 today's canvas2d, "font" holds a high-level description of the typeface(s): It is a string with the
 font's name, which has to be resolved to find the actual (set of) resources. For Shaped Text, this
 resolution has already occured. The glyph IDs are specific to exactly 1 resource (i.e. file/blob) and
@@ -46,21 +49,19 @@ occured, the draw calls can execute faster.
 
 ## Font utilities
 
-[Shaped Text](text_shaper.md) introduced the Font interface, but for shaping, it only needed to specify
+[Shaped Text](/docs/dev/design/text_shaper) introduced the Font interface, but for shaping, it only needed to specify
 the resource (Typeface object) sizing information, and (on input) optional font-features. After shaping,
 clients may want to query information about specific glyphs within that Font. Those extended methods are
 presented here.
 
 ```WebIDL
 interface Font {
-    ...     // see [Shaped Text](text_shaper.md) for descriptive attributes
-
     // return array of advance widths for the specified glyphs.
     //
     sequence<float> getGlyphAdvances(sequene<unsigned short> glyphs);
 
     // return array of [left, top, right, bottom] coordinates for the specified glyphs,
-    // 
+    //
     // If positions are provided, then the rectangles are relative to each glyph's postion.
     // If no positions are provided, then the rectangles are all relateive to (0,0).
     // Note: positions are stored as (x,y) pairs
@@ -68,7 +69,7 @@ interface Font {
     sequence<float> getGlyphBounds(sequene<unsigned short> glyphs, sequence<float> positions?);
 
     // return array of Path2D objects for the specified glyphs,
-    // 
+    //
     // If positions are provided, then the paths are relative to each glyph's postion.
     // If no positions are provided, then the paths are all relateive to (0,0).
     // Note: positions are stored as (x,y) pairs
@@ -90,7 +91,7 @@ interface GlyphImage {
 };
 ```
 
-[Overview document](text_overview.md)
+[Overview document](/docs/dev/design/text_overview)
 
 ## Contributors:
  [mikerreed](https://github.com/mikerreed),

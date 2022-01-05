@@ -1,10 +1,13 @@
-Shaped Text
-=============
+---
+title: 'Shaped Text'
+linkTitle: 'Shaped Text'
+---
+
 A series of object models for describing a low-level builder for multi-line formatted text, and the resulting objects that expose the results of shaping that text. These are done outside of DOM Text nodes, and outside of any particular rendering model (e.g. canvas2d or webgl).
 
-A related explainer focuses on suggested [extensions to canvas2d](text_c2d.md) to allow it to efficiently render the shaped results, and to offer helper objects for inspecting useful properties from a typeface.
+A related explainer focuses on suggested [extensions to canvas2d](/docs/dev/design/text_c2d) to allow it to efficiently render the shaped results, and to offer helper objects for inspecting useful properties from a typeface.
 
-[Overview document](text_overview.md)
+[Overview document](/docs/dev/design/text_overview)
 
 ## Target audience
 
@@ -235,7 +238,7 @@ two proposals, allowing high-level clients to utilize their data model, but stil
 to access our lower level accessors (as they wish).
 
 ## Rendering in Canvas2D
-The [next explainer](text_c2d.md) describes how to take these results and render them
+The [next explainer](/docs/dev/design/text_c2d) describes how to take these results and render them
 into an (extended) Canvas context.
 
 ## Contributors:
