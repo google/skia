@@ -997,20 +997,31 @@ void TextLine::getRectsForRange(TextRange textRange0,
                     clip.fTop = this->sizes().delta();
                     break;
                 case RectHeightStyle::kIncludeLineSpacingTop: {
+                    clip.fBottom = this->height();
+                    clip.fTop = this->sizes().delta();
+                    auto verticalShift = this->sizes().rawAscent() - this->sizes().ascent();
                     if (isFirstLine()) {
-                        auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
                         clip.fTop += verticalShift;
                     }
                     break;
                 }
                 case RectHeightStyle::kIncludeLineSpacingMiddle: {
-                    auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
-                    clip.fTop += isFirstLine() ? verticalShift : verticalShift / 2;
-                    clip.fBottom += isLastLine() ? 0 : verticalShift / 2;
+                    clip.fBottom = this->height();
+                    clip.fTop = this->sizes().delta();
+                    auto verticalShift = this->sizes().rawAscent() - this->sizes().ascent();
+                    clip.offset(0, verticalShift / 2.0);
+                    if (isFirstLine()) {
+                        clip.fTop += verticalShift / 2.0;
+                    }
+                    if (isLastLine()) {
+                        clip.fBottom -= verticalShift / 2.0;
+                    }
                     break;
                  }
                 case RectHeightStyle::kIncludeLineSpacingBottom: {
-                    auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
+                    clip.fBottom = this->height();
+                    clip.fTop = this->sizes().delta();
+                    auto verticalShift = this->sizes().rawAscent() - this->sizes().ascent();
                     clip.offset(0, verticalShift);
                     if (isLastLine()) {
                         clip.fBottom -= verticalShift;

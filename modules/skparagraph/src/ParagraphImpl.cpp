@@ -601,13 +601,13 @@ void ParagraphImpl::resolveStrut() {
         fStrutMetrics = InternalLineMetrics(
             (metrics.fAscent / strutHeight) * strutMultiplier,
             (metrics.fDescent / strutHeight) * strutMultiplier,
-                strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize());
+                strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize(),
+            metrics.fAscent, metrics.fDescent, metrics.fLeading);
     } else {
         fStrutMetrics = InternalLineMetrics(
                 metrics.fAscent,
                 metrics.fDescent,
-                strutStyle.getLeading() < 0 ? 0
-                                            : strutStyle.getLeading() * strutStyle.getFontSize());
+                strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize());
     }
     fStrutMetrics.setForceStrut(this->paragraphStyle().getStrutStyle().getForceStrutHeight());
 }

@@ -6585,23 +6585,121 @@ UNIX_ONLY_TEST(SkParagraph_RTLFollowedByLTR, reporter) {
     paragraph->layout(100);
     paragraph->paint(canvas.get(), 0, 0);
 
-    auto boxes = paragraph->getRectsForRange(0, paragraph->getMaxWidth(), RectHeightStyle::kTight, RectWidthStyle::kTight);
+    auto boxes = paragraph->getRectsForRange(
+            0, paragraph->getMaxWidth(), RectHeightStyle::kTight, RectWidthStyle::kTight);
     REPORTER_ASSERT(reporter, boxes.size() == 2);
-    REPORTER_ASSERT(reporter, boxes[0].direction == TextDirection::kRtl &&
-                              boxes[1].direction == TextDirection::kLtr);
+    REPORTER_ASSERT(
+            reporter,
+            boxes[0].direction == TextDirection::kRtl && boxes[1].direction == TextDirection::kLtr);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.fLeft, 0.0f));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.fRight, boxes[1].rect.fLeft));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.fRight, paragraph->getMaxIntrinsicWidth()));
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(boxes[1].rect.fRight, paragraph->getMaxIntrinsicWidth()));
 
-    std::vector<SkScalar> widths = { -10, 0, 10, 20, 30, 40, 50, 60 };
-    std::vector<int> positions = { -2, -2, 2, 1, -3, -4, -5, 6 };
+    std::vector<SkScalar> widths = {-10, 0, 10, 20, 30, 40, 50, 60};
+    std::vector<int> positions = {-2, -2, 2, 1, -3, -4, -5, 6};
 
     size_t index = 0;
     for (auto w : widths) {
         auto pos = paragraph->getGlyphPositionAtCoordinate(w, 0);
         auto res = positions[index];
-        REPORTER_ASSERT(reporter, pos.affinity == (res < 0 ? Affinity::kDownstream : Affinity::kUpstream));
+        REPORTER_ASSERT(reporter,
+                        pos.affinity == (res < 0 ? Affinity::kDownstream : Affinity::kUpstream));
         REPORTER_ASSERT(reporter, pos.position == std::abs(res));
         ++index;
     }
+}
+
+UNIX_ONLY_TEST(SkParagraph_StrutTopLine, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_StrutTopLine.png");
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(10);
+    SkPaint black;
+    black.setColor(SK_ColorBLACK);
+    text_style.setForegroundColor(black);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    StrutStyle strut_style;
+    strut_style.setStrutEnabled(true);
+    strut_style.setFontFamilies({SkString("Ahem")});
+    strut_style.setFontSize(16);
+    strut_style.setHeight(4.0f);
+    strut_style.setHeightOverride(true);
+    strut_style.setLeading(-1.0f);
+    strut_style.setForceStrutHeight(true);
+    paragraph_style.setStrutStyle(strut_style);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    builder.pushStyle(text_style);
+    builder.addText(u"Atwater Peel Sherbrooke Bonaventure\nhi\nwasssup!");
+
+    auto paragraph = builder.Build();
+    paragraph->layout(797);
+    paragraph->paint(canvas.get(), 0, 0);
+    auto boxes = paragraph->getRectsForRange(0, 60, RectHeightStyle::kIncludeLineSpacingTop, RectWidthStyle::kMax);
+    REPORTER_ASSERT(reporter, boxes.size() == 4);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.fTop, 38.4f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.fBottom, 64.0f));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.fTop, 64.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.fBottom, 128.0f));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.fTop, 64.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.fBottom, 128.0f));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.fTop, 128.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.fBottom, 192.0f));
+}
+
+UNIX_ONLY_TEST(SkParagraph_DifferentFontsTopLine, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_DifferentFontsTopLine.png");
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(10);
+    SkPaint black;
+    black.setColor(SK_ColorBLACK);
+    text_style.setForegroundColor(black);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    text_style.setFontSize(30.0);
+    builder.pushStyle(text_style);
+    builder.addText(u"Atwater Peel ");
+    text_style.setFontSize(15.0);
+    builder.pushStyle(text_style);
+    builder.addText(u"Sherbrooke Bonaventure ");
+    text_style.setFontSize(10.0);
+    builder.pushStyle(text_style);
+    builder.addText(u"hi wassup!");
+
+    auto paragraph = builder.Build();
+    paragraph->layout(797);
+    paragraph->paint(canvas.get(), 0, 0);
+    auto boxes = paragraph->getRectsForRange(0, 60, RectHeightStyle::kIncludeLineSpacingTop, RectWidthStyle::kMax);
+    REPORTER_ASSERT(reporter, boxes.size() == 4);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.fTop, 00.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.fBottom, 30.0f));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.fTop, 00.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.fBottom, 30.0f));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.fTop, 00.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.fBottom, 30.0f));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.fTop, 30.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.fBottom, 40.0f));
 }

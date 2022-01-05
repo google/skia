@@ -386,6 +386,16 @@ public:
         fForceStrut = false;
     }
 
+    InternalLineMetrics(SkScalar a, SkScalar d, SkScalar l, SkScalar ra, SkScalar rd, SkScalar rl) {
+        fAscent = a;
+        fDescent = d;
+        fLeading = l;
+        fRawAscent = ra;
+        fRawDescent = rd;
+        fRawLeading = rl;
+        fForceStrut = false;
+    }
+
     InternalLineMetrics(const SkFont& font, bool forceStrut) {
         SkFontMetrics metrics;
         font.getMetrics(&metrics);
