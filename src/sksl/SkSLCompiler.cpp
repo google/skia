@@ -57,13 +57,13 @@
 #include "spirv-tools/libspirv.hpp"
 #endif
 
-#if defined(SKSL_STANDALONE)
-
-// In standalone mode, we load the textual sksl source files. GN generates or copies these files
-// to the skslc executable directory. The "data" in this mode is just the filename.
-#define MODULE_DATA(name) MakeModulePath("sksl_" #name ".sksl")
-
+#ifdef SKSL_STANDALONE
+#define REHYDRATE 0
 #else
+#define REHYDRATE 1
+#endif
+
+#if REHYDRATE
 
 // At runtime, we load the dehydrated sksl data files. The data is a (pointer, size) pair.
 #include "src/sksl/generated/sksl_frag.dehydrated.sksl"
@@ -74,6 +74,12 @@
 
 #define MODULE_DATA(name) MakeModuleData(SKSL_INCLUDE_sksl_##name,\
                                          SKSL_INCLUDE_sksl_##name##_LENGTH)
+
+#else
+
+// In standalone mode, we load the textual sksl source files. GN generates or copies these files
+// to the skslc executable directory. The "data" in this mode is just the filename.
+#define MODULE_DATA(name) MakeModulePath("sksl_" #name ".sksl")
 
 #endif
 
@@ -324,7 +330,16 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     Program::Settings settings;
     settings.fReplaceSettings = !dehydrate;
 
-#if defined(SKSL_STANDALONE)
+#if REHYDRATE
+    ProgramConfig config;
+    config.fIsBuiltinCode = true;
+    config.fKind = kind;
+    config.fSettings = settings;
+    AutoProgramConfig autoConfig(fContext, &config);
+    SkASSERT(data.fData && (data.fSize != 0));
+    Rehydrator rehydrator(fContext.get(), base, data.fData, data.fSize);
+    LoadedModule result = { kind, rehydrator.symbolTable(), rehydrator.elements() };
+#else
     SkASSERT(this->errorCount() == 0);
     SkASSERT(data.fPath);
     std::ifstream in(data.fPath);
@@ -340,15 +355,6 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
         SkDEBUGFAILF("%s %s\n", data.fPath, this->fErrorText.c_str());
     }
-#else
-    ProgramConfig config;
-    config.fIsBuiltinCode = true;
-    config.fKind = kind;
-    config.fSettings = settings;
-    AutoProgramConfig autoConfig(fContext, &config);
-    SkASSERT(data.fData && (data.fSize != 0));
-    Rehydrator rehydrator(fContext.get(), base, data.fData, data.fSize);
-    LoadedModule result = { kind, rehydrator.symbolTable(), rehydrator.elements() };
 #endif
 
     return result;
