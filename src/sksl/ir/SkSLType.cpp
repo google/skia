@@ -517,7 +517,7 @@ String Type::getArrayName(int arraySize) const {
     return String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize);
 }
 
-std::unique_ptr<Type> Type::MakeAliasType(const char* name, const Type& targetType) {
+std::unique_ptr<Type> Type::MakeAliasType(skstd::string_view name, const Type& targetType) {
     return std::make_unique<AliasType>(std::move(name), targetType);
 }
 

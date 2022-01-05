@@ -49,7 +49,6 @@
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLSymbolAlias.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -202,15 +201,6 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             SkASSERT(fSymbols.size() > id);
             return fSymbols[id];
-        }
-        case kSymbolAlias_Command: {
-            uint16_t id = this->readU16();
-            skstd::string_view name = this->readString();
-            const Symbol* origSymbol = this->symbol();
-            const SymbolAlias* symbolAlias = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<SymbolAlias>(/*line=*/-1, name, origSymbol));
-            this->addSymbol(id, symbolAlias);
-            return symbolAlias;
         }
         case kSystemType_Command: {
             uint16_t id = this->readU16();

@@ -268,7 +268,7 @@ static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Builti
     // Alias every private type to "invalid". This will prevent code from using built-in names like
     // `sampler2D` as variable names.
     for (BuiltinTypePtr privateType : kPrivateTypes) {
-        symbols->addAlias((types.*privateType)->name(), types.fInvalid.get());
+        symbols->add(Type::MakeAliasType((types.*privateType)->name(), *types.fInvalid));
     }
 }
 

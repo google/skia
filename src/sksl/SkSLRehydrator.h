@@ -118,8 +118,6 @@ public:
         kSwizzle_Command,
         // uint16 id
         kSymbolRef_Command,
-        // String name, uint16 origSymbolId
-        kSymbolAlias_Command,
         // uint16 owned symbol count, Symbol[] ownedSymbols, uint16 symbol count,
         // (String, uint16/*index*/)[].
         kSymbolTable_Command,
