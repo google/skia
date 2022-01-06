@@ -1,4 +1,6 @@
 ### Compilation failed:
 
-error: 5: construction of array type 'float[3]' is not supported
-1 error
+error: 3: array size must appear after variable name
+error: 5: array size must appear after variable name
+error: 7: construction of array type 'float[3]' is not supported
+3 errors

@@ -1,4 +1,6 @@
-// Expect 2 errors
+// Expect 3 errors
+
+float[123] global;
 
 void array_decl() { float[123] x; }
 

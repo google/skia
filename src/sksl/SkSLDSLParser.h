@@ -153,6 +153,8 @@ private:
 
     bool parseArrayDimensions(int line, dsl::DSLType* type);
 
+    void checkArrayDimensions(int line, dsl::DSLType& type);
+
     bool parseInitializer(int line, dsl::DSLExpression* initializer);
 
     void globalVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
