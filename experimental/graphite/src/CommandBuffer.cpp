@@ -18,10 +18,18 @@ namespace skgpu {
 
 CommandBuffer::CommandBuffer() {}
 
+CommandBuffer::~CommandBuffer() {
+    this->releaseResources();
+}
+
 void CommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     fTrackedResources.reset();
+}
+
+void CommandBuffer::trackResource(sk_sp<Resource> resource) {
+    fTrackedResources.push_back(std::move(resource));
 }
 
 bool CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,

@@ -8,7 +8,7 @@
 #ifndef skgpu_GraphicsPipeline_DEFINED
 #define skgpu_GraphicsPipeline_DEFINED
 
-#include "include/core/SkRefCnt.h"
+#include "experimental/graphite/src/Resource.h"
 
 namespace skgpu {
 
@@ -22,12 +22,12 @@ namespace skgpu {
  * A GraphicsPipeline is created from the combination of a GraphicsPipelineDesc (representing draw
  * specific configuration) and a RenderPassDesc (representing the target of the draw).
  */
-class GraphicsPipeline : public SkRefCnt {
+class GraphicsPipeline : public Resource {
 public:
     ~GraphicsPipeline() override;
 
 protected:
-    GraphicsPipeline();
+    GraphicsPipeline(const Gpu*);
 
 private:
 };

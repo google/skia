@@ -8,12 +8,12 @@
 #ifndef skgpu_Buffer_DEFINED
 #define skgpu_Buffer_DEFINED
 
+#include "experimental/graphite/src/Resource.h"
 #include "experimental/graphite/src/ResourceTypes.h"
-#include "include/core/SkRefCnt.h"
 
 namespace skgpu {
 
-class Buffer : public SkRefCnt {
+class Buffer : public Resource {
 public:
     size_t size() const { return fSize; }
 
@@ -23,8 +23,8 @@ public:
     bool isMapped() const { return fMapPtr; }
 
 protected:
-    Buffer(size_t size, BufferType type, PrioritizeGpuReads prioritizeGpuReads)
-        : fSize(size), fType(type), fPrioritizeGpuReads(prioritizeGpuReads) {}
+    Buffer(const Gpu* gpu, size_t size, BufferType type, PrioritizeGpuReads prioritizeGpuReads)
+        : Resource(gpu), fSize(size), fType(type), fPrioritizeGpuReads(prioritizeGpuReads) {}
 
     void* fMapPtr = nullptr;
 

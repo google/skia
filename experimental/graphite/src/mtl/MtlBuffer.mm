@@ -55,14 +55,15 @@ sk_sp<Buffer> Buffer::Make(const Gpu* gpu,
     (*buffer).label = kBufferTypeNames[(int)type];
 #endif
 
-    return sk_sp<Buffer>(new Buffer(size, type, prioritizeGpuReads, std::move(buffer)));
+    return sk_sp<Buffer>(new Buffer(gpu, size, type, prioritizeGpuReads, std::move(buffer)));
 }
 
-Buffer::Buffer(size_t size,
+Buffer::Buffer(const Gpu* gpu,
+               size_t size,
                BufferType type,
                PrioritizeGpuReads prioritizeGpuReads,
                sk_cfp<id<MTLBuffer>> buffer)
-        : skgpu::Buffer(size, type, prioritizeGpuReads)
+        : skgpu::Buffer(gpu, size, type, prioritizeGpuReads)
         , fBuffer(std::move(buffer)) {}
 
 void Buffer::onMap() {
@@ -85,6 +86,10 @@ void Buffer::onUnmap() {
     }
 #endif
     fMapPtr = nullptr;
+}
+
+void Buffer::onFreeGpuData() {
+    fBuffer.reset();
 }
 
 } // namespace skgpu::mtl

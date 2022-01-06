@@ -22,6 +22,7 @@ namespace skgpu {
 class Buffer;
 class Gpu;
 class GraphicsPipeline;
+class Resource;
 class Texture;
 class TextureProxy;
 
@@ -57,17 +58,13 @@ struct RenderPassDesc {
 
 class CommandBuffer : public SkRefCnt, private DrawDispatcher {
 public:
-    ~CommandBuffer() override {
-        this->releaseResources();
-    }
+    ~CommandBuffer() override;
 
 #ifdef SK_DEBUG
     bool hasWork() { return fHasWork; }
 #endif
 
-    void trackResource(sk_sp<SkRefCnt> resource) {
-        fTrackedResources.push_back(std::move(resource));
-    }
+    void trackResource(sk_sp<Resource> resource);
 
     bool beginRenderPass(const RenderPassDesc&,
                          sk_sp<Texture> colorTexture,
@@ -186,7 +183,7 @@ private:
 #endif
 
     inline static constexpr int kInitialTrackedResourcesCount = 32;
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<SkRefCnt>> fTrackedResources;
+    SkSTArray<kInitialTrackedResourcesCount, sk_sp<Resource>> fTrackedResources;
 };
 
 } // namespace skgpu

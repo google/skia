@@ -9,13 +9,13 @@
 #define skgpu_Texture_DEFINED
 
 #include "experimental/graphite/include/TextureInfo.h"
+#include "experimental/graphite/src/Resource.h"
 #include "experimental/graphite/src/ResourceTypes.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 
 namespace skgpu {
 
-class Texture : public SkRefCnt {
+class Texture : public Resource {
 public:
     ~Texture() override;
 
@@ -26,7 +26,7 @@ public:
     const TextureInfo& textureInfo() const { return fInfo; }
 
 protected:
-    Texture(SkISize dimensions, const TextureInfo& info, Ownership);
+    Texture(const Gpu*, SkISize dimensions, const TextureInfo& info, Ownership);
 
     Ownership ownership() const { return fOwnership; }
 

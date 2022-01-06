@@ -163,7 +163,8 @@ bool CommandBuffer::onBeginRenderPass(const RenderPassDesc& renderPassDesc,
         SkASSERT(!depthStencilInfo.fTextureInfo.isValid());
     }
 
-    fActiveRenderCommandEncoder = RenderCommandEncoder::Make(fCommandBuffer.get(),
+    fActiveRenderCommandEncoder = RenderCommandEncoder::Make(fGpu,
+                                                             fCommandBuffer.get(),
                                                              descriptor.get());
 
     this->trackResource(fActiveRenderCommandEncoder);
@@ -188,7 +189,7 @@ BlitCommandEncoder* CommandBuffer::getBlitCommandEncoder() {
     }
 #endif
 
-    fActiveBlitCommandEncoder = BlitCommandEncoder::Make(fCommandBuffer.get());
+    fActiveBlitCommandEncoder = BlitCommandEncoder::Make(fGpu, fCommandBuffer.get());
 
     if (!fActiveBlitCommandEncoder) {
         return nullptr;

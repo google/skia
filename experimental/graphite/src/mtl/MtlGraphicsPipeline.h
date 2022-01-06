@@ -9,7 +9,7 @@
 #define skgpu_MtlGraphicsPipeline_DEFINED
 
 #include "experimental/graphite/src/GraphicsPipeline.h"
-
+#include "include/core/SkRefCnt.h"
 #include "include/ports/SkCFObject.h"
 #include <memory>
 
@@ -40,16 +40,20 @@ public:
     size_t instanceStride() const { return fInstanceStride; }
 
 private:
-    GraphicsPipeline(sk_cfp<id<MTLRenderPipelineState>> pso,
+    GraphicsPipeline(const skgpu::Gpu* gpu,
+                     sk_cfp<id<MTLRenderPipelineState>> pso,
                      id<MTLDepthStencilState> dss,
                      uint32_t refValue,
                      size_t vertexStride,
                      size_t instanceStride)
-        : fPipelineState(std::move(pso))
+        : skgpu::GraphicsPipeline(gpu)
+        , fPipelineState(std::move(pso))
         , fDepthStencilState(dss)
         , fStencilReferenceValue(refValue)
         , fVertexStride(vertexStride)
         , fInstanceStride(instanceStride) {}
+
+    void onFreeGpuData() override;
 
     sk_cfp<id<MTLRenderPipelineState>> fPipelineState;
     id<MTLDepthStencilState> fDepthStencilState;

@@ -77,11 +77,12 @@ sk_cfp<id<MTLTexture>> Texture::MakeMtlTexture(const Gpu* gpu,
     return texture;
 }
 
-Texture::Texture(SkISize dimensions,
+Texture::Texture(const Gpu* gpu,
+                 SkISize dimensions,
                  const skgpu::TextureInfo& info,
                  sk_cfp<id<MTLTexture>> texture,
                  Ownership ownership)
-        : skgpu::Texture(dimensions, info, ownership)
+        : skgpu::Texture(gpu, dimensions, info, ownership)
         , fTexture(std::move(texture)) {}
 
 sk_sp<Texture> Texture::Make(const Gpu* gpu,
@@ -91,13 +92,26 @@ sk_sp<Texture> Texture::Make(const Gpu* gpu,
     if (!texture) {
         return nullptr;
     }
-    return sk_sp<Texture>(new Texture(dimensions, info, std::move(texture), Ownership::kOwned));
+    return sk_sp<Texture>(new Texture(gpu,
+                                      dimensions,
+                                      info,
+                                      std::move(texture),
+                                      Ownership::kOwned));
 }
 
-sk_sp<Texture> Texture::MakeWrapped(SkISize dimensions,
+sk_sp<Texture> Texture::MakeWrapped(const Gpu* gpu,
+                                    SkISize dimensions,
                                     const skgpu::TextureInfo& info,
                                     sk_cfp<id<MTLTexture>> texture) {
-    return sk_sp<Texture>(new Texture(dimensions, info, std::move(texture), Ownership::kWrapped));
+    return sk_sp<Texture>(new Texture(gpu,
+                                      dimensions,
+                                      info,
+                                      std::move(texture),
+                                      Ownership::kWrapped));
+}
+
+void Texture::onFreeGpuData() {
+    fTexture.reset();
 }
 
 } // namespace skgpu::mtl

@@ -8,6 +8,7 @@
 #ifndef skgpu_MtlRenderCommandEncoder_DEFINED
 #define skgpu_MtlRenderCommandEncoder_DEFINED
 
+#include "experimental/graphite/src/Resource.h"
 #include "include/core/SkRefCnt.h"
 #include "include/ports/SkCFObject.h"
 
@@ -18,14 +19,15 @@ namespace skgpu::mtl {
 /**
  * Wraps a MTLRenderCommandEncoder object and associated tracked state
  */
-class RenderCommandEncoder : public SkRefCnt {
+class RenderCommandEncoder : public Resource {
 public:
-    static sk_sp<RenderCommandEncoder> Make(id<MTLCommandBuffer> commandBuffer,
+    static sk_sp<RenderCommandEncoder> Make(const Gpu* gpu,
+                                            id<MTLCommandBuffer> commandBuffer,
                                             MTLRenderPassDescriptor* descriptor) {
         // Adding a retain here to keep our own ref separate from the autorelease pool
         sk_cfp<id<MTLRenderCommandEncoder>> encoder =
                  sk_ret_cfp([commandBuffer renderCommandEncoderWithDescriptor:descriptor]);
-        return sk_sp<RenderCommandEncoder>(new RenderCommandEncoder(std::move(encoder)));
+        return sk_sp<RenderCommandEncoder>(new RenderCommandEncoder(gpu, std::move(encoder)));
     }
 
     void setLabel(NSString* label) {
@@ -240,8 +242,12 @@ public:
     }
 
 private:
-    RenderCommandEncoder(sk_cfp<id<MTLRenderCommandEncoder>> encoder)
-        : fCommandEncoder(std::move(encoder)) {}
+    RenderCommandEncoder(const Gpu* gpu, sk_cfp<id<MTLRenderCommandEncoder>> encoder)
+        : Resource(gpu), fCommandEncoder(std::move(encoder)) {}
+
+    void onFreeGpuData() override {
+        fCommandEncoder.reset();
+    }
 
     sk_cfp<id<MTLRenderCommandEncoder>> fCommandEncoder;
 

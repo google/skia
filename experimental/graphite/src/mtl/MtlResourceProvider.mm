@@ -47,7 +47,10 @@ sk_sp<skgpu::Texture> ResourceProvider::createWrappedTexture(const BackendTextur
         return nullptr;
     }
     sk_cfp<id<MTLTexture>> mtlTexture = sk_ret_cfp((id<MTLTexture>)mtlHandleTexture);
-    return Texture::MakeWrapped(texture.dimensions(), texture.info(), std::move(mtlTexture));
+    return Texture::MakeWrapped(this->mtlGpu(),
+                                texture.dimensions(),
+                                texture.info(),
+                                std::move(mtlTexture));
 }
 
 sk_sp<skgpu::Buffer> ResourceProvider::createBuffer(size_t size,

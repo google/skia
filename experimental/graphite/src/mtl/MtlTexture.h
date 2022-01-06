@@ -9,6 +9,7 @@
 #define skgpu_MtlTexture_DEFINED
 
 #include "experimental/graphite/src/Texture.h"
+#include "include/core/SkRefCnt.h"
 
 #import <Metal/Metal.h>
 
@@ -22,11 +23,12 @@ public:
                                                  SkISize dimensions,
                                                  const skgpu::TextureInfo&);
 
-    static sk_sp<Texture> Make(const Gpu* gpu,
+    static sk_sp<Texture> Make(const Gpu*,
                                SkISize dimensions,
                                const skgpu::TextureInfo&);
 
-    static sk_sp<Texture> MakeWrapped(SkISize dimensions,
+    static sk_sp<Texture> MakeWrapped(const Gpu*,
+                                      SkISize dimensions,
                                       const skgpu::TextureInfo&,
                                       sk_cfp<id<MTLTexture>>);
 
@@ -35,10 +37,13 @@ public:
     id<MTLTexture> mtlTexture() const { return fTexture.get(); }
 
 private:
-    Texture(SkISize dimensions,
+    Texture(const Gpu* gpu,
+            SkISize dimensions,
             const skgpu::TextureInfo& info,
             sk_cfp<id<MTLTexture>>,
             Ownership);
+
+    void onFreeGpuData() override;
 
     sk_cfp<id<MTLTexture>> fTexture;
 };

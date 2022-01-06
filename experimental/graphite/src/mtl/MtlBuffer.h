@@ -8,9 +8,9 @@
 #ifndef skgpu_MtlBuffer_DEFINED
 #define skgpu_MtlBuffer_DEFINED
 
-#include "experimental/graphite/src/Buffer.h"
-
 #include "experimental/graphite/include/mtl/MtlTypes.h"
+#include "experimental/graphite/src/Buffer.h"
+#include "include/core/SkRefCnt.h"
 
 #import <Metal/Metal.h>
 
@@ -25,10 +25,12 @@ public:
     id<MTLBuffer> mtlBuffer() const { return fBuffer.get(); }
 
 private:
-    Buffer(size_t size, BufferType type, PrioritizeGpuReads, sk_cfp<id<MTLBuffer>>);
+    Buffer(const Gpu*, size_t size, BufferType type, PrioritizeGpuReads, sk_cfp<id<MTLBuffer>>);
 
     void onMap() override;
     void onUnmap() override;
+
+    void onFreeGpuData() override;
 
     sk_cfp<id<MTLBuffer>> fBuffer;
 };
