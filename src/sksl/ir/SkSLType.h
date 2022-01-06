@@ -114,7 +114,7 @@ public:
     /**
      * Creates an alias which maps to another type.
      */
-    static std::unique_ptr<Type> MakeAliasType(skstd::string_view name, const Type& targetType);
+    static std::unique_ptr<Type> MakeAliasType(const char* name, const Type& targetType);
 
     /**
      * Create a generic type which maps to the listed types--e.g. $genType is a generic type which

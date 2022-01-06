@@ -8,6 +8,7 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLSymbolAlias.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
@@ -75,6 +76,9 @@ const Symbol* SymbolTable::lookup(SymbolTable* writableSymbolTable, const Symbol
             }
         }
     }
+    while (symbol && symbol->is<SymbolAlias>()) {
+        symbol = symbol->as<SymbolAlias>().origSymbol();
+    }
     return symbol;
 }
 
@@ -82,6 +86,10 @@ const String* SymbolTable::takeOwnershipOfString(String str) {
     fOwnedStrings.push_front(std::move(str));
     // Because fOwnedStrings is a linked list, pointers to elements are stable.
     return &fOwnedStrings.front();
+}
+
+void SymbolTable::addAlias(skstd::string_view name, const Symbol* symbol) {
+    this->add(std::make_unique<SymbolAlias>(symbol->fLine, name, symbol));
 }
 
 void SymbolTable::addWithoutOwnership(const Symbol* symbol) {

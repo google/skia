@@ -88,15 +88,6 @@ BuiltinTypes::BuiltinTypes()
         , fMat2(Type::MakeAliasType("mat2", *fFloat2x2))
         , fMat3(Type::MakeAliasType("mat3", *fFloat3x3))
         , fMat4(Type::MakeAliasType("mat4", *fFloat4x4))
-        , fMat2x2(Type::MakeAliasType("mat2x2", *fFloat2x2))
-        , fMat2x3(Type::MakeAliasType("mat2x3", *fFloat2x3))
-        , fMat2x4(Type::MakeAliasType("mat2x4", *fFloat2x4))
-        , fMat3x2(Type::MakeAliasType("mat3x2", *fFloat3x2))
-        , fMat3x3(Type::MakeAliasType("mat3x3", *fFloat3x3))
-        , fMat3x4(Type::MakeAliasType("mat3x4", *fFloat3x4))
-        , fMat4x2(Type::MakeAliasType("mat4x2", *fFloat4x2))
-        , fMat4x3(Type::MakeAliasType("mat4x3", *fFloat4x3))
-        , fMat4x4(Type::MakeAliasType("mat4x4", *fFloat4x4))
         , fTexture1D(Type::MakeTextureType("texture1D",
                                            SpvDim1D,
                                            /*isDepth=*/false,

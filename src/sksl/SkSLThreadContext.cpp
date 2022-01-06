@@ -82,44 +82,44 @@ void ThreadContext::setupSymbolTable() {
     if (runtimeEffect && !context.fConfig->fSettings.fEnforceES2Restrictions) {
         // We're compiling a runtime effect, but we're not enforcing ES2 restrictions. Add various
         // non-ES2 types to our symbol table to allow them to be tested.
-        symbols.addWithoutOwnership(context.fTypes.fMat2x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat2x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat2x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat3x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat3x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat3x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat4x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat4x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fMat4x4.get());
+        symbols.addAlias("mat2x2", context.fTypes.fFloat2x2.get());
+        symbols.addAlias("mat2x3", context.fTypes.fFloat2x3.get());
+        symbols.addAlias("mat2x4", context.fTypes.fFloat2x4.get());
+        symbols.addAlias("mat3x2", context.fTypes.fFloat3x2.get());
+        symbols.addAlias("mat3x3", context.fTypes.fFloat3x3.get());
+        symbols.addAlias("mat3x4", context.fTypes.fFloat3x4.get());
+        symbols.addAlias("mat4x2", context.fTypes.fFloat4x2.get());
+        symbols.addAlias("mat4x3", context.fTypes.fFloat4x3.get());
+        symbols.addAlias("mat4x4", context.fTypes.fFloat4x4.get());
 
-        symbols.addWithoutOwnership(context.fTypes.fFloat2x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat2x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat3x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat3x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat4x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fFloat4x3.get());
+        symbols.addAlias("float2x3", context.fTypes.fFloat2x3.get());
+        symbols.addAlias("float2x4", context.fTypes.fFloat2x4.get());
+        symbols.addAlias("float3x2", context.fTypes.fFloat3x2.get());
+        symbols.addAlias("float3x4", context.fTypes.fFloat3x4.get());
+        symbols.addAlias("float4x2", context.fTypes.fFloat4x2.get());
+        symbols.addAlias("float4x3", context.fTypes.fFloat4x3.get());
 
-        symbols.addWithoutOwnership(context.fTypes.fHalf2x3.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf2x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf3x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf3x4.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf4x2.get());
-        symbols.addWithoutOwnership(context.fTypes.fHalf4x3.get());
+        symbols.addAlias("half2x3", context.fTypes.fHalf2x3.get());
+        symbols.addAlias("half2x4", context.fTypes.fHalf2x4.get());
+        symbols.addAlias("half3x2", context.fTypes.fHalf3x2.get());
+        symbols.addAlias("half3x4", context.fTypes.fHalf3x4.get());
+        symbols.addAlias("half4x2", context.fTypes.fHalf4x2.get());
+        symbols.addAlias("half4x3", context.fTypes.fHalf4x3.get());
 
-        symbols.addWithoutOwnership(context.fTypes.fUInt.get());
-        symbols.addWithoutOwnership(context.fTypes.fUInt2.get());
-        symbols.addWithoutOwnership(context.fTypes.fUInt3.get());
-        symbols.addWithoutOwnership(context.fTypes.fUInt4.get());
+        symbols.addAlias("uint", context.fTypes.fUInt.get());
+        symbols.addAlias("uint2", context.fTypes.fUInt2.get());
+        symbols.addAlias("uint3", context.fTypes.fUInt3.get());
+        symbols.addAlias("uint4", context.fTypes.fUInt4.get());
 
-        symbols.addWithoutOwnership(context.fTypes.fShort.get());
-        symbols.addWithoutOwnership(context.fTypes.fShort2.get());
-        symbols.addWithoutOwnership(context.fTypes.fShort3.get());
-        symbols.addWithoutOwnership(context.fTypes.fShort4.get());
+        symbols.addAlias("short", context.fTypes.fShort.get());
+        symbols.addAlias("short2", context.fTypes.fShort2.get());
+        symbols.addAlias("short3", context.fTypes.fShort3.get());
+        symbols.addAlias("short4", context.fTypes.fShort4.get());
 
-        symbols.addWithoutOwnership(context.fTypes.fUShort.get());
-        symbols.addWithoutOwnership(context.fTypes.fUShort2.get());
-        symbols.addWithoutOwnership(context.fTypes.fUShort3.get());
-        symbols.addWithoutOwnership(context.fTypes.fUShort4.get());
+        symbols.addAlias("ushort", context.fTypes.fUShort.get());
+        symbols.addAlias("ushort2", context.fTypes.fUShort2.get());
+        symbols.addAlias("ushort3", context.fTypes.fUShort3.get());
+        symbols.addAlias("ushort4", context.fTypes.fUShort4.get());
     }
 }
 

@@ -48,6 +48,7 @@
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLSymbolAlias.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
@@ -154,6 +155,14 @@ void Dehydrator::write(const Symbol& s) {
                 this->writeU16(this->symbolId(p));
             }
             this->write(f.returnType());
+            break;
+        }
+        case Symbol::Kind::kSymbolAlias: {
+            const SymbolAlias& alias = s.as<SymbolAlias>();
+            this->writeCommand(Rehydrator::kSymbolAlias_Command);
+            this->writeId(&alias);
+            this->write(alias.name());
+            this->write(*alias.origSymbol());
             break;
         }
         case Symbol::Kind::kUnresolvedFunction: {
