@@ -618,6 +618,7 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
         return skstd::nullopt;
     }
     SkTArray<DSLField> fields;
+    std::unordered_set<String> field_names;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         DSLModifiers modifiers = this->modifiers();
         skstd::optional<DSLType> type = this->type(&modifiers);
@@ -638,8 +639,21 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
                     return skstd::nullopt;
                 }
             }
-            fields.push_back(DSLField(modifiers, std::move(actualType), this->text(memberName),
-                    this->position(memberName)));
+
+            String key(this->text(memberName));
+            auto found = field_names.find(key);
+            if (found == field_names.end()) {
+                fields.push_back(DSLField(modifiers,
+                                    std::move(actualType),
+                                    this->text(memberName),
+                                    this->position(memberName)));
+                field_names.emplace(key);
+            } else {
+                this->error(name,
+                            "field '" + key +
+                            "' was already defined in the same struct ('" + this->text(name) +
+                            "')");
+            }
         } while (this->checkNext(Token::Kind::TK_COMMA));
         if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
             return skstd::nullopt;

@@ -1,5 +1,4 @@
+### Compilation failed:
 
-struct Varyings {
-    float var;
-    float var;
-};
+error: 1: field 'var' was already defined in the same struct ('Varyings')
+1 error
