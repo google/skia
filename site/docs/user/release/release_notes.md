@@ -10,6 +10,100 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 98
+------------
+  * The following functions and methods are not defined in SkSurface when SK_SUPPORT_GPU is 0:
+    MakeFromBackendTexture, MakeFromBackendRenderTarget, MakeRenderTarget,
+    getBackendTexture, getBackendRenderTarget, replaceBackendTexture. flush() with parameters
+    was removed as well. These were all no-ops anyway when just the CPU backend was compiled in
+    (noting that flush() and flushAndSubmit() are still no-ops on the CPU backend).
+  * GrBackendSemaphore only includes methods that match the GPU backend that Skia was compiled for.
+    For example, initVulkan and vkSemaphore are not defined unless the Vulkan backend is compiled
+    into Skia.
+  * Surfaces and images are now limited to just under 2GB of total size. Previously, larger images
+    could be created, but the CPU backend would fail to index them correctly.
+  * SkCanvas::drawVertices and SkCanvas::drawPatch variants that did not take SkBlendMode are
+    removed.
+  * SkImageFilters::RuntimeShader is a new public API that enables adding RuntimeShaderEffects into
+    image filter graph.
+  * SkImage::makeRawShader is a new public API that creates "raw" image shaders. makeRawShader
+    functions like SkImage::makeShader, but for images that contain non-color data. This includes
+    images encoding things like normals, material properties (eg roughness), heightmaps, or any
+    other purely mathematical data that happens to be stored in an image. These types of images are
+    useful with some programmable shaders (ie SkRuntimeEffect).
+    Raw image shaders work like regular image shaders (including filtering and tiling), with a few
+    major differences:
+      - No color space transformation is ever applied (the color space of the image is ignored).
+      - Images with an alpha type of kUnpremul are not automatically premultiplied.
+      - Bicubic filtering is not supported. If SkSamplingOptions::useCubic is true, these factories
+        will return nullptr.
+  * Removed SkCanvas::markCTM and SkCanvas::findMarkedCTM. These were created to be used with other
+    features that have since been deleted, so they served no purpose.
+
+* * *
+
+Milestone 97
+------------
+  * Added basic support for vulkan DRM modifiers. All of these are treated as read only textures
+    internally (versus querying specific modifier support). Clients can either pass a flag to Vulkan
+    GrBackendFormat to say it uses modifiers or pass the VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT
+    to a GrBackendTexture via the GrVkImageInfo struct.
+  * The following functions and methods are not defined in SkImage when SK_SUPPORT_GPU is 0:
+    MakeTextureFromCompressed, MakeFromTexture, MakeFromCompressedTexture,
+    MakeCrossContextFromPixmap, MakeFromAdoptedTexture, MakeFromYUVATextures,
+    MakeFromYUVAPixmaps, MakePromiseTexture, MakePromiseYUVATexture, MakeBackendTextureFromSkImage,
+    flush, flushAndSubmit, getBackendTexture, makeTextureImage.
+    These were all no-ops anyway when just the CPU backend was compiled in.
+
+* * *
+
+Milestone 96
+------------
+  * SkRuntimeEffect no longer clamps the RGB values of an effect's output to the range 0..A.
+    This makes it easier to use a hierarchy of SkSL shaders where intermediate values do not
+    represent colors but are, for example, non-color inputs to a lighting model.
+    http://review.skia.org/452558
+
+* * *
+
+Milestone 95
+------------
+  * Minimum supported iOS raised from 8 to 11. Skia may build back to iOS 9 but versions older
+    than 11 are not tested. Community contributions to support versions 9 and 10 of iOS may be
+    considered, but they may not be complex as they cannot be tested.
+
+* * *
+
+Milestone 94
+------------
+  * Metal backend has been changed to track command buffer resources manually
+    rather than using retained resources.
+    https://review.skia.org/432878
+
+  * Added virtual onResetClip() to SkCanvas for Android Framework, to emulate the soon-to-be-removed
+    expanding clip ops guarded by SK_SUPPORT_DEPRECATED_CLIPOPS.
+    https://review.skia.org/430897
+
+  * Removed SK_SUPPORT_DEPRECATED_CLIPOPS build flag. Clips can only be intersect and difference.
+    https://review.skia.org/436565
+
+  * There is a new syntax for invoking (sampling) child effects in SkSL. Previously, children
+    (shaders, colorFilters, blenders) were invoked using different overloads of `sample`. That
+    syntax is deprecated (but still supported). Now, the child behaves like an object, with a method
+    name `eval`. The arguments to these `eval` methods are the same as the arguments in the old
+    `sample` intrinsics. For example:
+      // Old syntax:
+        sample(shader, xy)
+        sample(colorFilter, color)
+        sample(blender, srcColor, dstColor)
+      // New syntax:
+        shader.eval(xy)
+        colorFilter.eval(color)
+        blender.eval(srcColor, dstColor)
+    https://review.skia.org/444735
+
+* * *
+
 Milestone 93
 ------------
   * Removed SkPaint::getHash

@@ -56,7 +56,7 @@ custom language, SkSL.
   <figure>
     <canvas id=curves width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/?nameOrHash=@spiral"
+      <a href="https://particles.skia.org/?nameOrHash=@swirl"
          target=_blank rel=noopener>Curves</a>
     </figcaption>
   </figure>

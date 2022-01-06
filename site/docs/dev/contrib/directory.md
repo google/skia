@@ -35,7 +35,7 @@ linkTitle: "The Skia Directory"
     -   [Perf](https://perf.skia.org/) Performance testing.
     -   [Mon](https://mon.skia.org/) Grafana dashboard (requires login).
     -   [Alerts](https://alerts.skia.org/) Monitor testing and bot status.
-    -   [BugChomper] (https://bugchomper.skia.org/) Prioritize bugs quickly.
+    -   [BugChomper](https://bugchomper.skia.org/) Prioritize bugs quickly.
     -   [Code Review](https://skia-review.googlesource.com/)
 
 *   Mailing Lists
