@@ -1797,6 +1797,7 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     this->onDrawVerticesObject(vertices, mode, paint);
 }
 
+#ifdef SK_ENABLE_SKSL
 void SkCanvas::drawCustomMesh(SkCustomMesh cm, sk_sp<SkBlender> blender, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_FALSE(SkValidateCustomMesh(cm));
@@ -1805,6 +1806,7 @@ void SkCanvas::drawCustomMesh(SkCustomMesh cm, sk_sp<SkBlender> blender, const S
     }
     this->onDrawCustomMesh(std::move(cm), std::move(blender), paint);
 }
+#endif
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2448,6 +2450,7 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmod
     }
 }
 
+#ifdef SK_ENABLE_SKSL
 void SkCanvas::onDrawCustomMesh(SkCustomMesh cm, sk_sp<SkBlender> blender, const SkPaint& paint) {
     SkPaint simplePaint = clean_paint_for_drawVertices(paint);
 
@@ -2460,6 +2463,7 @@ void SkCanvas::onDrawCustomMesh(SkCustomMesh cm, sk_sp<SkBlender> blender, const
         this->topDevice()->drawCustomMesh(std::move(cm), std::move(blender), paint);
     }
 }
+#endif
 
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                          const SkPoint texCoords[4], SkBlendMode bmode,

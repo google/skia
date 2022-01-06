@@ -101,12 +101,14 @@ void SkCanvasPriv::GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[]
     *totalMatrixCount = maxMatrixIndex + 1;
 }
 
+#ifdef SK_ENABLE_SKSL
 void SkCanvasPriv::DrawCustomMesh(SkCanvas* canvas,
                                   SkCustomMesh cm,
                                   sk_sp<SkBlender> blender,
                                   const SkPaint& paint) {
     canvas->drawCustomMesh(cm, std::move(blender), paint);
 }
+#endif
 
 #if GR_TEST_UTILS
 

@@ -7,6 +7,8 @@
 
 #include "include/core/SkCustomMesh.h"
 
+#ifdef SK_ENABLE_SKSL
+
 #include "src/core/SkCustomMeshPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -335,3 +337,4 @@ SkCustomMeshSpecification::SkCustomMeshSpecification(SkSpan<const Attribute>    
     auto atInt = static_cast<uint32_t>(fAlphaType);
     fHash = SkOpts::hash_fn(&atInt, sizeof(atInt), fHash);
 }
+#endif //SK_ENABLE_SKSL

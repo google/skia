@@ -7,6 +7,8 @@
 
 #include "src/core/SkCustomMeshPriv.h"
 
+#ifdef SK_ENABLE_SKSL
+
 static int min_vcount_for_mode(SkCustomMesh::Mode mode) {
     switch (mode) {
         case SkCustomMesh::Mode::kTriangles:     return 3;
@@ -62,3 +64,5 @@ std::unique_ptr<const uint16_t[]> SkCopyCustomMeshIB(const SkCustomMesh& cm) {
 
     return std::move(ib);
 }
+
+#endif

@@ -8,6 +8,9 @@
 #ifndef SkCustomMesh_DEFINED
 #define SkCustomMesh_DEFINED
 
+#include "include/core/SkTypes.h"
+
+#ifdef SK_ENABLE_SKSL
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
@@ -193,5 +196,7 @@ struct SkCustomMesh {
     const uint16_t*                   indices  = nullptr;
     int                               icount   = 0;
 };
+
+#endif  // SK_ENABLE_SKSL
 
 #endif

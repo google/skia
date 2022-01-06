@@ -1949,7 +1949,7 @@ public:
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
 
-#ifdef SK_ENABLE_EXPERIMENTAL_CUSTOM_MESH
+#if defined(SK_ENABLE_EXPERIMENTAL_CUSTOM_MESH) && defined(SK_ENABLE_SKSL)
     /**
         Experimental, under active development, and subject to change without notice.
 
@@ -2236,9 +2236,9 @@ protected:
 
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint);
-
+#ifdef SK_ENABLE_SKSL
     virtual void onDrawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&);
-
+#endif
     virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
     virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);
 
