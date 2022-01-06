@@ -924,12 +924,15 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
             intermediateDevice->setOrigin(SkM44(srcToIntermediate),
                                           requiredInput.left(), requiredInput.top());
 
-            SkMatrix offsetLocalToDevice = intermediateDevice->localToDevice();
-            offsetLocalToDevice.preTranslate(srcSubset.left(), srcSubset.top());
-            // We draw with non-AA bilinear since we cover the destination but definitely don't have
-            // a pixel-aligned transform.
-            intermediateDevice->drawSpecial(srcImage.get(), offsetLocalToDevice,
-                                            SkSamplingOptions{SkFilterMode::kLinear}, {});
+            // We use drawPaint to fill the entire device with the src input + clamp tiling, which
+            // extends the backdrop's edge pixels to the parts of 'requiredInput' that map offscreen
+            // Without this, the intermediateDevice would contain transparent pixels that may then
+            // infect blurs and other filters with large kernels.
+            SkPaint imageFill;
+            imageFill.setShader(srcImage->asShader(SkTileMode::kClamp,
+                                                   SkSamplingOptions{SkFilterMode::kLinear},
+                                                   SkMatrix::Translate(srcSubset.topLeft())));
+            intermediateDevice->drawPaint(imageFill);
             filterInput = intermediateDevice->snapSpecial();
 
             // TODO: Like the non-intermediate case, we need to apply the image origin.

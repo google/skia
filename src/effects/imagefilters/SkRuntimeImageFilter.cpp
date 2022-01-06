@@ -176,11 +176,9 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
             return nullptr;
         }
 
-        SkMatrix localM = inverse *
-                          SkMatrix::Translate(inputOffset) *
-                          SkMatrix::Translate(-input->subset().topLeft());
+        SkMatrix localM = inverse * SkMatrix::Translate(inputOffset);
         sk_sp<SkShader> inputShader =
-                input->asImage()->makeShader(SkSamplingOptions(SkFilterMode::kLinear), &localM);
+                input->asShader(SkSamplingOptions(SkFilterMode::kLinear), localM);
         SkASSERT(inputShader);
         inputShaders.push_back(std::move(inputShader));
     }

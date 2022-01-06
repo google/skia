@@ -25,10 +25,13 @@ class SkBitmap;
 class SkCanvas;
 class SkImage;
 struct SkImageInfo;
+class SkMatrix;
 class SkPaint;
 class SkPixmap;
+class SkShader;
 class SkSpecialSurface;
 class SkSurface;
+enum class SkTileMode;
 
 enum {
     kNeedNewImageUniqueID_SpecialImage = 0
@@ -126,7 +129,19 @@ public:
      * When the 'subset' parameter is specified the returned image will be tight even if that
      * entails a copy! The 'subset' is relative to this special image's content rect.
      */
+    // TODO: The only version that uses the subset is the tile image filter, and that doesn't need
+    // to if it can be rewritten to use asShader() and SkTileModes. Similarly, the only use case of
+    // asImage() w/o a subset is SkImage::makeFiltered() and that could/should return an SkShader so
+    // that users don't need to worry about correctly applying the subset, etc.
     sk_sp<SkImage> asImage(const SkIRect* subset = nullptr) const;
+
+    /**
+     * Create an SkShader that samples the contents of this special image, applying tile mode for
+     * any sample that falls outside its internal subset.
+     */
+    sk_sp<SkShader> asShader(SkTileMode, const SkSamplingOptions&, const SkMatrix&) const;
+    sk_sp<SkShader> asShader(const SkSamplingOptions& sampling) const;
+    sk_sp<SkShader> asShader(const SkSamplingOptions& sampling, const SkMatrix& lm) const;
 
     /**
      *  If the SpecialImage is backed by a gpu texture, return true.

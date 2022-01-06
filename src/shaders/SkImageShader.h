@@ -28,6 +28,16 @@ public:
                                    const SkSamplingOptions&,
                                    const SkMatrix* localMatrix);
 
+    // TODO(skbug.com/12784): Requires SkImage to be texture backed, and created SkShader can only
+    // be used on GPU-backed surfaces.
+    static sk_sp<SkShader> MakeSubset(sk_sp<SkImage>,
+                                      const SkRect& subset,
+                                      SkTileMode tmx,
+                                      SkTileMode tmy,
+                                      const SkSamplingOptions&,
+                                      const SkMatrix* localMatrix,
+                                      bool clampAsIfUnpremul = false);
+
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
@@ -40,6 +50,7 @@ private:
     SK_FLATTENABLE_HOOKS(SkImageShader)
 
     SkImageShader(sk_sp<SkImage>,
+                  const SkRect& subset,
                   SkTileMode tmx,
                   SkTileMode tmy,
                   const SkSamplingOptions&,
@@ -74,6 +85,11 @@ private:
     const SkSamplingOptions fSampling;
     const SkTileMode        fTileModeX;
     const SkTileMode        fTileModeY;
+
+    // TODO(skbug.com/12784): This is only supported for GPU images currently.
+    // If subset == (0,0,w,h) of the image, then no subset is applied. Subset will not be empty.
+    const SkRect            fSubset;
+
     const bool              fRaw;
     const bool              fClampAsIfUnpremul;
 
