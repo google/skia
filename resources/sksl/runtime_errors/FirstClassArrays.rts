@@ -1,6 +1,9 @@
-// Expect 2 errors
+// Expect 1 error
 
-void array_decl() { float[123] x; }
+// OK: SkSL allows ES3-style array declaration syntax. (This wouldn't work in native GLSL ES2.)
+float[123] global_var;
+void fn() { float[123] local_var; }
 
+// ERROR: SkSL (like GLSL ES2) does not allow array constructors in strict-ES2 mode.
 void array_ctor() { float[3](1, 2, 3); }
 
