@@ -49,6 +49,10 @@ void VarDeclaration::ErrorCheck(const Context& context,
         context.fErrors->error(line, "variables of type 'void' are not allowed");
         return;
     }
+    if (context.fConfig->strictES2Mode() && baseType->isArray()) {
+        context.fErrors->error(line, "array size must appear after variable name");
+    }
+
     if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
         context.fErrors->error(line,
                 "variables of type '" + baseType->displayName() + "' must be global");

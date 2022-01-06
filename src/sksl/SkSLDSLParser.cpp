@@ -457,12 +457,6 @@ bool DSLParser::parseArrayDimensions(int line, DSLType* type) {
     return true;
 }
 
-void DSLParser::checkArrayDimensions(int line, DSLType& type) {
-    if (type.isArray() && ThreadContext::Context().fConfig->strictES2Mode()) {
-        this->error(line, "array size must appear after variable name");
-    }
-}
-
 bool DSLParser::parseInitializer(int line, DSLExpression* initializer) {
     if (this->checkNext(Token::Kind::TK_EQ)) {
         DSLExpression value = this->assignmentExpression();
@@ -481,7 +475,6 @@ void DSLParser::globalVarDeclarationEnd(PositionInfo pos, const dsl::DSLModifier
     using namespace dsl;
     int line = this->peek().fLine;
     DSLType type = baseType;
-    this->checkArrayDimensions(line, type);
     DSLExpression initializer;
     if (!this->parseArrayDimensions(line, &type)) {
         return;
@@ -521,7 +514,6 @@ DSLStatement DSLParser::localVarDeclarationEnd(PositionInfo pos, const dsl::DSLM
     using namespace dsl;
     int line = this->peek().fLine;
     DSLType type = baseType;
-    this->checkArrayDimensions(line, type);
     DSLExpression initializer;
     if (!this->parseArrayDimensions(line, &type)) {
         return {};
