@@ -6,7 +6,7 @@ linkTitle: "Using Skia's PDF Backend"
 Here is an example of using Skia's PDF backend (SkPDF) via the SkDocument and
 SkCanvas APIs.
 
-<fiddle-embed name='@PDF'></fiddle-embed>
+<fiddle-embed-sk name='@PDF'></fiddle-embed-sk>
 
 <!-- https://fiddle.skia.org/c/@PDF docs/examples/PDF.cpp -->
 

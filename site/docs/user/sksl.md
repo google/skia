@@ -62,7 +62,7 @@ own shader code, you don't use `sample`. Instead, the `shader` object has a
 `.eval()` method. Regardless, Skia has simple methods for creating an `SkShader`
 from an `SkImage`, so it's easy to use images in your runtime effects:
 
-<fiddle-embed name='3654053c76b5c23f18eb9a1c82abbde4'></fiddle-embed>
+<fiddle-embed-sk name='3654053c76b5c23f18eb9a1c82abbde4'></fiddle-embed-sk>
 
 Because the object you bind and evaluate is an `SkShader`, you can directly use
 any Skia shader, without necessarily turning it into an image (texture) first.
@@ -71,12 +71,12 @@ texture created to hold the gradient. Skia generates a single fragment shader
 that computes the gradient color, samples from the image's texture, and then
 multiplies the two together:
 
-<fiddle-embed name='f282a4411782ed92057350e339586502'></fiddle-embed>
+<fiddle-embed-sk name='f282a4411782ed92057350e339586502'></fiddle-embed-sk>
 
 Of course, you can even invoke another runtime effect, allowing you to combine
 shader snippets dynamically:
 
-<fiddle-embed name='2151b061428f47844a2500b57c887ddf'></fiddle-embed>
+<fiddle-embed-sk name='2151b061428f47844a2500b57c887ddf'></fiddle-embed-sk>
 
 ---
 
@@ -110,7 +110,7 @@ The image below demonstrates this: properly premultiplied colors produce a smoot
 gradient as alpha decreases. Unpremultipled colors cause the gradient to display
 incorrectly, becoming too bright and shifting hue as the alpha changes.
 
-<fiddle-embed name='4aa28e27a9682fec18d8c0ca265151ad'></fiddle-embed>
+<fiddle-embed-sk name='4aa28e27a9682fec18d8c0ca265151ad'></fiddle-embed-sk>
 
 ---
 
@@ -132,4 +132,4 @@ passed to you, the scale is correct. However, if you want to adjust those
 coordinates (to do some kind of re-mapping of the image), remember that the
 coordinates are scaled up to the dimensions of the image:
 
-<fiddle-embed name='ddbd4142c1c88232ae131d27266e72b3'></fiddle-embed>
+<fiddle-embed-sk name='ddbd4142c1c88232ae131d27266e72b3'></fiddle-embed-sk>

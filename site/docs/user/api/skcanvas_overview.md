@@ -19,7 +19,7 @@ Here is an example of a set of drawing commands to draw a filled
 heptagram.  This function can be cut and pasted into
 [fiddle.skia.org](https://fiddle.skia.org/).
 
-<fiddle-embed name='@skcanvas_star'></fiddle-embed>
+<fiddle-embed-sk name='@skcanvas_star'></fiddle-embed-sk>
 
 Details
 -------
@@ -32,7 +32,7 @@ store any other drawing attributes in the context (e.g. color, pen
 size). Rather, these are specified explicitly in each draw call, via a
 SkPaint.
 
-<fiddle-embed name='@skcanvas_square'></fiddle-embed>
+<fiddle-embed-sk name='@skcanvas_square'></fiddle-embed-sk>
 
 The code above will draw a rectangle rotated by 45 degrees. Exactly
 what color and style the rect will be drawn in is described by the
@@ -68,7 +68,7 @@ drawColor(), and save yourself having to allocate a paint.
 All of the other draw APIs are similar, each one ending with a paint
 parameter.
 
-<fiddle-embed name='@skcanvas_paint'></fiddle-embed>
+<fiddle-embed-sk name='@skcanvas_paint'></fiddle-embed-sk>
 
 In some of the calls, we pass a pointer, rather than a reference, to
 the paint. In those instances, the paint parameter may be null. In all

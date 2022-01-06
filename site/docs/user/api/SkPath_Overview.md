@@ -52,10 +52,10 @@ on.
 
 ### Example
 
-<div><fiddle-embed name="93887af0c1dac49521972698cf04069c"><div><a href='https://api.skia.org/classSkPath.html'>Path</a> contains three <a href='#Contour'>Contours</a>: <a href='undocumented#Line'>Line</a>, <a href='undocumented#Circle'>Circle</a>, and <a href='https://api.skia.org/classSkPath.html#ad75d5a934476ac6543d6d7ddd8dbb90a'>Quad</a>. <a href='undocumented#Line'>Line</a> is stroked but
+<div><fiddle-embed-sk name="93887af0c1dac49521972698cf04069c"><div><a href='https://api.skia.org/classSkPath.html'>Path</a> contains three <a href='#Contour'>Contours</a>: <a href='undocumented#Line'>Line</a>, <a href='undocumented#Circle'>Circle</a>, and <a href='https://api.skia.org/classSkPath.html#ad75d5a934476ac6543d6d7ddd8dbb90a'>Quad</a>. <a href='undocumented#Line'>Line</a> is stroked but
 not filled. <a href='undocumented#Circle'>Circle</a> is stroked and filled; <a href='undocumented#Circle'>Circle</a> stroke forms a loop. <a href='https://api.skia.org/classSkPath.html#ad75d5a934476ac6543d6d7ddd8dbb90a'>Quad</a>
 is stroked and filled, but since it is not closed, <a href='https://api.skia.org/classSkPath.html#ad75d5a934476ac6543d6d7ddd8dbb90a'>Quad</a> does not stroke a loop.
-</div></fiddle-embed></div>
+</div></fiddle-embed-sk></div>
 
 <a href='https://api.skia.org/classSkPath.html'>Path</a> contains a
 <a href='#Path_Fill_Type'>Path_Fill_Type</a> which determines whether
@@ -66,8 +66,8 @@ or outside <a href='undocumented#Line'>Lines</a> and
 
 ### Example
 
-<div><fiddle-embed name="36a995442c081ee779ecab2962d36e69"><div><a href='https://api.skia.org/classSkPath.html'>Path</a> is drawn filled, then stroked, then stroked and filled.
-</div></fiddle-embed></div>
+<div><fiddle-embed-sk name="36a995442c081ee779ecab2962d36e69"><div><a href='https://api.skia.org/classSkPath.html'>Path</a> is drawn filled, then stroked, then stroked and filled.
+</div></fiddle-embed-sk></div>
 
 <a href='https://api.skia.org/classSkPath.html'>Path</a> contents are never
 shared. Copying <a href='https://api.skia.org/classSkPath.html'>Path</a> by
@@ -93,11 +93,11 @@ that follows starts a new <a href='#Contour'>Contour</a>.
 
 ### Example
 
-<div><fiddle-embed name="0374f2dcd7effeb1dd435205a6c2de6f"><div>Each <a href='https://api.skia.org/classSkPath.html'>SkPath</a>::<a href='#SkPath_moveTo'>moveTo</a> starts a new <a href='#Contour'>Contour</a>, and content after <a href='https://api.skia.org/classSkPath.html'>SkPath</a>::<a href='#SkPath_close'>close()</a>
+<div><fiddle-embed-sk name="0374f2dcd7effeb1dd435205a6c2de6f"><div>Each <a href='https://api.skia.org/classSkPath.html'>SkPath</a>::<a href='#SkPath_moveTo'>moveTo</a> starts a new <a href='#Contour'>Contour</a>, and content after <a href='https://api.skia.org/classSkPath.html'>SkPath</a>::<a href='#SkPath_close'>close()</a>
 also starts a new <a href='#Contour'>Contour</a>. Since <a href='https://api.skia.org/classSkPath.html'>SkPath</a>::<a href='#SkPath_conicTo'>conicTo</a> is not preceded by
 <a href='https://api.skia.org/classSkPath.html'>SkPath</a>::<a href='#SkPath_moveTo'>moveTo</a>, the first <a href='https://api.skia.org/structSkPoint.html'>Point</a> of the third <a href='#Contour'>Contour</a> starts at the last <a href='https://api.skia.org/structSkPoint.html'>Point</a>
 of the second <a href='#Contour'>Contour</a>.
-</div></fiddle-embed></div>
+</div></fiddle-embed-sk></div>
 
 If final <a href='#Path_Verb'>Path_Verb</a> in <a href='#Contour'>Contour</a> is
 <a href='https://api.skia.org/classSkPath.html'>SkPath</a>::<a href='#SkPath_kClose_Verb'>kClose_Verb</a>,
@@ -119,8 +119,8 @@ as final Verb, <a href='#Path_Last_Point'>Path_Last_Point</a> and first
 
 ### Example
 
-<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2"><div><a href='https://api.skia.org/classSkPath.html'>Path</a> is drawn stroked, with an open <a href='#Contour'>Contour</a> and a closed <a href='#Contour'>Contour</a>.
-</div></fiddle-embed></div>
+<div><fiddle-embed-sk name="7a1f39b12d2cd8b7f5b1190879259cb2"><div><a href='https://api.skia.org/classSkPath.html'>Path</a> is drawn stroked, with an open <a href='#Contour'>Contour</a> and a closed <a href='#Contour'>Contour</a>.
+</div></fiddle-embed-sk></div>
 
 <a name='Contour_Zero_Length'></a>
 
@@ -138,4 +138,4 @@ as final Verb, <a href='#Path_Last_Point'>Path_Last_Point</a> and first
 
 ### Example
 
-<div><fiddle-embed name="62848df605af6258653d9e16b27d8f7f"></fiddle-embed></div>
+<div><fiddle-embed-sk name="62848df605af6258653d9e16b27d8f7f"></fiddle-embed-sk></div>
