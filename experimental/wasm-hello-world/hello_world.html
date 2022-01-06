@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<title>Hello World (sk_app)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript" src="/build/hello_world.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  async function run() {
+    const HW = await HelloWorld({locateFile: (file) => '/build/'+file});
+    console.log('loaded?')
+  }
+  run();
+
+</script>

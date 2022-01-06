@@ -48,7 +48,7 @@ filegroup(
 )
 
 cc_binary_with_flags(
-    name = "gm_bindings_with_flags",
+    name = "gm_bindings.with_flags",
     testonly = True,
     srcs = [
         "gm_bindings.cpp",
@@ -56,7 +56,6 @@ cc_binary_with_flags(
         "//gm:gms",  # Required for the registry to work
     ],
     additional_linker_inputs = ["gm.js"],
-    cc_binary_name = "gm_bindings",
     linkopts = select({
         "//bazel/common_config_settings:debug_build": BASE_LINKOPTS + GM_OPTS + DEBUG_OPTS,
         "//bazel/common_config_settings:release_build": BASE_LINKOPTS + GM_OPTS + RELEASE_OPTS,
@@ -93,7 +92,7 @@ cc_binary_with_flags(
 wasm_cc_binary(
     name = "gm_bindings_wasm",
     testonly = True,
-    cc_target = ":gm_bindings_with_flags",
+    cc_target = ":gm_bindings.with_flags",
 )
 
 # See https://stackoverflow.com/a/57499321 for reference.
@@ -247,12 +246,11 @@ CK_SRCS = [
 })
 
 cc_binary_with_flags(
-    name = "canvaskit_with_flags",
+    name = "canvaskit.with_flags",
     srcs = CK_SRCS,
     additional_linker_inputs = JS_INTERFACE_FILES + ["externs.js"],
     # wasm_cc_binary makes the canvaskit.js/canvaskit.wasm based on the actual name
     # of the executable.
-    cc_binary_name = "canvaskit",
     linkopts = CK_OPTS,
     local_defines = CK_DEFINES,
     set_flags = {
@@ -301,7 +299,9 @@ cc_binary_with_flags(
 
 wasm_cc_binary(
     name = "canvaskit_wasm",
-    cc_target = ":canvaskit_with_flags",
+    # Whatever is before the dot will be the name of the output js and wasm, aka "the stem".
+    # https://github.com/emscripten-core/emsdk/blob/82ad00499a42abde16b363239d2bc83bf5d863ab/bazel/emscripten_toolchain/wasm_cc_binary.bzl#L91
+    cc_target = ":canvaskit.with_flags",
 )
 
 bool_flag(

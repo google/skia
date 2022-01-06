@@ -1,0 +1,7 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "main_wasm_src",
+    srcs = ["main_wasm.cpp"],
+    visibility = ["//:__subpackages__"],
+)

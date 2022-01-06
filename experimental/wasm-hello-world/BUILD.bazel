@@ -1,0 +1,44 @@
+load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
+load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+
+LINKOPTS = [
+    "-sALLOW_MEMORY_GROWTH",
+    "-sUSE_PTHREADS=0",  # Disable pthreads
+    "-sMODULARIZE",
+    "-sDISABLE_EXCEPTION_CATCHING",  # Disable all exception catching
+    "-sWASM",
+    "-sMAX_WEBGL_VERSION=2",
+    "-sFORCE_FILESYSTEM=0",
+    "-sFILESYSTEM=0",
+    "-sASSERTIONS",  # Turn on assertions
+    "-sGL_ASSERTIONS",
+    "-sEXPORT_NAME=HelloWorld",
+]
+
+cc_binary_with_flags(
+    name = "hello_world.webgl",
+    srcs = [
+        "//example:HelloWorld_src",
+        "//tools/sk_app/wasm:main_wasm_src",
+    ],
+    linkopts = LINKOPTS,
+    set_flags = {
+        "gpu_backend": [
+            "gl_backend",
+        ],
+        "with_gl_standard": [
+            "webgl_standard",
+        ],
+    },
+    # This target won't build successfully on its own because of missing emscripten
+    # headers etc. Therefore, we hide it from wildcards.
+    tags = ["manual"],
+    deps = [
+        "//:skia_core",
+    ],
+)
+
+wasm_cc_binary(
+    name = "hello_world_wasm",
+    cc_target = ":hello_world.webgl",
+)

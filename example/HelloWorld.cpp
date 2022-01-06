@@ -88,7 +88,7 @@ void HelloWorld::onPaint(SkSurface* surface) {
     paint.setColor(SK_ColorBLACK);
 
     canvas->save();
-    static const char message[] = "Hello World";
+    static const char message[] = "Hello World ";
 
     // Translate and rotate
     canvas->translate(300, 300);
