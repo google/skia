@@ -41,6 +41,7 @@ example, it might include:
   below).
 - Blending code (for certain `SkBlendMode`s, or for custom blending specified
   with `SkPaint::setBlender`).
+- Color space conversion code, as part of Skia's [color management](/docs/user/color).
 
 Even if the `SkPaint` has a complex tree of objects in the `SkShader`,
 `SkColorFilter`, or `SkBlender` fields, there is still only a _single_ GPU
@@ -80,6 +81,148 @@ shader snippets dynamically:
 
 ---
 
+## Coordinate Spaces
+
+To understand how coordinates work in SkSL, you first need to understand
+[how they work in Skia](/docs/user/coordinates). If you're comfortable with
+Skia's coordinate spaces, then just remember that the coordinates supplied to
+your `main()` are **local** coordinates. They will be relative to the coordinate
+space of the `SkShader`. This will match the local space of the canvas and any
+`localMatrix` transformations. Additionally, if the shader is invoked by
+another, that parent shader may modify them arbitrarily.
+
+In addition, the `SkShader` produced from an `SkImage` does not use normalized
+coordinates (like a texture in GLSL). It uses `(0, 0)` in the upper-left corner,
+and `(w, h)` in the bottom-right corner. Normally, this is exactly what you
+want. If you're evaluating an `SkImageShader` with coordinates based on the ones
+passed to you, the scale is correct. However, if you want to adjust those
+coordinates (to do some kind of re-mapping of the image), remember that the
+coordinates are scaled up to the dimensions of the image:
+
+<fiddle-embed-sk name='ddbd4142c1c88232ae131d27266e72b3'></fiddle-embed-sk>
+
+---
+
+## Color Spaces
+
+Applications using Skia are usually [color managed](/docs/user/color). The color
+space of a surface (destination) determines the working color space for a draw.
+Source content (like shaders, including `SkImageShader`) also have color spaces.
+By default, inputs to your SkSL shader will be transformed to the working color
+space. Some inputs require special care to get (or inhibit) this behavior, though.
+
+First, let's see Skia's color management in action. Here, we're drawing a portion
+of the mandrill image twice. The first time, we've drawn it normally, respecting
+the color space stored in the file (this happens to be the [sRGB](https://en.wikipedia.org/wiki/SRGB)
+color space. The second time, we've assigned the Rec. 2020 color space to the image.
+This simply tells Skia to treat the image as if the colors stored are actually in
+that color space. Skia then transforms those values from Rec. 2020 to the
+destination surface's color space (sRGB). As a result, all of the colors look more
+vivid. More importantly, if the image really *were* in some other color space, or
+if the destination surface were in some other color space, this automatic conversion
+is desirable, because it ensures content looks consistently correct on any user's
+screen.
+
+<fiddle-embed-sk name='555684b3908afcaaefd37d5f859ceb17'></fiddle-embed-sk>
+
+### Uniforms
+
+Skia and SkSL doesn't know if your `uniform` variables contain colors, so it won't
+automatically apply color conversion to them. In the below example, there are two
+uniforms declared: `color` and `not_a_color`. The SkSL simply fades in one of the
+two uniform "colors" horizontally, choosing a different uniform for the top and
+bottom half of the shader. The code passes the same values to both uniforms, four
+floating point values `{1,0,0,1}` that represent "red".
+
+To really see the effect of automatic uniform conversion, the fiddle draws to an
+offscreen surface in the [Rec. 2020](https://en.wikipedia.org/wiki/Rec._2020) color
+space. Rec. 2020 has a very _wide gamut_, which means that it can represent more
+vivid colors than the common default [sRGB](https://en.wikipedia.org/wiki/SRGB)
+color space. In particular, the purest red in sRGB is fairly dull compared to pure
+red in Rec. 2020.
+
+To understand what happens in this fiddle, we'll explain the steps for the two
+different cases. For the top half, we use `not_a_color`. Skia and SkSL don't know
+that you intend to use this as a color, so the raw floating point values you supply
+are fed directly to the SkSL shader. In other words - when the SkSL executes,
+`not_a_color` will contain `{1,0,0,1}`, regardless of the surface's color space.
+This produces the most vivid red possible in the destination's color space (which
+ends up looking like a very bright red in this case).
+
+For the bottom half, we have declared the uniform `color` with the special syntax
+`layout(color)`. That tells SkSL that this variable will be used as a color.
+`layout(color)` can only be used on uniform values that are `vec3` (i.e., RGB) or
+`vec4` (i.e., RGBA). In either case, the colors you supply when providing uniform data
+should be unpremultiplied sRGB colors. Those colors can include values outside of
+the range `[0,1]`, if you want to supply wide gamut colors. This is the same way
+that Skia accepts and stores colors on `SkPaint`. When the SkSL executes, Skia
+transforms the uniform value to the working color space. In this case, that means
+that `color` (which starts out as sRGB red) is turned into whatever values represent
+that same color in the Rec. 2020 color space.
+
+The overall effect here is to make the correctly labeled uniform much duller, but
+that is actually what you want when working with uniform colors. By labeling uniform
+colors this way, your source colors (that you place in uniforms) will represent the
+same, consistent color regardless of the color space of the destination surface.
+
+<fiddle-embed-sk name='63b1db24562415d25dcc6f8dd6b2b10c'></fiddle-embed-sk>
+
+### Raw Image Shaders (no cs, no premul)
+
+Although most images contain colors that should be color managed, some images
+contain data that isn't actually colors. This includes images storing normals,
+material properties (e.g., roughness), heightmaps, or any other purely
+mathematical data that happens to be stored in an image. When using these kinds
+of images in SkSL, you probably want to use a *raw* image shader, created with
+`SkImage::makeRawShader`. These work like regular image shaders (including
+filtering and tiling), with a few major differences:
+  - No color space transformation is ever applied (the color space of the image
+    is ignored).
+  - Images with an alpha type of kUnpremul are **not** automatically premultiplied.
+  - Bicubic filtering is not supported. Requesting bicubic filtering when
+    calling `makeRawShader` will return `nullptr`.
+
+Here, we create an image holding a spherical normal map. Then we use that with
+a lighting shader to show what happens when rendering to a different color space.
+If we use a regular image shader, the normals will be treated as colors, and
+transformed to the working color space. This alters the normals, incorrectly.
+For the final draw, we use a raw image shader, which returns the original
+normals, ignoring the working color space.
+
+<fiddle-embed-sk name='f31ad2cbc2dd6e8a0676c21bc6203fa6'></fiddle-embed-sk>
+
+### Working In a Known Color Space
+
+Within an SkSL shader, you don't know what the working color space is. For many
+effects, this is fine - evaluating image shaders, and doing simple color math
+is usually going to give reasonable results (particularly if you know that
+the working color space for an application is always sRGB, for example). For
+certain effects, though, it may be important to do some math in a fixed, known
+color space. The most common example is lighting -- to get physically accurate
+lighting, math should be done in a _linear_ color space. To help with this,
+SkSL provides two intrinsic functions:
+
+```
+vec3 toLinearSrgb(vec3 color);
+vec3 fromLinearSrgb(vec3 color);
+```
+
+These convert colors between the working color space and the linear sRGB color
+space. That space uses the sRGB color primaries (gamut), and a linear transfer
+function. It represents values outside of the sRGB gamut using extended range
+values (below 0.0 and above 1.0). This corresponds to Android's
+[LINEAR_EXTENDED_SRGB](https://developer.android.com/reference/android/graphics/ColorSpace.Named.html#LINEAR_EXTENDED_SRGB)
+or Apple's
+[extendedLinearSRGB](https://developer.apple.com/documentation/coregraphics/cgcolorspace/1690961-extendedlinearsrgb),
+for example.
+
+Here's an example showing a sphere, with lighting math being done in the default
+working space (sRGB), and again with the math done in a linear space:
+
+<fiddle-embed-sk name='7bf001ff493544af05e35a68d8268f1e'></fiddle-embed-sk>
+
+---
+
 ## Premultiplied Alpha
 
 When dealing with transparent colors, there are two (common)
@@ -111,25 +254,3 @@ gradient as alpha decreases. Unpremultipled colors cause the gradient to display
 incorrectly, becoming too bright and shifting hue as the alpha changes.
 
 <fiddle-embed-sk name='4aa28e27a9682fec18d8c0ca265151ad'></fiddle-embed-sk>
-
----
-
-## Coordinate Spaces
-
-To understand how coordinates work in SkSL, you first need to understand
-[how they work in Skia](/docs/user/coordinates). If you're comfortable with
-Skia's coordinate spaces, then just remember that the coordinates supplied to
-your `main()` are **local** coordinates. They will be relative to the coordinate
-space of the `SkShader`. This will match the local space of the canvas and any
-`localMatrix` transformations. Additionally, if the shader is invoked by
-another, that parent shader may modify them arbitrarily.
-
-In addition, the `SkShader` produced from an `SkImage` does not use normalized
-coordinates (like a texture in GLSL). It uses `(0, 0)` in the upper-left corner,
-and `(w, h)` in the bottom-right corner. Normally, this is exactly what you
-want. If you're evaluating an `SkImageShader` with coordinates based on the ones
-passed to you, the scale is correct. However, if you want to adjust those
-coordinates (to do some kind of re-mapping of the image), remember that the
-coordinates are scaled up to the dimensions of the image:
-
-<fiddle-embed-sk name='ddbd4142c1c88232ae131d27266e72b3'></fiddle-embed-sk>
