@@ -7,18 +7,18 @@ struct S {
 half4 main(float2 coords) {
     float f1[4] = float[4](1, 2, 3, 4);
     float f2[4] = float[4](1, 2, 3, 4);
-    float f3[4] = float[4](1, 2, 3, -4);
+    float[4] f3 = float[4](1, 2, 3, -4);
 
     int3 v1[2] = int3[2](int3(1, 2, 3), int3(4, 5, 6));
-    int3 v2[2] = int3[2](int3(1, 2, 3), int3(4, 5, 6));
+    int3[2] v2 = int3[2](int3(1, 2, 3), int3(4, 5, 6));
     int3 v3[2] = int3[2](int3(1, 2, 3), int3(4, 5, -6));
 
-    half2x2 m1[3] = half2x2[3](half2x2(1), half2x2(2), half2x2(3, 4, 5, 6));
+    half2x2[3] m1 = half2x2[3](half2x2(1), half2x2(2), half2x2(3, 4, 5, 6));
     half2x2 m2[3] = half2x2[3](half2x2(1), half2x2(2), half2x2(3, 4, 5, 6));
     half2x2 m3[3] = half2x2[3](half2x2(1), half2x2(2, 3, 4, 5), half2x2(6));
 
     S s1[3] = S[3](S(1, 2), S(3, 4), S(5, 6));
-    S s2[3] = S[3](S(1, 2), S(0, 0), S(5, 6));
+    S[3] s2 = S[3](S(1, 2), S(0, 0), S(5, 6));
     S s3[3] = S[3](S(1, 2), S(3, 4), S(5, 6));
 
     return (f1 == f2) && (f1 != f3) &&
