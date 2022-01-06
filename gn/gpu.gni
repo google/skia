@@ -512,8 +512,6 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/ops/DrawAtlasPathOp.h",
   "$_src/gpu/ops/DrawCustomMeshOp.cpp",
   "$_src/gpu/ops/DrawCustomMeshOp.h",
-  "$_src/gpu/ops/DrawVerticesOp.cpp",
-  "$_src/gpu/ops/DrawVerticesOp.h",
   "$_src/gpu/ops/DrawableOp.cpp",
   "$_src/gpu/ops/DrawableOp.h",
   "$_src/gpu/ops/FillPathFlags.h",
