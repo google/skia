@@ -15,6 +15,7 @@ import string
 import subprocess
 import tempfile
 
+import skqp_gn_args
 import gn_to_bp_utils
 
 # First we start off with a template for Android.bp,
@@ -73,23 +74,7 @@ license {
 }
 
 cc_defaults {
-    name: "skia_defaults",
-    cflags: [
-        $cflags
-    ],
-
-    cppflags:[
-        $cflags_cc
-    ],
-
-    export_include_dirs: [
-        $export_includes
-    ],
-
-    local_include_dirs: [
-        $local_includes
-    ],
-
+    name: "skia_arch_defaults",
     arch: {
         arm: {
             srcs: [
@@ -132,6 +117,26 @@ cc_defaults {
         ],
       },
     },
+}
+
+cc_defaults {
+    name: "skia_defaults",
+    defaults: ["skia_arch_defaults"],
+    cflags: [
+        $cflags
+    ],
+
+    cppflags:[
+        $cflags_cc
+    ],
+
+    export_include_dirs: [
+        $export_includes
+    ],
+
+    local_include_dirs: [
+        $local_includes
+    ]
 }
 
 cc_library_static {
@@ -384,6 +389,58 @@ cc_test {
     ],
 }
 
+cc_library_shared {
+    name: "libskqp_jni",
+    sdk_version: "$skqp_sdk_version",
+    stl: "libc++_static",
+    compile_multilib: "both",
+
+    defaults: [
+        "skia_arch_defaults",
+    ],
+
+    cflags: [
+        $skqp_cflags
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+    ],
+
+    cppflags:[
+        $skqp_cflags_cc
+    ],
+
+    local_include_dirs: [
+        "skqp",
+        $skqp_includes
+    ],
+
+    export_include_dirs: [
+        "skqp",
+    ],
+
+    srcs: [
+        $skqp_srcs
+    ],
+
+    header_libs: ["jni_headers"],
+
+    shared_libs: [
+          "libandroid",
+          "libEGL",
+          "libGLESv2",
+          "liblog",
+          "libvulkan",
+          "libz",
+    ],
+    static_libs: [
+          "libexpat",
+          "libjpeg_static_ndk",
+          "libpng_ndk",
+          "libwebp-decode",
+          "libwebp-encode",
+          "libwuffs_mirror_release_c",
+    ]
+}
 ''')
 
 # We'll run GN to get the main source lists and include directories for Skia.
@@ -531,13 +588,6 @@ linux_srcs      =   linux_srcs.difference(srcs)
 mac_srcs        =     mac_srcs.difference(srcs)
 win_srcs        =     win_srcs.difference(srcs)
 
-js_renderengine   = gn_to_bp_utils.GenerateJSONFromGN(gn_args_renderengine)
-renderengine_srcs = strip_slashes(
-    js_renderengine['targets']['//:skia']['sources'])
-gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:skia', 'sources',
-                                   renderengine_srcs, None)
-renderengine_srcs = strip_headers(renderengine_srcs)
-
 gm_srcs         = strip_headers(gm_srcs)
 test_srcs       = strip_headers(test_srcs)
 dm_srcs         = strip_headers(dm_srcs).difference(gm_srcs).difference(test_srcs)
@@ -548,6 +598,42 @@ test_minus_gm_srcs = test_srcs.difference(gm_srcs)
 
 cflags = gn_to_bp_utils.CleanupCFlags(cflags)
 cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
+
+# Execute GN for specialized RenderEngine target
+js_renderengine   = gn_to_bp_utils.GenerateJSONFromGN(gn_args_renderengine)
+renderengine_srcs = strip_slashes(
+    js_renderengine['targets']['//:skia']['sources'])
+gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:skia', 'sources',
+                                   renderengine_srcs, None)
+renderengine_srcs = strip_headers(renderengine_srcs)
+
+# Execute GN for specialized SkQP target
+skqp_sdk_version = 26
+js_skqp = gn_to_bp_utils.GenerateJSONFromGN(skqp_gn_args.GetGNArgs(api_level=skqp_sdk_version,
+                                                                   debug=False,
+                                                                   is_android_bp=True))
+skqp_srcs      = strip_slashes(js_skqp['targets']['//:libskqp_app']['sources'])
+skqp_includes  = strip_slashes(js_skqp['targets']['//:libskqp_app']['include_dirs'])
+skqp_cflags    = strip_slashes(js_skqp['targets']['//:libskqp_app']['cflags'])
+skqp_cflags_cc = strip_slashes(js_skqp['targets']['//:libskqp_app']['cflags_cc'])
+skqp_defines   = strip_slashes(js_skqp['targets']['//:libskqp_app']['defines'])
+
+skqp_includes.update(strip_slashes(js_skqp['targets']['//:public']['include_dirs']))
+
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'sources',
+                                   skqp_srcs, None)
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'include_dirs',
+                                   skqp_includes, ['//:gif'])
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'cflags',
+                                   skqp_cflags, None)
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'cflags_cc',
+                                   skqp_cflags_cc, None)
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'defines',
+                                   skqp_defines, None)
+
+skqp_srcs = strip_headers(skqp_srcs)
+skqp_cflags = gn_to_bp_utils.CleanupCFlags(skqp_cflags)
+skqp_cflags_cc = gn_to_bp_utils.CleanupCCFlags(skqp_cflags_cc)
 
 here = os.path.dirname(__file__)
 defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
@@ -569,6 +655,7 @@ mkdir_if_not_exists('linux/include/config/')
 mkdir_if_not_exists('mac/include/config/')
 mkdir_if_not_exists('win/include/config/')
 mkdir_if_not_exists('renderengine/include/config/')
+mkdir_if_not_exists('skqp/include/config/')
 
 platforms = { 'IOS', 'MAC', 'WIN', 'ANDROID', 'UNIX' }
 
@@ -590,7 +677,7 @@ def append_to_file(config, s):
   with open(config, 'a') as f:
     print(s, file=f)
 
-def write_android_config(config_path, defines):
+def write_android_config(config_path, defines, isNDKConfig = False):
   gn_to_bp_utils.WriteUserConfig(config_path, defines)
   append_to_file(config_path, '''
 #ifndef SK_BUILD_FOR_ANDROID
@@ -598,8 +685,13 @@ def write_android_config(config_path, defines):
 #endif''')
   disallow_platforms(config_path, 'ANDROID')
 
+  if isNDKConfig:
+    append_to_file(config_path, '''
+#undef SK_BUILD_FOR_ANDROID_FRAMEWORK''')
+
 write_android_config('android/include/config/SkUserConfig.h', android_defines)
 write_android_config('renderengine/include/config/SkUserConfig.h', renderengine_defines)
+write_android_config('skqp/include/config/SkUserConfig.h', skqp_defines, True)
 
 def write_config(config_path, defines, platform):
   gn_to_bp_utils.WriteUserConfig(config_path, defines)
@@ -656,6 +748,12 @@ with open('Android.bp', 'w') as Android_bp:
 
     'nanobench_includes'    : bpfmt(8, nanobench_includes),
     'nanobench_srcs'        : bpfmt(8, nanobench_srcs),
+
+    'skqp_sdk_version': skqp_sdk_version,
+    'skqp_includes':    bpfmt(8, skqp_includes),
+    'skqp_srcs':        bpfmt(8, skqp_srcs),
+    'skqp_cflags':      bpfmt(8, skqp_cflags, False),
+    'skqp_cflags_cc':   bpfmt(8, skqp_cflags_cc),
 
     'android_srcs':  bpfmt(10, android_srcs),
     'linux_srcs':    bpfmt(10, linux_srcs),

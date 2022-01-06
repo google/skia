@@ -39,6 +39,7 @@ import sys
 import shutil
 import time
 
+sys.path.append(os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "../../../gn"))
 import skqp_gn_args
 
 def print_cmd(cmd, o):
@@ -215,7 +216,8 @@ class SkQP_Build_Options(object):
         self.debug = bool(os.environ.get('SKQP_DEBUG', ''))
 
     def gn_args(self, arch):
-        return skqp_gn_args.GetGNArgs(arch, self.android_ndk, self.debug, 26)
+        return skqp_gn_args.GetGNArgs(arch=arch, ndk=self.android_ndk, debug=self.debug,
+                                      api_level=26)
 
     def write(self, o):
         for k, v in [('ANDROID_NDK', self.android_ndk),

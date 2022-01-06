@@ -71,6 +71,10 @@ def CleanupCFlags(cflags):
     "-DATRACE_TAG=ATRACE_TAG_VIEW",
   ])
 
+  # Android does not want -Weverything set, it blocks toolchain updates.
+  if "-Weverything" in cflags:
+    cflags.remove("-Weverything")
+
   # We need to undefine FORTIFY_SOURCE before we define it. Insert it at the
   # beginning after sorting.
   cflags = sorted(cflags)
@@ -78,6 +82,10 @@ def CleanupCFlags(cflags):
   return cflags
 
 def CleanupCCFlags(cflags_cc):
+  # Android does not want -Weverything set, it blocks toolchain updates.
+  if "-Weverything" in cflags_cc:
+    cflags_cc.remove("-Weverything")
+
   # Only use the generated flags related to warnings.
   return {s for s in cflags_cc      if s.startswith('-W')}
 
@@ -120,6 +128,7 @@ def WriteUserConfig(userConfigPath, defines):
     print('// If need to change a define, modify SkUserConfigManual.h', file=f)
     print('#pragma once', file=f)
     print('#include "SkUserConfigManual.h"', file=f)
+
     for define in sorted(defines):
       print('', file=f)
       print('#ifndef', define.split('=')[0], file=f)
