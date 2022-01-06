@@ -76,11 +76,6 @@ public:
      */
     const Symbol* operator[](skstd::string_view name);
 
-    /**
-     * Creates a new name for a symbol which already exists; does not take ownership of Symbol*.
-     */
-    void addAlias(skstd::string_view name, const Symbol* symbol);
-
     void addWithoutOwnership(const Symbol* symbol);
 
     template <typename T>

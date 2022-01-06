@@ -22,7 +22,6 @@ public:
         kExternal = (int) ProgramElement::Kind::kLast + 1,
         kField,
         kFunctionDeclaration,
-        kSymbolAlias,
         kType,
         kUnresolvedFunction,
         kVariable,
