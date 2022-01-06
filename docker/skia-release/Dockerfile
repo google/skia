@@ -58,4 +58,7 @@ RUN cd /tmp/skia/skia \
   && ./bin/gn gen out/Static \
   && git rev-parse HEAD > VERSION \
   && /tmp/depot_tools/ninja -C out/Static \
-  && chown -R skia:skia .
+  && chown -R skia:skia . \
+  # obj is readable only by the skia user. It needs additional
+  # permissions to be accessible for CI (see https://review.skia.org/487217).
+  && chmod 755 -R out/Static/obj
