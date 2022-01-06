@@ -75,7 +75,6 @@ cc_library(
         ":GrSPIRVVaryingHandler_src",
         ":GrSWMaskHelper_src",
         ":GrShaderCaps_src",
-        ":GrShaderUtils_src",
         ":GrShaderVar_src",
         ":GrStagingBufferManager_src",
         ":GrStencilSettings_src",
@@ -101,6 +100,8 @@ cc_library(
         ":GrXferProcessor_src",
         ":GrYUVABackendTextures_src",
         ":GrYUVATextureProxies_src",
+        ":ResourceKey_src",
+        ":ShaderErrorHandler_src",
         ":SkGr_src",
         ":SurfaceContext_src",
         ":SurfaceFillContext_src",
@@ -147,6 +148,7 @@ cc_library(
         "//src/gpu/ops:DefaultPathRenderer_src",
         "//src/gpu/ops:DrawAtlasOp_src",
         "//src/gpu/ops:DrawAtlasPathOp_src",
+        "//src/gpu/ops:DrawCustomMeshOp_src",
         "//src/gpu/ops:DrawVerticesOp_src",
         "//src/gpu/ops:DrawableOp_src",
         "//src/gpu/ops:FillRRectOp_src",
@@ -192,7 +194,7 @@ cc_library(
         "//src/gpu/text:GrSDFTControl_src",
         "//src/gpu/text:GrSlug_src",
         "//src/gpu/text:GrStrikeCache_src",
-        "//src/gpu/text:GrTextBlobCache_src",
+        "//src/gpu/text:GrTextBlobRedrawCoordinator_src",
         "//src/gpu/text:GrTextBlob_src",
     ],
 )
@@ -421,7 +423,6 @@ generated_cc_atom(
         ":GrCaps_hdr",
         ":GrDataUtils_hdr",
         ":GrGpu_hdr",
-        "//include/private:GrResourceKey_hdr",
     ],
 )
 
@@ -518,10 +519,10 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrTexture_hdr",
+        ":ResourceKey_hdr",
         "//include/core:SkImageGenerator_hdr",
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",
-        "//include/private:GrResourceKey_hdr",
         "//include/private:SkMutex_hdr",
     ],
 )
@@ -579,7 +580,10 @@ generated_cc_atom(
     name = "GrBaseContextPriv_hdr",
     hdrs = ["GrBaseContextPriv.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/private:GrContext_Base_hdr"],
+    deps = [
+        "//include/gpu:GrContextOptions_hdr",
+        "//include/private:GrContext_Base_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -778,6 +782,7 @@ generated_cc_atom(
     deps = [
         ":GrColorInfo_hdr",
         ":GrColorSpaceXform_hdr",
+        ":KeyBuilder_hdr",
         "//include/core:SkColorSpace_hdr",
         "//src/core:SkColorSpacePriv_hdr",
         "//src/gpu/glsl:GrGLSLColorSpaceXformHelper_hdr",
@@ -807,7 +812,7 @@ generated_cc_atom(
         ":GrCaps_hdr",
         "//include/gpu:GrContextThreadSafeProxy_hdr",
         "//include/private:GrContext_Base_hdr",
-        "//src/gpu/text:GrTextBlobCache_hdr",
+        "//src/gpu/text:GrTextBlobRedrawCoordinator_hdr",
     ],
 )
 
@@ -837,7 +842,7 @@ generated_cc_atom(
         ":GrBaseContextPriv_hdr",
         ":GrCaps_hdr",
         ":GrContextThreadSafeProxyPriv_hdr",
-        ":GrShaderUtils_hdr",
+        "//include/gpu:ShaderErrorHandler_hdr",
         "//include/private:GrContext_Base_hdr",
         "//src/gpu/effects:GrSkSLFP_hdr",
     ],
@@ -963,6 +968,7 @@ generated_cc_atom(
         ":GrCaps_hdr",
         ":GrDefaultGeoProcFactory_hdr",
         ":GrGeometryProcessor_hdr",
+        ":KeyBuilder_hdr",
         "//include/core:SkRefCnt_hdr",
         "//src/core:SkArenaAlloc_hdr",
         "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
@@ -1031,7 +1037,7 @@ generated_cc_atom(
         "//src/gpu/effects:GrSkSLFP_hdr",
         "//src/gpu/effects:GrTextureEffect_hdr",
         "//src/gpu/text:GrAtlasManager_hdr",
-        "//src/gpu/text:GrTextBlobCache_hdr",
+        "//src/gpu/text:GrTextBlobRedrawCoordinator_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/image:SkImage_Gpu_hdr",
     ],
@@ -1050,7 +1056,6 @@ generated_cc_atom(
         ":GrGpu_hdr",
         ":GrResourceProvider_hdr",
         ":GrSemaphore_hdr",
-        ":GrShaderUtils_hdr",
         ":GrThreadSafePipelineBuilder_hdr",
         ":SurfaceContext_hdr",
         "//include/core:SkString_hdr",
@@ -1075,6 +1080,7 @@ generated_cc_atom(
         "//src/gpu/vk:GrVkGpu_hdr",
         "//src/image:SkImage_GpuBase_hdr",
         "//src/utils:SkJSONWriter_hdr",
+        "//src/utils:SkShaderUtils_hdr",
     ],
 )
 
@@ -1369,6 +1375,7 @@ generated_cc_atom(
         ":GrPipeline_hdr",
         ":GrProcessorAnalysis_hdr",
         ":GrShaderCaps_hdr",
+        ":KeyBuilder_hdr",
         "//src/core:SkRuntimeEffectPriv_hdr",
         "//src/gpu/effects:GrBlendFragmentProcessor_hdr",
         "//src/gpu/effects:GrSkSLFP_hdr",
@@ -1404,6 +1411,7 @@ generated_cc_atom(
     deps = [
         ":GrGeometryProcessor_hdr",
         ":GrPipeline_hdr",
+        ":KeyBuilder_hdr",
         "//src/core:SkMatrixPriv_hdr",
         "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
         "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
@@ -1467,7 +1475,7 @@ generated_cc_atom(
     hdrs = ["GrGpuResource.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/private:GrResourceKey_hdr",
+        ":ResourceKey_hdr",
         "//include/private:GrTypesPriv_hdr",
         "//include/private:SkNoncopyable_hdr",
     ],
@@ -1860,6 +1868,7 @@ generated_cc_atom(
         ":GrCaps_hdr",
         ":GrPipeline_hdr",
         ":GrXferProcessor_hdr",
+        ":KeyBuilder_hdr",
         "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
         "//src/gpu/glsl:GrGLSLUniformHandler_hdr",
     ],
@@ -2008,6 +2017,7 @@ generated_cc_atom(
         ":GrRenderTarget_hdr",
         ":GrShaderCaps_hdr",
         ":GrTexture_hdr",
+        ":KeyBuilder_hdr",
         "//include/private:SkChecksum_hdr",
         "//include/private:SkTo_hdr",
         "//src/gpu/effects:GrTextureEffect_hdr",
@@ -2044,8 +2054,8 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrTextureProxy_hdr",
+        ":ResourceKey_hdr",
         "//include/gpu:GrTypes_hdr",
-        "//include/private:GrResourceKey_hdr",
         "//src/core:SkTDynamicHash_hdr",
     ],
 )
@@ -2073,7 +2083,6 @@ generated_cc_atom(
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
         "//include/private:GrImageContext_hdr",
-        "//include/private:GrResourceKey_hdr",
         "//include/private:GrSingleOwner_hdr",
         "//include/private:SkImageInfoPriv_hdr",
         "//src/core:SkAutoPixmapStorage_hdr",
@@ -2135,7 +2144,7 @@ generated_cc_atom(
         "//src/core:SkArenaAlloc_hdr",
         "//src/gpu/effects:GrSkSLFP_hdr",
         "//src/gpu/ops:AtlasTextOp_hdr",
-        "//src/gpu/text:GrTextBlobCache_hdr",
+        "//src/gpu/text:GrTextBlobRedrawCoordinator_hdr",
         "//src/gpu/text:GrTextBlob_hdr",
         "//src/utils:SkJSONWriter_hdr",
     ],
@@ -2352,9 +2361,9 @@ generated_cc_atom(
         ":GrGpuResourceCacheAccess_hdr",
         ":GrGpuResourcePriv_hdr",
         ":GrGpuResource_hdr",
+        ":ResourceKey_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/gpu:GrDirectContext_hdr",
-        "//include/private:GrResourceKey_hdr",
         "//include/private:SkTArray_hdr",
         "//include/private:SkTHash_hdr",
         "//src/core:SkMessageBus_hdr",
@@ -2434,9 +2443,9 @@ generated_cc_atom(
         ":GrResourceProvider_hdr",
         ":GrSemaphore_hdr",
         ":GrTexture_hdr",
+        ":ResourceKey_hdr",
         ":SkGr_hdr",
         "//include/gpu:GrBackendSemaphore_hdr",
-        "//include/private:GrResourceKey_hdr",
         "//include/private:GrSingleOwner_hdr",
         "//src/core:SkConvertPixels_hdr",
         "//src/core:SkMathPriv_hdr",
@@ -2578,30 +2587,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "GrShaderUtils_hdr",
-    hdrs = ["GrShaderUtils.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/core:SkTypes_hdr",
-        "//include/gpu:GrContextOptions_hdr",
-        "//include/private:SkSLProgramKind_hdr",
-        "//include/private:SkSLString_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrShaderUtils_src",
-    srcs = ["GrShaderUtils.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrShaderUtils_hdr",
-        "//include/core:SkString_hdr",
-        "//include/gpu:GrContextOptions_hdr",
-        "//include/private:SkSLString_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "GrShaderVar_hdr",
     hdrs = ["GrShaderVar.h"],
     visibility = ["//:__subpackages__"],
@@ -2672,6 +2657,7 @@ generated_cc_atom(
     deps = [
         ":GrProcessor_hdr",
         ":GrStencilSettings_hdr",
+        ":KeyBuilder_hdr",
     ],
 )
 
@@ -3015,7 +3001,6 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrTypes_hdr",
-        "//include/private:GrResourceKey_hdr",
         "//src/core:SkMipmap_hdr",
     ],
 )
@@ -3265,6 +3250,7 @@ generated_cc_atom(
         ":GrCaps_hdr",
         ":GrPipeline_hdr",
         ":GrXferProcessor_hdr",
+        ":KeyBuilder_hdr",
         "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
         "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
     ],
@@ -3431,4 +3417,54 @@ generated_cc_atom(
         ":SurfaceFillContext_hdr",
         "//src/gpu/effects:GrMatrixEffect_hdr",
     ],
+)
+
+generated_cc_atom(
+    name = "KeyBuilder_hdr",
+    hdrs = ["KeyBuilder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkString_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ResourceKey_hdr",
+    hdrs = ["ResourceKey.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkData_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkOnce_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//include/private:SkTo_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ResourceKey_src",
+    srcs = ["ResourceKey.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ResourceKey_hdr",
+        "//src/core:SkOpts_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ShaderErrorHandler_src",
+    srcs = ["ShaderErrorHandler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/gpu:ShaderErrorHandler_hdr",
+        "//src/utils:SkShaderUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkRenderEngineAbortf_hdr",
+    hdrs = ["SkRenderEngineAbortf.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkTypes_hdr"],
 )

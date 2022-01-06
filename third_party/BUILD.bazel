@@ -70,7 +70,7 @@ cc_library(
     ],
     copts = [
         "-isystem third_party/libpng/",
-        #"-Wno-unused-but-set-variable",
+        "-Wno-unused-but-set-variable",
     ],
     includes = [
         # This adds -isystem "third_party/externals/libpng" to any dependent
@@ -2077,6 +2077,7 @@ cc_library(
     hdrs = ICU_HDRS,
     copts = [
         "-Wno-deprecated-declarations",
+        "-Wno-unused-but-set-variable",
         "-Wno-unused-function",
     ],
     defines = [
@@ -2359,6 +2360,7 @@ HARFBUZZ_SRCS = [
     "externals/harfbuzz/src/hb-ot-tag-table.hh",
     "externals/harfbuzz/src/hb-ot-tag.cc",
     "externals/harfbuzz/src/hb-ot-var-avar-table.hh",
+    "externals/harfbuzz/src/hb-ot-var-common.hh",
     "externals/harfbuzz/src/hb-ot-var-fvar-table.hh",
     "externals/harfbuzz/src/hb-ot-var-gvar-table.hh",
     "externals/harfbuzz/src/hb-ot-var-hvar-table.hh",

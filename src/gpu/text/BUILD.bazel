@@ -133,28 +133,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "GrTextBlobCache_hdr",
-    hdrs = ["GrTextBlobCache.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrTextBlob_hdr",
-        "//include/core:SkRefCnt_hdr",
-        "//include/private:SkSpinlock_hdr",
-        "//include/private:SkTArray_hdr",
-        "//include/private:SkTHash_hdr",
-        "//src/core:SkMessageBus_hdr",
-        "//src/core:SkTextBlobPriv_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "GrTextBlobCache_src",
-    srcs = ["GrTextBlobCache.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [":GrTextBlobCache_hdr"],
-)
-
-generated_cc_atom(
     name = "GrTextBlob_hdr",
     hdrs = ["GrTextBlob.h"],
     visibility = ["//:__subpackages__"],
@@ -203,6 +181,31 @@ generated_cc_atom(
         "//src/gpu/geometry:GrStyledShape_hdr",
         "//src/gpu/ops:AtlasTextOp_hdr",
         "//src/gpu/v1:Device_v1_hdr",
+        "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTextBlobRedrawCoordinator_hdr",
+    hdrs = ["GrTextBlobRedrawCoordinator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrTextBlob_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:SkSpinlock_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkMessageBus_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrTextBlobRedrawCoordinator_src",
+    srcs = ["GrTextBlobRedrawCoordinator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrTextBlobRedrawCoordinator_hdr",
         "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
     ],
 )

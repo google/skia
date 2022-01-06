@@ -7,9 +7,9 @@ generated_cc_atom(
     deps = [
         ":SkSLTransform_hdr",
         "//include/private:SkSLProgramKind_hdr",
+        "//src/sksl:SkSLBuiltinMap_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLContext_hdr",
-        "//src/sksl:SkSLIntrinsicMap_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/analysis:SkSLProgramVisitor_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",

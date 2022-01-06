@@ -1,0 +1,43 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkVMDebugTracePlayer_hdr",
+    hdrs = ["SkVMDebugTracePlayer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkVMDebugTrace_hdr",
+        "//include/private:SkTOptional_hdr",
+        "//src/utils:SkBitSet_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkVMDebugTracePlayer_src",
+    srcs = ["SkVMDebugTracePlayer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkVMDebugTracePlayer_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkVMDebugTrace_hdr",
+    hdrs = ["SkVMDebugTrace.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPoint_hdr",
+        "//include/sksl:SkSLDebugTrace_hdr",
+        "//src/core:SkVM_hdr",
+        "//src/sksl/ir:SkSLType_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkVMDebugTrace_src",
+    srcs = ["SkVMDebugTrace.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkVMDebugTrace_hdr",
+        "//src/core:SkStreamPriv_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)

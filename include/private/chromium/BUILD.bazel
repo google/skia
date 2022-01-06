@@ -9,3 +9,14 @@ generated_cc_atom(
         "//include/core:SkRefCnt_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "SkChromeRemoteGlyphCache_hdr",
+    hdrs = ["SkChromeRemoteGlyphCache.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkData_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/utils:SkNoDrawCanvas_hdr",
+    ],
+)

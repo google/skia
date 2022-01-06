@@ -17,6 +17,7 @@ cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLAnalysis_src",
+        ":SkSLBuiltinMap_src",
         ":SkSLBuiltinTypes_src",
         ":SkSLCompiler_src",
         ":SkSLConstantFolder_src",
@@ -25,7 +26,6 @@ cc_library(
         ":SkSLDehydrator_src",
         ":SkSLErrorReporter_src",
         ":SkSLInliner_src",
-        ":SkSLIntrinsicMap_src",
         ":SkSLLexer_src",
         ":SkSLMangler_src",
         ":SkSLOperators_src",
@@ -33,6 +33,7 @@ cc_library(
         ":SkSLPool_src",
         ":SkSLRehydrator_src",
         ":SkSLSampleUsage_src",
+        ":SkSLSharedCompiler_src",
         ":SkSLString_src",
         ":SkSLThreadContext_src",
         ":SkSLUtil_src",
@@ -48,7 +49,6 @@ cc_library(
         "//src/sksl/codegen:SkSLSPIRVCodeGenerator_src",
         "//src/sksl/codegen:SkSLSPIRVtoHLSL_src",
         "//src/sksl/codegen:SkSLVMCodeGenerator_src",
-        "//src/sksl/codegen:SkVMDebugInfo_src",
         "//src/sksl/dsl:DSLBlock_src",
         "//src/sksl/dsl:DSLCase_src",
         "//src/sksl/dsl:DSLCore_src",
@@ -102,6 +102,8 @@ cc_library(
         "//src/sksl/lex:RegexNode_src",
         "//src/sksl/lex:RegexParser_src",
         "//src/sksl/lex:TransitionTable_src",
+        "//src/sksl/tracing:SkVMDebugTracePlayer_src",
+        "//src/sksl/tracing:SkVMDebugTrace_src",
         "//src/sksl/transform:SkSLBuiltinVariableScanner_src",
         "//src/sksl/transform:SkSLEliminateDeadFunctions_src",
         "//src/sksl/transform:SkSLEliminateDeadGlobalVariables_src",
@@ -226,10 +228,10 @@ generated_cc_atom(
     textual_hdrs = [":txts"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":SkSLBuiltinMap_hdr",
         ":SkSLCompiler_hdr",
         ":SkSLConstantFolder_hdr",
         ":SkSLDSLParser_hdr",
-        ":SkSLIntrinsicMap_hdr",
         ":SkSLOperators_hdr",
         ":SkSLProgramSettings_hdr",
         ":SkSLRehydrator_hdr",
@@ -410,7 +412,6 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLSwitchCase_hdr",
         "//src/sksl/ir:SkSLSwitchStatement_hdr",
         "//src/sksl/ir:SkSLSwizzle_hdr",
-        "//src/sksl/ir:SkSLSymbolAlias_hdr",
         "//src/sksl/ir:SkSLSymbolTable_hdr",
         "//src/sksl/ir:SkSLTernaryExpression_hdr",
         "//src/sksl/ir:SkSLUnresolvedFunction_hdr",
@@ -519,23 +520,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkSLIntrinsicMap_hdr",
-    hdrs = ["SkSLIntrinsicMap.h"],
-    visibility = ["//:__subpackages__"],
-)
-
-generated_cc_atom(
-    name = "SkSLIntrinsicMap_src",
-    srcs = ["SkSLIntrinsicMap.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkSLIntrinsicMap_hdr",
-        "//include/private:SkSLProgramElement_hdr",
-        "//include/private:SkSLString_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "SkSLLexer_hdr",
     hdrs = ["SkSLLexer.h"],
     visibility = ["//:__subpackages__"],
@@ -559,15 +543,19 @@ generated_cc_atom(
         ":SkSLFileOutputStream_hdr",
         ":SkSLStringStream_hdr",
         ":SkSLUtil_hdr",
+        "//include/core:SkGraphics_hdr",
+        "//include/core:SkStream_hdr",
+        "//src/core:SkCpu_hdr",
         "//src/core:SkOpts_hdr",
-        "//src/gpu:GrShaderUtils_hdr",
         "//src/opts:SkChecksum_opts_hdr",
         "//src/opts:SkVM_opts_hdr",
         "//src/sksl/codegen:SkSLPipelineStageCodeGenerator_hdr",
         "//src/sksl/codegen:SkSLVMCodeGenerator_hdr",
-        "//src/sksl/codegen:SkVMDebugInfo_hdr",
         "//src/sksl/ir:SkSLUnresolvedFunction_hdr",
         "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/sksl/tracing:SkVMDebugTrace_hdr",
+        "//src/utils:SkShaderUtils_hdr",
+        "//src/utils:SkVMVisualizer_hdr",
     ],
 )
 
@@ -742,7 +730,6 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLSwitchCase_hdr",
         "//src/sksl/ir:SkSLSwitchStatement_hdr",
         "//src/sksl/ir:SkSLSwizzle_hdr",
-        "//src/sksl/ir:SkSLSymbolAlias_hdr",
         "//src/sksl/ir:SkSLSymbolTable_hdr",
         "//src/sksl/ir:SkSLTernaryExpression_hdr",
         "//src/sksl/ir:SkSLType_hdr",
@@ -799,8 +786,8 @@ generated_cc_atom(
     srcs = ["SkSLThreadContext.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":SkSLBuiltinMap_hdr",
         ":SkSLCompiler_hdr",
-        ":SkSLIntrinsicMap_hdr",
         ":SkSLThreadContext_hdr",
         "//include/sksl:DSLSymbols_hdr",
         "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
@@ -839,4 +826,39 @@ generated_cc_atom(
     name = "spirv_hdr",
     hdrs = ["spirv.h"],
     visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "SkSLBuiltinMap_hdr",
+    hdrs = ["SkSLBuiltinMap.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/private:SkSLString_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSLBuiltinMap_src",
+    srcs = ["SkSLBuiltinMap.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLBuiltinMap_hdr",
+        "//include/private:SkSLProgramElement_hdr",
+        "//include/private:SkSLString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSharedCompiler_hdr",
+    hdrs = ["SkSLSharedCompiler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLCompiler_hdr",
+        "//include/private:SkMutex_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLSharedCompiler_src",
+    srcs = ["SkSLSharedCompiler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSLSharedCompiler_hdr"],
 )

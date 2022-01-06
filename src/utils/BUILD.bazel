@@ -26,10 +26,12 @@ cc_library(
         ":SkParse_src",
         ":SkPatchUtils_src",
         ":SkPolyUtils_src",
+        ":SkShaderUtils_src",
         ":SkShadowTessellator_src",
         ":SkShadowUtils_src",
         ":SkTextUtils_src",
         ":SkUTF_src",
+        ":SkVMVisualizer_src",
     ],
 )
 
@@ -605,5 +607,53 @@ generated_cc_atom(
     deps = [
         ":SkUTF_hdr",
         "//include/private:SkTFitsIn_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShaderUtils_hdr",
+    hdrs = ["SkShaderUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkSLProgramKind_hdr",
+        "//include/private:SkSLString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkShaderUtils_src",
+    srcs = ["SkShaderUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkShaderUtils_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkSLString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkVMVisualizer_hdr",
+    hdrs = ["SkVMVisualizer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkSpan_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkBitmaskEnum_hdr",
+        "//include/private:SkChecksum_hdr",
+        "//include/private:SkTHash_hdr",
+        "//src/core:SkOpts_hdr",
+        "//src/sksl:SkSLOutputStream_hdr",
+        "//src/sksl/tracing:SkVMDebugTrace_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkVMVisualizer_src",
+    srcs = ["SkVMVisualizer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkVMVisualizer_hdr",
+        "//src/core:SkStreamPriv_hdr",
     ],
 )

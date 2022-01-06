@@ -95,6 +95,7 @@ generated_cc_atom(
         "//src/gpu:GrProgramInfo_hdr",
         "//src/gpu:GrShaderCaps_hdr",
         "//src/gpu:GrStencilSettings_hdr",
+        "//src/gpu:KeyBuilder_hdr",
     ],
 )
 
@@ -317,9 +318,9 @@ generated_cc_atom(
         "//src/gpu:GrDirectContextPriv_hdr",
         "//src/gpu:GrPersistentCacheUtils_hdr",
         "//src/gpu:GrShaderCaps_hdr",
-        "//src/gpu:GrShaderUtils_hdr",
         "//src/gpu:GrStencilSettings_hdr",
         "//src/sksl:SkSLCompiler_hdr",
+        "//src/utils:SkShaderUtils_hdr",
     ],
 )
 
@@ -417,6 +418,7 @@ generated_cc_atom(
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu/d3d:GrD3DTypes_hdr",
         "//src/gpu:GrRenderTarget_hdr",
+        "//src/gpu:KeyBuilder_hdr",
     ],
 )
 

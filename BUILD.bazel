@@ -5,21 +5,6 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 
 package(default_visibility = ["//:__subpackages__"])
 
-cc_test(
-    name = "bazel_test",
-    size = "small",
-    srcs = [
-        "//experimental/bazel_test:srcs",
-        "//include/config:hdrs",
-        "//include/core:hdrs",
-        "//src/ports:skdebug",
-    ],
-    deps = [
-        "//third_party:libpng",
-        "//third_party:musl_compat",
-    ],
-)
-
 selects.config_setting_group(
     name = "needs_jpeg",
     match_any = [

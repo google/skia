@@ -36,12 +36,12 @@ generated_cc_atom(
         "//src/gpu:GrPersistentCacheUtils_hdr",
         "//src/gpu:GrProgramDesc_hdr",
         "//src/gpu:GrShaderCaps_hdr",
-        "//src/gpu:GrShaderUtils_hdr",
         "//src/gpu:GrSwizzle_hdr",
         "//src/gpu:GrXferProcessor_hdr",
         "//src/gpu/gl:GrGLGpu_hdr",
         "//src/gpu/gl:GrGLProgram_hdr",
         "//src/gpu/glsl:GrGLSLProgramDataManager_hdr",
+        "//src/utils:SkShaderUtils_hdr",
     ],
 )
 
@@ -66,10 +66,10 @@ generated_cc_atom(
         ":GrGLShaderStringBuilder_hdr",
         "//src/core:SkAutoMalloc_hdr",
         "//src/core:SkTraceEvent_hdr",
-        "//src/gpu:GrShaderUtils_hdr",
         "//src/gpu/gl:GrGLGpu_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl/codegen:SkSLGLSLCodeGenerator_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
+        "//src/utils:SkShaderUtils_hdr",
     ],
 )

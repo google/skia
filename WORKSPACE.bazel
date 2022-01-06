@@ -6,9 +6,9 @@ load("//toolchain:build_toolchain.bzl", "build_cpp_toolchain")
 # See https://github.com/emscripten-core/emsdk/tree/85d27a4a2a60d591613a305b14ae438c2bb3ce11/bazel#setup-instructions
 http_archive(
     name = "emsdk",
-    sha256 = "457fa96d4d60867743df7f7e241c9852a3eb7fdbf3091eac7a5712ddc0a5221d",
-    strip_prefix = "emsdk-2.0.32/bazel",
-    url = "https://github.com/emscripten-core/emsdk/archive/refs/tags/2.0.32.tar.gz",
+    sha256 = "a2c5f3cf36525cf6a4b569f9d25500e3b2f7341c6e6779b54bcf4703b834202d",
+    strip_prefix = "emsdk-3.1.0/bazel",
+    url = "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.0.tar.gz",
 )
 
 load("@emsdk//:deps.bzl", emsdk_deps = "deps")
@@ -17,8 +17,7 @@ emsdk_deps()
 
 load("@emsdk//:emscripten_deps.bzl", emsdk_emscripten_deps = "emscripten_deps")
 
-# Use older version to work around https://github.com/emscripten-core/emscripten/issues/15528
-emsdk_emscripten_deps(emscripten_version = "2.0.13")
+emsdk_emscripten_deps(emscripten_version = "3.1.0")
 
 build_cpp_toolchain(
     # Meant to run on amd64 linux and compile for amd64 linux using musl as the c library.

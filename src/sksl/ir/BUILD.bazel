@@ -610,9 +610,9 @@ generated_cc_atom(
         "//include/sksl:DSLCore_hdr",
         "//src/core:SkSafeMath_hdr",
         "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLBuiltinMap_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLContext_hdr",
-        "//src/sksl:SkSLIntrinsicMap_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",
         "//src/sksl:SkSLThreadContext_hdr",
         "//src/sksl/transform:SkSLProgramWriter_hdr",
@@ -968,13 +968,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkSLSymbolAlias_hdr",
-    hdrs = ["SkSLSymbolAlias.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//include/private:SkSLSymbol_hdr"],
-)
-
-generated_cc_atom(
     name = "SkSLSymbolTable_hdr",
     hdrs = ["SkSLSymbolTable.h"],
     visibility = ["//:__subpackages__"],
@@ -992,7 +985,6 @@ generated_cc_atom(
     srcs = ["SkSLSymbolTable.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkSLSymbolAlias_hdr",
         ":SkSLSymbolTable_hdr",
         ":SkSLType_hdr",
         ":SkSLUnresolvedFunction_hdr",

@@ -67,20 +67,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "GrResourceKey_hdr",
-    hdrs = ["GrResourceKey.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":SkOnce_hdr",
-        ":SkTemplates_hdr",
-        ":SkTo_hdr",
-        "//include/core:SkData_hdr",
-        "//include/core:SkString_hdr",
-        "//include/gpu:GrTypes_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "GrSingleOwner_hdr",
     hdrs = ["GrSingleOwner.h"],
     visibility = ["//:__subpackages__"],

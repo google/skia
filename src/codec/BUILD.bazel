@@ -270,6 +270,7 @@ generated_cc_atom(
         "//include/codec:SkCodec_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkImageGenerator_hdr",
+        "//include/private:SkTOptional_hdr",
     ],
 )
 
@@ -847,6 +848,7 @@ generated_cc_atom(
         "//src/core:SkDraw_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkRasterClip_hdr",
+        "//src/core:SkStreamPriv_hdr",
         "//src/core:SkUtils_hdr",
         "//third_party:wuffs",
     ],

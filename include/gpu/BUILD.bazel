@@ -66,6 +66,7 @@ generated_cc_atom(
     deps = [
         ":GrDriverBugWorkarounds_hdr",
         ":GrTypes_hdr",
+        ":ShaderErrorHandler_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkString_hdr",
         "//include/core:SkTypes_hdr",
@@ -157,4 +158,11 @@ generated_cc_atom(
         ":GrBackendSurface_hdr",
         "//include/core:SkYUVAInfo_hdr",
     ],
+)
+
+generated_cc_atom(
+    name = "ShaderErrorHandler_hdr",
+    hdrs = ["ShaderErrorHandler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkTypes_hdr"],
 )

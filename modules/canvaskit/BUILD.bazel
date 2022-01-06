@@ -20,9 +20,10 @@ BASE_LINKOPTS = [
 ]
 
 RELEASE_OPTS = [
-    "--closure 1",  # Run the closure compiler
+    # Closure disabled until https://github.com/emscripten-core/emsdk/pull/941 is sorted out.
+    #"--closure 1",  # Run the closure compiler
     # pass the externs file in
-    "--closure-args=--externs=modules/canvaskit/externs.js",
+    #"--closure-args=--externs=modules/canvaskit/externs.js",
     "-sASSERTIONS=0",  # Turn off assertions
     "-Oz",
 ]

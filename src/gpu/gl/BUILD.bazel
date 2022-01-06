@@ -275,6 +275,7 @@ generated_cc_atom(
         "//src/gpu:GrShaderCaps_hdr",
         "//src/gpu:GrSurfaceProxyPriv_hdr",
         "//src/gpu:GrTexture_hdr",
+        "//src/gpu:SkRenderEngineAbortf_hdr",
         "//src/gpu/gl/builders:GrGLShaderStringBuilder_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/utils:SkJSONWriter_hdr",

@@ -24,6 +24,7 @@ generated_cc_atom(
         ":CommandSet_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkFont_hdr",
+        "//src/core:SkStringUtils_hdr",
     ],
 )
 

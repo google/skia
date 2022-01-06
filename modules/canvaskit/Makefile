@@ -93,9 +93,6 @@ gm_tests:
 	cp ../../out/wasm_gm_tests/wasm_gm_tests.wasm     ./out
 
 local-example:
-	rm -rf node_modules/canvaskit
-	mkdir -p node_modules
-	ln -s ../npm_build node_modules/canvaskit
 	echo "Go check out http://localhost:8000/npm_build/example.html"
 	python3 ../../tools/serve_wasm.py
 

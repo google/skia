@@ -8,6 +8,7 @@
 #ifndef GrBaseContextPriv_DEFINED
 #define GrBaseContextPriv_DEFINED
 
+#include "include/gpu/GrContextOptions.h"
 #include "include/private/GrContext_Base.h"
 
 /** Class that exposes methods on GrContext_Base that are only intended for use internal to Skia.

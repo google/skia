@@ -36,7 +36,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":skqp_hdr",
-        ":skqp_model_hdr",
         "//gm:gm_hdr",
         "//include/core:SkFontStyle_hdr",
         "//include/core:SkGraphics_hdr",

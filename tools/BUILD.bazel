@@ -400,7 +400,7 @@ generated_cc_atom(
         "//include/core:SkColor_hdr",
         "//include/core:SkStream_hdr",
         "//include/core:SkSurface_hdr",
-        "//src/core:SkRemoteGlyphCache_hdr",
+        "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//src/core:SkScalerContext_hdr",
         "//src/core:SkTextBlobTrace_hdr",
     ],
@@ -568,7 +568,7 @@ generated_cc_atom(
     deps = [
         "//include/core:SkGraphics_hdr",
         "//include/core:SkSurface_hdr",
-        "//src/core:SkRemoteGlyphCache_hdr",
+        "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//src/core:SkScalerContext_hdr",
     ],
 )

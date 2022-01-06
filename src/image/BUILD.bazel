@@ -209,7 +209,6 @@ generated_cc_atom(
         "//include/core:SkImageGenerator_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
-        "//include/private:GrResourceKey_hdr",
         "//src/core:SkBitmapCache_hdr",
         "//src/core:SkCachedData_hdr",
         "//src/core:SkImagePriv_hdr",
@@ -224,6 +223,7 @@ generated_cc_atom(
         "//src/gpu:GrRecordingContextPriv_hdr",
         "//src/gpu:GrSamplerState_hdr",
         "//src/gpu:GrYUVATextureProxies_hdr",
+        "//src/gpu:ResourceKey_hdr",
         "//src/gpu:SkGr_hdr",
         "//src/gpu:SurfaceFillContext_hdr",
         "//src/gpu/effects:GrYUVtoRGBEffect_hdr",
@@ -383,6 +383,7 @@ generated_cc_atom(
         "//src/gpu:GrRecordingContextPriv_hdr",
         "//src/gpu:GrRenderTarget_hdr",
         "//src/gpu:GrTexture_hdr",
+        "//src/gpu:SkRenderEngineAbortf_hdr",
     ],
 )
 

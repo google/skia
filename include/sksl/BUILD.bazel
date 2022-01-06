@@ -167,3 +167,10 @@ generated_cc_atom(
         "//include/private:SkSLString_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "SkSLDebugTrace_hdr",
+    hdrs = ["SkSLDebugTrace.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
