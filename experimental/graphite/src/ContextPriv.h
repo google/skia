@@ -25,6 +25,9 @@ public:
 
     ResourceProvider* resourceProvider();
 
+    ShaderCodeDictionary* shaderCodeDictionary();
+    const ShaderCodeDictionary* shaderCodeDictionary() const;
+
 private:
     friend class Context; // to construct/copy this type.
 

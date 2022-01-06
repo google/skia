@@ -18,6 +18,7 @@ namespace skgpu {
 
 class PaintParams;
 class Uniform;
+class UniquePaintParamsID;
 
 // A single, fully specified combination resulting from a PaintCombo (i.e., it corresponds to a
 // specific skgpu::PaintParams object (a subset of SkPaint))
@@ -86,7 +87,7 @@ private:
     const size_t fDataSize;
 };
 
-std::tuple<Combination, sk_sp<UniformData>> ExtractCombo(const PaintParams&);
+std::tuple<UniquePaintParamsID, sk_sp<UniformData>> ExtractCombo(Context*, const PaintParams&);
 SkSpan<const Uniform> GetUniforms(ShaderCombo::ShaderType);
 
 // TODO: Temporary way to get at SkSL snippet for handling the given shader type, which will be

@@ -8,8 +8,10 @@
 #include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 
 #include "experimental/graphite/include/TextureInfo.h"
+#include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Renderer.h"
+#include "experimental/graphite/src/ShaderCodeDictionary.h"
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
 #include "experimental/graphite/src/mtl/MtlUtils.h"
@@ -152,11 +154,19 @@ SkSL::String get_sksl_vs(const GraphicsPipelineDesc& desc) {
     return sksl;
 }
 
-SkSL::String get_sksl_fs(const GraphicsPipelineDesc& desc) {
+SkSL::String get_sksl_fs(const Context* context,
+                         const GraphicsPipelineDesc& desc,
+                         bool* writesColor) {
     SkSL::String sksl;
 
+    Combination combo;
+    auto entry = context->priv().shaderCodeDictionary()->lookup(desc.paintParamsID());
+    if (entry) {
+        combo = entry->combo();
+    }
+
     // Typedefs needed for painting
-    auto paintUniforms = GetUniforms(desc.shaderCombo().fShaderType);
+    auto paintUniforms = GetUniforms(combo.fShaderType);
     if (!paintUniforms.empty()) {
         sksl += emit_SKSL_uniforms(2, "FS", paintUniforms);
     }
@@ -164,10 +174,11 @@ SkSL::String get_sksl_fs(const GraphicsPipelineDesc& desc) {
     sksl += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
     sksl += "void main() {\n"
             "    half4 outColor;\n";
-    sksl += GetShaderSkSL(desc.shaderCombo().fShaderType);
+    sksl += GetShaderSkSL(combo.fShaderType);
     sksl += "    sk_FragColor = outColor;\n"
             "}\n";
 
+    *writesColor = combo.fShaderType != ShaderCombo::ShaderType::kNone;
     return sksl;
 }
 
@@ -311,7 +322,8 @@ enum ShaderType {
 };
 static const int kShaderTypeCount = kLast_ShaderType + 1;
 
-sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Gpu* gpu,
+sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Context* context,
+                                               const Gpu* gpu,
                                                const skgpu::GraphicsPipelineDesc& desc) {
     sk_cfp<MTLRenderPipelineDescriptor*> psoDescriptor([[MTLRenderPipelineDescriptor alloc] init]);
 
@@ -330,8 +342,9 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Gpu* gpu,
         return nullptr;
     }
 
+    bool writesColor;
     if (!SkSLToMSL(gpu,
-                   get_sksl_fs(desc),
+                   get_sksl_fs(context, desc, &writesColor),
                    SkSL::ProgramKind::kFragment,
                    settings,
                    &msl[kFragment_ShaderType],
@@ -368,7 +381,6 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Gpu* gpu,
     mtlColorAttachment.pixelFormat = MTLPixelFormatRGBA8Unorm;
     mtlColorAttachment.blendingEnabled = FALSE;
 
-    const bool writesColor = desc.shaderCombo().fShaderType != ShaderCombo::ShaderType::kNone;
     mtlColorAttachment.writeMask = writesColor ? MTLColorWriteMaskAll : MTLColorWriteMaskNone;
 
     (*psoDescriptor).colorAttachments[0] = mtlColorAttachment;

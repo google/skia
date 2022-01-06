@@ -8,6 +8,7 @@
 #include "experimental/graphite/src/RenderPassTask.h"
 
 #include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/DrawPass.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
@@ -33,7 +34,9 @@ RenderPassTask::RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,
 
 RenderPassTask::~RenderPassTask() = default;
 
-void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuffer* commandBuffer) {
+void RenderPassTask::addCommands(Context* context, CommandBuffer* commandBuffer) {
+    auto resourceProvider = context->priv().resourceProvider();
+
     // TBD: Expose the surfaces that will need to be attached within the renderpass?
 
     // TODO: for task execution, start the render pass, then iterate passes and
@@ -63,7 +66,7 @@ void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
         // Assuming one draw pass per renderpasstask for now
         SkASSERT(fDrawPasses.size() == 1);
         for (const auto& drawPass: fDrawPasses) {
-            drawPass->addCommands(commandBuffer, resourceProvider);
+            drawPass->addCommands(context, commandBuffer);
         }
 
         commandBuffer->endRenderPass();

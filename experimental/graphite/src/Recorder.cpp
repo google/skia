@@ -49,7 +49,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     auto gpu = fContext->priv().gpu();
     auto commandBuffer = gpu->resourceProvider()->createCommandBuffer();
 
-    fGraph.addCommands(gpu->resourceProvider(), commandBuffer.get());
+    fGraph.addCommands(fContext.get(), commandBuffer.get());
     fDrawBufferManager->transferToCommandBuffer(commandBuffer.get());
 
     fGraph.reset();

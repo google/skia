@@ -16,6 +16,7 @@
 namespace skgpu {
 
 class CommandBuffer;
+class Context;
 class DrawPass;
 class ResourceProvider;
 
@@ -34,7 +35,7 @@ public:
 
     ~RenderPassTask() override;
 
-    void addCommands(ResourceProvider*, CommandBuffer*) override;
+    void addCommands(Context*, CommandBuffer*) override;
 
 private:
     RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,

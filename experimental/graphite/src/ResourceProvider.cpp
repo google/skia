@@ -23,8 +23,8 @@ ResourceProvider::~ResourceProvider() {
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
-        const GraphicsPipelineDesc& desc) {
-    return fGraphicsPipelineCache->refPipeline(desc);
+        Context* context, const GraphicsPipelineDesc& desc) {
+    return fGraphicsPipelineCache->refPipeline(context, desc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,11 +48,11 @@ void ResourceProvider::GraphicsPipelineCache::release() {
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
-        const GraphicsPipelineDesc& desc) {
+        Context* context, const GraphicsPipelineDesc& desc) {
     std::unique_ptr<Entry>* entry = fMap.find(desc);
 
     if (!entry) {
-        auto pipeline = fResourceProvider->onCreateGraphicsPipeline(desc);
+        auto pipeline = fResourceProvider->onCreateGraphicsPipeline(context, desc);
         if (!pipeline) {
             return nullptr;
         }

@@ -13,6 +13,7 @@
 #include "experimental/graphite/src/Attribute.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawTypes.h"
+#include "experimental/graphite/src/UniquePaintParamsID.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkOpts_spi.h"
 #include "include/private/SkTArray.h"
@@ -43,17 +44,17 @@ public:
     // Describes the geometric portion of the pipeline's program and the pipeline's fixed state
     // (except for renderpass-level state that will never change between draws).
     const RenderStep* renderStep() const { return fRenderStep; }
-    // Key describing the color shading tree of the pipeline's program
-    Combination shaderCombo() const { return fCombination; }
+    // UniqueID of the required PaintParams
+    UniquePaintParamsID paintParamsID() const { return fUniqueID; }
 
-    void setProgram(const RenderStep* step, const Combination& shaderCombo) {
+    void setProgram(const RenderStep* step, UniquePaintParamsID uniqueID) {
         SkASSERT(step);
         fRenderStep = step;
-        fCombination = shaderCombo;
+        fUniqueID = uniqueID;
 
         uintptr_t addr = reinterpret_cast<uintptr_t>(fRenderStep);
         memcpy(fKey.data(), &addr, sizeof(uintptr_t));
-        fKey[kWords - 1] = shaderCombo.key();
+        fKey[kWords - 1] = fUniqueID.asUInt();
     }
 
     struct Hash {
@@ -80,11 +81,7 @@ private:
     // the GraphicsPipeline.
     const RenderStep* fRenderStep = nullptr;
 
-    // TODO: Right now the Combination is roughly the equivalent of the PaintBlob description, so
-    // eventually it won't be a fixed size, as it can eventually represent arbitrary shader trees.
-    // However, in that world, each PaintBlob structure will have a unique ID and a map from ID to
-    // blob, so the GraphicsPipelineDesc can be reduced to just storing RenderStep + unique ID int.
-    Combination fCombination;
+    UniquePaintParamsID fUniqueID;
 };
 
 } // namespace skgpu

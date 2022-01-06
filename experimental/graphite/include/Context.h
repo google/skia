@@ -23,6 +23,7 @@ class ContextPriv;
 class Gpu;
 class Recorder;
 class Recording;
+class ShaderCodeDictionary;
 class TextureInfo;
 namespace mtl { struct BackendContext; }
 
@@ -102,6 +103,7 @@ private:
     std::vector<std::unique_ptr<Recording>> fRecordings;
     sk_sp<Gpu> fGpu;
     BackendApi fBackend;
+    std::unique_ptr<ShaderCodeDictionary> fShaderCodeDictionary;
 };
 
 } // namespace skgpu

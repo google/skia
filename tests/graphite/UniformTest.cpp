@@ -7,8 +7,11 @@
 
 #include "tests/Test.h"
 
+#include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawList.h" // TODO: split PaintParams out into their own header
+#include "experimental/graphite/src/ShaderCodeDictionary.h"
+#include "experimental/graphite/src/UniquePaintParamsID.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 
@@ -58,7 +61,7 @@ std::tuple<SkPaint, int> create_paint(skgpu::Combination combo) {
 
 } // anonymous namespace
 
-DEF_GRAPHITE_TEST(UniformTest, reporter) {
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     using namespace skgpu;
 
     // Intentionally does not include ShaderType::kNone, which represents no fragment shading stage
@@ -84,7 +87,10 @@ DEF_GRAPHITE_TEST(UniformTest, reporter) {
                 expected.fBlendMode = bm;
 
                 auto [ p, expectedNumUniforms ] = create_paint(expected);
-                auto [ actual, ud] = ExtractCombo(PaintParams(p));
+                auto [ actualID, ud] = ExtractCombo(context, PaintParams(p));
+
+                auto entry = context->priv().shaderCodeDictionary()->lookup(actualID);
+                Combination actual = entry->combo();
                 REPORTER_ASSERT(reporter, expected == actual);
                 REPORTER_ASSERT(reporter, expectedNumUniforms == ud->count());
                 for (int i = 0; i < ud->count(); ++i) {
