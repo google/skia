@@ -216,35 +216,8 @@ cc_library_static {
     },
 
     defaults: ["skia_deps",
-               "skia_pgo",
                "skia_defaults",
     ],
-}
-
-// Build libskia with PGO by default.
-// Location of PGO profile data is defined in build/soong/cc/pgo.go
-// and is separate from skia.
-// To turn it off, set ANDROID_PGO_NO_PROFILE_USE environment variable
-// or set enable_profile_use property to false.
-cc_defaults {
-    name: "skia_pgo",
-    pgo: {
-        instrumentation: true,
-        profile_file: "hwui/hwui.profdata",
-        benchmarks: ["hwui", "skia"],
-        enable_profile_use: true,
-    },
-}
-
-// "defaults" property to disable profile use for Skia tools and benchmarks.
-cc_defaults {
-    name: "skia_pgo_no_profile_use",
-    defaults: [
-        "skia_pgo",
-    ],
-    pgo: {
-        enable_profile_use: false,
-    },
 }
 
 cc_defaults {
@@ -323,7 +296,6 @@ cc_defaults {
     name: "skia_tool_deps",
     defaults: [
         "skia_deps",
-        "skia_pgo_no_profile_use"
     ],
     shared_libs: [
         "libicu",
