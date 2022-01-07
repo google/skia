@@ -51,6 +51,7 @@ DRAW_OP_TEST_EXTERN(CircleOp);
 DRAW_OP_TEST_EXTERN(DashOpImpl);
 DRAW_OP_TEST_EXTERN(DefaultPathOp);
 DRAW_OP_TEST_EXTERN(DrawAtlasOp);
+DRAW_OP_TEST_EXTERN(DrawVerticesOp);
 DRAW_OP_TEST_EXTERN(DIEllipseOp);
 DRAW_OP_TEST_EXTERN(EllipseOp);
 DRAW_OP_TEST_EXTERN(FillRectOp);
@@ -81,6 +82,7 @@ void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPain
             DRAW_OP_TEST_ENTRY(DashOpImpl),
             DRAW_OP_TEST_ENTRY(DefaultPathOp),
             DRAW_OP_TEST_ENTRY(DrawAtlasOp),
+            DRAW_OP_TEST_ENTRY(DrawVerticesOp),
             DRAW_OP_TEST_ENTRY(DIEllipseOp),
             DRAW_OP_TEST_ENTRY(EllipseOp),
             DRAW_OP_TEST_ENTRY(FillRectOp),

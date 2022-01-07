@@ -190,7 +190,7 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::Make(
     }
     // Throw in an unused variable to avoid an empty struct, which is illegal.
     if (varyings.empty()) {
-        varyingStruct.append("  bool _empty_;\n");
+        varyingStruct.append("  bool empty__;\n");
     }
     varyingStruct.append("};\n");
 
