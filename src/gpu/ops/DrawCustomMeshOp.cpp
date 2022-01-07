@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/DrawVerticesOp.h"
+#include "src/gpu/ops/DrawCustomMeshOp.h"
 
 #include "include/core/SkCustomMesh.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkCustomMeshPriv.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -287,11 +288,11 @@ private:
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     };
 
-    CustomMeshGP(sk_sp<SkCustomMeshSpecification> spec,
-                 sk_sp<GrColorSpaceXform> colorSpaceXform,
-                 const SkMatrix& viewMatrix,
+    CustomMeshGP(sk_sp<SkCustomMeshSpecification>    spec,
+                 sk_sp<GrColorSpaceXform>            colorSpaceXform,
+                 const SkMatrix&                     viewMatrix,
                  const skstd::optional<SkPMColor4f>& color,
-                 bool needsLocalCoords)
+                 bool                                needsLocalCoords)
             : INHERITED(kVerticesGP_ClassID)
             , fSpec(std::move(spec))
             , fViewMatrix(viewMatrix)
@@ -332,6 +333,14 @@ public:
                  sk_sp<GrColorSpaceXform>,
                  const SkMatrixProvider&);
 
+    CustomMeshOp(GrProcessorSet*,
+                 const SkPMColor4f&,
+                 sk_sp<SkVertices>,
+                 const GrPrimitiveType*,
+                 GrAAType,
+                 sk_sp<GrColorSpaceXform>,
+                 const SkMatrixProvider&);
+
     const char* name() const override { return "CustomMeshOp"; }
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
@@ -368,49 +377,261 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps&) override;
 
-    struct Mesh {
-        std::unique_ptr<const char[]>     vb;
-        std::unique_ptr<const uint16_t[]> indices;
-        int                               vcount;
-        int                               icount;
+    /**
+     * Built either from a SkCustomMesh or a SkVertices. In the former case the data is owned
+     * by Mesh and in the latter it is not. Meshes made from SkVertices can contain a SkMatrix
+     * to enable CPU-based transformation but Meshes made from SkCustomMesh cannot.
+     */
+    class Mesh {
+    public:
+        Mesh() = delete;
+        Mesh(const SkCustomMesh& cm);
+        Mesh(sk_sp<SkVertices>, const SkMatrix& viewMatrix);
+        Mesh(const Mesh&) = delete;
+        Mesh(Mesh&& m);
+
+        Mesh& operator=(const Mesh&) = delete;
+        Mesh& operator=(Mesh&&) = delete; // not used by SkSTArray but could be implemented.
+
+        ~Mesh();
+
+        bool isFromVertices() const { return SkToBool(fVertices); }
+
+        void writeVertices(skgpu::VertexWriter& writer,
+                           const SkCustomMeshSpecification& spec,
+                           bool transform) const;
+
+        int vertexCount() const {
+            return this->isFromVertices() ? fVertices->priv().vertexCount() : fCMData.vcount;
+        }
+
+        const uint16_t* indices() const {
+            return this->isFromVertices() ? fVertices->priv().indices() : fCMData.indices;
+        }
+
+        int indexCount() const {
+            return this->isFromVertices() ? fVertices->priv().indexCount() : fCMData.icount;
+        }
+
+    private:
+        struct CMData {
+            const char*     vb;
+            const uint16_t* indices;
+            int             vcount;
+            int             icount;
+        };
+
+        sk_sp<SkVertices> fVertices;
+
+        union {
+            SkMatrix fViewMatrix;
+            CMData   fCMData;
+        };
     };
 
     Helper                           fHelper;
     sk_sp<SkCustomMeshSpecification> fSpecification;
     bool                             fIgnoreSpecColor = false;
-    SkCustomMesh::Mode               fMode;
+    GrPrimitiveType                  fPrimitiveType;
     SkSTArray<1, Mesh>               fMeshes;
     sk_sp<GrColorSpaceXform>         fColorSpaceXform;
     SkPMColor4f                      fColor; // Used if no color from spec or analysis overrides.
     SkMatrix                         fViewMatrix;
+    int                              fVertexCount;
+    int                              fIndexCount;
     GrSimpleMesh*                    fMesh = nullptr;
     GrProgramInfo*                   fProgramInfo = nullptr;
 
     using INHERITED = GrMeshDrawOp;
 };
 
-CustomMeshOp::CustomMeshOp(GrProcessorSet* processorSet,
-                           const SkPMColor4f& color,
-                           SkCustomMesh cm,
-                           GrAAType aaType,
+CustomMeshOp::Mesh::Mesh(const SkCustomMesh& cm) {
+    fCMData.vb       = SkCopyCustomMeshVB(cm).release();
+    fCMData.indices  = SkCopyCustomMeshIB(cm).release();
+    fCMData.vcount   = cm.vcount;
+    fCMData.icount   = cm.icount;
+}
+
+CustomMeshOp::Mesh::Mesh(sk_sp<SkVertices> vertices, const SkMatrix& viewMatrix)
+        : fVertices(std::move(vertices)), fViewMatrix(viewMatrix) {
+    SkASSERT(fVertices);
+}
+
+CustomMeshOp::Mesh::Mesh(Mesh&& m) {
+    fVertices = std::move(m.fVertices);
+    if (fVertices) {
+        fViewMatrix = m.fViewMatrix;
+    } else {
+        fCMData = m.fCMData;
+    }
+    m.fCMData.vb      = nullptr;
+    m.fCMData.indices = nullptr;
+}
+
+CustomMeshOp::Mesh::~Mesh() {
+    if (!this->isFromVertices()) {
+        delete[] fCMData.indices;
+        delete[] fCMData.vb;
+    }
+}
+
+void CustomMeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
+                                       const SkCustomMeshSpecification& spec,
+                                       bool transform) const {
+    SkASSERT(!transform || this->isFromVertices());
+    if (this->isFromVertices()) {
+        int vertexCount = fVertices->priv().vertexCount();
+        for (int i = 0; i < vertexCount; ++i) {
+            SkPoint pos = fVertices->priv().positions()[i];
+            if (transform) {
+                SkASSERT(!fViewMatrix.hasPerspective());
+                fViewMatrix.mapPoints(&pos, 1);
+            }
+            writer << pos;
+            if (SkCustomMeshSpecificationPriv::HasColors(spec)) {
+                SkASSERT(fVertices->priv().hasColors());
+                writer << fVertices->priv().colors()[i];
+            }
+            if (SkCustomMeshSpecificationPriv::HasLocalCoords(spec)) {
+                SkASSERT(fVertices->priv().hasTexCoords());
+                writer << fVertices->priv().texCoords()[i];
+            }
+        }
+    } else {
+        writer << skgpu::VertexWriter::Array(fCMData.vb, spec.stride()*fCMData.vcount);
+    }
+}
+
+CustomMeshOp::CustomMeshOp(GrProcessorSet*          processorSet,
+                           const SkPMColor4f&       color,
+                           SkCustomMesh             cm,
+                           GrAAType                 aaType,
                            sk_sp<GrColorSpaceXform> colorSpaceXform,
-                           const SkMatrixProvider& matrixProvider)
+                           const SkMatrixProvider&  matrixProvider)
         : INHERITED(ClassID())
         , fHelper(processorSet, aaType)
-        , fMode(cm.mode)
+        , fPrimitiveType(primitive_type(cm.mode))
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fColor(color)
         , fViewMatrix(matrixProvider.localToDevice()) {
-    Mesh m;
-    m.vb      = SkCopyCustomMeshVB(cm);
-    m.vcount  = cm.vcount;
-    m.indices = SkCopyCustomMeshIB(cm);
-    m.icount  = cm.icount;
-    fMeshes.push_back(std::move(m));
+    fMeshes.emplace_back(cm);
 
     fSpecification = std::move(cm.spec);
 
+    fVertexCount = fMeshes.back().vertexCount();
+    fIndexCount  = fMeshes.back().indexCount();
+
     this->setTransformedBounds(cm.bounds, fViewMatrix, HasAABloat::kNo, IsHairline::kNo);
+}
+
+static sk_sp<SkCustomMeshSpecification> make_vertices_spec(bool hasColors, bool hasTex) {
+    using Attribute = SkCustomMeshSpecification::Attribute;
+    using Varying   = SkCustomMeshSpecification::Varying;
+    std::vector<Attribute> attributes;
+    attributes.reserve(3);
+    attributes.push_back({Attribute::Type::kFloat2, 0, SkString{"pos"}});
+    size_t size = 8;
+
+    std::vector<Varying> varyings;
+    attributes.reserve(2);
+
+    SkString vs("float2 main(Attributes a, out Varyings v) {\n");
+    SkString fs(hasTex ? "float2 " : "void ");
+
+    if (hasColors) {
+        attributes.push_back({Attribute::Type::kUByte4_unorm, size, SkString{"color"}});
+        varyings.push_back({Varying::Type::kHalf4, SkString{"color"}});
+        vs += "v.color = a.color;\n";
+        // Using float4 for the output color to work around skbug.com/12761
+        fs += "main(Varyings v, out float4 color) {\n"
+              "color = float4(v.color.bgr*v.color.a, v.color.a);\n";
+        size += 4;
+    } else {
+        fs += "main(Varyings v) {\n";
+    }
+
+    if (hasTex) {
+        attributes.push_back({Attribute::Type::kFloat2, size, SkString{"tex"}});
+        varyings.push_back({Varying::Type::kFloat2, SkString{"tex"}});
+        vs += "v.tex = a.tex;\n";
+        fs += "return v.tex;\n";
+        size += 8;
+    }
+    vs += "return a.pos;\n}";
+    fs += "}";
+    auto [spec, error] = SkCustomMeshSpecification::Make(
+            SkMakeSpan(attributes),
+            size,
+            SkMakeSpan(varyings),
+            vs,
+            fs);
+    SkASSERT(spec);
+    return spec;
+}
+
+CustomMeshOp::CustomMeshOp(GrProcessorSet*          processorSet,
+                           const SkPMColor4f&       color,
+                           sk_sp<SkVertices>        vertices,
+                           const GrPrimitiveType*   overridePrimitiveType,
+                           GrAAType                 aaType,
+                           sk_sp<GrColorSpaceXform> colorSpaceXform,
+                           const SkMatrixProvider&  matrixProvider)
+        : INHERITED(ClassID())
+        , fHelper(processorSet, aaType)
+        , fColorSpaceXform(std::move(colorSpaceXform))
+        , fColor(color)
+        , fViewMatrix(matrixProvider.localToDevice()) {
+    int attrs = (vertices->priv().hasColors()    ? 0b01 : 0b00) |
+                (vertices->priv().hasTexCoords() ? 0b10 : 0b00);
+    switch (attrs) {
+        case 0b00: {
+            static const auto kSpec = make_vertices_spec(false, false);
+            fSpecification = kSpec;
+            break;
+        }
+        case 0b01: {
+            static const auto kSpec = make_vertices_spec(true, false);
+            fSpecification = kSpec;
+            break;
+        }
+        case 0b10: {
+            static const auto kSpec = make_vertices_spec(false, true);
+            fSpecification = kSpec;
+            break;
+        }
+        case 0b11: {
+            static const auto kSpec = make_vertices_spec(true, true);
+            fSpecification = kSpec;
+            break;
+        }
+    }
+    SkASSERT(fSpecification);
+
+    if (overridePrimitiveType) {
+        fPrimitiveType = *overridePrimitiveType;
+    } else {
+        switch (vertices->priv().mode()) {
+            case SkVertices::kTriangles_VertexMode:
+                fPrimitiveType = GrPrimitiveType::kTriangles;
+                break;
+            case SkVertices::kTriangleStrip_VertexMode:
+                fPrimitiveType = GrPrimitiveType::kTriangleStrip;
+                break;
+            case SkVertices::kTriangleFan_VertexMode:
+                SkUNREACHABLE;
+        }
+    }
+
+    IsHairline isHairline = IsHairline::kNo;
+    if (GrIsPrimTypeLines(fPrimitiveType) || fPrimitiveType == GrPrimitiveType::kPoints) {
+        isHairline = IsHairline::kYes;
+    }
+    this->setTransformedBounds(vertices->bounds(), fViewMatrix, HasAABloat::kNo, isHairline);
+
+    fMeshes.emplace_back(std::move(vertices), fViewMatrix);
+
+    fVertexCount = fMeshes.back().vertexCount();
+    fIndexCount  = fMeshes.back().indexCount();
 }
 
 #if GR_TEST_UTILS
@@ -442,7 +663,13 @@ GrGeometryProcessor* CustomMeshOp::makeGP(SkArenaAlloc* arena) {
     if (fIgnoreSpecColor || !SkCustomMeshSpecificationPriv::HasColors(*fSpecification)) {
         color.emplace(fColor);
     }
-    return CustomMeshGP::Make(arena, fSpecification, fColorSpaceXform, fViewMatrix, color,
+    // Check if we're pre-transforming the vertices on the CPU.
+    const SkMatrix& vm = fViewMatrix == SkMatrix::InvalidMatrix() ? SkMatrix::I() : fViewMatrix;
+    return CustomMeshGP::Make(arena,
+                              fSpecification,
+                              fColorSpaceXform,
+                              vm,
+                              color,
                               fHelper.usesLocalCoords());
 }
 
@@ -461,7 +688,7 @@ void CustomMeshOp::onCreateProgramInfo(const GrCaps* caps,
                                              std::move(appliedClip),
                                              dstProxyView,
                                              this->makeGP(arena),
-                                             primitive_type(fMode),
+                                             fPrimitiveType,
                                              renderPassXferBarriers,
                                              colorLoadOp);
 }
@@ -470,12 +697,8 @@ void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
     size_t vertexStride = fSpecification->stride();
     sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex = 0;
-    size_t vcount = 0;
-    for (const auto& m : fMeshes) {
-        vcount += m.vcount;
-    }
     skgpu::VertexWriter verts{target->makeVertexSpace(vertexStride,
-                                                      vcount,
+                                                      fVertexCount,
                                                       &vertexBuffer,
                                                       &firstVertex)};
     if (!verts) {
@@ -483,22 +706,32 @@ void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
         return;
     }
 
+    bool transform = fViewMatrix == SkMatrix::InvalidMatrix();
     for (const auto& m : fMeshes) {
-        verts << skgpu::VertexWriter::Array(static_cast<const char*>(m.vb.get()),
-                                            vertexStride * m.vcount);
+        m.writeVertices(verts, *fSpecification, transform);
     }
 
     sk_sp<const GrBuffer> indexBuffer;
     int firstIndex = 0;
     uint16_t* indices = nullptr;
-    if (fMeshes[0].icount) {
-        SkASSERT(fMeshes.size() == 1);
-        indices = target->makeIndexSpace(fMeshes[0].icount, &indexBuffer, &firstIndex);
+    if (fIndexCount) {
+        indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
             SkDebugf("Could not allocate indices.\n");
             return;
         }
-        std::copy_n(fMeshes[0].indices.get(), fMeshes[0].icount, indices);
+        // We can just copy the first mesh's indices. Subsequent meshes need their indices adjusted.
+        std::copy_n(fMeshes[0].indices(), fMeshes[0].indexCount(), indices);
+        int voffset = fMeshes[0].vertexCount();
+        int ioffset = fMeshes[0].indexCount();
+        for (size_t m = 1; m < fMeshes.size(); ++m) {
+            for (int i = 0; i < fMeshes[m].indexCount(); ++i) {
+                indices[ioffset++] = fMeshes[m].indices()[i] + voffset;
+            }
+            voffset += fMeshes[m].vertexCount();
+        }
+        SkASSERT(voffset == fVertexCount);
+        SkASSERT(ioffset == fIndexCount);
     }
 
     SkASSERT(!fMesh);
@@ -506,15 +739,15 @@ void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
     if (indices) {
         fMesh->setIndexed(std::move(indexBuffer),
-                          fMeshes[0].icount,
+                          fIndexCount,
                           firstIndex,
                           /*minIndexValue=*/0,
-                          fMeshes[0].vcount,
+                          fVertexCount,
                           GrPrimitiveRestart::kNo,
                           std::move(vertexBuffer),
                           firstVertex);
     } else {
-        fMesh->set(std::move(vertexBuffer), vcount, firstVertex);
+        fMesh->set(std::move(vertexBuffer), fVertexCount, firstVertex);
     }
 }
 
@@ -535,21 +768,30 @@ void CustomMeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
     auto that = t->cast<CustomMeshOp>();
 
-    if (fMode       == SkCustomMesh::Mode::kTriangleStrip ||
-        that->fMode == SkCustomMesh::Mode::kTriangleStrip) {
+    // Check for a combinable primitive type.
+    if (!(fPrimitiveType == GrPrimitiveType::kTriangles ||
+          fPrimitiveType == GrPrimitiveType::kLines     ||
+          fPrimitiveType == GrPrimitiveType::kPoints)) {
         return CombineResult::kCannotCombine;
     }
 
-    if (this->fMeshes[0].indices || that->fMeshes[0].indices) {
+    if (fPrimitiveType != that->fPrimitiveType) {
         return CombineResult::kCannotCombine;
     }
 
-    int thisHash = SkCustomMeshSpecificationPriv::Hash(*fSpecification);
-    int thatHash = SkCustomMeshSpecificationPriv::Hash(*fSpecification);
+    if (SkToBool(fIndexCount) != SkToBool(that->fIndexCount)) {
+        return CombineResult::kCannotCombine;
+    }
+    if (SkToBool(fIndexCount) && fVertexCount + that->fVertexCount > SkToInt(UINT16_MAX)) {
+        return CombineResult::kCannotCombine;
+    }
 
-    if (thisHash != thatHash                                                                   ||
-        (!SkCustomMeshSpecificationPriv::HasColors(*fSpecification) && fColor != that->fColor) ||
-        fViewMatrix != that->fViewMatrix) {
+    if (SkCustomMeshSpecificationPriv::Hash(*this->fSpecification) !=
+        SkCustomMeshSpecificationPriv::Hash(*that->fSpecification)) {
+        return CombineResult::kCannotCombine;
+    }
+
+    if (!SkCustomMeshSpecificationPriv::HasColors(*fSpecification) && fColor != that->fColor) {
         return CombineResult::kCannotCombine;
     }
 
@@ -557,11 +799,34 @@ GrOp::CombineResult CustomMeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, co
         return CombineResult::kCannotCombine;
     }
 
+    if (fViewMatrix != that->fViewMatrix) {
+        if (!fMeshes[0].isFromVertices() || !that->fMeshes[0].isFromVertices()) {
+            // We don't know how to CPU transform actual custom meshes on CPU.
+            return CombineResult::kCannotCombine;
+        }
+        // If we use local coords and the local coords come from positions then we can't pre-
+        // transform the positions on the CPU.
+        if (fHelper.usesLocalCoords() &&
+            !SkCustomMeshSpecificationPriv::HasLocalCoords(*fSpecification)) {
+            return CombineResult::kCannotCombine;
+        }
+        // We only support two-component position attributes. This means we would not get
+        // perspective-correct interpolation of attributes if we transform on the CPU.
+        if ((this->fViewMatrix.isFinite() && this->fViewMatrix.hasPerspective()) ||
+            (that->fViewMatrix.isFinite() && that->fViewMatrix.hasPerspective())) {
+            return CombineResult::kCannotCombine;
+        }
+        // This is how we record that we must CPU-transform the vertices.
+        fViewMatrix = SkMatrix::InvalidMatrix();
+    }
+
     // NOTE: The source color space is part of the spec, and the destination gamut is determined by
     // the render target context. A mis-match should be impossible.
     SkASSERT(GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get()));
 
     fMeshes.move_back_n(that->fMeshes.count(), that->fMeshes.begin());
+    fVertexCount += that->fVertexCount;
+    fIndexCount  += that->fIndexCount;
     return CombineResult::kMerged;
 }
 
@@ -578,6 +843,22 @@ GrOp::Owner Make(GrRecordingContext* context,
     return GrSimpleMeshDrawOpHelper::FactoryHelper<CustomMeshOp>(context,
                                                                  std::move(paint),
                                                                  std::move(cm),
+                                                                 aaType,
+                                                                 std::move(colorSpaceXform),
+                                                                 matrixProvider);
+}
+
+GrOp::Owner Make(GrRecordingContext* context,
+                 GrPaint&& paint,
+                 sk_sp<SkVertices> vertices,
+                 const GrPrimitiveType* overridePrimitiveType,
+                 const SkMatrixProvider& matrixProvider,
+                 GrAAType aaType,
+                 sk_sp<GrColorSpaceXform> colorSpaceXform) {
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<CustomMeshOp>(context,
+                                                                 std::move(paint),
+                                                                 std::move(vertices),
+                                                                 overridePrimitiveType,
                                                                  aaType,
                                                                  std::move(colorSpaceXform),
                                                                  matrixProvider);

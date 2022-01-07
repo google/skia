@@ -58,7 +58,6 @@
 #include "src/gpu/ops/ClearOp.h"
 #include "src/gpu/ops/DrawAtlasOp.h"
 #include "src/gpu/ops/DrawCustomMeshOp.h"
-#include "src/gpu/ops/DrawVerticesOp.h"
 #include "src/gpu/ops/DrawableOp.h"
 #include "src/gpu/ops/FillRRectOp.h"
 #include "src/gpu/ops/FillRectOp.h"
@@ -945,13 +944,13 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
 
     SkASSERT(vertices);
     GrAAType aaType = fCanUseDynamicMSAA ? GrAAType::kMSAA : this->chooseAAType(GrAA::kNo);
-    GrOp::Owner op = DrawVerticesOp::Make(fContext,
-                                          std::move(paint),
-                                          std::move(vertices),
-                                          matrixProvider,
-                                          aaType,
-                                          this->colorInfo().refColorSpaceXformFromSRGB(),
-                                          overridePrimType);
+    GrOp::Owner op = DrawCustomMeshOp::Make(fContext,
+                                            std::move(paint),
+                                            std::move(vertices),
+                                            overridePrimType,
+                                            matrixProvider,
+                                            aaType,
+                                            this->colorInfo().refColorSpaceXformFromSRGB());
     this->addDrawOp(clip, std::move(op));
 }
 

@@ -26,6 +26,14 @@ GrOp::Owner Make(GrRecordingContext*,
                  const SkMatrixProvider&,
                  GrAAType,
                  sk_sp<GrColorSpaceXform>);
+
+GrOp::Owner Make(GrRecordingContext*,
+                 GrPaint&&,
+                 sk_sp<SkVertices>,
+                 const GrPrimitiveType* overridePrimitiveType,
+                 const SkMatrixProvider&,
+                 GrAAType,
+                 sk_sp<GrColorSpaceXform>);
 }  // namespace skgpu::v1::DrawCustomMeshOp
 
 #endif  // DrawCustomMeshOp_DEFINED
