@@ -67,7 +67,15 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
 #endif
 }
 
+// TODO: currently this only *always* used in asFragmentProcessor(), which is excluded on no-gpu
+// builds. No-gpu builds only use needs_subset() in asserts, so release+no-gpu doesn't use it, which
+// can cause builds to fail if unused warnings are treated as errors.
+SK_MAYBE_UNUSED static bool needs_subset(SkImage* img, const SkRect& subset) {
+    return subset != SkRect::Make(img->dimensions());
+}
+
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
+                             const SkRect& subset,
                              SkTileMode tmx, SkTileMode tmy,
                              const SkSamplingOptions& sampling,
                              const SkMatrix* localMatrix,
@@ -78,6 +86,7 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
         , fSampling(sampling)
         , fTileModeX(optimize(tmx, fImage->width()))
         , fTileModeY(optimize(tmy, fImage->height()))
+        , fSubset(subset)
         , fRaw(raw)
         , fClampAsIfUnpremul(clampAsIfUnpremul) {
     // These options should never appear together:
@@ -132,6 +141,9 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     bool raw = buffer.isVersionLT(SkPicturePriv::Version::kRawImageShaders) ? false
                                                                             : buffer.readBool();
 
+    // TODO(skbug.com/12784): Subset is not serialized yet; it's only used by special images so it
+    // will never be written to an SKP.
+
     return raw ? SkImageShader::MakeRaw(std::move(img), tmx, tmy, sampling, &localMatrix)
                : SkImageShader::Make(std::move(img), tmx, tmy, sampling, &localMatrix);
 }
@@ -145,6 +157,10 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
+
+    // TODO(skbug.com/12784): Subset is not serialized yet; it's only used by special images so it
+    // will never be written to an SKP.
+    SkASSERT(!needs_subset(fImage.get(), fSubset));
 
     buffer.writeBool(fRaw);
 }
@@ -189,6 +205,7 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
+    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
@@ -265,19 +282,8 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
                                     const SkSamplingOptions& options,
                                     const SkMatrix* localMatrix,
                                     bool clampAsIfUnpremul) {
-    auto is_unit = [](float x) {
-        return x >= 0 && x <= 1;
-    };
-    if (options.useCubic) {
-        if (!is_unit(options.cubic.B) || !is_unit(options.cubic.C)) {
-            return nullptr;
-        }
-    }
-    if (!image) {
-        return sk_make_sp<SkEmptyShader>();
-    }
-    return sk_sp<SkShader>{new SkImageShader(
-            image, tmx, tmy, options, localMatrix, /*raw=*/false, clampAsIfUnpremul)};
+    SkRect subset = image ? SkRect::Make(image->dimensions()) : SkRect::MakeEmpty();
+    return MakeSubset(std::move(image), subset, tmx, tmy, options, localMatrix, clampAsIfUnpremul);
 }
 
 sk_sp<SkShader> SkImageShader::MakeRaw(sk_sp<SkImage> image,
@@ -291,7 +297,36 @@ sk_sp<SkShader> SkImageShader::MakeRaw(sk_sp<SkImage> image,
         return sk_make_sp<SkEmptyShader>();
     }
     return sk_sp<SkShader>{new SkImageShader(
-            image, tmx, tmy, options, localMatrix, /*raw=*/true, /*clampAsIfUnpremul=*/false)};
+            image, SkRect::Make(image->dimensions()), tmx, tmy, options, localMatrix,
+            /*raw=*/true, /*clampAsIfUnpremul=*/false)};
+}
+
+sk_sp<SkShader> SkImageShader::MakeSubset(sk_sp<SkImage> image,
+                                          const SkRect& subset,
+                                          SkTileMode tmx, SkTileMode tmy,
+                                          const SkSamplingOptions& options,
+                                          const SkMatrix* localMatrix,
+                                          bool clampAsIfUnpremul) {
+    auto is_unit = [](float x) {
+        return x >= 0 && x <= 1;
+    };
+    if (options.useCubic) {
+        if (!is_unit(options.cubic.B) || !is_unit(options.cubic.C)) {
+            return nullptr;
+        }
+    }
+    if (!image || subset.isEmpty()) {
+        return sk_make_sp<SkEmptyShader>();
+    }
+
+    // Validate subset and check if we can drop it
+    if (!SkRect::Make(image->bounds()).contains(subset)) {
+        return nullptr;
+    }
+    // TODO(skbug.com/12784): GPU-only for now since it's only supported in onAsFragmentProcessor()
+    SkASSERT(!needs_subset(image.get(), subset) || image->isTextureBacked());
+    return sk_sp<SkShader>{new SkImageShader(
+            image, subset, tmx, tmy, options, localMatrix, /*raw=*/false, clampAsIfUnpremul)};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -310,10 +345,12 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     }
 
     SkTileMode tileModes[2] = {fTileModeX, fTileModeY};
+    const SkRect* subset = needs_subset(fImage.get(), fSubset) ? &fSubset : nullptr;
     auto fp = as_IB(fImage.get())->asFragmentProcessor(args.fContext,
                                                        fSampling,
                                                        tileModes,
-                                                       lmInverse);
+                                                       lmInverse,
+                                                       subset);
     if (!fp) {
         return nullptr;
     }
@@ -407,6 +444,7 @@ static SkMatrix tweak_inv_matrix(SkFilterMode filter, SkMatrix matrix) {
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) const {
+    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
     // We only support certain sampling options in stages so far
     auto sampling = fSampling;
     if (sampling.useCubic) {
@@ -705,7 +743,7 @@ skvm::Color SkImageShader::makeProgram(
         skvm::Builder* p, skvm::Coord device, skvm::Coord origLocal, skvm::Color paint,
         const SkMatrixProvider& matrices, const SkMatrix* localM, const SkColorInfo& dst,
         skvm::Uniforms* uniforms, const TransformShader* coordShader, SkArenaAlloc* alloc) const {
-
+    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
     SkMatrix baseInv;
     if (!this->computeTotalInverse(matrices.localToDevice(), localM, &baseInv)) {
         return {};
