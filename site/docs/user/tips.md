@@ -97,4 +97,4 @@ to draw those glyphs.
 
 ## How do I add drop shadow on text?
 
-<fiddle-embed name='1ff4da09e515087f7011c7caec2e98ae'></fiddle-embed>
+<fiddle-embed-sk name='1ff4da09e515087f7011c7caec2e98ae'></fiddle-embed-sk>
