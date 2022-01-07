@@ -10,7 +10,6 @@
 
 #include "include/core/SkM44.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "third_party/externals/ImGuiColorTextEdit/TextEditor.h"
 #include "tools/viewer/Slide.h"
 
 class SkSLSlide : public Slide {
@@ -35,9 +34,7 @@ public:
 private:
     bool rebuild();
 
-    TextEditor fEditor;
-    TextEditor::ErrorMarkers fErrors;
-
+    SkString fSkSL;
     bool fCodeIsDirty;
     sk_sp<SkRuntimeEffect> fEffect;
     SkAutoTMalloc<char> fInputs;
@@ -55,6 +52,7 @@ private:
     SkV3 fResolution = { 1, 1, 1 };
     SkV4 fMousePos;
     int fTraceCoord[2] = {64, 64};
+    bool fShadertoyUniforms = true;
 
     // Named shaders that can be selected as inputs
     SkTArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;

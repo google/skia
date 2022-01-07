@@ -14,33 +14,38 @@
 #include "include/sksl/SkSLDebugTrace.h"
 #include "src/core/SkEnumerate.h"
 #include "tools/Resources.h"
+#include "tools/viewer/Viewer.h"
 
 #include <algorithm>
 #include <cstdio>
-#include <regex>
 #include "imgui.h"
-#include "TextEditor.h"
 
 using namespace sk_app;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int InputTextCallback(ImGuiInputTextCallbackData* data) {
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
+        SkString* s = (SkString*)data->UserData;
+        SkASSERT(data->Buf == s->writable_str());
+        SkString tmp(data->Buf, data->BufTextLen);
+        s->swap(tmp);
+        data->Buf = s->writable_str();
+    }
+    return 0;
+}
+
 SkSLSlide::SkSLSlide() {
     // Register types for serialization
     fName = "SkSL";
 
-    // Prefix the code with some of the standard shadertoy inputs, by default:
-    fEditor.SetText(
-        "uniform float3 iResolution;\n"
-        "uniform float  iTime;\n"
-        "uniform float4 iMouse;\n"
-        "\n"
+    fSkSL =
+
         "uniform shader child;\n"
         "\n"
         "half4 main(float2 p) {\n"
         "    return child.eval(p);\n"
-        "}\n");
-    fEditor.SetShowWhitespaces(false);
+        "}\n";
 
     fCodeIsDirty = true;
 }
@@ -77,7 +82,14 @@ void SkSLSlide::unload() {
 }
 
 bool SkSLSlide::rebuild() {
-    std::string sksl = fEditor.GetText();
+    // Some of the standard shadertoy inputs:
+    SkString sksl;
+    if (fShadertoyUniforms) {
+        sksl = "uniform float3 iResolution;\n"
+               "uniform float  iTime;\n"
+               "uniform float4 iMouse;\n";
+    }
+    sksl.append(fSkSL);
 
     // It shouldn't happen, but it's possible to assert in the compiler, especially mid-edit.
     // To guard against losing your work, write out the shader to a backup file, then remove it
@@ -85,30 +97,16 @@ bool SkSLSlide::rebuild() {
     constexpr char kBackupFile[] = "sksl.bak";
     FILE* backup = fopen(kBackupFile, "w");
     if (backup) {
-        fwrite(sksl.c_str(), 1, sksl.size(), backup);
+        fwrite(fSkSL.c_str(), 1, fSkSL.size(), backup);
         fclose(backup);
     }
-    auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl.c_str()));
+    auto [effect, errorText] = SkRuntimeEffect::MakeForShader(sksl);
     if (backup) {
         std::remove(kBackupFile);
     }
 
-    fErrors.clear();
-    fEditor.SetErrorMarkers(fErrors);
-
     if (!effect) {
-        SkTArray<SkString> errorLines;
-        SkStrSplit(errorText.c_str(), "\n", &errorLines);
-        std::regex errorRegex("error: ([0-9]+): (.*)");
-        std::cmatch errorMatch;
-        for (const auto& line : errorLines) {
-            if (std::regex_match(line.c_str(), errorMatch, errorRegex)) {
-                int lineNum = std::atoi(errorMatch[1].str().c_str());
-                fErrors[lineNum].append(errorMatch[2].str());
-                fErrors[lineNum].append("\n");
-            }
-        }
-        fEditor.SetErrorMarkers(fErrors);
+        Viewer::ShaderErrorHandler()->compileError(sksl.c_str(), errorText.c_str());
         return false;
     }
 
@@ -127,11 +125,17 @@ bool SkSLSlide::rebuild() {
 void SkSLSlide::draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorWHITE);
 
-    ImGui::Begin("SkSL");
+    ImGui::Begin("SkSL", nullptr, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
     // Edit box for shader code
-    fEditor.Render("Code", ImVec2(0, 500));
-    if (fEditor.IsTextChanged()) {
+    ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
+    ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * 30);
+    if (ImGui::InputTextMultiline("Code", fSkSL.writable_str(), fSkSL.size() + 1, boxSize, flags,
+                                  InputTextCallback, &fSkSL)) {
+        fCodeIsDirty = true;
+    }
+
+    if (ImGui::Checkbox("ShaderToy Uniforms (iResolution/iTime/iMouse)", &fShadertoyUniforms)) {
         fCodeIsDirty = true;
     }
 
@@ -167,15 +171,15 @@ void SkSLSlide::draw(SkCanvas* canvas) {
 
     for (const auto& v : fEffect->uniforms()) {
         char* data = fInputs.get() + v.offset;
-        if (v.name.equals("iResolution") && v.type == SkRuntimeEffect::Uniform::Type::kFloat3) {
+        if (v.name.equals("iResolution")) {
             memcpy(data, &fResolution, sizeof(fResolution));
             continue;
         }
-        if (v.name.equals("iTime") && v.type == SkRuntimeEffect::Uniform::Type::kFloat) {
+        if (v.name.equals("iTime")) {
             memcpy(data, &fSeconds, sizeof(fSeconds));
             continue;
         }
-        if (v.name.equals("iMouse") && v.type == SkRuntimeEffect::Uniform::Type::kFloat4) {
+        if (v.name.equals("iMouse")) {
             memcpy(data, &fMousePos, sizeof(fMousePos));
             continue;
         }
