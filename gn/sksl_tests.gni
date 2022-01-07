@@ -89,6 +89,7 @@ sksl_error_tests = [
   "/sksl/errors/MatrixToVectorCastTooSmall.sksl",
   "/sksl/errors/MismatchedNumbers.sksl",
   "/sksl/errors/MultipleFields.sksl",
+  "/sksl/errors/MultipleFieldsInInterfaceBlocks.sksl",
   "/sksl/errors/ModifiersInStruct.sksl",
   "/sksl/errors/NoES3ModifierInUserCode.sksl",
   "/sksl/errors/OpaqueTypeAssignment.sksl",
