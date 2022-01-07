@@ -9,7 +9,7 @@
 
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
-#include "experimental/graphite/src/DrawList.h" // TODO: split PaintParams out into their own header
+#include "experimental/graphite/src/PaintParams.h"
 #include "experimental/graphite/src/ShaderCodeDictionary.h"
 #include "experimental/graphite/src/UniquePaintParamsID.h"
 #include "include/core/SkPaint.h"

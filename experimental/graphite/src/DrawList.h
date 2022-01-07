@@ -8,12 +8,12 @@
 #ifndef skgpu_DrawList_DEFINED
 #define skgpu_DrawList_DEFINED
 
-#include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/private/SkTOptional.h"
 #include "src/core/SkTBlockList.h"
 
 #include "experimental/graphite/src/DrawOrder.h"
+#include "experimental/graphite/src/PaintParams.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
 
@@ -26,35 +26,6 @@ struct SkIRect;
 namespace skgpu {
 
 class Renderer;
-
-// TBD: If occlusion culling is eliminated as a phase, we can easily move the paint conversion
-// back to Device when the command is recorded (similar to SkPaint -> GrPaint), and then
-// PaintParams is not required as an intermediate representation.
-// NOTE: Only represents the shading state of an SkPaint. Style and complex effects (mask filters,
-// image filters, path effects) must be handled higher up. AA is not tracked since everything is
-// assumed to be anti-aliased.
-class PaintParams {
-public:
-    PaintParams(const SkColor4f& color, SkBlendMode, sk_sp<SkShader>);
-    explicit PaintParams(const SkPaint& paint);
-
-    PaintParams(const PaintParams&);
-    ~PaintParams();
-
-    PaintParams& operator=(const PaintParams&);
-
-    SkColor4f color() const { return fColor; }
-    SkBlendMode blendMode() const { return fBlendMode; }
-    SkShader* shader() const { return fShader.get(); }
-    sk_sp<SkShader> refShader() const;
-
-private:
-    SkColor4f       fColor;
-    SkBlendMode     fBlendMode;
-    sk_sp<SkShader> fShader; // For now only use SkShader::asAGradient() when converting to GPU
-    // TODO: Will also store ColorFilter, custom Blender, dither, and any extra shader from an
-    // active clipShader().
-};
 
 // NOTE: Only represents the stroke or hairline styles; stroke-and-fill must be handled higher up.
 class StrokeParams {
