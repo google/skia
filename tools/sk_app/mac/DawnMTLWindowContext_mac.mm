@@ -119,7 +119,7 @@ DawnSwapChainImplementation DawnMTLWindowContext::createSwapChainImplementation(
 }
 
 wgpu::Device DawnMTLWindowContext::onInitializeContext() {
-    wgpu::Device device = this->createDevice(dawn_native::BackendType::Metal);
+    wgpu::Device device = this->createDevice(wgpu::BackendType::Metal);
     if (!device) {
         return nullptr;
     }

@@ -46,7 +46,7 @@ DawnSwapChainImplementation DawnD3D12WindowContext::createSwapChainImplementatio
 }
 
 wgpu::Device DawnD3D12WindowContext::onInitializeContext() {
-    return this->createDevice(dawn_native::BackendType::D3D12);
+    return this->createDevice(wgpu::BackendType::D3D12);
 }
 
 void DawnD3D12WindowContext::onDestroyContext() {

@@ -58,7 +58,7 @@ DawnSwapChainImplementation DawnVulkanWindowContext_xlib::createSwapChainImpleme
 }
 
 wgpu::Device DawnVulkanWindowContext_xlib::onInitializeContext() {
-    wgpu::Device device = this->createDevice(dawn_native::BackendType::Vulkan);
+    wgpu::Device device = this->createDevice(wgpu::BackendType::Vulkan);
     if (!device) {
         return nullptr;
     }

@@ -84,13 +84,15 @@ static void PrintDeviceError(WGPUErrorType, const char* message, void*) {
 class DawnTestContextImpl : public sk_gpu_test::DawnTestContext {
 public:
     static wgpu::Device createDevice(const dawn_native::Instance& instance,
-                                     dawn_native::BackendType type) {
+                                     wgpu::BackendType type) {
         DawnProcTable backendProcs = dawn_native::GetProcs();
         dawnProcSetProcs(&backendProcs);
 
         std::vector<dawn_native::Adapter> adapters = instance.GetAdapters();
         for (dawn_native::Adapter adapter : adapters) {
-            if (adapter.GetBackendType() == type) {
+            wgpu::AdapterProperties properties;
+            adapter.GetProperties(&properties);
+            if (properties.backendType == type) {
                 return wgpu::Device::Acquire(adapter.CreateDevice());
             }
         }
@@ -103,7 +105,7 @@ public:
         if (sharedContext) {
             device = sharedContext->getDevice();
         } else {
-            dawn_native::BackendType type;
+            wgpu::BackendType type;
 #if USE_OPENGL_BACKEND
             dawn_native::opengl::AdapterDiscoveryOptions adapterOptions;
             adapterOptions.getProc = reinterpret_cast<void*(*)(const char*)>(
@@ -116,15 +118,15 @@ public:
 #endif
             );
             instance->DiscoverAdapters(&adapterOptions);
-            type = dawn_native::BackendType::OpenGL;
+            type = wgpu::BackendType::OpenGL;
 #else
             instance->DiscoverDefaultAdapters();
 #if defined(SK_BUILD_FOR_MAC)
-            type = dawn_native::BackendType::Metal;
+            type = wgpu::BackendType::Metal;
 #elif defined(SK_BUILD_FOR_WIN)
-            type = dawn_native::BackendType::D3D12;
+            type = wgpu::BackendType::D3D12;
 #elif defined(SK_BUILD_FOR_UNIX)
-            type = dawn_native::BackendType::Vulkan;
+            type = wgpu::BackendType::Vulkan;
 #endif
 #endif
             device = createDevice(*instance, type);
