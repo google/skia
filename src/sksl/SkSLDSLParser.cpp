@@ -902,6 +902,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     }
     this->nextToken();
     SkTArray<dsl::Field> fields;
+    std::unordered_set<String> field_names;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         DSLModifiers fieldModifiers = this->modifiers();
         skstd::optional<dsl::DSLType> type = this->type(&fieldModifiers);
@@ -927,8 +928,20 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
             if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
                 return false;
             }
-            fields.push_back(dsl::Field(fieldModifiers, std::move(actualType),
-                    this->text(fieldName), this->position(fieldName)));
+
+            String key(this->text(fieldName));
+            if (field_names.find(key) == field_names.end()) {
+                fields.push_back(dsl::Field(fieldModifiers,
+                                            std::move(actualType),
+                                            this->text(fieldName),
+                                            this->position(fieldName)));
+                field_names.emplace(key);
+            } else {
+                this->error(typeName,
+                            "field '" + key +
+                            "' was already defined in the same interface block ('" +
+                            this->text(typeName) +  "')");
+            }
         }
         while (this->checkNext(Token::Kind::TK_COMMA));
     }

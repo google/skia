@@ -2,3 +2,6 @@ IB {
     float f;
     float f;
 } ib;
+
+IB1 { float f; };
+IB2 { float f; };
