@@ -16,6 +16,7 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkStrikeForGPU.h"
 
 class SkArenaAlloc;
 class SkScalerContext;
@@ -238,7 +239,41 @@ inline SkGlyphRect rect_intersection(SkGlyphRect a, SkGlyphRect b) {
 }
 }  // namespace skglyph
 
-struct SkGlyphPrototype;
+class SkGlyph;
+
+// SkGlyphDigest contains a digest of information for making GPU drawing decisions. It can be
+// referenced instead of the glyph itself in many situations. In the remote glyphs cache the
+// SkGlyphDigest is the only information that needs to be stored in the cache.
+class SkGlyphDigest {
+public:
+    // Default ctor is only needed for the hash table.
+    SkGlyphDigest() = default;
+    SkGlyphDigest(size_t index, const SkGlyph& glyph);
+    int index()          const {return fIndex;        }
+    bool isEmpty()       const {return fIsEmpty;      }
+    bool isColor()       const {return fIsColor;      }
+    bool canDrawAsMask() const {return fCanDrawAsMask;}
+    bool canDrawAsSDFT() const {return fCanDrawAsSDFT;}
+    uint32_t packedGlyphID() const {return fPackedGlyphID;}
+
+    // Support mapping from SkPackedGlyphID stored in the digest.
+    static uint32_t GetKey(SkGlyphDigest digest) {
+        return digest.packedGlyphID();
+    }
+    static uint32_t Hash(uint32_t packedGlyphID) {
+        return SkGoodHash()(packedGlyphID);
+    }
+
+private:
+    static_assert(SkPackedGlyphID::kEndData == 20);
+    uint64_t fPackedGlyphID : SkPackedGlyphID::kEndData;
+    uint64_t fIndex         : SkPackedGlyphID::kEndData;
+    uint64_t fIsEmpty       : 1;
+    uint64_t fIsColor       : 1;
+    uint64_t fCanDrawAsMask : 1;
+    uint64_t fCanDrawAsSDFT : 1;
+    uint64_t fMaxDimension  : 16;
+};
 
 class SkGlyph {
 public:
@@ -372,7 +407,7 @@ private:
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
     // the fBounds contains the top and bottom of the underline. The fInterval pair contains the
-    // beginning and end of of the intersection of the bounds and the glyph's path.
+    // beginning and end of the intersection of the bounds and the glyph's path.
     // If interval[0] >= interval[1], no intersection was found.
     struct Intercept {
         Intercept* fNext;

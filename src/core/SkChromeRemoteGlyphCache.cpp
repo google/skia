@@ -278,28 +278,6 @@ private:
     void commonMaskLoop(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects, Rejector&& reject);
 
-    // Keep track of if the glyph draw has been totally satisfied. It could be that this
-    // strike can not draw the glyph, and it must be rejected to be handled by fallback.
-    // For example, if a glyph has canDrawAsMask sent, then that data is on the GPU, and this
-    // strike totally satisfies this result. If canDrawAsMask is false, then this glyph must be
-    // rejected, and handled by a later stage using a latter strike.
-    struct MaskSummary {
-        static_assert(SkPackedGlyphID::kMaskAll < (1u << 30), "SkPackedGlyphID is too big.");
-        uint32_t packedID:30;
-        uint32_t canDrawAsMask:1;
-        uint32_t canDrawAsSDFT:1;
-    };
-
-    struct MaskSummaryTraits {
-        static SkPackedGlyphID GetKey(MaskSummary summary) {
-            return SkPackedGlyphID{summary.packedID};
-        }
-
-        static uint32_t Hash(SkPackedGlyphID packedID) {
-            return packedID.hash();
-        }
-    };
-
     // Same thing as MaskSummary, but for paths.
     struct PathSummary {
         constexpr static uint16_t kIsPath = 0;
@@ -340,7 +318,7 @@ private:
     LowerRangeBitVector fSentLowGlyphIDs;
 
     // The masks and paths that currently reside in the GPU process.
-    SkTHashTable<MaskSummary, SkPackedGlyphID, MaskSummaryTraits> fSentGlyphs;
+    SkTHashTable<SkGlyphDigest, uint32_t, SkGlyphDigest> fSentGlyphs;
     SkTHashTable<PathSummary, SkPackedGlyphID, PathSummaryTraits> fSentPaths;
 
     // The Masks, SDFT Mask, and Paths that need to be sent to the GPU task for the processed
@@ -462,20 +440,19 @@ void RemoteStrike::commonMaskLoop(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects, Rejector&& reject) {
     drawables->forEachGlyphID(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                MaskSummary* summary = fSentGlyphs.find(packedID);
-                if (summary == nullptr) {
+                SkGlyphDigest* digest = fSentGlyphs.find(packedID.value());
+                if (digest == nullptr) {
                     // Put the new SkGlyph in the glyphs to send.
                     this->ensureScalerContext();
                     fMasksToSend.emplace_back(fContext->makeGlyph(packedID, &fPathAlloc));
                     SkGlyph* glyph = &fMasksToSend.back();
 
-                    MaskSummary newSummary =
-                            {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
-                    summary = fSentGlyphs.set(newSummary);
+                    SkGlyphDigest newDigest{0, *glyph};
+                    digest = fSentGlyphs.set(newDigest);
                 }
 
                 // Reject things that are too big.
-                if (reject(*summary)) {
+                if (reject(*digest)) {
                     rejects->reject(i);
                 }
             });
@@ -487,33 +464,32 @@ void RemoteStrike::prepareForMaskDrawing(
         SkPackedGlyphID packedID = variant.packedID();
         if (fSentLowGlyphIDs.test(packedID)) {
             #ifdef SK_DEBUG
-            MaskSummary* summary = fSentGlyphs.find(packedID);
-            SkASSERT(summary != nullptr);
-            SkASSERT(summary->canDrawAsMask && summary->canDrawAsSDFT);
+            SkGlyphDigest* digest = fSentGlyphs.find(packedID.value());
+            SkASSERT(digest != nullptr);
+            SkASSERT(digest->canDrawAsMask() && digest->canDrawAsSDFT());
             #endif
             continue;
         }
 
-        MaskSummary* summary = fSentGlyphs.find(packedID);
-        if (summary == nullptr) {
+        SkGlyphDigest* digest = fSentGlyphs.find(packedID.value());
+        if (digest == nullptr) {
 
             // Put the new SkGlyph in the glyphs to send.
             this->ensureScalerContext();
             fMasksToSend.emplace_back(fContext->makeGlyph(packedID, &fPathAlloc));
             SkGlyph* glyph = &fMasksToSend.back();
 
-            MaskSummary newSummary =
-                    {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
+            SkGlyphDigest newDigest{0, *glyph};
 
-            summary = fSentGlyphs.set(newSummary);
+            digest = fSentGlyphs.set(newDigest);
 
-            if (summary->canDrawAsMask && summary->canDrawAsSDFT) {
+            if (digest->canDrawAsMask() && digest->canDrawAsSDFT()) {
                 fSentLowGlyphIDs.setIfLower(packedID);
             }
         }
 
         // Reject things that are too big.
-        if (!summary->canDrawAsMask) {
+        if (!digest->canDrawAsMask()) {
             rejects->reject(i);
         }
     }
@@ -522,7 +498,7 @@ void RemoteStrike::prepareForMaskDrawing(
 void RemoteStrike::prepareForSDFTDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
     this->commonMaskLoop(drawables, rejects,
-                         [](MaskSummary summary){return !summary.canDrawAsSDFT;});
+                         [](SkGlyphDigest digest){return !digest.canDrawAsSDFT();});
 }
 
 void RemoteStrike::prepareForPathDrawing(
