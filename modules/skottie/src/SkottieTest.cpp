@@ -861,3 +861,29 @@ DEF_TEST(Skottie_Image_Loading, reporter) {
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(multi_asset->requestedFrames()[1], 2));
     }
 }
+
+DEF_TEST(Skottie_Layer_NoType, r) {
+    static constexpr char json[] =
+        R"({
+             "v": "5.2.1",
+             "w": 100,
+             "h": 100,
+             "fr": 10,
+             "ip": 0,
+             "op": 100,
+             "layers": [
+               {
+                 "ind": 0,
+                 "ip": 0,
+                 "op": 100,
+                 "ks": {}
+               }
+             ]
+           })";
+
+    SkMemoryStream stream(json, strlen(json));
+    auto anim = Animation::Make(&stream);
+
+    // passes if we don't crash
+    REPORTER_ASSERT(r, anim);
+}
