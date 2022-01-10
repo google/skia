@@ -43,6 +43,8 @@ public:
     bool readPixels(Context*, const SkPixmap& dst, int x, int y);
 
 private:
+    class IntersectionTreeSet;
+
     // Clipping
     void onSave() override {}
     void onRestore() override {}
@@ -170,13 +172,11 @@ private:
     // Tracks accumulated intersections for ordering dependent use of the color and depth attachment
     // (i.e. depth-based clipping, and transparent blending)
     std::unique_ptr<BoundsManager> fColorDepthBoundsManager;
+    // Tracks disjoint stencil indices for all recordered draws
+    std::unique_ptr<IntersectionTreeSet> fDisjointStencilSet;
 
     // The max depth value sent to the DrawContext, incremented so each draw has a unique value.
     PaintersDepth fCurrentDepth;
-    // TODO: Temporary way to assign stencil IDs for draws, but since each draw gets its own
-    // value, it prevents the ability for draw steps to be re-arranged into blocks of stencil then
-    // covers. However, it does ensure stenciling is correct until we wire up the intersection tree
-    DisjointStencilIndex fMaxStencilIndex;
 
     bool fDrawsOverlap;
 };

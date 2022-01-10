@@ -22,6 +22,7 @@
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
+#include "experimental/graphite/src/geom/IntersectionTree.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
 
@@ -33,6 +34,9 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSpecialImage.h"
+
+#include <unordered_map>
+#include <vector>
 
 namespace skgpu {
 
@@ -55,6 +59,56 @@ bool paint_depends_on_dst(const PaintParams& paint) {
 }
 
 } // anonymous namespace
+
+/**
+ * IntersectionTreeSet controls multiple IntersectionTrees to organize all add rectangles into
+ * disjoint sets. For a given CompressedPaintersOrder and bounds, it returns the smallest
+ * DisjointStencilIndex that guarantees the bounds are disjoint from all other draws that use the
+ * same painters order and stencil index.
+ */
+class Device::IntersectionTreeSet {
+public:
+    IntersectionTreeSet() = default;
+
+    DisjointStencilIndex add(CompressedPaintersOrder drawOrder, Rect rect) {
+        auto& trees = fTrees[drawOrder];
+        DisjointStencilIndex stencil = DrawOrder::kUnassigned.next();
+        for (auto&& tree : trees) {
+            if (tree->add(rect)) {
+                return stencil;
+            }
+            stencil = stencil.next(); // advance to the next tree's index
+        }
+
+        // If here, no existing intersection tree can hold the rect so add a new one
+        IntersectionTree* newTree = this->makeTree();
+        SkAssertResult(newTree->add(rect));
+        trees.push_back(newTree);
+        return stencil;
+    }
+
+    void reset() {
+        fTrees.clear();
+        fTreeStore.reset();
+    }
+
+private:
+    struct Hash {
+        size_t operator()(const CompressedPaintersOrder& o) const noexcept { return o.bits(); }
+    };
+
+    IntersectionTree* makeTree() {
+        return fTreeStore.make<IntersectionTree>();
+    }
+
+    // Each compressed painters order defines a barrier around draws so each order's set of draws
+    // are independent, even if they may intersect. Within each order, the list of trees holds the
+    // IntersectionTrees representing each disjoint set.
+    // TODO: This organization of trees is logically convenient but may need to be optimized based
+    // on real world data (e.g. how sparse is the map, how long is each vector of trees,...)
+    std::unordered_map<CompressedPaintersOrder, std::vector<IntersectionTree*>, Hash> fTrees;
+    SkSTArenaAllocWithReset<4 * sizeof(IntersectionTree)> fTreeStore;
+};
 
 sk_sp<Device> Device::Make(sk_sp<Recorder> recorder, const SkImageInfo& ii) {
     if (!recorder) {
@@ -96,8 +150,8 @@ Device::Device(sk_sp<Recorder> recorder, sk_sp<DrawContext> dc)
         , fRecorder(std::move(recorder))
         , fDC(std::move(dc))
         , fColorDepthBoundsManager(std::make_unique<NaiveBoundsManager>())
+        , fDisjointStencilSet(std::make_unique<IntersectionTreeSet>())
         , fCurrentDepth(DrawOrder::kClearDepth)
-        , fMaxStencilIndex(DrawOrder::kUnassigned)
         , fDrawsOverlap(false) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
 }
@@ -340,7 +394,9 @@ void Device::drawShape(const Shape& shape,
         // if (shape.convex()) {
         //     fDC->fillConvexPath(localToDevice, shape, clip, order, &shading);
         // } else {
-            order.dependsOnStencil(fMaxStencilIndex.next());
+            DisjointStencilIndex setIndex = fDisjointStencilSet->add(order.paintOrder(),
+                                                                     clip.drawBounds());
+            order.dependsOnStencil(setIndex);
             fDC->stencilAndFillPath(localToDevice, shape, clip, order, &shading);
         // }
     }
@@ -355,9 +411,6 @@ void Device::drawShape(const Shape& shape,
                                          fullyOpaque);
 
     fCurrentDepth = order.depth();
-    if (order.stencilIndex() != DrawOrder::kUnassigned) {
-        fMaxStencilIndex = std::max(fMaxStencilIndex, order.stencilIndex());
-    }
     fDrawsOverlap |= (prevDraw != DrawOrder::kNoIntersection);
 }
 
@@ -403,7 +456,7 @@ void Device::flushPendingWorkToRecorder() {
     // Reset accumulated state tracking since everything that it referred to has been moved into
     // an immutable DrawPass.
     fColorDepthBoundsManager->reset();
-    fMaxStencilIndex = DrawOrder::kUnassigned;
+    fDisjointStencilSet->reset();
     fCurrentDepth = DrawOrder::kClearDepth;
     // NOTE: fDrawsOverlap is not reset here because that is a persistent property of everything
     // drawn into the Device, and not just the currently accumulating pass.

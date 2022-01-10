@@ -13,10 +13,12 @@
 
 namespace skgpu {
 
-// Maintains a collection of non-overlapping rectangles.
-//
-// add() either adds the given rect to the collection, or returns false if it intersected with a
-// rect already in the collection.
+/**
+ * Maintains a collection of non-overlapping rectangles.
+ *
+ * add() either adds the given rect to the collection, or returns false if it intersected with a
+ * rect already in the collection.
+ */
 class IntersectionTree {
 public:
     IntersectionTree();
@@ -56,7 +58,6 @@ private:
     SkArenaAlloc fArena{kLeafNodeSize + kTreeNodeSize + kPadSize*2};
     Node* fRoot;
 };
-
 
 } // namespace skgpu
 
