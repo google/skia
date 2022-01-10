@@ -194,10 +194,15 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, surface->readPixels(readbackBitmap, 0, 0));
     REPORTER_ASSERT(reporter, check_read(reporter, srcBitmap, readbackBitmap));
 
+    // Draw the image a second time to make sure we get the correct origin when we get the cached
+    // proxy from the generator.
+    surface->getCanvas()->drawImage(image, 0, 0);
+    REPORTER_ASSERT(reporter, surface->readPixels(readbackBitmap, 0, 0));
+    REPORTER_ASSERT(reporter, check_read(reporter, srcBitmap, readbackBitmap));
+
     image.reset();
 
     cleanup_resources(buffer);
-
 }
 
 // Basic test to make sure we can import an AHardwareBuffer into an SkImage and draw it into a
