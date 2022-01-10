@@ -40,6 +40,8 @@ public:
                             CompressedPaintersOrder order,
                             PaintersDepth z,
                             bool fullyOpaque=false) = 0;
+
+    virtual void reset() = 0;
 };
 
 // TODO: Select one most-effective BoundsManager implementation, make it the only option, and remove
@@ -62,6 +64,10 @@ public:
         if (fLatestDraw < order) {
             fLatestDraw = order;
         }
+    }
+
+    void reset() override {
+        fLatestDraw = CompressedPaintersOrder::First();
     }
 
 private:
@@ -97,6 +103,10 @@ public:
     void recordDraw(const Rect& bounds, CompressedPaintersOrder order, PaintersDepth z,
                     bool fullyOpaque=false) override {
         fRects.push_back({bounds, order, z, fullyOpaque});
+    }
+
+    void reset() override {
+        fRects.reset();
     }
 
 private:

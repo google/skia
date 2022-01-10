@@ -395,6 +395,14 @@ void Device::flushPendingWorkToRecorder() {
     if (drawTask) {
         fRecorder->add(std::move(drawTask));
     }
+
+    // Reset accumulated state tracking since everything that it referred to has been moved into
+    // an immutable DrawPass.
+    fColorDepthBoundsManager->reset();
+    fMaxStencilIndex = DrawOrder::kUnassigned;
+    fCurrentDepth = DrawOrder::kClearDepth;
+    // NOTE: fDrawsOverlap is not reset here because that is a persistent property of everything
+    // drawn into the Device, and not just the currently accumulating pass.
 }
 
 bool Device::needsFlushBeforeDraw(int numNewDraws) const {
