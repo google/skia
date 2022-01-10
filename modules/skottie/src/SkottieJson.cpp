@@ -14,6 +14,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include <limits>
 #include <vector>
 
 namespace skottie {
@@ -57,8 +58,13 @@ template <typename T>
 bool ParseIntegral(const Value& v, T* result) {
     if (const skjson::NumberValue* num = v) {
         const auto dbl = **num;
+        if (dbl > static_cast<double>(std::numeric_limits<T>::max()) ||
+            dbl < static_cast<double>(std::numeric_limits<T>::min())) {
+            return false;
+        }
+
         *result = static_cast<T>(dbl);
-        return static_cast<double>(*result) == dbl;
+        return true;
     }
 
     return false;
