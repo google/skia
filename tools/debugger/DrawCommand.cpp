@@ -362,29 +362,10 @@ void render_shadow(SkCanvas* canvas, const SkPath& path, SkDrawShadowRec rec) {
     canvas->private_draw_shadow_rec(path, rec);
 }
 
-static const char* const gBlendModeMap[] = {
-        "clear",      "src",        "dst",      "srcOver",    "dstOver",   "srcIn",     "dstIn",
-        "srcOut",     "dstOut",     "srcATop",  "dstATop",    "xor",       "plus",      "modulate",
-
-        "screen",
-
-        "overlay",    "darken",     "lighten",  "colorDodge", "colorBurn", "hardLight", "softLight",
-        "difference", "exclusion",  "multiply",
-
-        "hue",        "saturation", "color",    "luminosity",
-};
-
-static_assert(SK_ARRAY_COUNT(gBlendModeMap) == static_cast<size_t>(SkBlendMode::kLastMode) + 1,
-              "blendMode mismatch");
-static_assert(SK_ARRAY_COUNT(gBlendModeMap) == static_cast<size_t>(SkBlendMode::kLuminosity) + 1,
-              "blendMode mismatch");
-
 void apply_paint_blend_mode(const SkPaint& paint, SkJSONWriter& writer) {
     const auto mode = paint.getBlendMode_or(SkBlendMode::kSrcOver);
     if (mode != SkBlendMode::kSrcOver) {
-        SkASSERT(static_cast<size_t>(mode) < SK_ARRAY_COUNT(gBlendModeMap));
-        writer.appendString(DEBUGCANVAS_ATTRIBUTE_BLENDMODE,
-                            gBlendModeMap[static_cast<size_t>(mode)]);
+        writer.appendString(DEBUGCANVAS_ATTRIBUTE_BLENDMODE, SkBlendMode_Name(mode));
     }
 }
 

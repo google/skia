@@ -388,7 +388,7 @@ static DrawResult do_very_large_blur_gm(GrRecordingContext* rContext,
     int x = 10;
     int y = 10;
     for (auto blurDirs : {0b01, 0b10, 0b11}) {
-        for (int t = 0; t <= static_cast<int>(SkTileMode::kLastTileMode); ++t) {
+        for (int t = 0; t < kSkTileModeCount; ++t) {
             auto tm = static_cast<SkTileMode>(t);
             auto dstB = srcB.makeOutset(30, 30);
             for (float sigma : {0.f, 5.f, 25.f, 80.f}) {
