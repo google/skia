@@ -752,6 +752,7 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
         case GrGLFormat::kR16F:
         case GrGLFormat::kLUMINANCE16F:
         case GrGLFormat::kRGB8:
+        case GrGLFormat::kRGBX8:
         case GrGLFormat::kRG8:
         case GrGLFormat::kRGB10_A2:
         case GrGLFormat::kRGBA4:

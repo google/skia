@@ -765,6 +765,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kRGB_888x,         GR_GL_RGBA8,                SkColors::kYellow    },
         { GrColorType::kRGB_888x,         GR_GL_RGB8,                 SkColors::kCyan      },
+        { GrColorType::kRGB_888x,         GR_GL_RGBX8,                SkColors::kCyan      },
 
         { GrColorType::kBGRA_8888,        GR_GL_RGBA8,                SkColors::kBlue      },
         { GrColorType::kBGRA_8888,        GR_GL_BGRA8,                SkColors::kBlue      },

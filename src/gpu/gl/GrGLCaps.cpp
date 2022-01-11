@@ -2413,6 +2413,61 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
     }
 
+    // Format: RGBx8
+    {
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBX8);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
+        info.fInternalFormatForRenderbuffer = GR_GL_RGBX8;
+        info.fDefaultExternalFormat = GR_GL_RGB;
+        info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kRGB_888x;
+
+        bool supportsRGBXTexStorage = false;
+
+        if (GR_IS_GR_GL_ES(standard) && ctxInfo.hasExtension("GL_ANGLE_rgbx_internal_format")) {
+            info.fFlags =
+                    FormatInfo::kTexturable_Flag | FormatInfo::kTransfers_Flag | msaaRenderFlags;
+            supportsRGBXTexStorage = true;
+        }
+
+        if (texStorageSupported && supportsRGBXTexStorage) {
+            info.fFlags |= FormatInfo::kUseTexStorage_Flag;
+            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: RGBX8, Surface: kRGB_888x
+            {
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = GrColorType::kRGB_888x;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                this->setColorTypeFormat(GrColorType::kRGB_888x, GrGLFormat::kRGBX8);
+
+                // External IO ColorTypes:
+                ctInfo.fExternalIOFormatCount = 2;
+                ctInfo.fExternalIOFormats = std::make_unique<ColorTypeInfo::ExternalIOFormats[]>(
+                        ctInfo.fExternalIOFormatCount);
+                int ioIdx = 0;
+                // Format: RGBX8, Surface: kRGB_888x, Data: kRGB_888x
+                {
+                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                    ioFormat.fColorType = GrColorType::kRGB_888x;
+                    ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
+                    ioFormat.fExternalTexImageFormat = GR_GL_RGB;
+                    ioFormat.fExternalReadFormat = 0;
+                }
+
+                // Format: RGBX8, Surface: kRGB_888x, Data: kRGBA_8888
+                {
+                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                    ioFormat.fColorType = GrColorType::kRGBA_8888;
+                    ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
+                    ioFormat.fExternalTexImageFormat = 0;
+                    ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                }
+            }
+        }
+    }
+
     // Format: RGB8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGB8);
@@ -2454,7 +2509,11 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             auto& ctInfo = info.fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kRGB_888x;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            this->setColorTypeFormat(GrColorType::kRGB_888x, GrGLFormat::kRGB8);
+
+            int idx = static_cast<int>(GrColorType::kRGB_888x);
+            if (fColorTypeToFormatTable[idx] == GrGLFormat::kUnknown) {
+                this->setColorTypeFormat(GrColorType::kRGB_888x, GrGLFormat::kRGB8);
+            }
 
             // External IO ColorTypes:
             ctInfo.fExternalIOFormatCount = 2;

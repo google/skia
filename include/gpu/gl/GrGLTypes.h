@@ -68,6 +68,7 @@ enum class GrGLFormat {
     kRGBA16F,
     kR16F,
     kRGB8,
+    kRGBX8,
     kRG8,
     kRGB10_A2,
     kRGBA4,
