@@ -1,0 +1,15 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "MtlBackendContext_hdr",
+    hdrs = ["MtlBackendContext.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":MtlTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "MtlTypes_hdr",
+    hdrs = ["MtlTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/ports:SkCFObject_hdr"],
+)

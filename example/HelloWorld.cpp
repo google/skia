@@ -105,7 +105,7 @@ void HelloWorld::onPaint(SkSurface* surface) {
 }
 
 void HelloWorld::onIdle() {
-    // Just re-paint continously
+    // Just re-paint continuously
     fWindow->inval();
 }
 

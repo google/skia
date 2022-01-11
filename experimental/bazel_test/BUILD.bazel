@@ -7,7 +7,6 @@ cc_binary(
     visibility = ["//:__subpackages__"],
     deps = [
         ":bazel_test_src",
-        "//third_party:musl_compat",
     ] + select({
         "@platforms//os:windows": ["//src/ports:SkDebug_win_src"],
         "@platforms//os:android": ["//src/ports:SkDebug_android_src"],

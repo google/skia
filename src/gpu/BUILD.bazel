@@ -1,3 +1,5 @@
+# https://github.com/bazelbuild/bazel-skylib
+load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//bazel:macros.bzl", "generated_cc_atom")
 
 cc_library(
@@ -256,6 +258,14 @@ cc_library(
 )
 
 cc_library(
+    name = "glx_srcs",
+    deps = [
+        "//src/gpu/gl/glx:GrGLMakeGLXInterface_src",
+        "//src/gpu/gl/glx:GrGLMakeNativeInterface_glx_src",
+    ],
+)
+
+cc_library(
     name = "webgl_srcs",
     deps = [
         "//src/gpu/gl/webgl:GrGLMakeNativeInterface_webgl_src",
@@ -272,6 +282,14 @@ cc_library(
     ],
 )
 
+selects.config_setting_group(
+    name = "gl_and_linux",
+    match_all = [
+        "//bazel/common_config_settings:gl_standard",
+        "//bazel/common_config_settings:linux_x64",
+    ],
+)
+
 cc_library(
     name = "srcs",
     visibility = ["//:__subpackages__"],
@@ -282,6 +300,7 @@ cc_library(
         ],
         "//conditions:default": [],
     }) + select({
+        ":gl_and_linux": [":glx_srcs"],
         "//bazel/common_config_settings:webgl_standard": [":webgl_srcs"],
         "//conditions:default": [],
     }),

@@ -82,6 +82,7 @@
 
   "HeifDecoderAPI.h": "SK_GAZELLE_IGNORE Android-only build",
   "SkGifCodec.h": "SK_GAZELLE_IGNORE Deprecated gif library",
+  "log/log_main.h": "SK_GAZELLE_IGNORE",
   "mozilla/mozalloc.h": "SK_GAZELLE_IGNORE",
   "mozilla/mozalloc_abort.h": "SK_GAZELLE_IGNORE",
   "mozilla/mozalloc_oom.h": "SK_GAZELLE_IGNORE"

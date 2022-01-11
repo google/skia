@@ -8,7 +8,6 @@ cc_binary(
         "//src/sksl/lex:RegexNode_src",
         "//src/sksl/lex:RegexParser_src",
         "//src/sksl/lex:TransitionTable_src",
-        "//third_party:musl_compat",
     ],
 )
 

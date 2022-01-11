@@ -165,6 +165,7 @@ generated_cc_atom(
         "//include/gpu:GrRecordingContext_hdr",
         "//include/private:SkTemplates_hdr",
         "//include/private/chromium:GrSlug_hdr",
+        "//src/core:SkFontPriv_hdr",
         "//src/core:SkMaskFilterBase_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkPaintPriv_hdr",

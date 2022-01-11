@@ -2,6 +2,7 @@ load("//bazel:macros.bzl", "generated_cc_atom")
 
 cc_library(
     name = "core_srcs",
+    visibility = ["//:__subpackages__"],
     deps = [
         ":SkAnimCodecPlayer_src",
         ":SkBase64_src",
@@ -37,6 +38,7 @@ cc_library(
 
 cc_library(
     name = "json_srcs",
+    visibility = ["//:__subpackages__"],
     deps = [
         ":SkJSONWriter_src",
         ":SkJSON_src",

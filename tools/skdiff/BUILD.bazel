@@ -9,7 +9,6 @@ cc_binary(
         ":skdiff_src",
         ":skdiff_utils_src",
         "//:skia_core",
-        "//third_party:musl_compat",
         "//third_party:skcms",
         "//tools:Resources_src",
         "//tools:ToolUtils_src",

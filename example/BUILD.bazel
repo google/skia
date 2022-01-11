@@ -1,4 +1,32 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
+load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+
+cc_binary_with_flags(
+    name = "hello_world",
+    srcs = [
+        "//example:HelloWorld_src",
+    ],
+    linkopts = [
+        "-lX11",
+        "-lxcb",
+        "-lXau",
+        "-lXdmcp",
+        "-lGL",
+    ],
+    set_flags = {
+        "gpu_backend": [
+            "gl_backend",
+        ],
+        "with_gl_standard": [
+            "gl_standard",
+        ],
+    },
+    deps = [
+        "//:skia_core",
+        "//src/utils:json_srcs",
+        "//tools/sk_app",
+    ],
+)
 
 generated_cc_atom(
     name = "HelloWorld_hdr",

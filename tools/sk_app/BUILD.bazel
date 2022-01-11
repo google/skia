@@ -1,5 +1,25 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+cc_library(
+    name = "sk_app",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Application_hdr",
+        ":CommandSet_src",
+        ":RasterWindowContext_hdr",
+        ":WindowContext_src",
+        ":GLWindowContext_src",
+        ":Window_src",
+    ] + [
+        # TODO(kjlubick) use a select to set these based on target platform
+        "//tools/sk_app/unix:GLWindowContext_unix_src",
+        "//tools/sk_app/unix:RasterWindowContext_unix_src",
+        "//tools/sk_app/unix:Window_unix_src",
+        "//tools/sk_app/unix:keysym2ucs_src",
+        "//tools/sk_app/unix:main_unix_src",
+    ],
+)
+
 generated_cc_atom(
     name = "Application_hdr",
     hdrs = ["Application.h"],

@@ -1,0 +1,19 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "StencilAndFillPathRenderer_src",
+    srcs = ["StencilAndFillPathRenderer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:ContextUtils_hdr",
+        "//experimental/graphite/src:DrawWriter_hdr",
+        "//experimental/graphite/src:Renderer_hdr",
+        "//experimental/graphite/src:UniformManager_hdr",
+        "//experimental/graphite/src/geom:Shape_hdr",
+        "//experimental/graphite/src/geom:Transform_graphite_hdr",
+        "//include/core:SkPathTypes_hdr",
+        "//include/core:SkRect_hdr",
+        "//src/gpu:BufferWriter_hdr",
+        "//src/gpu/tessellate:MiddleOutPolygonTriangulator_hdr",
+    ],
+)

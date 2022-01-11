@@ -1,0 +1,73 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "BackendTexture_hdr",
+    hdrs = ["BackendTexture.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GraphiteTypes_hdr",
+        ":TextureInfo_hdr",
+        "//experimental/graphite/include/mtl:MtlTypes_hdr",
+        "//include/core:SkSize_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Context_hdr",
+    hdrs = ["Context.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GraphiteTypes_hdr",
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/core:SkTileMode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GraphiteTypes_hdr",
+    hdrs = ["GraphiteTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkVx_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Recorder_hdr",
+    hdrs = ["Recorder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:TaskGraph_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Recording_hdr",
+    hdrs = ["Recording.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkStuff_hdr",
+    hdrs = ["SkStuff.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextureInfo_hdr",
+    hdrs = ["TextureInfo.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GraphiteTypes_hdr",
+        "//experimental/graphite/include/private:MtlTypesPriv_hdr",
+    ],
+)

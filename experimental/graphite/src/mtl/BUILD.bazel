@@ -1,0 +1,117 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "MtlBlitCommandEncoder_hdr",
+    hdrs = ["MtlBlitCommandEncoder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:Resource_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/ports:SkCFObject_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlBuffer_hdr",
+    hdrs = ["MtlBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/include/mtl:MtlTypes_hdr",
+        "//experimental/graphite/src:Buffer_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlCaps_hdr",
+    hdrs = ["MtlCaps.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//experimental/graphite/src:Caps_hdr"],
+)
+
+generated_cc_atom(
+    name = "MtlCommandBuffer_hdr",
+    hdrs = ["MtlCommandBuffer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:CommandBuffer_hdr",
+        "//experimental/graphite/src:GpuWorkSubmission_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/ports:SkCFObject_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlGpu_hdr",
+    hdrs = ["MtlGpu.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":MtlCaps_hdr",
+        "//experimental/graphite/include/mtl:MtlBackendContext_hdr",
+        "//experimental/graphite/src:Gpu_hdr",
+        "//include/ports:SkCFObject_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlGraphicsPipeline_hdr",
+    hdrs = ["MtlGraphicsPipeline.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:GraphicsPipeline_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/ports:SkCFObject_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlRenderCommandEncoder_hdr",
+    hdrs = ["MtlRenderCommandEncoder.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:Resource_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/ports:SkCFObject_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlResourceProvider_hdr",
+    hdrs = ["MtlResourceProvider.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:DrawTypes_hdr",
+        "//experimental/graphite/src:ResourceProvider_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlTexture_hdr",
+    hdrs = ["MtlTexture.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:Texture_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlTrampoline_hdr",
+    hdrs = ["MtlTrampoline.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
+
+generated_cc_atom(
+    name = "MtlUtils_hdr",
+    hdrs = ["MtlUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:ResourceTypes_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/ports:SkCFObject_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)

@@ -946,5 +946,6 @@ generated_cc_atom(
         ":SkRefCnt_hdr",
         ":SkSpan_hdr",
         ":SkString_hdr",
+        ":SkTypes_hdr",
     ],
 )

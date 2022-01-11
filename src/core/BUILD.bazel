@@ -4496,6 +4496,8 @@ generated_cc_atom(
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
         "//include/core:SkImage_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkTileMode_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/gpu:GrRecordingContext_hdr",
         "//src/gpu:GrImageInfo_hdr",
@@ -4504,6 +4506,7 @@ generated_cc_atom(
         "//src/gpu:GrTextureProxy_hdr",
         "//src/image:SkImage_Base_hdr",
         "//src/image:SkImage_Gpu_hdr",
+        "//src/shaders:SkImageShader_hdr",
     ],
 )
 

@@ -15,7 +15,7 @@ require (
 	github.com/prometheus/common v0.15.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20211221155757-2dce552b7a06
+	go.skia.org/infra v0.0.0-20220110171919-69477ccd2d29
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
 	google.golang.org/api v0.35.0

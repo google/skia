@@ -21,7 +21,7 @@ filegroup(
         "ar_trampoline.sh",
         "clang_trampoline.sh",
         "lld_trampoline.sh",
-        "@clang_linux_amd64_musl//:all_files",
+        "@clang_linux_amd64//:all_files",
     ],
 )
 

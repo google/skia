@@ -1319,6 +1319,8 @@ go.skia.org/infra v0.0.0-20211220211329-847b896d0605 h1:X0VVb9xr8RbgeaC4hD+t4F7v
 go.skia.org/infra v0.0.0-20211220211329-847b896d0605/go.mod h1:F317bWqAb10VqH9f5yC3cZugJ87N0Lvoi5xjM+vmR1g=
 go.skia.org/infra v0.0.0-20211221155757-2dce552b7a06 h1:0nA6CcXj6OayS2l7WKWT8xY/BmR+gg1bYRbI3UNzyvE=
 go.skia.org/infra v0.0.0-20211221155757-2dce552b7a06/go.mod h1:F317bWqAb10VqH9f5yC3cZugJ87N0Lvoi5xjM+vmR1g=
+go.skia.org/infra v0.0.0-20220110171919-69477ccd2d29 h1:EQFMh6ZPs6RJ7pyDiH3z1JrIEl/BR2YNGqMAdctU7N8=
+go.skia.org/infra v0.0.0-20220110171919-69477ccd2d29/go.mod h1:F317bWqAb10VqH9f5yC3cZugJ87N0Lvoi5xjM+vmR1g=
 go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 h1:+FNtrFTmVw0YZGpBGX56XDee331t6JAXeK2bcyhLOOc=
 go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5/go.mod h1:nmDLcffg48OtT/PSW0Hg7FvpRQsQh5OSqIylirxKC7o=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=

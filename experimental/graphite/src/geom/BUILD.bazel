@@ -1,0 +1,93 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "BoundsManager_hdr",
+    hdrs = ["BoundsManager.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Rect_hdr",
+        "//experimental/graphite/src:DrawOrder_hdr",
+        "//src/core:SkTBlockList_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "IntersectionTree_hdr",
+    hdrs = ["IntersectionTree.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Rect_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "IntersectionTree_src",
+    srcs = ["IntersectionTree.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":IntersectionTree_hdr",
+        "//include/private:SkTPin_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Rect_hdr",
+    hdrs = ["Rect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":VectorTypes_hdr",
+        "//include/core:SkRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Shape_hdr",
+    hdrs = ["Shape.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Rect_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkRRect_hdr",
+        "//include/core:SkRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Shape_src",
+    srcs = ["Shape.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Shape_hdr",
+        "//src/core:SkPathPriv_hdr",
+        "//src/core:SkRRectPriv_hdr",
+        "//src/utils:SkPolyUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Transform_graphite_hdr",
+    hdrs = ["Transform_graphite.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkM44_hdr"],
+)
+
+generated_cc_atom(
+    name = "Transform_src",
+    srcs = ["Transform.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Rect_hdr",
+        ":Transform_graphite_hdr",
+        ":VectorTypes_hdr",
+        "//src/core:SkMatrixPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VectorTypes_hdr",
+    hdrs = ["VectorTypes.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//experimental/graphite/include:GraphiteTypes_hdr"],
+)
