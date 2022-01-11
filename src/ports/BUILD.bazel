@@ -13,11 +13,17 @@ cc_library(
 cc_library(
     name = "fontmgr_factory",
     deps = selects.with_or({
+        "//bazel/common_config_settings:custom_directory_fontmgr_factory": [
+            ":fontmgr_custom_directory_factory",
+        ],
         "//bazel/common_config_settings:custom_embedded_fontmgr_factory": [
-            ":SkFontMgr_custom_embedded_factory_src",
+            ":fontmgr_custom_embedded_factory",
+        ],
+        "//bazel/common_config_settings:custom_empty_fontmgr_factory": [
+            ":fontmgr_custom_empty_factory",
         ],
         ("//bazel/common_config_settings:empty_fontmgr_factory", "//conditions:default"): [
-            ":SkFontMgr_empty_factory_src",
+            ":fontmgr_empty_factory",
         ],
     }),
 )
@@ -33,6 +39,21 @@ cc_library(
 )
 
 cc_library(
+    name = "fontmgr_empty_factory",
+    deps = [
+        ":SkFontMgr_empty_factory_src",
+    ],
+)
+
+cc_library(
+    name = "fontmgr_custom_directory_factory",
+    deps = [
+        ":SkFontMgr_custom_directory_factory_src",
+        ":fontmgr_custom_directory_srcs",
+    ],
+)
+
+cc_library(
     name = "fontmgr_custom_directory_srcs",
     deps = [
         ":SkFontMgr_custom_directory_src",
@@ -41,10 +62,26 @@ cc_library(
 )
 
 cc_library(
+    name = "fontmgr_custom_embedded_factory",
+    deps = [
+        ":SkFontMgr_custom_embedded_factory_src",
+        ":fontmgr_custom_embedded_srcs",
+    ],
+)
+
+cc_library(
     name = "fontmgr_custom_embedded_srcs",
     deps = [
         ":SkFontMgr_custom_embedded_src",
         ":fontmgr_custom",
+    ],
+)
+
+cc_library(
+    name = "fontmgr_custom_empty_factory",
+    deps = [
+        ":SkFontMgr_custom_empty_factory_src",
+        ":fontmgr_custom_empty_srcs",
     ],
 )
 

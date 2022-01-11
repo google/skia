@@ -97,17 +97,35 @@ string_flag_with_values(
     default = "empty_fontmgr_factory",
     flag_name = "fontmgr_factory",
     values = [
-        "empty_fontmgr_factory",
+        # Makes the default SkFontMgr load fonts from a hard-coded directory on disk.
+        "custom_directory_fontmgr_factory",
+        # Makes the default SkFontMgr load fonts from an SkEmbeddedResource that has been compiled
+        # into the binary, e.g. with //tools/embed_resources.py
         "custom_embedded_fontmgr_factory",
+        # Makes the default SkFontMgr return empty fonts (e.g. SkTypeface_Empty). This is typically
+        # used when someone wants to make their own custom SkFontMgr objects, but does not want the
+        # default SkFontMgr to do anything (e.g. force usage of the custom one).
+        "custom_empty_fontmgr_factory",
+        # Makes the default SkFontMgr return null. Typically used when font support is not desired.
+        "empty_fontmgr_factory",
     ],
 )
 
+# These flags need only be set if additional functionality beyond the fontmgr_factory flag is
+# required. For example, the setting fontmgr_factory to custom_embedded_fontmgr_factory does not
+# require setting include_fontmgr to custom_embedded_fontmgr, because those sources and settings
+# will already be compiled in due to the _factory flag.
 string_flag_with_values(
     flag_name = "include_fontmgr",
     multiple = True,
     values = [
+        # Allows the construction of an SkFontMgr that loads files from a programmatically
+        # defined directory on disk.
         "custom_directory_fontmgr",
+        # Allows the construction of an SkFontMgr which can load fonts from an SkEmbeddedResource
+        # or from another source of raw bytes.
         "custom_embedded_fontmgr",
+        # Allows the construction of an SkFontMgr which returns empty fonts.
         "custom_empty_fontmgr",
     ],
 )
