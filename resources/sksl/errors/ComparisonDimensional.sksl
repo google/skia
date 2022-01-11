@@ -1,0 +1,21 @@
+bool different_types() {
+    float2x2 m;
+    float2 v;
+    float f;
+    return v == f || v == m || m == f ||
+           f == v || m == v || f == m ||
+           v != f || v != m || m != f ||
+           f != v || m != v || f != m ;
+}
+
+bool different_matrices() {
+    float2x2 m2;
+    float3x3 m3;
+    return m2 == m3 || m2 != m3;
+}
+
+bool different_vectors() {
+    float2 v2;
+    float3 v3;
+    return v2 == v3 || v2 != v3;
+}

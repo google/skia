@@ -1,0 +1,38 @@
+uniform half4 colorGreen, colorRed;
+
+const int plus = 1;
+const int minus = 2;
+const int star = 3;
+const int slash = 4;
+
+bool test(int op, float m11, float m12, float m21, float m22, float2x2 expected) {
+
+    float one = colorRed.r;
+
+    float2x2 m2 = float2x2(m11 * one, m12 * one, m21 * one, m22 * one);
+    switch (op) {
+        case plus: m2 += 1; break;
+        case minus: m2 -= 1; break;
+        case star: m2 *= 2; break;
+        case slash: m2 /= 2; break;
+    }
+
+    return m2[0][0] == expected[0][0] &&
+           m2[0][1] == expected[0][1] &&
+           m2[1][0] == expected[1][0] &&
+           m2[1][1] == expected[1][1];
+}
+
+half4 main(float2 coords) {
+    float f1 = 1 * colorGreen.g;
+    float f2 = 2 * colorGreen.g;
+    float f3 = 3 * colorGreen.g;
+    float f4 = 4 * colorGreen.g;
+
+    return true
+           && test(plus, f1, f2, f3, f4, float2x2(f1+1, f2+1, f3+1, f4+1))
+           && test(minus, f1, f2, f3, f4, float2x2(f1-1, f2-1, f3-1, f4-1))
+           && test(star, f1, f2, f3, f4, float2x2(f1*2, f2*2, f3*2, f4*2))
+           && test(slash, f1, f2, f3, f4, float2x2(f1/2, f2/2, f3/2, f4/2))
+           ? colorGreen : colorRed;
+}
