@@ -12,7 +12,6 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkGlyph.h"
 
 #include <memory>
 

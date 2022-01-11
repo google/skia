@@ -2196,6 +2196,7 @@ generated_cc_atom(
     deps = [
         ":SkMask_hdr",
         ":SkMathPriv_hdr",
+        ":SkStrikeForGPU_hdr",
         "//include/core:SkPath_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkChecksum_hdr",
@@ -4657,7 +4658,6 @@ generated_cc_atom(
     hdrs = ["SkStrikeForGPU.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":SkGlyph_hdr",
         "//include/core:SkPaint_hdr",
         "//include/core:SkPoint_hdr",
         "//include/core:SkSpan_hdr",

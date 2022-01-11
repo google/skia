@@ -443,43 +443,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "DrawVerticesOp_hdr",
-    hdrs = ["DrawVerticesOp.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":GrOp_hdr",
-        "//include/core:SkRefCnt_hdr",
-        "//include/private:GrTypesPriv_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "DrawVerticesOp_src",
-    srcs = ["DrawVerticesOp.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":DrawVerticesOp_hdr",
-        ":GrSimpleMeshDrawOpHelper_hdr",
-        "//include/core:SkM44_hdr",
-        "//src/core:SkArenaAlloc_hdr",
-        "//src/core:SkDevice_hdr",
-        "//src/core:SkMatrixPriv_hdr",
-        "//src/core:SkVerticesPriv_hdr",
-        "//src/gpu:BufferWriter_hdr",
-        "//src/gpu:GrDrawOpTest_hdr",
-        "//src/gpu:GrGeometryProcessor_hdr",
-        "//src/gpu:GrOpFlushState_hdr",
-        "//src/gpu:GrProgramInfo_hdr",
-        "//src/gpu:KeyBuilder_hdr",
-        "//src/gpu:SkGr_hdr",
-        "//src/gpu/glsl:GrGLSLColorSpaceXformHelper_hdr",
-        "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",
-        "//src/gpu/glsl:GrGLSLVarying_hdr",
-        "//src/gpu/glsl:GrGLSLVertexGeoBuilder_hdr",
-    ],
-)
-
-generated_cc_atom(
     name = "DrawableOp_hdr",
     hdrs = ["DrawableOp.h"],
     visibility = ["//:__subpackages__"],
@@ -1354,11 +1317,12 @@ generated_cc_atom(
     srcs = ["DrawCustomMeshOp.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":DrawVerticesOp_hdr",
+        ":DrawCustomMeshOp_hdr",
         ":GrSimpleMeshDrawOpHelper_hdr",
         "//include/core:SkCustomMesh_hdr",
         "//src/core:SkArenaAlloc_hdr",
         "//src/core:SkCustomMeshPriv_hdr",
+        "//src/core:SkVerticesPriv_hdr",
         "//src/gpu:BufferWriter_hdr",
         "//src/gpu:GrGeometryProcessor_hdr",
         "//src/gpu:GrOpFlushState_hdr",
