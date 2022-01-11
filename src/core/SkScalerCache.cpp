@@ -195,7 +195,12 @@ size_t SkScalerCache::prepareForMaskDrawing(
             if (digest.canDrawAsMask()) {
                 drawables->push_back(fGlyphForIndex[digest.index()], i);
             } else {
-                rejects->reject(i);
+                // Accumulate maximum dimensions for handling emoji scaling.
+                if (digest.isColor()) {
+                    rejects->reject(i, digest.maxDimension());
+                } else {
+                    rejects->reject(i);
+                }
             }
         });
 

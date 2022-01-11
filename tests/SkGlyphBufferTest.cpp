@@ -111,7 +111,7 @@ DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
     rejects.reject(1);
     rejects.reject(2, 100);
     rejects.flipRejectsToSource();
-    REPORTER_ASSERT(reporter, rejects.rejectedMaxDimension() == 100);
+    REPORTER_ASSERT(reporter, std::get<1>(rejects.maxDimensionHint()) == 100);
     for (auto [i, glyphID, pos] : SkMakeEnumerate(rejects.source())) {
         // This will index 1 and 2 from the original source.
         size_t j = i + 1;
@@ -122,7 +122,7 @@ DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
     // Reject an additional glyph
     rejects.reject(0, 10);
     rejects.flipRejectsToSource();
-    REPORTER_ASSERT(reporter, rejects.rejectedMaxDimension() == 10);
+    REPORTER_ASSERT(reporter, std::get<1>(rejects.maxDimensionHint()) == 10);
     for (auto [i, glyphID, pos] : SkMakeEnumerate(rejects.source())) {
         // This will index 1 from the original source.
         size_t j = i + 1;
@@ -141,7 +141,7 @@ DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
     rejects.reject(1);
     rejects.reject(2, 100);
     rejects.flipRejectsToSource();
-    REPORTER_ASSERT(reporter, rejects.rejectedMaxDimension() == 100);
+    REPORTER_ASSERT(reporter, std::get<1>(rejects.maxDimensionHint()) == 100);
     for (auto [i, glyphID, pos] : SkMakeEnumerate(rejects.source())) {
         // This will index 1 and 2 from the original source.
         size_t j = i + 1;

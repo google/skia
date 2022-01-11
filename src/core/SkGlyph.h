@@ -255,6 +255,7 @@ public:
     bool canDrawAsMask() const {return fCanDrawAsMask;}
     bool canDrawAsSDFT() const {return fCanDrawAsSDFT;}
     uint32_t packedGlyphID() const {return fPackedGlyphID;}
+    uint16_t maxDimension()  const {return fMaxDimension; }
 
     // Support mapping from SkPackedGlyphID stored in the digest.
     static uint32_t GetKey(SkGlyphDigest digest) {

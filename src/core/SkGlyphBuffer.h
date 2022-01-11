@@ -12,6 +12,8 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkZip.h"
 
+#include <climits>
+
 class SkStrikeForGPU;
 struct SkGlyphPositionRoundingSpec;
 
@@ -45,7 +47,10 @@ public:
     }
 
     void reject(size_t index, int rejectedMaxDimension) {
-        fRejectedMaxDimension = std::max(fRejectedMaxDimension, rejectedMaxDimension);
+        auto [prevMin, prevMax] = fMaxDimensionHintForRejects;
+        fMaxDimensionHintForRejects =
+                {std::min(prevMin, rejectedMaxDimension),
+                 std::max(prevMax, rejectedMaxDimension)};
         this->reject(index);
     }
 
@@ -53,14 +58,14 @@ public:
         fRejects = SkMakeZip(fRejectedGlyphIDs, fRejectedPositions).first(fRejectSize);
         fSource = fRejects;
         fRejectSize = 0;
-        fSourceMaxDimension = fRejectedMaxDimension;
-        fRejectedMaxDimension = 0;
+        fMaxDimensionHintForSource = fMaxDimensionHintForRejects;
+        fMaxDimensionHintForRejects = {INT_MAX, 0};
         return fSource;
     }
 
     SkZip<const SkGlyphID, const SkPoint> source() const { return fSource; }
 
-    int rejectedMaxDimension() const { return fSourceMaxDimension; }
+    std::tuple<int, int> maxDimensionHint() const {return fMaxDimensionHintForSource;}
 
 private:
     SkSourceGlyphBuffer(const SkZip<const SkGlyphID, const SkPoint>& source) {
@@ -72,8 +77,12 @@ private:
 
     SkZip<const SkGlyphID, const SkPoint> fSource;
     size_t fRejectSize{0};
-    int fSourceMaxDimension{0};
-    int fRejectedMaxDimension{0};
+
+    // Calculate the smallest and largest max glyph dimension. fMaxDimensionHintForSource captures
+    // fMaxDimensionHintForRejects when flipping rejects to the source.
+    std::tuple<int, int> fMaxDimensionHintForSource{INT_MAX, 0};
+    std::tuple<int, int> fMaxDimensionHintForRejects{INT_MAX, 0};
+
     SkZip<SkGlyphID, SkPoint> fRejects;
     SkSTArray<4, SkGlyphID> fRejectedGlyphIDs;
     SkSTArray<4, SkPoint> fRejectedPositions;
