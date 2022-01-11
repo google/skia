@@ -116,12 +116,16 @@ sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
+    // We have no access to a context to do a read pixels here.
+    return false;
+}
+
+bool Device::readPixels(Context* context, const SkPixmap& pm, int x, int y) {
     // TODO: Support more formats that we can read back into
     if (pm.colorType() != kRGBA_8888_SkColorType) {
         return false;
     }
 
-    auto context = fRecorder->context();
     auto resourceProvider = context->priv().resourceProvider();
 
     TextureProxy* srcProxy = fDC->target();

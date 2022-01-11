@@ -40,6 +40,8 @@ public:
 
     sk_sp<Recorder> refRecorder() { return fRecorder; }
 
+    bool readPixels(Context*, const SkPixmap& dst, int x, int y);
+
 private:
     // Clipping
     void onSave() override {}
