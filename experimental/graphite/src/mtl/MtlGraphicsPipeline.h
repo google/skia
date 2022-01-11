@@ -18,6 +18,7 @@
 namespace skgpu {
 class Context;
 class GraphicsPipelineDesc;
+struct RenderPassDesc;
 } // namespace skgpu
 
 namespace skgpu::mtl {
@@ -33,7 +34,8 @@ public:
 
     static sk_sp<GraphicsPipeline> Make(const Context*,
                                         const Gpu*,
-                                        const skgpu::GraphicsPipelineDesc&);
+                                        const skgpu::GraphicsPipelineDesc&,
+                                        const skgpu::RenderPassDesc&);
     ~GraphicsPipeline() override {}
 
     id<MTLRenderPipelineState> mtlPipelineState() const { return fPipelineState.get(); }

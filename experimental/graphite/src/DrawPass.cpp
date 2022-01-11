@@ -416,7 +416,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     return drawPass;
 }
 
-void DrawPass::addCommands(Context* context, CommandBuffer* buffer) const {
+void DrawPass::addCommands(Context* context, CommandBuffer* buffer,
+                           const RenderPassDesc& renderPassDesc) const {
     auto resourceProvider = context->priv().resourceProvider();
 
     // TODO: Validate RenderPass state against DrawPass's target and requirements?
@@ -426,8 +427,9 @@ void DrawPass::addCommands(Context* context, CommandBuffer* buffer) const {
     // Use a vector instead of SkTBlockList for the full pipelines so that random access is fast.
     std::vector<sk_sp<GraphicsPipeline>> fullPipelines;
     fullPipelines.reserve(fPipelineDescs.count());
-    for (const GraphicsPipelineDesc& desc : fPipelineDescs.items()) {
-        fullPipelines.push_back(resourceProvider->findOrCreateGraphicsPipeline(context, desc));
+    for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs.items()) {
+        fullPipelines.push_back(resourceProvider->findOrCreateGraphicsPipeline(
+                context, pipelineDesc, renderPassDesc));
     }
 
     // Set viewport to the entire texture for now (eventually, we may have logically smaller bounds

@@ -11,6 +11,7 @@
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
+#include "src/gpu/ResourceKey.h"
 
 namespace SkSL {
 struct ShaderCaps;
@@ -18,6 +19,8 @@ struct ShaderCaps;
 
 namespace skgpu {
 
+class GraphicsPipelineDesc;
+struct RenderPassDesc;
 class TextureInfo;
 
 class Caps : public SkRefCnt {
@@ -38,6 +41,9 @@ public:
     virtual TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
                                                           uint32_t sampleCount,
                                                           Protected) const = 0;
+
+    virtual UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
+                                              const RenderPassDesc&) const = 0;
 
     bool areColorTypeAndTextureInfoCompatible(SkColorType, const TextureInfo&) const;
 

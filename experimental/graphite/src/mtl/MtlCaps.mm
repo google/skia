@@ -9,6 +9,8 @@
 
 #include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/include/mtl/MtlTypes.h"
+#include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 #include "src/sksl/SkSLUtil.h"
 
@@ -309,6 +311,31 @@ skgpu::TextureInfo Caps::getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlag
     info.fFramebufferOnly = false;
 
     return info;
+}
+
+UniqueKey Caps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
+                                        const RenderPassDesc& renderPassDesc) const {
+    UniqueKey pipelineKey;
+    {
+        static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain = UniqueKey::GenerateDomain();
+        SkSpan<const uint32_t> pipelineDescKey = pipelineDesc.asKey();
+        UniqueKey::Builder builder(&pipelineKey, kGraphicsPipelineDomain,
+                                   pipelineDescKey.size() + 1, "GraphicsPipeline");
+        // add graphicspipelinedesc key
+        for (unsigned int i = 0; i < pipelineDescKey.size(); ++i) {
+            builder[i] = pipelineDescKey[i];
+        }
+        // add renderpassdesc key
+        mtl::TextureInfo colorInfo, depthStencilInfo;
+        renderPassDesc.fColorAttachment.fTextureInfo.getMtlTextureInfo(&colorInfo);
+        renderPassDesc.fDepthStencilAttachment.fTextureInfo.getMtlTextureInfo(&depthStencilInfo);
+        SkASSERT(colorInfo.fFormat < 65535 && depthStencilInfo.fFormat < 65535);
+        uint32_t renderPassKey = colorInfo.fFormat << 16 | depthStencilInfo.fFormat;
+        builder[pipelineDescKey.size()] = renderPassKey;
+        builder.finish();
+    }
+
+    return pipelineKey;
 }
 
 bool Caps::onIsTexturable(const skgpu::TextureInfo& info) const {

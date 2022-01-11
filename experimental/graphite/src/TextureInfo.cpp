@@ -34,6 +34,9 @@ TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
 }
 
 bool TextureInfo::operator==(const TextureInfo& that) const {
+    if (!this->isValid() && !that.isValid()) {
+        return true;
+    }
     if (!this->isValid() || !that.isValid()) {
         return false;
     }

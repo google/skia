@@ -66,7 +66,7 @@ void RenderPassTask::addCommands(Context* context, CommandBuffer* commandBuffer)
         // Assuming one draw pass per renderpasstask for now
         SkASSERT(fDrawPasses.size() == 1);
         for (const auto& drawPass: fDrawPasses) {
-            drawPass->addCommands(context, commandBuffer);
+            drawPass->addCommands(context, commandBuffer, fRenderPassDesc);
         }
 
         commandBuffer->endRenderPass();

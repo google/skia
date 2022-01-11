@@ -32,8 +32,9 @@ sk_sp<skgpu::CommandBuffer> ResourceProvider::createCommandBuffer() {
 }
 
 sk_sp<skgpu::GraphicsPipeline> ResourceProvider::onCreateGraphicsPipeline(
-        Context* context, const GraphicsPipelineDesc& desc) {
-    return GraphicsPipeline::Make(context, this->mtlGpu(), desc);
+        Context* context, const GraphicsPipelineDesc& pipelineDesc,
+        const RenderPassDesc& renderPassDesc) {
+    return GraphicsPipeline::Make(context, this->mtlGpu(), pipelineDesc, renderPassDesc);
 }
 
 sk_sp<skgpu::Texture> ResourceProvider::createTexture(SkISize dimensions,
