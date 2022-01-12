@@ -15,12 +15,12 @@
 #include "include/core/SkTileMode.h"
 
 enum class CodeSnippetID : uint8_t;
+class SkUniquePaintParamsID;
 
 namespace skgpu {
 
 class PaintParams;
 class Uniform;
-class UniquePaintParamsID;
 
 class UniformData : public SkRefCnt {
 public:
@@ -67,7 +67,8 @@ private:
     const size_t fDataSize;
 };
 
-std::tuple<UniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context*, const PaintParams&);
+std::tuple<SkUniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context*,
+                                                                       const PaintParams&);
 SkSpan<const Uniform> GetUniforms(CodeSnippetID);
 
 // TODO: Temporary way to get at SkSL snippet for handling the given shader type, which will be

@@ -11,13 +11,13 @@
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Renderer.h"
-#include "experimental/graphite/src/ShaderCodeDictionary.h"
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 #include "include/core/SkSpan.h"
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/SkSLString.h"
+#include "include/private/SkShaderCodeDictionary.h"
 
 namespace skgpu::mtl {
 

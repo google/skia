@@ -23,11 +23,11 @@ ResourceProvider* ContextPriv::resourceProvider() {
     return this->gpu()->resourceProvider();
 }
 
-ShaderCodeDictionary* ContextPriv::shaderCodeDictionary() {
+SkShaderCodeDictionary* ContextPriv::shaderCodeDictionary() {
     return fContext->fShaderCodeDictionary.get();
 }
 
-const ShaderCodeDictionary* ContextPriv::shaderCodeDictionary() const {
+const SkShaderCodeDictionary* ContextPriv::shaderCodeDictionary() const {
     return fContext->fShaderCodeDictionary.get();
 }
 

@@ -21,12 +21,12 @@
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
-#include "experimental/graphite/src/ShaderCodeDictionary.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
+#include "include/private/SkShaderCodeDictionary.h"
 #include "src/core/SkKeyHelpers.h"
 
 #if GRAPHITE_TEST_UTILS

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkPaintParamsKey.h"
+#include "include/private/SkPaintParamsKey.h"
 
 #include <cstring>
 #include "src/core/SkKeyHelpers.h"

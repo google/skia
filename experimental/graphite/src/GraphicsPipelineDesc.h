@@ -13,10 +13,10 @@
 #include "experimental/graphite/src/Attribute.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawTypes.h"
-#include "experimental/graphite/src/UniquePaintParamsID.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkOpts_spi.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkUniquePaintParamsID.h"
 
 #include <array>
 namespace skgpu {
@@ -45,9 +45,9 @@ public:
     // (except for renderpass-level state that will never change between draws).
     const RenderStep* renderStep() const { return fRenderStep; }
     // UniqueID of the required PaintParams
-    UniquePaintParamsID paintParamsID() const { return fUniqueID; }
+    SkUniquePaintParamsID paintParamsID() const { return fUniqueID; }
 
-    void setProgram(const RenderStep* step, UniquePaintParamsID uniqueID) {
+    void setProgram(const RenderStep* step, SkUniquePaintParamsID uniqueID) {
         SkASSERT(step);
         fRenderStep = step;
         fUniqueID = uniqueID;
@@ -81,7 +81,7 @@ private:
     // the GraphicsPipeline.
     const RenderStep* fRenderStep = nullptr;
 
-    UniquePaintParamsID fUniqueID;
+    SkUniquePaintParamsID fUniqueID;
 };
 
 } // namespace skgpu

@@ -10,10 +10,10 @@
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/PaintParams.h"
-#include "experimental/graphite/src/ShaderCodeDictionary.h"
-#include "experimental/graphite/src/UniquePaintParamsID.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/private/SkShaderCodeDictionary.h"
+#include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkKeyHelpers.h"
 
 namespace {

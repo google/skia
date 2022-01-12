@@ -5,47 +5,44 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_ShaderCodeDictionary_DEFINED
-#define skgpu_ShaderCodeDictionary_DEFINED
+#ifndef SkShaderCodeDictionary_DEFINED
+#define SkShaderCodeDictionary_DEFINED
 
 #include <unordered_map>
-#include "experimental/graphite/src/ContextUtils.h"
-#include "experimental/graphite/src/UniquePaintParamsID.h"
+#include "include/private/SkPaintParamsKey.h"
 #include "include/private/SkSpinlock.h"
+#include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkPaintParamsKey.h"
 
-namespace skgpu {
-
-class ShaderCodeDictionary {
+class SkShaderCodeDictionary {
 public:
-    ShaderCodeDictionary();
+    SkShaderCodeDictionary();
 
     struct Entry {
     public:
-        UniquePaintParamsID uniqueID() const {
+        SkUniquePaintParamsID uniqueID() const {
             SkASSERT(fUniqueID.isValid());
             return fUniqueID;
         }
         const SkPaintParamsKey& paintParamsKey() const { return fPaintParamsKey; }
 
     private:
-        friend class ShaderCodeDictionary;
+        friend class SkShaderCodeDictionary;
 
         Entry(const SkPaintParamsKey& paintParamsKey) : fPaintParamsKey(paintParamsKey) {}
 
         void setUniqueID(uint32_t newID) {
             SkASSERT(!fUniqueID.isValid());
-            fUniqueID = UniquePaintParamsID(newID);
+            fUniqueID = SkUniquePaintParamsID(newID);
         }
 
-        UniquePaintParamsID fUniqueID;    // fixed-size (uint32_t) unique ID assigned to a key
+        SkUniquePaintParamsID fUniqueID;  // fixed-size (uint32_t) unique ID assigned to a key
         SkPaintParamsKey fPaintParamsKey; // variable-length paint key descriptor
     };
 
     const Entry* findOrCreate(const SkPaintParamsKey&) SK_EXCLUDES(fSpinLock);
 
-    const Entry* lookup(UniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
+    const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
 private:
     Entry* makeEntry(const SkPaintParamsKey&);
@@ -63,6 +60,4 @@ private:
     SkArenaAlloc fArena{256};
 };
 
-} // namespace skgpu
-
-#endif // skgpu_ShaderCodeDictionary_DEFINED
+#endif // SkShaderCodeDictionary_DEFINED

@@ -11,11 +11,11 @@
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/PaintParams.h"
-#include "experimental/graphite/src/ShaderCodeDictionary.h"
 #include "experimental/graphite/src/Uniform.h"
 #include "experimental/graphite/src/UniformManager.h"
-#include "experimental/graphite/src/UniquePaintParamsID.h"
 #include "include/core/SkPaint.h"
+#include "include/private/SkShaderCodeDictionary.h"
+#include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkKeyHelpers.h"
 
 namespace skgpu {
@@ -206,8 +206,8 @@ sk_sp<UniformData> UniformData::Make(int count,
     return sk_sp<UniformData>(new UniformData(count, uniforms, offsets, data, dataSize));
 }
 
-std::tuple<UniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context* context,
-                                                                     const PaintParams& p) {
+std::tuple<SkUniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context* context,
+                                                                       const PaintParams& p) {
     SkPaintParamsKey key;
     sk_sp<UniformData> uniforms;
 

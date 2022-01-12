@@ -17,8 +17,8 @@
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Renderer.h"
-#include "experimental/graphite/src/ShaderCodeDictionary.h"
 #include "include/core/SkPathTypes.h"
+#include "include/private/SkShaderCodeDictionary.h"
 #include "src/core/SkKeyHelpers.h"
 
 #ifdef SK_METAL
@@ -30,7 +30,7 @@ namespace skgpu {
 Context::Context(sk_sp<Gpu> gpu, BackendApi backend)
         : fGpu(std::move(gpu))
         , fBackend(backend)
-        , fShaderCodeDictionary(new ShaderCodeDictionary) {
+        , fShaderCodeDictionary(std::make_unique<SkShaderCodeDictionary>()) {
 }
 Context::~Context() {}
 

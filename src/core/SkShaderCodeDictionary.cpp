@@ -5,25 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/graphite/src/ShaderCodeDictionary.h"
+#include "include/private/SkShaderCodeDictionary.h"
 #include "src/core/SkOpts.h"
 
-namespace skgpu {
-
-ShaderCodeDictionary::ShaderCodeDictionary() {
+SkShaderCodeDictionary::SkShaderCodeDictionary() {
     // The 0th index is reserved as invalid
     fEntryVector.push_back(nullptr);
 }
 
-ShaderCodeDictionary::Entry* ShaderCodeDictionary::makeEntry(const SkPaintParamsKey& key) {
+SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(const SkPaintParamsKey& key) {
     return fArena.make([&](void *ptr) { return new(ptr) Entry(key); });
 }
 
-size_t ShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey& key) const {
+size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey& key) const {
     return SkOpts::hash_fn(key.data(), key.sizeInBytes(), 0);
 }
 
-const ShaderCodeDictionary::Entry* ShaderCodeDictionary::findOrCreate(const SkPaintParamsKey& key) {
+const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(const SkPaintParamsKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     auto iter = fHash.find(key);
@@ -40,7 +38,9 @@ const ShaderCodeDictionary::Entry* ShaderCodeDictionary::findOrCreate(const SkPa
     return newEntry;
 }
 
-const ShaderCodeDictionary::Entry* ShaderCodeDictionary::lookup(UniquePaintParamsID codeID) const {
+const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::lookup(
+        SkUniquePaintParamsID codeID) const {
+
     if (!codeID.isValid()) {
         return nullptr;
     }
@@ -51,5 +51,3 @@ const ShaderCodeDictionary::Entry* ShaderCodeDictionary::lookup(UniquePaintParam
 
     return fEntryVector[codeID.asUInt()];
 }
-
-} // namespace skgpu

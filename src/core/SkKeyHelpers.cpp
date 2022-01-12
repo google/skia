@@ -7,8 +7,8 @@
 
 #include "src/core/SkKeyHelpers.h"
 
+#include "include/private/SkPaintParamsKey.h"
 #include "src/core/SkDebugUtils.h"
-#include "src/core/SkPaintParamsKey.h"
 
 //--------------------------------------------------------------------------------------------------
 namespace DepthStencilOnlyBlock {

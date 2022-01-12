@@ -284,7 +284,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // If we have two different descriptors, such that the uniforms from the PaintParams can be
         // bound independently of those used by the rest of the RenderStep, then we can upload now
         // and remember the location for re-use on any RenderStep that does shading.
-        UniquePaintParamsID shaderID;
+        SkUniquePaintParamsID shaderID;
         sk_sp<UniformData> shadingUniforms = nullptr;
         uint32_t shadingIndex = UniformCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
@@ -297,7 +297,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             const RenderStep* const step = draw.fRenderer.steps()[stepIndex];
             const bool performsShading = draw.fPaintParams.has_value() && step->performsShading();
 
-            UniquePaintParamsID stepShaderID;
+            SkUniquePaintParamsID stepShaderID;
             uint32_t stepShadingIndex = UniformCache::kInvalidUniformID;
             if (performsShading) {
                 stepShaderID = shaderID;
