@@ -29,14 +29,13 @@ void StartRuntimeShader(SkSL::Compiler* compiler) {
 
 sk_sp<SkRuntimeEffect> EndRuntimeShader(SkRuntimeEffect::Options options) {
     std::unique_ptr<SkSL::Program> program = ReleaseProgram();
-    SkRuntimeEffect::Result result;
+    ThreadContext::ReportErrors(PositionInfo{});
+    sk_sp<SkRuntimeEffect> result;
     if (program) {
-        result = SkRuntimeEffect::MakeForShader(std::move(program), options);
-        // TODO(skbug.com/11862): propagate errors properly
-        SkASSERTF(result.effect, "%s\n", result.errorText.c_str());
+        result = SkRuntimeEffect::MakeForShader(std::move(program), options, &GetErrorReporter());
     }
     End();
-    return result.effect;
+    return result;
 }
 
 #endif // SKSL_STANDALONE

@@ -32,6 +32,7 @@ class SkRuntimeImageFilter;
 
 namespace SkSL {
 class DebugTrace;
+class ErrorReporter;
 class FunctionDefinition;
 struct Program;
 enum class ProgramKind : int8_t;
@@ -168,6 +169,9 @@ public:
 
     static Result MakeForShader(std::unique_ptr<SkSL::Program> program, const Options&);
     static Result MakeForShader(std::unique_ptr<SkSL::Program> program);
+    static sk_sp<SkRuntimeEffect> MakeForShader(std::unique_ptr<SkSL::Program> program,
+                                                const Options&, SkSL::ErrorReporter* errors);
+
 
     static Result MakeForBlender(std::unique_ptr<SkSL::Program> program, const Options&);
     static Result MakeForBlender(std::unique_ptr<SkSL::Program> program);
@@ -279,6 +283,11 @@ private:
     static Result MakeFromDSL(std::unique_ptr<SkSL::Program> program,
                               const Options& options,
                               SkSL::ProgramKind kind);
+
+    static sk_sp<SkRuntimeEffect> MakeFromDSL(std::unique_ptr<SkSL::Program> program,
+                                              const Options& options,
+                                              SkSL::ProgramKind kind,
+                                              SkSL::ErrorReporter* errors);
 
     static Result MakeInternal(std::unique_ptr<SkSL::Program> program,
                                const Options& options,

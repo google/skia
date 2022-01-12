@@ -11,6 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkSurface.h"
 #include "include/private/SkMutex.h"
+#include "include/sksl/DSLCore.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkColorFilterBase.h"
@@ -205,6 +206,17 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromDSL(std::unique_ptr<SkSL::Progr
     // program's source. Populate it so that we can compute fHash, and serialize these effects.
     program->fSource = std::make_unique<SkSL::String>(program->description());
     return MakeInternal(std::move(program), options, kind);
+}
+
+sk_sp<SkRuntimeEffect> SkRuntimeEffect::MakeFromDSL(std::unique_ptr<SkSL::Program> program,
+                                                    const Options& options,
+                                                    SkSL::ProgramKind kind,
+                                                    SkSL::ErrorReporter* errors) {
+    Result result = MakeFromDSL(std::move(program), options, kind);
+    if (!result.effect) {
+        errors->error(result.errorText.c_str(), SkSL::PositionInfo(nullptr, -1));
+    }
+    return std::move(result.effect);
 }
 
 SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Program> program,
@@ -418,6 +430,15 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Pro
                                                        const Options& options) {
     auto result = MakeFromDSL(std::move(program), options, SkSL::ProgramKind::kRuntimeShader);
     SkASSERT(!result.effect || result.effect->allowShader());
+    return result;
+}
+
+sk_sp<SkRuntimeEffect> SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Program> program,
+                                                      const Options& options,
+                                                      SkSL::ErrorReporter* errors) {
+    auto result = MakeFromDSL(std::move(program), options, SkSL::ProgramKind::kRuntimeShader,
+            errors);
+    SkASSERT(!result || result->allowShader());
     return result;
 }
 
