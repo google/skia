@@ -19,7 +19,7 @@ void AddToKey(SkPaintParamsKey* key) {
 }
 
 #ifdef SK_DEBUG
-void Dump(const SkPaintParamsKey& key, uint32_t headerOffset) {
+void Dump(const SkPaintParamsKey& key, int headerOffset) {
     SkASSERT(key.byte(headerOffset) == (uint8_t) CodeSnippetID::kDepthStencilOnlyDraw);
     SkASSERT(key.byte(headerOffset+1) == 2);
 
@@ -38,7 +38,7 @@ void AddToKey(SkPaintParamsKey* key) {
 }
 
 #ifdef SK_DEBUG
-void Dump(const SkPaintParamsKey& key, uint32_t headerOffset) {
+void Dump(const SkPaintParamsKey& key, int headerOffset) {
     SkASSERT(key.byte(headerOffset) == (uint8_t) CodeSnippetID::kSolidColorShader);
     SkASSERT(key.byte(headerOffset+1) == 2);
 
@@ -97,7 +97,7 @@ std::pair<CodeSnippetID, SkTileMode> ExtractFromKey(const SkPaintParamsKey& key,
     return { id, tm };
 }
 
-void Dump(const SkPaintParamsKey& key, uint32_t headerOffset) {
+void Dump(const SkPaintParamsKey& key, int headerOffset) {
     auto [id, tm] =  ExtractFromKey(key, headerOffset);
 
     switch (id) {
@@ -140,7 +140,7 @@ SkBlendMode ExtractFromKey(const SkPaintParamsKey& key, uint32_t headerOffset) {
     return static_cast<SkBlendMode>(key.byte(headerOffset+2));
 }
 
-void Dump(const SkPaintParamsKey& key, uint32_t headerOffset) {
+void Dump(const SkPaintParamsKey& key, int headerOffset) {
     SkBlendMode bm = ExtractFromKey(key, headerOffset);
 
     SkDebugf("kSimpleBlendMode: %s\n", SkBlendMode_Name(bm));

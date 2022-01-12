@@ -16,19 +16,38 @@ bool SkPaintParamsKey::operator==(const SkPaintParamsKey& that) const {
 }
 
 #ifdef SK_DEBUG
-typedef void (*Dumper)(const SkPaintParamsKey&, uint32_t headerOffset);
+typedef void (*DumpMethod)(const SkPaintParamsKey&, int headerOffset);
 
-static Dumper gDumpers[kCodeSnippetIDCount] = {
-    DepthStencilOnlyBlock::Dump,  // kDepthStencilOnlyDraw
+namespace {
 
-    SolidColorShaderBlock::Dump,  // kSolidColorShader
-    GradientShaderBlocks::Dump,   // kLinearGradientShader
-    GradientShaderBlocks::Dump,   // kRadialGradientShader
-    GradientShaderBlocks::Dump,   // kSweepGradientShader
-    GradientShaderBlocks::Dump,   // kConicalGradientShader
+void dump_unknown_block(const SkPaintParamsKey& key, int headerOffset) {
+    uint8_t id = key.byte(headerOffset);
+    uint8_t blockSize = key.byte(headerOffset+1);
+    SkASSERT(blockSize >= 2 && headerOffset+blockSize <= key.sizeInBytes());
 
-    BlendModeBlock::Dump,         // kSimpleBlendMode
-};
+    SkDebugf("Unknown block - id: %d size: %dB\n", id, blockSize);
+}
+
+DumpMethod get_dump_method(CodeSnippetID id) {
+    switch (id) {
+        case CodeSnippetID::kDepthStencilOnlyDraw:  return DepthStencilOnlyBlock::Dump;
+
+        // SkShader code snippets
+        case CodeSnippetID::kSolidColorShader:      return SolidColorShaderBlock::Dump;
+
+        case CodeSnippetID::kLinearGradientShader:  [[fallthrough]];
+        case CodeSnippetID::kRadialGradientShader:  [[fallthrough]];
+        case CodeSnippetID::kSweepGradientShader:   [[fallthrough]];
+        case CodeSnippetID::kConicalGradientShader: return GradientShaderBlocks::Dump;
+
+        // BlendMode code snippets
+        case CodeSnippetID::kSimpleBlendMode:       return BlendModeBlock::Dump;
+
+        default:                                    return dump_unknown_block;
+    }
+}
+
+} // anonymous namespace
 
 // This just iterates over the top-level blocks calling block-specific dump methods.
 void SkPaintParamsKey::dump() const {
@@ -38,7 +57,7 @@ void SkPaintParamsKey::dump() const {
     while (curHeaderOffset < this->sizeInBytes()) {
         auto [codeSnippetID, blockSize] = this->readCodeSnippetID(curHeaderOffset);
 
-        (gDumpers[(int) codeSnippetID])(*this, curHeaderOffset);
+        get_dump_method(codeSnippetID)(*this, curHeaderOffset);
 
         curHeaderOffset += blockSize;
     }
