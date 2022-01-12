@@ -14,8 +14,10 @@ bool test_param_bff(float a[3], float b[3]) {
 vec4 main() {
     float f[3];
     float g[3];
-    int _2_b[2];
-    int _3_c[2];
-    int _4_d[2];
-    return ((check_array_is_int_2_bi(_2_b) && check_array_is_int_2_bi(_3_c)) && check_array_is_int_2_bi(_4_d)) && test_param_bff(f, g) ? colorGreen : colorRed;
+    int _3_b[2];
+    int _4_c[2];
+    int _5_d[2];
+    int _6_e[2];
+    int _7_f[2];
+    return ((((check_array_is_int_2_bi(_3_b) && check_array_is_int_2_bi(_4_c)) && check_array_is_int_2_bi(_5_d)) && check_array_is_int_2_bi(_6_e)) && check_array_is_int_2_bi(_7_f)) && test_param_bff(f, g) ? colorGreen : colorRed;
 }
