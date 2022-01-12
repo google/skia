@@ -588,6 +588,7 @@ public:
     GraphiteSink(const SkCommandLineConfigGraphite*);
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    bool serial() const override { return true; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
 
