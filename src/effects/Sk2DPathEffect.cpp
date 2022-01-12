@@ -82,6 +82,11 @@ protected:
             SkRegion::Iterator iter(rgn);
             for (; !iter.done(); iter.next()) {
                 const SkIRect& rect = iter.rect();
+#if defined(SK_BUILD_FOR_FUZZER)
+                if (rect.height() > 100) {
+                    continue;
+                }
+#endif
                 for (int y = rect.fTop; y < rect.fBottom; ++y) {
                     this->nextSpan(rect.fLeft, y, rect.width(), dst);
                 }
