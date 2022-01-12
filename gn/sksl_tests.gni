@@ -515,6 +515,7 @@ sksl_folding_tests = [
   "/sksl/folding/SelfAssignment.sksl",
   "/sksl/folding/ShortCircuitBoolFolding.sksl",
   "/sksl/folding/SwizzleFolding.sksl",
+  "/sksl/folding/SwitchCaseFolding.sksl",
   "/sksl/folding/VectorScalarFolding.sksl",
   "/sksl/folding/VectorVectorFolding.sksl",
 ]

@@ -1,0 +1,20 @@
+uniform half4 colorRed, colorGreen;
+
+bool test(int one) {
+    const int three = 3;
+    const int3 vecFour = int3(4);
+    switch (one) {
+        case vecFour.000x.y:      return false; // case 0
+        case int4(1, 2, 3, 4).x:  return true;  // case 1
+        case int(max(-5.5, 2.0)): return false; // case 2
+        case three:               return false; // case 3
+        case vecFour.yz01.x:      return false; // case 4
+        case 2 * 3 - 1:           return false; // case 5
+        default:                  return false;
+    }
+}
+
+half4 main(float2 coords) {
+    return test(int(colorGreen.g)) ? colorGreen : colorRed;
+}
+
