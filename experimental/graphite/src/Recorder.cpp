@@ -51,6 +51,10 @@ void Recorder::add(sk_sp<Task> task) {
 }
 
 std::unique_ptr<Recording> Recorder::snap() {
+    for (auto& device : fTrackedDevices) {
+        device->flushPendingWorkToRecorder();
+    }
+
     auto gpu = fContext->priv().gpu();
     auto commandBuffer = gpu->resourceProvider()->createCommandBuffer();
 

@@ -159,6 +159,7 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
 
 Device::~Device() {
     if (fRecorder) {
+        this->flushPendingWorkToRecorder();
         fRecorder->deregisterDevice(this);
     }
 }
@@ -452,6 +453,8 @@ std::pair<Clip, CompressedPaintersOrder> Device::applyClipToDraw(const Transform
 }
 
 void Device::flushPendingWorkToRecorder() {
+    SkASSERT(fRecorder);
+
     // TODO: we may need to further split this function up since device->device drawList and
     // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
 
