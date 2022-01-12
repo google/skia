@@ -71,7 +71,7 @@ npm:
 
 	# These features are turned off to keep code size smaller for the
 	# general use case.
-	./compile.sh release no_skottie no_particles no_rt_shader no_alias_font no_effects_deserialization
+	./compile.sh release no_skottie no_particles no_rt_shader no_sksl_trace no_alias_font no_effects_deserialization
 	cp ../../out/canvaskit_wasm/canvaskit.js       ./npm_build/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./npm_build/bin
 

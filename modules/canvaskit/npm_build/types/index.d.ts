@@ -407,7 +407,7 @@ export interface CanvasKit {
     readonly PictureRecorder: DefaultConstructor<PictureRecorder>;
     readonly TextStyle: TextStyleConstructor;
 
-    // Factories, i.e. things made with CanvasKit.Foo.MakeTurboEncapsulator()
+    // Factories, i.e. things made with CanvasKit.Foo.MakeTurboEncabulator()
     readonly ParagraphBuilder: ParagraphBuilderFactory;
     readonly ColorFilter: ColorFilterFactory;
     readonly FontMgr: FontMgrFactory;
@@ -3332,6 +3332,15 @@ export interface PathEffectFactory {
 /**
  * See RuntimeEffect.h for more details.
  */
+export interface DebugTrace extends EmbindObject<DebugTrace> {
+    writeTrace(): string;
+}
+
+export interface TracedShader {
+    shader: RuntimeEffect;
+    debugTrace: DebugTrace;
+}
+
 export interface RuntimeEffectFactory {
     /**
      * Compiles a RuntimeEffect from the given shader code.
@@ -3340,6 +3349,14 @@ export interface RuntimeEffectFactory {
      *                   be printed to console.log().
      */
     Make(sksl: string, callback?: (err: string) => void): RuntimeEffect | null;
+
+    /**
+     * Adds debug tracing to an existing RuntimeEffect.
+     * @param shader - An already-assembled shader, created with RuntimeEffect.makeShader.
+     * @param traceCoordX - the X coordinate of the device-space pixel to trace
+     * @param traceCoordY - the Y coordinate of the device-space pixel to trace
+     */
+    MakeTraced(shader: RuntimeEffect, traceCoordX: number, traceCoordY: number): TracedShader;
 }
 
 /**

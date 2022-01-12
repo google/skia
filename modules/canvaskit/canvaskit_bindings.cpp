@@ -85,6 +85,10 @@
 #include "include/pathops/SkPathOps.h"
 #endif
 
+#if defined(SK_INCLUDE_RUNTIME_EFFECT) && defined(SK_INCLUDE_SKSL_TRACE)
+#include "include/sksl/SkSLDebugTrace.h"
+#endif
+
 #ifndef SK_NO_FONTS
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(sk_sp<SkData>* datas, int n);
 #endif
@@ -1772,6 +1776,21 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers());
 
 #ifdef SK_INCLUDE_RUNTIME_EFFECT
+#ifdef SK_INCLUDE_SKSL_TRACE
+    class_<SkSL::DebugTrace>("DebugTrace")
+        .smart_ptr<sk_sp<SkSL::DebugTrace>>("sk_sp<DebugTrace>")
+        .function("writeTrace", optional_override([](SkSL::DebugTrace& self) -> std::string {
+            SkDynamicMemoryWStream wstream;
+            self.writeTrace(&wstream);
+            sk_sp<SkData> trace = wstream.detachAsData();
+            return std::string(reinterpret_cast<const char*>(trace->bytes()), trace->size());
+        }));
+
+    value_object<SkRuntimeEffect::TracedShader>("TracedShader")
+        .field("shader",     &SkRuntimeEffect::TracedShader::shader)
+        .field("debugTrace", &SkRuntimeEffect::TracedShader::debugTrace);
+#endif
+
     class_<SkRuntimeEffect>("RuntimeEffect")
         .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<RuntimeEffect>")
         .class_function("_Make", optional_override([](std::string sksl,
@@ -1785,6 +1804,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return effect;
         }))
+#ifdef SK_INCLUDE_SKSL_TRACE
+        .class_function("MakeTraced", optional_override([](
+                sk_sp<SkShader> shader,
+                int traceCoordX,
+                int traceCoordY) -> SkRuntimeEffect::TracedShader {
+            return SkRuntimeEffect::MakeTraced(shader, SkIPoint::Make(traceCoordX, traceCoordY));
+        }))
+#endif
         .function("_makeShader", optional_override([](SkRuntimeEffect& self, WASMPointerF32 fPtr, size_t fLen, bool isOpaque,
                                                       WASMPointerF32 mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
