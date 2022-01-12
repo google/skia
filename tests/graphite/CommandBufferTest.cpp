@@ -27,6 +27,7 @@
 #include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
+#include "src/core/SkKeyHelpers.h"
 
 #if GRAPHITE_TEST_UTILS
 // set to 1 if you want to do GPU capture of the commandBuffer
@@ -248,8 +249,11 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     TextureInfo textureInfo;
 #endif
 
-    Combination shader{ShaderCombo::ShaderType::kSolidColor};
-    auto entry = context->priv().shaderCodeDictionary()->findOrCreate(shader);
+    SkPaintParamsKey key = CreateKey(ShaderCombo::ShaderType::kSolidColor,
+                                     SkTileMode::kClamp,
+                                     SkBlendMode::kSrc);
+
+    auto entry = context->priv().shaderCodeDictionary()->findOrCreate(key);
 
     auto target = sk_sp<TextureProxy>(new TextureProxy(textureSize, textureInfo));
     REPORTER_ASSERT(reporter, target);

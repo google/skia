@@ -159,26 +159,41 @@ SkSL::String get_sksl_fs(const Context* context,
                          bool* writesColor) {
     SkSL::String sksl;
 
-    Combination combo;
+    SkPaintParamsKey key;
     auto entry = context->priv().shaderCodeDictionary()->lookup(desc.paintParamsID());
     if (entry) {
-        combo = entry->combo();
+        key = entry->paintParamsKey();
     }
 
-    // Typedefs needed for painting
-    auto paintUniforms = GetUniforms(combo.fShaderType);
-    if (!paintUniforms.empty()) {
-        sksl += emit_SKSL_uniforms(2, "FS", paintUniforms);
+    *writesColor = false;
+    // TODO: make this more flexible so the individual blocks can be linked together. Right now
+    // this loop relies on only one shader snippet and a blend mode being added to a key.
+    int curHeaderOffset = 0;
+    while (curHeaderOffset < key.sizeInBytes()) {
+        auto [codeSnippetID, blockSize] = key.readCodeSnippetID(curHeaderOffset);
+        if (codeSnippetID == CodeSnippetID::kSimpleBlendMode) {
+            curHeaderOffset += blockSize;
+            continue;
+        }
+
+        // Typedefs needed for painting
+        auto paintUniforms = GetUniforms(codeSnippetID);
+        if (!paintUniforms.empty()) {
+            sksl += emit_SKSL_uniforms(2, "FS", paintUniforms);
+        }
+
+        sksl += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
+        sksl += "void main() {\n"
+                "    half4 outColor;\n";
+        sksl += GetShaderSkSL(codeSnippetID);
+        sksl += "    sk_FragColor = outColor;\n"
+                "}\n";
+
+        *writesColor = codeSnippetID != CodeSnippetID::kDepthStencilOnlyDraw;
+
+        curHeaderOffset += blockSize;
     }
 
-    sksl += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
-    sksl += "void main() {\n"
-            "    half4 outColor;\n";
-    sksl += GetShaderSkSL(combo.fShaderType);
-    sksl += "    sk_FragColor = outColor;\n"
-            "}\n";
-
-    *writesColor = combo.fShaderType != ShaderCombo::ShaderType::kNone;
     return sksl;
 }
 

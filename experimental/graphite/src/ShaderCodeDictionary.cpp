@@ -6,6 +6,7 @@
  */
 
 #include "experimental/graphite/src/ShaderCodeDictionary.h"
+#include "src/core/SkOpts.h"
 
 namespace skgpu {
 
@@ -14,26 +15,26 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
     fEntryVector.push_back(nullptr);
 }
 
-ShaderCodeDictionary::Entry* ShaderCodeDictionary::makeEntry(Combination combo) {
-    return fArena.make([&](void *ptr) { return new(ptr) Entry(combo); });
+ShaderCodeDictionary::Entry* ShaderCodeDictionary::makeEntry(const SkPaintParamsKey& key) {
+    return fArena.make([&](void *ptr) { return new(ptr) Entry(key); });
 }
 
-size_t ShaderCodeDictionary::Hash::operator()(Combination combo) const {
-    return combo.key();
+size_t ShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey& key) const {
+    return SkOpts::hash_fn(key.data(), key.sizeInBytes(), 0);
 }
 
-const ShaderCodeDictionary::Entry* ShaderCodeDictionary::findOrCreate(Combination combo) {
+const ShaderCodeDictionary::Entry* ShaderCodeDictionary::findOrCreate(const SkPaintParamsKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
-    auto iter = fHash.find(combo);
+    auto iter = fHash.find(key);
     if (iter != fHash.end()) {
         SkASSERT(fEntryVector[iter->second->uniqueID().asUInt()] == iter->second);
         return iter->second;
     }
 
-    Entry* newEntry = this->makeEntry(combo);
+    Entry* newEntry = this->makeEntry(key);
     newEntry->setUniqueID(fEntryVector.size());
-    fHash.insert(std::make_pair(newEntry->combo(), newEntry));
+    fHash.insert(std::make_pair(newEntry->paintParamsKey(), newEntry));
     fEntryVector.push_back(newEntry);
 
     return newEntry;

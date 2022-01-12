@@ -14,33 +14,13 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 
+enum class CodeSnippetID : uint8_t;
+
 namespace skgpu {
 
 class PaintParams;
 class Uniform;
 class UniquePaintParamsID;
-
-// A single, fully specified combination resulting from a PaintCombo (i.e., it corresponds to a
-// specific skgpu::PaintParams object (a subset of SkPaint))
-struct Combination {
-    bool operator==(const Combination& other) const {
-        return fShaderType == other.fShaderType &&
-               fTileMode == other.fTileMode &&
-               fBlendMode == other.fBlendMode;
-    }
-
-    uint32_t key() const {
-        return (static_cast<int>(fShaderType) << 9) | // 6 values  -> 3 bits
-               (static_cast<int>(fTileMode)   << 7) | // 4 values  -> 2 bits
-               (static_cast<int>(fBlendMode)  << 2);  // 29 values -> 5 bits
-    }
-
-    ShaderCombo::ShaderType fShaderType = ShaderCombo::ShaderType::kNone;
-    // Tile mode and blend mode are ignored if shader type is kNone; tile mode is ignored if
-    // shader type is kSolidColor.
-    SkTileMode fTileMode = SkTileMode::kClamp;
-    SkBlendMode fBlendMode = SkBlendMode::kSrc;
-};
 
 class UniformData : public SkRefCnt {
 public:
@@ -87,14 +67,14 @@ private:
     const size_t fDataSize;
 };
 
-std::tuple<UniquePaintParamsID, sk_sp<UniformData>> ExtractCombo(Context*, const PaintParams&);
-SkSpan<const Uniform> GetUniforms(ShaderCombo::ShaderType);
+std::tuple<UniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context*, const PaintParams&);
+SkSpan<const Uniform> GetUniforms(CodeSnippetID);
 
 // TODO: Temporary way to get at SkSL snippet for handling the given shader type, which will be
 // embedded in the fragment function's body. It has access to the vertex output via a "interpolated"
 // variable, and must have a statement that writes to a float4 "out.color". Its uniforms (as defined
 // by GetUniforms(type)) are available as a variable named "uniforms".
-const char* GetShaderSkSL(ShaderCombo::ShaderType);
+const char* GetShaderSkSL(CodeSnippetID);
 
 } // namespace skgpu
 

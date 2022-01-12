@@ -13,6 +13,7 @@
 #include "experimental/graphite/src/UniquePaintParamsID.h"
 #include "include/private/SkSpinlock.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkPaintParamsKey.h"
 
 namespace skgpu {
 
@@ -26,39 +27,38 @@ public:
             SkASSERT(fUniqueID.isValid());
             return fUniqueID;
         }
-        Combination combo() const { return fCombo; }
+        const SkPaintParamsKey& paintParamsKey() const { return fPaintParamsKey; }
 
     private:
         friend class ShaderCodeDictionary;
 
-        Entry(Combination combo) : fCombo(combo) {}
+        Entry(const SkPaintParamsKey& paintParamsKey) : fPaintParamsKey(paintParamsKey) {}
 
         void setUniqueID(uint32_t newID) {
             SkASSERT(!fUniqueID.isValid());
             fUniqueID = UniquePaintParamsID(newID);
         }
 
-        UniquePaintParamsID fUniqueID;
-        // TODO: replace all uses of Combination with the variable length key
-        Combination fCombo;
+        UniquePaintParamsID fUniqueID;    // fixed-size (uint32_t) unique ID assigned to a key
+        SkPaintParamsKey fPaintParamsKey; // variable-length paint key descriptor
     };
 
-    const Entry* findOrCreate(Combination) SK_EXCLUDES(fSpinLock);
+    const Entry* findOrCreate(const SkPaintParamsKey&) SK_EXCLUDES(fSpinLock);
 
     const Entry* lookup(UniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
 private:
-    Entry* makeEntry(Combination combo);
+    Entry* makeEntry(const SkPaintParamsKey&);
 
     struct Hash {
-        size_t operator()(Combination) const;
+        size_t operator()(const SkPaintParamsKey&) const;
     };
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;
 
-    std::unordered_map<Combination, Entry*, Hash> fHash SK_GUARDED_BY(fSpinLock);
-    std::vector<Entry *> fEntryVector SK_GUARDED_BY(fSpinLock);
+    std::unordered_map<SkPaintParamsKey, Entry*, Hash> fHash SK_GUARDED_BY(fSpinLock);
+    std::vector<Entry*> fEntryVector SK_GUARDED_BY(fSpinLock);
 
     SkArenaAlloc fArena{256};
 };

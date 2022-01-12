@@ -288,8 +288,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         sk_sp<UniformData> shadingUniforms = nullptr;
         uint32_t shadingIndex = UniformCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
-            std::tie(shaderID, shadingUniforms) = ExtractCombo(recorder->context(),
-                                                               draw.fPaintParams.value());
+            std::tie(shaderID, shadingUniforms) = ExtractPaintData(recorder->context(),
+                                                                   draw.fPaintParams.value());
             shadingIndex = shadingUniformBindings.addUniforms(shadingUniforms);
         } // else depth-only
 
