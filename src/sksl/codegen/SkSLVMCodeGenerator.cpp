@@ -1928,8 +1928,8 @@ void SkVMGenerator::writeSwitchStatement(const SwitchStatement& s) {
 
     for (const std::unique_ptr<Statement>& stmt : s.cases()) {
         const SwitchCase& c = stmt->as<SwitchCase>();
-        if (c.value()) {
-            Value caseValue = this->writeExpression(*c.value());
+        if (!c.isDefault()) {
+            Value caseValue = fBuilder->splat((int) c.value());
 
             // We want to execute this switch case if we're falling through from a previous case, or
             // if the case value matches.

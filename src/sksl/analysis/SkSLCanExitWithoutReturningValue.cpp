@@ -97,7 +97,7 @@ public:
                     // The default case is indicated by a null value. A switch without a default
                     // case cannot definitively return, as its value might not be in the cases list.
                     const SwitchCase& sc = switchStmt->as<SwitchCase>();
-                    if (!sc.value()) {
+                    if (sc.isDefault()) {
                         foundDefault = true;
                     }
                     // Scan this switch-case for any exit (break, continue or return).

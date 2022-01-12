@@ -3317,7 +3317,7 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
         const SwitchCase& c = stmt->as<SwitchCase>();
         SpvId label = this->nextId(nullptr);
         labels.push_back(label);
-        if (c.value()) {
+        if (!c.isDefault()) {
             size += 2;
         } else {
             defaultLabel = label;
@@ -3330,10 +3330,10 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     this->writeWord(defaultLabel, out);
     for (size_t i = 0; i < cases.size(); ++i) {
         const SwitchCase& c = cases[i]->as<SwitchCase>();
-        if (!c.value()) {
+        if (c.isDefault()) {
             continue;
         }
-        this->writeWord(c.value()->as<Literal>().intValue(), out);
+        this->writeWord(c.value(), out);
         this->writeWord(labels[i], out);
     }
     for (size_t i = 0; i < cases.size(); ++i) {

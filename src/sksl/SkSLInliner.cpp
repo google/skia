@@ -566,8 +566,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int line,
             cases.reserve_back(ss.cases().size());
             for (const std::unique_ptr<Statement>& switchCaseStmt : ss.cases()) {
                 const SwitchCase& sc = switchCaseStmt->as<SwitchCase>();
-                cases.push_back(std::make_unique<SwitchCase>(line, expr(sc.value()),
-                                                             stmt(sc.statement())));
+                if (sc.isDefault()) {
+                    cases.push_back(SwitchCase::MakeDefault(line, stmt(sc.statement())));
+                } else {
+                    cases.push_back(SwitchCase::Make(line, sc.value(), stmt(sc.statement())));
+                }
             }
             return SwitchStatement::Make(*fContext, line, ss.isStatic(), expr(ss.value()),
                                         std::move(cases), SymbolTable::WrapIfBuiltin(ss.symbols()));

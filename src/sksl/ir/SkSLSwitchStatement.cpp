@@ -55,27 +55,20 @@ static std::forward_list<const SwitchCase*> find_duplicate_case_values(
 
     for (const std::unique_ptr<Statement>& stmt : cases) {
         const SwitchCase* sc = &stmt->as<SwitchCase>();
-        const std::unique_ptr<Expression>& valueExpr = sc->value();
-
-        // A null case-value indicates the `default` switch-case.
-        if (!valueExpr) {
+        if (sc->isDefault()) {
             if (foundDefault) {
                 duplicateCases.push_front(sc);
                 continue;
             }
             foundDefault = true;
-            continue;
+        } else {
+            SKSL_INT value = sc->value();
+            if (intValues.contains(value)) {
+                duplicateCases.push_front(sc);
+                continue;
+            }
+            intValues.add(value);
         }
-
-        // GetConstantInt already succeeded when the SwitchCase was first assembled, so it should
-        // succeed this time too.
-        SKSL_INT intValue = 0;
-        SkAssertResult(ConstantFolder::GetConstantInt(*valueExpr, &intValue));
-        if (intValues.contains(intValue)) {
-            duplicateCases.push_front(sc);
-            continue;
-        }
-        intValues.add(intValue);
     }
 
     return duplicateCases;
@@ -180,28 +173,23 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
 
     StatementArray cases;
     for (int i = 0; i < caseValues.count(); ++i) {
-        int caseLine;
-        std::unique_ptr<Expression> caseValue;
         if (caseValues[i]) {
-            caseLine = caseValues[i]->fLine;
-
-            // Case values must be the same type as the switch value--`int` or a particular enum.
-            caseValue = value->type().coerceExpression(std::move(caseValues[i]), context);
+            int caseLine = caseValues[i]->fLine;
+            // Case values must be constant integers of the same type as the switch value
+            std::unique_ptr<Expression> caseValue = value->type().coerceExpression(
+                    std::move(caseValues[i]), context);
             if (!caseValue) {
                 return nullptr;
             }
-            // Case values must be a literal integer or a `const int` variable reference.
             SKSL_INT intValue;
             if (!ConstantFolder::GetConstantInt(*caseValue, &intValue)) {
                 context.fErrors->error(caseValue->fLine, "case value must be a constant integer");
                 return nullptr;
             }
+            cases.push_back(SwitchCase::Make(caseLine, intValue, std::move(caseStatements[i])));
         } else {
-            // The null case-expression corresponds to `default:`.
-            caseLine = line;
+            cases.push_back(SwitchCase::MakeDefault(line, std::move(caseStatements[i])));
         }
-        cases.push_back(std::make_unique<SwitchCase>(caseLine, std::move(caseValue),
-                                                     std::move(caseStatements[i])));
     }
 
     // Detect duplicate `case` labels and report an error.
@@ -210,11 +198,11 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
     if (!duplicateCases.empty()) {
         duplicateCases.reverse();
         for (const SwitchCase* sc : duplicateCases) {
-            if (sc->value() != nullptr) {
-                context.fErrors->error(sc->fLine,
-                                       "duplicate case value '" + sc->value()->description() + "'");
-            } else {
+            if (sc->isDefault()) {
                 context.fErrors->error(sc->fLine, "duplicate default case");
+            } else {
+                context.fErrors->error(sc->fLine,
+                                       "duplicate case value '" + to_string(sc->value()) + "'");
             }
         }
         return nullptr;
@@ -235,12 +223,6 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
         return stmt->is<SwitchCase>();
     }));
 
-    // Confirm that every switch-case has been coerced to the proper type.
-    SkASSERT(std::all_of(cases.begin(), cases.end(), [&](const std::unique_ptr<Statement>& stmt) {
-        return !stmt->as<SwitchCase>().value() ||  // `default` case has a null value
-               value->type().matches(stmt->as<SwitchCase>().value()->type());
-    }));
-
     // Confirm that every switch-case value is unique.
     SkASSERT(find_duplicate_case_values(cases).empty());
 
@@ -252,14 +234,12 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
             SwitchCase* matchingCase = nullptr;
             for (const std::unique_ptr<Statement>& stmt : cases) {
                 SwitchCase& sc = stmt->as<SwitchCase>();
-                if (!sc.value()) {
+                if (sc.isDefault()) {
                     defaultCase = &sc;
                     continue;
                 }
 
-                SKSL_INT caseValue;
-                SkAssertResult(ConstantFolder::GetConstantInt(*sc.value(), &caseValue));
-                if (caseValue == switchValue) {
+                if (sc.value() == switchValue) {
                     matchingCase = &sc;
                     break;
                 }

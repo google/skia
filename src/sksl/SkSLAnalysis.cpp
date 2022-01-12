@@ -731,9 +731,6 @@ template <typename T> bool TProgramVisitor<T>::visitStatement(typename T::Statem
 
         case Statement::Kind::kSwitchCase: {
             auto& sc = s.template as<SwitchCase>();
-            if (sc.value() && this->visitExpressionPtr(sc.value())) {
-                return true;
-            }
             return this->visitStatementPtr(sc.statement());
         }
         case Statement::Kind::kDo: {
