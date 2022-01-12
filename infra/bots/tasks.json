@@ -887,12 +887,14 @@
     "Housekeeper-PerCommit-PushAppsFromSkiaDockerImage": {
       "tasks": [
         "Housekeeper-PerCommit-PushAppsFromSkiaDockerImage"
-      ]
+      ],
+      "trigger": "main"
     },
     "Housekeeper-PerCommit-PushBazelAppsFromWASMDockerImage": {
       "tasks": [
         "Housekeeper-PerCommit-PushBazelAppsFromWASMDockerImage"
-      ]
+      ],
+      "trigger": "main"
     },
     "Housekeeper-PerCommit-RunGnToBp": {
       "tasks": [
@@ -20069,6 +20071,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:aa47e6be98046ddf930042773df0bd2b768e3d99"
+        },
+        {
+          "name": "skia/bots/bazelisk",
+          "path": "bazelisk",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -20107,9 +20114,12 @@
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
-          "cipd_bin_packages/bin"
+          "cipd_bin_packages/bin",
+          "bazelisk"
         ]
       },
+      "execution_timeout_ns": 7200000000000,
+      "io_timeout_ns": 7200000000000,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-PushBazelAppsFromWASMDockerImage": {

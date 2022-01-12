@@ -223,7 +223,7 @@ func (b *jobBuilder) finish() {
 		b.trigger(specs.TRIGGER_NIGHTLY)
 	} else if b.frequency("Weekly") {
 		b.trigger(specs.TRIGGER_WEEKLY)
-	} else if b.extraConfig("Flutter", "CommandBuffer", "CreateDockerImage") {
+	} else if b.extraConfig("Flutter", "CommandBuffer", "CreateDockerImage", "PushAppsFromSkiaDockerImage", "PushBazelAppsFromWASMDockerImage") {
 		b.trigger(specs.TRIGGER_MAIN_ONLY)
 	} else if b.frequency("OnDemand") || b.role("Canary") {
 		b.trigger(specs.TRIGGER_ON_DEMAND)

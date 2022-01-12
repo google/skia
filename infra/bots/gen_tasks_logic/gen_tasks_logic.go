@@ -1107,12 +1107,14 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(false))
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "bazelisk")
 		b.cas(CAS_EMPTY)
+		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
 		b.cache(CACHES_DOCKER...)
+		b.timeout(2 * time.Hour)
 	})
 }
 
