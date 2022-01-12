@@ -1108,6 +1108,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// skia:10247
 		match = append(match, "~VkPrepareForExternalIOQueueTransitionTest")
 	}
+	if b.matchExtraConfig("Graphite") {
+                // skia:12813
+		match = append(match, "~async_rescale_and_read")
+        }
 
 	if len(skipped) > 0 {
 		args = append(args, "--skip")
