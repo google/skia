@@ -195,8 +195,12 @@ size_t SkScalerCache::prepareForMaskDrawing(
             if (digest.canDrawAsMask()) {
                 drawables->push_back(fGlyphForIndex[digest.index()], i);
             } else {
-                // Accumulate maximum dimensions for handling emoji scaling.
+                // Only collect dimensions of the color glyphs assuming that paths will take care
+                // of the large mask glyphs. This may be inaccurate in the very rare case where
+                // a bitmap only font is being used.
+                // N.B. this must have the same behavior as RemoteStrike::prepareForMaskDrawing.
                 if (digest.isColor()) {
+                    // Paths can't handle color, so these will fall to the drawing of last resort.
                     rejects->reject(i, digest.maxDimension());
                 } else {
                     rejects->reject(i);

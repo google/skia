@@ -489,8 +489,17 @@ void RemoteStrike::prepareForMaskDrawing(
         }
 
         // Reject things that are too big.
+        // Only collect dimensions of the color glyphs assuming that paths will take care
+        // of the large mask glyphs. This may be inaccurate in the very rare case where
+        // a bitmap only font is being used.
+        // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
         if (!digest->canDrawAsMask()) {
-            rejects->reject(i);
+            if (digest->isColor()) {
+                // Paths can't handle color, so these will fall to the drawing of last resort.
+                rejects->reject(i, digest->maxDimension());
+            } else {
+                rejects->reject(i);
+            }
         }
     }
 }
