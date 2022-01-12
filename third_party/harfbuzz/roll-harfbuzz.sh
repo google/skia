@@ -41,7 +41,7 @@ check_all_files_are_categorized() {
     cd -- "${HB_GIT_DIR}" &&
 
     HB_SOURCE_MISSING=false &&
-    find src/ -type f \( -name "hb-*.cc" -o -name "hb-*.h" -o -name "hb-*.hh" \) | while read HB_SOURCE
+    find src -type f \( -name "hb-*.cc" -o -name "hb-*.h" -o -name "hb-*.hh" \) | while read HB_SOURCE
     do
       if ! grep -qF "$HB_SOURCE" ${HB_BUILD_DIR_REL}/BUILD.gn; then
         if ! ${HB_SOURCE_MISSING}; then
