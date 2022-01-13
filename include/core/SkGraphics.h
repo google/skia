@@ -23,9 +23,6 @@ public:
      */
     static void Init();
 
-    // We're in the middle of cleaning this up.
-    static void Term() {}
-
     /**
      *  Return the max number of bytes that should be used by the font cache.
      *  If the cache needs to allocate more, it will purge previous entries.
