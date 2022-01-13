@@ -2159,6 +2159,9 @@ Result GraphiteSink::draw(const Src& src,
 
     skiatest::graphite::ContextFactory factory;
     auto [_, context] = factory.getContextInfo(fContextType);
+    if (!context) {
+        return Result::Fatal("Could not create a context.");
+    }
 
     if (fTestPrecompile) {
         precompile(context.get());
