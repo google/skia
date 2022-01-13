@@ -939,6 +939,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLMatrices") // skia:12456
 	}
 
+	// disable broken tests on Mali400 || Tegra3
+	if b.matchGpu("Mali400") || b.matchGpu("Tegra3") {
+		skip("_", "tests", "_", "SkSLMatrixScalarMath") // skia:12681
+	}
+
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
 		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179
 	}
