@@ -594,11 +594,12 @@ bool colrv1_configure_skpaint(FT_Face face,
 
             // Follow implementation note in nanoemoji:
             // https://github.com/googlefonts/nanoemoji/blob/0ac6e7bb4d8202db692574d8530a9b643f1b3b3c/src/nanoemoji/svg.py#L188
-            // to compute a new gradient end point as the orthogonal projection of the vector from p0 to p1 onto a line
-            // perpendicular to line p0p2 and passing through p0.
+            // to compute a new gradient end point P3 as the orthogonal
+            // projection of the vector from p0 to p1 onto a line perpendicular
+            // to line p0p2 and passing through p0.
             SkVector perpendicular_to_p2_p0 = (p2 - p0);
             perpendicular_to_p2_p0 = SkPoint::Make(perpendicular_to_p2_p0.y(), -perpendicular_to_p2_p0.x());
-            line_positions[1] = p0 + SkVectorProjection((p1 - p0), perpendicular_to_p2_p0);
+            SkVector p3 = p0 + SkVectorProjection((p1 - p0), perpendicular_to_p2_p0);
 
             std::vector<SkScalar> stops;
             std::vector<SkColor> colors;
@@ -613,15 +614,15 @@ bool colrv1_configure_skpaint(FT_Face face,
                 break;
             }
 
-            // Project/scale points according to stop extrema along p0p1 line,
-            // then scale stops to to [0, 1] range so that repeat modes work.
-            // The Skia linear gradient shader performs the repeat modes over
-            // the 0 to 1 range, that's why we need to scale the stops to within
-            // that range.
-            SkVector p0p1 = p1 - p0;
-            SkVector new_p0_offset = p0p1;
+            // Project/scale points according to stop extrema along p0p3 line,
+            // p3 being the result of the projection above, then scale stops to
+            // to [0, 1] range so that repeat modes work.  The Skia linear
+            // gradient shader performs the repeat modes over the 0 to 1 range,
+            // that's why we need to scale the stops to within that range.
+            SkVector p0p3 = p3 - p0;
+            SkVector new_p0_offset = p0p3;
             new_p0_offset.scale(stops.front());
-            SkVector new_p1_offset = p0p1;
+            SkVector new_p1_offset = p0p3;
             new_p1_offset.scale(stops.back());
 
             line_positions[0] = p0 + new_p0_offset;
