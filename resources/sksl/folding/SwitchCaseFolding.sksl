@@ -1,20 +1,20 @@
 uniform half4 colorRed, colorGreen;
 
-bool test(int one) {
+half4 main(float2 coords) {
+    half4 color = colorRed;
+
     const int three = 3;
     const int3 vecFour = int3(4);
-    switch (one) {
-        case vecFour.000x.y:      return false; // case 0
-        case int4(1, 2, 3, 4).x:  return true;  // case 1
-        case int(max(-5.5, 2.0)): return false; // case 2
-        case three:               return false; // case 3
-        case vecFour.yz01.x:      return false; // case 4
-        case 2 * 3 - 1:           return false; // case 5
-        default:                  return false;
+    switch (int(colorGreen.g)) {
+        case vecFour.000x.y:      break;                     // case 0
+        case int4(1, 2, 3, 4).x:  color = colorGreen; break; // case 1
+        case int(max(-5.5, 2.0)): break;                     // case 2
+        case three:               break;                     // case 3
+        case vecFour.yz01.x:      break;                     // case 4
+        case 2 * 3 - 1:           break;                     // case 5
+        default:                  break;
     }
-}
 
-half4 main(float2 coords) {
-    return test(int(colorGreen.g)) ? colorGreen : colorRed;
+    return color;
 }
 
