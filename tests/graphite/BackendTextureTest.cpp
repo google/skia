@@ -83,7 +83,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
     auto texture = context->createBackendTexture(kSize, info);
     REPORTER_ASSERT(reporter, texture.isValid());
 
-    sk_sp<SkSurface> surface = MakeGraphiteFromBackendTexture(recorder,
+    sk_sp<SkSurface> surface = MakeGraphiteFromBackendTexture(recorder.get(),
                                                               texture,
                                                               kRGBA_8888_SkColorType,
                                                               /*colorSpace=*/nullptr,
@@ -94,7 +94,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
 
     // We should fail when trying to wrap the same texture in a surface with a non compatible
     // color type.
-    surface = MakeGraphiteFromBackendTexture(recorder,
+    surface = MakeGraphiteFromBackendTexture(recorder.get(),
                                              texture,
                                              kAlpha_8_SkColorType,
                                              /*colorSpace=*/nullptr,
@@ -111,7 +111,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
     texture = context->createBackendTexture(kSize, info);
     REPORTER_ASSERT(reporter, texture.isValid());
 
-    surface = MakeGraphiteFromBackendTexture(recorder,
+    surface = MakeGraphiteFromBackendTexture(recorder.get(),
                                              texture,
                                              kRGBA_8888_SkColorType,
                                              /*colorSpace=*/nullptr,

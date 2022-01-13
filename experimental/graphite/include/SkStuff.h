@@ -20,7 +20,7 @@ namespace skgpu {
 }
 
 // TODO: Should be in SkSurface.h
-sk_sp<SkSurface> MakeGraphite(sk_sp<skgpu::Recorder>, const SkImageInfo&);
+sk_sp<SkSurface> MakeGraphite(skgpu::Recorder*, const SkImageInfo&);
 
 /**
  * Wraps a GPU-backed texture into SkSurface. Depending on the backend gpu API, the caller may be
@@ -37,7 +37,7 @@ sk_sp<SkSurface> MakeGraphite(sk_sp<skgpu::Recorder>, const SkImageInfo&);
  *
  * If SK_ENABLE_GRAPHITE is not defined, this has no effect and returns nullptr.
  */
-sk_sp<SkSurface> MakeGraphiteFromBackendTexture(sk_sp<skgpu::Recorder>,
+sk_sp<SkSurface> MakeGraphiteFromBackendTexture(skgpu::Recorder*,
                                                 const skgpu::BackendTexture&,
                                                 SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,

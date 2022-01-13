@@ -31,14 +31,17 @@ class Device final : public SkBaseDevice  {
 public:
     ~Device() override;
 
-    static sk_sp<Device> Make(sk_sp<Recorder>, const SkImageInfo&);
-    static sk_sp<Device> Make(sk_sp<Recorder>,
+    static sk_sp<Device> Make(Recorder*, const SkImageInfo&);
+    static sk_sp<Device> Make(Recorder*,
                               sk_sp<TextureProxy>,
                               sk_sp<SkColorSpace>,
                               SkColorType,
                               SkAlphaType);
 
-    sk_sp<Recorder> refRecorder() { return fRecorder; }
+    Recorder* recorder() { return fRecorder; }
+    // This call is triggered from the Recorder on its registered Devices. It is typically called
+    // when the Recorder is abandoned or deleted.
+    void abandonRecorder();
 
     bool readPixels(Context*, const SkPixmap& dst, int x, int y);
 
@@ -139,7 +142,7 @@ private:
     };
     SKGPU_DECL_MASK_OPS_FRIENDS(DrawFlags);
 
-    Device(sk_sp<Recorder>, sk_sp<DrawContext>);
+    Device(Recorder*, sk_sp<DrawContext>);
 
     // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
     // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.
@@ -166,7 +169,7 @@ private:
 
     bool needsFlushBeforeDraw(int numNewDraws) const;
 
-    sk_sp<Recorder> fRecorder;
+    Recorder* fRecorder;
     sk_sp<DrawContext> fDC;
 
     // Tracks accumulated intersections for ordering dependent use of the color and depth attachment

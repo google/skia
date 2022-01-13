@@ -19,8 +19,8 @@
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 
-sk_sp<SkSurface> MakeGraphite(sk_sp<skgpu::Recorder> recorder, const SkImageInfo& ii) {
-    sk_sp<skgpu::Device> device = skgpu::Device::Make(std::move(recorder), ii);
+sk_sp<SkSurface> MakeGraphite(skgpu::Recorder* recorder, const SkImageInfo& ii) {
+    sk_sp<skgpu::Device> device = skgpu::Device::Make(recorder, ii);
     if (!device) {
         return nullptr;
     }
@@ -46,7 +46,7 @@ static bool validate_backend_texture(const skgpu::Caps* caps,
     return true;
 }
 
-sk_sp<SkSurface> MakeGraphiteFromBackendTexture(sk_sp<skgpu::Recorder> recorder,
+sk_sp<SkSurface> MakeGraphiteFromBackendTexture(skgpu::Recorder* recorder,
                                                 const skgpu::BackendTexture& beTexture,
                                                 SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
@@ -71,7 +71,7 @@ sk_sp<SkSurface> MakeGraphiteFromBackendTexture(sk_sp<skgpu::Recorder> recorder,
 
     sk_sp<skgpu::TextureProxy> proxy(new skgpu::TextureProxy(std::move(texture)));
 
-    sk_sp<skgpu::Device> device = skgpu::Device::Make(std::move(recorder),
+    sk_sp<skgpu::Device> device = skgpu::Device::Make(recorder,
                                                       std::move(proxy),
                                                       std::move(colorSpace),
                                                       colorType,

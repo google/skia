@@ -12,6 +12,7 @@
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
+#include "experimental/graphite/src/Device.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/ResourceProvider.h"
@@ -27,7 +28,11 @@ Recorder::Recorder(sk_sp<Context> context)
                 fContext->priv().gpu()->caps()->requiredUniformBufferAlignment())) {
 }
 
-Recorder::~Recorder() {}
+Recorder::~Recorder() {
+    for (auto& device : fTrackedDevices) {
+        device->abandonRecorder();
+    }
+}
 
 Context* Recorder::context() const {
     return fContext.get();
@@ -55,5 +60,29 @@ std::unique_ptr<Recording> Recorder::snap() {
     fGraph.reset();
     return std::unique_ptr<Recording>(new Recording(std::move(commandBuffer)));
 }
+
+void Recorder::registerDevice(Device* device) {
+    fTrackedDevices.push_back(device);
+}
+
+void Recorder::deregisterDevice(const Device* device) {
+    for (auto it = fTrackedDevices.begin(); it != fTrackedDevices.end(); it++) {
+        if (*it == device) {
+            fTrackedDevices.erase(it);
+            return;
+        }
+    }
+}
+
+#if GR_TEST_UTILS
+bool Recorder::deviceIsRegistered(Device* device) {
+    for (auto& currentDevice : fTrackedDevices) {
+        if (device == currentDevice) {
+            return true;
+        }
+    }
+    return false;
+}
+#endif
 
 } // namespace skgpu
