@@ -8,7 +8,10 @@ http_archive(
     name = "emsdk",
     sha256 = "a2c5f3cf36525cf6a4b569f9d25500e3b2f7341c6e6779b54bcf4703b834202d",
     strip_prefix = "emsdk-3.1.0/bazel",
-    url = "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.0.tar.gz",
+    urls = [
+        "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.0.tar.gz",
+        "https://storage.googleapis.com/skia-world-readable/bazel/a2c5f3cf36525cf6a4b569f9d25500e3b2f7341c6e6779b54bcf4703b834202d.tar.gz",
+    ],
 )
 
 load("@emsdk//:deps.bzl", emsdk_deps = "deps")
@@ -28,8 +31,8 @@ http_archive(
     name = "bazel_skylib",
     sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
     urls = [
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
         "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
     ],
 )
 
@@ -40,7 +43,10 @@ bazel_skylib_workspace()
 http_archive(
     name = "rules_python",
     sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
+        "https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
+    ],
 )
 
 #######################################################################################

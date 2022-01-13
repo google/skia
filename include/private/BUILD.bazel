@@ -544,3 +544,29 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = ["//include/core:SkRefCnt_hdr"],
 )
+
+generated_cc_atom(
+    name = "SkPaintParamsKey_hdr",
+    hdrs = ["SkPaintParamsKey.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkTypes_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkShaderCodeDictionary_hdr",
+    hdrs = ["SkShaderCodeDictionary.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkPaintParamsKey_hdr",
+        ":SkSpinlock_hdr",
+        ":SkUniquePaintParamsID_hdr",
+        "//src/core:SkArenaAlloc_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkUniquePaintParamsID_hdr",
+    hdrs = ["SkUniquePaintParamsID.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkTypes_hdr"],
+)
