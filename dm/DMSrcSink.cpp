@@ -2164,7 +2164,7 @@ Result GraphiteSink::draw(const Src& src,
         precompile(context.get());
     }
 
-    sk_sp<skgpu::Recorder> recorder = context->createRecorder();
+    std::unique_ptr<skgpu::Recorder> recorder = context->makeRecorder();
     if (!recorder) {
         return Result::Fatal("Could not create a recorder.");
     }

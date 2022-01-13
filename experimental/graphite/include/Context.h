@@ -63,7 +63,7 @@ public:
 
     BackendApi backend() const { return fBackend; }
 
-    sk_sp<Recorder> createRecorder();
+    std::unique_ptr<Recorder> makeRecorder();
 
     void insertRecording(std::unique_ptr<Recording>);
     void submit(SyncToCpu = SyncToCpu::kNo);

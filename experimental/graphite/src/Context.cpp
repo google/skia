@@ -45,8 +45,8 @@ sk_sp<Context> Context::MakeMetal(const mtl::BackendContext& backendContext) {
 }
 #endif
 
-sk_sp<Recorder> Context::createRecorder() {
-    return sk_sp<Recorder>(new Recorder(sk_ref_sp(this)));
+std::unique_ptr<Recorder> Context::makeRecorder() {
+    return std::unique_ptr<Recorder>(new Recorder(sk_ref_sp(this)));
 }
 
 void Context::insertRecording(std::unique_ptr<Recording> recording) {

@@ -19,9 +19,9 @@ class DrawBufferManager;
 class Recording;
 class UniformCache;
 
-class Recorder final : public SkRefCnt {
+class Recorder final {
 public:
-    ~Recorder() override;
+    ~Recorder();
 
     void add(sk_sp<Task>);
 

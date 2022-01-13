@@ -73,7 +73,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
     // formats, color types, etc.
 
     auto caps = context->priv().gpu()->caps();
-    sk_sp<Recorder> recorder = context->createRecorder();
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
                                                           /*levelCount=*/1,

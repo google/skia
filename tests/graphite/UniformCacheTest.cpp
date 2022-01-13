@@ -41,7 +41,7 @@ sk_sp<UniformData> make_ud(int numUniforms, int dataSize) {
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformCacheTest, reporter, context) {
-    sk_sp<Recorder> recorder = context->createRecorder();
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     auto cache = recorder->uniformCache();
 
