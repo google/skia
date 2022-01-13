@@ -32,22 +32,26 @@ DEF_FUZZ(PolyUtils, fuzz) {
     bounds.setBoundsCheck(polygon, count);
 
     ignoreResult(SkGetPolygonWinding(polygon, count));
-    ignoreResult(SkIsConvexPolygon(polygon, count));
-    ignoreResult(SkIsSimplePolygon(polygon, count));
+    bool isConvex = SkIsConvexPolygon(polygon, count);
+    bool isSimple = SkIsSimplePolygon(polygon, count);
 
-    SkScalar inset;
-    fuzz->next(&inset);
     SkTDArray<SkPoint> output;
-    ignoreResult(SkInsetConvexPolygon(polygon, count, inset, &output));
-
-    SkScalar offset;
-    fuzz->next(&offset);
-    ignoreResult(SkOffsetSimplePolygon(polygon, count, bounds, offset, &output));
-
-    SkAutoSTMalloc<64, uint16_t> indexMap(count);
-    for (int index = 0; index < count; ++index) {
-        fuzz->next(&indexMap[index]);
+    if (isConvex) {
+        SkScalar inset;
+        fuzz->next(&inset);
+        ignoreResult(SkInsetConvexPolygon(polygon, count, inset, &output));
     }
-    SkTDArray<uint16_t> outputIndices;
-    ignoreResult(SkTriangulateSimplePolygon(polygon, indexMap, count, &outputIndices));
+
+    if (isSimple) {
+        SkScalar offset;
+        fuzz->next(&offset);
+        ignoreResult(SkOffsetSimplePolygon(polygon, count, bounds, offset, &output));
+
+        SkAutoSTMalloc<64, uint16_t> indexMap(count);
+        for (int index = 0; index < count; ++index) {
+            fuzz->next(&indexMap[index]);
+        }
+        SkTDArray<uint16_t> outputIndices;
+        ignoreResult(SkTriangulateSimplePolygon(polygon, indexMap, count, &outputIndices));
+    }
 }
