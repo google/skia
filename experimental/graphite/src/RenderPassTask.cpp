@@ -10,6 +10,7 @@
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/DrawPass.h"
+#include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
@@ -46,9 +47,9 @@ void RenderPassTask::addCommands(Context* context, CommandBuffer* commandBuffer)
     // Instantiate the target
     if (fTarget) {
         if (!fTarget->instantiate(resourceProvider)) {
-            SkDebugf("WARNING: given invalid texture proxy. Will not create renderpass!\n");
-            SkDebugf("Dimensions are (%d, %d).\n", fTarget->dimensions().width(),
-                     fTarget->dimensions().height());
+            SKGPU_LOG_W("Given invalid texture proxy. Will not create renderpass!");
+            SKGPU_LOG_W("Dimensions are (%d, %d).",
+                        fTarget->dimensions().width(), fTarget->dimensions().height());
             return;
         }
     }

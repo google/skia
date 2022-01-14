@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/mtl/MtlCommandBuffer.h"
 
+#include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/mtl/MtlBlitCommandEncoder.h"
 #include "experimental/graphite/src/mtl/MtlBuffer.h"
@@ -61,11 +62,10 @@ bool CommandBuffer::commit() {
 #endif
     [(*fCommandBuffer) commit];
 
-    // TODO: better error reporting
     if ((*fCommandBuffer).status == MTLCommandBufferStatusError) {
         NSString* description = (*fCommandBuffer).error.localizedDescription;
         const char* errorString = [description UTF8String];
-        SkDebugf("Error submitting command buffer: %s\n", errorString);
+        SKGPU_LOG_E("Failure submitting command buffer: %s", errorString);
     }
 
     return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
@@ -342,8 +342,8 @@ void CommandBuffer::onDrawIndexed(PrimitiveType type, unsigned int baseIndex,
                                                            indexOffset, 1, baseVertex, 0);
 
     } else {
-        // TODO: Do nothing, fatal failure, or just the regular graphite error reporting overhaul?
-        SkDebugf("[graphite] WARNING - Skipping unsupported draw call.\n");
+        // TODO: Do nothing, fatal failure, or just the regular graphite error reporting?
+        SKGPU_LOG_E("Skipping unsupported draw call.");
     }
 }
 
@@ -372,8 +372,8 @@ void CommandBuffer::onDrawIndexedInstanced(PrimitiveType type, unsigned int base
                                                            indexOffset, instanceCount,
                                                            baseVertex, baseInstance);
     } else {
-        // TODO: Do nothing, fatal failure, or just the regular graphite error reporting overhaul?
-        SkDebugf("[graphite] WARNING - Skipping unsupported draw call.\n");
+        // TODO: Do nothing, fatal failure, or just the regular graphite error reporting?
+        SKGPU_LOG_W("Skipping unsupported draw call.");
     }
 }
 

@@ -10,6 +10,7 @@
 #include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
+#include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
@@ -422,8 +423,7 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Context* context,
             [gpu->device() newRenderPipelineStateWithDescriptor:psoDescriptor.get()
                                                           error:&error]);
     if (!pso) {
-        SkDebugf("Pipeline creation failure\n");
-        SkDebugf("Errors:\n%s", error.debugDescription.UTF8String);
+        SKGPU_LOG_E("Pipeline creation failure:\n%s", error.debugDescription.UTF8String);
         return nullptr;
     }
 

@@ -18,6 +18,7 @@
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/Gpu.h"
+#include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
@@ -317,8 +318,7 @@ void Device::drawShape(const Shape& shape,
     Transform localToDevice(this->localToDevice44());
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.
-        // TBD: This warning should go through the general purpose graphite logging system
-        SkDebugf("[graphite] WARNING - Skipping draw with non-invertible/non-finite transform.\n");
+        SKGPU_LOG_W("Skipping draw with non-invertible/non-finite transform.");
         return;
     }
 
@@ -337,8 +337,7 @@ void Device::drawShape(const Shape& shape,
             this->drawShape(Shape(dst), paint, newStyle, flags | DrawFlags::kIgnorePathEffect);
             return;
         } else {
-            // TBD: This warning should go through the general purpose graphite logging system
-            SkDebugf("[graphite] WARNING - Path effect failed to apply, drawing original path.\n");
+            SKGPU_LOG_W("Path effect failed to apply, drawing original path.");
             this->drawShape(shape, paint, style, flags | DrawFlags::kIgnorePathEffect);
             return;
         }

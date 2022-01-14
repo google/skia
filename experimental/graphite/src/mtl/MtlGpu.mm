@@ -10,6 +10,7 @@
 #include "experimental/graphite/include/BackendTexture.h"
 #include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/mtl/MtlCommandBuffer.h"
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
 #include "experimental/graphite/src/mtl/MtlTexture.h"
@@ -21,11 +22,11 @@ sk_sp<skgpu::Gpu> Gpu::Make(const BackendContext& context) {
     if (@available(macOS 10.14, iOS 11.0, *)) {
         // no warning needed
     } else {
-        SkDebugf("*** Error ***: Skia's Graphite backend no longer supports this OS version.\n");
+        SKGPU_LOG_E("Skia's Graphite backend no longer supports this OS version.");
 #ifdef SK_BUILD_FOR_IOS
-        SkDebugf("Minimum supported version is iOS 11.0.\n");
+        SKGPU_LOG_E("Minimum supported version is iOS 11.0.");
 #else
-        SkDebugf("Minimum supported version is MacOS 10.14.\n");
+        SKGPU_LOG_E("Minimum supported version is MacOS 10.14.");
 #endif
         return nullptr;
     }

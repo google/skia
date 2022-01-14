@@ -10,6 +10,7 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GpuWorkSubmission.h"
+#include "experimental/graphite/src/Log.h"
 
 #include <memory>
 
@@ -40,8 +41,8 @@ public:
             [(*fCommandBuffer) waitUntilCompleted];
         }
         if (!this->isFinished()) {
-            SkDebugf("Unfinished command buffer status: %d\n",
-                     (int)(*fCommandBuffer).status);
+            SKGPU_LOG_E("Unfinished command buffer status: %d",
+                        (int)(*fCommandBuffer).status);
             SkASSERT(false);
         }
     }

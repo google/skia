@@ -57,6 +57,7 @@ skia_graphite_sources = [
   "$_src/GraphicsPipelineDesc.h",
   "$_src/Image_Graphite.cpp",
   "$_src/Image_Graphite.h",
+  "$_src/Log.h",
   "$_src/PaintParams.cpp",
   "$_src/PaintParams.h",
   "$_src/Recorder.cpp",
