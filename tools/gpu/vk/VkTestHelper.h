@@ -39,6 +39,7 @@ private:
     DECLARE_VK_PROC(DestroyInstance);
     DECLARE_VK_PROC(DeviceWaitIdle);
     DECLARE_VK_PROC(DestroyDevice);
+    DECLARE_VK_PROC(GetDeviceProcAddr);
 
     DECLARE_VK_PROC(GetPhysicalDeviceFormatProperties);
     DECLARE_VK_PROC(GetPhysicalDeviceMemoryProperties);

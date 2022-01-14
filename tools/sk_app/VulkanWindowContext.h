@@ -48,7 +48,7 @@ public:
     using CanPresentFn = sk_gpu_test::CanPresentFn;
 
     VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn,
-                        PFN_vkGetInstanceProcAddr, PFN_vkGetDeviceProcAddr);
+                        PFN_vkGetInstanceProcAddr);
 
 private:
     void initializeContext();
@@ -73,9 +73,7 @@ private:
     CreateVkSurfaceFn fCreateVkSurfaceFn;
     CanPresentFn      fCanPresentFn;
 
-    // Vulkan GetProcAddr functions
     PFN_vkGetInstanceProcAddr fGetInstanceProcAddr = nullptr;
-    PFN_vkGetDeviceProcAddr fGetDeviceProcAddr = nullptr;
 
     // WSI interface functions
     PFN_vkDestroySurfaceKHR fDestroySurfaceKHR = nullptr;

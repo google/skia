@@ -21,12 +21,12 @@ class GrVkExtensions;
 struct GrVkBackendContext;
 
 namespace sk_gpu_test {
-    bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr*, PFN_vkGetDeviceProcAddr*);
+    bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr*);
 
     using CanPresentFn = std::function<bool(VkInstance, VkPhysicalDevice,
                                             uint32_t queueFamilyIndex)>;
 
-    bool CreateVkBackendContext(GrVkGetProc getProc,
+    bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
                                 GrVkBackendContext* ctx,
                                 GrVkExtensions*,
                                 VkPhysicalDeviceFeatures2*,
