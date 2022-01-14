@@ -11,11 +11,14 @@
 
 #ifndef SK_GPU_TOOLS_VK_LIBRARY_NAME
     #if defined _WIN32
-        #define SK_GPU_TOOLS_VK_LIBRARY_NAME "vulkan-1.dll"
+        #define SK_GPU_TOOLS_VK_LIBRARY_NAME vulkan-1.dll
     #else
-        #define SK_GPU_TOOLS_VK_LIBRARY_NAME "libvulkan.so"
+        #define SK_GPU_TOOLS_VK_LIBRARY_NAME libvulkan.so
     #endif
 #endif
+
+#define STRINGIFY2(S) #S
+#define STRINGIFY(S) STRINGIFY2(S)
 
 #include <algorithm>
 
@@ -37,7 +40,7 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc) {
     static void* vkLib = nullptr;
     static PFN_vkGetInstanceProcAddr localInstProc = nullptr;
     if (!vkLib) {
-        vkLib = SkLoadDynamicLibrary(SK_GPU_TOOLS_VK_LIBRARY_NAME);
+        vkLib = SkLoadDynamicLibrary(STRINGIFY(SK_GPU_TOOLS_VK_LIBRARY_NAME));
         if (!vkLib) {
             return false;
         }

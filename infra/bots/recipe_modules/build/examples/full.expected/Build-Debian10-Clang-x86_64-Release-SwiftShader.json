@@ -56,8 +56,7 @@
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Release-SwiftShader/Release/swiftshader_out",
-      "libEGL_deprecated.so",
-      "libGLESv2_deprecated.so"
+      "vk_swiftshader"
     ],
     "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Release-SwiftShader/Release/swiftshader_out",
     "env": {
@@ -68,38 +67,6 @@
       "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
     },
     "name": "swiftshader ninja"
-  },
-  {
-    "cmd": [
-      "cp",
-      "libEGL_deprecated.so",
-      "libEGL.so"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Release-SwiftShader/Release/swiftshader_out",
-    "env": {
-      "CC": "[START_DIR]/clang_linux/bin/clang",
-      "CHROME_HEADLESS": "1",
-      "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
-      "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
-    },
-    "name": "rename legacy libEGL binary"
-  },
-  {
-    "cmd": [
-      "cp",
-      "libGLESv2_deprecated.so",
-      "libGLESv2.so"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Release-SwiftShader/Release/swiftshader_out",
-    "env": {
-      "CC": "[START_DIR]/clang_linux/bin/clang",
-      "CHROME_HEADLESS": "1",
-      "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
-      "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
-    },
-    "name": "rename legacy libGLESv2 binary"
   },
   {
     "cmd": [
@@ -136,7 +103,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Release-SwiftShader/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cc_wrapper=\"[START_DIR]/ccache_linux/bin/ccache\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DPLACEHOLDER_clang_linux_version=42\", \"-DGR_EGL_TRY_GLES3_THEN_GLES2\", \"-I[START_DIR]/cache/work/skia/third_party/externals/egl-registry/api\", \"-I[START_DIR]/cache/work/skia/third_party/externals/opengl-registry/api\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/lib\", \"-L[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Release-SwiftShader/Release/swiftshader_out\"] is_debug=false skia_use_egl=true target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cc_wrapper=\"[START_DIR]/ccache_linux/bin/ccache\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DPLACEHOLDER_clang_linux_version=42\", \"-DSK_GPU_TOOLS_VK_LIBRARY_NAME=[START_DIR]/[SWARM_OUT_DIR]/swiftshader_out/libvk_swiftshader.so\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/lib\"] is_debug=false skia_use_vulkan=true target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

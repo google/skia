@@ -178,7 +178,15 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	sampleCount := 0
 	glPrefix := ""
 	if b.extraConfig("SwiftShader") {
-		configs = append(configs, "gles", "glesdft", "glesdmsaa")
+		configs = append(configs, "vk", "vkdmsaa")
+		// skbug.com/12820
+		skip("_ gm _ ycbcrimage")
+		// skbug.com/12820
+		skip("_ test _ VkYCbcrSampler_DrawImageWithYcbcrSampler")
+		// skbug.com/12826
+		skip("_ test _ GrThreadSafeCache16Verts")
+		// skbug.com/12829
+		skip("_ test _ image_subset")
 	} else if b.cpu() {
 		args = append(args, "--nogpu")
 
