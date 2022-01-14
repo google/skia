@@ -752,11 +752,13 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Debian9":    DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
 			"Debian10":   DEFAULT_OS_LINUX_GCE,
 			"Mac":        DEFAULT_OS_MAC,
+			"Mac10.12":   "Mac-10.12",
 			"Mac10.13":   "Mac-10.13.6",
 			"Mac10.14":   "Mac-10.14.3",
 			"Mac10.15.1": "Mac-10.15.1",
 			"Mac10.15.7": "Mac-10.15.7", // Same as 'Mac', but explicit.
 			"Mac11":      "Mac-11.4",
+			"Mac12":      "Mac-12",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-19041",
@@ -848,6 +850,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"GCE":            "x86-64-Haswell_GCE",
 					"MacBookAir7.2":  "x86-64-i5-5350U",
 					"MacBookPro11.5": "x86-64-i7-4870HQ",
+					"MacMini7.1":     "x86-64-i5-4278U",
 					"NUC5i7RYH":      "x86-64-i7-5557U",
 				},
 				"AVX512": {
