@@ -3337,7 +3337,7 @@ export interface DebugTrace extends EmbindObject<DebugTrace> {
 }
 
 export interface TracedShader {
-    shader: RuntimeEffect;
+    shader: Shader;
     debugTrace: DebugTrace;
 }
 
@@ -3356,7 +3356,7 @@ export interface RuntimeEffectFactory {
      * @param traceCoordX - the X coordinate of the device-space pixel to trace
      * @param traceCoordY - the Y coordinate of the device-space pixel to trace
      */
-    MakeTraced(shader: RuntimeEffect, traceCoordX: number, traceCoordY: number): TracedShader;
+    MakeTraced(shader: Shader, traceCoordX: number, traceCoordY: number): TracedShader;
 }
 
 /**
