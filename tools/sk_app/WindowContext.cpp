@@ -10,6 +10,7 @@
 #include "include/gpu/GrDirectContext.h"
 #ifdef SK_GRAPHITE_ENABLED
 #include "experimental/graphite/include/Context.h"
+#include "experimental/graphite/include/Recorder.h"
 #endif
 
 namespace sk_app {

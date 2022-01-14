@@ -53,6 +53,8 @@ MTLPixelFormat SkColorTypeToFormat(SkColorType colorType) {
     switch (colorType) {
         case kRGBA_8888_SkColorType:
             return MTLPixelFormatRGBA8Unorm;
+        case kBGRA_8888_SkColorType:
+            return MTLPixelFormatBGRA8Unorm;
         case kAlpha_8_SkColorType:
             return MTLPixelFormatR8Unorm;
         case kRGBA_F16_SkColorType:

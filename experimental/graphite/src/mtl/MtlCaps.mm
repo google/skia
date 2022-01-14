@@ -339,17 +339,19 @@ UniqueKey Caps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc
 }
 
 bool Caps::onIsTexturable(const skgpu::TextureInfo& info) const {
-    return info.mtlTextureSpec().fUsage & MTLTextureUsageShaderRead &&
-           this->isTexturable((MTLPixelFormat)info.mtlTextureSpec().fFormat);
+    if (!(info.mtlTextureSpec().fUsage & MTLTextureUsageShaderRead)) {
+        return false;
+    }
+    if (info.mtlTextureSpec().fFramebufferOnly) {
+        return false;
+    }
+    return this->isTexturable((MTLPixelFormat)info.mtlTextureSpec().fFormat);
 }
 
 bool Caps::isTexturable(MTLPixelFormat format) const {
     // TODO: Fill out format table so that we can query all formats. For now we only support RGBA8
-    // which is supported everywhere.
-    if (format != MTLPixelFormatRGBA8Unorm) {
-        return false;
-    }
-    return true;
+    // and BGRA8 which is supported everywhere.
+    return format == MTLPixelFormatRGBA8Unorm || format == MTLPixelFormatBGRA8Unorm;
 }
 
 bool Caps::isRenderable(const skgpu::TextureInfo& info) const {
@@ -359,8 +361,9 @@ bool Caps::isRenderable(const skgpu::TextureInfo& info) const {
 
 bool Caps::isRenderable(MTLPixelFormat format, uint32_t numSamples) const {
     // TODO: Fill out format table so that we can query all formats. For now we only support RGBA8
-    // with a sampleCount of 1 which is supported everywhere.
-    if (format != MTLPixelFormatRGBA8Unorm || numSamples != 1) {
+    // and BGRA8 with a sampleCount of 1 which is supported everywhere.
+    if ((format != MTLPixelFormatRGBA8Unorm && format != MTLPixelFormatBGRA8Unorm) ||
+        numSamples != 1) {
         return false;
     }
     return true;
@@ -370,9 +373,11 @@ bool Caps::isRenderable(MTLPixelFormat format, uint32_t numSamples) const {
 bool Caps::onAreColorTypeAndTextureInfoCompatible(SkColorType type,
                                                   const skgpu::TextureInfo& info) const {
     // TODO: Fill out format table so that we can query all formats. For now we only support RGBA8
-    // for both the color type and format.
-    return type == kRGBA_8888_SkColorType &&
-           info.mtlTextureSpec().fFormat == MTLPixelFormatRGBA8Unorm;
+    // or BGRA8 for both the color type and format.
+    return (type == kRGBA_8888_SkColorType &&
+            info.mtlTextureSpec().fFormat == MTLPixelFormatRGBA8Unorm) ||
+           (type == kBGRA_8888_SkColorType &&
+            info.mtlTextureSpec().fFormat == MTLPixelFormatBGRA8Unorm);
 }
 
 } // namespace skgpu::mtl
