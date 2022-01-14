@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `CanvasKit.MakeWebGLCanvasSurface` or calling any factory that does not take a color space
    will now create a surface with a color space of `CanvasKit.ColorSpace.SRGB`.
 
+### Fixed
+ - Supplying textures via `CanvasKit.makeImageFromTextureSource` should not cause issues with
+   Mipmaps or other places where Skia needs to create textures (skbug.com/12797)
+
 ## [0.32.0] - 2021-12-15
 
 ### Breaking
