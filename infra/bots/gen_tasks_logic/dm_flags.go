@@ -950,6 +950,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU")
 		skip("_", "tests", "_", "SkSLSwitchWithFallthrough_GPU")
 		skip("_", "tests", "_", "SkSLSwitchWithLoops_GPU")
+		skip("_", "tests", "_", "SkSLSwitchCaseFolding_GPU")
 		skip("_", "tests", "_", "SkSLLoopFloat_GPU")
 		skip("_", "tests", "_", "SkSLLoopInt_GPU")
 	}
