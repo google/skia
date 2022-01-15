@@ -387,6 +387,10 @@ cc_test {
     srcs: [
         $nanobench_srcs
     ],
+
+    lto: {
+        never: true,
+    },
 }
 
 cc_library_shared {
