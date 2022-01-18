@@ -6,6 +6,9 @@
 
 #include "include/private/SkVx.h"
 #include "src/core/SkVM.h"
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    #include <immintrin.h>
+#endif
 
 template <int N>
 static inline skvx::Vec<N,int> gather32(const int* ptr, const skvx::Vec<N,int>& ix) {

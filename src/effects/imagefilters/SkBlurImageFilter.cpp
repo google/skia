@@ -31,6 +31,15 @@
 #endif // SK_GPU_V1
 #endif // SK_SUPPORT_GPU
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #include <immintrin.h>
+    #define SK_PREFETCH(ptr) _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
+#elif defined(__GNUC__)
+    #define SK_PREFETCH(ptr) __builtin_prefetch(ptr)
+#else
+    #define SK_PREFETCH(ptr)
+#endif
+
 namespace {
 
 class SkBlurImageFilter final : public SkImageFilter_Base {

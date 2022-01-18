@@ -372,14 +372,6 @@
 #  endif
 #endif
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
-    #define SK_PREFETCH(ptr) _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
-#elif defined(__GNUC__)
-    #define SK_PREFETCH(ptr) __builtin_prefetch(ptr)
-#else
-    #define SK_PREFETCH(ptr)
-#endif
-
 #ifndef SK_PRINTF_LIKE
 #  if defined(__clang__) || defined(__GNUC__)
 #    define SK_PRINTF_LIKE(A, B) __attribute__((format(printf, (A), (B))))

@@ -31,6 +31,10 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #include <immintrin.h>
+#endif
+
 namespace {
 
 enum class MorphType {
