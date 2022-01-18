@@ -23,6 +23,7 @@ class ConstructorArrayCast;
 class ConstructorCompound;
 class ConstructorMatrixResize;
 class DoStatement;
+class ExpressionStatement;
 class Extension;
 class FieldAccess;
 class ForStatement;
@@ -243,6 +244,8 @@ protected:
     void writeForStatement(const ForStatement& f);
 
     void writeDoStatement(const DoStatement& d);
+
+    void writeExpressionStatement(const ExpressionStatement& s);
 
     void writeSwitchStatement(const SwitchStatement& s);
 

@@ -21,7 +21,6 @@ bool for_inside_body_b() {
 }
 bool after_for_body_b() {
     for (int x = 0;x <= 10; ++x) {
-        true;
     }
     return true;
 }

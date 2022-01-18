@@ -2088,8 +2088,7 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
             this->writeBlock(s.as<Block>());
             break;
         case Statement::Kind::kExpression:
-            this->writeExpression(*s.as<ExpressionStatement>().expression(), Precedence::kTopLevel);
-            this->write(";");
+            this->writeExpressionStatement(s.as<ExpressionStatement>());
             break;
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
@@ -2192,6 +2191,13 @@ void MetalCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->write(" while (");
     this->writeExpression(*d.test(), Precedence::kTopLevel);
     this->write(");");
+}
+
+void MetalCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
+    if (s.expression()->hasSideEffects()) {
+        this->writeExpression(*s.expression(), Precedence::kTopLevel);
+        this->write(";");
+    }
 }
 
 void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
