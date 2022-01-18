@@ -14,9 +14,12 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVM.h"
 
+enum class SkBackend : uint8_t;
 struct GrFPArgs;
 class GrFragmentProcessor;
+class SkPaintParamsKey;
 class SkRuntimeEffect;
+class SkShaderCodeDictionary;
 
 /**
  * Encapsulates a blend function, including non-public APIs.
@@ -51,6 +54,11 @@ public:
 #endif
 
     virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
+
+    // TODO: make pure virtual
+    virtual void addToKey(SkShaderCodeDictionary*,
+                          SkBackend,
+                          SkPaintParamsKey*) const;
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
     Type getFlattenableType() const override { return GetFlattenableType(); }

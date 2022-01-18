@@ -11,7 +11,10 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 
+enum class SkBackend : uint8_t;
+class SkPaintParamsKey;
 class SkShader;
+class SkShaderCodeDictionary;
 
 namespace skgpu {
 
@@ -35,6 +38,10 @@ public:
     SkBlendMode blendMode() const { return fBlendMode; }
     SkShader* shader() const { return fShader.get(); }
     sk_sp<SkShader> refShader() const;
+
+    void toKey(SkShaderCodeDictionary*,
+               SkBackend,
+               SkPaintParamsKey*) const;
 
 private:
     SkColor4f       fColor;

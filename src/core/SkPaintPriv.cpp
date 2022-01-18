@@ -6,8 +6,11 @@
  */
 
 #include "include/core/SkPaint.h"
+#include "include/private/SkPaintParamsKey.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkXfermodePriv.h"
 #include "src/shaders/SkColorFilterShader.h"
@@ -118,4 +121,34 @@ SkScalar SkPaintPriv::ComputeResScaleForStroking(const SkMatrix& matrix) {
         }
     }
     return 1;
+}
+
+std::vector<SkPaintParamsKey> SkPaintPriv::ToKeys(const SkPaint& paint,
+                                                  SkShaderCodeDictionary* dict,
+                                                  SkBackend backend) {
+    std::vector<SkPaintParamsKey> keys;
+
+    // TODO: actually split the SkPaint into multiple PaintParams and generate the keys
+    // for them separately.
+    {
+        SkPaintParamsKey key;
+
+        if (paint.getShader()) {
+            as_SB(paint.getShader())->addToKey(dict, backend, &key);
+        } else {
+            SolidColorShaderBlock::AddToKey(&key);
+        }
+
+        if (paint.getBlender()) {
+            as_BB(paint.getBlender())->addToKey(dict, backend, &key);
+        } else {
+            BlendModeBlock::AddToKey(&key, SkBlendMode::kSrcOver);
+        }
+
+        SkASSERT(key.sizeInBytes() > 0);
+
+        keys.push_back(key);
+    }
+
+    return keys;
 }

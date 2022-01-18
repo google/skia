@@ -12,6 +12,12 @@
 #include <limits>
 #include "include/core/SkTypes.h"
 
+enum class SkBackend : uint8_t {
+    kGanesh,
+    kGraphite,
+    kSkVM
+};
+
 // TODO: this needs to be expanded into a more flexible dictionary (esp. for user-supplied SkSL)
 // TODO: should this enum actually be in ShaderCodeDictionary.h?
 enum class CodeSnippetID : uint8_t {
