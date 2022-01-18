@@ -24,9 +24,11 @@ enum class Priority : int {
 #endif
 #endif
 #define SKGPU_LOG(priority, fmt, ...) \
-    if (priority <= SKGPU_LOWEST_ACTIVE_PRIORITY) { \
-        SkDebugf("[graphite] " fmt "\n", ##__VA_ARGS__); \
-    }
+    do { \
+        if (priority <= SKGPU_LOWEST_ACTIVE_PRIORITY) { \
+            SkDebugf("[graphite] " fmt "\n", ##__VA_ARGS__); \
+        } \
+    } while (0)
 #define SKGPU_LOG_E(fmt, ...) SKGPU_LOG(skgpu::Priority::kError, "** ERROR ** " fmt, ##__VA_ARGS__)
 #define SKGPU_LOG_W(fmt, ...) SKGPU_LOG(skgpu::Priority::kWarning, "WARNING - " fmt, ##__VA_ARGS__)
 #define SKGPU_LOG_D(fmt, ...) SKGPU_LOG(skgpu::Priority::kDebug, fmt, ##__VA_ARGS__)
