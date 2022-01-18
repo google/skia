@@ -9,26 +9,34 @@
 
 #include "include/core/SkShader.h"
 #include "include/private/SkPaintParamsKey.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu {
 
 PaintParams::PaintParams(const SkColor4f& color,
-                         SkBlendMode blendMode,
+                         sk_sp<SkBlender> blender,
                          sk_sp<SkShader> shader)
         : fColor(color)
-        , fBlendMode(blendMode)
+        , fBlender(std::move(blender))
         , fShader(std::move(shader)) {}
 
 PaintParams::PaintParams(const SkPaint& paint)
         : fColor(paint.getColor4f())
-        , fBlendMode(paint.getBlendMode_or(SkBlendMode::kSrcOver))
+        , fBlender(paint.refBlender())
         , fShader(paint.refShader()) {}
 
 PaintParams::PaintParams(const PaintParams& other) = default;
 PaintParams::~PaintParams() = default;
 PaintParams& PaintParams::operator=(const PaintParams& other) = default;
+
+skstd::optional<SkBlendMode> PaintParams::asBlendMode() const {
+    return fBlender ? as_BB(fBlender)->asBlendMode()
+                    : SkBlendMode::kSrcOver;
+}
+
+sk_sp<SkBlender> PaintParams::refBlender() const { return fBlender; }
 
 sk_sp<SkShader> PaintParams::refShader() const { return fShader; }
 
@@ -42,9 +50,10 @@ void PaintParams::toKey(SkShaderCodeDictionary* dict,
         SolidColorShaderBlock::AddToKey(key);
     }
 
-    // TODO: add blender support to PaintParams
-    {
-        BlendModeBlock::AddToKey(key, fBlendMode);
+    if (fBlender) {
+        as_BB(fBlender)->addToKey(dict, backend, key);
+    } else {
+        BlendModeBlock::AddToKey(key, SkBlendMode::kSrcOver);
     }
 
     SkASSERT(key->sizeInBytes() > 0);

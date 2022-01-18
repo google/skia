@@ -26,7 +26,7 @@ namespace skgpu {
 // assumed to be anti-aliased.
 class PaintParams {
 public:
-    PaintParams(const SkColor4f& color, SkBlendMode, sk_sp<SkShader>);
+    PaintParams(const SkColor4f& color, sk_sp<SkBlender>, sk_sp<SkShader>);
     explicit PaintParams(const SkPaint&);
 
     PaintParams(const PaintParams&);
@@ -35,7 +35,11 @@ public:
     PaintParams& operator=(const PaintParams&);
 
     SkColor4f color() const { return fColor; }
-    SkBlendMode blendMode() const { return fBlendMode; }
+
+    skstd::optional<SkBlendMode> asBlendMode() const;
+    SkBlender* blender() const { return fBlender.get(); }
+    sk_sp<SkBlender> refBlender() const;
+
     SkShader* shader() const { return fShader.get(); }
     sk_sp<SkShader> refShader() const;
 
@@ -44,10 +48,10 @@ public:
                SkPaintParamsKey*) const;
 
 private:
-    SkColor4f       fColor;
-    SkBlendMode     fBlendMode;
-    sk_sp<SkShader> fShader; // For now only use SkShader::asAGradient() when converting to GPU
-    // TODO: Will also store ColorFilter, custom Blender, dither, and any extra shader from an
+    SkColor4f        fColor;
+    sk_sp<SkBlender> fBlender; // A nullptr here means SrcOver blending
+    sk_sp<SkShader>  fShader; // For now only use SkShader::asAGradient() when converting to GPU
+    // TODO: Will also store ColorFilter, dither, and any extra shader from an
     // active clipShader().
 };
 

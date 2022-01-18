@@ -45,14 +45,20 @@ namespace {
 
 static const SkStrokeRec kFillStyle(SkStrokeRec::kFill_InitStyle);
 
-bool paint_depends_on_dst(const PaintParams& paint) {
-    if (paint.blendMode() == SkBlendMode::kSrc || paint.blendMode() == SkBlendMode::kClear) {
+bool paint_depends_on_dst(const PaintParams& paintParams) {
+    skstd::optional<SkBlendMode> bm = paintParams.asBlendMode();
+    if (!bm.has_value()) {
+        return true;
+    }
+
+    if (bm.value() == SkBlendMode::kSrc || bm.value() == SkBlendMode::kClear) {
         // src and clear blending never depends on dst
         return false;
-    } else if (paint.blendMode() == SkBlendMode::kSrcOver) {
+    } else if (bm.value() == SkBlendMode::kSrcOver) {
         // src-over does not depend on dst if src is opaque (a = 1)
         // TODO: This will get more complicated when PaintParams has color filters and blenders
-        return !paint.color().isOpaque() || (paint.shader() && !paint.shader()->isOpaque());
+        return !paintParams.color().isOpaque() ||
+               (paintParams.shader() && !paintParams.shader()->isOpaque());
     } else {
         // TODO: Are their other modes that don't depend on dst that can be trivially detected?
         return true;

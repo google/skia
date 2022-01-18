@@ -16,6 +16,7 @@
 #include "include/core/SkPaint.h"
 #include "include/private/SkShaderCodeDictionary.h"
 #include "include/private/SkUniquePaintParamsID.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkKeyHelpers.h"
 
 namespace skgpu {
@@ -211,6 +212,9 @@ std::tuple<SkUniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context* 
     SkPaintParamsKey key;
     sk_sp<UniformData> uniforms;
 
+    auto dict = context->priv().shaderCodeDictionary();
+
+    // TODO: add UniformData generation to PaintParams::toKey and use it here
     if (auto s = p.shader()) {
         SkColor colors[kMaxStops];
         SkColor4f color4fs[kMaxStops];
@@ -289,7 +293,11 @@ std::tuple<SkUniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context* 
         uniforms = make_solid_uniform_data(p.color());
     }
 
-    BlendModeBlock::AddToKey(&key, p.blendMode());
+    if (p.blender()) {
+        as_BB(p.blender())->addToKey(dict, SkBackend::kGraphite, &key);
+    } else {
+        BlendModeBlock::AddToKey(&key, SkBlendMode::kSrcOver);
+    }
 
     auto entry = context->priv().shaderCodeDictionary()->findOrCreate(key);
 
