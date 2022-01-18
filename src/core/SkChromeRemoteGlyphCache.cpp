@@ -14,7 +14,6 @@
 #include <string>
 #include <tuple>
 
-#include "include/core/SkSerialProcs.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkChecksum.h"
@@ -36,27 +35,27 @@
 #include "src/gpu/text/GrSDFTControl.h"
 #endif
 
+namespace {
 // This essentially replaces the font_id used on the RendererSide with the font_id on the GPU side.
-static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
-                                               SkFontID font_id,
-                                               SkAutoDescriptor* ad) {
-    ad->reset(source_desc->getLength());
+SkDescriptor* auto_descriptor_from_desc(
+        const SkDescriptor* sourceDesc, SkFontID fontId, SkAutoDescriptor* ad) {
+    ad->reset(sourceDesc->getLength());
     auto* desc = ad->getDesc();
 
     // Rec.
     {
         uint32_t size;
-        auto ptr = source_desc->findEntry(kRec_SkDescriptorTag, &size);
+        auto ptr = sourceDesc->findEntry(kRec_SkDescriptorTag, &size);
         SkScalerContextRec rec;
         std::memcpy((void*)&rec, ptr, size);
-        rec.fFontID = font_id;
+        rec.fFontID = fontId;
         desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     }
 
     // Effects.
     {
         uint32_t size;
-        auto ptr = source_desc->findEntry(kEffects_SkDescriptorTag, &size);
+        auto ptr = sourceDesc->findEntry(kEffects_SkDescriptorTag, &size);
         if (ptr) { desc->addEntry(kEffects_SkDescriptorTag, size, ptr); }
     }
 
@@ -81,25 +80,25 @@ public:
 
     template <typename T, typename... Args>
     T* emplace(Args&&... args) {
-        auto result = allocate(sizeof(T), serialization_alignment<T>());
+        auto result = this->allocate(sizeof(T), serialization_alignment<T>());
         return new (result) T{std::forward<Args>(args)...};
     }
 
     template <typename T>
     void write(const T& data) {
-        T* result = (T*)allocate(sizeof(T), serialization_alignment<T>());
+        T* result = (T*)this->allocate(sizeof(T), serialization_alignment<T>());
         memcpy(result, &data, sizeof(T));
     }
 
     template <typename T>
     T* allocate() {
-        T* result = (T*)allocate(sizeof(T), serialization_alignment<T>());
+        T* result = (T*)this->allocate(sizeof(T), serialization_alignment<T>());
         return result;
     }
 
     void writeDescriptor(const SkDescriptor& desc) {
         write(desc.getLength());
-        auto result = allocate(desc.getLength(), alignof(SkDescriptor));
+        auto result = this->allocate(desc.getLength(), alignof(SkDescriptor));
         memcpy(result, &desc, desc.getLength());
     }
 
@@ -170,21 +169,16 @@ private:
     size_t fBytesRead = 0u;
 };
 
-bool SkFuzzDeserializeSkDescriptor(sk_sp<SkData> bytes, SkAutoDescriptor* ad) {
-    auto d = Deserializer(reinterpret_cast<const volatile char*>(bytes->data()), bytes->size());
-    return d.readDescriptor(ad);
-}
-
 // Paths use a SkWriter32 which requires 4 byte alignment.
 static const size_t kPathAlignment  = 4u;
 
 // -- StrikeSpec -----------------------------------------------------------------------------------
 struct StrikeSpec {
     StrikeSpec() = default;
-    StrikeSpec(SkFontID typefaceID_, SkDiscardableHandleId discardableHandleId_)
-            : typefaceID{typefaceID_}, discardableHandleId(discardableHandleId_) {}
-    SkFontID typefaceID = 0u;
-    SkDiscardableHandleId discardableHandleId = 0u;
+    StrikeSpec(SkFontID typefaceID, SkDiscardableHandleId discardableHandleId)
+            : fTypefaceID{typefaceID}, fDiscardableHandleId(discardableHandleId) {}
+    SkFontID fTypefaceID = 0u;
+    SkDiscardableHandleId fDiscardableHandleId = 0u;
     /* desc */
     /* n X (glyphs ids) */
 };
@@ -218,19 +212,6 @@ private:
     inline static constexpr int kMaxIndex = kMaxGlyphID * (1u << GID::kSubPixelPosLen);
     std::bitset<kMaxIndex> fBits;
 };
-
-// -- MapOps ---------------------------------------------------------------------------------------
-struct MapOps {
-    size_t operator()(const SkDescriptor* key) const;
-    bool operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const;
-};
-size_t MapOps::operator()(const SkDescriptor* key) const {
-    return key->getChecksum();
-}
-
-bool MapOps::operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
-    return *lhs == *rhs;
-}
 
 // -- RemoteStrike ----------------------------------------------------------------------------
 class RemoteStrike final : public SkStrikeForGPU {
@@ -346,7 +327,7 @@ RemoteStrike::RemoteStrike(
 
 // No need to write fForceBW because it is a flag private to SkScalerContext_DW, which will never
 // be called on the GPU side.
-static void writeGlyph(const SkGlyph& glyph, Serializer* serializer) {
+void write_glyph(const SkGlyph& glyph, Serializer* serializer) {
     serializer->write<SkPackedGlyphID>(glyph.getPackedID());
     serializer->write<float>(glyph.advanceX());
     serializer->write<float>(glyph.advanceY());
@@ -376,12 +357,12 @@ void RemoteStrike::writePendingGlyphs(Serializer* serializer) {
     // Write mask glyphs
     serializer->emplace<uint64_t>(fMasksToSend.size());
     for (SkGlyph& glyph : fMasksToSend) {
-        SkASSERT(SkMask::IsValidFormat(glyph.fMaskFormat));
+        SkASSERT(SkMask::IsValidFormat(glyph.maskFormat()));
 
-        writeGlyph(glyph, serializer);
+        write_glyph(glyph, serializer);
         auto imageSize = glyph.imageSize();
         if (imageSize > 0 && FitsInAtlas(glyph)) {
-            glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
+            glyph.setImage(serializer->allocate(imageSize, glyph.formatAlignment()));
             fContext->getImage(glyph);
         }
     }
@@ -390,10 +371,10 @@ void RemoteStrike::writePendingGlyphs(Serializer* serializer) {
     // Write glyphs paths.
     serializer->emplace<uint64_t>(fPathsToSend.size());
     for (SkGlyph& glyph : fPathsToSend) {
-        SkASSERT(SkMask::IsValidFormat(glyph.fMaskFormat));
+        SkASSERT(SkMask::IsValidFormat(glyph.maskFormat()));
 
-        writeGlyph(glyph, serializer);
-        writeGlyphPath(glyph, serializer);
+        write_glyph(glyph, serializer);
+        this->writeGlyphPath(glyph, serializer);
     }
     fPathsToSend.clear();
     fPathAlloc.reset();
@@ -541,20 +522,21 @@ void RemoteStrike::prepareForPathDrawing(
 // -- WireTypeface ---------------------------------------------------------------------------------
 struct WireTypeface {
     WireTypeface() = default;
-    WireTypeface(SkFontID typeface_id, int glyph_count, SkFontStyle style,
-                 bool is_fixed, bool needsCurrentColor)
-      : typefaceID(typeface_id), glyphCount(glyph_count), style(style),
-        isFixed(is_fixed), glyphMaskNeedsCurrentColor(needsCurrentColor) {}
+    WireTypeface(SkFontID typefaceId, int glyphCount, SkFontStyle style,
+                 bool isFixed, bool needsCurrentColor)
+      : fTypefaceID(typefaceId), fGlyphCount(glyphCount), fStyle(style),
+        fIsFixed(isFixed), fGlyphMaskNeedsCurrentColor(needsCurrentColor) {}
 
-    SkFontID        typefaceID{0};
-    int             glyphCount{0};
-    SkFontStyle     style;
-    bool            isFixed{false};
+    SkFontID        fTypefaceID{0};
+    int             fGlyphCount{0};
+    SkFontStyle     fStyle;
+    bool            fIsFixed{false};
     // Used for COLRv0 or COLRv1 fonts that may need the 0xFFFF special palette
     // index to represent foreground color. This information needs to be on here
     // to determine how this typeface can be cached.
-    bool            glyphMaskNeedsCurrentColor{false};
+    bool            fGlyphMaskNeedsCurrentColor{false};
 };
+}  // namespace
 
 // -- SkStrikeServerImpl ---------------------------------------------------------------------------
 class SkStrikeServerImpl final : public SkStrikeForGPUCacheInterface {
@@ -579,6 +561,14 @@ private:
 
     RemoteStrike* getOrCreateCache(const SkStrikeSpec& strikeSpec);
 
+    struct MapOps {
+        size_t operator()(const SkDescriptor* key) const {
+            return key->getChecksum();
+        }
+        bool operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
+            return *lhs == *rhs;
+        }
+    };
 
     using DescToRemoteStrike =
     std::unordered_map<const SkDescriptor*, std::unique_ptr<RemoteStrike>, MapOps, MapOps>;
@@ -968,7 +958,7 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         }
 
         // Get the local typeface from remote fontID.
-        auto* tfPtr = fRemoteFontIdToTypeface.find(spec.typefaceID);
+        auto* tfPtr = fRemoteFontIdToTypeface.find(spec.fTypefaceID);
         // Received strikes for a typeface which doesn't exist.
         if (!tfPtr) READ_FAILURE
         auto* tf = tfPtr->get();
@@ -977,12 +967,12 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         // side descriptor.
         // TODO: Can we do this in-place and re-compute checksum? Instead of a complete copy.
         SkAutoDescriptor ad;
-        auto* client_desc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
+        auto* clientDesc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
 
         #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
             msg.appendf("  Mapped descriptor:\n%s", client_desc->dumpRec().c_str());
         #endif
-        auto strike = fStrikeCache->findStrike(*client_desc);
+        auto strike = fStrikeCache->findStrike(*clientDesc);
         // Metrics are only sent the first time. If the metrics are not initialized, there must
         // be an existing strike.
         if (fontMetricsInitialized && strike == nullptr) READ_FAILURE
@@ -990,11 +980,11 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
             // Note that we don't need to deserialize the effects since we won't be generating any
             // glyphs here anyway, and the desc is still correct since it includes the serialized
             // effects.
-            SkStrikeSpec strikeSpec{*client_desc, *tfPtr};
+            SkStrikeSpec strikeSpec{*clientDesc, *tfPtr};
             strike = fStrikeCache->createStrike(
                     strikeSpec, &fontMetrics,
                     std::make_unique<DiscardableStrikePinner>(
-                            spec.discardableHandleId, fDiscardableHandleManager));
+                            spec.fDiscardableHandleId, fDiscardableHandleManager));
         }
 
         if (!deserializer.read<uint64_t>(&glyphImagesCount)) READ_FAILURE
@@ -1053,13 +1043,13 @@ sk_sp<SkTypeface> SkStrikeClientImpl::deserializeTypeface(const void* buf, size_
 }
 
 sk_sp<SkTypeface> SkStrikeClientImpl::addTypeface(const WireTypeface& wire) {
-    auto* typeface = fRemoteFontIdToTypeface.find(wire.typefaceID);
+    auto* typeface = fRemoteFontIdToTypeface.find(wire.fTypefaceID);
     if (typeface) return *typeface;
 
     auto newTypeface = sk_make_sp<SkTypefaceProxy>(
-            wire.typefaceID, wire.glyphCount, wire.style, wire.isFixed,
-            wire.glyphMaskNeedsCurrentColor, fDiscardableHandleManager, fIsLogging);
-    fRemoteFontIdToTypeface.set(wire.typefaceID, newTypeface);
+            wire.fTypefaceID, wire.fGlyphCount, wire.fStyle, wire.fIsFixed,
+            wire.fGlyphMaskNeedsCurrentColor, fDiscardableHandleManager, fIsLogging);
+    fRemoteFontIdToTypeface.set(wire.fTypefaceID, newTypeface);
     return std::move(newTypeface);
 }
 
@@ -1077,4 +1067,10 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
 
 sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
     return fImpl->deserializeTypeface(buf, len);
+}
+
+// -------------------------------------------------------------------------------------------------
+bool SkFuzzDeserializeSkDescriptor(sk_sp<SkData> bytes, SkAutoDescriptor* ad) {
+    auto d = Deserializer(reinterpret_cast<const volatile char*>(bytes->data()), bytes->size());
+    return d.readDescriptor(ad);
 }

@@ -382,12 +382,13 @@ public:
     void ensureIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                           SkScalar* array, int* count, SkArenaAlloc* alloc);
 
+    void setImage(void* image) { fImage = image; }
+
 private:
     // There are two sides to an SkGlyph, the scaler side (things that create glyph data) have
     // access to all the fields. Scalers are assumed to maintain all the SkGlyph invariants. The
     // consumer side has a tighter interface.
     friend class RandomScalerContext;
-    friend class RemoteStrike;
     friend class SkScalerContext;
     friend class SkScalerContextProxy;
     friend class SkScalerContext_Empty;

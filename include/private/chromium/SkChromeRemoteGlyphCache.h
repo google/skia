@@ -15,8 +15,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/utils/SkNoDrawCanvas.h"
 
-class Deserializer;
-class Serializer;
 class SkAutoDescriptor;
 struct SkPackedGlyphID;
 class SkStrikeCache;
