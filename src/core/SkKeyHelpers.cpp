@@ -13,9 +13,9 @@
 //--------------------------------------------------------------------------------------------------
 namespace DepthStencilOnlyBlock {
 
-void AddToKey(SkPaintParamsKey* key) {
-    int blockIndex = key->beginBlock(CodeSnippetID::kDepthStencilOnlyDraw);
-    key->endBlock(blockIndex, CodeSnippetID::kDepthStencilOnlyDraw);
+void AddToKey(SkBackend backend, SkPaintParamsKey* key) {
+    int headerOffset = key->beginBlock(CodeSnippetID::kDepthStencilOnlyDraw);
+    key->endBlock(headerOffset, CodeSnippetID::kDepthStencilOnlyDraw);
 }
 
 #ifdef SK_DEBUG
@@ -32,9 +32,9 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 //--------------------------------------------------------------------------------------------------
 namespace SolidColorShaderBlock {
 
-void AddToKey(SkPaintParamsKey* key) {
-    int blockIndex = key->beginBlock(CodeSnippetID::kSolidColorShader);
-    key->endBlock(blockIndex, CodeSnippetID::kSolidColorShader);
+void AddToKey(SkBackend backend, SkPaintParamsKey* key) {
+    int headerOffset = key->beginBlock(CodeSnippetID::kSolidColorShader);
+    key->endBlock(headerOffset, CodeSnippetID::kSolidColorShader);
 }
 
 #ifdef SK_DEBUG
@@ -51,34 +51,42 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 //--------------------------------------------------------------------------------------------------
 namespace GradientShaderBlocks {
 
-void AddToKey(SkPaintParamsKey *key, SkShader::GradientType type, SkTileMode tm) {
+void AddToKey(SkBackend backend,
+              SkPaintParamsKey *key,
+              SkShader::GradientType type,
+              SkTileMode tm) {
 
-    CodeSnippetID id = CodeSnippetID::kSolidColorShader;
-    switch (type) {
-        case SkShader::kLinear_GradientType:
-            id = CodeSnippetID::kLinearGradientShader;
-            break;
-        case SkShader::kRadial_GradientType:
-            id = CodeSnippetID::kRadialGradientShader;
-            break;
-        case SkShader::kSweep_GradientType:
-            id = CodeSnippetID::kSweepGradientShader;
-            break;
-        case SkShader::GradientType::kConical_GradientType:
-            id = CodeSnippetID::kConicalGradientShader;
-            break;
-        case SkShader::GradientType::kColor_GradientType:
-        case SkShader::GradientType::kNone_GradientType:
-        default:
-            SkASSERT(0);
-            break;
+    if (backend == SkBackend::kGraphite) {
+        CodeSnippetID codeSnippetID = CodeSnippetID::kSolidColorShader;
+        switch (type) {
+            case SkShader::kLinear_GradientType:
+                codeSnippetID = CodeSnippetID::kLinearGradientShader;
+                break;
+            case SkShader::kRadial_GradientType:
+                codeSnippetID = CodeSnippetID::kRadialGradientShader;
+                break;
+            case SkShader::kSweep_GradientType:
+                codeSnippetID = CodeSnippetID::kSweepGradientShader;
+                break;
+            case SkShader::GradientType::kConical_GradientType:
+                codeSnippetID = CodeSnippetID::kConicalGradientShader;
+                break;
+            case SkShader::GradientType::kColor_GradientType:
+            case SkShader::GradientType::kNone_GradientType:
+            default:
+                SkASSERT(0);
+                break;
+        }
+
+        int headerOffset = key->beginBlock(codeSnippetID);
+
+        key->addByte(static_cast<uint8_t>(tm));
+
+        key->endBlock(headerOffset, codeSnippetID);
+    } else {
+        // TODO: add implementation of other backends
+        SolidColorShaderBlock::AddToKey(backend, key);
     }
-
-    int blockIndex = key->beginBlock(id);
-
-    key->addByte(static_cast<uint8_t>(tm));
-
-    key->endBlock(blockIndex, id);
 }
 
 #ifdef SK_DEBUG
@@ -125,12 +133,12 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 //--------------------------------------------------------------------------------------------------
 namespace BlendModeBlock {
 
-void AddToKey(SkPaintParamsKey *key, SkBlendMode bm) {
-    int blockIndex = key->beginBlock(CodeSnippetID::kSimpleBlendMode);
+void AddToKey(SkBackend backend, SkPaintParamsKey *key, SkBlendMode bm) {
+    int headerOffset = key->beginBlock(CodeSnippetID::kSimpleBlendMode);
 
     key->addByte(static_cast<uint8_t>(bm));
 
-    key->endBlock(blockIndex, CodeSnippetID::kSimpleBlendMode);
+    key->endBlock(headerOffset, CodeSnippetID::kSimpleBlendMode);
 }
 
 #ifdef SK_DEBUG
@@ -151,31 +159,34 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 
 //--------------------------------------------------------------------------------------------------
 #ifdef SK_GRAPHITE_ENABLED
-SkPaintParamsKey CreateKey(skgpu::ShaderCombo::ShaderType s, SkTileMode tm, SkBlendMode bm) {
+SkPaintParamsKey CreateKey(SkBackend backend,
+                           skgpu::ShaderCombo::ShaderType s,
+                           SkTileMode tm,
+                           SkBlendMode bm) {
     SkPaintParamsKey key;
 
     switch (s) {
         case skgpu::ShaderCombo::ShaderType::kNone:
-            DepthStencilOnlyBlock::AddToKey(&key);
+            DepthStencilOnlyBlock::AddToKey(backend, &key);
             break;
         case skgpu::ShaderCombo::ShaderType::kSolidColor:
-            SolidColorShaderBlock::AddToKey(&key);
+            SolidColorShaderBlock::AddToKey(backend, &key);
             break;
         case skgpu::ShaderCombo::ShaderType::kLinearGradient:
-            GradientShaderBlocks::AddToKey(&key, SkShader::kLinear_GradientType, tm);
+            GradientShaderBlocks::AddToKey(backend, &key, SkShader::kLinear_GradientType, tm);
             break;
         case skgpu::ShaderCombo::ShaderType::kRadialGradient:
-            GradientShaderBlocks::AddToKey(&key, SkShader::kRadial_GradientType, tm);
+            GradientShaderBlocks::AddToKey(backend, &key, SkShader::kRadial_GradientType, tm);
             break;
         case skgpu::ShaderCombo::ShaderType::kSweepGradient:
-            GradientShaderBlocks::AddToKey(&key, SkShader::kSweep_GradientType, tm);
+            GradientShaderBlocks::AddToKey(backend, &key, SkShader::kSweep_GradientType, tm);
             break;
         case skgpu::ShaderCombo::ShaderType::kConicalGradient:
-            GradientShaderBlocks::AddToKey(&key, SkShader::kConical_GradientType, tm);
+            GradientShaderBlocks::AddToKey(backend, &key, SkShader::kConical_GradientType, tm);
             break;
     }
 
-    BlendModeBlock::AddToKey(&key, bm);
+    BlendModeBlock::AddToKey(backend, &key, bm);
     return key;
 }
 #endif

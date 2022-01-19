@@ -136,13 +136,13 @@ std::vector<SkPaintParamsKey> SkPaintPriv::ToKeys(const SkPaint& paint,
         if (paint.getShader()) {
             as_SB(paint.getShader())->addToKey(dict, backend, &key);
         } else {
-            SolidColorShaderBlock::AddToKey(&key);
+            SolidColorShaderBlock::AddToKey(backend, &key);
         }
 
         if (paint.getBlender()) {
             as_BB(paint.getBlender())->addToKey(dict, backend, &key);
         } else {
-            BlendModeBlock::AddToKey(&key, SkBlendMode::kSrcOver);
+            BlendModeBlock::AddToKey(backend, &key, SkBlendMode::kSrcOver);
         }
 
         SkASSERT(key.sizeInBytes() > 0);

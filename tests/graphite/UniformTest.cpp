@@ -83,7 +83,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
             }
 
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
-                SkPaintParamsKey expected = CreateKey(s, tm, bm);
+                SkPaintParamsKey expected = CreateKey(SkBackend::kGraphite, s, tm, bm);
 
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
                 auto [ actualID, ud] = ExtractPaintData(context, PaintParams(p));

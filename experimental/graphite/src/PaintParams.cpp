@@ -47,13 +47,13 @@ void PaintParams::toKey(SkShaderCodeDictionary* dict,
     if (fShader) {
         as_SB(fShader)->addToKey(dict, backend, key);
     } else {
-        SolidColorShaderBlock::AddToKey(key);
+        SolidColorShaderBlock::AddToKey(backend, key);
     }
 
     if (fBlender) {
         as_BB(fBlender)->addToKey(dict, backend, key);
     } else {
-        BlendModeBlock::AddToKey(key, SkBlendMode::kSrcOver);
+        BlendModeBlock::AddToKey(backend, key, SkBlendMode::kSrcOver);
     }
 
     SkASSERT(key->sizeInBytes() > 0);

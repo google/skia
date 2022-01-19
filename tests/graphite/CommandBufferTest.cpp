@@ -249,7 +249,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     TextureInfo textureInfo;
 #endif
 
-    SkPaintParamsKey key = CreateKey(ShaderCombo::ShaderType::kSolidColor,
+    SkPaintParamsKey key = CreateKey(SkBackend::kGraphite,
+                                     ShaderCombo::ShaderType::kSolidColor,
                                      SkTileMode::kClamp,
                                      SkBlendMode::kSrc);
 
