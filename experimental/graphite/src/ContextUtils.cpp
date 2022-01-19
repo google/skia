@@ -237,8 +237,7 @@ std::tuple<SkUniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context* 
 
                 GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
                                                &key,
-                                               type,
-                                               gradInfo.fTileMode);
+                                               { type, gradInfo.fTileMode, gradInfo.fColorCount });
 
                 uniforms = make_linear_gradient_uniform_data(gradInfo.fPoint[0],
                                                              gradInfo.fPoint[1],
@@ -251,8 +250,7 @@ std::tuple<SkUniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context* 
 
                 GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
                                                &key,
-                                               type,
-                                               gradInfo.fTileMode);
+                                               { type, gradInfo.fTileMode, gradInfo.fColorCount });
 
                 uniforms =  make_radial_gradient_uniform_data(gradInfo.fPoint[0],
                                                               gradInfo.fRadius[0],
@@ -265,8 +263,7 @@ std::tuple<SkUniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context* 
 
                 GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
                                                &key,
-                                               type,
-                                               gradInfo.fTileMode);
+                                               { type, gradInfo.fTileMode, gradInfo.fColorCount });
 
                 uniforms = make_sweep_gradient_uniform_data(gradInfo.fPoint[0],
                                                             color4fs,
@@ -278,8 +275,7 @@ std::tuple<SkUniquePaintParamsID, sk_sp<UniformData>> ExtractPaintData(Context* 
 
                 GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
                                                &key,
-                                               type,
-                                               gradInfo.fTileMode);
+                                               { type, gradInfo.fTileMode, gradInfo.fColorCount });
 
                 uniforms = make_conical_gradient_uniform_data(gradInfo.fPoint[0],
                                                               gradInfo.fPoint[1],

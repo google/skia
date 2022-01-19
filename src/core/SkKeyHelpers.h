@@ -42,7 +42,20 @@ namespace SolidColorShaderBlock {
 // TODO: move this functionality to the SkLinearGradient, SkRadialGradient, etc classes
 namespace GradientShaderBlocks {
 
-    void AddToKey(SkBackend, SkPaintParamsKey*, SkShader::GradientType, SkTileMode);
+    struct GradientData {
+        bool operator==(const GradientData& rhs) const {
+            return fType == rhs.fType &&
+                   fTM == rhs.fTM &&
+                   fNumStops == rhs.fNumStops;
+        }
+        bool operator!=(const GradientData& rhs) const { return !(*this == rhs); }
+
+        SkShader::GradientType fType;
+        SkTileMode             fTM;
+        int                    fNumStops;
+    };
+
+    void AddToKey(SkBackend, SkPaintParamsKey*, const GradientData&);
 #ifdef SK_DEBUG
     void Dump(const SkPaintParamsKey&, int headerOffset);
 #endif

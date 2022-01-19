@@ -46,6 +46,7 @@ static constexpr int kCodeSnippetIDCount = static_cast<int>(CodeSnippetID::kLast
 class SkPaintParamsKey {
 public:
     static const int kBlockHeaderSizeInBytes = 2;
+    static const int kBlockSizeOffsetInBytes = 1; // offset to the block size w/in the header
 
     // Block headers have the following structure:
     //  1st byte: codeSnippetID
