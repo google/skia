@@ -21,6 +21,7 @@ class Block;
 class ConstructorDiagonalMatrix;
 class ConstructorScalarCast;
 class DoStatement;
+class ExpressionStatement;
 class Extension;
 class FieldAccess;
 class ForStatement;
@@ -158,6 +159,8 @@ protected:
     void writeForStatement(const ForStatement& f);
 
     void writeDoStatement(const DoStatement& d);
+
+    void writeExpressionStatement(const ExpressionStatement& s);
 
     virtual void writeSwitchStatement(const SwitchStatement& s);
 

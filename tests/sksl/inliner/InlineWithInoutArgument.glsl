@@ -19,8 +19,5 @@ vec4 main() {
     outParameterWriteIndirect_vh4(c);
     inoutParameterWrite_vh4(c);
     inoutParameterWriteIndirect_vh4(c);
-    false;
-    false;
-    false;
     return c;
 }

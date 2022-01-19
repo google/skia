@@ -1225,8 +1225,7 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
             this->writeBlock(s.as<Block>());
             break;
         case Statement::Kind::kExpression:
-            this->writeExpression(*s.as<ExpressionStatement>().expression(), Precedence::kTopLevel);
-            this->write(";");
+            this->writeExpressionStatement(s.as<ExpressionStatement>());
             break;
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
@@ -1382,6 +1381,13 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->finishLine();
     fIndentation--;
     this->write("}");
+}
+
+void GLSLCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
+    if (s.expression()->hasSideEffects()) {
+        this->writeExpression(*s.expression(), Precedence::kTopLevel);
+        this->write(";");
+    }
 }
 
 void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
