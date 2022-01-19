@@ -12,6 +12,8 @@
 
 #include <sstream>
 
+static constexpr char kTraceVersion[] = "20220119a";
+
 namespace SkSL {
 
 std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const {
@@ -191,6 +193,7 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
     SkJSONWriter json(w);
 
     json.beginObject(); // root
+    json.appendString("version", kTraceVersion);
     json.beginArray("source");
 
     for (const std::string& line : fSource) {
@@ -258,6 +261,11 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
     skjson::DOM json(reinterpret_cast<const char*>(data->bytes()), data->size());
     const skjson::ObjectValue* root = json.root();
     if (!root) {
+        return false;
+    }
+
+    const skjson::StringValue* version = (*root)["version"];
+    if (!version || version->str() != kTraceVersion) {
         return false;
     }
 

@@ -58,11 +58,11 @@ DEF_TEST(SkVMDebugTraceWrite, r) {
     sk_sp<SkData> trace = wstream.detachAsData();
 
     static constexpr char kExpected[] =
-            R"({"source":["\t// first line","// \"second line\"","//\\\\//\\\\ third line"],"sl)"
-            R"(ots":[{"slot":0,"name":"SkVM_DebugTrace","columns":1,"rows":2,"index":3,"kind":4)"
-            R"(,"line":5},{"slot":1,"name":"Unit_Test","columns":6,"rows":7,"index":8,"kind":9,)"
-            R"("line":10,"retval":11}],"functions":[{"slot":0,"name":"void testFunc();"}],"trac)"
-            R"(e":[[2],[0,5],[1,10,15],[3,20]]})";
+            R"({"version":"20220119a","source":["\t// first line","// \"second line\"","//\\\\//)"
+            R"(\\\\ third line"],"slots":[{"slot":0,"name":"SkVM_DebugTrace","columns":1,"rows":)"
+            R"(2,"index":3,"kind":4,"line":5},{"slot":1,"name":"Unit_Test","columns":6,"rows":7,)"
+            R"("index":8,"kind":9,"line":10,"retval":11}],"functions":[{"slot":0,"name":"void te)"
+            R"(stFunc();"}],"trace":[[2],[0,5],[1,10,15],[3,20]]})";
 
     skstd::string_view actual{reinterpret_cast<const char*>(trace->bytes()), trace->size()};
 
@@ -73,11 +73,11 @@ DEF_TEST(SkVMDebugTraceWrite, r) {
 
 DEF_TEST(SkVMDebugTraceRead, r) {
     const skstd::string_view kJSONTrace =
-            R"({"source":["\t// first line","// \"second line\"","//\\\\//\\\\ third line"],"sl)"
-            R"(ots":[{"slot":0,"name":"SkVM_DebugTrace","columns":1,"rows":2,"index":3,"kind":4)"
-            R"(,"line":5},{"slot":1,"name":"Unit_Test","columns":6,"rows":7,"index":8,"kind":9,)"
-            R"("line":10,"retval":11}],"functions":[{"slot":0,"name":"void testFunc();"}],"trac)"
-            R"(e":[[2],[0,5],[1,10,15],[3,20]]})";
+            R"({"version":"20220119a","source":["\t// first line","// \"second line\"","//\\\\//)"
+            R"(\\\\ third line"],"slots":[{"slot":0,"name":"SkVM_DebugTrace","columns":1,"rows":)"
+            R"(2,"index":3,"kind":4,"line":5},{"slot":1,"name":"Unit_Test","columns":6,"rows":7,)"
+            R"("index":8,"kind":9,"line":10,"retval":11}],"functions":[{"slot":0,"name":"void te)"
+            R"(stFunc();"}],"trace":[[2],[0,5],[1,10,15],[3,20]]})";
 
     SkMemoryStream stream(kJSONTrace.data(), kJSONTrace.size(), /*copyData=*/false);
     SkSL::SkVMDebugTrace i;
