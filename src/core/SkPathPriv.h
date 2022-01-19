@@ -460,7 +460,7 @@ public:
         bool            fIsNewContour;
 
         // Returns true when it holds an Edge, false when the path is done.
-        operator bool() { return fPts != nullptr; }
+        explicit operator bool() { return fPts != nullptr; }
     };
 
     Result next() {

@@ -31,7 +31,7 @@ struct ProgramBuilder {
         }
     }
 
-    operator bool() const { return fProgram != nullptr; }
+    explicit operator bool() const { return fProgram != nullptr; }
     SkSL::Program& operator*() { return *fProgram; }
 
     SkSL::ShaderCaps fCaps;

@@ -29,7 +29,7 @@ public:
     GrSurfaceProxyView(GrSurfaceProxyView&& view) = default;
     GrSurfaceProxyView(const GrSurfaceProxyView&) = default;
 
-    operator bool() const { return SkToBool(fProxy.get()); }
+    explicit operator bool() const { return SkToBool(fProxy.get()); }
 
     GrSurfaceProxyView& operator=(const GrSurfaceProxyView&) = default;
     GrSurfaceProxyView& operator=(GrSurfaceProxyView&& view) = default;

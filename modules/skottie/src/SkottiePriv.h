@@ -276,7 +276,7 @@ private:
             }
         }
 
-        operator bool() const { return !!fInfo; }
+        explicit operator bool() const { return !!fInfo; }
 
         const skjson::ObjectValue& operator*() const { return *fInfo->fAsset; }
 

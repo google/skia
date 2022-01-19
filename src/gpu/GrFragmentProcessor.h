@@ -619,7 +619,7 @@ public:
         ProgramImpl& operator*() const;
         ProgramImpl* operator->() const;
         Iter& operator++();
-        operator bool() const { return !fFPStack.empty(); }
+        explicit operator bool() const { return !fFPStack.empty(); }
 
         // Because each iterator carries a stack we want to avoid copies.
         Iter(const Iter&) = delete;

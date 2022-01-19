@@ -18,7 +18,7 @@ namespace skgpu {
 
 struct BufferWriter {
 public:
-    operator bool() const { return fPtr != nullptr; }
+    explicit operator bool() const { return fPtr != nullptr; }
 
 protected:
     BufferWriter() = default;

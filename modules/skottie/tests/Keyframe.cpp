@@ -30,7 +30,7 @@ public:
         fDidBind = this->bind(abuilder, json_dom.root(), &fValue);
     }
 
-    operator bool() const { return fDidBind; }
+    explicit operator bool() const { return fDidBind; }
 
     const T& operator()(float t) { this->seek(t); return fValue; }
 
