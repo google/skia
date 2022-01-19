@@ -135,8 +135,8 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int lin
         scope.push_back(std::move(initializer));
         scope.push_back(ForStatement::Make(context, line, /*initializer=*/nullptr,
                                            std::move(test), std::move(next), std::move(statement),
-                                           std::move(unrollInfo), std::move(symbolTable)));
-        return Block::Make(line, std::move(scope));
+                                           std::move(unrollInfo), /*symbolTable=*/nullptr));
+        return Block::Make(line, std::move(scope), std::move(symbolTable));
     }
 
     return ForStatement::Make(context, line, std::move(initializer), std::move(test),
