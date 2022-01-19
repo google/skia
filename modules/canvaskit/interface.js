@@ -1185,7 +1185,7 @@ CanvasKit.MakeImageFromCanvasImageSource = function(canvasImageSource) {
   memoizedCanvas2dElement.width = width;
   memoizedCanvas2dElement.height = height;
 
-  var ctx2d = memoizedCanvas2dElement.getContext('2d');
+  var ctx2d = memoizedCanvas2dElement.getContext('2d', {willReadFrequently: true});
   ctx2d.drawImage(canvasImageSource, 0, 0);
 
   var imageData = ctx2d.getImageData(0, 0, width, height);
