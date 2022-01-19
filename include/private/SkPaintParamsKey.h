@@ -45,6 +45,8 @@ static constexpr int kCodeSnippetIDCount = static_cast<int>(CodeSnippetID::kLast
 // block field. The rest of the data in the block is dependent on the individual code snippet.
 class SkPaintParamsKey {
 public:
+    static const int kBlockHeaderSizeInBytes = 2;
+
     // Block headers have the following structure:
     //  1st byte: codeSnippetID
     //  2nd byte: total blockSize in bytes
@@ -54,7 +56,7 @@ public:
 
         this->addByte((uint8_t) codeSnippetID);
         this->addByte(0); // this needs to be patched up with a call to endBlock
-        return fNumBytes - 2;
+        return fNumBytes - kBlockHeaderSizeInBytes;
     }
 
     // Update the size byte of a block header
@@ -66,7 +68,7 @@ public:
     }
 
     std::pair<CodeSnippetID, uint8_t> readCodeSnippetID(int headerOffset) const {
-        SkASSERT(headerOffset < kMaxKeySize - 2);
+        SkASSERT(headerOffset < kMaxKeySize - kBlockHeaderSizeInBytes);
 
         CodeSnippetID id = static_cast<CodeSnippetID>(fData[headerOffset]);
         uint8_t blockSize = fData[headerOffset+1];
@@ -82,6 +84,7 @@ public:
     }
 
 #ifdef SK_DEBUG
+    static int DumpBlock(const SkPaintParamsKey&, int headerOffset);
     void dump() const;
 #endif
 
@@ -97,6 +100,8 @@ private:
     static const int kMaxKeySize = 32;
     static const int kMaxBlockSize = std::numeric_limits<uint8_t>::max();
 
+    // TODO: It is probably overkill but we could encode the SkBackend in the first byte of
+    // the key.
     int fNumBytes = 0;
     std::array<uint8_t, kMaxKeySize> fData;
 };
