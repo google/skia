@@ -767,7 +767,6 @@ def base_defines(os_conditions):
             # IOS
             [
                 "SK_BUILD_FOR_IOS",
-                "SKNX_NO_SIMD",
                 "SK_NO_COMMAND_BUFFER",  # Test tools that use thread_local.
                 "SK_GL",
             ],
