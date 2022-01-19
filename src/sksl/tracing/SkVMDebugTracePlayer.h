@@ -59,6 +59,9 @@ public:
     /** Retrieves the current line. */
     int32_t getCurrentLine() const;
 
+    /** Retrieves the current line for a given stack frame. */
+    int32_t getCurrentLineInStackFrame(int stackFrameIndex) const;
+
     /** Returns the call stack as an array of FunctionInfo indices. */
     std::vector<int> getCallStack() const;
 
@@ -91,7 +94,7 @@ private:
     /**
      * Cleans up temporary state between steps, such as the dirty mask and function return values.
      */
-    void tidy();
+    void tidyState();
 
     /** Updates fWriteTime for the entire variable at a given slot. */
     void updateVariableWriteTime(int slotIdx, size_t writeTime);

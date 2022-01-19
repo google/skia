@@ -39,7 +39,7 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
 }
 
 void SkVMDebugTracePlayer::step() {
-    this->tidy();
+    this->tidyState();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++)) {
             break;
@@ -48,7 +48,7 @@ void SkVMDebugTracePlayer::step() {
 }
 
 void SkVMDebugTracePlayer::stepOver() {
-    this->tidy();
+    this->tidyState();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
         bool canEscapeFromThisStackDepth = (fStack.size() <= initialStackDepth);
@@ -61,7 +61,7 @@ void SkVMDebugTracePlayer::stepOver() {
 }
 
 void SkVMDebugTracePlayer::stepOut() {
-    this->tidy();
+    this->tidyState();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++)) {
@@ -74,7 +74,7 @@ void SkVMDebugTracePlayer::stepOut() {
 }
 
 void SkVMDebugTracePlayer::run() {
-    this->tidy();
+    this->tidyState();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++)) {
             if (this->atBreakpoint()) {
@@ -84,7 +84,7 @@ void SkVMDebugTracePlayer::run() {
     }
 }
 
-void SkVMDebugTracePlayer::tidy() {
+void SkVMDebugTracePlayer::tidyState() {
     fDirtyMask->reset();
 
     // Conceptually this is `fStack.back().fDisplayMask &= ~fReturnValues`, but SkBitSet doesn't
@@ -101,6 +101,15 @@ bool SkVMDebugTracePlayer::traceHasCompleted() const {
 int32_t SkVMDebugTracePlayer::getCurrentLine() const {
     SkASSERT(!fStack.empty());
     return fStack.back().fLine;
+}
+
+int32_t SkVMDebugTracePlayer::getCurrentLineInStackFrame(int stackFrameIndex) const {
+    // The first entry on the stack is the "global" frame before we enter main, so offset our index
+    // by one to account for it.
+    ++stackFrameIndex;
+    SkASSERT(stackFrameIndex > 0);
+    SkASSERT((size_t)stackFrameIndex < fStack.size());
+    return fStack[stackFrameIndex].fLine;
 }
 
 bool SkVMDebugTracePlayer::atBreakpoint() const {

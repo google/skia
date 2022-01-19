@@ -213,11 +213,14 @@ int main() {                    // Line 8
     player.step();
 
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main()");
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
     REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
     player.step();
 
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> int fnA()");
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(1) == 6);
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
     REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
     player.step();
@@ -225,6 +228,9 @@ int main() {                    // Line 8
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> int fnA() -> int fnB()");
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
     REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(1) == 6);
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(2) == 3);
     player.step();
 
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> int fnA()");
@@ -699,4 +705,3 @@ int main() {          // Line 8
     player.stepOut();
     REPORTER_ASSERT(r, player.getCurrentLine() == 6);
 }
-
