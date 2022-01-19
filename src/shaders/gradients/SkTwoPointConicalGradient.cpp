@@ -229,7 +229,7 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
 
     if (fType == Type::kStrip) {
         float r = fRadius1 / this->getCenterX1();
-        skvm::F32 t = x + sqrt(p->splat(r*r) - y*y);
+        skvm::F32 t = x + sqrt(p->uniformF(uniforms->pushF(r*r)) - y*y);
 
         *mask = (t == t);   // t != NaN
         return t;
