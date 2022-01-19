@@ -179,19 +179,21 @@ static void check_vector(skiatest::Reporter* reporter, const Value& v, size_t ex
 static void check_string(skiatest::Reporter* reporter, const Value& v, const char* s) {
     check_vector<StringValue>(reporter, v, s ? strlen(s) : 0, !!s);
     if (s) {
+        REPORTER_ASSERT(reporter, v.as<StringValue>().str() == s);
         REPORTER_ASSERT(reporter, !strcmp(v.as<StringValue>().begin(), s));
     }
 }
 
 DEF_TEST(JSON_DOM_visit, reporter) {
-    static constexpr char json[] = "{ \n\
-        \"k1\": null,                \n\
-        \"k2\": false,               \n\
-        \"k3\": true,                \n\
-        \"k4\": 42,                  \n\
-        \"k5\": .75,                 \n\
-        \"k6\": \"foo\",             \n\
-        \"k7\": [ 1, true, \"bar\" ], \n\
+    static constexpr char json[] = "{     \n\
+        \"k1\": null,                     \n\
+        \"k2\": false,                    \n\
+        \"k3\": true,                     \n\
+        \"k4\": 42,                       \n\
+        \"k5\": .75,                      \n\
+        \"k6\": \"foo\",                  \n\
+        \"k6b\": \"this string is long\", \n\
+        \"k7\": [ 1, true, \"bar\" ],     \n\
         \"k8\": { \"kk1\": 2, \"kk2\": false, \"kk1\": \"baz\" } \n\
     }";
 
@@ -268,6 +270,18 @@ DEF_TEST(JSON_DOM_visit, reporter) {
         check_primitive<float, NumberValue>(reporter, v, 0, false);
 
         check_string(reporter, v, "foo");
+        check_vector<ArrayValue >(reporter, v, 0, false);
+        check_vector<ObjectValue>(reporter, v, 0, false);
+    }
+
+    {
+        const auto& v = jroot["k6b"];
+        REPORTER_ASSERT(reporter, !v.is<NullValue>());
+
+        check_primitive<bool, BoolValue>(reporter, v, false, false);
+        check_primitive<float, NumberValue>(reporter, v, 0, false);
+
+        check_string(reporter, v, "this string is long");
         check_vector<ArrayValue >(reporter, v, 0, false);
         check_vector<ObjectValue>(reporter, v, 0, false);
     }

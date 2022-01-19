@@ -8,6 +8,7 @@
 #ifndef SkJSON_DEFINED
 #define SkJSON_DEFINED
 
+#include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTo.h"
@@ -313,6 +314,10 @@ public:
         return this->getTag() == Tag::kShortString
             ? strchr(this->cast<char>(), '\0')
             : this->cast<VectorValue<char, Value::Type::kString>>()->end();
+    }
+
+    skstd::string_view str() const {
+        return skstd::string_view(this->begin(), this->size());
     }
 };
 
