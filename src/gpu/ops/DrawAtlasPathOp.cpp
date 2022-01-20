@@ -192,7 +192,7 @@ void DrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
         SkASSERT(fProgram);
     }
 
-    if (VertexWriter instanceWriter = flushState->makeVertexSpace(
+    if (VertexWriter instanceWriter = flushState->makeVertexWriter(
                 fProgram->geomProc().instanceStride(), fInstanceCount, &fInstanceBuffer,
                 &fBaseInstance)) {
         for (const Instance* i = fHeadInstance; i; i = i->fNext) {

@@ -24,10 +24,10 @@ bool GrVertexChunkBuilder::allocChunk(int minCount) {
     fCurrChunkVertexCount = 0;
     GrVertexChunk* chunk = &fChunks->push_back();
     int minAllocCount = std::max(minCount, fMinVerticesPerChunk);
-    fCurrChunkVertexWriter = {fTarget->makeVertexSpaceAtLeast(fStride, minAllocCount,
-                                                                minAllocCount, &chunk->fBuffer,
-                                                                &chunk->fBase,
-                                                                &fCurrChunkVertexCapacity)};
+    fCurrChunkVertexWriter = fTarget->makeVertexWriterAtLeast(fStride, minAllocCount,
+                                                              minAllocCount, &chunk->fBuffer,
+                                                              &chunk->fBase,
+                                                              &fCurrChunkVertexCapacity);
     if (!fCurrChunkVertexWriter || !chunk->fBuffer || fCurrChunkVertexCapacity < minCount) {
         SkDebugf("WARNING: Failed to allocate vertex buffer for GrVertexChunk.\n");
         fChunks->pop_back();

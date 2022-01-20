@@ -54,7 +54,7 @@ public:
         SkASSERT(count > 0);
         if (fCurrChunkVertexCount + count > fCurrChunkVertexCapacity && !this->allocChunk(count)) {
             SkDEBUGCODE(fLastAppendAmount = 0;)
-            return {nullptr};
+            return {};
         }
         SkASSERT(fCurrChunkVertexCount + count <= fCurrChunkVertexCapacity);
         fCurrChunkVertexCount += count;

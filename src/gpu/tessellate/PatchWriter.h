@@ -142,7 +142,7 @@ private:
             if (!fFallbackPatchStorage) {
                 fFallbackPatchStorage.reset(fChunker.stride());
             }
-            vertexWriter = fFallbackPatchStorage.data();
+            vertexWriter = VertexWriter{fFallbackPatchStorage.data()};
         }
         return vertexWriter;
     }

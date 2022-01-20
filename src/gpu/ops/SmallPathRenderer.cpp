@@ -211,9 +211,9 @@ private:
         if (instanceCount > SK_MaxS32 / GrResourceProvider::NumVertsPerNonAAQuad()) {
             return;
         }
-        VertexWriter vertices{target->makeVertexSpace(
+        VertexWriter vertices = target->makeVertexWriter(
             kVertexStride, GrResourceProvider::NumVertsPerNonAAQuad() * instanceCount,
-            &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset)};
+            &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
 
         flushInfo.fIndexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
         if (!vertices || !flushInfo.fIndexBuffer) {

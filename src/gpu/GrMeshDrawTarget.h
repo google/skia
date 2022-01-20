@@ -15,7 +15,12 @@ class GrAtlasManager;
 class GrStrikeCache;
 class GrThreadSafeCache;
 
-namespace skgpu { namespace v1 { class SmallPathAtlasMgr; }}
+namespace skgpu {
+    namespace v1 { class SmallPathAtlasMgr; }
+
+    struct IndexWriter;
+    struct VertexWriter;
+} // namespace skgpu
 
 /*
  * Abstract interface that supports creating vertices, indices, and meshes, as well as
@@ -93,6 +98,17 @@ public:
     virtual GrDrawIndexedIndirectWriter makeDrawIndexedIndirectSpace(int drawCount,
                                                                      sk_sp<const GrBuffer>*,
                                                                      size_t* offsetInBytes) = 0;
+
+    /** Helpers for ops that only need to use the VertexWriter to fill the data directly. */
+    skgpu::VertexWriter makeVertexWriter(size_t vertexSize, int vertexCount,
+                                         sk_sp<const GrBuffer>*, int* startVertex);
+    skgpu::IndexWriter makeIndexWriter(int indexCount, sk_sp<const GrBuffer>*, int* startIndex);
+    skgpu::VertexWriter makeVertexWriterAtLeast(size_t vertexSize, int minVertexCount,
+                                                int fallbackVertexCount, sk_sp<const GrBuffer>*,
+                                                int* startVertex, int* actualVertexCount);
+    skgpu::IndexWriter makeIndexWriterAtLeast(int minIndexCount, int fallbackIndexCount,
+                                              sk_sp<const GrBuffer>*, int* startIndex,
+                                              int* actualIndexCount);
 
     /** Helpers for ops which over-allocate and then return excess data to the pool. */
     virtual void putBackIndices(int indices) = 0;

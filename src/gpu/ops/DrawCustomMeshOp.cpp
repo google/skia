@@ -697,10 +697,10 @@ void CustomMeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
     size_t vertexStride = fSpecification->stride();
     sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex = 0;
-    skgpu::VertexWriter verts{target->makeVertexSpace(vertexStride,
-                                                      fVertexCount,
-                                                      &vertexBuffer,
-                                                      &firstVertex)};
+    skgpu::VertexWriter verts = target->makeVertexWriter(vertexStride,
+                                                         fVertexCount,
+                                                         &vertexBuffer,
+                                                         &firstVertex);
     if (!verts) {
         SkDebugf("Could not allocate vertices.\n");
         return;

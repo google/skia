@@ -1281,8 +1281,8 @@ private:
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        VertexWriter vertices{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
-                                                      fVertCount, &vertexBuffer, &firstVertex)};
+        VertexWriter vertices = target->makeVertexWriter(fProgramInfo->geomProc().vertexStride(),
+                                                         fVertCount, &vertexBuffer, &firstVertex);
         if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1653,8 +1653,8 @@ private:
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        VertexWriter vertices{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
-                                                      fVertCount, &vertexBuffer, &firstVertex)};
+        VertexWriter vertices = target->makeVertexWriter(fProgramInfo->geomProc().vertexStride(),
+                                                         fVertCount, &vertexBuffer, &firstVertex);
         if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -2684,8 +2684,8 @@ private:
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
 
-        VertexWriter verts{target->makeVertexSpace(fProgramInfo->geomProc().vertexStride(),
-                                                     fVertCount, &vertexBuffer, &firstVertex)};
+        VertexWriter verts = target->makeVertexWriter(fProgramInfo->geomProc().vertexStride(),
+                                                      fVertCount, &vertexBuffer, &firstVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;

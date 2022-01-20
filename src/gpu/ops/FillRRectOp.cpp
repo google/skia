@@ -520,9 +520,9 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
 
     size_t instanceStride = fProgramInfo->geomProc().instanceStride();
 
-    if (VertexWriter instanceWrter = target->makeVertexSpace(instanceStride, fInstanceCount,
-                                                             &fInstanceBuffer, &fBaseInstance)) {
-        SkDEBUGCODE(auto end = instanceWrter.makeOffset(instanceStride * fInstanceCount));
+    if (VertexWriter instanceWriter = target->makeVertexWriter(instanceStride, fInstanceCount,
+                                                               &fInstanceBuffer, &fBaseInstance)) {
+        SkDEBUGCODE(auto end = instanceWriter.makeOffset(instanceStride * fInstanceCount));
         for (Instance* i = fHeadInstance; i; i = i->fNext) {
             auto [l, t, r, b] = i->fRRect.rect();
 
@@ -539,14 +539,14 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
             radiiX *= 2 / (r - l);
             radiiY *= 2 / (b - t);
 
-            instanceWrter << m.getScaleX() << m.getSkewX() << m.getSkewY() << m.getScaleY()
-                          << m.getTranslateX() << m.getTranslateY()
-                          << radiiX << radiiY
-                          << VertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor)
-                          << VertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
-                                              i->fLocalRect);
+            instanceWriter << m.getScaleX() << m.getSkewX() << m.getSkewY() << m.getScaleY()
+                           << m.getTranslateX() << m.getTranslateY()
+                           << radiiX << radiiY
+                           << VertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor)
+                           << VertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
+                                               i->fLocalRect);
         }
-        SkASSERT(instanceWrter == end);
+        SkASSERT(instanceWriter == end);
     }
 
     SKGPU_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);

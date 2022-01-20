@@ -803,10 +803,10 @@ private:
             sk_sp<const GrBuffer> vertexBuffer;
             int firstVertex;
 
-            VertexWriter verts{target->makeVertexSpace(kVertexStride,
-                                                       vertexCount,
-                                                       &vertexBuffer,
-                                                       &firstVertex)};
+            VertexWriter verts = target->makeVertexWriter(kVertexStride,
+                                                          vertexCount,
+                                                          &vertexBuffer,
+                                                          &firstVertex);
 
             if (!verts) {
                 SkDebugf("Could not allocate vertices\n");
