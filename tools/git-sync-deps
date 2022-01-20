@@ -43,7 +43,7 @@ def git_executable():
       A string suitable for passing to subprocess functions, or None.
   """
   envgit = os.environ.get('GIT_EXECUTABLE')
-  searchlist = ['git']
+  searchlist = ['git', 'git.bat']
   if envgit:
     searchlist.insert(0, envgit)
   with open(os.devnull, 'w') as devnull:
