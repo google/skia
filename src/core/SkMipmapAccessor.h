@@ -40,7 +40,6 @@ private:
     float        fLowerWeight;   // lower * weight + upper * (1 - weight)
     SkMatrix     fUpperInv,
                  fLowerInv;
-    SkMipmapMode fResolvedMode;
 
     // these manage lifetime for the buffers
     SkBitmap              fBaseStorage;
