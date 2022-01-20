@@ -255,6 +255,9 @@ protected:
 private:
     OwnedArenas                       fArenas;
 
+    // Cache a single AtlasTextOp's worth of memory to improve op merging performance.
+    void* fAtlasTextOpCache = nullptr;
+
     std::unique_ptr<GrDrawingManager> fDrawingManager;
     std::unique_ptr<GrProxyProvider>  fProxyProvider;
 
