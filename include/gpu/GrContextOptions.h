@@ -272,6 +272,11 @@ struct SK_API GrContextOptions {
      */
     bool fReducedShaderVariations = false;
 
+    /**
+     * If true, then allow to enable MSAA on new Intel GPUs.
+     */
+    bool fAllowMSAAOnNewIntel = false;
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.
