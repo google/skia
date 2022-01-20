@@ -40,6 +40,9 @@ DumpMethod get_dump_method(CodeSnippetID id) {
         case CodeSnippetID::kSweepGradientShader:   [[fallthrough]];
         case CodeSnippetID::kConicalGradientShader: return GradientShaderBlocks::Dump;
 
+        case CodeSnippetID::kImageShader:           return ImageShaderBlock::Dump;
+        case CodeSnippetID::kBlendShader:           return BlendShaderBlock::Dump;
+
         // BlendMode code snippets
         case CodeSnippetID::kSimpleBlendMode:       return BlendModeBlock::Dump;
 

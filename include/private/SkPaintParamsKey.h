@@ -32,6 +32,9 @@ enum class CodeSnippetID : uint8_t {
     kSweepGradientShader,
     kConicalGradientShader,
 
+    kImageShader,
+    kBlendShader,     // aka ComposeShader
+
     // BlendMode code snippets
     kSimpleBlendMode,
 
