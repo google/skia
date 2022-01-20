@@ -1820,13 +1820,17 @@ skvm::Val SkVMGenerator::writeConditionalStore(skvm::Val lhs, skvm::Val rhs, skv
 
 void SkVMGenerator::writeBlock(const Block& b) {
     skvm::I32 mask = this->mask();
-    this->emitTraceScope(mask, +1);
+    if (b.isScope()) {
+        this->emitTraceScope(mask, +1);
+    }
 
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
         this->writeStatement(*stmt);
     }
 
-    this->emitTraceScope(mask, -1);
+    if (b.isScope()) {
+        this->emitTraceScope(mask, -1);
+    }
 }
 
 void SkVMGenerator::writeBreakStatement() {
