@@ -44,7 +44,9 @@ DEF_FUZZ(PolyUtils, fuzz) {
 
     if (isSimple) {
         SkScalar offset;
-        fuzz->next(&offset);
+        // Limit this to prevent timeouts.
+        // This should be fine, as this is roughly the range we expect from the shadow algorithm.
+        fuzz->nextRange(&offset, -1000, 1000);
         ignoreResult(SkOffsetSimplePolygon(polygon, count, bounds, offset, &output));
 
         SkAutoSTMalloc<64, uint16_t> indexMap(count);

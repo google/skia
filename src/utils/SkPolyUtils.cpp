@@ -13,6 +13,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkRectPriv.h"
 #include "src/core/SkTDPQueue.h"
 #include "src/core/SkTInternalLList.h"
 
@@ -1179,8 +1180,8 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // can't inset more than the half bounds of the polygon
-    if (offset > std::min(SkTAbs(SK_ScalarHalf*bounds.width()),
-                        SkTAbs(SK_ScalarHalf*bounds.height()))) {
+    if (offset > std::min(SkTAbs(SkRectPriv::HalfWidth(bounds)),
+                          SkTAbs(SkRectPriv::HalfHeight(bounds)))) {
         return false;
     }
 

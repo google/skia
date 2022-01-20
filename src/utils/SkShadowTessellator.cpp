@@ -13,6 +13,7 @@
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkRectPriv.h"
 #include "src/utils/SkPolyUtils.h"
 #include "src/utils/SkShadowTessellator.h"
 
@@ -555,6 +556,9 @@ bool SkBaseShadowTessellator::computeConcaveShadow(SkScalar inset, SkScalar outs
         return false;
     }
 
+    // shouldn't inset more than the half bounds of the polygon
+    inset = std::min(inset, std::min(SkTAbs(SkRectPriv::HalfWidth(fPathBounds)),
+                                     SkTAbs(SkRectPriv::HalfHeight(fPathBounds))));
     // generate inner ring
     SkTDArray<SkPoint> umbraPolygon;
     SkTDArray<int> umbraIndices;
@@ -910,8 +914,6 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // umbraColor is the interior value, penumbraColor the exterior value.
     auto outset = SkDrawShadowMetrics::AmbientBlurRadius(baseZ);
     auto inset = outset * SkDrawShadowMetrics::AmbientRecipAlpha(baseZ) - outset;
-    inset = SkTPin(inset, 0.0f, std::min(path.getBounds().width(),
-                                       path.getBounds().height()));
 
     if (!this->computePathPolygon(path, ctm)) {
         return;
