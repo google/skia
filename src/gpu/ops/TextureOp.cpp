@@ -720,7 +720,8 @@ private:
 
         SkDEBUGCODE(int totQuadsSeen = 0;)
         SkDEBUGCODE(int totVerticesSeen = 0;)
-        SkDEBUGCODE(const size_t vertexSize = desc->fVertexSpec.vertexSize());
+        SkDEBUGCODE(const size_t vertexSize = desc->fVertexSpec.vertexSize();)
+        SkDEBUGCODE(auto startMark{vertexData};)
 
         skgpu::v1::QuadPerEdgeAA::Tessellator tessellator(desc->fVertexSpec, vertexData);
         for (const auto& op : ChainRange<TextureOpImpl>(texOp)) {
@@ -738,7 +739,7 @@ private:
                 }
 
                 SkASSERT((totVerticesSeen + meshVertexCnt) * vertexSize
-                         == (size_t)(tessellator.vertices() - vertexData));
+                         == (size_t)(tessellator.vertexMark() - startMark));
 
                 SkDEBUGCODE(totQuadsSeen += quadCnt;)
                 SkDEBUGCODE(totVerticesSeen += meshVertexCnt);
@@ -750,7 +751,7 @@ private:
             SkASSERT(!iter.next());
         }
 
-        SkASSERT(desc->totalSizeInBytes() == (size_t)(tessellator.vertices() - vertexData));
+        SkASSERT(desc->totalSizeInBytes() == (size_t)(tessellator.vertexMark() - startMark));
         SkASSERT(totQuadsSeen == desc->fNumTotalQuads);
         SkASSERT(totVerticesSeen == desc->totalNumVertices());
     }

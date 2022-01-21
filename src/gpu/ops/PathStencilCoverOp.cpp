@@ -277,7 +277,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
                                                                  &fBBoxBaseInstance);
         SkDEBUGCODE(int pathCount = 0;)
         for (auto [pathMatrix, path, color] : *fPathDrawList) {
-            SkDEBUGCODE(auto end = vertexWriter.makeOffset(instanceStride));
+            SkDEBUGCODE(auto end = vertexWriter.mark(instanceStride));
             vertexWriter << pathMatrix.getScaleX()
                          << pathMatrix.getSkewY()
                          << pathMatrix.getSkewX()
@@ -299,7 +299,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
             } else {
                 vertexWriter << path.getBounds();
             }
-            SkASSERT(vertexWriter == end);
+            SkASSERT(vertexWriter.mark() == end);
             SkDEBUGCODE(++pathCount;)
         }
         SkASSERT(pathCount == fPathCount);

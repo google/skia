@@ -522,7 +522,7 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
 
     if (VertexWriter instanceWriter = target->makeVertexWriter(instanceStride, fInstanceCount,
                                                                &fInstanceBuffer, &fBaseInstance)) {
-        SkDEBUGCODE(auto end = instanceWriter.makeOffset(instanceStride * fInstanceCount));
+        SkDEBUGCODE(auto end = instanceWriter.mark(instanceStride * fInstanceCount));
         for (Instance* i = fHeadInstance; i; i = i->fNext) {
             auto [l, t, r, b] = i->fRRect.rect();
 
@@ -546,7 +546,7 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
                            << VertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
                                                i->fLocalRect);
         }
-        SkASSERT(instanceWriter == end);
+        SkASSERT(instanceWriter.mark() == end);
     }
 
     SKGPU_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);

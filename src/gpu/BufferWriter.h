@@ -18,7 +18,32 @@ namespace skgpu {
 
 struct BufferWriter {
 public:
+    // Marks a read-only position in the underlying buffer
+    struct Mark {
+    public:
+        Mark() : Mark(nullptr) {}
+        Mark(void* ptr, size_t offset = 0)
+                : fMark(reinterpret_cast<uintptr_t>(ptr) + offset) {
+            SkASSERT(ptr || offset == 0);
+        }
+
+        bool operator< (const Mark& o) const { return fMark <  o.fMark; }
+        bool operator<=(const Mark& o) const { return fMark <= o.fMark; }
+        bool operator==(const Mark& o) const { return fMark == o.fMark; }
+        bool operator!=(const Mark& o) const { return fMark != o.fMark; }
+        bool operator>=(const Mark& o) const { return fMark >= o.fMark; }
+        bool operator> (const Mark& o) const { return fMark >  o.fMark; }
+
+        ptrdiff_t operator-(const Mark& o) const { return fMark - o.fMark; }
+
+        explicit operator bool() const { return *this != Mark(); }
+    private:
+        uintptr_t fMark;
+    };
+
     explicit operator bool() const { return fPtr != nullptr; }
+
+    Mark mark(size_t offset=0) const { return Mark(fPtr, offset); }
 
 protected:
     BufferWriter() = default;
@@ -56,8 +81,6 @@ struct VertexWriter : public BufferWriter {
         BufferWriter::operator=(std::move(that));
         return *this;
     }
-
-    bool operator==(const VertexWriter& that) const { return fPtr == that.fPtr; }
 
     // TODO: Remove this call. We want all users of VertexWriter to have to go through the vertex
     // writer functions to write data. We do not want them to directly access fPtr and copy their

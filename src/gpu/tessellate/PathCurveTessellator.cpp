@@ -144,7 +144,7 @@ void PathCurveTessellator::WriteFixedVertexBuffer(VertexWriter vertexWriter, siz
     SkASSERT(bufferSize % sizeof(SkPoint) == 0);
     int vertexCount = bufferSize / sizeof(SkPoint);
     SkASSERT(vertexCount > 3);
-    SkDEBUGCODE(VertexWriter end = vertexWriter.makeOffset(vertexCount * sizeof(SkPoint));)
+    SkDEBUGCODE(auto end = vertexWriter.mark(vertexCount * sizeof(SkPoint));)
 
     // Lay out the vertices in "middle-out" order:
     //
@@ -170,7 +170,7 @@ void PathCurveTessellator::WriteFixedVertexBuffer(VertexWriter vertexWriter, siz
         }
     }
 
-    SkASSERT(vertexWriter == end);
+    SkASSERT(vertexWriter.mark() == end);
 }
 
 void PathCurveTessellator::WriteFixedIndexBufferBaseIndex(VertexWriter vertexWriter,
