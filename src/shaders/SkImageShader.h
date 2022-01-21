@@ -44,10 +44,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    void addToKey(SkShaderCodeDictionary*,
-                  SkBackend,
-                  SkPaintParamsKey*) const override;
-
     static SkM44 CubicResamplerMatrix(float B, float C);
 
 private:
