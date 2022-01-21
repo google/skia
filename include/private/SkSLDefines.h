@@ -22,7 +22,15 @@ class Expression;
 class Statement;
 
 using ComponentArray = SkSTArray<4, int8_t>; // for Swizzles
-using ExpressionArray = SkSTArray<2, std::unique_ptr<Expression>>;
+
+class ExpressionArray : public SkSTArray<2, std::unique_ptr<Expression>> {
+public:
+    using SkSTArray::SkSTArray;
+
+    /** Returns a new ExpressionArray containing a clone of every element. */
+    ExpressionArray clone() const;
+};
+
 using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
 
 // Functions larger than this (measured in IR nodes) will not be inlined. This growth factor

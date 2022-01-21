@@ -31,4 +31,13 @@ bool Expression::isIncomplete(const Context& context) const {
     }
 }
 
+ExpressionArray ExpressionArray::clone() const {
+    ExpressionArray cloned;
+    cloned.reserve_back(this->count());
+    for (const std::unique_ptr<Expression>& expr : *this) {
+        cloned.push_back(expr ? expr->clone() : nullptr);
+    }
+    return cloned;
+}
+
 }  // namespace SkSL

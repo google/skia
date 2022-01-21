@@ -127,15 +127,6 @@ public:
         return fArguments;
     }
 
-    ExpressionArray cloneArguments() const {
-        ExpressionArray clonedArgs;
-        clonedArgs.reserve_back(this->arguments().size());
-        for (const std::unique_ptr<Expression>& arg: this->arguments()) {
-            clonedArgs.push_back(arg->clone());
-        }
-        return clonedArgs;
-    }
-
     SkSpan<std::unique_ptr<Expression>> argumentSpan() final {
         return {&fArguments.front(), fArguments.size()};
     }

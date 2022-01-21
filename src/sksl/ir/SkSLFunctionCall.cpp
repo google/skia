@@ -786,13 +786,8 @@ bool FunctionCall::hasProperty(Property property) const {
 }
 
 std::unique_ptr<Expression> FunctionCall::clone() const {
-    ExpressionArray cloned;
-    cloned.reserve_back(this->arguments().size());
-    for (const std::unique_ptr<Expression>& arg : this->arguments()) {
-        cloned.push_back(arg->clone());
-    }
-    return std::make_unique<FunctionCall>(
-            fLine, &this->type(), &this->function(), std::move(cloned));
+    return std::make_unique<FunctionCall>(fLine, &this->type(), &this->function(),
+                                          this->arguments().clone());
 }
 
 String FunctionCall::description() const {

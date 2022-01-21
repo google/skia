@@ -37,7 +37,8 @@ public:
                                             ExpressionArray args);
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorCompound>(fLine, this->type(), this->cloneArguments());
+        return std::make_unique<ConstructorCompound>(fLine, this->type(),
+                                                     this->arguments().clone());
     }
 
 private:
