@@ -11,7 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/GrImageContext.h"
-#include "include/private/GrSingleOwner.h"
+#include "include/private/SingleOwner.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
@@ -36,7 +36,7 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #endif
 
-#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fImageContext->priv().singleOwner())
+#define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fImageContext->priv().singleOwner())
 
 GrProxyProvider::GrProxyProvider(GrImageContext* imageContext) : fImageContext(imageContext) {}
 

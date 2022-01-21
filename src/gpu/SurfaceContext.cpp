@@ -30,7 +30,7 @@
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
-#define ASSERT_SINGLE_OWNER         GR_ASSERT_SINGLE_OWNER(this->singleOwner())
+#define ASSERT_SINGLE_OWNER         SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_FALSE_IF_ABANDONED   if (this->fContext->abandoned()) { return false;   }
 #define RETURN_NULLPTR_IF_ABANDONED if (this->fContext->abandoned()) { return nullptr; }
 
@@ -54,7 +54,7 @@ const GrDrawingManager* SurfaceContext::drawingManager() const {
 }
 
 #ifdef SK_DEBUG
-GrSingleOwner* SurfaceContext::singleOwner() const { return fContext->priv().singleOwner(); }
+skgpu::SingleOwner* SurfaceContext::singleOwner() const { return fContext->priv().singleOwner(); }
 #endif
 
 static bool alpha_types_compatible(SkAlphaType srcAlphaType, SkAlphaType dstAlphaType) {

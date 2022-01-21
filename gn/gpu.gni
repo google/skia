@@ -27,7 +27,6 @@ skia_gpu_sources = [
   "$_include/private/GrGLTypesPriv.h",
   "$_include/private/GrImageContext.h",
   "$_include/private/GrMtlTypesPriv.h",
-  "$_include/private/GrSingleOwner.h",
   "$_include/private/GrTypesPriv.h",
   "$_include/private/chromium/GrSlug.h",
   "$_src/gpu/GrAHardwareBufferImageGenerator.cpp",
@@ -816,6 +815,7 @@ skia_native_gpu_sources = [
 
 skia_shared_gpu_sources = [
   "$_include/gpu/ShaderErrorHandler.h",
+  "$_include/private/SingleOwner.h",
   "$_src/gpu/BufferWriter.h",
   "$_src/gpu/KeyBuilder.h",
   "$_src/gpu/ResourceKey.cpp",

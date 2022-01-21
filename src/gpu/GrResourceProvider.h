@@ -23,7 +23,6 @@ class GrPath;
 class GrRenderTarget;
 class GrResourceProviderPriv;
 class GrSemaphore;
-class GrSingleOwner;
 class GrTexture;
 struct GrVkDrawableInfo;
 
@@ -32,14 +31,17 @@ class SkDescriptor;
 class SkPath;
 class SkTypeface;
 
-namespace skgpu { struct VertexWriter; }
+namespace skgpu {
+class SingleOwner;
+struct VertexWriter;
+}
 
 /**
  * A factory for arbitrary resource types.
  */
 class GrResourceProvider {
 public:
-    GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*);
+    GrResourceProvider(GrGpu*, GrResourceCache*, skgpu::SingleOwner*);
 
     /**
      * Finds a resource in the cache, based on the specified key. Prior to calling this, the caller
@@ -418,7 +420,7 @@ private:
     sk_sp<const GrGpuBuffer> fAAQuadIndexBuffer;
 
     // In debug builds we guard against improper thread handling
-    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
+    SkDEBUGCODE(mutable skgpu::SingleOwner* fSingleOwner;)
 };
 
 #endif

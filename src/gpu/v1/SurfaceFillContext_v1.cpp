@@ -17,7 +17,7 @@
 #include "src/gpu/ops/FillRectOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
-#define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
+#define ASSERT_SINGLE_OWNER        SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
 
 class AutoCheckFlush {

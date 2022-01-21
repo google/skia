@@ -28,7 +28,7 @@ public:
     }
 
     /** This is only useful for debug purposes */
-    SkDEBUGCODE(GrSingleOwner* singleOwner() const { return this->context()->singleOwner(); } )
+    SkDEBUGCODE(skgpu::SingleOwner* singleOwner() const { return this->context()->singleOwner(); } )
 
 protected:
     explicit GrImageContextPriv(GrImageContext* iContext) : GrBaseContextPriv(iContext) {}

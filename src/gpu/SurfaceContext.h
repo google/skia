@@ -24,7 +24,6 @@
 class GrDrawingManager;
 class GrRecordingContext;
 class GrRenderTargetProxy;
-class GrSingleOwner;
 class GrSurface;
 class GrSurfaceProxy;
 class GrTextureProxy;
@@ -32,7 +31,7 @@ struct SkIPoint;
 struct SkIRect;
 
 namespace skgpu {
-
+class SingleOwner;
 class SurfaceFillContext;
 
 /**
@@ -189,7 +188,7 @@ protected:
 
     SkDEBUGCODE(void validate() const;)
 
-    SkDEBUGCODE(GrSingleOwner* singleOwner() const;)
+    SkDEBUGCODE(skgpu::SingleOwner* singleOwner() const;)
 
     GrRecordingContext* fContext;
 

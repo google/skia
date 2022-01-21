@@ -25,9 +25,12 @@ class GrCaps;
 class GrProxyProvider;
 class SkString;
 class SkTraceMemoryDump;
-class GrSingleOwner;
 class GrTexture;
 class GrThreadSafeCache;
+
+namespace skgpu {
+class SingleOwner;
+}
 
 struct GrTextureFreedMessage {
     GrTexture* fTexture;
@@ -58,7 +61,7 @@ static inline bool SkShouldPostMessageToBus(
  */
 class GrResourceCache {
 public:
-    GrResourceCache(GrSingleOwner* owner,
+    GrResourceCache(skgpu::SingleOwner* owner,
                     GrDirectContext::DirectContextID owningContextID,
                     uint32_t familyID);
     ~GrResourceCache();
@@ -382,7 +385,7 @@ private:
 
     GrDirectContext::DirectContextID    fOwningContextID;
     uint32_t                            fContextUniqueID = SK_InvalidUniqueID;
-    GrSingleOwner*                      fSingleOwner = nullptr;
+    skgpu::SingleOwner*                 fSingleOwner = nullptr;
 
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because
     // we're in the midst of converting it to purgeable status.

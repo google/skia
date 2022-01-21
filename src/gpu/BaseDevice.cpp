@@ -14,7 +14,7 @@
 #include "src/gpu/SurfaceContext.h"
 #include "src/gpu/SurfaceFillContext.h"
 
-#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
+#define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
 namespace skgpu {
 

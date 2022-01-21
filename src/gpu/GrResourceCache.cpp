@@ -9,7 +9,7 @@
 #include <atomic>
 #include <vector>
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/GrSingleOwner.h"
+#include "include/private/SingleOwner.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMessageBus.h"
@@ -30,7 +30,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(skgpu::UniqueKeyInvalidatedMessage, uint32_t, true)
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrTextureFreedMessage, GrDirectContext::DirectContextID, true);
 
-#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fSingleOwner)
+#define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -81,7 +81,7 @@ inline bool GrResourceCache::TextureAwaitingUnref::finished() { return !fNumUnre
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrResourceCache::GrResourceCache(GrSingleOwner* singleOwner,
+GrResourceCache::GrResourceCache(skgpu::SingleOwner* singleOwner,
                                  GrDirectContext::DirectContextID owningContextID,
                                  uint32_t familyID)
         : fInvalidUniqueKeyInbox(familyID)

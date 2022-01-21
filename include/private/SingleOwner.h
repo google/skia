@@ -5,25 +5,27 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSingleOwner_DEFINED
-#define GrSingleOwner_DEFINED
+#ifndef skgpu_SingleOwner_DEFINED
+#define skgpu_SingleOwner_DEFINED
 
 #include "include/core/SkTypes.h"
+
+namespace skgpu {
 
 #ifdef SK_DEBUG
 #include "include/private/SkMutex.h"
 #include "include/private/SkThreadID.h"
 
-#define GR_ASSERT_SINGLE_OWNER(obj) \
-    GrSingleOwner::AutoEnforce debug_SingleOwner(obj, __FILE__, __LINE__);
+#define SKGPU_ASSERT_SINGLE_OWNER(obj) \
+    skgpu::SingleOwner::AutoEnforce debug_SingleOwner(obj, __FILE__, __LINE__);
 
 // This is a debug tool to verify an object is only being used from one thread at a time.
-class GrSingleOwner {
+class SingleOwner {
 public:
-     GrSingleOwner() : fOwner(kIllegalThreadID), fReentranceCount(0) {}
+     SingleOwner() : fOwner(kIllegalThreadID), fReentranceCount(0) {}
 
      struct AutoEnforce {
-         AutoEnforce(GrSingleOwner* so, const char* file, int line)
+         AutoEnforce(SingleOwner* so, const char* file, int line)
                 : fFile(file), fLine(line), fSO(so) {
              fSO->enter(file, line);
          }
@@ -31,7 +33,7 @@ public:
 
          const char* fFile;
          int fLine;
-         GrSingleOwner* fSO;
+         SingleOwner* fSO;
      };
 
 private:
@@ -58,8 +60,10 @@ private:
      int fReentranceCount SK_GUARDED_BY(fMutex);
 };
 #else
-#define GR_ASSERT_SINGLE_OWNER(obj)
-class GrSingleOwner {}; // Provide a no-op implementation so we can pass pointers to constructors
+#define SKGPU_ASSERT_SINGLE_OWNER(obj)
+class SingleOwner {}; // Provide a no-op implementation so we can pass pointers to constructors
 #endif
+
+} // namespace skgpu
 
 #endif
