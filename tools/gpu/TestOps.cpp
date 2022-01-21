@@ -46,7 +46,7 @@ public:
             void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
                 const auto& gp = args.fGeomProc.cast<GP>();
                 args.fVaryingHandler->emitAttributes(gp);
-                GrGLSLVarying colorVarying(kHalf4_GrSLType);
+                GrGLSLVarying colorVarying(SkSLType::kHalf4);
                 args.fVaryingHandler->addVarying("color", &colorVarying,
                                                  GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
                 args.fVertBuilder->codeAppendf("%s = %s;", colorVarying.vsOut(), gp.fInColor.name());
@@ -76,8 +76,8 @@ public:
     bool wideColor() const { return fInColor.cpuType() != kUByte4_norm_GrVertexAttribType; }
 
 private:
-    Attribute fInPosition    = {   "inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    Attribute fInLocalCoords = {"inLocalCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    Attribute fInPosition    = {   "inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
+    Attribute fInLocalCoords = {"inLocalCoords", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
     Attribute fInColor;
 
     SkMatrix fLocalMatrix;

@@ -357,15 +357,15 @@ private:
         this->setVertexAttributesWithImplicitOffsets(kVertexAttribs,
                                                      SK_ARRAY_COUNT(kVertexAttribs));
 
-        fInstanceAttribs.emplace_back("skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
-        fInstanceAttribs.emplace_back("translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
-        fInstanceAttribs.emplace_back("radii_x", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
-        fInstanceAttribs.emplace_back("radii_y", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fInstanceAttribs.emplace_back("skew", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
+        fInstanceAttribs.emplace_back("translate", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
+        fInstanceAttribs.emplace_back("radii_x", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
+        fInstanceAttribs.emplace_back("radii_y", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         fColorAttrib = &fInstanceAttribs.push_back(
                 MakeColorAttribute("color", (fFlags & ProcessorFlags::kWideColor)));
         if (fFlags & ProcessorFlags::kHasLocalCoords) {
             fInstanceAttribs.emplace_back(
-                    "local_rect", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+                    "local_rect", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         }
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribs);
         this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.begin(),
@@ -373,10 +373,10 @@ private:
     }
 
     inline static constexpr Attribute kVertexAttribs[] = {
-            {"radii_selector", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-            {"corner_and_radius_outsets", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+            {"radii_selector", kFloat4_GrVertexAttribType, SkSLType::kFloat4},
+            {"corner_and_radius_outsets", kFloat4_GrVertexAttribType, SkSLType::kFloat4},
             // Coverage only.
-            {"aa_bloat_and_coverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
+            {"aa_bloat_and_coverage", kFloat4_GrVertexAttribType, SkSLType::kFloat4}};
 
     const ProcessorFlags fFlags;
 
@@ -690,20 +690,20 @@ private:
         v->codeAppend("}");
 
         // Write positions
-        GrShaderVar localCoord("", kFloat2_GrSLType);
+        GrShaderVar localCoord("", SkSLType::kFloat2);
         if (proc.fFlags & ProcessorFlags::kHasLocalCoords) {
             v->codeAppend("float2 localcoord = (local_rect.xy * (1 - vertexpos) + "
                                                "local_rect.zw * (1 + vertexpos)) * .5;");
-            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
+            gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
         }
 
         // Transform to device space.
         v->codeAppend("float2x2 skewmatrix = float2x2(skew.xy, skew.zw);");
         v->codeAppend("float2 devcoord = vertexpos * skewmatrix + translate;");
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "devcoord");
+        gpArgs->fPositionVar.set(SkSLType::kFloat2, "devcoord");
 
         // Setup interpolants for coverage.
-        GrGLSLVarying arcCoord(useHWDerivatives ? kFloat2_GrSLType : kFloat4_GrSLType);
+        GrGLSLVarying arcCoord(useHWDerivatives ? SkSLType::kFloat2 : SkSLType::kFloat4);
         varyings->addVarying("arccoord", &arcCoord);
         v->codeAppend("if (0 != is_linear_coverage) {");
                            // We are a non-corner piece: Set x=0 to indicate built-in coverage, and

@@ -12,6 +12,7 @@
 
 #ifdef SK_ENABLE_SKSL
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
 
 struct SkCustomMeshSpecificationPriv {
     using Varying   = SkCustomMeshSpecification::Varying;
@@ -42,16 +43,16 @@ struct SkCustomMeshSpecificationPriv {
         return spec.fHasLocalCoords;
     }
 
-    static GrSLType VaryingTypeAsSLType(Varying::Type type) {
+    static SkSLType VaryingTypeAsSLType(Varying::Type type) {
         switch (type) {
-            case Varying::Type::kFloat:  return kFloat_GrSLType;
-            case Varying::Type::kFloat2: return kFloat2_GrSLType;
-            case Varying::Type::kFloat3: return kFloat3_GrSLType;
-            case Varying::Type::kFloat4: return kFloat4_GrSLType;
-            case Varying::Type::kHalf:   return kHalf_GrSLType;
-            case Varying::Type::kHalf2:  return kHalf2_GrSLType;
-            case Varying::Type::kHalf3:  return kHalf3_GrSLType;
-            case Varying::Type::kHalf4:  return kHalf4_GrSLType;
+            case Varying::Type::kFloat:  return SkSLType::kFloat;
+            case Varying::Type::kFloat2: return SkSLType::kFloat2;
+            case Varying::Type::kFloat3: return SkSLType::kFloat3;
+            case Varying::Type::kFloat4: return SkSLType::kFloat4;
+            case Varying::Type::kHalf:   return SkSLType::kHalf;
+            case Varying::Type::kHalf2:  return SkSLType::kHalf2;
+            case Varying::Type::kHalf3:  return SkSLType::kHalf3;
+            case Varying::Type::kHalf4:  return SkSLType::kHalf4;
         }
         SkUNREACHABLE;
     }
@@ -67,13 +68,13 @@ struct SkCustomMeshSpecificationPriv {
         SkUNREACHABLE;
     }
 
-    static GrSLType AttrTypeAsSLType(Attribute::Type type) {
+    static SkSLType AttrTypeAsSLType(Attribute::Type type) {
         switch (type) {
-            case Attribute::Type::kFloat:        return kFloat_GrSLType;
-            case Attribute::Type::kFloat2:       return kFloat2_GrSLType;
-            case Attribute::Type::kFloat3:       return kFloat3_GrSLType;
-            case Attribute::Type::kFloat4:       return kFloat4_GrSLType;
-            case Attribute::Type::kUByte4_unorm: return kHalf4_GrSLType;
+            case Attribute::Type::kFloat:        return SkSLType::kFloat;
+            case Attribute::Type::kFloat2:       return SkSLType::kFloat2;
+            case Attribute::Type::kFloat3:       return SkSLType::kFloat3;
+            case Attribute::Type::kFloat4:       return SkSLType::kFloat4;
+            case Attribute::Type::kUByte4_unorm: return SkSLType::kHalf4;
         }
         SkUNREACHABLE;
     }

@@ -44,45 +44,45 @@ void write_stringstream(const StringStream& s, OutputStream& out) {
 }
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outType) {
+bool type_to_sksltype(const Context& context, const Type& type, SkSLType* outType) {
     // If a new GrSL type is added, this function will need to be updated.
-    static_assert(kGrSLTypeCount == 41);
+    static_assert(kSkSLTypeCount == 41);
 
-    if (type.matches(*context.fTypes.fVoid    )) { *outType = kVoid_GrSLType;     return true; }
-    if (type.matches(*context.fTypes.fBool    )) { *outType = kBool_GrSLType;     return true; }
-    if (type.matches(*context.fTypes.fBool2   )) { *outType = kBool2_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fBool3   )) { *outType = kBool3_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fBool4   )) { *outType = kBool4_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fShort   )) { *outType = kShort_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fShort2  )) { *outType = kShort2_GrSLType;   return true; }
-    if (type.matches(*context.fTypes.fShort3  )) { *outType = kShort3_GrSLType;   return true; }
-    if (type.matches(*context.fTypes.fShort4  )) { *outType = kShort4_GrSLType;   return true; }
-    if (type.matches(*context.fTypes.fUShort  )) { *outType = kUShort_GrSLType;   return true; }
-    if (type.matches(*context.fTypes.fUShort2 )) { *outType = kUShort2_GrSLType;  return true; }
-    if (type.matches(*context.fTypes.fUShort3 )) { *outType = kUShort3_GrSLType;  return true; }
-    if (type.matches(*context.fTypes.fUShort4 )) { *outType = kUShort4_GrSLType;  return true; }
-    if (type.matches(*context.fTypes.fFloat   )) { *outType = kFloat_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fFloat2  )) { *outType = kFloat2_GrSLType;   return true; }
-    if (type.matches(*context.fTypes.fFloat3  )) { *outType = kFloat3_GrSLType;   return true; }
-    if (type.matches(*context.fTypes.fFloat4  )) { *outType = kFloat4_GrSLType;   return true; }
-    if (type.matches(*context.fTypes.fFloat2x2)) { *outType = kFloat2x2_GrSLType; return true; }
-    if (type.matches(*context.fTypes.fFloat3x3)) { *outType = kFloat3x3_GrSLType; return true; }
-    if (type.matches(*context.fTypes.fFloat4x4)) { *outType = kFloat4x4_GrSLType; return true; }
-    if (type.matches(*context.fTypes.fHalf    )) { *outType = kHalf_GrSLType;     return true; }
-    if (type.matches(*context.fTypes.fHalf2   )) { *outType = kHalf2_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fHalf3   )) { *outType = kHalf3_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fHalf4   )) { *outType = kHalf4_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fHalf2x2 )) { *outType = kHalf2x2_GrSLType;  return true; }
-    if (type.matches(*context.fTypes.fHalf3x3 )) { *outType = kHalf3x3_GrSLType;  return true; }
-    if (type.matches(*context.fTypes.fHalf4x4 )) { *outType = kHalf4x4_GrSLType;  return true; }
-    if (type.matches(*context.fTypes.fInt     )) { *outType = kInt_GrSLType;      return true; }
-    if (type.matches(*context.fTypes.fInt2    )) { *outType = kInt2_GrSLType;     return true; }
-    if (type.matches(*context.fTypes.fInt3    )) { *outType = kInt3_GrSLType;     return true; }
-    if (type.matches(*context.fTypes.fInt4    )) { *outType = kInt4_GrSLType;     return true; }
-    if (type.matches(*context.fTypes.fUInt    )) { *outType = kUInt_GrSLType;     return true; }
-    if (type.matches(*context.fTypes.fUInt2   )) { *outType = kUInt2_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fUInt3   )) { *outType = kUInt3_GrSLType;    return true; }
-    if (type.matches(*context.fTypes.fUInt4   )) { *outType = kUInt4_GrSLType;    return true; }
+    if (type.matches(*context.fTypes.fVoid    )) { *outType = SkSLType::kVoid;     return true; }
+    if (type.matches(*context.fTypes.fBool    )) { *outType = SkSLType::kBool;     return true; }
+    if (type.matches(*context.fTypes.fBool2   )) { *outType = SkSLType::kBool2;    return true; }
+    if (type.matches(*context.fTypes.fBool3   )) { *outType = SkSLType::kBool3;    return true; }
+    if (type.matches(*context.fTypes.fBool4   )) { *outType = SkSLType::kBool4;    return true; }
+    if (type.matches(*context.fTypes.fShort   )) { *outType = SkSLType::kShort;    return true; }
+    if (type.matches(*context.fTypes.fShort2  )) { *outType = SkSLType::kShort2;   return true; }
+    if (type.matches(*context.fTypes.fShort3  )) { *outType = SkSLType::kShort3;   return true; }
+    if (type.matches(*context.fTypes.fShort4  )) { *outType = SkSLType::kShort4;   return true; }
+    if (type.matches(*context.fTypes.fUShort  )) { *outType = SkSLType::kUShort;   return true; }
+    if (type.matches(*context.fTypes.fUShort2 )) { *outType = SkSLType::kUShort2;  return true; }
+    if (type.matches(*context.fTypes.fUShort3 )) { *outType = SkSLType::kUShort3;  return true; }
+    if (type.matches(*context.fTypes.fUShort4 )) { *outType = SkSLType::kUShort4;  return true; }
+    if (type.matches(*context.fTypes.fFloat   )) { *outType = SkSLType::kFloat;    return true; }
+    if (type.matches(*context.fTypes.fFloat2  )) { *outType = SkSLType::kFloat2;   return true; }
+    if (type.matches(*context.fTypes.fFloat3  )) { *outType = SkSLType::kFloat3;   return true; }
+    if (type.matches(*context.fTypes.fFloat4  )) { *outType = SkSLType::kFloat4;   return true; }
+    if (type.matches(*context.fTypes.fFloat2x2)) { *outType = SkSLType::kFloat2x2; return true; }
+    if (type.matches(*context.fTypes.fFloat3x3)) { *outType = SkSLType::kFloat3x3; return true; }
+    if (type.matches(*context.fTypes.fFloat4x4)) { *outType = SkSLType::kFloat4x4; return true; }
+    if (type.matches(*context.fTypes.fHalf    )) { *outType = SkSLType::kHalf;     return true; }
+    if (type.matches(*context.fTypes.fHalf2   )) { *outType = SkSLType::kHalf2;    return true; }
+    if (type.matches(*context.fTypes.fHalf3   )) { *outType = SkSLType::kHalf3;    return true; }
+    if (type.matches(*context.fTypes.fHalf4   )) { *outType = SkSLType::kHalf4;    return true; }
+    if (type.matches(*context.fTypes.fHalf2x2 )) { *outType = SkSLType::kHalf2x2;  return true; }
+    if (type.matches(*context.fTypes.fHalf3x3 )) { *outType = SkSLType::kHalf3x3;  return true; }
+    if (type.matches(*context.fTypes.fHalf4x4 )) { *outType = SkSLType::kHalf4x4;  return true; }
+    if (type.matches(*context.fTypes.fInt     )) { *outType = SkSLType::kInt;      return true; }
+    if (type.matches(*context.fTypes.fInt2    )) { *outType = SkSLType::kInt2;     return true; }
+    if (type.matches(*context.fTypes.fInt3    )) { *outType = SkSLType::kInt3;     return true; }
+    if (type.matches(*context.fTypes.fInt4    )) { *outType = SkSLType::kInt4;     return true; }
+    if (type.matches(*context.fTypes.fUInt    )) { *outType = SkSLType::kUInt;     return true; }
+    if (type.matches(*context.fTypes.fUInt2   )) { *outType = SkSLType::kUInt2;    return true; }
+    if (type.matches(*context.fTypes.fUInt3   )) { *outType = SkSLType::kUInt3;    return true; }
+    if (type.matches(*context.fTypes.fUInt4   )) { *outType = SkSLType::kUInt4;    return true; }
     return false;
 }
 #endif

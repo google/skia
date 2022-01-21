@@ -9,6 +9,7 @@
 
 #include "include/private/GrMtlTypesPriv.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/GrUtil.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 #if !__has_feature(objc_arc)
@@ -20,132 +21,132 @@ GR_NORETAIN_BEGIN
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
-static uint32_t grsltype_to_alignment_mask(GrSLType type) {
+static uint32_t sksltype_to_alignment_mask(SkSLType type) {
     switch(type) {
-        case kInt_GrSLType:
-        case kUInt_GrSLType:
-        case kFloat_GrSLType:
+        case SkSLType::kInt:
+        case SkSLType::kUInt:
+        case SkSLType::kFloat:
             return 0x3;
-        case kInt2_GrSLType:
-        case kUInt2_GrSLType:
-        case kFloat2_GrSLType:
+        case SkSLType::kInt2:
+        case SkSLType::kUInt2:
+        case SkSLType::kFloat2:
             return 0x7;
-        case kInt3_GrSLType:
-        case kUInt3_GrSLType:
-        case kFloat3_GrSLType:
-        case kInt4_GrSLType:
-        case kUInt4_GrSLType:
-        case kFloat4_GrSLType:
+        case SkSLType::kInt3:
+        case SkSLType::kUInt3:
+        case SkSLType::kFloat3:
+        case SkSLType::kInt4:
+        case SkSLType::kUInt4:
+        case SkSLType::kFloat4:
             return 0xF;
 
-        case kFloat2x2_GrSLType:
+        case SkSLType::kFloat2x2:
             return 0x7;
-        case kFloat3x3_GrSLType:
+        case SkSLType::kFloat3x3:
             return 0xF;
-        case kFloat4x4_GrSLType:
+        case SkSLType::kFloat4x4:
             return 0xF;
 
-        case kShort_GrSLType:
-        case kUShort_GrSLType:
-        case kHalf_GrSLType:
+        case SkSLType::kShort:
+        case SkSLType::kUShort:
+        case SkSLType::kHalf:
             return 0x1;
-        case kShort2_GrSLType:
-        case kUShort2_GrSLType:
-        case kHalf2_GrSLType:
+        case SkSLType::kShort2:
+        case SkSLType::kUShort2:
+        case SkSLType::kHalf2:
             return 0x3;
-        case kShort3_GrSLType:
-        case kShort4_GrSLType:
-        case kUShort3_GrSLType:
-        case kUShort4_GrSLType:
-        case kHalf3_GrSLType:
-        case kHalf4_GrSLType:
+        case SkSLType::kShort3:
+        case SkSLType::kShort4:
+        case SkSLType::kUShort3:
+        case SkSLType::kUShort4:
+        case SkSLType::kHalf3:
+        case SkSLType::kHalf4:
             return 0x7;
 
-        case kHalf2x2_GrSLType:
+        case SkSLType::kHalf2x2:
             return 0x3;
-        case kHalf3x3_GrSLType:
+        case SkSLType::kHalf3x3:
             return 0x7;
-        case kHalf4x4_GrSLType:
+        case SkSLType::kHalf4x4:
             return 0x7;
 
         // This query is only valid for certain types.
-        case kVoid_GrSLType:
-        case kBool_GrSLType:
-        case kBool2_GrSLType:
-        case kBool3_GrSLType:
-        case kBool4_GrSLType:
-        case kTexture2DSampler_GrSLType:
-        case kTextureExternalSampler_GrSLType:
-        case kTexture2DRectSampler_GrSLType:
-        case kSampler_GrSLType:
-        case kTexture2D_GrSLType:
-        case kInput_GrSLType:
+        case SkSLType::kVoid:
+        case SkSLType::kBool:
+        case SkSLType::kBool2:
+        case SkSLType::kBool3:
+        case SkSLType::kBool4:
+        case SkSLType::kTexture2DSampler:
+        case SkSLType::kTextureExternalSampler:
+        case SkSLType::kTexture2DRectSampler:
+        case SkSLType::kSampler:
+        case SkSLType::kTexture2D:
+        case SkSLType::kInput:
             break;
     }
     SK_ABORT("Unexpected type");
 }
 
-/** Returns the size in bytes taken up in Metal buffers for GrSLTypes. */
-static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
+/** Returns the size in bytes taken up in Metal buffers for SkSLTypes. */
+static inline uint32_t sksltype_to_mtl_size(SkSLType type) {
     switch(type) {
-        case kInt_GrSLType:
-        case kUInt_GrSLType:
-        case kFloat_GrSLType:
+        case SkSLType::kInt:
+        case SkSLType::kUInt:
+        case SkSLType::kFloat:
             return 4;
-        case kInt2_GrSLType:
-        case kUInt2_GrSLType:
-        case kFloat2_GrSLType:
+        case SkSLType::kInt2:
+        case SkSLType::kUInt2:
+        case SkSLType::kFloat2:
             return 8;
-        case kInt3_GrSLType:
-        case kUInt3_GrSLType:
-        case kFloat3_GrSLType:
-        case kInt4_GrSLType:
-        case kUInt4_GrSLType:
-        case kFloat4_GrSLType:
+        case SkSLType::kInt3:
+        case SkSLType::kUInt3:
+        case SkSLType::kFloat3:
+        case SkSLType::kInt4:
+        case SkSLType::kUInt4:
+        case SkSLType::kFloat4:
             return 16;
 
-        case kFloat2x2_GrSLType:
+        case SkSLType::kFloat2x2:
             return 16;
-        case kFloat3x3_GrSLType:
+        case SkSLType::kFloat3x3:
             return 48;
-        case kFloat4x4_GrSLType:
+        case SkSLType::kFloat4x4:
             return 64;
 
-        case kShort_GrSLType:
-        case kUShort_GrSLType:
-        case kHalf_GrSLType:
+        case SkSLType::kShort:
+        case SkSLType::kUShort:
+        case SkSLType::kHalf:
             return 2;
-        case kShort2_GrSLType:
-        case kUShort2_GrSLType:
-        case kHalf2_GrSLType:
+        case SkSLType::kShort2:
+        case SkSLType::kUShort2:
+        case SkSLType::kHalf2:
             return 4;
-        case kShort3_GrSLType:
-        case kShort4_GrSLType:
-        case kUShort3_GrSLType:
-        case kUShort4_GrSLType:
-        case kHalf3_GrSLType:
-        case kHalf4_GrSLType:
+        case SkSLType::kShort3:
+        case SkSLType::kShort4:
+        case SkSLType::kUShort3:
+        case SkSLType::kUShort4:
+        case SkSLType::kHalf3:
+        case SkSLType::kHalf4:
             return 8;
 
-        case kHalf2x2_GrSLType:
+        case SkSLType::kHalf2x2:
             return 8;
-        case kHalf3x3_GrSLType:
+        case SkSLType::kHalf3x3:
             return 24;
-        case kHalf4x4_GrSLType:
+        case SkSLType::kHalf4x4:
             return 32;
 
         // This query is only valid for certain types.
-        case kVoid_GrSLType:
-        case kBool_GrSLType:
-        case kBool2_GrSLType:
-        case kBool3_GrSLType:
-        case kBool4_GrSLType:
-        case kTexture2DSampler_GrSLType:
-        case kTextureExternalSampler_GrSLType:
-        case kTexture2DRectSampler_GrSLType:
-        case kSampler_GrSLType:
-        case kTexture2D_GrSLType:
-        case kInput_GrSLType:
+        case SkSLType::kVoid:
+        case SkSLType::kBool:
+        case SkSLType::kBool2:
+        case SkSLType::kBool3:
+        case SkSLType::kBool4:
+        case SkSLType::kTexture2DSampler:
+        case SkSLType::kTextureExternalSampler:
+        case SkSLType::kTexture2DRectSampler:
+        case SkSLType::kSampler:
+        case SkSLType::kTexture2D:
+        case SkSLType::kInput:
             break;
     }
     SK_ABORT("Unexpected type");
@@ -156,9 +157,9 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
 static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
                                        uint32_t* maxAlignment,
-                                       GrSLType type,
+                                       SkSLType type,
                                        int arrayCount) {
-    uint32_t alignmentMask = grsltype_to_alignment_mask(type);
+    uint32_t alignmentMask = sksltype_to_alignment_mask(type);
     if (alignmentMask > *maxAlignment) {
         *maxAlignment = alignmentMask;
     }
@@ -169,9 +170,9 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
     uint32_t uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
     if (arrayCount) {
-        *currentOffset = uniformOffset + grsltype_to_mtl_size(type) * arrayCount;
+        *currentOffset = uniformOffset + sksltype_to_mtl_size(type) * arrayCount;
     } else {
-        *currentOffset = uniformOffset + grsltype_to_mtl_size(type);
+        *currentOffset = uniformOffset + sksltype_to_mtl_size(type);
     }
     return uniformOffset;
 }
@@ -179,13 +180,13 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
 GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray(
                                                                    const GrFragmentProcessor* owner,
                                                                    uint32_t visibility,
-                                                                   GrSLType type,
+                                                                   SkSLType type,
                                                                    const char* name,
                                                                    bool mangleName,
                                                                    int arrayCount,
                                                                    const char** outName) {
     SkASSERT(name && strlen(name));
-    SkASSERT(GrSLTypeCanBeUniformValue(type));
+    SkASSERT(SkSLTypeCanBeUniformValue(type));
 
     // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
     // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
@@ -245,7 +246,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
 
     MtlUniformInfo tempInfo;
     tempInfo.fVariable = GrShaderVar{std::move(mangleName),
-                                     GrSLCombinedSamplerTypeForTextureType(type),
+                                     SkSLCombinedSamplerTypeForTextureType(type),
                                      GrShaderVar::TypeModifier::Uniform,
                                      GrShaderVar::kNonArray,
                                      std::move(layoutQualifier),
@@ -265,7 +266,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
 
 void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     for (const UniformInfo& sampler : fSamplers.items()) {
-        SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
+        SkASSERT(sampler.fVariable.getType() == SkSLType::kTexture2DSampler);
         if (visibility == sampler.fVisibility) {
             sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
@@ -287,7 +288,7 @@ void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString*
     SkString uniformsString;
     for (const UniformInfo& localUniform : fUniforms.items()) {
         if (visibility & localUniform.fVisibility) {
-            if (GrSLTypeCanBeUniformValue(localUniform.fVariable.getType())) {
+            if (SkSLTypeCanBeUniformValue(localUniform.fVariable.getType())) {
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }

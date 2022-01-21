@@ -207,15 +207,15 @@ void GrMatrixConvolutionEffect::Impl::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     if (mce.fKernel.isSampled()) {
         fKernelBiasUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag,
-                                                    kHalf_GrSLType, "KernelBias");
+                                                    SkSLType::kHalf, "KernelBias");
     } else {
         fKernelUni = uniformHandler->addUniformArray(&mce, kFragment_GrShaderFlag,
-                                                     kHalf4_GrSLType, "Kernel", arrayCount);
+                                                     SkSLType::kHalf4, "Kernel", arrayCount);
     }
-    fKernelOffsetUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf2_GrSLType,
+    fKernelOffsetUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, SkSLType::kHalf2,
                                                   "KernelOffset");
-    fGainUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf_GrSLType, "Gain");
-    fBiasUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf_GrSLType, "Bias");
+    fGainUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, SkSLType::kHalf, "Gain");
+    fBiasUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, SkSLType::kHalf, "Bias");
 
     const char* kernelOffset = uniformHandler->getUniformCStr(fKernelOffsetUni);
     const char* gain = uniformHandler->getUniformCStr(fGainUni);

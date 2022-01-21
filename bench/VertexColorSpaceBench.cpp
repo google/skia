@@ -66,7 +66,7 @@ public:
                 varyingHandler->emitAttributes(gp);
 
                 // Setup color
-                GrGLSLVarying varying(kHalf4_GrSLType);
+                GrGLSLVarying varying(SkSLType::kHalf4);
                 varyingHandler->addVarying("color", &varying);
                 vertBuilder->codeAppendf("half4 color = %s;", gp.fInColor.name());
 
@@ -105,17 +105,17 @@ private:
             : INHERITED(kVertexColorSpaceBenchGP_ClassID)
             , fMode(mode)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         switch (fMode) {
             case kBaseline_Mode:
             case kShader_Mode:
-                fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+                fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, SkSLType::kHalf4};
                 break;
             case kFloat_Mode:
-                fInColor = {"inColor", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+                fInColor = {"inColor", kFloat4_GrVertexAttribType, SkSLType::kHalf4};
                 break;
             case kHalf_Mode:
-                fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
+                fInColor = {"inColor", kHalf4_GrVertexAttribType, SkSLType::kHalf4};
                 break;
         }
         this->setVertexAttributesWithImplicitOffsets(&fInPosition, 2);

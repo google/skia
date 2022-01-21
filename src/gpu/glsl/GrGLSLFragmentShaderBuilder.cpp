@@ -50,7 +50,7 @@ void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEqu
 
 void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
     if (!fCustomColorOutput) {
-        fCustomColorOutput = &fOutputs.emplace_back(DeclaredColorOutputName(), kHalf4_GrSLType,
+        fCustomColorOutput = &fOutputs.emplace_back(DeclaredColorOutputName(), SkSLType::kHalf4,
                                                     GrShaderVar::TypeModifier::Out);
         fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
@@ -69,7 +69,7 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
     // output. The condition also co-incides with the condition in which GLSL ES 2.0
     // requires the built-in gl_SecondaryFragColorEXT, whereas 3.0 requires a custom output.
     if (caps.mustDeclareFragmentShaderOutput()) {
-        fOutputs.emplace_back(DeclaredSecondaryColorOutputName(), kHalf4_GrSLType,
+        fOutputs.emplace_back(DeclaredSecondaryColorOutputName(), SkSLType::kHalf4,
                               GrShaderVar::TypeModifier::Out);
         fProgramBuilder->finalizeFragmentSecondaryColor(fOutputs.back());
     }

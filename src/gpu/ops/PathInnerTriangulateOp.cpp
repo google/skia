@@ -28,13 +28,13 @@ public:
             : GrPathTessellationShader(kTessellate_HullShader_ClassID,
                                        GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color,
                                        skgpu::PatchAttribs::kNone) {
-        fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
-        fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
+        fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         if (!shaderCaps.infinitySupport()) {
             // A conic curve is written out with p3=[w,Infinity], but GPUs that don't support
             // infinity can't detect this. On these platforms we also write out an extra float with
             // each patch that explicitly tells the shader what type of curve it is.
-            fInstanceAttribs.emplace_back("curveType", kFloat_GrVertexAttribType, kFloat_GrSLType);
+            fInstanceAttribs.emplace_back("curveType", kFloat_GrVertexAttribType, SkSLType::kFloat);
         }
         this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.data(),
                                                        fInstanceAttribs.count());
@@ -42,7 +42,7 @@ public:
 
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kVertexIdxAttrib("vertexidx", kFloat_GrVertexAttribType,
-                                                        kFloat_GrSLType);
+                                                        SkSLType::kFloat);
             this->setVertexAttributesWithImplicitOffsets(&kVertexIdxAttrib, 1);
         }
     }
@@ -158,8 +158,8 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
             }
 
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
-            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
-            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
+            gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
+            gpArgs->fPositionVar.set(SkSLType::kFloat2, "vertexpos");
         }
     };
     return std::make_unique<Impl>();

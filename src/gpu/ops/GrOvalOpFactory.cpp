@@ -100,24 +100,24 @@ private:
             : INHERITED(kCircleGeometryProcessor_ClassID)
             , fLocalMatrix(localMatrix)
             , fStroke(stroke) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         fInColor = MakeColorAttribute("inColor", wideColor);
-        fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
 
         if (clipPlane) {
-            fInClipPlane = {"inClipPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
+            fInClipPlane = {"inClipPlane", kFloat3_GrVertexAttribType, SkSLType::kHalf3};
         }
         if (isectPlane) {
-            fInIsectPlane = {"inIsectPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
+            fInIsectPlane = {"inIsectPlane", kFloat3_GrVertexAttribType, SkSLType::kHalf3};
         }
         if (unionPlane) {
-            fInUnionPlane = {"inUnionPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
+            fInUnionPlane = {"inUnionPlane", kFloat3_GrVertexAttribType, SkSLType::kHalf3};
         }
         if (roundCaps) {
             SkASSERT(stroke);
             SkASSERT(clipPlane);
             fInRoundCapCenters =
-                    {"inRoundCapCenters", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+                    {"inRoundCapCenters", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
         }
         this->setVertexAttributesWithImplicitOffsets(&fInPosition, 7);
     }
@@ -162,7 +162,7 @@ private:
                 varyingHandler->addPassThroughAttribute(cgp.fInUnionPlane.asShaderVar(),
                                                         "unionPlane");
             }
-            GrGLSLVarying capRadius(kFloat_GrSLType);
+            GrGLSLVarying capRadius(SkSLType::kFloat);
             if (cgp.fInRoundCapCenters.isInitialized()) {
                 fragBuilder->codeAppend("float4 roundCapCenters;");
                 varyingHandler->addPassThroughAttribute(cgp.fInRoundCapCenters.asShaderVar(),
@@ -295,10 +295,10 @@ private:
     ButtCapDashedCircleGeometryProcessor(bool wideColor, const SkMatrix& localMatrix)
             : INHERITED(kButtCapStrokedCircleGeometryProcessor_ClassID)
             , fLocalMatrix(localMatrix) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         fInColor = MakeColorAttribute("inColor", wideColor);
-        fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-        fInDashParams = {"inDashParams", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
+        fInDashParams = {"inDashParams", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
         this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
     }
 
@@ -334,10 +334,10 @@ private:
                     bcscgp.fInDashParams.asShaderVar(),
                     "dashParams",
                     GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-            GrGLSLVarying wrapDashes(kHalf4_GrSLType);
+            GrGLSLVarying wrapDashes(SkSLType::kHalf4);
             varyingHandler->addVarying("wrapDashes", &wrapDashes,
                                        GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-            GrGLSLVarying lastIntervalLength(kHalf_GrSLType);
+            GrGLSLVarying lastIntervalLength(SkSLType::kHalf);
             varyingHandler->addVarying("lastIntervalLength", &lastIntervalLength,
                                        GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
             vertBuilder->codeAppendf("float4 dashParams = %s;", bcscgp.fInDashParams.name());
@@ -418,11 +418,11 @@ private:
                             &fLocalMatrixUniform);
 
             GrShaderVar fnArgs[] = {
-                    GrShaderVar("angleToEdge", kFloat_GrSLType),
-                    GrShaderVar("diameter", kFloat_GrSLType),
+                    GrShaderVar("angleToEdge", SkSLType::kFloat),
+                    GrShaderVar("diameter", SkSLType::kFloat),
             };
             SkString fnName = fragBuilder->getMangledFunctionName("coverage_from_dash_edge");
-            fragBuilder->emitFunction(kFloat_GrSLType, fnName.c_str(),
+            fragBuilder->emitFunction(SkSLType::kFloat, fnName.c_str(),
                                       {fnArgs, SK_ARRAY_COUNT(fnArgs)}, R"(
                     float linearDist;
                     angleToEdge = clamp(angleToEdge, -3.1415, 3.1415);
@@ -555,14 +555,14 @@ private:
             , fLocalMatrix(localMatrix)
             , fStroke(stroke)
             , fUseScale(useScale) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         fInColor = MakeColorAttribute("inColor", wideColor);
         if (useScale) {
-            fInEllipseOffset = {"inEllipseOffset", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+            fInEllipseOffset = {"inEllipseOffset", kFloat3_GrVertexAttribType, SkSLType::kFloat3};
         } else {
-            fInEllipseOffset = {"inEllipseOffset", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+            fInEllipseOffset = {"inEllipseOffset", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         }
-        fInEllipseRadii = {"inEllipseRadii", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        fInEllipseRadii = {"inEllipseRadii", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
         this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
     }
 
@@ -585,13 +585,13 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(egp);
 
-            GrSLType offsetType = egp.fUseScale ? kFloat3_GrSLType : kFloat2_GrSLType;
+            SkSLType offsetType = egp.fUseScale ? SkSLType::kFloat3 : SkSLType::kFloat2;
             GrGLSLVarying ellipseOffsets(offsetType);
             varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
                                      egp.fInEllipseOffset.name());
 
-            GrGLSLVarying ellipseRadii(kFloat4_GrSLType);
+            GrGLSLVarying ellipseRadii(SkSLType::kFloat4);
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.fInEllipseRadii.name());
 
@@ -752,16 +752,16 @@ private:
             , fViewMatrix(viewMatrix)
             , fUseScale(useScale)
             , fStyle(style) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         fInColor = MakeColorAttribute("inColor", wideColor);
         if (useScale) {
             fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat3_GrVertexAttribType,
-                                  kFloat3_GrSLType};
+                                  SkSLType::kFloat3};
         } else {
             fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat2_GrVertexAttribType,
-                                  kFloat2_GrSLType};
+                                  SkSLType::kFloat2};
         }
-        fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
     }
 
@@ -785,12 +785,12 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(diegp);
 
-            GrSLType offsetType = (diegp.fUseScale) ? kFloat3_GrSLType : kFloat2_GrSLType;
+            SkSLType offsetType = (diegp.fUseScale) ? SkSLType::kFloat3 : SkSLType::kFloat2;
             GrGLSLVarying offsets0(offsetType);
             varyingHandler->addVarying("EllipseOffsets0", &offsets0);
             vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(), diegp.fInEllipseOffsets0.name());
 
-            GrGLSLVarying offsets1(kFloat2_GrSLType);
+            GrGLSLVarying offsets1(SkSLType::kFloat2);
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(), diegp.fInEllipseOffsets1.name());
 

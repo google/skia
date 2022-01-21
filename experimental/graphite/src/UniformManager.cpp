@@ -305,7 +305,7 @@ public:
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
-static uint32_t sltype_to_alignment_mask(SkSLType type) {
+static uint32_t sksltype_to_alignment_mask(SkSLType type) {
     switch (type) {
         case SkSLType::kInt:
         case SkSLType::kUInt:
@@ -370,8 +370,8 @@ static uint32_t sltype_to_alignment_mask(SkSLType type) {
     SK_ABORT("Unexpected type");
 }
 
-/** Returns the size in bytes taken up in Metal buffers for GrSLTypes. */
-inline uint32_t sltype_to_mtl_size(SkSLType type) {
+/** Returns the size in bytes taken up in Metal buffers for SkSLTypes. */
+inline uint32_t sksltype_to_mtl_size(SkSLType type) {
     switch (type) {
         case SkSLType::kInt:
         case SkSLType::kUInt:
@@ -443,7 +443,7 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
                                        uint32_t* maxAlignment,
                                        SkSLType type,
                                        int arrayCount) {
-    uint32_t alignmentMask = sltype_to_alignment_mask(type);
+    uint32_t alignmentMask = sksltype_to_alignment_mask(type);
     if (alignmentMask > *maxAlignment) {
         *maxAlignment = alignmentMask;
     }
@@ -454,9 +454,9 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
     uint32_t uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
     if (arrayCount) {
-        *currentOffset = uniformOffset + sltype_to_mtl_size(type) * arrayCount;
+        *currentOffset = uniformOffset + sksltype_to_mtl_size(type) * arrayCount;
     } else {
-        *currentOffset = uniformOffset + sltype_to_mtl_size(type);
+        *currentOffset = uniformOffset + sksltype_to_mtl_size(type);
     }
     return uniformOffset;
 }

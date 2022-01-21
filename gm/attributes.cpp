@@ -60,16 +60,17 @@ private:
             : GrGeometryProcessor(kAttributeTestProcessor_ClassID), fMode(mode) {
         switch (fMode) {
             case AttrMode::kAuto:
-                fAttributes.emplace_back("pos", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
-                fAttributes.emplace_back("color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType);
+                fAttributes.emplace_back("pos", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
+                fAttributes.emplace_back("color", kUByte4_norm_GrVertexAttribType,
+                                         SkSLType::kHalf4);
                 this->setVertexAttributesWithImplicitOffsets(fAttributes.data(),
                                                              fAttributes.size());
                 break;
             case AttrMode::kManual:
                 // Same result as kAuto but with explicitly specified offsets and stride.
-                fAttributes.emplace_back("pos", kFloat2_GrVertexAttribType, kFloat2_GrSLType, 0);
-                fAttributes.emplace_back(
-                        "color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType, 8);
+                fAttributes.emplace_back("pos", kFloat2_GrVertexAttribType, SkSLType::kFloat2, 0);
+                fAttributes.emplace_back("color", kUByte4_norm_GrVertexAttribType,
+                                         SkSLType::kHalf4, 8);
                 this->setVertexAttributes(fAttributes.data(), fAttributes.size(), 12);
                 break;
             case AttrMode::kWacky:
@@ -77,10 +78,10 @@ private:
                 //  8 thru 11: pad
                 // 12 thru 15: unorm4 "color"
                 // 16 thru 19: pad
-                fAttributes.emplace_back("pos0", kFloat2_GrVertexAttribType, kFloat2_GrSLType, 0);
-                fAttributes.emplace_back("pos1", kFloat2_GrVertexAttribType, kFloat2_GrSLType, 0);
-                fAttributes.emplace_back(
-                        "color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType, 12);
+                fAttributes.emplace_back("pos0", kFloat2_GrVertexAttribType, SkSLType::kFloat2, 0);
+                fAttributes.emplace_back("pos1", kFloat2_GrVertexAttribType, SkSLType::kFloat2, 0);
+                fAttributes.emplace_back("color", kUByte4_norm_GrVertexAttribType,
+                                         SkSLType::kHalf4, 12);
                 this->setVertexAttributes(fAttributes.data(), fAttributes.size(), 20);
                 break;
         }
@@ -109,9 +110,9 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> AttributeTestProcessor::makePr
                 args.fVertBuilder->codeAppend("float2 pos = pos0 + pos1;");
             }
             args.fFragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-            args.fVaryingHandler->addPassThroughAttribute(GrShaderVar("color", kHalf4_GrSLType),
+            args.fVaryingHandler->addPassThroughAttribute(GrShaderVar("color", SkSLType::kHalf4),
                                                           args.fOutputColor);
-            gpArgs->fPositionVar.set(kFloat2_GrSLType, "pos");
+            gpArgs->fPositionVar.set(SkSLType::kFloat2, "pos");
             args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
         }
     };

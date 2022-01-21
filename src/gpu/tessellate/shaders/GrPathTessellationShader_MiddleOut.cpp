@@ -37,25 +37,25 @@ public:
                     const SkPMColor4f& color, PatchAttribs attribs)
             : GrPathTessellationShader(kTessellate_MiddleOutShader_ClassID,
                                        GrPrimitiveType::kTriangles, 0, viewMatrix, color, attribs) {
-        fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
-        fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
+        fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         if (fAttribs & PatchAttribs::kFanPoint) {
             fInstanceAttribs.emplace_back("fanPointAttrib",
                                           kFloat2_GrVertexAttribType,
-                                          kFloat2_GrSLType);
+                                          SkSLType::kFloat2);
         }
         if (fAttribs & PatchAttribs::kColor) {
             fInstanceAttribs.emplace_back("colorAttrib",
                                           (fAttribs & PatchAttribs::kWideColorIfEnabled)
                                                   ? kFloat4_GrVertexAttribType
                                                   : kUByte4_norm_GrVertexAttribType,
-                                          kHalf4_GrSLType);
+                                          SkSLType::kHalf4);
         }
         if (fAttribs & PatchAttribs::kExplicitCurveType) {
             // A conic curve is written out with p3=[w,Infinity], but GPUs that don't support
             // infinity can't detect this. On these platforms we also write out an extra float with
             // each patch that explicitly tells the shader what type of curve it is.
-            fInstanceAttribs.emplace_back("curveType", kFloat_GrVertexAttribType, kFloat_GrSLType);
+            fInstanceAttribs.emplace_back("curveType", kFloat_GrVertexAttribType, SkSLType::kFloat);
         }
         this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.data(),
                                                        fInstanceAttribs.count());
@@ -64,7 +64,7 @@ public:
                  sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
 
         constexpr static Attribute kVertexAttrib("resolveLevel_and_idx", kFloat2_GrVertexAttribType,
-                                                 kFloat2_GrSLType);
+                                                 SkSLType::kFloat2);
         this->setVertexAttributesWithImplicitOffsets(&kVertexAttrib, 1);
     }
 
@@ -197,10 +197,10 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
                 }
             }
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
-            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
-            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
+            gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
+            gpArgs->fPositionVar.set(SkSLType::kFloat2, "vertexpos");
             if (middleOutShader.fAttribs & PatchAttribs::kColor) {
-                GrGLSLVarying colorVarying(GrSLType::kHalf4_GrSLType);
+                GrGLSLVarying colorVarying(SkSLType::kHalf4);
                 varyingHandler->addVarying("color",
                                            &colorVarying,
                                            GrGLSLVaryingHandler::Interpolation::kCanBeFlat);

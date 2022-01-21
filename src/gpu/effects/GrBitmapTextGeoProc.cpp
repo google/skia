@@ -55,7 +55,7 @@ private:
 
         const char* atlasDimensionsInvName;
         fAtlasDimensionsInvUniform = uniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
-                kFloat2_GrSLType, "AtlasSizeInv", &atlasDimensionsInvName);
+                SkSLType::kFloat2, "AtlasSizeInv", &atlasDimensionsInvName);
 
         GrGLSLVarying uv, texIdx;
         append_index_uv_varyings(args,
@@ -128,9 +128,9 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
     SkASSERT(numActiveViews <= kMaxTextures);
 
     if (usesW) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, SkSLType::kFloat3};
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
     }
 
     bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
@@ -140,7 +140,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
     }
 
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+                        caps.integerSupport() ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 
     if (numActiveViews) {

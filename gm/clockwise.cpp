@@ -58,7 +58,7 @@ class GrGLSLProgramDataManager;
 namespace {
 
 static constexpr GrGeometryProcessor::Attribute gVertex =
-        {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        {"position", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SkSL code.
@@ -105,7 +105,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> ClockwiseTestProcessor::makePr
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const ClockwiseTestProcessor& proc = args.fGeomProc.cast<ClockwiseTestProcessor>();
             args.fVaryingHandler->emitAttributes(proc);
-            gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
+            gpArgs->fPositionVar.set(SkSLType::kFloat2, "position");
             args.fFragBuilder->codeAppendf(
                     "half4 %s = sk_Clockwise ? half4(0,1,0,1) : half4(1,0,0,1);",
                     args.fOutputColor);

@@ -12,7 +12,7 @@
 void GrGLSLVaryingHandler::addPassThroughAttribute(const GrShaderVar& vsVar,
                                                    const char* output,
                                                    Interpolation interpolation) {
-    SkASSERT(vsVar.getType() != kVoid_GrSLType);
+    SkASSERT(vsVar.getType() != SkSLType::kVoid);
     GrGLSLVarying v(vsVar.getType());
     this->addVarying(vsVar.c_str(), &v, interpolation);
     fProgramBuilder->fVS.codeAppendf("%s = %s;", v.vsOut(), vsVar.c_str());
@@ -38,11 +38,11 @@ static bool use_flat_interpolation(GrGLSLVaryingHandler::Interpolation interpola
 
 void GrGLSLVaryingHandler::addVarying(const char* name, GrGLSLVarying* varying,
                                       Interpolation interpolation) {
-    SkASSERT(GrSLTypeIsFloatType(varying->type()) || Interpolation::kMustBeFlat == interpolation);
+    SkASSERT(SkSLTypeIsFloatType(varying->type()) || Interpolation::kMustBeFlat == interpolation);
     VaryingInfo& v = fVaryings.push_back();
 
     SkASSERT(varying);
-    SkASSERT(kVoid_GrSLType != varying->fType);
+    SkASSERT(SkSLType::kVoid != varying->fType);
     v.fType = varying->fType;
     v.fIsFlat = use_flat_interpolation(interpolation, *fProgramBuilder->shaderCaps());
     v.fVsOut = fProgramBuilder->nameVariable('v', name);

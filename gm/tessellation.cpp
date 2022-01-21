@@ -28,7 +28,7 @@
 namespace skiagm {
 
 constexpr static GrGeometryProcessor::Attribute kPositionAttrib =
-        {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        {"position", kFloat3_GrVertexAttribType, SkSLType::kFloat3};
 
 constexpr static std::array<float, 3> kTri1[3] = {
         {20.5f,20.5f,1}, {170.5f,280.5f,4}, {320.5f,20.5f,1}};
@@ -77,9 +77,9 @@ private:
             args.fVaryingHandler->emitAttributes(args.fGeomProc.cast<TessellationTestTriShader>());
             const char* viewMatrix;
             fViewMatrixUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
+                    nullptr, kVertex_GrShaderFlag, SkSLType::kFloat3x3, "view_matrix", &viewMatrix);
             args.fVertBuilder->declareGlobal(
-                    GrShaderVar("P_", kFloat3_GrSLType, GrShaderVar::TypeModifier::Out));
+                    GrShaderVar("P_", SkSLType::kFloat3, GrShaderVar::TypeModifier::Out));
             args.fVertBuilder->codeAppendf(R"(
             P_.xy = (%s * float3(position.xy, 1)).xy;
             P_.z = position.z;)", viewMatrix);
@@ -151,7 +151,7 @@ private:
 
         void writeFragmentShader(GrGLSLFPFragmentBuilder* f, const char* color,
                                  const char* coverage) {
-            f->declareGlobal(GrShaderVar("barycentric_coord", kFloat3_GrSLType,
+            f->declareGlobal(GrShaderVar("barycentric_coord", SkSLType::kFloat3,
                                          GrShaderVar::TypeModifier::In));
             f->codeAppendf(R"(
             half3 d = half3(1 - barycentric_coord/fwidth(barycentric_coord));
@@ -195,9 +195,9 @@ private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const char* viewMatrix;
             fViewMatrixUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
+                    nullptr, kVertex_GrShaderFlag, SkSLType::kFloat3x3, "view_matrix", &viewMatrix);
             args.fVertBuilder->declareGlobal(
-                    GrShaderVar("M_", kFloat3x3_GrSLType, GrShaderVar::TypeModifier::Out));
+                    GrShaderVar("M_", SkSLType::kFloat3x3, GrShaderVar::TypeModifier::Out));
             args.fVertBuilder->codeAppendf("M_ = %s;", viewMatrix);
             // GrGLProgramBuilder will call writeTess*ShaderGLSL when it is compiling.
             this->writeFragmentShader(args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
@@ -261,7 +261,7 @@ private:
 
         void writeFragmentShader(GrGLSLFPFragmentBuilder* f, const char* color,
                                  const char* coverage) {
-            f->declareGlobal(GrShaderVar("barycentric_coord", kFloat4_GrSLType,
+            f->declareGlobal(GrShaderVar("barycentric_coord", SkSLType::kFloat4,
                                          GrShaderVar::TypeModifier::In));
             f->codeAppendf(R"(
             float4 fwidths = fwidth(barycentric_coord);

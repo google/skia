@@ -532,7 +532,7 @@ void GrDisplacementMapEffect::Impl::emitCode(EmitArgs& args) {
     const GrDisplacementMapEffect& displacementMap = args.fFp.cast<GrDisplacementMapEffect>();
 
     fScaleUni = args.fUniformHandler->addUniform(&displacementMap, kFragment_GrShaderFlag,
-                                                 kHalf2_GrSLType, "Scale");
+                                                 SkSLType::kHalf2, "Scale");
     const char* scaleUni = args.fUniformHandler->getUniformCStr(fScaleUni);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;

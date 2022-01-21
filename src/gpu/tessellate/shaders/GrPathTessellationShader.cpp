@@ -24,7 +24,7 @@ public:
                                        GrPrimitiveType::kTriangles, 0, viewMatrix, color,
                                        PatchAttribs::kNone) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
-                                                     kFloat2_GrSLType};
+                                                     SkSLType::kFloat2};
         this->setVertexAttributesWithImplicitOffsets(&kInputPointAttrib, 1);
     }
 
@@ -47,8 +47,8 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> SimpleTriangleShader::makeProg
             v->codeAppend(R"(
             float2 localcoord = inputPoint;
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
-            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
-            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
+            gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
+            gpArgs->fPositionVar.set(SkSLType::kFloat2, "vertexpos");
         }
     };
     return std::make_unique<Impl>();
@@ -120,10 +120,10 @@ void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
     // Vertex shader.
     const char* affineMatrix, *translate;
     fAffineMatrixUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
-                                                            kFloat4_GrSLType, "affineMatrix",
+                                                            SkSLType::kFloat4, "affineMatrix",
                                                             &affineMatrix);
     fTranslateUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
-                                                         kFloat2_GrSLType, "translate", &translate);
+                                                         SkSLType::kFloat2, "translate", &translate);
     args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);", affineMatrix);
     args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;", translate);
     this->emitVertexCode(*args.fShaderCaps,
@@ -136,7 +136,7 @@ void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
     if (!(shader.fAttribs & PatchAttribs::kColor)) {
         const char* color;
         fColorUniform = args.fUniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
-                                                         kHalf4_GrSLType, "color", &color);
+                                                         SkSLType::kHalf4, "color", &color);
         args.fFragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, color);
     } else {
         args.fFragBuilder->codeAppendf("half4 %s = %s;",

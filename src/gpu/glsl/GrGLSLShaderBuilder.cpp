@@ -48,7 +48,7 @@ SkString GrGLSLShaderBuilder::getMangledFunctionName(const char* baseName) {
     return fProgramBuilder->nameVariable(/*prefix=*/'\0', baseName);
 }
 
-void GrGLSLShaderBuilder::appendFunctionDecl(GrSLType returnType,
+void GrGLSLShaderBuilder::appendFunctionDecl(SkSLType returnType,
                                              const char* mangledName,
                                              SkSpan<const GrShaderVar> args) {
     this->functions().appendf("%s %s(", GrGLSLTypeString(returnType), mangledName);
@@ -62,7 +62,7 @@ void GrGLSLShaderBuilder::appendFunctionDecl(GrSLType returnType,
     this->functions().append(")");
 }
 
-void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
+void GrGLSLShaderBuilder::emitFunction(SkSLType returnType,
                                        const char* mangledName,
                                        SkSpan<const GrShaderVar> args,
                                        const char* body) {
@@ -78,7 +78,7 @@ void GrGLSLShaderBuilder::emitFunction(const char* declaration, const char* body
                               "}\n\n", declaration, body);
 }
 
-void GrGLSLShaderBuilder::emitFunctionPrototype(GrSLType returnType,
+void GrGLSLShaderBuilder::emitFunctionPrototype(SkSLType returnType,
                                                 const char* mangledName,
                                                 SkSpan<const GrShaderVar> args) {
     this->appendFunctionDecl(returnType, mangledName, args);
@@ -170,7 +170,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     auto emitTFFunc = [=](const char* name, GrGLSLProgramDataManager::UniformHandle uniform,
                           TFKind kind) {
-        const GrShaderVar gTFArgs[] = { GrShaderVar("x", kHalf_GrSLType) };
+        const GrShaderVar gTFArgs[] = { GrShaderVar("x", SkSLType::kHalf) };
         const char* coeffs = uniformHandler->getUniformCStr(uniform);
         SkString body;
         // Temporaries to make evaluation line readable. We always use the sRGBish names, so the
@@ -203,7 +203,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         }
         body.append("return s * x;");
         SkString funcName = this->getMangledFunctionName(name);
-        this->emitFunction(kHalf_GrSLType, funcName.c_str(), {gTFArgs, SK_ARRAY_COUNT(gTFArgs)},
+        this->emitFunction(SkSLType::kHalf, funcName.c_str(), {gTFArgs, SK_ARRAY_COUNT(gTFArgs)},
                            body.c_str());
         return funcName;
     };
@@ -222,13 +222,13 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     SkString gamutXformFuncName;
     if (colorXformHelper->applyGamutXform()) {
-        const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", kHalf4_GrSLType) };
+        const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", SkSLType::kHalf4) };
         const char* xform = uniformHandler->getUniformCStr(colorXformHelper->gamutXformUniform());
         SkString body;
         body.appendf("color.rgb = (%s * color.rgb);", xform);
         body.append("return color;");
         gamutXformFuncName = this->getMangledFunctionName("gamut_xform");
-        this->emitFunction(kHalf4_GrSLType, gamutXformFuncName.c_str(),
+        this->emitFunction(SkSLType::kHalf4, gamutXformFuncName.c_str(),
                            {gGamutXformArgs, SK_ARRAY_COUNT(gGamutXformArgs)}, body.c_str());
     }
 
@@ -241,7 +241,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         bool useFloat = fProgramBuilder->shaderCaps()->colorSpaceMathNeedsFloat();
 
         const GrShaderVar gColorXformArgs[] = {
-                GrShaderVar("color", useFloat ? kFloat4_GrSLType : kHalf4_GrSLType)};
+                GrShaderVar("color", useFloat ? SkSLType::kFloat4 : SkSLType::kHalf4)};
         SkString body;
         if (colorXformHelper->applyUnpremul()) {
             body.append("color = unpremul(color);");
@@ -264,7 +264,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         }
         body.append("return half4(color);");
         SkString colorXformFuncName = this->getMangledFunctionName("color_xform");
-        this->emitFunction(kHalf4_GrSLType, colorXformFuncName.c_str(),
+        this->emitFunction(SkSLType::kHalf4, colorXformFuncName.c_str(),
                            {gColorXformArgs, SK_ARRAY_COUNT(gColorXformArgs)}, body.c_str());
         out->appendf("%s(%s)", colorXformFuncName.c_str(), srcColor);
     }

@@ -72,30 +72,30 @@ public:
          */
         constexpr Attribute(const char* name,
                             GrVertexAttribType cpuType,
-                            GrSLType gpuType)
+                            SkSLType gpuType)
                 : fName(name), fCPUType(cpuType), fGPUType(gpuType) {
-            SkASSERT(name && gpuType != kVoid_GrSLType);
+            SkASSERT(name && gpuType != SkSLType::kVoid);
         }
         /**
          * Makes an attribute with an explicit offset.
          */
         constexpr Attribute(const char*        name,
                             GrVertexAttribType cpuType,
-                            GrSLType           gpuType,
+                            SkSLType           gpuType,
                             size_t             offset)
                 : fName(name), fCPUType(cpuType), fGPUType(gpuType), fOffset(SkToU32(offset)) {
             SkASSERT(AlignOffset(offset) == offset);
-            SkASSERT(name && gpuType != kVoid_GrSLType);
+            SkASSERT(name && gpuType != SkSLType::kVoid);
         }
         constexpr Attribute(const Attribute&) = default;
 
         Attribute& operator=(const Attribute&) = default;
 
-        constexpr bool isInitialized() const { return fGPUType != kVoid_GrSLType; }
+        constexpr bool isInitialized() const { return fGPUType != SkSLType::kVoid; }
 
         constexpr const char*           name() const { return fName; }
         constexpr GrVertexAttribType cpuType() const { return fCPUType; }
-        constexpr GrSLType           gpuType() const { return fGPUType; }
+        constexpr SkSLType           gpuType() const { return fGPUType; }
         /**
          * Returns the offset if attributes were specified with explicit offsets. Otherwise,
          * offsets (and total vertex stride) are implicitly determined from attribute order and
@@ -120,7 +120,7 @@ public:
 
         const char*        fName    = nullptr;
         GrVertexAttribType fCPUType = kFloat_GrVertexAttribType;
-        GrSLType           fGPUType = kVoid_GrSLType;
+        SkSLType           fGPUType = SkSLType::kVoid;
         uint32_t           fOffset  = kImplicitOffset;
     };
 
@@ -226,7 +226,7 @@ protected:
     static Attribute MakeColorAttribute(const char* name, bool wideColor) {
         return { name,
                  wideColor ? kFloat4_GrVertexAttribType : kUByte4_norm_GrVertexAttribType,
-                 kHalf4_GrSLType };
+                 SkSLType::kHalf4 };
     }
     void setVertexAttributes(const Attribute* attrs, int attrCount, size_t stride) {
         fVertexAttributes.initExplicit(attrs, attrCount, stride);

@@ -9,6 +9,8 @@
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
 
 class GrStyle;
 class SkMatrix;
@@ -44,5 +46,18 @@ GrIntelGpuFamily GrGetIntelGpuFamily(uint32_t deviceID);
 // Helper for determining if we can treat a thin stroke as a hairline w/ coverage.
 // If we can, we draw lots faster (raster device does this same test).
 bool GrIsStrokeHairlineOrEquivalent(const GrStyle&, const SkMatrix&, SkScalar* outCoverage);
+
+static inline SkSLType SkSLCombinedSamplerTypeForTextureType(GrTextureType type) {
+    switch (type) {
+        case GrTextureType::k2D:
+            return SkSLType::kTexture2DSampler;
+        case GrTextureType::kRectangle:
+            return SkSLType::kTexture2DRectSampler;
+        case GrTextureType::kExternal:
+            return SkSLType::kTextureExternalSampler;
+        default:
+            SK_ABORT("Unexpected texture type");
+    }
+}
 
 #endif

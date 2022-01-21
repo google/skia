@@ -80,7 +80,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                int index,
                                const GrBuffer* vertexBuffer,
                                GrVertexAttribType cpuType,
-                               GrSLType gpuType,
+                               SkSLType gpuType,
                                GrGLsizei stride,
                                size_t offsetInBytes,
                                int divisor) {
@@ -113,7 +113,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
         // GrGLGpu will avoid redundant binds.
         gpu->bindBuffer(GrGpuBufferType::kVertex, vertexBuffer);
         const AttribLayout& layout = attrib_layout(cpuType);
-        if (GrSLTypeIsFloatType(gpuType)) {
+        if (SkSLTypeIsFloatType(gpuType)) {
             GR_GL_CALL(gpu->glInterface(), VertexAttribPointer(index,
                                                                layout.fCount,
                                                                layout.fType,

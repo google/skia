@@ -59,7 +59,7 @@ void GrConicEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit attributes
     varyingHandler->emitAttributes(gp);
 
-    GrGLSLVarying v(kFloat4_GrSLType);
+    GrGLSLVarying v(SkSLType::kFloat4);
     varyingHandler->addVarying("ConicCoeffs", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs().name());
 
@@ -90,14 +90,14 @@ void GrConicEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // that suffices. Additionally we should assert that the upstream code only lets us get here if
     // either float or half provides the required number of bits.
 
-    GrShaderVar edgeAlpha("edgeAlpha", kHalf_GrSLType, 0);
-    GrShaderVar dklmdx("dklmdx", kFloat3_GrSLType, 0);
-    GrShaderVar dklmdy("dklmdy", kFloat3_GrSLType, 0);
-    GrShaderVar dfdx("dfdx", kFloat_GrSLType, 0);
-    GrShaderVar dfdy("dfdy", kFloat_GrSLType, 0);
-    GrShaderVar gF("gF", kFloat2_GrSLType, 0);
-    GrShaderVar gFM("gFM", kFloat_GrSLType, 0);
-    GrShaderVar func("func", kFloat_GrSLType, 0);
+    GrShaderVar edgeAlpha("edgeAlpha", SkSLType::kHalf, 0);
+    GrShaderVar dklmdx("dklmdx", SkSLType::kFloat3, 0);
+    GrShaderVar dklmdy("dklmdy", SkSLType::kFloat3, 0);
+    GrShaderVar dfdx("dfdx", SkSLType::kFloat, 0);
+    GrShaderVar dfdy("dfdy", SkSLType::kFloat, 0);
+    GrShaderVar gF("gF", SkSLType::kFloat2, 0);
+    GrShaderVar gFM("gFM", SkSLType::kFloat, 0);
+    GrShaderVar func("func", SkSLType::kFloat, 0);
 
     fragBuilder->declAppend(edgeAlpha);
     fragBuilder->declAppend(dklmdx);
@@ -139,7 +139,7 @@ void GrConicEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         const char* coverageScale;
         fCoverageScaleUniform = uniformHandler->addUniform(nullptr,
                                                            kFragment_GrShaderFlag,
-                                                           kFloat_GrSLType,
+                                                           SkSLType::kFloat,
                                                            "Coverage",
                                                            &coverageScale);
         fragBuilder->codeAppendf("half4 %s = half4(half(%s) * %s);",
@@ -247,7 +247,7 @@ void GrQuadEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit attributes
     varyingHandler->emitAttributes(gp);
 
-    GrGLSLVarying v(kHalf4_GrSLType);
+    GrGLSLVarying v(SkSLType::kHalf4);
     varyingHandler->addVarying("HairQuadEdge", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge().name());
 
@@ -292,7 +292,7 @@ void GrQuadEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         const char* coverageScale;
         fCoverageScaleUniform = uniformHandler->addUniform(nullptr,
                                                            kFragment_GrShaderFlag,
-                                                           kHalf_GrSLType,
+                                                           SkSLType::kHalf,
                                                            "Coverage",
                                                            &coverageScale);
         fragBuilder->codeAppendf("half4 %s = half4(%s * edgeAlpha);", args.fOutputCoverage,

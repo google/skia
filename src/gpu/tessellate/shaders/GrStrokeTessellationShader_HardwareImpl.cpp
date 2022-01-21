@@ -32,25 +32,25 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
                        args.fShaderCaps->maxTessellationSegments());  // 1/128 of a segment.
 
     // [numSegmentsInJoin, innerJoinRadiusMultiplier, prevJoinTangent.xy]
-    v->declareGlobal(GrShaderVar("vsJoinArgs0", kFloat4_GrSLType, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsJoinArgs0", SkSLType::kFloat4, TypeModifier::Out));
 
     // [radsPerJoinSegment, joinOutsetClamp.xy]
-    v->declareGlobal(GrShaderVar("vsJoinArgs1", kFloat3_GrSLType, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsJoinArgs1", SkSLType::kFloat3, TypeModifier::Out));
 
     // Curve args.
-    v->declareGlobal(GrShaderVar("vsPts01", kFloat4_GrSLType, TypeModifier::Out));
-    v->declareGlobal(GrShaderVar("vsPts23", kFloat4_GrSLType, TypeModifier::Out));
-    v->declareGlobal(GrShaderVar("vsPts45", kFloat4_GrSLType, TypeModifier::Out));
-    v->declareGlobal(GrShaderVar("vsPts67", kFloat4_GrSLType, TypeModifier::Out));
-    v->declareGlobal(GrShaderVar("vsPts89", kFloat4_GrSLType, TypeModifier::Out));
-    v->declareGlobal(GrShaderVar("vsTans01", kFloat4_GrSLType, TypeModifier::Out));
-    v->declareGlobal(GrShaderVar("vsTans23", kFloat4_GrSLType, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsPts01", SkSLType::kFloat4, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsPts23", SkSLType::kFloat4, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsPts45", SkSLType::kFloat4, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsPts67", SkSLType::kFloat4, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsPts89", SkSLType::kFloat4, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsTans01", SkSLType::kFloat4, TypeModifier::Out));
+    v->declareGlobal(GrShaderVar("vsTans23", SkSLType::kFloat4, TypeModifier::Out));
     if (shader.hasDynamicStroke()) {
         // [NUM_RADIAL_SEGMENTS_PER_RADIAN, STROKE_RADIUS]
-        v->declareGlobal(GrShaderVar("vsStrokeArgs", kFloat2_GrSLType, TypeModifier::Out));
+        v->declareGlobal(GrShaderVar("vsStrokeArgs", SkSLType::kFloat2, TypeModifier::Out));
     }
     if (shader.hasDynamicColor()) {
-        v->declareGlobal(GrShaderVar("vsColor", kHalf4_GrSLType, TypeModifier::Out));
+        v->declareGlobal(GrShaderVar("vsColor", SkSLType::kHalf4, TypeModifier::Out));
     }
 
     v->insertFunction(kCosineBetweenVectorsFn);
@@ -67,7 +67,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
                                                          kVertex_GrShaderFlag |
                                                          kTessControl_GrShaderFlag |
                                                          kTessEvaluation_GrShaderFlag,
-                                                         kFloat4_GrSLType, "tessArgs",
+                                                         SkSLType::kFloat4, "tessArgs",
                                                          &tessArgsName);
         v->codeAppendf(R"(
         float NUM_RADIAL_SEGMENTS_PER_RADIAN = %s.y;
@@ -78,7 +78,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
                                                          kVertex_GrShaderFlag |
                                                          kTessControl_GrShaderFlag |
                                                          kTessEvaluation_GrShaderFlag,
-                                                         kFloat_GrSLType, "parametricPrecision",
+                                                         SkSLType::kFloat, "parametricPrecision",
                                                          &parametricPrecisionName);
         v->codeAppendf(R"(
         float STROKE_RADIUS = dynamicStrokeAttr.x;
@@ -87,7 +87,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     }
 
     fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
-                                               kFloat2_GrSLType, "translate", nullptr);
+                                               SkSLType::kFloat2, "translate", nullptr);
     // View matrix uniforms.
     const char* affineMatrixName;
     // Hairlines apply the affine matrix in their vertex shader, prior to tessellation.
@@ -96,8 +96,9 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     if (shader.stroke().isHairlineStyle()) {
         affineMatrixVisibility |= kVertex_GrShaderFlag;
     }
-    fAffineMatrixUniform = uniHandler->addUniform(nullptr, affineMatrixVisibility, kFloat4_GrSLType,
-                                                  "affineMatrix", &affineMatrixName);
+    fAffineMatrixUniform = uniHandler->addUniform(nullptr, affineMatrixVisibility,
+                                                  SkSLType::kFloat4, "affineMatrix",
+                                                  &affineMatrixName);
     if (affineMatrixVisibility & kVertex_GrShaderFlag) {
         v->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
     }
@@ -307,7 +308,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
         // Color gets passed in from the tess evaluation shader.
         fDynamicColorName = "dynamicColor";
         SkString flatness(args.fShaderCaps->preferFlatInterpolation() ? "flat" : "");
-        args.fFragBuilder->declareGlobal(GrShaderVar(fDynamicColorName, kHalf4_GrSLType,
+        args.fFragBuilder->declareGlobal(GrShaderVar(fDynamicColorName, SkSLType::kHalf4,
                                                      TypeModifier::In, 0, SkString(), flatness));
     }
     this->emitFragmentCode(shader, args);

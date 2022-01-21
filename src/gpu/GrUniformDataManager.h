@@ -13,6 +13,7 @@
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/core/SkSLTypeShared.h"
 
 /**
  * Subclass of GrGLSLProgramDataManager used to store uniforms for a program in a CPU buffer that
@@ -54,19 +55,19 @@ public:
 protected:
     struct Uniform {
         uint32_t fOffset : 24;
-        GrSLType fType : 8;
+        SkSLType fType   : 8;
         SkDEBUGCODE(
             int  fArrayCount;
         );
     };
 
-    int copyUniforms(void* dest, const void* src, int numUniforms, GrSLType uniformType) const;
+    int copyUniforms(void* dest, const void* src, int numUniforms, SkSLType uniformType) const;
 
-    template <int N, GrSLType kFullType, GrSLType kHalfType>
+    template <int N, SkSLType kFullType, SkSLType kHalfType>
     inline void set(UniformHandle u, const void* v) const;
-    template <int N, GrSLType kFullType, GrSLType kHalfType>
+    template <int N, SkSLType kFullType, SkSLType kHalfType>
     inline void setv(UniformHandle u, int arrayCount, const void* v) const;
-    template <int N, GrSLType FullType, GrSLType HalfType>
+    template <int N, SkSLType FullType, SkSLType HalfType>
     inline void setMatrices(UniformHandle, int arrayCount, const float matrices[]) const;
 
     void* getBufferPtrAndMarkDirty(const Uniform& uni) const;

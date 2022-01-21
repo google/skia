@@ -55,7 +55,7 @@ public:
     static constexpr int kLayoutCount = kLastLayout + 1;
 
     struct VkUniformInfo : public UniformInfo {
-        // offsets are only valid if the GrSLType of the fVariable is not a sampler.
+        // offsets are only valid if the SkSLType of the fVariable is not a sampler.
         uint32_t                fOffsets[kLayoutCount];
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
@@ -104,7 +104,7 @@ private:
 
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
                                           uint32_t visibility,
-                                          GrSLType type,
+                                          SkSLType type,
                                           const char* name,
                                           bool mangleName,
                                           int arrayCount,

@@ -468,16 +468,16 @@ private:
     MeshTestProcessor(bool instanced, bool hasVertexBuffer)
             : INHERITED(kGrMeshTestProcessor_ClassID) {
         if (instanced) {
-            fInstanceLocation = {"location", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-            fInstanceColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+            fInstanceLocation = {"location", kFloat2_GrVertexAttribType, SkSLType::kHalf2};
+            fInstanceColor = {"color", kUByte4_norm_GrVertexAttribType, SkSLType::kHalf4};
             this->setInstanceAttributesWithImplicitOffsets(&fInstanceLocation, 2);
             if (hasVertexBuffer) {
-                fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+                fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, SkSLType::kHalf2};
                 this->setVertexAttributesWithImplicitOffsets(&fVertexPosition, 1);
             }
         } else {
-            fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-            fVertexColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+            fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, SkSLType::kHalf2};
+            fVertexColor = {"color", kUByte4_norm_GrVertexAttribType, SkSLType::kHalf4};
             this->setVertexAttributesWithImplicitOffsets(&fVertexPosition, 2);
         }
     }
@@ -522,7 +522,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MeshTestProcessor::makeProgram
                 v->codeAppendf("float2 vertex = %s + offset * %i;", mp.fInstanceLocation.name(),
                                kBoxSize);
             }
-            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
+            gpArgs->fPositionVar.set(SkSLType::kFloat2, "vertex");
 
             f->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
         }

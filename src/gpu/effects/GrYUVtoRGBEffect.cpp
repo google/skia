@@ -289,9 +289,9 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrYUVtoRGBEffect::onMakeProgra
 
             if (kIdentity_SkYUVColorSpace != yuvEffect.fYUVColorSpace) {
                 fColorSpaceMatrixVar = args.fUniformHandler->addUniform(&yuvEffect,
-                        kFragment_GrShaderFlag, kHalf3x3_GrSLType, "colorSpaceMatrix");
+                        kFragment_GrShaderFlag, SkSLType::kHalf3x3, "colorSpaceMatrix");
                 fColorSpaceTranslateVar = args.fUniformHandler->addUniform(&yuvEffect,
-                        kFragment_GrShaderFlag, kHalf3_GrSLType, "colorSpaceTranslate");
+                        kFragment_GrShaderFlag, SkSLType::kHalf3, "colorSpaceTranslate");
                 fragBuilder->codeAppendf(
                         "color.rgb = saturate(color.rgb * %s + %s);",
                         args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar),

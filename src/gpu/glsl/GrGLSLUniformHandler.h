@@ -52,20 +52,20 @@ public:
         to add an array of uniforms. */
     UniformHandle addUniform(const GrFragmentProcessor* owner,
                              uint32_t visibility,
-                             GrSLType type,
+                             SkSLType type,
                              const char* name,
                              const char** outName = nullptr) {
-        SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
+        SkASSERT(!SkSLTypeIsCombinedSamplerType(type));
         return this->addUniformArray(owner, visibility, type, name, 0, outName);
     }
 
     UniformHandle addUniformArray(const GrFragmentProcessor* owner,
                                   uint32_t visibility,
-                                  GrSLType type,
+                                  SkSLType type,
                                   const char* name,
                                   int arrayCount,
                                   const char** outName = nullptr) {
-        SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
+        SkASSERT(!SkSLTypeIsCombinedSamplerType(type));
         bool mangle = strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX));
         return this->internalAddUniformArray(owner, visibility, type, name, mangle, arrayCount,
                                              outName);
@@ -120,7 +120,7 @@ private:
 
     virtual UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
                                                   uint32_t visibility,
-                                                  GrSLType type,
+                                                  SkSLType type,
                                                   const char* name,
                                                   bool mangleName,
                                                   int arrayCount,

@@ -235,7 +235,7 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrMorphologyEffect::onMakeProg
             const GrMorphologyEffect& me = args.fFp.cast<GrMorphologyEffect>();
 
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-            fRangeUni = uniformHandler->addUniform(&me, kFragment_GrShaderFlag, kFloat2_GrSLType,
+            fRangeUni = uniformHandler->addUniform(&me, kFragment_GrShaderFlag, SkSLType::kFloat2,
                                                    "Range");
             const char* range = uniformHandler->getUniformCStr(fRangeUni);
 

@@ -111,7 +111,7 @@ private:
             // Setup pass through color
             fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
             if (gp.hasVertexColor() || tweakAlpha) {
-                GrGLSLVarying varying(kHalf4_GrSLType);
+                GrGLSLVarying varying(SkSLType::kHalf4);
                 varyingHandler->addVarying("color", &varying);
 
                 // Start with the attribute or with uniform color
@@ -121,7 +121,7 @@ private:
                     const char* colorUniformName;
                     fColorUniform = uniformHandler->addUniform(nullptr,
                                                                kVertex_GrShaderFlag,
-                                                               kHalf4_GrSLType,
+                                                               SkSLType::kHalf4,
                                                                "Color",
                                                                &colorUniformName);
                     vertBuilder->codeAppendf("half4 color = %s;", colorUniformName);
@@ -177,7 +177,7 @@ private:
                 const char* fragCoverage;
                 fCoverageUniform = uniformHandler->addUniform(nullptr,
                                                               kFragment_GrShaderFlag,
-                                                              kHalf_GrSLType,
+                                                              SkSLType::kHalf,
                                                               "Coverage",
                                                               &fragCoverage);
                 fragBuilder->codeAppendf("half4 %s = half4(%s);",
@@ -212,17 +212,17 @@ private:
             , fCoverage(coverage)
             , fFlags(gpTypeFlags)
             , fLocalCoordsWillBeRead(localCoordsWillBeRead) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         if (fFlags & kColorAttribute_GPFlag) {
             fInColor = MakeColorAttribute("inColor",
                                           SkToBool(fFlags & kColorAttributeIsWide_GPFlag));
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
             fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
-                                              kFloat2_GrSLType};
+                                              SkSLType::kFloat2};
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
-            fInCoverage = {"inCoverage", kFloat_GrVertexAttribType, kHalf_GrSLType};
+            fInCoverage = {"inCoverage", kFloat_GrVertexAttribType, SkSLType::kHalf};
         }
         this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
     }

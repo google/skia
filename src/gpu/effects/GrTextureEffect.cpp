@@ -345,7 +345,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         const char* borderName = nullptr;
         if (te.hasClampToBorderShaderMode()) {
             fBorderUni = args.fUniformHandler->addUniform(
-                    &te, kFragment_GrShaderFlag, kHalf4_GrSLType, "border", &borderName);
+                    &te, kFragment_GrShaderFlag, SkSLType::kHalf4, "border", &borderName);
         }
         auto modeUsesSubset = [](ShaderMode m) {
           switch (m) {
@@ -383,13 +383,13 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         const char* subsetName = nullptr;
         if (useSubset[0] || useSubset[1]) {
             fSubsetUni = args.fUniformHandler->addUniform(
-                    &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "subset", &subsetName);
+                    &te, kFragment_GrShaderFlag, SkSLType::kFloat4, "subset", &subsetName);
         }
 
         const char* clampName = nullptr;
         if (useClamp[0] || useClamp[1]) {
             fClampUni = args.fUniformHandler->addUniform(
-                    &te, kFragment_GrShaderFlag, kFloat4_GrSLType, "clamp", &clampName);
+                    &te, kFragment_GrShaderFlag, SkSLType::kFloat4, "clamp", &clampName);
         }
 
         bool unormCoordsRequiredForShaderMode = ShaderModeRequiresUnormCoord(m[0]) ||
@@ -405,7 +405,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
             // TODO: Detect support for textureSize() or polyfill textureSize() in SkSL and
             // always use?
             fIDimsUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
-                                                         kFloat2_GrSLType, "idims", &idims);
+                                                         SkSLType::kFloat2, "idims", &idims);
         }
 
         // Generates a string to read at a coordinate, normalizing coords if necessary.

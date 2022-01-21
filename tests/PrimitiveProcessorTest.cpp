@@ -110,10 +110,10 @@ private:
                     // component count to fit within the limits for iOS Metal.
                     if (i & 0x1) {
                         fAttributes[i] = {fAttribNames[i].c_str(), kFloat_GrVertexAttribType,
-                                                                   kFloat_GrSLType};
+                                                                   SkSLType::kFloat};
                     } else {
                         fAttributes[i] = {fAttribNames[i].c_str(), kFloat2_GrVertexAttribType,
-                                                                   kFloat2_GrSLType};
+                                                                   SkSLType::kFloat2};
                     }
                 }
                 this->setVertexAttributesWithImplicitOffsets(fAttributes.get(), numAttribs);

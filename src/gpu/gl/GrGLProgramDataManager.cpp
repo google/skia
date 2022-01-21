@@ -44,7 +44,7 @@ void GrGLProgramDataManager::setSamplerUniforms(const UniformInfoArray& samplers
 
 void GrGLProgramDataManager::set1i(UniformHandle u, int32_t i) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt_GrSLType || uni.fType == kShort_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt || uni.fType == SkSLType::kShort);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform1i(uni.fLocation, i));
@@ -55,7 +55,7 @@ void GrGLProgramDataManager::set1iv(UniformHandle u,
                                     int arrayCount,
                                     const int32_t v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt_GrSLType || uni.fType == kShort_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt || uni.fType == SkSLType::kShort);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
@@ -65,7 +65,7 @@ void GrGLProgramDataManager::set1iv(UniformHandle u,
 
 void GrGLProgramDataManager::set1f(UniformHandle u, float v0) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat_GrSLType || uni.fType == kHalf_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat || uni.fType == SkSLType::kHalf);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform1f(uni.fLocation, v0));
@@ -76,7 +76,7 @@ void GrGLProgramDataManager::set1fv(UniformHandle u,
                                     int arrayCount,
                                     const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat_GrSLType || uni.fType == kHalf_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat || uni.fType == SkSLType::kHalf);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     // This assert fires in some instances of the two-pt gradient for its VSParams.
@@ -90,7 +90,7 @@ void GrGLProgramDataManager::set1fv(UniformHandle u,
 
 void GrGLProgramDataManager::set2i(UniformHandle u, int32_t i0, int32_t i1) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt2_GrSLType || uni.fType == kShort2_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt2 || uni.fType == SkSLType::kShort2);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform2i(uni.fLocation, i0, i1));
@@ -101,7 +101,7 @@ void GrGLProgramDataManager::set2iv(UniformHandle u,
                                     int arrayCount,
                                     const int32_t v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt2_GrSLType || uni.fType == kShort2_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt2 || uni.fType == SkSLType::kShort2);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
@@ -111,7 +111,7 @@ void GrGLProgramDataManager::set2iv(UniformHandle u,
 
 void GrGLProgramDataManager::set2f(UniformHandle u, float v0, float v1) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat2 || uni.fType == SkSLType::kHalf2);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform2f(uni.fLocation, v0, v1));
@@ -122,7 +122,7 @@ void GrGLProgramDataManager::set2fv(UniformHandle u,
                                     int arrayCount,
                                     const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat2 || uni.fType == SkSLType::kHalf2);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
@@ -132,7 +132,7 @@ void GrGLProgramDataManager::set2fv(UniformHandle u,
 
 void GrGLProgramDataManager::set3i(UniformHandle u, int32_t i0, int32_t i1, int32_t i2) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt3_GrSLType || uni.fType == kShort3_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt3 || uni.fType == SkSLType::kShort3);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform3i(uni.fLocation, i0, i1, i2));
@@ -143,7 +143,7 @@ void GrGLProgramDataManager::set3iv(UniformHandle u,
                                     int arrayCount,
                                     const int32_t v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt3_GrSLType || uni.fType == kShort3_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt3 || uni.fType == SkSLType::kShort3);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
@@ -153,7 +153,7 @@ void GrGLProgramDataManager::set3iv(UniformHandle u,
 
 void GrGLProgramDataManager::set3f(UniformHandle u, float v0, float v1, float v2) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat3_GrSLType || uni.fType == kHalf3_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat3 || uni.fType == SkSLType::kHalf3);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform3f(uni.fLocation, v0, v1, v2));
@@ -164,7 +164,7 @@ void GrGLProgramDataManager::set3fv(UniformHandle u,
                                     int arrayCount,
                                     const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat3_GrSLType || uni.fType == kHalf3_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat3 || uni.fType == SkSLType::kHalf3);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
@@ -178,7 +178,7 @@ void GrGLProgramDataManager::set4i(UniformHandle u,
                                    int32_t i2,
                                    int32_t i3) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt4_GrSLType || uni.fType == kShort4_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt4 || uni.fType == SkSLType::kShort4);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform4i(uni.fLocation, i0, i1, i2, i3));
@@ -189,7 +189,7 @@ void GrGLProgramDataManager::set4iv(UniformHandle u,
                                     int arrayCount,
                                     const int32_t v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt4_GrSLType || uni.fType == kShort4_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt4 || uni.fType == SkSLType::kShort4);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
@@ -203,7 +203,7 @@ void GrGLProgramDataManager::set4f(UniformHandle u,
                                    float v2,
                                    float v3) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat4_GrSLType || uni.fType == kHalf4_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat4 || uni.fType == SkSLType::kHalf4);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform4f(uni.fLocation, v0, v1, v2, v3));
@@ -214,7 +214,7 @@ void GrGLProgramDataManager::set4fv(UniformHandle u,
                                     int arrayCount,
                                     const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat4_GrSLType || uni.fType == kHalf4_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat4 || uni.fType == SkSLType::kHalf4);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
@@ -252,8 +252,8 @@ template<int N> inline void GrGLProgramDataManager::setMatrices(UniformHandle u,
                                                                 int arrayCount,
                                                                 const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat2x2_GrSLType + (N - 2) ||
-             uni.fType == kHalf2x2_GrSLType + (N - 2));
+    SkASSERT(static_cast<int>(uni.fType) == static_cast<int>(SkSLType::kFloat2x2) + (N - 2) ||
+             static_cast<int>(uni.fType) == static_cast<int>(SkSLType::kHalf2x2) + (N - 2));
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {

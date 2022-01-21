@@ -50,7 +50,7 @@ GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {
             if (fp.fFlags & Flags::kCheckBounds) {
                 const char* boundsName;
                 fBoundsUniform = uniHandler->addUniform(&fp, kFragment_GrShaderFlag,
-                                                        kFloat4_GrSLType, "bounds", &boundsName);
+                                                        SkSLType::kFloat4, "bounds", &boundsName);
                 // Are we inside the path's valid atlas bounds?
                 f->codeAppendf("if (all(greaterThan(sk_FragCoord.xy, %s.xy)) && "
                                    "all(lessThan(sk_FragCoord.xy, %s.zw))) ",
@@ -62,7 +62,7 @@ GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {
             f->codeAppendf("}");
             const char* coverageMaybeInvertName;
             fCoverageMaybeInvertUniform = uniHandler->addUniform(&fp, kFragment_GrShaderFlag,
-                                                                 kHalf2_GrSLType, "coverageInvert",
+                                                                 SkSLType::kHalf2, "coverageInvert",
                                                                  &coverageMaybeInvertName);
             // Invert coverage, if needed.
             f->codeAppendf("coverage = coverage * %s.x + %s.y;",

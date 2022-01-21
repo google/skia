@@ -55,21 +55,21 @@ static void append_index_uv_varyings(GrGeometryProcessor::ProgramImpl::EmitArgs&
     }
 
     // Multiply by 1/atlasDimensions to get normalized texture coordinates
-    uv->reset(kFloat2_GrSLType);
+    uv->reset(SkSLType::kFloat2);
     args.fVaryingHandler->addVarying("TextureCoords", uv);
     args.fVertBuilder->codeAppendf(
             "%s = unormTexCoords * %s;", uv->vsOut(), atlasDimensionsInvName);
 
     // On ANGLE there is a significant cost to using an int varying. We don't know of any case where
     // it is worse to use a float so for now we always do.
-    texIdx->reset(kFloat_GrSLType);
+    texIdx->reset(SkSLType::kFloat);
     // If we computed the local var "texIdx" as an int we will need to cast it to float
     const char* cast = args.fShaderCaps->integerSupport() ? "float" : "";
     args.fVaryingHandler->addVarying("TexIndex", texIdx, Interpolation::kCanBeFlat);
     args.fVertBuilder->codeAppendf("%s = %s(texIdx);", texIdx->vsOut(), cast);
 
     if (st) {
-        st->reset(kFloat2_GrSLType);
+        st->reset(SkSLType::kFloat2);
         args.fVaryingHandler->addVarying("IntTextureCoords", st);
         args.fVertBuilder->codeAppendf("%s = unormTexCoords;", st->vsOut());
     }

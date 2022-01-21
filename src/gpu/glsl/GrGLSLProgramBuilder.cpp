@@ -85,7 +85,7 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
         rtAdjustVisibility = kVertex_GrShaderFlag;
     }
     fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(
-            nullptr, rtAdjustVisibility, kFloat4_GrSLType, SkSL::Compiler::RTADJUST_NAME);
+            nullptr, rtAdjustVisibility, SkSLType::kFloat4, SkSL::Compiler::RTADJUST_NAME);
 
     fFS.codeAppendf("// Stage %d, %s\n", fStageIndex, geomProc.name());
     fVS.codeAppendf("// Primitive Processor %s\n", geomProc.name());
@@ -240,15 +240,15 @@ void GrGLSLProgramBuilder::writeFPFunction(const GrFragmentProcessor& fp,
     GrShaderVar params[3];
     int numParams = 0;
 
-    params[numParams++] = GrShaderVar(inputColor, kHalf4_GrSLType);
+    params[numParams++] = GrShaderVar(inputColor, SkSLType::kHalf4);
 
     if (fp.isBlendFunction()) {
         // Blend functions take a dest color as input.
-        params[numParams++] = GrShaderVar(kDstColor, kHalf4_GrSLType);
+        params[numParams++] = GrShaderVar(kDstColor, SkSLType::kHalf4);
     }
 
     if (this->fragmentProcessorHasCoordsParam(&fp)) {
-        params[numParams++] = GrShaderVar(sampleCoords, kFloat2_GrSLType);
+        params[numParams++] = GrShaderVar(sampleCoords, SkSLType::kFloat2);
     } else {
         // Either doesn't use coords at all or sampled through a chain of passthrough/matrix
         // samples usages. In the latter case the coords are emitted in the vertex shader as a
@@ -257,14 +257,14 @@ void GrGLSLProgramBuilder::writeFPFunction(const GrFragmentProcessor& fp,
         GrShaderVar varying = fFPCoordsMap[&fp].coordsVarying;
 
         switch (varying.getType()) {
-            case kVoid_GrSLType:
+            case SkSLType::kVoid:
                 SkASSERT(!fp.usesSampleCoordsDirectly());
                 break;
-            case kFloat2_GrSLType:
+            case SkSLType::kFloat2:
                 // Just point the local coords to the varying
                 sampleCoords = varying.getName().c_str();
                 break;
-            case kFloat3_GrSLType:
+            case SkSLType::kFloat3:
                 // Must perform the perspective divide in the frag shader based on the
                 // varying, and since we won't actually have a function parameter for local
                 // coords, add it as a local variable.
@@ -297,7 +297,7 @@ void GrGLSLProgramBuilder::writeFPFunction(const GrFragmentProcessor& fp,
     impl.emitCode(args);
     impl.setFunctionName(fFS.getMangledFunctionName(args.fFp.name()));
 
-    fFS.emitFunction(kHalf4_GrSLType,
+    fFS.emitFunction(SkSLType::kHalf4,
                      impl.functionName(),
                      SkMakeSpan(params, numParams),
                      fFS.code().c_str());
@@ -327,7 +327,7 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
         fUniformHandles.fDstTextureCoordsUni = this->uniformHandler()->addUniform(
                 /*owner=*/nullptr,
                 kFragment_GrShaderFlag,
-                kHalf4_GrSLType,
+                SkSLType::kHalf4,
                 "DstTextureCoords",
                 &dstTextureCoordsName);
         fFS.codeAppend("// Read color from copy of the destination\n");
@@ -489,7 +489,7 @@ void GrGLSLProgramBuilder::addRTFlipUniform(const char* name) {
     fUniformHandles.fRTFlipUni =
             uniformHandler->internalAddUniformArray(nullptr,
                                                     kFragment_GrShaderFlag,
-                                                    kFloat2_GrSLType,
+                                                    SkSLType::kFloat2,
                                                     name,
                                                     false,
                                                     0,

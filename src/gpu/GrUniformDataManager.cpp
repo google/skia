@@ -32,16 +32,16 @@ void* GrUniformDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
 int GrUniformDataManager::copyUniforms(void* dest,
                                        const void* src,
                                        int numUniforms,
-                                       GrSLType uniformType) const {
+                                       SkSLType uniformType) const {
     if (fWrite16BitUniforms) {
         switch (uniformType) {
-            case kHalf_GrSLType:
-            case kHalf2_GrSLType:
-            case kHalf3_GrSLType:
-            case kHalf4_GrSLType:
-            case kHalf2x2_GrSLType:
-            case kHalf3x3_GrSLType:
-            case kHalf4x4_GrSLType: {
+            case SkSLType::kHalf:
+            case SkSLType::kHalf2:
+            case SkSLType::kHalf3:
+            case SkSLType::kHalf4:
+            case SkSLType::kHalf2x2:
+            case SkSLType::kHalf3x3:
+            case SkSLType::kHalf4x4: {
                 const float* floatBits = static_cast<const float*>(src);
                 SkHalf* halfBits = static_cast<SkHalf*>(dest);
                 while (numUniforms-- > 0) {
@@ -50,14 +50,14 @@ int GrUniformDataManager::copyUniforms(void* dest,
                 return 2;
             }
 
-            case kShort_GrSLType:
-            case kShort2_GrSLType:
-            case kShort3_GrSLType:
-            case kShort4_GrSLType:
-            case kUShort_GrSLType:
-            case kUShort2_GrSLType:
-            case kUShort3_GrSLType:
-            case kUShort4_GrSLType: {
+            case SkSLType::kShort:
+            case SkSLType::kShort2:
+            case SkSLType::kShort3:
+            case SkSLType::kShort4:
+            case SkSLType::kUShort:
+            case SkSLType::kUShort2:
+            case SkSLType::kUShort3:
+            case SkSLType::kUShort4: {
                 const int32_t* intBits = static_cast<const int32_t*>(src);
                 short* shortBits = static_cast<short*>(dest);
                 while (numUniforms-- > 0) {
@@ -76,7 +76,7 @@ int GrUniformDataManager::copyUniforms(void* dest,
     return 4;
 }
 
-template <int N, GrSLType FullType, GrSLType HalfType>
+template <int N, SkSLType FullType, SkSLType HalfType>
 void GrUniformDataManager::set(UniformHandle u, const void* v) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == FullType || uni.fType == HalfType);
@@ -85,7 +85,7 @@ void GrUniformDataManager::set(UniformHandle u, const void* v) const {
     this->copyUniforms(buffer, v, N, uni.fType);
 }
 
-template <int N, GrSLType FullType, GrSLType HalfType>
+template <int N, SkSLType FullType, SkSLType HalfType>
 void GrUniformDataManager::setv(UniformHandle u, int arrayCount, const void* v) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == FullType || uni.fType == HalfType);
@@ -106,45 +106,45 @@ void GrUniformDataManager::setv(UniformHandle u, int arrayCount, const void* v) 
 }
 
 void GrUniformDataManager::set1i(UniformHandle u, int32_t i0) const {
-    this->set<1, kInt_GrSLType, kShort_GrSLType>(u, &i0);
+    this->set<1, SkSLType::kInt, SkSLType::kShort>(u, &i0);
 }
 
 void GrUniformDataManager::set1iv(UniformHandle u,
                                   int arrayCount,
                                   const int32_t v[]) const {
-    this->setv<1, kInt_GrSLType, kShort_GrSLType>(u, arrayCount, v);
+    this->setv<1, SkSLType::kInt, SkSLType::kShort>(u, arrayCount, v);
 }
 
 void GrUniformDataManager::set1f(UniformHandle u, float v0) const {
-    this->set<1, kFloat_GrSLType, kHalf_GrSLType>(u, &v0);
+    this->set<1, SkSLType::kFloat, SkSLType::kHalf>(u, &v0);
 }
 
 void GrUniformDataManager::set1fv(UniformHandle u,
                                   int arrayCount,
                                   const float v[]) const {
-    this->setv<1, kFloat_GrSLType, kHalf_GrSLType>(u, arrayCount, v);
+    this->setv<1, SkSLType::kFloat, SkSLType::kHalf>(u, arrayCount, v);
 }
 
 void GrUniformDataManager::set2i(UniformHandle u, int32_t i0, int32_t i1) const {
     int32_t v[2] = { i0, i1 };
-    this->set<2, kInt2_GrSLType, kShort2_GrSLType>(u, v);
+    this->set<2, SkSLType::kInt2, SkSLType::kShort2>(u, v);
 }
 
 void GrUniformDataManager::set2iv(UniformHandle u,
                                   int arrayCount,
                                   const int32_t v[]) const {
-    this->setv<2, kInt2_GrSLType, kShort2_GrSLType>(u, arrayCount, v);
+    this->setv<2, SkSLType::kInt2, SkSLType::kShort2>(u, arrayCount, v);
 }
 
 void GrUniformDataManager::set2f(UniformHandle u, float v0, float v1) const {
     float v[2] = { v0, v1 };
-    this->set<2, kFloat2_GrSLType, kHalf2_GrSLType>(u, v);
+    this->set<2, SkSLType::kFloat2, SkSLType::kHalf2>(u, v);
 }
 
 void GrUniformDataManager::set2fv(UniformHandle u,
                                   int arrayCount,
                                   const float v[]) const {
-    this->setv<2, kFloat2_GrSLType, kHalf2_GrSLType>(u, arrayCount, v);
+    this->setv<2, SkSLType::kFloat2, SkSLType::kHalf2>(u, arrayCount, v);
 }
 
 void GrUniformDataManager::set3i(UniformHandle u,
@@ -152,24 +152,24 @@ void GrUniformDataManager::set3i(UniformHandle u,
                                  int32_t i1,
                                  int32_t i2) const {
     int32_t v[3] = { i0, i1, i2 };
-    this->set<3, kInt3_GrSLType, kShort3_GrSLType>(u, v);
+    this->set<3, SkSLType::kInt3, SkSLType::kShort3>(u, v);
 }
 
 void GrUniformDataManager::set3iv(UniformHandle u,
                                   int arrayCount,
                                   const int32_t v[]) const {
-    this->setv<3, kInt3_GrSLType, kShort3_GrSLType>(u, arrayCount, v);
+    this->setv<3, SkSLType::kInt3, SkSLType::kShort3>(u, arrayCount, v);
 }
 
 void GrUniformDataManager::set3f(UniformHandle u, float v0, float v1, float v2) const {
     float v[3] = { v0, v1, v2 };
-    this->set<3, kFloat3_GrSLType, kHalf3_GrSLType>(u, v);
+    this->set<3, SkSLType::kFloat3, SkSLType::kHalf3>(u, v);
 }
 
 void GrUniformDataManager::set3fv(UniformHandle u,
                                   int arrayCount,
                                   const float v[]) const {
-    this->setv<3, kFloat3_GrSLType, kHalf3_GrSLType>(u, arrayCount, v);
+    this->setv<3, SkSLType::kFloat3, SkSLType::kHalf3>(u, arrayCount, v);
 }
 
 void GrUniformDataManager::set4i(UniformHandle u,
@@ -178,13 +178,13 @@ void GrUniformDataManager::set4i(UniformHandle u,
                                  int32_t i2,
                                  int32_t i3) const {
     int32_t v[4] = { i0, i1, i2, i3 };
-    this->set<4, kInt4_GrSLType, kShort4_GrSLType>(u, v);
+    this->set<4, SkSLType::kInt4, SkSLType::kShort4>(u, v);
 }
 
 void GrUniformDataManager::set4iv(UniformHandle u,
                                   int arrayCount,
                                   const int32_t v[]) const {
-    this->setv<4, kInt4_GrSLType, kShort4_GrSLType>(u, arrayCount, v);
+    this->setv<4, SkSLType::kInt4, SkSLType::kShort4>(u, arrayCount, v);
 }
 
 void GrUniformDataManager::set4f(UniformHandle u,
@@ -193,40 +193,40 @@ void GrUniformDataManager::set4f(UniformHandle u,
                                  float v2,
                                  float v3) const {
     float v[4] = { v0, v1, v2, v3 };
-    this->set<4, kFloat4_GrSLType, kHalf4_GrSLType>(u, v);
+    this->set<4, SkSLType::kFloat4, SkSLType::kHalf4>(u, v);
 }
 
 void GrUniformDataManager::set4fv(UniformHandle u,
                                   int arrayCount,
                                   const float v[]) const {
-    this->setv<4, kFloat4_GrSLType, kHalf4_GrSLType>(u, arrayCount, v);
+    this->setv<4, SkSLType::kFloat4, SkSLType::kHalf4>(u, arrayCount, v);
 }
 
 void GrUniformDataManager::setMatrix2f(UniformHandle u, const float matrix[]) const {
-    this->setMatrices<2, kFloat2x2_GrSLType, kHalf2x2_GrSLType>(u, 1, matrix);
+    this->setMatrices<2, SkSLType::kFloat2x2, SkSLType::kHalf2x2>(u, 1, matrix);
 }
 
 void GrUniformDataManager::setMatrix2fv(UniformHandle u, int arrayCount, const float m[]) const {
-    this->setMatrices<2, kFloat2x2_GrSLType, kHalf2x2_GrSLType>(u, arrayCount, m);
+    this->setMatrices<2, SkSLType::kFloat2x2, SkSLType::kHalf2x2>(u, arrayCount, m);
 }
 
 void GrUniformDataManager::setMatrix3f(UniformHandle u, const float matrix[]) const {
-    this->setMatrices<3, kFloat3x3_GrSLType, kHalf3x3_GrSLType>(u, 1, matrix);
+    this->setMatrices<3, SkSLType::kFloat3x3, SkSLType::kHalf3x3>(u, 1, matrix);
 }
 
 void GrUniformDataManager::setMatrix3fv(UniformHandle u, int arrayCount, const float m[]) const {
-    this->setMatrices<3, kFloat3x3_GrSLType, kHalf3x3_GrSLType>(u, arrayCount, m);
+    this->setMatrices<3, SkSLType::kFloat3x3, SkSLType::kHalf3x3>(u, arrayCount, m);
 }
 
 void GrUniformDataManager::setMatrix4f(UniformHandle u, const float matrix[]) const {
-    this->setMatrices<4, kFloat4x4_GrSLType, kHalf4x4_GrSLType>(u, 1, matrix);
+    this->setMatrices<4, SkSLType::kFloat4x4, SkSLType::kHalf4x4>(u, 1, matrix);
 }
 
 void GrUniformDataManager::setMatrix4fv(UniformHandle u, int arrayCount, const float m[]) const {
-    this->setMatrices<4, kFloat4x4_GrSLType, kHalf4x4_GrSLType>(u, arrayCount, m);
+    this->setMatrices<4, SkSLType::kFloat4x4, SkSLType::kHalf4x4>(u, arrayCount, m);
 }
 
-template <int N, GrSLType FullType, GrSLType HalfType>
+template <int N, SkSLType FullType, SkSLType HalfType>
 inline void GrUniformDataManager::setMatrices(UniformHandle u,
                                               int arrayCount,
                                               const float matrices[]) const {

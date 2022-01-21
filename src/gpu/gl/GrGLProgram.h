@@ -37,7 +37,7 @@ public:
      */
     struct Attribute {
         GrVertexAttribType fCPUType;
-        GrSLType fGPUType;
+        SkSLType fGPUType;
         size_t fOffset;
         GrGLint fLocation;
     };

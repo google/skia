@@ -137,14 +137,14 @@ public:
     SkString getMangledFunctionName(const char* baseName);
 
     /** Emits a prototype for a helper function outside of main() in the fragment shader. */
-    void emitFunctionPrototype(GrSLType returnType,
+    void emitFunctionPrototype(SkSLType returnType,
                                const char* mangledName,
                                SkSpan<const GrShaderVar> args);
 
     void emitFunctionPrototype(const char* declaration);
 
     /** Emits a helper function outside of main() in the fragment shader. */
-    void emitFunction(GrSLType returnType,
+    void emitFunction(SkSLType returnType,
                       const char* mangledName,
                       SkSpan<const GrShaderVar> args,
                       const char* body);
@@ -182,7 +182,7 @@ protected:
     typedef SkTBlockList<GrShaderVar> VarArray;
     void appendDecls(const VarArray& vars, SkString* out) const;
 
-    void appendFunctionDecl(GrSLType returnType,
+    void appendFunctionDecl(SkSLType returnType,
                             const char* mangledName,
                             SkSpan<const GrShaderVar> args);
 

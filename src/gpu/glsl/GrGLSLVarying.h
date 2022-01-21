@@ -17,14 +17,14 @@ class GrGeometryProcessor;
 class GrGLSLProgramBuilder;
 
 #ifdef SK_DEBUG
-static bool is_matrix(GrSLType type) {
+static bool is_matrix(SkSLType type) {
     switch (type) {
-        case kFloat2x2_GrSLType:
-        case kFloat3x3_GrSLType:
-        case kFloat4x4_GrSLType:
-        case kHalf2x2_GrSLType:
-        case kHalf3x3_GrSLType:
-        case kHalf4x4_GrSLType:
+        case SkSLType::kFloat2x2:
+        case SkSLType::kFloat3x3:
+        case SkSLType::kFloat4x4:
+        case SkSLType::kHalf2x2:
+        case SkSLType::kHalf3x3:
+        case SkSLType::kHalf4x4:
             return true;
         default:
             return false;
@@ -41,14 +41,14 @@ public:
     };
 
     GrGLSLVarying() = default;
-    GrGLSLVarying(GrSLType type, Scope scope = Scope::kVertToFrag)
+    GrGLSLVarying(SkSLType type, Scope scope = Scope::kVertToFrag)
         : fType(type)
         , fScope(scope) {
         // Metal doesn't support varying matrices, so we disallow them everywhere for consistency
         SkASSERT(!is_matrix(type));
     }
 
-    void reset(GrSLType type, Scope scope = Scope::kVertToFrag) {
+    void reset(SkSLType type, Scope scope = Scope::kVertToFrag) {
         // Metal doesn't support varying matrices, so we disallow them everywhere for consistency
         SkASSERT(!is_matrix(type));
         *this = GrGLSLVarying();
@@ -56,7 +56,7 @@ public:
         fScope = scope;
     }
 
-    GrSLType type() const { return fType; }
+    SkSLType type() const { return fType; }
     Scope scope() const { return fScope; }
     bool isInVertexShader() const { return Scope::kGeoToFrag != fScope; }
     bool isInFragmentShader() const { return Scope::kVertToGeo != fScope; }
@@ -75,7 +75,7 @@ public:
     }
 
 private:
-    GrSLType fType = kVoid_GrSLType;
+    SkSLType fType = SkSLType::kVoid;
     Scope fScope = Scope::kVertToFrag;
     const char* fVsOut = nullptr;
     const char* fFsIn = nullptr;
@@ -144,7 +144,7 @@ public:
 
 protected:
     struct VaryingInfo {
-        GrSLType         fType;
+        SkSLType         fType;
         bool             fIsFlat;
         SkString         fVsOut;
         GrShaderFlags    fVisibility;

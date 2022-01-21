@@ -108,9 +108,9 @@ private:
         fSampler.reset(GrSamplerState(GrSamplerState::WrapMode::kClamp, filter),
                        view.proxy()->backendFormat(), view.swizzle());
         this->setTextureSamplerCnt(1);
-        fInPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        fInTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        fInTextureDomain = {"textureDomain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        fInPosition = {"position", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
+        fInTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
+        fInTextureDomain = {"textureDomain", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
         fInColor = MakeColorAttribute("color", wideColor);
         this->setVertexAttributesWithImplicitOffsets(&fInPosition, 4);
     }

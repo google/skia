@@ -81,7 +81,7 @@ private:
     struct Uniform {
         GrGLint     fLocation;
 #ifdef SK_DEBUG
-        GrSLType    fType;
+        SkSLType    fType;
         int         fArrayCount;
 #endif
     };

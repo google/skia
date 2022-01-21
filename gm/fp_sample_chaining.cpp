@@ -44,7 +44,7 @@ public:
                 fMatrixVar =
                         args.fUniformHandler->addUniform(&args.fFp,
                                                          kFragment_GrShaderFlag,
-                                                         kFloat3x3_GrSLType,
+                                                         SkSLType::kFloat3x3,
                                                          SkSL::SampleUsage::MatrixUniformName());
                 SkString sample = this->invokeChildWithMatrix(0, args);
                 args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());

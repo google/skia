@@ -910,7 +910,7 @@ SkString ProgramImpl::invokeChildWithMatrix(int childIndex,
     // Every uniform matrix has the same (initial) name. Resolve that into the mangled name:
     GrShaderVar uniform = args.fUniformHandler->getUniformMapping(
             args.fFp, SkString(SkSL::SampleUsage::MatrixUniformName()));
-    SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
+    SkASSERT(uniform.getType() == SkSLType::kFloat3x3);
     const SkString& matrixName(uniform.getName());
 
     auto invocation = SkStringPrintf("%s(%s", this->childProcessor(childIndex)->functionName(),

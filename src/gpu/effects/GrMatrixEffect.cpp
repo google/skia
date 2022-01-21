@@ -33,7 +33,7 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrMatrixEffect::onMakeProgramI
         void emitCode(EmitArgs& args) override {
             fMatrixVar = args.fUniformHandler->addUniform(&args.fFp,
                                                           kFragment_GrShaderFlag,
-                                                          kFloat3x3_GrSLType,
+                                                          SkSLType::kFloat3x3,
                                                           SkSL::SampleUsage::MatrixUniformName());
             args.fFragBuilder->codeAppendf("return %s;\n",
                                            this->invokeChildWithMatrix(0, args).c_str());

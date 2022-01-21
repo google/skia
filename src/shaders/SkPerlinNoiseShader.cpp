@@ -700,24 +700,24 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
-    fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, kHalf2_GrSLType,
+    fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
                                                    "baseFrequency");
     const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
 
     const char* stitchDataUni = nullptr;
     if (pne.stitchTiles()) {
-        fStitchDataUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, kHalf2_GrSLType,
+        fStitchDataUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
                                                     "stitchData");
         stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
     }
 
     // Add noise function
-    const GrShaderVar gPerlinNoiseArgs[] = {{"chanCoord", kHalf_GrSLType },
-                                            {"noiseVec ", kHalf2_GrSLType}};
+    const GrShaderVar gPerlinNoiseArgs[] = {{"chanCoord", SkSLType::kHalf },
+                                            {"noiseVec ", SkSLType::kHalf2}};
 
-    const GrShaderVar gPerlinNoiseStitchArgs[] = {{"chanCoord" , kHalf_GrSLType },
-                                                  {"noiseVec"  , kHalf2_GrSLType},
-                                                  {"stitchData", kHalf2_GrSLType}};
+    const GrShaderVar gPerlinNoiseStitchArgs[] = {{"chanCoord" , SkSLType::kHalf },
+                                                  {"noiseVec"  , SkSLType::kHalf2},
+                                                  {"stitchData", SkSLType::kHalf2}};
 
     SkString noiseCode;
 
@@ -802,11 +802,11 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
 
     SkString noiseFuncName = fragBuilder->getMangledFunctionName("noiseFuncName");
     if (pne.stitchTiles()) {
-        fragBuilder->emitFunction(kHalf_GrSLType, noiseFuncName.c_str(),
+        fragBuilder->emitFunction(SkSLType::kHalf, noiseFuncName.c_str(),
                                   {gPerlinNoiseStitchArgs, SK_ARRAY_COUNT(gPerlinNoiseStitchArgs)},
                                   noiseCode.c_str());
     } else {
-        fragBuilder->emitFunction(kHalf_GrSLType, noiseFuncName.c_str(),
+        fragBuilder->emitFunction(SkSLType::kHalf, noiseFuncName.c_str(),
                                   {gPerlinNoiseArgs, SK_ARRAY_COUNT(gPerlinNoiseArgs)},
                                   noiseCode.c_str());
     }

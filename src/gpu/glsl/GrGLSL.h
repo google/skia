@@ -8,9 +8,9 @@
 #ifndef GrGLSL_DEFINED
 #define GrGLSL_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/sksl/SkSLGLSL.h"
 
-const char* GrGLSLTypeString(GrSLType);
+const char* GrGLSLTypeString(SkSLType);
 
 #endif

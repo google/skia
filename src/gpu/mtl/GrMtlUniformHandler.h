@@ -28,7 +28,7 @@ public:
     };
     static constexpr int kUniformBindingCount = kLastUniformBinding + 1;
 
-    // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
+    // fUBOffset is only valid if the SkSLType of the fVariable is not a sampler
     struct MtlUniformInfo : public UniformInfo {
         uint32_t fUBOffset;
     };
@@ -64,7 +64,7 @@ private:
 
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
                                           uint32_t visibility,
-                                          GrSLType type,
+                                          SkSLType type,
                                           const char* name,
                                           bool mangleName,
                                           int arrayCount,

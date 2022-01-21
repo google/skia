@@ -232,7 +232,7 @@ private:
             if (cmgp.fColor != SK_PMColor4fILLEGAL) {
                 fColorUniform = uniformHandler->addUniform(nullptr,
                                                            kFragment_GrShaderFlag,
-                                                           kHalf4_GrSLType,
+                                                           SkSLType::kHalf4,
                                                            "color",
                                                            &uniformColorName);
             }
@@ -270,10 +270,10 @@ private:
             }
             if (cmgp.fNeedsLocalCoords) {
                 if (SkCustomMeshSpecificationPriv::HasLocalCoords(*cmgp.fSpec)) {
-                    gpArgs->fLocalCoordVar = GrShaderVar("local", kFloat2_GrSLType);
+                    gpArgs->fLocalCoordVar = GrShaderVar("local", SkSLType::kFloat2);
                     gpArgs->fLocalCoordShader = kFragment_GrShaderType;
                 } else {
-                    gpArgs->fLocalCoordVar = GrShaderVar("pos", kFloat2_GrSLType);
+                    gpArgs->fLocalCoordVar = GrShaderVar("pos", SkSLType::kFloat2);
                     gpArgs->fLocalCoordShader = kVertex_GrShaderType;
                 }
             }

@@ -28,16 +28,16 @@ public:
         if (colorSpaceXform) {
             fFlags = colorSpaceXform->fSteps.flags;
             if (this->applySrcTF()) {
-                fSrcTFVar = uniformHandler->addUniformArray(nullptr, visibility, kHalf_GrSLType,
+                fSrcTFVar = uniformHandler->addUniformArray(nullptr, visibility, SkSLType::kHalf,
                                                             "SrcTF", kNumTransferFnCoeffs);
                 fSrcTFKind = classify_transfer_fn(colorSpaceXform->fSteps.srcTF);
             }
             if (this->applyGamutXform()) {
-                fGamutXformVar = uniformHandler->addUniform(nullptr, visibility, kHalf3x3_GrSLType,
+                fGamutXformVar = uniformHandler->addUniform(nullptr, visibility, SkSLType::kHalf3x3,
                                                             "ColorXform");
             }
             if (this->applyDstTF()) {
-                fDstTFVar = uniformHandler->addUniformArray(nullptr, visibility, kHalf_GrSLType,
+                fDstTFVar = uniformHandler->addUniformArray(nullptr, visibility, SkSLType::kHalf,
                                                             "DstTF", kNumTransferFnCoeffs);
                 fDstTFKind = classify_transfer_fn(colorSpaceXform->fSteps.dstTFInv);
             }

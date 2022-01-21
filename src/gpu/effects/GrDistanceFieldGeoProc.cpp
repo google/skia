@@ -64,7 +64,7 @@ private:
         const char* atlasDimensionsInvName;
         fAtlasDimensionsInvUniform = uniformHandler->addUniform(nullptr,
                                                                 kVertex_GrShaderFlag,
-                                                                kFloat2_GrSLType,
+                                                                SkSLType::kFloat2,
                                                                 "AtlasDimensionsInv",
                                                                 &atlasDimensionsInvName);
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -72,7 +72,7 @@ private:
         const char* distanceAdjustUniName = nullptr;
         // width, height, 1/(3*width)
         fDistanceAdjustUni = uniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
-                                                        kHalf_GrSLType, "DistanceAdjust",
+                                                        SkSLType::kHalf, "DistanceAdjust",
                                                         &distanceAdjustUniName);
 #endif
 
@@ -222,13 +222,13 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
 
     if (flags & kPerspective_DistanceFieldEffectFlag) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, SkSLType::kFloat3};
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
     }
-    fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType };
+    fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, SkSLType::kHalf4 };
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+                        caps.integerSupport() ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 
     if (numViews) {
@@ -352,7 +352,7 @@ private:
         const char* atlasDimensionsInvName;
         fAtlasDimensionsInvUniform = uniformHandler->addUniform(nullptr,
                                                                 kVertex_GrShaderFlag,
-                                                                kFloat2_GrSLType,
+                                                                SkSLType::kFloat2,
                                                                 "AtlasDimensionsInv",
                                                                 &atlasDimensionsInvName);
 
@@ -491,10 +491,10 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
     SkASSERT(numViews <= kMaxTextures);
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
 
-    fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
     fInColor = MakeColorAttribute("inColor", wideColor);
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+                        caps.integerSupport() ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 
     if (numViews) {
@@ -618,7 +618,7 @@ private:
         const char* atlasDimensionsInvName;
         fAtlasDimensionsInvUniform = uniformHandler->addUniform(nullptr,
                                                                 kVertex_GrShaderFlag,
-                                                                kFloat2_GrSLType,
+                                                                SkSLType::kFloat2,
                                                                 "AtlasDimensionsInv",
                                                                 &atlasDimensionsInvName);
 
@@ -649,7 +649,7 @@ private:
                                  &texIdx,
                                  &st);
 
-        GrGLSLVarying delta(kFloat_GrSLType);
+        GrGLSLVarying delta(SkSLType::kFloat);
         varyingHandler->addVarying("Delta", &delta);
         if (dfTexEffect.fFlags & kBGR_DistanceFieldEffectFlag) {
             vertBuilder->codeAppendf("%s = -%s.x/3.0;", delta.vsOut(), atlasDimensionsInvName);
@@ -722,7 +722,7 @@ private:
         // adjust width based on gamma
         const char* distanceAdjustUniName = nullptr;
         fDistanceAdjustUni = uniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
-                                                        kHalf3_GrSLType, "DistanceAdjust",
+                                                        SkSLType::kHalf3, "DistanceAdjust",
                                                         &distanceAdjustUniName);
         fragBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);
 
@@ -801,13 +801,13 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
 
     if (fFlags & kPerspective_DistanceFieldEffectFlag) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, SkSLType::kFloat3};
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
     }
-    fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, SkSLType::kHalf4};
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+                        caps.integerSupport() ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 
     if (numViews) {

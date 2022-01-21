@@ -599,7 +599,7 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> PDLCDXferProcessor::makeProgramImp
             const char* alpha;
             fAlphaUniform = args.fUniformHandler->addUniform(nullptr,
                                                              kFragment_GrShaderFlag,
-                                                             kHalf_GrSLType,
+                                                             SkSLType::kHalf,
                                                              "alpha",
                                                              &alpha);
             GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;

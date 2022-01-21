@@ -12,21 +12,21 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 
 void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char* devPos,
-                                                      GrSLType devPosType) {
+                                                      SkSLType devPosType) {
     if (this->getProgramBuilder()->snapVerticesToPixelCenters()) {
-        if (kFloat3_GrSLType == devPosType) {
+        if (SkSLType::kFloat3 == devPosType) {
             const char* p = devPos;
             out->appendf("{float2 _posTmp = %s.xy / %s.z;", p, p);
         } else {
-            SkASSERT(kFloat2_GrSLType == devPosType);
+            SkASSERT(SkSLType::kFloat2 == devPosType);
             out->appendf("{float2 _posTmp = %s;", devPos);
         }
         out->appendf("_posTmp = floor(_posTmp) + float2(0.5);"
                      "sk_Position = _posTmp.xy01;}");
-    } else if (kFloat3_GrSLType == devPosType) {
+    } else if (SkSLType::kFloat3 == devPosType) {
         out->appendf("sk_Position = %s.xy0z;", devPos);
     } else {
-        SkASSERT(kFloat2_GrSLType == devPosType);
+        SkASSERT(SkSLType::kFloat2 == devPosType);
         out->appendf("sk_Position = %s.xy01;", devPos);
     }
 }

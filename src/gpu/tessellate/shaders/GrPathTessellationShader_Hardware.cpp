@@ -38,7 +38,7 @@ public:
             : GrPathTessellationShader(kTessellate_HardwareWedgeShader_ClassID,
                                        GrPrimitiveType::kPatches, 5, viewMatrix, color, attribs) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
-                                                     kFloat2_GrSLType};
+                                                     SkSLType::kFloat2};
         this->setVertexAttributesWithImplicitOffsets(&kInputPointAttrib, 1);
         SkASSERT(this->vertexStride() * 5 ==
                  sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
@@ -62,7 +62,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareWedgeShader::makeProgr
                             GrGLSLVertexBuilder* v,
                             GrGLSLVaryingHandler*,
                             GrGPArgs*) override {
-            v->declareGlobal(GrShaderVar("vsPt", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
+            v->declareGlobal(GrShaderVar("vsPt", SkSLType::kFloat2, GrShaderVar::TypeModifier::Out));
             v->codeAppend(R"(
             // If y is infinity then x is a conic weight. Don't transform.
             vsPt = (isinf(inputPoint.y)) ? inputPoint : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
@@ -179,7 +179,7 @@ public:
                                        GrPrimitiveType::kPatches, 4, viewMatrix, color,
                                        attribs) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
-                                                     kFloat2_GrSLType};
+                                                     SkSLType::kFloat2};
         this->setVertexAttributesWithImplicitOffsets(&kInputPointAttrib, 1);
         SkASSERT(this->vertexStride() * 4 ==
                  sizeof(SkPoint) * 4 + skgpu::PatchAttribsStride(fAttribs));
@@ -206,7 +206,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareCurveShader::makeProgr
                             GrGLSLVertexBuilder* v,
                             GrGLSLVaryingHandler*,
                             GrGPArgs*) override {
-            v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
+            v->declareGlobal(GrShaderVar("P", SkSLType::kFloat2, GrShaderVar::TypeModifier::Out));
             v->codeAppend(R"(
             // If y is infinity then x is a conic weight. Don't transform.
             P = (isinf(inputPoint.y)) ? inputPoint : AFFINE_MATRIX * inputPoint + TRANSLATE;)");

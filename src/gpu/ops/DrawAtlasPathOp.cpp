@@ -33,16 +33,16 @@ public:
                            fAtlasHelper->atlasSwizzle()) {
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kUnitCoordAttrib(
-                    "unitCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+                    "unitCoord", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
             this->setVertexAttributesWithImplicitOffsets(&kUnitCoordAttrib, 1);
         }
-        fAttribs.emplace_back("fillBounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fAttribs.emplace_back("fillBounds", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         if (fUsesLocalCoords) {
-            fAttribs.emplace_back("affineMatrix", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
-            fAttribs.emplace_back("translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+            fAttribs.emplace_back("affineMatrix", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
+            fAttribs.emplace_back("translate", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
         }
         SkASSERT(fAttribs.count() == this->colorAttribIdx());
-        fAttribs.emplace_back("color", kFloat4_GrVertexAttribType, kHalf4_GrSLType);
+        fAttribs.emplace_back("color", kFloat4_GrVertexAttribType, SkSLType::kHalf4);
         fAtlasHelper->appendInstanceAttribs(&fAttribs);
         SkASSERT(fAttribs.count() <= kMaxInstanceAttribs);
         this->setInstanceAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.count());
@@ -91,13 +91,13 @@ private:
 
         args.fVertBuilder->codeAppendf(R"(
         float2 devCoord = mix(fillBounds.xy, fillBounds.zw, unitCoord);)");
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "devCoord");
+        gpArgs->fPositionVar.set(SkSLType::kFloat2, "devCoord");
 
         if (shader.fUsesLocalCoords) {
             args.fVertBuilder->codeAppendf(R"(
             float2x2 M = float2x2(affineMatrix);
             float2 localCoord = inverse(M) * (devCoord - translate);)");
-            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localCoord");
+            gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localCoord");
         }
 
         args.fFragBuilder->codeAppendf("half4 %s = half4(1);", args.fOutputCoverage);

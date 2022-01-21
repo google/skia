@@ -687,8 +687,8 @@ public:
                                                        gp.fPosition.name());
                     }
                     gpArgs->fPositionVar = {"position",
-                                            gp.fNeedsPerspective ? kFloat3_GrSLType
-                                                                 : kFloat2_GrSLType,
+                                            gp.fNeedsPerspective ? SkSLType::kFloat3
+                                                                 : SkSLType::kFloat2,
                                             GrShaderVar::TypeModifier::None};
                 } else {
                     // No coverage to eliminate
@@ -765,7 +765,7 @@ public:
 
                 // And lastly, output the coverage calculation code
                 if (gp.fCoverageMode == CoverageMode::kWithPosition) {
-                    GrGLSLVarying coverage(kFloat_GrSLType);
+                    GrGLSLVarying coverage(SkSLType::kFloat);
                     args.fVaryingHandler->addVarying("coverage", &coverage);
                     if (gp.fNeedsPerspective) {
                         // Multiply by "W" in the vertex shader, then by 1/w (sk_FragCoord.w) in
@@ -861,30 +861,30 @@ private:
 
         if (fCoverageMode == CoverageMode::kWithPosition) {
             if (fNeedsPerspective) {
-                fPosition = {"positionWithCoverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+                fPosition = {"positionWithCoverage", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
             } else {
-                fPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-                fCoverage = {"coverage", kFloat_GrVertexAttribType, kFloat_GrSLType};
+                fPosition = {"position", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
+                fCoverage = {"coverage", kFloat_GrVertexAttribType, SkSLType::kFloat};
             }
         } else {
             if (fNeedsPerspective) {
-                fPosition = {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+                fPosition = {"position", kFloat3_GrVertexAttribType, SkSLType::kFloat3};
             } else {
-                fPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+                fPosition = {"position", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
             }
         }
 
         // Need a geometry subset when the quads are AA and not rectilinear, since their AA
         // outsetting can go beyond a half pixel.
         if (spec.requiresGeometrySubset()) {
-            fGeomSubset = {"geomSubset", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+            fGeomSubset = {"geomSubset", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
         }
 
         int localDim = spec.localDimensionality();
         if (localDim == 3) {
-            fLocalCoord = {"localCoord", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+            fLocalCoord = {"localCoord", kFloat3_GrVertexAttribType, SkSLType::kFloat3};
         } else if (localDim == 2) {
-            fLocalCoord = {"localCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+            fLocalCoord = {"localCoord", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
         } // else localDim == 0 and attribute remains uninitialized
 
         if (spec.hasVertexColors()) {
@@ -892,7 +892,7 @@ private:
         }
 
         if (spec.hasSubset()) {
-            fTexSubset = {"texSubset", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+            fTexSubset = {"texSubset", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
         }
 
         this->setVertexAttributesWithImplicitOffsets(&fPosition, 6);

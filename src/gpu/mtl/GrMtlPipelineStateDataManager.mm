@@ -42,7 +42,7 @@ void GrMtlPipelineStateDataManager::set1iv(UniformHandle u,
                                            int arrayCount,
                                            const int32_t v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt_GrSLType || uni.fType == kShort_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt || uni.fType == SkSLType::kShort);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
@@ -55,7 +55,7 @@ void GrMtlPipelineStateDataManager::set1fv(UniformHandle u,
                                            int arrayCount,
                                            const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat_GrSLType || uni.fType == kHalf_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat || uni.fType == SkSLType::kHalf);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
@@ -68,7 +68,7 @@ void GrMtlPipelineStateDataManager::set2iv(UniformHandle u,
                                            int arrayCount,
                                            const int32_t v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kInt2_GrSLType || uni.fType == kShort2_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kInt2 || uni.fType == SkSLType::kShort2);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
@@ -81,7 +81,7 @@ void GrMtlPipelineStateDataManager::set2fv(UniformHandle u,
                                            int arrayCount,
                                            const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat2 || uni.fType == SkSLType::kHalf2);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
@@ -98,7 +98,7 @@ void GrMtlPipelineStateDataManager::setMatrix2fv(UniformHandle u,
                                                  int arrayCount,
                                                  const float m[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kFloat2x2_GrSLType || uni.fType == kHalf2x2_GrSLType);
+    SkASSERT(uni.fType == SkSLType::kFloat2x2 || uni.fType == SkSLType::kHalf2x2);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));

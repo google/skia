@@ -8,6 +8,7 @@
 #include "src/gpu/gl/GrGLUniformHandler.h"
 
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/GrUtil.h"
 #include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
@@ -27,7 +28,7 @@ bool valid_name(const char* name) {
 GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
                                                                    const GrFragmentProcessor* owner,
                                                                    uint32_t visibility,
-                                                                   GrSLType type,
+                                                                   SkSLType type,
                                                                    const char* name,
                                                                    bool mangleName,
                                                                    int arrayCount,
@@ -79,7 +80,7 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
 
     GLUniformInfo tempInfo;
     tempInfo.fVariable = GrShaderVar{std::move(mangleName),
-                                     GrSLCombinedSamplerTypeForTextureType(type),
+                                     SkSLCombinedSamplerTypeForTextureType(type),
                                      GrShaderVar::TypeModifier::Uniform};
 
     tempInfo.fVisibility = kFragment_GrShaderFlag;

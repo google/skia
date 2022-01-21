@@ -47,22 +47,22 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::strin
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
         if (ThreadContext::InFragmentProcessor()) {
             const SkSL::Type& skslType = fType.skslType();
-            GrSLType grslType;
+            SkSLType gpuType;
             int count;
             if (skslType.isArray()) {
-                SkAssertResult(SkSL::type_to_grsltype(ThreadContext::Context(),
-                        skslType.componentType(), &grslType));
+                SkAssertResult(SkSL::type_to_sksltype(ThreadContext::Context(),
+                                                      skslType.componentType(), &gpuType));
                 count = skslType.columns();
                 SkASSERT(count > 0);
             } else {
-                SkAssertResult(SkSL::type_to_grsltype(ThreadContext::Context(), skslType,
-                        &grslType));
+                SkAssertResult(SkSL::type_to_sksltype(ThreadContext::Context(), skslType,
+                                                      &gpuType));
                 count = 0;
             }
             const char* uniformName;
             SkASSERT(ThreadContext::CurrentEmitArgs());
             fUniformHandle = ThreadContext::CurrentEmitArgs()->fUniformHandler->addUniformArray(
-                    &ThreadContext::CurrentEmitArgs()->fFp, kFragment_GrShaderFlag, grslType,
+                    &ThreadContext::CurrentEmitArgs()->fFp, kFragment_GrShaderFlag, gpuType,
                     String(this->name()).c_str(), count, &uniformName).toIndex();
             fName = uniformName;
         }

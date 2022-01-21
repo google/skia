@@ -21,9 +21,9 @@ void AtlasInstancedHelper::getKeyBits(KeyBuilder* b) const {
 
 void AtlasInstancedHelper::appendInstanceAttribs(
         SkTArray<GrGeometryProcessor::Attribute>* instanceAttribs) const {
-    instanceAttribs->emplace_back("locations", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+    instanceAttribs->emplace_back("locations", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
     if (fShaderFlags & ShaderFlags::kCheckBounds) {
-        instanceAttribs->emplace_back("sizeInAtlas", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+        instanceAttribs->emplace_back("sizeInAtlas", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
     }
 }
 
@@ -47,12 +47,12 @@ void AtlasInstancedHelper::injectShaderCode(
         const GrGeometryProcessor::ProgramImpl::EmitArgs& args,
         const GrShaderVar& devCoord,
         GrGLSLUniformHandler::UniformHandle* atlasAdjustUniformHandle) const {
-    GrGLSLVarying atlasCoord(kFloat2_GrSLType);
+    GrGLSLVarying atlasCoord(SkSLType::kFloat2);
     args.fVaryingHandler->addVarying("atlasCoord", &atlasCoord);
 
     const char* atlasAdjustName;
     *atlasAdjustUniformHandle = args.fUniformHandler->addUniform(
-            nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "atlas_adjust", &atlasAdjustName);
+            nullptr, kVertex_GrShaderFlag, SkSLType::kFloat2, "atlas_adjust", &atlasAdjustName);
 
     args.fVertBuilder->codeAppendf(R"(
     // A negative x coordinate in the atlas indicates that the path is transposed.
@@ -68,7 +68,7 @@ void AtlasInstancedHelper::injectShaderCode(
     %s = atlasCoord * %s;)", devCoord.c_str(), atlasCoord.vsOut(), atlasAdjustName);
 
     if (fShaderFlags & ShaderFlags::kCheckBounds) {
-        GrGLSLVarying atlasBounds(kFloat4_GrSLType);
+        GrGLSLVarying atlasBounds(SkSLType::kFloat4);
         args.fVaryingHandler->addVarying("atlasbounds", &atlasBounds,
                                          GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
         args.fVertBuilder->codeAppendf(R"(

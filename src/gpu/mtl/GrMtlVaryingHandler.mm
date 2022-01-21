@@ -21,8 +21,8 @@ static void finalize_helper(GrMtlVaryingHandler::VarArray& vars) {
     SkDEBUGCODE(int componentCount = 0);
     for (GrShaderVar& var : vars.items()) {
         // Metal only allows scalars (including bool and char) and vectors as varyings
-        SkASSERT(GrSLTypeVecLength(var.getType()) != -1);
-        SkDEBUGCODE(componentCount += GrSLTypeVecLength(var.getType()));
+        SkASSERT(SkSLTypeVecLength(var.getType()) != -1);
+        SkDEBUGCODE(componentCount += SkSLTypeVecLength(var.getType()));
 
         SkString location;
         location.appendf("location = %d", locationIndex);
