@@ -11,6 +11,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
+#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -187,3 +188,12 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
     }
 }
 #endif
+
+void SkShader_Blend::addToKey(SkShaderCodeDictionary* dict,
+                              SkBackend backend,
+                              SkPaintParamsKey* key) const {
+    // TODO: add blender support
+    SkASSERT(!fBlender);
+
+    BlendShaderBlock::AddToKey(backend, key, { fDst.get(), fSrc.get(), fMode });
+}

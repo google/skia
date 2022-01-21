@@ -11,6 +11,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMipmapAccessor.h"
@@ -371,6 +372,12 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 }
 
 #endif
+
+void SkImageShader::addToKey(SkShaderCodeDictionary* dict,
+                             SkBackend backend,
+                             SkPaintParamsKey* key) const {
+    ImageShaderBlock::AddToKey(backend, key, { fTileModeX, fTileModeY });
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "src/core/SkImagePriv.h"
