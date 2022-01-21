@@ -123,7 +123,7 @@ void Dehydrator::write(String s) {
     auto found = fStrings.find(s);
     int offset;
     if (found == fStrings.end()) {
-        offset = fStringBuffer.str().length() + HEADER_SIZE;
+        offset = fStringBuffer.bytesWritten() + HEADER_SIZE;
         fStrings.insert({ s, offset });
         SkASSERT(s.length() <= 255);
         fStringBreaks.add(fStringBuffer.bytesWritten());
