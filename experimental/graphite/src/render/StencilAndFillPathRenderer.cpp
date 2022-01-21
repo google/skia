@@ -7,13 +7,13 @@
 
 #include "experimental/graphite/src/Renderer.h"
 
-#include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawWriter.h"
 #include "experimental/graphite/src/UniformManager.h"
 #include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
+#include "src/core/SkUniformData.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 
@@ -134,7 +134,9 @@ public:
                          /*uniforms=*/{},
                          PrimitiveType::kTriangles,
                          fillrule_settings(evenOdd),
-                         /*vertexAttrs=*/{{"position", VertexAttribType::kFloat3, SLType::kFloat3}},
+                         /*vertexAttrs=*/{{"position",
+                                           VertexAttribType::kFloat3,
+                                           SkSLType::kFloat3}},
                          /*instanceAttrs=*/{}) {}
 
     ~StencilFanRenderStep() override {}
@@ -170,10 +172,10 @@ public:
         }
     }
 
-    sk_sp<UniformData> writeUniforms(Layout layout,
-                                     const SkIRect&,
-                                     const Transform&,
-                                     const Shape&) const override {
+    sk_sp<SkUniformData> writeUniforms(Layout layout,
+                                       const SkIRect&,
+                                       const Transform&,
+                                       const Shape&) const override {
         // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
         return nullptr;
     }
@@ -208,7 +210,9 @@ public:
                          /*uniforms=*/{},
                          PrimitiveType::kTriangles,
                          cover_settings(inverseFill),
-                         /*vertexAttrs=*/{{"position", VertexAttribType::kFloat3, SLType::kFloat3}},
+                         /*vertexAttrs=*/{{"position",
+                                           VertexAttribType::kFloat3,
+                                           SkSLType::kFloat3}},
                          /*instanceAttrs=*/{})
             , fInverseFill(inverseFill) {}
 
@@ -245,10 +249,10 @@ public:
            << devPoints[2].x << devPoints[2].y << devPoints[2].w;// BR
     }
 
-    sk_sp<UniformData> writeUniforms(Layout layout,
-                                     const SkIRect&,
-                                     const Transform& localToDevice,
-                                     const Shape&) const override {
+    sk_sp<SkUniformData> writeUniforms(Layout layout,
+                                       const SkIRect&,
+                                       const Transform& localToDevice,
+                                       const Shape&) const override {
         // Positions are pre-transformed on the CPU so no uniforms needed
         return nullptr;
     }

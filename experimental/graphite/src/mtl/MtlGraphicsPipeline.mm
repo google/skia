@@ -24,7 +24,7 @@ namespace skgpu::mtl {
 
 namespace {
 
-SkSL::String emit_SKSL_uniforms(int bufferID, const char* name, SkSpan<const Uniform> uniforms) {
+SkSL::String emit_SKSL_uniforms(int bufferID, const char* name, SkSpan<const SkUniform> uniforms) {
     SkSL::String result;
 
     result.appendf("layout (binding=%d) uniform %sUniforms {\n", bufferID, name);
@@ -36,23 +36,23 @@ SkSL::String emit_SKSL_uniforms(int bufferID, const char* name, SkSpan<const Uni
         // machinery
         result.appendf("    layout(offset=%d) ", offset);
         switch (u.type()) {
-            case SLType::kFloat4:
+            case SkSLType::kFloat4:
                 result.append("float4");
                 offset += 16 * count;
                 break;
-            case SLType::kFloat2:
+            case SkSLType::kFloat2:
                 result.append("float2");
                 offset += 8 * count;
                 break;
-            case SLType::kFloat:
+            case SkSLType::kFloat:
                 result.append("float");
                 offset += 4 * count;
                 break;
-            case SLType::kFloat4x4:
+            case SkSLType::kFloat4x4:
                 result.append("float4x4");
                 offset += 64 * count;
                 break;
-            case SLType::kHalf4:
+            case SkSLType::kHalf4:
                 result.append("half4");
                 offset += 8 * count;
                 break;
@@ -84,19 +84,19 @@ SkSL::String emit_SkSL_attributes(SkSpan<const Attribute> vertexAttrs,
             // machinery
             result.appendf("    layout(location=%d) in ", attr++);
             switch (a.gpuType()) {
-                case SLType::kFloat4:
+                case SkSLType::kFloat4:
                     result.append("float4");
                     break;
-                case SLType::kFloat2:
+                case SkSLType::kFloat2:
                     result.append("float2");
                     break;
-                case SLType::kFloat3:
+                case SkSLType::kFloat3:
                     result.append("float3");
                     break;
-                case SLType::kFloat:
+                case SkSLType::kFloat:
                     result.append("float");
                     break;
-                case SLType::kHalf4:
+                case SkSLType::kHalf4:
                     result.append("half4");
                     break;
                 default:

@@ -11,7 +11,6 @@
 #include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
-#include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
@@ -27,6 +26,7 @@
 
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkTBlockList.h"
+#include "src/core/SkUniformData.h"
 #include "src/gpu/BufferWriter.h"
 
 #include <algorithm>
@@ -174,7 +174,7 @@ public:
     UniformBindingCache(DrawBufferManager* bufferMgr, UniformCache* cache)
             : fBufferMgr(bufferMgr), fCache(cache) {}
 
-    uint32_t addUniforms(sk_sp<UniformData> data) {
+    uint32_t addUniforms(sk_sp<SkUniformData> data) {
         if (!data) {
             return UniformCache::kInvalidUniformID;
         }
@@ -285,7 +285,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // bound independently of those used by the rest of the RenderStep, then we can upload now
         // and remember the location for re-use on any RenderStep that does shading.
         SkUniquePaintParamsID shaderID;
-        sk_sp<UniformData> shadingUniforms = nullptr;
+        sk_sp<SkUniformData> shadingUniforms = nullptr;
         uint32_t shadingIndex = UniformCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
             std::tie(shaderID, shadingUniforms) = ExtractPaintData(recorder->context(),

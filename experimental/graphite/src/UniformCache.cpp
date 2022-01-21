@@ -7,19 +7,19 @@
 
 #include "experimental/graphite/src/UniformCache.h"
 
-#include "experimental/graphite/src/ContextUtils.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkUniformData.h"
 
 namespace skgpu {
 
-size_t UniformCache::Hash::operator()(UniformData* ud) const {
+size_t UniformCache::Hash::operator()(SkUniformData* ud) const {
     if (!ud) {
         return 0;
     }
     return SkOpts::hash_fn(ud->data(), ud->dataSize(), 0);
 }
 
-bool UniformCache::Eq::operator()(UniformData* a, UniformData* b) const {
+bool UniformCache::Eq::operator()(SkUniformData* a, SkUniformData* b) const {
     if (!a || !b) {
         return !a && !b;
     }
@@ -51,7 +51,7 @@ void UniformCache::validate() const {
 }
 #endif
 
-uint32_t UniformCache::insert(sk_sp<UniformData> data) {
+uint32_t UniformCache::insert(sk_sp<SkUniformData> data) {
     auto kv = fUniformDataIDs.find(data.get());
     if (kv != fUniformDataIDs.end()) {
         return kv->second;
@@ -66,7 +66,7 @@ uint32_t UniformCache::insert(sk_sp<UniformData> data) {
     return id;
 }
 
-sk_sp<UniformData> UniformCache::lookup(uint32_t uniqueID) {
+sk_sp<SkUniformData> UniformCache::lookup(uint32_t uniqueID) {
     SkASSERT(uniqueID < fUniformData.size());
     return fUniformData[uniqueID];
 }

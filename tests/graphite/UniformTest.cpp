@@ -15,6 +15,7 @@
 #include "include/private/SkShaderCodeDictionary.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkUniformData.h"
 
 namespace {
 

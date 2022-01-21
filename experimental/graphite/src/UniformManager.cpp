@@ -6,9 +6,12 @@
  */
 
 #include "experimental/graphite/src/UniformManager.h"
+
+#include "experimental/graphite/src/DrawTypes.h"
 #include "include/core/SkMatrix.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkUniform.h"
 
 // ensure that these types are the sizes the uniform data is expecting
 static_assert(sizeof(int32_t) == 4);
@@ -70,7 +73,7 @@ struct Rules140 {
      * that for single (non-array) scalars or vectors we don't require a stride.
      */
     static constexpr size_t Stride(int count) {
-        SkASSERT(count >= 1 || count == Uniform::kNonArray);
+        SkASSERT(count >= 1 || count == SkUniform::kNonArray);
         static_assert(RowsOrVecLength >= 1 && RowsOrVecLength <= 4);
         static_assert(Cols >= 1 && Cols <= 4);
         if (Cols != 1) {
@@ -105,7 +108,7 @@ struct Rules140 {
 template<typename BaseType, int RowsOrVecLength = 1, int Cols = 1>
 struct Rules430 {
     static constexpr size_t Stride(int count) {
-        SkASSERT(count >= 1 || count == Uniform::kNonArray);
+        SkASSERT(count >= 1 || count == SkUniform::kNonArray);
         static_assert(RowsOrVecLength >= 1 && RowsOrVecLength <= 4);
         static_assert(Cols >= 1 && Cols <= 4);
 
@@ -129,7 +132,7 @@ struct Rules430 {
 template<typename BaseType, int RowsOrVecLength = 1, int Cols = 1>
 struct RulesMetal {
     static constexpr size_t Stride(int count) {
-        SkASSERT(count >= 1 || count == Uniform::kNonArray);
+        SkASSERT(count >= 1 || count == SkUniform::kNonArray);
         static_assert(RowsOrVecLength >= 1 && RowsOrVecLength <= 4);
         static_assert(Cols >= 1 && Cols <= 4);
         if (Cols != 1) {
@@ -173,7 +176,7 @@ private:
     template <typename MemType, typename UniformType, int RowsOrVecLength = 1, int Cols = 1>
     static uint32_t Write(void *dst, int n, const MemType src[]) {
         size_t stride = Rules<UniformType, RowsOrVecLength, Cols>::Stride(n);
-        n = (n == Uniform::kNonArray) ? 1 : n;
+        n = (n == SkUniform::kNonArray) ? 1 : n;
         n *= Cols;
 
         if (dst) {
@@ -219,56 +222,56 @@ private:
     }
 
 public:
-    static uint32_t WriteUniform(SLType type,
+    static uint32_t WriteUniform(SkSLType type,
                                  CType ctype,
                                  void *dest,
                                  int n,
                                  const void *src) {
-        SkASSERT(n >= 1 || n == Uniform::kNonArray);
+        SkASSERT(n >= 1 || n == SkUniform::kNonArray);
         switch (type) {
-            case SLType::kInt:
+            case SkSLType::kInt:
                 return Write<int32_t, int32_t>(dest, n, static_cast<const int32_t *>(src));
 
-            case SLType::kInt2:
+            case SkSLType::kInt2:
                 return Write<int32_t, int32_t, 2>(dest, n, static_cast<const int32_t *>(src));
 
-            case SLType::kInt3:
+            case SkSLType::kInt3:
                 return Write<int32_t, int32_t, 3>(dest, n, static_cast<const int32_t *>(src));
 
-            case SLType::kInt4:
+            case SkSLType::kInt4:
                 return Write<int32_t, int32_t, 4>(dest, n, static_cast<const int32_t *>(src));
 
-            case SLType::kHalf:
+            case SkSLType::kHalf:
                 return Write<float, SkHalf>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kFloat:
+            case SkSLType::kFloat:
                 return Write<float, float>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kHalf2:
+            case SkSLType::kHalf2:
                 return Write<float, SkHalf, 2>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kFloat2:
+            case SkSLType::kFloat2:
                 return Write<float, float, 2>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kHalf3:
+            case SkSLType::kHalf3:
                 return Write<float, SkHalf, 3>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kFloat3:
+            case SkSLType::kFloat3:
                 return Write<float, float, 3>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kHalf4:
+            case SkSLType::kHalf4:
                 return Write<float, SkHalf, 4>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kFloat4:
+            case SkSLType::kFloat4:
                 return Write<float, float, 4>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kHalf2x2:
+            case SkSLType::kHalf2x2:
                 return Write<float, SkHalf, 2, 2>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kFloat2x2:
+            case SkSLType::kFloat2x2:
                 return Write<float, float, 2, 2>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kHalf3x3:
+            case SkSLType::kHalf3x3:
                 switch (ctype) {
                     case CType::kDefault:
                         return Write<float, SkHalf, 3, 3>(dest, n, static_cast<const float *>(src));
@@ -277,7 +280,7 @@ public:
                 }
                 SkUNREACHABLE;
 
-            case SLType::kFloat3x3:
+            case SkSLType::kFloat3x3:
                 switch (ctype) {
                     case CType::kDefault:
                         return Write<float, float, 3, 3>(dest, n, static_cast<const float *>(src));
@@ -286,10 +289,10 @@ public:
                 }
                 SkUNREACHABLE;
 
-            case SLType::kHalf4x4:
+            case SkSLType::kHalf4x4:
                 return Write<float, SkHalf, 4, 4>(dest, n, static_cast<const float *>(src));
 
-            case SLType::kFloat4x4:
+            case SkSLType::kFloat4x4:
                 return Write<float, float, 4, 4>(dest, n, static_cast<const float *>(src));
 
             default:
@@ -302,132 +305,132 @@ public:
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
-static uint32_t sltype_to_alignment_mask(SLType type) {
+static uint32_t sltype_to_alignment_mask(SkSLType type) {
     switch (type) {
-        case SLType::kInt:
-        case SLType::kUInt:
-        case SLType::kFloat:
+        case SkSLType::kInt:
+        case SkSLType::kUInt:
+        case SkSLType::kFloat:
             return 0x3;
-        case SLType::kInt2:
-        case SLType::kUInt2:
-        case SLType::kFloat2:
+        case SkSLType::kInt2:
+        case SkSLType::kUInt2:
+        case SkSLType::kFloat2:
             return 0x7;
-        case SLType::kInt3:
-        case SLType::kUInt3:
-        case SLType::kFloat3:
-        case SLType::kInt4:
-        case SLType::kUInt4:
-        case SLType::kFloat4:
+        case SkSLType::kInt3:
+        case SkSLType::kUInt3:
+        case SkSLType::kFloat3:
+        case SkSLType::kInt4:
+        case SkSLType::kUInt4:
+        case SkSLType::kFloat4:
             return 0xF;
 
-        case SLType::kFloat2x2:
+        case SkSLType::kFloat2x2:
             return 0x7;
-        case SLType::kFloat3x3:
+        case SkSLType::kFloat3x3:
             return 0xF;
-        case SLType::kFloat4x4:
+        case SkSLType::kFloat4x4:
             return 0xF;
 
-        case SLType::kShort:
-        case SLType::kUShort:
-        case SLType::kHalf:
+        case SkSLType::kShort:
+        case SkSLType::kUShort:
+        case SkSLType::kHalf:
             return 0x1;
-        case SLType::kShort2:
-        case SLType::kUShort2:
-        case SLType::kHalf2:
+        case SkSLType::kShort2:
+        case SkSLType::kUShort2:
+        case SkSLType::kHalf2:
             return 0x3;
-        case SLType::kShort3:
-        case SLType::kShort4:
-        case SLType::kUShort3:
-        case SLType::kUShort4:
-        case SLType::kHalf3:
-        case SLType::kHalf4:
+        case SkSLType::kShort3:
+        case SkSLType::kShort4:
+        case SkSLType::kUShort3:
+        case SkSLType::kUShort4:
+        case SkSLType::kHalf3:
+        case SkSLType::kHalf4:
             return 0x7;
 
-        case SLType::kHalf2x2:
+        case SkSLType::kHalf2x2:
             return 0x3;
-        case SLType::kHalf3x3:
+        case SkSLType::kHalf3x3:
             return 0x7;
-        case SLType::kHalf4x4:
+        case SkSLType::kHalf4x4:
             return 0x7;
 
         // This query is only valid for certain types.
-        case SLType::kVoid:
-        case SLType::kBool:
-        case SLType::kBool2:
-        case SLType::kBool3:
-        case SLType::kBool4:
-        case SLType::kTexture2DSampler:
-        case SLType::kTextureExternalSampler:
-        case SLType::kTexture2DRectSampler:
-        case SLType::kSampler:
-        case SLType::kTexture2D:
-        case SLType::kInput:
+        case SkSLType::kVoid:
+        case SkSLType::kBool:
+        case SkSLType::kBool2:
+        case SkSLType::kBool3:
+        case SkSLType::kBool4:
+        case SkSLType::kTexture2DSampler:
+        case SkSLType::kTextureExternalSampler:
+        case SkSLType::kTexture2DRectSampler:
+        case SkSLType::kSampler:
+        case SkSLType::kTexture2D:
+        case SkSLType::kInput:
             break;
     }
     SK_ABORT("Unexpected type");
 }
 
 /** Returns the size in bytes taken up in Metal buffers for GrSLTypes. */
-inline uint32_t sltype_to_mtl_size(SLType type) {
+inline uint32_t sltype_to_mtl_size(SkSLType type) {
     switch (type) {
-        case SLType::kInt:
-        case SLType::kUInt:
-        case SLType::kFloat:
+        case SkSLType::kInt:
+        case SkSLType::kUInt:
+        case SkSLType::kFloat:
             return 4;
-        case SLType::kInt2:
-        case SLType::kUInt2:
-        case SLType::kFloat2:
+        case SkSLType::kInt2:
+        case SkSLType::kUInt2:
+        case SkSLType::kFloat2:
             return 8;
-        case SLType::kInt3:
-        case SLType::kUInt3:
-        case SLType::kFloat3:
-        case SLType::kInt4:
-        case SLType::kUInt4:
-        case SLType::kFloat4:
+        case SkSLType::kInt3:
+        case SkSLType::kUInt3:
+        case SkSLType::kFloat3:
+        case SkSLType::kInt4:
+        case SkSLType::kUInt4:
+        case SkSLType::kFloat4:
             return 16;
 
-        case SLType::kFloat2x2:
+        case SkSLType::kFloat2x2:
             return 16;
-        case SLType::kFloat3x3:
+        case SkSLType::kFloat3x3:
             return 48;
-        case SLType::kFloat4x4:
+        case SkSLType::kFloat4x4:
             return 64;
 
-        case SLType::kShort:
-        case SLType::kUShort:
-        case SLType::kHalf:
+        case SkSLType::kShort:
+        case SkSLType::kUShort:
+        case SkSLType::kHalf:
             return 2;
-        case SLType::kShort2:
-        case SLType::kUShort2:
-        case SLType::kHalf2:
+        case SkSLType::kShort2:
+        case SkSLType::kUShort2:
+        case SkSLType::kHalf2:
             return 4;
-        case SLType::kShort3:
-        case SLType::kShort4:
-        case SLType::kUShort3:
-        case SLType::kUShort4:
-        case SLType::kHalf3:
-        case SLType::kHalf4:
+        case SkSLType::kShort3:
+        case SkSLType::kShort4:
+        case SkSLType::kUShort3:
+        case SkSLType::kUShort4:
+        case SkSLType::kHalf3:
+        case SkSLType::kHalf4:
             return 8;
 
-        case SLType::kHalf2x2:
+        case SkSLType::kHalf2x2:
             return 8;
-        case SLType::kHalf3x3:
+        case SkSLType::kHalf3x3:
             return 24;
-        case SLType::kHalf4x4:
+        case SkSLType::kHalf4x4:
             return 32;
 
         // This query is only valid for certain types.
-        case SLType::kVoid:
-        case SLType::kBool:
-        case SLType::kBool2:
-        case SLType::kBool3:
-        case SLType::kBool4:
-        case SLType::kTexture2DSampler:
-        case SLType::kTextureExternalSampler:
-        case SLType::kTexture2DRectSampler:
-        case SLType::kSampler:
-        case SLType::kTexture2D:
-        case SLType::kInput:
+        case SkSLType::kVoid:
+        case SkSLType::kBool:
+        case SkSLType::kBool2:
+        case SkSLType::kBool3:
+        case SkSLType::kBool4:
+        case SkSLType::kTexture2DSampler:
+        case SkSLType::kTextureExternalSampler:
+        case SkSLType::kTexture2DRectSampler:
+        case SkSLType::kSampler:
+        case SkSLType::kTexture2D:
+        case SkSLType::kInput:
             break;
     }
     SK_ABORT("Unexpected type");
@@ -438,7 +441,7 @@ inline uint32_t sltype_to_mtl_size(SLType type) {
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
 static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
                                        uint32_t* maxAlignment,
-                                       SLType type,
+                                       SkSLType type,
                                        int arrayCount) {
     uint32_t alignmentMask = sltype_to_alignment_mask(type);
     if (alignmentMask > *maxAlignment) {
@@ -459,29 +462,29 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
 }
 #endif // SK_DEBUG
 
-SLType UniformManager::getUniformTypeForLayout(SLType type) {
+SkSLType UniformManager::getUniformTypeForLayout(SkSLType type) {
     if (fLayout != Layout::kMetal) {
         // GL/Vk expect uniforms in 32-bit precision. Convert lower-precision types to 32-bit.
         switch (type) {
-            case SLType::kShort:            return SLType::kInt;
-            case SLType::kUShort:           return SLType::kUInt;
-            case SLType::kHalf:             return SLType::kFloat;
+            case SkSLType::kShort:            return SkSLType::kInt;
+            case SkSLType::kUShort:           return SkSLType::kUInt;
+            case SkSLType::kHalf:             return SkSLType::kFloat;
 
-            case SLType::kShort2:           return SLType::kInt2;
-            case SLType::kUShort2:          return SLType::kUInt2;
-            case SLType::kHalf2:            return SLType::kFloat2;
+            case SkSLType::kShort2:           return SkSLType::kInt2;
+            case SkSLType::kUShort2:          return SkSLType::kUInt2;
+            case SkSLType::kHalf2:            return SkSLType::kFloat2;
 
-            case SLType::kShort3:           return SLType::kInt3;
-            case SLType::kUShort3:          return SLType::kUInt3;
-            case SLType::kHalf3:            return SLType::kFloat3;
+            case SkSLType::kShort3:           return SkSLType::kInt3;
+            case SkSLType::kUShort3:          return SkSLType::kUInt3;
+            case SkSLType::kHalf3:            return SkSLType::kFloat3;
 
-            case SLType::kShort4:           return SLType::kInt4;
-            case SLType::kUShort4:          return SLType::kUInt4;
-            case SLType::kHalf4:            return SLType::kFloat4;
+            case SkSLType::kShort4:           return SkSLType::kInt4;
+            case SkSLType::kUShort4:          return SkSLType::kUInt4;
+            case SkSLType::kHalf4:            return SkSLType::kFloat4;
 
-            case SLType::kHalf2x2:          return SLType::kFloat2x2;
-            case SLType::kHalf3x3:          return SLType::kFloat3x3;
-            case SLType::kHalf4x4:          return SLType::kFloat4x4;
+            case SkSLType::kHalf2x2:          return SkSLType::kFloat2x2;
+            case SkSLType::kHalf3x3:          return SkSLType::kFloat3x3;
+            case SkSLType::kHalf4x4:          return SkSLType::kFloat4x4;
 
             default:                        break;
         }
@@ -490,7 +493,7 @@ SLType UniformManager::getUniformTypeForLayout(SLType type) {
     return type;
 }
 
-uint32_t UniformManager::writeUniforms(SkSpan<const Uniform> uniforms,
+uint32_t UniformManager::writeUniforms(SkSpan<const SkUniform> uniforms,
                                        const void** srcs,
                                        uint32_t* offsets,
                                        void *dst) {
@@ -515,8 +518,8 @@ uint32_t UniformManager::writeUniforms(SkSpan<const Uniform> uniforms,
     uint32_t offset = 0;
 
     for (int i = 0; i < (int) uniforms.size(); ++i) {
-        const Uniform& u = uniforms[i];
-        SLType uniformType = this->getUniformTypeForLayout(u.type());
+        const SkUniform& u = uniforms[i];
+        SkSLType uniformType = this->getUniformTypeForLayout(u.type());
 
 #ifdef SK_DEBUG
         uint32_t debugOffset = get_ubo_aligned_offset(&curUBOOffset,

@@ -17,6 +17,7 @@
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/UniformCache.h"
+#include "src/core/SkUniformData.h"
 
 namespace skgpu {
 

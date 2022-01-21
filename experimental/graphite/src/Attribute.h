@@ -9,6 +9,7 @@
 #define skgpu_Attribute_DEFINED
 
 #include "experimental/graphite/src/DrawTypes.h"
+#include "src/core/SkSLTypeShared.h"
 
 namespace skgpu {
 
@@ -18,19 +19,19 @@ public:
     constexpr Attribute() = default;
     constexpr Attribute(const char* name,
                         VertexAttribType cpuType,
-                        SLType gpuType)
+                        SkSLType gpuType)
             : fName(name), fCPUType(cpuType), fGPUType(gpuType) {
-        SkASSERT(name && gpuType != SLType::kVoid);
+        SkASSERT(name && gpuType != SkSLType::kVoid);
     }
     constexpr Attribute(const Attribute&) = default;
 
     Attribute& operator=(const Attribute&) = default;
 
-    constexpr bool isInitialized() const { return fGPUType != SLType::kVoid; }
+    constexpr bool isInitialized() const { return fGPUType != SkSLType::kVoid; }
 
     constexpr const char*      name()    const { return fName; }
     constexpr VertexAttribType cpuType() const { return fCPUType; }
-    constexpr SLType           gpuType() const { return fGPUType; }
+    constexpr SkSLType         gpuType() const { return fGPUType; }
 
     constexpr size_t size()       const { return VertexAttribTypeSize(fCPUType); }
     constexpr size_t sizeAlign4() const { return SkAlign4(this->size()); }
@@ -38,7 +39,7 @@ public:
 private:
     const char* fName = nullptr;
     VertexAttribType fCPUType = VertexAttribType::kFloat;
-    SLType fGPUType = SLType::kVoid;
+    SkSLType fGPUType = SkSLType::kVoid;
 };
 
 } // namespace skgpu
