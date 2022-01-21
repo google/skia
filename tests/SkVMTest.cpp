@@ -2134,7 +2134,9 @@ DEF_TEST(SkVM_approx_math, r) {
 
     auto compare = [r](int N, const float values[], const float expected[]) {
         for (int i = 0; i < N; ++i) {
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(values[i], expected[i], 0.001f));
+            REPORTER_ASSERT(r, (values[i] == expected[i]) ||
+                               SkScalarNearlyEqual(values[i], expected[i], 0.001f),
+                               "evaluated to %g, but expected %g", values[i], expected[i]);
         }
     };
 
@@ -2151,12 +2153,12 @@ DEF_TEST(SkVM_approx_math, r) {
 
     // pow2
     {
-        float values[] = {-2, -1, 0, 1, 2, 3};
+        float values[] = {-80, -5, -2, -1, 0, 1, 2, 3, 5, 160};
         constexpr int N = SK_ARRAY_COUNT(values);
         eval(N, values, [](skvm::Builder* b, skvm::F32 v) {
             return b->approx_pow2(v);
         });
-        const float expected[] = {0.25f, 0.5f, 1, 2, 4, 8};
+        const float expected[] = {0, 0.03125f, 0.25f, 0.5f, 1, 2, 4, 8, 32, INFINITY};
         compare(N, values, expected);
     }
 

@@ -847,12 +847,16 @@ namespace skvm {
     }
 
     F32 Builder::approx_pow2(F32 x) {
+        constexpr float kInfinityBits = 0x7f800000;
+
         F32 f = fract(x);
         F32 approx = add(x,         121.274057500f);
             approx = sub(approx, mul( 1.490129070f, f));
             approx = add(approx, div(27.728023300f, sub(4.84252568f, f)));
+            approx = mul(1.0f * (1<<23), approx);
+            approx = clamp(approx, 0, kInfinityBits);  // guard against underflow/overflow
 
-        return pun_to_F32(round(mul(1.0f * (1<<23), approx)));
+        return pun_to_F32(round(approx));
     }
 
     F32 Builder::approx_powf(F32 x, F32 y) {
