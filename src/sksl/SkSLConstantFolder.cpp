@@ -61,10 +61,10 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Expression& left,
     return eliminate_no_op_boolean(right, op, left);
 }
 
-static std::unique_ptr<Expression> simplify_vector_equality(const Context& context,
-                                                            const Expression& left,
-                                                            Operator op,
-                                                            const Expression& right) {
+static std::unique_ptr<Expression> simplify_constant_equality(const Context& context,
+                                                              const Expression& left,
+                                                              Operator op,
+                                                              const Expression& right) {
     if (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ) {
         bool equality = (op.kind() == Token::Kind::TK_EQEQ);
 
@@ -92,7 +92,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     const Type& type = left.type();
 
     // Handle equality operations: == !=
-    if (std::unique_ptr<Expression> result = simplify_vector_equality(context, left, op, right)) {
+    if (std::unique_ptr<Expression> result = simplify_constant_equality(context, left, op, right)) {
         return result;
     }
 
@@ -509,7 +509,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             return simplify_vector(context, *left, op, *right);
         }
         if (leftType.componentType().isBoolean()) {
-            return simplify_vector_equality(context, *left, op, *right);
+            return simplify_constant_equality(context, *left, op, *right);
         }
         return nullptr;
     }
@@ -523,8 +523,8 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             return simplify_vector(context, *left, op, ConstructorSplat(*right, left->type()));
         }
         if (rightType.isBoolean()) {
-            return simplify_vector_equality(context, *left, op,
-                                            ConstructorSplat(*right, left->type()));
+            return simplify_constant_equality(context, *left, op,
+                                              ConstructorSplat(*right, left->type()));
         }
         return nullptr;
     }
@@ -538,8 +538,8 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             return simplify_vector(context, ConstructorSplat(*left, right->type()), op, *right);
         }
         if (leftType.isBoolean()) {
-            return simplify_vector_equality(context, ConstructorSplat(*left, right->type()),
-                                            op, *right);
+            return simplify_constant_equality(context, ConstructorSplat(*left, right->type()),
+                                              op, *right);
         }
         return nullptr;
     }
@@ -547,29 +547,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // Perform constant folding on pairs of matrices or arrays.
     if ((leftType.isMatrix() && rightType.isMatrix()) ||
         (leftType.isArray() && rightType.isArray())) {
-        bool equality;
-        switch (op.kind()) {
-            case Token::Kind::TK_EQEQ:
-                equality = true;
-                break;
-            case Token::Kind::TK_NEQ:
-                equality = false;
-                break;
-            default:
-                return nullptr;
-        }
-
-        switch (left->compareConstant(*right)) {
-            case Expression::ComparisonResult::kNotEqual:
-                equality = !equality;
-                [[fallthrough]];
-
-            case Expression::ComparisonResult::kEqual:
-                return Literal::MakeBool(context, line, equality);
-
-            case Expression::ComparisonResult::kUnknown:
-                return nullptr;
-        }
+        return simplify_constant_equality(context, *left, op, *right);
     }
 
     // We aren't able to constant-fold.
