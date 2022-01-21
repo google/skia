@@ -245,7 +245,7 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
         int fanTriangleCount = 0;
         if (VertexWriter triangleVertexWriter =
-                    VertexWriter{vertexAlloc.lock<SkPoint>(maxTrianglesInFans * 3)}) {
+                    vertexAlloc.lockWriter(sizeof(SkPoint), maxTrianglesInFans * 3)) {
             for (auto [pathMatrix, path, color] : *fPathDrawList) {
                 AffineMatrix m(pathMatrix);
                 for (PathMiddleOutFanIter it(path); !it.done();) {
@@ -255,10 +255,12 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
                     }
                 }
             }
+
+
+            SkASSERT(fanTriangleCount <= maxTrianglesInFans);
+            fFanVertexCount = fanTriangleCount * 3;
+            vertexAlloc.unlock(fFanVertexCount);
         }
-        SkASSERT(fanTriangleCount <= maxTrianglesInFans);
-        fFanVertexCount = fanTriangleCount * 3;
-        vertexAlloc.unlock(fFanVertexCount);
     }
 
     auto tessShader = &fStencilPathProgram->geomProc().cast<GrPathTessellationShader>();

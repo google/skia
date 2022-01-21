@@ -80,32 +80,34 @@ bool GrTriangulator::Comparator::sweep_lt(const SkPoint& a, const SkPoint& b) co
     return fDirection == Direction::kHorizontal ? sweep_lt_horiz(a, b) : sweep_lt_vert(a, b);
 }
 
-static inline void* emit_vertex(Vertex* v, bool emitCoverage, void* data) {
-    skgpu::VertexWriter verts{data};
-    verts << v->fPoint;
+static inline skgpu::VertexWriter emit_vertex(Vertex* v,
+                                              bool emitCoverage,
+                                              skgpu::VertexWriter data) {
+    data << v->fPoint;
 
     if (emitCoverage) {
-        verts << GrNormalizeByteToFloat(v->fAlpha);
+        data << GrNormalizeByteToFloat(v->fAlpha);
     }
 
-    return verts.ptr();
+    return data;
 }
 
-static void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, bool emitCoverage, void* data) {
+static skgpu::VertexWriter emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2,
+                                         bool emitCoverage, skgpu::VertexWriter data) {
     TESS_LOG("emit_triangle %g (%g, %g) %d\n", v0->fID, v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
     TESS_LOG("              %g (%g, %g) %d\n", v1->fID, v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
     TESS_LOG("              %g (%g, %g) %d\n", v2->fID, v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
 #if TESSELLATOR_WIREFRAME
-    data = emit_vertex(v0, emitCoverage, data);
-    data = emit_vertex(v1, emitCoverage, data);
-    data = emit_vertex(v1, emitCoverage, data);
-    data = emit_vertex(v2, emitCoverage, data);
-    data = emit_vertex(v2, emitCoverage, data);
-    data = emit_vertex(v0, emitCoverage, data);
+    data = emit_vertex(v0, emitCoverage, std::move(data));
+    data = emit_vertex(v1, emitCoverage, std::move(data));
+    data = emit_vertex(v1, emitCoverage, std::move(data));
+    data = emit_vertex(v2, emitCoverage, std::move(data));
+    data = emit_vertex(v2, emitCoverage, std::move(data));
+    data = emit_vertex(v0, emitCoverage, std::move(data));
 #else
-    data = emit_vertex(v0, emitCoverage, data);
-    data = emit_vertex(v1, emitCoverage, data);
-    data = emit_vertex(v2, emitCoverage, data);
+    data = emit_vertex(v0, emitCoverage, std::move(data));
+    data = emit_vertex(v1, emitCoverage, std::move(data));
+    data = emit_vertex(v2, emitCoverage, std::move(data));
 #endif
     return data;
 }
@@ -310,7 +312,8 @@ void GrTriangulator::MonotonePoly::addEdge(Edge* edge) {
     }
 }
 
-void* GrTriangulator::emitMonotonePoly(const MonotonePoly* monotonePoly, void* data) const {
+skgpu::VertexWriter GrTriangulator::emitMonotonePoly(const MonotonePoly* monotonePoly,
+                                                     skgpu::VertexWriter data) const {
     SkASSERT(monotonePoly->fWinding != 0);
     Edge* e = monotonePoly->fFirstEdge;
     VertexList vertices;
@@ -334,14 +337,14 @@ void* GrTriangulator::emitMonotonePoly(const MonotonePoly* monotonePoly, void* d
         Vertex* curr = v;
         Vertex* next = v->fNext;
         if (count == 3) {
-            return this->emitTriangle(prev, curr, next, monotonePoly->fWinding, data);
+            return this->emitTriangle(prev, curr, next, monotonePoly->fWinding, std::move(data));
         }
         double ax = static_cast<double>(curr->fPoint.fX) - prev->fPoint.fX;
         double ay = static_cast<double>(curr->fPoint.fY) - prev->fPoint.fY;
         double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
         double by = static_cast<double>(next->fPoint.fY) - curr->fPoint.fY;
         if (ax * by - ay * bx >= 0.0) {
-            data = this->emitTriangle(prev, curr, next, monotonePoly->fWinding, data);
+            data = this->emitTriangle(prev, curr, next, monotonePoly->fWinding, std::move(data));
             v->fPrev->fNext = v->fNext;
             v->fNext->fPrev = v->fPrev;
             count--;
@@ -357,8 +360,8 @@ void* GrTriangulator::emitMonotonePoly(const MonotonePoly* monotonePoly, void* d
     return data;
 }
 
-void* GrTriangulator::emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int winding,
-                                   void* data) const {
+skgpu::VertexWriter GrTriangulator::emitTriangle(
+        Vertex* prev, Vertex* curr, Vertex* next, int winding, skgpu::VertexWriter data) const {
     if (winding > 0) {
         // Ensure our triangles always wind in the same direction as if the path had been
         // triangulated as a simple fan (a la red book).
@@ -370,7 +373,7 @@ void* GrTriangulator::emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int
         // come from the breadcrumb triangle.
         fBreadcrumbList.append(fAlloc, prev->fPoint, curr->fPoint, next->fPoint, abs(winding) - 1);
     }
-    return emit_triangle(prev, curr, next, fEmitCoverage, data);
+    return emit_triangle(prev, curr, next, fEmitCoverage, std::move(data));
 }
 
 GrTriangulator::Poly::Poly(Vertex* v, int winding)
@@ -430,13 +433,13 @@ Poly* GrTriangulator::Poly::addEdge(Edge* e, Side side, GrTriangulator* tri) {
     }
     return poly;
 }
-void* GrTriangulator::emitPoly(const Poly* poly, void *data) const {
+skgpu::VertexWriter GrTriangulator::emitPoly(const Poly* poly, skgpu::VertexWriter data) const {
     if (poly->fCount < 3) {
         return data;
     }
     TESS_LOG("emit() %d, size %d\n", poly->fID, poly->fCount);
     for (MonotonePoly* m = poly->fHead; m != nullptr; m = m->fNext) {
-        data = this->emitMonotonePoly(m, data);
+        data = this->emitMonotonePoly(m, std::move(data));
     }
     return data;
 }
@@ -1560,11 +1563,12 @@ std::tuple<Poly*, bool> GrTriangulator::contoursToPolys(VertexList* contours, in
 }
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
-void* GrTriangulator::polysToTriangles(Poly* polys, void* data,
-                                       SkPathFillType overrideFillType) const {
+skgpu::VertexWriter GrTriangulator::polysToTriangles(Poly* polys,
+                                                     SkPathFillType overrideFillType,
+                                                     skgpu::VertexWriter data) const {
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(overrideFillType, poly)) {
-            data = this->emitPoly(poly, data);
+            data = this->emitPoly(poly, std::move(data));
         }
     }
     return data;
@@ -1643,17 +1647,18 @@ int GrTriangulator::polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertex
     if (fEmitCoverage) {
         vertexStride += sizeof(float);
     }
-    void* verts = vertexAllocator->lock(vertexStride, count);
+    skgpu::VertexWriter verts = vertexAllocator->lockWriter(vertexStride, count);
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return 0;
     }
 
     TESS_LOG("emitting %d verts\n", count);
-    void* end = this->polysToTriangles(polys, verts, fPath.getFillType());
 
-    int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
-                                       / vertexStride);
+    skgpu::BufferWriter::Mark start = verts.mark();
+    verts = this->polysToTriangles(polys, fPath.getFillType(), std::move(verts));
+
+    int actualCount = static_cast<int>((verts.mark() - start) / vertexStride);
     SkASSERT(actualCount <= count);
     vertexAllocator->unlock(actualCount);
     return actualCount;

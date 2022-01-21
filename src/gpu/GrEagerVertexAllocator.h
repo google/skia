@@ -23,14 +23,16 @@ class GrMeshDrawTarget;
 // actual vertex count.
 class GrEagerVertexAllocator {
 public:
-    template<typename T> T* lock(int eagerCount) {
-        return static_cast<T*>(this->lock(sizeof(T), eagerCount));
-    }
     virtual void* lock(size_t stride, int eagerCount) = 0;
 
     virtual void unlock(int actualCount) = 0;
 
     virtual ~GrEagerVertexAllocator() {}
+
+    skgpu::VertexWriter lockWriter(size_t stride, int eagerCount) {
+        // TODO: This will be more useful when passing stride*eagerCount to VertexWriter ctor
+        return skgpu::VertexWriter{this->lock(stride, eagerCount)};
+    }
 };
 
 // GrEagerVertexAllocator implementation that uses GrMeshDrawTarget::makeVertexSpace and
@@ -50,9 +52,6 @@ public:
         SkASSERT(!fLockCount);
     }
 #endif
-
-    // Un-shadow GrEagerVertexAllocator::lock<T>.
-    using GrEagerVertexAllocator::lock;
 
     // Mark "final" as a hint for the compiler to not use the vtable.
     void* lock(size_t stride, int eagerCount) final;

@@ -7,6 +7,7 @@
 
 #include "src/gpu/geometry/GrAATriangulator.h"
 
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include <queue>
 #include <vector>
@@ -683,14 +684,15 @@ int GrAATriangulator::polysToAATriangles(Poly* polys,
     int count = count64;
 
     size_t vertexStride = sizeof(SkPoint) + sizeof(float);
-    void* verts = vertexAllocator->lock(vertexStride, count);
+    skgpu::VertexWriter verts = vertexAllocator->lockWriter(vertexStride, count);
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return 0;
     }
 
     TESS_LOG("emitting %d verts\n", count);
-    void* end = this->polysToTriangles(polys, verts, SkPathFillType::kWinding);
+    skgpu::BufferWriter::Mark start = verts.mark();
+    verts = this->polysToTriangles(polys, SkPathFillType::kWinding, std::move(verts));
     // Emit the triangles from the outer mesh.
     for (Vertex* v = fOuterMesh.fHead; v; v = v->fNext) {
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
@@ -698,13 +700,12 @@ int GrAATriangulator::polysToAATriangles(Poly* polys,
             Vertex* v1 = e->fBottom;
             Vertex* v2 = e->fBottom->fPartner;
             Vertex* v3 = e->fTop->fPartner;
-            end = this->emitTriangle(v0, v1, v2, 0/*winding*/, end);
-            end = this->emitTriangle(v0, v2, v3, 0/*winding*/, end);
+            verts = this->emitTriangle(v0, v1, v2, 0/*winding*/, std::move(verts));
+            verts = this->emitTriangle(v0, v2, v3, 0/*winding*/, std::move(verts));
         }
     }
 
-    int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
-                                       / vertexStride);
+    int actualCount = static_cast<int>((verts.mark() - start) / vertexStride);
     SkASSERT(actualCount <= count);
     vertexAllocator->unlock(actualCount);
     return actualCount;

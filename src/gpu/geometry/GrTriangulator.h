@@ -88,7 +88,9 @@ protected:
     virtual std::tuple<Poly*, bool> tessellate(const VertexList& vertices, const Comparator&);
 
     // 6) Triangulate the monotone polygons directly into a vertex buffer:
-    void* polysToTriangles(Poly* polys, void* data, SkPathFillType overrideFillType) const;
+    skgpu::VertexWriter polysToTriangles(Poly* polys,
+                                         SkPathFillType overrideFillType,
+                                         skgpu::VertexWriter data) const;
 
     // The vertex sorting in step (3) is a merge sort, since it plays well with the linked list
     // of vertices (and the necessity of inserting new vertices on intersection).
@@ -134,9 +136,11 @@ protected:
     // setting rotates 90 degrees counterclockwise, rather that transposing.
 
     // Additional helpers and driver functions.
-    void* emitMonotonePoly(const MonotonePoly*, void* data) const;
-    void* emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int winding, void* data) const;
-    void* emitPoly(const Poly*, void *data) const;
+    skgpu::VertexWriter emitMonotonePoly(const MonotonePoly*, skgpu::VertexWriter data) const;
+    skgpu::VertexWriter emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int winding,
+                                     skgpu::VertexWriter data) const;
+    skgpu::VertexWriter emitPoly(const Poly*, skgpu::VertexWriter data) const;
+
     Poly* makePoly(Poly** head, Vertex* v, int winding) const;
     void appendPointToContour(const SkPoint& p, VertexList* contour) const;
     void appendQuadraticToContour(const SkPoint[3], SkScalar toleranceSqd,

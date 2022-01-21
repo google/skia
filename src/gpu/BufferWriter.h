@@ -82,11 +82,6 @@ struct VertexWriter : public BufferWriter {
         return *this;
     }
 
-    // TODO: Remove this call. We want all users of VertexWriter to have to go through the vertex
-    // writer functions to write data. We do not want them to directly access fPtr and copy their
-    // own data.
-    void* ptr() const { return fPtr; }
-
     VertexWriter makeOffset(ptrdiff_t offsetInBytes) const {
         return VertexWriter{SkTAddOffset<void>(fPtr, offsetInBytes)};
     }
