@@ -338,6 +338,31 @@ PORTS_SRCS_ANDROID = struct(
     ],
 )
 
+PORTS_SRCS_ANDROID_NO_FONT = struct(
+    include = [
+        "src/ports/**/*.cpp",
+        "src/ports/**/*.h",
+    ],
+    exclude = [
+        "src/ports/*CG*",
+        "src/ports/*FontConfig*",
+        "src/ports/*WIC*",
+        "src/ports/*chromium*",
+        "src/ports/*fontconfig*",
+        "src/ports/*mac*",
+        "src/ports/*mozalloc*",
+        "src/ports/*nacl*",
+        "src/ports/*win*",
+        "src/ports/*NDK*",
+        "src/ports/SkDebug_stdio.cpp",
+        "src/ports/SkFontMgr_a*",
+        "src/ports/SkFontHost_Free*",
+        "src/ports/SkFontMgr_custom*",
+        "src/ports/SkFontMgr_fuchsia.cpp",
+        "src/ports/SkImageGenerator_none.cpp",
+    ],
+)
+
 GL_SRCS_IOS = struct(
     include = [
         "src/gpu/gl/*.cpp",
@@ -495,6 +520,7 @@ def ports_srcs(os_conditions):
             skia_glob(PORTS_SRCS_WASM),
             skia_glob(PORTS_SRCS_FUCHSIA),
             skia_glob(PORTS_SRCS_MACOS),
+            skia_glob(PORTS_SRCS_ANDROID_NO_FONT),
         ],
     )
 
@@ -508,6 +534,7 @@ def gl_srcs(os_conditions):
             skia_glob(GL_SRCS_WASM),
             skia_glob(GL_SRCS_FUCHSIA),
             skia_glob(GL_SRCS_MACOS),
+            skia_glob(GL_SRCS_ANDROID),
         ],
     )
 
