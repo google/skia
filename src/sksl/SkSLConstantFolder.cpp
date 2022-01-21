@@ -419,9 +419,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         return nullptr;
     }
 
-    // Note that we expressly do not worry about precision and overflow here -- we use the maximum
-    // precision to calculate the results and hope the result makes sense.
-    // TODO(skia:10932): detect and handle integer overflow properly.
+    // Note that fold_int_expression returns null if the result would overflow its type.
     using SKSL_UINT = uint64_t;
     if (left->isIntLiteral() && right->isIntLiteral()) {
         SKSL_INT leftVal  = left->as<Literal>().intValue();
@@ -502,10 +500,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
     // Perform constant folding on pairs of vectors.
     if (leftType.isVector() && leftType.matches(rightType)) {
-        if (leftType.componentType().isFloat()) {
-            return simplify_vector(context, *left, op, *right);
-        }
-        if (leftType.componentType().isInteger()) {
+        if (leftType.componentType().isNumber()) {
             return simplify_vector(context, *left, op, *right);
         }
         if (leftType.componentType().isBoolean()) {
@@ -516,10 +511,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
     // Perform constant folding on vectors against scalars, e.g.: half4(2) + 2
     if (leftType.isVector() && leftType.componentType().matches(rightType)) {
-        if (rightType.isFloat()) {
-            return simplify_vector(context, *left, op, ConstructorSplat(*right, left->type()));
-        }
-        if (rightType.isInteger()) {
+        if (rightType.isNumber()) {
             return simplify_vector(context, *left, op, ConstructorSplat(*right, left->type()));
         }
         if (rightType.isBoolean()) {
@@ -531,10 +523,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
     // Perform constant folding on scalars against vectors, e.g.: 2 + half4(2)
     if (rightType.isVector() && rightType.componentType().matches(leftType)) {
-        if (leftType.isFloat()) {
-            return simplify_vector(context, ConstructorSplat(*left, right->type()), op, *right);
-        }
-        if (leftType.isInteger()) {
+        if (leftType.isNumber()) {
             return simplify_vector(context, ConstructorSplat(*left, right->type()), op, *right);
         }
         if (leftType.isBoolean()) {
