@@ -46,10 +46,7 @@ static bool can_fit(size_t requestedSize,
 
 std::tuple<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size_t requiredBytes) {
     if (!requiredBytes) {
-        BindBufferInfo bindInfo;
-        bindInfo.fBuffer = nullptr;
-        bindInfo.fOffset = 0;
-        return {VertexWriter(nullptr), bindInfo};
+        return {VertexWriter(), BindBufferInfo()};
     }
     if (fCurrentVertexBuffer &&
         !can_fit(requiredBytes, fCurrentVertexBuffer.get(), fVertexOffset, /*alignment=*/1)) {
@@ -70,15 +67,12 @@ std::tuple<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size
     bindInfo.fBuffer = fCurrentVertexBuffer.get();
     bindInfo.fOffset = fVertexOffset;
     fVertexOffset += requiredBytes;
-    return {VertexWriter(map_offset(bindInfo)), bindInfo};
+    return {VertexWriter(map_offset(bindInfo), requiredBytes), bindInfo};
 }
 
 std::tuple<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t requiredBytes) {
     if (!requiredBytes) {
-        BindBufferInfo bindInfo;
-        bindInfo.fBuffer = nullptr;
-        bindInfo.fOffset = 0;
-        return {IndexWriter(nullptr), bindInfo};
+        return {IndexWriter(), BindBufferInfo()};
     }
     if (fCurrentIndexBuffer &&
         !can_fit(requiredBytes, fCurrentIndexBuffer.get(), fIndexOffset, /*alignment=*/1)) {
@@ -99,16 +93,13 @@ std::tuple<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t
     bindInfo.fBuffer = fCurrentIndexBuffer.get();
     bindInfo.fOffset = fIndexOffset;
     fIndexOffset += requiredBytes;
-    return {IndexWriter(map_offset(bindInfo)), bindInfo};
+    return {IndexWriter(map_offset(bindInfo), requiredBytes), bindInfo};
 }
 
 std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
         size_t requiredBytes) {
     if (!requiredBytes) {
-        BindBufferInfo bindInfo;
-        bindInfo.fBuffer = nullptr;
-        bindInfo.fOffset = 0;
-        return {UniformWriter(nullptr), bindInfo};
+        return {UniformWriter(), BindBufferInfo()};
     }
     if (fCurrentUniformBuffer &&
         !can_fit(requiredBytes,
@@ -133,7 +124,7 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
     bindInfo.fBuffer = fCurrentUniformBuffer.get();
     bindInfo.fOffset = fUniformOffset;
     fUniformOffset += requiredBytes;
-    return {UniformWriter(map_offset(bindInfo)), bindInfo};
+    return {UniformWriter(map_offset(bindInfo), requiredBytes), bindInfo};
 }
 
 void DrawBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {

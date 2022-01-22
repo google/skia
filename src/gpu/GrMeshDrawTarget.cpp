@@ -16,8 +16,9 @@ uint32_t GrMeshDrawTarget::contextUniqueID() const {
 
 template<typename W>
 static W make_writer(void* p, int count, size_t elementSize) {
-    // TODO: This will do more when writers track their ending mark based on count*elementSize
-    return W{p};
+    // Don't worry about overflow in calculating byte size if 'p' is not null, presumably the actual
+    // allocation validated it, so it should be safe after the fact.
+    return p ? W{p, count * elementSize} : W{};
 }
 
 skgpu::VertexWriter GrMeshDrawTarget::makeVertexWriter(

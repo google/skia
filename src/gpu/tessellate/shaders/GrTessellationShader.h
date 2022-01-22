@@ -43,7 +43,7 @@ public:
         *writer << VertexWriter::Array(pts, 3) << w << VertexWriter::kIEEE_32_infinity;
     }
     static void WriteConicPatch(const SkPoint pts[3], float w, SkPoint patch[4]) {
-        skgpu::VertexWriter writer(patch);
+        skgpu::VertexWriter writer(patch, 4*sizeof(SkPoint));
         WriteConicPatch(pts, w, &writer);
     }
 

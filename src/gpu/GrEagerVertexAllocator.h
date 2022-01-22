@@ -30,8 +30,8 @@ public:
     virtual ~GrEagerVertexAllocator() {}
 
     skgpu::VertexWriter lockWriter(size_t stride, int eagerCount) {
-        // TODO: This will be more useful when passing stride*eagerCount to VertexWriter ctor
-        return skgpu::VertexWriter{this->lock(stride, eagerCount)};
+        void* p = this->lock(stride, eagerCount);
+        return p ? skgpu::VertexWriter{p, stride * eagerCount} : skgpu::VertexWriter{};
     }
 };
 

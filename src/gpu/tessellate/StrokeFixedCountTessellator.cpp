@@ -54,7 +54,7 @@ public:
             return;
         }
         SkPoint cubic[4];
-        VertexWriter(cubic) << QuadToCubic(p);
+        VertexWriter(cubic, sizeof(cubic)) << QuadToCubic(p);
         SkPoint endControlPoint = cubic[2];
         this->writeStroke(cubic, endControlPoint, kCubicCurveType);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,

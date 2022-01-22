@@ -348,7 +348,7 @@ private:
         // Convert to a patch.
         SkPoint asPatch[4];
         if (w == 1) {
-            VertexWriter(asPatch) << QuadToCubic(p);
+            VertexWriter(asPatch, sizeof(asPatch)) << QuadToCubic(p);
         } else {
             memcpy(asPatch, p, sizeof(SkPoint) * 3);
             asPatch[3] = {w, std::numeric_limits<float>::infinity()};
@@ -767,7 +767,7 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
                     // Write it out directly.
                     prevJoinFitsInPatch = hwPatchWriter.stroke180FitsInPatch_withJoin(
                             numParametricSegments_pow4);
-                    VertexWriter(scratchPts) << QuadToCubic(p);
+                    VertexWriter(scratchPts, sizeof(scratchPts)) << QuadToCubic(p);
                     patchPts = scratchPts;
                     endControlPoint = patchPts[2];
                     break;
