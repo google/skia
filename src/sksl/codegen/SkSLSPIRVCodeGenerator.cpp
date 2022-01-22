@@ -2113,10 +2113,10 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         this->addRTFlipUniform(ref.fLine);
         // Use sk_RTAdjust to compute the flipped coordinate
         using namespace dsl;
-        const char* DEVICE_COORDS_NAME = "__device_FragCoords";
+        const char* DEVICE_COORDS_NAME = "$device_FragCoords";
         SymbolTable& symbols = *ThreadContext::SymbolTable();
         // Use a uniform to flip the Y coordinate. The new expression will be written in
-        // terms of __device_FragCoords, which is a fake variable that means "access the
+        // terms of $device_FragCoords, which is a fake variable that means "access the
         // underlying fragcoords directly without flipping it".
         DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(/*line=*/-1,
                 SKSL_RTFLIP_NAME));
@@ -2128,7 +2128,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                         fContext.fModifiersPool->add(modifiers),
                                                         DEVICE_COORDS_NAME,
                                                         fContext.fTypes.fFloat4.get(),
-                                                        true,
+                                                        /*builtin=*/true,
                                                         Variable::Storage::kGlobal);
             fSPIRVBonusVariables.insert(coordsVar.get());
             symbols.add(std::move(coordsVar));
@@ -2148,10 +2148,10 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
     if (variable->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN) {
         this->addRTFlipUniform(ref.fLine);
         using namespace dsl;
-        const char* DEVICE_CLOCKWISE_NAME = "__device_Clockwise";
+        const char* DEVICE_CLOCKWISE_NAME = "$device_Clockwise";
         SymbolTable& symbols = *ThreadContext::SymbolTable();
         // Use a uniform to flip the Y coordinate. The new expression will be written in
-        // terms of __device_Clockwise, which is a fake variable that means "access the
+        // terms of $device_Clockwise, which is a fake variable that means "access the
         // underlying FrontFacing directly".
         DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(/*line=*/-1,
                 SKSL_RTFLIP_NAME));
@@ -2163,7 +2163,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                            fContext.fModifiersPool->add(modifiers),
                                                            DEVICE_CLOCKWISE_NAME,
                                                            fContext.fTypes.fBool.get(),
-                                                           true,
+                                                           /*builtin=*/true,
                                                            Variable::Storage::kGlobal);
             fSPIRVBonusVariables.insert(clockwiseVar.get());
             symbols.add(std::move(clockwiseVar));
