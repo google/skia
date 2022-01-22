@@ -137,6 +137,7 @@ sksl_error_tests = [
   "/sksl/errors/ProgramTooLarge_Stack.sksl",
   "/sksl/errors/PrototypeInFuncBody.sksl",
   "/sksl/errors/PrivateTypes.sksl",
+  "/sksl/errors/PrivateVariables.sksl",
   "/sksl/errors/RedeclareBasicType.sksl",
   "/sksl/errors/RedeclareSamplerType.sksl",
   "/sksl/errors/RedeclareStruct.sksl",

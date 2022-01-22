@@ -36,6 +36,10 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, int line,
         context.fConfig->fKind == ProgramKind::kFragment && name != Compiler::FRAGCOLOR_NAME) {
         context.fErrors->error(line, "out location=0, index=0 is reserved for sk_FragColor");
     }
+    if (!context.fConfig->fIsBuiltinCode && name.starts_with('$')) {
+        context.fErrors->error(line, String("name '") + name + "' is reserved");
+    }
+
     return Make(context, line, modifiers, baseType, name, isArray, std::move(arraySize), storage);
 }
 

@@ -1,0 +1,5 @@
+int $a;
+void main(float2 $b) {
+    float $c[2];
+    bool4 $d;
+}
