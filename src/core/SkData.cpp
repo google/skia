@@ -57,7 +57,9 @@ size_t SkData::copyRange(size_t offset, size_t length, void* buffer) const {
     }
     SkASSERT(length > 0);
 
-    memcpy(buffer, this->bytes() + offset, length);
+    if (buffer) {
+        memcpy(buffer, this->bytes() + offset, length);
+    }
     return length;
 }
 
