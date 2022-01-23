@@ -231,10 +231,14 @@ DEF_PATH_TESS_BENCH(wangs_formula_conic_log2, make_conic_path(), SkMatrix::I()) 
 DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     ToolUtils::make_star(SkRect::MakeWH(500, 500), kNumCubicsInChalkboard),
                     SkMatrix::I()) {
+    // Conservative estimate of triangulation (see PathStencilCoverOp)
+    const int maxVerts =
+            3 * (PathTessellator::MaxCombinedFanEdgesInPathDrawList(kNumCubicsInChalkboard) - 2);
+
     sk_sp<const GrBuffer> buffer;
     int baseVertex;
     VertexWriter vertexWriter = fTarget->makeVertexWriter(
-            sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex);
+            sizeof(SkPoint), maxVerts, &buffer, &baseVertex);
     AffineMatrix m(gAlmostIdentity);
     for (PathMiddleOutFanIter it(fPath); !it.done();) {
         for (auto [p0, p1, p2] : it.nextStack()) {
