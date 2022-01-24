@@ -32,6 +32,9 @@
 
 namespace skgpu::v1 {
 
+inline static constexpr int kVerticesPerGlyph = 4;
+inline static constexpr int kIndicesPerGlyph = 6;
+
 // If we have thread local, then cache memory for a single AtlasTextOp.
 static thread_local void* gCache = nullptr;
 void* AtlasTextOp::operator new(size_t s) {

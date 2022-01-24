@@ -32,9 +32,6 @@ public:
     void operator delete(void* b) noexcept;
     static void ClearCache();
 
-    static const int kVerticesPerGlyph = GrAtlasSubRun::kVerticesPerGlyph;
-    static const int kIndicesPerGlyph = 6;
-
     struct Geometry {
         Geometry(const GrAtlasSubRun& subRun,
                  const SkMatrix& drawMatrix,

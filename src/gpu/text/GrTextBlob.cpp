@@ -49,6 +49,175 @@ struct AtlasPt {
     uint16_t v;
 };
 
+// -- TransformedMaskVertexFiller ------------------------------------------------------------------
+
+class TransformedMaskVertexFiller {
+public:
+    TransformedMaskVertexFiller(GrMaskFormat maskFormat,
+                                int dstPadding,
+                                SkScalar strikeToSourceScale);
+
+    struct PositionAndExtent {
+        const SkPoint pos;
+        // The rectangle of the glyphs in strike space. But, for kDirectMask this also implies a
+        // device space rect.
+        GrIRect16 rect;
+    };
+
+    size_t vertexStride(const SkMatrix& matrix) const {
+        if (fMaskFormat != kARGB_GrMaskFormat) {
+            // For formats kA565_GrMaskFormat and kA8_GrMaskFormat where A8 include SDFT.
+            return matrix.hasPerspective() ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
+        } else {
+            // For format kARGB_GrMaskFormat
+            return matrix.hasPerspective() ? sizeof(ARGB3DVertex) : sizeof(ARGB2DVertex);
+        }
+    }
+
+    void fillVertexData(SkSpan<const GrGlyph*> glyphs,
+                        SkSpan<const PositionAndExtent> positioning,
+                        GrColor color,
+                        const SkMatrix& positionMatrix,
+                        SkIRect clip,
+                        void* vertexBuffer) const;
+
+private:
+    // Normal text mask, SDFT, or color.
+    struct Mask2DVertex {
+        SkPoint devicePos;
+        GrColor color;
+        AtlasPt atlasPos;
+    };
+
+    struct ARGB2DVertex {
+        ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+
+        SkPoint devicePos;
+        AtlasPt atlasPos;
+    };
+
+    // Perspective SDFT or SDFT forced to 3D or perspective color.
+    struct Mask3DVertex {
+        SkPoint3 devicePos;
+        GrColor color;
+        AtlasPt atlasPos;
+    };
+
+    struct ARGB3DVertex {
+        ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+
+        SkPoint3 devicePos;
+        AtlasPt atlasPos;
+    };
+
+    std::array<SkScalar, 4> sourceRect(PositionAndExtent positionAndExtent) const;
+
+    template<typename Quad, typename VertexData>
+    void fill2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                GrColor color,
+                const SkMatrix& matrix) const;
+
+    template<typename Quad, typename VertexData>
+    void fill3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                GrColor color,
+                const SkMatrix& matrix) const;
+
+    const GrMaskFormat fMaskFormat;
+    const SkPoint fPaddingInset;
+    const SkScalar fStrikeToSourceScale;
+};
+
+TransformedMaskVertexFiller::TransformedMaskVertexFiller(GrMaskFormat maskFormat,
+                                                         int dstPadding,
+                                                         SkScalar strikeToSourceScale)
+        : fMaskFormat{maskFormat}
+        , fPaddingInset{SkPoint::Make(dstPadding, dstPadding)}
+        , fStrikeToSourceScale{strikeToSourceScale} {}
+
+void TransformedMaskVertexFiller::fillVertexData(SkSpan<const GrGlyph*> glyphs,
+                                                 SkSpan<const PositionAndExtent> positioning,
+                                                 GrColor color,
+                                                 const SkMatrix& positionMatrix,
+                                                 SkIRect clip,
+                                                 void* vertexBuffer) const {
+    auto quadData = [&](auto dst) {
+        return SkMakeZip(dst, glyphs, positioning);
+    };
+
+    if (!positionMatrix.hasPerspective()) {
+        if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
+            using Quad = ARGB2DVertex[4];
+            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
+            this->fill2D(quadData((Quad*) vertexBuffer), color, positionMatrix);
+        } else {
+            using Quad = Mask2DVertex[4];
+            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
+            this->fill2D(quadData((Quad*) vertexBuffer), color, positionMatrix);
+        }
+    } else {
+        if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
+            using Quad = ARGB3DVertex[4];
+            SkASSERT(sizeof(ARGB3DVertex) == this->vertexStride(positionMatrix));
+            this->fill3D(quadData((Quad*) vertexBuffer), color, positionMatrix);
+        } else {
+            using Quad = Mask3DVertex[4];
+            SkASSERT(sizeof(Mask3DVertex) == this->vertexStride(positionMatrix));
+            this->fill3D(quadData((Quad*) vertexBuffer), color, positionMatrix);
+        }
+    }
+}
+
+std::array<SkScalar, 4>
+TransformedMaskVertexFiller::sourceRect(PositionAndExtent positionAndExtent) const {
+    auto[pos, rect] = positionAndExtent;
+    auto[l, t, r, b] = rect;
+    SkPoint LT = (SkPoint::Make(l, t) + fPaddingInset) * fStrikeToSourceScale + pos,
+            RB = (SkPoint::Make(r, b) - fPaddingInset) * fStrikeToSourceScale + pos;
+    return {LT.x(), LT.y(), RB.x(), RB.y()};
+}
+
+template<typename Quad, typename VertexData>
+void TransformedMaskVertexFiller::fill2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                                         GrColor color,
+                                         const SkMatrix& positionMatrix) const {
+    for (auto[quad, glyph, positionAndExtent] : quadData) {
+        auto [l, t, r, b] = this->sourceRect(positionAndExtent);
+        SkPoint lt = positionMatrix.mapXY(l, t),
+                lb = positionMatrix.mapXY(l, b),
+                rt = positionMatrix.mapXY(r, t),
+                rb = positionMatrix.mapXY(r, b);
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        quad[0] = {lt, color, {al, at}};  // L,T
+        quad[1] = {lb, color, {al, ab}};  // L,B
+        quad[2] = {rt, color, {ar, at}};  // R,T
+        quad[3] = {rb, color, {ar, ab}};  // R,B
+    }
+}
+
+template<typename Quad, typename VertexData>
+void TransformedMaskVertexFiller::fill3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                                         GrColor color,
+                                         const SkMatrix& positionMatrix) const {
+    auto mapXYZ = [&](SkScalar x, SkScalar y) {
+        SkPoint pt{x, y};
+        SkPoint3 result;
+        positionMatrix.mapHomogeneousPoints(&result, &pt, 1);
+        return result;
+    };
+    for (auto[quad, glyph, positionAndExtent] : quadData) {
+        auto [l, t, r, b] = this->sourceRect(positionAndExtent);
+        SkPoint3 lt = mapXYZ(l, t),
+                 lb = mapXYZ(l, b),
+                 rt = mapXYZ(r, t),
+                 rb = mapXYZ(r, b);
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        quad[0] = {lt, color, {al, at}};  // L,T
+        quad[1] = {lb, color, {al, ab}};  // L,B
+        quad[2] = {rt, color, {ar, at}};  // R,T
+        quad[3] = {rb, color, {ar, ab}};  // R,B
+    }
+}
+
 // Normal text mask, SDFT, or color.
 struct Mask2DVertex {
     SkPoint devicePos;
@@ -123,36 +292,6 @@ void fill_transformed_vertices_2D(SkZip<Quad, const GrGlyph*, const VertexData> 
                 lb = matrix.mapXY(sLT.x(), sRB.y()),
                 rt = matrix.mapXY(sRB.x(), sLT.y()),
                 rb = matrix.mapXY(sRB.x(), sRB.y());
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        quad[0] = {lt, color, {al, at}};  // L,T
-        quad[1] = {lb, color, {al, ab}};  // L,B
-        quad[2] = {rt, color, {ar, at}};  // R,T
-        quad[3] = {rb, color, {ar, ab}};  // R,B
-    }
-}
-
-template<typename Quad, typename VertexData>
-void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
-                                  SkScalar dstPadding,
-                                  SkScalar strikeToSource,
-                                  GrColor color,
-                                  const SkMatrix& positionMatrix) {
-    SkPoint inset = {dstPadding, dstPadding};
-    auto mapXYZ = [&](SkScalar x, SkScalar y) {
-        SkPoint pt{x, y};
-        SkPoint3 result;
-        positionMatrix.mapHomogeneousPoints(&result, &pt, 1);
-        return result;
-    };
-    for (auto[quad, glyph, vertexData] : quadData) {
-        auto[pos, rect] = vertexData;
-        auto [l, t, r, b] = rect;
-        SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
-                sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
-        SkPoint3 lt = mapXYZ(sLT.x(), sLT.y()),
-                 lb = mapXYZ(sLT.x(), sRB.y()),
-                 rt = mapXYZ(sRB.x(), sLT.y()),
-                 rb = mapXYZ(sRB.x(), sRB.y());
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         quad[0] = {lt, color, {al, at}};  // L,T
         quad[1] = {lb, color, {al, ab}};  // L,B
@@ -832,21 +971,21 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
     if (clip.isEmpty()) {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
             direct_2D(quadData((Quad*)vertexDst), color, originOffset);
         } else {
             using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
             generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset);
         }
     } else {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
             generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
         } else {
             using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
             generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
         }
     }
@@ -871,12 +1010,7 @@ GrAtlasSubRun* DirectMaskSubRun::testingOnly_atlasSubRun() {
 // -- TransformedMaskSubRun ------------------------------------------------------------------------
 class TransformedMaskSubRun final : public GrSubRun, public GrAtlasSubRun {
 public:
-    struct VertexData {
-        const SkPoint pos;
-        // The rectangle of the glyphs in strike space. But, for kDirectMask this also implies a
-        // device space rect.
-        GrIRect16 rect;
-    };
+    using VertexData = TransformedMaskVertexFiller::PositionAndExtent;
 
     TransformedMaskSubRun(GrMaskFormat format,
                           GrTextBlob* blob,
@@ -1051,56 +1185,15 @@ void TransformedMaskSubRun::fillVertexData(void* vertexDst, int offset, int coun
                                            GrColor color,
                                            const SkMatrix& drawMatrix, SkPoint drawOrigin,
                                            SkIRect clip) const {
+    TransformedMaskVertexFiller filler{fMaskFormat, 0, fStrikeToSourceScale};
+
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
-    constexpr SkScalar kDstPadding = 0.f;
-
-    auto quadData = [&](auto dst) {
-        return SkMakeZip(dst,
-                         fGlyphs.glyphs().subspan(offset, count),
-                         fVertexData.subspan(offset, count));
-    };
-
-    if (!positionMatrix.hasPerspective()) {
-        if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
-            using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_2D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        } else {
-            using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_2D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        }
-    } else {
-        if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
-            using Quad = ARGB3DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_3D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        } else {
-            using Quad = Mask3DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_3D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        }
-    }
+    filler.fillVertexData(fGlyphs.glyphs().subspan(offset, count),
+                          fVertexData.subspan(offset, count),
+                          color,
+                          positionMatrix,
+                          clip,
+                          vertexDst);
 }
 
 size_t TransformedMaskSubRun::vertexStride(const SkMatrix& drawMatrix) const {
@@ -1383,7 +1476,7 @@ void SDFTSubRun::fillVertexData(
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
 
     using Quad = Mask2DVertex[4];
-    SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+    SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
     fill_transformed_vertices_2D(
             SkMakeZip((Quad*)vertexDst,
                       fGlyphs.glyphs().subspan(offset, count),
@@ -1957,21 +2050,21 @@ void DirectMaskSubRunNoCache::fillVertexData(void* vertexDst, int offset, int co
     if (clip.isEmpty()) {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(SkMatrix::I()) * kVerticesPerGlyph);
+            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
             direct_2D2(quadData((Quad*)vertexDst), color);
         } else {
             using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(SkMatrix::I()) * kVerticesPerGlyph);
+            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
             generalized_direct_2D(quadData((Quad*)vertexDst), color, {0,0});
         }
     } else {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(SkMatrix::I()) * kVerticesPerGlyph);
+            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
             generalized_direct_2D(quadData((Quad*)vertexDst), color, {0,0}, &clip);
         } else {
             using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(SkMatrix::I()) * kVerticesPerGlyph);
+            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
             generalized_direct_2D(quadData((Quad*)vertexDst), color, {0,0}, &clip);
         }
     }
@@ -1980,12 +2073,7 @@ void DirectMaskSubRunNoCache::fillVertexData(void* vertexDst, int offset, int co
 // -- TransformedMaskSubRunNoCache -----------------------------------------------------------------
 class TransformedMaskSubRunNoCache final : public GrAtlasSubRun {
 public:
-    struct VertexData {
-        const SkPoint pos;
-        // The rectangle of the glyphs in strike space. But, for kDirectMask this also implies a
-        // device space rect.
-        GrIRect16 rect;
-    };
+    using VertexData = TransformedMaskVertexFiller::PositionAndExtent;
 
     TransformedMaskSubRunNoCache(GrMaskFormat format,
                                  SkScalar strikeToSourceScale,
@@ -2131,56 +2219,15 @@ void TransformedMaskSubRunNoCache::fillVertexData(
         GrColor color,
         const SkMatrix& drawMatrix, SkPoint drawOrigin,
         SkIRect clip) const {
-    constexpr SkScalar kDstPadding = 0.f;
+    TransformedMaskVertexFiller filler{fMaskFormat, 0, fStrikeToSourceScale};
+
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
-
-    auto quadData = [&](auto dst) {
-        return SkMakeZip(dst,
-                         fGlyphs.glyphs().subspan(offset, count),
-                         fVertexData.subspan(offset, count));
-    };
-
-    if (!positionMatrix.hasPerspective()) {
-        if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
-            using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_2D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        } else {
-            using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_2D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        }
-    } else {
-        if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
-            using Quad = ARGB3DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_3D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        } else {
-            using Quad = Mask3DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_3D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        }
-    }
+    filler.fillVertexData(fGlyphs.glyphs().subspan(offset, count),
+                          fVertexData.subspan(offset, count),
+                          color,
+                          positionMatrix,
+                          clip,
+                          vertexDst);
 }
 
 size_t TransformedMaskSubRunNoCache::vertexStride(const SkMatrix& drawMatrix) const {
@@ -2390,7 +2437,7 @@ void SDFTSubRunNoCache::fillVertexData(
 
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
 
-    SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+    SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
     fill_transformed_vertices_2D(
             SkMakeZip((Quad*)vertexDst,
                       fGlyphs.glyphs().subspan(offset, count),
@@ -2911,21 +2958,21 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
         if (clip.isEmpty()) {
             if (fMaskFormat != kARGB_GrMaskFormat) {
                 using Quad = Mask2DVertex[4];
-                SkASSERT(sizeof(Quad) == this->vertexStride(SkMatrix::I()) * kVerticesPerGlyph);
+                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
                 direct_2D3(quadData((Quad*)vertexDst), color, originOffset);
             } else {
                 using Quad = ARGB2DVertex[4];
-                SkASSERT(sizeof(Quad) == this->vertexStride(SkMatrix::I()) * kVerticesPerGlyph);
+                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
                 generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset);
             }
         } else {
             if (fMaskFormat != kARGB_GrMaskFormat) {
                 using Quad = Mask2DVertex[4];
-                SkASSERT(sizeof(Quad) == this->vertexStride(SkMatrix::I()) * kVerticesPerGlyph);
+                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(SkMatrix::I()));
                 generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
             } else {
                 using Quad = ARGB2DVertex[4];
-                SkASSERT(sizeof(Quad) == this->vertexStride(SkMatrix::I()) * kVerticesPerGlyph);
+                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(SkMatrix::I()));
                 generalized_direct_2D(quadData((Quad*)vertexDst), color, originOffset, &clip);
             }
         }
@@ -2934,21 +2981,21 @@ void DirectMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int count
         if (!viewDifference.hasPerspective()) {
             if (fMaskFormat != kARGB_GrMaskFormat) {
                 using Quad = Mask2DVertex[4];
-                SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
                 transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
             } else {
                 using Quad = ARGB2DVertex[4];
-                SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
                 transformed_direct_2D(quadData((Quad*)vertexDst), color, viewDifference);
             }
         } else {
             if (fMaskFormat != kARGB_GrMaskFormat) {
                 using Quad = Mask3DVertex[4];
-                SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+                SkASSERT(sizeof(Mask3DVertex) == this->vertexStride(positionMatrix));
                 transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
             } else {
                 using Quad = ARGB3DVertex[4];
-                SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+                SkASSERT(sizeof(ARGB3DVertex) == this->vertexStride(positionMatrix));
                 transformed_direct_3D(quadData((Quad*)vertexDst), color, viewDifference);
             }
         }
@@ -3272,7 +3319,7 @@ void SDFTSubRunSlug::fillVertexData(void* vertexDst, int offset, int count,
 
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
 
-    SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
+    SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
     fill_transformed_vertices_2D(
             SkMakeZip((Quad*)vertexDst,
                       fGlyphs.glyphs().subspan(offset, count),
@@ -3305,12 +3352,7 @@ void Slug::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
 
 class TransformedMaskSubRunSlug final : public SlugAtlasSubRun {
 public:
-    struct VertexData {
-        const SkPoint pos;
-        // The rectangle of the glyphs in strike space. But, for kDirectMask this also implies a
-        // device space rect.
-        GrIRect16 rect;
-    };
+    using VertexData = TransformedMaskVertexFiller::PositionAndExtent;
 
     TransformedMaskSubRunSlug(Slug* slug,
                               GrMaskFormat format,
@@ -3472,57 +3514,15 @@ void TransformedMaskSubRunSlug::fillVertexData(void* vertexDst, int offset, int 
                                                GrColor color,
                                                const SkMatrix& drawMatrix, SkPoint drawOrigin,
                                                SkIRect clip) const {
-    constexpr SkScalar kDstPadding = 0.f;
+    TransformedMaskVertexFiller filler{fMaskFormat, 0, fStrikeToSourceScale};
 
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
-
-    auto quadData = [&](auto dst) {
-        return SkMakeZip(dst,
-                         fGlyphs.glyphs().subspan(offset, count),
-                         fVertexData.subspan(offset, count));
-    };
-
-    if (!positionMatrix.hasPerspective()) {
-        if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
-            using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_2D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        } else {
-            using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_2D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        }
-    } else {
-        if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
-            using Quad = ARGB3DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_3D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        } else {
-            using Quad = Mask3DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride(positionMatrix) * kVerticesPerGlyph);
-            fill_transformed_vertices_3D(
-                    quadData((Quad*) vertexDst),
-                    kDstPadding,
-                    fStrikeToSourceScale,
-                    color,
-                    positionMatrix);
-        }
-    }
+    filler.fillVertexData(fGlyphs.glyphs().subspan(offset, count),
+                          fVertexData.subspan(offset, count),
+                          color,
+                          positionMatrix,
+                          clip,
+                          vertexDst);
 }
 
 size_t TransformedMaskSubRunSlug::vertexStride(const SkMatrix& drawMatrix) const {

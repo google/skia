@@ -66,8 +66,6 @@ class GrAtlasSubRun;
 using GrAtlasSubRunOwner = std::unique_ptr<GrAtlasSubRun, GrSubRunAllocator::Destroyer>;
 class GrAtlasSubRun  {
 public:
-    inline static constexpr int kVerticesPerGlyph = 4;
-
     virtual ~GrAtlasSubRun() = default;
 
     virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
