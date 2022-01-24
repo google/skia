@@ -196,8 +196,8 @@ public:
         indexWriter << 0 << 1 << 2
                     << 2 << 1 << 3;
 
-        writer->setInstanceTemplate({}, indices, 6);
-        writer->appendInstances(1) << shape.rect().topLeft() << shape.rect().size();
+        DrawWriter::Instances instances{*writer, {}, indices, 6};
+        instances.append(1) << shape.rect().topLeft() << shape.rect().size();
     }
 
     sk_sp<SkUniformData> writeUniforms(Layout,

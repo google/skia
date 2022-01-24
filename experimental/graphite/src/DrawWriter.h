@@ -28,26 +28,27 @@ class DrawDispatcher; // Forward declaration, handles virtual dispatch of binds/
  * modifications. See the listing below for how to append dynamic data or draw with existing buffers
  *
  * CommandBuffer::draw(vertices)
- *  - dynamic vertex data     -> DrawWriter::appendVertices(n)
- *  - fixed vertex data       -> DrawWriter::draw(vertices, {}, vertexCount)
+ *  - dynamic vertex data     -> DrawWriter::Vertices(writer) verts;
+ *                               verts.append(n) << ...;
+ *  - fixed vertex data       -> writer.draw(vertices, {}, vertexCount)
  *
  * CommandBuffer::drawIndexed(vertices, indices)
  *  - dynamic vertex data     -> unsupported
- *  - fixed vertex,index data -> DrawWriter::drawIndexed(vertices, indices, indexCount)
+ *  - fixed vertex,index data -> writer.drawIndexed(vertices, indices, indexCount)
  *
  * CommandBuffer::drawInstances(vertices, instances)
  *  - dynamic instance data + fixed vertex data        ->
- *        DrawWriter::setInstanceTemplate(vertices, {}, vertexCount) then
- *        DrawWriter::appendInstances(n)
+ *        DrawWriter::Instances instances(writer, vertices, {}, vertexCount);
+ *        instances.append(n) << ...;
  *  - fixed vertex and instance data                   ->
- *        DrawWriter::drawInstanced(vertices, vertexCount, instances, instanceCount)
+ *        writer.drawInstanced(vertices, vertexCount, instances, instanceCount)
  *
  * CommandBuffer::drawIndexedInstanced(vertices, indices, instances)
  *  - dynamic instance data + fixed vertex, index data ->
- *        DrawWriter::setInstanceTemplate(vertices, indices, indexCount) then
- *        DrawWriter::appendInstances(n)
+ *        DrawWriter::Instances instances(writer, vertices, indices, indexCount);
+ *        instances.append(n) << ...;
  *  - fixed vertex, index, and instance data           ->
- *        DrawWriter::drawIndexedInstanced(vertices, indices, indexCount, instances, instanceCount)
+ *        writer.drawIndexedInstanced(vertices, indices, indexCount, instances, instanceCount)
  */
 class DrawWriter {
 public:
@@ -90,48 +91,33 @@ public:
 
     // Collects new vertex data for a call to CommandBuffer::draw(). Automatically accumulates
     // vertex data into a buffer, issuing draw and bind calls as needed when a new buffer is
-    // required, so that it is seamless to the caller.
+    // required, so that it is seamless to the caller. The draws do not use instances or indices.
     //
-    // Since this accumulates vertex data (and does not use instances or indices), this overrides
-    // the instance template when finally drawn.
+    // Usage (assuming writer has already had 'newPipelineState()' called with correct strides):
+    //    DrawWriter::Vertices verts{writer};
+    //    verts.append(n) << x << y << ...;
     //
     // This should not be used when the vertex stride is 0.
-    VertexWriter appendVertices(unsigned int numVertices) {
-        SkASSERT(fVertexStride > 0);
-        // TODO: Repeatedly calling this is wasted checks, but won't result in extra flushes when
-        // appending vertices multiple times in a row. A pending CL cleans this up better.
-        this->setTemplate(fVertices, {}, {}, 0);
-        return this->append(numVertices, fVertexStride, fVertices);
-    }
+    class Vertices;
 
     // Collects new instance data for a call to CommandBuffer::drawInstanced() or
-    // drawIndexedInstanced(). The specific draw call that's issued depends on the buffers passed to
-    // setInstanceTemplate(). If the template has a non-null index buffer, the eventual draw calls
-    // correspond to drawindexedInstanced(), otherwise to drawInstanced().
-    //
-    // Like appendVertices(), this automatically manages an internal instance buffer and merges
+    // drawIndexedInstanced(). The specific draw call that's issued depends on if a non-null index
+    // buffer is provided for the template. Like DrawWriter::Vertices, this automatically merges
     // the appended data into as few buffer binds and draw calls as possible, while remaining
     // seamless to the caller.
     //
-    // This requires that an instance template be specified before appending instance data. However,
-    // the fixed vertex buffer can be null (or have a stride of 0) if the vertex shader only relies
-    // on the vertex ID and no other per-vertex data.
+    // Usage for drawInstanced (assuming writer has correct strides):
+    //    DrawWriter::Instances instances{writer, fixedVerts, {}, fixedVertexCount};
+    //    instances.append(n) << foo << bar << ...;
     //
-    // This should not be used when the instance stride is 0.
-    VertexWriter appendInstances(unsigned int numInstances) {
-        SkASSERT(fInstanceStride > 0);
-        SkASSERT(fTemplateCount > 0); // instance mode
-        return this->append(numInstances, fInstanceStride, fInstances);
-    }
-
-    // Set the fixed vertex and index buffers referenced when appending instance data or calling
-    // drawIndexed(). 'count' is the number of vertices in the template, which is either the
-    // vertex count (when 'indices' has a null buffer), or the index count when 'indices' are
-    // provided.
-    void setInstanceTemplate(BindBufferInfo vertices, BindBufferInfo indices, unsigned int count) {
-        SkASSERT(count > 0);
-        this->setTemplate(vertices, indices, fInstances, count);
-    }
+    // Usage for drawIndexedInstanced:
+    //    DrawWriter::Instances instances{writer, fixedVerts, fixedIndices, fixedIndexCount};
+    //    instances.append(n) << foo << bar << ...;
+    //
+    // This should not be used when the instance stride is 0. However, the fixed vertex buffer can
+    // be null (or have a stride of 0) if the vertex shader only relies on the vertex ID and no
+    // other per-vertex data.
+    class Instances;
 
     // Issues a draws with fully specified data. This can be used when all instance data has already
     // been written to known buffers, or when the vertex shader only depends on the vertex or
@@ -178,7 +164,6 @@ private:
     unsigned int fPendingBase; // vertex/instance offset (depending on mode) applied to buffer
     bool fPendingBufferBinds; // true if {fVertices,fIndices,fInstances} has changed since last draw
 
-    VertexWriter append(unsigned int count, size_t stride, BindBufferInfo& target);
     void setTemplate(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
                      unsigned int templateCount);
     void bindAndFlush(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
@@ -188,6 +173,11 @@ private:
         fPendingCount = drawCount;
         this->flush();
     }
+
+    // RAII - Sets the DrawWriter's template and marks the writer in append mode (disabling direct
+    // draws until the Appender is destructed).
+    class Appender;
+    SkDEBUGCODE(const Appender* fAppender = nullptr;)
 };
 
 // Mirrors the CommandBuffer API, since a DrawWriter is meant to aggregate and then map onto
@@ -211,6 +201,54 @@ public:
                                       unsigned int baseIndex, unsigned int indexCount,
                                       unsigned int baseVertex, unsigned int baseInstance,
                                       unsigned int instanceCount) = 0;
+};
+
+// Appender implementations for DrawWriter that set the template on creation and provide a
+// template-specific API to accumulate vertex/instance data.
+class DrawWriter::Appender {
+public:
+    Appender(DrawWriter& w) : fWriter(w) {
+        SkASSERT(!w.fAppender);
+        SkDEBUGCODE(w.fAppender = this;)
+    }
+
+    ~Appender() {
+        SkASSERT(fWriter.fAppender == this);
+        SkDEBUGCODE(fWriter.fAppender = nullptr;)
+    }
+
+protected:
+    DrawWriter& fWriter;
+
+    VertexWriter append(unsigned int count, size_t stride, BindBufferInfo& target);
+};
+
+class DrawWriter::Vertices : private DrawWriter::Appender {
+public:
+    Vertices(DrawWriter& w) : Appender(w) {
+        SkASSERT(w.fVertexStride > 0);
+        w.setTemplate(w.fVertices, {}, {}, 0);
+    }
+
+    VertexWriter append(unsigned int count) {
+        return this->Appender::append(count, fWriter.fVertexStride, fWriter.fVertices);
+    }
+};
+
+class DrawWriter::Instances : private DrawWriter::Appender {
+public:
+    Instances(DrawWriter& w,
+              BindBufferInfo vertices,
+              BindBufferInfo indices,
+              unsigned int vertexCount)
+            : Appender(w) {
+        SkASSERT(w.fInstanceStride > 0);
+        w.setTemplate(vertices, indices, w.fInstances, vertexCount);
+    }
+
+    VertexWriter append(unsigned int count) {
+        return this->Appender::append(count, fWriter.fInstanceStride, fWriter.fInstances);
+    }
 };
 
 } // namespace skgpu
