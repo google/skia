@@ -111,7 +111,6 @@ if (skia_use_system_harfbuzz) {
       "$_src/hb-map.cc",
       "$_src/hb-map.hh",
       "$_src/hb-meta.hh",
-      "$_src/hb-ms-feature-ranges.cc",
       "$_src/hb-ms-feature-ranges.hh",
       "$_src/hb-mutex.hh",
       "$_src/hb-null.hh",
