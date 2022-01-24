@@ -95,8 +95,9 @@ class GrBlobSubRun;
 class GrSubRun {
 public:
     virtual ~GrSubRun();
-    // Produce GPU ops for this subRun.
-    virtual void draw(const GrClip*,
+    // Produce GPU ops for this subRun or just draw them.
+    virtual void draw(SkCanvas*,
+                      const GrClip*,
                       const SkMatrixProvider& viewMatrix,
                       SkPoint drawOrigin,
                       const SkPaint&,
@@ -228,7 +229,8 @@ public:
     const Key& key() const;
     size_t size() const;
 
-    void draw(const GrClip* clip,
+    void draw(SkCanvas*,
+              const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               SkPoint drawOrigin,
               const SkPaint& paint,
@@ -289,7 +291,8 @@ private:
 
 class GrSubRunNoCachePainter : public SkGlyphRunPainterInterface {
 public:
-    GrSubRunNoCachePainter(skgpu::v1::SurfaceDrawContext*,
+    GrSubRunNoCachePainter(SkCanvas*,
+                           skgpu::v1::SurfaceDrawContext*,
                            GrSubRunAllocator*,
                            const GrClip*,
                            const SkMatrixProvider& viewMatrix,
@@ -314,6 +317,7 @@ private:
     // Draw passes ownership of the sub run to the op.
     void draw(GrAtlasSubRunOwner subRun);
 
+    SkCanvas* fCanvas;
     skgpu::v1::SurfaceDrawContext* const fSDC;
     GrSubRunAllocator* const fAlloc;
     const GrClip* const fClip;

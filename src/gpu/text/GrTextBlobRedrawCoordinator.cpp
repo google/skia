@@ -22,7 +22,8 @@ GrTextBlobRedrawCoordinator::GrTextBlobRedrawCoordinator(uint32_t messageBusID)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
-void GrTextBlobRedrawCoordinator::drawGlyphRunList(const GrClip* clip,
+void GrTextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
+                                                   const GrClip* clip,
                                                    const SkMatrixProvider& viewMatrix,
                                                    const SkGlyphRunList& glyphRunList,
                                                    const SkPaint& paint,
@@ -65,7 +66,7 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(const GrClip* clip,
         }
     }
 
-    blob->draw(clip, viewMatrix, glyphRunList.origin(), paint, sdc);
+    blob->draw(canvas, clip, viewMatrix, glyphRunList.origin(), paint, sdc);
 }
 
 sk_sp<GrTextBlob> GrTextBlobRedrawCoordinator::addOrReturnExisting(

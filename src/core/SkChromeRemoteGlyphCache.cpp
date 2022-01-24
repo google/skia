@@ -772,7 +772,9 @@ public:
     }
 
 protected:
-    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
+    void onDrawGlyphRunList(SkCanvas*,
+                            const SkGlyphRunList& glyphRunList,
+                            const SkPaint& paint) override {
         #if SK_SUPPORT_GPU
         GrContextOptions ctxOptions;
         GrSDFTControl control =
@@ -785,11 +787,11 @@ protected:
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
         const uint64_t uniqueID = glyphRunList.uniqueID();
         for (auto& glyphRun : glyphRunList) {
-            fPainter.processGlyphRun(glyphRun,
+            fPainter.processGlyphRun(nullptr,
+                                     glyphRun,
                                      drawMatrix,
                                      paint,
                                      control,
-                                     nullptr,
                                      "Cache Diff",
                                      uniqueID);
         }

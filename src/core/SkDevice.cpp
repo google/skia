@@ -294,7 +294,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas* canvas) {
+void SkBaseDevice::drawDrawable(SkCanvas* canvas, SkDrawable* drawable, const SkMatrix* matrix) {
     drawable->draw(canvas, matrix);
 }
 
@@ -423,23 +423,27 @@ static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatr
     return shader->makeWithLocalMatrix(lm_inv * inverse * lm * outer_lm);
 }
 
-void SkBaseDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+void SkBaseDevice::drawGlyphRunList(SkCanvas* canvas,
+                                    const SkGlyphRunList& glyphRunList,
+                                    const SkPaint& paint) {
     if (!this->localToDevice().isFinite()) {
         return;
     }
 
     if (!glyphRunList.hasRSXForm()) {
-        this->onDrawGlyphRunList(glyphRunList, paint);
+        this->onDrawGlyphRunList(canvas, glyphRunList, paint);
     } else {
-        this->simplifyGlyphRunRSXFormAndRedraw(glyphRunList, paint);
+        this->simplifyGlyphRunRSXFormAndRedraw(canvas, glyphRunList, paint);
     }
 }
 
-void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphRunList,
+void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
+                                                    const SkGlyphRunList& glyphRunList,
                                                     const SkPaint& paint) {
     for (const SkGlyphRun& run : glyphRunList) {
         if (run.scaledRotations().empty()) {
-            this->drawGlyphRunList(SkGlyphRunList{run, run.sourceBounds(paint), {0, 0}}, paint);
+            SkGlyphRunList subList{run, run.sourceBounds(paint), {0, 0}};
+            this->drawGlyphRunList(canvas, subList, paint);
         } else {
             SkPoint origin = glyphRunList.origin();
             SkPoint sharedPos{0, 0};    // we're at the origin
@@ -453,7 +457,6 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphR
                     SkSpan<const SkVector>{}
             };
 
-            const SkM44 originalLocalToDevice = this->localToDevice44();
             for (auto [i, glyphID, pos] : SkMakeEnumerate(run.source())) {
                 sharedGlyphID = glyphID;
                 auto [scos, ssin] = run.scaledRotations()[i];
@@ -467,11 +470,11 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphR
                 // change to the ctm.
                 SkPaint invertingPaint{paint};
                 invertingPaint.setShader(make_post_inverse_lm(paint.getShader(), glyphToLocal));
-                this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToLocal));
-                this->drawGlyphRunList(
-                    SkGlyphRunList{glyphRun, glyphRun.sourceBounds(paint), {0, 0}}, invertingPaint);
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->concat(SkM44(glyphToLocal));
+                SkGlyphRunList subList{glyphRun, glyphRun.sourceBounds(paint), {0, 0}};
+                this->drawGlyphRunList(canvas, subList, invertingPaint);
             }
-            this->setLocalToDevice(originalLocalToDevice);
         }
     }
 }
@@ -483,7 +486,7 @@ sk_sp<GrSlug> SkBaseDevice::convertGlyphRunListToSlug(
     return nullptr;
 }
 
-void SkBaseDevice::drawSlug(GrSlug* slug) {
+void SkBaseDevice::drawSlug(SkCanvas*, GrSlug*) {
     SK_ABORT("GrSlug drawing not supported.");
 }
 #endif

@@ -2295,7 +2295,7 @@ void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPa
     }
     auto layer = this->aboutToDraw(this, paint, &bounds);
     if (layer) {
-        this->topDevice()->drawGlyphRunList(glyphRunList, layer->paint());
+        this->topDevice()->drawGlyphRunList(this, glyphRunList, layer->paint());
     }
 }
 
@@ -2334,7 +2334,7 @@ void SkCanvas::doDrawSlug(GrSlug* slug) {
         return;
     }
 
-    this->topDevice()->drawSlug(slug);
+    this->topDevice()->drawSlug(this, slug);
 }
 #endif
 
@@ -2528,7 +2528,7 @@ void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
     // drawable bounds are no longer reliable (e.g. android displaylist)
     // so don't use them for quick-reject
     if (this->predrawNotify()) {
-        this->topDevice()->drawDrawable(dr, matrix, this);
+        this->topDevice()->drawDrawable(this, dr, matrix);
     }
 }
 

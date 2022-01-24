@@ -191,7 +191,7 @@ public:
     virtual skgpu::BaseDevice* asGpuDevice() { return nullptr; }
 
     // Ensure that non-RSXForm runs are passed to onDrawGlyphRunList.
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint);
+    void drawGlyphRunList(SkCanvas*, const SkGlyphRunList& glyphRunList, const SkPaint& paint);
 
 protected:
     enum TileUsage {
@@ -293,17 +293,17 @@ protected:
                                     const SkSamplingOptions&, const SkPaint&,
                                     SkCanvas::SrcRectConstraint);
 
-    virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
+    virtual void drawDrawable(SkCanvas*, SkDrawable*, const SkMatrix*);
 
     // Only called with glyphRunLists that do not contain RSXForm.
-    virtual void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) = 0;
+    virtual void onDrawGlyphRunList(SkCanvas*, const SkGlyphRunList&, const SkPaint&) = 0;
 
     // GrSlug handling routines.
 #if SK_SUPPORT_GPU
     virtual sk_sp<GrSlug> convertGlyphRunListToSlug(
             const SkGlyphRunList& glyphRunList,
             const SkPaint& paint) const;
-    virtual void drawSlug(GrSlug* slug);
+    virtual void drawSlug(SkCanvas*, GrSlug* slug);
 #endif
 
     /**
@@ -414,7 +414,7 @@ private:
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 
-    void simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphRunList, const SkPaint& paint);
+    void simplifyGlyphRunRSXFormAndRedraw(SkCanvas*, const SkGlyphRunList&, const SkPaint&);
 
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
@@ -527,7 +527,7 @@ protected:
     void drawFilteredImage(const skif::Mapping&, SkSpecialImage* src, const SkImageFilter*,
                            const SkSamplingOptions&, const SkPaint&) override {}
 
-    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {}
+    void onDrawGlyphRunList(SkCanvas*, const SkGlyphRunList&, const SkPaint&) override {}
 
 
     bool isNoPixelsDevice() const override { return true; }

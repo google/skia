@@ -71,27 +71,23 @@ public:
         BitmapDevicePainter(const BitmapDevicePainter&) = default;
         virtual ~BitmapDevicePainter() = default;
 
-        virtual void paintPaths(
-                SkDrawableGlyphBuffer* drawables, SkScalar scale, SkPoint origin,
-                const SkPaint& paint) const = 0;
-
         virtual void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const = 0;
         virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                                 const SkSamplingOptions&, const SkPaint&) const = 0;
     };
 
     void drawForBitmapDevice(
-            const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& deviceMatrix,
-            const BitmapDevicePainter* bitmapDevice);
+            SkCanvas* canvas, const BitmapDevicePainter* bitmapDevice,
+            const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& deviceMatrix);
 
 #if SK_SUPPORT_GPU
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
-    void processGlyphRun(const SkGlyphRun& glyphRun,
+    void processGlyphRun(SkGlyphRunPainterInterface* process,
+                         const SkGlyphRun& glyphRun,
                          const SkMatrix& drawMatrix,
                          const SkPaint& drawPaint,
                          const GrSDFTControl& control,
-                         SkGlyphRunPainterInterface* process,
                          const char* tag = nullptr,
                          uint64_t blobID = SK_InvalidUniqueID);
 #endif  // SK_SUPPORT_GPU

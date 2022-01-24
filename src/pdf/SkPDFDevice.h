@@ -84,7 +84,7 @@ public:
                        const SkSamplingOptions&,
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
-    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
+    void onDrawGlyphRunList(SkCanvas*, const SkGlyphRunList&, const SkPaint&) override;
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) override;
     void drawCustomMesh(SkCustomMesh, sk_sp<SkBlender>, const SkPaint&) override;
 

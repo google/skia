@@ -487,7 +487,8 @@ public:
      * @param viewMatrix      transformationMatrix
      * @param glyphRunList    text, text positions, and paint.
      */
-    void drawGlyphRunList(const GrClip*,
+    void drawGlyphRunList(SkCanvas*,
+                          const GrClip*,
                           const SkMatrixProvider& viewMatrix,
                           const SkGlyphRunList& glyphRunList,
                           const SkPaint& paint);
@@ -498,7 +499,8 @@ public:
      * @param viewMatrix      transformationMatrix
      * @param glyphRunList    text, text positions, and paint.
      */
-    void drawGlyphRunListNoCache(const GrClip*,
+    void drawGlyphRunListNoCache(SkCanvas*,
+                                 const GrClip*,
                                  const SkMatrixProvider& viewMatrix,
                                  const SkGlyphRunList& glyphRunList,
                                  const SkPaint& paint);
@@ -513,7 +515,8 @@ public:
     /**
      * Draw a slug.
      */
-    void drawSlug(const GrClip* clip,
+    void drawSlug(SkCanvas*,
+                  const GrClip* clip,
                   const SkMatrixProvider& viewMatrix,
                   GrSlug* slugPtr);
 

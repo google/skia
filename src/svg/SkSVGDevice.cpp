@@ -1071,7 +1071,9 @@ private:
              fHasConstY             = true;
 };
 
-void SkSVGDevice::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint)  {
+void SkSVGDevice::onDrawGlyphRunList(SkCanvas* canvas,
+                                     const SkGlyphRunList& glyphRunList,
+                                     const SkPaint& paint)  {
     SkASSERT(!glyphRunList.hasRSXForm());
     const auto draw_as_path = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) ||
                                paint.getPathEffect();

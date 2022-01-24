@@ -21,6 +21,7 @@
 #include "src/core/SkZip.h"
 
 class SkBaseDevice;
+class SkCanvas;
 class SkGlyph;
 class SkTextBlob;
 class SkTextBlobRunIterator;

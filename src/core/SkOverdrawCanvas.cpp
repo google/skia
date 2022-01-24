@@ -50,8 +50,6 @@ public:
               fOverdrawCanvas{overdrawCanvas},
               fPainter{props, kN32_SkColorType, nullptr, SkStrikeCache::GlobalStrikeCache()} {}
 
-    void paintPaths(SkDrawableGlyphBuffer*, SkScalar, SkPoint, const SkPaint&) const override {}
-
     void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override {
         for (auto t : drawables->drawable()) {
             SkGlyphVariant glyph; SkPoint pos;
@@ -64,9 +62,11 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkSamplingOptions&, const SkPaint&) const override {}
 
-    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
+    void onDrawGlyphRunList(SkCanvas* canvas, const SkGlyphRunList& glyphRunList,
+                            const SkPaint& paint) override {
         SkASSERT(!glyphRunList.hasRSXForm());
-        fPainter.drawForBitmapDevice(glyphRunList, paint, fOverdrawCanvas->getTotalMatrix(), this);
+        fPainter.drawForBitmapDevice(canvas, this, glyphRunList, paint,
+                                     fOverdrawCanvas->getTotalMatrix());
     }
 
 private:
@@ -88,7 +88,7 @@ void SkOverdrawCanvas::onDrawGlyphRunList(
     this->getProps(&props);
     TextDevice device{this, props};
 
-    device.drawGlyphRunList(glyphRunList, paint);
+    device.drawGlyphRunList(this, glyphRunList, paint);
 }
 
 void SkOverdrawCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

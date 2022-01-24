@@ -1896,7 +1896,9 @@ static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
     ;
 }
 
-void SkXPSDevice::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+void SkXPSDevice::onDrawGlyphRunList(SkCanvas*,
+                                     const SkGlyphRunList& glyphRunList,
+                                     const SkPaint& paint) {
     SkASSERT(!glyphRunList.hasRSXForm());
 
     for (const auto& run : glyphRunList) {

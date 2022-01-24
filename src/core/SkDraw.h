@@ -61,9 +61,10 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkSamplingOptions&, const SkPaint&) const override;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
-    void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
-                             const SkPaint& paint,
-                             SkGlyphRunListPainter* glyphPainter) const;
+    void    drawGlyphRunList(SkCanvas* canvas,
+                             SkGlyphRunListPainter* glyphPainter,
+                             const SkGlyphRunList& glyphRunList,
+                             const SkPaint& paint) const;
     void    drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&) const;
     void  drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
                     sk_sp<SkBlender>, const SkPaint&);
@@ -80,11 +81,6 @@ public:
                           paint.getStrokeWidth() > 0;
         this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
-
-    void paintPaths(SkDrawableGlyphBuffer* drawables,
-                    SkScalar scale,
-                    SkPoint origin,
-                    const SkPaint& paint) const override;
 
     void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override;
 

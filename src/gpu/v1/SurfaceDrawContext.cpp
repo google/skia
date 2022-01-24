@@ -326,7 +326,8 @@ void SurfaceDrawContext::willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask
 #endif
 }
 
-void SurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
+void SurfaceDrawContext::drawGlyphRunListNoCache(SkCanvas* canvas,
+                                                 const GrClip* clip,
                                                  const SkMatrixProvider& viewMatrix,
                                                  const SkGlyphRunList& glyphRunList,
                                                  const SkPaint& paint) {
@@ -337,20 +338,21 @@ void SurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
     drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
     GrSubRunAllocator* const alloc = this->subRunAlloc();
 
-    GrSubRunNoCachePainter painter{this, alloc, clip, viewMatrix, glyphRunList, paint};
+    GrSubRunNoCachePainter painter{canvas, this, alloc, clip, viewMatrix, glyphRunList, paint};
     for (auto& glyphRun : glyphRunList) {
         // Make and add the text ops.
-        fGlyphPainter.processGlyphRun(glyphRun,
+        fGlyphPainter.processGlyphRun(&painter,
+                                      glyphRun,
                                       drawMatrix,
                                       paint,
-                                      control,
-                                      &painter);
+                                      control);
     }
 }
 
 // choose to use the GrTextBlob cache or not.
 bool gGrDrawTextNoCache = false;
-void SurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
+void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
+                                          const GrClip* clip,
                                           const SkMatrixProvider& viewMatrix,
                                           const SkGlyphRunList& glyphRunList,
                                           const SkPaint& paint) {
@@ -370,10 +372,10 @@ void SurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         // If the glyphRunList does not have an associated text blob, then it was created by one of
         // the direct draw APIs (drawGlyphs, etc.). There is no need to create a GrTextBlob just
         // build the sub run directly and place it in the op.
-        this->drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList, paint);
+        this->drawGlyphRunListNoCache(canvas, clip, viewMatrix, glyphRunList, paint);
     } else {
         GrTextBlobRedrawCoordinator* textBlobCache = fContext->priv().getTextBlobCache();
-        textBlobCache->drawGlyphRunList(clip, viewMatrix, glyphRunList, paint, this);
+        textBlobCache->drawGlyphRunList(canvas, clip, viewMatrix, glyphRunList, paint, this);
     }
 }
 

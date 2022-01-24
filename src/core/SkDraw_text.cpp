@@ -105,22 +105,10 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) 
     }
 }
 
-void SkDraw::paintPaths(SkDrawableGlyphBuffer* drawables,
-                        SkScalar scale,
-                        SkPoint origin,
-                        const SkPaint& paint) const {
-    for (auto [variant, pos] : drawables->drawable()) {
-        const SkPath* path = variant.path();
-        SkMatrix m;
-        SkPoint translate = origin + pos;
-        m.setScaleTranslate(scale, scale, translate.x(), translate.y());
-        this->drawPath(*path, paint, &m, false);
-    }
-}
-
-void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
-                              const SkPaint& paint,
-                              SkGlyphRunListPainter* glyphPainter) const {
+void SkDraw::drawGlyphRunList(SkCanvas* canvas,
+                              SkGlyphRunListPainter* glyphPainter,
+                              const SkGlyphRunList& glyphRunList,
+                              const SkPaint& paint) const {
 
     SkDEBUGCODE(this->validate();)
 
@@ -128,7 +116,8 @@ void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
         return;
     }
 
-    glyphPainter->drawForBitmapDevice(glyphRunList, paint, fMatrixProvider->localToDevice(), this);
+    glyphPainter->drawForBitmapDevice(canvas, this, glyphRunList, paint,
+                                      fMatrixProvider->localToDevice());
 }
 
 #if defined _WIN32

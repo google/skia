@@ -79,8 +79,8 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const skgpu::v1::SurfaceDrawContext
 #endif // SK_SUPPORT_GPU
 
 void SkGlyphRunListPainter::drawForBitmapDevice(
-        const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& deviceMatrix,
-        const BitmapDevicePainter* bitmapDevice) {
+        SkCanvas* canvas, const BitmapDevicePainter* bitmapDevice,
+        const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& deviceMatrix) {
     ScopedBuffers _ = this->ensureBuffers(glyphRunList);
 
     // TODO: fStrikeCache is only used for GPU, and some compilers complain about it during the no
@@ -115,8 +115,37 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             SkPaint pathPaint = paint;
             pathPaint.setAntiAlias(runFont.hasSomeAntiAliasing());
 
-            bitmapDevice->paintPaths(
-                    &fDrawable, strikeToSourceScale, drawOrigin, pathPaint);
+            const bool stroking = pathPaint.getStyle() != SkPaint::kFill_Style;
+            const bool hairline = pathPaint.getStrokeWidth() == 0;
+            const bool needsExactCTM = pathPaint.getShader()
+                                    || pathPaint.getPathEffect()
+                                    || pathPaint.getMaskFilter()
+                                    || (stroking && !hairline);
+            if (!needsExactCTM) {
+                for (auto [variant, pos] : fDrawable.drawable()) {
+                    const SkPath* path = variant.path();
+                    SkMatrix m;
+                    SkPoint translate = drawOrigin + pos;
+                    m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,
+                                        translate.x(), translate.y());
+                    SkAutoCanvasRestore acr(canvas, true);
+                    canvas->concat(m);
+                    canvas->drawPath(*path, pathPaint);
+                }
+            } else {
+               for (auto [variant, pos] : fDrawable.drawable()) {
+                    const SkPath* path = variant.path();
+                    SkMatrix m;
+                    SkPoint translate = drawOrigin + pos;
+                    m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,
+                                        translate.x(), translate.y());
+
+                    SkPath deviceOutline;
+                    path->transform(m, &deviceOutline);
+                    deviceOutline.setIsVolatile(true);
+                    canvas->drawPath(deviceOutline, pathPaint);
+                }
+            }
         }
         if (!fRejects.source().empty() && !deviceMatrix.hasPerspective()) {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
@@ -225,11 +254,11 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 // extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]
 
 #if SK_SUPPORT_GPU
-void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
+void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
+                                            const SkGlyphRun& glyphRun,
                                             const SkMatrix& drawMatrix,
                                             const SkPaint& runPaint,
                                             const GrSDFTControl& control,
-                                            SkGlyphRunPainterInterface* process,
                                             const char* tag,
                                             uint64_t uniqueID) {
     #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
@@ -344,8 +373,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
             if (process && !fDrawable.drawableIsEmpty()) {
                 // processSourcePaths must be called even if there are no glyphs to make sure
                 // runs are set correctly.
-                process->processSourcePaths(
-                        fDrawable.drawable(), runFont, strikeToSourceScale);
+                process->processSourcePaths(fDrawable.drawable(), runFont, strikeToSourceScale);
             }
         }
     }

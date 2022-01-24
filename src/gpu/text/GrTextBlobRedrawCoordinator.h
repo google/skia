@@ -29,7 +29,8 @@ class GrTextBlobRedrawCoordinator {
 public:
     GrTextBlobRedrawCoordinator(uint32_t messageBusID);
 
-    void drawGlyphRunList(const GrClip* clip,
+    void drawGlyphRunList(SkCanvas* canvas,
+                          const GrClip* clip,
                           const SkMatrixProvider& viewMatrix,
                           const SkGlyphRunList& glyphRunList,
                           const SkPaint& paint,
