@@ -28,8 +28,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     half4 b;
     half4 c;
     half4 d;
-    (b = _uniforms.colorRed , c = _uniforms.colorGreen);
-    a = (    _skOutParamHelper0_setToColorBlack_vh4(_uniforms, d) , _uniforms.colorWhite);
+    (b = _uniforms.colorRed, c = _uniforms.colorGreen);
+    a = (    _skOutParamHelper0_setToColorBlack_vh4(_uniforms, d), _uniforms.colorWhite);
     a *= a;
     b *= b;
     c *= c;

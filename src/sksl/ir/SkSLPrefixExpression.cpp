@@ -170,8 +170,8 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
                 context.fErrors->error(base->fLine,
-                                       String("'") + op.operatorName() + "' cannot operate on '" +
-                                       baseType.displayName() + "'");
+                                       String("'") + op.tightOperatorName() +
+                                       "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             if (!Analysis::UpdateVariableRefKind(base.get(), VariableReference::RefKind::kReadWrite,
@@ -183,8 +183,8 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
                 context.fErrors->error(base->fLine,
-                                       String("'") + op.operatorName() + "' cannot operate on '" +
-                                       baseType.displayName() + "'");
+                                       String("'") + op.tightOperatorName() +
+                                       "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             break;
@@ -194,13 +194,13 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
                 // GLSL ES 1.00, Section 5.1
                 context.fErrors->error(
                         base->fLine,
-                        String("operator '") + op.operatorName() + "' is not allowed");
+                        String("operator '") + op.tightOperatorName() + "' is not allowed");
                 return nullptr;
             }
             if (baseType.isArray() || !baseType.componentType().isInteger()) {
                 context.fErrors->error(base->fLine,
-                                       String("'") + op.operatorName() + "' cannot operate on '" +
-                                       baseType.displayName() + "'");
+                                       String("'") + op.tightOperatorName() +
+                                       "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             if (baseType.isLiteral()) {

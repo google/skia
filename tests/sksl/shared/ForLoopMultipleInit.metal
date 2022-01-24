@@ -13,7 +13,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     {
         half a = 0.0h;
         half b = 0.0h;
-        for (; a < 10.0h && b < 10.0h; (++a , ++b)) {
+        for (; a < 10.0h && b < 10.0h; (++a, ++b)) {
             result.x = result.x + a;
             result.y = result.y + b;
         }

@@ -8,6 +8,7 @@
 #ifndef SKSL_OPERATORS
 #define SKSL_OPERATORS
 
+#include "include/core/SkStringView.h"
 #include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLLexer.h"
 
@@ -54,7 +55,11 @@ public:
 
     Precedence getBinaryPrecedence() const;
 
+    // Returns the operator name surrounded by the expected whitespace for a tidy binary expression.
     const char* operatorName() const;
+
+    // Returns the operator name without any surrounding whitespace.
+    skstd::string_view tightOperatorName() const;
 
     // Returns true if op is '=' or any compound assignment operator ('+=', '-=', etc.)
     bool isAssignment() const;

@@ -30,7 +30,7 @@ bool test_half_b() {
 bool test_comma_b() {
     mat2 x;
     mat2 y;
-    return ((x = mat2(1.0, 2.0, 3.0, 4.0) , y = 0.5 * mat2(2.0, 4.0, 6.0, 8.0)) , x == y);
+    return ((x = mat2(1.0, 2.0, 3.0, 4.0), y = 0.5 * mat2(2.0, 4.0, 6.0, 8.0)), x == y);
 }
 vec4 main() {
     bool _0_ok = true;

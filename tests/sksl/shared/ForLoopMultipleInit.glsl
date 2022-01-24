@@ -5,7 +5,7 @@ vec4 main() {
     {
         float a = 0.0;
         float b = 0.0;
-        for (; a < 10.0 && b < 10.0; (++a , ++b)) {
+        for (; a < 10.0 && b < 10.0; (++a, ++b)) {
             result.x += a;
             result.y += b;
         }

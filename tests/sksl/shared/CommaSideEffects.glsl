@@ -12,8 +12,8 @@ vec4 main() {
     vec4 b;
     vec4 c;
     vec4 d;
-    (b = colorRed , c = colorGreen);
-    a = (setToColorBlack_vh4(d) , colorWhite);
+    (b = colorRed, c = colorGreen);
+    a = (setToColorBlack_vh4(d), colorWhite);
     a *= a;
     b *= b;
     c *= c;

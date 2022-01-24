@@ -73,8 +73,6 @@ protected:
     inline static constexpr Requirements kGlobals_Requirement   = 1 << 3;
     inline static constexpr Requirements kFragCoord_Requirement = 1 << 4;
 
-    static const char* OperatorName(Operator op);
-
     class GlobalStructVisitor;
     void visitGlobalStruct(GlobalStructVisitor* visitor);
 

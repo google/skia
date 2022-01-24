@@ -588,9 +588,7 @@ void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b
         this->write("(");
     }
     this->writeExpression(left, precedence);
-    this->write(" ");
     this->write(op.operatorName());
-    this->write(" ");
     this->writeExpression(right, precedence);
     if (precedence >= parentPrecedence) {
         this->write(")");
@@ -617,7 +615,7 @@ void PipelineStageCodeGenerator::writePrefixExpression(const PrefixExpression& p
     if (Precedence::kPrefix >= parentPrecedence) {
         this->write("(");
     }
-    this->write(p.getOperator().operatorName());
+    this->write(p.getOperator().tightOperatorName());
     this->writeExpression(*p.operand(), Precedence::kPrefix);
     if (Precedence::kPrefix >= parentPrecedence) {
         this->write(")");
@@ -630,7 +628,7 @@ void PipelineStageCodeGenerator::writePostfixExpression(const PostfixExpression&
         this->write("(");
     }
     this->writeExpression(*p.operand(), Precedence::kPostfix);
-    this->write(p.getOperator().operatorName());
+    this->write(p.getOperator().tightOperatorName());
     if (Precedence::kPostfix >= parentPrecedence) {
         this->write(")");
     }

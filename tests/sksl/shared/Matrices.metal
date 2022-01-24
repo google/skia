@@ -112,7 +112,7 @@ bool test_half_b() {
 bool test_comma_b() {
     float2x2 x;
     float2x2 y;
-    return ((x = float2x2(float2(1.0, 2.0), float2(3.0, 4.0)) , y = 0.5 * float2x2(float2(2.0, 4.0), float2(6.0, 8.0))) , x == y);
+    return ((x = float2x2(float2(1.0, 2.0), float2(3.0, 4.0)), y = 0.5 * float2x2(float2(2.0, 4.0), float2(6.0, 8.0))), x == y);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
