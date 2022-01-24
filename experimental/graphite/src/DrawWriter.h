@@ -33,28 +33,26 @@ class DrawDispatcher; // Forward declaration, handles virtual dispatch of binds/
  *
  * CommandBuffer::drawIndexed(vertices, indices)
  *  - dynamic vertex data     -> unsupported
- *  - fixed vertex,index data -> DrawWriter::draw(vertices, indices, indexCount)
+ *  - fixed vertex,index data -> DrawWriter::drawIndexed(vertices, indices, indexCount)
  *
  * CommandBuffer::drawInstances(vertices, instances)
  *  - dynamic instance data + fixed vertex data        ->
- *          DrawWriter::setInstanceTemplate(vertices, {}, vertexCount) then
- *          DrawWriter::appendInstances(n)
+ *        DrawWriter::setInstanceTemplate(vertices, {}, vertexCount) then
+ *        DrawWriter::appendInstances(n)
  *  - fixed vertex and instance data                   ->
- *          DrawWriter::setInstanceTemplate(vertices, {}, vertexCount) then
- *          DrawWriter::drawInstanced(instances, instanceCount)
+ *        DrawWriter::drawInstanced(vertices, vertexCount, instances, instanceCount)
  *
  * CommandBuffer::drawIndexedInstanced(vertices, indices, instances)
  *  - dynamic instance data + fixed vertex, index data ->
- *          DrawWriter::setInstanceTemplate(vertices, indices, indexCount) then
- *          DrawWriter::appendInstances(n)
+ *        DrawWriter::setInstanceTemplate(vertices, indices, indexCount) then
+ *        DrawWriter::appendInstances(n)
  *  - fixed vertex, index, and instance data           ->
- *          DrawWriter::setInstanceTemplate(vertices, indices, indexCount) then
- *          DrawWriter::drawInstanced(instances, instanceCount)
+ *        DrawWriter::drawIndexedInstanced(vertices, indices, indexCount, instances, instanceCount)
  */
 class DrawWriter {
 public:
-    // NOTE: This constructor creates a writer that has 0 vertex and instance stride, so can only
-    // be used to draw triangles with pipelines that rely solely on the vertex and instance ID.
+    // NOTE: This constructor creates a writer that defaults 0 vertex and instance stride, so
+    // 'newPipelineState()' must be called once the pipeline properties are known before it's used.
     DrawWriter(DrawDispatcher*, DrawBufferManager*);
 
     DrawWriter(DrawDispatcher*, DrawBufferManager*,
@@ -69,21 +67,26 @@ public:
 
     DrawBufferManager* bufferManager() { return fManager; }
 
-    // Notify the DrawWriter that dynamic state that does not affect the pipeline needs to be
-    // changed. This issues draw calls for pending vertex/instance data that referred to the old
-    // state, so this must be called *before* changing the dynamic state.
-    //
-    // This preserves the last bound buffers and accounts for any offsets using the base vertex or
-    // base instance passed to draw calls to avoid re-binding buffers unnecessarily.
-    void newDynamicState();
+    // Issue draw calls for any pending vertex and instance data collected by the writer.
+    // Use either flush() or newDynamicState() based on context and readability.
+    void flush();
+    void newDynamicState() { this->flush(); }
 
     // Notify the DrawWriter that a new pipeline needs to be bound, providing the primitive type and
     // attribute strides of that pipeline. This issues draw calls for pending data that relied on
     // the old pipeline, so this must be called *before* binding the new pipeline.
-    void newPipelineState(PrimitiveType type, size_t vertexStride, size_t instanceStride);
+    void newPipelineState(PrimitiveType type, size_t vertexStride, size_t instanceStride) {
+        this->flush();
+        fPrimitiveType = type;
+        fVertexStride = vertexStride;
+        fInstanceStride = instanceStride;
 
-    // Issue draw calls for any pending vertex and instance data collected by the writer.
-    void flush() { this->drawPendingVertices(); }
+        // NOTE: resetting pending base is sufficient to redo bindings for vertex/instance data that
+        // is later appended but doesn't invalidate bindings for fixed buffers that might not need
+        // to change between pipelines.
+        fPendingBase = 0;
+        SkASSERT(fPendingCount == 0);
+    }
 
     // Collects new vertex data for a call to CommandBuffer::draw(). Automatically accumulates
     // vertex data into a buffer, issuing draw and bind calls as needed when a new buffer is
@@ -95,7 +98,10 @@ public:
     // This should not be used when the vertex stride is 0.
     VertexWriter appendVertices(unsigned int numVertices) {
         SkASSERT(fVertexStride > 0);
-        return this->appendData(VertexMode::kVertices, fVertexStride, numVertices);
+        // TODO: Repeatedly calling this is wasted checks, but won't result in extra flushes when
+        // appending vertices multiple times in a row. A pending CL cleans this up better.
+        this->setTemplate(fVertices, {}, {}, 0);
+        return this->append(numVertices, fVertexStride, fVertices);
     }
 
     // Collects new instance data for a call to CommandBuffer::drawInstanced() or
@@ -114,7 +120,8 @@ public:
     // This should not be used when the instance stride is 0.
     VertexWriter appendInstances(unsigned int numInstances) {
         SkASSERT(fInstanceStride > 0);
-        return this->appendData(VertexMode::kInstances, fInstanceStride, numInstances);
+        SkASSERT(fTemplateCount > 0); // instance mode
+        return this->append(numInstances, fInstanceStride, fInstances);
     }
 
     // Set the fixed vertex and index buffers referenced when appending instance data or calling
@@ -122,73 +129,65 @@ public:
     // vertex count (when 'indices' has a null buffer), or the index count when 'indices' are
     // provided.
     void setInstanceTemplate(BindBufferInfo vertices, BindBufferInfo indices, unsigned int count) {
-        this->setTemplateInternal(vertices, indices, count, /*drawPending=*/true);
+        SkASSERT(count > 0);
+        this->setTemplate(vertices, indices, fInstances, count);
     }
 
-    // Issues a draw with fully specified data. This can be used when all instance data has already
+    // Issues a draws with fully specified data. This can be used when all instance data has already
     // been written to known buffers, or when the vertex shader only depends on the vertex or
-    // instance IDs.
-    //
-    // The specific draw call issued depends on the buffers set via 'setInstanceTemplate' and the
-    // 'instances' parameter. If the template has a non-null index buffer, it will use
-    // drawIndexedInstanced(), otherwise it will use drawInstanced().
+    // instance IDs. To keep things simple, these helpers do not accept parameters for base vertices
+    // or instances; if needed, this can be accounted for in the BindBufferInfos provided.
     //
     // This will not merge with any already appended instance or vertex data, pending data is issued
     // in its own draw call first.
-    void drawInstanced(BindBufferInfo instances, unsigned int count) {
-        this->drawPendingVertices();
-        this->drawInternal(instances, 0, count);
+    void draw(BindBufferInfo vertices, unsigned int vertexCount) {
+        this->bindAndFlush(vertices, {}, {}, 0, vertexCount);
     }
-
-    // Issues a non-instanced draw call with existing, fully specified data. The specific draw call
-    // depends on the buffers passed to this function. If a non-null index buffer is specified, it
-    // will use drawIndexed(), otherwise it will use the vertex-only draw().
-    //
-    // This will not merge with any existing appended instance or vertex data, which will issue it
-    // own draw call. This overrides what was last set for the instance template.
-    void draw(BindBufferInfo vertices, BindBufferInfo indices, unsigned int count) {
-        this->setInstanceTemplate(vertices, indices, count); // will draw pending if needed
-        this->drawInstanced({}, 1);
+    void drawIndexed(BindBufferInfo vertices, BindBufferInfo indices, unsigned int indexCount) {
+        this->bindAndFlush(vertices, indices, {}, 0, indexCount);
+    }
+    void drawInstanced(BindBufferInfo vertices, unsigned int vertexCount,
+                       BindBufferInfo instances, unsigned int instanceCount) {
+        this->bindAndFlush(vertices, {}, instances, vertexCount, instanceCount);
+    }
+    void drawIndexedInstanced(BindBufferInfo vertices, BindBufferInfo indices,
+                              unsigned int indexCount, BindBufferInfo instances,
+                              unsigned int instanceCount) {
+        this->bindAndFlush(vertices, indices, instances, indexCount, instanceCount);
     }
 
 private:
-    enum class VertexMode : unsigned {
-        kVertices, kInstances
-    };
-
     // Both of these pointers must outlive the DrawWriter.
     DrawDispatcher*    fDispatcher;
     DrawBufferManager* fManager;
 
-    // Must be constructed to match the pipeline that's bound
+    // Pipeline state matching currently bound pipeline
     PrimitiveType fPrimitiveType;
     size_t fVertexStride;
     size_t fInstanceStride;
 
-    // State tracking appended vertices or instances
-    VertexMode     fPendingMode       = VertexMode::kVertices;
-    unsigned int   fPendingCount      = 0; // vertex or instance count depending on mode
-    unsigned int   fPendingBaseVertex = 0; // or instance
-    BindBufferInfo fPendingAttrs      = {};
+    /// Draw buffer binding state for pending draws
+    BindBufferInfo fVertices;
+    BindBufferInfo fIndices;
+    BindBufferInfo fInstances;
+    // Vertex/index count for [pseudo]-instanced rendering:
+    // == 0 is vertex-only drawing; > 0 is regular instanced drawing
+    unsigned int fTemplateCount;
 
-    // State to track the instance template that is re-used across drawn instances. These are not
-    // yet bound if fFixedBuffersDirty is true. Non-instanced draw buffers (e.g. draw() and
-    // drawIndexed()) are treated as drawing one instance, with no extra instance attributes.
-    BindBufferInfo fFixedVertexBuffer = {};
-    BindBufferInfo fFixedIndexBuffer  = {};
-    unsigned int   fFixedVertexCount  = 0; // or index count if fFixedIndexBuffer is non-null
+    unsigned int fPendingCount; // # of vertices or instances (depending on mode) to be drawn
+    unsigned int fPendingBase; // vertex/instance offset (depending on mode) applied to buffer
+    bool fPendingBufferBinds; // true if {fVertices,fIndices,fInstances} has changed since last draw
 
-    bool fFixedBuffersDirty = true;
-
-    // Will either be 'fPendingAttrData' or the arg last passed to drawInstanced(), since it may
-    // change even if the fixed vertex and index buffers have not.
-    BindBufferInfo fLastInstanceBuffer = {};
-
-    VertexWriter appendData(VertexMode mode, size_t stride, unsigned int count);
-    void setTemplateInternal(BindBufferInfo vertices, BindBufferInfo indices,
-                             unsigned int count, bool drawPending);
-    void drawInternal(BindBufferInfo instances, unsigned int base, unsigned int instanceCount);
-    void drawPendingVertices();
+    VertexWriter append(unsigned int count, size_t stride, BindBufferInfo& target);
+    void setTemplate(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
+                     unsigned int templateCount);
+    void bindAndFlush(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
+                      unsigned int templateCount, unsigned int drawCount) {
+        this->setTemplate(vertices, indices, instances, templateCount);
+        fPendingBase = 0;
+        fPendingCount = drawCount;
+        this->flush();
+    }
 };
 
 // Mirrors the CommandBuffer API, since a DrawWriter is meant to aggregate and then map onto
