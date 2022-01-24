@@ -12,8 +12,11 @@
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkTileMode.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"
+
+struct SkSamplingOptions;
 
 namespace skgpu {
 
@@ -21,6 +24,7 @@ class BackendTexture;
 class Buffer;
 class Gpu;
 class GraphicsPipeline;
+class Sampler;
 class Texture;
 class TextureInfo;
 
@@ -38,6 +42,10 @@ public:
 
     sk_sp<Buffer> findOrCreateBuffer(size_t size, BufferType type, PrioritizeGpuReads);
 
+    sk_sp<Sampler> findOrCreateCompatibleSampler(const SkSamplingOptions&,
+                                                 SkTileMode xTileMode,
+                                                 SkTileMode yTileMode);
+
 protected:
     ResourceProvider(const Gpu* gpu);
 
@@ -49,6 +57,10 @@ private:
                                                              const RenderPassDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) = 0;
+
+    virtual sk_sp<Sampler> createSampler(const SkSamplingOptions&,
+                                         SkTileMode xTileMode,
+                                         SkTileMode yTileMode) = 0;
 
     class GraphicsPipelineCache {
     public:

@@ -229,6 +229,12 @@ void Caps::initCaps(const id<MTLDevice> device) {
     } else {
         fRequiredUniformBufferAlignment = 16;
     }
+
+    if (@available(macOS 10.12, ios 14.0, *)) {
+        fClampToBorderSupport = (this->isMac() || fFamilyGroup >= 7);
+    } else {
+        fClampToBorderSupport = false;
+    }
 }
 
 void Caps::initShaderCaps() {

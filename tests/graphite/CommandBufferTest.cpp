@@ -21,6 +21,7 @@
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
+#include "experimental/graphite/src/Sampler.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 #include "experimental/graphite/src/UniformManager.h"
@@ -280,6 +281,11 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     renderPassDesc.fDepthStencilAttachment.fStoreOp = StoreOp::kDiscard;
     sk_sp<Texture> depthStencilTexture =
             gpu->resourceProvider()->findOrCreateTexture(textureSize, depthStencilInfo);
+
+    // Create Sampler -- for now, just to test creation
+    sk_sp<Sampler> sampler = gpu->resourceProvider()->findOrCreateCompatibleSampler(
+            SkSamplingOptions(SkFilterMode::kLinear), SkTileMode::kClamp, SkTileMode::kDecal);
+    REPORTER_ASSERT(reporter, sampler);
 
     commandBuffer->beginRenderPass(renderPassDesc, target->refTexture(), nullptr,
                                    depthStencilTexture);

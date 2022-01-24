@@ -13,6 +13,7 @@
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
+#include "experimental/graphite/src/Sampler.h"
 #include "experimental/graphite/src/Texture.h"
 
 namespace skgpu {
@@ -72,6 +73,12 @@ sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
 
 sk_sp<Texture> ResourceProvider::findOrCreateTexture(SkISize dimensions, const TextureInfo& info) {
     return this->createTexture(dimensions, info);
+}
+
+sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SkSamplingOptions& smplOptions,
+                                                               SkTileMode xTileMode,
+                                                               SkTileMode yTileMode) {
+    return this->createSampler(smplOptions, xTileMode, yTileMode);
 }
 
 sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,

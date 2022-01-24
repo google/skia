@@ -42,6 +42,10 @@ private:
     sk_sp<skgpu::Texture> createTexture(SkISize, const skgpu::TextureInfo&) override;
     sk_sp<skgpu::Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
 
+    sk_sp<skgpu::Sampler> createSampler(const SkSamplingOptions&,
+                                        SkTileMode xTileMode,
+                                        SkTileMode yTileMode) override;
+
     SkTHashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>> fDepthStencilStates;
 };
 

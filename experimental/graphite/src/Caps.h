@@ -56,6 +56,8 @@ public:
     // to a draw.
     size_t requiredUniformBufferAlignment() const { return fRequiredUniformBufferAlignment; }
 
+    bool clampToBorderSupport() const { return fClampToBorderSupport; }
+
 protected:
     Caps();
 
@@ -63,6 +65,8 @@ protected:
     size_t fRequiredUniformBufferAlignment = 0;
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
+
+    bool fClampToBorderSupport = true;
 
 private:
     virtual bool onIsTexturable(const TextureInfo&) const = 0;
