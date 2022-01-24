@@ -30,57 +30,32 @@
 #include <new>
 #include <utility>
 
-void* GrRecordingContextPriv::newAtlasTextOpBytes(size_t size) {
-    if (this->context()->fAtlasTextOpCache != nullptr) {
-        return std::exchange(this->context()->fAtlasTextOpCache, nullptr);
-    }
-
-    return ::operator new(size);
-}
-
-void GrRecordingContextPriv::deleteAtlasTextOpBytes(void* bytes) {
-    if (this->context()->fAtlasTextOpCache == nullptr) {
-        this->context()->fAtlasTextOpCache = bytes;
-        return;
-    }
-
-    ::operator delete(bytes);
-}
-
 namespace skgpu::v1 {
-// Thread local holding the recording context which has the AtlasTextOp memory cache.
-thread_local GrRecordingContext* AtlasTextOp::tlsRecordingContext = nullptr;
 
-AtlasTextOp::~AtlasTextOp() {
-    for (const Geometry* g = fHead; g != nullptr;) {
-        const Geometry* next = g->fNext;
-        g->~Geometry();
-        g = next;
-    }
-    tlsRecordingContext = fRecordingContext;
-}
-
-void* AtlasTextOp::operator new(size_t size) {
-    auto context = tlsRecordingContext;
-    if (context != nullptr) {
-        return context->priv().newAtlasTextOpBytes(size);
+// If we have thread local, then cache memory for a single AtlasTextOp.
+static thread_local void* gCache = nullptr;
+void* AtlasTextOp::operator new(size_t s) {
+    if (gCache != nullptr) {
+        return std::exchange(gCache, nullptr);
     }
 
-    return ::operator new(size);
+    return ::operator new(s);
 }
 
 void AtlasTextOp::operator delete(void* bytes) noexcept {
-    auto context = tlsRecordingContext;
-    if (context != nullptr) {
-        context->priv().deleteAtlasTextOpBytes(bytes);
+    if (gCache == nullptr) {
+        gCache = bytes;
         return;
     }
-
     ::operator delete(bytes);
 }
 
-AtlasTextOp::AtlasTextOp(GrRecordingContext* recordingContext,
-                         MaskType maskType,
+void AtlasTextOp::ClearCache() {
+    ::operator delete(gCache);
+    gCache = nullptr;
+}
+
+AtlasTextOp::AtlasTextOp(MaskType maskType,
                          bool needsTransform,
                          int glyphCount,
                          SkRect deviceRect,
@@ -96,15 +71,13 @@ AtlasTextOp::AtlasTextOp(GrRecordingContext* recordingContext,
         , fHasPerspective(needsTransform && geo->fDrawMatrix.hasPerspective())
         , fUseGammaCorrectDistanceTable(false)
         , fHead{geo}
-        , fTail{&fHead->fNext}
-        , fRecordingContext{recordingContext} {
+        , fTail{&fHead->fNext} {
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
 }
 
-AtlasTextOp::AtlasTextOp(GrRecordingContext* recordingContext,
-                         MaskType maskType,
+AtlasTextOp::AtlasTextOp(MaskType maskType,
                          bool needsTransform,
                          int glyphCount,
                          SkRect deviceRect,
@@ -124,8 +97,7 @@ AtlasTextOp::AtlasTextOp(GrRecordingContext* recordingContext,
         , fUseGammaCorrectDistanceTable(useGammaCorrectDistanceTable)
         , fLuminanceColor(luminanceColor)
         , fHead{geo}
-        , fTail{&fHead->fNext}
-        , fRecordingContext{recordingContext} {
+        , fTail{&fHead->fNext} {
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);

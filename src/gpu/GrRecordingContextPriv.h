@@ -203,9 +203,6 @@ public:
             GrSurfaceOrigin,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
-    void* newAtlasTextOpBytes(size_t size);
-    void deleteAtlasTextOpBytes(void*);
-
 protected:
     explicit GrRecordingContextPriv(GrRecordingContext* rContext) : GrImageContextPriv(rContext) {}
     // Required until C++17 copy elision

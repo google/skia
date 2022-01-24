@@ -48,7 +48,9 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy, bo
 }
 
 GrRecordingContext::~GrRecordingContext() {
-    ::operator delete(fAtlasTextOpCache);
+#if SK_GPU_V1
+    skgpu::v1::AtlasTextOp::ClearCache();
+#endif
 }
 
 int GrRecordingContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {

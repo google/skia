@@ -26,7 +26,6 @@ class GrDstProxyView;
 class GrOpFlushState;
 class GrOpsRenderPass;
 class GrPaint;
-namespace skgpu { namespace v1 {class AtlasTextOp; }}
 
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
@@ -74,14 +73,8 @@ public:
 
     template<typename Op, typename... Args>
     static Owner Make(GrRecordingContext* context, Args&&... args) {
-        static_assert(!std::is_same<Op, skgpu::v1::AtlasTextOp>::value,
-                      "Use MakeAtlasTextOp for AtlasTextOp.");
-        // Use MakeAtlasTextOp to take advantage of caching for AtlasTextOp.
         return Owner{new Op(std::forward<Args>(args)...)};
     }
-
-    template<typename... Args>
-    static Owner MakeAtlasTextOp(GrRecordingContext* context, Args&&... args);
 
     template<typename Op, typename... Args>
     static Owner MakeWithProcessorSet(
