@@ -11,6 +11,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkLRUCache.h"
+#include "src/core/SkTLazy.h"
 #include "src/core/SkVM.h"
 
 class SkVMBlitter final : public SkBlitter {
@@ -39,7 +40,7 @@ public:
     ~SkVMBlitter() override;
 
 private:
-    enum class Coverage { Full, UniformF, MaskA8, MaskLCD16, Mask3D };
+    enum Coverage { Full, UniformF, MaskA8, MaskLCD16, Mask3D, kCount };
     struct Key {
         uint64_t shader,
                  clip,
@@ -84,7 +85,7 @@ private:
     static SkString DebugName(const Key& key);
     static void ReleaseProgramCache();
 
-    skvm::Program buildProgram(Coverage coverage);
+    skvm::Program* buildProgram(Coverage coverage);
     void updateUniforms(int right, int y);
     const void* isSprite(int x, int y) const;
 
@@ -99,11 +100,9 @@ private:
     SkArenaAlloc    fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
     const Params    fParams;
     const Key       fKey;
-    skvm::Program   fBlitH,
-                    fBlitAntiH,
-                    fBlitMaskA8,
-                    fBlitMask3D,
-                    fBlitMaskLCD16;
+    bool            fStoreToCache = false;
+    skvm::Program*         fProgramPtrs[Coverage::kCount] = {nullptr};
+    SkTLazy<skvm::Program> fPrograms[Coverage::kCount];
 
     friend class Viewer;
 };
