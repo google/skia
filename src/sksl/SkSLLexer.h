@@ -100,7 +100,6 @@ struct Token {
         TK_BITWISEXOREQ,
         TK_BITWISEANDEQ,
         TK_SEMICOLON,
-        TK_ARROW,
         TK_WHITESPACE,
         TK_LINE_COMMENT,
         TK_BLOCK_COMMENT,

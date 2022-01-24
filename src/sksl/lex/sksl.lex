@@ -92,7 +92,6 @@ BITWISEOREQ    = "|="
 BITWISEXOREQ   = "^="
 BITWISEANDEQ   = "&="
 SEMICOLON      = ";"
-ARROW          = "->"
 WHITESPACE     = \s+
 LINE_COMMENT   = //.*
 BLOCK_COMMENT  = /\*([^*]|\*[^/])*\*/
