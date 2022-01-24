@@ -264,7 +264,7 @@ HBBlob stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
 SkDEBUGCODE(static hb_user_data_key_t gDataIdKey;)
 
 HBFace create_hb_face(const SkTypeface& typeface) {
-    int index;
+    int index = 0;
     std::unique_ptr<SkStreamAsset> typefaceAsset = typeface.openStream(&index);
     HBFace face;
     if (typefaceAsset && typefaceAsset->getMemoryBase()) {
@@ -286,12 +286,12 @@ HBFace create_hb_face(const SkTypeface& typeface) {
             skhb_get_table,
             const_cast<SkTypeface*>(SkRef(&typeface)),
             [](void* user_data){ SkSafeUnref(reinterpret_cast<SkTypeface*>(user_data)); }));
+        hb_face_set_index(face.get(), (unsigned)index);
     }
     SkASSERT(face);
     if (!face) {
         return nullptr;
     }
-    hb_face_set_index(face.get(), (unsigned)index);
     hb_face_set_upem(face.get(), typeface.getUnitsPerEm());
 
     SkDEBUGCODE(
