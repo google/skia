@@ -185,17 +185,15 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
         return false;
     }
 
-    SkScalar lastArea = 0;
     SkScalar lastPerpDot = 0;
+    int xSignChangeCount = 0;
+    int ySignChangeCount = 0;
 
     int prevIndex = polygonSize - 1;
     int currIndex = 0;
     int nextIndex = 1;
-    SkPoint origin = polygonVerts[0];
     SkVector v0 = polygonVerts[currIndex] - polygonVerts[prevIndex];
     SkVector v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
-    SkVector w0 = polygonVerts[currIndex] - origin;
-    SkVector w1 = polygonVerts[nextIndex] - origin;
     for (int i = 0; i < polygonSize; ++i) {
         if (!polygonVerts[i].isFinite()) {
             return false;
@@ -210,23 +208,21 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
             lastPerpDot = perpDot;
         }
 
-        // If the signed area ever flips it's concave
-        // TODO: see if we can verify convexity only with signed area
-        SkScalar quadArea = w0.cross(w1);
-        if (quadArea*lastArea < 0) {
+        // Check that the signs of the edge vectors don't change more than twice per coordinate
+        if (v0.fX*v1.fX < 0) {
+            xSignChangeCount++;
+        }
+        if (v0.fY*v1.fY < 0) {
+            ySignChangeCount++;
+        }
+        if (xSignChangeCount > 2 || ySignChangeCount > 2) {
             return false;
         }
-        if (0 != quadArea) {
-            lastArea = quadArea;
-        }
-
         prevIndex = currIndex;
         currIndex = nextIndex;
         nextIndex = (currIndex + 1) % polygonSize;
         v0 = v1;
         v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
-        w0 = w1;
-        w1 = polygonVerts[nextIndex] - origin;
     }
 
     return true;
@@ -1090,6 +1086,10 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
         newVertex.fPrevIndex = (i - 1 + polygonSize) % polygonSize;
         newVertex.fNextIndex = (i + 1) % polygonSize;
         newVertex.fFlags = 0;
+        // The two edges adjacent to this vertex are the same, so polygon is not simple
+        if (polygon[newVertex.fPrevIndex] == polygon[newVertex.fNextIndex]) {
+            return false;
+        }
         if (left(polygon[newVertex.fPrevIndex], polygon[i])) {
             newVertex.fFlags |= kPrevLeft_VertexFlag;
         }
