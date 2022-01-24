@@ -197,8 +197,7 @@ public:
                     << 2 << 1 << 3;
 
         writer->setInstanceTemplate({}, indices, 6);
-        auto instanceWriter = writer->appendInstances(1);
-        instanceWriter << shape.rect().topLeft() << shape.rect().size();
+        writer->appendInstances(1) << shape.rect().topLeft() << shape.rect().size();
     }
 
     sk_sp<SkUniformData> writeUniforms(Layout,

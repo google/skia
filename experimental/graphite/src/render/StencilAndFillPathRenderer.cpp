@@ -163,11 +163,9 @@ public:
 
                 // TODO: Instead do one appendVertices(maxTrianglsInFans*3) and then return vertices
                 // at the end to avoid redundant bounds/offset checking in the DrawWriter.
-                auto vw = writer->appendVertices(3);
-
-                vw << devPoints[0].x << devPoints[0].y << devPoints[0].w  // p0
-                   << devPoints[1].x << devPoints[1].y << devPoints[1].w  // p1
-                   << devPoints[2].x << devPoints[2].y << devPoints[2].w; // p2
+                writer->appendVertices(3) << devPoints[0].x << devPoints[0].y << devPoints[0].w //p0
+                                          << devPoints[1].x << devPoints[1].y << devPoints[1].w //p1
+                                          << devPoints[2].x << devPoints[2].y << devPoints[2].w;//p2
             }
         }
     }
@@ -240,13 +238,12 @@ public:
             localToDevice.mapPoints(shape.bounds(), devPoints);
         }
 
-        auto vw = writer->appendVertices(6);
-        vw << devPoints[0].x << devPoints[0].y << devPoints[0].w // TL
-           << devPoints[3].x << devPoints[3].y << devPoints[3].w // BL
-           << devPoints[1].x << devPoints[1].y << devPoints[1].w // TR
-           << devPoints[1].x << devPoints[1].y << devPoints[1].w // TR
-           << devPoints[3].x << devPoints[3].y << devPoints[3].w // BL
-           << devPoints[2].x << devPoints[2].y << devPoints[2].w;// BR
+        writer->appendVertices(6) << devPoints[0].x << devPoints[0].y << devPoints[0].w // TL
+                                  << devPoints[3].x << devPoints[3].y << devPoints[3].w // BL
+                                  << devPoints[1].x << devPoints[1].y << devPoints[1].w // TR
+                                  << devPoints[1].x << devPoints[1].y << devPoints[1].w // TR
+                                  << devPoints[3].x << devPoints[3].y << devPoints[3].w // BL
+                                  << devPoints[2].x << devPoints[2].y << devPoints[2].w;// BR
     }
 
     sk_sp<SkUniformData> writeUniforms(Layout layout,

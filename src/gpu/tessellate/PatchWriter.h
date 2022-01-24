@@ -194,11 +194,6 @@ SK_MAYBE_UNUSED SK_ALWAYS_INLINE VertexWriter& operator<<(VertexWriter& vertexWr
     return vertexWriter << p0 << mix(float4(p0,p2), p1.xyxy(), 2/3.f) << p2;
 }
 
-SK_MAYBE_UNUSED SK_ALWAYS_INLINE VertexWriter& operator<<(VertexWriter&& vertexWriter,
-                                                          const QuadToCubic& quadratic) {
-    return vertexWriter << quadratic;
-}
-
 SK_MAYBE_UNUSED SK_ALWAYS_INLINE void operator<<(
         PatchWriter& w, MiddleOutPolygonTriangulator::PoppedTriangleStack&& stack) {
     for (auto [p0, p1, p2] : stack) {

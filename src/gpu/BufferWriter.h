@@ -310,6 +310,10 @@ SK_MAYBE_UNUSED inline VertexWriter& operator<<(VertexWriter& w, const Sk4f& vec
     return w;
 }
 
+// Allow r-value/temporary writers to be appended to
+template <typename T>
+inline VertexWriter& operator<<(VertexWriter&& w, const T& val) { return w << val; }
+
 template <typename T>
 struct VertexWriter::is_quad<VertexWriter::TriStrip<T>> : std::true_type {};
 
@@ -398,6 +402,9 @@ inline IndexWriter& operator<<(IndexWriter& w, uint16_t val) {
 }
 
 inline IndexWriter& operator<<(IndexWriter& w, int val) { return (w << SkTo<uint16_t>(val)); }
+
+template<typename T>
+inline IndexWriter& operator<<(IndexWriter&& w, const T& val) { return w << val; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
