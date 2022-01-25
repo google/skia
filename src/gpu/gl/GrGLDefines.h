@@ -870,6 +870,7 @@
 
 /* Program Binary */
 #define GR_GL_NUM_PROGRAM_BINARY_FORMATS     0x87FE
+#define GR_GL_PROGRAM_BINARY_FORMATS         0x87FF
 
 /* Shader Precision-Specified Types */
 #define GR_GL_LOW_FLOAT                      0x8DF0

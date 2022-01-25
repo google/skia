@@ -273,20 +273,17 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 if (!reader.isValid()) {
                     break;
                 }
-                this->gpu()->clearErrorsAndCheckForOOM();
-                GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
-                                      ProgramBinary(programID, binaryFormat,
-                                                    const_cast<void*>(binary), length));
-                if (this->gpu()->getErrorAndCheckForOOM() == GR_GL_NO_ERROR) {
-                    if (checkLinked) {
-                        cached = this->checkLinkStatus(programID, errorHandler, nullptr, nullptr);
-                    }
-                    if (cached) {
-                        this->addInputVars(inputs);
-                        this->computeCountsAndStrides(programID, geomProc, false);
-                    }
-                } else {
+                if (length <= 0 || !fGpu->glCaps().programBinaryFormatIsValid(binaryFormat)) {
                     cached = false;
+                    break;
+                }
+                GL_CALL(ProgramBinary(programID, binaryFormat, const_cast<void*>(binary), length));
+                if (checkLinked) {
+                    cached = this->checkLinkStatus(programID, errorHandler, nullptr, nullptr);
+                }
+                if (cached) {
+                    this->addInputVars(inputs);
+                    this->computeCountsAndStrides(programID, geomProc, false);
                 }
                 usedProgramBinaries = cached;
                 break;

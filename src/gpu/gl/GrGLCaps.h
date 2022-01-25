@@ -448,6 +448,7 @@ public:
 
     bool programBinarySupport() const { return fProgramBinarySupport; }
     bool programParameterSupport() const { return fProgramParameterSupport; }
+    bool programBinaryFormatIsValid(GrGLenum binaryFormat) const;
 
     /** Are sampler objects available in this GL? */
     bool samplerObjectSupport() const { return fSamplerObjectSupport; }
@@ -549,6 +550,7 @@ private:
     GrGLStandard fStandard = kNone_GrGLStandard;
 
     SkTArray<GrGLFormat, true> fStencilFormats;
+    SkTArray<GrGLenum, true> fProgramBinaryFormats;
 
     int fMaxFragmentUniformVectors = 0;
 

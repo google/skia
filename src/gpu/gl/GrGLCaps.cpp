@@ -7,6 +7,7 @@
 
 #include "src/gpu/gl/GrGLCaps.h"
 
+#include <algorithm>
 #include <memory>
 
 #include "include/gpu/GrContextOptions.h"
@@ -758,7 +759,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (fProgramBinarySupport) {
         GrGLint count;
         GR_GL_GetIntegerv(gli, GR_GL_NUM_PROGRAM_BINARY_FORMATS, &count);
-        fProgramBinarySupport = count > 0;
+        if (count > 0) {
+            fProgramBinaryFormats.resize_back(count);
+            GR_GL_GetIntegerv(gli, GR_GL_PROGRAM_BINARY_FORMATS,
+                              reinterpret_cast<GrGLint*>(fProgramBinaryFormats.data()));
+        } else {
+            fProgramBinarySupport = false;
+        }
     }
     if (GR_IS_GR_GL(standard)) {
         fSamplerObjectSupport =
@@ -4574,6 +4581,11 @@ GrCaps::SupportedWrite GrGLCaps::supportedWritePixelsColorType(GrColorType surfa
         }
     }
     return {fallbackCT, transferOffsetAlignment};
+}
+
+bool GrGLCaps::programBinaryFormatIsValid(GrGLenum binaryFormat) const {
+    return std::find(fProgramBinaryFormats.begin(), fProgramBinaryFormats.end(), binaryFormat) !=
+           fProgramBinaryFormats.end();
 }
 
 bool GrGLCaps::onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget& backendRT) const {
