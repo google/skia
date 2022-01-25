@@ -79,12 +79,16 @@ Rehydrator::Rehydrator(const Context* context,  std::shared_ptr<SymbolTable> sym
                        const uint8_t* src, size_t length)
                 : fContext(*context)
                 , fSymbolTable(std::move(symbolTable))
-                , fStart(src)
-    SkDEBUGCODE(, fEnd(fStart + length)) {
+    SkDEBUGCODE(, fEnd(src + length)) {
     SkASSERT(fSymbolTable);
     SkASSERT(fSymbolTable->isBuiltin());
-    // skip past string data
-    fIP = fStart;
+    fIP = src;
+    uint16_t version = this->readU16();
+    (void)version;
+    SkASSERTF(version == kVersion, "Dehydrated file is an unsupported version (current version is "
+            "%d, found version %d)", kVersion, version);
+    fStringStart = fIP;
+    // skip over string data
     fIP += this->readU16();
 }
 

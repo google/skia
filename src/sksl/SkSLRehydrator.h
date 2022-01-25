@@ -32,6 +32,8 @@ class Type;
  */
 class Rehydrator {
 public:
+    static constexpr uint16_t kVersion = 1;
+
     enum Command {
         // uint16 id, Type componentType, uint8 count
         kArrayType_Command,
@@ -180,8 +182,8 @@ private:
 
     skstd::string_view readString() {
         uint16_t offset = this->readU16();
-        uint8_t length = *(uint8_t*) (fStart + offset);
-        const char* chars = (const char*) fStart + offset + 1;
+        uint8_t length = *(uint8_t*) (fStringStart + offset);
+        const char* chars = (const char*) fStringStart + offset + 1;
         return skstd::string_view(chars, length);
     }
 
@@ -223,7 +225,7 @@ private:
     std::shared_ptr<SymbolTable> fSymbolTable;
     std::vector<const Symbol*> fSymbols;
 
-    const uint8_t* fStart;
+    const uint8_t* fStringStart;
     const uint8_t* fIP;
     SkDEBUGCODE(const uint8_t* fEnd;)
 

@@ -592,11 +592,11 @@ void Dehydrator::write(const std::vector<std::unique_ptr<ProgramElement>>& eleme
 }
 
 void Dehydrator::finish(OutputStream& out) {
+    out.write16(Rehydrator::kVersion);
     String stringBuffer = fStringBuffer.str();
     String commandBuffer = fBody.str();
-
     out.write16(fStringBuffer.str().size());
-    fStringBufferStart = 2;
+    fStringBufferStart = 4;
     out.writeString(stringBuffer);
     fCommandStart = fStringBufferStart + stringBuffer.size();
     out.writeString(commandBuffer);

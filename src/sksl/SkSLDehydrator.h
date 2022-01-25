@@ -32,6 +32,7 @@ class SymbolTable;
 
 // The file has the structure:
 //
+// uint16 version
 // uint16 total string length
 // string data
 // symboltable
