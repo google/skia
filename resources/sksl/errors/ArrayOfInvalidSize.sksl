@@ -8,6 +8,7 @@ void g1() { float[false]; }
 void h1() { float[int2(2, 2)]; }
 void i1() { float[]; }
 void j1() { float[int3(4000000000)]; }
+void k1() { float[int(1e20)]; }
 
 void a2() { float x[-2]; }
 void b2() { float x[-1]; }
@@ -19,3 +20,4 @@ void g2() { float x[false]; }
 void h2() { float x[int2(2, 2)]; }
 void i2() { float x[]; }
 void j2() { float x[int3(4000000000)]; }
+void k2() { float x[int(1e20)]; }
