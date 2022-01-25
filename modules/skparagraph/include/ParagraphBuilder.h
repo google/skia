@@ -57,6 +57,9 @@ public:
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
     virtual std::unique_ptr<Paragraph> Build() = 0;
 
+    // Resets this builder to its initial state, discarding any text, styles, placeholders that have
+    // been added, but keeping the initial ParagraphStyle.
+    virtual void Reset() = 0;
 
     // Just until we fix all the google3 code
     static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,

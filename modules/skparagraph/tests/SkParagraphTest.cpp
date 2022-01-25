@@ -6703,3 +6703,46 @@ UNIX_ONLY_TEST(SkParagraph_DifferentFontsTopLine, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.fTop, 30.0f));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[3].rect.fBottom, 40.0f));
 }
+
+UNIX_ONLY_TEST(SkParagraph_SimpleParagraphReset, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    const char* text = "Hello World Text Dialog";
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    for (int iteration = 0; iteration < 2; iteration += 1) {
+        builder.Reset();
+        REPORTER_ASSERT(reporter, builder.peekStyle().equals(paragraph_style.getTextStyle()));
+
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setColor(SK_ColorBLACK);
+        builder.pushStyle(text_style);
+        builder.addText(text, len);
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(TestCanvasWidth);
+        REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        REPORTER_ASSERT(reporter, impl->runs().size() == 1);
+        REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
+        REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+
+        size_t index = 0;
+        for (auto& line : impl->lines()) {
+            line.scanStyles(StyleType::kDecorations,
+                            [&index, reporter]
+                            (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
+                                REPORTER_ASSERT(reporter, index == 0);
+                                REPORTER_ASSERT(reporter, style.getColor() == SK_ColorBLACK);
+                                ++index;
+                            });
+        }
+    }
+}

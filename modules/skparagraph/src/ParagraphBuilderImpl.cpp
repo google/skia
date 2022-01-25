@@ -158,7 +158,17 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     // Add one fake placeholder with the rest of the text
     addPlaceholder(PlaceholderStyle(), true);
     return std::make_unique<ParagraphImpl>(
-            fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection, std::move(fUnicode));
+            fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection, fUnicode);
+}
+
+void ParagraphBuilderImpl::Reset() {
+    std::stack<TextStyle> text_styles;
+    fTextStyles.swap(text_styles);
+    fUtf8.reset();
+    fStyledBlocks.reset();
+    fPlaceholders.reset();
+
+    this->setParagraphStyle(fParagraphStyle);
 }
 
 }  // namespace textlayout

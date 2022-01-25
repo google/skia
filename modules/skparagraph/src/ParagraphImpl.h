@@ -102,14 +102,14 @@ public:
                   SkTArray<Block, true> blocks,
                   SkTArray<Placeholder, true> placeholders,
                   sk_sp<FontCollection> fonts,
-                  std::unique_ptr<SkUnicode> unicode);
+                  std::shared_ptr<SkUnicode> unicode);
 
     ParagraphImpl(const std::u16string& utf16text,
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   SkTArray<Placeholder, true> placeholders,
                   sk_sp<FontCollection> fonts,
-                  std::unique_ptr<SkUnicode> unicode);
+                  std::shared_ptr<SkUnicode> unicode);
     ~ParagraphImpl() override;
 
     void layout(SkScalar width) override;
@@ -273,7 +273,7 @@ private:
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
 
-    std::unique_ptr<SkUnicode> fUnicode;
+    std::shared_ptr<SkUnicode> fUnicode;
 };
 }  // namespace textlayout
 }  // namespace skia

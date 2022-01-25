@@ -61,6 +61,8 @@ public:
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
     std::unique_ptr<Paragraph> Build() override;
 
+    void Reset() override;
+
     static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
                                                   sk_sp<FontCollection> fontCollection,
                                                   std::unique_ptr<SkUnicode> unicode);
@@ -79,7 +81,7 @@ private:
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 
-    std::unique_ptr<SkUnicode> fUnicode;
+    std::shared_ptr<SkUnicode> fUnicode;
 };
 }  // namespace textlayout
 }  // namespace skia
