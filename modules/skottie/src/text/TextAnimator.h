@@ -102,6 +102,9 @@ private:
     AnimatedProps fTextProps;
     bool          fHasFillColor        : 1,
                   fHasStrokeColor      : 1,
+                  fHasFillOpacity      : 1,
+                  fHasStrokeOpacity    : 1,
+                  fHasOpacity          : 1,
                   fHasBlur             : 1,
                   fRequiresAnchorPoint : 1; // animator sensitive to transform origin?
 };
