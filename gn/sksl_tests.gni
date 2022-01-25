@@ -281,22 +281,17 @@ sksl_spirv_tests = [
   "/sksl/errors/UnusedInterfaceBlock.sksl",
 ]
 
-# TODO(skia:12352): HLSL doesn't support inverse hyperbolic functions as intrinsics. These tests are
-# grouped separately for HLSL tests until there is a reasonable workaround in place.
-sksl_inverse_hyperbolic_intrinsics_tests = [
+sksl_shared_tests = [
+  "/sksl/intrinsics/AbsFloat.sksl",
+  "/sksl/intrinsics/AbsInt.sksl",
   "/sksl/intrinsics/Acos.sksl",
   "/sksl/intrinsics/Acosh.sksl",
+  "/sksl/intrinsics/All.sksl",
+  "/sksl/intrinsics/Any.sksl",
   "/sksl/intrinsics/Asin.sksl",
   "/sksl/intrinsics/Asinh.sksl",
   "/sksl/intrinsics/Atan.sksl",
   "/sksl/intrinsics/Atanh.sksl",
-]
-
-sksl_shared_tests = [
-  "/sksl/intrinsics/AbsFloat.sksl",
-  "/sksl/intrinsics/AbsInt.sksl",
-  "/sksl/intrinsics/All.sksl",
-  "/sksl/intrinsics/Any.sksl",
   "/sksl/intrinsics/BitCount.sksl",
   "/sksl/intrinsics/Ceil.sksl",
   "/sksl/intrinsics/ClampFloat.sksl",
@@ -710,8 +705,7 @@ sksl_rte_error_tests = [
 # a .glsl output file.
 sksl_glsl_tests_sources =
     sksl_error_tests + sksl_glsl_tests + sksl_inliner_tests +
-    sksl_folding_tests + sksl_shared_tests +
-    sksl_inverse_hyperbolic_intrinsics_tests
+    sksl_folding_tests + sksl_shared_tests
 
 # Tests in sksl_glsl_settings_tests_sources will be compiled twice, once with --settings and once
 # using --nosettings. In the latter mode, StandaloneSettings is appended to the output filename.
@@ -720,18 +714,12 @@ sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
 # Tests in sksl_metal_tests_sources will be compiled with --settings on, and are expected to
 # generate a .metal output file.
 sksl_metal_tests_sources =
-    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests +
-    sksl_inverse_hyperbolic_intrinsics_tests
-
-# Tests in sksl_hlsl_tests_sources will be compiled with --settings on, and are expected to
-# generate a .hlsl output file.
-sksl_hlsl_tests_sources = sksl_blend_tests + sksl_shared_tests
+    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
 
 # Tests in sksl_spirv_tests_sources will be compiled with --settings on, and are expected to
 # generate a .asm.(frag|vert|geom) output file.
 sksl_spirv_tests_sources =
-    sksl_blend_tests + sksl_shared_tests +
-    sksl_inverse_hyperbolic_intrinsics_tests + sksl_spirv_tests
+    sksl_blend_tests + sksl_shared_tests + sksl_spirv_tests
 
 ## Tests in sksl_skvm_tests_sources will be compiled with --settings on, and are expected to
 ## generate a .skvm output file.
