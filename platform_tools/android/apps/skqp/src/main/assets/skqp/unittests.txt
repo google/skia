@@ -1,0 +1,3 @@
+# Exclude all unit tests that end with the ES3 suffix because Android does not
+# require ES3 support.
+.+ES3

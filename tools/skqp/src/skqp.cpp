@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <cinttypes>
 #include <sstream>
+#include <regex>
 
 namespace skqp {
 
@@ -73,22 +74,34 @@ static void readlines(const void* data, size_t size, F f) {
     }
 }
 
-static void get_unit_tests(SkQPAssetManager* mgr, std::vector<SkQP::UnitTest>* unitTests) {
-    std::unordered_set<std::string> testset;
-    auto insert = [&testset](const char* s, size_t l) {
+// Parses the unittests.txt file.
+// when exclude is true, all tests are run except those matching lines from the file
+// when exclude is false, only tests matching lines from the file are run.
+// Each line is a regular expression matching test names.
+// Lines may start with # to indicate a comment
+static void get_unit_tests(SkQPAssetManager* mgr, std::vector<SkQP::UnitTest>* unitTests, bool exclude) {
+    std::vector<std::regex> patterns;
+    auto insert = [&patterns](const char* s, size_t l) {
         SkASSERT(l > 1) ;
         if (l > 0 && s[l - 1] == '\n') {  // strip line endings.
             --l;
         }
-        if (l > 0) {  // only add non-empty strings.
-            testset.insert(std::string(s, l));
+        if (l > 0 && s[0] != '#') {  // only add non-empty strings, and ignore comments.
+            patterns.emplace_back(std::string(s, l));
         }
     };
     if (sk_sp<SkData> dat = mgr->open(kUnitTestsPath)) {
         readlines(dat->data(), dat->size(), insert);
     }
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
-        if ((testset.empty() || testset.count(std::string(test.fName)) > 0) && test.fNeedsGpu) {
+        bool matches_one = false;
+        for (const auto& pat : patterns) {
+            if (std::regex_match(std::string(test.fName), pat)) {
+                matches_one = true;
+                continue;
+            }
+        }
+        if (exclude != matches_one && !test.fNeedsGpu) {
             unitTests->push_back(&test);
         }
     }
@@ -256,8 +269,10 @@ void SkQP::init(SkQPAssetManager* am, const char* renderTests, const char* repor
 
     get_render_tests(fAssetManager, renderTests, &fGMs, &fGMThresholds);
     /* If the file "skqp/unittests.txt" does not exist or is empty, run all gpu
-       unit tests.  Otherwise only run tests mentioned in that file.  */
-    get_unit_tests(fAssetManager, &fUnitTests);
+       unit tests.  Otherwise run only tests that do not match a line in that file.
+       The list is checked in at platform_tools/android/apps/skqp/src/main/assets/skqp/unittests.txt
+    */
+    get_unit_tests(fAssetManager, &fUnitTests, true);
     fSupportedBackends = get_backends();
 
     print_backend_info((fReportDirectory + "/grdump.txt").c_str(), fSupportedBackends);
