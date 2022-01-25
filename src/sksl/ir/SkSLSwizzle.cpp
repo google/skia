@@ -225,12 +225,10 @@ static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& c
     }
 
     // Wrap the new argument list in a constructor.
-    auto ctor = Constructor::Convert(context,
-                                     base.fLine,
-                                     componentType.toCompound(context, swizzleSize, /*rows=*/1),
-                                     std::move(newArgs));
-    SkASSERT(ctor);
-    return ctor;
+    return Constructor::Convert(context,
+                                base.fLine,
+                                componentType.toCompound(context, swizzleSize, /*rows=*/1),
+                                std::move(newArgs));
 }
 
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
