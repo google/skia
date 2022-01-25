@@ -8,7 +8,7 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "src"
 OpMemberName %_UniformBuffer 1 "dst"
-OpName %_blend_set_color_luminance_h3h3hh3 "_blend_set_color_luminance_h3h3hh3"
+OpName %blend_set_color_luminance_Qh3h3hh3 "blend_set_color_luminance_Qh3h3hh3"
 OpName %lum "lum"
 OpName %result "result"
 OpName %minComp "minComp"
@@ -160,7 +160,7 @@ OpDecorate %172 RelaxedPrecision
 %int = OpTypeInt 32 1
 %int_1 = OpConstant %int 1
 %int_0 = OpConstant %int 0
-%_blend_set_color_luminance_h3h3hh3 = OpFunction %v3float None %15
+%blend_set_color_luminance_Qh3h3hh3 = OpFunction %v3float None %15
 %18 = OpFunctionParameter %_ptr_Function_v3float
 %19 = OpFunctionParameter %_ptr_Function_float
 %20 = OpFunctionParameter %_ptr_Function_v3float
@@ -304,7 +304,7 @@ OpStore %142 %141
 OpStore %144 %143
 %145 = OpLoad %v3float %_1_sda
 OpStore %146 %145
-%147 = OpFunctionCall %v3float %_blend_set_color_luminance_h3h3hh3 %142 %144 %146
+%147 = OpFunctionCall %v3float %blend_set_color_luminance_Qh3h3hh3 %142 %144 %146
 %148 = OpAccessChain %_ptr_Uniform_v4float %11 %int_1
 %149 = OpLoad %v4float %148
 %150 = OpVectorShuffle %v3float %149 %149 0 1 2

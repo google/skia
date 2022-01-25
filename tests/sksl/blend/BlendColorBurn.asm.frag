@@ -8,7 +8,7 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "src"
 OpMemberName %_UniformBuffer 1 "dst"
-OpName %_color_burn_component_hh2h2 "_color_burn_component_hh2h2"
+OpName %color_burn_component_Qhh2h2 "color_burn_component_Qhh2h2"
 OpName %delta "delta"
 OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
@@ -130,7 +130,7 @@ OpDecorate %142 RelaxedPrecision
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
-%_color_burn_component_hh2h2 = OpFunction %float None %15
+%color_burn_component_Qhh2h2 = OpFunction %float None %15
 %17 = OpFunctionParameter %_ptr_Function_v2float
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpLabel
@@ -234,7 +234,7 @@ OpStore %105 %104
 %108 = OpLoad %v4float %106
 %109 = OpVectorShuffle %v2float %108 %108 0 3
 OpStore %110 %109
-%111 = OpFunctionCall %float %_color_burn_component_hh2h2 %105 %110
+%111 = OpFunctionCall %float %color_burn_component_Qhh2h2 %105 %110
 %112 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
 %113 = OpLoad %v4float %112
 %114 = OpVectorShuffle %v2float %113 %113 1 3
@@ -243,7 +243,7 @@ OpStore %115 %114
 %117 = OpLoad %v4float %116
 %118 = OpVectorShuffle %v2float %117 %117 1 3
 OpStore %119 %118
-%120 = OpFunctionCall %float %_color_burn_component_hh2h2 %115 %119
+%120 = OpFunctionCall %float %color_burn_component_Qhh2h2 %115 %119
 %121 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
 %122 = OpLoad %v4float %121
 %123 = OpVectorShuffle %v2float %122 %122 2 3
@@ -252,7 +252,7 @@ OpStore %124 %123
 %126 = OpLoad %v4float %125
 %127 = OpVectorShuffle %v2float %126 %126 2 3
 OpStore %128 %127
-%129 = OpFunctionCall %float %_color_burn_component_hh2h2 %124 %128
+%129 = OpFunctionCall %float %color_burn_component_Qhh2h2 %124 %128
 %130 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
 %131 = OpLoad %v4float %130
 %132 = OpCompositeExtract %float %131 3

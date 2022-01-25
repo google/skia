@@ -2,7 +2,7 @@
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
-float _color_dodge_component_hh2h2(vec2 s, vec2 d) {
+float color_dodge_component_Qhh2h2(vec2 s, vec2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);
     } else {
@@ -15,7 +15,7 @@ float _color_dodge_component_hh2h2(vec2 s, vec2 d) {
         }
     }
 }
-float _color_burn_component_hh2h2(vec2 s, vec2 d) {
+float color_burn_component_Qhh2h2(vec2 s, vec2 d) {
     if (d.y == d.x) {
         return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     } else if (s.x == 0.0) {
@@ -25,7 +25,7 @@ float _color_burn_component_hh2h2(vec2 s, vec2 d) {
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
-float _soft_light_component_hh2h2(vec2 s, vec2 d) {
+float soft_light_component_Qhh2h2(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
         return (((d.x * d.x) * (s.y - 2.0 * s.x)) / (d.y + 9.9999999392252903e-09) + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
     } else if (4.0 * d.x <= d.y) {
@@ -39,7 +39,7 @@ float _soft_light_component_hh2h2(vec2 s, vec2 d) {
     }
 }
 void main() {
-    sk_FragColor = vec4(_color_dodge_component_hh2h2(src.xw, dst.xw), _color_dodge_component_hh2h2(src.yw, dst.yw), _color_dodge_component_hh2h2(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
-    sk_FragColor = vec4(_color_burn_component_hh2h2(src.xw, dst.xw), _color_burn_component_hh2h2(src.yw, dst.yw), _color_burn_component_hh2h2(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
-    sk_FragColor = dst.w == 0.0 ? src : vec4(_soft_light_component_hh2h2(src.xw, dst.xw), _soft_light_component_hh2h2(src.yw, dst.yw), _soft_light_component_hh2h2(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
+    sk_FragColor = vec4(color_dodge_component_Qhh2h2(src.xw, dst.xw), color_dodge_component_Qhh2h2(src.yw, dst.yw), color_dodge_component_Qhh2h2(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
+    sk_FragColor = vec4(color_burn_component_Qhh2h2(src.xw, dst.xw), color_burn_component_Qhh2h2(src.yw, dst.yw), color_burn_component_Qhh2h2(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
+    sk_FragColor = dst.w == 0.0 ? src : vec4(soft_light_component_Qhh2h2(src.xw, dst.xw), soft_light_component_Qhh2h2(src.yw, dst.yw), soft_light_component_Qhh2h2(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }

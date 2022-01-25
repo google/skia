@@ -2,7 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 src;
 uniform vec4 dst;
-float _soft_light_component_hh2h2(vec2 s, vec2 d) {
+float soft_light_component_Qhh2h2(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
         return (((d.x * d.x) * (s.y - 2.0 * s.x)) / d.y + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
     } else if (4.0 * d.x <= d.y) {
@@ -16,5 +16,5 @@ float _soft_light_component_hh2h2(vec2 s, vec2 d) {
     }
 }
 void main() {
-    sk_FragColor = dst.w == 0.0 ? src : vec4(_soft_light_component_hh2h2(src.xw, dst.xw), _soft_light_component_hh2h2(src.yw, dst.yw), _soft_light_component_hh2h2(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
+    sk_FragColor = dst.w == 0.0 ? src : vec4(soft_light_component_Qhh2h2(src.xw, dst.xw), soft_light_component_Qhh2h2(src.yw, dst.yw), soft_light_component_Qhh2h2(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
