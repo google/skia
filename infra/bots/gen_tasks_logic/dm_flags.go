@@ -935,6 +935,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLIntrinsicIsInf_GPU") // skia:12377
 	}
 
+	if b.matchGpu("Adreno6") && b.extraConfig("Vulkan") { // disable broken tests on Adreno 6xx Vulkan
+		skip("_", "tests", "_", "SkSLInoutParameters_GPU") // skia:12869
+	}
+
 	if (b.matchGpu("Adreno3") || b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
 		skip("_", "tests", "_", "SkSLMatrices") // skia:12456
 	}
