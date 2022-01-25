@@ -2,7 +2,7 @@ uniform float2x2 testMatrix2x2;
 uniform half4 colorRed, colorGreen;
 uniform half unknownInput;
 
-bool test() {
+bool test_eq() {
     bool ok = true;
     ok = ok &&  (float2x2(float2(1.0, 0.0), float2(0.0, 1.0)) ==
                  float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
@@ -101,6 +101,40 @@ bool test() {
     return ok;
 }
 
+bool test_matrix_op_scalar_float() {
+    bool ok = true;
+
+    ok = ok && ((float3x3(2) + 4) == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && ((float3x3(2) - 4) == float3x3(-2, -4, -4, -4, -2, -4, -4, -4, -2));
+    ok = ok && ((float3x3(2) * 4) == float3x3(8));
+    ok = ok && ((float3x3(2) / 4) == float3x3(0.5));
+
+    ok = ok && (4 + (float3x3(2)) == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && (4 - (float3x3(2)) == float3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
+    ok = ok && (4 * (float3x3(2)) == float3x3(8));
+    ok = ok && (4 / (float2x2(2, 2, 2, 2)) == float2x2(2, 2, 2, 2));
+
+    return ok;
+}
+
+bool test_matrix_op_scalar_half() {
+    bool ok = true;
+
+    ok = ok && ((half3x3(2) + 4) == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && ((half3x3(2) - 4) == half3x3(-2, -4, -4, -4, -2, -4, -4, -4, -2));
+    ok = ok && ((half3x3(2) * 4) == half3x3(8));
+    ok = ok && ((half3x3(2) / 4) == half3x3(0.5));
+
+    ok = ok && (4 + (half3x3(2)) == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && (4 - (half3x3(2)) == half3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
+    ok = ok && (4 * (half3x3(2)) == half3x3(8));
+    ok = ok && (4 / (half2x2(2, 2, 2, 2)) == half2x2(2, 2, 2, 2));
+
+    return ok;
+}
+
 half4 main(float2 coords) {
-    return test() ? colorGreen : colorRed;
+    return (test_eq() &&
+            test_matrix_op_scalar_float() &&
+            test_matrix_op_scalar_half()) ? colorGreen : colorRed;
 }
