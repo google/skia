@@ -73,8 +73,6 @@ public:
     ComparisonResult compareConstant(const Expression& other) const override;
 
 private:
-    std::unique_ptr<Expression> fArgument;
-
     using INHERITED = Expression;
 };
 
