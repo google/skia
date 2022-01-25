@@ -26,6 +26,17 @@
 
 namespace SkSL {
 
+static bool is_vec_or_mat(const Type& type) {
+    switch (type.typeKind()) {
+        case Type::TypeKind::kMatrix:
+        case Type::TypeKind::kVector:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 static std::unique_ptr<Expression> eliminate_no_op_boolean(const Expression& left,
                                                            Operator op,
                                                            const Expression& right) {
@@ -83,11 +94,11 @@ static std::unique_ptr<Expression> simplify_constant_equality(const Context& con
     return nullptr;
 }
 
-static std::unique_ptr<Expression> simplify_vector(const Context& context,
-                                                   const Expression& left,
-                                                   Operator op,
-                                                   const Expression& right) {
-    SkASSERT(left.type().isVector());
+static std::unique_ptr<Expression> simplify_componentwise(const Context& context,
+                                                          const Expression& left,
+                                                          Operator op,
+                                                          const Expression& right) {
+    SkASSERT(is_vec_or_mat(left.type()));
     SkASSERT(left.type().matches(right.type()));
     const Type& type = left.type();
 
@@ -109,6 +120,8 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     }
 
     const Type& componentType = type.componentType();
+    SkASSERT(componentType.isNumber());
+
     double minimumValue = -INFINITY, maximumValue = INFINITY;
     if (componentType.isInteger()) {
         minimumValue = componentType.minimumValue();
@@ -116,8 +129,9 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     }
 
     ExpressionArray args;
-    args.reserve_back(type.columns());
-    for (int i = 0; i < type.columns(); i++) {
+    int numSlots = type.slotCount();
+    args.reserve_back(numSlots);
+    for (int i = 0; i < numSlots; i++) {
         double value = foldFn(*left.getConstantValue(i), *right.getConstantValue(i));
         if (value < minimumValue || value > maximumValue) {
             return nullptr;
@@ -126,6 +140,25 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         args.push_back(Literal::Make(left.fLine, value, &componentType));
     }
     return ConstructorCompound::Make(context, left.fLine, type, std::move(args));
+}
+
+static std::unique_ptr<Expression> splat_scalar(const Context& context,
+                                                const Expression& scalar,
+                                                const Type& type) {
+    if (type.isVector()) {
+        return ConstructorSplat::Make(context, scalar.fLine, type, scalar.clone());
+    }
+    if (type.isMatrix()) {
+        int numSlots = type.slotCount();
+        ExpressionArray splatMatrix;
+        splatMatrix.reserve_back(numSlots);
+        for (int index = 0; index < numSlots; ++index) {
+            splatMatrix.push_back(scalar.clone());
+        }
+        return ConstructorCompound::Make(context, scalar.fLine, type, std::move(splatMatrix));
+    }
+    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
+    return nullptr;
 }
 
 static std::unique_ptr<Expression> cast_expression(const Context& context,
@@ -500,37 +533,21 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
     // Perform constant folding on pairs of vectors.
     if (leftType.isVector() && leftType.matches(rightType)) {
-        if (leftType.componentType().isNumber()) {
-            return simplify_vector(context, *left, op, *right);
-        }
-        if (leftType.componentType().isBoolean()) {
-            return simplify_constant_equality(context, *left, op, *right);
-        }
-        return nullptr;
+        return simplify_componentwise(context, *left, op, *right);
     }
 
-    // Perform constant folding on vectors against scalars, e.g.: half4(2) + 2
-    if (leftType.isVector() && leftType.componentType().matches(rightType)) {
-        if (rightType.isNumber()) {
-            return simplify_vector(context, *left, op, ConstructorSplat(*right, left->type()));
-        }
-        if (rightType.isBoolean()) {
-            return simplify_constant_equality(context, *left, op,
-                                              ConstructorSplat(*right, left->type()));
-        }
-        return nullptr;
+    // Perform constant folding on vectors/matrices against scalars, e.g.: half4(2) + 2
+    if (rightType.isScalar() && is_vec_or_mat(leftType) &&
+        leftType.componentType().matches(rightType)) {
+        return simplify_componentwise(context, *left, op,
+                                      *splat_scalar(context, *right, left->type()));
     }
 
-    // Perform constant folding on scalars against vectors, e.g.: 2 + half4(2)
-    if (rightType.isVector() && rightType.componentType().matches(leftType)) {
-        if (leftType.isNumber()) {
-            return simplify_vector(context, ConstructorSplat(*left, right->type()), op, *right);
-        }
-        if (leftType.isBoolean()) {
-            return simplify_constant_equality(context, ConstructorSplat(*left, right->type()),
-                                              op, *right);
-        }
-        return nullptr;
+    // Perform constant folding on scalars against vectors/matrices, e.g.: 2 + half4(2)
+    if (leftType.isScalar() && is_vec_or_mat(rightType) &&
+        rightType.componentType().matches(leftType)) {
+        return simplify_componentwise(context, *splat_scalar(context, *left, right->type()),
+                                      op, *right);
     }
 
     // Perform constant folding on pairs of matrices or arrays.

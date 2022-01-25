@@ -6,26 +6,10 @@ uniform vec4 colorGreen;
 uniform float unknownInput;
 bool test_matrix_op_scalar_float_b() {
     bool ok = true;
-    ok = ok && mat3(2.0) + 4.0 == mat3(6.0, 4.0, 4.0, 4.0, 6.0, 4.0, 4.0, 4.0, 6.0);
-    ok = ok && mat3(2.0) - 4.0 == mat3(-2.0, -4.0, -4.0, -4.0, -2.0, -4.0, -4.0, -4.0, -2.0);
-    ok = ok && mat3(2.0) * 4.0 == mat3(8.0);
-    ok = ok && mat3(2.0) / 4.0 == mat3(0.5);
-    ok = ok && 4.0 + mat3(2.0) == mat3(6.0, 4.0, 4.0, 4.0, 6.0, 4.0, 4.0, 4.0, 6.0);
-    ok = ok && 4.0 - mat3(2.0) == mat3(2.0, 4.0, 4.0, 4.0, 2.0, 4.0, 4.0, 4.0, 2.0);
-    ok = ok && 4.0 * mat3(2.0) == mat3(8.0);
-    ok = ok && 4.0 / mat2(2.0, 2.0, 2.0, 2.0) == mat2(2.0, 2.0, 2.0, 2.0);
     return ok;
 }
 bool test_matrix_op_scalar_half_b() {
     bool ok = true;
-    ok = ok && mat3(2.0) + 4.0 == mat3(6.0, 4.0, 4.0, 4.0, 6.0, 4.0, 4.0, 4.0, 6.0);
-    ok = ok && mat3(2.0) - 4.0 == mat3(-2.0, -4.0, -4.0, -4.0, -2.0, -4.0, -4.0, -4.0, -2.0);
-    ok = ok && mat3(2.0) * 4.0 == mat3(8.0);
-    ok = ok && mat3(2.0) / 4.0 == mat3(0.5);
-    ok = ok && 4.0 + mat3(2.0) == mat3(6.0, 4.0, 4.0, 4.0, 6.0, 4.0, 4.0, 4.0, 6.0);
-    ok = ok && 4.0 - mat3(2.0) == mat3(2.0, 4.0, 4.0, 4.0, 2.0, 4.0, 4.0, 4.0, 2.0);
-    ok = ok && 4.0 * mat3(2.0) == mat3(8.0);
-    ok = ok && 4.0 / mat2(2.0, 2.0, 2.0, 2.0) == mat2(2.0, 2.0, 2.0, 2.0);
     return ok;
 }
 bool test_matrix_op_matrix_float_b() {
