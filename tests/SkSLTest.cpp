@@ -231,8 +231,6 @@ SKSL_TEST(SkSLInlinerUsesTempVarForMultipleReturns,
 SKSL_TEST(SkSLInlinerUsesTempVarForReturnsInsideBlockWithVar,
      "inliner/InlinerUsesTempVarForReturnsInsideBlockWithVar.sksl")
 SKSL_TEST(SkSLInlineThreshold,                    "inliner/InlineThreshold.sksl")
-// skbug.com/11919: Fails on Adreno + Vulkan
-SKSL_TEST_CPU(SkSLInlineWithInoutArgument,        "inliner/InlineWithInoutArgument.sksl")
 SKSL_TEST(SkSLInlineWithModifiedArgument,         "inliner/InlineWithModifiedArgument.sksl")
 SKSL_TEST(SkSLInlineWithNestedBigCalls,           "inliner/InlineWithNestedBigCalls.sksl")
 SKSL_TEST(SkSLInlineWithUnmodifiedArgument,       "inliner/InlineWithUnmodifiedArgument.sksl")
@@ -330,6 +328,7 @@ SKSL_TEST(SkSLGeometricIntrinsics,             "shared/GeometricIntrinsics.sksl"
 SKSL_TEST(SkSLHelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
 SKSL_TEST_ES3(SkSLHexUnsigned,                 "shared/HexUnsigned.sksl")
+SKSL_TEST(SkSLInoutParameters,                 "shared/InoutParameters.sksl")
 SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
 SKSL_TEST_ES3(SkSLMatricesNonsquare,           "shared/MatricesNonsquare.sksl")
 // TODO(skia:12443) These tests actually don't work on MANY devices. The GLSL conformance suite

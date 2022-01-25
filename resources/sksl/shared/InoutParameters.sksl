@@ -24,24 +24,18 @@ inline void inoutParameterIgnore(inout half4 x) {
     half4 scratch = colorGreen * colorGreen;
 }
 
-inline void outParameterIgnore(out half4 x) {
-    half4 scratch = colorGreen * colorGreen;
-}
-
-// We don't inline functions that write to out parameters. (skia:11326)
 half4 main(float2 coords) {
     half4 c;
 
-    // These calls are ineligible for inlining, because they write to their `out` param.
+    // These functions write to their `out` param.
     outParameterWrite(c);
     outParameterWriteIndirect(c);
     inoutParameterWrite(c);
     inoutParameterWriteIndirect(c);
 
-    // These calls are eligible for inlining, because they don't write to their `out` param.
+    // These functions don't write to their `out` param.
     inoutParameterRead(c);
     inoutParameterIgnore(c);
-    outParameterIgnore(c);
 
     return c;
 }
