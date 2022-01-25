@@ -585,9 +585,10 @@ bool Compiler::runInliner(const std::vector<std::unique_ptr<ProgramElement>>& el
 }
 
 bool Compiler::finalize(Program& program) {
-    // Do a pass looking for @if/@switch statements that didn't optimize away, or dangling
-    // FunctionReference or TypeReference expressions. Report these as errors.
-    Analysis::VerifyStaticTestsAndExpressions(program);
+    // Do one last correctness-check pass. This looks for @if/@switch statements that didn't
+    // optimize away, or dangling FunctionReference or TypeReference expressions, and reports them
+    // as errors.
+    Analysis::DoFinalizationChecks(program);
 
     // Verify that the program conforms to ES2 limitations.
     if (fContext->fConfig->strictES2Mode() && this->errorCount() == 0) {

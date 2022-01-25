@@ -172,10 +172,11 @@ void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
 bool CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl, const Statement& body);
 
 /**
- * Searches for @if/@switch statements that didn't optimize away, or dangling
- * FunctionReference or TypeReference expressions, and reports them as errors.
+ * Runs at finalization time to perform any last-minute correctness checks:
+ * - Reports @if/@switch statements that didn't optimize away
+ * - Reports dangling FunctionReference or TypeReference expressions
  */
-void VerifyStaticTestsAndExpressions(const Program& program);
+void DoFinalizationChecks(const Program& program);
 
 }  // namespace Analysis
 }  // namespace SkSL
