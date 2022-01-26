@@ -220,28 +220,39 @@ void Dehydrator::write(const Symbol& s) {
 
 void Dehydrator::write(const SymbolTable& symbols) {
     this->writeCommand(Rehydrator::kSymbolTable_Command);
+    this->writeU8(symbols.isBuiltin());
     this->writeU16(symbols.fOwnedSymbols.size());
+
+    // write owned symbols
     for (const std::unique_ptr<const Symbol>& s : symbols.fOwnedSymbols) {
         this->write(*s);
     }
+
+    // write symbols
     this->writeU16(symbols.fSymbols.count());
     std::map<skstd::string_view, const Symbol*> ordered;
     symbols.foreach([&](skstd::string_view name, const Symbol* symbol) {
         ordered.insert({name, symbol});
     });
     for (std::pair<skstd::string_view, const Symbol*> p : ordered) {
-        SkDEBUGCODE(bool found = false;)
+        bool found = false;
         for (size_t i = 0; i < symbols.fOwnedSymbols.size(); ++i) {
             if (symbols.fOwnedSymbols[i].get() == p.second) {
                 fCommandBreaks.add(fBody.bytesWritten());
                 this->writeU16(i);
-                SkDEBUGCODE(found = true;)
+                found = true;
                 break;
             }
         }
-        SkASSERT(found);
+        if (!found) {
+            // we should only fail to find builtin types
+            SkASSERT(p.second->is<Type>() && p.second->as<Type>().isInBuiltinTypes());
+            this->writeU16(Rehydrator::kBuiltinType_Symbol);
+            this->write(p.second->name());
+        }
     }
 }
+
 
 void Dehydrator::writeExpressionSpan(const SkSpan<const std::unique_ptr<Expression>>& span) {
     this->writeU8(span.size());

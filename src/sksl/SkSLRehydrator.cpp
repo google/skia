@@ -63,7 +63,10 @@ public:
     AutoRehydratorSymbolTable(Rehydrator* rehydrator)
         : fRehydrator(rehydrator)
         , fOldSymbols(fRehydrator->fSymbolTable) {
-        fRehydrator->fSymbolTable = fRehydrator->symbolTable();
+        std::shared_ptr<SymbolTable> symbols = fRehydrator->symbolTable();
+        if (symbols) {
+            fRehydrator->fSymbolTable = std::move(symbols);
+        }
     }
 
     ~AutoRehydratorSymbolTable() {
@@ -540,18 +543,15 @@ std::unique_ptr<Expression> Rehydrator::expression() {
     }
 }
 
-std::shared_ptr<SymbolTable> Rehydrator::symbolTable(bool inherit) {
+std::shared_ptr<SymbolTable> Rehydrator::symbolTable() {
     int command = this->readU8();
     if (command == kVoid_Command) {
         return nullptr;
     }
     SkASSERT(command == kSymbolTable_Command);
+    bool builtin = this->readU8();
     uint16_t ownedCount = this->readU16();
-    std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
-    std::shared_ptr<SymbolTable> result =
-            inherit ? std::make_shared<SymbolTable>(fSymbolTable, /*builtin=*/true)
-                    : std::make_shared<SymbolTable>(fContext, /*builtin=*/true);
-    fSymbolTable = result;
+    fSymbolTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), builtin);
     std::vector<const Symbol*> ownedSymbols;
     ownedSymbols.reserve(ownedCount);
     for (int i = 0; i < ownedCount; ++i) {
@@ -562,10 +562,20 @@ std::shared_ptr<SymbolTable> Rehydrator::symbolTable(bool inherit) {
     symbols.reserve(symbolCount);
     for (int i = 0; i < symbolCount; ++i) {
         int index = this->readU16();
-        fSymbolTable->addWithoutOwnership(ownedSymbols[index]);
+        if (index != kBuiltinType_Symbol) {
+            fSymbolTable->addWithoutOwnership(ownedSymbols[index]);
+        } else {
+            skstd::string_view name = this->readString();
+            SymbolTable* root = fSymbolTable.get();
+            while (root->fParent) {
+                root = root->fParent.get();
+            }
+            const Symbol* s = (*root)[name];
+            SkASSERT(s);
+            fSymbolTable->addWithoutOwnership(s);
+        }
     }
-    fSymbolTable = oldTable;
-    return result;
+    return fSymbolTable;
 }
 
 }  // namespace SkSL
