@@ -32,7 +32,7 @@ class Type;
  */
 class Rehydrator {
 public:
-    static constexpr uint16_t kVersion = 3;
+    static constexpr uint16_t kVersion = 4;
 
     enum Command {
         // uint16 id, Type componentType, uint8 count
@@ -84,6 +84,8 @@ public:
         // uint16 id, Modifiers modifiers, String name, uint8 parameterCount, uint16[] parameterIds,
         // Type returnType
         kFunctionDeclaration_Command,
+        // uint16 declaration
+        kFunctionPrototype_Command,
         // bool isStatic, Expression test, Statement ifTrue, Statement ifFalse
         kIf_Command,
         // Expression base, Expression index
