@@ -511,7 +511,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(
             glyphRunList, skPaint, drawMatrix, false, control, painter);
 
-    GrAtlasSubRun* subRun = blob->testingOnlyFirstSubRun();
+    const GrAtlasSubRun* subRun = blob->testingOnlyFirstSubRun();
     if (!subRun) {
         return nullptr;
     }

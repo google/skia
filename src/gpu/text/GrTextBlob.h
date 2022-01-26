@@ -78,7 +78,7 @@ public:
             SkPoint drawOrigin,
             SkIRect clip) const = 0;
 
-    virtual void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache* cache) = 0;
+    virtual void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache* cache) const = 0;
 
     // This call is not thread safe. It should only be called from GrDrawOp::onPrepare which
     // is single threaded.
@@ -91,6 +91,7 @@ public:
 // ability to be in a list.
 class GrSubRun;
 using GrSubRunOwner = std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>;
+class GrBlobSubRun;
 class GrSubRun {
 public:
     virtual ~GrSubRun();
@@ -101,24 +102,11 @@ public:
                       const SkPaint&,
                       skgpu::v1::SurfaceDrawContext*) const = 0;
 
-    template <typename T> T& downCast();
-    template <typename T>const T& downCast() const;
+    virtual const GrBlobSubRun* blobCast() const;
 
 private:
     friend class GrSubRunList;
     GrSubRunOwner fNext;
-};
-
-// -- GrBlobSubRun ---------------------------------------------------------------------------------
-class GrBlobSubRun : public GrSubRun {
-public:
-    // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
-    // position.
-    virtual bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const = 0;
-
-    // Return the underlying atlas SubRun if it exists. Otherwise, return nullptr.
-    // * Don't use this API. It is only to support testing.
-    virtual GrAtlasSubRun* testingOnly_atlasSubRun() = 0;
 };
 
 // -- GrSubRunList ---------------------------------------------------------------------------------
@@ -245,7 +233,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               skgpu::v1::SurfaceDrawContext* sdc);
-    GrAtlasSubRun* testingOnlyFirstSubRun() const;
+    const GrAtlasSubRun* testingOnlyFirstSubRun() const;
 
 private:
     GrTextBlob(int allocSize,

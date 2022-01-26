@@ -49,10 +49,24 @@ using AtlasTextOp = skgpu::v1::AtlasTextOp;
 // Note:
 //   In order to use GrSlugs, you need to set the fSupportBilerpFromGlyphAtlas on GrContextOptions.
 
+// -- GrBlobSubRun ---------------------------------------------------------------------------------
+class GrBlobSubRun {
+public:
+    virtual ~GrBlobSubRun() = default;
+    // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
+    // position.
+    virtual bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const = 0;
+
+    // Return the underlying atlas SubRun if it exists. Otherwise, return nullptr.
+    // * Don't use this API. It is only to support testing.
+    virtual const GrAtlasSubRun* testingOnly_atlasSubRun() const = 0;
+};
+
 // -- GrSubRun -------------------------------------------------------------------------------------
 GrSubRun::~GrSubRun() = default;
-template <typename T> T& GrSubRun::downCast() { return static_cast<T&>(*this); }
-template <typename T> const T& GrSubRun::downCast() const { return static_cast<const T&>(*this); }
+const GrBlobSubRun* GrSubRun::blobCast() const {
+    SK_ABORT("This is not a subclass of GrBlobSubRun.");
+}
 
 namespace {
 // -- TransformedMaskVertexFiller ------------------------------------------------------------------
@@ -453,7 +467,7 @@ void PathOpSubmitter::submitOps(const GrClip* clip,
 }
 
 // -- PathSubRun -----------------------------------------------------------------------------------
-class PathSubRun final : public GrBlobSubRun {
+class PathSubRun final : public GrSubRun, public GrBlobSubRun {
 public:
     PathSubRun(PathOpSubmitter&& pathDrawing)
             : fPathDrawing(std::move(pathDrawing)) {}
@@ -474,11 +488,13 @@ public:
         fPathDrawing.submitOps(clip, viewMatrix, drawOrigin, paint, sdc);
     }
 
+    const GrBlobSubRun* blobCast() const override { return this; }
+
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
         return true;
     }
 
-    GrAtlasSubRun* testingOnly_atlasSubRun() override {
+    const GrAtlasSubRun* testingOnly_atlasSubRun() const override {
         return nullptr;
     }
 
@@ -629,7 +645,7 @@ std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
 }
 
 // -- DirectMaskSubRun -----------------------------------------------------------------------------
-class DirectMaskSubRun final : public GrBlobSubRun, public GrAtlasSubRun {
+class DirectMaskSubRun final : public GrSubRun, public GrBlobSubRun, public GrAtlasSubRun {
 public:
     using DevicePosition = skvx::Vec<2, int16_t>;
 
@@ -660,15 +676,17 @@ public:
                     skgpu::v1::SurfaceDrawContext* sdc,
                     GrAtlasSubRunOwner) const override;
 
+    const GrBlobSubRun* blobCast() const override { return this; }
+
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
 
-    GrAtlasSubRun* testingOnly_atlasSubRun() override;
+    const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
 
     int glyphCount() const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int>
     regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
@@ -888,7 +906,7 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     return {clip, std::move(op)};
 }
 
-void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
@@ -1018,12 +1036,12 @@ SkRect DirectMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrig
     return SkRect::Make(outBounds.makeOffset(iOffset));
 }
 
-GrAtlasSubRun* DirectMaskSubRun::testingOnly_atlasSubRun() {
+const GrAtlasSubRun* DirectMaskSubRun::testingOnly_atlasSubRun() const {
     return this;
 }
 
 // -- TransformedMaskSubRun ------------------------------------------------------------------------
-class TransformedMaskSubRun final : public GrBlobSubRun, public GrAtlasSubRun {
+class TransformedMaskSubRun final : public GrSubRun, public GrBlobSubRun, public GrAtlasSubRun {
 public:
     using VertexData = TransformedMaskVertexFiller::PositionAndExtent;
 
@@ -1055,11 +1073,13 @@ public:
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
 
+    const GrBlobSubRun* blobCast() const override { return this; }
+
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
 
-    GrAtlasSubRun* testingOnly_atlasSubRun() override;
+    const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
@@ -1187,7 +1207,7 @@ bool TransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& posit
     return true;
 }
 
-void TransformedMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void TransformedMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
@@ -1234,12 +1254,12 @@ SkRect TransformedMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint dra
     return drawMatrix.mapRect(outBounds);
 }
 
-GrAtlasSubRun* TransformedMaskSubRun::testingOnly_atlasSubRun() {
+const GrAtlasSubRun* TransformedMaskSubRun::testingOnly_atlasSubRun() const {
     return this;
 }
 
 // -- SDFTSubRun -----------------------------------------------------------------------------------
-class SDFTSubRun final : public GrBlobSubRun, public GrAtlasSubRun {
+class SDFTSubRun final : public GrSubRun, public GrBlobSubRun, public GrAtlasSubRun {
 public:
     struct VertexData {
         const SkPoint pos;
@@ -1277,11 +1297,12 @@ public:
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
 
+    const GrBlobSubRun* blobCast() const override { return this; }
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
 
-    GrAtlasSubRun* testingOnly_atlasSubRun() override;
+    const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
@@ -1469,7 +1490,7 @@ bool SDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) 
     return true;
 }
 
-void SDFTSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void SDFTSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
@@ -1512,7 +1533,7 @@ SkRect SDFTSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) co
     return drawMatrix.mapRect(outBounds);
 }
 
-GrAtlasSubRun* SDFTSubRun::testingOnly_atlasSubRun() {
+const GrAtlasSubRun* SDFTSubRun::testingOnly_atlasSubRun() const {
     return this;
 }
 
@@ -1754,7 +1775,7 @@ bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) 
     }
 
     for (const GrSubRun& subRun : fSubRunList) {
-        if (!subRun.downCast<GrBlobSubRun>().canReuse(paint, positionMatrix)) {
+        if (!subRun.blobCast()->canReuse(paint, positionMatrix)) {
             return false;
         }
     }
@@ -1775,12 +1796,12 @@ void GrTextBlob::draw(const GrClip* clip,
     }
 }
 
-GrAtlasSubRun* GrTextBlob::testingOnlyFirstSubRun() const {
+const GrAtlasSubRun* GrTextBlob::testingOnlyFirstSubRun() const {
     if (fSubRunList.isEmpty()) {
         return nullptr;
     }
 
-    return fSubRunList.front().downCast<GrBlobSubRun>().testingOnly_atlasSubRun();
+    return fSubRunList.front().blobCast()->testingOnly_atlasSubRun();
 }
 
 GrTextBlob::GrTextBlob(int allocSize,
@@ -1880,7 +1901,7 @@ public:
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int>
     regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
@@ -2036,7 +2057,7 @@ DirectMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
     return {clip, std::move(op)};
 }
 
-void DirectMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void DirectMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
@@ -2128,7 +2149,7 @@ public:
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
@@ -2238,7 +2259,7 @@ TransformedMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
     return {clip, std::move(op)};
 }
 
-void TransformedMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void TransformedMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
@@ -2318,7 +2339,7 @@ public:
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
@@ -2447,7 +2468,7 @@ SDFTSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
     return {clip, std::move(op)};
 }
 
-void SDFTSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void SDFTSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
@@ -2568,10 +2589,6 @@ void GrSubRunNoCachePainter::draw(GrAtlasSubRunOwner subRun) {
 }
 
 namespace {
-// ----------------------------- Begin slug implementation -----------------------------------------
-
-class SlugAtlasSubRun : public GrSubRun, public GrAtlasSubRun { };
-
 // -- Slug -----------------------------------------------------------------------------------------
 class Slug final : public GrSlug, public SkGlyphRunPainterInterface {
 public:
@@ -2645,7 +2662,7 @@ void Slug::surfaceDraw(const GrClip* clip, const SkMatrixProvider& viewMatrix,
 }
 
 // -- DirectMaskSubRunSlug -------------------------------------------------------------------------
-class DirectMaskSubRunSlug final : public SlugAtlasSubRun {
+class DirectMaskSubRunSlug final : public GrSubRun, public GrAtlasSubRun {
 public:
     using DevicePosition = skvx::Vec<2, int16_t>;
 
@@ -2685,7 +2702,7 @@ public:
                     skgpu::v1::SurfaceDrawContext*,
                     GrAtlasSubRunOwner) const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int>
     regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
@@ -2854,7 +2871,7 @@ DirectMaskSubRunSlug::makeAtlasTextOp(const GrClip* clip,
     return {clip, std::move(op)};
 }
 
-void DirectMaskSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void DirectMaskSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
@@ -3111,7 +3128,7 @@ void Slug::processSourcePaths(const SkZip<SkGlyphVariant,
 }
 
 // -- SDFTSubRunSlug -------------------------------------------------------------------------------
-class SDFTSubRunSlug final : public SlugAtlasSubRun {
+class SDFTSubRunSlug final : public GrSubRun, public GrAtlasSubRun {
 public:
     struct VertexData {
         const SkPoint pos;
@@ -3149,7 +3166,7 @@ public:
                     skgpu::v1::SurfaceDrawContext* sdc,
                     GrAtlasSubRunOwner subRunOwner) const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
@@ -3288,7 +3305,7 @@ SDFTSubRunSlug::makeAtlasTextOp(const GrClip* clip,
     return {clip, std::move(op)};
 }
 
-void SDFTSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void SDFTSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
@@ -3341,7 +3358,7 @@ void Slug::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
             this, drawables, runFont, std::move(strike), strikeToSourceScale, &fAlloc));
 }
 
-class TransformedMaskSubRunSlug final : public SlugAtlasSubRun {
+class TransformedMaskSubRunSlug final : public GrSubRun, public GrAtlasSubRun {
 public:
     using VertexData = TransformedMaskVertexFiller::PositionAndExtent;
 
@@ -3373,7 +3390,7 @@ public:
                     skgpu::v1::SurfaceDrawContext* sdc,
                     GrAtlasSubRunOwner subRunOwner) const override;
 
-    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const override;
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
@@ -3492,12 +3509,12 @@ TransformedMaskSubRunSlug::makeAtlasTextOp(const GrClip* clip,
     return {clip, std::move(op)};
 }
 
-void TransformedMaskSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
+void TransformedMaskSubRunSlug::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
 
-std::tuple<bool, int> TransformedMaskSubRunSlug::regenerateAtlas(int begin, int end,
-                                                             GrMeshDrawTarget* target) const {
+std::tuple<bool, int> TransformedMaskSubRunSlug::regenerateAtlas(
+        int begin, int end, GrMeshDrawTarget* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
 }
 
@@ -3589,6 +3606,3 @@ void SurfaceDrawContext::drawSlug(const GrClip* clip,
     slug->surfaceDraw(clip, viewMatrix, this);
 }
 }  // namespace skgpu::v1
-
-
-
