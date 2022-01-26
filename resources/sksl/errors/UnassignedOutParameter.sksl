@@ -1,0 +1,11 @@
+// Expect 2 errors in "testOut"
+
+void testIn(in float2 a, in float2 b, in float2 c)             { a = float2(1); }
+void testOut(out float2 a, out float2 b, out float2 c)         { a = float2(1); }
+void testInout(inout float2 a, inout float2 b, inout float2 c) { a = float2(1); }
+
+void main(float2 p) {
+    testIn(p, p, p);
+    testOut(p, p, p);
+    testInout(p, p, p);
+}

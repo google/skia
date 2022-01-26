@@ -175,6 +175,7 @@ bool CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl, const Sta
  * Runs at finalization time to perform any last-minute correctness checks:
  * - Reports @if/@switch statements that didn't optimize away
  * - Reports dangling FunctionReference or TypeReference expressions
+ * - Reports function `out` params which are never written to (structs are currently exempt)
  */
 void DoFinalizationChecks(const Program& program);
 

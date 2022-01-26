@@ -215,6 +215,7 @@ sksl_error_tests = [
   "/sksl/errors/SwizzleOutOfBounds.sksl",
   "/sksl/errors/SwizzleTooManyComponents.sksl",
   "/sksl/errors/TernaryMismatch.sksl",
+  "/sksl/errors/UnassignedOutParameter.sksl",
   "/sksl/errors/UndeclaredFunction.sksl",
   "/sksl/errors/UndefinedFunction.sksl",
   "/sksl/errors/UndefinedSymbol.sksl",

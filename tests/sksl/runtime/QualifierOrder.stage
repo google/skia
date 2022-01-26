@@ -10,6 +10,7 @@ noinline void inout_after_high_precision_0(inout float2 x)
 }
 noinline void out_after_high_precision_0(out float2 x)
 {
+	x = float2(0.0);
 }
 float4 main(float2 coords)
 {
