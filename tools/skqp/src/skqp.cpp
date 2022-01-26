@@ -293,7 +293,6 @@ std::tuple<SkQP::RenderOutcome, std::string> SkQP::evaluateGM(SkQP::SkiaBackend 
     SkASSERT(gmFact);
     std::unique_ptr<skiagm::GM> gm(gmFact());
     SkASSERT(gm);
-    const char* const name = gm->getName();
     const SkISize size = gm->getISize();
     const int w = size.width();
     const int h = size.height();
@@ -318,7 +317,6 @@ std::tuple<SkQP::RenderOutcome, std::string> SkQP::evaluateGM(SkQP::SkiaBackend 
     if (!surf->readPixels(image.pixmap(), 0, 0)) {
         return std::make_tuple(kError, "Skia Failure: read pixels");
     }
-    int64_t passingThreshold = fGMThresholds.empty() ? -1 : fGMThresholds[std::string(name)];
 
     return std::make_tuple(kPass, "");
 }
