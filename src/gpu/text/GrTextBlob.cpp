@@ -466,19 +466,19 @@ void PathOpSubmitter::submitOps(const GrClip* clip,
     }
 }
 
-// -- PathSubRun -----------------------------------------------------------------------------------
-class PathSubRun final : public GrSubRun, public GrBlobSubRun {
-public:
-    PathSubRun(PathOpSubmitter&& pathDrawing)
-            : fPathDrawing(std::move(pathDrawing)) {}
+template <typename SubRun>
+GrSubRunOwner make_path_sub_run(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                bool isAntiAliased,
+                                SkScalar strikeToSourceScale,
+                                GrSubRunAllocator* alloc) {
+    return alloc->makeUnique<SubRun>(
+            PathOpSubmitter::Make(drawables, isAntiAliased, strikeToSourceScale, alloc));
+}
 
-    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                              bool isAntiAliased,
-                              SkScalar strikeToSourceScale,
-                              GrSubRunAllocator* alloc) {
-        return alloc->makeUnique<PathSubRun>(
-                PathOpSubmitter::Make(drawables, isAntiAliased, strikeToSourceScale, alloc));
-    }
+// -- PathSubRunSlug -------------------------------------------------------------------------------
+class PathSubRunSlug : public GrSubRun {
+public:
+    PathSubRunSlug(PathOpSubmitter&& pathDrawing) : fPathDrawing(std::move(pathDrawing)) {}
 
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -488,18 +488,19 @@ public:
         fPathDrawing.submitOps(clip, viewMatrix, drawOrigin, paint, sdc);
     }
 
-    const GrBlobSubRun* blobCast() const override { return this; }
+private:
+    PathOpSubmitter fPathDrawing;
+};
 
+// -- PathSubRun -----------------------------------------------------------------------------------
+class PathSubRun final : public PathSubRunSlug, public GrBlobSubRun {
+public:
+    using PathSubRunSlug::PathSubRunSlug;
+    const GrBlobSubRun* blobCast() const override { return this; }
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
         return true;
     }
-
-    const GrAtlasSubRun* testingOnly_atlasSubRun() const override {
-        return nullptr;
-    }
-
-private:
-    PathOpSubmitter fPathDrawing;
+    const GrAtlasSubRun* testingOnly_atlasSubRun() const override { return nullptr; }
 };
 
 // -- GlyphVector ----------------------------------------------------------------------------------
@@ -1834,10 +1835,8 @@ void GrTextBlob::processDeviceMasks(
 void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkFont& runFont,
                                     SkScalar strikeToSourceScale) {
-    fSubRunList.append(PathSubRun::Make(drawables,
-                                        has_some_antialiasing(runFont),
-                                        strikeToSourceScale,
-                                        &fAlloc));
+    fSubRunList.append(make_path_sub_run<PathSubRun>(
+            drawables, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
 }
 
 void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -3091,40 +3090,12 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
     return slug;
 }
 
-// -- PathSubRunSlug -------------------------------------------------------------------------------
-class PathSubRunSlug final : public GrSubRun {
-public:
-    PathSubRunSlug(PathOpSubmitter&& pathDrawing)
-            : fPathDrawing(std::move(pathDrawing)) {}
-
-    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                bool isAntiAliased,
-                                SkScalar strikeToSourceScale,
-                                GrSubRunAllocator* alloc) {
-        return alloc->makeUnique<PathSubRunSlug>(
-                PathOpSubmitter::Make(drawables, isAntiAliased, strikeToSourceScale, alloc));
-    }
-
-    void draw(const GrClip* clip,
-              const SkMatrixProvider& viewMatrix,
-              SkPoint drawOrigin,
-              const SkPaint& paint,
-              skgpu::v1::SurfaceDrawContext* sdc) const override {
-        fPathDrawing.submitOps(clip, viewMatrix, drawOrigin, paint, sdc);
-    }
-
-private:
-    PathOpSubmitter fPathDrawing;
-};
-
 void Slug::processSourcePaths(const SkZip<SkGlyphVariant,
                               SkPoint>& drawables,
                               const SkFont& runFont,
                               SkScalar strikeToSourceScale) {
-    fSubRuns.append(PathSubRunSlug::Make(drawables,
-                                         has_some_antialiasing(runFont),
-                                         strikeToSourceScale,
-                                         &fAlloc));
+    fSubRuns.append(make_path_sub_run<PathSubRunSlug>(
+            drawables, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
 }
 
 // -- SDFTSubRunSlug -------------------------------------------------------------------------------
