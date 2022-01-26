@@ -1390,6 +1390,10 @@ describe('Core canvas behavior', () => {
         // measure, we also wait for it to be decoded.
         return imageEle.decode().then(() => {
             const img = surface.makeImageFromTextureSource(imageEle);
+            // Make sure the texture is properly written to and Skia does not draw over it by
+            // by accident.
+            canvas.clear(CanvasKit.RED);
+            surface.updateTextureFromSource(img, imageEle);
             canvas.drawImage(img, 0, 0, null);
 
             const info = img.getImageInfo();

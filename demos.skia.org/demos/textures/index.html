@@ -24,7 +24,7 @@
 
   <canvas id=draw width=500 height=500></canvas>
 
-  <img id="sourceImage" src="/demo/textures/testimg.png">
+  <img id="sourceImage" src="/demos/textures/testimg.png">
 	<video id="sourceVideo" autoplay muted></video>
 </body>
 
@@ -62,18 +62,19 @@
       throw 'Could not make surface';
     }
     const paint = new CanvasKit.Paint();
+    // This image will have its underlying texture re-used once per frame.
+    const img = surface.makeImageFromTextureSource(srcEle);
 
-    // This example creates a new texture, loads it into an image, and then deletes the image
-    // (which should delete the texture automatically).
     let lastTS = Date.now();
     function drawFrame(canvas) {
       const now = Date.now();
       canvas.rotate(10 * (now - lastTS) / 1000, 250, 250);
       lastTS = now;
-      const img = surface.makeImageFromTextureSource(srcEle);
+      // Re-use the image's underlying texture, but replace the contents of the old texture
+      // with the contents of srcEle
+      surface.updateTextureFromSource(img, srcEle);
       canvas.clear(CanvasKit.Color(200, 200, 200));
       canvas.drawImage(img, 5, 5, paint);
-      img && img.delete();
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);

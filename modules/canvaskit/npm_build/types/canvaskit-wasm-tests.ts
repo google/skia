@@ -895,6 +895,8 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
     };
     surfaceFour.requestAnimationFrame(drawFrame);
     surfaceFour.drawOnce(drawFrame);
+
+    surfaceFour.updateTextureFromSource(img5!, videoEle);
 }
 
 function textBlobTests(CK: CanvasKit, font?: Font, path?: Path) {

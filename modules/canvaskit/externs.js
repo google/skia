@@ -674,6 +674,7 @@ var CanvasKit = {
       /** @return {CanvasKit.Image} */
       makeImageSnapshot: function() {},
       makeSurface: function() {},
+      updateTextureFromSource: function() {},
     },
 
     // private API
@@ -683,6 +684,7 @@ var CanvasKit = {
     _makeImageSnapshot: function() {},
     _makeSurface: function() {},
     _makeRasterDirect: function() {},
+    _resetContext: function() {},
     delete: function() {},
   },
 

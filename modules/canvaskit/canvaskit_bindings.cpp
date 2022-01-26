@@ -1922,6 +1922,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             auto backendRT = self.getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
             return (backendRT.isValid()) ? backendRT.sampleCnt() : 0;
         }))
+        .function("_resetContext",optional_override([](SkSurface& self)->void {
+            GrAsDirectContext(self.recordingContext())->resetContext(kTextureBinding_GrGLBackendState);
+        }))
 #else
         .function("reportBackendTypeIsGPU", optional_override([](SkSurface& self) -> bool {
             return false;

@@ -167,7 +167,11 @@
       CanvasKit.Surface.prototype.makeImageFromTexture = function(tex, info) {
         CanvasKit.setCurrentContext(this._context);
         var texHandle = pushTexture(tex);
-        return this._makeImageFromTexture(this._context, texHandle, info);
+        var img = this._makeImageFromTexture(this._context, texHandle, info);
+        if (img) {
+          img._tex = texHandle;
+        }
+        return img;
       };
 
       // We try to find the natural media type (for <img> and <video>), display* for
@@ -210,6 +214,54 @@
         glCtx.bindTexture(glCtx.TEXTURE_2D, null);
         return this.makeImageFromTexture(newTex, info);
       };
+
+      CanvasKit.Surface.prototype.updateTextureFromSource = function(img, src) {
+        if (!img._tex) {
+          Debug('Image is not backed by a user-provided texture');
+          return;
+        }
+        CanvasKit.setCurrentContext(this._context);
+        var glCtx = GL.currentContext.GLctx;
+        // Copy the contents of src over the texture associated with this image.
+        var tex = GL.textures[img._tex];
+        glCtx.bindTexture(glCtx.TEXTURE_2D, tex);
+        if (GL.currentContext.version === 2) {
+          glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, getWidth(src), getHeight(src), 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+        } else {
+          glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+        }
+        glCtx.bindTexture(glCtx.TEXTURE_2D, null);
+        // Tell Skia we messed with the currently bound texture.
+        this._resetContext();
+        // Create a new texture entry and put null into the old slot. This keeps our texture alive,
+        // otherwise it will be deleted when we delete the old Image.
+        GL.textures[img._tex] = null;
+        img._tex = pushTexture(tex);
+        var ii = img.getImageInfo();
+        ii['colorSpace'] = img.getColorSpace();
+        // Skia may cache parts of the image, and some places assume images are immutable. In order
+        // to make things work, we create a new SkImage based on the same texture as the old image.
+        var newImg = this._makeImageFromTexture(this._context, img._tex, ii);
+        // To make things more ergonomic for the user, we change passed in img object to refer
+        // to the new image and clean up the old SkImage object. This has the effect of updating
+        // the Image (from the user's side of things), because they shouldn't be caring about what
+        // part of WASM memory we are pointing to.
+        // The $$ part is provided by emscripten's embind, so this could break if they change
+        // things on us.
+        // https://github.com/emscripten-core/emscripten/blob/a65d70c809f077542649c60097787e1c7460ced6/src/embind/embind.js
+        // They do not do anything special to keep closure from minifying things and neither do we.
+        var oldPtr = img.$$.ptr;
+        var oldSmartPtr = img.$$.smartPtr;
+        img.$$.ptr = newImg.$$.ptr;
+        img.$$.smartPtr = newImg.$$.smartPtr;
+        // We want to clean up the previous image, so we swap out the pointers and call delete on it
+        // which should have that effect.
+        newImg.$$.ptr = oldPtr;
+        newImg.$$.smartPtr = oldSmartPtr;
+        newImg.delete();
+        // Clean up the colorspace that we used.
+        ii['colorSpace'].delete();
+      }
 
       CanvasKit.MakeLazyImageFromTextureSource = function(src, info) {
         if (!info) {

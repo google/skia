@@ -6,13 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `Surface.updateTextureFromSource` prevents flickering on some platforms by re-using the texture
+   for a given `Image` instead of needing to always create a new one via
+   `Surface.makeImageFromTextureSource`. (skbug.com/12723)
+
 ### Changed
  - Surface factories always produce a surface with an attached color space. Specifying `null` to
    `CanvasKit.MakeWebGLCanvasSurface` or calling any factory that does not take a color space
    will now create a surface with a color space of `CanvasKit.ColorSpace.SRGB`.
 
 ### Fixed
- - Supplying textures via `CanvasKit.makeImageFromTextureSource` should not cause issues with
+ - Supplying textures via `Surface.makeImageFromTextureSource` should not cause issues with
    Mipmaps or other places where Skia needs to create textures (skbug.com/12797)
 
 ## [0.32.0] - 2021-12-15
