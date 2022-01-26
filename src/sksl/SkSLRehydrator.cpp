@@ -42,6 +42,7 @@
 #include "src/sksl/ir/SkSLInlineMarker.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -367,6 +368,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                                                           Symbol::Kind::kFunctionDeclaration);
             return InlineMarker::Make(funcDecl);
         }
+        case Rehydrator::kNop_Command:
+            return std::make_unique<SkSL::Nop>();
         case Rehydrator::kReturn_Command: {
             std::unique_ptr<Expression> expr = this->expression();
             return ReturnStatement::Make(/*line=*/-1, std::move(expr));

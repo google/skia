@@ -505,7 +505,7 @@ void Dehydrator::write(const Statement* s) {
                 break;
             }
             case Statement::Kind::kNop:
-                SkDEBUGFAIL("unexpected--nop statement in finished code");
+                this->writeCommand(Rehydrator::kNop_Command);
                 break;
             case Statement::Kind::kReturn: {
                 const ReturnStatement& r = s->as<ReturnStatement>();

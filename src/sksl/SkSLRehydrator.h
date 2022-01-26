@@ -32,7 +32,7 @@ class Type;
  */
 class Rehydrator {
 public:
-    static constexpr uint16_t kVersion = 4;
+    static constexpr uint16_t kVersion = 5;
 
     enum Command {
         // uint16 id, Type componentType, uint8 count
@@ -103,6 +103,7 @@ public:
         kModifiers8Bit_Command,
         // Layout layout, uint32 flags
         kModifiers_Command,
+        kNop_Command,
         // uint8 op, Expression operand
         kPostfix_Command,
         // uint8 op, Expression operand
