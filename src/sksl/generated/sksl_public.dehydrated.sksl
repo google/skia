@@ -1,4 +1,4 @@
-static uint8_t SKSL_INCLUDE_sksl_public[] = {2,0,227,3,
+static uint8_t SKSL_INCLUDE_sksl_public[] = {3,0,227,3,
 7,100,101,103,114,101,101,115,
 8,36,103,101,110,84,121,112,101,
 7,114,97,100,105,97,110,115,

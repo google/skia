@@ -32,7 +32,7 @@ class Type;
  */
 class Rehydrator {
 public:
-    static constexpr uint16_t kVersion = 2;
+    static constexpr uint16_t kVersion = 3;
 
     enum Command {
         // uint16 id, Type componentType, uint8 count
@@ -94,7 +94,7 @@ public:
         kInterfaceBlock_Command,
         // int32 value
         kIntLiteral_Command,
-        // int32 flags, int8 location, int8 offset, int8 binding, int8 index, int8 set,
+        // int32 flags, int8 location, int16 offset, int16 binding, int8 index, int8 set,
         // int16 builtin, int8 inputAttachmentIndex
         kLayout_Command,
         // Layout layout, uint8 flags

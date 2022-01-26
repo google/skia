@@ -90,8 +90,8 @@ void Dehydrator::write(Layout l) {
         this->writeCommand(Rehydrator::kLayout_Command);
         fBody.write32(l.fFlags);
         this->writeS8(l.fLocation);
-        this->writeS8(l.fOffset);
-        this->writeS8(l.fBinding);
+        this->writeS16(l.fOffset);
+        this->writeS16(l.fBinding);
         this->writeS8(l.fIndex);
         this->writeS8(l.fSet);
         this->writeS16(l.fBuiltin);

@@ -107,8 +107,8 @@ Layout Rehydrator::layout() {
         case kLayout_Command: {
             int flags = this->readU32();
             int location = this->readS8();
-            int offset = this->readS8();
-            int binding = this->readS8();
+            int offset = this->readS16();
+            int binding = this->readS16();
             int index = this->readS8();
             int set = this->readS8();
             int builtin = this->readS16();
