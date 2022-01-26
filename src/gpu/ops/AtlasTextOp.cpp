@@ -511,12 +511,11 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(
             glyphRunList, skPaint, drawMatrix, false, control, painter);
 
-    if (blob->subRunList().isEmpty()) {
+    GrAtlasSubRun* subRun = blob->testingOnlyFirstSubRun();
+    if (!subRun) {
         return nullptr;
     }
 
-    GrAtlasSubRun* subRun = blob->subRunList().front().testingOnly_atlasSubRun();
-    SkASSERT(subRun);
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(
             nullptr, mtxProvider, glyphRunList.origin(), skPaint, sdc, nullptr);

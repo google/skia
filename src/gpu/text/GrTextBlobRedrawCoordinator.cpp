@@ -65,9 +65,7 @@ void GrTextBlobRedrawCoordinator::drawGlyphRunList(const GrClip* clip,
         }
     }
 
-    for (const GrSubRun& subRun : blob->subRunList()) {
-        subRun.draw(clip, viewMatrix, glyphRunList.origin(), paint, sdc);
-    }
+    blob->draw(clip, viewMatrix, glyphRunList.origin(), paint, sdc);
 }
 
 sk_sp<GrTextBlob> GrTextBlobRedrawCoordinator::addOrReturnExisting(
