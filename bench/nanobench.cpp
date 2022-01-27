@@ -36,6 +36,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/utils/SkBlitterTrace.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkShaderUtils.h"
@@ -71,6 +72,9 @@ extern bool gForceHighPrecisionRasterPipeline;
 extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
 extern bool gSkVMJITViaDylib;
+
+extern SkBlitterTrace gSkVMBlitterTrace;
+extern SkBlitterTrace gSkRPBlitterTrace;
 
 #ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
@@ -191,6 +195,8 @@ static DEFINE_string(properties, "",
 static DEFINE_bool(purgeBetweenBenches, false,
                    "Call SkGraphics::PurgeAllCaches() between each benchmark?");
 
+static DEFINE_bool(compare, false, "Prepare results for Raster Pipeline/SkVM comparison.");
+
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {
@@ -281,6 +287,9 @@ struct GPUTarget : public Target {
     }
 };
 
+static SkBlitterTrace gSkVMBlitterTraceCapture("VM");
+static SkBlitterTrace gSkRPBlitterTraceCapture("RP");
+
 static double time(int loops, Benchmark* bench, Target* target) {
     SkCanvas* canvas = target->getCanvas();
     if (canvas) {
@@ -289,7 +298,13 @@ static double time(int loops, Benchmark* bench, Target* target) {
     bench->preDraw(canvas);
     double start = now_ms();
     canvas = target->beginTiming(canvas);
+
+    gSkVMBlitterTrace.reset();
+    gSkRPBlitterTrace.reset();
     bench->draw(loops, canvas);
+    gSkVMBlitterTraceCapture = gSkVMBlitterTrace;
+    gSkRPBlitterTraceCapture = gSkRPBlitterTrace;
+
     target->endTiming();
     double elapsed = now_ms() - start;
     bench->postDraw(canvas);
@@ -1266,6 +1281,11 @@ int main(int argc, char** argv) {
     gSkVMAllowJIT = FLAGS_jit;
     gSkVMJITViaDylib = FLAGS_dylib;
 
+    if (FLAGS_compare) {
+        gSkVMBlitterTrace.turnTrace(true);
+        gSkRPBlitterTrace.turnTrace(true);
+    }
+
     int runs = 0;
     BenchmarkStream benchStream;
     log.beginObject("results");
@@ -1414,11 +1434,18 @@ int main(int argc, char** argv) {
                 if (configs.count() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
-                SkDebugf("%4d/%-4dMB\t%s\t%s\n"
+                SkDebugf("%4d/%-4dMB\t%s\t%s "
                          , sk_tools::getCurrResidentSetSizeMB()
                          , sk_tools::getMaxResidentSetSizeMB()
                          , bench->getUniqueName()
                          , config);
+                if (FLAGS_compare) {
+                    gSkVMBlitterTraceCapture.printCounts("Total");
+                    SkDebugf("0 ");
+                    gSkRPBlitterTraceCapture.printCounts("Total");
+                }
+
+                SkDebugf("\n");
             } else if (FLAGS_quiet) {
                 const char* mark = " ";
                 const double stddev_percent =
