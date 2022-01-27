@@ -968,7 +968,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.gpu("Tegra3") {
-		skip("_", "tests", "_", "SkSLVectorScalarMath_GPU") // skia:11919
 		// Tegra3 fails to compile break stmts inside a for loop (skia:12477)
 		skip("_", "tests", "_", "SkSLSwitch_GPU")
 		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU")
@@ -987,6 +986,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
         }
 		skip("_", "tests", "_", "SkSLMatrixFoldingES2_GPU") // skia:11919
 	}
+
+	if b.gpu("PowerVRGE8320") || b.gpu("Tegra3") || b.gpu("Adreno308") {
+		skip("_", "tests", "_", "SkSLVectorScalarMath_GPU") // skia:11919
+    }
 
 	if !b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X") || b.gpu("RadeonHD7770")) {
 		// Some AMD GPUs can get the wrong result when assembling non-square matrices (skia:12443)
