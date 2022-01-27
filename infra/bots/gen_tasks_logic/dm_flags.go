@@ -949,7 +949,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
-		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179
+		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179, vec4(mat2) crash
+		skip("_", "tests", "_", "SkSLMatrixFoldingES2_GPU") // skia:11919
 	}
 
 	if b.matchGpu("Intel") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
@@ -972,11 +973,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLLoopInt_GPU")
 	}
 
-	if !b.extraConfig("Vulkan") &&
-		(b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3")) {
-		// Various Nvidia GPUs crash or generate errors when assembling weird matrices (skia:12443)
-		skip("_", "tests", "_", "SkSLMatrixConstructorsES2_GPU")
-		skip("_", "tests", "_", "SkSLMatrixConstructorsES3_GPU")
+	if b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3") {
+        if !b.extraConfig("Vulkan") {
+            // Various Nvidia GPUs crash or generate errors when assembling weird matrices
+            skip("_", "tests", "_", "SkSLMatrixConstructorsES2_GPU") // skia:12443
+            skip("_", "tests", "_", "SkSLMatrixConstructorsES3_GPU") // skia:12443
+        }
+		skip("_", "tests", "_", "SkSLMatrixFoldingES2_GPU") // skia:11919
 	}
 
 	if !b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X") || b.gpu("RadeonHD7770")) {
