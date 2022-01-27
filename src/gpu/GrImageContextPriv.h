@@ -32,10 +32,9 @@ public:
 
 protected:
     explicit GrImageContextPriv(GrImageContext* iContext) : GrBaseContextPriv(iContext) {}
-    // Required until C++17 copy elision
-    GrImageContextPriv(const GrImageContextPriv&) = default;
 
 private:
+    GrImageContextPriv(const GrImageContextPriv&) = delete;
     GrImageContextPriv& operator=(const GrImageContextPriv&) = delete;
 
     // No taking addresses of this type.

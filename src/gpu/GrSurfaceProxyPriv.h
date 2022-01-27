@@ -46,8 +46,6 @@ public:
 
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
-    // Required until C++17 copy elision
-    GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) = default;
     GrSurfaceProxyPriv& operator=(const GrSurfaceProxyPriv&) = delete;
 
     // No taking addresses of this type.

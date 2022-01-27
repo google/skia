@@ -98,8 +98,6 @@ private:
 
     struct ScopedBuffers {
         ScopedBuffers(SkGlyphRunListPainter* painter, size_t size);
-        // Required until C++17 copy elision
-        ScopedBuffers(const ScopedBuffers&) = default;
         ~ScopedBuffers();
         SkGlyphRunListPainter* fPainter;
     };

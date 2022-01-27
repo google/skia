@@ -38,9 +38,6 @@ public:
     SkMatrixProvider(const SkMatrix& localToDevice) : SkMatrixProvider(localToDevice, true) {}
     SkMatrixProvider(const SkM44& localToDevice) : SkMatrixProvider(localToDevice, true) {}
 
-    // Required until C++17 copy elision
-    SkMatrixProvider(const SkMatrixProvider&) = default;
-
     // These should return the "same" matrix, as either a 3x3 or 4x4. Most sites in Skia still
     // call localToDevice, and operate on SkMatrix.
     const SkMatrix& localToDevice() const { return fLocalToDevice33; }

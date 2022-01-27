@@ -24,8 +24,6 @@ private:
     }
 
     explicit CacheAccess(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
-    // Required until C++17 copy elision
-    CacheAccess(const CacheAccess&) = default;
     CacheAccess& operator=(const CacheAccess&) = delete;
 
     // No taking addresses of this type.

@@ -34,9 +34,6 @@ struct BaseOption {
     BaseOption(std::string _selector, std::string _description)
         : selector(_selector), description(_description) {}
 
-    // Required until C++17 copy elision
-    BaseOption(const BaseOption&) = default;
-
     virtual ~BaseOption() {}
 
     static void Init(const std::vector<BaseOption*> &, int argc, char **argv);

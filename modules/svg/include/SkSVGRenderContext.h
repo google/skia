@@ -97,9 +97,6 @@ public:
             }
         }
 
-        // Required until C++17 copy elision
-        BorrowedNode(BorrowedNode&&) = default;
-
         ~BorrowedNode() {
             if (fOwner) {
                 *fOwner = std::move(fBorrowed);
