@@ -178,6 +178,8 @@ inline static constexpr BuiltinTypePtr kRootTypes[] = {
     TYPE(GenType),   TYPE(GenIType), TYPE(GenUType),
     TYPE(GenHType),   /* (GenSType)      (GenUSType) */
     TYPE(GenBType),
+    TYPE(IntLiteral),
+    TYPE(FloatLiteral),
 
     TYPE(Vec),     TYPE(IVec),     TYPE(UVec),
     TYPE(HVec),    TYPE(SVec),     TYPE(USVec),
@@ -499,7 +501,10 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(int line, skstd::string_
                                      FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
         }
         case Symbol::Kind::kType: {
-            return TypeReference::Convert(*fContext, line, &result->as<Type>());
+            // go through DSLType so we report errors on private types
+            dsl::DSLModifiers modifiers;
+            dsl::DSLType dslType(result->name(), &modifiers, PositionInfo(/*file=*/nullptr, line));
+            return TypeReference::Convert(*fContext, line, &dslType.skslType());
         }
         case Symbol::Kind::kExternal: {
             const ExternalFunction* r = &result->as<ExternalFunction>();

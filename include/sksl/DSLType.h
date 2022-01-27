@@ -17,6 +17,7 @@
 
 namespace SkSL {
 
+class Compiler;
 class Type;
 
 namespace dsl {
@@ -178,6 +179,7 @@ private:
     friend class DSLFunction;
     friend class DSLVarBase;
     friend class DSLWriter;
+    friend class SkSL::Compiler;
 };
 
 #define TYPE(T)                                                                                    \

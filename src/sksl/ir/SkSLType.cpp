@@ -223,6 +223,10 @@ public:
         return true;
     }
 
+    bool isPrivate() const override {
+        return true;
+    }
+
     size_t slotCount() const override {
         return 1;
     }
