@@ -372,7 +372,7 @@ skstd::optional<AutoLayerForImageFilter> SkCanvas::aboutToDraw(
             return skstd::nullopt;
         }
     }
-    return skstd::optional<AutoLayerForImageFilter>(canvas, paint, rawBounds);
+    return std::optional<AutoLayerForImageFilter>(std::in_place, canvas, paint, rawBounds);
 }
 
 ////////////////////////////////////////////////////////////////////////////
