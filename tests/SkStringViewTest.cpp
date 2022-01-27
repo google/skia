@@ -35,12 +35,12 @@ DEF_TEST(SkStringViewConstructors, r) {
 DEF_TEST(SkStringViewBasics, r) {
     skstd::string_view empty("");
     REPORTER_ASSERT(r, empty.empty());
-    REPORTER_ASSERT(r, !empty.starts_with('x'));
-    REPORTER_ASSERT(r, !empty.ends_with('x'));
-    REPORTER_ASSERT(r, !empty.starts_with("x"));
-    REPORTER_ASSERT(r, !empty.ends_with("x"));
-    REPORTER_ASSERT(r, empty.starts_with(""));
-    REPORTER_ASSERT(r, empty.ends_with(""));
+    REPORTER_ASSERT(r, !skstd::starts_with(empty, 'x'));
+    REPORTER_ASSERT(r, !skstd::ends_with(empty, 'x'));
+    REPORTER_ASSERT(r, !skstd::starts_with(empty, "x"));
+    REPORTER_ASSERT(r, !skstd::ends_with(empty, "x"));
+    REPORTER_ASSERT(r, skstd::starts_with(empty, ""));
+    REPORTER_ASSERT(r, skstd::ends_with(empty, ""));
 
     skstd::string_view xyz("xyz");
     REPORTER_ASSERT(r, !xyz.empty());
@@ -48,23 +48,23 @@ DEF_TEST(SkStringViewBasics, r) {
     REPORTER_ASSERT(r, xyz.back() == 'z');
     REPORTER_ASSERT(r, xyz.length() == 3);
 
-    REPORTER_ASSERT(r, xyz.starts_with('x'));
-    REPORTER_ASSERT(r, !xyz.starts_with('y'));
-    REPORTER_ASSERT(r, xyz.ends_with('z'));
-    REPORTER_ASSERT(r, !xyz.ends_with('y'));
+    REPORTER_ASSERT(r, skstd::starts_with(xyz, 'x'));
+    REPORTER_ASSERT(r, !skstd::starts_with(xyz, 'y'));
+    REPORTER_ASSERT(r, skstd::ends_with(xyz, 'z'));
+    REPORTER_ASSERT(r, !skstd::ends_with(xyz, 'y'));
 
-    REPORTER_ASSERT(r, xyz.starts_with(""));
-    REPORTER_ASSERT(r, xyz.ends_with(""));
-    REPORTER_ASSERT(r, xyz.starts_with("x"));
-    REPORTER_ASSERT(r, xyz.ends_with("z"));
-    REPORTER_ASSERT(r, !xyz.starts_with("xa"));
-    REPORTER_ASSERT(r, !xyz.ends_with("az"));
-    REPORTER_ASSERT(r, xyz.starts_with("xy"));
-    REPORTER_ASSERT(r, xyz.ends_with("yz"));
-    REPORTER_ASSERT(r, xyz.starts_with("xyz"));
-    REPORTER_ASSERT(r, xyz.ends_with("xyz"));
-    REPORTER_ASSERT(r, !xyz.starts_with("wxyz"));
-    REPORTER_ASSERT(r, !xyz.ends_with("wxyz"));
+    REPORTER_ASSERT(r, skstd::starts_with(xyz, ""));
+    REPORTER_ASSERT(r, skstd::ends_with(xyz, ""));
+    REPORTER_ASSERT(r, skstd::starts_with(xyz, "x"));
+    REPORTER_ASSERT(r, skstd::ends_with(xyz, "z"));
+    REPORTER_ASSERT(r, !skstd::starts_with(xyz, "xa"));
+    REPORTER_ASSERT(r, !skstd::ends_with(xyz, "az"));
+    REPORTER_ASSERT(r, skstd::starts_with(xyz, "xy"));
+    REPORTER_ASSERT(r, skstd::ends_with(xyz, "yz"));
+    REPORTER_ASSERT(r, skstd::starts_with(xyz, "xyz"));
+    REPORTER_ASSERT(r, skstd::ends_with(xyz, "xyz"));
+    REPORTER_ASSERT(r, !skstd::starts_with(xyz, "wxyz"));
+    REPORTER_ASSERT(r, !skstd::ends_with(xyz, "wxyz"));
 
     xyz.swap(empty);
     REPORTER_ASSERT(r, xyz == "");
@@ -154,7 +154,6 @@ DEF_TEST(SkStringViewSubstr, r) {
     REPORTER_ASSERT(r, xyz.substr(3, 0).empty());
 
     REPORTER_ASSERT(r, xyz.substr(3).empty());
-    REPORTER_ASSERT(r, xyz.substr(4).empty());
 }
 
 DEF_TEST(SkStringViewFind, r) {
@@ -175,19 +174,22 @@ DEF_TEST(SkStringViewFind, r) {
     REPORTER_ASSERT(r, skstd::string_view("ttttest1tttest2tttest3").find("test", 4) == 10);
     REPORTER_ASSERT(r, skstd::string_view("ttttest1tttest2tttest3").find("test2") == 10);
     REPORTER_ASSERT(r, skstd::string_view("ttttest1tttest2tttest3").find("test3") == 17);
-    REPORTER_ASSERT(r, skstd::string_view("ttttest1tttest2tttest3").contains("test"));
-    REPORTER_ASSERT(r, skstd::string_view("ttttest1tttest2tttest3").contains("test3"));
-    REPORTER_ASSERT(r, !skstd::string_view("ttttest1tttest2tttest3").contains("test4"));
-    REPORTER_ASSERT(r, skstd::string_view("").contains(""));
-    REPORTER_ASSERT(r, !skstd::string_view("").contains("a"));
-    REPORTER_ASSERT(r, skstd::string_view("abcabcd").contains("abcd"));
-    REPORTER_ASSERT(r, skstd::string_view("abc").contains(""));
-    REPORTER_ASSERT(r, skstd::string_view("abc").contains("a"));
-    REPORTER_ASSERT(r, skstd::string_view("abc").contains("b"));
-    REPORTER_ASSERT(r, skstd::string_view("abc").contains("c"));
-    REPORTER_ASSERT(r, skstd::string_view("abc").contains("ab"));
-    REPORTER_ASSERT(r, skstd::string_view("abc").contains("bc"));
-    REPORTER_ASSERT(r, !skstd::string_view("abc").contains("ac"));
-    REPORTER_ASSERT(r, !skstd::string_view("abc").contains("cb"));
-    REPORTER_ASSERT(r, !skstd::string_view("abc").contains("abcd"));
+}
+
+DEF_TEST(SkStringViewContains, r) {
+    REPORTER_ASSERT(r, skstd::contains("ttttest1tttest2tttest3", "test"));
+    REPORTER_ASSERT(r, skstd::contains("ttttest1tttest2tttest3", "test3"));
+    REPORTER_ASSERT(r, !skstd::contains("ttttest1tttest2tttest3", "test4"));
+    REPORTER_ASSERT(r, skstd::contains("", ""));
+    REPORTER_ASSERT(r, !skstd::contains("", "a"));
+    REPORTER_ASSERT(r, skstd::contains("abcabcd", "abcd"));
+    REPORTER_ASSERT(r, skstd::contains("abc", ""));
+    REPORTER_ASSERT(r, skstd::contains("abc", "a"));
+    REPORTER_ASSERT(r, skstd::contains("abc", "b"));
+    REPORTER_ASSERT(r, skstd::contains("abc", "c"));
+    REPORTER_ASSERT(r, skstd::contains("abc", "ab"));
+    REPORTER_ASSERT(r, skstd::contains("abc", "bc"));
+    REPORTER_ASSERT(r, !skstd::contains("abc", "ac"));
+    REPORTER_ASSERT(r, !skstd::contains("abc", "cb"));
+    REPORTER_ASSERT(r, !skstd::contains("abc", "abcd"));
 }

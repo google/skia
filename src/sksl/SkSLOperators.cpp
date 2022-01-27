@@ -137,10 +137,10 @@ const char* Operator::operatorName() const {
 
 skstd::string_view Operator::tightOperatorName() const {
     skstd::string_view name = this->operatorName();
-    if (name.starts_with(' ')) {
+    if (skstd::starts_with(name, ' ')) {
         name.remove_prefix(1);
     }
-    if (name.ends_with(' ')) {
+    if (skstd::ends_with(name, ' ')) {
         name.remove_suffix(1);
     }
     return name;
