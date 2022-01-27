@@ -35,10 +35,10 @@ public:
     void vappendf(const char* fmt, va_list va);
 
     bool starts_with(const char prefix[]) const {
-        return skstd::starts_with(skstd::string_view(data(), size()), prefix);
+        return skstd::string_view(data(), size()).starts_with(prefix);
     }
     bool ends_with(const char suffix[]) const {
-        return skstd::ends_with(skstd::string_view(data(), size()), suffix);
+        return skstd::string_view(data(), size()).ends_with(suffix);
     }
 
     bool consumeSuffix(const char suffix[]);

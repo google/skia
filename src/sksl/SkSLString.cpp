@@ -161,13 +161,11 @@ bool stoi(skstd::string_view s, SKSL_INT* value) {
     if (suffix == 'u' || suffix == 'U') {
         s.remove_suffix(1);
     }
-    String str(s);  // s is not null-terminated
-    const char* strEnd = str.data() + str.length();
     char* p;
     errno = 0;
-    unsigned long long result = strtoull(str.data(), &p, /*base=*/0);
+    unsigned long long result = strtoull(s.begin(), &p, /*base=*/0);
     *value = static_cast<SKSL_INT>(result);
-    return p == strEnd && errno == 0 && result <= 0xFFFFFFFF;
+    return p == s.end() && errno == 0 && result <= 0xFFFFFFFF;
 }
 
 }  // namespace SkSL

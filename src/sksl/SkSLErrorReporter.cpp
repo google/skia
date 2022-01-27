@@ -13,7 +13,7 @@
 namespace SkSL {
 
 void ErrorReporter::error(skstd::string_view msg, PositionInfo position) {
-    if (skstd::contains(msg, Compiler::POISON_TAG)) {
+    if (msg.contains(Compiler::POISON_TAG)) {
         // don't report errors on poison values
         return;
     }
@@ -22,7 +22,7 @@ void ErrorReporter::error(skstd::string_view msg, PositionInfo position) {
 }
 
 void ErrorReporter::error(int line, skstd::string_view msg) {
-    if (skstd::contains(msg, Compiler::POISON_TAG)) {
+    if (msg.contains(Compiler::POISON_TAG)) {
         // don't report errors on poison values
         return;
     }

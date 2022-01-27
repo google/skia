@@ -14,7 +14,7 @@ String Mangler::uniqueName(skstd::string_view baseName, SymbolTable* symbolTable
     SkASSERT(symbolTable);
     // The inliner runs more than once, so the base name might already have been mangled and have a
     // prefix like "_123_x". Let's strip that prefix off to make the generated code easier to read.
-    if (skstd::starts_with(baseName, '_')) {
+    if (baseName.starts_with("_")) {
         // Determine if we have a string of digits.
         int offset = 1;
         while (isdigit(baseName[offset])) {
