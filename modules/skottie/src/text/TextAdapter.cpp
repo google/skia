@@ -472,6 +472,10 @@ void TextAdapter::reshape() {
             const auto msg = SkStringPrintf("Text layout failed for '%s'.",
                                             fText->fText.c_str());
             fLogger->log(Logger::Level::kError, msg.c_str());
+
+            // These may trigger repeatedly when the text is animating.
+            // To avoid spamming, only log once.
+            fLogger = nullptr;
         }
 
         if (shape_result.fMissingGlyphCount > 0) {
@@ -479,11 +483,8 @@ void TextAdapter::reshape() {
                                             shape_result.fMissingGlyphCount,
                                             fText->fText.c_str());
             fLogger->log(Logger::Level::kWarning, msg.c_str());
+            fLogger = nullptr;
         }
-
-        // These may trigger repeatedly when the text is animating.
-        // To avoid spamming, only log once.
-        fLogger = nullptr;
     }
 
     // Rebuild all fragments.
