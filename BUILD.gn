@@ -1619,11 +1619,11 @@ if (skia_enable_tools) {
     }
   }
 
-  config("cpp14") {
+  config("cpp17") {
     if (is_win) {
-      cflags_cc = [ "/std:c++14" ]
+      cflags_cc = [ "/std:c++17" ]
     } else {
-      cflags_cc = [ "-std=c++14" ]
+      cflags_cc = [ "-std=c++17" ]
     }
   }
 
@@ -1631,7 +1631,7 @@ if (skia_enable_tools) {
     sources = [ "tools/public_headers_warnings_check.cpp" ]
     configs = [
       ":our_vulkan_headers",
-      ":cpp14",
+      ":cpp17",
     ]
     if (defined(skia_header_target_default_configs)) {
       configs += skia_header_target_default_configs

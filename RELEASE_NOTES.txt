@@ -2,6 +2,12 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 100
+-------------
+  * Skia now requires C++17 and the corresponding standard library (or newer).
+
+* * *
+
 Milestone 99
 ------------
   * Added two new intrinsic functions to SkSL for use in runtime effects:
