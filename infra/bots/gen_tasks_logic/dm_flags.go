@@ -950,6 +950,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
 		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179, vec4(mat2) crash
+		skip("_", "tests", "_", "SkSLVectorScalarMath_GPU") // skia:11919
 		skip("_", "tests", "_", "SkSLMatrixFoldingES2_GPU") // skia:11919
 	}
 
@@ -963,6 +964,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.gpu("Tegra3") {
+		skip("_", "tests", "_", "SkSLVectorScalarMath_GPU") // skia:11919
 		// Tegra3 fails to compile break stmts inside a for loop (skia:12477)
 		skip("_", "tests", "_", "SkSLSwitch_GPU")
 		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU")
