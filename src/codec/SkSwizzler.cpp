@@ -789,7 +789,6 @@ std::unique_ptr<SkSwizzler> SkSwizzler::MakeSimple(int srcBPP, const SkImageInfo
             break;
         case 4:     // kRGBA_8888_SkColorType
                     // kBGRA_8888_SkColorType
-                    // kRGBA_1010102_SkColorType
             proc = &sample4;
             break;
         case 6:     // 16 bit PNG no alpha
