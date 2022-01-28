@@ -112,13 +112,29 @@ private:
     Helper         fHelper;
     ProcessorFlags fProcessorFlags;
 
+    struct LocalCoords {
+        enum class Type : bool { kRect, kMatrix };
+        LocalCoords(const SkRect& localRect)
+                : fType(Type::kRect)
+                , fRect(localRect) {}
+        LocalCoords(const SkMatrix& localMatrix)
+                : fType(Type::kMatrix)
+                , fMatrix(localMatrix) {}
+        Type fType;
+        union {
+            SkRect fRect;
+            SkMatrix fMatrix;
+        };
+    };
+
     struct Instance {
         Instance(const SkMatrix& viewMatrix, const SkRRect& rrect, const SkRect& localRect,
                  const SkPMColor4f& color)
-                : fViewMatrix(viewMatrix), fRRect(rrect), fLocalRect(localRect), fColor(color) {}
+                : fViewMatrix(viewMatrix), fRRect(rrect), fLocalCoords(localRect), fColor(color) {
+        }
         SkMatrix fViewMatrix;
         SkRRect fRRect;
-        SkRect fLocalRect;
+        LocalCoords fLocalCoords;
         SkPMColor4f fColor;
         Instance* fNext = nullptr;
     };
@@ -283,13 +299,16 @@ GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::v1::SurfaceDrawContext*
             return ClipResult::kFail;
         }
 
-        // Update the local rect.
-        auto rect = skvx::bit_pun<grvx::float4>(fHeadInstance->fRRect.rect());
-        auto local = skvx::bit_pun<grvx::float4>(fHeadInstance->fLocalRect);
-        auto isect = skvx::bit_pun<grvx::float4>(isectRRect.rect());
-        auto rectToLocalSize = (local - skvx::shuffle<2,3,0,1>(local)) /
-                               (rect - skvx::shuffle<2,3,0,1>(rect));
-        fHeadInstance->fLocalRect = skvx::bit_pun<SkRect>((isect - rect) * rectToLocalSize + local);
+        if (fHeadInstance->fLocalCoords.fType == LocalCoords::Type::kRect) {
+            // Update the local rect.
+            auto rect = skvx::bit_pun<grvx::float4>(fHeadInstance->fRRect.rect());
+            auto local = skvx::bit_pun<grvx::float4>(fHeadInstance->fLocalCoords.fRect);
+            auto isect = skvx::bit_pun<grvx::float4>(isectRRect.rect());
+            auto rectToLocalSize = (local - skvx::shuffle<2,3,0,1>(local)) /
+                                   (rect - skvx::shuffle<2,3,0,1>(rect));
+            fHeadInstance->fLocalCoords.fRect =
+                    skvx::bit_pun<SkRect>((isect - rect) * rectToLocalSize + local);
+        }
 
         // Update the round rect.
         fHeadInstance->fRRect = isectRRect;
@@ -357,16 +376,22 @@ private:
         this->setVertexAttributesWithImplicitOffsets(kVertexAttribs,
                                                      SK_ARRAY_COUNT(kVertexAttribs));
 
-        fInstanceAttribs.emplace_back("skew", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
-        fInstanceAttribs.emplace_back("translate", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
         fInstanceAttribs.emplace_back("radii_x", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         fInstanceAttribs.emplace_back("radii_y", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
+        fInstanceAttribs.emplace_back("skew", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
+        if (fFlags & ProcessorFlags::kHasLocalCoords) {
+            fInstanceAttribs.emplace_back("translate_and_localrotate",
+                                          kFloat4_GrVertexAttribType,
+                                          SkSLType::kFloat4);
+            fInstanceAttribs.emplace_back(
+                    "localrect", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
+        } else {
+            fInstanceAttribs.emplace_back("translate_and_localrotate",
+                                          kFloat2_GrVertexAttribType,
+                                          SkSLType::kFloat2);
+        }
         fColorAttrib = &fInstanceAttribs.push_back(
                 MakeColorAttribute("color", (fFlags & ProcessorFlags::kWideColor)));
-        if (fFlags & ProcessorFlags::kHasLocalCoords) {
-            fInstanceAttribs.emplace_back(
-                    "local_rect", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
-        }
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribs);
         this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.begin(),
                                                        fInstanceAttribs.count());
@@ -539,12 +564,27 @@ void FillRRectOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
             radiiX *= 2 / (r - l);
             radiiY *= 2 / (b - t);
 
-            instanceWriter << m.getScaleX() << m.getSkewX() << m.getSkewY() << m.getScaleY()
-                           << m.getTranslateX() << m.getTranslateY()
-                           << radiiX << radiiY
-                           << VertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor)
-                           << VertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
-                                               i->fLocalRect);
+            instanceWriter << radiiX << radiiY
+                           << m.getScaleX() << m.getSkewX() << m.getSkewY() << m.getScaleY()
+                           << m.getTranslateX() << m.getTranslateY();
+
+            if (fProcessorFlags & ProcessorFlags::kHasLocalCoords) {
+                if (i->fLocalCoords.fType == LocalCoords::Type::kRect) {
+                    instanceWriter << 0.f << 0.f  // localrotate
+                                   << i->fLocalCoords.fRect;  // localrect
+                } else {
+                    SkASSERT(i->fLocalCoords.fType == LocalCoords::Type::kMatrix);
+                    const SkRect& bounds = i->fRRect.rect();
+                    const SkMatrix& localMatrix = i->fLocalCoords.fMatrix;
+                    SkVector u = localMatrix.mapVector(bounds.right() - bounds.left(), 0);
+                    SkVector v = localMatrix.mapVector(0, bounds.bottom() - bounds.top());
+                    SkPoint l0 = localMatrix.mapPoint({bounds.left(), bounds.top()});
+                    instanceWriter << v.x() << u.y()  // localrotate
+                                   << l0 << (l0.x() + u.x()) << (l0.y() + v.y());  // localrect
+                }
+            }
+
+            instanceWriter << VertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor);
         }
         SkASSERT(instanceWriter.mark() == end);
     }
@@ -689,18 +729,21 @@ private:
         v->codeAppend(    "}");
         v->codeAppend("}");
 
-        // Write positions
-        GrShaderVar localCoord("", SkSLType::kFloat2);
-        if (proc.fFlags & ProcessorFlags::kHasLocalCoords) {
-            v->codeAppend("float2 localcoord = (local_rect.xy * (1 - vertexpos) + "
-                                               "local_rect.zw * (1 + vertexpos)) * .5;");
-            gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
-        }
-
         // Transform to device space.
         v->codeAppend("float2x2 skewmatrix = float2x2(skew.xy, skew.zw);");
-        v->codeAppend("float2 devcoord = vertexpos * skewmatrix + translate;");
+        v->codeAppend("float2 devcoord = vertexpos * skewmatrix + translate_and_localrotate.xy;");
         gpArgs->fPositionVar.set(SkSLType::kFloat2, "devcoord");
+
+        // Output local coordinates.
+        if (proc.fFlags & ProcessorFlags::kHasLocalCoords) {
+            // Do math in a way that preserves exact local coord boundaries when there is no local
+            // rotate and vertexpos is on an exact shape boundary.
+            v->codeAppend("float2 T = vertexpos * .5 + .5;");
+            v->codeAppend("float2 localcoord = localrect.xy * (1 - T) + "
+                                               "localrect.zw * T + "
+                                               "translate_and_localrotate.zw * T.yx;");
+            gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
+        }
 
         // Setup interpolants for coverage.
         GrGLSLVarying arcCoord(useHWDerivatives ? SkSLType::kFloat2 : SkSLType::kFloat4);
