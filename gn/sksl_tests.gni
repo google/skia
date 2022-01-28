@@ -128,6 +128,7 @@ sksl_error_tests = [
   "/sksl/errors/Ossfuzz40479.sksl",
   "/sksl/errors/Ossfuzz40660.sksl",
   "/sksl/errors/Ossfuzz44045.sksl",
+  "/sksl/errors/Ossfuzz44096.sksl",
   "/sksl/errors/OverflowFloatLiteral.sksl",
   "/sksl/errors/OverflowInlinedLiteral.sksl",
   "/sksl/errors/OverflowIntLiteral.sksl",
@@ -279,6 +280,7 @@ sksl_spirv_tests = [
   "/sksl/errors/LayoutInStruct.sksl",
   "/sksl/errors/Ossfuzz36850.sksl",
   "/sksl/errors/Ossfuzz37469.sksl",
+  "/sksl/errors/Ossfuzz44096.sksl",
   "/sksl/errors/UndefinedFunction.sksl",
   "/sksl/errors/UnusedInterfaceBlock.sksl",
 ]

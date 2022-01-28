@@ -3083,9 +3083,6 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
         SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
         return;
     }
-    if (var.modifiers().fLayout.fBuiltin == SK_SECONDARYFRAGCOLOR_BUILTIN) {
-        return;
-    }
     if (this->isDead(var)) {
         return;
     }
@@ -3095,13 +3092,20 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
         fTopLevelUniforms.push_back(&varDecl);
         return;
     }
+    // Add this global to the variable map.
     const Type& type = var.type();
+    SpvId id = this->nextId(&type);
+    fVariableMap[&var] = id;
+    if (var.modifiers().fLayout.fBuiltin == SK_SECONDARYFRAGCOLOR_BUILTIN) {
+        // sk_SecondaryFragColor corresponds to gl_SecondaryFragColorEXT, which isn't supposed to
+        // appear in a SPIR-V program (it's only valid in ES2). Report an error.
+        fContext.fErrors->error(varDecl.fLine, "sk_SecondaryFragColor is not allowed in SPIR-V");
+        return;
+    }
     Layout layout = var.modifiers().fLayout;
     if (layout.fSet < 0 && storageClass == SpvStorageClassUniformConstant) {
         layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
     }
-    SpvId id = this->nextId(&type);
-    fVariableMap[&var] = id;
     SpvId typeId = this->getPointerType(type, storageClass);
     this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
     this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
