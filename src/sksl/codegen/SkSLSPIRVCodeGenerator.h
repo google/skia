@@ -9,7 +9,6 @@
 #define SKSL_SPIRVCODEGENERATOR
 
 #include <stack>
-#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -475,7 +474,13 @@ private:
     uint64_t fCapabilities;
     SpvId fIdCount;
     SpvId fGLSLExtendedInstructions;
-    typedef std::tuple<IntrinsicOpcodeKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
+    struct Intrinsic {
+        IntrinsicOpcodeKind opKind;
+        int32_t floatOp;
+        int32_t signedOp;
+        int32_t unsignedOp;
+        int32_t boolOp;
+    };
     std::unordered_map<IntrinsicKind, Intrinsic> fIntrinsicMap;
     std::unordered_map<const FunctionDeclaration*, SpvId> fFunctionMap;
     std::unordered_map<const Variable*, SpvId> fVariableMap;

@@ -60,18 +60,22 @@ namespace SkSL {
 static const int32_t SKSL_MAGIC  = 0x001F0000;
 
 void SPIRVCodeGenerator::setupIntrinsics() {
-#define ALL_GLSL(x) std::make_tuple(kGLSL_STD_450_IntrinsicOpcodeKind, GLSLstd450 ## x, \
-                                    GLSLstd450 ## x, GLSLstd450 ## x, GLSLstd450 ## x)
-#define BY_TYPE_GLSL(ifFloat, ifInt, ifUInt) std::make_tuple(kGLSL_STD_450_IntrinsicOpcodeKind, \
-                                                             GLSLstd450 ## ifFloat,             \
-                                                             GLSLstd450 ## ifInt,               \
-                                                             GLSLstd450 ## ifUInt,              \
-                                                             SpvOpUndef)
-#define ALL_SPIRV(x) std::make_tuple(kSPIRV_IntrinsicOpcodeKind, \
-                                     SpvOp ## x, SpvOp ## x, SpvOp ## x, SpvOp ## x)
-#define SPECIAL(x) std::make_tuple(kSpecial_IntrinsicOpcodeKind, k ## x ## _SpecialIntrinsic, \
-                                   k ## x ## _SpecialIntrinsic, k ## x ## _SpecialIntrinsic,  \
-                                   k ## x ## _SpecialIntrinsic)
+#define ALL_GLSL(x) Intrinsic{kGLSL_STD_450_IntrinsicOpcodeKind, GLSLstd450 ## x, \
+                              GLSLstd450 ## x, GLSLstd450 ## x, GLSLstd450 ## x}
+#define BY_TYPE_GLSL(ifFloat, ifInt, ifUInt) Intrinsic{kGLSL_STD_450_IntrinsicOpcodeKind, \
+                                                       GLSLstd450 ## ifFloat,             \
+                                                       GLSLstd450 ## ifInt,               \
+                                                       GLSLstd450 ## ifUInt,              \
+                                                       SpvOpUndef}
+#define ALL_SPIRV(x) Intrinsic{kSPIRV_IntrinsicOpcodeKind, \
+                               SpvOp ## x, SpvOp ## x, SpvOp ## x, SpvOp ## x}
+#define BOOL_SPIRV(x) Intrinsic{kSPIRV_IntrinsicOpcodeKind, \
+                                SpvOpUndef, SpvOpUndef, SpvOpUndef, SpvOp ## x}
+#define FLOAT_SPIRV(x) Intrinsic{kSPIRV_IntrinsicOpcodeKind, \
+                                 SpvOp ## x, SpvOpUndef, SpvOpUndef, SpvOpUndef}
+#define SPECIAL(x) Intrinsic{kSpecial_IntrinsicOpcodeKind, k ## x ## _SpecialIntrinsic, \
+                             k ## x ## _SpecialIntrinsic, k ## x ## _SpecialIntrinsic,  \
+                             k ## x ## _SpecialIntrinsic}
     fIntrinsicMap[k_round_IntrinsicKind]         = ALL_GLSL(Round);
     fIntrinsicMap[k_roundEven_IntrinsicKind]     = ALL_GLSL(RoundEven);
     fIntrinsicMap[k_trunc_IntrinsicKind]         = ALL_GLSL(Trunc);
@@ -115,8 +119,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[k_max_IntrinsicKind]           = SPECIAL(Max);
     fIntrinsicMap[k_clamp_IntrinsicKind]         = SPECIAL(Clamp);
     fIntrinsicMap[k_saturate_IntrinsicKind]      = SPECIAL(Saturate);
-    fIntrinsicMap[k_dot_IntrinsicKind]           = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                      SpvOpDot, SpvOpUndef, SpvOpUndef, SpvOpUndef);
+    fIntrinsicMap[k_dot_IntrinsicKind]           = FLOAT_SPIRV(Dot);
     fIntrinsicMap[k_mix_IntrinsicKind]           = SPECIAL(Mix);
     fIntrinsicMap[k_step_IntrinsicKind]          = SPECIAL(Step);
     fIntrinsicMap[k_smoothstep_IntrinsicKind]    = SPECIAL(SmoothStep);
@@ -143,59 +146,49 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[k_bitCount_IntrinsicKind]    = ALL_SPIRV(BitCount);
     fIntrinsicMap[k_findLSB_IntrinsicKind]     = ALL_GLSL(FindILsb);
     fIntrinsicMap[k_findMSB_IntrinsicKind]     = BY_TYPE_GLSL(FindSMsb, FindSMsb, FindUMsb);
-    fIntrinsicMap[k_dFdx_IntrinsicKind]        = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                 SpvOpDPdx, SpvOpUndef,
-                                                                 SpvOpUndef, SpvOpUndef);
+    fIntrinsicMap[k_dFdx_IntrinsicKind]        = FLOAT_SPIRV(DPdx);
     fIntrinsicMap[k_dFdy_IntrinsicKind]        = SPECIAL(DFdy);
-    fIntrinsicMap[k_fwidth_IntrinsicKind]      = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                 SpvOpFwidth, SpvOpUndef,
-                                                                 SpvOpUndef, SpvOpUndef);
+    fIntrinsicMap[k_fwidth_IntrinsicKind]      = FLOAT_SPIRV(Fwidth);
     fIntrinsicMap[k_makeSampler2D_IntrinsicKind] = SPECIAL(SampledImage);
 
     fIntrinsicMap[k_sample_IntrinsicKind]      = SPECIAL(Texture);
     fIntrinsicMap[k_subpassLoad_IntrinsicKind] = SPECIAL(SubpassLoad);
 
-    fIntrinsicMap[k_floatBitsToInt_IntrinsicKind]  = ALL_SPIRV(Bitcast);
-    fIntrinsicMap[k_floatBitsToUint_IntrinsicKind] = ALL_SPIRV(Bitcast);
-    fIntrinsicMap[k_intBitsToFloat_IntrinsicKind]  = ALL_SPIRV(Bitcast);
-    fIntrinsicMap[k_uintBitsToFloat_IntrinsicKind] = ALL_SPIRV(Bitcast);
+    fIntrinsicMap[k_floatBitsToInt_IntrinsicKind]   = ALL_SPIRV(Bitcast);
+    fIntrinsicMap[k_floatBitsToUint_IntrinsicKind]  = ALL_SPIRV(Bitcast);
+    fIntrinsicMap[k_intBitsToFloat_IntrinsicKind]   = ALL_SPIRV(Bitcast);
+    fIntrinsicMap[k_uintBitsToFloat_IntrinsicKind]  = ALL_SPIRV(Bitcast);
 
-    fIntrinsicMap[k_any_IntrinsicKind]        = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpUndef, SpvOpUndef,
-                                                                SpvOpUndef, SpvOpAny);
-    fIntrinsicMap[k_all_IntrinsicKind]        = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpUndef, SpvOpUndef,
-                                                                SpvOpUndef, SpvOpAll);
-    fIntrinsicMap[k_not_IntrinsicKind]        = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                SpvOpUndef, SpvOpUndef, SpvOpUndef,
-                                                                SpvOpLogicalNot);
-    fIntrinsicMap[k_equal_IntrinsicKind]      = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
+    fIntrinsicMap[k_any_IntrinsicKind]              = BOOL_SPIRV(Any);
+    fIntrinsicMap[k_all_IntrinsicKind]              = BOOL_SPIRV(All);
+    fIntrinsicMap[k_not_IntrinsicKind]              = BOOL_SPIRV(LogicalNot);
+    fIntrinsicMap[k_equal_IntrinsicKind]            = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
                                                                 SpvOpFOrdEqual, SpvOpIEqual,
-                                                                SpvOpIEqual, SpvOpLogicalEqual);
-    fIntrinsicMap[k_notEqual_IntrinsicKind]   = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
+                                                                SpvOpIEqual, SpvOpLogicalEqual};
+    fIntrinsicMap[k_notEqual_IntrinsicKind]         = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
                                                                 SpvOpFOrdNotEqual, SpvOpINotEqual,
                                                                 SpvOpINotEqual,
-                                                                SpvOpLogicalNotEqual);
-    fIntrinsicMap[k_lessThan_IntrinsicKind]         = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                      SpvOpFOrdLessThan,
-                                                                      SpvOpSLessThan,
-                                                                      SpvOpULessThan,
-                                                                      SpvOpUndef);
-    fIntrinsicMap[k_lessThanEqual_IntrinsicKind]    = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                      SpvOpFOrdLessThanEqual,
-                                                                      SpvOpSLessThanEqual,
-                                                                      SpvOpULessThanEqual,
-                                                                      SpvOpUndef);
-    fIntrinsicMap[k_greaterThan_IntrinsicKind]      = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                      SpvOpFOrdGreaterThan,
-                                                                      SpvOpSGreaterThan,
-                                                                      SpvOpUGreaterThan,
-                                                                      SpvOpUndef);
-    fIntrinsicMap[k_greaterThanEqual_IntrinsicKind] = std::make_tuple(kSPIRV_IntrinsicOpcodeKind,
-                                                                      SpvOpFOrdGreaterThanEqual,
-                                                                      SpvOpSGreaterThanEqual,
-                                                                      SpvOpUGreaterThanEqual,
-                                                                      SpvOpUndef);
+                                                                SpvOpLogicalNotEqual};
+    fIntrinsicMap[k_lessThan_IntrinsicKind]         = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                                                                SpvOpFOrdLessThan,
+                                                                SpvOpSLessThan,
+                                                                SpvOpULessThan,
+                                                                SpvOpUndef};
+    fIntrinsicMap[k_lessThanEqual_IntrinsicKind]    = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                                                                SpvOpFOrdLessThanEqual,
+                                                                SpvOpSLessThanEqual,
+                                                                SpvOpULessThanEqual,
+                                                                SpvOpUndef};
+    fIntrinsicMap[k_greaterThan_IntrinsicKind]      = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                                                                SpvOpFOrdGreaterThan,
+                                                                SpvOpSGreaterThan,
+                                                                SpvOpUGreaterThan,
+                                                                SpvOpUndef};
+    fIntrinsicMap[k_greaterThanEqual_IntrinsicKind] = Intrinsic{kSPIRV_IntrinsicOpcodeKind,
+                                                                SpvOpFOrdGreaterThanEqual,
+                                                                SpvOpSGreaterThanEqual,
+                                                                SpvOpUGreaterThanEqual,
+                                                                SpvOpUndef};
 // interpolateAt* not yet supported...
 }
 
@@ -810,31 +803,27 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
 
 SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream& out) {
     const FunctionDeclaration& function = c.function();
-    auto intrinsic = fIntrinsicMap.find(function.intrinsicKind());
-    if (intrinsic == fIntrinsicMap.end()) {
+    auto iter = fIntrinsicMap.find(function.intrinsicKind());
+    if (iter == fIntrinsicMap.end()) {
         fContext.fErrors->error(c.fLine, "unsupported intrinsic '" + function.description() + "'");
         return -1;
     }
-    int32_t intrinsicId;
     const ExpressionArray& arguments = c.arguments();
+    const Intrinsic& intrinsic = iter->second;
+    int32_t intrinsicId = intrinsic.floatOp;
     if (arguments.size() > 0) {
         const Type& type = arguments[0]->type();
-        if (std::get<0>(intrinsic->second) == kSpecial_IntrinsicOpcodeKind ||
-            is_float(fContext, type)) {
-            intrinsicId = std::get<1>(intrinsic->second);
+        if (intrinsic.opKind == kSpecial_IntrinsicOpcodeKind || is_float(fContext, type)) {
+            // Keep the default float op.
         } else if (is_signed(fContext, type)) {
-            intrinsicId = std::get<2>(intrinsic->second);
+            intrinsicId = intrinsic.signedOp;
         } else if (is_unsigned(fContext, type)) {
-            intrinsicId = std::get<3>(intrinsic->second);
+            intrinsicId = intrinsic.unsignedOp;
         } else if (is_bool(fContext, type)) {
-            intrinsicId = std::get<4>(intrinsic->second);
-        } else {
-            intrinsicId = std::get<1>(intrinsic->second);
+            intrinsicId = intrinsic.boolOp;
         }
-    } else {
-        intrinsicId = std::get<1>(intrinsic->second);
     }
-    switch (std::get<0>(intrinsic->second)) {
+    switch (intrinsic.opKind) {
         case kGLSL_STD_450_IntrinsicOpcodeKind: {
             SpvId result = this->nextId(&c.type());
             std::vector<SpvId> argumentIds;
