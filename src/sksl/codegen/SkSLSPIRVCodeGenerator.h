@@ -230,8 +230,8 @@ private:
 
     SpvId writeIntrinsicCall(const FunctionCall& c, OutputStream& out);
 
-    SpvId writeFunctionCallArgument(const Expression& arg,
-                                    const Modifiers& paramModifiers,
+    SpvId writeFunctionCallArgument(const FunctionCall& call,
+                                    int argIndex,
                                     std::vector<TempVar>* tempVars,
                                     OutputStream& out);
 

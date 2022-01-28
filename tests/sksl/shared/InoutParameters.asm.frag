@@ -24,11 +24,26 @@ OpDecorate %_UniformBuffer Block
 OpDecorate %14 Binding 0
 OpDecorate %14 DescriptorSet 0
 OpDecorate %35 RelaxedPrecision
-OpDecorate %41 RelaxedPrecision
-OpDecorate %42 RelaxedPrecision
+OpDecorate %38 RelaxedPrecision
+OpDecorate %40 RelaxedPrecision
 OpDecorate %43 RelaxedPrecision
+OpDecorate %44 RelaxedPrecision
+OpDecorate %45 RelaxedPrecision
+OpDecorate %48 RelaxedPrecision
+OpDecorate %49 RelaxedPrecision
+OpDecorate %51 RelaxedPrecision
 OpDecorate %c RelaxedPrecision
 OpDecorate %56 RelaxedPrecision
+OpDecorate %58 RelaxedPrecision
+OpDecorate %59 RelaxedPrecision
+OpDecorate %61 RelaxedPrecision
+OpDecorate %62 RelaxedPrecision
+OpDecorate %63 RelaxedPrecision
+OpDecorate %65 RelaxedPrecision
+OpDecorate %66 RelaxedPrecision
+OpDecorate %67 RelaxedPrecision
+OpDecorate %69 RelaxedPrecision
+OpDecorate %71 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -50,7 +65,7 @@ OpDecorate %56 RelaxedPrecision
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
-%47 = OpTypeFunction %v4float %_ptr_Function_v2float
+%52 = OpTypeFunction %v4float %_ptr_Function_v2float
 %false = OpConstantFalse %bool
 %_entrypoint_v = OpFunction %void None %19
 %20 = OpLabel
@@ -71,32 +86,56 @@ OpFunctionEnd
 %outParameterWriteIndirect_vh4 = OpFunction %void None %27
 %36 = OpFunctionParameter %_ptr_Function_v4float
 %37 = OpLabel
-%38 = OpFunctionCall %void %outParameterWrite_vh4 %36
+%38 = OpVariable %_ptr_Function_v4float Function
+%39 = OpFunctionCall %void %outParameterWrite_vh4 %38
+%40 = OpLoad %v4float %38
+OpStore %36 %40
 OpReturn
 OpFunctionEnd
 %inoutParameterWrite_vh4 = OpFunction %void None %27
-%39 = OpFunctionParameter %_ptr_Function_v4float
-%40 = OpLabel
-%41 = OpLoad %v4float %39
-%42 = OpLoad %v4float %39
-%43 = OpFMul %v4float %41 %42
-OpStore %39 %43
+%41 = OpFunctionParameter %_ptr_Function_v4float
+%42 = OpLabel
+%43 = OpLoad %v4float %41
+%44 = OpLoad %v4float %41
+%45 = OpFMul %v4float %43 %44
+OpStore %41 %45
 OpReturn
 OpFunctionEnd
 %inoutParameterWriteIndirect_vh4 = OpFunction %void None %27
-%44 = OpFunctionParameter %_ptr_Function_v4float
-%45 = OpLabel
-%46 = OpFunctionCall %void %inoutParameterWrite_vh4 %44
+%46 = OpFunctionParameter %_ptr_Function_v4float
+%47 = OpLabel
+%49 = OpVariable %_ptr_Function_v4float Function
+%48 = OpLoad %v4float %46
+OpStore %49 %48
+%50 = OpFunctionCall %void %inoutParameterWrite_vh4 %49
+%51 = OpLoad %v4float %49
+OpStore %46 %51
 OpReturn
 OpFunctionEnd
-%main = OpFunction %v4float None %47
-%48 = OpFunctionParameter %_ptr_Function_v2float
-%49 = OpLabel
+%main = OpFunction %v4float None %52
+%53 = OpFunctionParameter %_ptr_Function_v2float
+%54 = OpLabel
 %c = OpVariable %_ptr_Function_v4float Function
-%51 = OpFunctionCall %void %outParameterWrite_vh4 %c
-%52 = OpFunctionCall %void %outParameterWriteIndirect_vh4 %c
-%53 = OpFunctionCall %void %inoutParameterWrite_vh4 %c
-%54 = OpFunctionCall %void %inoutParameterWriteIndirect_vh4 %c
-%56 = OpLoad %v4float %c
-OpReturnValue %56
+%56 = OpVariable %_ptr_Function_v4float Function
+%59 = OpVariable %_ptr_Function_v4float Function
+%63 = OpVariable %_ptr_Function_v4float Function
+%67 = OpVariable %_ptr_Function_v4float Function
+%57 = OpFunctionCall %void %outParameterWrite_vh4 %56
+%58 = OpLoad %v4float %56
+OpStore %c %58
+%60 = OpFunctionCall %void %outParameterWriteIndirect_vh4 %59
+%61 = OpLoad %v4float %59
+OpStore %c %61
+%62 = OpLoad %v4float %c
+OpStore %63 %62
+%64 = OpFunctionCall %void %inoutParameterWrite_vh4 %63
+%65 = OpLoad %v4float %63
+OpStore %c %65
+%66 = OpLoad %v4float %c
+OpStore %67 %66
+%68 = OpFunctionCall %void %inoutParameterWriteIndirect_vh4 %67
+%69 = OpLoad %v4float %67
+OpStore %c %69
+%71 = OpLoad %v4float %c
+OpReturnValue %71
 OpFunctionEnd

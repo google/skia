@@ -830,15 +830,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             std::vector<TempVar> tempVars;
             argumentIds.reserve(arguments.size());
             for (size_t i = 0; i < arguments.size(); i++) {
-                if (is_out(function.parameters()[i]->modifiers())) {
-                    argumentIds.push_back(
-                            this->writeFunctionCallArgument(*arguments[i],
-                                                            function.parameters()[i]->modifiers(),
-                                                            &tempVars,
-                                                            out));
-                } else {
-                    argumentIds.push_back(this->writeExpression(*arguments[i], out));
-                }
+                argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
             }
             this->writeOpCode(SpvOpExtInst, 5 + (int32_t) argumentIds.size(), out);
             this->writeWord(this->getType(c.type()), out);
@@ -861,15 +853,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             std::vector<TempVar> tempVars;
             argumentIds.reserve(arguments.size());
             for (size_t i = 0; i < arguments.size(); i++) {
-                if (is_out(function.parameters()[i]->modifiers())) {
-                    argumentIds.push_back(
-                            this->writeFunctionCallArgument(*arguments[i],
-                                                            function.parameters()[i]->modifiers(),
-                                                            &tempVars,
-                                                            out));
-                } else {
-                    argumentIds.push_back(this->writeExpression(*arguments[i], out));
-                }
+                argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
             }
             if (!c.type().isVoid()) {
                 this->writeOpCode((SpvOp_) intrinsicId, 3 + (int32_t) arguments.size(), out);
@@ -1185,10 +1169,14 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const Expression& arg,
-                                                    const Modifiers& paramModifiers,
+SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const FunctionCall& call,
+                                                    int argIndex,
                                                     std::vector<TempVar>* tempVars,
                                                     OutputStream& out) {
+    const FunctionDeclaration& funcDecl = call.function();
+    const Expression& arg = *call.arguments()[argIndex];
+    const Modifiers& paramModifiers = funcDecl.parameters()[argIndex]->modifiers();
+
     // ID of temporary variable that we will use to hold this argument, or 0 if it is being
     // passed directly
     SpvId tmpVar;
@@ -1197,20 +1185,21 @@ SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const Expression& arg,
 
     if (is_out(paramModifiers)) {
         std::unique_ptr<LValue> lv = this->getLValue(arg, out);
-        SpvId ptr = lv->getPointer();
-        if (ptr != (SpvId) -1 && lv->isMemoryObjectPointer()) {
-            return ptr;
-        }
-
-        // lvalue cannot simply be read and written via a pointer (e.g. it's a swizzle). We need to
-        // to use a temp variable.
+        // We handle out params with a temp var that we copy back to the original variable at the
+        // end of the call. GLSL guarantees that the original variable will be unchanged until the
+        // end of the call, and also that out params are written back to their original variables in
+        // a specific order (left-to-right), so it's unsafe to pass a pointer to the original value.
         if (is_in(paramModifiers)) {
             tmpValueId = lv->load(out);
         }
         tmpVar = this->nextId(&arg.type());
         tempVars->push_back(TempVar{tmpVar, &arg.type(), std::move(lv)});
+    } else if (funcDecl.isIntrinsic()) {
+        // Unlike user function calls, non-out intrinsic arguments don't need pointer parameters.
+        return this->writeExpression(arg, out);
     } else {
-        // See getFunctionType for an explanation of why we're always using pointer parameters.
+        // We always use pointer parameters when calling user functions.
+        // See getFunctionType for further explanation.
         tmpValueId = this->writeExpression(arg, out);
         tmpVar = this->nextId(nullptr);
     }
@@ -1250,10 +1239,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     std::vector<SpvId> argumentIds;
     argumentIds.reserve(arguments.size());
     for (size_t i = 0; i < arguments.size(); i++) {
-        argumentIds.push_back(this->writeFunctionCallArgument(*arguments[i],
-                                                              function.parameters()[i]->modifiers(),
-                                                              &tempVars,
-                                                              out));
+        argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
     }
     SpvId result = this->nextId(nullptr);
     this->writeOpCode(SpvOpFunctionCall, 4 + (int32_t) arguments.size(), out);
