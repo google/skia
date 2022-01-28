@@ -23,6 +23,7 @@ class Buffer;
 class Gpu;
 class GraphicsPipeline;
 class Resource;
+class Sampler;
 class Texture;
 class TextureProxy;
 
@@ -81,6 +82,18 @@ public:
     void bindDrawBuffers(BindBufferInfo vertices,
                          BindBufferInfo instances,
                          BindBufferInfo indices) final;
+
+    struct TextureBindEntry {
+        sk_sp<Texture> fTexture;
+        unsigned int   fBindIndex;
+    };
+    void bindTextures(const TextureBindEntry* entries, int count);
+
+    struct SamplerBindEntry {
+        sk_sp<Sampler> fSampler;
+        unsigned int   fBindIndex;
+    };
+    void bindSamplers(const SamplerBindEntry* entries, int count);
 
     // TODO: do we want to handle multiple scissor rects and viewports?
     void setScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height) {
@@ -155,6 +168,9 @@ private:
     virtual void onBindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
                                      const Buffer* instanceBuffer, size_t instanceOffset) = 0;
     virtual void onBindIndexBuffer(const Buffer* indexBuffer, size_t bufferOffset) = 0;
+
+    virtual void onBindTextures(const TextureBindEntry* entries, int count) = 0;
+    virtual void onBindSamplers(const SamplerBindEntry* entries, int count) = 0;
 
     virtual void onSetScissor(unsigned int left, unsigned int top,
                               unsigned int width, unsigned int height) = 0;

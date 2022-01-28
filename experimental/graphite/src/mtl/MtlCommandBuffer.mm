@@ -15,6 +15,7 @@
 #include "experimental/graphite/src/mtl/MtlGpu.h"
 #include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 #include "experimental/graphite/src/mtl/MtlRenderCommandEncoder.h"
+#include "experimental/graphite/src/mtl/MtlSampler.h"
 #include "experimental/graphite/src/mtl/MtlTexture.h"
 #include "experimental/graphite/src/mtl/MtlUtils.h"
 
@@ -274,6 +275,22 @@ void CommandBuffer::onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t o
     } else {
         fCurrentIndexBuffer = nil;
         fCurrentIndexBufferOffset = 0;
+    }
+}
+
+void CommandBuffer::onBindTextures(const TextureBindEntry* entries, int count) {
+    for (int i = 0; i < count; ++i) {
+        SkASSERT(entries[i].fTexture);
+        id<MTLTexture> texture = ((Texture*)entries[i].fTexture.get())->mtlTexture();
+        fActiveRenderCommandEncoder->setFragmentTexture(texture, entries[i].fBindIndex);
+    }
+}
+
+void CommandBuffer::onBindSamplers(const SamplerBindEntry* entries, int count) {
+    for (int i = 0; i < count; ++i) {
+        SkASSERT(entries[i].fSampler);
+        id<MTLSamplerState> samplerState = ((Sampler*)entries[i].fSampler.get())->mtlSamplerState();
+        fActiveRenderCommandEncoder->setFragmentSamplerState(samplerState, entries[i].fBindIndex);
     }
 }
 

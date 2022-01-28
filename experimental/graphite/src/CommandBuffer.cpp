@@ -11,6 +11,7 @@
 #include "src/core/SkTraceEvent.h"
 
 #include "experimental/graphite/src/Buffer.h"
+#include "experimental/graphite/src/Sampler.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
 
@@ -98,6 +99,22 @@ void CommandBuffer::bindDrawBuffers(BindBufferInfo vertices,
     this->bindVertexBuffers(sk_ref_sp(vertices.fBuffer), vertices.fOffset,
                             sk_ref_sp(instances.fBuffer), instances.fOffset);
     this->bindIndexBuffer(sk_ref_sp(indices.fBuffer), indices.fOffset);
+}
+
+void CommandBuffer::bindTextures(const TextureBindEntry* entries, int count) {
+    this->onBindTextures(entries, count);
+    for (int i = 0; i < count; ++i) {
+        SkASSERT(entries[i].fTexture);
+        this->trackResource(entries[i].fTexture);
+    }
+}
+
+void CommandBuffer::bindSamplers(const SamplerBindEntry* entries, int count) {
+    this->onBindSamplers(entries, count);
+    for (int i = 0; i < count; ++i) {
+        SkASSERT(entries[i].fSampler);
+        this->trackResource(entries[i].fSampler);
+    }
 }
 
 static bool check_max_blit_width(int widthInPixels) {
