@@ -12,6 +12,8 @@
 #ifndef SK_GPU_TOOLS_VK_LIBRARY_NAME
     #if defined _WIN32
         #define SK_GPU_TOOLS_VK_LIBRARY_NAME vulkan-1.dll
+    #elif defined SK_BUILD_FOR_MAC
+        #define SK_GPU_TOOLS_VK_LIBRARY_NAME libvk_swiftshader.dylib
     #else
         #define SK_GPU_TOOLS_VK_LIBRARY_NAME libvulkan.so
     #endif
