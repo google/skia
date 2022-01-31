@@ -2161,16 +2161,25 @@ DEF_TEST(SkVM_approx_math, r) {
         const float expected[] = {0, 0.03125f, 0.25f, 0.5f, 1, 2, 4, 8, 32, INFINITY};
         compare(N, values, expected);
     }
-
-    // powf -- x^0.5
+    // powf -- 1^x
     {
-        float bases[] = {0, 1, 4, 9, 16};
-        constexpr int N = SK_ARRAY_COUNT(bases);
-        eval(N, bases, [](skvm::Builder* b, skvm::F32 base) {
-            return b->approx_powf(base, b->splat(0.5f));
+        float exps[] = {-2, -1, 0, 1, 2};
+        constexpr int N = SK_ARRAY_COUNT(exps);
+        eval(N, exps, [](skvm::Builder* b, skvm::F32 exp) {
+            return b->approx_powf(b->splat(1.0f), exp);
         });
-        const float expected[] = {0, 1, 2, 3, 4};
-        compare(N, bases, expected);
+        const float expected[] = {1, 1, 1, 1, 1};
+        compare(N, exps, expected);
+    }
+    // powf -- 2^x
+    {
+        float exps[] = {-80, -5, -2, -1, 0, 1, 2, 3, 5, 160};
+        constexpr int N = SK_ARRAY_COUNT(exps);
+        eval(N, exps, [](skvm::Builder* b, skvm::F32 exp) {
+            return b->approx_powf(2.0, exp);
+        });
+        const float expected[] = {0, 0.03125f, 0.25f, 0.5f, 1, 2, 4, 8, 32, INFINITY};
+        compare(N, exps, expected);
     }
     // powf -- 3^x
     {
@@ -2181,6 +2190,36 @@ DEF_TEST(SkVM_approx_math, r) {
         });
         const float expected[] = {1/9.0f, 1/3.0f, 1, 3, 9};
         compare(N, exps, expected);
+    }
+    // powf -- x^0.5
+    {
+        float bases[] = {0, 1, 4, 9, 16};
+        constexpr int N = SK_ARRAY_COUNT(bases);
+        eval(N, bases, [](skvm::Builder* b, skvm::F32 base) {
+            return b->approx_powf(base, b->splat(0.5f));
+        });
+        const float expected[] = {0, 1, 2, 3, 4};
+        compare(N, bases, expected);
+    }
+    // powf -- x^1
+    {
+        float bases[] = {0, 1, 2, 3, 4};
+        constexpr int N = SK_ARRAY_COUNT(bases);
+        eval(N, bases, [](skvm::Builder* b, skvm::F32 base) {
+            return b->approx_powf(base, b->splat(1.0f));
+        });
+        const float expected[] = {0, 1, 2, 3, 4};
+        compare(N, bases, expected);
+    }
+    // powf -- x^2
+    {
+        float bases[] = {0, 1, 2, 3, 4};
+        constexpr int N = SK_ARRAY_COUNT(bases);
+        eval(N, bases, [](skvm::Builder* b, skvm::F32 base) {
+            return b->approx_powf(base, b->splat(2.0f));
+        });
+        const float expected[] = {0, 1, 4, 9, 16};
+        compare(N, bases, expected);
     }
 
     auto test = [r](float arg, float expected, float tolerance, auto prog) {

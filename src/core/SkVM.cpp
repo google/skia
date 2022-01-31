@@ -863,6 +863,12 @@ namespace skvm {
         // TODO: assert this instead?  Sometimes x is very slightly negative.  See skia:10210.
         x = max(0.0f, x);
 
+        if (this->isImm(x.id, 1.0f)) { return x; }                    // 1^y is one
+        if (this->isImm(x.id, 2.0f)) { return this->approx_pow2(y); } // 2^y is pow2(y)
+        if (this->isImm(y.id, 0.5f)) { return this->sqrt(x); }        // x^0.5 is sqrt(x)
+        if (this->isImm(y.id, 1.0f)) { return x; }                    // x^1 is x
+        if (this->isImm(y.id, 2.0f)) { return x * x; }                // x^2 is x*x
+
         auto is_x = bit_or(eq(x, 0.0f),
                            eq(x, 1.0f));
         return select(is_x, x, approx_pow2(mul(approx_log2(x), y)));
