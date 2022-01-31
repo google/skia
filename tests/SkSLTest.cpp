@@ -246,7 +246,6 @@ SKSL_TEST(SkSLTrivialArgumentsInlineDirectly,     "inliner/TrivialArgumentsInlin
 SKSL_TEST_ES3(SkSLWhileBodyMustBeInlinedIntoAScope,
          "inliner/WhileBodyMustBeInlinedIntoAScope.sksl")
 SKSL_TEST_ES3(SkSLWhileTestCannotBeInlined,       "inliner/WhileTestCannotBeInlined.sksl")
-SKSL_TEST(SkSLInlinerHonorsGLSLOutParamSemantics, "inliner/InlinerHonorsGLSLOutParamSemantics.sksl")
 
 SKSL_TEST(SkSLIntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
 SKSL_TEST(SkSLIntrinsicCeil,                   "intrinsics/Ceil.sksl")
@@ -341,7 +340,7 @@ SKSL_TEST(SkSLOperatorsES2,                    "shared/OperatorsES2.sksl")
 SKSL_TEST_ES3(SkSLOperatorsES3,                "shared/OperatorsES3.sksl")
 SKSL_TEST(SkSLOssfuzz36852,                    "shared/Ossfuzz36852.sksl")
 SKSL_TEST(SkSLOutParams,                       "shared/OutParams.sksl")
-SKSL_TEST(SkSLOutParamsNoInline,               "shared/OutParamsNoInline.sksl")
+SKSL_TEST(SkSLOutParamsAreDistinct,            "shared/OutParamsAreDistinct.sksl")
 SKSL_TEST(SkSLOutParamsTricky,                 "shared/OutParamsTricky.sksl")
 SKSL_TEST(SkSLResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST_ES3(SkSLResizeMatrixNonsquare,       "shared/ResizeMatrixNonsquare.sksl")

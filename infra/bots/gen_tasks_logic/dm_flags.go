@@ -994,6 +994,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLVectorScalarMath_GPU") // skia:11919
     }
 
+    if b.gpu("PowerVRGE8320") {
+		skip("_", "tests", "_", "SkSLOutParamsAreDistinct_GPU")
+    }
+
 	if !b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X") || b.gpu("RadeonHD7770")) {
 		// Some AMD GPUs can get the wrong result when assembling non-square matrices (skia:12443)
 		skip("_", "tests", "_", "SkSLMatrixConstructorsES3_GPU")
