@@ -87,18 +87,21 @@
         return surface;
       }
 
-      CanvasKit.MakeRenderTarget = function(grCtx, w, h) {
-        var surface = this._MakeRenderTargetWH(grCtx, w, h);
-        if (!surface) {
-          return null;
-        }
-        surface._context = grCtx._context;
-        return surface;
-      }
-
-      CanvasKit.MakeRenderTarget = function(grCtx, imageInfo) {
-        var surface = this._MakeRenderTargetII(grCtx, imageInfo);
-        if (!surface) {
+      CanvasKit.MakeRenderTarget = function() {
+        var grCtx = arguments[0];
+        var surface;
+        if (arguments.length === 3) {
+          surface = this._MakeRenderTargetWH(grCtx, arguments[1], arguments[2]);
+          if (!surface) {
+            return null;
+          }
+        } else if (arguments.length === 2) {
+          surface = this._MakeRenderTargetII(grCtx, arguments[1]);
+          if (!surface) {
+            return null;
+          }
+        } else {
+          Debug('Expected 2 or 3 params');
           return null;
         }
         surface._context = grCtx._context;

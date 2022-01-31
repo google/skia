@@ -1488,4 +1488,18 @@ describe('Core canvas behavior', () => {
         expect(img).toBeTruthy('Could not decode result from '+ format);
         img && img.delete();
     }
+
+    it('can make a render target', () => {
+        if (!CanvasKit.gpu) {
+            return;
+        }
+        const canvas = document.getElementById('test');
+        const context = CanvasKit.GetWebGLContext(canvas);
+        const grContext = CanvasKit.MakeGrContext(context);
+        expect(grContext).toBeTruthy();
+        const target = CanvasKit.MakeRenderTarget(grContext, 100, 100);
+        expect(target).toBeTruthy();
+        target.delete();
+        grContext.delete();
+    })
 });

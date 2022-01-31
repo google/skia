@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Supplying textures via `Surface.makeImageFromTextureSource` should not cause issues with
    Mipmaps or other places where Skia needs to create textures (skbug.com/12797)
+ - `CanvasKit.MakeRenderTarget` correctly takes 2 or 3 params, as per the documentation.
 
 ## [0.32.0] - 2021-12-15
 
