@@ -223,7 +223,7 @@ generated_cc_atom(
     hdrs = ["GrGLSL.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/private:GrTypesPriv_hdr",
+        "//src/core:SkSLTypeShared_hdr",
         "//src/sksl:SkSLGLSL_hdr",
     ],
 )

@@ -5,7 +5,6 @@ generated_cc_atom(
     srcs = ["StencilAndFillPathRenderer.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//experimental/graphite/src:ContextUtils_hdr",
         "//experimental/graphite/src:DrawWriter_hdr",
         "//experimental/graphite/src:Renderer_hdr",
         "//experimental/graphite/src:UniformManager_hdr",
@@ -13,6 +12,7 @@ generated_cc_atom(
         "//experimental/graphite/src/geom:Transform_graphite_hdr",
         "//include/core:SkPathTypes_hdr",
         "//include/core:SkRect_hdr",
+        "//src/core:SkUniformData_hdr",
         "//src/gpu:BufferWriter_hdr",
         "//src/gpu/tessellate:MiddleOutPolygonTriangulator_hdr",
     ],

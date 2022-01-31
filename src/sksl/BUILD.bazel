@@ -39,6 +39,7 @@ cc_library(
         ":SkSLUtil_src",
         "//src/sksl/analysis:SkSLCanExitWithoutReturningValue_src",
         "//src/sksl/analysis:SkSLCheckProgramUnrolledSize_src",
+        "//src/sksl/analysis:SkSLFinalizationChecks_src",
         "//src/sksl/analysis:SkSLGetLoopUnrollInfo_src",
         "//src/sksl/analysis:SkSLIsConstantExpression_src",
         "//src/sksl/analysis:SkSLProgramUsage_src",
@@ -399,6 +400,7 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLFunctionCall_hdr",
         "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLFunctionPrototype_hdr",
         "//src/sksl/ir:SkSLIfStatement_hdr",
         "//src/sksl/ir:SkSLIndexExpression_hdr",
         "//src/sksl/ir:SkSLInlineMarker_hdr",
@@ -545,6 +547,7 @@ generated_cc_atom(
         ":SkSLUtil_hdr",
         "//include/core:SkGraphics_hdr",
         "//include/core:SkStream_hdr",
+        "//include/private:SkTOptional_hdr",
         "//src/core:SkCpu_hdr",
         "//src/core:SkOpts_hdr",
         "//src/opts:SkChecksum_opts_hdr",
@@ -606,6 +609,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLLexer_hdr",
+        "//include/core:SkStringView_hdr",
         "//include/private:SkSLDefines_hdr",
     ],
 )
@@ -717,11 +721,13 @@ generated_cc_atom(
         "//src/sksl/ir:SkSLFunctionCall_hdr",
         "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
         "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLFunctionPrototype_hdr",
         "//src/sksl/ir:SkSLIfStatement_hdr",
         "//src/sksl/ir:SkSLIndexExpression_hdr",
         "//src/sksl/ir:SkSLInlineMarker_hdr",
         "//src/sksl/ir:SkSLInterfaceBlock_hdr",
         "//src/sksl/ir:SkSLLiteral_hdr",
+        "//src/sksl/ir:SkSLNop_hdr",
         "//src/sksl/ir:SkSLPostfixExpression_hdr",
         "//src/sksl/ir:SkSLPrefixExpression_hdr",
         "//src/sksl/ir:SkSLReturnStatement_hdr",
@@ -754,7 +760,6 @@ generated_cc_atom(
         ":SkSLOutputStream_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkStream_hdr",
-        "//include/private:SkSLString_hdr",
     ],
 )
 
@@ -806,6 +811,7 @@ generated_cc_atom(
         "//include/gpu:GrContextOptions_hdr",
         "//include/private:GrTypesPriv_hdr",
         "//include/private:SkSLDefines_hdr",
+        "//src/core:SkSLTypeShared_hdr",
     ],
 )
 

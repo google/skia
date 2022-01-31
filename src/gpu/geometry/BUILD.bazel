@@ -43,6 +43,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrAATriangulator_hdr",
+        "//src/gpu:BufferWriter_hdr",
         "//src/gpu:GrEagerVertexAllocator_hdr",
     ],
 )

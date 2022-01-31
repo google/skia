@@ -103,3 +103,25 @@ generated_cc_atom(
         "//src/sksl:SkSLAnalysis_hdr",
     ],
 )
+
+generated_cc_atom(
+    name = "SkSLFinalizationChecks_src",
+    srcs = ["SkSLFinalizationChecks.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSLProgramVisitor_hdr",
+        "//include/private:SkSLStatement_hdr",
+        "//src/core:SkSafeMath_hdr",
+        "//src/sksl:SkSLAnalysis_hdr",
+        "//src/sksl:SkSLContext_hdr",
+        "//src/sksl:SkSLProgramSettings_hdr",
+        "//src/sksl/ir:SkSLFunctionCall_hdr",
+        "//src/sksl/ir:SkSLFunctionDeclaration_hdr",
+        "//src/sksl/ir:SkSLFunctionDefinition_hdr",
+        "//src/sksl/ir:SkSLIfStatement_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
+        "//src/sksl/ir:SkSLSwitchStatement_hdr",
+        "//src/sksl/ir:SkSLVarDeclarations_hdr",
+        "//src/sksl/ir:SkSLVariable_hdr",
+    ],
+)

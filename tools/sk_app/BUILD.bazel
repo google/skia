@@ -199,6 +199,7 @@ generated_cc_atom(
     deps = [
         ":WindowContext_hdr",
         "//experimental/graphite/include:Context_hdr",
+        "//experimental/graphite/include:Recorder_hdr",
         "//include/gpu:GrDirectContext_hdr",
     ],
 )

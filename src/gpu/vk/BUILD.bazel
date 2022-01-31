@@ -981,6 +981,7 @@ generated_cc_atom(
         ":GrVkTexture_hdr",
         ":GrVkUniformHandler_hdr",
         "//src/gpu:GrTexture_hdr",
+        "//src/gpu:GrUtil_hdr",
         "//src/gpu/glsl:GrGLSLProgramBuilder_hdr",
     ],
 )

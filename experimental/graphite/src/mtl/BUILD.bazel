@@ -37,6 +37,7 @@ generated_cc_atom(
     deps = [
         "//experimental/graphite/src:CommandBuffer_hdr",
         "//experimental/graphite/src:GpuWorkSubmission_hdr",
+        "//experimental/graphite/src:Log_hdr",
         "//include/core:SkTypes_hdr",
         "//include/ports:SkCFObject_hdr",
     ],
@@ -113,5 +114,17 @@ generated_cc_atom(
         "//include/core:SkImageInfo_hdr",
         "//include/ports:SkCFObject_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MtlSampler_hdr",
+    hdrs = ["MtlSampler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/graphite/src:Sampler_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkTileMode_hdr",
+        "//include/ports:SkCFObject_hdr",
     ],
 )

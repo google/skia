@@ -229,9 +229,7 @@ def _make_default_flags():
         flag_groups = [
             flag_group(
                 flags = [
-                    # http://g/skia-staff/bhPPBV4YdeU/5oyG5GRgBQAJ
-                    "-std=c++14",
-                    "-Wno-c++17-extensions",
+                    "-std=c++17",
                     "-Wno-psabi",  # noisy
                 ],
             ),
@@ -247,7 +245,7 @@ def _make_default_flags():
                     # We chose to use the llvm runtime, not the gcc one because it is already
                     # included in the clang binary
                     "--rtlib=compiler-rt",
-                    "-std=c++14",
+                    "-std=c++17",
                     # We statically include these libc++ libraries so they do not need to be
                     # on a developer's machine (they can be tricky to get).
                     EXTERNAL_TOOLCHAIN + "/lib/libc++.a",

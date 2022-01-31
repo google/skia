@@ -4,7 +4,10 @@ generated_cc_atom(
     name = "Attribute_hdr",
     hdrs = ["Attribute.h"],
     visibility = ["//:__subpackages__"],
-    deps = [":DrawTypes_hdr"],
+    deps = [
+        ":DrawTypes_hdr",
+        "//src/core:SkSLTypeShared_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -77,6 +80,7 @@ generated_cc_atom(
         ":Buffer_hdr",
         ":CommandBuffer_hdr",
         ":GraphicsPipeline_hdr",
+        ":Sampler_hdr",
         ":TextureProxy_hdr",
         ":Texture_hdr",
         "//src/core:SkTraceEvent_hdr",
@@ -107,7 +111,6 @@ generated_cc_atom(
     deps = [
         "//experimental/graphite/include:Context_hdr",
         "//include/core:SkBlendMode_hdr",
-        "//include/core:SkRefCnt_hdr",
         "//include/core:SkSpan_hdr",
         "//include/core:SkTileMode_hdr",
     ],
@@ -123,11 +126,13 @@ generated_cc_atom(
         ":DrawTypes_hdr",
         ":PaintParams_hdr",
         ":UniformManager_hdr",
-        ":Uniform_hdr",
         "//include/core:SkPaint_hdr",
         "//include/private:SkShaderCodeDictionary_hdr",
         "//include/private:SkUniquePaintParamsID_hdr",
+        "//src/core:SkBlenderBase_hdr",
         "//src/core:SkKeyHelpers_hdr",
+        "//src/core:SkUniformData_hdr",
+        "//src/core:SkUniform_hdr",
     ],
 )
 
@@ -201,6 +206,7 @@ generated_cc_atom(
         ":DrawContext_hdr",
         ":DrawList_hdr",
         ":Gpu_hdr",
+        ":Log_hdr",
         ":ResourceProvider_hdr",
         ":TextureProxy_hdr",
         ":Texture_hdr",
@@ -336,7 +342,6 @@ generated_cc_atom(
     deps = [
         ":Buffer_hdr",
         ":ContextPriv_hdr",
-        ":ContextUtils_hdr",
         ":DrawBufferManager_hdr",
         ":DrawContext_hdr",
         ":DrawList_hdr",
@@ -354,6 +359,7 @@ generated_cc_atom(
         "//experimental/graphite/src/geom:BoundsManager_hdr",
         "//src/core:SkMathPriv_hdr",
         "//src/core:SkTBlockList_hdr",
+        "//src/core:SkUniformData_hdr",
         "//src/gpu:BufferWriter_hdr",
     ],
 )
@@ -420,6 +426,7 @@ generated_cc_atom(
         ":CommandBuffer_hdr",
         ":GpuWorkSubmission_hdr",
         ":Gpu_hdr",
+        ":Log_hdr",
         ":ResourceProvider_hdr",
         "//experimental/graphite/include:BackendTexture_hdr",
         "//experimental/graphite/include:TextureInfo_hdr",
@@ -496,6 +503,7 @@ generated_cc_atom(
         ":Caps_hdr",
         ":CommandBuffer_hdr",
         ":ContextPriv_hdr",
+        ":Device_hdr",
         ":DrawBufferManager_hdr",
         ":Gpu_hdr",
         ":ResourceProvider_hdr",
@@ -503,6 +511,7 @@ generated_cc_atom(
         "//experimental/graphite/include:Context_hdr",
         "//experimental/graphite/include:Recorder_hdr",
         "//experimental/graphite/include:Recording_hdr",
+        "//src/core:SkUniformData_hdr",
     ],
 )
 
@@ -534,6 +543,7 @@ generated_cc_atom(
         ":CommandBuffer_hdr",
         ":ContextPriv_hdr",
         ":DrawPass_hdr",
+        ":Log_hdr",
         ":RenderPassTask_hdr",
         ":ResourceProvider_hdr",
         ":TextureProxy_hdr",
@@ -550,10 +560,10 @@ generated_cc_atom(
         ":DrawTypes_hdr",
         ":EnumBitMask_hdr",
         ":ResourceTypes_hdr",
-        ":Uniform_hdr",
         "//include/core:SkSpan_hdr",
         "//include/core:SkString_hdr",
         "//include/core:SkTypes_hdr",
+        "//src/core:SkUniform_hdr",
     ],
 )
 
@@ -566,6 +576,7 @@ generated_cc_atom(
         ":GraphicsPipelineDesc_hdr",
         ":ResourceTypes_hdr",
         "//include/core:SkSize_hdr",
+        "//include/core:SkTileMode_hdr",
         "//src/core:SkLRUCache_hdr",
         "//src/gpu:ResourceKey_hdr",
     ],
@@ -583,6 +594,7 @@ generated_cc_atom(
         ":Gpu_hdr",
         ":GraphicsPipeline_hdr",
         ":ResourceProvider_hdr",
+        ":Sampler_hdr",
         ":Texture_hdr",
     ],
 )
@@ -725,9 +737,9 @@ generated_cc_atom(
     srcs = ["UniformCache.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":ContextUtils_hdr",
         ":UniformCache_hdr",
         "//src/core:SkOpts_hdr",
+        "//src/core:SkUniformData_hdr",
     ],
 )
 
@@ -736,9 +748,8 @@ generated_cc_atom(
     hdrs = ["UniformManager.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":DrawTypes_hdr",
-        ":Uniform_hdr",
         "//include/core:SkSpan_hdr",
+        "//src/core:SkSLTypeShared_hdr",
     ],
 )
 
@@ -747,18 +758,13 @@ generated_cc_atom(
     srcs = ["UniformManager.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":DrawTypes_hdr",
         ":UniformManager_hdr",
         "//include/core:SkMatrix_hdr",
         "//include/private:SkHalf_hdr",
         "//include/private:SkTemplates_hdr",
+        "//src/core:SkUniform_hdr",
     ],
-)
-
-generated_cc_atom(
-    name = "Uniform_hdr",
-    hdrs = ["Uniform.h"],
-    visibility = ["//:__subpackages__"],
-    deps = [":DrawTypes_hdr"],
 )
 
 generated_cc_atom(
@@ -778,6 +784,10 @@ generated_cc_atom(
     deps = [
         ":PaintParams_hdr",
         "//include/core:SkShader_hdr",
+        "//include/private:SkPaintParamsKey_hdr",
+        "//src/core:SkBlenderBase_hdr",
+        "//src/core:SkKeyHelpers_hdr",
+        "//src/shaders:SkShaderBase_hdr",
     ],
 )
 
@@ -793,4 +803,24 @@ generated_cc_atom(
     srcs = ["Resource.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [":Resource_hdr"],
+)
+
+generated_cc_atom(
+    name = "Log_hdr",
+    hdrs = ["Log.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+generated_cc_atom(
+    name = "Sampler_hdr",
+    hdrs = ["Sampler.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":Resource_hdr"],
+)
+
+generated_cc_atom(
+    name = "Sampler_src",
+    srcs = ["Sampler.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":Sampler_hdr"],
 )

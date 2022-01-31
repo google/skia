@@ -271,6 +271,7 @@ generated_cc_atom(
     hdrs = ["SkJSON.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//include/core:SkStringView_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkNoncopyable_hdr",
         "//include/private:SkTo_hdr",
@@ -480,6 +481,7 @@ generated_cc_atom(
         "//include/private:SkTArray_hdr",
         "//include/private:SkTemplates_hdr",
         "//src/core:SkPointPriv_hdr",
+        "//src/core:SkRectPriv_hdr",
         "//src/core:SkTDPQueue_hdr",
         "//src/core:SkTInternalLList_hdr",
     ],
@@ -511,6 +513,7 @@ generated_cc_atom(
         "//src/core:SkDrawShadowInfo_hdr",
         "//src/core:SkGeometry_hdr",
         "//src/core:SkPointPriv_hdr",
+        "//src/core:SkRectPriv_hdr",
         "//src/gpu/geometry:GrPathUtils_hdr",
     ],
 )
