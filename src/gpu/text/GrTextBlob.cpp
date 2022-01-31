@@ -478,19 +478,18 @@ void PathOpSubmitter::submitOps(SkCanvas* canvas,
     }
 }
 
-template <typename SubRun>
-GrSubRunOwner make_path_sub_run(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                bool isAntiAliased,
-                                SkScalar strikeToSourceScale,
-                                GrSubRunAllocator* alloc) {
-    return alloc->makeUnique<SubRun>(
-            PathOpSubmitter::Make(drawables, isAntiAliased, strikeToSourceScale, alloc));
-}
-
-// -- PathSubRunSlug -------------------------------------------------------------------------------
-class PathSubRunSlug : public GrSubRun {
+// -- PathSubRun -----------------------------------------------------------------------------------
+class PathSubRun final : public GrSubRun, public GrBlobSubRun {
 public:
-    PathSubRunSlug(PathOpSubmitter&& pathDrawing) : fPathDrawing(std::move(pathDrawing)) {}
+    PathSubRun(PathOpSubmitter&& pathDrawing) : fPathDrawing(std::move(pathDrawing)) {}
+
+    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              bool isAntiAliased,
+                              SkScalar strikeToSourceScale,
+                              GrSubRunAllocator* alloc) {
+        return alloc->makeUnique<PathSubRun>(
+                PathOpSubmitter::Make(drawables, isAntiAliased, strikeToSourceScale, alloc));
+    }
 
     void draw(SkCanvas* canvas,
               const GrClip* clip,
@@ -501,19 +500,14 @@ public:
         fPathDrawing.submitOps(canvas, clip, viewMatrix, drawOrigin, paint, sdc);
     }
 
-private:
-    PathOpSubmitter fPathDrawing;
-};
-
-// -- PathSubRun -----------------------------------------------------------------------------------
-class PathSubRun final : public PathSubRunSlug, public GrBlobSubRun {
-public:
-    using PathSubRunSlug::PathSubRunSlug;
     const GrBlobSubRun* blobCast() const override { return this; }
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
         return true;
     }
     const GrAtlasSubRun* testingOnly_atlasSubRun() const override { return nullptr; }
+
+private:
+    PathOpSubmitter fPathDrawing;
 };
 
 // -- GlyphVector ----------------------------------------------------------------------------------
@@ -1846,7 +1840,7 @@ void GrTextBlob::processDeviceMasks(
 void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkFont& runFont,
                                     SkScalar strikeToSourceScale) {
-    fSubRunList.append(make_path_sub_run<PathSubRun>(
+    fSubRunList.append(PathSubRun::Make(
             drawables, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
 }
 
@@ -3097,7 +3091,7 @@ void Slug::processSourcePaths(const SkZip<SkGlyphVariant,
                               SkPoint>& drawables,
                               const SkFont& runFont,
                               SkScalar strikeToSourceScale) {
-    fSubRuns.append(make_path_sub_run<PathSubRunSlug>(
+    fSubRuns.append(PathSubRun::Make(
             drawables, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
 }
 
