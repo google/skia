@@ -12,11 +12,13 @@
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 #include <vector>
 
 namespace SkSL {
 
+class Compiler;
 class Context;
 class ErrorReporter;
 class Expression;
@@ -124,7 +126,7 @@ public:
         // uint16 id
         kSymbolRef_Command,
         // uint16 owned symbol count, Symbol[] ownedSymbols, uint16 symbol count,
-        // (String, uint16/*index*/)[].
+        // (uint16/*index*/ | { uint16 kBuiltin_Symbol, String name })
         kSymbolTable_Command,
         // uint16 id, String name
         kSystemType_Command,
@@ -144,14 +146,23 @@ public:
     };
 
     // src must remain in memory as long as the objects created from it do
-    Rehydrator(const Context* context, std::shared_ptr<SymbolTable> symbolTable,
-               const uint8_t* src, size_t length);
+    Rehydrator(const Compiler& compiler, const uint8_t* src, size_t length,
+            std::shared_ptr<SymbolTable> base = nullptr);
 
     // Reads a symbol table and makes it current (inheriting from the previous current table)
     std::shared_ptr<SymbolTable> symbolTable();
 
     // Reads a collection of program elements and returns it
     std::vector<std::unique_ptr<ProgramElement>> elements();
+
+    // Reads an entire program
+    std::unique_ptr<Program> program(int symbolTableCount,
+            std::unique_ptr<String> source,
+            std::unique_ptr<ProgramConfig> config,
+            std::vector<const ProgramElement*> sharedElements,
+            std::unique_ptr<ModifiersPool> modifiers,
+            std::unique_ptr<Pool> pool,
+            Program::Inputs inputs);
 
 private:
     // If this ID appears in a symbol table, it means the corresponding symbol isn't actually
@@ -226,11 +237,11 @@ private:
 
     const Type* type();
 
-    ErrorReporter* errorReporter() { return fContext.fErrors; }
+    ErrorReporter* errorReporter() { return fContext->fErrors; }
 
-    ModifiersPool& modifiersPool() const { return *fContext.fModifiersPool; }
+    ModifiersPool& modifiersPool() const { return *fContext->fModifiersPool; }
 
-    const Context& fContext;
+    std::shared_ptr<Context> fContext;
     std::shared_ptr<SymbolTable> fSymbolTable;
     std::vector<const Symbol*> fSymbols;
 
