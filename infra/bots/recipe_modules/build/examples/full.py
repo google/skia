@@ -35,8 +35,6 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-arm-Release-Android_API26',
   'Build-Debian10-Clang-arm-Release-Android_ASAN',
   'Build-Debian10-Clang-arm-Release-Chromebook_GLES',
-  'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES_Docker',
-  'Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker',
   'Build-Debian10-Clang-arm-Release-Flutter_Android',
   'Build-Debian10-Clang-arm64-Debug-Android_HWASAN',
   'Build-Debian10-Clang-arm64-Release-Android_Wuffs',
