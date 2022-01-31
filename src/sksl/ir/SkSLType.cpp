@@ -7,7 +7,6 @@
 
 #include "src/sksl/ir/SkSLType.h"
 
-#include "include/private/SkTOptional.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"

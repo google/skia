@@ -28,7 +28,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDeque.h"
 #include "include/private/SkMacros.h"
-#include "include/private/SkTOptional.h"
 
 #include <cstring>
 #include <memory>
@@ -65,6 +64,10 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
+
+namespace skstd {
+    template<typename T> class optional;
+}
 
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
