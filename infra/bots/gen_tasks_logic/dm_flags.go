@@ -936,7 +936,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx Vulkan
-		skip("_", "tests", "_", "SkSLInoutParameters_GPU") // skia:12869
+		skip("_", "tests", "_", "SkSLInoutParameters_GPU")   // skia:12869
+		skip("_", "tests", "_", "SkSLOutParams_GPU")         // skia:11919
+		skip("_", "tests", "_", "SkSLOutParamsTricky_GPU")   // skia:11919
+		skip("_", "tests", "_", "SkSLOutParamsNoInline_GPU") // skia:11919
 	}
 
 	if (b.matchGpu("Adreno3") || b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
