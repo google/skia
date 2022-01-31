@@ -48,7 +48,7 @@ if (is_ios) {
       "../../modules/skottie",
     ]
     cflags_objcc = [
-      "-std=c++14",
+      "-std=c++17",
       "-w",
     ]
     frameworks = [
