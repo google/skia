@@ -47,8 +47,8 @@ def compile_fn(api, checkout_root, out_dir):
       '--sysroot=%s' % sysroot_dir,
       '-I%s' % os.path.join(gl_dir, 'include'),
       '-I%s' % os.path.join(sysroot_dir, 'include'),
-      '-I%s' % os.path.join(sysroot_dir, 'include', 'c++', '6'),
-      '-I%s' % os.path.join(sysroot_dir, 'include', 'c++', '6', 'arm-linux-gnueabihf'),
+      '-I%s' % os.path.join(sysroot_dir, 'include', 'c++', '10'),
+      '-I%s' % os.path.join(sysroot_dir, 'include', 'c++', '10', 'arm-linux-gnueabihf'),
       '-DMESA_EGL_NO_X11_HEADERS',
       '-U_GLIBCXX_DEBUG',
     ]

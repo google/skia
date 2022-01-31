@@ -17,44 +17,37 @@ import shutil
 import subprocess
 import sys
 
-from distutils import dir_util
-
 
 def create_asset(target_dir):
   """Create the asset."""
 
-  print("Installing some cross-compiling packages. Hit enter to continue.")
-  input()
+  print("Installing some cross-compiling packages. You may be asked for your sudo password")
   subprocess.check_call([
     "sudo","apt-get","install",
-    "libstdc++-6-dev-armhf-cross",
-    "libgcc-6-dev-armhf-cross",
+    "libstdc++-10-dev-armhf-cross",
+    "libgcc-10-dev-armhf-cross",
     "binutils-arm-linux-gnueabihf"
   ])
 
-
+  # shutil complains if the target directory exists already.
+  shutil.rmtree(target_dir)
   shutil.copytree('/usr/arm-linux-gnueabihf', target_dir)
-  shutil.copytree('/usr/lib/gcc-cross/arm-linux-gnueabihf/6',
+  shutil.copytree('/usr/lib/gcc-cross/arm-linux-gnueabihf/10',
                   os.path.join(target_dir, 'gcc-cross'))
 
-  # Libs needed to link:
-  shutil.copy('/usr/lib/x86_64-linux-gnu/libbfd-2.28-armhf.so',
+  # Libs needed to link. These were found by trial-and-error.
+  shutil.copy('/usr/lib/x86_64-linux-gnu/libbfd-2.37-armhf.so',
               os.path.join(target_dir, 'lib'))
-  shutil.copy('/usr/lib/x86_64-linux-gnu/libopcodes-2.28-armhf.so',
+  shutil.copy('/usr/lib/x86_64-linux-gnu/libopcodes-2.37-armhf.so',
+              os.path.join(target_dir, 'lib'))
+  shutil.copy('/usr/lib/x86_64-linux-gnu/libctf-armhf.so.0',
               os.path.join(target_dir, 'lib'))
 
-  # The file paths in libpthread.so and libc.so start off as absolute file
+  # The file paths in libc.so start off as absolute file
   # paths (e.g. /usr/arm-linux-gnueabihf/lib/libpthread.so.0), which won't
   # work on the bots. We use fileinput to replace just those lines (which
   # start with GROUP). fileinput redirects stdout, so printing here actually
   # writes to the file.
-  bad_libpthread = os.path.join(target_dir, "lib", "libpthread.so")
-  for line in fileinput.input(bad_libpthread, inplace=True):
-    if line.startswith("GROUP"):
-      print("GROUP ( libpthread.so.0 libpthread_nonshared.a )")
-    else:
-      print(line)
-
   bad_libc = os.path.join(target_dir, "lib", "libc.so")
   for line in fileinput.input(bad_libc, inplace=True):
     if line.startswith("GROUP"):

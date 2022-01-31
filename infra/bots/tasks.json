@@ -3275,7 +3275,7 @@
         {
           "name": "skia/bots/armhf_sysroot",
           "path": "armhf_sysroot",
-          "version": "version:7"
+          "version": "version:10"
         },
         {
           "name": "skia/bots/chromebook_arm_gles",
@@ -3669,7 +3669,7 @@
         {
           "name": "skia/bots/armhf_sysroot",
           "path": "armhf_sysroot",
-          "version": "version:7"
+          "version": "version:10"
         },
         {
           "name": "skia/bots/chromebook_arm_gles",
