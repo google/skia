@@ -9,6 +9,8 @@
 
 #include "include/core/SkCanvas.h"
 
+GrTextReferenceFrame::~GrTextReferenceFrame() = default;
+
 GrSlug::~GrSlug() = default;
 sk_sp<GrSlug> GrSlug::ConvertBlob(
         SkCanvas* canvas, const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
