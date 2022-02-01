@@ -50,13 +50,16 @@
 #include "src/utils/SkUTF.h"
 #include "tools/flags/CommandLineFlags.h"
 
-#ifdef SK_GL
+#if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/gl/GrGLFunctions.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "tools/gpu/GrContextFactory.h"
+#endif
+
+#ifdef SK_GL
+#include "include/gpu/gl/GrGLFunctions.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
-#include "tools/gpu/GrContextFactory.h"
 #endif
 
 // MISC
@@ -1620,8 +1623,24 @@ DEF_FUZZ(SerializedImageFilter, fuzz) {
     canvas.restore();
 }
 
-#ifdef SK_GL
+#if SK_SUPPORT_GPU
+static void fuzz_ganesh(Fuzz* fuzz, GrDirectContext* context) {
+    SkASSERT(context);
+    auto surface = SkSurface::MakeRenderTarget(
+            context,
+            SkBudgeted::kNo,
+            SkImageInfo::Make(kCanvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+    SkASSERT(surface && surface->getCanvas());
+    fuzz_canvas(fuzz, surface->getCanvas());
+}
 
+DEF_FUZZ(MockGPUCanvas, fuzz) {
+    sk_gpu_test::GrContextFactory f;
+    fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kMock_ContextType));
+}
+#endif
+
+#ifdef SK_GL
 static void dump_GPU_info(GrDirectContext* context) {
     const GrGLInterface* gl = static_cast<GrGLGpu*>(context->priv().getGpu())
                                     ->glInterface();
@@ -1636,16 +1655,6 @@ static void dump_GPU_info(GrDirectContext* context) {
     SkDebugf("GL_VERSION %s\n", (const char*) output);
 }
 
-static void fuzz_ganesh(Fuzz* fuzz, GrDirectContext* context) {
-    SkASSERT(context);
-    auto surface = SkSurface::MakeRenderTarget(
-            context,
-            SkBudgeted::kNo,
-            SkImageInfo::Make(kCanvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    SkASSERT(surface && surface->getCanvas());
-    fuzz_canvas(fuzz, surface->getCanvas());
-}
-
 DEF_FUZZ(NativeGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
     auto context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
@@ -1656,11 +1665,6 @@ DEF_FUZZ(NativeGLCanvas, fuzz) {
         dump_GPU_info(context);
     }
     fuzz_ganesh(fuzz, context);
-}
-
-DEF_FUZZ(MockGPUCanvas, fuzz) {
-    sk_gpu_test::GrContextFactory f;
-    fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kMock_ContextType));
 }
 #endif
 

@@ -3177,7 +3177,7 @@ if (skia_enable_tools) {
       deps = []
     }
 
-    if (skia_use_gl) {
+    if (skia_enable_gpu) {
       libfuzzer_app("api_mock_gpu_canvas") {
         include_dirs = [
           "tools",
