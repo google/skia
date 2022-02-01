@@ -254,14 +254,14 @@ else
     ENCODE_PNG="false"
   fi
 
-  ENCODE_JPEG="false"
-  if [[ $@ == *force_encode_jpeg* ]]; then
-    ENCODE_JPEG="true"
+  ENCODE_JPEG="true"
+  if [[ $@ == *no_encode_jpeg* ]]; then
+    ENCODE_JPEG="false"
   fi
 
-  ENCODE_WEBP="false"
-  if [[ $@ == *force_encode_webp* ]]; then
-    ENCODE_WEBP="true"
+  ENCODE_WEBP="true"
+  if [[ $@ == *no_encode_webp* ]]; then
+    ENCODE_WEBP="false"
   fi
 
 fi # no_codecs

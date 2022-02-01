@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    will now create a surface with a color space of `CanvasKit.ColorSpace.SRGB`.
  - We now build/ship with emscripten 3.1.3.
  - Internal calls no longer use dynamic dispatch (skbug.com/12795).
+ - JPEG and WEBP encoding are turned on by default in full version (in /bin/full/).
 
 ### Fixed
  - Supplying textures via `Surface.makeImageFromTextureSource` should not cause issues with
