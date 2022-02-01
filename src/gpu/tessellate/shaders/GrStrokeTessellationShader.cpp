@@ -26,7 +26,7 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
                                        : GrPrimitiveType::kTriangleStrip,
                                (mode == Mode::kHardwareTessellation) ? 1 : 0, viewMatrix, color)
         , fMode(mode)
-        , fPatchAttribs(attribs | PatchAttribs::kJoinControlPoint)
+        , fPatchAttribs(attribs)
         , fStroke(stroke)
         , fMaxParametricSegments_log2(maxParametricSegments_log2) {
     // We should use explicit curve type when, and only when, there isn't infinity support.
@@ -37,6 +37,8 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
         SkASSERT(!(attribs & PatchAttribs::kExplicitCurveType));
     }
     if (fMode == Mode::kHardwareTessellation) {
+        // A join calculates its starting angle using prevCtrlPtAttr.
+        fAttribs.emplace_back("prevCtrlPtAttr", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
         // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
         // with w=p3.x.
         //
@@ -50,8 +52,6 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
         // (p3 - p0).
         fAttribs.emplace_back("pts01Attr", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
         fAttribs.emplace_back("pts23Attr", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
-        // A join calculates its starting angle using prevCtrlPtAttr.
-        fAttribs.emplace_back("prevCtrlPtAttr", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
     } else {
         // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
         // with w=p3.x.
@@ -93,10 +93,10 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
     }
     if (fMode == Mode::kHardwareTessellation) {
         this->setVertexAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.count());
-        SkASSERT(this->vertexStride() == sizeof(SkPoint) * 4 + PatchAttribsStride(fPatchAttribs));
+        SkASSERT(this->vertexStride() == sizeof(SkPoint) * 5 + PatchAttribsStride(fPatchAttribs));
     } else {
         this->setInstanceAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.count());
-        SkASSERT(this->instanceStride() == sizeof(SkPoint) * 4 + PatchAttribsStride(fPatchAttribs));
+        SkASSERT(this->instanceStride() == sizeof(SkPoint) * 5 + PatchAttribsStride(fPatchAttribs));
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kVertexAttrib("edgeID", kFloat_GrVertexAttribType,
                                                      SkSLType::kFloat);

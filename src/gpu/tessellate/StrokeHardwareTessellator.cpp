@@ -60,8 +60,6 @@ public:
             // each chop has the potential to introduce an extra segment.
             , fMaxTessellationSegments(std::max(maxTessellationSegments - 2, 1))
             , fParametricPrecision(StrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
-        SkASSERT(fPatchWriter.attribs() & PatchAttribs::kJoinControlPoint);
-        SkASSERT(!fPatchWriter.hasJoinControlPoint());
     }
 
     // This is the precision value, adjusted for the view matrix, to use with Wang's formulas when
@@ -134,9 +132,7 @@ public:
 
     void moveTo(SkPoint pt) {
         fCurrContourStartPoint = pt;
-        // Either the first contour, or the prior strokes should have had verbs explicitly writing
-        // caps, which resets the join control point.
-        SkASSERT(!fPatchWriter.hasJoinControlPoint());
+        fHasLastControlPoint = false;
     }
 
     // Writes out the given line, possibly chopping its previous join until the segments fit in
@@ -201,29 +197,28 @@ public:
                                        SkPoint endControlPoint) {
         SkASSERT(fStrokeJoinType != JoinType::kBowtie);
 
-        if (!fPatchWriter.hasJoinControlPoint()) {
+        if (!fHasLastControlPoint) {
             // The first stroke doesn't have a previous join (yet). If the current contour ends up
             // closing itself, we will add that join as its own patch. TODO: Consider deferring the
             // first stroke until we know whether the contour will close. This will allow us to use
             // the closing join as the first patch's previous join.
+            fHasLastControlPoint = true;
             fCurrContourFirstControlPoint = (p[1] != p[0]) ? p[1] : p[2];
-            // Disables the join section of this patch.
-            fPatchWriter.updateJoinControlPointAttrib(p[0]);
+            fLastControlPoint = p[0];  // Disables the join section of this patch.
         } else if (!prevJoinFitsInPatch) {
             // There aren't enough guaranteed segments to fold the previous join into this patch.
             // Emit the join in its own separate patch.
             this->internalJoinTo(fStrokeJoinType, p[0], (p[1] != p[0]) ? p[1] : p[2]);
-            // Disables the join section of this patch.
-            fPatchWriter.updateJoinControlPointAttrib(p[0]);
+            fLastControlPoint = p[0];  // Disables the join section of this patch.
         }
 
-        HwPatch(fPatchWriter) << VertexWriter::Array(p, 4);
-        fPatchWriter.updateJoinControlPointAttrib(endControlPoint);
+        HwPatch(fPatchWriter) << fLastControlPoint << VertexWriter::Array(p, 4);
+        fLastControlPoint = endControlPoint;
     }
 
     void writeClose(SkPoint contourEndpoint, const SkMatrix& viewMatrix,
                     const SkStrokeRec& stroke) {
-        if (!fPatchWriter.hasJoinControlPoint()) {
+        if (!fHasLastControlPoint) {
             // Draw caps instead of closing if the subpath is zero length:
             //
             //   "Any zero length subpath ...  shall be stroked if the 'stroke-linecap' property has
@@ -239,11 +234,12 @@ public:
         // contourEndpoint == fCurrContourStartPoint.)
         this->writeLineTo(contourEndpoint, fCurrContourStartPoint);
         this->internalJoinTo(fStrokeJoinType, fCurrContourStartPoint, fCurrContourFirstControlPoint);
-        fPatchWriter.writeDeferredStrokePatch();
+
+        fHasLastControlPoint = false;
     }
 
     void writeCaps(SkPoint contourEndpoint, const SkMatrix& viewMatrix, const SkStrokeRec& stroke) {
-        if (!fPatchWriter.hasJoinControlPoint()) {
+        if (!fHasLastControlPoint) {
             // We don't have any control points to orient the caps. In this case, square and round
             // caps are specified to be drawn as an axis-aligned square or circle respectively.
             // Assign default control points that achieve this.
@@ -273,8 +269,9 @@ public:
                 outset = {d, -c};
             }
             fCurrContourFirstControlPoint = fCurrContourStartPoint - outset;
+            fLastControlPoint = fCurrContourStartPoint + outset;
+            fHasLastControlPoint = true;
             contourEndpoint = fCurrContourStartPoint;
-            fPatchWriter.updateJoinControlPointAttrib(fCurrContourStartPoint + outset);
         }
 
         switch (stroke.getCap()) {
@@ -285,8 +282,7 @@ public:
                 // If our join type isn't round we can alternatively use a bowtie.
                 JoinType roundCapJoinType = (stroke.getJoin() == SkPaint::kRound_Join)
                         ? JoinType::kRound : JoinType::kBowtie;
-                this->internalJoinTo(roundCapJoinType, contourEndpoint,
-                                     fPatchWriter.joinControlPoint());
+                this->internalJoinTo(roundCapJoinType, contourEndpoint, fLastControlPoint);
                 this->internalMoveTo(fCurrContourStartPoint, fCurrContourFirstControlPoint);
                 this->internalJoinTo(roundCapJoinType, fCurrContourStartPoint,
                                      fCurrContourFirstControlPoint);
@@ -295,7 +291,7 @@ public:
             case SkPaint::kSquare_Cap: {
                 // A square cap is the same as appending lineTos.
                 auto strokeJoinType = JoinType(stroke.getJoin());
-                SkVector lastTangent = contourEndpoint - fPatchWriter.joinControlPoint();
+                SkVector lastTangent = contourEndpoint - fLastControlPoint;
                 if (!stroke.isHairlineStyle()) {
                     // Extend the cap by 1/2 stroke width.
                     lastTangent *= (.5f * stroke.getWidth()) / lastTangent.length();
@@ -321,7 +317,7 @@ public:
             }
         }
 
-        fPatchWriter.writeDeferredStrokePatch();
+        fHasLastControlPoint = false;
     }
 
 private:
@@ -333,8 +329,8 @@ private:
 
     void internalMoveTo(SkPoint pt, SkPoint lastControlPoint) {
         fCurrContourStartPoint = pt;
-        fCurrContourFirstControlPoint = lastControlPoint;
-        fPatchWriter.updateJoinControlPointAttrib(lastControlPoint);
+        fCurrContourFirstControlPoint = fLastControlPoint = lastControlPoint;
+        fHasLastControlPoint = true;
     }
 
     // Recursively chops the given conic and its previous join until the segments fit in
@@ -474,14 +470,14 @@ private:
     void internalPatchTo(JoinType prevJoinType, bool prevJoinFitsInPatch, const SkPoint p[4],
                          SkPoint endPt) {
         if (prevJoinType == JoinType::kBowtie) {
-            SkASSERT(fPatchWriter.hasJoinControlPoint());
+            SkASSERT(fHasLastControlPoint);
             // Bowtie joins are only used on internal chops, and internal chops almost always have
             // continuous tangent angles (i.e., the ending tangent of the first chop and the
             // beginning tangent of the second both point in the same direction). The tangents will
             // only ever not point in the same direction if we chopped at a cusp point, so that's
             // the only time we actually need a bowtie.
             SkPoint nextControlPoint = (p[1] == p[0]) ? p[2] : p[1];
-            SkVector a = p[0] - fPatchWriter.joinControlPoint();
+            SkVector a = p[0] - fLastControlPoint;
             SkVector b = nextControlPoint - p[0];
             float ab_cosTheta = a.dot(b);
             float ab_pow2 = a.dot(a) * b.dot(b);
@@ -504,6 +500,7 @@ private:
             if (!SkScalarNearlyEqual(ab_pow2, ab_cosTheta * fabsf(ab_cosTheta),
                                      ab_pow2 * SK_ScalarNearlyZero)) {
                 this->internalJoinTo(JoinType::kBowtie, p[0], nextControlPoint);
+                fLastControlPoint = p[0];  // Disables the join section of this patch.
                 prevJoinFitsInPatch = true;
             }
         }
@@ -514,14 +511,14 @@ private:
     // Recursively chops the given join until the segments fit in tessellation patches.
     void internalJoinTo(JoinType joinType, SkPoint junctionPoint, SkPoint nextControlPoint,
                         int maxDepth = -1) {
-        if (!fPatchWriter.hasJoinControlPoint()) {
+        if (!fHasLastControlPoint) {
             // The first stroke doesn't have a previous join.
             return;
         }
 
         if (!fSoloRoundJoinAlwaysFitsInPatch && maxDepth != 0 &&
             (joinType == JoinType::kRound || joinType == JoinType::kBowtie)) {
-            SkVector tan0 = junctionPoint - fPatchWriter.joinControlPoint();
+            SkVector tan0 = junctionPoint - fLastControlPoint;
             SkVector tan1 = nextControlPoint - junctionPoint;
             float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
             float numRadialSegments = rotation * fNumRadialSegmentsPerRadian;
@@ -551,7 +548,7 @@ private:
                 } while (c0 - junctionPoint != -(c1 - junctionPoint) && --maxAttempts);
                 // First join half.
                 this->internalJoinTo(joinType, junctionPoint, c0, maxDepth - 1);
-                fPatchWriter.updateJoinControlPointAttrib(c1);
+                fLastControlPoint = c1;
                 // Second join half.
                 this->internalJoinTo(joinType, junctionPoint, nextControlPoint, maxDepth - 1);
                 return;
@@ -559,11 +556,11 @@ private:
         }
 
         // We should never write out joins before the first curve.
-        SkASSERT(fPatchWriter.hasJoinControlPoint());
+        SkASSERT(fHasLastControlPoint);
 
         {
             HwPatch patch(fPatchWriter);
-            patch << junctionPoint;
+            patch << fLastControlPoint << junctionPoint;
             if (joinType == JoinType::kBowtie) {
                 // {prevControlPoint, [p0, p0, p0, p3]} is a reserved patch pattern that means this
                 // patch is a bowtie. The bowtie is anchored on p0 and its tangent angles go from
@@ -578,7 +575,20 @@ private:
             patch << (nextControlPoint);
         }
 
-        fPatchWriter.updateJoinControlPointAttrib(nextControlPoint);
+        fLastControlPoint = nextControlPoint;
+    }
+
+    void discardStroke(const SkPoint p[], int numPoints) {
+        if (!fHasLastControlPoint) {
+            // This disables the first join, if any. (The first join gets added as a standalone
+            // patch during close(), but setting fCurrContourFirstControlPoint to p[0] causes us to
+            // skip that join if we attempt to add it later.)
+            fCurrContourFirstControlPoint = p[0];
+            fHasLastControlPoint = true;
+        }
+        // Set fLastControlPoint to the next stroke's p0 (which will be equal to the final point of
+        // this stroke). This has the effect of disabling the next stroke's join.
+        fLastControlPoint = p[numPoints - 1];
     }
 
     PatchWriter& fPatchWriter;
@@ -612,8 +622,10 @@ private:
 
     // Variables related to the specific contour that we are currently iterating during
     // prepareBuffers().
+    bool fHasLastControlPoint = false;
     SkPoint fCurrContourStartPoint;
     SkPoint fCurrContourFirstControlPoint;
+    SkPoint fLastControlPoint;
 };
 
 SK_ALWAYS_INLINE bool cubic_has_cusp(const SkPoint p[4]) {

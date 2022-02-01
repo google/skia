@@ -33,7 +33,7 @@ PatchWriter::PatchWriter(GrMeshDrawTarget* target,
         : PatchWriter(target,
                       &tessellator->fVertexChunkArray,
                       tessellator->fAttribs,
-                      sizeof(SkPoint) * 4 + PatchAttribsStride(tessellator->fAttribs),
+                      sizeof(SkPoint) * 5 + PatchAttribsStride(tessellator->fAttribs),
                       initialPatchAllocCount) {
 }
 #endif

@@ -36,7 +36,7 @@ public:
         PathStrokeList* fNext = nullptr;
     };
 
-    StrokeTessellator(PatchAttribs attribs) : fAttribs(attribs | PatchAttribs::kJoinControlPoint) {}
+    StrokeTessellator(PatchAttribs attribs) : fAttribs(attribs) {}
 
     // Gives an approximate initial buffer size for this class to write patches into. Ideally the
     // whole stroke will fit into this initial buffer, but if it requires a lot of chopping, the

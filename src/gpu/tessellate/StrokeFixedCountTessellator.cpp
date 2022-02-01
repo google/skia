@@ -33,8 +33,6 @@ public:
     InstanceWriter(PatchWriter& patchWriter, float matrixMaxScale)
             : fPatchWriter(patchWriter)
             , fParametricPrecision(StrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
-        SkASSERT(fPatchWriter.attribs() & PatchAttribs::kJoinControlPoint);
-        SkASSERT(!fPatchWriter.hasJoinControlPoint());
     }
 
     float parametricPrecision() const { return fParametricPrecision; }
@@ -92,7 +90,8 @@ public:
     // Called when we encounter the verb "kMoveWithinContour". Moves invalidate the previous control
     // point. The stroke iterator tells us the new value to use for the previous control point.
     void setLastControlPoint(SkPoint newLastControlPoint) {
-        fPatchWriter.updateJoinControlPointAttrib(newLastControlPoint);
+        fLastControlPoint = newLastControlPoint;
+        fHasLastControlPoint = true;
     }
 
     // Draws a circle whose diameter is equal to the stroke width. We emit circles at cusp points
@@ -100,24 +99,19 @@ public:
     void writeCircle(SkPoint location) {
         // The shader interprets an empty stroke + empty join as a special case that denotes a
         // circle, or 180-degree point stroke.
-        // TODO: This is a little awkward right now, but will be simplified as more of
-        // InstanceWriter is pulled into PatchWriter.
-        SkPoint joinPoint = fPatchWriter.joinControlPoint();
-        fPatchWriter.updateJoinControlPointAttrib(location);
-        PatchWriter::CubicPatch(fPatchWriter) << VertexWriter::Repeat<4>(location);
-        fPatchWriter.updateJoinControlPointAttrib(joinPoint);
+        PatchWriter::CubicPatch(fPatchWriter) << VertexWriter::Repeat<5>(location);
     }
 
     void finishContour() {
         if (fHasDeferredFirstStroke) {
             // We deferred the first stroke because we didn't know the previous control point to use
             // for its join. We write it out now.
-            SkASSERT(fPatchWriter.hasJoinControlPoint());
+            SkASSERT(fHasLastControlPoint);
             this->writeStroke(fDeferredFirstStroke, SkPoint(),
                               fDeferredCurveTypeIfUnsupportedInfinity);
             fHasDeferredFirstStroke = false;
         }
-        fPatchWriter.writeDeferredStrokePatch();
+        fHasLastControlPoint = false;
     }
 
 private:
@@ -146,17 +140,25 @@ private:
 
     SK_ALWAYS_INLINE void writeStroke(const SkPoint p[4], SkPoint endControlPoint,
                                       float curveTypeIfUnsupportedInfinity) {
-        if (fPatchWriter.hasJoinControlPoint()) {
+        if (fHasLastControlPoint) {
             PatchWriter::Patch(fPatchWriter, curveTypeIfUnsupportedInfinity)
-                    << VertexWriter::Array(p, 4);
+                    << VertexWriter::Array(p, 4) << fLastControlPoint;
         } else {
             // We don't know the previous control point yet to use for the join. Defer writing out
             // this stroke until the end.
             memcpy(fDeferredFirstStroke, p, sizeof(fDeferredFirstStroke));
             fDeferredCurveTypeIfUnsupportedInfinity = curveTypeIfUnsupportedInfinity;
             fHasDeferredFirstStroke = true;
+            fHasLastControlPoint = true;
         }
-        fPatchWriter.updateJoinControlPointAttrib(endControlPoint);
+        fLastControlPoint = endControlPoint;
+    }
+
+    void discardStroke(const SkPoint p[], int numPts) {
+        // Set fLastControlPoint to the next stroke's p0 (which will be equal to the final point of
+        // this stroke). This has the effect of disabling the next stroke's join.
+        fLastControlPoint = p[numPts - 1];
+        fHasLastControlPoint = true;
     }
 
     PatchWriter& fPatchWriter;
@@ -166,7 +168,9 @@ private:
     // We can't write out the first stroke until we know the previous control point for its join.
     SkPoint fDeferredFirstStroke[4];
     float fDeferredCurveTypeIfUnsupportedInfinity;
+    SkPoint fLastControlPoint;  // Used to configure the joins in the instance data.
     bool fHasDeferredFirstStroke = false;
+    bool fHasLastControlPoint = false;
 };
 
 // Returns the worst-case number of edges we will need in order to draw a join of the given type.
