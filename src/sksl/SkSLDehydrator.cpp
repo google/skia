@@ -55,8 +55,6 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
-#ifdef SKSL_STANDALONE
-
 namespace SkSL {
 
 static constexpr int HEADER_SIZE = 2;
@@ -626,6 +624,4 @@ const char* Dehydrator::prefixAtOffset(size_t byte) {
     return "";
 }
 
-} // namespace
-
-#endif
+} // namespace SkSL

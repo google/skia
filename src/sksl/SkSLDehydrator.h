@@ -8,8 +8,6 @@
 #ifndef SKSL_DEHYDRATOR
 #define SKSL_DEHYDRATOR
 
-#ifdef SKSL_STANDALONE
-
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
@@ -83,7 +81,7 @@ private:
     }
 
     void writeS32(int64_t i) {
-        SkASSERT(i >= -2147483648 && i <= 2147483647);
+        SkASSERT(i >= -2147483648LL && i <= 2147483647);
         fBody.write32(i);
     }
 
@@ -140,8 +138,6 @@ private:
     friend class AutoDehydratorSymbolTable;
 };
 
-} // namespace
-
-#endif
+} // namespace SkSL
 
 #endif

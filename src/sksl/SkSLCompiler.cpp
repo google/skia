@@ -204,7 +204,7 @@ inline static constexpr BuiltinTypePtr kPrivateTypes[] = {
 
 #undef TYPE
 
-std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTable() {
+std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTable() const {
     auto rootSymbolTable = std::make_shared<SymbolTable>(*fContext, /*builtin=*/true);
 
     for (BuiltinTypePtr rootType : kRootTypes) {
@@ -280,6 +280,12 @@ static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Builti
     }
 }
 
+std::shared_ptr<SymbolTable> Compiler::makeGLSLRootSymbolTable() const {
+    auto result = this->makeRootSymbolTable();
+    add_glsl_type_aliases(result.get(), fContext->fTypes);
+    return result;
+}
+
 const ParsedModule& Compiler::loadPublicModule() {
     if (!fPublicModule.fSymbols) {
         fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public), fRootModule);
@@ -339,7 +345,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     config.fSettings = settings;
     AutoProgramConfig autoConfig(fContext, &config);
     SkASSERT(data.fData && (data.fSize != 0));
-    Rehydrator rehydrator(fContext.get(), base, data.fData, data.fSize);
+    Rehydrator rehydrator(*this, data.fData, data.fSize, std::move(base));
     LoadedModule result = { kind, rehydrator.symbolTable(), rehydrator.elements() };
 #else
     SkASSERT(this->errorCount() == 0);
@@ -350,7 +356,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
         printf("error reading %s\n", data.fPath);
         abort();
     }
-    ParsedModule baseModule = {base, /*fElements=*/nullptr};
+    ParsedModule baseModule = {std::move(base), /*fElements=*/nullptr};
     LoadedModule result = DSLParser(this, settings, kind,
             std::move(text)).moduleInheritingFrom(std::move(baseModule));
     if (this->errorCount()) {
