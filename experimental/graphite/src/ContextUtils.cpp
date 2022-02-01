@@ -199,11 +199,9 @@ sk_sp<SkUniformData> make_solid_uniform_data(SkColor4f color) {
 } // anonymous namespace
 
 std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintData(
-        Context* context, const PaintParams& p) {
+        SkShaderCodeDictionary* dictionary, const PaintParams& p) {
     SkPaintParamsKey key;
     sk_sp<SkUniformData> uniforms;
-
-    auto dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkUniformBlock> block = std::make_unique<SkUniformBlock>();
 
@@ -305,12 +303,12 @@ std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintD
     }
 
     if (p.blender()) {
-        as_BB(p.blender())->addToKey(dict, SkBackend::kGraphite, &key, block.get());
+        as_BB(p.blender())->addToKey(dictionary, SkBackend::kGraphite, &key, block.get());
     } else {
         BlendModeBlock::AddToKey(SkBackend::kGraphite, &key, block.get(), SkBlendMode::kSrcOver);
     }
 
-    auto entry = context->priv().shaderCodeDictionary()->findOrCreate(key);
+    auto entry = dictionary->findOrCreate(key);
 
     block->add(std::move(uniforms));
 

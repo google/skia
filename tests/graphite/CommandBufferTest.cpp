@@ -17,6 +17,7 @@
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawWriter.h"
+#include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/Renderer.h"
@@ -257,7 +258,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
                                      SkTileMode::kClamp,
                                      SkBlendMode::kSrc);
 
-    auto entry = context->priv().shaderCodeDictionary()->findOrCreate(key);
+    auto dict = context->priv().globalCache()->shaderCodeDictionary();
+    auto entry = dict->findOrCreate(key);
 
     auto target = sk_sp<TextureProxy>(new TextureProxy(textureSize, textureInfo));
     REPORTER_ASSERT(reporter, target);
@@ -304,7 +306,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
         drawWriter.newPipelineState(step->primitiveType(),
                                     step->vertexStride(),
                                     step->instanceStride());
-        auto pipeline = gpu->resourceProvider()->findOrCreateGraphicsPipeline(context,
+        auto pipeline = gpu->resourceProvider()->findOrCreateGraphicsPipeline(dict,
                                                                               pipelineDesc,
                                                                               renderPassDesc);
         commandBuffer->bindGraphicsPipeline(std::move(pipeline));

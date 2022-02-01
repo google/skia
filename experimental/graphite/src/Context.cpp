@@ -14,6 +14,7 @@
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextUtils.h"
+#include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Renderer.h"
@@ -29,8 +30,8 @@ namespace skgpu {
 
 Context::Context(sk_sp<Gpu> gpu, BackendApi backend)
         : fGpu(std::move(gpu))
-        , fBackend(backend)
-        , fShaderCodeDictionary(std::make_unique<SkShaderCodeDictionary>()) {
+        , fGlobalCache(sk_make_sp<GlobalCache>())
+        , fBackend(backend) {
 }
 Context::~Context() {}
 
@@ -83,8 +84,8 @@ void Context::preCompile(const PaintCombo& paintCombo) {
                     for (const Renderer* r : kRenderers) {
                         for (auto&& s : r->steps()) {
                             if (s->performsShading()) {
-
-                                auto entry = fShaderCodeDictionary->findOrCreate(key);
+                                auto entry =
+                                        fGlobalCache->shaderCodeDictionary()->findOrCreate(key);
                                 desc.setProgram(s, entry->uniqueID());
                             }
                             // TODO: Combine with renderpass description set to generate full

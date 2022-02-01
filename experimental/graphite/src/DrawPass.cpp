@@ -15,6 +15,7 @@
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawWriter.h"
+#include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Renderer.h"
@@ -293,8 +294,9 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         std::unique_ptr<SkUniformBlock> shadingUniforms;
         uint32_t shadingIndex = UniformCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
-            std::tie(shaderID, shadingUniforms) = ExtractPaintData(recorder->context(),
-                                                                   draw.fPaintParams.value());
+            SkShaderCodeDictionary* dict =
+                    recorder->context()->priv().globalCache()->shaderCodeDictionary();
+            std::tie(shaderID, shadingUniforms) = ExtractPaintData(dict, draw.fPaintParams.value());
             shadingIndex = shadingUniformBindings.addUniforms(std::move(shadingUniforms));
         } // else depth-only
 
@@ -436,7 +438,9 @@ void DrawPass::addCommands(Context* context, CommandBuffer* buffer,
     fullPipelines.reserve(fPipelineDescs.count());
     for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs.items()) {
         fullPipelines.push_back(resourceProvider->findOrCreateGraphicsPipeline(
-                context, pipelineDesc, renderPassDesc));
+                context->priv().globalCache()->shaderCodeDictionary(),
+                pipelineDesc,
+                renderPassDesc));
     }
 
     // Set viewport to the entire texture for now (eventually, we may have logically smaller bounds

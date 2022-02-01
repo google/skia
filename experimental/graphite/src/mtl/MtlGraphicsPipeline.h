@@ -15,6 +15,8 @@
 
 #import <Metal/Metal.h>
 
+class SkShaderCodeDictionary;
+
 namespace skgpu {
 class Context;
 class GraphicsPipelineDesc;
@@ -32,7 +34,7 @@ public:
     inline static constexpr unsigned int kVertexBufferIndex = 3;
     inline static constexpr unsigned int kInstanceBufferIndex = 4;
 
-    static sk_sp<GraphicsPipeline> Make(const Context*,
+    static sk_sp<GraphicsPipeline> Make(const SkShaderCodeDictionary*,
                                         const Gpu*,
                                         const skgpu::GraphicsPipelineDesc&,
                                         const skgpu::RenderPassDesc&);

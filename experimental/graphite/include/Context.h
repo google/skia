@@ -16,12 +16,11 @@
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 
-class SkShaderCodeDictionary;
-
 namespace skgpu {
 
 class BackendTexture;
 class ContextPriv;
+class GlobalCache;
 class Gpu;
 class Recorder;
 class Recording;
@@ -103,8 +102,8 @@ private:
 
     std::vector<std::unique_ptr<Recording>> fRecordings;
     sk_sp<Gpu> fGpu;
+    sk_sp<GlobalCache> fGlobalCache;
     BackendApi fBackend;
-    std::unique_ptr<SkShaderCodeDictionary> fShaderCodeDictionary;
 };
 
 } // namespace skgpu

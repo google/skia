@@ -8,7 +8,6 @@
 #include "experimental/graphite/src/mtl/MtlGraphicsPipeline.h"
 
 #include "experimental/graphite/include/TextureInfo.h"
-#include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/Renderer.h"
@@ -155,13 +154,13 @@ SkSL::String get_sksl_vs(const GraphicsPipelineDesc& desc) {
     return sksl;
 }
 
-SkSL::String get_sksl_fs(const Context* context,
+SkSL::String get_sksl_fs(const SkShaderCodeDictionary* dictionary,
                          const GraphicsPipelineDesc& desc,
                          bool* writesColor) {
     SkSL::String sksl;
 
     SkPaintParamsKey key;
-    auto entry = context->priv().shaderCodeDictionary()->lookup(desc.paintParamsID());
+    auto entry = dictionary->lookup(desc.paintParamsID());
     if (entry) {
         key = entry->paintParamsKey();
     }
@@ -338,7 +337,7 @@ enum ShaderType {
 };
 static const int kShaderTypeCount = kLast_ShaderType + 1;
 
-sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Context* context,
+sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const SkShaderCodeDictionary* dictionary,
                                                const Gpu* gpu,
                                                const skgpu::GraphicsPipelineDesc& pipelineDesc,
                                                const skgpu::RenderPassDesc& renderPassDesc) {
@@ -361,7 +360,7 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const Context* context,
 
     bool writesColor;
     if (!SkSLToMSL(gpu,
-                   get_sksl_fs(context, pipelineDesc, &writesColor),
+                   get_sksl_fs(dictionary, pipelineDesc, &writesColor),
                    SkSL::ProgramKind::kFragment,
                    settings,
                    &msl[kFragment_ShaderType],

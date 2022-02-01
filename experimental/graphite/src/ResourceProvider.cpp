@@ -27,9 +27,10 @@ ResourceProvider::~ResourceProvider() {
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
-        Context* context, const GraphicsPipelineDesc& pipelineDesc,
+        SkShaderCodeDictionary* dict,
+        const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
-    return fGraphicsPipelineCache->refPipeline(context, pipelineDesc, renderPassDesc);
+    return fGraphicsPipelineCache->refPipeline(dict, fGpu->caps(), pipelineDesc, renderPassDesc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,15 +54,17 @@ void ResourceProvider::GraphicsPipelineCache::release() {
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
-        Context* context, const GraphicsPipelineDesc& pipelineDesc,
+        SkShaderCodeDictionary* dictionary,
+        const Caps* caps,
+        const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
-    Gpu* gpu = context->priv().gpu();
-    UniqueKey pipelineKey = gpu->caps()->makeGraphicsPipelineKey(pipelineDesc, renderPassDesc);
+    UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc, renderPassDesc);
 
 	std::unique_ptr<Entry>* entry = fMap.find(pipelineKey);
 
     if (!entry) {
-        auto pipeline = fResourceProvider->onCreateGraphicsPipeline(context, pipelineDesc,
+        auto pipeline = fResourceProvider->onCreateGraphicsPipeline(dictionary,
+                                                                    pipelineDesc,
                                                                     renderPassDesc);
         if (!pipeline) {
             return nullptr;

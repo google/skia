@@ -48,6 +48,8 @@ skia_graphite_sources = [
   "$_src/DrawWriter.cpp",
   "$_src/DrawWriter.h",
   "$_src/EnumBitMask.h",
+  "$_src/GlobalCache.cpp",
+  "$_src/GlobalCache.h",
   "$_src/Gpu.cpp",
   "$_src/Gpu.h",
   "$_src/GpuWorkSubmission.h",
