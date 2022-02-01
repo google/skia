@@ -581,7 +581,9 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
     if (src->getROPixels(&resultBM)) {
         SkDraw draw;
         SkMatrixProvider matrixProvider(localToDevice);
-        draw.fDst = fBitmap.pixmap();
+        if (!this->accessPixels(&draw.fDst)) {
+          return; // no pixels to draw to so skip it
+        }
         draw.fMatrixProvider = &matrixProvider;
         draw.fRC = &fRCStack.rc();
         draw.drawBitmap(resultBM, SkMatrix::I(), nullptr, sampling, paint);
