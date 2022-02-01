@@ -40,7 +40,7 @@ struct Swizzle final : public Expression {
 
     static std::unique_ptr<Expression> Convert(const Context& context,
                                                std::unique_ptr<Expression> base,
-                                               skstd::string_view maskString);
+                                               std::string_view maskString);
 
     // Swizzle::Make does not permit ZERO or ONE in the component array, just X/Y/Z/W; errors are
     // reported via ASSERT.

@@ -64,7 +64,7 @@ DEF_TEST(SkVMDebugTraceWrite, r) {
             R"(,"line":10,"retval":11}],"functions":[{"name":"void testFunc();"}],"trace":[[2],[)"
             R"(0,5],[1,10,15],[3,20]]})";
 
-    skstd::string_view actual{reinterpret_cast<const char*>(trace->bytes()), trace->size()};
+    std::string_view actual{reinterpret_cast<const char*>(trace->bytes()), trace->size()};
 
     REPORTER_ASSERT(r, actual == kExpected,
                     "Expected:\n    %s\n\n  Actual:\n    %.*s\n",
@@ -72,7 +72,7 @@ DEF_TEST(SkVMDebugTraceWrite, r) {
 }
 
 DEF_TEST(SkVMDebugTraceRead, r) {
-    const skstd::string_view kJSONTrace =
+    const std::string_view kJSONTrace =
             R"({"version":"20220119b","source":["\t// first line","// \"second line\"","//\\\\//)"
             R"(\\\\ third line"],"slots":[{"name":"SkVM_DebugTrace","columns":1,"rows":2,"index")"
             R"(:3,"kind":4,"line":5},{"name":"Unit_Test","columns":6,"rows":7,"index":8,"kind":9)"

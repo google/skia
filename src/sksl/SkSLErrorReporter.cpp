@@ -7,12 +7,13 @@
 
 #include "include/sksl/SkSLErrorReporter.h"
 
+#include "include/private/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
 namespace SkSL {
 
-void ErrorReporter::error(skstd::string_view msg, PositionInfo position) {
+void ErrorReporter::error(std::string_view msg, PositionInfo position) {
     if (skstd::contains(msg, Compiler::POISON_TAG)) {
         // don't report errors on poison values
         return;
@@ -21,7 +22,7 @@ void ErrorReporter::error(skstd::string_view msg, PositionInfo position) {
     this->handleError(msg, position);
 }
 
-void ErrorReporter::error(int line, skstd::string_view msg) {
+void ErrorReporter::error(int line, std::string_view msg) {
     if (skstd::contains(msg, Compiler::POISON_TAG)) {
         // don't report errors on poison values
         return;

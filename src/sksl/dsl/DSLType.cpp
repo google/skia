@@ -33,7 +33,7 @@ static const SkSL::Type* verify_type(const Context& context,
 }
 
 static const SkSL::Type* find_type(const Context& context,
-                                   skstd::string_view name,
+                                   std::string_view name,
                                    PositionInfo pos) {
     const Symbol* symbol = (*ThreadContext::SymbolTable())[name];
     if (!symbol) {
@@ -51,7 +51,7 @@ static const SkSL::Type* find_type(const Context& context,
 }
 
 static const SkSL::Type* find_type(const Context& context,
-                                   skstd::string_view name,
+                                   std::string_view name,
                                    Modifiers* modifiers,
                                    PositionInfo pos) {
     const Type* type = find_type(context, name, pos);
@@ -166,10 +166,10 @@ static const SkSL::Type* get_type_from_type_constant(const Context& context, Typ
     }
 }
 
-DSLType::DSLType(skstd::string_view name)
+DSLType::DSLType(std::string_view name)
         : fSkSLType(find_type(ThreadContext::Context(), name, PositionInfo())) {}
 
-DSLType::DSLType(skstd::string_view name, DSLModifiers* modifiers, PositionInfo position)
+DSLType::DSLType(std::string_view name, DSLModifiers* modifiers, PositionInfo position)
         : fSkSLType(find_type(ThreadContext::Context(), name, &modifiers->fModifiers, position)) {}
 
 DSLType::DSLType(const SkSL::Type* type)
@@ -259,7 +259,7 @@ DSLType Array(const DSLType& base, int count, PositionInfo pos) {
     return ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(), count);
 }
 
-DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos) {
+DSLType Struct(std::string_view name, SkSpan<DSLField> fields, PositionInfo pos) {
     std::vector<SkSL::Type::Field> skslFields;
     skslFields.reserve(fields.size());
     for (const DSLField& field : fields) {

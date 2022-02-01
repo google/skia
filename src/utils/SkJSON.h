@@ -8,13 +8,13 @@
 #ifndef SkJSON_DEFINED
 #define SkJSON_DEFINED
 
-#include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 
 #include <cstring>
+#include <string_view>
 
 class SkString;
 class SkWStream;
@@ -316,8 +316,8 @@ public:
             : this->cast<VectorValue<char, Value::Type::kString>>()->end();
     }
 
-    skstd::string_view str() const {
-        return skstd::string_view(this->begin(), this->size());
+    std::string_view str() const {
+        return std::string_view(this->begin(), this->size());
     }
 };
 

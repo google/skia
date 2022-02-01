@@ -9,8 +9,8 @@
 #define SKSL_INTERFACEBLOCK
 
 #include <memory>
+#include <string_view>
 
-#include "include/core/SkStringView.h"
 #include "include/private/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -33,8 +33,8 @@ public:
 
     InterfaceBlock(int line,
                    const Variable& var,
-                   skstd::string_view typeName,
-                   skstd::string_view instanceName,
+                   std::string_view typeName,
+                   std::string_view instanceName,
                    int arraySize,
                    std::shared_ptr<SymbolTable> typeOwner)
             : INHERITED(line, kProgramElementKind)
@@ -52,11 +52,11 @@ public:
         return fVariable;
     }
 
-    skstd::string_view typeName() const {
+    std::string_view typeName() const {
         return fTypeName;
     }
 
-    skstd::string_view instanceName() const {
+    std::string_view instanceName() const {
         return fInstanceName;
     }
 
@@ -95,8 +95,8 @@ public:
 
 private:
     const Variable& fVariable;
-    skstd::string_view fTypeName;
-    skstd::string_view fInstanceName;
+    std::string_view fTypeName;
+    std::string_view fInstanceName;
     int fArraySize;
     std::shared_ptr<SymbolTable> fTypeOwner;
 

@@ -5,6 +5,8 @@ This file includes a list of high level updates for each milestone release.
 Milestone 100
 -------------
   * Skia now requires C++17 and the corresponding standard library (or newer).
+  * Skia on iOS now requires iOS 11 to build; earlier versions of iOS do not support C++17.
+  * The skstd::string_view class has been replaced with the C++17 native std::string_view.
 
 * * *
 

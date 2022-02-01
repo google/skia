@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include "include/private/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"
@@ -29,7 +30,7 @@ const Expression* Variable::initialValue() const {
 }
 
 std::unique_ptr<Variable> Variable::Convert(const Context& context, int line,
-        const Modifiers& modifiers, const Type* baseType, skstd::string_view name, bool isArray,
+        const Modifiers& modifiers, const Type* baseType, std::string_view name, bool isArray,
         std::unique_ptr<Expression> arraySize, Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
@@ -44,7 +45,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, int line,
 }
 
 std::unique_ptr<Variable> Variable::Make(const Context& context, int line,
-        const Modifiers& modifiers, const Type* baseType, skstd::string_view name, bool isArray,
+        const Modifiers& modifiers, const Type* baseType, std::string_view name, bool isArray,
         std::unique_ptr<Expression> arraySize, Variable::Storage storage) {
     const Type* type = baseType;
     int arraySizeValue = 0;
@@ -61,7 +62,7 @@ std::unique_ptr<Variable> Variable::Make(const Context& context, int line,
 }
 
 Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
-                                                        skstd::string_view baseName,
+                                                        std::string_view baseName,
                                                         const Type* type,
                                                         const Modifiers& modifiers,
                                                         SymbolTable* symbolTable,

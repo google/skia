@@ -77,10 +77,10 @@ public:
     }
 };
 
-std::unordered_map<skstd::string_view, DSLParser::LayoutToken>* DSLParser::layoutTokens;
+std::unordered_map<std::string_view, DSLParser::LayoutToken>* DSLParser::layoutTokens;
 
 void DSLParser::InitLayoutMap() {
-    layoutTokens = new std::unordered_map<skstd::string_view, LayoutToken>;
+    layoutTokens = new std::unordered_map<std::string_view, LayoutToken>;
     #define TOKEN(name, text) (*layoutTokens)[text] = LayoutToken::name
     TOKEN(LOCATION,                     "location");
     TOKEN(OFFSET,                       "offset");
@@ -223,8 +223,8 @@ bool DSLParser::checkIdentifier(Token* result) {
     return true;
 }
 
-skstd::string_view DSLParser::text(Token token) {
-    return skstd::string_view(fText->data() + token.fOffset, token.fLength);
+std::string_view DSLParser::text(Token token) {
+    return std::string_view(fText->data() + token.fOffset, token.fLength);
 }
 
 PositionInfo DSLParser::position(Token t) {
@@ -304,7 +304,7 @@ void DSLParser::directive() {
     if (!this->expect(Token::Kind::TK_DIRECTIVE, "a directive", &start)) {
         return;
     }
-    skstd::string_view text = this->text(start);
+    std::string_view text = this->text(start);
     const bool allowExtensions = !ProgramConfig::IsRuntimeEffect(fKind);
     if (text == "#extension" && allowExtensions) {
         Token name;
@@ -318,7 +318,7 @@ void DSLParser::directive() {
         if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &behavior)) {
             return;
         }
-        skstd::string_view behaviorText = this->text(behavior);
+        std::string_view behaviorText = this->text(behavior);
         if (behaviorText == "disable") {
             return;
         }
@@ -471,7 +471,7 @@ bool DSLParser::parseInitializer(int line, DSLExpression* initializer) {
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 void DSLParser::globalVarDeclarationEnd(PositionInfo pos, const dsl::DSLModifiers& mods,
-        dsl::DSLType baseType, skstd::string_view name) {
+        dsl::DSLType baseType, std::string_view name) {
     using namespace dsl;
     int line = this->peek().fLine;
     DSLType type = baseType;
@@ -510,7 +510,7 @@ void DSLParser::globalVarDeclarationEnd(PositionInfo pos, const dsl::DSLModifier
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 DSLStatement DSLParser::localVarDeclarationEnd(PositionInfo pos, const dsl::DSLModifiers& mods,
-        dsl::DSLType baseType, skstd::string_view name) {
+        dsl::DSLType baseType, std::string_view name) {
     using namespace dsl;
     int line = this->peek().fLine;
     DSLType type = baseType;
@@ -689,7 +689,7 @@ skstd::optional<DSLWrapper<DSLParameter>> DSLParser::parameter(size_t paramIndex
         return skstd::nullopt;
     }
     Token name;
-    skstd::string_view paramText;
+    std::string_view paramText;
     PositionInfo paramPos;
     if (this->checkIdentifier(&name)) {
         paramPos = this->position(name);
@@ -714,7 +714,7 @@ int DSLParser::layoutInt() {
     if (!this->expect(Token::Kind::TK_INT_LITERAL, "a non-negative integer", &resultToken)) {
         return -1;
     }
-    skstd::string_view resultFrag = this->text(resultToken);
+    std::string_view resultFrag = this->text(resultToken);
     SKSL_INT resultValue;
     if (!SkSL::stoi(resultFrag, &resultValue)) {
         this->error(resultToken, "value in layout is too large: " + resultFrag);
@@ -724,7 +724,7 @@ int DSLParser::layoutInt() {
 }
 
 /** EQ IDENTIFIER */
-skstd::string_view DSLParser::layoutIdentifier() {
+std::string_view DSLParser::layoutIdentifier() {
     if (!this->expect(Token::Kind::TK_EQ, "'='")) {
         return {};
     }
@@ -945,7 +945,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         }
         while (this->checkNext(Token::Kind::TK_COMMA));
     }
-    skstd::string_view instanceName;
+    std::string_view instanceName;
     Token instanceNameToken;
     SKSL_INT arraySize = 0;
     if (this->checkIdentifier(&instanceNameToken)) {
@@ -1626,7 +1626,7 @@ DSLExpression DSLParser::postfixExpression() {
 }
 
 DSLExpression DSLParser::swizzle(int line, DSLExpression base,
-        skstd::string_view swizzleMask) {
+        std::string_view swizzleMask) {
     SkASSERT(swizzleMask.length() > 0);
     if (!base.type().isVector() && !base.type().isScalar()) {
         return base.field(swizzleMask, this->position(line));
@@ -1704,7 +1704,7 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
         }
         case Token::Kind::TK_DOT: {
             int line = this->peek().fLine;
-            skstd::string_view text;
+            std::string_view text;
             if (this->identifier(&text)) {
                 return this->swizzle(line, std::move(base), text);
             }
@@ -1713,7 +1713,7 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
         case Token::Kind::TK_FLOAT_LITERAL: {
             // Swizzles that start with a constant number, e.g. '.000r', will be tokenized as
             // floating point literals, possibly followed by an identifier. Handle that here.
-            skstd::string_view field = this->text(next);
+            std::string_view field = this->text(next);
             SkASSERT(field[0] == '.');
             field.remove_prefix(1);
             // use the next *raw* token so we don't ignore whitespace - we only care about
@@ -1761,7 +1761,7 @@ DSLExpression DSLParser::term() {
     Token t = this->peek();
     switch (t.fKind) {
         case Token::Kind::TK_IDENTIFIER: {
-            skstd::string_view text;
+            std::string_view text;
             if (this->identifier(&text)) {
                 return dsl::Symbol(text, this->position(t));
             }
@@ -1815,7 +1815,7 @@ bool DSLParser::intLiteral(SKSL_INT* dest) {
     if (!this->expect(Token::Kind::TK_INT_LITERAL, "integer literal", &t)) {
         return false;
     }
-    skstd::string_view s = this->text(t);
+    std::string_view s = this->text(t);
     if (!SkSL::stoi(s, dest)) {
         this->error(t, "integer is too large: " + s);
         return false;
@@ -1829,7 +1829,7 @@ bool DSLParser::floatLiteral(SKSL_FLOAT* dest) {
     if (!this->expect(Token::Kind::TK_FLOAT_LITERAL, "float literal", &t)) {
         return false;
     }
-    skstd::string_view s = this->text(t);
+    std::string_view s = this->text(t);
     if (!SkSL::stod(s, dest)) {
         this->error(t, "floating-point value is too large: " + s);
         return false;
@@ -1854,7 +1854,7 @@ bool DSLParser::boolLiteral(bool* dest) {
 }
 
 /* IDENTIFIER */
-bool DSLParser::identifier(skstd::string_view* dest) {
+bool DSLParser::identifier(std::string_view* dest) {
     Token t;
     if (this->expect(Token::Kind::TK_IDENTIFIER, "identifier", &t)) {
         *dest = this->text(t);

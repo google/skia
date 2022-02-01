@@ -8,13 +8,13 @@
 #include "tools/flags/CommonFlagsConfig.h"
 
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkStringView.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkSurfacePriv.h"
 
 #include <stdlib.h>
+#include <string_view>
 #include <unordered_map>
 
 using sk_gpu_test::GrContextFactory;
@@ -233,7 +233,7 @@ SkCommandLineConfig::SkCommandLineConfig(const SkString& tag,
                                          const SkTArray<SkString>& viaParts)
         : fTag(tag), fBackend(backend) {
 
-    static std::unordered_map<skstd::string_view, sk_sp<SkColorSpace>> kColorSpaces = {
+    static std::unordered_map<std::string_view, sk_sp<SkColorSpace>> kColorSpaces = {
         // 'narrow' has a gamut narrower than sRGB, and different transfer function.
         { "narrow",  SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50) },
         { "srgb",    SkColorSpace::MakeSRGB() },

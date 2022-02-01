@@ -27,11 +27,11 @@ class DSLType;
 class DSLFunction {
 public:
     template<class... Parameters>
-    DSLFunction(const DSLType& returnType, skstd::string_view name, Parameters&... parameters)
+    DSLFunction(const DSLType& returnType, std::string_view name, Parameters&... parameters)
         : DSLFunction(DSLModifiers(), returnType, name, parameters...) {}
 
     template<class... Parameters>
-    DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, skstd::string_view name,
+    DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, std::string_view name,
                 Parameters&... parameters) {
         SkTArray<DSLParameter*> parameterArray;
         parameterArray.reserve_back(sizeof...(parameters));
@@ -45,12 +45,12 @@ public:
         this->init(modifiers, returnType, name, std::move(parameterArray), PositionInfo());
     }
 
-    DSLFunction(const DSLType& returnType, skstd::string_view name,
+    DSLFunction(const DSLType& returnType, std::string_view name,
                 SkTArray<DSLParameter*> parameters, PositionInfo pos = PositionInfo::Capture()) {
         this->init(DSLModifiers(), returnType, name, std::move(parameters), pos);
     }
 
-    DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, skstd::string_view name,
+    DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, std::string_view name,
                 SkTArray<DSLParameter*> parameters, PositionInfo pos = PositionInfo::Capture()) {
         this->init(modifiers, returnType, name, std::move(parameters), pos);
     }
@@ -102,7 +102,7 @@ private:
         collectArgs(args, std::forward<RemainingArgs>(remaining)...);
     }
 
-    void init(DSLModifiers modifiers, const DSLType& returnType, skstd::string_view name,
+    void init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
               SkTArray<DSLParameter*> params, PositionInfo pos);
 
     const SkSL::FunctionDeclaration* fDecl = nullptr;

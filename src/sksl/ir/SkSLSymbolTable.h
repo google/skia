@@ -74,7 +74,7 @@ public:
      * UnresolvedFunction symbol (pointing to all of the candidates) will be added to the symbol
      * table and returned.
      */
-    const Symbol* operator[](skstd::string_view name);
+    const Symbol* operator[](std::string_view name);
 
     void addWithoutOwnership(const Symbol* symbol);
 
@@ -139,7 +139,7 @@ public:
 
 private:
     struct SymbolKey {
-        skstd::string_view fName;
+        std::string_view fName;
         uint32_t       fHash;
 
         bool operator==(const SymbolKey& that) const { return fName == that.fName; }
@@ -149,7 +149,7 @@ private:
         };
     };
 
-    static SymbolKey MakeSymbolKey(skstd::string_view name) {
+    static SymbolKey MakeSymbolKey(std::string_view name) {
         return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
     }
 

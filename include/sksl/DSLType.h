@@ -86,9 +86,9 @@ public:
 
     DSLType(const SkSL::Type* type);
 
-    DSLType(skstd::string_view name);
+    DSLType(std::string_view name);
 
-    DSLType(skstd::string_view name,
+    DSLType(std::string_view name,
             DSLModifiers* modifiers,
             PositionInfo pos = PositionInfo::Capture());
 
@@ -174,7 +174,7 @@ private:
     TypeConstant fTypeConstant = kPoison_Type;
 
     friend DSLType Array(const DSLType& base, int count, PositionInfo pos);
-    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
+    friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLVarBase;
@@ -224,11 +224,11 @@ DSLType Array(const DSLType& base, int count, PositionInfo pos = PositionInfo::C
 
 class DSLField {
 public:
-    DSLField(const DSLType type, skstd::string_view name,
+    DSLField(const DSLType type, std::string_view name,
              PositionInfo pos = PositionInfo::Capture())
         : DSLField(DSLModifiers(), type, name, pos) {}
 
-    DSLField(const DSLModifiers& modifiers, const DSLType type, skstd::string_view name,
+    DSLField(const DSLModifiers& modifiers, const DSLType type, std::string_view name,
              PositionInfo pos = PositionInfo::Capture())
         : fModifiers(modifiers)
         , fType(type)
@@ -238,18 +238,18 @@ public:
 private:
     DSLModifiers fModifiers;
     const DSLType fType;
-    skstd::string_view fName;
+    std::string_view fName;
     PositionInfo fPosition;
 
     friend class DSLCore;
-    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
+    friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
 };
 
-DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields,
+DSLType Struct(std::string_view name, SkSpan<DSLField> fields,
                PositionInfo pos = PositionInfo::Capture());
 
 template<typename... Field>
-DSLType Struct(skstd::string_view name, Field... fields) {
+DSLType Struct(std::string_view name, Field... fields) {
     DSLField fieldTypes[] = {std::move(fields)...};
     return Struct(name, SkMakeSpan(fieldTypes), PositionInfo());
 }

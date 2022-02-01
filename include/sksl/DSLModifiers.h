@@ -49,7 +49,7 @@ public:
 private:
     SkSL::Modifiers fModifiers;
 
-    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
+    friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, PositionInfo pos);
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLType;

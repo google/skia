@@ -200,11 +200,11 @@ private:
         return this->readS32();
     }
 
-    skstd::string_view readString() {
+    std::string_view readString() {
         uint16_t offset = this->readU16();
         uint8_t length = *(uint8_t*) (fStringStart + offset);
         const char* chars = (const char*) fStringStart + offset + 1;
-        return skstd::string_view(chars, length);
+        return std::string_view(chars, length);
     }
 
     void addSymbol(int id, const Symbol* symbol) {

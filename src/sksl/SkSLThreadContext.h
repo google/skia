@@ -8,7 +8,6 @@
 #ifndef SKSL_THREADCONTEXT
 #define SKSL_THREADCONTEXT
 
-#include "include/core/SkStringView.h"
 #include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -17,6 +16,7 @@
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include <list>
 #include <stack>
+#include <string_view>
 
 namespace SkSL {
 
@@ -175,7 +175,7 @@ public:
      * Notifies the current ErrorReporter that an error has occurred. The default error handler
      * prints the message to stderr and aborts.
      */
-    static void ReportError(skstd::string_view msg, PositionInfo info = PositionInfo::Capture());
+    static void ReportError(std::string_view msg, PositionInfo info = PositionInfo::Capture());
 
     /**
      * Forwards any pending errors to the DSL ErrorReporter.
@@ -188,7 +188,7 @@ public:
 
 private:
     class DefaultErrorReporter : public ErrorReporter {
-        void handleError(skstd::string_view msg, PositionInfo pos) override;
+        void handleError(std::string_view msg, PositionInfo pos) override;
     };
 
     void setupSymbolTable();

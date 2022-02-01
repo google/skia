@@ -38,9 +38,9 @@ static void writeH(const DFA& dfa, const char* lexer, const char* token,
     out << HEADER;
     out << "#ifndef SKSL_" << lexer << "\n";
     out << "#define SKSL_" << lexer << "\n";
-    out << "#include \"include/core/SkStringView.h\"\n";
     out << "#include <cstddef>\n";
     out << "#include <cstdint>\n";
+    out << "#include <string_view>\n";
     out << "namespace SkSL {\n";
     out << "\n";
     out << "struct " << token << " {\n";
@@ -68,7 +68,7 @@ static void writeH(const DFA& dfa, const char* lexer, const char* token,
 
 class )" << lexer << R"( {
 public:
-    void start(skstd::string_view text) {
+    void start(std::string_view text) {
         fText = text;
         fOffset = 0;
         fLine = 1;
@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    skstd::string_view fText;
+    std::string_view fText;
     int32_t fOffset;
     int32_t fLine;
 };

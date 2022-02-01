@@ -42,7 +42,7 @@ public:
 
     inline static constexpr Kind kSymbolKind = Kind::kVariable;
 
-    Variable(int line, const Modifiers* modifiers, skstd::string_view name, const Type* type,
+    Variable(int line, const Modifiers* modifiers, std::string_view name, const Type* type,
              bool builtin, Storage storage)
     : INHERITED(line, kSymbolKind, name, type)
     , fModifiers(modifiers)
@@ -52,11 +52,11 @@ public:
     ~Variable() override;
 
     static std::unique_ptr<Variable> Convert(const Context& context, int line,
-            const Modifiers& modifiers, const Type* baseType, skstd::string_view name, bool isArray,
+            const Modifiers& modifiers, const Type* baseType, std::string_view name, bool isArray,
             std::unique_ptr<Expression> arraySize, Variable::Storage storage);
 
     static std::unique_ptr<Variable> Make(const Context& context, int line,
-            const Modifiers& modifiers, const Type* baseType, skstd::string_view name, bool isArray,
+            const Modifiers& modifiers, const Type* baseType, std::string_view name, bool isArray,
             std::unique_ptr<Expression> arraySize, Variable::Storage storage);
 
     /**
@@ -68,7 +68,7 @@ public:
         std::unique_ptr<Statement> fVarDecl;
     };
     static ScratchVariable MakeScratchVariable(const Context& context,
-                                               skstd::string_view baseName,
+                                               std::string_view baseName,
                                                const Type* type,
                                                const Modifiers& modifiers,
                                                SymbolTable* symbolTable,

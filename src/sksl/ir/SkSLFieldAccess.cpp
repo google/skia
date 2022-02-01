@@ -17,7 +17,7 @@ namespace SkSL {
 std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
                                                  SymbolTable& symbolTable,
                                                  std::unique_ptr<Expression> base,
-                                                 skstd::string_view field) {
+                                                 std::string_view field) {
     const Type& baseType = base->type();
     if (baseType.isEffectChild()) {
         // Turn the field name into a free function name, prefixed with '$':

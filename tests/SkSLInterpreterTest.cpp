@@ -1020,7 +1020,7 @@ int main() {
     debugTrace.dump(&streamDump);
 
     sk_sp<SkData> dataDump = streamDump.detachAsData();
-    skstd::string_view trace{static_cast<const char*>(dataDump->data()), dataDump->size()};
+    std::string_view trace{static_cast<const char*>(dataDump->data()), dataDump->size()};
 
     REPORTER_ASSERT(r, result == 40);
     REPORTER_ASSERT(r, trace ==

@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLType.h"
 
+#include "include/private/SkStringView.h"
 #include "include/private/SkTOptional.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -19,13 +20,15 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <string_view>
+
 namespace SkSL {
 
 static constexpr int kMaxStructDepth = 8;
 
 class AliasType final : public Type {
 public:
-    AliasType(skstd::string_view name, const Type& targetType)
+    AliasType(std::string_view name, const Type& targetType)
         : INHERITED(name, targetType.abbreviatedName(), targetType.typeKind())
         , fTargetType(targetType) {}
 
@@ -119,7 +122,7 @@ class ArrayType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kArray;
 
-    ArrayType(skstd::string_view name, const char* abbrev, const Type& componentType, int count)
+    ArrayType(std::string_view name, const char* abbrev, const Type& componentType, int count)
         : INHERITED(name, abbrev, kTypeKind)
         , fComponentType(componentType)
         , fCount(count) {
@@ -244,7 +247,7 @@ class ScalarType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kScalar;
 
-    ScalarType(skstd::string_view name, const char* abbrev, NumberKind numberKind, int8_t priority,
+    ScalarType(std::string_view name, const char* abbrev, NumberKind numberKind, int8_t priority,
                int8_t bitWidth)
         : INHERITED(name, abbrev, kTypeKind)
         , fNumberKind(numberKind)
@@ -295,7 +298,7 @@ class MatrixType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kMatrix;
 
-    MatrixType(skstd::string_view name, const char* abbrev, const Type& componentType,
+    MatrixType(std::string_view name, const char* abbrev, const Type& componentType,
                int8_t columns, int8_t rows)
         : INHERITED(name, abbrev, kTypeKind)
         , fComponentType(componentType.as<ScalarType>())
@@ -426,7 +429,7 @@ class StructType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kStruct;
 
-    StructType(int line, skstd::string_view name, std::vector<Field> fields, bool interfaceBlock)
+    StructType(int line, std::string_view name, std::vector<Field> fields, bool interfaceBlock)
         : INHERITED(std::move(name), "S", kTypeKind, line)
         , fFields(std::move(fields))
         , fInterfaceBlock(interfaceBlock) {}
@@ -474,7 +477,7 @@ class VectorType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kVector;
 
-    VectorType(skstd::string_view name, const char* abbrev, const Type& componentType,
+    VectorType(std::string_view name, const char* abbrev, const Type& componentType,
                int8_t columns)
         : INHERITED(name, abbrev, kTypeKind)
         , fComponentType(componentType.as<ScalarType>())
@@ -518,15 +521,15 @@ private:
 };
 
 String Type::getArrayName(int arraySize) const {
-    skstd::string_view name = this->name();
+    std::string_view name = this->name();
     return String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize);
 }
 
-std::unique_ptr<Type> Type::MakeAliasType(skstd::string_view name, const Type& targetType) {
+std::unique_ptr<Type> Type::MakeAliasType(std::string_view name, const Type& targetType) {
     return std::make_unique<AliasType>(std::move(name), targetType);
 }
 
-std::unique_ptr<Type> Type::MakeArrayType(skstd::string_view name, const Type& componentType,
+std::unique_ptr<Type> Type::MakeArrayType(std::string_view name, const Type& componentType,
                                           int columns) {
     return std::make_unique<ArrayType>(std::move(name), componentType.abbreviatedName(),
                                        componentType, columns);
@@ -541,7 +544,7 @@ std::unique_ptr<Type> Type::MakeLiteralType(const char* name, const Type& scalar
     return std::make_unique<LiteralType>(name, scalarType, priority);
 }
 
-std::unique_ptr<Type> Type::MakeMatrixType(skstd::string_view name, const char* abbrev,
+std::unique_ptr<Type> Type::MakeMatrixType(std::string_view name, const char* abbrev,
                                            const Type& componentType, int columns, int8_t rows) {
     return std::make_unique<MatrixType>(name, abbrev, componentType, columns, rows);
 }
@@ -555,14 +558,14 @@ std::unique_ptr<Type> Type::MakeSpecialType(const char* name, const char* abbrev
     return std::unique_ptr<Type>(new Type(name, abbrev, typeKind));
 }
 
-std::unique_ptr<Type> Type::MakeScalarType(skstd::string_view name, const char* abbrev,
+std::unique_ptr<Type> Type::MakeScalarType(std::string_view name, const char* abbrev,
                                            Type::NumberKind numberKind, int8_t priority,
                                            int8_t bitWidth) {
     return std::make_unique<ScalarType>(name, abbrev, numberKind, priority, bitWidth);
 
 }
 
-std::unique_ptr<Type> Type::MakeStructType(int line, skstd::string_view name,
+std::unique_ptr<Type> Type::MakeStructType(int line, std::string_view name,
                                            std::vector<Field> fields, bool interfaceBlock) {
     return std::make_unique<StructType>(line, name, std::move(fields), interfaceBlock);
 }
@@ -574,7 +577,7 @@ std::unique_ptr<Type> Type::MakeTextureType(const char* name, SpvDim_ dimensions
                                          isMultisampled, isSampled);
 }
 
-std::unique_ptr<Type> Type::MakeVectorType(skstd::string_view name, const char* abbrev,
+std::unique_ptr<Type> Type::MakeVectorType(std::string_view name, const char* abbrev,
                                            const Type& componentType, int columns) {
     return std::make_unique<VectorType>(name, abbrev, componentType, columns);
 }
@@ -879,6 +882,10 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     }
     context.fErrors->error(line, "cannot construct '" + this->displayName() + "'");
     return nullptr;
+}
+
+bool Type::isPrivate() const {
+    return skstd::starts_with(this->name(), '$');
 }
 
 bool Type::isOrContainsArray() const {

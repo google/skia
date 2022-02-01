@@ -164,7 +164,7 @@ DSLExpression DSLExpression::a(PositionInfo pos) {
     return Swizzle(std::move(*this), A, pos);
 }
 
-DSLExpression DSLExpression::field(skstd::string_view name, PositionInfo pos) {
+DSLExpression DSLExpression::field(std::string_view name, PositionInfo pos) {
     return DSLExpression(FieldAccess::Convert(ThreadContext::Context(),
             *ThreadContext::SymbolTable(), this->release(), name), pos);
 }
@@ -332,7 +332,7 @@ DSLExpression DSLPossibleExpression::a(PositionInfo pos) {
     return DSLExpression(this->release()).a(pos);
 }
 
-DSLExpression DSLPossibleExpression::field(skstd::string_view name, PositionInfo pos) {
+DSLExpression DSLPossibleExpression::field(std::string_view name, PositionInfo pos) {
     return DSLExpression(this->release()).field(name, pos);
 }
 

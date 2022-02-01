@@ -8,7 +8,6 @@
 #ifndef SKSL_DSLWRITER
 #define SKSL_DSLWRITER
 
-#include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
@@ -16,6 +15,7 @@
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
 #include <memory>
+#include <string_view>
 
 namespace SkSL {
 
@@ -55,7 +55,7 @@ public:
      */
     static bool ManglingEnabled();
 
-    static skstd::string_view Name(skstd::string_view name);
+    static std::string_view Name(std::string_view name);
 
     /**
      * Returns the SkSL variable corresponding to a DSL var.

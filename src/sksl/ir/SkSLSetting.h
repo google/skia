@@ -22,7 +22,7 @@ class Setting final : public Expression {
 public:
     inline static constexpr Kind kExpressionKind = Kind::kSetting;
 
-    Setting(int line, skstd::string_view name, const Type* type)
+    Setting(int line, std::string_view name, const Type* type)
         : INHERITED(line, kExpressionKind, type)
         , fName(std::move(name)) {}
 
@@ -31,13 +31,13 @@ public:
     // (There's no failsafe Make equivalent, because there really isn't a good fallback expression
     // to produce when the `name` lookup fails. We wouldn't even know the expected type.)
     static std::unique_ptr<Expression> Convert(const Context& context, int line,
-                                               const skstd::string_view& name);
+                                               const std::string_view& name);
 
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<Setting>(fLine, this->name(), &this->type());
     }
 
-    const skstd::string_view& name() const {
+    const std::string_view& name() const {
         return fName;
     }
 
@@ -50,7 +50,7 @@ public:
     }
 
 private:
-    skstd::string_view fName;
+    std::string_view fName;
 
     using INHERITED = Expression;
 };

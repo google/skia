@@ -58,13 +58,13 @@ static const char* operator_name(Operator op) {
 class MetalCodeGenerator::GlobalStructVisitor {
 public:
     virtual ~GlobalStructVisitor() = default;
-    virtual void visitInterfaceBlock(const InterfaceBlock& block, skstd::string_view blockName) = 0;
-    virtual void visitTexture(const Type& type, skstd::string_view name) = 0;
-    virtual void visitSampler(const Type& type, skstd::string_view name) = 0;
+    virtual void visitInterfaceBlock(const InterfaceBlock& block, std::string_view blockName) = 0;
+    virtual void visitTexture(const Type& type, std::string_view name) = 0;
+    virtual void visitSampler(const Type& type, std::string_view name) = 0;
     virtual void visitVariable(const Variable& var, const Expression* value) = 0;
 };
 
-void MetalCodeGenerator::write(skstd::string_view s) {
+void MetalCodeGenerator::write(std::string_view s) {
     if (s.empty()) {
         return;
     }
@@ -77,7 +77,7 @@ void MetalCodeGenerator::write(skstd::string_view s) {
     fAtLineStart = false;
 }
 
-void MetalCodeGenerator::writeLine(skstd::string_view s) {
+void MetalCodeGenerator::writeLine(std::string_view s) {
     this->write(s);
     fOut->writeText(fLineEnding);
     fAtLineStart = true;
@@ -2061,7 +2061,7 @@ void MetalCodeGenerator::writeVarInitializer(const Variable& var, const Expressi
     this->writeExpression(value, Precedence::kTopLevel);
 }
 
-void MetalCodeGenerator::writeName(skstd::string_view name) {
+void MetalCodeGenerator::writeName(std::string_view name) {
     if (fReservedWords.find(name) != fReservedWords.end()) {
         this->write("_"); // adding underscore before name to avoid conflict with reserved words
     }
@@ -2420,7 +2420,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
     class : public GlobalStructVisitor {
     public:
         void visitInterfaceBlock(const InterfaceBlock& block,
-                                 skstd::string_view blockName) override {
+                                 std::string_view blockName) override {
             this->addElement();
             fCodeGen->write("    constant ");
             fCodeGen->write(block.typeName());
@@ -2428,7 +2428,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->writeName(blockName);
             fCodeGen->write(";\n");
         }
-        void visitTexture(const Type& type, skstd::string_view name) override {
+        void visitTexture(const Type& type, std::string_view name) override {
             this->addElement();
             fCodeGen->write("    ");
             fCodeGen->writeType(type);
@@ -2436,7 +2436,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->writeName(name);
             fCodeGen->write(";\n");
         }
-        void visitSampler(const Type&, skstd::string_view name) override {
+        void visitSampler(const Type&, std::string_view name) override {
             this->addElement();
             fCodeGen->write("    sampler ");
             fCodeGen->writeName(name);
@@ -2477,16 +2477,16 @@ void MetalCodeGenerator::writeGlobalInit() {
     class : public GlobalStructVisitor {
     public:
         void visitInterfaceBlock(const InterfaceBlock& blockType,
-                                 skstd::string_view blockName) override {
+                                 std::string_view blockName) override {
             this->addElement();
             fCodeGen->write("&");
             fCodeGen->writeName(blockName);
         }
-        void visitTexture(const Type&, skstd::string_view name) override {
+        void visitTexture(const Type&, std::string_view name) override {
             this->addElement();
             fCodeGen->writeName(name);
         }
-        void visitSampler(const Type&, skstd::string_view name) override {
+        void visitSampler(const Type&, std::string_view name) override {
             this->addElement();
             fCodeGen->writeName(name);
         }

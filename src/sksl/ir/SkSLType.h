@@ -8,13 +8,13 @@
 #ifndef SKSL_TYPE
 #define SKSL_TYPE
 
-#include "include/core/SkStringView.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/spirv.h"
 #include <algorithm>
 #include <climits>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -60,7 +60,7 @@ public:
     inline static constexpr int kMaxAbbrevLength = 3;
 
     struct Field {
-        Field(Modifiers modifiers, skstd::string_view name, const Type* type)
+        Field(Modifiers modifiers, std::string_view name, const Type* type)
         : fModifiers(modifiers)
         , fName(name)
         , fType(std::move(type)) {}
@@ -70,7 +70,7 @@ public:
         }
 
         Modifiers fModifiers;
-        skstd::string_view fName;
+        std::string_view fName;
         const Type* fType;
     };
 
@@ -105,7 +105,7 @@ public:
     Type(const Type& other) = delete;
 
     /** Creates an array type. */
-    static std::unique_ptr<Type> MakeArrayType(skstd::string_view name, const Type& componentType,
+    static std::unique_ptr<Type> MakeArrayType(std::string_view name, const Type& componentType,
                                                int columns);
 
     /** Converts a component type and a size (float, 10) into an array name ("float[10]"). */
@@ -114,7 +114,7 @@ public:
     /**
      * Creates an alias which maps to another type.
      */
-    static std::unique_ptr<Type> MakeAliasType(skstd::string_view name, const Type& targetType);
+    static std::unique_ptr<Type> MakeAliasType(std::string_view name, const Type& targetType);
 
     /**
      * Create a generic type which maps to the listed types--e.g. $genType is a generic type which
@@ -127,7 +127,7 @@ public:
                                                  int8_t priority);
 
     /** Create a matrix type. */
-    static std::unique_ptr<Type> MakeMatrixType(skstd::string_view name, const char* abbrev,
+    static std::unique_ptr<Type> MakeMatrixType(std::string_view name, const char* abbrev,
                                                 const Type& componentType, int columns,
                                                 int8_t rows);
 
@@ -135,7 +135,7 @@ public:
     static std::unique_ptr<Type> MakeSamplerType(const char* name, const Type& textureType);
 
     /** Create a scalar type. */
-    static std::unique_ptr<Type> MakeScalarType(skstd::string_view name, const char* abbrev,
+    static std::unique_ptr<Type> MakeScalarType(std::string_view name, const char* abbrev,
                                                 Type::NumberKind numberKind, int8_t priority,
                                                 int8_t bitWidth);
 
@@ -147,7 +147,7 @@ public:
 
     /** Creates a struct type with the given fields. */
     static std::unique_ptr<Type> MakeStructType(int line,
-                                                skstd::string_view name,
+                                                std::string_view name,
                                                 std::vector<Field> fields,
                                                 bool interfaceBlock = false);
 
@@ -157,7 +157,7 @@ public:
                                                  bool isMultisampled, bool isSampled);
 
     /** Create a vector type. */
-    static std::unique_ptr<Type> MakeVectorType(skstd::string_view name, const char* abbrev,
+    static std::unique_ptr<Type> MakeVectorType(std::string_view name, const char* abbrev,
                                                 const Type& componentType, int columns);
 
     template <typename T>
@@ -207,9 +207,7 @@ public:
     }
 
     /** Returns true if this type is either private, or contains a private field (recursively). */
-    virtual bool isPrivate() const {
-        return skstd::starts_with(this->name(), '$');
-    }
+    virtual bool isPrivate() const;
 
     /** If this is an alias, returns the underlying type, otherwise returns this. */
     virtual const Type& resolve() const {
@@ -533,7 +531,7 @@ public:
     SKSL_INT convertArraySize(const Context& context, std::unique_ptr<Expression> size) const;
 
 protected:
-    Type(skstd::string_view name, const char* abbrev, TypeKind kind, int line = -1)
+    Type(std::string_view name, const char* abbrev, TypeKind kind, int line = -1)
         : INHERITED(line, kSymbolKind, name)
         , fTypeKind(kind) {
         SkASSERT(strlen(abbrev) <= kMaxAbbrevLength);

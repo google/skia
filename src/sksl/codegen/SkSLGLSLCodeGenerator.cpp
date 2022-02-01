@@ -42,7 +42,7 @@
 
 namespace SkSL {
 
-void GLSLCodeGenerator::write(skstd::string_view s) {
+void GLSLCodeGenerator::write(std::string_view s) {
     if (!s.length()) {
         return;
     }
@@ -55,7 +55,7 @@ void GLSLCodeGenerator::write(skstd::string_view s) {
     fAtLineStart = false;
 }
 
-void GLSLCodeGenerator::writeLine(skstd::string_view s) {
+void GLSLCodeGenerator::writeLine(std::string_view s) {
     this->write(s);
     fOut->writeText(fLineEnding);
     fAtLineStart = true;
@@ -67,7 +67,7 @@ void GLSLCodeGenerator::finishLine() {
     }
 }
 
-void GLSLCodeGenerator::writeExtension(skstd::string_view name, bool require) {
+void GLSLCodeGenerator::writeExtension(std::string_view name, bool require) {
     fExtensions.writeText("#extension ");
     fExtensions.write(name.data(), name.length());
     fExtensions.writeText(require ? " : require\n" : " : enable\n");
@@ -832,7 +832,7 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         this->write(".");
     }
     const Type& baseType = f.base()->type();
-    skstd::string_view name = baseType.fields()[f.fieldIndex()].fName;
+    std::string_view name = baseType.fields()[f.fieldIndex()].fName;
     if (name == "sk_Position") {
         this->write("gl_Position");
     } else if (name == "sk_PointSize") {

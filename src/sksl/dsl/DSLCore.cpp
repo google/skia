@@ -232,8 +232,8 @@ public:
         }
     }
 
-    static DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers, skstd::string_view typeName,
-                                       SkTArray<DSLField> fields, skstd::string_view varName,
+    static DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
+                                       SkTArray<DSLField> fields, std::string_view varName,
                                        int arraySize, PositionInfo pos) {
         // We need to create a new struct type for the interface block, but we don't want it in the
         // symbol table. Since dsl::Struct automatically sticks it in the symbol table, we create it
@@ -372,7 +372,7 @@ DSLExpression sk_Position() {
     return DSLCore::sk_Position();
 }
 
-void AddExtension(skstd::string_view name, PositionInfo pos) {
+void AddExtension(std::string_view name, PositionInfo pos) {
     ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::Extension>(pos.line(), name));
     ThreadContext::ReportErrors(pos);
 }
@@ -447,8 +447,8 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, P
                         pos);
 }
 
-DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  skstd::string_view typeName,
-                            SkTArray<DSLField> fields, skstd::string_view varName, int arraySize,
+DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
+                            SkTArray<DSLField> fields, std::string_view varName, int arraySize,
                             PositionInfo pos) {
     SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
     if (kind != ProgramKind::kFragment &&

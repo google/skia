@@ -9,8 +9,8 @@
 #define SKSL_DSLPARSER
 
 #include <memory>
+#include <string_view>
 #include <unordered_map>
-#include "include/core/SkStringView.h"
 #include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTOptional.h"
 #include "include/sksl/DSL.h"
@@ -51,7 +51,7 @@ public:
 
     SkSL::LoadedModule moduleInheritingFrom(SkSL::ParsedModule baseModule);
 
-    skstd::string_view text(Token token);
+    std::string_view text(Token token);
 
     PositionInfo position(Token token);
 
@@ -156,16 +156,16 @@ private:
     bool parseInitializer(int line, dsl::DSLExpression* initializer);
 
     void globalVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
-            dsl::DSLType baseType, skstd::string_view name);
+            dsl::DSLType baseType, std::string_view name);
 
     dsl::DSLStatement localVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
-            dsl::DSLType baseType, skstd::string_view name);
+            dsl::DSLType baseType, std::string_view name);
 
     skstd::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter(size_t paramIndex);
 
     int layoutInt();
 
-    skstd::string_view layoutIdentifier();
+    std::string_view layoutIdentifier();
 
     dsl::DSLLayout layout();
 
@@ -233,7 +233,7 @@ private:
 
     dsl::DSLExpression postfixExpression();
 
-    dsl::DSLExpression swizzle(int line, dsl::DSLExpression base, skstd::string_view swizzleMask);
+    dsl::DSLExpression swizzle(int line, dsl::DSLExpression base, std::string_view swizzleMask);
 
     dsl::DSLExpression call(int line, dsl::DSLExpression base, ExpressionArray args);
 
@@ -247,7 +247,7 @@ private:
 
     bool boolLiteral(bool* dest);
 
-    bool identifier(skstd::string_view* dest);
+    bool identifier(std::string_view* dest);
 
     class Checkpoint {
     public:
@@ -283,7 +283,7 @@ private:
     private:
         class ForwardingErrorReporter : public ErrorReporter {
         public:
-            void handleError(skstd::string_view msg, PositionInfo pos) override {
+            void handleError(std::string_view msg, PositionInfo pos) override {
                 fErrors.push_back({String(msg), pos});
             }
 
@@ -317,7 +317,7 @@ private:
         bool fOldEncounteredFatalError;
     };
 
-    static std::unordered_map<skstd::string_view, LayoutToken>* layoutTokens;
+    static std::unordered_map<std::string_view, LayoutToken>* layoutTokens;
 
     Compiler& fCompiler;
     ProgramSettings fSettings;

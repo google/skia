@@ -142,7 +142,7 @@ public:
             String text,
             Program::Settings settings);
 
-    std::unique_ptr<Expression> convertIdentifier(int line, skstd::string_view name);
+    std::unique_ptr<Expression> convertIdentifier(int line, std::string_view name);
 
     bool toSPIRV(Program& program, OutputStream& out);
 
@@ -160,7 +160,7 @@ public:
 
     bool toMetal(Program& program, String* out);
 
-    void handleError(skstd::string_view msg, PositionInfo pos);
+    void handleError(std::string_view msg, PositionInfo pos);
 
     String errorText(bool showCount = true);
 
@@ -211,7 +211,7 @@ private:
         CompilerErrorReporter(Compiler* compiler)
             : fCompiler(*compiler) {}
 
-        void handleError(skstd::string_view msg, PositionInfo pos) override {
+        void handleError(std::string_view msg, PositionInfo pos) override {
             fCompiler.handleError(msg, pos);
         }
 

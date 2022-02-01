@@ -8,7 +8,6 @@
 #ifndef SKSL_DSL_EXPRESSION
 #define SKSL_DSL_EXPRESSION
 
-#include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLWrapper.h"
@@ -16,6 +15,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string_view>
 
 #if defined(__has_cpp_attribute) && __has_cpp_attribute(clang::reinitializes)
 #define SK_CLANG_REINITIALIZES [[clang::reinitializes]]
@@ -118,7 +118,7 @@ public:
     /**
      * Creates an SkSL struct field access expression.
      */
-    DSLExpression field(skstd::string_view name, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression field(std::string_view name, PositionInfo pos = PositionInfo::Capture());
 
     /**
      * Creates an SkSL array index expression.
@@ -258,7 +258,7 @@ public:
 
     DSLExpression a(PositionInfo pos = PositionInfo::Capture());
 
-    DSLExpression field(skstd::string_view name, PositionInfo pos = PositionInfo::Capture());
+    DSLExpression field(std::string_view name, PositionInfo pos = PositionInfo::Capture());
 
     DSLPossibleExpression operator=(DSLExpression expr);
 

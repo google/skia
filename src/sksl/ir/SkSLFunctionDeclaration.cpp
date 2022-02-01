@@ -7,14 +7,15 @@
 
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
+#include "include/private/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 namespace SkSL {
 
-static IntrinsicKind identify_intrinsic(skstd::string_view functionName) {
+static IntrinsicKind identify_intrinsic(std::string_view functionName) {
     #define SKSL_INTRINSIC(name) {#name, k_##name##_IntrinsicKind},
-    static const auto* kAllIntrinsics = new std::unordered_map<skstd::string_view, IntrinsicKind>{
+    static const auto* kAllIntrinsics = new std::unordered_map<std::string_view, IntrinsicKind>{
         SKSL_INTRINSIC_LIST
     };
     #undef SKSL_INTRINSIC
@@ -289,7 +290,7 @@ static bool check_main_signature(const Context& context, int line, const Type& r
 static bool find_existing_declaration(const Context& context,
                                       SymbolTable& symbols,
                                       int line,
-                                      skstd::string_view name,
+                                      std::string_view name,
                                       std::vector<std::unique_ptr<Variable>>& parameters,
                                       const Type* returnType,
                                       const FunctionDeclaration** outExistingDecl) {
@@ -362,7 +363,7 @@ static bool find_existing_declaration(const Context& context,
 
 FunctionDeclaration::FunctionDeclaration(int line,
                                          const Modifiers* modifiers,
-                                         skstd::string_view name,
+                                         std::string_view name,
                                          std::vector<const Variable*> parameters,
                                          const Type* returnType,
                                          bool builtin)
@@ -380,7 +381,7 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
         SymbolTable& symbols,
         int line,
         const Modifiers* modifiers,
-        skstd::string_view name,
+        std::string_view name,
         std::vector<std::unique_ptr<Variable>> parameters,
         const Type* returnType) {
     bool isMain = (name == "main");
@@ -414,7 +415,7 @@ String FunctionDeclaration::mangledName() const {
     }
     // Built-in functions can have a $ prefix, which will fail to compile in GLSL/Metal. Remove the
     // $ and add a unique mangling specifier, so user code can't conflict with the name.
-    skstd::string_view name = this->name();
+    std::string_view name = this->name();
     const char* builtinMarker = "";
     if (skstd::starts_with(name, '$')) {
         name.remove_prefix(1);

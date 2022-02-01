@@ -466,7 +466,7 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     return DSLParser(this, settings, kind, std::move(text)).program();
 }
 
-std::unique_ptr<Expression> Compiler::convertIdentifier(int line, skstd::string_view name) {
+std::unique_ptr<Expression> Compiler::convertIdentifier(int line, std::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
         this->errorReporter().error(line, "unknown identifier '" + name + "'");
@@ -738,7 +738,7 @@ bool Compiler::toMetal(Program& program, String* out) {
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
-void Compiler::handleError(skstd::string_view msg, PositionInfo pos) {
+void Compiler::handleError(std::string_view msg, PositionInfo pos) {
     fErrorText += "error: " + (pos.line() >= 1 ? to_string(pos.line()) + ": " : "") + msg + "\n";
 }
 

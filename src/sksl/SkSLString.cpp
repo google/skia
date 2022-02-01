@@ -6,6 +6,7 @@
  */
 
 #include "include/private/SkSLString.h"
+#include "include/private/SkStringView.h"
 #include "src/sksl/SkSLUtil.h"
 #include <algorithm>
 #include <cinttypes>
@@ -49,6 +50,14 @@ void String::vappendf(const char* fmt, va_list args) {
     va_end(reuse);
 }
 
+bool String::starts_with(const char prefix[]) const {
+    return skstd::starts_with(std::string_view(data(), size()), prefix);
+}
+
+bool String::ends_with(const char suffix[]) const {
+    return skstd::ends_with(std::string_view(data(), size()), suffix);
+}
+
 bool String::consumeSuffix(const char suffix[]) {
     size_t suffixLength = strlen(suffix);
     if (this->length() < suffixLength) {
@@ -73,7 +82,7 @@ String String::operator+(const String& s) const {
     return result;
 }
 
-String String::operator+(skstd::string_view s) const {
+String String::operator+(std::string_view s) const {
     String result(*this);
     result.append(s.data(), s.length());
     return result;
@@ -94,7 +103,7 @@ String& String::operator+=(const String& s) {
     return *this;
 }
 
-String& String::operator+=(skstd::string_view s) {
+String& String::operator+=(std::string_view s) {
     this->append(s.data(), s.length());
     return *this;
 }
@@ -105,7 +114,7 @@ String operator+(const char* s1, const String& s2) {
     return result;
 }
 
-String operator+(skstd::string_view left, skstd::string_view right) {
+String operator+(std::string_view left, std::string_view right) {
     return String(left) + right;
 }
 
@@ -145,7 +154,7 @@ String to_string(double value) {
     return String(buffer.str().c_str());
 }
 
-bool stod(skstd::string_view s, SKSL_FLOAT* value) {
+bool stod(std::string_view s, SKSL_FLOAT* value) {
     std::string str(s.data(), s.size());
     std::stringstream buffer(str);
     buffer.imbue(std::locale::classic());
@@ -153,7 +162,7 @@ bool stod(skstd::string_view s, SKSL_FLOAT* value) {
     return !buffer.fail();
 }
 
-bool stoi(skstd::string_view s, SKSL_INT* value) {
+bool stoi(std::string_view s, SKSL_INT* value) {
     if (s.empty()) {
         return false;
     }

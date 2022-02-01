@@ -233,7 +233,7 @@ static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& c
 
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              std::unique_ptr<Expression> base,
-                                             skstd::string_view maskString) {
+                                             std::string_view maskString) {
     ComponentArray components;
     for (char field : maskString) {
         switch (field) {

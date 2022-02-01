@@ -6,11 +6,13 @@
  */
 
 #include "src/sksl/SkSLMangler.h"
+
+#include "include/private/SkStringView.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {
 
-String Mangler::uniqueName(skstd::string_view baseName, SymbolTable* symbolTable) {
+String Mangler::uniqueName(std::string_view baseName, SymbolTable* symbolTable) {
     SkASSERT(symbolTable);
     // The inliner runs more than once, so the base name might already have been mangled and have a
     // prefix like "_123_x". Let's strip that prefix off to make the generated code easier to read.

@@ -24,7 +24,7 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
     }
 }
 
-const Symbol* SymbolTable::operator[](skstd::string_view name) {
+const Symbol* SymbolTable::operator[](std::string_view name) {
     return this->lookup(fBuiltin ? nullptr : this, MakeSymbolKey(name));
 }
 
@@ -85,7 +85,7 @@ const String* SymbolTable::takeOwnershipOfString(String str) {
 }
 
 void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
-    const skstd::string_view& name = symbol->name();
+    const std::string_view& name = symbol->name();
 
     const Symbol*& refInSymbolTable = fSymbols[MakeSymbolKey(name)];
     if (refInSymbolTable == nullptr) {

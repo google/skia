@@ -61,8 +61,8 @@ public:
 private:
     using Precedence = Operator::Precedence;
 
-    void write(skstd::string_view s);
-    void writeLine(skstd::string_view s = skstd::string_view());
+    void write(std::string_view s);
+    void writeLine(std::string_view s = std::string_view());
 
     String typeName(const Type& type);
     void writeType(const Type& type);
@@ -75,7 +75,7 @@ private:
     String functionDeclaration(const FunctionDeclaration& decl);
 
     // Handles arrays correctly, eg: `float x[2]`
-    String typedVariable(const Type& type, skstd::string_view name);
+    String typedVariable(const Type& type, std::string_view name);
 
     void writeVarDeclaration(const VarDeclaration& var);
     void writeGlobalVarDeclaration(const GlobalVarDeclaration& g);
@@ -135,11 +135,11 @@ private:
 };
 
 
-void PipelineStageCodeGenerator::write(skstd::string_view s) {
+void PipelineStageCodeGenerator::write(std::string_view s) {
     fBuffer->write(s.data(), s.length());
 }
 
-void PipelineStageCodeGenerator::writeLine(skstd::string_view s) {
+void PipelineStageCodeGenerator::writeLine(std::string_view s) {
     fBuffer->write(s.data(), s.length());
     fBuffer->writeText("\n");
 }
@@ -410,7 +410,7 @@ void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclar
         String mangledName = fCallbacks->getMangledName(String(var.name()).c_str());
         String declaration = this->modifierString(var.modifiers()) +
                              this->typedVariable(var.type(),
-                                                 skstd::string_view(mangledName.c_str()));
+                                                 std::string_view(mangledName.c_str()));
         if (decl.value()) {
             AutoOutputBuffer outputToBuffer(this);
             this->writeExpression(*decl.value(), Precedence::kTopLevel);
@@ -651,7 +651,7 @@ String PipelineStageCodeGenerator::modifierString(const Modifiers& modifiers) {
     return result;
 }
 
-String PipelineStageCodeGenerator::typedVariable(const Type& type, skstd::string_view name) {
+String PipelineStageCodeGenerator::typedVariable(const Type& type, std::string_view name) {
     const Type& baseType = type.isArray() ? type.componentType() : type;
 
     String decl = this->typeName(baseType) + " " + name;

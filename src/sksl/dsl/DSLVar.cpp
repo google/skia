@@ -23,7 +23,7 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLVarBase::DSLVarBase(DSLType type, skstd::string_view name, DSLExpression initialValue,
+DSLVarBase::DSLVarBase(DSLType type, std::string_view name, DSLExpression initialValue,
                        PositionInfo pos)
     : DSLVarBase(DSLModifiers(), std::move(type), name, std::move(initialValue), pos) {}
 
@@ -34,7 +34,7 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, DSLExpressio
                        PositionInfo pos)
     : DSLVarBase(modifiers, type, "var", std::move(initialValue), pos) {}
 
-DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::string_view name,
+DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, std::string_view name,
                        DSLExpression initialValue, PositionInfo pos)
     : fModifiers(std::move(modifiers))
     , fType(std::move(type))
@@ -176,7 +176,7 @@ DSLPossibleExpression DSLParameter::operator=(DSLExpression expr) {
     return this->assign(std::move(expr));
 }
 
-std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(skstd::string_view methodName,
+std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(std::string_view methodName,
                                                            PositionInfo pos) {
     if (!this->fType.isEffectChild()) {
         ThreadContext::ReportError("type does not support method calls", pos);

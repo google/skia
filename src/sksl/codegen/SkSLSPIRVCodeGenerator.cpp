@@ -309,7 +309,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, OutputSt
     this->writeWord(word1, out);
 }
 
-void SPIRVCodeGenerator::writeString(skstd::string_view s, OutputStream& out) {
+void SPIRVCodeGenerator::writeString(std::string_view s, OutputStream& out) {
     out.write(s.data(), s.length());
     switch (s.length() % 4) {
         case 1:
@@ -327,14 +327,14 @@ void SPIRVCodeGenerator::writeString(skstd::string_view s, OutputStream& out) {
     }
 }
 
-void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, skstd::string_view string,
+void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, std::string_view string,
                                           OutputStream& out) {
     this->writeOpCode(opCode, 1 + (string.length() + 4) / 4, out);
     this->writeString(string, out);
 }
 
 
-void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, skstd::string_view string,
+void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, std::string_view string,
                                           OutputStream& out) {
     this->writeOpCode(opCode, 2 + (string.length() + 4) / 4, out);
     this->writeWord(word1, out);
@@ -342,7 +342,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, skstd::s
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
-                                          skstd::string_view string, OutputStream& out) {
+                                          std::string_view string, OutputStream& out) {
     this->writeOpCode(opCode, 3 + (string.length() + 4) / 4, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
@@ -2891,7 +2891,7 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
     String mangledName = f.mangledName();
     this->writeInstruction(SpvOpName,
                            result,
-                           skstd::string_view(mangledName.c_str(), mangledName.size()),
+                           std::string_view(mangledName.c_str(), mangledName.size()),
                            fNameBuffer);
     for (const Variable* parameter : f.parameters()) {
         SpvId id = this->nextId(nullptr);
@@ -3467,7 +3467,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int line) {
                                   /*flags=*/0),
                         SKSL_RTFLIP_NAME,
                         fContext.fTypes.fFloat2.get());
-    skstd::string_view name = "sksl_synthetic_uniforms";
+    std::string_view name = "sksl_synthetic_uniforms";
     const Type* intfStruct = fSynthetics.takeOwnershipOfSymbol(
             Type::MakeStructType(/*line=*/-1, name, fields, /*interfaceBlock=*/true));
     bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;

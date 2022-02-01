@@ -40,7 +40,7 @@ public:
     static std::unique_ptr<Expression> Convert(const Context& context,
                                                SymbolTable& symbolTable,
                                                std::unique_ptr<Expression> base,
-                                               skstd::string_view field);
+                                               std::string_view field);
 
     // Returns a field-access expression; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,

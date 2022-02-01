@@ -52,7 +52,7 @@ void End();
  * Returns all global elements (functions and global variables) as a self-contained Program. The
  * optional source string is retained as the program's source. DSL programs do not normally have
  * sources, but when a DSL program is produced from parsed program text (as in DSLParser), it may be
- * important to retain it so that any skstd::string_views derived from it remain valid.
+ * important to retain it so that any std::string_views derived from it remain valid.
  */
 std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<SkSL::String> source = nullptr);
 
@@ -76,7 +76,7 @@ DSLExpression sk_Position();
 /**
  * #extension <name> : enable
  */
-void AddExtension(skstd::string_view name, PositionInfo pos = PositionInfo::Capture());
+void AddExtension(std::string_view name, PositionInfo pos = PositionInfo::Capture());
 
 /**
  * break;
@@ -143,8 +143,8 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = DSLStatement(),
                 PositionInfo pos = PositionInfo::Capture());
 
-DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  skstd::string_view typeName,
-                            SkTArray<DSLField> fields, skstd::string_view varName = "",
+DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
+                            SkTArray<DSLField> fields, std::string_view varName = "",
                             int arraySize = 0, PositionInfo pos = PositionInfo::Capture());
 
 /**

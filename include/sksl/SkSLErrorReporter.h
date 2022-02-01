@@ -8,11 +8,11 @@
 #ifndef SKSL_ERROR_REPORTER
 #define SKSL_ERROR_REPORTER
 
-#include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLString.h"
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace SkSL {
@@ -59,13 +59,13 @@ public:
         SkASSERT(fPendingErrors.empty());
     }
 
-    void error(skstd::string_view msg, PositionInfo position);
+    void error(std::string_view msg, PositionInfo position);
 
     /**
      * Reports an error message at the given line of the source text. Errors reported
      * with a line of -1 will be queued until line number information can be determined.
      */
-    void error(int line, skstd::string_view msg);
+    void error(int line, std::string_view msg);
 
     const char* source() const { return fSource; }
 
@@ -90,7 +90,7 @@ protected:
     /**
      * Called when an error is reported.
      */
-    virtual void handleError(skstd::string_view msg, PositionInfo position) = 0;
+    virtual void handleError(std::string_view msg, PositionInfo position) = 0;
 
 private:
     PositionInfo position(int offset) const;
@@ -105,7 +105,7 @@ private:
  */
 class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
-    void handleError(skstd::string_view msg, PositionInfo pos) override {
+    void handleError(std::string_view msg, PositionInfo pos) override {
         SK_ABORT("%.*s", (int)msg.length(), msg.data());
     }
 };

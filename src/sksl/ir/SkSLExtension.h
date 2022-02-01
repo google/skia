@@ -19,11 +19,11 @@ class Extension final : public ProgramElement {
 public:
     inline static constexpr Kind kProgramElementKind = Kind::kExtension;
 
-    Extension(int line, skstd::string_view name)
+    Extension(int line, std::string_view name)
         : INHERITED(line, kProgramElementKind)
         , fName(name) {}
 
-    skstd::string_view name() const {
+    std::string_view name() const {
         return fName;
     }
 
@@ -36,7 +36,7 @@ public:
     }
 
 private:
-    skstd::string_view fName;
+    std::string_view fName;
 
     using INHERITED = ProgramElement;
 };
