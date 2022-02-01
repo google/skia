@@ -19,9 +19,6 @@
 
 namespace skstd {
 
-// C++17, <variant>
-struct monostate {};
-
 // C++17, <type_traits>
 template<typename...> struct conjunction : std::true_type { };
 template<typename T> struct conjunction<T> : T { };
