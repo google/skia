@@ -55,7 +55,9 @@ namespace DepthStencilOnlyBlock {
 
 static const int kBlockDataSize = 0;
 
-void AddToKey(SkBackend /* backend */, SkPaintParamsKey* key) {
+void AddToKey(SkBackend /* backend */,
+              SkPaintParamsKey* key,
+              SkUniformBlock* /* uniforms */) {
     int headerOffset = key->beginBlock(CodeSnippetID::kDepthStencilOnlyDraw);
     key->endBlock(headerOffset, CodeSnippetID::kDepthStencilOnlyDraw);
 
@@ -79,7 +81,10 @@ namespace SolidColorShaderBlock {
 
 static const int kBlockDataSize = 0;
 
-void AddToKey(SkBackend /* backend */, SkPaintParamsKey* key) {
+void AddToKey(SkBackend /* backend */,
+              SkPaintParamsKey* key,
+              SkUniformBlock* uniforms,
+              const SkColor4f& color) {
     int headerOffset = key->beginBlock(CodeSnippetID::kSolidColorShader);
     key->endBlock(headerOffset, CodeSnippetID::kSolidColorShader);
 
@@ -105,6 +110,7 @@ static const int kBlockDataSize = 1;
 
 void AddToKey(SkBackend backend,
               SkPaintParamsKey *key,
+              SkUniformBlock* uniforms,
               const GradientData& gradData) {
 
     if (backend == SkBackend::kGraphite) {
@@ -139,7 +145,7 @@ void AddToKey(SkBackend backend,
         validate_block_header(*key, headerOffset, codeSnippetID, kBlockDataSize);
     } else {
         // TODO: add implementation of other backends
-        SolidColorShaderBlock::AddToKey(backend, key);
+        SolidColorShaderBlock::AddToKey(backend, key, uniforms, SkColors::kRed);
     }
 }
 
@@ -212,7 +218,10 @@ ImageData ExtractFromKey(const SkPaintParamsKey& key, uint32_t headerOffset) {
 }
 #endif
 
-void AddToKey(SkBackend backend, SkPaintParamsKey* key, const ImageData& imgData) {
+void AddToKey(SkBackend backend,
+              SkPaintParamsKey* key,
+              SkUniformBlock* uniforms,
+              const ImageData& imgData) {
 
     if (backend == SkBackend::kGraphite) {
 
@@ -228,7 +237,7 @@ void AddToKey(SkBackend backend, SkPaintParamsKey* key, const ImageData& imgData
         SkASSERT(imgData == ExtractFromKey(*key, headerOffset));
     } else {
         // TODO: add implementation for other backends
-        SolidColorShaderBlock::AddToKey(backend, key);
+        SolidColorShaderBlock::AddToKey(backend, key, uniforms, SkColors::kRed);
     }
 }
 
@@ -247,18 +256,21 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 //--------------------------------------------------------------------------------------------------
 namespace BlendShaderBlock {
 
-void AddToKey(SkBackend backend, SkPaintParamsKey *key, const BlendData& blendData) {
+void AddToKey(SkBackend backend,
+              SkPaintParamsKey *key,
+              SkUniformBlock* uniforms,
+              const BlendData& blendData) {
 
     if (backend == SkBackend::kGraphite) {
         int headerOffset = key->beginBlock(CodeSnippetID::kBlendShader);
 
         add_blendmode_to_key(key, blendData.fBM);
         int start = key->sizeInBytes();
-        as_SB(blendData.fDst)->addToKey(nullptr, backend, key);
+        as_SB(blendData.fDst)->addToKey(nullptr, backend, key, uniforms);
         int firstShaderSize = key->sizeInBytes() - start;
 
         start = key->sizeInBytes();
-        as_SB(blendData.fSrc)->addToKey(nullptr, backend, key);
+        as_SB(blendData.fSrc)->addToKey(nullptr, backend, key, uniforms);
         int secondShaderSize = key->sizeInBytes() - start;
 
         key->endBlock(headerOffset, CodeSnippetID::kBlendShader);
@@ -268,7 +280,7 @@ void AddToKey(SkBackend backend, SkPaintParamsKey *key, const BlendData& blendDa
         validate_block_header(*key, headerOffset, CodeSnippetID::kBlendShader, expectedBlockSize);
     } else {
         // TODO: add implementation for other backends
-        SolidColorShaderBlock::AddToKey(backend, key);
+        SolidColorShaderBlock::AddToKey(backend, key, uniforms, SkColors::kRed);
     }
 }
 
@@ -305,7 +317,10 @@ namespace BlendModeBlock {
 
 static const int kBlockDataSize = 1;
 
-void AddToKey(SkBackend /* backend */, SkPaintParamsKey *key, SkBlendMode bm) {
+void AddToKey(SkBackend /* backend */,
+              SkPaintParamsKey *key,
+              SkUniformBlock* uniforms,
+              SkBlendMode bm) {
 
     int headerOffset = key->beginBlock(CodeSnippetID::kSimpleBlendMode);
     add_blendmode_to_key(key, bm);
@@ -343,30 +358,30 @@ SkPaintParamsKey CreateKey(SkBackend backend,
 
     switch (s) {
         case skgpu::ShaderCombo::ShaderType::kNone:
-            DepthStencilOnlyBlock::AddToKey(backend, &key);
+            DepthStencilOnlyBlock::AddToKey(backend, &key, nullptr);
             break;
         case skgpu::ShaderCombo::ShaderType::kSolidColor:
-            SolidColorShaderBlock::AddToKey(backend, &key);
+            SolidColorShaderBlock::AddToKey(backend, &key, nullptr, SkColors::kRed);
             break;
         case skgpu::ShaderCombo::ShaderType::kLinearGradient:
-            GradientShaderBlocks::AddToKey(backend, &key,
+            GradientShaderBlocks::AddToKey(backend, &key, nullptr,
                                            { SkShader::kLinear_GradientType, tm, 0 });
             break;
         case skgpu::ShaderCombo::ShaderType::kRadialGradient:
-            GradientShaderBlocks::AddToKey(backend, &key,
+            GradientShaderBlocks::AddToKey(backend, &key, nullptr,
                                            { SkShader::kRadial_GradientType, tm, 0 });
             break;
         case skgpu::ShaderCombo::ShaderType::kSweepGradient:
-            GradientShaderBlocks::AddToKey(backend, &key,
+            GradientShaderBlocks::AddToKey(backend, &key, nullptr,
                                            { SkShader::kSweep_GradientType, tm, 0 });
             break;
         case skgpu::ShaderCombo::ShaderType::kConicalGradient:
-            GradientShaderBlocks::AddToKey(backend, &key,
+            GradientShaderBlocks::AddToKey(backend, &key, nullptr,
                                            { SkShader::kConical_GradientType, tm, 0 });
             break;
     }
 
-    BlendModeBlock::AddToKey(backend, &key, bm);
+    BlendModeBlock::AddToKey(backend, &key, nullptr, bm);
     return key;
 }
 #endif

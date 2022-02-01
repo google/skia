@@ -130,19 +130,21 @@ std::vector<SkPaintParamsKey> SkPaintPriv::ToKeys(const SkPaint& paint,
 
     // TODO: actually split the SkPaint into multiple PaintParams and generate the keys
     // for them separately.
+    // TODO: actually collect and return the SkUniformData vector for each PaintParams derived
+    // from the SkPaint
     {
         SkPaintParamsKey key;
 
         if (paint.getShader()) {
-            as_SB(paint.getShader())->addToKey(dict, backend, &key);
+            as_SB(paint.getShader())->addToKey(dict, backend, &key, nullptr);
         } else {
-            SolidColorShaderBlock::AddToKey(backend, &key);
+            SolidColorShaderBlock::AddToKey(backend, &key, nullptr, paint.getColor4f());
         }
 
         if (paint.getBlender()) {
-            as_BB(paint.getBlender())->addToKey(dict, backend, &key);
+            as_BB(paint.getBlender())->addToKey(dict, backend, &key, nullptr);
         } else {
-            BlendModeBlock::AddToKey(backend, &key, SkBlendMode::kSrcOver);
+            BlendModeBlock::AddToKey(backend, &key, nullptr, SkBlendMode::kSrcOver);
         }
 
         SkASSERT(key.sizeInBytes() > 0);

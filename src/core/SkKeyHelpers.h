@@ -18,12 +18,13 @@
 
 enum class SkBackend : uint8_t;
 class SkPaintParamsKey;
+class SkUniformBlock;
 
 // The KeyHelpers can be used to manually construct an SkPaintParamsKey
 
 namespace DepthStencilOnlyBlock {
 
-    void AddToKey(SkBackend, SkPaintParamsKey*);
+    void AddToKey(SkBackend, SkPaintParamsKey*, SkUniformBlock*);
 #ifdef SK_DEBUG
     void Dump(const SkPaintParamsKey&, int headerOffset);
 #endif
@@ -32,7 +33,10 @@ namespace DepthStencilOnlyBlock {
 
 namespace SolidColorShaderBlock {
 
-    void AddToKey(SkBackend, SkPaintParamsKey*);
+    void AddToKey(SkBackend,
+                  SkPaintParamsKey*,
+                  SkUniformBlock*,
+                  const SkColor4f&);
 #ifdef SK_DEBUG
     void Dump(const SkPaintParamsKey&, int headerOffset);
 #endif
@@ -55,7 +59,10 @@ namespace GradientShaderBlocks {
         int                    fNumStops;
     };
 
-    void AddToKey(SkBackend, SkPaintParamsKey*, const GradientData&);
+    void AddToKey(SkBackend,
+                  SkPaintParamsKey*,
+                  SkUniformBlock*,
+                  const GradientData&);
 #ifdef SK_DEBUG
     void Dump(const SkPaintParamsKey&, int headerOffset);
 #endif
@@ -76,7 +83,10 @@ namespace ImageShaderBlock {
         SkTileMode fTileModes[2];
     };
 
-    void AddToKey(SkBackend, SkPaintParamsKey*, const ImageData&);
+    void AddToKey(SkBackend,
+                  SkPaintParamsKey*,
+                  SkUniformBlock*,
+                  const ImageData&);
 #ifdef SK_DEBUG
     void Dump(const SkPaintParamsKey&, int headerOffset);
 #endif
@@ -92,7 +102,10 @@ namespace BlendShaderBlock {
         SkBlendMode fBM;
     };
 
-    void AddToKey(SkBackend, SkPaintParamsKey*, const BlendData&);
+    void AddToKey(SkBackend,
+                  SkPaintParamsKey*,
+                  SkUniformBlock*,
+                  const BlendData&);
 #ifdef SK_DEBUG
     void Dump(const SkPaintParamsKey&, int headerOffset);
 #endif
@@ -101,7 +114,7 @@ namespace BlendShaderBlock {
 
 namespace BlendModeBlock {
 
-    void AddToKey(SkBackend, SkPaintParamsKey*, SkBlendMode);
+    void AddToKey(SkBackend, SkPaintParamsKey*, SkUniformBlock*, SkBlendMode);
 #ifdef SK_DEBUG
     void Dump(const SkPaintParamsKey&, int headerOffset);
 #endif

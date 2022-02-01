@@ -198,12 +198,14 @@ sk_sp<SkUniformData> make_solid_uniform_data(SkColor4f color) {
 
 } // anonymous namespace
 
-std::tuple<SkUniquePaintParamsID, sk_sp<SkUniformData>> ExtractPaintData(Context* context,
-                                                                         const PaintParams& p) {
+std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintData(
+        Context* context, const PaintParams& p) {
     SkPaintParamsKey key;
     sk_sp<SkUniformData> uniforms;
 
     auto dict = context->priv().shaderCodeDictionary();
+
+    std::unique_ptr<SkUniformBlock> block = std::make_unique<SkUniformBlock>();
 
     // TODO: add UniformData generation to PaintParams::toKey and use it here
     if (auto s = p.shader()) {
@@ -228,8 +230,10 @@ std::tuple<SkUniquePaintParamsID, sk_sp<SkUniformData>> ExtractPaintData(Context
 
                 GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
                                                &key,
+                                               block.get(),
                                                { type, gradInfo.fTileMode, gradInfo.fColorCount });
 
+                // TODO: move this into GradientShaderBlocks::AddToKey
                 uniforms = make_linear_gradient_uniform_data(gradInfo.fPoint[0],
                                                              gradInfo.fPoint[1],
                                                              color4fs,
@@ -241,12 +245,14 @@ std::tuple<SkUniquePaintParamsID, sk_sp<SkUniformData>> ExtractPaintData(Context
 
                 GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
                                                &key,
+                                               block.get(),
                                                { type, gradInfo.fTileMode, gradInfo.fColorCount });
 
-                uniforms =  make_radial_gradient_uniform_data(gradInfo.fPoint[0],
-                                                              gradInfo.fRadius[0],
-                                                              color4fs,
-                                                              offsets);
+                // TODO: move this into GradientShaderBlocks::AddToKey
+                uniforms = make_radial_gradient_uniform_data(gradInfo.fPoint[0],
+                                                             gradInfo.fRadius[0],
+                                                             color4fs,
+                                                             offsets);
             } break;
             case SkShader::kSweep_GradientType:
                 to_color4fs(gradInfo.fColorCount, colors, color4fs);
@@ -254,8 +260,10 @@ std::tuple<SkUniquePaintParamsID, sk_sp<SkUniformData>> ExtractPaintData(Context
 
                 GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
                                                &key,
+                                               block.get(),
                                                { type, gradInfo.fTileMode, gradInfo.fColorCount });
 
+                // TODO: move this into GradientShaderBlocks::AddToKey
                 uniforms = make_sweep_gradient_uniform_data(gradInfo.fPoint[0],
                                                             color4fs,
                                                             offsets);
@@ -266,8 +274,10 @@ std::tuple<SkUniquePaintParamsID, sk_sp<SkUniformData>> ExtractPaintData(Context
 
                 GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
                                                &key,
+                                               block.get(),
                                                { type, gradInfo.fTileMode, gradInfo.fColorCount });
 
+                // TODO: move this into GradientShaderBlocks::AddToKey
                 uniforms = make_conical_gradient_uniform_data(gradInfo.fPoint[0],
                                                               gradInfo.fPoint[1],
                                                               gradInfo.fRadius[0],
@@ -275,32 +285,36 @@ std::tuple<SkUniquePaintParamsID, sk_sp<SkUniformData>> ExtractPaintData(Context
                                                               color4fs,
                                                               offsets);
                 break;
-            case SkShader::GradientType::kColor_GradientType:
+            case SkShader::GradientType::kColor_GradientType: [[fallthrough]];
                 // TODO: The solid color gradient type should use its color, not
                 // the paint color
-            case SkShader::GradientType::kNone_GradientType:
+            case SkShader::GradientType::kNone_GradientType:  [[fallthrough]];
             default:
-                SolidColorShaderBlock::AddToKey(SkBackend::kGraphite, &key);
+                SolidColorShaderBlock::AddToKey(SkBackend::kGraphite, &key, block.get(), p.color());
 
+                // TODO: move this into SolidColorShaderBlock::AddToKey
                 uniforms = make_solid_uniform_data(p.color());
                 break;
         }
     } else {
         // Solid colored paint
-        SolidColorShaderBlock::AddToKey(SkBackend::kGraphite, &key);
+        SolidColorShaderBlock::AddToKey(SkBackend::kGraphite, &key, block.get(), p.color());
 
+        // TODO: move this into SolidColorShaderBlock::AddToKey
         uniforms = make_solid_uniform_data(p.color());
     }
 
     if (p.blender()) {
-        as_BB(p.blender())->addToKey(dict, SkBackend::kGraphite, &key);
+        as_BB(p.blender())->addToKey(dict, SkBackend::kGraphite, &key, block.get());
     } else {
-        BlendModeBlock::AddToKey(SkBackend::kGraphite, &key, SkBlendMode::kSrcOver);
+        BlendModeBlock::AddToKey(SkBackend::kGraphite, &key, block.get(), SkBlendMode::kSrcOver);
     }
 
     auto entry = context->priv().shaderCodeDictionary()->findOrCreate(key);
 
-    return { entry->uniqueID(), std::move(uniforms) };
+    block->add(std::move(uniforms));
+
+    return { entry->uniqueID(), std::move(block) };
 }
 
 SkSpan<const SkUniform> GetUniforms(CodeSnippetID snippetID) {

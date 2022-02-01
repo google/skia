@@ -15,15 +15,15 @@
 
 enum class CodeSnippetID : uint8_t;
 class SkUniform;
-class SkUniformData;
+class SkUniformBlock;
 class SkUniquePaintParamsID;
 
 namespace skgpu {
 
 class PaintParams;
 
-std::tuple<SkUniquePaintParamsID, sk_sp<SkUniformData>> ExtractPaintData(Context*,
-                                                                         const PaintParams&);
+std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintData(
+        Context*, const PaintParams&);
 SkSpan<const SkUniform> GetUniforms(CodeSnippetID);
 
 // TODO: Temporary way to get at SkSL snippet for handling the given shader type, which will be

@@ -30,7 +30,8 @@ public:
 
     void addToKey(SkShaderCodeDictionary*,
                   SkBackend,
-                  SkPaintParamsKey*) const override;
+                  SkPaintParamsKey*,
+                  SkUniformBlock*) const override;
 
 protected:
     SkShader_Blend(SkReadBuffer&);

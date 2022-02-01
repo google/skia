@@ -20,6 +20,7 @@ class GrFragmentProcessor;
 class SkPaintParamsKey;
 class SkRuntimeEffect;
 class SkShaderCodeDictionary;
+class SkUniformBlock;
 
 /**
  * Encapsulates a blend function, including non-public APIs.
@@ -58,7 +59,8 @@ public:
     // TODO: make pure virtual
     virtual void addToKey(SkShaderCodeDictionary*,
                           SkBackend,
-                          SkPaintParamsKey*) const;
+                          SkPaintParamsKey*,
+                          SkUniformBlock*) const;
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
     Type getFlattenableType() const override { return GetFlattenableType(); }

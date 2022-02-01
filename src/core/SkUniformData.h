@@ -9,6 +9,7 @@
 #define SkUniformData_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include <vector>
 
 class SkUniform;
 
@@ -45,12 +46,17 @@ public:
     int count() const { return fCount; }
     const SkUniform* uniforms() const { return fUniforms; }
     uint32_t* offsets() { return fOffsets; }
+    const uint32_t* offsets() const { return fOffsets; }
     uint32_t offset(int index) {
         SkASSERT(index >= 0 && index < fCount);
         return fOffsets[index];
     }
     char* data() { return fData; }
+    const char* data() const { return fData; }
     size_t dataSize() const { return fDataSize; }
+
+    bool operator==(const SkUniformData&) const;
+    bool operator!=(const SkUniformData& other) const { return !(*this == other);  }
 
 private:
     SkUniformData(int count,
@@ -70,6 +76,37 @@ private:
     uint32_t* fOffsets; // offset of each uniform in 'fData'
     char* fData;
     const size_t fDataSize;
+};
+
+class SkUniformBlock {
+public:
+    SkUniformBlock() = default;
+    SkUniformBlock(sk_sp<SkUniformData> initial) {
+        fUniformData.push_back(std::move(initial));
+    }
+
+    void add(sk_sp<SkUniformData>);
+
+    bool empty() const { return fUniformData.empty(); }
+    size_t totalSize() const;  // TODO: cache this?
+    int count() const;         // TODO: cache this?
+
+    bool operator==(const SkUniformBlock&) const;
+    bool operator!=(const SkUniformBlock& other) const { return !(*this == other);  }
+    size_t hash() const;
+
+    using container = std::vector<sk_sp<SkUniformData>>;
+    using iterator = container::iterator;
+    using const_iterator = container::const_iterator;
+
+    inline iterator begin() noexcept { return fUniformData.begin(); }
+    inline const_iterator cbegin() const noexcept { return fUniformData.cbegin(); }
+    inline iterator end() noexcept { return fUniformData.end(); }
+    inline const_iterator cend() const noexcept { return fUniformData.cend(); }
+
+private:
+    // TODO: SkUniformData should be held uniquely
+    std::vector<sk_sp<SkUniformData>> fUniformData;
 };
 
 #endif // SkUniformData_DEFINED
