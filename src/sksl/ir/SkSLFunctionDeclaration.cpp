@@ -19,7 +19,7 @@ static IntrinsicKind identify_intrinsic(skstd::string_view functionName) {
     };
     #undef SKSL_INTRINSIC
 
-    if (functionName.starts_with('$')) {
+    if (skstd::starts_with(functionName, '$')) {
         functionName.remove_prefix(1);
     }
 
@@ -416,12 +416,12 @@ String FunctionDeclaration::mangledName() const {
     // $ and add a unique mangling specifier, so user code can't conflict with the name.
     skstd::string_view name = this->name();
     const char* builtinMarker = "";
-    if (name.starts_with('$')) {
+    if (skstd::starts_with(name, '$')) {
         name.remove_prefix(1);
         builtinMarker = "Q";  // a unique, otherwise-unused mangle character
     }
     // GLSL forbids two underscores in a row; add an extra character if necessary to avoid this.
-    const char* splitter = name.ends_with('_') ? "x_" : "_";
+    const char* splitter = skstd::ends_with(name, '_') ? "x_" : "_";
     // Rename function to `funcname_returntypeparamtypes`.
     String result = name + splitter + builtinMarker + this->returnType().abbreviatedName();
     for (const Variable* p : this->parameters()) {

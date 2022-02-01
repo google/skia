@@ -208,7 +208,7 @@ public:
 
     /** Returns true if this type is either private, or contains a private field (recursively). */
     virtual bool isPrivate() const {
-        return this->name().starts_with("$");
+        return skstd::starts_with(this->name(), '$');
     }
 
     /** If this is an alias, returns the underlying type, otherwise returns this. */
