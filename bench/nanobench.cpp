@@ -1229,7 +1229,9 @@ int main(int argc, char** argv) {
     }
 
     const double overhead = estimate_timer_overhead();
-    SkDebugf("Timer overhead: %s\n", HUMANIZE(overhead));
+    if (!FLAGS_quiet && !FLAGS_csv) {
+        SkDebugf("Timer overhead: %s\n", HUMANIZE(overhead));
+    }
 
     SkTArray<double> samples;
 
@@ -1238,6 +1240,8 @@ int main(int argc, char** argv) {
     } else if (FLAGS_quiet) {
         SkDebugf("! -> high variance, ? -> moderate variance\n");
         SkDebugf("    micros   \tbench\n");
+    } else if (FLAGS_csv) {
+        SkDebugf("min,median,mean,max,stddev,config,bench\n");
     } else if (FLAGS_ms) {
         SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\tsamples\tconfig\tbench\n");
     } else {
