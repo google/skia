@@ -86,6 +86,7 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
   'Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android_Skpbench_Mskp',
   'Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan',
+  'Perf-Android-Clang-Pixel6-GPU-Adreno620-arm64-Release-All-Android',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
   'Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   'Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
