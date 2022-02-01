@@ -94,6 +94,14 @@ static SkSL::String base_name(const SkSL::String& fpPath, const char* prefix, co
     return result;
 }
 
+static bool consume_suffix(SkSL::String* str, const char suffix[]) {
+    if (!str->ends_with(suffix)) {
+        return false;
+    }
+    str->resize(str->length() - strlen(suffix));
+    return true;
+}
+
 // Given a string containing an SkSL program, searches for a #pragma settings comment, like so:
 //    /*#pragma settings Default Sharpen*/
 // The passed-in Settings object will be updated accordingly. Any number of options can be provided.
@@ -120,113 +128,113 @@ static bool detect_shader_settings(const SkSL::String& text,
             for (;;) {
                 const size_t startingLength = settingsText.length();
 
-                if (settingsText.consumeSuffix(" AddAndTrueToLoopCondition")) {
+                if (consume_suffix(&settingsText, " AddAndTrueToLoopCondition")) {
                     static auto s_addAndTrueCaps = Factory::AddAndTrueToLoopCondition();
                     *caps = s_addAndTrueCaps.get();
                 }
-                if (settingsText.consumeSuffix(" CannotUseFractForNegativeValues")) {
+                if (consume_suffix(&settingsText, " CannotUseFractForNegativeValues")) {
                     static auto s_negativeFractCaps = Factory::CannotUseFractForNegativeValues();
                     *caps = s_negativeFractCaps.get();
                 }
-                if (settingsText.consumeSuffix(" CannotUseFragCoord")) {
+                if (consume_suffix(&settingsText, " CannotUseFragCoord")) {
                     static auto s_noFragCoordCaps = Factory::CannotUseFragCoord();
                     *caps = s_noFragCoordCaps.get();
                 }
-                if (settingsText.consumeSuffix(" CannotUseMinAndAbsTogether")) {
+                if (consume_suffix(&settingsText, " CannotUseMinAndAbsTogether")) {
                     static auto s_minAbsCaps = Factory::CannotUseMinAndAbsTogether();
                     *caps = s_minAbsCaps.get();
                 }
-                if (settingsText.consumeSuffix(" Default")) {
+                if (consume_suffix(&settingsText, " Default")) {
                     static auto s_defaultCaps = Factory::Default();
                     *caps = s_defaultCaps.get();
                 }
-                if (settingsText.consumeSuffix(" EmulateAbsIntFunction")) {
+                if (consume_suffix(&settingsText, " EmulateAbsIntFunction")) {
                     static auto s_emulateAbsIntCaps = Factory::EmulateAbsIntFunction();
                     *caps = s_emulateAbsIntCaps.get();
                 }
-                if (settingsText.consumeSuffix(" FramebufferFetchSupport")) {
+                if (consume_suffix(&settingsText, " FramebufferFetchSupport")) {
                     static auto s_fbFetchSupport = Factory::FramebufferFetchSupport();
                     *caps = s_fbFetchSupport.get();
                 }
-                if (settingsText.consumeSuffix(" IncompleteShortIntPrecision")) {
+                if (consume_suffix(&settingsText, " IncompleteShortIntPrecision")) {
                     static auto s_incompleteShortIntCaps = Factory::IncompleteShortIntPrecision();
                     *caps = s_incompleteShortIntCaps.get();
                 }
-                if (settingsText.consumeSuffix(" MustGuardDivisionEvenAfterExplicitZeroCheck")) {
+                if (consume_suffix(&settingsText, " MustGuardDivisionEvenAfterExplicitZeroCheck")) {
                     static auto s_div0Caps = Factory::MustGuardDivisionEvenAfterExplicitZeroCheck();
                     *caps = s_div0Caps.get();
                 }
-                if (settingsText.consumeSuffix(" MustForceNegatedAtanParamToFloat")) {
+                if (consume_suffix(&settingsText, " MustForceNegatedAtanParamToFloat")) {
                     static auto s_negativeAtanCaps = Factory::MustForceNegatedAtanParamToFloat();
                     *caps = s_negativeAtanCaps.get();
                 }
-                if (settingsText.consumeSuffix(" MustForceNegatedLdexpParamToMultiply")) {
+                if (consume_suffix(&settingsText, " MustForceNegatedLdexpParamToMultiply")) {
                     static auto s_negativeLdexpCaps =
                             Factory::MustForceNegatedLdexpParamToMultiply();
                     *caps = s_negativeLdexpCaps.get();
                 }
-                if (settingsText.consumeSuffix(" RemovePowWithConstantExponent")) {
+                if (consume_suffix(&settingsText, " RemovePowWithConstantExponent")) {
                     static auto s_powCaps = Factory::RemovePowWithConstantExponent();
                     *caps = s_powCaps.get();
                 }
-                if (settingsText.consumeSuffix(" RewriteDoWhileLoops")) {
+                if (consume_suffix(&settingsText, " RewriteDoWhileLoops")) {
                     static auto s_rewriteLoopCaps = Factory::RewriteDoWhileLoops();
                     *caps = s_rewriteLoopCaps.get();
                 }
-                if (settingsText.consumeSuffix(" RewriteSwitchStatements")) {
+                if (consume_suffix(&settingsText, " RewriteSwitchStatements")) {
                     static auto s_rewriteSwitchCaps = Factory::RewriteSwitchStatements();
                     *caps = s_rewriteSwitchCaps.get();
                 }
-                if (settingsText.consumeSuffix(" RewriteMatrixVectorMultiply")) {
+                if (consume_suffix(&settingsText, " RewriteMatrixVectorMultiply")) {
                     static auto s_rewriteMatVecMulCaps = Factory::RewriteMatrixVectorMultiply();
                     *caps = s_rewriteMatVecMulCaps.get();
                 }
-                if (settingsText.consumeSuffix(" RewriteMatrixComparisons")) {
+                if (consume_suffix(&settingsText, " RewriteMatrixComparisons")) {
                     static auto s_rewriteMatrixComparisons = Factory::RewriteMatrixComparisons();
                     *caps = s_rewriteMatrixComparisons.get();
                 }
-                if (settingsText.consumeSuffix(" ShaderDerivativeExtensionString")) {
+                if (consume_suffix(&settingsText, " ShaderDerivativeExtensionString")) {
                     static auto s_derivativeCaps = Factory::ShaderDerivativeExtensionString();
                     *caps = s_derivativeCaps.get();
                 }
-                if (settingsText.consumeSuffix(" UnfoldShortCircuitAsTernary")) {
+                if (consume_suffix(&settingsText, " UnfoldShortCircuitAsTernary")) {
                     static auto s_ternaryCaps = Factory::UnfoldShortCircuitAsTernary();
                     *caps = s_ternaryCaps.get();
                 }
-                if (settingsText.consumeSuffix(" UsesPrecisionModifiers")) {
+                if (consume_suffix(&settingsText, " UsesPrecisionModifiers")) {
                     static auto s_precisionCaps = Factory::UsesPrecisionModifiers();
                     *caps = s_precisionCaps.get();
                 }
-                if (settingsText.consumeSuffix(" Version110")) {
+                if (consume_suffix(&settingsText, " Version110")) {
                     static auto s_version110Caps = Factory::Version110();
                     *caps = s_version110Caps.get();
                 }
-                if (settingsText.consumeSuffix(" Version450Core")) {
+                if (consume_suffix(&settingsText, " Version450Core")) {
                     static auto s_version450CoreCaps = Factory::Version450Core();
                     *caps = s_version450CoreCaps.get();
                 }
-                if (settingsText.consumeSuffix(" AllowNarrowingConversions")) {
+                if (consume_suffix(&settingsText, " AllowNarrowingConversions")) {
                     settings->fAllowNarrowingConversions = true;
                 }
-                if (settingsText.consumeSuffix(" ForceHighPrecision")) {
+                if (consume_suffix(&settingsText, " ForceHighPrecision")) {
                     settings->fForceHighPrecision = true;
                 }
-                if (settingsText.consumeSuffix(" NoES2Restrictions")) {
+                if (consume_suffix(&settingsText, " NoES2Restrictions")) {
                     settings->fEnforceES2Restrictions = false;
                 }
-                if (settingsText.consumeSuffix(" NoInline")) {
+                if (consume_suffix(&settingsText, " NoInline")) {
                     settings->fInlineThreshold = 0;
                 }
-                if (settingsText.consumeSuffix(" NoTraceVarInSkVMDebugTrace")) {
+                if (consume_suffix(&settingsText, " NoTraceVarInSkVMDebugTrace")) {
                     settings->fAllowTraceVarInSkVMDebugTrace = false;
                 }
-                if (settingsText.consumeSuffix(" InlineThresholdMax")) {
+                if (consume_suffix(&settingsText, " InlineThresholdMax")) {
                     settings->fInlineThreshold = INT_MAX;
                 }
-                if (settingsText.consumeSuffix(" Sharpen")) {
+                if (consume_suffix(&settingsText, " Sharpen")) {
                     settings->fSharpenTextures = true;
                 }
-                if (settingsText.consumeSuffix(" SkVMDebugTrace")) {
+                if (consume_suffix(&settingsText, " SkVMDebugTrace")) {
                     settings->fOptimize = false;
                     *debugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
                 }

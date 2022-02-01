@@ -36,8 +36,6 @@ public:
     bool starts_with(const char prefix[]) const;
     bool ends_with(const char suffix[]) const;
 
-    bool consumeSuffix(const char suffix[]);
-
     String operator+(const char* s) const;
     String operator+(const String& s) const;
     String operator+(std::string_view s) const;
