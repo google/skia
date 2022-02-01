@@ -120,9 +120,7 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
     auto backends = gSkQP.getSupportedBackends();
     jassert(env, backends.size() > 0,);
     auto gms = gSkQP.getGMs();
-    jassert(env, gms.size() > 0,);
     auto unitTests = gSkQP.getUnitTests();
-    jassert(env, unitTests.size() > 0,);
 
     constexpr char kStringArrayType[] = "[Ljava/lang/String;";
     env->SetObjectField(object, env->GetFieldID(SkQP_class, "mBackends", kStringArrayType),
