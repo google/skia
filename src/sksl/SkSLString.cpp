@@ -6,7 +6,6 @@
  */
 
 #include "include/private/SkSLString.h"
-#include "include/private/SkStringView.h"
 #include "src/sksl/SkSLUtil.h"
 #include <algorithm>
 #include <cinttypes>
@@ -48,14 +47,6 @@ void String::vappendf(const char* fmt, va_list args) {
         this->append(newBuffer.get(), size);
     }
     va_end(reuse);
-}
-
-bool String::starts_with(const char prefix[]) const {
-    return skstd::starts_with(std::string_view(data(), size()), prefix);
-}
-
-bool String::ends_with(const char suffix[]) const {
-    return skstd::ends_with(std::string_view(data(), size()), suffix);
 }
 
 String String::operator+(const char* s) const {

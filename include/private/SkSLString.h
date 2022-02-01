@@ -33,9 +33,6 @@ public:
     void appendf(const char* fmt, ...) SK_PRINTF_LIKE(2, 3);
     void vappendf(const char* fmt, va_list va);
 
-    bool starts_with(const char prefix[]) const;
-    bool ends_with(const char suffix[]) const;
-
     String operator+(const char* s) const;
     String operator+(const String& s) const;
     String operator+(std::string_view s) const;
