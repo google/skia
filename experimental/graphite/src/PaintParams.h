@@ -36,7 +36,7 @@ public:
 
     SkColor4f color() const { return fColor; }
 
-    std::optional<SkBlendMode> asBlendMode() const;
+    skstd::optional<SkBlendMode> asBlendMode() const;
     SkBlender* blender() const { return fBlender.get(); }
     sk_sp<SkBlender> refBlender() const;
 

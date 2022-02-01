@@ -31,7 +31,7 @@ PaintParams::PaintParams(const PaintParams& other) = default;
 PaintParams::~PaintParams() = default;
 PaintParams& PaintParams::operator=(const PaintParams& other) = default;
 
-std::optional<SkBlendMode> PaintParams::asBlendMode() const {
+skstd::optional<SkBlendMode> PaintParams::asBlendMode() const {
     return fBlender ? as_BB(fBlender)->asBlendMode()
                     : SkBlendMode::kSrcOver;
 }

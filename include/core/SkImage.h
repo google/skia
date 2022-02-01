@@ -15,11 +15,11 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
+#include "include/private/SkTOptional.h"
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrTypes.h"
 #endif
 #include <functional>  // std::function
-#include <optional>
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #include <android/hardware_buffer.h>
@@ -184,7 +184,7 @@ public:
         example: https://fiddle.skia.org/c/@Image_MakeFromEncoded
     */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded,
-                                          std::optional<SkAlphaType> alphaType = std::nullopt);
+                                          skstd::optional<SkAlphaType> alphaType = skstd::nullopt);
 
     /*
      * Experimental:

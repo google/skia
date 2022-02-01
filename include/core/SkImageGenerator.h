@@ -13,8 +13,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
-
-#include <optional>
+#include "include/private/SkTOptional.h"
 
 class GrRecordingContext;
 class GrSurfaceProxyView;
@@ -159,7 +158,7 @@ public:
      *  kOpaque_SkAlphaType is not supported, and will return NULL.
      */
     static std::unique_ptr<SkImageGenerator> MakeFromEncoded(
-            sk_sp<SkData>, std::optional<SkAlphaType> = std::nullopt);
+            sk_sp<SkData>, skstd::optional<SkAlphaType> = skstd::nullopt);
 
     /** Return a new image generator backed by the specified picture.  If the size is empty or
      *  the picture is NULL, this returns NULL.
@@ -205,7 +204,7 @@ private:
     // It is called from NewFromEncoded() after it has checked for any runtime factory.
     // The SkData will never be NULL, as that will have been checked by NewFromEncoded.
     static std::unique_ptr<SkImageGenerator> MakeFromEncodedImpl(sk_sp<SkData>,
-                                                                 std::optional<SkAlphaType>);
+                                                                 skstd::optional<SkAlphaType>);
 
     SkImageGenerator(SkImageGenerator&&) = delete;
     SkImageGenerator(const SkImageGenerator&) = delete;

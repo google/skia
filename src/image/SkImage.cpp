@@ -178,7 +178,7 @@ sk_sp<SkData> SkImage::refEncodedData() const {
 }
 
 sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded,
-                                        std::optional<SkAlphaType> alphaType) {
+                                        skstd::optional<SkAlphaType> alphaType) {
     if (nullptr == encoded || 0 == encoded->size()) {
         return nullptr;
     }

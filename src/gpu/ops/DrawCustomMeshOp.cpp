@@ -40,7 +40,7 @@ public:
                                      sk_sp<SkCustomMeshSpecification> spec,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                      const SkMatrix& viewMatrix,
-                                     const std::optional<SkPMColor4f>& color,
+                                     const skstd::optional<SkPMColor4f>& color,
                                      bool needsLocalCoords) {
         return arena->make([&](void* ptr) {
             return new (ptr) CustomMeshGP(std::move(spec),
@@ -291,7 +291,7 @@ private:
     CustomMeshGP(sk_sp<SkCustomMeshSpecification>    spec,
                  sk_sp<GrColorSpaceXform>            colorSpaceXform,
                  const SkMatrix&                     viewMatrix,
-                 const std::optional<SkPMColor4f>& color,
+                 const skstd::optional<SkPMColor4f>& color,
                  bool                                needsLocalCoords)
             : INHERITED(kVerticesGP_ClassID)
             , fSpec(std::move(spec))
@@ -659,7 +659,7 @@ GrProcessorSet::Analysis CustomMeshOp::finalize(const GrCaps& caps,
 }
 
 GrGeometryProcessor* CustomMeshOp::makeGP(SkArenaAlloc* arena) {
-    std::optional<SkPMColor4f> color;
+    skstd::optional<SkPMColor4f> color;
     if (fIgnoreSpecColor || !SkCustomMeshSpecificationPriv::HasColors(*fSpecification)) {
         color.emplace(fColor);
     }

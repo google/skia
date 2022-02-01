@@ -10,10 +10,9 @@
 
 #include "include/core/SkBlender.h"
 #include "include/core/SkColorSpace.h"
+#include "include/private/SkTOptional.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVM.h"
-
-#include <optional>
 
 enum class SkBackend : uint8_t;
 struct GrFPArgs;
@@ -33,7 +32,7 @@ public:
      * Returns true if this SkBlender represents any SkBlendMode, and returns the blender's
      * SkBlendMode in `mode`. Returns false for other types of blends.
      */
-    virtual std::optional<SkBlendMode> asBlendMode() const { return {}; }
+    virtual skstd::optional<SkBlendMode> asBlendMode() const { return {}; }
 
     /** Creates the blend program in SkVM. */
     SK_WARN_UNUSED_RESULT

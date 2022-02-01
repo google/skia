@@ -8,6 +8,7 @@
 #define SK_OPTS_NS skslc_standalone
 #include "include/core/SkGraphics.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkTOptional.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/opts/SkChecksum_opts.h"
@@ -29,7 +30,6 @@
 
 #include <fstream>
 #include <limits.h>
-#include <optional>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -257,7 +257,7 @@ static void show_usage() {
            "--nosettings: ignore /*#pragma settings*/ comments\n");
 }
 
-static bool set_flag(std::optional<bool>* flag, const char* name, bool value) {
+static bool set_flag(skstd::optional<bool>* flag, const char* name, bool value) {
     if (flag->has_value()) {
         printf("%s flag was specified multiple times\n", name);
         return false;
@@ -270,7 +270,7 @@ static bool set_flag(std::optional<bool>* flag, const char* name, bool value) {
  * Handle a single input.
  */
 ResultCode processCommand(const std::vector<SkSL::String>& args) {
-    std::optional<bool> honorSettings;
+    skstd::optional<bool> honorSettings;
     std::vector<SkSL::String> paths;
     for (size_t i = 1; i < args.size(); ++i) {
         const SkSL::String& arg = args[i];

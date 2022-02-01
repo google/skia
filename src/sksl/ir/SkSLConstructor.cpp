@@ -173,7 +173,7 @@ std::unique_ptr<Expression> Constructor::Convert(const Context& context,
     return nullptr;
 }
 
-std::optional<double> AnyConstructor::getConstantValue(int n) const {
+skstd::optional<double> AnyConstructor::getConstantValue(int n) const {
     SkASSERT(n >= 0 && n < (int)this->type().slotCount());
     for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
         int argSlots = arg->type().slotCount();
@@ -184,7 +184,7 @@ std::optional<double> AnyConstructor::getConstantValue(int n) const {
     }
 
     SkDEBUGFAIL("argument-list slot count doesn't match constructor-type slot count");
-    return std::nullopt;
+    return skstd::nullopt;
 }
 
 Expression::ComparisonResult AnyConstructor::compareConstant(const Expression& other) const {
@@ -197,11 +197,11 @@ Expression::ComparisonResult AnyConstructor::compareConstant(const Expression& o
     int exprs = this->type().slotCount();
     for (int n = 0; n < exprs; ++n) {
         // Get the n'th subexpression from each side. If either one is null, return "unknown."
-        std::optional<double> left = this->getConstantValue(n);
+        skstd::optional<double> left = this->getConstantValue(n);
         if (!left.has_value()) {
             return ComparisonResult::kUnknown;
         }
-        std::optional<double> right = other.getConstantValue(n);
+        skstd::optional<double> right = other.getConstantValue(n);
         if (!right.has_value()) {
             return ComparisonResult::kUnknown;
         }

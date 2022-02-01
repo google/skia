@@ -52,7 +52,7 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
     ExpressionArray typecastArgs;
     typecastArgs.reserve_back(numSlots);
     for (size_t index = 0; index < numSlots; ++index) {
-        std::optional<double> slotVal = constCtor->getConstantValue(index);
+        skstd::optional<double> slotVal = constCtor->getConstantValue(index);
         if (scalarType.checkForOutOfRangeLiteral(context, *slotVal, constCtor->fLine)) {
             // We've reported an error because the literal is out of range for this type. Zero out
             // the value to avoid a cascade of errors.

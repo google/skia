@@ -132,7 +132,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                 ExpressionArray ctorArgs;
                 ctorArgs.reserve_back(vecWidth);
                 for (int slot = 0; slot < vecWidth; ++slot) {
-                    std::optional<double> slotVal = baseExpr->getConstantValue(indexValue + slot);
+                    skstd::optional<double> slotVal = baseExpr->getConstantValue(indexValue + slot);
                     if (slotVal.has_value()) {
                         ctorArgs.push_back(Literal::Make(baseExpr->fLine, *slotVal, &scalarType));
                     } else {

@@ -10,8 +10,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
-
-#include <optional>
+#include "include/private/SkTOptional.h"
 
 class SkCodecImageGenerator : public SkImageGenerator {
 public:
@@ -20,7 +19,7 @@ public:
      * return an SkCodecImageGenerator.  Otherwise return nullptr.
      */
     static std::unique_ptr<SkImageGenerator> MakeFromEncodedCodec(
-            sk_sp<SkData>, std::optional<SkAlphaType> = std::nullopt);
+            sk_sp<SkData>, skstd::optional<SkAlphaType> = skstd::nullopt);
 
     static std::unique_ptr<SkImageGenerator> MakeFromCodec(std::unique_ptr<SkCodec>);
 
@@ -110,7 +109,7 @@ private:
     /*
      * Takes ownership of codec
      */
-    SkCodecImageGenerator(std::unique_ptr<SkCodec>, sk_sp<SkData>, std::optional<SkAlphaType>);
+    SkCodecImageGenerator(std::unique_ptr<SkCodec>, sk_sp<SkData>, skstd::optional<SkAlphaType>);
 
     std::unique_ptr<SkCodec> fCodec;
     sk_sp<SkData> fData;

@@ -272,7 +272,7 @@ SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorInfo& colorInfo) {
 
 static inline bool blender_requires_shader(const SkBlender* blender) {
     SkASSERT(blender);
-    std::optional<SkBlendMode> mode = as_BB(blender)->asBlendMode();
+    skstd::optional<SkBlendMode> mode = as_BB(blender)->asBlendMode();
     return !mode.has_value() || *mode != SkBlendMode::kDst;
 }
 
@@ -419,7 +419,7 @@ static inline bool skpaint_to_grpaint_impl(
         const GrColorInfo& dstColorInfo,
         const SkPaint& skPaint,
         const SkMatrixProvider& matrixProvider,
-        std::optional<std::unique_ptr<GrFragmentProcessor>> shaderFP,
+        skstd::optional<std::unique_ptr<GrFragmentProcessor>> shaderFP,
         SkBlender* primColorBlender,
         GrPaint* grPaint) {
     // Convert SkPaint color to 4f format in the destination color space
@@ -602,7 +602,7 @@ bool SkPaintToGrPaint(GrRecordingContext* context,
                                    dstColorInfo,
                                    skPaint,
                                    matrixProvider,
-                                   /*shaderFP=*/std::nullopt,
+                                   /*shaderFP=*/skstd::nullopt,
                                    /*primColorBlender=*/nullptr,
                                    grPaint);
 }
@@ -635,7 +635,7 @@ bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                    dstColorInfo,
                                    skPaint,
                                    matrixProvider,
-                                   /*shaderFP=*/std::nullopt,
+                                   /*shaderFP=*/skstd::nullopt,
                                    primColorBlender,
                                    grPaint);
 }
