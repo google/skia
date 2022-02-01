@@ -344,20 +344,47 @@ void Device::drawPoints(SkCanvas::PointMode mode,
 
     GrAA aa = fSurfaceDrawContext->chooseAA(paint);
 
-    if (paint.getPathEffect() && 2 == count && SkCanvas::kLines_PointMode == mode) {
-        GrStyle style(paint, SkPaint::kStroke_Style);
-        GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                              this->asMatrixProvider(), &grPaint)) {
+    if (count == 2 && mode == SkCanvas::kLines_PointMode) {
+        if (paint.getPathEffect()) {
+            // Probably a dashed line. Draw as a path.
+            GrPaint grPaint;
+            if (SkPaintToGrPaint(this->recordingContext(),
+                                  fSurfaceDrawContext->colorInfo(),
+                                  paint,
+                                  this->asMatrixProvider(),
+                                  &grPaint)) {
+                SkPath path;
+                path.setIsVolatile(true);
+                path.moveTo(pts[0]);
+                path.lineTo(pts[1]);
+                fSurfaceDrawContext->drawPath(this->clip(),
+                                              std::move(grPaint),
+                                              aa,
+                                              this->localToDevice(),
+                                              path,
+                                              GrStyle(paint, SkPaint::kStroke_Style));
+            }
             return;
         }
-        SkPath path;
-        path.setIsVolatile(true);
-        path.moveTo(pts[0]);
-        path.lineTo(pts[1]);
-        fSurfaceDrawContext->drawPath(this->clip(), std::move(grPaint), aa, this->localToDevice(),
-                                      path, style);
-        return;
+        if (!paint.getMaskFilter() &&
+            paint.getStrokeWidth() > 0 &&  // drawStrokedLine doesn't support hairlines.
+            paint.getStrokeCap() != SkPaint::kRound_Cap) { // drawStrokedLine doesn't do round caps.
+            // Simple stroked line. Bypass path rendering.
+            GrPaint grPaint;
+            if (SkPaintToGrPaint(this->recordingContext(),
+                                 fSurfaceDrawContext->colorInfo(),
+                                 paint,
+                                 this->asMatrixProvider(),
+                                 &grPaint)) {
+                fSurfaceDrawContext->drawStrokedLine(this->clip(),
+                                                     std::move(grPaint),
+                                                     aa,
+                                                     this->localToDevice(),
+                                                     pts,
+                                                     SkStrokeRec(paint, SkPaint::kStroke_Style));
+            }
+            return;
+        }
     }
 
     SkScalar scales[2];
