@@ -29,7 +29,7 @@ if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   DEBUG=true
   EXTRA_CFLAGS="\"-DSK_DEBUG\", \"-DGR_TEST_UTILS\", "
-  RELEASE_CONF="-O1 --js-opts 0 -s DEMANGLE_SUPPORT=1 -frtti -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g \
+  RELEASE_CONF="-O1 --js-opts 0 -sDEMANGLE_SUPPORT=1 -frtti -sASSERTIONS=1 -sGL_ASSERTIONS=1 -g \
                 -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
   BUILD_DIR=${BUILD_DIR:="out/wasm_gm_tests_debug"}
 else
@@ -52,7 +52,7 @@ GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lGL -DSK_SUPPORT_GPU=1 -DSK_GL \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js\
-          -s USE_WEBGL2=1"
+          -sUSE_WEBGL2=1"
 
 GM_LIB="$BUILD_DIR/libgm_wasm.a"
 
@@ -89,7 +89,7 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
+  extra_cflags=[\"-sMAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
@@ -161,14 +161,6 @@ SKIA_DEFINES="
 -DSK_UNICODE_AVAILABLE \
 -DSK_ENABLE_SVG"
 
-# Disable '-s STRICT=1' outside of Linux until
-# https://github.com/emscripten-core/emscripten/issues/12118 is resovled.
-STRICTNESS="-s STRICT=1"
-if [[ `uname` != "Linux" ]]; then
-  echo "Disabling '-s STRICT=1'. See: https://github.com/emscripten-core/emscripten/issues/12118"
-  STRICTNESS=""
-fi
-
 GMS_TO_BUILD="gm/*.cpp"
 TESTS_TO_BUILD="tests/*.cpp"
 
@@ -234,15 +226,15 @@ EMCC_DEBUG=1 ${EMCXX} \
     $BUILD_DIR/libsvg.a \
     $BUILD_DIR/libskia.a \
     $BUILTIN_FONT \
-    -s LLD_REPORT_UNDEFINED \
-    -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORT_NAME="InitWasmGMTests" \
-    -s EXPORTED_FUNCTIONS=['_malloc','_free'] \
-    -s FORCE_FILESYSTEM=1 \
-    -s FILESYSTEM=1 \
-    -s MODULARIZE=1 \
-    -s NO_EXIT_RUNTIME=1 \
-    -s INITIAL_MEMORY=256MB \
-    -s WASM=1 \
-    $STRICTNESS \
+    -sLLD_REPORT_UNDEFINED \
+    -sALLOW_MEMORY_GROWTH=1 \
+    -sEXPORT_NAME="InitWasmGMTests" \
+    -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
+    -sFORCE_FILESYSTEM=1 \
+    -sFILESYSTEM=1 \
+    -sMODULARIZE=1 \
+    -sNO_EXIT_RUNTIME=1 \
+    -sINITIAL_MEMORY=256MB \
+    -sWASM=1 \
+    -sSTRICT=1 \
     -o $BUILD_DIR/wasm_gm_tests.js

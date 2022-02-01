@@ -16,6 +16,7 @@ BASE_LINKOPTS = [
     "-sWASM",
     "-sMAX_WEBGL_VERSION=2",
     "-sFORCE_FILESYSTEM=0",
+    "-sDYNAMIC_EXECUTION=0",
     "-sFILESYSTEM=0",
 ]
 

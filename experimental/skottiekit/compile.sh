@@ -69,7 +69,7 @@ fi
 if [[ $@ == *debug* ]]; then
   echo "Building a *${BUILD_TYPE}* Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
+  RELEASE_CONF="-O0 --js-opts 0 -sDEMANGLE_SUPPORT=1 -sASSERTIONS=1 -sGL_ASSERTIONS=1 -g4 \
                 --source-map-base /bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
   BUILD_DIR=${BUILD_DIR:="out/skottiekit_debug"}
 elif [[ $@ == *profiling* ]]; then
@@ -89,12 +89,12 @@ GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGL -lGLESv2 -DSK_SUPPORT_GPU=1 -DSK_GL \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js\
-          -s USE_WEBGL2=1"
+          -sUSE_WEBGL2=1"
 if [[ $@ == *cpu* ]]; then
   echo "Using the CPU backend instead of the GPU backend"
   GN_GPU="skia_enable_gpu=false"
   GN_GPU_FLAGS=""
-  WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js -s USE_WEBGL2=0"
+  WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js -sUSE_WEBGL2=0"
 fi
 
 SKOTTIE_LIB="$BUILD_DIR/libskottie.a \
@@ -129,7 +129,7 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
+  extra_cflags=[\"-sMAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
@@ -196,14 +196,13 @@ ${EMCXX} \
     $BUILD_DIR/libsksg.a \
     $BUILD_DIR/libskshaper.a \
     $BUILD_DIR/libskia.a \
-    -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORT_NAME="SkottieKitInit" \
-    -s FORCE_FILESYSTEM=0 \
-    -s FILESYSTEM=0 \
-    -s MODULARIZE=1 \
-    -s NO_EXIT_RUNTIME=1 \
-    -s STRICT=1 \
-    -s INITIAL_MEMORY=128MB \
-    -s WARN_UNALIGNED=1 \
-    -s WASM=1 \
+    -sALLOW_MEMORY_GROWTH=1 \
+    -sEXPORT_NAME="SkottieKitInit" \
+    -sFORCE_FILESYSTEM=0 \
+    -sFILESYSTEM=0 \
+    -sMODULARIZE=1 \
+    -sNO_EXIT_RUNTIME=1 \
+    -sSTRICT=1 \
+    -sINITIAL_MEMORY=128MB \
+    -sWASM=1 \
     -o $BUILD_DIR/skottiekit.js

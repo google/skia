@@ -25,7 +25,7 @@ EMAR=`which emar`
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\","
-  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 \
+  RELEASE_CONF="-O0 --js-opts 0 -sDEMANGLE_SUPPORT=1 -sASSERTIONS=1 -sGL_ASSERTIONS=1 -g3 \
                 --source-map-base /node_modules/debugger/bin/ -DSK_DEBUG"
   BUILD_DIR=${BUILD_DIR:="out/debugger_wasm_debug"}
 else
@@ -70,7 +70,7 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\", \"MAIN_MODULE=1\",
+  extra_cflags=[\"-sMAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     \"-DSK_ENABLE_DUMP_GPU\", \"-DSK_DISABLE_LEGACY_SHADERCONTEXT\",
@@ -140,14 +140,14 @@ EMCC_DEBUG=1 ${EMCXX} \
     $BASE_DIR/debugger_bindings.cpp \
     $BUILD_DIR/libdebugcanvas.a \
     $BUILD_DIR/libskia.a \
-    -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORT_NAME="DebuggerInit" \
-    -s FORCE_FILESYSTEM=0 \
-    -s FILESYSTEM=0 \
-    -s MODULARIZE=1 \
-    -s NO_EXIT_RUNTIME=1 \
-    -s STRICT=1 \
-    -s INITIAL_MEMORY=128MB \
-    -s WASM=1 \
-    -s USE_WEBGL2=1 \
+    -sALLOW_MEMORY_GROWTH=1 \
+    -sEXPORT_NAME="DebuggerInit" \
+    -sFORCE_FILESYSTEM=0 \
+    -sFILESYSTEM=0 \
+    -sMODULARIZE=1 \
+    -sNO_EXIT_RUNTIME=1 \
+    -sSTRICT=1 \
+    -sINITIAL_MEMORY=128MB \
+    -sWASM=1 \
+    -sUSE_WEBGL2=1 \
     -o $BUILD_DIR/debugger.js

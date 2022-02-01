@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
- - Now compile with emsdk 2.0.20
+ - Now compile with emsdk 3.1.3
+ - Internal calls no longer use dynamic dispatch (skbug.com/12795)
 
 ## [0.7.0] 2019-07-20
 

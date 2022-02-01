@@ -15,8 +15,8 @@ is reasonable.
 
 Be sure to both install **and** activate the correct version. For example:
 ```
-    ./emsdk install 2.0.20
-    ./emsdk activate 2.0.20
+    ./emsdk install 3.1.3
+    ./emsdk activate 3.1.3
 ```
 
 This document also assumes you have followed the instructions to download Skia and its deps
@@ -61,13 +61,13 @@ make debug
 make test-continuous
 ```
 
-This reads karma.conf.js, and opens a chrome browser and begins running all the test
+This reads karma.conf.js, and opens a Chrome browser and begins running all the test
 in `test/` it will detect changes to the tests in that directory and automatically
-run again, however it will automatically rebuild and reload canvaskit. Closing the
+run again, however it will automatically rebuild and reload CanvasKit. Closing the
 chrome window will just cause it to re-opened. Kill the karma process to stop continuous
 monitoring for changes.
 
-The tests are run with whichever build of canvaskit you last made. be sure to also
+The tests are run with whichever build of CanvasKit you last made. be sure to also
 test with `release`, `debug_cpu`, and `release_cpu`. testing with release builds will
 expose problems in closure compilation and usually forgotten externs.
 
@@ -95,7 +95,7 @@ head.
 
 ## Testing from Gerrit
 
-When submitting a CL in gerrit, click "choose tryjobs" and type canvaskit to filter them.
+When submitting a CL in gerrit, click "choose tryjobs" and type CanvasKit to filter them.
 select all of them, which at the time of this writing is four jobs, for each combination
 of perf/test gpu/cpu.
 

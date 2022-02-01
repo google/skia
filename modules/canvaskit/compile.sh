@@ -39,7 +39,7 @@ fi
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\","
-  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 \
+  RELEASE_CONF="-O0 --js-opts 0 -sDEMANGLE_SUPPORT=1 -sASSERTIONS=1 -sGL_ASSERTIONS=1 -g3 \
                 --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 elif [[ $@ == *profiling* ]]; then
@@ -67,12 +67,12 @@ GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lGL -DSK_SUPPORT_GPU=1 -DSK_GL \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js\
-          -s USE_WEBGL2=1"
+          -sUSE_WEBGL2=1"
 if [[ $@ == *cpu* ]]; then
   echo "Using the CPU backend instead of the GPU backend"
   GN_GPU="skia_enable_gpu=false"
   GN_GPU_FLAGS=""
-  WASM_GPU="-DSK_SUPPORT_GPU=0 -DSK_ENABLE_SKSL --pre-js $BASE_DIR/cpu.js -s USE_WEBGL2=0"
+  WASM_GPU="-DSK_SUPPORT_GPU=0 -DSK_ENABLE_SKSL --pre-js $BASE_DIR/cpu.js -sUSE_WEBGL2=0"
 fi
 
 SKP_JS="--pre-js $BASE_DIR/skp.js"
@@ -285,7 +285,7 @@ echo "Compiling bitcode"
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
-  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
+  extra_cflags=[\"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
@@ -344,14 +344,6 @@ export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
 echo "Generating final wasm"
 
-# Disable '-s STRICT=1' outside of Linux until
-# https://github.com/emscripten-core/emscripten/issues/12118 is resovled.
-STRICTNESS="-s STRICT=1"
-if [[ `uname` != "Linux" ]]; then
-  echo "Disabling '-s STRICT=1'. See: https://github.com/emscripten-core/emscripten/issues/12118"
-  STRICTNESS=""
-fi
-
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
@@ -403,15 +395,16 @@ EMCC_DEBUG=1 ${EMCXX} \
     $SHAPER_LIB \
     $BUILD_DIR/libskia.a \
     $BUILTIN_FONT \
-    -s LLD_REPORT_UNDEFINED \
-    -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORT_NAME="CanvasKitInit" \
-    -s EXPORTED_FUNCTIONS=['_malloc','_free'] \
-    -s FORCE_FILESYSTEM=0 \
-    -s FILESYSTEM=0 \
-    -s MODULARIZE=1 \
-    -s NO_EXIT_RUNTIME=1 \
-    -s INITIAL_MEMORY=128MB \
-    -s WASM=1 \
-    $STRICTNESS \
+    -sLLD_REPORT_UNDEFINED \
+    -sALLOW_MEMORY_GROWTH=1 \
+    -sEXPORT_NAME="CanvasKitInit" \
+    -sEXPORTED_FUNCTIONS=['_malloc','_free'] \
+    -sFORCE_FILESYSTEM=0 \
+    -sFILESYSTEM=0 \
+    -sMODULARIZE=1 \
+    -sNO_EXIT_RUNTIME=1 \
+    -sDYNAMIC_EXECUTION=0 \
+    -sINITIAL_MEMORY=128MB \
+    -sWASM=1 \
+    -sSTRICT=1 \
     -o $BUILD_DIR/canvaskit.js
