@@ -22,9 +22,6 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLDehydrator.h"
-#include "src/sksl/SkSLRehydrator.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -48,27 +45,19 @@ static void set_uniform_array(SkRuntimeShaderBuilder* builder, const char* name,
     }
 }
 
-static SkString load_source(skiatest::Reporter* r,
-                            const char* testFile,
-                            const char* permutationSuffix) {
-    SkString resourcePath = SkStringPrintf("sksl/%s", testFile);
-    sk_sp<SkData> shaderData = GetResourceAsData(resourcePath.c_str());
-    if (!shaderData) {
-        ERRORF(r, "%s: Unable to load file", testFile);
-        return SkString("");
-    }
-    return SkString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
-}
-
 static void test_one_permutation(skiatest::Reporter* r,
                                  SkSurface* surface,
                                  const char* testFile,
                                  const char* permutationSuffix,
                                  const SkRuntimeEffect::Options& options) {
-    SkString shaderString = load_source(r, testFile, permutationSuffix);
-    if (shaderString.isEmpty()) {
+    SkString resourcePath = SkStringPrintf("sksl/%s", testFile);
+    sk_sp<SkData> shaderData = GetResourceAsData(resourcePath.c_str());
+    if (!shaderData) {
+        ERRORF(r, "%s%s: Unable to load file", testFile, permutationSuffix);
         return;
     }
+
+    SkString shaderString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
     SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForShader(shaderString, options);
     if (!result.effect) {
         ERRORF(r, "%s%s: %s", testFile, permutationSuffix, result.errorText.c_str());
@@ -182,51 +171,6 @@ static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
     test_permutations(r, surface.get(), testFile, /*worksInES2=*/false);
 }
 
-static int write_symbol_tables(SkSL::Dehydrator& dehydrator, const SkSL::SymbolTable& s) {
-    int count = 1;
-    if (s.fParent) {
-        count += write_symbol_tables(dehydrator, *s.fParent);
-    }
-    dehydrator.write(s);
-    return count;
-}
-
-static void test_rehydrate(skiatest::Reporter* r, const char* testFile) {
-    SkString shaderString = load_source(r, testFile, "");
-    if (shaderString.isEmpty()) {
-        return;
-    }
-    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    SkSL::Compiler compiler(caps.get());
-    SkSL::Program::Settings settings;
-    // Inlining causes problems because it can create expressions like bool(1) that can't be
-    // directly instantiated. After a dehydrate/recycle pass, that expression simply becomes "true"
-    // due to optimization - which is fine, but would cause us to fail an equality comparison. We
-    // disable inlining to avoid this issue.
-    settings.fInlineThreshold = 0;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kRuntimeShader, shaderString.c_str(), settings);
-    if (!program) {
-        ERRORF(r, "%s", compiler.errorText().c_str());
-        return;
-    }
-    SkSL::Dehydrator dehydrator;
-    int symbolTableCount = write_symbol_tables(dehydrator, *program->fSymbols);
-    dehydrator.write(program->fOwnedElements);
-    SkSL::StringStream stream;
-    dehydrator.finish(stream);
-
-    SkSL::Rehydrator rehydrator(compiler, (const uint8_t*) stream.str().data(),
-            stream.str().length());
-    std::unique_ptr<SkSL::Program> rehydrated = rehydrator.program(symbolTableCount,
-            /*source=*/nullptr, std::make_unique<SkSL::ProgramConfig>(), program->fSharedElements,
-            std::make_unique<SkSL::ModifiersPool>(), /*pool=*/nullptr, program->fInputs);
-    REPORTER_ASSERT(r, rehydrated->description() == program->description(),
-            "Mismatch between original and dehydrated/rehydrated:\n-- Original:\n%s\n"
-            "-- Rehydrated:\n%s", program->description().c_str(),
-            rehydrated->description().c_str());
-}
-
 #define SKSL_TEST_CPU(name, path)                                   \
     DEF_TEST(name ## _CPU, r) {                                     \
         test_cpu(r, path, true);                                    \
@@ -245,13 +189,8 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile) {
     DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name ## _GPU, r, ctxInfo) {  \
         test_es3(r, ctxInfo.directContext(), path);                 \
     }
-#define SKSL_TEST_REHYDRATE(name, path)                             \
-    DEF_TEST(name ## _REHYDRATE, r) {                               \
-        test_rehydrate(r, path);                                    \
-    }
 
-#define SKSL_TEST(name, path) SKSL_TEST_CPU(name, path) SKSL_TEST_GPU(name, path) \
-        SKSL_TEST_REHYDRATE(name, path)
+#define SKSL_TEST(name, path) SKSL_TEST_CPU(name, path) SKSL_TEST_GPU(name, path)
 
 SKSL_TEST(SkSLArraySizeFolding,                "folding/ArraySizeFolding.sksl")
 SKSL_TEST(SkSLAssignmentOps,                   "folding/AssignmentOps.sksl")

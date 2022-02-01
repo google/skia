@@ -8,6 +8,8 @@
 #ifndef SKSL_DEHYDRATOR
 #define SKSL_DEHYDRATOR
 
+#ifdef SKSL_STANDALONE
+
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
@@ -138,6 +140,8 @@ private:
     friend class AutoDehydratorSymbolTable;
 };
 
-} // namespace SkSL
+} // namespace
+
+#endif
 
 #endif
