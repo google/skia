@@ -143,7 +143,7 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
             // we will late-bind the values in ctx, once for each color in the loop
             uniformCtx = alloc.make<SkRasterPipeline_UniformColorCtx>();
             rec.fPipeline->append(SkRasterPipeline::uniform_color_dst, uniformCtx);
-            if (skstd::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode(); bm.has_value()) {
+            if (std::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode(); bm.has_value()) {
                 SkBlendMode_AppendStages(*bm, rec.fPipeline);
             } else {
                 return false;

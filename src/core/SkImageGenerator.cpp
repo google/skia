@@ -84,7 +84,7 @@ SkGraphics::SetImageGeneratorFromEncodedDataFactory(ImageGeneratorFromEncodedDat
 }
 
 std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromEncoded(
-        sk_sp<SkData> data, skstd::optional<SkAlphaType> at) {
+        sk_sp<SkData> data, std::optional<SkAlphaType> at) {
     if (!data || at == kOpaque_SkAlphaType) {
         return nullptr;
     }

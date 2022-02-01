@@ -9,13 +9,14 @@
 #define SkBitSet_DEFINED
 
 #include "include/private/SkMalloc.h"
-#include "include/private/SkTOptional.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
+
 #include <climits>
 #include <cstring>
 #include <limits>
 #include <memory>
+#include <optional>
 
 class SkBitSet {
 public:
@@ -90,7 +91,7 @@ public:
         }
     }
 
-    using OptionalIndex = skstd::optional<size_t>;
+    using OptionalIndex = std::optional<size_t>;
 
     // If any bits are set, returns the index of the first.
     OptionalIndex findFirst() {

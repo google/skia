@@ -41,7 +41,7 @@ public:
     }
 
     bool supportsConstantValues() const override { return true; }
-    skstd::optional<double> getConstantValue(int n) const override;
+    std::optional<double> getConstantValue(int n) const override;
 
 private:
     using INHERITED = SingleArgumentConstructor;

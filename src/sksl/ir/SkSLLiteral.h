@@ -132,7 +132,7 @@ public:
         return true;
     }
 
-    skstd::optional<double> getConstantValue(int n) const override {
+    std::optional<double> getConstantValue(int n) const override {
         SkASSERT(n == 0);
         return fValue;
     }

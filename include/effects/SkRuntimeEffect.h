@@ -18,9 +18,9 @@
 #include "include/core/SkString.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
-#include "include/private/SkTOptional.h"
 
 #include <string>
+#include <optional>
 #include <vector>
 
 #ifdef SK_ENABLE_SKSL
@@ -184,7 +184,7 @@ public:
         ChildPtr(sk_sp<SkColorFilter> cf) : fChild(std::move(cf)) {}
         ChildPtr(sk_sp<SkBlender> b) : fChild(std::move(b)) {}
 
-        skstd::optional<ChildType> type() const;
+        std::optional<ChildType> type() const;
 
         SkShader* shader() const;
         SkColorFilter* colorFilter() const;

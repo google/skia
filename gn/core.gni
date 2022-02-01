@@ -503,7 +503,6 @@ skia_core_sources = [
   "$_include/private/SkTFitsIn.h",
   "$_include/private/SkTHash.h",
   "$_include/private/SkTLogic.h",
-  "$_include/private/SkTOptional.h",
   "$_include/private/SkTemplates.h",
   "$_include/private/SkThreadAnnotations.h",
   "$_include/private/SkThreadID.h",

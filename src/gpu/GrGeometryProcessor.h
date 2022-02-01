@@ -101,12 +101,12 @@ public:
          * offsets (and total vertex stride) are implicitly determined from attribute order and
          * types.
          */
-        skstd::optional<size_t> offset() const {
+        std::optional<size_t> offset() const {
             if (fOffset != kImplicitOffset) {
                 SkASSERT(AlignOffset(fOffset) == fOffset);
                 return {fOffset};
             }
-            return skstd::nullopt;
+            return std::nullopt;
         }
 
         inline constexpr size_t size() const;

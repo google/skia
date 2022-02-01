@@ -10,9 +10,9 @@
 
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTHash.h"
-#include "include/private/SkTOptional.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <optional>
 #include <unordered_map>
 
 namespace SkSL {
@@ -199,9 +199,9 @@ public:
      *                                                       0, nullopt)
      * All classes which override this function must also implement `supportsConstantValues`.
      */
-    virtual skstd::optional<double> getConstantValue(int n) const {
+    virtual std::optional<double> getConstantValue(int n) const {
         SkASSERT(!this->supportsConstantValues());
-        return skstd::nullopt;
+        return std::nullopt;
     }
 
     virtual std::unique_ptr<Expression> clone() const = 0;

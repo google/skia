@@ -7,7 +7,6 @@
 
 #include "src/sksl/ir/SkSLType.h"
 
-#include "include/private/SkTOptional.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -18,6 +17,8 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
+
+#include <optional>
 
 namespace SkSL {
 
@@ -928,7 +929,7 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
             // Iterate over every constant subexpression in the value.
             int numSlots = valueExpr->type().slotCount();
             for (int slot = 0; slot < numSlots; ++slot) {
-                skstd::optional<double> slotVal = valueExpr->getConstantValue(slot);
+                std::optional<double> slotVal = valueExpr->getConstantValue(slot);
                 // Check for Literal values that are out of range for the base type.
                 if (slotVal.has_value() &&
                     baseType.checkForOutOfRangeLiteral(context, *slotVal, valueExpr->fLine)) {
