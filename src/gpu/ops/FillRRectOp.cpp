@@ -38,12 +38,27 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    struct LocalCoords {
+        enum class Type : bool { kRect, kMatrix };
+        LocalCoords(const SkRect& localRect)
+                : fType(Type::kRect)
+                , fRect(localRect) {}
+        LocalCoords(const SkMatrix& localMatrix)
+                : fType(Type::kMatrix)
+                , fMatrix(localMatrix) {}
+        Type fType;
+        union {
+            SkRect fRect;
+            SkMatrix fMatrix;
+        };
+    };
+
     static GrOp::Owner Make(GrRecordingContext*,
                             SkArenaAlloc*,
                             GrPaint&&,
                             const SkMatrix& viewMatrix,
                             const SkRRect&,
-                            const SkRect& localRect,
+                            const LocalCoords&,
                             GrAA);
 
     const char* name() const override { return "FillRRectOp"; }
@@ -94,7 +109,7 @@ private:
                     SkArenaAlloc*,
                     const SkMatrix& viewMatrix,
                     const SkRRect&,
-                    const SkRect& localRect,
+                    const LocalCoords&,
                     ProcessorFlags);
 
     GrProgramInfo* programInfo() override { return fProgramInfo; }
@@ -112,25 +127,12 @@ private:
     Helper         fHelper;
     ProcessorFlags fProcessorFlags;
 
-    struct LocalCoords {
-        enum class Type : bool { kRect, kMatrix };
-        LocalCoords(const SkRect& localRect)
-                : fType(Type::kRect)
-                , fRect(localRect) {}
-        LocalCoords(const SkMatrix& localMatrix)
-                : fType(Type::kMatrix)
-                , fMatrix(localMatrix) {}
-        Type fType;
-        union {
-            SkRect fRect;
-            SkMatrix fMatrix;
-        };
-    };
-
     struct Instance {
-        Instance(const SkMatrix& viewMatrix, const SkRRect& rrect, const SkRect& localRect,
+        Instance(const SkMatrix& viewMatrix,
+                 const SkRRect& rrect,
+                 const LocalCoords& localCoords,
                  const SkPMColor4f& color)
-                : fViewMatrix(viewMatrix), fRRect(rrect), fLocalCoords(localRect), fColor(color) {
+                : fViewMatrix(viewMatrix), fRRect(rrect), fLocalCoords(localCoords), fColor(color) {
         }
         SkMatrix fViewMatrix;
         SkRRect fRRect;
@@ -166,7 +168,7 @@ GrOp::Owner FillRRectOpImpl::Make(GrRecordingContext* ctx,
                                   GrPaint&& paint,
                                   const SkMatrix& viewMatrix,
                                   const SkRRect& rrect,
-                                  const SkRect& localRect,
+                                  const LocalCoords& localCoords,
                                   GrAA aa) {
     const GrCaps* caps = ctx->priv().caps();
 
@@ -197,7 +199,7 @@ GrOp::Owner FillRRectOpImpl::Make(GrRecordingContext* ctx,
     }
 
     return Helper::FactoryHelper<FillRRectOpImpl>(ctx, std::move(paint), arena, viewMatrix, rrect,
-                                                  localRect, flags);
+                                                  localCoords, flags);
 }
 
 FillRRectOpImpl::FillRRectOpImpl(GrProcessorSet* processorSet,
@@ -205,7 +207,7 @@ FillRRectOpImpl::FillRRectOpImpl(GrProcessorSet* processorSet,
                                  SkArenaAlloc* arena,
                                  const SkMatrix& viewMatrix,
                                  const SkRRect& rrect,
-                                 const SkRect& localRect,
+                                 const LocalCoords& localCoords,
                                  ProcessorFlags processorFlags)
         : GrMeshDrawOp(ClassID())
         , fHelper(processorSet,
@@ -215,7 +217,7 @@ FillRRectOpImpl::FillRRectOpImpl(GrProcessorSet* processorSet,
         , fProcessorFlags(processorFlags & ~(ProcessorFlags::kHasLocalCoords |
                                              ProcessorFlags::kWideColor |
                                              ProcessorFlags::kMSAAEnabled))
-        , fHeadInstance(arena->make<Instance>(viewMatrix, rrect, localRect, paintColor))
+        , fHeadInstance(arena->make<Instance>(viewMatrix, rrect, localCoords, paintColor))
         , fTailInstance(&fHeadInstance->fNext) {
     // FillRRectOp::Make fails if there is perspective.
     SkASSERT(!viewMatrix.hasPerspective());
@@ -904,6 +906,16 @@ GrOp::Owner Make(GrRecordingContext* ctx,
                  const SkRect& localRect,
                  GrAA aa) {
     return FillRRectOpImpl::Make(ctx, arena, std::move(paint), viewMatrix, rrect, localRect, aa);
+}
+
+GrOp::Owner Make(GrRecordingContext* ctx,
+                 SkArenaAlloc* arena,
+                 GrPaint&& paint,
+                 const SkMatrix& viewMatrix,
+                 const SkRRect& rrect,
+                 const SkMatrix& localMatrix,
+                 GrAA aa) {
+    return FillRRectOpImpl::Make(ctx, arena, std::move(paint), viewMatrix, rrect, localMatrix, aa);
 }
 
 } // namespace skgpu::v1::FillRRectOp

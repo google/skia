@@ -157,6 +157,7 @@ gm_sources = [
   "$_gm/drawbitmaprect.cpp",
   "$_gm/drawglyphs.cpp",
   "$_gm/drawimageset.cpp",
+  "$_gm/drawlines_with_local_matrix.cpp",
   "$_gm/drawminibitmaprect.cpp",
   "$_gm/drawregion.cpp",
   "$_gm/drawregionmodes.cpp",

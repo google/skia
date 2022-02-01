@@ -1687,17 +1687,41 @@ void SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
     parallel *= halfWidth;
 
     SkVector ortho = { parallel.fY, -parallel.fX };
-    if (SkPaint::kButt_Cap == stroke.getCap()) {
-        // No extra extension for butt caps
-        parallel = {0.f, 0.f};
+    SkPoint p0 = points[0], p1 = points[1];
+    if (stroke.getCap() == SkPaint::kSquare_Cap) {
+        // Extra extension for square caps
+        p0 -= parallel;
+        p1 += parallel;
     }
+
+    // If we are using dmsaa or reduced shader mode then attempt to draw with FillRRectOp.
+    if (this->caps()->drawInstancedSupport() &&
+        (this->alwaysAntialias() ||
+         (fContext->priv().caps()->reducedShaderMode() && aa == GrAA::kYes))) {
+        SkMatrix localMatrix = SkMatrix::MakeAll(p1.fX - p0.fX, ortho.fX, p0.fX,
+                                                 p1.fY - p0.fY, ortho.fY, p0.fY,
+                                                 0, 0, 1);
+        if (auto op = FillRRectOp::Make(fContext,
+                                        this->arenaAlloc(),
+                                        std::move(paint),
+                                        SkMatrix::Concat(viewMatrix, localMatrix),
+                                        SkRRect::MakeRect({0,-1,1,1}),
+                                        localMatrix,
+                                        GrAA::kYes)) {
+            this->addDrawOp(clip, std::move(op));
+            return;
+        }
+    }
+
     // Order is TL, TR, BR, BL where arbitrarily "down" is p0 to p1 and "right" is positive
-    SkPoint corners[4] = { points[0] - ortho - parallel,
-                           points[0] + ortho - parallel,
-                           points[1] + ortho + parallel,
-                           points[1] - ortho + parallel };
+    SkPoint corners[4] = { p0 - ortho,
+                           p0 + ortho,
+                           p1 + ortho,
+                           p1 - ortho };
 
     GrQuadAAFlags edgeAA = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+
+    assert_alive(paint);
     this->fillQuadWithEdgeAA(clip, std::move(paint), aa, edgeAA, viewMatrix, corners, nullptr);
 }
 

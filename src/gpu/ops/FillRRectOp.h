@@ -27,6 +27,14 @@ namespace skgpu::v1::FillRRectOp {
                      const SkRect& localRect,
                      GrAA);
 
+    GrOp::Owner Make(GrRecordingContext*,
+                     SkArenaAlloc*,
+                     GrPaint&&,
+                     const SkMatrix& viewMatrix,
+                     const SkRRect&,
+                     const SkMatrix& localMatrix,
+                     GrAA);
+
 }  // namespace skgpu::v1::FillRRectOp
 
 #endif // FillRRectOp_DEFINED
