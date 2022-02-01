@@ -287,7 +287,7 @@ void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
 
         if (control.isSDFT(approximateDeviceTextSize, runPaint)) {
             // Process SDFT - This should be the .009% case.
-            const auto& [strikeSpec, strikeToSourceScale, minScale, maxScale] =
+            const auto& [strikeSpec, strikeToSourceScale, matrixRange] =
                     SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, drawMatrix, control);
 
             #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
@@ -311,7 +311,7 @@ void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
                                                strike->getUnderlyingStrike(),
                                                strikeToSourceScale,
                                                runFont,
-                                               minScale, maxScale);
+                                               matrixRange);
                 }
             }
         }

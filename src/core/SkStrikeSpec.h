@@ -71,7 +71,7 @@ public:
 
 #if SK_SUPPORT_GPU
     // Create a strike spec for scaled distance field text.
-    static std::tuple<SkStrikeSpec, SkScalar, SkScalar, SkScalar> MakeSDFT(
+    static std::tuple<SkStrikeSpec, SkScalar, GrSDFTMatrixRange> MakeSDFT(
             const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,

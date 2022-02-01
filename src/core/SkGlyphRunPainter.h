@@ -23,6 +23,7 @@ namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 
 class SkGlyphRunPainterInterface;
 class SkStrikeSpec;
+class GrSDFTMatrixRange;
 
 // round and ignorePositionMask are used to calculate the subpixel position of a glyph.
 // The per component (x or y) calculation is:
@@ -149,8 +150,7 @@ public:
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
-                                   SkScalar minScale,
-                                   SkScalar maxScale) = 0;
+                                   const GrSDFTMatrixRange& matrixRange) = 0;
 };
 
 #endif  // SkGlyphRunPainter_DEFINED

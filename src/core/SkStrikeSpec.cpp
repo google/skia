@@ -171,25 +171,22 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
 }
 
 #if SK_SUPPORT_GPU
-std::tuple<SkStrikeSpec, SkScalar, SkScalar, SkScalar>
+std::tuple<SkStrikeSpec, SkScalar, GrSDFTMatrixRange>
 SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
                        const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
                        const GrSDFTControl& control) {
+    // Add filter to the paint which creates the SDFT data for A8 masks.
     SkPaint dfPaint{paint};
     dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
-    SkScalar strikeToSourceScale;
-    SkFont dfFont = control.getSDFFont(font, deviceMatrix, &strikeToSourceScale);
+
+    auto [dfFont, strikeToSourceScale, matrixRange] = control.getSDFFont(font, deviceMatrix);
 
     // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
     SkScalerContextFlags flags = SkScalerContextFlags::kNone;
-
-    SkScalar minScale, maxScale;
-    std::tie(minScale, maxScale) = control.computeSDFMinMaxScale(font.getSize(), deviceMatrix);
-
     SkStrikeSpec strikeSpec(dfFont, dfPaint, surfaceProps, flags, SkMatrix::I());
 
-    return std::make_tuple(std::move(strikeSpec), strikeToSourceScale, minScale, maxScale);
+    return std::make_tuple(std::move(strikeSpec), strikeToSourceScale, matrixRange);
 }
 
 sk_sp<GrTextStrike> SkStrikeSpec::findOrCreateGrStrike(GrStrikeCache* cache) const {

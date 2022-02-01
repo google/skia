@@ -224,7 +224,6 @@ public:
     const SkMatrix& initialPositionMatrix() const override { return fInitialPositionMatrix; }
     bool supportBilerpAtlas() const { return fSupportBilerpAtlas; }
 
-    std::tuple<SkScalar, SkScalar> scaleBounds() const { return {fMaxMinScale, fMinMaxScale}; }
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
 
     const Key& key() const;
@@ -254,8 +253,7 @@ private:
                            sk_sp<SkStrike>&& strike,
                            SkScalar strikeToSourceScale,
                            const SkFont& runFont,
-                           SkScalar minScale,
-                           SkScalar maxScale) override;
+                           const GrSDFTMatrixRange& matrixRange) override;
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;
@@ -281,12 +279,6 @@ private:
 
     Key fKey;
 
-    // We can reuse distance field text, but only if the new view matrix would not result in
-    // a mip change.  Because there can be multiple runs in a blob, we track the overall
-    // maximum minimum scale, and minimum maximum scale, we can support before we need to regen
-    SkScalar fMaxMinScale{-SK_ScalarMax};
-    SkScalar fMinMaxScale{SK_ScalarMax};
-
     bool fSomeGlyphsExcluded{false};
 };
 
@@ -311,7 +303,7 @@ public:
                            sk_sp<SkStrike>&& strike,
                            SkScalar strikeToSourceScale,
                            const SkFont& runFont,
-                           SkScalar minScale, SkScalar maxScale) override;
+                           const GrSDFTMatrixRange& matrixRange) override;
 
 private:
 

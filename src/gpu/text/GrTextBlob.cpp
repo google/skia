@@ -1277,12 +1277,14 @@ public:
                SkSpan<const VertexData> vertexData,
                GlyphVector&& glyphs,
                bool useLCDText,
-               bool antiAliased);
+               bool antiAliased,
+               const GrSDFTMatrixRange& matrixRange);
 
     static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                               const SkFont& runFont,
                               sk_sp<SkStrike>&& strike,
                               SkScalar strikeToSourceScale,
+                              const GrSDFTMatrixRange& matrixRange,
                               GrTextBlob* blob,
                               GrSubRunAllocator* alloc);
 
@@ -1339,6 +1341,7 @@ private:
 
     const bool fUseLCDText;
     const bool fAntiAliased;
+    const GrSDFTMatrixRange fMatrixRange;
 };
 
 SDFTSubRun::SDFTSubRun(GrMaskFormat format,
@@ -1348,7 +1351,8 @@ SDFTSubRun::SDFTSubRun(GrMaskFormat format,
                        SkSpan<const VertexData> vertexData,
                        GlyphVector&& glyphs,
                        bool useLCDText,
-                       bool antiAliased)
+                       bool antiAliased,
+                       const GrSDFTMatrixRange& matrixRange)
         : fMaskFormat{format}
         , fBlob{textBlob}
         , fStrikeToSourceScale{strikeToSource}
@@ -1356,7 +1360,8 @@ SDFTSubRun::SDFTSubRun(GrMaskFormat format,
         , fVertexData{vertexData}
         , fGlyphs{std::move(glyphs)}
         , fUseLCDText{useLCDText}
-        , fAntiAliased{antiAliased} {}
+        , fAntiAliased{antiAliased}
+        , fMatrixRange{matrixRange} {}
 
 bool has_some_antialiasing(const SkFont& font ) {
     SkFont::Edging edging = font.getEdging();
@@ -1368,6 +1373,7 @@ GrSubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                const SkFont& runFont,
                                sk_sp<SkStrike>&& strike,
                                SkScalar strikeToSourceScale,
+                               const GrSDFTMatrixRange& matrixRange,
                                GrTextBlob* blob,
                                GrSubRunAllocator* alloc) {
     SkRect bounds = SkRectPriv::MakeLargestInverted();
@@ -1395,7 +1401,8 @@ GrSubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
             vertexData,
             GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc),
             runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
-            has_some_antialiasing(runFont));
+            has_some_antialiasing(runFont),
+            matrixRange);
 }
 
 void SDFTSubRun::draw(SkCanvas*,
@@ -1481,18 +1488,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
 }
 
 bool SDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
-    const SkMatrix& initialPositionMatrix = fBlob->initialPositionMatrix();
-
-    // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
-    // distance field being generated, so we have to regenerate in those cases
-    SkScalar newMaxScale = positionMatrix.getMaxScale();
-    SkScalar oldMaxScale = initialPositionMatrix.getMaxScale();
-    SkScalar scaleAdjust = newMaxScale / oldMaxScale;
-    auto [maxMinScale, minMaxScale] = fBlob->scaleBounds();
-    if (scaleAdjust < maxMinScale || scaleAdjust > minMaxScale) {
-        return false;
-    }
-    return true;
+    return fMatrixRange.matrixInRange(positionMatrix);
 }
 
 void SDFTSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) const {
@@ -1848,13 +1844,10 @@ void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawabl
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
-                                   SkScalar minScale,
-                                   SkScalar maxScale) {
-
-    fMaxMinScale = std::max(minScale, fMaxMinScale);
-    fMinMaxScale = std::min(maxScale, fMinMaxScale);
+                                   const GrSDFTMatrixRange& matrixRange) {
     fSubRunList.append(
-        SDFTSubRun::Make(drawables, runFont, std::move(strike), strikeToSourceScale,this, &fAlloc));
+        SDFTSubRun::Make(
+            drawables, runFont, std::move(strike), strikeToSourceScale, matrixRange, this,&fAlloc));
 }
 
 void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -2560,7 +2553,7 @@ void GrSubRunNoCachePainter::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoi
                                                sk_sp<SkStrike>&& strike,
                                                SkScalar strikeToSourceScale,
                                                const SkFont& runFont,
-                                               SkScalar minScale, SkScalar maxScale) {
+                                               const GrSDFTMatrixRange&) {
     if (drawables.empty()) {
         return;
     }
@@ -2615,8 +2608,8 @@ public:
             SkScalar strikeToSourceScale) override;
     void processSourceSDFT(
             const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike,
-            SkScalar strikeToSourceScale, const SkFont& runFont, SkScalar minScale,
-            SkScalar maxScale) override;
+            SkScalar strikeToSourceScale, const SkFont& runFont,
+            const GrSDFTMatrixRange& matrixRange) override;
 
     const SkMatrix& initialPositionMatrix() const override { return fInitialPositionMatrix; }
     SkPoint origin() const { return fOrigin; }
@@ -3321,8 +3314,7 @@ void Slug::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
-                                   SkScalar minScale,
-                                   SkScalar maxScale) {
+                                   const GrSDFTMatrixRange&) {
 
     fSubRuns.append(SDFTSubRunSlug::Make(
             this, drawables, runFont, std::move(strike), strikeToSourceScale, &fAlloc));
