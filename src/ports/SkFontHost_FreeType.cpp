@@ -33,6 +33,7 @@
 #include "src/utils/SkMatrix22.h"
 
 #include <memory>
+#include <optional>
 #include <tuple>
 
 #include <ft2build.h>
@@ -1880,9 +1881,13 @@ bool SkTypeface_FreeType::Scanner::scanFont(
         slant = SkFontStyle::kItalic_Slant;
     }
 
-    PS_FontInfoRec psFontInfo;
+    bool hasAxes = face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS;
     TT_OS2* os2 = static_cast<TT_OS2*>(FT_Get_Sfnt_Table(face.get(), ft_sfnt_os2));
-    if (os2 && os2->version != 0xffff) {
+    bool hasOs2 = os2 && os2->version != 0xffff;
+
+    PS_FontInfoRec psFontInfo;
+
+    if (hasOs2) {
         weight = os2->usWeightClass;
         width = os2->usWidthClass;
 
@@ -1890,7 +1895,68 @@ bool SkTypeface_FreeType::Scanner::scanFont(
         if (SkToBool(os2->fsSelection & (1u << 9))) {
             slant = SkFontStyle::kOblique_Slant;
         }
-    } else if (0 == FT_Get_PS_Font_Info(face.get(), &psFontInfo) && psFontInfo.weight) {
+    }
+
+    // Let variable axes override properties from the OS/2 table.
+    if (hasAxes) {
+      AxisDefinitions axisDefinitions;
+      if (GetAxes(face.get(), &axisDefinitions)) {
+        size_t numAxes = axisDefinitions.size();
+        static constexpr SkFourByteTag wghtTag = SkSetFourByteTag('w', 'g', 'h', 't');
+        static constexpr SkFourByteTag wdthTag = SkSetFourByteTag('w', 'd', 't', 'h');
+        static constexpr SkFourByteTag slntTag = SkSetFourByteTag('s', 'l', 'n', 't');
+        std::optional<size_t> wghtIndex;
+        std::optional<size_t> wdthIndex;
+        std::optional<size_t> slntIndex;
+        for(size_t i = 0; i < numAxes; ++i) {
+          if (axisDefinitions[i].fTag == wghtTag) {
+              // Rough validity check, is there sufficient spread and are ranges
+              // within 0-1000.
+              int wghtRange = SkFixedToScalar(axisDefinitions[i].fMaximum) -
+                              SkFixedToScalar(axisDefinitions[i].fMinimum);
+              if (wghtRange > 5 && wghtRange <= 1000 &&
+                  SkFixedToScalar(axisDefinitions[i].fMaximum) <= 1000) {
+                  wghtIndex = i;
+              }
+          }
+          if (axisDefinitions[i].fTag == wdthTag) {
+              // Rough validity check, is there a spread and are ranges within
+              // 0-500.
+              int widthRange = SkFixedToScalar(axisDefinitions[i].fMaximum) -
+                               SkFixedToScalar(axisDefinitions[i].fMinimum);
+              if (widthRange > 0 && widthRange <= 500 &&
+                  SkFixedToScalar(axisDefinitions[i].fMaximum) <= 500)
+                  wdthIndex = i;
+          }
+          if (axisDefinitions[i].fTag == slntTag)
+            slntIndex = i;
+        }
+        SkAutoSTMalloc<4, FT_Fixed> coords(numAxes);
+        if ((wghtIndex || wdthIndex || slntIndex) &&
+            !FT_Get_Var_Design_Coordinates(face.get(), numAxes, coords.get())) {
+            if (wghtIndex) {
+                SkASSERT(*wghtIndex < numAxes);
+                weight = SkScalarRoundToInt(SkFixedToScalar(coords[*wghtIndex]));
+            }
+            if (wdthIndex) {
+                SkASSERT(*wdthIndex < numAxes);
+                width = SkScalarRoundToInt(SkFixedToScalar(coords[*wdthIndex]));
+            }
+            if (slntIndex) {
+                SkASSERT(*slntIndex < numAxes);
+                // https://docs.microsoft.com/en-us/typography/opentype/spec/dvaraxistag_slnt
+                // "Scale interpretation: Values can be interpreted as the angle,
+                // in counter-clockwise degrees, of oblique slant from whatever
+                // the designer considers to be upright for that font design."
+                if (SkFixedToScalar(coords[*slntIndex]) < 0) {
+                    slant = SkFontStyle::kOblique_Slant;
+                }
+            }
+        }
+      }
+    }
+
+    if (!hasOs2 && !hasAxes && 0 == FT_Get_PS_Font_Info(face.get(), &psFontInfo) && psFontInfo.weight) {
         static const struct {
             char const * const name;
             int const weight;
