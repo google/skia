@@ -119,9 +119,6 @@ String operator+(const char* s1, const String& s2) {
     return result;
 }
 
-String operator+(std::string_view left, std::string_view right) {
-    return String(left) + right;
-}
 
 bool stod(std::string_view s, SKSL_FLOAT* value) {
     std::string str(s.data(), s.size());

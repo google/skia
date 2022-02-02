@@ -94,7 +94,8 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
     }
 
     if (!symbol->is<FunctionDeclaration>()) {
-        fContext.fErrors->error(symbol->fLine, "symbol '" + name + "' was already defined");
+        fContext.fErrors->error(symbol->fLine, "symbol '" + SkSL::String(name) +
+                                               "' was already defined");
         return;
     }
 

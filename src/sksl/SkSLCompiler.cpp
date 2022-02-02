@@ -469,7 +469,7 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
 std::unique_ptr<Expression> Compiler::convertIdentifier(int line, std::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
-        this->errorReporter().error(line, "unknown identifier '" + name + "'");
+        this->errorReporter().error(line, "unknown identifier '" + SkSL::String(name) + "'");
         return nullptr;
     }
     switch (result->kind()) {
@@ -743,7 +743,7 @@ void Compiler::handleError(std::string_view msg, PositionInfo pos) {
     if (pos.line() >= 1) {
         fErrorText += skstd::to_string(pos.line()) + ": ";
     }
-    fErrorText += msg + "\n";
+    fErrorText += SkSL::String(msg) + "\n";
 }
 
 String Compiler::errorText(bool showCount) {

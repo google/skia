@@ -307,7 +307,7 @@ static bool find_existing_declaration(const Context& context,
                 functions.push_back(&entry->as<FunctionDeclaration>());
                 break;
             default:
-                errors.error(line, "symbol '" + name + "' was already defined");
+                errors.error(line, "symbol '" + SkSL::String(name) + "' was already defined");
                 return false;
         }
         for (const FunctionDeclaration* other : functions) {
@@ -424,7 +424,8 @@ String FunctionDeclaration::mangledName() const {
     // GLSL forbids two underscores in a row; add an extra character if necessary to avoid this.
     const char* splitter = skstd::ends_with(name, '_') ? "x_" : "_";
     // Rename function to `funcname_returntypeparamtypes`.
-    String result = name + splitter + builtinMarker + this->returnType().abbreviatedName();
+    String result = SkSL::String(name) + splitter + builtinMarker +
+                    this->returnType().abbreviatedName();
     for (const Variable* p : this->parameters()) {
         result += p->type().abbreviatedName();
     }

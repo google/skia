@@ -51,8 +51,9 @@ public:
         // To avoid overzealous error reporting, only trigger the error at the first place where the
         // global limit is exceeded.
         if (prevSlotsUsed < kVariableSlotLimit && fGlobalSlotsUsed >= kVariableSlotLimit) {
-            fContext.fErrors->error(decl.fLine, "global variable '" + decl.var().name() +
-                                                "' exceeds the size limit");
+            fContext.fErrors->error(decl.fLine,
+                                    "global variable '" + SkSL::String(decl.var().name()) +
+                                    "' exceeds the size limit");
         }
     }
 
@@ -70,8 +71,9 @@ public:
                 ProgramUsage::VariableCounts counts = fUsage.get(*param);
                 if (counts.fWrite <= 0) {
                     fContext.fErrors->error(funcDecl.fLine,
-                                            "function '" + funcDecl.name() + "' never assigns a "
-                                            "value to out parameter '" + param->name() + "'");
+                                            "function '" + SkSL::String(funcDecl.name()) +
+                                            "' never assigns a value to out parameter '" +
+                                            param->name() + "'");
                 }
             }
         }

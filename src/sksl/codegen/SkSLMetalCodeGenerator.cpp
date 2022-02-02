@@ -90,7 +90,7 @@ void MetalCodeGenerator::finishLine() {
 }
 
 void MetalCodeGenerator::writeExtension(const Extension& ext) {
-    this->writeLine("#extension " + ext.name() + " : enable");
+    this->writeLine("#extension " + SkSL::String(ext.name()) + " : enable");
 }
 
 String MetalCodeGenerator::typeName(const Type& type) {
@@ -117,7 +117,7 @@ String MetalCodeGenerator::typeName(const Type& type) {
 
 void MetalCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     const Type& type = s.type();
-    this->writeLine("struct " + type.name() + " {");
+    this->writeLine("struct " + type.displayName() + " {");
     fIndentation++;
     this->writeFields(type.fields(), type.fLine);
     fIndentation--;
@@ -1977,7 +1977,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     this->writeModifiers(intf.variable().modifiers());
     this->write("struct ");
-    this->writeLine(intf.typeName() + " {");
+    this->writeLine(SkSL::String(intf.typeName()) + " {");
     const Type* structType = &intf.variable().type();
     if (structType->isArray()) {
         structType = &structType->componentType();
@@ -1999,8 +1999,8 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         }
         fInterfaceBlockNameMap[&intf] = intf.instanceName();
     } else {
-        fInterfaceBlockNameMap[&intf] = *fProgram.fSymbols->takeOwnershipOfString("_anonInterface" +
-                skstd::to_string(fAnonInterfaceCount++));
+        fInterfaceBlockNameMap[&intf] = *fProgram.fSymbols->takeOwnershipOfString(
+                "_anonInterface" + skstd::to_string(fAnonInterfaceCount++));
     }
     this->writeLine(";");
 }
@@ -2013,15 +2013,15 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
         if (!MemoryLayout::LayoutIsSupported(*fieldType)) {
-            fContext.fErrors->error(parentLine, "type '" + fieldType->name() +
+            fContext.fErrors->error(parentLine, "type '" + SkSL::String(fieldType->name()) +
                                                 "' is not permitted here");
             return;
         }
         if (fieldOffset != -1) {
             if (currentOffset > fieldOffset) {
                 fContext.fErrors->error(parentLine,
-                        "offset of field '" + field.fName + "' must be at least " +
-                        skstd::to_string(currentOffset));
+                                        "offset of field '" + SkSL::String(field.fName) +
+                                        "' must be at least " + skstd::to_string(currentOffset));
                 return;
             } else if (currentOffset < fieldOffset) {
                 this->write("char pad");
@@ -2034,8 +2034,8 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             int alignment = memoryLayout.alignment(*fieldType);
             if (fieldOffset % alignment) {
                 fContext.fErrors->error(parentLine,
-                        "offset of field '" + field.fName + "' must be a multiple of " +
-                        skstd::to_string(alignment));
+                                        "offset of field '" + SkSL::String(field.fName) +
+                                        "' must be a multiple of " + skstd::to_string(alignment));
                 return;
             }
         }
@@ -2403,7 +2403,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         if (var.type().typeKind() == Type::TypeKind::kSampler) {
             // Samplers are represented as a "texture/sampler" duo in the global struct.
             visitor->visitTexture(var.type(), var.name());
-            visitor->visitSampler(var.type(), var.name() + SAMPLER_SUFFIX);
+            visitor->visitSampler(var.type(), SkSL::String(var.name()) + SAMPLER_SUFFIX);
             continue;
         }
 

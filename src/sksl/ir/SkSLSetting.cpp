@@ -109,7 +109,7 @@ static const Type* get_type(const Context& context, int line, std::string_view n
         return caps->type(context);
     }
 
-    context.fErrors->error(line, "unknown capability flag '" + name + "'");
+    context.fErrors->error(line, "unknown capability flag '" + SkSL::String(name) + "'");
     return nullptr;
 }
 
@@ -119,7 +119,7 @@ static std::unique_ptr<Expression> get_value(const Context& context, int line,
         return caps->value(context);
     }
 
-    context.fErrors->error(line, "unknown capability flag '" + name + "'");
+    context.fErrors->error(line, "unknown capability flag '" + SkSL::String(name) + "'");
     return nullptr;
 }
 

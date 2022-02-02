@@ -126,12 +126,13 @@ Token DSLParser::nextRawToken() {
         // Some tokens are always invalid, so we detect and report them here.
         switch (token.fKind) {
             case Token::Kind::TK_RESERVED:
-                this->error(token, "'" + this->text(token) + "' is a reserved word");
+                this->error(token, "'" + SkSL::String(this->text(token)) + "' is a reserved word");
                 token.fKind = Token::Kind::TK_IDENTIFIER;  // reduces additional follow-up errors
                 break;
 
             case Token::Kind::TK_BAD_OCTAL:
-                this->error(token, "'" + this->text(token) + "' is not a valid octal number");
+                this->error(token, "'" + SkSL::String(this->text(token)) +
+                                   "' is not a valid octal number");
                 break;
 
             default:
@@ -205,7 +206,7 @@ bool DSLParser::expectIdentifier(Token* result) {
     }
     if (IsBuiltinType(this->text(*result))) {
         this->error(*result, "expected an identifier, but found type '" +
-                             this->text(*result) + "'");
+                             SkSL::String(this->text(*result)) + "'");
         this->fEncounteredFatalError = true;
         return false;
     }
@@ -328,7 +329,7 @@ void DSLParser::directive() {
         // We don't currently do anything different between require, enable, and warn
         dsl::AddExtension(this->text(name));
     } else {
-        this->error(start, "unsupported directive '" + this->text(start) + "'");
+        this->error(start, "unsupported directive '" + SkSL::String(this->text(start)) + "'");
     }
 }
 
@@ -660,7 +661,8 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
         }
     }
     if (fields.empty()) {
-        this->error(name, "struct '" + this->text(name) + "' must contain at least one field");
+        this->error(name, "struct '" + SkSL::String(this->text(name)) +
+                          "' must contain at least one field");
     }
     return dsl::Struct(this->text(name), SkMakeSpan(fields), this->position(name));
 }
@@ -717,7 +719,7 @@ int DSLParser::layoutInt() {
     std::string_view resultFrag = this->text(resultToken);
     SKSL_INT resultValue;
     if (!SkSL::stoi(resultFrag, &resultValue)) {
-        this->error(resultToken, "value in layout is too large: " + resultFrag);
+        this->error(resultToken, "value in layout is too large: " + SkSL::String(resultFrag));
         return -1;
     }
     return resultValue;
@@ -870,7 +872,7 @@ skstd::optional<DSLType> DSLParser::type(DSLModifiers* modifiers) {
         return skstd::nullopt;
     }
     if (!IsType(this->text(type))) {
-        this->error(type, ("no type named '" + this->text(type) + "'").c_str());
+        this->error(type, ("no type named '" + SkSL::String(this->text(type)) + "'").c_str());
         return skstd::nullopt;
     }
     DSLType result(this->text(type), modifiers, this->position(type));
@@ -897,7 +899,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         // we only get into interfaceBlock if we found a top-level identifier which was not a type.
         // 99% of the time, the user was not actually intending to create an interface block, so
         // it's better to report it as an unknown type
-        this->error(typeName, "no type named '" + this->text(typeName) + "'");
+        this->error(typeName, "no type named '" + SkSL::String(this->text(typeName)) + "'");
         return false;
     }
     this->nextToken();
@@ -957,7 +959,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
     if (fields.empty()) {
-        this->error(typeName, "interface block '" + this->text(typeName) +
+        this->error(typeName, "interface block '" + SkSL::String(this->text(typeName)) +
                               "' must contain at least one member");
     } else {
         dsl::InterfaceBlock(modifiers, this->text(typeName), std::move(fields), instanceName,
@@ -1720,7 +1722,8 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
             // identifiers that directly follow the float
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
-                return this->swizzle(next.fLine, std::move(base), field + this->text(id));
+                return this->swizzle(next.fLine, std::move(base),
+                                     SkSL::String(field) + this->text(id));
             } else if (field.empty()) {
                 this->error(next, "expected field name or swizzle mask after '.'");
                 return {{DSLExpression::Poison()}};
@@ -1750,7 +1753,8 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
         case Token::Kind::TK_MINUSMINUS:
             return std::move(base)--;
         default: {
-            this->error(next,  "expected expression suffix, but found '" + this->text(next) + "'");
+            this->error(next, "expected expression suffix, but found '" +
+                              SkSL::String(this->text(next)) + "'");
             return {};
         }
     }
@@ -1802,7 +1806,7 @@ DSLExpression DSLParser::term() {
         }
         default:
             this->nextToken();
-            this->error(t, "expected expression, but found '" + this->text(t) + "'");
+            this->error(t, "expected expression, but found '" + SkSL::String(this->text(t)) + "'");
             fEncounteredFatalError = true;
             break;
     }
@@ -1817,7 +1821,7 @@ bool DSLParser::intLiteral(SKSL_INT* dest) {
     }
     std::string_view s = this->text(t);
     if (!SkSL::stoi(s, dest)) {
-        this->error(t, "integer is too large: " + s);
+        this->error(t, "integer is too large: " + SkSL::String(s));
         return false;
     }
     return true;
@@ -1831,7 +1835,7 @@ bool DSLParser::floatLiteral(SKSL_FLOAT* dest) {
     }
     std::string_view s = this->text(t);
     if (!SkSL::stod(s, dest)) {
-        this->error(t, "floating-point value is too large: " + s);
+        this->error(t, "floating-point value is too large: " + SkSL::String(s));
         return false;
     }
     return true;
@@ -1848,7 +1852,8 @@ bool DSLParser::boolLiteral(bool* dest) {
             *dest = false;
             return true;
         default:
-            this->error(t, "expected 'true' or 'false', but found '" + this->text(t) + "'");
+            this->error(t, "expected 'true' or 'false', but found '" +
+                           SkSL::String(this->text(t)) + "'");
             return false;
     }
 }

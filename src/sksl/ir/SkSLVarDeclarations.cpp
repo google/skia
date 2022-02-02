@@ -129,23 +129,23 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable&
     ErrorCheck(context, var.fLine, var.modifiers(), baseType, var.storage());
     if (value) {
         if (var.type().isOpaque()) {
-            context.fErrors->error(value->fLine,
-                    "opaque type '" + var.type().name() + "' cannot use initializer expressions");
+            context.fErrors->error(value->fLine, "opaque type '" + var.type().displayName() +
+                                                 "' cannot use initializer expressions");
             return false;
         }
         if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
             context.fErrors->error(value->fLine,
-                    "'in' variables cannot use initializer expressions");
+                                   "'in' variables cannot use initializer expressions");
             return false;
         }
         if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
             context.fErrors->error(value->fLine,
-                    "'uniform' variables cannot use initializer expressions");
+                                   "'uniform' variables cannot use initializer expressions");
             return false;
         }
         if (var.storage() == Variable::Storage::kInterfaceBlock) {
             context.fErrors->error(value->fLine,
-                    "initializers are not permitted on interface block fields");
+                                   "initializers are not permitted on interface block fields");
             return false;
         }
         value = var.type().coerceExpression(std::move(value), context);
@@ -160,21 +160,21 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable&
         }
         if (!Analysis::IsConstantExpression(*value)) {
             context.fErrors->error(value->fLine,
-                    "'const' variable initializer must be a constant expression");
+                                   "'const' variable initializer must be a constant expression");
             return false;
         }
     }
     if (var.storage() == Variable::Storage::kInterfaceBlock) {
         if (var.type().isOpaque()) {
-            context.fErrors->error(var.fLine, "opaque type '" + var.type().name() +
-                    "' is not permitted in an interface block");
+            context.fErrors->error(var.fLine, "opaque type '" + var.type().displayName() +
+                                              "' is not permitted in an interface block");
             return false;
         }
     }
     if (var.storage() == Variable::Storage::kGlobal) {
         if (value && !Analysis::IsConstantExpression(*value)) {
             context.fErrors->error(value->fLine,
-                    "global variable initializer must be a constant expression");
+                                   "global variable initializer must be a constant expression");
             return false;
         }
     }

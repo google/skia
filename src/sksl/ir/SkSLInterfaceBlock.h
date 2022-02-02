@@ -85,7 +85,7 @@ public:
         }
         result += "}";
         if (!this->instanceName().empty()) {
-            result += " " + this->instanceName();
+            result += " " + SkSL::String(this->instanceName());
             if (this->arraySize() > 0) {
                 String::appendf(&result, "[%d]", this->arraySize());
             }

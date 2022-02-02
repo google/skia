@@ -465,8 +465,8 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
         const Type::Field& field = type.fields()[i];
         if (!MemoryLayout::LayoutIsSupported(*field.fType)) {
-            fContext.fErrors->error(type.fLine, "type '" + field.fType->name() +
-                                    "' is not permitted here");
+            fContext.fErrors->error(type.fLine, "type '" + field.fType->displayName() +
+                                                "' is not permitted here");
             return;
         }
         size_t size = memoryLayout.size(*field.fType);
@@ -475,13 +475,13 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         if (fieldLayout.fOffset >= 0) {
             if (fieldLayout.fOffset < (int) offset) {
                 fContext.fErrors->error(type.fLine,
-                                        "offset of field '" + field.fName + "' must be at "
-                                        "least " + skstd::to_string(offset));
+                                        "offset of field '" + SkSL::String(field.fName) +
+                                        "' must be at least " + skstd::to_string(offset));
             }
             if (fieldLayout.fOffset % alignment) {
                 fContext.fErrors->error(type.fLine,
-                                        "offset of field '" + field.fName + "' must be a multiple"
-                                        " of " + skstd::to_string(alignment));
+                                        "offset of field '" + SkSL::String(field.fName) +
+                                        "' must be a multiple of " + skstd::to_string(alignment));
             }
             offset = fieldLayout.fOffset;
         } else {
@@ -569,7 +569,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
         MemoryLayout::Standard otherStd = layout.fStd == MemoryLayout::Standard::k140_Standard
                                                   ? MemoryLayout::Standard::k430_Standard
                                                   : MemoryLayout::Standard::k140_Standard;
-        String otherKey = type->name() + skstd::to_string(otherStd);
+        String otherKey = type->displayName() + skstd::to_string(otherStd);
         SkASSERT(fTypeMap.find(otherKey) == fTypeMap.end());
 #endif
     }
@@ -608,8 +608,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 break;
             case Type::TypeKind::kArray: {
                 if (!MemoryLayout::LayoutIsSupported(*type)) {
-                    fContext.fErrors->error(type->fLine,
-                                            "type '" + type->name() + "' is not permitted here");
+                    fContext.fErrors->error(type->fLine, "type '" + type->displayName() +
+                                                         "' is not permitted here");
                     return this->nextId(nullptr);
                 }
                 if (type->columns() > 0) {
@@ -677,7 +677,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
 SpvId SPIRVCodeGenerator::getImageType(const Type& type) {
     SkASSERT(type.typeKind() == Type::TypeKind::kSampler);
     this->getType(type);
-    String key = type.name() + skstd::to_string(fDefaultLayout.fStd);
+    String key = type.displayName() + skstd::to_string(fDefaultLayout.fStd);
     SkASSERT(fImageTypeMap.find(key) != fImageTypeMap.end());
     return fImageTypeMap[key];
 }
@@ -2996,7 +2996,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     const Variable& intfVar = intf.variable();
     const Type& type = intfVar.type();
     if (!MemoryLayout::LayoutIsSupported(type)) {
-        fContext.fErrors->error(type.fLine, "type '" + type.name() + "' is not permitted here");
+        fContext.fErrors->error(type.fLine, "type '" + type.displayName() +
+                                            "' is not permitted here");
         return this->nextId(nullptr);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);

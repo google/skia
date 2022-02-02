@@ -977,7 +977,7 @@ SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expressi
         return 0;
     }
     if (this->isOpaque()) {
-        context.fErrors->error(size->fLine, "opaque type '" + this->name() +
+        context.fErrors->error(size->fLine, "opaque type '" + SkSL::String(this->name()) +
                                             "' may not be used in an array");
         return 0;
     }

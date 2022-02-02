@@ -46,8 +46,6 @@ private:
     using INHERITED = std::string;
 };
 
-String operator+(std::string_view left, std::string_view right);
-
 bool stod(std::string_view s, SKSL_FLOAT* value);
 bool stoi(std::string_view s, SKSL_INT* value);
 

@@ -249,8 +249,8 @@ public:
                 VariableReference& varRef = expr.as<VariableReference>();
                 const Variable* var = varRef.variable();
                 if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag)) {
-                    fErrors->error(expr.fLine,
-                                   "cannot modify immutable variable '" + var->name() + "'");
+                    fErrors->error(expr.fLine, "cannot modify immutable variable '" +
+                                               SkSL::String(var->name()) + "'");
                 } else {
                     SkASSERT(fAssignedVar == nullptr);
                     fAssignedVar = &varRef;
@@ -373,7 +373,8 @@ bool Analysis::DetectVarDeclarationWithoutScope(const Statement& stmt, ErrorRepo
     // Report an error.
     SkASSERT(var);
     if (errors) {
-        errors->error(stmt.fLine, "variable '" + var->name() + "' must be created in a scope");
+        errors->error(stmt.fLine, "variable '" + SkSL::String(var->name()) +
+                                  "' must be created in a scope");
     }
     return true;
 }

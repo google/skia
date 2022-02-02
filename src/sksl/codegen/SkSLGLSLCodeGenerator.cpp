@@ -1033,7 +1033,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         }
         this->writeTypePrecision(*type);
         this->writeType(*type);
-        this->write(" " + param->name());
+        this->write(" " + SkSL::String(param->name()));
         for (int s : sizes) {
             this->write("[" + skstd::to_string(s) + "]");
         }
@@ -1121,7 +1121,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         return;
     }
     this->writeModifiers(intf.variable().modifiers(), true);
-    this->writeLine(intf.typeName() + " {");
+    this->writeLine(SkSL::String(intf.typeName()) + " {");
     fIndentation++;
     const Type* structType = &intf.variable().type();
     if (structType->isArray()) {
@@ -1131,7 +1131,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         this->writeModifiers(f.fModifiers, false);
         this->writeTypePrecision(*f.fType);
         this->writeType(*f.fType);
-        this->writeLine(" " + f.fName + ";");
+        this->writeLine(" " + SkSL::String(f.fName) + ";");
     }
     fIndentation--;
     this->write("}");

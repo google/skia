@@ -669,7 +669,7 @@ size_t SkVMGenerator::getSlot(const FunctionDefinition& fn) {
     const FunctionDeclaration& decl = fn.declaration();
     int fnReturnValue = fDebugTrace ? this->getDebugFunctionInfo(decl) : -1;
 
-    size_t slot = this->createSlot("[" + decl.name() + "].result",
+    size_t slot = this->createSlot("[" + SkSL::String(decl.name()) + "].result",
                                    decl.returnType(),
                                    fn.fLine,
                                    fnReturnValue);

@@ -154,9 +154,10 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     // To avoid overzealous error reporting, only trigger the error at the first
                     // place where the stack limit is exceeded.
                     if (prevSlotsUsed < kVariableSlotLimit && fSlotsUsed >= kVariableSlotLimit) {
-                        fContext.fErrors->error(stmt.fLine, "variable '" +
-                                                            stmt.as<VarDeclaration>().var().name() +
-                                                            "' exceeds the stack size limit");
+                        fContext.fErrors->error(
+                                stmt.fLine,
+                                "variable '" + SkSL::String(stmt.as<VarDeclaration>().var().name())
+                                + "' exceeds the stack size limit");
                     }
                     break;
                 }
@@ -258,7 +259,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
     }
 
     if (Analysis::CanExitWithoutReturningValue(function, *body)) {
-        context.fErrors->error(function.fLine, "function '" + function.name() +
+        context.fErrors->error(function.fLine, "function '" + SkSL::String(function.name()) +
                                                "' can exit without returning a value");
     }
 

@@ -32,7 +32,7 @@ public:
     }
 
     String description() const override {
-        return "#extension " + this->name() + " : enable";
+        return "#extension " + SkSL::String(this->name()) + " : enable";
     }
 
 private:
