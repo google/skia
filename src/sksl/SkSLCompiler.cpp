@@ -637,7 +637,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
         String errors;
         auto dumpmsg = [&errors](spv_message_level_t, const char*, const spv_position_t&,
                                  const char* m) {
-            errors.appendf("SPIR-V validation error: %s\n", m);
+            String::appendf(&errors, "SPIR-V validation error: %s\n", m);
         };
         tools.SetMessageConsumer(dumpmsg);
 

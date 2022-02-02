@@ -87,7 +87,7 @@ public:
         if (!this->instanceName().empty()) {
             result += " " + this->instanceName();
             if (this->arraySize() > 0) {
-                result.appendf("[%d]", this->arraySize());
+                String::appendf(&result, "[%d]", this->arraySize());
             }
         }
         return result + ";";

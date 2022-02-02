@@ -1868,8 +1868,8 @@ static SkSL::String build_glsl_highlight_shader(const GrShaderCaps& shaderCaps) 
     if (shaderCaps.usesPrecisionModifiers()) {
         highlight.append("precision mediump float;\n");
     }
-    highlight.appendf("out vec4 sk_FragColor;\n"
-                      "void main() { sk_FragColor = vec4(1, 0, 1, 0.5); }");
+    SkSL::String::appendf(&highlight, "out vec4 sk_FragColor;\n"
+                                      "void main() { sk_FragColor = vec4(1, 0, 1, 0.5); }");
     return highlight;
 }
 

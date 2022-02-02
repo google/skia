@@ -21,30 +21,30 @@ String String::printf(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     String result;
-    result.vappendf(fmt, args);
+    vappendf(&result, fmt, args);
     va_end(args);
     return result;
 }
 
-void String::appendf(const char* fmt, ...) {
+void String::appendf(String* str, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    this->vappendf(fmt, args);
+    vappendf(str, fmt, args);
     va_end(args);
 }
 
-void String::vappendf(const char* fmt, va_list args) {
+void String::vappendf(String* str, const char* fmt, va_list args) {
     #define BUFFER_SIZE 256
     char buffer[BUFFER_SIZE];
     va_list reuse;
     va_copy(reuse, args);
     size_t size = vsnprintf(buffer, BUFFER_SIZE, fmt, args);
     if (BUFFER_SIZE >= size + 1) {
-        this->append(buffer, size);
+        str->append(buffer, size);
     } else {
         auto newBuffer = std::unique_ptr<char[]>(new char[size + 1]);
         vsnprintf(newBuffer.get(), size + 1, fmt, reuse);
-        this->append(newBuffer.get(), size);
+        str->append(newBuffer.get(), size);
     }
     va_end(reuse);
 }

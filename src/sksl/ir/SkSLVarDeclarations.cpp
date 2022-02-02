@@ -27,7 +27,7 @@ String VarDeclaration::description() const {
     String result = this->var().modifiers().description() + this->baseType().description() + " " +
                     this->var().name();
     if (this->arraySize() > 0) {
-        result.appendf("[%d]", this->arraySize());
+        String::appendf(&result, "[%d]", this->arraySize());
     }
     if (this->value()) {
         result += " = " + this->value()->description();

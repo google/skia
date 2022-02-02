@@ -30,8 +30,8 @@ public:
     explicit String(std::string_view s) : INHERITED(s.data(), s.length()) {}
 
     static String printf(const char* fmt, ...) SK_PRINTF_LIKE(1, 2);
-    void appendf(const char* fmt, ...) SK_PRINTF_LIKE(2, 3);
-    void vappendf(const char* fmt, va_list va);
+    static void appendf(String* str, const char* fmt, ...) SK_PRINTF_LIKE(2, 3);
+    static void vappendf(String* str, const char* fmt, va_list va);
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;

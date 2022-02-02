@@ -467,12 +467,16 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
     if (!linked) {
         SkSL::String allShaders;
         if (sksl) {
-            allShaders.appendf("// Vertex SKSL\n%s\n", sksl[kVertex_GrShaderType]->c_str());
-            allShaders.appendf("// Fragment SKSL\n%s\n", sksl[kFragment_GrShaderType]->c_str());
+            SkSL::String::appendf(&allShaders, "// Vertex SKSL\n%s\n"
+                                               "// Fragment SKSL\n%s\n",
+                                               sksl[kVertex_GrShaderType]->c_str(),
+                                               sksl[kFragment_GrShaderType]->c_str());
         }
         if (glsl) {
-            allShaders.appendf("// Vertex GLSL\n%s\n", glsl[kVertex_GrShaderType].c_str());
-            allShaders.appendf("// Fragment GLSL\n%s\n", glsl[kFragment_GrShaderType].c_str());
+            SkSL::String::appendf(&allShaders, "// Vertex GLSL\n%s\n"
+                                               "// Fragment GLSL\n%s\n",
+                                               glsl[kVertex_GrShaderType].c_str(),
+                                               glsl[kFragment_GrShaderType].c_str());
         }
         GrGLint infoLen = GR_GL_INIT_ZERO;
         GL_CALL(GetProgramiv(programID, GR_GL_INFO_LOG_LENGTH, &infoLen));

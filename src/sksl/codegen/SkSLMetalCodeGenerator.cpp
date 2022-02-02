@@ -1036,10 +1036,9 @@ String MetalCodeGenerator::getMatrixConstructHelper(const AnyConstructor& c) {
     String typeName = this->typeName(type);
 
     // Create the helper-method name and use it as our lookup key.
-    String name;
-    name.appendf("%s_from", typeName.c_str());
+    String name = String::printf("%s_from", typeName.c_str());
     for (const std::unique_ptr<Expression>& expr : args) {
-        name.appendf("_%s", this->typeName(expr->type()).c_str());
+        String::appendf(&name, "_%s", this->typeName(expr->type()).c_str());
     }
 
     // If a helper-method has already been synthesized, we don't need to synthesize it again.

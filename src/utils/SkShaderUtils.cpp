@@ -97,7 +97,7 @@ public:
 private:
     void appendChar(char c) {
         this->tabString();
-        fPretty.appendf("%c", fInput[fIndex++]);
+        SkSL::String::appendf(&fPretty, "%c", fInput[fIndex++]);
         fFreshline = false;
     }
 
@@ -125,7 +125,7 @@ private:
                 fInParseUntilNewline = false;
                 break;
             }
-            fPretty.appendf("%c", fInput[fIndex++]);
+            SkSL::String::appendf(&fPretty, "%c", fInput[fIndex++]);
             fInParseUntilNewline = true;
         }
     }
@@ -148,7 +148,7 @@ private:
                 break;
             }
             fFreshline = false;
-            fPretty.appendf("%c", fInput[fIndex++]);
+            SkSL::String::appendf(&fPretty, "%c", fInput[fIndex++]);
             fInParseUntil = true;
             fInParseUntilToken = token;
         }
@@ -202,9 +202,9 @@ SkSL::String BuildShaderErrorMessage(const char* shader, const char* errors) {
     SkSL::String abortText{"Shader compilation error\n"
                            "------------------------\n"};
     VisitLineByLine(shader, [&](int lineNumber, const char* lineText) {
-        abortText.appendf("%4i\t%s\n", lineNumber, lineText);
+        SkSL::String::appendf(&abortText, "%4i\t%s\n", lineNumber, lineText);
     });
-    abortText.appendf("Errors:\n%s", errors);
+    SkSL::String::appendf(&abortText, "Errors:\n%s", errors);
     return abortText;
 }
 
