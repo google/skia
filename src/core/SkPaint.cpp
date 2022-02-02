@@ -142,7 +142,7 @@ void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     this->setColor(SkColorSetARGB(a, r, g, b));
 }
 
-skstd::optional<SkBlendMode> SkPaint::asBlendMode() const {
+std::optional<SkBlendMode> SkPaint::asBlendMode() const {
     return fBlender ? as_BB(fBlender)->asBlendMode()
                     : SkBlendMode::kSrcOver;
 }

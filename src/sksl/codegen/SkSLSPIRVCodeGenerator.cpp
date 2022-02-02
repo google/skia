@@ -1264,7 +1264,7 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const AnyConstructor& c) {
 
     const Type& scalarType = type.componentType();
     for (int n = 0; n < type.columns(); n++) {
-        skstd::optional<double> slotVal = c.getConstantValue(n);
+        std::optional<double> slotVal = c.getConstantValue(n);
         if (!slotVal.has_value()) {
             SkDEBUGFAILF("writeConstantVector: %s not actually constant", c.description().c_str());
             return (SpvId)-1;

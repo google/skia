@@ -29,7 +29,7 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
     return std::make_unique<ConstructorDiagonalMatrix>(line, type, std::move(arg));
 }
 
-skstd::optional<double> ConstructorDiagonalMatrix::getConstantValue(int n) const {
+std::optional<double> ConstructorDiagonalMatrix::getConstantValue(int n) const {
     int rows = this->type().rows();
     int row = n % rows;
     int col = n / rows;

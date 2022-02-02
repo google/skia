@@ -2374,7 +2374,7 @@ Result ViaRuntimeBlend::draw(const Src& src,
 
     protected:
         bool onFilter(SkPaint& paint) const override {
-            if (skstd::optional<SkBlendMode> mode = paint.asBlendMode()) {
+            if (std::optional<SkBlendMode> mode = paint.asBlendMode()) {
                 paint.setBlender(GetRuntimeBlendForBlendMode(*mode));
             }
             return true;

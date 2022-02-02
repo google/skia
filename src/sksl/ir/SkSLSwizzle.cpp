@@ -7,7 +7,6 @@
 
 #include "src/sksl/ir/SkSLSwizzle.h"
 
-#include "include/private/SkTOptional.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
@@ -16,6 +15,8 @@
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+
+#include <optional>
 
 namespace SkSL {
 
@@ -27,7 +28,7 @@ static bool validate_swizzle_domain(const ComponentArray& fields) {
         kRectangle,
     };
 
-    skstd::optional<SwizzleDomain> domain;
+    std::optional<SwizzleDomain> domain;
 
     for (int8_t field : fields) {
         SwizzleDomain fieldDomain;

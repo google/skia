@@ -19,7 +19,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkTOptional.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkArenaAlloc.h"
@@ -50,6 +49,7 @@
 
 #include <memory>
 #include <new>
+#include <optional>
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
@@ -356,7 +356,7 @@ private:
     SkDEBUGCODE(int fSaveCount;)
 };
 
-skstd::optional<AutoLayerForImageFilter> SkCanvas::aboutToDraw(
+std::optional<AutoLayerForImageFilter> SkCanvas::aboutToDraw(
     SkCanvas* canvas,
     const SkPaint& paint,
     const SkRect* rawBounds,
@@ -365,11 +365,11 @@ skstd::optional<AutoLayerForImageFilter> SkCanvas::aboutToDraw(
 {
     if (checkOverwrite == CheckForOverwrite::kYes) {
         if (!this->predrawNotify(rawBounds, &paint, overrideOpacity)) {
-            return skstd::nullopt;
+            return std::nullopt;
         }
     } else {
         if (!this->predrawNotify()) {
-            return skstd::nullopt;
+            return std::nullopt;
         }
     }
     return std::optional<AutoLayerForImageFilter>(std::in_place, canvas, paint, rawBounds);

@@ -9,7 +9,6 @@
 #define skgpu_DrawList_DEFINED
 
 #include "include/core/SkPaint.h"
-#include "include/private/SkTOptional.h"
 #include "src/core/SkTBlockList.h"
 
 #include "experimental/graphite/src/DrawOrder.h"
@@ -18,6 +17,7 @@
 #include "experimental/graphite/src/geom/Transform_graphite.h"
 
 #include <limits>
+#include <optional>
 
 class SkPath;
 class SkShader;
@@ -172,8 +172,8 @@ private:
         Clip      fClip;
         DrawOrder fOrder;
 
-        skstd::optional<PaintParams>  fPaintParams; // Not present implies depth-only draw
-        skstd::optional<StrokeParams> fStrokeParams; // Not present implies fill
+        std::optional<PaintParams>  fPaintParams; // Not present implies depth-only draw
+        std::optional<StrokeParams> fStrokeParams; // Not present implies fill
 
         Draw(const Renderer& renderer, const Transform& transform, const Shape& shape,
              const Clip& clip, DrawOrder order, const PaintParams* paint,
@@ -183,8 +183,8 @@ private:
                 , fShape(shape)
                 , fClip(clip)
                 , fOrder(order)
-                , fPaintParams(paint ? skstd::optional<PaintParams>(*paint) : skstd::nullopt)
-                , fStrokeParams(stroke ? skstd::optional<StrokeParams>(*stroke) : skstd::nullopt) {}
+                , fPaintParams(paint ? std::optional<PaintParams>(*paint) : std::nullopt)
+                , fStrokeParams(stroke ? std::optional<StrokeParams>(*stroke) : std::nullopt) {}
     };
 
     // The returned Transform reference remains valid for the lifetime of the DrawList.

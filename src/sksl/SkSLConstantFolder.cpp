@@ -190,7 +190,7 @@ bool ConstantFolder::GetConstantValue(const Expression& value, double* out) {
 static bool contains_constant_zero(const Expression& expr) {
     int numSlots = expr.type().slotCount();
     for (int index = 0; index < numSlots; ++index) {
-        skstd::optional<double> slotVal = expr.getConstantValue(index);
+        std::optional<double> slotVal = expr.getConstantValue(index);
         if (slotVal.has_value() && *slotVal == 0.0) {
             return true;
         }
@@ -201,7 +201,7 @@ static bool contains_constant_zero(const Expression& expr) {
 static bool is_constant_value(const Expression& expr, double value) {
     int numSlots = expr.type().slotCount();
     for (int index = 0; index < numSlots; ++index) {
-        skstd::optional<double> slotVal = expr.getConstantValue(index);
+        std::optional<double> slotVal = expr.getConstantValue(index);
         if (!slotVal.has_value() || *slotVal != value) {
             return false;
         }
