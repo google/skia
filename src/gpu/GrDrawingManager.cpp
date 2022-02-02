@@ -753,7 +753,8 @@ void GrDrawingManager::addAtlasTask(sk_sp<GrRenderTask> atlasTask,
 }
 #endif // SK_GPU_V1
 
-GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const GrCaps& caps) {
+GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTaskBefore(
+        const GrCaps& caps) {
     // Unlike in the "new opsTask" case, we do not want to close the active opsTask, nor (if we are
     // in sorting and opsTask reduction mode) the render tasks that depend on any proxy's current
     // state. This is because those opsTasks can still receive new ops and because if they refer to
@@ -766,6 +767,32 @@ GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const 
     GrRenderTask* task = this->insertTaskBeforeLast(sk_make_sp<GrTextureResolveRenderTask>());
     return static_cast<GrTextureResolveRenderTask*>(task);
 }
+
+void GrDrawingManager::newTextureResolveRenderTask(sk_sp<GrSurfaceProxy> proxy,
+                                                   GrSurfaceProxy::ResolveFlags flags,
+                                                   const GrCaps& caps) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+    this->closeActiveOpsTask();
+
+    if (!proxy->asRenderTargetProxy()->isMSAADirty()) {
+        SkDEBUGCODE(this->validate());
+        return;
+    }
+
+    auto resolveTask = sk_make_sp<GrTextureResolveRenderTask>();
+    // Add proxy also adds all the needed dependencies we need
+    resolveTask->addProxy(this, std::move(proxy), flags, caps);
+
+    auto task = this->appendTask(std::move(resolveTask));
+    task->makeClosed(fContext);
+
+    // We have closed the previous active oplist but since a new oplist isn't being added there
+    // shouldn't be an active one.
+    SkASSERT(!fActiveOpsTask);
+    SkDEBUGCODE(this->validate());
+}
+
 
 void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
                                          std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores,

@@ -208,6 +208,8 @@ bool SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
 
 void SkSurface_Gpu::onDiscard() { fDevice->discard(); }
 
+void SkSurface_Gpu::onResolveMSAA() { fDevice->resolveMSAA(); }
+
 GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
                                              const GrBackendSurfaceMutableState* newState) {
 

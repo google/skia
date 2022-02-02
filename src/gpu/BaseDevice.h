@@ -58,6 +58,7 @@ public:
                       const GrBackendSemaphore* waitSemaphores,
                       bool deleteSemaphoresAfterWait) = 0;
     virtual void discard() = 0;
+    virtual void resolveMSAA() = 0;
 
     virtual bool replaceBackingProxy(SkSurface::ContentChangeMode,
                                      sk_sp<GrRenderTargetProxy>,

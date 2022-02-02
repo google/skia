@@ -107,6 +107,7 @@ tests_sources = [
   "$_tests/GrSlugTest.cpp",
   "$_tests/GrStyledShapeTest.cpp",
   "$_tests/GrSubmittedFlushTest.cpp",
+  "$_tests/GrSurfaceResolveTest.cpp",
   "$_tests/GrSurfaceTest.cpp",
   "$_tests/GrTextBlobTest.cpp",
   "$_tests/GrTextureMipMapInvalidationTest.cpp",
