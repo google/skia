@@ -290,6 +290,15 @@ std::unique_ptr<SkStreamAsset> SkTypeface::openStream(int* ttcIndex) const {
     return this->onOpenStream(ttcIndex);
 }
 
+std::unique_ptr<SkStreamAsset> SkTypeface::openExistingStream(int* ttcIndex) const {
+    int ttcIndexStorage;
+    if (nullptr == ttcIndex) {
+        // So our subclasses don't need to check for null param
+        ttcIndex = &ttcIndexStorage;
+    }
+    return this->onOpenExistingStream(ttcIndex);
+}
+
 std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
         const SkScalerContextEffects& effects, const SkDescriptor* desc) const {
     std::unique_ptr<SkScalerContext> scalerContext = this->onCreateScalerContext(effects, desc);
@@ -436,6 +445,10 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() cons
 bool SkTypeface::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                              int32_t adjustments[]) const {
     return false;
+}
+
+std::unique_ptr<SkStreamAsset> SkTypeface::onOpenExistingStream(int* ttcIndex) const {
+    return this->onOpenStream(ttcIndex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

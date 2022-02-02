@@ -320,6 +320,15 @@ public:
     std::unique_ptr<SkStreamAsset> openStream(int* ttcIndex) const;
 
     /**
+     * Return a stream for the contents of the font data.
+     * Returns nullptr on failure or if the font data isn't already available in stream form.
+     * Use when the stream can be used opportunistically but the calling code would prefer
+     * to fall back to table access if creating the stream would be expensive.
+     * Otherwise acts the same as openStream.
+     */
+    std::unique_ptr<SkStreamAsset> openExistingStream(int* ttcIndex) const;
+
+    /**
      *  Return a scalercontext for the given descriptor. It may return a
      *  stub scalercontext that will not crash, but will draw nothing.
      */
@@ -376,6 +385,8 @@ protected:
     virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const = 0;
 
     virtual std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const = 0;
+
+    virtual std::unique_ptr<SkStreamAsset> onOpenExistingStream(int* ttcIndex) const;
 
     virtual bool onGlyphMaskNeedsCurrentColor() const = 0;
 

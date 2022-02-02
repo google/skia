@@ -265,7 +265,7 @@ SkDEBUGCODE(static hb_user_data_key_t gDataIdKey;)
 
 HBFace create_hb_face(const SkTypeface& typeface) {
     int index = 0;
-    std::unique_ptr<SkStreamAsset> typefaceAsset = typeface.openStream(&index);
+    std::unique_ptr<SkStreamAsset> typefaceAsset = typeface.openExistingStream(&index);
     HBFace face;
     if (typefaceAsset && typefaceAsset->getMemoryBase()) {
         HBBlob blob(stream_to_blob(std::move(typefaceAsset)));
