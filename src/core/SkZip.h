@@ -66,7 +66,7 @@ public:
 
     // Allow SkZip<const T> to be constructed from SkZip<T>.
     template<typename... Us,
-            typename = std::enable_if<skstd::conjunction<CanConvertToConst<Us, Ts>...>::value>>
+            typename = std::enable_if<std::conjunction<CanConvertToConst<Us, Ts>...>::value>>
     constexpr SkZip(const SkZip<Us...>& that)
         : fPointers(that.data())
         , fSize{that.size()} { }

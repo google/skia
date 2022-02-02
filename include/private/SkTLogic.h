@@ -19,12 +19,6 @@
 
 namespace skstd {
 
-// C++17, <type_traits>
-template<typename...> struct conjunction : std::true_type { };
-template<typename T> struct conjunction<T> : T { };
-template<typename T, typename... Ts>
-struct conjunction<T, Ts...> : std::conditional<bool(T::value), conjunction<Ts...>, T>::type { };
-
 // C++17, std::data, std::size
 template<typename Container>
 constexpr auto data(Container& c) -> decltype(c.data()) { return c.data(); }
