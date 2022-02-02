@@ -38,7 +38,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, int line,
         context.fErrors->error(line, "out location=0, index=0 is reserved for sk_FragColor");
     }
     if (!context.fConfig->fIsBuiltinCode && skstd::starts_with(name, '$')) {
-        context.fErrors->error(line, String("name '") + name + "' is reserved");
+        context.fErrors->error(line, "name '" + SkSL::String(name) + "' is reserved");
     }
 
     return Make(context, line, modifiers, baseType, name, isArray, std::move(arraySize), storage);

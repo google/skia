@@ -25,7 +25,7 @@ std::unique_ptr<Statement> VarDeclaration::clone() const {
 
 String VarDeclaration::description() const {
     String result = this->var().modifiers().description() + this->baseType().description() + " " +
-                    this->var().name();
+                    SkSL::String(this->var().name());
     if (this->arraySize() > 0) {
         String::appendf(&result, "[%d]", this->arraySize());
     }

@@ -39,7 +39,7 @@ public:
     }
 
     String description() const override {
-        return this->owner().description() + "." + this->name();
+        return this->owner().description() + "." + SkSL::String(this->name());
     }
 
 private:

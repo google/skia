@@ -654,7 +654,7 @@ String PipelineStageCodeGenerator::modifierString(const Modifiers& modifiers) {
 String PipelineStageCodeGenerator::typedVariable(const Type& type, std::string_view name) {
     const Type& baseType = type.isArray() ? type.componentType() : type;
 
-    String decl = this->typeName(baseType) + " " + name;
+    String decl = this->typeName(baseType) + " " + SkSL::String(name);
     if (type.isArray()) {
         decl += "[" + skstd::to_string(type.columns()) + "]";
     }

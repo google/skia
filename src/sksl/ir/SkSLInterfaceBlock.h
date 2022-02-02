@@ -75,7 +75,8 @@ public:
     }
 
     String description() const override {
-        String result = this->variable().modifiers().description() + this->typeName() + " {\n";
+        String result = this->variable().modifiers().description() +
+                        SkSL::String(this->typeName()) + " {\n";
         const Type* structType = &this->variable().type();
         if (structType->isArray()) {
             structType = &structType->componentType();

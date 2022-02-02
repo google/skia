@@ -591,7 +591,7 @@ void SkVMGenerator::addDebugSlotInfo(String varName,
         }
         case Type::TypeKind::kStruct: {
             for (const Type::Field& field : type.fields()) {
-                this->addDebugSlotInfo(varName + "." + field.fName,
+                this->addDebugSlotInfo(varName + "." + SkSL::String(field.fName),
                                        *field.fType, line, fnReturnValue);
             }
             break;
@@ -2198,7 +2198,7 @@ static void gather_uniforms(UniformInfo* info, const Type& type, const String& n
     switch (type.typeKind()) {
         case Type::TypeKind::kStruct:
             for (const auto& f : type.fields()) {
-                gather_uniforms(info, *f.fType, name + "." + f.fName);
+                gather_uniforms(info, *f.fType, name + "." + SkSL::String(f.fName));
             }
             break;
         case Type::TypeKind::kArray:

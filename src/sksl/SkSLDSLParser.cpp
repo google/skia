@@ -194,7 +194,7 @@ bool DSLParser::expect(Token::Kind kind, const char* expected, Token* result) {
         return true;
     } else {
         this->error(next, "expected " + String(expected) + ", but found '" +
-                    this->text(next) + "'");
+                    SkSL::String(this->text(next)) + "'");
         this->fEncounteredFatalError = true;
         return false;
     }
@@ -651,9 +651,8 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
                 field_names.emplace(key);
             } else {
                 this->error(name,
-                            "field '" + key +
-                            "' was already defined in the same struct ('" + this->text(name) +
-                            "')");
+                            "field '" + key + "' was already defined in the same struct ('" +
+                            SkSL::String(this->text(name)) + "')");
             }
         } while (this->checkNext(Token::Kind::TK_COMMA));
         if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
@@ -942,7 +941,7 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
                 this->error(typeName,
                             "field '" + key +
                             "' was already defined in the same interface block ('" +
-                            this->text(typeName) +  "')");
+                            SkSL::String(this->text(typeName)) +  "')");
             }
         }
         while (this->checkNext(Token::Kind::TK_COMMA));
@@ -1723,7 +1722,7 @@ DSLExpression DSLParser::suffix(DSLExpression base) {
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
                 return this->swizzle(next.fLine, std::move(base),
-                                     SkSL::String(field) + this->text(id));
+                                     SkSL::String(field) + SkSL::String(this->text(id)));
             } else if (field.empty()) {
                 this->error(next, "expected field name or swizzle mask after '.'");
                 return {{DSLExpression::Poison()}};

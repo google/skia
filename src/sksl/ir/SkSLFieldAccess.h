@@ -76,7 +76,7 @@ public:
 
     String description() const override {
         return this->base()->description() + "." +
-               this->base()->type().fields()[this->fieldIndex()].fName;
+               SkSL::String(this->base()->type().fields()[this->fieldIndex()].fName);
     }
 
 private:

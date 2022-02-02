@@ -19,9 +19,8 @@ std::unique_ptr<Expression> PostfixExpression::Convert(const Context& context,
                                                        Operator op) {
     const Type& baseType = base->type();
     if (!baseType.isNumber()) {
-        context.fErrors->error(base->fLine,
-                               String("'") + op.tightOperatorName() + "' cannot operate on '" +
-                               baseType.displayName() + "'");
+        context.fErrors->error(base->fLine, "'" + SkSL::String(op.tightOperatorName()) +
+                                            "' cannot operate on '" + baseType.displayName() + "'");
         return nullptr;
     }
     if (!Analysis::UpdateVariableRefKind(base.get(), VariableRefKind::kReadWrite,

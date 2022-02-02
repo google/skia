@@ -87,12 +87,6 @@ String String::operator+(const String& s) const {
     return result;
 }
 
-String String::operator+(std::string_view s) const {
-    String result(*this);
-    result.append(s.data(), s.length());
-    return result;
-}
-
 String& String::operator+=(char c) {
     INHERITED::operator+=(c);
     return *this;

@@ -73,7 +73,7 @@ public:
                     fContext.fErrors->error(funcDecl.fLine,
                                             "function '" + SkSL::String(funcDecl.name()) +
                                             "' never assigns a value to out parameter '" +
-                                            param->name() + "'");
+                                            SkSL::String(param->name()) + "'");
                 }
             }
         }

@@ -39,7 +39,7 @@ public:
     }
 
     String description() const override {
-        return String("/* inlined: ") + this->function().name() + String(" */");
+        return "/* inlined: " + SkSL::String(this->function().name()) + " */";
     }
 
     std::unique_ptr<Statement> clone() const override {

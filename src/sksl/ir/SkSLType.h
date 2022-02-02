@@ -66,7 +66,7 @@ public:
         , fType(std::move(type)) {}
 
         String description() const {
-            return fType->displayName() + " " + fName + ";";
+            return fType->displayName() + " " + SkSL::String(fName) + ";";
         }
 
         Modifiers fModifiers;

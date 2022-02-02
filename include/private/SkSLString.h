@@ -35,7 +35,6 @@ public:
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;
-    String operator+(std::string_view s) const;
     String& operator+=(char c);
     String& operator+=(const char* s);
     String& operator+=(const String& s);

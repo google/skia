@@ -103,7 +103,8 @@ public:
     }
 
     String description() const override {
-        return this->modifiers().description() + this->type().name() + " " + this->name();
+        return this->modifiers().description() + this->type().displayName() + " " +
+               SkSL::String(this->name());
     }
 
 private:

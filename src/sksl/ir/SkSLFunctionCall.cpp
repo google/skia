@@ -908,7 +908,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                 return FunctionCall::Convert(context, line, *best, std::move(arguments));
             }
             String msg = "no match for " + arguments.back()->type().displayName() +
-                         "::" + functions[0]->name().substr(1) + "(";
+                         "::" + SkSL::String(functions[0]->name().substr(1)) + "(";
             String separator;
             for (size_t i = 0; i < arguments.size() - 1; i++) {
                 msg += separator;

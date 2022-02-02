@@ -37,7 +37,7 @@ public:
                       skvm::I32 mask) const = 0;
 
     String description() const override {
-        return String("external<") + this->name() + ">";
+        return "external<" + SkSL::String(this->name()) + ">";
     }
 
     // Disable IRNode pooling on external function nodes. ExternalFunction node lifetimes are
