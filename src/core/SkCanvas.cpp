@@ -328,6 +328,7 @@ public:
                 rawBounds = &fPaint.computeFastBounds(*rawBounds, &storage);
             }
 
+            canvas->fSaveCount += 1;
             (void)canvas->internalSaveLayer(SkCanvas::SaveLayerRec(rawBounds, &restorePaint),
                                             SkCanvas::kFullLayer_SaveLayerStrategy);
             fTempLayerForImageFilter = true;
@@ -341,6 +342,7 @@ public:
 
     ~AutoLayerForImageFilter() {
         if (fTempLayerForImageFilter) {
+            fCanvas->fSaveCount -= 1;
             fCanvas->internalRestore();
         }
         SkASSERT(fCanvas->getSaveCount() == fSaveCount);
