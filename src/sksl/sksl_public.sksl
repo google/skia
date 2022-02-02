@@ -99,6 +99,8 @@ $genHType smoothstep($genHType edge0, $genHType edge1, $genHType x);
 $genHType smoothstep(half      edge0, half      edge1, $genHType x);
 
 // 8.3 : Common Functions (GLSL ES 3.0)
+$es3 $genIType abs($genIType x);
+$es3 $genIType sign($genIType x);
 $es3 $genIType floatBitsToInt ($genType  value);
 $es3 $genUType floatBitsToUint($genType  value);
 $es3 $genType  intBitsToFloat ($genIType value);
