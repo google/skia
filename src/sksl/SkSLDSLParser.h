@@ -8,16 +8,15 @@
 #ifndef SKSL_DSLPARSER
 #define SKSL_DSLPARSER
 
+#include <memory>
+#include <string_view>
+#include <unordered_map>
 #include "include/private/SkSLProgramKind.h"
+#include "include/private/SkTOptional.h"
 #include "include/sksl/DSL.h"
 #include "include/sksl/DSLSymbols.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/ir/SkSLProgram.h"
-
-#include <memory>
-#include <optional>
-#include <string_view>
-#include <unordered_map>
 
 namespace SkSL {
 
@@ -148,7 +147,7 @@ private:
 
     dsl::DSLStatement varDeclarations();
 
-    std::optional<dsl::DSLType> structDeclaration();
+    skstd::optional<dsl::DSLType> structDeclaration();
 
     SkTArray<dsl::DSLGlobalVar> structVarDeclaration(const dsl::DSLModifiers& modifiers);
 
@@ -162,7 +161,7 @@ private:
     dsl::DSLStatement localVarDeclarationEnd(PositionInfo position, const dsl::DSLModifiers& mods,
             dsl::DSLType baseType, std::string_view name);
 
-    std::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter(size_t paramIndex);
+    skstd::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter(size_t paramIndex);
 
     int layoutInt();
 
@@ -174,7 +173,7 @@ private:
 
     dsl::DSLStatement statement();
 
-    std::optional<dsl::DSLType> type(dsl::DSLModifiers* modifiers);
+    skstd::optional<dsl::DSLType> type(dsl::DSLModifiers* modifiers);
 
     bool interfaceBlock(const dsl::DSLModifiers& mods);
 
@@ -186,7 +185,7 @@ private:
 
     dsl::DSLStatement forStatement();
 
-    std::optional<dsl::DSLCase> switchCase();
+    skstd::optional<dsl::DSLCase> switchCase();
 
     dsl::DSLStatement switchStatement();
 
@@ -198,7 +197,7 @@ private:
 
     dsl::DSLStatement discardStatement();
 
-    std::optional<dsl::DSLBlock> block();
+    skstd::optional<dsl::DSLBlock> block();
 
     dsl::DSLStatement expressionStatement();
 

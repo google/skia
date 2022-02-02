@@ -1459,7 +1459,7 @@ public:
             paint.setDither(fPaint->isDither());
         }
         if (fPaintOverrides->fForceRuntimeBlend) {
-            if (std::optional<SkBlendMode> mode = paint.asBlendMode()) {
+            if (skstd::optional<SkBlendMode> mode = paint.asBlendMode()) {
                 paint.setBlender(GetRuntimeBlendForBlendMode(*mode));
             }
         }

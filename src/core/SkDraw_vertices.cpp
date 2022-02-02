@@ -335,7 +335,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
     bool blenderIsDst = false;
     // We can simplify things for certain blend modes. This is for speed, and SkShader_Blend
     // itself insists we don't pass kSrc or kDst to it.
-    if (std::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode(); bm.has_value() && colors) {
+    if (skstd::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode(); bm.has_value() && colors) {
         switch (*bm) {
             case SkBlendMode::kSrc:
                 colors = nullptr;

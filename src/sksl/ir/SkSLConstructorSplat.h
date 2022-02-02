@@ -42,7 +42,7 @@ public:
         return true;
     }
 
-    std::optional<double> getConstantValue(int n) const override {
+    skstd::optional<double> getConstantValue(int n) const override {
         SkASSERT(n >= 0 && n < this->type().columns());
         return this->argument()->getConstantValue(0);
     }

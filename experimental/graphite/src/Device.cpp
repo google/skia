@@ -46,7 +46,7 @@ namespace {
 static const SkStrokeRec kFillStyle(SkStrokeRec::kFill_InitStyle);
 
 bool paint_depends_on_dst(const PaintParams& paintParams) {
-    std::optional<SkBlendMode> bm = paintParams.asBlendMode();
+    skstd::optional<SkBlendMode> bm = paintParams.asBlendMode();
     if (!bm.has_value()) {
         return true;
     }

@@ -10,7 +10,7 @@
 #include "src/core/SkPixmapPriv.h"
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(
-        sk_sp<SkData> data, std::optional<SkAlphaType> at) {
+        sk_sp<SkData> data, skstd::optional<SkAlphaType> at) {
     auto codec = SkCodec::MakeFromData(data);
     if (nullptr == codec) {
         return nullptr;
@@ -22,11 +22,11 @@ std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromCodec(
         std::unique_ptr<SkCodec> codec) {
     return codec ? std::unique_ptr<SkImageGenerator>(
-                           new SkCodecImageGenerator(std::move(codec), nullptr, std::nullopt))
+                           new SkCodecImageGenerator(std::move(codec), nullptr, skstd::nullopt))
                  : nullptr;
 }
 
-static SkImageInfo adjust_info(SkCodec* codec, std::optional<SkAlphaType> at) {
+static SkImageInfo adjust_info(SkCodec* codec, skstd::optional<SkAlphaType> at) {
     SkASSERT(at != kOpaque_SkAlphaType);
     SkImageInfo info = codec->getInfo();
     if (at.has_value()) {
@@ -44,7 +44,7 @@ static SkImageInfo adjust_info(SkCodec* codec, std::optional<SkAlphaType> at) {
 
 SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec,
                                              sk_sp<SkData> data,
-                                             std::optional<SkAlphaType> at)
+                                             skstd::optional<SkAlphaType> at)
         : INHERITED(adjust_info(codec.get(), at))
         , fCodec(std::move(codec))
         , fData(std::move(data)) {}

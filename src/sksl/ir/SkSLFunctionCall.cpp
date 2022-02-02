@@ -104,11 +104,11 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     int arg0Index = 0;
     int arg1Index = 0;
     for (int index = 0; index < vecType.columns(); ++index) {
-        std::optional<double> arg0Value = arg0->getConstantValue(arg0Index);
+        skstd::optional<double> arg0Value = arg0->getConstantValue(arg0Index);
         arg0Index += arg0->type().isVector() ? 1 : 0;
         SkASSERT(arg0Value.has_value());
 
-        std::optional<double> arg1Value = 0.0;
+        skstd::optional<double> arg1Value = 0.0;
         if (arg1) {
             arg1Value = arg1->getConstantValue(arg1Index);
             arg1Index += arg1->type().isVector() ? 1 : 0;
@@ -179,8 +179,8 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
     double array[4];
 
     for (int index = 0; index < type.columns(); ++index) {
-        std::optional<double> leftValue = left->getConstantValue(index);
-        std::optional<double> rightValue = right->getConstantValue(index);
+        skstd::optional<double> leftValue = left->getConstantValue(index);
+        skstd::optional<double> rightValue = right->getConstantValue(index);
         SkASSERT(leftValue.has_value());
         SkASSERT(rightValue.has_value());
         array[index] = compare(*leftValue, *rightValue) ? 1.0 : 0.0;
@@ -216,18 +216,18 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
     int arg1Index = 0;
     int arg2Index = 0;
     for (int index = 0; index < slots; ++index) {
-        std::optional<double> arg0Value = arg0->getConstantValue(arg0Index);
+        skstd::optional<double> arg0Value = arg0->getConstantValue(arg0Index);
         arg0Index += arg0->type().isScalar() ? 0 : 1;
         SkASSERT(arg0Value.has_value());
 
-        std::optional<double> arg1Value = 0.0;
+        skstd::optional<double> arg1Value = 0.0;
         if (arg1) {
             arg1Value = arg1->getConstantValue(arg1Index);
             arg1Index += arg1->type().isScalar() ? 0 : 1;
             SkASSERT(arg1Value.has_value());
         }
 
-        std::optional<double> arg2Value = 0.0;
+        skstd::optional<double> arg2Value = 0.0;
         if (arg2) {
             arg2Value = arg2->getConstantValue(arg2Index);
             arg2Index += arg2->type().isScalar() ? 0 : 1;

@@ -28,7 +28,7 @@ std::unique_ptr<Expression> ConstructorMatrixResize::Make(const Context& context
     return std::make_unique<ConstructorMatrixResize>(line, type, std::move(arg));
 }
 
-std::optional<double> ConstructorMatrixResize::getConstantValue(int n) const {
+skstd::optional<double> ConstructorMatrixResize::getConstantValue(int n) const {
     int rows = this->type().rows();
     int row = n % rows;
     int col = n / rows;

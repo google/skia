@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkTOptional.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkBitSet.h"
 
-#include <optional>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -119,9 +119,9 @@ private:
                                                  // trace_scope)
     std::vector<Slot>          fSlots;           // the array of all slots
     std::vector<StackFrame>    fStack;           // the execution stack
-    std::optional<SkBitSet>    fDirtyMask;       // variable slots touched during the most-recently
+    skstd::optional<SkBitSet>  fDirtyMask;       // variable slots touched during the most-recently
                                                  // executed step
-    std::optional<SkBitSet>    fReturnValues;    // variable slots containing return values
+    skstd::optional<SkBitSet>  fReturnValues;    // variable slots containing return values
     LineNumberMap              fLineNumbers;     // holds [line number, the remaining number of
                                                  // times to reach this line during the trace]
     BreakpointSet              fBreakpointLines; // all breakpoints set by setBreakpointLines

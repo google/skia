@@ -68,7 +68,7 @@ public:
     }
 
     bool supportsConstantValues() const override { return true; }
-    std::optional<double> getConstantValue(int n) const override;
+    skstd::optional<double> getConstantValue(int n) const override;
 
     ComparisonResult compareConstant(const Expression& other) const override;
 
