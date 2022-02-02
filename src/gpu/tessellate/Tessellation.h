@@ -72,13 +72,14 @@ SK_MAYBE_UNUSED constexpr static float kTessellationPrecision = 4;
 enum class PatchAttribs {
     // Attribs.
     kNone = 0,
-    kFanPoint = 1 << 0,  // [float2] Used by wedges. This is the center point the wedges fan around.
-    kStrokeParams = 1 << 1,  // [float2] Used when strokes have different widths or join types.
-    kColor = 1 << 2,  // [ubyte4 or float4] Used when patches have different colors.
-    kExplicitCurveType = 1 << 3,  // [float] Used when GPU can't infer curve type based on infinity.
+    kJoinControlPoint = 1 << 0, // [float2] Used by strokes. This defines tangent direction.
+    kFanPoint = 1 << 1,  // [float2] Used by wedges. This is the center point the wedges fan around.
+    kStrokeParams = 1 << 2,  // [float2] Used when strokes have different widths or join types.
+    kColor = 1 << 3,  // [ubyte4 or float4] Used when patches have different colors.
+    kExplicitCurveType = 1 << 4,  // [float] Used when GPU can't infer curve type based on infinity.
 
     // Extra flags.
-    kWideColorIfEnabled = 1 << 4,  // If kColor is set, specifies it to be float4 wide color.
+    kWideColorIfEnabled = 1 << 5,  // If kColor is set, specifies it to be float4 wide color.
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)
@@ -125,7 +126,8 @@ constexpr static float kTriangularConicCurveType SK_MAYBE_UNUSED = 2;  // Conic 
 // Returns the packed size in bytes of the attribs portion of tessellation patches (or instances) in
 // GPU buffers.
 constexpr size_t PatchAttribsStride(PatchAttribs attribs) {
-    return (attribs & PatchAttribs::kFanPoint ? sizeof(float) * 2 : 0) +
+    return (attribs & PatchAttribs::kJoinControlPoint ? sizeof(float) * 2 : 0) +
+           (attribs & PatchAttribs::kFanPoint ? sizeof(float) * 2 : 0) +
            (attribs & PatchAttribs::kStrokeParams ? sizeof(float) * 2 : 0) +
            (attribs & PatchAttribs::kColor
                     ? (attribs & PatchAttribs::kWideColorIfEnabled ? sizeof(float)
