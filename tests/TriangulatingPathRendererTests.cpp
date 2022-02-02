@@ -14,7 +14,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrAATriangulator.h"
 #include "src/gpu/geometry/GrInnerFanTriangulator.h"

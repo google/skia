@@ -14,7 +14,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/SoftwarePathRenderer.h"
