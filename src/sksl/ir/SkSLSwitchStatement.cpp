@@ -201,8 +201,8 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
             if (sc->isDefault()) {
                 context.fErrors->error(sc->fLine, "duplicate default case");
             } else {
-                context.fErrors->error(sc->fLine,
-                                       "duplicate case value '" + to_string(sc->value()) + "'");
+                context.fErrors->error(sc->fLine, "duplicate case value '" +
+                                                  skstd::to_string(sc->value()) + "'");
             }
         }
         return nullptr;

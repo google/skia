@@ -584,7 +584,7 @@ void SkVMGenerator::addDebugSlotInfo(String varName,
             int nslots = type.columns();
             const Type& elemType = type.componentType();
             for (int slot = 0; slot < nslots; ++slot) {
-                this->addDebugSlotInfo(varName + "[" + to_string(slot) + "]",
+                this->addDebugSlotInfo(varName + "[" + skstd::to_string(slot) + "]",
                                        elemType, line, fnReturnValue);
             }
             break;

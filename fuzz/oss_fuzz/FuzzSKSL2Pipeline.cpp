@@ -39,15 +39,15 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
         void declareGlobal(const char* /*declaration*/) override {}
 
         String sampleShader(int index, String coords) override {
-            return "child_" + SkSL::to_string(index) + ".eval(" + coords + ")";
+            return "child_" + skstd::to_string(index) + ".eval(" + coords + ")";
         }
 
         String sampleColorFilter(int index, String color) override {
-            return "child_" + SkSL::to_string(index) + ".eval(" + color + ")";
+            return "child_" + skstd::to_string(index) + ".eval(" + color + ")";
         }
 
         String sampleBlender(int index, String src, String dst) override {
-            return "child_" + SkSL::to_string(index) + ".eval(" + src + ", " + dst + ")";
+            return "child_" + skstd::to_string(index) + ".eval(" + src + ", " + dst + ")";
         }
 
         String toLinearSrgb(String color) override { return color; }

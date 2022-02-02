@@ -23,7 +23,7 @@ static bool index_out_of_range(const Context& context, SKSL_INT index, const Exp
         return false;
     }
 
-    context.fErrors->error(base.fLine, "index " + to_string(index) + " out of range for '" +
+    context.fErrors->error(base.fLine, "index " + skstd::to_string(index) + " out of range for '" +
                                        base.type().displayName() + "'");
     return true;
 }

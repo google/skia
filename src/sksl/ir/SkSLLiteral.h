@@ -98,10 +98,10 @@ public:
 
     String description() const override {
         if (this->type().isFloat()) {
-            return to_string(this->floatValue());
+            return skstd::to_string(this->floatValue());
         }
         if (this->type().isInteger()) {
-            return to_string(this->intValue());
+            return skstd::to_string(this->intValue());
         }
         SkASSERT(this->type().isBoolean());
         return fValue ? "true" : "false";

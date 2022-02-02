@@ -485,15 +485,15 @@ ResultCode processCommand(const std::vector<std::string>& args) {
                         }
 
                         String sampleShader(int index, String coords) override {
-                            return "child_" + SkSL::to_string(index) + ".eval(" + coords + ")";
+                            return "child_" + skstd::to_string(index) + ".eval(" + coords + ")";
                         }
 
                         String sampleColorFilter(int index, String color) override {
-                            return "child_" + SkSL::to_string(index) + ".eval(" + color + ")";
+                            return "child_" + skstd::to_string(index) + ".eval(" + color + ")";
                         }
 
                         String sampleBlender(int index, String src, String dst) override {
-                            return "child_" + SkSL::to_string(index) + ".eval(" + src + ", " +
+                            return "child_" + skstd::to_string(index) + ".eval(" + src + ", " +
                                    dst + ")";
                         }
 

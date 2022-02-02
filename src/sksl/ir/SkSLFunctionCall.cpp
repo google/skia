@@ -862,8 +862,8 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
             int count = f.callParameterCount();
             if (count != (int) arguments.size()) {
                 context.fErrors->error(line,
-                        "external function expected " + to_string(count) +
-                        " arguments, but found " + to_string((int)arguments.size()));
+                        "external function expected " + skstd::to_string(count) +
+                        " arguments, but found " + skstd::to_string(arguments.size()));
                 return nullptr;
             }
             static constexpr int PARAMETER_MAX = 16;
@@ -940,11 +940,11 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
     // Reject function calls with the wrong number of arguments.
     if (function.parameters().size() != arguments.size()) {
         String msg = "call to '" + function.name() + "' expected " +
-                     to_string((int)function.parameters().size()) + " argument";
+                     skstd::to_string(function.parameters().size()) + " argument";
         if (function.parameters().size() != 1) {
             msg += "s";
         }
-        msg += ", but found " + to_string(arguments.count());
+        msg += ", but found " + skstd::to_string(arguments.count());
         context.fErrors->error(line, msg);
         return nullptr;
     }

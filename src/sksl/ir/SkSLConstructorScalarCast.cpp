@@ -24,7 +24,7 @@ std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& contex
     if (args.size() != 1) {
         context.fErrors->error(line, "invalid arguments to '" + type.displayName() +
                                      "' constructor, (expected exactly 1 argument, but found " +
-                                     to_string((uint64_t)args.size()) + ")");
+                                     skstd::to_string(args.size()) + ")");
         return nullptr;
     }
 

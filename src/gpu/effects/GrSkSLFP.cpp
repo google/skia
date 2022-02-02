@@ -77,8 +77,8 @@ public:
                     bool isFloat = SkSLTypeIsFloatType(gpuType);
                     size_t slots = type->slotCount();
                     for (size_t i = 0; i < slots; ++i) {
-                        value.append(isFloat ? SkSL::to_string(floatData[i])
-                                             : SkSL::to_string(intData[i]));
+                        value.append(isFloat ? skstd::to_string(floatData[i])
+                                             : skstd::to_string(intData[i]));
                         value.append(",");
                     }
                     value.back() = ')';

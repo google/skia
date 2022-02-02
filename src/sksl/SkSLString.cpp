@@ -15,6 +15,32 @@
 #include <sstream>
 #include <string>
 
+template <>
+SkSL::String skstd::to_string(float value) {
+    return skstd::to_string((double)value);
+}
+
+template <>
+SkSL::String skstd::to_string(double value) {
+    std::stringstream buffer;
+    buffer.imbue(std::locale::classic());
+    buffer.precision(17);
+    buffer << value;
+    bool needsDotZero = true;
+    const std::string str = buffer.str();
+    for (int i = str.size() - 1; i >= 0; --i) {
+        char c = str[i];
+        if (c == '.' || c == 'e') {
+            needsDotZero = false;
+            break;
+        }
+    }
+    if (needsDotZero) {
+        buffer << ".0";
+    }
+    return SkSL::String(buffer.str().c_str());
+}
+
 namespace SkSL {
 
 String String::printf(const char* fmt, ...) {
@@ -95,42 +121,6 @@ String operator+(const char* s1, const String& s2) {
 
 String operator+(std::string_view left, std::string_view right) {
     return String(left) + right;
-}
-
-String to_string(int32_t value) {
-    return SkSL::String(std::to_string(value));
-}
-
-String to_string(uint32_t value) {
-    return SkSL::String(std::to_string(value));
-}
-
-String to_string(int64_t value) {
-    return SkSL::String(std::to_string(value));
-}
-
-String to_string(uint64_t value) {
-    return SkSL::String(std::to_string(value));
-}
-
-String to_string(double value) {
-    std::stringstream buffer;
-    buffer.imbue(std::locale::classic());
-    buffer.precision(17);
-    buffer << value;
-    bool needsDotZero = true;
-    const std::string str = buffer.str();
-    for (int i = str.size() - 1; i >= 0; --i) {
-        char c = str[i];
-        if (c == '.' || c == 'e') {
-            needsDotZero = false;
-            break;
-        }
-    }
-    if (needsDotZero) {
-        buffer << ".0";
-    }
-    return String(buffer.str().c_str());
 }
 
 bool stod(std::string_view s, SKSL_FLOAT* value) {

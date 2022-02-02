@@ -48,12 +48,6 @@ private:
 
 String operator+(std::string_view left, std::string_view right);
 
-String to_string(double value);
-String to_string(int32_t value);
-String to_string(uint32_t value);
-String to_string(int64_t value);
-String to_string(uint64_t value);
-
 bool stod(std::string_view s, SKSL_FLOAT* value);
 bool stoi(std::string_view s, SKSL_INT* value);
 
@@ -66,5 +60,18 @@ namespace std {
         }
     };
 } // namespace std
+
+namespace skstd {
+
+// An extension to std::to_string which casts its result to SkSL::String.
+template <typename T> SkSL::String to_string(T value) {
+    return SkSL::String(std::to_string(value));
+}
+
+// We customize the output from to_string(float|double) slightly.
+template <> SkSL::String to_string(float value);
+template <> SkSL::String to_string(double value);
+
+}  // namespace skstd
 
 #endif

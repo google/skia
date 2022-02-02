@@ -955,8 +955,8 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, double value, int l
         if (value < this->minimumValue() || value > this->maximumValue()) {
             // We found a value that can't fit in the type. Flag it as an error.
             context.fErrors->error(line, String("integer is out of range for type '") +
-                                         this->displayName().c_str() +
-                                         "': " + to_string((SKSL_INT)value));
+                                         this->displayName().c_str() + "': " +
+                                         skstd::to_string((SKSL_INT)value));
             return true;
         }
     }
