@@ -359,6 +359,10 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
         return;
     }
 
+    if (!SkScalarsAreFinite(&pts[0].fX, count * 2)) {
+        return;
+    }
+
     SkMatrix ctm = fMatrixProvider->localToDevice();
     PtProcRec rec;
     if (!device && rec.init(mode, paint, &ctm, fRC)) {
