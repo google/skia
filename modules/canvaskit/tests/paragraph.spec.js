@@ -983,4 +983,50 @@ describe('Paragraph Behavior', function() {
         fontMgr.delete();
         builder.delete();
     });
+
+    gm('paragraph builder with reset', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+
+        const wrapTo = 250;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontSize: 20,
+            },
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('Default text\n');
+
+        const boldItalic = new CanvasKit.TextStyle({
+            fontStyle: {
+                weight: CanvasKit.FontWeight.Bold,
+                slant: CanvasKit.FontSlant.Italic,
+            }
+        });
+        builder.pushStyle(boldItalic);
+        builder.addText(`Bold, Italic\n`);
+        builder.pop();
+        const paragraph = builder.build();
+        paragraph.layout(wrapTo);
+
+        builder.reset();
+        builder.addText('This builder has been reused\n');
+
+        builder.pushStyle(boldItalic);
+        builder.addText(`2 Bold, Italic\n`);
+        builder.pop();
+        builder.addText(`2 back to normal`);
+        const paragraph2 = builder.build();
+        paragraph2.layout(wrapTo);
+
+        canvas.drawParagraph(paragraph, 10, 10);
+        canvas.drawParagraph(paragraph2, 10, 100);
+
+        paragraph.delete();
+        paragraph2.delete();
+        fontMgr.delete();
+        builder.delete();
+    });
 });

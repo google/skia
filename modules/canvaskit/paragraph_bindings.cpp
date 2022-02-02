@@ -522,6 +522,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                       }))
             .function("build", &para::ParagraphBuilderImpl::Build, allow_raw_pointers())
             .function("pop", &para::ParagraphBuilderImpl::pop)
+            .function("reset", &para::ParagraphBuilderImpl::Reset, allow_raw_pointers())
             .function("_pushStyle", optional_override([](para::ParagraphBuilderImpl& self,
                                                          SimpleTextStyle textStyle) {
                           auto ts = toTextStyle(textStyle);

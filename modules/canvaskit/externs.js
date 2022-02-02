@@ -154,6 +154,7 @@ var CanvasKit = {
     addText: function() {},
     build: function() {},
     pop: function() {},
+    reset: function() {},
 
     prototype: {
       pushStyle: function() {},

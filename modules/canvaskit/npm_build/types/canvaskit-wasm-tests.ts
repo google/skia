@@ -570,6 +570,7 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
     builder2.pushPaintStyle(blueText, paint, paint);
     builder2.addPlaceholder();
     builder2.addPlaceholder(10, 20, CK.PlaceholderAlignment.Top, CK.TextBaseline.Ideographic, 3);
+    builder2.reset();
 }
 
 function particlesTests(CK: CanvasKit, canvas?: Canvas) {

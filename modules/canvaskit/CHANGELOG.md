@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `Surface.updateTextureFromSource` prevents flickering on some platforms by re-using the texture
    for a given `Image` instead of needing to always create a new one via
    `Surface.makeImageFromTextureSource`. (skbug.com/12723)
+ - `ParagraphBuilder.reset` allows re-use of the underlying memory.
 
 ### Changed
  - Surface factories always produce a surface with an attached color space. Specifying `null` to

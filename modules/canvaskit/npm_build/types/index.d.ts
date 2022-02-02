@@ -921,6 +921,12 @@ export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
      * @param bg
      */
     pushPaintStyle(textStyle: TextStyle, fg: Paint, bg: Paint): void;
+
+    /**
+     * Resets this builder to its initial state, discarding any text, styles, placeholders that have
+     * been added, but keeping the initial ParagraphStyle.
+     */
+    reset(): void;
 }
 
 export interface ParagraphStyle {
