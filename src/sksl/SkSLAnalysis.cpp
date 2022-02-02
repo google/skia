@@ -160,6 +160,31 @@ public:
     using INHERITED = ProgramVisitor;
 };
 
+class ReturnsNonOpaqueColorVisitor : public ProgramVisitor {
+public:
+    ReturnsNonOpaqueColorVisitor() {}
+
+    bool visitStatement(const Statement& s) override {
+        if (s.is<ReturnStatement>()) {
+            const Expression* e = s.as<ReturnStatement>().expression().get();
+            bool knownOpaque = e && e->type().slotCount() == 4 &&
+                               ConstantFolder::GetConstantValueForVariable(*e)
+                                               ->getConstantValue(/*n=*/3)
+                                               .value_or(0) == 1;
+            return !knownOpaque;
+        }
+        return INHERITED::visitStatement(s);
+    }
+
+    bool visitExpression(const Expression& e) override {
+        // No need to recurse into expressions, these can never contain return statements
+        return false;
+    }
+
+    using INHERITED = ProgramVisitor;
+    using INHERITED::visitProgramElement;
+};
+
 // Visitor that counts the number of nodes visited
 class NodeCountVisitor : public ProgramVisitor {
 public:
@@ -344,6 +369,11 @@ bool Analysis::CallsColorTransformIntrinsics(const Program& program) {
         }
     }
     return false;
+}
+
+bool Analysis::ReturnsOpaqueColor(const FunctionDefinition& function) {
+    ReturnsNonOpaqueColorVisitor visitor;
+    return !visitor.visitProgramElement(function);
 }
 
 bool Analysis::DetectVarDeclarationWithoutScope(const Statement& stmt, ErrorReporter* errors) {

@@ -1048,6 +1048,91 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
          "half4 main(float2 xy) { return helper(xy); }", true, true);
 }
 
+DEF_TEST(SkRuntimeShaderIsOpaque, r) {
+    // This test verifies that we detect certain simple patterns in runtime shaders, and can deduce
+    // (via code in SkSL::Analysis::ReturnsOpaqueColor) that the resulting shader is always opaque.
+    // That logic is conservative, and the tests below reflect this.
+
+    auto test = [&](const char* body, bool expectOpaque) {
+        auto [effect, err] = SkRuntimeEffect::MakeForShader(SkStringPrintf(R"(
+            uniform shader cOnes;
+            uniform shader cZeros;
+            uniform float4 uOnes;
+            uniform float4 uZeros;
+            half4 main(float2 xy) {
+                %s
+            })", body));
+        REPORTER_ASSERT(r, effect);
+
+        auto cOnes = SkShaders::Color(SK_ColorWHITE);
+        auto cZeros = SkShaders::Color(SK_ColorTRANSPARENT);
+        SkASSERT(cOnes->isOpaque());
+        SkASSERT(!cZeros->isOpaque());
+
+        SkRuntimeShaderBuilder builder(effect);
+        builder.child("cOnes") = std::move(cOnes);
+        builder.child("cZeros") = std::move(cZeros);
+        builder.uniform("uOnes") = SkColors::kWhite;
+        builder.uniform("uZeros") = SkColors::kTransparent;
+
+        auto shader = builder.makeShader();
+        REPORTER_ASSERT(r, shader->isOpaque() == expectOpaque);
+    };
+
+    // Cases where our optimization is valid, and works:
+
+    // Returning opaque literals
+    test("return half4(1);",          true);
+    test("return half4(0, 1, 0, 1);", true);
+    test("return half4(0, 0, 0, 1);", true);
+
+    // Simple expressions involving uniforms
+    test("return uZeros.rgb1;",          true);
+    test("return uZeros.bgra.rgb1;",     true);
+    test("return half4(uZeros.rgb, 1);", true);
+
+    // Simple expressions involving child.eval
+    test("return cZeros.eval(xy).rgb1;",          true);
+    test("return cZeros.eval(xy).bgra.rgb1;",     true);
+    test("return half4(cZeros.eval(xy).rgb, 1);", true);
+
+    // Multiple returns
+    test("if (xy.x < 100) { return uZeros.rgb1; } else { return cZeros.eval(xy).rgb1; }", true);
+
+    // More expression cases:
+    test("return (cZeros.eval(xy) * uZeros).rgb1;", true);
+    test("return half4(1, 1, 1, 0.5 + 0.5);",       true);
+
+    // Constant variable propagation
+    test("const half4 kWhite = half4(1); return kWhite;", true);
+
+    // Cases where our optimization is not valid, and does not happen:
+
+    // Returning non-opaque literals
+    test("return half4(0);",          false);
+    test("return half4(1, 1, 1, 0);", false);
+
+    // Returning non-opaque uniforms or children
+    test("return uZeros;",          false);
+    test("return cZeros.eval(xy);", false);
+
+    // Multiple returns
+    test("if (xy.x < 100) { return uZeros; } else { return cZeros.eval(xy).rgb1; }", false);
+    test("if (xy.x < 100) { return uZeros.rgb1; } else { return cZeros.eval(xy); }", false);
+
+    // There should (must) not be any false-positive cases. There are false-negatives.
+    // In these cases, our optimization would be valid, but does not happen:
+
+    // More complex expressions that can't be simplified
+    test("return xy.x < 100 ? uZeros.rgb1 : cZeros.eval(xy).rgb1;", false);
+
+    // Finally, there are cases that are conditional on the uniforms and children. These *could*
+    // determine dynamically if the uniform and/or child being referenced is opaque, and use that
+    // information. Today, we don't do this, so we pessimistically assume they're transparent:
+    test("return uOnes;",          false);
+    test("return cOnes.eval(xy);", false);
+}
+
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo) {
     struct FpAndKey {
         std::unique_ptr<GrFragmentProcessor> fp;
