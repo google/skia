@@ -1054,6 +1054,14 @@ optional("jpeg_encode") {
   ]
 }
 
+optional("jpegxl_decode") {
+  enabled = skia_use_libjxl_decode
+  public_defines = [ "SK_CODEC_DECODES_JPEGXL" ]
+
+  deps = [ "//third_party/libjxl" ]
+  sources = [ "src/codec/SkJpegxlCodec.cpp" ]
+}
+
 optional("ndk_images") {
   enabled = skia_use_ndk_images
   public_defines = [ "SK_ENABLE_NDK_IMAGES" ]
@@ -1285,6 +1293,7 @@ skia_component("skia") {
     ":hsw",
     ":jpeg_decode",
     ":jpeg_encode",
+    ":jpegxl_decode",
     ":ndk_images",
     ":none",
     ":png_decode",

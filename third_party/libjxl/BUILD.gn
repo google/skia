@@ -1,0 +1,100 @@
+# Copyright 2021 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+third_party("libjxl") {
+  deps = [
+    "//third_party/brotli",
+    "//third_party/highway",
+  ]
+
+  public_include_dirs = [
+    ".",
+    "../externals/libjxl/lib/include",
+  ]
+
+  include_dirs = [ "../externals/libjxl" ]
+
+  defines = [
+    # Does not really matter.
+    "JPEGXL_MAJOR_VERSION=1",
+    "JPEGXL_MINOR_VERSION=0",
+    "JPEGXL_PATCH_VERSION=0",
+
+    "JPEGXL_ENABLE_SKCMS=1",
+    "JPEGXL_ENABLE_TRANSCODE_JPEG=0",
+  ]
+
+  if (is_official_build) {
+    defines += [ "JXL_DEBUG_ON_ABORT=0" ]
+  }
+
+  sources = [
+    "../externals/libjxl/lib/jxl/ac_strategy.cc",
+    "../externals/libjxl/lib/jxl/alpha.cc",
+    "../externals/libjxl/lib/jxl/ans_common.cc",
+    "../externals/libjxl/lib/jxl/aux_out.cc",
+    "../externals/libjxl/lib/jxl/base/cache_aligned.cc",
+    "../externals/libjxl/lib/jxl/base/data_parallel.cc",
+    "../externals/libjxl/lib/jxl/base/descriptive_statistics.cc",
+    "../externals/libjxl/lib/jxl/base/padded_bytes.cc",
+    "../externals/libjxl/lib/jxl/base/status.cc",
+    "../externals/libjxl/lib/jxl/blending.cc",
+    "../externals/libjxl/lib/jxl/chroma_from_luma.cc",
+    "../externals/libjxl/lib/jxl/coeff_order.cc",
+    "../externals/libjxl/lib/jxl/color_encoding_internal.cc",
+    "../externals/libjxl/lib/jxl/color_management.cc",
+    "../externals/libjxl/lib/jxl/compressed_dc.cc",
+    "../externals/libjxl/lib/jxl/convolve.cc",
+    "../externals/libjxl/lib/jxl/dct_scales.cc",
+    "../externals/libjxl/lib/jxl/dec_ans.cc",
+    "../externals/libjxl/lib/jxl/dec_cache.cc",
+    "../externals/libjxl/lib/jxl/dec_context_map.cc",
+    "../externals/libjxl/lib/jxl/dec_external_image.cc",
+    "../externals/libjxl/lib/jxl/dec_frame.cc",
+    "../externals/libjxl/lib/jxl/dec_group.cc",
+    "../externals/libjxl/lib/jxl/dec_group_border.cc",
+    "../externals/libjxl/lib/jxl/dec_huffman.cc",
+    "../externals/libjxl/lib/jxl/dec_modular.cc",
+    "../externals/libjxl/lib/jxl/dec_noise.cc",
+    "../externals/libjxl/lib/jxl/dec_patch_dictionary.cc",
+    "../externals/libjxl/lib/jxl/dec_reconstruct.cc",
+    "../externals/libjxl/lib/jxl/dec_upsample.cc",
+    "../externals/libjxl/lib/jxl/dec_xyb.cc",
+    "../externals/libjxl/lib/jxl/decode.cc",
+    "../externals/libjxl/lib/jxl/decode_to_jpeg.cc",
+    "../externals/libjxl/lib/jxl/enc_bit_writer.cc",
+    "../externals/libjxl/lib/jxl/entropy_coder.cc",
+    "../externals/libjxl/lib/jxl/epf.cc",
+    "../externals/libjxl/lib/jxl/fields.cc",
+    "../externals/libjxl/lib/jxl/filters.cc",
+    "../externals/libjxl/lib/jxl/frame_header.cc",
+    "../externals/libjxl/lib/jxl/gauss_blur.cc",
+    "../externals/libjxl/lib/jxl/headers.cc",
+    "../externals/libjxl/lib/jxl/huffman_table.cc",
+    "../externals/libjxl/lib/jxl/icc_codec.cc",
+    "../externals/libjxl/lib/jxl/icc_codec_common.cc",
+    "../externals/libjxl/lib/jxl/image.cc",
+    "../externals/libjxl/lib/jxl/image_bundle.cc",
+    "../externals/libjxl/lib/jxl/image_metadata.cc",
+    "../externals/libjxl/lib/jxl/jpeg/dec_jpeg_data.cc",
+    "../externals/libjxl/lib/jxl/jpeg/dec_jpeg_data_writer.cc",
+    "../externals/libjxl/lib/jxl/jpeg/jpeg_data.cc",
+    "../externals/libjxl/lib/jxl/loop_filter.cc",
+    "../externals/libjxl/lib/jxl/luminance.cc",
+    "../externals/libjxl/lib/jxl/memory_manager_internal.cc",
+    "../externals/libjxl/lib/jxl/modular/encoding/dec_ma.cc",
+    "../externals/libjxl/lib/jxl/modular/encoding/encoding.cc",
+    "../externals/libjxl/lib/jxl/modular/modular_image.cc",
+    "../externals/libjxl/lib/jxl/modular/transform/squeeze.cc",
+    "../externals/libjxl/lib/jxl/modular/transform/transform.cc",
+    "../externals/libjxl/lib/jxl/opsin_params.cc",
+    "../externals/libjxl/lib/jxl/passes_state.cc",
+    "../externals/libjxl/lib/jxl/quant_weights.cc",
+    "../externals/libjxl/lib/jxl/quantizer.cc",
+    "../externals/libjxl/lib/jxl/splines.cc",
+    "../externals/libjxl/lib/jxl/toc.cc",
+  ]
+}

@@ -58,6 +58,7 @@ Milestone 98
         will return nullptr.
   * Removed SkCanvas::markCTM and SkCanvas::findMarkedCTM. These were created to be used with other
     features that have since been deleted, so they served no purpose.
+  * Added limited JPEGXL support.
 
 * * *
 
