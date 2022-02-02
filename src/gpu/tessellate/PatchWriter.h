@@ -46,7 +46,7 @@ public:
     //
     // PatchAttribs::kJoinControlPoint must be enabled.
     void updateJoinControlPointAttrib(SkPoint lastControlPoint) {
-        SkASSERT(fAttribs & PatchAttribs::kJoinControlPoint);
+        SkASSERT(fAttribs & PatchAttribs::kJoinControlPoint && lastControlPoint.isFinite());
         fJoinControlPointAttrib = lastControlPoint;
         fHasJoinControlPoint = true;
     }
@@ -85,57 +85,180 @@ public:
         fColorAttrib.set(color, fAttribs & PatchAttribs::kWideColorIfEnabled);
     }
 
-    // RAII. Appends a patch during construction and writes the attribs during destruction.
-    //
-    //    Patch(patchWriter, explicitCurveType) << p0 << p1 << ...;
-    //
-    struct Patch {
-        Patch(PatchWriter& w, float explicitCurveType)
-                : fPatchWriter(w)
-                , fVertexWriter(w.appendPatch())
-                , fExplicitCurveType(explicitCurveType) {}
-        ~Patch() {
-            fPatchWriter.emitPatchAttribs(std::move(fVertexWriter), fExplicitCurveType);
-        }
-        operator VertexWriter&() { return fVertexWriter; }
-        PatchWriter& fPatchWriter;
-        VertexWriter fVertexWriter;
-        const float fExplicitCurveType;
+    /**
+     * Helper structs that represent a path verb and geometry, that can be used to convert to
+     * patches of instance data using operator<< on the PatchWriter, e.g.
+     *
+     *   patchWriter << Cubic(p0, p1, p2, p3);
+     *   patchWriter << Conic(p0, p1, p2, w);
+     *   patchWriter << Quadratic(p0, p1, p2);
+     *   patchWriter << Line(p0, p1);
+     *   patchWriter << Triangle(p0, p1, p2);
+     *   patchWriter << Circle(p); // only for strokes
+     *
+     * Every geometric type is converted to an equivalent cubic or conic, so this will always
+     * write at minimum 8 floats for the four control points (cubic) or three control points and
+     * {w, inf} (conics). The PatchWriter additionally writes the current values of all attributes
+     * enabled in its PatchAttribs flags.
+     */
+
+    // Defines a cubic curve from four control points.
+    struct Cubic {
+        Cubic(float2 p0, float2 p1, float2 p2, float2 p3) : fP0(p0), fP1(p1), fP2(p2), fP3(p3) {}
+        Cubic(float4 p0p1, float4 p2p3) : fP0(p0p1.lo), fP1(p0p1.hi), fP2(p2p3.lo), fP3(p2p3.hi) {}
+        Cubic(float2 p0, float4 p1p2, float2 p3) : fP0(p0), fP1(p1p2.lo), fP2(p1p2.hi), fP3(p3) {}
+        Cubic(const SkPoint p[4]) : Cubic(float4::Load(p), float4::Load(p + 2)) {}
+
+        float2 fP0, fP1, fP2, fP3;
     };
 
-    // RAII. Appends a patch during construction and writes the remaining data for a cubic during
-    // destruction. The caller outputs p0,p1,p2,p3 (8 floats):
-    //
-    //    CubicPatch(patchWriter) << p0 << p1 << p2 << p3;
-    //
-    struct CubicPatch : public Patch {
-        CubicPatch(PatchWriter& w) : Patch(w, kCubicCurveType) {}
+    // Defines a conic curve from three control points and 'w'.
+    struct Conic {
+        Conic(float2 p0, float2 p1, float2 p2, float w) : fP0(p0), fP1(p1), fP2(p2), fW(w) {}
+        Conic(const SkPoint p[3], float w)
+                : fP0(float2::Load(p))
+                , fP1(float2::Load(p + 1))
+                , fP2(float2::Load(p + 2))
+                , fW(w) {}
+
+        float2 fP0, fP1, fP2;
+        float  fW;
     };
 
-    // RAII. Appends a patch during construction and writes the remaining data for a conic during
-    // destruction. The caller outputs p0,p1,p2,w (7 floats):
-    //
-    //     ConicPatch(patchWriter) << p0 << p1 << p2 << w;
-    //
-    struct ConicPatch : public Patch {
-        ConicPatch(PatchWriter& w) : Patch(w, kConicCurveType) {}
-        ~ConicPatch() {
-            fVertexWriter << VertexWriter::kIEEE_32_infinity;  // p3.y=Inf indicates a conic.
+
+    // Defines a quadratic curve that is automatically converted into an equivalent cubic.
+    struct Quadratic {
+        Quadratic(float2 p0, float2 p1, float2 p2) : fP0(p0), fP1(p1), fP2(p2) {}
+        Quadratic(const SkPoint p[3])
+                : fP0(float2::Load(p))
+                , fP1(float2::Load(p + 1))
+                , fP2(float2::Load(p + 2)) {}
+
+        Cubic asCubic() const {
+            return Cubic(fP0, mix(float4(fP0, fP2), fP1.xyxy(), 2/3.f), fP2);
         }
+
+        float2 fP0, fP1, fP2;
     };
 
-    // RAII. Appends a patch during construction and writes the remaining data for a triangle during
-    // destruction. The caller outputs p0,p1,p2 (6 floats):
-    //
-    //     TrianglePatch(patchWriter) << p0 << p1 << p2;
-    //
-    struct TrianglePatch : public Patch {
-        TrianglePatch(PatchWriter& w) : Patch(w, kTriangularConicCurveType) {}
-        ~TrianglePatch() {
-            // Mark this patch as a triangle by setting it to a conic with w=Inf.
-            fVertexWriter << VertexWriter::Repeat<2>(VertexWriter::kIEEE_32_infinity);
+    // Defines a line that will be automatically converted into an equivalent cubic patch.
+    struct Line {
+        Line(float4 p0p1) : fP0{p0p1.lo}, fP1{p0p1.hi} {}
+        Line(float2 p0, float2 p1) : fP0{p0}, fP1{p1} {}
+        Line(SkPoint p0, SkPoint p1)
+                : fP0{skvx::bit_pun<float2>(p0)}
+                , fP1{skvx::bit_pun<float2>(p1)} {}
+
+        Cubic asCubic() const {
+            float4 p0p1{fP0, fP1};
+            return Cubic(fP0, (p0p1.zwxy() - p0p1) * (1/3.f) + p0p1, fP1);
         }
+
+        float2 fP0, fP1;
     };
+
+    // Defines a triangle that will be automatically converted into a conic patch (w = inf).
+    struct Triangle {
+        Triangle(float2 p0, float2 p1, float2 p2) : fP0(p0), fP1(p1), fP2(p2) {}
+        Triangle(SkPoint p0, SkPoint p1, SkPoint p2)
+                : fP0(skvx::bit_pun<float2>(p0))
+                , fP1(skvx::bit_pun<float2>(p1))
+                , fP2(skvx::bit_pun<float2>(p2)) {}
+
+        float2 fP0, fP1, fP2;
+    };
+
+    // Defines a circle used for round caps and joins in stroking, encoded as a cubic with
+    // identical control points and an empty join.
+    struct Circle {
+        Circle(float2 p) : fP(p) {}
+        Circle(SkPoint p) : fP(skvx::bit_pun<float2>(p)) {}
+
+        float2 fP;
+    };
+
+    // TODO: this is to aid in migration from the older API and will be deleted once PatchWriter
+    // handles deferred patches.
+    struct RawPatch {
+        RawPatch() = default;
+        // Matches behavior of operator<<
+        explicit RawPatch(const Cubic& cubic)
+                : fP0(cubic.fP0)
+                , fP1(cubic.fP1)
+                , fP2(cubic.fP2)
+                , fP3(cubic.fP3)
+                , fExplicitCurveType(kCubicCurveType) {}
+        explicit RawPatch(const Conic& conic)
+                : fP0(conic.fP0)
+                , fP1(conic.fP1)
+                , fP2(conic.fP2)
+                , fP3{conic.fW, SK_FloatInfinity}
+                , fExplicitCurveType(kConicCurveType) {}
+        explicit RawPatch(const Quadratic& quad) : RawPatch(quad.asCubic()) {}
+        explicit RawPatch(const Line& line)
+                : fP0(line.fP0)
+                , fP1(line.fP0)
+                , fP2(line.fP1)
+                , fP3(line.fP1)
+                , fExplicitCurveType(kCubicCurveType) {}
+
+        float2 fP0, fP1, fP2, fP3;
+        float fExplicitCurveType = -1.f; // defaults to an invalid explicit curve type
+    };
+
+    // operator<< definitions for the patch geometry types.
+
+    SK_ALWAYS_INLINE void operator<<(const Cubic& cubic) {
+        // TODO: Have cubic store or automatically compute wang's formula so this can automatically
+        // call into chopAndWriteCubics.
+        this->writePatch(cubic.fP0, cubic.fP1, cubic.fP2, cubic.fP3,
+                         kCubicCurveType);
+    }
+
+    SK_ALWAYS_INLINE void operator<<(const Conic& conic) {
+        // TODO: Have Conic store or automatically compute Wang's formula so this can automatically
+        // call into chopAndWriteConics.
+        this->writePatch(conic.fP0, conic.fP1, conic.fP2, {conic.fW, SK_FloatInfinity},
+                         kConicCurveType);
+    }
+
+    // TODO: Have Quadratic store or automatically compute Wang's formula so this can automatically
+    // call into chopAndWriteQuadratics *before* it is converted to an equivalent cubic if needed.
+    SK_ALWAYS_INLINE void operator<<(const Quadratic& quad) { *this << quad.asCubic(); }
+
+    SK_ALWAYS_INLINE void operator<<(const Line& line) {
+        // Lines are specially encoded as [p0,p0,p1,p1] and detected in the shaders; if that
+        // isn't desired, convert to a Cubic directly with Line::asCubic().
+        this->writePatch(line.fP0, line.fP0, line.fP1, line.fP1, kCubicCurveType);
+    }
+
+    SK_ALWAYS_INLINE void operator<<(const Triangle& tri) {
+        // Mark this patch as a triangle by setting it to a conic with w=Inf, and use a distinct
+        // explicit curve type for when inf isn't supported in shaders.
+        this->writePatch(tri.fP0, tri.fP1, tri.fP2, {SK_FloatInfinity, SK_FloatInfinity},
+                         kTriangularConicCurveType);
+    }
+
+    SK_ALWAYS_INLINE void operator<<(const Circle& circle) {
+        // This does not use writePatch() because it uses its own location as the join attribute
+        // value instead of fJoinControlPointAttrib.
+        SkASSERT(fAttribs & PatchAttribs::kJoinControlPoint);
+        if (VertexWriter vw = this->appendPatch()) {
+            vw << VertexWriter::Repeat<4>(circle.fP); // p0,p1,p2,p3 = p -> 4 copies
+            this->emitPatchAttribs(std::move(vw), circle.fP, kCubicCurveType);
+        }
+    }
+
+    SK_ALWAYS_INLINE void operator<<(MiddleOutPolygonTriangulator::PoppedTriangleStack&& stack) {
+        for (auto [p0, p1, p2] : stack) {
+            *this << Triangle(p0, p1, p2);
+        }
+    }
+
+    // TODO: Will be removed with RawPatch
+    SK_ALWAYS_INLINE void operator<<(const RawPatch& patch) {
+        this->writePatch(patch.fP0, patch.fP1, patch.fP2, patch.fP3, patch.fExplicitCurveType);
+    }
 
     // Chops the given quadratic into 'numPatches' equal segments (in the parametric sense) and
     // writes them to the GPU buffer.
@@ -157,31 +280,34 @@ public:
 
 private:
     VertexWriter appendPatch() {
-        VertexWriter vertexWriter = fChunker.appendVertex();
-        if (!vertexWriter) {
-            // Failed to allocate GPU storage for the patch. Write to a throwaway location so the
-            // callsites don't have to do null checks.
-            if (!fFallbackPatchStorage) {
-                fFallbackPatchStorage.reset(fChunker.stride());
-            }
-            vertexWriter = {fFallbackPatchStorage.data(), fChunker.stride()};
-        }
-        return vertexWriter;
+        // TODO: This is sticking around because it will be updated to handle automatic deferring
+        // of patch data.
+        return fChunker.appendVertex();
     }
 
     template <typename T>
     static VertexWriter::Conditional<T> If(bool c, const T& v) { return VertexWriter::If(c,v); }
 
-    void emitPatchAttribs(VertexWriter vertexWriter, float explicitCurveType) {
-        // TODO: For now, the join control point must be explicitly provided by caller *before*
-        // they write any patch, and are responsible for deferring data on their own. This assert
-        // will relax when PatchWriter automates the deferring.
-        SkASSERT(!(fAttribs & PatchAttribs::kJoinControlPoint) || fHasJoinControlPoint);
-        vertexWriter << If((fAttribs & PatchAttribs::kJoinControlPoint), fJoinControlPointAttrib)
+    // NOTE: Does *not* write the kJoinControlPoint attrib since that requires special handling.
+    void emitPatchAttribs(VertexWriter vertexWriter,
+                          float2 joinControlPoint,
+                          float explicitCurveType) {
+        vertexWriter << If((fAttribs & PatchAttribs::kJoinControlPoint), joinControlPoint)
                      << If((fAttribs & PatchAttribs::kFanPoint), fFanPointAttrib)
                      << If((fAttribs & PatchAttribs::kStrokeParams), fStrokeParamsAttrib)
                      << If((fAttribs & PatchAttribs::kColor), fColorAttrib)
                      << If((fAttribs & PatchAttribs::kExplicitCurveType), explicitCurveType);
+    }
+
+    SK_ALWAYS_INLINE
+    void writePatch(float2 p0, float2 p1, float2 p2, float2 p3, float explicitCurveType) {
+        if (VertexWriter vw = this->appendPatch()) {
+            vw << p0 << p1 << p2 << p3;
+            SkASSERT(!(fAttribs & PatchAttribs::kJoinControlPoint) || fHasJoinControlPoint);
+            this->emitPatchAttribs(std::move(vw),
+                                   skvx::bit_pun<float2>(fJoinControlPointAttrib),
+                                   explicitCurveType);
+        }
     }
 
     const PatchAttribs fAttribs;
@@ -193,43 +319,7 @@ private:
     VertexColor fColorAttrib;
 
     bool fHasJoinControlPoint = false;
-
-    // For when fChunker fails to allocate a patch in GPU memory.
-    SkAutoTMalloc<char> fFallbackPatchStorage;
 };
-
-// Converts a line to a cubic when being output via '<<' to a VertexWriter.
-struct LineToCubic {
-    float4 fP0P1;
-};
-
-SK_MAYBE_UNUSED SK_ALWAYS_INLINE VertexWriter& operator<<(VertexWriter& vertexWriter,
-                                                          const LineToCubic& line) {
-    float4 p0p1 = line.fP0P1;
-    float4 v = p0p1.zwxy() - p0p1;
-    return vertexWriter << p0p1.lo << (v * (1/3.f) + p0p1) << p0p1.hi;
-}
-
-// Converts a quadratic to a cubic when being output via '<<' to a VertexWriter.
-struct QuadToCubic {
-    QuadToCubic(float2 p0, float2 p1, float2 p2) : fP0(p0), fP1(p1), fP2(p2) {}
-    QuadToCubic(const SkPoint p[3])
-            : QuadToCubic(float2::Load(p), float2::Load(p+1), float2::Load(p+2)) {}
-    float2 fP0, fP1, fP2;
-};
-
-SK_MAYBE_UNUSED SK_ALWAYS_INLINE VertexWriter& operator<<(VertexWriter& vertexWriter,
-                                                          const QuadToCubic& quadratic) {
-    auto [p0, p1, p2] = quadratic;
-    return vertexWriter << p0 << mix(float4(p0,p2), p1.xyxy(), 2/3.f) << p2;
-}
-
-SK_MAYBE_UNUSED SK_ALWAYS_INLINE void operator<<(
-        PatchWriter& w, MiddleOutPolygonTriangulator::PoppedTriangleStack&& stack) {
-    for (auto [p0, p1, p2] : stack) {
-        PatchWriter::TrianglePatch(w) << p0 << p1 << p2;
-    }
-}
 
 }  // namespace skgpu
 

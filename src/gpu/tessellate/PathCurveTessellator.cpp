@@ -20,9 +20,9 @@
 
 namespace skgpu {
 
-using CubicPatch = PatchWriter::CubicPatch;
-using ConicPatch = PatchWriter::ConicPatch;
-using TrianglePatch = PatchWriter::TrianglePatch;
+using Conic = PatchWriter::Conic;
+using Cubic = PatchWriter::Cubic;
+using Quadratic = PatchWriter::Quadratic;
 
 int PathCurveTessellator::patchPreallocCount(int totalCombinedPathVerbCnt) const {
     // Over-allocate enough curves for 1 in 4 to chop.
@@ -62,7 +62,7 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                     }
                     if (n4 <= maxSegments_pow4) {
                         // This quad already fits in "maxTessellationSegments".
-                        CubicPatch(patchWriter) << QuadToCubic{p0, p1, p2};
+                        patchWriter << Quadratic(p0, p1, p2);
                     } else {
                         // The path should have been pre-chopped if needed, so all curves fit in
                         // kMaxTessellationSegmentsPerCurve.
@@ -88,7 +88,7 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                     }
                     if (n2 <= maxSegments_pow2) {
                         // This conic already fits in "maxTessellationSegments".
-                        ConicPatch(patchWriter) << p0 << p1 << p2 << *w;
+                        patchWriter << Conic(p0, p1, p2, *w);
                     } else {
                         // The path should have been pre-chopped if needed, so all curves fit in
                         // kMaxTessellationSegmentsPerCurve.
@@ -112,7 +112,7 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                     }
                     if (n4 <= maxSegments_pow4) {
                         // This cubic already fits in "maxTessellationSegments".
-                        CubicPatch(patchWriter) << p0 << p1 << p2 << p3;
+                        patchWriter << Cubic(p0, p1, p2, p3);
                     } else {
                         // The path should have been pre-chopped if needed, so all curves fit in
                         // kMaxTessellationSegmentsPerCurve.

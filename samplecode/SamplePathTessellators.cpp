@@ -25,8 +25,6 @@
 
 namespace skgpu {
 
-using TrianglePatch = PatchWriter::TrianglePatch;
-
 namespace {
 
 enum class Mode {
@@ -142,7 +140,9 @@ private:
             AffineMatrix m(pathMatrix);
             for (PathMiddleOutFanIter it(fPath); !it.done();) {
                 for (auto [p0, p1, p2] : it.nextStack()) {
-                    TrianglePatch(patchWriter) << m.map2Points(p0, p1) << m.mapPoint(p2);
+                    auto [mp0, mp1] = m.map2Points(p0, p1);
+                    auto mp2 = m.map1Point(&p2);
+                    patchWriter << PatchWriter::Triangle(mp0, mp1, mp2);
                 }
             }
         }

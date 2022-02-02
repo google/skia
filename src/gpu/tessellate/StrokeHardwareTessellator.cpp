@@ -21,6 +21,13 @@ namespace skgpu {
 
 namespace {
 
+// The HW stroke tessellator needs explicit control over 4 control points that it configures.
+// These are configured similarly to Cubic vs. Conic for the fixed count stroke tessellator, but the
+// rest of the supporting code works best when dealing with a single type. Since HW tessellation
+// does not require explicit curve types or automatic CPU chopping and deferring, the simple Cubic
+// patch type is sufficient, although we rename it here to highlight how it's used differently here.
+using HwPatch = PatchWriter::Cubic;
+
 float num_combined_segments(float numParametricSegments, float numRadialSegments) {
     // The first and last edges are shared by both the parametric and radial sets of edges, so
     // the total number of edges is:
@@ -43,6 +50,17 @@ float num_combined_segments(float numParametricSegments, float numRadialSegments
 float2 pow4(float2 x) {
     auto xx = x*x;
     return xx*xx;
+}
+
+void quad_to_cubic(const SkPoint p[3], SkPoint patch[4]) {
+    using Cubic = PatchWriter::Cubic;
+    using Quadratic = PatchWriter::Quadratic;
+
+    Cubic cubic = Quadratic(p).asCubic();
+    cubic.fP0.store(patch);
+    cubic.fP1.store(patch + 1);
+    cubic.fP2.store(patch + 2);
+    cubic.fP3.store(patch + 3);
 }
 
 class HwPatchWriter {
@@ -215,7 +233,7 @@ public:
             fPatchWriter.updateJoinControlPointAttrib(p[0]);
         }
 
-        HwPatch(fPatchWriter) << VertexWriter::Array(p, 4);
+        fPatchWriter << HwPatch(p);
         fPatchWriter.updateJoinControlPointAttrib(endControlPoint);
     }
 
@@ -323,12 +341,6 @@ public:
     }
 
 private:
-    struct HwPatch : public PatchWriter::Patch {
-        HwPatch(PatchWriter& w) : Patch(w, 0/*explicitCurveType unused*/) {
-            SkASSERT(!(w.attribs() & PatchAttribs::kExplicitCurveType));
-        }
-    };
-
     void internalMoveTo(SkPoint pt, SkPoint lastControlPoint) {
         fCurrContourStartPoint = pt;
         fCurrContourFirstControlPoint = lastControlPoint;
@@ -350,7 +362,7 @@ private:
         // Convert to a patch.
         SkPoint asPatch[4];
         if (w == 1) {
-            VertexWriter(asPatch, sizeof(asPatch)) << QuadToCubic(p);
+            quad_to_cubic(p, asPatch);
         } else {
             memcpy(asPatch, p, sizeof(SkPoint) * 3);
             asPatch[3] = {w, std::numeric_limits<float>::infinity()};
@@ -562,20 +574,24 @@ private:
         SkASSERT(fPatchWriter.hasJoinControlPoint());
 
         {
-            HwPatch patch(fPatchWriter);
-            patch << junctionPoint;
+            SkPoint asPatch[4];
+            asPatch[0] = junctionPoint;
             if (joinType == JoinType::kBowtie) {
                 // {prevControlPoint, [p0, p0, p0, p3]} is a reserved patch pattern that means this
                 // patch is a bowtie. The bowtie is anchored on p0 and its tangent angles go from
                 // (p0 - prevControlPoint) to (p3 - p0).
-                patch << junctionPoint << junctionPoint;
+                asPatch[1] = junctionPoint;
+                asPatch[2] = junctionPoint;
             } else {
                 // {prevControlPoint, [p0, p3, p3, p3]} is a reserved patch pattern that means this
                 // patch is a join only (no curve sections in the patch). The join is anchored on p0
                 // and its tangent angles go from (p0 - prevControlPoint) to (p3 - p0).
-                patch << nextControlPoint << nextControlPoint;
+                asPatch[1] = nextControlPoint;
+                asPatch[2] = nextControlPoint;
             }
-            patch << (nextControlPoint);
+            asPatch[3] = nextControlPoint;
+
+            fPatchWriter << HwPatch(asPatch);
         }
 
         fPatchWriter.updateJoinControlPointAttrib(nextControlPoint);
@@ -755,7 +771,7 @@ int StrokeHardwareTessellator::writePatches(PatchWriter& patchWriter,
                     // Write it out directly.
                     prevJoinFitsInPatch = hwPatchWriter.stroke180FitsInPatch_withJoin(
                             numParametricSegments_pow4);
-                    VertexWriter(scratchPts, sizeof(scratchPts)) << QuadToCubic(p);
+                    quad_to_cubic(p, scratchPts);
                     patchPts = scratchPts;
                     endControlPoint = patchPts[2];
                     break;

@@ -51,11 +51,11 @@ void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatc
         // p1 & p2 of the cubic representation of the middle quad.
         float4 middle = mix(ab, bc, mix(T, T.zwxy(), 2/3.f));
 
-        CubicPatch(*this) << QuadToCubic{p0, ab.lo, abc.lo};  // Write the 1st quad.
+        *this << Quadratic(p0, ab.lo, abc.lo);  // Write the 1st quad.
         if (needsInnerTriangles) {
-            TrianglePatch(*this) << p0 << abc.lo << abc.hi;
+            *this << Triangle(p0, abc.lo, abc.hi);
         }
-        CubicPatch(*this) << abc.lo << middle << abc.hi;  // Write the 2nd quad.
+        *this << Cubic(abc.lo, middle, abc.hi);  // Write the 2nd quad already converted to a cubic
         if (needsInnerTriangles) {
             *this << innerTriangulator.pushVertex(to_skpoint(abc.hi));
         }
@@ -67,14 +67,14 @@ void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatc
         float2 bc = (p1 + p2) * .5f;
         float2 abc = (ab + bc) * .5f;
 
-        CubicPatch(*this) << QuadToCubic{p0, ab, abc};  // Write the 1st quad.
+        *this << Quadratic(p0, ab, abc);  // Write the 1st quad.
         if (needsInnerTriangles) {
-            TrianglePatch(*this) << p0 << abc << p2;
+            *this << Triangle(p0, abc, p2);
         }
-        CubicPatch(*this) << QuadToCubic{abc, bc, p2};  // Write the 2nd quad.
+        *this << Quadratic(abc, bc, p2);  // Write the 2nd quad.
     } else {
         SkASSERT(numPatches == 1);
-        CubicPatch(*this) << QuadToCubic{p0, p1, p2};  // Write the single quad.
+        *this << Quadratic(p0, p1, p2);  // Write the single remaining quad.
     }
     if (needsInnerTriangles) {
         *this << innerTriangulator.pushVertex(to_skpoint(p2));
@@ -99,10 +99,10 @@ void PatchWriter::chopAndWriteConics(float2 p0, float2 p1, float2 p2, float w, i
 
         // Project and write the 1st conic.
         float2 midpoint = abc.xy() / abc.w();
-        ConicPatch(*this) << (h0.xy() / h0.w())
-                          << (ab.xy() / ab.w())
-                          << midpoint
-                          << (ab.w() / sqrtf(h0.w() * abc.w()));
+        *this << Conic(h0.xy() / h0.w(),
+                       ab.xy() / ab.w(),
+                       midpoint,
+                       ab.w() / sqrtf(h0.w() * abc.w()));
         if (needsInnerTriangles) {
             *this << innerTriangulator.pushVertex(to_skpoint(midpoint));
         }
@@ -110,10 +110,10 @@ void PatchWriter::chopAndWriteConics(float2 p0, float2 p1, float2 p2, float w, i
     }
     // Project and write the remaining conic.
     SkASSERT(numPatches == 1);
-    ConicPatch(*this) << (h0.xy() / h0.w())
-                      << (h1.xy() / h1.w())
-                      << h2.xy()  // h2.w == 1
-                      << (h1.w() / sqrtf(h0.w()));
+    *this << Conic(h0.xy() / h0.w(),
+                   h1.xy() / h1.w(),
+                   h2.xy(), // h2.w == 1
+                   h1.w() / sqrtf(h0.w()));
     if (needsInnerTriangles) {
         *this << innerTriangulator.pushVertex(to_skpoint(h2.xy()));
         *this << innerTriangulator.close();
@@ -135,11 +135,11 @@ void PatchWriter::chopAndWriteCubics(float2 p0, float2 p1, float2 p2, float2 p3,
         float4 abcd = mix(abc, bcd, T);
         float4 middle = mix(abc, bcd, T.zwxy());  // p1 & p2 of the middle cubic.
 
-        CubicPatch(*this) << p0 << ab.lo << abc.lo << abcd.lo;  // Write the 1st cubic.
+        *this << Cubic(p0, ab.lo, abc.lo, abcd.lo);  // Write the 1st cubic.
         if (needsInnerTriangles) {
-            TrianglePatch(*this) << p0 << abcd.lo << abcd.hi;
+            *this << Triangle(p0, abcd.lo, abcd.hi);
         }
-        CubicPatch(*this) << abcd.lo << middle << abcd.hi;  // Write the 2nd cubic.
+        *this << Cubic(abcd.lo, middle, abcd.hi);  // Write the 2nd cubic.
         if (needsInnerTriangles) {
             *this << innerTriangulator.pushVertex(to_skpoint(abcd.hi));
         }
@@ -154,14 +154,14 @@ void PatchWriter::chopAndWriteCubics(float2 p0, float2 p1, float2 p2, float2 p3,
         float2 bcd = (bc + cd) * .5f;
         float2 abcd = (abc + bcd) * .5f;
 
-        CubicPatch(*this) << p0 << ab << abc << abcd;  // Write the 1st cubic.
+        *this << Cubic(p0, ab, abc, abcd);  // Write the 1st cubic.
         if (needsInnerTriangles) {
-            TrianglePatch(*this) << p0 << abcd << p3;
+            *this << Triangle(p0, abcd, p3);
         }
-        CubicPatch(*this) << abcd << bcd << cd << p3;  // Write the 2nd cubic.
+        *this << Cubic(abcd, bcd, cd, p3);  // Write the 2nd cubic.
     } else {
         SkASSERT(numPatches == 1);
-        CubicPatch(*this) << p0 << p1 << p2 << p3;  // Write the single cubic.
+        *this << Cubic(p0, p1, p2, p3);  // Write the single remaining cubic.
     }
     if (needsInnerTriangles) {
         *this << innerTriangulator.pushVertex(to_skpoint(p3));

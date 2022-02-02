@@ -441,7 +441,7 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
                 // introduce T-junctions.
                 continue;
             }
-            PatchWriter::TrianglePatch(patchWriter) << p0 << p1 << p2;
+            patchWriter << PatchWriter::Triangle(p0, p1, p2);
         }
         SkASSERT(breadcrumbCount == fFanBreadcrumbs.count());
 
