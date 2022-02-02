@@ -932,6 +932,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLStructsInFunctions_GPU") // skia:11929
 	}
 
+	if b.matchGpu("Adreno6") || b.matchGpu("MaliG77") || b.matchGpu("QuadroP400") {
+		skip("_", "tests", "_", "SkSLRecursiveComparison_Arrays_GPU") // skia:12642
+		skip("_", "tests", "_", "SkSLRecursiveComparison_Structs_GPU")
+		skip("_", "tests", "_", "SkSLRecursiveComparison_Types_GPU")
+		skip("_", "tests", "_", "SkSLRecursiveComparison_Vectors_GPU")
+	}
+
 	if b.matchGpu("Adreno6") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 6xx GLSL
 		skip("_", "tests", "_", "SkSLIntrinsicIsInf_GPU") // skia:12377
 	}
