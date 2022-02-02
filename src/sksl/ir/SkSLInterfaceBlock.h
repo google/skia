@@ -74,9 +74,9 @@ public:
                                                 SymbolTable::WrapIfBuiltin(this->typeOwner()));
     }
 
-    String description() const override {
-        String result = this->variable().modifiers().description() +
-                        SkSL::String(this->typeName()) + " {\n";
+    std::string description() const override {
+        std::string result = this->variable().modifiers().description() +
+                             std::string(this->typeName()) + " {\n";
         const Type* structType = &this->variable().type();
         if (structType->isArray()) {
             structType = &structType->componentType();
@@ -86,7 +86,7 @@ public:
         }
         result += "}";
         if (!this->instanceName().empty()) {
-            result += " " + SkSL::String(this->instanceName());
+            result += " " + std::string(this->instanceName());
             if (this->arraySize() > 0) {
                 String::appendf(&result, "[%d]", this->arraySize());
             }

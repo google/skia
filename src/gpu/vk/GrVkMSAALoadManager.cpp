@@ -31,7 +31,7 @@ GrVkMSAALoadManager::~GrVkMSAALoadManager() {}
 bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
     TRACE_EVENT0("skia", TRACE_FUNC);
 
-    SkSL::String vertShaderText;
+    std::string vertShaderText;
     vertShaderText.append(
             "layout(set = 0, binding = 0) uniform vertexUniformBuffer {"
             "half4 uPosXform;"
@@ -44,7 +44,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
             "sk_Position.zw = half2(0, 1);"
             "}");
 
-    SkSL::String fragShaderText;
+    std::string fragShaderText;
     fragShaderText.append(
             "layout(input_attachment_index = 0, set = 2, binding = 0) uniform subpassInput uInput;"
 
@@ -54,7 +54,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
             "}");
 
     SkSL::Program::Settings settings;
-    SkSL::String spirv;
+    std::string spirv;
     SkSL::Program::Inputs inputs;
     if (!GrCompileVkShaderModule(gpu, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT,
                                  &fVertShaderModule, &fShaderStageInfo[0], settings, &spirv,

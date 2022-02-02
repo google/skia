@@ -40,8 +40,8 @@ public:
                                                                  &this->type()));
     }
 
-    String description() const override {
-        return String("<function>");
+    std::string description() const override {
+        return "<function>";
     }
 
 private:

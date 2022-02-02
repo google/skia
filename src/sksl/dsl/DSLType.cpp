@@ -21,11 +21,12 @@ static const SkSL::Type* verify_type(const Context& context,
                                      PositionInfo pos) {
     if (!context.fConfig->fIsBuiltinCode) {
         if (!allowPrivateTypes && type->isPrivate()) {
-            context.fErrors->error("type '" + String(type->name()) + "' is private", pos);
+            context.fErrors->error("type '" + std::string(type->name()) + "' is private", pos);
             return context.fTypes.fPoison.get();
         }
         if (!type->isAllowedInES2(context)) {
-            context.fErrors->error("type '" + String(type->name()) + "' is not supported", pos);
+            context.fErrors->error("type '" + std::string(type->name()) + "' is not supported",
+                                   pos);
             return context.fTypes.fPoison.get();
         }
     }
@@ -264,7 +265,7 @@ DSLType Struct(std::string_view name, SkSpan<DSLField> fields, PositionInfo pos)
     skslFields.reserve(fields.size());
     for (const DSLField& field : fields) {
         if (field.fModifiers.fModifiers.fFlags != Modifiers::kNo_Flag) {
-            String desc = field.fModifiers.fModifiers.description();
+            std::string desc = field.fModifiers.fModifiers.description();
             desc.pop_back();  // remove trailing space
             ThreadContext::ReportError("modifier '" + desc + "' is not permitted on a struct field",
                     field.fPosition);
@@ -291,7 +292,7 @@ DSLType Struct(std::string_view name, SkSpan<DSLField> fields, PositionInfo pos)
     const SkSL::Type* result = ThreadContext::SymbolTable()->add(Type::MakeStructType(pos.line(),
             name, skslFields));
     if (result->isTooDeeplyNested()) {
-        ThreadContext::ReportError("struct '" + String(name) + "' is too deeply nested", pos);
+        ThreadContext::ReportError("struct '" + std::string(name) + "' is too deeply nested", pos);
     }
     ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*line=*/-1,
             *result));

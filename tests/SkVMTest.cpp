@@ -2853,7 +2853,7 @@ DEF_TEST(SkVM_Visualizer, r) {
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
     auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
-                                           SkSL::String(src), settings);
+                                           std::string(src), settings);
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
     SkSL::SkVMDebugTrace d;
     d.setSource(src);

@@ -102,9 +102,9 @@ public:
         const_cast<Variable*>(this)->fDeclaration = nullptr;
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->modifiers().description() + this->type().displayName() + " " +
-               SkSL::String(this->name());
+               std::string(this->name());
     }
 
 private:

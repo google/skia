@@ -520,7 +520,7 @@ private:
     int8_t fColumns;
 };
 
-String Type::getArrayName(int arraySize) const {
+std::string Type::getArrayName(int arraySize) const {
     std::string_view name = this->name();
     return String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize);
 }
@@ -844,7 +844,7 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
             return symbolTable->addArrayDimension(&this->componentType(), this->columns());
         }
         case TypeKind::kStruct: {
-            const String* name = symbolTable->takeOwnershipOfString(String(this->name()));
+            const std::string* name = symbolTable->takeOwnershipOfString(std::string(this->name()));
             return symbolTable->add(Type::MakeStructType(
                     this->fLine, *name, this->fields(), this->isInterfaceBlock()));
         }
@@ -954,8 +954,8 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, double value, int l
     if (this->isInteger()) {
         if (value < this->minimumValue() || value > this->maximumValue()) {
             // We found a value that can't fit in the type. Flag it as an error.
-            context.fErrors->error(line, String("integer is out of range for type '") +
-                                         this->displayName().c_str() + "': " +
+            context.fErrors->error(line, "integer is out of range for type '" +
+                                         this->displayName() + "': " +
                                          skstd::to_string((SKSL_INT)value));
             return true;
         }
@@ -977,7 +977,7 @@ SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expressi
         return 0;
     }
     if (this->isOpaque()) {
-        context.fErrors->error(size->fLine, "opaque type '" + SkSL::String(this->name()) +
+        context.fErrors->error(size->fLine, "opaque type '" + std::string(this->name()) +
                                             "' may not be used in an array");
         return 0;
     }

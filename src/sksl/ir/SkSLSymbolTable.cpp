@@ -78,7 +78,7 @@ const Symbol* SymbolTable::lookup(SymbolTable* writableSymbolTable, const Symbol
     return symbol;
 }
 
-const String* SymbolTable::takeOwnershipOfString(String str) {
+const std::string* SymbolTable::takeOwnershipOfString(std::string str) {
     fOwnedStrings.push_front(std::move(str));
     // Because fOwnedStrings is a linked list, pointers to elements are stable.
     return &fOwnedStrings.front();
@@ -94,7 +94,7 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
     }
 
     if (!symbol->is<FunctionDeclaration>()) {
-        fContext.fErrors->error(symbol->fLine, "symbol '" + SkSL::String(name) +
+        fContext.fErrors->error(symbol->fLine, "symbol '" + std::string(name) +
                                                "' was already defined");
         return;
     }
@@ -117,7 +117,7 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
 
 const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
     if (arraySize != 0) {
-        const String* arrayName = this->takeOwnershipOfString(type->getArrayName(arraySize));
+        const std::string* arrayName = this->takeOwnershipOfString(type->getArrayName(arraySize));
         type = this->takeOwnershipOfSymbol(Type::MakeArrayType(*arrayName, *type, arraySize));
     }
     return type;

@@ -68,7 +68,7 @@ void SetErrorReporter(ErrorReporter* errorReporter) {
 
 class DSLCore {
 public:
-    static std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<String> source) {
+    static std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> source) {
         ThreadContext& instance = ThreadContext::Instance();
         SkSL::Compiler& compiler = *instance.fCompiler;
         const SkSL::Context& context = *compiler.fContext;
@@ -356,7 +356,7 @@ public:
     }
 };
 
-std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<String> source) {
+std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> source) {
     return DSLCore::ReleaseProgram(std::move(source));
 }
 

@@ -152,7 +152,7 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             const Type* componentType = this->type();
             int8_t count = this->readS8();
-            const String* arrayName =
+            const std::string* arrayName =
                     fSymbolTable->takeOwnershipOfString(componentType->getArrayName(count));
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
                     Type::MakeArrayType(*arrayName, *componentType, count));
@@ -190,7 +190,7 @@ const Symbol* Rehydrator::symbol() {
         }
         case kStructType_Command: {
             uint16_t id = this->readU16();
-            String name(this->readString());
+            std::string name(this->readString());
             uint8_t fieldCount = this->readU8();
             std::vector<Type::Field> fields;
             fields.reserve(fieldCount);
@@ -260,7 +260,7 @@ const Type* Rehydrator::type() {
 }
 
 std::unique_ptr<Program> Rehydrator::program(int symbolTableCount,
-        std::unique_ptr<String> source,
+        std::unique_ptr<std::string> source,
         std::unique_ptr<ProgramConfig> config,
         std::vector<const ProgramElement*> sharedElements,
         std::unique_ptr<ModifiersPool> modifiers,
@@ -544,7 +544,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             return PrefixExpression::Make(*fContext, op, std::move(operand));
         }
         case Rehydrator::kSetting_Command: {
-            String name(this->readString());
+            std::string name(this->readString());
             return Setting::Convert(*fContext, /*line=*/-1, name);
         }
         case Rehydrator::kSwizzle_Command: {

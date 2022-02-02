@@ -583,7 +583,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int line,
             // We assign unique names to inlined variables--scopes hide most of the problems in this
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
-            const String* name = symbolTableForStatement->takeOwnershipOfString(
+            const std::string* name = symbolTableForStatement->takeOwnershipOfString(
                     fContext->fMangler->uniqueName(variable.name(), symbolTableForStatement));
             auto clonedVar = std::make_unique<Variable>(
                                                      line,
@@ -712,7 +712,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // Still, discard our output and generate an error.
         SkDEBUGFAIL("inliner found non-void function that fails to return a value on any path");
         fContext->fErrors->error(function.fLine, "inliner found non-void function '" +
-                                                 SkSL::String(function.declaration().name()) +
+                                                 std::string(function.declaration().name()) +
                                                  "' that fails to return a value on any path");
         inlinedCall = {};
     }

@@ -16,12 +16,12 @@
 #include <string>
 
 template <>
-SkSL::String skstd::to_string(float value) {
+std::string skstd::to_string(float value) {
     return skstd::to_string((double)value);
 }
 
 template <>
-SkSL::String skstd::to_string(double value) {
+std::string skstd::to_string(double value) {
     std::stringstream buffer;
     buffer.imbue(std::locale::classic());
     buffer.precision(17);
@@ -38,28 +38,51 @@ SkSL::String skstd::to_string(double value) {
     if (needsDotZero) {
         buffer << ".0";
     }
-    return SkSL::String(buffer.str().c_str());
+    return buffer.str();
 }
 
-namespace SkSL {
+bool SkSL::stod(std::string_view s, SKSL_FLOAT* value) {
+    std::string str(s.data(), s.size());
+    std::stringstream buffer(str);
+    buffer.imbue(std::locale::classic());
+    buffer >> *value;
+    return !buffer.fail();
+}
 
-String String::printf(const char* fmt, ...) {
+bool SkSL::stoi(std::string_view s, SKSL_INT* value) {
+    if (s.empty()) {
+        return false;
+    }
+    char suffix = s.back();
+    if (suffix == 'u' || suffix == 'U') {
+        s.remove_suffix(1);
+    }
+    std::string str(s);  // s is not null-terminated
+    const char* strEnd = str.data() + str.length();
+    char* p;
+    errno = 0;
+    unsigned long long result = strtoull(str.data(), &p, /*base=*/0);
+    *value = static_cast<SKSL_INT>(result);
+    return p == strEnd && errno == 0 && result <= 0xFFFFFFFF;
+}
+
+std::string SkSL::String::printf(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    String result;
+    std::string result;
     vappendf(&result, fmt, args);
     va_end(args);
     return result;
 }
 
-void String::appendf(String* str, const char* fmt, ...) {
+void SkSL::String::appendf(std::string *str, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     vappendf(str, fmt, args);
     va_end(args);
 }
 
-void String::vappendf(String* str, const char* fmt, va_list args) {
+void SkSL::String::vappendf(std::string *str, const char* fmt, va_list args) {
     #define BUFFER_SIZE 256
     char buffer[BUFFER_SIZE];
     va_list reuse;
@@ -74,69 +97,3 @@ void String::vappendf(String* str, const char* fmt, va_list args) {
     }
     va_end(reuse);
 }
-
-String String::operator+(const char* s) const {
-    String result(*this);
-    result.append(s);
-    return result;
-}
-
-String String::operator+(const String& s) const {
-    String result(*this);
-    result.append(s);
-    return result;
-}
-
-String& String::operator+=(char c) {
-    INHERITED::operator+=(c);
-    return *this;
-}
-
-String& String::operator+=(const char* s) {
-    INHERITED::operator+=(s);
-    return *this;
-}
-
-String& String::operator+=(const String& s) {
-    INHERITED::operator+=(s);
-    return *this;
-}
-
-String& String::operator+=(std::string_view s) {
-    this->append(s.data(), s.length());
-    return *this;
-}
-
-String operator+(const char* s1, const String& s2) {
-    String result(s1);
-    result.append(s2);
-    return result;
-}
-
-
-bool stod(std::string_view s, SKSL_FLOAT* value) {
-    std::string str(s.data(), s.size());
-    std::stringstream buffer(str);
-    buffer.imbue(std::locale::classic());
-    buffer >> *value;
-    return !buffer.fail();
-}
-
-bool stoi(std::string_view s, SKSL_INT* value) {
-    if (s.empty()) {
-        return false;
-    }
-    char suffix = s.back();
-    if (suffix == 'u' || suffix == 'U') {
-        s.remove_suffix(1);
-    }
-    String str(s);  // s is not null-terminated
-    const char* strEnd = str.data() + str.length();
-    char* p;
-    errno = 0;
-    unsigned long long result = strtoull(str.data(), &p, /*base=*/0);
-    *value = static_cast<SKSL_INT>(result);
-    return p == strEnd && errno == 0 && result <= 0xFFFFFFFF;
-}
-
-}  // namespace SkSL

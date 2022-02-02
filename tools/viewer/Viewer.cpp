@@ -1849,12 +1849,12 @@ static bool ImGui_DragQuad(SkPoint* pts) {
     return dc.fDragging;
 }
 
-static SkSL::String build_sksl_highlight_shader() {
-    return SkSL::String("out half4 sk_FragColor;\n"
+static std::string build_sksl_highlight_shader() {
+    return std::string("out half4 sk_FragColor;\n"
                         "void main() { sk_FragColor = half4(1, 0, 1, 0.5); }");
 }
 
-static SkSL::String build_metal_highlight_shader(const SkSL::String& inShader) {
+static std::string build_metal_highlight_shader(const std::string& inShader) {
     // Metal fragment shaders need a lot of non-trivial boilerplate that we don't want to recompute
     // here. So keep all shader code, but right before `return *_out;`, swap out the sk_FragColor.
     size_t pos = inShader.rfind("return *_out;\n");
@@ -1862,14 +1862,14 @@ static SkSL::String build_metal_highlight_shader(const SkSL::String& inShader) {
         return inShader;
     }
 
-    SkSL::String replacementShader = inShader;
+    std::string replacementShader = inShader;
     replacementShader.insert(pos, "_out->sk_FragColor = float4(1.0, 0.0, 1.0, 0.5); ");
     return replacementShader;
 }
 
-static SkSL::String build_glsl_highlight_shader(const GrShaderCaps& shaderCaps) {
+static std::string build_glsl_highlight_shader(const GrShaderCaps& shaderCaps) {
     const char* versionDecl = shaderCaps.versionDeclString();
-    SkSL::String highlight = versionDecl ? versionDecl : "";
+    std::string highlight = versionDecl ? versionDecl : "";
     if (shaderCaps.usesPrecisionModifiers()) {
         highlight.append("precision mediump float;\n");
     }
@@ -2530,7 +2530,7 @@ void Viewer::drawImGui() {
                         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
                         for (auto& entry : fCachedShaders) {
                             for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                                const SkSL::String& spirv(entry.fShader[i]);
+                                const std::string& spirv(entry.fShader[i]);
                                 std::string disasm;
                                 tools.Disassemble((const uint32_t*)spirv.c_str(), spirv.size() / 4,
                                                   &disasm);
@@ -2640,11 +2640,11 @@ void Viewer::drawImGui() {
                     fPersistentCache.reset();
                     ctx->priv().getGpu()->resetShaderCacheForTesting();
                     for (auto& entry : fCachedShaders) {
-                        SkSL::String backup = entry.fShader[kFragment_GrShaderType];
+                        std::string backup = entry.fShader[kFragment_GrShaderType];
                         if (entry.fHovered) {
                             // The hovered item (if any) gets a special shader to make it
                             // identifiable.
-                            SkSL::String& fragShader = entry.fShader[kFragment_GrShaderType];
+                            std::string& fragShader = entry.fShader[kFragment_GrShaderType];
                             switch (entry.fShaderType) {
                                 case SkSetFourByteTag('S', 'K', 'S', 'L'): {
                                     fragShader = build_sksl_highlight_shader();
@@ -2760,7 +2760,7 @@ void Viewer::drawImGui() {
         ImGui::Begin("Shader Errors", nullptr, ImGuiWindowFlags_NoFocusOnAppearing);
         for (int i = 0; i < gShaderErrorHandler.fErrors.count(); ++i) {
             ImGui::TextWrapped("%s", gShaderErrorHandler.fErrors[i].c_str());
-            SkSL::String sksl(gShaderErrorHandler.fShaders[i].c_str());
+            std::string sksl(gShaderErrorHandler.fShaders[i].c_str());
             SkShaderUtils::VisitLineByLine(sksl, [](int lineNumber, const char* lineText) {
                 ImGui::TextWrapped("%4i\t%s\n", lineNumber, lineText);
             });
@@ -2882,7 +2882,7 @@ void Viewer::dumpShadersToResources() {
         SkString vertPath = SkStringPrintf("%s/Vertex_%02d.vert", directory.c_str(), index);
         FILE* vertFile = sk_fopen(vertPath.c_str(), kWrite_SkFILE_Flag);
         if (vertFile) {
-            const SkSL::String& vertText = entry->fShader[kVertex_GrShaderType];
+            const std::string& vertText = entry->fShader[kVertex_GrShaderType];
             SkAssertResult(sk_fwrite(vertText.c_str(), vertText.size(), vertFile));
             sk_fclose(vertFile);
         } else {
@@ -2892,7 +2892,7 @@ void Viewer::dumpShadersToResources() {
         SkString fragPath = SkStringPrintf("%s/Fragment_%02d.frag", directory.c_str(), index);
         FILE* fragFile = sk_fopen(fragPath.c_str(), kWrite_SkFILE_Flag);
         if (fragFile) {
-            const SkSL::String& fragText = entry->fShader[kFragment_GrShaderType];
+            const std::string& fragText = entry->fShader[kFragment_GrShaderType];
             SkAssertResult(sk_fwrite(fragText.c_str(), fragText.size(), fragFile));
             sk_fclose(fragFile);
         } else {

@@ -31,8 +31,8 @@ public:
         return true;
     }
 
-    String description() const override {
-        return String(";");
+    std::string description() const override {
+        return ";";
     }
 
     std::unique_ptr<Statement> clone() const override {

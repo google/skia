@@ -35,10 +35,10 @@ public:
         return fStream.bytesWritten();
     }
 
-    const String& str() const {
+    const std::string& str() const {
         if (!fString.size()) {
             sk_sp<SkData> data = fStream.detachAsData();
-            fString = String((const char*) data->data(), data->size());
+            fString = std::string((const char*) data->data(), data->size());
         }
         return fString;
     }
@@ -50,7 +50,7 @@ public:
 
 private:
     mutable SkDynamicMemoryWStream fStream;
-    mutable String fString;
+    mutable std::string fString;
 };
 
 }  // namespace SkSL

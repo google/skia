@@ -13,7 +13,6 @@
 
 namespace SkSL {
 
-class String;
 class Type;
 
 class ExternalFunction : public Symbol {
@@ -36,8 +35,8 @@ public:
                       skvm::F32* outResult,
                       skvm::I32 mask) const = 0;
 
-    String description() const override {
-        return "external<" + SkSL::String(this->name()) + ">";
+    std::string description() const override {
+        return "external<" + std::string(this->name()) + ">";
     }
 
     // Disable IRNode pooling on external function nodes. ExternalFunction node lifetimes are

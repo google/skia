@@ -91,7 +91,7 @@ void DSLFunction::define(DSLBlock block, PositionInfo pos) {
         }
     }
     if (fDecl->definition()) {
-        ThreadContext::ReportError(String::printf("function '%s' was already defined",
+        ThreadContext::ReportError(SkSL::String::printf("function '%s' was already defined",
                 fDecl->description().c_str()), pos);
         block.release();
         return;

@@ -15,7 +15,7 @@
 
 using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
 
-static sk_sp<SkSL::SkVMDebugTrace> make_trace(skiatest::Reporter* r, SkSL::String src) {
+static sk_sp<SkSL::SkVMDebugTrace> make_trace(skiatest::Reporter* r, std::string src) {
     SkSL::ShaderCaps caps;
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;

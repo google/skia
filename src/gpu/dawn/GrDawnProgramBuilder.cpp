@@ -426,14 +426,14 @@ wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     SkString source(builder.fCompilerString.c_str());
 
 #if 0
-    SkSL::String sksl = SkShaderUtils::PrettyPrint(builder.fCompilerString);
+    std::string sksl = SkShaderUtils::PrettyPrint(builder.fCompilerString);
     printf("converting program:\n%s\n", sksl.c_str());
 #endif
 
-    SkSL::String spirvSource = fGpu->SkSLToSPIRV(source.c_str(),
-                                                 kind,
-                                                 fUniformHandler.getRTFlipOffset(),
-                                                 inputs);
+    std::string spirvSource = fGpu->SkSLToSPIRV(source.c_str(),
+                                                kind,
+                                                fUniformHandler.getRTFlipOffset(),
+                                                inputs);
     if (inputs->fUseFlipRTUniform) {
         this->addRTFlipUniform(SKSL_RTFLIP_NAME);
     }

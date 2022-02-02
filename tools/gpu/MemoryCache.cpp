@@ -93,7 +93,7 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
         }
 
         SkSL::Program::Inputs inputsIgnored[kGrShaderTypeCount];
-        SkSL::String shaders[kGrShaderTypeCount];
+        std::string shaders[kGrShaderTypeCount];
         const SkData* data = it->second.fData.get();
         const SkString& description = it->second.fDescription;
         SkReadBuffer reader(data->data(), data->size());

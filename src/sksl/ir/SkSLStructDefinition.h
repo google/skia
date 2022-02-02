@@ -40,8 +40,8 @@ public:
         return std::make_unique<StructDefinition>(fLine, this->type());
     }
 
-    String description() const override {
-        String s = "struct ";
+    std::string description() const override {
+        std::string s = "struct ";
         s += this->type().name();
         s += " { ";
         for (const auto& f : this->type().fields()) {

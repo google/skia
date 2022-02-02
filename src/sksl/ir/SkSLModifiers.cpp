@@ -35,7 +35,7 @@ bool Modifiers::checkPermitted(const Context& context, int line, int permittedMo
     for (const auto& f : kModifierFlags) {
         if (modifierFlags & f.flag) {
             if (!(permittedModifierFlags & f.flag)) {
-                context.fErrors->error(line, "'" + String(f.name) + "' is not permitted here");
+                context.fErrors->error(line, "'" + std::string(f.name) + "' is not permitted here");
                 success = false;
             }
             modifierFlags &= ~f.flag;
@@ -61,8 +61,8 @@ bool Modifiers::checkPermitted(const Context& context, int line, int permittedMo
     for (const auto& lf : kLayoutFlags) {
         if (layoutFlags & lf.flag) {
             if (!(permittedLayoutFlags & lf.flag)) {
-                context.fErrors->error(
-                        line, "layout qualifier '" + String(lf.name) + "' is not permitted here");
+                context.fErrors->error(line, "layout qualifier '" + std::string(lf.name) +
+                                             "' is not permitted here");
                 success = false;
             }
             layoutFlags &= ~lf.flag;

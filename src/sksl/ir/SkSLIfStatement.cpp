@@ -23,8 +23,8 @@ std::unique_ptr<Statement> IfStatement::clone() const {
                                          this->ifFalse() ? this->ifFalse()->clone() : nullptr);
 }
 
-String IfStatement::description() const {
-    String result;
+std::string IfStatement::description() const {
+    std::string result;
     if (this->isStatic()) {
         result += "@";
     }

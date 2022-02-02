@@ -33,8 +33,8 @@ public:
         return false;
     }
 
-    String description() const override {
-        String result = this->type().description() + "(";
+    std::string description() const override {
+        std::string result = this->type().description() + "(";
         const char* separator = "";
         for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
             result += separator;

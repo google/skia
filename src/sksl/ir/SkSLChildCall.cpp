@@ -24,9 +24,9 @@ std::unique_ptr<Expression> ChildCall::clone() const {
                                        this->arguments().clone());
 }
 
-String ChildCall::description() const {
-    String result = String(this->child().name()) + ".eval(";
-    String separator;
+std::string ChildCall::description() const {
+    std::string result = std::string(this->child().name()) + ".eval(";
+    std::string separator;
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
         result += separator;
         result += arg->description();

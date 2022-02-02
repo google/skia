@@ -206,7 +206,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
                 fMsg += msg;
             }
 
-            SkSL::String fMsg;
+            std::string fMsg;
         } errorReporter;
 
         // Test errors that occur while constructing DSL nodes

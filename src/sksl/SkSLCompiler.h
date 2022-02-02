@@ -139,30 +139,30 @@ public:
      */
     std::unique_ptr<Program> convertProgram(
             ProgramKind kind,
-            String text,
+            std::string text,
             Program::Settings settings);
 
     std::unique_ptr<Expression> convertIdentifier(int line, std::string_view name);
 
     bool toSPIRV(Program& program, OutputStream& out);
 
-    bool toSPIRV(Program& program, String* out);
+    bool toSPIRV(Program& program, std::string* out);
 
     bool toGLSL(Program& program, OutputStream& out);
 
-    bool toGLSL(Program& program, String* out);
+    bool toGLSL(Program& program, std::string* out);
 
     bool toHLSL(Program& program, OutputStream& out);
 
-    bool toHLSL(Program& program, String* out);
+    bool toHLSL(Program& program, std::string* out);
 
     bool toMetal(Program& program, OutputStream& out);
 
-    bool toMetal(Program& program, String* out);
+    bool toMetal(Program& program, std::string* out);
 
     void handleError(std::string_view msg, PositionInfo pos);
 
-    String errorText(bool showCount = true);
+    std::string errorText(bool showCount = true);
 
     ErrorReporter& errorReporter() { return *fContext->fErrors; }
 
@@ -265,7 +265,7 @@ private:
     // compilation
     std::shared_ptr<SymbolTable> fSymbolTable;
 
-    String fErrorText;
+    std::string fErrorText;
 
     static OverrideFlag sOptimizer;
     static OverrideFlag sInliner;

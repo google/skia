@@ -115,10 +115,10 @@ void Dehydrator::write(Modifiers m) {
 }
 
 void Dehydrator::write(std::string_view s) {
-    this->write(String(s));
+    this->write(std::string(s));
 }
 
-void Dehydrator::write(String s) {
+void Dehydrator::write(std::string s) {
     auto found = fStrings.find(s);
     int offset;
     if (found == fStrings.end()) {
@@ -605,8 +605,8 @@ void Dehydrator::write(const std::vector<std::unique_ptr<ProgramElement>>& eleme
 
 void Dehydrator::finish(OutputStream& out) {
     out.write16(Rehydrator::kVersion);
-    String stringBuffer = fStringBuffer.str();
-    String commandBuffer = fBody.str();
+    std::string stringBuffer = fStringBuffer.str();
+    std::string commandBuffer = fBody.str();
     out.write16(fStringBuffer.str().size());
     fStringBufferStart = 4;
     out.writeString(stringBuffer);

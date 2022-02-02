@@ -45,7 +45,7 @@ std::unique_ptr<Statement> DoStatement::clone() const {
                                          this->test()->clone());
 }
 
-String DoStatement::description() const {
+std::string DoStatement::description() const {
     return "do " + this->statement()->description() +
            " while (" + this->test()->description() + ");";
 }

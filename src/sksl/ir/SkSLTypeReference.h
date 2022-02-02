@@ -40,8 +40,8 @@ public:
         return false;
     }
 
-    String description() const override {
-        return String(this->value().name());
+    std::string description() const override {
+        return std::string(this->value().name());
     }
 
     std::unique_ptr<Expression> clone() const override {

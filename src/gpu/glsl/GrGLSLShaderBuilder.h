@@ -262,7 +262,7 @@ protected:
     };
 
     GrGLSLProgramBuilder* fProgramBuilder;
-    SkSL::String fCompilerString;
+    std::string fCompilerString;
     SkSTArray<kPrealloc, SkString> fShaderStrings;
     SkString fCode;
     SkString fFunctions;

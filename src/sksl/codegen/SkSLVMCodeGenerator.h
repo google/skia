@@ -75,7 +75,7 @@ const FunctionDefinition* Program_GetFunction(const Program& program, const char
 
 struct UniformInfo {
     struct Uniform {
-        String fName;
+        std::string fName;
         Type::NumberKind fKind;
         int fColumns;
         int fRows;

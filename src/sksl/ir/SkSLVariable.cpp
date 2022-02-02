@@ -38,7 +38,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, int line,
         context.fErrors->error(line, "out location=0, index=0 is reserved for sk_FragColor");
     }
     if (!context.fConfig->fIsBuiltinCode && skstd::starts_with(name, '$')) {
-        context.fErrors->error(line, "name '" + SkSL::String(name) + "' is reserved");
+        context.fErrors->error(line, "name '" + std::string(name) + "' is reserved");
     }
 
     return Make(context, line, modifiers, baseType, name, isArray, std::move(arraySize), storage);
@@ -79,7 +79,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
     SkASSERT(!(modifiers.fFlags & Modifiers::kOut_Flag));
 
     // Provide our new variable with a unique name, and add it to our symbol table.
-    const String* name =
+    const std::string* name =
             symbolTable->takeOwnershipOfString(context.fMangler->uniqueName(baseName, symbolTable));
 
     // Create our new variable and add it to the symbol table.

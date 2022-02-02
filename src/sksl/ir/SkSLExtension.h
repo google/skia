@@ -31,8 +31,8 @@ public:
         return std::unique_ptr<ProgramElement>(new Extension(fLine, this->name()));
     }
 
-    String description() const override {
-        return "#extension " + SkSL::String(this->name()) + " : enable";
+    std::string description() const override {
+        return "#extension " + std::string(this->name()) + " : enable";
     }
 
 private:

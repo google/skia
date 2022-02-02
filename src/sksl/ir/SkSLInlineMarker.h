@@ -38,8 +38,8 @@ public:
         return true;
     }
 
-    String description() const override {
-        return "/* inlined: " + SkSL::String(this->function().name()) + " */";
+    std::string description() const override {
+        return "/* inlined: " + std::string(this->function().name()) + " */";
     }
 
     std::unique_ptr<Statement> clone() const override {

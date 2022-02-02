@@ -15,7 +15,7 @@ ShaderErrorHandler* DefaultShaderErrorHandler() {
     class DefaultShaderErrorHandler : public ShaderErrorHandler {
     public:
         void compileError(const char* shader, const char* errors) override {
-            SkSL::String message = SkShaderUtils::BuildShaderErrorMessage(shader, errors);
+            std::string message = SkShaderUtils::BuildShaderErrorMessage(shader, errors);
             SkShaderUtils::VisitLineByLine(message, [](int, const char* lineText) {
                 SkDebugf("%s\n", lineText);
             });

@@ -27,7 +27,7 @@ int GetCurrentVersion() {
 }
 
 sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
-                                const SkSL::String shaders[],
+                                const std::string shaders[],
                                 const SkSL::Program::Inputs inputs[],
                                 int numInputs,
                                 const ShaderMetadata* meta) {
@@ -74,7 +74,7 @@ SkFourByteTag GetType(SkReadBuffer* reader) {
 }
 
 bool UnpackCachedShaders(SkReadBuffer* reader,
-                         SkSL::String shaders[],
+                         std::string shaders[],
                          SkSL::Program::Inputs inputs[],
                          int numInputs,
                          ShaderMetadata* meta) {

@@ -65,8 +65,8 @@ public:
         , fName(name)
         , fType(std::move(type)) {}
 
-        String description() const {
-            return fType->displayName() + " " + SkSL::String(fName) + ";";
+        std::string description() const {
+            return fType->displayName() + " " + std::string(fName) + ";";
         }
 
         Modifiers fModifiers;
@@ -109,7 +109,7 @@ public:
                                                int columns);
 
     /** Converts a component type and a size (float, 10) into an array name ("float[10]"). */
-    String getArrayName(int arraySize) const;
+    std::string getArrayName(int arraySize) const;
 
     /**
      * Creates an alias which maps to another type.
@@ -190,11 +190,11 @@ public:
         return !(this->isArray() || this->isStruct());
     }
 
-    String displayName() const {
-        return String(this->scalarTypeForLiteral().name());
+    std::string displayName() const {
+        return std::string(this->scalarTypeForLiteral().name());
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->displayName();
     }
 

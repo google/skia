@@ -89,9 +89,9 @@ public:
         return this->intrinsicKind() != kNotIntrinsic;
     }
 
-    String mangledName() const;
+    std::string mangledName() const;
 
-    String description() const override;
+    std::string description() const override;
 
     bool matches(const FunctionDeclaration& f) const;
 

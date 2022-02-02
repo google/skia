@@ -11,12 +11,12 @@
 
 namespace SkSL {
 
-void BuiltinMap::insertOrDie(String key, std::unique_ptr<ProgramElement> element) {
+void BuiltinMap::insertOrDie(std::string key, std::unique_ptr<ProgramElement> element) {
     SkASSERT(fElements.find(key) == fElements.end());
     fElements[key] = BuiltinElement{std::move(element), false};
 }
 
-const ProgramElement* BuiltinMap::find(const String& key) {
+const ProgramElement* BuiltinMap::find(const std::string& key) {
     auto iter = fElements.find(key);
     if (iter == fElements.end()) {
         return fParent ? fParent->find(key) : nullptr;
@@ -25,7 +25,7 @@ const ProgramElement* BuiltinMap::find(const String& key) {
 }
 
 // Only returns a builtin element that isn't already marked as included, and then marks it.
-const ProgramElement* BuiltinMap::findAndInclude(const String& key) {
+const ProgramElement* BuiltinMap::findAndInclude(const std::string& key) {
     auto iter = fElements.find(key);
     if (iter == fElements.end()) {
         return fParent ? fParent->findAndInclude(key) : nullptr;

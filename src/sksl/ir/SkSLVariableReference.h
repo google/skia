@@ -70,7 +70,7 @@ public:
         return std::make_unique<VariableReference>(fLine, this->variable(), this->refKind());
     }
 
-    String description() const override;
+    std::string description() const override;
 
 private:
     const Variable* fVariable;

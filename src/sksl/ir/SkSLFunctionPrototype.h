@@ -38,7 +38,7 @@ public:
         return std::make_unique<FunctionPrototype>(fLine, &this->declaration(), /*builtin=*/false);
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->declaration().description() + ";";
     }
 

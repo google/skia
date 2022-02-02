@@ -307,7 +307,7 @@ static bool find_existing_declaration(const Context& context,
                 functions.push_back(&entry->as<FunctionDeclaration>());
                 break;
             default:
-                errors.error(line, "symbol '" + SkSL::String(name) + "' was already defined");
+                errors.error(line, "symbol '" + std::string(name) + "' was already defined");
                 return false;
         }
         for (const FunctionDeclaration* other : functions) {
@@ -344,9 +344,8 @@ static bool find_existing_declaration(const Context& context,
             }
             for (size_t i = 0; i < parameters.size(); i++) {
                 if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
-                    errors.error(line,
-                                 "modifiers on parameter " + skstd::to_string(i + 1) +
-                                 " differ between declaration and definition");
+                    errors.error(line, "modifiers on parameter " + skstd::to_string(i + 1) +
+                                       " differ between declaration and definition");
                     return false;
                 }
             }
@@ -408,10 +407,10 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
     return symbols.add(std::move(result));
 }
 
-String FunctionDeclaration::mangledName() const {
+std::string FunctionDeclaration::mangledName() const {
     if ((this->isBuiltin() && !this->definition()) || this->isMain()) {
         // Builtins without a definition (like `sin` or `sqrt`) must use their real names.
-        return String(this->name());
+        return std::string(this->name());
     }
     // Built-in functions can have a $ prefix, which will fail to compile in GLSL/Metal. Remove the
     // $ and add a unique mangling specifier, so user code can't conflict with the name.
@@ -424,17 +423,17 @@ String FunctionDeclaration::mangledName() const {
     // GLSL forbids two underscores in a row; add an extra character if necessary to avoid this.
     const char* splitter = skstd::ends_with(name, '_') ? "x_" : "_";
     // Rename function to `funcname_returntypeparamtypes`.
-    String result = SkSL::String(name) + splitter + builtinMarker +
-                    this->returnType().abbreviatedName();
+    std::string result = std::string(name) + splitter + builtinMarker +
+                         this->returnType().abbreviatedName();
     for (const Variable* p : this->parameters()) {
         result += p->type().abbreviatedName();
     }
     return result;
 }
 
-String FunctionDeclaration::description() const {
-    String result = this->returnType().displayName() + " " + SkSL::String(this->name()) + "(";
-    String separator;
+std::string FunctionDeclaration::description() const {
+    std::string result = this->returnType().displayName() + " " + std::string(this->name()) + "(";
+    std::string separator;
     for (const Variable* p : this->parameters()) {
         result += separator;
         separator = ", ";

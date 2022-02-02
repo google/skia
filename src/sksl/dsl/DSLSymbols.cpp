@@ -53,7 +53,7 @@ void AddToSymbolTable(DSLVarBase& var, PositionInfo pos) {
     ThreadContext::ReportErrors(pos);
 }
 
-const String* Retain(String string) {
+const std::string* Retain(std::string string) {
     return CurrentSymbolTable()->takeOwnershipOfString(std::move(string));
 }
 

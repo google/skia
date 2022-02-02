@@ -130,17 +130,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
     REPORTER_ASSERT(r, !whitespace_insensitive_compare("a b c  d", "\n\n\nabc"));
 }
 
-static SkSL::String stringize(DSLStatement& stmt)          { return stmt.release()->description(); }
-static SkSL::String stringize(DSLPossibleStatement& stmt)  { return stmt.release()->description(); }
-static SkSL::String stringize(DSLExpression& expr)         { return expr.release()->description(); }
-static SkSL::String stringize(DSLPossibleExpression& expr) { return expr.release()->description(); }
-static SkSL::String stringize(DSLBlock& blck)              { return blck.release()->description(); }
-static SkSL::String stringize(SkSL::IRNode& node)          { return node.description(); }
-static SkSL::String stringize(SkSL::Program& program)      { return program.description(); }
+static std::string stringize(DSLStatement& stmt)          { return stmt.release()->description(); }
+static std::string stringize(DSLPossibleStatement& stmt)  { return stmt.release()->description(); }
+static std::string stringize(DSLExpression& expr)         { return expr.release()->description(); }
+static std::string stringize(DSLPossibleExpression& expr) { return expr.release()->description(); }
+static std::string stringize(DSLBlock& blck)              { return blck.release()->description(); }
+static std::string stringize(SkSL::IRNode& node)          { return node.description(); }
+static std::string stringize(SkSL::Program& program)      { return program.description(); }
 
 template <typename T>
 static void expect_equal(skiatest::Reporter* r, int lineNumber, T& input, const char* expected) {
-    SkSL::String actual = stringize(input);
+    std::string actual = stringize(input);
     if (!whitespace_insensitive_compare(expected, actual.c_str())) {
         ERRORF(r, "(Failed on line %d)\nExpected: %s\n  Actual: %s\n",
                   lineNumber, expected, actual.c_str());
@@ -2081,7 +2081,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
         sk_FragColor() = (sqr(2), Half4(sqr(3)))
     );
     const char* source = "source test";
-    std::unique_ptr<SkSL::Program> program = ReleaseProgram(std::make_unique<SkSL::String>(source));
+    std::unique_ptr<SkSL::Program> program = ReleaseProgram(std::make_unique<std::string>(source));
     EXPECT_EQUAL(*program,
                  "layout(location = 0, index = 0, builtin = 10001) out half4 sk_FragColor;"
                  "layout(builtin = 17)in bool sk_Clockwise;"
@@ -2135,7 +2135,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
                 "float sqr(float x) { return (x * x); }");
 
         const char* source = "source test";
-        std::unique_ptr<SkSL::Program> p = ReleaseProgram(std::make_unique<SkSL::String>(source));
+        std::unique_ptr<SkSL::Program> p = ReleaseProgram(std::make_unique<std::string>(source));
         EXPECT_EQUAL(*p,
             "layout (builtin = 17) in bool sk_Clockwise;"
             "float sqr(float x);"

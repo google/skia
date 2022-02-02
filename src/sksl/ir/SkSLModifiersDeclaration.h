@@ -34,7 +34,7 @@ public:
         return std::make_unique<ModifiersDeclaration>(&this->modifiers());
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->modifiers().description() + ";";
     }
 

@@ -62,7 +62,7 @@ public:
         return std::make_unique<PrefixExpression>(this->getOperator(), this->operand()->clone());
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->getOperator().operatorName() + this->operand()->description();
     }
 

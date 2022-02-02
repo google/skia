@@ -51,8 +51,8 @@ public:
                 fLine, this->self()->clone(), this->functions(), &this->type()));
     }
 
-    String description() const override {
-        return String("<method>");
+    std::string description() const override {
+        return "<method>";
     }
 
 private:

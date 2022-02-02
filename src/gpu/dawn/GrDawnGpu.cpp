@@ -703,10 +703,10 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         "    sk_Position = float4(positions[sk_VertexID], 0.0, 1.0);\n"
         "    texCoord = texCoords[sk_VertexID];\n"
         "}\n";
-    SkSL::String vsSPIRV = this->SkSLToSPIRV(vs,
-                                             SkSL::ProgramKind::kVertex,
-                                             /*rtFlipOffset*/ 0,
-                                             nullptr);
+    std::string vsSPIRV = this->SkSLToSPIRV(vs,
+                                            SkSL::ProgramKind::kVertex,
+                                            /*rtFlipOffset*/ 0,
+                                            nullptr);
 
     const char* fs =
         "layout(set = 0, binding = 0) uniform sampler samp;\n"
@@ -715,10 +715,10 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         "void main() {\n"
         "    sk_FragColor = sample(makeSampler2D(tex, samp), texCoord);\n"
         "}\n";
-    SkSL::String fsSPIRV = this->SkSLToSPIRV(fs,
-                                             SkSL::ProgramKind::kFragment,
-                                             /*rtFlipOffset=*/ 0,
-                                             nullptr);
+    std::string fsSPIRV = this->SkSLToSPIRV(fs,
+                                            SkSL::ProgramKind::kFragment,
+                                            /*rtFlipOffset=*/ 0,
+                                            nullptr);
 
     wgpu::VertexState vertexState;
     vertexState.module = this->createShaderModule(vsSPIRV);
@@ -924,10 +924,10 @@ void GrDawnGpu::moveStagingBuffersToBusyAndMapAsync() {
     fSubmittedStagingBuffers.clear();
 }
 
-SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString,
-                                    SkSL::ProgramKind kind,
-                                    uint32_t rtFlipOffset,
-                                    SkSL::Program::Inputs* inputs) {
+std::string GrDawnGpu::SkSLToSPIRV(const char* shaderString,
+                                   SkSL::ProgramKind kind,
+                                   uint32_t rtFlipOffset,
+                                   SkSL::Program::Inputs* inputs) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::Program::Settings settings;
     settings.fRTFlipOffset = rtFlipOffset;
@@ -944,7 +944,7 @@ SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString,
     if (inputs) {
         *inputs = program->fInputs;
     }
-    SkSL::String code;
+    std::string code;
     if (!this->shaderCompiler()->toSPIRV(*program, &code)) {
         errorHandler->compileError(shaderString, this->shaderCompiler()->errorText().c_str());
         return "";
@@ -952,7 +952,7 @@ SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString,
     return code;
 }
 
-wgpu::ShaderModule GrDawnGpu::createShaderModule(const SkSL::String& spirvSource) {
+wgpu::ShaderModule GrDawnGpu::createShaderModule(const std::string& spirvSource) {
     wgpu::ShaderModuleSPIRVDescriptor desc;
     desc.codeSize = spirvSource.size() / 4;
     desc.code = reinterpret_cast<const uint32_t*>(spirvSource.c_str());

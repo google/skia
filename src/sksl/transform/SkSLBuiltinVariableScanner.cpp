@@ -28,7 +28,7 @@ void FindAndDeclareBuiltinVariables(const Context& context,
         BuiltinVariableScanner(const Context& context)
             : fContext(context) {}
 
-        void addDeclaringElement(const String& name) {
+        void addDeclaringElement(const std::string& name) {
             // If this is the *first* time we've seen this builtin, findAndInclude will return
             // the corresponding ProgramElement.
             BuiltinMap& builtins = *fContext.fBuiltins;
@@ -53,7 +53,8 @@ void FindAndDeclareBuiltinVariables(const Context& context,
 
         bool visitExpression(const Expression& e) override {
             if (e.is<VariableReference>() && e.as<VariableReference>().variable()->isBuiltin()) {
-                this->addDeclaringElement(String(e.as<VariableReference>().variable()->name()));
+                this->addDeclaringElement(
+                        std::string(e.as<VariableReference>().variable()->name()));
             }
             return INHERITED::visitExpression(e);
         }

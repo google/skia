@@ -41,7 +41,7 @@ class IRNode : public Poolable {
 public:
     virtual ~IRNode() {}
 
-    virtual String description() const = 0;
+    virtual std::string description() const = 0;
 
     // No copy construction or assignment
     IRNode(const IRNode&) = delete;

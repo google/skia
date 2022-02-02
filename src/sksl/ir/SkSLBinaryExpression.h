@@ -92,7 +92,7 @@ public:
 
     std::unique_ptr<Expression> clone() const override;
 
-    String description() const override;
+    std::string description() const override;
 
 private:
     static bool CheckRef(const Expression& expr);

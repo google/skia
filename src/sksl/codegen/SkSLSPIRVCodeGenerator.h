@@ -485,8 +485,8 @@ private:
     std::unordered_map<const FunctionDeclaration*, SpvId> fFunctionMap;
     std::unordered_map<const Variable*, SpvId> fVariableMap;
     std::unordered_map<const Variable*, int32_t> fInterfaceBlockMap;
-    std::unordered_map<String, SpvId> fImageTypeMap;
-    std::unordered_map<String, SpvId> fTypeMap;
+    std::unordered_map<std::string, SpvId> fImageTypeMap;
+    std::unordered_map<std::string, SpvId> fTypeMap;
     StringStream fCapabilitiesBuffer;
     StringStream fGlobalInitializersBuffer;
     StringStream fConstantBuffer;

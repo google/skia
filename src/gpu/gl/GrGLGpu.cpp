@@ -3147,9 +3147,9 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     );
 
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
-    SkSL::String sksl(vshaderTxt.c_str(), vshaderTxt.size());
+    std::string sksl(vshaderTxt.c_str(), vshaderTxt.size());
     SkSL::Program::Settings settings;
-    SkSL::String glsl;
+    std::string glsl;
     std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kVertex,
                                                           sksl, settings, &glsl, errorHandler);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
@@ -3301,9 +3301,9 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     fshaderTxt.append("}");
 
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
-    SkSL::String sksl(vshaderTxt.c_str(), vshaderTxt.size());
+    std::string sksl(vshaderTxt.c_str(), vshaderTxt.size());
     SkSL::Program::Settings settings;
-    SkSL::String glsl;
+    std::string glsl;
     std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kVertex,
                                                           sksl, settings, &glsl, errorHandler);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,

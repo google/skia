@@ -31,8 +31,8 @@ public:
         return std::make_unique<DiscardStatement>(fLine);
     }
 
-    String description() const override {
-        return String("discard;");
+    std::string description() const override {
+        return "discard;";
     }
 
 private:

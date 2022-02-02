@@ -131,7 +131,7 @@ public:
         return this->isBuiltin() ? this : fParent->builtinParent();
     }
 
-    const String* takeOwnershipOfString(String n);
+    const std::string* takeOwnershipOfString(std::string n);
 
     std::shared_ptr<SymbolTable> fParent;
 
@@ -159,7 +159,7 @@ private:
 
     bool fBuiltin = false;
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
-    std::forward_list<String> fOwnedStrings;
+    std::forward_list<std::string> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
     const Context& fContext;
 

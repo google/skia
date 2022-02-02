@@ -68,7 +68,7 @@ protected:
 
     virtual bool usesPrecisionModifiers() const;
 
-    virtual String getTypeName(const Type& type);
+    virtual std::string getTypeName(const Type& type);
 
     void writeStructDefinition(const StructDefinition& s);
 
@@ -174,11 +174,11 @@ protected:
     StringStream fExtensions;
     StringStream fGlobals;
     StringStream fExtraFunctions;
-    String fFunctionHeader;
+    std::string fFunctionHeader;
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;
-    std::set<String> fWrittenIntrinsics;
+    std::set<std::string> fWrittenIntrinsics;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
     bool fFoundExternalSamplerDecl = false;
@@ -187,7 +187,7 @@ protected:
     bool fSetupFragPosition = false;
     bool fSetupFragCoordWorkaround = false;
     // if non-empty, replace all texture / texture2D / textureProj / etc. calls with this name
-    String fTextureFunctionOverride;
+    std::string fTextureFunctionOverride;
 
     // We map function names to function class so we can quickly deal with function calls that need
     // extra processing

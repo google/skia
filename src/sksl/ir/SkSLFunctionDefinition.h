@@ -74,7 +74,7 @@ public:
                                                     this->referencedBuiltinFunctions());
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->declaration().description() + " " + this->body()->description();
     }
 

@@ -58,8 +58,8 @@ struct Modifiers {
     : fLayout(layout)
     , fFlags(flags) {}
 
-    String description() const {
-        String result = fLayout.description();
+    std::string description() const {
+        std::string result = fLayout.description();
 
         // SkSL extensions
         if (fFlags & kES3_Flag) {

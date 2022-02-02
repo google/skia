@@ -38,8 +38,8 @@ public:
         return *fOwner;
     }
 
-    String description() const override {
-        return this->owner().description() + "." + SkSL::String(this->name());
+    std::string description() const override {
+        return this->owner().description() + "." + std::string(this->name());
     }
 
 private:

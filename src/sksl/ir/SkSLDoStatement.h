@@ -53,7 +53,7 @@ public:
 
     std::unique_ptr<Statement> clone() const override;
 
-    String description() const override;
+    std::string description() const override;
 
 private:
     std::unique_ptr<Statement> fStatement;

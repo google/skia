@@ -86,16 +86,16 @@ static const bool gPrintSKSL = false;
 static const bool gPrintMSL = false;
 
 bool SkSLToMSL(const Gpu* gpu,
-               const SkSL::String& sksl,
+               const std::string& sksl,
                SkSL::ProgramKind programKind,
                const SkSL::Program::Settings& settings,
-               SkSL::String* msl,
+               std::string* msl,
                SkSL::Program::Inputs* outInputs,
                ShaderErrorHandler* errorHandler) {
 #ifdef SK_DEBUG
-    SkSL::String src = SkShaderUtils::PrettyPrint(sksl);
+    std::string src = SkShaderUtils::PrettyPrint(sksl);
 #else
-    const SkSL::String& src = sksl;
+    const std::string& src = sksl;
 #endif
     SkSL::Compiler* compiler = gpu->shaderCompiler();
     std::unique_ptr<SkSL::Program> program =
@@ -124,7 +124,7 @@ bool SkSLToMSL(const Gpu* gpu,
 }
 
 sk_cfp<id<MTLLibrary>> CompileShaderLibrary(const Gpu* gpu,
-                                            const SkSL::String& msl,
+                                            const std::string& msl,
                                             ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
     auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())

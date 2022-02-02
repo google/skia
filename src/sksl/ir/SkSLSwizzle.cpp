@@ -97,8 +97,8 @@ static char mask_char(int8_t component) {
     }
 }
 
-static String mask_string(const ComponentArray& components) {
-    String result;
+static std::string mask_string(const ComponentArray& components) {
+    std::string result;
     for (int8_t component : components) {
         result += mask_char(component);
     }
@@ -257,7 +257,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
             case 'B': components.push_back(SwizzleComponent::UB);   break;
             default:
                 context.fErrors->error(base->fLine,
-                        String::printf("invalid swizzle component '%c'", field));
+                                       String::printf("invalid swizzle component '%c'", field));
                 return nullptr;
         }
     }
@@ -340,9 +340,8 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 [[fallthrough]];
             default:
                 // The swizzle component references a field that doesn't exist in the base type.
-                context.fErrors->error(line,
-                       String::printf("invalid swizzle component '%c'",
-                            mask_char(inComponents[i])));
+                context.fErrors->error(line, String::printf("invalid swizzle component '%c'",
+                                                            mask_char(inComponents[i])));
                 return nullptr;
         }
     }

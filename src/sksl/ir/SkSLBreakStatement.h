@@ -31,8 +31,8 @@ public:
         return std::make_unique<BreakStatement>(fLine);
     }
 
-    String description() const override {
-        return String("break;");
+    std::string description() const override {
+        return "break;";
     }
 
 private:

@@ -34,8 +34,8 @@ public:
         return property == Property::kSideEffects;
     }
 
-    String description() const override {
-        return String(this->function().name());
+    std::string description() const override {
+        return std::string(this->function().name());
     }
 
     std::unique_ptr<Expression> clone() const override {

@@ -37,7 +37,7 @@ public:
 
     virtual void write(const void* s, size_t size) = 0;
 
-    void writeString(const String& s);
+    void writeString(const std::string& s);
 
     void printf(const char format[], ...) SK_PRINTF_LIKE(2, 3);
 

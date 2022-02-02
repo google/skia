@@ -57,7 +57,7 @@ public:
         return std::make_unique<PostfixExpression>(this->operand()->clone(), this->getOperator());
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->operand()->description() + this->getOperator().operatorName();
     }
 

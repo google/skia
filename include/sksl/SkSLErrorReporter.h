@@ -72,7 +72,7 @@ public:
     void setSource(const char* source) { fSource = source; }
 
     void reportPendingErrors(PositionInfo pos) {
-        for (const String& msg : fPendingErrors) {
+        for (const std::string& msg : fPendingErrors) {
             this->handleError(msg, pos);
         }
         fPendingErrors.clear();
@@ -96,7 +96,7 @@ private:
     PositionInfo position(int offset) const;
 
     const char* fSource = nullptr;
-    std::vector<String> fPendingErrors;
+    std::vector<std::string> fPendingErrors;
     int fErrorCount = 0;
 };
 

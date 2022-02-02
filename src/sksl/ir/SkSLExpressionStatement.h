@@ -41,7 +41,7 @@ public:
         return std::make_unique<ExpressionStatement>(this->expression()->clone());
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->expression()->description() + ";";
     }
 

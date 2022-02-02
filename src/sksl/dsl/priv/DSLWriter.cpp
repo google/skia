@@ -27,7 +27,7 @@ bool DSLWriter::ManglingEnabled() {
 
 std::string_view DSLWriter::Name(std::string_view name) {
     if (ManglingEnabled()) {
-        const String* s = ThreadContext::SymbolTable()->takeOwnershipOfString(
+        const std::string* s = ThreadContext::SymbolTable()->takeOwnershipOfString(
                 ThreadContext::Instance().fMangler.uniqueName(name,
                     ThreadContext::SymbolTable().get()));
         return s->c_str();

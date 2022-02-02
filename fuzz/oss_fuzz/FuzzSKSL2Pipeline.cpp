@@ -19,18 +19,16 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
     SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                     SkSL::ProgramKind::kRuntimeShader,
-                                                    SkSL::String((const char*) bytes->data(),
-                                                                 bytes->size()),
+                                                    std::string((const char*) bytes->data(),
+                                                                bytes->size()),
                                                     settings);
     if (!program) {
         return false;
     }
 
     class Callbacks : public SkSL::PipelineStage::Callbacks {
-        using String = SkSL::String;
-
-        String declareUniform(const SkSL::VarDeclaration* decl) override {
-            return String(decl->var().name());
+        std::string declareUniform(const SkSL::VarDeclaration* decl) override {
+            return std::string(decl->var().name());
         }
 
         void defineFunction(const char* /*decl*/, const char* /*body*/, bool /*isMain*/) override {}
@@ -38,20 +36,20 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
         void defineStruct(const char* /*definition*/) override {}
         void declareGlobal(const char* /*declaration*/) override {}
 
-        String sampleShader(int index, String coords) override {
+        std::string sampleShader(int index, std::string coords) override {
             return "child_" + skstd::to_string(index) + ".eval(" + coords + ")";
         }
 
-        String sampleColorFilter(int index, String color) override {
+        std::string sampleColorFilter(int index, std::string color) override {
             return "child_" + skstd::to_string(index) + ".eval(" + color + ")";
         }
 
-        String sampleBlender(int index, String src, String dst) override {
+        std::string sampleBlender(int index, std::string src, std::string dst) override {
             return "child_" + skstd::to_string(index) + ".eval(" + src + ", " + dst + ")";
         }
 
-        String toLinearSrgb(String color) override { return color; }
-        String fromLinearSrgb(String color) override { return color; }
+        std::string toLinearSrgb(std::string color) override { return color; }
+        std::string fromLinearSrgb(std::string color) override { return color; }
     };
 
     Callbacks callbacks;

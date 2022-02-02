@@ -29,7 +29,7 @@ public:
         return std::make_unique<Poison>(fLine, &this->type());
     }
 
-    String description() const override {
+    std::string description() const override {
         return Compiler::POISON_TAG;
     }
 

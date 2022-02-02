@@ -35,8 +35,8 @@ bool VariableReference::isConstantOrUniform() const {
     return (this->variable()->modifiers().fFlags & Modifiers::kUniform_Flag) != 0;
 }
 
-String VariableReference::description() const {
-    return String(this->variable()->name());
+std::string VariableReference::description() const {
+    return std::string(this->variable()->name());
 }
 
 void VariableReference::setRefKind(RefKind refKind) {

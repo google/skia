@@ -73,7 +73,7 @@ void MetalCodeGenerator::write(std::string_view s) {
             fOut->writeText("    ");
         }
     }
-    fOut->writeText(String(s).c_str());
+    fOut->writeText(std::string(s).c_str());
     fAtLineStart = false;
 }
 
@@ -90,10 +90,10 @@ void MetalCodeGenerator::finishLine() {
 }
 
 void MetalCodeGenerator::writeExtension(const Extension& ext) {
-    this->writeLine("#extension " + SkSL::String(ext.name()) + " : enable");
+    this->writeLine("#extension " + std::string(ext.name()) + " : enable");
 }
 
-String MetalCodeGenerator::typeName(const Type& type) {
+std::string MetalCodeGenerator::typeName(const Type& type) {
     switch (type.typeKind()) {
         case Type::TypeKind::kArray:
             SkASSERTF(type.columns() > 0, "invalid array size: %s", type.description().c_str());
@@ -111,7 +111,7 @@ String MetalCodeGenerator::typeName(const Type& type) {
             return "texture2d<half>"; // FIXME - support other texture types
 
         default:
-            return String(type.name());
+            return std::string(type.name());
     }
 }
 
@@ -191,14 +191,14 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
     }
 }
 
-String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
+std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
                                              const ExpressionArray& arguments,
                                              const SkTArray<VariableReference*>& outVars) {
     AutoOutputStream outputToExtraFunctions(this, &fExtraFunctions, &fIndentation);
     const FunctionDeclaration& function = call.function();
 
-    String name = "_skOutParamHelper" + skstd::to_string(fSwizzleHelperCount++) +
-                  "_" + function.mangledName();
+    std::string name = "_skOutParamHelper" + skstd::to_string(fSwizzleHelperCount++) +
+                       "_" + function.mangledName();
     const char* separator = "";
 
     // Emit a prototype for the function we'll be calling through to in our helper.
@@ -318,7 +318,7 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     return name;
 }
 
-String MetalCodeGenerator::getBitcastIntrinsic(const Type& outType) {
+std::string MetalCodeGenerator::getBitcastIntrinsic(const Type& outType) {
     return "as_type<" +  outType.displayName() + ">";
 }
 
@@ -445,7 +445,7 @@ matrix<T, 4, 4> mat4_inverse(matrix<T, 4, 4> m) {
 }
 )";
 
-String MetalCodeGenerator::getInversePolyfill(const ExpressionArray& arguments) {
+std::string MetalCodeGenerator::getInversePolyfill(const ExpressionArray& arguments) {
     // Only use polyfills for a function taking a single-argument square matrix.
     if (arguments.size() == 1) {
         const Type& type = arguments.front()->type();
@@ -484,7 +484,7 @@ matrix<T, C, R> matrixCompMult(matrix<T, C, R> a, const matrix<T, C, R> b) {
 }
 )";
 
-    String name = "matrixCompMult";
+    std::string name = "matrixCompMult";
     if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
         fWrittenIntrinsics.insert(name);
         fExtraFunctions.writeText(kMatrixCompMult);
@@ -503,15 +503,15 @@ matrix<T, C, R> outerProduct(const vec<T, R> a, const vec<T, C> b) {
 }
 )";
 
-    String name = "outerProduct";
+    std::string name = "outerProduct";
     if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
         fWrittenIntrinsics.insert(name);
         fExtraFunctions.writeText(kOuterProduct);
     }
 }
 
-String MetalCodeGenerator::getTempVariable(const Type& type) {
-    String tempVar = "_skTemp" + skstd::to_string(fVarCount++);
+std::string MetalCodeGenerator::getTempVariable(const Type& type) {
+    std::string tempVar = "_skTemp" + skstd::to_string(fVarCount++);
     this->fFunctionHeader += "    " + this->typeName(type) + " " + tempVar + ";\n";
     return tempVar;
 }
@@ -545,7 +545,7 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             const Type& arg1Type = arguments[1]->type();
             if (arg1Type.columns() == 3) {
                 // have to store the vector in a temp variable to avoid double evaluating it
-                String tmpVar = this->getTempVariable(arg1Type);
+                std::string tmpVar = this->getTempVariable(arg1Type);
                 this->write("(" + tmpVar + " = ");
                 this->writeExpression(*arguments[1], Precedence::kSequence);
                 this->write(", " + tmpVar + ".xy / " + tmpVar + ".z))");
@@ -558,8 +558,8 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
         }
         case k_mod_IntrinsicKind: {
             // fmod(x, y) in metal calculates x - y * trunc(x / y) instead of x - y * floor(x / y)
-            String tmpX = this->getTempVariable(arguments[0]->type());
-            String tmpY = this->getTempVariable(arguments[1]->type());
+            std::string tmpX = this->getTempVariable(arguments[0]->type());
+            std::string tmpY = this->getTempVariable(arguments[1]->type());
             this->write("(" + tmpX + " = ");
             this->writeExpression(*arguments[0], Precedence::kSequence);
             this->write(", " + tmpY + " = ");
@@ -730,8 +730,8 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
         case k_reflect_IntrinsicKind: {
             if (arguments[0]->type().columns() == 1) {
                 // We need to synthesize `I - 2 * N * I * N`.
-                String tmpI = this->getTempVariable(arguments[0]->type());
-                String tmpN = this->getTempVariable(arguments[1]->type());
+                std::string tmpI = this->getTempVariable(arguments[0]->type());
+                std::string tmpN = this->getTempVariable(arguments[1]->type());
 
                 // (_skTempI = ...
                 this->write("(" + tmpI + " = ");
@@ -777,8 +777,8 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
         }
         case k_findLSB_IntrinsicKind: {
             // Create a temp variable to store the expression, to avoid double-evaluating it.
-            String skTemp = this->getTempVariable(arguments[0]->type());
-            String exprType = this->typeName(arguments[0]->type());
+            std::string skTemp = this->getTempVariable(arguments[0]->type());
+            std::string exprType = this->typeName(arguments[0]->type());
 
             // ctz returns numbits(type) on zero inputs; GLSL documents it as generating -1 instead.
             // Use select to detect zero inputs and force a -1 result.
@@ -801,8 +801,8 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
         }
         case k_findMSB_IntrinsicKind: {
             // Create a temp variable to store the expression, to avoid double-evaluating it.
-            String skTemp1 = this->getTempVariable(arguments[0]->type());
-            String exprType = this->typeName(arguments[0]->type());
+            std::string skTemp1 = this->getTempVariable(arguments[0]->type());
+            std::string exprType = this->typeName(arguments[0]->type());
 
             // GLSL findMSB is actually quite different from Metal's clz:
             // - For signed negative numbers, it returns the first zero bit, not the first one bit!
@@ -817,7 +817,7 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
 
             // Signed input types might be negative; we need another helper variable to negate the
             // input (since we can only find one bits, not zero bits).
-            String skTemp2;
+            std::string skTemp2;
             if (arguments[0]->type().isSigned()) {
                 // ... _skTemp2 = (select(_skTemp1, ~_skTemp1, _skTemp1 < 0)),
                 skTemp2 = this->getTempVariable(arguments[0]->type());
@@ -1028,15 +1028,15 @@ void MetalCodeGenerator::assembleMatrixFromExpressions(const AnyConstructor& cto
 // Keeps track of previously generated constructors so that we won't generate more than one
 // constructor for any given permutation of input argument types. Returns the name of the
 // generated constructor method.
-String MetalCodeGenerator::getMatrixConstructHelper(const AnyConstructor& c) {
+std::string MetalCodeGenerator::getMatrixConstructHelper(const AnyConstructor& c) {
     const Type& type = c.type();
     int columns = type.columns();
     int rows = type.rows();
     auto args = c.argumentSpan();
-    String typeName = this->typeName(type);
+    std::string typeName = this->typeName(type);
 
     // Create the helper-method name and use it as our lookup key.
-    String name = String::printf("%s_from", typeName.c_str());
+    std::string name = String::printf("%s_from", typeName.c_str());
     for (const std::unique_ptr<Expression>& expr : args) {
         String::appendf(&name, "_%s", this->typeName(expr->type()).c_str());
     }
@@ -1141,10 +1141,10 @@ void MetalCodeGenerator::writeConstructorArrayCast(const ConstructorArrayCast& c
                                                    Precedence parentPrecedence) {
     const Type& inType = c.argument()->type().componentType();
     const Type& outType = c.type().componentType();
-    String inTypeName = this->typeName(inType);
-    String outTypeName = this->typeName(outType);
+    std::string inTypeName = this->typeName(inType);
+    std::string outTypeName = this->typeName(outType);
 
-    String name = "array_of_" + outTypeName + "_from_" + inTypeName;
+    std::string name = "array_of_" + outTypeName + "_from_" + inTypeName;
     auto [iter, didInsert] = fHelpers.insert(name);
     if (didInsert) {
         fExtraFunctions.printf(R"(
@@ -1168,13 +1168,13 @@ array<%s, N> %s(thread const array<%s, N>& x) {
     this->write(")");
 }
 
-String MetalCodeGenerator::getVectorFromMat2x2ConstructorHelper(const Type& matrixType) {
+std::string MetalCodeGenerator::getVectorFromMat2x2ConstructorHelper(const Type& matrixType) {
     SkASSERT(matrixType.isMatrix());
     SkASSERT(matrixType.rows() == 2);
     SkASSERT(matrixType.columns() == 2);
 
-    String baseType = this->typeName(matrixType.componentType());
-    String name = String::printf("%s4_from_%s2x2", baseType.c_str(), baseType.c_str());
+    std::string baseType = this->typeName(matrixType.componentType());
+    std::string name = String::printf("%s4_from_%s2x2", baseType.c_str(), baseType.c_str());
     if (fHelpers.find(name) == fHelpers.end()) {
         fHelpers.insert(name);
 
@@ -1385,7 +1385,7 @@ void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Typ
     SkASSERT(left.rows() == result.rows());
     SkASSERT(left.columns() == result.columns());
 
-    String key = "Matrix *= " + this->typeName(left) + ":" + this->typeName(right);
+    std::string key = "Matrix *= " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1404,7 +1404,7 @@ void MetalCodeGenerator::writeMatrixEqualityHelpers(const Type& left, const Type
     SkASSERT(left.rows() == right.rows());
     SkASSERT(left.columns() == right.columns());
 
-    String key = "Matrix == " + this->typeName(left) + ":" + this->typeName(right);
+    std::string key = "Matrix == " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1441,11 +1441,11 @@ thread bool operator!=(const %s left, const %s right);
 void MetalCodeGenerator::writeMatrixDivisionHelpers(const Type& type) {
     SkASSERT(type.isMatrix());
 
-    String key = "Matrix / " + this->typeName(type);
+    std::string key = "Matrix / " + this->typeName(type);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
-        String typeName = this->typeName(type);
+        std::string typeName = this->typeName(type);
 
         fExtraFunctions.printf(
                 "thread %s operator/(const %s left, const %s right) {\n"
@@ -1503,7 +1503,7 @@ bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& righ
 
 void MetalCodeGenerator::writeStructEqualityHelpers(const Type& type) {
     SkASSERT(type.isStruct());
-    String key = "StructEquality " + this->typeName(type);
+    std::string key = "StructEquality " + this->typeName(type);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1977,7 +1977,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     this->writeModifiers(intf.variable().modifiers());
     this->write("struct ");
-    this->writeLine(SkSL::String(intf.typeName()) + " {");
+    this->writeLine(std::string(intf.typeName()) + " {");
     const Type* structType = &intf.variable().type();
     if (structType->isArray()) {
         structType = &structType->componentType();
@@ -2013,14 +2013,14 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
         if (!MemoryLayout::LayoutIsSupported(*fieldType)) {
-            fContext.fErrors->error(parentLine, "type '" + SkSL::String(fieldType->name()) +
+            fContext.fErrors->error(parentLine, "type '" + std::string(fieldType->name()) +
                                                 "' is not permitted here");
             return;
         }
         if (fieldOffset != -1) {
             if (currentOffset > fieldOffset) {
                 fContext.fErrors->error(parentLine,
-                                        "offset of field '" + SkSL::String(field.fName) +
+                                        "offset of field '" + std::string(field.fName) +
                                         "' must be at least " + skstd::to_string(currentOffset));
                 return;
             } else if (currentOffset < fieldOffset) {
@@ -2034,7 +2034,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             int alignment = memoryLayout.alignment(*fieldType);
             if (fieldOffset % alignment) {
                 fContext.fErrors->error(parentLine,
-                                        "offset of field '" + SkSL::String(field.fName) +
+                                        "offset of field '" + std::string(field.fName) +
                                         "' must be a multiple of " + skstd::to_string(alignment));
                 return;
             }
@@ -2403,7 +2403,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         if (var.type().typeKind() == Type::TypeKind::kSampler) {
             // Samplers are represented as a "texture/sampler" duo in the global struct.
             visitor->visitTexture(var.type(), var.name());
-            visitor->visitSampler(var.type(), SkSL::String(var.name()) + SAMPLER_SUFFIX);
+            visitor->visitSampler(var.type(), std::string(var.name()) + SAMPLER_SUFFIX);
             continue;
         }
 

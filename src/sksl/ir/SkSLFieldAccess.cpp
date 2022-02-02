@@ -21,7 +21,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
     const Type& baseType = base->type();
     if (baseType.isEffectChild()) {
         // Turn the field name into a free function name, prefixed with '$':
-        String methodName = "$" + SkSL::String(field);
+        std::string methodName = "$" + std::string(field);
         const Symbol* result = symbolTable[methodName];
         if (result) {
             switch (result->kind()) {
@@ -41,7 +41,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
             }
         }
         context.fErrors->error(base->fLine, "type '" + baseType.displayName() + "' has no method "
-                                            "named '" + SkSL::String(field) + "'");
+                                            "named '" + std::string(field) + "'");
         return nullptr;
     }
     if (baseType.isStruct()) {
@@ -57,7 +57,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
     }
 
     context.fErrors->error(base->fLine, "type '" + baseType.displayName() + "' does not have a "
-                                        "field named '" + SkSL::String(field) + "'");
+                                        "field named '" + std::string(field) + "'");
     return nullptr;
 }
 

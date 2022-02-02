@@ -55,7 +55,7 @@ public:
                         : SwitchCase::Make(fLine, this->value(), this->statement()->clone());
     }
 
-    String description() const override {
+    std::string description() const override {
         if (this->isDefault()) {
             return String::printf("default:\n%s", fStatement->description().c_str());
         } else {

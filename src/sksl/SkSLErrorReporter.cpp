@@ -29,7 +29,7 @@ void ErrorReporter::error(int line, std::string_view msg) {
     }
     if (line == -1) {
         ++fErrorCount;
-        fPendingErrors.push_back(String(msg));
+        fPendingErrors.push_back(std::string(msg));
     } else {
         this->error(msg, PositionInfo(/*file=*/nullptr, line));
     }

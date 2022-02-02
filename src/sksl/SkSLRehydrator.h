@@ -157,7 +157,7 @@ public:
 
     // Reads an entire program
     std::unique_ptr<Program> program(int symbolTableCount,
-            std::unique_ptr<String> source,
+            std::unique_ptr<std::string> source,
             std::unique_ptr<ProgramConfig> config,
             std::vector<const ProgramElement*> sharedElements,
             std::unique_ptr<ModifiersPool> modifiers,

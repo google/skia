@@ -61,9 +61,9 @@ struct Layout {
         return result;
     }
 
-    String description() const {
-        String result;
-        auto separator = [firstSeparator = true]() mutable -> String {
+    std::string description() const {
+        std::string result;
+        auto separator = [firstSeparator = true]() mutable -> std::string {
             if (firstSeparator) {
                 firstSeparator = false;
                 return "";

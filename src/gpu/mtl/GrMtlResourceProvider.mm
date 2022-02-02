@@ -72,7 +72,7 @@ const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
     if (!fMSAALoadLibrary) {
         TRACE_EVENT0("skia", TRACE_FUNC);
 
-        SkSL::String shaderText;
+        std::string shaderText;
         shaderText.append(
                 "#include <metal_stdlib>\n"
                 "#include <simd/simd.h>\n"

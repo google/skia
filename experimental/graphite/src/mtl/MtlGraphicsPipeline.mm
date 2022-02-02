@@ -23,8 +23,8 @@ namespace skgpu::mtl {
 
 namespace {
 
-SkSL::String emit_SKSL_uniforms(int bufferID, const char* name, SkSpan<const SkUniform> uniforms) {
-    SkSL::String result;
+std::string emit_SKSL_uniforms(int bufferID, const char* name, SkSpan<const SkUniform> uniforms) {
+    std::string result;
 
     SkSL::String::appendf(&result, "layout (binding=%d) uniform %sUniforms {\n", bufferID, name);
 
@@ -72,9 +72,9 @@ SkSL::String emit_SKSL_uniforms(int bufferID, const char* name, SkSpan<const SkU
     return result;
 }
 
-SkSL::String emit_SkSL_attributes(SkSpan<const Attribute> vertexAttrs,
+std::string emit_SkSL_attributes(SkSpan<const Attribute> vertexAttrs,
                                   SkSpan<const Attribute> instanceAttrs) {
-    SkSL::String result;
+    std::string result;
 
     int attr = 0;
     auto add_attrs = [&](SkSpan<const Attribute> attrs) {
@@ -118,7 +118,7 @@ SkSL::String emit_SkSL_attributes(SkSpan<const Attribute> vertexAttrs,
     return result;
 }
 
-SkSL::String get_sksl_vs(const GraphicsPipelineDesc& desc) {
+std::string get_sksl_vs(const GraphicsPipelineDesc& desc) {
     const RenderStep* step = desc.renderStep();
     // TODO: To more completely support end-to-end rendering, this will need to be updated so that
     // the RenderStep shader snippet can produce a device coord, a local coord, and depth.
@@ -129,7 +129,7 @@ SkSL::String get_sksl_vs(const GraphicsPipelineDesc& desc) {
     // produced by the RenderStep automatically.
 
     // Fixed program header
-    SkSL::String sksl =
+    std::string sksl =
         "layout (binding=0) uniform intrinsicUniforms {\n"
         "    layout(offset=0) float4 rtAdjust;\n"
         "};\n"
@@ -154,10 +154,10 @@ SkSL::String get_sksl_vs(const GraphicsPipelineDesc& desc) {
     return sksl;
 }
 
-SkSL::String get_sksl_fs(const SkShaderCodeDictionary* dictionary,
-                         const GraphicsPipelineDesc& desc,
-                         bool* writesColor) {
-    SkSL::String sksl;
+std::string get_sksl_fs(const SkShaderCodeDictionary* dictionary,
+                        const GraphicsPipelineDesc& desc,
+                        bool* writesColor) {
+    std::string sksl;
 
     SkPaintParamsKey key;
     auto entry = dictionary->lookup(desc.paintParamsID());
@@ -343,7 +343,7 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvide
                                                const skgpu::RenderPassDesc& renderPassDesc) {
     sk_cfp<MTLRenderPipelineDescriptor*> psoDescriptor([[MTLRenderPipelineDescriptor alloc] init]);
 
-    SkSL::String msl[kShaderTypeCount];
+    std::string msl[kShaderTypeCount];
     SkSL::Program::Inputs inputs[kShaderTypeCount];
     SkSL::Program::Settings settings;
 

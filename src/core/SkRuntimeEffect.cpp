@@ -190,7 +190,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
         // SharedCompiler instance
         SkSL::SharedCompiler compiler;
         SkSL::Program::Settings settings = MakeSettings(options, /*optimize=*/true);
-        program = compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
+        program = compiler->convertProgram(kind, std::string(sksl.c_str(), sksl.size()), settings);
 
         if (!program) {
             RETURN_FAILURE("%s", compiler->errorText().c_str());
@@ -204,7 +204,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromDSL(std::unique_ptr<SkSL::Progr
                                                      SkSL::ProgramKind kind) {
     // This factory is used for all DSL runtime effects, which don't have anything stored in the
     // program's source. Populate it so that we can compute fHash, and serialize these effects.
-    program->fSource = std::make_unique<SkSL::String>(program->description());
+    program->fSource = std::make_unique<std::string>(program->description());
     return MakeInternal(std::move(program), options, kind);
 }
 

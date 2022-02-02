@@ -170,7 +170,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
                 context.fErrors->error(base->fLine,
-                                       "'" + SkSL::String(op.tightOperatorName()) +
+                                       "'" + std::string(op.tightOperatorName()) +
                                        "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -183,7 +183,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
                 context.fErrors->error(base->fLine,
-                                       "'" + SkSL::String(op.tightOperatorName()) +
+                                       "'" + std::string(op.tightOperatorName()) +
                                        "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
@@ -194,12 +194,12 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
                 // GLSL ES 1.00, Section 5.1
                 context.fErrors->error(
                         base->fLine,
-                        "operator '" + SkSL::String(op.tightOperatorName()) + "' is not allowed");
+                        "operator '" + std::string(op.tightOperatorName()) + "' is not allowed");
                 return nullptr;
             }
             if (baseType.isArray() || !baseType.componentType().isInteger()) {
                 context.fErrors->error(base->fLine,
-                                       "'" + SkSL::String(op.tightOperatorName()) +
+                                       "'" + std::string(op.tightOperatorName()) +
                                        "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }

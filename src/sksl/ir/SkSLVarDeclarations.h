@@ -89,7 +89,7 @@ public:
 
     std::unique_ptr<Statement> clone() const override;
 
-    String description() const override;
+    std::string description() const override;
 
 private:
     static bool ErrorCheckAndCoerce(const Context& context, const Variable& var,
@@ -131,7 +131,7 @@ public:
         return std::make_unique<GlobalVarDeclaration>(this->declaration()->clone());
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->declaration()->description();
     }
 

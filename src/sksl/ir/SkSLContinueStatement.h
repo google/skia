@@ -31,8 +31,8 @@ public:
         return std::make_unique<ContinueStatement>(fLine);
     }
 
-    String description() const override {
-        return String("continue;");
+    std::string description() const override {
+        return "continue;";
     }
 
 private:

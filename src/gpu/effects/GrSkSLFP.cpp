@@ -43,15 +43,13 @@ public:
                     , fUniformData(uniformData)
                     , fUniformFlags(uniformFlags) {}
 
-            using String = SkSL::String;
-
-            String declareUniform(const SkSL::VarDeclaration* decl) override {
+            std::string declareUniform(const SkSL::VarDeclaration* decl) override {
                 const SkSL::Variable& var = decl->var();
                 if (var.type().isOpaque()) {
                     // Nothing to do. The only opaque types we should see are children, and those
                     // are handled specially, above.
                     SkASSERT(var.type().isEffectChild());
-                    return String(var.name());
+                    return std::string(var.name());
                 }
 
                 const SkSL::Type* type = &var.type();
@@ -71,7 +69,7 @@ public:
 
                 if (*fUniformFlags++ & GrSkSLFP::kSpecialize_Flag) {
                     SkASSERTF(!isArray, "specializing array uniforms is not allowed");
-                    String value = GrGLSLTypeString(gpuType);
+                    std::string value = GrGLSLTypeString(gpuType);
                     value.append("(");
 
                     bool isFloat = SkSLTypeIsFloatType(gpuType);
@@ -94,11 +92,11 @@ public:
                                                                isArray ? var.type().columns() : 0,
                                                                &uniformName);
                 fSelf->fUniformHandles.push_back(handle);
-                return String(uniformName);
+                return std::string(uniformName);
             }
 
-            String getMangledName(const char* name) override {
-                return String(fArgs.fFragBuilder->getMangledFunctionName(name).c_str());
+            std::string getMangledName(const char* name) override {
+                return std::string(fArgs.fFragBuilder->getMangledFunctionName(name).c_str());
             }
 
             void defineFunction(const char* decl, const char* body, bool isMain) override {
@@ -121,7 +119,7 @@ public:
                 fArgs.fFragBuilder->definitionAppend(declaration);
             }
 
-            String sampleShader(int index, String coords) override {
+            std::string sampleShader(int index, std::string coords) override {
                 // If the child was sampled using the coords passed to main (and they are never
                 // modified), then we will have marked the child as PassThrough. The code generator
                 // doesn't know that, and still supplies coords. Inside invokeChild, we assert that
@@ -138,45 +136,46 @@ public:
                 if (child && child->sampleUsage().isPassThrough()) {
                     coords.clear();
                 }
-                return String(fSelf->invokeChild(index, fInputColor, fArgs, coords).c_str());
+                return std::string(fSelf->invokeChild(index, fInputColor, fArgs, coords).c_str());
             }
 
-            String sampleColorFilter(int index, String color) override {
-                return String(fSelf->invokeChild(index,
+            std::string sampleColorFilter(int index, std::string color) override {
+                return std::string(fSelf->invokeChild(index,
                                                  color.empty() ? fInputColor : color.c_str(),
                                                  fArgs)
                                       .c_str());
             }
 
-            String sampleBlender(int index, String src, String dst) override {
+            std::string sampleBlender(int index, std::string src, std::string dst) override {
                 if (!fSelf->childProcessor(index)) {
-                    return String::printf("blend_src_over(%s, %s)", src.c_str(), dst.c_str());
+                    return SkSL::String::printf("blend_src_over(%s, %s)", src.c_str(), dst.c_str());
                 }
-                return String(fSelf->invokeChild(index, src.c_str(), dst.c_str(), fArgs).c_str());
+                return std::string(
+                        fSelf->invokeChild(index, src.c_str(), dst.c_str(), fArgs).c_str());
             }
 
             // These intrinsics take and return 3-component vectors, but child FPs operate on
             // 4-component vectors. We use swizzles here to paper over the difference.
-            String toLinearSrgb(String color) override {
+            std::string toLinearSrgb(std::string color) override {
                 const GrSkSLFP& fp = fArgs.fFp.cast<GrSkSLFP>();
                 if (fp.fToLinearSrgbChildIndex < 0) {
                     return color;
                 }
-                color = String::printf("(%s).rgb1", color.c_str());
+                color = SkSL::String::printf("(%s).rgb1", color.c_str());
                 SkString xformedColor = fSelf->invokeChild(
                         fp.fToLinearSrgbChildIndex, color.c_str(), fArgs);
-                return String::printf("(%s).rgb", xformedColor.c_str());
+                return SkSL::String::printf("(%s).rgb", xformedColor.c_str());
             }
 
-            String fromLinearSrgb(String color) override {
+            std::string fromLinearSrgb(std::string color) override {
                 const GrSkSLFP& fp = fArgs.fFp.cast<GrSkSLFP>();
                 if (fp.fFromLinearSrgbChildIndex < 0) {
                     return color;
                 }
-                color = String::printf("(%s).rgb1", color.c_str());
+                color = SkSL::String::printf("(%s).rgb1", color.c_str());
                 SkString xformedColor = fSelf->invokeChild(
                         fp.fFromLinearSrgbChildIndex, color.c_str(), fArgs);
-                return String::printf("(%s).rgb", xformedColor.c_str());
+                return SkSL::String::printf("(%s).rgb", xformedColor.c_str());
             }
 
             Impl*                         fSelf;

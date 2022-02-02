@@ -24,11 +24,11 @@ class BuiltinMap {
 public:
     BuiltinMap(BuiltinMap* parent) : fParent(parent) {}
 
-    void insertOrDie(String key, std::unique_ptr<ProgramElement> element);
+    void insertOrDie(std::string key, std::unique_ptr<ProgramElement> element);
 
-    const ProgramElement* find(const String& key);
+    const ProgramElement* find(const std::string& key);
 
-    const ProgramElement* findAndInclude(const String& key);
+    const ProgramElement* findAndInclude(const std::string& key);
 
     void resetAlreadyIncluded();
 
@@ -38,7 +38,7 @@ private:
         bool fAlreadyIncluded = false;
     };
 
-    std::unordered_map<String, BuiltinElement> fElements;
+    std::unordered_map<std::string, BuiltinElement> fElements;
     BuiltinMap* fParent = nullptr;
 };
 

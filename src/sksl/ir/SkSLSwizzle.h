@@ -69,8 +69,8 @@ struct Swizzle final : public Expression {
                                                        this->components()));
     }
 
-    String description() const override {
-        String result = this->base()->description() + ".";
+    std::string description() const override {
+        std::string result = this->base()->description() + ".";
         for (int x : this->components()) {
             result += "xyzw"[x];
         }

@@ -351,7 +351,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     SkASSERT(this->errorCount() == 0);
     SkASSERT(data.fPath);
     std::ifstream in(data.fPath);
-    String text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
+    std::string text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
     if (in.rdstate()) {
         printf("error reading %s\n", data.fPath);
         abort();
@@ -398,13 +398,13 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
                 const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
                 const Variable& var = global.declaration()->as<VarDeclaration>().var();
                 SkASSERT(var.isBuiltin());
-                elements->insertOrDie(String(var.name()), std::move(element));
+                elements->insertOrDie(std::string(var.name()), std::move(element));
                 break;
             }
             case ProgramElement::Kind::kInterfaceBlock: {
                 const Variable& var = element->as<InterfaceBlock>().variable();
                 SkASSERT(var.isBuiltin());
-                elements->insertOrDie(String(var.name()), std::move(element));
+                elements->insertOrDie(std::string(var.name()), std::move(element));
                 break;
             }
             default:
@@ -418,7 +418,7 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
-                                                  String text,
+                                                  std::string text,
                                                   Program::Settings settings) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
 
@@ -469,7 +469,7 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
 std::unique_ptr<Expression> Compiler::convertIdentifier(int line, std::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
-        this->errorReporter().error(line, "unknown identifier '" + SkSL::String(name) + "'");
+        this->errorReporter().error(line, "unknown identifier '" + std::string(name) + "'");
         return nullptr;
     }
     switch (result->kind()) {
@@ -632,9 +632,9 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     bool result = cg.generateCode();
     if (result && program.fConfig->fSettings.fValidateSPIRV) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
-        const String& data = buffer.str();
+        const std::string& data = buffer.str();
         SkASSERT(0 == data.size() % 4);
-        String errors;
+        std::string errors;
         auto dumpmsg = [&errors](spv_message_level_t, const char*, const spv_position_t&,
                                  const char* m) {
             String::appendf(&errors, "SPIR-V validation error: %s\n", m);
@@ -669,7 +669,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     return result;
 }
 
-bool Compiler::toSPIRV(Program& program, String* out) {
+bool Compiler::toSPIRV(Program& program, std::string* out) {
     StringStream buffer;
     bool result = this->toSPIRV(program, buffer);
     if (result) {
@@ -686,7 +686,7 @@ bool Compiler::toGLSL(Program& program, OutputStream& out) {
     return result;
 }
 
-bool Compiler::toGLSL(Program& program, String* out) {
+bool Compiler::toGLSL(Program& program, std::string* out) {
     StringStream buffer;
     bool result = this->toGLSL(program, buffer);
     if (result) {
@@ -697,7 +697,7 @@ bool Compiler::toGLSL(Program& program, String* out) {
 
 bool Compiler::toHLSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toHLSL");
-    String hlsl;
+    std::string hlsl;
     if (!this->toHLSL(program, &hlsl)) {
         return false;
     }
@@ -705,8 +705,8 @@ bool Compiler::toHLSL(Program& program, OutputStream& out) {
     return true;
 }
 
-bool Compiler::toHLSL(Program& program, String* out) {
-    String spirv;
+bool Compiler::toHLSL(Program& program, std::string* out) {
+    std::string spirv;
     if (!this->toSPIRV(program, &spirv)) {
         return false;
     }
@@ -727,7 +727,7 @@ bool Compiler::toMetal(Program& program, OutputStream& out) {
     return result;
 }
 
-bool Compiler::toMetal(Program& program, String* out) {
+bool Compiler::toMetal(Program& program, std::string* out) {
     StringStream buffer;
     bool result = this->toMetal(program, buffer);
     if (result) {
@@ -743,14 +743,14 @@ void Compiler::handleError(std::string_view msg, PositionInfo pos) {
     if (pos.line() >= 1) {
         fErrorText += skstd::to_string(pos.line()) + ": ";
     }
-    fErrorText += SkSL::String(msg) + "\n";
+    fErrorText += std::string(msg) + "\n";
 }
 
-String Compiler::errorText(bool showCount) {
+std::string Compiler::errorText(bool showCount) {
     if (showCount) {
         this->writeErrorCount();
     }
-    String result = fErrorText;
+    std::string result = fErrorText;
     this->resetErrors();
     return result;
 }

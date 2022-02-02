@@ -74,9 +74,9 @@ public:
                                                            this->ownerKind()));
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->base()->description() + "." +
-               SkSL::String(this->base()->type().fields()[this->fieldIndex()].fName);
+               std::string(this->base()->type().fields()[this->fieldIndex()].fName);
     }
 
 private:

@@ -245,7 +245,7 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
     settings.fEnforceES2Restrictions = true;
     std::unique_ptr<SkSL::Program> vsProgram = compiler->convertProgram(
             SkSL::ProgramKind::kCustomMeshVertex,
-            SkSL::String(vs.c_str()),
+            std::string(vs.c_str()),
             settings);
     if (!vsProgram) {
         RETURN_FAILURE("VS: %s", compiler->errorText().c_str());
@@ -259,7 +259,7 @@ SkCustomMeshSpecification::Result SkCustomMeshSpecification::MakeFromSourceWithS
 
     std::unique_ptr<SkSL::Program> fsProgram = compiler->convertProgram(
             SkSL::ProgramKind::kCustomMeshFragment,
-            SkSL::String(fs.c_str()),
+            std::string(fs.c_str()),
             settings);
 
     if (!fsProgram) {

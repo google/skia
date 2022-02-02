@@ -68,7 +68,7 @@ struct IndexExpression final : public Expression {
                                                                &this->type()));
     }
 
-    String description() const override {
+    std::string description() const override {
         return this->base()->description() + "[" + this->index()->description() + "]";
     }
 

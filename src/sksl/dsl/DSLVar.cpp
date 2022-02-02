@@ -63,7 +63,7 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, std::string_
             SkASSERT(ThreadContext::CurrentEmitArgs());
             fUniformHandle = ThreadContext::CurrentEmitArgs()->fUniformHandler->addUniformArray(
                     &ThreadContext::CurrentEmitArgs()->fFp, kFragment_GrShaderFlag, gpuType,
-                    String(this->name()).c_str(), count, &uniformName).toIndex();
+                    std::string(this->name()).c_str(), count, &uniformName).toIndex();
             fName = uniformName;
         }
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)

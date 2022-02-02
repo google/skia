@@ -58,8 +58,8 @@ std::unique_ptr<Statement> ForStatement::clone() const {
             SymbolTable::WrapIfBuiltin(this->symbols()));
 }
 
-String ForStatement::description() const {
-    String result("for (");
+std::string ForStatement::description() const {
+    std::string result("for (");
     if (this->initializer()) {
         result += this->initializer()->description();
     } else {

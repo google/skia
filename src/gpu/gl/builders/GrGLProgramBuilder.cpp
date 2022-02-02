@@ -96,7 +96,7 @@ SkSL::Compiler* GrGLProgramBuilder::shaderCompiler() const {
     return fGpu->shaderCompiler();
 }
 
-bool GrGLProgramBuilder::compileAndAttachShaders(const SkSL::String& glsl,
+bool GrGLProgramBuilder::compileAndAttachShaders(const std::string& glsl,
                                                  GrGLuint programId,
                                                  GrGLenum type,
                                                  SkTDArray<GrGLuint>* shaderIds,
@@ -155,7 +155,7 @@ static constexpr SkFourByteTag kGLSL_Tag = SkSetFourByteTag('G', 'L', 'S', 'L');
 static constexpr SkFourByteTag kGLPB_Tag = SkSetFourByteTag('G', 'L', 'P', 'B');
 
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                                            const SkSL::String shaders[], bool isSkSL,
+                                            const std::string shaders[], bool isSkSL,
                                             SkSL::Program::Settings* settings) {
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
         return;
@@ -241,12 +241,12 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
     bool cached = fCached.get() != nullptr;
     bool usedProgramBinaries = false;
-    SkSL::String glsl[kGrShaderTypeCount];
-    SkSL::String* sksl[kGrShaderTypeCount] = {
+    std::string glsl[kGrShaderTypeCount];
+    std::string* sksl[kGrShaderTypeCount] = {
         &fVS.fCompilerString,
         &fFS.fCompilerString,
     };
-    SkSL::String cached_sksl[kGrShaderTypeCount];
+    std::string cached_sksl[kGrShaderTypeCount];
     if (precompiledProgram) {
         // This is very similar to when we get program binaries. We even set that flag, as it's
         // used to prevent other compile work later, and to force re-querying uniform locations.
@@ -461,11 +461,11 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
 
 bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
                                          GrContextOptions::ShaderErrorHandler* errorHandler,
-                                         SkSL::String* sksl[], const SkSL::String glsl[]) {
+                                         std::string* sksl[], const std::string glsl[]) {
     GrGLint linked = GR_GL_INIT_ZERO;
     GL_CALL(GetProgramiv(programID, GR_GL_LINK_STATUS, &linked));
     if (!linked) {
-        SkSL::String allShaders;
+        std::string allShaders;
         if (sksl) {
             SkSL::String::appendf(&allShaders, "// Vertex SKSL\n%s\n"
                                                "// Fragment SKSL\n%s\n",
@@ -534,7 +534,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     GrPersistentCacheUtils::ShaderMetadata meta;
     meta.fSettings = &settings;
 
-    SkSL::String shaders[kGrShaderTypeCount];
+    std::string shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs;
     if (!GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders, &inputs, 1, &meta)) {
         return false;
@@ -548,8 +548,8 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
 
     SkTDArray<GrGLuint> shadersToDelete;
 
-    auto compileShader = [&](SkSL::ProgramKind kind, const SkSL::String& sksl, GrGLenum type) {
-        SkSL::String glsl;
+    auto compileShader = [&](SkSL::ProgramKind kind, const std::string& sksl, GrGLenum type) {
+        std::string glsl;
         auto program = GrSkSLtoGLSL(glGpu, kind, sksl, settings, &glsl, errorHandler);
         if (!program) {
             return false;

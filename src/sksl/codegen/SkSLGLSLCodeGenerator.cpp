@@ -78,12 +78,12 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
 }
 
 // Returns the name of the type with array dimensions, e.g. `float[2]`.
-String GLSLCodeGenerator::getTypeName(const Type& raw) {
+std::string GLSLCodeGenerator::getTypeName(const Type& raw) {
     const Type& type = raw.resolve();
     switch (type.typeKind()) {
         case Type::TypeKind::kVector: {
             const Type& component = type.componentType();
-            String result;
+            std::string result;
             if (component.matches(*fContext.fTypes.fFloat) ||
                 component.matches(*fContext.fTypes.fHalf)) {
                 result = "vec";
@@ -104,7 +104,7 @@ String GLSLCodeGenerator::getTypeName(const Type& raw) {
             return result;
         }
         case Type::TypeKind::kMatrix: {
-            String result;
+            std::string result;
             const Type& component = type.componentType();
             if (component.matches(*fContext.fTypes.fFloat) ||
                 component.matches(*fContext.fTypes.fHalf)) {
@@ -121,7 +121,7 @@ String GLSLCodeGenerator::getTypeName(const Type& raw) {
             return result;
         }
         case Type::TypeKind::kArray: {
-            String baseTypeName = this->getTypeName(type.componentType());
+            std::string baseTypeName = this->getTypeName(type.componentType());
             return String::printf("%s[%d]", baseTypeName.c_str(), type.columns());
         }
         case Type::TypeKind::kScalar: {
@@ -135,12 +135,12 @@ String GLSLCodeGenerator::getTypeName(const Type& raw) {
                 return "uint";
             }
             else {
-                return String(type.name());
+                return std::string(type.name());
             }
             break;
         }
         default:
-            return String(type.name());
+            return std::string(type.name());
     }
 }
 
@@ -238,11 +238,11 @@ static bool is_abs(Expression& expr) {
 // Tegra3 compiler bug.
 void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherExpr) {
     SkASSERT(!this->caps().canUseMinAndAbsTogether());
-    String tmpVar1 = "minAbsHackVar" + skstd::to_string(fVarCount++);
-    String tmpVar2 = "minAbsHackVar" + skstd::to_string(fVarCount++);
-    this->fFunctionHeader += String("    ") + this->getTypePrecision(absExpr.type()) +
+    std::string tmpVar1 = "minAbsHackVar" + skstd::to_string(fVarCount++);
+    std::string tmpVar2 = "minAbsHackVar" + skstd::to_string(fVarCount++);
+    this->fFunctionHeader += std::string("    ") + this->getTypePrecision(absExpr.type()) +
                              this->getTypeName(absExpr.type()) + " " + tmpVar1 + ";\n";
-    this->fFunctionHeader += String("    ") + this->getTypePrecision(otherExpr.type()) +
+    this->fFunctionHeader += std::string("    ") + this->getTypePrecision(otherExpr.type()) +
                              this->getTypeName(otherExpr.type()) + " " + tmpVar2 + ";\n";
     this->write("((" + tmpVar1 + " = ");
     this->writeExpression(absExpr, Precedence::kTopLevel);
@@ -258,7 +258,7 @@ void GLSLCodeGenerator::writeInverseSqrtHack(const Expression& x) {
 }
 
 void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
-    String name;
+    std::string name;
     const Type& type = mat.type();
     if (type.matches(*fContext.fTypes.fFloat2x2) || type.matches(*fContext.fTypes.fHalf2x2)) {
         name = "_determinant2";
@@ -324,7 +324,7 @@ void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
 }
 
 void GLSLCodeGenerator::writeInverseHack(const Expression& mat) {
-    String name;
+    std::string name;
     const Type& type = mat.type();
     if (type.matches(*fContext.fTypes.fFloat2x2) || type.matches(*fContext.fTypes.fHalf2x2)) {
         name = "_inverse2";
@@ -413,12 +413,13 @@ void GLSLCodeGenerator::writeInverseHack(const Expression& mat) {
 
 void GLSLCodeGenerator::writeTransposeHack(const Expression& mat) {
     const Type& type = mat.type();
-    String name = "transpose" + skstd::to_string(type.columns()) + skstd::to_string(type.rows());
+    std::string name = "transpose" + skstd::to_string(type.columns()) +
+                       skstd::to_string(type.rows());
     if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
         fWrittenIntrinsics.insert(name);
-        String typeName = this->getTypeName(type);
+        std::string typeName = this->getTypeName(type);
         const Type& base = type.componentType();
-        String transposed =  this->getTypeName(base.toCompound(fContext,
+        std::string transposed =  this->getTypeName(base.toCompound(fContext,
                                                                type.rows(),
                                                                type.columns()));
         fExtraFunctions.writeText((transposed + " " + name + "(" + typeName + " m) {\nreturn " +
@@ -454,7 +455,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 break;
             }
             // abs(int) on Intel OSX is incorrect, so emulate it:
-            String name = "_absemulation";
+            std::string name = "_absemulation";
             this->write(name);
             nameWritten = true;
             if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
@@ -860,10 +861,10 @@ void GLSLCodeGenerator::writeMatrixComparisonWorkaround(const BinaryExpression& 
     SkASSERT(left.type().isMatrix());
     SkASSERT(right.type().isMatrix());
 
-    String tempMatrix1 = "_tempMatrix" + skstd::to_string(fVarCount++);
-    String tempMatrix2 = "_tempMatrix" + skstd::to_string(fVarCount++);
+    std::string tempMatrix1 = "_tempMatrix" + skstd::to_string(fVarCount++);
+    std::string tempMatrix2 = "_tempMatrix" + skstd::to_string(fVarCount++);
 
-    this->fFunctionHeader += String("    ") + this->getTypePrecision(left.type()) +
+    this->fFunctionHeader += std::string("    ") + this->getTypePrecision(left.type()) +
                              this->getTypeName(left.type()) + " " + tempMatrix1 + ";\n    " +
                              this->getTypePrecision(right.type()) +
                              this->getTypeName(right.type()) + " " + tempMatrix2 + ";\n";
@@ -1033,7 +1034,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         }
         this->writeTypePrecision(*type);
         this->writeType(*type);
-        this->write(" " + SkSL::String(param->name()));
+        this->write(" " + std::string(param->name()));
         for (int s : sizes) {
             this->write("[" + skstd::to_string(s) + "]");
         }
@@ -1075,7 +1076,7 @@ void GLSLCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
 
 void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
                                        bool globalContext) {
-    String layout = modifiers.fLayout.description();
+    std::string layout = modifiers.fLayout.description();
     if (layout.size()) {
         this->write(layout + " ");
     }
@@ -1121,7 +1122,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         return;
     }
     this->writeModifiers(intf.variable().modifiers(), true);
-    this->writeLine(SkSL::String(intf.typeName()) + " {");
+    this->writeLine(std::string(intf.typeName()) + " {");
     fIndentation++;
     const Type* structType = &intf.variable().type();
     if (structType->isArray()) {
@@ -1131,7 +1132,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         this->writeModifiers(f.fModifiers, false);
         this->writeTypePrecision(*f.fType);
         this->writeType(*f.fType);
-        this->writeLine(" " + SkSL::String(f.fName) + ";");
+        this->writeLine(" " + std::string(f.fName) + ";");
     }
     fIndentation--;
     this->write("}");
@@ -1354,7 +1355,7 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
     //         temp = true;
     //         CODE;
     //     }
-    String tmpVar = "_tmpLoopSeenOnce" + skstd::to_string(fVarCount++);
+    std::string tmpVar = "_tmpLoopSeenOnce" + skstd::to_string(fVarCount++);
     this->write("bool ");
     this->write(tmpVar);
     this->writeLine(" = false;");
@@ -1390,9 +1391,9 @@ void GLSLCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
 
 void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     if (this->caps().rewriteSwitchStatements()) {
-        String fallthroughVar = "_tmpSwitchFallthrough" + skstd::to_string(fVarCount++);
-        String valueVar = "_tmpSwitchValue" + skstd::to_string(fVarCount++);
-        String loopVar = "_tmpSwitchLoop" + skstd::to_string(fVarCount++);
+        std::string fallthroughVar = "_tmpSwitchFallthrough" + skstd::to_string(fVarCount++);
+        std::string valueVar = "_tmpSwitchValue" + skstd::to_string(fVarCount++);
+        std::string loopVar = "_tmpSwitchLoop" + skstd::to_string(fVarCount++);
         this->write("int ");
         this->write(valueVar);
         this->write(" = ");

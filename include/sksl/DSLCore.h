@@ -54,7 +54,7 @@ void End();
  * sources, but when a DSL program is produced from parsed program text (as in DSLParser), it may be
  * important to retain it so that any std::string_views derived from it remain valid.
  */
-std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<SkSL::String> source = nullptr);
+std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> source = nullptr);
 
 /**
  * Returns the ErrorReporter which will be notified of any errors that occur during DSL calls. The

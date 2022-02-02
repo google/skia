@@ -19,7 +19,7 @@
 
 namespace SkSL {
 
-bool SPIRVtoHLSL(const String& spirv, String* hlsl) {
+bool SPIRVtoHLSL(const std::string& spirv, std::string* hlsl) {
     spirv_cross::CompilerHLSL hlslCompiler((const uint32_t*)spirv.c_str(),
                                            spirv.size() / sizeof(uint32_t));
 
@@ -44,6 +44,6 @@ bool SPIRVtoHLSL(const String& spirv, String* hlsl) {
 
 #else
 
-namespace SkSL { bool SPIRVtoHLSL(const String&, String*) { return false; } }
+namespace SkSL { bool SPIRVtoHLSL(const std::string&, std::string*) { return false; } }
 
 #endif

@@ -62,7 +62,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
                         // If the function is present in the map with an unknown cost, we're
                         // recursively processing it--in other words, we found a cycle in the code.
                         // Unwind our stack into a string.
-                        String msg = "\n\t" + decl->description();
+                        std::string msg = "\n\t" + decl->description();
                         for (auto unwind = fStack.rbegin(); unwind != fStack.rend(); ++unwind) {
                             msg = "\n\t" + (*unwind)->description() + msg;
                             if (*unwind == decl) {
@@ -81,7 +81,7 @@ bool Analysis::CheckProgramUnrolledSize(const Program& program) {
 
                 // If the function-call stack has gotten too deep, stop the analysis.
                 if (fStack.size() >= kProgramStackDepthLimit) {
-                    String msg = "exceeded max function call depth:";
+                    std::string msg = "exceeded max function call depth:";
                     for (auto unwind = fStack.begin(); unwind != fStack.end(); ++unwind) {
                         msg += "\n\t" + (*unwind)->description();
                     }

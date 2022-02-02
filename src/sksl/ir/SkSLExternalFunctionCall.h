@@ -56,9 +56,9 @@ public:
                                                       this->arguments().clone());
     }
 
-    String description() const override {
-        String result = String(this->function().name()) + "(";
-        String separator;
+    std::string description() const override {
+        std::string result = std::string(this->function().name()) + "(";
+        std::string separator;
         for (const std::unique_ptr<Expression>& arg : this->arguments()) {
             result += separator;
             result += arg->description();

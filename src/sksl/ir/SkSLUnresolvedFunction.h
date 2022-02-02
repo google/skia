@@ -34,8 +34,8 @@ public:
         return fFunctions;
     }
 
-    String description() const override {
-        return String(this->name());
+    std::string description() const override {
+        return std::string(this->name());
     }
 
 private:

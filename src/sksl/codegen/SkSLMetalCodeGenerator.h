@@ -107,7 +107,7 @@ protected:
 
     void writePrecisionModifier();
 
-    String typeName(const Type& type);
+    std::string typeName(const Type& type);
 
     void writeStructDefinition(const StructDefinition& s);
 
@@ -148,20 +148,20 @@ protected:
 
     void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
-    String getOutParamHelper(const FunctionCall& c,
+    std::string getOutParamHelper(const FunctionCall& c,
                              const ExpressionArray& arguments,
                              const SkTArray<VariableReference*>& outVars);
 
-    String getInversePolyfill(const ExpressionArray& arguments);
+    std::string getInversePolyfill(const ExpressionArray& arguments);
 
-    String getBitcastIntrinsic(const Type& outType);
+    std::string getBitcastIntrinsic(const Type& outType);
 
-    String getTempVariable(const Type& varType);
+    std::string getTempVariable(const Type& varType);
 
     void writeFunctionCall(const FunctionCall& c);
 
     bool matrixConstructHelperIsNeeded(const ConstructorCompound& c);
-    String getMatrixConstructHelper(const AnyConstructor& c);
+    std::string getMatrixConstructHelper(const AnyConstructor& c);
     void assembleMatrixFromMatrix(const Type& sourceMatrix, int rows, int columns);
     void assembleMatrixFromExpressions(const AnyConstructor& ctor, int rows, int columns);
 
@@ -175,7 +175,7 @@ protected:
 
     void writeMatrixEqualityHelpers(const Type& left, const Type& right);
 
-    String getVectorFromMat2x2ConstructorHelper(const Type& matrixType);
+    std::string getVectorFromMat2x2ConstructorHelper(const Type& matrixType);
 
     void writeArrayEqualityHelpers(const Type& type);
 
@@ -269,21 +269,21 @@ protected:
     int fAnonInterfaceCount = 0;
     int fPaddingCount = 0;
     const char* fLineEnding;
-    String fFunctionHeader;
+    std::string fFunctionHeader;
     StringStream fExtraFunctions;
     StringStream fExtraFunctionPrototypes;
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;
-    std::set<String> fWrittenIntrinsics;
+    std::set<std::string> fWrittenIntrinsics;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
     std::unordered_map<const FunctionDeclaration*, Requirements> fRequirements;
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
-    std::unordered_set<String> fHelpers;
+    std::unordered_set<std::string> fHelpers;
     int fUniformBuffer = -1;
-    String fRTFlipName;
+    std::string fRTFlipName;
     const FunctionDeclaration* fCurrentFunction = nullptr;
     int fSwizzleHelperCount = 0;
     bool fIgnoreVariableReferenceModifiers = false;

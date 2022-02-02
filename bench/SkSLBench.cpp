@@ -53,8 +53,8 @@ public:
         SkUNREACHABLE;
     }
 
-    SkSLCompileBench(SkSL::String name, const char* src, bool optimize, Output output)
-        : fName(SkSL::String("sksl_") + (optimize ? "" : "unoptimized_") + output_string(output) +
+    SkSLCompileBench(std::string name, const char* src, bool optimize, Output output)
+        : fName(std::string("sksl_") + (optimize ? "" : "unoptimized_") + output_string(output) +
                 name)
         , fSrc(src)
         , fCaps(GrContextOptions(), GrMockOptions())
@@ -85,9 +85,9 @@ protected:
             if (fCompiler.errorCount()) {
                 SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
             }
-            SkSL::String result;
+            std::string result;
             switch (fOutput) {
-                case Output::kNone: break;
+                case Output::kNone:  break;
                 case Output::kGLSL:  SkAssertResult(fCompiler.toGLSL(*program,  &result)); break;
                 case Output::kMetal: SkAssertResult(fCompiler.toMetal(*program, &result)); break;
                 case Output::kSPIRV: SkAssertResult(fCompiler.toSPIRV(*program, &result)); break;
@@ -96,8 +96,8 @@ protected:
     }
 
 private:
-    SkSL::String fName;
-    SkSL::String fSrc;
+    std::string fName;
+    std::string fSrc;
     GrMockCaps fCaps;
     SkSL::Compiler fCompiler;
     SkSL::Program::Settings fSettings;

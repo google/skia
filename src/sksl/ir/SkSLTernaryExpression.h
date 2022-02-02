@@ -81,7 +81,7 @@ public:
                                                    this->ifFalse()->clone());
     }
 
-    String description() const override {
+    std::string description() const override {
         return "(" + this->test()->description() + " ? " + this->ifTrue()->description() + " : " +
                this->ifFalse()->description() + ")";
     }

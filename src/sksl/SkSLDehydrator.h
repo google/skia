@@ -109,7 +109,7 @@ private:
 
     void write(std::string_view s);
 
-    void write(String s);
+    void write(std::string s);
 
     void write(const ProgramElement& e);
 
@@ -127,7 +127,7 @@ private:
 
     StringStream fBody;
 
-    std::unordered_map<String, int> fStrings;
+    std::unordered_map<std::string, int> fStrings;
 
     std::vector<std::unordered_map<const Symbol*, int>> fSymbolMap;
     SkTHashSet<size_t> fStringBreaks;

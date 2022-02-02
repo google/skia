@@ -34,8 +34,8 @@ std::unique_ptr<Statement> SwitchStatement::clone() const {
                                              SymbolTable::WrapIfBuiltin(this->symbols()));
 }
 
-String SwitchStatement::description() const {
-    String result;
+std::string SwitchStatement::description() const {
+    std::string result;
     if (this->isStatic()) {
         result += "@";
     }

@@ -178,16 +178,16 @@ bool GrVkFormatNeedsYcbcrSampler(VkFormat format);
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
 bool GrCompileVkShaderModule(GrVkGpu* gpu,
-                             const SkSL::String& shaderString,
+                             const std::string& shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo,
                              const SkSL::Program::Settings& settings,
-                             SkSL::String* outSPIRV,
+                             std::string* outSPIRV,
                              SkSL::Program::Inputs* outInputs);
 
 bool GrInstallVkShaderModule(GrVkGpu* gpu,
-                             const SkSL::String& spirv,
+                             const std::string& spirv,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo);

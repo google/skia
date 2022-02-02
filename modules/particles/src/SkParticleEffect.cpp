@@ -137,7 +137,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
         fDrawable->prepare(resourceProvider);
     }
 
-    auto buildProgram = [this](const SkSL::String& code) -> std::unique_ptr<SkParticleProgram> {
+    auto buildProgram = [this](const std::string& code) -> std::unique_ptr<SkParticleProgram> {
         std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
         SkSL::Compiler compiler(caps.get());
 
@@ -208,7 +208,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
                                                    std::move(uniformInfo));
     };
 
-    SkSL::String particleCode(kCommonHeader);
+    std::string particleCode(kCommonHeader);
     particleCode.append(fCode.c_str());
 
     if (auto prog = buildProgram(particleCode)) {

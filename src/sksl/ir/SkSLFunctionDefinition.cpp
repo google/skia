@@ -156,8 +156,8 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     if (prevSlotsUsed < kVariableSlotLimit && fSlotsUsed >= kVariableSlotLimit) {
                         fContext.fErrors->error(
                                 stmt.fLine,
-                                "variable '" + SkSL::String(stmt.as<VarDeclaration>().var().name())
-                                + "' exceeds the stack size limit");
+                                "variable '" + std::string(stmt.as<VarDeclaration>().var().name()) +
+                                "' exceeds the stack size limit");
                     }
                     break;
                 }
@@ -259,13 +259,13 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
     }
 
     if (Analysis::CanExitWithoutReturningValue(function, *body)) {
-        context.fErrors->error(function.fLine, "function '" + SkSL::String(function.name()) +
+        context.fErrors->error(function.fLine, "function '" + std::string(function.name()) +
                                                "' can exit without returning a value");
     }
 
     SkASSERTF(!function.isIntrinsic(),
               "Intrinsic %s should not have a definition",
-              String(function.name()).c_str());
+              std::string(function.name()).c_str());
     return std::make_unique<FunctionDefinition>(line, &function, builtin, std::move(body),
                                                 std::move(referencedBuiltinFunctions));
 }

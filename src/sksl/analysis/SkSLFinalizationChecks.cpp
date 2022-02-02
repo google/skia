@@ -52,7 +52,7 @@ public:
         // global limit is exceeded.
         if (prevSlotsUsed < kVariableSlotLimit && fGlobalSlotsUsed >= kVariableSlotLimit) {
             fContext.fErrors->error(decl.fLine,
-                                    "global variable '" + SkSL::String(decl.var().name()) +
+                                    "global variable '" + std::string(decl.var().name()) +
                                     "' exceeds the size limit");
         }
     }
@@ -71,9 +71,9 @@ public:
                 ProgramUsage::VariableCounts counts = fUsage.get(*param);
                 if (counts.fWrite <= 0) {
                     fContext.fErrors->error(funcDecl.fLine,
-                                            "function '" + SkSL::String(funcDecl.name()) +
+                                            "function '" + std::string(funcDecl.name()) +
                                             "' never assigns a value to out parameter '" +
-                                            SkSL::String(param->name()) + "'");
+                                            std::string(param->name()) + "'");
                 }
             }
         }

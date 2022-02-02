@@ -58,16 +58,16 @@ static const bool gPrintSKSL = false;
 static const bool gPrintMSL = false;
 
 bool GrSkSLToMSL(const GrMtlGpu* gpu,
-                 const SkSL::String& sksl,
+                 const std::string& sksl,
                  SkSL::ProgramKind programKind,
                  const SkSL::Program::Settings& settings,
-                 SkSL::String* msl,
+                 std::string* msl,
                  SkSL::Program::Inputs* outInputs,
                  GrContextOptions::ShaderErrorHandler* errorHandler) {
 #ifdef SK_DEBUG
-    SkSL::String src = SkShaderUtils::PrettyPrint(sksl);
+    std::string src = SkShaderUtils::PrettyPrint(sksl);
 #else
-    const SkSL::String& src = sksl;
+    const std::string& src = sksl;
 #endif
     SkSL::Compiler* compiler = gpu->shaderCompiler();
     std::unique_ptr<SkSL::Program> program =
@@ -96,7 +96,7 @@ bool GrSkSLToMSL(const GrMtlGpu* gpu,
 }
 
 id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                         const SkSL::String& msl,
+                                         const std::string& msl,
                                          GrContextOptions::ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
     auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
@@ -135,7 +135,7 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 }
 
 void GrPrecompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                  const SkSL::String& msl) {
+                                  const std::string& msl) {
     auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
                                                    length:msl.size()
                                                  encoding:NSUTF8StringEncoding

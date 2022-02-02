@@ -72,7 +72,7 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("half4 w = %s * half4(1.0, f, f2, f2 * f);", coeffs);
         fragBuilder->codeAppend("half4 c[4];");
         for (int i = 0; i < 4; ++i) {
-            SkSL::String coord;
+            std::string coord;
             if (bicubicEffect.fDirection == Direction::kX) {
                 coord = SkSL::String::printf("float2(coord + %d, %s.y)", i - 1, args.fSampleCoord);
             } else {

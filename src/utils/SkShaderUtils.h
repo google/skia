@@ -15,20 +15,20 @@
 
 namespace SkShaderUtils {
 
-SkSL::String PrettyPrint(const SkSL::String& string);
+std::string PrettyPrint(const std::string& string);
 
-void VisitLineByLine(const SkSL::String& text,
+void VisitLineByLine(const std::string& text,
                      const std::function<void(int lineNumber, const char* lineText)>&);
 
 // Prints shaders one line at the time. This ensures they don't get truncated by the adb log.
-inline void PrintLineByLine(const SkSL::String& text) {
+inline void PrintLineByLine(const std::string& text) {
     VisitLineByLine(text, [](int lineNumber, const char* lineText) {
         SkDebugf("%4i\t%s\n", lineNumber, lineText);
     });
 }
 
 // Combines raw shader and error text into an easier-to-read error message with line numbers.
-SkSL::String BuildShaderErrorMessage(const char* shader, const char* errors);
+std::string BuildShaderErrorMessage(const char* shader, const char* errors);
 
 void PrintShaderBanner(SkSL::ProgramKind programKind);
 

@@ -112,7 +112,7 @@ public:
 
     std::unique_ptr<Statement> clone() const override;
 
-    String description() const override;
+    std::string description() const override;
 
 private:
     std::shared_ptr<SymbolTable> fSymbolTable;

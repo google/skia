@@ -41,8 +41,8 @@ public:
         return fName;
     }
 
-    String description() const override {
-        return String(this->name());
+    std::string description() const override {
+        return std::string(this->name());
     }
 
     bool hasProperty(Property property) const override {

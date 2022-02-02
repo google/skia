@@ -70,8 +70,8 @@ std::unique_ptr<Statement> Block::clone() const {
                                    this->isScope());
 }
 
-String Block::description() const {
-    String result;
+std::string Block::description() const {
+    std::string result;
     if (fIsScope) {
         result += "{";
     }

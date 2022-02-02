@@ -23,9 +23,9 @@ std::unique_ptr<Statement> VarDeclaration::clone() const {
                                             this->value() ? this->value()->clone() : nullptr);
 }
 
-String VarDeclaration::description() const {
-    String result = this->var().modifiers().description() + this->baseType().description() + " " +
-                    SkSL::String(this->var().name());
+std::string VarDeclaration::description() const {
+    std::string result = this->var().modifiers().description() + this->baseType().description() +
+                         " " + std::string(this->var().name());
     if (this->arraySize() > 0) {
         String::appendf(&result, "[%d]", this->arraySize());
     }

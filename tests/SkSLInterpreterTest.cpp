@@ -24,7 +24,7 @@ struct ProgramBuilder {
         // For convenience, so we can test functions other than (and not called by) main.
         settings.fRemoveDeadFunctions = false;
 
-        fProgram = fCompiler.convertProgram(SkSL::ProgramKind::kGeneric, SkSL::String(src),
+        fProgram = fCompiler.convertProgram(SkSL::ProgramKind::kGeneric, std::string(src),
                                             settings);
         if (!fProgram) {
             ERRORF(r, "Program failed to compile:\n%s\n%s\n", src, fCompiler.errorText().c_str());
@@ -628,7 +628,7 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
     auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
-                                           SkSL::String(src), settings);
+                                           std::string(src), settings);
     REPORTER_ASSERT(r, !program);
 }
 
@@ -900,7 +900,7 @@ DEF_TEST(SkSLInterpreterExternalFunction, r) {
     externalFunctions.push_back(std::make_unique<ExternalSqrt>("externalSqrt", compiler));
     settings.fExternalFunctions = &externalFunctions;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings);
+            SkSL::ProgramKind::kGeneric, std::string(src), settings);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
@@ -959,7 +959,7 @@ DEF_TEST(SkSLInterpreterExternalTable, r) {
     externalFunctions.push_back(std::make_unique<ExternalTable>("table", compiler, &u));
     settings.fExternalFunctions = &externalFunctions;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings);
+            SkSL::ProgramKind::kGeneric, std::string(src), settings);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
@@ -1004,7 +1004,7 @@ int main() {
 )";
     skvm::Builder b;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
-                                                                     SkSL::String(kSrc), settings);
+                                                                     std::string(kSrc), settings);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");

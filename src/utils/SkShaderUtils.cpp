@@ -16,7 +16,7 @@ class GLSLPrettyPrint {
 public:
     GLSLPrettyPrint() {}
 
-    SkSL::String prettify(const SkSL::String& string) {
+    std::string prettify(const std::string& string) {
         fTabs = 0;
         fFreshline = true;
 
@@ -176,7 +176,7 @@ private:
     int fTabs;
     size_t fIndex, fLength;
     const char* fInput;
-    SkSL::String fPretty;
+    std::string fPretty;
 
     // Some helpers for parseUntil when we go over a string length
     bool fInParseUntilNewline;
@@ -184,12 +184,12 @@ private:
     const char* fInParseUntilToken;
 };
 
-SkSL::String PrettyPrint(const SkSL::String& string) {
+std::string PrettyPrint(const std::string& string) {
     GLSLPrettyPrint pp;
     return pp.prettify(string);
 }
 
-void VisitLineByLine(const SkSL::String& text,
+void VisitLineByLine(const std::string& text,
                      const std::function<void(int lineNumber, const char* lineText)>& visitFn) {
     SkTArray<SkString> lines;
     SkStrSplit(text.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
@@ -198,9 +198,9 @@ void VisitLineByLine(const SkSL::String& text,
     }
 }
 
-SkSL::String BuildShaderErrorMessage(const char* shader, const char* errors) {
-    SkSL::String abortText{"Shader compilation error\n"
-                           "------------------------\n"};
+std::string BuildShaderErrorMessage(const char* shader, const char* errors) {
+    std::string abortText{"Shader compilation error\n"
+                          "------------------------\n"};
     VisitLineByLine(shader, [&](int lineNumber, const char* lineText) {
         SkSL::String::appendf(&abortText, "%4i\t%s\n", lineNumber, lineText);
     });

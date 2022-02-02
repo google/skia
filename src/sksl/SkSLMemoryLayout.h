@@ -69,7 +69,7 @@ public:
                 return this->roundUpIfNeeded(result);
             }
             default:
-                SK_ABORT("cannot determine size of type %s", String(type.name()).c_str());
+                SK_ABORT("cannot determine size of type %s", type.displayName().c_str());
         }
     }
 
@@ -135,7 +135,7 @@ public:
                 return (total + alignment - 1) & ~(alignment - 1);
             }
             default:
-                SK_ABORT("cannot determine size of type %s", String(type.name()).c_str());
+                SK_ABORT("cannot determine size of type %s", type.displayName().c_str());
         }
     }
 

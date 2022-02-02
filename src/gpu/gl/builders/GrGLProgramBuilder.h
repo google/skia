@@ -61,7 +61,7 @@ private:
     GrGLProgramBuilder(GrGLGpu*, const GrProgramDesc&, const GrProgramInfo&);
 
     void addInputVars(const SkSL::Program::Inputs& inputs);
-    bool compileAndAttachShaders(const SkSL::String& glsl,
+    bool compileAndAttachShaders(const std::string& glsl,
                                  GrGLuint programId,
                                  GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds,
@@ -71,12 +71,12 @@ private:
                                  const GrGeometryProcessor&,
                                  bool bindAttribLocations);
     void storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                            const SkSL::String shaders[], bool isSkSL,
+                            const std::string shaders[], bool isSkSL,
                             SkSL::Program::Settings* settings);
     sk_sp<GrGLProgram> finalize(const GrGLPrecompiledProgram*);
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID, GrContextOptions::ShaderErrorHandler* errorHandler,
-                         SkSL::String* sksl[], const SkSL::String glsl[]);
+                         std::string* sksl[], const std::string glsl[]);
     void resolveProgramResourceLocations(GrGLuint programID, bool force);
 
     // Subclasses create different programs
