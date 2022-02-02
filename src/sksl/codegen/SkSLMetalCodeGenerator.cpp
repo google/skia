@@ -847,6 +847,36 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write("(0)))");
             return true;
         }
+        case k_sign_IntrinsicKind: {
+            if (arguments[0]->type().componentType().isInteger()) {
+                // Create a temp variable to store the expression, to avoid double-evaluating it.
+                std::string skTemp = this->getTempVariable(arguments[0]->type());
+                std::string exprType = this->typeName(arguments[0]->type());
+
+                // (_skTemp = (.....),
+                this->write("(");
+                this->write(skTemp);
+                this->write(" = (");
+                this->writeExpression(*arguments[0], Precedence::kSequence);
+                this->write("), ");
+
+                // ... select(select(int4(0), int4(-1), _skTemp < 0), int4(1), _skTemp > 0))
+                this->write("select(select(");
+                this->write(exprType);
+                this->write("(0), ");
+                this->write(exprType);
+                this->write("(-1), ");
+                this->write(skTemp);
+                this->write(" < 0), ");
+                this->write(exprType);
+                this->write("(1), ");
+                this->write(skTemp);
+                this->write(" > 0))");
+            } else {
+                this->writeSimpleIntrinsic(c);
+            }
+            return true;
+        }
         case k_matrixCompMult_IntrinsicKind: {
             this->writeMatrixCompMult();
             this->writeSimpleIntrinsic(c);
