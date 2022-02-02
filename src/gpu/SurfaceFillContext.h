@@ -23,8 +23,6 @@ public:
      */
     virtual void discard() = 0;
 
-    virtual void resolveMSAA() = 0;
-
     /**
      * Clear the rect of the render target to the given color.
      * @param rect  the rect to clear to

@@ -11,7 +11,6 @@
 #include "src/gpu/GrDstProxyView.h"
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/ClearOp.h"
@@ -159,19 +158,6 @@ void SurfaceFillContext::discard() {
     AutoCheckFlush acf(this->drawingManager());
 
     this->getOpsTask()->discard();
-}
-
-void SurfaceFillContext::resolveMSAA() {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("v1::SurfaceFillContext", "resolveMSAA", fContext);
-
-    AutoCheckFlush acf(this->drawingManager());
-
-    this->drawingManager()->newTextureResolveRenderTask(this->asSurfaceProxyRef(),
-                                                        GrSurfaceProxy::ResolveFlags::kMSAA,
-                                                        *this->caps());
 }
 
 void SurfaceFillContext::internalClear(const SkIRect* scissor,

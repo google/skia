@@ -75,13 +75,6 @@ public:
     // an MSAA-render-to-texture extension: Any render target we create internally will use the
     // extension, and any wrapped render target is the client's responsibility.
     bool msaaResolvesAutomatically() const { return fMSAAResolvesAutomatically; }
-    // If true then when doing MSAA draws, we will prefer to discard the msaa attachment on load
-    // and stores. The use of this feature for specific draws depends on the render target having a
-    // resolve attachment, and if we need to load previous data the resolve attachment must be
-    // usable as an input attachment/texture. Otherwise we will just write out and store the msaa
-    // attachment like normal.
-    // This flag is similar to enabling gl render to texture for msaa rendering.
-    bool preferDiscardableMSAAAttachment() const { return fPreferDiscardableMSAAAttachment; }
     bool halfFloatVertexAttributeSupport() const { return fHalfFloatVertexAttributeSupport; }
 
     // Primitive restart functionality is core in ES 3.0, but using it will cause slowdowns on some
@@ -551,7 +544,6 @@ protected:
     bool fConservativeRasterSupport                  : 1;
     bool fWireframeSupport                           : 1;
     bool fMSAAResolvesAutomatically                  : 1;
-    bool fPreferDiscardableMSAAAttachment            : 1;
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;

@@ -63,15 +63,9 @@ public:
 #endif
 
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
-    // method will only add the new render task to the list. However, it adds the task before the
-    // last task in the list. It is up to the caller to call addProxy() on the returned object.
-    GrTextureResolveRenderTask* newTextureResolveRenderTaskBefore(const GrCaps&);
-
-    // Creates a render task that can resolve MSAA and/or regenerate mimap levels on the passed in
-    // proxy. The task is appended to the end of the current list of tasks.
-    void newTextureResolveRenderTask(sk_sp<GrSurfaceProxy> proxy,
-                                     GrSurfaceProxy::ResolveFlags,
-                                     const GrCaps&);
+    // method will only add the new render task to the list. It is up to the caller to call
+    // addProxy() on the returned object.
+    GrTextureResolveRenderTask* newTextureResolveRenderTask(const GrCaps&);
 
     // Create a new render task that will cause the gpu to wait on semaphores before executing any
     // more RenderTasks that target proxy. It is possible for this wait to also block additional

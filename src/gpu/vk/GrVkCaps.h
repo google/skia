@@ -253,6 +253,13 @@ public:
 
     VkShaderStageFlags getPushConstantStageFlags() const;
 
+    // If true then when doing MSAA draws, we will prefer to discard the msaa attachment on load
+    // and stores. The use of this feature for specific draws depends on the render target having a
+    // resolve attachment, and if we need to load previous data the resolve attachment must be
+    // usable as an input attachment. Otherwise we will just write out and store the msaa attachment
+    // like normal.
+    // This flag is similar to enabling gl render to texture for msaa rendering.
+    bool preferDiscardableMSAAAttachment() const { return fPreferDiscardableMSAAAttachment; }
     bool mustLoadFullImageWithDiscardableMSAA() const {
         return fMustLoadFullImageWithDiscardableMSAA;
     }
@@ -411,6 +418,7 @@ private:
 
     uint32_t fMaxInputAttachmentDescriptors = 0;
 
+    bool fPreferDiscardableMSAAAttachment = false;
     bool fMustLoadFullImageWithDiscardableMSAA = false;
     bool fSupportsDiscardableMSAAForDMSAA = true;
     bool fSupportsMemorylessAttachments = false;
