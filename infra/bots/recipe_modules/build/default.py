@@ -48,8 +48,6 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
   san = None
   if 'MSAN' in extra_tokens:
     san = ('msan','memory')
-  elif 'TSAN' in extra_tokens:
-    san = ('tsan','thread')
 
   if san:
     short,full = san
@@ -282,7 +280,12 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
     args['skia_use_vulkan'] = 'true'
     args['skia_enable_vulkan_debug_layers'] = 'true'
-    args['skia_use_gl'] = 'false'
+    # When running TSAN with Vulkan on NVidia, we experienced some timeouts. We found
+    # a workaround (in GrContextFactory) that requires GL (in addition to Vulkan).
+    if 'TSAN' in extra_tokens:
+      args['skia_use_gl'] = 'true'
+    else:
+      args['skia_use_gl'] = 'false'
   if 'Direct3D' in extra_tokens:
     args['skia_use_direct3d'] = 'true'
     args['skia_use_gl'] = 'false'
