@@ -84,8 +84,7 @@ public:
         SkASSERT(shape.isRect());
         // TODO: A << API for uniforms would be nice, particularly if it could take pre-computed
         // offsets for each uniform.
-        auto uniforms = SkUniformData::Make(this->numUniforms(), this->uniforms().data(),
-                                            sizeof(float) * 4);
+        auto uniforms = SkUniformData::Make(this->uniforms(), sizeof(float) * 4);
         float2 scale = shape.rect().size();
         float2 translate = shape.rect().topLeft();
         memcpy(uniforms->data(), &scale, sizeof(float2));
@@ -147,8 +146,7 @@ public:
                                        const SkIRect&,
                                        const Transform&,
                                        const Shape&) const override {
-        auto uniforms = SkUniformData::Make(this->numUniforms(), this->uniforms().data(),
-                                          sizeof(float) * 4);
+        auto uniforms = SkUniformData::Make(this->uniforms(), sizeof(float) * 4);
         float data[4] = {2.f, 2.f, -1.f, -1.f};
         memcpy(uniforms->data(), data, 4 * sizeof(float));
         return uniforms;

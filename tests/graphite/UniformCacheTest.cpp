@@ -28,7 +28,8 @@ std::unique_ptr<SkUniformBlock> make_ub(int numUniforms, int dataSize) {
 
     SkASSERT(numUniforms <= kMaxUniforms);
 
-    sk_sp<SkUniformData> ud = SkUniformData::Make(numUniforms, kUniforms, dataSize);
+    sk_sp<SkUniformData> ud = SkUniformData::Make(SkSpan<const SkUniform>(kUniforms, numUniforms),
+                                                  dataSize);
     for (int i = 0; i < numUniforms; ++i) {
         ud->offsets()[i] = i;
     }

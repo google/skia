@@ -9,9 +9,9 @@
 #define SkUniformData_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
+#include "src/core/SkUniform.h"
 #include <vector>
-
-class SkUniform;
 
 /*
  * TODO: Here is the plan of record for SkUniformData
@@ -33,9 +33,7 @@ public:
 
     // TODO: should we require a name (e.g., "gradient_uniforms") for each uniform block so
     // we can better name the Metal FS uniform struct?
-    static sk_sp<SkUniformData> Make(int count,
-                                     const SkUniform* uniforms,
-                                     size_t dataSize);
+    static sk_sp<SkUniformData> Make(SkSpan<const SkUniform>, size_t dataSize);
 
     ~SkUniformData() override {
         // TODO: fOffsets and fData should just be allocated right after UniformData in an arena
@@ -43,12 +41,12 @@ public:
         delete [] fData;
     }
 
-    int count() const { return fCount; }
-    const SkUniform* uniforms() const { return fUniforms; }
+    int count() const { return static_cast<unsigned int>(fUniforms.size()); }
+    SkSpan<const SkUniform>  uniforms() const { return fUniforms; }
     uint32_t* offsets() { return fOffsets; }
     const uint32_t* offsets() const { return fOffsets; }
     uint32_t offset(int index) {
-        SkASSERT(index >= 0 && index < fCount);
+        SkASSERT(index >= 0 && static_cast<size_t>(index) < fUniforms.size());
         return fOffsets[index];
     }
     char* data() { return fData; }
@@ -59,20 +57,17 @@ public:
     bool operator!=(const SkUniformData& other) const { return !(*this == other);  }
 
 private:
-    SkUniformData(int count,
-                  const SkUniform* uniforms,
+    SkUniformData(SkSpan<const SkUniform> uniforms,
                   uint32_t* offsets,
                   char* data,
                   size_t dataSize)
-            : fCount(count)
-            , fUniforms(uniforms)
+            : fUniforms(uniforms)
             , fOffsets(offsets)
             , fData(data)
             , fDataSize(dataSize) {
     }
 
-    const int fCount;
-    const SkUniform* fUniforms;
+    SkSpan<const SkUniform> fUniforms;
     uint32_t* fOffsets; // offset of each uniform in 'fData'
     char* fData;
     const size_t fDataSize;
