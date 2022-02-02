@@ -9,8 +9,7 @@
 
 #include "src/core/SkOpts.h"
 
-sk_sp<SkUniformData> SkUniformData::Make(SkSpan<const SkUniform> uniforms,
-                                         size_t dataSize) {
+sk_sp<SkUniformData> SkUniformData::Make(SkSpan<const SkUniform> uniforms, size_t dataSize) {
     // TODO: the offsets and data should just be allocated right after UniformData in an arena
     uint32_t* offsets = new uint32_t[uniforms.size()];
     char* data = new char[dataSize];

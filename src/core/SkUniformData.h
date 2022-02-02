@@ -42,7 +42,7 @@ public:
     }
 
     int count() const { return static_cast<unsigned int>(fUniforms.size()); }
-    SkSpan<const SkUniform>  uniforms() const { return fUniforms; }
+    SkSpan<const SkUniform> uniforms() const { return fUniforms; }
     uint32_t* offsets() { return fOffsets; }
     const uint32_t* offsets() const { return fOffsets; }
     uint32_t offset(int index) {
