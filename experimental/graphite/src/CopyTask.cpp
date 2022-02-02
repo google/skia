@@ -39,7 +39,7 @@ CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<Texture> texture,
 
 CopyTextureToBufferTask::~CopyTextureToBufferTask() {}
 
-void CopyTextureToBufferTask::addCommands(Context*, CommandBuffer* commandBuffer) {
+void CopyTextureToBufferTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
     commandBuffer->copyTextureToBuffer(std::move(fTexture),
                                        fSrcRect,
                                        std::move(fBuffer),

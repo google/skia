@@ -7,7 +7,6 @@
 
 #include "experimental/graphite/include/Recorder.h"
 
-#include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/Recording.h"
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
@@ -21,12 +20,13 @@
 
 namespace skgpu {
 
-Recorder::Recorder(sk_sp<Context> context)
-        : fContext(std::move(context))
+Recorder::Recorder(sk_sp<Gpu> gpu, std::unique_ptr<ResourceProvider> resourceProvider)
+        : fGpu(std::move(gpu))
+        , fResourceProvider(std::move(resourceProvider))
         , fUniformCache(new UniformCache)
         , fDrawBufferManager(new DrawBufferManager(
-                fContext->priv().gpu()->resourceProvider(),
-                fContext->priv().gpu()->caps()->requiredUniformBufferAlignment())) {
+                fResourceProvider.get(),
+                fGpu->caps()->requiredUniformBufferAlignment())) {
 }
 
 Recorder::~Recorder() {
@@ -35,15 +35,19 @@ Recorder::~Recorder() {
     }
 }
 
-Context* Recorder::context() const {
-    return fContext.get();
+ResourceProvider* Recorder::resourceProvider() const {
+    return fResourceProvider.get();
 }
 
-UniformCache* Recorder::uniformCache() {
+UniformCache* Recorder::uniformCache() const {
     return fUniformCache.get();
 }
 
-DrawBufferManager* Recorder::drawBufferManager() {
+const Caps* Recorder::caps() const {
+    return fGpu->caps();
+}
+
+DrawBufferManager* Recorder::drawBufferManager() const {
     return fDrawBufferManager.get();
 }
 
@@ -56,10 +60,9 @@ std::unique_ptr<Recording> Recorder::snap() {
         device->flushPendingWorkToRecorder();
     }
 
-    auto gpu = fContext->priv().gpu();
-    auto commandBuffer = gpu->resourceProvider()->createCommandBuffer();
+    auto commandBuffer = fResourceProvider->createCommandBuffer();
 
-    fGraph.addCommands(fContext.get(), commandBuffer.get());
+    fGraph.addCommands(fResourceProvider.get(), commandBuffer.get());
     fDrawBufferManager->transferToCommandBuffer(commandBuffer.get());
 
     fGraph.reset();

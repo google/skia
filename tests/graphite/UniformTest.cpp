@@ -7,10 +7,12 @@
 
 #include "tests/Test.h"
 
+#include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/PaintParams.h"
+#include "experimental/graphite/src/ResourceProvider.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkShaderCodeDictionary.h"
@@ -69,6 +71,8 @@ std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     using namespace skgpu;
 
+    auto recorder = context->makeRecorder();
+
     // Intentionally does not include ShaderType::kNone, which represents no fragment shading stage
     // and is thus not relevant to uniform extraction/caching.
     for (auto s : { ShaderCombo::ShaderType::kSolidColor,
@@ -88,7 +92,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
                 SkPaintParamsKey expected = CreateKey(SkBackend::kGraphite, s, tm, bm);
 
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
-                auto dict = context->priv().globalCache()->shaderCodeDictionary();
+                auto dict = recorder->resourceProvider()->shaderCodeDictionary();
                 auto [ actualID, uniformBlock] = ExtractPaintData(dict, PaintParams(p));
                 int actualNumUniforms = uniformBlock->count();
 

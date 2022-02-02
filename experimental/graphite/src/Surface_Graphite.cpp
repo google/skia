@@ -37,11 +37,12 @@ sk_sp<SkImage> Surface_Graphite::onNewImageSnapshot(const SkIRect* subset) {
 void Surface_Graphite::onWritePixels(const SkPixmap&, int x, int y) {}
 bool Surface_Graphite::onCopyOnWrite(ContentChangeMode) { return true; }
 
-bool Surface_Graphite::onReadPixels(skgpu::Context* context,
+bool Surface_Graphite::onReadPixels(Context* context,
+                                    Recorder* recorder,
                                     const SkPixmap& dst,
                                     int srcX,
                                     int srcY) {
-    return fDevice->readPixels(context, dst, srcX, srcY);
+    return fDevice->readPixels(context, recorder, dst, srcX, srcY);
 }
 
 } // namespace skgpu

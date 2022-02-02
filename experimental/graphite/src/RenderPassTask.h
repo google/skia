@@ -35,7 +35,7 @@ public:
 
     ~RenderPassTask() override;
 
-    void addCommands(Context*, CommandBuffer*) override;
+    void addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:
     RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,

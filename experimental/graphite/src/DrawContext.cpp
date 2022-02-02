@@ -126,7 +126,7 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
     desc.fClearColor = drawPass->clearColor();
 
     if (drawPass->depthStencilFlags() != DepthStencilFlags::kNone) {
-        const Caps* caps = recorder->context()->priv().gpu()->caps();
+        const Caps* caps = recorder->caps();
         desc.fDepthStencilAttachment.fTextureInfo =
                 caps->getDefaultDepthStencilTextureInfo(drawPass->depthStencilFlags(),
                                                         1 /*sampleCount*/, // TODO: MSAA

@@ -37,7 +37,6 @@ Gpu::~Gpu() {
     // TODO: destroyResources instead?
     // TODO: how do we handle command buffers that haven't been submitted yet?
     this->checkForFinishedWork(SyncToCpu::kYes);
-    fResourceProvider.reset();
 }
 
 void Gpu::initCompiler() {

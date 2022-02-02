@@ -35,9 +35,7 @@ RenderPassTask::RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,
 
 RenderPassTask::~RenderPassTask() = default;
 
-void RenderPassTask::addCommands(Context* context, CommandBuffer* commandBuffer) {
-    auto resourceProvider = context->priv().resourceProvider();
-
+void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuffer* commandBuffer) {
     // TBD: Expose the surfaces that will need to be attached within the renderpass?
 
     // TODO: for task execution, start the render pass, then iterate passes and
@@ -67,7 +65,7 @@ void RenderPassTask::addCommands(Context* context, CommandBuffer* commandBuffer)
         // Assuming one draw pass per renderpasstask for now
         SkASSERT(fDrawPasses.size() == 1);
         for (const auto& drawPass: fDrawPasses) {
-            drawPass->addCommands(context, commandBuffer, fRenderPassDesc);
+            drawPass->addCommands(resourceProvider, commandBuffer, fRenderPassDesc);
         }
 
         commandBuffer->endRenderPass();

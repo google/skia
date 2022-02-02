@@ -29,6 +29,9 @@ public:
 
     const Caps& mtlCaps() const { return static_cast<const Caps&>(*this->caps()); }
 
+    std::unique_ptr<skgpu::ResourceProvider> makeResourceProvider(
+            sk_sp<GlobalCache>) const override;
+
 private:
     Gpu(sk_cfp<id<MTLDevice>>, sk_cfp<id<MTLCommandQueue>>, sk_sp<const Caps>);
 

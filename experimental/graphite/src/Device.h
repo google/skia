@@ -47,7 +47,7 @@ public:
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
     void flushPendingWorkToRecorder();
 
-    bool readPixels(Context*, const SkPixmap& dst, int x, int y);
+    bool readPixels(Context*, Recorder*, const SkPixmap& dst, int x, int y);
 
 private:
     class IntersectionTreeSet;

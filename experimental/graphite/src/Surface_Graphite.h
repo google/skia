@@ -14,6 +14,7 @@ namespace skgpu {
 
 class Context;
 class Device;
+class Recorder;
 
 class Surface_Graphite final : public SkSurface_Base {
 public:
@@ -25,7 +26,7 @@ public:
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
     bool onCopyOnWrite(ContentChangeMode) override;
-    bool onReadPixels(Context*, const SkPixmap& dst, int srcX, int srcY);
+    bool onReadPixels(Context*, Recorder*, const SkPixmap& dst, int srcX, int srcY);
 
 private:
     sk_sp<Device> fDevice;

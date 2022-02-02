@@ -8,6 +8,7 @@
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
 
 #include "experimental/graphite/include/BackendTexture.h"
+#include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
 #include "experimental/graphite/src/mtl/MtlBuffer.h"
 #include "experimental/graphite/src/mtl/MtlCommandBuffer.h"
@@ -20,8 +21,8 @@
 
 namespace skgpu::mtl {
 
-ResourceProvider::ResourceProvider(const skgpu::Gpu* gpu)
-    : skgpu::ResourceProvider(gpu) {
+ResourceProvider::ResourceProvider(const skgpu::Gpu* gpu, sk_sp<GlobalCache> globalCache)
+    : skgpu::ResourceProvider(gpu, std::move(globalCache)) {
 }
 
 const Gpu* ResourceProvider::mtlGpu() {
@@ -33,10 +34,12 @@ sk_sp<skgpu::CommandBuffer> ResourceProvider::createCommandBuffer() {
 }
 
 sk_sp<skgpu::GraphicsPipeline> ResourceProvider::onCreateGraphicsPipeline(
-        SkShaderCodeDictionary* dict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
-    return GraphicsPipeline::Make(dict, this->mtlGpu(), pipelineDesc, renderPassDesc);
+    return GraphicsPipeline::Make(this,
+                                  this->mtlGpu(),
+                                  pipelineDesc,
+                                  renderPassDesc);
 }
 
 sk_sp<skgpu::Texture> ResourceProvider::createTexture(SkISize dimensions,

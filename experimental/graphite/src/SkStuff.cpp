@@ -56,14 +56,14 @@ sk_sp<SkSurface> MakeGraphiteFromBackendTexture(skgpu::Recorder* recorder,
         return nullptr;
     }
 
-    if (!validate_backend_texture(recorder->context()->priv().gpu()->caps(),
+    if (!validate_backend_texture(recorder->caps(),
                                   beTexture,
                                   colorType)) {
         return nullptr;
     }
 
     sk_sp<skgpu::Texture> texture =
-            recorder->context()->priv().resourceProvider()->createWrappedTexture(beTexture);
+            recorder->resourceProvider()->createWrappedTexture(beTexture);
 
     if (!texture) {
         return nullptr;

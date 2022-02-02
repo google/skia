@@ -10,6 +10,7 @@
 #include "experimental/graphite/include/BackendTexture.h"
 #include "experimental/graphite/include/TextureInfo.h"
 #include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/mtl/MtlCommandBuffer.h"
 #include "experimental/graphite/src/mtl/MtlResourceProvider.h"
@@ -44,10 +45,15 @@ Gpu::Gpu(sk_cfp<id<MTLDevice>> device, sk_cfp<id<MTLCommandQueue>> queue, sk_sp<
     , fDevice(std::move(device))
     , fQueue(std::move(queue)) {
     this->initCompiler();
-    fResourceProvider.reset(new ResourceProvider(this));
 }
 
 Gpu::~Gpu() {
+}
+
+std::unique_ptr<skgpu::ResourceProvider> Gpu::makeResourceProvider(
+        sk_sp<GlobalCache> globalCache) const {
+    return std::unique_ptr<skgpu::ResourceProvider>(new ResourceProvider(this,
+                                                                         std::move(globalCache)));
 }
 
 class WorkSubmission final : public skgpu::GpuWorkSubmission {

@@ -2190,6 +2190,7 @@ Result GraphiteSink::draw(const Src& src,
         SkPixmap pm;
         if (!dst->peekPixels(&pm) ||
             !static_cast<skgpu::Surface_Graphite*>(surface.get())->onReadPixels(context.get(),
+                                                                                recorder.get(),
                                                                                 pm,
                                                                                 0,
                                                                                 0)) {

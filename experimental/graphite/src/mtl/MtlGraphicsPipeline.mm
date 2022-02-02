@@ -337,7 +337,7 @@ enum ShaderType {
 };
 static const int kShaderTypeCount = kLast_ShaderType + 1;
 
-sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const SkShaderCodeDictionary* dictionary,
+sk_sp<GraphicsPipeline> GraphicsPipeline::Make(ResourceProvider* resourceProvider,
                                                const Gpu* gpu,
                                                const skgpu::GraphicsPipelineDesc& pipelineDesc,
                                                const skgpu::RenderPassDesc& renderPassDesc) {
@@ -359,8 +359,9 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const SkShaderCodeDictionary* dic
     }
 
     bool writesColor;
+    auto dict = resourceProvider->shaderCodeDictionary();
     if (!SkSLToMSL(gpu,
-                   get_sksl_fs(dictionary, pipelineDesc, &writesColor),
+                   get_sksl_fs(dict, pipelineDesc, &writesColor),
                    SkSL::ProgramKind::kFragment,
                    settings,
                    &msl[kFragment_ShaderType],
@@ -427,7 +428,6 @@ sk_sp<GraphicsPipeline> GraphicsPipeline::Make(const SkShaderCodeDictionary* dic
         return nullptr;
     }
 
-    auto resourceProvider = (skgpu::mtl::ResourceProvider*) gpu->resourceProvider();
     const DepthStencilSettings& depthStencilSettings =
             pipelineDesc.renderStep()->depthStencilSettings();
     id<MTLDepthStencilState> dss = resourceProvider->findOrCreateCompatibleDepthStencilState(

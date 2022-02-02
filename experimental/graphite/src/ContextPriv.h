@@ -24,12 +24,6 @@ public:
     Gpu* gpu();
     const Gpu* gpu() const;
 
-    ResourceProvider* resourceProvider();
-
-    // TODO: Remove accessor from Context. Users should get this through ResourceProvider once
-    // future changes land.
-    GlobalCache* globalCache();
-
 private:
     friend class Context; // to construct/copy this type.
 

@@ -11,6 +11,7 @@
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
+#include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/Sampler.h"
@@ -18,7 +19,9 @@
 
 namespace skgpu {
 
-ResourceProvider::ResourceProvider(const Gpu* gpu) : fGpu(gpu) {
+ResourceProvider::ResourceProvider(const Gpu* gpu, sk_sp<GlobalCache> globalCache)
+        : fGpu(gpu)
+        , fGlobalCache(std::move(globalCache)) {
     fGraphicsPipelineCache.reset(new GraphicsPipelineCache(this));
 }
 
@@ -27,10 +30,13 @@ ResourceProvider::~ResourceProvider() {
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
-        SkShaderCodeDictionary* dict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
-    return fGraphicsPipelineCache->refPipeline(dict, fGpu->caps(), pipelineDesc, renderPassDesc);
+    return fGraphicsPipelineCache->refPipeline(fGpu->caps(), pipelineDesc, renderPassDesc);
+}
+
+SkShaderCodeDictionary* ResourceProvider::shaderCodeDictionary() const {
+    return fGlobalCache->shaderCodeDictionary();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +60,6 @@ void ResourceProvider::GraphicsPipelineCache::release() {
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
-        SkShaderCodeDictionary* dictionary,
         const Caps* caps,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
@@ -63,9 +68,7 @@ sk_sp<GraphicsPipeline> ResourceProvider::GraphicsPipelineCache::refPipeline(
 	std::unique_ptr<Entry>* entry = fMap.find(pipelineKey);
 
     if (!entry) {
-        auto pipeline = fResourceProvider->onCreateGraphicsPipeline(dictionary,
-                                                                    pipelineDesc,
-                                                                    renderPassDesc);
+        auto pipeline = fResourceProvider->onCreateGraphicsPipeline(pipelineDesc, renderPassDesc);
         if (!pipeline) {
             return nullptr;
         }

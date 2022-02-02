@@ -23,6 +23,7 @@ namespace skgpu {
 class BackendTexture;
 class Buffer;
 class Caps;
+class GlobalCache;
 class Gpu;
 class GraphicsPipeline;
 class Sampler;
@@ -35,8 +36,7 @@ public:
 
     virtual sk_sp<CommandBuffer> createCommandBuffer() = 0;
 
-    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(SkShaderCodeDictionary*,
-                                                         const GraphicsPipelineDesc&,
+    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(const GraphicsPipelineDesc&,
                                                          const RenderPassDesc&);
 
     sk_sp<Texture> findOrCreateTexture(SkISize, const TextureInfo&);
@@ -48,14 +48,15 @@ public:
                                                  SkTileMode xTileMode,
                                                  SkTileMode yTileMode);
 
+    SkShaderCodeDictionary* shaderCodeDictionary() const;
+
 protected:
-    ResourceProvider(const Gpu* gpu);
+    ResourceProvider(const Gpu* gpu, sk_sp<GlobalCache>);
 
     const Gpu* fGpu;
 
 private:
-    virtual sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(SkShaderCodeDictionary*,
-                                                             const GraphicsPipelineDesc&,
+    virtual sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,
                                                              const RenderPassDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) = 0;
@@ -70,8 +71,7 @@ private:
         ~GraphicsPipelineCache();
 
         void release();
-        sk_sp<GraphicsPipeline> refPipeline(SkShaderCodeDictionary*,
-                                            const Caps* caps,
+        sk_sp<GraphicsPipeline> refPipeline(const Caps* caps,
                                             const GraphicsPipelineDesc&,
                                             const RenderPassDesc&);
 
@@ -87,7 +87,10 @@ private:
         ResourceProvider* fResourceProvider;
     };
 
+    sk_sp<GlobalCache> fGlobalCache;
+
     // Cache of GraphicsPipelines
+    // TODO: Move this onto GlobalCache
     std::unique_ptr<GraphicsPipelineCache> fGraphicsPipelineCache;
 };
 

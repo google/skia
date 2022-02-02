@@ -25,6 +25,7 @@ struct RenderPassDesc;
 
 namespace skgpu::mtl {
 class Gpu;
+class ResourceProvider;
 
 class GraphicsPipeline final : public skgpu::GraphicsPipeline {
 public:
@@ -34,7 +35,7 @@ public:
     inline static constexpr unsigned int kVertexBufferIndex = 3;
     inline static constexpr unsigned int kInstanceBufferIndex = 4;
 
-    static sk_sp<GraphicsPipeline> Make(const SkShaderCodeDictionary*,
+    static sk_sp<GraphicsPipeline> Make(ResourceProvider*,
                                         const Gpu*,
                                         const skgpu::GraphicsPipelineDesc&,
                                         const skgpu::RenderPassDesc&);

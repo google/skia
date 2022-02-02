@@ -23,10 +23,15 @@ namespace skgpu {
 class BackendTexture;
 class Caps;
 class CommandBuffer;
+class GlobalCache;
 class GpuWorkSubmission;
 class ResourceProvider;
 class TextureInfo;
 
+// TODO: Figure out if we need to fission Gpu into parts that are needed by a Recorder and parts
+// that are needed only by the Context. In general the Recorder part of Gpu should not be stateful
+// as it will be shared and used by all Recorders. We also don't need calls like submit on the
+// Recorders.
 class Gpu : public SkRefCnt {
 public:
     ~Gpu() override;
@@ -39,7 +44,7 @@ public:
 
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 
-    ResourceProvider* resourceProvider() const { return fResourceProvider.get(); }
+    virtual std::unique_ptr<ResourceProvider> makeResourceProvider(sk_sp<GlobalCache>) const = 0;
 
     bool submit(sk_sp<CommandBuffer>);
     void checkForFinishedWork(SyncToCpu);
@@ -57,8 +62,6 @@ protected:
 
     // Subclass must call this to initialize compiler in its constructor.
     void initCompiler();
-
-    std::unique_ptr<ResourceProvider> fResourceProvider;
 
     using OutstandingSubmission = std::unique_ptr<GpuWorkSubmission>;
     SkDeque fOutstandingSubmissions;

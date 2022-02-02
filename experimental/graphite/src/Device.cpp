@@ -121,9 +121,10 @@ sk_sp<Device> Device::Make(Recorder* recorder, const SkImageInfo& ii) {
     if (!recorder) {
         return nullptr;
     }
-    const Gpu* gpu = recorder->context()->priv().gpu();
-    auto textureInfo = gpu->caps()->getDefaultSampledTextureInfo(ii.colorType(), /*levelCount=*/1,
-                                                                 Protected::kNo, Renderable::kYes);
+    auto textureInfo = recorder->caps()->getDefaultSampledTextureInfo(ii.colorType(),
+                                                                      /*levelCount=*/1,
+                                                                      Protected::kNo,
+                                                                      Renderable::kYes);
     sk_sp<TextureProxy> target(new TextureProxy(ii.dimensions(), textureInfo));
     return Make(recorder,
                 std::move(target),
@@ -191,16 +192,20 @@ bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
     return false;
 }
 
-bool Device::readPixels(Context* context, const SkPixmap& pm, int x, int y) {
+bool Device::readPixels(Context* context,
+                        Recorder* recorder,
+                        const SkPixmap& pm,
+                        int x,
+                        int y) {
     // TODO: Support more formats that we can read back into
     if (pm.colorType() != kRGBA_8888_SkColorType) {
         return false;
     }
 
-    auto resourceProvider = context->priv().resourceProvider();
+    ResourceProvider* resourceProvider = recorder->resourceProvider();
 
     TextureProxy* srcProxy = fDC->target();
-    if(!srcProxy->instantiate(resourceProvider)) {
+    if (!srcProxy->instantiate(resourceProvider)) {
         return false;
     }
     sk_sp<Texture> srcTexture = srcProxy->refTexture();

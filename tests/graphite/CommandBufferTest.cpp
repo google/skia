@@ -8,12 +8,12 @@
 #include "tests/Test.h"
 
 #include "experimental/graphite/include/Context.h"
-#include "experimental/graphite/src/ContextPriv.h"
-
+#include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/include/mtl/MtlTypes.h"
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/Caps.h"
 #include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawWriter.h"
@@ -234,7 +234,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 #if GRAPHITE_TEST_UTILS && CAPTURE_COMMANDBUFFER
     gpu->testingOnly_startCapture();
 #endif
-    auto commandBuffer = gpu->resourceProvider()->createCommandBuffer();
+    auto recorder = context->makeRecorder();
+    auto resourceProvider = recorder->resourceProvider();
+    auto commandBuffer = resourceProvider->createCommandBuffer();
 
     SkISize textureSize = { kTextureWidth, kTextureHeight };
 #ifdef SK_METAL
@@ -256,7 +258,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
                                      SkTileMode::kClamp,
                                      SkBlendMode::kSrc);
 
-    auto dict = context->priv().globalCache()->shaderCodeDictionary();
+    auto dict = resourceProvider->shaderCodeDictionary();
     auto entry = dict->findOrCreate(key);
 
     auto target = sk_sp<TextureProxy>(new TextureProxy(textureSize, textureInfo));
@@ -268,8 +270,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     renderPassDesc.fColorAttachment.fStoreOp = StoreOp::kStore;
     renderPassDesc.fClearColor = { 1, 0, 0, 1 }; // red
 
-    target->instantiate(gpu->resourceProvider());
-    DrawBufferManager bufferMgr(gpu->resourceProvider(), 4);
+    target->instantiate(resourceProvider);
+    DrawBufferManager bufferMgr(resourceProvider, 4);
 
     TextureInfo depthStencilInfo =
             gpu->caps()->getDefaultDepthStencilTextureInfo(DepthStencilFlags::kDepthStencil,
@@ -279,10 +281,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     renderPassDesc.fDepthStencilAttachment.fLoadOp = LoadOp::kDiscard;
     renderPassDesc.fDepthStencilAttachment.fStoreOp = StoreOp::kDiscard;
     sk_sp<Texture> depthStencilTexture =
-            gpu->resourceProvider()->findOrCreateTexture(textureSize, depthStencilInfo);
+            resourceProvider->findOrCreateTexture(textureSize, depthStencilInfo);
 
     // Create Sampler -- for now, just to test creation
-    sk_sp<Sampler> sampler = gpu->resourceProvider()->findOrCreateCompatibleSampler(
+    sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
             SkSamplingOptions(SkFilterMode::kLinear), SkTileMode::kClamp, SkTileMode::kDecal);
     REPORTER_ASSERT(reporter, sampler);
 
@@ -304,9 +306,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
         drawWriter.newPipelineState(step->primitiveType(),
                                     step->vertexStride(),
                                     step->instanceStride());
-        auto pipeline = gpu->resourceProvider()->findOrCreateGraphicsPipeline(dict,
-                                                                              pipelineDesc,
-                                                                              renderPassDesc);
+        auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(pipelineDesc,
+                                                                       renderPassDesc);
         commandBuffer->bindGraphicsPipeline(std::move(pipeline));
 
         // All of the test RenderSteps ignore the transform, so just use the identity
@@ -369,7 +370,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     //       add bpp to Caps
     size_t rowBytes = 4*kTextureWidth;
     size_t bufferSize = rowBytes*kTextureHeight;
-    sk_sp<Buffer> copyBuffer = gpu->resourceProvider()->findOrCreateBuffer(
+    sk_sp<Buffer> copyBuffer = resourceProvider->findOrCreateBuffer(
             bufferSize, BufferType::kXferGpuToCpu, PrioritizeGpuReads::kNo);
     REPORTER_ASSERT(reporter, copyBuffer);
     SkIRect srcRect = { 0, 0, kTextureWidth, kTextureHeight };
