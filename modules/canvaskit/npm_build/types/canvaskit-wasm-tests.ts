@@ -595,11 +595,18 @@ function particlesTests(CK: CanvasKit, canvas?: Canvas) {
     });
 }
 
-function pathEffectTests(CK: CanvasKit) {
+function pathEffectTests(CK: CanvasKit, path?: Path) {
+    if (!path) {
+        return;
+    }
     const pe1 = CK.PathEffect.MakeCorner(2); // $ExpectType PathEffect | null
     const pe2 = CK.PathEffect.MakeDash([2, 4]); // $ExpectType PathEffect
     const pe3 = CK.PathEffect.MakeDash([2, 4, 6, 8], 10); // $ExpectType PathEffect
     const pe4 = CK.PathEffect.MakeDiscrete(10, 2, 0); // $ExpectType PathEffect
+    const pe5 = CK.PathEffect.MakePath1D(path, 3, 4, CK.Path1DEffect.Morph); // $ExpectType PathEffect | null
+    const matr = CK.Matrix.scaled(3, 2);
+    const pe6 = CK.PathEffect.MakePath2D(matr, path); // $ExpectType PathEffect | null
+    const pe7 = CK.PathEffect.MakeLine2D(3.2, matr); // $ExpectType PathEffect | null
 }
 
 function mallocTests(CK: CanvasKit) {

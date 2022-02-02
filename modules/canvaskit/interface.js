@@ -979,6 +979,16 @@ CanvasKit.onRuntimeInitialized = function() {
     return dpe;
   };
 
+  CanvasKit.PathEffect.MakeLine2D = function(width, matrix) {
+    var matrixPtr = copy3x3MatrixToWasm(matrix);
+    return CanvasKit.PathEffect._MakeLine2D(width, matrixPtr);
+  };
+
+  CanvasKit.PathEffect.MakePath2D = function(matrix, path) {
+    var matrixPtr = copy3x3MatrixToWasm(matrix);
+    return CanvasKit.PathEffect._MakePath2D(matrixPtr, path);
+  };
+
   CanvasKit.Shader.MakeColor = function(color4f, colorSpace) {
     colorSpace = colorSpace || null;
     var cPtr = copyColorToWasm(color4f);

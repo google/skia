@@ -1501,5 +1501,74 @@ describe('Core canvas behavior', () => {
         expect(target).toBeTruthy();
         target.delete();
         grContext.delete();
-    })
+    });
+
+    gm('PathEffect_MakePath1D', (canvas) => {
+        // Based off //docs/examples/skpaint_path_1d_path_effect.cpp
+        canvas.clear(CanvasKit.WHITE);
+
+        const path = new CanvasKit.Path();
+        path.addOval(CanvasKit.XYWHRect(0, 0, 16, 6));
+
+        const paint = new CanvasKit.Paint();
+        const effect = CanvasKit.PathEffect.MakePath1D(
+           path, 32, 0, CanvasKit.Path1DEffect.Rotate,
+        );
+        paint.setColor(CanvasKit.Color(94, 53, 88, 1)); // deep purple
+        paint.setPathEffect(effect);
+        paint.setAntiAlias(true);
+        canvas.drawCircle(128, 128, 122, paint);
+
+        path.delete();
+        effect.delete();
+        paint.delete();
+    });
+
+    gm('PathEffect_MakePath2D', (canvas) => {
+        // Based off //docs/examples/skpaint_path_2d_path_effect.cpp
+        canvas.clear(CanvasKit.WHITE);
+
+        const path = new CanvasKit.Path();
+        path.moveTo(20, 30);
+        const points = [20, 20, 10, 30, 0, 30, 20, 10, 30, 10, 40, 0, 40, 10,
+                        50, 10, 40, 20, 40, 30, 20, 50, 20, 40, 30, 30, 20, 30];
+        for (let i = 0; i < points.length; i += 2) {
+            path.lineTo(points[i], points[i+1]);
+        }
+
+        const paint = new CanvasKit.Paint();
+        const effect = CanvasKit.PathEffect.MakePath2D(
+          CanvasKit.Matrix.scaled(40, 40), path
+        );
+        paint.setColor(CanvasKit.Color(53, 94, 59, 1)); // hunter green
+        paint.setPathEffect(effect);
+        paint.setAntiAlias(true);
+        canvas.drawRect(CanvasKit.LTRBRect(-20, -20, 300, 300), paint);
+
+        path.delete();
+        effect.delete();
+        paint.delete();
+    });
+
+    gm('PathEffect_MakeLine2D', (canvas) => {
+        // Based off //docs/examples/skpaint_line_2d_path_effect.cpp
+        canvas.clear(CanvasKit.WHITE);
+
+        const lattice = CanvasKit.Matrix.multiply(
+            CanvasKit.Matrix.scaled(8, 8),
+            CanvasKit.Matrix.rotated(Math.PI / 6),
+        );
+
+        const paint = new CanvasKit.Paint();
+        const effect = CanvasKit.PathEffect.MakeLine2D(
+          2, lattice,
+        );
+        paint.setColor(CanvasKit.Color(59, 53, 94, 1)); // dark blue
+        paint.setPathEffect(effect);
+        paint.setAntiAlias(true);
+        canvas.drawRect(CanvasKit.LTRBRect(20, 20, 300, 300), paint);
+
+        effect.delete();
+        paint.delete();
+    });
 });

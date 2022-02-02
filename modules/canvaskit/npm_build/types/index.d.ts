@@ -440,6 +440,7 @@ export interface CanvasKit {
     readonly ImageFormat: ImageFormatEnumValues;
     readonly MipmapMode: MipmapModeEnumValues;
     readonly PaintStyle: PaintStyleEnumValues;
+    readonly Path1DEffect: Path1DEffectStyleEnumValues;
     readonly PathOp: PathOpEnumValues;
     readonly PointMode: PointModeEnumValues;
     readonly ColorSpace: ColorSpaceEnumValues;
@@ -3346,6 +3347,36 @@ export interface PathEffectFactory {
      * @param seedAssist - modifies the randomness. See SkDiscretePathEffect.h for more.
      */
     MakeDiscrete(segLength: number, dev: number, seedAssist: number): PathEffect;
+
+    /**
+     * Returns a PathEffect that will fill the drawing path with a pattern made by applying
+     * the given matrix to a repeating set of infinitely long lines of the given width.
+     * For example, the scale of the provided matrix will determine how far apart the lines
+     * should be drawn its rotation affects the lines' orientation.
+     * @param width - must be >= 0
+     * @param matrix
+     */
+    MakeLine2D(width: number, matrix: InputMatrix): PathEffect | null;
+
+    /**
+     * Returns a PathEffect which implements dashing by replicating the specified path.
+     *   @param path The path to replicate (dash)
+     *   @param advance The space between instances of path
+     *   @param phase distance (mod advance) along path for its initial position
+     *   @param style how to transform path at each point (based on the current
+     *                position and tangent)
+     */
+    MakePath1D(path: Path, advance: number, phase: number, style: Path1DEffectStyle):
+        PathEffect | null;
+
+    /**
+     * Returns a PathEffect that will fill the drawing path with a pattern by repeating the
+     * given path according to the provided matrix. For example, the scale of the matrix
+     * determines how far apart the path instances should be drawn.
+     * @param matrix
+     * @param path
+     */
+    MakePath2D(matrix: InputMatrix, path: Path): PathEffect | null;
 }
 
 /**
@@ -3836,6 +3867,7 @@ export type FontEdging = EmbindEnumEntity;
 export type FontHinting = EmbindEnumEntity;
 export type MipmapMode = EmbindEnumEntity;
 export type PaintStyle = EmbindEnumEntity;
+export type Path1DEffectStyle = EmbindEnumEntity;
 export type PathOp = EmbindEnumEntity;
 export type PointMode = EmbindEnumEntity;
 export type StrokeCap = EmbindEnumEntity;
@@ -4027,6 +4059,15 @@ export interface MipmapModeEnumValues extends EmbindEnum {
 export interface PaintStyleEnumValues extends EmbindEnum {
     Fill: PaintStyle;
     Stroke: PaintStyle;
+}
+
+export interface Path1DEffectStyleEnumValues extends EmbindEnum {
+    // Translate the shape to each position
+    Translate: Path1DEffectStyle;
+    // Rotate the shape about its center
+    Rotate: Path1DEffectStyle;
+    // Transform each point and turn lines into curves
+    Morph: Path1DEffectStyle;
 }
 
 export interface PathOpEnumValues extends EmbindEnum {

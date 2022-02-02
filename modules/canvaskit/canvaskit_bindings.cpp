@@ -38,6 +38,8 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "include/effects/Sk2DPathEffect.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
@@ -1507,7 +1509,22 @@ EMSCRIPTEN_BINDINGS(Skia) {
             const float* intervals = reinterpret_cast<const float*>(cptr);
             return SkDashPathEffect::Make(intervals, count, phase);
         }), allow_raw_pointers())
-        .class_function("MakeDiscrete", &SkDiscretePathEffect::Make);
+        .class_function("MakeDiscrete", &SkDiscretePathEffect::Make)
+        .class_function("_MakeLine2D", optional_override([](SkScalar width,
+                                                            WASMPointerF32 mPtr)->sk_sp<SkPathEffect> {
+            SkMatrix matrix;
+            const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
+            matrix.set9(nineMatrixValues);
+            return SkLine2DPathEffect::Make(width, matrix);
+        }), allow_raw_pointers())
+        .class_function("MakePath1D", &SkPath1DPathEffect::Make)
+        .class_function("_MakePath2D", optional_override([](WASMPointerF32 mPtr,
+                                                          SkPath path)->sk_sp<SkPathEffect> {
+            SkMatrix matrix;
+            const SkScalar* nineMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
+            matrix.set9(nineMatrixValues);
+            return SkPath2DPathEffect::Make(matrix, path);
+        }), allow_raw_pointers());
 
     // TODO(kjlubick, reed) Make SkPath immutable and only creatable via a factory/builder.
     class_<SkPath>("Path")
@@ -2095,6 +2112,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
     enum_<SkPaint::Style>("PaintStyle")
         .value("Fill",            SkPaint::Style::kFill_Style)
         .value("Stroke",          SkPaint::Style::kStroke_Style);
+
+    enum_<SkPath1DPathEffect::Style>("Path1DEffect")
+        .value("Translate", SkPath1DPathEffect::Style::kTranslate_Style)
+        .value("Rotate",    SkPath1DPathEffect::Style::kRotate_Style)
+        .value("Morph",     SkPath1DPathEffect::Style::kMorph_Style);
 
 #ifdef SK_INCLUDE_PATHOPS
     enum_<SkPathOp>("PathOp")

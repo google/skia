@@ -502,9 +502,14 @@ var CanvasKit = {
     MakeCorner: function() {},
     MakeDash: function() {},
     MakeDiscrete: function() {},
+    MakePath1D: function() {},
+    MakeLine2D: function() {},
+    MakePath2D: function() {},
 
     // Private C++ API
     _MakeDash: function() {},
+    _MakeLine2D: function() {},
+    _MakePath2D: function() {},
   },
 
   ParticleEffect: {

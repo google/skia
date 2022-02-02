@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    for a given `Image` instead of needing to always create a new one via
    `Surface.makeImageFromTextureSource`. (skbug.com/12723)
  - `ParagraphBuilder.reset` allows re-use of the underlying memory.
+ - `PathEffect.MakePath2D`, `PathEffect.MakePath1D` and `PathEffect.MakeLine2D`.
 
 ### Changed
  - Surface factories always produce a surface with an attached color space. Specifying `null` to
