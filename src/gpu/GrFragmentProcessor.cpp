@@ -852,7 +852,7 @@ SkString ProgramImpl::invokeChild(int childIndex,
                                   const char* inputColor,
                                   const char* destColor,
                                   EmitArgs& args,
-                                  SkSL::String skslCoords) {
+                                  std::string_view skslCoords) {
     SkASSERT(childIndex >= 0);
 
     if (!inputColor) {
@@ -882,7 +882,11 @@ SkString ProgramImpl::invokeChild(int childIndex,
     if (args.fFragBuilder->getProgramBuilder()->fragmentProcessorHasCoordsParam(childProc)) {
         SkASSERT(!childProc->sampleUsage().isFragCoord() || skslCoords == "sk_FragCoord.xy");
         // The child's function takes a half4 color and a float2 coordinate
-        invocation.appendf(", %s", skslCoords.empty() ? args.fSampleCoord : skslCoords.c_str());
+        if (!skslCoords.empty()) {
+            invocation.appendf(", %.*s", (int)skslCoords.size(), skslCoords.data());
+        } else {
+            invocation.appendf(", %s", args.fSampleCoord);
+        }
     }
 
     invocation.append(")");

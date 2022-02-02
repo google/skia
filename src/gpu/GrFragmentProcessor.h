@@ -542,7 +542,7 @@ public:
     // Invoke the child with the default input and destination colors (solid white)
     inline SkString invokeChild(int childIndex,
                                 EmitArgs& parentArgs,
-                                SkSL::String skslCoords = "") {
+                                std::string_view skslCoords = {}) {
         return this->invokeChild(childIndex,
                                  /*inputColor=*/nullptr,
                                  /*destColor=*/nullptr,
@@ -561,7 +561,7 @@ public:
     inline SkString invokeChild(int childIndex,
                                 const char* inputColor,
                                 EmitArgs& parentArgs,
-                                SkSL::String skslCoords = "") {
+                                std::string_view skslCoords = {}) {
         return this->invokeChild(childIndex,
                                  inputColor,
                                  /*destColor=*/nullptr,
@@ -593,7 +593,7 @@ public:
                          const char* inputColor,
                          const char* destColor,
                          EmitArgs& parentArgs,
-                         SkSL::String skslCoords = "");
+                         std::string_view skslCoords = {});
 
     /**
      * As invokeChild, but transforms the coordinates according to the matrix expression attached
