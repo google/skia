@@ -397,11 +397,6 @@ void RemoteStrike::setStrikeSpec(const SkStrikeSpec& strikeSpec) {
 
 void RemoteStrike::writeGlyphPath(
         const SkGlyph& glyph, Serializer* serializer) const {
-    if (glyph.isColor() || glyph.isEmpty()) {
-        serializer->write<uint64_t>(0u);
-        return;
-    }
-
     const SkPath* path = glyph.path();
 
     if (path == nullptr) {
@@ -470,17 +465,9 @@ void RemoteStrike::prepareForMaskDrawing(
         }
 
         // Reject things that are too big.
-        // Only collect dimensions of the color glyphs assuming that paths will take care
-        // of the large mask glyphs. This may be inaccurate in the very rare case where
-        // a bitmap only font is being used.
         // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
         if (!digest->canDrawAsMask()) {
-            if (digest->isColor()) {
-                // Paths can't handle color, so these will fall to the drawing of last resort.
-                rejects->reject(i, digest->maxDimension());
-            } else {
-                rejects->reject(i);
-            }
+            rejects->reject(i, digest->maxDimension());
         }
     }
 }
@@ -972,7 +959,7 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         auto* clientDesc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
 
         #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
-            msg.appendf("  Mapped descriptor:\n%s", client_desc->dumpRec().c_str());
+            msg.appendf("  Mapped descriptor:\n%s", clientDesc->dumpRec().c_str());
         #endif
         auto strike = fStrikeCache->findStrike(*clientDesc);
         // Metrics are only sent the first time. If the metrics are not initialized, there must

@@ -20,8 +20,8 @@ bool SkStrikeForGPU::CanDrawAsSDFT(const SkGlyph& glyph) {
 }
 
 bool SkStrikeForGPU::CanDrawAsPath(const SkGlyph& glyph) {
-    SkASSERT(glyph.isColor() || glyph.setPathHasBeenCalled());
-    return !glyph.isColor() && glyph.path() != nullptr;
+    SkASSERT(glyph.setPathHasBeenCalled());
+    return glyph.path() != nullptr;
 }
 
 bool SkStrikeForGPU::FitsInAtlas(const SkGlyph& glyph) {

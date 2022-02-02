@@ -765,7 +765,6 @@ sk_sp<SkTextBlob> MakeEmojiBlob(sk_sp<SkTypeface> serverTf, SkScalar textSize,
     font.setSize(textSize);
 
     const char* text = ToolUtils::emoji_sample_text();
-    SkFont serverFont = font;
     auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
     if (clientTf == nullptr) return blob;
 
@@ -817,6 +816,147 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithNoPaths, repor
         discardableManager->resetCacheMissCounts();
     }
 
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
+
+class SkRemoteGlyphCacheTest {
+    public:
+    static sk_sp<SkTextBlob> MakeNormalBlob(SkPaint* paint,
+                                            sk_sp<SkTypeface> serverTf, bool asPaths, SkScalar textSize,
+                                            sk_sp<SkTypeface> clientTf = nullptr) {
+        SkFont font;
+        font.setTypeface(serverTf);
+        font.setSize(textSize);
+
+        const char* text = "Hel lo";
+        if (asPaths) {
+            font.setupForAsPaths(paint);
+        } else {
+            SkFont font2(font);
+            font2.setupForAsPaths(paint);
+        }
+        auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+        if (clientTf == nullptr) return blob;
+
+        SkSerialProcs s_procs;
+        s_procs.fTypefaceProc = [](SkTypeface*, void* ctx) -> sk_sp<SkData> {
+            return SkData::MakeUninitialized(1u);
+        };
+        auto serialized = blob->serialize(s_procs);
+
+        SkDeserialProcs d_procs;
+        d_procs.fTypefaceCtx = &clientTf;
+        d_procs.fTypefaceProc = [](const void* data, size_t length, void* ctx) -> sk_sp<SkTypeface> {
+            return *(static_cast<sk_sp<SkTypeface>*>(ctx));
+        };
+        return SkTextBlob::Deserialize(serialized->data(), serialized->size(), d_procs);
+    }
+};
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithPaths_MaskThenPath,
+                                   reporter, ctxInfo) {
+    auto direct = ctxInfo.directContext();
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager, true);
+
+    auto serverTf = ToolUtils::create_portable_typeface();
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+    auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+
+    auto props = FindSurfaceProps(direct);
+    std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
+            500, 500, props, nullptr, direct->supportsDistanceFieldText());
+    SkPaint paint;
+    using Rgct = SkRemoteGlyphCacheTest;
+
+    // Draw from mask out of the strike which provides paths.
+    {
+        auto serverBlob = Rgct::MakeNormalBlob(&paint, serverTf, true, 64);
+        cache_diff_canvas->drawTextBlob(serverBlob.get(), 100, 100, paint);
+    }
+    // Draw from path out of the strike which provides paths.
+    {
+        auto serverBlob = Rgct::MakeNormalBlob(&paint, serverTf, false, 440);
+        cache_diff_canvas->drawTextBlob(serverBlob.get(), 100, 100, paint);
+    }
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+    if (!serverStrikeData.empty()) {
+        REPORTER_ASSERT(reporter,
+                        client.readStrikeData(serverStrikeData.data(),
+                                              serverStrikeData.size()));
+    }
+    {
+        auto clientBlob = Rgct::MakeNormalBlob(&paint, serverTf, true, 64, clientTf);
+        REPORTER_ASSERT(reporter, clientBlob);
+
+        RasterBlob(clientBlob, 100, 100, paint, direct);
+        REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+        discardableManager->resetCacheMissCounts();
+    }
+    {
+        auto clientBlob = Rgct::MakeNormalBlob(&paint, serverTf, false, 440, clientTf);
+        REPORTER_ASSERT(reporter, clientBlob);
+
+        RasterBlob(clientBlob, 100, 100, paint, direct);
+        REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+        discardableManager->resetCacheMissCounts();
+    }
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithPaths_PathThenMask,
+                                   reporter, ctxInfo) {
+    auto direct = ctxInfo.directContext();
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager, true);
+
+    auto serverTf = ToolUtils::create_portable_typeface();
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+    auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+
+    auto props = FindSurfaceProps(direct);
+    std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
+            500, 500, props, nullptr, direct->supportsDistanceFieldText());
+    SkPaint paint;
+    using Rgct = SkRemoteGlyphCacheTest;
+
+    // Draw from path out of the strike which provides paths.
+    {
+        auto serverBlob = Rgct::MakeNormalBlob(&paint, serverTf, false, 440);
+        cache_diff_canvas->drawTextBlob(serverBlob.get(), 100, 100, paint);
+    }
+    // Draw from mask out of the strike which provides paths.
+    {
+        auto serverBlob = Rgct::MakeNormalBlob(&paint, serverTf, true, 64);
+        cache_diff_canvas->drawTextBlob(serverBlob.get(), 100, 100, paint);
+    }
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+    if (!serverStrikeData.empty()) {
+        REPORTER_ASSERT(reporter,
+                        client.readStrikeData(serverStrikeData.data(),
+                                              serverStrikeData.size()));
+    }
+    {
+        auto clientBlob = Rgct::MakeNormalBlob(&paint, serverTf, true, 64, clientTf);
+        REPORTER_ASSERT(reporter, clientBlob);
+
+        RasterBlob(clientBlob, 100, 100, paint, direct);
+        REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+        discardableManager->resetCacheMissCounts();
+    }
+    {
+        auto clientBlob = Rgct::MakeNormalBlob(&paint, serverTf, false, 440, clientTf);
+        REPORTER_ASSERT(reporter, clientBlob);
+
+        RasterBlob(clientBlob, 100, 100, paint, direct);
+        REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+        discardableManager->resetCacheMissCounts();
+    }
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }

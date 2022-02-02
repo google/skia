@@ -529,6 +529,7 @@ private:
     friend class SkFontPriv;
     friend class SkGlyphRunListPainter;
     friend class SkStrikeSpec;
+    friend class SkRemoteGlyphCacheTest;
 };
 
 #endif
