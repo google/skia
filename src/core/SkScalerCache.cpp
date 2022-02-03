@@ -164,9 +164,9 @@ std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::prepareImages(
 }
 
 template <typename Fn>
-size_t SkScalerCache::commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) {
+size_t SkScalerCache::commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) {
     size_t total = 0;
-    for (auto [i, packedID, pos] : SkMakeEnumerate(drawables->input())) {
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
             auto [digest, size] = this->digest(packedID);
             total += size;
@@ -178,16 +178,16 @@ size_t SkScalerCache::commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn
     return total;
 }
 
-size_t SkScalerCache::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
+size_t SkScalerCache::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) {
     SkAutoMutexExclusive lock{fMu};
     size_t imageDelta = 0;
-    size_t delta = this->commonFilterLoop(drawables,
+    size_t delta = this->commonFilterLoop(accepted,
         [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
             // If the glyph is too large, then no image is created.
             SkGlyph* glyph = fGlyphForIndex[digest.index()];
             auto [image, imageSize] = this->prepareImage(glyph);
             if (image != nullptr) {
-                drawables->push_back(glyph, i);
+                accepted->accept(glyph, i);
                 imageDelta += imageSize;
             }
         });
@@ -197,15 +197,15 @@ size_t SkScalerCache::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables
 
 // Note: this does not actually fill out the image. That happens at atlas building time.
 size_t SkScalerCache::prepareForMaskDrawing(
-        SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
+        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     SkAutoMutexExclusive lock{fMu};
-    size_t delta = this->commonFilterLoop(drawables,
+    size_t delta = this->commonFilterLoop(accepted,
         [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
             // N.B. this must have the same behavior as RemoteStrike::prepareForMaskDrawing.
             if (digest.canDrawAsMask()) {
-                drawables->push_back(fGlyphForIndex[digest.index()], i);
+                accepted->accept(fGlyphForIndex[digest.index()], i);
             } else {
-                rejects->reject(i, digest.maxDimension());
+                rejected->reject(i, digest.maxDimension());
             }
         });
 
@@ -213,15 +213,15 @@ size_t SkScalerCache::prepareForMaskDrawing(
 }
 
 size_t SkScalerCache::prepareForSDFTDrawing(
-        SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
+        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     SkAutoMutexExclusive lock{fMu};
-    size_t delta = this->commonFilterLoop(drawables,
+    size_t delta = this->commonFilterLoop(accepted,
         [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
             if (digest.canDrawAsSDFT()) {
-                drawables->push_back(fGlyphForIndex[digest.index()], i);
+                accepted->accept(fGlyphForIndex[digest.index()], i);
             } else {
                 // Assume whatever follows SDF doesn't care about the maximum rejected size.
-                rejects->reject(i);
+                rejected->reject(i);
             }
         });
 
@@ -229,20 +229,20 @@ size_t SkScalerCache::prepareForSDFTDrawing(
 }
 
 size_t SkScalerCache::prepareForPathDrawing(
-        SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
+        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     SkAutoMutexExclusive lock{fMu};
     size_t pathDelta = 0;
-    size_t delta = this->commonFilterLoop(drawables,
+    size_t delta = this->commonFilterLoop(accepted,
         [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
             SkGlyph* glyph = fGlyphForIndex[digest.index()];
             auto [path, pathSize] = this->preparePath(glyph);
             pathDelta += pathSize;
             if (path != nullptr) {
                 // Save off the path to draw later.
-                drawables->push_back(path, i);
+                accepted->accept(path, i);
             } else {
                 // Glyph does not have a path.
-                rejects->reject(i, digest.maxDimension());
+                rejected->reject(i, digest.maxDimension());
             }
         });
 

@@ -22,12 +22,12 @@ void SkDrawableGlyphBuffer::ensureSize(size_t size) {
     }
 
     fInputSize = 0;
-    fDrawableSize = 0;
+    fAcceptedSize = 0;
 }
 
 void SkDrawableGlyphBuffer::startSource(const SkZip<const SkGlyphID, const SkPoint>& source) {
     fInputSize = source.size();
-    fDrawableSize = 0;
+    fAcceptedSize = 0;
 
     auto positions = source.get<1>();
     memcpy(fPositions, positions.data(), positions.size() * sizeof(SkPoint));
@@ -45,7 +45,7 @@ void SkDrawableGlyphBuffer::startBitmapDevice(
         SkPoint origin, const SkMatrix& viewMatrix,
         const SkGlyphPositionRoundingSpec& roundingSpec) {
     fInputSize = source.size();
-    fDrawableSize = 0;
+    fAcceptedSize = 0;
 
     // Map the positions including subpixel position.
     auto positions = source.get<1>();
@@ -73,7 +73,7 @@ void SkDrawableGlyphBuffer::startGPUDevice(
         const SkMatrix& drawMatrix,
         const SkGlyphPositionRoundingSpec& roundingSpec) {
     fInputSize = source.size();
-    fDrawableSize = 0;
+    fAcceptedSize = 0;
 
     // Build up the mapping from source space to device space. Add the rounding constant
     // halfSampleFreq so we just need to floor to get the device result.
@@ -117,6 +117,6 @@ void SkDrawableGlyphBuffer::reset() {
         fMaxSize = 0;
     }
     fInputSize = 0;
-    fDrawableSize = 0;
+    fAcceptedSize = 0;
 }
 

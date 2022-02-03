@@ -158,22 +158,22 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
     auto source = SkMakeZip(glyphIDs, positions);
 
     {
-        SkDrawableGlyphBuffer drawable;
-        drawable.ensureSize(100);
-        drawable.startSource(source);
-        for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
+        SkDrawableGlyphBuffer accepted;
+        accepted.ensureSize(100);
+        accepted.startSource(source);
+        for (auto [i, packedID, pos] : SkMakeEnumerate(accepted.input())) {
             REPORTER_ASSERT(reporter, packedID.packedID().glyphID() == glyphIDs[i]);
             REPORTER_ASSERT(reporter, pos == positions[i]);
         }
     }
 
     {
-        SkDrawableGlyphBuffer drawable;
-        drawable.ensureSize(100);
+        SkDrawableGlyphBuffer accepted;
+        accepted.ensureSize(100);
         SkMatrix matrix = SkMatrix::Scale(0.5, 0.5);
         SkGlyphPositionRoundingSpec rounding{true, kX_SkAxisAlignment};
-        drawable.startBitmapDevice(source, {100, 100}, matrix, rounding);
-        for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
+        accepted.startBitmapDevice(source, {100, 100}, matrix, rounding);
+        for (auto [i, packedID, pos] : SkMakeEnumerate(accepted.input())) {
             REPORTER_ASSERT(reporter, glyphIDs[i] == packedID.packedID().glyphID());
             REPORTER_ASSERT(reporter,
                     pos.x() == positions[i].x() * 0.5 + 50 + SkPackedGlyphID::kSubpixelRound);
@@ -182,13 +182,13 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
     }
 
     {
-        SkDrawableGlyphBuffer drawable;
-        drawable.ensureSize(100);
-        drawable.startSource(source);
-        for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
-            drawable.push_back(&glyphs[i], i);
+        SkDrawableGlyphBuffer accepted;
+        accepted.ensureSize(100);
+        accepted.startSource(source);
+        for (auto [i, packedID, pos] : SkMakeEnumerate(accepted.input())) {
+            accepted.accept(&glyphs[i], i);
         }
-        for (auto [i, glyph, pos] : SkMakeEnumerate(drawable.drawable())) {
+        for (auto [i, glyph, pos] : SkMakeEnumerate(accepted.accepted())) {
             REPORTER_ASSERT(reporter, glyph.glyph() == &glyphs[i]);
         }
     }

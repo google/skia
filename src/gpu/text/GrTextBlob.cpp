@@ -371,7 +371,7 @@ public:
 
     PathOpSubmitter(PathOpSubmitter&& that);
 
-    static PathOpSubmitter Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    static PathOpSubmitter Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                 bool isAntiAliased,
                                 SkScalar strikeToSourceScale,
                                 GrSubRunAllocator* alloc);
@@ -412,17 +412,17 @@ PathOpSubmitter::PathOpSubmitter(PathOpSubmitter&& that)
     , fPaths{that.fPaths}
     , fPathData{std::move(that.fPathData)} {}
 
-PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                       bool isAntiAliased,
                                       SkScalar strikeToSourceScale,
                                       GrSubRunAllocator* alloc) {
     auto pathData = alloc->makeUniqueArray<PathAndPosition>(
-            drawables.size(),
+            accepted.size(),
             [&](int i){
-                auto [variant, pos] = drawables[i];
+                auto [variant, pos] = accepted[i];
                 return PathAndPosition{*variant.path(), pos};
             });
-    SkSpan<PathAndPosition> paths{pathData.get(), drawables.size()};
+    SkSpan<PathAndPosition> paths{pathData.get(), accepted.size()};
 
     return PathOpSubmitter{isAntiAliased, strikeToSourceScale, paths, std::move(pathData)};
 }
@@ -483,12 +483,12 @@ class PathSubRun final : public GrSubRun, public GrBlobSubRun {
 public:
     PathSubRun(PathOpSubmitter&& pathDrawing) : fPathDrawing(std::move(pathDrawing)) {}
 
-    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               bool isAntiAliased,
                               SkScalar strikeToSourceScale,
                               GrSubRunAllocator* alloc) {
         return alloc->makeUnique<PathSubRun>(
-                PathOpSubmitter::Make(drawables, isAntiAliased, strikeToSourceScale, alloc));
+                PathOpSubmitter::Make(accepted, isAntiAliased, strikeToSourceScale, alloc));
     }
 
     void draw(SkCanvas* canvas,
@@ -665,7 +665,7 @@ public:
                      bool glyphsOutOfBounds,
                      bool supportBilerpAtlas);
 
-    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               sk_sp<SkStrike>&& strike,
                               GrMaskFormat format,
                               GrTextBlob* blob,
@@ -738,13 +738,13 @@ DirectMaskSubRun::DirectMaskSubRun(GrMaskFormat format,
         , fSupportBilerpAtlas{supportBilerpAtlas}
         , fGlyphs{std::move(glyphs)} {}
 
-GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                      sk_sp<SkStrike>&& strike,
                                      GrMaskFormat format,
                                      GrTextBlob* blob,
                                      GrSubRunAllocator* alloc) {
-    DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(drawables.size());
-    GlyphVector::Variant* glyphIDs = alloc->makePODArray<GlyphVector::Variant>(drawables.size());
+    DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
+    GlyphVector::Variant* glyphIDs = alloc->makePODArray<GlyphVector::Variant>(accepted.size());
 
     // Because this is the direct case, the maximum width or height is the size that fits in the
     // atlas. This boundary is checked below to ensure that the call to SkGlyphRect below will
@@ -753,7 +753,7 @@ GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawa
             std::numeric_limits<int16_t>::max() - SkStrikeCommon::kSkSideTooBigForAtlas;
     SkGlyphRect runBounds = skglyph::empty_rect();
     size_t goodPosCount = 0;
-    for (auto [variant, pos] : drawables) {
+    for (auto [variant, pos] : accepted) {
         auto [x, y] = pos;
         // Ensure that the .offset() call below does not overflow. And, at this point none of the
         // rectangles are empty because they were culled before the run was created. Basically,
@@ -776,7 +776,7 @@ GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawa
 
     // If some glyphs were excluded by the bounds, then this subrun can't be generally be used
     // for other draws. Mark the subrun as not general.
-    bool glyphsExcluded = goodPosCount != drawables.size();
+    bool glyphsExcluded = goodPosCount != accepted.size();
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     return alloc->makeUnique<DirectMaskSubRun>(
             format, blob, runBounds, leftTop,
@@ -1067,7 +1067,7 @@ public:
                           GlyphVector&& glyphs);
 
     static GrSubRunOwner Make(GrTextReferenceFrame* referenceFrame,
-                              const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               sk_sp<SkStrike>&& strike,
                               SkScalar strikeToSourceScale,
                               GrMaskFormat format,
@@ -1137,7 +1137,7 @@ TransformedMaskSubRun::TransformedMaskSubRun(GrTextReferenceFrame* referenceFram
         , fGlyphs{std::move(glyphs)} { }
 
 GrSubRunOwner TransformedMaskSubRun::Make(GrTextReferenceFrame* referenceFrame,
-                                          const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                          const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                           sk_sp<SkStrike>&& strike,
                                           SkScalar strikeToSourceScale,
                                           GrMaskFormat format,
@@ -1145,7 +1145,7 @@ GrSubRunOwner TransformedMaskSubRun::Make(GrTextReferenceFrame* referenceFrame,
     SkRect bounds = SkRectPriv::MakeLargestInverted();
 
     SkSpan<VertexData> vertexData = alloc->makePODArray<VertexData>(
-            drawables,
+            accepted,
             [&](auto e) {
                 auto [variant, pos] = e;
                 SkGlyph* skGlyph = variant;
@@ -1162,7 +1162,7 @@ GrSubRunOwner TransformedMaskSubRun::Make(GrTextReferenceFrame* referenceFrame,
 
     return alloc->makeUnique<TransformedMaskSubRun>(
             referenceFrame, format, strikeToSourceScale, bounds, vertexData,
-            GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc));
+            GlyphVector::Make(std::move(strike), accepted.get<0>(), alloc));
 }
 
 void TransformedMaskSubRun::draw(SkCanvas*,
@@ -1276,7 +1276,7 @@ public:
                const GrSDFTMatrixRange& matrixRange);
 
     static GrSubRunOwner Make(GrTextReferenceFrame* referenceFrame,
-                              const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               const SkFont& runFont,
                               sk_sp<SkStrike>&& strike,
                               SkScalar strikeToSourceScale,
@@ -1361,7 +1361,7 @@ bool has_some_antialiasing(const SkFont& font ) {
 }
 
 GrSubRunOwner SDFTSubRun::Make(GrTextReferenceFrame* referenceFrame,
-                               const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                               const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                const SkFont& runFont,
                                sk_sp<SkStrike>&& strike,
                                SkScalar strikeToSourceScale,
@@ -1382,14 +1382,14 @@ GrSubRunOwner SDFTSubRun::Make(GrTextReferenceFrame* referenceFrame,
         return VertexData{pos, {l, t, r, b}};
     };
 
-    SkSpan<VertexData> vertexData = alloc->makePODArray<VertexData>(drawables, mapper);
+    SkSpan<VertexData> vertexData = alloc->makePODArray<VertexData>(accepted, mapper);
 
     return alloc->makeUnique<SDFTSubRun>(
             referenceFrame,
             strikeToSourceScale,
             bounds,
             vertexData,
-            GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc),
+            GlyphVector::Make(std::move(strike), accepted.get<0>(), alloc),
             runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
             has_some_antialiasing(runFont),
             matrixRange);
@@ -1526,26 +1526,26 @@ const GrAtlasSubRun* SDFTSubRun::testingOnly_atlasSubRun() const {
 template<typename AddSingleMaskFormat>
 void add_multi_mask_format(
         AddSingleMaskFormat addSingleMaskFormat,
-        const SkZip<SkGlyphVariant, SkPoint>& drawables,
+        const SkZip<SkGlyphVariant, SkPoint>& accepted,
         sk_sp<SkStrike>&& strike) {
-    if (drawables.empty()) { return; }
+    if (accepted.empty()) { return; }
 
-    auto glyphSpan = drawables.get<0>();
+    auto glyphSpan = accepted.get<0>();
     SkGlyph* glyph = glyphSpan[0];
     GrMaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
     size_t startIndex = 0;
-    for (size_t i = 1; i < drawables.size(); i++) {
+    for (size_t i = 1; i < accepted.size(); i++) {
         glyph = glyphSpan[i];
         GrMaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
         if (format != nextFormat) {
-            auto glyphsWithSameFormat = drawables.subspan(startIndex, i - startIndex);
+            auto glyphsWithSameFormat = accepted.subspan(startIndex, i - startIndex);
             // Take a ref on the strike. This should rarely happen.
             addSingleMaskFormat(glyphsWithSameFormat, format, sk_sp<SkStrike>(strike));
             format = nextFormat;
             startIndex = i;
         }
     }
-    auto glyphsWithSameFormat = drawables.last(drawables.size() - startIndex);
+    auto glyphsWithSameFormat = accepted.last(accepted.size() - startIndex);
     addSingleMaskFormat(glyphsWithSameFormat, format, std::move(strike));
 }
 
@@ -1802,54 +1802,53 @@ GrTextBlob::GrTextBlob(int allocSize,
         , fInitialLuminance{initialLuminance} { }
 
 void GrTextBlob::processDeviceMasks(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike) {
+        const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
     SkASSERT(strike != nullptr);
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& drawable,
+    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         GrMaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = DirectMaskSubRun::Make(
-                drawable, std::move(runStrike), format, this, &fAlloc);
+                accepted, std::move(runStrike), format, this, &fAlloc);
         if (subRun != nullptr) {
             fSubRunList.append(std::move(subRun));
         } else {
             fSomeGlyphsExcluded = true;
         }
     };
-    add_multi_mask_format(addGlyphsWithSameFormat, drawables, std::move(strike));
+    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
 }
 
-void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     const SkFont& runFont,
                                     SkScalar strikeToSourceScale) {
     fSubRunList.append(PathSubRun::Make(
-            drawables, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
+            accepted, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
 }
 
-void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
                                    const GrSDFTMatrixRange& matrixRange) {
-    fSubRunList.append(
-        SDFTSubRun::Make(
-            this, drawables, runFont, std::move(strike), strikeToSourceScale, matrixRange,&fAlloc));
+    fSubRunList.append(SDFTSubRun::Make(
+            this, accepted, runFont, std::move(strike), strikeToSourceScale, matrixRange, &fAlloc));
 }
 
-void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     sk_sp<SkStrike>&& strike,
                                     SkScalar strikeToSourceScale) {
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& drawable,
+    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         GrMaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = TransformedMaskSubRun::Make(
-                this, drawable, std::move(runStrike), strikeToSourceScale, format, &fAlloc);
+                this, accepted, std::move(runStrike), strikeToSourceScale, format, &fAlloc);
         if (subRun != nullptr) {
             fSubRunList.append(std::move(subRun));
         } else {
             fSomeGlyphsExcluded = true;
         }
     };
-    add_multi_mask_format(addGlyphsWithSameFormat, drawables, std::move(strike));
+    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
 }
 
 // ----------------------------- Begin no cache implementation -------------------------------------
@@ -1865,7 +1864,7 @@ public:
                             SkSpan<const DevicePosition> devicePositions,
                             GlyphVector&& glyphs);
 
-    static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    GrMaskFormat format,
                                    bool supportBilerpAtlas,
@@ -1922,15 +1921,15 @@ DirectMaskSubRunNoCache::DirectMaskSubRunNoCache(GrMaskFormat format,
         , fLeftTopDevicePos{devicePositions}
         , fGlyphs{std::move(glyphs)} { }
 
-GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                                  sk_sp<SkStrike>&& strike,
                                                  GrMaskFormat format,
                                                  bool supportBilerpAtlas,
                                                  GrSubRunAllocator* alloc) {
-    DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(drawables.size());
+    DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
 
     GlyphVector::Variant* glyphIDs = static_cast<GlyphVector::Variant*>(
-            alloc->alignedBytes(drawables.size() * sizeof(GlyphVector::Variant),
+            alloc->alignedBytes(accepted.size() * sizeof(GlyphVector::Variant),
                                 alignof(GlyphVector::Variant)));
 
     // Because this is the direct case, the maximum width or height is the size that fits in the
@@ -1940,7 +1939,7 @@ GrAtlasSubRunOwner DirectMaskSubRunNoCache::Make(const SkZip<SkGlyphVariant, SkP
             std::numeric_limits<int16_t>::max() - SkStrikeCommon::kSkSideTooBigForAtlas;
     SkGlyphRect runBounds = skglyph::empty_rect();
     size_t goodPosCount = 0;
-    for (auto [variant, pos] : drawables) {
+    for (auto [variant, pos] : accepted) {
         auto [x, y] = pos;
         // Ensure that the .offset() call below does not overflow. And, at this point none of the
         // rectangles are empty because they were culled before the run was created. Basically,
@@ -2117,7 +2116,7 @@ public:
                                  SkSpan<const VertexData> vertexData,
                                  GlyphVector&& glyphs);
 
-    static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    GrMaskFormat format,
@@ -2173,14 +2172,14 @@ TransformedMaskSubRunNoCache::TransformedMaskSubRunNoCache(GrMaskFormat format,
         , fGlyphs{std::move(glyphs)} {}
 
 GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables,
+        const SkZip<SkGlyphVariant, SkPoint>& accepted,
         sk_sp<SkStrike>&& strike,
         SkScalar strikeToSourceScale,
         GrMaskFormat format,
         GrSubRunAllocator* alloc) {
     SkRect bounds = SkRectPriv::MakeLargestInverted();
-    auto initializer = [&](auto drawable) {
-        auto [variant, pos] = drawable;
+    auto initializer = [&](auto acceptedGlyph) {
+        auto [variant, pos] = acceptedGlyph;
         SkGlyph* skGlyph = variant;
         int16_t l = skGlyph->left(),
                 t = skGlyph->top(),
@@ -2193,11 +2192,11 @@ GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
         return VertexData{pos, {l, t, r, b}};
     };
 
-    SkSpan<VertexData> vertexData = alloc->makePODArray<VertexData>(drawables, initializer);
+    SkSpan<VertexData> vertexData = alloc->makePODArray<VertexData>(accepted, initializer);
 
     return alloc->makeUnique<TransformedMaskSubRunNoCache>(
             format, strikeToSourceScale, bounds, vertexData,
-            GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc));
+            GlyphVector::Make(std::move(strike), accepted.get<0>(), alloc));
 }
 
 std::tuple<const GrClip*, GrOp::Owner>
@@ -2293,7 +2292,7 @@ public:
                       bool useLCDText,
                       bool antiAliased);
 
-    static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    static GrAtlasSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    const SkFont& runFont,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
@@ -2361,15 +2360,15 @@ SDFTSubRunNoCache::SDFTSubRunNoCache(GrMaskFormat format,
 
 
 GrAtlasSubRunOwner SDFTSubRunNoCache::Make(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables,
+        const SkZip<SkGlyphVariant, SkPoint>& accepted,
         const SkFont& runFont,
         sk_sp<SkStrike>&& strike,
         SkScalar strikeToSourceScale,
         GrSubRunAllocator* alloc) {
 
     SkRect bounds = SkRectPriv::MakeLargestInverted();
-    auto initializer = [&](auto drawable) {
-        auto [variant, pos] = drawable;
+    auto initializer = [&](auto acceptedGlyph) {
+        auto [variant, pos] = acceptedGlyph;
         SkGlyph* skGlyph = variant;
         int16_t l = skGlyph->left(),
                 t = skGlyph->top(),
@@ -2382,14 +2381,14 @@ GrAtlasSubRunOwner SDFTSubRunNoCache::Make(
         return VertexData{pos, {l, t, r, b}};
     };
 
-    SkSpan<VertexData> vertexData = alloc->makePODArray<VertexData>(drawables, initializer);
+    SkSpan<VertexData> vertexData = alloc->makePODArray<VertexData>(accepted, initializer);
 
     return alloc->makeUnique<SDFTSubRunNoCache>(
             kA8_GrMaskFormat,
             strikeToSourceScale,
             bounds,
             vertexData,
-            GlyphVector::Make(std::move(strike), drawables.get<0>(), alloc),
+            GlyphVector::Make(std::move(strike), accepted.get<0>(), alloc),
             runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
             has_some_antialiasing(runFont));
 }
@@ -2497,36 +2496,36 @@ GrSubRunNoCachePainter::GrSubRunNoCachePainter(SkCanvas* canvas,
             , fPaint {paint} {}
 
 void GrSubRunNoCachePainter::processDeviceMasks(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike) {
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& drawable,
+        const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
+    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         GrMaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         const bool padAtlas =
                 fSDC->recordingContext()->priv().options().fSupportBilerpFromGlyphAtlas;
         this->draw(DirectMaskSubRunNoCache::Make(
-                drawable, std::move(runStrike), format, padAtlas, fAlloc));
+                accepted, std::move(runStrike), format, padAtlas, fAlloc));
     };
 
-    add_multi_mask_format(addGlyphsWithSameFormat, drawables, std::move(strike));
+    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
 }
 
-void GrSubRunNoCachePainter::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+void GrSubRunNoCachePainter::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                                 sk_sp<SkStrike>&& strike,
                                                 SkScalar strikeToSourceScale) {
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& drawable,
+    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         GrMaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         this->draw(TransformedMaskSubRunNoCache::Make(
-                drawable, std::move(runStrike), strikeToSourceScale, format, fAlloc));
+                accepted, std::move(runStrike), strikeToSourceScale, format, fAlloc));
     };
-    add_multi_mask_format(addGlyphsWithSameFormat, drawables, std::move(strike));
+    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
 }
 
-void GrSubRunNoCachePainter::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+void GrSubRunNoCachePainter::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                                 const SkFont& runFont,
                                                 SkScalar strikeToSourceScale) {
     PathOpSubmitter pathDrawing =
-            PathOpSubmitter::Make(drawables,
+            PathOpSubmitter::Make(accepted,
                                   has_some_antialiasing(runFont),
                                   strikeToSourceScale,
                                   fAlloc);
@@ -2534,16 +2533,16 @@ void GrSubRunNoCachePainter::processSourcePaths(const SkZip<SkGlyphVariant, SkPo
     pathDrawing.submitOps(fCanvas, fClip, fViewMatrix, fGlyphRunList.origin(), fPaint, fSDC);
 }
 
-void GrSubRunNoCachePainter::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+void GrSubRunNoCachePainter::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                                sk_sp<SkStrike>&& strike,
                                                SkScalar strikeToSourceScale,
                                                const SkFont& runFont,
                                                const GrSDFTMatrixRange&) {
-    if (drawables.empty()) {
+    if (accepted.empty()) {
         return;
     }
     this->draw(SDFTSubRunNoCache::Make(
-            drawables, runFont, std::move(strike), strikeToSourceScale, fAlloc));
+            accepted, runFont, std::move(strike), strikeToSourceScale, fAlloc));
 }
 
 void GrSubRunNoCachePainter::draw(GrAtlasSubRunOwner subRun) {
@@ -2584,15 +2583,15 @@ public:
 
     // SkGlyphRunPainterInterface
     void processDeviceMasks(
-            const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike) override;
+            const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) override;
     void processSourceMasks(
-            const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike,
+            const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike,
             SkScalar strikeToSourceScale) override;
     void processSourcePaths(
-            const SkZip<SkGlyphVariant, SkPoint>& drawables, const SkFont& runFont,
+            const SkZip<SkGlyphVariant, SkPoint>& accepted, const SkFont& runFont,
             SkScalar strikeToSourceScale) override;
     void processSourceSDFT(
-            const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike,
+            const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike,
             SkScalar strikeToSourceScale, const SkFont& runFont,
             const GrSDFTMatrixRange& matrixRange) override;
 
@@ -2646,7 +2645,7 @@ public:
                          GlyphVector&& glyphs);
 
     static GrSubRunOwner Make(Slug* slug,
-                              const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               sk_sp<SkStrike>&& strike,
                               GrMaskFormat format,
                               GrSubRunAllocator* alloc);
@@ -2716,14 +2715,14 @@ DirectMaskSubRunSlug::DirectMaskSubRunSlug(Slug* slug,
         , fGlyphs{std::move(glyphs)} { }
 
 GrSubRunOwner DirectMaskSubRunSlug::Make(Slug* slug,
-                                         const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                         const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                          sk_sp<SkStrike>&& strike,
                                          GrMaskFormat format,
                                          GrSubRunAllocator* alloc) {
-    DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(drawables.size());
+    DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(accepted.size());
 
     GlyphVector::Variant* glyphIDs = static_cast<GlyphVector::Variant*>(
-            alloc->alignedBytes(drawables.size() * sizeof(GlyphVector::Variant),
+            alloc->alignedBytes(accepted.size() * sizeof(GlyphVector::Variant),
                                 alignof(GlyphVector::Variant)));
 
     // Because this is the direct case, the maximum width or height is the size that fits in the
@@ -2733,7 +2732,7 @@ GrSubRunOwner DirectMaskSubRunSlug::Make(Slug* slug,
             std::numeric_limits<int16_t>::max() - SkStrikeCommon::kSkSideTooBigForAtlas;
     SkGlyphRect runBounds = skglyph::empty_rect();
     size_t goodPosCount = 0;
-    for (auto [variant, pos] : drawables) {
+    for (auto [variant, pos] : accepted) {
         auto [x, y] = pos;
         // Ensure that the .offset() call below does not overflow. And, at this point none of the
         // rectangles are empty because they were culled before the run was created. Basically,
@@ -3005,18 +3004,18 @@ DirectMaskSubRunSlug::deviceRectAndCheckTransform(const SkMatrix& positionMatrix
 }
 
 void Slug::processDeviceMasks(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables, sk_sp<SkStrike>&& strike) {
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& drawable,
+        const SkZip<SkGlyphVariant, SkPoint>& accepted, sk_sp<SkStrike>&& strike) {
+    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         GrMaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = DirectMaskSubRunSlug::Make(
-                this, drawable, std::move(runStrike), format, &fAlloc);
+                this, accepted, std::move(runStrike), format, &fAlloc);
         if (subRun != nullptr) {
             fSubRuns.append(std::move(subRun));
         }
     };
 
-    add_multi_mask_format(addGlyphsWithSameFormat, drawables, std::move(strike));
+    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
 }
 
 sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
@@ -3066,37 +3065,37 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
 }
 
 void Slug::processSourcePaths(const SkZip<SkGlyphVariant,
-                              SkPoint>& drawables,
+                              SkPoint>& accepted,
                               const SkFont& runFont,
                               SkScalar strikeToSourceScale) {
     fSubRuns.append(PathSubRun::Make(
-            drawables, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
+            accepted, has_some_antialiasing(runFont), strikeToSourceScale, &fAlloc));
 }
 
-void Slug::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+void Slug::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,
                                    const GrSDFTMatrixRange& matrixRange) {
     fSubRuns.append(SDFTSubRun::Make(
-        this, drawables, runFont, std::move(strike), strikeToSourceScale, matrixRange, &fAlloc));
+        this, accepted, runFont, std::move(strike), strikeToSourceScale, matrixRange, &fAlloc));
 }
 
-void Slug::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+void Slug::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                               sk_sp<SkStrike>&& strike,
                               SkScalar strikeToSourceScale) {
 
-    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& drawable,
+    auto addGlyphsWithSameFormat = [&] (const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                         GrMaskFormat format,
                                         sk_sp<SkStrike>&& runStrike) {
         GrSubRunOwner subRun = TransformedMaskSubRun::Make(
-                this, drawable, std::move(runStrike), strikeToSourceScale, format, &fAlloc);
+                this, accepted, std::move(runStrike), strikeToSourceScale, format, &fAlloc);
         if (subRun != nullptr) {
             fSubRuns.append(std::move(subRun));
         }
     };
 
-    add_multi_mask_format(addGlyphsWithSameFormat, drawables, std::move(strike));
+    add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
 }
 }  // namespace
 

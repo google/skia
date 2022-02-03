@@ -244,17 +244,17 @@ private:
                SkColor initialLuminance);
 
     // Methods to satisfy SkGlyphRunPainterInterface
-    void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             sk_sp<SkStrike>&& strike) override;
-    void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
                             SkScalar strikeToSourceScale) override;
-    void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                            sk_sp<SkStrike>&& strike,
                            SkScalar strikeToSourceScale,
                            const SkFont& runFont,
                            const GrSDFTMatrixRange& matrixRange) override;
-    void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;
 
@@ -291,15 +291,15 @@ public:
                            const SkMatrixProvider& viewMatrix,
                            const SkGlyphRunList&,
                            const SkPaint&);
-    void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             sk_sp<SkStrike>&& strike) override;
-    void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             sk_sp<SkStrike>&& strike,
                             SkScalar strikeToSourceScale) override;
-    void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                             const SkFont& runFont,
                             SkScalar strikeToSourceScale) override;
-    void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                            sk_sp<SkStrike>&& strike,
                            SkScalar strikeToSourceScale,
                            const SkFont& runFont,

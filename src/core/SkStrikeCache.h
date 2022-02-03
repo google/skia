@@ -96,8 +96,8 @@ public:
         return glyphs;
     }
 
-    void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
-        size_t increase = fScalerCache.prepareForDrawingMasksCPU(drawables);
+    void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) {
+        size_t increase = fScalerCache.prepareForDrawingMasksCPU(accepted);
         this->updateDelta(increase);
     }
 
@@ -118,20 +118,20 @@ public:
 #endif
 
     void prepareForMaskDrawing(
-            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
-        size_t increase = fScalerCache.prepareForMaskDrawing(drawbles, rejects);
+            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override {
+        size_t increase = fScalerCache.prepareForMaskDrawing(accepted, rejected);
         this->updateDelta(increase);
     }
 
     void prepareForSDFTDrawing(
-            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
-        size_t increase = fScalerCache.prepareForSDFTDrawing(drawbles, rejects);
+            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override {
+        size_t increase = fScalerCache.prepareForSDFTDrawing(accepted, rejected);
         this->updateDelta(increase);
     }
 
     void prepareForPathDrawing(
-            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
-        size_t increase = fScalerCache.prepareForPathDrawing(drawbles, rejects);
+            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override {
+        size_t increase = fScalerCache.prepareForPathDrawing(accepted, rejected);
         this->updateDelta(increase);
     }
 

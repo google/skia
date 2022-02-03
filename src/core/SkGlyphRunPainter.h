@@ -72,7 +72,7 @@ public:
         BitmapDevicePainter(const BitmapDevicePainter&) = default;
         virtual ~BitmapDevicePainter() = default;
 
-        virtual void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const = 0;
+        virtual void paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) const = 0;
         virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                                 const SkSamplingOptions&, const SkPaint&) const = 0;
     };
@@ -115,8 +115,8 @@ private:
 
     SkStrikeForGPUCacheInterface* const fStrikeCache;
 
-    SkDrawableGlyphBuffer fDrawable;
-    SkSourceGlyphBuffer fRejects;
+    SkDrawableGlyphBuffer fAccepted;
+    SkSourceGlyphBuffer fRejected;
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first
@@ -135,18 +135,18 @@ class SkGlyphRunPainterInterface {
 public:
     virtual ~SkGlyphRunPainterInterface() = default;
 
-    virtual void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    virtual void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     sk_sp<SkStrike>&& strike) = 0;
 
-    virtual void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    virtual void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     sk_sp<SkStrike>&& strike,
                                     SkScalar strikeToSourceScale) = 0;
 
-    virtual void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    virtual void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                     const SkFont& runFont,
                                     SkScalar strikeToSourceScale) = 0;
 
-    virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+    virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,
                                    const SkFont& runFont,

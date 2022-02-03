@@ -50,8 +50,8 @@ public:
               fOverdrawCanvas{overdrawCanvas},
               fPainter{props, kN32_SkColorType, nullptr, SkStrikeCache::GlobalStrikeCache()} {}
 
-    void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override {
-        for (auto t : drawables->drawable()) {
+    void paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) const override {
+        for (auto t : accepted->accepted()) {
             SkGlyphVariant glyph; SkPoint pos;
             std::tie(glyph, pos) = t;
             SkMask mask = glyph.glyph()->mask(pos);
