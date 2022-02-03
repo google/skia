@@ -81,10 +81,10 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/skia/modules/pathkit/npm-wasm/bin/test"
+      "[START_DIR]/skia/modules/pathkit/build/wasm"
     ],
     "infra_step": true,
-    "name": "Docker setup.mkdirs [START_DIR]/skia/modules/pathkit/npm-wasm/bin/test",
+    "name": "Docker setup.mkdirs [START_DIR]/skia/modules/pathkit/build/wasm",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -98,10 +98,10 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/build/pathkit.js",
-      "[START_DIR]/skia/modules/pathkit/npm-wasm/bin/test/pathkit.js"
+      "[START_DIR]/skia/modules/pathkit/build/wasm/pathkit.js"
     ],
     "infra_step": true,
-    "name": "Docker setup.cp [START_DIR]/build/pathkit.js [START_DIR]/skia/modules/pathkit/npm-wasm/bin/test/pathkit.js",
+    "name": "Docker setup.cp [START_DIR]/build/pathkit.js [START_DIR]/skia/modules/pathkit/build/wasm/pathkit.js",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -110,10 +110,10 @@
     "cmd": [
       "chmod",
       "644",
-      "[START_DIR]/skia/modules/pathkit/npm-wasm/bin/test/pathkit.js"
+      "[START_DIR]/skia/modules/pathkit/build/wasm/pathkit.js"
     ],
     "infra_step": true,
-    "name": "Docker setup.chmod 644 [START_DIR]/skia/modules/pathkit/npm-wasm/bin/test/pathkit.js",
+    "name": "Docker setup.chmod 644 [START_DIR]/skia/modules/pathkit/build/wasm/pathkit.js",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -128,10 +128,10 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/skia/modules/pathkit/npm-wasm/bin/test"
+      "[START_DIR]/skia/modules/pathkit/build/wasm"
     ],
     "infra_step": true,
-    "name": "Docker setup.mkdirs [START_DIR]/skia/modules/pathkit/npm-wasm/bin/test (2)",
+    "name": "Docker setup.mkdirs [START_DIR]/skia/modules/pathkit/build/wasm (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -145,10 +145,10 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/build/pathkit.wasm",
-      "[START_DIR]/skia/modules/pathkit/npm-wasm/bin/test/pathkit.wasm"
+      "[START_DIR]/skia/modules/pathkit/build/wasm/pathkit.wasm"
     ],
     "infra_step": true,
-    "name": "Docker setup.cp [START_DIR]/build/pathkit.wasm [START_DIR]/skia/modules/pathkit/npm-wasm/bin/test/pathkit.wasm",
+    "name": "Docker setup.cp [START_DIR]/build/pathkit.wasm [START_DIR]/skia/modules/pathkit/build/wasm/pathkit.wasm",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -157,10 +157,10 @@
     "cmd": [
       "chmod",
       "644",
-      "[START_DIR]/skia/modules/pathkit/npm-wasm/bin/test/pathkit.wasm"
+      "[START_DIR]/skia/modules/pathkit/build/wasm/pathkit.wasm"
     ],
     "infra_step": true,
-    "name": "Docker setup.chmod 644 [START_DIR]/skia/modules/pathkit/npm-wasm/bin/test/pathkit.wasm",
+    "name": "Docker setup.chmod 644 [START_DIR]/skia/modules/pathkit/build/wasm/pathkit.wasm",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

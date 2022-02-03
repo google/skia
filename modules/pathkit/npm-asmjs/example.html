@@ -47,12 +47,12 @@
 <h2> Solves Cubics for Y given X </h2>
 <canvas class=big id=cubics></canvas>
 
-<script type="text/javascript" src="/node_modules/pathkit-asmjs/bin/pathkit.js"></script>
+<script type="text/javascript" src="/build/asmjs/pathkit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
 
   PathKitInit({
-    locateFile: (file) => '/node_modules/pathkit-asmjs/bin/'+file,
+    locateFile: (file) => '/build/asmjs/'+file,
   }).then((PathKit) => {
     window.PathKit = PathKit;
     OutputsExample(PathKit);

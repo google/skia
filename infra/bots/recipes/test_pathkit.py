@@ -36,10 +36,10 @@ def RunSteps(api):
   # The karma script is configured to look in ./npm-(asmjs|wasm)/bin/test/ for
   # the test files to load, so we must copy them there (see Set up for docker).
   copy_dest = checkout_root.join('skia', 'modules', 'pathkit',
-                                 'npm-wasm', 'bin', 'test')
+                                 'build', 'wasm')
   if 'asmjs' in api.vars.builder_name:
     copy_dest = checkout_root.join('skia', 'modules', 'pathkit',
-                                   'npm-asmjs', 'bin', 'test')
+                                   'build', 'asmjs')
 
   base_dir = api.vars.build_dir
   bundle_name = 'pathkit.wasm'
