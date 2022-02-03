@@ -7,12 +7,15 @@
 
 #include "src/core/SkKeyHelpers.h"
 
-#include "experimental/graphite/src/UniformManager.h"
 #include "include/private/SkPaintParamsKey.h"
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkUniform.h"
 #include "src/core/SkUniformData.h"
 #include "src/shaders/SkShaderBase.h"
+
+#ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/src/UniformManager.h"
+#endif
 
 namespace skgpu {
 SkSpan<const SkUniform> GetUniforms(CodeSnippetID snippetID);
