@@ -12,30 +12,9 @@
 #ifndef SkTLogic_DEFINED
 #define SkTLogic_DEFINED
 
-#include <cstddef>
+#include <iterator>
 #include <type_traits>
-#include <utility>
 #include "include/private/SkTo.h"
-
-namespace skstd {
-
-// C++17, std::data, std::size
-template<typename Container>
-constexpr auto data(Container& c) -> decltype(c.data()) { return c.data(); }
-template<typename Container>
-constexpr auto data(const Container& c) -> decltype(c.data()) { return c.data(); }
-template<typename Array, size_t N>
-constexpr auto data(Array(&a)[N]) -> decltype(a) { return a; }
-template<typename T>
-constexpr const T* data(std::initializer_list<T> i) { return i.begin(); }
-
-template<typename Container>
-constexpr auto size(Container& c) -> decltype(c.size()) { return c.size(); }
-template<typename Array, size_t N>
-constexpr size_t size(Array(&)[N]) { return N; }
-template<typename T>
-constexpr const T* size(std::initializer_list<T> i) { return i.end() - i.begin(); }
-}  // namespace skstd
 
 // The sknonstd namespace contains things we would like to be proposed and feel std-ish.
 namespace sknonstd {
@@ -72,6 +51,6 @@ template <typename D, typename S> using same_cv_t = typename same_cv<D, S>::type
 }  // namespace sknonstd
 
 template <typename Container>
-constexpr int SkCount(const Container& c) { return SkTo<int>(skstd::size(c)); }
+constexpr int SkCount(const Container& c) { return SkTo<int>(std::size(c)); }
 
 #endif
