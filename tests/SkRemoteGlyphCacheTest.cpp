@@ -11,6 +11,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkMutex.h"
+#include "include/private/chromium/GrSlug.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
@@ -176,8 +177,26 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint
                     GrRecordingContext* rContext, const SkMatrix* matrix = nullptr,
                     SkScalar x = 0) {
     auto surface = MakeSurface(width, height, rContext);
-    if (matrix) surface->getCanvas()->concat(*matrix);
+    if (matrix) {
+        surface->getCanvas()->concat(*matrix);
+    }
     surface->getCanvas()->drawTextBlob(blob.get(), x, height/2, paint);
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(width, height);
+    surface->readPixels(bitmap, 0, 0);
+    return bitmap;
+}
+
+SkBitmap RasterSlug(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint& paint,
+                    GrRecordingContext* rContext, const SkMatrix* matrix = nullptr,
+                    SkScalar x = 0) {
+    auto surface = MakeSurface(width, height, rContext);
+    if (matrix) {
+        surface->getCanvas()->concat(*matrix);
+    }
+    auto canvas = surface->getCanvas();
+    auto slug = GrSlug::ConvertBlob(canvas, *blob, {x, height/2.0f}, paint);
+    slug->draw(canvas);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(width, height);
     surface->readPixels(bitmap, 0, 0);
@@ -230,6 +249,50 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
 
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, dContext);
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, dContext);
+    compare_blobs(expected, actual, reporter);
+    REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
+
+static void use_padding_options(GrContextOptions* options) {
+    options->fSupportBilerpFromGlyphAtlas = true;
+}
+
+DEF_GPUTEST_FOR_CONTEXTS(SkRemoteGlyphCache_StrikeSerializationSlug,
+                         sk_gpu_test::GrContextFactory::IsRenderingContext,
+                         reporter, ctxInfo, use_padding_options) {
+    auto dContext = ctxInfo.directContext();
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager, false);
+    const SkPaint paint;
+
+    // Server.
+    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+
+    int glyphCount = 10;
+    auto serverBlob = buildTextBlob(serverTf, glyphCount);
+    auto props = FindSurfaceProps(dContext);
+    std::unique_ptr<SkCanvas> analysisCanvas = server.makeAnalysisCanvas(
+            10, 10, props, nullptr, dContext->supportsDistanceFieldText());
+
+    // Generate strike updates.
+    (void)GrSlug::ConvertBlob(analysisCanvas.get(), *serverBlob, {0, 0}, paint);
+
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+
+    // Client.
+    auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+    REPORTER_ASSERT(reporter,
+                    client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+    auto clientBlob = buildTextBlob(clientTf, glyphCount);
+
+    SkBitmap expected = RasterSlug(serverBlob, 10, 10, paint, dContext);
+    SkBitmap actual = RasterSlug(clientBlob, 10, 10, paint, dContext);
     compare_blobs(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
 

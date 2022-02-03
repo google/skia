@@ -302,7 +302,7 @@ protected:
 #if SK_SUPPORT_GPU
     virtual sk_sp<GrSlug> convertGlyphRunListToSlug(
             const SkGlyphRunList& glyphRunList,
-            const SkPaint& paint) const;
+            const SkPaint& paint);
     virtual void drawSlug(SkCanvas*, GrSlug* slug);
 #endif
 

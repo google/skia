@@ -3102,7 +3102,7 @@ void Slug::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
 
 namespace skgpu::v1 {
 sk_sp<GrSlug>
-Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPaint& paint) const {
+Device::convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     return fSurfaceDrawContext->convertGlyphRunListToSlug(
             this->asMatrixProvider(), glyphRunList, paint);
 }
@@ -3131,5 +3131,13 @@ void SurfaceDrawContext::drawSlug(SkCanvas* canvas,
     Slug* slug = static_cast<Slug*>(slugPtr);
 
     slug->surfaceDraw(canvas, clip, viewMatrix, this);
+}
+
+sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,
+                       const SkGlyphRunList& glyphRunList,
+                       const SkPaint& paint,
+                       const GrSDFTControl& control,
+                       SkGlyphRunListPainter* painter) {
+    return Slug::Make(drawMatrix, glyphRunList, paint, control, painter);
 }
 }  // namespace skgpu::v1

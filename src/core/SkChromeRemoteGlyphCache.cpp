@@ -33,6 +33,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/text/GrSDFTControl.h"
+#include "src/gpu/text/GrTextBlob.h"
 #endif
 
 namespace {
@@ -759,10 +760,10 @@ public:
     }
 
 protected:
+    #if SK_SUPPORT_GPU
     void onDrawGlyphRunList(SkCanvas*,
                             const SkGlyphRunList& glyphRunList,
                             const SkPaint& paint) override {
-        #if SK_SUPPORT_GPU
         GrContextOptions ctxOptions;
         GrSDFTControl control =
                 GrSDFTControl{fDFTSupport,
@@ -782,8 +783,21 @@ protected:
                                      "Cache Diff",
                                      uniqueID);
         }
-        #endif  // SK_SUPPORT_GPU
     }
+
+    sk_sp<GrSlug> convertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList,
+                                            const SkPaint& paint) override {
+        GrContextOptions ctxOptions;
+        GrSDFTControl control =
+                GrSDFTControl{fDFTSupport,
+                              this->surfaceProps().isUseDeviceIndependentFonts(),
+                              ctxOptions.fMinDistanceFieldFontSize,
+                              ctxOptions.fGlyphsAsPathsFontSize};
+
+        SkMatrix drawMatrix = this->localToDevice();
+        return skgpu::v1::MakeSlug(drawMatrix, glyphRunList, paint, control, &fPainter);
+    }
+    #endif  // SK_SUPPORT_GPU
 
 private:
     SkStrikeServerImpl* const fStrikeServerImpl;

@@ -159,7 +159,7 @@ protected:
 
     sk_sp<GrSlug> convertGlyphRunListToSlug(
             const SkGlyphRunList& glyphRunList,
-            const SkPaint& paint) const override;
+            const SkPaint& paint) override;
 
     void drawSlug(SkCanvas*, GrSlug* slug) override;
 
