@@ -60,14 +60,6 @@ namespace GradientShaderBlocks {
         // This ctor is used when extracting information from PaintParams. It must provide
         // enough data to generate the uniform data the selected code snippet will require.
         GradientData(SkShader::GradientType,
-                     SkPoint points[2],
-                     float radii[2],
-                     SkTileMode,
-                     int numStops,
-                     SkColor colors[kMaxStops],
-                     float offsets[kMaxStops]);
-
-        GradientData(SkShader::GradientType,
                      SkPoint point0, SkPoint point1,
                      float radius0, float radius1,
                      SkTileMode,
@@ -95,10 +87,6 @@ namespace GradientShaderBlocks {
         int                    fNumStops;
         SkColor4f              fColor4fs[kMaxStops];
         float                  fOffsets[kMaxStops];
-
-    private:
-        void toColor4fs(int numColors, SkColor colors[kMaxStops]);
-        void toOffsets(int numStops, float inputOffsets[kMaxStops]);
     };
 
     void AddToKey(SkBackend,

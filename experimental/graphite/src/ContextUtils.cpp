@@ -72,58 +72,13 @@ static const char* kNoneSkSL = "outColor = half4(0.0, 0.0, 1.0, 1.0);\n";
 } // anonymous namespace
 
 std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintData(
-        SkShaderCodeDictionary* dictionary, const PaintParams& p) {
-    SkPaintParamsKey key;
+        SkShaderCodeDictionary* dictionary,
+        const PaintParams& p) {
 
+    SkPaintParamsKey key;
     std::unique_ptr<SkUniformBlock> block = std::make_unique<SkUniformBlock>();
 
-    // TODO: add UniformData generation to PaintParams::toKey and use it here
-    if (auto s = p.shader()) {
-        SkColor colors[GradientData::kMaxStops];
-        float offsets[GradientData::kMaxStops];
-        SkShader::GradientInfo gradInfo;
-
-        gradInfo.fColorCount = GradientData::kMaxStops;
-        gradInfo.fColors = colors;
-        gradInfo.fColorOffsets = offsets;
-
-        SkShader::GradientType type = s->asAGradient(&gradInfo);
-        if (gradInfo.fColorCount > GradientData::kMaxStops) {
-            type = SkShader::GradientType::kNone_GradientType;
-        }
-
-        GradientData data(type, gradInfo.fPoint, gradInfo.fRadius,
-                          gradInfo.fTileMode, gradInfo.fColorCount,
-                          colors, offsets);
-
-        switch (type) {
-            case SkShader::kLinear_GradientType:  [[fallthrough]];
-            case SkShader::kRadial_GradientType:  [[fallthrough]];
-            case SkShader::kSweep_GradientType:   [[fallthrough]];
-            case SkShader::kConical_GradientType:
-                GradientShaderBlocks::AddToKey(SkBackend::kGraphite,
-                                               &key,
-                                               block.get(),
-                                               data);
-                break;
-            case SkShader::GradientType::kColor_GradientType: [[fallthrough]];
-                // TODO: The solid color gradient type should use its color, not
-                // the paint color
-            case SkShader::GradientType::kNone_GradientType:  [[fallthrough]];
-            default:
-                SolidColorShaderBlock::AddToKey(SkBackend::kGraphite, &key, block.get(), p.color());
-                break;
-        }
-    } else {
-        // Solid colored paint
-        SolidColorShaderBlock::AddToKey(SkBackend::kGraphite, &key, block.get(), p.color());
-    }
-
-    if (p.blender()) {
-        as_BB(p.blender())->addToKey(dictionary, SkBackend::kGraphite, &key, block.get());
-    } else {
-        BlendModeBlock::AddToKey(SkBackend::kGraphite, &key, block.get(), SkBlendMode::kSrcOver);
-    }
+    p.toKey(dictionary, SkBackend::kGraphite, &key, block.get());
 
     auto entry = dictionary->findOrCreate(key);
 
