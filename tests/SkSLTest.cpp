@@ -340,6 +340,7 @@ SKSL_TEST_ES3(SkSLWhileBodyMustBeInlinedIntoAScope,
 SKSL_TEST_ES3(SkSLWhileTestCannotBeInlined,       "inliner/WhileTestCannotBeInlined.sksl")
 
 SKSL_TEST(SkSLIntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicAbsInt,             "intrinsics/AbsInt.sksl")
 SKSL_TEST(SkSLIntrinsicCeil,                   "intrinsics/Ceil.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicDeterminant,        "intrinsics/Determinant.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicDFdx,               "intrinsics/DFdx.sksl")
@@ -351,14 +352,14 @@ SKSL_TEST_ES3(SkSLIntrinsicIntBitsToFloat,     "intrinsics/IntBitsToFloat.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicIsInf,              "intrinsics/IsInf.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicClampInt,           "intrinsics/ClampInt.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicClampUInt,          "intrinsics/ClampUInt.sksl")
-// Fails on Adreno 6xx + Vulkan
-SKSL_TEST_CPU(SkSLIntrinsicClampFloat,         "intrinsics/ClampFloat.sksl")
+SKSL_TEST(SkSLIntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMatrixCompMultES2,      "intrinsics/MatrixCompMultES2.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicMatrixCompMultES3,  "intrinsics/MatrixCompMultES3.sksl")
 SKSL_TEST(SkSLIntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicMaxInt,             "intrinsics/MaxInt.sksl")
 SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
-// Fails on Adreno + Vulkan (skia:11919)
-SKSL_TEST_CPU(SkSLIntrinsicMixFloat,           "intrinsics/MixFloat.sksl")
+SKSL_TEST_ES3(SkSLIntrinsicMinInt,             "intrinsics/MinInt.sksl")
+SKSL_TEST(SkSLIntrinsicMixFloat,               "intrinsics/MixFloat.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicModf,               "intrinsics/Modf.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicOuterProduct,       "intrinsics/OuterProduct.sksl")
 // Fails on Mac OpenGL + Radeon 5300M (skia:12434)
@@ -468,12 +469,3 @@ SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 SKSL_TEST(SkSLVectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
 SKSL_TEST(SkSLVectorScalarMath,                "shared/VectorScalarMath.sksl")
 SKSL_TEST_ES3(SkSLWhileLoopControlFlow,        "shared/WhileLoopControlFlow.sksl")
-
-/*
-TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
-
-SKSL_TEST(SkSLIntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
-SKSL_TEST(SkSLIntrinsicMaxInt,                 "intrinsics/MaxInt.sksl")
-SKSL_TEST(SkSLIntrinsicMinInt,                 "intrinsics/MinInt.sksl")
-SKSL_TEST(SkSLIntrinsicMixBool,                "intrinsics/MixBool.sksl")
-*/

@@ -13,14 +13,14 @@ half4 main(float2 coords) {
             clamp(testInputs.xy,   -1, 1)                         == expectedA.xy    &&
             clamp(testInputs.xyz,  -1, 1)                         == expectedA.xyz   &&
             clamp(testInputs.xyzw, -1, 1)                         == expectedA.xyzw  &&
-            clamp(constVal.x,      -1, 1)                         == expectedA.x     &&
-            clamp(constVal.xy,     -1, 1)                         == expectedA.xy    &&
-            clamp(constVal.xyz,    -1, 1)                         == expectedA.xyz   &&
-            clamp(constVal.xyzw,   -1, 1)                         == expectedA.xyzw  &&
             clamp(testInputs.x,    clampLow.x,    clampHigh.x   ) == expectedB.x     &&
             clamp(testInputs.xy,   clampLow.xy,   clampHigh.xy  ) == expectedB.xy    &&
             clamp(testInputs.xyz,  clampLow.xyz,  clampHigh.xyz ) == expectedB.xyz   &&
             clamp(testInputs.xyzw, clampLow.xyzw, clampHigh.xyzw) == expectedB.xyzw  &&
+            clamp(constVal.x,      -1, 1)                         == expectedA.x     &&
+            clamp(constVal.xy,     -1, 1)                         == expectedA.xy    &&
+            clamp(constVal.xyz,    -1, 1)                         == expectedA.xyz   &&
+            clamp(constVal.xyzw,   -1, 1)                         == expectedA.xyzw  &&
             clamp(constVal.x,      clampLow.x,    clampHigh.x   ) == expectedB.x     &&
             clamp(constVal.xy,     clampLow.xy,   clampHigh.xy  ) == expectedB.xy    &&
             clamp(constVal.xyz,    clampLow.xyz,  clampHigh.xyz ) == expectedB.xyz   &&
