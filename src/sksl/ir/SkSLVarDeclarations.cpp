@@ -16,11 +16,33 @@
 
 namespace SkSL {
 
+
 std::unique_ptr<Statement> VarDeclaration::clone() const {
-    return std::make_unique<VarDeclaration>(&this->var(),
-                                            &this->baseType(),
-                                            fArraySize,
-                                            this->value() ? this->value()->clone() : nullptr);
+    // Cloning a VarDeclaration is inherently problematic, as we normally expect a one-to-one
+    // mapping between Variables and VarDeclarations and a straightforward clone would violate this
+    // assumption. We could of course theoretically clone the Variable as well, but that would
+    // require additional context and tracking, since for the whole process to work we would also
+    // have to fixup any subsequent VariableReference clones to point to the newly cloned Variables
+    // instead of the originals.
+    //
+    // Since the only reason we ever clone VarDeclarations is to support tests of clone() and we do
+    // not expect to ever need to do so otherwise, a full solution to this issue is unnecessary at
+    // the moment. We instead just keep track of whether a VarDeclaration is a clone so we can
+    // handle its cleanup properly. This allows clone() to work in the simple case that a
+    // VarDeclaration's clone does not outlive the original, which is adequate for testing. Since
+    // this leaves a sharp  edge in place - destroying the original could cause a use-after-free in
+    // some circumstances - we also disable cloning altogether unless the
+    // fAllowVarDeclarationCloneForTesting ProgramSetting is enabled.
+    if (ThreadContext::Settings().fAllowVarDeclarationCloneForTesting) {
+        return std::make_unique<VarDeclaration>(&this->var(),
+                                                &this->baseType(),
+                                                fArraySize,
+                                                this->value() ? this->value()->clone() : nullptr,
+                                                /*isClone=*/true);
+    } else {
+        SkDEBUGFAIL("VarDeclaration::clone() is unsupported");
+        return nullptr;
+    }
 }
 
 std::string VarDeclaration::description() const {

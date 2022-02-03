@@ -18,6 +18,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLDefines.h"  // for kDefaultInlineThreshold
+#include "include/sksl/DSLCore.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrCaps.h"
@@ -25,6 +26,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLRehydrator.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -54,7 +56,7 @@ static SkString load_source(skiatest::Reporter* r,
     SkString resourcePath = SkStringPrintf("sksl/%s", testFile);
     sk_sp<SkData> shaderData = GetResourceAsData(resourcePath.c_str());
     if (!shaderData) {
-        ERRORF(r, "%s: Unable to load file", testFile);
+        ERRORF(r, "%s%s: Unable to load file", testFile, permutationSuffix);
         return SkString("");
     }
     return SkString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
@@ -182,6 +184,33 @@ static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
     test_permutations(r, surface.get(), testFile, /*worksInES2=*/false);
 }
 
+static void test_clone(skiatest::Reporter* r, const char* testFile) {
+    SkString shaderString = load_source(r, testFile, "");
+    if (shaderString.isEmpty()) {
+        return;
+    }
+    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
+    SkSL::Program::Settings settings;
+    settings.fAllowVarDeclarationCloneForTesting = true;
+    SkSL::Compiler compiler(caps.get());
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+            SkSL::ProgramKind::kRuntimeShader, shaderString.c_str(), settings);
+    if (!program) {
+        ERRORF(r, "%s", compiler.errorText().c_str());
+        return;
+    }
+    // Starting DSL allows us to get access to the ThreadContext::Settings
+    SkSL::dsl::Start(&compiler, SkSL::ProgramKind::kFragment, settings);
+    for (const std::unique_ptr<SkSL::ProgramElement>& element : program->fOwnedElements) {
+        std::string original = element->description();
+        std::string cloned = element->clone()->description();
+        REPORTER_ASSERT(r, original == cloned,
+                "Mismatch after clone!\nOriginal: %s\nCloned: %s\n", original.c_str(),
+                cloned.c_str());
+    }
+    SkSL::dsl::End();
+}
+
 static int write_symbol_tables(SkSL::Dehydrator& dehydrator, const SkSL::SymbolTable& s) {
     int count = 1;
     if (s.fParent) {
@@ -250,8 +279,13 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile) {
         test_rehydrate(r, path);                                    \
     }
 
+#define SKSL_TEST_CLONE(name, path)                                 \
+    DEF_TEST(name ## _CLONE, r) {                                   \
+        test_clone(r, path);                                        \
+    }
+
 #define SKSL_TEST(name, path) SKSL_TEST_CPU(name, path) SKSL_TEST_GPU(name, path) \
-        SKSL_TEST_REHYDRATE(name, path)
+        SKSL_TEST_CLONE(name, path) SKSL_TEST_REHYDRATE(name, path)
 
 SKSL_TEST(SkSLArraySizeFolding,                "folding/ArraySizeFolding.sksl")
 SKSL_TEST(SkSLAssignmentOps,                   "folding/AssignmentOps.sksl")
