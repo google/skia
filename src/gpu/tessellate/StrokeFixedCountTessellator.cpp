@@ -26,7 +26,6 @@ using Circle = PatchWriter::Circle;
 using Conic = PatchWriter::Conic;
 using Cubic = PatchWriter::Cubic;
 using Line = PatchWriter::Line;
-using RawPatch = PatchWriter::RawPatch;
 using Quadratic = PatchWriter::Quadratic;
 
 constexpr static float kMaxParametricSegments_pow4 =
@@ -41,7 +40,6 @@ public:
             : fPatchWriter(patchWriter)
             , fParametricPrecision(StrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
         SkASSERT(fPatchWriter.attribs() & PatchAttribs::kJoinControlPoint);
-        SkASSERT(!fPatchWriter.hasJoinControlPoint());
     }
 
     float parametricPrecision() const { return fParametricPrecision; }
@@ -51,7 +49,7 @@ public:
     float maxParametricSegments_pow4() const { return fMaxParametricSegments_pow4; }
 
     SK_ALWAYS_INLINE void lineTo(SkPoint start, SkPoint end) {
-        this->writeStroke(RawPatch(Line(start, end)));
+        fPatchWriter << Line(start, end);
     }
 
     SK_ALWAYS_INLINE void quadraticTo(const SkPoint p[3]) {
@@ -61,7 +59,7 @@ public:
             return;
         }
 
-        this->writeStroke(RawPatch(Quadratic(p)));
+        fPatchWriter << Quadratic(p);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }
@@ -73,7 +71,7 @@ public:
             this->chopConicTo({p, w});
             return;
         }
-        this->writeStroke(RawPatch(Conic(p, w)));
+        fPatchWriter << Conic(p, w);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }
@@ -84,7 +82,7 @@ public:
             this->chopCubicConvex180To(p);
             return;
         }
-        this->writeStroke(RawPatch(Cubic(p)));
+        fPatchWriter << Cubic(p);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }
@@ -102,14 +100,7 @@ public:
     }
 
     void finishContour() {
-        if (fDeferredFirstStroke.fExplicitCurveType >= 0.f) {
-            // We deferred the first stroke because we didn't know the previous control point to use
-            // for its join. We write it out now.
-            SkASSERT(fPatchWriter.hasJoinControlPoint());
-            this->writeStroke(fDeferredFirstStroke);
-            fDeferredFirstStroke.fExplicitCurveType = -1.f;
-        }
-        fPatchWriter.resetJoinControlPointAttrib();
+        fPatchWriter.writeDeferredStrokePatch();
     }
 
 private:
@@ -136,36 +127,9 @@ private:
         this->cubicConvex180To(chops + 3);
     }
 
-    SK_ALWAYS_INLINE void writeStroke(const RawPatch& rawPatch) {
-        if (fPatchWriter.hasJoinControlPoint()) {
-            fPatchWriter << rawPatch;
-        } else {
-            // We don't know the previous control point yet to use for the join. Defer writing out
-            // this stroke until the end.
-            SkASSERT(rawPatch.fExplicitCurveType >= 0.f);
-            fDeferredFirstStroke = rawPatch;
-        }
-
-        SkPoint endControlPoint;
-        if (rawPatch.fExplicitCurveType == kCubicCurveType && any(rawPatch.fP3 != rawPatch.fP2)) {
-            // p2 is control point defining the tangent vector into the next patch.
-            rawPatch.fP2.store(&endControlPoint);
-        } else if (any(rawPatch.fP2 != rawPatch.fP1)) {
-            // p1 is the control point defining the tangent vector.
-            rawPatch.fP1.store(&endControlPoint);
-        } else {
-            // p0 is the control point defining the tangent vector.
-            rawPatch.fP0.store(&endControlPoint);
-        }
-        fPatchWriter.updateJoinControlPointAttrib(endControlPoint);
-    }
-
     PatchWriter& fPatchWriter;
     const float fParametricPrecision;
     float fMaxParametricSegments_pow4 = 1;
-
-    // We can't write out the first stroke until we know the previous control point for its join.
-    RawPatch fDeferredFirstStroke;
 };
 
 // Returns the worst-case number of edges we will need in order to draw a join of the given type.
