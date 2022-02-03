@@ -28,6 +28,8 @@ npm:
 	./compile.sh asm.js
 	cp ../../out/pathkit/pathkit.js     ./npm-asmjs/bin/pathkit.js
 	cp ../../out/pathkit/pathkit.js.mem ./npm-asmjs/bin/pathkit.js.mem
+	cp CHANGELOG.md ./npm-wasm
+	cp CHANGELOG.md ./npm-asmjs
 
 test-continuous:
 	echo "Assuming npm ci has been run by user"
