@@ -87,6 +87,10 @@ private:
                                const skgpu::Buffer*,
                                size_t bufferOffset,
                                size_t bufferRowBytes) override;
+    bool onCopyBufferToTexture(const skgpu::Buffer*,
+                               const skgpu::Texture*,
+                               const BufferTextureCopyData* copyData,
+                               int count) override;
 
     BlitCommandEncoder* getBlitCommandEncoder();
     void endBlitCommandEncoder();

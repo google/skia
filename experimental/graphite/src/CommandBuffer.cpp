@@ -117,22 +117,13 @@ void CommandBuffer::bindSamplers(const SamplerBindEntry* entries, int count) {
     }
 }
 
-static bool check_max_blit_width(int widthInPixels) {
-    if (widthInPixels > 32767) {
-        SkASSERT(false); // surfaces should not be this wide anyway
-        return false;
-    }
-    return true;
-}
-
 bool CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
                                         SkIRect srcRect,
                                         sk_sp<skgpu::Buffer> buffer,
                                         size_t bufferOffset,
                                         size_t bufferRowBytes) {
-    if (!check_max_blit_width(srcRect.width())) {
-        return false;
-    }
+    SkASSERT(texture);
+    SkASSERT(buffer);
 
     if (!this->onCopyTextureToBuffer(texture.get(), srcRect, buffer.get(), bufferOffset,
                                      bufferRowBytes)) {
@@ -141,6 +132,26 @@ bool CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,
 
     this->trackResource(std::move(texture));
     this->trackResource(std::move(buffer));
+
+    SkDEBUGCODE(fHasWork = true;)
+
+    return true;
+}
+
+bool CommandBuffer::copyBufferToTexture(sk_sp<skgpu::Buffer> buffer,
+                                        sk_sp<skgpu::Texture> texture,
+                                        const BufferTextureCopyData* copyData,
+                                        int count) {
+    SkASSERT(buffer);
+    SkASSERT(texture);
+    SkASSERT(count > 0 && copyData);
+
+    if (!this->onCopyBufferToTexture(buffer.get(), texture.get(), copyData, count)) {
+        return false;
+    }
+
+    this->trackResource(std::move(buffer));
+    this->trackResource(std::move(texture));
 
     SkDEBUGCODE(fHasWork = true;)
 
