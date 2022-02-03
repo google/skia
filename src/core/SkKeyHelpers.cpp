@@ -413,6 +413,8 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 //--------------------------------------------------------------------------------------------------
 namespace ImageShaderBlock {
 
+namespace {
+
 #ifdef SK_GRAPHITE_ENABLED
 
 inline static constexpr int kTileModeBits = 2;
@@ -438,7 +440,27 @@ ImageData ExtractFromKey(const SkPaintParamsKey& key, uint32_t headerOffset) {
 }
 #endif // SK_DEBUG
 
+sk_sp<SkUniformData> make_image_uniform_data(const ImageData& imgData) {
+    static constexpr size_t kExpectedNumUniforms = 0;
+
+    SkSpan<const SkUniform> uniforms = skgpu::GetUniforms(CodeSnippetID::kImageShader);
+    SkASSERT(uniforms.size() == kExpectedNumUniforms);
+
+    skgpu::UniformManager mgr(skgpu::Layout::kMetal);
+
+    size_t dataSize = mgr.writeUniforms(uniforms, nullptr, nullptr, nullptr);
+
+    sk_sp<SkUniformData> result = SkUniformData::Make(uniforms, dataSize);
+
+    // TODO: add the required data to ImageData and assemble the uniforms here
+
+    mgr.writeUniforms(result->uniforms(), nullptr, result->offsets(), result->data());
+    return result;
+}
+
 #endif // SK_GRAPHITE_ENABLED
+
+} // anonymous namespace
 
 void AddToKey(SkBackend backend,
               SkPaintParamsKey* key,
@@ -458,6 +480,10 @@ void AddToKey(SkBackend backend,
         key->endBlock(headerOffset, CodeSnippetID::kImageShader);
 
         SkASSERT(imgData == ExtractFromKey(*key, headerOffset));
+
+        if (uniformBlock) {
+            uniformBlock->add(make_image_uniform_data(imgData));
+        }
         return;
     }
 #endif // SK_GRAPHITE_ENABLED
