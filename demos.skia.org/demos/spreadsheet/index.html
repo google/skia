@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<title>Spreadsheet Demo</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.33.0/bin/full/canvaskit.js"></script>
+
+<style>
+  body {
+      background-color: black;
+  }
+  h1 {
+      color: white;
+  }
+</style>
+
+<body>
+  <h1>Large canvas with many numbers, like a spreadsheet</h1>
+  <select id="numbers_impl">
+    <option value="drawText">drawText (single)</option>
+    <option value="drawGlyphs">drawGlyphs (batched)</option>
+  </select>
+
+  <canvas id=draw width=3840 height=2160></canvas>
+</body>
+
+<script type="text/javascript" charset="utf-8">
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.33.0/bin/full/' + file });
+
+  // This is the dimensions of a 4k screen.
+  const WIDTH = 3840, HEIGHT = 2160;
+  const ROWS = 144;
+  const ROW_HEIGHT = 15;
+  const COLS = 77;
+  const COL_WIDTH = 50;
+
+  ckLoaded.then((CanvasKit) => {
+    const surface = CanvasKit.MakeCanvasSurface('draw');
+    if (!surface) {
+      throw 'Could not make surface';
+    }
+
+    const colorPaints = {
+      "grey": CanvasKit.Color4f(0.3, 0.3, 0.3, 1.0),
+      "black": CanvasKit.BLACK,
+      "white": CanvasKit.WHITE,
+      "springGreen": CanvasKit.Color(0, 255, 127),
+      "tomato": CanvasKit.Color(255, 99, 71),
+    };
+    for (const name in colorPaints) {
+      const color = colorPaints[name];
+      const paint = new CanvasKit.Paint();
+      paint.setColor(color);
+      colorPaints[name] = paint;
+    }
+
+    const data = [];
+    for (let row = 0; row < ROWS; row++) {
+      data[row] = [];
+      for (let col = 0; col < COLS; col++) {
+        data[row][col] = Math.random() * Math.PI;
+      }
+    }
+
+    // Maybe use https://storage.googleapis.com/skia-cdn/google-web-fonts/NotoSans-Regular.ttf
+    const textFont = new CanvasKit.Font(null, 12);
+
+    const choice = document.getElementById("numbers_impl");
+
+    let frames = [];
+    const framesToMeasure = 10;
+    choice.addEventListener("change", () => {
+      frames = [];
+    })
+    function drawFrame(canvas) {
+      if (frames && frames.length === framesToMeasure) {
+        // It is important to measure frame to frame time to account for the time spent by the
+        // GPU after our flush calls.
+        const deltas = [];
+        for (let i = 0; i< frames.length-1;i++) {
+          deltas.push(frames[i+1] - frames[i]);
+        }
+        console.log(`First ${framesToMeasure} frames`, deltas);
+        console.log((frames[framesToMeasure-1] - frames[0]) / framesToMeasure);
+        frames = null;
+      } else if (frames) {
+        frames.push(performance.now());
+      }
+      canvas.clear(CanvasKit.BLACK);
+
+      if (choice.selectedIndex === 0) {
+        drawTextImpl(canvas);
+      } else {
+        drawGlyphsImpl(canvas);
+      }
+
+      surface.requestAnimationFrame(drawFrame)
+    }
+
+    function drawTextImpl(canvas) {
+      const timer = performance.now() / 10000;
+      for (let row = 0; row < ROWS; row++) {
+        if (row % 2) {
+          canvas.drawRect(CanvasKit.XYWHRect(0, row * ROW_HEIGHT + 2, WIDTH, ROW_HEIGHT), colorPaints["grey"]);
+        }
+        for (let col = 0; col < COLS; col++) {
+          let n = Math.abs(Math.sin(timer + data[row][col]));
+          let useWhiteFont = true;
+          if (n < 0.05) {
+            canvas.drawRect(CanvasKit.XYWHRect(col * COL_WIDTH - 2, (row - 1) * ROW_HEIGHT + 2, COL_WIDTH, ROW_HEIGHT), colorPaints["tomato"]);
+            useWhiteFont = false;
+          } else if (n > 0.95) {
+            canvas.drawRect(CanvasKit.XYWHRect(col * COL_WIDTH - 2, (row - 1) * ROW_HEIGHT + 2, COL_WIDTH, ROW_HEIGHT), colorPaints["springGreen"]);
+            useWhiteFont = false;
+          }
+          const str = n.toFixed(4);
+          canvas.drawText(str, col * COL_WIDTH, row * ROW_HEIGHT,
+            useWhiteFont ? colorPaints["white"] : colorPaints["black"], textFont);
+        }
+      }
+    }
+
+    //====================================================================================
+    const alphabet = "0.123456789 ";
+    const glyphIDs = textFont.getGlyphIDs(alphabet);
+    // These are all 7 with current font and size
+    const advances = textFont.getGlyphWidths(glyphIDs);
+
+
+    const charsPerDataPoint = 6; // leading 0, period, 4 decimal places
+    const glyphIDsMObj = CanvasKit.MallocGlyphIDs(ROWS * COLS * charsPerDataPoint);
+    let wasmGlyphIDArr = glyphIDsMObj.toTypedArray();
+    const glyphLocationsMObj = CanvasKit.Malloc(Float32Array, glyphIDsMObj.length * 2);
+    let wasmGlyphLocations = glyphLocationsMObj.toTypedArray();
+
+    function dataToGlyphs(n, outputBuffer, offset) {
+      const s = n.toFixed(4);
+      outputBuffer[offset] = glyphIDs[0]; // Always a leading 0
+      outputBuffer[offset+1] = glyphIDs[1]; // Always a decimal place
+      for (let i = 2; i< charsPerDataPoint; i++) {
+        outputBuffer[offset+i] = glyphIDs[alphabet.indexOf(s[i])];
+      }
+    }
+    const spaceIndex = alphabet.length - 1;
+    function blankOut(outputBuffer, offset) {
+      for (let i = 0; i< charsPerDataPoint; i++) {
+        outputBuffer[offset+i] = glyphIDs[spaceIndex];
+      }
+    }
+
+    for (let row = 0; row < ROWS; row++) {
+      for (let col = 0; col < COLS; col++) {
+        for (let i = 0; i < charsPerDataPoint; i++) {
+          const offset = (col + row * COLS) * charsPerDataPoint * 2;
+          wasmGlyphLocations[offset + i * 2] = col * COL_WIDTH + i * advances[0];
+          wasmGlyphLocations[offset + i * 2 + 1] = row * ROW_HEIGHT;
+        }
+      }
+    }
+
+    const greyGlyphIDsMObj = CanvasKit.MallocGlyphIDs(charsPerDataPoint);
+
+    function drawGlyphsImpl(canvas) {
+      wasmGlyphIDArr = glyphIDsMObj.toTypedArray();
+      let wasmGreyGlyphIDsArr = greyGlyphIDsMObj.toTypedArray();
+
+      const timer = performance.now() / 10000;
+      for (let row = 0; row < ROWS; row++) {
+        if (row % 2) {
+          canvas.drawRect(CanvasKit.XYWHRect(0, row * ROW_HEIGHT + 2, WIDTH, ROW_HEIGHT), colorPaints["grey"]);
+        }
+        for (let col = 0; col < COLS; col++) {
+          const n = Math.abs(Math.sin(timer + data[row][col]));
+          let useWhiteFont = true;
+          if (n < 0.05) {
+            canvas.drawRect(CanvasKit.XYWHRect(col * COL_WIDTH - 2, (row - 1) * ROW_HEIGHT + 2, COL_WIDTH, ROW_HEIGHT), colorPaints["tomato"]);
+            useWhiteFont = false;
+          } else if (n > 0.95) {
+            canvas.drawRect(CanvasKit.XYWHRect(col * COL_WIDTH - 2, (row - 1) * ROW_HEIGHT + 2, COL_WIDTH, ROW_HEIGHT), colorPaints["springGreen"]);
+            useWhiteFont = false;
+          }
+
+          const offset = (col + row * COLS) * charsPerDataPoint;
+          if (useWhiteFont) {
+            dataToGlyphs(n, wasmGlyphIDArr, offset);
+          } else {
+            blankOut(wasmGlyphIDArr, offset);
+            dataToGlyphs(n, wasmGreyGlyphIDsArr, 0);
+            canvas.drawGlyphs(wasmGreyGlyphIDsArr,
+              glyphLocationsMObj.subarray(offset*2, (offset + charsPerDataPoint) * 2),
+              0, 0, textFont, colorPaints["grey"]
+            );
+          }
+        }
+      }
+      canvas.drawGlyphs(wasmGlyphIDArr, glyphLocationsMObj, 0, 0, textFont, colorPaints["white"]);
+    }
+
+    surface.requestAnimationFrame(drawFrame);
+  });
+</script>
