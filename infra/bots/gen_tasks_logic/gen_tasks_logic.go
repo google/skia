@@ -291,7 +291,7 @@ type JobInfo struct {
 	// The name of the job.
 	Name string `json:"name"`
 
-	// The optinal CQ config of this job. If the CQ config is missing then the
+	// The optional CQ config of this job. If the CQ config is missing then the
 	// job will not be added to the CQ of this branch.
 	CQConfig *specs.CommitQueueJobConfig `json:"cq_config,omitempty"`
 }
@@ -884,6 +884,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				d["machine_type"] = MACHINE_TYPE_MEDIUM
 			}
 		} else {
+			// It's a GPU job.
 			if b.matchOs("Win") {
 				gpu, ok := map[string]string{
 					// At some point this might use the device ID, but for now it's like Chromebooks.
