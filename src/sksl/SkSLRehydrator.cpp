@@ -15,6 +15,7 @@
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -89,14 +90,20 @@ Rehydrator::Rehydrator(const Compiler& compiler, const uint8_t* src, size_t leng
     SkASSERT(fSymbolTable);
     SkASSERT(fSymbolTable->isBuiltin());
     fIP = src;
-    uint16_t version = this->readU16();
-    (void)version;
+    [[maybe_unused]] uint16_t version = this->readU16();
     SkASSERTF(version == kVersion, "Dehydrated file is an unsupported version (current version is "
             "%d, found version %d)", kVersion, version);
     fStringStart = fIP;
     // skip over string data
     fIP += this->readU16();
 }
+
+#ifdef SK_DEBUG
+Rehydrator::~Rehydrator() {
+    // ensure that we have read the expected number of bytes
+    SkASSERT(fIP == fEnd);
+}
+#endif
 
 Layout Rehydrator::layout() {
     switch (this->readU8()) {
@@ -259,16 +266,16 @@ const Type* Rehydrator::type() {
     return (const Type*) result;
 }
 
-std::unique_ptr<Program> Rehydrator::program(int symbolTableCount,
-        std::unique_ptr<std::string> source,
-        std::unique_ptr<ProgramConfig> config,
-        std::vector<const ProgramElement*> sharedElements,
-        std::unique_ptr<ModifiersPool> modifiers,
-        std::unique_ptr<Pool> pool,
-        Program::Inputs inputs) {
+std::unique_ptr<Program> Rehydrator::program(
+        const std::vector<const ProgramElement*>* sharedElements) {
+    [[maybe_unused]] uint8_t command = this->readU8();
+    SkASSERT(command == kProgram_Command);
+    uint8_t symbolTableCount = this->readU8();
     ProgramConfig* oldConfig = fContext->fConfig;
     ModifiersPool* oldModifiersPool = fContext->fModifiersPool;
+    auto config = std::make_unique<ProgramConfig>();
     fContext->fConfig = config.get();
+    auto modifiers = std::make_unique<ModifiersPool>();
     fContext->fModifiersPool = modifiers.get();
     for (int i = 0; i < symbolTableCount; ++i) {
         this->symbolTable();
@@ -276,9 +283,13 @@ std::unique_ptr<Program> Rehydrator::program(int symbolTableCount,
     std::vector<std::unique_ptr<ProgramElement>> elements = this->elements();
     fContext->fConfig = oldConfig;
     fContext->fModifiersPool = oldModifiersPool;
-    return std::make_unique<Program>(std::move(source), std::move(config), fContext,
-            std::move(elements), std::move(sharedElements), std::move(modifiers), fSymbolTable,
-            std::move(pool), inputs);
+    if (!sharedElements) {
+        sharedElements = &ThreadContext::SharedElements();
+    }
+    Program::Inputs inputs;
+    inputs.fUseFlipRTUniform = this->readU8();
+    return std::make_unique<Program>(nullptr, std::move(config), fContext, std::move(elements),
+            *sharedElements, std::move(modifiers), fSymbolTable, /*pool=*/nullptr, inputs);
 }
 
 std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {

@@ -34,7 +34,7 @@ class Type;
  */
 class Rehydrator {
 public:
-    static constexpr uint16_t kVersion = 5;
+    static constexpr uint16_t kVersion = 6;
 
     enum Command {
         // uint16 id, Type componentType, uint8 count
@@ -110,6 +110,9 @@ public:
         kPostfix_Command,
         // uint8 op, Expression operand
         kPrefix_Command,
+        // uint8_t symbolTableCount, SymbolTable[] symbolTables, Elements elements,
+        // bool useFlipRTUniform
+        kProgram_Command,
         // Expression value
         kReturn_Command,
         // String name, Expression value
@@ -149,20 +152,20 @@ public:
     Rehydrator(const Compiler& compiler, const uint8_t* src, size_t length,
             std::shared_ptr<SymbolTable> base = nullptr);
 
+#ifdef SK_DEBUG
+    ~Rehydrator();
+#endif
+
     // Reads a symbol table and makes it current (inheriting from the previous current table)
     std::shared_ptr<SymbolTable> symbolTable();
 
     // Reads a collection of program elements and returns it
     std::vector<std::unique_ptr<ProgramElement>> elements();
 
-    // Reads an entire program
-    std::unique_ptr<Program> program(int symbolTableCount,
-            std::unique_ptr<std::string> source,
-            std::unique_ptr<ProgramConfig> config,
-            std::vector<const ProgramElement*> sharedElements,
-            std::unique_ptr<ModifiersPool> modifiers,
-            std::unique_ptr<Pool> pool,
-            Program::Inputs inputs);
+    // Reads an entire program. If the sharedElements are not provided, they will be pulled from the
+    // current ThreadContext.
+    std::unique_ptr<Program> program(
+            const std::vector<const ProgramElement*>* sharedElements = nullptr);
 
 private:
     // If this ID appears in a symbol table, it means the corresponding symbol isn't actually

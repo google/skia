@@ -23,6 +23,7 @@ namespace SkSL {
 
 class AnyConstructor;
 class Expression;
+struct Program;
 class ProgramElement;
 class Statement;
 class Symbol;
@@ -44,6 +45,8 @@ public:
     ~Dehydrator() {
         SkASSERT(fSymbolMap.size() == 1);
     }
+
+    void write(const Program& program);
 
     void write(const SymbolTable& symbols);
 
