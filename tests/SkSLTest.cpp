@@ -97,7 +97,7 @@ static void test_one_permutation(skiatest::Reporter* r,
                                                                   7, 8, 9});
     set_uniform_array(&builder, "testArray",  SkMakeSpan(kArray));
 
-    sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
+    sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
     if (!shader) {
         ERRORF(r, "%s%s: Unable to build shader", testFile, permutationSuffix);
         return;

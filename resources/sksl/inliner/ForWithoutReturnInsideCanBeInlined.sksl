@@ -1,9 +1,9 @@
 uniform half4 colorGreen;
 
 inline half4 loopy() {
-    half4 result;
+    half4 result = colorGreen;
     for (int x=0; x<4; ++x) {
-        result[x] = colorGreen[x];
+        result *= colorGreen;
     }
     return result;
 }
