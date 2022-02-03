@@ -101,11 +101,11 @@ std::string MetalCodeGenerator::typeName(const Type& type) {
                                   this->typeName(type.componentType()).c_str(), type.columns());
 
         case Type::TypeKind::kVector:
-            return this->typeName(type.componentType()) + skstd::to_string(type.columns());
+            return this->typeName(type.componentType()) + std::to_string(type.columns());
 
         case Type::TypeKind::kMatrix:
-            return this->typeName(type.componentType()) + skstd::to_string(type.columns()) + "x" +
-                                  skstd::to_string(type.rows());
+            return this->typeName(type.componentType()) + std::to_string(type.columns()) + "x" +
+                                  std::to_string(type.rows());
 
         case Type::TypeKind::kSampler:
             return "texture2d<half>"; // FIXME - support other texture types
@@ -197,7 +197,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     AutoOutputStream outputToExtraFunctions(this, &fExtraFunctions, &fIndentation);
     const FunctionDeclaration& function = call.function();
 
-    std::string name = "_skOutParamHelper" + skstd::to_string(fSwizzleHelperCount++) +
+    std::string name = "_skOutParamHelper" + std::to_string(fSwizzleHelperCount++) +
                        "_" + function.mangledName();
     const char* separator = "";
 
@@ -248,7 +248,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
             }
         } else {
             this->write(" _var");
-            this->write(skstd::to_string(index));
+            this->write(std::to_string(index));
         }
     }
     this->writeLine(") {");
@@ -261,7 +261,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         // float3 _var2[ = outParam.zyx];
         this->writeType(arguments[index]->type());
         this->write(" _var");
-        this->write(skstd::to_string(index));
+        this->write(std::to_string(index));
 
         const Variable* param = function.parameters()[index];
         if (param->modifiers().fFlags & Modifiers::kIn_Flag) {
@@ -291,7 +291,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         separator = ", ";
 
         this->write("_var");
-        this->write(skstd::to_string(index));
+        this->write(std::to_string(index));
     }
     this->writeLine(");");
 
@@ -304,7 +304,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         this->writeExpression(*arguments[index], Precedence::kAssignment);
         fIgnoreVariableReferenceModifiers = false;
         this->write(" = _var");
-        this->write(skstd::to_string(index));
+        this->write(std::to_string(index));
         this->writeLine(";");
     }
 
@@ -511,7 +511,7 @@ matrix<T, C, R> outerProduct(const vec<T, R> a, const vec<T, C> b) {
 }
 
 std::string MetalCodeGenerator::getTempVariable(const Type& type) {
-    std::string tempVar = "_skTemp" + skstd::to_string(fVarCount++);
+    std::string tempVar = "_skTemp" + std::to_string(fVarCount++);
     this->fFunctionHeader += "    " + this->typeName(type) + " " + tempVar + ";\n";
     return tempVar;
 }
@@ -1739,13 +1739,13 @@ void MetalCodeGenerator::writeLiteral(const Literal& l) {
     }
     if (type.isInteger()) {
         if (type.matches(*fContext.fTypes.fUInt)) {
-            this->write(skstd::to_string(l.intValue() & 0xffffffff));
+            this->write(std::to_string(l.intValue() & 0xffffffff));
             this->write("u");
         } else if (type.matches(*fContext.fTypes.fUShort)) {
-            this->write(skstd::to_string(l.intValue() & 0xffff));
+            this->write(std::to_string(l.intValue() & 0xffff));
             this->write("u");
         } else {
-            this->write(skstd::to_string(l.intValue()));
+            this->write(std::to_string(l.intValue()));
         }
         return;
     }
@@ -1847,7 +1847,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         this->write("(Inputs _in [[stage_in]]");
         if (-1 != fUniformBuffer) {
             this->write(", constant Uniforms& _uniforms [[buffer(" +
-                        skstd::to_string(fUniformBuffer) + ")]]");
+                        std::to_string(fUniformBuffer) + ")]]");
         }
         for (const ProgramElement* e : fProgram.elements()) {
             if (e->is<GlobalVarDeclaration>()) {
@@ -1863,13 +1863,13 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                     this->write(", texture2d<half> ");
                     this->writeName(var.var().name());
                     this->write("[[texture(");
-                    this->write(skstd::to_string(binding));
+                    this->write(std::to_string(binding));
                     this->write(")]]");
                     this->write(", sampler ");
                     this->writeName(var.var().name());
                     this->write(SAMPLER_SUFFIX);
                     this->write("[[sampler(");
-                    this->write(skstd::to_string(binding));
+                    this->write(std::to_string(binding));
                     this->write(")]]");
                 }
             } else if (e->is<InterfaceBlock>()) {
@@ -1882,7 +1882,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
                 this->write(" [[buffer(");
-                this->write(skstd::to_string(this->getUniformBinding(intf.variable().modifiers())));
+                this->write(std::to_string(this->getUniformBinding(intf.variable().modifiers())));
                 this->write(")]]");
             }
         }
@@ -2024,13 +2024,13 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         this->write(intf.instanceName());
         if (intf.arraySize() > 0) {
             this->write("[");
-            this->write(skstd::to_string(intf.arraySize()));
+            this->write(std::to_string(intf.arraySize()));
             this->write("]");
         }
         fInterfaceBlockNameMap[&intf] = intf.instanceName();
     } else {
         fInterfaceBlockNameMap[&intf] = *fProgram.fSymbols->takeOwnershipOfString(
-                "_anonInterface" + skstd::to_string(fAnonInterfaceCount++));
+                "_anonInterface" + std::to_string(fAnonInterfaceCount++));
     }
     this->writeLine(";");
 }
@@ -2051,13 +2051,13 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             if (currentOffset > fieldOffset) {
                 fContext.fErrors->error(parentLine,
                                         "offset of field '" + std::string(field.fName) +
-                                        "' must be at least " + skstd::to_string(currentOffset));
+                                        "' must be at least " + std::to_string(currentOffset));
                 return;
             } else if (currentOffset < fieldOffset) {
                 this->write("char pad");
-                this->write(skstd::to_string(fPaddingCount++));
+                this->write(std::to_string(fPaddingCount++));
                 this->write("[");
-                this->write(skstd::to_string(fieldOffset - currentOffset));
+                this->write(std::to_string(fieldOffset - currentOffset));
                 this->writeLine("];");
                 currentOffset = fieldOffset;
             }
@@ -2065,7 +2065,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             if (fieldOffset % alignment) {
                 fContext.fErrors->error(parentLine,
                                         "offset of field '" + std::string(field.fName) +
-                                        "' must be a multiple of " + skstd::to_string(alignment));
+                                        "' must be a multiple of " + std::to_string(alignment));
                 return;
             }
         }
@@ -2238,7 +2238,7 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
             this->writeLine("default:");
         } else {
             this->write("case ");
-            this->write(skstd::to_string(c.value()));
+            this->write(std::to_string(c.value()));
             this->writeLine(":");
         }
         if (!c.statement()->isEmpty()) {
@@ -2340,10 +2340,10 @@ void MetalCodeGenerator::writeInputStruct() {
                 if (-1 != var.modifiers().fLayout.fLocation) {
                     if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
                         this->write("  [[attribute(" +
-                                    skstd::to_string(var.modifiers().fLayout.fLocation) + ")]]");
+                                    std::to_string(var.modifiers().fLayout.fLocation) + ")]]");
                     } else if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
                         this->write("  [[user(locn" +
-                                    skstd::to_string(var.modifiers().fLayout.fLocation) + ")]]");
+                                    std::to_string(var.modifiers().fLayout.fLocation) + ")]]");
                     }
                 }
                 this->write(";\n");
@@ -2376,12 +2376,12 @@ void MetalCodeGenerator::writeOutputStruct() {
                     fContext.fErrors->error(var.fLine,
                             "Metal out variables must have 'layout(location=...)'");
                 } else if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
-                    this->write(" [[user(locn" + skstd::to_string(location) + ")]]");
+                    this->write(" [[user(locn" + std::to_string(location) + ")]]");
                 } else if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
-                    this->write(" [[color(" + skstd::to_string(location) + ")");
+                    this->write(" [[color(" + std::to_string(location) + ")");
                     int colorIndex = var.modifiers().fLayout.fIndex;
                     if (colorIndex) {
-                        this->write(", index(" + skstd::to_string(colorIndex) + ")");
+                        this->write(", index(" + std::to_string(colorIndex) + ")");
                     }
                     this->write("]]");
                 }

@@ -101,7 +101,7 @@ public:
             return skstd::to_string(this->floatValue());
         }
         if (this->type().isInteger()) {
-            return skstd::to_string(this->intValue());
+            return std::to_string(this->intValue());
         }
         SkASSERT(this->type().isBoolean());
         return fValue ? "true" : "false";

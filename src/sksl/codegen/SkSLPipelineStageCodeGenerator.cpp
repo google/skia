@@ -315,7 +315,7 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
             this->writeLine("default:");
         } else {
             this->write("case ");
-            this->write(skstd::to_string(c.value()));
+            this->write(std::to_string(c.value()));
             this->writeLine(":");
         }
         if (!c.statement()->isEmpty()) {
@@ -472,7 +472,7 @@ std::string PipelineStageCodeGenerator::typeName(const Type& raw) {
         // This is necessary so that name mangling on arrays-of-structs works properly.
         std::string arrayName = this->typeName(type.componentType());
         arrayName.push_back('[');
-        arrayName += skstd::to_string(type.columns());
+        arrayName += std::to_string(type.columns());
         arrayName.push_back(']');
         return arrayName;
     }
@@ -656,7 +656,7 @@ std::string PipelineStageCodeGenerator::typedVariable(const Type& type, std::str
 
     std::string decl = this->typeName(baseType) + " " + std::string(name);
     if (type.isArray()) {
-        decl += "[" + skstd::to_string(type.columns()) + "]";
+        decl += "[" + std::to_string(type.columns()) + "]";
     }
     return decl;
 }

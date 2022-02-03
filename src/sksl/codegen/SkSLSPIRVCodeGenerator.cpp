@@ -474,14 +474,13 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         const Layout& fieldLayout = field.fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
             if (fieldLayout.fOffset < (int) offset) {
-                fContext.fErrors->error(type.fLine,
-                                        "offset of field '" + std::string(field.fName) +
-                                        "' must be at least " + skstd::to_string(offset));
+                fContext.fErrors->error(type.fLine, "offset of field '" + std::string(field.fName) +
+                                                    "' must be at least " + std::to_string(offset));
             }
             if (fieldLayout.fOffset % alignment) {
                 fContext.fErrors->error(type.fLine,
                                         "offset of field '" + std::string(field.fName) +
-                                        "' must be a multiple of " + skstd::to_string(alignment));
+                                        "' must be a multiple of " + std::to_string(alignment));
             }
             offset = fieldLayout.fOffset;
         } else {
@@ -562,14 +561,14 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
 
     std::string key(type->name());
     if (type->isStruct() || type->isArray()) {
-        key += skstd::to_string(layout.fStd);
+        key += std::to_string(layout.fStd);
 #ifdef SK_DEBUG
         SkASSERT(layout.fStd == MemoryLayout::Standard::k140_Standard ||
                  layout.fStd == MemoryLayout::Standard::k430_Standard);
         MemoryLayout::Standard otherStd = layout.fStd == MemoryLayout::Standard::k140_Standard
                                                   ? MemoryLayout::Standard::k430_Standard
                                                   : MemoryLayout::Standard::k140_Standard;
-        std::string otherKey = type->displayName() + skstd::to_string(otherStd);
+        std::string otherKey = type->displayName() + std::to_string(otherStd);
         SkASSERT(fTypeMap.find(otherKey) == fTypeMap.end());
 #endif
     }
@@ -677,19 +676,19 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
 SpvId SPIRVCodeGenerator::getImageType(const Type& type) {
     SkASSERT(type.typeKind() == Type::TypeKind::kSampler);
     this->getType(type);
-    std::string key = type.displayName() + skstd::to_string(fDefaultLayout.fStd);
+    std::string key = type.displayName() + std::to_string(fDefaultLayout.fStd);
     SkASSERT(fImageTypeMap.find(key) != fImageTypeMap.end());
     return fImageTypeMap[key];
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
-    std::string key = skstd::to_string(this->getType(function.returnType())) + "(";
+    std::string key = std::to_string(this->getType(function.returnType())) + "(";
     std::string separator;
     const std::vector<const Variable*>& parameters = function.parameters();
     for (size_t i = 0; i < parameters.size(); i++) {
         key += separator;
         separator = ", ";
-        key += skstd::to_string(this->getType(parameters[i]->type()));
+        key += std::to_string(this->getType(parameters[i]->type()));
     }
     key += ")";
     auto entry = fTypeMap.find(key);
@@ -743,8 +742,8 @@ SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ stor
 SpvId SPIRVCodeGenerator::getPointerType(const Type& rawType, const MemoryLayout& layout,
                                          SpvStorageClass_ storageClass) {
     const Type& type = this->getActualType(rawType);
-    std::string key = type.displayName() + "*" + skstd::to_string(layout.fStd) +
-                      skstd::to_string(storageClass);
+    std::string key = type.displayName() + "*" + std::to_string(layout.fStd) +
+                      std::to_string(storageClass);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId(nullptr);

@@ -76,7 +76,7 @@ public:
                     size_t slots = type->slotCount();
                     for (size_t i = 0; i < slots; ++i) {
                         value.append(isFloat ? skstd::to_string(floatData[i])
-                                             : skstd::to_string(intData[i]));
+                                             : std::to_string(intData[i]));
                         value.append(",");
                     }
                     value.back() = ')';

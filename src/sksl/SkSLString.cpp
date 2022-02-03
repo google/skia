@@ -15,12 +15,10 @@
 #include <sstream>
 #include <string>
 
-template <>
 std::string skstd::to_string(float value) {
     return skstd::to_string((double)value);
 }
 
-template <>
 std::string skstd::to_string(double value) {
     std::stringstream buffer;
     buffer.imbue(std::locale::classic());

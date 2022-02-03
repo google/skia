@@ -34,14 +34,10 @@ void vappendf(std::string* str, const char* fmt, va_list va);
 
 namespace skstd {
 
-// For most types, pass-through to std::to_string as-is.
-template <typename T> std::string to_string(T value) {
-    return std::to_string(value);
-}
-
-// We customize the output from to_string(float|double) slightly.
-template <> std::string to_string(float value);
-template <> std::string to_string(double value);
+// We use a custom to_string(float|double) which ignores locale settings and writes `1.0` instead
+// of `1.00000`.
+std::string to_string(float value);
+std::string to_string(double value);
 
 }  // namespace skstd
 

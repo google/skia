@@ -139,8 +139,8 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
 
     if (actual != expected) {
         context.fErrors->error(line, "invalid arguments to '" + type.displayName() +
-                                     "' constructor (expected " + skstd::to_string(expected) +
-                                     " scalars, but found " + skstd::to_string(actual) + ")");
+                                     "' constructor (expected " + std::to_string(expected) +
+                                     " scalars, but found " + std::to_string(actual) + ")");
         return nullptr;
     }
 

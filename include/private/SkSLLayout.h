@@ -71,26 +71,26 @@ struct Layout {
                 return ", ";
             }};
         if (fLocation >= 0) {
-            result += separator() + "location = " + skstd::to_string(fLocation);
+            result += separator() + "location = " + std::to_string(fLocation);
         }
         if (fOffset >= 0) {
-            result += separator() + "offset = " + skstd::to_string(fOffset);
+            result += separator() + "offset = " + std::to_string(fOffset);
         }
         if (fBinding >= 0) {
-            result += separator() + "binding = " + skstd::to_string(fBinding);
+            result += separator() + "binding = " + std::to_string(fBinding);
         }
         if (fIndex >= 0) {
-            result += separator() + "index = " + skstd::to_string(fIndex);
+            result += separator() + "index = " + std::to_string(fIndex);
         }
         if (fSet >= 0) {
-            result += separator() + "set = " + skstd::to_string(fSet);
+            result += separator() + "set = " + std::to_string(fSet);
         }
         if (fBuiltin >= 0) {
-            result += separator() + "builtin = " + skstd::to_string(fBuiltin);
+            result += separator() + "builtin = " + std::to_string(fBuiltin);
         }
         if (fInputAttachmentIndex >= 0) {
             result += separator() + "input_attachment_index = " +
-                      skstd::to_string(fInputAttachmentIndex);
+                      std::to_string(fInputAttachmentIndex);
         }
         if (fFlags & kOriginUpperLeft_Flag) {
             result += separator() + "origin_upper_left";

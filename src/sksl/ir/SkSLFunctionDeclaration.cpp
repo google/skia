@@ -344,7 +344,7 @@ static bool find_existing_declaration(const Context& context,
             }
             for (size_t i = 0; i < parameters.size(); i++) {
                 if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
-                    errors.error(line, "modifiers on parameter " + skstd::to_string(i + 1) +
+                    errors.error(line, "modifiers on parameter " + std::to_string(i + 1) +
                                        " differ between declaration and definition");
                     return false;
                 }

@@ -741,7 +741,7 @@ bool Compiler::toMetal(Program& program, std::string* out) {
 void Compiler::handleError(std::string_view msg, PositionInfo pos) {
     fErrorText += "error: ";
     if (pos.line() >= 1) {
-        fErrorText += skstd::to_string(pos.line()) + ": ";
+        fErrorText += std::to_string(pos.line()) + ": ";
     }
     fErrorText += std::string(msg) + "\n";
 }
@@ -758,7 +758,7 @@ std::string Compiler::errorText(bool showCount) {
 void Compiler::writeErrorCount() {
     int count = this->errorCount();
     if (count) {
-        fErrorText += skstd::to_string(count) + " error";
+        fErrorText += std::to_string(count) + " error";
         if (count > 1) {
             fErrorText += "s";
         }
