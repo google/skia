@@ -63,12 +63,12 @@ sk_sp<SkBlender> SkBlender::Mode(SkBlendMode mode) {
 void SkBlenderBase::addToKey(SkShaderCodeDictionary* dict,
                              SkBackend backend,
                              SkPaintParamsKey* key,
-                             SkUniformBlock* uniforms) const {
+                             SkUniformBlock* uniformBlock) const {
 
     if (skstd::optional<SkBlendMode> bm = as_BB(this)->asBlendMode(); bm.has_value()) {
-        BlendModeBlock::AddToKey(backend, key, uniforms, bm.value());
+        BlendModeBlock::AddToKey(backend, key, uniformBlock, bm.value());
     } else {
-        BlendModeBlock::AddToKey(backend, key, uniforms, SkBlendMode::kSrcOver);
+        BlendModeBlock::AddToKey(backend, key, uniformBlock, SkBlendMode::kSrcOver);
     }
 }
 

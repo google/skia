@@ -7,6 +7,7 @@
 
 #include "src/shaders/gradients/SkLinearGradient.h"
 
+#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/gradients/Sk4fLinearGradient.h"
@@ -102,3 +103,18 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 }
 
 #endif
+
+void SkLinearGradient::addToKey(SkShaderCodeDictionary* dict,
+                                SkBackend backend,
+                                SkPaintParamsKey* key,
+                                SkUniformBlock* uniformBlock) const {
+    GradientShaderBlocks::GradientData data(kLinear_GradientType,
+                                            fStart, fEnd,
+                                            0.0f, 0.0f,
+                                            fTileMode,
+                                            fColorCount,
+                                            fOrigColors4f,
+                                            fOrigPos);
+
+    GradientShaderBlocks::AddToKey(backend, key, uniformBlock, data);
+}

@@ -67,6 +67,14 @@ namespace GradientShaderBlocks {
                      SkColor colors[kMaxStops],
                      float offsets[kMaxStops]);
 
+        GradientData(SkShader::GradientType,
+                     SkPoint point0, SkPoint point1,
+                     float radius0, float radius1,
+                     SkTileMode,
+                     int numStops,
+                     SkColor4f* colors,
+                     float* offsets);
+
         bool operator==(const GradientData& rhs) const {
             return fType == rhs.fType &&
                    fPoints[0] == rhs.fPoints[0] &&

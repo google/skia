@@ -153,8 +153,8 @@ SkUpdatableShader* SkShaderBase::onUpdatableShader(SkArenaAlloc* alloc) const {
 void SkShaderBase::addToKey(SkShaderCodeDictionary* dictionary,
                             SkBackend backend,
                             SkPaintParamsKey* key,
-                            SkUniformBlock* uniforms) const {
-    SolidColorShaderBlock::AddToKey(backend, key, uniforms, SkColors::kRed);
+                            SkUniformBlock* uniformBlock) const {
+    SolidColorShaderBlock::AddToKey(backend, key, uniformBlock, SkColors::kRed);
 }
 
 sk_sp<SkShader> SkShaders::Empty() { return sk_make_sp<SkEmptyShader>(); }
