@@ -94,7 +94,7 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test, Reporter* reporter) {
         return;
     }
 
-    (*test)(reporter, context.get());
+    (*test)(reporter, context);
 }
 
 } // namespace graphite

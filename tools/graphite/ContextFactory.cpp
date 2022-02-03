@@ -23,21 +23,19 @@ ContextFactory::ContextInfo::ContextInfo(ContextInfo&& other)
 
 ContextFactory::ContextInfo::ContextInfo(ContextFactory::ContextType type,
                                          std::unique_ptr<GraphiteTestContext> testContext,
-                                         sk_sp<skgpu::Context> context)
+                                         std::unique_ptr<skgpu::Context> context)
     : fType(type)
     , fTestContext(std::move(testContext))
     , fContext(std::move(context)) {
 }
 
-sk_sp<skgpu::Context> ContextFactory::ContextInfo::refContext() const { return fContext; }
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-std::tuple<GraphiteTestContext*, sk_sp<skgpu::Context>> ContextFactory::getContextInfo(
+std::tuple<GraphiteTestContext*, skgpu::Context*> ContextFactory::getContextInfo(
         ContextType type) {
 
     for (ContextInfo& c : fContexts) {
         if (c.type() == type) {
-            return { c.testContext(), c.refContext() };
+            return { c.testContext(), c.context() };
         }
     }
 
@@ -58,14 +56,14 @@ std::tuple<GraphiteTestContext*, sk_sp<skgpu::Context>> ContextFactory::getConte
         return {};
     }
 
-    sk_sp<skgpu::Context> context = testCtx->makeContext();
+    std::unique_ptr<skgpu::Context> context = testCtx->makeContext();
     if (!context) {
         return {};
     }
 
     fContexts.push_back({ type, std::move(testCtx), std::move(context) });
 
-    return { fContexts.back().testContext(), fContexts.back().refContext() };
+    return { fContexts.back().testContext(), fContexts.back().context() };
 }
 
 } // namespace skiatest::graphite

@@ -47,7 +47,7 @@ std::unique_ptr<GraphiteTestContext> TestContext::Make() {
     return std::unique_ptr<GraphiteTestContext>(new TestContext(backendContext));
 }
 
-sk_sp<skgpu::Context> TestContext::makeContext() {
+std::unique_ptr<skgpu::Context> TestContext::makeContext() {
     return skgpu::Context::MakeMetal(fMtl);
 }
 

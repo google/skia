@@ -23,6 +23,11 @@ class UniformCache;
 
 class Recorder final {
 public:
+    Recorder(const Recorder&) = delete;
+    Recorder(Recorder&&) = delete;
+    Recorder& operator=(const Recorder&) = delete;
+    Recorder& operator=(Recorder&&) = delete;
+
     ~Recorder();
 
     void add(sk_sp<Task>);

@@ -28,7 +28,7 @@ public:
 
     virtual skgpu::BackendApi backend() = 0;
 
-    virtual sk_sp<skgpu::Context> makeContext() = 0;
+    virtual std::unique_ptr<skgpu::Context> makeContext() = 0;
 
 protected:
     GraphiteTestContext();

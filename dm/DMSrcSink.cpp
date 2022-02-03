@@ -2164,7 +2164,7 @@ Result GraphiteSink::draw(const Src& src,
     }
 
     if (fTestPrecompile) {
-        precompile(context.get());
+        precompile(context);
     }
 
     std::unique_ptr<skgpu::Recorder> recorder = context->makeRecorder();
@@ -2189,7 +2189,7 @@ Result GraphiteSink::draw(const Src& src,
         // that instead.
         SkPixmap pm;
         if (!dst->peekPixels(&pm) ||
-            !static_cast<skgpu::Surface_Graphite*>(surface.get())->onReadPixels(context.get(),
+            !static_cast<skgpu::Surface_Graphite*>(surface.get())->onReadPixels(context,
                                                                                 recorder.get(),
                                                                                 pm,
                                                                                 0,

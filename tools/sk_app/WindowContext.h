@@ -59,7 +59,7 @@ protected:
 
     sk_sp<GrDirectContext> fContext;
 #if SK_GRAPHITE_ENABLED
-    sk_sp<skgpu::Context> fGraphiteContext;
+    std::unique_ptr<skgpu::Context> fGraphiteContext;
     std::unique_ptr<skgpu::Recorder> fGraphiteRecorder;
 #endif
 

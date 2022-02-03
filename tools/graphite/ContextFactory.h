@@ -37,7 +37,6 @@ public:
         ContextFactory::ContextType type() const { return fType; }
 
         skgpu::Context* context() const { return fContext.get(); }
-        sk_sp<skgpu::Context> refContext() const;
         GraphiteTestContext* testContext() const { return fTestContext.get(); }
 
     private:
@@ -45,11 +44,11 @@ public:
 
         ContextInfo(ContextFactory::ContextType type,
                     std::unique_ptr<GraphiteTestContext> testContext,
-                    sk_sp<skgpu::Context> context);
+                    std::unique_ptr<skgpu::Context> context);
 
         ContextType                          fType = ContextType::kMock;
         std::unique_ptr<GraphiteTestContext> fTestContext;
-        sk_sp<skgpu::Context>                fContext;
+        std::unique_ptr<skgpu::Context>      fContext;
     };
 
     ContextFactory() = default;
@@ -58,7 +57,7 @@ public:
 
     ~ContextFactory() = default;
 
-    std::tuple<GraphiteTestContext*, sk_sp<skgpu::Context>> getContextInfo(ContextType);
+    std::tuple<GraphiteTestContext*, skgpu::Context*> getContextInfo(ContextType);
 
 private:
     std::vector<ContextInfo> fContexts;

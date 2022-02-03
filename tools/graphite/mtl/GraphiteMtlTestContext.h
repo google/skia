@@ -24,7 +24,7 @@ public:
 
     skgpu::BackendApi backend() override { return skgpu::BackendApi::kMetal; }
 
-    sk_sp<skgpu::Context> makeContext() override;
+    std::unique_ptr<skgpu::Context> makeContext() override;
 
     const skgpu::mtl::BackendContext& getBackendContext() const {
         return fMtl;
