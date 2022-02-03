@@ -273,11 +273,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
         flags |= kUsesColorTransform_Flag;
     }
 
-    // Shaders are the only thing that cares about this, but it's inexpensive (and safe) to call.
-    if (SkSL::Analysis::ReturnsOpaqueColor(*main)) {
-        flags |= kAlwaysOpaque_Flag;
-    }
-
     size_t offset = 0;
     std::vector<Uniform> uniforms;
     std::vector<Child> children;
@@ -1104,10 +1099,12 @@ public:
                sk_sp<SkSL::SkVMDebugTrace> debugTrace,
                sk_sp<SkData> uniforms,
                const SkMatrix* localMatrix,
-               SkSpan<SkRuntimeEffect::ChildPtr> children)
+               SkSpan<SkRuntimeEffect::ChildPtr> children,
+               bool isOpaque)
             : SkShaderBase(localMatrix)
             , fEffect(std::move(effect))
             , fDebugTrace(std::move(debugTrace))
+            , fIsOpaque(isOpaque)
             , fUniforms(std::move(uniforms))
             , fChildren(children.begin(), children.end()) {}
 
@@ -1115,12 +1112,13 @@ public:
         sk_sp<SkRuntimeEffect> unoptimized = fEffect->makeUnoptimizedClone();
         sk_sp<SkSL::SkVMDebugTrace> debugTrace = make_skvm_debug_trace(unoptimized.get(), coord);
         auto debugShader = sk_make_sp<SkRTShader>(unoptimized, debugTrace, fUniforms,
-                                                  &this->getLocalMatrix(), SkMakeSpan(fChildren));
+                                                  &this->getLocalMatrix(), SkMakeSpan(fChildren),
+                                                  fIsOpaque);
 
         return SkRuntimeEffect::TracedShader{std::move(debugShader), std::move(debugTrace)};
     }
 
-    bool isOpaque() const override { return fEffect->alwaysOpaque(); }
+    bool isOpaque() const override { return fIsOpaque; }
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override {
@@ -1144,6 +1142,11 @@ public:
             return nullptr;
         }
 
+        // If the shader was created with isOpaque = true, we *force* that result here.
+        // CPU does the same thing (in SkShaderBase::program).
+        if (fIsOpaque) {
+            fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::RGB1());
+        }
         return GrMatrixEffect::Make(matrix, std::move(fp));
     }
 #endif
@@ -1177,6 +1180,9 @@ public:
 
     void flatten(SkWriteBuffer& buffer) const override {
         uint32_t flags = 0;
+        if (fIsOpaque) {
+            flags |= kIsOpaque_Flag;
+        }
         if (!this->getLocalMatrix().isIdentity()) {
             flags |= kHasLocalMatrix_Flag;
         }
@@ -1196,11 +1202,13 @@ public:
 
 private:
     enum Flags {
+        kIsOpaque_Flag          = 1 << 0,
         kHasLocalMatrix_Flag    = 1 << 1,
     };
 
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkSL::SkVMDebugTrace> fDebugTrace;
+    bool fIsOpaque;
 
     sk_sp<SkData> fUniforms;
     std::vector<SkRuntimeEffect::ChildPtr> fChildren;
@@ -1212,6 +1220,7 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
     uint32_t flags = buffer.read32();
 
+    bool isOpaque = SkToBool(flags & kIsOpaque_Flag);
     SkMatrix localM, *localMPtr = nullptr;
     if (flags & kHasLocalMatrix_Flag) {
         buffer.readMatrix(&localM);
@@ -1228,7 +1237,7 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return effect->makeShader(std::move(uniforms), SkMakeSpan(children), localMPtr);
+    return effect->makeShader(std::move(uniforms), SkMakeSpan(children), localMPtr, isOpaque);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1322,18 +1331,18 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                             sk_sp<SkShader> childShaders[],
                                             size_t childCount,
                                             const SkMatrix* localMatrix,
-                                            bool /*isOpaque [DEPRECATED]*/) const {
+                                            bool isOpaque) const {
     SkSTArray<4, ChildPtr> children(childCount);
     for (size_t i = 0; i < childCount; ++i) {
         children.emplace_back(childShaders[i]);
     }
-    return this->makeShader(std::move(uniforms), SkMakeSpan(children), localMatrix);
+    return this->makeShader(std::move(uniforms), SkMakeSpan(children), localMatrix, isOpaque);
 }
 
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                             SkSpan<ChildPtr> children,
                                             const SkMatrix* localMatrix,
-                                            bool /*isOpaque [DEPRECATED]*/) const {
+                                            bool isOpaque) const {
     if (!this->allowShader()) {
         return nullptr;
     }
@@ -1347,7 +1356,7 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
         return nullptr;
     }
     return sk_make_sp<SkRTShader>(sk_ref_sp(this), /*debugTrace=*/nullptr, std::move(uniforms),
-                                  localMatrix, children);
+                                  localMatrix, children, isOpaque);
 }
 
 sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
@@ -1555,10 +1564,11 @@ sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingCo
                                      mipmapped);
 }
 
-sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix,
-                                                   bool /*isOpaque [DEPRECATED]*/) {
-    return this->effect()->makeShader(
-            this->uniforms(), SkMakeSpan(this->children(), this->numChildren()), localMatrix);
+sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix, bool isOpaque) {
+    return this->effect()->makeShader(this->uniforms(),
+                                      SkMakeSpan(this->children(), this->numChildren()),
+                                      localMatrix,
+                                      isOpaque);
 }
 
 SkRuntimeBlendBuilder::SkRuntimeBlendBuilder(sk_sp<SkRuntimeEffect> effect)

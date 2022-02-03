@@ -59,12 +59,6 @@ bool CallsSampleOutsideMain(const Program& program);
 bool CallsColorTransformIntrinsics(const Program& program);
 
 /**
- * Determines if `function` always returns an opaque color (a vec4 where the last component is known
- * to be 1). This is conservative, and based on constant expression analysis.
- */
-bool ReturnsOpaqueColor(const FunctionDefinition& function);
-
-/**
  * Computes the size of the program in a completely flattened state--loops fully unrolled,
  * function calls inlined--and rejects programs that exceed an arbitrary upper bound. This is
  * intended to prevent absurdly large programs from overwhemling SkVM. Only strict-ES2 mode is

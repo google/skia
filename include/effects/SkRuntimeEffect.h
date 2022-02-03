@@ -198,12 +198,12 @@ public:
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
                                size_t childCount,
-                               const SkMatrix* localMatrix = nullptr,
-                               bool /*isOpaque [DEPRECATED]*/ = false) const;
+                               const SkMatrix* localMatrix,
+                               bool isOpaque) const;
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                SkSpan<ChildPtr> children,
-                               const SkMatrix* localMatrix = nullptr,
-                               bool /*isOpaque [DEPRECATED]*/ = false) const;
+                               const SkMatrix* localMatrix,
+                               bool isOpaque) const;
 
     sk_sp<SkImage> makeImage(GrRecordingContext*,
                              sk_sp<SkData> uniforms,
@@ -266,7 +266,6 @@ private:
         kAllowBlender_Flag       = 0x08,
         kSamplesOutsideMain_Flag = 0x10,
         kUsesColorTransform_Flag = 0x20,
-        kAlwaysOpaque_Flag       = 0x40,
     };
 
     SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
@@ -303,7 +302,6 @@ private:
     bool allowBlender()       const { return (fFlags & kAllowBlender_Flag);       }
     bool samplesOutsideMain() const { return (fFlags & kSamplesOutsideMain_Flag); }
     bool usesColorTransform() const { return (fFlags & kUsesColorTransform_Flag); }
-    bool alwaysOpaque()       const { return (fFlags & kAlwaysOpaque_Flag);       }
 
     const SkFilterColorProgram* getFilterColorProgram();
 
@@ -483,8 +481,7 @@ public:
     SkRuntimeShaderBuilder(const SkRuntimeShaderBuilder&) = default;
     ~SkRuntimeShaderBuilder();
 
-    sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr,
-                               bool /*isOpaque [DEPRECATED]*/ = false);
+    sk_sp<SkShader> makeShader(const SkMatrix* localMatrix, bool isOpaque);
     sk_sp<SkImage> makeImage(GrRecordingContext*,
                              const SkMatrix* localMatrix,
                              SkImageInfo resultInfo,
