@@ -63,7 +63,7 @@ public:
     /**
      * Returns the Settings used by DSL operations in the current thread.
      */
-    static SkSL::ProgramSettings& Settings();
+    static const SkSL::ProgramSettings& Settings();
 
     /**
      * Returns the Program::Inputs used by the current thread.
@@ -99,7 +99,7 @@ public:
     /**
      * Returns the current ProgramConfig.
      */
-    static std::unique_ptr<ProgramConfig>& GetProgramConfig() { return Instance().fConfig; }
+    static const std::unique_ptr<ProgramConfig>& GetProgramConfig() { return Instance().fConfig; }
 
     static bool IsModule() { return GetProgramConfig()->fIsBuiltinCode; }
 

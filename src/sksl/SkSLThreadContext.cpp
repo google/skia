@@ -127,7 +127,7 @@ SkSL::Context& ThreadContext::Context() {
     return Compiler().context();
 }
 
-SkSL::ProgramSettings& ThreadContext::Settings() {
+const SkSL::ProgramSettings& ThreadContext::Settings() {
     return Context().fConfig->fSettings;
 }
 
