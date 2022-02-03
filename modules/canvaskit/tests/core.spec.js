@@ -16,8 +16,8 @@ describe('Core canvas behavior', () => {
 
     gm('picture_test', (canvas) => {
         const spr = new CanvasKit.PictureRecorder();
-        const rcanvas = spr.beginRecording(
-                        CanvasKit.LTRBRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT));
+        const bounds = CanvasKit.LTRBRect(0, 0, 400, 120);
+        const rcanvas = spr.beginRecording(bounds);
         const paint = new CanvasKit.Paint();
         paint.setStrokeWidth(2.0);
         paint.setAntiAlias(true);
@@ -33,10 +33,26 @@ describe('Core canvas behavior', () => {
         paint.delete();
 
         canvas.drawPicture(pic);
+        const paint2 = new CanvasKit.Paint();
+        paint2.setColor(CanvasKit.RED);
+        paint2.setStyle(CanvasKit.PaintStyle.Stroke);
+        canvas.drawRect(bounds, paint2);
 
         const bytes = pic.serialize();
         expect(bytes).toBeTruthy();
 
+
+        const matr = CanvasKit.Matrix.scaled(0.33, 0.33);
+        // Give a 5 pixel margin between the original content.
+        const tileRect = CanvasKit.LTRBRect(-5, -5, 405, 125);
+        const shader = pic.makeShader(CanvasKit.TileMode.Mirror, CanvasKit.TileMode.Mirror,
+        CanvasKit.FilterMode.Linear, matr, tileRect);
+        paint2.setStyle(CanvasKit.PaintStyle.Fill);
+        paint2.setShader(shader);
+        canvas.drawRect(CanvasKit.LTRBRect(0, 150, CANVAS_WIDTH, CANVAS_HEIGHT), paint2);
+
+        paint2.delete();
+        shader.delete();
         pic.delete();
     });
 

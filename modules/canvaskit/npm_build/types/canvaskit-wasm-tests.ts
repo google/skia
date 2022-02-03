@@ -665,6 +665,11 @@ function pictureTests(CK: CanvasKit) {
     const pic = recorder.finishRecordingAsPicture(); // $ExpectType SkPicture
     const bytes = pic.serialize(); // $ExpectType Uint8Array | null
     const pic2 = CK.MakePicture(bytes!);
+    const shader1 = pic2!.makeShader(CK.TileMode.Clamp, CK.TileMode.Decal, CK.FilterMode.Nearest);
+    const shader2 = pic2!.makeShader(CK.TileMode.Clamp, CK.TileMode.Decal, CK.FilterMode.Nearest,
+        CK.Matrix.rotated(3));
+    const shader3 = pic2!.makeShader(CK.TileMode.Clamp, CK.TileMode.Decal, CK.FilterMode.Nearest,
+        CK.Matrix.skewed(2, 1), CK.LTRBRect(3, 4, 5, 6));
 }
 
 function rectangleTests(CK: CanvasKit) {

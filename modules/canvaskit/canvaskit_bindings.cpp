@@ -1650,6 +1650,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkPicture>("Picture")
         .smart_ptr<sk_sp<SkPicture>>("sk_sp<Picture>")
+        .function("_makeShader",  optional_override([](SkPicture& self,
+                                 SkTileMode tmx, SkTileMode tmy, SkFilterMode mode,
+                                 WASMPointerF32 mPtr, WASMPointerF32 rPtr) -> sk_sp<SkShader> {
+            OptionalMatrix localMatrix(mPtr);
+            SkRect* tileRect = reinterpret_cast<SkRect*>(rPtr);
+            return self.makeShader(tmx, tmy, mode, &localMatrix, tileRect);
+        }), allow_raw_pointers())
 #ifdef SK_SERIALIZE_SKP
         // The serialized format of an SkPicture (informally called an "skp"), is not something
         // that clients should ever rely on.  The format may change at anytime and no promises

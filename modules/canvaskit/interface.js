@@ -911,6 +911,12 @@ CanvasKit.onRuntimeInitialized = function() {
     return ta.slice(0, 2);
   };
 
+  CanvasKit.Picture.prototype.makeShader = function(tmx, tmy, mode, matr, rect) {
+    var mPtr = copy3x3MatrixToWasm(matr);
+    var rPtr = copyRectToWasm(rect);
+    return this._makeShader(tmx, tmy, mode, mPtr, rPtr);
+  };
+
   CanvasKit.PictureRecorder.prototype.beginRecording = function(bounds) {
     var bPtr = copyRectToWasm(bounds);
     return this._beginRecording(bPtr);
