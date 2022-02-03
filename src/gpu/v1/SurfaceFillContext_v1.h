@@ -38,6 +38,8 @@ public:
 
     void discard() override;
 
+    void resolveMSAA() override;
+
     void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor> fp) override;
 
     bool blitTexture(GrSurfaceProxyView view,

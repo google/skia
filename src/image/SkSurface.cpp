@@ -356,6 +356,10 @@ bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
                                                releaseContext);
 }
 
+void SkSurface::resolveMSAA() {
+    asSB(this)->onResolveMSAA();
+}
+
 GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, const GrFlushInfo& flushInfo) {
     return asSB(this)->onFlush(access, flushInfo, nullptr);
 }

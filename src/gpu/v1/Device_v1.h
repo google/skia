@@ -38,6 +38,10 @@ public:
         fSurfaceDrawContext->discard();
     }
 
+    void resolveMSAA() override {
+        fSurfaceDrawContext->resolveMSAA();
+    }
+
     bool replaceBackingProxy(SkSurface::ContentChangeMode,
                              sk_sp<GrRenderTargetProxy>,
                              GrColorType,

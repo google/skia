@@ -31,6 +31,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fConservativeRasterSupport = false;
     fWireframeSupport = false;
     fMSAAResolvesAutomatically = false;
+    fPreferDiscardableMSAAAttachment = false;
     fUsePrimitiveRestart = false;
     fPreferClientSideDynamicBuffers = false;
     fPreferFullscreenClears = false;

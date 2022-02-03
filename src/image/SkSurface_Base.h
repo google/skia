@@ -31,6 +31,8 @@ public:
                                          TextureReleaseProc,
                                          ReleaseContext);
 
+    virtual void onResolveMSAA() {}
+
     /**
      * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
      * Inserts the requested number of semaphores for the gpu to signal when work is complete on the
