@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.0] - 2022-02-03
+
 ### Added
  - `Surface.updateTextureFromSource` prevents flickering on some platforms by re-using the texture
    for a given `Image` instead of needing to always create a new one via
