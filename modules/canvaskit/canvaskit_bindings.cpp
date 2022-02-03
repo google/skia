@@ -1352,7 +1352,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkImage>("Image")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<Image>")
-#if SK_GL
+#ifdef SK_GL
         .class_function("_makeFromGenerator", &MakeImageFromGenerator)
 #endif
         // Note that this needs to be cleaned up with delete().

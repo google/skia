@@ -1803,9 +1803,7 @@ if (skia_enable_tools) {
       }
     }
 
-    # We need the GLTestContext on Vulkan-only builds for the persistent GL context workaround in
-    # in GrContextFactory. This only matters for OSes that can run Vulkan.
-    if ((skia_use_gl || skia_use_vulkan) && target_cpu != "wasm") {
+    if (skia_use_gl && target_cpu != "wasm") {
       if (is_android || skia_use_egl) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
         libs += [ "EGL" ]

@@ -12,7 +12,11 @@
 #include "include/gpu/GrDirectContext.h"
 
 #include "include/private/SkTArray.h"
+
+#ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
+#endif
+#include "tools/gpu/TestContext.h"
 
 struct GrVkBackendContext;
 
@@ -165,7 +169,10 @@ private:
         bool              fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
+#ifdef SK_GL
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
+#endif
+
     const GrContextOptions          fGlobalOptions;
 };
 
