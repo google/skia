@@ -184,7 +184,7 @@ public:
         example: https://fiddle.skia.org/c/@Image_MakeFromEncoded
     */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded,
-                                          skstd::optional<SkAlphaType> alphaType = skstd::nullopt);
+                                          std::optional<SkAlphaType> alphaType = std::nullopt);
 
     /*
      * Experimental:

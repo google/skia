@@ -106,7 +106,7 @@ static bool verify_child_effects(const std::vector<SkRuntimeEffect::Child>& refl
 
     // Verify that each child object's type matches its declared type in the SkSL.
     for (size_t i = 0; i < effectPtrs.size(); ++i) {
-        skstd::optional<ChildType> effectType = effectPtrs[i].type();
+        std::optional<ChildType> effectType = effectPtrs[i].type();
         if (effectType && effectType != reflected[i].type) {
             return false;
         }
@@ -866,7 +866,7 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
                                  const GrFPArgs& childArgs) {
     SkSTArray<8, std::unique_ptr<GrFragmentProcessor>> childFPs;
     for (const auto& child : children) {
-        skstd::optional<ChildType> type = child.type();
+        std::optional<ChildType> type = child.type();
         if (type == ChildType::kShader) {
             // Convert a SkShader into a child FP.
             auto childFP = as_SB(child.shader())->asFragmentProcessor(childArgs);
@@ -1496,7 +1496,7 @@ SkRuntimeEffect::TracedShader SkRuntimeEffect::MakeTraced(sk_sp<SkShader> shader
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-skstd::optional<ChildType> SkRuntimeEffect::ChildPtr::type() const {
+std::optional<ChildType> SkRuntimeEffect::ChildPtr::type() const {
     if (fChild) {
         switch (fChild->getFlattenableType()) {
             case SkFlattenable::kSkShader_Type:
@@ -1509,7 +1509,7 @@ skstd::optional<ChildType> SkRuntimeEffect::ChildPtr::type() const {
                 break;
         }
     }
-    return skstd::nullopt;
+    return std::nullopt;
 }
 
 SkShader* SkRuntimeEffect::ChildPtr::shader() const {

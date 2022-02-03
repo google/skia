@@ -73,7 +73,7 @@ SkShader_Blend::SkShader_Blend(sk_sp<SkBlender> blender, sk_sp<SkShader> dst, sk
         , fSrc(std::move(src))
         , fBlender(std::move(blender))
         , fMode((SkBlendMode)kCustom_SkBlendMode) {
-    if (skstd::optional<SkBlendMode> bm = as_BB(fBlender)->asBlendMode(); bm.has_value()) {
+    if (std::optional<SkBlendMode> bm = as_BB(fBlender)->asBlendMode(); bm.has_value()) {
         fMode = *bm;
         fBlender.reset();
     }

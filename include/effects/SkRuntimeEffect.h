@@ -184,7 +184,7 @@ public:
         ChildPtr(sk_sp<SkColorFilter> cf) : fChild(std::move(cf)) {}
         ChildPtr(sk_sp<SkBlender> b) : fChild(std::move(b)) {}
 
-        skstd::optional<ChildType> type() const;
+        std::optional<ChildType> type() const;
 
         SkShader* shader() const;
         SkColorFilter* colorFilter() const;

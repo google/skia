@@ -470,7 +470,7 @@ public:
      *  enum in the optional's value(). If it cannot, then the returned optional does not
      *  contain a value.
      */
-    skstd::optional<SkBlendMode> asBlendMode() const;
+    std::optional<SkBlendMode> asBlendMode() const;
 
     /**
      *  Queries the blender, and if it can be represented as a SkBlendMode, return that mode,

@@ -2290,7 +2290,7 @@ private:
         kYes = true
     };
     // call the appropriate predrawNotify and create a layer if needed.
-    skstd::optional<AutoLayerForImageFilter> aboutToDraw(
+    std::optional<AutoLayerForImageFilter> aboutToDraw(
         SkCanvas* canvas,
         const SkPaint& paint,
         const SkRect* rawBounds = nullptr,
