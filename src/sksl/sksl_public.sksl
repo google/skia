@@ -121,7 +121,6 @@ $es3 $genUType clamp($genUType x, $genUType minVal, $genUType maxVal);
 $es3 $genUType clamp($genUType x, uint minVal, uint maxVal);
 $es3 $genType  mix($genType  x, $genType  y, $genBType a);
 $es3 $genHType mix($genHType x, $genHType y, $genBType a);
-$es3 $genIType mix($genIType x, $genIType y, $genBType a);
 
 // 8.3 : Common Functions (GLSL ES 3.0) -- cannot be used in constant-expressions
 $es3 $genBType isnan($genType  x);

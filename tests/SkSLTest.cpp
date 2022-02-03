@@ -328,7 +328,6 @@ SKSL_TEST(SkSLIntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
 // Fails on Adreno + Vulkan (skia:11919)
 SKSL_TEST_CPU(SkSLIntrinsicMixFloat,           "intrinsics/MixFloat.sksl")
-SKSL_TEST_ES3(SkSLIntrinsicMixBool,            "intrinsics/MixBool.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicModf,               "intrinsics/Modf.sksl")
 SKSL_TEST_ES3(SkSLIntrinsicOuterProduct,       "intrinsics/OuterProduct.sksl")
 // Fails on Mac OpenGL + Radeon 5300M (skia:12434)
@@ -445,4 +444,5 @@ TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
 SKSL_TEST(SkSLIntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
 SKSL_TEST(SkSLIntrinsicMaxInt,                 "intrinsics/MaxInt.sksl")
 SKSL_TEST(SkSLIntrinsicMinInt,                 "intrinsics/MinInt.sksl")
+SKSL_TEST(SkSLIntrinsicMixBool,                "intrinsics/MixBool.sksl")
 */
