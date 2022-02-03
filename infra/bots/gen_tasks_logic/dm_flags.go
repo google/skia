@@ -6,7 +6,6 @@ package gen_tasks_logic
 
 import (
 	"fmt"
-	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -109,21 +108,19 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		return rv
 	}
 
-	skip := func(quad ...string) {
-		if len(quad) == 1 {
-			quad = strings.Fields(quad[0])
-		}
-		if len(quad) != 4 {
-			log.Fatalf("Invalid value for --skip: %+v", quad)
-		}
-		config := quad[0]
-		src := quad[1]
-		options := quad[2]
-		name := quad[3]
+	// When matching skip logic, _ is a wildcard that matches all parts for the field.
+	// For example, "8888 _ _ _" means everything that is part of an 8888 config and
+	// "_ skp _ SomeBigDraw" means the skp named SomeBigDraw on all config and options.
+	const ALL = "_"
+	// The inputs here are turned into a --skip flag which represents a
+	// "Space-separated config/src/srcOptions/name quadruples to skip."
+	// See DM.cpp for more, especially should_skip(). ~ negates the match.
+	skip := func(config, src, srcOptions, name string) {
+		// config is also called "sink" in DM
 		if config == "_" ||
 			hasConfig(config) ||
 			(config[0] == '~' && hasConfig(config[1:])) {
-			skipped = append(skipped, config, src, options, name)
+			skipped = append(skipped, config, src, srcOptions, name)
 		}
 	}
 
@@ -180,13 +177,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("SwiftShader") {
 		configs = append(configs, "vk", "vkdmsaa")
 		// skbug.com/12820
-		skip("_ gm _ ycbcrimage")
+		skip(ALL, "gm", ALL, "ycbcrimage")
 		// skbug.com/12820
-		skip("_ test _ VkYCbcrSampler_DrawImageWithYcbcrSampler")
+		skip(ALL, "test", ALL, "VkYCbcrSampler_DrawImageWithYcbcrSampler")
 		// skbug.com/12826
-		skip("_ test _ GrThreadSafeCache16Verts")
+		skip(ALL, "test", ALL, "GrThreadSafeCache16Verts")
 		// skbug.com/12829
-		skip("_ test _ image_subset")
+		skip(ALL, "test", ALL, "image_subset")
 	} else if b.cpu() {
 		args = append(args, "--nogpu")
 
@@ -208,9 +205,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{"pdf"}
 			args = append(args, "--rasterize_pdf") // Works only on Mac.
 			// Take ~forever to rasterize:
-			skip("pdf gm _ lattice2")
-			skip("pdf gm _ hairmodes")
-			skip("pdf gm _ longpathdash")
+			skip("pdf", "gm", ALL, "lattice2")
+			skip("pdf", "gm", ALL, "hairmodes")
+			skip("pdf", "gm", ALL, "longpathdash")
 		}
 
 	} else if b.gpu() {
@@ -264,23 +261,23 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.matchGpu("Intel") && b.isLinux() {
 			configs = append(configs, "gles", "glesdft", "srgb-gles", "gltestthreading")
 			// skbug.com/6333, skbug.com/6419, skbug.com/6702
-			skip("gltestthreading gm _ lcdblendmodes")
-			skip("gltestthreading gm _ lcdoverlap")
-			skip("gltestthreading gm _ textbloblooper")
+			skip("gltestthreading", "gm", ALL, "lcdblendmodes")
+			skip("gltestthreading", "gm", ALL, "lcdoverlap")
+			skip("gltestthreading", "gm", ALL, "textbloblooper")
 			// All of these GMs are flaky, too:
-			skip("gltestthreading gm _ savelayer_with_backdrop")
-			skip("gltestthreading gm _ persp_shaders_bw")
-			skip("gltestthreading gm _ dftext_blob_persp")
-			skip("gltestthreading gm _ dftext")
-			skip("gltestthreading gm _ gpu_blur_utils")
-			skip("gltestthreading gm _ gpu_blur_utils_ref")
-			skip("gltestthreading gm _ gpu_blur_utils_subset_rect")
-			skip("gltestthreading gm _ gpu_blur_utils_subset_rect_ref")
+			skip("gltestthreading", "gm", ALL, "savelayer_with_backdrop")
+			skip("gltestthreading", "gm", ALL, "persp_shaders_bw")
+			skip("gltestthreading", "gm", ALL, "dftext_blob_persp")
+			skip("gltestthreading", "gm", ALL, "dftext")
+			skip("gltestthreading", "gm", ALL, "gpu_blur_utils")
+			skip("gltestthreading", "gm", ALL, "gpu_blur_utils_ref")
+			skip("gltestthreading", "gm", ALL, "gpu_blur_utils_subset_rect")
+			skip("gltestthreading", "gm", ALL, "gpu_blur_utils_subset_rect_ref")
 			// skbug.com/7523 - Flaky on various GPUs
-			skip("gltestthreading gm _ orientation")
+			skip("gltestthreading", "gm", ALL, "orientation")
 			// These GMs only differ in the low bits
-			skip("gltestthreading gm _ stroketext")
-			skip("gltestthreading gm _ draw_image_set")
+			skip("gltestthreading", "gm", ALL, "stroketext")
+			skip("gltestthreading", "gm", ALL, "draw_image_set")
 		}
 
 		// CommandBuffer bot *only* runs the cmdbuffer_es2 configs.
@@ -294,7 +291,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Dawn bot *only* runs the dawn config
 		if b.extraConfig("Dawn") {
 			// tint:1045: Tint doesn't implement MatrixInverse yet.
-			skip("_", "gm", "_", "runtime_intrinsics_matrix")
+			skip(ALL, "gm", ALL, "runtime_intrinsics_matrix")
 			configs = []string{"dawn"}
 		}
 
@@ -303,14 +300,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--nogpu") // disable non-Graphite tests
 
 			// TODO: re-enable - currently fails with "Failed to make lazy image"
-			skip("_", "gm", "_", "image_subset")
+			skip(ALL, "gm", ALL, "image_subset")
 
 			if b.extraConfig("ASAN") {
 				// skbug.com/12507 (Neon UB during JPEG compression on M1 ASAN Graphite bot)
-				skip("_", "gm", "_", "yuv420_odd_dim") // Oddly enough yuv420_odd_dim_repeat doesn't crash
-				skip("_", "gm", "_", "encode-alpha-jpeg")
-				skip("_", "gm", "_", "encode")
-				skip("_", "gm", "_", "jpg-color-cube")
+				skip(ALL, "gm", ALL, "yuv420_odd_dim") // Oddly enough yuv420_odd_dim_repeat doesn't crash
+				skip(ALL, "gm", ALL, "encode-alpha-jpeg")
+				skip(ALL, "gm", ALL, "encode")
+				skip(ALL, "gm", ALL, "jpg-color-cube")
 			}
 			configs = []string{"grmtl"}
 		}
@@ -344,53 +341,53 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 			if b.model("NUC5i7RYH") {
 				// skbug.com/7376
-				skip("_ test _ ProcessorCloneTest")
+				skip(ALL, "test", ALL, "ProcessorCloneTest")
 			}
 		}
 
 		if b.model("AndroidOne", "Nexus5", "Nexus7", "JioNext") {
 			// skbug.com/9019
-			skip("_ test _ ProcessorCloneTest")
-			skip("_ test _ Programs")
-			skip("_ test _ ProcessorOptimizationValidationTest")
+			skip(ALL, "test", ALL, "ProcessorCloneTest")
+			skip(ALL, "test", ALL, "Programs")
+			skip(ALL, "test", ALL, "ProcessorOptimizationValidationTest")
 		}
 
 		if b.model("GalaxyS20") {
 			// skbug.com/10595
-			skip("_ test _ ProcessorCloneTest")
+			skip(ALL, "test", ALL, "ProcessorCloneTest")
 		}
 
 		if b.extraConfig("CommandBuffer") && b.model("MacBook10.1") {
 			// skbug.com/9235
-			skip("_ test _ Programs")
+			skip(ALL, "test", ALL, "Programs")
 		}
 
 		if b.model("Spin513") {
 			// skbug.com/11876
-			skip("_ test _ Programs")
+			skip(ALL, "test", ALL, "Programs")
 			// skbug.com/12486
-			skip("_ test _ TestMockContext")
-			skip("_ test _ TestGpuRenderingContexts")
-			skip("_ test _ TestGpuAllContexts")
-			skip("_ test _ OverdrawSurface_Gpu")
-			skip("_ test _ ReplaceSurfaceBackendTexture")
-			skip("_ test _ SurfaceAttachStencil_Gpu")
-			skip("_ test _ SurfaceWrappedWithRelease_Gpu")
+			skip(ALL, "test", ALL, "TestMockContext")
+			skip(ALL, "test", ALL, "TestGpuRenderingContexts")
+			skip(ALL, "test", ALL, "TestGpuAllContexts")
+			skip(ALL, "test", ALL, "OverdrawSurface_Gpu")
+			skip(ALL, "test", ALL, "ReplaceSurfaceBackendTexture")
+			skip(ALL, "test", ALL, "SurfaceAttachStencil_Gpu")
+			skip(ALL, "test", ALL, "SurfaceWrappedWithRelease_Gpu")
 		}
 
 		if b.extraConfig("CommandBuffer") {
 			// skbug.com/10412
-			skip("_ test _ GLBackendAllocationTest")
-			skip("_ test _ InitialTextureClear")
+			skip(ALL, "test", ALL, "GLBackendAllocationTest")
+			skip(ALL, "test", ALL, "InitialTextureClear")
 			// skbug.com/12437
-			skip("_ test _ GrDDLImage_MakeSubset")
-			skip("_ test _ GrContext_oomed")
+			skip(ALL, "test", ALL, "GrDDLImage_MakeSubset")
+			skip(ALL, "test", ALL, "GrContext_oomed")
 		}
 
 		// skbug.com/9043 - these devices render this test incorrectly
 		// when opList splitting reduction is enabled
 		if b.gpu() && b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X", "RadeonHD7770")) {
-			skip("_", "tests", "_", "VkDrawableImportTest")
+			skip(ALL, "tests", ALL, "VkDrawableImportTest")
 		}
 		if b.extraConfig("Vulkan") {
 			configs = []string{"vk"}
@@ -420,31 +417,31 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if b.extraConfig("Vulkan") {
 				configs = append(configs, "vk1010102")
 				// Decoding transparent images to 1010102 just looks bad
-				skip("vk1010102 image _ _")
+				skip("vk1010102", "image", ALL, ALL)
 			} else {
 				configs = append(configs, "gl1010102", "gltestpersistentcache", "gltestglslcache", "gltestprecompile")
 				// Decoding transparent images to 1010102 just looks bad
-				skip("gl1010102 image _ _")
+				skip("gl1010102", "image", ALL, ALL)
 				// These tests produce slightly different pixels run to run on NV.
-				skip("gltestpersistentcache gm _ atlastext")
-				skip("gltestpersistentcache gm _ dftext")
-				skip("gltestpersistentcache gm _ glyph_pos_h_b")
-				skip("gltestpersistentcache gm _ glyph_pos_h_f")
-				skip("gltestpersistentcache gm _ glyph_pos_n_f")
-				skip("gltestglslcache gm _ atlastext")
-				skip("gltestglslcache gm _ dftext")
-				skip("gltestglslcache gm _ glyph_pos_h_b")
-				skip("gltestglslcache gm _ glyph_pos_h_f")
-				skip("gltestglslcache gm _ glyph_pos_n_f")
-				skip("gltestprecompile gm _ atlastext")
-				skip("gltestprecompile gm _ dftext")
-				skip("gltestprecompile gm _ glyph_pos_h_b")
-				skip("gltestprecompile gm _ glyph_pos_h_f")
-				skip("gltestprecompile gm _ glyph_pos_n_f")
+				skip("gltestpersistentcache", "gm", ALL, "atlastext")
+				skip("gltestpersistentcache", "gm", ALL, "dftext")
+				skip("gltestpersistentcache", "gm", ALL, "glyph_pos_h_b")
+				skip("gltestpersistentcache", "gm", ALL, "glyph_pos_h_f")
+				skip("gltestpersistentcache", "gm", ALL, "glyph_pos_n_f")
+				skip("gltestglslcache", "gm", ALL, "atlastext")
+				skip("gltestglslcache", "gm", ALL, "dftext")
+				skip("gltestglslcache", "gm", ALL, "glyph_pos_h_b")
+				skip("gltestglslcache", "gm", ALL, "glyph_pos_h_f")
+				skip("gltestglslcache", "gm", ALL, "glyph_pos_n_f")
+				skip("gltestprecompile", "gm", ALL, "atlastext")
+				skip("gltestprecompile", "gm", ALL, "dftext")
+				skip("gltestprecompile", "gm", ALL, "glyph_pos_h_b")
+				skip("gltestprecompile", "gm", ALL, "glyph_pos_h_f")
+				skip("gltestprecompile", "gm", ALL, "glyph_pos_n_f")
 				// Tessellation shaders do not yet participate in the persistent cache.
-				skip("gltestpersistentcache gm _ tessellation")
-				skip("gltestglslcache gm _ tessellation")
-				skip("gltestprecompile gm _ tessellation")
+				skip("gltestpersistentcache", "gm", ALL, "tessellation")
+				skip("gltestglslcache", "gm", ALL, "tessellation")
+				skip("gltestprecompile", "gm", ALL, "tessellation")
 			}
 		}
 
@@ -458,35 +455,35 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.model("iPhone8") && b.extraConfig("Metal") {
 			configs = append(configs, "mtltestprecompile")
 			// avoid tests that can generate slightly different pixels per run
-			skip("mtltestprecompile gm _ atlastext")
-			skip("mtltestprecompile gm _ circular_arcs_hairline")
-			skip("mtltestprecompile gm _ dashcircle")
-			skip("mtltestprecompile gm _ dftext")
-			skip("mtltestprecompile gm _ fontmgr_bounds")
-			skip("mtltestprecompile gm _ fontmgr_bounds_1_-0.25")
-			skip("mtltestprecompile gm _ glyph_pos_h_b")
-			skip("mtltestprecompile gm _ glyph_pos_h_f")
-			skip("mtltestprecompile gm _ glyph_pos_n_f")
-			skip("mtltestprecompile gm _ persp_images")
-			skip("mtltestprecompile gm _ ovals")
-			skip("mtltestprecompile gm _ roundrects")
-			skip("mtltestprecompile gm _ shadow_utils_occl")
-			skip("mtltestprecompile gm _ strokedlines")
-			skip("mtltestprecompile gm _ strokerect")
-			skip("mtltestprecompile gm _ strokes3")
-			skip("mtltestprecompile gm _ texel_subset_linear_mipmap_nearest_down")
-			skip("mtltestprecompile gm _ texel_subset_linear_mipmap_linear_down")
-			skip("mtltestprecompile gm _ textblobmixedsizes_df")
-			skip("mtltestprecompile gm _ yuv420_odd_dim_repeat")
-			skip("mtltestprecompile svg _ A_large_blank_world_map_with_oceans_marked_in_blue.svg")
-			skip("mtltestprecompile svg _ Chalkboard.svg")
-			skip("mtltestprecompile svg _ Ghostscript_Tiger.svg")
-			skip("mtltestprecompile svg _ Seal_of_American_Samoa.svg")
-			skip("mtltestprecompile svg _ Seal_of_Illinois.svg")
-			skip("mtltestprecompile svg _ desk_motionmark_paths.svg")
-			skip("mtltestprecompile svg _ rg1024_green_grapes.svg")
-			skip("mtltestprecompile svg _ shapes-intro-02-f.svg")
-			skip("mtltestprecompile svg _ tiger-8.svg")
+			skip("mtltestprecompile", "gm", ALL, "atlastext")
+			skip("mtltestprecompile", "gm", ALL, "circular_arcs_hairline")
+			skip("mtltestprecompile", "gm", ALL, "dashcircle")
+			skip("mtltestprecompile", "gm", ALL, "dftext")
+			skip("mtltestprecompile", "gm", ALL, "fontmgr_bounds")
+			skip("mtltestprecompile", "gm", ALL, "fontmgr_bounds_1_-0.25")
+			skip("mtltestprecompile", "gm", ALL, "glyph_pos_h_b")
+			skip("mtltestprecompile", "gm", ALL, "glyph_pos_h_f")
+			skip("mtltestprecompile", "gm", ALL, "glyph_pos_n_f")
+			skip("mtltestprecompile", "gm", ALL, "persp_images")
+			skip("mtltestprecompile", "gm", ALL, "ovals")
+			skip("mtltestprecompile", "gm", ALL, "roundrects")
+			skip("mtltestprecompile", "gm", ALL, "shadow_utils_occl")
+			skip("mtltestprecompile", "gm", ALL, "strokedlines")
+			skip("mtltestprecompile", "gm", ALL, "strokerect")
+			skip("mtltestprecompile", "gm", ALL, "strokes3")
+			skip("mtltestprecompile", "gm", ALL, "texel_subset_linear_mipmap_nearest_down")
+			skip("mtltestprecompile", "gm", ALL, "texel_subset_linear_mipmap_linear_down")
+			skip("mtltestprecompile", "gm", ALL, "textblobmixedsizes_df")
+			skip("mtltestprecompile", "gm", ALL, "yuv420_odd_dim_repeat")
+			skip("mtltestprecompile", "svg", ALL, "A_large_blank_world_map_with_oceans_marked_in_blue.svg")
+			skip("mtltestprecompile", "svg", ALL, "Chalkboard.svg")
+			skip("mtltestprecompile", "svg", ALL, "Ghostscript_Tiger.svg")
+			skip("mtltestprecompile", "svg", ALL, "Seal_of_American_Samoa.svg")
+			skip("mtltestprecompile", "svg", ALL, "Seal_of_Illinois.svg")
+			skip("mtltestprecompile", "svg", ALL, "desk_motionmark_paths.svg")
+			skip("mtltestprecompile", "svg", ALL, "rg1024_green_grapes.svg")
+			skip("mtltestprecompile", "svg", ALL, "shapes-intro-02-f.svg")
+			skip("mtltestprecompile", "svg", ALL, "tiger-8.svg")
 		}
 		// Test reduced shader mode on iPhone 11 as representative iOS device
 		if b.model("iPhone11") && b.extraConfig("Metal") {
@@ -494,7 +491,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 
 		if b.gpu("AppleM1") && !b.extraConfig("Metal") {
-			skip("_ test _ TransferPixelsFromTextureTest") // skia:11814
+			skip(ALL, "test", ALL, "TransferPixelsFromTextureTest") // skia:11814
 		}
 
 		if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
@@ -551,7 +548,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	tf := b.parts["test_filter"]
 	if tf != "" && tf != "All" {
 		// Expected format: shard_XX_YY
-		split := strings.Split(tf, "_")
+		split := strings.Split(tf, ALL)
 		if len(split) == 3 {
 			args = append(args, "--shard", split[1])
 			args = append(args, "--shards", split[2])
@@ -571,10 +568,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	args = append(args, "--src", "tests", "gm", "image", "lottie", "colorImage", "svg", "skp")
 	if b.gpu() {
 		// Don't run the "svgparse_*" svgs on GPU.
-		skip("_ svg _ svgparse_")
+		skip(ALL, "svg", ALL, "svgparse_")
 	} else if b.Name == "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN" {
 		// Only run the CPU SVGs on 8888.
-		skip("~8888 svg _ _")
+		skip("~8888", "svg", ALL, ALL)
 	} else {
 		// On CPU SVGs we only care about parsing. Only run them on the above bot.
 		removeFromArgs("svg")
@@ -624,127 +621,127 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	// TODO: ???
-	skip("f16 _ _ dstreadshuffle")
-	skip("srgb-gl image _ _")
-	skip("srgb-gles image _ _")
+	skip("f16", ALL, ALL, "dstreadshuffle")
+	skip("srgb-gl", "image", ALL, ALL)
+	skip("srgb-gles", "image", ALL, ALL)
 
 	// --src image --config g8 means "decode into Gray8", which isn't supported.
-	skip("g8 image _ _")
-	skip("g8 colorImage _ _")
+	skip("g8", "image", ALL, ALL)
+	skip("g8", "colorImage", ALL, ALL)
 
 	if b.extraConfig("Valgrind") {
 		// These take 18+ hours to run.
-		skip("pdf gm _ fontmgr_iter")
-		skip("pdf _ _ PANO_20121023_214540.jpg")
-		skip("pdf skp _ worldjournal")
-		skip("pdf skp _ desk_baidu.skp")
-		skip("pdf skp _ desk_wikipedia.skp")
-		skip("_ svg _ _")
+		skip("pdf", "gm", ALL, "fontmgr_iter")
+		skip("pdf", ALL, ALL, "PANO_20121023_214540.jpg")
+		skip("pdf", "skp", ALL, "worldjournal")
+		skip("pdf", "skp", ALL, "desk_baidu.skp")
+		skip("pdf", "skp", ALL, "desk_wikipedia.skp")
+		skip(ALL, "svg", ALL, ALL)
 		// skbug.com/9171 and 8847
-		skip("_ test _ InitialTextureClear")
+		skip(ALL, "test", ALL, "InitialTextureClear")
 	}
 
 	if b.model("Pixel3") {
 		// skbug.com/10546
-		skip("vkddl gm _ compressed_textures_nmof")
-		skip("vkddl gm _ compressed_textures_npot")
-		skip("vkddl gm _ compressed_textures")
+		skip("vkddl", "gm", ALL, "compressed_textures_nmof")
+		skip("vkddl", "gm", ALL, "compressed_textures_npot")
+		skip("vkddl", "gm", ALL, "compressed_textures")
 	}
 
 	if b.model("TecnoSpark3Pro", "Wembley") {
 		// skbug.com/9421
-		skip("_ test _ InitialTextureClear")
+		skip(ALL, "test", ALL, "InitialTextureClear")
 	}
 
 	if b.model("Wembley", "JioNext") {
 		// These tests run forever on the Wembley.
-		skip("_ gm _ async_rescale_and_read")
+		skip(ALL, "gm", ALL, "async_rescale_and_read")
 	}
 
 	if b.os("iOS") {
-		skip(glPrefix + " skp _ _")
+		skip(glPrefix, "skp", ALL, ALL)
 	}
 
 	if b.matchOs("Mac", "iOS") {
 		// CG fails on questionable bmps
-		skip("_ image gen_platf rgba32abf.bmp")
-		skip("_ image gen_platf rgb24prof.bmp")
-		skip("_ image gen_platf rgb24lprof.bmp")
-		skip("_ image gen_platf 8bpp-pixeldata-cropped.bmp")
-		skip("_ image gen_platf 4bpp-pixeldata-cropped.bmp")
-		skip("_ image gen_platf 32bpp-pixeldata-cropped.bmp")
-		skip("_ image gen_platf 24bpp-pixeldata-cropped.bmp")
+		skip(ALL, "image", "gen_platf", "rgba32abf.bmp")
+		skip(ALL, "image", "gen_platf", "rgb24prof.bmp")
+		skip(ALL, "image", "gen_platf", "rgb24lprof.bmp")
+		skip(ALL, "image", "gen_platf", "8bpp-pixeldata-cropped.bmp")
+		skip(ALL, "image", "gen_platf", "4bpp-pixeldata-cropped.bmp")
+		skip(ALL, "image", "gen_platf", "32bpp-pixeldata-cropped.bmp")
+		skip(ALL, "image", "gen_platf", "24bpp-pixeldata-cropped.bmp")
 
 		// CG has unpredictable behavior on this questionable gif
 		// It's probably using uninitialized memory
-		skip("_ image gen_platf frame_larger_than_image.gif")
+		skip(ALL, "image", "gen_platf", "frame_larger_than_image.gif")
 
 		// CG has unpredictable behavior on incomplete pngs
 		// skbug.com/5774
-		skip("_ image gen_platf inc0.png")
-		skip("_ image gen_platf inc1.png")
-		skip("_ image gen_platf inc2.png")
-		skip("_ image gen_platf inc3.png")
-		skip("_ image gen_platf inc4.png")
-		skip("_ image gen_platf inc5.png")
-		skip("_ image gen_platf inc6.png")
-		skip("_ image gen_platf inc7.png")
-		skip("_ image gen_platf inc8.png")
-		skip("_ image gen_platf inc9.png")
-		skip("_ image gen_platf inc10.png")
-		skip("_ image gen_platf inc11.png")
-		skip("_ image gen_platf inc12.png")
-		skip("_ image gen_platf inc13.png")
-		skip("_ image gen_platf inc14.png")
-		skip("_ image gen_platf incInterlaced.png")
+		skip(ALL, "image", "gen_platf", "inc0.png")
+		skip(ALL, "image", "gen_platf", "inc1.png")
+		skip(ALL, "image", "gen_platf", "inc2.png")
+		skip(ALL, "image", "gen_platf", "inc3.png")
+		skip(ALL, "image", "gen_platf", "inc4.png")
+		skip(ALL, "image", "gen_platf", "inc5.png")
+		skip(ALL, "image", "gen_platf", "inc6.png")
+		skip(ALL, "image", "gen_platf", "inc7.png")
+		skip(ALL, "image", "gen_platf", "inc8.png")
+		skip(ALL, "image", "gen_platf", "inc9.png")
+		skip(ALL, "image", "gen_platf", "inc10.png")
+		skip(ALL, "image", "gen_platf", "inc11.png")
+		skip(ALL, "image", "gen_platf", "inc12.png")
+		skip(ALL, "image", "gen_platf", "inc13.png")
+		skip(ALL, "image", "gen_platf", "inc14.png")
+		skip(ALL, "image", "gen_platf", "incInterlaced.png")
 
 		// These images fail after Mac 10.13.1 upgrade.
-		skip("_ image gen_platf incInterlaced.gif")
-		skip("_ image gen_platf inc1.gif")
-		skip("_ image gen_platf inc0.gif")
-		skip("_ image gen_platf butterfly.gif")
+		skip(ALL, "image", "gen_platf", "incInterlaced.gif")
+		skip(ALL, "image", "gen_platf", "inc1.gif")
+		skip(ALL, "image", "gen_platf", "inc0.gif")
+		skip(ALL, "image", "gen_platf", "butterfly.gif")
 	}
 
 	// WIC fails on questionable bmps
 	if b.matchOs("Win") {
-		skip("_ image gen_platf pal8os2v2.bmp")
-		skip("_ image gen_platf pal8os2v2-16.bmp")
-		skip("_ image gen_platf rgba32abf.bmp")
-		skip("_ image gen_platf rgb24prof.bmp")
-		skip("_ image gen_platf rgb24lprof.bmp")
-		skip("_ image gen_platf 8bpp-pixeldata-cropped.bmp")
-		skip("_ image gen_platf 4bpp-pixeldata-cropped.bmp")
-		skip("_ image gen_platf 32bpp-pixeldata-cropped.bmp")
-		skip("_ image gen_platf 24bpp-pixeldata-cropped.bmp")
+		skip(ALL, "image", "gen_platf", "pal8os2v2.bmp")
+		skip(ALL, "image", "gen_platf", "pal8os2v2-16.bmp")
+		skip(ALL, "image", "gen_platf", "rgba32abf.bmp")
+		skip(ALL, "image", "gen_platf", "rgb24prof.bmp")
+		skip(ALL, "image", "gen_platf", "rgb24lprof.bmp")
+		skip(ALL, "image", "gen_platf", "8bpp-pixeldata-cropped.bmp")
+		skip(ALL, "image", "gen_platf", "4bpp-pixeldata-cropped.bmp")
+		skip(ALL, "image", "gen_platf", "32bpp-pixeldata-cropped.bmp")
+		skip(ALL, "image", "gen_platf", "24bpp-pixeldata-cropped.bmp")
 		if b.arch("x86_64") && b.cpu() {
 			// This GM triggers a SkSmallAllocator assert.
-			skip("_ gm _ composeshader_bitmap")
+			skip(ALL, "gm", ALL, "composeshader_bitmap")
 		}
 	}
 
 	if b.matchOs("Win", "Mac") {
 		// WIC and CG fail on arithmetic jpegs
-		skip("_ image gen_platf testimgari.jpg")
+		skip(ALL, "image", "gen_platf", "testimgari.jpg")
 		// More questionable bmps that fail on Mac, too. skbug.com/6984
-		skip("_ image gen_platf rle8-height-negative.bmp")
-		skip("_ image gen_platf rle4-height-negative.bmp")
+		skip(ALL, "image", "gen_platf", "rle8-height-negative.bmp")
+		skip(ALL, "image", "gen_platf", "rle4-height-negative.bmp")
 	}
 
 	// These PNGs have CRC errors. The platform generators seem to draw
 	// uninitialized memory without reporting an error, so skip them to
 	// avoid lots of images on Gold.
-	skip("_ image gen_platf error")
+	skip(ALL, "image", "gen_platf", "error")
 
 	if b.os("Android", "iOS") {
 		// This test crashes the N9 (perhaps because of large malloc/frees). It also
 		// is fairly slow and not platform-specific. So we just disable it on all of
 		// Android and iOS. skia:5438
-		skip("_ test _ GrStyledShape")
+		skip(ALL, "test", ALL, "GrStyledShape")
 	}
 
 	if internalHardwareLabel == "5" {
 		// http://b/118312149#comment9
-		skip("_ test _ SRGBReadWritePixels")
+		skip(ALL, "test", ALL, "SRGBReadWritePixels")
 	}
 
 	// skia:4095
@@ -819,30 +816,30 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	badSerializeGMs = append(badSerializeGMs, "analytic_antialias_convex")
 
 	for _, test := range badSerializeGMs {
-		skip("serialize-8888", "gm", "_", test)
+		skip("serialize-8888", "gm", ALL, test)
 	}
 
 	// We skip these to avoid out-of-memory failures.
 	if b.matchOs("Win", "Android") {
 		for _, test := range []string{"verylargebitmap", "verylarge_picture_image"} {
-			skip("serialize-8888", "gm", "_", test)
+			skip("serialize-8888", "gm", ALL, test)
 		}
 	}
 	if b.matchOs("Mac") && b.cpu() {
 		// skia:6992
-		skip("pic-8888", "gm", "_", "encode-platform")
-		skip("serialize-8888", "gm", "_", "encode-platform")
+		skip("pic-8888", "gm", ALL, "encode-platform")
+		skip("serialize-8888", "gm", ALL, "encode-platform")
 	}
 
 	// skia:4769
-	skip("pic-8888", "gm", "_", "drawfilter")
+	skip("pic-8888", "gm", ALL, "drawfilter")
 
 	// skia:4703
 	for _, test := range []string{"image-cacherator-from-picture",
 		"image-cacherator-from-raster",
 		"image-cacherator-from-ctable"} {
-		skip("pic-8888", "gm", "_", test)
-		skip("serialize-8888", "gm", "_", test)
+		skip("pic-8888", "gm", ALL, test)
+		skip("serialize-8888", "gm", ALL, test)
 	}
 
 	// GM that requires raster-backed canvas
@@ -855,14 +852,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		"async_rescale_and_read_rose",
 		"async_rescale_and_read_no_bleed",
 		"async_rescale_and_read_alpha_type"} {
-		skip("pic-8888", "gm", "_", test)
-		skip("serialize-8888", "gm", "_", test)
+		skip("pic-8888", "gm", ALL, test)
+		skip("serialize-8888", "gm", ALL, test)
 
 		// GM requires canvas->makeSurface() to return a valid surface.
 		// TODO(borenet): These should be just outside of this block but are
 		// left here to match the recipe which has an indentation bug.
-		skip("pic-8888", "gm", "_", "blurrect_compare")
-		skip("serialize-8888", "gm", "_", "blurrect_compare")
+		skip("pic-8888", "gm", ALL, "blurrect_compare")
+		skip("serialize-8888", "gm", ALL, "blurrect_compare")
 	}
 
 	// Extensions for RAW images
@@ -875,153 +872,153 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	// Skip RAW images (and a few large PNGs) on GPU bots
 	// until we can resolve failures.
 	if b.gpu() {
-		skip("_ image _ interlaced1.png")
-		skip("_ image _ interlaced2.png")
-		skip("_ image _ interlaced3.png")
+		skip(ALL, "image", ALL, "interlaced1.png")
+		skip(ALL, "image", ALL, "interlaced2.png")
+		skip(ALL, "image", ALL, "interlaced3.png")
 		for _, rawExt := range r {
-			skip(fmt.Sprintf("_ image _ .%s", rawExt))
+			skip(ALL, "image", ALL, "."+rawExt)
 		}
 	}
 
 	// Skip memory intensive tests on 32-bit bots.
 	if b.os("Win8") && b.arch("x86") {
-		skip("_ image f16 _")
-		skip("_ image _ abnormal.wbmp")
-		skip("_ image _ interlaced1.png")
-		skip("_ image _ interlaced2.png")
-		skip("_ image _ interlaced3.png")
+		skip(ALL, "image", "f16", ALL)
+		skip(ALL, "image", ALL, "abnormal.wbmp")
+		skip(ALL, "image", ALL, "interlaced1.png")
+		skip(ALL, "image", ALL, "interlaced2.png")
+		skip(ALL, "image", ALL, "interlaced3.png")
 		for _, rawExt := range r {
-			skip(fmt.Sprintf("_ image _ .%s", rawExt))
+			skip(ALL, "image", ALL, "."+rawExt)
 		}
 	}
 
 	if b.model("Nexus5", "Nexus5x", "JioNext") && b.gpu() {
 		// skia:5876
-		skip("_", "gm", "_", "encode-platform")
+		skip(ALL, "gm", ALL, "encode-platform")
 	}
 
 	if b.model("AndroidOne") && b.gpu() { // skia:4697, skia:4704, skia:4694, skia:4705, skia:11133
-		skip("_", "gm", "_", "bigblurs")
-		skip("_", "gm", "_", "strict_constraint_no_red_allowed")
-		skip("_", "gm", "_", "fast_constraint_red_is_allowed")
-		skip("_", "gm", "_", "dropshadowimagefilter")
-		skip("_", "gm", "_", "filterfastbounds")
-		skip(glPrefix, "gm", "_", "imageblurtiled")
-		skip("_", "gm", "_", "imagefiltersclipped")
-		skip("_", "gm", "_", "imagefiltersscaled")
-		skip("_", "gm", "_", "imageresizetiled")
-		skip("_", "gm", "_", "matrixconvolution")
-		skip("_", "gm", "_", "strokedlines")
-		skip("_", "gm", "_", "runtime_intrinsics_matrix")
+		skip(ALL, "gm", ALL, "bigblurs")
+		skip(ALL, "gm", ALL, "strict_constraint_no_red_allowed")
+		skip(ALL, "gm", ALL, "fast_constraint_red_is_allowed")
+		skip(ALL, "gm", ALL, "dropshadowimagefilter")
+		skip(ALL, "gm", ALL, "filterfastbounds")
+		skip(glPrefix, "gm", ALL, "imageblurtiled")
+		skip(ALL, "gm", ALL, "imagefiltersclipped")
+		skip(ALL, "gm", ALL, "imagefiltersscaled")
+		skip(ALL, "gm", ALL, "imageresizetiled")
+		skip(ALL, "gm", ALL, "matrixconvolution")
+		skip(ALL, "gm", ALL, "strokedlines")
+		skip(ALL, "gm", ALL, "runtime_intrinsics_matrix")
 		if sampleCount > 0 {
 			glMsaaConfig := fmt.Sprintf("%smsaa%d", glPrefix, sampleCount)
-			skip(glMsaaConfig, "gm", "_", "imageblurtiled")
-			skip(glMsaaConfig, "gm", "_", "imagefiltersbase")
+			skip(glMsaaConfig, "gm", ALL, "imageblurtiled")
+			skip(glMsaaConfig, "gm", ALL, "imagefiltersbase")
 		}
 	}
 
 	if b.matchGpu("Adreno[3456]") { // disable broken tests on Adreno 3/4/5/6xx
-		skip("_", "tests", "_", "SkSLArrayCast_GPU")        // skia:12332
-		skip("_", "tests", "_", "SkSLArrayComparison_GPU")  // skia:12332
-		skip("_", "tests", "_", "SkSLCommaSideEffects_GPU")
+		skip(ALL, "tests", ALL, "SkSLArrayCast_GPU")       // skia:12332
+		skip(ALL, "tests", ALL, "SkSLArrayComparison_GPU") // skia:12332
+		skip(ALL, "tests", ALL, "SkSLCommaSideEffects_GPU")
 	}
 
 	if b.matchGpu("Adreno[345]") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 3/4/5xx GLSL
-		skip("_", "tests", "_", "DSLFPTest_SwitchStatement")  // skia:11891
-		skip("_", "tests", "_", "SkSLMatrixToVectorCast_GPU") // skia:12192
-		skip("_", "tests", "_", "SkSLStructsInFunctions_GPU") // skia:11929
+		skip(ALL, "tests", ALL, "DSLFPTest_SwitchStatement")  // skia:11891
+		skip(ALL, "tests", ALL, "SkSLMatrixToVectorCast_GPU") // skia:12192
+		skip(ALL, "tests", ALL, "SkSLStructsInFunctions_GPU") // skia:11929
 	}
 
 	if b.matchGpu("Adreno6") || b.matchGpu("MaliG77") || b.matchGpu("QuadroP400") {
-		skip("_", "tests", "_", "SkSLRecursiveComparison_Arrays_GPU") // skia:12642
-		skip("_", "tests", "_", "SkSLRecursiveComparison_Structs_GPU")
-		skip("_", "tests", "_", "SkSLRecursiveComparison_Types_GPU")
-		skip("_", "tests", "_", "SkSLRecursiveComparison_Vectors_GPU")
+		skip(ALL, "tests", ALL, "SkSLRecursiveComparison_Arrays_GPU") // skia:12642
+		skip(ALL, "tests", ALL, "SkSLRecursiveComparison_Structs_GPU")
+		skip(ALL, "tests", ALL, "SkSLRecursiveComparison_Types_GPU")
+		skip(ALL, "tests", ALL, "SkSLRecursiveComparison_Vectors_GPU")
 	}
 
 	if b.matchGpu("Adreno6") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 6xx GLSL
-		skip("_", "tests", "_", "SkSLIntrinsicIsInf_GPU") // skia:12377
+		skip(ALL, "tests", ALL, "SkSLIntrinsicIsInf_GPU") // skia:12377
 	}
 
 	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx Vulkan
-		skip("_", "tests", "_", "SkSLInoutParameters_GPU")   // skia:12869
-		skip("_", "tests", "_", "SkSLOutParams_GPU")         // skia:11919
-		skip("_", "tests", "_", "SkSLOutParamsTricky_GPU")   // skia:11919
-		skip("_", "tests", "_", "SkSLOutParamsNoInline_GPU") // skia:11919
+		skip(ALL, "tests", ALL, "SkSLInoutParameters_GPU")   // skia:12869
+		skip(ALL, "tests", ALL, "SkSLOutParams_GPU")         // skia:11919
+		skip(ALL, "tests", ALL, "SkSLOutParamsTricky_GPU")   // skia:11919
+		skip(ALL, "tests", ALL, "SkSLOutParamsNoInline_GPU") // skia:11919
 	}
 
 	if (b.matchGpu("Adreno3") || b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
-		skip("_", "tests", "_", "SkSLMatrices") // skia:12456
+		skip(ALL, "tests", ALL, "SkSLMatrices") // skia:12456
 	}
 
 	if b.gpu("QuadroP400") {
-		skip("_", "tests", "_", "SkSLCommaSideEffects")
+		skip(ALL, "tests", ALL, "SkSLCommaSideEffects")
 	}
 
 	if b.matchGpu("Mali400") || b.matchGpu("Tegra3") {
-		skip("_", "tests", "_", "SkSLMatrixScalarMath") // skia:12681
+		skip(ALL, "tests", ALL, "SkSLMatrixScalarMath") // skia:12681
 	}
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
-		skip("_", "tests", "_", "SkSLVectorToMatrixCast_GPU") // skia:12179, vec4(mat2) crash
-		skip("_", "tests", "_", "SkSLVectorScalarMath_GPU") // skia:11919
-		skip("_", "tests", "_", "SkSLMatrixFoldingES2_GPU") // skia:11919
+		skip(ALL, "tests", ALL, "SkSLVectorToMatrixCast_GPU") // skia:12179, vec4(mat2) crash
+		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU")   // skia:11919
+		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU")   // skia:11919
 	}
 
 	if b.matchGpu("Intel") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
-		skip("_", "tests", "_", "SkSLReturnsValueOnEveryPathES3_GPU") // skia:12465
+		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_GPU") // skia:12465
 	}
 
 	if b.extraConfig("Vulkan") && b.isLinux() && b.matchGpu("Intel") {
-		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU") // skia:12465
+		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_GPU") // skia:12465
 	}
 
 	if b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655)") {
-		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU") // skia:12465
-		skip("_", "tests", "_", "SkSLVectorScalarMath_GPU") // skia:11919
+		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_GPU") // skia:12465
+		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU")  // skia:11919
 	}
 
 	if b.gpu("Tegra3") {
 		// Tegra3 fails to compile break stmts inside a for loop (skia:12477)
-		skip("_", "tests", "_", "SkSLSwitch_GPU")
-		skip("_", "tests", "_", "SkSLSwitchDefaultOnly_GPU")
-		skip("_", "tests", "_", "SkSLSwitchWithFallthrough_GPU")
-		skip("_", "tests", "_", "SkSLSwitchWithLoops_GPU")
-		skip("_", "tests", "_", "SkSLSwitchCaseFolding_GPU")
-		skip("_", "tests", "_", "SkSLLoopFloat_GPU")
-		skip("_", "tests", "_", "SkSLLoopInt_GPU")
+		skip(ALL, "tests", ALL, "SkSLSwitch_GPU")
+		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_GPU")
+		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_GPU")
+		skip(ALL, "tests", ALL, "SkSLSwitchWithLoops_GPU")
+		skip(ALL, "tests", ALL, "SkSLSwitchCaseFolding_GPU")
+		skip(ALL, "tests", ALL, "SkSLLoopFloat_GPU")
+		skip(ALL, "tests", ALL, "SkSLLoopInt_GPU")
 	}
 
 	if b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3") {
-        if !b.extraConfig("Vulkan") {
-            // Various Nvidia GPUs crash or generate errors when assembling weird matrices
-            skip("_", "tests", "_", "SkSLMatrixConstructorsES2_GPU") // skia:12443
-            skip("_", "tests", "_", "SkSLMatrixConstructorsES3_GPU") // skia:12443
-        }
-		skip("_", "tests", "_", "SkSLMatrixFoldingES2_GPU") // skia:11919
+		if !b.extraConfig("Vulkan") {
+			// Various Nvidia GPUs crash or generate errors when assembling weird matrices
+			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES2_GPU") // skia:12443
+			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES3_GPU") // skia:12443
+		}
+		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU") // skia:11919
 	}
 
 	if b.gpu("PowerVRGE8320") || b.gpu("Tegra3") || b.gpu("Adreno308") {
-		skip("_", "tests", "_", "SkSLVectorScalarMath_GPU") // skia:11919
-    }
+		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU") // skia:11919
+	}
 
-    if b.gpu("PowerVRGE8320") {
-		skip("_", "tests", "_", "SkSLOutParamsAreDistinct_GPU")
-    }
+	if b.gpu("PowerVRGE8320") {
+		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinct_GPU")
+	}
 
 	if !b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X") || b.gpu("RadeonHD7770")) {
 		// Some AMD GPUs can get the wrong result when assembling non-square matrices (skia:12443)
-		skip("_", "tests", "_", "SkSLMatrixConstructorsES3_GPU")
+		skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES3_GPU")
 	}
 
 	if b.matchGpu("Intel") { // some Intel GPUs don't return zero for the derivative of a uniform
-		skip("_", "tests", "_", "SkSLIntrinsicDFdy_GPU")
-		skip("_", "tests", "_", "SkSLIntrinsicDFdx_GPU")
-		skip("_", "tests", "_", "SkSLIntrinsicFwidth_GPU")
+		skip(ALL, "tests", ALL, "SkSLIntrinsicDFdy_GPU")
+		skip(ALL, "tests", ALL, "SkSLIntrinsicDFdx_GPU")
+		skip(ALL, "tests", ALL, "SkSLIntrinsicFwidth_GPU")
 	}
 
 	if b.matchOs("Mac") && b.matchGpu("Intel(Iris5100|HD6000)") {
-		skip("_", "tests", "_", "SkSLLoopFloat_GPU") // skia:12426
+		skip(ALL, "tests", ALL, "SkSLLoopFloat_GPU") // skia:12426
 	}
 
 	match := []string{}
@@ -1083,8 +1080,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.extraConfig("Vulkan") && b.isLinux() && b.gpu("IntelHD405") {
 		// skia:7322
-		skip("vk", "gm", "_", "skbug_257")
-		skip("vk", "gm", "_", "filltypespersp")
+		skip("vk", "gm", ALL, "skbug_257")
+		skip("vk", "gm", ALL, "filltypespersp")
 		match = append(match, "~^ClearOp$")
 		match = append(match, "~^CopySurface$")
 		match = append(match, "~^ImageNewShader_GPU$")
@@ -1129,7 +1126,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.extraConfig("ANGLE") {
 		// skia:6857
-		skip("angle_d3d9_es2", "gm", "_", "lighting")
+		skip("angle_d3d9_es2", "gm", ALL, "lighting")
 	}
 
 	if b.gpu("PowerVRGX6250") {
@@ -1157,9 +1154,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~VkPrepareForExternalIOQueueTransitionTest")
 	}
 	if b.matchExtraConfig("Graphite") {
-                // skia:12813
+		// skia:12813
 		match = append(match, "~async_rescale_and_read")
-        }
+	}
 
 	if len(skipped) > 0 {
 		args = append(args, "--skip")
