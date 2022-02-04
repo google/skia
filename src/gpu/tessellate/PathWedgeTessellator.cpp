@@ -162,7 +162,7 @@ void PathWedgeTessellator::writePatches(PatchWriter& patchWriter,
                     case SkPathVerb::kLine: {
                         // Explicitly convert the line to an equivalent cubic w/ four distinct
                         // control points because it fans better and avoids double-hitting pixels.
-                        patchWriter.writeLineAsCubic(m.map2Points(pts));
+                        patchWriter.writeLine(m.map2Points(pts));
                         lastPoint = pts[1];
                         break;
                     }
@@ -243,7 +243,7 @@ void PathWedgeTessellator::writePatches(PatchWriter& patchWriter,
             }
             if (lastPoint != startPoint) {
                 SkPoint pts[2] = {lastPoint, startPoint};
-                patchWriter.writeLineAsCubic(m.map2Points(pts));
+                patchWriter.writeLine(m.map2Points(pts));
             }
         }
     }

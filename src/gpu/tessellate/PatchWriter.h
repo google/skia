@@ -160,20 +160,14 @@ public:
                              skvx::bit_pun<float2>(pts[2]));
     }
 
-    // TODO: Currently stroked lines are encoded as [p0,p0,p1,p1] and detected in the shaders;
-    // usage of this should be converted over to writeLineAsCubic() and that should be how all
-    // lines are handled w/o any need for shader detection.
-    AI void writeLine(float2 p0, float2 p1) {
-        this->writePatch(p0, p0, p1, p1, kCubicCurveType);
+    // Write a line that is automatically converted into an equivalent cubic.
+    AI void writeLine(float4 p0p1) {
+        this->writeCubic(p0p1.lo, (p0p1.zwxy() - p0p1) * (1/3.f) + p0p1, p0p1.hi);
     }
+    AI void writeLine(float2 p0, float2 p1) { this->writeLine({p0, p1}); }
     AI void writeLine(SkPoint p0, SkPoint p1) {
         this->writeLine(skvx::bit_pun<float2>(p0), skvx::bit_pun<float2>(p1));
     }
-    // Write a line that is automatically converted into an equivalent cubic.
-    AI void writeLineAsCubic(float4 p0p1) {
-        this->writeCubic(p0p1.lo, (p0p1.zwxy() - p0p1) * (1/3.f) + p0p1, p0p1.hi);
-    }
-    AI void writeLineAsCubic(float2 p0, float2 p1) { this->writeLineAsCubic({p0, p1}); }
 
     // Write a triangle by setting it to a conic with w=Inf, and using a distinct
     // explicit curve type for when inf isn't supported in shaders.

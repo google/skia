@@ -124,10 +124,6 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     } else {
         numParametricSegments = wangs_formula_conic(PARAMETRIC_PRECISION, p0, p1, p2, w);
     }
-    if (p0 == p1 && p2 == p3) {
-        // This is how we describe lines, but Wang's formula does not return 1 in this case.
-        numParametricSegments = 1;
-    }
 
     // Find the starting and ending tangents.
     float2 tan0 = ((p0 == p1) ? (p1 == p2) ? p3 : p2 : p1) - p0;
