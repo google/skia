@@ -211,15 +211,6 @@ static void test_clone(skiatest::Reporter* r, const char* testFile) {
     SkSL::dsl::End();
 }
 
-static int write_symbol_tables(SkSL::Dehydrator& dehydrator, const SkSL::SymbolTable& s) {
-    int count = 1;
-    if (s.fParent) {
-        count += write_symbol_tables(dehydrator, *s.fParent);
-    }
-    dehydrator.write(s);
-    return count;
-}
-
 static void test_rehydrate(skiatest::Reporter* r, const char* testFile) {
     SkString shaderString = load_source(r, testFile, "");
     if (shaderString.isEmpty()) {
