@@ -645,7 +645,7 @@ public:
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
 #endif
 
-    bool drawStrokedLine(const GrClip*, GrPaint&&, GrAA, const SkMatrix&, const SkPoint[2],
+    void drawStrokedLine(const GrClip*, GrPaint&&, GrAA, const SkMatrix&, const SkPoint[2],
                          const SkStrokeRec&);
 
 private:

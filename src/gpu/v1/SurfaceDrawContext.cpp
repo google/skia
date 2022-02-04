@@ -1654,7 +1654,7 @@ SkBudgeted SurfaceDrawContext::isBudgeted() const {
     return this->asSurfaceProxy()->isBudgeted();
 }
 
-bool SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
+void SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
                                          GrPaint&& paint,
                                          GrAA aa,
                                          const SkMatrix& viewMatrix,
@@ -1664,6 +1664,9 @@ bool SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
 
     SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
     SkASSERT(stroke.getWidth() > 0);
+    // Adding support for round capping would require a
+    // SurfaceDrawContext::fillRRectWithLocalMatrix entry point
+    SkASSERT(SkPaint::kRound_Cap != stroke.getCap());
 
     const SkScalar halfWidth = 0.5f * stroke.getWidth();
     if (halfWidth <= 0.f) {
@@ -1672,7 +1675,7 @@ bool SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
         // coverage (although that would likely overflow elsewhere and cause the draw to drop due
         // to non-finite bounds). At any other scale, this line is so thin, it's coverage is
         // negligible, so discarding the draw is visually equivalent.
-        return true;
+        return;
     }
 
     SkVector parallel = points[1] - points[0];
@@ -1685,8 +1688,8 @@ bool SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
 
     SkVector ortho = { parallel.fY, -parallel.fX };
     SkPoint p0 = points[0], p1 = points[1];
-    if (stroke.getCap() != SkPaint::kButt_Cap) {
-        // Extra extension for square and round caps
+    if (stroke.getCap() == SkPaint::kSquare_Cap) {
+        // Extra extension for square caps
         p0 -= parallel;
         p1 += parallel;
     }
@@ -1694,31 +1697,20 @@ bool SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
     // If we are using dmsaa or reduced shader mode then attempt to draw with FillRRectOp.
     if (this->caps()->drawInstancedSupport() &&
         (this->alwaysAntialias() ||
-         fContext->priv().caps()->reducedShaderMode() ||
-         stroke.getCap() == SkPaint::kRound_Cap)) {
+         (fContext->priv().caps()->reducedShaderMode() && aa == GrAA::kYes))) {
         SkMatrix localMatrix = SkMatrix::MakeAll(p1.fX - p0.fX, ortho.fX, p0.fX,
                                                  p1.fY - p0.fY, ortho.fY, p0.fY,
                                                  0, 0, 1);
-        SkRect bounds = {0,-1,1,1};
-        SkRRect rrect = (stroke.getCap() == SkPaint::kRound_Cap)
-                ? SkRRect::MakeRectXY(bounds, halfWidth / (p0 - p1).length(), 1)
-                : SkRRect::MakeRect(bounds);
         if (auto op = FillRRectOp::Make(fContext,
                                         this->arenaAlloc(),
                                         std::move(paint),
                                         SkMatrix::Concat(viewMatrix, localMatrix),
-                                        rrect,
+                                        SkRRect::MakeRect({0,-1,1,1}),
                                         localMatrix,
-                                        this->alwaysAntialias() ? GrAA::kYes : aa)) {
+                                        GrAA::kYes)) {
             this->addDrawOp(clip, std::move(op));
-            return true;
+            return;
         }
-    }
-
-    // Adding support for round capping would require a
-    // SurfaceDrawContext::fillRRectWithLocalMatrix entry point
-    if (stroke.getCap() == SkPaint::kRound_Cap) {
-        return false;
     }
 
     // Order is TL, TR, BR, BL where arbitrarily "down" is p0 to p1 and "right" is positive
@@ -1731,7 +1723,6 @@ bool SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
 
     assert_alive(paint);
     this->fillQuadWithEdgeAA(clip, std::move(paint), aa, edgeAA, viewMatrix, corners, nullptr);
-    return true;
 }
 
 bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
@@ -1746,7 +1737,8 @@ bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
         // We can ignore the starting point and direction since there is no path effect.
         bool inverted;
         if (shape.asLine(linePts, &inverted) && !inverted &&
-            shape.style().strokeRec().getStyle() == SkStrokeRec::kStroke_Style) {
+            shape.style().strokeRec().getStyle() == SkStrokeRec::kStroke_Style &&
+            shape.style().strokeRec().getCap() != SkPaint::kRound_Cap) {
             // The stroked line is an oriented rectangle, which looks the same or better (if
             // perspective) compared to path rendering. The exception is subpixel/hairline lines
             // that are non-AA or MSAA, in which case the default path renderer achieves higher
@@ -1757,10 +1749,9 @@ bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
             if (aaType == GrAAType::kCoverage ||
                 !SkDrawTreatAAStrokeAsHairline(shape.style().strokeRec().getWidth(), viewMatrix,
                                                &coverage)) {
-                if (this->drawStrokedLine(clip, std::move(*paint), aa, viewMatrix, linePts,
-                                          shape.style().strokeRec())) {
-                    return true;
-                }
+                this->drawStrokedLine(clip, std::move(*paint), aa, viewMatrix, linePts,
+                                      shape.style().strokeRec());
+                return true;
             }
         } else if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
             if (rrect.isRect()) {

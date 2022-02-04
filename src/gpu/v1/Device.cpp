@@ -367,22 +367,23 @@ void Device::drawPoints(SkCanvas::PointMode mode,
             return;
         }
         if (!paint.getMaskFilter() &&
-            paint.getStrokeWidth() > 0) {  // drawStrokedLine doesn't support hairlines.
+            paint.getStrokeWidth() > 0 &&  // drawStrokedLine doesn't support hairlines.
+            paint.getStrokeCap() != SkPaint::kRound_Cap) { // drawStrokedLine doesn't do round caps.
             // Simple stroked line. Bypass path rendering.
             GrPaint grPaint;
             if (SkPaintToGrPaint(this->recordingContext(),
                                  fSurfaceDrawContext->colorInfo(),
                                  paint,
                                  this->asMatrixProvider(),
-                                 &grPaint) &&
+                                 &grPaint)) {
                 fSurfaceDrawContext->drawStrokedLine(this->clip(),
                                                      std::move(grPaint),
                                                      aa,
                                                      this->localToDevice(),
                                                      pts,
-                                                     SkStrokeRec(paint, SkPaint::kStroke_Style))) {
-                return;
+                                                     SkStrokeRec(paint, SkPaint::kStroke_Style));
             }
+            return;
         }
     }
 
