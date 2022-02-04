@@ -32,7 +32,7 @@ SkSpan<const SkUniform> GetUniforms(CodeSnippetID);
 // embedded in the fragment function's body. It has access to the vertex output via a "interpolated"
 // variable, and must have a statement that writes to a float4 "out.color". Its uniforms (as defined
 // by GetUniforms(type)) are available as a variable named "uniforms".
-const char* GetShaderSkSL(CodeSnippetID);
+std::tuple<const char*, const char*> GetShaderSkSL(CodeSnippetID);
 
 } // namespace skgpu
 

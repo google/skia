@@ -197,10 +197,13 @@ std::string get_sksl_fs(const SkShaderCodeDictionary* dictionary,
             sksl += emit_SKSL_uniforms(2, "FS", paintUniforms);
         }
 
+        auto [name, code] = GetShaderSkSL(codeSnippetID);
+
+        sksl += code;
         sksl += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
         sksl += "void main() {\n"
                 "    half4 outColor;\n";
-        sksl += GetShaderSkSL(codeSnippetID);
+        SkSL::String::appendf(&sksl, "outColor = %s();\n", name);
         sksl += "    sk_FragColor = outColor;\n"
                 "}\n";
 
