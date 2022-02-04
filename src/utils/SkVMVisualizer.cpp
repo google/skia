@@ -231,7 +231,7 @@ void Visualizer::formatA_PHH(int id, const char* op, int immA, int immB, int imm
     this->writeText("%s = %s Ptr%d, %x, %x", V(id).c_str(), op, immA, immB, immC);
 }
 void Visualizer::formatA_PHV(int id, const char* op, int immA, int immB, int v) const {
-    this->writeText("%s = %s Ptr%d, %x, V%d", V(id).c_str(), op, immA, immB, V(v).c_str());
+    this->writeText("%s = %s Ptr%d, %x, %s", V(id).c_str(), op, immA, immB, V(v).c_str());
 }
 void Visualizer::formatA_S(int id, const char* op, int imm) const {
     float f;
@@ -397,7 +397,7 @@ void Visualizer::dumpInstruction(int id0) const {
 }
 
 void Visualizer::dumpHead() const {
-    this->writeText(
+    this->writeText("%s",
     "<html>\n"
     "<head>\n"
     "   <title>SkVM Disassembler Output</title>\n"

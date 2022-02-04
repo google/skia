@@ -329,6 +329,9 @@ DEF_TEST(String_fromUTF16, r) {
     REPORTER_ASSERT(r, SkStringFromUTF16(test3, SK_ARRAY_COUNT(test3)).equals("αβγδε ζηθικ"));
 }
 
+static void test_va_list_print(skiatest::Reporter* r, const char format[], ...)
+        SK_PRINTF_LIKE(2, 3);
+
 static void test_va_list_print(skiatest::Reporter* r, const char format[], ...) {
     va_list args;
     va_start(args, format);
@@ -340,6 +343,9 @@ static void test_va_list_print(skiatest::Reporter* r, const char format[], ...) 
     va_end(args);
 }
 
+static void test_va_list_append(skiatest::Reporter* r, const char format[], ...)
+        SK_PRINTF_LIKE(2, 3);
+
 static void test_va_list_append(skiatest::Reporter* r, const char format[], ...) {
     va_list args;
     va_start(args, format);
@@ -350,6 +356,9 @@ static void test_va_list_append(skiatest::Reporter* r, const char format[], ...)
 
     va_end(args);
 }
+
+static void test_va_list_prepend(skiatest::Reporter* r, const char format[], ...)
+        SK_PRINTF_LIKE(2, 3);
 
 static void test_va_list_prepend(skiatest::Reporter* r, const char format[], ...) {
     va_list args;
@@ -368,6 +377,9 @@ DEF_TEST(String_VAList, r) {
     test_va_list_prepend(r, "%s %c%c%c%c%c", "hello", 'w', 'o', 'r', 'l', 'd');
 }
 
+static void test_va_list_overflow_print(skiatest::Reporter* r, const char format[], ...)
+        SK_PRINTF_LIKE(2, 3);
+
 static void test_va_list_overflow_print(skiatest::Reporter* r, const char format[], ...) {
     va_list args;
     va_start(args, format);
@@ -378,6 +390,9 @@ static void test_va_list_overflow_print(skiatest::Reporter* r, const char format
 
     va_end(args);
 }
+
+static void test_va_list_overflow_append(skiatest::Reporter* r, const char format[], ...)
+        SK_PRINTF_LIKE(2, 3);
 
 static void test_va_list_overflow_append(skiatest::Reporter* r, const char format[], ...) {
     va_list args;
@@ -391,6 +406,9 @@ static void test_va_list_overflow_append(skiatest::Reporter* r, const char forma
 
     va_end(args);
 }
+
+static void test_va_list_overflow_prepend(skiatest::Reporter* r, const char format[], ...)
+        SK_PRINTF_LIKE(2, 3);
 
 static void test_va_list_overflow_prepend(skiatest::Reporter* r, const char format[], ...) {
     va_list args;

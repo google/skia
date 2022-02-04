@@ -41,7 +41,7 @@ public:
 
     void printf(const char format[], ...) SK_PRINTF_LIKE(2, 3);
 
-    void appendVAList(const char format[], va_list args);
+    void appendVAList(const char format[], va_list args) SK_PRINTF_LIKE(2, 0);
 
     virtual ~OutputStream() {}
 

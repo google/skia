@@ -76,6 +76,8 @@ using sk_gpu_test::GrContextFactory;
 
 static DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
 
+static void exitf(const char* format, ...) SK_PRINTF_LIKE(1, 2);
+
 static void exitf(const char* format, ...) {
     va_list args;
     va_start(args, format);
@@ -217,7 +219,7 @@ static void check_order(int testID,
                         const std::vector<ID>& actualOrder,
                         const std::vector<ID>& expectedOrder) {
     if (expectedOrder.size() != actualOrder.size()) {
-        exitf("Op count mismatch in test %d. Expected %d - got %d\n",
+        exitf("Op count mismatch in test %d. Expected %zu - got %zu\n",
               testID,
               expectedOrder.size(),
               actualOrder.size());

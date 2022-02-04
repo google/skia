@@ -27,7 +27,9 @@
 
 using namespace skiagm;
 
-static void draw_failure_message(SkCanvas* canvas, const char format[], ...)  {
+static void draw_failure_message(SkCanvas* canvas, const char format[], ...) SK_PRINTF_LIKE(2, 3);
+
+static void draw_failure_message(SkCanvas* canvas, const char format[], ...) {
     SkString failureMsg;
 
     va_list argp;

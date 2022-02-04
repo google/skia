@@ -82,13 +82,14 @@ public:
         this->definitions().appendf("const float %s = %f;\n", name, value);
     }
 
-    void defineConstantf(const char* type, const char* name, const char* fmt, ...) {
-       this->definitions().appendf("const %s %s = ", type, name);
-       va_list args;
-       va_start(args, fmt);
-       this->definitions().appendVAList(fmt, args);
-       va_end(args);
-       this->definitions().append(";\n");
+    void defineConstantf(const char* type, const char* name, const char* fmt, ...)
+            SK_PRINTF_LIKE(4, 5) {
+        this->definitions().appendf("const %s %s = ", type, name);
+        va_list args;
+        va_start(args, fmt);
+        this->definitions().appendVAList(fmt, args);
+        va_end(args);
+        this->definitions().append(";\n");
     }
 
     void definitionAppend(const char* str) { this->definitions().append(str); }

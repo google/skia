@@ -85,7 +85,7 @@ namespace skvm::viz {
         void formatA_VVV(int id, const char* op,  int v1, int v2, int v3) const;
         void formatA_VC(int id, const char* op,  int v, int imm) const;
 
-        void writeText(const char* format, ...) const;
+        void writeText(const char* format, ...) const SK_PRINTF_LIKE(2, 3);
 
         SkSL::SkVMDebugTrace* fDebugInfo;
         SkTHashMap<Instruction, size_t, InstructionHash> fIndex;

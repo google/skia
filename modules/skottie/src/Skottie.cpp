@@ -114,11 +114,10 @@ static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
         SkBlendMode::kPlus,       // 16:'add'
     };
 
-    const auto bm_index = ParseDefault<size_t>(jobject["bm"], 0);
+    const size_t bm_index = ParseDefault<size_t>(jobject["bm"], 0);
     if (bm_index >= SK_ARRAY_COUNT(kBlendModeMap)) {
-            abuilder->log(Logger::Level::kWarning, &jobject,
-                          "Unsupported blend mode %lu\n", bm_index);
-            return SkBlendMode::kSrcOver;
+        abuilder->log(Logger::Level::kWarning, &jobject, "Unsupported blend mode %zu\n", bm_index);
+        return SkBlendMode::kSrcOver;
     }
 
     return kBlendModeMap[bm_index];

@@ -734,6 +734,8 @@ static SkString join(const CommandLineFlags::StringArray& stringArray) {
     return joined;
 }
 
+static void exitf(ExitErr err, const char* format, ...) SK_PRINTF_LIKE(2, 3);
+
 static void exitf(ExitErr err, const char* format, ...) {
     fprintf(stderr, ExitErr::kSoftware == err ? "INTERNAL ERROR: " : "ERROR: ");
     va_list args;

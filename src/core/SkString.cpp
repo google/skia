@@ -28,6 +28,10 @@ struct StringBuffer {
 
 template <int SIZE>
 static StringBuffer apply_format_string(const char* format, va_list args, char (&stackBuffer)[SIZE],
+                                        SkString* heapBuffer) SK_PRINTF_LIKE(1, 0);
+
+template <int SIZE>
+static StringBuffer apply_format_string(const char* format, va_list args, char (&stackBuffer)[SIZE],
                                         SkString* heapBuffer) {
     // First, attempt to print directly to the stack buffer.
     va_list argsCopy;
