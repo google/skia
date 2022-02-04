@@ -22,9 +22,6 @@ namespace skgpu {
 
 namespace {
 
-constexpr static float kMaxParametricSegments_pow4 =
-        pow4(StrokeFixedCountTessellator::kMaxParametricSegments);
-
 // Writes out strokes to the given instance chunk array, chopping if necessary so that all instances
 // require 32 parametric segments or less. (We don't consider radial segments here. The tessellator
 // will just add enough additional segments to handle a worst-case 180 degree stroke.)
@@ -44,30 +41,16 @@ public:
 
     SK_ALWAYS_INLINE void quadraticTo(const SkPoint p[3]) {
         float numParametricSegments_pow4 = wangs_formula::quadratic_pow4(fParametricPrecision, p);
-        if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
-            this->chopQuadraticTo(p);
-            return;
-        }
-
         fPatchWriter.writeQuadratic(p, numParametricSegments_pow4);
     }
 
     SK_ALWAYS_INLINE void conicTo(const SkPoint p[3], float w) {
         float n2 = wangs_formula::conic_pow2(fParametricPrecision, p, w);
-        float numParametricSegments_pow4 = n2 * n2;
-        if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
-            this->chopConicTo({p, w});
-            return;
-        }
         fPatchWriter.writeConic(p, w, n2);
     }
 
     SK_ALWAYS_INLINE void cubicConvex180To(const SkPoint p[4]) {
         float numParametricSegments_pow4 = wangs_formula::cubic_pow4(fParametricPrecision, p);
-        if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
-            this->chopCubicConvex180To(p);
-            return;
-        }
         fPatchWriter.writeCubic(p, numParametricSegments_pow4);
     }
 
@@ -88,29 +71,6 @@ public:
     }
 
 private:
-    void chopQuadraticTo(const SkPoint p[3]) {
-        SkPoint chops[5];
-        SkChopQuadAtHalf(p, chops);
-        this->quadraticTo(chops);
-        this->quadraticTo(chops + 2);
-    }
-
-    void chopConicTo(const SkConic& conic) {
-        SkConic chops[2];
-        if (!conic.chopAt(.5f, chops)) {
-            return;
-        }
-        this->conicTo(chops[0].fPts, chops[0].fW);
-        this->conicTo(chops[1].fPts, chops[1].fW);
-    }
-
-    void chopCubicConvex180To(const SkPoint p[4]) {
-        SkPoint chops[7];
-        SkChopCubicAtHalf(p, chops);
-        this->cubicConvex180To(chops);
-        this->cubicConvex180To(chops + 3);
-    }
-
     PatchWriter& fPatchWriter;
     const float fParametricPrecision;
 };
