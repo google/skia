@@ -21,13 +21,6 @@ namespace skgpu {
 
 namespace {
 
-// The HW stroke tessellator needs explicit control over 4 control points that it configures.
-// These are configured similarly to Cubic vs. Conic for the fixed count stroke tessellator, but the
-// rest of the supporting code works best when dealing with a single type. Since HW tessellation
-// does not require explicit curve types or automatic CPU chopping and deferring, the simple Cubic
-// patch type is sufficient, although we rename it here to highlight how it's used differently here.
-using HwPatch = PatchWriter::Cubic;
-
 float num_combined_segments(float numParametricSegments, float numRadialSegments) {
     // The first and last edges are shared by both the parametric and radial sets of edges, so
     // the total number of edges is:
@@ -53,14 +46,13 @@ float2 pow4(float2 x) {
 }
 
 void quad_to_cubic(const SkPoint p[3], SkPoint patch[4]) {
-    using Cubic = PatchWriter::Cubic;
-    using Quadratic = PatchWriter::Quadratic;
+    // Matches arithmetic in PatchWriter::writeQuadratic's conversion to a cubic.
+    float4 p0p2{skvx::bit_pun<float2>(p[0]), skvx::bit_pun<float2>(p[2])};
+    float4 mid = mix(p0p2, skvx::bit_pun<float2>(p[1]).xyxy(), 2/3.f);
 
-    Cubic cubic = Quadratic(p).asCubic();
-    cubic.fP0.store(patch);
-    cubic.fP1.store(patch + 1);
-    cubic.fP2.store(patch + 2);
-    cubic.fP3.store(patch + 3);
+    patch[0] = p[0];
+    mid.store(patch + 1); // also writes patch[2]
+    patch[3] = p[2];
 }
 
 class HwPatchWriter {
@@ -233,7 +225,13 @@ public:
             fPatchWriter.updateJoinControlPointAttrib(p[0]);
         }
 
-        fPatchWriter << HwPatch(p);
+        // The HW stroke tessellator needs explicit control over 4 control points that it configures
+        // These are configured the same as cubics and conic for the fixed count stroke tessellator,
+        // but the rest of the supporting code is set up to produce a generic "patch". Since HW
+        // tessellation does not require explicit curve types or automatic CPU chopping and
+        // deferring, PatchWriter::writeCubic() patch type is sufficient, although 'p' may actually
+        // contain data causing it to be interpreted as something other than a cubic in the shader.
+        fPatchWriter.writeCubic(p);
         fPatchWriter.updateJoinControlPointAttrib(endControlPoint);
     }
 
@@ -591,7 +589,7 @@ private:
             }
             asPatch[3] = nextControlPoint;
 
-            fPatchWriter << HwPatch(asPatch);
+            fPatchWriter.writeCubic(asPatch); // not really a cubic, see note in writePatchTo()
         }
 
         fPatchWriter.updateJoinControlPointAttrib(nextControlPoint);

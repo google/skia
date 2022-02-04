@@ -20,10 +20,6 @@
 
 namespace skgpu {
 
-using Conic = PatchWriter::Conic;
-using Cubic = PatchWriter::Cubic;
-using Quadratic = PatchWriter::Quadratic;
-
 int PathCurveTessellator::patchPreallocCount(int totalCombinedPathVerbCnt) const {
     // Over-allocate enough curves for 1 in 4 to chop.
     int approxNumChops = (totalCombinedPathVerbCnt + 3) / 4;
@@ -62,7 +58,7 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                     }
                     if (n4 <= maxSegments_pow4) {
                         // This quad already fits in "maxTessellationSegments".
-                        patchWriter << Quadratic(p0, p1, p2);
+                        patchWriter.writeQuadratic(p0, p1, p2);
                     } else {
                         // The path should have been pre-chopped if needed, so all curves fit in
                         // kMaxTessellationSegmentsPerCurve.
@@ -88,7 +84,7 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                     }
                     if (n2 <= maxSegments_pow2) {
                         // This conic already fits in "maxTessellationSegments".
-                        patchWriter << Conic(p0, p1, p2, *w);
+                        patchWriter.writeConic(p0, p1, p2, *w);
                     } else {
                         // The path should have been pre-chopped if needed, so all curves fit in
                         // kMaxTessellationSegmentsPerCurve.
@@ -112,7 +108,7 @@ void PathCurveTessellator::writePatches(PatchWriter& patchWriter,
                     }
                     if (n4 <= maxSegments_pow4) {
                         // This cubic already fits in "maxTessellationSegments".
-                        patchWriter << Cubic(p0, p1, p2, p3);
+                        patchWriter.writeCubic(p0, p1, p2, p3);
                     } else {
                         // The path should have been pre-chopped if needed, so all curves fit in
                         // kMaxTessellationSegmentsPerCurve.

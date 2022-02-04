@@ -22,12 +22,6 @@ namespace skgpu {
 
 namespace {
 
-using Circle = PatchWriter::Circle;
-using Conic = PatchWriter::Conic;
-using Cubic = PatchWriter::Cubic;
-using Line = PatchWriter::Line;
-using Quadratic = PatchWriter::Quadratic;
-
 constexpr static float kMaxParametricSegments_pow4 =
         StrokeFixedCountTessellator::kMaxParametricSegments_pow4;
 
@@ -49,7 +43,7 @@ public:
     float maxParametricSegments_pow4() const { return fMaxParametricSegments_pow4; }
 
     SK_ALWAYS_INLINE void lineTo(SkPoint start, SkPoint end) {
-        fPatchWriter << Line(start, end);
+        fPatchWriter.writeLine(start, end);
     }
 
     SK_ALWAYS_INLINE void quadraticTo(const SkPoint p[3]) {
@@ -59,7 +53,7 @@ public:
             return;
         }
 
-        fPatchWriter << Quadratic(p);
+        fPatchWriter.writeQuadratic(p);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }
@@ -71,7 +65,7 @@ public:
             this->chopConicTo({p, w});
             return;
         }
-        fPatchWriter << Conic(p, w);
+        fPatchWriter.writeConic(p, w);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }
@@ -82,7 +76,7 @@ public:
             this->chopCubicConvex180To(p);
             return;
         }
-        fPatchWriter << Cubic(p);
+        fPatchWriter.writeCubic(p);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
                                                fMaxParametricSegments_pow4);
     }
@@ -96,7 +90,7 @@ public:
     // Draws a circle whose diameter is equal to the stroke width. We emit circles at cusp points
     // round caps, and empty strokes that are specified to be drawn as circles.
     void writeCircle(SkPoint location) {
-        fPatchWriter << Circle(location);
+        fPatchWriter.writeCircle(location);
     }
 
     void finishContour() {

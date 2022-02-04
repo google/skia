@@ -7,6 +7,8 @@
 
 #include "src/gpu/tessellate/PatchWriter.h"
 
+#include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
+
 #if SK_GPU_V1
 #include "src/gpu/tessellate/PathTessellator.h"
 #include "src/gpu/tessellate/StrokeTessellator.h"
@@ -15,6 +17,13 @@
 namespace skgpu {
 
 SK_ALWAYS_INLINE SkPoint to_skpoint(float2 p) { return skvx::bit_pun<SkPoint>(p); }
+
+void write_triangle_stack(PatchWriter* writer,
+                          MiddleOutPolygonTriangulator::PoppedTriangleStack&& stack) {
+    for (auto [p0, p1, p2] : stack) {
+        writer->writeTriangle(p0, p1, p2);
+    }
+}
 
 #if SK_GPU_V1
 PatchWriter::PatchWriter(GrMeshDrawTarget* target,
@@ -51,13 +60,13 @@ void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatc
         // p1 & p2 of the cubic representation of the middle quad.
         float4 middle = mix(ab, bc, mix(T, T.zwxy(), 2/3.f));
 
-        *this << Quadratic(p0, ab.lo, abc.lo);  // Write the 1st quad.
+        this->writeQuadratic(p0, ab.lo, abc.lo);  // Write the 1st quad.
         if (needsInnerTriangles) {
-            *this << Triangle(p0, abc.lo, abc.hi);
+            this->writeTriangle(p0, abc.lo, abc.hi);
         }
-        *this << Cubic(abc.lo, middle, abc.hi);  // Write the 2nd quad already converted to a cubic
+        this->writeCubic(abc.lo, middle, abc.hi);  // Write the 2nd quad already converted to a cubic
         if (needsInnerTriangles) {
-            *this << innerTriangulator.pushVertex(to_skpoint(abc.hi));
+            write_triangle_stack(this, innerTriangulator.pushVertex(to_skpoint(abc.hi)));
         }
         std::tie(p0, p1) = {abc.hi, bc.hi};  // Save the 3rd quad.
     }
@@ -67,18 +76,18 @@ void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatc
         float2 bc = (p1 + p2) * .5f;
         float2 abc = (ab + bc) * .5f;
 
-        *this << Quadratic(p0, ab, abc);  // Write the 1st quad.
+        this->writeQuadratic(p0, ab, abc);  // Write the 1st quad.
         if (needsInnerTriangles) {
-            *this << Triangle(p0, abc, p2);
+            this->writeTriangle(p0, abc, p2);
         }
-        *this << Quadratic(abc, bc, p2);  // Write the 2nd quad.
+        this->writeQuadratic(abc, bc, p2);  // Write the 2nd quad.
     } else {
         SkASSERT(numPatches == 1);
-        *this << Quadratic(p0, p1, p2);  // Write the single remaining quad.
+        this->writeQuadratic(p0, p1, p2);  // Write the single remaining quad.
     }
     if (needsInnerTriangles) {
-        *this << innerTriangulator.pushVertex(to_skpoint(p2));
-        *this << innerTriangulator.close();
+        write_triangle_stack(this, innerTriangulator.pushVertex(to_skpoint(p2)));
+        write_triangle_stack(this, innerTriangulator.close());
     }
 }
 
@@ -99,24 +108,24 @@ void PatchWriter::chopAndWriteConics(float2 p0, float2 p1, float2 p2, float w, i
 
         // Project and write the 1st conic.
         float2 midpoint = abc.xy() / abc.w();
-        *this << Conic(h0.xy() / h0.w(),
+        this->writeConic(h0.xy() / h0.w(),
                        ab.xy() / ab.w(),
                        midpoint,
                        ab.w() / sqrtf(h0.w() * abc.w()));
         if (needsInnerTriangles) {
-            *this << innerTriangulator.pushVertex(to_skpoint(midpoint));
+            write_triangle_stack(this, innerTriangulator.pushVertex(to_skpoint(midpoint)));
         }
         std::tie(h0, h1) = {abc, bc};  // Save the 2nd conic (in homogeneous space).
     }
     // Project and write the remaining conic.
     SkASSERT(numPatches == 1);
-    *this << Conic(h0.xy() / h0.w(),
+    this->writeConic(h0.xy() / h0.w(),
                    h1.xy() / h1.w(),
                    h2.xy(), // h2.w == 1
                    h1.w() / sqrtf(h0.w()));
     if (needsInnerTriangles) {
-        *this << innerTriangulator.pushVertex(to_skpoint(h2.xy()));
-        *this << innerTriangulator.close();
+        write_triangle_stack(this, innerTriangulator.pushVertex(to_skpoint(h2.xy())));
+        write_triangle_stack(this, innerTriangulator.close());
     }
 }
 
@@ -135,13 +144,13 @@ void PatchWriter::chopAndWriteCubics(float2 p0, float2 p1, float2 p2, float2 p3,
         float4 abcd = mix(abc, bcd, T);
         float4 middle = mix(abc, bcd, T.zwxy());  // p1 & p2 of the middle cubic.
 
-        *this << Cubic(p0, ab.lo, abc.lo, abcd.lo);  // Write the 1st cubic.
+        this->writeCubic(p0, ab.lo, abc.lo, abcd.lo);  // Write the 1st cubic.
         if (needsInnerTriangles) {
-            *this << Triangle(p0, abcd.lo, abcd.hi);
+            this->writeTriangle(p0, abcd.lo, abcd.hi);
         }
-        *this << Cubic(abcd.lo, middle, abcd.hi);  // Write the 2nd cubic.
+        this->writeCubic(abcd.lo, middle, abcd.hi);  // Write the 2nd cubic.
         if (needsInnerTriangles) {
-            *this << innerTriangulator.pushVertex(to_skpoint(abcd.hi));
+            write_triangle_stack(this, innerTriangulator.pushVertex(to_skpoint(abcd.hi)));
         }
         std::tie(p0, p1, p2) = {abcd.hi, bcd.hi, cd.hi};  // Save the 3rd cubic.
     }
@@ -154,18 +163,18 @@ void PatchWriter::chopAndWriteCubics(float2 p0, float2 p1, float2 p2, float2 p3,
         float2 bcd = (bc + cd) * .5f;
         float2 abcd = (abc + bcd) * .5f;
 
-        *this << Cubic(p0, ab, abc, abcd);  // Write the 1st cubic.
+        this->writeCubic(p0, ab, abc, abcd);  // Write the 1st cubic.
         if (needsInnerTriangles) {
-            *this << Triangle(p0, abcd, p3);
+            this->writeTriangle(p0, abcd, p3);
         }
-        *this << Cubic(abcd, bcd, cd, p3);  // Write the 2nd cubic.
+        this->writeCubic(abcd, bcd, cd, p3);  // Write the 2nd cubic.
     } else {
         SkASSERT(numPatches == 1);
-        *this << Cubic(p0, p1, p2, p3);  // Write the single remaining cubic.
+        this->writeCubic(p0, p1, p2, p3);  // Write the single remaining cubic.
     }
     if (needsInnerTriangles) {
-        *this << innerTriangulator.pushVertex(to_skpoint(p3));
-        *this << innerTriangulator.close();
+        write_triangle_stack(this, innerTriangulator.pushVertex(to_skpoint(p3)));
+        write_triangle_stack(this, innerTriangulator.close());
     }
 }
 
