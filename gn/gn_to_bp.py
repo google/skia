@@ -64,7 +64,6 @@ license {
         "SPDX-license-identifier-CC0-1.0",
         "SPDX-license-identifier-FTL",
         "SPDX-license-identifier-MIT",
-        "SPDX-license-identifier-MPL",
         "legacy_unencumbered",
     ],
     license_text: [
