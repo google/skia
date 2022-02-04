@@ -11,6 +11,6 @@
 SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
     static SkFontConfigInterface* singleton;
     static SkOnce once;
-    once([]{ singleton = new SkFontConfigInterfaceDirect(nullptr); });
+    once([]{ singleton = new SkFontConfigInterfaceDirect(); });
     return singleton;
 }
