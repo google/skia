@@ -455,6 +455,7 @@ config("warnings") {
       "-Wno-switch-enum",
       "-Wno-thread-safety-negative",
       "-Wno-undef",
+      "-Wno-unreachable-code",
       "-Wno-unreachable-code-break",
       "-Wno-unreachable-code-return",
       "-Wno-unused-macros",
