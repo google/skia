@@ -1745,8 +1745,7 @@ DEF_TEST(Codec_ossfuzz6274, r) {
         ERRORF(r, "Invalid data gave non-nullptr image");
     }
     return;
-#endif
-
+#else
     if (!image) {
         ERRORF(r, "Missing %s", file);
         return;
@@ -1773,6 +1772,7 @@ DEF_TEST(Codec_ossfuzz6274, r) {
             ERRORF(r, "did not initialize pixels! %i, %i is %x", i, j, actual);
         }
     }
+#endif
 }
 
 DEF_TEST(Codec_78329453, r) {
