@@ -231,7 +231,7 @@ public:
         // tessellation does not require explicit curve types or automatic CPU chopping and
         // deferring, PatchWriter::writeCubic() patch type is sufficient, although 'p' may actually
         // contain data causing it to be interpreted as something other than a cubic in the shader.
-        fPatchWriter.writeCubic(p);
+        fPatchWriter.writeCubic(p, 0.f);
         fPatchWriter.updateJoinControlPointAttrib(endControlPoint);
     }
 
@@ -589,7 +589,7 @@ private:
             }
             asPatch[3] = nextControlPoint;
 
-            fPatchWriter.writeCubic(asPatch); // not really a cubic, see note in writePatchTo()
+            fPatchWriter.writeCubic(asPatch, 0.f); // not really a cubic, see note in writePatchTo()
         }
 
         fPatchWriter.updateJoinControlPointAttrib(nextControlPoint);
@@ -860,7 +860,8 @@ int StrokeHardwareTessellator::prepare(GrMeshDrawTarget* target,
                                        std::array<float,2> matrixMinMaxScales,
                                        PathStrokeList* pathStrokeList,
                                        int totalCombinedStrokeVerbCnt) {
-    PatchWriter patchWriter(target, this, this->patchPreallocCount(totalCombinedStrokeVerbCnt));
+    PatchWriter patchWriter(target, this, 0.f, /* unused max segment tracking */
+                            this->patchPreallocCount(totalCombinedStrokeVerbCnt));
     return this->writePatches(patchWriter, shaderMatrix, matrixMinMaxScales, pathStrokeList);
 }
 

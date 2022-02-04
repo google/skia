@@ -134,7 +134,10 @@ private:
         if (needsInnerFan) {
             patchPreallocCount += fPath.countVerbs() - 1;
         }
-        PatchWriter patchWriter(flushState, fTessellator, patchPreallocCount);
+        PatchWriter patchWriter(flushState,
+                                fTessellator,
+                                tessShader->maxTessellationSegments(*caps.shaderCaps()),
+                                patchPreallocCount);
 
         if (needsInnerFan) {
             // Write out inner fan triangles.
@@ -149,10 +152,7 @@ private:
         }
 
         // Write out the curves.
-        fTessellator->writePatches(patchWriter,
-                                   tessShader->maxTessellationSegments(*caps.shaderCaps()),
-                                   shaderMatrix,
-                                   {pathMatrix, fPath, kCyan});
+        fTessellator->writePatches(patchWriter, shaderMatrix, {pathMatrix, fPath, kCyan});
 
         if (!tessShader->willUseTessellationShaders()) {
             fTessellator->prepareFixedCountBuffers(flushState);

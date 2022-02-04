@@ -23,7 +23,7 @@ namespace skgpu {
 namespace {
 
 constexpr static float kMaxParametricSegments_pow4 =
-        StrokeFixedCountTessellator::kMaxParametricSegments_pow4;
+        pow4(StrokeFixedCountTessellator::kMaxParametricSegments);
 
 // Writes out strokes to the given instance chunk array, chopping if necessary so that all instances
 // require 32 parametric segments or less. (We don't consider radial segments here. The tessellator
@@ -38,10 +38,6 @@ public:
 
     float parametricPrecision() const { return fParametricPrecision; }
 
-    // maxParametricSegments^4, or the number of parametric segments, raised to the 4th power,
-    // that are required by the single instance we've written that requires the most segments.
-    float maxParametricSegments_pow4() const { return fMaxParametricSegments_pow4; }
-
     SK_ALWAYS_INLINE void lineTo(SkPoint start, SkPoint end) {
         fPatchWriter.writeLine(start, end);
     }
@@ -53,9 +49,7 @@ public:
             return;
         }
 
-        fPatchWriter.writeQuadratic(p);
-        fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
-                                               fMaxParametricSegments_pow4);
+        fPatchWriter.writeQuadratic(p, numParametricSegments_pow4);
     }
 
     SK_ALWAYS_INLINE void conicTo(const SkPoint p[3], float w) {
@@ -65,9 +59,7 @@ public:
             this->chopConicTo({p, w});
             return;
         }
-        fPatchWriter.writeConic(p, w);
-        fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
-                                               fMaxParametricSegments_pow4);
+        fPatchWriter.writeConic(p, w, n2);
     }
 
     SK_ALWAYS_INLINE void cubicConvex180To(const SkPoint p[4]) {
@@ -76,9 +68,7 @@ public:
             this->chopCubicConvex180To(p);
             return;
         }
-        fPatchWriter.writeCubic(p);
-        fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
-                                               fMaxParametricSegments_pow4);
+        fPatchWriter.writeCubic(p, numParametricSegments_pow4);
     }
 
     // Called when we encounter the verb "kMoveWithinContour". Moves invalidate the previous control
@@ -123,7 +113,6 @@ private:
 
     PatchWriter& fPatchWriter;
     const float fParametricPrecision;
-    float fMaxParametricSegments_pow4 = 1;
 };
 
 // Returns the worst-case number of edges we will need in order to draw a join of the given type.
@@ -276,9 +265,8 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
     int maxRadialSegmentsInStroke =
             std::max(SkScalarCeilToInt(maxRadialSegmentsPerRadian * SK_ScalarPI), 1);
 
-    int maxParametricSegmentsInStroke = SkScalarCeilToInt(sqrtf(sqrtf(
-            instanceWriter.maxParametricSegments_pow4())));
-    SkASSERT(maxParametricSegmentsInStroke >= 1);  // maxParametricSegments_pow4 is always >= 1.
+    int maxParametricSegmentsInStroke = patchWriter.requiredFixedSegments();
+    SkASSERT(maxParametricSegmentsInStroke >= 1);
 
     // Now calculate the maximum number of edges we will need in the stroke portion of the instance.
     // The first and last edges in a stroke are shared by both the parametric and radial sets of
@@ -322,7 +310,11 @@ int StrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                                          std::array<float,2> matrixMinMaxScales,
                                          PathStrokeList* pathStrokeList,
                                          int totalCombinedStrokeVerbCnt) {
-    PatchWriter patchWriter(target, this, this->patchPreallocCount(totalCombinedStrokeVerbCnt));
+    // NOTE: For now InstanceWriter manually chops curves that exceed kMaxParametricSegments_pow4,
+    // so passing in kMaxParametricSegments to PatchWriter avoids its auto-chopping while still
+    // correctly accumulating the min required segment count.
+    PatchWriter patchWriter(target, this, kMaxParametricSegments,
+                            this->patchPreallocCount(totalCombinedStrokeVerbCnt));
 
     fFixedEdgeCount = this->writePatches(patchWriter,
                                          shaderMatrix,

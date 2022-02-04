@@ -34,7 +34,6 @@ public:
     int patchPreallocCount(int totalCombinedPathVerbCnt) const final;
 
     void writePatches(PatchWriter&,
-                      int maxTessellationSegments,
                       const SkMatrix& shaderMatrix,
                       const PathDrawList&) final;
 

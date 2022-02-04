@@ -73,7 +73,6 @@ public:
     // Each path's fPathMatrix in the list is applied on the CPU while the geometry is being written
     // out. This is a tool for batching, and is applied in addition to the shader's on-GPU matrix.
     virtual void writePatches(PatchWriter&,
-                              int maxTessellationSegments,
                               const SkMatrix& shaderMatrix,
                               const PathDrawList&) = 0;
 
@@ -89,8 +88,8 @@ public:
                  int totalCombinedPathVerbCnt,
                  bool willUseTessellationShaders) {
         if (int patchPreallocCount = this->patchPreallocCount(totalCombinedPathVerbCnt)) {
-            PatchWriter patchWriter(target, this, patchPreallocCount);
-            this->writePatches(patchWriter, maxTessellationSegments, shaderMatrix, pathDrawList);
+            PatchWriter patchWriter(target, this, maxTessellationSegments, patchPreallocCount);
+            this->writePatches(patchWriter, shaderMatrix, pathDrawList);
         }
         if (!willUseTessellationShaders) {
             this->prepareFixedCountBuffers(target);

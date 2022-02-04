@@ -20,7 +20,7 @@ namespace skgpu {
 // instance are emitted as degenerate triangles.
 class StrokeFixedCountTessellator final : public StrokeTessellator {
 public:
-    constexpr static float kMaxParametricSegments_pow4 = 32*32*32*32;  // 32^4
+    constexpr static int kMaxParametricSegments = 32;
     constexpr static int8_t kMaxParametricSegments_log2 = 5;  // log2(32)
 
     StrokeFixedCountTessellator(PatchAttribs attribs) : StrokeTessellator(attribs) {}

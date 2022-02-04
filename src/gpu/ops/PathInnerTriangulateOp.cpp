@@ -423,7 +423,9 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
                                  fTessellator->patchPreallocCount(fPath.countVerbs());
         SkASSERT(patchPreallocCount);  // Otherwise fTessellator should be null.
 
-        PatchWriter patchWriter(flushState, fTessellator, patchPreallocCount);
+        auto tessShader = &fStencilCurvesProgram->geomProc().cast<GrPathTessellationShader>();
+        int maxSegments = tessShader->maxTessellationSegments(*caps.shaderCaps());
+        PatchWriter patchWriter(flushState, fTessellator, maxSegments, patchPreallocCount);
 
         // Write out breadcrumb triangles. This must be called after polysToTriangles() in order for
         // fFanBreadcrumbs to be complete.
@@ -446,9 +448,7 @@ void PathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
         SkASSERT(breadcrumbCount == fFanBreadcrumbs.count());
 
         // Write out the curves.
-        auto tessShader = &fStencilCurvesProgram->geomProc().cast<GrPathTessellationShader>();
         fTessellator->writePatches(patchWriter,
-                                   tessShader->maxTessellationSegments(*caps.shaderCaps()),
                                    tessShader->viewMatrix(),
                                    {SkMatrix::I(), fPath, SK_PMColor4fTRANSPARENT});
 
