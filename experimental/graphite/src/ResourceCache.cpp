@@ -14,7 +14,13 @@ namespace skgpu {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
-ResourceCache::ResourceCache(SingleOwner* singleOwner) : fSingleOwner(singleOwner) {}
+ResourceCache::ResourceCache(SingleOwner* singleOwner) : fSingleOwner(singleOwner) {
+// TODO: Maybe when things start using ResourceCache, then like Ganesh the compiler won't complain
+// about not using fSingleOwner in Release builds and we can delete this.
+#ifndef SK_DEBUG
+    (void)fSingleOwner;
+#endif
+}
 
 void ResourceCache::insertResource(Resource* resource) {
     ASSERT_SINGLE_OWNER
