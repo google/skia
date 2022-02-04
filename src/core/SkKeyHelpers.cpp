@@ -441,7 +441,7 @@ ImageData ExtractFromKey(const SkPaintParamsKey& key, uint32_t headerOffset) {
 #endif // SK_DEBUG
 
 sk_sp<SkUniformData> make_image_uniform_data(const ImageData& imgData) {
-    static constexpr size_t kExpectedNumUniforms = 0;
+    SkDEBUGCODE(static constexpr size_t kExpectedNumUniforms = 0;)
 
     SkSpan<const SkUniform> uniforms = skgpu::GetUniforms(CodeSnippetID::kImageShader);
     SkASSERT(uniforms.size() == kExpectedNumUniforms);
