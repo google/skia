@@ -165,3 +165,13 @@ bool_flag(
     default = False,
     flag_name = "use_icu",
 )
+
+bool_flag(
+    default = False,
+    flag_name = "disable_tracing",
+)
+
+bool_flag(
+    default = False,
+    flag_name = "disable_effect_serialization",
+)

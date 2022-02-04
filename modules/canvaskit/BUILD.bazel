@@ -15,9 +15,11 @@ BASE_LINKOPTS = [
     "-sNODEJS_CATCH_EXIT=0",  # We don't have a 'main' so disable exit() catching
     "-sWASM",
     "-sMAX_WEBGL_VERSION=2",
+    "-sUSE_WEBGL2=1",
     "-sFORCE_FILESYSTEM=0",
     "-sDYNAMIC_EXECUTION=0",
     "-sFILESYSTEM=0",
+    "-sEXPORTED_FUNCTIONS=['_malloc','_free']",
 ]
 
 RELEASE_OPTS = [
@@ -33,6 +35,9 @@ DEBUG_OPTS = [
     "--closure 0",  # Do not use closure
     "-sASSERTIONS",  # Turn on assertions
     "-sGL_ASSERTIONS",
+    "-O0",
+    "-g3",
+    "--source-map-base=/build/",
 ]
 
 GM_OPTS = [
@@ -63,7 +68,7 @@ cc_binary_with_flags(
         "//conditions:default": BASE_LINKOPTS + GM_OPTS + RELEASE_OPTS,
     }),
     local_defines = [
-        "SK_GL",
+        "SK_GL",  # FIXME(kjlubick)
         "SK_USE_WEBGL",
     ],
     set_flags = {
@@ -111,19 +116,34 @@ genrule(
     tools = ["//tools:embed_resources"],
 )
 
-CK_DEFINES = select({
+# Note: These are defines that only impact the _bindings.cpp files in this folder.
+# Any defines that need to effect the entire Skia build should go in //bazel/BUILD.bazel
+CK_DEFINES = [
+    "SK_INCLUDE_PATHOPS=1",
+] + select({
     ":enable_fonts_true": ["SK_INCLUDE_PARAGRAPH=1"],
     ":enable_fonts_false": ["SK_NO_FONTS"],
 }) + select({
+    # TODO(kjlubick) Get rid of this extra define - if we are including skottie, we will include the
+    #   managed version.
     ":enable_skottie_true": ["SK_INCLUDE_MANAGED_SKOTTIE=1"],
     ":enable_skottie_false": [],
+}) + select({
+    ":enable_skp_serialization_true": ["SK_SERIALIZE_SKP=1"],
+    ":enable_skp_serialization_false": [],
+}) + select({
+    ":enable_runtime_effect_true": ["SK_INCLUDE_RUNTIME_EFFECT=1"],
+    ":enable_runtime_effect_false": [],
+}) + select({
+    ":enable_sksl_tracing_true": ["SK_INCLUDE_SKSL_TRACE=1"],
+    ":enable_sksl_tracing_false": [],
 })
 
 CK_OPTS = BASE_LINKOPTS + [
     "-sEXPORT_NAME=CanvasKitInit",
     "-sINITIAL_MEMORY=128MB",
     # The order of these --pre-js flags matters! The preamble is a partially open scope and the
-    # postamble closes it.
+    # postamble closes it. TODO(kjlubick) do we need to do it this way anymore?
     "--pre-js",
     "modules/canvaskit/preamble.js",
     "--pre-js",
@@ -135,7 +155,7 @@ CK_OPTS = BASE_LINKOPTS + [
     "--pre-js",
     "modules/canvaskit/interface.js",
     "--pre-js",
-    "modules/canvaskit/matrix.js",
+    "modules/canvaskit/pathops.js",
 ] + select({
     "//bazel/common_config_settings:gl_backend": [
         "--pre-js",
@@ -191,6 +211,30 @@ CK_OPTS = BASE_LINKOPTS + [
         "modules/canvaskit/skottie.js",
     ],
     ":enable_skottie_false": [],
+}) + select({
+    ":enable_skp_serialization_true": [
+        "--pre-js",
+        "modules/canvaskit/skp.js",
+    ],
+    ":enable_skp_serialization_false": [],
+}) + select({
+    ":enable_particles_true": [
+        "--pre-js",
+        "modules/canvaskit/particles.js",
+    ],
+    ":enable_particles_false": [],
+}) + select({
+    ":enable_runtime_effect_true": [
+        "--pre-js",
+        "modules/canvaskit/rt_shader.js",
+    ],
+    ":enable_runtime_effect_false": [],
+}) + select({
+    ":include_matrix_js_true": [
+        "--pre-js",
+        "modules/canvaskit/matrix.js",
+    ],
+    ":include_matrix_js_false": [],
 }) + [
     # This must come last
     "--pre-js",
@@ -206,7 +250,8 @@ CK_OPTS = BASE_LINKOPTS + [
     ],
 })
 
-# All JS files that could be included via --pre-js or --post-js
+# All JS files that could possibly be included via --pre-js or --post-js.
+# Whether they actually will be or not will be controlled above in the construction of CK_OPTS.
 JS_INTERFACE_FILES = [
     "color.js",
     "cpu.js",
@@ -257,6 +302,9 @@ CK_SRCS = [
 }) + select({
     ":enable_skottie_true": ["skottie_bindings.cpp"],
     ":enable_skottie_false": [],
+}) + select({
+    ":enable_particles_true": ["particles_bindings.cpp"],
+    ":enable_particles_false": [],
 })
 
 cc_binary_with_flags(
@@ -268,6 +316,7 @@ cc_binary_with_flags(
     linkopts = CK_OPTS,
     local_defines = CK_DEFINES,
     set_flags = {
+        "disable_tracing": ["True"],
         "include_decoder": [
             "jpeg_decode_codec",
             "png_decode_codec",
@@ -277,6 +326,7 @@ cc_binary_with_flags(
         "include_encoder": [
             "jpeg_encode_codec",
             "png_encode_codec",
+            "webp_encode_codec",
         ],
         # TODO(kjlubick) make this optional, depending on enable_fonts
         "fontmgr_factory": [
@@ -311,6 +361,11 @@ cc_binary_with_flags(
             "//modules/skottie:utils",
         ],
         ":enable_skottie_false": [],
+    }) + select({
+        ":enable_particles_true": [
+            "//modules/particles",
+        ],
+        ":enable_particles_false": [],
     }),
 )
 
@@ -339,4 +394,29 @@ bool_flag(
 bool_flag(
     default = True,
     flag_name = "enable_skottie",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_skp_serialization",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_particles",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_runtime_effect",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_sksl_tracing",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "include_matrix_js",
 )

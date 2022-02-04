@@ -10,6 +10,12 @@ GENERAL_DEFINES = ["SK_HAS_ANDROID_CODEC"] + select({
     "//conditions:default": [
         "SK_RELEASE",
     ],
+}) + select({
+    "//bazel/common_config_settings:disable_tracing_true": ["SK_DISABLE_TRACING"],
+    "//conditions:default": [],
+}) + select({
+    "//bazel/common_config_settings:disable_effect_serialization_true": ["SK_DISABLE_EFFECT_DESERIALIZATION"],
+    "//conditions:default": [],
 })
 
 GPU_DEFINES = select({
@@ -50,6 +56,7 @@ CODEC_DEFINES = select_multi(
             "SK_CODEC_DECODES_JPEG",
         ],
         "//bazel/common_config_settings:webp_decode_codec": ["SK_CODEC_DECODES_WEBP"],
+        "//bazel/common_config_settings:webp_encode_codec": ["SK_ENCODE_WEBP"],
     },
     default = [],
 )
@@ -59,6 +66,7 @@ PLATFORM_DEFINES = select({
         # working around https://github.com/emscripten-core/emscripten/issues/10072
         "SK_FORCE_8_BYTE_ALIGNMENT",
         "SK_DISABLE_LEGACY_SHADERCONTEXT",
+        "SK_DISABLE_AAA",  # This saves about 57KB of code size, uncompressed
     ],
     "//conditions:default": [],
 })

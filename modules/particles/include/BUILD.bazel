@@ -1,0 +1,78 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkParticleBinding.h",
+        "SkParticleData.h",
+        "SkParticleDrawable.h",
+        "SkParticleEffect.h",
+        "SkParticleSerialization.h",
+        "SkReflected.h",
+    ],
+    visibility = ["//modules/particles:__pkg__"],
+)
+
+generated_cc_atom(
+    name = "SkParticleBinding_hdr",
+    hdrs = ["SkParticleBinding.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkReflected_hdr",
+        "//include/core:SkString_hdr",
+        "//src/sksl/ir:SkSLExternalFunction_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkParticleData_hdr",
+    hdrs = ["SkParticleData.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/private:SkTemplates_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkParticleDrawable_hdr",
+    hdrs = ["SkParticleDrawable.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkReflected_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkParticleEffect_hdr",
+    hdrs = ["SkParticleEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkParticleData_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTemplates_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkParticleSerialization_hdr",
+    hdrs = ["SkParticleSerialization.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkReflected_hdr",
+        "//include/core:SkString_hdr",
+        "//include/private:SkTArray_hdr",
+        "//src/utils:SkJSONWriter_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkReflected_hdr",
+    hdrs = ["SkReflected.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/private:SkTArray_hdr",
+    ],
+)

@@ -17,6 +17,10 @@ build --flag_alias=with_gl_standard=//bazel/common_config_settings:with_gl_stand
 
 build --flag_alias=with_icu=//bazel/common_config_settings:use_icu
 build --flag_alias=with_no_icu=no//bazel/common_config_settings:use_icu
+build --flag_alias=disable_tracing=//bazel/common_config_settings:disable_tracing
+build --flag_alias=enable_tracing=no//bazel/common_config_settings:disable_tracing
+build --flag_alias=disable_effect_serialization=//bazel/common_config_settings:disable_effect_serialization
+build --flag_alias=enable_effect_serialization=no//bazel/common_config_settings:disable_effect_serialization
 
 # CanvasKit flags
 build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts

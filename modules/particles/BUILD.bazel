@@ -1,0 +1,12 @@
+cc_library(
+    name = "particles",
+    hdrs = ["//modules/particles/include:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/particles/src:SkParticleBinding_src",
+        "//modules/particles/src:SkParticleDrawable_src",
+        "//modules/particles/src:SkParticleEffect_src",
+        "//modules/particles/src:SkReflected_src",
+        "//modules/skresources",
+    ],
+)

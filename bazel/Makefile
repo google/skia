@@ -6,6 +6,7 @@ generate:
 		include src tools \
 		modules/skshaper modules/svg modules/skresources modules/skparagraph modules/skunicode \
 		modules/skottie modules/skresources modules/sksg experimental/ffmpeg \
+		modules/particles \
 		experimental/bazel_test experimental/graphite example
 
 # This target should be run after the go.mod file is updated (e.g. version rolls or new updates)
