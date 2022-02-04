@@ -12,6 +12,7 @@
 #include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/PaintParams.h"
+#include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
@@ -92,7 +93,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
                 SkPaintParamsKey expected = CreateKey(SkBackend::kGraphite, s, tm, bm);
 
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
-                auto dict = recorder->resourceProvider()->shaderCodeDictionary();
+                auto dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
                 auto [ actualID, uniformBlock] = ExtractPaintData(dict, PaintParams(p));
                 int actualNumUniforms = uniformBlock->count();
 

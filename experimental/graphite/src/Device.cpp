@@ -19,6 +19,7 @@
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/Log.h"
+#include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
@@ -121,10 +122,10 @@ sk_sp<Device> Device::Make(Recorder* recorder, const SkImageInfo& ii) {
     if (!recorder) {
         return nullptr;
     }
-    auto textureInfo = recorder->caps()->getDefaultSampledTextureInfo(ii.colorType(),
-                                                                      /*levelCount=*/1,
-                                                                      Protected::kNo,
-                                                                      Renderable::kYes);
+    auto textureInfo = recorder->priv().caps()->getDefaultSampledTextureInfo(ii.colorType(),
+                                                                             /*levelCount=*/1,
+                                                                             Protected::kNo,
+                                                                             Renderable::kYes);
     sk_sp<TextureProxy> target(new TextureProxy(ii.dimensions(), textureInfo));
     return Make(recorder,
                 std::move(target),
@@ -202,7 +203,7 @@ bool Device::readPixels(Context* context,
         return false;
     }
 
-    ResourceProvider* resourceProvider = recorder->resourceProvider();
+    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
 
     TextureProxy* srcProxy = fDC->target();
     if (!srcProxy->instantiate(resourceProvider)) {
@@ -232,7 +233,7 @@ bool Device::readPixels(Context* context,
     }
 
     this->flushPendingWorkToRecorder();
-    fRecorder->add(std::move(task));
+    fRecorder->priv().add(std::move(task));
 
     // TODO: Can snapping ever fail?
     context->insertRecording(fRecorder->snap());
@@ -472,7 +473,7 @@ void Device::flushPendingWorkToRecorder() {
     // a non-empty usage bounds, using that bounds as the scissor.
     auto drawTask = fDC->snapRenderPassTask(fRecorder, fColorDepthBoundsManager.get());
     if (drawTask) {
-        fRecorder->add(std::move(drawTask));
+        fRecorder->priv().add(std::move(drawTask));
     }
 
     // Reset accumulated state tracking since everything that it referred to has been moved into

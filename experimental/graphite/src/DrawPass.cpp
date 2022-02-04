@@ -18,6 +18,7 @@
 #include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
+#include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/TextureProxy.h"
@@ -271,10 +272,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     Rect passBounds = Rect::InfiniteInverted();
 
-    DrawBufferManager* bufferMgr = recorder->drawBufferManager();
+    DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
     UniformCache geometryUniforms;
     UniformBindingCache geometryUniformBindings(bufferMgr, &geometryUniforms);
-    UniformBindingCache shadingUniformBindings(bufferMgr, recorder->uniformCache());
+    UniformBindingCache shadingUniformBindings(bufferMgr, recorder->priv().uniformCache());
 
     std::unordered_map<const GraphicsPipelineDesc*, uint32_t, Hash, Eq> pipelineDescToIndex;
 
@@ -294,7 +295,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         std::unique_ptr<SkUniformBlock> shadingUniforms;
         uint32_t shadingIndex = UniformCache::kInvalidUniformID;
         if (draw.fPaintParams.has_value()) {
-            SkShaderCodeDictionary* dict = recorder->resourceProvider()->shaderCodeDictionary();
+            SkShaderCodeDictionary* dict =
+                    recorder->priv().resourceProvider()->shaderCodeDictionary();
             std::tie(shaderID, shadingUniforms) = ExtractPaintData(dict, draw.fPaintParams.value());
             shadingIndex = shadingUniformBindings.addUniforms(std::move(shadingUniforms));
         } // else depth-only

@@ -10,6 +10,7 @@
 #include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/ContextUtils.h"
+#include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/UniformCache.h"
 #include "src/core/SkUniform.h"
 #include "src/core/SkUniformData.h"
@@ -45,7 +46,7 @@ std::unique_ptr<SkUniformBlock> make_ub(int numUniforms, int dataSize) {
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformCacheTest, reporter, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    auto cache = recorder->uniformCache();
+    auto cache = recorder->priv().uniformCache();
 
     REPORTER_ASSERT(reporter, cache->count() == 0);
 

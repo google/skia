@@ -8,9 +8,10 @@
 #ifndef skgpu_Recorder_DEFINED
 #define skgpu_Recorder_DEFINED
 
-#include "experimental/graphite/src/TaskGraph.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SingleOwner.h"
+
+#include <vector>
 
 namespace skgpu {
 
@@ -19,8 +20,11 @@ class Device;
 class DrawBufferManager;
 class GlobalCache;
 class Gpu;
+class RecorderPriv;
 class Recording;
 class ResourceProvider;
+class Task;
+class TaskGraph;
 class UniformCache;
 
 class Recorder final {
@@ -32,15 +36,11 @@ public:
 
     ~Recorder();
 
-    void add(sk_sp<Task>);
-
-    // TODO: All of these should be moved to a RecorderPriv class
-    ResourceProvider* resourceProvider() const;
-    UniformCache* uniformCache() const;
-    DrawBufferManager* drawBufferManager() const;
-    const Caps* caps() const;
-
     std::unique_ptr<Recording> snap();
+
+    // Provides access to functions that aren't part of the public API.
+    RecorderPriv priv();
+    const RecorderPriv priv() const;  // NOLINT(readability-const-return-type)
 
 #if GR_TEST_UTILS
     bool deviceIsRegistered(Device*);
@@ -49,6 +49,7 @@ public:
 private:
     friend class Context; // For ctor
     friend class Device; // For registering and deregistering Devices;
+    friend class RecorderPriv; // for ctor and hidden methods
 
     Recorder(sk_sp<Gpu>, sk_sp<GlobalCache>);
 
@@ -77,7 +78,7 @@ private:
     sk_sp<Gpu> fGpu;
     std::unique_ptr<ResourceProvider> fResourceProvider;
 
-    TaskGraph fGraph;
+    std::unique_ptr<TaskGraph> fGraph;
     std::unique_ptr<UniformCache> fUniformCache;
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;
     std::vector<Device*> fTrackedDevices;

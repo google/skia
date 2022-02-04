@@ -14,6 +14,7 @@
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/Device.h"
 #include "experimental/graphite/src/Gpu.h"
+#include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Surface_Graphite.h"
 #include "experimental/graphite/src/Texture.h"
@@ -56,14 +57,14 @@ sk_sp<SkSurface> MakeGraphiteFromBackendTexture(skgpu::Recorder* recorder,
         return nullptr;
     }
 
-    if (!validate_backend_texture(recorder->caps(),
+    if (!validate_backend_texture(recorder->priv().caps(),
                                   beTexture,
                                   colorType)) {
         return nullptr;
     }
 
     sk_sp<skgpu::Texture> texture =
-            recorder->resourceProvider()->createWrappedTexture(beTexture);
+            recorder->priv().resourceProvider()->createWrappedTexture(beTexture);
 
     if (!texture) {
         return nullptr;

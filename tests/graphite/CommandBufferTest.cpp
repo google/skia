@@ -20,6 +20,7 @@
 #include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/GraphicsPipeline.h"
+#include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/Sampler.h"
@@ -235,7 +236,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     gpu->testingOnly_startCapture();
 #endif
     auto recorder = context->makeRecorder();
-    auto resourceProvider = recorder->resourceProvider();
+    auto resourceProvider = recorder->priv().resourceProvider();
     auto commandBuffer = resourceProvider->createCommandBuffer();
 
     SkISize textureSize = { kTextureWidth, kTextureHeight };

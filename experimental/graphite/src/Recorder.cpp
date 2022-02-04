@@ -16,6 +16,7 @@
 #include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/ResourceProvider.h"
+#include "experimental/graphite/src/TaskGraph.h"
 #include "experimental/graphite/src/UniformCache.h"
 #include "src/core/SkUniformData.h"
 
@@ -25,6 +26,7 @@ namespace skgpu {
 
 Recorder::Recorder(sk_sp<Gpu> gpu, sk_sp<GlobalCache> globalCache)
         : fGpu(std::move(gpu))
+        , fGraph(new TaskGraph)
         , fUniformCache(new UniformCache)
         , fDrawBufferManager(new DrawBufferManager(
                 fResourceProvider.get(),
@@ -41,27 +43,6 @@ Recorder::~Recorder() {
     }
 }
 
-ResourceProvider* Recorder::resourceProvider() const {
-    return fResourceProvider.get();
-}
-
-UniformCache* Recorder::uniformCache() const {
-    return fUniformCache.get();
-}
-
-const Caps* Recorder::caps() const {
-    return fGpu->caps();
-}
-
-DrawBufferManager* Recorder::drawBufferManager() const {
-    return fDrawBufferManager.get();
-}
-
-void Recorder::add(sk_sp<Task> task) {
-    ASSERT_SINGLE_OWNER
-    fGraph.add(std::move(task));
-}
-
 std::unique_ptr<Recording> Recorder::snap() {
     ASSERT_SINGLE_OWNER
     for (auto& device : fTrackedDevices) {
@@ -70,10 +51,10 @@ std::unique_ptr<Recording> Recorder::snap() {
 
     auto commandBuffer = fResourceProvider->createCommandBuffer();
 
-    fGraph.addCommands(fResourceProvider.get(), commandBuffer.get());
+    fGraph->addCommands(fResourceProvider.get(), commandBuffer.get());
     fDrawBufferManager->transferToCommandBuffer(commandBuffer.get());
 
-    fGraph.reset();
+    fGraph->reset();
     return std::unique_ptr<Recording>(new Recording(std::move(commandBuffer)));
 }
 

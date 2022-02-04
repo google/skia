@@ -17,6 +17,7 @@
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawPass.h"
 #include "experimental/graphite/src/Gpu.h"
+#include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/RenderPassTask.h"
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "experimental/graphite/src/TextureProxy.h"
@@ -126,7 +127,7 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
     desc.fClearColor = drawPass->clearColor();
 
     if (drawPass->depthStencilFlags() != DepthStencilFlags::kNone) {
-        const Caps* caps = recorder->caps();
+        const Caps* caps = recorder->priv().caps();
         desc.fDepthStencilAttachment.fTextureInfo =
                 caps->getDefaultDepthStencilTextureInfo(drawPass->depthStencilFlags(),
                                                         1 /*sampleCount*/, // TODO: MSAA
