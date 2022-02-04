@@ -134,8 +134,7 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
     }
 
     FcConfig* config = build_fontconfig_with_fontfile("/fonts/NotoSansCJK-VF-subset.otf.ttc");
-    FcConfigSetCurrent(config);
-    sk_sp<SkFontConfigInterfaceDirect> fciDirect(new SkFontConfigInterfaceDirect());
+    sk_sp<SkFontConfigInterfaceDirect> fciDirect(new SkFontConfigInterfaceDirect(config));
 
     std::vector<std::string> family_names{{"Noto Sans CJK JP",
                                            "Noto Sans CJK HK",
