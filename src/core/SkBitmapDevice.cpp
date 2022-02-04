@@ -552,7 +552,7 @@ void SkBitmapDevice::drawAtlas(const SkRSXform xform[],
                                sk_sp<SkBlender> blender,
                                const SkPaint& paint) {
     // set this to true for performance comparisons with the old drawVertices way
-    if (false) {
+    if ((false)) {
         this->INHERITED::drawAtlas(xform, tex, colors, count, std::move(blender), paint);
         return;
     }

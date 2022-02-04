@@ -33,7 +33,7 @@ static void testChopCubic(skiatest::Reporter* reporter) {
     SkScalar tValues[3];
     // make sure we don't assert internally
     int count = SkChopCubicAtMaxCurvature(src, dst, tValues);
-    if (false) { // avoid bit rot, suppress warning
+    if ((false)) { // avoid bit rot, suppress warning
         REPORTER_ASSERT(reporter, count);
     }
     // Make sure src and dst can be the same pointer.

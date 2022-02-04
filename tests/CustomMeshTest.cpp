@@ -527,7 +527,7 @@ DEF_TEST(CustomMeshSpec, reporter) {
     test_too_many_attrs(reporter);
     test_too_many_varyings(reporter);
     // skbug.com/12712
-    if (0) {
+    if ((false)) {
         test_duplicate_attribute_names(reporter);
         test_duplicate_varying_names(reporter);
     }

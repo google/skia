@@ -125,7 +125,7 @@ static void make_images() {
 // EXIF tag for that image's jpg file.
 static void draw(SkCanvas* canvas, const char* suffix) {
     // Avoid unused function warning.
-    if (0) {
+    if ((false)) {
         make_images();
     }
     canvas->save();

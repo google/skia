@@ -35,7 +35,7 @@ class CircleView : public Sample {
             paint.setStrokeWidth(SkIntToScalar(width));
         }
         canvas->drawCircle(0, 0, 9.0f, paint);
-        if (false) { // avoid bit rot, suppress warning
+        if ((false)) { // avoid bit rot, suppress warning
             test_circlebounds(canvas);
         }
     }

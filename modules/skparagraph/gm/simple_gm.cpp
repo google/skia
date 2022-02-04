@@ -138,19 +138,20 @@ protected:
                 canvas->drawLine(x0, Y+2, X1, Y+2, underp);
             }
 
-            if (info->utf8Starts && false) {
-                SkString str;
-                for (int i = 0; i < info->count; ++i) {
-                    str.appendUnichar(gSpeach[info->utf8Starts[i]]);
+            if ((false)) {
+                if (info->utf8Starts) {
+                    SkString str;
+                    for (int i = 0; i < info->count; ++i) {
+                        str.appendUnichar(gSpeach[info->utf8Starts[i]]);
+                    }
+                    SkDebugf("'%s'\n", str.c_str());
                 }
-                SkDebugf("'%s'\n", str.c_str());
-            }
 
-            if (false) {    // show position points
-            for (int i = 0; i < info->count; ++i) {
-                auto pos = info->positions[i];
-                canvas->drawPoint(pos.fX + info->origin.fX, pos.fY + info->origin.fY, p2);
-            }
+                // show position points
+                for (int i = 0; i < info->count; ++i) {
+                    auto pos = info->positions[i];
+                    canvas->drawPoint(pos.fX + info->origin.fX, pos.fY + info->origin.fY, p2);
+                }
             }
         });
     }

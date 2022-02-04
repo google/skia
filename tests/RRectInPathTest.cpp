@@ -484,7 +484,7 @@ DEF_TEST(RRect_fragile, reporter) {
 
     SkRRect rr;
     // please don't assert
-    if (false) {    // disable until we fix this
+    if ((false)) {    // disable until we fix this
         SkDebugf("%g 0x%08X\n", rect.fLeft, SkFloat2Bits(rect.fLeft));
         rr.setRectRadii(rect, radii);
     }

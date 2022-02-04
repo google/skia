@@ -50,7 +50,7 @@ DEF_TEST(ColorInterp, reporter) {
         SkPMColor src = SkPreMultiplyColor(colorSrc);
         SkPMColor dst = SkPreMultiplyColor(colorDst);
 
-        if (false) {
+        if ((false)) {
             REPORTER_ASSERT(reporter, SkFourByteInterp(src, dst, a0) == dst);
             REPORTER_ASSERT(reporter, SkFourByteInterp(src, dst, a255) == src);
         }

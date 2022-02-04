@@ -730,6 +730,6 @@ DEF_TEST(PathOpsCubicIntersection, reporter) {
     cubicIntersectionSelfTest(reporter);
     cubicIntersectionCoinTest(reporter);
     standardTestCases(reporter);
-    if (false) CubicIntersection_IntersectionFinder();
-    if (false) CubicIntersection_RandTest(reporter);
+    if ((false)) CubicIntersection_IntersectionFinder();
+    if ((false)) CubicIntersection_RandTest(reporter);
 }

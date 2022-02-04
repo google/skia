@@ -197,10 +197,10 @@ int StrokeFixedCountTessellator::writePatches(PatchWriter& patchWriter,
         }
         StrokeIterator strokeIter(pathStroke->fPath, &pathStroke->fStroke, &shaderMatrix);
         while (strokeIter.next()) {
+            using Verb = StrokeIterator::Verb;
             const SkPoint* p = strokeIter.pts();
+            int numChops;
             switch (strokeIter.verb()) {
-                using Verb = StrokeIterator::Verb;
-                int numChops;
                 case Verb::kContourFinished:
                     instanceWriter.finishContour();
                     break;

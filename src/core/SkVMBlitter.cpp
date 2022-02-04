@@ -621,7 +621,7 @@ skvm::Program* SkVMBlitter::buildProgram(Coverage coverage) {
               "%zu, prev was %zu", fUniforms.buf.size(), prev);
 
     skvm::Program program = builder.done(DebugName(key).c_str());
-    if (false) {
+    if ((false)) {
         static std::atomic<int> missed{0},
                                 total{0};
         if (!program.hasJIT()) {

@@ -411,7 +411,7 @@ DEF_TEST(DrawPath, reporter) {
     test_crbug_140803();
     test_inversepathwithclip();
     // why?
-    if (false) test_crbug131181();
+    if ((false)) test_crbug131181();
     test_infinite_dash(reporter);
     test_crbug_165432(reporter);
     test_crbug_472147_simple(reporter);

@@ -106,7 +106,7 @@ const Sk4fGradientInterval*
 SkLinearGradient::LinearGradient4fContext::findInterval(SkScalar fx) const {
     SkASSERT(in_range(fx, fIntervals->front().fT0, fIntervals->back().fT1));
 
-    if (1) {
+    if ((true)) {
         // Linear search, using the last scanline interval as a starting point.
         SkASSERT(fCachedInterval >= fIntervals->begin());
         SkASSERT(fCachedInterval < fIntervals->end());

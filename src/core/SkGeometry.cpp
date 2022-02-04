@@ -1410,7 +1410,7 @@ int SkConic::computeQuadPOW2(SkScalar tol) const {
         error *= 0.25f;
     }
     // float version -- using ceil gives the same results as the above.
-    if (false) {
+    if ((false)) {
         SkScalar err = SkScalarSqrt(x * x + y * y);
         if (err <= tol) {
             return 0;

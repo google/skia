@@ -76,7 +76,7 @@ DEF_TEST(ImageGenerator, reporter) {
     ig.getYUVAPlanes(yuvaPixmaps);
 
     // Suppressed due to https://code.google.com/p/skia/issues/detail?id=4339
-    if (false) {
+    if ((false)) {
         test_imagegenerator_factory(reporter);
     }
 }

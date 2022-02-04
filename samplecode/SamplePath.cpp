@@ -731,7 +731,7 @@ protected:
             Dot(canvas, p, 7, SK_ColorBLACK);
         }
 
-        if (false) {
+        if ((false)) {
             SkScalar ts[2];
             int n = SkFindCubicInflections(fPts, ts);
             for (int i = 0; i < n; ++i) {

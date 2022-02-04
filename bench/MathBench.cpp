@@ -295,7 +295,7 @@ protected:
             for (int j = 0; j < loops; ++j) {
                 for (int i = 0; i < N - 4; ++i) {
                     const SkRect* r = reinterpret_cast<const SkRect*>(&data[i]);
-                    if (false) { // avoid bit rot, suppress warning
+                    if ((false)) { // avoid bit rot, suppress warning
                         isFinite(*r);
                     }
                     counter += r->isFinite();

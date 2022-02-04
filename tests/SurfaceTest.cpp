@@ -1156,13 +1156,15 @@ DEF_TEST(surface_image_unity, reporter) {
         auto surf = SkSurface::MakeRaster(info, rowBytes, nullptr);
         if (surf) {
             auto img = surf->makeImageSnapshot();
-            if (!img && false) {    // change to true to document the differences
-                SkDebugf("image failed: [%08X %08X] %14s %s\n",
-                         info.width(),
-                         info.height(),
-                         ToolUtils::colortype_name(info.colorType()),
-                         ToolUtils::alphatype_name(info.alphaType()));
-                return;
+            if ((false)) { // change to true to document the differences
+                if (!img) {
+                    SkDebugf("image failed: [%08X %08X] %14s %s\n",
+                             info.width(),
+                             info.height(),
+                             ToolUtils::colortype_name(info.colorType()),
+                             ToolUtils::alphatype_name(info.alphaType()));
+                    return;
+                }
             }
             REPORTER_ASSERT(reporter, img != nullptr);
 

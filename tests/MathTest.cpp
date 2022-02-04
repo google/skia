@@ -133,7 +133,7 @@ static int (*blend_functions[])(int, int, int) = {
 static void test_blend31() {
     int failed = 0;
     int death = 0;
-    if (false) { // avoid bit rot, suppress warning
+    if ((false)) { // avoid bit rot, suppress warning
         failed = (*blend_functions[0])(0,0,0);
     }
     for (int src = 0; src <= 255; src++) {
@@ -507,10 +507,10 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, result == (int32_t)check);
     }
 
-    if (false) test_floor(reporter);
+    if ((false)) test_floor(reporter);
 
     // disable for now
-    if (false) test_blend31();  // avoid bit rot, suppress warning
+    if ((false)) test_blend31();  // avoid bit rot, suppress warning
 
     test_clz(reporter);
     test_ctz(reporter);

@@ -197,10 +197,6 @@ sk_sp<SkRuntimeEffect> make_noise_effect(unsigned loops, const char* filter, con
     auto result = SkRuntimeEffect::MakeForShader(
             SkStringPrintf(gNoiseEffectSkSL, filter, fractal, loops), {});
 
-    if (0 && !result.effect) {
-        printf("!!! %s\n", result.errorText.c_str());
-    }
-
     return std::move(result.effect);
 }
 

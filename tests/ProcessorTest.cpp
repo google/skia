@@ -478,36 +478,38 @@ static bool legal_modulation(const GrColor inGr[3], const GrColor outGr[3]) {
                                   fuzzy_color_equals(outf[2], expectedForAlphaModulation[2]);
 
     // This can be enabled to print the values that caused this check to fail.
-    if (0 && !isLegalColorModulation && !isLegalAlphaModulation) {
-        SkDebugf("Color modulation test\n\timplied mod color: (%.03f, %.03f, %.03f, %.03f)\n",
-                 fpPreColorModulation[0],
-                 fpPreColorModulation[1],
-                 fpPreColorModulation[2],
-                 fpPreColorModulation[3]);
-        for (int i = 0; i < 3; ++i) {
-            SkDebugf("\t(%.03f, %.03f, %.03f, %.03f) -> "
-                     "(%.03f, %.03f, %.03f, %.03f) | "
-                     "(%.03f, %.03f, %.03f, %.03f), ok: %d\n",
-                     inf[i].fR, inf[i].fG, inf[i].fB, inf[i].fA,
-                     outf[i].fR, outf[i].fG, outf[i].fB, outf[i].fA,
-                     expectedForColorModulation[i].fR, expectedForColorModulation[i].fG,
-                     expectedForColorModulation[i].fB, expectedForColorModulation[i].fA,
-                     fuzzy_color_equals(outf[i], expectedForColorModulation[i]));
-        }
-        SkDebugf("Alpha modulation test\n\timplied mod color: (%.03f, %.03f, %.03f, %.03f)\n",
-                 fpPreAlphaModulation[0],
-                 fpPreAlphaModulation[1],
-                 fpPreAlphaModulation[2],
-                 fpPreAlphaModulation[3]);
-        for (int i = 0; i < 3; ++i) {
-            SkDebugf("\t(%.03f, %.03f, %.03f, %.03f) -> "
-                     "(%.03f, %.03f, %.03f, %.03f) | "
-                     "(%.03f, %.03f, %.03f, %.03f), ok: %d\n",
-                     inf[i].fR, inf[i].fG, inf[i].fB, inf[i].fA,
-                     outf[i].fR, outf[i].fG, outf[i].fB, outf[i].fA,
-                     expectedForAlphaModulation[i].fR, expectedForAlphaModulation[i].fG,
-                     expectedForAlphaModulation[i].fB, expectedForAlphaModulation[i].fA,
-                     fuzzy_color_equals(outf[i], expectedForAlphaModulation[i]));
+    if ((false)) {
+        if (!isLegalColorModulation && !isLegalAlphaModulation) {
+            SkDebugf("Color modulation test\n\timplied mod color: (%.03f, %.03f, %.03f, %.03f)\n",
+                     fpPreColorModulation[0],
+                     fpPreColorModulation[1],
+                     fpPreColorModulation[2],
+                     fpPreColorModulation[3]);
+            for (int i = 0; i < 3; ++i) {
+                SkDebugf("\t(%.03f, %.03f, %.03f, %.03f) -> "
+                         "(%.03f, %.03f, %.03f, %.03f) | "
+                         "(%.03f, %.03f, %.03f, %.03f), ok: %d\n",
+                         inf[i].fR, inf[i].fG, inf[i].fB, inf[i].fA,
+                         outf[i].fR, outf[i].fG, outf[i].fB, outf[i].fA,
+                         expectedForColorModulation[i].fR, expectedForColorModulation[i].fG,
+                         expectedForColorModulation[i].fB, expectedForColorModulation[i].fA,
+                         fuzzy_color_equals(outf[i], expectedForColorModulation[i]));
+            }
+            SkDebugf("Alpha modulation test\n\timplied mod color: (%.03f, %.03f, %.03f, %.03f)\n",
+                     fpPreAlphaModulation[0],
+                     fpPreAlphaModulation[1],
+                     fpPreAlphaModulation[2],
+                     fpPreAlphaModulation[3]);
+            for (int i = 0; i < 3; ++i) {
+                SkDebugf("\t(%.03f, %.03f, %.03f, %.03f) -> "
+                         "(%.03f, %.03f, %.03f, %.03f) | "
+                         "(%.03f, %.03f, %.03f, %.03f), ok: %d\n",
+                         inf[i].fR, inf[i].fG, inf[i].fB, inf[i].fA,
+                         outf[i].fR, outf[i].fG, outf[i].fB, outf[i].fA,
+                         expectedForAlphaModulation[i].fR, expectedForAlphaModulation[i].fG,
+                         expectedForAlphaModulation[i].fB, expectedForAlphaModulation[i].fA,
+                         fuzzy_color_equals(outf[i], expectedForAlphaModulation[i]));
+            }
         }
     }
     return isLegalColorModulation || isLegalAlphaModulation;

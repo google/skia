@@ -1402,8 +1402,8 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
     SkMatrixPriv::MapPtsProc mapPtsProc = SkMatrixPriv::GetMapPtsProc(matrix);
     bool firstVerb = true;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(*src)) {
+        SkPoint mappedPts[3];
         switch (verb) {
-            SkPoint mappedPts[3];
             case SkPathVerb::kMove:
                 mapPtsProc(matrix, mappedPts, &pts[0], 1);
                 if (firstVerb && mode == kExtend_AddPathMode && !isEmpty()) {

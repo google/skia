@@ -129,7 +129,7 @@ static sk_sp<SkShader> make_bg_shader() {
 DEF_SIMPLE_GM(aarectmodes, canvas, 640, 480) {
             SkPaint bgPaint;
             bgPaint.setShader(make_bg_shader());
-            if (false) { // avoid bit rot, suppress warning
+            if ((false)) { // avoid bit rot, suppress warning
                 test4(canvas);
             }
             const SkRect bounds = SkRect::MakeWH(W, H);

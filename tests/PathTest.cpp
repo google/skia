@@ -5486,7 +5486,7 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         REPORTER_ASSERT(reporter, after == after2);
 #endif
     }
-    if (false) {
+    if ((false)) {
         SkDebugf("max_free %zu\n", max_free);
     }
 }

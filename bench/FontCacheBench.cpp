@@ -101,8 +101,8 @@ static void dump_array(const uint16_t array[], int count) {
 class FontCacheEfficiency : public Benchmark {
 public:
     FontCacheEfficiency()  {
-        if (false) dump_array(nullptr, 0);
-        if (false) rotr(0, 0);
+        if ((false)) dump_array(nullptr, 0);
+        if ((false)) rotr(0, 0);
     }
 
 protected:

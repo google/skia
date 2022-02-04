@@ -144,12 +144,14 @@ protected:
         bool split;
         path = cusp(pts, pp, split, 8000, .125);
         auto debugOutCubic = [](const SkPoint* pts) {
-            return false; // comment out to capture stream of cusp'd cubics in stdout
-            SkDebugf("{{");
-            for (int i = 0; i < 4; ++i) {
-                SkDebugf("{0x%08x,0x%08x},", SkFloat2Bits(pts[i].fX), SkFloat2Bits(pts[i].fY));
+            if ((false)) { // enable to capture stream of cusp'd cubics in stdout
+                SkDebugf("{{");
+                for (int i = 0; i < 4; ++i) {
+                    SkDebugf("{0x%08x,0x%08x},", SkFloat2Bits(pts[i].fX), SkFloat2Bits(pts[i].fY));
+                }
+                SkDebugf("}},\n");
             }
-            SkDebugf("}},\n");
+            return false;
         };
         if (split) {
             debugOutCubic(&pp[0]);

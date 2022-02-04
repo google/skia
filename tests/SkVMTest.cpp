@@ -2285,7 +2285,7 @@ DEF_TEST(SkVM_approx_math, r) {
                 return approx_tan(x - 3*P);
             });
         }
-        if (0) { SkDebugf("tan error %g\n", err); }
+        if ((false)) { SkDebugf("tan error %g\n", err); }
     }
 
     // asin, acos, atan
@@ -2300,7 +2300,7 @@ DEF_TEST(SkVM_approx_math, r) {
                 return approx_acos(x);
             });
         }
-        if (0) { SkDebugf("asin error %g\n", err); }
+        if ((false)) { SkDebugf("asin error %g\n", err); }
 
         err = 0;
         for (float x = -10; x <= 10; x += 1.0f/16) {
@@ -2308,7 +2308,7 @@ DEF_TEST(SkVM_approx_math, r) {
                 return approx_atan(x);
             });
         }
-        if (0) { SkDebugf("atan error %g\n", err); }
+        if ((false)) { SkDebugf("atan error %g\n", err); }
 
         for (float y = -3; y <= 3; y += 1) {
             for (float x = -3; x <= 3; x += 1) {
@@ -2317,7 +2317,7 @@ DEF_TEST(SkVM_approx_math, r) {
                 });
             }
         }
-        if (0) { SkDebugf("atan2 error %g\n", err); }
+        if ((false)) { SkDebugf("atan2 error %g\n", err); }
     }
 }
 

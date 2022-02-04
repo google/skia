@@ -271,17 +271,19 @@ static double testOneFailure(const CubicLineFailures& failure) {
 }
 
 DEF_TEST(PathOpsCubicLineFailures, reporter) {
-    return;  // disable for now
-    for (int index = 0; index < cubicLineFailuresCount; ++index) {
-        const CubicLineFailures& failure = cubicLineFailures[index];
-        double newT = testOneFailure(failure);
-        SkASSERT_RELEASE(newT >= 0);
+    if ((false)) {  // disable for now
+        for (int index = 0; index < cubicLineFailuresCount; ++index) {
+            const CubicLineFailures& failure = cubicLineFailures[index];
+            double newT = testOneFailure(failure);
+            SkASSERT_RELEASE(newT >= 0);
+        }
     }
 }
 
 DEF_TEST(PathOpsCubicLineOneFailure, reporter) {
-    return;  // disable for now
-    const CubicLineFailures& failure = cubicLineFailures[1];
-    double newT = testOneFailure(failure);
-    SkASSERT_RELEASE(newT >= 0);
+    if ((false)) {  // disable for now
+        const CubicLineFailures& failure = cubicLineFailures[1];
+        double newT = testOneFailure(failure);
+        SkASSERT_RELEASE(newT >= 0);
+    }
 }

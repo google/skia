@@ -86,7 +86,7 @@ static void write_image(const SkImage* img, const char path[]) {
 }
 
 static void compare(skiatest::Reporter* reporter, SkImage* img0, SkImage* img1) {
-    if (false) {
+    if ((false)) {
         static int counter;
 
         SkDebugf("---- counter %d\n", counter);
