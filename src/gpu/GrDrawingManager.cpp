@@ -774,9 +774,13 @@ void GrDrawingManager::newTextureResolveRenderTask(sk_sp<GrSurfaceProxy> proxy,
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
+    if (!proxy->requiresManualMSAAResolve()) {
+        SkDEBUGCODE(this->validate());
+        return;
+    }
+
     GrRenderTask* lastTask = this->getLastRenderTask(proxy.get());
-    if ((!proxy->asRenderTargetProxy()->isMSAADirty() && (!lastTask || lastTask->isClosed())) ||
-        caps.msaaResolvesAutomatically()) {
+    if (!proxy->asRenderTargetProxy()->isMSAADirty() && (!lastTask || lastTask->isClosed())) {
         SkDEBUGCODE(this->validate());
         return;
     }

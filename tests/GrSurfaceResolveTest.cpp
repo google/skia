@@ -152,5 +152,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceResolveTest, reporter, ctxInfo) {
     otherSurface->getCanvas()->clear(SK_ColorBLUE);
     dContext->flush();
     dContext->submit();
+
+    // Make sure resolving a non-msaa surface doesn't trigger a resolve call. We'll hit an assert
+    // that the msaa is not dirty if it does.
+    REPORTER_ASSERT(reporter, otherSurface);
+    otherSurface->getCanvas()->clear(SK_ColorRED);
+    otherSurface->resolveMSAA();
+    dContext->flush();
+    dContext->submit();
 }
 
