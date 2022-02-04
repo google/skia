@@ -1,0 +1,8 @@
+cc_library(
+    name = "skresources",
+    hdrs = ["//modules/skresources/include:hdrs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skresources/src:SkResources_src",
+    ],
+)

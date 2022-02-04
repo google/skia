@@ -1,5 +1,11 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+filegroup(
+    name = "hdrs",
+    srcs = ["SkResources.h"],
+    visibility = ["//modules/skresources:__pkg__"],
+)
+
 generated_cc_atom(
     name = "SkResources_hdr",
     hdrs = ["SkResources.h"],

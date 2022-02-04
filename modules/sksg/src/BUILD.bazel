@@ -1,0 +1,287 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "SkSGClipEffect_src",
+    srcs = ["SkSGClipEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPath_hdr",
+        "//modules/sksg/include:SkSGClipEffect_hdr",
+        "//modules/sksg/include:SkSGGeometryNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGColorFilter_src",
+    srcs = ["SkSGColorFilter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColorFilter_hdr",
+        "//include/effects:SkTableColorFilter_hdr",
+        "//include/private:SkColorData_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGDraw_src",
+    srcs = ["SkSGDraw.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPath_hdr",
+        "//modules/sksg/include:SkSGDraw_hdr",
+        "//modules/sksg/include:SkSGGeometryNode_hdr",
+        "//modules/sksg/include:SkSGInvalidationController_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGEffectNode_src",
+    srcs = ["SkSGEffectNode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//modules/sksg/include:SkSGEffectNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGGeometryEffect_src",
+    srcs = ["SkSGGeometryEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGTransformPriv_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkStrokeRec_hdr",
+        "//include/effects:SkCornerPathEffect_hdr",
+        "//include/effects:SkDashPathEffect_hdr",
+        "//include/effects:SkTrimPathEffect_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//modules/sksg/include:SkSGGeometryEffect_hdr",
+        "//src/core:SkPathEffectBase_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGGeometryNode_src",
+    srcs = ["SkSGGeometryNode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPath_hdr",
+        "//modules/sksg/include:SkSGGeometryNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGGradient_src",
+    srcs = ["SkSGGradient.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPaint_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/sksg/include:SkSGGradient_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGGroup_src",
+    srcs = ["SkSGGroup.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//modules/sksg/include:SkSGGroup_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGImage_src",
+    srcs = ["SkSGImage.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImage_hdr",
+        "//modules/sksg/include:SkSGImage_hdr",
+        "//src/core:SkPaintPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGInvalidationController_src",
+    srcs = ["SkSGInvalidationController.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRect_hdr",
+        "//modules/sksg/include:SkSGInvalidationController_hdr",
+        "//src/core:SkTLazy_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGMaskEffect_src",
+    srcs = ["SkSGMaskEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/effects:SkLumaColorFilter_hdr",
+        "//modules/sksg/include:SkSGMaskEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGMerge_src",
+    srcs = ["SkSGMerge.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/pathops:SkPathOps_hdr",
+        "//modules/sksg/include:SkSGMerge_hdr",
+        "//src/core:SkPathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGNodePriv_hdr",
+    hdrs = ["SkSGNodePriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//modules/sksg/include:SkSGNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGNode_src",
+    srcs = ["SkSGNode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/sksg/include:SkSGInvalidationController_hdr",
+        "//modules/sksg/include:SkSGNode_hdr",
+        "//src/core:SkRectPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGOpacityEffect_src",
+    srcs = ["SkSGOpacityEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//modules/sksg/include:SkSGOpacityEffect_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGPaint_src",
+    srcs = ["SkSGPaint.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/private:SkTPin_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGPath_src",
+    srcs = ["SkSGPath.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPaint_hdr",
+        "//modules/sksg/include:SkSGPath_hdr",
+        "//src/core:SkRectPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGPlane_src",
+    srcs = ["SkSGPlane.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPath_hdr",
+        "//modules/sksg/include:SkSGPlane_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGRect_src",
+    srcs = ["SkSGRect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPath_hdr",
+        "//modules/sksg/include:SkSGRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGRenderEffect_src",
+    srcs = ["SkSGRenderEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkMaskFilter_hdr",
+        "//include/core:SkShader_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/core:SkMaskFilterBase_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGRenderNode_src",
+    srcs = ["SkSGRenderNode.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGNodePriv_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkImageFilter_hdr",
+        "//include/core:SkPaint_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGScene_src",
+    srcs = ["SkSGScene.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPaint_hdr",
+        "//modules/sksg/include:SkSGInvalidationController_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+        "//modules/sksg/include:SkSGScene_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGText_src",
+    srcs = ["SkSGText.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkTArray_hdr",
+        "//modules/sksg/include:SkSGText_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGTransformPriv_hdr",
+    hdrs = ["SkSGTransformPriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//modules/sksg/include:SkSGTransform_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGTransform_src",
+    srcs = ["SkSGTransform.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGTransformPriv_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+    ],
+)

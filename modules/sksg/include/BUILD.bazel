@@ -1,0 +1,255 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkSGClipEffect.h",
+        "SkSGColorFilter.h",
+        "SkSGDraw.h",
+        "SkSGEffectNode.h",
+        "SkSGGeometryEffect.h",
+        "SkSGGeometryNode.h",
+        "SkSGGradient.h",
+        "SkSGGroup.h",
+        "SkSGImage.h",
+        "SkSGInvalidationController.h",
+        "SkSGMaskEffect.h",
+        "SkSGMerge.h",
+        "SkSGNode.h",
+        "SkSGOpacityEffect.h",
+        "SkSGPaint.h",
+        "SkSGPath.h",
+        "SkSGPlane.h",
+        "SkSGRect.h",
+        "SkSGRenderEffect.h",
+        "SkSGRenderNode.h",
+        "SkSGScene.h",
+        "SkSGText.h",
+        "SkSGTransform.h",
+    ],
+    visibility = ["//modules/sksg:__pkg__"],
+)
+
+generated_cc_atom(
+    name = "SkSGClipEffect_hdr",
+    hdrs = ["SkSGClipEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSGEffectNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGColorFilter_hdr",
+    hdrs = ["SkSGColorFilter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGEffectNode_hdr",
+        "//include/core:SkBlendMode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGDraw_hdr",
+    hdrs = ["SkSGDraw.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGGeometryNode_hdr",
+        ":SkSGPaint_hdr",
+        ":SkSGRenderNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGEffectNode_hdr",
+    hdrs = ["SkSGEffectNode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSGRenderNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGGeometryEffect_hdr",
+    hdrs = ["SkSGGeometryEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGGeometryNode_hdr",
+        ":SkSGTransform_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/effects:SkTrimPathEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGGeometryNode_hdr",
+    hdrs = ["SkSGGeometryNode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSGNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGGradient_hdr",
+    hdrs = ["SkSGGradient.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGRenderEffect_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGGroup_hdr",
+    hdrs = ["SkSGGroup.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSGRenderNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGImage_hdr",
+    hdrs = ["SkSGImage.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGRenderNode_hdr",
+        "//include/core:SkSamplingOptions_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGInvalidationController_hdr",
+    hdrs = ["SkSGInvalidationController.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGMaskEffect_hdr",
+    hdrs = ["SkSGMaskEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSGEffectNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGMerge_hdr",
+    hdrs = ["SkSGMerge.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGGeometryNode_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGNode_hdr",
+    hdrs = ["SkSGNode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRect_hdr",
+        "//include/core:SkRefCnt_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGOpacityEffect_hdr",
+    hdrs = ["SkSGOpacityEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSGEffectNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGPaint_hdr",
+    hdrs = ["SkSGPaint.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGNode_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkPaint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGPath_hdr",
+    hdrs = ["SkSGPath.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGGeometryNode_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGPlane_hdr",
+    hdrs = ["SkSGPlane.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSGGeometryNode_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkSGRect_hdr",
+    hdrs = ["SkSGRect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGGeometryNode_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkRRect_hdr",
+        "//include/core:SkRect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGRenderEffect_hdr",
+    hdrs = ["SkSGRenderEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGEffectNode_hdr",
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/effects:SkImageFilters_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGRenderNode_hdr",
+    hdrs = ["SkSGRenderNode.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGNode_hdr",
+        "//include/core:SkBlendMode_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/core:SkShader_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGScene_hdr",
+    hdrs = ["SkSGScene.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGText_hdr",
+    hdrs = ["SkSGText.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkSGGeometryNode_hdr",
+        "//include/core:SkFont_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/utils:SkTextUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSGTransform_hdr",
+    hdrs = ["SkSGTransform.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkSGEffectNode_hdr"],
+)

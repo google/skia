@@ -5,6 +5,7 @@ generate:
 		--third_party_file_map="third_party/file_map_for_bazel.json" \
 		include src tools \
 		modules/skshaper modules/svg modules/skresources modules/skparagraph modules/skunicode \
+		modules/skottie modules/skresources modules/sksg experimental/ffmpeg \
 		experimental/bazel_test experimental/graphite example
 
 # This target should be run after the go.mod file is updated (e.g. version rolls or new updates)

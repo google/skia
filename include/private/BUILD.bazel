@@ -369,7 +369,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLDefines_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/core:SkString_hdr",
     ],
 )
@@ -478,7 +477,6 @@ generated_cc_atom(
     name = "SkTOptional_hdr",
     hdrs = ["SkTOptional.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkTypes_hdr"],
 )
 
 generated_cc_atom(
@@ -569,4 +567,10 @@ generated_cc_atom(
         ":SkThreadID_hdr",
         "//include/core:SkTypes_hdr",
     ],
+)
+
+generated_cc_atom(
+    name = "SkStringView_hdr",
+    hdrs = ["SkStringView.h"],
+    visibility = ["//:__subpackages__"],
 )

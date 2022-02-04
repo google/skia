@@ -1,0 +1,117 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Animator_hdr",
+    hdrs = ["Animator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
+
+generated_cc_atom(
+    name = "Animator_src",
+    srcs = ["Animator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Animator_hdr",
+        ":KeyframeAnimator_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottiePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "KeyframeAnimator_hdr",
+    hdrs = ["KeyframeAnimator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Animator_hdr",
+        "//include/core:SkCubicMap_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:SkNoncopyable_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "KeyframeAnimator_src",
+    srcs = ["KeyframeAnimator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":KeyframeAnimator_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ScalarKeyframeAnimator_src",
+    srcs = ["ScalarKeyframeAnimator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Animator_hdr",
+        ":KeyframeAnimator_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ShapeKeyframeAnimator_src",
+    srcs = ["ShapeKeyframeAnimator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Animator_hdr",
+        ":VectorKeyframeAnimator_hdr",
+        "//include/core:SkPathBuilder_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextKeyframeAnimator_src",
+    srcs = ["TextKeyframeAnimator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":KeyframeAnimator_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/skottie/src/text:TextValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Vec2KeyframeAnimator_src",
+    srcs = ["Vec2KeyframeAnimator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Animator_hdr",
+        ":KeyframeAnimator_hdr",
+        "//include/core:SkContourMeasure_hdr",
+        "//include/core:SkPathBuilder_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VectorKeyframeAnimator_hdr",
+    hdrs = ["VectorKeyframeAnimator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":KeyframeAnimator_hdr"],
+)
+
+generated_cc_atom(
+    name = "VectorKeyframeAnimator_src",
+    srcs = ["VectorKeyframeAnimator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Animator_hdr",
+        ":VectorKeyframeAnimator_hdr",
+        "//include/core:SkTypes_hdr",
+        "//include/private:SkNx_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//src/core:SkSafeMath_hdr",
+    ],
+)

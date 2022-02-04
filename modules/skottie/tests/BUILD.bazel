@@ -1,0 +1,61 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "AudioLayer_src",
+    srcs = ["AudioLayer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skottie/include:Skottie_hdr",
+        "//tests:Test_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Expression_src",
+    srcs = ["Expression.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//tests:Test_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Image_src",
+    srcs = ["Image.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkSurface_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//tests:Test_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Keyframe_src",
+    srcs = ["Keyframe.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skottie/include:ExternalLayer_hdr",
+        "//modules/skottie/src:SkottiePriv_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/skottie/src/animator:Animator_hdr",
+        "//src/utils:SkJSON_hdr",
+        "//tests:Test_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Text_src",
+    srcs = ["Text.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkFontStyle_hdr",
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//tests:Test_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)

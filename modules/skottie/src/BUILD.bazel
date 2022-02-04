@@ -1,0 +1,270 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "Adapter_hdr",
+    hdrs = ["Adapter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//modules/skottie/src/animator:Animator_hdr"],
+)
+
+generated_cc_atom(
+    name = "Camera_hdr",
+    hdrs = ["Camera.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":Transform_hdr"],
+)
+
+generated_cc_atom(
+    name = "Camera_src",
+    srcs = ["Camera.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Camera_hdr",
+        ":SkottieJson_hdr",
+        ":SkottiePriv_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Composition_hdr",
+    hdrs = ["Composition.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Layer_hdr",
+        ":SkottiePriv_hdr",
+        "//include/private:SkTHash_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Composition_src",
+    srcs = ["Composition.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Camera_hdr",
+        ":Composition_hdr",
+        ":SkottieJson_hdr",
+        ":SkottiePriv_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/sksg/include:SkSGGroup_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Layer_hdr",
+    hdrs = ["Layer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkottiePriv_hdr"],
+)
+
+generated_cc_atom(
+    name = "Layer_src",
+    srcs = ["Layer.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Camera_hdr",
+        ":Composition_hdr",
+        ":Layer_hdr",
+        ":SkottieJson_hdr",
+        "//modules/skottie/src/effects:Effects_hdr",
+        "//modules/skottie/src/effects:MotionBlurEffect_hdr",
+        "//modules/sksg/include:SkSGClipEffect_hdr",
+        "//modules/sksg/include:SkSGDraw_hdr",
+        "//modules/sksg/include:SkSGGroup_hdr",
+        "//modules/sksg/include:SkSGMaskEffect_hdr",
+        "//modules/sksg/include:SkSGMerge_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//modules/sksg/include:SkSGPath_hdr",
+        "//modules/sksg/include:SkSGRect_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Path_src",
+    srcs = ["Path.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Adapter_hdr",
+        ":SkottieJson_hdr",
+        ":SkottiePriv_hdr",
+        ":SkottieValue_hdr",
+        "//modules/sksg/include:SkSGPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieJson_hdr",
+    hdrs = ["SkottieJson.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkRefCnt_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieJson_src",
+    srcs = ["SkottieJson.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkottieJson_hdr",
+        ":SkottieValue_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkPath_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkScalar_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottiePriv_hdr",
+    hdrs = ["SkottiePriv.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontStyle_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/private:SkTHash_hdr",
+        "//include/utils:SkCustomTypeface_hdr",
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/skottie/src/animator:Animator_hdr",
+        "//modules/sksg/include:SkSGScene_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieProperty_src",
+    srcs = ["SkottieProperty.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Transform_hdr",
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/src/text:TextAdapter_hdr",
+        "//modules/sksg/include:SkSGOpacityEffect_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieTest_src",
+    srcs = ["SkottieTest.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/skottie/src/text:SkottieShaper_hdr",
+        "//src/core:SkFontDescriptor_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+        "//tests:Test_hdr",
+        "//tools:ToolUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieTool_src",
+    srcs = ["SkottieTool.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//experimental/ffmpeg:SkVideoEncoder_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkGraphics_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/encode:SkPngEncoder_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/skottie/utils:SkottieUtils_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+        "//src/core:SkOSFile_hdr",
+        "//src/core:SkTaskGroup_hdr",
+        "//src/utils:SkOSPath_hdr",
+        "//tools/flags:CommandLineFlags_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieValue_hdr",
+    hdrs = ["SkottieValue.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/core:SkPath_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Skottie_src",
+    srcs = ["Skottie.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Composition_hdr",
+        ":SkottieJson_hdr",
+        ":SkottiePriv_hdr",
+        ":SkottieValue_hdr",
+        ":Transform_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkImage_hdr",
+        "//include/core:SkPaint_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkTArray_hdr",
+        "//include/private:SkTPin_hdr",
+        "//include/private:SkTo_hdr",
+        "//modules/skottie/include:ExternalLayer_hdr",
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/skottie/src/text:TextAdapter_hdr",
+        "//modules/sksg/include:SkSGInvalidationController_hdr",
+        "//modules/sksg/include:SkSGOpacityEffect_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//modules/sksg/include:SkSGPath_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//modules/sksg/include:SkSGScene_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+        "//src/core:SkTraceEvent_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Transform_hdr",
+    hdrs = ["Transform.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Adapter_hdr",
+        ":SkottieValue_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/core:SkMatrix_hdr",
+        "//include/core:SkPoint_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Transform_src",
+    srcs = ["Transform.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkottieJson_hdr",
+        ":SkottiePriv_hdr",
+        ":Transform_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+    ],
+)

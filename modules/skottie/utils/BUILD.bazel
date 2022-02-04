@@ -1,0 +1,27 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkottieUtils.h",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
+)
+
+generated_cc_atom(
+    name = "SkottieUtils_hdr",
+    hdrs = ["SkottieUtils.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skottie/include:ExternalLayer_hdr",
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieUtils_src",
+    srcs = ["SkottieUtils.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkottieUtils_hdr"],
+)

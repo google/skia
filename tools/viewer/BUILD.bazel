@@ -149,6 +149,7 @@ generated_cc_atom(
         ":ImGuiLayer_hdr",
         ":ParticlesSlide_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/private:SkStringView_hdr",
         "//modules/particles/include:SkParticleEffect_hdr",
         "//modules/particles/include:SkParticleSerialization_hdr",
         "//modules/particles/include:SkReflected_hdr",

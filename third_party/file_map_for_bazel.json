@@ -85,5 +85,11 @@
   "log/log_main.h": "SK_GAZELLE_IGNORE",
   "mozilla/mozalloc.h": "SK_GAZELLE_IGNORE",
   "mozilla/mozalloc_abort.h": "SK_GAZELLE_IGNORE",
-  "mozilla/mozalloc_oom.h": "SK_GAZELLE_IGNORE"
+  "mozilla/mozalloc_oom.h": "SK_GAZELLE_IGNORE",
+
+  "libavcodec/avcodec.h": "SK_GAZELLE_IGNORE for experimental/ffmpeg",
+  "libavformat/avformat.h": "SK_GAZELLE_IGNORE",
+  "libavformat/avio.h": "SK_GAZELLE_IGNORE",
+  "libavutil/pixdesc.h": "SK_GAZELLE_IGNORE",
+  "libswscale/swscale.h": "SK_GAZELLE_IGNORE"
 }

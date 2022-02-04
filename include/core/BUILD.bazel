@@ -90,6 +90,7 @@ generated_cc_atom(
         ":SkTypes_hdr",
         "//include/private:SkDeque_hdr",
         "//include/private:SkMacros_hdr",
+        "//include/private:SkTOptional_hdr",
     ],
 )
 
@@ -758,12 +759,6 @@ generated_cc_atom(
         ":SkScalar_hdr",
         "//include/private:SkTo_hdr",
     ],
-)
-
-generated_cc_atom(
-    name = "SkStringView_hdr",
-    hdrs = ["SkStringView.h"],
-    visibility = ["//:__subpackages__"],
 )
 
 generated_cc_atom(

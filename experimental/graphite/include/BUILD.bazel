@@ -22,6 +22,7 @@ generated_cc_atom(
         "//include/core:SkRefCnt_hdr",
         "//include/core:SkShader_hdr",
         "//include/core:SkTileMode_hdr",
+        "//include/private:SkNoncopyable_hdr",
     ],
 )
 

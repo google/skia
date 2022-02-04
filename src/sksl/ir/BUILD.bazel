@@ -582,6 +582,7 @@ generated_cc_atom(
     deps = [
         ":SkSLFunctionDeclaration_hdr",
         ":SkSLUnresolvedFunction_hdr",
+        "//include/private:SkStringView_hdr",
         "//src/sksl:SkSLCompiler_hdr",
     ],
 )
@@ -715,7 +716,6 @@ generated_cc_atom(
     deps = [
         ":SkSLSymbolTable_hdr",
         ":SkSLVarDeclarations_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/private:SkSLProgramElement_hdr",
     ],
 )
@@ -1040,7 +1040,6 @@ generated_cc_atom(
     hdrs = ["SkSLType.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/core:SkStringView_hdr",
         "//include/private:SkSLModifiers_hdr",
         "//include/private:SkSLSymbol_hdr",
         "//src/sksl:SkSLUtil_hdr",
@@ -1060,6 +1059,8 @@ generated_cc_atom(
         ":SkSLProgram_hdr",
         ":SkSLSymbolTable_hdr",
         ":SkSLType_hdr",
+        "//include/private:SkStringView_hdr",
+        "//include/private:SkTOptional_hdr",
         "//src/sksl:SkSLConstantFolder_hdr",
         "//src/sksl:SkSLContext_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",
@@ -1141,6 +1142,7 @@ generated_cc_atom(
         ":SkSLSymbolTable_hdr",
         ":SkSLVarDeclarations_hdr",
         ":SkSLVariable_hdr",
+        "//include/private:SkStringView_hdr",
         "//src/sksl:SkSLCompiler_hdr",
         "//src/sksl:SkSLContext_hdr",
         "//src/sksl:SkSLMangler_hdr",

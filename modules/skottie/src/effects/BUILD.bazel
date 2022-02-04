@@ -1,0 +1,480 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "BlackAndWhiteEffect_src",
+    srcs = ["BlackAndWhiteEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "BrightnessContrastEffect_src",
+    srcs = ["BrightnessContrastEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "BuldgeEffect_src",
+    srcs = ["BuldgeEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkNx_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CCTonerEffect_src",
+    srcs = ["CCTonerEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/private:SkNx_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "CornerPinEffect_src",
+    srcs = ["CornerPinEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DirectionalBlur_src",
+    srcs = ["DirectionalBlur.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DisplacementMapEffect_src",
+    srcs = ["DisplacementMapEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/effects:SkColorMatrix_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkColorData_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "DropShadowEffect_src",
+    srcs = ["DropShadowEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Effects_hdr",
+    hdrs = ["Effects.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skottie/src:Composition_hdr",
+        "//modules/skottie/src:SkottiePriv_hdr",
+        "//modules/skottie/src/animator:Animator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Effects_src",
+    srcs = ["Effects.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//modules/skottie/src:Composition_hdr",
+        "//modules/skottie/src:Layer_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FillEffect_src",
+    srcs = ["FillEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "FractalNoiseEffect_src",
+    srcs = ["FractalNoiseEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/utils:SkRandom_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GaussianBlurEffect_src",
+    srcs = ["GaussianBlurEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GlowStyles_src",
+    srcs = ["GlowStyles.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/effects:SkColorMatrix_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GradientEffect_src",
+    srcs = ["GradientEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGGradient_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "HueSaturationEffect_src",
+    srcs = ["HueSaturationEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "InvertEffect_src",
+    srcs = ["InvertEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkColorMatrix_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "LevelsEffect_src",
+    srcs = ["LevelsEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkTableColorFilter_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "LinearWipeEffect_src",
+    srcs = ["LinearWipeEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//include/effects:SkShaderMaskFilter_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MotionBlurEffect_hdr",
+    hdrs = ["MotionBlurEffect.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+        "//modules/sksg/include:SkSGScene_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MotionBlurEffect_src",
+    srcs = ["MotionBlurEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":MotionBlurEffect_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkMath_hdr",
+        "//include/core:SkPixmap_hdr",
+        "//include/private:SkVx_hdr",
+        "//modules/skottie/src/animator:Animator_hdr",
+        "//src/core:SkMathPriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "MotionTileEffect_src",
+    srcs = ["MotionTileEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/core:SkShader_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RadialWipeEffect_src",
+    srcs = ["RadialWipeEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ShadowStyles_src",
+    srcs = ["ShadowStyles.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/core:SkColorFilter_hdr",
+        "//include/effects:SkColorMatrix_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SharpenEffect_src",
+    srcs = ["SharpenEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ShiftChannelsEffect_src",
+    srcs = ["ShiftChannelsEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/private:SkColorData_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkSLEffect_src",
+    srcs = ["SkSLEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//include/private:SkMalloc_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SphereEffect_src",
+    srcs = ["SphereEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/core:SkPictureRecorder_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderNode_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "ThresholdEffect_src",
+    srcs = ["ThresholdEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkRuntimeEffect_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TintEffect_src",
+    srcs = ["TintEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TransformEffect_src",
+    srcs = ["TransformEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:Transform_hdr",
+        "//modules/sksg/include:SkSGOpacityEffect_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TritoneEffect_src",
+    srcs = ["TritoneEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//modules/skottie/src:Adapter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGColorFilter_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "VenetianBlindsEffect_src",
+    srcs = ["VenetianBlindsEffect.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Effects_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//include/effects:SkShaderMaskFilter_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)

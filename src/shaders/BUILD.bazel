@@ -92,6 +92,7 @@ generated_cc_atom(
         "//src/core:SkArenaAlloc_hdr",
         "//src/core:SkColorSpacePriv_hdr",
         "//src/core:SkColorSpaceXformSteps_hdr",
+        "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkRasterPipeline_hdr",
         "//src/core:SkReadBuffer_hdr",
         "//src/core:SkUtils_hdr",

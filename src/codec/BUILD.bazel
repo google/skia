@@ -309,6 +309,7 @@ generated_cc_atom(
         ":SkHeifCodec_hdr",
         ":SkIcoCodec_hdr",
         ":SkJpegCodec_hdr",
+        ":SkJpegxlCodec_hdr",
         ":SkPngCodec_hdr",
         ":SkRawCodec_hdr",
         ":SkWbmpCodec_hdr",
@@ -851,5 +852,36 @@ generated_cc_atom(
         "//src/core:SkStreamPriv_hdr",
         "//src/core:SkUtils_hdr",
         "//third_party:wuffs",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkJpegxlCodec_hdr",
+    hdrs = ["SkJpegxlCodec.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [":SkScalingCodec_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkJpegxlCodec_src",
+    srcs = ["SkJpegxlCodec.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkFrameHolder_hdr",
+        ":SkJpegxlCodec_hdr",
+        ":SkSampler_hdr",
+        "//include/codec:SkEncodedOrigin_hdr",
+        "//include/core:SkData_hdr",
+        "//include/core:SkEncodedImageFormat_hdr",
+        "//include/core:SkImageInfo_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkStream_hdr",
+        "//include/private:SkEncodedInfo_hdr",
+        "//include/private:SkTFitsIn_hdr",
+        "//include/private:SkTo_hdr",
+        "//jxl:decode_cxx_hdr",
+        "//jxl:decode_hdr",
+        "//src/core:SkOpts_hdr",
+        "//src/core:SkStreamPriv_hdr",
     ],
 )

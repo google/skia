@@ -27,7 +27,6 @@ generated_cc_atom(
     hdrs = ["DSLWriter.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/core:SkStringView_hdr",
         "//include/core:SkTypes_hdr",
         "//src/gpu:GrFragmentProcessor_hdr",
         "//src/gpu/glsl:GrGLSLFragmentShaderBuilder_hdr",

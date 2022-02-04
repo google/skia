@@ -38,7 +38,7 @@
 #include <cmath>
 #include <memory>
 
-#include "stdlib.h"
+#include <stdlib.h>
 
 namespace skottie {
 

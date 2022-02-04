@@ -330,7 +330,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLLexer_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/private:SkSLProgramKind_hdr",
         "//include/private:SkTOptional_hdr",
         "//include/sksl:DSLSymbols_hdr",
@@ -428,6 +427,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLCompiler_hdr",
+        "//include/private:SkStringView_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
         "//src/sksl/dsl/priv:DSLWriter_hdr",
     ],
@@ -525,7 +525,6 @@ generated_cc_atom(
     name = "SkSLLexer_hdr",
     hdrs = ["SkSLLexer.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkStringView_hdr"],
 )
 
 generated_cc_atom(
@@ -547,6 +546,7 @@ generated_cc_atom(
         ":SkSLUtil_hdr",
         "//include/core:SkGraphics_hdr",
         "//include/core:SkStream_hdr",
+        "//include/private:SkStringView_hdr",
         "//include/private:SkTOptional_hdr",
         "//src/core:SkCpu_hdr",
         "//src/core:SkOpts_hdr",
@@ -575,6 +575,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLMangler_hdr",
+        "//include/private:SkStringView_hdr",
         "//src/sksl/ir:SkSLSymbolTable_hdr",
     ],
 )
@@ -609,7 +610,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLLexer_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/private:SkSLDefines_hdr",
     ],
 )
@@ -623,6 +623,7 @@ generated_cc_atom(
         ":SkSLOperators_hdr",
         ":SkSLProgramSettings_hdr",
         "//include/core:SkTypes_hdr",
+        "//include/private:SkStringView_hdr",
         "//src/sksl/ir:SkSLType_hdr",
     ],
 )
@@ -686,6 +687,7 @@ generated_cc_atom(
         "//include/private:SkSLDefines_hdr",
         "//include/private:SkSLModifiers_hdr",
         "//include/private:SkSLSymbol_hdr",
+        "//src/sksl/ir:SkSLProgram_hdr",
     ],
 )
 
@@ -695,6 +697,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLAnalysis_hdr",
+        ":SkSLCompiler_hdr",
         ":SkSLRehydrator_hdr",
         "//include/private:SkSLModifiers_hdr",
         "//include/private:SkSLProgramElement_hdr",
@@ -779,7 +782,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSLMangler_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/private:SkSLModifiers_hdr",
         "//src/gpu:GrFragmentProcessor_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",

@@ -50,7 +50,6 @@ generated_cc_atom(
     deps = [
         ":CommonFlagsConfig_hdr",
         "//include/core:SkImageInfo_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/core:SkSurfaceProps_hdr",
         "//include/private:SkTHash_hdr",
         "//src/core:SkColorSpacePriv_hdr",

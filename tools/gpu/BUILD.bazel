@@ -89,6 +89,7 @@ generated_cc_atom(
     hdrs = ["GrContextFactory.h"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":TestContext_hdr",
         "//include/gpu:GrContextOptions_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//include/private:SkTArray_hdr",

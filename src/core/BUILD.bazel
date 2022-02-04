@@ -176,7 +176,6 @@ cc_library(
         ":SkStrikeForGPU_src",
         ":SkStrikeSpec_src",
         ":SkStringUtils_src",
-        ":SkStringView_src",
         ":SkString_src",
         ":SkStrokeRec_src",
         ":SkStroke_src",
@@ -1864,7 +1863,6 @@ generated_cc_atom(
     name = "SkEnumerate_hdr",
     hdrs = ["SkEnumerate.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/private:SkTLogic_hdr"],
 )
 
 generated_cc_atom(
@@ -4729,20 +4727,12 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkStringView_src",
-    srcs = ["SkStringView.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkStringView_hdr"],
-)
-
-generated_cc_atom(
     name = "SkString_src",
     srcs = ["SkString.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkSafeMath_hdr",
         ":SkUtils_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/core:SkString_hdr",
         "//include/private:SkTPin_hdr",
         "//include/private:SkTo_hdr",
@@ -5167,6 +5157,7 @@ generated_cc_atom(
         ":SkArenaAlloc_hdr",
         ":SkBlitter_hdr",
         ":SkLRUCache_hdr",
+        ":SkTLazy_hdr",
         ":SkVM_hdr",
     ],
 )
@@ -5587,6 +5578,9 @@ generated_cc_atom(
     deps = [
         ":SkDebugUtils_hdr",
         ":SkKeyHelpers_hdr",
+        ":SkUniformData_hdr",
+        ":SkUniform_hdr",
+        "//experimental/graphite/src:UniformManager_hdr",
         "//include/private:SkPaintParamsKey_hdr",
         "//src/shaders:SkShaderBase_hdr",
     ],
@@ -5623,14 +5617,21 @@ generated_cc_atom(
     name = "SkUniformData_hdr",
     hdrs = ["SkUniformData.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkRefCnt_hdr"],
+    deps = [
+        ":SkUniform_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSpan_hdr",
+    ],
 )
 
 generated_cc_atom(
     name = "SkUniformData_src",
     srcs = ["SkUniformData.cpp"],
     visibility = ["//:__subpackages__"],
-    deps = [":SkUniformData_hdr"],
+    deps = [
+        ":SkOpts_hdr",
+        ":SkUniformData_hdr",
+    ],
 )
 
 generated_cc_atom(

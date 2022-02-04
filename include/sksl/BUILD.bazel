@@ -48,7 +48,6 @@ generated_cc_atom(
     deps = [
         ":DSLWrapper_hdr",
         ":SkSLErrorReporter_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkTArray_hdr",
     ],
@@ -116,7 +115,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":DSLExpression_hdr",
-        "//include/core:SkStringView_hdr",
         "//include/private:SkSLString_hdr",
     ],
 )
@@ -162,7 +160,6 @@ generated_cc_atom(
     hdrs = ["SkSLErrorReporter.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//include/core:SkStringView_hdr",
         "//include/core:SkTypes_hdr",
         "//include/private:SkSLString_hdr",
     ],

@@ -1,0 +1,33 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "ExternalProperties_src",
+    srcs = ["ExternalProperties.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//gm:gm_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/utils:SkAnimCodecPlayer_hdr",
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/skottie/utils:SkottieUtils_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+        "//tools:Resources_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieGM_src",
+    srcs = ["SkottieGM.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//gm:gm_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/utils:SkAnimCodecPlayer_hdr",
+        "//modules/skottie/include:SkottieProperty_hdr",
+        "//modules/skottie/include:Skottie_hdr",
+        "//modules/skottie/utils:SkottieUtils_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+        "//tools:Resources_hdr",
+    ],
+)

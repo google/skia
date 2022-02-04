@@ -114,6 +114,7 @@ generated_cc_atom(
     deps = [
         ":Sk4fLinearGradient_hdr",
         ":SkLinearGradient_hdr",
+        "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkReadBuffer_hdr",
         "//src/core:SkWriteBuffer_hdr",
         "//src/gpu/gradients:GrGradientShader_hdr",
@@ -133,6 +134,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkRadialGradient_hdr",
+        "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkRasterPipeline_hdr",
         "//src/core:SkReadBuffer_hdr",
         "//src/core:SkWriteBuffer_hdr",
@@ -154,6 +156,7 @@ generated_cc_atom(
     deps = [
         ":SkSweepGradient_hdr",
         "//include/private:SkFloatingPoint_hdr",
+        "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkRasterPipeline_hdr",
         "//src/core:SkReadBuffer_hdr",
         "//src/core:SkWriteBuffer_hdr",
@@ -175,6 +178,7 @@ generated_cc_atom(
     deps = [
         ":SkTwoPointConicalGradient_hdr",
         "//include/private:SkFloatingPoint_hdr",
+        "//src/core:SkKeyHelpers_hdr",
         "//src/core:SkRasterPipeline_hdr",
         "//src/core:SkReadBuffer_hdr",
         "//src/core:SkWriteBuffer_hdr",

@@ -1,0 +1,139 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "RangeSelector_hdr",
+    hdrs = ["RangeSelector.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TextAnimator_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//modules/skottie/src:SkottiePriv_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "RangeSelector_src",
+    srcs = ["RangeSelector.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":RangeSelector_hdr",
+        "//include/core:SkCubicMap_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/skottie/src/animator:Animator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieShaper_hdr",
+    hdrs = ["SkottieShaper.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkPoint_hdr",
+        "//include/utils:SkTextUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "SkottieShaper_src",
+    srcs = ["SkottieShaper.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkottieShaper_hdr",
+        "//include/core:SkFontMetrics_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkTextBlob_hdr",
+        "//include/private:SkTPin_hdr",
+        "//include/private:SkTemplates_hdr",
+        "//modules/skshaper/include:SkShaper_hdr",
+        "//modules/skunicode/include:SkUnicode_hdr",
+        "//src/core:SkTLazy_hdr",
+        "//src/core:SkTextBlobPriv_hdr",
+        "//src/utils:SkUTF_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextAdapter_hdr",
+    hdrs = ["TextAdapter.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":SkottieShaper_hdr",
+        ":TextAnimator_hdr",
+        ":TextValue_hdr",
+        "//modules/skottie/src/animator:Animator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextAdapter_src",
+    srcs = ["TextAdapter.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":RangeSelector_hdr",
+        ":TextAdapter_hdr",
+        ":TextAnimator_hdr",
+        "//include/core:SkContourMeasure_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkM44_hdr",
+        "//include/private:SkTPin_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/sksg/include:SkSGDraw_hdr",
+        "//modules/sksg/include:SkSGGroup_hdr",
+        "//modules/sksg/include:SkSGPaint_hdr",
+        "//modules/sksg/include:SkSGPath_hdr",
+        "//modules/sksg/include:SkSGRect_hdr",
+        "//modules/sksg/include:SkSGRenderEffect_hdr",
+        "//modules/sksg/include:SkSGText_hdr",
+        "//modules/sksg/include:SkSGTransform_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextAnimator_hdr",
+    hdrs = ["TextAnimator.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkM44_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//modules/skottie/src:SkottiePriv_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/sksg/include:SkSGScene_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextAnimator_src",
+    srcs = ["TextAnimator.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":RangeSelector_hdr",
+        ":TextAnimator_hdr",
+        "//include/core:SkColor_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/private:SkNx_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+        "//modules/skottie/src/animator:Animator_hdr",
+        "//src/utils:SkJSON_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "TextValue_hdr",
+    hdrs = ["TextValue.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//modules/skottie/include:SkottieProperty_hdr"],
+)
+
+generated_cc_atom(
+    name = "TextValue_src",
+    srcs = ["TextValue.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TextValue_hdr",
+        "//modules/skottie/src:SkottieJson_hdr",
+        "//modules/skottie/src:SkottiePriv_hdr",
+        "//modules/skottie/src:SkottieValue_hdr",
+    ],
+)

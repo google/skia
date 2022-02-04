@@ -125,7 +125,6 @@ generated_cc_atom(
         ":ContextUtils_hdr",
         ":DrawTypes_hdr",
         ":PaintParams_hdr",
-        ":UniformManager_hdr",
         "//include/core:SkPaint_hdr",
         "//include/private:SkShaderCodeDictionary_hdr",
         "//include/private:SkUniquePaintParamsID_hdr",
@@ -144,9 +143,11 @@ generated_cc_atom(
         ":Caps_hdr",
         ":CommandBuffer_hdr",
         ":ContextUtils_hdr",
+        ":GlobalCache_hdr",
         ":Gpu_hdr",
         ":GraphicsPipelineDesc_hdr",
         ":Renderer_hdr",
+        ":ResourceProvider_hdr",
         "//experimental/graphite/include:BackendTexture_hdr",
         "//experimental/graphite/include:Context_hdr",
         "//experimental/graphite/include:Recorder_hdr",
@@ -347,6 +348,7 @@ generated_cc_atom(
         ":DrawList_hdr",
         ":DrawPass_hdr",
         ":DrawWriter_hdr",
+        ":GlobalCache_hdr",
         ":GraphicsPipelineDesc_hdr",
         ":GraphicsPipeline_hdr",
         ":Renderer_hdr",
@@ -508,7 +510,6 @@ generated_cc_atom(
         ":Gpu_hdr",
         ":ResourceProvider_hdr",
         ":UniformCache_hdr",
-        "//experimental/graphite/include:Context_hdr",
         "//experimental/graphite/include:Recorder_hdr",
         "//experimental/graphite/include:Recording_hdr",
         "//src/core:SkUniformData_hdr",
@@ -591,6 +592,7 @@ generated_cc_atom(
         ":Caps_hdr",
         ":CommandBuffer_hdr",
         ":ContextPriv_hdr",
+        ":GlobalCache_hdr",
         ":Gpu_hdr",
         ":GraphicsPipeline_hdr",
         ":ResourceProvider_hdr",
@@ -823,4 +825,21 @@ generated_cc_atom(
     srcs = ["Sampler.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [":Sampler_hdr"],
+)
+
+generated_cc_atom(
+    name = "GlobalCache_hdr",
+    hdrs = ["GlobalCache.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
+
+generated_cc_atom(
+    name = "GlobalCache_src",
+    srcs = ["GlobalCache.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GlobalCache_hdr",
+        "//include/private:SkShaderCodeDictionary_hdr",
+    ],
 )

@@ -1,0 +1,48 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+filegroup(
+    name = "hdrs",
+    srcs = [
+        "ExternalLayer.h",
+        "Skottie.h",
+        "SkottieProperty.h",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
+)
+
+generated_cc_atom(
+    name = "ExternalLayer_hdr",
+    hdrs = ["ExternalLayer.h"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//include/core:SkRefCnt_hdr"],
+)
+
+generated_cc_atom(
+    name = "SkottieProperty_hdr",
+    hdrs = ["SkottieProperty.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkPoint_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkTypeface_hdr",
+        "//include/utils:SkTextUtils_hdr",
+        "//modules/skottie/src/text:SkottieShaper_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "Skottie_hdr",
+    hdrs = ["Skottie.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":ExternalLayer_hdr",
+        ":SkottieProperty_hdr",
+        "//include/core:SkFontMgr_hdr",
+        "//include/core:SkRefCnt_hdr",
+        "//include/core:SkSize_hdr",
+        "//include/core:SkString_hdr",
+        "//include/core:SkTypes_hdr",
+        "//modules/skresources/include:SkResources_hdr",
+    ],
+)

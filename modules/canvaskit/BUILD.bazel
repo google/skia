@@ -114,6 +114,9 @@ genrule(
 CK_DEFINES = select({
     ":enable_fonts_true": ["SK_INCLUDE_PARAGRAPH=1"],
     ":enable_fonts_false": ["SK_NO_FONTS"],
+}) + select({
+    ":enable_skottie_true": ["SK_INCLUDE_MANAGED_SKOTTIE=1"],
+    ":enable_skottie_false": [],
 })
 
 CK_OPTS = BASE_LINKOPTS + [
@@ -182,7 +185,14 @@ CK_OPTS = BASE_LINKOPTS + [
         "modules/canvaskit/htmlcanvas/postamble.js",
     ],
     ":enable_canvas_polyfill_false": [],
+}) + select({
+    ":enable_skottie_true": [
+        "--pre-js",
+        "modules/canvaskit/skottie.js",
+    ],
+    ":enable_skottie_false": [],
 }) + [
+    # This must come last
     "--pre-js",
     "modules/canvaskit/postamble.js",
 ] + select({
@@ -244,6 +254,9 @@ CK_SRCS = [
         "paragraph_bindings_gen.cpp",
     ],
     ":enable_fonts_false": [],
+}) + select({
+    ":enable_skottie_true": ["skottie_bindings.cpp"],
+    ":enable_skottie_false": [],
 })
 
 cc_binary_with_flags(
@@ -289,9 +302,15 @@ cc_binary_with_flags(
         "//:skia_core",
     ] + select({
         ":enable_fonts_true": [
-            "//modules/skparagraph:skparagraph",
+            "//modules/skparagraph",
         ],
         ":enable_fonts_false": [],
+    }) + select({
+        ":enable_skottie_true": [
+            "//modules/skottie",
+            "//modules/skottie:utils",
+        ],
+        ":enable_skottie_false": [],
     }),
 )
 
@@ -315,4 +334,9 @@ bool_flag(
 bool_flag(
     default = True,
     flag_name = "include_embedded_font",
+)
+
+bool_flag(
+    default = True,
+    flag_name = "enable_skottie",
 )
