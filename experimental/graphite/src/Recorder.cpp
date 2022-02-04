@@ -27,12 +27,11 @@ namespace skgpu {
 Recorder::Recorder(sk_sp<Gpu> gpu, sk_sp<GlobalCache> globalCache)
         : fGpu(std::move(gpu))
         , fGraph(new TaskGraph)
-        , fUniformCache(new UniformCache)
-        , fDrawBufferManager(new DrawBufferManager(
-                fResourceProvider.get(),
-                fGpu->caps()->requiredUniformBufferAlignment())) {
+        , fUniformCache(new UniformCache) {
 
     fResourceProvider = fGpu->makeResourceProvider(std::move(globalCache), this->singleOwner());
+    fDrawBufferManager.reset(new DrawBufferManager(fResourceProvider.get(),
+                                                   fGpu->caps()->requiredUniformBufferAlignment()));
     SkASSERT(fResourceProvider);
 }
 
