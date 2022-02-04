@@ -51,9 +51,10 @@ Gpu::~Gpu() {
 }
 
 std::unique_ptr<skgpu::ResourceProvider> Gpu::makeResourceProvider(
-        sk_sp<GlobalCache> globalCache) const {
+        sk_sp<GlobalCache> globalCache, SingleOwner* singleOwner) const {
     return std::unique_ptr<skgpu::ResourceProvider>(new ResourceProvider(this,
-                                                                         std::move(globalCache)));
+                                                                         std::move(globalCache),
+                                                                         singleOwner));
 }
 
 class WorkSubmission final : public skgpu::GpuWorkSubmission {

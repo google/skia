@@ -10,6 +10,7 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
+#include "experimental/graphite/src/ResourceCache.h"
 #include "experimental/graphite/src/ResourceTypes.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTileMode.h"
@@ -51,7 +52,7 @@ public:
     SkShaderCodeDictionary* shaderCodeDictionary() const;
 
 protected:
-    ResourceProvider(const Gpu* gpu, sk_sp<GlobalCache>);
+    ResourceProvider(const Gpu* gpu, sk_sp<GlobalCache>, SingleOwner* singleOwner);
 
     const Gpu* fGpu;
 
@@ -87,6 +88,7 @@ private:
         ResourceProvider* fResourceProvider;
     };
 
+    ResourceCache fResourceCache;
     sk_sp<GlobalCache> fGlobalCache;
 
     // Cache of GraphicsPipelines

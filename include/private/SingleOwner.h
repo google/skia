@@ -10,11 +10,14 @@
 
 #include "include/core/SkTypes.h"
 
-namespace skgpu {
-
 #ifdef SK_DEBUG
 #include "include/private/SkMutex.h"
 #include "include/private/SkThreadID.h"
+#endif
+
+namespace skgpu {
+
+#ifdef SK_DEBUG
 
 #define SKGPU_ASSERT_SINGLE_OWNER(obj) \
     skgpu::SingleOwner::AutoEnforce debug_SingleOwner(obj, __FILE__, __LINE__);

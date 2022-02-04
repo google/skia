@@ -8,7 +8,7 @@
 #ifndef skgpu_Resource_DEFINED
 #define skgpu_Resource_DEFINED
 
-#include "include/private/SkNoncopyable.h"
+#include "include/core/SkTypes.h"
 
 #include <atomic>
 
@@ -23,8 +23,13 @@ class Gpu;
  *
  * AFTER the ref count reaches zero DERIVED::notifyARefCntIsZero() will be called.
  */
-template <typename DERIVED> class ResourceRef : public SkNoncopyable {
+template <typename DERIVED> class ResourceRef {
 public:
+    ResourceRef(const ResourceRef&) = delete;
+    ResourceRef(ResourceRef&&) = delete;
+    ResourceRef& operator=(const ResourceRef&) = delete;
+    ResourceRef& operator=(ResourceRef&&) = delete;
+
     // Adds a usage ref to the resource. Named ref so we can easily manage usage refs with sk_sp.
     void ref() const {
         // Only the cache should be able to add the first usage ref to a resource.
@@ -116,6 +121,11 @@ public:
      */
     bool wasDestroyed() const { return fGpu == nullptr; }
 
+    int* accessCacheIndex()  const { return &fCacheArrayIndex; }
+
+    uint32_t timestamp() const { return fTimestamp; }
+    void setTimestamp(uint32_t ts) { fTimestamp = ts; }
+
 protected:
     Resource(const Gpu*);
     virtual ~Resource();
@@ -136,6 +146,13 @@ private:
     // This is not ref'ed but abandon() or release() will be called before the Gpu object is
     // destroyed. Those calls set will this to nullptr.
     const Gpu* fGpu;
+
+    // An index into a heap when this resource is purgeable or an array when not. This is maintained
+    // by the cache.
+    mutable int fCacheArrayIndex;
+    // This value reflects how recently this resource was accessed in the cache. This is maintained
+    // by the cache.
+    uint32_t fTimestamp;
 };
 
 } // namespace skgpu

@@ -10,12 +10,14 @@
 
 #include "experimental/graphite/src/TaskGraph.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SingleOwner.h"
 
 namespace skgpu {
 
 class Caps;
 class Device;
 class DrawBufferManager;
+class GlobalCache;
 class Gpu;
 class Recording;
 class ResourceProvider;
@@ -48,7 +50,9 @@ private:
     friend class Context; // For ctor
     friend class Device; // For registering and deregistering Devices;
 
-    Recorder(sk_sp<Gpu>, std::unique_ptr<ResourceProvider>);
+    Recorder(sk_sp<Gpu>, sk_sp<GlobalCache>);
+
+    SingleOwner* singleOwner() const { return &fSingleOwner; }
 
     // We keep track of all Devices that are connected to a Recorder. This allows the client to
     // safely delete an SkSurface or a Recorder in any order. If the client deletes the Recorder
@@ -77,6 +81,11 @@ private:
     std::unique_ptr<UniformCache> fUniformCache;
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;
     std::vector<Device*> fTrackedDevices;
+
+    // In debug builds we guard against improper thread handling
+    // This guard is passed to the ResourceCache.
+    // TODO: Should we also pass this to Device, DrawContext, and similar classes?
+    mutable SingleOwner fSingleOwner;
 };
 
 } // namespace skgpu

@@ -13,6 +13,7 @@
 #include "experimental/graphite/src/ContextPriv.h"
 #include "experimental/graphite/src/Device.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
+#include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/UniformCache.h"
@@ -20,16 +21,21 @@
 
 namespace skgpu {
 
-Recorder::Recorder(sk_sp<Gpu> gpu, std::unique_ptr<ResourceProvider> resourceProvider)
+#define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
+
+Recorder::Recorder(sk_sp<Gpu> gpu, sk_sp<GlobalCache> globalCache)
         : fGpu(std::move(gpu))
-        , fResourceProvider(std::move(resourceProvider))
         , fUniformCache(new UniformCache)
         , fDrawBufferManager(new DrawBufferManager(
                 fResourceProvider.get(),
                 fGpu->caps()->requiredUniformBufferAlignment())) {
+
+    fResourceProvider = fGpu->makeResourceProvider(std::move(globalCache), this->singleOwner());
+    SkASSERT(fResourceProvider);
 }
 
 Recorder::~Recorder() {
+    ASSERT_SINGLE_OWNER
     for (auto& device : fTrackedDevices) {
         device->abandonRecorder();
     }
@@ -52,10 +58,12 @@ DrawBufferManager* Recorder::drawBufferManager() const {
 }
 
 void Recorder::add(sk_sp<Task> task) {
+    ASSERT_SINGLE_OWNER
     fGraph.add(std::move(task));
 }
 
 std::unique_ptr<Recording> Recorder::snap() {
+    ASSERT_SINGLE_OWNER
     for (auto& device : fTrackedDevices) {
         device->flushPendingWorkToRecorder();
     }
@@ -70,10 +78,12 @@ std::unique_ptr<Recording> Recorder::snap() {
 }
 
 void Recorder::registerDevice(Device* device) {
+    ASSERT_SINGLE_OWNER
     fTrackedDevices.push_back(device);
 }
 
 void Recorder::deregisterDevice(const Device* device) {
+    ASSERT_SINGLE_OWNER
     for (auto it = fTrackedDevices.begin(); it != fTrackedDevices.end(); it++) {
         if (*it == device) {
             fTrackedDevices.erase(it);

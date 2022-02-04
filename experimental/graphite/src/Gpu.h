@@ -26,6 +26,7 @@ class CommandBuffer;
 class GlobalCache;
 class GpuWorkSubmission;
 class ResourceProvider;
+class SingleOwner;
 class TextureInfo;
 
 // TODO: Figure out if we need to fission Gpu into parts that are needed by a Recorder and parts
@@ -44,7 +45,8 @@ public:
 
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 
-    virtual std::unique_ptr<ResourceProvider> makeResourceProvider(sk_sp<GlobalCache>) const = 0;
+    virtual std::unique_ptr<ResourceProvider> makeResourceProvider(sk_sp<GlobalCache>,
+                                                                   SingleOwner*) const = 0;
 
     bool submit(sk_sp<CommandBuffer>);
     void checkForFinishedWork(SyncToCpu);

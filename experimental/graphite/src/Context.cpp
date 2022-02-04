@@ -48,8 +48,7 @@ std::unique_ptr<Context> Context::MakeMetal(const mtl::BackendContext& backendCo
 #endif
 
 std::unique_ptr<Recorder> Context::makeRecorder() {
-    auto rp = fGpu->makeResourceProvider(fGlobalCache);
-    return std::unique_ptr<Recorder>(new Recorder(fGpu, std::move(rp)));
+    return std::unique_ptr<Recorder>(new Recorder(fGpu, fGlobalCache));
 }
 
 void Context::insertRecording(std::unique_ptr<Recording> recording) {

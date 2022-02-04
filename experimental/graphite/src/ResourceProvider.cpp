@@ -19,8 +19,11 @@
 
 namespace skgpu {
 
-ResourceProvider::ResourceProvider(const Gpu* gpu, sk_sp<GlobalCache> globalCache)
+ResourceProvider::ResourceProvider(const Gpu* gpu,
+                                   sk_sp<GlobalCache> globalCache,
+                                   SingleOwner* singleOwner)
         : fGpu(gpu)
+        , fResourceCache(singleOwner)
         , fGlobalCache(std::move(globalCache)) {
     fGraphicsPipelineCache.reset(new GraphicsPipelineCache(this));
 }

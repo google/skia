@@ -24,7 +24,7 @@ class Gpu;
 
 class ResourceProvider final : public skgpu::ResourceProvider {
 public:
-    ResourceProvider(const skgpu::Gpu* gpu, sk_sp<GlobalCache>);
+    ResourceProvider(const skgpu::Gpu* gpu, sk_sp<GlobalCache>, SingleOwner*);
     ~ResourceProvider() override {}
 
     sk_sp<skgpu::Texture> createWrappedTexture(const BackendTexture&) override;

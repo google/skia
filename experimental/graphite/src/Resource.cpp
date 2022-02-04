@@ -9,7 +9,13 @@
 
 namespace skgpu {
 
-Resource::Resource(const Gpu* gpu) : fGpu(gpu) {}
+Resource::Resource(const Gpu* gpu) : fGpu(gpu) {
+    // Normally the array index will always be set before the cache tries to read so there isn't
+    // a worry about this not being initialized. However, when we try to validate the cache in
+    // debug builds we may try to read a resources index before it has actually been set by the
+    // cache
+    SkDEBUGCODE(fCacheArrayIndex = -1);
+}
 
 Resource::~Resource() {
     // The cache should have released or destroyed this resource.

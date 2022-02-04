@@ -69,6 +69,8 @@ skia_graphite_sources = [
   "$_src/Renderer.h",
   "$_src/Resource.cpp",
   "$_src/Resource.h",
+  "$_src/ResourceCache.cpp",
+  "$_src/ResourceCache.h",
   "$_src/ResourceProvider.cpp",
   "$_src/ResourceProvider.h",
   "$_src/ResourceTypes.h",

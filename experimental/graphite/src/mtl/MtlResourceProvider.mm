@@ -21,8 +21,10 @@
 
 namespace skgpu::mtl {
 
-ResourceProvider::ResourceProvider(const skgpu::Gpu* gpu, sk_sp<GlobalCache> globalCache)
-    : skgpu::ResourceProvider(gpu, std::move(globalCache)) {
+ResourceProvider::ResourceProvider(const skgpu::Gpu* gpu,
+                                   sk_sp<GlobalCache> globalCache,
+                                   SingleOwner* singleOwner)
+    : skgpu::ResourceProvider(gpu, std::move(globalCache), singleOwner) {
 }
 
 const Gpu* ResourceProvider::mtlGpu() {
