@@ -13,7 +13,8 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "include/private/SkTOptional.h"
+
+#include <optional>
 
 class GrRecordingContext;
 class GrSurfaceProxyView;
