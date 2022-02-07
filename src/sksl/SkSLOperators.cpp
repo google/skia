@@ -242,7 +242,7 @@ bool Operator::isValidForMatrixOrVector() const {
     }
 }
 
-bool Operator::isMatrixMultiply(const Type& left, const Type& right) {
+bool Operator::isMatrixMultiply(const Type& left, const Type& right) const {
     if (this->kind() != Token::Kind::TK_STAR && this->kind() != Token::Kind::TK_STAREQ) {
         return false;
     }
@@ -261,7 +261,7 @@ bool Operator::determineBinaryType(const Context& context,
                                    const Type& right,
                                    const Type** outLeftType,
                                    const Type** outRightType,
-                                   const Type** outResultType) {
+                                   const Type** outResultType) const {
     const bool allowNarrowing = context.fConfig->fSettings.fAllowNarrowingConversions;
     switch (this->kind()) {
         case Token::Kind::TK_EQ:  // left = right

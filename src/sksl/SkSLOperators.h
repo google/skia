@@ -107,11 +107,11 @@ public:
                              const Type& right,
                              const Type** outLeftType,
                              const Type** outRightType,
-                             const Type** outResultType);
+                             const Type** outResultType) const;
 
 private:
     bool isOperator() const;
-    bool isMatrixMultiply(const Type& left, const Type& right);
+    bool isMatrixMultiply(const Type& left, const Type& right) const;
 
     Kind fKind;
 };
