@@ -94,6 +94,58 @@ static std::unique_ptr<Expression> simplify_constant_equality(const Context& con
     return nullptr;
 }
 
+static std::unique_ptr<Expression> simplify_matrix_times_matrix(const Context& context,
+                                                                const Expression& left,
+                                                                const Expression& right) {
+    const Type& leftType = left.type();
+    const Type& rightType = right.type();
+
+    SkASSERT(leftType.isMatrix());
+    SkASSERT(rightType.isMatrix());
+
+    const Type& componentType = leftType.componentType();
+    SkASSERT(componentType.matches(rightType.componentType()));
+
+    const int leftColumns  = leftType.columns(),
+              leftRows     = leftType.rows(),
+              rightColumns = rightType.columns(),
+              rightRows    = rightType.rows(),
+              outColumns   = rightColumns,
+              outRows      = leftRows;
+    SkASSERT(leftColumns == rightRows);
+    const Type& resultType = componentType.toCompound(context, outColumns, outRows);
+
+    // Fetch the left matrix.
+    double leftVals[4][4];
+    for (int c = 0; c < leftColumns; ++c) {
+        for (int r = 0; r < leftRows; ++r) {
+            leftVals[c][r] = *left.getConstantValue((c * leftRows) + r);
+        }
+    }
+    // Fetch the right matrix.
+    double rightVals[4][4];
+    for (int c = 0; c < rightColumns; ++c) {
+        for (int r = 0; r < rightRows; ++r) {
+            rightVals[c][r] = *right.getConstantValue((c * rightRows) + r);
+        }
+    }
+
+    ExpressionArray args;
+    args.reserve_back(outColumns * outRows);
+    for (int c = 0; c < outColumns; ++c) {
+        for (int r = 0; r < outRows; ++r) {
+            // Compute a dot product for this position.
+            double val = 0;
+            for (int dotIdx = 0; dotIdx < leftColumns; ++dotIdx) {
+                val += leftVals[dotIdx][r] * rightVals[c][dotIdx];
+            }
+            args.push_back(Literal::Make(left.fLine, val, &componentType));
+        }
+    }
+
+    return ConstructorCompound::Make(context, left.fLine, resultType, std::move(args));
+}
+
 static std::unique_ptr<Expression> simplify_componentwise(const Context& context,
                                                           const Expression& left,
                                                           Operator op,
@@ -533,8 +585,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
     // Perform matrix * matrix multiplication.
     if (op.kind() == Token::Kind::TK_STAR && leftType.isMatrix() && rightType.isMatrix()) {
-        // TODO(skia:12819): Implement matrix * matrix multiplication.
-        return nullptr;
+        return simplify_matrix_times_matrix(context, *left, *right);
     }
 
     // Perform constant folding on pairs of vectors/matrices.
