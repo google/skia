@@ -146,27 +146,24 @@ public:
 
         const auto ascent = this->ascent();
 
-        // For visual VAlign modes, we use a hybrid extent box computed as the union of
-        // actual visual bounds and the vertical typographical extent.
-        //
-        // This ensures that
-        //
-        //   a) text doesn't visually overflow the alignment boundaries
-        //
-        //   b) leading/trailing empty lines are still taken into account for alignment purposes
-
-        auto extent_box = [&]() {
+        auto extent_box = [&](bool include_typographical_extent = false) {
             auto box = fResult.computeVisualBounds();
 
-            // By default, first line is vertically-aligned on a baseline of 0.
-            // The typographical height considered for vertical alignment is the distance between
-            // the first line top (ascent) to the last line bottom (descent).
-            const auto typographical_top    = fBox.fTop + ascent,
-                       typographical_bottom = fBox.fTop + fLastLineDescent + fDesc.fLineHeight *
-                                                           (fLineCount > 0 ? fLineCount - 1 : 0ul);
+#ifdef SKOTTIE_DEPRECATED_VERTICAL_ALIGNMENT
+            include_typographical_extent = true;
+#endif
+            // Deprecated visual alignment mode, based on typographical extent.
+            if (include_typographical_extent) {
+                // By default, first line is vertically-aligned on a baseline of 0.
+                // The typographical height considered for vertical alignment is the distance
+                // between the first line top (ascent) to the last line bottom (descent).
+                const auto typographical_top    = fBox.fTop + ascent,
+                           typographical_bottom = fBox.fTop + fLastLineDescent +
+                                   fDesc.fLineHeight*(fLineCount > 0 ? fLineCount - 1 : 0ul);
 
-            box.fTop    = std::min(box.fTop,    typographical_top);
-            box.fBottom = std::max(box.fBottom, typographical_bottom);
+                box.fTop    = std::min(box.fTop,    typographical_top);
+                box.fBottom = std::max(box.fBottom, typographical_bottom);
+            }
 
             return box;
         };
@@ -189,7 +186,8 @@ public:
             v_offset += fBox.fTop - ebox->fTop;
             break;
         case Shaper::VAlign::kVisualCenter:
-            ebox.init(extent_box());
+        case Shaper::VAlign::kDeprecatedVisualCenter:
+            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kDeprecatedVisualCenter));
             v_offset += fBox.centerY() - ebox->centerY();
             break;
         case Shaper::VAlign::kVisualBottom:

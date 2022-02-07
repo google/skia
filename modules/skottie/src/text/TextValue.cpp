@@ -121,12 +121,12 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
             switch (vj) {
             case 3:
                 // 'sk_vj': 3 -> kVisualCenter/kScaleToFit
-                v->fVAlign = Shaper::VAlign::kVisualCenter;
+                v->fVAlign = Shaper::VAlign::kDeprecatedVisualCenter;
                 v->fResize = Shaper::ResizePolicy::kScaleToFit;
                 break;
             case 4:
                 // 'sk_vj': 4 -> kVisualCenter/kDownscaleToFit
-                v->fVAlign = Shaper::VAlign::kVisualCenter;
+                v->fVAlign = Shaper::VAlign::kDeprecatedVisualCenter;
                 v->fResize = Shaper::ResizePolicy::kDownscaleToFit;
                 break;
             default:
