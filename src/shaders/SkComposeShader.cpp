@@ -196,5 +196,5 @@ void SkShader_Blend::addToKey(SkShaderCodeDictionary* dict,
     // TODO: add blender support
     SkASSERT(!fBlender);
 
-    BlendShaderBlock::AddToKey(backend, key, uniformBlock, { fDst.get(), fSrc.get(), fMode });
+    BlendShaderBlock::AddToKey(dict, backend, key, uniformBlock, { fDst.get(), fSrc.get(), fMode });
 }

@@ -95,5 +95,5 @@ void SkRadialGradient::addToKey(SkShaderCodeDictionary* dict,
                                             fOrigColors4f,
                                             fOrigPos);
 
-    GradientShaderBlocks::AddToKey(backend, key, uniformBlock, data);
+    GradientShaderBlocks::AddToKey(dict, backend, key, uniformBlock, data);
 }

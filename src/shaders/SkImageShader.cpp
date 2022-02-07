@@ -377,7 +377,7 @@ void SkImageShader::addToKey(SkShaderCodeDictionary* dict,
                              SkBackend backend,
                              SkPaintParamsKey* key,
                              SkUniformBlock* uniformBlock) const {
-    ImageShaderBlock::AddToKey(backend, key, uniformBlock, { fTileModeX, fTileModeY });
+    ImageShaderBlock::AddToKey(dict, backend, key, uniformBlock, { fTileModeX, fTileModeY });
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -26,14 +26,6 @@ class PaintParams;
 std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintData(
         SkShaderCodeDictionary*, const PaintParams&);
 
-SkSpan<const SkUniform> GetUniforms(CodeSnippetID);
-
-// TODO: Temporary way to get at SkSL snippet for handling the given shader type, which will be
-// embedded in the fragment function's body. It has access to the vertex output via a "interpolated"
-// variable, and must have a statement that writes to a float4 "out.color". Its uniforms (as defined
-// by GetUniforms(type)) are available as a variable named "uniforms".
-std::tuple<const char*, const char*> GetShaderSkSL(CodeSnippetID);
-
 } // namespace skgpu
 
 #endif // skgpu_ContextUtils_DEFINED

@@ -8,11 +8,6 @@
 #include "include/private/SkShaderCodeDictionary.h"
 #include "src/core/SkOpts.h"
 
-SkShaderCodeDictionary::SkShaderCodeDictionary() {
-    // The 0th index is reserved as invalid
-    fEntryVector.push_back(nullptr);
-}
-
 SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(const SkPaintParamsKey& key) {
     return fArena.make([&](void *ptr) { return new(ptr) Entry(key); });
 }
@@ -21,7 +16,8 @@ size_t SkShaderCodeDictionary::Hash::operator()(const SkPaintParamsKey& key) con
     return SkOpts::hash_fn(key.data(), key.sizeInBytes(), 0);
 }
 
-const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(const SkPaintParamsKey& key) {
+const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::findOrCreate(
+        const SkPaintParamsKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     auto iter = fHash.find(key);
@@ -50,4 +46,131 @@ const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::lookup(
     SkASSERT(codeID.asUInt() < fEntryVector.size());
 
     return fEntryVector[codeID.asUInt()];
+}
+
+SkSpan<const SkUniform> SkShaderCodeDictionary::getUniforms(CodeSnippetID id) const {
+    return fCodeSnippets[(int) id].fUniforms;
+}
+
+std::tuple<const char*, const char*> SkShaderCodeDictionary::getShaderSkSL(
+        CodeSnippetID id) const {
+    if (fCodeSnippets[(int) id].fCode) {
+        return { fCodeSnippets[(int) id].fName, fCodeSnippets[(int) id].fCode };
+    }
+
+    // If we're missing a code snippet just draw solid blue
+    return this->getShaderSkSL(CodeSnippetID::kDepthStencilOnlyDraw);
+}
+
+//--------------------------------------------------------------------------------------------------
+namespace {
+
+static constexpr int kFourStopGradient = 4;
+
+// TODO: For the sprint we unify all the gradient uniforms into a standard set of 6:
+//   kMaxStops colors
+//   kMaxStops offsets
+//   2 points
+//   2 radii
+static constexpr int kNumGradientUniforms = 6;
+static constexpr SkUniform kGradientUniforms[kNumGradientUniforms] = {
+        { "colors",  SkSLType::kHalf4, kFourStopGradient },
+        { "offsets", SkSLType::kFloat, kFourStopGradient },
+        { "point0",  SkSLType::kFloat2 },
+        { "point1",  SkSLType::kFloat2 },
+        { "radius0", SkSLType::kFloat },
+        { "radius1", SkSLType::kFloat },
+};
+
+static const char *kLinearGradient4Name = "linear_grad_4_shader";
+static const char *kLinearGradient4SkSL =
+        // TODO: This should use local coords
+        "half4 linear_grad_4_shader() {\n"
+        "    float2 pos = sk_FragCoord.xy;\n"
+        "    float2 delta = point1 - point0;\n"
+        "    float2 pt = pos - point0;\n"
+        "    float t = dot(pt, delta) / dot(delta, delta);\n"
+        "    float4 result = colors[0];\n"
+        "    result = mix(result, colors[1],\n"
+        "                 clamp((t-offsets[0])/(offsets[1]-offsets[0]),\n"
+        "                       0, 1));\n"
+        "    result = mix(result, colors[2],\n"
+        "                 clamp((t-offsets[1])/(offsets[2]-offsets[1]),\n"
+        "                       0, 1));\n"
+        "    result = mix(result, colors[3],\n"
+        "                 clamp((t-offsets[2])/(offsets[3]-offsets[2]),\n"
+        "                 0, 1));\n"
+        "    return half4(result);\n"
+        "}\n";
+
+//--------------------------------------------------------------------------------------------------
+static constexpr int kNumSolidUniforms = 1;
+static constexpr SkUniform kSolidUniforms[kNumSolidUniforms] = {
+        { "color", SkSLType::kFloat4 }
+};
+
+static const char* kSolidColorName = "solid_shader";
+static const char* kSolidColorSkSL =
+        "half4 solid_shader() {\n"
+        "    return half4(color);\n"
+        "}\n";
+
+//--------------------------------------------------------------------------------------------------
+static constexpr int kNumImageUniforms = 0;
+
+static const char* kImageName = "image_shader";
+static const char* kImageSkSL =
+        "half4 image_shader() {\n"
+        "    float r = fract(abs(sk_FragCoord.x/10.0));\n"
+        "    return half4(r, 0.0, 0.0, 1.0);\n"
+        "}\n";
+
+//--------------------------------------------------------------------------------------------------
+// TODO: kNone is for depth-only draws, so should actually have a fragment output type
+// that only defines a [[depth]] attribute but no color calculation.
+static const char* kNoneName = "none";
+static const char* kNoneSkSL =
+        "half4 none() {\n"
+        "    return half4(0.0, 0.0, 1.0, 1.0);\n"
+        "}\n";
+
+} // anonymous namespace
+
+SkShaderCodeDictionary::SkShaderCodeDictionary() {
+    // The 0th index is reserved as invalid
+    fEntryVector.push_back(nullptr);
+
+    fCodeSnippets[(int) CodeSnippetID::kDepthStencilOnlyDraw] = {
+            {}, kNoneName, kNoneSkSL
+    };
+    fCodeSnippets[(int) CodeSnippetID::kSolidColorShader] = {
+            SkMakeSpan(kSolidUniforms, kNumSolidUniforms),
+            kSolidColorName, kSolidColorSkSL
+    };
+    fCodeSnippets[(int) CodeSnippetID::kLinearGradientShader] = {
+            SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
+            kLinearGradient4Name, kLinearGradient4SkSL
+    };
+    fCodeSnippets[(int) CodeSnippetID::kRadialGradientShader] = {
+            SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
+            kLinearGradient4Name, kLinearGradient4SkSL
+    };
+    fCodeSnippets[(int) CodeSnippetID::kSweepGradientShader] = {
+            SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
+            kLinearGradient4Name, kLinearGradient4SkSL
+    };
+    fCodeSnippets[(int) CodeSnippetID::kConicalGradientShader] = {
+            SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
+            kLinearGradient4Name, kLinearGradient4SkSL
+    };
+    fCodeSnippets[(int) CodeSnippetID::kImageShader] = {
+            { nullptr, kNumImageUniforms },
+            kImageName, kImageSkSL
+    };
+    fCodeSnippets[(int) CodeSnippetID::kBlendShader] = {
+            {}, nullptr, nullptr
+    };
+    fCodeSnippets[(int) CodeSnippetID::kSimpleBlendMode] = {
+            {}, nullptr, nullptr
+    };
 }

@@ -141,12 +141,12 @@ void SkColorShader::addToKey(SkShaderCodeDictionary* dict,
                              SkBackend backend,
                              SkPaintParamsKey* key,
                              SkUniformBlock* uniformBlock) const {
-    SolidColorShaderBlock::AddToKey(backend, key, uniformBlock, SkColor4f::FromColor(fColor));
+    SolidColorShaderBlock::AddToKey(dict, backend, key, uniformBlock, SkColor4f::FromColor(fColor));
 }
 
 void SkColor4Shader::addToKey(SkShaderCodeDictionary* dict,
                               SkBackend backend,
                               SkPaintParamsKey* key,
                               SkUniformBlock* uniformBlock) const {
-    SolidColorShaderBlock::AddToKey(backend, key, uniformBlock, fColor);
+    SolidColorShaderBlock::AddToKey(dict, backend, key, uniformBlock, fColor);
 }

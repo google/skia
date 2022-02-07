@@ -8,11 +8,14 @@
 #ifndef SkShaderCodeDictionary_DEFINED
 #define SkShaderCodeDictionary_DEFINED
 
+#include <array>
 #include <unordered_map>
+#include "include/core/SkSpan.h"
 #include "include/private/SkPaintParamsKey.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkUniform.h"
 
 class SkShaderCodeDictionary {
 public:
@@ -44,12 +47,23 @@ public:
 
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
+    SkSpan<const SkUniform> getUniforms(CodeSnippetID) const;
+    std::tuple<const char*, const char*> getShaderSkSL(CodeSnippetID) const;
+
 private:
     Entry* makeEntry(const SkPaintParamsKey&);
 
     struct Hash {
         size_t operator()(const SkPaintParamsKey&) const;
     };
+
+    struct SnippetEntry {
+        SkSpan<const SkUniform> fUniforms;
+        const char* fName;
+        const char* fCode;
+    };
+
+    std::array<SnippetEntry, kCodeSnippetIDCount> fCodeSnippets;
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;

@@ -169,13 +169,13 @@ std::string get_sksl_vs(const GraphicsPipelineDesc& desc) {
     return sksl;
 }
 
-std::string get_sksl_fs(const SkShaderCodeDictionary* dictionary,
+std::string get_sksl_fs(const SkShaderCodeDictionary* dict,
                         const GraphicsPipelineDesc& desc,
                         bool* writesColor) {
     std::string sksl;
 
     SkPaintParamsKey key;
-    auto entry = dictionary->lookup(desc.paintParamsID());
+    auto entry = dict->lookup(desc.paintParamsID());
     if (entry) {
         key = entry->paintParamsKey();
     }
@@ -192,12 +192,12 @@ std::string get_sksl_fs(const SkShaderCodeDictionary* dictionary,
         }
 
         // Typedefs needed for painting
-        auto paintUniforms = GetUniforms(codeSnippetID);
+        auto paintUniforms = dict->getUniforms(codeSnippetID);
         if (!paintUniforms.empty()) {
             sksl += emit_SKSL_uniforms(2, "FS", paintUniforms);
         }
 
-        auto [name, code] = GetShaderSkSL(codeSnippetID);
+        auto [name, code] = dict->getShaderSkSL(codeSnippetID);
 
         sksl += code;
         sksl += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";

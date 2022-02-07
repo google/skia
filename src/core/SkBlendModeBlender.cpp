@@ -66,9 +66,9 @@ void SkBlenderBase::addToKey(SkShaderCodeDictionary* dict,
                              SkUniformBlock* uniformBlock) const {
 
     if (std::optional<SkBlendMode> bm = as_BB(this)->asBlendMode(); bm.has_value()) {
-        BlendModeBlock::AddToKey(backend, key, uniformBlock, bm.value());
+        BlendModeBlock::AddToKey(dict, backend, key, uniformBlock, bm.value());
     } else {
-        BlendModeBlock::AddToKey(backend, key, uniformBlock, SkBlendMode::kSrcOver);
+        BlendModeBlock::AddToKey(dict, backend, key, uniformBlock, SkBlendMode::kSrcOver);
     }
 }
 

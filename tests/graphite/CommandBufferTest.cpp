@@ -237,6 +237,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
 #endif
     auto recorder = context->makeRecorder();
     auto resourceProvider = recorder->priv().resourceProvider();
+    auto dict = resourceProvider->shaderCodeDictionary();
     auto commandBuffer = resourceProvider->createCommandBuffer();
 
     SkISize textureSize = { kTextureWidth, kTextureHeight };
@@ -254,12 +255,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(CommandBufferTest, reporter, context) {
     TextureInfo textureInfo;
 #endif
 
-    SkPaintParamsKey key = CreateKey(SkBackend::kGraphite,
+    SkPaintParamsKey key = CreateKey(dict,
+                                     SkBackend::kGraphite,
                                      ShaderCombo::ShaderType::kSolidColor,
                                      SkTileMode::kClamp,
                                      SkBlendMode::kSrc);
 
-    auto dict = resourceProvider->shaderCodeDictionary();
     auto entry = dict->findOrCreate(key);
 
     auto target = sk_sp<TextureProxy>(new TextureProxy(textureSize, textureInfo));

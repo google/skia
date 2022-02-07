@@ -73,6 +73,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     using namespace skgpu;
 
     auto recorder = context->makeRecorder();
+    auto dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
 
     // Intentionally does not include ShaderType::kNone, which represents no fragment shading stage
     // and is thus not relevant to uniform extraction/caching.
@@ -90,10 +91,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
             }
 
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
-                SkPaintParamsKey expected = CreateKey(SkBackend::kGraphite, s, tm, bm);
+                SkPaintParamsKey expected = CreateKey(dict, SkBackend::kGraphite, s, tm, bm);
 
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
-                auto dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
                 auto [ actualID, uniformBlock] = ExtractPaintData(dict, PaintParams(p));
                 int actualNumUniforms = uniformBlock->count();
 

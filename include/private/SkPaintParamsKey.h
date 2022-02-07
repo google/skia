@@ -19,7 +19,7 @@ enum class SkBackend : uint8_t {
 };
 
 // TODO: this needs to be expanded into a more flexible dictionary (esp. for user-supplied SkSL)
-// TODO: should this enum actually be in ShaderCodeDictionary.h?
+// TODO: rename to SkBuiltInCodeSnippetID and move to its own header
 enum class CodeSnippetID : uint8_t {
     // TODO: It seems like this requires some refinement. Fundamentally this doesn't seem like a
     // draw that originated from a PaintParams.

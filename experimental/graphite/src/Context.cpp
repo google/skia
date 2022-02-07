@@ -78,7 +78,8 @@ void Context::preCompile(const PaintCombo& paintCombo) {
         for (auto& shaderCombo: paintCombo.fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
                 for (auto tm: shaderCombo.fTileModes) {
-                    SkPaintParamsKey key = CreateKey(SkBackend::kGraphite, shaderType, tm, bm);
+                    SkPaintParamsKey key = CreateKey(fGlobalCache->shaderCodeDictionary(),
+                                                     SkBackend::kGraphite, shaderType, tm, bm);
 
                     GraphicsPipelineDesc desc;
 
