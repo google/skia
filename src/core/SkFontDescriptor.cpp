@@ -140,8 +140,8 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     SkFontStyle::Slant slantEnum = SkFontStyle::kUpright_Slant;
     if (slant != 0) { slantEnum = SkFontStyle::kOblique_Slant; }
     if (0 < italic) { slantEnum = SkFontStyle::kItalic_Slant; }
-    int usWidth = SkScalarRoundToInt(SkScalarInterpFunc(width, &width_for_usWidth[1], usWidths, 9));
-    result->fStyle = SkFontStyle(SkScalarRoundToInt(weight), usWidth, slantEnum);
+    SkFontStyle::Width widthEnum = SkFontStyleWidthForWidthAxisValue(width);
+    result->fStyle = SkFontStyle(SkScalarRoundToInt(weight), widthEnum, slantEnum);
 
     size_t length;
     if (!stream->readPackedUInt(&length)) { return false; }
@@ -190,4 +190,9 @@ void SkFontDescriptor::serialize(SkWStream* stream) const {
     } else {
         stream->writePackedUInt(0);
     }
+}
+
+SkFontStyle::Width SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(SkScalar width) {
+    int usWidth = SkScalarRoundToInt(SkScalarInterpFunc(width, &width_for_usWidth[1], usWidths, 9));
+    return static_cast<SkFontStyle::Width>(usWidth);
 }

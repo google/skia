@@ -1940,7 +1940,8 @@ bool SkTypeface_FreeType::Scanner::scanFont(
             }
             if (wdthIndex) {
                 SkASSERT(*wdthIndex < numAxes);
-                width = SkScalarRoundToInt(SkFixedToScalar(coords[*wdthIndex]));
+                SkScalar wdthValue = SkFixedToScalar(coords[*wdthIndex]);
+                width = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(wdthValue);
             }
             if (slntIndex) {
                 SkASSERT(*slntIndex < numAxes);

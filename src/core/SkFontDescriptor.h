@@ -94,6 +94,8 @@ public:
         return fVariation.reset(coordinateCount);
     }
 
+    static SkFontStyle::Width SkFontStyleWidthForWidthAxisValue(SkScalar width);
+
 private:
     SkString fFamilyName;
     SkString fFullName;
