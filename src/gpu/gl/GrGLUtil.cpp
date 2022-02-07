@@ -243,6 +243,25 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
         if (strstr(intelString, "Bay Trail")) {
             return GrGLRenderer::kIntelValleyView;
         }
+        // In Mesa, 'RKL' can be followed by 'Graphics', same for 'TGL' and 'ADL'.
+        // Referenced from the following Mesa source code:
+        // https://github.com/mesa3d/mesa/blob/master/include/pci_ids/iris_pci_ids.h
+        if (strstr(intelString, "RKL")) {
+            return GrGLRenderer::kIntelRocketLake;
+        }
+        if (strstr(intelString, "TGL")) {
+            return GrGLRenderer::kIntelTigerLake;
+        }
+        // For Windows on ADL-S devices, 'AlderLake-S' might be followed by 'Intel(R)'.
+        if (strstr(intelString, "ADL") || strstr(intelString, "AlderLake")) {
+            return GrGLRenderer::kIntelAlderLake;
+        }
+        // For Windows on TGL or other ADL devices, we might only get 'Xe' from the string.
+        // Since they are both 12th gen, we could temporarily use 'kIntelTigerLake' to cover
+        // both TGL and ADL.
+        if (strstr(intelString, "Xe")) {
+            return GrGLRenderer::kIntelTigerLake;
+        }
         // There are many possible intervening strings here:
         // 'Intel(R)' is a common prefix
         // 'Iris' may appear, followed by '(R)' or '(TM)'
@@ -290,6 +309,11 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
                 }
                 if (intelNumber == 655) {
                     return GrGLRenderer::kIntelCoffeeLake;
+                }
+                // 710/730/750/770 are all 12th gen UHD Graphics, but it's hard to distinguish
+                // among RKL, TGL and ADL. We might temporarily use 'kIntelTigerLake' to cover all.
+                if (intelNumber >= 710 && intelNumber <= 770) {
+                    return GrGLRenderer::kIntelTigerLake;
                 }
                 if (intelNumber >= 910 && intelNumber <= 950) {
                     return GrGLRenderer::kIntelIceLake;

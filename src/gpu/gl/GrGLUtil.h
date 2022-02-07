@@ -189,6 +189,11 @@ enum class GrGLRenderer {
     // 11th gen
     kIntelIceLake,
 
+    // 12th gen
+    kIntelRocketLake,
+    kIntelTigerLake,
+    kIntelAlderLake,
+
     kGalliumLLVM,
 
     kVirgl,
