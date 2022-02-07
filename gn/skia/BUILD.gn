@@ -412,6 +412,10 @@ config("warnings") {
       "-Weverything",
       "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs'
                                       # warnings.
+
+      # This was deprecated in Clang 14 and removed in Clang 15. It might still
+      # fire with older Clangs, so disable it explicitly.
+      "-Wno-weak-template-vtables",
     ]
 
     if (target_cpu == "arm" && is_ios) {

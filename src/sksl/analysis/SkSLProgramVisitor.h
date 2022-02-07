@@ -55,15 +55,7 @@ struct ProgramVisitorTypes {
     using UniquePtrStatement = const std::unique_ptr<SkSL::Statement>;
 };
 
-// Squelch bogus Clang warning about template vtables: https://bugs.llvm.org/show_bug.cgi?id=18733
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wweak-template-vtables"
-#endif
 extern template class TProgramVisitor<ProgramVisitorTypes>;
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
 
 class ProgramVisitor : public TProgramVisitor<ProgramVisitorTypes> {
 public:
