@@ -57,7 +57,7 @@ SkTypefaceCache& SkTypefaceCache::Get() {
     return gCache;
 }
 
-SkFontID SkTypefaceCache::NewFontID() {
+SkTypefaceID SkTypefaceCache::NewTypefaceID() {
     static std::atomic<int32_t> nextID{1};
     return nextID.fetch_add(1, std::memory_order_relaxed);
 }
@@ -89,8 +89,8 @@ static bool DumpProc(SkTypeface* face, void* ctx) {
     SkString n;
     face->getFamilyName(&n);
     SkFontStyle s = face->fontStyle();
-    SkFontID id = face->uniqueID();
-    SkDebugf("SkTypefaceCache: face %p fontID %d weight %d width %d style %d name %s\n",
+    SkTypefaceID id = face->uniqueID();
+    SkDebugf("SkTypefaceCache: face %p typefaceID %d weight %d width %d style %d name %s\n",
              face, id, s.weight(), s.width(), s.slant(), n.c_str());
     return false;
 }

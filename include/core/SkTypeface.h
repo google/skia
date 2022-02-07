@@ -29,7 +29,12 @@ struct SkAdvancedTypefaceMetrics;
 struct SkScalerContextEffects;
 struct SkScalerContextRec;
 
-typedef uint32_t SkFontID;
+using SkTypefaceID = uint32_t;
+
+// SkFontID is deprecated, please use SkTypefaceID.
+using SkFontID = SkTypefaceID;
+
+
 /** Machine endian. */
 typedef uint32_t SkFontTableTag;
 
@@ -91,13 +96,13 @@ public:
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
      */
-    SkFontID uniqueID() const { return fUniqueID; }
+    SkTypefaceID uniqueID() const { return fUniqueID; }
 
     /** Return the uniqueID for the specified typeface. If the face is null,
         resolve it to the default font and return its uniqueID. Will never
         return 0.
     */
-    static SkFontID UniqueID(const SkTypeface* face);
+    static SkTypefaceID UniqueID(const SkTypeface* face);
 
     /** Returns true if the two typefaces reference the same underlying font,
         handling either being null (treating null as the default font)
@@ -454,7 +459,7 @@ private:
     friend class SkFont;             // getGlyphToUnicodeMap
 
 private:
-    SkFontID            fUniqueID;
+    SkTypefaceID        fUniqueID;
     SkFontStyle         fStyle;
     mutable SkRect      fBounds;
     mutable SkOnce      fBoundsOnce;

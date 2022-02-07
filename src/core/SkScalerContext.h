@@ -53,10 +53,10 @@ enum SkAxisAlignment : uint32_t {
  */
 SK_BEGIN_REQUIRE_DENSE
 struct SkScalerContextRec {
-    uint32_t    fFontID;
-    SkScalar    fTextSize, fPreScaleX, fPreSkewX;
-    SkScalar    fPost2x2[2][2];
-    SkScalar    fFrameWidth, fMiterLimit;
+    SkTypefaceID fTypefaceID;
+    SkScalar     fTextSize, fPreScaleX, fPreSkewX;
+    SkScalar     fPost2x2[2][2];
+    SkScalar     fFrameWidth, fMiterLimit;
 
     // This will be set if to the paint's foreground color if
     // kNeedsForegroundColor is set, which will usually be the case for COLRv0 and

@@ -23,7 +23,7 @@
 #include "src/utils/SkUTF.h"
 
 SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
-    : fUniqueID(SkTypefaceCache::NewFontID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
+    : fUniqueID(SkTypefaceCache::NewTypefaceID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
 
 SkTypeface::~SkTypeface() { }
 

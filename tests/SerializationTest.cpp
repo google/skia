@@ -354,7 +354,7 @@ static sk_sp<SkTypeface> deserialize_typeface_proc(const void* data, size_t leng
     }
     memcpy(&stream, data, sizeof(stream));
 
-    SkFontID id;
+    SkTypefaceID id;
     if (!stream->read(&id, sizeof(id))) {
         return nullptr;
     }

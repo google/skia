@@ -42,7 +42,7 @@ private:
 
 class SkTypefaceProxy : public SkTypeface {
 public:
-    SkTypefaceProxy(SkFontID fontId,
+    SkTypefaceProxy(SkTypefaceID typefaceID,
                     int glyphCount,
                     const SkFontStyle& style,
                     bool isFixed,
@@ -50,12 +50,12 @@ public:
                     sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
                     bool isLogging = true)
             : INHERITED{style, false}
-            , fFontId{fontId}
+            , fTypefaceID{typefaceID}
             , fGlyphCount{glyphCount}
             , fIsLogging{isLogging}
             , fGlyphMaskNeedsCurrentColor(glyphMaskNeedsCurrentColor)
             , fDiscardableManager{std::move(manager)} {}
-    SkFontID remoteTypefaceID() const {return fFontId;}
+    SkTypefaceID remoteTypefaceID() const {return fTypefaceID;}
     int glyphCount() const {return fGlyphCount;}
     bool isLogging() const {return fIsLogging;}
 
@@ -130,7 +130,7 @@ protected:
     }
 
 private:
-    const SkFontID                                  fFontId;
+    const SkTypefaceID                              fTypefaceID;
     const int                                       fGlyphCount;
     const bool                                      fIsLogging;
     const bool                                      fGlyphMaskNeedsCurrentColor;

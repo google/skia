@@ -1261,7 +1261,7 @@ void ShapeDontWrapOrReorder::wrap(char const * const utf8, size_t utf8Bytes,
 
 class HBLockedFaceCache {
 public:
-    HBLockedFaceCache(SkLRUCache<SkFontID, HBFace>& lruCache, SkMutex& mutex)
+    HBLockedFaceCache(SkLRUCache<SkTypefaceID, HBFace>& lruCache, SkMutex& mutex)
         : fLRUCache(lruCache), fMutex(mutex)
     {
         fMutex.acquire();
@@ -1274,22 +1274,22 @@ public:
         fMutex.release();
     }
 
-    HBFace* find(SkFontID fontId) {
+    HBFace* find(SkTypefaceID fontId) {
         return fLRUCache.find(fontId);
     }
-    HBFace* insert(SkFontID fontId, HBFace hbFace) {
+    HBFace* insert(SkTypefaceID fontId, HBFace hbFace) {
         return fLRUCache.insert(fontId, std::move(hbFace));
     }
     void reset() {
         fLRUCache.reset();
     }
 private:
-    SkLRUCache<SkFontID, HBFace>& fLRUCache;
+    SkLRUCache<SkTypefaceID, HBFace>& fLRUCache;
     SkMutex& fMutex;
 };
 static HBLockedFaceCache get_hbFace_cache() {
     static SkMutex gHBFaceCacheMutex;
-    static SkLRUCache<SkFontID, HBFace> gHBFaceCache(100);
+    static SkLRUCache<SkTypefaceID, HBFace> gHBFaceCache(100);
     return HBLockedFaceCache(gHBFaceCache, gHBFaceCacheMutex);
 }
 
@@ -1352,7 +1352,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     HBFont hbFont;
     {
         HBLockedFaceCache cache = get_hbFace_cache();
-        SkFontID dataId = font.currentFont().getTypeface()->uniqueID();
+        SkTypefaceID dataId = font.currentFont().getTypeface()->uniqueID();
         HBFace* hbFaceCached = cache.find(dataId);
         if (!hbFaceCached) {
             HBFace hbFace(create_hb_face(*font.currentFont().getTypeface()));

@@ -1734,7 +1734,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkFont& font,
     SkTypeface* typeface = font.getTypefaceOrDefault();
 
     //Check cache.
-    const SkFontID typefaceID = typeface->uniqueID();
+    const SkTypefaceID typefaceID = typeface->uniqueID();
     for (TypefaceUse& current : *this->fTopTypefaces) {
         if (current.typefaceId == typefaceID) {
             *typefaceUse = &current;

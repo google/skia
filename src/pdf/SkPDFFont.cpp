@@ -106,7 +106,7 @@ static bool can_embed(const SkAdvancedTypefaceMetrics& metrics) {
 const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typeface,
                                                        SkPDFDocument* canon) {
     SkASSERT(typeface);
-    SkFontID id = typeface->uniqueID();
+    SkTypefaceID id = typeface->uniqueID();
     if (std::unique_ptr<SkAdvancedTypefaceMetrics>* ptr = canon->fTypefaceMetrics.find(id)) {
         return ptr->get();  // canon retains ownership.
     }
@@ -159,7 +159,7 @@ const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typefac
                                                        SkPDFDocument* canon) {
     SkASSERT(typeface);
     SkASSERT(canon);
-    SkFontID id = typeface->uniqueID();
+    SkTypefaceID id = typeface->uniqueID();
     if (std::vector<SkUnichar>* ptr = canon->fToUnicodeMap.find(id)) {
         return *ptr;
     }
@@ -203,9 +203,9 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFDocument* doc,
     bool multibyte = SkPDFFont::IsMultiByte(type);
     SkGlyphID subsetCode =
             multibyte ? 0 : first_nonzero_glyph_for_single_byte_encoding(glyph->getGlyphID());
-    uint64_t fontID = (static_cast<uint64_t>(SkTypeface::UniqueID(face)) << 16) | subsetCode;
+    uint64_t typefaceID = (static_cast<uint64_t>(SkTypeface::UniqueID(face)) << 16) | subsetCode;
 
-    if (SkPDFFont* found = doc->fFontMap.find(fontID)) {
+    if (SkPDFFont* found = doc->fFontMap.find(typefaceID)) {
         SkASSERT(multibyte == found->multiByteGlyphs());
         return found;
     }
@@ -227,7 +227,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFDocument* doc,
     }
     auto ref = doc->reserveRef();
     return doc->fFontMap.set(
-            fontID, SkPDFFont(std::move(typeface), firstNonZeroGlyph, lastGlyph, type, ref));
+            typefaceID, SkPDFFont(std::move(typeface), firstNonZeroGlyph, lastGlyph, type, ref));
 }
 
 SkPDFFont::SkPDFFont(sk_sp<SkTypeface> typeface,

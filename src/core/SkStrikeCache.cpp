@@ -103,7 +103,7 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
         }
 
         SkString dumpName = SkStringPrintf(
-                "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, &strike);
+                "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fTypefaceID, &strike);
 
         dump->dumpNumericValue(dumpName.c_str(),
                                "size", "bytes", strike.fMemoryUsed);

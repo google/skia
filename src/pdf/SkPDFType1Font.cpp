@@ -256,12 +256,12 @@ static SkPDFIndirectReference make_type1_font_descriptor(SkPDFDocument* doc,
 
 static const std::vector<SkString>& type_1_glyphnames(SkPDFDocument* canon,
                                                       const SkTypeface* typeface) {
-    SkFontID fontID = typeface->uniqueID();
-    const std::vector<SkString>* glyphNames = canon->fType1GlyphNames.find(fontID);
+    SkTypefaceID typefaceID = typeface->uniqueID();
+    const std::vector<SkString>* glyphNames = canon->fType1GlyphNames.find(typefaceID);
     if (!glyphNames) {
         std::vector<SkString> names(typeface->countGlyphs());
         SkPDFFont::GetType1GlyphNames(*typeface, names.data());
-        glyphNames = canon->fType1GlyphNames.set(fontID, std::move(names));
+        glyphNames = canon->fType1GlyphNames.set(typefaceID, std::move(names));
     }
     SkASSERT(glyphNames);
     return *glyphNames;
@@ -269,13 +269,13 @@ static const std::vector<SkString>& type_1_glyphnames(SkPDFDocument* canon,
 
 static SkPDFIndirectReference type1_font_descriptor(SkPDFDocument* doc,
                                                     const SkTypeface* typeface) {
-    SkFontID fontID = typeface->uniqueID();
-    if (SkPDFIndirectReference* ptr = doc->fFontDescriptors.find(fontID)) {
+    SkTypefaceID typefaceID = typeface->uniqueID();
+    if (SkPDFIndirectReference* ptr = doc->fFontDescriptors.find(typefaceID)) {
         return *ptr;
     }
     const SkAdvancedTypefaceMetrics* info = SkPDFFont::GetMetrics(typeface, doc);
     auto fontDescriptor = make_type1_font_descriptor(doc, typeface, info);
-    doc->fFontDescriptors.set(fontID, fontDescriptor);
+    doc->fFontDescriptors.set(typefaceID, fontDescriptor);
     return fontDescriptor;
 }
 

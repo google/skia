@@ -39,7 +39,7 @@
 namespace {
 // This essentially replaces the font_id used on the RendererSide with the font_id on the GPU side.
 SkDescriptor* auto_descriptor_from_desc(
-        const SkDescriptor* sourceDesc, SkFontID fontId, SkAutoDescriptor* ad) {
+        const SkDescriptor* sourceDesc, SkTypefaceID typefaceID, SkAutoDescriptor* ad) {
     ad->reset(sourceDesc->getLength());
     auto* desc = ad->getDesc();
 
@@ -49,7 +49,7 @@ SkDescriptor* auto_descriptor_from_desc(
         auto ptr = sourceDesc->findEntry(kRec_SkDescriptorTag, &size);
         SkScalerContextRec rec;
         std::memcpy((void*)&rec, ptr, size);
-        rec.fFontID = fontId;
+        rec.fTypefaceID = typefaceID;
         desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     }
 
@@ -176,9 +176,9 @@ static const size_t kPathAlignment  = 4u;
 // -- StrikeSpec -----------------------------------------------------------------------------------
 struct StrikeSpec {
     StrikeSpec() = default;
-    StrikeSpec(SkFontID typefaceID, SkDiscardableHandleId discardableHandleId)
+    StrikeSpec(SkTypefaceID typefaceID, SkDiscardableHandleId discardableHandleId)
             : fTypefaceID{typefaceID}, fDiscardableHandleId(discardableHandleId) {}
-    SkFontID fTypefaceID = 0u;
+    SkTypefaceID fTypefaceID = 0u;
     SkDiscardableHandleId fDiscardableHandleId = 0u;
     /* desc */
     /* n X (glyphs ids) */
@@ -510,12 +510,12 @@ void RemoteStrike::prepareForPathDrawing(
 // -- WireTypeface ---------------------------------------------------------------------------------
 struct WireTypeface {
     WireTypeface() = default;
-    WireTypeface(SkFontID typefaceId, int glyphCount, SkFontStyle style,
+    WireTypeface(SkTypefaceID typefaceId, int glyphCount, SkFontStyle style,
                  bool isFixed, bool needsCurrentColor)
       : fTypefaceID(typefaceId), fGlyphCount(glyphCount), fStyle(style),
         fIsFixed(isFixed), fGlyphMaskNeedsCurrentColor(needsCurrentColor) {}
 
-    SkFontID        fTypefaceID{0};
+    SkTypefaceID    fTypefaceID{0};
     int             fGlyphCount{0};
     SkFontStyle     fStyle;
     bool            fIsFixed{false};
@@ -563,11 +563,11 @@ private:
     DescToRemoteStrike fDescToRemoteStrike;
 
     SkStrikeServer::DiscardableHandleManager* const fDiscardableHandleManager;
-    SkTHashSet<SkFontID> fCachedTypefaces;
+    SkTHashSet<SkTypefaceID> fCachedTypefaces;
     size_t fMaxEntriesInDescriptorMap = kMaxEntriesInDescriptorMap;
 
     // Cached serialized typefaces.
-    SkTHashMap<SkFontID, sk_sp<SkData>> fSerializedTypefaces;
+    SkTHashMap<SkTypefaceID, sk_sp<SkData>> fSerializedTypefaces;
 
     // State cached until the next serialization.
     SkTHashSet<RemoteStrike*> fRemoteStrikesToSend;
@@ -717,7 +717,7 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& strikeSpe
 
     const SkTypeface& typeface = strikeSpec.typeface();
     // Create a new RemoteStrike. Start by processing the typeface.
-    const SkFontID typefaceId = typeface.uniqueID();
+    const SkTypefaceID typefaceId = typeface.uniqueID();
     if (!fCachedTypefaces.contains(typefaceId)) {
         fCachedTypefaces.add(typefaceId);
         fTypefacesToSend.emplace_back(typefaceId, typeface.countGlyphs(),
@@ -869,7 +869,7 @@ private:
     static bool ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer);
     sk_sp<SkTypeface> addTypeface(const WireTypeface& wire);
 
-    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
+    SkTHashMap<SkTypefaceID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableHandleManager;
     SkStrikeCache* const fStrikeCache;
     const bool fIsLogging;
