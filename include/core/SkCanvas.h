@@ -28,10 +28,10 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDeque.h"
 #include "include/private/SkMacros.h"
+#include "include/private/SkTOptional.h"
 
 #include <cstring>
 #include <memory>
-#include <optional>
 #include <vector>
 
 #ifndef SK_SUPPORT_LEGACY_GETTOTALMATRIX

@@ -18,9 +18,9 @@
 #include "include/core/SkString.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "include/private/SkTOptional.h"
 
 #include <string>
-#include <optional>
 #include <vector>
 
 #ifdef SK_ENABLE_SKSL
