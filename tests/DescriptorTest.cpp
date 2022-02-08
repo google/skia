@@ -6,8 +6,13 @@
  */
 
 #include "include/core/SkTypes.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDescriptor.h"
+#include "src/core/SkFontPriv.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -127,4 +132,65 @@ DEF_TEST(Descriptor_entry_over_end, r) {
     SkDescriptorTestHelper::SetLength(desc.get(), 36);
     SkDescriptorTestHelper::SetCount(desc.get(), 2);
     REPORTER_ASSERT(r, !desc->isValid());
+}
+
+DEF_TEST(Descriptor_flatten_unflatten, r) {
+    {
+        SkBinaryWriteBuffer writer;
+        auto desc = SkDescriptor::Alloc(sizeof(SkDescriptor));
+        desc->computeChecksum();
+        desc->flatten(writer);
+        auto data = writer.snapshotAsData();
+        SkReadBuffer reader{data->data(), data->size()};
+        auto ad = SkAutoDescriptor::MakeFromBuffer(reader);
+        REPORTER_ASSERT(r, ad.has_value());
+        REPORTER_ASSERT(r, ad->getDesc()->isValid());
+    }
+
+    {  // broken header
+        SkBinaryWriteBuffer writer;
+        writer.writeInt(0);  // fChecksum
+        auto data = writer.snapshotAsData();
+        SkReadBuffer reader{data->data(), data->size()};
+        auto ad = SkAutoDescriptor::MakeFromBuffer(reader);
+        REPORTER_ASSERT(r, !ad.has_value());
+    }
+
+    {  // length too big
+        SkBinaryWriteBuffer writer;
+        // Simulate a broken header
+        writer.writeInt(0);    // fChecksum
+        writer.writeInt(4000); // fLength
+        writer.writeInt(0);    // fCount
+        auto data = writer.snapshotAsData();
+        SkReadBuffer reader{data->data(), data->size()};
+        auto ad = SkAutoDescriptor::MakeFromBuffer(reader);
+        REPORTER_ASSERT(r, !ad.has_value());
+    }
+
+    {  // length too small
+        SkBinaryWriteBuffer writer;
+        // Simulate a broken header
+        writer.writeInt(0);    // fChecksum
+        writer.writeInt(3);    // fLength
+        writer.writeInt(0);    // fCount
+        auto data = writer.snapshotAsData();
+        SkReadBuffer reader{data->data(), data->size()};
+        auto ad = SkAutoDescriptor::MakeFromBuffer(reader);
+        REPORTER_ASSERT(r, !ad.has_value());
+    }
+
+    {  // garbage in count
+        SkBinaryWriteBuffer writer;
+        // Simulate a broken header
+        writer.writeInt(0);    // fChecksum
+        writer.writeInt(20);   // fLength
+        writer.writeInt(10);   // fCount
+        writer.writeInt(0);
+        writer.writeInt(0);
+        auto data = writer.snapshotAsData();
+        SkReadBuffer reader{data->data(), data->size()};
+        auto ad = SkAutoDescriptor::MakeFromBuffer(reader);
+        REPORTER_ASSERT(r, !ad.has_value());
+    }
 }

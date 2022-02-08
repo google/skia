@@ -1186,9 +1186,3 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
 sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
     return fImpl->deserializeTypeface(buf, len);
 }
-
-// -------------------------------------------------------------------------------------------------
-bool SkFuzzDeserializeSkDescriptor(sk_sp<SkData> bytes, SkAutoDescriptor* ad) {
-    auto d = Deserializer(reinterpret_cast<const volatile char*>(bytes->data()), bytes->size());
-    return d.readDescriptor(ad);
-}

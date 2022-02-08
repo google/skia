@@ -136,8 +136,4 @@ public:
 private:
     std::unique_ptr<SkStrikeClientImpl> fImpl;
 };
-
-// For exposure to fuzzing only.
-bool SkFuzzDeserializeSkDescriptor(sk_sp<SkData> bytes, SkAutoDescriptor* ad);
-
 #endif  // SkChromeRemoteGlyphCache_DEFINED

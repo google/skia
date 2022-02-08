@@ -13,6 +13,8 @@
 
 #include "include/private/SkMacros.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/core/SkBuffer.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkScalerContext.h"
 
 class SkDescriptor : SkNoncopyable {
@@ -29,6 +31,8 @@ public:
     void operator delete(void* p);
     void* operator new(size_t);
     void* operator new(size_t, void* p) { return p; }
+
+    void flatten(SkWriteBuffer& buffer);
 
     uint32_t getLength() const { return fLength; }
     void* addEntry(uint32_t tag, size_t length, const void* data = nullptr);
@@ -86,8 +90,10 @@ public:
     SkAutoDescriptor& operator=(const SkAutoDescriptor&);
     SkAutoDescriptor(SkAutoDescriptor&&);
     SkAutoDescriptor& operator=(SkAutoDescriptor&&);
-
     ~SkAutoDescriptor();
+
+    // Returns no value if there is an error.
+    static std::optional<SkAutoDescriptor> MakeFromBuffer(SkReadBuffer& buffer);
 
     void reset(size_t size);
     void reset(const SkDescriptor& desc);
