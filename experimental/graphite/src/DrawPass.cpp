@@ -11,6 +11,7 @@
 #include "experimental/graphite/include/Recorder.h"
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
+#include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/DrawContext.h"
 #include "experimental/graphite/src/DrawList.h"

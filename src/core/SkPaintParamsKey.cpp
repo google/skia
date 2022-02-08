@@ -8,6 +8,7 @@
 #include "include/private/SkPaintParamsKey.h"
 
 #include <cstring>
+#include "include/private/SkShaderCodeDictionary.h"
 #include "src/core/SkKeyHelpers.h"
 
 bool SkPaintParamsKey::operator==(const SkPaintParamsKey& that) const {
@@ -71,3 +72,31 @@ void SkPaintParamsKey::dump() const {
     }
 }
 #endif
+
+int SkPaintParamsKey::AddBlockToShaderInfo(SkShaderCodeDictionary* dict,
+                                           const SkPaintParamsKey& key,
+                                           int headerOffset,
+                                           SkShaderInfo* result) {
+    auto [codeSnippetID, blockSize] = key.readCodeSnippetID(headerOffset);
+
+    if (codeSnippetID != CodeSnippetID::kSimpleBlendMode) {
+        auto entry = dict->getEntry(codeSnippetID);
+
+        result->add(*entry);
+
+        if (codeSnippetID != CodeSnippetID::kDepthStencilOnlyDraw) {
+            result->setWritesColor();
+        }
+    }
+
+    return blockSize;
+}
+
+void SkPaintParamsKey::toShaderInfo(SkShaderCodeDictionary* dict, SkShaderInfo* result) const {
+
+    int curHeaderOffset = 0;
+    while (curHeaderOffset < this->sizeInBytes()) {
+        int blockSize = AddBlockToShaderInfo(dict, *this, curHeaderOffset, result);
+        curHeaderOffset += blockSize;
+    }
+}

@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 
 #include "experimental/graphite/src/Attribute.h"
-#include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/DrawTypes.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkOpts_spi.h"

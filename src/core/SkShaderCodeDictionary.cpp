@@ -6,7 +6,48 @@
  */
 
 #include "include/private/SkShaderCodeDictionary.h"
+
 #include "src/core/SkOpts.h"
+
+// TODO: SkShaderInfo::toSkSL needs to work outside of both just graphite and metal. To do
+// so we'll need to switch over to using SkSL's uniform capabilities.
+#if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
+
+#include "include/private/SkSLString.h"
+
+// TODO: switch this over to using SkSL's uniform system
+namespace skgpu::mtl {
+std::string GetMtlUniforms(int bufferID,
+                           const char* name,
+                           const std::vector<SkShaderInfo::SnippetEntry>&);
+}
+
+// The current, incomplete, model for shader construction is:
+//   each code snippet defines a method with a unique name that takes 0 params and returns a half4.
+//   For each code snippet in the shader info, the matching method will be called and the result
+//            placed in a variable named "outColor%d". The integer is just that snippet's position
+//            in the shaderInfo.
+//   Currently, the last shader snippet's "outColor%d" is then copied into "sk_FragColor".
+// Note: that each entry's 'fName' field must match the name of the method in the 'fCode' field.
+std::string SkShaderInfo::toSkSL() const {
+    std::string result = skgpu::mtl::GetMtlUniforms(2, "FS", fEntries);
+
+    for (auto c : fEntries) {
+        result += c.fCode;
+    }
+
+    result += "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
+    result += "void main() {\n";
+
+    for (size_t i = 0; i < fEntries.size(); ++i) {
+        SkSL::String::appendf(&result, "half4 outColor%d = %s();\n", (int) i, fEntries[i].fName);
+    }
+    SkSL::String::appendf(&result, "sk_FragColor = outColor%d;\n", (int) fEntries.size()-1);
+    result += "}\n";
+
+    return result;
+}
+#endif
 
 SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::makeEntry(const SkPaintParamsKey& key) {
     return fArena.make([&](void *ptr) { return new(ptr) Entry(key); });
@@ -52,16 +93,20 @@ SkSpan<const SkUniform> SkShaderCodeDictionary::getUniforms(CodeSnippetID id) co
     return fCodeSnippets[(int) id].fUniforms;
 }
 
-std::tuple<const char*, const char*> SkShaderCodeDictionary::getShaderSkSL(
-        CodeSnippetID id) const {
+const SkShaderInfo::SnippetEntry* SkShaderCodeDictionary::getEntry(CodeSnippetID id) const {
     if (fCodeSnippets[(int) id].fCode) {
-        return { fCodeSnippets[(int) id].fName, fCodeSnippets[(int) id].fCode };
+        return &fCodeSnippets[(int) id];
     }
 
     // If we're missing a code snippet just draw solid blue
-    return this->getShaderSkSL(CodeSnippetID::kDepthStencilOnlyDraw);
+    return this->getEntry(CodeSnippetID::kDepthStencilOnlyDraw);
 }
 
+void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkShaderInfo* info) {
+    auto entry = this->lookup(uniqueID);
+
+    entry->paintParamsKey().toShaderInfo(this, info);
+}
 //--------------------------------------------------------------------------------------------------
 namespace {
 

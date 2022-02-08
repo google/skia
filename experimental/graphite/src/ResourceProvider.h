@@ -18,6 +18,7 @@
 #include "src/gpu/ResourceKey.h"
 
 struct SkSamplingOptions;
+class SkShaderCodeDictionary;
 
 namespace skgpu {
 

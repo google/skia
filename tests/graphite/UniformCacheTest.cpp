@@ -9,7 +9,6 @@
 
 #include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/Recorder.h"
-#include "experimental/graphite/src/ContextUtils.h"
 #include "experimental/graphite/src/RecorderPriv.h"
 #include "experimental/graphite/src/UniformCache.h"
 #include "src/core/SkUniform.h"
