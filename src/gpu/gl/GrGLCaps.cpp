@@ -1051,11 +1051,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }
 
     shaderCaps->fBuiltinDeterminantSupport = ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k150;
-
-    if (GR_IS_GR_WEBGL(standard)) {
-      // WebGL 1.0 doesn't support do-while loops.
-      shaderCaps->fCanUseDoLoops = version >= GR_GL_VER(2, 0);
-    }
 }
 
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
@@ -3927,10 +3922,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // Tegra3 fract() seems to trigger undefined behavior for negative values, so we
         // must avoid this condition.
         shaderCaps->fCanUseFractForNegativeValues = false;
-
-        // Seeing crashes on Tegra3 with inlined functions that have early returns. Looks like the
-        // do { ... break; } while (false); construct is causing a crash in the driver.
-        shaderCaps->fCanUseDoLoops = false;
     }
 
     // On Intel GPU there is an issue where it reads the second argument to atan "- %s.x" as an int
@@ -4300,11 +4291,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
          (ctxInfo.renderer() < GrGLRenderer::kIntelIceLake ||
           !contextOptions.fAllowMSAAOnNewIntel)) {
          fMSFBOType = kNone_MSFBOType;
-    }
-
-    // ANGLE doesn't support do-while loops.
-    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
-        shaderCaps->fCanUseDoLoops = false;
     }
 
     // ANGLE's D3D9 backend + AMD GPUs are flaky with program binary caching (skbug.com/10395)

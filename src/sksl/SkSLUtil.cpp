@@ -27,10 +27,6 @@ std::unique_ptr<ShaderCaps> ShaderCapsFactory::MakeShaderCaps() {
     standalone->fNoPerspectiveInterpolationSupport = true;
     standalone->fSampleMaskSupport = true;
     standalone->fExternalTextureSupport = true;
-    // we define canUseDoLoops to false in standalone so we don't use do loops while inlining
-    // in FP files (which would then, being baked in, end up being used even in contexts where
-    // do loops are not allowed)
-    standalone->fCanUseDoLoops = false;
     return standalone;
 }
 #else
