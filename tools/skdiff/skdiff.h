@@ -158,7 +158,7 @@ typedef SkTArray<DiffRecord> RecordArray;
 
 /// A wrapper for any sortProc (comparison routine) which applies a first-order
 /// sort beforehand, and a tiebreaker if the sortProc returns 0.
-template<typename T> static int compare(const void* untyped_lhs, const void* untyped_rhs) {
+template<typename T> int compare(const void* untyped_lhs, const void* untyped_rhs) {
     const DiffRecord* lhs = reinterpret_cast<DiffRecord const *>(untyped_lhs);
     const DiffRecord* rhs = reinterpret_cast<DiffRecord const *>(untyped_rhs);
 

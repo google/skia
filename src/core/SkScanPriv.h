@@ -56,7 +56,7 @@ static inline void insert_edge_after(EdgeType* edge, EdgeType* afterMe) {
 }
 
 template<class EdgeType>
-static void backward_insert_edge_based_on_x(EdgeType* edge) {
+void backward_insert_edge_based_on_x(EdgeType* edge) {
     SkFixed x = edge->fX;
     EdgeType* prev = edge->fPrev;
     while (prev->fPrev && prev->fX > x) {
@@ -73,7 +73,7 @@ static void backward_insert_edge_based_on_x(EdgeType* edge) {
 // of the prior insertion, and search to the right, or with some additional caching, binary
 // search the starting point. More work could be done to determine optimal new edge insertion.
 template<class EdgeType>
-static EdgeType* backward_insert_start(EdgeType* prev, SkFixed x) {
+EdgeType* backward_insert_start(EdgeType* prev, SkFixed x) {
     while (prev->fPrev && prev->fX > x) {
         prev = prev->fPrev;
     }

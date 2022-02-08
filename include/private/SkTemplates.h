@@ -35,14 +35,14 @@ template<typename T> inline void sk_ignore_unused_variable(const T&) { }
 /**
  *  Returns a pointer to a D which comes immediately after S[count].
  */
-template <typename D, typename S> static D* SkTAfter(S* ptr, size_t count = 1) {
+template <typename D, typename S> inline D* SkTAfter(S* ptr, size_t count = 1) {
     return reinterpret_cast<D*>(ptr + count);
 }
 
 /**
  *  Returns a pointer to a D which comes byteOffset bytes after S.
  */
-template <typename D, typename S> static D* SkTAddOffset(S* ptr, ptrdiff_t byteOffset) {
+template <typename D, typename S> inline D* SkTAddOffset(S* ptr, ptrdiff_t byteOffset) {
     // The intermediate char* has the same cv-ness as D as this produces better error messages.
     // This relies on the fact that reinterpret_cast can add constness, but cannot remove it.
     return reinterpret_cast<D*>(reinterpret_cast<sknonstd::same_cv_t<char, D>*>(ptr) + byteOffset);
