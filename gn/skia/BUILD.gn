@@ -463,7 +463,6 @@ config("warnings") {
       "-Wno-unreachable-code-return",
       "-Wno-unused-macros",
       "-Wno-unused-member-function",
-      "-Wno-zero-as-null-pointer-constant",
       "-Wno-non-c-typedef-for-linkage",  # Dawn, not Skia per se.
     ]
     cflags_cc += [
@@ -481,6 +480,7 @@ config("warnings") {
       "-Wno-padded",
       "-Wno-shadow-field-in-constructor",
       "-Wno-shadow-uncaptured-local",
+      "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0
 
       # https://quuxplusone.github.io/blog/2020/08/26/wrange-loop-analysis/
       # https://bugzilla.mozilla.org/show_bug.cgi?id=1683213

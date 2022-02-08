@@ -810,7 +810,7 @@ void colrv1_draw_glyph_with_path(SkCanvas* canvas, const SkSpan<SkColor>& palett
 void colrv1_transform(FT_Face face,
                       FT_COLR_Paint colrv1_paint,
                       SkCanvas* canvas,
-                      SkMatrix* out_transform = 0) {
+                      SkMatrix* out_transform = nullptr) {
     SkMatrix transform;
 
     SkASSERT(canvas || out_transform);
@@ -1329,7 +1329,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 if (!haveLayers) {
                     // If we didn't have colr v1 layers, try v0 layers.
                     FT_LayerIterator layerIterator;
-                    layerIterator.p = NULL;
+                    layerIterator.p = nullptr;
                     FT_UInt layerGlyphIndex = 0;
                     FT_UInt layerColorIndex = 0;
                     while (FT_Get_Color_Glyph_Layer(face, glyph.getGlyphID(), &layerGlyphIndex,

@@ -67,10 +67,10 @@ public:
         const SkVector& unitsPerMeter,
         const SkVector& pixelsPerMeter,
         const SkSize& trimSize,
-        const SkRect* mediaBox = NULL,
-        const SkRect* bleedBox = NULL,
-        const SkRect* artBox = NULL,
-        const SkRect* cropBox = NULL);
+        const SkRect* mediaBox = nullptr,
+        const SkRect* bleedBox = nullptr,
+        const SkRect* artBox = nullptr,
+        const SkRect* cropBox = nullptr);
 
     bool endSheet();
     bool endPortfolio();
@@ -157,7 +157,7 @@ private:
     HRESULT createXpsBrush(
         const SkPaint& skPaint,
         IXpsOMBrush** xpsBrush,
-        const SkMatrix* parentTransform = NULL);
+        const SkMatrix* parentTransform = nullptr);
 
     HRESULT createXpsSolidColorBrush(
         const SkColor skColor, const SkAlpha alpha,

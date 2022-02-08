@@ -28,7 +28,7 @@ private:
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class VkPtr {
     public:
-        VkPtr() : fPtr(NULL) {}
+        VkPtr() : fPtr(nullptr) {}
         VkPtr operator=(FNPTR_TYPE ptr) { fPtr = ptr; return *this; }
         operator FNPTR_TYPE() const { return fPtr; }
     private:

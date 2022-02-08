@@ -820,9 +820,6 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
                 case SkPaint::kRound_Cap:
                     proc = SkScan::AntiHairRoundPath;
                     break;
-                default:
-                    proc SK_INIT_TO_AVOID_WARNING;
-                    SkDEBUGFAIL("unknown paint cap type");
             }
         } else {
             switch (paint.getStrokeCap()) {
@@ -835,9 +832,6 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
                 case SkPaint::kRound_Cap:
                     proc = SkScan::HairRoundPath;
                     break;
-                default:
-                    proc SK_INIT_TO_AVOID_WARNING;
-                    SkDEBUGFAIL("unknown paint cap type");
             }
         }
     }

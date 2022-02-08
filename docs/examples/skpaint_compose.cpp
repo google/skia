@@ -7,9 +7,9 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setShader(SkShaders::Blend(
             SkBlendMode::kDifference,
-            SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f), 180.0f, colors, NULL, 2,
-                                         SkTileMode::kClamp, 0, NULL),
-            SkPerlinNoiseShader::MakeTurbulence(0.025f, 0.025f, 2, 0.0f, NULL)));
+            SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f), 180.0f, colors, nullptr, 2,
+                                         SkTileMode::kClamp, 0, nullptr),
+            SkPerlinNoiseShader::MakeTurbulence(0.025f, 0.025f, 2, 0.0f, nullptr)));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE

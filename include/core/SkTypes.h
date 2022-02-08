@@ -500,7 +500,7 @@ typedef unsigned U16CPU;
 /** @return false or true based on the condition
 */
 template <typename T> static constexpr bool SkToBool(const T& x) {
-    return 0 != x;  // NOLINT(modernize-use-nullptr)
+    return (bool)x;
 }
 
 static constexpr int16_t SK_MaxS16 = INT16_MAX;

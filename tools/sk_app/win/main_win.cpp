@@ -17,9 +17,9 @@ using sk_app::Application;
 
 static char* tchar_to_utf8(const TCHAR* str) {
 #ifdef _UNICODE
-    int size = WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), NULL, 0, NULL, NULL);
+    int size = WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), nullptr, 0, nullptr, nullptr);
     char* str8 = (char*)sk_malloc_throw(size + 1);
-    WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), str8, size, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), str8, size, nullptr, nullptr);
     str8[size] = '\0';
     return str8;
 #else
@@ -38,14 +38,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
     char* argv[4096];
     int argc = 0;
     TCHAR exename[1024], *next;
-    int exenameLen = GetModuleFileName(NULL, exename, SK_ARRAY_COUNT(exename));
+    int exenameLen = GetModuleFileName(nullptr, exename, SK_ARRAY_COUNT(exename));
     // we're ignoring the possibility that the exe name exceeds the exename buffer
     (void)exenameLen;
     argv[argc++] = tchar_to_utf8(exename);
     TCHAR* arg = _tcstok_s(lpCmdLine, _T(" "), &next);
-    while (arg != NULL) {
+    while (arg != nullptr) {
         argv[argc++] = tchar_to_utf8(arg);
-        arg = _tcstok_s(NULL, _T(" "), &next);
+        arg = _tcstok_s(nullptr, _T(" "), &next);
     }
     int result = main_common(hInstance, nCmdShow, argc, argv);
     for (int i = 0; i < argc; ++i) {
@@ -55,7 +55,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 }
 
 int main(int argc, char**argv) {
-    return main_common(GetModuleHandle(NULL), SW_SHOW, argc, argv);
+    return main_common(GetModuleHandle(nullptr), SW_SHOW, argc, argv);
 }
 
 static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {

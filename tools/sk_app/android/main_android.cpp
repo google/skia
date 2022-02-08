@@ -45,11 +45,11 @@ void android_main(struct android_app* state) {
         struct android_poll_source* source;
 
         // block forever waiting for events.
-        while ((ident=ALooper_pollAll(-1, NULL, &events,
+        while ((ident=ALooper_pollAll(-1, nullptr, &events,
                 (void**)&source)) >= 0) {
 
             // Process this event.
-            if (source != NULL) {
+            if (source != nullptr) {
                 source->process(state, source);
             }
 

@@ -34,12 +34,12 @@ int main(int argc, char** argv) {
     // over all attached monitors, so it's "better" in that sense. Making intelligent use of this
     // information (via things like MonitorFromWindow or MonitorFromRect to pick the correct
     // profile for a particular window or region of a window), is an exercise left to the reader.
-    for (int i = 0; EnumDisplayDevices(NULL, i, &dd, 0); ++i) {
+    for (int i = 0; EnumDisplayDevices(nullptr, i, &dd, 0); ++i) {
         if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP) {
             // There are other helpful things in dd at this point:
             // dd.DeviceString has a longer name for the adapter
             // dd.StateFlags indicates primary display, mirroring, etc...
-            HDC dc = CreateDC(NULL, dd.DeviceName, NULL, NULL);
+            HDC dc = CreateDC(nullptr, dd.DeviceName, nullptr, nullptr);
             if (dc) {
                 char icmPath[MAX_PATH + 1];
                 DWORD pathLength = MAX_PATH;

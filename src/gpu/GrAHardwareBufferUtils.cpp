@@ -414,7 +414,7 @@ static GrBackendTexture make_vk_backend_texture(
         usageFlags,                                  // VkImageUsageFlags
         VK_SHARING_MODE_EXCLUSIVE,                   // VkSharingMode
         0,                                           // queueFamilyCount
-        0,                                           // pQueueFamilyIndices
+        nullptr,                                     // pQueueFamilyIndices
         VK_IMAGE_LAYOUT_UNDEFINED,                   // initialLayout
     };
 

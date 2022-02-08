@@ -462,10 +462,10 @@ public:
     const void* draw(const SkGlyph&, bool isBW, size_t* srcRBPtr);
 
 private:
-    HDC     fDC{0};
-    HFONT   fSavefont{0};
-    HBITMAP fBM{0};
-    HFONT   fFont{0};
+    HDC     fDC{nullptr};
+    HFONT   fSavefont{nullptr};
+    HBITMAP fBM{nullptr};
+    HFONT   fFont{nullptr};
     XFORM   fXform{1, 0, 0, 1, 0, 0};
     void*   fBits{nullptr};  // points into fBM
     int     fWidth{0};
@@ -477,9 +477,9 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
                                size_t* srcRBPtr) {
     // Can we share the scalercontext's fDDC, so we don't need to create
     // a separate fDC here?
-    if (0 == fDC) {
+    if (nullptr == fDC) {
         fDC = CreateCompatibleDC(0);
-        if (0 == fDC) {
+        if (nullptr == fDC) {
             return nullptr;
         }
         SetGraphicsMode(fDC, GM_ADVANCED);
@@ -494,7 +494,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
 
     if (fBM && (fIsBW != isBW || fWidth < glyph.width() || fHeight < glyph.height())) {
         DeleteObject(fBM);
-        fBM = 0;
+        fBM = nullptr;
     }
     fIsBW = isBW;
 
@@ -503,7 +503,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
 
     int biWidth = isBW ? alignTo32(fWidth) : fWidth;
 
-    if (0 == fBM) {
+    if (nullptr == fBM) {
         MyBitmapInfo info;
         sk_bzero(&info, sizeof(info));
         if (isBW) {
@@ -522,7 +522,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
             info.bmiHeader.biClrUsed = 2;
         }
         fBM = CreateDIBSection(fDC, &info, DIB_RGB_COLORS, &fBits, 0, 0);
-        if (0 == fBM) {
+        if (nullptr == fBM) {
             return nullptr;
         }
         SelectObject(fDC, fBM);
@@ -539,7 +539,8 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     SetWorldTransform(fDC, &xform);
 
     uint16_t glyphID = glyph.getGlyphID();
-    BOOL ret = ExtTextOutW(fDC, 0, 0, ETO_GLYPH_INDEX, nullptr, reinterpret_cast<LPCWSTR>(&glyphID), 1, nullptr);
+    BOOL ret = ExtTextOutW(fDC, 0, 0, ETO_GLYPH_INDEX, nullptr, reinterpret_cast<LPCWSTR>(&glyphID),
+                           1, nullptr);
     GdiFlush();
     if (0 == ret) {
         return nullptr;
@@ -634,10 +635,10 @@ SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
                                          const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
         : SkScalerContext(std::move(rawTypeface), effects, desc)
-        , fDDC(0)
-        , fSavefont(0)
-        , fFont(0)
-        , fSC(0)
+        , fDDC(nullptr)
+        , fSavefont(nullptr)
+        , fFont(nullptr)
+        , fSC(nullptr)
 {
     LogFontTypeface* typeface = static_cast<LogFontTypeface*>(this->getTypeface());
 
@@ -973,7 +974,7 @@ void SkScalerContext_GDI::generateFontMetrics(SkFontMetrics* metrics) {
     metrics->fXHeight = SkIntToScalar(otm.otmsXHeight);
     GLYPHMETRICS gm;
     sk_bzero(&gm, sizeof(gm));
-    DWORD len = GetGlyphOutlineW(fDDC, 'x', GGO_METRICS, &gm, 0, 0, &gMat2Identity);
+    DWORD len = GetGlyphOutlineW(fDDC, 'x', GGO_METRICS, &gm, 0, nullptr, &gMat2Identity);
     if (len != GDI_ERROR && gm.gmBlackBoxY > 0) {
         metrics->fXHeight = SkIntToScalar(gm.gmBlackBoxY);
     }
@@ -1784,7 +1785,7 @@ static HANDLE activate_font(SkData* fontData) {
     //AddFontMemResourceEx just copies the data, but does not specify const.
     HANDLE fontHandle = AddFontMemResourceEx(const_cast<void*>(fontData->data()),
                                              static_cast<DWORD>(fontData->size()),
-                                             0,
+                                             nullptr,
                                              &numFonts);
 
     if (fontHandle != nullptr && numFonts < 1) {
@@ -1961,7 +1962,7 @@ void LogFontTypeface::onCharsToGlyphs(const SkUnichar* uni, int glyphCount,
     }
     bool Ox1FHack = !(tm.tmPitchAndFamily & TMPF_VECTOR) /*&& winVer < Vista */;
 
-    SCRIPT_CACHE sc = 0;
+    SCRIPT_CACHE sc = nullptr;
     static const int scratchCount = 256;
     WCHAR scratch[scratchCount];
     int glyphIndex = 0;

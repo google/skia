@@ -101,7 +101,7 @@ void draw(SkCanvas* canvas) {
     // line
     const SkPoint pts[2] = {{160, 290}, {341, 290}};
     p.setShader(SkGradientShader::MakeLinear(
-            pts, lineColors, NULL, 2, SkTileMode::kClamp));
+            pts, lineColors, nullptr, 2, SkTileMode::kClamp));
     if (true) {
         SkRRect rrectClip;
         rrectClip.setRectXY({138, 291, 138 + pos*(341-138), 300}, 25.0, 5.0);

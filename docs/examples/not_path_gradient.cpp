@@ -20,8 +20,8 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(10);
     SkColor colors[2] = {SkColorSetRGB(0xEA, 0xD2, 0xAC), SkColorSetRGB(0x42, 0x81, 0xA4)};
-    paint.setShader(
-            SkGradientShader::MakeLinear(points, colors, NULL, 2, SkTileMode::kClamp, 0, NULL));
+    paint.setShader(SkGradientShader::MakeLinear(
+            points, colors, nullptr, 2, SkTileMode::kClamp, 0, nullptr));
     paint.setAntiAlias(true);
     canvas->clear(SK_ColorWHITE);
     SkPath path(star());
