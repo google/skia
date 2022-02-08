@@ -922,7 +922,7 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     // not provide a seekable stream. Copy the stream to one that can seek.
     if (!stream->hasPosition() || !stream->hasLength()) {
         auto data = SkCopyStreamToData(stream.get());
-        stream.reset(new SkMemoryStream(std::move(data)));
+        stream = std::make_unique<SkMemoryStream>(std::move(data));
     }
 
     uint8_t               buffer[SK_WUFFS_CODEC_BUFFER_SIZE];
