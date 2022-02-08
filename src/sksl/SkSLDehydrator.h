@@ -88,21 +88,20 @@ private:
         fBody.write32(i);
     }
 
-    void writeId(const Symbol* s) {
-        if (!symbolId(s, false)) {
-            fSymbolMap.back()[s] = fNextId++;
-        }
-        this->writeU16(symbolId(s));
+    void allocSymbolId(const Symbol* s) {
+        SkASSERT(!symbolId(s));
+        fSymbolMap.back()[s] = fNextId++;
     }
 
-    uint16_t symbolId(const Symbol* s, bool required = true) {
+    void writeId(const Symbol* s);
+
+    uint16_t symbolId(const Symbol* s) {
         for (const auto& symbols : fSymbolMap) {
             auto found = symbols.find(s);
             if (found != symbols.end()) {
                 return found->second;
             }
         }
-        SkASSERT(!required);
         return 0;
     }
 

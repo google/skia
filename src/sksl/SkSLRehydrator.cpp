@@ -82,9 +82,10 @@ private:
     std::shared_ptr<SymbolTable> fOldSymbols;
 };
 
-Rehydrator::Rehydrator(const Compiler& compiler, const uint8_t* src, size_t length,
+Rehydrator::Rehydrator(Compiler& compiler, const uint8_t* src, size_t length,
         std::shared_ptr<SymbolTable> symbols)
-    : fContext(compiler.fContext)
+    : fCompiler(compiler)
+    , fContext(compiler.fContext)
     , fSymbolTable(symbols ? std::move(symbols) : compiler.makeGLSLRootSymbolTable())
     SkDEBUGCODE(, fEnd(src + length)) {
     SkASSERT(fSymbolTable);
@@ -266,30 +267,26 @@ const Type* Rehydrator::type() {
     return (const Type*) result;
 }
 
-std::unique_ptr<Program> Rehydrator::program(
-        const std::vector<const ProgramElement*>* sharedElements) {
+std::unique_ptr<Program> Rehydrator::program() {
     [[maybe_unused]] uint8_t command = this->readU8();
     SkASSERT(command == kProgram_Command);
-    uint8_t symbolTableCount = this->readU8();
     ProgramConfig* oldConfig = fContext->fConfig;
     ModifiersPool* oldModifiersPool = fContext->fModifiersPool;
     auto config = std::make_unique<ProgramConfig>();
+    config->fKind = (ProgramKind)this->readU8();
     fContext->fConfig = config.get();
+    fSymbolTable = fCompiler.moduleForProgramKind(config->fKind).fSymbols;
     auto modifiers = std::make_unique<ModifiersPool>();
     fContext->fModifiersPool = modifiers.get();
-    for (int i = 0; i < symbolTableCount; ++i) {
-        this->symbolTable();
-    }
+    this->symbolTable();
     std::vector<std::unique_ptr<ProgramElement>> elements = this->elements();
     fContext->fConfig = oldConfig;
     fContext->fModifiersPool = oldModifiersPool;
-    if (!sharedElements) {
-        sharedElements = &ThreadContext::SharedElements();
-    }
     Program::Inputs inputs;
     inputs.fUseFlipRTUniform = this->readU8();
     return std::make_unique<Program>(nullptr, std::move(config), fContext, std::move(elements),
-            *sharedElements, std::move(modifiers), fSymbolTable, /*pool=*/nullptr, inputs);
+            /*sharedElements=*/std::vector<const ProgramElement*>(), std::move(modifiers),
+            fSymbolTable, /*pool=*/nullptr, inputs);
 }
 
 std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {
@@ -338,6 +335,18 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             const Symbol* type = this->symbol();
             SkASSERT(type && type->is<Type>());
             return std::make_unique<StructDefinition>(/*line=*/-1, type->as<Type>());
+        }
+        case Rehydrator::kSharedFunction_Command: {
+            int count = this->readU8();
+            for (int i = 0; i < count; ++i) {
+                [[maybe_unused]] const Symbol* param = this->symbol();
+                SkASSERT(param->is<Variable>());
+            }
+            [[maybe_unused]] const Symbol* decl = this->symbol();
+            SkASSERT(decl->is<FunctionDeclaration>());
+            std::unique_ptr<ProgramElement> result = this->element();
+            SkASSERT(result->is<FunctionDefinition>());
+            return result;
         }
         case Rehydrator::kElementsComplete_Command:
             return nullptr;
@@ -529,9 +538,19 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         }
         case Rehydrator::kFunctionCall_Command: {
             const Type* type = this->type();
-            const FunctionDeclaration* f = this->symbolRef<FunctionDeclaration>(
-                                                                Symbol::Kind::kFunctionDeclaration);
+            const Symbol* symbol = this->possiblyBuiltinSymbolRef();
             ExpressionArray args = this->expressionArray();
+            const FunctionDeclaration* f;
+            if (symbol->is<FunctionDeclaration>()) {
+                f = &symbol->as<FunctionDeclaration>();
+            } else if (symbol->is<UnresolvedFunction>()) {
+                const UnresolvedFunction& unresolved = symbol->as<UnresolvedFunction>();
+                f = FunctionCall::FindBestFunctionForCall(*fContext, unresolved.functions(), args);
+                SkASSERT(f);
+            } else {
+                SkASSERT(false);
+                return nullptr;
+            }
             return FunctionCall::Make(*fContext, /*line=*/-1, type, *f, std::move(args));
         }
         case Rehydrator::kIndex_Command: {
@@ -607,7 +626,7 @@ std::shared_ptr<SymbolTable> Rehydrator::symbolTable() {
     symbols.reserve(symbolCount);
     for (int i = 0; i < symbolCount; ++i) {
         int index = this->readU16();
-        if (index != kBuiltinType_Symbol) {
+        if (index != kBuiltin_Symbol) {
             fSymbolTable->addWithoutOwnership(ownedSymbols[index]);
         } else {
             std::string_view name = this->readString();

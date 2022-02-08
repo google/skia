@@ -46,6 +46,11 @@ public:
                                             const FunctionDeclaration& function,
                                             ExpressionArray arguments);
 
+    static const FunctionDeclaration* FindBestFunctionForCall(
+            const Context& context,
+            const std::vector<const FunctionDeclaration*>& functions,
+            const ExpressionArray& arguments);
+
     const FunctionDeclaration& function() const {
         return fFunction;
     }
@@ -68,11 +73,6 @@ private:
     static CoercionCost CallCost(const Context& context,
                                  const FunctionDeclaration& function,
                                  const ExpressionArray& arguments);
-
-    static const FunctionDeclaration* FindBestFunctionForCall(
-            const Context& context,
-            const std::vector<const FunctionDeclaration*>& functions,
-            const ExpressionArray& arguments);
 
     const FunctionDeclaration& fFunction;
     ExpressionArray fArguments;

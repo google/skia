@@ -34,7 +34,7 @@ class Type;
  */
 class Rehydrator {
 public:
-    static constexpr uint16_t kVersion = 6;
+    static constexpr uint16_t kVersion = 7;
 
     enum Command {
         // uint16 id, Type componentType, uint8 count
@@ -117,6 +117,9 @@ public:
         kReturn_Command,
         // String name, Expression value
         kSetting_Command,
+        // uint8_t parameterCount, Variable[] parameters, FunctionDeclaration decl,
+        // FunctionDefinition defn
+        kSharedFunction_Command,
         // uint16 id, Type structType
         kStructDefinition_Command,
         // uint16 id, String name, uint8 fieldCount, (Modifiers, String, Type)[] fields
@@ -149,7 +152,7 @@ public:
     };
 
     // src must remain in memory as long as the objects created from it do
-    Rehydrator(const Compiler& compiler, const uint8_t* src, size_t length,
+    Rehydrator(Compiler& compiler, const uint8_t* src, size_t length,
             std::shared_ptr<SymbolTable> base = nullptr);
 
 #ifdef SK_DEBUG
@@ -162,15 +165,13 @@ public:
     // Reads a collection of program elements and returns it
     std::vector<std::unique_ptr<ProgramElement>> elements();
 
-    // Reads an entire program. If the sharedElements are not provided, they will be pulled from the
-    // current ThreadContext.
-    std::unique_ptr<Program> program(
-            const std::vector<const ProgramElement*>* sharedElements = nullptr);
+    // Reads an entire program.
+    std::unique_ptr<Program> program();
 
 private:
-    // If this ID appears in a symbol table, it means the corresponding symbol isn't actually
-    // present in the file as it's a builtin type.
-    static constexpr uint16_t kBuiltinType_Symbol = 65535;
+    // If this ID appears in place of a symbol ID, it means the corresponding symbol isn't actually
+    // present in the file as it's a builtin. The string name of the symbol follows.
+    static constexpr uint16_t kBuiltin_Symbol = 65535;
 
     int8_t readS8() {
         SkASSERT(fIP < fEnd);
@@ -224,6 +225,24 @@ private:
         return (T*) fSymbols[result];
     }
 
+    /**
+     * Reads either a symbol belonging to this program, or a named reference to a builtin symbol.
+     * This has to be a separate method from symbolRef() because builtin symbols can be const, and
+     * thus this method must have a const return, but there is at least one case in which we
+     * specifically require a non-const return value.
+     */
+    const Symbol* possiblyBuiltinSymbolRef() {
+        uint16_t id = this->readU16();
+        if (id == kBuiltin_Symbol) {
+            std::string_view name = this->readString();
+            const Symbol* result = (*fSymbolTable)[name];
+            SkASSERTF(result, "symbol '%s' not found", std::string(name).c_str());
+            return result;
+        }
+        SkASSERT(fSymbols.size() > id);
+        return fSymbols[id];
+    }
+
     Layout layout();
 
     Modifiers modifiers();
@@ -244,6 +263,7 @@ private:
 
     ModifiersPool& modifiersPool() const { return *fContext->fModifiersPool; }
 
+    Compiler& fCompiler;
     std::shared_ptr<Context> fContext;
     std::shared_ptr<SymbolTable> fSymbolTable;
     std::vector<const Symbol*> fSymbols;

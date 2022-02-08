@@ -79,6 +79,16 @@ private:
     Dehydrator* fDehydrator;
 };
 
+void Dehydrator::writeId(const Symbol* s) {
+    uint16_t id = this->symbolId(s);
+    if (id) {
+        this->writeU16(id);
+    } else {
+        this->writeU16(Rehydrator::kBuiltin_Symbol);
+        this->write(s->name());
+    }
+}
+
 void Dehydrator::write(Layout l) {
     if (l == Layout()) {
         this->writeCommand(Rehydrator::kDefaultLayout_Command);
@@ -135,12 +145,13 @@ void Dehydrator::write(std::string s) {
 }
 
 void Dehydrator::write(const Symbol& s) {
-    uint16_t id = this->symbolId(&s, false);
+    uint16_t id = this->symbolId(&s);
     if (id) {
         this->writeCommand(Rehydrator::kSymbolRef_Command);
         this->writeU16(id);
         return;
     }
+    this->allocSymbolId(&s);
     switch (s.kind()) {
         case Symbol::Kind::kFunctionDeclaration: {
             const FunctionDeclaration& f = s.as<FunctionDeclaration>();
@@ -246,7 +257,7 @@ void Dehydrator::write(const SymbolTable& symbols) {
         if (!found) {
             // we should only fail to find builtin types
             SkASSERT(p.second->is<Type>() && p.second->as<Type>().isInBuiltinTypes());
-            this->writeU16(Rehydrator::kBuiltinType_Symbol);
+            this->writeU16(Rehydrator::kBuiltin_Symbol);
             this->write(p.second->name());
         }
     }
@@ -605,23 +616,26 @@ void Dehydrator::write(const std::vector<std::unique_ptr<ProgramElement>>& eleme
 
 void Dehydrator::write(const Program& program) {
     this->writeCommand(Rehydrator::kProgram_Command);
-
-    // Collect the symbol tables so we can write out the count
-    std::vector<SymbolTable*> symbolTables;
-    SymbolTable* symbols = program.fSymbols.get();
-    while (symbols) {
-        symbolTables.push_back(symbols);
-        symbols = symbols->fParent.get();
-    }
-    this->writeU8(symbolTables.size());
-
-    // Write the symbol tables from the root down
-    for (int i = symbolTables.size() - 1; i >= 0; --i) {
-        this->write(*symbolTables[i]);
-    }
+    this->writeU8((int)program.fConfig->fKind);
+    this->write(*program.fSymbols);
 
     // Write the elements
-    this->write(program.fOwnedElements);
+    this->writeCommand(Rehydrator::kElements_Command);
+    for (const auto& e : program.fSharedElements) {
+        this->writeCommand(Rehydrator::kSharedFunction_Command);
+        const FunctionDefinition& f = e->as<FunctionDefinition>();
+        const FunctionDeclaration& decl = f.declaration();
+        this->writeU8(decl.parameters().size());
+        for (const Variable* param : decl.parameters()) {
+            this->write(*param);
+        }
+        this->write(f.declaration());
+        this->write(*e);
+    }
+    for (const auto& e : program.fOwnedElements) {
+        this->write(*e);
+    }
+    this->writeCommand(Rehydrator::kElementsComplete_Command);
 
     // Write the inputs
     struct KnownSkSLProgramInputs { bool useRTFlipUniform; };
