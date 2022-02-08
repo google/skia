@@ -109,6 +109,7 @@ float SkPixmap::getAlphaf(int x, int y) const {
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
         case kBGR_101010x_SkColorType:
+        case kR8_unorm_SkColorType:
             return 1;
         case kAlpha_8_SkColorType:
             value = static_cast<const uint8_t*>(srcPtr)[0] * (1.0f/255);
@@ -275,6 +276,10 @@ SkColor SkPixmap::getColor(int x, int y) const {
         case kGray_8_SkColorType: {
             uint8_t value = *this->addr8(x, y);
             return SkColorSetRGB(value, value, value);
+        }
+        case kR8_unorm_SkColorType: {
+            uint8_t value = *this->addr8(x, y);
+            return SkColorSetRGB(value, 0, 0);
         }
         case kAlpha_8_SkColorType: {
             return SkColorSetA(0, *this->addr8(x, y));
@@ -490,6 +495,7 @@ bool SkPixmap::computeIsOpaque() const {
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
         case kBGR_101010x_SkColorType:
+        case kR8_unorm_SkColorType:
             return true;
             break;
         case kARGB_4444_SkColorType: {

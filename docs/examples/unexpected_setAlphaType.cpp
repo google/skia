@@ -36,6 +36,7 @@ static const char* colortype_name(SkColorType ct) {
         case kR16G16_unorm_SkColorType:       return "R16G16_unorm";
         case kR16G16_float_SkColorType:       return "R16G16_float";
         case kR16G16B16A16_unorm_SkColorType: return "R16G16B16A16_unorm";
+        case kR8_unorm_SkColorType:           return "R8_unorm";
     }
     SkASSERT(false);
     return "unexpected colortype";

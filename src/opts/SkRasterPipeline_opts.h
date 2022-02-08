@@ -1957,6 +1957,12 @@ STAGE(store_a8, const SkRasterPipeline_MemoryCtx* ctx) {
     U8 packed = pack(pack(to_unorm(a, 255)));
     store(ptr, packed, tail);
 }
+STAGE(store_r8, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint8_t>(ctx, dx,dy);
+
+    U8 packed = pack(pack(to_unorm(r, 255)));
+    store(ptr, packed, tail);
+}
 
 STAGE(load_565, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint16_t>(ctx, dx,dy);
@@ -2356,6 +2362,15 @@ STAGE(alpha_to_gray_dst, Ctx::None) {
     dr = dg = db = da;
     da = 1;
 }
+STAGE(alpha_to_red, Ctx::None) {
+    r = a;
+    a = 1;
+}
+STAGE(alpha_to_red_dst, Ctx::None) {
+    dr = da;
+    da = 1;
+}
+
 STAGE(bt709_luminance_or_luma_to_alpha, Ctx::None) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
     r = g = b = 0;
@@ -3833,6 +3848,9 @@ STAGE_GP(gather_a8, const SkRasterPipeline_GatherCtx* ctx) {
     r = g = b = 0;
     a = cast<U16>(gather<U8>(ptr, ix));
 }
+STAGE_PP(store_r8, const SkRasterPipeline_MemoryCtx* ctx) {
+    store_8(ptr_at_xy<uint8_t>(ctx, dx,dy), tail, r);
+}
 
 STAGE_PP(alpha_to_gray, Ctx::None) {
     r = g = b = a;
@@ -3842,6 +3860,15 @@ STAGE_PP(alpha_to_gray_dst, Ctx::None) {
     dr = dg = db = da;
     da = 255;
 }
+STAGE_PP(alpha_to_red, Ctx::None) {
+    r = a;
+    a = 255;
+}
+STAGE_PP(alpha_to_red_dst, Ctx::None) {
+    dr = da;
+    da = 255;
+}
+
 STAGE_PP(bt709_luminance_or_luma_to_alpha, Ctx::None) {
     a = (r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
     r = g = b = 0;

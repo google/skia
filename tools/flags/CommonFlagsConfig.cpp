@@ -62,6 +62,7 @@ static const struct {
     { "glf16",                 "gpu", "api=gl,color=f16" },
     { "glf16norm",             "gpu", "api=gl,color=f16norm" },
     { "glsrgba",               "gpu", "api=gl,color=srgba" },
+    { "glr8",                  "gpu", "api=gl,color=r8" },
     { "glesf16",               "gpu", "api=gles,color=f16" },
     { "glessrgba",             "gpu", "api=gles,color=srgba" },
     { "glnostencils",          "gpu", "api=gl,stencils=false" },
@@ -380,6 +381,9 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorType  = kRGBA_F16Norm_SkColorType;
     } else if (value.equals("srgba")) {
         *outColorType = kSRGBA_8888_SkColorType;
+    } else if (value.equals("r8")) {
+        *outColorType = kR8_unorm_SkColorType;
+        *alphaType = kOpaque_SkAlphaType;
     } else {
         return false;
     }
