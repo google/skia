@@ -14,6 +14,7 @@
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/DrawOrder.h"
 #include "experimental/graphite/src/DrawTypes.h"
+#include "experimental/graphite/src/UploadTask.h"
 
 #include <vector>
 
@@ -92,6 +93,15 @@ public:
     // Returns null if there are no pending commands or draw passes to move into a task.
     sk_sp<Task> snapRenderPassTask(Recorder*, const BoundsManager* occlusionCuller);
 
+    // Ends the current UploadList if needed, and moves the accumulated Uploads into an UploadTask
+    // that can be drawn and depended on. The caller is responsible for configuring the returned
+    // Tasks's dependencies.
+    //
+    // Returns null if there are no pending uploads to move into a task.
+    //
+    // TODO: see if we can merge transfers into this
+    sk_sp<Task> snapUploadTask(Recorder*);
+
 private:
     DrawContext(sk_sp<TextureProxy>, const SkImageInfo&);
 
@@ -106,7 +116,7 @@ private:
     StoreOp fPendingStoreOp = StoreOp::kStore;
     std::array<float, 4> fPendingClearColor = { 0, 0, 0, 0 };
 
-    // Stores previously snapped DrawPasses of this SDC, or inlined child SDCs whose content
+    // Stores previously snapped DrawPasses of this DC, or inlined child DCs whose content
     // couldn't have been copied directly to fPendingDraws. While each DrawPass is immutable, the
     // list of DrawPasses is not final until there is an external dependency on the SDC's content
     // that requires it to be resolved as its own render pass (vs. inlining the SDC's passes into a
@@ -115,6 +125,10 @@ private:
     // consecutive DrawPasses to the same target are stored in a DrawPassChain. A DrawContext with
     // multiple DrawPassChains is then clearly accumulating subpasses across multiple targets.
     std::vector<std::unique_ptr<DrawPass>> fDrawPasses;
+
+    // Stores the most immediately recorded uploads into Textures. This list is mutable and
+    // can be appended to, or have its commands rewritten if they are inlined into a parent DC.
+    std::unique_ptr<UploadList> fPendingUploads;
 };
 
 } // namespace skgpu
