@@ -21,29 +21,3 @@ void h2() { float x[int2(2, 2)]; }
 void i2() { float x[]; }
 void j2() { float x[int3(4000000000)]; }
 void k2() { float x[int(1e20)]; }
-
-/*%%*
-array size must be positive
-array size must be positive
-array size must be positive
-expected 'int', but found 'float'
-integer is out of range for type 'int': 4000000000
-array size must be positive
-expected 'int', but found 'bool'
-expected 'int', but found 'bool'
-expected 'int', but found 'int2'
-missing index in '[]'
-integer is out of range for type 'int': 4000000000
-integer is out of range for type 'int': -9223372036854775808
-array size must be positive
-array size must be positive
-array size must be positive
-array size must be an integer
-array size out of bounds
-array size must be an integer
-array size must be an integer
-array size must be an integer
-expected array dimension
-integer is out of range for type 'int': 4000000000
-integer is out of range for type 'int': -9223372036854775808
-*%%*/

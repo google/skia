@@ -1,10 +1,6 @@
+// Expect 3 errors
+
 float noElements[2]            = float[2]();
 float notEnoughElements[2]     = float[2](1);
 float rightNumberOfElements[2] = float[2](1, 2);
 float tooManyElements[2]       = float[2](1, 2, 3);
-
-/*%%*
-invalid arguments to 'float[2]' constructor (expected 2 elements, but found 0)
-invalid arguments to 'float[2]' constructor (expected 2 elements, but found 1)
-invalid arguments to 'float[2]' constructor (expected 2 elements, but found 3)
-*%%*/

@@ -5,7 +5,3 @@ float foo(float x) {
 void main() {
     float x = foo(1, 2);
 }
-
-/*%%*
-call to 'foo' expected 1 argument, but found 2
-*%%*/

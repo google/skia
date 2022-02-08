@@ -1,6 +1,2 @@
 void test(int x);
 void test(out int x) {}
-
-/*%%*
-modifiers on parameter 1 differ between declaration and definition
-*%%*/
