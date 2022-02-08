@@ -65,7 +65,7 @@ declare_args() {
   skia_use_piex = !is_win
   skia_use_sfml = false
   skia_use_webgl = false
-  skia_use_wuffs = true
+  skia_use_wuffs = false
   skia_use_x11 = is_linux
   skia_use_xps = true
   skia_enable_graphite = false
