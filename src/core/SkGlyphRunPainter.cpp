@@ -147,21 +147,23 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 }
             }
 
-            fAccepted.startSource(fRejected.source());
-            strike->prepareForDrawableDrawing(&fAccepted, &fRejected);
-            fRejected.flipRejectsToSource();
+            if (!fRejected.source().empty()) {
+                fAccepted.startSource(fRejected.source());
+                strike->prepareForDrawableDrawing(&fAccepted, &fRejected);
+                fRejected.flipRejectsToSource();
 
-            for (auto [variant, pos] : fAccepted.accepted()) {
-                SkDrawable* drawable = variant.drawable();
-                SkMatrix m;
-                SkPoint translate = drawOrigin + pos;
-                m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,
-                                    translate.x(), translate.y());
-                SkAutoCanvasRestore acr(canvas, false);
-                SkRect drawableBounds = drawable->getBounds();
-                m.mapRect(&drawableBounds);
-                canvas->saveLayer(&drawableBounds, &paint);
-                drawable->draw(canvas, &m);
+                for (auto [variant, pos] : fAccepted.accepted()) {
+                    SkDrawable* drawable = variant.drawable();
+                    SkMatrix m;
+                    SkPoint translate = drawOrigin + pos;
+                    m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,
+                                        translate.x(), translate.y());
+                    SkAutoCanvasRestore acr(canvas, false);
+                    SkRect drawableBounds = drawable->getBounds();
+                    m.mapRect(&drawableBounds);
+                    canvas->saveLayer(&drawableBounds, &paint);
+                    drawable->draw(canvas, &m);
+                }
             }
         }
         if (!fRejected.source().empty() && !deviceMatrix.hasPerspective()) {
