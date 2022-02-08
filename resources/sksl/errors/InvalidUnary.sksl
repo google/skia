@@ -7,3 +7,13 @@ void postdecrement_vector() { float3 x = float3(1); x--; }
 void not_integer()          { int x = !12; }
 void positive_struct()      { Foo x = +bar; }
 void negative_struct()      { Foo x = -bar; }
+
+/*%%*
+'++' cannot operate on 'float4x4'
+'--' cannot operate on 'float3'
+'++' cannot operate on 'float4x4'
+'--' cannot operate on 'float3'
+'!' cannot operate on 'int'
+'+' cannot operate on 'Foo'
+'-' cannot operate on 'Foo'
+*%%*/

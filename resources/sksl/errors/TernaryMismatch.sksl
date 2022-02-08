@@ -1,2 +1,7 @@
 void bool_or_float()   { float x = 5 > 2 ? true : 1.0; }
 void float3_or_float() { float x = 5 > 2 ? float3(1) : 1.0; }
+
+/*%%*
+ternary operator result mismatch: 'bool', 'float'
+ternary operator result mismatch: 'float3', 'float'
+*%%*/

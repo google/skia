@@ -13,3 +13,16 @@ void shl() { x = x << 1; }
 void and() { x = x & 1; }
 void or()  { x = x | 1; }
 void xor() { x = x ^ 1; }
+
+/*%%*
+type mismatch: '>>=' cannot operate on 'float2', 'int'
+type mismatch: '<<=' cannot operate on 'float2', 'int'
+type mismatch: '&=' cannot operate on 'float2', 'int'
+type mismatch: '|=' cannot operate on 'float2', 'int'
+type mismatch: '^=' cannot operate on 'float2', 'int'
+type mismatch: '>>' cannot operate on 'float2', 'int'
+type mismatch: '<<' cannot operate on 'float2', 'int'
+type mismatch: '&' cannot operate on 'float2', 'int'
+type mismatch: '|' cannot operate on 'float2', 'int'
+type mismatch: '^' cannot operate on 'float2', 'int'
+*%%*/

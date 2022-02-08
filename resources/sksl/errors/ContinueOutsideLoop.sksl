@@ -1,2 +1,7 @@
 void outside_for()   { for (;;) {} continue; }
 void inside_switch() { switch (1) { default: continue; } }
+
+/*%%*
+continue statement must be inside a loop
+continue statement must be inside a loop
+*%%*/

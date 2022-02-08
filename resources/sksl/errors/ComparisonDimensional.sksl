@@ -19,3 +19,21 @@ bool different_vectors() {
     float3 v3;
     return v2 == v3 || v2 != v3;
 }
+/*%%*
+type mismatch: '==' cannot operate on 'float2', 'float'
+type mismatch: '==' cannot operate on 'float2', 'float2x2'
+type mismatch: '==' cannot operate on 'float2x2', 'float'
+type mismatch: '==' cannot operate on 'float', 'float2'
+type mismatch: '==' cannot operate on 'float2x2', 'float2'
+type mismatch: '==' cannot operate on 'float', 'float2x2'
+type mismatch: '!=' cannot operate on 'float2', 'float'
+type mismatch: '!=' cannot operate on 'float2', 'float2x2'
+type mismatch: '!=' cannot operate on 'float2x2', 'float'
+type mismatch: '!=' cannot operate on 'float', 'float2'
+type mismatch: '!=' cannot operate on 'float2x2', 'float2'
+type mismatch: '!=' cannot operate on 'float', 'float2x2'
+type mismatch: '==' cannot operate on 'float2x2', 'float3x3'
+type mismatch: '!=' cannot operate on 'float2x2', 'float3x3'
+type mismatch: '==' cannot operate on 'float2', 'float3'
+type mismatch: '!=' cannot operate on 'float2', 'float3'
+*%%*/

@@ -1,1 +1,5 @@
 int typedef;
+
+/*%%*
+'typedef' is a reserved word
+*%%*/

@@ -1,1 +1,5 @@
 int double;
+
+/*%%*
+'double' is a reserved word
+*%%*/

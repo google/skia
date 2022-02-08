@@ -1,3 +1,8 @@
 void sin_int_int() { float x = sin(1, 2); }
 void sin_bool()    { float x = sin(true); }
 
+
+/*%%*
+no match for sin(int, int)
+no match for sin(bool)
+*%%*/

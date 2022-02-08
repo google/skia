@@ -1,1 +1,5 @@
 int invariant;
+
+/*%%*
+'invariant' is a reserved word
+*%%*/

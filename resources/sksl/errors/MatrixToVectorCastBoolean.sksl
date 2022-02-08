@@ -5,3 +5,9 @@ bool    testScalar    = bool (testMatrix2x2);
 bool2   testVec2      = bool2(testMatrix2x2);
 bool3   testVec3      = bool3(testMatrix2x2);
 bool4   testVec4      = bool4(testMatrix2x2);  // not an error
+
+/*%%*
+'half2x2' is not a valid parameter to 'bool' constructor
+'half2x2' is not a valid parameter to 'bool2' constructor
+'half2x2' is not a valid parameter to 'bool3' constructor
+*%%*/

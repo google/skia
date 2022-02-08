@@ -1,1 +1,5 @@
 float[2][2] x;
+
+/*%%*
+multi-dimensional arrays are not supported
+*%%*/

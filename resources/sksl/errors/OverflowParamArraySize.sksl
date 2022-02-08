@@ -1,1 +1,6 @@
 void fn(int arr[4294967296]);
+
+/*%%*
+integer is too large: 4294967296
+array size must be positive
+*%%*/

@@ -1,1 +1,5 @@
 uniform float x = 1;
+
+/*%%*
+'uniform' variables cannot use initializer expressions
+*%%*/

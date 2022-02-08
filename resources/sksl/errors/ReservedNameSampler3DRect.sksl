@@ -1,1 +1,5 @@
 int sampler3DRect;
+
+/*%%*
+'sampler3DRect' is a reserved word
+*%%*/

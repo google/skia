@@ -5,3 +5,7 @@ struct S {
 float4 main() {
     return s.float.xxxx;
 }
+
+/*%%*
+expected an identifier, but found type 'float'
+*%%*/

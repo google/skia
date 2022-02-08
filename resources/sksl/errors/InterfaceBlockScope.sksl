@@ -1,3 +1,7 @@
 uniform testBlock {
     float x;
 } test[x];
+
+/*%%*
+unknown identifier 'x'
+*%%*/

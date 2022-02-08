@@ -1,2 +1,6 @@
 struct S { int x; };
 float S;
+
+/*%%*
+symbol 'S' was already defined
+*%%*/

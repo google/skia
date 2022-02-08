@@ -5,3 +5,8 @@ float y;
 
 void rem()    { x = x % y; }
 void rem_eq() { x %= y; }
+
+/*%%*
+type mismatch: '%' cannot operate on 'float', 'float'
+type mismatch: '%=' cannot operate on 'float', 'float'
+*%%*/

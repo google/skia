@@ -1,1 +1,5 @@
 void main() { float x = 1.0; x = x.0; }
+
+/*%%*
+swizzle must refer to base expression
+*%%*/

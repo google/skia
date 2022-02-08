@@ -3,3 +3,10 @@ in int arrFloat[1.];
 in int arrBool[true];
 
 int unsized_in_expression() { return int[](0)[0]; }
+
+/*%%*
+expected array dimension
+array size must be an integer
+array size must be an integer
+missing index in '[]'
+*%%*/

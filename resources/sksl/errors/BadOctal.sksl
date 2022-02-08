@@ -1,2 +1,7 @@
 int i1 = 08;
 int i2 = 012349;
+
+/*%%*
+'08' is not a valid octal number
+expected expression, but found '08'
+*%%*/

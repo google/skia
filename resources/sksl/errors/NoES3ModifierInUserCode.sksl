@@ -1,2 +1,6 @@
 $es3 void fn() {}
 
+
+/*%%*
+'$es3' is not permitted here
+*%%*/

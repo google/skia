@@ -5,3 +5,14 @@ void d() { float w = x, y = z; }
 
 float e = f, g = h;
 float i = j, k;
+
+/*%%*
+unknown identifier 'x'
+unknown identifier 'x'
+unknown identifier 'x'
+unknown identifier 'x'
+unknown identifier 'z'
+unknown identifier 'f'
+unknown identifier 'h'
+unknown identifier 'j'
+*%%*/

@@ -1,1 +1,5 @@
 int packed;
+
+/*%%*
+'packed' is a reserved word
+*%%*/

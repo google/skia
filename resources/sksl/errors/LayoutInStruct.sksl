@@ -8,3 +8,7 @@ A a;
 void main(){
     a.x++;
 }
+/*%%*
+layout qualifier 'binding' is not permitted on a struct field
+layout qualifier 'set' is not permitted on a struct field
+*%%*/

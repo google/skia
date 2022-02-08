@@ -1,1 +1,6 @@
 int v=6/int2(bool2(0));
+
+/*%%*
+division by zero
+expected 'int', but found 'int2'
+*%%*/

@@ -5,3 +5,7 @@ void main() {
         sk_FragColor = half4(1);
     }
 }
+
+/*%%*
+static if has non-static test
+*%%*/

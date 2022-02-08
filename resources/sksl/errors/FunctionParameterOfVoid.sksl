@@ -1,1 +1,5 @@
 void func(void x) {}
+
+/*%%*
+expected ')', but found 'x'
+*%%*/

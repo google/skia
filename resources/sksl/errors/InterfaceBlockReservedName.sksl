@@ -5,3 +5,7 @@ IB {
 float4 main() {
     return float.f.xxxx;
 }
+
+/*%%*
+expected ';', but found 'float'
+*%%*/

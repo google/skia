@@ -8,3 +8,8 @@ void main() {
     while (true) @switch (0) { default: continue; }
     for (;;) @switch (5) { case 5: continue; }
 }
+
+/*%%*
+continue statement cannot be used in a switch
+continue statement cannot be used in a switch
+*%%*/

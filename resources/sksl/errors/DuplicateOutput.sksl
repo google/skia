@@ -1,1 +1,5 @@
 layout (location=0, index=0) out half4 duplicateOutput;
+
+/*%%*
+out location=0, index=0 is reserved for sk_FragColor
+*%%*/

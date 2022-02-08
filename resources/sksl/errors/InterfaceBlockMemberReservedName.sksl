@@ -5,3 +5,7 @@ IB {
 float4 main() {
     return ib.float.xxxx;
 }
+
+/*%%*
+expected an identifier, but found type 'float'
+*%%*/

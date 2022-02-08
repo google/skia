@@ -19,3 +19,15 @@ void switch_case_uniform_float()   { switch (1) { case uf: break; } }
 void switch_case_uniform_int()     { switch (1) { case ui: break; } }
 void switch_case_const_float_var() { switch (1) { case cf: break; } }
 void switch_case_int_var()         { switch (1) { case i: break; } }
+
+/*%%*
+expected 'int', but found 'float2'
+expected 'int', but found 'float2'
+expected 'int', but found 'float'
+expected 'int', but found 'float'
+expected 'int', but found 'float'
+expected 'int', but found 'float'
+case value must be a constant integer
+expected 'int', but found 'float'
+case value must be a constant integer
+*%%*/

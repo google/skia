@@ -1,1 +1,6 @@
 void main() { int i=9E7; 2+int4(i); }
+
+/*%%*
+expected 'int', but found 'float'
+unknown identifier 'i'
+*%%*/

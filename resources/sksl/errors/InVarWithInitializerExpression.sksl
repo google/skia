@@ -1,1 +1,5 @@
 in float x = 1;
+
+/*%%*
+'in' variables cannot use initializer expressions
+*%%*/

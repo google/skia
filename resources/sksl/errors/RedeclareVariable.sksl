@@ -13,3 +13,14 @@ void main() {
     float y[4];
     S y;
 }
+
+/*%%*
+symbol 'x' was already defined
+symbol 'x' was already defined
+symbol 'x' was already defined
+symbol 'x' was already defined
+symbol 'y' was already defined
+symbol 'y' was already defined
+symbol 'y' was already defined
+symbol 'y' was already defined
+*%%*/

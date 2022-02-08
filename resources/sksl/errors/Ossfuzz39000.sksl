@@ -1,2 +1,6 @@
 q { int y; };
 G { int q=_; };
+
+/*%%*
+expected ';', but found '='
+*%%*/

@@ -1,1 +1,6 @@
 int x[~2147483649];
+
+/*%%*
+integer is out of range for type 'int': 2147483649
+array size must be an integer
+*%%*/

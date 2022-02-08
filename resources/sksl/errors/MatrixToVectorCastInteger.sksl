@@ -5,3 +5,9 @@ int    testScalar    = int (testMatrix2x2);
 int2   testVec2      = int2(testMatrix2x2);
 int3   testVec3      = int3(testMatrix2x2);
 int4   testVec4      = int4(testMatrix2x2);  // not an error
+
+/*%%*
+'half2x2' is not a valid parameter to 'int' constructor
+'half2x2' is not a valid parameter to 'int2' constructor
+'half2x2' is not a valid parameter to 'int3' constructor
+*%%*/

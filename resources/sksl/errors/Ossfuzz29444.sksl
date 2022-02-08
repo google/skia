@@ -2,3 +2,8 @@ float an()   { return 2; }
 void  wna()  { an(), float[1](), float[1](); }
 void  na()   { wna(); }
 void  main() { na(), na(); }
+
+/*%%*
+invalid arguments to 'float[1]' constructor (expected 1 elements, but found 0)
+invalid arguments to 'float[1]' constructor (expected 1 elements, but found 0)
+*%%*/

@@ -42,3 +42,27 @@ void half4_2_constidx()        { half4 h;        const int INDEX = 2;          h
 void half4_3_constidx()        { half4 h;        const int INDEX = 3;          half v = h[INDEX]; }
 void half4_4_constidx()        { half4 h;        const int INDEX = 4;          half v = h[INDEX]; }
 void half4_huge_constidx()     { half4 h;        const int INDEX = 1000000000; half v = h[INDEX]; }
+
+/*%%*
+index -1 out of range for 'half4'
+index 4 out of range for 'half4'
+index 1000000000 out of range for 'half4'
+index -1 out of range for 'half3'
+index 3 out of range for 'half3'
+index 4 out of range for 'half3'
+index 1000000000 out of range for 'half3'
+index -1 out of range for 'half2'
+index 2 out of range for 'half2'
+index 3 out of range for 'half2'
+index 4 out of range for 'half2'
+index 1000000000 out of range for 'half2'
+index -1 out of range for 'half2'
+index 2 out of range for 'half2'
+index 1000000000 out of range for 'half2'
+index -1 out of range for 'half3'
+index 3 out of range for 'half3'
+index 1000000000 out of range for 'half3'
+index -1 out of range for 'half4'
+index 4 out of range for 'half4'
+index 1000000000 out of range for 'half4'
+*%%*/

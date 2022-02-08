@@ -1,3 +1,7 @@
 uniform half4 testInputs;
 
 void test_continue() { for (;;) { @switch (1) { case 1: if (testInputs.x > 3) continue; } } }
+
+/*%%*
+static switch contains non-static conditional exit
+*%%*/

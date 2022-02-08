@@ -1,1 +1,5 @@
 int input;
+
+/*%%*
+'input' is a reserved word
+*%%*/

@@ -5,3 +5,11 @@ struct S {
     noperspective float4 d;
     inout bool e;
 };
+
+/*%%*
+modifier 'const' is not permitted on a struct field
+modifier 'uniform' is not permitted on a struct field
+modifier 'flat' is not permitted on a struct field
+modifier 'noperspective' is not permitted on a struct field
+modifier 'inout' is not permitted on a struct field
+*%%*/

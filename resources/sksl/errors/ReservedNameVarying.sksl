@@ -1,1 +1,5 @@
 int varying;
+
+/*%%*
+'varying' is a reserved word
+*%%*/

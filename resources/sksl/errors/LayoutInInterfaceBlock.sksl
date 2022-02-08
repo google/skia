@@ -4,3 +4,8 @@ t {
     layout(binding=1) A y;  // Not allowed
     layout(set=0) A z;      // Not allowed
 };
+
+/*%%*
+layout qualifier 'binding' is not permitted here
+layout qualifier 'set' is not permitted here
+*%%*/

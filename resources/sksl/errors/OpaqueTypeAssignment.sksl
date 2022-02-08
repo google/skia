@@ -4,3 +4,11 @@ sampler c = a;
 void declare() { sampler d; }
 void initialize() { sampler e = a; }
 void assign() { a = b; }
+
+/*%%*
+opaque type 'sampler' cannot use initializer expressions
+variables of type 'sampler' must be global
+variables of type 'sampler' must be global
+opaque type 'sampler' cannot use initializer expressions
+assignments to opaque type 'sampler' are not permitted
+*%%*/

@@ -5,3 +5,11 @@ void not_a_function() { S s; s.f(); }
 void not_a_bvec()     { S s; s.f = bool3(true); }
 void not_a_struct()   { S s; s.f.missing; }
 void not_an_array()   { S s; s.f[0]; }
+
+/*%%*
+type 'S' does not have a field named 'missing'
+not a function
+type mismatch: '=' cannot operate on 'float', 'bool3'
+invalid swizzle component 'm'
+expected array, but found 'float'
+*%%*/

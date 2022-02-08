@@ -1,3 +1,7 @@
 void main() {
     while (float3(1)) {}
 }
+
+/*%%*
+expected 'bool', but found 'float3'
+*%%*/

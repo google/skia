@@ -11,3 +11,8 @@ half4 main(float2 coords) {
     float3 undefined = indexMatrix(-1) + indexMatrix(3);
     return colorGreen;
 }
+
+/*%%*
+index -1 out of range for 'float3x3'
+index 3 out of range for 'float3x3'
+*%%*/

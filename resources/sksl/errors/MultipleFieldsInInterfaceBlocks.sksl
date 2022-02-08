@@ -5,3 +5,8 @@ IB {
 
 IB1 { float f; };
 IB2 { float f; };
+
+/*%%*
+field 'f' was already defined in the same interface block ('IB')
+symbol 'f' was already defined
+*%%*/

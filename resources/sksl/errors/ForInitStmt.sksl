@@ -8,3 +8,7 @@ void test_init_stmt_continue()  { for (continue;; )             {} }
 void test_init_stmt_discard()   { for (discard;; )              {} }
 void test_init_stmt_type()      { for (void;; )                 {} }
 void test_init_stmt_deep()      { for (for(for(for(;;);;);;);;) {} }
+
+/*%%*
+expected expression, but found 'for'
+*%%*/

@@ -11,3 +11,7 @@ S large[10];
 S extra_large[100];
 S xxl[50000];
 
+
+/*%%*
+global variable 'extra_large' exceeds the size limit
+*%%*/

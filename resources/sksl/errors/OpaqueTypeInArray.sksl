@@ -2,3 +2,10 @@ in sampler a[1];
 in sampler[1] b;
 void fnC() { sampler c[1]; }
 void fnD() { sampler[1] d; }
+
+/*%%*
+opaque type 'sampler' may not be used in an array
+opaque type 'sampler' may not be used in an array
+opaque type 'sampler' may not be used in an array
+opaque type 'sampler' may not be used in an array
+*%%*/

@@ -53,3 +53,18 @@ void arrayRight() {
 void arrayBoth() {
     float x = array * array;
 }
+
+/*%%*
+type mismatch: '*' cannot operate on '<INVALID>', 'int'
+type mismatch: '*' cannot operate on 'int', '<INVALID>'
+type mismatch: '*' cannot operate on '<INVALID>', '<INVALID>'
+type mismatch: '*' cannot operate on 'S', 'int'
+type mismatch: '*' cannot operate on 'int', 'S'
+type mismatch: '*' cannot operate on 'S', 'S'
+type mismatch: '*' cannot operate on 'sampler2D', 'int'
+type mismatch: '*' cannot operate on 'int', 'sampler2D'
+type mismatch: '*' cannot operate on 'sampler2D', 'sampler2D'
+type mismatch: '*' cannot operate on 'int[1]', 'int'
+type mismatch: '*' cannot operate on 'int', 'int[1]'
+type mismatch: '*' cannot operate on 'int[1]', 'int[1]'
+*%%*/

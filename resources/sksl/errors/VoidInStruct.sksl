@@ -6,3 +6,10 @@ struct S {
     void[2] c;
     void[2] d[2];
 };
+
+/*%%*
+type 'void' may not be used in an array
+type 'void' may not be used in an array
+type 'void' may not be used in an array
+type 'void' is not permitted in a struct
+*%%*/

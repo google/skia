@@ -1,1 +1,5 @@
 int attribute;
+
+/*%%*
+'attribute' is a reserved word
+*%%*/

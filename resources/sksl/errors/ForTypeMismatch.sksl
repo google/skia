@@ -1,3 +1,7 @@
 void main() {
     for (int x = 0; x; x++) {}
 }
+
+/*%%*
+expected 'bool', but found 'int'
+*%%*/

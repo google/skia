@@ -7,3 +7,7 @@ struct S6 { S5 x; };
 struct S7 { S6 x; };
 struct S8 { S7 x; };
 struct too_deep { S8 x; };
+
+/*%%*
+struct 'too_deep' is too deeply nested
+*%%*/

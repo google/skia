@@ -17,3 +17,15 @@ const bool4 b4 = bool4(false);
 const bool3 b3 = bool3(b4);
 const bool2 b2 = bool2(b4);
 const bool  b  = bool (b4);
+
+/*%%*
+'half4' is not a valid parameter to 'half3' constructor; use '.xyz' instead
+'half4' is not a valid parameter to 'half2' constructor; use '.xy' instead
+'half4' is not a valid parameter to 'half' constructor; use '.x' instead
+'int4' is not a valid parameter to 'int3' constructor; use '.xyz' instead
+'int4' is not a valid parameter to 'int2' constructor; use '.xy' instead
+'int4' is not a valid parameter to 'int' constructor; use '.x' instead
+'bool4' is not a valid parameter to 'bool3' constructor; use '.xyz' instead
+'bool4' is not a valid parameter to 'bool2' constructor; use '.xy' instead
+'bool4' is not a valid parameter to 'bool' constructor; use '.x' instead
+*%%*/

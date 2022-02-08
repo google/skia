@@ -6,3 +6,13 @@ void type_ref_in_comma_expr()        { int x = (bool4, 1); }
 int function_ref_in_global_variable = mix;
 float3x3 type_ref_in_global_variable = float3x3;
 
+
+/*%%*
+expected 'int', but found 'float'
+type mismatch: '=' cannot operate on 'int', 'float'
+type mismatch: '*=' cannot operate on 'int3', 'float'
+expected '(' to begin function call
+expected '(' to begin constructor invocation
+expected '(' to begin function call
+expected '(' to begin constructor invocation
+*%%*/

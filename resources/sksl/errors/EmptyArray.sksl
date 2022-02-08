@@ -1,2 +1,7 @@
 int disallowed_zero[0];
 int disallowed_negative[-1];
+
+/*%%*
+array size must be positive
+array size must be positive
+*%%*/

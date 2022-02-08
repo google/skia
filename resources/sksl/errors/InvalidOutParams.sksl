@@ -4,3 +4,9 @@ void inc4(out float4 x) { x += half4(1); }
 void test_a() { inc1(0); }
 void test_b() { inc4(float4(0)); }
 void test_c() { inc1(sqrt(1)); }
+
+/*%%*
+cannot assign to this expression
+cannot assign to this expression
+cannot assign to this expression
+*%%*/

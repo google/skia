@@ -1,1 +1,5 @@
 struct S { };
+
+/*%%*
+struct 'S' must contain at least one field
+*%%*/

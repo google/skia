@@ -3,3 +3,10 @@ void main(float2 $b) {
     float $c[2];
     bool4 $d;
 }
+
+/*%%*
+name '$a' is reserved
+name '$b' is reserved
+name '$c' is reserved
+name '$d' is reserved
+*%%*/

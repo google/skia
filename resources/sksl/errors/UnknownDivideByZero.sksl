@@ -20,3 +20,21 @@ void main() {
     y /= 0;
     y %= 0;
 }
+/*%%*
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+division by zero
+*%%*/

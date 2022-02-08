@@ -1,2 +1,6 @@
 void main() {}
 void main() {}
+
+/*%%*
+duplicate definition of void main()
+*%%*/

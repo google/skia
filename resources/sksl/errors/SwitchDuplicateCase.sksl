@@ -6,3 +6,7 @@ void main() {
             break;
     }
 }
+
+/*%%*
+duplicate case value '0'
+*%%*/

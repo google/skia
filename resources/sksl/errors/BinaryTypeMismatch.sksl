@@ -6,3 +6,13 @@ void float2_neq_int()   { bool x = float2(0) != 0; }
 void float2_lt_float2() { bool x = float2(0) < float2(1); }
 void float2_lt_float()  { bool x = float2(0) < 0.0; }
 void float_lt_float2()  { bool x = 0.0 < float2(0); }
+
+/*%%*
+type mismatch: '*' cannot operate on 'int', 'bool'
+type mismatch: '||' cannot operate on 'int', 'float'
+type mismatch: '==' cannot operate on 'float2', 'int'
+type mismatch: '!=' cannot operate on 'float2', 'int'
+type mismatch: '<' cannot operate on 'float2', 'float2'
+type mismatch: '<' cannot operate on 'float2', 'float'
+type mismatch: '<' cannot operate on 'float', 'float2'
+*%%*/

@@ -1,1 +1,7 @@
 half R = 0 .;
+
+/*%%*
+expected identifier, but found ';'
+expected field name or swizzle mask after '.'
+expected ';', but found ''
+*%%*/

@@ -10,3 +10,7 @@ void main() {
             sk_FragColor = half4(0);
     }
 }
+
+/*%%*
+static switch contains non-static conditional exit
+*%%*/

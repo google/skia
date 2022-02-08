@@ -20,3 +20,13 @@ void from_non_const_local()              { float x = u; const float y = x; }
 void from_non_const_expression()         { const float x = u + u; }
 void from_mixed_expression()             { const float x = c + u; }
 void from_non_const_struct_field()       { const float x = s.f; }
+
+/*%%*
+'const' variable initializer must be a constant expression
+'const' variable initializer must be a constant expression
+'const' variable initializer must be a constant expression
+'const' variable initializer must be a constant expression
+'const' variable initializer must be a constant expression
+'const' variable initializer must be a constant expression
+'const' variable initializer must be a constant expression
+*%%*/

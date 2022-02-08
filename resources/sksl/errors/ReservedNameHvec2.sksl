@@ -1,1 +1,5 @@
 int hvec2;
+
+/*%%*
+'hvec2' is a reserved word
+*%%*/

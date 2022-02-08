@@ -21,3 +21,19 @@ void assign_to_unary_plus()                   { float x; +x = 0; }  // TODO(skbu
 void assign_to_const_param(const int x)          { x = 0; }
 void assign_to_const_array_param(const int x[1]) { x[0] = 0; }
 void assign_to_const_struct_param(const S s)     { s.f = 0; }
+
+/*%%*
+cannot assign to this expression
+cannot modify immutable variable 'u'
+cannot modify immutable variable 'x'
+cannot assign to this expression
+cannot write to the same swizzle field more than once
+cannot modify immutable variable 'l'
+cannot modify immutable variable 'r'
+cannot modify immutable variable 'l'
+cannot assign to this expression
+cannot assign to this expression
+cannot modify immutable variable 'x'
+cannot modify immutable variable 'x'
+cannot modify immutable variable 's'
+*%%*/

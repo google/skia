@@ -2,3 +2,9 @@
 void h() { highp int x; }
 void m() { mediump int x; }
 void l() { lowp int x; }
+
+/*%%*
+precision qualifiers are not allowed
+precision qualifiers are not allowed
+precision qualifiers are not allowed
+*%%*/

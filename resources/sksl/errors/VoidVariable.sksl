@@ -3,3 +3,9 @@ void func();
 
 void a;
 void b = func();
+
+/*%%*
+variables of type 'void' are not allowed
+variables of type 'void' are not allowed
+global variable initializer must be a constant expression
+*%%*/

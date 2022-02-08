@@ -1,1 +1,6 @@
 void main() { sk_FragColor = float4(1) / - -half4(0); }
+
+/*%%*
+division by zero
+type mismatch: '=' cannot operate on 'half4', 'float4'
+*%%*/

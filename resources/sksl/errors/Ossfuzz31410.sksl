@@ -1,3 +1,7 @@
 void main() {
     sk_FragColor+=(0), 1.*~2;
 }
+
+/*%%*
+type mismatch: '*' cannot operate on 'float', 'int'
+*%%*/

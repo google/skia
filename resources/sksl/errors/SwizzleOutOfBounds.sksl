@@ -1,1 +1,5 @@
 void main() { float3 test = float2(1).xyz; }
+
+/*%%*
+invalid swizzle component 'z'
+*%%*/

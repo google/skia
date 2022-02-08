@@ -5,3 +5,9 @@ half    testScalar    = half (testMatrix2x2);
 half2   testVec2      = half2(testMatrix2x2);
 half3   testVec3      = half3(testMatrix2x2);
 half4   testVec4      = half4(testMatrix2x2);  // not an error
+
+/*%%*
+'half2x2' is not a valid parameter to 'half' constructor; use '[0][0]' instead
+'half2x2' is not a valid parameter to 'half2' constructor
+'half2x2' is not a valid parameter to 'half3' constructor
+*%%*/

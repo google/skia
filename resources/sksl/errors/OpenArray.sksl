@@ -1,3 +1,9 @@
 void main(inout float4 color) {
     color.r[ = ( color.g );
 }
+
+/*%%*
+shader 'main' must be main() or main(float2)
+unknown identifier 'color'
+expected expression, but found '='
+*%%*/

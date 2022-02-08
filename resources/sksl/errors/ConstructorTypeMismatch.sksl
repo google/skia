@@ -8,3 +8,12 @@ void construct_float2_from_struct()     { float2 x = float2(foo); }
 void construct_float2x2_from_struct()   { float2x2 x = float2x2(foo); }
 void construct_float2x2_from_type()     { float2x2 x = float2x2(int); }
 void construct_float2x2_from_function() { float2x2 x = float2x2(sqrt); }
+
+/*%%*
+expected 'int', but found 'float2x2'
+'Foo' is not a valid parameter to 'float' constructor
+'Foo' is not a valid parameter to 'float2' constructor
+'Foo' is not a valid parameter to 'float2x2' constructor
+'<INVALID>' is not a valid parameter to 'float2x2' constructor
+'<INVALID>' is not a valid parameter to 'float2x2' constructor
+*%%*/

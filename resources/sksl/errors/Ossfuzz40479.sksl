@@ -1,1 +1,9 @@
 void[4016112253 .r1r
+
+/*%%*
+integer is out of range for type 'int': 4016112253
+array size must be an integer
+type 'void' may not be used in an array
+expected ']', but found ''
+expected an identifier, but found ''
+*%%*/

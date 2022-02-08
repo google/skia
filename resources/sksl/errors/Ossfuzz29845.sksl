@@ -1,3 +1,8 @@
 struct Test {
     l();
     void m();
+
+/*%%*
+no type named 'l'
+expected a type, but found '('
+*%%*/

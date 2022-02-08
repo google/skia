@@ -1,3 +1,8 @@
 void main() {
     float x();
 }
+
+/*%%*
+expected ';', but found '('
+expected expression, but found ')'
+*%%*/

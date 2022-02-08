@@ -1,1 +1,5 @@
 int samplerCube;
+
+/*%%*
+'samplerCube' is a reserved word
+*%%*/

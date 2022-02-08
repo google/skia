@@ -5,3 +5,7 @@ void main() {
             break;
     }
 }
+
+/*%%*
+expected expression, but found 'default'
+*%%*/

@@ -2,3 +2,8 @@ half4 main(float2 xy) {
     int;
     return half4(0);
 }
+
+/*%%*
+expected '(' to begin constructor invocation
+expected a type, but found 'return'
+*%%*/

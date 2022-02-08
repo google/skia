@@ -9,3 +9,8 @@ void main(float2 p) {
     testOut(p, p, p);
     testInout(p, p, p);
 }
+
+/*%%*
+function 'testOut' never assigns a value to out parameter 'b'
+function 'testOut' never assigns a value to out parameter 'c'
+*%%*/

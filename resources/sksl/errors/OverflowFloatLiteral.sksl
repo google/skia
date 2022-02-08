@@ -1,3 +1,8 @@
 void main() {
     sk_FragColor.x = half4(3.41e+38);
 }
+
+/*%%*
+floating-point value is too large: 3.41e+38
+type mismatch: '=' cannot operate on 'half', 'half4'
+*%%*/

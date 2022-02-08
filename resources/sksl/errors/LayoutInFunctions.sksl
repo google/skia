@@ -25,3 +25,28 @@ layout (
     set = 1,
     builtin = 1,
     input_attachment_index = 1) float x) {}
+
+/*%%*
+layout qualifier 'origin_upper_left' is not permitted here
+layout qualifier 'push_constant' is not permitted here
+layout qualifier 'blend_support_all_equations' is not permitted here
+layout qualifier 'color' is not permitted here
+layout qualifier 'location' is not permitted here
+layout qualifier 'offset' is not permitted here
+layout qualifier 'binding' is not permitted here
+layout qualifier 'index' is not permitted here
+layout qualifier 'set' is not permitted here
+layout qualifier 'builtin' is not permitted here
+layout qualifier 'input_attachment_index' is not permitted here
+layout qualifier 'origin_upper_left' is not permitted here
+layout qualifier 'push_constant' is not permitted here
+layout qualifier 'blend_support_all_equations' is not permitted here
+layout qualifier 'color' is not permitted here
+layout qualifier 'location' is not permitted here
+layout qualifier 'offset' is not permitted here
+layout qualifier 'binding' is not permitted here
+layout qualifier 'index' is not permitted here
+layout qualifier 'set' is not permitted here
+layout qualifier 'builtin' is not permitted here
+layout qualifier 'input_attachment_index' is not permitted here
+*%%*/

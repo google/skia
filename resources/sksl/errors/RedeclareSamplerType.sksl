@@ -1,1 +1,5 @@
 sampler sampler;
+
+/*%%*
+expected an identifier, but found type 'sampler'
+*%%*/

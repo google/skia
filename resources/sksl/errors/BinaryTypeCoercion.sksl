@@ -53,3 +53,26 @@ void matrix_times_matrix_disallowed_3() { H4x4 *= F4x4;       }
 void dimensions_ok_1()                  { F4x4 *= F4x4; }
 void dimensions_ok_2()                  { F4   *= F4x4; }
 void dimensions_disallowed_1()          { F4x4 *= F4;   }
+
+/*%%*
+type mismatch: '=' cannot operate on 'half', 'float'
+type mismatch: '=' cannot operate on 'half', 'float'
+type mismatch: '*=' cannot operate on 'half', 'float'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '*=' cannot operate on 'half4', 'float4'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '*=' cannot operate on 'half4', 'float'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '=' cannot operate on 'half4', 'float4'
+type mismatch: '*=' cannot operate on 'half4', 'float4x4'
+type mismatch: '=' cannot operate on 'half4x4', 'float4x4'
+type mismatch: '=' cannot operate on 'half4x4', 'float4x4'
+type mismatch: '*=' cannot operate on 'half4x4', 'float4x4'
+type mismatch: '*=' cannot operate on 'float4x4', 'float4'
+*%%*/

@@ -23,3 +23,22 @@ float4 ygtT() { return v.ygtT; }
 float4 zbpR() { return v.zbpR; }
 float4 waqB() { return v.waqB; }
 
+
+/*%%*
+invalid swizzle mask 'xyra'
+invalid swizzle mask 'zxtq'
+invalid swizzle mask 'wwRB'
+invalid swizzle mask 'rgxy'
+invalid swizzle mask 'bast'
+invalid swizzle mask 'gbLT'
+invalid swizzle mask 'sxyz'
+invalid swizzle mask 'tpbb'
+invalid swizzle mask 'qsTR'
+invalid swizzle mask 'LTxy'
+invalid swizzle mask 'TRba'
+invalid swizzle mask 'RBst'
+invalid swizzle mask 'xrsL'
+invalid swizzle mask 'ygtT'
+invalid swizzle mask 'zbpR'
+invalid swizzle mask 'waqB'
+*%%*/

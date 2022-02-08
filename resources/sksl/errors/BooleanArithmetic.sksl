@@ -24,3 +24,31 @@ bool2 bitnot_boolean_vec() { return ~bool2(false, false); }
 bool2 bitand_boolean_vec() { return bool2(false, false) & bool2(true, true); }
 bool2 bitor_boolean_vec()  { return bool2(false, false) | bool2(true, true); }
 bool2 bitxor_boolean_vec() { return bool2(false, false) ^ bool2(true, true); }
+
+/*%%*
+type mismatch: '+' cannot operate on 'bool', 'bool'
+type mismatch: '-' cannot operate on 'bool', 'bool'
+type mismatch: '*' cannot operate on 'bool', 'bool'
+type mismatch: '/' cannot operate on 'bool', 'bool'
+type mismatch: '%' cannot operate on 'bool', 'bool'
+type mismatch: '<<' cannot operate on 'bool', 'bool'
+type mismatch: '>>' cannot operate on 'bool', 'bool'
+'-' cannot operate on 'bool'
+'~' cannot operate on 'bool'
+type mismatch: '&' cannot operate on 'bool', 'bool'
+type mismatch: '|' cannot operate on 'bool', 'bool'
+type mismatch: '^' cannot operate on 'bool', 'bool'
+type mismatch: '+' cannot operate on 'bool2', 'bool2'
+type mismatch: '-' cannot operate on 'bool2', 'bool2'
+type mismatch: '*' cannot operate on 'bool2', 'bool2'
+type mismatch: '/' cannot operate on 'bool2', 'bool2'
+type mismatch: '%' cannot operate on 'bool2', 'bool2'
+type mismatch: '<<' cannot operate on 'bool2', 'bool2'
+type mismatch: '>>' cannot operate on 'bool2', 'bool2'
+'!' cannot operate on 'bool2'
+'-' cannot operate on 'bool2'
+'~' cannot operate on 'bool2'
+type mismatch: '&' cannot operate on 'bool2', 'bool2'
+type mismatch: '|' cannot operate on 'bool2', 'bool2'
+type mismatch: '^' cannot operate on 'bool2', 'bool2'
+*%%*/
