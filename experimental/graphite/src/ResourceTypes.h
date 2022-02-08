@@ -56,6 +56,9 @@ enum class Ownership {
     kWrapped,
 };
 
+/** Uniquely identifies the type of resource that is cached with a GraphiteResourceKey. */
+using ResourceType = uint32_t;
+
 };  // namespace skgpu
 
 #endif // skgpu_ResourceTypes_DEFINED
