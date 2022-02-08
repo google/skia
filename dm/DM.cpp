@@ -977,6 +977,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
 
     if (FLAGS_cpu) {
         SINK("g8",          RasterSink, kGray_8_SkColorType);
+        SINK("r8",          RasterSink, kR8_unorm_SkColorType);
         SINK("565",         RasterSink, kRGB_565_SkColorType);
         SINK("4444",        RasterSink, kARGB_4444_SkColorType);
         SINK("8888",        RasterSink, kN32_SkColorType);

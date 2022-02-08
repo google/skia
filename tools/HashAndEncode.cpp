@@ -34,6 +34,8 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
         case kRGBA_1010102_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_1010102;    break;
         case kBGRA_1010102_SkColorType:       srcFmt = skcms_PixelFormat_BGRA_1010102;    break;
         case kGray_8_SkColorType:             srcFmt = skcms_PixelFormat_G_8;             break;
+        // skcms doesn't have R_8. Pretend it's G_8, but see below for color space trickery:
+        case kR8_unorm_SkColorType:           srcFmt = skcms_PixelFormat_G_8;             break;
         case kRGBA_F16Norm_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_hhhh;       break;
         case kRGBA_F16_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_hhhh;       break;
         case kRGBA_F32_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_ffff;       break;
@@ -56,6 +58,14 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
     skcms_ICCProfile srcProfile = *skcms_sRGB_profile();
     if (auto cs = bitmap.colorSpace()) {
         cs->toProfile(&srcProfile);
+    }
+
+    // NOTE: If the color type is R8, we told skcms it's actually G8 above. To get red PNGs,
+    // we tweak the source color space to throw away any green and blue:
+    if (bitmap.colorType() == kR8_unorm_SkColorType) {
+        srcProfile.toXYZD50.vals[0][1] = srcProfile.toXYZD50.vals[0][2] = 0;
+        srcProfile.toXYZD50.vals[1][1] = srcProfile.toXYZD50.vals[1][2] = 0;
+        srcProfile.toXYZD50.vals[2][1] = srcProfile.toXYZD50.vals[2][2] = 0;
     }
 
     // Our common format that can represent anything we draw and encode as a PNG:

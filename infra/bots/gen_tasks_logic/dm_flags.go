@@ -506,7 +506,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test rendering to wrapped dsts on a few bots
 		// Also test "narrow-glf16", which hits F16 surfaces and F16 vertex colors.
 		if b.extraConfig("BonusConfigs") {
-			configs = []string{"glbetex", "glbert", "narrow-glf16", "glreducedshaders"}
+			configs = []string{"glbetex", "glbert", "narrow-glf16", "glreducedshaders", "glr8"}
 		}
 
 		if b.os("ChromeOS") {

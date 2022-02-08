@@ -339,6 +339,7 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
         case kA16_unorm_SkColorType:
         case kA16_float_SkColorType:
         case kR16G16B16A16_unorm_SkColorType:
+        case kR8_unorm_SkColorType:
             return nullptr;
     }
     SkASSERT(false);

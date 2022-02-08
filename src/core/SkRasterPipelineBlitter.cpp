@@ -203,17 +203,26 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     // to zero.  We only dither non-constant shaders, so is_constant won't change here.
     if (paint.isDither() && !is_constant) {
         switch (dst.info().colorType()) {
-            case kARGB_4444_SkColorType:    blitter->fDitherRate =   1/15.0f; break;
-            case   kRGB_565_SkColorType:    blitter->fDitherRate =   1/63.0f; break;
-            case    kGray_8_SkColorType:
-            case  kRGB_888x_SkColorType:
+            case kARGB_4444_SkColorType:
+                blitter->fDitherRate = 1 / 15.0f;
+                break;
+            case kRGB_565_SkColorType:
+                blitter->fDitherRate = 1 / 63.0f;
+                break;
+            case kGray_8_SkColorType:
+            case kRGB_888x_SkColorType:
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:
-            case kSRGBA_8888_SkColorType:   blitter->fDitherRate =  1/255.0f; break;
+            case kSRGBA_8888_SkColorType:
+            case kR8_unorm_SkColorType:
+                blitter->fDitherRate = 1 / 255.0f;
+                break;
             case kRGB_101010x_SkColorType:
             case kRGBA_1010102_SkColorType:
             case kBGR_101010x_SkColorType:
-            case kBGRA_1010102_SkColorType: blitter->fDitherRate = 1/1023.0f; break;
+            case kBGRA_1010102_SkColorType:
+                blitter->fDitherRate = 1 / 1023.0f;
+                break;
 
             case kUnknown_SkColorType:
             case kAlpha_8_SkColorType:
@@ -225,7 +234,9 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             case kA16_unorm_SkColorType:
             case kR16G16_float_SkColorType:
             case kR16G16_unorm_SkColorType:
-            case kR16G16B16A16_unorm_SkColorType: blitter->fDitherRate = 0.0f; break;
+            case kR16G16B16A16_unorm_SkColorType:
+                blitter->fDitherRate = 0.0f;
+                break;
         }
         if (blitter->fDitherRate > 0.0f) {
             colorPipeline->append(SkRasterPipeline::dither, &blitter->fDitherRate);

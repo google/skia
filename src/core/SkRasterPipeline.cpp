@@ -190,6 +190,10 @@ void SkRasterPipeline::append_load(SkColorType ct, const SkRasterPipeline_Memory
                                              this->append(alpha_to_gray);
                                              break;
 
+        case kR8_unorm_SkColorType:          this->append(load_a8, ctx);
+                                             this->append(alpha_to_red);
+                                             break;
+
         case kRGB_888x_SkColorType:          this->append(load_8888, ctx);
                                              this->append(force_opaque);
                                              break;
@@ -241,6 +245,10 @@ void SkRasterPipeline::append_load_dst(SkColorType ct, const SkRasterPipeline_Me
                                               this->append(alpha_to_gray_dst);
                                               break;
 
+        case kR8_unorm_SkColorType:           this->append(load_a8_dst, ctx);
+                                              this->append(alpha_to_red_dst);
+                                              break;
+
         case kRGB_888x_SkColorType:           this->append(load_8888_dst, ctx);
                                               this->append(force_opaque_dst);
                                               break;
@@ -277,6 +285,7 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
         case kUnknown_SkColorType: SkASSERT(false); break;
 
         case kAlpha_8_SkColorType:            this->append(store_a8,      ctx); break;
+        case kR8_unorm_SkColorType:           this->append(store_r8,      ctx); break;
         case kA16_unorm_SkColorType:          this->append(store_a16,     ctx); break;
         case kA16_float_SkColorType:          this->append(store_af16,    ctx); break;
         case kRGB_565_SkColorType:            this->append(store_565,     ctx); break;
