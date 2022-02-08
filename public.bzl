@@ -823,6 +823,11 @@ def base_defines(os_conditions):
                 "SK_BUILD_FOR_MAC",
                 "SK_GL",
             ],
+            # ANDROID W/ NO CODECS
+            [
+                "SK_BUILD_FOR_ANDROID",
+                "SK_GL",
+            ],
         ],
     )
 
