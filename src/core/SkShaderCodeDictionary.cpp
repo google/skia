@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkShaderCodeDictionary.h"
+#include "src/core/SkShaderCodeDictionary.h"
 
 #include "src/core/SkOpts.h"
 
@@ -89,17 +89,17 @@ const SkShaderCodeDictionary::Entry* SkShaderCodeDictionary::lookup(
     return fEntryVector[codeID.asUInt()];
 }
 
-SkSpan<const SkUniform> SkShaderCodeDictionary::getUniforms(CodeSnippetID id) const {
+SkSpan<const SkUniform> SkShaderCodeDictionary::getUniforms(SkBuiltInCodeSnippetID id) const {
     return fCodeSnippets[(int) id].fUniforms;
 }
 
-const SkShaderInfo::SnippetEntry* SkShaderCodeDictionary::getEntry(CodeSnippetID id) const {
+const SkShaderInfo::SnippetEntry* SkShaderCodeDictionary::getEntry(SkBuiltInCodeSnippetID id) const {
     if (fCodeSnippets[(int) id].fCode) {
         return &fCodeSnippets[(int) id];
     }
 
     // If we're missing a code snippet just draw solid blue
-    return this->getEntry(CodeSnippetID::kDepthStencilOnlyDraw);
+    return this->getEntry(SkBuiltInCodeSnippetID::kDepthStencilOnlyDraw);
 }
 
 void SkShaderCodeDictionary::getShaderInfo(SkUniquePaintParamsID uniqueID, SkShaderInfo* info) {
@@ -185,37 +185,37 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
     // The 0th index is reserved as invalid
     fEntryVector.push_back(nullptr);
 
-    fCodeSnippets[(int) CodeSnippetID::kDepthStencilOnlyDraw] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kDepthStencilOnlyDraw] = {
             {}, kNoneName, kNoneSkSL
     };
-    fCodeSnippets[(int) CodeSnippetID::kSolidColorShader] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kSolidColorShader] = {
             SkMakeSpan(kSolidUniforms, kNumSolidUniforms),
             kSolidColorName, kSolidColorSkSL
     };
-    fCodeSnippets[(int) CodeSnippetID::kLinearGradientShader] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kLinearGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
             kLinearGradient4Name, kLinearGradient4SkSL
     };
-    fCodeSnippets[(int) CodeSnippetID::kRadialGradientShader] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kRadialGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
             kLinearGradient4Name, kLinearGradient4SkSL
     };
-    fCodeSnippets[(int) CodeSnippetID::kSweepGradientShader] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kSweepGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
             kLinearGradient4Name, kLinearGradient4SkSL
     };
-    fCodeSnippets[(int) CodeSnippetID::kConicalGradientShader] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kConicalGradientShader] = {
             SkMakeSpan(kGradientUniforms, kNumGradientUniforms),
             kLinearGradient4Name, kLinearGradient4SkSL
     };
-    fCodeSnippets[(int) CodeSnippetID::kImageShader] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kImageShader] = {
             { nullptr, kNumImageUniforms },
             kImageName, kImageSkSL
     };
-    fCodeSnippets[(int) CodeSnippetID::kBlendShader] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kBlendShader] = {
             {}, nullptr, nullptr
     };
-    fCodeSnippets[(int) CodeSnippetID::kSimpleBlendMode] = {
+    fCodeSnippets[(int) SkBuiltInCodeSnippetID::kSimpleBlendMode] = {
             {}, nullptr, nullptr
     };
 }

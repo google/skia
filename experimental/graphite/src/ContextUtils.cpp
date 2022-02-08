@@ -12,10 +12,10 @@
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/PaintParams.h"
 #include "include/core/SkPaint.h"
-#include "include/private/SkShaderCodeDictionary.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkShaderCodeDictionary.h"
 #include "src/core/SkUniform.h"
 #include "src/core/SkUniformData.h"
 

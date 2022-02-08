@@ -11,6 +11,7 @@
 #include <array>
 #include <limits>
 #include "include/core/SkTypes.h"
+#include "src/core/SkBuiltInCodeSnippetID.h"
 
 enum class SkBackend : uint8_t {
     kGanesh,
@@ -19,30 +20,6 @@ enum class SkBackend : uint8_t {
 };
 class SkShaderCodeDictionary;
 class SkShaderInfo;
-
-// TODO: this needs to be expanded into a more flexible dictionary (esp. for user-supplied SkSL)
-// TODO: rename to SkBuiltInCodeSnippetID and move to its own header
-enum class CodeSnippetID : uint8_t {
-    // TODO: It seems like this requires some refinement. Fundamentally this doesn't seem like a
-    // draw that originated from a PaintParams.
-    kDepthStencilOnlyDraw,
-
-    // SkShader code snippets
-    kSolidColorShader,
-    kLinearGradientShader,
-    kRadialGradientShader,
-    kSweepGradientShader,
-    kConicalGradientShader,
-
-    kImageShader,
-    kBlendShader,     // aka ComposeShader
-
-    // BlendMode code snippets
-    kSimpleBlendMode,
-
-    kLast = kSimpleBlendMode
-};
-static constexpr int kCodeSnippetIDCount = static_cast<int>(CodeSnippetID::kLast) + 1;
 
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of blocks where each block has a
@@ -57,7 +34,7 @@ public:
     //  1st byte: codeSnippetID
     //  2nd byte: total blockSize in bytes
     // Returns the header's offset in the key - to be passed back into endBlock
-    int beginBlock(CodeSnippetID codeSnippetID) {
+    int beginBlock(SkBuiltInCodeSnippetID codeSnippetID) {
         SkASSERT(fNumBytes < kMaxKeySize);
 
         this->addByte((uint8_t) codeSnippetID);
@@ -66,17 +43,17 @@ public:
     }
 
     // Update the size byte of a block header
-    void endBlock(int headerOffset, CodeSnippetID codeSnippetID) {
+    void endBlock(int headerOffset, SkBuiltInCodeSnippetID codeSnippetID) {
         SkASSERT(fData[headerOffset] == (uint32_t) codeSnippetID);
         int blockSize = fNumBytes - headerOffset;
         SkASSERT(blockSize <= kMaxBlockSize);
         fData[headerOffset+1] = blockSize;
     }
 
-    std::pair<CodeSnippetID, uint8_t> readCodeSnippetID(int headerOffset) const {
+    std::pair<SkBuiltInCodeSnippetID, uint8_t> readCodeSnippetID(int headerOffset) const {
         SkASSERT(headerOffset < kMaxKeySize - kBlockHeaderSizeInBytes);
 
-        CodeSnippetID id = static_cast<CodeSnippetID>(fData[headerOffset]);
+        SkBuiltInCodeSnippetID id = static_cast<SkBuiltInCodeSnippetID>(fData[headerOffset]);
         uint8_t blockSize = fData[headerOffset+1];
         SkASSERT(headerOffset + blockSize <= this->sizeInBytes());
 

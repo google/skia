@@ -7,7 +7,7 @@
 
 #include "experimental/graphite/src/GlobalCache.h"
 
-#include "include/private/SkShaderCodeDictionary.h"
+#include "src/core/SkShaderCodeDictionary.h"
 
 namespace skgpu {
 
@@ -16,4 +16,3 @@ GlobalCache::GlobalCache() : fShaderCodeDictionary(std::make_unique<SkShaderCode
 GlobalCache::~GlobalCache() {};
 
 } // namespace skgpu
-

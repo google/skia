@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkPaintParamsKey.h"
+#include "src/core/SkPaintParamsKey.h"
 
 #include <cstring>
-#include "include/private/SkShaderCodeDictionary.h"
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkShaderCodeDictionary.h"
 
 bool SkPaintParamsKey::operator==(const SkPaintParamsKey& that) const {
     return fNumBytes == that.fNumBytes &&
@@ -29,25 +29,25 @@ void dump_unknown_block(const SkPaintParamsKey& key, int headerOffset) {
     SkDebugf("Unknown block - id: %d size: %dB\n", id, blockSize);
 }
 
-DumpMethod get_dump_method(CodeSnippetID id) {
+DumpMethod get_dump_method(SkBuiltInCodeSnippetID id) {
     switch (id) {
-        case CodeSnippetID::kDepthStencilOnlyDraw:  return DepthStencilOnlyBlock::Dump;
+        case SkBuiltInCodeSnippetID::kDepthStencilOnlyDraw:  return DepthStencilOnlyBlock::Dump;
 
         // SkShader code snippets
-        case CodeSnippetID::kSolidColorShader:      return SolidColorShaderBlock::Dump;
+        case SkBuiltInCodeSnippetID::kSolidColorShader:      return SolidColorShaderBlock::Dump;
 
-        case CodeSnippetID::kLinearGradientShader:  [[fallthrough]];
-        case CodeSnippetID::kRadialGradientShader:  [[fallthrough]];
-        case CodeSnippetID::kSweepGradientShader:   [[fallthrough]];
-        case CodeSnippetID::kConicalGradientShader: return GradientShaderBlocks::Dump;
+        case SkBuiltInCodeSnippetID::kLinearGradientShader:  [[fallthrough]];
+        case SkBuiltInCodeSnippetID::kRadialGradientShader:  [[fallthrough]];
+        case SkBuiltInCodeSnippetID::kSweepGradientShader:   [[fallthrough]];
+        case SkBuiltInCodeSnippetID::kConicalGradientShader: return GradientShaderBlocks::Dump;
 
-        case CodeSnippetID::kImageShader:           return ImageShaderBlock::Dump;
-        case CodeSnippetID::kBlendShader:           return BlendShaderBlock::Dump;
+        case SkBuiltInCodeSnippetID::kImageShader:           return ImageShaderBlock::Dump;
+        case SkBuiltInCodeSnippetID::kBlendShader:           return BlendShaderBlock::Dump;
 
         // BlendMode code snippets
-        case CodeSnippetID::kSimpleBlendMode:       return BlendModeBlock::Dump;
+        case SkBuiltInCodeSnippetID::kSimpleBlendMode:       return BlendModeBlock::Dump;
 
-        default:                                    return dump_unknown_block;
+        default:                                             return dump_unknown_block;
     }
 }
 
@@ -79,12 +79,12 @@ int SkPaintParamsKey::AddBlockToShaderInfo(SkShaderCodeDictionary* dict,
                                            SkShaderInfo* result) {
     auto [codeSnippetID, blockSize] = key.readCodeSnippetID(headerOffset);
 
-    if (codeSnippetID != CodeSnippetID::kSimpleBlendMode) {
+    if (codeSnippetID != SkBuiltInCodeSnippetID::kSimpleBlendMode) {
         auto entry = dict->getEntry(codeSnippetID);
 
         result->add(*entry);
 
-        if (codeSnippetID != CodeSnippetID::kDepthStencilOnlyDraw) {
+        if (codeSnippetID != SkBuiltInCodeSnippetID::kDepthStencilOnlyDraw) {
             result->setWritesColor();
         }
     }

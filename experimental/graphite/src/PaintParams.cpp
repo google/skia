@@ -8,9 +8,9 @@
 #include "experimental/graphite/src/PaintParams.h"
 
 #include "include/core/SkShader.h"
-#include "include/private/SkPaintParamsKey.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu {

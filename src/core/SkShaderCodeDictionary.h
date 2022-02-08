@@ -12,10 +12,10 @@
 #include <unordered_map>
 #include <vector>
 #include "include/core/SkSpan.h"
-#include "include/private/SkPaintParamsKey.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkUniform.h"
 
 class SkShaderInfo {
@@ -74,8 +74,8 @@ public:
 
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
-    SkSpan<const SkUniform> getUniforms(CodeSnippetID) const;
-    const SkShaderInfo::SnippetEntry* getEntry(CodeSnippetID) const;
+    SkSpan<const SkUniform> getUniforms(SkBuiltInCodeSnippetID) const;
+    const SkShaderInfo::SnippetEntry* getEntry(SkBuiltInCodeSnippetID) const;
 
     void getShaderInfo(SkUniquePaintParamsID, SkShaderInfo*);
 
@@ -86,7 +86,7 @@ private:
         size_t operator()(const SkPaintParamsKey&) const;
     };
 
-    std::array<SkShaderInfo::SnippetEntry, kCodeSnippetIDCount> fCodeSnippets;
+    std::array<SkShaderInfo::SnippetEntry, kBuiltInCodeSnippetIDCount> fCodeSnippets;
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;
