@@ -5273,12 +5273,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkVptr_hdr",
-    hdrs = ["SkVptr.h"],
-    visibility = ["//:__subpackages__"],
-)
-
-generated_cc_atom(
     name = "SkWriteBuffer_hdr",
     hdrs = ["SkWriteBuffer.h"],
     visibility = ["//:__subpackages__"],
