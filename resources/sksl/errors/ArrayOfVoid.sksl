@@ -1,5 +1,3 @@
-// Expect 6 errors
-
 void a[2];
 void[2] b;
 
@@ -7,3 +5,13 @@ void[2] funcF() {}
 void funcG() { void g[2]; }
 void funcH() { void[2] h; }
 void funcI() { void[2]; }
+
+/*%%*
+type 'void' may not be used in an array
+type 'void' may not be used in an array
+type 'void' may not be used in an array
+function 'funcF' can exit without returning a value
+type 'void' may not be used in an array
+type 'void' may not be used in an array
+type 'void' may not be used in an array
+*%%*/

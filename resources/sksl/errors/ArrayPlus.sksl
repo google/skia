@@ -4,3 +4,12 @@ void array_plus_float  () { float   a[123]; +a; }
 void array_plus_half3  () { half3   a[123]; +a; }
 void array_plus_bool2  () { bool2   a[123]; +a; }
 void array_plus_half4x4() { half4x4 a[123]; +a; }
+
+/*%%*
+'+' cannot operate on 'int[123]'
+'+' cannot operate on 'int4[123]'
+'+' cannot operate on 'float[123]'
+'+' cannot operate on 'half3[123]'
+'+' cannot operate on 'bool2[123]'
+'+' cannot operate on 'half4x4[123]'
+*%%*/

@@ -5,3 +5,7 @@ float foo(float x) {
 void main() {
     float x = foo(true);
 }
+
+/*%%*
+expected 'float', but found 'bool'
+*%%*/
