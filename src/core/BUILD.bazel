@@ -1892,13 +1892,6 @@ generated_cc_atom(
 )
 
 generated_cc_atom(
-    name = "SkFixed15_hdr",
-    hdrs = ["SkFixed15.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkTypes_hdr"],
-)
-
-generated_cc_atom(
     name = "SkFlattenable_src",
     srcs = ["SkFlattenable.cpp"],
     visibility = ["//:__subpackages__"],
