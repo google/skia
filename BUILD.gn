@@ -2440,19 +2440,6 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_app("pathops_unittest") {
-    sources = pathops_tests_sources + [
-                rebase_path("tests/skia_test.cpp"),
-                rebase_path("tests/Test.cpp"),
-              ]
-    deps = [
-      ":flags",
-      ":gpu_tool_utils",
-      ":skia",
-      ":tool_utils",
-    ]
-  }
-
   test_app("dump_record") {
     sources = [ "tools/dump_record.cpp" ]
     deps = [

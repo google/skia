@@ -673,7 +673,6 @@ DM_SRCS_ALL = struct(
         "tests/FontMgrFontConfigTest.cpp",  # FontConfig-only.
         "tests/TypefaceMacTest.cpp",  # CoreText-only.
         "tests/SkParagraphTest.cpp",  # Skipping tests for now.
-        "tests/skia_test.cpp",  # Old main.
         "tools/gpu/d3d/*",
         "tools/gpu/dawn/*",
         "tools/gpu/gl/angle/*",
