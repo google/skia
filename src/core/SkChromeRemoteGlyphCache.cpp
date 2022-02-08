@@ -92,12 +92,6 @@ public:
         memcpy(result, &data, sizeof(T));
     }
 
-    template <typename T>
-    T* allocate() {
-        T* result = (T*)this->allocate(sizeof(T), serialization_alignment<T>());
-        return result;
-    }
-
     void writeDescriptor(const SkDescriptor& desc) {
         write(desc.getLength());
         auto result = this->allocate(desc.getLength(), alignof(SkDescriptor));
