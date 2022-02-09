@@ -393,16 +393,9 @@ void GrD3DCaps::initFormatTable(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Devi
         info.init(adapterDesc, device, format);
         info.fFormatColorType = GrColorType::kR_8;
         if (SkToBool(info.fFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 3;
+            info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
-            // Format: DXGI_FORMAT_R8_UNORM, Surface: kR_8
-            {
-                constexpr GrColorType ct = GrColorType::kR_8;
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            }
             // Format: DXGI_FORMAT_R8_UNORM, Surface: kAlpha_8
             {
                 constexpr GrColorType ct = GrColorType::kAlpha_8;

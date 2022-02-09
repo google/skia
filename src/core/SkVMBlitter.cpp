@@ -109,26 +109,17 @@ namespace {
 
             float rate = 0.0f;
             switch (dst.colorType()) {
-                case kARGB_4444_SkColorType:
-                    rate = 1 / 15.0f;
-                    break;
-                case kRGB_565_SkColorType:
-                    rate = 1 / 63.0f;
-                    break;
-                case kGray_8_SkColorType:
-                case kRGB_888x_SkColorType:
+                case kARGB_4444_SkColorType:    rate =   1/15.0f; break;
+                case   kRGB_565_SkColorType:    rate =   1/63.0f; break;
+                case    kGray_8_SkColorType:
+                case  kRGB_888x_SkColorType:
                 case kRGBA_8888_SkColorType:
                 case kBGRA_8888_SkColorType:
-                case kSRGBA_8888_SkColorType:
-                case kR8_unorm_SkColorType:
-                    rate = 1 / 255.0f;
-                    break;
+                case kSRGBA_8888_SkColorType:   rate =  1/255.0f; break;
                 case kRGB_101010x_SkColorType:
                 case kRGBA_1010102_SkColorType:
                 case kBGR_101010x_SkColorType:
-                case kBGRA_1010102_SkColorType:
-                    rate = 1 / 1023.0f;
-                    break;
+                case kBGRA_1010102_SkColorType: rate = 1/1023.0f; break;
 
                 case kUnknown_SkColorType:
                 case kAlpha_8_SkColorType:
@@ -140,8 +131,7 @@ namespace {
                 case kA16_unorm_SkColorType:
                 case kR16G16_float_SkColorType:
                 case kR16G16_unorm_SkColorType:
-                case kR16G16B16A16_unorm_SkColorType:
-                    return c;
+                case kR16G16B16A16_unorm_SkColorType: return c;
             }
 
             // See SkRasterPipeline dither stage.

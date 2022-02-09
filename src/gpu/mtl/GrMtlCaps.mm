@@ -625,15 +625,9 @@ void GrMtlCaps::initFormatTable() {
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatR8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
-        info->fColorTypeInfoCount = 3;
+        info->fColorTypeInfoCount = 2;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
         int ctIdx = 0;
-        // Format: R8Unorm, Surface: kAlpha_8
-        {
-            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-            ctInfo.fColorType = GrColorType::kR_8;
-            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-        }
         // Format: R8Unorm, Surface: kAlpha_8
         {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];

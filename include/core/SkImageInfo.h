@@ -92,9 +92,8 @@ enum SkColorType : int {
                                      //   and alpha
 
     kSRGBA_8888_SkColorType,
-    kR8_unorm_SkColorType,
 
-    kLastEnum_SkColorType     = kR8_unorm_SkColorType, //!< last valid value
+    kLastEnum_SkColorType     = kSRGBA_8888_SkColorType, //!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native 32-bit BGRA encoding

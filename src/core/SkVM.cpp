@@ -1203,9 +1203,8 @@ namespace skvm {
             case kA16_float_SkColorType:    return {FLOAT,  0, 0,0,16, 0, 0,0,0};
             case kR16G16_float_SkColorType: return {FLOAT, 16,16,0, 0, 0,16,0,0};
 
-            case kAlpha_8_SkColorType:  return {UNORM, 0,0,0,8, 0,0,0,0};
-            case kGray_8_SkColorType:   return {UNORM, 8,8,8,0, 0,0,0,0};  // Subtle.
-            case kR8_unorm_SkColorType: return {UNORM, 8,0,0,0, 0,0,0,0};
+            case kAlpha_8_SkColorType: return {UNORM, 0,0,0,8, 0,0,0,0};
+            case kGray_8_SkColorType:  return {UNORM, 8,8,8,0, 0,0,0,0};  // Subtle.
 
             case kRGB_565_SkColorType:   return {UNORM, 5,6,5,0, 11,5,0,0};  // (BGR)
             case kARGB_4444_SkColorType: return {UNORM, 4,4,4,4, 12,8,4,0};  // (ABGR)

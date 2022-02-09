@@ -445,7 +445,6 @@ SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
             break;
         case kAlpha_8_SkColorType:
         case kGray_8_SkColorType:
-        case kR8_unorm_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_8>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_8>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_8>;

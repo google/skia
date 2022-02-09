@@ -876,17 +876,9 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
         auto& info = this->getFormatInfo(format);
         info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 3;
+            info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
-            // Format: VK_FORMAT_R8_UNORM, Surface: kR_8
-            {
-                constexpr GrColorType ct = GrColorType::kR_8;
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = ct;
-                ctInfo.fTransferColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            }
             // Format: VK_FORMAT_R8_UNORM, Surface: kAlpha_8
             {
                 constexpr GrColorType ct = GrColorType::kAlpha_8;

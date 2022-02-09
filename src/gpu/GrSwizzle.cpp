@@ -23,9 +23,6 @@ void GrSwizzle::apply(SkRasterPipeline* pipeline) const {
         case GrSwizzle("rgb1").asKey():
             pipeline->append(SkRasterPipeline::force_opaque);
             return;
-        case GrSwizzle("a001").asKey():
-            pipeline->append(SkRasterPipeline::alpha_to_red);
-            return;
         default: {
             static_assert(sizeof(uintptr_t) >= 4 * sizeof(char));
             // Rather than allocate the 4 control bytes on the heap somewhere, just jam them right
