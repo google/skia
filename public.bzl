@@ -891,16 +891,6 @@ def skparagraph_lib_srcs():
     return native.glob(["modules/skparagraph/src/*.cpp"])
 
 ################################################################################
-## experimental xform
-################################################################################
-
-def exp_xform_lib_hdrs():
-    return native.glob(["experimental/xform/*.h"])
-
-def exp_xform_lib_srcs():
-    return native.glob(["experimental/xform/*.cpp"])
-
-################################################################################
 ## skresources_lib
 ################################################################################
 

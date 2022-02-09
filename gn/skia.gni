@@ -42,7 +42,6 @@ declare_args() {
   skia_use_direct3d = false
   skia_use_egl = false
   skia_use_expat = true
-  skia_use_experimental_xform = false
   skia_use_ffmpeg = false
   skia_use_fixed_gamma_text = is_android
   skia_use_fontconfig = is_linux

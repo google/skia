@@ -176,7 +176,6 @@ GLOBIGNORE="gm/cgms.cpp:"\
 "gm/compressed_textures.cpp:"\
 "gm/fiddle.cpp:"\
 "gm/particles.cpp:"\
-"gm/xform.cpp:"\
 "gm/video_decoder.cpp:"
 
 # These tests do not compile with the WASM code (require other deps).

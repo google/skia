@@ -2106,15 +2106,6 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_lib("experimental_xform") {
-    sources = [
-      "experimental/xform/SkShape.cpp",
-      "experimental/xform/SkXform.cpp",
-      "experimental/xform/XContext.cpp",
-    ]
-    deps = [ ":skia" ]
-  }
-
   if (is_linux || is_mac) {
     if (skia_enable_skottie) {
       test_app("skottie_tool") {
@@ -2835,10 +2826,6 @@ if (skia_enable_tools) {
         "modules/svg",
         "//third_party/imgui",
       ]
-      if (skia_use_experimental_xform) {
-        deps += [ ":experimental_xform" ]
-        sources += [ "gm/xform.cpp" ]
-      }
       if (skia_use_vulkan) {
         deps += [
           "//third_party/externals/spirv-tools:spvtools",
