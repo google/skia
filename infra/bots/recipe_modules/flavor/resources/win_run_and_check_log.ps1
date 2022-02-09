@@ -34,8 +34,7 @@ $faults = Get-EventLog -LogName Application -InstanceId 1000 -EntryType Error `
   -After $begin -Before $end -ErrorAction SilentlyContinue
 
 if ($faults) {
-  Write-Host 'If the message below is unrelated to this run, `
-    please file a bug and assign to dogben.'
+  Write-Host 'First fault message:'
   Write-Host $faults[0].Message
   if ($res -eq 0) {
     $res = 2
