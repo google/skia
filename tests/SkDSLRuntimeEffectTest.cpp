@@ -59,7 +59,7 @@ public:
 
     void test(GrColor TL, GrColor TR, GrColor BL, GrColor BR,
               PreTestFn preTestCallback = nullptr) {
-        auto shader = fBuilder->makeShader(nullptr, false);
+        auto shader = fBuilder->makeShader();
         if (!shader) {
             REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));
             return;

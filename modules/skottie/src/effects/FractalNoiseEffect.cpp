@@ -293,7 +293,7 @@ private:
             fSubMatrix.rc(0,2), fSubMatrix.rc(1,2), fSubMatrix.rc(2,2),
         };
 
-        return builder.makeShader(&fMatrix, false);
+        return builder.makeShader(&fMatrix);
     }
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {

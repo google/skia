@@ -237,7 +237,7 @@ private:
         builder.uniform("selector_offset") = selector_o;
 
         // TODO: RGB->HSL stage
-        return builder.makeShader(nullptr, false);
+        return builder.makeShader();
     }
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {

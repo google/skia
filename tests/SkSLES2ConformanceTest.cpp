@@ -69,7 +69,7 @@ static void test_expect_pass(skiatest::Reporter* r, SkSurface* surface, const ch
     }
 
     SkRuntimeShaderBuilder builder(result.effect);
-    sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
+    sk_sp<SkShader> shader = builder.makeShader();
     if (!shader) {
         ERRORF(r, "%s: Unable to build shader", testFile);
         return;

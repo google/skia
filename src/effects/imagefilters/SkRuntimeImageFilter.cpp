@@ -63,7 +63,7 @@ sk_sp<SkImageFilter> SkMakeRuntimeImageFilter(sk_sp<SkRuntimeEffect> effect,
     // Rather than replicate all of the checks from makeShader here, just try to create a shader
     // once, to determine if everything is valid.
     sk_sp<SkShader> child = nullptr;
-    auto shader = effect->makeShader(uniforms, &child, 1, nullptr, false);
+    auto shader = effect->makeShader(uniforms, &child, 1);
     if (!shader) {
         // Could be wrong signature, wrong uniform block size, wrong number/type of children, etc...
         return nullptr;
@@ -189,7 +189,7 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
     for (int i = 0; i < inputCount; i++) {
         fShaderBuilder.child(fChildShaderNames[i].c_str()) = inputShaders[i];
     }
-    sk_sp<SkShader> shader = fShaderBuilder.makeShader(nullptr, false);
+    sk_sp<SkShader> shader = fShaderBuilder.makeShader();
     // Remove the inputs from the builder to avoid unnecessarily prolonging the shader's lifetime
     for (int i = 0; i < inputCount; i++) {
         fShaderBuilder.child(fChildShaderNames[i].c_str()) = nullptr;

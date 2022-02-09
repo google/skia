@@ -78,7 +78,7 @@ public:
         builder.uniform("gColor") = SkColor4f{1, 0, 0, 1};
 
         SkPaint p;
-        p.setShader(builder.makeShader(&localM, true));
+        p.setShader(builder.makeShader(&localM));
         canvas->drawRect({0, 0, 256, 256}, p);
     }
 };
@@ -168,7 +168,7 @@ public:
         builder.child("threshold_map") = fThreshold;
 
         SkPaint paint;
-        paint.setShader(builder.makeShader(nullptr, true));
+        paint.setShader(builder.makeShader());
         canvas->drawRect({0, 0, 256, 256}, paint);
 
         auto draw = [&](SkScalar x, SkScalar y, sk_sp<SkShader> shader) {
@@ -214,7 +214,7 @@ public:
         builder.uniform("in_colors1") = SkColors::kGreen;
 
         SkPaint paint;
-        paint.setShader(builder.makeShader(nullptr, true));
+        paint.setShader(builder.makeShader());
         canvas->drawRect({0, 0, 512, 512}, paint);
     }
 };
@@ -255,7 +255,7 @@ public:
         builder.child("child") = fMandrill->makeShader(sampling);
 
         SkPaint paint;
-        paint.setShader(builder.makeShader(nullptr, true));
+        paint.setShader(builder.makeShader());
         canvas->translate(256, 0);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
     }
@@ -331,13 +331,13 @@ public:
 
         // Now draw the image with an identity color cube - it should look like the original
         builder.child("color_cube") = fIdentityCube->makeShader(sampling, normalize);
-        paint.setShader(builder.makeShader(nullptr, true));
+        paint.setShader(builder.makeShader());
         canvas->translate(256, 0);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
 
         // ... and with a sepia-tone color cube. This should match the sepia-toned image.
         builder.child("color_cube") = fSepiaCube->makeShader(sampling, normalize);
-        paint.setShader(builder.makeShader(nullptr, true));
+        paint.setShader(builder.makeShader());
         canvas->translate(0, 256);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
     }
@@ -447,13 +447,13 @@ public:
         // First, we leave the child as null, so sampling it returns the default (paint) color
         SkPaint paint;
         paint.setColor4f({ 0.25f, 0.75f, 0.75f, 1.0f });
-        paint.setShader(builder.makeShader(nullptr, false));
+        paint.setShader(builder.makeShader());
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
 
         // Now we bind an image shader as the child. This (by convention) scales by the paint alpha
         builder.child("child") = fMandrill->makeShader(SkSamplingOptions());
         paint.setColor4f({ 1.0f, 1.0f, 1.0f, 0.5f });
-        paint.setShader(builder.makeShader(nullptr, false));
+        paint.setShader(builder.makeShader());
         canvas->translate(256, 0);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
 
@@ -543,7 +543,7 @@ public:
         SkMatrix cornerToLocal;
         cornerToLocal.setScaleTranslate(cornerWidth, cornerHeight, superRRect.centerX(),
                                         superRRect.centerY());
-        canvas->clipShader(builder.makeShader(&cornerToLocal, false));
+        canvas->clipShader(builder.makeShader(&cornerToLocal));
 
         // Bloat the outer edges of the rect we will draw so it contains all the antialiased pixels.
         // Bloat by a full pixel instead of half in case Skia is in a mode that draws this rect with
@@ -647,7 +647,7 @@ public:
         builder.uniform("in_colors0") = SkColor4f{0.75f, 0.25f, 0.0f, 1.0f};
         builder.uniform("in_colors1") = SkColor4f{0.0f, 0.75f, 0.25f, 1.0f};
         SkPaint paint;
-        paint.setShader(builder.makeShader(nullptr, true));
+        paint.setShader(builder.makeShader());
 
         canvas->save();
         canvas->clear(SK_ColorWHITE);
@@ -694,7 +694,7 @@ DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
 
     SkRuntimeShaderBuilder builder(SkRuntimeEffect::MakeForShader(SkString(scale)).effect);
     builder.child("child") = shader;
-    p.setShader(builder.makeShader(nullptr, false));
+    p.setShader(builder.makeShader());
 
     canvas->drawPaint(p);
 }
@@ -710,7 +710,7 @@ static sk_sp<SkShader> normal_map_shader() {
         }
     )";
     auto effect = SkRuntimeEffect::MakeForShader(SkString(kSrc)).effect;
-    return effect->makeShader(nullptr, {}, nullptr, true);
+    return effect->makeShader(nullptr, {});
 }
 
 static sk_sp<SkImage> normal_map_image() {
@@ -765,7 +765,7 @@ static sk_sp<SkShader> lit_shader(sk_sp<SkShader> normals) {
         }
     )";
     auto effect = SkRuntimeEffect::MakeForShader(SkString(kSrc)).effect;
-    return effect->makeShader(nullptr, &normals, 1, nullptr, true);
+    return effect->makeShader(nullptr, &normals, 1);
 }
 
 static sk_sp<SkShader> lit_shader_linear(sk_sp<SkShader> normals) {
@@ -779,7 +779,7 @@ static sk_sp<SkShader> lit_shader_linear(sk_sp<SkShader> normals) {
         }
     )";
     auto effect = SkRuntimeEffect::MakeForShader(SkString(kSrc)).effect;
-    return effect->makeShader(nullptr, &normals, 1, nullptr, true);
+    return effect->makeShader(nullptr, &normals, 1);
 }
 
 DEF_SIMPLE_GM(paint_alpha_normals_rt, canvas, 512,512) {

@@ -44,8 +44,7 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> bytes, const SkRuntimeEffect:
     }
     sk_sp<SkData> uniformBytes =
             SkData::MakeSubset(bytes.get(), bytes->size() - kReservedBytes, effect->uniformSize());
-    auto shader = effect->makeShader(uniformBytes, /*children=*/nullptr, /*childCount=*/0,
-                                     /*localMatrix=*/nullptr, /*isOpaque=*/false);
+    auto shader = effect->makeShader(uniformBytes, /*children=*/{});
     if (!shader) {
         return false;
     }

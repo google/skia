@@ -266,8 +266,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     canvas->save();
 
     sk_sp<SkSL::DebugTrace> debugTrace;
-    auto shader = fEffect->makeShader(std::move(inputs), fChildren.data(), fChildren.count(),
-                                      nullptr, false);
+    auto shader = fEffect->makeShader(std::move(inputs), fChildren.data(), fChildren.count());
     if (writeTrace || writeDump) {
         SkIPoint traceCoord = {fTraceCoord[0], fTraceCoord[1]};
         SkRuntimeEffect::TracedShader traced = SkRuntimeEffect::MakeTraced(std::move(shader),

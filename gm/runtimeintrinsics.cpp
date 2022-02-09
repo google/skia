@@ -139,9 +139,8 @@ static void plot(SkCanvas* canvas,
     builder.uniform("yScale") = 1.0f  / (yMax - yMin);
     builder.uniform("yBias")  = -yMin / (yMax - yMin);
 
-    SkBitmap bitmap = draw_shader(canvas,
-                                  builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false),
-                                  /*allowRasterFallback=*/!requireES3);
+    SkBitmap bitmap =
+            draw_shader(canvas, builder.makeShader(), /*allowRasterFallback=*/!requireES3);
     if (!bitmap.empty()) {
         // Plot.
         SkPaint plotPaint({ 0.0f, 0.5f, 0.0f, 1.0f });
@@ -463,7 +462,7 @@ static void plot_matrix_comp_mult(SkCanvas* canvas,
     builder.uniform("m1") = mtx1;
     builder.uniform("m2") = mtx2;
 
-    draw_shader(canvas, builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false));
+    draw_shader(canvas, builder.makeShader());
 
     canvas->restore();
     next_column(canvas);
@@ -501,7 +500,7 @@ static void plot_matrix_inverse(SkCanvas* canvas, std::array<float, N*N> mtx, co
     builder.uniform("bias")  = 0.5f;
     builder.uniform("m")     = mtx;
 
-    draw_shader(canvas, builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false));
+    draw_shader(canvas, builder.makeShader());
 
     canvas->restore();
     next_column(canvas);
@@ -588,12 +587,7 @@ static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label) {
     T uniformData[2] = { -2, -2 };
     sk_sp<SkData> uniforms = SkData::MakeWithCopy(uniformData, sizeof(uniformData));
 
-    draw_shader(canvas,
-                effect->makeShader(uniforms,
-                                   /*children=*/nullptr,
-                                   /*childCount=*/0,
-                                   /*localMatrix=*/nullptr,
-                                   /*isOpaque=*/false));
+    draw_shader(canvas, effect->makeShader(uniforms, /*children=*/{}));
 
     canvas->restore();
     next_column(canvas);

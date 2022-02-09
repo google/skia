@@ -1843,7 +1843,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
 
             OptionalMatrix localMatrix(mPtr);
-            return self.makeShader(inputs, nullptr, 0, &localMatrix, isOpaque);
+            return self.makeShader(inputs, nullptr, 0, &localMatrix);
         }))
         .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self, WASMPointerF32 fPtr, size_t fLen, bool isOpaque,
                                                                   WASMPointerU32 cPtrs, size_t cLen,
@@ -1860,7 +1860,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 children[i] = sk_ref_sp<SkShader>(childrenPtrs[i]);
             }
             OptionalMatrix localMatrix(mPtr);
-            auto s = self.makeShader(inputs, children, cLen, &localMatrix, isOpaque);
+            auto s = self.makeShader(inputs, children, cLen, &localMatrix);
             delete[] children;
             return s;
         }))

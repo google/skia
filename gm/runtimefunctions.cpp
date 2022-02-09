@@ -48,7 +48,7 @@ class RuntimeFunctions : public skiagm::GM {
 
         SkColor4f inputColor = { 1, 0, 0, 1 };
         auto shader = gEffect->makeShader(SkData::MakeWithCopy(&inputColor, sizeof(inputColor)),
-                                          nullptr, 0, &localM, true);
+                                          nullptr, 0, &localM);
         SkPaint p;
         p.setShader(std::move(shader));
         canvas->drawRect({0, 0, 256, 256}, p);

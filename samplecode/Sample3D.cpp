@@ -428,7 +428,7 @@ public:
 
         SkPaint paint;
         paint.setColor(color);
-        paint.setShader(builder.makeShader(nullptr, true));
+        paint.setShader(builder.makeShader());
 
         canvas->drawRRect(fRR, paint);
     }

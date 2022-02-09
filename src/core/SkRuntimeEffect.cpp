@@ -1421,7 +1421,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
     }
     SkCanvas* canvas = surf->getCanvas();
     SkTLazy<SkCanvas> tempCanvas;
-    auto shader = this->makeShader(std::move(uniforms), children, localMatrix, false);
+    auto shader = this->makeShader(std::move(uniforms), children, localMatrix);
     if (!shader) {
         return nullptr;
     }

@@ -139,7 +139,8 @@ private:
         if (!fEffect) {
             return;
         }
-        sk_sp<SkShader> shader = fEffect->makeShader(buildUniformData(), {/* TODO: child support */}, &SkMatrix::I(), false);
+        sk_sp<SkShader> shader =
+                fEffect->makeShader(buildUniformData(), {/* TODO: child support */});
         this->node()->setShader(std::move(shader));
     }
 };

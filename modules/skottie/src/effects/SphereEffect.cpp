@@ -220,7 +220,7 @@ private:
         const auto lm = SkMatrix::Translate(fCenter.fX, fCenter.fY) *
                         SkMatrix::Scale(fRadius, fRadius);
 
-        return builder.makeShader(&lm, false);
+        return builder.makeShader(&lm);
     }
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {

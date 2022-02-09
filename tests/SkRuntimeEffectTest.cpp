@@ -333,7 +333,7 @@ public:
     }
 
     void test(std::array<GrColor, 4> expected, PreTestFn preTestCallback = nullptr) {
-        auto shader = fBuilder->makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
+        auto shader = fBuilder->makeShader();
         if (!shader) {
             REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));
             return;
@@ -350,7 +350,7 @@ public:
     }
 
     std::string trace(const SkIPoint& traceCoord) {
-        sk_sp<SkShader> shader = fBuilder->makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
+        sk_sp<SkShader> shader = fBuilder->makeShader();
         if (!shader) {
             REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));
             return {};
@@ -844,10 +844,10 @@ DEF_TEST(SkRuntimeShaderBuilderReuse, r) {
     // Test passes if this sequence doesn't assert.  skbug.com/10667
     SkRuntimeShaderBuilder b(std::move(effect));
     b.uniform("x") = 0.0f;
-    auto shader_0 = b.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
+    auto shader_0 = b.makeShader();
 
     b.uniform("x") = 1.0f;
-    auto shader_1 = b.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
+    auto shader_1 = b.makeShader();
 }
 
 DEF_TEST(SkRuntimeBlendBuilderReuse, r) {
@@ -892,7 +892,7 @@ DEF_TEST(SkRuntimeShaderBuilderSetUniforms, r) {
     REPORTER_ASSERT(r, !b.uniform("offset").set<float>(origin, 3));
 #endif
 
-    auto shader = b.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
+    auto shader = b.makeShader();
 }
 
 DEF_TEST(SkRuntimeEffectThreaded, r) {
@@ -945,9 +945,9 @@ static void test_RuntimeEffectStructNameReuse(skiatest::Reporter* r, GrRecording
     ));
     REPORTER_ASSERT(r, childEffect, "%s\n", err.c_str());
     sk_sp<SkShader> nullChild = nullptr;
-    sk_sp<SkShader> child = childEffect->makeShader(/*uniforms=*/nullptr, &nullChild,
-                                                    /*childCount=*/1, /*localMatrix=*/nullptr,
-                                                    /*isOpaque=*/false);
+    sk_sp<SkShader> child = childEffect->makeShader(/*uniforms=*/nullptr,
+                                                    &nullChild,
+                                                    /*childCount=*/1);
 
     SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> surface = rContext
