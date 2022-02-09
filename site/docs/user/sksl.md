@@ -63,7 +63,7 @@ own shader code, you don't use `sample`. Instead, the `shader` object has a
 `.eval()` method. Regardless, Skia has simple methods for creating an `SkShader`
 from an `SkImage`, so it's easy to use images in your runtime effects:
 
-<fiddle-embed-sk name='3654053c76b5c23f18eb9a1c82abbde4'></fiddle-embed-sk>
+<fiddle-embed-sk name='a998917a6e0cdf5cb3a06fe9d9630af3'></fiddle-embed-sk>
 
 Because the object you bind and evaluate is an `SkShader`, you can directly use
 any Skia shader, without necessarily turning it into an image (texture) first.
@@ -72,12 +72,12 @@ texture created to hold the gradient. Skia generates a single fragment shader
 that computes the gradient color, samples from the image's texture, and then
 multiplies the two together:
 
-<fiddle-embed-sk name='f282a4411782ed92057350e339586502'></fiddle-embed-sk>
+<fiddle-embed-sk name='7085607d39028050efb91c0fe6131210'></fiddle-embed-sk>
 
 Of course, you can even invoke another runtime effect, allowing you to combine
 shader snippets dynamically:
 
-<fiddle-embed-sk name='2151b061428f47844a2500b57c887ddf'></fiddle-embed-sk>
+<fiddle-embed-sk name='d2648c424e41cdd700330b7196283766'></fiddle-embed-sk>
 
 ---
 
@@ -99,7 +99,7 @@ passed to you, the scale is correct. However, if you want to adjust those
 coordinates (to do some kind of re-mapping of the image), remember that the
 coordinates are scaled up to the dimensions of the image:
 
-<fiddle-embed-sk name='ddbd4142c1c88232ae131d27266e72b3'></fiddle-embed-sk>
+<fiddle-embed-sk name='30a9eb3750ceaa3b88342938ee353071'></fiddle-embed-sk>
 
 ---
 
@@ -165,9 +165,9 @@ that is actually what you want when working with uniform colors. By labeling uni
 colors this way, your source colors (that you place in uniforms) will represent the
 same, consistent color regardless of the color space of the destination surface.
 
-<fiddle-embed-sk name='63b1db24562415d25dcc6f8dd6b2b10c'></fiddle-embed-sk>
+<fiddle-embed-sk name='4f9365db3b8a52f767c57484eb6cad29'></fiddle-embed-sk>
 
-### Raw Image Shaders (no cs, no premul)
+### Raw Image Shaders
 
 Although most images contain colors that should be color managed, some images
 contain data that isn't actually colors. This includes images storing normals,
@@ -189,7 +189,7 @@ transformed to the working color space. This alters the normals, incorrectly.
 For the final draw, we use a raw image shader, which returns the original
 normals, ignoring the working color space.
 
-<fiddle-embed-sk name='f31ad2cbc2dd6e8a0676c21bc6203fa6'></fiddle-embed-sk>
+<fiddle-embed-sk name='d91814fd4dc87a46c0ab4a0587260718'></fiddle-embed-sk>
 
 ### Working In a Known Color Space
 
@@ -219,7 +219,7 @@ for example.
 Here's an example showing a sphere, with lighting math being done in the default
 working space (sRGB), and again with the math done in a linear space:
 
-<fiddle-embed-sk name='7bf001ff493544af05e35a68d8268f1e'></fiddle-embed-sk>
+<fiddle-embed-sk name='9e52c269cf3d47e5957e74d21288dd59'></fiddle-embed-sk>
 
 ---
 
@@ -253,4 +253,4 @@ The image below demonstrates this: properly premultiplied colors produce a smoot
 gradient as alpha decreases. Unpremultipled colors cause the gradient to display
 incorrectly, becoming too bright and shifting hue as the alpha changes.
 
-<fiddle-embed-sk name='4aa28e27a9682fec18d8c0ca265151ad'></fiddle-embed-sk>
+<fiddle-embed-sk name='91a25662aab86b212b946cb4df8b12ca'></fiddle-embed-sk>
