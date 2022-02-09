@@ -20,6 +20,7 @@ struct ShaderCaps;
 namespace skgpu {
 
 class GraphicsPipelineDesc;
+class GraphiteResourceKey;
 struct RenderPassDesc;
 class TextureInfo;
 
@@ -51,6 +52,12 @@ public:
     virtual bool isRenderable(const TextureInfo&) const = 0;
 
     int maxTextureSize() const { return fMaxTextureSize; }
+
+    virtual void buildKeyForTexture(SkISize dimensions,
+                                    const TextureInfo&,
+                                    ResourceType,
+                                    Shareable,
+                                    GraphiteResourceKey*) const = 0;
 
     // Returns the required alignment in bytes for the offset into a uniform buffer when binding it
     // to a draw.

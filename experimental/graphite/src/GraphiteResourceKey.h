@@ -30,12 +30,6 @@ public:
 
     ResourceType resourceType() const { return this->domain(); }
 
-    // Can the resource be held by multiple users at the same time?
-    // For example, stencil buffers, pipelines, etc.
-    enum class Shareable : bool {
-        kNo = false,
-        kYes = true,
-    };
     Shareable shareable() const { return fShareable; }
 
     GraphiteResourceKey& operator=(const GraphiteResourceKey& that) {
