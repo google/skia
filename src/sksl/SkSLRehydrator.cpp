@@ -85,7 +85,6 @@ private:
 Rehydrator::Rehydrator(Compiler& compiler, const uint8_t* src, size_t length,
         std::shared_ptr<SymbolTable> symbols)
     : fCompiler(compiler)
-    , fContext(compiler.fContext)
     , fSymbolTable(symbols ? std::move(symbols) : compiler.makeGLSLRootSymbolTable())
     SkDEBUGCODE(, fEnd(src + length)) {
     SkASSERT(fSymbolTable);
@@ -105,6 +104,10 @@ Rehydrator::~Rehydrator() {
     SkASSERT(fIP == fEnd);
 }
 #endif
+
+Context& Rehydrator::context() const {
+    return fCompiler.context();
+}
 
 Layout Rehydrator::layout() {
     switch (this->readU8()) {
@@ -269,24 +272,25 @@ const Type* Rehydrator::type() {
 
 std::unique_ptr<Program> Rehydrator::program() {
     [[maybe_unused]] uint8_t command = this->readU8();
+    Context& context = this->context();
     SkASSERT(command == kProgram_Command);
-    ProgramConfig* oldConfig = fContext->fConfig;
-    ModifiersPool* oldModifiersPool = fContext->fModifiersPool;
+    ProgramConfig* oldConfig = context.fConfig;
+    ModifiersPool* oldModifiersPool = context.fModifiersPool;
     auto config = std::make_unique<ProgramConfig>();
     config->fKind = (ProgramKind)this->readU8();
-    fContext->fConfig = config.get();
+    context.fConfig = config.get();
     fSymbolTable = fCompiler.moduleForProgramKind(config->fKind).fSymbols;
     auto modifiers = std::make_unique<ModifiersPool>();
-    fContext->fModifiersPool = modifiers.get();
+    context.fModifiersPool = modifiers.get();
     this->symbolTable();
     std::vector<std::unique_ptr<ProgramElement>> elements = this->elements();
-    fContext->fConfig = oldConfig;
-    fContext->fModifiersPool = oldModifiersPool;
+    context.fConfig = oldConfig;
+    context.fModifiersPool = oldModifiersPool;
     Program::Inputs inputs;
     inputs.fUseFlipRTUniform = this->readU8();
-    return std::make_unique<Program>(nullptr, std::move(config), fContext, std::move(elements),
-            /*sharedElements=*/std::vector<const ProgramElement*>(), std::move(modifiers),
-            fSymbolTable, /*pool=*/nullptr, inputs);
+    return std::make_unique<Program>(nullptr, std::move(config), fCompiler.fContext,
+            std::move(elements), /*sharedElements=*/std::vector<const ProgramElement*>(),
+            std::move(modifiers), fSymbolTable, /*pool=*/nullptr, inputs);
 }
 
 std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {
@@ -306,7 +310,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             const FunctionDeclaration* decl = this->symbolRef<FunctionDeclaration>(
                                                                 Symbol::Kind::kFunctionDeclaration);
             std::unique_ptr<Statement> body = this->statement();
-            auto result = FunctionDefinition::Convert(*fContext, /*line=*/-1, *decl,
+            auto result = FunctionDefinition::Convert(this->context(), /*line=*/-1, *decl,
                                                       std::move(body), fSymbolTable->isBuiltin());
             decl->setDefinition(result.get());
             return std::move(result);
@@ -379,11 +383,11 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kDo_Command: {
             std::unique_ptr<Statement> stmt = this->statement();
             std::unique_ptr<Expression> expr = this->expression();
-            return DoStatement::Make(*fContext, std::move(stmt), std::move(expr));
+            return DoStatement::Make(this->context(), std::move(stmt), std::move(expr));
         }
         case Rehydrator::kExpressionStatement_Command: {
             std::unique_ptr<Expression> expr = this->expression();
-            return ExpressionStatement::Make(*fContext, std::move(expr));
+            return ExpressionStatement::Make(this->context(), std::move(expr));
         }
         case Rehydrator::kFor_Command: {
             AutoRehydratorSymbolTable symbols(this);
@@ -394,7 +398,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::unique_ptr<LoopUnrollInfo> unrollInfo =
                     Analysis::GetLoopUnrollInfo(/*line=*/-1, initializer.get(), test.get(),
                                                 next.get(), body.get(), /*errors=*/nullptr);
-            return ForStatement::Make(*fContext, /*line=*/-1, std::move(initializer),
+            return ForStatement::Make(this->context(), /*line=*/-1, std::move(initializer),
                                       std::move(test), std::move(next), std::move(body),
                                       std::move(unrollInfo), fSymbolTable);
         }
@@ -403,7 +407,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::unique_ptr<Expression> test = this->expression();
             std::unique_ptr<Statement> ifTrue = this->statement();
             std::unique_ptr<Statement> ifFalse = this->statement();
-            return IfStatement::Make(*fContext, /*line=*/-1, isStatic, std::move(test),
+            return IfStatement::Make(this->context(), /*line=*/-1, isStatic, std::move(test),
                                      std::move(ifTrue), std::move(ifFalse));
         }
         case Rehydrator::kInlineMarker_Command: {
@@ -436,7 +440,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                             std::move(statement)));
                 }
             }
-            return SwitchStatement::Make(*fContext, /*line=*/-1, isStatic, std::move(expr),
+            return SwitchStatement::Make(this->context(), /*line=*/-1, isStatic, std::move(expr),
                                          std::move(cases), fSymbolTable);
         }
         case Rehydrator::kVarDeclaration_Command: {
@@ -444,7 +448,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             const Type* baseType = this->type();
             int arraySize = this->readS8();
             std::unique_ptr<Expression> value = this->expression();
-            return VarDeclaration::Make(*fContext, var, baseType, arraySize, std::move(value));
+            return VarDeclaration::Make(this->context(), var, baseType, arraySize,
+                    std::move(value));
         }
         case Rehydrator::kVoid_Command:
             return nullptr;
@@ -472,62 +477,66 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             std::unique_ptr<Expression> left = this->expression();
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> right = this->expression();
-            return BinaryExpression::Make(*fContext, std::move(left), op, std::move(right));
+            return BinaryExpression::Make(this->context(), std::move(left), op, std::move(right));
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
-            return Literal::MakeBool(*fContext, /*line=*/-1, value);
+            return Literal::MakeBool(this->context(), /*line=*/-1, value);
         }
         case Rehydrator::kConstructorArray_Command: {
             const Type* type = this->type();
-            return ConstructorArray::Make(*fContext, /*line=*/-1, *type, this->expressionArray());
+            return ConstructorArray::Make(this->context(), /*line=*/-1, *type,
+                    this->expressionArray());
         }
         case Rehydrator::kConstructorCompound_Command: {
             const Type* type = this->type();
-            return ConstructorCompound::Make(*fContext, /*line=*/-1, *type,
+            return ConstructorCompound::Make(this->context(), /*line=*/-1, *type,
                                               this->expressionArray());
         }
         case Rehydrator::kConstructorDiagonalMatrix_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorDiagonalMatrix::Make(*fContext, /*line=*/-1, *type,
+            return ConstructorDiagonalMatrix::Make(this->context(), /*line=*/-1, *type,
                                                    std::move(args[0]));
         }
         case Rehydrator::kConstructorMatrixResize_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorMatrixResize::Make(*fContext, /*line=*/-1, *type,
+            return ConstructorMatrixResize::Make(this->context(), /*line=*/-1, *type,
                                                  std::move(args[0]));
         }
         case Rehydrator::kConstructorScalarCast_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorScalarCast::Make(*fContext, /*line=*/-1, *type, std::move(args[0]));
+            return ConstructorScalarCast::Make(this->context(), /*line=*/-1, *type,
+                    std::move(args[0]));
         }
         case Rehydrator::kConstructorSplat_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorSplat::Make(*fContext, /*line=*/-1, *type, std::move(args[0]));
+            return ConstructorSplat::Make(this->context(), /*line=*/-1, *type, std::move(args[0]));
         }
         case Rehydrator::kConstructorStruct_Command: {
             const Type* type = this->type();
-            return ConstructorStruct::Make(*fContext, /*line=*/-1, *type, this->expressionArray());
+            return ConstructorStruct::Make(this->context(), /*line=*/-1, *type,
+                    this->expressionArray());
         }
         case Rehydrator::kConstructorCompoundCast_Command: {
             const Type* type = this->type();
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
-            return ConstructorCompoundCast::Make(*fContext,/*line=*/-1, *type, std::move(args[0]));
+            return ConstructorCompoundCast::Make(this->context(),/*line=*/-1, *type,
+                    std::move(args[0]));
         }
         case Rehydrator::kFieldAccess_Command: {
             std::unique_ptr<Expression> base = this->expression();
             int index = this->readU8();
             FieldAccess::OwnerKind ownerKind = (FieldAccess::OwnerKind) this->readU8();
-            return FieldAccess::Make(*fContext, std::move(base), index, ownerKind);
+            return FieldAccess::Make(this->context(), std::move(base), index, ownerKind);
         }
         case Rehydrator::kFloatLiteral_Command: {
             const Type* type = this->type();
@@ -545,18 +554,19 @@ std::unique_ptr<Expression> Rehydrator::expression() {
                 f = &symbol->as<FunctionDeclaration>();
             } else if (symbol->is<UnresolvedFunction>()) {
                 const UnresolvedFunction& unresolved = symbol->as<UnresolvedFunction>();
-                f = FunctionCall::FindBestFunctionForCall(*fContext, unresolved.functions(), args);
+                f = FunctionCall::FindBestFunctionForCall(this->context(), unresolved.functions(),
+                        args);
                 SkASSERT(f);
             } else {
                 SkASSERT(false);
                 return nullptr;
             }
-            return FunctionCall::Make(*fContext, /*line=*/-1, type, *f, std::move(args));
+            return FunctionCall::Make(this->context(), /*line=*/-1, type, *f, std::move(args));
         }
         case Rehydrator::kIndex_Command: {
             std::unique_ptr<Expression> base = this->expression();
             std::unique_ptr<Expression> index = this->expression();
-            return IndexExpression::Make(*fContext, std::move(base), std::move(index));
+            return IndexExpression::Make(this->context(), std::move(base), std::move(index));
         }
         case Rehydrator::kIntLiteral_Command: {
             const Type* type = this->type();
@@ -566,16 +576,16 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kPostfix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return PostfixExpression::Make(*fContext, std::move(operand), op);
+            return PostfixExpression::Make(this->context(), std::move(operand), op);
         }
         case Rehydrator::kPrefix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return PrefixExpression::Make(*fContext, op, std::move(operand));
+            return PrefixExpression::Make(this->context(), op, std::move(operand));
         }
         case Rehydrator::kSetting_Command: {
             std::string name(this->readString());
-            return Setting::Convert(*fContext, /*line=*/-1, name);
+            return Setting::Convert(this->context(), /*line=*/-1, name);
         }
         case Rehydrator::kSwizzle_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -584,13 +594,13 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < count; ++i) {
                 components.push_back(this->readU8());
             }
-            return Swizzle::Make(*fContext, std::move(base), components);
+            return Swizzle::Make(this->context(), std::move(base), components);
         }
         case Rehydrator::kTernary_Command: {
             std::unique_ptr<Expression> test = this->expression();
             std::unique_ptr<Expression> ifTrue = this->expression();
             std::unique_ptr<Expression> ifFalse = this->expression();
-            return TernaryExpression::Make(*fContext, std::move(test),
+            return TernaryExpression::Make(this->context(), std::move(test),
                                            std::move(ifTrue), std::move(ifFalse));
         }
         case Rehydrator::kVariableReference_Command: {

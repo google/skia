@@ -259,12 +259,13 @@ private:
 
     const Type* type();
 
-    ErrorReporter* errorReporter() { return fContext->fErrors; }
+    Context& context() const;
 
-    ModifiersPool& modifiersPool() const { return *fContext->fModifiersPool; }
+    ErrorReporter* errorReporter() const { return this->context().fErrors; }
+
+    ModifiersPool& modifiersPool() const { return *this->context().fModifiersPool; }
 
     Compiler& fCompiler;
-    std::shared_ptr<Context> fContext;
     std::shared_ptr<SymbolTable> fSymbolTable;
     std::vector<const Symbol*> fSymbols;
 
