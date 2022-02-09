@@ -23,6 +23,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyphRun.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeForGPU.h"
@@ -127,17 +128,15 @@ public:
     bool readDescriptor(SkAutoDescriptor* ad) {
         uint32_t descLength = 0u;
         if (!read<uint32_t>(&descLength)) return false;
-        if (descLength < sizeof(SkDescriptor)) return false;
-        if (descLength != SkAlign4(descLength)) return false;
 
-        auto* result = this->ensureAtLeast(descLength, alignof(SkDescriptor));
-        if (!result) return false;
+        auto* underlyingBuffer = this->ensureAtLeast(descLength, alignof(SkDescriptor));
+        if (!underlyingBuffer) return false;
+        SkReadBuffer buffer((void*)underlyingBuffer, descLength);
+        auto autoDescriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
+        if (!autoDescriptor.has_value()) { return false; }
 
-        ad->reset(descLength);
-        memcpy(ad->getDesc(), const_cast<const char*>(result), descLength);
-
-        if (ad->getDesc()->getLength() > descLength) return false;
-        return ad->getDesc()->isValid();
+        *ad = std::move(*autoDescriptor);
+        return true;
     }
 
     const volatile void* read(size_t size, size_t alignment) {
