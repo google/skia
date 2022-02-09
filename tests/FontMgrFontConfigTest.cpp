@@ -136,29 +136,38 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
     FcConfig* config = build_fontconfig_with_fontfile("/fonts/NotoSansCJK-VF-subset.otf.ttc");
     sk_sp<SkFontConfigInterfaceDirect> fciDirect(new SkFontConfigInterfaceDirect(config));
 
-    std::vector<std::string> family_names{{"Noto Sans CJK JP",
-                                           "Noto Sans CJK HK",
-                                           "Noto Sans CJK SC",
-                                           "Noto Sans CJK TC",
-                                           "Noto Sans CJK KR"}};
-    std::vector<int> weights = {100, 300, 350, 400, 500, 700, 900};
-    std::vector<bool> highBitsExpectation = {false, true, true, true, true, true};
+    static constexpr const char* family_names[]{"Noto Sans CJK JP",
+                                                "Noto Sans CJK HK",
+                                                "Noto Sans CJK SC",
+                                                "Noto Sans CJK TC",
+                                                "Noto Sans CJK KR"};
+    static constexpr const struct Test {
+        int weight;
+        bool highBitsExpectation;
+    } tests[] {
+        {100, false},
+        {300, true },
+        {350, true },
+        {400, true },
+        {500, true },
+        {700, true },
+        {900, true },
+    };
 
-    for (const auto& font_name : family_names) {
-        for (size_t i = 0; i < weights.size(); ++i) {
-            auto weight = weights[i];
+    for (auto&& font_name : family_names) {
+        for (auto&& [weight, highBitsExpectation] : tests) {
             SkFontStyle fontStyle(weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
 
             SkFontConfigInterface::FontIdentity resultIdentity;
             SkFontStyle resultStyle;
             SkString resultFamily;
             const bool r = fciDirect->matchFamilyName(
-                    font_name.c_str(), fontStyle, &resultIdentity, &resultFamily, &resultStyle);
+                    font_name, fontStyle, &resultIdentity, &resultFamily, &resultStyle);
 
             REPORTER_ASSERT(reporter, r, "Expecting to find a match result.");
             REPORTER_ASSERT(
                     reporter,
-                    (resultIdentity.fTTCIndex >> 16 > 0) == highBitsExpectation[i],
+                    (resultIdentity.fTTCIndex >> 16 > 0) == highBitsExpectation,
                     "Expected to have the ttcIndex' upper 16 bits refer to a named instance.");
 
             // Intentionally go through manually creating the typeface so that SkFontStyle is
@@ -175,7 +184,7 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
             typeface->getFamilyName(&family_from_typeface);
 
             REPORTER_ASSERT(reporter,
-                            family_from_typeface == SkString(font_name.c_str()),
+                            family_from_typeface == SkString(font_name),
                             "Matched font's family name should match the request.");
 
             SkFontStyle intrinsic_style = typeface->fontStyle();
