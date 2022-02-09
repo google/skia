@@ -688,9 +688,9 @@ function runtimeEffectTests(CK: CanvasKit) {
     });
     const someMatr = CK.Matrix.translated(2, 60);
     const s1 = rt.makeShader([0, 1]); // $ExpectType Shader
-    const s2 = rt.makeShader([0, 1], true, someMatr); // $ExpectType Shader
-    const s3 = rt.makeShaderWithChildren([4, 5], true, [s1, s2]); // $ExpectType Shader
-    const s4 = rt.makeShaderWithChildren([4, 5], true, [s1, s2], someMatr); // $ExpectType Shader
+    const s2 = rt.makeShader([0, 1], someMatr); // $ExpectType Shader
+    const s3 = rt.makeShaderWithChildren([4, 5], [s1, s2]); // $ExpectType Shader
+    const s4 = rt.makeShaderWithChildren([4, 5], [s1, s2], someMatr); // $ExpectType Shader
     const a = rt.getUniform(1); // $ExpectType SkSLUniform
     const b = rt.getUniformCount(); // $ExpectType number
     const c = rt.getUniformFloatCount(); // $ExpectType number

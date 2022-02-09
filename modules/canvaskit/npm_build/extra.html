@@ -401,7 +401,7 @@
       0.5,
       150, 150,
       0, 1, 0, 1,
-      1, 0, 0, 1], true);
+      1, 0, 0, 1]);
     const paint = new CanvasKit.Paint();
     paint.setShader(shader);
     canvas.drawRect(CanvasKit.LTRBRect(0, 0, 300, 300), paint);
@@ -489,7 +489,7 @@
       rad_scale,
       quadrantSize/2, quadrantSize/2,
       1, 1, 1, 1,
-      0, 0, 0, 1], true);
+      0, 0, 0, 1]);
 
       const blur = CanvasKit.ImageFilter.MakeBlur(0.1, 0.1, CanvasKit.TileMode.Clamp, null);
 
@@ -513,7 +513,7 @@
 
       const blendShader = thresholdEffect.makeShaderWithChildren(
         [0.5, 10],
-        true, [dogShader, mandrillShader, thresholdShader]);
+        [dogShader, mandrillShader, thresholdShader]);
       draw(0, 0, blendShader);
       draw(quadrantSize, 0, thresholdShader);
       draw(0, quadrantSize, dogShader);

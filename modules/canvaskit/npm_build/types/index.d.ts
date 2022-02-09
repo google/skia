@@ -2550,20 +2550,18 @@ export interface RuntimeEffect extends EmbindObject<RuntimeEffect> {
     /**
      * Returns a shader executed using the given uniform data.
      * @param uniforms
-     * @param isOpaque
      * @param localMatrix
      */
-    makeShader(uniforms: Float32Array | number[], isOpaque?: boolean,
+    makeShader(uniforms: Float32Array | number[],
                localMatrix?: InputMatrix): Shader;
 
     /**
      * Returns a shader executed using the given uniform data and the children as inputs.
      * @param uniforms
-     * @param isOpaque
      * @param children
      * @param localMatrix
      */
-    makeShaderWithChildren(uniforms: Float32Array | number[], isOpaque?: boolean,
+    makeShaderWithChildren(uniforms: Float32Array | number[],
                            children?: Shader[], localMatrix?: InputMatrix): Shader;
 
     /**

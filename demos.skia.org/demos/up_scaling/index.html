@@ -111,7 +111,7 @@ function init() {
   draw_one_pass = function(canvas, y, scale) {
       canvas.save();
       canvas.scale(scale, 1.0);
-      shader_paint.setShader(effect.makeShaderWithChildren([Math.round(scale)], true, [imageShader], null));
+      shader_paint.setShader(effect.makeShaderWithChildren([Math.round(scale)], [imageShader], null));
       canvas.drawRect([0, 0, size, y], shader_paint);
       canvas.restore();
   }

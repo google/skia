@@ -117,14 +117,14 @@
 
         // Upper left, draw image using an algorithm (written in SkSL) between nearest neighbor and
         // linear interpolation with no smoothing.
-        paint.setShader(effect.makeShaderWithChildren([m, 0], true, [imageShader], null));
+        paint.setShader(effect.makeShaderWithChildren([m, 0], [imageShader], null));
         canvas.drawRect(CanvasKit.LTRBRect(0, 0, 4, 4), paint);
 
         // Lower left, draw image using an algorithm (written in SkSL) between nearest neighbor and
         // linear interpolation with smoothing enabled.
         canvas.save();
         canvas.translate(0, 4.1);
-        paint.setShader(effect.makeShaderWithChildren([m, 1], true, [imageShader], null));
+        paint.setShader(effect.makeShaderWithChildren([m, 1], [imageShader], null));
         canvas.drawRect(CanvasKit.LTRBRect(0, 0, 4, 4), paint);
         canvas.restore();
 

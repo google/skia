@@ -479,8 +479,7 @@ half4 main(float2 p) {
         Math.sin(Date.now() / 2000) / 5,
         256, 256,
         1, 0, 0, 1,
-        0, 1, 0, 1],
-        true/*=opaque*/);
+        0, 1, 0, 1]);
 
       paint.setShader(shader);
       canvas.drawRect(CanvasKit.LTRBRect(0, 0, 512, 512), paint);
@@ -660,7 +659,7 @@ half4 main(float2 p) {
       const uniforms = [...lightWorldPos, ...localToWorld, ...normalMatrix(localToWorld)];
       const paint = new CanvasKit.Paint();
       paint.setAntiAlias(true);
-      const shader = fact.makeShaderWithChildren(uniforms, true /*=opaque*/, children);
+      const shader = fact.makeShaderWithChildren(uniforms, children);
       paint.setShader(shader);
       canvas.drawRRect(rr, paint);
     }

@@ -1836,7 +1836,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkRuntimeEffect::MakeTraced(shader, SkIPoint::Make(traceCoordX, traceCoordY));
         }))
 #endif
-        .function("_makeShader", optional_override([](SkRuntimeEffect& self, WASMPointerF32 fPtr, size_t fLen, bool isOpaque,
+        .function("_makeShader", optional_override([](SkRuntimeEffect& self,
+                                                      WASMPointerF32 fPtr,
+                                                      size_t fLen,
                                                       WASMPointerF32 mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
             castUniforms(inputData, fLen, self);
@@ -1845,8 +1847,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             OptionalMatrix localMatrix(mPtr);
             return self.makeShader(inputs, nullptr, 0, &localMatrix);
         }))
-        .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self, WASMPointerF32 fPtr, size_t fLen, bool isOpaque,
-                                                                  WASMPointerU32 cPtrs, size_t cLen,
+        .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self,
+                                                                  WASMPointerF32 fPtr,
+                                                                  size_t fLen,
+                                                                  WASMPointerU32 cPtrs,
+                                                                  size_t cLen,
                                                                   WASMPointerF32 mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
             castUniforms(inputData, fLen, self);
