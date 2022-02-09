@@ -181,13 +181,23 @@ std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getGlobalV
 void SkVMDebugTracePlayer::updateVariableWriteTime(int slotIdx, size_t cursor) {
     // The slotIdx could point to any slot within a variable.
     // We want to update the write time on EVERY slot associated with this variable.
-    // The SlotInfo gives us enough information to find the affected range.
+    // The SlotInfo's groupIndex gives us enough information to find the affected range.
     const SkSL::SkVMSlotInfo& changedSlot = fDebugTrace->fSlotInfo[slotIdx];
-    slotIdx -= changedSlot.componentIndex;
-    int lastSlotIdx = slotIdx + (changedSlot.columns * changedSlot.rows);
+    slotIdx -= changedSlot.groupIndex;
+    SkASSERT(slotIdx >= 0);
+    SkASSERT(slotIdx < (int)fDebugTrace->fSlotInfo.size());
 
-    for (; slotIdx < lastSlotIdx; ++slotIdx) {
-        fSlots[slotIdx].fWriteTime = cursor;
+    for (;;) {
+        fSlots[slotIdx++].fWriteTime = cursor;
+
+        // Stop if we've reached the final slot.
+        if (slotIdx >= (int)fDebugTrace->fSlotInfo.size()) {
+            break;
+        }
+        // Each separate variable-group starts with a groupIndex of 0; stop when we detect this.
+        if (fDebugTrace->fSlotInfo[slotIdx].groupIndex == 0) {
+            break;
+        }
     }
 }
 

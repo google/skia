@@ -12,7 +12,7 @@
 
 #include <sstream>
 
-static constexpr char kTraceVersion[] = "20220119b";
+static constexpr char kTraceVersion[] = "20220209";
 
 namespace SkSL {
 
@@ -211,6 +211,9 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
         json.appendS32("columns", info.columns);
         json.appendS32("rows", info.rows);
         json.appendS32("index", info.componentIndex);
+        if (info.groupIndex != info.componentIndex) {
+            json.appendS32("groupIdx", info.groupIndex);
+        }
         json.appendS32("kind", (int)info.numberKind);
         json.appendS32("line", info.line);
         if (info.fnReturnValue >= 0) {
@@ -296,13 +299,14 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
         SkVMSlotInfo& info = fSlotInfo.back();
 
         // Populate the SlotInfo with our JSON data.
-        const skjson::StringValue* name    = (*element)["name"];
-        const skjson::NumberValue* columns = (*element)["columns"];
-        const skjson::NumberValue* rows    = (*element)["rows"];
-        const skjson::NumberValue* index   = (*element)["index"];
-        const skjson::NumberValue* kind    = (*element)["kind"];
-        const skjson::NumberValue* line    = (*element)["line"];
-        const skjson::NumberValue* retval  = (*element)["retval"];
+        const skjson::StringValue* name     = (*element)["name"];
+        const skjson::NumberValue* columns  = (*element)["columns"];
+        const skjson::NumberValue* rows     = (*element)["rows"];
+        const skjson::NumberValue* index    = (*element)["index"];
+        const skjson::NumberValue* groupIdx = (*element)["groupIdx"];
+        const skjson::NumberValue* kind     = (*element)["kind"];
+        const skjson::NumberValue* line     = (*element)["line"];
+        const skjson::NumberValue* retval   = (*element)["retval"];
         if (!name || !columns || !rows || !index || !kind || !line) {
             return false;
         }
@@ -311,6 +315,7 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
         info.columns = **columns;
         info.rows = **rows;
         info.componentIndex = **index;
+        info.groupIndex = groupIdx ? **groupIdx : info.componentIndex;
         info.numberKind = (SkSL::Type::NumberKind)(int)**kind;
         info.line = **line;
         info.fnReturnValue = retval ? **retval : -1;

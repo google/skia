@@ -28,6 +28,8 @@ struct SkVMSlotInfo {
     uint8_t                 columns = 1, rows = 1;
     /** Which component of the variable is this slot? (e.g. `vec4.z` is component 2) */
     uint8_t                 componentIndex = 0;
+    /** Complex types (arrays/structs) can be tracked as a "group" of adjacent slots. */
+    int                     groupIndex = 0;
     /** What kind of numbers belong in this slot? */
     SkSL::Type::NumberKind  numberKind = SkSL::Type::NumberKind::kNonnumeric;
     /** Where is this variable located in the program? */

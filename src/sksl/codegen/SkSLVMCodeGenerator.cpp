@@ -186,7 +186,11 @@ private:
     int getDebugFunctionInfo(const FunctionDeclaration& decl);
 
     /** Used by `createSlot` to add this variable to the SkVMSlotInfo array inside SkVMDebugTrace.*/
-    void addDebugSlotInfo(std::string varName, const Type& type, int line, int fnReturnValue);
+    void addDebugSlotInfo(const std::string& varName, const Type& type, int line,
+                          int fnReturnValue);
+
+    void addDebugSlotInfoForGroup(const std::string& varName, const Type& type, int line,
+                                  int* groupIndex, int fnReturnValue);
 
     /** Used by `getSlot` to create a new slot on its first access. */
     size_t createSlot(const std::string& name, const Type& type, int line, int fnReturnValue);
@@ -574,25 +578,23 @@ void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
     fSlots[slot].val = value;
 }
 
-void SkVMGenerator::addDebugSlotInfo(std::string varName,
-                                     const Type& type,
-                                     int line,
-                                     int fnReturnValue) {
+void SkVMGenerator::addDebugSlotInfoForGroup(const std::string& varName, const Type& type, int line,
+                                             int* groupIndex, int fnReturnValue) {
     SkASSERT(fDebugTrace);
     switch (type.typeKind()) {
         case Type::TypeKind::kArray: {
             int nslots = type.columns();
             const Type& elemType = type.componentType();
             for (int slot = 0; slot < nslots; ++slot) {
-                this->addDebugSlotInfo(varName + "[" + std::to_string(slot) + "]",
-                                       elemType, line, fnReturnValue);
+                this->addDebugSlotInfoForGroup(varName + "[" + std::to_string(slot) + "]", elemType,
+                                               line, groupIndex, fnReturnValue);
             }
             break;
         }
         case Type::TypeKind::kStruct: {
             for (const Type::Field& field : type.fields()) {
-                this->addDebugSlotInfo(varName + "." + std::string(field.fName),
-                                       *field.fType, line, fnReturnValue);
+                this->addDebugSlotInfoForGroup(varName + "." + std::string(field.fName),
+                                               *field.fType, line, groupIndex, fnReturnValue);
             }
             break;
         }
@@ -612,6 +614,7 @@ void SkVMGenerator::addDebugSlotInfo(std::string varName,
                 slotInfo.columns = type.columns();
                 slotInfo.rows = type.rows();
                 slotInfo.componentIndex = slot;
+                slotInfo.groupIndex = (*groupIndex)++;
                 slotInfo.numberKind = numberKind;
                 slotInfo.line = line;
                 slotInfo.fnReturnValue = fnReturnValue;
@@ -620,6 +623,13 @@ void SkVMGenerator::addDebugSlotInfo(std::string varName,
             break;
         }
     }
+}
+
+void SkVMGenerator::addDebugSlotInfo(const std::string& varName, const Type& type, int line,
+                                     int fnReturnValue) {
+    int groupIndex = 0;
+    this->addDebugSlotInfoForGroup(varName, type, line, &groupIndex, fnReturnValue);
+    SkASSERT((size_t)groupIndex == type.slotCount());
 }
 
 size_t SkVMGenerator::createSlot(const std::string& name,
