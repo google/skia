@@ -587,7 +587,7 @@ public:
         canvas->translate(0.f, 15.f);
 
         SkString config;
-        static const char* kFormat = "Ext(%s) - Int(%s)";
+        constexpr char kFormat[] = "Ext(%s) - Int(%s)";
         if (fEnableAAOverride) {
             SkASSERT(fAAOverride == SkCanvas::kAll_QuadAAFlags ||
                      fAAOverride == SkCanvas::kNone_QuadAAFlags);
