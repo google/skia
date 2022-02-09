@@ -5,3 +5,9 @@ void discard_stmt() { discard; }
 int do_loop(int x) { do { x++; } while(x < 1); return x; }
 
 int while_loop(int x) { while (x < 1) { x++; } return x; }
+
+/*%%*
+discard statement is only permitted in fragment shaders
+do-while loops are not supported
+while loops are not supported
+*%%*/

@@ -10,3 +10,17 @@ half4 main(half2 coords, half4 src, half4 dst) { return src * dst; }
 half4 main(half4 src, half4 dst, half4 bonusColor) { return src * dst; }
 
 half4 main(half4 src, half4 dst) { return src * dst; }  // the correct signature is allowed
+
+/*%%*
+'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
+'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
+unknown identifier 'src'
+'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
+unknown identifier 'src'
+'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
+unknown identifier 'src'
+unknown identifier 'dst'
+'main' parameters must be (vec4|float4|half4, vec4|float4|half4)
+unknown identifier 'src'
+unknown identifier 'dst'
+*%%*/

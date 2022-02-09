@@ -5,3 +5,7 @@
 half4 main(half4 color) {
     return sk_FragCoord.xy01;
 }
+
+/*%%*
+unknown identifier 'sk_FragCoord'
+*%%*/

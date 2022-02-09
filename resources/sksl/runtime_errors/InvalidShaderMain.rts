@@ -9,3 +9,13 @@ half4 main(float2 xy, half4 color, half4 bonusColor) { return color; }
 half4 main(half4 outOfOrderColor, float2 outOfOrderXy) { return color; }
 
 half4 main(float2 xy, half4 color) { return color; }  // the correct signature is allowed
+
+/*%%*
+'main' parameters must be (float2, (vec4|float4|half4)?)
+'main' parameters must be (float2, (vec4|float4|half4)?)
+unknown identifier 'color'
+'main' parameters must be (float2, (vec4|float4|half4)?)
+unknown identifier 'color'
+'main' parameters must be (float2, (vec4|float4|half4)?)
+unknown identifier 'color'
+*%%*/

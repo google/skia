@@ -20,7 +20,7 @@
 #include <sstream>
 #include <string_view>
 
-static void test_expect_fail(skiatest::Reporter* r, const char* testFile) {
+static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::ProgramKind kind) {
     sk_sp<SkData> shaderData = GetResourceAsData(testFile);
     if (!shaderData) {
         ERRORF(r, "%s: Unable to load file", SkOSPath::Basename(testFile).c_str());
@@ -60,8 +60,7 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile) {
     std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
     SkSL::Compiler compiler(caps.get());
     SkSL::Program::Settings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::ProgramKind::kFragment,
-                                                                     std::move(shaderString),
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::move(shaderString),
                                                                      settings);
 
     // If the code actually generated a working program, we've already failed.
@@ -97,9 +96,11 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile) {
     }
 }
 
-static void iterate_dir(const char* directory, const std::function<void(const char*)>& run) {
+static void iterate_dir(const char* directory,
+                        const char* extension,
+                        const std::function<void(const char*)>& run) {
     SkString resourceDirectory = GetResourcePath(directory);
-    SkOSFile::Iter iter(resourceDirectory.c_str(), ".sksl");
+    SkOSFile::Iter iter(resourceDirectory.c_str(), extension);
     SkString name;
 
     while (iter.next(&name, /*getDir=*/false)) {
@@ -109,7 +110,25 @@ static void iterate_dir(const char* directory, const std::function<void(const ch
 }
 
 DEF_TEST(SkSLErrorTest, r) {
-    iterate_dir("sksl/errors/", [&](const char* path) {
-        test_expect_fail(r, path);
+    iterate_dir("sksl/errors/", ".sksl", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kFragment);
+    });
+}
+
+DEF_TEST(SkSLRuntimeShaderErrorTest, r) {
+    iterate_dir("sksl/runtime_errors/", ".rts", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kRuntimeShader);
+    });
+}
+
+DEF_TEST(SkSLRuntimeColorFilterErrorTest, r) {
+    iterate_dir("sksl/runtime_errors/", ".rtcf", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kRuntimeColorFilter);
+    });
+}
+
+DEF_TEST(SkSLRuntimeBlenderErrorTest, r) {
+    iterate_dir("sksl/runtime_errors/", ".rtb", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kRuntimeBlender);
     });
 }

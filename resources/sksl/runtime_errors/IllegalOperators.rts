@@ -14,3 +14,19 @@ int bit_or    (int x) { return x |  1; }
 int bit_or_eq (int x) { return x |= 1; }
 int bit_xor   (int x) { return x ^  1; }
 int bit_xor_eq(int x) { return x ^= 1; }
+
+/*%%*
+operator '~' is not allowed
+operator '%' is not allowed
+operator '%=' is not allowed
+operator '<<' is not allowed
+operator '<<=' is not allowed
+operator '>>' is not allowed
+operator '>>=' is not allowed
+operator '&' is not allowed
+operator '&=' is not allowed
+operator '|' is not allowed
+operator '|=' is not allowed
+operator '^' is not allowed
+operator '^=' is not allowed
+*%%*/

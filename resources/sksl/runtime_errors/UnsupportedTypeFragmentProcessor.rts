@@ -3,3 +3,9 @@ uniform fragmentProcessor s;
 half4 main(float2 xy) {
     return half4(0);
 }
+
+/*%%*
+no type named 'fragmentProcessor'
+no type named 's'
+expected a declaration, but found ';'
+*%%*/

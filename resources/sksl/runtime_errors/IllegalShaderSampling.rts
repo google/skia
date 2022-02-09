@@ -31,3 +31,21 @@ half4 eval_blender_comma_expr() { return (b, b).eval(color, color); }
 half4 eval_blender() { return b.eval(color, color); }
 half4 eval_colorFilter() { return f.eval(color); }
 half4 eval_shader() { return s.eval(xy); }
+
+/*%%*
+no match for shader::eval(float2, half4)
+no match for shader::eval(half4)
+no match for shader::eval(half4, float2)
+no match for shader::eval()
+no match for shader::eval(float3x3)
+type mismatch: ',' cannot operate on 'int', 'shader'
+no match for colorFilter::eval()
+no match for colorFilter::eval(float2)
+no match for colorFilter::eval(float2, half4)
+type mismatch: ',' cannot operate on 'shader', 'colorFilter'
+no match for blender::eval()
+no match for blender::eval(half4)
+no match for blender::eval(float2)
+no match for blender::eval(float2, half4)
+type mismatch: ',' cannot operate on 'blender', 'blender'
+*%%*/

@@ -11,3 +11,13 @@ uniform int u;
 
 void expression_uniform_val()    { for (int i = 0; i < 1; i += u) {} }
 void expression_param_val(int p) { for (int i = 0; i < 1; i += p) {} }
+
+/*%%*
+missing loop expression
+invalid operator in loop expression
+loop index must be modified by a constant expression
+invalid operator in loop expression
+invalid operator in loop expression
+loop index must be modified by a constant expression
+loop index must be modified by a constant expression
+*%%*/

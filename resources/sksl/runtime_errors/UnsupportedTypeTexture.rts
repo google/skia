@@ -3,3 +3,7 @@ uniform texture2D s;
 half4 main(float2 xy) {
     return half4(0);
 }
+
+/*%%*
+invalid type
+*%%*/

@@ -1,5 +1,3 @@
-// Expect 3 errors
-
 // Legal cases that should not produce errors:
 void literal_index()    { int a[2]; a[0] = 0; a[1] = a[0]; }
 void const_var_index()  { int a[2]; const int b = 0; a[b] = 0; }
@@ -27,3 +25,8 @@ void param_index(int p) { int a[2]; a[p] = 0; }
 
 // Legal in SkSL when optimization is enabled:
 void func_index()      { int a[2]; a[int(abs(-1))] = 0; }
+
+/*%%*
+error: 23: index expression must be constant
+error: 24: index expression must be constant
+*%%*/

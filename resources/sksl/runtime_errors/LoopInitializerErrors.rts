@@ -12,3 +12,16 @@ uniform int u;
 
 void uniform_init()    { for (int i = u; i < 1; ++i) {} }
 void param_init(int p) { for (int i = p; i < 1; ++i) {} }
+
+/*%%*
+missing init declaration
+invalid init declaration
+missing loop index initializer
+invalid type for loop index
+invalid type for loop index
+construction of array type 'int[2]' is not supported
+unknown identifier 'i'
+unknown identifier 'i'
+loop index initializer must be a constant expression
+loop index initializer must be a constant expression
+*%%*/

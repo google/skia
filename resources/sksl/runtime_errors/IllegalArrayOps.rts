@@ -36,3 +36,23 @@ void sequence_T() { t1, t2; }
 int ternary_A(bool b) { return (b ? a1 : a2)    [0]; }
 int ternary_S(bool b) { return (b ? s1 : s2)  .x[0]; }
 int ternary_T(bool b) { return (b ? t1 : t2).s.x[0]; }
+
+/*%%*
+operator '=' can not operate on arrays (or structs containing arrays)
+operator '=' can not operate on arrays (or structs containing arrays)
+operator '=' can not operate on arrays (or structs containing arrays)
+functions may not return structs containing arrays
+functions may not return structs containing arrays
+operator '==' can not operate on arrays (or structs containing arrays)
+operator '==' can not operate on arrays (or structs containing arrays)
+operator '==' can not operate on arrays (or structs containing arrays)
+operator '!=' can not operate on arrays (or structs containing arrays)
+operator '!=' can not operate on arrays (or structs containing arrays)
+operator '!=' can not operate on arrays (or structs containing arrays)
+operator ',' can not operate on arrays (or structs containing arrays)
+operator ',' can not operate on arrays (or structs containing arrays)
+operator ',' can not operate on arrays (or structs containing arrays)
+ternary operator result may not be an array (or struct containing an array)
+ternary operator result may not be an array (or struct containing an array)
+ternary operator result may not be an array (or struct containing an array)
+*%%*/

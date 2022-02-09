@@ -11,3 +11,7 @@ half4 main(float2 xy) {
 
     return half4(0);
 }
+
+/*%%*
+error: program is too large
+*%%*/

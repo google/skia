@@ -23,3 +23,21 @@ void infinite_loop_eq1()  { for (int i = 0; i == 0; i-=0) {} }
 void infinite_loop_eq2()  { for (int i = 1; i == 1; i+=0) {} }
 void infinite_loop_ne1()  { for (int i = 0; i != 4; i--)  {} }
 void infinite_loop_ne2()  { for (int i = 0; i != 4; i+=3) {} }
+
+/*%%*
+loop must guarantee termination in fewer iterations
+invalid loop expression
+invalid loop expression
+loop must guarantee termination in fewer iterations
+loop index must not be modified within body of the loop
+loop index must not be modified within body of the loop
+loop index must not be modified within body of the loop
+loop must guarantee termination in fewer iterations
+loop must guarantee termination in fewer iterations
+loop must guarantee termination in fewer iterations
+loop must guarantee termination in fewer iterations
+invalid loop expression
+invalid loop expression
+loop must guarantee termination in fewer iterations
+loop must guarantee termination in fewer iterations
+*%%*/

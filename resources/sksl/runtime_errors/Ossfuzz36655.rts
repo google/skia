@@ -47,3 +47,18 @@ void amsk_Rfloat2x1i() {
 	;
 	;
 }
+
+/*%%*
+expected '(' to begin constructor invocation
+expected '(' to begin function call
+expected '(' to begin function call
+expected '(' to begin function call
+expected '(' to begin constructor invocation
+expected '(' to begin function call
+expected '(' to begin function call
+expected '(' to begin function call
+expected '(' to begin function call
+expected '(' to begin function call
+expected '(' to begin constructor invocation
+expected '(' to begin function call
+*%%*/

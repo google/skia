@@ -41,3 +41,42 @@ void access_h42() { half4x2 var; var[0][0]; }
 void access_u()   { uint var; var.x; }
 void access_us4() { ushort4 var; var.x; }
 void access_aus() { ushort var[2]; var[0].x; }
+
+/*%%*
+type 'float2x3' is not supported
+type 'float2x4' is not supported
+type 'float3x2' is not supported
+type 'float3x4' is not supported
+type 'float4x2' is not supported
+type 'float4x3' is not supported
+type 'half2x3' is not supported
+type 'half2x4' is not supported
+type 'half3x2' is not supported
+type 'half3x4' is not supported
+type 'half4x2' is not supported
+type 'half4x3' is not supported
+type 'uint' is not supported
+type 'uint2' is not supported
+type 'uint3' is not supported
+type 'uint4' is not supported
+type 'ushort' is not supported
+type 'ushort2' is not supported
+type 'ushort3' is not supported
+type 'ushort4' is not supported
+type 'uint4' is not supported
+type 'ushort' is not supported
+type 'float2x3' is not supported
+type 'half4x2' is not supported
+type 'ushort' is not supported
+type 'uint' is not supported
+type 'float2x3' is not supported
+type 'half4x2' is not supported
+type 'uint' is not supported
+type 'ushort4' is not supported
+type 'ushort' is not supported
+type 'float2x3' is not supported
+type 'half4x2' is not supported
+type 'uint' is not supported
+type 'ushort4' is not supported
+type 'ushort' is not supported
+*%%*/

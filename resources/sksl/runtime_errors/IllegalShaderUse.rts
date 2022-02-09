@@ -17,3 +17,18 @@ shader returned()          { return s1; }
 half4  constructed()       { return shader(s1).eval(xy); }
 half4  expression(bool b)  { return (b ? s1 : s2).eval(xy); }
 half4  dangling_eval()     { s1.eval; }
+
+/*%%*
+variables of type 'shader' must be uniform
+'in' variables not permitted in runtime effects
+variables of type 'shader' must be uniform
+variables of type 'shader' must be global
+variables of type 'shader' must be uniform
+parameters of type 'shader' not allowed
+unknown identifier 's'
+functions may not return opaque type 'shader'
+cannot construct 'shader'
+ternary expression of opaque type 'shader' not allowed
+expected '(' to begin method call
+function 'dangling_eval' can exit without returning a value
+*%%*/

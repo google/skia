@@ -13,3 +13,12 @@ vec4 main(vec2 coords) {
     mat4 bad5 = float3x3(0);
     return ivec4(1);
 }
+
+/*%%*
+expected 'vec2', but found 'int'
+expected 'int', but found 'mat2'
+expected 'bvec2', but found 'vec2'
+expected 'float2', but found 'vec3'
+expected 'mat4', but found 'float3x3'
+expected 'vec4', but found 'ivec4'
+*%%*/

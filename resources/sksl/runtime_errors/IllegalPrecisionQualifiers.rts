@@ -12,3 +12,16 @@ uniform lowp colorFilter no_opaque;
 uniform highp half no_half_highp;
 uniform mediump half no_half_mediump;
 uniform lowp half no_lowp_mediump;
+
+/*%%*
+only one precision qualifier can be used
+only one precision qualifier can be used
+only one precision qualifier can be used
+only one precision qualifier can be used
+type 'S' does not support precision qualifiers
+type 'bool' does not support precision qualifiers
+type 'colorFilter' does not support precision qualifiers
+type 'half' does not support precision qualifiers
+type 'half' does not support precision qualifiers
+type 'half' does not support precision qualifiers
+*%%*/
