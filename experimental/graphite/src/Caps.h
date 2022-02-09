@@ -56,6 +56,10 @@ public:
     // to a draw.
     size_t requiredUniformBufferAlignment() const { return fRequiredUniformBufferAlignment; }
 
+    // Returns the alignment in bytes for the offset into a Buffer when using it
+    // to transfer to or from a Texture with the given bytes per pixel.
+    virtual size_t getTransferBufferAlignment(size_t bytesPerPixel) const = 0;
+
     bool clampToBorderSupport() const { return fClampToBorderSupport; }
 
 protected:

@@ -64,6 +64,8 @@ private:
     bool isTexturable(MTLPixelFormat) const;
     bool isRenderable(MTLPixelFormat, uint32_t numSamples) const;
 
+    size_t getTransferBufferAlignment(size_t bytesPerPixel) const override;
+
     GPUFamily fGPUFamily;
     int fFamilyGroup;
 };

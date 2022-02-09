@@ -12,6 +12,7 @@
 
 #include <vector>
 
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 
@@ -33,18 +34,8 @@ struct MipLevel {
  * An UploadCommand represents a single set of uploads from a buffer to texture that
  * can be processed in a single command.
  */
-class UploadCommand {
-public:
-    // Process the current UploadList to make a list of UploadCommands
-    static UploadCommand Make(ResourceProvider*,
-                              sk_sp<TextureProxy> targetProxy,
-                              const std::vector<MipLevel>& levels,
-                              const SkIRect& dstRect);
-
+struct UploadCommand {
     void addCommand(ResourceProvider*, CommandBuffer*) const;
-
-private:
-    UploadCommand(sk_sp<Buffer>, sk_sp<TextureProxy>, std::vector<BufferTextureCopyData>);
 
     sk_sp<Buffer> fBuffer;
     sk_sp<TextureProxy> fTextureProxy;
@@ -63,8 +54,9 @@ private:
  */
 class UploadList {
 public:
-    void appendUpload(ResourceProvider*,
+    bool appendUpload(Recorder*,
                       sk_sp<TextureProxy> targetProxy,
+                      SkColorType colorType,
                       const std::vector<MipLevel>& levels,
                       const SkIRect& dstRect);
 

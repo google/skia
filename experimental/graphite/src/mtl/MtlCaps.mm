@@ -386,4 +386,8 @@ bool Caps::onAreColorTypeAndTextureInfoCompatible(SkColorType type,
             info.mtlTextureSpec().fFormat == MTLPixelFormatBGRA8Unorm);
 }
 
+size_t Caps::getTransferBufferAlignment(size_t bytesPerPixel) const {
+    return std::max(bytesPerPixel, getMinBufferAlignment());
+}
+
 } // namespace skgpu::mtl
