@@ -1,12 +1,15 @@
 ### Compilation failed:
 
 error: 2: expected '(' to begin constructor invocation
-error: 2: expected a declaration, but found ';'
-error: 2: expected a declaration, but found ';'
-error: 2: expected a declaration, but found ';'
-error: 2: expected a declaration, but found ';'
-error: 2: expected a declaration, but found ';'
-error: 2: expected a declaration, but found ';'
-error: 2: expected a declaration, but found ';'
-error: 3: expected a type, but found '}'
-9 errors
+error: 11: expected '(' to begin function call
+error: 17: expected '(' to begin function call
+error: 21: expected '(' to begin function call
+error: 23: expected '(' to begin constructor invocation
+error: 26: expected '(' to begin function call
+error: 32: expected '(' to begin function call
+error: 32: expected '(' to begin function call
+error: 35: expected '(' to begin function call
+error: 39: expected '(' to begin function call
+error: 43: expected '(' to begin constructor invocation
+error: 46: expected '(' to begin function call
+12 errors

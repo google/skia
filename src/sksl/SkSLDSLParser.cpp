@@ -337,13 +337,10 @@ void DSLParser::directive() {
    (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
 bool DSLParser::declaration() {
     Token lookahead = this->peek();
-    switch (lookahead.fKind) {
-        case Token::Kind::TK_SEMICOLON:
-            this->nextToken();
-            this->error(lookahead, "expected a declaration, but found ';'");
-            return false;
-        default:
-            break;
+    if (lookahead.fKind == Token::Kind::TK_SEMICOLON) {
+        this->nextToken();
+        this->error(lookahead, "expected a declaration, but found ';'");
+        return false;
     }
     DSLModifiers modifiers = this->modifiers();
     lookahead = this->peek();
@@ -1272,10 +1269,9 @@ std::optional<DSLBlock> DSLParser::block() {
                 return std::nullopt;
             default: {
                 DSLStatement statement = this->statement();
-                if (!statement.hasValue()) {
-                    return std::nullopt;
+                if (statement.hasValue()) {
+                    statements.push_back(statement.release());
                 }
-                statements.push_back(statement.release());
                 break;
             }
         }

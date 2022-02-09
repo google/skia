@@ -11,5 +11,5 @@ error: 16: functions may not return opaque type 'shader'
 error: 17: cannot construct 'shader'
 error: 18: ternary expression of opaque type 'shader' not allowed
 error: 19: expected '(' to begin method call
-error: 19: expected a type, but found '}'
+error: 19: function 'dangling_eval' can exit without returning a value
 12 errors

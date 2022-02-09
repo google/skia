@@ -1,10 +1,1 @@
 half i() { f[0 * (4, int4(3 `` -3689348940
-
-/*%%*
-unknown identifier 'f'
-expected ')' to complete function arguments, but found '`'
-expected ')' to complete expression, but found '`'
-integer is out of range for type 'int': 3689348940
-expected ']' to complete array access expression, but found ''
-expected ';', but found ''
-*%%*/

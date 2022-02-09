@@ -5,5 +5,4 @@ half4 main(float2 xy) {
 
 /*%%*
 expected '(' to begin constructor invocation
-expected a type, but found 'return'
 *%%*/
