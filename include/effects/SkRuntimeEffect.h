@@ -198,12 +198,10 @@ public:
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
                                size_t childCount,
-                               const SkMatrix* localMatrix = nullptr,
-                               bool /*isOpaque [DEPRECATED]*/ = false) const;
+                               const SkMatrix* localMatrix = nullptr) const;
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                SkSpan<ChildPtr> children,
-                               const SkMatrix* localMatrix = nullptr,
-                               bool /*isOpaque [DEPRECATED]*/ = false) const;
+                               const SkMatrix* localMatrix = nullptr) const;
 
     sk_sp<SkImage> makeImage(GrRecordingContext*,
                              sk_sp<SkData> uniforms,
@@ -483,8 +481,7 @@ public:
     SkRuntimeShaderBuilder(const SkRuntimeShaderBuilder&) = default;
     ~SkRuntimeShaderBuilder();
 
-    sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr,
-                               bool /*isOpaque [DEPRECATED]*/ = false);
+    sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr);
     sk_sp<SkImage> makeImage(GrRecordingContext*,
                              const SkMatrix* localMatrix,
                              SkImageInfo resultInfo,

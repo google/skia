@@ -56,7 +56,7 @@ static void ShaderBuilder_SetUniformMatrix(JNIEnv* env, jobject, jlong native_in
 
 static jlong ShaderBuilder_MakeShader(JNIEnv* env, jobject, jlong native_instance) {
     if (auto* builder = reinterpret_cast<SkRuntimeShaderBuilder*>(native_instance)) {
-        auto shader = builder->makeShader(nullptr, false);
+        auto shader = builder->makeShader();
         return reinterpret_cast<jlong>(shader.release());
     }
 

@@ -1321,8 +1321,7 @@ sk_sp<SkFlattenable> SkRuntimeBlender::CreateProc(SkReadBuffer& buffer) {
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                             sk_sp<SkShader> childShaders[],
                                             size_t childCount,
-                                            const SkMatrix* localMatrix,
-                                            bool /*isOpaque [DEPRECATED]*/) const {
+                                            const SkMatrix* localMatrix) const {
     SkSTArray<4, ChildPtr> children(childCount);
     for (size_t i = 0; i < childCount; ++i) {
         children.emplace_back(childShaders[i]);
@@ -1332,8 +1331,7 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
 
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                             SkSpan<ChildPtr> children,
-                                            const SkMatrix* localMatrix,
-                                            bool /*isOpaque [DEPRECATED]*/) const {
+                                            const SkMatrix* localMatrix) const {
     if (!this->allowShader()) {
         return nullptr;
     }
@@ -1555,8 +1553,7 @@ sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingCo
                                      mipmapped);
 }
 
-sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix,
-                                                   bool /*isOpaque [DEPRECATED]*/) {
+sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix) {
     return this->effect()->makeShader(
             this->uniforms(), SkMakeSpan(this->children(), this->numChildren()), localMatrix);
 }
