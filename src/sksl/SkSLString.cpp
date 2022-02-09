@@ -9,6 +9,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include <algorithm>
 #include <cinttypes>
+#include <cmath>
 #include <errno.h>
 #include <limits.h>
 #include <locale>
@@ -44,7 +45,7 @@ bool SkSL::stod(std::string_view s, SKSL_FLOAT* value) {
     std::stringstream buffer(str);
     buffer.imbue(std::locale::classic());
     buffer >> *value;
-    return !buffer.fail();
+    return !buffer.fail() && std::isfinite(*value);
 }
 
 bool SkSL::stoi(std::string_view s, SKSL_INT* value) {

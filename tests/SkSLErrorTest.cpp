@@ -74,18 +74,26 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile) {
     // Verify that the SkSL compiler actually emitted the expected error messages.
     // The list of expectations isn't necessarily exhaustive, though.
     std::string reportedErrors = compiler.errorText();
+    std::string originalErrors = reportedErrors;
+    bool reportOriginalErrors = false;
     for (const std::string& expectedError : expectedErrors) {
         // If this error wasn't reported, trigger an error.
         size_t pos = reportedErrors.find(expectedError.c_str());
         if (pos == std::string::npos) {
-            ERRORF(r, "%s: Expected an error that wasn't reported.\n    \"%s\"",
+            ERRORF(r, "%s: Expected an error that wasn't reported:\n%s\n",
                    SkOSPath::Basename(testFile).c_str(), expectedError.c_str());
+            reportOriginalErrors = true;
         } else {
             // We found the error that we expected to have. Remove that error from our report, and
             // everything preceding it as well. This ensures that we don't match the same error
             // twice, and that errors are reported in the order we expect.
             reportedErrors.erase(0, pos + expectedError.size());
         }
+    }
+
+    if (reportOriginalErrors) {
+        ERRORF(r, "%s: The following errors were reported:\n%s\n",
+               SkOSPath::Basename(testFile).c_str(), originalErrors.c_str());
     }
 }
 

@@ -1,0 +1,7 @@
+void main() {
+    sk_FragColor = half4(3.41e+38);
+}
+
+/*%%*
+floating-point value is too large:
+*%%*/
