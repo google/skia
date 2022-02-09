@@ -101,7 +101,7 @@ static void get_unit_tests(SkQPAssetManager* mgr, std::vector<SkQP::UnitTest>* u
                 continue;
             }
         }
-        if (exclude != matches_one && !test.fNeedsGpu) {
+        if (exclude != matches_one && test.fNeedsGpu) {
             unitTests->push_back(&test);
         }
     }
