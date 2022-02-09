@@ -37,7 +37,7 @@ public:
     uint32_t writeUniforms(SkSpan<const SkUniform> definitions,
                            const void** srcs,
                            uint32_t* offsets,
-                           void *dst);
+                           char *dst);
 
 private:
     SkSLType getUniformTypeForLayout(SkSLType type);

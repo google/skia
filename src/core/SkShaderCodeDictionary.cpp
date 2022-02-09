@@ -119,7 +119,7 @@ static constexpr int kFourStopGradient = 4;
 //   2 radii
 static constexpr int kNumGradientUniforms = 6;
 static constexpr SkUniform kGradientUniforms[kNumGradientUniforms] = {
-        { "colors",  SkSLType::kHalf4, kFourStopGradient },
+        { "colors",  SkSLType::kFloat4, kFourStopGradient },
         { "offsets", SkSLType::kFloat, kFourStopGradient },
         { "point0",  SkSLType::kFloat2 },
         { "point1",  SkSLType::kFloat2 },
