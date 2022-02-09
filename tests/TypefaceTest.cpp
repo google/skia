@@ -25,6 +25,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
+#include <algorithm>
 #include <memory>
 
 static void TypefaceStyle_test(skiatest::Reporter* reporter,
@@ -538,6 +539,9 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
     SkASSERT(font.getTypeface());
     char const * text = ToolUtils::emoji_sample_text();
     size_t const textLen = strlen(text);
+    SkString familyName;
+    font.getTypeface()->getFamilyName(&familyName);
+
     size_t const codepointCount = SkUTF::CountUTF8(text, textLen);
     char const * const textEnd = text + textLen;
     std::unique_ptr<SkUnichar[]> originalCodepoints(new SkUnichar[codepointCount]);
@@ -546,12 +550,15 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
     }
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[codepointCount]);
     font.unicharsToGlyphs(originalCodepoints.get(), codepointCount, glyphs.get());
+    if (std::any_of(glyphs.get(), glyphs.get()+codepointCount, [](SkGlyphID g){ return g == 0;})) {
+        ERRORF(reporter, "Unexpected typeface \"%s\". Expected full support for emoji_sample_text.",
+               familyName.c_str());
+        return;
+    }
 
     std::unique_ptr<SkUnichar[]> newCodepoints(new SkUnichar[codepointCount]);
     SkFontPriv::GlyphsToUnichars(font, glyphs.get(), codepointCount, newCodepoints.get());
 
-    SkString familyName;
-    font.getTypeface()->getFamilyName(&familyName);
     for (size_t i = 0; i < codepointCount; ++i) {
 #if defined(SK_BUILD_FOR_WIN)
         // GDI does not support character to glyph mapping outside BMP.

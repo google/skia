@@ -128,7 +128,7 @@ public:
             if (strstr(familyName, "erif")) {
                 return this->createStyleSet(2);
             }
-#ifdef SK_XML
+#if defined(SK_ENABLE_SVG)
             if (strstr(familyName, "oji")) {
                 return this->createStyleSet(6);
             }
