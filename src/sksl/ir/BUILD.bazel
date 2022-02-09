@@ -403,7 +403,6 @@ generated_cc_atom(
         ":SkSLType_hdr",
         "//include/private:SkSLStatement_hdr",
         "//include/private:SkTHash_hdr",
-        "//include/private:SkTOptional_hdr",
     ],
 )
 
@@ -959,7 +958,6 @@ generated_cc_atom(
         ":SkSLConstructor_hdr",
         ":SkSLLiteral_hdr",
         ":SkSLSwizzle_hdr",
-        "//include/private:SkTOptional_hdr",
         "//include/sksl:SkSLErrorReporter_hdr",
         "//src/sksl:SkSLAnalysis_hdr",
         "//src/sksl:SkSLConstantFolder_hdr",
@@ -1060,7 +1058,6 @@ generated_cc_atom(
         ":SkSLSymbolTable_hdr",
         ":SkSLType_hdr",
         "//include/private:SkStringView_hdr",
-        "//include/private:SkTOptional_hdr",
         "//src/sksl:SkSLConstantFolder_hdr",
         "//src/sksl:SkSLContext_hdr",
         "//src/sksl:SkSLProgramSettings_hdr",

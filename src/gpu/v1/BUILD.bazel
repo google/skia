@@ -367,6 +367,7 @@ generated_cc_atom(
         "//src/gpu:GrDstProxyView_hdr",
         "//src/gpu:GrImageContextPriv_hdr",
         "//src/gpu:GrProxyProvider_hdr",
+        "//src/gpu:GrTextureResolveRenderTask_hdr",
         "//src/gpu/effects:GrTextureEffect_hdr",
         "//src/gpu/geometry:GrRect_hdr",
         "//src/gpu/ops:ClearOp_hdr",

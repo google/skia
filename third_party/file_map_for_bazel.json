@@ -13,6 +13,8 @@
   "dng_render.h": "//third_party:dng_sdk",
   "dng_stream.h": "//third_party:dng_sdk",
 
+  "third_party/etc1/etc1.h": "//third_party:etc1",
+
   "ft2build.h": "//third_party:freetype2",
   "freetype/ftadvanc.h": "//third_party:freetype2",
   "freetype/ftimage.h": "//third_party:freetype2",

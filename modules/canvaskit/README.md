@@ -152,3 +152,12 @@ sdk and verified/fixed any build issues that have arisen.
       Test.+PathKit, Perf.+PathKit jobs to make sure the new builds pass all
       tests and don't crash the perf harnesses.
   12. Send out CL for review. Feel free to point the reviewer at these steps.
+
+## Running Skia's GMs and Unit Tests against wasm+WebGL ##
+TODO(kjlubick)
+
+General Tips:
+ - Make use of the skip lists and start indexes in the run-wasm-gm-tests.html to focus in on
+   problematic tests.
+ - `Uncaught (in promise) RuntimeError: function signature mismatch` tends to mean null was
+   dereferenced somewhere. Add SkASSERT to verify.

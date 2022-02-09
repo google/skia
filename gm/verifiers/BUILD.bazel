@@ -1,0 +1,28 @@
+load("//bazel:macros.bzl", "generated_cc_atom")
+
+generated_cc_atom(
+    name = "gmverifier_hdr",
+    hdrs = ["gmverifier.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//include/core:SkColor_hdr",
+        "//include/core:SkRect_hdr",
+        "//include/core:SkString_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "gmverifier_src",
+    srcs = ["gmverifier.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":gmverifier_hdr",
+        "//gm:gm_hdr",
+        "//include/core:SkBitmap_hdr",
+        "//include/core:SkCanvas_hdr",
+        "//include/core:SkSurface_hdr",
+        "//include/effects:SkImageFilters_hdr",
+        "//include/encode:SkPngEncoder_hdr",
+        "//src/utils:SkOSPath_hdr",
+    ],
+)

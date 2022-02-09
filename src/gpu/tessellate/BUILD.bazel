@@ -38,8 +38,8 @@ generated_cc_atom(
     hdrs = ["PatchWriter.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":MiddleOutPolygonTriangulator_hdr",
         ":Tessellation_hdr",
+        ":WangsFormula_hdr",
         "//include/private:SkColorData_hdr",
         "//src/gpu:GrVertexChunkArray_hdr",
     ],
@@ -50,6 +50,7 @@ generated_cc_atom(
     srcs = ["PatchWriter.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":MiddleOutPolygonTriangulator_hdr",
         ":PatchWriter_hdr",
         ":PathTessellator_hdr",
         ":StrokeTessellator_hdr",
@@ -114,6 +115,7 @@ generated_cc_atom(
         ":PathCurveTessellator_hdr",
         ":PathWedgeTessellator_hdr",
         ":WangsFormula_hdr",
+        "//src/core:SkPathPriv_hdr",
         "//src/gpu:GrMeshDrawTarget_hdr",
         "//src/gpu:GrOpFlushState_hdr",
         "//src/gpu:GrResourceProvider_hdr",

@@ -331,7 +331,6 @@ generated_cc_atom(
     deps = [
         ":SkSLLexer_hdr",
         "//include/private:SkSLProgramKind_hdr",
-        "//include/private:SkTOptional_hdr",
         "//include/sksl:DSLSymbols_hdr",
         "//include/sksl:DSL_hdr",
         "//src/sksl/ir:SkSLProgram_hdr",
@@ -547,7 +546,6 @@ generated_cc_atom(
         "//include/core:SkGraphics_hdr",
         "//include/core:SkStream_hdr",
         "//include/private:SkStringView_hdr",
-        "//include/private:SkTOptional_hdr",
         "//src/core:SkCpu_hdr",
         "//src/core:SkOpts_hdr",
         "//src/opts:SkChecksum_opts_hdr",
@@ -699,6 +697,7 @@ generated_cc_atom(
         ":SkSLAnalysis_hdr",
         ":SkSLCompiler_hdr",
         ":SkSLRehydrator_hdr",
+        ":SkSLThreadContext_hdr",
         "//include/private:SkSLModifiers_hdr",
         "//include/private:SkSLProgramElement_hdr",
         "//include/private:SkSLStatement_hdr",

@@ -1,5 +1,39 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+cc_library(
+    name = "gpu_tool_utils",
+    testonly = True,
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":BackendSurfaceFactory_hdr",
+        ":BackendSurfaceFactory_src",
+        ":BackendTextureImageFactory_hdr",
+        ":BackendTextureImageFactory_src",
+        ":FenceSync_hdr",
+        ":FlushFinishTracker_hdr",
+        ":FlushFinishTracker_src",
+        ":GpuTimer_hdr",
+        ":GrContextFactory_hdr",
+        ":GrContextFactory_src",
+        ":GrTest_src",
+        ":ManagedBackendTexture_hdr",
+        ":ManagedBackendTexture_src",
+        ":MemoryCache_hdr",
+        ":MemoryCache_src",
+        ":ProxyUtils_hdr",
+        ":ProxyUtils_src",
+        ":TestContext_hdr",
+        ":TestContext_src",
+        ":TestOps_hdr",
+        ":TestOps_src",
+        ":YUVUtils_hdr",
+        ":YUVUtils_src",
+        "//src/gpu/mock:GrMockRenderTask_hdr",
+        "//src/gpu/mock:GrMockSurfaceProxy_hdr",
+        "//tools/gpu/mock:MockTestContext_src",
+    ],
+)
+
 generated_cc_atom(
     name = "BackendSurfaceFactory_hdr",
     hdrs = ["BackendSurfaceFactory.h"],

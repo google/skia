@@ -7,6 +7,31 @@ py_binary(
     visibility = ["//:__subpackages__"],
 )
 
+cc_library(
+    name = "hash_and_encode",
+    testonly = True,
+    hdrs = [
+        ":HashAndEncode_hdr",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":HashAndEncode_src",
+        "//tools/flags:CommandLineFlags_src",
+    ],
+)
+
+cc_library(
+    name = "resource_factory",
+    testonly = True,
+    hdrs = [
+        ":ResourceFactory_hdr",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Resources_src",
+    ],
+)
+
 generated_cc_atom(
     name = "AndroidSkDebugToStdOut_src",
     srcs = ["AndroidSkDebugToStdOut.cpp"],
@@ -254,6 +279,7 @@ generated_cc_atom(
     srcs = ["RuntimeBlendUtils.cpp"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":RuntimeBlendUtils_hdr",
         "//include/core:SkBlendMode_hdr",
         "//include/core:SkRefCnt_hdr",
         "//include/effects:SkRuntimeEffect_hdr",

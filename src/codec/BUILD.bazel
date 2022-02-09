@@ -270,7 +270,6 @@ generated_cc_atom(
         "//include/codec:SkCodec_hdr",
         "//include/core:SkData_hdr",
         "//include/core:SkImageGenerator_hdr",
-        "//include/private:SkTOptional_hdr",
     ],
 )
 

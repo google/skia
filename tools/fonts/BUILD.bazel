@@ -1,5 +1,17 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+cc_library(
+    name = "test_font_manager",
+    testonly = True,
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":TestFontMgr_hdr",
+        ":TestFontMgr_src",
+        ":TestTypeface_src",
+        ":ToolUtilsFont_src",
+    ],
+)
+
 generated_cc_atom(
     name = "RandomScalerContext_hdr",
     hdrs = ["RandomScalerContext.h"],
@@ -95,6 +107,7 @@ generated_cc_atom(
         "//include/core:SkCanvas_hdr",
         "//include/core:SkColor_hdr",
         "//include/core:SkData_hdr",
+        "//include/core:SkDrawable_hdr",
         "//include/core:SkEncodedImageFormat_hdr",
         "//include/core:SkFontStyle_hdr",
         "//include/core:SkImageInfo_hdr",

@@ -83,7 +83,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         "//include/private:SkMalloc_hdr",
-        "//include/private:SkTOptional_hdr",
         "//include/private:SkTemplates_hdr",
         "//src/core:SkMathPriv_hdr",
     ],

@@ -1,5 +1,18 @@
 load("//bazel:macros.bzl", "generated_cc_atom")
 
+cc_library(
+    name = "debugger",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":DebugCanvas_src",
+        ":DebugLayerManager_src",
+        ":DrawCommand_src",
+        ":JsonWriteBuffer_src",
+        "//tools:SkSharingProc_src",
+        "//tools:UrlDataManager_src",
+    ],
+)
+
 generated_cc_atom(
     name = "DebugCanvas_hdr",
     hdrs = ["DebugCanvas.h"],

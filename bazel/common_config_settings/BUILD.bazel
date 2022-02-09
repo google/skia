@@ -175,3 +175,8 @@ bool_flag(
     default = False,
     flag_name = "disable_effect_serialization",
 )
+
+bool_flag(
+    default = False,
+    flag_name = "is_skia_dev_build",
+)

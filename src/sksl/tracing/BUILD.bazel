@@ -6,7 +6,6 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":SkVMDebugTrace_hdr",
-        "//include/private:SkTOptional_hdr",
         "//src/utils:SkBitSet_hdr",
     ],
 )

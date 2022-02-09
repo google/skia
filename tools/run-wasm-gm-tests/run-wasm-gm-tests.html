@@ -85,9 +85,6 @@ array of the test names and what they drew.
     for (let i = 0; i < resourceNames.length; i++) {
       const name = resourceNames[i];
       const buffer = resourceBuffers[i];
-      if (name.includes('mandril')) {
-        console.log(name, new Uint8Array(buffer).slice(0, 20));
-      }
       GM.LoadResource(name, buffer);
     }
   }
@@ -108,7 +105,10 @@ array of the test names and what they drew.
   }
 
   const gmSkipList = new Set([
-    // gm names can be added here to skip, if failing.
+    'exoticformats', // Uses SkFILEStream to load resource.
+     // uses skresources::FileResourceProvider
+    'particles_mandrill',
+    'particles_sprite_frame',
   ]);
 
   async function RunGMs(GM) {
@@ -119,7 +119,11 @@ array of the test names and what they drew.
 
     const names = GM.ListGMs();
     names.sort();
-    for (const name of names) {
+    // When debugging locally, it can be handy to skip to a certain GM by using
+    // names.indexOf here instead of 0.
+    let i = 0;
+    for (; i < names.length; i++) {
+      const name = names[i];
       if (gmSkipList.has(name)) {
         continue;
       }
@@ -172,7 +176,7 @@ array of the test names and what they drew.
     // the instant this test crashes.
 
     // These tests fail when doing a dlopen call
-    // "To use dlopen, you need to use Emscripten's linking support"
+    // 'To use dlopen, you need to use Emscripten's linking support'
     // Some of these appear to hit the default case instead of the GLES case in GrContextFactory.cpp
     // which isn't expected to work. If they had a GLES context, they'd probably pass.
     'AsyncReadPixelsContextShutdown',
@@ -186,6 +190,7 @@ array of the test names and what they drew.
 
     // These tests time out
     'SkTraceMemoryDump_ownedGLRenderTarget',
+    'GrStyledShape',
 
     // wasm doesn't have threading
     'GrContextFactory_executorAndTaskGroup',
@@ -197,9 +202,9 @@ array of the test names and what they drew.
 
     // These tests are crashing for unknown reasons
     'AdvancedBlendTest',
-    'FILEStreamWithOffset',
     'Data',
     'ES2BlendWithNoTexture',
+    'TextureBindingsResetTest',
 
     // keys invalid
     'GrPathKeys',
@@ -217,6 +222,12 @@ array of the test names and what they drew.
     // These SkSL tests fail on the Quadro P400s in the Golo
     'SkSLMatrixFoldingES2_GPU',
     'SkSLCommaSideEffects_GPU',
+
+    // These tests use files on disk, which is not supported for WASM
+    'Stream',
+    'StreamBuffer',
+    'StreamPeek',
+    'FILEStreamWithOffset',
   ]);
 
   async function RunTests(GM) {
@@ -234,7 +245,9 @@ array of the test names and what they drew.
       const names = GM.ListTests();
       names.sort();
       console.log(names);
-      let testIdx = -1;
+      // When debugging locally, it can be handy to skip to a certain test by using
+      // names.indexOf here instead of 0.
+      let testIdx = 0;
       const nextBatch = () => {
         for (let i = 0; i < 10 && testIdx < names.length; i++) {
           testIdx++;

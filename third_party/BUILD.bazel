@@ -2411,3 +2411,13 @@ cc_library(
         "HB_NO_WIN1256",
     ],
 )
+
+cc_library(
+    name = "etc1",
+    srcs = [
+        "etc1/etc1.cpp",
+    ],
+    hdrs = [
+        "etc1/etc1.h",
+    ],
+)

@@ -87,50 +87,5 @@ cc_library(
     deps = CORE_DEPS,
 )
 
-cc_library(
-    name = "hash_and_encode",
-    testonly = True,
-    srcs = [
-        "//tools:cmdline",
-        "//tools:hash_and_encode",
-    ],
-    deps = [
-        ":skia-core",
-        "//third_party:libpng",
-    ],
-)
-
-cc_library(
-    name = "gms",
-    testonly = True,
-    srcs = [
-        "//gm:gms",
-        "//gm:srcs",
-        "//tools:srcs",
-    ],
-    hdrs = [
-        "//gm:hdrs",
-    ],
-    textual_hdrs = ["//tools:txts"],
-    deps = [":skia-core"],
-)
-
-cc_library(
-    name = "tests",
-    testonly = True,
-    srcs = [
-        "//tests:srcs",
-        "//tools:srcs",
-    ],
-    hdrs = [
-        "//tests:hdrs",
-    ],
-    local_defines = [
-        "GR_TEST_UTILS",
-    ],
-    textual_hdrs = ["//tools:txts"],
-    deps = [":skia-core"],
-)
-
 # gazelle:prefix go.skia.org/skia
 gazelle(name = "gazelle")

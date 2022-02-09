@@ -41,8 +41,8 @@ generated_cc_atom(
     hdrs = ["Recorder.h"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//experimental/graphite/src:TaskGraph_hdr",
         "//include/core:SkRefCnt_hdr",
+        "//include/private:SingleOwner_hdr",
     ],
 )
 

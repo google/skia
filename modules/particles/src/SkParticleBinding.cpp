@@ -225,8 +225,10 @@ public:
     }
 
     void prepare(const skresources::ResourceProvider* resourceProvider) override {
+        SkASSERT(resourceProvider);
         if (auto asset = resourceProvider->loadImageAsset(fImagePath.c_str(), fImageName.c_str(),
                                                           nullptr)) {
+            SkASSERT(asset);
             if (auto image = asset->getFrame(0)) {
                 SkMatrix normalize = SkMatrix::Scale(1.0f / image->width(), 1.0f / image->height());
                 fShader = image->makeShader(SkSamplingOptions(SkFilterMode::kLinear), &normalize);

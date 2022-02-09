@@ -127,19 +127,19 @@ bazel_gms_release:
 	# unit, by letting the cache be used (and not dropped from the sandbox), which gets expensive.
 	# Local testing showed using the local strategy sped up a clean build from 9.5 minutes
 	# to 1 minute. https://docs.bazel.build/versions/main/user-manual.html#strategy-options
-	bazelisk build :gm_bindings_wasm --compilation_mode opt --spawn_strategy=local
+	bazelisk build :wasm_gm_tests --compilation_mode opt --spawn_strategy=local
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/gm_bindings_wasm/gm_bindings.js build/gm_bindings.js
-	cp ../../bazel-bin/modules/canvaskit/gm_bindings_wasm/gm_bindings.wasm build/gm_bindings.wasm
+	cp ../../bazel-bin/modules/canvaskit/wasm_gm_tests/wasm_gm_tests.js build/wasm_gm_tests.js
+	cp ../../bazel-bin/modules/canvaskit/wasm_gm_tests/wasm_gm_tests.wasm build/wasm_gm_tests.wasm
 
 bazel_gms_debug:
 	# See above note about spawn_strategy
-	bazelisk build :gm_bindings_wasm --compilation_mode dbg --spawn_strategy=local
+	bazelisk build :wasm_gm_tests --compilation_mode dbg --spawn_strategy=local
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/gm_bindings_wasm/gm_bindings.js build/gm_bindings.js
-	cp ../../bazel-bin/modules/canvaskit/gm_bindings_wasm/gm_bindings.wasm build/gm_bindings.wasm
+	cp ../../bazel-bin/modules/canvaskit/wasm_gm_tests/wasm_gm_tests.js build/wasm_gm_tests.js
+	cp ../../bazel-bin/modules/canvaskit/wasm_gm_tests/wasm_gm_tests.wasm build/wasm_gm_tests.wasm
 
 bazel_canvaskit_debug:
 	# See above note about spawn_strategy

@@ -8,6 +8,7 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 
 _bool_flags = [
     "//bazel/common_config_settings:use_icu",
+    "//bazel/common_config_settings:is_skia_dev_build",
 ]
 
 _string_flags = [
