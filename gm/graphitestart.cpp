@@ -9,10 +9,21 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
+#include "include/effects/SkGradientShader.h"
 
 namespace {
 
-SkPaint create_image_shader_paint() {
+sk_sp<SkShader> create_gradient_shader(SkRect r) {
+    // TODO: it seems like only the x-component of sk_FragCoord is making it to the shader!
+    SkPoint pts[2] = { {r.fLeft, r.fTop}, {r.fRight, r.fTop} };
+    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+    float offsets[] = { 0.0f, 0.75f, 1.0f };
+
+    return SkGradientShader::MakeLinear(pts, colors, offsets, SK_ARRAY_COUNT(colors),
+                                        SkTileMode::kClamp);
+}
+
+sk_sp<SkShader> create_image_shader() {
     SkImageInfo ii = SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bitmap;
 
@@ -25,11 +36,20 @@ SkPaint create_image_shader_paint() {
     redPaint.setColor(SK_ColorRED);
     canvas.drawCircle(50, 50, 50, redPaint);
 
-    sk_sp<SkImage> img = SkImage::MakeFromBitmap(bitmap);
+    bitmap.setAlphaType(kOpaque_SkAlphaType);
+    bitmap.setImmutable();
 
-    SkPaint p;
-    p.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions()));
-    return p;
+    sk_sp<SkImage> img = SkImage::MakeFromBitmap(bitmap);
+    // TODO: we'll need a 'makeTextureImage' call here
+
+    return img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions());
+}
+
+sk_sp<SkShader> create_blend_shader(SkBlendMode bm) {
+    constexpr SkColor4f kTransYellow = {1.0f, 1.0f, 0.0f, 0.5f};
+
+    sk_sp<SkShader> solid = SkShaders::Color(kTransYellow, nullptr);
+    return SkShaders::Blend(bm, std::move(solid), create_image_shader());
 }
 
 } // anonymous namespace
@@ -53,14 +73,35 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPaint p1, p2;
 
-        p1.setColor(SK_ColorRED);
-        p2.setColor(SK_ColorGREEN);
+        // UL corner
+        {
+            SkPaint p;
+            p.setColor(SK_ColorRED);
+            canvas->drawRect({2, 2, 127, 127}, p);
+        }
 
-        canvas->drawRect({  2,   2, 127, 127}, p1);
-        canvas->drawRect({129, 129, 255, 255}, p2);
-        canvas->drawRect({  2, 129, 127, 255}, create_image_shader_paint());
+        // UR corner
+        {
+            SkRect r{129, 2, 255, 127};
+            SkPaint p;
+            p.setShader(create_gradient_shader(r));
+            canvas->drawRect(r, p);
+        }
+
+        // LL corner
+        {
+            SkPaint p;
+            p.setShader(create_image_shader());
+            canvas->drawRect({2, 129, 127, 255}, p);
+        }
+
+        // LR corner
+        {
+            SkPaint p;
+            p.setShader(create_blend_shader(SkBlendMode::kDstOver));
+            canvas->drawRect({129, 129, 255, 255}, p);
+        }
     }
 };
 
