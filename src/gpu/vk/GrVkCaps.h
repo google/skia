@@ -278,6 +278,40 @@ private:
         kQualcomm_VkVendor = 20803,
     };
 
+    // Some common Intel GPU models, currently we cover ICL/RKL/TGL/ADL
+    // Referenced from the following Mesa source files:
+    // https://github.com/mesa3d/mesa/blob/master/include/pci_ids/i965_pci_ids.h
+    // https://github.com/mesa3d/mesa/blob/master/include/pci_ids/iris_pci_ids.h
+    struct VkIntelGPUInfo {
+        // IceLake
+        const std::array<uint32_t, 14> IceLake = {
+            {0x8A50, 0x8A51, 0x8A52, 0x8A53, 0x8A54, 0x8A56, 0x8A57,
+             0x8A58, 0x8A59, 0x8A5A, 0x8A5B, 0x8A5C, 0x8A5D, 0x8A71}};
+        // RocketLake
+        const std::array<uint32_t, 5> RocketLake = {
+            {0x4c8a, 0x4c8b, 0x4c8c, 0x4c90, 0x4c9a}};
+        // TigerLake
+        const std::array<uint32_t, 11> TigerLake = {
+            {0x9A40, 0x9A49, 0x9A59, 0x9A60, 0x9A68, 0x9A70,
+             0x9A78, 0x9AC0, 0x9AC9, 0x9AD9, 0x9AF8}};
+        // Alderlake
+        const std::array<uint32_t, 10> Alderlake = {
+            {0x4680, 0x4681, 0x4682, 0x4683, 0x4690,
+             0x4691, 0x4692, 0x4693, 0x4698, 0x4699}};
+    };
+
+    enum class VkIntelGPUType {
+        // 11th gen
+        kIntelIceLake,
+
+        // 12th gen
+        kIntelRocketLake,
+        kIntelTigerLake,
+        kIntelAlderLake,
+
+        kOther
+    };
+
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
               VkPhysicalDevice device, const VkPhysicalDeviceFeatures2&,
               uint32_t physicalDeviceVersion, const GrVkExtensions&, GrProtected isProtected);
