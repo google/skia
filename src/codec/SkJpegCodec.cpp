@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include "src/codec/SkJpegUtility.h"
 
+#ifdef SK_CODEC_DECODES_JPEG
+
 // This warning triggers false postives way too often in here.
 #if defined(__GNUC__) && !defined(__clang__)
     #pragma GCC diagnostic ignored "-Wclobbered"
@@ -995,3 +997,5 @@ bool SkGetJpegInfo(const void* data, size_t len,
     }
     return true;
 }
+
+#endif // SK_CODEC_DECODES_JPEG
