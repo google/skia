@@ -8,6 +8,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
@@ -388,6 +389,7 @@ protected:
     void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(const SkGlyph& glyph, SkPath* path) override;
+    sk_sp<SkDrawable> generateDrawable(const SkGlyph&) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
@@ -1336,6 +1338,32 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     generateGlyphImage(fFace, glyph, *bitmapMatrix);
 }
 
+sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyph) {
+    // Because FreeType's FT_Face is stateful (not thread safe) and the current design of this
+    // SkTypeface and SkScalerContext does not work around this, it is necessary lock at least the
+    // FT_Face when using it (this implementation currently locks the whole FT_Library).
+    // It should be possible to draw the drawable straight out of the FT_Face. However, this would
+    // mean locking each time any such drawable is drawn. To avoid locking, this implementation
+    // creates drawables backed as pictures so that they can be played back later without locking.
+    SkAutoMutexExclusive  ac(f_t_mutex());
+
+    if (this->setupSize()) {
+        sk_bzero(glyph.fImage, glyph.imageSize());
+        return nullptr;
+    }
+
+    FT_Error err = FT_Load_Glyph(fFace, glyph.getGlyphID(), fLoadGlyphFlags);
+    if (err != 0) {
+        SK_TRACEFTR(err, "SkScalerContext_FreeType::generateDrawable: FT_Load_Glyph(glyph:%d "
+                     "width:%d height:%d rb:%zu flags:%d) failed.",
+                     glyph.getGlyphID(), glyph.width(), glyph.height(), glyph.rowBytes(),
+                     fLoadGlyphFlags);
+        return nullptr;
+    }
+
+    emboldenIfNeeded(fFace, fFace->glyph, glyph.getGlyphID());
+    return generateGlyphDrawable(fFace, glyph);
+}
 
 bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkASSERT(path);

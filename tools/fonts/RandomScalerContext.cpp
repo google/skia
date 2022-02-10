@@ -7,6 +7,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkPath.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkGlyph.h"
@@ -27,6 +28,7 @@ protected:
     void     generateMetrics(SkGlyph*, SkArenaAlloc*) override;
     void     generateImage(const SkGlyph&) override;
     bool     generatePath(const SkGlyph&, SkPath*) override;
+    sk_sp<SkDrawable> generateDrawable(const SkGlyph&) override;
     void     generateFontMetrics(SkFontMetrics*) override;
 
 private:
@@ -138,6 +140,14 @@ bool RandomScalerContext::generatePath(const SkGlyph& glyph, SkPath* path) {
     return fProxy->generatePath(glyph, path);
 }
 
+sk_sp<SkDrawable> RandomScalerContext::generateDrawable(const SkGlyph& glyph) {
+    SkGlyph* shadowProxyGlyph = fProxyGlyphs.find(glyph.getPackedID());
+    if (shadowProxyGlyph && shadowProxyGlyph->path()) {
+        return nullptr;
+    }
+    return fProxy->generateDrawable(glyph);
+}
+
 void RandomScalerContext::generateFontMetrics(SkFontMetrics* metrics) {
     fProxy->getFontMetrics(metrics);
 }
@@ -211,6 +221,10 @@ SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateFamilyNameIterator() con
 
 void SkRandomTypeface::getPostScriptGlyphNames(SkString* names) const {
     return fProxy->getPostScriptGlyphNames(names);
+}
+
+bool SkRandomTypeface::onGlyphMaskNeedsCurrentColor() const {
+    return fProxy->glyphMaskNeedsCurrentColor();
 }
 
 int SkRandomTypeface::onGetVariationDesignPosition(

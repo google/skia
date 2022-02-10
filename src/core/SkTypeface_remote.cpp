@@ -59,6 +59,17 @@ bool SkScalerContextProxy::generatePath(const SkGlyph& glyph, SkPath* path) {
     return false;
 }
 
+sk_sp<SkDrawable> SkScalerContextProxy::generateDrawable(const SkGlyph&) {
+    TRACE_EVENT1("skia", "generateDrawable", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
+    if (this->getProxyTypeface()->isLogging()) {
+        SkDebugf("GlyphCacheMiss generateDrawable: %s\n", this->getRec().dump().c_str());
+    }
+
+    fDiscardableManager->notifyCacheMiss(
+            SkStrikeClient::CacheMissType::kGlyphDrawable, fRec.fTextSize);
+    return nullptr;
+}
+
 void SkScalerContextProxy::generateFontMetrics(SkFontMetrics* metrics) {
     TRACE_EVENT1(
             "skia", "generateFontMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));

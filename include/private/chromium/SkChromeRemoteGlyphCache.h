@@ -93,7 +93,8 @@ public:
         kGlyphMetricsFallback = 4,
         kGlyphPathFallback    = 5,
 
-        kLast = kGlyphPath
+        kGlyphDrawable = 6,
+        kLast = kGlyphDrawable
     };
 
     // An interface to delete handles that may be pinned by the remote server.
