@@ -42,26 +42,32 @@ typedef ImplicitString Path;
 class Result {
 public:
     enum class Status : int { Ok, Fatal, Skip };
-    Result(Status status, const SkString& s) : fMsg(s), fStatus(status) {}
-    Result(Status status, const char* s) : fMsg(s), fStatus(status) {}
-    template <typename... Args> Result (Status status, const char* s, Args... args)
-        : fMsg(SkStringPrintf(s, args...)), fStatus(status) {}
+
+    Result(Status status, SkString msg) : fMsg(std::move(msg)), fStatus(status) {}
 
     Result(const Result&)            = default;
     Result& operator=(const Result&) = default;
 
-    static Result Ok() { return Result(Status::Ok, nullptr); }
+    static Result Ok() { return Result{Status::Ok, {}}; }
 
-    static Result Fatal(const SkString& s) { return Result(Status::Fatal, s); }
-    static Result Fatal(const char* s) { return Result(Status::Fatal, s); }
-    template <typename... Args> static Result Fatal(const char* s, Args... args) {
-        return Result(Status::Fatal, s, args...);
+    static Result Fatal(const char* fmt, ...) SK_PRINTF_LIKE(1, 2) {
+        SkString msg;
+        va_list args;
+        va_start(args, fmt);
+        msg.printVAList(fmt, args);
+        va_end(args);
+
+        return Result{Status::Fatal, std::move(msg)};
     }
 
-    static Result Skip(const SkString& s) { return Result(Status::Skip, s); }
-    static Result Skip(const char* s) { return Result(Status::Skip, s); }
-    template <typename... Args> static Result Skip(const char* s, Args... args) {
-        return Result(Status::Skip, s, args...);
+    static Result Skip(const char* fmt, ...) SK_PRINTF_LIKE(1, 2) {
+        SkString msg;
+        va_list args;
+        va_start(args, fmt);
+        msg.printVAList(fmt, args);
+        va_end(args);
+
+        return Result{Status::Skip, std::move(msg)};
     }
 
     bool isOk() { return fStatus == Status::Ok; }
