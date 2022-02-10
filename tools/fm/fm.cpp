@@ -510,7 +510,7 @@ int main(int argc, char** argv) {
     };
     const FlagOption<SkColorType> kColorTypes[] = {
         { "a8",                  kAlpha_8_SkColorType },
-        { "g8",                   kGray_8_SkColorType },
+        { "r8",                 kR8_unorm_SkColorType },
         { "565",                 kRGB_565_SkColorType },
         { "4444",              kARGB_4444_SkColorType },
         { "8888",                    kN32_SkColorType },

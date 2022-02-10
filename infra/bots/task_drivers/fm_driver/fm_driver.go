@@ -473,7 +473,7 @@ func main() {
 			run(tests, F{"race": "0"}) // Several unit tests are not reentrant.
 
 			if model == "GCE" {
-				run(gms, F{"ct": "g8", "legacy": "true"})                     // --config g8
+				run(gms, F{"ct": "r8", "legacy": "true"})                     // --config r8
 				run(gms, F{"ct": "565", "legacy": "true"})                    // --config 565
 				run(gms, F{"ct": "8888", "legacy": "true"})                   // --config 8888
 				run(gms, F{"ct": "f16"})                                      // --config esrgb
