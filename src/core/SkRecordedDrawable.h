@@ -25,6 +25,7 @@ public:
 
 protected:
     SkRect onGetBounds() override { return fBounds; }
+    size_t onApproximateBytesUsed() override;
 
     void onDraw(SkCanvas* canvas) override;
 

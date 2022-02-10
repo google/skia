@@ -13,6 +13,19 @@
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecordedDrawable.h"
 
+size_t SkRecordedDrawable::onApproximateBytesUsed() {
+    size_t drawablesSize = 0;
+    if (fDrawableList) {
+        for (auto&& drawable : *fDrawableList) {
+            drawablesSize += drawable->approximateBytesUsed();
+        }
+    }
+    return sizeof(*this) +
+           (fRecord ? fRecord->bytesUsed() : 0) +
+           (fBBH ? fBBH->bytesUsed() : 0) +
+           drawablesSize;
+}
+
 void SkRecordedDrawable::onDraw(SkCanvas* canvas) {
     SkDrawable* const* drawables = nullptr;
     int drawableCount = 0;

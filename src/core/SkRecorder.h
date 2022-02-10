@@ -25,6 +25,7 @@ public:
 
     int count() const { return fArray.count(); }
     SkDrawable* const* begin() const { return fArray.begin(); }
+    SkDrawable* const* end() const { return fArray.end(); }
 
     void append(SkDrawable* drawable);
 

@@ -84,6 +84,7 @@ std::tuple<SkDrawable*, size_t> SkScalerCache::prepareDrawable(SkGlyph* glyph) {
     size_t delta = 0;
     if (glyph->setDrawable(&fAlloc, fScalerContext.get())) {
         delta = glyph->drawable()->approximateBytesUsed();
+        SkASSERT(delta > 0);
     }
     return {glyph->drawable(), delta};
 }
@@ -91,15 +92,15 @@ std::tuple<SkDrawable*, size_t> SkScalerCache::prepareDrawable(SkGlyph* glyph) {
 std::tuple<SkDrawable*, size_t> SkScalerCache::mergeDrawable(SkGlyph* glyph,
                                                              sk_sp<SkDrawable> drawable) {
     SkAutoMutexExclusive lock{fMu};
-    size_t drawableDelta = 0;
+    size_t delta = 0;
     if (glyph->setDrawableHasBeenCalled()) {
         SkDEBUGFAIL("Re-adding drawable to existing glyph. This should not happen.");
     }
     if (glyph->setDrawable(&fAlloc, std::move(drawable))) {
-        drawableDelta = glyph->drawable()->approximateBytesUsed();
-        SkASSERT(drawableDelta > 0);
+        delta = glyph->drawable()->approximateBytesUsed();
+        SkASSERT(delta > 0);
     }
-    return {glyph->drawable(), drawableDelta};
+    return {glyph->drawable(), delta};
 }
 
 int SkScalerCache::countCachedGlyphs() const {
