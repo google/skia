@@ -90,7 +90,7 @@ static void test_bug_6653(GrDirectContext* dContext,
             }
         }
 
-        REPORTER_ASSERT(reporter, match, label);
+        REPORTER_ASSERT(reporter, match, "%s", label);
     }
 }
 

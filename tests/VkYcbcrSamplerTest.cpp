@@ -99,17 +99,17 @@ DEF_GPUTEST(VkYCbcrSampler_DrawImageWithYcbcrSampler, reporter, options) {
 
             int r = readbackData[(y * kImageWidth + x) * 4];
             if (abs(r - expectedR) > kColorTolerance) {
-                ERRORF(reporter, "R should be %d, but is %d at (%d, %d)", expectedR, r, x, y);
+                ERRORF(reporter, "R should be %d, but is %d at (%zu, %zu)", expectedR, r, x, y);
             }
 
             int g = readbackData[(y * kImageWidth + x) * 4 + 1];
             if (abs(g - expectedG) > kColorTolerance) {
-                ERRORF(reporter, "G should be %d, but is %d at (%d, %d)", expectedG, g, x, y);
+                ERRORF(reporter, "G should be %d, but is %d at (%zu, %zu)", expectedG, g, x, y);
             }
 
             int b = readbackData[(y * kImageWidth + x) * 4 + 2];
             if (abs(b - expectedB) > kColorTolerance) {
-                ERRORF(reporter, "B should be %d, but is %d at (%d, %d)", expectedB, b, x, y);
+                ERRORF(reporter, "B should be %d, but is %d at (%zu, %zu)", expectedB, b, x, y);
             }
         }
     }

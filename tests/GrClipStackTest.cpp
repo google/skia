@@ -379,7 +379,7 @@ void TestCase::run(const std::vector<int>& order,
         matchedElements += found ? 1 : 0;
     }
     REPORTER_ASSERT(reporter, matchedElements == fExpectedElements.size(),
-                    "%s, did not match all expected elements: expected %d but matched only %d",
+                    "%s, did not match all expected elements: expected %zu but matched only %zu",
                     name.c_str(), fExpectedElements.size(), matchedElements);
 
     // Validate restoration behavior
@@ -388,7 +388,8 @@ void TestCase::run(const std::vector<int>& order,
         cs.restore();
         REPORTER_ASSERT(reporter, cs.clipState() == oldState,
                         "%s, restoring an empty save record should not change clip state: "
-                        "expected %d but got %d", (int) oldState, (int) cs.clipState());
+                        "expected %d but got %d",
+                        name.c_str(), (int) oldState, (int) cs.clipState());
     } else if (policy != SavePolicy::kNever) {
         int restoreCount = policy == SavePolicy::kAtStart ? 1 : (int) order.size();
         for (int i = 0; i < restoreCount; ++i) {
@@ -397,7 +398,7 @@ void TestCase::run(const std::vector<int>& order,
         // Should be wide open if everything is restored to base state
         REPORTER_ASSERT(reporter, cs.clipState() == ClipStack::ClipState::kWideOpen,
                         "%s, restore should make stack become wide-open, not %d",
-                        (int) cs.clipState());
+                        name.c_str(), (int) cs.clipState());
     }
 }
 

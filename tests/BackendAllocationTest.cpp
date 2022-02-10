@@ -52,7 +52,7 @@ void test_wrapping(GrDirectContext* dContext,
     sk_sp<ManagedBackendTexture> mbet = create(dContext, mipMapped, renderable);
     if (!mbet) {
         ERRORF(reporter, "Couldn't create backendTexture for grColorType %d renderable %s\n",
-               grColorType,
+               (int)grColorType,
                GrRenderable::kYes == renderable ? "yes" : "no");
         return;
     }
@@ -285,7 +285,8 @@ static void check_base_readbacks(GrDirectContext* dContext,
         GrColorInfo info(colorType, kUnpremul_SkAlphaType, nullptr);
         auto surfaceContext = dContext->priv().makeSC(readView, info);
         if (!surfaceContext) {
-            ERRORF(reporter, "Could not create surface context for colorType: %d\n", colorType);
+            ERRORF(reporter, "Could not create surface context for colorType: %d\n",
+                   (int)colorType);
         }
 
         if (!surfaceContext->readPixels(dContext, actual, {0, 0})) {
@@ -293,7 +294,7 @@ static void check_base_readbacks(GrDirectContext* dContext,
             // arbitrary colorType
 #if 0
             ERRORF(reporter, "Couldn't readback from SurfaceContext for colorType: %d\n",
-                   colorType);
+                   (int)colorType);
 #endif
         } else {
             auto name = SkStringPrintf("%s::readPixels",

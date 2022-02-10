@@ -740,13 +740,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
                 // Print first failing pixel's details.
                 if (!coverageMessage.isEmpty()) {
-                    ERRORF(reporter, coverageMessage.c_str());
+                    ERRORF(reporter, "%s", coverageMessage.c_str());
                 }
                 if (!constMessage.isEmpty()) {
-                    ERRORF(reporter, constMessage.c_str());
+                    ERRORF(reporter, "%s", constMessage.c_str());
                 }
                 if (!opaqueMessage.isEmpty()) {
-                    ERRORF(reporter, opaqueMessage.c_str());
+                    ERRORF(reporter, "%s", opaqueMessage.c_str());
                 }
 
                 if (!loggedFirstFailure) {

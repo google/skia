@@ -2041,13 +2041,13 @@ UNIX_ONLY_TEST(SkParagraph_JustifyRTLNewLine, reporter) {
     // All lines should be justified to the width of the paragraph
     // except for #0 (new line) and #5 (the last one)
     for (auto& line : impl->lines()) {
-        auto num = &line - impl->lines().data();
+        ptrdiff_t num = &line - impl->lines().data();
         if (num == 0 || num == 5) {
             REPORTER_ASSERT(reporter, line.width() < TestCanvasWidth - 100);
         } else {
             REPORTER_ASSERT(reporter,
                             SkScalarNearlyEqual(line.width(), TestCanvasWidth - 100, EPSILON100),
-                            "#%d: %f <= %f\n", num, line.width(), TestCanvasWidth - 100);
+                            "#%zd: %f <= %d\n", num, line.width(), TestCanvasWidth - 100);
         }
     }
 }

@@ -49,7 +49,7 @@ static void drawAndTest(skiatest::Reporter* reporter, const SkPath& path,
         ERRORF(reporter, "%s style[%d] cap[%d] join[%d] antialias[%d]"
                " filltype[%d] ptcount[%d]", str, paint.getStyle(),
                paint.getStrokeCap(), paint.getStrokeJoin(),
-               paint.isAntiAlias(), path.getFillType(), path.countPoints());
+               paint.isAntiAlias(), (int)path.getFillType(), path.countPoints());
 // uncomment this if you want to step in to see the failure
 //        canvas.drawPath(path, p);
     }

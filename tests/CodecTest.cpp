@@ -1683,7 +1683,7 @@ DEF_TEST(Codec_webp_rowsDecoded, r) {
     sk_sp<SkData> subset = SkData::MakeSubset(data.get(), 0, truncatedSize);
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(std::move(subset));
     if (!codec) {
-        ERRORF(r, "Failed to create a codec for %s truncated to only %lu bytes",
+        ERRORF(r, "Failed to create a codec for %s truncated to only %zu bytes",
                path, truncatedSize);
         return;
     }

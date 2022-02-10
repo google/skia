@@ -506,7 +506,7 @@ DEF_TEST(FILEStreamWithOffset, r) {
     const size_t size = stream1.getLength();
     const size_t middle = size / 2;
     if (!stream1.seek(middle)) {
-        ERRORF(r, "Could not seek SkFILEStream to %lu out of %lu", middle, size);
+        ERRORF(r, "Could not seek SkFILEStream to %zu out of %zu", middle, size);
         return;
     }
     REPORTER_ASSERT(r, stream1.getPosition() == middle);
@@ -518,7 +518,7 @@ DEF_TEST(FILEStreamWithOffset, r) {
     }
 
     if (fseek(file, (long) middle, SEEK_SET) != 0) {
-        ERRORF(r, "Could not fseek FILE to %lu out of %lu", middle, size);
+        ERRORF(r, "Could not fseek FILE to %zu out of %zu", middle, size);
         return;
     }
     SkFILEStream stream2(file);

@@ -63,26 +63,26 @@ UNIX_ONLY_TEST(SkText_UnicodeText_Flags, reporter) {
     auto lineBreak = utf16.find_first_of(u"\n");
     for (size_t i = 0; i < unicodeText16.getText16().size(); ++i) {
         if (i == lineBreak) {
-            REPORTER_ASSERT(reporter, unicodeText16.hasProperty(i, CodeUnitFlags::kHardLineBreakBefore), "Pos16 %d should point to hard line break\n", lineBreak);
-            REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(i, CodeUnitFlags::kHardLineBreakBefore), "Pos8 %d should point to hard line break\n", lineBreak);
+            REPORTER_ASSERT(reporter, unicodeText16.hasProperty(i, CodeUnitFlags::kHardLineBreakBefore), "Pos16 %zu should point to hard line break\n", lineBreak);
+            REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(i, CodeUnitFlags::kHardLineBreakBefore), "Pos8 %zu should point to hard line break\n", lineBreak);
         } else {
-            REPORTER_ASSERT(reporter, unicodeText16.hasProperty(i, CodeUnitFlags::kGraphemeStart), "Pos16 %d should be a grapheme start\n", i);
-            REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(i, CodeUnitFlags::kGraphemeStart), "Pos8 %d should be a grapheme start\n", i);
+            REPORTER_ASSERT(reporter, unicodeText16.hasProperty(i, CodeUnitFlags::kGraphemeStart), "Pos16 %zu should be a grapheme start\n", i);
+            REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(i, CodeUnitFlags::kGraphemeStart), "Pos8 %zu should be a grapheme start\n", i);
         }
     }
 
     auto space1 = utf16.find_first_of(u" ");
     auto space2 = utf16.find_last_of(u" ");
 
-    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space1, CodeUnitFlags::kPartOfWhiteSpace), "Pos16 %d should be a part of whitespaces\n", space1);
-    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space1 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos16 %d should have soft line break before\n", space1 + 1);
-    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space2, CodeUnitFlags::kPartOfWhiteSpace), "Pos16 %d should be a part of whitespaces\n", space2);
-    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space2 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos16 %d should have soft line break before\n", space2 + 1);
+    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space1, CodeUnitFlags::kPartOfWhiteSpace), "Pos16 %zu should be a part of whitespaces\n", space1);
+    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space1 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos16 %zu should have soft line break before\n", space1 + 1);
+    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space2, CodeUnitFlags::kPartOfWhiteSpace), "Pos16 %zu should be a part of whitespaces\n", space2);
+    REPORTER_ASSERT(reporter, unicodeText16.hasProperty(space2 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos16 %zu should have soft line break before\n", space2 + 1);
 
-    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space1, CodeUnitFlags::kPartOfWhiteSpace), "Pos8 %d should be a part of whitespaces\n", space1);
-    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space1 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos8 %d should have soft line break before\n", space1 + 1);
-    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space2, CodeUnitFlags::kPartOfWhiteSpace), "Pos8 %d should be a part of whitespaces\n", space2);
-    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space2 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos8 %d should have soft line break before\n", space2 + 1);
+    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space1, CodeUnitFlags::kPartOfWhiteSpace), "Pos8 %zu should be a part of whitespaces\n", space1);
+    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space1 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos8 %zu should have soft line break before\n", space1 + 1);
+    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space2, CodeUnitFlags::kPartOfWhiteSpace), "Pos8 %zu should be a part of whitespaces\n", space2);
+    REPORTER_ASSERT(reporter, unicodeText8 .hasProperty(space2 + 1, CodeUnitFlags::kSoftLineBreakBefore), "Pos8 %zu should have soft line break before\n", space2 + 1);
 }
 
 // TODO: Test RTL text
