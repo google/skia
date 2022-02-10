@@ -220,16 +220,11 @@ const Symbol* Rehydrator::symbol() {
         }
         case kSymbolRef_Command: {
             uint16_t id = this->readU16();
+            if (id == kBuiltin_Symbol) {
+                return (*fSymbolTable)[this->readString()];
+            }
             SkASSERT(fSymbols.size() > id);
             return fSymbols[id];
-        }
-        case kSystemType_Command: {
-            uint16_t id = this->readU16();
-            std::string_view name = this->readString();
-            const Symbol* result = (*fSymbolTable)[name];
-            SkASSERT(result && result->kind() == Symbol::Kind::kType);
-            this->addSymbol(id, result);
-            return result;
         }
         case kUnresolvedFunction_Command: {
             uint16_t id = this->readU16();

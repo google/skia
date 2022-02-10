@@ -151,9 +151,9 @@ void Dehydrator::write(const Symbol& s) {
         this->writeU16(id);
         return;
     }
-    this->allocSymbolId(&s);
     switch (s.kind()) {
         case Symbol::Kind::kFunctionDeclaration: {
+            this->allocSymbolId(&s);
             const FunctionDeclaration& f = s.as<FunctionDeclaration>();
             this->writeCommand(Rehydrator::kFunctionDeclaration_Command);
             this->writeId(&f);
@@ -167,6 +167,7 @@ void Dehydrator::write(const Symbol& s) {
             break;
         }
         case Symbol::Kind::kUnresolvedFunction: {
+            this->allocSymbolId(&s);
             const UnresolvedFunction& f = s.as<UnresolvedFunction>();
             this->writeCommand(Rehydrator::kUnresolvedFunction_Command);
             this->writeId(&f);
@@ -180,12 +181,14 @@ void Dehydrator::write(const Symbol& s) {
             const Type& t = s.as<Type>();
             switch (t.typeKind()) {
                 case Type::TypeKind::kArray:
+                    this->allocSymbolId(&s);
                     this->writeCommand(Rehydrator::kArrayType_Command);
                     this->writeId(&t);
                     this->write(t.componentType());
                     this->writeS8(t.columns());
                     break;
                 case Type::TypeKind::kStruct:
+                    this->allocSymbolId(&s);
                     this->writeCommand(Rehydrator::kStructType_Command);
                     this->writeId(&t);
                     this->write(t.name());
@@ -198,14 +201,15 @@ void Dehydrator::write(const Symbol& s) {
                     this->writeU8(t.isInterfaceBlock());
                     break;
                 default:
-                    this->writeCommand(Rehydrator::kSystemType_Command);
-                    this->writeId(&t);
+                    this->writeCommand(Rehydrator::kSymbolRef_Command);
+                    this->writeU16(Rehydrator::kBuiltin_Symbol);
                     this->write(t.name());
                     break;
             }
             break;
         }
         case Symbol::Kind::kVariable: {
+            this->allocSymbolId(&s);
             const Variable& v = s.as<Variable>();
             this->writeCommand(Rehydrator::kVariable_Command);
             this->writeId(&v);

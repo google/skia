@@ -134,8 +134,6 @@ public:
         // uint16 owned symbol count, Symbol[] ownedSymbols, uint16 symbol count,
         // (uint16/*index*/ | { uint16 kBuiltin_Symbol, String name })
         kSymbolTable_Command,
-        // uint16 id, String name
-        kSystemType_Command,
         // Expression test, Expression ifTrue, Expression ifFalse
         kTernary_Command,
         // uint16 id, FunctionDeclaration[] functions
