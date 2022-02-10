@@ -1143,7 +1143,7 @@ GrSubRunOwner TransformedMaskSubRun::Make(GrTextReferenceFrame* referenceFrame,
             accepted,
             [&](auto e) {
                 auto [variant, pos] = e;
-                SkGlyph* skGlyph = variant;
+                const SkGlyph* skGlyph = variant;
                 int16_t l = skGlyph->left(),
                         t = skGlyph->top(),
                         r = l + skGlyph->width(),
@@ -1365,7 +1365,7 @@ GrSubRunOwner SDFTSubRun::Make(GrTextReferenceFrame* referenceFrame,
     SkRect bounds = SkRectPriv::MakeLargestInverted();
     auto mapper = [&](const auto& d) {
         auto& [variant, pos] = d;
-        SkGlyph* skGlyph = variant;
+        const SkGlyph* skGlyph = variant;
         int16_t l = skGlyph->left(),
                 t = skGlyph->top(),
                 r = l + skGlyph->width(),
@@ -1526,7 +1526,7 @@ void add_multi_mask_format(
     if (accepted.empty()) { return; }
 
     auto glyphSpan = accepted.get<0>();
-    SkGlyph* glyph = glyphSpan[0];
+    const SkGlyph* glyph = glyphSpan[0];
     GrMaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
     size_t startIndex = 0;
     for (size_t i = 1; i < accepted.size(); i++) {
@@ -2182,7 +2182,7 @@ GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
     SkRect bounds = SkRectPriv::MakeLargestInverted();
     auto initializer = [&](auto acceptedGlyph) {
         auto [variant, pos] = acceptedGlyph;
-        SkGlyph* skGlyph = variant;
+        const SkGlyph* skGlyph = variant;
         int16_t l = skGlyph->left(),
                 t = skGlyph->top(),
                 r = l + skGlyph->width(),
@@ -2371,7 +2371,7 @@ GrAtlasSubRunOwner SDFTSubRunNoCache::Make(
     SkRect bounds = SkRectPriv::MakeLargestInverted();
     auto initializer = [&](auto acceptedGlyph) {
         auto [variant, pos] = acceptedGlyph;
-        SkGlyph* skGlyph = variant;
+        const SkGlyph* skGlyph = variant;
         int16_t l = skGlyph->left(),
                 t = skGlyph->top(),
                 r = l + skGlyph->width(),

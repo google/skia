@@ -101,7 +101,7 @@ public:
         SkDEBUGCODE(fTag = kPackedID);
         return *this;
     }
-    SkGlyphVariant& operator= (SkGlyph* glyph) {
+    SkGlyphVariant& operator= (const SkGlyph* glyph) {
         fV.glyph = glyph;
         SkDEBUGCODE(fTag = kGlyph);
         return *this;
@@ -118,7 +118,7 @@ public:
         return *this;
     }
 
-    SkGlyph* glyph() const {
+    const SkGlyph* glyph() const {
         SkASSERT(fTag == kGlyph);
         return fV.glyph;
     }
@@ -136,13 +136,13 @@ public:
     }
 
     operator SkPackedGlyphID()  const { return this->packedID(); }
-    operator SkGlyph*()         const { return this->glyph();    }
+    operator const SkGlyph*()   const { return this->glyph();    }
     operator const SkPath*()    const { return this->path();     }
     operator const SkDrawable*()const { return this->drawable(); }
 
 private:
     union {
-        SkGlyph* glyph;
+        const SkGlyph* glyph;
         const SkPath* path;
         SkDrawable* drawable;
         SkPackedGlyphID packedID;

@@ -233,7 +233,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             strike->prepareForDrawingMasksCPU(&fAccepted);
             auto variants = fAccepted.accepted().get<0>();
             for (auto [variant, srcPos] : SkMakeZip(variants, sourcePositions)) {
-                SkGlyph* glyph = variant.glyph();
+                const SkGlyph* glyph = variant.glyph();
                 SkMask mask = glyph->mask();
                 // TODO: is this needed will A8 and BW just work?
                 if (mask.fFormat != SkMask::kARGB32_Format) {

@@ -49,7 +49,7 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) c
 
     if (useRegion) {
         for (auto [variant, pos] : accepted->accepted()) {
-            SkGlyph* glyph = variant.glyph();
+            const SkGlyph* glyph = variant.glyph();
             if (check_glyph_position(pos)) {
                 SkMask mask = glyph->mask(pos);
 
@@ -76,7 +76,7 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) c
         SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
                                          : fRC->aaRgn().getBounds();
         for (auto [variant, pos] : accepted->accepted()) {
-            SkGlyph* glyph = variant.glyph();
+            const SkGlyph* glyph = variant.glyph();
             if (check_glyph_position(pos)) {
                 SkMask mask = glyph->mask(pos);
                 SkIRect storage;
