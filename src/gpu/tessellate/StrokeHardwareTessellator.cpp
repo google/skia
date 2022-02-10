@@ -225,13 +225,7 @@ public:
             fPatchWriter.updateJoinControlPointAttrib(p[0]);
         }
 
-        // The HW stroke tessellator needs explicit control over 4 control points that it configures
-        // These are configured the same as cubics and conic for the fixed count stroke tessellator,
-        // but the rest of the supporting code is set up to produce a generic "patch". Since HW
-        // tessellation does not require explicit curve types or automatic CPU chopping and
-        // deferring, PatchWriter::writeCubic() patch type is sufficient, although 'p' may actually
-        // contain data causing it to be interpreted as something other than a cubic in the shader.
-        fPatchWriter.writeCubic(p, 0.f);
+        fPatchWriter.writeHwPatch(p);
         fPatchWriter.updateJoinControlPointAttrib(endControlPoint);
     }
 
@@ -589,7 +583,7 @@ private:
             }
             asPatch[3] = nextControlPoint;
 
-            fPatchWriter.writeCubic(asPatch, 0.f); // not really a cubic, see note in writePatchTo()
+            fPatchWriter.writeHwPatch(asPatch);
         }
 
         fPatchWriter.updateJoinControlPointAttrib(nextControlPoint);

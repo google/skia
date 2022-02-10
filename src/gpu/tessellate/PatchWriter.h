@@ -24,6 +24,7 @@ class StrokeTessellator;
 
 // Writes out tessellation patches, formatted with their specific attribs, to a GPU buffer.
 class PatchWriter {
+    using VectorXform = wangs_formula::VectorXform;
 public:
     PatchWriter(GrMeshDrawTarget* target,
                 GrVertexChunkArray* vertexChunkArray,
@@ -137,8 +138,26 @@ public:
      * writes the current values of all attributes enabled in its PatchAttribs flags.
      */
 
+    // Writes four control points manually prepared.
+    // TODO: Only used by StrokeHardwareTessellator
+    AI void writeHwPatch(const SkPoint p[4]) {
+        float4 p0p1 = float4::Load(p);
+        float4 p2p3 = float4::Load(p + 2);
+        this->writePatch(p0p1.lo, p0p1.hi, p2p3.lo, p2p3.hi, /*unused*/0.f);
+    }
+
     // Write a cubic curve with its four control points.
-    AI void writeCubic(float2 p0, float2 p1, float2 p2, float2 p3, float n4) {
+    AI void writeCubic(float2 p0, float2 p1, float2 p2, float2 p3,
+                       const VectorXform& shaderXform,
+                       float precision = kTessellationPrecision) {
+        float n4 = wangs_formula::cubic_pow4(precision, p0, p1, p2, p3, shaderXform);
+        if (this->writesCurvesOnly()) {
+            if (n4 <= 1.f) {
+                // This cubic only needs one segment (e.g. a line) but we're not filling space with
+                // fans or stroking, so nothing actually needs to be drawn.
+                return;
+            }
+        }
         if (this->updateRequiredSegments(n4)) {
             this->writeCubicPatch(p0, p1, p2, p3);
         } else {
@@ -147,15 +166,27 @@ public:
             this->chopAndWriteCubics(p0, p1, p2, p3, numPatches);
         }
     }
-    AI void writeCubic(const SkPoint pts[4], float n4) {
+    AI void writeCubic(const SkPoint pts[4],
+                       const VectorXform& shaderXform,
+                       float precision = kTessellationPrecision) {
         float4 p0p1 = float4::Load(pts);
         float4 p2p3 = float4::Load(pts + 2);
-        this->writeCubic(p0p1.lo, p0p1.hi, p2p3.lo, p2p3.hi, n4);
+        this->writeCubic(p0p1.lo, p0p1.hi, p2p3.lo, p2p3.hi, shaderXform, precision);
     }
 
     // Write a conic curve with three control points and 'w', with the last coord of the last
     // control point signaling a conic by being set to infinity.
-    AI void writeConic(float2 p0, float2 p1, float2 p2, float w, float n2) {
+    AI void writeConic(float2 p0, float2 p1, float2 p2, float w,
+                       const VectorXform& shaderXform,
+                       float precision = kTessellationPrecision) {
+        float n2 = wangs_formula::conic_pow2(precision, p0, p1, p2, w, shaderXform);
+        if (this->writesCurvesOnly()) {
+            if (n2 <= 1.f) {
+                // This conic only needs one segment (e.g. a line) but we're not filling space with
+                // fans or stroking, so nothing actually needs to be drawn.
+                return;
+            }
+        }
         if (this->updateRequiredSegments(n2*n2)) {
             this->writeConicPatch(p0, p1, p2, w);
         } else {
@@ -164,16 +195,28 @@ public:
             this->chopAndWriteConics(p0, p1, p2, w, numPatches);
         }
     }
-    AI void writeConic(const SkPoint pts[3], float w, float n2) {
+    AI void writeConic(const SkPoint pts[3], float w,
+                       const VectorXform& shaderXform,
+                       float precision = kTessellationPrecision) {
         this->writeConic(skvx::bit_pun<float2>(pts[0]),
                          skvx::bit_pun<float2>(pts[1]),
                          skvx::bit_pun<float2>(pts[2]),
-                         w, n2);
+                         w, shaderXform, precision);
     }
 
     // Write a quadratic curve that automatically converts its three control points into an
     // equivalent cubic.
-    AI void writeQuadratic(float2 p0, float2 p1, float2 p2, float n4) {
+    AI void writeQuadratic(float2 p0, float2 p1, float2 p2,
+                           const VectorXform& shaderXform,
+                           float precision = kTessellationPrecision) {
+        float n4 = wangs_formula::quadratic_pow4(precision, p0, p1, p2, shaderXform);
+        if (this->writesCurvesOnly()) {
+            if (n4 <= 1.f) {
+                // This quad only needs one segment (e.g. a line) but we're not filling space with
+                // fans or stroking, so nothing actually needs to be drawn.
+                return;
+            }
+        }
         if (this->updateRequiredSegments(n4)) {
             this->writeQuadPatch(p0, p1, p2);
         } else {
@@ -182,11 +225,13 @@ public:
             this->chopAndWriteQuads(p0, p1, p2, numPatches);
         }
     }
-    AI void writeQuadratic(const SkPoint pts[3], float n4) {
+    AI void writeQuadratic(const SkPoint pts[3],
+                           const VectorXform& shaderXform,
+                           float precision = kTessellationPrecision) {
         this->writeQuadratic(skvx::bit_pun<float2>(pts[0]),
                              skvx::bit_pun<float2>(pts[1]),
                              skvx::bit_pun<float2>(pts[2]),
-                             n4);
+                             shaderXform, precision);
     }
 
     // Write a line that is automatically converted into an equivalent cubic.
@@ -303,6 +348,12 @@ private:
             fCurrMinSegments_pow4 = fMaxSegments_pow4;
             return false;
         }
+    }
+
+    // True if the patch writer only draws curves (presumably for filling), e.g. does not add a
+    // wedge fan point to help fill space, or a join control point for stroking.
+    bool writesCurvesOnly() const {
+        return !(fAttribs & (PatchAttribs::kJoinControlPoint | PatchAttribs::kFanPoint));
     }
 
     const PatchAttribs fAttribs;

@@ -53,8 +53,7 @@ PatchWriter::PatchWriter(GrMeshDrawTarget* target,
 
 void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatches) {
     // If we aren't fanning or stroking, we need to fill the space between chops with triangles.
-    bool needsInnerTriangles = !(fAttribs & PatchAttribs::kFanPoint) &&
-                               !(fAttribs & PatchAttribs::kJoinControlPoint);
+    const bool needsInnerTriangles = this->writesCurvesOnly();
     MiddleOutPolygonTriangulator innerTriangulator(numPatches, to_skpoint(p0));
     for (; numPatches >= 3; numPatches -= 2) {
         // Chop into 3 quads.
@@ -98,8 +97,7 @@ void PatchWriter::chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatc
 
 void PatchWriter::chopAndWriteConics(float2 p0, float2 p1, float2 p2, float w, int numPatches) {
     // If we aren't fanning or stroking, we need to fill the space between chops with triangles.
-    bool needsInnerTriangles = !(fAttribs & PatchAttribs::kFanPoint) &&
-                               !(fAttribs & PatchAttribs::kJoinControlPoint);
+    const bool needsInnerTriangles = this->writesCurvesOnly();
     MiddleOutPolygonTriangulator innerTriangulator(numPatches, to_skpoint(p0));
     // Load the conic in 3d homogeneous (unprojected) space.
     float4 h0 = float4(p0,1,1);
@@ -137,8 +135,7 @@ void PatchWriter::chopAndWriteConics(float2 p0, float2 p1, float2 p2, float w, i
 
 void PatchWriter::chopAndWriteCubics(float2 p0, float2 p1, float2 p2, float2 p3, int numPatches) {
     // If we aren't fanning or stroking, we need to fill the space between chops with triangles.
-    bool needsInnerTriangles = !(fAttribs & PatchAttribs::kFanPoint) &&
-                               !(fAttribs & PatchAttribs::kJoinControlPoint);
+    const bool needsInnerTriangles = this->writesCurvesOnly();
     MiddleOutPolygonTriangulator innerTriangulator(numPatches, to_skpoint(p0));
     for (; numPatches >= 3; numPatches -= 2) {
         // Chop into 3 cubics.
