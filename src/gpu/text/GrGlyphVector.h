@@ -37,6 +37,10 @@ public:
             sk_sp<SkStrike>&& strike, SkSpan<SkGlyphVariant> glyphs, GrSubRunAllocator* alloc);
     SkSpan<const GrGlyph*> glyphs() const;
 
+    static std::optional<GrGlyphVector> MakeFromBuffer(SkReadBuffer& buffer,
+                                                       GrSubRunAllocator* alloc);
+    void flatten(SkWriteBuffer& buffer);
+
     void packedGlyphIDToGrGlyph(GrStrikeCache* cache);
 
     std::tuple<bool, int> regenerateAtlas(
@@ -51,6 +55,7 @@ public:
     }
 
 private:
+    friend class TestingPeer;
     sk_sp<SkStrike> fStrike;
     SkSpan<Variant> fGlyphs;
     sk_sp<GrTextStrike> fGrStrike{nullptr};

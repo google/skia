@@ -32,6 +32,38 @@ GrGlyphVector GrGlyphVector::Make(
     return GrGlyphVector{std::move(strike), SkMakeSpan(variants, glyphs.size())};
 }
 
+std::optional<GrGlyphVector> GrGlyphVector::MakeFromBuffer(SkReadBuffer& buffer,
+                                                           GrSubRunAllocator* alloc) {
+    auto descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
+    if (!descriptor.has_value()) { return {}; }
+
+    sk_sp<SkStrike> strike = SkStrikeCache::GlobalStrikeCache()->findStrike(*descriptor->getDesc());
+
+    int32_t glyphCount = buffer.read32();
+    // Since the glyph count can never be zero. There was a buffer reading problem.
+    if (glyphCount == 0) { return {}; }
+
+    Variant* variants = alloc->makePODArray<Variant>(glyphCount);
+    for (int i = 0; i < glyphCount; i++) {
+        variants[i].packedGlyphID = SkPackedGlyphID(buffer.readUInt());
+    }
+    return {GrGlyphVector{std::move(strike), SkMakeSpan(variants, glyphCount)}};
+}
+
+void GrGlyphVector::flatten(SkWriteBuffer& buffer) {
+    // There should never be a glyph vector with zero glyphs.
+    SkASSERT(fGlyphs.size() != 0);
+    if (!fStrike) { SK_ABORT("Can't flatten with already drawn."); }
+
+    fStrike->getDescriptor().flatten(buffer);
+
+    // Write out the span of packedGlyphIDs.
+    buffer.write32(SkTo<int32_t>(fGlyphs.size()));
+    for (auto variant : fGlyphs) {
+        buffer.writeUInt(variant.packedGlyphID.value());
+    }
+}
+
 SkSpan<const GrGlyph*> GrGlyphVector::glyphs() const {
     return SkMakeSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
 }
