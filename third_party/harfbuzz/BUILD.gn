@@ -7,7 +7,7 @@ import("../../gn/skia.gni")
 import("../third_party.gni")
 
 declare_args() {
-  skia_use_system_harfbuzz = is_official_build
+  skia_use_system_harfbuzz = is_official_build && !is_wasm
 }
 
 if (skia_use_system_harfbuzz) {

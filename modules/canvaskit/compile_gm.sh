@@ -21,9 +21,7 @@ fi
 pushd $BASE_DIR/../..
 
 source $EMSDK/emsdk_env.sh
-EMCC=`which emcc`
 EMCXX=`which em++`
-EMAR=`which emar`
 
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
@@ -85,9 +83,7 @@ echo "Compiling bitcode"
 
 # Inspired by https://github.com/Zubnix/skia-wasm-port/blob/master/build_bindings.sh
 ./bin/gn gen ${BUILD_DIR} \
-  --args="cc=\"${EMCC}\" \
-  cxx=\"${EMCXX}\" \
-  ar=\"${EMAR}\" \
+  --args="emsdk_dir=\"${EMSDK}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-sMAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",

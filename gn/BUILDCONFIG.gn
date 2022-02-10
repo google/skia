@@ -59,6 +59,7 @@ is_ios = current_os == "ios" || current_os == "tvos"
 is_tvos = current_os == "tvos"
 is_linux = current_os == "linux"
 is_mac = current_os == "mac"
+is_wasm = target_os == "wasm"
 is_win = current_os == "win"
 
 # This is just to make the Dawn build files happy. Skia itself uses target_os = "linux"
@@ -81,7 +82,7 @@ if (current_cpu == "") {
   current_cpu = target_cpu
 }
 
-is_clang = is_android || is_ios || is_mac || is_fuchsia ||
+is_clang = is_android || is_ios || is_mac || is_fuchsia || is_wasm ||
            (cc == "clang" && cxx == "clang++") || clang_win != ""
 if (!is_clang && !is_win) {
   is_clang = exec_script("//gn/is_clang.py",
@@ -226,6 +227,10 @@ if (is_win) {
   set_default_toolchain("//gn/toolchain:msvc")
   default_toolchain_name = "msvc"
   host_toolchain = "msvc"
+} else if (is_wasm) {
+  set_default_toolchain("//gn/toolchain:wasm")
+  default_toolchain_name = "wasm"
+  host_toolchain = "wasm"
 } else {
   # GCC-like toolchains, including Clang.
   set_default_toolchain("//gn/toolchain:gcc_like")

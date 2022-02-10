@@ -2,54 +2,362 @@
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+import("//gn/skia.gni")
+import("//gn/toolchain/wasm.gni")
+import("canvaskit.gni")
 
-component("viewer_wasm") {
-  testonly = true
-  include_dirs = [ "../.." ]
-  sources = [
-    "../../modules/svg/src/SkSVGAttribute.cpp",
-    "../../modules/svg/src/SkSVGAttributeParser.cpp",
-    "../../modules/svg/src/SkSVGCircle.cpp",
-    "../../modules/svg/src/SkSVGClipPath.cpp",
-    "../../modules/svg/src/SkSVGContainer.cpp",
-    "../../modules/svg/src/SkSVGDOM.cpp",
-    "../../modules/svg/src/SkSVGEllipse.cpp",
-    "../../modules/svg/src/SkSVGFe.cpp",
-    "../../modules/svg/src/SkSVGFeColorMatrix.cpp",
-    "../../modules/svg/src/SkSVGFeComposite.cpp",
-    "../../modules/svg/src/SkSVGFeTurbulence.cpp",
-    "../../modules/svg/src/SkSVGFilter.cpp",
-    "../../modules/svg/src/SkSVGFilterContext.cpp",
-    "../../modules/svg/src/SkSVGGradient.cpp",
-    "../../modules/svg/src/SkSVGLine.cpp",
-    "../../modules/svg/src/SkSVGLinearGradient.cpp",
-    "../../modules/svg/src/SkSVGNode.cpp",
-    "../../modules/svg/src/SkSVGPath.cpp",
-    "../../modules/svg/src/SkSVGPattern.cpp",
-    "../../modules/svg/src/SkSVGPoly.cpp",
-    "../../modules/svg/src/SkSVGRadialGradient.cpp",
-    "../../modules/svg/src/SkSVGRect.cpp",
-    "../../modules/svg/src/SkSVGRenderContext.cpp",
-    "../../modules/svg/src/SkSVGSVG.cpp",
-    "../../modules/svg/src/SkSVGShape.cpp",
-    "../../modules/svg/src/SkSVGStop.cpp",
-    "../../modules/svg/src/SkSVGText.cpp",
-    "../../modules/svg/src/SkSVGTransformableNode.cpp",
-    "../../modules/svg/src/SkSVGUse.cpp",
-    "../../modules/svg/src/SkSVGValue.cpp",
-    "../../tools/viewer/SKPSlide.cpp",
-    "../../tools/viewer/SampleSlide.cpp",
-    "../../tools/viewer/SvgSlide.cpp",
-  ]
-  deps = [ "../..:samples" ]
+# These targets depend on components that are only declared if
+# `skia_enable_tools` is true.
+if (skia_enable_tools) {
+  component("viewer_wasm") {
+    testonly = true
+    include_dirs = [ "../.." ]
+    sources = [
+      "../../modules/svg/src/SkSVGAttribute.cpp",
+      "../../modules/svg/src/SkSVGAttributeParser.cpp",
+      "../../modules/svg/src/SkSVGCircle.cpp",
+      "../../modules/svg/src/SkSVGClipPath.cpp",
+      "../../modules/svg/src/SkSVGContainer.cpp",
+      "../../modules/svg/src/SkSVGDOM.cpp",
+      "../../modules/svg/src/SkSVGEllipse.cpp",
+      "../../modules/svg/src/SkSVGFe.cpp",
+      "../../modules/svg/src/SkSVGFeColorMatrix.cpp",
+      "../../modules/svg/src/SkSVGFeComposite.cpp",
+      "../../modules/svg/src/SkSVGFeTurbulence.cpp",
+      "../../modules/svg/src/SkSVGFilter.cpp",
+      "../../modules/svg/src/SkSVGFilterContext.cpp",
+      "../../modules/svg/src/SkSVGGradient.cpp",
+      "../../modules/svg/src/SkSVGLine.cpp",
+      "../../modules/svg/src/SkSVGLinearGradient.cpp",
+      "../../modules/svg/src/SkSVGNode.cpp",
+      "../../modules/svg/src/SkSVGPath.cpp",
+      "../../modules/svg/src/SkSVGPattern.cpp",
+      "../../modules/svg/src/SkSVGPoly.cpp",
+      "../../modules/svg/src/SkSVGRadialGradient.cpp",
+      "../../modules/svg/src/SkSVGRect.cpp",
+      "../../modules/svg/src/SkSVGRenderContext.cpp",
+      "../../modules/svg/src/SkSVGSVG.cpp",
+      "../../modules/svg/src/SkSVGShape.cpp",
+      "../../modules/svg/src/SkSVGStop.cpp",
+      "../../modules/svg/src/SkSVGText.cpp",
+      "../../modules/svg/src/SkSVGTransformableNode.cpp",
+      "../../modules/svg/src/SkSVGUse.cpp",
+      "../../modules/svg/src/SkSVGValue.cpp",
+      "../../tools/viewer/SKPSlide.cpp",
+      "../../tools/viewer/SampleSlide.cpp",
+      "../../tools/viewer/SvgSlide.cpp",
+    ]
+    deps = [ "../..:samples" ]
+  }
+
+  component("gm_wasm") {
+    testonly = true
+    include_dirs = [ "../.." ]
+    deps = [
+      "../..:hash_and_encode",
+      "../..:tool_utils",
+      "../../modules/svg:svg",
+    ]
+  }
 }
 
-component("gm_wasm") {
-  testonly = true
-  include_dirs = [ "../.." ]
-  deps = [
-    "../..:hash_and_encode",
-    "../..:tool_utils",
-    "../../modules/svg:svg",
+action("create_notomono_cpp") {
+  script = "../../tools/embed_resources.py"
+
+  inputs = [ "fonts/NotoMono-Regular.ttf" ]
+
+  outputs =
+      [ "$root_out_dir/modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp" ]
+
+  args = [
+    "--name=SK_EMBEDDED_FONTS",
+    "--input",
+    rebase_path("fonts/NotoMono-Regular.ttf"),
+    "--output",
+    "modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp",
+    "--align=4",
   ]
+}
+
+wasm_lib("canvaskit") {
+  deps = [ "../..:skia" ]
+  if (skia_canvaskit_enable_paragraph) {
+    deps += [ "../../modules/skparagraph:skparagraph" ]
+  }
+  if (skia_canvaskit_enable_skottie) {
+    deps += [
+      "../../modules/skottie:skottie",
+      "../../modules/sksg:sksg",
+    ]
+  }
+  if (skia_canvaskit_enable_particles) {
+    deps += [ "../../modules/particles:particles" ]
+  }
+  if (skia_canvaskit_enable_skottie || skia_canvaskit_enable_particles) {
+    deps += [ "../../modules/skresources:skresources" ]
+  }
+  if (skia_canvaskit_include_viewer) {
+    deps += [ ":viewer_wasm" ]
+  }
+  if (skia_canvaskit_enable_embedded_font) {
+    deps += [ ":create_notomono_cpp" ]
+  }
+
+  sources = [
+    "WasmCommon.h",
+    "canvaskit_bindings.cpp",
+  ]
+  if (skia_canvaskit_enable_paragraph) {
+    sources += [
+      "paragraph_bindings.cpp",
+      "paragraph_bindings_gen.cpp",
+    ]
+  }
+  if (skia_canvaskit_enable_skottie) {
+    sources += [ "skottie_bindings.cpp" ]
+    if (skia_canvaskit_enable_managed_skottie) {
+      sources += [ "../../modules/skottie/utils/SkottieUtils.cpp" ]
+    }
+  }
+  if (skia_canvaskit_enable_particles) {
+    sources += [ "particles_bindings.cpp" ]
+  }
+  if (skia_canvaskit_enable_skottie || skia_canvaskit_enable_particles) {
+    sources += [ "../../modules/skresources/src/SkResources.cpp" ]
+  }
+  if (skia_canvaskit_include_viewer) {
+    sources += [ "viewer_bindings.cpp" ]
+  }
+  if (skia_canvaskit_enable_embedded_font) {
+    sources += [
+      "$root_out_dir/modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp",
+    ]
+  }
+
+  ldflags = []
+  if (is_debug) {
+    ldflags += [
+      "-O0",
+      "-sDEMANGLE_SUPPORT=1",
+      "-sASSERTIONS=1",
+      "-sGL_ASSERTIONS=1",
+      "-g3",
+      "--source-map-base",
+      "/node_modules/canvaskit/bin/",
+      "--pre-js",
+      rebase_path("debug.js"),
+    ]
+  } else {
+    externs_path = rebase_path("externs.js")
+    ldflags += [
+      "-Oz",
+      "--closure=1",
+      "--pre-js",
+      rebase_path("release.js"),
+      "--closure-args=--externs=$externs_path",
+    ]
+  }
+  if (skia_canvaskit_profile_build) {
+    ldflags += [
+      "--profiling-funcs",
+      "--closure=0",
+    ]
+  }
+  ldflags += [ "-fno-rtti" ]
+
+  if (skia_enable_gpu) {
+    ldflags += [
+      "-lGL",
+      "--pre-js",
+      rebase_path("cpu.js"),
+      "--pre-js",
+      rebase_path("gpu.js"),
+      "-sUSE_WEBGL2=1",
+      "-sMAX_WEBGL_VERSION=2",
+    ]
+  } else {
+    ldflags += [
+      "--pre-js",
+      rebase_path("cpu.js"),
+      "-sUSE_WEBGL2=0",
+    ]
+  }
+
+  ldflags += [
+    "-std=c++17",
+    "--bind",
+    "--no-entry",
+    "--pre-js",
+    rebase_path("preamble.js"),
+    "--pre-js",
+    rebase_path("color.js"),
+    "--pre-js",
+    rebase_path("memory.js"),
+    "--pre-js",
+    rebase_path("util.js"),
+    "--pre-js",
+    rebase_path("interface.js"),
+  ]
+
+  if (skia_canvaskit_enable_matrix_helper) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("matrix.js"),
+    ]
+  }
+
+  ldflags += [
+    "--pre-js",
+    rebase_path("paragraph.js"),
+  ]
+
+  if (skia_canvaskit_enable_skottie) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("skottie.js"),
+    ]
+  }
+
+  if (skia_canvaskit_enable_particles) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("particles.js"),
+    ]
+  }
+
+  if (skia_canvaskit_enable_pathops) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("pathops.js"),
+    ]
+  }
+
+  if (skia_canvaskit_enable_font) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("font.js"),
+    ]
+  }
+
+  if (skia_canvaskit_enable_skp_serialization) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("skp.js"),
+    ]
+  }
+
+  if (skia_canvaskit_enable_rt_shader) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("rt_shader.js"),
+    ]
+  }
+
+  if (skia_canvaskit_enable_canvas_bindings) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("htmlcanvas/preamble.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/util.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/color.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/font.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/canvas2dcontext.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/htmlcanvas.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/htmlimage.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/imagedata.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/lineargradient.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/path2d.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/pattern.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/radialgradient.js"),
+      "--pre-js",
+      rebase_path("htmlcanvas/postamble.js"),
+    ]
+  }
+
+  ldflags += [
+    "--pre-js",
+    rebase_path("postamble.js"),
+    "-sLLD_REPORT_UNDEFINED",
+    "-sALLOW_MEMORY_GROWTH",
+    "-sUSE_PTHREADS=0",
+    "-sDISABLE_EXCEPTION_CATCHING",
+    "-sNODEJS_CATCH_EXIT=0",
+    "-sDYNAMIC_EXECUTION=0",
+    "-sEXPORT_NAME=CanvasKitInit",
+    "-sEXPORTED_FUNCTIONS=[_malloc,_free]",
+    "-sFORCE_FILESYSTEM=0",
+    "-sFILESYSTEM=0",
+    "-sMODULARIZE",
+    "-sNO_EXIT_RUNTIME=1",
+    "-sINITIAL_MEMORY=128MB",
+    "-sWASM",
+    "-sSTRICT=1",
+  ]
+
+  defines = []
+  if (is_debug) {
+    defines += [ "SK_DEBUG" ]
+  } else {
+    defines += [ "SK_RELEASE" ]
+  }
+  if (!is_debug && !skia_canvaskit_force_tracing) {
+    defines += [ "SK_DISABLE_TRACING" ]
+  }
+  defines += [
+    "SK_DISABLE_AAA",
+    "SK_FORCE_8_BYTE_ALIGNMENT",
+    "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
+    "SK_HAS_ANDROID_CODEC",
+    "SK_SHAPER_HARFBUZZ_AVAILABLE",
+  ]
+  if (skia_canvaskit_enable_paragraph) {
+    defines += [ "SK_INCLUDE_PARAGRAPH=1" ]
+  }
+  if (skia_canvaskit_enable_skp_serialization) {
+    defines += [ "SK_SERIALIZE_SKP" ]
+  }
+  if (skia_enable_gpu) {
+    defines += [
+      "SK_SUPPORT_GPU=1",
+      "SK_GL",
+      "SK_DISABLE_LEGACY_SHADERCONTEXT",
+    ]
+  } else {
+    defines += [
+      "SK_SUPPORT_GPU=0",
+      "SK_ENABLE_SKSL",
+    ]
+  }
+  if (!skia_canvaskit_enable_skottie ||
+      !skia_canvaskit_enable_managed_skottie) {
+    defines += [ "SK_INCLUDE_MANAGED_SKOTTIE=0" ]
+  } else {
+    defines += [ "SK_INCLUDE_MANAGED_SKOTTIE=1" ]
+  }
+  if (skia_canvaskit_enable_pathops) {
+    defines += [ "SK_INCLUDE_PATHOPS" ]
+  }
+  if (skia_canvaskit_enable_rt_shader) {
+    defines += [ "SK_INCLUDE_RUNTIME_EFFECT" ]
+  }
+  if (skia_canvaskit_enable_sksl_trace) {
+    defines += [ "SK_INCLUDE_SKSL_TRACE" ]
+  }
+  if (!skia_canvaskit_enable_alias_font) {
+    defines += [ "CANVASKIT_NO_ALIAS_FONT" ]
+  }
+
+  if (!skia_canvaskit_enable_font) {
+    defines += [ "SK_NO_FONTS" ]
+  }
 }

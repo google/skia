@@ -72,9 +72,7 @@ fi
 OUTPUT="-o $BUILD_DIR/pathkit.js"
 
 source $EMSDK/emsdk_env.sh
-EMCC=`which emcc`
 EMCXX=`which em++`
-EMAR=`which emar`
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
@@ -90,9 +88,7 @@ echo "Compiling bitcode"
 
 ./bin/fetch-gn
 ./bin/gn gen ${BUILD_DIR} \
-  --args="cc=\"${EMCC}\" \
-  cxx=\"${EMCXX}\" \
-  ar=\"${EMAR}\" \
+  --args="emsdk_dir=\"${EMSDK}\" \
   extra_cflags=[
     \"-sMAIN_MODULE=1\",
     ${EXTRA_CFLAGS}
