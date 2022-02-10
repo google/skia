@@ -182,6 +182,11 @@ std::optional<SkAutoDescriptor> SkAutoDescriptor::MakeFromBuffer(SkReadBuffer& b
     if (descriptorHeader.getLength() < sizeof(SkDescriptor)) { return {}; }
     uint32_t bodyLength = descriptorHeader.getLength() - sizeof(SkDescriptor);
 
+    // Make sure the fLength makes sense with respect to the incoming data.
+    if (bodyLength > buffer.available()) {
+        return {};
+    }
+
     SkAutoDescriptor ad{descriptorHeader.getLength()};
     memcpy(ad.fDesc, &descriptorHeader, sizeof(SkDescriptor));
     if (!buffer.readPad32(SkTAddOffset<void>(ad.fDesc, sizeof(SkDescriptor)), bodyLength)) {
