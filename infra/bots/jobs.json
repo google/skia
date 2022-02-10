@@ -551,6 +551,10 @@
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal"},
+  {"name": "Test-Mac12-Clang-MacBookPro16,2-GPU-IntelIrisPlus-x86_64-Debug-All"},
+  {"name": "Test-Mac12-Clang-MacBookPro16,2-GPU-IntelIrisPlus-x86_64-Debug-All-Metal"},
+  {"name": "Test-Mac12-Clang-MacBookPro16,2-GPU-IntelIrisPlus-x86_64-Release-All"},
+  {"name": "Test-Mac12-Clang-MacBookPro16,2-GPU-IntelIrisPlus-x86_64-Release-All-Metal"},
   {"name": "Test-Mac12-Clang-MacMini7.1-CPU-AVX2-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
    "cq_config": {}
