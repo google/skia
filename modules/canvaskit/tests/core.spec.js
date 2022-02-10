@@ -1282,6 +1282,21 @@ describe('Core canvas behavior', () => {
             paint.delete();
             path.delete();
         });
+
+        it('throws if an invalid matrix is passed in', () => {
+            let threw;
+            try {
+                CanvasKit.ImageFilter.MakeMatrixTransform(
+                  'invalid matrix value',
+                  { filter: CanvasKit.FilterMode.Linear },
+                  null
+                )
+                threw = false;
+            } catch (e) {
+                threw = true;
+            }
+            expect(threw).toBeTrue();
+        });
     }); // end describe('DOMMatrix support')
 
     it('can call subarray on a Malloced object', () => {

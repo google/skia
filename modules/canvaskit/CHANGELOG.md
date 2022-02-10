@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - `SkPicture.makeShader`
 
+### Changed
+ - If an invalid matrix type is passed in (e.g. not an array, TypedArray, or DOMMatrix), CanvasKit
+   will throw instead of drawing incorrectly.
+
 ## [0.33.0] - 2022-02-03
 
 ### Added
