@@ -414,20 +414,20 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fIntegerSupport =
                 // We use this value for GLSL ES 3.0.
                 version >= GR_GL_VER(3, 0) &&
-                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
         shaderCaps->fNonsquareMatrixSupport =
-                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
         shaderCaps->fInverseHyperbolicSupport =
-                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
     } else if (GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(2, 0) ||
                                                ctxInfo.hasExtension("GL_OES_standard_derivatives") ||
                                                ctxInfo.hasExtension("OES_standard_derivatives");
         shaderCaps->fIntegerSupport = (version >= GR_GL_VER(2, 0));
         shaderCaps->fNonsquareMatrixSupport =
-                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
         shaderCaps->fInverseHyperbolicSupport =
-                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
     }
 
     if (ctxInfo.hasExtension("GL_NV_conservative_raster")) {
@@ -443,7 +443,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                 ctxInfo.glslGeneration() < SkSL::GLSLGeneration::k130;  // introduced in GLSL 1.3
     } else if (GR_IS_GR_GL_ES(standard)) {
         shaderCaps->fRewriteSwitchStatements =
-                ctxInfo.glslGeneration() < SkSL::GLSLGeneration::k330;  // introduced in GLSL ES3
+                ctxInfo.glslGeneration() < SkSL::GLSLGeneration::k300es;  // introduced in GLSL ES3
     } else if (GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(2, 0);  // introduced in WebGL 2
     }
@@ -850,11 +850,9 @@ const char* get_glsl_version_decl_string(GrGLStandard standard, SkSL::GLSLGenera
         }
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
         switch (generation) {
-            case SkSL::GLSLGeneration::k110:
-                // ES2s shader language is based on version 1.20 but is version
-                // 1.00 of the ES language.
+            case SkSL::GLSLGeneration::k100es:
                 return "#version 100\n";
-            case SkSL::GLSLGeneration::k330:
+            case SkSL::GLSLGeneration::k300es:
                 return "#version 300 es\n";
             case SkSL::GLSLGeneration::k310es:
                 return "#version 310 es\n";
@@ -938,9 +936,8 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fFlatInterpolationSupport =
                 ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
-        // This is the value for GLSL ES 3.0.
         shaderCaps->fFlatInterpolationSupport =
-                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
     } // not sure for WebGL
 
     // Flat interpolation appears to be slow on Qualcomm GPUs (tested Adreno 405 and 530).
@@ -954,7 +951,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
             ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
     } else if (GR_IS_GR_GL_ES(standard)) {
         if (ctxInfo.hasExtension("GL_NV_shader_noperspective_interpolation") &&
-            ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330 /* GLSL ES 3.0 */) {
+            ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es) {
             shaderCaps->fNoPerspectiveInterpolationSupport = true;
             shaderCaps->fNoPerspectiveInterpolationExtensionString =
                 "GL_NV_shader_noperspective_interpolation";
@@ -994,7 +991,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
                                                                   fIsCoreProfile);
 
     if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
-        if (SkSL::GLSLGeneration::k110 == shaderCaps->fGLSLGeneration) {
+        if (SkSL::GLSLGeneration::k100es == shaderCaps->fGLSLGeneration) {
             shaderCaps->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
         }
     } // WebGL might have to check for OES_standard_derivatives
@@ -1004,7 +1001,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }
 
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external")) {
-        if (ctxInfo.glslGeneration() == SkSL::GLSLGeneration::k110) {
+        if (ctxInfo.glslGeneration() == SkSL::GLSLGeneration::k100es) {
             shaderCaps->fExternalTextureSupport = true;
             shaderCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
         } else if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
@@ -1018,8 +1015,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fVertexIDSupport = true;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
-        // Desktop GLSL 3.30 == ES GLSL 3.00.
-        shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
+        shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
     }
 
     // isinf() exists in GLSL 1.3 and above, but hardware without proper IEEE support is allowed to
@@ -1032,7 +1028,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fNonconstantArrayIndexSupport = true;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fNonconstantArrayIndexSupport =
-                (ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330);
+                (ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es);
     }
 
     if (GR_IS_GR_GL(standard)) {
@@ -1040,7 +1036,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
                 ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k400;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fBitManipulationSupport =
-                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k310es;
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
     }
 
     shaderCaps->fFloatIs32Bits = is_float_fp32(ctxInfo, gli, GR_GL_HIGH_FLOAT);
@@ -1101,7 +1097,7 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
 
     bool layoutQualifierSupport = false;
     if ((GR_IS_GR_GL(fStandard) && shaderCaps->generation() >= SkSL::GLSLGeneration::k140)  ||
-        (GR_IS_GR_GL_ES(fStandard) && shaderCaps->generation() >= SkSL::GLSLGeneration::k330)) {
+        (GR_IS_GR_GL_ES(fStandard) && shaderCaps->generation() >= SkSL::GLSLGeneration::k300es)) {
         layoutQualifierSupport = true;
     } else if (GR_IS_GR_WEBGL(fStandard)) {
         return;
