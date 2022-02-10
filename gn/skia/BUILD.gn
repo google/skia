@@ -447,7 +447,6 @@ config("warnings") {
       "-Wno-double-promotion",
       "-Wno-exit-time-destructors",  # TODO: OK outside libskia
       "-Wno-float-equal",
-      "-Wno-format-nonliteral",
       "-Wno-global-constructors",  # TODO: OK outside libskia
       "-Wno-missing-prototypes",
       "-Wno-missing-variable-declarations",
