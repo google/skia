@@ -1022,11 +1022,16 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330;
     }
 
+    // isinf() exists in GLSL 1.3 and above, but hardware without proper IEEE support is allowed to
+    // always return false, so it's potentially meaningless. In GLSL 3.3 and GLSL ES3+, isinf() is
+    // required to actually identify infinite values. (GPUs are not required to _produce_ infinite
+    // values via operations like `num / 0.0` until GLSL 4.1.)
+    shaderCaps->fInfinitySupport = (ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330);
+
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fInfinitySupport = shaderCaps->fNonconstantArrayIndexSupport = true;
+        shaderCaps->fNonconstantArrayIndexSupport = true;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
-        // Desktop GLSL 3.30 == ES GLSL 3.00.
-        shaderCaps->fInfinitySupport = shaderCaps->fNonconstantArrayIndexSupport =
+        shaderCaps->fNonconstantArrayIndexSupport =
                 (ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330);
     }
 
