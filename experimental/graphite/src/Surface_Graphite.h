@@ -16,10 +16,10 @@ class Context;
 class Device;
 class Recorder;
 
-class Surface_Graphite final : public SkSurface_Base {
+class Surface final : public SkSurface_Base {
 public:
-    Surface_Graphite(sk_sp<Device>);
-    ~Surface_Graphite() override;
+    Surface(sk_sp<Device>);
+    ~Surface() override;
 
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;

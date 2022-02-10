@@ -26,7 +26,7 @@ sk_sp<SkSurface> MakeGraphite(skgpu::Recorder* recorder, const SkImageInfo& ii) 
         return nullptr;
     }
 
-    return sk_make_sp<skgpu::Surface_Graphite>(std::move(device));
+    return sk_make_sp<skgpu::Surface>(std::move(device));
 }
 
 static bool validate_backend_texture(const skgpu::Caps* caps,
@@ -81,5 +81,5 @@ sk_sp<SkSurface> MakeGraphiteFromBackendTexture(skgpu::Recorder* recorder,
         return nullptr;
     }
 
-    return sk_make_sp<skgpu::Surface_Graphite>(std::move(device));
+    return sk_make_sp<skgpu::Surface>(std::move(device));
 }
