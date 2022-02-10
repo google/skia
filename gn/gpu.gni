@@ -352,6 +352,8 @@ skia_gpu_sources = [
   "$_src/gpu/text/GrAtlasManager.h",
   "$_src/gpu/text/GrDistanceFieldAdjustTable.cpp",
   "$_src/gpu/text/GrDistanceFieldAdjustTable.h",
+  "$_src/gpu/text/GrGlyphVector.cpp",
+  "$_src/gpu/text/GrGlyphVector.h",
   "$_src/gpu/text/GrSDFMaskFilter.cpp",
   "$_src/gpu/text/GrSDFMaskFilter.h",
   "$_src/gpu/text/GrSDFTControl.cpp",
