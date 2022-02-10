@@ -17,7 +17,6 @@
 #include "src/core/SkVMBlitter.h"
 
 extern bool gUseSkVMBlitter;
-extern bool gSkForceRasterPipelineBlitter;
 
 SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source)
     : fSource(source) {}
@@ -200,9 +199,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
 
     SkSpriteBlitter* blitter = nullptr;
 
-    if (gSkForceRasterPipelineBlitter) {
-        // Do not use any of these optimized memory blitters
-    } else if (0 == SkColorSpaceXformSteps(source,dst).flags.mask() && !clipShader) {
+    if (0 == SkColorSpaceXformSteps(source,dst).flags.mask() && !clipShader) {
         if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
             blitter = alloc->make<SkSpriteBlitter_Memcpy>(source);
         }

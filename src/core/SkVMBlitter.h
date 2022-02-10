@@ -91,8 +91,6 @@ private:
 
     void blitH(int x, int y, int w) override;
     void blitAntiH(int x, int y, const SkAlpha cov[], const int16_t runs[]) override;
-
-private:
     void blitMask(const SkMask& mask, const SkIRect& clip) override;
 
     SkPixmap        fDevice;
