@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2019 Google LLC.
+Use of this source code is governed by a BSD-style license that can be
+found in the LICENSE file.
+-->
+<configuration description="Config for CTS SkQP test cases">
+<option name="test-suite-tag" value="cts" />
+<option name="not-shardable" value="true" />
+<option name="config-descriptor:metadata" key="component" value="uitoolkit" />
+<option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+<option name="config-descriptor:metadata" key="parameter" value="multi_abi" />
+<option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+<target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+<option name="cleanup-apks" value="true" />
+<option name="test-file-name" value="CtsSkQPTestCases.apk" />
+</target_preparer>
+<test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+<option name="package" value="org.skia.skqp" />
+<option name="runtime-hint" value="7m" />
+</test>
+</configuration>

@@ -444,6 +444,28 @@ cc_library_shared {
           "libwuffs_mirror_release_c",
     ]
 }
+
+android_test {
+    name: "CtsSkQPTestCases",
+    defaults: ["cts_defaults"],
+
+    libs: ["android.test.runner.stubs"],
+    jni_libs: ["libskqp_jni"],
+    compile_multilib: "both",
+
+    static_libs: [
+        "android-support-design",
+        "ctstestrunner-axt",
+    ],
+    manifest: "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+    test_config: "platform_tools/android/apps/skqp/src/main/AndroidTest.xml",
+
+    asset_dirs: ["platform_tools/android/apps/skqp/src/main/assets", "resources"],
+    resource_dirs: ["platform_tools/android/apps/skqp/src/main/res"],
+    srcs: ["platform_tools/android/apps/skqp/src/main/java/**/*.java"],
+
+    sdk_version: "test_current",
+}
 ''')
 
 # We'll run GN to get the main source lists and include directories for Skia.
