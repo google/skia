@@ -32,7 +32,7 @@ public:
     void* operator new(size_t);
     void* operator new(size_t, void* p) { return p; }
 
-    void flatten(SkWriteBuffer& buffer);
+    void flatten(SkWriteBuffer& buffer) const;
 
     uint32_t getLength() const { return fLength; }
     void* addEntry(uint32_t tag, size_t length, const void* data = nullptr);

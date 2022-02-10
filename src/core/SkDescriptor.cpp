@@ -29,8 +29,8 @@ void* SkDescriptor::operator new(size_t) {
     SK_ABORT("Descriptors are created with placement new.");
 }
 
-void SkDescriptor::flatten(SkWriteBuffer& buffer) {
-    buffer.writePad32(static_cast<void*>(this), this->fLength);
+void SkDescriptor::flatten(SkWriteBuffer& buffer) const {
+    buffer.writePad32(static_cast<const void*>(this), this->fLength);
 }
 
 void* SkDescriptor::addEntry(uint32_t tag, size_t length, const void* data) {
