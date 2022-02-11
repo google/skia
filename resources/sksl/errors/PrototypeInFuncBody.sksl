@@ -4,5 +4,4 @@ void main() {
 
 /*%%*
 expected ';', but found '('
-expected expression, but found ')'
 *%%*/

@@ -6,5 +6,4 @@ void main(inout float4 color) {
 shader 'main' must be main() or main(float2)
 unknown identifier 'color'
 expected expression, but found '='
-unknown identifier 'color'
 *%%*/

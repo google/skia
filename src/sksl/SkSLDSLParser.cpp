@@ -56,6 +56,7 @@ public:
         ++fParser->fDepth;
         if (fParser->fDepth > kMaxParseDepth) {
             fParser->error(fParser->peek(), "exceeded max parse depth");
+            fParser->fEncounteredFatalError = true;
             return false;
         }
         return true;
@@ -601,10 +602,6 @@ DSLStatement DSLParser::varDeclarations() {
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
 std::optional<DSLType> DSLParser::structDeclaration() {
-    AutoDSLDepth depth(this);
-    if (!depth.increase()) {
-        return std::nullopt;
-    }
     if (!this->expect(Token::Kind::TK_STRUCT, "'struct'")) {
         return std::nullopt;
     }
@@ -613,6 +610,10 @@ std::optional<DSLType> DSLParser::structDeclaration() {
         return std::nullopt;
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
+        return std::nullopt;
+    }
+    AutoDSLDepth depth(this);
+    if (!depth.increase()) {
         return std::nullopt;
     }
     SkTArray<DSLField> fields;
@@ -1269,6 +1270,9 @@ std::optional<DSLBlock> DSLParser::block() {
                 return std::nullopt;
             default: {
                 DSLStatement statement = this->statement();
+                if (fEncounteredFatalError) {
+                    return std::nullopt;
+                }
                 if (statement.hasValue()) {
                     statements.push_back(statement.release());
                 }
@@ -1357,29 +1361,29 @@ DSLExpression DSLParser::assignmentExpression() {
 
 /* logicalOrExpression ('?' expression ':' assignmentExpression)? */
 DSLExpression DSLParser::ternaryExpression() {
-    AutoDSLDepth depth(this);
     DSLExpression base = this->logicalOrExpression();
     if (!base.hasValue()) {
         return {};
     }
-    if (this->checkNext(Token::Kind::TK_QUESTION)) {
-        if (!depth.increase()) {
-            return {};
-        }
-        DSLExpression trueExpr = this->expression();
-        if (!trueExpr.hasValue()) {
-            return {};
-        }
-        if (this->expect(Token::Kind::TK_COLON, "':'")) {
-            DSLExpression falseExpr = this->assignmentExpression();
-            if (!falseExpr.hasValue()) {
-                return {};
-            }
-            return Select(std::move(base), std::move(trueExpr), std::move(falseExpr));
-        }
+    if (!this->checkNext(Token::Kind::TK_QUESTION)) {
+        return base;
+    }
+    AutoDSLDepth depth(this);
+    if (!depth.increase()) {
         return {};
     }
-    return base;
+    DSLExpression trueExpr = this->expression();
+    if (!trueExpr.hasValue()) {
+        return {};
+    }
+    if (!this->expect(Token::Kind::TK_COLON, "':'")) {
+        return {};
+    }
+    DSLExpression falseExpr = this->assignmentExpression();
+    if (!falseExpr.hasValue()) {
+        return {};
+    }
+    return Select(std::move(base), std::move(trueExpr), std::move(falseExpr));
 }
 
 /* logicalXorExpression (LOGICALOR logicalXorExpression)* */
@@ -1562,10 +1566,10 @@ DSLExpression DSLParser::unaryExpression() {
         case Token::Kind::TK_BITWISENOT:
         case Token::Kind::TK_PLUSPLUS:
         case Token::Kind::TK_MINUSMINUS: {
+            this->nextToken();
             if (!depth.increase()) {
                 return {};
             }
-            this->nextToken();
             DSLExpression expr = this->unaryExpression();
             if (!expr.hasValue()) {
                 return {};
@@ -1621,8 +1625,7 @@ DSLExpression DSLParser::postfixExpression() {
     }
 }
 
-DSLExpression DSLParser::swizzle(int line, DSLExpression base,
-        std::string_view swizzleMask) {
+DSLExpression DSLParser::swizzle(int line, DSLExpression base, std::string_view swizzleMask) {
     SkASSERT(swizzleMask.length() > 0);
     if (!base.type().isVector() && !base.type().isScalar()) {
         return base.field(swizzleMask, this->position(line));
