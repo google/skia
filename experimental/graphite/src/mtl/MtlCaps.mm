@@ -455,7 +455,7 @@ void Caps::buildKeyForTexture(SkISize dimensions,
                  (static_cast<uint32_t>(isProtected)          << 4) |
                  (static_cast<uint32_t>(mtlSpec.fUsage)       << 5) |
                  (static_cast<uint32_t>(mtlSpec.fStorageMode) << 10)|
-                 (static_cast<uint32_t>(mtlSpec.fStorageMode) << 12);
+                 (static_cast<uint32_t>(isFBOnly)             << 12);
 
 }
 
