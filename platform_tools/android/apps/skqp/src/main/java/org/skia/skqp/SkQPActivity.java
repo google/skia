@@ -44,7 +44,6 @@ public class SkQPActivity extends AppCompatActivity implements Runnable {
         impl.nInit(assetManager, outputDirPath);
 
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
-          String classname = SkQP.kSkiaGM + impl.mBackends[backend];
           for (int gm = 0; gm < impl.mGMs.length; gm++) {
               String testName = SkQP.kSkiaGM + impl.mBackends[backend] + "_" + impl.mGMs[gm];
               long value = java.lang.Long.MAX_VALUE;
@@ -58,7 +57,7 @@ public class SkQPActivity extends AppCompatActivity implements Runnable {
               if (error != null) {
                   Log.w(SkQP.LOG_PREFIX, "Error: " + testName + " " + error);
               } else if (value != 0) {
-                  Log.w(SkQP.LOG_PREFIX, String.format("Fail: %s %f", testName, value));
+                  Log.w(SkQP.LOG_PREFIX, String.format("Fail: %s %d", testName, value));
               } else {
                   Log.i(SkQP.LOG_PREFIX, "Pass: " + testName);
               }
