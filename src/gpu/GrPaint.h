@@ -94,9 +94,6 @@ public:
     GrFragmentProcessor* getCoverageFragmentProcessor() const {
         return fCoverageFragmentProcessor.get();
     }
-    std::unique_ptr<GrFragmentProcessor> detachCoverageFragmentProcessor() {
-        return std::move(fCoverageFragmentProcessor);
-    }
     bool usesLocalCoords() const {
         // The sample coords for the top level FPs are implicitly the GP's local coords.
         return (fColorFragmentProcessor && fColorFragmentProcessor->usesSampleCoords()) ||
