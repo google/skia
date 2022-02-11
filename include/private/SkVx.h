@@ -858,20 +858,20 @@ SI void strided_load4(const T* v, \
     c = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[2]); \
     d = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[3]); \
 }
-IMPL_LOAD4_TRANSPOSED(2, uint32_t, vld4_u32);
-IMPL_LOAD4_TRANSPOSED(4, uint16_t, vld4_u16);
-IMPL_LOAD4_TRANSPOSED(8, uint8_t, vld4_u8);
-IMPL_LOAD4_TRANSPOSED(2, int32_t, vld4_s32);
-IMPL_LOAD4_TRANSPOSED(4, int16_t, vld4_s16);
-IMPL_LOAD4_TRANSPOSED(8, int8_t, vld4_s8);
-IMPL_LOAD4_TRANSPOSED(2, float, vld4_f32);
-IMPL_LOAD4_TRANSPOSED(4, uint32_t, vld4q_u32);
-IMPL_LOAD4_TRANSPOSED(8, uint16_t, vld4q_u16);
-IMPL_LOAD4_TRANSPOSED(16, uint8_t, vld4q_u8);
-IMPL_LOAD4_TRANSPOSED(4, int32_t, vld4q_s32);
-IMPL_LOAD4_TRANSPOSED(8, int16_t, vld4q_s16);
-IMPL_LOAD4_TRANSPOSED(16, int8_t, vld4q_s8);
-IMPL_LOAD4_TRANSPOSED(4, float, vld4q_f32);
+IMPL_LOAD4_TRANSPOSED(2, uint32_t, vld4_u32)
+IMPL_LOAD4_TRANSPOSED(4, uint16_t, vld4_u16)
+IMPL_LOAD4_TRANSPOSED(8, uint8_t, vld4_u8)
+IMPL_LOAD4_TRANSPOSED(2, int32_t, vld4_s32)
+IMPL_LOAD4_TRANSPOSED(4, int16_t, vld4_s16)
+IMPL_LOAD4_TRANSPOSED(8, int8_t, vld4_s8)
+IMPL_LOAD4_TRANSPOSED(2, float, vld4_f32)
+IMPL_LOAD4_TRANSPOSED(4, uint32_t, vld4q_u32)
+IMPL_LOAD4_TRANSPOSED(8, uint16_t, vld4q_u16)
+IMPL_LOAD4_TRANSPOSED(16, uint8_t, vld4q_u8)
+IMPL_LOAD4_TRANSPOSED(4, int32_t, vld4q_s32)
+IMPL_LOAD4_TRANSPOSED(8, int16_t, vld4q_s16)
+IMPL_LOAD4_TRANSPOSED(16, int8_t, vld4q_s8)
+IMPL_LOAD4_TRANSPOSED(4, float, vld4q_f32)
 #undef IMPL_LOAD4_TRANSPOSED
 
 #elif SKVX_USE_SIMD && defined(__SSE__)
@@ -913,20 +913,20 @@ SI void strided_load2(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b) { \
     a = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[0]); \
     b = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[1]); \
 }
-IMPL_LOAD2_TRANSPOSED(2, uint32_t, vld2_u32);
-IMPL_LOAD2_TRANSPOSED(4, uint16_t, vld2_u16);
-IMPL_LOAD2_TRANSPOSED(8, uint8_t, vld2_u8);
-IMPL_LOAD2_TRANSPOSED(2, int32_t, vld2_s32);
-IMPL_LOAD2_TRANSPOSED(4, int16_t, vld2_s16);
-IMPL_LOAD2_TRANSPOSED(8, int8_t, vld2_s8);
-IMPL_LOAD2_TRANSPOSED(2, float, vld2_f32);
-IMPL_LOAD2_TRANSPOSED(4, uint32_t, vld2q_u32);
-IMPL_LOAD2_TRANSPOSED(8, uint16_t, vld2q_u16);
-IMPL_LOAD2_TRANSPOSED(16, uint8_t, vld2q_u8);
-IMPL_LOAD2_TRANSPOSED(4, int32_t, vld2q_s32);
-IMPL_LOAD2_TRANSPOSED(8, int16_t, vld2q_s16);
-IMPL_LOAD2_TRANSPOSED(16, int8_t, vld2q_s8);
-IMPL_LOAD2_TRANSPOSED(4, float, vld2q_f32);
+IMPL_LOAD2_TRANSPOSED(2, uint32_t, vld2_u32)
+IMPL_LOAD2_TRANSPOSED(4, uint16_t, vld2_u16)
+IMPL_LOAD2_TRANSPOSED(8, uint8_t, vld2_u8)
+IMPL_LOAD2_TRANSPOSED(2, int32_t, vld2_s32)
+IMPL_LOAD2_TRANSPOSED(4, int16_t, vld2_s16)
+IMPL_LOAD2_TRANSPOSED(8, int8_t, vld2_s8)
+IMPL_LOAD2_TRANSPOSED(2, float, vld2_f32)
+IMPL_LOAD2_TRANSPOSED(4, uint32_t, vld2q_u32)
+IMPL_LOAD2_TRANSPOSED(8, uint16_t, vld2q_u16)
+IMPL_LOAD2_TRANSPOSED(16, uint8_t, vld2q_u8)
+IMPL_LOAD2_TRANSPOSED(4, int32_t, vld2q_s32)
+IMPL_LOAD2_TRANSPOSED(8, int16_t, vld2q_s16)
+IMPL_LOAD2_TRANSPOSED(16, int8_t, vld2q_s8)
+IMPL_LOAD2_TRANSPOSED(4, float, vld2q_f32)
 #undef IMPL_LOAD2_TRANSPOSED
 #endif
 
