@@ -1,0 +1,4 @@
+half4 main(float2 xy)
+{
+	return half4(child_4.eval(child_2.eval(child_0.eval(_coords)), child_3.eval(child_1.eval(_coords))));
+}

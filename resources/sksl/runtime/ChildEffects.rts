@@ -1,0 +1,7 @@
+uniform shader s1, s2;
+uniform colorFilter c1, c2;
+uniform blender b;
+
+half4 main(float2 xy) {
+    return b.eval(c1.eval(s1.eval(xy)), c2.eval(s2.eval(xy)));
+}
