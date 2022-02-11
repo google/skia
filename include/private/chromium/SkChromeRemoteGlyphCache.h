@@ -14,8 +14,8 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/utils/SkNoDrawCanvas.h"
+#include "src/core/SkDescriptor.h"
 
-class SkAutoDescriptor;
 struct SkPackedGlyphID;
 class SkStrikeCache;
 class SkStrikeClientImpl;
@@ -132,6 +132,10 @@ public:
     // is rasterized.
     // Returns false if the data is invalid.
     SK_SPI bool readStrikeData(const volatile void* memory, size_t memorySize);
+
+    // Given a descriptor re-write the Rec mapping the typefaceID from the renderer to the
+    // corresponding typefaceID on the GPU.
+    SK_SPI bool translateTypefaceID(SkAutoDescriptor* descriptor) const;
 
 private:
     std::unique_ptr<SkStrikeClientImpl> fImpl;

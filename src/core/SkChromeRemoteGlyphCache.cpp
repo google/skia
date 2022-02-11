@@ -39,33 +39,6 @@
 #endif
 
 namespace {
-// This essentially replaces the font_id used on the RendererSide with the font_id on the GPU side.
-SkDescriptor* auto_descriptor_from_desc(
-        const SkDescriptor* sourceDesc, SkTypefaceID typefaceID, SkAutoDescriptor* ad) {
-    ad->reset(sourceDesc->getLength());
-    auto* desc = ad->getDesc();
-
-    // Rec.
-    {
-        uint32_t size;
-        auto ptr = sourceDesc->findEntry(kRec_SkDescriptorTag, &size);
-        SkScalerContextRec rec;
-        std::memcpy((void*)&rec, ptr, size);
-        rec.fTypefaceID = typefaceID;
-        desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-    }
-
-    // Effects.
-    {
-        uint32_t size;
-        auto ptr = sourceDesc->findEntry(kEffects_SkDescriptorTag, &size);
-        if (ptr) { desc->addEntry(kEffects_SkDescriptorTag, size, ptr); }
-    }
-
-    desc->computeChecksum();
-    return desc;
-}
-
 // -- Serializer -----------------------------------------------------------------------------------
 size_t pad(size_t size, size_t alignment) { return (size + (alignment - 1)) & ~(alignment - 1); }
 
@@ -941,6 +914,7 @@ public:
     sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
 
     bool readStrikeData(const volatile void* memory, size_t memorySize);
+    bool translateTypefaceID(SkAutoDescriptor* descriptor) const;
 
 private:
     class PictureBackedGlyphDrawable final : public SkDrawable {
@@ -1036,8 +1010,8 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         StrikeSpec spec;
         if (!deserializer.read<StrikeSpec>(&spec)) READ_FAILURE
 
-        SkAutoDescriptor sourceAd;
-        if (!deserializer.readDescriptor(&sourceAd)) READ_FAILURE
+        SkAutoDescriptor ad;
+        if (!deserializer.readDescriptor(&ad)) READ_FAILURE
         #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
             msg.appendf("  Received descriptor:\n%s", sourceAd.getDesc()->dumpRec().c_str());
         #endif
@@ -1050,17 +1024,10 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
             if (!deserializer.read<SkFontMetrics>(&fontMetrics)) READ_FAILURE
         }
 
-        // Get the local typeface from remote fontID.
-        auto* tfPtr = fRemoteFontIdToTypeface.find(spec.fTypefaceID);
-        // Received strikes for a typeface which doesn't exist.
-        if (!tfPtr) READ_FAILURE
-        auto* tf = tfPtr->get();
-
         // Replace the ContextRec in the desc from the server to create the client
         // side descriptor.
-        // TODO: Can we do this in-place and re-compute checksum? Instead of a complete copy.
-        SkAutoDescriptor ad;
-        auto* clientDesc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
+        if (!this->translateTypefaceID(&ad)) READ_FAILURE
+        SkDescriptor* clientDesc = ad.getDesc();
 
         #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
             msg.appendf("  Mapped descriptor:\n%s", clientDesc->dumpRec().c_str());
@@ -1070,6 +1037,10 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         // be an existing strike.
         if (fontMetricsInitialized && strike == nullptr) READ_FAILURE
         if (strike == nullptr) {
+            // Get the local typeface from remote fontID.
+            auto* tfPtr = fRemoteFontIdToTypeface.find(spec.fTypefaceID);
+            // Received strikes for a typeface which doesn't exist.
+            if (!tfPtr) READ_FAILURE
             // Note that we don't need to deserialize the effects since we won't be generating any
             // glyphs here anyway, and the desc is still correct since it includes the serialized
             // effects.
@@ -1152,6 +1123,30 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
     return true;
 }
 
+bool SkStrikeClientImpl::translateTypefaceID(SkAutoDescriptor* toChange) const {
+    SkDescriptor& descriptor = *toChange->getDesc();
+
+    // Rewrite the typefaceID in the rec.
+    {
+        uint32_t size;
+        // findEntry returns a const void*, remove the const in order to update in place.
+        void* ptr = const_cast<void *>(descriptor.findEntry(kRec_SkDescriptorTag, &size));
+        SkScalerContextRec rec;
+        std::memcpy((void*)&rec, ptr, size);
+        // Get the local typeface from remote typefaceID.
+        auto* tfPtr = fRemoteFontIdToTypeface.find(rec.fTypefaceID);
+        // Received a strike for a typeface which doesn't exist.
+        if (!tfPtr) { return false; }
+        // Update the typeface id to work with the client side.
+        rec.fTypefaceID = tfPtr->get()->uniqueID();
+        std::memcpy(ptr, &rec, size);
+    }
+
+    descriptor.computeChecksum();
+
+    return true;
+}
+
 sk_sp<SkTypeface> SkStrikeClientImpl::deserializeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
     if (len != sizeof(wire)) return nullptr;
@@ -1185,3 +1180,8 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
 sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
     return fImpl->deserializeTypeface(buf, len);
 }
+
+bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
+    return fImpl->translateTypefaceID(descriptor);
+}
+
