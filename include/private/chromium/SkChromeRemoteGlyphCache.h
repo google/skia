@@ -14,9 +14,9 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/utils/SkNoDrawCanvas.h"
-#include "src/core/SkDescriptor.h"
 
 struct SkPackedGlyphID;
+class SkAutoDescriptor;
 class SkStrikeCache;
 class SkStrikeClientImpl;
 class SkStrikeServer;
