@@ -2592,6 +2592,7 @@ public:
                      const SkMatrixProvider& viewMatrix,
                      skgpu::v1::SurfaceDrawContext* sdc);
 
+    void flatten(SkWriteBuffer& buffer) const override;
     SkRect sourceBounds() const override { return fSourceBounds; }
     const SkPaint& paint() const override { return fPaint; }
 
@@ -3121,6 +3122,8 @@ void Slug::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
 
     add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
 }
+
+void Slug::flatten(SkWriteBuffer& buffer) const { SK_ABORT("Not implemented."); }
 }  // namespace
 
 namespace skgpu::v1 {

@@ -15,6 +15,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/utils/SkNoDrawCanvas.h"
 
+class GrSlug;
 struct SkPackedGlyphID;
 class SkAutoDescriptor;
 class SkStrikeCache;
@@ -137,6 +138,10 @@ public:
     // Given a descriptor re-write the Rec mapping the typefaceID from the renderer to the
     // corresponding typefaceID on the GPU.
     SK_SPI bool translateTypefaceID(SkAutoDescriptor* descriptor) const;
+
+    // Given a buffer, unflatten into a slug making sure to do the typefaceID translation from
+    // renderer to GPU. Returns nullptr if there was a problem.
+    sk_sp<GrSlug> makeSlugFromBuffer(SkReadBuffer& buffer) const;
 
 private:
     std::unique_ptr<SkStrikeClientImpl> fImpl;

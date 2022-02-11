@@ -15,6 +15,7 @@ class SkCanvas;
 class SkMatrix;
 class SkPaint;
 class SkTextBlob;
+class SkWriteBuffer;
 
 // You can use GrSlug to simulate drawTextBlob by defining the following at compile time.
 //    SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG
@@ -42,6 +43,9 @@ public:
 
     // Draw the GrSlug obeying the canvas's mapping and clipping.
     void draw(SkCanvas* canvas);
+
+    // Serialize the slug.
+    virtual void flatten(SkWriteBuffer&) const = 0;
 
     virtual SkRect sourceBounds() const = 0;
     virtual const SkPaint& paint() const = 0;
