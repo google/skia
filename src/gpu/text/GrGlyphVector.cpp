@@ -43,6 +43,13 @@ std::optional<GrGlyphVector> GrGlyphVector::MakeFromBuffer(SkReadBuffer& buffer,
     // Since the glyph count can never be zero. There was a buffer reading problem.
     if (glyphCount == 0) { return {}; }
 
+    // Make sure we can do the multiply in the check below and not overflow an int.
+    if ((int)(INT_MAX / sizeof(uint32_t)) < glyphCount) { return {}; }
+
+    // Check for enough bytes to populate the packedGlyphID array. If not enought something has
+    // gone wrong.
+    if (glyphCount * sizeof(uint32_t) > buffer.available()) { return {}; }
+
     Variant* variants = alloc->makePODArray<Variant>(glyphCount);
     for (int i = 0; i < glyphCount; i++) {
         variants[i].packedGlyphID = SkPackedGlyphID(buffer.readUInt());

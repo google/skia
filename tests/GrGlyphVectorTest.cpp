@@ -58,3 +58,56 @@ DEF_TEST(GrGlyphVector_Serialization, r) {
         REPORTER_ASSERT(r, srcGlyphID.packedGlyphID == dstGlyphID.packedGlyphID);
     }
 }
+
+DEF_TEST(GrGlyphVector_BadLengths, r) {
+    {
+        SkFont font;
+        auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(font);
+
+        // Make broken stream by hand - zero length
+        SkBinaryWriteBuffer wBuffer;
+        strikeSpec.descriptor().flatten(wBuffer);
+        wBuffer.write32(0);  // length
+        auto data = wBuffer.snapshotAsData();
+        SkReadBuffer rBuffer{data->data(), data->size()};
+        GrSubRunAllocator alloc;
+        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, &alloc);
+        REPORTER_ASSERT(r, !dst.has_value());
+    }
+
+    {
+        SkFont font;
+        auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(font);
+
+        // Make broken stream by hand - stream is too short
+        SkBinaryWriteBuffer wBuffer;
+        strikeSpec.descriptor().flatten(wBuffer);
+        wBuffer.write32(5);  // length
+        wBuffer.writeUInt(12);  // random data
+        wBuffer.writeUInt(12);  // random data
+        wBuffer.writeUInt(12);  // random data
+        auto data = wBuffer.snapshotAsData();
+        SkReadBuffer rBuffer{data->data(), data->size()};
+        GrSubRunAllocator alloc;
+        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, &alloc);
+        REPORTER_ASSERT(r, !dst.has_value());
+    }
+
+    {
+        SkFont font;
+        auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(font);
+
+        // Make broken stream by hand - length out of range of safe calculations
+        SkBinaryWriteBuffer wBuffer;
+        strikeSpec.descriptor().flatten(wBuffer);
+        wBuffer.write32(INT_MAX - 10);  // length
+        wBuffer.writeUInt(12);  // random data
+        wBuffer.writeUInt(12);  // random data
+        wBuffer.writeUInt(12);  // random data
+        auto data = wBuffer.snapshotAsData();
+        SkReadBuffer rBuffer{data->data(), data->size()};
+        GrSubRunAllocator alloc;
+        auto dst = GrGlyphVector::MakeFromBuffer(rBuffer, &alloc);
+        REPORTER_ASSERT(r, !dst.has_value());
+    }
+}
