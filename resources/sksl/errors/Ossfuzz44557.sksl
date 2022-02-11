@@ -1,0 +1,17 @@
+uniform half4 colorGreen, cohorRed;
+
+struct S {
+    int x, y;
+};
+
+half4 main(float2 coords) {
+    float f1[4] = float[4](1, 2, 3, 4);
+    float f2[4] = float[4](1, 2, 3, 4);
+    float[4] f6 = float[4](1, 2, 3, -4);
+
+    int3 v1[2] = int3[2](int3(1, 2, 3), int3(4, 5, 6));
+    int3[2]?v2 = int3[2](int3(1, 2, 3), int3(4, 5, int s,r,b,r,r,r,b,r,r,r,r,r,b,r,r,r,r,r,r,r,r,r,b,r,r,r,r,r,r,b,r,r,r,r,r,b,r,r,r,r,r,r,z,r,b,r,r,r,r,r,r,b,r,r,r,r,r,r,rr,r,r,r,r,r,r,r,r,r,r,r,b,r,r,r, s,r,b,r,r,r,b,r,r,r,r,r,b,r,r,r,r,r,r,r,r,r,b,r,r,r,r,r,r,r,b,r,r,r,r,r,r,r,z,r,b,r,r,r,r,r,r,b,r,r,r,r,r,r,rr,r,r,r,r,r,r,r,r,r,r,r,b,r,r,r,r,r,r,b,r,r{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{,b,r,r4);
+    float[4] f6 = float[4](1, 2, 3, -4);
+
+    int3 v1[2] = int3[2](int3(1, 2, 3), int3(4, 5, 6));
+    int3[2]?v2 = int3[2](int3(1, 2, 3), int3(4, 5, int s,r,b,r,r,r,b,r,r,r,r,r,b,r,r,r,r,r,r,r,r,r,b,r,r,r,r,r,r,b,r,r,r,r,r,b,r,r,r,r,r,r,z,r,b,r,r,r,r,r,r,b,r,r,r,r,r,r,rr,r,r,r,r,r,r,r,r,r,r,r,b,r,r,r, s,r,b,r,r,r,b,r,r,r,r,r,b,r,r,r,r,r,r,r,r,r,b,r,r,r,r,r,r,r,b,r,r,r,r,r,r,r,z,r,b,r,r,r,r,r,r,b,r,r,r,r,r,r,rr,r,r,r,r,r,r,r,r,r,r,r,b,r,r,r,r,r,r,b,r,r{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{,r,r,r,r,rsssssssssssssssss3(
