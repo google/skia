@@ -18,6 +18,8 @@
 
 #include <vector>
 
+class SkPixmap;
+
 namespace skgpu {
 
 class BoundsManager;
@@ -70,6 +72,10 @@ public:
                     const Clip& clip,
                     DrawOrder order,
                     const PaintParams* paint);
+
+    bool writePixels(Recorder* recorder,
+                     const SkPixmap& src,
+                     SkIPoint dstPt);
 
     // Ends the current DrawList being accumulated by the SDC, converting it into an optimized and
     // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or

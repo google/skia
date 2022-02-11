@@ -93,7 +93,7 @@ private:
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override {}
     void onReplaceClip(const SkIRect& rect) override {}
 
-    bool onWritePixels(const SkPixmap&, int x, int y) override { return false; }
+    bool onWritePixels(const SkPixmap&, int x, int y) override;
 
     // TODO: This will likely be implemented with the same primitive building block that drawRect
     // and drawRRect will rely on.

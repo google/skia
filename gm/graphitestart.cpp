@@ -10,6 +10,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/Resources.h"
 
 namespace {
 
@@ -61,6 +62,7 @@ class GraphiteStartGM : public GM {
 public:
     GraphiteStartGM() {
         this->setBGColor(0xFFCCCCCC);
+        GetResourceAsBitmap("images/color_wheel.gif", &fBitmap);
     }
 
 protected:
@@ -69,7 +71,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(256, 256);
+        return SkISize::Make(256, 384);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -102,7 +104,13 @@ protected:
             p.setShader(create_blend_shader(SkBlendMode::kDstOver));
             canvas->drawRect({129, 129, 255, 255}, p);
         }
+#ifdef SK_GRAPHITE_ENABLED
+        // TODO: failing serialize test on Linux, not sure what's going on
+        canvas->writePixels(fBitmap, 0, 256);
+#endif
     }
+
+    SkBitmap fBitmap;
 };
 
 //////////////////////////////////////////////////////////////////////////////

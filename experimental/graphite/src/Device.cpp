@@ -246,6 +246,12 @@ bool Device::readPixels(Context* context,
     return true;
 }
 
+bool Device::onWritePixels(const SkPixmap& pm, int x, int y) {
+    this->flushPendingWorkToRecorder();
+
+    return fDC->writePixels(fRecorder, pm, {x, y});
+}
+
 SkIRect Device::onDevClipBounds() const {
     auto target = fDC->target();
     return SkIRect::MakeSize(target->dimensions());
@@ -468,6 +474,11 @@ void Device::flushPendingWorkToRecorder() {
 
     // TODO: we may need to further split this function up since device->device drawList and
     // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
+
+    auto uploadTask = fDC->snapUploadTask(fRecorder);
+    if (uploadTask) {
+        fRecorder->priv().add(std::move(uploadTask));
+    }
 
     // TODO: iterate the clip stack and issue a depth-only draw for every clip element that has
     // a non-empty usage bounds, using that bounds as the scissor.

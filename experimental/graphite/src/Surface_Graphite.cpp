@@ -34,7 +34,10 @@ sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
     return sk_sp<Image_Graphite>(new Image_Graphite(ii));
 }
 
-void Surface::onWritePixels(const SkPixmap&, int x, int y) {}
+void Surface::onWritePixels(const SkPixmap& pixmap, int x, int y) {
+    fDevice->writePixels(pixmap, x, y);
+}
+
 bool Surface::onCopyOnWrite(ContentChangeMode) { return true; }
 
 bool Surface::onReadPixels(Context* context,

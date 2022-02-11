@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/DrawContext.h"
 
+#include "include/core/SkPixmap.h"
 #include "include/private/SkColorData.h"
 
 #include "experimental/graphite/include/Context.h"
@@ -47,7 +48,8 @@ sk_sp<DrawContext> DrawContext::Make(sk_sp<TextureProxy> target,
 DrawContext::DrawContext(sk_sp<TextureProxy> target, const SkImageInfo& ii)
         : fTarget(std::move(target))
         , fImageInfo(ii)
-        , fPendingDraws(std::make_unique<DrawList>()) {
+        , fPendingDraws(std::make_unique<DrawList>())
+        , fPendingUploads(std::make_unique<UploadList>()) {
     // TBD - Will probably want DrawLists (and its internal commands) to come from an arena
     // that the DC manages.
 }
@@ -95,6 +97,52 @@ void DrawContext::clear(const SkColor4f& clearColor) {
     // and clear any drawpasses that haven't been snapped yet
     fPendingDraws = std::make_unique<DrawList>();
     fDrawPasses.clear();
+}
+
+//
+// TODO: The other draw-recording APIs in DrawContext are relatively simple, just storing state
+// from the caller's decision making. If possible we should consider moving the more complex logic
+// somewhere above DrawContext and have this be much simpler.
+bool DrawContext::writePixels(Recorder* recorder, const SkPixmap& src, SkIPoint dstPoint) {
+    // TODO: add mipmap support for createBackendTexture
+
+    // Our caller should have clipped to the bounds of the surface already.
+    SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(
+            SkIRect::MakePtSize(dstPoint, src.dimensions())));
+
+    if (!recorder) {
+        return false;
+    }
+
+    if (src.colorType() == kUnknown_SkColorType) {
+        return false;
+    }
+
+    // TODO: check for readOnly or framebufferOnly target and return false if so
+
+    const Caps* caps = recorder->priv().caps();
+
+    // TODO: canvas2DFastPath?
+    // TODO: check that surface supports writePixels
+    // TODO: handle writePixels as draw if needed (e.g., canvas2DFastPath || !supportsWritePixels)
+
+    // TODO: check for flips and conversions and either handle here or pass info to appendUpload
+
+    // for now, until conversions are supported
+    if (!caps->areColorTypeAndTextureInfoCompatible(src.colorType(),
+                                                    fTarget->textureInfo())) {
+        return false;
+    }
+
+    std::vector<MipLevel> levels;
+    levels.push_back({src.addr(), src.rowBytes()});
+
+    SkIRect dstRect = SkIRect::MakePtSize(dstPoint, src.dimensions());
+    return fPendingUploads->appendUpload(recorder,
+                                         fTarget,
+                                         src.colorType(),
+                                         levels,
+                                         dstRect);
 }
 
 void DrawContext::snapDrawPass(Recorder* recorder, const BoundsManager* occlusionCuller) {
@@ -147,6 +195,10 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder,
 }
 
 sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
+    if (!fPendingUploads) {
+        return nullptr;
+    }
+
     sk_sp<Task> uploadTask = UploadTask::Make(fPendingUploads.get());
 
     fPendingUploads = std::make_unique<UploadList>();

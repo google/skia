@@ -139,7 +139,7 @@ bool UploadList::appendUpload(Recorder* recorder,
         copyData[currentMipLevel].fBufferRowBytes = trimRowBytes;
         copyData[currentMipLevel].fRect = {
             dstRect.left(), dstRect.top(), // TODO: can we recompute this for mips?
-            currentWidth, currentHeight
+            dstRect.left() + currentWidth, dstRect.top() + currentHeight
         };
         copyData[currentMipLevel].fMipLevel = currentMipLevel;
 
