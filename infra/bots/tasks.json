@@ -748,6 +748,11 @@
       ],
       "trigger": "on demand"
     },
+    "CodeSize-dm-Debian10-Clang-x86_64-Release": {
+      "tasks": [
+        "CodeSize-dm-Debian10-Clang-x86_64-Release"
+      ]
+    },
     "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
         "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
@@ -18271,6 +18276,68 @@
       "io_timeout_ns": 10800000000000,
       "max_attempts": 1,
       "service_account": "skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "CodeSize-dm-Debian10-Clang-x86_64-Release": {
+      "caches": [
+        {
+          "name": "work",
+          "path": "cache/work"
+        }
+      ],
+      "casSpec": "empty",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:aa47e6be98046ddf930042773df0bd2b768e3d99"
+        },
+        {
+          "name": "skia/bots/bloaty",
+          "path": "bloaty",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "./codesize",
+        "--local=false",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "CodeSize-dm-Debian10-Clang-x86_64-Release",
+        "--compile_task_name",
+        "Build-Debian10-Clang-x86_64-Release",
+        "--binary_name",
+        "dm",
+        "--bloaty_cipd_version",
+        "version:1",
+        "--repo",
+        "<(REPO)",
+        "--revision",
+        "<(REVISION)",
+        "--patch_issue",
+        "<(ISSUE)",
+        "--patch_set",
+        "<(PATCHSET)",
+        "--patch_server",
+        "<(CODEREVIEW_SERVER)"
+      ],
+      "dependencies": [
+        "Build-Debian10-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 1200000000000,
+      "io_timeout_ns": 1200000000000,
+      "max_attempts": 1,
+      "service_account": "skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "casSpec": "test",

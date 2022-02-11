@@ -163,6 +163,11 @@ func (b *jobBuilder) genTasksForJob() {
 		return
 	}
 
+	if b.role("CodeSize") {
+		b.codesize()
+		return
+	}
+
 	// Valgrind runs at a low priority so that it doesn't occupy all the bots.
 	if b.extraConfig("Valgrind") {
 		// Priority of 0.085 should result in Valgrind tasks with a blamelist of ~10 commits having the

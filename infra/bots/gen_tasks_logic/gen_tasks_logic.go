@@ -650,6 +650,9 @@ func (b *taskBuilder) linuxGceDimensions(machineType string) {
 	)
 }
 
+// codesizeTaskNameRegexp captures the "CodeSize-<binary name>-" prefix of a CodeSize task name.
+var codesizeTaskNameRegexp = regexp.MustCompile("^CodeSize-[a-zA-Z0-9_]+-")
+
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func (b *jobBuilder) deriveCompileTaskName() string {
@@ -721,8 +724,10 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			log.Fatal(err)
 		}
 		return name
-	} else if b.parts["role"] == "BuildStats" {
+	} else if b.role("BuildStats") {
 		return strings.Replace(b.Name, "BuildStats", "Build", 1)
+	} else if b.role("CodeSize") {
+		return codesizeTaskNameRegexp.ReplaceAllString(b.Name, "Build-")
 	} else {
 		return b.Name
 	}
@@ -959,7 +964,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_LINUX_GCE {
-			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats") {
+			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats", "CodeSize") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 				return
 			}
@@ -1435,6 +1440,48 @@ func (b *jobBuilder) buildstats() {
 			b.dep(depName)
 		})
 	}
+}
+
+// codesize generates a codesize task, which takes binary produced by a
+// compile task, runs Bloaty against it, and uploads the resulting code size
+// statistics to the GCS bucket belonging to the codesize.skia.org service.
+func (b *jobBuilder) codesize() {
+	compileTaskName := b.compile()
+	bloatyCipdPkg := b.MustGetCipdPackageFromAsset("bloaty")
+
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.cas(CAS_EMPTY)
+		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskName)
+		b.cmd("./codesize",
+			"--local=false",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--compile_task_name", compileTaskName,
+			// Note: the binary name cannot contain dashes, otherwise the naming
+			// schema logic will partition it into multiple parts.
+			//
+			// If we ever need to define a CodeSize-* task for a binary with
+			// dashes in its name (e.g. "my-binary"), a potential workaround is to
+			// create a mapping from a new, non-dashed binary name (e.g. "my_binary")
+			// to the actual binary name with dashes. This mapping can be hardcoded
+			// in this function; no changes to the task driver would be necessary.
+			"--binary_name", b.parts["binary_name"],
+			"--bloaty_cipd_version", bloatyCipdPkg.Version,
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+		)
+		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
+		b.cache(CACHES_WORKDIR...)
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.asset("bloaty")
+		b.serviceAccount("skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com")
+		b.timeout(20 * time.Minute)
+		b.attempts(1)
+	})
 }
 
 // doUpload indicates whether the given Job should upload its results.
