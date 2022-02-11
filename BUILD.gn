@@ -7,7 +7,6 @@ import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 import("gn/skia.gni")
-import("gn/toolchain/wasm.gni")
 
 if (is_fuchsia) {
   import("//build/fuchsia/sdk.gni")
@@ -48,9 +47,6 @@ config("skia_public") {
   if (is_fuchsia) {
     defines += fuchsia_defines
   }
-  if (is_wasm) {
-    defines += wasm_defines
-  }
   if (skia_gl_standard == "gles") {
     defines += [ "SK_ASSUME_GL_ES=1" ]
   } else if (skia_gl_standard == "gl") {
@@ -88,7 +84,7 @@ config("skia_private") {
       "SK_GAMMA_CONTRAST=0.0",
     ]
   }
-  if (is_skia_dev_build && !is_wasm) {
+  if (is_skia_dev_build) {
     defines += [
       "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
       "GR_TEST_UTILS=1",
@@ -1546,10 +1542,6 @@ group("modules") {
     "modules/skshaper",
     "modules/svg",
   ]
-
-  if (is_wasm) {
-    deps += [ "modules/canvaskit" ]
-  }
 }
 
 group("experimental") {
@@ -2955,7 +2947,7 @@ if (skia_enable_tools) {
   group("modules_testonly") {
     testonly = true
     deps = []
-    if (is_wasm) {
+    if (target_cpu == "wasm") {
       deps += [ "modules/canvaskit:viewer_wasm" ]
     }
   }

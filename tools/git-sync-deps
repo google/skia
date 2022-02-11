@@ -141,7 +141,7 @@ def git_checkout_to_directory(git, repo, commithash, directory, verbose):
 
   if not is_git_toplevel(git, directory):
     # if the directory exists, but isn't a git repo, you will modify
-    # the parent repository, which isn't what you want.
+    # the parent repostory, which isn't what you want.
     sys.stdout.write('%s\n  IS NOT TOP-LEVEL GIT DIRECTORY.\n' % directory)
     return
 
@@ -262,9 +262,6 @@ def main(argv):
   subprocess.check_call(
       [sys.executable,
        os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
-  subprocess.check_call(
-      [sys.executable,
-       os.path.join(os.path.dirname(deps_file_path), 'bin', 'activate-emsdk')])
   return 0
 
 

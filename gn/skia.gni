@@ -20,9 +20,8 @@ declare_args() {
   skia_enable_fontmgr_fuchsia = is_fuchsia
   skia_enable_fontmgr_win = is_win
   skia_enable_gpu = true
-  skia_enable_pdf = !is_wasm
-  skia_enable_skottie = !(is_win && is_component_build) ||
-                        (is_wasm && skia_canvaskit_enable_skottie)
+  skia_enable_pdf = true
+  skia_enable_skottie = !(is_win && is_component_build)
   skia_enable_skrive = true
   skia_enable_sksl = true
   skia_enable_skvm_jit_when_possible = is_skia_dev_build
@@ -42,12 +41,12 @@ declare_args() {
   skia_use_dawn = false
   skia_use_direct3d = false
   skia_use_egl = false
-  skia_use_expat = !is_wasm
+  skia_use_expat = true
   skia_use_ffmpeg = false
   skia_use_fixed_gamma_text = is_android
   skia_use_fontconfig = is_linux
   skia_use_fonthost_mac = is_mac || is_ios
-  skia_use_freetype = is_android || is_fuchsia || is_linux || is_wasm
+  skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_harfbuzz = true
   skia_use_gl = !is_fuchsia
   skia_use_icu = !is_fuchsia
@@ -58,14 +57,14 @@ declare_args() {
   skia_use_libpng_decode = true
   skia_use_libpng_encode = true
   skia_use_libwebp_decode = true
-  skia_use_libwebp_encode = !is_wasm
+  skia_use_libwebp_encode = true
   skia_use_lua = is_skia_dev_build && !is_ios
   skia_use_metal = false
   skia_use_ndk_images = is_android && defined(ndk_api) && ndk_api >= 30
-  skia_use_piex = !is_win && !is_wasm
+  skia_use_piex = !is_win
   skia_use_sfml = false
-  skia_use_webgl = is_wasm
-  skia_use_wuffs = is_wasm
+  skia_use_webgl = false
+  skia_use_wuffs = false
   skia_use_x11 = is_linux
   skia_use_xps = true
   skia_enable_graphite = false
@@ -77,15 +76,11 @@ declare_args() {
     skia_ios_identity = ".*Google.*"
     skia_ios_profile = "Google Development"
   }
-}
 
-declare_args() {
   if (is_mac) {
     skia_gl_standard = "gl"
   } else if (is_ios) {
     skia_gl_standard = "gles"
-  } else if (is_wasm && skia_enable_gpu) {
-    skia_gl_standard = "webgl"
   } else {
     skia_gl_standard = ""
   }
@@ -109,17 +104,16 @@ declare_args() {
 declare_args() {
   skia_compile_sksl_tests = skia_compile_processors
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
-  skia_enable_fontmgr_custom_directory =
-      skia_use_freetype && !is_fuchsia && !is_wasm
+  skia_enable_fontmgr_custom_directory = skia_use_freetype && !is_fuchsia
   skia_enable_fontmgr_custom_embedded = skia_use_freetype && !is_fuchsia
-  skia_enable_fontmgr_custom_empty = skia_use_freetype && !is_wasm
+  skia_enable_fontmgr_custom_empty = skia_use_freetype
   skia_enable_fontmgr_fontconfig = skia_use_freetype && skia_use_fontconfig
   skia_enable_fontmgr_win_gdi = is_win && !skia_enable_winuwp
   skia_enable_fontmgr_FontConfigInterface =
       skia_use_freetype && skia_use_fontconfig
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_use_dng_sdk =
-      !is_fuchsia && !is_wasm && skia_use_libjpeg_turbo_decode && skia_use_zlib
+      !is_fuchsia && skia_use_libjpeg_turbo_decode && skia_use_zlib
   skia_use_libgifcodec = !skia_use_wuffs
   skia_use_sfntly = skia_use_icu
   skia_enable_vulkan_debug_layers = skia_enable_gpu_debug_layers
