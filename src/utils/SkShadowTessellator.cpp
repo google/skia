@@ -726,10 +726,12 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
 
 // tesselation tolerance values, in device space pixels
 #if SK_SUPPORT_GPU
-static const SkScalar kQuadTolerance = 0.2f;
-static const SkScalar kCubicTolerance = 0.2f;
+static constexpr SkScalar kQuadTolerance = 0.2f;
+static constexpr SkScalar kCubicTolerance = 0.2f;
+static constexpr SkScalar kQuadToleranceSqd = kQuadTolerance * kQuadTolerance;
+static constexpr SkScalar kCubicToleranceSqd = kCubicTolerance * kCubicTolerance;
 #endif
-static const SkScalar kConicTolerance = 0.25f;
+static constexpr SkScalar kConicTolerance = 0.25f;
 
 // clamps the point to the nearest 16th of a pixel
 static void sanitize_point(const SkPoint& in, SkPoint* out) {
@@ -783,7 +785,7 @@ void SkBaseShadowTessellator::handleQuad(const SkPoint pts[3]) {
     fPointBuffer.setCount(maxCount);
     SkPoint* target = fPointBuffer.begin();
     int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
-                                                     kQuadTolerance, &target, maxCount);
+                                                     kQuadToleranceSqd, &target, maxCount);
     fPointBuffer.setCount(count);
     for (int i = 0; i < count; i++) {
         this->handleLine(fPointBuffer[i]);
@@ -808,7 +810,7 @@ void SkBaseShadowTessellator::handleCubic(const SkMatrix& m, SkPoint pts[4]) {
     fPointBuffer.setCount(maxCount);
     SkPoint* target = fPointBuffer.begin();
     int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
-                                                 kCubicTolerance, &target, maxCount);
+                                                 kCubicToleranceSqd, &target, maxCount);
     fPointBuffer.setCount(count);
     for (int i = 0; i < count; i++) {
         this->handleLine(fPointBuffer[i]);
