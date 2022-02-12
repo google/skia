@@ -1207,9 +1207,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
 
         if (haveLayers) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
-#ifndef SK_IGNORE_GLYPH_HAS_PATH_FIX
             glyph->setPath(alloc, nullptr, false);
-#endif
             if (!(bounds.xMin < bounds.xMax && bounds.yMin < bounds.yMax)) {
                 bounds = { 0, 0, 0, 0 };
             }

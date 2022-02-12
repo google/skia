@@ -746,17 +746,13 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
 
     if (fIsColorFont && isColorGlyph(*glyph) && generateColorMetrics(glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
-#ifndef SK_IGNORE_GLYPH_HAS_PATH_FIX
         glyph->setPath(alloc, nullptr, false);
-#endif
         return;
     }
 
     if (fIsColorFont && isPngGlyph(*glyph) && generatePngMetrics(glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
-#ifndef SK_IGNORE_GLYPH_HAS_PATH_FIX
         glyph->setPath(alloc, nullptr, false);
-#endif
         return;
     }
 
