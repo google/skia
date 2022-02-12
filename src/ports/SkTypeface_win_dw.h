@@ -90,6 +90,8 @@ private:
         if (fDWriteFontFace1 && fDWriteFontFace1->IsMonospacedFont()) {
             this->setIsFixedPitch(true);
         }
+
+        fIsColorFont = fFactory2 && fDWriteFontFace2 && fDWriteFontFace2->IsColorFont();
     }
 
 public:
@@ -101,6 +103,7 @@ public:
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
     SkTScopedComPtr<IDWriteFontFace4> fDWriteFontFace4;
+    bool fIsColorFont;
 
     static sk_sp<DWriteFontTypeface> Make(
         IDWriteFactory* factory,

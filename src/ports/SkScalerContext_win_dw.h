@@ -93,7 +93,6 @@ private:
     DWRITE_MEASURING_MODE fMeasuringMode;
     DWRITE_TEXT_ANTIALIAS_MODE fAntiAliasMode;
     DWRITE_GRID_FIT_MODE fGridFitMode;
-    bool fIsColorFont;
 };
 
 #endif

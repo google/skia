@@ -262,9 +262,6 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
 {
     DWriteFontTypeface* typeface = this->getDWriteTypeface();
     fGlyphCount = typeface->fDWriteFontFace->GetGlyphCount();
-    fIsColorFont = typeface->fFactory2 &&
-                   typeface->fDWriteFontFace2 &&
-                   typeface->fDWriteFontFace2->IsColorFont();
 
     // In general, all glyphs should use NATURAL_SYMMETRIC
     // except when bi-level rendering is requested or there are embedded
@@ -744,13 +741,14 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
         return;
     }
 
-    if (fIsColorFont && isColorGlyph(*glyph) && generateColorMetrics(glyph)) {
+    DWriteFontTypeface* typeface = this->getDWriteTypeface();
+    if (typeface->fIsColorFont && isColorGlyph(*glyph) && generateColorMetrics(glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
         glyph->setPath(alloc, nullptr, false);
         return;
     }
 
-    if (fIsColorFont && isPngGlyph(*glyph) && generatePngMetrics(glyph)) {
+    if (typeface->fIsColorFont && isPngGlyph(*glyph) && generatePngMetrics(glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
         glyph->setPath(alloc, nullptr, false);
         return;
@@ -1174,7 +1172,7 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
 
     if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
-        if (fIsColorFont) {
+        if (this->getDWriteTypeface()->fIsColorFont) {
             if (isColorGlyph(glyph)) {
                 generateColorGlyphImage(glyph);
                 return;
