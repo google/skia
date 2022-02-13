@@ -13,6 +13,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPath.h"
 #include "include/private/SkMutex.h"
@@ -1050,33 +1051,21 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
     return fBits.begin();
 }
 
-void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
-    SkASSERT(isColorGlyph(glyph));
-    SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
-
-    memset(glyph.fImage, 0, glyph.imageSize());
-
+void SkScalerContext_DW::drawColorGlyphImage(const SkGlyph& glyph, SkCanvas& canvas) {
     SkTScopedComPtr<IDWriteColorGlyphRunEnumerator> colorLayers;
-    getColorGlyphRun(glyph, &colorLayers);
-    SkASSERT(colorLayers.get());
-
-    SkMatrix matrix = fSkXform;
-    matrix.postTranslate(-SkIntToScalar(glyph.left()), -SkIntToScalar(glyph.top()));
-    if (this->isSubpixel()) {
-        matrix.postTranslate(SkFixedToScalar(glyph.getSubXFixed()),
-                             SkFixedToScalar(glyph.getSubYFixed()));
+    if (!getColorGlyphRun(glyph, &colorLayers)) {
+        SK_ABORT("Could not get color layers");
+        return;
     }
-    SkRasterClip rc(SkIRect::MakeWH(glyph.width(), glyph.height()));
-    SkDraw draw;
-    draw.fDst = SkPixmap(SkImageInfo::MakeN32(glyph.width(), glyph.height(), kPremul_SkAlphaType),
-                         glyph.fImage,
-                         glyph.rowBytesUsingFormat(SkMask::Format::kARGB32_Format));
-    SkMatrixProvider matrixProvider(matrix);
-    draw.fMatrixProvider = &matrixProvider;
-    draw.fRC = &rc;
 
     SkPaint paint;
     paint.setAntiAlias(fRenderingMode != DWRITE_RENDERING_MODE_ALIASED);
+
+    if (this->isSubpixel()) {
+        canvas.translate(SkFixedToScalar(glyph.getSubXFixed()),
+                         SkFixedToScalar(glyph.getSubYFixed()));
+    }
+    canvas.concat(fSkXform);
 
     BOOL hasNextRun = FALSE;
     while (SUCCEEDED(colorLayers->MoveNext(&hasNextRun)) && hasNextRun) {
@@ -1103,25 +1092,42 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
         {
             Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
             HRVM(colorGlyph->glyphRun.fontFace->GetGlyphRunOutline(
-                colorGlyph->glyphRun.fontEmSize,
-                colorGlyph->glyphRun.glyphIndices,
-                colorGlyph->glyphRun.glyphAdvances,
-                colorGlyph->glyphRun.glyphOffsets,
-                colorGlyph->glyphRun.glyphCount,
-                colorGlyph->glyphRun.isSideways,
-                colorGlyph->glyphRun.bidiLevel % 2, //rtl
-                geometryToPath.get()),
-                "Could not create glyph outline.");
+                     colorGlyph->glyphRun.fontEmSize,
+                     colorGlyph->glyphRun.glyphIndices,
+                     colorGlyph->glyphRun.glyphAdvances,
+                     colorGlyph->glyphRun.glyphOffsets,
+                     colorGlyph->glyphRun.glyphCount,
+                     colorGlyph->glyphRun.isSideways,
+                     colorGlyph->glyphRun.bidiLevel % 2, //rtl
+                     geometryToPath.get()),
+                 "Could not create glyph outline.");
         }
-        draw.drawPath(path, paint, nullptr, true /* pathIsMutable */);
+        canvas.drawPath(path, paint);
     }
 }
-
-void SkScalerContext_DW::generatePngGlyphImage(const SkGlyph& glyph) {
-    SkASSERT(isPngGlyph(glyph));
+void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
+    SkASSERT(isColorGlyph(glyph));
     SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
-    SkASSERT(this->getDWriteTypeface()->fDWriteFontFace4);
 
+    SkBitmap dstBitmap;
+    // TODO: mark this as sRGB when the blits will be sRGB.
+    dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+                                        kN32_SkColorType, kPremul_SkAlphaType),
+                                        glyph.rowBytes());
+    dstBitmap.setPixels(glyph.fImage);
+
+    SkCanvas canvas(dstBitmap);
+#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
+    canvas.clear(0x33FF0000);
+#else
+    canvas.clear(SK_ColorTRANSPARENT);
+#endif
+    canvas.translate(-SkIntToScalar(glyph.fLeft), -SkIntToScalar(glyph.fTop));
+
+    this->drawColorGlyphImage(glyph, canvas);
+}
+
+void SkScalerContext_DW::drawPngGlyphImage(const SkGlyph& glyph, SkCanvas& canvas) {
     IDWriteFontFace4* fontFace4 = this->getDWriteTypeface()->fDWriteFontFace4.get();
     DWRITE_GLYPH_IMAGE_DATA glyphData;
     void* glyphDataContext;
@@ -1138,16 +1144,6 @@ void SkScalerContext_DW::generatePngGlyphImage(const SkGlyph& glyph) {
                                               context);
     sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(data));
 
-    SkBitmap dstBitmap;
-    dstBitmap.setInfo(SkImageInfo::Make(glyph.width(), glyph.height(),
-                                        kN32_SkColorType,
-                                        kPremul_SkAlphaType),
-                      glyph.rowBytes());
-    dstBitmap.setPixels(glyph.fImage);
-
-    SkCanvas canvas(dstBitmap);
-    canvas.clear(SK_ColorTRANSPARENT);
-    canvas.translate(-glyph.left(), -glyph.top());
     if (this->isSubpixel()) {
         canvas.translate(SkFixedToScalar(glyph.getSubXFixed()),
                          SkFixedToScalar(glyph.getSubYFixed()));
@@ -1157,6 +1153,24 @@ void SkScalerContext_DW::generatePngGlyphImage(const SkGlyph& glyph) {
     canvas.scale(ratio, ratio);
     canvas.translate(-glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
     canvas.drawImage(image, 0, 0);
+}
+
+void SkScalerContext_DW::generatePngGlyphImage(const SkGlyph& glyph) {
+    SkASSERT(isPngGlyph(glyph));
+    SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
+    SkASSERT(this->getDWriteTypeface()->fDWriteFontFace4);
+
+    SkBitmap dstBitmap;
+    dstBitmap.setInfo(SkImageInfo::Make(glyph.width(), glyph.height(),
+                                        kN32_SkColorType, kPremul_SkAlphaType),
+                                        glyph.rowBytes());
+    dstBitmap.setPixels(glyph.fImage);
+
+    SkCanvas canvas(dstBitmap);
+    canvas.clear(SK_ColorTRANSPARENT);
+    canvas.translate(-glyph.left(), -glyph.top());
+
+    this->drawPngGlyphImage(glyph, canvas);
 }
 
 void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
@@ -1171,10 +1185,10 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
         if (this->getDWriteTypeface()->fIsColorFont) {
             if (isColorGlyph(glyph)) {
-                generateColorGlyphImage(glyph);
+                this->generateColorGlyphImage(glyph);
                 return;
             } else if (isPngGlyph(glyph)) {
-                generatePngGlyphImage(glyph);
+                this->generatePngGlyphImage(glyph);
                 return;
             }
         }
@@ -1260,6 +1274,27 @@ bool SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
 
     path->transform(fSkXform);
     return true;
+}
+
+sk_sp<SkDrawable> SkScalerContext_DW::generateDrawable(const SkGlyph& glyph) {
+    struct DirectWriteGlyphDrawable : public SkDrawable {
+        SkScalerContext_DW* fSelf;
+        SkGlyph fGlyph;
+        DirectWriteGlyphDrawable(SkScalerContext_DW* self, const SkGlyph& glyph)
+            : fSelf(self), fGlyph(glyph) {}
+        SkRect onGetBounds() override { return fGlyph.rect();  }
+        size_t onApproximateBytesUsed() override { return sizeof(DirectWriteGlyphDrawable); }
+
+        void onDraw(SkCanvas* canvas) override {
+            fSelf->drawColorGlyphImage(fGlyph, *canvas);
+        }
+    };
+    if (this->getDWriteTypeface()->fIsColorFont) {
+        if (isColorGlyph(glyph)) {
+            return sk_sp<DirectWriteGlyphDrawable>(new DirectWriteGlyphDrawable(this, glyph));
+        }
+    }
+    return nullptr;
 }
 
 #endif//defined(SK_BUILD_FOR_WIN)
