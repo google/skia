@@ -1091,11 +1091,8 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
                                    sk_float_round2int(colorGlyph->runColor.b * 255));
         } else {
             // If all components of runColor are 0 or (equivalently) paletteIndex is 0xFFFF then
-            // the 'current brush' is used. fRec.getLuminanceColor() is kinda sorta what is wanted
-            // here, but not really, it will often be the wrong value because it wan't designed for
-            // this.
-            // TODO: implement this fully, bug.skia.org/5788
-            color = fRec.getLuminanceColor();
+            // the 'foreground color' is used.
+            color = fRec.fForegroundColor;
         }
         paint.setColor(color);
 

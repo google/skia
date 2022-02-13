@@ -155,6 +155,10 @@ SkTypeface::LocalizedStrings* DWriteFontTypeface::onCreateFamilyNameIterator() c
     return nameIter.release();
 }
 
+bool DWriteFontTypeface::onGlyphMaskNeedsCurrentColor() const {
+    return fDWriteFontFace2 && fDWriteFontFace2->GetColorPaletteCount() > 0;
+}
+
 int DWriteFontTypeface::onGetVariationDesignPosition(
     SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
 {
