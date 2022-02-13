@@ -82,26 +82,21 @@ protected:
 
 // These tolerances decide the number of parametric and radial segments the tessellator will
 // linearize strokes into. These decisions are made in (pre-viewMatrix) local path space.
-struct StrokeTolerances {
-    // Decides the number of parametric segments the tessellator adds for each curve. (Uniform
-    // steps in parametric space.) The tessellator will add enough parametric segments so that,
-    // once transformed into device space, they never deviate by more than
-    // 1/kTessellationPrecision pixels from the true curve.
-    constexpr static float CalcParametricPrecision(float matrixMaxScale) {
-        return matrixMaxScale * kTessellationPrecision;
-    }
+class StrokeTolerances {
+    StrokeTolerances() = delete;
+public:
     // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
     // in tangent angle.) The tessellator will add this number of radial segments for each
     // radian of rotation in local path space.
-    static float CalcNumRadialSegmentsPerRadian(float parametricPrecision,
-                                                float strokeWidth) {
-        return .5f / acosf(std::max(1 - 2 / (parametricPrecision * strokeWidth), -1.f));
+    static float CalcNumRadialSegmentsPerRadian(float matrixMaxScale, float strokeWidth) {
+        float cosTheta = 1.f - (1.f / kTessellationPrecision) / (matrixMaxScale * strokeWidth);
+        return .5f / acosf(std::max(cosTheta, -1.f));
     }
-    template<int N> static vec<N> ApproxNumRadialSegmentsPerRadian(float parametricPrecision,
-                                                                   vec<N> strokeWidths) {
-        vec<N> cosTheta = skvx::max(1 - 2 / (parametricPrecision * strokeWidths), -1);
+    template<int N>
+    static vec<N> ApproxNumRadialSegmentsPerRadian(float matrixMaxScale, vec<N> strokeWidths) {
+        vec<N> cosTheta = 1.f - (1.f / kTessellationPrecision) / (matrixMaxScale * strokeWidths);
         // Subtract SKVX_APPROX_ACOS_MAX_ERROR so we never account for too few segments.
-        return .5f / (skvx::approx_acos(cosTheta) - SKVX_APPROX_ACOS_MAX_ERROR);
+        return .5f / (approx_acos(max(cosTheta, -1.f)) - SKVX_APPROX_ACOS_MAX_ERROR);
     }
     // Returns the equivalent stroke width in (pre-viewMatrix) local path space that the
     // tessellator will use when rendering this stroke. This only differs from the actual stroke
@@ -130,18 +125,6 @@ struct StrokeTolerances {
         }
         return localStrokeWidth;
     }
-    static StrokeTolerances Make(const float matrixMinMaxScales[2], float strokeWidth) {
-        return MakeNonHairline(matrixMinMaxScales[1],
-                               GetLocalStrokeWidth(matrixMinMaxScales, strokeWidth));
-    }
-    static StrokeTolerances MakeNonHairline(float matrixMaxScale, float strokeWidth) {
-        SkASSERT(strokeWidth > 0);
-        float parametricPrecision = CalcParametricPrecision(matrixMaxScale);
-        return {parametricPrecision,
-                CalcNumRadialSegmentsPerRadian(parametricPrecision, strokeWidth)};
-    }
-    float fParametricPrecision;
-    float fNumRadialSegmentsPerRadian;
 };
 
 // Calculates and buffers up future values for "numRadialSegmentsPerRadian" using SIMD.
@@ -149,7 +132,7 @@ class alignas(sizeof(float) * 4) StrokeToleranceBuffer {
 public:
     using PathStrokeList = StrokeTessellator::PathStrokeList;
 
-    StrokeToleranceBuffer(float parametricPrecision) : fParametricPrecision(parametricPrecision) {}
+    StrokeToleranceBuffer(float matrixMaxScale) : fMatrixMaxScale(matrixMaxScale) {}
 
     float fetchRadialSegmentsPerRadian(PathStrokeList* head) {
         // StrokeTessellateOp::onCombineIfPossible does not allow hairlines to become dynamic. If
@@ -163,7 +146,7 @@ public:
             do {
                 fStrokeWidths[i++] = peekAhead->fStroke.getWidth();
             } while ((peekAhead = peekAhead->fNext) && i < 4);
-            auto tol = StrokeTolerances::ApproxNumRadialSegmentsPerRadian(fParametricPrecision,
+            auto tol = StrokeTolerances::ApproxNumRadialSegmentsPerRadian(fMatrixMaxScale,
                                                                           fStrokeWidths);
             tol.store(fNumRadialSegmentsPerRadian);
             fBufferIdx = 0;
@@ -176,7 +159,7 @@ public:
 private:
     float4 fStrokeWidths{};  // Must be first for alignment purposes.
     float fNumRadialSegmentsPerRadian[4];
-    const float fParametricPrecision;
+    const float fMatrixMaxScale;
     int fBufferIdx = 4;  // Initialize the buffer as "empty";
 };
 
