@@ -19,6 +19,7 @@
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkGlyphRun.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
@@ -1383,6 +1384,16 @@ public:
         this->SkPaintFilterCanvas::onDrawTextBlob(
             this->filterTextBlob(paint, blob, &cache), x, y, paint);
     }
+
+    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
+        sk_sp<SkTextBlob> cache;
+        sk_sp<SkTextBlob> blob = glyphRunList.makeBlob();
+        this->filterTextBlob(paint, blob.get(), &cache);
+        SkGlyphRunBuilder builder;
+        const SkGlyphRunList& filtered = builder.blobToGlyphRunList(*cache, glyphRunList.origin());
+        this->SkPaintFilterCanvas::onDrawGlyphRunList(filtered, paint);
+    }
+
     bool filterFont(SkTCopyOnFirstWrite<SkFont>* font) const {
         if (fFontOverrides->fTypeface) {
             font->writable()->setTypeface(fFont->refTypeface());
