@@ -71,6 +71,9 @@ bool center_of_mass(const SegmentArray& segments, SkPoint* c) {
     SkScalar area = 0;
     SkPoint center = {0, 0};
     int count = segments.count();
+    if (count <= 0) {
+        return false;
+    }
     SkPoint p0 = {0, 0};
     if (count > 2) {
         // We translate the polygon so that the first point is at the origin.
