@@ -8,7 +8,7 @@ import("../third_party.gni")
 import("icu.gni")
 
 declare_args() {
-  skia_use_system_icu = is_official_build
+  skia_use_system_icu = is_official_build && !is_wasm
 }
 
 if (skia_use_system_icu) {

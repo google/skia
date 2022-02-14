@@ -38,7 +38,8 @@ RUN if [ ! -z "${PATCH_REF}" ] ; then cd /tmp/skia/skia \
 
 RUN cd /tmp/skia/skia \
   && gclient sync \
-  && ./bin/fetch-gn
+  && ./bin/fetch-gn \
+  && ./bin/activate-emsdk
 
 # PathKit should be in /tmp/skia/skia/out/pathkit/
 RUN /tmp/skia/skia/modules/pathkit/compile.sh

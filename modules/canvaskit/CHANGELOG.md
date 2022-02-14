@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - `SkPicture.makeShader`
+ - Skia now has a GN toolchain that is used to compile CanvasKit. Ideally, all settings should
+   be the same, but there may be some subtle differences in practice. This changes the setup
+   to build CanvasKit (users no longer need to download emsdk themselves).
 
 ### Changed
  - If an invalid matrix type is passed in (e.g. not an array, TypedArray, or DOMMatrix), CanvasKit

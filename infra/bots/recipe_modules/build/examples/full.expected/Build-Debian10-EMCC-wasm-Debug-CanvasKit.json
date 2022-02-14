@@ -16,6 +16,20 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/work/skia/bin/activate-emsdk"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "activate-emsdk"
+  },
+  {
+    "cmd": [
       "docker",
       "run",
       "--rm",
