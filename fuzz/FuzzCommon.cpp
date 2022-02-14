@@ -206,8 +206,11 @@ void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 break;
             case 30:
                 FuzzNicePath(fuzz, &p, maxOps-1);
-                FuzzNiceMatrix(fuzz, &m);
-                p.transform(m, path);
+                // transform can explode path sizes so skip this op if p too big
+                if (p.countPoints() <= 100000) {
+                    FuzzNiceMatrix(fuzz, &m);
+                    p.transform(m, path);
+                }
                 break;
             case 31:
                 fuzz_nice_float(fuzz, &a, &b);
