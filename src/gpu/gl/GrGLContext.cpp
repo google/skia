@@ -47,7 +47,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
         char androidAPIVersion[PROP_VALUE_MAX];
         int strLength = __system_property_get("ro.build.version.sdk", androidAPIVersion);
         if (strLength == 0 || atoi(androidAPIVersion) < 26) {
-            args.fGLSLGeneration = SkSL::GLSLGeneration::k100es;
+            args.fGLSLGeneration = SkSL::GLSLGeneration::k110;
         }
     }
 #endif
@@ -64,7 +64,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
         args.fGLSLGeneration >= SkSL::GLSLGeneration::k330 &&
         !interface->hasExtension("GL_OES_EGL_image_external_essl3") &&
         !interface->hasExtension("OES_EGL_image_external_essl3")) {
-        args.fGLSLGeneration = SkSL::GLSLGeneration::k100es;
+        args.fGLSLGeneration = SkSL::GLSLGeneration::k110;
     }
 
     args.fContextOptions = &options;

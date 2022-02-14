@@ -17,7 +17,6 @@ enum class GLSLGeneration {
      * Desktop GLSL 1.10 and ES2 shading language (based on desktop GLSL 1.20)
      */
     k110,
-    k100es = k110,
     /**
      * Desktop GLSL 1.30
      */
@@ -34,7 +33,6 @@ enum class GLSLGeneration {
      * Desktop GLSL 3.30, and ES GLSL 3.00
      */
     k330,
-    k300es = k330,
     /**
      * Desktop GLSL 4.00
      */
