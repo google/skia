@@ -502,6 +502,8 @@ public:
     }
 
     const GrBlobSubRun* blobCast() const override { return this; }
+    int unflattenSize() const override { return 0; }
+
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
         return true;
     }
@@ -632,6 +634,8 @@ public:
         fDrawingDrawing.submitOps(canvas, clip, viewMatrix, drawOrigin, paint, sdc);
     }
 
+    int unflattenSize() const override { return 0; }
+
 private:
     DrawableOpSubmitter fDrawingDrawing;
 };
@@ -641,6 +645,8 @@ class DrawableSubRun final : public DrawableSubRunSlug, public GrBlobSubRun {
 public:
     using DrawableSubRunSlug::DrawableSubRunSlug;
     const GrBlobSubRun* blobCast() const override { return this; }
+    int unflattenSize() const override { return 0; }
+
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
         return true;
     }
@@ -682,6 +688,7 @@ public:
                     GrAtlasSubRunOwner) const override;
 
     const GrBlobSubRun* blobCast() const override { return this; }
+    int unflattenSize() const override { return 0; }
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
 
@@ -1084,6 +1091,7 @@ public:
                     GrAtlasSubRunOwner) const override;
 
     const GrBlobSubRun* blobCast() const override { return this; }
+    int unflattenSize() const override { return 0; }
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
 
@@ -1294,6 +1302,8 @@ public:
                     GrAtlasSubRunOwner) const override;
 
     const GrBlobSubRun* blobCast() const override { return this; }
+    int unflattenSize() const override { return 0; }
+
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
 
     const GrAtlasSubRun* testingOnly_atlasSubRun() const override;
@@ -2619,6 +2629,16 @@ public:
     void* operator new(size_t) { SK_ABORT("All slugs are created by placement new."); }
     void* operator new(size_t, void* p) { return p; }
 
+    std::tuple<int, int> subRunCountAndUnflattenSizeHint() const {
+        int unflattenSizeHint = 0;
+        int subRunCount = 0;
+        for (auto& subrun : fSubRuns) {
+            subRunCount += 1;
+            unflattenSizeHint += subrun.unflattenSize();
+        }
+        return {subRunCount, unflattenSizeHint + sizeof(Slug)};
+    }
+
 private:
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
@@ -2677,6 +2697,8 @@ public:
             sdc->addDrawOp(drawingClip, std::move(op));
         }
     }
+
+    int unflattenSize() const override;
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
 
@@ -2769,6 +2791,12 @@ GrSubRunOwner DirectMaskSubRunSlug::Make(Slug* slug,
     return alloc->makeUnique<DirectMaskSubRunSlug>(
             slug, format, runBounds, leftTop,
             GrGlyphVector{std::move(strike), {glyphIDs, goodPosCount}});
+}
+
+int DirectMaskSubRunSlug::unflattenSize() const {
+    return sizeof(DirectMaskSubRunSlug) +
+           fGlyphs.unflattenSize() +
+           sizeof(DevicePosition) * fGlyphs.glyphs().size();
 }
 
 size_t DirectMaskSubRunSlug::vertexStride(const SkMatrix& positionMatrix) const {

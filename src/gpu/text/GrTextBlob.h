@@ -106,6 +106,10 @@ public:
 
     virtual const GrBlobSubRun* blobCast() const;
 
+    // Size hint for unflattening this run. If this is accurate, it will help with the allocation
+    // of the slug. If it's off then there may be more allocations needed to unflatten.
+    virtual int unflattenSize() const = 0;
+
 private:
     friend class GrSubRunList;
     GrSubRunOwner fNext;

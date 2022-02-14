@@ -41,6 +41,10 @@ public:
                                                        GrSubRunAllocator* alloc);
     void flatten(SkWriteBuffer& buffer);
 
+    // This doesn't need to include sizeof(GrGlyphVector) because this is embedded in each of
+    // the sub runs.
+    int unflattenSize() const { return GlyphVectorSize(fGlyphs.size()); }
+
     void packedGlyphIDToGrGlyph(GrStrikeCache* cache);
 
     std::tuple<bool, int> regenerateAtlas(
