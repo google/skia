@@ -21,6 +21,9 @@
 #include "src/core/SkUtils.h"
 #include "src/shaders/SkShaderBase.h"
 
+#define SK_BLITTER_TRACE_IS_RASTER_PIPELINE
+#include "src/utils/SkBlitterTrace.h"
+
 class SkRasterPipelineBlitter final : public SkBlitter {
 public:
     // This is our common entrypoint for creating the blitter once we've sorted out shaders.
@@ -47,6 +50,7 @@ public:
     void blitV     (int x, int y, int height, SkAlpha alpha)        override;
 
 private:
+    void blitRectWithTrace(int x, int y, int w, int h, bool trace);
     void append_load_dst      (SkRasterPipeline*) const;
     void append_store         (SkRasterPipeline*) const;
 
@@ -339,7 +343,15 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
 }
 
 void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
+    this->blitRectWithTrace(x, y, w, h, true);
+}
+
+void SkRasterPipelineBlitter::blitRectWithTrace(int x, int y, int w, int h, bool trace) {
     if (fMemset2D) {
+        SK_BLITTER_TRACE_STEP(blitRectByMemset,
+                           trace,
+                           /*scanlines=*/h,
+                           /*pixels=*/w * h);
         fMemset2D(&fDst, x,y, w,h, fMemsetColor);
         return;
     }
@@ -373,6 +385,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
         fBlitRect = p.compile();
     }
 
+    SK_BLITTER_TRACE_STEP(blitRect, trace, /*scanlines=*/h, /*pixels=*/w * h);
     fBlitRect(x,y,w,h);
 }
 
@@ -397,10 +410,12 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
         fBlitAntiH = p.compile();
     }
 
+    SK_BLITTER_TRACE_STEP(blitAntiH, true, /*scanlines=*/1ul, /*pixels=*/0ul);
     for (int16_t run = *runs; run > 0; run = *runs) {
+        SK_BLITTER_TRACE_STEP_ACCUMULATE(blitAntiH, /*pixels=*/run);
         switch (*aa) {
-            case 0x00:                       break;
-            case 0xff: this->blitH(x,y,run); break;
+            case 0x00:                                break;
+            case 0xff:this->blitRectWithTrace(x,y,run, 1, false); break;
             default:
                 fCurrentCoverage = *aa * (1/255.0f);
                 fBlitAntiH(x,y,run,1);
@@ -554,5 +569,9 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     }
 
     SkASSERT(blitter);
+    SK_BLITTER_TRACE_STEP(blitMask,
+                       true,
+                       /*scanlines=*/clip.height(),
+                       /*pixels=*/clip.width() * clip.height());
     (*blitter)(clip.left(),clip.top(), clip.width(),clip.height());
 }

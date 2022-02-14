@@ -77,6 +77,8 @@ declare_args() {
     skia_ios_identity = ".*Google.*"
     skia_ios_profile = "Google Development"
   }
+
+  skia_compare_vm_vs_rp = false
 }
 
 declare_args() {

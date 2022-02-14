@@ -97,6 +97,9 @@ config("skia_private") {
       defines += [ "GRAPHITE_TEST_UTILS=1" ]
     }
   }
+  if (skia_compare_vm_vs_rp) {
+    defines += [ "SKIA_COMPARE_VM_VS_RP" ]
+  }
   libs = []
   lib_dirs = []
   if (skia_use_gl && skia_use_angle) {
