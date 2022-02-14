@@ -317,18 +317,18 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             // builtin=false
             return std::make_unique<FunctionPrototype>(/*line=*/-1, decl, /*builtin=*/false);
         }
+        case Rehydrator::kGlobalVar_Command: {
+            std::unique_ptr<Statement> decl = this->statement();
+            return std::make_unique<GlobalVarDeclaration>(std::move(decl));
+        }
         case Rehydrator::kInterfaceBlock_Command: {
             const Symbol* var = this->symbol();
             SkASSERT(var && var->is<Variable>());
             std::string_view typeName = this->readString();
             std::string_view instanceName = this->readString();
-            int arraySize = this->readS8();
+            int arraySize = this->readU8();
             return std::make_unique<InterfaceBlock>(/*line=*/-1, var->as<Variable>(), typeName,
                                                     instanceName, arraySize, nullptr);
-        }
-        case Rehydrator::kVarDeclarations_Command: {
-            std::unique_ptr<Statement> decl = this->statement();
-            return std::make_unique<GlobalVarDeclaration>(std::move(decl));
         }
         case Rehydrator::kStructDefinition_Command: {
             const Symbol* type = this->symbol();
@@ -441,7 +441,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kVarDeclaration_Command: {
             Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             const Type* baseType = this->type();
-            int arraySize = this->readS8();
+            int arraySize = this->readU8();
             std::unique_ptr<Expression> value = this->expression();
             return VarDeclaration::Make(this->context(), var, baseType, arraySize,
                     std::move(value));

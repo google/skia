@@ -553,7 +553,7 @@ void Dehydrator::write(const Statement* s) {
                 this->writeCommand(Rehydrator::kVarDeclaration_Command);
                 this->writeU16(this->symbolId(&v.var()));
                 this->write(v.baseType());
-                this->writeS8(v.arraySize());
+                this->writeU8(v.arraySize());
                 this->write(v.value().get());
                 break;
             }
@@ -589,7 +589,7 @@ void Dehydrator::write(const ProgramElement& e) {
             this->write(i.variable());
             this->write(i.typeName());
             this->write(i.instanceName());
-            this->writeS8(i.arraySize());
+            this->writeU8(i.arraySize());
             break;
         }
         case ProgramElement::Kind::kModifiers:
@@ -603,7 +603,7 @@ void Dehydrator::write(const ProgramElement& e) {
         }
         case ProgramElement::Kind::kGlobalVar: {
             const GlobalVarDeclaration& v = e.as<GlobalVarDeclaration>();
-            this->writeCommand(Rehydrator::kVarDeclarations_Command);
+            this->writeCommand(Rehydrator::kGlobalVar_Command);
             this->write(v.declaration().get());
             break;
         }
