@@ -272,6 +272,10 @@ bool SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     glyph->fMaskFormat = fRec.fMaskFormat;
 
+    if (((SkTypeface_Mac*)this->getTypeface())->fHasColorGlyphs) {
+        glyph->setPath(alloc, nullptr, false);
+    }
+
     const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID();
     glyph->zeroMetrics();
 
