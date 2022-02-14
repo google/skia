@@ -1867,12 +1867,12 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
         latticePlusBounds.fBounds = &bounds;
     }
 
+    SkPaint latticePaint = clean_paint_for_lattice(paint);
     if (SkLatticeIter::Valid(image->width(), image->height(), latticePlusBounds)) {
-        SkPaint latticePaint = clean_paint_for_lattice(paint);
         this->onDrawImageLattice2(image, latticePlusBounds, dst, filter, &latticePaint);
     } else {
         this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst,
-                            SkSamplingOptions(filter), paint, kStrict_SrcRectConstraint);
+                            SkSamplingOptions(filter), &latticePaint, kStrict_SrcRectConstraint);
     }
 }
 
