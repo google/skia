@@ -547,7 +547,7 @@ void AddToKey(SkShaderCodeDictionary* dict,
     if (backend == SkBackend::kGraphite) {
         int headerOffset = key->beginBlock(SkBuiltInCodeSnippetID::kBlendShader);
 
-        add_blendmode_to_key(key, blendData.fBM);
+        // Child blocks always go right after the parent block's header
         int start = key->sizeInBytes();
         as_SB(blendData.fDst)->addToKey(dict, backend, key, uniformBlock);
         int firstShaderSize = key->sizeInBytes() - start;
@@ -555,6 +555,8 @@ void AddToKey(SkShaderCodeDictionary* dict,
         start = key->sizeInBytes();
         as_SB(blendData.fSrc)->addToKey(dict, backend, key, uniformBlock);
         int secondShaderSize = key->sizeInBytes() - start;
+
+        add_blendmode_to_key(key, blendData.fBM);
 
         key->endBlock(headerOffset, SkBuiltInCodeSnippetID::kBlendShader);
 
@@ -581,18 +583,19 @@ void Dump(const SkPaintParamsKey& key, int headerOffset) {
 
     int runningOffset = headerOffset + SkPaintParamsKey::kBlockHeaderSizeInBytes;
 
-    uint8_t data = key.byte(runningOffset);
-    SkBlendMode bm = to_blendmode(data);
-
-    SkDebugf("BlendMode: %s\n", SkBlendMode_Name(bm));
-    runningOffset += 1; // 1 byte for blendmode
-
     SkDebugf("\nDst:  ");
     int firstBlockSize = SkPaintParamsKey::DumpBlock(key, runningOffset);
     runningOffset += firstBlockSize;
 
     SkDebugf("Src: ");
     int secondBlockSize = SkPaintParamsKey::DumpBlock(key, runningOffset);
+    runningOffset += secondBlockSize;
+
+    uint8_t data = key.byte(runningOffset);
+    SkBlendMode bm = to_blendmode(data);
+
+    SkDebugf("BlendMode: %s\n", SkBlendMode_Name(bm));
+    runningOffset += 1; // 1 byte for blendmode
 
     int calculatedBlockSize = SkPaintParamsKey::kBlockHeaderSizeInBytes +
                               firstBlockSize + secondBlockSize + 1;

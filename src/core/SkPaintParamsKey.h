@@ -23,8 +23,12 @@ class SkShaderInfo;
 
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of blocks where each block has a
-// header that consists of 2-bytes - a 1-byte code-snippet ID and a 1-byte number-of-bytes-in-the-
-// block field. The rest of the data in the block is dependent on the individual code snippet.
+// header that consists of 2-bytes:
+//   a 1-byte code-snippet ID
+//   a 1-byte number-of-bytes-in-the-block field (incl. the space for the header)
+// The rest of the data in the block is dependent on the individual code snippet.
+// If a given block has child blocks, they appear in the key right after their
+// parent block's header.
 class SkPaintParamsKey {
 public:
     static const int kBlockHeaderSizeInBytes = 2;

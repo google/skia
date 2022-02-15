@@ -24,6 +24,7 @@ public:
     using GenerateGlueCodeForEntry = std::string (*)(const std::string& resultName,
                                                      int entryIndex, // for uniform name mangling
                                                      const SnippetEntry&,
+                                                     const std::vector<std::string>& childNames,
                                                      int indent);
 
     struct SnippetEntry {
@@ -31,6 +32,7 @@ public:
         const char* fStaticFunctionName;
         const char* fStaticSkSL;
         GenerateGlueCodeForEntry fGlueCodeGenerator;
+        int fNumChildren;
     };
 
     void add(const SnippetEntry& entry) {
