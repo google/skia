@@ -29,6 +29,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -458,4 +459,40 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
     sub = serial_deserial(sub.get());
     canvas->drawImage(sub, 220+110, 10);
     return skiagm::DrawResult::kOk;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DEF_SIMPLE_GM(image_dither, canvas, 800, 800) {
+    // Make a low-res image of a gradient that shows banding if there's no dithering. When up-scaled
+    // bilerp filtering will emphasize the banding unless the image is drawn with dithering.
+    auto gradImage = []() -> sk_sp<SkImage> {
+        SkImageInfo gradImageInfo = SkImageInfo::Make({8, 16}, {SkColorType::kRGBA_8888_SkColorType,
+                                                                SkAlphaType::kPremul_SkAlphaType,
+                                                                nullptr});
+        auto surface = SkSurface::MakeRaster(gradImageInfo);
+
+        SkPoint pts[2] = {{0.f, 0.f},
+                          {(float) 2 * gradImageInfo.width(), (float) gradImageInfo.height()}};
+        const SkColor colors[] = { 0xFF555555, 0xFF444444 };
+        SkPaint p;
+        p.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
+        surface->getCanvas()->drawPaint(p);
+        return surface->makeImageSnapshot();
+    }();
+
+    SkRect imageBounds = SkRect::MakeIWH(gradImage->width(), gradImage->height());
+
+    canvas->scale(50, 50);
+
+    // 1st image definitely goes through general shader paths so should have dithering
+    SkPaint p;
+    p.setShader(gradImage->makeShader(SkSamplingOptions{SkFilterMode::kLinear}));
+    p.setDither(true);
+    canvas->drawRect(imageBounds, p);
+
+    // 2nd image goes through draw-image fast paths, but dithering should be detected
+    p.setShader(nullptr);
+    canvas->translate(imageBounds.width(), 0.f);
+    canvas->drawImage(gradImage, 0.f, 0.f, SkSamplingOptions{SkFilterMode::kLinear}, &p);
 }
