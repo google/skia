@@ -160,6 +160,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrAtlasManager_hdr",
+        ":GrGlyphVector_hdr",
         ":GrStrikeCache_hdr",
         ":GrTextBlob_hdr",
         "//include/core:SkColorFilter_hdr",
@@ -209,5 +210,34 @@ generated_cc_atom(
     deps = [
         ":GrTextBlobRedrawCoordinator_hdr",
         "//src/gpu/v1:SurfaceDrawContext_v1_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGlyphVector_hdr",
+    hdrs = ["GrGlyphVector.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrStrikeCache_hdr",
+        "//include/core:SkSpan_hdr",
+        "//src/core:SkGlyphBuffer_hdr",
+        "//src/core:SkGlyph_hdr",
+        "//src/gpu:GrGlyph_hdr",
+        "//src/gpu:GrMeshDrawTarget_hdr",
+        "//src/gpu:GrSubRunAllocator_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGlyphVector_src",
+    srcs = ["GrGlyphVector.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":GrAtlasManager_hdr",
+        ":GrGlyphVector_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkStrikeCache_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+        "//src/core:SkWriteBuffer_hdr",
     ],
 )

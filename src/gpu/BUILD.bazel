@@ -191,6 +191,7 @@ cc_library(
         "//src/gpu/tessellate/shaders:GrTessellationShader_src",
         "//src/gpu/text:GrAtlasManager_src",
         "//src/gpu/text:GrDistanceFieldAdjustTable_src",
+        "//src/gpu/text:GrGlyphVector_src",
         "//src/gpu/text:GrSDFMaskFilter_src",
         "//src/gpu/text:GrSDFTControl_src",
         "//src/gpu/text:GrSlug_src",

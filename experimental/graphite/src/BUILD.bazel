@@ -288,6 +288,7 @@ generated_cc_atom(
         "//experimental/graphite/include:Recorder_hdr",
         "//experimental/graphite/src/geom:BoundsManager_hdr",
         "//experimental/graphite/src/geom:Shape_hdr",
+        "//include/core:SkPixmap_hdr",
         "//include/private:SkColorData_hdr",
     ],
 )
@@ -805,7 +806,10 @@ generated_cc_atom(
     name = "Resource_hdr",
     hdrs = ["Resource.h"],
     visibility = ["//:__subpackages__"],
-    deps = ["//include/core:SkTypes_hdr"],
+    deps = [
+        ":ResourceTypes_hdr",
+        "//include/core:SkTypes_hdr",
+    ],
 )
 
 generated_cc_atom(
@@ -916,6 +920,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Task_hdr",
+        "//include/core:SkImageInfo_hdr",
         "//include/core:SkRect_hdr",
         "//include/core:SkRefCnt_hdr",
     ],
@@ -927,10 +932,15 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":Buffer_hdr",
+        ":Caps_hdr",
         ":CommandBuffer_hdr",
         ":Log_hdr",
+        ":RecorderPriv_hdr",
+        ":ResourceProvider_hdr",
         ":TextureProxy_hdr",
         ":Texture_hdr",
         ":UploadTask_hdr",
+        "//experimental/graphite/include:Recorder_hdr",
+        "//src/core:SkConvertPixels_hdr",
     ],
 )

@@ -4838,6 +4838,8 @@ generated_cc_atom(
         "//include/core:SkCanvas_hdr",
         "//include/core:SkImage_hdr",
         "//include/core:SkPaint_hdr",
+        "//include/effects:SkGradientShader_hdr",
+        "//tools:Resources_hdr",
     ],
 )
 
@@ -7015,6 +7017,7 @@ generated_cc_atom(
         "//include/core:SkShader_hdr",
         "//include/core:SkSize_hdr",
         "//include/core:SkString_hdr",
+        "//include/core:SkTextBlob_hdr",
         "//include/core:SkTileMode_hdr",
         "//include/core:SkTypes_hdr",
         "//tools:ToolUtils_hdr",
@@ -9548,20 +9551,6 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/utils:SkTextUtils_hdr",
         "//tools:ToolUtils_hdr",
-    ],
-)
-
-generated_cc_atom(
-    name = "xform_src",
-    srcs = ["xform.cpp"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        ":gm_hdr",
-        "//experimental/xform:SkShape_hdr",
-        "//experimental/xform:SkXform_hdr",
-        "//include/core:SkCanvas_hdr",
-        "//include/core:SkPaint_hdr",
-        "//tools/timer:TimeUtils_hdr",
     ],
 )
 

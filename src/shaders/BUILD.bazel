@@ -272,6 +272,7 @@ generated_cc_atom(
         "//include/private:SkImageInfoPriv_hdr",
         "//src/core:SkArenaAlloc_hdr",
         "//src/core:SkImagePriv_hdr",
+        "//src/core:SkMatrixPriv_hdr",
         "//src/core:SkMatrixProvider_hdr",
         "//src/core:SkMatrixUtils_hdr",
         "//src/core:SkPicturePriv_hdr",

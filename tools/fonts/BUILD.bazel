@@ -30,6 +30,7 @@ generated_cc_atom(
         ":RandomScalerContext_hdr",
         "//include/core:SkBitmap_hdr",
         "//include/core:SkCanvas_hdr",
+        "//include/core:SkDrawable_hdr",
         "//include/core:SkPath_hdr",
         "//src/core:SkAdvancedTypefaceMetrics_hdr",
         "//src/core:SkGlyph_hdr",

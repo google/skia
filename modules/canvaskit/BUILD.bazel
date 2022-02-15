@@ -23,10 +23,6 @@ BASE_LINKOPTS = [
 ]
 
 RELEASE_OPTS = [
-    # Closure disabled until https://github.com/emscripten-core/emsdk/pull/941 is sorted out.
-    #"--closure 1",  # Run the closure compiler
-    # pass the externs file in
-    #"--closure-args=--externs=modules/canvaskit/externs.js",
     "-sASSERTIONS=0",  # Turn off assertions
     "-Oz",
 ]
@@ -151,6 +147,12 @@ CK_DEFINES = [
     ":enable_sksl_tracing_false": [],
 })
 
+CK_RELEASE_OPTS = [
+    "--closure 1",  # Run the closure compiler
+    # pass the externs file in
+    "--closure-args=--externs=$(location externs.js)",
+]
+
 CK_OPTS = BASE_LINKOPTS + [
     "-sEXPORT_NAME=CanvasKitInit",
     "-sINITIAL_MEMORY=128MB",
@@ -256,7 +258,7 @@ CK_OPTS = BASE_LINKOPTS + [
         "--pre-js",
         "modules/canvaskit/debug.js",
     ],
-    "//conditions:default": RELEASE_OPTS + [
+    "//conditions:default": RELEASE_OPTS + CK_RELEASE_OPTS + [
         "--pre-js",
         "modules/canvaskit/release.js",
     ],

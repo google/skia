@@ -44,7 +44,7 @@ func main() {
 	if (*url != "" && *sha256Hash == "") || (*url == "" && *sha256Hash != "") {
 		flag.Usage()
 		fatalf("Must set both of or non of --url and --sha256")
-	} else if !*jsonFromStdin {
+	} else if *url == "" && *sha256Hash == "" && !*jsonFromStdin {
 		fatalf("Must specify --url and --sha256 or --json")
 	}
 

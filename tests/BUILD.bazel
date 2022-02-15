@@ -1631,8 +1631,13 @@ generated_cc_atom(
     deps = [
         ":Test_hdr",
         "//include/core:SkTypes_hdr",
+        "//include/private/chromium:SkChromeRemoteGlyphCache_hdr",
         "//src/core:SkDescriptor_hdr",
+        "//src/core:SkFontPriv_hdr",
+        "//src/core:SkReadBuffer_hdr",
         "//src/core:SkScalerContext_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
     ],
 )
 
@@ -7006,5 +7011,23 @@ generated_cc_atom(
         "//src/utils:SkOSPath_hdr",
         "//tools:Resources_hdr",
         "//tools:ToolUtils_hdr",
+    ],
+)
+
+generated_cc_atom(
+    name = "GrGlyphVectorTest_src",
+    srcs = ["GrGlyphVectorTest.cpp"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":Test_hdr",
+        "//src/core:SkGlyphBuffer_hdr",
+        "//src/core:SkGlyph_hdr",
+        "//src/core:SkReadBuffer_hdr",
+        "//src/core:SkStrikeCache_hdr",
+        "//src/core:SkStrikeSpec_hdr",
+        "//src/core:SkWriteBuffer_hdr",
+        "//src/gpu:GrResourceProvider_hdr",
+        "//src/gpu:GrSubRunAllocator_hdr",
+        "//src/gpu/text:GrGlyphVector_hdr",
     ],
 )

@@ -455,6 +455,7 @@ generated_cc_atom(
         "//misc/cpp:imgui_stdlib_hdr",
         "//src/core:SkAutoPixmapStorage_hdr",
         "//src/core:SkColorSpacePriv_hdr",
+        "//src/core:SkGlyphRun_hdr",
         "//src/core:SkImagePriv_hdr",
         "//src/core:SkMD5_hdr",
         "//src/core:SkOSFile_hdr",
