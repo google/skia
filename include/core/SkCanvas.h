@@ -2352,15 +2352,15 @@ private:
         void reset(SkBaseDevice* device);
     };
 
-    SkDeque     fMCStack;
-    // points to top of stack
-    MCRec*      fMCRec;
-
     // the first N recs that can fit here mean we won't call malloc
     static constexpr int kMCRecSize      = 96; // most recent measurement
     static constexpr int kMCRecCount     = 32; // common depth for save/restores
 
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
+
+    SkDeque     fMCStack;
+    // points to top of stack
+    MCRec*      fMCRec;
 
     // Installed via init()
     sk_sp<SkBaseDevice> fBaseDevice;
