@@ -440,12 +440,13 @@ public:
         // We just pretend all streams are invalid. Our AFL-fuzzer
         // should still exercise this code; it's more resistant to OOM.
         return nullptr;
-#endif
+#else
         if (!dngImage->initFromPiex() && !dngImage->readDng()) {
             return nullptr;
         }
 
         return dngImage.release();
+#endif
     }
 
     /*
