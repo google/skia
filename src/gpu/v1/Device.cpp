@@ -1088,7 +1088,8 @@ SkBaseDevice* Device::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
             fContext.get(), SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
             fSurfaceDrawContext->colorInfo().refColorSpace(), fit, cinfo.fInfo.dimensions(), props,
             fSurfaceDrawContext->numSamples(), GrMipmapped::kNo,
-            fSurfaceDrawContext->asSurfaceProxy()->isProtected(), kBottomLeft_GrSurfaceOrigin,
+            fSurfaceDrawContext->asSurfaceProxy()->isProtected(),
+            fSurfaceDrawContext->origin(),
             SkBudgeted::kYes);
     if (!sdc) {
         return nullptr;

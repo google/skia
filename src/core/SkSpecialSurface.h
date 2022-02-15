@@ -62,7 +62,8 @@ public:
      */
     static sk_sp<SkSpecialSurface> MakeRenderTarget(GrRecordingContext*,
                                                     const SkImageInfo&,
-                                                    const SkSurfaceProps&);
+                                                    const SkSurfaceProps&,
+                                                    GrSurfaceOrigin);
 #endif
 
     /**
