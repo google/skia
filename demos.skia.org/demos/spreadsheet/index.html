@@ -12,16 +12,21 @@
   h1 {
       color: white;
   }
+  .hidden {
+      display: none;
+  }
 </style>
 
 <body>
   <h1>Large canvas with many numbers, like a spreadsheet</h1>
   <select id="numbers_impl">
-    <option value="drawText">drawText (single)</option>
-    <option value="drawGlyphs">drawGlyphs (batched)</option>
+    <option value="fillText">&lt;canvas&gt; fillText</option>
+    <option value="drawGlyphs">CK drawGlyphs (tuned)</option>
+    <option value="drawText">CK drawText (naive)</option>
   </select>
 
-  <canvas id=draw width=3840 height=2160></canvas>
+  <canvas id=ck_canvas width=3840 height=2160 class="hidden"></canvas>
+  <canvas id=canvas_2d width=3840 height=2160></canvas>
 </body>
 
 <script type="text/javascript" charset="utf-8">
@@ -33,15 +38,18 @@
   const ROW_HEIGHT = 15;
   const COLS = 77;
   const COL_WIDTH = 50;
+  const canvas2DEle = document.getElementById('canvas_2d');
+  const ckEle = document.getElementById('ck_canvas');
 
   ckLoaded.then((CanvasKit) => {
-    const surface = CanvasKit.MakeCanvasSurface('draw');
+    const canvas2dCtx = canvas2DEle.getContext('2d');
+    const surface = CanvasKit.MakeCanvasSurface('ck_canvas');
     if (!surface) {
       throw 'Could not make surface';
     }
 
     const colorPaints = {
-      "grey": CanvasKit.Color4f(0.3, 0.3, 0.3, 1.0),
+      "grey": CanvasKit.Color(76, 76, 76),
       "black": CanvasKit.BLACK,
       "white": CanvasKit.WHITE,
       "springGreen": CanvasKit.Color(0, 255, 127),
@@ -71,6 +79,13 @@
     const framesToMeasure = 10;
     choice.addEventListener("change", () => {
       frames = [];
+      if (choice.selectedIndex === 0) {
+        canvas2DEle.classList.remove('hidden');
+        ckEle.classList.add('hidden');
+      } else {
+        canvas2DEle.classList.add('hidden');
+        ckEle.classList.remove('hidden');
+      }
     })
     function drawFrame(canvas) {
       if (frames && frames.length === framesToMeasure) {
@@ -86,12 +101,15 @@
       } else if (frames) {
         frames.push(performance.now());
       }
-      canvas.clear(CanvasKit.BLACK);
 
-      if (choice.selectedIndex === 0) {
+      if (choice.selectedIndex === 2) {
+        canvas.clear(CanvasKit.BLACK);
         drawTextImpl(canvas);
-      } else {
+      } else if (choice.selectedIndex === 1) {
+        canvas.clear(CanvasKit.BLACK);
         drawGlyphsImpl(canvas);
+      } else {
+        fillTextImpl(canvas2dCtx);
       }
 
       surface.requestAnimationFrame(drawFrame)
@@ -194,6 +212,39 @@
         }
       }
       canvas.drawGlyphs(wasmGlyphIDArr, glyphLocationsMObj, 0, 0, textFont, colorPaints["white"]);
+    }
+
+    function fillTextImpl(ctx) {
+      ctx.font = '12px monospace';
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      const timer = performance.now() / 10000;
+      for (let row = 0; row < ROWS; row++) {
+        if (row % 2) {
+          ctx.fillStyle = 'rgb(76,76,76)';
+          ctx.fillRect(0, row * ROW_HEIGHT + 2, WIDTH, ROW_HEIGHT);
+        }
+        for (let col = 0; col < COLS; col++) {
+          let n = Math.abs(Math.sin(timer + data[row][col]));
+          let useWhiteFont = true;
+          if (n < 0.05) {
+            ctx.fillStyle = 'rgb(255, 99, 71)';
+            ctx.fillRect(col * COL_WIDTH - 2, (row - 1) * ROW_HEIGHT + 2, COL_WIDTH, ROW_HEIGHT);
+            useWhiteFont = false;
+          } else if (n > 0.95) {
+            ctx.fillStyle = 'rgb(0, 255, 127)';
+            ctx.fillRect(col * COL_WIDTH - 2, (row - 1) * ROW_HEIGHT + 2, COL_WIDTH, ROW_HEIGHT);
+            useWhiteFont = false;
+          }
+          const str = n.toFixed(4);
+          if (useWhiteFont) {
+            ctx.fillStyle = 'white';
+          } else {
+            ctx.fillStyle = 'black';
+          }
+          ctx.fillText(str, col * COL_WIDTH, row * ROW_HEIGHT);
+        }
+      }
     }
 
     surface.requestAnimationFrame(drawFrame);
