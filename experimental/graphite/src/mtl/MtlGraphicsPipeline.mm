@@ -31,7 +31,7 @@ std::string get_uniform_header(int bufferID, const char* name) {
     return result;
 }
 
-std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset) {
+std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset, int manglingSuffix) {
     std::string result;
 
     for (auto u : uniforms) {
@@ -66,6 +66,10 @@ std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset) {
 
         result.append(" ");
         result.append(u.name());
+        if (manglingSuffix >= 0) {
+            result.append("_");
+            result.append(std::to_string(manglingSuffix));
+        }
         if (u.count()) {
             result.append("[");
             result.append(std::to_string(u.count()));
@@ -81,7 +85,7 @@ std::string emit_SKSL_uniforms(int bufferID, const char* name, SkSpan<const SkUn
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
-    result += get_uniforms(uniforms, &offset);
+    result += get_uniforms(uniforms, &offset, -1);
     result.append("};\n\n");
 
     return result;
@@ -336,8 +340,8 @@ std::string GetMtlUniforms(int bufferID,
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
-    for (auto e : codeSnippets) {
-        result += get_uniforms(e.fUniforms, &offset);
+    for (int i = 0; i < (int) codeSnippets.size(); ++i) {
+        result += get_uniforms(codeSnippets[i].fUniforms, &offset, i);
     }
     result.append("};\n\n");
 

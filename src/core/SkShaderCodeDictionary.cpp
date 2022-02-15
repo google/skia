@@ -43,15 +43,16 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
                                                std::string* result,
                                                int indent) const {
     const SkShaderInfo::SnippetEntry& entry = fEntries[*entryIndex];
+    int curEntryIndex = *entryIndex;
 
-    std::string scopeOutputVar(std::string("outColor") + std::to_string(*entryIndex));
+    std::string scopeOutputVar(std::string("outColor") + std::to_string(curEntryIndex));
 
     add_indent(result, indent);
     SkSL::String::appendf(result, "half4 %s;\n", scopeOutputVar.c_str());
     add_indent(result, indent);
     *result += "{\n";
 
-    *result += (entry.fGlueCodeGenerator)(scopeOutputVar, entry, indent+1);
+    *result += (entry.fGlueCodeGenerator)(scopeOutputVar, curEntryIndex, entry, indent+1);
     add_indent(result, indent);
     *result += "}\n";
 
@@ -62,13 +63,13 @@ std::string SkShaderInfo::emitGlueCodeForEntry(int* entryIndex,
 //   each static code snippet (which can have an arbitrary signature) gets emitted once as a
 //            preamble
 //   glue code is then generated w/in the "main" method. The glue code is responsible for:
-//            1) gathering the correct (mangled?) uniforms
+//            1) gathering the correct (mangled) uniforms
 //            2) passing the uniforms and any other parameters to the helper method
 //   The result of the last code snippet is then copied into "sk_FragColor".
 // Note: that each entry's 'fStaticFunctionName' field must match the name of the method defined
 // in the 'fStaticSkSL' field.
 std::string SkShaderInfo::toSkSL() const {
-    // TODO: the uniform names need to be mangled for duplicates
+    // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     std::string result = skgpu::mtl::GetMtlUniforms(2, "FS", fEntries);
 
     std::set<const char*> emittedStaticSnippets;
@@ -157,6 +158,7 @@ namespace {
 //    half4 fStaticFunctionName(/* all uniforms as parameters */);
 // and stores the result in a variable named "resultName".
 std::string GenerateDefaultGlueCode(const std::string& resultName,
+                                    int entryIndex,
                                     const SkShaderInfo::SnippetEntry& entry,
                                     int indent) {
     std::string result;
@@ -164,8 +166,8 @@ std::string GenerateDefaultGlueCode(const std::string& resultName,
     add_indent(&result, indent);
     SkSL::String::appendf(&result, "%s = %s(", resultName.c_str(), entry.fStaticFunctionName);
     for (size_t i = 0; i < entry.fUniforms.size(); ++i) {
-        // TODO: mangle the uniform names w/ the entry's index
-        result += entry.fUniforms[i].name();
+        // The uniform names are mangled w/ the entry's index as a suffix
+        result += entry.fUniforms[i].name() + std::string("_") + std::to_string(entryIndex);
 
         if (i+1 < entry.fUniforms.size()) {
             result += ", ";
@@ -184,7 +186,7 @@ static constexpr int kFourStopGradient = 4;
 //   kMaxStops offsets
 //   2 points
 //   2 radii
-static constexpr int kNumGradientUniforms = 6;
+static constexpr int kNumGradientUniforms = 7;
 static constexpr SkUniform kGradientUniforms[kNumGradientUniforms] = {
         { "colors",  SkSLType::kFloat4, kFourStopGradient },
         { "offsets", SkSLType::kFloat, kFourStopGradient },
@@ -192,6 +194,7 @@ static constexpr SkUniform kGradientUniforms[kNumGradientUniforms] = {
         { "point1",  SkSLType::kFloat2 },
         { "radius0", SkSLType::kFloat },
         { "radius1", SkSLType::kFloat },
+        { "padding", SkSLType::kFloat2 } // TODO: add automatic uniform padding
 };
 
 static const char *kLinearGradient4Name = "linear_grad_4_shader";
@@ -202,7 +205,8 @@ static const char *kLinearGradient4SkSL =
         "                           float2 point0Param,\n"
         "                           float2 point1Param,\n"
         "                           float radius0Param,\n"
-        "                           float radius1Param) {\n"
+        "                           float radius1Param,\n"
+        "                           float2 padding) {\n"
         "    float2 pos = sk_FragCoord.xy;\n"
         "    float2 delta = point1Param - point0Param;\n"
         "    float2 pt = pos - point0Param;\n"

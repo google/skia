@@ -42,22 +42,22 @@ std::tuple<SkPaint, int> create_paint(skgpu::ShaderCombo::ShaderType shaderType,
             break;
         case skgpu::ShaderCombo::ShaderType::kLinearGradient:
             s = SkGradientShader::MakeLinear(pts, colors, offsets, 2, tm);
-            numUniforms += 6;
+            numUniforms += 7;
             break;
         case skgpu::ShaderCombo::ShaderType::kRadialGradient:
             s = SkGradientShader::MakeRadial({0, 0}, 100, colors, offsets, 2, tm);
-            numUniforms += 6;
+            numUniforms += 7;
             break;
         case skgpu::ShaderCombo::ShaderType::kSweepGradient:
             s = SkGradientShader::MakeSweep(0, 0, colors, offsets, 2, tm,
                                             0, 359, 0, nullptr);
-            numUniforms += 6;
+            numUniforms += 7;
             break;
         case skgpu::ShaderCombo::ShaderType::kConicalGradient:
             s = SkGradientShader::MakeTwoPointConical({100, 100}, 100,
                                                       {-100, -100}, 100,
                                                       colors, offsets, 2, tm);
-            numUniforms += 6;
+            numUniforms += 7;
             break;
     }
     SkPaint p;
