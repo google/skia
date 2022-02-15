@@ -53,14 +53,7 @@ protected:
 private:
     class Offscreen {
     public:
-        Offscreen()
-            : fRGBSpace(nullptr)
-            , fCG(nullptr)
-            , fDoAA(false)
-            , fDoLCD(false)
-        {
-            fSize.set(0, 0);
-        }
+        Offscreen(SkColor foregroundColor);
 
         CGRGBPixel* getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                           CGGlyph glyphID, size_t* rowBytesPtr, bool generateA8FromLCD);
@@ -74,6 +67,7 @@ private:
 
         // cached state
         SkUniqueCFRef<CGContextRef> fCG;
+        SkUniqueCFRef<CGColorRef> fForegroundColor;
         SkISize fSize;
         bool fDoAA;
         bool fDoLCD;

@@ -95,7 +95,7 @@ protected:
     int onGetUPEM() const override;
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     std::unique_ptr<SkStreamAsset> onOpenExistingStream(int* ttcIndex) const override;
-    bool onGlyphMaskNeedsCurrentColor() const override { return false; }
+    bool onGlyphMaskNeedsCurrentColor() const override;
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
     void onGetFamilyName(SkString* familyName) const override;
