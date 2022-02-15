@@ -50,6 +50,16 @@ using AtlasTextOp = skgpu::v1::AtlasTextOp;
 // Note:
 //   In order to use GrSlugs, you need to set the fSupportBilerpFromGlyphAtlas on GrContextOptions.
 
+enum GrSubRun::SubRunType : int {
+    kBad = 0,  // Make this 0 to line up with errors from readInt.
+    kDirectMask,
+    kSDFT,
+    kTransformMask,
+    kPath,
+    kDrawable,
+    kSubRunTypeCount,
+};
+
 // -- GrBlobSubRun ---------------------------------------------------------------------------------
 class GrBlobSubRun {
 public:
@@ -509,6 +519,9 @@ public:
     }
     const GrAtlasSubRun* testingOnly_atlasSubRun() const override { return nullptr; }
 
+protected:
+    SubRunType subRunType() const override { return kPath; }
+
 private:
     PathOpSubmitter fPathDrawing;
 };
@@ -636,6 +649,9 @@ public:
 
     int unflattenSize() const override { return 0; }
 
+protected:
+    SubRunType subRunType() const override { return kDrawable; }
+
 private:
     DrawableOpSubmitter fDrawingDrawing;
 };
@@ -707,6 +723,10 @@ public:
                         GrColor color,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin,
                         SkIRect clip) const override;
+
+protected:
+    SubRunType subRunType() const override { return kDirectMask; }
+
 private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
@@ -1113,6 +1133,9 @@ public:
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
     int glyphCount() const override;
 
+protected:
+    SubRunType subRunType() const override { return kTransformMask; }
+
 private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
@@ -1323,6 +1346,9 @@ public:
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
     int glyphCount() const override;
+
+protected:
+    SubRunType subRunType() const override { return kSDFT; }
 
 private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
@@ -2724,6 +2750,9 @@ public:
                         GrColor color,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin,
                         SkIRect clip) const override;
+
+protected:
+    SubRunType subRunType() const override { return kDirectMask; }
 
 private:
     // Return true if the positionMatrix represents an integer translation. Return the device

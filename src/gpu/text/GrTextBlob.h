@@ -38,7 +38,7 @@ class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
+namespace skgpu::v1 { class SurfaceDrawContext; }
 
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
 // GrAtlasSubRun is the API that AtlasTextOp uses to generate vertex data for drawing.
@@ -110,6 +110,10 @@ public:
     // of the slug. If it's off then there may be more allocations needed to unflatten.
     virtual int unflattenSize() const = 0;
 
+protected:
+    enum SubRunType : int;
+    virtual SubRunType subRunType() const = 0;
+
 private:
     friend class GrSubRunList;
     GrSubRunOwner fNext;
@@ -172,7 +176,6 @@ private:
 //
 class GrTextBlob final : public GrTextReferenceFrame, public SkGlyphRunPainterInterface {
 public:
-
     // Key is not used as part of a hash map, so the hash is never taken. It's only used in a
     // list search using operator =().
     struct Key {
