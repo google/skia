@@ -423,13 +423,18 @@ class Mapping {
 public:
     Mapping() = default;
 
-    // This constructor allows the decomposition to be explicitly provided, requires
-    // layerToDev to be invertible.
-    Mapping(const SkMatrix& layerToDev, const SkMatrix& paramToLayer)
+    // Helper constructor that equates device and layer space to the same coordinate space.
+    explicit Mapping(const SkMatrix& paramToLayer)
+            : fLayerToDevMatrix(SkMatrix::I())
+            , fParamToLayerMatrix(paramToLayer)
+            , fDevToLayerMatrix(SkMatrix::I()) {}
+
+    // This constructor allows the decomposition to be explicitly provided, assumes that
+    // 'layerToDev's inverse has already been calculated in 'devToLayer'
+    Mapping(const SkMatrix& layerToDev, const SkMatrix& devToLayer, const SkMatrix& paramToLayer)
             : fLayerToDevMatrix(layerToDev)
-            , fParamToLayerMatrix(paramToLayer) {
-        SkAssertResult(fLayerToDevMatrix.invert(&fDevToLayerMatrix));
-    }
+            , fParamToLayerMatrix(paramToLayer)
+            , fDevToLayerMatrix(devToLayer) {}
 
     // Sets this Mapping to the default decomposition of the canvas's total transform, given the
     // requirements of the 'filter'. Returns false if the decomposition failed or would produce an
@@ -578,7 +583,7 @@ public:
     // with an origin of (0,0).
     Context(const SkMatrix& layerMatrix, const SkIRect& clipBounds, SkImageFilterCache* cache,
             SkColorType colorType, SkColorSpace* colorSpace, const SkSpecialImage* source)
-        : fMapping(SkMatrix::I(), layerMatrix)
+        : fMapping(layerMatrix)
         , fDesiredOutput(clipBounds)
         , fCache(cache)
         , fColorType(colorType)

@@ -232,7 +232,7 @@ public:
 
         // For visualization purposes, we want to show the layer-space output, this is what we get
         // when contentBounds is provided as a hint in local/parameter space.
-        skif::Mapping layerOnly(SkMatrix::I(), mapping.layerMatrix());
+        skif::Mapping layerOnly{mapping.layerMatrix()};
         skif::DeviceSpace<SkIRect> hintedOutputBounds = as_IFB(fBlur)->getOutputBounds(
                 layerOnly, contentBounds);
         canvas->drawRect(SkRect::Make(SkIRect(hintedOutputBounds)), line_paint(SK_ColorBLUE));

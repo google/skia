@@ -765,7 +765,7 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
         // When a filter is involved, the layer size may be larger than the default maxLayerDim due
         // to required inputs for filters (e.g. a displacement map with a large radius).
         if (layerBounds.width() > maxLayerDim || layerBounds.height() > maxLayerDim) {
-            skif::Mapping idealMapping(SkMatrix::I(), mapping.layerMatrix());
+            skif::Mapping idealMapping{mapping.layerMatrix()};
             auto idealLayerBounds = as_IFB(filter)->getInputBounds(idealMapping, targetOutput,
                                                                    contentBounds);
             maxLayerDim = std::max(std::max(idealLayerBounds.width(), idealLayerBounds.height()),
@@ -847,9 +847,15 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
     skif::LayerSpace<SkIRect> requiredInput;
     if (compat == DeviceCompatibleWithFilter::kYes) {
         // Just use the relative transform from src to dst and the src's whole image, since
-        // internalSaveLayer should have already determined what was necessary.
+        // internalSaveLayer should have already determined what was necessary. We explicitly
+        // construct the inverse (dst->src) to avoid the case where src's and dst's coord transforms
+        // were individually invertible by SkM44::invert() but their product is considered not
+        // invertible by SkMatrix::invert(). When this happens the matrices are already poorly
+        // conditioned so getRelativeTransform() gives us something reasonable.
         SkASSERT(scaleFactor == 1.0f);
-        mapping = skif::Mapping(src->getRelativeTransform(*dst), localToSrc);
+        mapping = skif::Mapping(src->getRelativeTransform(*dst),
+                                dst->getRelativeTransform(*src),
+                                localToSrc);
         requiredInput = skif::LayerSpace<SkIRect>(SkIRect::MakeSize(srcDims));
         SkASSERT(!requiredInput.isEmpty());
     } else {
@@ -2213,7 +2219,13 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
             // pre-concat here.
             SkMatrix layerToDevice = device->localToDevice();
             layerToDevice.preTranslate(x, y);
-            skif::Mapping mapping(layerToDevice, SkMatrix::Translate(-x, -y));
+
+            SkMatrix deviceToLayer;
+            if (!layerToDevice.invert(&deviceToLayer)) {
+                return; // bad ctm, draw nothing
+            }
+
+            skif::Mapping mapping(layerToDevice, deviceToLayer, SkMatrix::Translate(-x, -y));
 
             if (this->predrawNotify()) {
                 device->drawFilteredImage(mapping, special.get(), filter.get(), sampling,realPaint);
