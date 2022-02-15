@@ -190,7 +190,18 @@
   {"name": "Canary-Chromium"},
   {"name": "Canary-Flutter"},
   {"name": "Canary-G3"},
-  {"name": "CodeSize-dm-Debian10-Clang-x86_64-Release"},
+  {"name": "CodeSize-dm-Debian10-Clang-x86_64-Debug",
+   "cq_config": {}
+   },
+  {"name": "CodeSize-dm-Debian10-Clang-x86_64-Release",
+   "cq_config": {}
+   },
+  {"name": "CodeSize-fm-Debian10-Clang-x86_64-Debug",
+   "cq_config": {}
+   },
+  {"name": "CodeSize-fm-Debian10-Clang-x86_64-Release",
+   "cq_config": {}
+   },
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN"},
