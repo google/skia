@@ -73,12 +73,6 @@ if [[ $@ == *viewer* ]]; then
   IS_OFFICIAL_BUILD="false"
 fi
 
-ENABLE_MANAGED_SKOTTIE="true"
-if [[ $@ == *no_managed_skottie* || $@ == *no_skottie* ]]; then
-  echo "Omitting managed Skottie"
-  ENABLED_MANAGED_SKOTTIE="false"
-fi
-
 ENABLE_PARTICLES="true"
 if [[ $@ == *no_particles* ]]; then
   echo "Omitting Particles"
@@ -239,7 +233,6 @@ echo "Compiling"
   skia_canvaskit_enable_effects_deserialization=${DESERIALIZE_EFFECTS} \
   skia_canvaskit_enable_skottie=${ENABLE_SKOTTIE} \
   skia_canvaskit_include_viewer=${INCLUDE_VIEWER} \
-  skia_canvaskit_enable_managed_skottie=${ENABLE_MANAGED_SKOTTIE} \
   skia_canvaskit_enable_particles=${ENABLE_PARTICLES} \
   skia_canvaskit_enable_pathops=${ENABLE_PATHOPS} \
   skia_canvaskit_enable_rt_shader=${ENABLE_RT_SHADER} \

@@ -9,25 +9,20 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "modules/canvaskit/WasmCommon.h"
 #include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
 
 #include <string>
 #include <vector>
-
 #include <emscripten.h>
 #include <emscripten/bind.h>
-#include "modules/canvaskit/WasmCommon.h"
-
-#if SK_INCLUDE_MANAGED_SKOTTIE
-#include "modules/skottie/include/SkottieProperty.h"
-#include "modules/skottie/utils/SkottieUtils.h"
-#include "modules/skresources/include/SkResources.h"
-#endif // SK_INCLUDE_MANAGED_SKOTTIE
 
 using namespace emscripten;
 
-#if SK_INCLUDE_MANAGED_SKOTTIE
 namespace {
 
 // WebTrack wraps a JS object that has a 'seek' method.
@@ -280,7 +275,6 @@ private:
 };
 
 } // anonymous ns
-#endif // SK_INCLUDE_MANAGED_SKOTTIE
 
 EMSCRIPTEN_BINDINGS(Skottie) {
     // Animation things (may eventually go in own library)
@@ -313,7 +307,6 @@ EMSCRIPTEN_BINDINGS(Skottie) {
     }));
     constant("skottie", true);
 
-#if SK_INCLUDE_MANAGED_SKOTTIE
     class_<ManagedAnimation>("ManagedAnimation")
         .smart_ptr<sk_sp<ManagedAnimation>>("sk_sp<ManagedAnimation>")
         .function("version"   , &ManagedAnimation::version)
@@ -381,5 +374,4 @@ EMSCRIPTEN_BINDINGS(Skottie) {
                                       prop_prefix, std::move(logger));
     }));
     constant("managed_skottie", true);
-#endif // SK_INCLUDE_MANAGED_SKOTTIE
 }

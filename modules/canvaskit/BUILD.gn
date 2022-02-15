@@ -114,10 +114,10 @@ skia_wasm_lib("canvaskit") {
     ]
   }
   if (skia_canvaskit_enable_skottie) {
-    sources += [ "skottie_bindings.cpp" ]
-    if (skia_canvaskit_enable_managed_skottie) {
-      sources += [ "../../modules/skottie/utils/SkottieUtils.cpp" ]
-    }
+    sources += [
+      "../../modules/skottie/utils/SkottieUtils.cpp",
+      "skottie_bindings.cpp",
+    ]
   }
   if (skia_canvaskit_enable_particles) {
     sources += [ "particles_bindings.cpp" ]
@@ -321,10 +321,10 @@ skia_wasm_lib("canvaskit") {
     "SK_SHAPER_HARFBUZZ_AVAILABLE",
   ]
   if (skia_canvaskit_enable_paragraph) {
-    defines += [ "SK_INCLUDE_PARAGRAPH=1" ]
+    defines += [ "CK_INCLUDE_PARAGRAPH" ]
   }
   if (skia_canvaskit_enable_skp_serialization) {
-    defines += [ "SK_SERIALIZE_SKP" ]
+    defines += [ "CK_SERIALIZE_SKP" ]
   }
   if (skia_enable_gpu) {
     defines += [
@@ -338,26 +338,21 @@ skia_wasm_lib("canvaskit") {
       "SK_ENABLE_SKSL",
     ]
   }
-  if (!skia_canvaskit_enable_skottie ||
-      !skia_canvaskit_enable_managed_skottie) {
-    defines += [ "SK_INCLUDE_MANAGED_SKOTTIE=0" ]
-  } else {
-    defines += [ "SK_INCLUDE_MANAGED_SKOTTIE=1" ]
-  }
+
   if (skia_canvaskit_enable_pathops) {
-    defines += [ "SK_INCLUDE_PATHOPS" ]
+    defines += [ "CK_INCLUDE_PATHOPS" ]
   }
   if (skia_canvaskit_enable_rt_shader) {
-    defines += [ "SK_INCLUDE_RUNTIME_EFFECT" ]
+    defines += [ "CK_INCLUDE_RUNTIME_EFFECT" ]
   }
   if (skia_canvaskit_enable_sksl_trace) {
-    defines += [ "SK_INCLUDE_SKSL_TRACE" ]
+    defines += [ "CK_INCLUDE_SKSL_TRACE" ]
   }
   if (!skia_canvaskit_enable_alias_font) {
     defines += [ "CANVASKIT_NO_ALIAS_FONT" ]
   }
 
   if (!skia_canvaskit_enable_font) {
-    defines += [ "SK_NO_FONTS" ]
+    defines += [ "CK_NO_FONTS" ]
   }
 }

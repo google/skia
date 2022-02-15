@@ -127,23 +127,18 @@ genrule(
 # Note: These are defines that only impact the _bindings.cpp files in this folder.
 # Any defines that need to effect the entire Skia build should go in //bazel/BUILD.bazel
 CK_DEFINES = [
-    "SK_INCLUDE_PATHOPS=1",
+    "CK_INCLUDE_PATHOPS",
 ] + select({
-    ":enable_fonts_true": ["SK_INCLUDE_PARAGRAPH=1"],
-    ":enable_fonts_false": ["SK_NO_FONTS"],
+    ":enable_fonts_true": ["CK_INCLUDE_PARAGRAPH"],
+    ":enable_fonts_false": ["CK_NO_FONTS"],
 }) + select({
-    # TODO(kjlubick) Get rid of this extra define - if we are including skottie, we will include the
-    #   managed version.
-    ":enable_skottie_true": ["SK_INCLUDE_MANAGED_SKOTTIE=1"],
-    ":enable_skottie_false": [],
-}) + select({
-    ":enable_skp_serialization_true": ["SK_SERIALIZE_SKP=1"],
+    ":enable_skp_serialization_true": ["CK_SERIALIZE_SKP=1"],
     ":enable_skp_serialization_false": [],
 }) + select({
-    ":enable_runtime_effect_true": ["SK_INCLUDE_RUNTIME_EFFECT=1"],
+    ":enable_runtime_effect_true": ["CK_INCLUDE_RUNTIME_EFFECT=1"],
     ":enable_runtime_effect_false": [],
 }) + select({
-    ":enable_sksl_tracing_true": ["SK_INCLUDE_SKSL_TRACE=1"],
+    ":enable_sksl_tracing_true": ["CK_INCLUDE_SKSL_TRACE=1"],
     ":enable_sksl_tracing_false": [],
 })
 

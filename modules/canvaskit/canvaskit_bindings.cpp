@@ -73,25 +73,25 @@
 #include <webgl/webgl1.h>
 #endif
 
-#ifndef SK_NO_FONTS
+#ifndef CK_NO_FONTS
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
-#ifdef SK_INCLUDE_PARAGRAPH
+#ifdef CK_INCLUDE_PARAGRAPH
 #include "modules/skparagraph/include/Paragraph.h"
-#endif // SK_INCLUDE_PARAGRAPH
-#endif // SK_NO_FONTS
+#endif // CK_INCLUDE_PARAGRAPH
+#endif // CK_NO_FONTS
 
-#ifdef SK_INCLUDE_PATHOPS
+#ifdef CK_INCLUDE_PATHOPS
 #include "include/pathops/SkPathOps.h"
 #endif
 
-#if defined(SK_INCLUDE_RUNTIME_EFFECT) && defined(SK_INCLUDE_SKSL_TRACE)
+#if defined(CK_INCLUDE_RUNTIME_EFFECT) && defined(CK_INCLUDE_SKSL_TRACE)
 #include "include/sksl/SkSLDebugTrace.h"
 #endif
 
-#ifndef SK_NO_FONTS
+#ifndef CK_NO_FONTS
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(sk_sp<SkData>* datas, int n);
 #endif
 
@@ -327,7 +327,7 @@ void ApplyTransform(SkPath& orig,
     orig.transform(m);
 }
 
-#ifdef SK_INCLUDE_PATHOPS
+#ifdef CK_INCLUDE_PATHOPS
 bool ApplySimplify(SkPath& path) {
     return Simplify(path, &path);
 }
@@ -626,7 +626,7 @@ void computeTonalColors(WASMPointerF32 cPtrAmbi, WASMPointerF32 cPtrSpot) {
     memcpy(spotFloats, spot4f.vec(), 4 * sizeof(SkScalar));
 }
 
-#ifdef SK_INCLUDE_RUNTIME_EFFECT
+#ifdef CK_INCLUDE_RUNTIME_EFFECT
 struct RuntimeEffectUniform {
     int columns;
     int rows;
@@ -693,7 +693,7 @@ namespace emscripten {
         void raw_destructor<SkVertices>(SkVertices* ptr) {
         }
 
-#ifndef SK_NO_FONTS
+#ifndef CK_NO_FONTS
         template<>
         void raw_destructor<SkTextBlob>(SkTextBlob* ptr) {
         }
@@ -867,7 +867,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                               flags, outputBounds);
     }));
 
-#ifdef SK_SERIALIZE_SKP
+#ifdef CK_SERIALIZE_SKP
     function("_MakePicture", optional_override([](WASMPointerU8 dPtr,
                                                   size_t bytes)->sk_sp<SkPicture> {
         uint8_t* d = reinterpret_cast<uint8_t*>(dPtr);
@@ -1068,7 +1068,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawOval(*oval, paint);
         }))
         .function("_drawPaint", &SkCanvas::drawPaint)
-#ifdef SK_INCLUDE_PARAGRAPH
+#ifdef CK_INCLUDE_PARAGRAPH
         .function("_drawParagraph", optional_override([](SkCanvas& self, skia::textlayout::Paragraph* p,
                                                         SkScalar x, SkScalar y) {
             p->paint(&self, x, y);
@@ -1124,7 +1124,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                       ptrToSkColor4f(spotColorPtr).toSkColor(),
                                       flags);
         }))
-#ifndef SK_NO_FONTS
+#ifndef CK_NO_FONTS
         .function("_drawSimpleText", optional_override([](SkCanvas& self, WASMPointerU8 sptr,
                                                           size_t len, SkScalar x, SkScalar y, const SkFont& font,
                                                           const SkPaint& paint) {
@@ -1234,7 +1234,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("isClosed", &SkContourMeasure::isClosed)
         .function("length", &SkContourMeasure::length);
 
-#ifndef SK_NO_FONTS
+#ifndef CK_NO_FONTS
     class_<SkFont>("Font")
         .constructor<>()
         .constructor<sk_sp<SkTypeface>>()
@@ -1348,7 +1348,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return self.makeFromData(fontData);
     }), allow_raw_pointers());
-#endif // SK_NO_FONTS
+#endif // CK_NO_FONTS
 
     class_<SkImage>("Image")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<Image>")
@@ -1529,7 +1529,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     // TODO(kjlubick, reed) Make SkPath immutable and only creatable via a factory/builder.
     class_<SkPath>("Path")
         .constructor<>()
-#ifdef SK_INCLUDE_PATHOPS
+#ifdef CK_INCLUDE_PATHOPS
         .class_function("MakeFromOp", &MakePathFromOp)
 #endif
         .class_function("MakeFromSVGString", &MakePathFromSVGString)
@@ -1606,7 +1606,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_trim", &ApplyTrim)
         .function("_stroke", &ApplyStroke)
 
-#ifdef SK_INCLUDE_PATHOPS
+#ifdef CK_INCLUDE_PATHOPS
         // PathOps
         .function("_simplify", &ApplySimplify)
         .function("_op", &ApplyPathOp)
@@ -1657,7 +1657,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkRect* tileRect = reinterpret_cast<SkRect*>(rPtr);
             return self.makeShader(tmx, tmy, mode, &localMatrix, tileRect);
         }), allow_raw_pointers())
-#ifdef SK_SERIALIZE_SKP
+#ifdef CK_SERIALIZE_SKP
         // The serialized format of an SkPicture (informally called an "skp"), is not something
         // that clients should ever rely on.  The format may change at anytime and no promises
         // are made for backwards or forward compatibility.
@@ -1799,8 +1799,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return nullptr;
         }), allow_raw_pointers());
 
-#ifdef SK_INCLUDE_RUNTIME_EFFECT
-#ifdef SK_INCLUDE_SKSL_TRACE
+#ifdef CK_INCLUDE_RUNTIME_EFFECT
+#ifdef CK_INCLUDE_SKSL_TRACE
     class_<SkSL::DebugTrace>("DebugTrace")
         .smart_ptr<sk_sp<SkSL::DebugTrace>>("sk_sp<DebugTrace>")
         .function("writeTrace", optional_override([](SkSL::DebugTrace& self) -> std::string {
@@ -1828,7 +1828,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return effect;
         }))
-#ifdef SK_INCLUDE_SKSL_TRACE
+#ifdef CK_INCLUDE_SKSL_TRACE
         .class_function("MakeTraced", optional_override([](
                 sk_sp<SkShader> shader,
                 int traceCoordX,
@@ -1961,7 +1961,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
         .function("width", &SkSurface::width);
 
-#ifndef SK_NO_FONTS
+#ifndef CK_NO_FONTS
     class_<SkTextBlob>("TextBlob")
         .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<TextBlob>")
         .class_function("_MakeFromRSXform", optional_override([](WASMPointerU8 sptr,
@@ -2130,7 +2130,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Rotate",    SkPath1DPathEffect::Style::kRotate_Style)
         .value("Morph",     SkPath1DPathEffect::Style::kMorph_Style);
 
-#ifdef SK_INCLUDE_PATHOPS
+#ifdef CK_INCLUDE_PATHOPS
     enum_<SkPathOp>("PathOp")
         .value("Difference",         SkPathOp::kDifference_SkPathOp)
         .value("Intersect",          SkPathOp::kIntersect_SkPathOp)
@@ -2154,7 +2154,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Round", SkPaint::Join::kRound_Join)
         .value("Bevel", SkPaint::Join::kBevel_Join);
 
-#ifndef SK_NO_FONTS
+#ifndef CK_NO_FONTS
     enum_<SkFontHinting>("FontHinting")
         .value("None",   SkFontHinting::kNone)
         .value("Slight", SkFontHinting::kSlight)
@@ -2212,7 +2212,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("ShadowGeometricOnly", (int)SkShadowFlags::kGeometricOnly_ShadowFlag);
     constant("ShadowDirectionalLight", (int)SkShadowFlags::kDirectionalLight_ShadowFlag);
 
-#ifdef SK_INCLUDE_PARAGRAPH
+#ifdef CK_INCLUDE_PARAGRAPH
     constant("_GlyphRunFlags_isWhiteSpace", (int)skia::textlayout::Paragraph::kWhiteSpace_VisitorFlag);
 #endif
 }

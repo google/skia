@@ -5,7 +5,6 @@
 declare_args() {
   skia_canvaskit_enable_canvas_bindings = true
   skia_canvaskit_enable_skottie = true
-  skia_canvaskit_enable_managed_skottie = true
   skia_canvaskit_enable_pathops = true
   skia_canvaskit_enable_particles = true
   skia_canvaskit_enable_rt_shader = true
