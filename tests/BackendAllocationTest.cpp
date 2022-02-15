@@ -858,16 +858,16 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                         // update our validation code to use a "raw" read that doesn't impose a
                         // color type but for now we just munge the data we upload to match the
                         // expectation.
-                        GrSwizzle swizzle;
+                        skgpu::Swizzle swizzle;
                         switch (combo.fColorType) {
                             case GrColorType::kAlpha_8:
-                                swizzle = GrSwizzle("aaaa");
+                                swizzle = skgpu::Swizzle("aaaa");
                                 break;
                             case GrColorType::kAlpha_16:
-                                swizzle = GrSwizzle("aaaa");
+                                swizzle = skgpu::Swizzle("aaaa");
                                 break;
                             case GrColorType::kAlpha_F16:
-                                swizzle = GrSwizzle("aaaa");
+                                swizzle = skgpu::Swizzle("aaaa");
                                 break;
                             default:
                                 break;
@@ -1003,27 +1003,27 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     // Ideally we'd update our validation code to use a "raw" read that doesn't
                     // impose a color type but for now we just munge the data we upload to match the
                     // expectation.
-                    GrSwizzle swizzle;
+                    skgpu::Swizzle swizzle;
                     switch (combo.fColorType) {
                         case GrColorType::kAlpha_8:
                             SkASSERT(combo.fFormat == VK_FORMAT_R8_UNORM);
-                            swizzle = GrSwizzle("aaaa");
+                            swizzle = skgpu::Swizzle("aaaa");
                             break;
                         case GrColorType::kAlpha_16:
                             SkASSERT(combo.fFormat == VK_FORMAT_R16_UNORM);
-                            swizzle = GrSwizzle("aaaa");
+                            swizzle = skgpu::Swizzle("aaaa");
                             break;
                         case GrColorType::kAlpha_F16:
                             SkASSERT(combo.fFormat == VK_FORMAT_R16_SFLOAT);
-                            swizzle = GrSwizzle("aaaa");
+                            swizzle = skgpu::Swizzle("aaaa");
                             break;
                         case GrColorType::kABGR_4444:
                             if (combo.fFormat == VK_FORMAT_B4G4R4A4_UNORM_PACK16) {
-                                swizzle = GrSwizzle("bgra");
+                                swizzle = skgpu::Swizzle("bgra");
                             }
                             break;
                         default:
-                            swizzle = GrSwizzle("rgba");
+                            swizzle = skgpu::Swizzle("rgba");
                             break;
                     }
 

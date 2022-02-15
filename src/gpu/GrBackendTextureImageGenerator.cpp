@@ -163,7 +163,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
     GrMipmapStatus mipmapStatus = fBackendTexture.hasMipmaps()
             ? GrMipmapStatus::kValid : GrMipmapStatus::kNotAllocated;
 
-    GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(backendFormat, grColorType);
+    skgpu::Swizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(backendFormat,
+                                                                         grColorType);
 
     // Must make copies of member variables to capture in the lambda since this image generator may
     // be deleted before we actually execute the lambda.

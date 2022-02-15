@@ -323,7 +323,8 @@ GrSurfaceProxyView render_sw_mask(GrRecordingContext* context,
         GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                GrRenderable::kNo);
 
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
+        skgpu::Swizzle swizzle = context->priv().caps()->getReadSwizzle(format,
+                                                                        GrColorType::kAlpha_8);
         auto proxy = proxyProvider->createProxy(format, bounds.size(), GrRenderable::kNo, 1,
                                                 GrMipMapped::kNo, SkBackingFit::kApprox,
                                                 SkBudgeted::kYes, GrProtected::kNo);

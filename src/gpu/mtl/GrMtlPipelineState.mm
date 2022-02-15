@@ -115,7 +115,7 @@ void GrMtlPipelineState::setTextures(const GrGeometryProcessor& geomProc,
 }
 
 void GrMtlPipelineState::setDrawState(GrMtlRenderCommandEncoder* renderCmdEncoder,
-                                      const GrSwizzle& writeSwizzle,
+                                      const skgpu::Swizzle& writeSwizzle,
                                       const GrXferProcessor& xferProcessor) {
     this->bindUniforms(renderCmdEncoder);
     this->setBlendConstants(renderCmdEncoder, writeSwizzle, xferProcessor);
@@ -158,7 +158,7 @@ void GrMtlPipelineState::setRenderTargetState(SkISize colorAttachmentDimensions,
 }
 
 void GrMtlPipelineState::setBlendConstants(GrMtlRenderCommandEncoder* renderCmdEncoder,
-                                           const GrSwizzle& swizzle,
+                                           const skgpu::Swizzle& swizzle,
                                            const GrXferProcessor& xferProcessor) {
     if (!renderCmdEncoder) {
         return;

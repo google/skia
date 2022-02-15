@@ -139,16 +139,16 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                     // Ideally we'd update our validation code to use a "raw" read that doesn't
                     // impose a color type but for now we just munge the data we upload to match the
                     // expectation.
-                    GrSwizzle swizzle;
+                    skgpu::Swizzle swizzle;
                     switch (combo.fColorType) {
                         case GrColorType::kAlpha_8:
-                            swizzle = GrSwizzle("aaaa");
+                            swizzle = skgpu::Swizzle("aaaa");
                             break;
                         case GrColorType::kAlpha_16:
-                            swizzle = GrSwizzle("aaaa");
+                            swizzle = skgpu::Swizzle("aaaa");
                             break;
                         case GrColorType::kAlpha_F16:
-                            swizzle = GrSwizzle("aaaa");
+                            swizzle = skgpu::Swizzle("aaaa");
                             break;
                         default:
                             break;

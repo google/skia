@@ -53,7 +53,7 @@ static bool draw_mask(skgpu::v1::SurfaceDrawContext* sdc,
         return false;
     }
 
-    mask.concatSwizzle(GrSwizzle("aaaa"));
+    mask.concatSwizzle(skgpu::Swizzle("aaaa"));
 
     SkMatrix matrix = SkMatrix::Translate(-SkIntToScalar(maskBounds.fLeft),
                                           -SkIntToScalar(maskBounds.fTop));

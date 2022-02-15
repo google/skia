@@ -139,7 +139,7 @@ private:
     };
 
     mutable ProxyChooser fChooser;
-    GrSwizzle fSwizzle;
+    skgpu::Swizzle fSwizzle;
     GrSurfaceOrigin fOrigin;
 
     using INHERITED = SkImage_GpuBase;

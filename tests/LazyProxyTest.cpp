@@ -143,7 +143,7 @@ public:
             static const GrSurfaceOrigin kOrigin = kBottomLeft_GrSurfaceOrigin;
             const GrBackendFormat format =
                 ctx->priv().caps()->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
-            GrSwizzle readSwizzle = ctx->priv().caps()->getReadSwizzle(format, kColorType);
+            skgpu::Swizzle readSwizzle = ctx->priv().caps()->getReadSwizzle(format, kColorType);
             fLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
                     [this](GrResourceProvider* rp, const GrSurfaceProxy::LazySurfaceDesc&)
                             -> GrSurfaceProxy::LazyCallbackResult {

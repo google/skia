@@ -2547,7 +2547,7 @@ void GrGLGpu::flushWireframeState(bool enabled) {
 }
 
 void GrGLGpu::flushBlendAndColorWrite(
-        const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle& swizzle) {
+        const GrXferProcessor::BlendInfo& blendInfo, const skgpu::Swizzle& swizzle) {
     if (this->glCaps().neverDisableColorWrites() && !blendInfo.fWriteColor) {
         // We need to work around a driver bug by using a blend state that preserves the dst color,
         // rather than disabling color writes.
@@ -2637,7 +2637,7 @@ void GrGLGpu::flushBlendAndColorWrite(
     this->flushColorWrite(blendInfo.fWriteColor);
 }
 
-void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwizzle& swizzle,
+void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const skgpu::Swizzle& swizzle,
                           GrGLTexture* texture) {
     SkASSERT(texture);
 
@@ -3341,7 +3341,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSur
         return false;
     }
     // We don't swizzle at all in our copies.
-    this->bindTexture(0, GrSamplerState::Filter::kNearest, GrSwizzle::RGBA(), srcTex);
+    this->bindTexture(0, GrSamplerState::Filter::kNearest, skgpu::Swizzle::RGBA(), srcTex);
     if (auto* dstRT = static_cast<GrGLRenderTarget*>(dst->asRenderTarget())) {
         this->flushRenderTargetNoColorWrites(dstRT, drawToMultisampleFBO);
     } else {
@@ -3397,7 +3397,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSur
     GL_CALL(Uniform4f(fCopyPrograms[progIdx].fTexCoordXformUniform,
                       sx1 - sx0, sy1 - sy0, sx0, sy0));
     GL_CALL(Uniform1i(fCopyPrograms[progIdx].fTextureUniform, 0));
-    this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), GrSwizzle::RGBA());
+    this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), skgpu::Swizzle::RGBA());
     this->flushConservativeRasterState(false);
     this->flushWireframeState(false);
     this->flushScissorTest(GrScissorTest::kDisabled);
@@ -3506,7 +3506,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     // We'll be changing our base level further below:
     this->setTextureUnit(0);
     // The mipmap program does not do any swizzling.
-    this->bindTexture(0, GrSamplerState::Filter::kLinear, GrSwizzle::RGBA(), glTex);
+    this->bindTexture(0, GrSamplerState::Filter::kLinear, skgpu::Swizzle::RGBA(), glTex);
 
     // Vertex data:
     if (!fMipmapProgramArrayBuffer) {
@@ -3531,7 +3531,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
                  SkSLType::kFloat2, 2 * sizeof(GrGLfloat), 0);
 
     // Set "simple" state once:
-    this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), GrSwizzle::RGBA());
+    this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), skgpu::Swizzle::RGBA());
     this->flushScissorTest(GrScissorTest::kDisabled);
     this->disableWindowRectangles();
     this->disableStencil();

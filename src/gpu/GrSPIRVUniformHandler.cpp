@@ -226,7 +226,7 @@ GrGLSLUniformHandler::UniformHandle GrSPIRVUniformHandler::internalAddUniformArr
 
 GrGLSLUniformHandler::SamplerHandle GrSPIRVUniformHandler::addSampler(const GrBackendFormat&,
                                                                      GrSamplerState,
-                                                                     const GrSwizzle& swizzle,
+                                                                     const skgpu::Swizzle& swizzle,
                                                                      const char* name,
                                                                      const GrShaderCaps* caps) {
     int binding = fSamplers.count() * 2;
@@ -276,7 +276,8 @@ const char* GrSPIRVUniformHandler::samplerVariable(
     return fSamplerReferences[handle.toIndex()].c_str();
 }
 
-GrSwizzle GrSPIRVUniformHandler::samplerSwizzle(GrGLSLUniformHandler::SamplerHandle handle) const {
+skgpu::Swizzle GrSPIRVUniformHandler::samplerSwizzle(
+        GrGLSLUniformHandler::SamplerHandle handle) const {
     return fSamplerSwizzles[handle.toIndex()];
 }
 

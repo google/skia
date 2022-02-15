@@ -49,10 +49,10 @@ public:
 private:
     explicit GrSPIRVUniformHandler(GrGLSLProgramBuilder* program);
 
-    SamplerHandle addSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
+    SamplerHandle addSampler(const GrBackendFormat&, GrSamplerState, const skgpu::Swizzle&,
                              const char* name, const GrShaderCaps*) override;
     const char* samplerVariable(SamplerHandle handle) const override;
-    GrSwizzle samplerSwizzle(SamplerHandle handle) const override;
+    skgpu::Swizzle samplerSwizzle(SamplerHandle handle) const override;
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
                                           uint32_t visibility,
@@ -65,7 +65,7 @@ private:
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     UniformInfoArray    fTextures;
-    SkTArray<GrSwizzle> fSamplerSwizzles;
+    SkTArray<skgpu::Swizzle> fSamplerSwizzles;
     SkTArray<SkString>  fSamplerReferences;
 
     uint32_t fCurrentUBOOffset = 0;

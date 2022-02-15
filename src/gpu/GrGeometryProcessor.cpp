@@ -53,13 +53,13 @@ static inline GrSamplerState::Filter clamp_filter(GrTextureType type,
 
 GrGeometryProcessor::TextureSampler::TextureSampler(GrSamplerState samplerState,
                                                     const GrBackendFormat& backendFormat,
-                                                    const GrSwizzle& swizzle) {
+                                                    const skgpu::Swizzle& swizzle) {
     this->reset(samplerState, backendFormat, swizzle);
 }
 
 void GrGeometryProcessor::TextureSampler::reset(GrSamplerState samplerState,
                                                 const GrBackendFormat& backendFormat,
-                                                const GrSwizzle& swizzle) {
+                                                const skgpu::Swizzle& swizzle) {
     fSamplerState = samplerState;
     fSamplerState.setFilterMode(clamp_filter(backendFormat.textureType(), samplerState.filter()));
     fBackendFormat = backendFormat;

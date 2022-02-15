@@ -351,7 +351,7 @@ void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
                   GrSurfaceProxyView view,
                   const GrColorInfo& srcColorInfo) {
     if (GrColorTypeIsAlphaOnly(srcColorInfo.colorType())) {
-        view.concatSwizzle(GrSwizzle("aaaa"));
+        view.concatSwizzle(skgpu::Swizzle("aaaa"));
     }
     const GrColorInfo& dstInfo = sdc->colorInfo();
     auto textureXform = GrColorSpaceXform::Make(srcColorInfo, sdc->colorInfo());
@@ -932,7 +932,8 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         if (!image->isYUVA()) {
             std::tie(view, std::ignore) = image->asView(this->recordingContext(), GrMipmapped::kNo);
             if (image->isAlphaOnly()) {
-                GrSwizzle swizzle = GrSwizzle::Concat(view.swizzle(), GrSwizzle("aaaa"));
+                skgpu::Swizzle swizzle = skgpu::Swizzle::Concat(view.swizzle(),
+                                                                skgpu::Swizzle("aaaa"));
                 view = {view.detachProxy(), view.origin(), swizzle};
             }
         }

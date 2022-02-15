@@ -28,7 +28,10 @@
 class GrGLBuffer;
 class GrGLOpsRenderPass;
 class GrPipeline;
-class GrSwizzle;
+
+namespace skgpu {
+class Swizzle;
+}
 
 class GrGLGpu final : public GrGpu {
 public:
@@ -50,7 +53,7 @@ public:
     const GrGLCaps& glCaps() const { return *fGLContext->caps(); }
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwizzle&, GrGLTexture*);
+    void bindTexture(int unitIdx, GrSamplerState samplerState, const skgpu::Swizzle&, GrGLTexture*);
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
@@ -360,7 +363,8 @@ private:
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
-    void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
+    void flushBlendAndColorWrite(const GrXferProcessor::BlendInfo& blendInfo,
+                                 const skgpu::Swizzle&);
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;

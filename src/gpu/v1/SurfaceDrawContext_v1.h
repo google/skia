@@ -94,8 +94,8 @@ public:
                                                     int sampleCnt,
                                                     GrMipmapped,
                                                     GrProtected,
-                                                    GrSwizzle readSwizzle,
-                                                    GrSwizzle writeSwizzle,
+                                                    skgpu::Swizzle readSwizzle,
+                                                    skgpu::Swizzle writeSwizzle,
                                                     GrSurfaceOrigin,
                                                     SkBudgeted,
                                                     const SkSurfaceProps&);

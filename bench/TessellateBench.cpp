@@ -139,7 +139,7 @@ static const SkMatrix gAlmostIdentity = SkMatrix::MakeAll(
 DEF_PATH_TESS_BENCH(GrPathCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
     SkArenaAlloc arena(1024);
     GrPipeline noVaryingsPipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
-                                  GrSwizzle::RGBA());
+                                  skgpu::Swizzle::RGBA());
     auto tess = PathCurveTessellator::Make(&arena,
                                            fTarget->caps().shaderCaps()->infinitySupport());
     tess->prepare(fTarget.get(),
@@ -153,7 +153,7 @@ DEF_PATH_TESS_BENCH(GrPathCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
 DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
     SkArenaAlloc arena(1024);
     GrPipeline noVaryingsPipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
-                                  GrSwizzle::RGBA());
+                                  skgpu::Swizzle::RGBA());
     auto tess = PathWedgeTessellator::Make(&arena,
                                            fTarget->caps().shaderCaps()->infinitySupport());
     tess->prepare(fTarget.get(),

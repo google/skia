@@ -348,7 +348,7 @@ private:
     // performance (since texture ops are one of the most commonly used in an app).
     struct Metadata {
         // AAType must be filled after initialization; ColorType is determined in finalize()
-        Metadata(const GrSwizzle& swizzle,
+        Metadata(const skgpu::Swizzle& swizzle,
                  GrSamplerState::Filter filter,
                  GrSamplerState::MipmapMode mm,
                  Subset subset,
@@ -363,7 +363,7 @@ private:
             , fSubset(static_cast<uint16_t>(subset))
             , fSaturate(static_cast<uint16_t>(saturate)) {}
 
-        GrSwizzle fSwizzle; // sizeof(GrSwizzle) == uint16_t
+        skgpu::Swizzle fSwizzle; // sizeof(skgpu::Swizzle) == uint16_t
         uint16_t  fProxyCount;
         // This will be >= fProxyCount, since a proxy may be drawn multiple times
         uint16_t  fTotalQuadCount;
@@ -759,7 +759,7 @@ private:
 #ifdef SK_DEBUG
     static int validate_op(GrTextureType textureType,
                            GrAAType aaType,
-                           GrSwizzle swizzle,
+                           skgpu::Swizzle swizzle,
                            const TextureOpImpl* op) {
         SkASSERT(op->fMetadata.fSwizzle == swizzle);
 
@@ -779,7 +779,7 @@ private:
         // NOTE: Since this is debug-only code, we use the virtual asTextureProxy()
         auto textureType = fViewCountPairs[0].fProxy->asTextureProxy()->textureType();
         GrAAType aaType = fMetadata.aaType();
-        GrSwizzle swizzle = fMetadata.fSwizzle;
+        skgpu::Swizzle swizzle = fMetadata.fSwizzle;
 
         int quadCount = validate_op(textureType, aaType, swizzle, this);
 

@@ -266,10 +266,10 @@ void ProgramImpl::emitCode(const EmitArgs& args) {
 }
 
 void ProgramImpl::emitWriteSwizzle(GrGLSLXPFragmentBuilder* x,
-                                   const GrSwizzle& swizzle,
+                                   const skgpu::Swizzle& swizzle,
                                    const char* outColor,
                                    const char* outColorSecondary) const {
-    if (GrSwizzle::RGBA() != swizzle) {
+    if (skgpu::Swizzle::RGBA() != swizzle) {
         x->codeAppendf("%s = %s.%s;", outColor, outColor, swizzle.asString().c_str());
         if (outColorSecondary) {
             x->codeAppendf("%s = %s.%s;",

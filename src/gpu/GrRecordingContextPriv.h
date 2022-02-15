@@ -15,11 +15,11 @@
 #include "src/gpu/text/GrSDFTControl.h"
 
 class GrImageInfo;
-class GrSwizzle;
 class SkDeferredDisplayList;
 namespace skgpu {
     class SurfaceContext;
     class SurfaceFillContext;
+    class Swizzle;
 }
 
 /** Class that exposes methods on GrRecordingContext that are only intended for use internal to
@@ -173,8 +173,8 @@ public:
                                                        int sampleCount,
                                                        GrMipmapped,
                                                        GrProtected,
-                                                       GrSwizzle readSwizzle,
-                                                       GrSwizzle writeSwizzle,
+                                                       skgpu::Swizzle readSwizzle,
+                                                       skgpu::Swizzle writeSwizzle,
                                                        GrSurfaceOrigin,
                                                        SkBudgeted);
 

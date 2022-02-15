@@ -230,7 +230,7 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
 }
 
 GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
-        const GrBackendFormat& backendFormat, GrSamplerState, const GrSwizzle& swizzle,
+        const GrBackendFormat& backendFormat, GrSamplerState, const skgpu::Swizzle& swizzle,
         const char* name, const GrShaderCaps* caps) {
     int binding = fSamplers.count();
 

@@ -9,7 +9,7 @@
 #define GrGLSLUniformHandler_DEFINED
 
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
 // variable names beginning with this prefix will not be mangled
@@ -99,21 +99,21 @@ protected:
 
 private:
     virtual const char * samplerVariable(SamplerHandle) const = 0;
-    virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
+    virtual skgpu::Swizzle samplerSwizzle(SamplerHandle) const = 0;
 
     virtual const char* inputSamplerVariable(SamplerHandle) const {
         SkDEBUGFAIL("Trying to get input sampler from unsupported backend");
         return nullptr;
     }
-    virtual GrSwizzle inputSamplerSwizzle(SamplerHandle) const {
+    virtual skgpu::Swizzle inputSamplerSwizzle(SamplerHandle) const {
         SkDEBUGFAIL("Trying to get input sampler swizzle from unsupported backend");
         return {};
     }
 
-    virtual SamplerHandle addSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
+    virtual SamplerHandle addSampler(const GrBackendFormat&, GrSamplerState, const skgpu::Swizzle&,
                                      const char* name, const GrShaderCaps*) = 0;
 
-    virtual SamplerHandle addInputSampler(const GrSwizzle& swizzle, const char* name) {
+    virtual SamplerHandle addInputSampler(const skgpu::Swizzle& swizzle, const char* name) {
         SkDEBUGFAIL("Trying to add input sampler to unsupported backend");
         return {};
     }

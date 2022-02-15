@@ -639,8 +639,8 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
         return {};
     }
 
-    GrSwizzle swizzle = rContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                GrColorType::kRGBA_8888);
+    skgpu::Swizzle swizzle = rContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                     GrColorType::kRGBA_8888);
     ++stats->fNumSWCreations;
     return {std::move(proxy), kImageOrigin, swizzle};
 }

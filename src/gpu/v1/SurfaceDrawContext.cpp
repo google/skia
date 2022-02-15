@@ -137,8 +137,8 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(GrRecordingContext*
     }
 
     const GrBackendFormat& format = proxy->backendFormat();
-    GrSwizzle readSwizzle = rContext->priv().caps()->getReadSwizzle(format, colorType);
-    GrSwizzle writeSwizzle = rContext->priv().caps()->getWriteSwizzle(format, colorType);
+    skgpu::Swizzle readSwizzle = rContext->priv().caps()->getReadSwizzle(format, colorType);
+    skgpu::Swizzle writeSwizzle = rContext->priv().caps()->getWriteSwizzle(format, colorType);
 
     GrSurfaceProxyView readView (          proxy,  origin, readSwizzle);
     GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
@@ -161,8 +161,8 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
         int sampleCnt,
         GrMipmapped mipMapped,
         GrProtected isProtected,
-        GrSwizzle readSwizzle,
-        GrSwizzle writeSwizzle,
+        skgpu::Swizzle readSwizzle,
+        skgpu::Swizzle writeSwizzle,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
         const SkSurfaceProps& surfaceProps) {

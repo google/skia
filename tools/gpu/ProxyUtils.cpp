@@ -66,7 +66,7 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
     if (!format.isValid()) {
         return {};
     }
-    GrSwizzle swizzle = caps->getReadSwizzle(format, pixmap.colorType());
+    skgpu::Swizzle swizzle = caps->getReadSwizzle(format, pixmap.colorType());
 
     sk_sp<GrTextureProxy> proxy;
     proxy = dContext->priv().proxyProvider()->createProxy(format,

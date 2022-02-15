@@ -162,7 +162,7 @@ SkString GrGLSLProgramBuilder::emitRootFragProc(const GrFragmentProcessor& fp,
 
             GrSamplerState samplerState = te->samplerState();
             const GrBackendFormat& format = te->view().proxy()->backendFormat();
-            GrSwizzle swizzle = te->view().swizzle();
+            skgpu::Swizzle swizzle = te->view().swizzle();
             SamplerHandle handle = this->emitSampler(format, samplerState, swizzle, name.c_str());
             if (!handle.isValid()) {
                 ok = false;
@@ -312,7 +312,7 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
         // Set up a sampler handle for the destination texture.
         GrTextureProxy* dstTextureProxy = dstView.asTextureProxy();
         SkASSERT(dstTextureProxy);
-        const GrSwizzle& swizzle = dstView.swizzle();
+        const skgpu::Swizzle& swizzle = dstView.swizzle();
         fDstTextureSamplerHandle = this->emitSampler(dstTextureProxy->backendFormat(),
                                                     GrSamplerState(), swizzle, "DstTextureSampler");
         if (!fDstTextureSamplerHandle.isValid()) {
@@ -344,7 +344,7 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
         fFS.codeAppend(";\n");
     } else if (this->pipeline().usesDstInputAttachment()) {
         // Set up an input attachment for the destination texture.
-        const GrSwizzle& swizzle = dstView.swizzle();
+        const skgpu::Swizzle& swizzle = dstView.swizzle();
         fDstTextureSamplerHandle = this->emitInputSampler(swizzle, "DstTextureInput");
         if (!fDstTextureSamplerHandle.isValid()) {
             return false;
@@ -410,15 +410,15 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 }
 
 GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(
-        const GrBackendFormat& backendFormat, GrSamplerState state, const GrSwizzle& swizzle,
+        const GrBackendFormat& backendFormat, GrSamplerState state, const skgpu::Swizzle& swizzle,
         const char* name) {
     ++fNumFragmentSamplers;
     return this->uniformHandler()->addSampler(backendFormat, state, swizzle, name,
                                               this->shaderCaps());
 }
 
-GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitInputSampler(const GrSwizzle& swizzle,
-                                                                           const char* name) {
+GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitInputSampler(
+        const skgpu::Swizzle& swizzle, const char* name) {
     return this->uniformHandler()->addInputSampler(swizzle, name);
 }
 

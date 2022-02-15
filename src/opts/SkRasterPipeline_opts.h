@@ -2883,7 +2883,7 @@ STAGE(bicubic_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     }
 }
 
-// ~~~~~~ GrSwizzle stage ~~~~~~ //
+// ~~~~~~ skgpu::Swizzle stage ~~~~~~ //
 
 STAGE(swizzle, void* ctx) {
     auto ir = r, ig = g, ib = b, ia = a;
@@ -4250,7 +4250,7 @@ STAGE_PP(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     store_8888_(ptr, tail, r,g,b,a);
 }
 
-// ~~~~~~ GrSwizzle stage ~~~~~~ //
+// ~~~~~~ skgpu::Swizzle stage ~~~~~~ //
 
 STAGE_PP(swizzle, void* ctx) {
     auto ir = r, ig = g, ib = b, ia = a;

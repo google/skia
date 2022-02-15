@@ -90,7 +90,7 @@ GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* rContext,
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                  GrRenderable::kNo);
 
-    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
+    skgpu::Swizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
 
     auto proxy =
             proxyProvider->createProxy(format, dimensions, GrRenderable::kNo, 1, GrMipmapped::kNo,
@@ -208,7 +208,7 @@ void SoftwarePathRenderer::DrawToTargetWithShapeMask(
         return;
     }
 
-    view.concatSwizzle(GrSwizzle("aaaa"));
+    view.concatSwizzle(skgpu::Swizzle("aaaa"));
 
     SkRect dstRect = SkRect::Make(deviceSpaceRectToDraw);
 
@@ -322,7 +322,7 @@ bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (useCache) {
         sk_sp<GrTextureProxy> proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey);
         if (proxy) {
-            GrSwizzle swizzle = args.fSurfaceDrawContext->caps()->getReadSwizzle(
+            skgpu::Swizzle swizzle = args.fSurfaceDrawContext->caps()->getReadSwizzle(
                     proxy->backendFormat(), GrColorType::kAlpha_8);
             view = {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
             args.fContext->priv().stats()->incNumPathMasksCacheHits();

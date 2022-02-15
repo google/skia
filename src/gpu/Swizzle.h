@@ -5,28 +5,29 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSwizzle_DEFINED
-#define GrSwizzle_DEFINED
+#ifndef skgpu_Swizzle_DEFINED
+#define skgpu_Swizzle_DEFINED
 
 #include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
-#include "src/gpu/GrColor.h"
 
 class SkRasterPipeline;
 
+namespace skgpu {
+
 /** Represents a rgba swizzle. It can be converted either into a string or a eight bit int. */
-class GrSwizzle {
+class Swizzle {
 public:
-    constexpr GrSwizzle() : GrSwizzle("rgba") {}
-    explicit constexpr GrSwizzle(const char c[4]);
+    constexpr Swizzle() : Swizzle("rgba") {}
+    explicit constexpr Swizzle(const char c[4]);
 
-    constexpr GrSwizzle(const GrSwizzle&);
-    constexpr GrSwizzle& operator=(const GrSwizzle& that);
+    constexpr Swizzle(const Swizzle&);
+    constexpr Swizzle& operator=(const Swizzle& that);
 
-    static constexpr GrSwizzle Concat(const GrSwizzle& a, const GrSwizzle& b);
+    static constexpr Swizzle Concat(const Swizzle& a, const Swizzle& b);
 
-    constexpr bool operator==(const GrSwizzle& that) const { return fKey == that.fKey; }
-    constexpr bool operator!=(const GrSwizzle& that) const { return !(*this == that); }
+    constexpr bool operator==(const Swizzle& that) const { return fKey == that.fKey; }
+    constexpr bool operator!=(const Swizzle& that) const { return !(*this == that); }
 
     /** Compact representation of the swizzle suitable for a key. */
     constexpr uint16_t asKey() const { return fKey; }
@@ -52,13 +53,13 @@ public:
 
     void apply(SkRasterPipeline*) const;
 
-    static constexpr GrSwizzle RGBA() { return GrSwizzle("rgba"); }
-    static constexpr GrSwizzle BGRA() { return GrSwizzle("bgra"); }
-    static constexpr GrSwizzle RRRA() { return GrSwizzle("rrra"); }
-    static constexpr GrSwizzle RGB1() { return GrSwizzle("rgb1"); }
+    static constexpr Swizzle RGBA() { return Swizzle("rgba"); }
+    static constexpr Swizzle BGRA() { return Swizzle("bgra"); }
+    static constexpr Swizzle RRRA() { return Swizzle("rrra"); }
+    static constexpr Swizzle RGB1() { return Swizzle("rgb1"); }
 
 private:
-    explicit constexpr GrSwizzle(uint16_t key) : fKey(key) {}
+    explicit constexpr Swizzle(uint16_t key) : fKey(key) {}
 
     static constexpr float ComponentIndexToFloat(std::array<float, 4>, int idx);
     static constexpr int CToI(char c);
@@ -67,18 +68,18 @@ private:
     uint16_t fKey;
 };
 
-constexpr GrSwizzle::GrSwizzle(const char c[4])
+constexpr Swizzle::Swizzle(const char c[4])
         : fKey((CToI(c[0]) << 0) | (CToI(c[1]) << 4) | (CToI(c[2]) << 8) | (CToI(c[3]) << 12)) {}
 
-constexpr GrSwizzle::GrSwizzle(const GrSwizzle& that)
+constexpr Swizzle::Swizzle(const Swizzle& that)
         : fKey(that.fKey) {}
 
-constexpr GrSwizzle& GrSwizzle::operator=(const GrSwizzle& that) {
+constexpr Swizzle& Swizzle::operator=(const Swizzle& that) {
     fKey = that.fKey;
     return *this;
 }
 
-constexpr std::array<float, 4> GrSwizzle::applyTo(std::array<float, 4> color) const {
+constexpr std::array<float, 4> Swizzle::applyTo(std::array<float, 4> color) const {
     uint32_t key = fKey;
     // Index of the input color that should be mapped to output r.
     int idx = (key & 15);
@@ -95,7 +96,7 @@ constexpr std::array<float, 4> GrSwizzle::applyTo(std::array<float, 4> color) co
     return { outR, outG, outB, outA };
 }
 
-constexpr float GrSwizzle::ComponentIndexToFloat(std::array<float, 4> color, int idx) {
+constexpr float Swizzle::ComponentIndexToFloat(std::array<float, 4> color, int idx) {
     if (idx <= 3) {
         return color[idx];
     }
@@ -108,7 +109,7 @@ constexpr float GrSwizzle::ComponentIndexToFloat(std::array<float, 4> color, int
     SkUNREACHABLE;
 }
 
-constexpr int GrSwizzle::CToI(char c) {
+constexpr int Swizzle::CToI(char c) {
     switch (c) {
         // r...a must map to 0...3 because other methods use them as indices into fSwiz.
         case 'r': return 0;
@@ -121,7 +122,7 @@ constexpr int GrSwizzle::CToI(char c) {
     }
 }
 
-constexpr char GrSwizzle::IToC(int idx) {
+constexpr char Swizzle::IToC(int idx) {
     switch (idx) {
         case CToI('r'): return 'r';
         case CToI('g'): return 'g';
@@ -133,7 +134,7 @@ constexpr char GrSwizzle::IToC(int idx) {
     }
 }
 
-constexpr GrSwizzle GrSwizzle::Concat(const GrSwizzle& a, const GrSwizzle& b) {
+constexpr Swizzle Swizzle::Concat(const Swizzle& a, const Swizzle& b) {
     uint16_t key = 0;
     for (int i = 0; i < 4; ++i) {
         int idx = (b.fKey >> (4U * i)) & 0xfU;
@@ -144,6 +145,8 @@ constexpr GrSwizzle GrSwizzle::Concat(const GrSwizzle& a, const GrSwizzle& b) {
         }
         key |= (idx << (4U * i));
     }
-    return GrSwizzle(key);
+    return Swizzle(key);
 }
+
+} // namespace skgpu
 #endif

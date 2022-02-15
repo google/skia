@@ -46,7 +46,7 @@ static inline uint16_t texture_type_key(GrTextureType type) {
     return SkToU16(value);
 }
 
-static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
+static uint32_t sampler_key(GrTextureType textureType, const skgpu::Swizzle& swizzle,
                             const GrCaps& caps) {
     int samplerTypeKey = texture_type_key(textureType);
 

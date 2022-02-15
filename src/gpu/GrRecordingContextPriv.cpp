@@ -83,7 +83,7 @@ std::unique_ptr<skgpu::SurfaceContext> GrRecordingContextPriv::makeSC(GrSurfaceP
     if (proxy->asRenderTargetProxy()) {
         // Will we ever want a swizzle that is not the default write swizzle for the format and
         // colorType here? If so we will need to manually pass that in.
-        GrSwizzle writeSwizzle;
+        skgpu::Swizzle writeSwizzle;
         if (info.colorType() != GrColorType::kUnknown) {
             writeSwizzle = this->caps()->getWriteSwizzle(proxy->backendFormat(),
                                                          info.colorType());
@@ -139,7 +139,7 @@ std::unique_ptr<skgpu::SurfaceContext> GrRecordingContextPriv::makeSC(const GrIm
         return nullptr;
     }
 
-    GrSwizzle swizzle;
+    skgpu::Swizzle swizzle;
     if (info.colorType() != GrColorType::kUnknown &&
         !this->caps()->isFormatCompressed(format)) {
         swizzle = this->caps()->getReadSwizzle(format, info.colorType());
@@ -184,8 +184,8 @@ std::unique_ptr<skgpu::SurfaceFillContext> GrRecordingContextPriv::makeSFC(GrIma
     if (!proxy) {
         return nullptr;
     }
-    GrSwizzle readSwizzle  = this->caps()->getReadSwizzle (format, info.colorType());
-    GrSwizzle writeSwizzle = this->caps()->getWriteSwizzle(format, info.colorType());
+    skgpu::Swizzle readSwizzle  = this->caps()->getReadSwizzle (format, info.colorType());
+    skgpu::Swizzle writeSwizzle = this->caps()->getWriteSwizzle(format, info.colorType());
 
     GrSurfaceProxyView readView(            proxy, origin,  readSwizzle);
     GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
@@ -210,8 +210,8 @@ std::unique_ptr<skgpu::SurfaceFillContext> GrRecordingContextPriv::makeSFC(
         int sampleCount,
         GrMipmapped mipmapped,
         GrProtected isProtected,
-        GrSwizzle readSwizzle,
-        GrSwizzle writeSwizzle,
+        skgpu::Swizzle readSwizzle,
+        skgpu::Swizzle writeSwizzle,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
 
@@ -332,8 +332,8 @@ std::unique_ptr<skgpu::SurfaceFillContext> GrRecordingContextPriv::makeSFCFromBa
     if (!this->caps()->areColorTypeAndFormatCompatible(info.colorType(), format)) {
         return nullptr;
     }
-    GrSwizzle readSwizzle  = this->caps()->getReadSwizzle (format, info.colorType());
-    GrSwizzle writeSwizzle = this->caps()->getWriteSwizzle(format, info.colorType());
+    skgpu::Swizzle readSwizzle  = this->caps()->getReadSwizzle (format, info.colorType());
+    skgpu::Swizzle writeSwizzle = this->caps()->getWriteSwizzle(format, info.colorType());
 
     sk_sp<GrTextureProxy> proxy(this->proxyProvider()->wrapRenderableBackendTexture(
             tex, sampleCount, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,

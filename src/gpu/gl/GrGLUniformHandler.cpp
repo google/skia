@@ -69,7 +69,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
 }
 
 GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
-        const GrBackendFormat& backendFormat, GrSamplerState, const GrSwizzle& swizzle,
+        const GrBackendFormat& backendFormat, GrSamplerState, const skgpu::Swizzle& swizzle,
         const char* name, const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
 

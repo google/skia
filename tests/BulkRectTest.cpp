@@ -109,10 +109,10 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
         sk_sp<GrSurfaceProxy> proxyB = create_proxy(dContext);
         proxyViewA = GrSurfaceProxyView(std::move(proxyA),
                                         kTopLeft_GrSurfaceOrigin,
-                                        GrSwizzle::RGBA());
+                                        skgpu::Swizzle::RGBA());
         proxyViewB = GrSurfaceProxyView(std::move(proxyB),
                                         kTopLeft_GrSurfaceOrigin,
-                                        GrSwizzle::RGBA());
+                                        skgpu::Swizzle::RGBA());
     }
 
     auto set = new GrTextureSetEntry[requestedTotNumQuads];
@@ -127,7 +127,7 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
             sk_sp<GrSurfaceProxy> proxyA = create_proxy(dContext);
             set[i].fProxyView = GrSurfaceProxyView(std::move(proxyA),
                                                    kTopLeft_GrSurfaceOrigin,
-                                                   GrSwizzle::RGBA());
+                                                   skgpu::Swizzle::RGBA());
         }
 
         set[i].fSrcAlphaType = kPremul_SkAlphaType;

@@ -18,7 +18,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
-#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/Swizzle.h"
 
 class GrBackendFormat;
 class GrBackendRenderTarget;
@@ -446,16 +446,16 @@ public:
     bool clampToBorderSupport() const { return fClampToBorderSupport; }
 
     /**
-     * Returns the GrSwizzle to use when sampling or reading back from a texture with the passed in
-     * GrBackendFormat and GrColorType.
+     * Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
+     * passed in GrBackendFormat and GrColorType.
      */
-    GrSwizzle getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const;
+    skgpu::Swizzle getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const;
 
     /**
-     * Returns the GrSwizzle to use when writing colors to a surface with the passed in
+     * Returns the skgpu::Swizzle to use when writing colors to a surface with the passed in
      * GrBackendFormat and GrColorType.
      */
-    virtual GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+    virtual skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const = 0;
 
     virtual uint64_t computeFormatKey(const GrBackendFormat&) const = 0;
 
@@ -637,7 +637,7 @@ private:
                                                          const GrBackendFormat& srcFormat,
                                                          GrColorType dstColorType) const = 0;
 
-    virtual GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const = 0;
+    virtual skgpu::Swizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const = 0;
 
     virtual GrDstSampleFlags onGetDstSampleFlagsForProxy(const GrRenderTargetProxy*) const {
         return GrDstSampleFlags::kNone;

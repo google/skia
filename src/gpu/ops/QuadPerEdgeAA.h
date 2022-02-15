@@ -172,7 +172,7 @@ namespace skgpu::v1::QuadPerEdgeAA {
                                                const GrShaderCaps&,
                                                const GrBackendFormat&,
                                                GrSamplerState,
-                                               const GrSwizzle&,
+                                               const skgpu::Swizzle&,
                                                sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                                Saturate);
 

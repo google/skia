@@ -140,7 +140,7 @@ void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
     // Bind textures from all of the fragment processors.
     pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
         GrSamplerState samplerState = te.samplerState();
-        GrSwizzle swizzle = te.view().swizzle();
+        skgpu::Swizzle swizzle = te.view().swizzle();
         auto* texture = static_cast<GrGLTexture*>(te.texture());
         fGpu->bindTexture(nextTexSamplerIdx++, samplerState, swizzle, texture);
     });

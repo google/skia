@@ -61,7 +61,7 @@ public:
         InputFlags fInputFlags = InputFlags::kNone;
         const GrCaps* fCaps = nullptr;
         GrDstProxyView fDstProxyView;
-        GrSwizzle fWriteSwizzle;
+        skgpu::Swizzle fWriteSwizzle;
     };
 
     /**
@@ -71,7 +71,7 @@ public:
      **/
     GrPipeline(GrScissorTest scissor,
                SkBlendMode blend,
-               const GrSwizzle& writeSwizzle,
+               const skgpu::Swizzle& writeSwizzle,
                InputFlags flags = InputFlags::kNone)
             : GrPipeline(scissor,
                          GrPorterDuffXPFactory::MakeNoCoverageXP(blend),
@@ -80,7 +80,7 @@ public:
 
     GrPipeline(GrScissorTest,
                sk_sp<const GrXferProcessor>,
-               const GrSwizzle& writeSwizzle,
+               const skgpu::Swizzle& writeSwizzle,
                InputFlags = InputFlags::kNone);
 
     GrPipeline(const InitArgs& args, sk_sp<const GrXferProcessor>, const GrAppliedHardClip&);
@@ -192,7 +192,7 @@ public:
     // Used by Vulkan and Metal to cache their respective pipeline objects
     void genKey(skgpu::KeyBuilder*, const GrCaps&) const;
 
-    const GrSwizzle& writeSwizzle() const { return fWriteSwizzle; }
+    const skgpu::Swizzle& writeSwizzle() const { return fWriteSwizzle; }
 
     void visitProxies(const GrVisitProxyFunc&) const;
 
@@ -225,7 +225,7 @@ private:
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors = 0;
 
-    GrSwizzle fWriteSwizzle;
+    skgpu::Swizzle fWriteSwizzle;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::InputFlags)

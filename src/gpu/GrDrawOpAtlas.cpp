@@ -565,9 +565,9 @@ bool GrDrawOpAtlas::createPages(
     int numPlotsY = fTextureHeight/fPlotHeight;
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        GrSwizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
+        skgpu::Swizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
         if (GrColorTypeIsAlphaOnly(fColorType)) {
-            swizzle = GrSwizzle::Concat(swizzle, GrSwizzle("aaaa"));
+            swizzle = skgpu::Swizzle::Concat(swizzle, skgpu::Swizzle("aaaa"));
         }
         sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(
                 fFormat, dims, GrRenderable::kNo, 1, GrMipmapped::kNo, SkBackingFit::kExact,

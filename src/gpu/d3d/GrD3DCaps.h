@@ -90,7 +90,7 @@ public:
         return fColorTypeToFormatTable[idx];
     }
 
-    GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
+    skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
 
@@ -140,7 +140,7 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
 
-    GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
+    skgpu::Swizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {
@@ -156,8 +156,8 @@ private:
         };
         uint32_t fFlags = 0;
 
-        GrSwizzle fReadSwizzle;
-        GrSwizzle fWriteSwizzle;
+        skgpu::Swizzle fReadSwizzle;
+        skgpu::Swizzle fWriteSwizzle;
     };
 
     struct FormatInfo {

@@ -5,25 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/Swizzle.h"
 
 #include "src/core/SkRasterPipeline.h"
 
-void GrSwizzle::apply(SkRasterPipeline* pipeline) const {
+namespace skgpu {
+
+void Swizzle::apply(SkRasterPipeline* pipeline) const {
     SkASSERT(pipeline);
     switch (fKey) {
-        case GrSwizzle("rgba").asKey():
+        case Swizzle("rgba").asKey():
             return;
-        case GrSwizzle("bgra").asKey():
+        case Swizzle("bgra").asKey():
             pipeline->append(SkRasterPipeline::swap_rb);
             return;
-        case GrSwizzle("aaa1").asKey():
+        case Swizzle("aaa1").asKey():
             pipeline->append(SkRasterPipeline::alpha_to_gray);
             return;
-        case GrSwizzle("rgb1").asKey():
+        case Swizzle("rgb1").asKey():
             pipeline->append(SkRasterPipeline::force_opaque);
             return;
-        case GrSwizzle("a001").asKey():
+        case Swizzle("a001").asKey():
             pipeline->append(SkRasterPipeline::alpha_to_red);
             return;
         default: {
@@ -38,7 +40,7 @@ void GrSwizzle::apply(SkRasterPipeline* pipeline) const {
     }
 }
 
-SkString GrSwizzle::asString() const {
+SkString Swizzle::asString() const {
     char swiz[5];
     uint16_t key = fKey;
     for (int i = 0; i < 4; ++i) {
@@ -48,3 +50,5 @@ SkString GrSwizzle::asString() const {
     swiz[4] = '\0';
     return SkString(swiz);
 }
+
+} // namespace skgpu

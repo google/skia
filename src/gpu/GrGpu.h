@@ -18,8 +18,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPixmap.h"
-#include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/Swizzle.h"
 
 class GrAttachment;
 class GrBackendRenderTarget;

@@ -58,7 +58,7 @@ public:
     sk_sp<GrSurfaceProxy> refProxy(int i) const { return fProxies[i]; }
 
     GrSurfaceProxyView makeView(int i) const {
-        return {fProxies[i], fTextureOrigin, GrSwizzle::RGBA()};
+        return {fProxies[i], fTextureOrigin, skgpu::Swizzle::RGBA()};
     }
 
     bool isValid() const { return fYUVAInfo.isValid(); }

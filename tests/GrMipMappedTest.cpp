@@ -461,7 +461,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         // Mipmaps don't get marked dirty until makeClosed().
         REPORTER_ASSERT(reporter, !mipmapProxy->mipmapsAreDirty());
 
-        GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, colorType);
+        skgpu::Swizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, colorType);
         GrSurfaceProxyView mipmapView(mipmapProxy, kTopLeft_GrSurfaceOrigin, swizzle);
 
         // Draw the dirty mipmap texture into a render target.

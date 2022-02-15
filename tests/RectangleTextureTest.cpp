@@ -172,8 +172,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         SkASSERT(rectProxy->peekTexture()->hasRestrictedSampling());
 
         GrImageInfo grII = ii;
-        GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(rectangleTex.getBackendFormat(),
-                                                                    grII.colorType());
+        skgpu::Swizzle swizzle = dContext->priv().caps()->getReadSwizzle(
+                rectangleTex.getBackendFormat(), grII.colorType());
         GrSurfaceProxyView view(rectProxy, origin, swizzle);
 
         test_basic_draw_as_src(reporter, dContext, view, grII.colorType(), kPremul_SkAlphaType,

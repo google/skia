@@ -422,11 +422,11 @@ bool GrCaps::areColorTypeAndFormatCompatible(GrColorType grCT,
     return this->onAreColorTypeAndFormatCompatible(grCT, format);
 }
 
-GrSwizzle GrCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+skgpu::Swizzle GrCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
     if (compression != SkImage::CompressionType::kNone) {
         if (colorType == GrColorType::kRGB_888x || colorType == GrColorType::kRGBA_8888) {
-            return GrSwizzle::RGBA();
+            return skgpu::Swizzle::RGBA();
         }
         SkDEBUGFAILF("Illegal color type (%d) and compressed format (%d) combination.",
                      (int)colorType, (int)compression);

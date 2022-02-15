@@ -13,7 +13,7 @@
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -499,25 +499,25 @@ class GrGeometryProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(GrSamplerState, const GrBackendFormat&, const GrSwizzle&);
+    TextureSampler(GrSamplerState, const GrBackendFormat&, const skgpu::Swizzle&);
 
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(GrSamplerState, const GrBackendFormat&, const GrSwizzle&);
+    void reset(GrSamplerState, const GrBackendFormat&, const skgpu::Swizzle&);
 
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
     GrTextureType textureType() const { return fBackendFormat.textureType(); }
 
     GrSamplerState samplerState() const { return fSamplerState; }
-    const GrSwizzle& swizzle() const { return fSwizzle; }
+    const skgpu::Swizzle& swizzle() const { return fSwizzle; }
 
     bool isInitialized() const { return fIsInitialized; }
 
 private:
     GrSamplerState  fSamplerState;
     GrBackendFormat fBackendFormat;
-    GrSwizzle       fSwizzle;
+    skgpu::Swizzle  fSwizzle;
     bool            fIsInitialized = false;
 };
 

@@ -312,11 +312,11 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                                    1,
                                                    mipMapped,
                                                    src->isProtected(),
-                                                   GrSwizzle::RGBA(),
-                                                   GrSwizzle::RGBA(),
+                                                   skgpu::Swizzle::RGBA(),
+                                                   skgpu::Swizzle::RGBA(),
                                                    origin,
                                                    budgeted);
-        GrSurfaceProxyView view(std::move(src), origin, GrSwizzle::RGBA());
+        GrSurfaceProxyView view(std::move(src), origin, skgpu::Swizzle::RGBA());
         if (dstContext && dstContext->blitTexture(std::move(view), srcRect, dstPoint)) {
             if (outTask) {
                 *outTask = dstContext->refRenderTask();

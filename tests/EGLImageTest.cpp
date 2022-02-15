@@ -162,8 +162,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, image);
         return;
     }
-    GrSwizzle swizzle = context0->priv().caps()->getReadSwizzle(texProxy->backendFormat(),
-                                                                colorInfo.colorType());
+    skgpu::Swizzle swizzle = context0->priv().caps()->getReadSwizzle(texProxy->backendFormat(),
+                                                                     colorInfo.colorType());
     GrSurfaceProxyView view(std::move(texProxy), origin, swizzle);
     auto surfaceContext = context0->priv().makeSC(std::move(view), colorInfo);
 

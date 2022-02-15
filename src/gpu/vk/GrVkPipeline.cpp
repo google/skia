@@ -645,7 +645,7 @@ void GrVkPipeline::SetDynamicViewportState(GrVkGpu* gpu,
 
 void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
                                                 GrVkCommandBuffer* cmdBuffer,
-                                                const GrSwizzle& swizzle,
+                                                const skgpu::Swizzle& swizzle,
                                                 const GrXferProcessor& xferProcessor) {
     const GrXferProcessor::BlendInfo& blendInfo = xferProcessor.getBlendInfo();
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;

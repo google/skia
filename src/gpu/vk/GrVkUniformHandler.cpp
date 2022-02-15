@@ -247,7 +247,7 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
 }
 
 GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
-        const GrBackendFormat& backendFormat, GrSamplerState state, const GrSwizzle& swizzle,
+        const GrBackendFormat& backendFormat, GrSamplerState state, const skgpu::Swizzle& swizzle,
         const char* name, const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
 
@@ -291,8 +291,8 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addInputSampler(const GrSwizzle& swizzle,
-                                                                        const char* name) {
+GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addInputSampler(
+            const skgpu::Swizzle& swizzle, const char* name) {
     SkASSERT(name && strlen(name));
     SkASSERT(fInputUniform.fVariable.getType() == SkSLType::kVoid);
 

@@ -14,7 +14,7 @@
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrSubRunAllocator.h"
 #include "src/gpu/GrSurfaceProxy.h"
-#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/Swizzle.h"
 
 class GrResourceProvider;
 

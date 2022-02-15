@@ -160,7 +160,7 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
                 fp = dContext->priv().createPMToUPMEffect(GrTextureEffect::Make(
                         this->readSurfaceView(), this->colorInfo().alphaType()));
                 if (dst.colorType() == GrColorType::kBGRA_8888) {
-                    fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
+                    fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), skgpu::Swizzle::BGRA());
                     dst = GrPixmap(dst.info().makeColorType(GrColorType::kRGBA_8888),
                                    dst.addr(),
                                    dst.rowBytes());
@@ -395,7 +395,7 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
     if ((!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) && numLevels == 1) {
         GrColorInfo tempColorInfo;
         GrBackendFormat format;
-        GrSwizzle tempReadSwizzle;
+        skgpu::Swizzle tempReadSwizzle;
         if (canvas2DFastPath) {
             tempColorInfo = {GrColorType::kRGBA_8888,
                              kUnpremul_SkAlphaType,
@@ -453,7 +453,7 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
                         GrTextureEffect::Make(std::move(tempView), tempColorInfo.alphaType()));
                 // Important: check the original src color type here!
                 if (origSrcBase.colorType() == GrColorType::kBGRA_8888) {
-                    fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
+                    fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), skgpu::Swizzle::BGRA());
                 }
             } else {
                 fp = GrTextureEffect::Make(std::move(tempView), tempColorInfo.alphaType());

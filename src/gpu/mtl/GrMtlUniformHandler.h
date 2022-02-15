@@ -72,7 +72,7 @@ private:
 
     SamplerHandle addSampler(const GrBackendFormat&,
                              GrSamplerState,
-                             const GrSwizzle&,
+                             const skgpu::Swizzle&,
                              const char* name,
                              const GrShaderCaps*) override;
 
@@ -80,7 +80,7 @@ private:
     const char* samplerVariable(SamplerHandle handle) const override {
         return fSamplers.item(handle.toIndex()).fVariable.c_str();
     }
-    GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
+    skgpu::Swizzle samplerSwizzle(SamplerHandle handle) const override {
         return fSamplerSwizzles[handle.toIndex()];
     }
     uint32_t samplerVisibility(SamplerHandle handle) const {
@@ -95,7 +95,7 @@ private:
 
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
-    SkTArray<GrSwizzle> fSamplerSwizzles;
+    SkTArray<skgpu::Swizzle> fSamplerSwizzles;
 
     uint32_t            fCurrentUBOOffset;
     uint32_t            fCurrentUBOMaxAlignment;

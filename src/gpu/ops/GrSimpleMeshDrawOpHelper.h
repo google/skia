@@ -113,7 +113,7 @@ public:
     static const GrPipeline* CreatePipeline(
                                 const GrCaps*,
                                 SkArenaAlloc*,
-                                GrSwizzle writeViewSwizzle,
+                                skgpu::Swizzle writeViewSwizzle,
                                 GrAppliedClip&&,
                                 const GrDstProxyView&,
                                 GrProcessorSet&&,
@@ -127,7 +127,7 @@ public:
 
     const GrPipeline* createPipeline(const GrCaps*,
                                      SkArenaAlloc*,
-                                     GrSwizzle writeViewSwizzle,
+                                     skgpu::Swizzle writeViewSwizzle,
                                      GrAppliedClip&&,
                                      const GrDstProxyView&);
 

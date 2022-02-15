@@ -87,13 +87,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
 
     GrSurfaceProxyView proxyViewA(create_proxy(dContext),
                                   kTopLeft_GrSurfaceOrigin,
-                                  GrSwizzle::RGBA());
+                                  skgpu::Swizzle::RGBA());
     GrSurfaceProxyView proxyViewB(create_proxy(dContext),
                                   kTopLeft_GrSurfaceOrigin,
-                                  GrSwizzle::RGBA());
+                                  skgpu::Swizzle::RGBA());
     GrSurfaceProxyView proxyViewC(create_proxy(dContext),
                                   kTopLeft_GrSurfaceOrigin,
-                                  GrSwizzle::RGBA());
+                                  skgpu::Swizzle::RGBA());
 
     static const SkRect kOpARect{  0,  0, 16, 16 };
     static const SkRect kOpBRect{ 32,  0, 48, 16 };

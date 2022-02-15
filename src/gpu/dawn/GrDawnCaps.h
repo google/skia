@@ -44,7 +44,7 @@ public:
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
-    GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
+    skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
 
@@ -72,7 +72,7 @@ private:
         return { srcColorType, GrColorTypeBytesPerPixel(srcColorType) };
     }
 
-    GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
+    skgpu::Swizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     using INHERITED = GrCaps;
 };

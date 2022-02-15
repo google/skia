@@ -38,7 +38,7 @@ public:
     }
 
     GrSurfaceProxy* proxy() const { return fAtlasProxy.get(); }
-    const GrSwizzle& atlasSwizzle() const { return fAtlasSwizzle; }
+    const skgpu::Swizzle& atlasSwizzle() const { return fAtlasSwizzle; }
 
     // Returns whether the two helpers can be batched together in a single draw.
     bool isCompatible(const AtlasInstancedHelper& helper) {
@@ -89,7 +89,7 @@ public:
 
 private:
     const sk_sp<GrSurfaceProxy> fAtlasProxy;
-    const GrSwizzle fAtlasSwizzle;
+    const skgpu::Swizzle fAtlasSwizzle;
     const ShaderFlags fShaderFlags;
 };
 

@@ -31,7 +31,6 @@ class GrResourceCache;
 class GrResourceProvider;
 class GrStrikeCache;
 class GrSurfaceProxy;
-class GrSwizzle;
 class GrTextureProxy;
 struct GrVkBackendContext;
 
@@ -42,7 +41,10 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
-namespace skgpu { namespace v1 { class SmallPathAtlasMgr; }}
+namespace skgpu {
+class Swizzle;
+namespace v1 { class SmallPathAtlasMgr; }
+}
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:

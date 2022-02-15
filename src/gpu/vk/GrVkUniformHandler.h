@@ -112,17 +112,17 @@ private:
 
     SamplerHandle addSampler(const GrBackendFormat&,
                              GrSamplerState,
-                             const GrSwizzle&,
+                             const skgpu::Swizzle&,
                              const char* name,
                              const GrShaderCaps*) override;
 
-    SamplerHandle addInputSampler(const GrSwizzle& swizzle, const char* name) override;
+    SamplerHandle addInputSampler(const skgpu::Swizzle& swizzle, const char* name) override;
 
     int numSamplers() const { return fSamplers.count(); }
     const char* samplerVariable(SamplerHandle handle) const override {
         return fSamplers.item(handle.toIndex()).fVariable.c_str();
     }
-    GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
+    skgpu::Swizzle samplerSwizzle(SamplerHandle handle) const override {
         return fSamplerSwizzles[handle.toIndex()];
     }
     uint32_t samplerVisibility(SamplerHandle handle) const {
@@ -140,7 +140,7 @@ private:
         SkASSERT(handle.toIndex() == 0);
         return fInputUniform.fVariable.c_str();
     }
-    GrSwizzle inputSamplerSwizzle(SamplerHandle handle) const override {
+    skgpu::Swizzle inputSamplerSwizzle(SamplerHandle handle) const override {
         SkASSERT(handle.toIndex() == 0);
         return fInputSwizzle;
     }
@@ -153,12 +153,12 @@ private:
 
     void determineIfUsePushConstants() const;
 
-    UniformInfoArray    fUniforms;
-    UniformInfoArray    fSamplers;
-    SkTArray<GrSwizzle> fSamplerSwizzles;
-    UniformInfo         fInputUniform;
-    GrSwizzle           fInputSwizzle;
-    mutable bool        fUsePushConstants;
+    UniformInfoArray         fUniforms;
+    UniformInfoArray         fSamplers;
+    SkTArray<skgpu::Swizzle> fSamplerSwizzles;
+    UniformInfo              fInputUniform;
+    skgpu::Swizzle           fInputSwizzle;
+    mutable bool             fUsePushConstants;
 
     uint32_t            fCurrentOffsets[kLayoutCount];
 

@@ -408,7 +408,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     GrProxyProvider* provider = ctx->priv().proxyProvider();
     GrSurfaceProxyView view;
     if (auto proxy = provider->findOrCreateProxyByUniqueKey(key)) {
-        view = GrSurfaceProxyView(proxy, kTopLeft_GrSurfaceOrigin, GrSwizzle());
+        view = GrSurfaceProxyView(proxy, kTopLeft_GrSurfaceOrigin, skgpu::Swizzle());
     } else {
         const int msaaSampleCount = 0;
         const SkSurfaceProps* props = nullptr;

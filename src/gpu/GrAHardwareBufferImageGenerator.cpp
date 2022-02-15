@@ -177,7 +177,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
             GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
             GrProtected(fIsProtectedContent), GrSurfaceProxy::UseAllocator::kYes);
 
-    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
+    skgpu::Swizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
 
     return GrSurfaceProxyView(std::move(texProxy), fSurfaceOrigin, readSwizzle);
 }

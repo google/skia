@@ -56,7 +56,7 @@ public:
     void bindTextures(GrMtlRenderCommandEncoder* renderCmdEncoder);
 
     void setDrawState(GrMtlRenderCommandEncoder*,
-                      const GrSwizzle& writeSwizzle,
+                      const skgpu::Swizzle& writeSwizzle,
                       const GrXferProcessor&);
 
     static void SetDynamicScissorRectState(GrMtlRenderCommandEncoder* renderCmdEncoder,
@@ -88,7 +88,9 @@ private:
 
     void bindUniforms(GrMtlRenderCommandEncoder*);
 
-    void setBlendConstants(GrMtlRenderCommandEncoder*, const GrSwizzle&, const GrXferProcessor&);
+    void setBlendConstants(GrMtlRenderCommandEncoder*,
+                           const skgpu::Swizzle&,
+                           const GrXferProcessor&);
 
     void setDepthStencilState(GrMtlRenderCommandEncoder* renderCmdEncoder);
 

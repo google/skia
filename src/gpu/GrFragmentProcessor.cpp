@@ -246,11 +246,11 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampOutput(
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
-        std::unique_ptr<GrFragmentProcessor> fp, const GrSwizzle& swizzle) {
+        std::unique_ptr<GrFragmentProcessor> fp, const skgpu::Swizzle& swizzle) {
     class SwizzleFragmentProcessor : public GrFragmentProcessor {
     public:
         static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
-                                                         const GrSwizzle& swizzle) {
+                                                         const skgpu::Swizzle& swizzle) {
             return std::unique_ptr<GrFragmentProcessor>(
                     new SwizzleFragmentProcessor(std::move(fp), swizzle));
         }
@@ -262,7 +262,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
         }
 
     private:
-        SwizzleFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp, const GrSwizzle& swizzle)
+        SwizzleFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp,
+                                 const skgpu::Swizzle& swizzle)
                 : INHERITED(kSwizzleFragmentProcessor_ClassID, ProcessorOptimizationFlags(fp.get()))
                 , fSwizzle(swizzle) {
             this->registerChild(std::move(fp));
@@ -275,7 +276,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
                     SkString childColor = this->invokeChild(0, args);
 
                     const SwizzleFragmentProcessor& sfp = args.fFp.cast<SwizzleFragmentProcessor>();
-                    const GrSwizzle& swizzle = sfp.fSwizzle;
+                    const skgpu::Swizzle& swizzle = sfp.fSwizzle;
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
                     fragBuilder->codeAppendf("return %s.%s;",
@@ -298,7 +299,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
             return fSwizzle.applyTo(ConstantOutputForConstantInput(this->childProcessor(0), input));
         }
 
-        GrSwizzle fSwizzle;
+        skgpu::Swizzle fSwizzle;
 
         using INHERITED = GrFragmentProcessor;
     };
@@ -306,7 +307,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
     if (!fp) {
         return nullptr;
     }
-    if (GrSwizzle::RGBA() == swizzle) {
+    if (skgpu::Swizzle::RGBA() == swizzle) {
         return fp;
     }
     return SwizzleFragmentProcessor::Make(std::move(fp), swizzle);

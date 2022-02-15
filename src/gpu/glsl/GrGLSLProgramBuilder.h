@@ -55,7 +55,7 @@ public:
         return this->uniformHandler()->samplerVariable(handle);
     }
 
-    GrSwizzle samplerSwizzle(SamplerHandle handle) const {
+    skgpu::Swizzle samplerSwizzle(SamplerHandle handle) const {
         return this->uniformHandler()->samplerSwizzle(handle);
     }
 
@@ -63,7 +63,7 @@ public:
         return this->uniformHandler()->inputSamplerVariable(handle);
     }
 
-    GrSwizzle inputSamplerSwizzle(SamplerHandle handle) const {
+    skgpu::Swizzle inputSamplerSwizzle(SamplerHandle handle) const {
         return this->uniformHandler()->inputSamplerSwizzle(handle);
     }
 
@@ -151,9 +151,9 @@ private:
     /** Adds the SkSL function that implements an FP assuming its children are already written. */
     void writeFPFunction(const GrFragmentProcessor& fp, GrFragmentProcessor::ProgramImpl& impl);
     bool emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
-    SamplerHandle emitSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
+    SamplerHandle emitSampler(const GrBackendFormat&, GrSamplerState, const skgpu::Swizzle&,
                               const char* name);
-    SamplerHandle emitInputSampler(const GrSwizzle& swizzle, const char* name);
+    SamplerHandle emitInputSampler(const skgpu::Swizzle& swizzle, const char* name);
     bool checkSamplerCounts();
 
 #ifdef SK_DEBUG

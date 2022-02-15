@@ -150,7 +150,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     const GrBackendFormat format =
         dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                          GrRenderable::kNo);
-    GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
+    skgpu::Swizzle swizzle = dContext->priv().caps()->getReadSwizzle(format,
+                                                                     GrColorType::kRGBA_8888);
 
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {

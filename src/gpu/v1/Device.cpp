@@ -813,7 +813,7 @@ void Device::drawViewLattice(GrSurfaceProxyView view,
     if (info.isAlphaOnly()) {
         // If we were doing this with an FP graph we'd use a kDstIn blend between the texture and
         // the paint color.
-        view.concatSwizzle(GrSwizzle("aaaa"));
+        view.concatSwizzle(skgpu::Swizzle("aaaa"));
     }
     auto csxf = GrColorSpaceXform::Make(info, fSurfaceDrawContext->colorInfo());
 

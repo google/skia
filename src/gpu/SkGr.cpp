@@ -206,7 +206,7 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
         installKey(proxy.get());
     }
 
-    GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
+    skgpu::Swizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
     if (mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes) {
         return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
     }
@@ -245,7 +245,7 @@ GrMakeUncachedBitmapProxyView(GrRecordingContext* rContext,
     GrColorType ct = choose_bmp_texture_colortype(caps, bitmap);
 
     if (auto proxy = make_bmp_proxy(proxyProvider, bitmap, ct, mipmapped, fit, budgeted)) {
-        GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
+        skgpu::Swizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
         SkASSERT(mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes);
         return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
     }

@@ -21,11 +21,11 @@ class GrGLSLProgramDataManager;
 class GrPaint;
 class GrPipeline;
 struct GrShaderCaps;
-class GrSwizzle;
 class GrTextureEffect;
 
 namespace skgpu {
 class KeyBuilder;
+class Swizzle;
 }
 
 /**
@@ -106,7 +106,7 @@ public:
      *  the output.
      */
     static std::unique_ptr<GrFragmentProcessor> SwizzleOutput(std::unique_ptr<GrFragmentProcessor>,
-                                                              const GrSwizzle&);
+                                                              const skgpu::Swizzle&);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then clamps

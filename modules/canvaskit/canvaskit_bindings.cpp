@@ -793,7 +793,7 @@ protected:
             return {};
         }
         static constexpr auto kOrigin = kTopLeft_GrSurfaceOrigin;
-        GrSwizzle swizzle = ctx->priv().caps()->getReadSwizzle(format, colorType);
+        skgpu::Swizzle swizzle = ctx->priv().caps()->getReadSwizzle(format, colorType);
         return GrSurfaceProxyView(std::move(proxy), kOrigin, swizzle);
     }
 

@@ -259,7 +259,7 @@ private:
     GrAuditTrail* fAuditTrail;
 
     bool fUsesMSAASurface;
-    GrSwizzle fTargetSwizzle;
+    skgpu::Swizzle fTargetSwizzle;
     GrSurfaceOrigin fTargetOrigin;
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;

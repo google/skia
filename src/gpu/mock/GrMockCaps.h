@@ -130,9 +130,9 @@ public:
         return {};
     }
 
-    GrSwizzle getWriteSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
+    skgpu::Swizzle getWriteSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
         SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
-        return GrSwizzle("rgba");
+        return skgpu::Swizzle("rgba");
     }
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
@@ -178,9 +178,9 @@ private:
         return SupportedRead{srcColorType, 1};
     }
 
-    GrSwizzle onGetReadSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
+    skgpu::Swizzle onGetReadSwizzle(const GrBackendFormat& format, GrColorType ct) const override {
         SkASSERT(this->areColorTypeAndFormatCompatible(ct, format));
-        return GrSwizzle("rgba");
+        return skgpu::Swizzle("rgba");
     }
 
     static const int kMaxSampleCnt = 16;

@@ -11,8 +11,8 @@
 #include "include/private/SkColorData.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSwizzle.h"
 #include "src/gpu/SurfaceFillContext.h"
+#include "src/gpu/Swizzle.h"
 
 namespace skiagm {
 
@@ -32,8 +32,10 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(clear_swizzle, rContext, canvas, errorMsg, 6*kSize, 2
     }
 
     auto make_offscreen = [&](const SkISize dimensions) {
-        GrSwizzle readSwizzle  = GrSwizzle::Concat(sfc->readSwizzle(), GrSwizzle{"bgra"});
-        GrSwizzle writeSwizzle = GrSwizzle::Concat(sfc->readSwizzle(), GrSwizzle{"bgra"});
+        skgpu::Swizzle readSwizzle  = skgpu::Swizzle::Concat(sfc->readSwizzle(),
+                                                             skgpu::Swizzle{"bgra"});
+        skgpu::Swizzle writeSwizzle = skgpu::Swizzle::Concat(sfc->readSwizzle(),
+                                                             skgpu::Swizzle{"bgra"});
         return rContext->priv().makeSFC(kPremul_SkAlphaType,
                                         sfc->colorInfo().refColorSpace(),
                                         dimensions,

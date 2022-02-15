@@ -613,7 +613,7 @@ public:
                                      const GrShaderCaps& caps,
                                      const GrBackendFormat& backendFormat,
                                      GrSamplerState samplerState,
-                                     const GrSwizzle& swizzle,
+                                     const skgpu::Swizzle& swizzle,
                                      sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                      Saturate saturate) {
         return arena->make([&](void* ptr) {
@@ -842,7 +842,7 @@ private:
                                    const GrShaderCaps& caps,
                                    const GrBackendFormat& backendFormat,
                                    GrSamplerState samplerState,
-                                   const GrSwizzle& swizzle,
+                                   const skgpu::Swizzle& swizzle,
                                    sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                    Saturate saturate)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
@@ -931,7 +931,7 @@ GrGeometryProcessor* MakeTexturedProcessor(SkArenaAlloc* arena,
                                            const GrShaderCaps& caps,
                                            const GrBackendFormat& backendFormat,
                                            GrSamplerState samplerState,
-                                           const GrSwizzle& swizzle,
+                                           const skgpu::Swizzle& swizzle,
                                            sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                            Saturate saturate) {
     return QuadPerEdgeAAGeometryProcessor::Make(arena, spec, caps, backendFormat, samplerState,

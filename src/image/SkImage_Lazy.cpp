@@ -449,7 +449,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
     if (key.isValid()) {
         auto proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
         if (proxy) {
-            GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
+            skgpu::Swizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
             GrSurfaceOrigin origin = ScopedGenerator(fSharedGenerator)->origin();
             GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
             if (mipmapped == GrMipmapped::kNo ||

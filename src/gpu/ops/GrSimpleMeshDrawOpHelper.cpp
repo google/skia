@@ -107,7 +107,7 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
 const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
                                                 const GrCaps* caps,
                                                 SkArenaAlloc* arena,
-                                                GrSwizzle writeViewSwizzle,
+                                                skgpu::Swizzle writeViewSwizzle,
                                                 GrAppliedClip&& appliedClip,
                                                 const GrDstProxyView& dstProxyView,
                                                 GrProcessorSet&& processorSet,
@@ -150,7 +150,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(GrOpFlushState* flush
 const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(
         const GrCaps* caps,
         SkArenaAlloc* arena,
-        GrSwizzle writeViewSwizzle,
+        skgpu::Swizzle writeViewSwizzle,
         GrAppliedClip&& appliedClip,
         const GrDstProxyView& dstProxyView) {
     return GrSimpleMeshDrawOpHelper::CreatePipeline(caps,

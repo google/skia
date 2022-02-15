@@ -10,7 +10,7 @@
 #include "include/sksl/DSL.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/glsl/GrGLSLBlend.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -98,8 +98,8 @@ void GrGLSLShaderBuilder::codeAppend(std::unique_ptr<SkSL::Statement> stmt) {
     }
 }
 
-static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
-    if (swizzle != GrSwizzle::RGBA()) {
+static inline void append_texture_swizzle(SkString* out, skgpu::Swizzle swizzle) {
+    if (swizzle != skgpu::Swizzle::RGBA()) {
         out->appendf(".%s", swizzle.asString().c_str());
     }
 }

@@ -64,7 +64,7 @@ GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
 
 GrPipeline::GrPipeline(GrScissorTest scissorTest,
                        sk_sp<const GrXferProcessor> xp,
-                       const GrSwizzle& writeSwizzle,
+                       const skgpu::Swizzle& writeSwizzle,
                        InputFlags inputFlags)
         : fWindowRectsState()
         , fFlags((Flags)inputFlags)

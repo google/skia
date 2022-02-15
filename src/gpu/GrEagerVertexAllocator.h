@@ -8,6 +8,7 @@
 #ifndef GrEagerVertexAllocator_DEFINED
 #define GrEagerVertexAllocator_DEFINED
 
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/GrThreadSafeCache.h"
 
 class GrMeshDrawTarget;

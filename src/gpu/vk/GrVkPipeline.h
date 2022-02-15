@@ -20,11 +20,14 @@ class GrPipeline;
 class GrProgramInfo;
 class GrRenderTarget;
 class GrStencilSettings;
-class GrSwizzle;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
 struct SkIRect;
+
+namespace skgpu {
+class Swizzle;
+}
 
 class GrVkPipeline : public GrVkManagedResource {
 public:
@@ -71,7 +74,7 @@ public:
                                         SkISize colorAttachmentDimensions);
     static void SetDynamicBlendConstantState(GrVkGpu*,
                                              GrVkCommandBuffer*,
-                                             const GrSwizzle& writeSwizzle,
+                                             const skgpu::Swizzle& writeSwizzle,
                                              const GrXferProcessor&);
 
 #ifdef SK_TRACE_MANAGED_RESOURCES

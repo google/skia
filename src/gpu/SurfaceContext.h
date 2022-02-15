@@ -62,7 +62,7 @@ public:
     GrImageInfo imageInfo() const { return {fColorInfo, fReadView.proxy()->dimensions()}; }
 
     GrSurfaceOrigin origin() const { return fReadView.origin(); }
-    GrSwizzle readSwizzle() const { return fReadView.swizzle(); }
+    skgpu::Swizzle readSwizzle() const { return fReadView.swizzle(); }
     // TODO: See if it makes sense for this to return a const& instead and require the callers to
     // make a copy (which refs the proxy) if needed.
     GrSurfaceProxyView readSurfaceView() { return fReadView; }
