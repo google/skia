@@ -265,7 +265,7 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
         return false;
     }
 #endif
-    if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), this, &matrix, &srcM,
+    if (!SkDraw::DrawToMask(devPath, clip.getBounds(), this, &matrix, &srcM,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode,
                             style)) {
         return false;

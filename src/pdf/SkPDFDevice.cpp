@@ -504,7 +504,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
 
     SkIRect bounds = clipStack.bounds(this->bounds()).roundOut();
     SkMask sourceMask;
-    if (!SkDraw::DrawToMask(path, &bounds, paint->getMaskFilter(), &SkMatrix::I(),
+    if (!SkDraw::DrawToMask(path, bounds, paint->getMaskFilter(), &SkMatrix::I(),
                             &sourceMask, SkMask::kComputeBoundsAndRenderImage_CreateMode,
                             initStyle)) {
         return;

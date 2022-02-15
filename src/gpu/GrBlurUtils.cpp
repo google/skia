@@ -133,7 +133,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
         devPath.transform(viewMatrix);
 
         SkMask srcM, dstM;
-        if (!SkDraw::DrawToMask(devPath, &clipBounds, filter, &viewMatrix, &srcM,
+        if (!SkDraw::DrawToMask(devPath, clipBounds, filter, &viewMatrix, &srcM,
                                 SkMask::kComputeBoundsAndRenderImage_CreateMode, fillOrHairline)) {
             return {};
         }
@@ -237,12 +237,17 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> create_mask_GPU(
 
 static bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkMatrix& matrix,
                                            SkIRect* devBounds) {
-    SkRect shapeBounds = shape.styledBounds();
-    if (shapeBounds.isEmpty()) {
-        return false;
-    }
     SkRect shapeDevBounds;
-    matrix.mapRect(&shapeDevBounds, shapeBounds);
+    if (shape.inverseFilled()) {
+        shapeDevBounds = {SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
+                          SK_ScalarInfinity, SK_ScalarInfinity};
+    } else {
+        SkRect shapeBounds = shape.styledBounds();
+        if (shapeBounds.isEmpty()) {
+            return false;
+        }
+        matrix.mapRect(&shapeDevBounds, shapeBounds);
+    }
     // Even though these are "unclipped" bounds we still clip to the int32_t range.
     // This is the largest int32_t that is representable exactly as a float. The next 63 larger ints
     // would round down to this value when cast to a float, but who really cares.

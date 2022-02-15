@@ -84,7 +84,7 @@ public:
 
     void paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) const override;
 
-    static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect* clipBounds,
+    static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect& clipBounds,
                                   const SkMaskFilter* filter, const SkMatrix* filterMatrix,
                                   SkIRect* bounds);
 
@@ -93,7 +93,7 @@ public:
         that must be done afterwards (by calling filterMask). The maskfilter is provided
         solely to assist in computing the mask's bounds (if the mode requests that).
     */
-    static bool DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
+    static bool DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
                            const SkMaskFilter*, const SkMatrix* filterMatrix,
                            SkMask* mask, SkMask::CreateMode mode,
                            SkStrokeRec::InitStyle style);

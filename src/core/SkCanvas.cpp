@@ -2129,7 +2129,7 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
         return;
     }
 
-    auto layer = this->aboutToDraw(this, paint, &pathBounds);
+    auto layer = this->aboutToDraw(this, paint, path.isInverseFillType() ? nullptr : &pathBounds);
     if (layer) {
         this->topDevice()->drawPath(path, layer->paint());
     }
