@@ -9,10 +9,12 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/chromium/GrSlug.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/GrClip.h"
@@ -2611,17 +2613,20 @@ namespace {
 // -- Slug -----------------------------------------------------------------------------------------
 class Slug final : public GrSlug, public SkGlyphRunPainterInterface {
 public:
-    static sk_sp<Slug> Make(const SkMatrixProvider& viewMatrix,
-                            const SkGlyphRunList& glyphRunList,
-                            const SkPaint& paint,
-                            const GrSDFTControl& control,
-                            SkGlyphRunListPainter* painter);
     Slug(SkRect sourceBounds,
          const SkPaint& paint,
          const SkMatrix& positionMatrix,
          SkPoint origin,
          int allocSize);
     ~Slug() override = default;
+
+    static sk_sp<Slug> Make(const SkMatrixProvider& viewMatrix,
+                            const SkGlyphRunList& glyphRunList,
+                            const SkPaint& paint,
+                            const GrSDFTControl& control,
+                            SkGlyphRunListPainter* painter);
+    static sk_sp<GrSlug> MakeFromBuffer(SkReadBuffer& buffer,
+                                        const SkStrikeClient* client);
 
     void surfaceDraw(SkCanvas*,
                      const GrClip* clip,
@@ -2665,7 +2670,7 @@ public:
             subRunCount += 1;
             unflattenSizeHint += subrun.unflattenSize();
         }
-        return {subRunCount, unflattenSizeHint + sizeof(Slug)};
+        return {subRunCount, unflattenSizeHint};
     }
 
 private:
@@ -2695,6 +2700,51 @@ void Slug::surfaceDraw(SkCanvas* canvas, const GrClip* clip, const SkMatrixProvi
     for (const GrSubRun& subRun : fSubRuns) {
         subRun.draw(canvas, clip, viewMatrix, fOrigin, fPaint, sdc);
     }
+}
+
+void Slug::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeRect(fSourceBounds);
+    SkPaintPriv::Flatten(fPaint, buffer);
+    buffer.writeMatrix(fInitialPositionMatrix);
+    buffer.writePoint(fOrigin);
+    auto [subRunCount, subRunsUnflattenSizeHint] = this->subRunCountAndUnflattenSizeHint();
+    buffer.writeInt(subRunCount);
+    buffer.writeInt(subRunsUnflattenSizeHint);
+    /* This will be uncommented when the serialize-runs CL goes in.
+    for (auto& subRun : fSubRuns) {
+        subRun.flatten(buffer);
+    }
+     */
+}
+
+sk_sp<GrSlug> Slug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
+    SkRect sourceBounds = buffer.readRect();
+    if (!buffer.validate(!sourceBounds.isEmpty())) { return nullptr; }
+
+    SkPaint paint = buffer.readPaint();
+    SkMatrix positionMatrix;
+    buffer.readMatrix(&positionMatrix);
+    SkPoint origin = buffer.readPoint();
+    int subRunCount = buffer.readInt();
+    if (!buffer.validate(subRunCount != 0)) { return nullptr; }
+    int subRunsUnflattenSizeHint = buffer.readInt();
+
+    sk_sp<Slug> slug{new (::operator new (sizeof(Slug) + subRunsUnflattenSizeHint))
+                             Slug(sourceBounds,
+                                  paint,
+                                  positionMatrix,
+                                  origin,
+                                  subRunsUnflattenSizeHint)};
+    /* This will be uncommented when the serialize-runs CL goes in.
+    for (int i = 0; i < subRunCount; ++i) {
+        slug->fSubRuns.append(GrSubRun::MakeFromBuffer(slug.get(), buffer, &slug->fAlloc, client));
+    }
+     */
+
+    // Something went wrong while reading.
+    if (!buffer.isValid()) { return nullptr;}
+
+    return std::move(slug);
 }
 
 // -- DirectMaskSubRunSlug -------------------------------------------------------------------------
@@ -3177,8 +3227,6 @@ void Slug::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& accepted,
 
     add_multi_mask_format(addGlyphsWithSameFormat, accepted, std::move(strike));
 }
-
-void Slug::flatten(SkWriteBuffer& buffer) const { SK_ABORT("Not implemented."); }
 }  // namespace
 
 namespace skgpu::v1 {
@@ -3222,3 +3270,7 @@ sk_sp<GrSlug> MakeSlug(const SkMatrixProvider& drawMatrix,
     return Slug::Make(drawMatrix, glyphRunList, paint, control, painter);
 }
 }  // namespace skgpu::v1
+
+sk_sp<GrSlug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
+    return Slug::MakeFromBuffer(buffer, client);
+}
