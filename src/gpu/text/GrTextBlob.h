@@ -34,6 +34,7 @@ class GrStrikeCache;
 class GrSubRun;
 
 class SkMatrixProvider;
+class SkStrikeClient;
 class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
@@ -105,6 +106,11 @@ public:
                       skgpu::v1::SurfaceDrawContext*) const = 0;
 
     virtual const GrBlobSubRun* blobCast() const;
+    void flatten(SkWriteBuffer& buffer) const;
+    static GrSubRunOwner MakeFromBuffer(const GrTextReferenceFrame* referenceFrame,
+                                        SkReadBuffer& buffer,
+                                        GrSubRunAllocator* alloc,
+                                        const SkStrikeClient* client);
 
     // Size hint for unflattening this run. If this is accurate, it will help with the allocation
     // of the slug. If it's off then there may be more allocations needed to unflatten.
@@ -113,6 +119,7 @@ public:
 protected:
     enum SubRunType : int;
     virtual SubRunType subRunType() const = 0;
+    virtual void doFlatten(SkWriteBuffer& buffer) const = 0;
 
 private:
     friend class GrSubRunList;
