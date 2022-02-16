@@ -49180,7 +49180,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-i5-4278U",
-        "os:Mac-10.14.3",
+        "os:Mac-10.14",
         "pool:Skia"
       ],
       "environment": {
@@ -49290,7 +49290,7 @@
       ],
       "dimensions": [
         "cpu:x86-64",
-        "os:Mac-10.14.6",
+        "os:Mac-10.14",
         "pool:Skia"
       ],
       "environment": {
