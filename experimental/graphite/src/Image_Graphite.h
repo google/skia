@@ -10,6 +10,8 @@
 
 #include "src/image/SkImage_Base.h"
 
+#include "experimental/graphite/src/TextureProxyView.h"
+
 namespace skgpu {
 
 class Image_Graphite final : public SkImage_Base {
@@ -65,6 +67,12 @@ private:
             const SkMatrix&,
             const SkRect* subset,
             const SkRect* domain) const override;
+
+    std::tuple<TextureProxyView, SkColorType> onAsView(
+            Recorder*,
+            Mipmapped) const /*override*/ {
+        return {};
+    }
 #endif
 
 };
