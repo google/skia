@@ -11,9 +11,99 @@
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkShaderCodeDictionary.h"
 
+//--------------------------------------------------------------------------------------------------
+SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* dict)
+        : fDict(dict) {
+}
+
+// Block headers have the following structure:
+//  1st byte: codeSnippetID
+//  2nd byte: total blockSize in bytes
+// This call stores the header's offset in the key on the stack to be used in 'endBlock'
+void SkPaintParamsKeyBuilder::beginBlock(int codeSnippetID) {
+    if (!this->isValid()) {
+        return;
+    }
+
+    if (codeSnippetID < 0 || codeSnippetID > fDict->maxCodeSnippetID()) {
+        this->makeInvalid();
+        return;
+    }
+
+    fData.reserve_back(SkPaintParamsKey::kBlockHeaderSizeInBytes);
+    fStack.push_back({ codeSnippetID, this->sizeInBytes() });
+
+    this->addByte(SkTo<uint8_t>(codeSnippetID));
+    this->addByte(0);  // this needs to be patched up with a call to endBlock
+}
+
+// Update the size byte of a block header
+void SkPaintParamsKeyBuilder::endBlock() {
+    if (!this->isValid()) {
+        return;
+    }
+
+    if (fStack.empty()) {
+        SkASSERT(0);
+        this->makeInvalid();
+        return;
+    }
+
+    int headerOffset = fStack.back().fHeaderOffset;
+
+    SkASSERT(fData[headerOffset] == fStack.back().fCodeSnippetID);
+    SkASSERT(fData[headerOffset+SkPaintParamsKey::kBlockSizeOffsetInBytes] == 0);
+
+    int blockSize = this->sizeInBytes() - headerOffset;
+    if (blockSize > SkPaintParamsKey::kMaxBlockSize) {
+        this->makeInvalid();
+        return;
+    }
+
+    fData[headerOffset+SkPaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
+
+    fStack.pop_back();
+}
+
+void SkPaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
+    if (!this->isValid()) {
+        return;
+    }
+
+    fData.push_back_n(numBytes, data);
+}
+
+std::unique_ptr<SkPaintParamsKey> SkPaintParamsKeyBuilder::snap() {
+    if (!fStack.empty()) {
+        this->makeInvalid();  // fall through
+    }
+
+    auto key = std::unique_ptr<SkPaintParamsKey>(new SkPaintParamsKey(std::move(fData)));
+
+    // Reset for reuse
+    fIsValid = true;
+    fStack.clear();
+
+    return key;
+}
+
+void SkPaintParamsKeyBuilder::makeInvalid() {
+    SkASSERT(fIsValid);
+
+    fStack.clear();
+    fData.reset();
+    this->beginBlock(SkBuiltInCodeSnippetID::kError);
+    this->endBlock();
+
+    SkASSERT(fIsValid);
+    fIsValid = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+SkPaintParamsKey::SkPaintParamsKey(SkTArray<uint8_t, true>&& data) : fData(std::move(data)) {}
+
 bool SkPaintParamsKey::operator==(const SkPaintParamsKey& that) const {
-    return fNumBytes == that.fNumBytes &&
-           !memcmp(fData.data(), that.fData.data(), fNumBytes);
+    return fData == that.fData;
 }
 
 #ifdef SK_DEBUG

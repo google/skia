@@ -30,7 +30,7 @@ public:
 
     void addToKey(SkShaderCodeDictionary*,
                   SkBackend,
-                  SkPaintParamsKey*,
+                  SkPaintParamsKeyBuilder*,
                   SkUniformBlock*) const override;
 
 protected:

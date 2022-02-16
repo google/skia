@@ -29,7 +29,7 @@ class SkColorSpace;
 class SkImage;
 struct SkImageInfo;
 class SkPaint;
-class SkPaintParamsKey;
+class SkPaintParamsKeyBuilder;
 class SkRasterPipeline;
 class SkRuntimeEffect;
 class SkShaderCodeDictionary;
@@ -220,12 +220,12 @@ public:
 
         @param dictionary   dictionary of code fragments available to be used in the key
         @param backend      the backend that would be carrying out the drawing
-        @param key          destination for implementation details of this SkShader
+        @param builder      builder for creating the key for this SkShader
         @param uniformBlock if non-null, storage for this shader's uniform data
     */
     virtual void addToKey(SkShaderCodeDictionary* dictionary,
                           SkBackend backend,
-                          SkPaintParamsKey* key,
+                          SkPaintParamsKeyBuilder* builder,
                           SkUniformBlock* uniformBlock) const;
 
 protected:

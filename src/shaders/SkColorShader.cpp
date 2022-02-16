@@ -139,14 +139,15 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
 
 void SkColorShader::addToKey(SkShaderCodeDictionary* dict,
                              SkBackend backend,
-                             SkPaintParamsKey* key,
+                             SkPaintParamsKeyBuilder* builder,
                              SkUniformBlock* uniformBlock) const {
-    SolidColorShaderBlock::AddToKey(dict, backend, key, uniformBlock, SkColor4f::FromColor(fColor));
+    SolidColorShaderBlock::AddToKey(dict, backend, builder, uniformBlock,
+                                    SkColor4f::FromColor(fColor));
 }
 
 void SkColor4Shader::addToKey(SkShaderCodeDictionary* dict,
                               SkBackend backend,
-                              SkPaintParamsKey* key,
+                              SkPaintParamsKeyBuilder* builder,
                               SkUniformBlock* uniformBlock) const {
-    SolidColorShaderBlock::AddToKey(dict, backend, key, uniformBlock, fColor);
+    SolidColorShaderBlock::AddToKey(dict, backend, builder, uniformBlock, fColor);
 }

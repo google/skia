@@ -18,7 +18,7 @@
 enum class SkBackend : uint8_t;
 struct GrFPArgs;
 class GrFragmentProcessor;
-class SkPaintParamsKey;
+class SkPaintParamsKeyBuilder;
 class SkRuntimeEffect;
 class SkShaderCodeDictionary;
 class SkUniformBlock;
@@ -60,7 +60,7 @@ public:
     // TODO: make pure virtual
     virtual void addToKey(SkShaderCodeDictionary*,
                           SkBackend,
-                          SkPaintParamsKey*,
+                          SkPaintParamsKeyBuilder*,
                           SkUniformBlock*) const;
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }

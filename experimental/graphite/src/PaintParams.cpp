@@ -42,22 +42,22 @@ sk_sp<SkShader> PaintParams::refShader() const { return fShader; }
 
 void PaintParams::toKey(SkShaderCodeDictionary* dict,
                         SkBackend backend,
-                        SkPaintParamsKey* key,
+                        SkPaintParamsKeyBuilder* builder,
                         SkUniformBlock* uniformBlock) const {
 
     if (fShader) {
-        as_SB(fShader)->addToKey(dict, backend, key, uniformBlock);
+        as_SB(fShader)->addToKey(dict, backend, builder, uniformBlock);
     } else {
-        SolidColorShaderBlock::AddToKey(dict, backend, key, uniformBlock, fColor);
+        SolidColorShaderBlock::AddToKey(dict, backend, builder, uniformBlock, fColor);
     }
 
     if (fBlender) {
-        as_BB(fBlender)->addToKey(dict, backend, key, uniformBlock);
+        as_BB(fBlender)->addToKey(dict, backend, builder, uniformBlock);
     } else {
-        BlendModeBlock::AddToKey(dict, backend, key, uniformBlock, SkBlendMode::kSrcOver);
+        BlendModeBlock::AddToKey(dict, backend, builder, uniformBlock, SkBlendMode::kSrcOver);
     }
 
-    SkASSERT(key->sizeInBytes() > 0);
+    SkASSERT(builder->sizeInBytes() > 0);
 }
 
 } // namespace skgpu

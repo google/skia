@@ -33,7 +33,7 @@ public:
 #endif
     void addToKey(SkShaderCodeDictionary*,
                   SkBackend,
-                  SkPaintParamsKey*,
+                  SkPaintParamsKeyBuilder*,
                   SkUniformBlock*) const override;
 
 private:
@@ -67,7 +67,7 @@ public:
 #endif
     void addToKey(SkShaderCodeDictionary*,
                   SkBackend,
-                  SkPaintParamsKey*,
+                  SkPaintParamsKeyBuilder*,
                   SkUniformBlock*) const override;
 
 private:

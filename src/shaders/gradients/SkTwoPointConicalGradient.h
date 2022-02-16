@@ -53,7 +53,7 @@ public:
 #endif
     void addToKey(SkShaderCodeDictionary*,
                   SkBackend,
-                  SkPaintParamsKey*,
+                  SkPaintParamsKeyBuilder*,
                   SkUniformBlock*) const override;
 
     bool isOpaque() const override;

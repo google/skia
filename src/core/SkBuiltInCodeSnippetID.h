@@ -16,6 +16,8 @@ enum class SkBuiltInCodeSnippetID : uint8_t {
     // draw that originated from a PaintParams.
     kDepthStencilOnlyDraw,
 
+    kError,
+
     // SkShader code snippets
     kSolidColorShader,
     kLinearGradientShader,

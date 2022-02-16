@@ -91,7 +91,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
             }
 
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
-                SkPaintParamsKey expected = CreateKey(dict, SkBackend::kGraphite, s, tm, bm);
+                std::unique_ptr<SkPaintParamsKey> expected = CreateKey(dict, SkBackend::kGraphite,
+                                                                       s, tm, bm);
 
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
                 auto [ actualID, uniformBlock] = ExtractPaintData(dict, PaintParams(p));
@@ -100,7 +101,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
                 auto entry = dict->lookup(actualID);
 
 
-                REPORTER_ASSERT(reporter, expected == entry->paintParamsKey());
+                REPORTER_ASSERT(reporter, *expected == *entry->paintParamsKey());
                 REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);
                 for (auto& u : *uniformBlock) {
                     for (int i = 0; i < u->count(); ++i) {

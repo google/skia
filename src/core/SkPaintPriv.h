@@ -72,9 +72,9 @@ public:
         @param backend    the backend that would be carrying out the drawing
         @return           the SkPaintParamsKeys that would be needed to draw this paint
     */
-    static std::vector<SkPaintParamsKey> ToKeys(const SkPaint& paint,
-                                                SkShaderCodeDictionary* dictionary,
-                                                SkBackend backend);
+    static std::vector<std::unique_ptr<SkPaintParamsKey>> ToKeys(const SkPaint& paint,
+                                                                 SkShaderCodeDictionary* dictionary,
+                                                                 SkBackend backend);
 };
 
 #endif

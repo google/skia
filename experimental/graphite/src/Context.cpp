@@ -73,20 +73,21 @@ void Context::preCompile(const PaintCombo& paintCombo) {
             &Renderer::StencilAndFillPath(SkPathFillType::kInverseEvenOdd)
     };
 
+    SkShaderCodeDictionary* dict = fGlobalCache->shaderCodeDictionary();
+
     for (auto bm: paintCombo.fBlendModes) {
         for (auto& shaderCombo: paintCombo.fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
                 for (auto tm: shaderCombo.fTileModes) {
-                    SkPaintParamsKey key = CreateKey(fGlobalCache->shaderCodeDictionary(),
-                                                     SkBackend::kGraphite, shaderType, tm, bm);
+                    std::unique_ptr<SkPaintParamsKey> key = CreateKey(dict, SkBackend::kGraphite,
+                                                                      shaderType, tm, bm);
+                    auto entry = dict->findOrCreate(std::move(key));
 
                     GraphicsPipelineDesc desc;
 
                     for (const Renderer* r : kRenderers) {
                         for (auto&& s : r->steps()) {
                             if (s->performsShading()) {
-                                auto entry =
-                                        fGlobalCache->shaderCodeDictionary()->findOrCreate(key);
                                 desc.setProgram(s, entry->uniqueID());
                             }
                             // TODO: Combine with renderpass description set to generate full

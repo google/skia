@@ -124,33 +124,33 @@ SkScalar SkPaintPriv::ComputeResScaleForStroking(const SkMatrix& matrix) {
     return 1;
 }
 
-std::vector<SkPaintParamsKey> SkPaintPriv::ToKeys(const SkPaint& paint,
-                                                  SkShaderCodeDictionary* dict,
-                                                  SkBackend backend) {
-    std::vector<SkPaintParamsKey> keys;
+std::vector<std::unique_ptr<SkPaintParamsKey>> SkPaintPriv::ToKeys(const SkPaint& paint,
+                                                                   SkShaderCodeDictionary* dict,
+                                                                   SkBackend backend) {
+    std::vector<std::unique_ptr<SkPaintParamsKey>> keys;
 
     // TODO: actually split the SkPaint into multiple PaintParams and generate the keys
     // for them separately.
     // TODO: actually collect and return the SkUniformData vector for each PaintParams derived
     // from the SkPaint
     {
-        SkPaintParamsKey key;
+        SkPaintParamsKeyBuilder builder(dict);
 
         if (paint.getShader()) {
-            as_SB(paint.getShader())->addToKey(dict, backend, &key, nullptr);
+            as_SB(paint.getShader())->addToKey(dict, backend, &builder, nullptr);
         } else {
-            SolidColorShaderBlock::AddToKey(dict, backend, &key, nullptr, paint.getColor4f());
+            SolidColorShaderBlock::AddToKey(dict, backend, &builder, nullptr, paint.getColor4f());
         }
 
         if (paint.getBlender()) {
-            as_BB(paint.getBlender())->addToKey(dict, backend, &key, nullptr);
+            as_BB(paint.getBlender())->addToKey(dict, backend, &builder, nullptr);
         } else {
-            BlendModeBlock::AddToKey(dict, backend, &key, nullptr, SkBlendMode::kSrcOver);
+            BlendModeBlock::AddToKey(dict, backend, &builder, nullptr, SkBlendMode::kSrcOver);
         }
 
-        SkASSERT(key.sizeInBytes() > 0);
+        SkASSERT(builder.sizeInBytes() > 0);
 
-        keys.push_back(key);
+        keys.push_back(builder.snap());
     }
 
     return keys;

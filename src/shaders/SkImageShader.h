@@ -46,7 +46,7 @@ public:
 
     void addToKey(SkShaderCodeDictionary*,
                   SkBackend,
-                  SkPaintParamsKey*,
+                  SkPaintParamsKeyBuilder*,
                   SkUniformBlock*) const override;
 
     static SkM44 CubicResamplerMatrix(float B, float C);

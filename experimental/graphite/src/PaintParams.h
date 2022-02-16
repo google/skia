@@ -12,7 +12,7 @@
 #include "include/core/SkPaint.h"
 
 enum class SkBackend : uint8_t;
-class SkPaintParamsKey;
+class SkPaintParamsKeyBuilder;
 class SkShader;
 class SkShaderCodeDictionary;
 class SkUniformBlock;
@@ -46,7 +46,7 @@ public:
 
     void toKey(SkShaderCodeDictionary*,
                SkBackend,
-               SkPaintParamsKey*,
+               SkPaintParamsKeyBuilder*,
                SkUniformBlock*) const;
 
 private:

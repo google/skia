@@ -7,6 +7,7 @@
 
 #include "experimental/graphite/src/ContextPriv.h"
 
+#include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
 
 namespace skgpu {
@@ -17,6 +18,10 @@ Gpu* ContextPriv::gpu() {
 
 const Gpu* ContextPriv::gpu() const {
     return fContext->fGpu.get();
+}
+
+SkShaderCodeDictionary* ContextPriv::shaderCodeDictionary() {
+    return fContext->fGlobalCache->shaderCodeDictionary();
 }
 
 } // namespace skgpu

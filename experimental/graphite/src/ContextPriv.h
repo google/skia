@@ -10,6 +10,8 @@
 
 #include "experimental/graphite/include/Context.h"
 
+class SkShaderCodeDictionary;
+
 namespace skgpu {
 
 class GlobalCache;
@@ -23,6 +25,8 @@ class ContextPriv {
 public:
     Gpu* gpu();
     const Gpu* gpu() const;
+
+    SkShaderCodeDictionary* shaderCodeDictionary();
 
 private:
     friend class Context; // to construct/copy this type.
