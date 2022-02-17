@@ -190,7 +190,11 @@ void MSKPSlide::load(SkScalar, SkScalar) {
 
 void MSKPSlide::unload() { fPlayer.reset(); }
 
-void MSKPSlide::gpuTeardown() { fPlayer->resetLayers(); }
+void MSKPSlide::gpuTeardown() {
+    if (fPlayer) {
+        fPlayer->resetLayers();
+    }
+}
 
 void MSKPSlide::redrawLayers() {
     if (fDrawLayerID >= 0) {
