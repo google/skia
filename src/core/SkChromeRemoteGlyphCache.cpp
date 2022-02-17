@@ -1208,9 +1208,7 @@ bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
 }
 
 #if SK_SUPPORT_GPU
-// Entry point for making slugs from the Slug class in GrTextBlob.cpp
-sk_sp<GrSlug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 sk_sp<GrSlug> SkStrikeClient::makeSlugFromBuffer(SkReadBuffer& buffer) const {
-    return SkMakeSlugFromBuffer(buffer, this);
+    return GrSlug::MakeFromBuffer(buffer, this);
 }
 #endif  // SK_SUPPORT_GPU

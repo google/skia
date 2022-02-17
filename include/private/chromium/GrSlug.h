@@ -14,7 +14,9 @@
 class SkCanvas;
 class SkMatrix;
 class SkPaint;
+class SkReadBuffer;
 class SkTextBlob;
+class SkStrikeClient;
 class SkWriteBuffer;
 
 // You can use GrSlug to simulate drawTextBlob by defining the following at compile time.
@@ -40,6 +42,9 @@ public:
     // some paint optimization. The GrSlug is captured as if drawn using drawTextBlob.
     static sk_sp<GrSlug> ConvertBlob(
             SkCanvas* canvas, const SkTextBlob& blob, SkPoint origin, const SkPaint& paint);
+
+    // Set the client parameter to nullptr if no typeface ID translation is needed.
+    static sk_sp<GrSlug> MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 
     // Draw the GrSlug obeying the canvas's mapping and clipping.
     void draw(SkCanvas* canvas);

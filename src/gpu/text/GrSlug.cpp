@@ -16,6 +16,12 @@ sk_sp<GrSlug> GrSlug::ConvertBlob(
         SkCanvas* canvas, const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
     return canvas->convertBlobToSlug(blob, origin, paint);
 }
+
+sk_sp<GrSlug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
+sk_sp<GrSlug> GrSlug::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
+    return SkMakeSlugFromBuffer(buffer, client);
+}
+
 void GrSlug::draw(SkCanvas* canvas) {
     canvas->drawSlug(this);
 }
