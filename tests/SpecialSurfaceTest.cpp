@@ -87,8 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
         SkImageInfo ii = SkImageInfo::Make({ kSmallerSize, kSmallerSize }, colorType,
                                            kPremul_SkAlphaType);
 
-        auto surf(SkSpecialSurface::MakeRenderTarget(dContext, ii, SkSurfaceProps(),
-                                                     kTopLeft_GrSurfaceOrigin));
+        auto surf(SkSpecialSurface::MakeRenderTarget(dContext, ii, SkSurfaceProps()));
         test_surface(surf, reporter, 0);
     }
 }

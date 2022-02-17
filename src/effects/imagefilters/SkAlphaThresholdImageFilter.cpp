@@ -193,7 +193,6 @@ sk_sp<SkSpecialImage> SkAlphaThresholdImageFilter::onFilterImage(const Context& 
         GrSurfaceProxyView inputView = (input->view(context));
         SkASSERT(inputView.asTextureProxy());
         const GrProtected isProtected = inputView.proxy()->isProtected();
-        const GrSurfaceOrigin origin = inputView.origin();
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
@@ -228,7 +227,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdImageFilter::onFilterImage(const Context& 
         }
 
         return DrawWithFP(context, std::move(thresholdFP), bounds, ctx.colorType(),
-                          ctx.colorSpace(), ctx.surfaceProps(), origin, isProtected);
+                          ctx.colorSpace(), ctx.surfaceProps(), isProtected);
     }
 #endif
 

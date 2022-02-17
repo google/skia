@@ -176,7 +176,6 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(const Context& ctx,
         SkASSERT(inputView.asTextureProxy());
 
         const auto isProtected = inputView.proxy()->isProtected();
-        const auto origin = inputView.origin();
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
@@ -205,7 +204,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(const Context& ctx,
         }
 
         return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
-                          ctx.surfaceProps(), origin, isProtected);
+                          ctx.surfaceProps(), isProtected);
     }
 #endif
 

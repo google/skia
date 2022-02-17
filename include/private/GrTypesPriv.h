@@ -1077,14 +1077,6 @@ static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType com
     }
     SkUNREACHABLE;
 }
-
-static constexpr const char* GrSurfaceOriginToStr(GrSurfaceOrigin origin) {
-    switch (origin) {
-        case kTopLeft_GrSurfaceOrigin:    return "kTopLeft";
-        case kBottomLeft_GrSurfaceOrigin: return "kBottomLeft";
-    }
-    SkUNREACHABLE;
-}
 #endif
 
 #endif

@@ -217,7 +217,6 @@ tests_sources = [
   "$_tests/SVGDeviceTest.cpp",
   "$_tests/SafeMathTest.cpp",
   "$_tests/SamplingTest.cpp",
-  "$_tests/SaveLayerOriginTest.cpp",
   "$_tests/ScalarTest.cpp",
   "$_tests/ScaleToSidesTest.cpp",
   "$_tests/SerialProcsTest.cpp",
