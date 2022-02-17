@@ -548,7 +548,9 @@ static inline bool skpaint_to_grpaint_impl(
 
 #ifndef SK_IGNORE_GPU_DITHER
     GrColorType ct = dstColorInfo.colorType();
-    const bool shaderOverride = SkToBool(paintFP);
+    // Checking shaderFP.has_value() detects the SkPaintToGrPaintReplaceShader scenario even if the
+    // parameter was initialized with a nullptr (signaling a GP varying color).
+    const bool shaderOverride = SkToBool(paintFP) && (shaderFP.has_value() || primColorBlender);
     if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct), shaderOverride)) {
         float ditherRange = dither_range_for_config(ct);
         paintFP = make_dither_effect(
