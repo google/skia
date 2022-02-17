@@ -164,13 +164,8 @@ static CGColorRef CGColorForSkColor(CGColorSpaceRef rgbcs, SkColor bgra) {
 }
 
 SkScalerContext_Mac::Offscreen::Offscreen(SkColor foregroundColor)
-    // It doesn't appear to matter what color space is specified.
-    // Regular blends and antialiased text are always (s*a + d*(1-a))
-    // and subpixel antialiased text is always g=2.0.
-    // However, we need to specify one anyway.
-    : fRGBSpace(CGColorSpaceCreateDeviceRGB())
-    , fCG(nullptr)
-    , fForegroundColor(CGColorForSkColor(fRGBSpace.get(), foregroundColor))
+    : fCG(nullptr)
+    , fSKForegroundColor(foregroundColor)
     , fDoAA(false)
     , fDoLCD(false)
 {
@@ -181,6 +176,14 @@ CGRGBPixel* SkScalerContext_Mac::Offscreen::getCG(const SkScalerContext_Mac& con
                                                   const SkGlyph& glyph, CGGlyph glyphID,
                                                   size_t* rowBytesPtr,
                                                   bool generateA8FromLCD) {
+    if (!fRGBSpace) {
+        //It doesn't appear to matter what color space is specified.
+        //Regular blends and antialiased text are always (s*a + d*(1-a))
+        //and subpixel antialiased text is always g=2.0.
+        fRGBSpace.reset(CGColorSpaceCreateDeviceRGB());
+        fCGForegroundColor.reset(CGColorForSkColor(fRGBSpace.get(), fSKForegroundColor));
+    }
+
     // default to kBW_Format
     bool doAA = false;
     bool doLCD = false;
@@ -238,7 +241,7 @@ CGRGBPixel* SkScalerContext_Mac::Offscreen::getCG(const SkScalerContext_Mac& con
             // Draw black on white to create mask. (Special path exists to speed this up in CG.)
             CGContextSetGrayFillColor(fCG.get(), 0.0f, 1.0f);
         } else {
-            CGContextSetFillColorWithColor(fCG.get(), fForegroundColor.get());
+            CGContextSetFillColorWithColor(fCG.get(), fCGForegroundColor.get());
         }
 
         // force our checks below to happen
