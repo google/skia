@@ -3277,6 +3277,10 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
                                  uniqueID);
     }
 
+    // There is nothing to draw here. This is particularly a problem with RSX form blobs where a
+    // single space becomes a run with no glyphs.
+    if (slug->fSubRuns.isEmpty()) { return nullptr; }
+
     return slug;
 }
 
